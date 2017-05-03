@@ -1,0 +1,21 @@
+language: node_js
+node_js:
+  - "stable"
+
+notifications:
+  email: false
+
+dist: trusty
+sudo: false
+
+addons:
+  apt:
+    packages:
+     - fluxbox
+
+before_script:
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
+  - sleep 3
+  - fluxbox >/dev/null 2>&1 &
+  - stty cols 80

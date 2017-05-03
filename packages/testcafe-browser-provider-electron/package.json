@@ -1,0 +1,57 @@
+{
+  "name": "testcafe-browser-provider-electron",
+  "version": "0.0.1",
+  "description": "TestCafe browser provider plugin for testing applications built with Electron.",
+  "repository": "https://github.com/DevExpress/testcafe-browser-provider-electron",
+  "homepage": "https://github.com/DevExpress/testcafe-browser-provider-electron",
+  "author": {
+    "name": "Developer Express Inc.",
+    "url": "https://devexpress.com"
+  },
+  "main": "lib/index.js",
+  "files": [
+    "lib",
+    "utils"
+  ],
+  "scripts": {
+    "test": "gulp test",
+    "publish-please": "publish-please",
+    "prepublish": "publish-please guard"
+  },
+  "keywords": [
+    "testcafe",
+    "browser provider",
+    "plugin",
+    "electron"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "babel-runtime": "^6.11.6",
+    "os-family": "^1.0.0",
+    "pify": "^2.3.0",
+    "pinkie": "^2.0.4",
+    "proxyquire": "^1.7.10",
+    "testcafe-browser-tools": "^1.0.0"
+  },
+  "peerDependencies": {
+    "electron": "*",
+    "testcafe": "*"
+  },
+  "devDependencies": {
+    "babel-eslint": "^6.1.2",
+    "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-plugin-transform-runtime": "^6.12.0",
+    "babel-preset-es2015": "^6.13.2",
+    "babel-preset-es2015-loose": "^7.0.0",
+    "babel-preset-stage-3": "^6.11.0",
+    "del": "^2.0.0",
+    "electron": "*",
+    "gulp": "^3.9.0",
+    "gulp-babel": "^6.1.2",
+    "gulp-eslint": "^3.0.1",
+    "node-version": "^1.0.0",
+    "publish-please": "^2.1.4",
+    "testcafe": "*",
+    "tmp": "0.0.28"
+  }
+}

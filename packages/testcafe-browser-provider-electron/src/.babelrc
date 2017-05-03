@@ -1,0 +1,11 @@
+{
+  "compact": false,
+  "presets": [
+    "es2015-loose",
+    "babel-preset-stage-3"
+  ],
+  "plugins": [
+    "transform-runtime",
+    "add-module-exports"
+  ]
+}

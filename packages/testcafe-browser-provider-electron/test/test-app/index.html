@@ -1,0 +1,28 @@
+<html>
+    <head>
+        <title>TEST</title>
+    </head>
+    <body>
+        <h1>TEST ME</h1>
+        <script>
+            var { Menu } = require('electron').remote;
+            var foo      = require('./client.js').foo;
+
+            var contextMenu = Menu.buildFromTemplate([{
+                label: 'Test',
+
+                click () {
+                    window.contextMenuClicked = true;
+                }
+            }]);
+
+            window.addEventListener('contextmenu', e => {
+                e.preventDefault();
+
+                contextMenu.popup();
+            }, false);
+
+            document.querySelector('h1').textContent = foo();
+        </script>
+    </body>
+</html>
