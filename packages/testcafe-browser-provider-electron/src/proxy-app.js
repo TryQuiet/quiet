@@ -7,6 +7,8 @@ import resolveFileUrl from './utils/resolve-file-url';
 import MESSAGES from './messages';
 import CONSTANTS from './constants';
 
+const { WebContents } = process.atomBinding('web_contents');
+
 const NAVIGATION_EVENTS   = ['will-navigate', 'did-navigate'];
 
 var mainPath    = process.env[CONSTANTS.mainPathEnv];
@@ -18,18 +20,6 @@ var origLoadURL    = BrowserWindow.prototype.loadURL;
 var electronDialogsHandler = null;
 
 global[CONSTANTS.contextMenuGlobal] = null;
-
-
-function _disableNavigateEvents (webContents) {
-    var origOn = webContents.on;
-
-    webContents.on = (event, listener) => {
-        if (NAVIGATION_EVENTS.indexOf(event) > -1)
-            return;
-
-        origOn.call(webContents, event, listener);
-    };
-}
 
 function refineUrl (url) {
     if (OS.win)
@@ -54,10 +44,6 @@ BrowserWindow.prototype.loadURL = function (url) {
 
         if (config.openDevTools)
             this.webContents.openDevTools();
-
-        if (config.disableNavigateEvents)
-            _disableNavigateEvents(this.webContents);
-
     }
 
     return origLoadURL.call(this, url);
@@ -71,6 +57,16 @@ Menu.prototype.closePopup = function () {
     global[CONSTANTS.contextMenuGlobal]  = null;
 };
 
+if (config.disableNavigateEvents) {
+    var origOn = WebContents.prototype.on;
+
+    WebContents.prototype.on = function (event, listener) {
+        if (NAVIGATION_EVENTS.indexOf(event) > -1)
+            return;
+
+        origOn.call(this, event, listener);
+    };
+}
 function handleDialog (type, args) {
     if (!electronDialogsHandler)
         return void 0;
