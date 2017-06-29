@@ -53,9 +53,9 @@ __Optional.__ Alters path to the application. By default, the application path i
 
 __Optional.__ Overrides application command line arguments with the values specified in this option. It should be an array or an object with numeric keys.
 
-### disableNavigateEvents
+### enableNavigateEvents
 
-__Optional.__ If you use `did-navigate` or `will-navigate` webContent events to prevent navigation, disable them by setting this option to `true`.
+__Optional.__ `testcafe-browser-provider-electron` suppresses `did-navigate` and `will-navigate`  webContent events because you will be unable to run tests if these events are used to prevent navigation. You can enable them back by setting this option to `true`.
 
 ### openDevTools
 

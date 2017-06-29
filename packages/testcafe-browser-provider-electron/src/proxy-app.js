@@ -57,7 +57,7 @@ Menu.prototype.closePopup = function () {
     global[CONSTANTS.contextMenuGlobal]  = null;
 };
 
-if (config.disableNavigateEvents) {
+if (!config.enableNavigateEvents) {
     var origOn = WebContents.prototype.on;
 
     WebContents.prototype.on = function (event, listener) {
@@ -67,6 +67,7 @@ if (config.disableNavigateEvents) {
         origOn.call(this, event, listener);
     };
 }
+
 function handleDialog (type, args) {
     if (!electronDialogsHandler)
         return void 0;
