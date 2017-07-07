@@ -8,25 +8,32 @@ import CONSTANTS from '../constants';
 const PROTOCOL_RE = /^([\w-]+?)(?=\:\/\/)/;
 
 export default function (mainPath) {
-    var configDir = '';
-
     if (statSync(mainPath).isDirectory())
-        configDir = mainPath;
-    else
-        configDir = path.dirname(mainPath);
+        mainPath = path.join(mainPath, CONSTANTS.configFileName);
 
-    var configPath   = path.join(configDir, CONSTANTS.configFileName);
-    var configString = readFileSync(configPath).toString();
+    var mainDir      = path.dirname(mainPath);
+    var configString = readFileSync(mainPath).toString();
 
     var config = JSON.parse(configString);
 
-    if (!config.appPath)
-        config.appPath = mainPath;
-    else if (!isAbsolute(config.appPath))
-        config.appPath = path.resolve(configDir, config.appPath);
+    if (config.appPath) {
+        if (!isAbsolute(config.appPath))
+            config.appPath = path.resolve(mainDir, config.appPath);
+
+        config.appPath = require.resolve(config.appPath);
+    }
+
+    if (config.electronPath) {
+        if (!isAbsolute(config.electronPath))
+            config.electronPath = path.resolve(mainDir, config.electronPath);
+        else
+            config.electronPath = path.resolve(config.electronPath);
+    }
+    else
+        config.electronPath = require('electron');
 
     if (config.mainWindowUrl.indexOf('file:') === 0 || !PROTOCOL_RE.test(config.mainWindowUrl))
-        config.mainWindowUrl = resolveFileUrl(config.mainWindowUrl, mainPath);
+        config.mainWindowUrl = resolveFileUrl(mainDir, config.mainWindowUrl);
 
     return config;
 }
