@@ -1,6 +1,6 @@
 {
   "name": "testcafe-browser-provider-electron",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "TestCafe browser provider plugin for testing applications built with Electron.",
   "repository": "https://github.com/DevExpress/testcafe-browser-provider-electron",
   "homepage": "https://github.com/DevExpress/testcafe-browser-provider-electron",
@@ -11,7 +11,8 @@
   "main": "lib/index.js",
   "files": [
     "lib",
-    "utils"
+    "utils",
+    "templates"
   ],
   "scripts": {
     "test": "gulp test",
@@ -38,7 +39,6 @@
     "testcafe-browser-tools": "^1.0.0"
   },
   "peerDependencies": {
-    "electron": "*",
     "testcafe": "*"
   },
   "devDependencies": {
