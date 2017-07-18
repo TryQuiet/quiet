@@ -19,13 +19,13 @@ First, create a `.testcafe-electron-rc` file in the root directory of your Elect
 }
 ```
 
-When you run tests from the command line, specify the path to the directory where `.testcafe-electron-rc` resides prefixed with "electron:" :
+When you run tests from the command line, specify the path to the application root directory prefixed with "electron:" :
 
 ```
 testcafe "electron:/home/user/electron-app" "path/to/test/file.js"
 ```
 
-When you use API, pass the path to the directory where `.testcafe-electron-rc` resides prefixed with "electron:" to the `browsers()` method:
+When you use API, pass the application path with the "electron:" prefix to the `browsers()` method:
 
 ```js
 testCafe
