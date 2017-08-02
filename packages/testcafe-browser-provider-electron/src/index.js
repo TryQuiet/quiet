@@ -1,10 +1,9 @@
 import path from 'path';
 import { statSync } from 'fs';
 import browserTools from 'testcafe-browser-tools';
-import { exec as nodeExec } from 'child_process';
+import { exec } from 'child_process';
 import Promise from 'pinkie';
 import OS from 'os-family';
-import promisify from 'pify';
 import { getFreePorts } from 'endpoint-utils';
 import NodeDebug from './node-debug';
 import NodeInspect from './node-inspect';
@@ -16,8 +15,6 @@ import CONSTANTS from './constants';
 
 import { ClientFunction } from 'testcafe';
 
-
-const exec = promisify(nodeExec, Promise);
 
 const simplifyMenuItemLabel = label => label.replace(/[\s&]/g, '').toLowerCase();
 
@@ -84,14 +81,27 @@ function startElectron (config, ports) {
     var debugPortsArgs = `--debug-brk=${ports[0]} --inspect-brk=${ports[1]}`;
     var extraArgs      = config.appArgs ? ' ' + config.appArgs.join(' ') : '';
 
-    if (OS.win)
-        cmd = `start /D "${path.dirname(config.electronPath)}" .\\${path.basename(config.electronPath)} ${debugPortsArgs}${extraArgs}`;
-    else if (OS.mac && statSync(config.electronPath).isDirectory())
-        cmd = `open -n -a "${config.electronPath}" --args ${debugPortsArgs}${extraArgs}`;
+    if (OS.mac && statSync(config.electronPath).isDirectory())
+        cmd = `open -naW "${config.electronPath}" --args ${debugPortsArgs}${extraArgs}`;
     else
-        cmd = `"${config.electronPath}" ${debugPortsArgs}${extraArgs} 0<&- >/dev/null 2>&1 &`;
+        cmd = `"${config.electronPath}" ${debugPortsArgs}${extraArgs}`;
 
-    return exec(cmd, { stdio: 'inherit', shell: true });
+    return new Promise((resolve, reject) => {
+        var electronProcess = exec(cmd, (err, stdout) => {
+            if (!err)
+                return;
+
+            var errorStartIndex = stdout.indexOf(CONSTANTS.electronErrorMarker);
+
+            reject(new Error(stdout.substring(errorStartIndex + CONSTANTS.electronErrorMarker.length)));
+        });
+
+
+        electronProcess.stdout.on('data', data => {
+            if (data.toString().indexOf(CONSTANTS.electronStartedMarker) > -1)
+                resolve();
+        });
+    });
 }
 
 function wrapMenu (type, menu, index = []) {
@@ -154,7 +164,7 @@ const ElectronBrowserProvider = {
 
         var ports = await getFreePorts(2);
 
-        await startElectron(config, ports);
+        var electronPromise = startElectron(config, ports);
 
         var hookCode      = getHookCode(config, pageUrl);
         var debugClient   = new NodeDebug(ports[0]);
@@ -164,6 +174,8 @@ const ElectronBrowserProvider = {
             injectHookCode(debugClient, hookCode),
             injectHookCode(inspectClient, hookCode)
         ]);
+
+        await electronPromise;
     },
 
     async closeBrowser (id) {

@@ -3,11 +3,32 @@ import resolveFileUrl from './utils/resolve-file-url';
 
 import MESSAGES from './messages';
 import CONSTANTS from './constants';
+import ERRORS from './errors';
 
 
 const URL_QUERY_RE      = /\?.*$/;
 const NAVIGATION_EVENTS = ['will-navigate', 'did-navigate'];
 
+var loadingTimeout = null;
+var openedUrls     = [];
+
+
+function startLoadingTimeout (mainWindowUrl) {
+    if (loadingTimeout)
+        return;
+
+    loadingTimeout = setTimeout(() => {
+        process.stdout.write(ERRORS.render(ERRORS.mainUrlWasNotLoaded, { openedUrls, mainWindowUrl }));
+
+        setTimeout(() => process.exit(1), 100);
+    }, CONSTANTS.loadingTimeout);
+}
+
+function stopLoadingTimeout () {
+    clearTimeout(loadingTimeout);
+
+    loadingTimeout = 0;
+}
 
 function install (config, testPageUrl) {
     var { BrowserWindow, Menu, ipcMain, dialog } = require('electron');
@@ -25,12 +46,20 @@ function install (config, testPageUrl) {
     }
 
     BrowserWindow.prototype.loadURL = function (url) {
+        startLoadingTimeout(config.mainWindowUrl);
+
         var testUrl = stripQuery(url);
 
         if (url.indexOf('file:') === 0)
             testUrl = resolveFileUrl(config.appPath, testUrl);
 
+        openedUrls.push(testUrl);
+
         if (testUrl.toLowerCase() === config.mainWindowUrl.toLowerCase()) {
+            stopLoadingTimeout();
+
+            process.stdout.write(CONSTANTS.electronStartedMarker);
+
             BrowserWindow.prototype.loadURL = origLoadURL;
 
             url = testPageUrl;

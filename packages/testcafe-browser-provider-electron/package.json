@@ -29,6 +29,7 @@
   "dependencies": {
     "babel-runtime": "^6.11.6",
     "chrome-remote-interface": "^0.23.3",
+    "dedent": "^0.7.0",
     "endpoint-utils": "^1.0.2",
     "mustache": "^2.3.0",
     "os-family": "^1.0.0",
