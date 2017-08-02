@@ -1,31 +1,81 @@
 # testcafe-browser-provider-electron
 [![Build Status](https://travis-ci.org/DevExpress/testcafe-browser-provider-electron.svg)](https://travis-ci.org/DevExpress/testcafe-browser-provider-electron)
 
-This plugin allows you to test **Electron** applications with [TestCafe](http://devexpress.github.io/testcafe).
+Use this plugin to test **Electron** applications witn [TestCafe](http://devexpress.github.io/testcafe).
 
-## Install
+## Getting Started
+
+### Installation
 
 ```
 npm install testcafe-browser-provider-electron
 ```
 
-## Usage
+### Testing a JavaScript Application
 
-First, create a `.testcafe-electron-rc` file in the root directory of your Electron app. For more info, see the [Configuration](#configuration) section.
+If your JavaScript application runs in Electron, follow these steps to set up testing.
 
-```
-{
-  "mainWindowUrl": "./index.html"
-}
-```
+1. Create a `.testcafe-electron-rc` file in the root application directory. Include the following settings to this file.
 
-When you run tests from the command line, specify the path to the application root directory prefixed with "electron:" :
+    ```json
+    {
+      "mainWindowUrl": "./index.html"
+    }
+    ```
 
-```
-testcafe "electron:/home/user/electron-app" "path/to/test/file.js"
-```
+    An Electron app has a file that is loaded as a startup page. TestCafe waits until Electron loads this page and then runs tests. Specify the path to this file with `mainWindowUrl` option. If a relative path is specified, it is resolved from the `.testcafe-electron-rc` file location.
 
-When you use API, pass the application path with the "electron:" prefix to the `browsers()` method:
+    For information about other options, see the [Configuration](#configuration) section.
+
+2. Install the Electron module of the required version.
+
+    ```sh
+    npm install electron@latest
+    ```
+
+    The command above installs the latest version of the Electron executable.
+
+3. Define the path to the config file. Use browser provider postfix: `electron:<path_to_testcafe-electron-rc_directory>`. Then run tests.
+
+    ```sh
+    testcafe "electron:/home/user/electron-app" "<tests_directory>/**/*.js"
+    ```
+
+4. The `.testcafe-electron-rc` file might be not in the application rood directory. In that case specify the path to the configuration file like this:
+
+    ```json
+    {
+      "mainWindowUrl": "./index.html",
+      "appPath": "/home/user/my_app"  
+    }
+    ```
+    
+    In this instance, the `appPath` directory will be used as a working directory of the Electron application.
+    
+### Testing an Executable Electron Application
+
+If your Electron app is built it has `<your_app_name>.exe` or `electron.exe` file. In that case you don't need an Electron module to run tests. Perform the following steps instead.
+
+1. In the application directory, create a `.testcafe-electron-rc` file with the following settings.
+
+    ```json
+    {
+        "mainWindowUrl": "./index.html",
+        "electronPath": "/home/user/myElectronApp/electron"
+    }
+    ```
+    
+    `mainWindowUrl` points to the application startup page; `electronPath` defines the path to your application's executable file. If you specify relative paths, they will be resolved from the `.testcafe-electron-rc` file location.
+    
+2. When you run tests, define the path to the configuration file. To do so, add the browser provider postfix: `electron:<path_to_testcafe-electron-rc_directory>`.
+
+    ```sh
+    testcafe "electron:/home/user/electron-app" "<tests_directory>/**/*.js"
+    ```
+    
+### Launching Tests from API
+
+To launch tests through the API, specify the application path with `electron:` prefix and pass it to the `browsers` method.
 
 ```js
 testCafe
@@ -33,6 +83,28 @@ testCafe
     .src('path/to/test/file.js')
     .browsers('electron:/home/user/electron-app')
     .run();
+```
+
+### Specifying Target Webpage in Test Code
+
+In most cases, the target webpage is the main application page specified via the `mainWindowUrl` configuration option.
+
+```json
+{
+  "mainWindowUrl": "./index.html"
+}
+```
+
+```js
+fixture `Electron test`
+    .page('./index.html');
+```
+
+However, you can specify any application page if your app contains more than one.
+
+```js
+fixture `Electron test`
+    .page('./views/detail.html');
 ```
 
 ## Configuration
@@ -102,6 +174,21 @@ Parameter          | Type   | Description
  Check the properties available in the snapshot
  [here](https://github.com/electron/electron/blob/master/docs/api/menu-item.md).
 
+**Example**
+
+```js
+import { getMenuItem } from 'testcafe-browser-provider-electron';
+
+fixture `Electron test`
+    .page('./index.html');
+
+test('Check the menu item role', async t => {
+    const menuItem = await getMenuItem('Main Menu > Edit > Undo');
+    
+    await t.expect(menuItem.role).eql('undo');    
+});
+```
+
  ### getMainMenu
 
  Gets a snapshot of the application main menu.
@@ -113,9 +200,24 @@ Parameter          | Type   | Description
  You can check properties available in the snapshot
  [here](https://github.com/electron/electron/blob/master/docs/api/menu.md).
 
+**Example**
+
+```js
+import { getMainMenu } from 'testcafe-browser-provider-electron';
+
+fixture `Electron test`
+    .page('./index.html');
+
+test('Menu should contains the proper list of items', async t => {
+    const menuItems = (await getMainMenu()).items.map(item => item.label);
+    
+    await t.expect(menuItems).eql(['File', 'Edit', 'Help']);
+});
+```
+
  ### getContextMenu
 
- Gets a snapshot of the context menu.
+ Gets a snapshot of the **last** opened context menu.
 
  ```
  async function getContextMenu ()
@@ -123,6 +225,23 @@ Parameter          | Type   | Description
 
  You can check properties available in the snapshot
  [here](https://github.com/electron/electron/blob/master/docs/api/menu.md),
+
+**Example**
+
+```js
+import { getContextMenu } from 'testcafe-browser-provider-electron';
+
+fixture `Electron test`
+    .page('./index.html');
+
+test('Context menu should contains the proper list of items', async t => {
+    await t.rightClick('.element-with-context-menu');
+    
+    const menuItems = (await getContextMenu()).items.map(item => item.label);
+    
+    await t.expect(menuItems).eql(['Cut', 'Copy', 'Properties']);
+});
+```
 
  ### clickOnMenuItem
 
@@ -152,17 +271,53 @@ Parameter          | Type   | Description
 
  **Examples**
 
- ```
- clickOnMenuItem('Main Menu > File > Open')
- ```
+```js
+import { clickOnMenuItem } from 'testcafe-browser-provider-electron';
 
- ```
- clickOnMenuItem('File > Open')
- ```
+fixture `Test Electron`
+   .page('./index.html');
 
- ```
- clickOnMenuItem((await getMainMenu()).items[0].submenu.items[0])
- ```
+test('Should open search panel', async t => {
+   await clickOnMenuItem('Main Menu > Edit > Find...');
+   
+   await searchPanel = Selector('.search-panel');
+   
+   await expect(searchPanel.count).eql(1);
+});
+```
+
+```js
+import { clickOnMenuItem } from 'testcafe-browser-provider-electron';
+
+fixture `Test Electron`
+    .page('./index.html');
+
+test('Should create new file', async t => {
+    await clickOnMenuItem('File > New');
+    //Or
+    await clickOnMenuItem((await getMainMenu()).items[0].submenu.items[0])
+    
+    await newFile = Selector('.file-item').withText('New File');
+    
+    await expect(newFile.count).eql(1);
+});
+```
+
+```js
+import { clickOnMenuItem } from 'testcafe-browser-provider-electron';
+
+fixture `Test Electron`
+    .page('./index.html');
+
+test('Should open properties of element', async t => {
+    await t.rightClick('.el');	   
+    await clickOnMenuItem('Context Menu > Properties...');
+    
+    await elPropsPanel = Selector('.item-properties-panel');
+    
+    await expect(elPropsPanel.count).eql(1);
+});
+```
 
  ### setElectronDialogHandler
 
@@ -185,6 +340,40 @@ Parameter          | Type   | Description
 
  This function must be synchronous. It will be invoked with the dialog type `type`, and the arguments `args`
  from the original dialog function.
+ 
+ The `type` parameter takes one of the following values: 
+ 
+ * `open-dialog`,
+ * `save-dialog`,
+ * `message-box`,
+ * `error-box`,
+ * `certificate-trust-dialog`.
+ 
+ **Example**
+ 
+ ```js
+ import { setElectronDialogHandler } from 'testcafe-browser-provider-electron';
+
+fixture `Electron test`
+    .page('./index.html');
+
+test('Test project opening', async t => {
+    await setElectronDialogHandler((type, browserWindow, options) => {
+    	//browserWindow, options are standard arguments of the opening dialog, you can use it for your purposes
+        if(type !== 'open-dialog') 
+            return;
+
+        //it returns the file path from the open dialog
+        return ['/home/user/project_name'];
+    });
+
+    await t
+        .click('.open-project')
+        //Here the open directory dialog opens and returns the path '/home/user/project_name'
+        //After this, we check that the project was opened to get its name
+        .expect('.project-name').eql('project_name');        
+});
+```
 
 ## Author
 Developer Express Inc. (https://devexpress.com)
