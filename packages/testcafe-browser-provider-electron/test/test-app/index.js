@@ -30,20 +30,30 @@ function createWindow () {
 
         submenu: [
             {
-                label: 'Click',
+                label:    'Click',
+                sublabel: 'item 1',
 
                 click () {
                     win.webContents.executeJavaScript('window.mainMenuClicked = true');
                 }
             },
             {
-                label: 'Dialog',
+                label:    'Dialog',
+                sublabel: 'item 2',
 
                 click () {
                     var x = dialog.showOpenDialog({ title: 'Test open' });
 
                     win.webContents.executeJavaScript(`window.dialogResult = "${x}"`);
                 }
+            },
+            {
+                label:    'New Menu',
+                sublabel: 'item 3'
+            },
+            {
+                label:    'New Menu',
+                sublabel: 'item 4'
             }
         ]
     }]));

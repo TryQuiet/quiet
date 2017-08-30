@@ -1,8 +1,7 @@
 {
   "compact": false,
   "presets": [
-    "es2015-loose",
-    "babel-preset-stage-3"
+    "env"
   ],
   "plugins": [
     "transform-runtime",

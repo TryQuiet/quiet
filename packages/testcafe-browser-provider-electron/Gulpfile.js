@@ -50,7 +50,7 @@ gulp.task('test', ['build'], function (cb) {
 
     process.env.NODE_PATH = PACKAGE_SEARCH_PATH;
 
-    var child = childProcess.spawn(testCafeCmd, ['electron:' + appPath, 'test/fixtures/**/*-test.js', '-s', '.screenshots'], { stdio: 'inherit' });
+    var child = childProcess.spawn(testCafeCmd, ['electron:' + appPath, 'test/fixtures/**/*test.js', '-s', '.screenshots'], { stdio: 'inherit' });
 
     child.on('error', function (error) {
         cb(error);

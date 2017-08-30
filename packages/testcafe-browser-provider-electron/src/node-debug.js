@@ -60,6 +60,9 @@ export default class NodeDebug {
     }
 
     _handleNewData (data) {
+        if (!data)
+            return;
+
         this.buffer = Buffer.concat([this.buffer, data]);
 
         this.events.emit('new-data');

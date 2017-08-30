@@ -7,7 +7,7 @@ Use this plugin to test **Electron** applications witn [TestCafe](http://devexpr
 
 ### Installation
 
-```
+```sh
 npm install testcafe-browser-provider-electron
 ```
 
@@ -46,7 +46,7 @@ If your JavaScript application runs in Electron, follow these steps to set up te
     ```json
     {
       "mainWindowUrl": "./index.html",
-      "appPath": "/home/user/my_app"  
+      "appPath":       "/home/user/my_app"  
     }
     ```
     
@@ -61,7 +61,7 @@ If your Electron app is built it has `<your_app_name>.exe` or `electron.exe` fil
     ```json
     {
         "mainWindowUrl": "./index.html",
-        "electronPath": "/home/user/myElectronApp/electron"
+        "electronPath":  "/home/user/myElectronApp/electron"
     }
     ```
     
@@ -87,7 +87,7 @@ testCafe
 
 ### Specifying Target Webpage in Test Code
 
-In most cases, the target webpage is the main application page specified via the `mainWindowUrl` configuration option.
+In most cases, the target webpage is the main application page specified via the `mainWindowUrl` configuration option. 
 
 ```json
 {
@@ -99,7 +99,6 @@ In most cases, the target webpage is the main application page specified via the
 fixture `Electron test`
     .page('./index.html');
 ```
-
 However, you can specify any application page if your app contains more than one.
 
 ```js
@@ -128,7 +127,8 @@ __Optional.__ Overrides application command line arguments with the values speci
 ### electronPath
 
 __Optional__. Specifies a path to the electron binary. If `electronPath` is not specified, the [electron package](https://www.npmjs.com/package/electron) should be installed.
- On macOS, it can be either a path to the `electron` binary, or a path to the entire Electron.app (e.g. `/Applications/Electron.app`).
+ On macOS, it can be either a path to the `electron` binary, or a path to the entire Electron.app (e.g. `/Applications/Electron.app`). It may be necessary to stop all other running 
+ instances of the specified Electron binary.
 
 ### enableNavigateEvents
 
@@ -145,29 +145,29 @@ You can use helper functions from the provider in your test files. Use ES6 impor
 import { getMainMenu, clickOnMenuItem } from 'testcafe-browser-provider-electron';
 ```
 
-### getMenuItem
+### getMainMenuItem
 
-Gets a snapshot of the specified menu item.
+Gets a snapshot of the specified application's main menu item.
 
 ```js
-async function getMenuItem (menuItemSelector)
+async function getMainMenuItem (menuItemSelector)
 ```
 
 Parameter          | Type   | Description
 ------------------ | ------ | -----
-`menuItemSelector` | String | Consists of the menu type and menu item labels, separated by the `>` sign.
+`menuItemSelector` | String | An array of menu item labels and/or objects with properties "label" and "index".
 
  For example, you can pass the following values in the `menuItemSelector` parameter.
 
- * `Main Menu > File > Open`
+ * `['File', 'Open']`
+ * `['File', { label: 'Open' }]`
  * `Context Menu > Undo`
 
- The `Main Menu` menu type can be skipped.
 
- If there are several menu items with the same label on the same level, you can specify a one-based index
- in square brackets:
+ If there are several menu items with the same label on the same level, you can specify a one-based "index"
+ property:
 
- * `Main Menu > Window > My Window [2]`
+ * `['Window', {label: 'My Window', index: 2}]`
 
  This value corresponds to the second menu item with label `My Window` in the `Window` menu.
 
@@ -177,59 +177,103 @@ Parameter          | Type   | Description
 **Example**
 
 ```js
-import { getMenuItem } from 'testcafe-browser-provider-electron';
+import { getMainMenuItem } from 'testcafe-browser-provider-electron';
 
 fixture `Electron test`
     .page('./index.html');
 
 test('Check the menu item role', async t => {
-    const menuItem = await getMenuItem('Main Menu > Edit > Undo');
+    const menuItem = await getMainMenuItem(['Main Menu', 'Edit', 'Undo']);
     
     await t.expect(menuItem.role).eql('undo');    
 });
 ```
 
- ### getMainMenu
+### getContextMenuItem
 
- Gets a snapshot of the application main menu.
+Gets a snapshot of the specified menu item from the **most recently** opened context menu.
 
- ```
- async function getMainMenu ()
- ```
+```js
+async function getContextMenuItem (menuItemSelector)
+```
 
- You can check properties available in the snapshot
- [here](https://github.com/electron/electron/blob/master/docs/api/menu.md).
+Parameter          | Type   | Description
+------------------ | ------ | -----
+`menuItemSelector` | String | An array of menu item labels and/or objects with properties "label" and "index".
+
+ For example, you can pass the following values in the `menuItemSelector` parameter.
+
+ * `['Go To', 'Declaration']`
+ * `['Go To', { label: 'Declaration' }]`
+
+ If there are several menu items with the same label on the same level, you can specify a one-based "index"
+ property:
+
+ * `['Go To', {label: 'My Function', index: 2}]`
+
+ This value corresponds to the second menu item with label `My Function` in the `Go To` submenu.
+
+ Check the properties available in the snapshot
+ [here](https://github.com/electron/electron/blob/master/docs/api/menu-item.md).
 
 **Example**
 
 ```js
-import { getMainMenu } from 'testcafe-browser-provider-electron';
+import { getContextMenuItem } from 'testcafe-browser-provider-electron';
+
+fixture `Electron test`
+    .page('./index.html');
+
+test('Check the menu item role', async t => {
+    await t.rightClick('.el');
+    
+    const menuItem = await getContextMenuItem(['Go To', {label: 'My Function', index: 2}]);
+    
+    await t.expect(menuItem.visible).ok();    
+});
+```
+
+ ### getMainMenuItems
+
+Gets an array of snapshots of the application's main menu items. If an item has a submenu, it will also be represented as an array of snapshots.
+
+ ```js
+ async function getMainMenuItems ()
+ ```
+
+ You can check properties available in snapshots
+ [here](https://github.com/electron/electron/blob/master/docs/api/menu-item.md).
+
+**Example**
+
+```js
+import { getMainMenuItems } from 'testcafe-browser-provider-electron';
 
 fixture `Electron test`
     .page('./index.html');
 
 test('Menu should contains the proper list of items', async t => {
-    const menuItems = (await getMainMenu()).items.map(item => item.label);
+    const menuItems = (await getMainMenuItems()).map(item => item.label);
     
     await t.expect(menuItems).eql(['File', 'Edit', 'Help']);
 });
 ```
 
- ### getContextMenu
+ ### getContextMenuItems
 
- Gets a snapshot of the **last** opened context menu.
+Gets an array of item snapshots from the **most recently** opened context menu. If an item has a submenu, it will also be represented as an array of snapshots.
 
+ ```js
+ async function getContextMenuItems ()
  ```
- async function getContextMenu ()
- ```
 
- You can check properties available in the snapshot
+ You can check properties available in snapshots
  [here](https://github.com/electron/electron/blob/master/docs/api/menu.md),
 
 **Example**
 
 ```js
-import { getContextMenu } from 'testcafe-browser-provider-electron';
+import { getContextMenuItems } from 'testcafe-browser-provider-electron';
 
 fixture `Electron test`
     .page('./index.html');
@@ -237,48 +281,48 @@ fixture `Electron test`
 test('Context menu should contains the proper list of items', async t => {
     await t.rightClick('.element-with-context-menu');
     
-    const menuItems = (await getContextMenu()).items.map(item => item.label);
+    const menuItems = (await getContextMenuItems()).map(item => item.label);
     
     await t.expect(menuItems).eql(['Cut', 'Copy', 'Properties']);
 });
 ```
 
- ### clickOnMenuItem
+ ### clickOnMainMenuItem
 
- Performs a click on the specified `menuItem`.
+ Performs a click on the specified main menu item (`menuItem`).
 
- ```
- async function clickOnMenuItem (menuItem, modifiers)
+ ```js
+ async function clickOnMainMenuItem (menuItem, modifiers)
  ```
 
  Parameter          | Type   | Description
 ------------------ | ------ | -----
-`menuItem` | String &#124; Object | The menu item to click.
+`menuItem` | String &#124; Object | The main menu item to click.
 `modifiers` | Object | Control keys held when clicking the menu item.
 
- If you specify a string in the `menuItem` parameter, it will be passed to the [getMenuItem](#getmenuitem) function and the returned value will be used. Alternatively, you can pass a value returned by the [getMenuItem](#getmenuitem), [getMainMenu](#getmainmenu) or [getContextMenu](#getcontextmenu) function.
+ If you specify a string in the `menuItem` parameter, it will be passed to the [getMainMenuItem](#getmainmenuitem) function and the returned value will be used. Alternatively, you can pass a value returned by the [getMainMenuItem](#getmainmenuitem) or [getMainMenuItems](#getmainmenuitems) function.
 
  Use the `modifiers` parameter to specify state of the control keys (`Shift`, `Ctrl`, `Alt`, `Meta`). The default value is
 
- ```
+ ```json
  {
-     shift: false,
-     ctrl: false,
-     alt: false,
-     meta: false
+     "shift": false,
+     "ctrl":  false,
+     "alt":   false,
+     "meta":  false
  }
   ```
 
  **Examples**
 
 ```js
-import { clickOnMenuItem } from 'testcafe-browser-provider-electron';
+import { clickOnMainMenuItem } from 'testcafe-browser-provider-electron';
 
 fixture `Test Electron`
    .page('./index.html');
 
 test('Should open search panel', async t => {
-   await clickOnMenuItem('Main Menu > Edit > Find...');
+   await clickOnMainMenuItem(['Main Menu', 'Edit', 'Find...']);
    
    await searchPanel = Selector('.search-panel');
    
@@ -287,15 +331,15 @@ test('Should open search panel', async t => {
 ```
 
 ```js
-import { clickOnMenuItem } from 'testcafe-browser-provider-electron';
+import { clickOnMainMenuItem, getMainMenuItems } from 'testcafe-browser-provider-electron';
 
 fixture `Test Electron`
     .page('./index.html');
 
 test('Should create new file', async t => {
-    await clickOnMenuItem('File > New');
+    await clickOnMainMenuItem(['File', 'New']);
     //Or
-    await clickOnMenuItem((await getMainMenu()).items[0].submenu.items[0])
+    await clickOnMainMenuItem((await getMainMenuItems())[0].submenu[0])
     
     await newFile = Selector('.file-item').withText('New File');
     
@@ -303,15 +347,43 @@ test('Should create new file', async t => {
 });
 ```
 
+### clickOnContextMenuItem
+
+Performs a click on the specified menu item (`menuItem`) of the **most recently** opened context menu.
+
+ ```js
+ async function clickOnContextMenuItem (menuItem, modifiers)
+ ```
+
+ Parameter          | Type   | Description
+------------------ | ------ | -----
+`menuItem` | String &#124; Object | The main menu item to click.
+`modifiers` | Object | Control keys held when clicking the menu item.
+
+ If you specify a string in the `menuItem` parameter, it will be passed to the [getContextMenuItem](#getcontextmenuitem) function and the returned value will be used. Alternatively, you can pass a value returned by the [getContextMenuItem](#getcontextmenuitem) or [getContextMenuItems](#getcontextmenuitems) function.
+
+ Use the `modifiers` parameter to specify state of the control keys (`Shift`, `Ctrl`, `Alt`, `Meta`). The default value is
+
+ ```json
+ {
+     "shift": false,
+     "ctrl":  false,
+     "alt":   false,
+     "meta":  false
+ }
+  ```
+
+ **Examples**
+
 ```js
-import { clickOnMenuItem } from 'testcafe-browser-provider-electron';
+import { clickOnContextMenuItem } from 'testcafe-browser-provider-electron';
 
 fixture `Test Electron`
     .page('./index.html');
 
 test('Should open properties of element', async t => {
     await t.rightClick('.el');	   
-    await clickOnMenuItem('Context Menu > Properties...');
+    await clickOnContextMenuItem(['Properties...']);
     
     await elPropsPanel = Selector('.item-properties-panel');
     
@@ -323,8 +395,8 @@ test('Should open properties of element', async t => {
 
  Sets a function that will handle native Electron dialogs.
 
- ```
- async function setElectronDialogHandler (handler, dependencies)
+ ```js
+ async function setElectronDialogHandler (handler, dependencies) 
  ```
 
   Parameter          | Type   | Description
@@ -334,7 +406,7 @@ test('Should open properties of element', async t => {
 
  The `handler` function has the following signature.
 
- ```
+ ```js
  function handler (type, ...args)
  ```
 
@@ -374,6 +446,6 @@ test('Test project opening', async t => {
         .expect('.project-name').eql('project_name');        
 });
 ```
-
+ 
 ## Author
 Developer Express Inc. (https://devexpress.com)

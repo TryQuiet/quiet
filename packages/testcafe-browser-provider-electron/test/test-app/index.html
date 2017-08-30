@@ -8,13 +8,28 @@
             var { Menu } = require('electron').remote;
             var foo      = require('./client.js').foo;
 
-            var contextMenu = Menu.buildFromTemplate([{
-                label: 'Test',
+            var contextMenu = Menu.buildFromTemplate([
+                {
+                    label: 'Test',
+                    sublabel: 'item 1',
 
-                click () {
-                    window.contextMenuClicked = true;
+                    click () {
+                        window.contextMenuClicked = true;
+                    }
+                },
+                {
+                    label: 'Test 2',
+                    sublabel: 'item 2',
+                },
+                {
+                    label: 'New Test',
+                    sublabel: 'item 3',
+                },
+                {
+                    label: 'New Test',
+                    sublabel: 'item 4',
                 }
-            }]);
+            ]);
 
             window.addEventListener('contextmenu', e => {
                 e.preventDefault();

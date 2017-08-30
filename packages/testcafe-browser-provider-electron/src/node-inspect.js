@@ -3,7 +3,6 @@ import promisifyEvent from 'promisify-event';
 import delay from './utils/delay';
 import { connectionRetryDelay, maxConnectionRetryCount } from './constants';
 
-
 export default class NodeInspect {
     constructor (port, host) {
         this.port        = port;

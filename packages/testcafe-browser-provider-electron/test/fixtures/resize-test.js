@@ -4,7 +4,6 @@ import { testPage } from '../config';
 fixture `Resize`
     .page(testPage);
 
-
 test('Resize test', async t => {
     await t.resizeWindow(800, 600);
 

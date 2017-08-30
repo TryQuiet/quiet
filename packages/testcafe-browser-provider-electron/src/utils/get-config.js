@@ -7,7 +7,7 @@ import CONSTANTS from '../constants';
 
 const PROTOCOL_RE = /^([\w-]+?)(?=\:\/\/)/;
 
-export default function (mainPath) {
+export default function (id, mainPath) {
     if (statSync(mainPath).isDirectory())
         mainPath = path.join(mainPath, CONSTANTS.configFileName);
 
@@ -34,6 +34,9 @@ export default function (mainPath) {
 
     if (config.mainWindowUrl.indexOf('file:') === 0 || !PROTOCOL_RE.test(config.mainWindowUrl))
         config.mainWindowUrl = resolveFileUrl(mainDir, config.mainWindowUrl);
+
+    config.serverId = 'testcafe-electron-server-' + id;
+    config.clientId = 'testcafe-electron-client-' + id;
 
     return config;
 }

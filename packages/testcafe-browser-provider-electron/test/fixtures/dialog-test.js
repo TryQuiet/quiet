@@ -1,6 +1,6 @@
-import { testPage } from '../config';
 import { ClientFunction } from 'testcafe';
-import { setElectronDialogHandler, clickOnMenuItem } from 'testcafe-browser-provider-electron';
+import { setElectronDialogHandler, clickOnMainMenuItem } from 'testcafe-browser-provider-electron';
+import { testPage } from '../config';
 
 
 fixture `Dialog`
@@ -9,9 +9,11 @@ fixture `Dialog`
 const checkDialogHandled = ClientFunction(() => window.dialogResult);
 
 test('Should handle Open Dialog', async t => {
+    await t.click('body');
+
     await setElectronDialogHandler(type => type + ' handled');
 
-    await clickOnMenuItem('Test > Dialog');
+    await clickOnMainMenuItem(['Test', 'Dialog']);
 
     await t.expect(checkDialogHandled()).eql('open-dialog handled');
 });
