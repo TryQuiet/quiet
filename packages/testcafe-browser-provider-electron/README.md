@@ -41,7 +41,7 @@ If your JavaScript application runs in Electron, follow these steps to set up te
     testcafe "electron:/home/user/electron-app" "<tests_directory>/**/*.js"
     ```
 
-4. The `.testcafe-electron-rc` file might be not in the application rood directory. In that case specify the path to the configuration file like this:
+4. The `.testcafe-electron-rc` file might be not in the application root directory. In that case specify the path to the configuration file like this:
 
     ```json
     {
