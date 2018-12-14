@@ -28,7 +28,7 @@
   "license": "MIT",
   "dependencies": {
     "babel-runtime": "^6.25.0",
-    "chrome-remote-interface": "^0.23.3",
+    "chrome-remote-interface": "^0.27.0",
     "dedent": "^0.7.0",
     "endpoint-utils": "^1.0.2",
     "lodash": "^4.17.4",
@@ -38,8 +38,7 @@
     "pify": "^2.3.0",
     "pinkie": "^2.0.4",
     "promisify-event": "^1.0.0",
-    "proxyquire": "^1.7.10",
-    "testcafe-browser-tools": "^1.0.0"
+    "proxyquire": "^1.7.10"
   },
   "peerDependencies": {
     "testcafe": "*"
@@ -50,12 +49,11 @@
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.6.0",
     "del": "^2.0.0",
-    "electron": "beta",
-    "gulp": "^3.9.0",
+    "electron": "^3.0.11",
+    "gulp": "^4.0.0",
     "gulp-babel": "^7.0.0",
     "gulp-eslint": "^3.0.1",
-    "node-version": "^1.0.0",
-    "publish-please": "^2.1.4",
+    "publish-please": "^5.4.3",
     "testcafe": "*",
     "tmp": "0.0.28"
   }
