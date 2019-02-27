@@ -1,0 +1,193 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SnackbarContent renders error 1`] = `
+<WithStyles(SnackbarContent)
+  action={
+    Array [
+      <WithStyles(IconButton)
+        className="close-mock"
+        color="inherit"
+        onClick={[MockFunction]}
+      >
+        <pure(CloseIcon)
+          className="icon-mock"
+        />
+      </WithStyles(IconButton)>,
+    ]
+  }
+  className="error-mock"
+  message={
+    <span
+      className="content-mock"
+    >
+      <pure(ErrorIcon)
+        className="icon-mock errorIcon-mock"
+        size={20}
+      />
+      <span
+        className="message-mock"
+      >
+        test snackbar
+      </span>
+    </span>
+  }
+/>
+`;
+
+exports[`SnackbarContent renders fullWidth 1`] = `
+<WithStyles(SnackbarContent)
+  action={
+    Array [
+      <WithStyles(IconButton)
+        className="close-mock"
+        color="inherit"
+        onClick={[MockFunction]}
+      >
+        <pure(CloseIcon)
+          className="icon-mock"
+        />
+      </WithStyles(IconButton)>,
+    ]
+  }
+  className="success-mock fullWidth-mock"
+  message={
+    <span
+      className="content-mock"
+    >
+      <pure(CheckCircleIcon)
+        className="icon-mock successIcon-mock"
+        size={20}
+      />
+      <span
+        className="message-mock"
+      >
+        test snackbar
+      </span>
+    </span>
+  }
+/>
+`;
+
+exports[`SnackbarContent renders info 1`] = `
+<WithStyles(SnackbarContent)
+  action={
+    Array [
+      <WithStyles(IconButton)
+        className="close-mock"
+        color="inherit"
+        onClick={[MockFunction]}
+      >
+        <pure(CloseIcon)
+          className="icon-mock"
+        />
+      </WithStyles(IconButton)>,
+    ]
+  }
+  className="info-mock"
+  message={
+    <span
+      className="content-mock"
+    >
+      <pure(InfoIcon)
+        className="icon-mock infoIcon-mock"
+        size={20}
+      />
+      <span
+        className="message-mock"
+      >
+        test snackbar
+      </span>
+    </span>
+  }
+/>
+`;
+
+exports[`SnackbarContent renders loading 1`] = `
+<WithStyles(SnackbarContent)
+  action={Array []}
+  className="loading-mock"
+  message={
+    <span
+      className="content-mock"
+    >
+      <WithStyles(CircularProgress)
+        className="icon-mock loadingIcon-mock"
+        size={20}
+      />
+      <span
+        className="message-mock"
+      >
+        test snackbar
+      </span>
+    </span>
+  }
+/>
+`;
+
+exports[`SnackbarContent renders success 1`] = `
+<WithStyles(SnackbarContent)
+  action={
+    Array [
+      <WithStyles(IconButton)
+        className="close-mock"
+        color="inherit"
+        onClick={[MockFunction]}
+      >
+        <pure(CloseIcon)
+          className="icon-mock"
+        />
+      </WithStyles(IconButton)>,
+    ]
+  }
+  className="success-mock"
+  message={
+    <span
+      className="content-mock"
+    >
+      <pure(CheckCircleIcon)
+        className="icon-mock successIcon-mock"
+        size={20}
+      />
+      <span
+        className="message-mock"
+      >
+        test snackbar
+      </span>
+    </span>
+  }
+/>
+`;
+
+exports[`SnackbarContent renders warning 1`] = `
+<WithStyles(SnackbarContent)
+  action={
+    Array [
+      <WithStyles(IconButton)
+        className="close-mock"
+        color="inherit"
+        onClick={[MockFunction]}
+      >
+        <pure(CloseIcon)
+          className="icon-mock"
+        />
+      </WithStyles(IconButton)>,
+    ]
+  }
+  className="warning-mock"
+  message={
+    <span
+      className="content-mock"
+    >
+      <pure(WarningIcon)
+        className="icon-mock warningIcon-mock"
+        size={20}
+      />
+      <span
+        className="message-mock"
+      >
+        test snackbar
+      </span>
+    </span>
+  }
+/>
+`;

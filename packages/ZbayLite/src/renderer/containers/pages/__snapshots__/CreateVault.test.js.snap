@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CreateVault should render wrapped component correctly 1`] = `
+<WithStyles(CreateVault)
+  error=""
+  finished={false}
+  inProgress={false}
+  inProgressMsg="creating"
+/>
+`;
+
+exports[`CreateVault will receive right actions 1`] = `
+Object {
+  "onCloseSnackbar": [Function],
+}
+`;
+
+exports[`CreateVault will receive right props 1`] = `
+Object {
+  "error": "",
+  "exists": true,
+  "loading": false,
+  "locked": false,
+  "unlocking": false,
+}
+`;

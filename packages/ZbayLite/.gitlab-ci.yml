@@ -1,0 +1,15 @@
+cache:
+  key: "$CI_BUILD_NAME"
+  untracked: true
+
+stages:
+  - test
+
+test:
+  image: node:10.12.0
+  stage: test
+  except:
+    - tags
+  script:
+    - npm install
+    - npm run test

@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`VaultUnlocker reducer handles actions clearUnlocker 1`] = `
+Immutable.VaultUnlockerState {
+  "password": "",
+  "passwordVisible": false,
+}
+`;
+
+exports[`VaultUnlocker reducer handles actions setPassword 1`] = `
+Immutable.VaultUnlockerState {
+  "password": "test password",
+  "passwordVisible": false,
+}
+`;
+
+exports[`VaultUnlocker reducer handles epics unlockVault clears after unlock throws 1`] = `
+Immutable.VaultUnlockerState {
+  "password": "",
+  "passwordVisible": false,
+}
+`;
+
+exports[`VaultUnlocker reducer handles epics unlockVault unlocks the vault 1`] = `
+Array [
+  Array [
+    Object {
+      "masterPassword": "test password",
+    },
+  ],
+]
+`;

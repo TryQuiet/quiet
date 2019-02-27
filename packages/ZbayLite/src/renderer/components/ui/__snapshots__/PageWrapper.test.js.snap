@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PageWrapper renders component 1`] = `
+<div
+  className="wrapper-mock"
+>
+  <Page />
+</div>
+`;
+
+exports[`PageWrapper renders with custom className 1`] = `
+<div
+  className="wrapper-mock test-class"
+>
+  <Page />
+</div>
+`;

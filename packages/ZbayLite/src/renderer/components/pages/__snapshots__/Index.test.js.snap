@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Index renders component 1`] = `
+<Redirect
+  push={false}
+  to="/vault/create"
+/>
+`;
+
+exports[`Index renders doesn't exists 1`] = `
+<Redirect
+  push={false}
+  to="/vault/create"
+/>
+`;
+
+exports[`Index renders locked 1`] = `
+<Redirect
+  push={false}
+  to="/vault/unlock"
+/>
+`;
+
+exports[`Index renders unlocked 1`] = `
+<Redirect
+  push={false}
+  to="/home"
+/>
+`;

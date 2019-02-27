@@ -1,0 +1,196 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CreateVault renders component 1`] = `
+<React.Memo>
+  <React.Memo
+    fullWidth={true}
+    message=""
+    open={false}
+    variant="loading"
+  />
+  <React.Memo
+    message=""
+    onClose={[MockFunction]}
+    open={false}
+    variant="error"
+  />
+  <WithStyles(Grid)
+    alignItems="center"
+    className="gridRoot-mock"
+    container={true}
+    justify="center"
+  >
+    <WithStyles(Grid)
+      item={true}
+    >
+      <WithStyles(Paper)
+        className="paper-mock"
+      >
+        <WithStyles(Grid)
+          alignItems="center"
+          container={true}
+          direction="row"
+          justify="center"
+        >
+          <WithStyles(Grid)
+            className="welcome-mock"
+            item={true}
+          >
+            <WithStyles(Typography)
+              gutterBottom={true}
+              variant="h4"
+            >
+              Hey there!
+            </WithStyles(Typography)>
+            <WithStyles(Typography)
+              align="justify"
+              gutterBottom={true}
+              variant="body1"
+            >
+              Zbay vault is not configured on this computer. In order to proceed you need to choose a password for your secure vault.
+            </WithStyles(Typography)>
+          </WithStyles(Grid)>
+          <WithStyles(Grid)
+            item={true}
+          >
+            <VaultCreator
+              buttonStyles="button-mock"
+              className="vault-mock"
+            />
+          </WithStyles(Grid)>
+        </WithStyles(Grid)>
+      </WithStyles(Paper)>
+    </WithStyles(Grid)>
+  </WithStyles(Grid)>
+</React.Memo>
+`;
+
+exports[`CreateVault renders error 1`] = `
+<React.Memo>
+  <React.Memo
+    fullWidth={true}
+    message=""
+    open={false}
+    variant="loading"
+  />
+  <React.Memo
+    message="test error"
+    onClose={[MockFunction]}
+    open={true}
+    variant="error"
+  />
+  <WithStyles(Grid)
+    alignItems="center"
+    className="gridRoot-mock"
+    container={true}
+    justify="center"
+  >
+    <WithStyles(Grid)
+      item={true}
+    >
+      <WithStyles(Paper)
+        className="paper-mock"
+      >
+        <WithStyles(Grid)
+          alignItems="center"
+          container={true}
+          direction="row"
+          justify="center"
+        >
+          <WithStyles(Grid)
+            className="welcome-mock"
+            item={true}
+          >
+            <WithStyles(Typography)
+              gutterBottom={true}
+              variant="h4"
+            >
+              Hey there!
+            </WithStyles(Typography)>
+            <WithStyles(Typography)
+              align="justify"
+              gutterBottom={true}
+              variant="body1"
+            >
+              Zbay vault is not configured on this computer. In order to proceed you need to choose a password for your secure vault.
+            </WithStyles(Typography)>
+          </WithStyles(Grid)>
+          <WithStyles(Grid)
+            item={true}
+          >
+            <VaultCreator
+              buttonStyles="button-mock"
+              className="vault-mock"
+            />
+          </WithStyles(Grid)>
+        </WithStyles(Grid)>
+      </WithStyles(Paper)>
+    </WithStyles(Grid)>
+  </WithStyles(Grid)>
+</React.Memo>
+`;
+
+exports[`CreateVault renders inProgress 1`] = `
+<React.Memo>
+  <React.Memo
+    fullWidth={true}
+    message="creating"
+    open={true}
+    variant="loading"
+  />
+  <React.Memo
+    message=""
+    onClose={[MockFunction]}
+    open={false}
+    variant="error"
+  />
+  <WithStyles(Grid)
+    alignItems="center"
+    className="gridRoot-mock"
+    container={true}
+    justify="center"
+  >
+    <WithStyles(Grid)
+      item={true}
+    >
+      <WithStyles(Paper)
+        className="paper-mock"
+      >
+        <WithStyles(Grid)
+          alignItems="center"
+          container={true}
+          direction="row"
+          justify="center"
+        >
+          <WithStyles(Grid)
+            className="welcome-mock"
+            item={true}
+          >
+            <WithStyles(Typography)
+              gutterBottom={true}
+              variant="h4"
+            >
+              Hey there!
+            </WithStyles(Typography)>
+            <WithStyles(Typography)
+              align="justify"
+              gutterBottom={true}
+              variant="body1"
+            >
+              Zbay vault is not configured on this computer. In order to proceed you need to choose a password for your secure vault.
+            </WithStyles(Typography)>
+          </WithStyles(Grid)>
+          <WithStyles(Grid)
+            item={true}
+          >
+            <VaultCreator
+              buttonStyles="button-mock"
+              className="vault-mock"
+            />
+          </WithStyles(Grid)>
+        </WithStyles(Grid)>
+      </WithStyles(Paper)>
+    </WithStyles(Grid)>
+  </WithStyles(Grid)>
+</React.Memo>
+`;

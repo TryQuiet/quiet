@@ -1,0 +1,311 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Snackbar renders closed 1`] = `
+<WithStyles(Snackbar)
+  anchorOrigin={
+    Object {
+      "horizontal": "left",
+      "vertical": "bottom",
+    }
+  }
+  autoHideDuration={6000}
+  classes={
+    Object {
+      "anchorOriginBottomCenter": "",
+      "anchorOriginBottomLeft": "",
+      "anchorOriginBottomRight": "",
+      "anchorOriginTopCenter": "",
+      "anchorOriginTopLeft": "",
+      "anchorOriginTopRight": "",
+    }
+  }
+  onClose={[MockFunction]}
+  open={false}
+>
+  <React.Memo
+    fullWidth={false}
+    message="test snackbar"
+    onClose={[MockFunction]}
+    variant="success"
+  />
+</WithStyles(Snackbar)>
+`;
+
+exports[`Snackbar renders error 1`] = `
+<WithStyles(Snackbar)
+  anchorOrigin={
+    Object {
+      "horizontal": "left",
+      "vertical": "bottom",
+    }
+  }
+  autoHideDuration={6000}
+  classes={
+    Object {
+      "anchorOriginBottomCenter": "",
+      "anchorOriginBottomLeft": "",
+      "anchorOriginBottomRight": "",
+      "anchorOriginTopCenter": "",
+      "anchorOriginTopLeft": "",
+      "anchorOriginTopRight": "",
+    }
+  }
+  onClose={[MockFunction]}
+  open={true}
+>
+  <React.Memo
+    fullWidth={false}
+    message="test snackbar"
+    onClose={[MockFunction]}
+    variant="error"
+  />
+</WithStyles(Snackbar)>
+`;
+
+exports[`Snackbar renders full width for position [bottom, left] 1`] = `
+<WithStyles(Snackbar)
+  anchorOrigin={
+    Object {
+      "horizontal": "left",
+      "vertical": "bottom",
+    }
+  }
+  autoHideDuration={6000}
+  classes={
+    Object {
+      "anchorOriginBottomCenter": "fullWidthBottom-mock",
+      "anchorOriginBottomLeft": "fullWidthBottom-mock",
+      "anchorOriginBottomRight": "fullWidthBottom-mock",
+      "anchorOriginTopCenter": "fullWidthTop-mock",
+      "anchorOriginTopLeft": "fullWidthTop-mock",
+      "anchorOriginTopRight": "fullWidthTop-mock",
+    }
+  }
+  onClose={[MockFunction]}
+  open={true}
+>
+  <React.Memo
+    fullWidth={true}
+    message="test snackbar"
+    onClose={[MockFunction]}
+    variant="success"
+  />
+</WithStyles(Snackbar)>
+`;
+
+exports[`Snackbar renders full width for position [top, left] 1`] = `
+<WithStyles(Snackbar)
+  anchorOrigin={
+    Object {
+      "horizontal": "left",
+      "vertical": "top",
+    }
+  }
+  autoHideDuration={6000}
+  classes={
+    Object {
+      "anchorOriginBottomCenter": "fullWidthBottom-mock",
+      "anchorOriginBottomLeft": "fullWidthBottom-mock",
+      "anchorOriginBottomRight": "fullWidthBottom-mock",
+      "anchorOriginTopCenter": "fullWidthTop-mock",
+      "anchorOriginTopLeft": "fullWidthTop-mock",
+      "anchorOriginTopRight": "fullWidthTop-mock",
+    }
+  }
+  onClose={[MockFunction]}
+  open={true}
+>
+  <React.Memo
+    fullWidth={true}
+    message="test snackbar"
+    onClose={[MockFunction]}
+    variant="success"
+  />
+</WithStyles(Snackbar)>
+`;
+
+exports[`Snackbar renders full width for position [top, right] 1`] = `
+<WithStyles(Snackbar)
+  anchorOrigin={
+    Object {
+      "horizontal": "right",
+      "vertical": "top",
+    }
+  }
+  autoHideDuration={6000}
+  classes={
+    Object {
+      "anchorOriginBottomCenter": "fullWidthBottom-mock",
+      "anchorOriginBottomLeft": "fullWidthBottom-mock",
+      "anchorOriginBottomRight": "fullWidthBottom-mock",
+      "anchorOriginTopCenter": "fullWidthTop-mock",
+      "anchorOriginTopLeft": "fullWidthTop-mock",
+      "anchorOriginTopRight": "fullWidthTop-mock",
+    }
+  }
+  onClose={[MockFunction]}
+  open={true}
+>
+  <React.Memo
+    fullWidth={true}
+    message="test snackbar"
+    onClose={[MockFunction]}
+    variant="success"
+  />
+</WithStyles(Snackbar)>
+`;
+
+exports[`Snackbar renders full width for position [top, right] 2`] = `
+<WithStyles(Snackbar)
+  anchorOrigin={
+    Object {
+      "horizontal": "right",
+      "vertical": "top",
+    }
+  }
+  autoHideDuration={6000}
+  classes={
+    Object {
+      "anchorOriginBottomCenter": "fullWidthBottom-mock",
+      "anchorOriginBottomLeft": "fullWidthBottom-mock",
+      "anchorOriginBottomRight": "fullWidthBottom-mock",
+      "anchorOriginTopCenter": "fullWidthTop-mock",
+      "anchorOriginTopLeft": "fullWidthTop-mock",
+      "anchorOriginTopRight": "fullWidthTop-mock",
+    }
+  }
+  onClose={[MockFunction]}
+  open={true}
+>
+  <React.Memo
+    fullWidth={true}
+    message="test snackbar"
+    onClose={[MockFunction]}
+    variant="success"
+  />
+</WithStyles(Snackbar)>
+`;
+
+exports[`Snackbar renders info 1`] = `
+<WithStyles(Snackbar)
+  anchorOrigin={
+    Object {
+      "horizontal": "left",
+      "vertical": "bottom",
+    }
+  }
+  autoHideDuration={6000}
+  classes={
+    Object {
+      "anchorOriginBottomCenter": "",
+      "anchorOriginBottomLeft": "",
+      "anchorOriginBottomRight": "",
+      "anchorOriginTopCenter": "",
+      "anchorOriginTopLeft": "",
+      "anchorOriginTopRight": "",
+    }
+  }
+  onClose={[MockFunction]}
+  open={true}
+>
+  <React.Memo
+    fullWidth={false}
+    message="test snackbar"
+    onClose={[MockFunction]}
+    variant="info"
+  />
+</WithStyles(Snackbar)>
+`;
+
+exports[`Snackbar renders loading 1`] = `
+<WithStyles(Snackbar)
+  anchorOrigin={
+    Object {
+      "horizontal": "left",
+      "vertical": "bottom",
+    }
+  }
+  autoHideDuration={6000}
+  classes={
+    Object {
+      "anchorOriginBottomCenter": "",
+      "anchorOriginBottomLeft": "",
+      "anchorOriginBottomRight": "",
+      "anchorOriginTopCenter": "",
+      "anchorOriginTopLeft": "",
+      "anchorOriginTopRight": "",
+    }
+  }
+  onClose={[MockFunction]}
+  open={true}
+>
+  <React.Memo
+    fullWidth={false}
+    message="test snackbar"
+    onClose={[MockFunction]}
+    variant="loading"
+  />
+</WithStyles(Snackbar)>
+`;
+
+exports[`Snackbar renders success 1`] = `
+<WithStyles(Snackbar)
+  anchorOrigin={
+    Object {
+      "horizontal": "left",
+      "vertical": "bottom",
+    }
+  }
+  autoHideDuration={6000}
+  classes={
+    Object {
+      "anchorOriginBottomCenter": "",
+      "anchorOriginBottomLeft": "",
+      "anchorOriginBottomRight": "",
+      "anchorOriginTopCenter": "",
+      "anchorOriginTopLeft": "",
+      "anchorOriginTopRight": "",
+    }
+  }
+  onClose={[MockFunction]}
+  open={true}
+>
+  <React.Memo
+    fullWidth={false}
+    message="test snackbar"
+    onClose={[MockFunction]}
+    variant="success"
+  />
+</WithStyles(Snackbar)>
+`;
+
+exports[`Snackbar renders warning 1`] = `
+<WithStyles(Snackbar)
+  anchorOrigin={
+    Object {
+      "horizontal": "left",
+      "vertical": "bottom",
+    }
+  }
+  autoHideDuration={6000}
+  classes={
+    Object {
+      "anchorOriginBottomCenter": "",
+      "anchorOriginBottomLeft": "",
+      "anchorOriginBottomRight": "",
+      "anchorOriginTopCenter": "",
+      "anchorOriginTopLeft": "",
+      "anchorOriginTopRight": "",
+    }
+  }
+  onClose={[MockFunction]}
+  open={true}
+>
+  <React.Memo
+    fullWidth={false}
+    message="test snackbar"
+    onClose={[MockFunction]}
+    variant="warning"
+  />
+</WithStyles(Snackbar)>
+`;

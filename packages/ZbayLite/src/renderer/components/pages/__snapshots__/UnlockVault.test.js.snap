@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`UnlockVault renders component 1`] = `
+<React.Memo>
+  <WithStyles(Grid)
+    alignItems="center"
+    className="gridRoot-mock"
+    container={true}
+    justify="center"
+  >
+    <VaultUnlocker />
+  </WithStyles(Grid)>
+</React.Memo>
+`;
+
+exports[`UnlockVault renders unlocked 1`] = `
+<React.Memo>
+  <WithStyles(Grid)
+    alignItems="center"
+    className="gridRoot-mock"
+    container={true}
+    justify="center"
+  >
+    <VaultUnlocker />
+  </WithStyles(Grid)>
+  <Countdown
+    date={1536662639084}
+    renderer={[Function]}
+  />
+</React.Memo>
+`;

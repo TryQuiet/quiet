@@ -1,0 +1,71 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`vault reducer handles clear error 1`] = `
+Immutable.VaultState {
+  "exists": "test",
+  "creating": false,
+  "unlocking": false,
+  "locked": true,
+  "error": "",
+}
+`;
+
+exports[`vault reducer handles createVault 1`] = `
+Immutable.VaultState {
+  "exists": true,
+  "creating": false,
+  "unlocking": false,
+  "locked": true,
+  "error": "",
+}
+`;
+
+exports[`vault reducer handles createVault error 1`] = `
+Immutable.VaultState {
+  "exists": "test",
+  "creating": false,
+  "unlocking": false,
+  "locked": true,
+  "error": "This is a test error",
+}
+`;
+
+exports[`vault reducer handles createVault with loading state 1`] = `
+Immutable.VaultState {
+  "exists": "test",
+  "creating": true,
+  "unlocking": false,
+  "locked": true,
+  "error": "",
+}
+`;
+
+exports[`vault reducer handles unlockVault 1`] = `
+Immutable.VaultState {
+  "exists": "test",
+  "creating": false,
+  "unlocking": false,
+  "locked": false,
+  "error": "",
+}
+`;
+
+exports[`vault reducer handles unlockVault error 1`] = `
+Immutable.VaultState {
+  "exists": "test",
+  "creating": false,
+  "unlocking": false,
+  "locked": true,
+  "error": "This is a test error",
+}
+`;
+
+exports[`vault reducer handles unlockVault with unlocking state 1`] = `
+Immutable.VaultState {
+  "exists": "test",
+  "creating": false,
+  "unlocking": true,
+  "locked": true,
+  "error": "",
+}
+`;

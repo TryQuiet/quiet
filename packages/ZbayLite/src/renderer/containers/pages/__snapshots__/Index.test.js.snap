@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Index will receive right props 1`] = `
+Object {
+  "exists": true,
+  "locked": false,
+}
+`;

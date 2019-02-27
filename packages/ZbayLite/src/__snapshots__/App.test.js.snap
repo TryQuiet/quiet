@@ -1,8 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`hello this is a test 1`] = `
-<div>
-  Node version: 
-  10.12.0
-</div>
-`;

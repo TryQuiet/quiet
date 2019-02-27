@@ -1,0 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Vault throws when archive credentials are not a secure string 1`] = `"Failed constructing vault: Archive credentials not in encrypted form"`;
+
+exports[`Vault throws when source credentials are not a secure string 1`] = `"Failed constructing vault: Source credentials not in encrypted form"`;

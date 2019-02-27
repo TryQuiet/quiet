@@ -1,0 +1,206 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`marshalling credentialsFromSecureStrings returns created credentials 1`] = `
+Array [
+  Array [
+    "secure-string-source",
+    "master-password",
+  ],
+  Array [
+    "secure-string-archive",
+    "master-password",
+  ],
+]
+`;
+
+exports[`marshalling credentialsFromSecureStrings uses secure strings to create credentials 1`] = `
+Array [
+  Array [
+    "secure-string-source",
+    "master-password",
+  ],
+  Array [
+    "secure-string-archive",
+    "master-password",
+  ],
+]
+`;
+
+exports[`marshalling credentialsToDatasource creates datasource 1`] = `
+Object {
+  "datasource": Array [
+    Object {
+      "path": "/test/path",
+      "type": "ipc",
+    },
+    Credentials {
+      "getValue": [MockFunction],
+      "getValueOrFail": [MockFunction] {
+        "calls": Array [
+          Array [
+            "datasource",
+          ],
+        ],
+        "results": Array [
+          Object {
+            "type": "return",
+            "value": Object {
+              "path": "/test/path",
+              "type": "ipc",
+            },
+          },
+        ],
+      },
+      "setValue": [MockFunction],
+      "toInsecureString": [MockFunction],
+      "toSecureString": [MockFunction],
+    },
+  ],
+}
+`;
+
+exports[`marshalling credentialsToDatasource throws when no datasource type on credentials 1`] = `"Invalid or missing type"`;
+
+exports[`marshalling credentialsToSecureStrings creates secure strings 1`] = `
+Array [
+  "master-password-source",
+  "master-password-archive",
+]
+`;
+
+exports[`marshalling credentialsToWorkspace creates new archive 1`] = `
+Array [
+  Archive {
+    "_generateID": [MockFunction],
+    "_getWestley": [MockFunction],
+    "createGroup": [MockFunction],
+    "deleteAttribute": [MockFunction],
+    "emit": [MockFunction],
+    "emptyTrash": [MockFunction],
+    "eventNames": [MockFunction],
+    "getAttribute": [MockFunction],
+    "getAttributes": [MockFunction],
+    "getFormat": [MockFunction],
+    "getGroups": [MockFunction],
+    "getHistory": [MockFunction] {
+      "calls": Array [
+        Array [],
+      ],
+      "results": Array [
+        Object {
+          "type": "return",
+          "value": undefined,
+        },
+      ],
+    },
+    "getTrashGroup": [MockFunction],
+    "listenerCount": [MockFunction],
+    "listeners": [MockFunction],
+    "on": [MockFunction],
+    "once": [MockFunction],
+    "optimise": [MockFunction],
+    "removeAllListeners": [MockFunction],
+    "removeListener": [MockFunction],
+    "setAttribute": [MockFunction],
+    "toObject": [MockFunction],
+  },
+  Object {
+    "save": [MockFunction] {
+      "calls": Array [
+        Array [
+          undefined,
+          Credentials {
+            "getValue": [MockFunction],
+            "getValueOrFail": [MockFunction],
+            "setValue": [MockFunction],
+            "toInsecureString": [MockFunction],
+            "toSecureString": [MockFunction],
+          },
+        ],
+      ],
+      "results": Array [
+        Object {
+          "type": "return",
+          "value": undefined,
+        },
+      ],
+    },
+  },
+  Credentials {
+    "getValue": [MockFunction],
+    "getValueOrFail": [MockFunction],
+    "setValue": [MockFunction],
+    "toInsecureString": [MockFunction],
+    "toSecureString": [MockFunction],
+  },
+]
+`;
+
+exports[`marshalling credentialsToWorkspace loads archive 1`] = `
+Array [
+  undefined,
+  Object {
+    "load": [MockFunction] {
+      "calls": Array [
+        Array [
+          Credentials {
+            "getValue": [MockFunction],
+            "getValueOrFail": [MockFunction],
+            "setValue": [MockFunction],
+            "toInsecureString": [MockFunction],
+            "toSecureString": [MockFunction],
+          },
+        ],
+      ],
+      "results": Array [
+        Object {
+          "type": "return",
+          "value": undefined,
+        },
+      ],
+    },
+  },
+  Credentials {
+    "getValue": [MockFunction],
+    "getValueOrFail": [MockFunction],
+    "setValue": [MockFunction],
+    "toInsecureString": [MockFunction],
+    "toSecureString": [MockFunction],
+  },
+]
+`;
+
+exports[`marshalling passwordToSecureStrings creates credentials 1`] = `
+Array [
+  Array [],
+  Array [
+    Object {
+      "getValue": [MockFunction],
+      "getValueOrFail": [MockFunction],
+      "setValue": [MockFunction],
+      "toInsecureString": [MockFunction],
+      "toSecureString": [MockFunction] {
+        "calls": Array [
+          Array [
+            "master password",
+          ],
+        ],
+        "results": Array [
+          Object {
+            "type": "return",
+            "value": "test-secure-string",
+          },
+        ],
+      },
+      "type": "ipc",
+    },
+  ],
+]
+`;
+
+exports[`marshalling passwordToSecureStrings returns secure strings 1`] = `
+Array [
+  "test-secure-string",
+  "test-secure-string",
+]
+`;

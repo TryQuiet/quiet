@@ -1,0 +1,153 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`VaultCreator renders component 1`] = `
+<div
+  className=""
+>
+  <WithStyles(FormControl)
+    required={true}
+  >
+    <React.Memo
+      handleSetPassword={[MockFunction]}
+      handleTogglePassword={[MockFunction]}
+      label="Password"
+      password="test password"
+      passwordVisible={false}
+    />
+    <React.Memo
+      error={false}
+      handleSetPassword={[MockFunction]}
+      handleTogglePassword={[MockFunction]}
+      label="Repeat password"
+      password="test password"
+      passwordVisible={false}
+    />
+    <WithStyles(Button)
+      className="submit-mock"
+      color="primary"
+      disabled={false}
+      fullWidth={true}
+      margin="normal"
+      onClick={[MockFunction]}
+      size="large"
+      variant="contained"
+    >
+      Submit
+    </WithStyles(Button)>
+  </WithStyles(FormControl)>
+</div>
+`;
+
+exports[`VaultCreator renders custom styles 1`] = `
+<div
+  className="wrapper-class"
+>
+  <WithStyles(FormControl)
+    required={true}
+  >
+    <React.Memo
+      handleSetPassword={[MockFunction]}
+      handleTogglePassword={[MockFunction]}
+      label="Password"
+      password="test password"
+      passwordVisible={false}
+    />
+    <React.Memo
+      error={false}
+      handleSetPassword={[MockFunction]}
+      handleTogglePassword={[MockFunction]}
+      label="Repeat password"
+      password="test password"
+      passwordVisible={false}
+    />
+    <WithStyles(Button)
+      className="submit-mock button-class"
+      color="primary"
+      disabled={false}
+      fullWidth={true}
+      margin="normal"
+      onClick={[MockFunction]}
+      size="large"
+      variant="contained"
+    >
+      Submit
+    </WithStyles(Button)>
+  </WithStyles(FormControl)>
+</div>
+`;
+
+exports[`VaultCreator renders disabled when different password 1`] = `
+<div
+  className=""
+>
+  <WithStyles(FormControl)
+    required={true}
+  >
+    <React.Memo
+      handleSetPassword={[MockFunction]}
+      handleTogglePassword={[MockFunction]}
+      label="Password"
+      password="test password"
+      passwordVisible={false}
+    />
+    <React.Memo
+      error={true}
+      handleSetPassword={[MockFunction]}
+      handleTogglePassword={[MockFunction]}
+      label="Repeat password"
+      password="test repeat"
+      passwordVisible={false}
+    />
+    <WithStyles(Button)
+      className="submit-mock"
+      color="primary"
+      disabled={true}
+      fullWidth={true}
+      margin="normal"
+      onClick={[MockFunction]}
+      size="large"
+      variant="contained"
+    >
+      Submit
+    </WithStyles(Button)>
+  </WithStyles(FormControl)>
+</div>
+`;
+
+exports[`VaultCreator renders with visible passwords 1`] = `
+<div
+  className=""
+>
+  <WithStyles(FormControl)
+    required={true}
+  >
+    <React.Memo
+      handleSetPassword={[MockFunction]}
+      handleTogglePassword={[MockFunction]}
+      label="Password"
+      password="test password"
+      passwordVisible={true}
+    />
+    <React.Memo
+      error={false}
+      handleSetPassword={[MockFunction]}
+      handleTogglePassword={[MockFunction]}
+      label="Repeat password"
+      password="test password"
+      passwordVisible={true}
+    />
+    <WithStyles(Button)
+      className="submit-mock"
+      color="primary"
+      disabled={false}
+      fullWidth={true}
+      margin="normal"
+      onClick={[MockFunction]}
+      size="large"
+      variant="contained"
+    >
+      Submit
+    </WithStyles(Button)>
+  </WithStyles(FormControl)>
+</div>
+`;

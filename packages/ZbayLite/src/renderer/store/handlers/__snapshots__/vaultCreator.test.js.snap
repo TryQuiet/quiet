@@ -1,0 +1,69 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`VaultCreator reducer handles actions clearCreator 1`] = `
+Immutable.VaultCreatorState {
+  "password": "",
+  "repeat": "",
+  "passwordVisible": false,
+  "repeatVisible": false,
+}
+`;
+
+exports[`VaultCreator reducer handles actions setPassword 1`] = `
+Immutable.VaultCreatorState {
+  "password": "test password",
+  "repeat": "",
+  "passwordVisible": false,
+  "repeatVisible": false,
+}
+`;
+
+exports[`VaultCreator reducer handles actions setRepeat 1`] = `
+Immutable.VaultCreatorState {
+  "password": "",
+  "repeat": "test password",
+  "passwordVisible": false,
+  "repeatVisible": false,
+}
+`;
+
+exports[`VaultCreator reducer handles epics createVault clears creator if creating fails 1`] = `
+Immutable.VaultCreatorState {
+  "password": "",
+  "repeat": "",
+  "passwordVisible": false,
+  "repeatVisible": false,
+}
+`;
+
+exports[`VaultCreator reducer handles epics createVault clears creator if unlocking fails 1`] = `
+Immutable.VaultCreatorState {
+  "password": "",
+  "repeat": "",
+  "passwordVisible": false,
+  "repeatVisible": false,
+}
+`;
+
+exports[`VaultCreator reducer handles epics createVault creates the vault 1`] = `
+Array [
+  Array [
+    Object {
+      "masterPassword": "test password",
+    },
+  ],
+]
+`;
+
+exports[`VaultCreator reducer handles epics createVault throws if passwords don't match 1`] = `"Can't create vault, passwords don't match."`;
+
+exports[`VaultCreator reducer handles epics createVault unlocks the vault 1`] = `
+Array [
+  Array [
+    Object {
+      "createSource": true,
+      "masterPassword": "test password",
+    },
+  ],
+]
+`;

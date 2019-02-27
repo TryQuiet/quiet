@@ -1,0 +1,77 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ProgressFab renders component 1`] = `
+<div
+  className="wrapper-mock"
+>
+  <WithStyles(Fab)
+    classes={
+      Object {
+        "root": "root-mock",
+      }
+    }
+    disabled={false}
+    onClick={[MockFunction]}
+  >
+    <Icon />
+  </WithStyles(Fab)>
+</div>
+`;
+
+exports[`ProgressFab renders disabled 1`] = `
+<div
+  className="wrapper-mock"
+>
+  <WithStyles(Fab)
+    classes={
+      Object {
+        "root": "root-mock buttonSuccess-mock",
+      }
+    }
+    disabled={true}
+    onClick={[MockFunction]}
+  >
+    <pure(CheckIcon) />
+  </WithStyles(Fab)>
+</div>
+`;
+
+exports[`ProgressFab renders loading 1`] = `
+<div
+  className="wrapper-mock"
+>
+  <WithStyles(Fab)
+    classes={
+      Object {
+        "root": "root-mock",
+      }
+    }
+    disabled={false}
+    onClick={[MockFunction]}
+  >
+    <Icon />
+  </WithStyles(Fab)>
+  <WithStyles(CircularProgress)
+    className="fabProgress-mock"
+    size={68}
+  />
+</div>
+`;
+
+exports[`ProgressFab renders success 1`] = `
+<div
+  className="wrapper-mock"
+>
+  <WithStyles(Fab)
+    classes={
+      Object {
+        "root": "root-mock buttonSuccess-mock",
+      }
+    }
+    disabled={false}
+    onClick={[MockFunction]}
+  >
+    <pure(CheckIcon) />
+  </WithStyles(Fab)>
+</div>
+`;

@@ -19,15 +19,26 @@ module.exports = {
         test: /\.jsx?$/,
         exclude: /node_modules/,
         loader: 'babel-loader'
+      },
+      {
+        test: /\.css?$/,
+        loaders: [ 'style-loader', 'css-loader' ]
+      },
+      {
+        test: /\.(ttf|eot|svg|woff(2)?)(\?[a-z0-9=&.]+)?$/,
+        loader: 'file-loader'
       }
     ]
   },
   target: 'electron-renderer',
   entry: {
-    index: './src/index.js'
+    index: './src/renderer/index.js'
   },
   plugins: [
-    new HtmlWebpackPlugin(),
+    new HtmlWebpackPlugin({
+      title: 'Custom template',
+      template: 'src/renderer/index.html'
+    }),
     new webpack.HotModuleReplacementPlugin(),
     new WriteFilePlugin(),
     new WebpackOnBuildPlugin(() => {
@@ -51,5 +62,6 @@ module.exports = {
   ],
   devServer: {
     hot: true
-  }
+  },
+  devtool: 'eval-source-map'
 }
