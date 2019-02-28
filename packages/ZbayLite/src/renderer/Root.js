@@ -5,17 +5,17 @@ import { Provider } from 'react-redux'
 import { HashRouter, Route } from 'react-router-dom'
 
 import store from './store'
-import Index from './containers/pages/Index'
-import Home from './components/pages/Home'
-import CreateVault from './containers/pages/CreateVault'
-import UnlockVault from './containers/pages/UnlockVault'
+import Index from './containers/windows/Index'
+import Main from './components/windows/Main'
+import CreateVault from './containers/windows/CreateVault'
+import UnlockVault from './containers/windows/UnlockVault'
 
 export default () => (
   <HashRouter>
     <Provider store={store}>
       <CssBaseline />
       <Route path='/' exact component={Index} />
-      <Route path='/home' exact component={Home} />
+      <Route path='/main' exact component={Main} />
       <Route path='/vault/create' exact component={CreateVault} />
       <Route path='/vault/unlock' exact component={UnlockVault} />
     </Provider>

@@ -7,7 +7,7 @@ import Typography from '@material-ui/core/Typography'
 import Paper from '@material-ui/core/Paper'
 import { withStyles } from '@material-ui/core/styles'
 
-import PageWrapper from '../ui/PageWrapper'
+import WindowWrapper from '../ui/WindowWrapper'
 import Snackbar from '../ui/Snackbar'
 import VaultCreator from '../../containers/VaultCreator'
 
@@ -42,7 +42,7 @@ export const CreateVault = ({
   error,
   onCloseSnackbar
 }) => (
-  <PageWrapper>
+  <WindowWrapper>
     <Snackbar
       variant='loading'
       message={inProgressMsg}
@@ -55,7 +55,7 @@ export const CreateVault = ({
       open={error.length > 0}
       onClose={onCloseSnackbar}
     />
-    { finished && <Redirect to='/home' />}
+    { finished && <Redirect to='/main' />}
     <Grid container justify='center' alignItems='center' className={classes.gridRoot}>
       <Grid item>
         <Paper className={classes.paper}>
@@ -75,7 +75,7 @@ export const CreateVault = ({
         </Paper>
       </Grid>
     </Grid>
-  </PageWrapper>
+  </WindowWrapper>
 )
 
 CreateVault.propTypes = {

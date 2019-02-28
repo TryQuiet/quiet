@@ -1,10 +1,11 @@
 import { connect } from 'react-redux'
 
-import UnlockVault from '../../components/pages/UnlockVault'
+import Index from '../../components/windows/Index'
 import vaultSelectors from '../../store/selectors/vault'
 
 export const mapStateToProps = state => ({
+  exists: vaultSelectors.exists(state),
   locked: vaultSelectors.locked(state)
 })
 
-export default connect(mapStateToProps)(UnlockVault)
+export default connect(mapStateToProps)(Index)

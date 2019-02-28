@@ -18,15 +18,24 @@ const installExtensions = async () => {
   }
 }
 
+const windowSize = {
+  width: 1024,
+  height: 768
+}
+
 var mainWindow
 const createWindow = () => {
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: windowSize.width,
+    height: windowSize.height,
     webPreferences: {
       nodeIntegration: true
     }
   })
+  mainWindow.setMinimumSize(
+    windowSize.width,
+    windowSize.height
+  )
   mainWindow.loadURL(`file://${__dirname}/index.html`)
 
   // Open the DevTools.

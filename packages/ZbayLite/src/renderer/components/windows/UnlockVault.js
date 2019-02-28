@@ -6,10 +6,10 @@ import { Redirect } from 'react-router'
 import { withStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
 
-import PageWrapper from '../ui/PageWrapper'
+import WindowWrapper from '../ui/WindowWrapper'
 import VaultUnlocker from '../../containers/VaultUnlocker'
 
-const countdownRenderer = ({ completed }) => completed && <Redirect to='/home' />
+const countdownRenderer = ({ completed }) => completed && <Redirect to='/main' />
 
 const styles = theme => ({
   gridRoot: {
@@ -22,12 +22,12 @@ export const UnlockVault = ({
   locked
 }) => {
   return (
-    <PageWrapper>
+    <WindowWrapper>
       <Grid container justify='center' alignItems='center' className={classes.gridRoot}>
         <VaultUnlocker />
       </Grid>
       { !locked && <Countdown date={Date.now() + 1000} renderer={countdownRenderer} /> }
-    </PageWrapper>
+    </WindowWrapper>
   )
 }
 

@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Page renders component 1`] = `
+<WithStyles(Grid)
+  container={true}
+  direction="column"
+>
+  <React.Memo
+    classes={null}
+  >
+    <div>
+      Test header
+    </div>
+  </React.Memo>
+  <React.Memo
+    classes={null}
+  >
+    <div>
+      Test content
+    </div>
+  </React.Memo>
+</WithStyles(Grid)>
+`;

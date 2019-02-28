@@ -2,7 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 
-import CreateVault from '../../components/pages/CreateVault'
+import CreateVault from '../../components/windows/CreateVault'
 import vaultSelectors from '../../store/selectors/vault'
 import vaultHandlers from '../../store/handlers/vault'
 

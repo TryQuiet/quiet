@@ -9,7 +9,7 @@ const styles = {
   }
 }
 
-export const PageWrapper = ({ classes, children, className }) => (
+export const WindowWrapper = ({ classes, children, className }) => (
   <div className={classNames({
     [classes.wrapper]: true,
     [className]: className
@@ -18,4 +18,4 @@ export const PageWrapper = ({ classes, children, className }) => (
   </div>
 )
 
-export default React.memo(withStyles(styles)(PageWrapper))
+export default React.memo(withStyles(styles)(WindowWrapper))

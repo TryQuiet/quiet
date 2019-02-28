@@ -2,26 +2,26 @@
 import React from 'react'
 import { shallow } from 'enzyme'
 
-import { PageWrapper } from './PageWrapper'
+import { WindowWrapper } from './WindowWrapper'
 import { mockClasses } from '../../../shared/testing/mocks'
 
-describe('PageWrapper', () => {
+describe('WindowWrapper', () => {
   const Page = () => <div>Test page</div>
 
   it('renders component', () => {
     const result = shallow(
-      <PageWrapper classes={mockClasses} >
+      <WindowWrapper classes={mockClasses} >
         <Page />
-      </PageWrapper>
+      </WindowWrapper>
     )
     expect(result).toMatchSnapshot()
   })
 
   it('renders with custom className', () => {
     const result = shallow(
-      <PageWrapper classes={mockClasses} className='test-class'>
+      <WindowWrapper classes={mockClasses} className='test-class'>
         <Page />
-      </PageWrapper>
+      </WindowWrapper>
     )
     expect(result).toMatchSnapshot()
   })

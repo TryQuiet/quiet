@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PageHeader renders component 1`] = `
+<WithStyles(Grid)
+  className="root-mock"
+  item={true}
+>
+  <Content />
+</WithStyles(Grid)>
+`;
