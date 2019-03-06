@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NodePanelActions will receive right actions 1`] = `
+Object {
+  "onPower": [Function],
+  "onRestart": [Function],
+}
+`;

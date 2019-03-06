@@ -6,7 +6,7 @@ import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
 
 import WindowWrapper from '../ui/WindowWrapper'
-import Sidebar from '../ui/Sidebar'
+import Sidebar from '../widgets/sidebar/Sidebar'
 import Home from '../pages/Home'
 
 const styles = {

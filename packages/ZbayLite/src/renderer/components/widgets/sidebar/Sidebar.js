@@ -2,13 +2,15 @@ import React from 'react'
 import PropTypes from 'prop-types'
 
 import Grid from '@material-ui/core/Grid'
-import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
+
+import NodePanel from '../node/NodePanel'
+import SidebarHeader from '../../ui/SidebarHeader'
 
 const styles = {
   root: {
     minHeight: '100%',
-    minWidth: '300px',
+    width: '300px',
     background: '#fff',
     borderRight: 'solid #e8e8e8 1px'
   },
@@ -21,21 +23,19 @@ const Sidebar = ({ classes }) => (
     <Grid item>
       <Grid container direction='column'>
         <Grid item>
-          <Typography variant='h5'>
-            User
-          </Typography>
+          <SidebarHeader title='User' />
         </Grid>
         <Grid item>
-          <Typography variant='h5'>
-            Channels
-          </Typography>
+          <SidebarHeader title='Channels' />
         </Grid>
       </Grid>
     </Grid>
     <Grid item>
-      <Typography variant='h5'>
-        Node
-      </Typography>
+      <Grid container direction='column'>
+        <Grid item>
+          <NodePanel hexColor='#cca92c' />
+        </Grid>
+      </Grid>
     </Grid>
   </Grid>
 )

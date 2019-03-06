@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`VaultCreator renders component 1`] = `
+<WithStyles(Grid)
+  container={true}
+  justify="space-between"
+>
+  <WithStyles(Typography)
+    inline={true}
+    variant="overline"
+  >
+    test field
+    :
+  </WithStyles(Typography)>
+  <Content />
+</WithStyles(Grid)>
+`;

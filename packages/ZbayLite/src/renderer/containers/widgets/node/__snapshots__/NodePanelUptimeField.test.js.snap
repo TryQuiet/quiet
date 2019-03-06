@@ -1,0 +1,54 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NodePanelConnectionsField renders the uptime 1`] = `
+<React.Memo
+  name="Uptime"
+>
+  <WithStyles(Typography)
+    inline={true}
+    variant="overline"
+  >
+    1d  
+    1h  
+    10m
+  </WithStyles(Typography)>
+</React.Memo>
+`;
+
+exports[`NodePanelConnectionsField renders the uptime when less than day 1`] = `
+<React.Memo
+  name="Uptime"
+>
+  <WithStyles(Typography)
+    inline={true}
+    variant="overline"
+  >
+    1h  
+    10m
+  </WithStyles(Typography)>
+</React.Memo>
+`;
+
+exports[`NodePanelConnectionsField renders the uptime when less than hour 1`] = `
+<React.Memo
+  name="Uptime"
+>
+  <WithStyles(Typography)
+    inline={true}
+    variant="overline"
+  >
+    45m
+  </WithStyles(Typography)>
+</React.Memo>
+`;
+
+exports[`NodePanelConnectionsField will receive right props 1`] = `
+Object {
+  "uptime": Object {
+    "days": 1,
+    "hours": 0,
+    "minutes": 44,
+    "seconds": 24,
+  },
+}
+`;

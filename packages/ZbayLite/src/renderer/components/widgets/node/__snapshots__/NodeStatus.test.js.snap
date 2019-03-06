@@ -1,0 +1,117 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NodeStatus renders for status down 1`] = `
+<WithStyles(Grid)
+  container={true}
+>
+  <WithStyles(Grid)
+    item={true}
+  >
+    <React.Memo
+      color="down"
+      size={8}
+    />
+    <WithStyles(Typography)
+      className="status-mock"
+      inline={true}
+      variant="overline"
+    >
+      down
+       
+    </WithStyles(Typography)>
+  </WithStyles(Grid)>
+</WithStyles(Grid)>
+`;
+
+exports[`NodeStatus renders for status healthy 1`] = `
+<WithStyles(Grid)
+  container={true}
+>
+  <WithStyles(Grid)
+    item={true}
+  >
+    <React.Memo
+      color="healthy"
+      size={8}
+    />
+    <WithStyles(Typography)
+      className="status-mock"
+      inline={true}
+      variant="overline"
+    >
+      healthy
+       
+    </WithStyles(Typography)>
+  </WithStyles(Grid)>
+</WithStyles(Grid)>
+`;
+
+exports[`NodeStatus renders for status restarting 1`] = `
+<WithStyles(Grid)
+  container={true}
+>
+  <WithStyles(Grid)
+    item={true}
+  >
+    <React.Memo
+      color="restarting"
+      size={8}
+    />
+    <WithStyles(Typography)
+      className="status-mock"
+      inline={true}
+      variant="overline"
+    >
+      restarting
+       
+    </WithStyles(Typography)>
+  </WithStyles(Grid)>
+</WithStyles(Grid)>
+`;
+
+exports[`NodeStatus renders for status syncing 1`] = `
+<WithStyles(Grid)
+  container={true}
+>
+  <WithStyles(Grid)
+    item={true}
+  >
+    <React.Memo
+      color="syncing"
+      size={8}
+    />
+    <WithStyles(Typography)
+      className="status-mock"
+      inline={true}
+      variant="overline"
+    >
+      syncing
+       
+    </WithStyles(Typography)>
+  </WithStyles(Grid)>
+</WithStyles(Grid)>
+`;
+
+exports[`NodeStatus renders sync progress in percent 1`] = `
+<WithStyles(Grid)
+  container={true}
+>
+  <WithStyles(Grid)
+    item={true}
+  >
+    <React.Memo
+      color="syncing"
+      size={8}
+    />
+    <WithStyles(Typography)
+      className="status-mock"
+      inline={true}
+      variant="overline"
+    >
+      syncing
+       
+      78%
+    </WithStyles(Typography)>
+  </WithStyles(Grid)>
+</WithStyles(Grid)>
+`;

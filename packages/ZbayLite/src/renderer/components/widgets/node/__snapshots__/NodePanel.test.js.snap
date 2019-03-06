@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NodePanel renders component 1`] = `
+<WithStyles(Grid)
+  container={true}
+  justify="center"
+>
+  <WithStyles(Grid)
+    item={true}
+    xs={true}
+  >
+    <WithStyles(ExpansionPanel)
+      className="expander-mock"
+      square={true}
+    >
+      <WithStyles(ExpansionPanelSummary)
+        expandIcon={<pure(ExpandLessIcon) />}
+      >
+        <Connect(Component) />
+      </WithStyles(ExpansionPanelSummary)>
+      <WithStyles(ExpansionPanelDetails)
+        className="expansionDetails-mock"
+      >
+        <React.Memo />
+      </WithStyles(ExpansionPanelDetails)>
+    </WithStyles(ExpansionPanel)>
+  </WithStyles(Grid)>
+</WithStyles(Grid)>
+`;

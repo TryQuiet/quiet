@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NodePanelActions renders component 1`] = `
+<WithStyles(Grid)
+  container={true}
+  justify="flex-end"
+>
+  <WithStyles(IconButton)
+    onClick={[MockFunction]}
+  >
+    <pure(RefreshIcon) />
+  </WithStyles(IconButton)>
+  <WithStyles(IconButton)
+    onClick={[MockFunction]}
+  >
+    <pure(PowerSettingsNewIcon) />
+  </WithStyles(IconButton)>
+</WithStyles(Grid)>
+`;

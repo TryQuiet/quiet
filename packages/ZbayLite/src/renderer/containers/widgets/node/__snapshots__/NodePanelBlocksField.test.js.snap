@@ -1,0 +1,38 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NodePanelBlocksField renders the field 1`] = `
+<React.Memo
+  name="Blocks"
+>
+  <WithStyles(Typography)
+    inline={true}
+    variant="overline"
+  >
+    18
+     / 
+    12345
+  </WithStyles(Typography)>
+</React.Memo>
+`;
+
+exports[`NodePanelBlocksField renders the field when no latestBlock 1`] = `
+<React.Memo
+  name="Blocks"
+>
+  <WithStyles(Typography)
+    inline={true}
+    variant="overline"
+  >
+    0
+     / 
+    ?
+  </WithStyles(Typography)>
+</React.Memo>
+`;
+
+exports[`NodePanelBlocksField will receive right props 1`] = `
+Object {
+  "currentBlock": 18,
+  "latestBlock": 12345,
+}
+`;

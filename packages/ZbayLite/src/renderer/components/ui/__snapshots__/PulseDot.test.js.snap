@@ -1,0 +1,73 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PulseDot renders for status down 1`] = `
+<div
+  className="root-mock down-mock"
+  style={
+    Object {
+      "height": 16,
+      "width": 16,
+    }
+  }
+/>
+`;
+
+exports[`PulseDot renders for status healthy 1`] = `
+<div
+  className="root-mock healthy-mock"
+  style={
+    Object {
+      "height": 16,
+      "width": 16,
+    }
+  }
+/>
+`;
+
+exports[`PulseDot renders for status restarting 1`] = `
+<div
+  className="root-mock restarting-mock"
+  style={
+    Object {
+      "height": 16,
+      "width": 16,
+    }
+  }
+/>
+`;
+
+exports[`PulseDot renders for status syncing 1`] = `
+<div
+  className="root-mock syncing-mock"
+  style={
+    Object {
+      "height": 16,
+      "width": 16,
+    }
+  }
+/>
+`;
+
+exports[`PulseDot renders with custom className 1`] = `
+<div
+  className="root-mock healthy-mock custom-class-name"
+  style={
+    Object {
+      "height": 16,
+      "width": 16,
+    }
+  }
+/>
+`;
+
+exports[`PulseDot renders with custom size 1`] = `
+<div
+  className="root-mock healthy-mock"
+  style={
+    Object {
+      "height": 32,
+      "width": 32,
+    }
+  }
+/>
+`;

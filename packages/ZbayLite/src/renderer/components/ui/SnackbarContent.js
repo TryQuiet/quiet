@@ -14,6 +14,7 @@ import InfoIcon from '@material-ui/icons/Info'
 import WarningIcon from '@material-ui/icons/Warning'
 
 import green from '@material-ui/core/colors/green'
+import blue from '@material-ui/core/colors/blue'
 import amber from '@material-ui/core/colors/amber'
 
 const styles = theme => ({
@@ -28,10 +29,10 @@ const styles = theme => ({
     backgroundColor: theme.palette.error.dark
   },
   info: {
-    backgroundColor: theme.palette.primary.dark
+    backgroundColor: blue[600]
   },
   loading: {
-    backgroundColor: theme.palette.primary.light,
+    backgroundColor: blue[400],
     color: '#fff'
   },
   loadingIcon: {

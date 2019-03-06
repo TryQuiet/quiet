@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NodePanelDetails renders component 1`] = `
+<WithStyles(Grid)
+  container={true}
+  direction="column"
+>
+  <WithStyles(Grid)
+    className="details-mock"
+    container={true}
+    direction="column"
+  >
+    <Connect(NodePanelBlocksField) />
+    <Connect(NodePanelConnectionsField) />
+    <Connect(NodePanelUptimeField) />
+  </WithStyles(Grid)>
+  <Connect(Component) />
+</WithStyles(Grid)>
+`;
