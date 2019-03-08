@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`WalletPanelActions renders component 1`] = `
+<WithStyles(Grid)
+  container={true}
+  direction="row"
+  justify="space-between"
+>
+  <WithStyles(Grid)
+    item={true}
+  >
+    <WithStyles(Button)
+      color="primary"
+      size="small"
+      variant="contained"
+    >
+      Send Money
+    </WithStyles(Button)>
+  </WithStyles(Grid)>
+  <WithStyles(Grid)
+    item={true}
+  >
+    <WithStyles(Button)
+      color="primary"
+      size="small"
+      variant="contained"
+    >
+      Receive Money
+    </WithStyles(Button)>
+  </WithStyles(Grid)>
+</WithStyles(Grid)>
+`;

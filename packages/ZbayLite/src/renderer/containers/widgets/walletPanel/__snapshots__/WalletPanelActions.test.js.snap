@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`WalletPanelActions will receive right actions 1`] = `
+Object {
+  "onReceive": [Function],
+  "onSend": [Function],
+}
+`;

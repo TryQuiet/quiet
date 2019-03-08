@@ -5,6 +5,8 @@ import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
 
 import NodePanel from '../node/NodePanel'
+import IdentityPanel from '../../../containers/ui/IdentityPanel'
+import WalletPanel from '../walletPanel/WalletPanel'
 import SidebarHeader from '../../ui/SidebarHeader'
 
 const styles = {
@@ -23,7 +25,10 @@ const Sidebar = ({ classes }) => (
     <Grid item>
       <Grid container direction='column'>
         <Grid item>
-          <SidebarHeader title='User' />
+          <IdentityPanel />
+        </Grid>
+        <Grid item>
+          <WalletPanel />
         </Grid>
         <Grid item>
           <SidebarHeader title='Channels' />

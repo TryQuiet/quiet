@@ -1,0 +1,38 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`WalletPanelActions renders component 1`] = `
+<WithStyles(Grid)
+  className="root-mock"
+  container={true}
+  direction="column"
+>
+  <WithStyles(Grid)
+    item={true}
+  >
+    <WithStyles(Grid)
+      alignItems="center"
+      container={true}
+      direction="row"
+      justify="space-between"
+    >
+      <WithStyles(Grid)
+        item={true}
+      >
+        <Connect(Component) />
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        className="zec-mock"
+        item={true}
+      >
+        <Connect(Component) />
+      </WithStyles(Grid)>
+    </WithStyles(Grid)>
+  </WithStyles(Grid)>
+  <WithStyles(Grid)
+    className="actions-mock"
+    item={true}
+  >
+    <Connect(Component) />
+  </WithStyles(Grid)>
+</WithStyles(Grid)>
+`;

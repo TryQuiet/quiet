@@ -1,0 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`rates selectors fetches rates for usd 1`] = `"232.11"`;
+
+exports[`rates selectors fetches rates for zec 1`] = `"132.343459"`;

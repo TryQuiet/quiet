@@ -70,6 +70,7 @@
     "@babel/polyfill": "^7.2.5",
     "@material-ui/core": "^3.9.2",
     "@material-ui/icons": "^3.0.2",
+    "bignumber.js": "^8.1.1",
     "buttercup": "^2.10.0",
     "classnames": "^2.2.6",
     "immutable": "^4.0.0-rc.12",

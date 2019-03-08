@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`identity selectors balance for usd 1`] = `"67.166008"`;
+
+exports[`identity selectors balance for zec 1`] = `"33.583004"`;
+
+exports[`identity selectors identity 1`] = `
+Immutable.IdentityState {
+  "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly",
+  "name": "Saturn",
+  "balance": "33.583004",
+}
+`;

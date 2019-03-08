@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ZecBalance renders component 1`] = `
+<WithStyles(Grid)
+  container={true}
+>
+  <React.Memo
+    className="icon-mock"
+    size={14}
+  />
+  <WithStyles(Typography)
+    className="value-mock"
+    variant="caption"
+  >
+    3,243.253232
+  </WithStyles(Typography)>
+</WithStyles(Grid)>
+`;
+
+exports[`ZecBalance renders when no value 1`] = `
+<WithStyles(Grid)
+  container={true}
+>
+  <React.Memo
+    className="icon-mock"
+    size={14}
+  />
+  <WithStyles(Typography)
+    className="value-mock"
+    variant="caption"
+  >
+    -
+  </WithStyles(Typography)>
+</WithStyles(Grid)>
+`;

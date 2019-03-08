@@ -5,13 +5,13 @@ import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
 
-const styles = {
+const styles = theme => ({
   root: {
     borderTop: 'solid #cbcbcb 2px',
-    paddingTop: '8px',
-    paddingLeft: '16px'
+    paddingTop: 1.5 * theme.spacing.unit,
+    paddingLeft: 2 * theme.spacing.unit
   }
-}
+})
 
 export const SidebarHeader = ({ classes, title, actions }) => (
   <Grid container direction='row' justify='space-between' className={classes.root}>
