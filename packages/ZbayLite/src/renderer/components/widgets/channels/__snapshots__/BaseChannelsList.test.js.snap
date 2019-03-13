@@ -1,0 +1,271 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BaseChannelsList renders component 1`] = `
+<Scrollbars
+  autoHeight={false}
+  autoHeightMax={200}
+  autoHeightMin={0}
+  autoHide={true}
+  autoHideDuration={200}
+  autoHideTimeout={500}
+  hideTracksWhenNotNeeded={false}
+  renderThumbHorizontal={[Function]}
+  renderThumbVertical={[Function]}
+  renderTrackHorizontal={[Function]}
+  renderTrackVertical={[Function]}
+  renderView={[Function]}
+  style={
+    Object {
+      "height": 444,
+    }
+  }
+  tagName="div"
+  thumbMinSize={30}
+  universal={false}
+>
+  <WithStyles(List)
+    disablePadding={true}
+  >
+    <React.Memo
+      channel={
+        Object {
+          "address": "zs1testaddress0",
+          "description": "",
+          "hash": "test-hash-0",
+          "name": "Channel 0",
+          "private": true,
+          "unread": 0,
+        }
+      }
+      displayAddress={false}
+      key="zs1testaddress0"
+    />
+    <React.Memo
+      channel={
+        Object {
+          "address": "zs1testaddress1",
+          "description": "Channel about 1",
+          "hash": "test-hash-1",
+          "name": "Channel 1",
+          "private": false,
+          "unread": 1,
+        }
+      }
+      displayAddress={false}
+      key="zs1testaddress1"
+    />
+    <React.Memo
+      channel={
+        Object {
+          "address": "zs1testaddress2",
+          "description": "",
+          "hash": "test-hash-2",
+          "name": "Channel 2",
+          "private": true,
+          "unread": 2,
+        }
+      }
+      displayAddress={false}
+      key="zs1testaddress2"
+    />
+    <React.Memo
+      channel={
+        Object {
+          "address": "zs1testaddress3",
+          "description": "Channel about 3",
+          "hash": "test-hash-3",
+          "name": "Channel 3",
+          "private": false,
+          "unread": 3,
+        }
+      }
+      displayAddress={false}
+      key="zs1testaddress3"
+    />
+    <React.Memo
+      channel={
+        Object {
+          "address": "zs1testaddress4",
+          "description": "",
+          "hash": "test-hash-4",
+          "name": "Channel 4",
+          "private": true,
+          "unread": 4,
+        }
+      }
+      displayAddress={false}
+      key="zs1testaddress4"
+    />
+    <React.Memo
+      channel={
+        Object {
+          "address": "zs1testaddress5",
+          "description": "Channel about 5",
+          "hash": "test-hash-5",
+          "name": "Channel 5",
+          "private": false,
+          "unread": 5,
+        }
+      }
+      displayAddress={false}
+      key="zs1testaddress5"
+    />
+    <React.Memo
+      channel={
+        Object {
+          "address": "zs1testaddress6",
+          "description": "",
+          "hash": "test-hash-6",
+          "name": "Channel 6",
+          "private": true,
+          "unread": 6,
+        }
+      }
+      displayAddress={false}
+      key="zs1testaddress6"
+    />
+    <React.Memo
+      channel={
+        Object {
+          "address": "zs1testaddress7",
+          "description": "Channel about 7",
+          "hash": "test-hash-7",
+          "name": "Channel 7",
+          "private": false,
+          "unread": 7,
+        }
+      }
+      displayAddress={false}
+      key="zs1testaddress7"
+    />
+    <React.Memo
+      channel={
+        Object {
+          "address": "zs1testaddress8",
+          "description": "",
+          "hash": "test-hash-8",
+          "name": "Channel 8",
+          "private": true,
+          "unread": 8,
+        }
+      }
+      displayAddress={false}
+      key="zs1testaddress8"
+    />
+    <React.Memo
+      channel={
+        Object {
+          "address": "zs1testaddress9",
+          "description": "Channel about 9",
+          "hash": "test-hash-9",
+          "name": "Channel 9",
+          "private": false,
+          "unread": 9,
+        }
+      }
+      displayAddress={false}
+      key="zs1testaddress9"
+    />
+    <React.Memo
+      channel={
+        Object {
+          "address": "zs1testaddress10",
+          "description": "",
+          "hash": "test-hash-10",
+          "name": "Channel 10",
+          "private": true,
+          "unread": 10,
+        }
+      }
+      displayAddress={false}
+      key="zs1testaddress10"
+    />
+    <React.Memo
+      channel={
+        Object {
+          "address": "zs1testaddress11",
+          "description": "Channel about 11",
+          "hash": "test-hash-11",
+          "name": "Channel 11",
+          "private": false,
+          "unread": 11,
+        }
+      }
+      displayAddress={false}
+      key="zs1testaddress11"
+    />
+  </WithStyles(List)>
+</Scrollbars>
+`;
+
+exports[`BaseChannelsList renders list elements with displayAddress 1`] = `
+<Scrollbars
+  autoHeight={false}
+  autoHeightMax={200}
+  autoHeightMin={0}
+  autoHide={true}
+  autoHideDuration={200}
+  autoHideTimeout={500}
+  hideTracksWhenNotNeeded={false}
+  renderThumbHorizontal={[Function]}
+  renderThumbVertical={[Function]}
+  renderTrackHorizontal={[Function]}
+  renderTrackVertical={[Function]}
+  renderView={[Function]}
+  style={
+    Object {
+      "height": 148,
+    }
+  }
+  tagName="div"
+  thumbMinSize={30}
+  universal={false}
+>
+  <WithStyles(List)
+    disablePadding={true}
+  >
+    <React.Memo
+      channel={
+        Object {
+          "address": "zs1testaddress0",
+          "description": "",
+          "hash": "test-hash-0",
+          "name": "Channel 0",
+          "private": true,
+          "unread": 0,
+        }
+      }
+      displayAddress={true}
+      key="zs1testaddress0"
+    />
+    <React.Memo
+      channel={
+        Object {
+          "address": "zs1testaddress1",
+          "description": "Channel about 1",
+          "hash": "test-hash-1",
+          "name": "Channel 1",
+          "private": false,
+          "unread": 1,
+        }
+      }
+      displayAddress={true}
+      key="zs1testaddress1"
+    />
+    <React.Memo
+      channel={
+        Object {
+          "address": "zs1testaddress2",
+          "description": "",
+          "hash": "test-hash-2",
+          "name": "Channel 2",
+          "private": true,
+          "unread": 2,
+        }
+      }
+      displayAddress={true}
+      key="zs1testaddress2"
+    />
+  </WithStyles(List)>
+</Scrollbars>
+`;

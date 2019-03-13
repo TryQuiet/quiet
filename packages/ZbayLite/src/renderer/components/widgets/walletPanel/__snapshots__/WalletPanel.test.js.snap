@@ -5,6 +5,7 @@ exports[`WalletPanelActions renders component 1`] = `
   className="root-mock"
   container={true}
   direction="column"
+  item={true}
 >
   <WithStyles(Grid)
     item={true}

@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import classNames from 'classnames'
 import * as R from 'ramda'
 
 import Grid from '@material-ui/core/Grid'
@@ -23,11 +24,21 @@ const styles = theme => ({
   expander: {
     backgroundColor: theme.palette.primary.light,
     boxShadow: 'none'
+  },
+  root: {
+    position: 'relative'
   }
 })
 
-export const NodePanel = ({ classes }) => (
-  <Grid container justify='center'>
+export const NodePanel = ({ classes, className }) => (
+  <Grid
+    item
+    container
+    justify='center'
+    className={classNames({
+      [classes.root]: true,
+      [className]: className
+    })}>
     <Grid item xs>
       <ExpansionPanel square className={classes.expander}>
         <ExpansionPanelSummary expandIcon={<ExpandLessIcon />}>
@@ -42,7 +53,8 @@ export const NodePanel = ({ classes }) => (
 )
 
 NodePanel.propTypes = {
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
+  className: PropTypes.string
 }
 
 export default R.compose(

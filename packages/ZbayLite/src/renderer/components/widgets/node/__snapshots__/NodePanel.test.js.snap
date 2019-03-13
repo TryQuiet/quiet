@@ -2,7 +2,9 @@
 
 exports[`NodePanel renders component 1`] = `
 <WithStyles(Grid)
+  className="root-mock"
   container={true}
+  item={true}
   justify="center"
 >
   <WithStyles(Grid)

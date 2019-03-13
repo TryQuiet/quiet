@@ -25,7 +25,7 @@ const styles = theme => ({
 })
 
 export const WalletPanel = ({ classes }) => (
-  <Grid container direction='column' className={classes.root}>
+  <Grid item container direction='column' className={classes.root}>
     <Grid item>
       <Grid container direction='row' justify='space-between' alignItems='center' >
         <Grid item>

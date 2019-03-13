@@ -6,7 +6,7 @@ import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
 
-import Tooltip from '../ui/Tooltip'
+import Elipsis from '../ui/Elipsis'
 
 const styles = theme => ({
   root: {
@@ -25,15 +25,16 @@ const getZbayAddress = (zcashAddress) => `zbay.io/uri/${zcashAddress}`
 export const IdentityPanel = ({ classes, identity }) => {
   const zbayUri = getZbayAddress(identity.address)
   return (
-    <Grid container className={classes.root} direction='column'>
+    <Grid item container className={classes.root} direction='column'>
       <Typography variant='subtitle1' className={classes.name}>
         {identity.name} (you)
       </Typography>
-      <Tooltip title={zbayUri} interactive placement='left'>
-        <Typography variant='caption' className={classes.uri}>
-          {zbayUri.substring(0, 40)}...
-        </Typography>
-      </Tooltip>
+      <Elipsis
+        interactive
+        content={zbayUri}
+        tooltipPlacement='left'
+        classes={{ content: classes.uri }}
+      />
     </Grid>
   )
 }

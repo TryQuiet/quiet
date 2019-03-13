@@ -2,6 +2,7 @@
 
 exports[`SidebarHeader renders component 1`] = `
 <WithStyles(Grid)
+  alignItems="center"
   className="root-mock"
   container={true}
   direction="row"

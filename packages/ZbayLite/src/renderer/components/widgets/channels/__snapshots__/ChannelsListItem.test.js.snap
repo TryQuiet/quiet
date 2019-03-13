@@ -1,0 +1,116 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChannelsListItem renders component 1`] = `
+<WithStyles(ListItem)
+  alignItems="center"
+  button={true}
+  className="root-mock"
+>
+  <WithStyles(ListItemIcon)
+    className="itemIcon-mock"
+  >
+    <pure(HttpsOutlinedIcon) />
+  </WithStyles(ListItemIcon)>
+  <WithStyles(ListItemText)
+    address="zs1testaddress0"
+    className="itemText-mock"
+    primary={
+      <WithStyles(Badge)
+        badgeContent={0}
+        classes={
+          Object {
+            "badge": "badge-mock",
+          }
+        }
+      >
+        Channel 0
+      </WithStyles(Badge)>
+    }
+    secondary=""
+    secondaryTypographyProps={
+      Object {
+        "variant": "caption",
+      }
+    }
+  />
+</WithStyles(ListItem)>
+`;
+
+exports[`ChannelsListItem renders component when public 1`] = `
+<WithStyles(ListItem)
+  alignItems="center"
+  button={true}
+  className="root-mock"
+>
+  <WithStyles(ListItemIcon)
+    className="itemIcon-mock"
+  >
+    <pure(ChatBubbleOutlineIcon)
+      className="icon-mock"
+    />
+  </WithStyles(ListItemIcon)>
+  <WithStyles(ListItemText)
+    address="zs1testaddress1"
+    className="itemText-mock"
+    primary={
+      <WithStyles(Badge)
+        badgeContent={1}
+        classes={
+          Object {
+            "badge": "badge-mock",
+          }
+        }
+      >
+        Channel 1
+      </WithStyles(Badge)>
+    }
+    secondary=""
+    secondaryTypographyProps={
+      Object {
+        "variant": "caption",
+      }
+    }
+  />
+</WithStyles(ListItem)>
+`;
+
+exports[`ChannelsListItem renders component with address 1`] = `
+<WithStyles(ListItem)
+  alignItems="flex-start"
+  button={true}
+  className="root-mock"
+>
+  <WithStyles(ListItemIcon)
+    className="itemIcon-mock"
+  >
+    <pure(HttpsOutlinedIcon) />
+  </WithStyles(ListItemIcon)>
+  <WithStyles(ListItemText)
+    address="zs1testaddress0"
+    className="itemText-mock"
+    primary={
+      <WithStyles(Badge)
+        badgeContent={0}
+        classes={
+          Object {
+            "badge": "badge-mock",
+          }
+        }
+      >
+        Channel 0
+      </WithStyles(Badge)>
+    }
+    secondary={
+      <UNDEFINED
+        content="zs1testaddress0"
+        length={30}
+      />
+    }
+    secondaryTypographyProps={
+      Object {
+        "variant": "caption",
+      }
+    }
+  />
+</WithStyles(ListItem)>
+`;

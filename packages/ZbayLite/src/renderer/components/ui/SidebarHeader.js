@@ -8,13 +8,20 @@ import { withStyles } from '@material-ui/core/styles'
 const styles = theme => ({
   root: {
     borderTop: 'solid #cbcbcb 2px',
-    paddingTop: 1.5 * theme.spacing.unit,
-    paddingLeft: 2 * theme.spacing.unit
+    paddingLeft: 2 * theme.spacing.unit,
+    height: '52px',
+    paddingRight: theme.spacing.unit
   }
 })
 
 export const SidebarHeader = ({ classes, title, actions }) => (
-  <Grid container direction='row' justify='space-between' className={classes.root}>
+  <Grid
+    container
+    direction='row'
+    justify='space-between'
+    alignItems='center'
+    className={classes.root}
+  >
     <Grid item>
       <Typography variant='subtitle1'>
         {title}

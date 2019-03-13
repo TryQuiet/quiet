@@ -5,6 +5,7 @@ exports[`IdentityPanel renders component 1`] = `
   className="root-mock"
   container={true}
   direction="column"
+  item={true}
 >
   <WithStyles(Typography)
     className="name-mock"
@@ -14,17 +15,14 @@ exports[`IdentityPanel renders component 1`] = `
      (you)
   </WithStyles(Typography)>
   <React.Memo
+    classes={
+      Object {
+        "content": "uri-mock",
+      }
+    }
+    content="zbay.io/uri/zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly"
     interactive={true}
-    placement="left"
-    title="zbay.io/uri/zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly"
-  >
-    <WithStyles(Typography)
-      className="uri-mock"
-      variant="caption"
-    >
-      zbay.io/uri/zs1z7rejlpsa98s2rrrfkwmaxu53
-      ...
-    </WithStyles(Typography)>
-  </React.Memo>
+    tooltipPlacement="left"
+  />
 </WithStyles(Grid)>
 `;

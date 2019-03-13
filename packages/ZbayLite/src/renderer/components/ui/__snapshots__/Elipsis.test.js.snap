@@ -1,0 +1,65 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Elipsis renders with custom size 1`] = `
+<React.Memo
+  interactive={false}
+  placement="left"
+  title="this is a sample text"
+>
+  <WithStyles(Typography)
+    className="content-mock"
+    variant="caption"
+  >
+    this 
+    ...
+  </WithStyles(Typography)>
+</React.Memo>
+`;
+
+exports[`Elipsis renders with placement center 1`] = `
+<React.Memo
+  interactive={false}
+  placement="center"
+  title="this is a sample text"
+>
+  <WithStyles(Typography)
+    className="content-mock"
+    variant="caption"
+  >
+    this 
+    ...
+  </WithStyles(Typography)>
+</React.Memo>
+`;
+
+exports[`Elipsis renders with placement left 1`] = `
+<React.Memo
+  interactive={false}
+  placement="left"
+  title="this is a sample text"
+>
+  <WithStyles(Typography)
+    className="content-mock"
+    variant="caption"
+  >
+    this 
+    ...
+  </WithStyles(Typography)>
+</React.Memo>
+`;
+
+exports[`Elipsis renders with placement right 1`] = `
+<React.Memo
+  interactive={false}
+  placement="right"
+  title="this is a sample text"
+>
+  <WithStyles(Typography)
+    className="content-mock"
+    variant="caption"
+  >
+    this 
+    ...
+  </WithStyles(Typography)>
+</React.Memo>
+`;

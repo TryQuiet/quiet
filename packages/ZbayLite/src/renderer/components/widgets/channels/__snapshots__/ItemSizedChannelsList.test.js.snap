@@ -1,0 +1,86 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ItemSizedChannelsList renders component 1`] = `
+<React.Memo
+  channels={
+    Array [
+      Object {
+        "address": "zs1testaddress0",
+        "description": "",
+        "hash": "test-hash-0",
+        "name": "Channel 0",
+        "private": true,
+        "unread": 0,
+      },
+      Object {
+        "address": "zs1testaddress1",
+        "description": "Channel about 1",
+        "hash": "test-hash-1",
+        "name": "Channel 1",
+        "private": false,
+        "unread": 1,
+      },
+      Object {
+        "address": "zs1testaddress2",
+        "description": "",
+        "hash": "test-hash-2",
+        "name": "Channel 2",
+        "private": true,
+        "unread": 2,
+      },
+      Object {
+        "address": "zs1testaddress3",
+        "description": "Channel about 3",
+        "hash": "test-hash-3",
+        "name": "Channel 3",
+        "private": false,
+        "unread": 3,
+      },
+    ]
+  }
+  height={148}
+/>
+`;
+
+exports[`ItemSizedChannelsList renders with correct height when displayAddress = true 1`] = `
+<React.Memo
+  channels={
+    Array [
+      Object {
+        "address": "zs1testaddress0",
+        "description": "",
+        "hash": "test-hash-0",
+        "name": "Channel 0",
+        "private": true,
+        "unread": 0,
+      },
+      Object {
+        "address": "zs1testaddress1",
+        "description": "Channel about 1",
+        "hash": "test-hash-1",
+        "name": "Channel 1",
+        "private": false,
+        "unread": 1,
+      },
+      Object {
+        "address": "zs1testaddress2",
+        "description": "",
+        "hash": "test-hash-2",
+        "name": "Channel 2",
+        "private": true,
+        "unread": 2,
+      },
+      Object {
+        "address": "zs1testaddress3",
+        "description": "Channel about 3",
+        "hash": "test-hash-3",
+        "name": "Channel 3",
+        "private": false,
+        "unread": 3,
+      },
+    ]
+  }
+  displayAddress={true}
+  height={216}
+/>
+`;
