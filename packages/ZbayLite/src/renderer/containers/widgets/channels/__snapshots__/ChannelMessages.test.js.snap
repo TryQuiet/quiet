@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChannelInput will receive right props 1`] = `
+Object {
+  "messages": Array [
+    Object {
+      "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly",
+      "createdAt": "2019-03-07T13:03:48.000Z",
+      "description": "This is some message 0",
+      "id": 0,
+    },
+    Object {
+      "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly",
+      "createdAt": "2019-03-07T12:03:48.000Z",
+      "description": "This is some message 1",
+      "id": 1,
+    },
+    Object {
+      "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly",
+      "createdAt": "2019-03-07T11:03:48.000Z",
+      "description": "This is some message 2",
+      "id": 2,
+    },
+    Object {
+      "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly",
+      "createdAt": "2019-03-07T10:03:48.000Z",
+      "description": "This is some message 3",
+      "id": 3,
+    },
+  ],
+}
+`;

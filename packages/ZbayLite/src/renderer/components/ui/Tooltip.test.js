@@ -34,7 +34,7 @@ describe('Tooltip', () => {
     expect(result).toMatchSnapshot()
   })
 
-  each(['left', 'right', 'center']).test(
+  each(['bottom-start', 'bottom', 'bottom-end', 'top-start', 'top', 'top-end']).test(
     'renders component with correct arrow placement - %s',
     (placement) => {
       const result = shallow(

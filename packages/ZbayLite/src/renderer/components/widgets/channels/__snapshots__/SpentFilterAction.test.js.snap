@@ -1,0 +1,34 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SpentFilter renders component 1`] = `
+<ClickAwayListener
+  mouseEvent="onMouseUp"
+  onClickAway={[Function]}
+  touchEvent="onTouchEnd"
+>
+  <WithStyles(Button)
+    buttonRef={[Function]}
+    className="spendButton-mock"
+    color="primary"
+    onClick={[Function]}
+    size="small"
+    variant="contained"
+  >
+    Ad Spend
+  </WithStyles(Button)>
+  <React.Memo
+    anchorEl={
+      Object {
+        "current": null,
+      }
+    }
+    className="tooltip-mock"
+    offset="0 15"
+    open={false}
+  >
+    <Connect(Component)
+      onClickAway={[Function]}
+    />
+  </React.Memo>
+</ClickAwayListener>
+`;

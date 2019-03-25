@@ -1,0 +1,85 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PopupMenu renders component 1`] = `
+<Popper
+  anchorEl={
+    Object {
+      "current": null,
+    }
+  }
+  className="popper-mock"
+  disablePortal={true}
+  modifiers={
+    Object {
+      "arrow": Object {
+        "element": null,
+        "enabled": false,
+      },
+      "offset": Object {
+        "offset": 0,
+      },
+    }
+  }
+  open={true}
+  placement="bottom-end"
+  transition={true}
+>
+  <Component />
+</Popper>
+`;
+
+exports[`PopupMenu renders when closed 1`] = `
+<Popper
+  anchorEl={
+    Object {
+      "current": null,
+    }
+  }
+  className="popper-mock"
+  disablePortal={true}
+  modifiers={
+    Object {
+      "arrow": Object {
+        "element": null,
+        "enabled": false,
+      },
+      "offset": Object {
+        "offset": 0,
+      },
+    }
+  }
+  open={false}
+  placement="bottom-end"
+  transition={true}
+>
+  <Component />
+</Popper>
+`;
+
+exports[`PopupMenu renders with offset 1`] = `
+<Popper
+  anchorEl={
+    Object {
+      "current": null,
+    }
+  }
+  className="popper-mock"
+  disablePortal={true}
+  modifiers={
+    Object {
+      "arrow": Object {
+        "element": null,
+        "enabled": false,
+      },
+      "offset": Object {
+        "offset": "0 10",
+      },
+    }
+  }
+  open={true}
+  placement="bottom-end"
+  transition={true}
+>
+  <Component />
+</Popper>
+`;

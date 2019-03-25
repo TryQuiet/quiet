@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChannelInput will receive right actions 1`] = `
+Object {
+  "onChange": [Function],
+  "onKeyPress": [Function],
+}
+`;
+
+exports[`ChannelInput will receive right props 1`] = `
+Object {
+  "message": "This is a test message",
+}
+`;

@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ProgressFab renders component 1`] = `
+<WithStyles(IconButton)
+  classes={
+    Object {
+      "root": "root-mock",
+    }
+  }
+>
+  <Icon />
+</WithStyles(IconButton)>
+`;
+
+exports[`ProgressFab renders with passed components 1`] = `
+<WithStyles(IconButton)
+  buttonRef={
+    Object {
+      "current": null,
+    }
+  }
+  classes={
+    Object {
+      "root": "root-mock",
+    }
+  }
+  onClick={[MockFunction]}
+>
+  <Icon />
+</WithStyles(IconButton)>
+`;

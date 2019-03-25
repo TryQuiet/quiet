@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChannelInputAction will receive right actions 1`] = `
+Object {
+  "onPostOffer": [Function],
+  "onSendMoney": [Function],
+}
+`;

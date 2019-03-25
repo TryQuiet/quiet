@@ -23,7 +23,10 @@ export default createMuiTheme({
         paddingLeft: '16px',
         paddingRight: '14px',
         fontWeight: 400,
-        fontSize: '14px'
+        fontSize: '14px',
+        '&:active': {
+          boxShadow: 'none'
+        }
       }
     }
   }

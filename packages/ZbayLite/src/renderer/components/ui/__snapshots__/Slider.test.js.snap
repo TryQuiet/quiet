@@ -1,0 +1,214 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Slider renders component 1`] = `
+<WithStyles(Grid)
+  alignItems="center"
+  container={true}
+  direction="column"
+  justify="center"
+>
+  <WithStyles(Typography)
+    className="title-mock"
+    variant="caption"
+  >
+    this is a title of the slider
+  </WithStyles(Typography)>
+  <WithStyles(Grid)
+    item={true}
+  >
+    <WithStyles(Grid)
+      container={true}
+      direction="row"
+    >
+      <WithStyles(Grid)
+        item={true}
+      >
+        <WithStyles(Typography)
+          className="label-mock"
+          inline={true}
+          variant="body2"
+        >
+          $0
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        className="sliderContainer-mock"
+        item={true}
+        xs={true}
+      >
+        <WithStyles(Slider)
+          classes={
+            Object {
+              "activated": "activated-mock",
+              "root": "sliderRoot-mock",
+              "thumb": "thumb-mock",
+              "thumbIconWrapper": "iconWrapper-mock",
+              "track": "track-mock",
+              "trackAfter": "track-mock",
+              "trackBefore": "track-mock",
+            }
+          }
+          max={100}
+          min={0}
+          onChange={[MockFunction]}
+          thumb={<UNDEFINED />}
+          value={23}
+        />
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+      >
+        <WithStyles(Typography)
+          className="label-mock"
+          inline={true}
+          variant="body2"
+        >
+          $max
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+    </WithStyles(Grid)>
+  </WithStyles(Grid)>
+</WithStyles(Grid)>
+`;
+
+exports[`Slider renders custom min/max 1`] = `
+<WithStyles(Grid)
+  alignItems="center"
+  container={true}
+  direction="column"
+  justify="center"
+>
+  <WithStyles(Typography)
+    className="title-mock"
+    variant="caption"
+  >
+    this is a title of the slider
+  </WithStyles(Typography)>
+  <WithStyles(Grid)
+    item={true}
+  >
+    <WithStyles(Grid)
+      container={true}
+      direction="row"
+    >
+      <WithStyles(Grid)
+        item={true}
+      >
+        <WithStyles(Typography)
+          className="label-mock"
+          inline={true}
+          variant="body2"
+        >
+          $0
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        className="sliderContainer-mock"
+        item={true}
+        xs={true}
+      >
+        <WithStyles(Slider)
+          classes={
+            Object {
+              "activated": "activated-mock",
+              "root": "sliderRoot-mock",
+              "thumb": "thumb-mock",
+              "thumbIconWrapper": "iconWrapper-mock",
+              "track": "track-mock",
+              "trackAfter": "track-mock",
+              "trackBefore": "track-mock",
+            }
+          }
+          max={20}
+          min={-20}
+          onChange={[MockFunction]}
+          thumb={<UNDEFINED />}
+          value={8}
+        />
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+      >
+        <WithStyles(Typography)
+          className="label-mock"
+          inline={true}
+          variant="body2"
+        >
+          $max
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+    </WithStyles(Grid)>
+  </WithStyles(Grid)>
+</WithStyles(Grid)>
+`;
+
+exports[`Slider renders with labels 1`] = `
+<WithStyles(Grid)
+  alignItems="center"
+  container={true}
+  direction="column"
+  justify="center"
+>
+  <WithStyles(Typography)
+    className="title-mock"
+    variant="caption"
+  >
+    this is a title of the slider
+  </WithStyles(Typography)>
+  <WithStyles(Grid)
+    item={true}
+  >
+    <WithStyles(Grid)
+      container={true}
+      direction="row"
+    >
+      <WithStyles(Grid)
+        item={true}
+      >
+        <WithStyles(Typography)
+          className="label-mock"
+          inline={true}
+          variant="body2"
+        >
+          $ MIN
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        className="sliderContainer-mock"
+        item={true}
+        xs={true}
+      >
+        <WithStyles(Slider)
+          classes={
+            Object {
+              "activated": "activated-mock",
+              "root": "sliderRoot-mock",
+              "thumb": "thumb-mock",
+              "thumbIconWrapper": "iconWrapper-mock",
+              "track": "track-mock",
+              "trackAfter": "track-mock",
+              "trackBefore": "track-mock",
+            }
+          }
+          max={100}
+          min={0}
+          onChange={[MockFunction]}
+          thumb={<UNDEFINED />}
+          value={23}
+        />
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+      >
+        <WithStyles(Typography)
+          className="label-mock"
+          inline={true}
+          variant="body2"
+        >
+          $ MAX
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+    </WithStyles(Grid)>
+  </WithStyles(Grid)>
+</WithStyles(Grid)>
+`;

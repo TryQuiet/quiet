@@ -7,6 +7,7 @@ import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
 
 import Elipsis from '../ui/Elipsis'
+import { getZbayAddress } from '../utils'
 
 const styles = theme => ({
   root: {
@@ -20,8 +21,6 @@ const styles = theme => ({
   }
 })
 
-const getZbayAddress = (zcashAddress) => `zbay.io/uri/${zcashAddress}`
-
 export const IdentityPanel = ({ classes, identity }) => {
   const zbayUri = getZbayAddress(identity.address)
   return (
@@ -32,7 +31,7 @@ export const IdentityPanel = ({ classes, identity }) => {
       <Elipsis
         interactive
         content={zbayUri}
-        tooltipPlacement='left'
+        tooltipPlacement='bottom-start'
         classes={{ content: classes.uri }}
       />
     </Grid>

@@ -1,0 +1,67 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SpentFilter renders component 1`] = `
+<WithStyles(Grid)
+  alignItems="center"
+  container={true}
+  direction="column"
+  justify="center"
+>
+  <WithStyles(Grid)
+    item={true}
+  >
+    <WithStyles(Typography)
+      className="title-mock"
+      variant="body2"
+    >
+      Ad spend
+    </WithStyles(Typography)>
+  </WithStyles(Grid)>
+  <WithStyles(Grid)
+    item={true}
+  >
+    <React.Memo
+      handleOnChange={[MockFunction]}
+      max={100}
+      maxLabel="$max"
+      min={0}
+      minLabel="$0"
+      title="Min threshold"
+      value={20}
+    />
+  </WithStyles(Grid)>
+</WithStyles(Grid)>
+`;
+
+exports[`SpentFilter renders component when max/inf 1`] = `
+<WithStyles(Grid)
+  alignItems="center"
+  container={true}
+  direction="column"
+  justify="center"
+>
+  <WithStyles(Grid)
+    item={true}
+  >
+    <WithStyles(Typography)
+      className="title-mock"
+      variant="body2"
+    >
+      Ad spend
+    </WithStyles(Typography)>
+  </WithStyles(Grid)>
+  <WithStyles(Grid)
+    item={true}
+  >
+    <React.Memo
+      handleOnChange={[MockFunction]}
+      max={100}
+      maxLabel="$max"
+      min={0}
+      minLabel="$0"
+      title="Min threshold"
+      value={100}
+    />
+  </WithStyles(Grid)>
+</WithStyles(Grid)>
+`;

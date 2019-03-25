@@ -1,0 +1,55 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChannelInput renders component 1`] = `
+<WithStyles(Grid)
+  className="root-mock"
+  container={true}
+  direction="column"
+  justify="center"
+>
+  <WithStyles(Grid)
+    alignItems="center"
+    container={true}
+    direction="row"
+    justify="center"
+    spacing={16}
+  >
+    <WithStyles(Grid)
+      item={true}
+      xs={true}
+    >
+      <TextField
+        InputProps={
+          Object {
+            "classes": Object {
+              "multiline": "multiline-mock",
+            },
+          }
+        }
+        fullWidth={true}
+        id="channel-input"
+        inputProps={
+          Object {
+            "className": "input-mock",
+          }
+        }
+        margin="none"
+        multiline={true}
+        onChange={[MockFunction]}
+        onKeyPress={[MockFunction]}
+        placeholder="Send a message"
+        required={false}
+        rowsMax="15"
+        select={false}
+        value="this is just a test message"
+        variant="outlined"
+      />
+    </WithStyles(Grid)>
+    <WithStyles(Grid)
+      item={true}
+    >
+      <Connect(Component) />
+    </WithStyles(Grid)>
+  </WithStyles(Grid)>
+</WithStyles(Grid)>
+`;

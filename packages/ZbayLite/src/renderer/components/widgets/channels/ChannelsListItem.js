@@ -57,7 +57,11 @@ export const ChannelsListItem = ({ classes, channel, displayAddress }) => (
           {channel.name}
         </Badge>
       }
-      secondary={displayAddress ? <Elipsis content={channel.address} length={30} /> : ''}
+      secondary={
+        displayAddress
+          ? <Elipsis tooltipPlacement='bottom' content={channel.address} length={30} />
+          : ''
+      }
       className={classes.itemText}
       secondaryTypographyProps={{ variant: 'caption' }}
       address={channel.address}

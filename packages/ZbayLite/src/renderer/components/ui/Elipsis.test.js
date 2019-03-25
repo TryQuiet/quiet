@@ -6,7 +6,7 @@ import { Elipsis } from './Elipsis'
 import { mockClasses } from '../../../shared/testing/mocks'
 
 describe('Elipsis', () => {
-  each(['left', 'center', 'right']).test(
+  each(['bottom-start', 'bottom', 'bottom-end']).test(
     'renders with placement %s',
     (placement) => {
       const result = shallow(

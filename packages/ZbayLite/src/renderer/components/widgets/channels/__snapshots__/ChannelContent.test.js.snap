@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChannelContent renders component 1`] = `
+<WithStyles(Grid)
+  className="fullHeight-mock"
+  container={true}
+  direction="column"
+  justify="center"
+>
+  <Connect(Component) />
+  <Connect(Component) />
+</WithStyles(Grid)>
+`;

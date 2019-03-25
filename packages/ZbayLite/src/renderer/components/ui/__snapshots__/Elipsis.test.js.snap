@@ -3,7 +3,7 @@
 exports[`Elipsis renders with custom size 1`] = `
 <React.Memo
   interactive={false}
-  placement="left"
+  placement="bottom-start"
   title="this is a sample text"
 >
   <WithStyles(Typography)
@@ -16,10 +16,10 @@ exports[`Elipsis renders with custom size 1`] = `
 </React.Memo>
 `;
 
-exports[`Elipsis renders with placement center 1`] = `
+exports[`Elipsis renders with placement bottom 1`] = `
 <React.Memo
   interactive={false}
-  placement="center"
+  placement="bottom"
   title="this is a sample text"
 >
   <WithStyles(Typography)
@@ -32,10 +32,10 @@ exports[`Elipsis renders with placement center 1`] = `
 </React.Memo>
 `;
 
-exports[`Elipsis renders with placement left 1`] = `
+exports[`Elipsis renders with placement bottom-end 1`] = `
 <React.Memo
   interactive={false}
-  placement="left"
+  placement="bottom-end"
   title="this is a sample text"
 >
   <WithStyles(Typography)
@@ -48,10 +48,10 @@ exports[`Elipsis renders with placement left 1`] = `
 </React.Memo>
 `;
 
-exports[`Elipsis renders with placement right 1`] = `
+exports[`Elipsis renders with placement bottom-start 1`] = `
 <React.Memo
   interactive={false}
-  placement="right"
+  placement="bottom-start"
   title="this is a sample text"
 >
   <WithStyles(Typography)

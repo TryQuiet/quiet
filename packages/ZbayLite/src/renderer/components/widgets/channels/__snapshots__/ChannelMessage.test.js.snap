@@ -1,0 +1,241 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChannelMessage renders component 1`] = `
+<WithStyles(ListItem)
+  alignItems="flex-start"
+  className="wrapper-mock"
+>
+  <WithStyles(ListItemText)
+    primary={
+      <WithStyles(Grid)
+        alignItems="flex-start"
+        container={true}
+        direction="row"
+        justify="space-between"
+      >
+        <WithStyles(Grid)
+          item={true}
+        >
+          <WithStyles(Typography)
+            className="username-mock"
+            color="textPrimary"
+          >
+            Unnamed
+          </WithStyles(Typography)>
+          <WithStyles(Typography)
+            variant="caption"
+          >
+            zbay.io/uri/zs1z7rejlpsa98s2rrrf
+            ...
+          </WithStyles(Typography)>
+        </WithStyles(Grid)>
+        <WithStyles(Typography)
+          variant="caption"
+        >
+          12:03
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+    }
+    secondary={
+      <WithStyles(Typography)
+        className="message-mock"
+        variant="body2"
+      >
+        This is some message
+      </WithStyles(Typography)>
+    }
+  />
+</WithStyles(ListItem)>
+`;
+
+exports[`ChannelMessage renders correct time for different month 1`] = `
+<WithStyles(ListItem)
+  alignItems="flex-start"
+  className="wrapper-mock"
+>
+  <WithStyles(ListItemText)
+    primary={
+      <WithStyles(Grid)
+        alignItems="flex-start"
+        container={true}
+        direction="row"
+        justify="space-between"
+      >
+        <WithStyles(Grid)
+          item={true}
+        >
+          <WithStyles(Typography)
+            className="username-mock"
+            color="textPrimary"
+          >
+            Unnamed
+          </WithStyles(Typography)>
+          <WithStyles(Typography)
+            variant="caption"
+          >
+            zbay.io/uri/zs1z7rejlpsa98s2rrrf
+            ...
+          </WithStyles(Typography)>
+        </WithStyles(Grid)>
+        <WithStyles(Typography)
+          variant="caption"
+        >
+          Feb 07, 13:03
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+    }
+    secondary={
+      <WithStyles(Typography)
+        className="message-mock"
+        variant="body2"
+      >
+        This is some message
+      </WithStyles(Typography)>
+    }
+  />
+</WithStyles(ListItem)>
+`;
+
+exports[`ChannelMessage renders correct time for different year 1`] = `
+<WithStyles(ListItem)
+  alignItems="flex-start"
+  className="wrapper-mock"
+>
+  <WithStyles(ListItemText)
+    primary={
+      <WithStyles(Grid)
+        alignItems="flex-start"
+        container={true}
+        direction="row"
+        justify="space-between"
+      >
+        <WithStyles(Grid)
+          item={true}
+        >
+          <WithStyles(Typography)
+            className="username-mock"
+            color="textPrimary"
+          >
+            Unnamed
+          </WithStyles(Typography)>
+          <WithStyles(Typography)
+            variant="caption"
+          >
+            zbay.io/uri/zs1z7rejlpsa98s2rrrf
+            ...
+          </WithStyles(Typography)>
+        </WithStyles(Grid)>
+        <WithStyles(Typography)
+          variant="caption"
+        >
+          Mar 07, 2018, 13:03
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+    }
+    secondary={
+      <WithStyles(Typography)
+        className="message-mock"
+        variant="body2"
+      >
+        This is some message
+      </WithStyles(Typography)>
+    }
+  />
+</WithStyles(ListItem)>
+`;
+
+exports[`ChannelMessage renders correct time for same week 1`] = `
+<WithStyles(ListItem)
+  alignItems="flex-start"
+  className="wrapper-mock"
+>
+  <WithStyles(ListItemText)
+    primary={
+      <WithStyles(Grid)
+        alignItems="flex-start"
+        container={true}
+        direction="row"
+        justify="space-between"
+      >
+        <WithStyles(Grid)
+          item={true}
+        >
+          <WithStyles(Typography)
+            className="username-mock"
+            color="textPrimary"
+          >
+            Unnamed
+          </WithStyles(Typography)>
+          <WithStyles(Typography)
+            variant="caption"
+          >
+            zbay.io/uri/zs1z7rejlpsa98s2rrrf
+            ...
+          </WithStyles(Typography)>
+        </WithStyles(Grid)>
+        <WithStyles(Typography)
+          variant="caption"
+        >
+          Wed, 13:03
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+    }
+    secondary={
+      <WithStyles(Typography)
+        className="message-mock"
+        variant="body2"
+      >
+        This is some message
+      </WithStyles(Typography)>
+    }
+  />
+</WithStyles(ListItem)>
+`;
+
+exports[`ChannelMessage renders username 1`] = `
+<WithStyles(ListItem)
+  alignItems="flex-start"
+  className="wrapper-mock"
+>
+  <WithStyles(ListItemText)
+    primary={
+      <WithStyles(Grid)
+        alignItems="flex-start"
+        container={true}
+        direction="row"
+        justify="space-between"
+      >
+        <WithStyles(Grid)
+          item={true}
+        >
+          <WithStyles(Typography)
+            className="username-mock"
+            color="textPrimary"
+          >
+            Saturn
+          </WithStyles(Typography)>
+          <WithStyles(Typography)
+            variant="caption"
+          >
+            zbay.io/uri/zs1z7rejlpsa98s2rrrf
+            ...
+          </WithStyles(Typography)>
+        </WithStyles(Grid)>
+        <WithStyles(Typography)
+          variant="caption"
+        >
+          11:03
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+    }
+    secondary={
+      <WithStyles(Typography)
+        className="message-mock"
+        variant="body2"
+      >
+        This is some message
+      </WithStyles(Typography)>
+    }
+  />
+</WithStyles(ListItem)>
+`;

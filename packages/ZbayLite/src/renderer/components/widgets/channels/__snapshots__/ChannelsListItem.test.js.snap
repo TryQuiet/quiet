@@ -104,6 +104,7 @@ exports[`ChannelsListItem renders component with address 1`] = `
       <UNDEFINED
         content="zs1testaddress0"
         length={30}
+        tooltipPlacement="bottom"
       />
     }
     secondaryTypographyProps={

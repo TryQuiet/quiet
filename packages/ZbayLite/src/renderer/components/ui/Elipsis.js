@@ -18,14 +18,14 @@ Elipsis.propTypes = {
   classes: PropTypes.shape({
     content: PropTypes.string
   }),
-  tooltipPlacement: PropTypes.oneOf(['left', 'center', 'right']),
+  tooltipPlacement: PropTypes.oneOf(['bottom-start', 'bottom', 'bottom-end']),
   interactive: PropTypes.bool
 }
 
 Elipsis.defaultProps = {
   classes: { content: '' },
   interactive: false,
-  tooltipPlacement: 'left',
+  tooltipPlacement: 'bottom-start',
   length: 40
 }
 

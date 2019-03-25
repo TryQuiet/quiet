@@ -1,0 +1,86 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChannelMessages renders component 1`] = `
+<RootRef
+  rootRef={
+    Object {
+      "current": null,
+    }
+  }
+>
+  <WithStyles(Grid)
+    className="wrapper-mock"
+    container={true}
+    direction="column"
+    justify="flex-end"
+  >
+    <Scrollbars
+      autoHeight={true}
+      autoHeightMax={200}
+      autoHeightMin={0}
+      autoHide={true}
+      autoHideDuration={200}
+      autoHideTimeout={500}
+      hideTracksWhenNotNeeded={false}
+      renderThumbHorizontal={[Function]}
+      renderThumbVertical={[Function]}
+      renderTrackHorizontal={[Function]}
+      renderTrackVertical={[Function]}
+      renderView={[Function]}
+      tagName="div"
+      thumbMinSize={30}
+      universal={false}
+    >
+      <WithStyles(List)
+        className="list-mock"
+        disablePadding={true}
+      >
+        <React.Memo
+          key="0"
+          message={
+            Object {
+              "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly",
+              "createdAt": "2019-03-07T13:03:48.000Z",
+              "description": "This is some message 0",
+              "id": 0,
+            }
+          }
+        />
+        <React.Memo
+          key="1"
+          message={
+            Object {
+              "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly",
+              "createdAt": "2019-03-07T12:03:48.000Z",
+              "description": "This is some message 1",
+              "id": 1,
+            }
+          }
+        />
+        <React.Memo
+          key="2"
+          message={
+            Object {
+              "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly",
+              "createdAt": "2019-03-07T11:03:48.000Z",
+              "description": "This is some message 2",
+              "id": 2,
+            }
+          }
+        />
+        <React.Memo
+          key="3"
+          message={
+            Object {
+              "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly",
+              "createdAt": "2019-03-07T10:03:48.000Z",
+              "description": "This is some message 3",
+              "id": 3,
+            }
+          }
+        />
+      </WithStyles(List)>
+    </Scrollbars>
+  </WithStyles(Grid)>
+</RootRef>
+`;

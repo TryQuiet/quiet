@@ -1,0 +1,96 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MenuAction renders component 1`] = `
+<ClickAwayListener
+  mouseEvent="onMouseUp"
+  onClickAway={[Function]}
+  touchEvent="onTouchEnd"
+>
+  <WithStyles(IconButton)
+    buttonRef={[Function]}
+    className="button-mock"
+    disableRipple={true}
+    onClick={[Function]}
+  >
+    <Icon
+      className="icon-mock"
+    />
+  </WithStyles(IconButton)>
+  <React.Memo
+    anchorEl={
+      Object {
+        "current": null,
+      }
+    }
+    open={false}
+  >
+    <MenuList
+      className="menuList-mock"
+      disableListWrap={false}
+    >
+      <WithStyles(MenuItem)
+        className="menuItem-mock"
+        key="test"
+        onClick={[MockFunction]}
+      >
+        test
+      </WithStyles(MenuItem)>
+      <WithStyles(MenuItem)
+        className="menuItem-mock"
+        key="test 2"
+        onClick={[MockFunction]}
+      >
+        test 2
+      </WithStyles(MenuItem)>
+    </MenuList>
+  </React.Memo>
+</ClickAwayListener>
+`;
+
+exports[`MenuAction renders with optional props 1`] = `
+<ClickAwayListener
+  mouseEvent="onMouseUp"
+  onClickAway={[Function]}
+  touchEvent="onTouchEnd"
+>
+  <IconButton
+    buttonRef={[Function]}
+    className="button-mock"
+    disableRipple={true}
+    onClick={[Function]}
+  >
+    <Icon
+      className="icon-mock"
+    />
+  </IconButton>
+  <React.Memo
+    anchorEl={
+      Object {
+        "current": null,
+      }
+    }
+    offset="0 20"
+    open={false}
+  >
+    <MenuList
+      className="menuList-mock"
+      disableListWrap={false}
+    >
+      <WithStyles(MenuItem)
+        className="menuItem-mock"
+        key="test"
+        onClick={[MockFunction]}
+      >
+        test
+      </WithStyles(MenuItem)>
+      <WithStyles(MenuItem)
+        className="menuItem-mock"
+        key="test 2"
+        onClick={[MockFunction]}
+      >
+        test 2
+      </WithStyles(MenuItem)>
+    </MenuList>
+  </React.Memo>
+</ClickAwayListener>
+`;

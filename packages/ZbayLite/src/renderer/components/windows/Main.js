@@ -11,7 +11,8 @@ import Home from '../pages/Home'
 
 const styles = {
   gridRoot: {
-    'min-height': '100vh'
+    'min-height': '100vh',
+    'min-width': '100vw'
   }
 }
 

@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChannelMenuAction renders component 1`] = `
+<WithStyles(MenuAction)
+  Icon={[Function]}
+  IconButton={
+    Object {
+      "$$typeof": Symbol(react.memo),
+      "compare": null,
+      "type": [Function],
+    }
+  }
+  classes={
+    Object {
+      "button": "button-mock",
+      "icon": "icon-mock",
+    }
+  }
+  menuItems={
+    Array [
+      Immutable.MenuItem {
+        "title": "Info",
+        "onClick": [MockFunction],
+      },
+      Immutable.MenuItem {
+        "title": "Mute",
+        "onClick": [MockFunction],
+      },
+      Immutable.MenuItem {
+        "title": "Delete",
+        "onClick": [MockFunction],
+      },
+    ]
+  }
+  offset="0 8"
+/>
+`;

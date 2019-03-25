@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChannelHeader will receive right props 1`] = `
+Object {
+  "channel": Immutable.ChannelState {
+    "spentFilterValue": 38,
+    "name": "Politics",
+    "members": "0",
+    "message": "",
+    "messages": Array [],
+  },
+}
+`;

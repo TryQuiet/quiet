@@ -22,7 +22,7 @@ exports[`IdentityPanel renders component 1`] = `
     }
     content="zbay.io/uri/zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly"
     interactive={true}
-    tooltipPlacement="left"
+    tooltipPlacement="bottom-start"
   />
 </WithStyles(Grid)>
 `;

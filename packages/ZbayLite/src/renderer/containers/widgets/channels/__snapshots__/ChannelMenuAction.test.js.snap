@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChannelMenuAction will receive right actions 1`] = `
+Object {
+  "onDelete": [Function],
+  "onInfo": [Function],
+  "onMute": [Function],
+}
+`;

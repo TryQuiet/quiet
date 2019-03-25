@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChannelInputAction renders component 1`] = `
+<WithStyles(MenuAction)
+  Icon={[Function]}
+  classes={
+    Object {
+      "button": "button-mock",
+      "icon": "icon-mock",
+    }
+  }
+  menuItems={
+    Array [
+      Immutable.MenuItem {
+        "title": "Post an offer",
+        "onClick": [MockFunction],
+      },
+      Immutable.MenuItem {
+        "title": "Send money",
+        "onClick": [MockFunction],
+      },
+    ]
+  }
+  offset="0 12"
+/>
+`;

@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import * as R from 'ramda'
 import { withContentRect } from 'react-measure'
 
 import Grid from '@material-ui/core/Grid'
@@ -51,4 +52,7 @@ ChannelsPanel.defaultProps = {
   channels: []
 }
 
-export default React.memo(withContentRect('bounds')(ChannelsPanel))
+export default R.compose(
+  React.memo,
+  withContentRect('bounds')
+)(ChannelsPanel)

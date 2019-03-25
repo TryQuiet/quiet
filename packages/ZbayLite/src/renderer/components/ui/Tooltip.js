@@ -6,13 +6,33 @@ import * as R from 'ramda'
 import MuiTooltip from '@material-ui/core/Tooltip'
 import { withStyles } from '@material-ui/core/styles'
 
-function arrowGenerator (color) {
+function arrowGenerator (color, theme) {
   return {
     opacity: 1,
     '&[x-placement*="bottom"] $arrow': {
       opacity: 1,
       top: 0,
       left: 0,
+      marginTop: '-0.95em',
+      '&::before': {
+        borderWidth: '0 1em 1em 1em',
+        borderColor: `transparent transparent ${color} transparent`
+      }
+    },
+    '&[x-placement*="bottom-end"] $arrow': {
+      opacity: 1,
+      top: 0,
+      left: `calc(100% - ${theme.spacing.unit}px - ${constants.arrowSize}) !important`,
+      marginTop: '-0.95em',
+      '&::before': {
+        borderWidth: '0 1em 1em 1em',
+        borderColor: `transparent transparent ${color} transparent`
+      }
+    },
+    '&[x-placement*="bottom-start"] $arrow': {
+      opacity: 1,
+      top: 0,
+      left: `${theme.spacing.unit}px !important`,
       marginTop: '-0.95em',
       '&::before': {
         borderWidth: '0 1em 1em 1em',
@@ -52,8 +72,6 @@ const constants = {
 }
 
 const styles = theme => ({
-  root: {
-  },
   noWrap: {
     maxWidth: 'none',
     filter: 'drop-shadow(0 0 14px #aaaaaa)'
@@ -75,38 +93,31 @@ const styles = theme => ({
       borderStyle: 'solid'
     }
   },
-  center: {
-    left: `calc(50% - ${constants.arrowSize}) !important`
-  },
-  left: {
-    left: `${theme.spacing.unit}px !important`
-  },
-  right: {
-    left: `calc(100% - ${theme.spacing.unit}px - ${constants.arrowSize}) !important`
-  },
-  arrowPopper: arrowGenerator(theme.palette.background.default)
+  arrowPopper: arrowGenerator(theme.palette.background.default, theme)
 })
 
-export const Tooltip = ({ classes, children, title, interactive, noWrap, placement }) => {
-  const [arrowRef, setArrowRef] = useState(0)
+export const Tooltip = ({
+  classes,
+  children,
+  title,
+  noWrap,
+  className,
+  ...props
+}) => {
+  const [arrowRef, setArrowRef] = useState(null)
   return (
     <MuiTooltip
-      className={classes.root}
+      {...props}
       title={
         <React.Fragment>
           {title}
-          <span
-            className={classNames({
-              [classes.arrow]: true,
-              [classes[placement]]: placement
-            })}
-            ref={setArrowRef} />
+          <span className={classes.arrow} ref={setArrowRef} />
         </React.Fragment>
       }
-      interactive={interactive}
       classes={{
         tooltip: classNames({
           [classes.noWrap]: noWrap,
+          [className]: className,
           [classes.tooltip]: true
         }),
         popper: classes.arrowPopper
@@ -127,19 +138,29 @@ export const Tooltip = ({ classes, children, title, interactive, noWrap, placeme
   )
 }
 
+const joiningProd = R.compose(
+  R.map(R.join('')),
+  R.xprod
+)
+
 Tooltip.propTypes = {
   classes: PropTypes.object.isRequired,
   children: PropTypes.element.isRequired,
-  title: PropTypes.string.isRequired,
-  placement: PropTypes.oneOf(['left', 'right', 'center']),
+  title: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.object
+  ]).isRequired,
+  placement: PropTypes.oneOf(joiningProd(['bottom', 'top'], ['-start', '-end', ''])),
   interactive: PropTypes.bool,
+  className: PropTypes.string,
   noWrap: PropTypes.bool
 }
 
 Tooltip.defaultProps = {
   noWrap: true,
   interactive: false,
-  placement: 'center'
+  className: '',
+  placement: 'bottom'
 }
 
 export default R.compose(

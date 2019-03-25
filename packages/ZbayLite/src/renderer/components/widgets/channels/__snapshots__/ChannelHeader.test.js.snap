@@ -1,0 +1,157 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChannelHeader renders component 1`] = `
+<WithStyles(Grid)
+  alignItems="center"
+  className="root-mock"
+  container={true}
+  direction="row"
+  justify="space-between"
+>
+  <WithStyles(Grid)
+    item={true}
+  >
+    <WithStyles(Typography)
+      className="title-mock"
+      variant="subtitle1"
+    >
+      General
+    </WithStyles(Typography)>
+    <WithStyles(Typography)
+      className="subtitle-mock"
+      variant="caption"
+    >
+      2,345
+    </WithStyles(Typography)>
+  </WithStyles(Grid)>
+  <WithStyles(Grid)
+    alignItems="center"
+    className="actions-mock"
+    container={true}
+    item={true}
+    justify="space-between"
+  >
+    <WithStyles(Grid)
+      item={true}
+    >
+      <React.Memo />
+    </WithStyles(Grid)>
+    <WithStyles(Grid)
+      item={true}
+    >
+      <React.Memo
+        className="iconButton-mock"
+      >
+        <pure(SearchIcon) />
+      </React.Memo>
+    </WithStyles(Grid)>
+    <WithStyles(Grid)
+      item={true}
+    >
+      <Connect(Component) />
+    </WithStyles(Grid)>
+  </WithStyles(Grid)>
+</WithStyles(Grid)>
+`;
+
+exports[`ChannelHeader renders members when 0 1`] = `
+<WithStyles(Grid)
+  alignItems="center"
+  className="root-mock"
+  container={true}
+  direction="row"
+  justify="space-between"
+>
+  <WithStyles(Grid)
+    item={true}
+  >
+    <WithStyles(Typography)
+      className="title-mock"
+      variant="subtitle1"
+    >
+      General
+    </WithStyles(Typography)>
+    <WithStyles(Typography)
+      className="subtitle-mock"
+      variant="caption"
+    >
+      0
+    </WithStyles(Typography)>
+  </WithStyles(Grid)>
+  <WithStyles(Grid)
+    alignItems="center"
+    className="actions-mock"
+    container={true}
+    item={true}
+    justify="space-between"
+  >
+    <WithStyles(Grid)
+      item={true}
+    >
+      <React.Memo />
+    </WithStyles(Grid)>
+    <WithStyles(Grid)
+      item={true}
+    >
+      <React.Memo
+        className="iconButton-mock"
+      >
+        <pure(SearchIcon) />
+      </React.Memo>
+    </WithStyles(Grid)>
+    <WithStyles(Grid)
+      item={true}
+    >
+      <Connect(Component) />
+    </WithStyles(Grid)>
+  </WithStyles(Grid)>
+</WithStyles(Grid)>
+`;
+
+exports[`ChannelHeader renders without members count 1`] = `
+<WithStyles(Grid)
+  alignItems="center"
+  className="root-mock"
+  container={true}
+  direction="row"
+  justify="space-between"
+>
+  <WithStyles(Grid)
+    item={true}
+  >
+    <WithStyles(Typography)
+      className="title-mock"
+      variant="subtitle1"
+    >
+      General
+    </WithStyles(Typography)>
+  </WithStyles(Grid)>
+  <WithStyles(Grid)
+    alignItems="center"
+    className="actions-mock"
+    container={true}
+    item={true}
+    justify="space-between"
+  >
+    <WithStyles(Grid)
+      item={true}
+    >
+      <React.Memo />
+    </WithStyles(Grid)>
+    <WithStyles(Grid)
+      item={true}
+    >
+      <React.Memo
+        className="iconButton-mock"
+      >
+        <pure(SearchIcon) />
+      </React.Memo>
+    </WithStyles(Grid)>
+    <WithStyles(Grid)
+      item={true}
+    >
+      <Connect(Component) />
+    </WithStyles(Grid)>
+  </WithStyles(Grid)>
+</WithStyles(Grid)>
+`;
