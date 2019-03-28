@@ -3,6 +3,7 @@ jest.mock('../../../vault')
 import React from 'react'
 import Immutable from 'immutable'
 import { shallow } from 'enzyme'
+import BigNumber from 'bignumber.js'
 
 import { mapStateToProps, NodePanelBlocksField } from './NodePanelBlocksField'
 
@@ -16,8 +17,8 @@ describe('NodePanelBlocksField', () => {
     store = create({
       initialState: Immutable.Map({
         node: NodeState({
-          latestBlock: 12345,
-          currentBlock: 18
+          latestBlock: new BigNumber(12345),
+          currentBlock: new BigNumber(18)
         })
       })
     })
@@ -41,8 +42,8 @@ describe('NodePanelBlocksField', () => {
     store = create({
       initialState: Immutable.Map({
         node: NodeState({
-          latestBlock: 0,
-          currentBlock: 0
+          latestBlock: new BigNumber(0),
+          currentBlock: new BigNumber(0)
         })
       })
     })

@@ -2,6 +2,7 @@
 jest.mock('../../../vault')
 import React from 'react'
 import Immutable from 'immutable'
+import BigNumber from 'bignumber.js'
 import { shallow } from 'enzyme'
 
 import { mapStateToProps, NodePanelConnectionsField } from './NodePanelConnectionsField'
@@ -16,7 +17,7 @@ describe('NodePanelConnectionsField', () => {
     store = create({
       initialState: Immutable.Map({
         node: NodeState({
-          connections: 12
+          connections: new BigNumber(12)
         })
       })
     })

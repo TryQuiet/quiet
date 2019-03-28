@@ -2,7 +2,7 @@
 
 exports[`NodeStatus will receive right props 1`] = `
 Object {
-  "percentSynced": 18,
+  "percentSynced": "18",
   "status": "down",
 }
 `;

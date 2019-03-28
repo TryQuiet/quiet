@@ -17,7 +17,7 @@ describe('NodeStatus', () => {
 
   it('renders sync progress in percent', () => {
     const result = shallow(
-      <NodeStatus status='syncing' classes={mockClasses} percentSynced={78} />
+      <NodeStatus status='syncing' classes={mockClasses} percentSynced='78' />
     )
     expect(result).toMatchSnapshot()
   })

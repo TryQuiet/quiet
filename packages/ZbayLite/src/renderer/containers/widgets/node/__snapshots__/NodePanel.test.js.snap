@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NodePanel sets interval for getStatus 1`] = `
+Array [
+  Array [
+    [MockFunction],
+    15000,
+  ],
+]
+`;
+
+exports[`NodePanel will receive right actions 1`] = `
+Object {
+  "getStatus": [Function],
+}
+`;

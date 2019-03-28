@@ -10,7 +10,7 @@ exports[`NodePanelBlocksField renders the field 1`] = `
   >
     18
      / 
-    12345
+    ~12345
   </WithStyles(Typography)>
 </React.Memo>
 `;
@@ -32,7 +32,7 @@ exports[`NodePanelBlocksField renders the field when no latestBlock 1`] = `
 
 exports[`NodePanelBlocksField will receive right props 1`] = `
 Object {
-  "currentBlock": 18,
-  "latestBlock": 12345,
+  "currentBlock": "18",
+  "latestBlock": "12345",
 }
 `;

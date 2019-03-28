@@ -5,7 +5,7 @@ import * as R from 'ramda'
 import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
 
-import NodePanel from '../node/NodePanel'
+import NodePanel from '../../../containers/widgets/node/NodePanel'
 import IdentityPanel from '../../../containers/ui/IdentityPanel'
 import WalletPanel from '../walletPanel/WalletPanel'
 import ChannelsPanel from '../channels/ChannelsPanel'

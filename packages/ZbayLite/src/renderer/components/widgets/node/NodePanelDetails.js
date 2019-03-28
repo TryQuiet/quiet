@@ -5,10 +5,10 @@ import * as R from 'ramda'
 import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
 
-import NodePanelActions from '../../../containers/widgets/node/NodePanelActions'
+// import NodePanelActions from '../../../containers/widgets/node/NodePanelActions'
 import NodePanelBlocksField from '../../../containers/widgets/node/NodePanelBlocksField'
 import NodePanelConnectionsField from '../../../containers/widgets/node/NodePanelConnectionsField'
-import NodePanelUptimeField from '../../../containers/widgets/node/NodePanelUptimeField'
+// import NodePanelUptimeField from '../../../containers/widgets/node/NodePanelUptimeField'
 
 const styles = theme => ({
   details: {
@@ -17,14 +17,16 @@ const styles = theme => ({
   }
 })
 
+// TODO: add actions
+// TODO: add uptime
 export const NodePanelDetails = ({ classes }) => (
   <Grid container direction='column'>
     <Grid container direction='column' className={classes.details}>
       <NodePanelBlocksField />
       <NodePanelConnectionsField />
-      <NodePanelUptimeField />
+      {/* <NodePanelUptimeField /> */}
     </Grid>
-    <NodePanelActions />
+    {/* <NodePanelActions /> */}
   </Grid>
 )
 

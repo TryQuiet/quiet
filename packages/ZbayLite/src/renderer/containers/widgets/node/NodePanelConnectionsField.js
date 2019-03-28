@@ -1,4 +1,5 @@
 import React from 'react'
+import BigNumber from 'bignumber.js'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 
@@ -15,13 +16,13 @@ export const mapStateToProps = state => ({
 export const NodePanelConnectionsField = ({ connections }) => (
   <NodePanelField name='Connections'>
     <Typography inline variant='overline'>
-      {connections}
+      {connections.toString()}
     </Typography>
   </NodePanelField>
 )
 
 NodePanelConnectionsField.propTypes = {
-  connections: PropTypes.number.isRequired
+  connections: PropTypes.instanceOf(BigNumber).isRequired
 }
 
 export default connect(mapStateToProps)(NodePanelConnectionsField)

@@ -15,6 +15,6 @@ exports[`NodePanelConnectionsField renders the field 1`] = `
 
 exports[`NodePanelConnectionsField will receive right props 1`] = `
 Object {
-  "connections": 12,
+  "connections": "12",
 }
 `;

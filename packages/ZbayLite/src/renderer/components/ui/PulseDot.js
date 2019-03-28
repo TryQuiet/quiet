@@ -53,6 +53,12 @@ const styles = {
       background: `${blue[500]}77`
     }
   },
+  connecting: {
+    background: blue[500],
+    '&:after': {
+      background: `${blue[500]}77`
+    }
+  },
   restarting: {
     background: amber[500],
     '&:after': {
@@ -83,7 +89,7 @@ export const PulseDot = ({ classes, className, size, color }) => (
 
 PulseDot.propTypes = {
   classes: PropTypes.object.isRequired,
-  color: PropTypes.oneOf(['healthy', 'syncing', 'down', 'restarting']).isRequired,
+  color: PropTypes.oneOf(['healthy', 'syncing', 'down', 'restarting', 'connecting']).isRequired,
   className: PropTypes.string,
   size: PropTypes.number
 }

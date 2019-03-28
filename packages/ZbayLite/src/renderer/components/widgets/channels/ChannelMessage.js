@@ -43,7 +43,6 @@ export const ChannelMessage = ({ classes, message }) => {
   const time = DateTime.fromISO(message.createdAt)
   const timeFormat = getTimeFormat(time)
   const timeString = time.toFormat(timeFormat)
-  console.log(message.createdAt, timeString)
   return (
     <ListItem className={classes.wrapper} alignItems='flex-start'>
       <ListItemText

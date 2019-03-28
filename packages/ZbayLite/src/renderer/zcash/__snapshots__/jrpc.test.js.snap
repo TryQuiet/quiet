@@ -1,0 +1,72 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`jrpc accepts custom url 1`] = `"value"`;
+
+exports[`jrpc adds authentication header 1`] = `
+Array [
+  Object {
+    "WWW-Authenticate": "Basic realm='jsonrpc'",
+    "auth": Object {
+      "password": "test-pass",
+      "username": "test",
+    },
+    "data": "{\\"jsonrpc\\":\\"2.0\\",\\"method\\":\\"test_method\\",\\"params\\":[\\"test-parameter\\"],\\"id\\":1553595131312}",
+    "headers": Object {
+      "Accept": "application/json, text/plain, */*",
+      "Content-Type": "application/json;charset=utf-8",
+    },
+    "maxContentLength": -1,
+    "method": "post",
+    "timeout": 0,
+    "transformRequest": Object {
+      "0": [Function],
+    },
+    "transformResponse": Object {
+      "0": [Function],
+    },
+    "url": "http://localhost:8332",
+    "validateStatus": [Function],
+    "xsrfCookieName": "XSRF-TOKEN",
+    "xsrfHeaderName": "X-XSRF-TOKEN",
+  },
+]
+`;
+
+exports[`jrpc calls appropriate methods 1`] = `
+Array [
+  Object {
+    "WWW-Authenticate": "Basic realm='jsonrpc'",
+    "auth": undefined,
+    "data": "{\\"jsonrpc\\":\\"2.0\\",\\"method\\":\\"test_method\\",\\"params\\":[\\"test-parameter\\"],\\"id\\":1553595131312}",
+    "headers": Object {
+      "Accept": "application/json, text/plain, */*",
+      "Content-Type": "application/json;charset=utf-8",
+    },
+    "maxContentLength": -1,
+    "method": "post",
+    "timeout": 0,
+    "transformRequest": Object {
+      "0": [Function],
+    },
+    "transformResponse": Object {
+      "0": [Function],
+    },
+    "url": "http://localhost:8332",
+    "validateStatus": [Function],
+    "xsrfCookieName": "XSRF-TOKEN",
+    "xsrfHeaderName": "X-XSRF-TOKEN",
+  },
+]
+`;
+
+exports[`jrpc does not warn on lack of auth configuration 1`] = `Array []`;
+
+exports[`jrpc throws on error 1`] = `"Request failed with status code 500"`;
+
+exports[`jrpc warns on invalid config 1`] = `
+Array [
+  Array [
+    "Incorrect auth configuration for Zcash node client, skipping authentication.",
+  ],
+]
+`;

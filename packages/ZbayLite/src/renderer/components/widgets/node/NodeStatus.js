@@ -26,8 +26,8 @@ export const NodeStatus = ({ classes, status, percentSynced }) => (
 
 NodeStatus.propTypes = {
   classes: PropTypes.object.isRequired,
-  status: PropTypes.oneOf(['healthy', 'syncing', 'restarting', 'down']).isRequired,
-  percentSynced: PropTypes.number
+  status: PropTypes.oneOf(['healthy', 'syncing', 'restarting', 'down', 'connecting']).isRequired,
+  percentSynced: PropTypes.string
 }
 
 NodeStatus.defaultProps = {

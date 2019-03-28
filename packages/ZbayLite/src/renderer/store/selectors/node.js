@@ -20,8 +20,8 @@ const uptime = createSelector(
 const percentSynced = createSelector(
   [currentBlock, latestBlock],
   (current, latest) => {
-    if (latest) {
-      return Math.round((current / latest) * 100)
+    if (!latest.isZero()) {
+      return current.dividedBy(latest).multipliedBy(100).toFixed(0)
     }
     return null
   }

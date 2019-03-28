@@ -1,6 +1,7 @@
 /* eslint import/first: 0 */
 jest.mock('../../../vault')
 import Immutable from 'immutable'
+import BigNumber from 'bignumber.js'
 
 import { mapStateToProps } from './NodeStatus'
 
@@ -15,8 +16,8 @@ describe('NodeStatus', () => {
       initialState: Immutable.Map({
         node: NodeState({
           status: 'down',
-          latestBlock: 100,
-          currentBlock: 18
+          latestBlock: new BigNumber(100),
+          currentBlock: new BigNumber(18)
         })
       })
     })

@@ -12,8 +12,6 @@ exports[`NodePanelDetails renders component 1`] = `
   >
     <Connect(NodePanelBlocksField) />
     <Connect(NodePanelConnectionsField) />
-    <Connect(NodePanelUptimeField) />
   </WithStyles(Grid)>
-  <Connect(Component) />
 </WithStyles(Grid)>
 `;
