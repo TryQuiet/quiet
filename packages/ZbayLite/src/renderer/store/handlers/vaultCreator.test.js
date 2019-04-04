@@ -1,16 +1,22 @@
 /* eslint import/first: 0 */
-jest.mock('../../vault', () => ({
-  create: jest.fn(async () => null),
-  unlock: jest.fn(async () => null),
-  exists: jest.fn(() => false)
+jest.mock('../../vault')
+jest.mock('../../zcash', () => ({
+  getClient: jest.fn(() => ({
+    accounting: {}
+  }))
 }))
+
+import BigNumber from 'bignumber.js'
 
 import create from '../create'
 import vault from '../../vault'
 import selectors from '../selectors/vaultCreator'
 import vaultSelectors from '../selectors/vault'
+import identitySelectors from '../selectors/identity'
+import { IdentityState } from './identity'
 import { actions, VaultCreatorState, epics } from './vaultCreator'
 import { mockEvent } from '../../../shared/testing/mocks'
+import { getClient } from '../../zcash'
 
 describe('VaultCreator reducer', () => {
   let store = null
@@ -136,6 +142,29 @@ describe('VaultCreator reducer', () => {
         expect(vaultSelectors.exists(store.getState())).toBeTruthy()
         expect(vaultSelectors.locked(store.getState())).toBeTruthy()
         assertStoreState()
+      })
+
+      it('creates identity and sets balance', async () => {
+        const createMock = jest.fn(async (type) => `${type}-zcash-address`)
+        const balanceMock = jest.fn(async (address) => new BigNumber('12.345'))
+        getClient.mockImplementation(() => ({
+          addresses: { create: createMock },
+          accounting: { balance: balanceMock }
+        }))
+        vault.identity.createIdentity.mockImplementation(
+          async ({ name, address }) => ({ id: 'thisisatestid', name, address })
+        )
+        const password = 'test password'
+        store.dispatch(actions.setPassword(mockEvent(password)))
+        store.dispatch(actions.setRepeat(mockEvent(password)))
+
+        expect(identitySelectors.identity(store.getState())).toEqual(IdentityState())
+
+        await store.dispatch(epics.createVault())
+
+        expect(identitySelectors.identity(store.getState())).toMatchSnapshot()
+        expect(createMock).toHaveBeenCalledWith('sapling')
+        expect(balanceMock).toHaveBeenCalledWith(await createMock('sapling'))
       })
     })
   })

@@ -3,7 +3,7 @@ jest.mock('../../vault')
 import Immutable from 'immutable'
 
 import create from '../create'
-import { IdentityState } from '../handlers/identity'
+import { IdentityState, Identity } from '../handlers/identity'
 import { RatesState } from '../handlers/rates'
 import selectors from './identity'
 
@@ -13,9 +13,11 @@ describe('identity selectors', () => {
     store = create({
       initialState: Immutable.Map({
         identity: IdentityState({
-          address: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly',
-          name: 'Saturn',
-          balance: '33.583004'
+          data: Identity({
+            address: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly',
+            name: 'Saturn',
+            balance: '33.583004'
+          })
         }),
         rates: RatesState({
           zec: '1',
@@ -36,4 +38,12 @@ describe('identity selectors', () => {
       expect(selectors.balance(currency)(store.getState())).toMatchSnapshot()
     }
   )
+
+  it('address', () => {
+    expect(selectors.address(store.getState())).toMatchSnapshot()
+  })
+
+  it('data', () => {
+    expect(selectors.data(store.getState())).toMatchSnapshot()
+  })
 })

@@ -1,27 +1,30 @@
 /* eslint import/first: 0 */
-jest.mock('../../vault', () => ({
-  create: jest.fn(async () => null),
-  unlock: jest.fn(async () => null),
-  exists: jest.fn(() => true)
-}))
+jest.mock('../../vault')
+
 import React from 'react'
+import Immutable from 'immutable'
 import { shallow } from 'enzyme'
 
 import { CreateVaultWrapper, mapStateToProps, mapDispatchToProps } from './CreateVault'
 
 import create from '../../store/create'
-import vaultHandlers from '../../store/handlers/vault'
+import { VaultState } from '../../store/handlers/vault'
 
 describe('CreateVault', () => {
   let store = null
   beforeEach(() => {
     jest.clearAllMocks()
-    store = create()
+    store = create({
+      initialState: Immutable.Map({
+        vault: VaultState({
+          exists: true,
+          locked: false
+        })
+      })
+    })
   })
 
   it('will receive right props', async () => {
-    await store.dispatch(vaultHandlers.actions.createVault())
-    await store.dispatch(vaultHandlers.actions.unlockVault())
     const props = mapStateToProps(store.getState())
     expect(props).toMatchSnapshot()
   })

@@ -1,5 +1,11 @@
 import { Archive, Workspace, Credentials, Datasources } from '../vendor/buttercup'
 
+export const createArchive = () => {
+  const archive = new Archive()
+  archive.createGroup('Identities')
+  return archive
+}
+
 export const credentialsToDatasource = ({ sourceCredentials }) => {
   const datasourceDescriptionRaw = sourceCredentials.getValueOrFail('datasource')
   const datasourceDescription = (
@@ -22,7 +28,7 @@ export const credentialsToWorkspace = async ({
   const datasource = credentialsToDatasource({ sourceCredentials })
   let archive = null
   if (createSource) {
-    const defaultArchive = new Archive()
+    const defaultArchive = createArchive()
     await datasource.save(defaultArchive.getHistory(), archiveCredentials)
     archive = defaultArchive
   } else {

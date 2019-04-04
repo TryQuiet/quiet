@@ -45,6 +45,19 @@ Immutable.VaultCreatorState {
 }
 `;
 
+exports[`VaultCreator reducer handles epics createVault creates identity and sets balance 1`] = `
+Immutable.IdentityState {
+  "data": Immutable.Identity {
+    "id": "thisisatestid",
+    "address": "sapling-zcash-address",
+    "name": "Saturn",
+    "balance": "12.345",
+  },
+  "fetchingBalance": false,
+  "errors": "",
+}
+`;
+
 exports[`VaultCreator reducer handles epics createVault creates the vault 1`] = `
 Array [
   Array [

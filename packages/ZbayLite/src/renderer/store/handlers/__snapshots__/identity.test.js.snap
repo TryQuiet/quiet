@@ -1,0 +1,92 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Identity reducer handles actions handles errors on fetchBalance 1`] = `
+Immutable.IdentityState {
+  "data": Immutable.Identity {
+    "id": "test-id",
+    "address": "testaddress",
+    "name": "Saturn",
+    "balance": null,
+  },
+  "fetchingBalance": false,
+  "errors": "node error",
+}
+`;
+
+exports[`Identity reducer handles actions handles fetchBalance 1`] = `
+Immutable.IdentityState {
+  "data": Immutable.Identity {
+    "id": "test-id",
+    "address": "testaddress",
+    "name": "Saturn",
+    "balance": "2.2352",
+  },
+  "fetchingBalance": false,
+  "errors": "",
+}
+`;
+
+exports[`Identity reducer handles actions handles setBalance 1`] = `
+Immutable.IdentityState {
+  "data": Immutable.Identity {
+    "id": null,
+    "address": "",
+    "name": "",
+    "balance": "2.34",
+  },
+  "fetchingBalance": false,
+  "errors": "",
+}
+`;
+
+exports[`Identity reducer handles actions handles setErrors 1`] = `
+Immutable.IdentityState {
+  "data": Immutable.Identity {
+    "id": null,
+    "address": "",
+    "name": "",
+    "balance": null,
+  },
+  "fetchingBalance": false,
+  "errors": [Error: this is some error],
+}
+`;
+
+exports[`Identity reducer handles actions handles setFetchingBalance to false 1`] = `
+Immutable.IdentityState {
+  "data": Immutable.Identity {
+    "id": null,
+    "address": "",
+    "name": "",
+    "balance": null,
+  },
+  "fetchingBalance": false,
+  "errors": "",
+}
+`;
+
+exports[`Identity reducer handles actions handles setFetchingBalance to true 1`] = `
+Immutable.IdentityState {
+  "data": Immutable.Identity {
+    "id": null,
+    "address": "",
+    "name": "",
+    "balance": null,
+  },
+  "fetchingBalance": true,
+  "errors": "",
+}
+`;
+
+exports[`Identity reducer handles actions handles setIdentity 1`] = `
+Immutable.IdentityState {
+  "data": Immutable.Identity {
+    "id": "test-id",
+    "address": "testaddress",
+    "name": "Saturn",
+    "balance": null,
+  },
+  "fetchingBalance": false,
+  "errors": "",
+}
+`;

@@ -3,12 +3,12 @@ import React from 'react'
 import { shallow } from 'enzyme'
 
 import { mockClasses } from '../../../shared/testing/mocks'
-import { IdentityState } from '../../store/handlers/identity'
+import { Identity } from '../../store/handlers/identity'
 import { IdentityPanel } from './IdentityPanel'
 
 describe('IdentityPanel', () => {
   it('renders component', () => {
-    const identity = IdentityState({
+    const identity = Identity({
       address: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly',
       name: 'Saturn'
     })

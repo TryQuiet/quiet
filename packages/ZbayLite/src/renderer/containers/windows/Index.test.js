@@ -1,9 +1,5 @@
 /* eslint import/first: 0 */
-jest.mock('../../vault', () => ({
-  create: jest.fn(async () => null),
-  unlock: jest.fn(async () => null),
-  exists: jest.fn(() => true)
-}))
+jest.mock('../../vault')
 import { mapStateToProps } from './Index'
 
 import create from '../../store/create'

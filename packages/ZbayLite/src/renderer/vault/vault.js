@@ -58,4 +58,8 @@ export default class Vault {
       this._sourceCredentials = secSourceCredentials
     })
   }
+
+  withWorkspace (cb) {
+    return this._enqueueStateChange(async () => cb(this._workspace))
+  }
 }

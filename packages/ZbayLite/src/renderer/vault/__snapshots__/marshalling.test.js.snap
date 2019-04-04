@@ -73,7 +73,19 @@ Array [
   Archive {
     "_generateID": [MockFunction],
     "_getWestley": [MockFunction],
-    "createGroup": [MockFunction],
+    "createGroup": [MockFunction] {
+      "calls": Array [
+        Array [
+          "Identities",
+        ],
+      ],
+      "results": Array [
+        Object {
+          "type": "return",
+          "value": undefined,
+        },
+      ],
+    },
     "deleteAttribute": [MockFunction],
     "emit": [MockFunction],
     "emptyTrash": [MockFunction],

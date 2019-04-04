@@ -2,7 +2,8 @@
 
 exports[`IdentityPanel will receive right props 1`] = `
 Object {
-  "identity": Immutable.IdentityState {
+  "identity": Immutable.Identity {
+    "id": null,
     "address": "zctestaddress",
     "name": "saturn",
     "balance": "23.435432",

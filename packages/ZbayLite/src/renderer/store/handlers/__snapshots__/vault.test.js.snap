@@ -2,11 +2,34 @@
 
 exports[`vault reducer handles clear error 1`] = `
 Immutable.VaultState {
-  "exists": "test",
+  "exists": false,
   "creating": false,
   "unlocking": false,
+  "creatingIdentity": false,
   "locked": true,
   "error": "",
+}
+`;
+
+exports[`vault reducer handles createIdentity 1`] = `
+Immutable.VaultState {
+  "exists": false,
+  "creating": false,
+  "unlocking": false,
+  "creatingIdentity": false,
+  "locked": true,
+  "error": "",
+}
+`;
+
+exports[`vault reducer handles createIdentity error 1`] = `
+Immutable.VaultState {
+  "exists": false,
+  "creating": false,
+  "unlocking": false,
+  "creatingIdentity": false,
+  "locked": true,
+  "error": "This is a test error",
 }
 `;
 
@@ -15,6 +38,7 @@ Immutable.VaultState {
   "exists": true,
   "creating": false,
   "unlocking": false,
+  "creatingIdentity": false,
   "locked": true,
   "error": "",
 }
@@ -22,9 +46,10 @@ Immutable.VaultState {
 
 exports[`vault reducer handles createVault error 1`] = `
 Immutable.VaultState {
-  "exists": "test",
+  "exists": false,
   "creating": false,
   "unlocking": false,
+  "creatingIdentity": false,
   "locked": true,
   "error": "This is a test error",
 }
@@ -32,9 +57,21 @@ Immutable.VaultState {
 
 exports[`vault reducer handles createVault with loading state 1`] = `
 Immutable.VaultState {
-  "exists": "test",
+  "exists": false,
   "creating": true,
   "unlocking": false,
+  "creatingIdentity": false,
+  "locked": true,
+  "error": "",
+}
+`;
+
+exports[`vault reducer handles pending createIdentity 1`] = `
+Immutable.VaultState {
+  "exists": false,
+  "creating": false,
+  "unlocking": false,
+  "creatingIdentity": true,
   "locked": true,
   "error": "",
 }
@@ -42,9 +79,10 @@ Immutable.VaultState {
 
 exports[`vault reducer handles unlockVault 1`] = `
 Immutable.VaultState {
-  "exists": "test",
+  "exists": true,
   "creating": false,
   "unlocking": false,
+  "creatingIdentity": false,
   "locked": false,
   "error": "",
 }
@@ -52,9 +90,10 @@ Immutable.VaultState {
 
 exports[`vault reducer handles unlockVault error 1`] = `
 Immutable.VaultState {
-  "exists": "test",
+  "exists": true,
   "creating": false,
   "unlocking": false,
+  "creatingIdentity": false,
   "locked": true,
   "error": "This is a test error",
 }
@@ -62,9 +101,10 @@ Immutable.VaultState {
 
 exports[`vault reducer handles unlockVault with unlocking state 1`] = `
 Immutable.VaultState {
-  "exists": "test",
+  "exists": true,
   "creating": false,
   "unlocking": true,
+  "creatingIdentity": false,
   "locked": true,
   "error": "",
 }

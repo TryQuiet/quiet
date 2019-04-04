@@ -1,7 +1,9 @@
 import Immutable from 'immutable'
 import { createAction, handleActions } from 'redux-actions'
 
+import vault from '../../vault'
 import vaultHandlers from './vault'
+import identityHandlers from './identity'
 import vaultUnlockerSelectors from '../selectors/vaultUnlocker'
 
 export const VaultUnlockerState = Immutable.Record({
@@ -25,6 +27,9 @@ const unlockVault = () => async (dispatch, getState) => {
   try {
     await dispatch(vaultHandlers.actions.unlockVault({ masterPassword }))
   } catch (err) {}
+  const [identity] = await vault.identity.listIdentities()
+  await dispatch(identityHandlers.actions.setIdentity(identity))
+  await dispatch(identityHandlers.epics.fetchBalance())
   await dispatch(clearUnlocker())
 }
 

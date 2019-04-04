@@ -1,9 +1,5 @@
 /* eslint import/first: 0 */
-jest.mock('../../vault', () => ({
-  create: jest.fn(async () => null),
-  unlock: jest.fn(async () => null),
-  exists: jest.fn(() => false)
-}))
+jest.mock('../../vault')
 
 import selectors from './vaultCreator'
 import create from '../create'

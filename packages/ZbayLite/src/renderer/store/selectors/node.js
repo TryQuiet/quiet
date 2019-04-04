@@ -3,7 +3,7 @@ import { createSelector } from 'reselect'
 
 const store = s => s
 
-const node = createSelector(store, state => state.get('node'))
+export const node = createSelector(store, state => state.get('node'))
 
 const currentBlock = createSelector(node, n => n.currentBlock)
 const latestBlock = createSelector(node, n => n.latestBlock)
@@ -28,6 +28,7 @@ const percentSynced = createSelector(
 )
 
 export default {
+  node,
   currentBlock,
   latestBlock,
   status,

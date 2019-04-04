@@ -17,13 +17,30 @@ export const NodeState = Immutable.Record({
 export const initialState = NodeState()
 
 export const actionTypes = {
-  GET_STATUS: 'GET_NODE_STATUS'
+  GET_STATUS: 'GET_NODE_STATUS',
+  CREATE_ADDRESS: 'CREATE_ZCASH_ADDRESS',
+  GET_BALANCE: 'GET_BALANCE'
 }
 
-const getStatus = createAction(actionTypes.GET_STATUS, getClient().status.info)
+// TODO: using return with arrow functions because otherwise mocks in test fail
+// since getClient() is evaluated when module is loaded, not on call
+const getStatus = createAction(
+  actionTypes.GET_STATUS,
+  async () => {
+    return getClient().status.info()
+  }
+)
+
+const createAddress = createAction(
+  actionTypes.CREATE_ADDRESS,
+  async (type = 'sapling') => {
+    return getClient().addresses.create(type)
+  }
+)
 
 const actions = {
-  getStatus
+  getStatus,
+  createAddress
 }
 
 const restart = () => (dispatch) => {
@@ -44,7 +61,8 @@ export const reducer = handleActions({
   [typeRejected(actionTypes.GET_STATUS)]: (state, { payload: errors }) => NodeState().merge({
     status: 'down',
     errors
-  })
+  }),
+  [typeRejected(actionTypes.CREATE_ADDRESS)]: (state, { payload: errors }) => state.set('errors', errors)
 }, initialState)
 
 export default {

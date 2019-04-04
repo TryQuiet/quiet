@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`vault instance creates identity 1`] = `undefined`;
+
+exports[`vault instance lists identities 1`] = `
+Array [
+  Object {
+    "address": "saturn-address-zcash",
+    "name": "Saturn",
+  },
+  Object {
+    "address": "mars-address-zcash",
+    "name": "Mars",
+  },
+  Object {
+    "address": "jupiter-address-zcash",
+    "name": "Jupiter",
+  },
+]
+`;

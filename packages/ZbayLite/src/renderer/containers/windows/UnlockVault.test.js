@@ -1,7 +1,5 @@
 /* eslint import/first: 0 */
-jest.mock('../../vault', () => ({
-  exists: jest.fn(() => true)
-}))
+jest.mock('../../vault')
 import { mapStateToProps } from './UnlockVault'
 
 import create from '../../store/create'

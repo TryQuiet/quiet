@@ -1,0 +1,44 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Node reducer handles createAddress 1`] = `
+Object {
+  "action": Object {
+    "payload": "sapling-zcash-address",
+    "type": "CREATE_ZCASH_ADDRESS_FULFILLED",
+  },
+  "value": "sapling-zcash-address",
+}
+`;
+
+exports[`Node reducer handles getStatus 1`] = `
+Immutable.NodeState {
+  "latestBlock": "2234",
+  "currentBlock": "12",
+  "connections": "10",
+  "status": "healthy",
+  "errors": "",
+  "startedAt": null,
+}
+`;
+
+exports[`Node reducer handles rejected createAddress 1`] = `
+Immutable.NodeState {
+  "latestBlock": "0",
+  "currentBlock": "0",
+  "connections": "0",
+  "status": "connecting",
+  "errors": [Error: createAddress error],
+  "startedAt": null,
+}
+`;
+
+exports[`Node reducer handles rejected getStatus 1`] = `
+Immutable.NodeState {
+  "latestBlock": "0",
+  "currentBlock": "0",
+  "connections": "0",
+  "status": "down",
+  "errors": [Error: some kind of node error],
+  "startedAt": null,
+}
+`;

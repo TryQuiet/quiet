@@ -33,7 +33,7 @@ export const create = async ({ masterPassword }) => {
 
 export const unlock = async ({ masterPassword, createSource = false }) => {
   if (!_vault) {
-    await create({ masterPassword, createSource: true })
+    await create({ masterPassword })
   }
   try {
     await _vault.unlock(masterPassword, createSource)
@@ -44,13 +44,60 @@ export const unlock = async ({ masterPassword, createSource = false }) => {
 }
 
 export const lock = async () => {
-  if (_vault) {
+  if (!_vault) {
     throw Error('Archive not initialized.')
   }
   return _vault.lock()
 }
 
+const _entryToIdentity = entry => {
+  const entryObj = entry.toObject()
+  return {
+    id: entryObj.id,
+    name: entryObj.properties.name,
+    address: entryObj.properties.address
+  }
+}
+export const createIdentity = async ({ name, address }) => {
+  if (!_vault) {
+    throw Error('Archive not initialized.')
+  }
+  let entry = null
+  await _vault.withWorkspace(workspace => {
+    const [identitiesGroup] = workspace.archive.findGroupsByTitle('Identities')
+    entry = identitiesGroup.createEntry(name)
+      .setProperty('name', name)
+      .setProperty('address', address)
+    workspace.save()
+  })
+  return _entryToIdentity(entry)
+}
+
+export const listIdentities = async () => {
+  if (!_vault) {
+    throw Error('Archive not initialized.')
+  }
+  let identities = []
+  await _vault.withWorkspace(workspace => {
+    const [identitiesGroup] = workspace.archive.findGroupsByTitle('Identities')
+    identities = identitiesGroup.getEntries()
+  })
+  return identities.map(_entryToIdentity)
+}
+
+export const remove = async () => {
+  if (_vault) {
+    await lock()
+    _vault = null
+  }
+}
+
 export default ({
+  identity: {
+    createIdentity,
+    listIdentities
+  },
+  remove,
   exists,
   create,
   unlock,

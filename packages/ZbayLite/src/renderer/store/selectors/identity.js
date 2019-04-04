@@ -7,13 +7,19 @@ const store = s => s
 
 const identity = createSelector(store, state => state.get('identity'))
 
+const data = createSelector(identity, i => i.data)
+
 const balance = currency => createSelector(
-  identity,
+  data,
   rate(currency),
-  (i, rate) => rate.times(new BigNumber(i.get('balance', 0))) // use big number
+  (d, rate) => rate.times(new BigNumber(d.balance || 0))
 )
 
+const address = createSelector(data, d => d.address)
+
 export default {
+  data,
   identity,
+  address,
   balance
 }

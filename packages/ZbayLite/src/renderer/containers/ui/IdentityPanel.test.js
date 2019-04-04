@@ -5,7 +5,7 @@ import Immutable from 'immutable'
 import { mapStateToProps } from './IdentityPanel'
 
 import create from '../../store/create'
-import { IdentityState } from '../../store/handlers/identity'
+import { IdentityState, Identity } from '../../store/handlers/identity'
 
 describe('IdentityPanel', () => {
   let store = null
@@ -14,9 +14,11 @@ describe('IdentityPanel', () => {
     store = create({
       initialState: Immutable.Map({
         identity: IdentityState({
-          address: 'zctestaddress',
-          balance: '23.435432',
-          name: 'saturn'
+          data: Identity({
+            address: 'zctestaddress',
+            balance: '23.435432',
+            name: 'saturn'
+          })
         })
       })
     })

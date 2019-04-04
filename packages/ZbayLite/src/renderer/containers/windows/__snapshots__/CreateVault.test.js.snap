@@ -3,7 +3,7 @@
 exports[`CreateVault should render wrapped component correctly 1`] = `
 <WithStyles(CreateVault)
   error=""
-  finished={false}
+  finished={true}
   inProgress={false}
   inProgressMsg="creating"
 />

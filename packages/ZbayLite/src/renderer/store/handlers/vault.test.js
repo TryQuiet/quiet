@@ -1,9 +1,5 @@
 /* eslint import/first: 0 */
-jest.mock('../../vault', () => ({
-  create: jest.fn(async () => null),
-  unlock: jest.fn(async () => null),
-  exists: jest.fn(() => 'test')
-}))
+jest.mock('../../vault')
 
 import { actions, initialState, actionTypes } from './vault'
 import { typePending } from './utils'
@@ -43,19 +39,50 @@ describe('vault reducer', () => {
   })
 
   it('handles unlockVault', async () => {
+    await store.dispatch(actions.createVault())
     await store.dispatch(actions.unlockVault())
     assertStoreState()
   })
 
   it('handles unlockVault with unlocking state', async () => {
+    await store.dispatch(actions.createVault())
     store.dispatch({ type: typePending(actionTypes.UNLOCK) })
     assertStoreState()
   })
 
   it('handles unlockVault error', async () => {
+    await store.dispatch(actions.createVault())
     vault.unlock.mockImplementationOnce(async () => { throw Error('This is a test error') })
     try {
       await store.dispatch(actions.unlockVault())
+    } catch (err) {}
+    assertStoreState()
+  })
+
+  it('handles createIdentity', async () => {
+    const identityObj = { name: 'Saturn', addres: 'testaddress' }
+    const createdIdentity = {
+      id: 'test id',
+      ...identityObj
+    }
+    vault.identity.createIdentity.mockImplementation(async () => createdIdentity)
+    const result = await store.dispatch(
+      actions.createIdentity(identityObj)
+    )
+    expect(vault.identity.createIdentity).toHaveBeenCalledWith(identityObj)
+    expect(result.value).toEqual(createdIdentity)
+    assertStoreState()
+  })
+
+  it('handles pending createIdentity', async () => {
+    store.dispatch({ type: typePending(actionTypes.CREATE_IDENTITY) })
+    assertStoreState()
+  })
+
+  it('handles createIdentity error', async () => {
+    vault.identity.createIdentity.mockImplementationOnce(async () => { throw Error('This is a test error') })
+    try {
+      await store.dispatch(actions.createIdentity({ name: 'test', address: 'testaddress' }))
     } catch (err) {}
     assertStoreState()
   })

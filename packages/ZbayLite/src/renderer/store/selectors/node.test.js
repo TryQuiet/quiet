@@ -40,6 +40,10 @@ describe('node selectors', () => {
     expect(selectors.status(store.getState())).toEqual('healthy')
   })
 
+  it('node', () => {
+    expect(selectors.node(store.getState())).toMatchSnapshot()
+  })
+
   it('uptime', () => {
     const expected = {
       days: 2,

@@ -1,7 +1,10 @@
 import Immutable from 'immutable'
+import * as R from 'ramda'
 import { createAction, handleActions } from 'redux-actions'
 
 import vaultHandlers from './vault'
+import nodeHandlers from './node'
+import identityHandlers from './identity'
 import vaultCreatorSelectors from '../selectors/vaultCreator'
 
 export const VaultCreatorState = Immutable.Record({
@@ -36,6 +39,19 @@ const createVault = () => async (dispatch, getState) => {
   try {
     await dispatch(vaultHandlers.actions.createVault({ masterPassword: password }))
     await dispatch(vaultHandlers.actions.unlockVault({ masterPassword: password, createSource: true }))
+    const { value: address } = await dispatch(nodeHandlers.actions.createAddress())
+    const { value: identity } = await dispatch(vaultHandlers.actions.createIdentity({
+      name: 'Saturn',
+      address
+    }))
+    if (identity) {
+      await dispatch(
+        identityHandlers.actions.setIdentity(
+          R.pick(['id', 'name', 'address'])(identity)
+        )
+      )
+      await dispatch(identityHandlers.epics.fetchBalance())
+    }
   } catch (err) {
 
   }

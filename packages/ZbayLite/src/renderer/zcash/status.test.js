@@ -1,14 +1,14 @@
 import { DateTime } from 'luxon'
 
-import statusCreator from './status'
+import statusFactory from './status'
 
 describe('jrpc', () => {
   const genesis = DateTime.utc(2018, 4, 4, 12, 0, 0)
   const bestBlockHash = 'best-block-test-hash'
   const genesisBlockHash = 'genesis-block-test-hash'
-  const getbestblockhash = jest.fn(() => bestBlockHash)
-  const getblockhash = jest.fn(() => genesisBlockHash)
-  const getblock = jest.fn((hash) => {
+  const getbestblockhash = jest.fn(async () => bestBlockHash)
+  const getblockhash = jest.fn(async () => genesisBlockHash)
+  const getblock = jest.fn(async (hash) => {
     if (hash === genesisBlockHash) {
       return {
         time: genesis.toSeconds(),
@@ -27,14 +27,14 @@ describe('jrpc', () => {
       getblock,
       getbestblockhash,
       getblockhash,
-      getinfo: jest.fn(() => ({
+      getinfo: jest.fn(async () => ({
         connections: 12,
         blocks: 40
       }))
     }
   }
 
-  const status = statusCreator(zcashClient)
+  const status = statusFactory(zcashClient)
 
   beforeEach(() => {
     jest.clearAllMocks()

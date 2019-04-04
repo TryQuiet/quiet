@@ -120,4 +120,25 @@ describe('Vault', () => {
     expect(vault._sourceCredentials).toEqual(secureSource)
     expect(vault._archiveCredentials).toEqual(secureArchive)
   })
+
+  it('provides queued access to workspace', async () => {
+    Credentials.isSecureString.mockReturnValue(true)
+    credentialsFromSecureStrings.mockResolvedValue([jest.mock, jest.mock()])
+    const workspace = jest.mock()
+    credentialsToWorkspace.mockResolvedValue(workspace)
+    const callback = jest.fn()
+
+    const vault = new Vault(jest.mock(), jest.mock())
+
+    // Create workspace
+    await vault.unlock('master-password', true)
+
+    await vault.withWorkspace(callback)
+    expect(stateQueue).toHaveLength(2)
+
+    const [unlockCb, withWorkspaceCb] = stateQueue
+    await unlockCb()
+    await withWorkspaceCb()
+    expect(callback).toHaveBeenCalledWith(workspace)
+  })
 })
