@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import BigNumber from 'bignumber.js'
+import Immutable from 'immutable'
 import * as R from 'ramda'
 
 import Typography from '@material-ui/core/Typography'
@@ -37,16 +37,17 @@ const styles = theme => ({
   }
 })
 
+// TODO: [reafactoring] we should have channel stats for unread and members count
 export const ChannelHeader = ({ classes, channel }) => (
   <Grid container alignItems='center' justify='space-between' className={classes.root} direction='row'>
     <Grid item>
       <Typography variant='subtitle1' className={classes.title}>
-        {channel.name}
+        {channel.get('name')}
       </Typography>
       {
-        !R.isNil(channel.members) ? (
+        !R.isNil(channel.get('members')) ? (
           <Typography variant='caption' className={classes.subtitle}>
-            {channel.members.toFormat(0)}
+            {channel.get('members').toFormat(0)}
           </Typography>
         ) : null
       }
@@ -69,10 +70,11 @@ export const ChannelHeader = ({ classes, channel }) => (
 
 ChannelHeader.propTypes = {
   classes: PropTypes.object.isRequired,
-  channel: PropTypes.shape({
-    name: PropTypes.string.isRequired,
-    members: PropTypes.instanceOf(BigNumber)
-  }).isRequired
+  channel: PropTypes.instanceOf(Immutable.Map).isRequired
+}
+
+ChannelHeader.defaultProps = {
+  channel: Immutable.Map()
 }
 
 export default R.compose(

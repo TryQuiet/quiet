@@ -4,6 +4,10 @@ import { createAction, handleActions } from 'redux-actions'
 import { getClient } from '../../zcash'
 
 import identitySelectors from '../selectors/identity'
+import channelsHandlers from './channels'
+import vaultHandlers from './vault'
+import nodeHandlers from './node'
+import { getVault } from '../../vault'
 
 export const Identity = Immutable.Record({
   id: null,
@@ -32,6 +36,7 @@ const actions = {
   setBalance
 }
 
+// TODO: [refactoring] accept identity
 export const fetchBalance = () => async (dispatch, getState) => {
   dispatch(setFetchingBalance(true))
   const address = identitySelectors.address(getState())
@@ -45,8 +50,28 @@ export const fetchBalance = () => async (dispatch, getState) => {
   }
 }
 
+export const createIdentity = () => async (dispatch, getState) => {
+  const { value: address } = await dispatch(nodeHandlers.actions.createAddress())
+  const { value: identity } = await dispatch(vaultHandlers.actions.createIdentity({
+    name: 'Saturn',
+    address
+  }))
+  await getVault().channels.bootstrapChannels(identity.id)
+  return identity
+}
+
+export const setIdentityEpic = (identity) => async (dispatch) => {
+  dispatch(setIdentity(identity))
+  await Promise.all([
+    dispatch(fetchBalance()),
+    dispatch(channelsHandlers.actions.loadChannels(identity.id))
+  ])
+}
+
 const epics = {
-  fetchBalance
+  fetchBalance,
+  createIdentity,
+  setIdentity: setIdentityEpic
 }
 
 export const reducer = handleActions({

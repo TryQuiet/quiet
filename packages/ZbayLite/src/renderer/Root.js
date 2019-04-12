@@ -7,7 +7,7 @@ import { HashRouter, Route } from 'react-router-dom'
 
 import store from './store'
 import Index from './containers/windows/Index'
-import Main from './components/windows/Main'
+import Main from './containers/windows/Main'
 import CreateVault from './containers/windows/CreateVault'
 import UnlockVault from './containers/windows/UnlockVault'
 
@@ -19,7 +19,7 @@ export default () => (
       <Provider store={store}>
         <CssBaseline />
         <Route path='/' exact component={Index} />
-        <Route path='/main' exact component={Main} />
+        <Route path='/main' component={Main} />
         <Route path='/vault/create' exact component={CreateVault} />
         <Route path='/vault/unlock' exact component={UnlockVault} />
       </Provider>

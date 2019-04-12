@@ -78,8 +78,15 @@ Array [
         Array [
           "Identities",
         ],
+        Array [
+          "Channels",
+        ],
       ],
       "results": Array [
+        Object {
+          "type": "return",
+          "value": undefined,
+        },
         Object {
           "type": "return",
           "value": undefined,

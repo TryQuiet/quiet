@@ -41,7 +41,7 @@ exports[`ChannelMessage renders component 1`] = `
         className="message-mock"
         variant="body2"
       >
-        This is some message
+        This is some message 1
       </WithStyles(Typography)>
     }
   />
@@ -89,7 +89,7 @@ exports[`ChannelMessage renders correct time for different month 1`] = `
         className="message-mock"
         variant="body2"
       >
-        This is some message
+        This is some message 1
       </WithStyles(Typography)>
     }
   />
@@ -137,7 +137,7 @@ exports[`ChannelMessage renders correct time for different year 1`] = `
         className="message-mock"
         variant="body2"
       >
-        This is some message
+        This is some message 1
       </WithStyles(Typography)>
     }
   />
@@ -185,7 +185,7 @@ exports[`ChannelMessage renders correct time for same week 1`] = `
         className="message-mock"
         variant="body2"
       >
-        This is some message
+        This is some message 1
       </WithStyles(Typography)>
     }
   />
@@ -233,7 +233,7 @@ exports[`ChannelMessage renders username 1`] = `
         className="message-mock"
         variant="body2"
       >
-        This is some message
+        This is some message 1
       </WithStyles(Typography)>
     }
   />

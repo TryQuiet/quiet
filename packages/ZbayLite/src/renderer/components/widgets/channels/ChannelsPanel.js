@@ -1,4 +1,5 @@
 import React from 'react'
+import Immutable from 'immutable'
 import PropTypes from 'prop-types'
 import * as R from 'ramda'
 import { withContentRect } from 'react-measure'
@@ -6,7 +7,6 @@ import { withContentRect } from 'react-measure'
 import Grid from '@material-ui/core/Grid'
 import RootRef from '@material-ui/core/RootRef'
 
-import { propTypes } from './BaseChannelsList'
 import ScalingChannelsList from './ScalingChannelsList'
 import SidebarHeader from '../../ui/SidebarHeader'
 import CreateChannelModal from '../CreateChannelModal'
@@ -36,7 +36,7 @@ export const ChannelsPanel = ({ channels, measureRef, contentRect }) => {
 }
 
 ChannelsPanel.propTypes = {
-  channels: PropTypes.arrayOf(propTypes.channel).isRequired,
+  channels: PropTypes.instanceOf(Immutable.List).isRequired,
   measureRef: PropTypes.oneOfType([
     PropTypes.func,
     PropTypes.shape({ current: PropTypes.instanceOf(React.Element) })
@@ -49,7 +49,7 @@ ChannelsPanel.propTypes = {
 }
 
 ChannelsPanel.defaultProps = {
-  channels: []
+  channels: Immutable.List()
 }
 
 export default R.compose(

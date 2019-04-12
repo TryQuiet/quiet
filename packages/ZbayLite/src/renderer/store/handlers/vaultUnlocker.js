@@ -26,10 +26,11 @@ const unlockVault = () => async (dispatch, getState) => {
   const masterPassword = vaultUnlockerSelectors.password(state)
   try {
     await dispatch(vaultHandlers.actions.unlockVault({ masterPassword }))
-  } catch (err) {}
+  } catch (err) {
+    console.warn(err)
+  }
   const [identity] = await vault.identity.listIdentities()
-  await dispatch(identityHandlers.actions.setIdentity(identity))
-  await dispatch(identityHandlers.epics.fetchBalance())
+  await dispatch(identityHandlers.epics.setIdentity(identity))
   await dispatch(clearUnlocker())
 }
 

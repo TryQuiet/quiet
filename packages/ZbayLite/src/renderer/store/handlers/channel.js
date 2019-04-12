@@ -1,84 +1,54 @@
 import Immutable from 'immutable'
 import * as R from 'ramda'
-import { DateTime } from 'luxon'
 import { createAction, handleActions } from 'redux-actions'
-
 import channelSelectors from '../selectors/channel'
+import { getClient } from '../../zcash'
+import { messages } from '../../zbay'
 
-const messages = [
-  {
-    title: 'This is a basic message',
-    spent: '0.2',
-    type: 'basic',
-    address: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly',
-    createdAt: DateTime.utc(2018, 12, 23, 22, 12).toISO(),
-    description: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-`,
-    id: 'thisisanotherhex'
-  },
-  {
-    title: 'This is an add',
-    spent: '2.0',
-    type: 'ad',
-    address: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly',
-    createdAt: DateTime.utc(2019, 2, 16, 23, 2).toISO(),
-    description: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-`,
-    price: '2.323288',
-    qty: '2',
-    id: 'thisisahex2'
-  },
-  {
-    title: 'This is an add 2',
-    spent: '21',
-    type: 'ad',
-    address: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly',
-    createdAt: DateTime.utc(2019, 3, 16, 23, 2).toISO(),
-    description: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-`,
-    price: '4.2349900',
-    qty: '10',
-    id: 'thisisahex1'
-  },
-  {
-    title: 'This is a basic message',
-    spent: '0.2',
-    type: 'basic',
-    address: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly',
-    createdAt: DateTime.utc(2019, 3, 18, 8, 31).toISO(),
-    description: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-`,
-    id: 'thisisanotherhex1'
-  },
-  {
-    title: 'This is an add',
-    spent: '2.0',
-    type: 'ad',
-    address: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly',
-    createdAt: DateTime.utc(2019, 3, 21, 14, 28).toISO(),
-    description: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-`,
-    price: '2.323288',
-    qty: '2',
-    id: 'thisisahex21'
-  }
-]
+import { typeFulfilled, typeRejected, typePending } from './utils'
+
+export const MessagesState = Immutable.Record({
+  loading: false,
+  data: Immutable.List(),
+  errors: '',
+  page: 1
+})
 
 export const ChannelState = Immutable.Record({
   spentFilterValue: 0,
-  name: '',
-  members: null,
+  id: null,
   message: '',
-  messages: []
+  messages: MessagesState(),
+  members: null
 }, 'ChannelState')
 
-export const initialState = ChannelState({ messages, name: 'Politics' })
+export const initialState = ChannelState()
+
 const setSpentFilterValue = createAction('SET_SPENT_FILTER_VALUE', (_, value) => value)
 const setMessage = createAction('SET_CHANNEL_MESSAGE', R.path(['target', 'value']))
+const setChannelId = createAction('SET_CHANNEL_ID')
+const loadMessages = createAction(
+  'LOAD_CHANNEL_MESSAGES',
+  async (channelAddress, page = 1) => {
+    const transfers = await getClient().payment.received(channelAddress)
+    return {
+      messages: await messages.transfersToMessages(transfers),
+      page
+    }
+  }
+)
 
 const actions = {
   setSpentFilterValue,
   setMessage
+}
+
+// TODO: write tests for load channel
+// TODO: maybe we can skip channel alltogether
+const loadChannel = (id) => async (dispatch, getState) => {
+  dispatch(setChannelId(id))
+  const channel = channelSelectors.data(getState())
+  await dispatch(loadMessages(channel.get('address')))
 }
 
 const sendOnEnter = (event) => (dispatch, getState) => {
@@ -86,19 +56,33 @@ const sendOnEnter = (event) => (dispatch, getState) => {
   const shiftPressed = event.nativeEvent.shiftKey === true
   if (enterPressed && !shiftPressed) {
     event.preventDefault()
-    console.log('sending', channelSelectors.message(getState()))
     dispatch(setMessage(''))
   }
 }
 
 const epics = {
-  sendOnEnter
+  sendOnEnter,
+  loadChannel
 }
 
 export const reducer = handleActions({
   [setSpentFilterValue]: (state, { payload: value }) => state.set('spentFilterValue', value),
-  [setMessage]: (state, { payload: value }) => state.set('message', value)
+  [setMessage]: (state, { payload: value }) => state.set('message', value),
+  [setChannelId]: (state, { payload: id }) => state.set('id', id),
 
+  [typeFulfilled(loadMessages)]: (state, { payload: { messages, page } }) => state.update(
+    'messages',
+    msgMeta => msgMeta
+      .set('data', Immutable.fromJS(messages))
+      .set('page', page)
+      .set('loading', false)
+  ),
+  [typePending(loadMessages)]: (state) => state.update('messages', msgs => msgs.set('loading', true)),
+  [typeRejected(loadMessages)]: (state, { payload: error }) => state.update(
+    'messages',
+    msgs => msgs.set('loading', true)
+      .set('errors', error.message)
+  )
 }, initialState)
 
 export default {

@@ -90,3 +90,81 @@ Immutable.IdentityState {
   "errors": "",
 }
 `;
+
+exports[`Identity reducer handles epics handles createIdentity bootstraps channels 1`] = `
+Array [
+  Array [
+    "thisisatestid",
+  ],
+]
+`;
+
+exports[`Identity reducer handles epics handles createIdentity creates identity in vault 1`] = `
+Array [
+  Array [
+    Object {
+      "address": "sapling-zcash-address",
+      "name": "Saturn",
+    },
+  ],
+]
+`;
+
+exports[`Identity reducer handles epics handles createIdentity returns created identity 1`] = `
+Object {
+  "address": "sapling-zcash-address",
+  "id": "thisisatestid",
+  "name": "Saturn",
+}
+`;
+
+exports[`Identity reducer handles epics handles set identity - loads channels 1`] = `
+Immutable.List [
+  Immutable.Map {
+    "keys": Immutable.Map {
+      "ivk": "incoming-viewing-key-2",
+    },
+    "name": "Channel 2",
+    "private": true,
+    "hash": "eJwtjEEOgzAMBL+CfE4O5ci1L7GISyzAoDhNBYi/11Z78mpmvRdwgqEPILgSDPDMKEJL10OAvXDDavSFi1KAjJqtUklr9By9hCkVUjV+6sPVH7h7SyH8zSfSsfBeeROrmpvpsKcLuM0GWMZtZZliY/r4NW3z9/0FKdQ0sg==",
+    "address": "zs1testaddress2",
+    "unread": 2,
+    "description": "",
+  },
+  Immutable.Map {
+    "keys": Immutable.Map {
+      "ivk": "incoming-viewing-key-1",
+    },
+    "name": "Channel 1",
+    "private": true,
+    "hash": "eJxNjTEOwjAMRa+CPCdD1q6cxDQWsUqdKk6CoOrd6wADk633vv7fgSNMwYHgSjDBNaEIPS4BHGyFO1ajtTRykFCTJSpp9eP3I4MxFlI1/tYw1A8M16QQftsj6Vx4q5zlbwRvudXP1EIv69iB+2KeZc4ry913pue4pm3tOE48Yzmm",
+    "address": "zs1testaddress1",
+    "unread": 1,
+    "description": "Channel about 1",
+  },
+  Immutable.Map {
+    "keys": Immutable.Map {
+      "ivk": "incoming-viewing-key-0",
+    },
+    "name": "Channel 0",
+    "private": true,
+    "hash": "eJwtjEEOgzAMBL9S+ZxIcOXal1jEJRZgUJwGUcTfa6s9eTWz3gs4wdAFEFwJBnhmFKHl0UGAvXDDavSFi1KAjJqtUklr9By9hCkVUjX+0d7VH7h7SyH8zSfSsfBeeROrmpvptKcLuM0GWMZtZZliYzr8mrb5+/4CJb40pg==",
+    "address": "zs1testaddress0",
+    "unread": 0,
+    "description": "",
+  },
+]
+`;
+
+exports[`Identity reducer handles epics handles set identity - sets identity 1`] = `
+Immutable.IdentityState {
+  "data": Immutable.Identity {
+    "id": "test-id",
+    "address": "testaddress",
+    "name": "Saturn",
+    "balance": "2.2352",
+  },
+  "fetchingBalance": false,
+  "errors": "",
+}
+`;

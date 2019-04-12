@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import Immutable from 'immutable'
 import * as R from 'ramda'
 import { Scrollbars } from 'react-custom-scrollbars'
 import { withContentRect } from 'react-measure'
@@ -22,6 +23,7 @@ const styles = theme => ({
   }
 })
 
+// TODO: scrollbar smart pagination
 export const ChannelMessages = ({ classes, messages, measureRef, contentRect }) => {
   const scrollbarRef = ref => ref && ref.scrollToBottom()
   return (
@@ -35,7 +37,7 @@ export const ChannelMessages = ({ classes, messages, measureRef, contentRect }) 
           autoHideTimeout={500}
         >
           <List disablePadding className={classes.list}>
-            { messages.map(msg => (<ChannelMessage key={msg.id} message={msg} />))}
+            { messages.map(msg => (<ChannelMessage key={msg.get('id')} message={msg} />))}
           </List>
         </Scrollbars>
       </Grid>
@@ -45,14 +47,7 @@ export const ChannelMessages = ({ classes, messages, measureRef, contentRect }) 
 
 ChannelMessages.propTypes = {
   classes: PropTypes.object.isRequired,
-  messages: PropTypes.arrayOf(
-    PropTypes.shape({
-      createdAt: PropTypes.string.isRequired,
-      description: PropTypes.string.isRequired,
-      address: PropTypes.string.isRequired,
-      username: PropTypes.string
-    }).isRequired
-  ).isRequired,
+  messages: PropTypes.instanceOf(Immutable.List).isRequired,
   measureRef: PropTypes.oneOfType([
     PropTypes.func,
     PropTypes.shape({ current: PropTypes.instanceOf(React.Element) })

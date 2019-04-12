@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import Immutable from 'immutable'
 import { DateTime } from 'luxon'
 import * as R from 'ramda'
 
@@ -38,9 +39,11 @@ const getTimeFormat = (time) => {
 }
 
 export const ChannelMessage = ({ classes, message }) => {
-  const username = R.propOr('Unnamed', 'username')(message)
-  const address = getZbayAddress(message.address)
-  const time = DateTime.fromISO(message.createdAt)
+  const sender = message.get('sender')
+  const username = sender.get('username', 'Unnamed')
+  const address = getZbayAddress(sender.get('replyTo'))
+
+  const time = DateTime.fromISO(message.get('createdAt'))
   const timeFormat = getTimeFormat(time)
   const timeString = time.toFormat(timeFormat)
   return (
@@ -57,7 +60,7 @@ export const ChannelMessage = ({ classes, message }) => {
         }
         secondary={
           <Typography variant='body2' className={classes.message}>
-            {message.description}
+            {message.get('message')}
           </Typography>
         }
       />
@@ -67,12 +70,7 @@ export const ChannelMessage = ({ classes, message }) => {
 
 ChannelMessage.propTypes = {
   classes: PropTypes.object.isRequired,
-  message: PropTypes.shape({
-    createdAt: PropTypes.string.isRequired,
-    description: PropTypes.string.isRequired,
-    address: PropTypes.string.isRequired,
-    username: PropTypes.string
-  }).isRequired
+  message: PropTypes.instanceOf(Immutable.Map).isRequired
 }
 
 export default R.compose(

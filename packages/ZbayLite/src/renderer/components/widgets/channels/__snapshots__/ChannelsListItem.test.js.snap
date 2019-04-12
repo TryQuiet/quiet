@@ -5,49 +5,12 @@ exports[`ChannelsListItem renders component 1`] = `
   alignItems="center"
   button={true}
   className="root-mock"
+  onClick={[Function]}
 >
   <WithStyles(ListItemIcon)
     className="itemIcon-mock"
   >
     <pure(HttpsOutlinedIcon) />
-  </WithStyles(ListItemIcon)>
-  <WithStyles(ListItemText)
-    address="zs1testaddress0"
-    className="itemText-mock"
-    primary={
-      <WithStyles(Badge)
-        badgeContent={0}
-        classes={
-          Object {
-            "badge": "badge-mock",
-          }
-        }
-      >
-        Channel 0
-      </WithStyles(Badge)>
-    }
-    secondary=""
-    secondaryTypographyProps={
-      Object {
-        "variant": "caption",
-      }
-    }
-  />
-</WithStyles(ListItem)>
-`;
-
-exports[`ChannelsListItem renders component when public 1`] = `
-<WithStyles(ListItem)
-  alignItems="center"
-  button={true}
-  className="root-mock"
->
-  <WithStyles(ListItemIcon)
-    className="itemIcon-mock"
-  >
-    <pure(ChatBubbleOutlineIcon)
-      className="icon-mock"
-    />
   </WithStyles(ListItemIcon)>
   <WithStyles(ListItemText)
     address="zs1testaddress1"
@@ -74,16 +37,19 @@ exports[`ChannelsListItem renders component when public 1`] = `
 </WithStyles(ListItem)>
 `;
 
-exports[`ChannelsListItem renders component with address 1`] = `
+exports[`ChannelsListItem renders component when public 1`] = `
 <WithStyles(ListItem)
-  alignItems="flex-start"
+  alignItems="center"
   button={true}
   className="root-mock"
+  onClick={[Function]}
 >
   <WithStyles(ListItemIcon)
     className="itemIcon-mock"
   >
-    <pure(HttpsOutlinedIcon) />
+    <pure(ChatBubbleOutlineIcon)
+      className="icon-mock"
+    />
   </WithStyles(ListItemIcon)>
   <WithStyles(ListItemText)
     address="zs1testaddress0"
@@ -100,9 +66,46 @@ exports[`ChannelsListItem renders component with address 1`] = `
         Channel 0
       </WithStyles(Badge)>
     }
+    secondary=""
+    secondaryTypographyProps={
+      Object {
+        "variant": "caption",
+      }
+    }
+  />
+</WithStyles(ListItem)>
+`;
+
+exports[`ChannelsListItem renders component with address 1`] = `
+<WithStyles(ListItem)
+  alignItems="flex-start"
+  button={true}
+  className="root-mock"
+  onClick={[Function]}
+>
+  <WithStyles(ListItemIcon)
+    className="itemIcon-mock"
+  >
+    <pure(HttpsOutlinedIcon) />
+  </WithStyles(ListItemIcon)>
+  <WithStyles(ListItemText)
+    address="zs1testaddress1"
+    className="itemText-mock"
+    primary={
+      <WithStyles(Badge)
+        badgeContent={1}
+        classes={
+          Object {
+            "badge": "badge-mock",
+          }
+        }
+      >
+        Channel 1
+      </WithStyles(Badge)>
+    }
     secondary={
       <UNDEFINED
-        content="zs1testaddress0"
+        content="zs1testaddress1"
         length={30}
         tooltipPlacement="bottom"
       />

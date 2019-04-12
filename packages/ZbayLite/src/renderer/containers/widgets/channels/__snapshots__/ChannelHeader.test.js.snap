@@ -2,12 +2,17 @@
 
 exports[`ChannelHeader will receive right props 1`] = `
 Object {
-  "channel": Immutable.ChannelState {
-    "spentFilterValue": 38,
-    "name": "Politics",
-    "members": "0",
-    "message": "",
-    "messages": Array [],
+  "channel": Immutable.Map {
+    "id": 1,
+    "name": "Channel 1",
+    "private": true,
+    "hash": "test-hash-1",
+    "address": "zs1testaddress1",
+    "unread": 1,
+    "description": "Channel about 1",
+    "keys": Immutable.Map {
+      "ivk": "incoming-viewing-key-1",
+    },
   },
 }
 `;

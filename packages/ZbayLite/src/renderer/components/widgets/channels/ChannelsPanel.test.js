@@ -1,13 +1,17 @@
 import React from 'react'
+import Immutable from 'immutable'
 import { shallow } from 'enzyme'
 import * as R from 'ramda'
 
 import { ChannelsPanel } from './ChannelsPanel'
-import { createChannel } from './testUtils'
+import { createChannel } from '../../../testUtils'
 
 describe('ChannelsPanel', () => {
+  const channels = Immutable.fromJS(
+    R.range(0, 4).map(createChannel)
+  )
+
   it('renders component', () => {
-    const channels = R.range(0, 4).map(createChannel)
     const ref = React.createRef()
     const contentRect = {
       bounds: {
@@ -26,7 +30,6 @@ describe('ChannelsPanel', () => {
   })
 
   it('renders collapsed list if no bounds', () => {
-    const channels = R.range(0, 4).map(createChannel)
     const ref = React.createRef()
     const contentRect = {
       bounds: {}

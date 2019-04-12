@@ -3,6 +3,7 @@ import { Archive, Workspace, Credentials, Datasources } from '../vendor/buttercu
 export const createArchive = () => {
   const archive = new Archive()
   archive.createGroup('Identities')
+  archive.createGroup('Channels')
   return archive
 }
 

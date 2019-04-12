@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`payment received lists received by address 1`] = `
+Array [
+  Object {
+    "amount": "0.0001",
+    "change": false,
+    "memo": "",
+    "txid": "test-1",
+  },
+  Object {
+    "amount": "0.0001",
+    "change": false,
+    "memo": "",
+    "txid": "test-2",
+  },
+]
+`;

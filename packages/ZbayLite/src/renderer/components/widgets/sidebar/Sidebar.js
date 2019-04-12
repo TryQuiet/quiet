@@ -1,4 +1,5 @@
 import React from 'react'
+import Immutable from 'immutable'
 import PropTypes from 'prop-types'
 import * as R from 'ramda'
 
@@ -8,7 +9,7 @@ import { withStyles } from '@material-ui/core/styles'
 import NodePanel from '../../../containers/widgets/node/NodePanel'
 import IdentityPanel from '../../../containers/ui/IdentityPanel'
 import WalletPanel from '../walletPanel/WalletPanel'
-import ChannelsPanel from '../channels/ChannelsPanel'
+import ChannelsPanel from '../../../containers/widgets/channels/ChannelsPanel'
 import DirectMessagesPanel from '../channels/DirectMessagesPanel'
 
 const styles = theme => ({
@@ -32,8 +33,9 @@ const styles = theme => ({
   }
 })
 
-const channels = R.map(
+const channels = Immutable.fromJS(R.map(
   id => ({
+    id,
     name: `Channel ${id}`,
     description: `This is channel about 1`,
     private: id % 2 === 0,
@@ -42,13 +44,13 @@ const channels = R.map(
     address: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly' + id
   }),
   R.range(0, 15)
-)
+))
 
 const Sidebar = ({ classes }) => (
   <Grid container direction='column' className={classes.root}>
     <IdentityPanel />
     <WalletPanel />
-    <ChannelsPanel channels={channels} />
+    <ChannelsPanel />
     <DirectMessagesPanel channels={channels} />
     <NodePanel hexColor='#cca92c' className={classes.statusBar} />
   </Grid>

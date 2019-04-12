@@ -1,7 +1,8 @@
 import React from 'react'
+import Immutable from 'immutable'
 import PropTypes from 'prop-types'
 
-import BaseChannelsList, { getItemSize, propTypes } from './BaseChannelsList'
+import BaseChannelsList, { getItemSize } from './BaseChannelsList'
 
 export const ItemSizedChannelsList = ({ channels, itemsCount, displayAddress }) => (
   <BaseChannelsList
@@ -12,13 +13,13 @@ export const ItemSizedChannelsList = ({ channels, itemsCount, displayAddress }) 
 )
 
 ItemSizedChannelsList.propTypes = {
-  channels: PropTypes.arrayOf(propTypes.channel),
+  channels: PropTypes.instanceOf(Immutable.List),
   displayAddress: PropTypes.bool,
   itemsCount: PropTypes.number
 }
 
 ItemSizedChannelsList.defaultProps = {
-  channels: []
+  channels: Immutable.List()
 }
 
 export default React.memo(ItemSizedChannelsList)

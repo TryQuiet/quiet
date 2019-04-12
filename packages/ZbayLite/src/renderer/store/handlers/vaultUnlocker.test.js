@@ -2,13 +2,18 @@
 jest.mock('../../vault')
 jest.mock('../../zcash')
 
+import BigNumber from 'bignumber.js'
+
 import create from '../create'
-import vault from '../../vault'
+import vault, { mock } from '../../vault'
+import { createArchive } from '../../vault/marshalling'
 import selectors from '../selectors/vaultUnlocker'
 import vaultSelectors from '../selectors/vault'
 import identitySelectors from '../selectors/identity'
+import channelsSelectors from '../selectors/channels'
 import { actions, VaultUnlockerState, epics } from './vaultUnlocker'
 import { mockEvent } from '../../../shared/testing/mocks'
+import { getClient } from '../../zcash'
 
 describe('VaultUnlocker reducer', () => {
   let store = null
@@ -56,9 +61,15 @@ describe('VaultUnlocker reducer', () => {
         name: 'Saturn',
         address: 'test-address'
       }
+      const balance = new BigNumber('12.345')
 
       beforeEach(() => {
+        mock.setArchive(createArchive())
         vault.identity.listIdentities.mockImplementation(async () => [identity])
+        const balanceMock = jest.fn(async (address) => balance)
+        getClient.mockImplementation(() => ({
+          accounting: { balance: balanceMock }
+        }))
       })
 
       it('unlocks the vault', async () => {
@@ -72,14 +83,16 @@ describe('VaultUnlocker reducer', () => {
         expect(vault.unlock.mock.calls).toMatchSnapshot()
       })
 
-      it('sets identity', async () => {
+      it('bootstraps channels', async () => {
         store.dispatch(actions.setPassword(mockEvent('test password')))
         expect(vaultSelectors.locked(store.getState())).toBeTruthy()
 
         await store.dispatch(epics.unlockVault())
 
         const currentIdentity = identitySelectors.identity(store.getState())
-        expect(currentIdentity.toJS().data).toEqual({ ...identity, balance: null })
+        expect(currentIdentity.toJS().data).toEqual({ ...identity, balance })
+        const channels = channelsSelectors.data(store.getState())
+        expect(channels.map(ch => ch.delete('id')))
       })
 
       it('clears after unlock throws', async () => {

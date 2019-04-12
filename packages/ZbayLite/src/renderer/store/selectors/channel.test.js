@@ -7,10 +7,13 @@ import * as R from 'ramda'
 import channelSelectors from './channel'
 
 import create from '../create'
-import { ChannelState } from '../handlers/channel'
-import { createMessage } from '../../components/widgets/channels/testUtils'
+import { ChannelState, MessagesState } from '../handlers/channel'
+import { ChannelsState } from '../handlers/channels'
+import { createMessage, createChannel } from '../../testUtils'
 
-describe('ChannelHeader', () => {
+describe('Channel selector', () => {
+  const channelId = 'this-is-a-test-id'
+
   let store = null
   beforeEach(() => {
     jest.clearAllMocks()
@@ -18,10 +21,15 @@ describe('ChannelHeader', () => {
       initialState: Immutable.Map({
         channel: ChannelState({
           spentFilterValue: 38,
-          name: 'Politics',
+          id: channelId,
           members: new BigNumber(0),
           message: 'Message written in the input',
-          messages: R.range(0, 4).map(createMessage)
+          messages: MessagesState({
+            data: Immutable.fromJS(R.range(0, 4).map(createMessage))
+          })
+        }),
+        channels: ChannelsState({
+          data: Immutable.fromJS([createChannel(channelId)])
         })
       })
     })
@@ -41,5 +49,9 @@ describe('ChannelHeader', () => {
 
   it('messages selector', async () => {
     expect(channelSelectors.messages(store.getState())).toMatchSnapshot()
+  })
+
+  it('data selector', async () => {
+    expect(channelSelectors.data(store.getState())).toMatchSnapshot()
   })
 })

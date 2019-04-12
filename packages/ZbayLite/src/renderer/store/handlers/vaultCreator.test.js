@@ -9,14 +9,15 @@ jest.mock('../../zcash', () => ({
 import BigNumber from 'bignumber.js'
 
 import create from '../create'
-import vault from '../../vault'
+import vault, { mock } from '../../vault'
 import selectors from '../selectors/vaultCreator'
 import vaultSelectors from '../selectors/vault'
+import channelsSelectors from '../selectors/channels'
 import identitySelectors from '../selectors/identity'
-import { IdentityState } from './identity'
 import { actions, VaultCreatorState, epics } from './vaultCreator'
 import { mockEvent } from '../../../shared/testing/mocks'
 import { getClient } from '../../zcash'
+import { createArchive } from '../../vault/marshalling'
 
 describe('VaultCreator reducer', () => {
   let store = null
@@ -32,7 +33,6 @@ describe('VaultCreator reducer', () => {
       store.dispatch(actions.setPassword(mockEvent('test password')))
       assertStoreState()
     })
-
     it('setRepeat', () => {
       store.dispatch(actions.setRepeat(mockEvent('test password')))
       assertStoreState()
@@ -79,11 +79,28 @@ describe('VaultCreator reducer', () => {
 
   describe('handles epics', () => {
     describe('createVault', () => {
-      it('creates the vault', async () => {
+      const createMock = jest.fn(async (type) => `${type}-zcash-address`)
+      const balanceMock = jest.fn(async (address) => new BigNumber('12.345'))
+      beforeEach(() => {
+        mock.setArchive(createArchive())
+
+        // zcash client mock
+        getClient.mockImplementation(() => ({
+          addresses: { create: createMock },
+          accounting: { balance: balanceMock }
+        }))
+
+        // old vault client mock
+        vault.identity.createIdentity.mockImplementation(
+          async ({ name, address }) => ({ id: 'thisisatestid', name, address })
+        )
+
         const password = 'test password'
         store.dispatch(actions.setPassword(mockEvent(password)))
         store.dispatch(actions.setRepeat(mockEvent(password)))
+      })
 
+      it('creates the vault', async () => {
         expect(vaultSelectors.exists(store.getState())).toBeFalsy()
 
         await store.dispatch(epics.createVault())
@@ -93,10 +110,6 @@ describe('VaultCreator reducer', () => {
       })
 
       it('unlocks the vault', async () => {
-        const password = 'test password'
-        store.dispatch(actions.setPassword(mockEvent(password)))
-        store.dispatch(actions.setRepeat(mockEvent(password)))
-
         expect(vaultSelectors.locked(store.getState())).toBeTruthy()
 
         await store.dispatch(epics.createVault())
@@ -119,9 +132,6 @@ describe('VaultCreator reducer', () => {
       })
 
       it('clears creator if creating fails', async () => {
-        const password = 'test password'
-        store.dispatch(actions.setPassword(mockEvent(password)))
-        store.dispatch(actions.setRepeat(mockEvent(password)))
         vault.create.mockImplementationOnce(async () => { throw Error('creation error') })
 
         await store.dispatch(epics.createVault())
@@ -132,9 +142,6 @@ describe('VaultCreator reducer', () => {
       })
 
       it('clears creator if unlocking fails', async () => {
-        const password = 'test password'
-        store.dispatch(actions.setPassword(mockEvent(password)))
-        store.dispatch(actions.setRepeat(mockEvent(password)))
         vault.unlock.mockImplementationOnce(async () => { throw Error('unlocking error') })
 
         await store.dispatch(epics.createVault())
@@ -145,26 +152,17 @@ describe('VaultCreator reducer', () => {
       })
 
       it('creates identity and sets balance', async () => {
-        const createMock = jest.fn(async (type) => `${type}-zcash-address`)
-        const balanceMock = jest.fn(async (address) => new BigNumber('12.345'))
-        getClient.mockImplementation(() => ({
-          addresses: { create: createMock },
-          accounting: { balance: balanceMock }
-        }))
-        vault.identity.createIdentity.mockImplementation(
-          async ({ name, address }) => ({ id: 'thisisatestid', name, address })
-        )
-        const password = 'test password'
-        store.dispatch(actions.setPassword(mockEvent(password)))
-        store.dispatch(actions.setRepeat(mockEvent(password)))
-
-        expect(identitySelectors.identity(store.getState())).toEqual(IdentityState())
-
         await store.dispatch(epics.createVault())
 
         expect(identitySelectors.identity(store.getState())).toMatchSnapshot()
         expect(createMock).toHaveBeenCalledWith('sapling')
         expect(balanceMock).toHaveBeenCalledWith(await createMock('sapling'))
+      })
+
+      it('bootstraps general channel to new account', async () => {
+        await store.dispatch(epics.createVault())
+        const channels = channelsSelectors.channels(store.getState())
+        expect(channels.data.map(ch => ch.delete('id'))).toMatchSnapshot()
       })
     })
   })

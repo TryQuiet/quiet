@@ -27,6 +27,20 @@ Immutable.VaultCreatorState {
 }
 `;
 
+exports[`VaultCreator reducer handles epics createVault bootstraps general channel to new account 1`] = `
+Immutable.List [
+  Immutable.Map {
+    "keys": Immutable.Map {},
+    "name": "General",
+    "private": true,
+    "hash": "eJw1TUkKwzAM/IrQ2S095wP9QE+9KbFSm6pykOxACPl7TUNhDrMxs6PSh3HAOysbCQZcLK9Uu1etccBEnnqu5fJjASlGY/fT+4uATY0p4nALGNkny0vNRXvrkbJDB8Hr/IApkSoL0EpZaBSGWoBEoDmbQ5nhOdIG4waRZ2pSr33/zVv/3I/jCy1BPSA=",
+    "address": "no-address",
+    "unread": 0,
+    "description": "This is a general channel available to all users of Zbay by default.",
+  },
+]
+`;
+
 exports[`VaultCreator reducer handles epics createVault clears creator if creating fails 1`] = `
 Immutable.VaultCreatorState {
   "password": "",

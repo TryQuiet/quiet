@@ -1,15 +1,19 @@
 import React from 'react'
+import Immutable from 'immutable'
 import { shallow } from 'enzyme'
 import * as R from 'ramda'
 
 import { ItemSizedChannelsList } from './ItemSizedChannelsList'
 import { constants } from './BaseChannelsList'
-import { createChannel } from './testUtils'
+import { createChannel } from '../../../testUtils'
 
 describe('ItemSizedChannelsList', () => {
+  const itemsCount = 4
+  const channels = Immutable.fromJS(
+    R.range(0, itemsCount).map(createChannel)
+  )
+
   it('renders component', () => {
-    const itemsCount = 4
-    const channels = R.range(0, itemsCount).map(createChannel)
     const result = shallow(
       <ItemSizedChannelsList channels={channels} itemsCount={itemsCount} />
     )
@@ -18,8 +22,6 @@ describe('ItemSizedChannelsList', () => {
   })
 
   it('renders with correct height when displayAddress = true', () => {
-    const itemsCount = 4
-    const channels = R.range(0, itemsCount).map(createChannel)
     const result = shallow(
       <ItemSizedChannelsList channels={channels} itemsCount={itemsCount} displayAddress />
     )

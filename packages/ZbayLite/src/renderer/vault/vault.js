@@ -8,6 +8,7 @@ import {
   credentialsToWorkspace
 } from './marshalling'
 import { Credentials } from '../vendor/buttercup'
+import channelsFactory from './channels'
 
 export default class Vault {
   constructor (sourceCredentials, archiveCredentials) {
@@ -21,6 +22,7 @@ export default class Vault {
     this._workspace = null
     this._sourceCredentials = sourceCredentials
     this._archiveCredentials = archiveCredentials
+    this.channels = channelsFactory(this)
   }
 
   _enqueueStateChange (cb) {

@@ -1,21 +1,14 @@
 import React from 'react'
+import Immutable from 'immutable'
 import { shallow } from 'enzyme'
 import * as R from 'ramda'
 
 import { BaseChannelsList, constants } from './BaseChannelsList'
-
-const createChannel = id => ({
-  name: `Channel ${id}`,
-  description: id % 2 === 0 ? '' : `Channel about ${id}`,
-  private: id % 2 === 0,
-  unread: id,
-  hash: `test-hash-${id}`,
-  address: `zs1testaddress${id}`
-})
+import { createChannel } from '../../../testUtils'
 
 describe('BaseChannelsList', () => {
   it('renders component', () => {
-    const channels = R.range(0, 12).map(createChannel)
+    const channels = Immutable.fromJS(R.range(0, 12).map(createChannel))
     const height = constants.itemSize * 12
     const result = shallow(
       <BaseChannelsList channels={channels} height={height} />
@@ -24,7 +17,7 @@ describe('BaseChannelsList', () => {
   })
 
   it('renders list elements with displayAddress', () => {
-    const channels = R.range(0, 3).map(createChannel)
+    const channels = Immutable.fromJS(R.range(0, 3).map(createChannel))
     const height = constants.itemSize * 4
     const result = shallow(
       <BaseChannelsList

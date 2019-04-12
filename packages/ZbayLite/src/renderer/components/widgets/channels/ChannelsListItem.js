@@ -1,4 +1,5 @@
 import React from 'react'
+import Immutable from 'immutable'
 import PropTypes from 'prop-types'
 import * as R from 'ramda'
 
@@ -37,48 +38,44 @@ const styles = theme => ({
   }
 })
 
-export const ChannelsListItem = ({ classes, channel, displayAddress }) => (
-  <ListItem
-    button
-    className={classes.root}
-    alignItems={displayAddress ? 'flex-start' : 'center'}
-  >
-    <ListItemIcon className={classes.itemIcon}>
-      {channel.private ? <HttpsIcon /> : <ChatBubbleOutlineIcon className={classes.icon} />}
-    </ListItemIcon>
-    <ListItemText
-      primary={
-        <Badge
-          badgeContent={channel.unread}
-          classes={{
-            badge: classes.badge
-          }}
-        >
-          {channel.name}
-        </Badge>
-      }
-      secondary={
-        displayAddress
-          ? <Elipsis tooltipPlacement='bottom' content={channel.address} length={30} />
-          : ''
-      }
-      className={classes.itemText}
-      secondaryTypographyProps={{ variant: 'caption' }}
-      address={channel.address}
-    />
-  </ListItem>
-)
-
+export const ChannelsListItem = ({ classes, channel, displayAddress, history }) => {
+  const channelObj = channel.toJS()
+  return (
+    <ListItem
+      button
+      onClick={() => history.push(`/main/channel/${channelObj.id}`)}
+      className={classes.root}
+      alignItems={displayAddress ? 'flex-start' : 'center'}
+    >
+      <ListItemIcon className={classes.itemIcon}>
+        {channelObj.private ? <HttpsIcon /> : <ChatBubbleOutlineIcon className={classes.icon} />}
+      </ListItemIcon>
+      <ListItemText
+        primary={
+          <Badge
+            badgeContent={channelObj.unread}
+            classes={{
+              badge: classes.badge
+            }}
+          >
+            {channelObj.name}
+          </Badge>
+        }
+        secondary={
+          displayAddress
+            ? <Elipsis tooltipPlacement='bottom' content={channelObj.address} length={30} />
+            : ''
+        }
+        className={classes.itemText}
+        secondaryTypographyProps={{ variant: 'caption' }}
+        address={channelObj.address}
+      />
+    </ListItem>
+  )
+}
 ChannelsListItem.propTypes = {
   classes: PropTypes.object.isRequired,
-  channel: PropTypes.shape({
-    name: PropTypes.string.isRequired,
-    private: PropTypes.bool.isRequired,
-    hash: PropTypes.string.isRequired,
-    address: PropTypes.string.isRequired,
-    unread: PropTypes.number,
-    description: PropTypes.string
-  }).isRequired,
+  channel: PropTypes.instanceOf(Immutable.Map).isRequired,
   displayAddress: PropTypes.bool
 }
 

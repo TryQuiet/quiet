@@ -1,10 +1,11 @@
 import React from 'react'
+import Immutable from 'immutable'
 import PropTypes from 'prop-types'
 import { Scrollbars } from 'react-custom-scrollbars'
 
 import List from '@material-ui/core/List'
 
-import ChannelsListItem from './ChannelsListItem'
+import ChannelsListItem from '../../../containers/widgets/channels/ChannelsListItem'
 
 export const constants = {
   itemSize: 37,
@@ -38,7 +39,7 @@ export const BaseChannelsList = ({ channels, height, displayAddress }) => (
       {
         channels.map(
           channel => (
-            <ChannelsListItem key={channel.address} channel={channel} displayAddress={displayAddress} />
+            <ChannelsListItem key={channel.get('id')} channel={channel} displayAddress={displayAddress} />
           )
         )
       }
@@ -48,12 +49,12 @@ export const BaseChannelsList = ({ channels, height, displayAddress }) => (
 
 BaseChannelsList.propTypes = {
   height: PropTypes.number.isRequired,
-  channels: PropTypes.arrayOf(propTypes.channel).isRequired,
+  channels: PropTypes.instanceOf(Immutable.List).isRequired,
   displayAddress: PropTypes.bool
 }
 
 BaseChannelsList.defaultProps = {
-  channels: [],
+  channels: Immutable.List(),
   displayAddress: false
 }
 

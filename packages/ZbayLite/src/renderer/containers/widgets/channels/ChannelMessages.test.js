@@ -6,9 +6,9 @@ import * as R from 'ramda'
 
 import { mapStateToProps } from './ChannelMessages'
 
-import { createMessage } from '../../../components/widgets/channels/testUtils'
+import { createMessage } from '../../../testUtils'
 import create from '../../../store/create'
-import { ChannelState } from '../../../store/handlers/channel'
+import { ChannelState, MessagesState } from '../../../store/handlers/channel'
 
 describe('ChannelInput', () => {
   let store = null
@@ -18,10 +18,12 @@ describe('ChannelInput', () => {
       initialState: Immutable.Map({
         channel: ChannelState({
           spentFilterValue: 38,
-          name: 'Politics',
+          id: 'this-is-test-channel-id',
           members: new BigNumber(0),
           message: 'This is a test message',
-          messages: R.range(0, 4).map(createMessage)
+          messages: MessagesState({
+            data: Immutable.fromJS(R.range(0, 4).map(createMessage))
+          })
         })
       })
     })

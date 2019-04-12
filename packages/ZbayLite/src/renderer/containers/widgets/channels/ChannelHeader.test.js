@@ -1,12 +1,13 @@
 /* eslint import/first: 0 */
 jest.mock('../../../vault')
 import Immutable from 'immutable'
-import BigNumber from 'bignumber.js'
 
 import { mapStateToProps } from './ChannelHeader'
 
 import create from '../../../store/create'
 import { ChannelState } from '../../../store/handlers/channel'
+import { ChannelsState } from '../../../store/handlers/channels'
+import { createChannel } from '../../../testUtils'
 
 describe('ChannelHeader', () => {
   let store = null
@@ -16,10 +17,13 @@ describe('ChannelHeader', () => {
       initialState: Immutable.Map({
         channel: ChannelState({
           spentFilterValue: 38,
-          name: 'Politics',
-          members: new BigNumber(0),
-          message: '',
-          messages: []
+          id: 1
+        }),
+        channels: ChannelsState({
+          data: Immutable.fromJS([
+            createChannel(1),
+            createChannel(2)
+          ])
         })
       })
     })

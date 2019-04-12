@@ -78,6 +78,7 @@
     "classnames": "^2.2.6",
     "immutable": "^4.0.0-rc.12",
     "jest-each": "^24.0.0",
+    "joi": "^14.3.1",
     "luxon": "^1.11.4",
     "prop-types": "^15.7.1",
     "ramda": "^0.26.1",

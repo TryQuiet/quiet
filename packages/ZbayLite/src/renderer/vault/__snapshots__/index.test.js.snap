@@ -2,6 +2,44 @@
 
 exports[`vault instance creates identity 1`] = `undefined`;
 
+exports[`vault instance list channels when contains channels 1`] = `
+Array [
+  Object {
+    "address": "zs1testaddress3",
+    "description": "Channel about 3",
+    "hash": "eJxNjTEOwjAMRa+CPCcD6taVk5jGolapU8VOEFS9Ow4wMNl67+v/HTjBOAQQXAlGuMwoQvfTAAG2wg3NqZVKAWbU2RNGarH/sWcwpUKqzl967uoHuqtSCL/tiXQqvBln+RvBa672mVro6R07cFvcs0x5ZbnFxvTo17WvHccbQWE5tA==",
+    "keys": Object {
+      "ivk": "incoming-viewing-key-3",
+    },
+    "name": "Channel 3",
+    "private": true,
+    "unread": 3,
+  },
+  Object {
+    "address": "zs1testaddress2",
+    "description": "",
+    "hash": "eJwtjEEOgzAMBL+CfE4O5ci1L7GISyzAoDhNBYi/11Z78mpmvRdwgqEPILgSDPDMKEJL10OAvXDDavSFi1KAjJqtUklr9By9hCkVUjV+6sPVH7h7SyH8zSfSsfBeeROrmpvpsKcLuM0GWMZtZZliY/r4NW3z9/0FKdQ0sg==",
+    "keys": Object {
+      "ivk": "incoming-viewing-key-2",
+    },
+    "name": "Channel 2",
+    "private": true,
+    "unread": 2,
+  },
+  Object {
+    "address": "zs1testaddress1",
+    "description": "Channel about 1",
+    "hash": "eJxNjTEOwjAMRa+CPCdD1q6cxDQWsUqdKk6CoOrd6wADk633vv7fgSNMwYHgSjDBNaEIPS4BHGyFO1ajtTRykFCTJSpp9eP3I4MxFlI1/tYw1A8M16QQftsj6Vx4q5zlbwRvudXP1EIv69iB+2KeZc4ry913pue4pm3tOE48Yzmm",
+    "keys": Object {
+      "ivk": "incoming-viewing-key-1",
+    },
+    "name": "Channel 1",
+    "private": true,
+    "unread": 1,
+  },
+]
+`;
+
 exports[`vault instance lists identities 1`] = `
 Array [
   Object {
@@ -17,4 +55,16 @@ Array [
     "name": "Jupiter",
   },
 ]
+`;
+
+exports[`vault instance returns created vault 1`] = `
+Vault {
+  "channels": Object {
+    "bootstrapChannels": [Function],
+    "importChannel": [Function],
+    "listChannels": [Function],
+  },
+  "lock": [MockFunction],
+  "withWorkspace": [Function],
+}
 `;

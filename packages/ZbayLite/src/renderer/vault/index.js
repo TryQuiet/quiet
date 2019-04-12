@@ -10,6 +10,13 @@ const getVaultPath = () => path.join(remote.app.getPath('userData'), 'vault.bcup
 
 let _vault = null
 
+export const withVaultInitialized = (fn) => (...args) => {
+  if (!_vault) {
+    throw Error('Archive not initialized.')
+  }
+  return fn(...args)
+}
+
 export const exists = () => {
   const userDir = remote.app.getPath('userData')
   const vaultPath = path.join(userDir, 'vault.bcup')
@@ -43,12 +50,7 @@ export const unlock = async ({ masterPassword, createSource = false }) => {
   }
 }
 
-export const lock = async () => {
-  if (!_vault) {
-    throw Error('Archive not initialized.')
-  }
-  return _vault.lock()
-}
+export const lock = async () => _vault.lock()
 
 const _entryToIdentity = entry => {
   const entryObj = entry.toObject()
@@ -58,10 +60,10 @@ const _entryToIdentity = entry => {
     address: entryObj.properties.address
   }
 }
+
+export const getVault = withVaultInitialized(() => _vault)
+
 export const createIdentity = async ({ name, address }) => {
-  if (!_vault) {
-    throw Error('Archive not initialized.')
-  }
   let entry = null
   await _vault.withWorkspace(workspace => {
     const [identitiesGroup] = workspace.archive.findGroupsByTitle('Identities')
@@ -74,9 +76,6 @@ export const createIdentity = async ({ name, address }) => {
 }
 
 export const listIdentities = async () => {
-  if (!_vault) {
-    throw Error('Archive not initialized.')
-  }
   let identities = []
   await _vault.withWorkspace(workspace => {
     const [identitiesGroup] = workspace.archive.findGroupsByTitle('Identities')
@@ -92,14 +91,18 @@ export const remove = async () => {
   }
 }
 
+// TODO: display channels on frontend
 export default ({
+  // TODO: [refactoring] those using withWorkspace should be moved to Vault
+  // as plug in modules
   identity: {
-    createIdentity,
-    listIdentities
+    createIdentity: withVaultInitialized(createIdentity),
+    listIdentities: withVaultInitialized(listIdentities)
   },
+  getVault,
   remove,
   exists,
   create,
   unlock,
-  lock
+  lock: withVaultInitialized(lock)
 })

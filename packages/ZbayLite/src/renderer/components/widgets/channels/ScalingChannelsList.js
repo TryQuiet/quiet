@@ -1,7 +1,8 @@
 import React from 'react'
+import Immutable from 'immutable'
 import PropTypes from 'prop-types'
 
-import BaseChannelsList, { getItemSize, propTypes } from './BaseChannelsList'
+import BaseChannelsList, { getItemSize } from './BaseChannelsList'
 
 export const ScalingChannelsList = ({ channels, maxHeight, displayAddress }) => {
   const itemSize = getItemSize(displayAddress)
@@ -16,12 +17,12 @@ export const ScalingChannelsList = ({ channels, maxHeight, displayAddress }) => 
 
 ScalingChannelsList.propTypes = {
   maxHeight: PropTypes.number.isRequired,
-  channels: PropTypes.arrayOf(propTypes.channel).isRequired,
+  channels: PropTypes.instanceOf(Immutable.List).isRequired,
   displayAddress: PropTypes.bool
 }
 
 ScalingChannelsList.defaultProps = {
-  channels: []
+  channels: Immutable.List()
 }
 
 export default React.memo(ScalingChannelsList)
