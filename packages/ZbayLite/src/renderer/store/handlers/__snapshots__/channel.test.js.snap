@@ -1,0 +1,90 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`channel reducer handles actions - loadMessages 1`] = `
+Array [
+  Array [
+    "test-address",
+  ],
+]
+`;
+
+exports[`channel reducer handles actions - setChannelId 1`] = `
+Immutable.ChannelState {
+  "spentFilterValue": "0",
+  "id": "this-is-a-test-id",
+  "message": "",
+  "messages": Immutable.Record {
+    "loading": false,
+    "data": Immutable.List [],
+    "errors": "",
+    "page": 1,
+  },
+  "members": null,
+}
+`;
+
+exports[`channel reducer handles epics - loadChannel 1`] = `
+Immutable.List [
+  Immutable.Map {
+    "sender": Immutable.Map {
+      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+    },
+    "message": "This is some message test-1",
+    "createdAt": 1551963828,
+    "type": 1,
+    "id": "test-1",
+    "spent": "0.2",
+  },
+  Immutable.Map {
+    "sender": Immutable.Map {
+      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+    },
+    "message": "This is some message test-2",
+    "createdAt": 1551963828,
+    "type": 1,
+    "id": "test-2",
+    "spent": "0.2",
+  },
+]
+`;
+
+exports[`channel reducer handles epics - loadMessages loads for current channel 1`] = `
+Immutable.List [
+  Immutable.Map {
+    "sender": Immutable.Map {
+      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+    },
+    "message": "This is some message test-1",
+    "createdAt": 1551963828,
+    "type": 1,
+    "id": "test-1",
+    "spent": "0.2",
+  },
+  Immutable.Map {
+    "sender": Immutable.Map {
+      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+    },
+    "message": "This is some message test-2",
+    "createdAt": 1551963828,
+    "type": 1,
+    "id": "test-2",
+    "spent": "0.2",
+  },
+]
+`;
+
+exports[`channel reducer handles epics - sendOnEnter sends message 1`] = `
+Object {
+  "address": "zs1testaddressthis-is-a-test-id",
+  "amount": "0.0001",
+  "memo": Object {
+    "createdAt": 1551963828,
+    "message": "this is some message",
+    "sender": Object {
+      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "username": "Saturn",
+    },
+    "type": 1,
+  },
+}
+`;

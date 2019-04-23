@@ -29,6 +29,10 @@ export default class Vault {
     return this._stateQueue.channel('state').enqueue(cb)
   }
 
+  locked () {
+    return this._workspace === null
+  }
+
   unlock (masterPassword, createSource = false) {
     return this._enqueueStateChange(async () => {
       const [sourceCredentials, archiveCredentials] = await credentialsFromSecureStrings({

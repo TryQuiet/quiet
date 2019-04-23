@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`payment received lists received by address 1`] = `
+exports[`payment receives lists received by address 1`] = `
 Array [
   Object {
     "amount": "0.0001",
@@ -16,3 +16,29 @@ Array [
   },
 ]
 `;
+
+exports[`payment send returns operation id 1`] = `"operation-id"`;
+
+exports[`payment send sends transfers 1`] = `
+Array [
+  Array [
+    "zs1zxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    Array [
+      Object {
+        "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly",
+        "amount": "0.23",
+        "memo": "test-memo",
+      },
+      Object {
+        "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly",
+        "amount": "4.12",
+        "memo": "test-memo-2",
+      },
+    ],
+    1,
+    0.0001,
+  ],
+]
+`;
+
+exports[`payment send verifies amounts 1`] = `[Error: ValidationError: "value" at position 0 fails because [child "amount" fails because ["amount" is required]]. "value" at position 1 fails because [child "address" fails because ["address" is required]]. "value" at position 2 fails because [child "memo" fails because ["memo" is required]]. "value" does not contain 1 required value(s)]`;

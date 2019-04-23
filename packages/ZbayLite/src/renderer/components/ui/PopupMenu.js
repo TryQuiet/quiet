@@ -83,7 +83,6 @@ export const PopupMenu = ({ open, anchorEl, classes, children, className, offset
           style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
         >
           <div className={classes.wrapper}>
-            { console.log(placement) || '' }
             <Paper
               className={classNames({
                 [classes.paper]: true,

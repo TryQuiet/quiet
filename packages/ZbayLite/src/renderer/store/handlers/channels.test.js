@@ -1,5 +1,6 @@
 /* eslint import/first: 0 */
 jest.mock('../../vault')
+jest.mock('../../zcash')
 
 import Immutable from 'immutable'
 import * as R from 'ramda'

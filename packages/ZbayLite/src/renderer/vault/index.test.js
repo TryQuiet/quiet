@@ -1,5 +1,6 @@
 /* eslint import/first: 0 */
 jest.mock('./vault')
+jest.mock('../zcash')
 jest.mock('./marshalling', () => ({
   passwordToSecureStrings: jest.fn(() => [jest.mock(), jest.mock()]),
   createArchive: jest.requireActual('./marshalling').createArchive

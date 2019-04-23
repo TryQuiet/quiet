@@ -26,7 +26,7 @@ export const channels = {
 
 export const createMessage = (
   id,
-  createdAt = now.minus({ hours: id }).toISO()
+  createdAt = now.minus({ hours: id }).toSeconds()
 ) => ({
   id,
   type: zbayMessages.messageType.BASIC,
@@ -34,7 +34,7 @@ export const createMessage = (
   message: `This is some message ${id}`,
   spent: new BigNumber('23.23'),
   sender: {
-    replyTo: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly'
+    replyTo: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya'
   }
 })
 

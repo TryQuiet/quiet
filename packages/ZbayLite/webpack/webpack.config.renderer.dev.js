@@ -36,7 +36,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      title: 'Custom template',
+      title: 'Zbay',
       template: 'src/renderer/index.html'
     }),
     new webpack.HotModuleReplacementPlugin(),

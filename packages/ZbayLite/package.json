@@ -73,6 +73,7 @@
     "@material-ui/icons": "^3.0.2",
     "@material-ui/lab": "^3.0.0-alpha.30",
     "axios": "^0.18.0",
+    "bech32": "^1.1.3",
     "bignumber.js": "^8.1.1",
     "buttercup": "^2.10.0",
     "classnames": "^2.2.6",

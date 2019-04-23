@@ -1,42 +1,76 @@
 import Joi from 'joi'
+import { DateTime } from 'luxon'
+import BigNumber from 'bignumber.js'
 import * as R from 'ramda'
 
-import { inflate } from '../compression'
+import { packMemo, unpackMemo } from './transit'
 
 export const messageType = {
-  BASIC: 'basic',
-  AD: 'ad',
-  TRANSFER: 'transfer'
+  BASIC: 1,
+  AD: 2,
+  TRANSFER: 4
 }
 
 const messageSchema = Joi.object().keys({
-  type: Joi.string().valid(R.values(messageType)).required(),
+  type: Joi.number().valid(R.values(messageType)).required(),
   sender: Joi.object().keys({
     replyTo: Joi.string().required(),
     username: Joi.string()
   }).required(),
-  createdAt: Joi.string().isoDate().required(),
+  createdAt: Joi.number().required(),
   message: Joi.string().required()
 })
 
 export const transferToMessage = async ({ txid, amount, memo }) => {
-  const message = await inflate(memo)
+  let message = null
+  try {
+    message = await unpackMemo(memo)
+  } catch (err) {
+    console.warn(err)
+    return null
+  }
   const { error, value } = Joi.validate(message, messageSchema)
   if (error) {
-    console.warn(error)
+    console.warn('Incorrect message format: ', error)
     return null
   }
   return {
     ...value,
     id: txid,
-    spent: amount
+    spent: new BigNumber(amount)
   }
 }
 
-export const transfersToMessages = async (transfers) => transfers.map(transferToMessage).filter(x => x)
+export const createMessage = ({ messageData, identity }) => ({
+  type: messageData.type,
+  sender: {
+    replyTo: identity.address,
+    username: identity.name
+  },
+  createdAt: DateTime.utc().toSeconds(),
+  message: messageData.data
+})
+
+export const messageToTransfer = async ({ message, channel, amount = '0.0001' }) => ({
+  from: message.sender.replyTo,
+  amounts: [
+    {
+      address: channel.address,
+      amount: amount,
+      memo: await packMemo(message)
+    }
+  ]
+})
+
+export const transfersToMessages = async (transfers) => {
+  const msgs = await Promise.all(transfers.map(transferToMessage))
+  return msgs.filter(x => x)
+}
 
 export default {
+  createMessage,
   messageType,
+  messageToTransfer,
   transferToMessage,
   transfersToMessages
 }

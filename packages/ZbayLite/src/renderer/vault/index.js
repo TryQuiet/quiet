@@ -40,9 +40,11 @@ export const create = async ({ masterPassword }) => {
 
 export const unlock = async ({ masterPassword, createSource = false }) => {
   if (!_vault) {
+    console.log('creating vault')
     await create({ masterPassword })
   }
   try {
+    console.log('unlocking vault')
     await _vault.unlock(masterPassword, createSource)
   } catch (err) {
     _vault = null
@@ -91,6 +93,10 @@ export const remove = async () => {
   }
 }
 
+export const locked = () => {
+  return _vault === null || _vault.locked()
+}
+
 // TODO: display channels on frontend
 export default ({
   // TODO: [refactoring] those using withWorkspace should be moved to Vault
@@ -99,6 +105,7 @@ export default ({
     createIdentity: withVaultInitialized(createIdentity),
     listIdentities: withVaultInitialized(listIdentities)
   },
+  locked,
   getVault,
   remove,
   exists,

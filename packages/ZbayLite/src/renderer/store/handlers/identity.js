@@ -56,7 +56,12 @@ export const createIdentity = () => async (dispatch, getState) => {
     name: 'Saturn',
     address
   }))
-  await getVault().channels.bootstrapChannels(identity.id)
+  try {
+    await getVault().channels.bootstrapChannels(identity.id)
+  } catch (err) {
+    console.warn(err)
+    dispatch(setErrors(err))
+  }
   return identity
 }
 

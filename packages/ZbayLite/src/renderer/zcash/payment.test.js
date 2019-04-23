@@ -9,16 +9,80 @@ describe('payment', () => {
       createTransfer({ txid: 'test-2' })
     ]
   }
+  const sendMock = jest.fn()
 
   const zcashClient = {
     request: {
-      'z_listreceivedbyaddress': jest.fn(async (address) => received[address])
+      z_listreceivedbyaddress: jest.fn(async (address) => received[address]),
+      z_sendmany: sendMock
     }
   }
 
   const payment = paymentFactory(zcashClient)
 
-  it('received lists received by address', async () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  it('receives lists received by address', async () => {
     expect(payment.received(address)).resolves.toMatchSnapshot()
+  })
+
+  describe('send', () => {
+    it('returns operation id', async () => {
+      sendMock.mockImplementation(async () => 'operation-id')
+      const amounts = [
+        {
+          address,
+          amount: '0.23',
+          memo: 'test-memo'
+        },
+        {
+          address,
+          amount: '4.12',
+          memo: 'test-memo-2'
+        }
+      ]
+      expect(payment.send({ address, amounts })).resolves.toMatchSnapshot()
+    })
+
+    it('sends transfers', async () => {
+      const from = 'zs1zxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+      sendMock.mockImplementation(async () => 'operation-id')
+      const amounts = [
+        {
+          address,
+          amount: '0.23',
+          memo: 'test-memo'
+        },
+        {
+          address,
+          amount: '4.12',
+          memo: 'test-memo-2'
+        }
+      ]
+      await payment.send({ from, amounts })
+      expect(sendMock.mock.calls).toMatchSnapshot()
+    })
+
+    it('verifies amounts', async () => {
+      sendMock.mockImplementation(async () => 'operation-id')
+      const amounts = [
+        {
+          address,
+          memo: 'test-memo'
+        },
+        {
+
+          amount: '4.12',
+          memo: 'test-memo'
+        },
+        {
+          address,
+          amount: '4.12'
+        }
+      ]
+      expect(payment.send({ address, amounts })).rejects.toMatchSnapshot()
+    })
   })
 })

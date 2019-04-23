@@ -1,7 +1,10 @@
 import Immutable from 'immutable'
+import BigNumber from 'bignumber.js'
 import * as R from 'ramda'
 import { createAction, handleActions } from 'redux-actions'
+
 import channelSelectors from '../selectors/channel'
+import identitySelectors from '../selectors/identity'
 import { getClient } from '../../zcash'
 import { messages } from '../../zbay'
 
@@ -15,7 +18,7 @@ export const MessagesState = Immutable.Record({
 })
 
 export const ChannelState = Immutable.Record({
-  spentFilterValue: 0,
+  spentFilterValue: new BigNumber(0),
   id: null,
   message: '',
   messages: MessagesState(),
@@ -31,42 +34,64 @@ const loadMessages = createAction(
   'LOAD_CHANNEL_MESSAGES',
   async (channelAddress, page = 1) => {
     const transfers = await getClient().payment.received(channelAddress)
+    const received = await messages.transfersToMessages(transfers)
     return {
-      messages: await messages.transfersToMessages(transfers),
+      messages: R.sortBy(R.prop('createdAt'), received),
       page
     }
   }
 )
 
-const actions = {
+export const actions = {
   setSpentFilterValue,
-  setMessage
+  setMessage,
+  setChannelId,
+  loadMessages
 }
 
-// TODO: write tests for load channel
-// TODO: maybe we can skip channel alltogether
-const loadChannel = (id) => async (dispatch, getState) => {
-  dispatch(setChannelId(id))
+const loadMessagesEpic = () => async (dispatch, getState) => {
   const channel = channelSelectors.data(getState())
   await dispatch(loadMessages(channel.get('address')))
 }
 
-const sendOnEnter = (event) => (dispatch, getState) => {
+const loadChannel = (id) => async (dispatch, getState) => {
+  dispatch(setChannelId(id))
+  await dispatch(loadMessagesEpic())
+}
+
+const sendOnEnter = (event) => async (dispatch, getState) => {
   const enterPressed = event.nativeEvent.keyCode === 13
   const shiftPressed = event.nativeEvent.shiftKey === true
   if (enterPressed && !shiftPressed) {
     event.preventDefault()
+    const message = messages.createMessage({
+      identity: identitySelectors.data(getState()).toJS(),
+      messageData: {
+        type: messages.messageType.BASIC,
+        data: event.target.value
+      }
+    })
+    const transfer = await messages.messageToTransfer({
+      message,
+      channel: channelSelectors.data(getState()).toJS()
+    })
+    try {
+      await getClient().payment.send(transfer)
+    } catch (err) {
+      console.warn(err)
+    }
     dispatch(setMessage(''))
   }
 }
 
-const epics = {
+export const epics = {
   sendOnEnter,
-  loadChannel
+  loadChannel,
+  loadMessages: loadMessagesEpic
 }
 
 export const reducer = handleActions({
-  [setSpentFilterValue]: (state, { payload: value }) => state.set('spentFilterValue', value),
+  [setSpentFilterValue]: (state, { payload: value }) => state.set('spentFilterValue', new BigNumber(value)),
   [setMessage]: (state, { payload: value }) => state.set('message', value),
   [setChannelId]: (state, { payload: id }) => state.set('id', id),
 

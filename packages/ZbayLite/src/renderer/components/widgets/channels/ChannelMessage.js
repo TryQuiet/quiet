@@ -43,7 +43,7 @@ export const ChannelMessage = ({ classes, message }) => {
   const username = sender.get('username', 'Unnamed')
   const address = getZbayAddress(sender.get('replyTo'))
 
-  const time = DateTime.fromISO(message.get('createdAt'))
+  const time = DateTime.fromSeconds(message.get('createdAt'))
   const timeFormat = getTimeFormat(time)
   const timeString = time.toFormat(timeFormat)
   return (

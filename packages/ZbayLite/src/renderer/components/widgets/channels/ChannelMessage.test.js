@@ -20,26 +20,26 @@ describe('ChannelMessage', () => {
   })
 
   it('renders correct time for same week', () => {
-    const message = Immutable.fromJS(createMessage(1, now.minus({ days: 1 }).toISO()))
+    const message = Immutable.fromJS(createMessage(1, now.minus({ days: 1 }).toSeconds()))
     const result = shallow(<ChannelMessage classes={mockClasses} message={message} />)
     expect(result).toMatchSnapshot()
   })
 
   it('renders correct time for different month', () => {
-    const message = Immutable.fromJS(createMessage(1, now.minus({ month: 1 }).toISO()))
+    const message = Immutable.fromJS(createMessage(1, now.minus({ month: 1 }).toSeconds()))
     const result = shallow(<ChannelMessage classes={mockClasses} message={message} />)
     expect(result).toMatchSnapshot()
   })
 
   it('renders correct time for different year', () => {
-    const message = Immutable.fromJS(createMessage(1, now.minus({ year: 1 }).toISO()))
+    const message = Immutable.fromJS(createMessage(1, now.minus({ year: 1 }).toSeconds()))
     const result = shallow(<ChannelMessage classes={mockClasses} message={message} />)
     expect(result).toMatchSnapshot()
   })
 
   it('renders username', () => {
     const message = Immutable.fromJS(
-      createMessage(1, now.minus({ hours: 2 }).toISO())
+      createMessage(1, now.minus({ hours: 2 }).toSeconds())
     ).update('sender', sender => sender.set('username', 'Saturn'))
     const result = shallow(<ChannelMessage classes={mockClasses} message={message} />)
     expect(result).toMatchSnapshot()

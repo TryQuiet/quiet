@@ -1,6 +1,7 @@
 import * as R from 'ramda'
 
 import channels from '../zcash/channels'
+import { getClient } from '../zcash'
 import { deflate } from '../compression'
 
 const _entryToChannel = (channel) => {
@@ -26,6 +27,7 @@ const processEntries = R.compose(
 export default (vault) => {
   const importChannel = async (identityId, channel) => {
     const channelHash = await deflate(channel)
+    await getClient().keys.importIVK({ ivk: channel.keys.ivk, address: channel.address })
     await vault.withWorkspace(workspace => {
       const [channels] = workspace.archive.findGroupsByTitle('Channels')
       let [identityGroup] = channels.getGroups().filter(g => g.getTitle() === identityId)

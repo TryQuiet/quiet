@@ -7,7 +7,7 @@ exports[`ChannelContent renders component 1`] = `
   direction="column"
   justify="center"
 >
-  <Connect(Component) />
+  <Connect(ChannelMessages) />
   <Connect(Component) />
 </WithStyles(Grid)>
 `;

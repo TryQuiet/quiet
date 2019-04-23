@@ -96,6 +96,7 @@ describe('VaultUnlocker reducer', () => {
       })
 
       it('clears after unlock throws', async () => {
+        jest.spyOn(console, 'warn').mockImplementation()
         vault.unlock.mockImplementationOnce(async () => { throw Error('unlock error') })
         store.dispatch(actions.setPassword(mockEvent('test password')))
         expect(vaultSelectors.locked(store.getState())).toBeTruthy()

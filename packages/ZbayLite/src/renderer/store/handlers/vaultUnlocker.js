@@ -29,8 +29,12 @@ const unlockVault = () => async (dispatch, getState) => {
   } catch (err) {
     console.warn(err)
   }
-  const [identity] = await vault.identity.listIdentities()
-  await dispatch(identityHandlers.epics.setIdentity(identity))
+  try {
+    const [identity] = await vault.identity.listIdentities()
+    await dispatch(identityHandlers.epics.setIdentity(identity))
+  } catch (err) {
+    console.log(err)
+  }
   await dispatch(clearUnlocker())
 }
 

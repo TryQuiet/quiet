@@ -1,3 +1,5 @@
+/* eslint import/first: 0 */
+jest.mock('../zcash')
 import { createArchive } from './marshalling'
 import channelsFactory from './channels'
 

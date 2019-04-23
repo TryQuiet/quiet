@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`messages - message to transfer creates transfer from simple message 1`] = `
+Object {
+  "createdAt": 1551963828,
+  "message": "This is some message [object Object]",
+  "sender": Object {
+    "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+  },
+  "type": 1,
+}
+`;
+
+exports[`messages - transfer to message when memo isn't compressed string 1`] = `Array []`;

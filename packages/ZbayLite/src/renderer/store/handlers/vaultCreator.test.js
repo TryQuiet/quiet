@@ -81,13 +81,15 @@ describe('VaultCreator reducer', () => {
     describe('createVault', () => {
       const createMock = jest.fn(async (type) => `${type}-zcash-address`)
       const balanceMock = jest.fn(async (address) => new BigNumber('12.345'))
+      const importIVK = jest.fn(async () => null)
       beforeEach(() => {
         mock.setArchive(createArchive())
 
         // zcash client mock
         getClient.mockImplementation(() => ({
           addresses: { create: createMock },
-          accounting: { balance: balanceMock }
+          accounting: { balance: balanceMock },
+          keys: { importIVK }
         }))
 
         // old vault client mock
@@ -163,6 +165,10 @@ describe('VaultCreator reducer', () => {
         await store.dispatch(epics.createVault())
         const channels = channelsSelectors.channels(store.getState())
         expect(channels.data.map(ch => ch.delete('id'))).toMatchSnapshot()
+        expect(importIVK).toHaveBeenCalledWith({
+          address: 'ztestsapling16e4wekqjyx80yjjzf24ztyflt2c5tt6avt4nftgnj694n8e5x8fz5pr9ejsd3l9lmymf29khjnk',
+          ivk: 'zivktestsapling1p5rp2czztl8amalqm5ghzvhr35n08h26vhphnw2x6k83trft7sqsn9qkd6'
+        })
       })
     })
   })

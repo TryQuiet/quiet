@@ -1,10 +1,6 @@
 /* eslint import/first: 0 */
 jest.mock('../../vault')
-jest.mock('../../zcash', () => ({
-  getClient: jest.fn(() => ({
-    accounting: {}
-  }))
-}))
+jest.mock('../../zcash')
 
 import BigNumber from 'bignumber.js'
 import Immutable from 'immutable'
@@ -73,7 +69,7 @@ describe('Identity reducer handles', () => {
     })
 
     it('handles fetchBalance', async () => {
-      getClient.mockImplementationOnce(() => ({
+      getClient.mockImplementation(() => ({
         accounting: {
           balance: async () => new BigNumber('2.2352')
         }
@@ -85,7 +81,7 @@ describe('Identity reducer handles', () => {
     })
 
     it('handles errors on fetchBalance', async () => {
-      getClient.mockImplementationOnce(() => ({
+      getClient.mockImplementation(() => ({
         accounting: {
           balance: async () => { throw Error('node error') }
         }
@@ -101,6 +97,12 @@ describe('Identity reducer handles', () => {
     describe('handles set identity', () => {
       beforeEach(async () => {
         mock.setArchive(createArchive())
+        getClient.mockImplementation(() => ({
+          accounting: {
+            balance: async () => new BigNumber('2.2352')
+          },
+          keys: { importIVK: jest.fn(async () => null) }
+        }))
         await Promise.all(
           R.range(0, 3).map(
             R.compose(
@@ -109,11 +111,6 @@ describe('Identity reducer handles', () => {
             )
           )
         )
-        getClient.mockImplementationOnce(() => ({
-          accounting: {
-            balance: async () => new BigNumber('2.2352')
-          }
-        }))
       })
 
       it('- sets identity', async () => {
