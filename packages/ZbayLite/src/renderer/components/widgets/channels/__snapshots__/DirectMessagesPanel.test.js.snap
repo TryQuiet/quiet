@@ -7,11 +7,7 @@ exports[`DirectMessagesPanel renders component 1`] = `
   item={true}
 >
   <React.Memo
-    actions={
-      Array [
-        <WithStyles(Component) />,
-      ]
-    }
+    actions={Array []}
     title="Direct Messages"
   />
   <React.Memo

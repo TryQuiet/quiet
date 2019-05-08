@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Imported channel data selector 1`] = `
+Immutable.Map {
+  "name": "Politics",
+  "private": true,
+  "address": "zs1testaddress",
+  "description": "This is a simple test channel",
+  "keys": Immutable.Map {
+    "ivk": "this-is-an-ivk-key",
+  },
+}
+`;
+
+exports[`Imported channel errors selector 1`] = `"test error"`;

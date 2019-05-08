@@ -9,7 +9,7 @@ import RootRef from '@material-ui/core/RootRef'
 
 import ScalingChannelsList from './ScalingChannelsList'
 import SidebarHeader from '../../ui/SidebarHeader'
-import CreateChannelModal from '../CreateChannelModal'
+import AddChannelAction from './AddChannelAction'
 
 const constants = {
   sidebarHeight: 50,
@@ -24,7 +24,7 @@ export const ChannelsPanel = ({ channels, measureRef, contentRect }) => {
         <SidebarHeader
           title='Channels'
           actions={[
-            <CreateChannelModal key='create-channel' />
+            <AddChannelAction key='create-channel' />
           ]}
         />
         <ScalingChannelsList

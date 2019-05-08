@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Imported channel data selector 1`] = `
+Immutable.List [
+  Immutable.Map {
+    "message": "Test message",
+    "key": "test-key",
+    "options": Immutable.Map {
+      "persist": true,
+    },
+  },
+]
+`;

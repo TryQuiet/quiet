@@ -1,0 +1,175 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ImportedChannel renders private channel 1`] = `
+<WithStyles(Grid)
+  className="root-mock"
+  container={true}
+  direction="column"
+  item={true}
+  spacing={16}
+>
+  <WithStyles(Grid)
+    container={true}
+    item={true}
+  >
+    <WithStyles(Grid)
+      alignItems="flex-end"
+      container={true}
+      item={true}
+    >
+      <WithStyles(Typography)
+        className="title-mock"
+        variant="subtitle1"
+      >
+        Test channel
+      </WithStyles(Typography)>
+      <pure(HttpsOutlinedIcon)
+        className="privacy-mock"
+        fontSize="inherit"
+      />
+    </WithStyles(Grid)>
+    <React.Memo
+      classes={
+        Object {
+          "content": "uri-mock",
+        }
+      }
+      content="testaddress"
+      interactive={true}
+      tooltipPlacement="bottom-start"
+    />
+  </WithStyles(Grid)>
+  <WithStyles(Grid)
+    item={true}
+  >
+    <WithStyles(Typography)
+      variant="subtitle1"
+    >
+      About
+    </WithStyles(Typography)>
+    <WithStyles(Typography)
+      className="about-mock"
+      variant="body2"
+    >
+      This is a description of the test channel
+    </WithStyles(Typography)>
+  </WithStyles(Grid)>
+  <WithStyles(Grid)
+    className="actions-mock"
+    container={true}
+    item={true}
+    justify="flex-end"
+    spacing={16}
+  >
+    <WithStyles(Grid)
+      item={true}
+    >
+      <WithStyles(Button)
+        color="primary"
+        onClick={[MockFunction]}
+        size="small"
+        variant="outlined"
+      >
+        Cancel
+      </WithStyles(Button)>
+    </WithStyles(Grid)>
+    <WithStyles(Grid)
+      item={true}
+    >
+      <WithStyles(Button)
+        color="primary"
+        onClick={[MockFunction]}
+        size="small"
+        variant="contained"
+      >
+        Accept
+      </WithStyles(Button)>
+    </WithStyles(Grid)>
+  </WithStyles(Grid)>
+</WithStyles(Grid)>
+`;
+
+exports[`ImportedChannel renders public channel 1`] = `
+<WithStyles(Grid)
+  className="root-mock"
+  container={true}
+  direction="column"
+  item={true}
+  spacing={16}
+>
+  <WithStyles(Grid)
+    container={true}
+    item={true}
+  >
+    <WithStyles(Grid)
+      alignItems="flex-end"
+      container={true}
+      item={true}
+    >
+      <WithStyles(Typography)
+        className="title-mock"
+        variant="subtitle1"
+      >
+        Test channel
+      </WithStyles(Typography)>
+    </WithStyles(Grid)>
+    <React.Memo
+      classes={
+        Object {
+          "content": "uri-mock",
+        }
+      }
+      content="testaddress"
+      interactive={true}
+      tooltipPlacement="bottom-start"
+    />
+  </WithStyles(Grid)>
+  <WithStyles(Grid)
+    item={true}
+  >
+    <WithStyles(Typography)
+      variant="subtitle1"
+    >
+      About
+    </WithStyles(Typography)>
+    <WithStyles(Typography)
+      className="about-mock"
+      variant="body2"
+    >
+      This is a description of the test channel
+    </WithStyles(Typography)>
+  </WithStyles(Grid)>
+  <WithStyles(Grid)
+    className="actions-mock"
+    container={true}
+    item={true}
+    justify="flex-end"
+    spacing={16}
+  >
+    <WithStyles(Grid)
+      item={true}
+    >
+      <WithStyles(Button)
+        color="primary"
+        onClick={[MockFunction]}
+        size="small"
+        variant="outlined"
+      >
+        Cancel
+      </WithStyles(Button)>
+    </WithStyles(Grid)>
+    <WithStyles(Grid)
+      item={true}
+    >
+      <WithStyles(Button)
+        color="primary"
+        onClick={[MockFunction]}
+        size="small"
+        variant="contained"
+      >
+        Accept
+      </WithStyles(Button)>
+    </WithStyles(Grid)>
+  </WithStyles(Grid)>
+</WithStyles(Grid)>
+`;

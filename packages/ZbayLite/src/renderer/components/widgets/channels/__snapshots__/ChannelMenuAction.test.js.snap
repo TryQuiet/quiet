@@ -16,22 +16,19 @@ exports[`ChannelMenuAction renders component 1`] = `
       "icon": "icon-mock",
     }
   }
-  menuItems={
-    Array [
-      Immutable.MenuItem {
-        "title": "Info",
-        "onClick": [MockFunction],
-      },
-      Immutable.MenuItem {
-        "title": "Mute",
-        "onClick": [MockFunction],
-      },
-      Immutable.MenuItem {
-        "title": "Delete",
-        "onClick": [MockFunction],
-      },
-    ]
-  }
   offset="0 8"
-/>
+>
+  <React.Memo
+    onClick={[MockFunction]}
+    title="Info"
+  />
+  <React.Memo
+    onClick={[MockFunction]}
+    title="Mute"
+  />
+  <React.Memo
+    onClick={[MockFunction]}
+    title="Delete"
+  />
+</WithStyles(MenuAction)>
 `;

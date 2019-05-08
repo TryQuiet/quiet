@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ImportChannelForm renders component 1`] = `
+<React.Memo
+  handleClose={[MockFunction]}
+  open={true}
+  title="Import channel"
+>
+  <Connect(ImportChannelForm) />
+  <Connect(Component) />
+</React.Memo>
+`;
+
+exports[`ImportChannelForm renders component 2`] = `
+<React.Memo
+  handleClose={[MockFunction]}
+  open={false}
+  title="Import channel"
+>
+  <Connect(ImportChannelForm) />
+  <Connect(Component) />
+</React.Memo>
+`;

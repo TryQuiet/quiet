@@ -7,8 +7,8 @@ import { withStyles } from '@material-ui/core/styles'
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz'
 
 import IconButton from '../../ui/IconButton'
-import MenuAction from '../../widgets/MenuAction'
-import { MenuItem } from './types'
+import MenuAction from '../../ui/MenuAction'
+import MenuActionItem from '../../ui/MenuActionItem'
 
 const styles = theme => ({
   menuItem: {
@@ -31,22 +31,12 @@ export const ChannelMenuAction = ({ classes, onInfo, onMute, onDelete }) => (
     }}
     Icon={MoreHorizIcon}
     IconButton={IconButton}
-    menuItems={[
-      MenuItem({
-        title: 'Info',
-        onClick: onInfo
-      }),
-      MenuItem({
-        title: 'Mute',
-        onClick: onMute
-      }),
-      MenuItem({
-        title: 'Delete',
-        onClick: onDelete
-      })
-    ]}
     offset='0 8'
-  />
+  >
+    <MenuActionItem onClick={onInfo} title='Info' />
+    <MenuActionItem onClick={onMute} title='Mute' />
+    <MenuActionItem onClick={onDelete} title='Delete' />
+  </MenuAction>
 )
 
 ChannelMenuAction.propTypes = {

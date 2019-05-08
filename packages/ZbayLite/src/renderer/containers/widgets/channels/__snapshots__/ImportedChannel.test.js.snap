@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ImportedChannel will receive right actions 1`] = `
+Object {
+  "onAccept": [Function],
+  "onCancel": [Function],
+}
+`;
+
+exports[`ImportedChannel will receive right props 1`] = `
+Object {
+  "channel": Immutable.Map {
+    "name": "Politics",
+    "private": true,
+    "address": "zs1testaddress",
+    "description": "This is a simple test channel",
+    "keys": Immutable.Map {
+      "ivk": "this-is-an-ivk-key",
+    },
+  },
+}
+`;

@@ -1,0 +1,56 @@
+import React, { useState } from 'react'
+import * as R from 'ramda'
+
+import IconButton from '@material-ui/core/IconButton'
+import { withStyles } from '@material-ui/core/styles'
+
+import AddIcon from '@material-ui/icons/Add'
+
+import MenuAction from '../../ui/MenuAction'
+import MenuActionItem from '../../ui/MenuActionItem'
+import CreateChannelModal from './CreateChannelModal'
+import ImportChannelModal from './ImportChannelModal'
+
+const styles = theme => ({
+  icon: {
+    fontSize: '26px'
+  },
+  button: {
+    padding: '4px',
+    color: theme.typography.body2.color
+  }
+})
+
+export const AddChannelAction = ({ classes }) => {
+  const [importOpen, setImportOpen] = useState(false)
+  const [createOpen, setCreateOpen] = useState(false)
+  return (
+    <React.Fragment>
+      <MenuAction
+        classes={{
+          button: classes.button,
+          icon: classes.icon
+        }}
+        Icon={AddIcon}
+        IconButton={IconButton}
+        offset='0 8'
+      >
+        <MenuActionItem onClick={() => setImportOpen(true)} title='Import' />
+        <MenuActionItem onClick={() => setCreateOpen(true)} title='Create' />
+      </MenuAction>
+      <CreateChannelModal
+        open={createOpen}
+        handleClose={() => setCreateOpen(false)}
+      />
+      <ImportChannelModal
+        open={importOpen}
+        handleClose={() => setImportOpen(false)}
+      />
+    </React.Fragment>
+  )
+}
+
+export default R.compose(
+  withStyles(styles),
+  React.memo
+)(AddChannelAction)

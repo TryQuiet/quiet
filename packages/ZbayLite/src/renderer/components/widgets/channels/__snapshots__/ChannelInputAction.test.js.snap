@@ -9,18 +9,15 @@ exports[`ChannelInputAction renders component 1`] = `
       "icon": "icon-mock",
     }
   }
-  menuItems={
-    Array [
-      Immutable.MenuItem {
-        "title": "Post an offer",
-        "onClick": [MockFunction],
-      },
-      Immutable.MenuItem {
-        "title": "Send money",
-        "onClick": [MockFunction],
-      },
-    ]
-  }
   offset="0 12"
-/>
+>
+  <React.Memo
+    onClick={[MockFunction]}
+    title="Post an offer"
+  />
+  <React.Memo
+    onClick={[MockFunction]}
+    title="Send money"
+  />
+</WithStyles(MenuAction)>
 `;

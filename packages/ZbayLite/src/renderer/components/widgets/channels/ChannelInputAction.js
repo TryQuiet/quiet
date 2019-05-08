@@ -6,19 +6,20 @@ import { withStyles } from '@material-ui/core/styles'
 
 import AddIcon from '@material-ui/icons/Add'
 
-import MenuAction from '../MenuAction'
-import { MenuItem } from './types'
+import MenuAction from '../../ui/MenuAction'
+import MenuActionItem from '../../ui/MenuActionItem'
 
-const styles = {
+const styles = theme => ({
   button: {
     border: 'solid rgba(0, 0, 0, 0.23) 1px',
     borderRadius: '10%',
     padding: 2
   },
   icon: {
-    fontSize: 32
+    fontSize: 32,
+    color: theme.palette.primary.ligth
   }
-}
+})
 
 export const ChannelInputAction = ({ classes, onPostOffer, onSendMoney }) => (
   <MenuAction
@@ -28,17 +29,10 @@ export const ChannelInputAction = ({ classes, onPostOffer, onSendMoney }) => (
     }}
     Icon={AddIcon}
     offset='0 12'
-    menuItems={[
-      MenuItem({
-        title: 'Post an offer',
-        onClick: onPostOffer
-      }),
-      MenuItem({
-        title: 'Send money',
-        onClick: onSendMoney
-      })
-    ]}
-  />
+  >
+    <MenuActionItem onClick={onPostOffer} title='Post an offer' />
+    <MenuActionItem onClick={onSendMoney} title='Send money' />
+  </MenuAction>
 )
 
 ChannelInputAction.propTypes = {

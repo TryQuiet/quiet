@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Notifier will receive right actions 1`] = `
+Object {
+  "removeSnackbar": [Function],
+}
+`;
+
+exports[`Notifier will receive right props 1`] = `
+Object {
+  "notifications": Immutable.List [
+    Immutable.Map {
+      "message": "Test message",
+      "key": "test-key",
+      "options": Immutable.Map {
+        "persist": true,
+      },
+    },
+  ],
+}
+`;

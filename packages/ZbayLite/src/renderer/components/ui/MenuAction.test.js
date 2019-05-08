@@ -3,23 +3,16 @@ import { shallow } from 'enzyme'
 
 import { mockClasses } from '../../../shared/testing/mocks'
 import { MenuAction } from './MenuAction'
-import { MenuItem } from './channels/types'
+import MenuActionItem from './MenuActionItem'
 
 describe('MenuAction', () => {
   it('renders component', () => {
     const Icon = () => (<div>Icon</div>)
-    const menuItems = [
-      MenuItem({
-        title: 'test',
-        onClick: jest.fn()
-      }),
-      MenuItem({
-        title: 'test 2',
-        onClick: jest.fn()
-      })
-    ]
     const result = shallow(
-      <MenuAction classes={mockClasses} Icon={Icon} menuItems={menuItems} />
+      <MenuAction classes={mockClasses} Icon={Icon}>
+        <MenuActionItem onClick={jest.fn()} title='test' />
+        <MenuActionItem onClick={jest.fn()} title='test 2' />
+      </MenuAction>
     )
     expect(result).toMatchSnapshot()
   })
@@ -27,24 +20,16 @@ describe('MenuAction', () => {
   it('renders with optional props', () => {
     const Icon = () => (<div>Icon</div>)
     const IconButton = () => (<div>IconButton</div>)
-    const menuItems = [
-      MenuItem({
-        title: 'test',
-        onClick: jest.fn()
-      }),
-      MenuItem({
-        title: 'test 2',
-        onClick: jest.fn()
-      })
-    ]
     const result = shallow(
       <MenuAction
         classes={mockClasses}
         Icon={Icon}
         IconButton={IconButton}
-        menuItems={menuItems}
         offset='0 20'
-      />
+      >
+        <MenuActionItem onClick={jest.fn()} title='test' />
+        <MenuActionItem onClick={jest.fn()} title='test 2' />
+      </MenuAction>
     )
     expect(result).toMatchSnapshot()
   })

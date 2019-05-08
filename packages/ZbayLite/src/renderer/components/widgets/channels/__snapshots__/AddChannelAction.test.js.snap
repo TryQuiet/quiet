@@ -1,0 +1,34 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BaseChannelsList renders component 1`] = `
+<Fragment>
+  <WithStyles(MenuAction)
+    Icon={[Function]}
+    IconButton={[Function]}
+    classes={
+      Object {
+        "button": "button-mock",
+        "icon": "icon-mock",
+      }
+    }
+    offset="0 8"
+  >
+    <React.Memo
+      onClick={[Function]}
+      title="Import"
+    />
+    <React.Memo
+      onClick={[Function]}
+      title="Create"
+    />
+  </WithStyles(MenuAction)>
+  <React.Memo
+    handleClose={[Function]}
+    open={false}
+  />
+  <React.Memo
+    handleClose={[Function]}
+    open={false}
+  />
+</Fragment>
+`;

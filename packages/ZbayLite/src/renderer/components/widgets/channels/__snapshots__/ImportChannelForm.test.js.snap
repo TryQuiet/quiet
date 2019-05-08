@@ -1,0 +1,119 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ImportChannelForm renders component 1`] = `
+<WithStyles(Grid)
+  className="content-mock"
+  container={true}
+>
+  <WithStyles(Typography)
+    className="subfieldTitle-mock"
+    variant="subtitle1"
+  >
+    Channel URI
+  </WithStyles(Typography)>
+  <WithStyles(Grid)
+    container={true}
+    direction="row"
+    item={true}
+  >
+    <WithStyles(Grid)
+      item={true}
+      xs={true}
+    >
+      <TextField
+        InputProps={
+          Object {
+            "classes": Object {
+              "multiline": "multiline-mock",
+            },
+          }
+        }
+        fullWidth={true}
+        id="channel-uri"
+        inputProps={
+          Object {
+            "className": "input-mock",
+          }
+        }
+        margin="none"
+        onChange={[Function]}
+        placeholder="zbay.io/channel/..."
+        required={false}
+        select={false}
+        value=""
+        variant="outlined"
+      />
+    </WithStyles(Grid)>
+    <React.Memo
+      className="fab-mock"
+      disabled={false}
+      label="Unlock"
+      loading={false}
+      onClick={[Function]}
+      success={false}
+    >
+      <pure(VpnKeyIcon) />
+    </React.Memo>
+  </WithStyles(Grid)>
+</WithStyles(Grid)>
+`;
+
+exports[`ImportChannelForm renders decoded 1`] = `""`;
+
+exports[`ImportChannelForm renders decoding 1`] = `
+<WithStyles(Grid)
+  className="content-mock"
+  container={true}
+>
+  <WithStyles(Typography)
+    className="subfieldTitle-mock"
+    variant="subtitle1"
+  >
+    Channel URI
+  </WithStyles(Typography)>
+  <WithStyles(Grid)
+    container={true}
+    direction="row"
+    item={true}
+  >
+    <WithStyles(Grid)
+      item={true}
+      xs={true}
+    >
+      <TextField
+        InputProps={
+          Object {
+            "classes": Object {
+              "multiline": "multiline-mock",
+            },
+          }
+        }
+        fullWidth={true}
+        id="channel-uri"
+        inputProps={
+          Object {
+            "className": "input-mock",
+          }
+        }
+        margin="none"
+        onChange={[Function]}
+        placeholder="zbay.io/channel/..."
+        required={false}
+        select={false}
+        value=""
+        variant="outlined"
+      />
+    </WithStyles(Grid)>
+    <React.Memo
+      className="fab-mock"
+      disabled={false}
+      label="Unlock"
+      loading={true}
+      onClick={[Function]}
+      success={false}
+    >
+      <pure(VpnKeyIcon) />
+    </React.Memo>
+  </WithStyles(Grid)>
+</WithStyles(Grid)>
+`;
