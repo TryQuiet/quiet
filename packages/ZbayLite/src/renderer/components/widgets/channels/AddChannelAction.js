@@ -8,7 +8,7 @@ import AddIcon from '@material-ui/icons/Add'
 
 import MenuAction from '../../ui/MenuAction'
 import MenuActionItem from '../../ui/MenuActionItem'
-import CreateChannelModal from './CreateChannelModal'
+import CreateChannelModal from '../../../containers/widgets/channels/CreateChannelModal'
 import ImportChannelModal from './ImportChannelModal'
 
 const styles = theme => ({
@@ -21,9 +21,8 @@ const styles = theme => ({
   }
 })
 
-export const AddChannelAction = ({ classes }) => {
+export const AddChannelAction = ({ classes, openCreateModal }) => {
   const [importOpen, setImportOpen] = useState(false)
-  const [createOpen, setCreateOpen] = useState(false)
   return (
     <React.Fragment>
       <MenuAction
@@ -36,12 +35,9 @@ export const AddChannelAction = ({ classes }) => {
         offset='0 8'
       >
         <MenuActionItem onClick={() => setImportOpen(true)} title='Import' />
-        <MenuActionItem onClick={() => setCreateOpen(true)} title='Create' />
+        <MenuActionItem onClick={openCreateModal} title='Create' />
       </MenuAction>
-      <CreateChannelModal
-        open={createOpen}
-        handleClose={() => setCreateOpen(false)}
-      />
+      <CreateChannelModal />
       <ImportChannelModal
         open={importOpen}
         handleClose={() => setImportOpen(false)}

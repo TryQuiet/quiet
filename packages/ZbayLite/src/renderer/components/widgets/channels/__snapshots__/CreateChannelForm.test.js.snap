@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CreateChannelForm renders component 1`] = `
+<Formik
+  enableReinitialize={false}
+  isInitialValid={false}
+  onSubmit={[MockFunction]}
+  validateOnBlur={true}
+  validateOnChange={true}
+>
+  <Component />
+</Formik>
+`;

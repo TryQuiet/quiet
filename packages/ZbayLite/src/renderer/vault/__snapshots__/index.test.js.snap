@@ -60,7 +60,6 @@ Array [
 exports[`vault instance returns created vault 1`] = `
 Vault {
   "channels": Object {
-    "bootstrapChannels": [Function],
     "importChannel": [Function],
     "listChannels": [Function],
   },

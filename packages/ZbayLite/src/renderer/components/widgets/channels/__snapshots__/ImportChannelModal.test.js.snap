@@ -11,7 +11,7 @@ exports[`ImportChannelForm renders component 1`] = `
 </React.Memo>
 `;
 
-exports[`ImportChannelForm renders component 2`] = `
+exports[`ImportChannelForm renders component closed 1`] = `
 <React.Memo
   handleClose={[MockFunction]}
   open={false}

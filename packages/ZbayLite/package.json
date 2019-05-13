@@ -77,6 +77,8 @@
     "bignumber.js": "^8.1.1",
     "buttercup": "^2.10.0",
     "classnames": "^2.2.6",
+    "formik": "^1.5.4",
+    "formik-material-ui": "0.0.16",
     "immutable": "^4.0.0-rc.12",
     "jest-each": "^24.0.0",
     "joi": "^14.3.1",

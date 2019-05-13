@@ -50,11 +50,6 @@ export const ImportChannelForm = ({
                 inputProps={{
                   className: classes.input
                 }}
-                InputProps={{
-                  classes: {
-                    multiline: classes.multiline
-                  }
-                }}
                 fullWidth
               />
             </Grid>

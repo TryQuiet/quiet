@@ -10,8 +10,10 @@ import ratesHandlers from './handlers/rates'
 import vaultHandlers from './handlers/vault'
 import vaultCreatorHandlers from './handlers/vaultCreator'
 import vaultUnlockerHandlers from './handlers/vaultUnlocker'
+import modalsHandlers from './handlers/modals'
 
 export default combineReducers({
+  modals: modalsHandlers.reducer,
   identity: identityHandlers.reducer,
   notifications: notificationsHandlers.reducer,
   importedChannel: importedChannelHandlers.reducer,

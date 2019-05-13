@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CreateChannelModal renders closed component 1`] = `
+<React.Memo
+  fullPage={true}
+  handleClose={[MockFunction]}
+  open={false}
+  title="New Channel"
+>
+  <WithStyles(Grid)
+    className="root-mock"
+  >
+    <Connect(Component) />
+  </WithStyles(Grid)>
+</React.Memo>
+`;
+
+exports[`CreateChannelModal renders component 1`] = `
+<React.Memo
+  fullPage={true}
+  handleClose={[MockFunction]}
+  open={true}
+  title="New Channel"
+>
+  <WithStyles(Grid)
+    className="root-mock"
+  >
+    <Connect(Component) />
+  </WithStyles(Grid)>
+</React.Memo>
+`;

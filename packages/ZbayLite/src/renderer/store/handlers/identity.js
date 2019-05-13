@@ -2,6 +2,7 @@ import Immutable from 'immutable'
 import { createAction, handleActions } from 'redux-actions'
 
 import { getClient } from '../../zcash'
+import channels from '../../zcash/channels'
 
 import identitySelectors from '../selectors/identity'
 import channelsHandlers from './channels'
@@ -51,18 +52,23 @@ export const fetchBalance = () => async (dispatch, getState) => {
 }
 
 export const createIdentity = () => async (dispatch, getState) => {
-  const { value: address } = await dispatch(nodeHandlers.actions.createAddress())
-  const { value: identity } = await dispatch(vaultHandlers.actions.createIdentity({
-    name: 'Saturn',
-    address
-  }))
   try {
-    await getVault().channels.bootstrapChannels(identity.id)
+    const { value: address } = await dispatch(nodeHandlers.actions.createAddress())
+    const { value: identity } = await dispatch(vaultHandlers.actions.createIdentity({
+      name: 'Saturn',
+      address
+    }))
+    await getVault().channels.importChannel(identity.id, channels.general)
+    await getClient().keys.importIVK({
+      ivk: channels.general.keys.ivk,
+      address: channels.general.address
+    })
+    return identity
   } catch (err) {
-    console.warn(err)
+    console.log(err)
+    console.log(err)
     dispatch(setErrors(err))
   }
-  return identity
 }
 
 export const setIdentityEpic = (identity) => async (dispatch) => {

@@ -11,7 +11,7 @@ describe('ImportChannelForm', () => {
     expect(result).toMatchSnapshot()
   })
 
-  it('renders component', () => {
+  it('renders component closed', () => {
     const result = shallow(
       <ImportChannelModal handleClose={jest.fn()} open={false} />
     )

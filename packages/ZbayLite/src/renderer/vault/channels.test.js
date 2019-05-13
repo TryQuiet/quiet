@@ -13,16 +13,6 @@ describe('channels', () => {
     lock: async (arg) => arg
   }
 
-  const getChannels = (identity) => {
-    const [identityChannel] = (
-      workspace.archive
-        .findGroupsByTitle('Channels')[0]
-        .getGroups()
-        .filter(g => g.getTitle() === identityId)
-    )
-    return identityChannel.getEntries().map(e => e.toObject().properties)
-  }
-
   const identityId = 'this-is-a-test-id'
 
   const channels = channelsFactory(vaultMock)
@@ -71,10 +61,5 @@ describe('channels', () => {
       const importedChannels = identityChannel.getEntries().map(e => e.toObject().properties)
       expect(importedChannels).toMatchSnapshot()
     })
-  })
-
-  it('bootstraps default channels', async () => {
-    await channels.bootstrapChannels(identityId)
-    expect(getChannels(identityId)).toMatchSnapshot()
   })
 })

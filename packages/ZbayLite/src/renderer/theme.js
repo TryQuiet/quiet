@@ -27,6 +27,17 @@ export default createMuiTheme({
         '&:active': {
           boxShadow: 'none'
         }
+      },
+      sizeLarge: {
+        textTransform: 'none',
+        boxShadow: 'none',
+        fontWeight: 400,
+        paddingTop: 12,
+        paddingBottom: 12,
+        fontSize: 14,
+        '&:active': {
+          boxShadow: 'none'
+        }
       }
     }
   }

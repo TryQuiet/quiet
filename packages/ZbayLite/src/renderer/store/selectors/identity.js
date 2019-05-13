@@ -15,9 +15,12 @@ const balance = currency => createSelector(
   (d, rate) => rate.times(new BigNumber(d.balance || 0))
 )
 
+const id = createSelector(data, d => d.id)
+
 const address = createSelector(data, d => d.address)
 
 export default {
+  id,
   data,
   identity,
   address,

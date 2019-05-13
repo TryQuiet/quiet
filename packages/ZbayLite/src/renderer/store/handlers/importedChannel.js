@@ -2,13 +2,13 @@ import Immutable from 'immutable'
 import { createAction, handleActions } from 'redux-actions'
 
 import { uriToChannel } from '../../zbay/channels'
-import { typeFulfilled, typeRejected, typePending } from './utils'
+import { typeFulfilled, typeRejected, typePending, errorNotification } from './utils'
 import identitySelectors from '../selectors/identity'
 import importedChannelSelectors from '../selectors/importedChannel'
 import channelsHandlers from './channels'
 import notificationsHandlers from './notifications'
 import { getVault } from '../../vault'
-import { notifierAction } from '../../components/ui/DismissSnackbarAction'
+import { getClient } from '../../zcash'
 
 export const ImportedChannelState = Immutable.Record({
   data: null,
@@ -33,15 +33,15 @@ const actions = {
 
 const importChannel = () => async (dispatch, getState) => {
   const state = getState()
-  const identity = identitySelectors.data(state)
-  const channel = importedChannelSelectors.data(state)
+  const identityId = identitySelectors.id(state)
+  const channel = importedChannelSelectors.data(state).toJS()
   try {
-    await getVault().channels.importChannel(identity.id, channel.toJS())
-    await dispatch(channelsHandlers.actions.loadChannels(identity.id))
-    const channelName = channel.get('name')
+    await getVault().channels.importChannel(identityId, channel)
+    await getClient().keys.importSK({ sk: channel.keys.sk, address: channel.address })
+    await dispatch(channelsHandlers.actions.loadChannels(identityId))
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar({
-        message: `Successfully imported channel ${channelName}`,
+        message: `Successfully imported channel ${channel.name}`,
         options: {
           variant: 'success'
         }
@@ -65,15 +65,9 @@ const decodeChannelEpic = (uri) => async (dispatch) => {
     await dispatch(decodeChannel(uri))
   } catch (err) {
     dispatch(
-      notificationsHandlers.actions.enqueueSnackbar({
-        message: 'Invalid channel URI',
-        options: {
-          persist: true,
-          variant: 'error',
-          action: notifierAction
-        }
-      })
-
+      notificationsHandlers.actions.enqueueSnackbar(
+        errorNotification({ message: 'Invalid channel URI' })
+      )
     )
   }
 }

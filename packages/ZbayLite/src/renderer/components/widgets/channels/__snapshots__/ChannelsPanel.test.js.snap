@@ -17,7 +17,7 @@ exports[`ChannelsPanel renders collapsed list if no bounds 1`] = `
     <React.Memo
       actions={
         Array [
-          <WithStyles(Component) />,
+          <Connect(WithStyles(Component)) />,
         ]
       }
       title="Channels"
@@ -98,7 +98,7 @@ exports[`ChannelsPanel renders component 1`] = `
     <React.Memo
       actions={
         Array [
-          <WithStyles(Component) />,
+          <Connect(WithStyles(Component)) />,
         ]
       }
       title="Channels"

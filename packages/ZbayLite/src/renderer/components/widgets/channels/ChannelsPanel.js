@@ -9,7 +9,7 @@ import RootRef from '@material-ui/core/RootRef'
 
 import ScalingChannelsList from './ScalingChannelsList'
 import SidebarHeader from '../../ui/SidebarHeader'
-import AddChannelAction from './AddChannelAction'
+import AddChannelAction from '../../../containers/widgets/channels/AddChannelAction'
 
 const constants = {
   sidebarHeight: 50,

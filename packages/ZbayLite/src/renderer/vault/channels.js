@@ -1,7 +1,5 @@
 import * as R from 'ramda'
 
-import channels from '../zcash/channels'
-import { getClient } from '../zcash'
 import { deflate } from '../compression'
 
 const _entryToChannel = (channel) => {
@@ -26,8 +24,9 @@ const processEntries = R.compose(
 
 export default (vault) => {
   const importChannel = async (identityId, channel) => {
+    // TODO: we probably want to generate hash on export only, that way we can decide
+    // about sharing sk for example (backup)
     const channelHash = await deflate(channel)
-    await getClient().keys.importIVK({ ivk: channel.keys.ivk, address: channel.address })
     await vault.withWorkspace(workspace => {
       const [channels] = workspace.archive.findGroupsByTitle('Channels')
       let [identityGroup] = channels.getGroups().filter(g => g.getTitle() === identityId)
@@ -57,12 +56,7 @@ export default (vault) => {
     return processEntries(channelsEntries)
   }
 
-  const bootstrapChannels = async (identityId) => Promise.all([
-    importChannel(identityId, channels.general)
-  ])
-
   return {
-    bootstrapChannels,
     listChannels,
     importChannel
   }

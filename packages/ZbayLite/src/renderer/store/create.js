@@ -14,4 +14,8 @@ const composer = (enhancers) => {
 
 export default ({
   initialState
-} = {}) => createStore(reducers, initialState, composer(applyMiddleware(...[thunk, promise()])))
+} = {}) => createStore(
+  reducers,
+  initialState,
+  composer(applyMiddleware(...[thunk, promise()]))
+)

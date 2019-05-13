@@ -3,6 +3,7 @@ jest.mock('../../vault')
 jest.mock('../../zcash')
 
 import BigNumber from 'bignumber.js'
+
 import Immutable from 'immutable'
 import * as R from 'ramda'
 
@@ -10,7 +11,7 @@ import create from '../create'
 import identityHandlers, { IdentityState, Identity } from './identity'
 import identitySelectors from '../selectors/identity'
 import channelsSelectors from '../selectors/channels'
-import { getClient } from '../../zcash'
+import { mock as zcashMock } from '../../zcash'
 import vault, { mock } from '../../vault'
 import testUtils from '../../testUtils'
 import { createArchive } from '../../vault/marshalling'
@@ -32,6 +33,7 @@ describe('Identity reducer handles', () => {
       })
     })
     jest.clearAllMocks()
+    mock.setArchive(createArchive())
   })
 
   const assertStoreState = () => expect(
@@ -69,11 +71,7 @@ describe('Identity reducer handles', () => {
     })
 
     it('handles fetchBalance', async () => {
-      getClient.mockImplementation(() => ({
-        accounting: {
-          balance: async () => new BigNumber('2.2352')
-        }
-      }))
+      zcashMock.requestManager.z_getbalance = jest.fn(async (address) => '2.2352')
       await store.dispatch(identityHandlers.actions.setIdentity(identity))
 
       await store.dispatch(identityHandlers.epics.fetchBalance())
@@ -81,11 +79,9 @@ describe('Identity reducer handles', () => {
     })
 
     it('handles errors on fetchBalance', async () => {
-      getClient.mockImplementation(() => ({
-        accounting: {
-          balance: async () => { throw Error('node error') }
-        }
-      }))
+      zcashMock.requestManager.z_getbalance = jest.fn(async (address) => {
+        throw Error('node error')
+      })
       await store.dispatch(identityHandlers.actions.setIdentity(identity))
 
       await store.dispatch(identityHandlers.epics.fetchBalance())
@@ -96,13 +92,7 @@ describe('Identity reducer handles', () => {
   describe('epics', async () => {
     describe('handles set identity', () => {
       beforeEach(async () => {
-        mock.setArchive(createArchive())
-        getClient.mockImplementation(() => ({
-          accounting: {
-            balance: async () => new BigNumber('2.2352')
-          },
-          keys: { importIVK: jest.fn(async () => null) }
-        }))
+        zcashMock.requestManager.z_getbalance = jest.fn(async (address) => '2.2352')
         await Promise.all(
           R.range(0, 3).map(
             R.compose(
@@ -126,19 +116,9 @@ describe('Identity reducer handles', () => {
     })
 
     describe('handles createIdentity', () => {
-      const bootstrapChannels = jest.fn(async () => null)
       beforeEach(() => {
-        vault.getVault.mockImplementation(() => ({
-          channels: {
-            bootstrapChannels
-          }
-        }))
-        const createMock = jest.fn(async (type) => `${type}-zcash-address`)
-        const balanceMock = jest.fn(async (address) => new BigNumber('12.345'))
-        getClient.mockImplementation(() => ({
-          addresses: { create: createMock },
-          accounting: { balance: balanceMock }
-        }))
+        zcashMock.requestManager.z_getbalance = jest.fn(async (address) => '12.345')
+        zcashMock.requestManager.z_getnewaddress = jest.fn(async (type) => `${type}-zcash-address`)
         vault.identity.createIdentity.mockImplementation(
           async ({ name, address }) => ({ id: 'thisisatestid', name, address })
         )
@@ -156,7 +136,8 @@ describe('Identity reducer handles', () => {
 
       it('bootstraps channels', async () => {
         await store.dispatch(identityHandlers.epics.createIdentity())
-        expect(bootstrapChannels.mock.calls).toMatchSnapshot()
+        const channels = await vault.getVault().channels.listChannels('thisisatestid')
+        expect(channels.map(R.omit(['id']))).toMatchSnapshot()
       })
     })
   })

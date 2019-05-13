@@ -5,6 +5,8 @@ import { createAction, handleActions } from 'redux-actions'
 import { typeFulfilled, typeRejected } from './utils'
 import { getClient } from '../../zcash'
 
+const DEFAULT_ADDRESS_TYPE = 'sapling'
+
 export const NodeState = Immutable.Record({
   latestBlock: new BigNumber(0),
   currentBlock: new BigNumber(0),
@@ -33,7 +35,7 @@ const getStatus = createAction(
 
 const createAddress = createAction(
   actionTypes.CREATE_ADDRESS,
-  async (type = 'sapling') => {
+  async (type = DEFAULT_ADDRESS_TYPE) => {
     return getClient().addresses.create(type)
   }
 )

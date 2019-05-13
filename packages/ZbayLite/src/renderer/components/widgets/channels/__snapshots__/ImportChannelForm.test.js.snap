@@ -21,13 +21,6 @@ exports[`ImportChannelForm renders component 1`] = `
       xs={true}
     >
       <TextField
-        InputProps={
-          Object {
-            "classes": Object {
-              "multiline": "multiline-mock",
-            },
-          }
-        }
         fullWidth={true}
         id="channel-uri"
         inputProps={
@@ -81,13 +74,6 @@ exports[`ImportChannelForm renders decoding 1`] = `
       xs={true}
     >
       <TextField
-        InputProps={
-          Object {
-            "classes": Object {
-              "multiline": "multiline-mock",
-            },
-          }
-        }
         fullWidth={true}
         id="channel-uri"
         inputProps={

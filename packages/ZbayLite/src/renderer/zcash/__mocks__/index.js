@@ -1,7 +1,9 @@
 import Zcash from '../client'
 
 const requestManager = {
-  z_importviewingkey: async () => null
+  z_importviewingkey: async () => null,
+  z_importkey: async () => null,
+  z_exportkey: async () => null
 }
 
 export const mock = {
