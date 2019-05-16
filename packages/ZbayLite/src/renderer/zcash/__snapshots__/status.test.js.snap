@@ -4,6 +4,7 @@ exports[`jrpc returns node info 1`] = `
 Object {
   "connections": "12",
   "currentBlock": "40",
+  "isTestnet": true,
   "latestBlock": "60",
   "status": "syncing",
 }
@@ -13,6 +14,7 @@ exports[`jrpc takes offset into account when calculating status 1`] = `
 Object {
   "connections": "12",
   "currentBlock": "40",
+  "isTestnet": true,
   "latestBlock": "50",
   "status": "healthy",
 }

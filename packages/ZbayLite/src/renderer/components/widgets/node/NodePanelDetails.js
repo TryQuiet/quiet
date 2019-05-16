@@ -8,6 +8,7 @@ import { withStyles } from '@material-ui/core/styles'
 // import NodePanelActions from '../../../containers/widgets/node/NodePanelActions'
 import NodePanelBlocksField from '../../../containers/widgets/node/NodePanelBlocksField'
 import NodePanelConnectionsField from '../../../containers/widgets/node/NodePanelConnectionsField'
+import NodePanelNetworkField from '../../../containers/widgets/node/NodePanelNetworkField'
 // import NodePanelUptimeField from '../../../containers/widgets/node/NodePanelUptimeField'
 
 const styles = theme => ({
@@ -22,6 +23,7 @@ const styles = theme => ({
 export const NodePanelDetails = ({ classes }) => (
   <Grid container direction='column'>
     <Grid container direction='column' className={classes.details}>
+      <NodePanelNetworkField />
       <NodePanelBlocksField />
       <NodePanelConnectionsField />
       {/* <NodePanelUptimeField /> */}

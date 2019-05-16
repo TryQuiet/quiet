@@ -3,6 +3,7 @@ import { createAction, handleActions } from 'redux-actions'
 
 import vaultHandlers from './vault'
 import identityHandlers from './identity'
+import nodeSelectors from '../selectors/node'
 import vaultCreatorSelectors from '../selectors/vaultCreator'
 
 export const VaultCreatorState = Immutable.Record({
@@ -34,9 +35,14 @@ const createVault = () => async (dispatch, getState) => {
     dispatch(clearCreator())
     throw Error('Can\'t create vault, passwords don\'t match.')
   }
+  const network = nodeSelectors.network(state)
   try {
-    await dispatch(vaultHandlers.actions.createVault({ masterPassword: password }))
-    await dispatch(vaultHandlers.actions.unlockVault({ masterPassword: password, createSource: true }))
+    await dispatch(vaultHandlers.actions.createVault({ masterPassword: password, network }))
+    await dispatch(vaultHandlers.actions.unlockVault({
+      masterPassword: password,
+      createSource: true,
+      network
+    }))
     const identity = await dispatch(identityHandlers.epics.createIdentity())
     await dispatch(identityHandlers.epics.setIdentity(identity))
   } catch (err) {

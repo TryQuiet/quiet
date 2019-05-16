@@ -46,6 +46,7 @@ describe('Node reducer', () => {
       latestBlock: new BigNumber(2234),
       currentBlock: new BigNumber(12),
       connections: new BigNumber(10),
+      isTestnet: true,
       status: 'healthy'
     }))
     await store.dispatch(nodeHandlers.actions.getStatus())

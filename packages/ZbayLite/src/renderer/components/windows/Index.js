@@ -1,26 +1,55 @@
 import React from 'react'
-import { Redirect } from 'react-router'
 import PropTypes from 'prop-types'
 
-const getRoute = ({ exists, locked }) => {
-  if (!exists) {
-    return '/vault/create'
-  } else if (locked) {
-    return '/vault/unlock'
-  }
-  return '/home'
-}
+import Grid from '@material-ui/core/Grid'
+import Typography from '@material-ui/core/Typography'
+import Card from '@material-ui/core/Card'
+import CardContent from '@material-ui/core/CardContent'
+import CardMedia from '@material-ui/core/CardMedia'
+import { withStyles } from '@material-ui/core/styles'
 
-export const Index = (props) => (<Redirect to={getRoute(props)} />)
+import ZcashIcon from '../../static/images/zcash/zcash-icon-fullcolor.svg'
+import WindowWrapper from '../ui/WindowWrapper'
+import NodeStatus from '../../containers/widgets/node/NodeStatus'
+
+const styles = theme => ({
+  icon: {
+    width: 200,
+    height: 200
+  },
+  card: {
+    padding: 2 * theme.spacing.unit
+  },
+  content: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center'
+  },
+  root: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center'
+  }
+})
+
+export const Index = ({ classes }) => (
+  <WindowWrapper className={classes.root}>
+    <Card className={classes.card}>
+      <Grid container direction='row'>
+        <CardMedia image={ZcashIcon} className={classes.icon} />
+        <CardContent className={classes.content}>
+          <Typography variant='body1' align='justify' gutterBottom>
+            Waiting for Zcash node.
+          </Typography>
+          <NodeStatus />
+        </CardContent>
+      </Grid>
+    </Card>
+  </WindowWrapper>
+)
 
 Index.propTypes = {
-  exists: PropTypes.bool.isRequired,
-  locked: PropTypes.bool.isRequired
+  classes: PropTypes.object.isRequired
 }
 
-Index.defaultProps = {
-  exists: false,
-  locked: true
-}
-
-export default Index
+export default withStyles(styles)(Index)

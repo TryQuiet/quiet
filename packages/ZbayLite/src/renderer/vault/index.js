@@ -6,7 +6,7 @@ import { remote } from 'electron'
 import { passwordToSecureStrings } from './marshalling'
 import Vault from './vault'
 
-const getVaultPath = () => path.join(remote.app.getPath('userData'), 'vault.bcup')
+const getVaultPath = (network) => path.join(remote.app.getPath('userData'), `vault-${network}.bcup`)
 
 let _vault = null
 
@@ -17,19 +17,15 @@ export const withVaultInitialized = (fn) => (...args) => {
   return fn(...args)
 }
 
-export const exists = () => {
-  const userDir = remote.app.getPath('userData')
-  const vaultPath = path.join(userDir, 'vault.bcup')
-  return fs.existsSync(vaultPath)
-}
+export const exists = (network) => fs.existsSync(getVaultPath(network))
 
-export const create = async ({ masterPassword }) => {
+export const create = async ({ masterPassword, network }) => {
   if (_vault !== null) {
     throw Error('Archive already initialized.')
   }
   const datasourceObj = {
     type: 'ipc',
-    path: getVaultPath()
+    path: getVaultPath(network)
   }
   const [sourceCredentialsStr, passwordCredentialsStr] = await passwordToSecureStrings({
     masterPassword,
@@ -38,10 +34,10 @@ export const create = async ({ masterPassword }) => {
   _vault = new Vault(sourceCredentialsStr, passwordCredentialsStr)
 }
 
-export const unlock = async ({ masterPassword, createSource = false }) => {
+export const unlock = async ({ masterPassword, network, createSource = false }) => {
   if (!_vault) {
     console.log('creating vault')
-    await create({ masterPassword })
+    await create({ masterPassword, network })
   }
   try {
     console.log('unlocking vault')

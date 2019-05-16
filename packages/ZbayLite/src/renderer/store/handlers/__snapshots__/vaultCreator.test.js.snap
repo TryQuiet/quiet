@@ -35,7 +35,7 @@ Immutable.List [
     },
     "name": "General",
     "private": true,
-    "hash": "eJxNj0FuhDAMRa8SZU2rKQMU5gK9QFfdeYhDgGBCYphJRnP3pu2mkqVvfUv/+z0kwYLyIj+Q0IOVhXR+PICzx37HQhoIJt9pffndCglKeQwhe4kxcABnRxreGqxuOG9TvLenOE1Jl1XiqC2Xfc3cwMEVaR5oarqKWqzvrU618x1OQZ1tZ5e46LKbzURzLtnJIyh5ORVSYej96HhcKXd+mjGIPCCGv49Fb4AIrYADRgtXi4JXAdaKPaAPYtXi6wpRXKNQqGG3/JrzZ4yZ4CHHY/4ByfKfxdXelX1KbFtYwG5LPZh0GH+u6dSasjmMM3Qr783cntlrfg9boG6bVSOfz2/ANHfQ",
+    "hash": "eJxNj0FugzAQRa9ieR1VKQEKvUAu0FV3A4yx8eAYeyCxo9y9rrqpNNJIo6//3jylgxXlp7yiwwAkT9IHcwCXG4cdTxKmKWCMJZIZI0fwZNz83mJ9R7st6dGd07JkVdWZkyKuxoa5hYNrp3h2S9vXrsPm0anc+NDjEqcL9bSmVVW91YuzhTlhHIPxbG6ugL60iaIMiPnPSowanEMScIAhGAgF3wQQiT1iiOKmxPcASQxJTKhgJ34rpRZT0X5Kc9hf+7L+P+Cb4KsxZ6YOVqBtbWadDx0ujTt3umoP7bW7V4/WdhcOij/iFl2/2amVr9cPcL5vNw==",
     "address": "ztestsapling16e4wekqjyx80yjjzf24ztyflt2c5tt6avt4nftgnj694n8e5x8fz5pr9ejsd3l9lmymf29khjnk",
     "unread": 0,
     "description": "This is a general channel available to all users of Zbay by default.",
@@ -79,6 +79,7 @@ Array [
   Array [
     Object {
       "masterPassword": "test password",
+      "network": "testnet",
     },
   ],
 ]
@@ -92,6 +93,7 @@ Array [
     Object {
       "createSource": true,
       "masterPassword": "test password",
+      "network": "testnet",
     },
   ],
 ]

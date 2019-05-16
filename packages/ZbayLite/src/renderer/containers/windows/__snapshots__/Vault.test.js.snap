@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Vault will receive right actions 1`] = `
+Object {
+  "loadVaultStatus": [Function],
+}
+`;
+
+exports[`Vault will receive right props 1`] = `
+Object {
+  "exists": true,
+  "locked": false,
+  "nodeConnected": true,
+}
+`;
+
+exports[`Vault will render creator when vault does not exist 1`] = `<Connect(CreateVaultWrapper) />`;
+
+exports[`Vault will render redirect when node not connected 1`] = `
+<Redirect
+  push={false}
+  to="/"
+/>
+`;
+
+exports[`Vault will render redirect when vault unlocked 1`] = `
+<Redirect
+  push={false}
+  to="/main"
+/>
+`;
+
+exports[`Vault will render unlocker when vault locked 1`] = `<Connect(WithStyles(UnlockVault)) />`;

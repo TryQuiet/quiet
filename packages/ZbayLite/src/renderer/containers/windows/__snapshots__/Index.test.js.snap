@@ -1,8 +1,22 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Index will receive right actions 1`] = `
+Object {
+  "getStatus": [Function],
+}
+`;
+
 exports[`Index will receive right props 1`] = `
 Object {
-  "exists": false,
-  "locked": false,
+  "nodeConnected": false,
 }
+`;
+
+exports[`Index will render component when node not connected 1`] = `<WithStyles(Index) />`;
+
+exports[`Index will render redirect when node connected 1`] = `
+<Redirect
+  push={false}
+  to="/vault"
+/>
 `;

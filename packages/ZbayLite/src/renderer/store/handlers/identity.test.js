@@ -9,6 +9,7 @@ import * as R from 'ramda'
 
 import create from '../create'
 import identityHandlers, { IdentityState, Identity } from './identity'
+import { NodeState } from './node'
 import identitySelectors from '../selectors/identity'
 import channelsSelectors from '../selectors/channels'
 import { mock as zcashMock } from '../../zcash'
@@ -29,6 +30,9 @@ describe('Identity reducer handles', () => {
       initialState: Immutable.Map({
         identity: IdentityState({
           data: Identity()
+        }),
+        node: NodeState({
+          isTestnet: true
         })
       })
     })
@@ -134,10 +138,26 @@ describe('Identity reducer handles', () => {
         expect(result).toMatchSnapshot()
       })
 
-      it('bootstraps channels', async () => {
+      it('bootstraps general for testnet', async () => {
         await store.dispatch(identityHandlers.epics.createIdentity())
         const channels = await vault.getVault().channels.listChannels('thisisatestid')
-        expect(channels.map(R.omit(['id']))).toMatchSnapshot()
+        expect(channels.map(R.omit(['id', 'hash']))).toMatchSnapshot()
+      })
+
+      it('bootstraps general for mainnet', async () => {
+        store = create({
+          initialState: Immutable.Map({
+            identity: IdentityState({
+              data: Identity()
+            }),
+            node: NodeState({
+              isTestnet: false
+            })
+          })
+        })
+        await store.dispatch(identityHandlers.epics.createIdentity())
+        const channels = await vault.getVault().channels.listChannels('thisisatestid')
+        expect(channels.map(R.omit(['id', 'hash']))).toMatchSnapshot()
       })
     })
   })

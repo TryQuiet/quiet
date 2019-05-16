@@ -1,10 +1,13 @@
 /* eslint import/first: 0 */
 jest.mock('../../vault')
+import Immutable from 'immutable'
 
-import { actions, initialState, actionTypes } from './vault'
+import { actions, epics, initialState, actionTypes } from './vault'
 import { typePending } from './utils'
 import create from '../create'
 import vault from '../../vault'
+import vaultSelectors from '../selectors/vault'
+import { NodeState } from './node'
 
 describe('vault reducer', () => {
   let store = null
@@ -99,5 +102,44 @@ describe('vault reducer', () => {
 
     store.dispatch(actions.clearError())
     assertStoreState()
+  })
+
+  it('handles setVaultStatus', () => {
+    store.dispatch(actions.setVaultStatus(true))
+    expect(vaultSelectors.exists(store.getState())).toBeTruthy()
+    store.dispatch(actions.setVaultStatus(false))
+    expect(vaultSelectors.exists(store.getState())).toBeFalsy()
+  })
+
+  describe('epics', () => {
+    describe('- loadVaultStatus', () => {
+      beforeEach(() => {
+        vault.exists.mockImplementation(network => network === 'mainnet')
+      })
+
+      it('when vault exists', () => {
+        store = create({
+          initialState: Immutable.Map({
+            node: NodeState({ isTestnet: false })
+          })
+        })
+
+        store.dispatch(epics.loadVaultStatus())
+
+        expect(vaultSelectors.exists(store.getState())).toBeTruthy()
+      })
+
+      it('when vault doesn not exists', () => {
+        store = create({
+          initialState: Immutable.Map({
+            node: NodeState({ isTestnet: true })
+          })
+        })
+
+        store.dispatch(epics.loadVaultStatus())
+
+        expect(vaultSelectors.exists(store.getState())).toBeFalsy()
+      })
+    })
   })
 })

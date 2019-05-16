@@ -11,6 +11,7 @@ export const NodeState = Immutable.Record({
   latestBlock: new BigNumber(0),
   currentBlock: new BigNumber(0),
   connections: new BigNumber(0),
+  isTestnet: null,
   status: 'connecting',
   errors: '',
   startedAt: null

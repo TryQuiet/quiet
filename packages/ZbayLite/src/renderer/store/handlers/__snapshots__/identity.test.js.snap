@@ -91,12 +91,26 @@ Immutable.IdentityState {
 }
 `;
 
-exports[`Identity reducer handles epics handles createIdentity bootstraps channels 1`] = `
+exports[`Identity reducer handles epics handles createIdentity bootstraps general for mainnet 1`] = `
+Array [
+  Object {
+    "address": "zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
+    "description": "This is a general channel available to all users of Zbay by default.",
+    "keys": Object {
+      "ivk": "zivks1g0pxacm9ptufsnnp2g23rhcuelpt90ftvamgrvy6hlqeg3n00qrqer5uxf",
+    },
+    "name": "General",
+    "private": true,
+    "unread": 0,
+  },
+]
+`;
+
+exports[`Identity reducer handles epics handles createIdentity bootstraps general for testnet 1`] = `
 Array [
   Object {
     "address": "ztestsapling16e4wekqjyx80yjjzf24ztyflt2c5tt6avt4nftgnj694n8e5x8fz5pr9ejsd3l9lmymf29khjnk",
     "description": "This is a general channel available to all users of Zbay by default.",
-    "hash": "eJxNj0FuhDAMRa8SZU2rKQMU5gK9QFfdeYhDgGBCYphJRnP3pu2mkqVvfUv/+z0kwYLyIj+Q0IOVhXR+PICzx37HQhoIJt9pffndCglKeQwhe4kxcABnRxreGqxuOG9TvLenOE1Jl1XiqC2Xfc3cwMEVaR5oarqKWqzvrU618x1OQZ1tZ5e46LKbzURzLtnJIyh5ORVSYej96HhcKXd+mjGIPCCGv49Fb4AIrYADRgtXi4JXAdaKPaAPYtXi6wpRXKNQqGG3/JrzZ4yZ4CHHY/4ByfKfxdXelX1KbFtYwG5LPZh0GH+u6dSasjmMM3Qr783cntlrfg9boG6bVSOfz2/ANHfQ",
     "keys": Object {
       "ivk": "zivktestsapling1p5rp2czztl8amalqm5ghzvhr35n08h26vhphnw2x6k83trft7sqsn9qkd6",
     },

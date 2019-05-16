@@ -5,7 +5,7 @@ jest.mock('../../zcash', () => ({
     accounting: {}
   }))
 }))
-
+import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
 
 import create from '../create'
@@ -15,6 +15,7 @@ import vaultSelectors from '../selectors/vault'
 import channelsSelectors from '../selectors/channels'
 import identitySelectors from '../selectors/identity'
 import { actions, VaultCreatorState, epics } from './vaultCreator'
+import { NodeState } from './node'
 import { mockEvent } from '../../../shared/testing/mocks'
 import { getClient } from '../../zcash'
 import { createArchive } from '../../vault/marshalling'
@@ -22,7 +23,13 @@ import { createArchive } from '../../vault/marshalling'
 describe('VaultCreator reducer', () => {
   let store = null
   beforeEach(() => {
-    store = create()
+    store = create({
+      initialState: Immutable.Map({
+        node: NodeState({
+          isTestnet: true
+        })
+      })
+    })
     jest.clearAllMocks()
   })
 

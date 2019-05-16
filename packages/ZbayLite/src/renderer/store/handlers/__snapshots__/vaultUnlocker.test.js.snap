@@ -26,6 +26,7 @@ Array [
   Array [
     Object {
       "masterPassword": "test password",
+      "network": "testnet",
     },
   ],
 ]

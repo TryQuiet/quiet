@@ -29,7 +29,8 @@ describe('jrpc', () => {
       getblockhash,
       getinfo: jest.fn(async () => ({
         connections: 12,
-        blocks: 40
+        blocks: 40,
+        testnet: true
       }))
     }
   }

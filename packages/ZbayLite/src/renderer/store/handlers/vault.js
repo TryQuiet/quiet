@@ -2,6 +2,7 @@ import Immutable from 'immutable'
 import { createAction, handleActions } from 'redux-actions'
 
 import { typeFulfilled, typeRejected, typePending } from './utils'
+import nodeSelectors from '../selectors/node'
 
 import vault from '../../vault'
 
@@ -14,12 +15,11 @@ export const VaultState = Immutable.Record({
   error: ''
 }, 'VaultState')
 
-export const initialState = VaultState({
-  exists: vault.exists()
-})
+export const initialState = VaultState()
 
 export const actionTypes = {
   CREATE: 'CREATE_VAULT',
+  SET_STATUS: 'SET_VAULT_STATUS',
   UNLOCK: 'UNLOCK_VAULT',
   CREATE_IDENTITY: 'CREATE_VAULT_IDENTITY',
   CLEAR_ERROR: 'CLEAR_VAULT_ERROR'
@@ -29,12 +29,23 @@ const createVault = createAction(actionTypes.CREATE, vault.create)
 const unlockVault = createAction(actionTypes.UNLOCK, vault.unlock)
 const createIdentity = createAction(actionTypes.CREATE_IDENTITY, vault.identity.createIdentity)
 const clearError = createAction(actionTypes.CLEAR_ERROR)
+const setVaultStatus = createAction(actionTypes.SET_STATUS)
 
 export const actions = {
   createIdentity,
   createVault,
   unlockVault,
+  setVaultStatus,
   clearError
+}
+
+const loadVaultStatus = () => (dispatch, getState) => {
+  const network = nodeSelectors.network(getState())
+  return dispatch(setVaultStatus(vault.exists(network)))
+}
+
+export const epics = {
+  loadVaultStatus
 }
 
 export const reducer = handleActions({
@@ -65,11 +76,12 @@ export const reducer = handleActions({
     creatingIdentity: false,
     error: error.message
   }),
-
+  [setVaultStatus]: (state, { payload: exists }) => state.set('exists', exists),
   [clearError]: state => state.delete('error')
 }, initialState)
 
 export default {
   actions,
+  epics,
   reducer
 }

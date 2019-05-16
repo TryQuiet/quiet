@@ -5,6 +5,7 @@ import { getClient } from '../../zcash'
 import channels from '../../zcash/channels'
 
 import identitySelectors from '../selectors/identity'
+import nodeSelectors from '../selectors/node'
 import channelsHandlers from './channels'
 import vaultHandlers from './vault'
 import nodeHandlers from './node'
@@ -58,15 +59,15 @@ export const createIdentity = () => async (dispatch, getState) => {
       name: 'Saturn',
       address
     }))
-    await getVault().channels.importChannel(identity.id, channels.general)
+    const network = nodeSelectors.network(getState())
+    const generalChannel = channels.general[network]
+    await getVault().channels.importChannel(identity.id, generalChannel)
     await getClient().keys.importIVK({
-      ivk: channels.general.keys.ivk,
-      address: channels.general.address
+      ivk: generalChannel.keys.ivk,
+      address: generalChannel.address
     })
     return identity
   } catch (err) {
-    console.log(err)
-    console.log(err)
     dispatch(setErrors(err))
   }
 }

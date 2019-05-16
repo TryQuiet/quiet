@@ -1,11 +1,33 @@
+import React from 'react'
+import PropTypes from 'prop-types'
+import { Redirect } from 'react-router'
 import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
 
-import Index from '../../components/windows/Index'
-import vaultSelectors from '../../store/selectors/vault'
+import IndexComponent from '../../components/windows/Index'
+import nodeHandlers from '../../store/handlers/node'
+import nodeSelectors from '../../store/selectors/node'
+import { useInterval } from '../hooks'
+
+export const mapDispatchToProps = dispatch => bindActionCreators({
+  getStatus: nodeHandlers.actions.getStatus
+}, dispatch)
 
 export const mapStateToProps = state => ({
-  exists: vaultSelectors.exists(state),
-  locked: vaultSelectors.locked(state)
+  nodeConnected: nodeSelectors.isConnected(state)
 })
 
-export default connect(mapStateToProps)(Index)
+export const Index = ({ getStatus, nodeConnected, ...props }) => {
+  useInterval(getStatus, 1000)
+  return (
+    nodeConnected
+      ? <Redirect to='/vault' />
+      : <IndexComponent {...props} />
+  )
+}
+
+Index.propTypes = {
+  getStatus: PropTypes.func.isRequired
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Index)

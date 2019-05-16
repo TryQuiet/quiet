@@ -1,7 +1,7 @@
 /* eslint import/first: 0 */
 jest.mock('../../vault')
 jest.mock('../../zcash')
-
+import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
 
 import create from '../create'
@@ -12,13 +12,18 @@ import vaultSelectors from '../selectors/vault'
 import identitySelectors from '../selectors/identity'
 import channelsSelectors from '../selectors/channels'
 import { actions, VaultUnlockerState, epics } from './vaultUnlocker'
+import { NodeState } from './node'
 import { mockEvent } from '../../../shared/testing/mocks'
 import { getClient } from '../../zcash'
 
 describe('VaultUnlocker reducer', () => {
   let store = null
   beforeEach(() => {
-    store = create()
+    store = create({
+      initialState: Immutable.Map({
+        node: NodeState({ isTestnet: true })
+      })
+    })
     jest.clearAllMocks()
   })
 

@@ -26,6 +26,14 @@ const percentSynced = createSelector(
     return null
   }
 )
+const network = createSelector(node, n => {
+  if (n.isTestnet !== null) {
+    return n.isTestnet ? 'testnet' : 'mainnet'
+  }
+  return null
+})
+
+const isConnected = createSelector(status, s => ['healthy', 'syncing'].includes(s))
 
 export default {
   node,
@@ -34,5 +42,7 @@ export default {
   status,
   uptime,
   connections,
-  percentSynced
+  network,
+  percentSynced,
+  isConnected
 }

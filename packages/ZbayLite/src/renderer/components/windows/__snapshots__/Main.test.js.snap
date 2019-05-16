@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Main renders component 1`] = `
+<React.Memo>
+  <WithStyles(Grid)
+    className="gridRoot-mock"
+    container={true}
+    direction="row"
+  >
+    <WithStyles(Grid)
+      item={true}
+    >
+      <WithStyles(Sidebar) />
+    </WithStyles(Grid)>
+    <WithStyles(Grid)
+      item={true}
+      xs={true}
+    >
+      <Route
+        component={[Function]}
+        exact={true}
+        path="test"
+      />
+      <Route
+        component={[Function]}
+        exact={true}
+        path="test/channel/:id"
+      />
+    </WithStyles(Grid)>
+  </WithStyles(Grid)>
+</React.Memo>
+`;

@@ -1,7 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { Route } from 'react-router-dom'
-import { Redirect } from 'react-router'
 
 import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
@@ -18,9 +17,8 @@ const styles = {
   }
 }
 
-export const Main = ({ match, classes, locked }) => (
+export const Main = ({ match, classes }) => (
   <WindowWrapper>
-    { locked && <Redirect to='/vault/unlock' /> }
     <Grid container direction='row' className={classes.gridRoot}>
       <Grid item>
         <Sidebar />

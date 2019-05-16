@@ -10,6 +10,7 @@ exports[`NodePanelDetails renders component 1`] = `
     container={true}
     direction="column"
   >
+    <Connect(NodePanelNetworkField) />
     <Connect(NodePanelBlocksField) />
     <Connect(NodePanelConnectionsField) />
   </WithStyles(Grid)>

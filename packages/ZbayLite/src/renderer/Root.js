@@ -9,8 +9,7 @@ import { HashRouter, Route } from 'react-router-dom'
 import store from './store'
 import Index from './containers/windows/Index'
 import Main from './containers/windows/Main'
-import CreateVault from './containers/windows/CreateVault'
-import UnlockVault from './containers/windows/UnlockVault'
+import Vault from './containers/windows/Vault'
 import Notifier from './containers/ui/Notifier'
 
 import theme from './theme'
@@ -24,8 +23,7 @@ export default () => (
           <CssBaseline />
           <Route path='/' exact component={Index} />
           <Route path='/main' component={Main} />
-          <Route path='/vault/create' exact component={CreateVault} />
-          <Route path='/vault/unlock' exact component={UnlockVault} />
+          <Route path='/vault' component={Vault} />
         </SnackbarProvider>
       </Provider>
     </HashRouter>

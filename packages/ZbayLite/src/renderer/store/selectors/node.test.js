@@ -15,6 +15,7 @@ describe('node selectors', () => {
         node: NodeState({
           currentBlock: 123,
           latestBlock: 1000,
+          isTestnet: true,
           connections: 15,
           status: 'healthy',
           startedAt: DateTime.utc(2019, 3, 5, 9, 34, 48).toISO()
@@ -56,4 +57,43 @@ describe('node selectors', () => {
 
     expect(selectors.uptime(store.getState())).toEqual(expected)
   })
+
+  it('network when testnet', () => {
+    expect(selectors.network(store.getState())).toEqual('testnet')
+  })
+
+  it('network when mainnet', () => {
+    store = create({
+      initialState: Immutable.Map({
+        node: NodeState({
+          isTestnet: false
+        })
+      })
+    })
+    expect(selectors.network(store.getState())).toEqual('mainnet')
+  })
+
+  each(['healthy', 'syncing']).test(
+    'isConnected when status %s',
+    async (status) => {
+      store = create({
+        initialState: Immutable.Map({
+          node: NodeState({ status })
+        })
+      })
+      expect(selectors.isConnected(store.getState())).toBeTruthy()
+    }
+  )
+
+  each(['restarting', 'down', 'connecting']).test(
+    'isConnected when status %s',
+    async (status) => {
+      store = create({
+        initialState: Immutable.Map({
+          node: NodeState({ status })
+        })
+      })
+      expect(selectors.isConnected(store.getState())).toBeFalsy()
+    }
+  )
 })

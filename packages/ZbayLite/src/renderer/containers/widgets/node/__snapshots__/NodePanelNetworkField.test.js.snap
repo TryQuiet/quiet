@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NodePanelNetworkField renders the field 1`] = `
+<React.Memo
+  name="Network"
+>
+  <WithStyles(Typography)
+    inline={true}
+    variant="overline"
+  >
+    testnet
+  </WithStyles(Typography)>
+</React.Memo>
+`;
+
+exports[`NodePanelNetworkField renders the field when no network 1`] = `
+<React.Memo
+  name="Network"
+>
+  <WithStyles(Typography)
+    inline={true}
+    variant="overline"
+  >
+    ?
+  </WithStyles(Typography)>
+</React.Memo>
+`;
+
+exports[`NodePanelNetworkField will receive right props 1`] = `
+Object {
+  "network": "testnet",
+}
+`;

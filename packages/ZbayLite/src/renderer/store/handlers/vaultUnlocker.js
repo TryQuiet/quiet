@@ -5,6 +5,7 @@ import vault from '../../vault'
 import vaultHandlers from './vault'
 import identityHandlers from './identity'
 import vaultUnlockerSelectors from '../selectors/vaultUnlocker'
+import nodeSelectors from '../selectors/node'
 
 export const VaultUnlockerState = Immutable.Record({
   password: '',
@@ -23,9 +24,10 @@ const clearUnlocker = createAction('CLEAR_UNLOCKER')
 const unlockVault = () => async (dispatch, getState) => {
   dispatch(vaultHandlers.actions.clearError())
   const state = getState()
+  const network = nodeSelectors.network(state)
   const masterPassword = vaultUnlockerSelectors.password(state)
   try {
-    await dispatch(vaultHandlers.actions.unlockVault({ masterPassword }))
+    await dispatch(vaultHandlers.actions.unlockVault({ masterPassword, network }))
   } catch (err) {
     console.warn(err)
   }

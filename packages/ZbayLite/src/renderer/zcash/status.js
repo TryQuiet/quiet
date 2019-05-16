@@ -42,6 +42,7 @@ export default (zcashClient) => {
     const currentBlock = new BigNumber(info.blocks)
     const status = calculateStatus(currentBlock, latestBlock)
     return {
+      isTestnet: info.testnet,
       status,
       latestBlock: latestBlock,
       currentBlock: currentBlock,
