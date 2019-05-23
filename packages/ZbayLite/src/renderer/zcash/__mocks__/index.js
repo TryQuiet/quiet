@@ -1,16 +1,22 @@
 import Zcash from '../client'
 
 const requestManager = {
-  z_importviewingkey: async () => null,
-  z_importkey: async () => null,
-  z_exportkey: async () => null
+  z_importviewingkey: jest.fn(async () => null),
+  z_listreceivedbyaddress: jest.fn(async () => null),
+  z_importkey: jest.fn(async () => null),
+  z_exportkey: jest.fn(async () => null),
+  z_sendmany: jest.fn(async () => null),
+  z_getoperationstatus: jest.fn(async () => null)
 }
+
+const client = new Zcash({ requestManager: jest.fn(() => requestManager) })
 
 export const mock = {
-  requestManager
+  requestManager,
+  client
 }
 
-export const getClient = jest.fn(() => new Zcash({ requestManager: jest.fn(() => requestManager) }))
+export const getClient = jest.fn(() => client)
 
 export default {
   getClient

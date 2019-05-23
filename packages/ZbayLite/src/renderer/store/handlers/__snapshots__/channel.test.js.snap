@@ -73,6 +73,30 @@ Immutable.List [
 ]
 `;
 
+exports[`channel reducer handles epics - sendOnEnter creates and resolves pending message on finish 1`] = `
+Immutable.Map {
+  null: Immutable.PendingMessage {
+    "opId": null,
+    "channelId": "this-is-a-test-id",
+    "txId": "test-tx-id",
+    "error": Immutable.ZcashError {
+      "code": -1,
+      "message": "no error",
+    },
+    "message": Immutable.Map {
+      "type": 1,
+      "sender": Immutable.Map {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Saturn",
+      },
+      "createdAt": 1551963828,
+      "message": "this is some message",
+    },
+    "status": "success",
+  },
+}
+`;
+
 exports[`channel reducer handles epics - sendOnEnter sends message 1`] = `
 Object {
   "address": "zs1testaddressthis-is-a-test-id",

@@ -3,12 +3,13 @@ import BigNumber from 'bignumber.js'
 import * as R from 'ramda'
 import { createAction, handleActions } from 'redux-actions'
 
+import pendingMessagesHandlers from './pendingMessages'
+import notificationsHandlers from './notifications'
 import channelSelectors from '../selectors/channel'
 import identitySelectors from '../selectors/identity'
 import { getClient } from '../../zcash'
 import { messages } from '../../zbay'
-
-import { typeFulfilled, typeRejected, typePending } from './utils'
+import { typeFulfilled, typeRejected, typePending, errorNotification } from './utils'
 
 export const MessagesState = Immutable.Record({
   loading: false,
@@ -71,14 +72,24 @@ const sendOnEnter = (event) => async (dispatch, getState) => {
         data: event.target.value
       }
     })
+    const channel = channelSelectors.data(getState()).toJS()
     const transfer = await messages.messageToTransfer({
       message,
-      channel: channelSelectors.data(getState()).toJS()
+      channel
     })
     try {
-      await getClient().payment.send(transfer)
+      const opId = await getClient().payment.send(transfer)
+      await dispatch(pendingMessagesHandlers.epics.observeMessage({
+        opId,
+        channelId: channel.id,
+        message
+      }))
     } catch (err) {
-      console.warn(err)
+      notificationsHandlers.actions.enqueueSnackbar(
+        errorNotification({
+          message: 'Couldn\'t send the message, please check node connection.'
+        })
+      )
     }
     dispatch(setMessage(''))
   }

@@ -9,12 +9,14 @@ import { DateTime } from 'luxon'
 import create from '../create'
 import { packMemo, unpackMemo } from '../../zbay/transit'
 import { ChannelState, actions, epics } from './channel'
+import { initialState as pendingMessagesInitialState } from './pendingMessages'
 import { ChannelsState } from './channels'
 import { IdentityState, Identity } from './identity'
 import channelSelectors from '../selectors/channel'
+import pendingMessagesSelectors from '../selectors/pendingMessages'
 import { mockEvent } from '../../../shared/testing/mocks'
 import { createChannel, createTransfer, createMessage, now } from '../../testUtils'
-import { getClient } from '../../zcash'
+import { mock as zcashMock } from '../../zcash'
 
 describe('channel reducer', () => {
   const spent = 0.2
@@ -22,18 +24,10 @@ describe('channel reducer', () => {
     createMessage('test-1'),
     createMessage('test-2')
   ]
-  const receivedMock = jest.fn(async () => [])
-  const sendMock = jest.fn(async () => null)
-  getClient.mockImplementation(() => ({
-    payment: {
-      received: receivedMock,
-      send: sendMock
-    }
-  }))
   const address = 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya'
 
   let store = null
-  beforeEach(async () => {
+  beforeEach(() => {
     store = create({
       initialState: Immutable.Map({
         channel: ChannelState(),
@@ -48,15 +42,12 @@ describe('channel reducer', () => {
             name: 'Saturn',
             balance: '33.583004'
           })
-        })
+        }),
+        pendingMessages: pendingMessagesInitialState
       })
     })
     jest.clearAllMocks()
   })
-
-  // const assertStoreState = () => expect(
-  //   channelSelectors.channel(store.getState())
-  // ).toMatchSnapshot()
 
   describe('handles actions', () => {
     it(' - setSpentFilterValue', () => {
@@ -88,14 +79,14 @@ describe('channel reducer', () => {
           amount: spent
         }))
       )
-      receivedMock.mockImplementationOnce(async () => transfers)
+      zcashMock.requestManager.z_listreceivedbyaddress.mockImplementationOnce(async () => transfers)
 
       await store.dispatch(actions.loadMessages('test-address'))
 
       const loadedMessages = channelSelectors.messages(store.getState())
       const expectedMessages = messages.map(m => ({ ...m, spent: new BigNumber(spent) }))
       expect(loadedMessages.toJS()).toEqual(expectedMessages)
-      expect(receivedMock.mock.calls).toMatchSnapshot()
+      expect(zcashMock.requestManager.z_listreceivedbyaddress.mock.calls).toMatchSnapshot()
     })
   })
 
@@ -108,7 +99,7 @@ describe('channel reducer', () => {
           amount: spent
         }))
       )
-      receivedMock.mockImplementationOnce(async () => transfers)
+      zcashMock.requestManager.z_listreceivedbyaddress.mockImplementationOnce(async () => transfers)
       store.dispatch(actions.setChannelId('this-is-a-test-id'))
 
       await store.dispatch(epics.loadMessages())
@@ -125,7 +116,7 @@ describe('channel reducer', () => {
           amount: spent
         }))
       )
-      receivedMock.mockImplementationOnce(async () => transfers)
+      zcashMock.requestManager.z_listreceivedbyaddress.mockImplementationOnce(async () => transfers)
 
       await store.dispatch(epics.loadChannel('this-is-a-test-id'))
 
@@ -145,6 +136,17 @@ describe('channel reducer', () => {
         return event
       }
 
+      beforeEach(() => {
+        zcashMock.requestManager.z_getoperationstatus.mockImplementation(async () => [{
+          id: 'operation-id',
+          status: 'success',
+          result: {
+            txid: 'test-tx-id'
+          },
+          error: { code: -1, message: 'no error' }
+        }])
+      })
+
       it('sends message', async () => {
         jest.spyOn(DateTime, 'utc').mockReturnValue(now)
         const msg = 'this is some message'
@@ -153,9 +155,8 @@ describe('channel reducer', () => {
 
         await store.dispatch(epics.sendOnEnter(event))
 
-        expect(sendMock).toHaveBeenCalled()
-        const [call] = sendMock.mock.calls[0]
-        const { from, amounts } = call
+        expect(zcashMock.requestManager.z_sendmany).toHaveBeenCalled()
+        const [from, amounts] = zcashMock.requestManager.z_sendmany.mock.calls[0]
         expect(from).toEqual(address)
         const withUnpacked = {
           ...amounts[0],
@@ -174,7 +175,7 @@ describe('channel reducer', () => {
 
         await store.dispatch(epics.sendOnEnter(event))
 
-        expect(sendMock).not.toHaveBeenCalled()
+        expect(zcashMock.requestManager.z_sendmany).not.toHaveBeenCalled()
       })
 
       it('doesn\'t send when enter not pressed', async () => {
@@ -184,7 +185,18 @@ describe('channel reducer', () => {
 
         await store.dispatch(epics.sendOnEnter(event))
 
-        expect(sendMock).not.toHaveBeenCalled()
+        expect(zcashMock.requestManager.z_sendmany).not.toHaveBeenCalled()
+      })
+
+      it('creates and resolves pending message on finish', async () => {
+        jest.spyOn(DateTime, 'utc').mockReturnValue(now)
+        const msg = 'this is some message'
+        const event = keyPressEvent(msg, 13, false)
+        store.dispatch(actions.setChannelId('this-is-a-test-id'))
+
+        await store.dispatch(epics.sendOnEnter(event))
+
+        expect(pendingMessagesSelectors.pendingMessages(store.getState())).toMatchSnapshot()
       })
     })
   })
