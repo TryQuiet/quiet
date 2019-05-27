@@ -1,98 +1,119 @@
 import React from 'react'
+import { Formik, Form } from 'formik'
 import classNames from 'classnames'
 import PropTypes from 'prop-types'
+import * as Yup from 'yup'
 
 import Button from '@material-ui/core/Button'
-import FormControl from '@material-ui/core/FormControl'
+import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
 
-import PasswordInput from './ui/PasswordInput'
+import PasswordField from './ui/form/PasswordField'
+import TextField from './ui/form/TextField'
 
 const styles = theme => ({
   submit: {
-    'min-height': '56px',
-    'margin-bottom': theme.spacing.unit,
-    'margin-top': 2 * theme.spacing.unit
+    minHeight: 56
   }
 })
 
-export const VaultCreator = ({
-  classes,
-  styles,
-  password,
-  repeat,
-  passwordVisible,
-  repeatVisible,
-  onSend,
-  handleTogglePassword,
-  handleToggleRepeat,
-  handleSetPassword,
-  handleSetRepeat
-}) => {
-  const notMatching = (password !== '' && repeat !== '' && password !== repeat)
-  return (
-    <div className={classNames({ [styles.wrapper]: styles.wrapper })}>
-      <FormControl required>
-        <PasswordInput
-          label='Password'
-          passwordVisible={passwordVisible}
-          password={password}
-          handleSetPassword={handleSetPassword}
-          handleTogglePassword={handleTogglePassword}
-        />
-        <PasswordInput
-          label='Repeat password'
-          passwordVisible={repeatVisible}
-          password={repeat}
-          handleSetPassword={handleSetRepeat}
-          handleTogglePassword={handleToggleRepeat}
-          error={notMatching}
-        />
-        <Button
-          variant='contained'
-          size='large'
-          color='primary'
-          className={
-            classNames({
-              [classes.submit]: true,
-              [styles.button]: styles.button
-            })
-          }
-          margin='normal'
-          disabled={password === '' || repeat === '' || repeat !== password}
-          onClick={onSend}
-          fullWidth
+export const formSchema = Yup.object().shape({
+  name: Yup.string()
+    .matches(/^\w+$/, 'Should only contain alphanumeric characters and underscore.')
+    .min(3, 'Should contain at least 3 characters')
+    .max(20, 'Should contain no more than 20 characters')
+    .required('Required'),
+  password: Yup.string()
+    .min(6, 'Should contain at least 6 characters')
+    .required('Required'),
+  repeat: Yup.string()
+    .min(6, 'Should contain at least 6 characters')
+    .required('Required')
+})
+
+export const validateForm = values => (
+  values.repeat !== values.password &&
+    { repeat: 'Doesn\'t match password.' }
+)
+
+export const VaultCreator = ({ classes, onSend, initialValues }) => (
+  <Formik
+    onSubmit={onSend}
+    validationSchema={formSchema}
+    initialValues={initialValues}
+    validate={validateForm}
+  >
+    {({ errors, isSubmitting }) => (
+      <Form >
+        <Grid
+          container
+          spacing={16}
+          justify='flex-start'
+          direction='column'
+          className={classes.fullContainer}
         >
-          Submit
-        </Button>
-      </FormControl>
-    </div>
-  )
-}
+          <Grid item>
+            <TextField
+              name='name'
+              label='Name'
+              className={classes.gutter}
+            />
+          </Grid>
+          <Grid item>
+            <PasswordField
+              name='password'
+              label='Password'
+              fullWidth
+            />
+          </Grid>
+          <Grid item>
+            <PasswordField
+              name='repeat'
+              label='Repeat password'
+              error={errors.repeat}
+              fullWidth
+            />
+          </Grid>
+          <Grid item>
+            <Button
+              type='submit'
+              variant='contained'
+              size='large'
+              color='primary'
+              className={
+                classNames({
+                  [classes.submit]: true,
+                  [styles.button]: styles.button
+                })
+              }
+              disabled={isSubmitting}
+              margin='normal'
+              fullWidth
+            >
+              Submit
+            </Button>
+          </Grid>
+        </Grid>
+      </Form>
+    )}
+  </Formik>
+)
 
 VaultCreator.propTypes = {
   classes: PropTypes.object.isRequired,
-  styles: PropTypes.exact({
-    wrapper: PropTypes.string,
-    button: PropTypes.string
-  }),
-  password: PropTypes.string.isRequired,
-  repeat: PropTypes.string.isRequired,
-  passwordVisible: PropTypes.bool.isRequired,
-  repeatVisible: PropTypes.bool.isRequired,
   onSend: PropTypes.func.isRequired,
-  handleTogglePassword: PropTypes.func.isRequired,
-  handleToggleRepeat: PropTypes.func.isRequired,
-  handleSetPassword: PropTypes.func.isRequired,
-  handleSetRepeat: PropTypes.func.isRequired
+  initialValues: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    password: PropTypes.string.isRequired,
+    repeat: PropTypes.string.isRequired
+  }).isRequired
 }
 
 VaultCreator.defaultProps = {
-  passwordVisible: false,
-  repeatVisible: false,
-  styles: {
-    wrapper: '',
-    button: ''
+  initialValues: {
+    name: '',
+    password: '',
+    repeat: ''
   }
 }
 

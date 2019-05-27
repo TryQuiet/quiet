@@ -126,7 +126,7 @@ Array [
   Array [
     Object {
       "address": "sapling-zcash-address",
-      "name": "Saturn",
+      "name": "Mercury",
     },
   ],
 ]
@@ -136,7 +136,7 @@ exports[`Identity reducer handles epics handles createIdentity returns created i
 Object {
   "address": "sapling-zcash-address",
   "id": "thisisatestid",
-  "name": "Saturn",
+  "name": "Mercury",
 }
 `;
 

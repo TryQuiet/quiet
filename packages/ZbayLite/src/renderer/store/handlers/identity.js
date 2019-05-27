@@ -52,11 +52,11 @@ export const fetchBalance = () => async (dispatch, getState) => {
   }
 }
 
-export const createIdentity = () => async (dispatch, getState) => {
+export const createIdentity = ({ name }) => async (dispatch, getState) => {
   try {
     const { value: address } = await dispatch(nodeHandlers.actions.createAddress())
     const { value: identity } = await dispatch(vaultHandlers.actions.createIdentity({
-      name: 'Saturn',
+      name,
       address
     }))
     const network = nodeSelectors.network(getState())

@@ -120,6 +120,10 @@ describe('Identity reducer handles', () => {
     })
 
     describe('handles createIdentity', () => {
+      const identity = {
+        name: 'Mercury'
+      }
+
       beforeEach(() => {
         zcashMock.requestManager.z_getbalance = jest.fn(async (address) => '12.345')
         zcashMock.requestManager.z_getnewaddress = jest.fn(async (type) => `${type}-zcash-address`)
@@ -129,17 +133,17 @@ describe('Identity reducer handles', () => {
       })
 
       it('creates identity in vault', async () => {
-        await store.dispatch(identityHandlers.epics.createIdentity())
+        await store.dispatch(identityHandlers.epics.createIdentity(identity))
         expect(vault.identity.createIdentity.mock.calls).toMatchSnapshot()
       })
 
       it('returns created identity', async () => {
-        const result = await store.dispatch(identityHandlers.epics.createIdentity())
+        const result = await store.dispatch(identityHandlers.epics.createIdentity(identity))
         expect(result).toMatchSnapshot()
       })
 
       it('bootstraps general for testnet', async () => {
-        await store.dispatch(identityHandlers.epics.createIdentity())
+        await store.dispatch(identityHandlers.epics.createIdentity(identity))
         const channels = await vault.getVault().channels.listChannels('thisisatestid')
         expect(channels.map(R.omit(['id', 'hash']))).toMatchSnapshot()
       })
@@ -155,7 +159,7 @@ describe('Identity reducer handles', () => {
             })
           })
         })
-        await store.dispatch(identityHandlers.epics.createIdentity())
+        await store.dispatch(identityHandlers.epics.createIdentity(identity))
         const channels = await vault.getVault().channels.listChannels('thisisatestid')
         expect(channels.map(R.omit(['id', 'hash']))).toMatchSnapshot()
       })

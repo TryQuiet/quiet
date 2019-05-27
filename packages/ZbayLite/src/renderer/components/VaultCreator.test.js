@@ -1,85 +1,148 @@
 /* eslint import/first: 0 */
 import React from 'react'
 import { shallow } from 'enzyme'
+import * as R from 'ramda'
 
 import { mockClasses } from '../../shared/testing/mocks'
-import { VaultCreator } from './VaultCreator'
+import { VaultCreator, formSchema, validateForm } from './VaultCreator'
 
 describe('VaultCreator', () => {
+  const validValues = {
+    name: 'Mercury',
+    password: 'thisisatestpassword',
+    repeat: 'thisisatestpassword'
+  }
+
   it('renders component', () => {
-    const password = 'test password'
     const result = shallow(
       <VaultCreator
         classes={mockClasses}
-        password={password}
-        repeat={password}
         onSend={jest.fn()}
-        handleTogglePassword={jest.fn()}
-        handleToggleRepeat={jest.fn()}
-        handleSetPassword={jest.fn()}
-        handleSetRepeat={jest.fn()}
       />
     )
     expect(result).toMatchSnapshot()
   })
 
-  it('renders disabled when different password', () => {
+  it('passes initial values', () => {
     const result = shallow(
       <VaultCreator
         classes={mockClasses}
-        password='test password'
-        repeat='test repeat'
-        passwordVisible={false}
-        repeatVisible={false}
         onSend={jest.fn()}
-        handleTogglePassword={jest.fn()}
-        handleToggleRepeat={jest.fn()}
-        handleSetPassword={jest.fn()}
-        handleSetRepeat={jest.fn()}
+        initialValues={validValues}
       />
     )
     expect(result).toMatchSnapshot()
   })
 
-  it('renders with visible passwords', () => {
-    const password = 'test password'
-    const result = shallow(
-      <VaultCreator
-        classes={mockClasses}
-        password={password}
-        repeat={password}
-        passwordVisible
-        repeatVisible
-        onSend={jest.fn()}
-        handleTogglePassword={jest.fn()}
-        handleToggleRepeat={jest.fn()}
-        handleSetPassword={jest.fn()}
-        handleSetRepeat={jest.fn()}
-      />
-    )
-    expect(result).toMatchSnapshot()
+  describe('validates', () => {
+    describe('name', () => {
+      it('is longer than 2 characters', async () => {
+        expect.assertions(1)
+        try {
+          await formSchema.validate({
+            ...validValues,
+            name: 'ts'
+          })
+        } catch (err) {
+          expect(err).toMatchSnapshot()
+        }
+      })
+
+      it('is shorter than 21 characters', async () => {
+        expect.assertions(1)
+        try {
+          const res = await formSchema.validate({
+            ...validValues,
+            name: 'ThisNameIsWaaaaaaaayTooLong'
+          })
+          console.log(res)
+        } catch (err) {
+          expect(err).toMatchSnapshot()
+        }
+      })
+    })
+
+    it('contains only alphanumeric characters and underscore', async () => {
+      const valid = {
+        ...validValues,
+        name: 'GoodName_1234'
+      }
+      const validated = await formSchema.validate(valid)
+
+      expect.assertions(2)
+      expect(validated).toEqual(valid)
+      try {
+        await formSchema.validate({
+          ...validValues,
+          name: '!GoodName'
+        })
+      } catch (err) {
+        expect(err).toMatchSnapshot()
+      }
+    })
+
+    it('is present', async () => {
+      expect.assertions(1)
+      try {
+        await formSchema.validate(R.omit(['name'], validValues))
+      } catch (err) {
+        expect(err).toMatchSnapshot()
+      }
+    })
   })
 
-  it('renders custom styles', () => {
-    const password = 'test password'
-    const result = shallow(
-      <VaultCreator
-        classes={mockClasses}
-        styles={{
-          wrapper: 'wrapper-class',
-          button: 'button-class'
-        }}
-        password={password}
-        repeat={password}
-        passwordVisible={false}
-        repeatVisible={false}
-        onSend={jest.fn()}
-        handleTogglePassword={jest.fn()}
-        handleToggleRepeat={jest.fn()}
-        handleSetPassword={jest.fn()}
-        handleSetRepeat={jest.fn()}
-      />
-    )
-    expect(result).toMatchSnapshot()
+  describe('password', () => {
+    it('is longer than 6 characters', async () => {
+      expect.assertions(1)
+      try {
+        await formSchema.validate({
+          ...validValues,
+          password: 'pass'
+        })
+      } catch (err) {
+        expect(err).toMatchSnapshot()
+      }
+    })
+
+    it('is present', async () => {
+      expect.assertions(1)
+      try {
+        await formSchema.validate(R.omit(['password'], validValues))
+      } catch (err) {
+        expect(err).toMatchSnapshot()
+      }
+    })
+  })
+
+  describe('repeat', () => {
+    it('is longer than 6 characters', async () => {
+      expect.assertions(1)
+      try {
+        await formSchema.validate({
+          ...validValues,
+          repeat: 'pass'
+        })
+      } catch (err) {
+        expect(err).toMatchSnapshot()
+      }
+    })
+
+    it('is present', async () => {
+      expect.assertions(1)
+      try {
+        await formSchema.validate(R.omit(['repeat'], validValues))
+      } catch (err) {
+        expect(err).toMatchSnapshot()
+      }
+    })
+  })
+
+  it('repeat and password are the same', () => {
+    const errors = validateForm({
+      name: 'Mercury',
+      password: 'somePassword',
+      repeat: 'anotherPassword'
+    })
+    expect(errors).toMatchSnapshot()
   })
 })

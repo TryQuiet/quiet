@@ -2,20 +2,6 @@
 
 exports[`VaultCreator will receive right actions 1`] = `
 Object {
-  "handleSetPassword": [Function],
-  "handleSetRepeat": [Function],
-  "handleTogglePassword": [Function],
-  "handleToggleRepeat": [Function],
   "onSend": [Function],
-}
-`;
-
-exports[`VaultCreator will receive right props 1`] = `
-Object {
-  "loading": false,
-  "password": "",
-  "passwordVisible": false,
-  "repeat": "",
-  "repeatVisible": false,
 }
 `;

@@ -6,7 +6,7 @@ import { withStyles } from '@material-ui/core/styles'
 
 import NodePanel from '../../../containers/widgets/node/NodePanel'
 import IdentityPanel from '../../../containers/ui/IdentityPanel'
-import WalletPanel from '../walletPanel/WalletPanel'
+import WalletPanel from '../../../containers/widgets/walletPanel/WalletPanel'
 import ChannelsPanel from '../../../containers/widgets/channels/ChannelsPanel'
 // import DirectMessagesPanel from '../channels/DirectMessagesPanel'
 

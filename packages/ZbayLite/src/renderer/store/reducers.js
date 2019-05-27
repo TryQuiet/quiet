@@ -8,7 +8,6 @@ import channelsHandlers from './handlers/channels'
 import nodeHandlers from './handlers/node'
 import ratesHandlers from './handlers/rates'
 import vaultHandlers from './handlers/vault'
-import vaultCreatorHandlers from './handlers/vaultCreator'
 import vaultUnlockerHandlers from './handlers/vaultUnlocker'
 import modalsHandlers from './handlers/modals'
 import pendingMessagesHandlers from './handlers/pendingMessages'
@@ -24,6 +23,5 @@ export default combineReducers({
   channels: channelsHandlers.reducer,
   node: nodeHandlers.reducer,
   vault: vaultHandlers.reducer,
-  vaultCreator: vaultCreatorHandlers.reducer,
   vaultUnlocker: vaultUnlockerHandlers.reducer
 })

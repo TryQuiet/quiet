@@ -1,5 +1,6 @@
 import Joi from 'joi'
 
+// TODO: remove joi and use yup since joi doesn't support browsers
 const amountsSchema = Joi.array().items(
   Joi.object().keys({
     address: Joi.string().required(),

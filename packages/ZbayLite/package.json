@@ -111,6 +111,7 @@
     "redux-promise-middleware": "^5.1.1",
     "redux-thunk": "^2.3.0",
     "reselect": "^4.0.0",
-    "typeface-roboto": "0.0.54"
+    "typeface-roboto": "0.0.54",
+    "yup": "^0.27.0"
   }
 }

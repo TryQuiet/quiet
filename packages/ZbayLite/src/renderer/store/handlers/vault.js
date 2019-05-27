@@ -1,8 +1,10 @@
 import Immutable from 'immutable'
 import { createAction, handleActions } from 'redux-actions'
 
-import { typeFulfilled, typeRejected, typePending } from './utils'
+import { typeFulfilled, typeRejected, typePending, errorNotification } from './utils'
 import nodeSelectors from '../selectors/node'
+import identityHandlers from './identity'
+import notificationsHandlers from './notifications'
 
 import vault from '../../vault'
 
@@ -44,8 +46,29 @@ const loadVaultStatus = () => (dispatch, getState) => {
   return dispatch(setVaultStatus(vault.exists(network)))
 }
 
+const createVaultEpic = ({ name, password }, formActions) => async (dispatch, getState) => {
+  const network = nodeSelectors.network(getState())
+  try {
+    await dispatch(createVault({ masterPassword: password, network }))
+    await dispatch(actions.unlockVault({
+      masterPassword: password,
+      createSource: true,
+      network
+    }))
+    const identity = await dispatch(identityHandlers.epics.createIdentity({ name }))
+    await dispatch(identityHandlers.epics.setIdentity(identity))
+  } catch (error) {
+    console.log(error)
+    dispatch(notificationsHandlers.actions.enqueueSnackbar(
+      errorNotification({ message: `Failed to create channel: ${error.message}` })
+    ))
+  }
+  formActions.setSubmitting(false)
+}
+
 export const epics = {
-  loadVaultStatus
+  loadVaultStatus,
+  createVault: createVaultEpic
 }
 
 export const reducer = handleActions({

@@ -1,19 +1,30 @@
 /* eslint import/first: 0 */
 jest.mock('../../vault')
+jest.mock('../../zcash')
 import Immutable from 'immutable'
 
 import { actions, epics, initialState, actionTypes } from './vault'
 import { typePending } from './utils'
 import create from '../create'
-import vault from '../../vault'
+import vault, { mock } from '../../vault'
 import vaultSelectors from '../selectors/vault'
+import channelsSelectors from '../selectors/channels'
+import identitySelectors from '../selectors/identity'
 import { NodeState } from './node'
+import { mock as zcashMock } from '../../zcash'
+import { createArchive } from '../../vault/marshalling'
 
 describe('vault reducer', () => {
   let store = null
   beforeEach(() => {
     jest.clearAllMocks()
-    store = create()
+    store = create({
+      initialState: Immutable.Map({
+        node: NodeState({
+          isTestnet: true
+        })
+      })
+    })
   })
 
   const assertStoreState = () => expect(store.getState().get('vault')).toMatchSnapshot()
@@ -115,6 +126,11 @@ describe('vault reducer', () => {
     describe('- loadVaultStatus', () => {
       beforeEach(() => {
         vault.exists.mockImplementation(network => network === 'mainnet')
+
+        // old vault client mock
+        vault.identity.createIdentity.mockImplementation(
+          async ({ name, address }) => ({ id: 'thisisatestid', name, address })
+        )
       })
 
       it('when vault exists', () => {
@@ -139,6 +155,70 @@ describe('vault reducer', () => {
         store.dispatch(epics.loadVaultStatus())
 
         expect(vaultSelectors.exists(store.getState())).toBeFalsy()
+      })
+    })
+
+    describe('- createVault', () => {
+      const formActions = {
+        setSubmitting: jest.fn()
+      }
+      const formValues = {
+        name: 'Mercury',
+        password: 'testPassword'
+      }
+
+      beforeEach(() => {
+        mock.setArchive(createArchive())
+        zcashMock.requestManager.z_getnewaddress.mockImplementation(async (type) => `${type}-zcash-address`)
+
+        vault.identity.createIdentity.mockImplementation(
+          async ({ name, address }) => ({ id: 'thisisatestid', name, address })
+        )
+      })
+
+      it('creates the vault', async () => {
+        expect(vaultSelectors.exists(store.getState())).toBeFalsy()
+
+        await store.dispatch(epics.createVault(formValues, formActions))
+
+        expect(vaultSelectors.exists(store.getState())).toBeTruthy()
+        expect(vault.create.mock.calls).toMatchSnapshot()
+      })
+
+      it('unlocks the vault', async () => {
+        expect(vaultSelectors.locked(store.getState())).toBeTruthy()
+
+        await store.dispatch(epics.createVault(formValues, formActions))
+
+        expect(vaultSelectors.locked(store.getState())).toBeFalsy()
+        expect(vault.unlock.mock.calls).toMatchSnapshot()
+      })
+
+      it('creates identity and sets balance', async () => {
+        await store.dispatch(epics.createVault(formValues, formActions))
+
+        expect(identitySelectors.identity(store.getState())).toMatchSnapshot()
+        expect(zcashMock.requestManager.z_getnewaddress).toHaveBeenCalledWith('sapling')
+        expect(zcashMock.requestManager.z_getbalance).toHaveBeenCalledWith('sapling-zcash-address')
+      })
+
+      it('bootstraps general channel to new account', async () => {
+        await store.dispatch(epics.createVault(formValues, formActions))
+
+        const channels = channelsSelectors.channels(store.getState())
+        expect(channels.data.map(ch => ch.delete('id'))).toMatchSnapshot()
+        expect(zcashMock.requestManager.z_importviewingkey).toHaveBeenCalledWith(
+          'zivktestsapling1p5rp2czztl8amalqm5ghzvhr35n08h26vhphnw2x6k83trft7sqsn9qkd6',
+          'whenkeyisnew',
+          0,
+          'ztestsapling16e4wekqjyx80yjjzf24ztyflt2c5tt6avt4nftgnj694n8e5x8fz5pr9ejsd3l9lmymf29khjnk'
+        )
+      })
+
+      it('terminates submission', async () => {
+        await store.dispatch(epics.createVault(formValues, formActions))
+
+        expect(formActions.setSubmitting).toHaveBeenCalledWith(false)
       })
     })
   })

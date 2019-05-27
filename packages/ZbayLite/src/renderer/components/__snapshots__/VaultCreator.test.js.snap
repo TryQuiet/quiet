@@ -1,153 +1,321 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`VaultCreator passes initial values 1`] = `
+<Formik
+  enableReinitialize={false}
+  initialValues={
+    Object {
+      "name": "Mercury",
+      "password": "thisisatestpassword",
+      "repeat": "thisisatestpassword",
+    }
+  }
+  isInitialValid={false}
+  onSubmit={[MockFunction]}
+  validate={[Function]}
+  validateOnBlur={true}
+  validateOnChange={true}
+  validationSchema={
+    ObjectSchema {
+      "_blacklist": RefSet {
+        "list": Set {},
+        "refs": Map {},
+      },
+      "_conditions": Array [],
+      "_defaultDefault": [Function],
+      "_deps": Array [],
+      "_excludedEdges": Array [],
+      "_exclusive": Object {},
+      "_mutate": undefined,
+      "_nodes": Array [
+        "repeat",
+        "password",
+        "name",
+      ],
+      "_options": Object {
+        "abortEarly": true,
+        "recursive": true,
+      },
+      "_type": "object",
+      "_typeError": [Function],
+      "_whitelist": RefSet {
+        "list": Set {},
+        "refs": Map {},
+      },
+      "fields": Object {
+        "name": StringSchema {
+          "_blacklist": RefSet {
+            "list": Set {},
+            "refs": Map {},
+          },
+          "_conditions": Array [],
+          "_deps": Array [],
+          "_exclusive": Object {
+            "max": true,
+            "min": true,
+            "required": true,
+            "undefined": false,
+          },
+          "_mutate": undefined,
+          "_options": Object {
+            "abortEarly": true,
+            "recursive": true,
+          },
+          "_type": "string",
+          "_typeError": [Function],
+          "_whitelist": RefSet {
+            "list": Set {},
+            "refs": Map {},
+          },
+          "tests": Array [
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+          ],
+          "transforms": Array [
+            [Function],
+          ],
+        },
+        "password": StringSchema {
+          "_blacklist": RefSet {
+            "list": Set {},
+            "refs": Map {},
+          },
+          "_conditions": Array [],
+          "_deps": Array [],
+          "_exclusive": Object {
+            "min": true,
+            "required": true,
+          },
+          "_mutate": undefined,
+          "_options": Object {
+            "abortEarly": true,
+            "recursive": true,
+          },
+          "_type": "string",
+          "_typeError": [Function],
+          "_whitelist": RefSet {
+            "list": Set {},
+            "refs": Map {},
+          },
+          "tests": Array [
+            [Function],
+            [Function],
+          ],
+          "transforms": Array [
+            [Function],
+          ],
+        },
+        "repeat": StringSchema {
+          "_blacklist": RefSet {
+            "list": Set {},
+            "refs": Map {},
+          },
+          "_conditions": Array [],
+          "_deps": Array [],
+          "_exclusive": Object {
+            "min": true,
+            "required": true,
+          },
+          "_mutate": undefined,
+          "_options": Object {
+            "abortEarly": true,
+            "recursive": true,
+          },
+          "_type": "string",
+          "_typeError": [Function],
+          "_whitelist": RefSet {
+            "list": Set {},
+            "refs": Map {},
+          },
+          "tests": Array [
+            [Function],
+            [Function],
+          ],
+          "transforms": Array [
+            [Function],
+          ],
+        },
+      },
+      "tests": Array [],
+      "transforms": Array [
+        [Function],
+      ],
+    }
+  }
+>
+  <Component />
+</Formik>
+`;
+
+exports[`VaultCreator password is longer than 6 characters 1`] = `[ValidationError: Should contain at least 6 characters]`;
+
+exports[`VaultCreator password is present 1`] = `[ValidationError: Required]`;
+
 exports[`VaultCreator renders component 1`] = `
-<div
-  className=""
+<Formik
+  enableReinitialize={false}
+  initialValues={
+    Object {
+      "name": "",
+      "password": "",
+      "repeat": "",
+    }
+  }
+  isInitialValid={false}
+  onSubmit={[MockFunction]}
+  validate={[Function]}
+  validateOnBlur={true}
+  validateOnChange={true}
+  validationSchema={
+    ObjectSchema {
+      "_blacklist": RefSet {
+        "list": Set {},
+        "refs": Map {},
+      },
+      "_conditions": Array [],
+      "_defaultDefault": [Function],
+      "_deps": Array [],
+      "_excludedEdges": Array [],
+      "_exclusive": Object {},
+      "_mutate": undefined,
+      "_nodes": Array [
+        "repeat",
+        "password",
+        "name",
+      ],
+      "_options": Object {
+        "abortEarly": true,
+        "recursive": true,
+      },
+      "_type": "object",
+      "_typeError": [Function],
+      "_whitelist": RefSet {
+        "list": Set {},
+        "refs": Map {},
+      },
+      "fields": Object {
+        "name": StringSchema {
+          "_blacklist": RefSet {
+            "list": Set {},
+            "refs": Map {},
+          },
+          "_conditions": Array [],
+          "_deps": Array [],
+          "_exclusive": Object {
+            "max": true,
+            "min": true,
+            "required": true,
+            "undefined": false,
+          },
+          "_mutate": undefined,
+          "_options": Object {
+            "abortEarly": true,
+            "recursive": true,
+          },
+          "_type": "string",
+          "_typeError": [Function],
+          "_whitelist": RefSet {
+            "list": Set {},
+            "refs": Map {},
+          },
+          "tests": Array [
+            [Function],
+            [Function],
+            [Function],
+            [Function],
+          ],
+          "transforms": Array [
+            [Function],
+          ],
+        },
+        "password": StringSchema {
+          "_blacklist": RefSet {
+            "list": Set {},
+            "refs": Map {},
+          },
+          "_conditions": Array [],
+          "_deps": Array [],
+          "_exclusive": Object {
+            "min": true,
+            "required": true,
+          },
+          "_mutate": undefined,
+          "_options": Object {
+            "abortEarly": true,
+            "recursive": true,
+          },
+          "_type": "string",
+          "_typeError": [Function],
+          "_whitelist": RefSet {
+            "list": Set {},
+            "refs": Map {},
+          },
+          "tests": Array [
+            [Function],
+            [Function],
+          ],
+          "transforms": Array [
+            [Function],
+          ],
+        },
+        "repeat": StringSchema {
+          "_blacklist": RefSet {
+            "list": Set {},
+            "refs": Map {},
+          },
+          "_conditions": Array [],
+          "_deps": Array [],
+          "_exclusive": Object {
+            "min": true,
+            "required": true,
+          },
+          "_mutate": undefined,
+          "_options": Object {
+            "abortEarly": true,
+            "recursive": true,
+          },
+          "_type": "string",
+          "_typeError": [Function],
+          "_whitelist": RefSet {
+            "list": Set {},
+            "refs": Map {},
+          },
+          "tests": Array [
+            [Function],
+            [Function],
+          ],
+          "transforms": Array [
+            [Function],
+          ],
+        },
+      },
+      "tests": Array [],
+      "transforms": Array [
+        [Function],
+      ],
+    }
+  }
 >
-  <WithStyles(FormControl)
-    required={true}
-  >
-    <React.Memo
-      handleSetPassword={[MockFunction]}
-      handleTogglePassword={[MockFunction]}
-      label="Password"
-      password="test password"
-      passwordVisible={false}
-    />
-    <React.Memo
-      error={false}
-      handleSetPassword={[MockFunction]}
-      handleTogglePassword={[MockFunction]}
-      label="Repeat password"
-      password="test password"
-      passwordVisible={false}
-    />
-    <WithStyles(Button)
-      className="submit-mock"
-      color="primary"
-      disabled={false}
-      fullWidth={true}
-      margin="normal"
-      onClick={[MockFunction]}
-      size="large"
-      variant="contained"
-    >
-      Submit
-    </WithStyles(Button)>
-  </WithStyles(FormControl)>
-</div>
+  <Component />
+</Formik>
 `;
 
-exports[`VaultCreator renders custom styles 1`] = `
-<div
-  className="wrapper-class"
->
-  <WithStyles(FormControl)
-    required={true}
-  >
-    <React.Memo
-      handleSetPassword={[MockFunction]}
-      handleTogglePassword={[MockFunction]}
-      label="Password"
-      password="test password"
-      passwordVisible={false}
-    />
-    <React.Memo
-      error={false}
-      handleSetPassword={[MockFunction]}
-      handleTogglePassword={[MockFunction]}
-      label="Repeat password"
-      password="test password"
-      passwordVisible={false}
-    />
-    <WithStyles(Button)
-      className="submit-mock button-class"
-      color="primary"
-      disabled={false}
-      fullWidth={true}
-      margin="normal"
-      onClick={[MockFunction]}
-      size="large"
-      variant="contained"
-    >
-      Submit
-    </WithStyles(Button)>
-  </WithStyles(FormControl)>
-</div>
+exports[`VaultCreator repeat and password are the same 1`] = `
+Object {
+  "repeat": "Doesn't match password.",
+}
 `;
 
-exports[`VaultCreator renders disabled when different password 1`] = `
-<div
-  className=""
->
-  <WithStyles(FormControl)
-    required={true}
-  >
-    <React.Memo
-      handleSetPassword={[MockFunction]}
-      handleTogglePassword={[MockFunction]}
-      label="Password"
-      password="test password"
-      passwordVisible={false}
-    />
-    <React.Memo
-      error={true}
-      handleSetPassword={[MockFunction]}
-      handleTogglePassword={[MockFunction]}
-      label="Repeat password"
-      password="test repeat"
-      passwordVisible={false}
-    />
-    <WithStyles(Button)
-      className="submit-mock"
-      color="primary"
-      disabled={true}
-      fullWidth={true}
-      margin="normal"
-      onClick={[MockFunction]}
-      size="large"
-      variant="contained"
-    >
-      Submit
-    </WithStyles(Button)>
-  </WithStyles(FormControl)>
-</div>
-`;
+exports[`VaultCreator repeat is longer than 6 characters 1`] = `[ValidationError: Should contain at least 6 characters]`;
 
-exports[`VaultCreator renders with visible passwords 1`] = `
-<div
-  className=""
->
-  <WithStyles(FormControl)
-    required={true}
-  >
-    <React.Memo
-      handleSetPassword={[MockFunction]}
-      handleTogglePassword={[MockFunction]}
-      label="Password"
-      password="test password"
-      passwordVisible={true}
-    />
-    <React.Memo
-      error={false}
-      handleSetPassword={[MockFunction]}
-      handleTogglePassword={[MockFunction]}
-      label="Repeat password"
-      password="test password"
-      passwordVisible={true}
-    />
-    <WithStyles(Button)
-      className="submit-mock"
-      color="primary"
-      disabled={false}
-      fullWidth={true}
-      margin="normal"
-      onClick={[MockFunction]}
-      size="large"
-      variant="contained"
-    >
-      Submit
-    </WithStyles(Button)>
-  </WithStyles(FormControl)>
-</div>
-`;
+exports[`VaultCreator repeat is present 1`] = `[ValidationError: Required]`;
+
+exports[`VaultCreator validates contains only alphanumeric characters and underscore 1`] = `[ValidationError: Should only contain alphanumeric characters and underscore.]`;
+
+exports[`VaultCreator validates is present 1`] = `[ValidationError: Required]`;
+
+exports[`VaultCreator validates name is longer than 2 characters 1`] = `[ValidationError: Should contain at least 3 characters]`;
+
+exports[`VaultCreator validates name is shorter than 21 characters 1`] = `[ValidationError: Should contain no more than 20 characters]`;
