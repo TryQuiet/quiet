@@ -5,10 +5,10 @@ module.exports = function (config, testPageUrl) {
 
     Module._load = function (...args) {
         if (args[2]) {
-            if (config.appPath)
-                args[0] = config.appPath;
+            if (config.appEntryPoint)
+                args[0] = config.appEntryPoint;
             else
-                config.appPath = require.resolve(args[0]);
+                config.appEntryPoint = require.resolve(args[0]);
 
             var installElectronMocks = require('./electron-mocks');
 

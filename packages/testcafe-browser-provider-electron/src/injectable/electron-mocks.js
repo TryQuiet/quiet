@@ -2,7 +2,6 @@ import { Client } from '../ipc';
 import resolveFileUrl from '../utils/resolve-file-url';
 import CONSTANTS from '../constants';
 
-
 const URL_QUERY_RE      = /\?.*$/;
 const NAVIGATION_EVENTS = ['will-navigate', 'did-navigate'];
 
@@ -57,24 +56,29 @@ module.exports = function install (config, testPageUrl) {
 
     ipc.connect();
 
-    var { BrowserWindow, Menu, dialog } = require('electron');
+    var { Menu, dialog, app } = require('electron');
 
     var { WebContents } = process.atomBinding('web_contents');
 
-    var origLoadURL = BrowserWindow.prototype.loadURL;
+    var origLoadURL = WebContents.prototype.loadURL;
 
+    var origGetAppPath = app.getAppPath;
 
     function stripQuery (url) {
         return url.replace(URL_QUERY_RE, '');
     }
 
-    BrowserWindow.prototype.loadURL = function (url) {
+    function isFileProtocol (url) {
+        return url.indexOf('file:') === 0;
+    }
+
+    WebContents.prototype.loadURL = function (url, options) {
         startLoadingTimeout(config.mainWindowUrl);
 
-        var testUrl = stripQuery(url);
+        let testUrl = stripQuery(url);
 
-        if (url.indexOf('file:') === 0)
-            testUrl = resolveFileUrl(config.appPath, testUrl);
+        if (isFileProtocol(url))
+            testUrl = resolveFileUrl(config.appEntryPoint, testUrl);
 
         openedUrls.push(testUrl);
 
@@ -83,17 +87,21 @@ module.exports = function install (config, testPageUrl) {
 
             ipc.sendInjectingStatus({ completed: true });
 
-            BrowserWindow.prototype.loadURL = origLoadURL;
+            WebContents.prototype.loadURL = origLoadURL;
 
             url = testPageUrl;
 
             windowHandler.window = this;
 
             if (config.openDevTools)
-                this.webContents.openDevTools();
+                this.openDevTools();
         }
 
-        return origLoadURL.call(this, url);
+        return origLoadURL.call(this, url, options);
+    };
+
+    app.getAppPath = function () {
+        return config.appPath || origGetAppPath.call(this);
     };
 
     Menu.prototype.popup = function () {

@@ -20,7 +20,7 @@ export default function (id, mainPath) {
         if (!isAbsolute(config.appPath))
             config.appPath = path.resolve(mainDir, config.appPath);
 
-        config.appPath = require.resolve(config.appPath);
+        config.appEntryPoint = require.resolve(config.appPath);
     }
 
     if (config.electronPath) {
