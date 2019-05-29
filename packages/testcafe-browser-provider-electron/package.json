@@ -12,7 +12,8 @@
   "files": [
     "lib",
     "utils",
-    "templates"
+    "templates",
+    "ts-defs"
   ],
   "scripts": {
     "test": "gulp test",
