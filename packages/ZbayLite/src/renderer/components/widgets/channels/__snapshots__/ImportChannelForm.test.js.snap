@@ -37,7 +37,7 @@ exports[`ImportChannelForm renders component 1`] = `
         variant="outlined"
       />
     </WithStyles(Grid)>
-    <React.Memo
+    <Memo(WithStyles(ProgressFab))
       className="fab-mock"
       disabled={false}
       label="Unlock"
@@ -46,7 +46,7 @@ exports[`ImportChannelForm renders component 1`] = `
       success={false}
     >
       <pure(VpnKeyIcon) />
-    </React.Memo>
+    </Memo(WithStyles(ProgressFab))>
   </WithStyles(Grid)>
 </WithStyles(Grid)>
 `;
@@ -90,7 +90,7 @@ exports[`ImportChannelForm renders decoding 1`] = `
         variant="outlined"
       />
     </WithStyles(Grid)>
-    <React.Memo
+    <Memo(WithStyles(ProgressFab))
       className="fab-mock"
       disabled={false}
       label="Unlock"
@@ -99,7 +99,7 @@ exports[`ImportChannelForm renders decoding 1`] = `
       success={false}
     >
       <pure(VpnKeyIcon) />
-    </React.Memo>
+    </Memo(WithStyles(ProgressFab))>
   </WithStyles(Grid)>
 </WithStyles(Grid)>
 `;

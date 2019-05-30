@@ -36,7 +36,6 @@ const styles = theme => ({
   },
   bottom: {
     top: 0,
-    left: 0,
     marginTop: `-${constants.arrowSize}px`,
     '&::before': {
       borderWidth: `0 ${constants.arrowSize}px ${constants.arrowSize}px ${constants.arrowSize}px`,
@@ -45,7 +44,6 @@ const styles = theme => ({
   },
   top: {
     bottom: 0,
-    left: 0,
     marginBottom: `-${2 * constants.arrowSize}px`,
     '&::before': {
       borderWidth: `${constants.arrowSize}px ${constants.arrowSize}px 0 ${constants.arrowSize}px`,
@@ -109,7 +107,7 @@ PopupMenu.propTypes = {
   anchorEl: PropTypes.oneOfType([
     PropTypes.func,
     PropTypes.shape({ current: PropTypes.instanceOf(React.Element) })
-  ]).isRequired,
+  ]),
   classes: PropTypes.object.isRequired,
   className: PropTypes.string,
   offset: PropTypes.oneOfType([

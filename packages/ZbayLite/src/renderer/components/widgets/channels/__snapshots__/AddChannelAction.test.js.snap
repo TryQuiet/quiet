@@ -13,16 +13,16 @@ exports[`BaseChannelsList renders component 1`] = `
     }
     offset="0 8"
   >
-    <React.Memo
+    <Memo(WithStyles(MenuActionItem))
       onClick={[Function]}
       title="Import"
     />
-    <React.Memo
+    <Memo(WithStyles(MenuActionItem))
       title="Create"
     />
   </WithStyles(MenuAction)>
   <withModal(Component) />
-  <React.Memo
+  <Memo(ImportChannelModal)
     handleClose={[Function]}
     open={false}
   />

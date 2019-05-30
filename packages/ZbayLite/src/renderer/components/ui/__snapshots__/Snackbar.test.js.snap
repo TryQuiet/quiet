@@ -22,7 +22,7 @@ exports[`Snackbar renders closed 1`] = `
   onClose={[MockFunction]}
   open={false}
 >
-  <React.Memo
+  <Memo(WithStyles(SnackbarContent))
     fullWidth={false}
     message="test snackbar"
     onClose={[MockFunction]}
@@ -53,7 +53,7 @@ exports[`Snackbar renders error 1`] = `
   onClose={[MockFunction]}
   open={true}
 >
-  <React.Memo
+  <Memo(WithStyles(SnackbarContent))
     fullWidth={false}
     message="test snackbar"
     onClose={[MockFunction]}
@@ -84,7 +84,7 @@ exports[`Snackbar renders full width for position [bottom, left] 1`] = `
   onClose={[MockFunction]}
   open={true}
 >
-  <React.Memo
+  <Memo(WithStyles(SnackbarContent))
     fullWidth={true}
     message="test snackbar"
     onClose={[MockFunction]}
@@ -115,7 +115,7 @@ exports[`Snackbar renders full width for position [top, left] 1`] = `
   onClose={[MockFunction]}
   open={true}
 >
-  <React.Memo
+  <Memo(WithStyles(SnackbarContent))
     fullWidth={true}
     message="test snackbar"
     onClose={[MockFunction]}
@@ -146,7 +146,7 @@ exports[`Snackbar renders full width for position [top, right] 1`] = `
   onClose={[MockFunction]}
   open={true}
 >
-  <React.Memo
+  <Memo(WithStyles(SnackbarContent))
     fullWidth={true}
     message="test snackbar"
     onClose={[MockFunction]}
@@ -177,7 +177,7 @@ exports[`Snackbar renders full width for position [top, right] 2`] = `
   onClose={[MockFunction]}
   open={true}
 >
-  <React.Memo
+  <Memo(WithStyles(SnackbarContent))
     fullWidth={true}
     message="test snackbar"
     onClose={[MockFunction]}
@@ -208,7 +208,7 @@ exports[`Snackbar renders info 1`] = `
   onClose={[MockFunction]}
   open={true}
 >
-  <React.Memo
+  <Memo(WithStyles(SnackbarContent))
     fullWidth={false}
     message="test snackbar"
     onClose={[MockFunction]}
@@ -239,7 +239,7 @@ exports[`Snackbar renders loading 1`] = `
   onClose={[MockFunction]}
   open={true}
 >
-  <React.Memo
+  <Memo(WithStyles(SnackbarContent))
     fullWidth={false}
     message="test snackbar"
     onClose={[MockFunction]}
@@ -270,7 +270,7 @@ exports[`Snackbar renders success 1`] = `
   onClose={[MockFunction]}
   open={true}
 >
-  <React.Memo
+  <Memo(WithStyles(SnackbarContent))
     fullWidth={false}
     message="test snackbar"
     onClose={[MockFunction]}
@@ -301,7 +301,7 @@ exports[`Snackbar renders warning 1`] = `
   onClose={[MockFunction]}
   open={true}
 >
-  <React.Memo
+  <Memo(WithStyles(SnackbarContent))
     fullWidth={false}
     message="test snackbar"
     onClose={[MockFunction]}

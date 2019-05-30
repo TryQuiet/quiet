@@ -6,11 +6,11 @@ exports[`DirectMessagesPanel renders component 1`] = `
   direction="column"
   item={true}
 >
-  <React.Memo
+  <Memo(WithStyles(SidebarHeader))
     actions={Array []}
     title="Direct Messages"
   />
-  <React.Memo
+  <Memo(ItemSizedChannelsList)
     channels={
       Array [
         Object {

@@ -7,7 +7,6 @@ import Paper from '@material-ui/core/Paper'
 import VaultCreator from './VaultCreator'
 
 const finishSubmitting = decorate([args => {
-  console.log(args)
   args[1].setSubmitting(false)
   return args
 }])

@@ -21,10 +21,10 @@ const messageSchema = Joi.object().keys({
   message: Joi.string().required()
 })
 
-export const transferToMessage = async ({ txid, amount, memo }) => {
+export const transferToMessage = async ({ txid, amount, memo }, isTestnet) => {
   let message = null
   try {
-    message = await unpackMemo(memo)
+    message = await unpackMemo(memo, isTestnet)
   } catch (err) {
     console.warn(err)
     return null
@@ -62,8 +62,8 @@ export const messageToTransfer = async ({ message, channel, amount = '0.0001' })
   ]
 })
 
-export const transfersToMessages = async (transfers) => {
-  const msgs = await Promise.all(transfers.map(transferToMessage))
+export const transfersToMessages = async (transfers, owner, isTestnet) => {
+  const msgs = await Promise.all(transfers.map(t => transferToMessage(t, isTestnet)))
   return msgs.filter(x => x)
 }
 

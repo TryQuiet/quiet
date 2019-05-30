@@ -1,7 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Elipsis renders with custom size 1`] = `
-<React.Memo
+exports[`Elipsis disables if shorter than limit 1`] = `
+<Memo(WithStyles(Tooltip))
+  disableHoverListener={true}
   interactive={false}
   placement="bottom-start"
   title="this is a sample text"
@@ -10,14 +11,30 @@ exports[`Elipsis renders with custom size 1`] = `
     className="content-mock"
     variant="caption"
   >
-    this 
-    ...
+    this is a sample text
   </WithStyles(Typography)>
-</React.Memo>
+</Memo(WithStyles(Tooltip))>
+`;
+
+exports[`Elipsis renders with custom size 1`] = `
+<Memo(WithStyles(Tooltip))
+  disableHoverListener={false}
+  interactive={false}
+  placement="bottom-start"
+  title="this is a sample text"
+>
+  <WithStyles(Typography)
+    className="content-mock"
+    variant="caption"
+  >
+    this ...
+  </WithStyles(Typography)>
+</Memo(WithStyles(Tooltip))>
 `;
 
 exports[`Elipsis renders with placement bottom 1`] = `
-<React.Memo
+<Memo(WithStyles(Tooltip))
+  disableHoverListener={false}
   interactive={false}
   placement="bottom"
   title="this is a sample text"
@@ -26,14 +43,14 @@ exports[`Elipsis renders with placement bottom 1`] = `
     className="content-mock"
     variant="caption"
   >
-    this 
-    ...
+    this ...
   </WithStyles(Typography)>
-</React.Memo>
+</Memo(WithStyles(Tooltip))>
 `;
 
 exports[`Elipsis renders with placement bottom-end 1`] = `
-<React.Memo
+<Memo(WithStyles(Tooltip))
+  disableHoverListener={false}
   interactive={false}
   placement="bottom-end"
   title="this is a sample text"
@@ -42,14 +59,14 @@ exports[`Elipsis renders with placement bottom-end 1`] = `
     className="content-mock"
     variant="caption"
   >
-    this 
-    ...
+    this ...
   </WithStyles(Typography)>
-</React.Memo>
+</Memo(WithStyles(Tooltip))>
 `;
 
 exports[`Elipsis renders with placement bottom-start 1`] = `
-<React.Memo
+<Memo(WithStyles(Tooltip))
+  disableHoverListener={false}
   interactive={false}
   placement="bottom-start"
   title="this is a sample text"
@@ -58,8 +75,7 @@ exports[`Elipsis renders with placement bottom-start 1`] = `
     className="content-mock"
     variant="caption"
   >
-    this 
-    ...
+    this ...
   </WithStyles(Typography)>
-</React.Memo>
+</Memo(WithStyles(Tooltip))>
 `;

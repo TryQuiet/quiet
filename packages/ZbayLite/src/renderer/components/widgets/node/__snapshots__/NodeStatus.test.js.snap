@@ -7,7 +7,7 @@ exports[`NodeStatus renders for status down 1`] = `
   <WithStyles(Grid)
     item={true}
   >
-    <React.Memo
+    <Memo(WithStyles(PulseDot))
       color="down"
       size={8}
     />
@@ -30,7 +30,7 @@ exports[`NodeStatus renders for status healthy 1`] = `
   <WithStyles(Grid)
     item={true}
   >
-    <React.Memo
+    <Memo(WithStyles(PulseDot))
       color="healthy"
       size={8}
     />
@@ -53,7 +53,7 @@ exports[`NodeStatus renders for status restarting 1`] = `
   <WithStyles(Grid)
     item={true}
   >
-    <React.Memo
+    <Memo(WithStyles(PulseDot))
       color="restarting"
       size={8}
     />
@@ -76,7 +76,7 @@ exports[`NodeStatus renders for status syncing 1`] = `
   <WithStyles(Grid)
     item={true}
   >
-    <React.Memo
+    <Memo(WithStyles(PulseDot))
       color="syncing"
       size={8}
     />
@@ -99,7 +99,7 @@ exports[`NodeStatus renders sync progress in percent 1`] = `
   <WithStyles(Grid)
     item={true}
   >
-    <React.Memo
+    <Memo(WithStyles(PulseDot))
       color="syncing"
       size={8}
     />

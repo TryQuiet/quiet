@@ -1,14 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`CreateVault renders component 1`] = `
-<React.Memo>
-  <React.Memo
+<Memo(WithStyles(WindowWrapper))>
+  <Memo(WithStyles(Snackbar))
     fullWidth={true}
     message=""
     open={false}
     variant="loading"
   />
-  <React.Memo
+  <Memo(WithStyles(Snackbar))
     message=""
     onClose={[MockFunction]}
     open={false}
@@ -62,18 +62,18 @@ exports[`CreateVault renders component 1`] = `
       </WithStyles(Paper)>
     </WithStyles(Grid)>
   </WithStyles(Grid)>
-</React.Memo>
+</Memo(WithStyles(WindowWrapper))>
 `;
 
 exports[`CreateVault renders error 1`] = `
-<React.Memo>
-  <React.Memo
+<Memo(WithStyles(WindowWrapper))>
+  <Memo(WithStyles(Snackbar))
     fullWidth={true}
     message=""
     open={false}
     variant="loading"
   />
-  <React.Memo
+  <Memo(WithStyles(Snackbar))
     message="test error"
     onClose={[MockFunction]}
     open={true}
@@ -127,18 +127,18 @@ exports[`CreateVault renders error 1`] = `
       </WithStyles(Paper)>
     </WithStyles(Grid)>
   </WithStyles(Grid)>
-</React.Memo>
+</Memo(WithStyles(WindowWrapper))>
 `;
 
 exports[`CreateVault renders inProgress 1`] = `
-<React.Memo>
-  <React.Memo
+<Memo(WithStyles(WindowWrapper))>
+  <Memo(WithStyles(Snackbar))
     fullWidth={true}
     message="creating"
     open={true}
     variant="loading"
   />
-  <React.Memo
+  <Memo(WithStyles(Snackbar))
     message=""
     onClose={[MockFunction]}
     open={false}
@@ -192,5 +192,5 @@ exports[`CreateVault renders inProgress 1`] = `
       </WithStyles(Paper)>
     </WithStyles(Grid)>
   </WithStyles(Grid)>
-</React.Memo>
+</Memo(WithStyles(WindowWrapper))>
 `;

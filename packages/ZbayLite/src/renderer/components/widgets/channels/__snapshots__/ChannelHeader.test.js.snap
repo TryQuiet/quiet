@@ -34,16 +34,16 @@ exports[`ChannelHeader renders component 1`] = `
     <WithStyles(Grid)
       item={true}
     >
-      <React.Memo />
+      <Memo(WithStyles(SpentFilterAction)) />
     </WithStyles(Grid)>
     <WithStyles(Grid)
       item={true}
     >
-      <React.Memo
+      <Memo(WithStyles(IconButton))
         className="iconButton-mock"
       >
         <pure(SearchIcon) />
-      </React.Memo>
+      </Memo(WithStyles(IconButton))>
     </WithStyles(Grid)>
     <WithStyles(Grid)
       item={true}
@@ -88,16 +88,16 @@ exports[`ChannelHeader renders members when 0 1`] = `
     <WithStyles(Grid)
       item={true}
     >
-      <React.Memo />
+      <Memo(WithStyles(SpentFilterAction)) />
     </WithStyles(Grid)>
     <WithStyles(Grid)
       item={true}
     >
-      <React.Memo
+      <Memo(WithStyles(IconButton))
         className="iconButton-mock"
       >
         <pure(SearchIcon) />
-      </React.Memo>
+      </Memo(WithStyles(IconButton))>
     </WithStyles(Grid)>
     <WithStyles(Grid)
       item={true}
@@ -136,16 +136,16 @@ exports[`ChannelHeader renders without members count 1`] = `
     <WithStyles(Grid)
       item={true}
     >
-      <React.Memo />
+      <Memo(WithStyles(SpentFilterAction)) />
     </WithStyles(Grid)>
     <WithStyles(Grid)
       item={true}
     >
-      <React.Memo
+      <Memo(WithStyles(IconButton))
         className="iconButton-mock"
       >
         <pure(SearchIcon) />
-      </React.Memo>
+      </Memo(WithStyles(IconButton))>
     </WithStyles(Grid)>
     <WithStyles(Grid)
       item={true}

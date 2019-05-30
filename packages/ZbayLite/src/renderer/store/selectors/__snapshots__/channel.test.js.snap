@@ -11,7 +11,7 @@ Immutable.ChannelState {
       Immutable.Map {
         "id": 0,
         "type": 1,
-        "createdAt": 0,
+        "createdAt": 1551963828,
         "message": "This is some message 0",
         "spent": "23.23",
         "sender": Immutable.Map {
@@ -21,7 +21,7 @@ Immutable.ChannelState {
       Immutable.Map {
         "id": 1,
         "type": 1,
-        "createdAt": 1,
+        "createdAt": 1551956628,
         "message": "This is some message 1",
         "spent": "23.23",
         "sender": Immutable.Map {
@@ -31,7 +31,7 @@ Immutable.ChannelState {
       Immutable.Map {
         "id": 2,
         "type": 1,
-        "createdAt": 2,
+        "createdAt": 1551949428,
         "message": "This is some message 2",
         "spent": "23.23",
         "sender": Immutable.Map {
@@ -41,7 +41,7 @@ Immutable.ChannelState {
       Immutable.Map {
         "id": 3,
         "type": 1,
-        "createdAt": 3,
+        "createdAt": 1551942228,
         "message": "This is some message 3",
         "spent": "23.23",
         "sender": Immutable.Map {
@@ -50,7 +50,6 @@ Immutable.ChannelState {
       },
     ],
     "errors": "",
-    "page": 1,
   },
   "members": "0",
 }
@@ -76,46 +75,115 @@ exports[`Channel selector message selector 1`] = `"Message written in the input"
 exports[`Channel selector messages selector 1`] = `
 Immutable.List [
   Immutable.Map {
-    "id": 0,
-    "type": 1,
-    "createdAt": 0,
-    "message": "This is some message 0",
-    "spent": "23.23",
-    "sender": Immutable.Map {
-      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-    },
-  },
-  Immutable.Map {
-    "id": 1,
-    "type": 1,
-    "createdAt": 1,
-    "message": "This is some message 1",
-    "spent": "23.23",
-    "sender": Immutable.Map {
-      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-    },
-  },
-  Immutable.Map {
-    "id": 2,
-    "type": 1,
-    "createdAt": 2,
-    "message": "This is some message 2",
-    "spent": "23.23",
-    "sender": Immutable.Map {
-      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-    },
-  },
-  Immutable.Map {
     "id": 3,
     "type": 1,
-    "createdAt": 3,
+    "createdAt": 1551942228,
     "message": "This is some message 3",
     "spent": "23.23",
     "sender": Immutable.Map {
       "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
     },
+    "fromYou": false,
+  },
+  Immutable.Map {
+    "message": "This is some message test-message-id-3",
+    "error": null,
+    "spent": "23.23",
+    "status": "success",
+    "fromYou": false,
+    "sender": Immutable.Map {
+      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+    },
+    "type": 1,
+    "id": "test-operation-id-3",
+    "createdAt": 1551945828,
+  },
+  Immutable.Map {
+    "id": 2,
+    "type": 1,
+    "createdAt": 1551949428,
+    "message": "This is some message 2",
+    "spent": "23.23",
+    "sender": Immutable.Map {
+      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+    },
+    "fromYou": false,
+  },
+  Immutable.Map {
+    "id": 1,
+    "type": 1,
+    "createdAt": 1551956628,
+    "message": "This is some message 1",
+    "spent": "23.23",
+    "sender": Immutable.Map {
+      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+    },
+    "fromYou": false,
+  },
+  Immutable.Map {
+    "message": "This is some message test-message-id",
+    "error": null,
+    "spent": "23.23",
+    "status": "success",
+    "fromYou": false,
+    "sender": Immutable.Map {
+      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+    },
+    "type": 1,
+    "id": "test-operation-id",
+    "createdAt": 1551960228,
+  },
+  Immutable.Map {
+    "id": 0,
+    "type": 1,
+    "createdAt": 1551963828,
+    "message": "This is some message 0",
+    "spent": "23.23",
+    "sender": Immutable.Map {
+      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+    },
+    "fromYou": false,
   },
 ]
+`;
+
+exports[`Channel selector pendingMessages 1`] = `
+Immutable.Map {
+  "test-operation-id": Immutable.PendingMessage {
+    "opId": "test-operation-id",
+    "channelId": "this-is-a-test-id",
+    "txId": "transaction-id",
+    "error": null,
+    "message": Immutable.Map {
+      "id": "test-message-id",
+      "type": 1,
+      "createdAt": 1551960228,
+      "message": "This is some message test-message-id",
+      "spent": "23.23",
+      "sender": Immutable.Map {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      },
+    },
+    "status": "success",
+  },
+  "test-operation-id-3": Immutable.PendingMessage {
+    "opId": "test-operation-id-3",
+    "channelId": "this-is-a-test-id",
+    "txId": "transaction-id-3",
+    "error": null,
+    "message": Immutable.Map {
+      "id": "test-message-id-3",
+      "type": 1,
+      "createdAt": 1551945828,
+      "message": "This is some message test-message-id-3",
+      "spent": "23.23",
+      "sender": Immutable.Map {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      },
+    },
+    "status": "success",
+  },
+}
 `;
 
 exports[`Channel selector spent filter value selector 1`] = `38`;

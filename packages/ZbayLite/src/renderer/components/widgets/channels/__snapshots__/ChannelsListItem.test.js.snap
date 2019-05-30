@@ -104,8 +104,14 @@ exports[`ChannelsListItem renders component with address 1`] = `
       </WithStyles(Badge)>
     }
     secondary={
-      <UNDEFINED
+      <Elipsis
+        classes={
+          Object {
+            "content": "",
+          }
+        }
         content="zs1testaddress1"
+        interactive={false}
         length={30}
         tooltipPlacement="bottom"
       />

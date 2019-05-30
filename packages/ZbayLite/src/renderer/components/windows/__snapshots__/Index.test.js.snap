@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Index renders component 1`] = `
-<React.Memo
+<Memo(WithStyles(WindowWrapper))
   className="root-mock"
 >
   <WithStyles(Card)
@@ -29,11 +29,11 @@ exports[`Index renders component 1`] = `
       </WithStyles(CardContent)>
     </WithStyles(Grid)>
   </WithStyles(Card)>
-</React.Memo>
+</Memo(WithStyles(WindowWrapper))>
 `;
 
 exports[`Index renders doesn't exists 1`] = `
-<React.Memo
+<Memo(WithStyles(WindowWrapper))
   className="root-mock"
 >
   <WithStyles(Card)
@@ -61,11 +61,11 @@ exports[`Index renders doesn't exists 1`] = `
       </WithStyles(CardContent)>
     </WithStyles(Grid)>
   </WithStyles(Card)>
-</React.Memo>
+</Memo(WithStyles(WindowWrapper))>
 `;
 
 exports[`Index renders locked 1`] = `
-<React.Memo
+<Memo(WithStyles(WindowWrapper))
   className="root-mock"
 >
   <WithStyles(Card)
@@ -93,11 +93,11 @@ exports[`Index renders locked 1`] = `
       </WithStyles(CardContent)>
     </WithStyles(Grid)>
   </WithStyles(Card)>
-</React.Memo>
+</Memo(WithStyles(WindowWrapper))>
 `;
 
 exports[`Index renders unlocked 1`] = `
-<React.Memo
+<Memo(WithStyles(WindowWrapper))
   className="root-mock"
 >
   <WithStyles(Card)
@@ -125,5 +125,5 @@ exports[`Index renders unlocked 1`] = `
       </WithStyles(CardContent)>
     </WithStyles(Grid)>
   </WithStyles(Card)>
-</React.Memo>
+</Memo(WithStyles(WindowWrapper))>
 `;

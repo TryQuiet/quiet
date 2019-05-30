@@ -27,4 +27,11 @@ describe('Elipsis', () => {
     )
     expect(result).toMatchSnapshot()
   })
+
+  it('disables if shorter than limit', () => {
+    const result = shallow(
+      <Elipsis classes={mockClasses} content={'this is a sample text'} length={50} />
+    )
+    expect(result).toMatchSnapshot()
+  })
 })

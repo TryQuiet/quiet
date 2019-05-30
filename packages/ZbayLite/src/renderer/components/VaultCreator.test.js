@@ -51,11 +51,10 @@ describe('VaultCreator', () => {
       it('is shorter than 21 characters', async () => {
         expect.assertions(1)
         try {
-          const res = await formSchema.validate({
+          await formSchema.validate({
             ...validValues,
             name: 'ThisNameIsWaaaaaaaayTooLong'
           })
-          console.log(res)
         } catch (err) {
           expect(err).toMatchSnapshot()
         }

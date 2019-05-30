@@ -24,7 +24,7 @@ Object {
 `;
 
 exports[`ImportedChannelForm will render component 1`] = `
-<React.Memo
+<Memo(WithStyles(ImportChannelForm))
   decoded={true}
   decoding={false}
   enqueueSnackbar={[Function]}

@@ -87,7 +87,7 @@ describe('marshalling', () => {
     })
   })
 
-  describe('credentialsToWorkspace', async () => {
+  describe('credentialsToWorkspace', () => {
     it('creates new archive', async () => {
       const sourceCredentials = new Credentials()
       sourceCredentials.getValueOrFail.mockImplementationOnce((key) => key === 'datasource' && datasourceObj)

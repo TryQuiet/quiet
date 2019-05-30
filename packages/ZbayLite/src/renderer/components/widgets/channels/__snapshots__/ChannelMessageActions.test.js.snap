@@ -1,0 +1,137 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChannelMessageActions renders component with status=broadcasted and fromYou=false 1`] = `
+<WithStyles(Grid)
+  alignItems="center"
+  container={true}
+  direction="row"
+  justify="flex-end"
+/>
+`;
+
+exports[`ChannelMessageActions renders component with status=broadcasted and fromYou=true 1`] = `
+<WithStyles(Grid)
+  alignItems="center"
+  container={true}
+  direction="row"
+  justify="flex-end"
+/>
+`;
+
+exports[`ChannelMessageActions renders component with status=cancelled and fromYou=false 1`] = `
+<WithStyles(Grid)
+  alignItems="center"
+  container={true}
+  direction="row"
+  justify="flex-end"
+/>
+`;
+
+exports[`ChannelMessageActions renders component with status=cancelled and fromYou=true 1`] = `
+<WithStyles(Grid)
+  alignItems="center"
+  container={true}
+  direction="row"
+  justify="flex-end"
+>
+  <WithStyles(Grid)
+    item={true}
+  >
+    <WithStyles(Button)
+      color="primary"
+      onClick={[MockFunction]}
+      size="small"
+    >
+      resend
+    </WithStyles(Button)>
+  </WithStyles(Grid)>
+  <WithStyles(Grid)
+    item={true}
+  >
+    <WithStyles(Button)
+      color="primary"
+      onClick={[MockFunction]}
+      size="small"
+    >
+      cancel
+    </WithStyles(Button)>
+  </WithStyles(Grid)>
+</WithStyles(Grid)>
+`;
+
+exports[`ChannelMessageActions renders component with status=failed and fromYou=false 1`] = `
+<WithStyles(Grid)
+  alignItems="center"
+  container={true}
+  direction="row"
+  justify="flex-end"
+/>
+`;
+
+exports[`ChannelMessageActions renders component with status=failed and fromYou=true 1`] = `
+<WithStyles(Grid)
+  alignItems="center"
+  container={true}
+  direction="row"
+  justify="flex-end"
+>
+  <WithStyles(Grid)
+    item={true}
+  >
+    <WithStyles(Button)
+      color="primary"
+      onClick={[MockFunction]}
+      size="small"
+    >
+      resend
+    </WithStyles(Button)>
+  </WithStyles(Grid)>
+  <WithStyles(Grid)
+    item={true}
+  >
+    <WithStyles(Button)
+      color="primary"
+      onClick={[MockFunction]}
+      size="small"
+    >
+      cancel
+    </WithStyles(Button)>
+  </WithStyles(Grid)>
+</WithStyles(Grid)>
+`;
+
+exports[`ChannelMessageActions renders component with status=pending and fromYou=false 1`] = `
+<WithStyles(Grid)
+  alignItems="center"
+  container={true}
+  direction="row"
+  justify="flex-end"
+/>
+`;
+
+exports[`ChannelMessageActions renders component with status=pending and fromYou=true 1`] = `
+<WithStyles(Grid)
+  alignItems="center"
+  container={true}
+  direction="row"
+  justify="flex-end"
+/>
+`;
+
+exports[`ChannelMessageActions renders component with status=success and fromYou=false 1`] = `
+<WithStyles(Grid)
+  alignItems="center"
+  container={true}
+  direction="row"
+  justify="flex-end"
+/>
+`;
+
+exports[`ChannelMessageActions renders component with status=success and fromYou=true 1`] = `
+<WithStyles(Grid)
+  alignItems="center"
+  container={true}
+  direction="row"
+  justify="flex-end"
+/>
+`;

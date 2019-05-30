@@ -7,15 +7,16 @@ import pendingMessagesHandlers from './pendingMessages'
 import notificationsHandlers from './notifications'
 import channelSelectors from '../selectors/channel'
 import identitySelectors from '../selectors/identity'
+import nodeSelectors from '../selectors/node'
+import pendingMessagesSelectors from '../selectors/pendingMessages'
 import { getClient } from '../../zcash'
 import { messages } from '../../zbay'
-import { typeFulfilled, typeRejected, typePending, errorNotification } from './utils'
+import { errorNotification } from './utils'
 
 export const MessagesState = Immutable.Record({
   loading: false,
   data: Immutable.List(),
-  errors: '',
-  page: 1
+  errors: ''
 })
 
 export const ChannelState = Immutable.Record({
@@ -31,33 +32,42 @@ export const initialState = ChannelState()
 const setSpentFilterValue = createAction('SET_SPENT_FILTER_VALUE', (_, value) => value)
 const setMessage = createAction('SET_CHANNEL_MESSAGE', R.path(['target', 'value']))
 const setChannelId = createAction('SET_CHANNEL_ID')
-const loadMessages = createAction(
-  'LOAD_CHANNEL_MESSAGES',
-  async (channelAddress, page = 1) => {
-    const transfers = await getClient().payment.received(channelAddress)
-    const received = await messages.transfersToMessages(transfers)
-    return {
-      messages: R.sortBy(R.prop('createdAt'), received),
-      page
-    }
-  }
-)
+const setMessages = createAction('SET_CHANNEL_MESSAGES')
 
 export const actions = {
   setSpentFilterValue,
   setMessage,
-  setChannelId,
-  loadMessages
+  setChannelId
 }
 
-const loadMessagesEpic = () => async (dispatch, getState) => {
+const loadMessages = () => async (dispatch, getState) => {
   const channel = channelSelectors.data(getState())
-  await dispatch(loadMessages(channel.get('address')))
+  const isTestnet = nodeSelectors.node(getState()).isTestnet
+  const transfers = await getClient().payment.received(channel.get('address'))
+
+  const pendingMessages = pendingMessagesSelectors.pendingMessages(getState())
+
+  const msgs = await Promise.all(transfers.map(
+    async (transfer) => {
+      const message = await messages.transferToMessage(transfer, isTestnet)
+
+      const pendingMessage = pendingMessages.find(
+        pm => pm.txId && pm.txId === message.id)
+      if (pendingMessage) {
+        dispatch(
+          pendingMessagesHandlers.actions.removeMessage(pendingMessage.opId)
+        )
+      }
+      return message
+    }
+  ))
+
+  dispatch(setMessages(msgs))
 }
 
 const loadChannel = (id) => async (dispatch, getState) => {
   dispatch(setChannelId(id))
-  await dispatch(loadMessagesEpic())
+  await dispatch(loadMessages())
 }
 
 const sendOnEnter = (event) => async (dispatch, getState) => {
@@ -95,29 +105,45 @@ const sendOnEnter = (event) => async (dispatch, getState) => {
   }
 }
 
+const resendMessage = (message) => async (dispatch, getState) => {
+  dispatch(pendingMessagesHandlers.actions.removeMessage(message.id))
+  const channel = channelSelectors.data(getState()).toJS()
+  const transfer = await messages.messageToTransfer({
+    message,
+    channel
+  })
+  try {
+    const opId = await getClient().payment.send(transfer)
+    await dispatch(pendingMessagesHandlers.epics.observeMessage({
+      opId,
+      channelId: channel.id,
+      message
+    }))
+  } catch (err) {
+    notificationsHandlers.actions.enqueueSnackbar(
+      errorNotification({
+        message: 'Couldn\'t send the message, please check node connection.'
+      })
+    )
+  }
+}
+
 export const epics = {
   sendOnEnter,
   loadChannel,
-  loadMessages: loadMessagesEpic
+  resendMessage,
+  loadMessages
 }
 
 export const reducer = handleActions({
   [setSpentFilterValue]: (state, { payload: value }) => state.set('spentFilterValue', new BigNumber(value)),
   [setMessage]: (state, { payload: value }) => state.set('message', value),
   [setChannelId]: (state, { payload: id }) => state.set('id', id),
-
-  [typeFulfilled(loadMessages)]: (state, { payload: { messages, page } }) => state.update(
+  [setMessages]: (state, { payload: messages }) => state.update(
     'messages',
     msgMeta => msgMeta
       .set('data', Immutable.fromJS(messages))
-      .set('page', page)
       .set('loading', false)
-  ),
-  [typePending(loadMessages)]: (state) => state.update('messages', msgs => msgs.set('loading', true)),
-  [typeRejected(loadMessages)]: (state, { payload: error }) => state.update(
-    'messages',
-    msgs => msgs.set('loading', true)
-      .set('errors', error.message)
   )
 }, initialState)
 

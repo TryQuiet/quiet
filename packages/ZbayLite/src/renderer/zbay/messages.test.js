@@ -30,6 +30,19 @@ describe('messages -', () => {
       expect(received).toEqual(expected)
     })
 
+    it('when on testnet', async () => {
+      const message = R.omit(['id', 'spent'], createMessage(txid))
+      const transfer = createTransfer({
+        txid,
+        memo: await packMemo(message),
+        amount: spent
+      })
+
+      const received = await transferToMessage(transfer, true)
+
+      expect(received).toMatchSnapshot()
+    })
+
     it('when memo isn\'t compressed string', async () => {
       jest.spyOn(console, 'warn').mockImplementation()
       const transfer = createTransfer({

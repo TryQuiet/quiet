@@ -1,13 +1,22 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import * as R from 'ramda'
 
 import Tooltip from './Tooltip'
 import Typography from '@material-ui/core/Typography'
 
 export const Elipsis = ({ classes, content, tooltipPlacement, length, interactive }) => (
-  <Tooltip title={content} interactive={interactive} placement={tooltipPlacement}>
+  <Tooltip
+    title={content}
+    interactive={interactive}
+    placement={tooltipPlacement}
+    disableHoverListener={content.length < length}
+  >
     <Typography variant='caption' className={classes.content}>
-      {content.substring(0, length)}...
+      {R.concat(
+        content.substring(0, length),
+        content.length > length ? '...' : ''
+      )}
     </Typography>
   </Tooltip>
 )
@@ -29,4 +38,4 @@ Elipsis.defaultProps = {
   length: 40
 }
 
-export default React.memo(Elipsis)
+export default Elipsis

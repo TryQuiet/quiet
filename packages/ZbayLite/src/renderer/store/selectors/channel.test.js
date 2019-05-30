@@ -5,11 +5,11 @@ import BigNumber from 'bignumber.js'
 import * as R from 'ramda'
 
 import channelSelectors from './channel'
-
+import { PendingMessage } from '../handlers/pendingMessages'
 import create from '../create'
 import { ChannelState, MessagesState } from '../handlers/channel'
 import { ChannelsState } from '../handlers/channels'
-import { createMessage, createChannel } from '../../testUtils'
+import { createMessage, createChannel, now } from '../../testUtils'
 
 describe('Channel selector', () => {
   const channelId = 'this-is-a-test-id'
@@ -25,11 +25,46 @@ describe('Channel selector', () => {
           members: new BigNumber(0),
           message: 'Message written in the input',
           messages: MessagesState({
-            data: Immutable.fromJS(R.range(0, 4).map(createMessage))
+            data: Immutable.fromJS(
+              R.range(0, 4)
+                .map(i => createMessage(i, now.minus({ hours: 2 * i }).toSeconds()))
+            )
           })
         }),
         channels: ChannelsState({
           data: Immutable.fromJS([createChannel(channelId)])
+        }),
+        pendingMessages: Immutable.fromJS({
+          'test-operation-id': PendingMessage({
+            opId: 'test-operation-id',
+            channelId,
+            txId: 'transaction-id',
+            message: Immutable.fromJS(createMessage(
+              'test-message-id',
+              now.minus({ hours: 1 }).toSeconds()
+            )),
+            status: 'success'
+          }),
+          'test-operation-id-2': PendingMessage({
+            opId: 'test-operation-id-2',
+            channelId: `not-${channelId}`,
+            txId: 'transaction-id-2',
+            message: Immutable.fromJS(createMessage(
+              'test-message-id-2',
+              now.minus({ hours: 3 }).toSeconds()
+            )),
+            status: 'success'
+          }),
+          'test-operation-id-3': PendingMessage({
+            opId: 'test-operation-id-3',
+            channelId,
+            txId: 'transaction-id-3',
+            message: Immutable.fromJS(createMessage(
+              'test-message-id-3',
+              now.minus({ hours: 5 }).toSeconds()
+            )),
+            status: 'success'
+          })
         })
       })
     })
@@ -53,5 +88,9 @@ describe('Channel selector', () => {
 
   it('data selector', async () => {
     expect(channelSelectors.data(store.getState())).toMatchSnapshot()
+  })
+
+  it('pendingMessages', () => {
+    expect(channelSelectors.pendingMessages(store.getState())).toMatchSnapshot()
   })
 })

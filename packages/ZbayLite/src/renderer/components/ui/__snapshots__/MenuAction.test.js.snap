@@ -17,7 +17,7 @@ exports[`MenuAction renders component 1`] = `
       fontSize="inherit"
     />
   </WithStyles(IconButton)>
-  <React.Memo
+  <Memo(WithStyles(PopupMenu))
     anchorEl={
       Object {
         "current": null,
@@ -29,16 +29,16 @@ exports[`MenuAction renders component 1`] = `
       className="menuList-mock"
       disableListWrap={false}
     >
-      <React.Memo
+      <Memo(WithStyles(MenuActionItem))
         onClick={[MockFunction]}
         title="test"
       />
-      <React.Memo
+      <Memo(WithStyles(MenuActionItem))
         onClick={[MockFunction]}
         title="test 2"
       />
     </MenuList>
-  </React.Memo>
+  </Memo(WithStyles(PopupMenu))>
 </ClickAwayListener>
 `;
 
@@ -59,7 +59,7 @@ exports[`MenuAction renders with optional props 1`] = `
       fontSize="inherit"
     />
   </IconButton>
-  <React.Memo
+  <Memo(WithStyles(PopupMenu))
     anchorEl={
       Object {
         "current": null,
@@ -72,15 +72,15 @@ exports[`MenuAction renders with optional props 1`] = `
       className="menuList-mock"
       disableListWrap={false}
     >
-      <React.Memo
+      <Memo(WithStyles(MenuActionItem))
         onClick={[MockFunction]}
         title="test"
       />
-      <React.Memo
+      <Memo(WithStyles(MenuActionItem))
         onClick={[MockFunction]}
         title="test 2"
       />
     </MenuList>
-  </React.Memo>
+  </Memo(WithStyles(PopupMenu))>
 </ClickAwayListener>
 `;

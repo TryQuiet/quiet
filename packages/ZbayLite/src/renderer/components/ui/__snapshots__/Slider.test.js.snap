@@ -51,7 +51,7 @@ exports[`Slider renders component 1`] = `
           max={100}
           min={0}
           onChange={[MockFunction]}
-          thumb={<UNDEFINED />}
+          thumb={<Memo(WithStyles(SliderThumb)) />}
           value={23}
         />
       </WithStyles(Grid)>
@@ -122,7 +122,7 @@ exports[`Slider renders custom min/max 1`] = `
           max={20}
           min={-20}
           onChange={[MockFunction]}
-          thumb={<UNDEFINED />}
+          thumb={<Memo(WithStyles(SliderThumb)) />}
           value={8}
         />
       </WithStyles(Grid)>
@@ -193,7 +193,7 @@ exports[`Slider renders with labels 1`] = `
           max={100}
           min={0}
           onChange={[MockFunction]}
-          thumb={<UNDEFINED />}
+          thumb={<Memo(WithStyles(SliderThumb)) />}
           value={23}
         />
       </WithStyles(Grid)>

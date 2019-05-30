@@ -35,7 +35,7 @@ exports[`ChannelMessages renders component 1`] = `
         className="list-mock"
         disablePadding={true}
       >
-        <React.Memo
+        <Connect(Component)
           key="0"
           message={
             Immutable.Map {
@@ -50,7 +50,7 @@ exports[`ChannelMessages renders component 1`] = `
             }
           }
         />
-        <React.Memo
+        <Connect(Component)
           key="1"
           message={
             Immutable.Map {
@@ -65,7 +65,7 @@ exports[`ChannelMessages renders component 1`] = `
             }
           }
         />
-        <React.Memo
+        <Connect(Component)
           key="2"
           message={
             Immutable.Map {
@@ -80,7 +80,7 @@ exports[`ChannelMessages renders component 1`] = `
             }
           }
         />
-        <React.Memo
+        <Connect(Component)
           key="3"
           message={
             Immutable.Map {

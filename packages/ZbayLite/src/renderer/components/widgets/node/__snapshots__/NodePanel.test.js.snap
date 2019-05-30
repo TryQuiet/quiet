@@ -23,7 +23,7 @@ exports[`NodePanel renders component 1`] = `
       <WithStyles(ExpansionPanelDetails)
         className="expansionDetails-mock"
       >
-        <React.Memo />
+        <Memo(WithStyles(NodePanelDetails)) />
       </WithStyles(ExpansionPanelDetails)>
     </WithStyles(ExpansionPanel)>
   </WithStyles(Grid)>

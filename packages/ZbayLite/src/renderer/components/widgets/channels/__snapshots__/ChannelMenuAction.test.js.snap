@@ -18,15 +18,15 @@ exports[`ChannelMenuAction renders component 1`] = `
   }
   offset="0 8"
 >
-  <React.Memo
+  <Memo(WithStyles(MenuActionItem))
     onClick={[MockFunction]}
     title="Info"
   />
-  <React.Memo
+  <Memo(WithStyles(MenuActionItem))
     onClick={[MockFunction]}
     title="Mute"
   />
-  <React.Memo
+  <Memo(WithStyles(MenuActionItem))
     onClick={[MockFunction]}
     title="Delete"
   />

@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`CreateChannelModal renders closed component 1`] = `
-<React.Memo
+<Memo(WithStyles(Modal))
   fullPage={true}
   handleClose={[MockFunction]}
   open={false}
@@ -12,11 +12,11 @@ exports[`CreateChannelModal renders closed component 1`] = `
   >
     <Connect(Component) />
   </WithStyles(Grid)>
-</React.Memo>
+</Memo(WithStyles(Modal))>
 `;
 
 exports[`CreateChannelModal renders component 1`] = `
-<React.Memo
+<Memo(WithStyles(Modal))
   fullPage={true}
   handleClose={[MockFunction]}
   open={true}
@@ -27,5 +27,5 @@ exports[`CreateChannelModal renders component 1`] = `
   >
     <Connect(Component) />
   </WithStyles(Grid)>
-</React.Memo>
+</Memo(WithStyles(Modal))>
 `;

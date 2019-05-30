@@ -9,7 +9,7 @@ import { DateTime } from 'luxon'
 import create from '../create'
 import { packMemo, unpackMemo } from '../../zbay/transit'
 import { ChannelState, actions, epics } from './channel'
-import { initialState as pendingMessagesInitialState } from './pendingMessages'
+import pendingMessagesHandlers, { initialState as pendingMessagesInitialState } from './pendingMessages'
 import { ChannelsState } from './channels'
 import { IdentityState, Identity } from './identity'
 import channelSelectors from '../selectors/channel'
@@ -20,6 +20,7 @@ import { mock as zcashMock } from '../../zcash'
 
 describe('channel reducer', () => {
   const spent = 0.2
+  const channelId = 'this-is-a-test-id'
   const messages = [
     createMessage('test-1'),
     createMessage('test-2')
@@ -70,42 +71,95 @@ describe('channel reducer', () => {
       const channel = channelSelectors.channel(store.getState())
       expect(channel).toMatchSnapshot()
     })
-
-    it('- loadMessages', async () => {
-      const transfers = await Promise.all(
-        messages.map(async (m) => createTransfer({
-          txid: m.id,
-          memo: await packMemo(m),
-          amount: spent
-        }))
-      )
-      zcashMock.requestManager.z_listreceivedbyaddress.mockImplementationOnce(async () => transfers)
-
-      await store.dispatch(actions.loadMessages('test-address'))
-
-      const loadedMessages = channelSelectors.messages(store.getState())
-      const expectedMessages = messages.map(m => ({ ...m, spent: new BigNumber(spent) }))
-      expect(loadedMessages.toJS()).toEqual(expectedMessages)
-      expect(zcashMock.requestManager.z_listreceivedbyaddress.mock.calls).toMatchSnapshot()
-    })
   })
 
   describe('handles epics', () => {
-    it('- loadMessages loads for current channel', async () => {
-      const transfers = await Promise.all(
-        messages.map(async (m) => createTransfer({
-          txid: m.id,
-          memo: await packMemo(m),
-          amount: spent
-        }))
-      )
-      zcashMock.requestManager.z_listreceivedbyaddress.mockImplementationOnce(async () => transfers)
-      store.dispatch(actions.setChannelId('this-is-a-test-id'))
+    describe('- loadMessages', () => {
+      it('loads for current channel', async () => {
+        const transfers = await Promise.all(
+          messages.map(async (m) => createTransfer({
+            txid: m.id,
+            memo: await packMemo(m),
+            amount: spent
+          }))
+        )
+        zcashMock.requestManager.z_listreceivedbyaddress.mockImplementationOnce(async () => transfers)
+        store.dispatch(actions.setChannelId('this-is-a-test-id'))
 
-      await store.dispatch(epics.loadMessages())
+        await store.dispatch(epics.loadMessages())
 
-      const loadedMessages = channelSelectors.messages(store.getState())
-      expect(loadedMessages).toMatchSnapshot()
+        const loadedMessages = channelSelectors.messages(store.getState())
+        expect(loadedMessages).toMatchSnapshot()
+      })
+
+      it('clears out pending messages', async () => {
+        jest.useFakeTimers()
+        store.dispatch(actions.setChannelId(channelId))
+        const getTxId = message => `${message.id}-tx-id`
+
+        // Generate transfers for message that will be returned from the node
+        const transfers = await Promise.all(
+          messages.map(async (m) => createTransfer({
+            txid: getTxId(m),
+            memo: await packMemo(m),
+            amount: spent
+          }))
+        )
+        zcashMock.requestManager.z_listreceivedbyaddress.mockImplementationOnce(async () => transfers)
+
+        // Generate pending messages for messages
+        await Promise.all(messages.map(
+          m => {
+            const opId = `${m.id}-op`
+            zcashMock.requestManager.z_getoperationstatus.mockImplementationOnce(async () => [{
+              id: opId,
+              status: 'success',
+              result: {
+                txid: getTxId(m)
+              },
+              error: { code: -1, message: 'no error' }
+            }])
+
+            store.dispatch(pendingMessagesHandlers.epics.observeMessage({
+              channelId,
+              opId,
+              message: m
+            }))
+          }))
+        expect(pendingMessagesSelectors.pendingMessages(store.getState())).toMatchSnapshot()
+
+        await store.dispatch(epics.loadMessages())
+
+        expect(pendingMessagesSelectors.pendingMessages(store.getState())).toEqual(pendingMessagesInitialState)
+      })
+    })
+
+    it('- resendMessage resend selected message', async () => {
+      store.dispatch(actions.setChannelId(channelId))
+      const opId = `message-op-id`
+      const message = {
+        ...messages[0],
+        id: opId
+      }
+      zcashMock.requestManager.z_getoperationstatus.mockImplementationOnce(async () => [{
+        id: opId,
+        status: 'failed',
+        result: {
+          txid: 'message-op-id'
+        },
+        error: { code: -1, message: 'no funds' }
+      }])
+      await store.dispatch(pendingMessagesHandlers.epics.observeMessage({
+        channelId,
+        opId,
+        message
+      }))
+      const beforeResend = pendingMessagesSelectors.pendingMessages(store.getState())
+      expect(beforeResend.getIn([opId, 'status'])).toEqual('failed')
+
+      await store.dispatch(epics.resendMessage(message))
+
+      expect(pendingMessagesSelectors.pendingMessages(store.getState())).toMatchSnapshot()
     })
 
     it('- loadChannel', async () => {

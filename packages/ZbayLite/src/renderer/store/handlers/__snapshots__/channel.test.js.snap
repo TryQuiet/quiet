@@ -1,13 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`channel reducer handles actions - loadMessages 1`] = `
-Array [
-  Array [
-    "test-address",
-  ],
-]
-`;
-
 exports[`channel reducer handles actions - setChannelId 1`] = `
 Immutable.ChannelState {
   "spentFilterValue": "0",
@@ -17,7 +9,6 @@ Immutable.ChannelState {
     "loading": false,
     "data": Immutable.List [],
     "errors": "",
-    "page": 1,
   },
   "members": null,
 }
@@ -34,6 +25,7 @@ Immutable.List [
     "type": 1,
     "id": "test-1",
     "spent": "0.2",
+    "fromYou": true,
   },
   Immutable.Map {
     "sender": Immutable.Map {
@@ -44,8 +36,48 @@ Immutable.List [
     "type": 1,
     "id": "test-2",
     "spent": "0.2",
+    "fromYou": true,
   },
 ]
+`;
+
+exports[`channel reducer handles epics - loadMessages clears out pending messages 1`] = `
+Immutable.Map {
+  "test-1-op": Immutable.PendingMessage {
+    "opId": "test-1-op",
+    "channelId": "this-is-a-test-id",
+    "txId": null,
+    "error": null,
+    "message": Immutable.Map {
+      "id": "test-1",
+      "type": 1,
+      "createdAt": 1551963828,
+      "message": "This is some message test-1",
+      "spent": "23.23",
+      "sender": Immutable.Map {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      },
+    },
+    "status": "pending",
+  },
+  "test-2-op": Immutable.PendingMessage {
+    "opId": "test-2-op",
+    "channelId": "this-is-a-test-id",
+    "txId": null,
+    "error": null,
+    "message": Immutable.Map {
+      "id": "test-2",
+      "type": 1,
+      "createdAt": 1551963828,
+      "message": "This is some message test-2",
+      "spent": "23.23",
+      "sender": Immutable.Map {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      },
+    },
+    "status": "pending",
+  },
+}
 `;
 
 exports[`channel reducer handles epics - loadMessages loads for current channel 1`] = `
@@ -59,6 +91,7 @@ Immutable.List [
     "type": 1,
     "id": "test-1",
     "spent": "0.2",
+    "fromYou": true,
   },
   Immutable.Map {
     "sender": Immutable.Map {
@@ -69,8 +102,31 @@ Immutable.List [
     "type": 1,
     "id": "test-2",
     "spent": "0.2",
+    "fromYou": true,
   },
 ]
+`;
+
+exports[`channel reducer handles epics - resendMessage resend selected message 1`] = `
+Immutable.Map {
+  null: Immutable.PendingMessage {
+    "opId": null,
+    "channelId": "this-is-a-test-id",
+    "txId": null,
+    "error": null,
+    "message": Immutable.Map {
+      "id": "message-op-id",
+      "type": 1,
+      "createdAt": 1551963828,
+      "message": "This is some message test-1",
+      "spent": "23.23",
+      "sender": Immutable.Map {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      },
+    },
+    "status": "pending",
+  },
+}
 `;
 
 exports[`channel reducer handles epics - sendOnEnter creates and resolves pending message on finish 1`] = `

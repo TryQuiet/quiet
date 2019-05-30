@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ItemSizedChannelsList renders component 1`] = `
-<React.Memo
+<Memo(BaseChannelsList)
   channels={
     Immutable.List [
       Immutable.Map {
@@ -59,7 +59,7 @@ exports[`ItemSizedChannelsList renders component 1`] = `
 `;
 
 exports[`ItemSizedChannelsList renders with correct height when displayAddress = true 1`] = `
-<React.Memo
+<Memo(BaseChannelsList)
   channels={
     Immutable.List [
       Immutable.Map {

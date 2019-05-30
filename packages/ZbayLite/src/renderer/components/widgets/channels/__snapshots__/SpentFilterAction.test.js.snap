@@ -16,7 +16,7 @@ exports[`SpentFilter renders component 1`] = `
   >
     Ad Spend
   </WithStyles(Button)>
-  <React.Memo
+  <Memo(WithStyles(PopupMenu))
     anchorEl={
       Object {
         "current": null,
@@ -29,6 +29,6 @@ exports[`SpentFilter renders component 1`] = `
     <Connect(Component)
       onClickAway={[Function]}
     />
-  </React.Memo>
+  </Memo(WithStyles(PopupMenu))>
 </ClickAwayListener>
 `;

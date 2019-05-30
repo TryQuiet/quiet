@@ -5,19 +5,19 @@ exports[`Page renders component 1`] = `
   container={true}
   direction="column"
 >
-  <React.Memo
+  <Memo(WithStyles(PageHeader))
     classes={null}
   >
     <div>
       Test header
     </div>
-  </React.Memo>
-  <React.Memo
+  </Memo(WithStyles(PageHeader))>
+  <Memo(WithStyles(PageContent))
     classes={null}
   >
     <div>
       Test content
     </div>
-  </React.Memo>
+  </Memo(WithStyles(PageContent))>
 </WithStyles(Grid)>
 `;

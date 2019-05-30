@@ -4,7 +4,7 @@ exports[`ZecBalance renders component 1`] = `
 <WithStyles(Grid)
   container={true}
 >
-  <React.Memo
+  <Memo(ZcashIcon)
     className="icon-mock"
     size={14}
   />
@@ -21,7 +21,7 @@ exports[`ZecBalance renders when no value 1`] = `
 <WithStyles(Grid)
   container={true}
 >
-  <React.Memo
+  <Memo(ZcashIcon)
     className="icon-mock"
     size={14}
   />

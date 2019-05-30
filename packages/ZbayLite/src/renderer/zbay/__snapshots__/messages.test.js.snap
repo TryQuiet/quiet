@@ -12,3 +12,16 @@ Object {
 `;
 
 exports[`messages - transfer to message when memo isn't compressed string 1`] = `Array []`;
+
+exports[`messages - transfer to message when on testnet 1`] = `
+Object {
+  "createdAt": 1551963828,
+  "id": "test-id",
+  "message": "This is some message test-id",
+  "sender": Object {
+    "replyTo": "ztestsapling1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngljzurf",
+  },
+  "spent": "234.56",
+  "type": 1,
+}
+`;

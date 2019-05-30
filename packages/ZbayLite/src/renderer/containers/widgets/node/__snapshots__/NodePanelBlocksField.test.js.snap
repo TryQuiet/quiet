@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`NodePanelBlocksField renders the field 1`] = `
-<React.Memo
+<Memo(NodePanelField)
   name="Blocks"
 >
   <WithStyles(Typography)
@@ -12,11 +12,11 @@ exports[`NodePanelBlocksField renders the field 1`] = `
      / 
     ~12345
   </WithStyles(Typography)>
-</React.Memo>
+</Memo(NodePanelField)>
 `;
 
 exports[`NodePanelBlocksField renders the field when no latestBlock 1`] = `
-<React.Memo
+<Memo(NodePanelField)
   name="Blocks"
 >
   <WithStyles(Typography)
@@ -27,7 +27,7 @@ exports[`NodePanelBlocksField renders the field when no latestBlock 1`] = `
      / 
     ?
   </WithStyles(Typography)>
-</React.Memo>
+</Memo(NodePanelField)>
 `;
 
 exports[`NodePanelBlocksField will receive right props 1`] = `

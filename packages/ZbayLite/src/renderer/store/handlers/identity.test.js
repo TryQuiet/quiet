@@ -93,7 +93,7 @@ describe('Identity reducer handles', () => {
     })
   })
 
-  describe('epics', async () => {
+  describe('epics', () => {
     describe('handles set identity', () => {
       beforeEach(async () => {
         zcashMock.requestManager.z_getbalance = jest.fn(async (address) => '2.2352')

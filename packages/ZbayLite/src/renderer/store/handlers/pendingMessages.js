@@ -12,7 +12,7 @@ const POLLING_OFFSET = 15000
 
 export const initialState = Immutable.Map()
 
-const ZcashError = Immutable.Record({
+export const ZcashError = Immutable.Record({
   code: null,
   message: ''
 }, 'ZcashError')
@@ -81,7 +81,13 @@ export const reducer = handleActions({
       error: error ? ZcashError(error) : null
     })
   ),
-  [removeMessage]: (state, { payload: opId }) => state.delete(opId)
+  [removeMessage]: (state, { payload: msgId }) => {
+    if (state.has(msgId)) {
+      return state.delete(msgId)
+    }
+    // It may be a txId
+    return state.filter(pm => pm.txId !== msgId)
+  }
 }, initialState)
 
 export default {

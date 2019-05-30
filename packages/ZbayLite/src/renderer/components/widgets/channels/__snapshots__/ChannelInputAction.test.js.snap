@@ -11,11 +11,11 @@ exports[`ChannelInputAction renders component 1`] = `
   }
   offset="0 12"
 >
-  <React.Memo
+  <Memo(WithStyles(MenuActionItem))
     onClick={[MockFunction]}
     title="Post an offer"
   />
-  <React.Memo
+  <Memo(WithStyles(MenuActionItem))
     onClick={[MockFunction]}
     title="Send money"
   />

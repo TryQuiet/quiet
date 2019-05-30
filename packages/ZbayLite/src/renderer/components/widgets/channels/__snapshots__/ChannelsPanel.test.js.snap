@@ -14,7 +14,7 @@ exports[`ChannelsPanel renders collapsed list if no bounds 1`] = `
     item={true}
     xs={true}
   >
-    <React.Memo
+    <Memo(WithStyles(SidebarHeader))
       actions={
         Array [
           <Connect(WithStyles(Component)) />,
@@ -22,7 +22,7 @@ exports[`ChannelsPanel renders collapsed list if no bounds 1`] = `
       }
       title="Channels"
     />
-    <React.Memo
+    <Memo(ScalingChannelsList)
       channels={
         Immutable.List [
           Immutable.Map {
@@ -95,7 +95,7 @@ exports[`ChannelsPanel renders component 1`] = `
     item={true}
     xs={true}
   >
-    <React.Memo
+    <Memo(WithStyles(SidebarHeader))
       actions={
         Array [
           <Connect(WithStyles(Component)) />,
@@ -103,7 +103,7 @@ exports[`ChannelsPanel renders component 1`] = `
       }
       title="Channels"
     />
-    <React.Memo
+    <Memo(ScalingChannelsList)
       channels={
         Immutable.List [
           Immutable.Map {

@@ -10,7 +10,7 @@ import List from '@material-ui/core/List'
 import RootRef from '@material-ui/core/RootRef'
 import { withStyles } from '@material-ui/core/styles'
 
-import ChannelMessage from './ChannelMessage'
+import ChannelMessage from '../../../containers/widgets/channels/ChannelMessage'
 
 const styles = theme => ({
   wrapper: {

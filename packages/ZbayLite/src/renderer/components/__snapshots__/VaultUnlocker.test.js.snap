@@ -10,7 +10,7 @@ exports[`VaultUnlocker renders component 1`] = `
     <WithStyles(Grid)
       item={true}
     >
-      <React.Memo
+      <Memo(PasswordInput)
         handleSetPassword={[MockFunction]}
         handleTogglePassword={[MockFunction]}
         label="Master password"
@@ -21,7 +21,7 @@ exports[`VaultUnlocker renders component 1`] = `
     <WithStyles(Grid)
       item={true}
     >
-      <React.Memo
+      <Memo(WithStyles(ProgressFab))
         className="fab-mock"
         disabled={false}
         label="Unlock"
@@ -30,10 +30,10 @@ exports[`VaultUnlocker renders component 1`] = `
         success={false}
       >
         <pure(LockOpenIcon) />
-      </React.Memo>
+      </Memo(WithStyles(ProgressFab))>
     </WithStyles(Grid)>
   </WithStyles(Grid)>
-  <React.Memo
+  <Memo(WithStyles(Snackbar))
     message=""
     onClose={[MockFunction]}
     open={false}
@@ -52,7 +52,7 @@ exports[`VaultUnlocker renders error 1`] = `
     <WithStyles(Grid)
       item={true}
     >
-      <React.Memo
+      <Memo(PasswordInput)
         handleSetPassword={[MockFunction]}
         handleTogglePassword={[MockFunction]}
         label="Master password"
@@ -63,7 +63,7 @@ exports[`VaultUnlocker renders error 1`] = `
     <WithStyles(Grid)
       item={true}
     >
-      <React.Memo
+      <Memo(WithStyles(ProgressFab))
         className="fab-mock"
         disabled={false}
         label="Unlock"
@@ -72,10 +72,10 @@ exports[`VaultUnlocker renders error 1`] = `
         success={false}
       >
         <pure(LockOpenIcon) />
-      </React.Memo>
+      </Memo(WithStyles(ProgressFab))>
     </WithStyles(Grid)>
   </WithStyles(Grid)>
-  <React.Memo
+  <Memo(WithStyles(Snackbar))
     message="something failed"
     onClose={[MockFunction]}
     open={true}
@@ -94,7 +94,7 @@ exports[`VaultUnlocker renders password visible 1`] = `
     <WithStyles(Grid)
       item={true}
     >
-      <React.Memo
+      <Memo(PasswordInput)
         handleSetPassword={[MockFunction]}
         handleTogglePassword={[MockFunction]}
         label="Master password"
@@ -105,7 +105,7 @@ exports[`VaultUnlocker renders password visible 1`] = `
     <WithStyles(Grid)
       item={true}
     >
-      <React.Memo
+      <Memo(WithStyles(ProgressFab))
         className="fab-mock"
         disabled={false}
         label="Unlock"
@@ -114,10 +114,10 @@ exports[`VaultUnlocker renders password visible 1`] = `
         success={false}
       >
         <pure(LockOpenIcon) />
-      </React.Memo>
+      </Memo(WithStyles(ProgressFab))>
     </WithStyles(Grid)>
   </WithStyles(Grid)>
-  <React.Memo
+  <Memo(WithStyles(Snackbar))
     message=""
     onClose={[MockFunction]}
     open={false}
@@ -136,7 +136,7 @@ exports[`VaultUnlocker renders unlocked 1`] = `
     <WithStyles(Grid)
       item={true}
     >
-      <React.Memo
+      <Memo(PasswordInput)
         handleSetPassword={[MockFunction]}
         handleTogglePassword={[MockFunction]}
         label="Master password"
@@ -147,7 +147,7 @@ exports[`VaultUnlocker renders unlocked 1`] = `
     <WithStyles(Grid)
       item={true}
     >
-      <React.Memo
+      <Memo(WithStyles(ProgressFab))
         className="fab-mock"
         disabled={true}
         label="Unlock"
@@ -156,10 +156,10 @@ exports[`VaultUnlocker renders unlocked 1`] = `
         success={true}
       >
         <pure(LockOpenIcon) />
-      </React.Memo>
+      </Memo(WithStyles(ProgressFab))>
     </WithStyles(Grid)>
   </WithStyles(Grid)>
-  <React.Memo
+  <Memo(WithStyles(Snackbar))
     message=""
     onClose={[MockFunction]}
     open={false}
@@ -178,7 +178,7 @@ exports[`VaultUnlocker renders unlocking 1`] = `
     <WithStyles(Grid)
       item={true}
     >
-      <React.Memo
+      <Memo(PasswordInput)
         handleSetPassword={[MockFunction]}
         handleTogglePassword={[MockFunction]}
         label="Master password"
@@ -189,7 +189,7 @@ exports[`VaultUnlocker renders unlocking 1`] = `
     <WithStyles(Grid)
       item={true}
     >
-      <React.Memo
+      <Memo(WithStyles(ProgressFab))
         className="fab-mock"
         disabled={false}
         label="Unlock"
@@ -198,10 +198,10 @@ exports[`VaultUnlocker renders unlocking 1`] = `
         success={false}
       >
         <pure(LockOpenIcon) />
-      </React.Memo>
+      </Memo(WithStyles(ProgressFab))>
     </WithStyles(Grid)>
   </WithStyles(Grid)>
-  <React.Memo
+  <Memo(WithStyles(Snackbar))
     message=""
     onClose={[MockFunction]}
     open={false}

@@ -45,6 +45,19 @@ describe('Pending messages reducer handles ', () => {
       expect(selectors.pendingMessages(store.getState())).toMatchSnapshot()
     })
 
+    it('- removeMessage by txId', () => {
+      addMessages(1)
+      store.dispatch(actions.resolveMessage({
+        opId: 'test-op-id-1',
+        status: 'success',
+        txId: 'test-tx-id'
+      }))
+
+      store.dispatch(actions.removeMessage('test-tx-id'))
+
+      expect(selectors.pendingMessages(store.getState())).toMatchSnapshot()
+    })
+
     describe('- resolveMessage', () => {
       it('- when success', () => {
         addMessages(2)

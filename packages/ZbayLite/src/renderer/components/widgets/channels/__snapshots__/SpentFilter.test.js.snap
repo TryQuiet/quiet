@@ -20,7 +20,7 @@ exports[`SpentFilter renders component 1`] = `
   <WithStyles(Grid)
     item={true}
   >
-    <React.Memo
+    <Memo(WithStyles(Slider))
       handleOnChange={[MockFunction]}
       max={100}
       maxLabel="$max"
@@ -53,7 +53,7 @@ exports[`SpentFilter renders component when max/inf 1`] = `
   <WithStyles(Grid)
     item={true}
   >
-    <React.Memo
+    <Memo(WithStyles(Slider))
       handleOnChange={[MockFunction]}
       max={100}
       maxLabel="$max"
