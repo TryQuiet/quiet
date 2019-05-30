@@ -15,6 +15,10 @@ storiesOf('Widgets/Channels/ChannelMessage', module)
       ['broadcasted', 'pending', 'success', 'cancelled', 'failed'],
       'broadcasted'
     )
+    const error = {
+      code: -9,
+      message: 'Something went really badly.'
+    }
 
     const message = Immutable.fromJS({
       id: 'message-id-1',
@@ -27,8 +31,7 @@ storiesOf('Widgets/Channels/ChannelMessage', module)
       status: stateValue,
       fromYou: boolean('fromYou', false),
       message: 'Hi there, how is it going?',
-      error: 'Something went really badly.'
-    })
+    }).set('error', error)
     return (
       <ChannelMessage
         message={message}
@@ -39,7 +42,10 @@ storiesOf('Widgets/Channels/ChannelMessage', module)
     )
   })
   .add('failed message', () => {
-    const error = text('Error message', 'Something went really badly.')
+    const error = {
+      code: -9,
+      message: text('Error message', 'Something went really badly.')
+    }
     const message = Immutable.fromJS({
       id: 'message-id-1',
       type: 1,
@@ -51,8 +57,7 @@ storiesOf('Widgets/Channels/ChannelMessage', module)
       status: 'failed',
       fromYou: true,
       message: 'Hi there, how is it going?',
-      error
-    })
+    }).set('error', error)
     return (
       <ChannelMessage
         message={message}
