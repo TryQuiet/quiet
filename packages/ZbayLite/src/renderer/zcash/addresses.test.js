@@ -8,7 +8,8 @@ describe('addresses', () => {
 
   const zcashClient = {
     request: {
-      'z_getnewaddress': jest.fn(async (type) => typeToAddress[type])
+      'z_getnewaddress': jest.fn(async (type) => typeToAddress[type]),
+      'getnewaddress': jest.fn(async () => 't14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1')
     }
   }
 
@@ -26,5 +27,9 @@ describe('addresses', () => {
     it('creates a sprout address', async () => {
       expect(addresses.create('sprout')).resolves.toMatchSnapshot()
     })
+  })
+
+  it('createTransparent creates a transparent address', () => {
+    expect(addresses.createTransparent()).resolves.toMatchSnapshot()
   })
 })

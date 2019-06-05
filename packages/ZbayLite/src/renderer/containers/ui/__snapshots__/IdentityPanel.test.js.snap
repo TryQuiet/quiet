@@ -5,6 +5,7 @@ Object {
   "identity": Immutable.Identity {
     "id": null,
     "address": "zctestaddress",
+    "transparentAddress": "",
     "name": "saturn",
     "balance": "23.435432",
   },

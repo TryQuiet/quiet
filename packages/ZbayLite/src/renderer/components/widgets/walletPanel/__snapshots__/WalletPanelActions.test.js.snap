@@ -22,6 +22,7 @@ exports[`WalletPanelActions renders component 1`] = `
   >
     <WithStyles(Button)
       color="primary"
+      onClick={[MockFunction]}
       size="small"
       variant="contained"
     >

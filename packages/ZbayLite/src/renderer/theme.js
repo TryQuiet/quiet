@@ -39,6 +39,12 @@ export default createMuiTheme({
           boxShadow: 'none'
         }
       }
+    },
+    MuiOutlinedInput: {
+      input: {
+        paddingTop: 14.5,
+        paddingBottom: 14.5
+      }
     }
   }
 })

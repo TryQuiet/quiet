@@ -61,13 +61,14 @@ const _entryToIdentity = entry => {
 
 export const getVault = withVaultInitialized(() => _vault)
 
-export const createIdentity = async ({ name, address }) => {
+export const createIdentity = async ({ name, address, transparentAddress }) => {
   let entry = null
   await _vault.withWorkspace(workspace => {
     const [identitiesGroup] = workspace.archive.findGroupsByTitle('Identities')
     entry = identitiesGroup.createEntry(name)
       .setProperty('name', name)
       .setProperty('address', address)
+      .setProperty('transparentAddress', transparentAddress)
     workspace.save()
   })
   return _entryToIdentity(entry)

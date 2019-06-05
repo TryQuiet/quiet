@@ -18,11 +18,13 @@ const balance = currency => createSelector(
 const id = createSelector(data, d => d.id)
 
 const address = createSelector(data, d => d.address)
+const transparentAddress = createSelector(data, d => d.transparentAddress)
 
 export default {
   id,
   data,
   identity,
   address,
+  transparentAddress,
   balance
 }

@@ -7,18 +7,16 @@ import Modal from '../../ui/Modal'
 import ImportChannelForm from '../../../containers/widgets/channels/ImportChannelForm'
 import ImportedChannel from '../../../containers/widgets/channels/ImportedChannel'
 
-export const ImportChannelModal = ({ open, handleClose }) => {
-  return (
-    <Modal
-      open={open}
-      handleClose={handleClose}
-      title='Import channel'
-    >
-      <ImportChannelForm />
-      <ImportedChannel />
-    </Modal>
-  )
-}
+export const ImportChannelModal = ({ open, handleClose }) => (
+  <Modal
+    open={open}
+    handleClose={handleClose}
+    title='Import channel'
+  >
+    <ImportChannelForm />
+    <ImportedChannel />
+  </Modal>
+)
 
 ImportChannelModal.propTypes = {
   open: PropTypes.bool.isRequired,

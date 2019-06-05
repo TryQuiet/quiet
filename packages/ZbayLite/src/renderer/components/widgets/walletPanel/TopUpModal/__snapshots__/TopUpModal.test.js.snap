@@ -1,0 +1,249 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TopUpModal renders component with private option 1`] = `
+<Memo(WithStyles(Modal))
+  handleClose={[MockFunction]}
+  open={false}
+  title="Receive money"
+>
+  <WithStyles(Grid)
+    className="root-mock"
+    container={true}
+    justify="center"
+  >
+    <WithStyles(Grid)
+      className="title-mock"
+      container={true}
+      item={true}
+      justify="center"
+    >
+      <WithStyles(Typography)
+        variant="h5"
+      >
+        Add funds to your
+      </WithStyles(Typography)>
+      <WithStyles(WithFormControlContext(Select))
+        className="selectWrapper-mock"
+        classes={
+          Object {
+            "select": "select-mock",
+          }
+        }
+        displayEmpty={true}
+        name="address"
+        onChange={[MockFunction]}
+        value="private"
+      >
+        <WithStyles(MenuItem)
+          value="transparent"
+        >
+          transparent
+        </WithStyles(MenuItem)>
+        <WithStyles(MenuItem)
+          value="private"
+        >
+          private
+        </WithStyles(MenuItem)>
+      </WithStyles(WithFormControlContext(Select))>
+      <WithStyles(Typography)
+        variant="h5"
+      >
+        address
+      </WithStyles(Typography)>
+    </WithStyles(Grid)>
+    <WithStyles(Grid)
+      item={true}
+    >
+      <WithStyles(Grid)
+        alignItems="center"
+        className="dataRoot-mock"
+        container={true}
+        direction="column"
+        justify="center"
+        spacing={16}
+      >
+        <WithStyles(Grid)
+          item={true}
+        >
+          <WithStyles(Typography)
+            className="description-mock"
+            variant="body2"
+          >
+            Private description
+          </WithStyles(Typography)>
+        </WithStyles(Grid)>
+        <WithStyles(Grid)
+          item={true}
+        >
+          <QRCode
+            bgColor="#FFFFFF"
+            fgColor="#000000"
+            includeMargin={false}
+            level="L"
+            renderAs="canvas"
+            size={192}
+            value="zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly"
+          />
+        </WithStyles(Grid)>
+        <WithStyles(Grid)
+          item={true}
+        >
+          <TextField
+            InputProps={
+              Object {
+                "classes": Object {
+                  "input": "copyInput-mock",
+                },
+                "endAdornment": <WithStyles(WithFormControlContext(InputAdornment))
+                  position="end"
+                >
+                  <CopyToClipboard
+                    onCopy={[MockFunction]}
+                    text="zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly"
+                  >
+                    <WithStyles(IconButton)>
+                      <pure(FileCopyIcon) />
+                    </WithStyles(IconButton)>
+                  </CopyToClipboard>
+                </WithStyles(WithFormControlContext(InputAdornment))>,
+              }
+            }
+            className="copyField-mock"
+            disabled={true}
+            id="copy-address"
+            required={false}
+            select={false}
+            type="text"
+            value="zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly"
+            variant="outlined"
+          />
+        </WithStyles(Grid)>
+      </WithStyles(Grid)>
+    </WithStyles(Grid)>
+  </WithStyles(Grid)>
+</Memo(WithStyles(Modal))>
+`;
+
+exports[`TopUpModal renders component with transparent option 1`] = `
+<Memo(WithStyles(Modal))
+  handleClose={[MockFunction]}
+  open={false}
+  title="Receive money"
+>
+  <WithStyles(Grid)
+    className="root-mock"
+    container={true}
+    justify="center"
+  >
+    <WithStyles(Grid)
+      className="title-mock"
+      container={true}
+      item={true}
+      justify="center"
+    >
+      <WithStyles(Typography)
+        variant="h5"
+      >
+        Add funds to your
+      </WithStyles(Typography)>
+      <WithStyles(WithFormControlContext(Select))
+        className="selectWrapper-mock"
+        classes={
+          Object {
+            "select": "select-mock",
+          }
+        }
+        displayEmpty={true}
+        name="address"
+        onChange={[MockFunction]}
+        value="transparent"
+      >
+        <WithStyles(MenuItem)
+          value="transparent"
+        >
+          transparent
+        </WithStyles(MenuItem)>
+        <WithStyles(MenuItem)
+          value="private"
+        >
+          private
+        </WithStyles(MenuItem)>
+      </WithStyles(WithFormControlContext(Select))>
+      <WithStyles(Typography)
+        variant="h5"
+      >
+        address
+      </WithStyles(Typography)>
+    </WithStyles(Grid)>
+    <WithStyles(Grid)
+      item={true}
+    >
+      <WithStyles(Grid)
+        alignItems="center"
+        className="dataRoot-mock"
+        container={true}
+        direction="column"
+        justify="center"
+        spacing={16}
+      >
+        <WithStyles(Grid)
+          item={true}
+        >
+          <WithStyles(Typography)
+            className="description-mock"
+            variant="body2"
+          >
+            Transparent description
+          </WithStyles(Typography)>
+        </WithStyles(Grid)>
+        <WithStyles(Grid)
+          item={true}
+        >
+          <QRCode
+            bgColor="#FFFFFF"
+            fgColor="#000000"
+            includeMargin={false}
+            level="L"
+            renderAs="canvas"
+            size={192}
+            value="t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1"
+          />
+        </WithStyles(Grid)>
+        <WithStyles(Grid)
+          item={true}
+        >
+          <TextField
+            InputProps={
+              Object {
+                "classes": Object {
+                  "input": "copyInput-mock",
+                },
+                "endAdornment": <WithStyles(WithFormControlContext(InputAdornment))
+                  position="end"
+                >
+                  <CopyToClipboard
+                    onCopy={[MockFunction]}
+                    text="t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1"
+                  >
+                    <WithStyles(IconButton)>
+                      <pure(FileCopyIcon) />
+                    </WithStyles(IconButton)>
+                  </CopyToClipboard>
+                </WithStyles(WithFormControlContext(InputAdornment))>,
+              }
+            }
+            className="copyField-mock"
+            disabled={true}
+            id="copy-address"
+            required={false}
+            select={false}
+            type="text"
+            value="t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1"
+            variant="outlined"
+          />
+        </WithStyles(Grid)>
+      </WithStyles(Grid)>
+    </WithStyles(Grid)>
+  </WithStyles(Grid)>
+</Memo(WithStyles(Modal))>
+`;

@@ -21,6 +21,7 @@ Immutable.IdentityState {
   "data": Immutable.Identity {
     "id": "thisisatestid",
     "address": "sapling-zcash-address",
+    "transparentAddress": "",
     "name": "Mercury",
     "balance": "NaN",
   },

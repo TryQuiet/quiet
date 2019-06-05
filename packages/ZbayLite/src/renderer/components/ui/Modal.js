@@ -40,7 +40,7 @@ const styles = theme => ({
     height: `calc(100vh - ${constants.headerHeight}px)`
   },
   centered: {
-    maxWidth: '60%',
+    maxWidth: 680,
     position: 'absolute',
     top: '50%',
     left: '50%',

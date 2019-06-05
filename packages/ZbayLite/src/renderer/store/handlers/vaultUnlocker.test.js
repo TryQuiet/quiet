@@ -64,7 +64,8 @@ describe('VaultUnlocker reducer', () => {
       const identity = {
         id: 'test-id',
         name: 'Saturn',
-        address: 'test-address'
+        address: 'test-address',
+        transparentAddress: 'test-t-address'
       }
       const balance = new BigNumber('12.345')
 

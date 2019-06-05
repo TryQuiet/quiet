@@ -7,7 +7,7 @@ import { action } from '@storybook/addon-actions'
 
 import ChannelMessage from './ChannelMessage'
 
-storiesOf('Widgets/Channels/ChannelMessage', module)
+storiesOf('Components/Widgets/Channels/ChannelMessage', module)
   .addDecorator(withKnobs)
   .add('playground', () => {
     const stateValue = select(
@@ -30,7 +30,7 @@ storiesOf('Widgets/Channels/ChannelMessage', module)
       createdAt: DateTime.utc().toSeconds(),
       status: stateValue,
       fromYou: boolean('fromYou', false),
-      message: 'Hi there, how is it going?',
+      message: 'Hi there, how is it going?'
     }).set('error', error)
     return (
       <ChannelMessage
@@ -56,7 +56,7 @@ storiesOf('Widgets/Channels/ChannelMessage', module)
       createdAt: DateTime.utc().toSeconds(),
       status: 'failed',
       fromYou: true,
-      message: 'Hi there, how is it going?',
+      message: 'Hi there, how is it going?'
     }).set('error', error)
     return (
       <ChannelMessage

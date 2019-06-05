@@ -14,6 +14,7 @@ import { getVault } from '../../vault'
 export const Identity = Immutable.Record({
   id: null,
   address: '',
+  transparentAddress: '',
   name: '',
   balance: null
 }, 'Identity')
@@ -55,9 +56,11 @@ export const fetchBalance = () => async (dispatch, getState) => {
 export const createIdentity = ({ name }) => async (dispatch, getState) => {
   try {
     const { value: address } = await dispatch(nodeHandlers.actions.createAddress())
+    const transparentAddress = await getClient().addresses.createTransparent()
     const { value: identity } = await dispatch(vaultHandlers.actions.createIdentity({
       name,
-      address
+      address,
+      transparentAddress
     }))
     const network = nodeSelectors.network(getState())
     const generalChannel = channels.general[network]
@@ -87,9 +90,9 @@ const epics = {
 }
 
 export const reducer = handleActions({
-  [setIdentity]: (state, { payload: { address, name, id } }) => state.update(
+  [setIdentity]: (state, { payload: { address, name, id, transparentAddress } }) => state.update(
     'data',
-    data => data.merge({ name, id, address })
+    data => data.merge({ name, id, address, transparentAddress })
   ),
   [setBalance]: (state, { payload: balance }) => state.update(
     'data',

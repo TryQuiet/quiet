@@ -127,6 +127,7 @@ describe('Identity reducer handles', () => {
       beforeEach(() => {
         zcashMock.requestManager.z_getbalance = jest.fn(async (address) => '12.345')
         zcashMock.requestManager.z_getnewaddress = jest.fn(async (type) => `${type}-zcash-address`)
+        zcashMock.requestManager.getnewaddress = jest.fn(async (type) => `transparent-zcash-address`)
         vault.identity.createIdentity.mockImplementation(
           async ({ name, address }) => ({ id: 'thisisatestid', name, address })
         )

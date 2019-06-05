@@ -5,6 +5,7 @@ Immutable.IdentityState {
   "data": Immutable.Identity {
     "id": "test-id",
     "address": "testaddress",
+    "transparentAddress": "",
     "name": "Saturn",
     "balance": null,
   },
@@ -18,6 +19,7 @@ Immutable.IdentityState {
   "data": Immutable.Identity {
     "id": "test-id",
     "address": "testaddress",
+    "transparentAddress": "",
     "name": "Saturn",
     "balance": "2.2352",
   },
@@ -31,6 +33,7 @@ Immutable.IdentityState {
   "data": Immutable.Identity {
     "id": null,
     "address": "",
+    "transparentAddress": "",
     "name": "",
     "balance": "2.34",
   },
@@ -44,6 +47,7 @@ Immutable.IdentityState {
   "data": Immutable.Identity {
     "id": null,
     "address": "",
+    "transparentAddress": "",
     "name": "",
     "balance": null,
   },
@@ -57,6 +61,7 @@ Immutable.IdentityState {
   "data": Immutable.Identity {
     "id": null,
     "address": "",
+    "transparentAddress": "",
     "name": "",
     "balance": null,
   },
@@ -70,6 +75,7 @@ Immutable.IdentityState {
   "data": Immutable.Identity {
     "id": null,
     "address": "",
+    "transparentAddress": "",
     "name": "",
     "balance": null,
   },
@@ -83,6 +89,7 @@ Immutable.IdentityState {
   "data": Immutable.Identity {
     "id": "test-id",
     "address": "testaddress",
+    "transparentAddress": "",
     "name": "Saturn",
     "balance": null,
   },
@@ -127,6 +134,7 @@ Array [
     Object {
       "address": "sapling-zcash-address",
       "name": "Mercury",
+      "transparentAddress": "transparent-zcash-address",
     },
   ],
 ]
@@ -183,6 +191,7 @@ Immutable.IdentityState {
   "data": Immutable.Identity {
     "id": "test-id",
     "address": "testaddress",
+    "transparentAddress": "",
     "name": "Saturn",
     "balance": "2.2352",
   },
