@@ -8,7 +8,11 @@ import { WalletPanel } from './WalletPanel'
 describe('WalletPanelActions', () => {
   it('renders component', () => {
     const result = shallow(
-      <WalletPanel classes={mockClasses} />
+      <WalletPanel
+        classes={mockClasses}
+        handleReceive={jest.fn()}
+        handleCloseTopUp={jest.fn()}
+      />
     )
     expect(result).toMatchSnapshot()
   })

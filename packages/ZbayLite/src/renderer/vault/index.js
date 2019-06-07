@@ -55,7 +55,8 @@ const _entryToIdentity = entry => {
   return {
     id: entryObj.id,
     name: entryObj.properties.name,
-    address: entryObj.properties.address
+    address: entryObj.properties.address,
+    transparentAddress: entryObj.properties.transparentAddress
   }
 }
 

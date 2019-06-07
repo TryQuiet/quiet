@@ -1,0 +1,63 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`operations selectors  - operations 1`] = `
+Immutable.Map {
+  "test-operation-id": Immutable.Operation {
+    "opId": "test-operation-id",
+    "type": "shieldBalance",
+    "meta": Immutable.Record {
+      "amount": "234.14324",
+      "from": "from-address",
+      "to": "to-address",
+    },
+    "txId": "transaction-id",
+    "error": null,
+    "status": "success",
+  },
+  "test-operation-id-1": Immutable.Operation {
+    "opId": "test-operation-id",
+    "type": "pendingMessage",
+    "meta": Immutable.Record {
+      "message": Immutable.Map {
+        "id": "test-message-id",
+        "type": 1,
+        "createdAt": 1551963828,
+        "message": "This is some message test-message-id",
+        "spent": "23.23",
+        "sender": Immutable.Map {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        },
+      },
+      "channelId": "test-channel-id",
+    },
+    "txId": "transaction-id",
+    "error": null,
+    "status": "success",
+  },
+}
+`;
+
+exports[`operations selectors  - pendingMessages 1`] = `
+Immutable.Map {
+  "test-operation-id-1": Immutable.Operation {
+    "opId": "test-operation-id",
+    "type": "pendingMessage",
+    "meta": Immutable.Record {
+      "message": Immutable.Map {
+        "id": "test-message-id",
+        "type": 1,
+        "createdAt": 1551963828,
+        "message": "This is some message test-message-id",
+        "spent": "23.23",
+        "sender": Immutable.Map {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        },
+      },
+      "channelId": "test-channel-id",
+    },
+    "txId": "transaction-id",
+    "error": null,
+    "status": "success",
+  },
+}
+`;

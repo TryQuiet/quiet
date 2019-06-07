@@ -149,38 +149,44 @@ Immutable.List [
 
 exports[`Channel selector pendingMessages 1`] = `
 Immutable.Map {
-  "test-operation-id": Immutable.PendingMessage {
+  "test-operation-id": Immutable.Operation {
     "opId": "test-operation-id",
-    "channelId": "this-is-a-test-id",
+    "type": "pendingMessage",
+    "meta": Immutable.Record {
+      "message": Immutable.Map {
+        "id": "test-message-id",
+        "type": 1,
+        "createdAt": 1551960228,
+        "message": "This is some message test-message-id",
+        "spent": "23.23",
+        "sender": Immutable.Map {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        },
+      },
+      "channelId": "this-is-a-test-id",
+    },
     "txId": "transaction-id",
     "error": null,
-    "message": Immutable.Map {
-      "id": "test-message-id",
-      "type": 1,
-      "createdAt": 1551960228,
-      "message": "This is some message test-message-id",
-      "spent": "23.23",
-      "sender": Immutable.Map {
-        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-      },
-    },
     "status": "success",
   },
-  "test-operation-id-3": Immutable.PendingMessage {
+  "test-operation-id-3": Immutable.Operation {
     "opId": "test-operation-id-3",
-    "channelId": "this-is-a-test-id",
+    "type": "pendingMessage",
+    "meta": Immutable.Record {
+      "message": Immutable.Map {
+        "id": "test-message-id-3",
+        "type": 1,
+        "createdAt": 1551945828,
+        "message": "This is some message test-message-id-3",
+        "spent": "23.23",
+        "sender": Immutable.Map {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        },
+      },
+      "channelId": "this-is-a-test-id",
+    },
     "txId": "transaction-id-3",
     "error": null,
-    "message": Immutable.Map {
-      "id": "test-message-id-3",
-      "type": 1,
-      "createdAt": 1551945828,
-      "message": "This is some message test-message-id-3",
-      "spent": "23.23",
-      "sender": Immutable.Map {
-        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-      },
-    },
     "status": "success",
   },
 }

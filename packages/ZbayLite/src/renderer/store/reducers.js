@@ -10,9 +10,11 @@ import ratesHandlers from './handlers/rates'
 import vaultHandlers from './handlers/vault'
 import vaultUnlockerHandlers from './handlers/vaultUnlocker'
 import modalsHandlers from './handlers/modals'
+import operationsHandlers from './handlers/operations'
 import pendingMessagesHandlers from './handlers/pendingMessages'
 
 export default combineReducers({
+  operations: operationsHandlers.reducer,
   pendingMessages: pendingMessagesHandlers.reducer,
   modals: modalsHandlers.reducer,
   identity: identityHandlers.reducer,

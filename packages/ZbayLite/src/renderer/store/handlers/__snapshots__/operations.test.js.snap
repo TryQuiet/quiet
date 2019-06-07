@@ -1,0 +1,120 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Operations reducer handles  actions - addOperation 1`] = `
+Immutable.Map {
+  "test-op-id-1": Immutable.Operation {
+    "opId": "test-op-id-1",
+    "type": "pendingMessage",
+    "meta": Immutable.Record {
+      "message": Immutable.Map {
+        "id": "test-message-id-1",
+        "type": 1,
+        "createdAt": 1551963828,
+        "message": "This is some message test-message-id-1",
+        "spent": "23.23",
+        "sender": Immutable.Map {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        },
+      },
+      "channelId": "test-channel-id",
+    },
+    "txId": null,
+    "error": null,
+    "status": "pending",
+  },
+}
+`;
+
+exports[`Operations reducer handles  actions - removeOperation 1`] = `Immutable.Map {}`;
+
+exports[`Operations reducer handles  actions - removeOperations by txId 1`] = `undefined`;
+
+exports[`Operations reducer handles  actions - resolveOperation - when error 1`] = `
+Immutable.Map {
+  "test-op-id-1": Immutable.Operation {
+    "opId": "test-op-id-1",
+    "type": "pendingMessage",
+    "meta": Immutable.Record {
+      "message": Immutable.Map {
+        "id": "test-message-id-1",
+        "type": 1,
+        "createdAt": 1551963828,
+        "message": "This is some message test-message-id-1",
+        "spent": "23.23",
+        "sender": Immutable.Map {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        },
+      },
+      "channelId": "test-channel-id",
+    },
+    "txId": null,
+    "error": Immutable.ZcashError {
+      "code": -4,
+      "message": "Some error",
+    },
+    "status": "failed",
+  },
+}
+`;
+
+exports[`Operations reducer handles  actions - resolveOperation - when success 1`] = `
+Immutable.Map {
+  "test-op-id-1": Immutable.Operation {
+    "opId": "test-op-id-1",
+    "type": "pendingMessage",
+    "meta": Immutable.Record {
+      "message": Immutable.Map {
+        "id": "test-message-id-1",
+        "type": 1,
+        "createdAt": 1551963828,
+        "message": "This is some message test-message-id-1",
+        "spent": "23.23",
+        "sender": Immutable.Map {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        },
+      },
+      "channelId": "test-channel-id",
+    },
+    "txId": "test-tx-id",
+    "error": null,
+    "status": "success",
+  },
+}
+`;
+
+exports[`Operations reducer handles  epics - observeOperation creates and resolves message on finish 1`] = `
+Immutable.Map {
+  "test-op-id-1": Immutable.Operation {
+    "opId": "test-op-id-1",
+    "type": "pendingMessage",
+    "meta": Immutable.Record {
+      "message": Immutable.Map {
+        "id": "test-message-id-1",
+        "type": 1,
+        "createdAt": 1551963828,
+        "message": "This is some message test-message-id-1",
+        "spent": "23.23",
+        "sender": Immutable.Map {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        },
+      },
+      "channelId": "test-channel-id",
+    },
+    "txId": "test-tx-id",
+    "error": Immutable.ZcashError {
+      "code": -1,
+      "message": "no error",
+    },
+    "status": "success",
+  },
+}
+`;
+
+exports[`Operations reducer handles  epics - observeOperation polls when no finished 1`] = `
+Array [
+  Array [
+    [Function],
+    15000,
+  ],
+]
+`;

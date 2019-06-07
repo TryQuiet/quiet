@@ -9,11 +9,11 @@ import { DateTime } from 'luxon'
 import create from '../create'
 import { packMemo, unpackMemo } from '../../zbay/transit'
 import { ChannelState, actions, epics } from './channel'
-import pendingMessagesHandlers, { initialState as pendingMessagesInitialState } from './pendingMessages'
+import operationsHandlers, { operationTypes, PendingMessageOp } from './operations'
 import { ChannelsState } from './channels'
 import { IdentityState, Identity } from './identity'
 import channelSelectors from '../selectors/channel'
-import pendingMessagesSelectors from '../selectors/pendingMessages'
+import operationsSelectors from '../selectors/operations'
 import { mockEvent } from '../../../shared/testing/mocks'
 import { createChannel, createTransfer, createMessage, now } from '../../testUtils'
 import { mock as zcashMock } from '../../zcash'
@@ -44,7 +44,7 @@ describe('channel reducer', () => {
             balance: '33.583004'
           })
         }),
-        pendingMessages: pendingMessagesInitialState
+        operations: Immutable.Map()
       })
     })
     jest.clearAllMocks()
@@ -120,17 +120,20 @@ describe('channel reducer', () => {
               error: { code: -1, message: 'no error' }
             }])
 
-            store.dispatch(pendingMessagesHandlers.epics.observeMessage({
-              channelId,
+            store.dispatch(operationsHandlers.epics.observeOperation({
               opId,
-              message: m
+              type: operationTypes.pendingMessage,
+              meta: PendingMessageOp({
+                channelId,
+                message: m
+              })
             }))
           }))
-        expect(pendingMessagesSelectors.pendingMessages(store.getState())).toMatchSnapshot()
+        expect(operationsSelectors.pendingMessages(store.getState())).toMatchSnapshot()
 
         await store.dispatch(epics.loadMessages())
 
-        expect(pendingMessagesSelectors.pendingMessages(store.getState())).toEqual(pendingMessagesInitialState)
+        expect(operationsSelectors.pendingMessages(store.getState())).toEqual(Immutable.Map())
       })
     })
 
@@ -149,17 +152,22 @@ describe('channel reducer', () => {
         },
         error: { code: -1, message: 'no funds' }
       }])
-      await store.dispatch(pendingMessagesHandlers.epics.observeMessage({
-        channelId,
-        opId,
-        message
+      zcashMock.requestManager.z_sendmany.mockResolvedValue('new-op-id')
+
+      await store.dispatch(operationsHandlers.epics.observeOperation({
+        meta: PendingMessageOp({
+          channelId,
+          message
+        }),
+        type: operationTypes.pendingMessage,
+        opId
       }))
-      const beforeResend = pendingMessagesSelectors.pendingMessages(store.getState())
+      const beforeResend = operationsSelectors.pendingMessages(store.getState())
       expect(beforeResend.getIn([opId, 'status'])).toEqual('failed')
 
       await store.dispatch(epics.resendMessage(message))
 
-      expect(pendingMessagesSelectors.pendingMessages(store.getState())).toMatchSnapshot()
+      expect(operationsSelectors.pendingMessages(store.getState())).toMatchSnapshot()
     })
 
     it('- loadChannel', async () => {
@@ -247,10 +255,11 @@ describe('channel reducer', () => {
         const msg = 'this is some message'
         const event = keyPressEvent(msg, 13, false)
         store.dispatch(actions.setChannelId('this-is-a-test-id'))
+        zcashMock.requestManager.z_sendmany.mockResolvedValue('new-op-id')
 
         await store.dispatch(epics.sendOnEnter(event))
 
-        expect(pendingMessagesSelectors.pendingMessages(store.getState())).toMatchSnapshot()
+        expect(operationsSelectors.pendingMessages(store.getState())).toMatchSnapshot()
       })
     })
   })

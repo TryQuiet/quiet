@@ -48,9 +48,9 @@ describe('vault instance', () => {
   })
 
   const identities = [
-    { name: 'Saturn', address: 'saturn-address-zcash' },
-    { name: 'Mars', address: 'mars-address-zcash' },
-    { name: 'Jupiter', address: 'jupiter-address-zcash' }
+    { name: 'Saturn', address: 'saturn-address-zcash', transparentAddress: 'saturn-t-address' },
+    { name: 'Mars', address: 'mars-address-zcash', transparentAddress: 'mars-t-address' },
+    { name: 'Jupiter', address: 'jupiter-address-zcash', transparentAddress: 'jupiter-t-address' }
   ]
 
   it('lists identities', async () => {
@@ -59,6 +59,7 @@ describe('vault instance', () => {
       id => group.createEntry(id.name)
         .setProperty('name', id.name)
         .setProperty('address', id.address)
+        .setProperty('transparentAddress', id.transparentAddress)
     )
 
     const result = await listIdentities()

@@ -23,7 +23,7 @@ Immutable.IdentityState {
     "address": "sapling-zcash-address",
     "transparentAddress": "",
     "name": "Mercury",
-    "balance": "NaN",
+    "balance": "2.2352",
   },
   "fetchingBalance": false,
   "errors": "",

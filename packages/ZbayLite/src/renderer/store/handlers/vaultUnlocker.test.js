@@ -14,7 +14,7 @@ import channelsSelectors from '../selectors/channels'
 import { actions, VaultUnlockerState, epics } from './vaultUnlocker'
 import { NodeState } from './node'
 import { mockEvent } from '../../../shared/testing/mocks'
-import { getClient } from '../../zcash'
+import { mock as zcashMock } from '../../zcash'
 
 describe('VaultUnlocker reducer', () => {
   let store = null
@@ -68,14 +68,14 @@ describe('VaultUnlocker reducer', () => {
         transparentAddress: 'test-t-address'
       }
       const balance = new BigNumber('12.345')
+      const transparentBalance = new BigNumber('0.2341')
 
       beforeEach(() => {
         mock.setArchive(createArchive())
         vault.identity.listIdentities.mockImplementation(async () => [identity])
-        const balanceMock = jest.fn(async (address) => balance)
-        getClient.mockImplementation(() => ({
-          accounting: { balance: balanceMock }
-        }))
+        zcashMock.requestManager.z_getbalance.mockImplementation(
+          async (addr) => addr === identity.address ? balance : transparentBalance
+        )
       })
 
       it('unlocks the vault', async () => {

@@ -3,12 +3,12 @@ import BigNumber from 'bignumber.js'
 import * as R from 'ramda'
 import { createAction, handleActions } from 'redux-actions'
 
-import pendingMessagesHandlers from './pendingMessages'
+import operationsHandlers, { operationTypes, PendingMessageOp } from './operations'
 import notificationsHandlers from './notifications'
 import channelSelectors from '../selectors/channel'
 import identitySelectors from '../selectors/identity'
 import nodeSelectors from '../selectors/node'
-import pendingMessagesSelectors from '../selectors/pendingMessages'
+import operationsSelectors from '../selectors/operations'
 import { getClient } from '../../zcash'
 import { messages } from '../../zbay'
 import { errorNotification } from './utils'
@@ -45,7 +45,7 @@ const loadMessages = () => async (dispatch, getState) => {
   const isTestnet = nodeSelectors.node(getState()).isTestnet
   const transfers = await getClient().payment.received(channel.get('address'))
 
-  const pendingMessages = pendingMessagesSelectors.pendingMessages(getState())
+  const pendingMessages = operationsSelectors.pendingMessages(getState())
 
   const msgs = await Promise.all(transfers.map(
     async (transfer) => {
@@ -55,7 +55,7 @@ const loadMessages = () => async (dispatch, getState) => {
         pm => pm.txId && pm.txId === message.id)
       if (pendingMessage) {
         dispatch(
-          pendingMessagesHandlers.actions.removeMessage(pendingMessage.opId)
+          operationsHandlers.actions.removeOperation(pendingMessage.opId)
         )
       }
       return message
@@ -89,10 +89,13 @@ const sendOnEnter = (event) => async (dispatch, getState) => {
     })
     try {
       const opId = await getClient().payment.send(transfer)
-      await dispatch(pendingMessagesHandlers.epics.observeMessage({
+      await dispatch(operationsHandlers.epics.observeOperation({
         opId,
-        channelId: channel.id,
-        message
+        type: operationTypes.pendingMessage,
+        meta: PendingMessageOp({
+          channelId: channel.id,
+          message: Immutable.fromJS(message)
+        })
       }))
     } catch (err) {
       notificationsHandlers.actions.enqueueSnackbar(
@@ -106,7 +109,7 @@ const sendOnEnter = (event) => async (dispatch, getState) => {
 }
 
 const resendMessage = (message) => async (dispatch, getState) => {
-  dispatch(pendingMessagesHandlers.actions.removeMessage(message.id))
+  dispatch(operationsHandlers.actions.removeOperation(message.id))
   const channel = channelSelectors.data(getState()).toJS()
   const transfer = await messages.messageToTransfer({
     message,
@@ -114,10 +117,13 @@ const resendMessage = (message) => async (dispatch, getState) => {
   })
   try {
     const opId = await getClient().payment.send(transfer)
-    await dispatch(pendingMessagesHandlers.epics.observeMessage({
+    await dispatch(operationsHandlers.epics.observeOperation({
       opId,
-      channelId: channel.id,
-      message
+      type: operationTypes.pendingMessage,
+      meta: PendingMessageOp({
+        channelId: channel.id,
+        message: Immutable.fromJS(message)
+      })
     }))
   } catch (err) {
     notificationsHandlers.actions.enqueueSnackbar(

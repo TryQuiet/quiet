@@ -35,12 +35,12 @@ exports[`WalletPanelActions renders component 1`] = `
       item={true}
     >
       <Connect(Component)
-        onReceive={[Function]}
+        onReceive={[MockFunction]}
       />
     </WithStyles(Grid)>
   </WithStyles(Grid)>
   <Connect(TopUpModal)
-    handleClose={[Function]}
+    handleClose={[MockFunction]}
     open={false}
   />
 </Fragment>

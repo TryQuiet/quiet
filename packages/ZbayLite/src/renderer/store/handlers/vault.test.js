@@ -195,6 +195,9 @@ describe('vault reducer', () => {
       })
 
       it('creates identity and sets balance', async () => {
+        zcashMock.requestManager.z_getbalance = jest.fn(
+          async (addr) => addr === 'sapling-zcash-address' ? '2.2352' : '0.00234'
+        )
         await store.dispatch(epics.createVault(formValues, formActions))
 
         expect(identitySelectors.identity(store.getState())).toMatchSnapshot()

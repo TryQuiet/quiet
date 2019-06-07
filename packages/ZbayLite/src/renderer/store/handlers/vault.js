@@ -58,7 +58,6 @@ const createVaultEpic = ({ name, password }, formActions) => async (dispatch, ge
     const identity = await dispatch(identityHandlers.epics.createIdentity({ name }))
     await dispatch(identityHandlers.epics.setIdentity(identity))
   } catch (error) {
-    console.log(error)
     dispatch(notificationsHandlers.actions.enqueueSnackbar(
       errorNotification({ message: `Failed to create channel: ${error.message}` })
     ))

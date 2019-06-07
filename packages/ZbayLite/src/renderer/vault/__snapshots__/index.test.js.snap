@@ -45,14 +45,17 @@ Array [
   Object {
     "address": "saturn-address-zcash",
     "name": "Saturn",
+    "transparentAddress": "saturn-t-address",
   },
   Object {
     "address": "mars-address-zcash",
     "name": "Mars",
+    "transparentAddress": "mars-t-address",
   },
   Object {
     "address": "jupiter-address-zcash",
     "name": "Jupiter",
+    "transparentAddress": "jupiter-t-address",
   },
 ]
 `;

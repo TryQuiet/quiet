@@ -7,6 +7,7 @@ import channels from '../../zcash/channels'
 import identitySelectors from '../selectors/identity'
 import nodeSelectors from '../selectors/node'
 import channelsHandlers from './channels'
+import operationHandlers, { operationTypes, ShieldBalanceOp } from './operations'
 import vaultHandlers from './vault'
 import nodeHandlers from './node'
 import { getVault } from '../../vault'
@@ -39,12 +40,47 @@ const actions = {
   setBalance
 }
 
+export const shieldBalance = ({ from, to, amount, fee }) => async (dispatch, getState) => {
+  const opId = await getClient().payment.send({
+    from,
+    amounts: [{
+      address: to,
+      amount: amount.toString()
+    }],
+    fee
+  })
+  dispatch(
+    operationHandlers.epics.observeOperation({
+      opId,
+      type: operationTypes.shieldBalance,
+      meta: ShieldBalanceOp({
+        amount,
+        from,
+        to
+      })
+    })
+  )
+}
+
 // TODO: [refactoring] accept identity
 export const fetchBalance = () => async (dispatch, getState) => {
+  const fee = 0.0001
   dispatch(setFetchingBalance(true))
   const address = identitySelectors.address(getState())
+  const tAddress = identitySelectors.transparentAddress(getState())
   try {
     const balance = await getClient().accounting.balance(address)
+    const transparentBalance = await getClient().accounting.balance(tAddress)
+    const realTBalance = transparentBalance.minus(fee)
+    // TODO: test adds operation
+    if (realTBalance.gt(0)) {
+      await dispatch(shieldBalance({
+        from: tAddress,
+        to: address,
+        amount: realTBalance,
+        fee
+      }))
+    }
     dispatch(setBalance(balance))
   } catch (err) {
     dispatch(setErrors(err.message))
@@ -90,9 +126,9 @@ const epics = {
 }
 
 export const reducer = handleActions({
-  [setIdentity]: (state, { payload: { address, name, id, transparentAddress } }) => state.update(
+  [setIdentity]: (state, { payload: identity }) => state.update(
     'data',
-    data => data.merge({ name, id, address, transparentAddress })
+    data => data.merge(identity)
   ),
   [setBalance]: (state, { payload: balance }) => state.update(
     'data',

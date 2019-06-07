@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React from 'react'
+import BigNumber from 'bignumber.js'
 import PropTypes from 'prop-types'
 import * as R from 'ramda'
 
@@ -25,9 +26,12 @@ const styles = theme => ({
   }
 })
 
-export const WalletPanel = ({ classes, handleReceive }) => {
-  const [topUpOpen, setTopUpOpen] = useState(false)
-
+export const WalletPanel = ({
+  classes,
+  topUpOpen,
+  handleReceive,
+  handleCloseTopUp
+}) => {
   return (
     <React.Fragment>
       <Grid item container direction='column' className={classes.root}>
@@ -36,22 +40,30 @@ export const WalletPanel = ({ classes, handleReceive }) => {
             <Grid item>
               <UsdBalance />
             </Grid>
-            <Grid item className={classes.zec}>
+            <Grid item className={classes.zec} >
               <ZecBalance />
             </Grid>
           </Grid>
         </Grid>
         <Grid item className={classes.actions}>
-          <WalletPanelActions onReceive={() => setTopUpOpen(true)} />
+          <WalletPanelActions onReceive={handleReceive} />
         </Grid>
       </Grid>
-      <TopUpModal open={topUpOpen} handleClose={() => setTopUpOpen(false)} />
+      <TopUpModal open={topUpOpen} handleClose={handleCloseTopUp} />
     </React.Fragment>
   )
 }
 
 WalletPanel.propTypes = {
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
+  topUpOpen: PropTypes.bool.isRequired,
+  handleReceive: PropTypes.func.isRequired,
+  handleCloseTopUp: PropTypes.func.isRequired
+}
+
+WalletPanel.defaultProps = {
+  topUpOpen: false,
+  transparentBalance: new BigNumber(0)
 }
 
 export default R.compose(

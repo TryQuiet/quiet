@@ -31,3 +31,5 @@ Immutable.IdentityState {
 `;
 
 exports[`identity selectors transparentAddress 1`] = `"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1"`;
+
+exports[`identity selectors transparentBalance 1`] = `"0.3579"`;

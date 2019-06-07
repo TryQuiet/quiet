@@ -7,7 +7,7 @@ const requestManager = {
   z_exportkey: jest.fn(async () => null),
   z_getbalance: jest.fn(async () => null),
   z_sendmany: jest.fn(async () => null),
-  z_getoperationstatus: jest.fn(async () => null),
+  z_getoperationstatus: jest.fn(async () => []),
   z_getnewaddress: jest.fn(async () => null),
   getnewaddress: jest.fn(async () => null)
 }

@@ -21,7 +21,8 @@ describe('Identity reducer handles', () => {
   const identity = {
     name: 'Saturn',
     id: 'test-id',
-    address: 'testaddress'
+    address: 'testaddress',
+    transparentAddress: 'transparent-test-address'
   }
 
   let store = null
@@ -75,7 +76,9 @@ describe('Identity reducer handles', () => {
     })
 
     it('handles fetchBalance', async () => {
-      zcashMock.requestManager.z_getbalance = jest.fn(async (address) => '2.2352')
+      zcashMock.requestManager.z_getbalance = jest.fn(
+        async (address) => address === identity.address ? '2.2352' : '0.00234'
+      )
       await store.dispatch(identityHandlers.actions.setIdentity(identity))
 
       await store.dispatch(identityHandlers.epics.fetchBalance())
@@ -96,7 +99,9 @@ describe('Identity reducer handles', () => {
   describe('epics', () => {
     describe('handles set identity', () => {
       beforeEach(async () => {
-        zcashMock.requestManager.z_getbalance = jest.fn(async (address) => '2.2352')
+        zcashMock.requestManager.z_getbalance = jest.fn(
+          async (address) => address === identity.address ? '2.2352' : '0.00234'
+        )
         await Promise.all(
           R.range(0, 3).map(
             R.compose(
@@ -105,6 +110,7 @@ describe('Identity reducer handles', () => {
             )
           )
         )
+        zcashMock.requestManager.z_sendmany.mockImplementation(async (from) => `${from}-op-id`)
       })
 
       it('- sets identity', async () => {

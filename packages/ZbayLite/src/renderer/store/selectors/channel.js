@@ -1,7 +1,8 @@
 import { createSelector } from 'reselect'
 import channelsSelector from './channels'
 import identitySelectors from './identity'
-import pendingMessagesSelectors from './pendingMessages'
+import operationsSelectors from './operations'
+import { operationTypes } from '../handlers/operations'
 
 const store = s => s
 
@@ -18,9 +19,11 @@ export const spentFilterValue = createSelector(channel, c => c.get('spentFilterV
 export const message = createSelector(channel, c => c.get('message'))
 
 export const pendingMessages = createSelector(
-  pendingMessagesSelectors.pendingMessages,
+  operationsSelectors.operations,
   channel,
-  (pendingMessages, channel) => pendingMessages.filter(m => m.channelId === channel.id)
+  (operations, channel) => operations.filter(
+    o => o.type === operationTypes.pendingMessage && o.meta.channelId === channel.id
+  )
 )
 
 export const messagesMeta = createSelector(channel, c => c.messages)
@@ -36,11 +39,11 @@ export const messages = createSelector(
       m => m.set('fromYou', _isOwner(identity.address, m))
     )
     const displayablePending = pendingMessages.map(
-      m => m.get('message')
+      m => m.meta.message
         .set('error', m.get('error'))
         .set('status', m.get('status'))
         .set('id', m.get('opId'))
-        .set('fromYou', _isOwner(identity.address, m.get('message')))
+        .set('fromYou', _isOwner(identity.address, m.meta.message))
     )
     return displayableBroadcasted.concat(displayablePending.values())
       .sortBy(m => m.get('createdAt'))

@@ -5,7 +5,7 @@ import BigNumber from 'bignumber.js'
 import * as R from 'ramda'
 
 import channelSelectors from './channel'
-import { PendingMessage } from '../handlers/pendingMessages'
+import { operationTypes, PendingMessageOp, Operation } from '../handlers/operations'
 import create from '../create'
 import { ChannelState, MessagesState } from '../handlers/channel'
 import { ChannelsState } from '../handlers/channels'
@@ -34,35 +34,44 @@ describe('Channel selector', () => {
         channels: ChannelsState({
           data: Immutable.fromJS([createChannel(channelId)])
         }),
-        pendingMessages: Immutable.fromJS({
-          'test-operation-id': PendingMessage({
+        operations: Immutable.fromJS({
+          'test-operation-id': Operation({
             opId: 'test-operation-id',
-            channelId,
             txId: 'transaction-id',
-            message: Immutable.fromJS(createMessage(
-              'test-message-id',
-              now.minus({ hours: 1 }).toSeconds()
-            )),
+            type: operationTypes.pendingMessage,
+            meta: PendingMessageOp({
+              message: Immutable.fromJS(createMessage(
+                'test-message-id',
+                now.minus({ hours: 1 }).toSeconds()
+              )),
+              channelId
+            }),
             status: 'success'
           }),
-          'test-operation-id-2': PendingMessage({
+          'test-operation-id-2': Operation({
             opId: 'test-operation-id-2',
-            channelId: `not-${channelId}`,
             txId: 'transaction-id-2',
-            message: Immutable.fromJS(createMessage(
-              'test-message-id-2',
-              now.minus({ hours: 3 }).toSeconds()
-            )),
+            type: operationTypes.pendingMessage,
+            meta: PendingMessageOp({
+              message: Immutable.fromJS(createMessage(
+                'test-message-id-2',
+                now.minus({ hours: 3 }).toSeconds()
+              )),
+              channelId: `not-${channelId}`
+            }),
             status: 'success'
           }),
-          'test-operation-id-3': PendingMessage({
+          'test-operation-id-3': Operation({
             opId: 'test-operation-id-3',
-            channelId,
             txId: 'transaction-id-3',
-            message: Immutable.fromJS(createMessage(
-              'test-message-id-3',
-              now.minus({ hours: 5 }).toSeconds()
-            )),
+            type: operationTypes.pendingMessage,
+            meta: PendingMessageOp({
+              message: Immutable.fromJS(createMessage(
+                'test-message-id-3',
+                now.minus({ hours: 5 }).toSeconds()
+              )),
+              channelId
+            }),
             status: 'success'
           })
         })

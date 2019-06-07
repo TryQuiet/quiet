@@ -5,7 +5,7 @@ Immutable.IdentityState {
   "data": Immutable.Identity {
     "id": "test-id",
     "address": "testaddress",
-    "transparentAddress": "",
+    "transparentAddress": "transparent-test-address",
     "name": "Saturn",
     "balance": null,
   },
@@ -19,7 +19,7 @@ Immutable.IdentityState {
   "data": Immutable.Identity {
     "id": "test-id",
     "address": "testaddress",
-    "transparentAddress": "",
+    "transparentAddress": "transparent-test-address",
     "name": "Saturn",
     "balance": "2.2352",
   },
@@ -89,7 +89,7 @@ Immutable.IdentityState {
   "data": Immutable.Identity {
     "id": "test-id",
     "address": "testaddress",
-    "transparentAddress": "",
+    "transparentAddress": "transparent-test-address",
     "name": "Saturn",
     "balance": null,
   },
@@ -191,7 +191,7 @@ Immutable.IdentityState {
   "data": Immutable.Identity {
     "id": "test-id",
     "address": "testaddress",
-    "transparentAddress": "",
+    "transparentAddress": "transparent-test-address",
     "name": "Saturn",
     "balance": "2.2352",
   },
