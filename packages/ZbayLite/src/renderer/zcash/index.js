@@ -13,10 +13,10 @@ let _client = null
 export const createClient = () => {
   if (R.isNil(_client)) {
     _client = new Zcash({
-      url: envVarOr('http://localhost:8332', 'ZBAY_NODE_URL'),
+      url: envVarOr('http://localhost:8334', 'ZBAY_NODE_URL'),
       auth: {
-        username: envVarOr('testuser', 'ZBAY_NODE_USERNAME'),
-        password: envVarOr('testpassword', 'ZBAY_NODE_PASSWORD')
+        username: envVarOr('zbay', 'ZBAY_NODE_USERNAME'),
+        password: envVarOr('zbay', 'ZBAY_NODE_PASSWORD')
       }
     })
   }

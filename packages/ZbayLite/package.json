@@ -1,17 +1,34 @@
 {
   "name": "zbay",
-  "productName": "zBay",
+  "productName": "Zbay",
   "build": {
-    "productName": "zbay"
+    "productName": "Zbay",
+    "appId": "Zbay",
+    "mac": {
+      "category": "public.app-category.social-networking",
+      "files": [
+        "dist/**/*",
+        "package.json"
+      ],
+      "publish": {
+        "provider": "s3",
+        "bucket": "zbay-release"
+      } 
+    },
+    "extraResources": "zcash/**/*"
   },
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Distributed goods and bulletin board",
   "main": "dist/main.js",
   "scripts": {
+    "dist": "npm run build:prod && electron-builder -p always --mac",
     "lint": "standard",
     "test": "npm run lint && jest",
     "test:watch": "npm run lint && jest --watchAll",
+    "build:prod": "concurrently \"npm run build:main:prod\" \"npm run build:renderer:prod\"",
     "build:main": "npm run lint && webpack --config webpack/webpack.config.main.dev.js",
+    "build:main:prod": "npm run lint && webpack --config webpack/webpack.config.main.prod.js",
+    "build:renderer:prod": "npm run lint && webpack --config webpack/webpack.config.renderer.prod.js",
     "prestart": "npm run build:main",
     "start": "npm run start:renderer",
     "start:main": "cross-env NODE_ENV=development electron .",
@@ -35,9 +52,11 @@
     "babel-eslint": "^10.0.1",
     "babel-jest": "^24.1.0",
     "babel-loader": "^8.0.5",
+    "concurrently": "^4.1.0",
     "cross-env": "^5.2.0",
     "css-loader": "^2.1.0",
     "electron": "^4.0.3",
+    "electron-builder": "^20.43.0",
     "electron-debug": "^2.1.0",
     "electron-devtools-installer": "^2.2.4",
     "enzyme": "^3.8.0",
@@ -89,6 +108,7 @@
     "bignumber.js": "^8.1.1",
     "buttercup": "^2.10.0",
     "classnames": "^2.2.6",
+    "electron-updater": "^4.0.6",
     "formik": "^1.5.4",
     "formik-material-ui": "0.0.16",
     "immutable": "^4.0.0-rc.12",

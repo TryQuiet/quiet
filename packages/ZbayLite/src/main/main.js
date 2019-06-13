@@ -1,6 +1,9 @@
 import { app, BrowserWindow } from 'electron'
 
+import { spawnZcashNode, ensureZcashParams } from './zcash/bootstrap'
+
 const isDev = process.env.NODE_ENV === 'development'
+const isTestnet = parseInt(process.env.ZBAY_IS_TESTNET)
 
 const installExtensions = async () => {
   require('electron-debug')({
@@ -24,6 +27,20 @@ const windowSize = {
 }
 
 var mainWindow
+var nodeProc
+
+const createZcashNode = () => {
+  ensureZcashParams(process.platform, (error) => {
+    if (error) {
+      throw error
+    }
+    nodeProc = spawnZcashNode(process.platform, isTestnet)
+    nodeProc.on('close', () => {
+      nodeProc = null
+    })
+  })
+}
+
 const createWindow = () => {
   mainWindow = new BrowserWindow({
     width: windowSize.width,
@@ -52,6 +69,14 @@ app.on('ready', async () => {
     await installExtensions()
   }
   createWindow()
+  createZcashNode()
+})
+
+process.on('exit', () => {
+  if (nodeProc !== null) {
+    nodeProc.stdin.pause()
+    nodeProc.kill()
+  }
 })
 
 // Quit when all windows are closed.

@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js'
 const BLOCK_OFFSET = 10
 
 const calculateStatus = (current, latest) => {
-  if (latest && current >= latest - BLOCK_OFFSET) {
+  if (latest.gt(0) && current.gte(latest - BLOCK_OFFSET)) {
     return 'healthy'
   }
   return 'syncing'
@@ -28,9 +28,13 @@ export default (zcashClient) => {
     const genesisTime = new BigNumber(genesisBlock.time)
     const bestTime = new BigNumber(bestBlock.time)
     const bestHeight = new BigNumber(bestBlock.height)
+    if (bestHeight.isZero()) {
+      return new BigNumber(0)
+    }
     const avgTime = bestTime.minus(genesisTime).dividedToIntegerBy(bestHeight)
     const now = new BigNumber(DateTime.utc().toSeconds())
     const leftBlocks = now.minus(bestTime).dividedToIntegerBy(avgTime)
+
     return bestHeight.plus(leftBlocks)
   }
 
