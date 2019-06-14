@@ -3,8 +3,10 @@ import { exec, spawn } from 'child_process'
 
 const ZCASH_RESOURCES = 'zcash'
 
+const isDev = process.env.NODE_ENV === 'development'
+
 const getResourcesPath = (...paths) => {
-  if (/[\\/]Electron\.app[\\/]/.test(process.execPath)) {
+  if (isDev) {
     // Development mode resources are located in project root.
     return path.join.apply(null, [process.cwd(), ...paths])
   }

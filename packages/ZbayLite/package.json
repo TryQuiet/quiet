@@ -13,7 +13,7 @@
       "publish": {
         "provider": "s3",
         "bucket": "zbay-release"
-      } 
+      }
     },
     "extraResources": "zcash/**/*"
   },
