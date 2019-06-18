@@ -1,8 +1,10 @@
 /* eslint import/first: 0 */
+jest.mock('../../../shared/migrations/0_2_0')
 jest.mock('../../vault')
 jest.mock('../../zcash')
 import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
+import * as R from 'ramda'
 
 import create from '../create'
 import vault, { mock } from '../../vault'
@@ -15,6 +17,7 @@ import { actions, VaultUnlockerState, epics } from './vaultUnlocker'
 import { NodeState } from './node'
 import { mockEvent } from '../../../shared/testing/mocks'
 import { mock as zcashMock } from '../../zcash'
+import { createIdentity } from '../../testUtils'
 
 describe('VaultUnlocker reducer', () => {
   let store = null
@@ -62,10 +65,8 @@ describe('VaultUnlocker reducer', () => {
   describe('handles epics', () => {
     describe('unlockVault', () => {
       const identity = {
-        id: 'test-id',
-        name: 'Saturn',
-        address: 'test-address',
-        transparentAddress: 'test-t-address'
+        ...createIdentity(),
+        id: 'test-id'
       }
       const balance = new BigNumber('12.345')
       const transparentBalance = new BigNumber('0.2341')
@@ -96,7 +97,8 @@ describe('VaultUnlocker reducer', () => {
         await store.dispatch(epics.unlockVault())
 
         const currentIdentity = identitySelectors.identity(store.getState())
-        expect(currentIdentity.toJS().data).toEqual({ ...identity, balance })
+
+        expect(currentIdentity.toJS().data).toEqual({ ...R.omit(['keys'], identity), balance })
         const channels = channelsSelectors.data(store.getState())
         expect(channels.map(ch => ch.delete('id')))
       })

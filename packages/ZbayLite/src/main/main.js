@@ -4,6 +4,7 @@ import { spawnZcashNode, ensureZcashParams } from './zcash/bootstrap'
 
 const isDev = process.env.NODE_ENV === 'development'
 const isTestnet = parseInt(process.env.ZBAY_IS_TESTNET)
+const nodeURL = process.env.ZBAY_NODE_URL
 
 const installExtensions = async () => {
   require('electron-debug')({
@@ -27,7 +28,7 @@ const windowSize = {
 }
 
 var mainWindow
-var nodeProc
+var nodeProc = null
 
 const createZcashNode = () => {
   ensureZcashParams(process.platform, (error) => {
@@ -69,12 +70,13 @@ app.on('ready', async () => {
     await installExtensions()
   }
   createWindow()
-  createZcashNode()
+  if (!nodeURL) {
+    createZcashNode()
+  }
 })
 
 process.on('exit', () => {
   if (nodeProc !== null) {
-    nodeProc.stdin.pause()
     nodeProc.kill()
   }
 })

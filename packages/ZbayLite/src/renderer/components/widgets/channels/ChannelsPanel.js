@@ -6,6 +6,7 @@ import { withContentRect } from 'react-measure'
 
 import Grid from '@material-ui/core/Grid'
 import RootRef from '@material-ui/core/RootRef'
+import CircularProgress from '@material-ui/core/CircularProgress'
 
 import ScalingChannelsList from './ScalingChannelsList'
 import SidebarHeader from '../../ui/SidebarHeader'
@@ -16,7 +17,7 @@ const constants = {
   gutter: 20
 }
 
-export const ChannelsPanel = ({ channels, measureRef, contentRect }) => {
+export const ChannelsPanel = ({ channels, loading, measureRef, contentRect }) => {
   const baseHeight = contentRect.bounds.height || (constants.sidebarHeight + constants.gutter)
   return (
     <RootRef rootRef={measureRef}>
@@ -27,9 +28,26 @@ export const ChannelsPanel = ({ channels, measureRef, contentRect }) => {
             <AddChannelAction key='create-channel' />
           ]}
         />
-        <ScalingChannelsList
-          channels={channels}
-          maxHeight={baseHeight - constants.sidebarHeight - constants.gutter} />
+        {
+          loading
+            ? (
+              <Grid
+                container
+                justify='center'
+                alignItems='center'
+                spacing={32}
+              >
+                <CircularProgress style={{ margin: 32 }} />
+              </Grid>
+            )
+            : (
+              <ScalingChannelsList
+                channels={channels}
+                maxHeight={baseHeight - constants.sidebarHeight - constants.gutter}
+              />
+            )
+
+        }
       </Grid>
     </RootRef>
   )
@@ -45,11 +63,13 @@ ChannelsPanel.propTypes = {
     bounds: PropTypes.shape({
       height: PropTypes.number
     }).isRequired
-  })
+  }),
+  loading: PropTypes.bool.isRequired
 }
 
 ChannelsPanel.defaultProps = {
-  channels: Immutable.List()
+  channels: Immutable.List(),
+  loading: false
 }
 
 export default R.compose(

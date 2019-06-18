@@ -1,5 +1,37 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`vault instance - updateIdentity updates existing identity 1`] = `
+Array [
+  Object {
+    "address": "sapling-new-updated-address",
+    "keys": Object {
+      "sk": "saturn-spending-key",
+      "tpk": "saturn-transparent-private-key",
+    },
+    "name": "Saturn",
+    "transparentAddress": "saturn-t-address",
+  },
+  Object {
+    "address": "mars-address-zcash",
+    "keys": Object {
+      "sk": "mars-spending-key",
+      "tpk": "mars-transparent-private-key",
+    },
+    "name": "Mars",
+    "transparentAddress": "mars-t-address",
+  },
+  Object {
+    "address": "jupiter-address-zcash",
+    "keys": Object {
+      "sk": "jupiter-spending-key",
+      "tpk": "jupiter-transparent-private-key",
+    },
+    "name": "Jupiter",
+    "transparentAddress": "jupiter-t-address",
+  },
+]
+`;
+
 exports[`vault instance creates identity 1`] = `undefined`;
 
 exports[`vault instance list channels when contains channels 1`] = `
@@ -44,16 +76,28 @@ exports[`vault instance lists identities 1`] = `
 Array [
   Object {
     "address": "saturn-address-zcash",
+    "keys": Object {
+      "sk": "saturn-spending-key",
+      "tpk": "saturn-transparent-private-key",
+    },
     "name": "Saturn",
     "transparentAddress": "saturn-t-address",
   },
   Object {
     "address": "mars-address-zcash",
+    "keys": Object {
+      "sk": "mars-spending-key",
+      "tpk": "mars-transparent-private-key",
+    },
     "name": "Mars",
     "transparentAddress": "mars-t-address",
   },
   Object {
     "address": "jupiter-address-zcash",
+    "keys": Object {
+      "sk": "jupiter-spending-key",
+      "tpk": "jupiter-transparent-private-key",
+    },
     "name": "Jupiter",
     "transparentAddress": "jupiter-t-address",
   },

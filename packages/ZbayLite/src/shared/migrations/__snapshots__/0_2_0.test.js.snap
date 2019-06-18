@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`0.2.0 migrations - ensureIdentityHasKeys throws if not migrated on a new node 1`] = `[Error: Cannot migrate wallet to version 0.2.x - node doesn't contain identity keys.]`;
+
+exports[`0.2.0 migrations - ensureIdentityHasKeys updates identity in the vault with keys 1`] = `
+Array [
+  Object {
+    "address": "sapling-private-address",
+    "keys": Object {
+      "sk": "sapling-private-address-spending-key",
+      "tpk": "transparent-address-private-key",
+    },
+    "name": "Saturn",
+    "transparentAddress": "transparent-address",
+  },
+]
+`;

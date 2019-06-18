@@ -70,6 +70,7 @@
     "react-test-renderer": "^16.7.0",
     "standard": "^12.0.1",
     "storybook-addon-material-ui": "^0.9.0-alpha.19",
+    "storybook-react-router": "^1.0.5",
     "style-loader": "^0.23.1",
     "webpack": "^4.29.0",
     "webpack-cli": "^3.2.1",

@@ -1,5 +1,28 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`channels reducer handles load channels makes sure keys are present 1`] = `
+Array [
+  Array [
+    "incoming-viewing-key-2",
+    "whenkeyisnew",
+    0,
+    "zs1testaddress2",
+  ],
+  Array [
+    "incoming-viewing-key-1",
+    "whenkeyisnew",
+    0,
+    "zs1testaddress1",
+  ],
+  Array [
+    "incoming-viewing-key-0",
+    "whenkeyisnew",
+    0,
+    "zs1testaddress0",
+  ],
+]
+`;
+
 exports[`channels reducer handles load channels when fulfilled 1`] = `
 Immutable.List [
   Immutable.Map {

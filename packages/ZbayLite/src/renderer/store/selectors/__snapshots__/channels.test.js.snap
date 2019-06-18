@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Channels channels selector 1`] = `
+exports[`Channels selectors - channels 1`] = `
 Immutable.ChannelsState {
   "data": Array [
     Immutable.Map {
@@ -40,7 +40,9 @@ Immutable.ChannelsState {
       },
     },
   ],
-  "loading": false,
+  "loading": true,
   "errors": "",
 }
 `;
+
+exports[`Channels selectors loading 1`] = `true`;

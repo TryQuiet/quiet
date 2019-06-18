@@ -1,33 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Identity reducer handles actions handles errors on fetchBalance 1`] = `
-Immutable.IdentityState {
-  "data": Immutable.Identity {
-    "id": "test-id",
-    "address": "testaddress",
-    "transparentAddress": "transparent-test-address",
-    "name": "Saturn",
-    "balance": null,
-  },
-  "fetchingBalance": false,
-  "errors": "node error",
-}
-`;
-
-exports[`Identity reducer handles actions handles fetchBalance 1`] = `
-Immutable.IdentityState {
-  "data": Immutable.Identity {
-    "id": "test-id",
-    "address": "testaddress",
-    "transparentAddress": "transparent-test-address",
-    "name": "Saturn",
-    "balance": "2.2352",
-  },
-  "fetchingBalance": false,
-  "errors": "",
-}
-`;
-
 exports[`Identity reducer handles actions handles setBalance 1`] = `
 Immutable.IdentityState {
   "data": Immutable.Identity {
@@ -98,6 +70,51 @@ Immutable.IdentityState {
 }
 `;
 
+exports[`Identity reducer handles epics - fetchBalance creates shield balance operation 1`] = `
+Immutable.Map {
+  "test-op-id": Immutable.Operation {
+    "opId": "test-op-id",
+    "type": "shieldBalance",
+    "meta": Immutable.Record {
+      "amount": "0.00224",
+      "from": "transparent-test-address",
+      "to": "testaddress",
+    },
+    "txId": null,
+    "error": null,
+    "status": "pending",
+  },
+}
+`;
+
+exports[`Identity reducer handles epics - fetchBalance fetches transparent and private balances 1`] = `
+Immutable.IdentityState {
+  "data": Immutable.Identity {
+    "id": "test-id",
+    "address": "testaddress",
+    "transparentAddress": "transparent-test-address",
+    "name": "Saturn",
+    "balance": "2.2352",
+  },
+  "fetchingBalance": false,
+  "errors": "",
+}
+`;
+
+exports[`Identity reducer handles epics - fetchBalance handles errors 1`] = `
+Immutable.IdentityState {
+  "data": Immutable.Identity {
+    "id": "test-id",
+    "address": "testaddress",
+    "transparentAddress": "transparent-test-address",
+    "name": "Saturn",
+    "balance": null,
+  },
+  "fetchingBalance": false,
+  "errors": "node error",
+}
+`;
+
 exports[`Identity reducer handles epics handles createIdentity bootstraps general for mainnet 1`] = `
 Array [
   Object {
@@ -132,9 +149,13 @@ exports[`Identity reducer handles epics handles createIdentity creates identity 
 Array [
   Array [
     Object {
-      "address": "sapling-zcash-address",
+      "address": "sapling-private-address",
+      "keys": Object {
+        "sk": "sapling-private-address-spending-key",
+        "tpk": "transparent-address-private-key",
+      },
       "name": "Mercury",
-      "transparentAddress": "transparent-zcash-address",
+      "transparentAddress": "transparent-address",
     },
   ],
 ]
@@ -142,9 +163,14 @@ Array [
 
 exports[`Identity reducer handles epics handles createIdentity returns created identity 1`] = `
 Object {
-  "address": "sapling-zcash-address",
+  "address": "sapling-private-address",
   "id": "thisisatestid",
+  "keys": Object {
+    "sk": "sapling-private-address-spending-key",
+    "tpk": "transparent-address-private-key",
+  },
   "name": "Mercury",
+  "transparentAddress": "transparent-address",
 }
 `;
 

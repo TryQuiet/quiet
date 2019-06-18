@@ -28,7 +28,14 @@ export const actionTypes = {
 }
 
 const loadChannels = createAction(actionTypes.LOAD_CHANNELS, async (id) => {
-  return getVault().channels.listChannels(id)
+  const channels = await getVault().channels.listChannels(id)
+
+  await Promise.all(
+    channels.map(
+      channel => getClient().keys.importIVK({ ivk: channel.keys.ivk, address: channel.address })
+    )
+  )
+  return channels
 })
 
 export const actions = {

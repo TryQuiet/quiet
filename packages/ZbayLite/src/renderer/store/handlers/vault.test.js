@@ -1,4 +1,5 @@
 /* eslint import/first: 0 */
+jest.mock('../../../shared/migrations/0_2_0')
 jest.mock('../../vault')
 jest.mock('../../zcash')
 import Immutable from 'immutable'
@@ -13,6 +14,7 @@ import identitySelectors from '../selectors/identity'
 import { NodeState } from './node'
 import { mock as zcashMock } from '../../zcash'
 import { createArchive } from '../../vault/marshalling'
+import { createIdentity } from '../../testUtils'
 
 describe('vault reducer', () => {
   let store = null
@@ -74,7 +76,7 @@ describe('vault reducer', () => {
   })
 
   it('handles createIdentity', async () => {
-    const identityObj = { name: 'Saturn', addres: 'testaddress' }
+    const identityObj = createIdentity()
     const createdIdentity = {
       id: 'test id',
       ...identityObj
@@ -169,10 +171,9 @@ describe('vault reducer', () => {
 
       beforeEach(() => {
         mock.setArchive(createArchive())
-        zcashMock.requestManager.z_getnewaddress.mockImplementation(async (type) => `${type}-zcash-address`)
 
         vault.identity.createIdentity.mockImplementation(
-          async ({ name, address }) => ({ id: 'thisisatestid', name, address })
+          async (identity) => ({ ...identity, id: 'thisisatestid' })
         )
       })
 
@@ -196,13 +197,13 @@ describe('vault reducer', () => {
 
       it('creates identity and sets balance', async () => {
         zcashMock.requestManager.z_getbalance = jest.fn(
-          async (addr) => addr === 'sapling-zcash-address' ? '2.2352' : '0.00234'
+          async (addr) => addr === 'sapling-private-address' ? '2.2352' : '0.00234'
         )
         await store.dispatch(epics.createVault(formValues, formActions))
 
         expect(identitySelectors.identity(store.getState())).toMatchSnapshot()
         expect(zcashMock.requestManager.z_getnewaddress).toHaveBeenCalledWith('sapling')
-        expect(zcashMock.requestManager.z_getbalance).toHaveBeenCalledWith('sapling-zcash-address')
+        expect(zcashMock.requestManager.z_getbalance).toHaveBeenCalledWith('sapling-private-address')
       })
 
       it('bootstraps general channel to new account', async () => {

@@ -17,6 +17,7 @@ import {
   createIdentity,
   getVault,
   listIdentities,
+  updateIdentity,
   withVaultInitialized
 } from './'
 import testUtils from '../testUtils'
@@ -32,10 +33,7 @@ describe('vault instance', () => {
 
   it('creates identity', async () => {
     const [group] = mock.workspace.archive.findGroupsByTitle('Identities')
-    const { id } = await createIdentity({
-      name: 'Saturn',
-      address: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly'
-    })
+    const { id } = await createIdentity(testUtils.createIdentity())
 
     const [identity] = group.getEntries()
     expect(id).toEqual(identity.id)
@@ -48,9 +46,33 @@ describe('vault instance', () => {
   })
 
   const identities = [
-    { name: 'Saturn', address: 'saturn-address-zcash', transparentAddress: 'saturn-t-address' },
-    { name: 'Mars', address: 'mars-address-zcash', transparentAddress: 'mars-t-address' },
-    { name: 'Jupiter', address: 'jupiter-address-zcash', transparentAddress: 'jupiter-t-address' }
+    {
+      name: 'Saturn',
+      address: 'saturn-address-zcash',
+      transparentAddress: 'saturn-t-address',
+      keys: {
+        sk: 'saturn-spending-key',
+        tpk: 'saturn-transparent-private-key'
+      }
+    },
+    {
+      name: 'Mars',
+      address: 'mars-address-zcash',
+      transparentAddress: 'mars-t-address',
+      keys: {
+        sk: 'mars-spending-key',
+        tpk: 'mars-transparent-private-key'
+      }
+    },
+    {
+      name: 'Jupiter',
+      address: 'jupiter-address-zcash',
+      transparentAddress: 'jupiter-t-address',
+      keys: {
+        sk: 'jupiter-spending-key',
+        tpk: 'jupiter-transparent-private-key'
+      }
+    }
   ]
 
   it('lists identities', async () => {
@@ -60,10 +82,34 @@ describe('vault instance', () => {
         .setProperty('name', id.name)
         .setProperty('address', id.address)
         .setProperty('transparentAddress', id.transparentAddress)
+        .setProperty('keys', JSON.stringify(id.keys))
     )
 
     const result = await listIdentities()
     expect(result.map(R.omit(['id']))).toMatchSnapshot()
+  })
+
+  describe('- updateIdentity', () => {
+    it('updates existing identity', async () => {
+      const [group] = mock.workspace.archive.findGroupsByTitle('Identities')
+      identities.map(
+        id => group.createEntry(id.name)
+          .setProperty('name', id.name)
+          .setProperty('address', id.address)
+          .setProperty('transparentAddress', id.transparentAddress)
+          .setProperty('keys', JSON.stringify(id.keys))
+      )
+      const ids = await listIdentities()
+      const updatedIdentity = {
+        ...ids[0],
+        address: 'sapling-new-updated-address'
+      }
+
+      await updateIdentity(updatedIdentity)
+
+      const result = await listIdentities()
+      expect(result.map(R.omit(['id']))).toMatchSnapshot()
+    })
   })
 
   describe('list channels', () => {

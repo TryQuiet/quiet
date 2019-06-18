@@ -12,6 +12,7 @@ import { ChannelsState, actions, actionTypes } from './channels'
 import channelsSelectors from '../selectors/channels'
 import testUtils from '../../testUtils'
 import { typePending } from './utils'
+import { mock as zcashMock } from '../../zcash'
 
 describe('channels reducer', () => {
   let store = null
@@ -40,9 +41,28 @@ describe('channels reducer', () => {
           )
         )
       )
+
       await store.dispatch(actions.loadChannels(id))
+
       const channels = channelsSelectors.channels(store.getState())
       expect(channels.data.map(ch => ch.delete('id'))).toMatchSnapshot()
+    })
+
+    it('makes sure keys are present', async () => {
+      const id = 'this is'
+      mock.setArchive(createArchive())
+      await Promise.all(
+        R.range(0, 3).map(
+          R.compose(
+            R.curry(vault.getVault().channels.importChannel)(id),
+            testUtils.channels.createChannel
+          )
+        )
+      )
+
+      await store.dispatch(actions.loadChannels(id))
+
+      expect(zcashMock.requestManager.z_importviewingkey.mock.calls).toMatchSnapshot()
     })
 
     it('when rejected', async () => {

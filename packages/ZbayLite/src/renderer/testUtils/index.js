@@ -58,8 +58,24 @@ export const transfers = {
   createTransfer
 }
 
+export const createIdentity = ({
+  name = 'Saturn',
+  address = 'saturn-private-address',
+  transparentAddress = 'saturn-transparent-address',
+  keys = {
+    tpk: 'saturn-tpk',
+    sk: 'saturn-sk'
+  }
+} = {}) => ({
+  name,
+  address,
+  transparentAddress,
+  keys
+})
+
 export default {
   transfers,
   channels,
-  messages
+  messages,
+  createIdentity
 }

@@ -44,4 +44,22 @@ describe('ChannelsPanel', () => {
     )
     expect(result).toMatchSnapshot()
   })
+
+  it('renders loading', () => {
+    const ref = React.createRef()
+    const contentRect = {
+      bounds: {
+        height: 200
+      }
+    }
+
+    const result = shallow(
+      <ChannelsPanel
+        loading
+        contentRect={contentRect}
+        measureRef={ref}
+      />
+    )
+    expect(result).toMatchSnapshot()
+  })
 })

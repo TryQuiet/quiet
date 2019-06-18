@@ -161,3 +161,43 @@ exports[`ChannelsPanel renders component 1`] = `
   </WithStyles(Grid)>
 </RootRef>
 `;
+
+exports[`ChannelsPanel renders loading 1`] = `
+<RootRef
+  rootRef={
+    Object {
+      "current": null,
+    }
+  }
+>
+  <WithStyles(Grid)
+    container={true}
+    direction="column"
+    item={true}
+    xs={true}
+  >
+    <Memo(WithStyles(SidebarHeader))
+      actions={
+        Array [
+          <Connect(WithStyles(Component)) />,
+        ]
+      }
+      title="Channels"
+    />
+    <WithStyles(Grid)
+      alignItems="center"
+      container={true}
+      justify="center"
+      spacing={32}
+    >
+      <WithStyles(CircularProgress)
+        style={
+          Object {
+            "margin": 32,
+          }
+        }
+      />
+    </WithStyles(Grid)>
+  </WithStyles(Grid)>
+</RootRef>
+`;

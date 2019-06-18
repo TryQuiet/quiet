@@ -28,5 +28,6 @@ Object {
       },
     },
   ],
+  "loading": false,
 }
 `;

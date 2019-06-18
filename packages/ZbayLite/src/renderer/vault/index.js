@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import * as Yup from 'yup'
 
 import { remote } from 'electron'
 
@@ -56,20 +57,59 @@ const _entryToIdentity = entry => {
     id: entryObj.id,
     name: entryObj.properties.name,
     address: entryObj.properties.address,
-    transparentAddress: entryObj.properties.transparentAddress
+    transparentAddress: entryObj.properties.transparentAddress,
+    keys: JSON.parse(entryObj.properties.keys || '{}')
   }
 }
 
 export const getVault = withVaultInitialized(() => _vault)
 
-export const createIdentity = async ({ name, address, transparentAddress }) => {
+const newIdentitySchema = Yup.object().shape({
+  name: Yup.string().required(),
+  transparentAddress: Yup.string().required(),
+  address: Yup.string().required(),
+  keys: Yup.object().shape({
+    sk: Yup.string().required(),
+    tpk: Yup.string().required()
+  }).required()
+})
+
+export const createIdentity = async (identity) => {
   let entry = null
+  await newIdentitySchema.validate(identity)
   await _vault.withWorkspace(workspace => {
     const [identitiesGroup] = workspace.archive.findGroupsByTitle('Identities')
-    entry = identitiesGroup.createEntry(name)
-      .setProperty('name', name)
-      .setProperty('address', address)
-      .setProperty('transparentAddress', transparentAddress)
+    entry = identitiesGroup.createEntry(identity.name)
+      .setProperty('name', identity.name)
+      .setProperty('address', identity.address)
+      .setProperty('transparentAddress', identity.transparentAddress)
+      .setProperty('keys', JSON.stringify(identity.keys))
+    workspace.save()
+  })
+  return _entryToIdentity(entry)
+}
+
+const updateIdentitySchema = Yup.object().shape({
+  id: Yup.string().required(),
+  name: Yup.string().required(),
+  transparentAddress: Yup.string().required(),
+  address: Yup.string().required(),
+  keys: Yup.object().shape({
+    sk: Yup.string().required(),
+    tpk: Yup.string().required()
+  }).required()
+})
+
+export const updateIdentity = async (identity) => {
+  let entry = null
+  await updateIdentitySchema.validate(identity)
+  await _vault.withWorkspace(workspace => {
+    const [identitiesGroup] = workspace.archive.findGroupsByTitle('Identities')
+    entry = identitiesGroup.findEntryByID(identity.id)
+      .setProperty('name', identity.name)
+      .setProperty('address', identity.address)
+      .setProperty('transparentAddress', identity.transparentAddress)
+      .setProperty('keys', JSON.stringify(identity.keys))
     workspace.save()
   })
   return _entryToIdentity(entry)

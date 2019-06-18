@@ -11,6 +11,7 @@ import operationHandlers, { operationTypes, ShieldBalanceOp } from './operations
 import vaultHandlers from './vault'
 import nodeHandlers from './node'
 import { getVault } from '../../vault'
+import migrateTo_0_2_0 from '../../../shared/migrations/0_2_0' // eslint-disable-line camelcase
 
 export const Identity = Immutable.Record({
   id: null,
@@ -72,7 +73,6 @@ export const fetchBalance = () => async (dispatch, getState) => {
     const balance = await getClient().accounting.balance(address)
     const transparentBalance = await getClient().accounting.balance(tAddress)
     const realTBalance = transparentBalance.minus(fee)
-    // TODO: test adds operation
     if (realTBalance.gt(0)) {
       await dispatch(shieldBalance({
         from: tAddress,
@@ -91,13 +91,25 @@ export const fetchBalance = () => async (dispatch, getState) => {
 
 export const createIdentity = ({ name }) => async (dispatch, getState) => {
   try {
-    const { value: address } = await dispatch(nodeHandlers.actions.createAddress())
-    const transparentAddress = await getClient().addresses.createTransparent()
+    const [{ value: address }, transparentAddress] = await Promise.all([
+      dispatch(nodeHandlers.actions.createAddress()),
+      getClient().addresses.createTransparent()
+    ])
+    const [tpk, sk] = await Promise.all([
+      await getClient().keys.exportTPK(transparentAddress),
+      await getClient().keys.exportSK(address)
+    ])
+
     const { value: identity } = await dispatch(vaultHandlers.actions.createIdentity({
       name,
       address,
-      transparentAddress
+      transparentAddress,
+      keys: {
+        tpk,
+        sk
+      }
     }))
+
     const network = nodeSelectors.network(getState())
     const generalChannel = channels.general[network]
     await getVault().channels.importChannel(identity.id, generalChannel)
@@ -111,7 +123,15 @@ export const createIdentity = ({ name }) => async (dispatch, getState) => {
   }
 }
 
-export const setIdentityEpic = (identity) => async (dispatch) => {
+export const setIdentityEpic = (identityToSet) => async (dispatch) => {
+  const identity = await migrateTo_0_2_0.ensureIdentityHasKeys(identityToSet)
+
+  // Make sure identity is handled by the node
+  await Promise.all([
+    getClient().keys.importSK({ sk: identity.keys.sk }),
+    getClient().keys.importTPK(identity.keys.tpk)
+  ])
+
   dispatch(setIdentity(identity))
   await Promise.all([
     dispatch(fetchBalance()),

@@ -20,8 +20,8 @@ exports[`vault reducer epics - createVault creates identity and sets balance 1`]
 Immutable.IdentityState {
   "data": Immutable.Identity {
     "id": "thisisatestid",
-    "address": "sapling-zcash-address",
-    "transparentAddress": "",
+    "address": "sapling-private-address",
+    "transparentAddress": "transparent-address",
     "name": "Mercury",
     "balance": "2.2352",
   },
