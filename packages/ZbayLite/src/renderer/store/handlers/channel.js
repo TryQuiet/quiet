@@ -11,10 +11,10 @@ import nodeSelectors from '../selectors/node'
 import operationsSelectors from '../selectors/operations'
 import { getClient } from '../../zcash'
 import { messages } from '../../zbay'
-import { errorNotification } from './utils'
+import { errorNotification, LoaderState } from './utils'
 
 export const MessagesState = Immutable.Record({
-  loading: false,
+  loader: LoaderState(),
   data: Immutable.List(),
   errors: ''
 })
@@ -33,8 +33,12 @@ const setSpentFilterValue = createAction('SET_SPENT_FILTER_VALUE', (_, value) =>
 const setMessage = createAction('SET_CHANNEL_MESSAGE', R.path(['target', 'value']))
 const setChannelId = createAction('SET_CHANNEL_ID')
 const setMessages = createAction('SET_CHANNEL_MESSAGES')
+const setLoading = createAction('SET_CHANNEL_LOADING')
+const setLoadingMessage = createAction('SET_CHANNEL_LOADING_MESSAGE')
 
 export const actions = {
+  setLoading,
+  setLoadingMessage,
   setSpentFilterValue,
   setMessage,
   setChannelId
@@ -66,8 +70,13 @@ const loadMessages = () => async (dispatch, getState) => {
 }
 
 const loadChannel = (id) => async (dispatch, getState) => {
-  dispatch(setChannelId(id))
-  await dispatch(loadMessages())
+  dispatch(setLoading(true))
+  dispatch(setLoadingMessage('Loading messages'))
+  try {
+    dispatch(setChannelId(id))
+    await dispatch(loadMessages())
+  } catch (err) {}
+  dispatch(setLoading(false))
 }
 
 const sendOnEnter = (event) => async (dispatch, getState) => {
@@ -141,7 +150,10 @@ export const epics = {
   loadMessages
 }
 
+// TODO: we should have a global loader map
 export const reducer = handleActions({
+  [setLoading]: (state, { payload: loading }) => state.setIn(['messages', 'loader', 'loading'], loading),
+  [setLoadingMessage]: (state, { payload: message }) => state.setIn(['messages', 'loader', 'message'], message),
   [setSpentFilterValue]: (state, { payload: value }) => state.set('spentFilterValue', new BigNumber(value)),
   [setMessage]: (state, { payload: value }) => state.set('message', value),
   [setChannelId]: (state, { payload: id }) => state.set('id', id),
@@ -149,7 +161,6 @@ export const reducer = handleActions({
     'messages',
     msgMeta => msgMeta
       .set('data', Immutable.fromJS(messages))
-      .set('loading', false)
   )
 }, initialState)
 

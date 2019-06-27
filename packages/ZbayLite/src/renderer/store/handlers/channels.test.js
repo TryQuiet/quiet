@@ -65,20 +65,16 @@ describe('channels reducer', () => {
       expect(zcashMock.requestManager.z_importviewingkey.mock.calls).toMatchSnapshot()
     })
 
-    it('when rejected', async () => {
-      const errorMsg = 'list channels error'
+    it('cleans up loading when rejected', async () => {
       vault.getVault.mockImplementation(() => ({
         channels: {
-          listChannels: jest.fn(async () => { throw Error(errorMsg) })
+          listChannels: jest.fn(async () => { throw Error('list channels error') })
         }
       }))
-      expect.assertions(2)
       try {
         await store.dispatch(actions.loadChannels('this is a test id'))
-      } catch (err) {
-        expect(err.message).toEqual(errorMsg)
-      }
-      expect(channelsSelectors.errors(store.getState())).toEqual(errorMsg)
+      } catch (err) {}
+      expect(channelsSelectors.loader(store.getState())).toMatchSnapshot()
     })
 
     it('when pending', async () => {

@@ -8,6 +8,7 @@ import channelsSelectors from './channels'
 import create from '../create'
 import { ChannelsState } from '../handlers/channels'
 import { createChannel } from '../../testUtils'
+import { LoaderState } from '../handlers/utils'
 
 describe('Channels selectors', () => {
   let store = null
@@ -16,7 +17,10 @@ describe('Channels selectors', () => {
     store = create({
       initialState: Immutable.Map({
         channels: ChannelsState({
-          loading: true,
+          loader: LoaderState({
+            loading: true,
+            message: 'Loading messages'
+          }),
           data: R.range(0, 3).map(
             R.compose(
               Immutable.fromJS,
@@ -32,7 +36,7 @@ describe('Channels selectors', () => {
     expect(channelsSelectors.channels(store.getState())).toMatchSnapshot()
   })
 
-  it('loading', async () => {
-    expect(channelsSelectors.loading(store.getState())).toMatchSnapshot()
+  it('- loader', async () => {
+    expect(channelsSelectors.loader(store.getState())).toMatchSnapshot()
   })
 })

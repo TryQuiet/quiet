@@ -32,14 +32,14 @@ const styles = theme => ({
   }
 })
 
-export const Index = ({ classes }) => (
+export const Index = ({ classes, bootstrapping, bootstrappingMessage }) => (
   <WindowWrapper className={classes.root}>
     <Card className={classes.card}>
       <Grid container direction='row'>
         <CardMedia image={ZcashIcon} className={classes.icon} />
         <CardContent className={classes.content}>
           <Typography variant='body1' align='justify' gutterBottom>
-            Waiting for Zcash node.
+            { bootstrapping ? bootstrappingMessage : 'Waiting for Zcash node.'}
           </Typography>
           <NodeStatus />
         </CardContent>
@@ -49,7 +49,14 @@ export const Index = ({ classes }) => (
 )
 
 Index.propTypes = {
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
+  bootstrapping: PropTypes.bool.isRequired,
+  bootstrappingMessage: PropTypes.string.isRequired
+}
+
+Index.defaultProps = {
+  bootstrapping: false,
+  bootstrappingMessage: ''
 }
 
 export default withStyles(styles)(Index)

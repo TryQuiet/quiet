@@ -7,6 +7,7 @@ import create from '../create'
 import { IdentityState, Identity } from '../handlers/identity'
 import { RatesState } from '../handlers/rates'
 import { Operation, operationTypes, ShieldBalanceOp } from '../handlers/operations'
+import { LoaderState } from '../handlers/utils'
 import selectors from './identity'
 
 describe('identity selectors', () => {
@@ -23,6 +24,10 @@ describe('identity selectors', () => {
             name: 'Saturn',
             transparentBalance: '12.123456',
             balance: '33.583004'
+          }),
+          loader: LoaderState({
+            message: 'Test loading message',
+            loading: true
           })
         }),
         rates: RatesState({
@@ -84,5 +89,9 @@ describe('identity selectors', () => {
 
   it('data', () => {
     expect(selectors.data(store.getState())).toMatchSnapshot()
+  })
+
+  it('loader', () => {
+    expect(selectors.loader(store.getState())).toMatchSnapshot()
   })
 })

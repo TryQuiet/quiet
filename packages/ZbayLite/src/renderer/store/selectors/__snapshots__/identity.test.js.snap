@@ -26,7 +26,18 @@ Immutable.IdentityState {
     "balance": "33.583004",
   },
   "fetchingBalance": false,
+  "loader": Immutable.Record {
+    "loading": true,
+    "message": "Test loading message",
+  },
   "errors": "",
+}
+`;
+
+exports[`identity selectors loader 1`] = `
+Immutable.Record {
+  "loading": true,
+  "message": "Test loading message",
 }
 `;
 

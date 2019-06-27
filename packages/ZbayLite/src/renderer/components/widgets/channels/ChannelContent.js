@@ -7,6 +7,7 @@ import { withStyles } from '@material-ui/core/styles'
 
 import ChannelInput from '../../../containers/widgets/channels/ChannelInput'
 import ChannelMessages from '../../../containers/widgets/channels/ChannelMessages'
+import { withSpinnerLoader } from '../../ui/SpinnerLoader'
 
 const styles = {
   fullHeight: {
@@ -32,6 +33,6 @@ ChannelContent.propTypes = {
 }
 
 export default R.compose(
-  React.memo,
+  withSpinnerLoader,
   withStyles(styles)
 )(ChannelContent)

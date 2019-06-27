@@ -81,6 +81,20 @@ describe('Identity reducer handles', () => {
       )
       assertStoreState()
     })
+
+    it('- setLoading', async () => {
+      await store.dispatch(
+        identityHandlers.actions.setLoading(true)
+      )
+      assertStoreState()
+    })
+
+    it('- setLoadingMessage', async () => {
+      await store.dispatch(
+        identityHandlers.actions.setLoadingMessage('This is a loading message')
+      )
+      expect({}).toMatchSnapshot()
+    })
   })
 
   describe('epics', () => {

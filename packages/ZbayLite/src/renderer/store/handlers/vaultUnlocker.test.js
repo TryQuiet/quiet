@@ -13,6 +13,7 @@ import selectors from '../selectors/vaultUnlocker'
 import vaultSelectors from '../selectors/vault'
 import identitySelectors from '../selectors/identity'
 import channelsSelectors from '../selectors/channels'
+import criticalErrorSelectors from '../selectors/criticalError'
 import { actions, VaultUnlockerState, epics } from './vaultUnlocker'
 import { NodeState } from './node'
 import { mockEvent } from '../../../shared/testing/mocks'
@@ -103,16 +104,20 @@ describe('VaultUnlocker reducer', () => {
         expect(channels.map(ch => ch.delete('id')))
       })
 
-      it('clears after unlock throws', async () => {
+      it('generates critical errors', async () => {
         jest.spyOn(console, 'warn').mockImplementation()
         vault.unlock.mockImplementationOnce(async () => { throw Error('unlock error') })
         store.dispatch(actions.setPassword(mockEvent('test password')))
         expect(vaultSelectors.locked(store.getState())).toBeTruthy()
 
-        await store.dispatch(epics.unlockVault())
+        try {
+          await store.dispatch(epics.unlockVault())
+        } catch (err) {}
 
         expect(vaultSelectors.locked(store.getState())).toBeTruthy()
-        assertStoreState()
+        const error = criticalErrorSelectors.criticalError(store.getState())
+        expect(error.message).toMatchSnapshot()
+        expect(error.traceback).toEqual(expect.stringContaining(error.message))
       })
     })
   })

@@ -7,6 +7,7 @@ import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
 
 import Elipsis from '../ui/Elipsis'
+import { withSpinnerLoader } from '../ui/SpinnerLoader'
 import { getZbayAddress } from '../utils'
 
 const styles = theme => ({
@@ -48,5 +49,6 @@ IdentityPanel.propTypes = {
 
 export default R.compose(
   React.memo,
+  withSpinnerLoader,
   withStyles(styles)
 )(IdentityPanel)

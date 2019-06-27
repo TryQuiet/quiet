@@ -6,7 +6,44 @@ Immutable.ChannelState {
   "id": "this-is-a-test-id",
   "message": "",
   "messages": Immutable.Record {
-    "loading": false,
+    "loader": Immutable.Record {
+      "loading": false,
+      "message": "",
+    },
+    "data": Immutable.List [],
+    "errors": "",
+  },
+  "members": null,
+}
+`;
+
+exports[`channel reducer handles actions - setLoading 1`] = `
+Immutable.ChannelState {
+  "spentFilterValue": "0",
+  "id": null,
+  "message": "",
+  "messages": Immutable.Record {
+    "loader": Immutable.Record {
+      "loading": true,
+      "message": "",
+    },
+    "data": Immutable.List [],
+    "errors": "",
+  },
+  "members": null,
+}
+`;
+
+exports[`channel reducer handles actions - setLoadingMessage 1`] = `
+Immutable.ChannelState {
+  "spentFilterValue": "0",
+  "id": null,
+  "message": "",
+  "messages": Immutable.Record {
+    "loader": Immutable.Record {
+      "loading": false,
+      "message": "this is a loading message",
+    },
     "data": Immutable.List [],
     "errors": "",
   },

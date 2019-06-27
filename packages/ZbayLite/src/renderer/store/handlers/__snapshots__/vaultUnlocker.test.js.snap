@@ -14,12 +14,7 @@ Immutable.VaultUnlockerState {
 }
 `;
 
-exports[`VaultUnlocker reducer handles epics unlockVault clears after unlock throws 1`] = `
-Immutable.VaultUnlockerState {
-  "password": "",
-  "passwordVisible": false,
-}
-`;
+exports[`VaultUnlocker reducer handles epics unlockVault generates critical errors 1`] = `"unlock error"`;
 
 exports[`VaultUnlocker reducer handles epics unlockVault unlocks the vault 1`] = `
 Array [

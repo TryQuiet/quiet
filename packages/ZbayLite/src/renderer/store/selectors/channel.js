@@ -30,6 +30,8 @@ export const messagesMeta = createSelector(channel, c => c.messages)
 
 const _isOwner = (address, message) => message.getIn(['sender', 'replyTo']) === address
 
+export const loader = createSelector(messagesMeta, meta => meta.loader)
+
 export const messages = createSelector(
   identitySelectors.data,
   messagesMeta,
@@ -51,6 +53,7 @@ export const messages = createSelector(
 
 export default {
   data,
+  loader,
   channel,
   spentFilterValue,
   message,

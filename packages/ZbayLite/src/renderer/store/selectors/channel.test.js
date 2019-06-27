@@ -10,6 +10,7 @@ import create from '../create'
 import { ChannelState, MessagesState } from '../handlers/channel'
 import { ChannelsState } from '../handlers/channels'
 import { createMessage, createChannel, now } from '../../testUtils'
+import { LoaderState } from '../handlers/utils'
 
 describe('Channel selector', () => {
   const channelId = 'this-is-a-test-id'
@@ -28,7 +29,11 @@ describe('Channel selector', () => {
             data: Immutable.fromJS(
               R.range(0, 4)
                 .map(i => createMessage(i, now.minus({ hours: 2 * i }).toSeconds()))
-            )
+            ),
+            loader: LoaderState({
+              message: 'Test loading message',
+              loading: true
+            })
           })
         }),
         channels: ChannelsState({
@@ -101,5 +106,9 @@ describe('Channel selector', () => {
 
   it('pendingMessages', () => {
     expect(channelSelectors.pendingMessages(store.getState())).toMatchSnapshot()
+  })
+
+  it('loader', () => {
+    expect(channelSelectors.loader(store.getState())).toMatchSnapshot()
   })
 })

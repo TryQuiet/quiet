@@ -2,7 +2,7 @@ import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
 import { createAction, handleActions } from 'redux-actions'
 
-import { typeFulfilled, typeRejected } from './utils'
+import { typeRejected, LoaderState } from './utils'
 import { getClient } from '../../zcash'
 
 const DEFAULT_ADDRESS_TYPE = 'sapling'
@@ -14,6 +14,7 @@ export const NodeState = Immutable.Record({
   isTestnet: null,
   status: 'connecting',
   errors: '',
+  bootstrapLoader: LoaderState(),
   startedAt: null
 }, 'NodeState')
 
@@ -22,17 +23,13 @@ export const initialState = NodeState()
 export const actionTypes = {
   GET_STATUS: 'GET_NODE_STATUS',
   CREATE_ADDRESS: 'CREATE_ZCASH_ADDRESS',
-  GET_BALANCE: 'GET_BALANCE'
+  GET_BALANCE: 'GET_BALANCE',
+  SET_STATUS: 'SET_NODE_STATUS',
+  SET_BOOTSTRAPPING: 'SET_NODE_BOOTSTRAPPING',
+  SET_BOOTSTRAPPING_MESSAGE: 'SET_NODE_BOOTSTRAPPING_MESSAGE'
 }
 
-// TODO: using return with arrow functions because otherwise mocks in test fail
-// since getClient() is evaluated when module is loaded, not on call
-const getStatus = createAction(
-  actionTypes.GET_STATUS,
-  async () => {
-    return getClient().status.info()
-  }
-)
+const setStatus = createAction(actionTypes.SET_STATUS)
 
 const createAddress = createAction(
   actionTypes.CREATE_ADDRESS,
@@ -41,9 +38,22 @@ const createAddress = createAction(
   }
 )
 
+const setBootstrapping = createAction(actionTypes.SET_BOOTSTRAPPING)
+const setBootstrappingMessage = createAction(actionTypes.SET_BOOTSTRAPPING_MESSAGE)
+
 const actions = {
-  getStatus,
-  createAddress
+  createAddress,
+  setBootstrapping,
+  setBootstrappingMessage
+}
+
+const getStatus = () => async (dispatch) => {
+  try {
+    const info = await getClient().status.info()
+    dispatch(setStatus(info))
+  } catch (err) {
+    dispatch(setStatus({ 'status': 'down', errors: err }))
+  }
 }
 
 const restart = () => (dispatch) => {
@@ -55,17 +65,16 @@ const togglePower = () => (dispatch) => {
 }
 
 const epics = {
+  getStatus,
   restart,
   togglePower
 }
 
 export const reducer = handleActions({
-  [typeFulfilled(actionTypes.GET_STATUS)]: (state, { payload: status }) => state.merge(status),
-  [typeRejected(actionTypes.GET_STATUS)]: (state, { payload: errors }) => NodeState().merge({
-    status: 'down',
-    errors
-  }),
-  [typeRejected(actionTypes.CREATE_ADDRESS)]: (state, { payload: errors }) => state.set('errors', errors)
+  [actionTypes.SET_STATUS]: (state, { payload: status }) => state.merge(status),
+  [typeRejected(actionTypes.CREATE_ADDRESS)]: (state, { payload: errors }) => state.set('errors', errors),
+  [setBootstrapping]: (state, { payload: bootstrapping }) => state.setIn(['bootstrapLoader', 'loading'], bootstrapping),
+  [setBootstrappingMessage]: (state, { payload: message }) => state.setIn(['bootstrapLoader', 'message'], message)
 }, initialState)
 
 export default {

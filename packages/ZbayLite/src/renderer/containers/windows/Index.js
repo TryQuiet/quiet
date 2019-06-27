@@ -10,11 +10,13 @@ import nodeSelectors from '../../store/selectors/node'
 import { useInterval } from '../hooks'
 
 export const mapDispatchToProps = dispatch => bindActionCreators({
-  getStatus: nodeHandlers.actions.getStatus
+  getStatus: nodeHandlers.epics.getStatus
 }, dispatch)
 
 export const mapStateToProps = state => ({
-  nodeConnected: nodeSelectors.isConnected(state)
+  nodeConnected: nodeSelectors.isConnected(state),
+  bootstrapping: nodeSelectors.bootstrapping(state),
+  bootstrappingMessage: nodeSelectors.bootstrappingMessage(state)
 })
 
 export const Index = ({ getStatus, nodeConnected, ...props }) => {

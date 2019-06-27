@@ -29,7 +29,8 @@ export const spawnZcashNode = (platform, isTestnet) => {
   const zcashdPath = getZcashResource('zcashd', platform)
   const configName = isTestnet ? 'testnet.conf' : 'mainnet.conf'
   const options = [
-    `-conf=${getResourcesPath(ZCASH_RESOURCES, configName)}`
+    `-conf=${getResourcesPath(ZCASH_RESOURCES, configName)}`,
+    '-debug=1'
   ]
   return spawn(zcashdPath, options)
 }

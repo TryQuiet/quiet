@@ -1,0 +1,90 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ErrorModal renders component 1`] = `
+<Memo(WithStyles(Modal))
+  handleClose={[MockFunction]}
+  open={true}
+  title="Error"
+>
+  <WithStyles(Grid)
+    className="root-mock"
+    container={true}
+    direction="column"
+    justify="flex-start"
+    spacing={24}
+  >
+    <WithStyles(Grid)
+      alignItems="center"
+      container={true}
+      direction="column"
+      item={true}
+    >
+      <pure(ErrorOutlineIcon)
+        className="icon-mock"
+      />
+      <WithStyles(Typography)>
+        Test error message
+      </WithStyles(Typography)>
+    </WithStyles(Grid)>
+    <WithStyles(Grid)
+      container={true}
+      direction="column"
+      item={true}
+      spacing={16}
+    >
+      <WithStyles(Grid)
+        alignItems="center"
+        container={true}
+        direction="row"
+        item={true}
+      >
+        <WithStyles(Typography)
+          display="inline"
+          variant="h5"
+        >
+          Traceback
+        </WithStyles(Typography)>
+        <CopyToClipboard
+          onCopy={[MockFunction]}
+          text="Error: Test error message, error traceback"
+        >
+          <WithStyles(IconButton)
+            className="copyButton-mock"
+          >
+            <pure(FileCopyIcon) />
+          </WithStyles(IconButton)>
+        </CopyToClipboard>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+      >
+        <WithStyles(Typography)>
+          Before sending error traceback to our devs please make sure it doesn't contain any private data.
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+      >
+        <TextField
+          InputProps={
+            Object {
+              "classes": Object {
+                "multiline": "stackTrace-mock",
+              },
+            }
+          }
+          disabled={true}
+          fullWidth={true}
+          id="traceback"
+          multiline={true}
+          required={false}
+          rows={10}
+          select={false}
+          value="Error: Test error message, error traceback"
+          variant="outlined"
+        />
+      </WithStyles(Grid)>
+    </WithStyles(Grid)>
+  </WithStyles(Grid)>
+</Memo(WithStyles(Modal))>
+`;

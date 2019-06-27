@@ -7,7 +7,7 @@ import nodeHandlers from '../../../store/handlers/node'
 import { useInterval } from '../../hooks'
 
 export const mapDispatchToProps = dispatch => bindActionCreators({
-  getStatus: nodeHandlers.actions.getStatus
+  getStatus: nodeHandlers.epics.getStatus
 }, dispatch)
 
 export const NodePanel = ({ className, getStatus }) => {

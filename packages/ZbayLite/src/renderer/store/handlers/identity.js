@@ -12,6 +12,7 @@ import vaultHandlers from './vault'
 import nodeHandlers from './node'
 import { getVault } from '../../vault'
 import migrateTo_0_2_0 from '../../../shared/migrations/0_2_0' // eslint-disable-line camelcase
+import { LoaderState } from './utils'
 
 export const Identity = Immutable.Record({
   id: null,
@@ -24,6 +25,7 @@ export const Identity = Immutable.Record({
 export const IdentityState = Immutable.Record({
   data: Identity(),
   fetchingBalance: false,
+  loader: LoaderState(),
   errors: ''
 }, 'IdentityState')
 
@@ -33,11 +35,15 @@ export const setIdentity = createAction('SET_IDENTITY')
 export const setBalance = createAction('SET_IDENTITY_BALANCE')
 export const setErrors = createAction('SET_IDENTITY_ERROR')
 export const setFetchingBalance = createAction('SET_FETCHING_BALANCE')
+export const setLoading = createAction('SET_IDENTITY_LOADING')
+export const setLoadingMessage = createAction('SET_IDENTITY_LOADING_MESSAGE')
 
 const actions = {
   setIdentity,
   setFetchingBalance,
   setErrors,
+  setLoading,
+  setLoadingMessage,
   setBalance
 }
 
@@ -63,7 +69,6 @@ export const shieldBalance = ({ from, to, amount, fee }) => async (dispatch, get
   )
 }
 
-// TODO: [refactoring] accept identity
 export const fetchBalance = () => async (dispatch, getState) => {
   const fee = 0.0001
   dispatch(setFetchingBalance(true))
@@ -124,19 +129,28 @@ export const createIdentity = ({ name }) => async (dispatch, getState) => {
 }
 
 export const setIdentityEpic = (identityToSet) => async (dispatch) => {
-  const identity = await migrateTo_0_2_0.ensureIdentityHasKeys(identityToSet)
+  dispatch(setLoading(true))
+  try {
+    dispatch(setLoadingMessage('Ensuring identity integrity'))
+    const identity = await migrateTo_0_2_0.ensureIdentityHasKeys(identityToSet)
 
-  // Make sure identity is handled by the node
-  await Promise.all([
-    getClient().keys.importSK({ sk: identity.keys.sk }),
-    getClient().keys.importTPK(identity.keys.tpk)
-  ])
+    // Make sure identity is handled by the node
+    dispatch(setLoadingMessage('Ensuring node contains identity keys'))
+    await Promise.all([
+      getClient().keys.importSK({ sk: identity.keys.sk }),
+      getClient().keys.importTPK(identity.keys.tpk)
+    ])
 
-  dispatch(setIdentity(identity))
-  await Promise.all([
-    dispatch(fetchBalance()),
-    dispatch(channelsHandlers.actions.loadChannels(identity.id))
-  ])
+    dispatch(setLoadingMessage('Setting identity'))
+    dispatch(setIdentity(identity))
+    dispatch(setLoadingMessage('Fetching balance and loading channels'))
+    await Promise.all([
+      dispatch(fetchBalance()),
+      dispatch(channelsHandlers.actions.loadChannels(identity.id))
+    ])
+  } catch (err) {
+  }
+  dispatch(setLoading(false))
 }
 
 const epics = {
@@ -146,6 +160,8 @@ const epics = {
 }
 
 export const reducer = handleActions({
+  [setLoading]: (state, { payload: loading }) => state.setIn(['loader', 'loading'], loading),
+  [setLoadingMessage]: (state, { payload: message }) => state.setIn(['loader', 'message'], message),
   [setIdentity]: (state, { payload: identity }) => state.update(
     'data',
     data => data.merge(identity)

@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SpinnerLoader renders component 1`] = `
+<WithStyles(Grid)
+  alignItems="center"
+  className="test-class-name"
+  container={true}
+  direction="column"
+  justify="center"
+>
+  <WithStyles(CircularProgress) />
+  <WithStyles(Typography)
+    align="center"
+    className="message-mock"
+    variant="caption"
+  >
+    Test loading message
+  </WithStyles(Typography)>
+</WithStyles(Grid)>
+`;

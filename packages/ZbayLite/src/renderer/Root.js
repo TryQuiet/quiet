@@ -11,6 +11,8 @@ import Index from './containers/windows/Index'
 import Main from './containers/windows/Main'
 import Vault from './containers/windows/Vault'
 import Notifier from './containers/ui/Notifier'
+import ErrorModal from './containers/ui/ErrorModal'
+import QuitAppDialog from './containers/ui/QuitAppDialog'
 
 import theme from './theme'
 
@@ -20,6 +22,8 @@ export default () => (
       <Provider store={store}>
         <SnackbarProvider maxSnack={3}>
           <Notifier />
+          <ErrorModal />
+          <QuitAppDialog />
           <CssBaseline />
           <Route path='/' exact component={Index} />
           <Route path='/main' component={Main} />

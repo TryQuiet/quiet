@@ -1,3 +1,5 @@
+import Immutable from 'immutable'
+
 import { notifierAction } from '../../components/ui/DismissSnackbarAction'
 
 export const typePending = name => `${name}_PENDING`
@@ -20,6 +22,11 @@ export const successNotification = (message, options = {}) => ({
     variant: 'success',
     ...options
   }
+})
+
+export const LoaderState = Immutable.Record({
+  loading: false,
+  message: ''
 })
 
 export default {

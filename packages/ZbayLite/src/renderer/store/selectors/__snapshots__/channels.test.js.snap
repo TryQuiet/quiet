@@ -40,9 +40,16 @@ Immutable.ChannelsState {
       },
     },
   ],
-  "loading": true,
-  "errors": "",
+  "loader": Immutable.Record {
+    "loading": true,
+    "message": "Loading messages",
+  },
 }
 `;
 
-exports[`Channels selectors loading 1`] = `true`;
+exports[`Channels selectors - loader 1`] = `
+Immutable.Record {
+  "loading": true,
+  "message": "Loading messages",
+}
+`;

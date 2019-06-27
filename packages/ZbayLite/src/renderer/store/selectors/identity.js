@@ -40,6 +40,8 @@ const transparentBalance = createSelector(
   )(ops)
 )
 
+const loader = createSelector(identity, i => i.loader)
+
 export default {
   id,
   data,
@@ -47,5 +49,6 @@ export default {
   address,
   transparentAddress,
   transparentBalance,
-  balance
+  balance,
+  loader
 }

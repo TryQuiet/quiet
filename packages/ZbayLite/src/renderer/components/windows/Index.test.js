@@ -11,18 +11,14 @@ describe('Index', () => {
     expect(result).toMatchSnapshot()
   })
 
-  it('renders doesn\'t exists', () => {
-    const result = shallow(<Index classes={mockClasses} exists={false} locked />)
-    expect(result).toMatchSnapshot()
-  })
-
-  it('renders locked', () => {
-    const result = shallow(<Index classes={mockClasses} exists locked />)
-    expect(result).toMatchSnapshot()
-  })
-
-  it('renders unlocked', () => {
-    const result = shallow(<Index classes={mockClasses} exists locked={false} />)
+  it('renders when bootstrapping', () => {
+    const result = shallow(
+      <Index
+        classes={mockClasses}
+        bootstrapping
+        bootstrappingMessage='Launching node'
+      />
+    )
     expect(result).toMatchSnapshot()
   })
 })

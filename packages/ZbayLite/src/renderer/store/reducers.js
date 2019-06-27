@@ -12,6 +12,7 @@ import vaultUnlockerHandlers from './handlers/vaultUnlocker'
 import modalsHandlers from './handlers/modals'
 import operationsHandlers from './handlers/operations'
 import pendingMessagesHandlers from './handlers/pendingMessages'
+import criticalErrorHandlers from './handlers/criticalError'
 
 export default combineReducers({
   operations: operationsHandlers.reducer,
@@ -25,5 +26,6 @@ export default combineReducers({
   channels: channelsHandlers.reducer,
   node: nodeHandlers.reducer,
   vault: vaultHandlers.reducer,
-  vaultUnlocker: vaultUnlockerHandlers.reducer
+  vaultUnlocker: vaultUnlockerHandlers.reducer,
+  criticalError: criticalErrorHandlers.reducer
 })

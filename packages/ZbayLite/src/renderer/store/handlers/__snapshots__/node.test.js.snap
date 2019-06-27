@@ -10,7 +10,23 @@ Object {
 }
 `;
 
-exports[`Node reducer handles getStatus 1`] = `
+exports[`Node reducer handles epics - getStatus when node is down 1`] = `
+Immutable.NodeState {
+  "latestBlock": "0",
+  "currentBlock": "0",
+  "connections": "0",
+  "isTestnet": null,
+  "status": "down",
+  "errors": [Error: some kind of node error],
+  "bootstrapLoader": Immutable.Record {
+    "loading": false,
+    "message": "",
+  },
+  "startedAt": null,
+}
+`;
+
+exports[`Node reducer handles epics - getStatus when successfull 1`] = `
 Immutable.NodeState {
   "latestBlock": "2234",
   "currentBlock": "12",
@@ -18,6 +34,10 @@ Immutable.NodeState {
   "isTestnet": true,
   "status": "healthy",
   "errors": "",
+  "bootstrapLoader": Immutable.Record {
+    "loading": false,
+    "message": "",
+  },
   "startedAt": null,
 }
 `;
@@ -30,18 +50,10 @@ Immutable.NodeState {
   "isTestnet": null,
   "status": "connecting",
   "errors": [Error: createAddress error],
-  "startedAt": null,
-}
-`;
-
-exports[`Node reducer handles rejected getStatus 1`] = `
-Immutable.NodeState {
-  "latestBlock": "0",
-  "currentBlock": "0",
-  "connections": "0",
-  "isTestnet": null,
-  "status": "down",
-  "errors": [Error: some kind of node error],
+  "bootstrapLoader": Immutable.Record {
+    "loading": false,
+    "message": "",
+  },
   "startedAt": null,
 }
 `;

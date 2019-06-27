@@ -6,7 +6,10 @@ Immutable.ChannelState {
   "id": "this-is-a-test-id",
   "message": "Message written in the input",
   "messages": Immutable.Record {
-    "loading": false,
+    "loader": Immutable.Record {
+      "loading": true,
+      "message": "Test loading message",
+    },
     "data": Immutable.List [
       Immutable.Map {
         "id": 0,
@@ -67,6 +70,13 @@ Immutable.Map {
   "keys": Immutable.Map {
     "ivk": "incoming-viewing-key-this-is-a-test-id",
   },
+}
+`;
+
+exports[`Channel selector loader 1`] = `
+Immutable.Record {
+  "loading": true,
+  "message": "Test loading message",
 }
 `;
 

@@ -1,5 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`node selectors bootstrapping 1`] = `true`;
+
+exports[`node selectors bootstrappingMessage 1`] = `"Test loader message"`;
+
 exports[`node selectors node 1`] = `
 Immutable.NodeState {
   "latestBlock": 1000,
@@ -8,6 +12,10 @@ Immutable.NodeState {
   "isTestnet": true,
   "status": "healthy",
   "errors": "",
+  "bootstrapLoader": Immutable.Record {
+    "loading": true,
+    "message": "Test loader message",
+  },
   "startedAt": "2019-03-05T09:34:48.000Z",
 }
 `;

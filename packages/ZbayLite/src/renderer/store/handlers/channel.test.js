@@ -71,6 +71,18 @@ describe('channel reducer', () => {
       const channel = channelSelectors.channel(store.getState())
       expect(channel).toMatchSnapshot()
     })
+
+    it('- setLoading', () => {
+      store.dispatch(actions.setLoading(true))
+      const channel = channelSelectors.channel(store.getState())
+      expect(channel).toMatchSnapshot()
+    })
+
+    it('- setLoadingMessage', () => {
+      store.dispatch(actions.setLoadingMessage('this is a loading message'))
+      const channel = channelSelectors.channel(store.getState())
+      expect(channel).toMatchSnapshot()
+    })
   })
 
   describe('handles epics', () => {

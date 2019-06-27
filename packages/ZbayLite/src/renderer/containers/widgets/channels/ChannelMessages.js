@@ -15,10 +15,10 @@ export const mapDispatchToProps = dispatch => bindActionCreators({
   loadMessages: channelHandlers.epics.loadMessages
 }, dispatch)
 
-export const ChannelMessages = ({ className, messages, loadMessages }) => {
+export const ChannelMessages = ({ className, messages, loadMessages, loader }) => {
   useInterval(loadMessages, 15000)
   return (
-    <ChannelMessagesComponent messages={messages} />
+    <ChannelMessagesComponent messages={messages} loader={loader} />
   )
 }
 

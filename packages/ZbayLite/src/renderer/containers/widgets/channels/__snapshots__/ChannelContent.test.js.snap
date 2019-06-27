@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChannelContent will receive right props 1`] = `
+Object {
+  "loader": Immutable.Record {
+    "loading": false,
+    "message": "",
+  },
+}
+`;

@@ -8,7 +8,7 @@ import Page from '../ui/page/Page'
 import PageHeader from '../ui/page/PageHeader'
 
 import ChannelHeader from '../../containers/widgets/channels/ChannelHeader'
-import ChannelContent from '../widgets/channels/ChannelContent'
+import ChannelContent from '../../containers/widgets/channels/ChannelContent'
 
 const styles = {
   root: {}

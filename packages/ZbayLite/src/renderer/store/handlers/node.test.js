@@ -15,7 +15,7 @@ import nodeHandlers from './node'
 import nodeSelectors from '../selectors/node'
 import { getClient } from '../../zcash'
 
-describe('Node reducer', () => {
+describe('Node reducer handles', () => {
   const infoMock = jest.fn()
   const createMock = jest.fn()
   const balanceMock = jest.fn()
@@ -41,35 +41,13 @@ describe('Node reducer', () => {
     nodeSelectors.node(store.getState())
   ).toMatchSnapshot()
 
-  it('handles getStatus', async () => {
-    infoMock.mockImplementation(async () => ({
-      latestBlock: new BigNumber(2234),
-      currentBlock: new BigNumber(12),
-      connections: new BigNumber(10),
-      isTestnet: true,
-      status: 'healthy'
-    }))
-    await store.dispatch(nodeHandlers.actions.getStatus())
-    assertStoreState()
-  })
-
-  it('handles rejected getStatus', async () => {
-    infoMock.mockImplementation(async () => {
-      throw Error('some kind of node error')
-    })
-    try {
-      await store.dispatch(nodeHandlers.actions.getStatus())
-    } catch (err) {}
-    assertStoreState()
-  })
-
-  it('handles createAddress', async () => {
+  it('createAddress', async () => {
     createMock.mockImplementation(async (type) => `${type}-zcash-address`)
     const address = await store.dispatch(nodeHandlers.actions.createAddress('sapling'))
     expect(address).toMatchSnapshot()
   })
 
-  it('handles rejected createAddress', async () => {
+  it('rejected createAddress', async () => {
     createMock.mockImplementation(async () => {
       throw Error('createAddress error')
     })
@@ -77,5 +55,31 @@ describe('Node reducer', () => {
       await store.dispatch(nodeHandlers.actions.createAddress('sapling'))
     } catch (err) {}
     assertStoreState()
+  })
+
+  describe('epics -', () => {
+    describe('getStatus', () => {
+      it('when successfull', async () => {
+        infoMock.mockImplementation(async () => ({
+          latestBlock: new BigNumber(2234),
+          currentBlock: new BigNumber(12),
+          connections: new BigNumber(10),
+          isTestnet: true,
+          status: 'healthy'
+        }))
+        await store.dispatch(nodeHandlers.epics.getStatus())
+        assertStoreState()
+      })
+
+      it('when node is down', async () => {
+        infoMock.mockImplementation(async () => {
+          throw Error('some kind of node error')
+        })
+        try {
+          await store.dispatch(nodeHandlers.epics.getStatus())
+        } catch (err) {}
+        assertStoreState()
+      })
+    })
   })
 })

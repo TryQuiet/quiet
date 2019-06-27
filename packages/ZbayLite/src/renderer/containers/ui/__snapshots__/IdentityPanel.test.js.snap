@@ -9,5 +9,9 @@ Object {
     "name": "saturn",
     "balance": "23.435432",
   },
+  "loader": Immutable.Record {
+    "loading": false,
+    "message": "",
+  },
 }
 `;

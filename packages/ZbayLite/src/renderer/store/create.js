@@ -3,6 +3,7 @@ import thunk from 'redux-thunk'
 import promise from 'redux-promise-middleware'
 
 import reducers from './reducers'
+import { errorsMiddleware } from './middlewares'
 
 const composer = (enhancers) => {
   if (window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ &&
@@ -17,5 +18,5 @@ export default ({
 } = {}) => createStore(
   reducers,
   initialState,
-  composer(applyMiddleware(...[thunk, promise()]))
+  composer(applyMiddleware(...[errorsMiddleware, thunk, promise()]))
 )

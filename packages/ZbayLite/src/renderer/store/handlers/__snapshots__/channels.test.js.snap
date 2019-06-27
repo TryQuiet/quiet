@@ -1,5 +1,12 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`channels reducer handles load channels cleans up loading when rejected 1`] = `
+Immutable.Record {
+  "loading": false,
+  "message": "Loading channels",
+}
+`;
+
 exports[`channels reducer handles load channels makes sure keys are present 1`] = `
 Array [
   Array [
@@ -64,7 +71,9 @@ Immutable.List [
 exports[`channels reducer handles load channels when pending 1`] = `
 Immutable.ChannelsState {
   "data": Immutable.List [],
-  "loading": true,
-  "errors": "",
+  "loader": Immutable.Record {
+    "loading": true,
+    "message": "Loading channels",
+  },
 }
 `;

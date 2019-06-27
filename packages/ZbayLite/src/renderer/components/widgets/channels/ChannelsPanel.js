@@ -6,11 +6,11 @@ import { withContentRect } from 'react-measure'
 
 import Grid from '@material-ui/core/Grid'
 import RootRef from '@material-ui/core/RootRef'
-import CircularProgress from '@material-ui/core/CircularProgress'
 
 import ScalingChannelsList from './ScalingChannelsList'
 import SidebarHeader from '../../ui/SidebarHeader'
 import AddChannelAction from '../../../containers/widgets/channels/AddChannelAction'
+import { withSpinnerLoader } from '../../ui/SpinnerLoader'
 
 const constants = {
   sidebarHeight: 50,
@@ -28,26 +28,10 @@ export const ChannelsPanel = ({ channels, loading, measureRef, contentRect }) =>
             <AddChannelAction key='create-channel' />
           ]}
         />
-        {
-          loading
-            ? (
-              <Grid
-                container
-                justify='center'
-                alignItems='center'
-                spacing={32}
-              >
-                <CircularProgress style={{ margin: 32 }} />
-              </Grid>
-            )
-            : (
-              <ScalingChannelsList
-                channels={channels}
-                maxHeight={baseHeight - constants.sidebarHeight - constants.gutter}
-              />
-            )
-
-        }
+        <ScalingChannelsList
+          channels={channels}
+          maxHeight={baseHeight - constants.sidebarHeight - constants.gutter}
+        />
       </Grid>
     </RootRef>
   )
@@ -63,16 +47,14 @@ ChannelsPanel.propTypes = {
     bounds: PropTypes.shape({
       height: PropTypes.number
     }).isRequired
-  }),
-  loading: PropTypes.bool.isRequired
+  })
 }
 
 ChannelsPanel.defaultProps = {
-  channels: Immutable.List(),
-  loading: false
+  channels: Immutable.List()
 }
 
 export default R.compose(
-  React.memo,
+  withSpinnerLoader,
   withContentRect('bounds')
 )(ChannelsPanel)

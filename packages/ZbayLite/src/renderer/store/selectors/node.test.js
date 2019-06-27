@@ -5,6 +5,7 @@ import { DateTime } from 'luxon'
 
 import create from '../create'
 import { NodeState } from '../handlers/node'
+import { LoaderState } from '../handlers/utils'
 import selectors from './node'
 
 describe('node selectors', () => {
@@ -18,7 +19,11 @@ describe('node selectors', () => {
           isTestnet: true,
           connections: 15,
           status: 'healthy',
-          startedAt: DateTime.utc(2019, 3, 5, 9, 34, 48).toISO()
+          startedAt: DateTime.utc(2019, 3, 5, 9, 34, 48).toISO(),
+          bootstrapLoader: LoaderState({
+            loading: true,
+            message: 'Test loader message'
+          })
         })
       })
     })
@@ -96,4 +101,12 @@ describe('node selectors', () => {
       expect(selectors.isConnected(store.getState())).toBeFalsy()
     }
   )
+
+  it('bootstrapping', () => {
+    expect(selectors.bootstrapping(store.getState())).toMatchSnapshot()
+  })
+
+  it('bootstrappingMessage', () => {
+    expect(selectors.bootstrappingMessage(store.getState())).toMatchSnapshot()
+  })
 })

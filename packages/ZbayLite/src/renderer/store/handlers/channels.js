@@ -6,7 +6,8 @@ import {
   typeRejected,
   typePending,
   errorNotification,
-  successNotification
+  successNotification,
+  LoaderState
 } from './utils'
 import notificationsHandlers from './notifications'
 import identitySelectors from '../selectors/identity'
@@ -17,8 +18,7 @@ import { getClient } from '../../zcash'
 
 export const ChannelsState = Immutable.Record({
   data: Immutable.List(),
-  loading: false,
-  errors: ''
+  loader: LoaderState()
 }, 'ChannelsState')
 
 export const initialState = ChannelsState()
@@ -85,13 +85,13 @@ export const epics = {
 }
 
 export const reducer = handleActions({
-  [typePending(actionTypes.LOAD_CHANNELS)]: state => state.set('loading', true),
+  [typePending(actionTypes.LOAD_CHANNELS)]: state => state.setIn(['loader', 'loading'], true)
+    .setIn(['loader', 'message'], 'Loading channels'),
   [typeFulfilled(actionTypes.LOAD_CHANNELS)]: (state, { payload: data }) => state
     .set('data', Immutable.fromJS(data))
-    .set('loading', false),
+    .setIn(['loader', 'loading'], false),
   [typeRejected(actionTypes.LOAD_CHANNELS)]: (state, { payload: error }) => state
-    .set('loading', false)
-    .set('errors', error.message)
+    .setIn(['loader', 'loading'], false)
 }, initialState)
 
 export default {

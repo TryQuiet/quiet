@@ -32,7 +32,7 @@ exports[`Index renders component 1`] = `
 </Memo(WithStyles(WindowWrapper))>
 `;
 
-exports[`Index renders doesn't exists 1`] = `
+exports[`Index renders when bootstrapping 1`] = `
 <Memo(WithStyles(WindowWrapper))
   className="root-mock"
 >
@@ -55,71 +55,7 @@ exports[`Index renders doesn't exists 1`] = `
           gutterBottom={true}
           variant="body1"
         >
-          Waiting for Zcash node.
-        </WithStyles(Typography)>
-        <Connect(Component) />
-      </WithStyles(CardContent)>
-    </WithStyles(Grid)>
-  </WithStyles(Card)>
-</Memo(WithStyles(WindowWrapper))>
-`;
-
-exports[`Index renders locked 1`] = `
-<Memo(WithStyles(WindowWrapper))
-  className="root-mock"
->
-  <WithStyles(Card)
-    className="card-mock"
-  >
-    <WithStyles(Grid)
-      container={true}
-      direction="row"
-    >
-      <WithStyles(CardMedia)
-        className="icon-mock"
-        image="test-file-stub"
-      />
-      <WithStyles(CardContent)
-        className="content-mock"
-      >
-        <WithStyles(Typography)
-          align="justify"
-          gutterBottom={true}
-          variant="body1"
-        >
-          Waiting for Zcash node.
-        </WithStyles(Typography)>
-        <Connect(Component) />
-      </WithStyles(CardContent)>
-    </WithStyles(Grid)>
-  </WithStyles(Card)>
-</Memo(WithStyles(WindowWrapper))>
-`;
-
-exports[`Index renders unlocked 1`] = `
-<Memo(WithStyles(WindowWrapper))
-  className="root-mock"
->
-  <WithStyles(Card)
-    className="card-mock"
-  >
-    <WithStyles(Grid)
-      container={true}
-      direction="row"
-    >
-      <WithStyles(CardMedia)
-        className="icon-mock"
-        image="test-file-stub"
-      />
-      <WithStyles(CardContent)
-        className="content-mock"
-      >
-        <WithStyles(Typography)
-          align="justify"
-          gutterBottom={true}
-          variant="body1"
-        >
-          Waiting for Zcash node.
+          Launching node
         </WithStyles(Typography)>
         <Connect(Component) />
       </WithStyles(CardContent)>

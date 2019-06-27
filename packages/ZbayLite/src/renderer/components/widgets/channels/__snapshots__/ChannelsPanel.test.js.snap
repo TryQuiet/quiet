@@ -184,20 +184,10 @@ exports[`ChannelsPanel renders loading 1`] = `
       }
       title="Channels"
     />
-    <WithStyles(Grid)
-      alignItems="center"
-      container={true}
-      justify="center"
-      spacing={32}
-    >
-      <WithStyles(CircularProgress)
-        style={
-          Object {
-            "margin": 32,
-          }
-        }
-      />
-    </WithStyles(Grid)>
+    <Memo(ScalingChannelsList)
+      channels={Immutable.List []}
+      maxHeight={130}
+    />
   </WithStyles(Grid)>
 </RootRef>
 `;

@@ -4,12 +4,12 @@ const store = s => s
 
 const channels = createSelector(store, state => state.get('channels'))
 const data = createSelector(channels, ch => ch.data)
-const loading = createSelector(channels, ch => ch.loading)
+const loader = createSelector(channels, ch => ch.loader)
 const errors = createSelector(channels, c => c.get('errors'))
 
 export default {
   channels,
-  loading,
+  loader,
   data,
   errors
 }

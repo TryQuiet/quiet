@@ -6,7 +6,7 @@ import channelsSelectors from '../../../store/selectors/channels'
 
 export const mapStateToProps = state => ({
   channels: channelsSelectors.data(state),
-  loading: channelsSelectors.loading(state)
+  loader: channelsSelectors.loader(state)
 })
 
 export default connect(mapStateToProps)(ChannelsPanel)

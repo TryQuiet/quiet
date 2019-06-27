@@ -22,21 +22,12 @@ const togglePasswordVisibility = createAction('TOGGLE_UNLOCKER_PASSWORD')
 const clearUnlocker = createAction('CLEAR_UNLOCKER')
 
 const unlockVault = () => async (dispatch, getState) => {
-  dispatch(vaultHandlers.actions.clearError())
   const state = getState()
   const network = nodeSelectors.network(state)
   const masterPassword = vaultUnlockerSelectors.password(state)
-  try {
-    await dispatch(vaultHandlers.actions.unlockVault({ masterPassword, network }))
-  } catch (err) {
-    console.warn(err)
-  }
-  try {
-    const [identity] = await vault.identity.listIdentities()
-    await dispatch(identityHandlers.epics.setIdentity(identity))
-  } catch (err) {
-    console.log(err)
-  }
+  await dispatch(vaultHandlers.actions.unlockVault({ masterPassword, network }))
+  const [identity] = await vault.identity.listIdentities()
+  await dispatch(identityHandlers.epics.setIdentity(identity))
   await dispatch(clearUnlocker())
 }
 

@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`criticalError reducer handles actions - setCriticalError 1`] = `
+Immutable.CriticalError {
+  "message": "This is an error",
+  "traceback": "Error: This is an error",
+}
+`;

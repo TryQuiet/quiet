@@ -28,6 +28,9 @@ Object {
       },
     },
   ],
-  "loading": false,
+  "loader": Immutable.Record {
+    "loading": false,
+    "message": "",
+  },
 }
 `;

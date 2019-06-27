@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ErrorModal will receive right actions 1`] = `
+Object {
+  "handleExit": [Function],
+}
+`;
+
+exports[`ErrorModal will receive right props 1`] = `
+Object {
+  "message": "Something failed",
+  "traceback": "Error: something failed",
+}
+`;

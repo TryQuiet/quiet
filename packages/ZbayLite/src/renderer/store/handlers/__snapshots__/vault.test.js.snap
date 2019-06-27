@@ -26,6 +26,10 @@ Immutable.IdentityState {
     "balance": "2.2352",
   },
   "fetchingBalance": false,
+  "loader": Immutable.Record {
+    "loading": false,
+    "message": "Fetching balance and loading channels",
+  },
   "errors": "",
 }
 `;

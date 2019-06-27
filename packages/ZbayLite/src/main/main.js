@@ -30,12 +30,24 @@ const windowSize = {
 var mainWindow
 var nodeProc = null
 
-const createZcashNode = () => {
+const createZcashNode = (win) => {
+  win.webContents.send('bootstrappingNode', {
+    message: 'Ensuring zcash params are present',
+    bootstrapping: true
+  })
   ensureZcashParams(process.platform, (error) => {
     if (error) {
       throw error
     }
+    win.webContents.send('bootstrappingNode', {
+      message: 'Launching zcash node',
+      bootstrapping: true
+    })
     nodeProc = spawnZcashNode(process.platform, isTestnet)
+    mainWindow.webContents.send('bootstrappingNode', {
+      message: '',
+      bootstrapping: false
+    })
     nodeProc.on('close', () => {
       nodeProc = null
     })
@@ -70,9 +82,12 @@ app.on('ready', async () => {
     await installExtensions()
   }
   createWindow()
-  if (!nodeURL) {
-    createZcashNode()
-  }
+  mainWindow.webContents.on('did-finish-load', () => {
+    mainWindow.webContents.send('ping')
+    if (!nodeURL) {
+      createZcashNode(mainWindow)
+    }
+  })
 })
 
 process.on('exit', () => {
