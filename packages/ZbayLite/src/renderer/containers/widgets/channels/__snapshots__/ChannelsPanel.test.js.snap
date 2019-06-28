@@ -29,7 +29,7 @@ Object {
     },
   ],
   "loader": Immutable.Record {
-    "loading": false,
+    "loading": true,
     "message": "",
   },
 }

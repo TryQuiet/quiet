@@ -18,7 +18,7 @@ import { getClient } from '../../zcash'
 
 export const ChannelsState = Immutable.Record({
   data: Immutable.List(),
-  loader: LoaderState()
+  loader: LoaderState({ loading: true })
 }, 'ChannelsState')
 
 export const initialState = ChannelsState()

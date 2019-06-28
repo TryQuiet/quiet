@@ -14,7 +14,7 @@ import { messages } from '../../zbay'
 import { errorNotification, LoaderState } from './utils'
 
 export const MessagesState = Immutable.Record({
-  loader: LoaderState(),
+  loader: LoaderState({ loading: true }),
   data: Immutable.List(),
   errors: ''
 })

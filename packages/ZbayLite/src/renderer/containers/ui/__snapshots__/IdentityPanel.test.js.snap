@@ -10,7 +10,7 @@ Object {
     "balance": "23.435432",
   },
   "loader": Immutable.Record {
-    "loading": false,
+    "loading": true,
     "message": "",
   },
 }

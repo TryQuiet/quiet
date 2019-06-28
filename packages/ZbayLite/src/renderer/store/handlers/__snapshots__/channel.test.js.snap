@@ -7,7 +7,7 @@ Immutable.ChannelState {
   "message": "",
   "messages": Immutable.Record {
     "loader": Immutable.Record {
-      "loading": false,
+      "loading": true,
       "message": "",
     },
     "data": Immutable.List [],
@@ -41,7 +41,7 @@ Immutable.ChannelState {
   "message": "",
   "messages": Immutable.Record {
     "loader": Immutable.Record {
-      "loading": false,
+      "loading": true,
       "message": "this is a loading message",
     },
     "data": Immutable.List [],
