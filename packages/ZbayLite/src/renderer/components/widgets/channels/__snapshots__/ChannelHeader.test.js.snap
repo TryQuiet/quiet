@@ -49,6 +49,7 @@ exports[`ChannelHeader renders component 1`] = `
       item={true}
     >
       <Connect(Component) />
+      <Connect(withModal(Component)) />
     </WithStyles(Grid)>
   </WithStyles(Grid)>
 </WithStyles(Grid)>
@@ -103,6 +104,7 @@ exports[`ChannelHeader renders members when 0 1`] = `
       item={true}
     >
       <Connect(Component) />
+      <Connect(withModal(Component)) />
     </WithStyles(Grid)>
   </WithStyles(Grid)>
 </WithStyles(Grid)>
@@ -151,6 +153,7 @@ exports[`ChannelHeader renders without members count 1`] = `
       item={true}
     >
       <Connect(Component) />
+      <Connect(withModal(Component)) />
     </WithStyles(Grid)>
   </WithStyles(Grid)>
 </WithStyles(Grid)>

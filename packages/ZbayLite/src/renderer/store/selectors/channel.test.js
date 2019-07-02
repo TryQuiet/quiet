@@ -23,6 +23,7 @@ describe('Channel selector', () => {
         channel: ChannelState({
           spentFilterValue: 38,
           id: channelId,
+          shareableUri: 'zbay.io/channel/my-hash',
           members: new BigNumber(0),
           message: 'Message written in the input',
           messages: MessagesState({
@@ -110,5 +111,9 @@ describe('Channel selector', () => {
 
   it('loader', () => {
     expect(channelSelectors.loader(store.getState())).toMatchSnapshot()
+  })
+
+  it('shareableUri', () => {
+    expect(channelSelectors.shareableUri(store.getState())).toMatchSnapshot()
   })
 })

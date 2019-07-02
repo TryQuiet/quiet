@@ -1,14 +1,11 @@
 import * as R from 'ramda'
 
-import { deflate } from '../compression'
-
 const _entryToChannel = (channel) => {
   const entryObj = channel.toObject()
   return {
     id: entryObj.id,
     name: entryObj.properties.name,
     private: Boolean(entryObj.properties.private),
-    hash: entryObj.properties.hash,
     address: entryObj.properties.address,
     unread: parseInt(entryObj.properties.unread),
     description: entryObj.properties.description,
@@ -24,9 +21,6 @@ const processEntries = R.compose(
 
 export default (vault) => {
   const importChannel = async (identityId, channel) => {
-    // TODO: we probably want to generate hash on export only, that way we can decide
-    // about sharing sk for example (backup)
-    const channelHash = await deflate(channel)
     await vault.withWorkspace(workspace => {
       const [channels] = workspace.archive.findGroupsByTitle('Channels')
       let [identityGroup] = channels.getGroups().filter(g => g.getTitle() === identityId)
@@ -37,7 +31,6 @@ export default (vault) => {
       identityGroup.createEntry(channel.address)
         .setProperty('name', channel.name)
         .setProperty('private', isPrivate.toString())
-        .setProperty('hash', channelHash)
         .setProperty('address', channel.address)
         .setProperty('unread', `${channel.unread || 0}`)
         .setProperty('description', channel.description)

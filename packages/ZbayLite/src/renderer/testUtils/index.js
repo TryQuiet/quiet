@@ -11,7 +11,6 @@ export const createChannel = id => ({
   id: id,
   name: `Channel ${id}`,
   private: Boolean(id % 2),
-  hash: `test-hash-${id}`,
   address: `zs1testaddress${id}`,
   unread: id,
   description: id % 2 === 0 ? '' : `Channel about ${id}`,

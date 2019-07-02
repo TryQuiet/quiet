@@ -1,7 +1,7 @@
-import Joi from 'joi'
 import { DateTime } from 'luxon'
 import BigNumber from 'bignumber.js'
 import * as R from 'ramda'
+import * as Yup from 'yup'
 
 import { packMemo, unpackMemo } from './transit'
 
@@ -11,14 +11,14 @@ export const messageType = {
   TRANSFER: 4
 }
 
-const messageSchema = Joi.object().keys({
-  type: Joi.number().valid(R.values(messageType)).required(),
-  sender: Joi.object().keys({
-    replyTo: Joi.string().required(),
-    username: Joi.string()
+const messageSchema = Yup.object().shape({
+  type: Yup.number().oneOf(R.values(messageType)).required(),
+  sender: Yup.object().shape({
+    replyTo: Yup.string().required(),
+    username: Yup.string()
   }).required(),
-  createdAt: Joi.number().required(),
-  message: Joi.string().required()
+  createdAt: Yup.number().required(),
+  message: Yup.string().required()
 })
 
 export const transferToMessage = async ({ txid, amount, memo }, isTestnet) => {
@@ -29,15 +29,15 @@ export const transferToMessage = async ({ txid, amount, memo }, isTestnet) => {
     console.warn(err)
     return null
   }
-  const { error, value } = Joi.validate(message, messageSchema)
-  if (error) {
-    console.warn('Incorrect message format: ', error)
+  try {
+    return {
+      ...(await messageSchema.validate(message)),
+      id: txid,
+      spent: new BigNumber(amount)
+    }
+  } catch (err) {
+    console.warn('Incorrect message format: ', err)
     return null
-  }
-  return {
-    ...value,
-    id: txid,
-    spent: new BigNumber(amount)
   }
 }
 

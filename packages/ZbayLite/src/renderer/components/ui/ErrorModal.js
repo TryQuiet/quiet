@@ -29,6 +29,9 @@ const styles = theme => ({
   },
   copyButton: {
     marginBottom: 4
+  },
+  message: {
+    wordBreak: 'break-all'
   }
 })
 
@@ -54,7 +57,7 @@ export const ErrorModal = ({
     >
       <Grid item container direction='column' alignItems='center'>
         <ErrorOutlineIcon className={classes.icon} />
-        <Typography>
+        <Typography className={classes.message}>
           { message }
         </Typography>
       </Grid>

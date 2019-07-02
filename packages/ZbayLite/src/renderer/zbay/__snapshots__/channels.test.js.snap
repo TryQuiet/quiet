@@ -13,6 +13,6 @@ Object {
 }
 `;
 
-exports[`channels - uriToChannel fails on incorrect channel format 1`] = `[Error: Incorrect export format for zbay.io/channel/eJyrVspOrVSyUipLzClNVaoFAChMBSE=: ValidationError: child "name" fails because ["name" is required]. child "private" fails because ["private" is required]. child "address" fails because ["address" is required]. child "description" fails because ["description" is required]. "key" is not allowed]`;
+exports[`channels - uriToChannel fails on incorrect channel format 1`] = `[Error: Incorrect export format for zbay.io/channel/eJyrVspOrVSyUipLzClNVaoFAChMBSE=: ValidationError: description is a required field]`;
 
 exports[`channels - uriToChannel fails on incorrect uri 1`] = `[Error: Invalid channel hash: randomhash]`;

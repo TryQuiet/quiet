@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChannelInfoModal will receive right props 1`] = `
+Object {
+  "channel": Immutable.Map {
+    "id": "this-is-a-test-id",
+    "name": "Channel this-is-a-test-id",
+    "private": false,
+    "address": "zs1testaddressthis-is-a-test-id",
+    "unread": "this-is-a-test-id",
+    "description": "Channel about this-is-a-test-id",
+    "keys": Immutable.Map {
+      "ivk": "incoming-viewing-key-this-is-a-test-id",
+    },
+  },
+  "shareUri": "zbay.io/channel/test-hash",
+}
+`;

@@ -16,6 +16,11 @@ export default createMuiTheme({
     }
   },
   overrides: {
+    MuiSnackbarContent: {
+      root: {
+        wordBreak: 'break-all'
+      }
+    },
     MuiButton: {
       sizeSmall: {
         textTransform: 'none',

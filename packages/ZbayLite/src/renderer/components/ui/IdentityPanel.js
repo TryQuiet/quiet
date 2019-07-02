@@ -8,7 +8,7 @@ import { withStyles } from '@material-ui/core/styles'
 
 import Elipsis from '../ui/Elipsis'
 import { withSpinnerLoader } from '../ui/SpinnerLoader'
-import { getZbayAddress } from '../utils'
+import { getZbayAddress } from '../../zbay/channels'
 
 const styles = theme => ({
   root: {

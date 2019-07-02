@@ -1,0 +1,171 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChannelInfoModal renders component 1`] = `
+<Memo(WithStyles(Modal))
+  fullPage={true}
+  handleClose={[MockFunction]}
+  open={true}
+  title="Info"
+>
+  <WithStyles(Grid)
+    className="root-mock"
+    container={true}
+    direction="column"
+  >
+    <WithStyles(Grid)
+      className="section-mock"
+      item={true}
+    >
+      <WithStyles(Typography)
+        className="title-mock"
+        variant="subtitle1"
+      >
+        Channel 1
+      </WithStyles(Typography)>
+    </WithStyles(Grid)>
+    <WithStyles(Grid)
+      className="section-mock"
+      item={true}
+    >
+      <WithStyles(Typography)
+        className="infoTitle-mock"
+        variant="subtitle1"
+      >
+        About
+      </WithStyles(Typography)>
+      <WithStyles(Typography)
+        className="description-mock"
+        variant="caption"
+      >
+        Channel about 1
+      </WithStyles(Typography)>
+    </WithStyles(Grid)>
+    <WithStyles(Grid)
+      className="section-mock"
+      container={true}
+      direction="column"
+      item={true}
+    >
+      <WithStyles(Grid)
+        container={true}
+        direction="row"
+        item={true}
+      >
+        <WithStyles(Typography)
+          className="infoTitle-mock"
+          inline={true}
+          variant="subtitle1"
+        >
+          Share link
+        </WithStyles(Typography)>
+        <CopyToClipboard
+          text="zbay.io/channel/channel-hash"
+        >
+          <WithStyles(IconButton)
+            className="copyButton-mock"
+          >
+            <pure(FileCopyIcon)
+              fontSize="inherit"
+            />
+          </WithStyles(IconButton)>
+        </CopyToClipboard>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+      >
+        <WithStyles(Typography)
+          className="description-mock"
+          variant="caption"
+        >
+          zbay.io/channel/channel-hash
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+    </WithStyles(Grid)>
+  </WithStyles(Grid)>
+</Memo(WithStyles(Modal))>
+`;
+
+exports[`ChannelInfoModal renders component when closed 1`] = `
+<Memo(WithStyles(Modal))
+  fullPage={true}
+  handleClose={[MockFunction]}
+  open={false}
+  title="Info"
+>
+  <WithStyles(Grid)
+    className="root-mock"
+    container={true}
+    direction="column"
+  >
+    <WithStyles(Grid)
+      className="section-mock"
+      item={true}
+    >
+      <WithStyles(Typography)
+        className="title-mock"
+        variant="subtitle1"
+      >
+        Channel 1
+      </WithStyles(Typography)>
+    </WithStyles(Grid)>
+    <WithStyles(Grid)
+      className="section-mock"
+      item={true}
+    >
+      <WithStyles(Typography)
+        className="infoTitle-mock"
+        variant="subtitle1"
+      >
+        About
+      </WithStyles(Typography)>
+      <WithStyles(Typography)
+        className="description-mock"
+        variant="caption"
+      >
+        Channel about 1
+      </WithStyles(Typography)>
+    </WithStyles(Grid)>
+    <WithStyles(Grid)
+      className="section-mock"
+      container={true}
+      direction="column"
+      item={true}
+    >
+      <WithStyles(Grid)
+        container={true}
+        direction="row"
+        item={true}
+      >
+        <WithStyles(Typography)
+          className="infoTitle-mock"
+          inline={true}
+          variant="subtitle1"
+        >
+          Share link
+        </WithStyles(Typography)>
+        <CopyToClipboard
+          text="zbay.io/channel/channel-hash"
+        >
+          <WithStyles(IconButton)
+            className="copyButton-mock"
+          >
+            <pure(FileCopyIcon)
+              fontSize="inherit"
+            />
+          </WithStyles(IconButton)>
+        </CopyToClipboard>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+      >
+        <WithStyles(Typography)
+          className="description-mock"
+          variant="caption"
+        >
+          zbay.io/channel/channel-hash
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+    </WithStyles(Grid)>
+  </WithStyles(Grid)>
+</Memo(WithStyles(Modal))>
+`;

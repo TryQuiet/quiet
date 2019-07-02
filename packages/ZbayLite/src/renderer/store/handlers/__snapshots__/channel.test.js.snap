@@ -5,6 +5,7 @@ Immutable.ChannelState {
   "spentFilterValue": "0",
   "id": "this-is-a-test-id",
   "message": "",
+  "shareableUri": "",
   "messages": Immutable.Record {
     "loader": Immutable.Record {
       "loading": true,
@@ -22,6 +23,7 @@ Immutable.ChannelState {
   "spentFilterValue": "0",
   "id": null,
   "message": "",
+  "shareableUri": "",
   "messages": Immutable.Record {
     "loader": Immutable.Record {
       "loading": true,
@@ -39,10 +41,29 @@ Immutable.ChannelState {
   "spentFilterValue": "0",
   "id": null,
   "message": "",
+  "shareableUri": "",
   "messages": Immutable.Record {
     "loader": Immutable.Record {
       "loading": true,
       "message": "this is a loading message",
+    },
+    "data": Immutable.List [],
+    "errors": "",
+  },
+  "members": null,
+}
+`;
+
+exports[`channel reducer handles actions - setShareableUri 1`] = `
+Immutable.ChannelState {
+  "spentFilterValue": "0",
+  "id": null,
+  "message": "",
+  "shareableUri": "zbay.io/channel/this-is-a-hash",
+  "messages": Immutable.Record {
+    "loader": Immutable.Record {
+      "loading": true,
+      "message": "",
     },
     "data": Immutable.List [],
     "errors": "",

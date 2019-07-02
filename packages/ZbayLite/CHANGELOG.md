@@ -1,3 +1,15 @@
+<a name="0.3.0"></a>
+# [0.3.0](TBR)
+
+
+### Features
+
+* Channel info that contains channel description and shareable hash
+
+### Fixes
+
+* Fixed errors during channel import - if hash is invalid app doesn't quit anymore.
+
 <a name="0.2.0"></a>
 # [0.2.0](TBR)
 

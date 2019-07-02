@@ -10,6 +10,7 @@ import { withStyles } from '@material-ui/core/styles'
 import SearchIcon from '@material-ui/icons/Search'
 
 import ChannelMenuAction from '../../../containers/widgets/channels/ChannelMenuAction'
+import ChannelInfoModal from '../../../containers/widgets/channels/ChannelInfoModal'
 import SpentFilterAction from './SpentFilterAction'
 import IconButton from '../../ui/IconButton'
 
@@ -63,6 +64,7 @@ export const ChannelHeader = ({ classes, channel }) => (
       </Grid>
       <Grid item>
         <ChannelMenuAction />
+        <ChannelInfoModal />
       </Grid>
     </Grid>
   </Grid>

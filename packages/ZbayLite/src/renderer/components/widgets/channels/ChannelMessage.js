@@ -21,7 +21,7 @@ import DoneAllIcon from '@material-ui/icons/DoneAll'
 import ErrorIcon from '@material-ui/icons/ErrorOutline'
 import BlockIcon from '@material-ui/icons/Block'
 
-import { getZbayAddress } from '../../utils'
+import { getZbayAddress } from '../../../zbay/channels'
 import Elipsis from '../../ui/Elipsis'
 import ChannelMessageActions from './ChannelMessageActions'
 

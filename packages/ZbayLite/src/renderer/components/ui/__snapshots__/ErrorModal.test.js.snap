@@ -22,7 +22,9 @@ exports[`ErrorModal renders component 1`] = `
       <pure(ErrorOutlineIcon)
         className="icon-mock"
       />
-      <WithStyles(Typography)>
+      <WithStyles(Typography)
+        className="message-mock"
+      >
         Test error message
       </WithStyles(Typography)>
     </WithStyles(Grid)>

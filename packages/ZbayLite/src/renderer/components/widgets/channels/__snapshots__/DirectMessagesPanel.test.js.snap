@@ -16,7 +16,6 @@ exports[`DirectMessagesPanel renders component 1`] = `
         Object {
           "address": "zs1testaddress0",
           "description": "",
-          "hash": "test-hash-0",
           "id": 0,
           "keys": Object {
             "ivk": "incoming-viewing-key-0",
@@ -28,7 +27,6 @@ exports[`DirectMessagesPanel renders component 1`] = `
         Object {
           "address": "zs1testaddress1",
           "description": "Channel about 1",
-          "hash": "test-hash-1",
           "id": 1,
           "keys": Object {
             "ivk": "incoming-viewing-key-1",
@@ -40,7 +38,6 @@ exports[`DirectMessagesPanel renders component 1`] = `
         Object {
           "address": "zs1testaddress2",
           "description": "",
-          "hash": "test-hash-2",
           "id": 2,
           "keys": Object {
             "ivk": "incoming-viewing-key-2",
@@ -52,7 +49,6 @@ exports[`DirectMessagesPanel renders component 1`] = `
         Object {
           "address": "zs1testaddress3",
           "description": "Channel about 3",
-          "hash": "test-hash-3",
           "id": 3,
           "keys": Object {
             "ivk": "incoming-viewing-key-3",

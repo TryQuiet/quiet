@@ -1,9 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Imported channel reducer handles actions handles decodeChannel 1`] = `
+exports[`Imported channel reducer handles actions handles setData 1`] = `
 Immutable.Map {
-  "name": "Testing channel",
-  "private": true,
+  "name": "General",
   "address": "ztestsapling16e4wekqjyx80yjjzf24ztyflt2c5tt6avt4nftgnj694n8e5x8fz5pr9ejsd3l9lmymf29khjnk",
   "description": "This is a general channel available to all users of Zbay by default.",
   "keys": Immutable.Map {
@@ -12,12 +11,11 @@ Immutable.Map {
 }
 `;
 
-exports[`Imported channel reducer handles actions handles failing decodeChannel 1`] = `[Error: Invalid channel hash: ]`;
+exports[`Imported channel reducer handles actions handles setDecodingError 1`] = `[Error: this is a test error]`;
 
 exports[`Imported channel reducer handles epics decodeChannel decodes uri 1`] = `
 Immutable.Map {
-  "name": "Testing channel",
-  "private": true,
+  "name": "General",
   "address": "ztestsapling16e4wekqjyx80yjjzf24ztyflt2c5tt6avt4nftgnj694n8e5x8fz5pr9ejsd3l9lmymf29khjnk",
   "description": "This is a general channel available to all users of Zbay by default.",
   "keys": Immutable.Map {
@@ -34,7 +32,7 @@ Immutable.List [
       "variant": "error",
       "action": [Function],
     },
-    "message": "Invalid channel URI",
+    "message": "Invalid channel URI: Invalid channel hash: ",
   },
 ]
 `;
@@ -56,7 +54,7 @@ Immutable.List [
     "options": Immutable.Map {
       "variant": "success",
     },
-    "message": "Successfully imported channel Testing channel",
+    "message": "Successfully imported channel General",
   },
 ]
 `;
@@ -67,9 +65,8 @@ Immutable.List [
     "keys": Immutable.Map {
       "ivk": "zivktestsapling1p5rp2czztl8amalqm5ghzvhr35n08h26vhphnw2x6k83trft7sqsn9qkd6",
     },
-    "name": "Testing channel",
+    "name": "General",
     "private": true,
-    "hash": "eJxNj8FugzAMhl8lyrmaOgoM9hw97WbAISHBDYmhTaq++9LDpEmW/oM/+f/8lAQrym95xciGZjFqIEInT9IHcwCXHYcdTxKmKWCMBc1c2AjeFf6zxfqOdlvSozunZcmqqjMn5bgaG+YWDq5J8UxL29fUYfPoVG586HGJ08X1bk2rqnqrF7Klc8I4BuPZ3OjtpE0UZUDMSBjA/dkJOMA4GBwKvglwTuwRQxQ3JX4GSGJIYkIFu+OPctRiKtpPaQ77ti/x/wHfBF+NObPrYAW3rc2s86HDpaFzp6v20F7TvXq0trtwUPwVt0j9ZqdWvl6/PI1yUA==",
     "address": "ztestsapling16e4wekqjyx80yjjzf24ztyflt2c5tt6avt4nftgnj694n8e5x8fz5pr9ejsd3l9lmymf29khjnk",
     "unread": 0,
     "description": "This is a general channel available to all users of Zbay by default.",
@@ -87,8 +84,7 @@ Array [
       "keys": Object {
         "ivk": "zivktestsapling1p5rp2czztl8amalqm5ghzvhr35n08h26vhphnw2x6k83trft7sqsn9qkd6",
       },
-      "name": "Testing channel",
-      "private": true,
+      "name": "General",
     },
   ],
 ]

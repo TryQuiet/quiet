@@ -2,7 +2,7 @@ import Immutable from 'immutable'
 import { createAction, handleActions } from 'redux-actions'
 
 import { uriToChannel } from '../../zbay/channels'
-import { typeFulfilled, typeRejected, typePending, errorNotification } from './utils'
+import { errorNotification } from './utils'
 import identitySelectors from '../selectors/identity'
 import importedChannelSelectors from '../selectors/importedChannel'
 import channelsHandlers from './channels'
@@ -20,15 +20,22 @@ const initialState = ImportedChannelState()
 
 export const actionTypes = {
   DECODE_CHANNEL: 'DECODE_IMPORTED_CHANNEL',
+  SET_DECODED_CHANNEL: 'SET_DECODED_CHANNEL',
+  SET_DECODING_CHANNEL: 'SET_DECODING_CHANNEL',
+  SET_DECODING_ERROR: 'SET_DECODING_ERROR',
   CLEAR_CHANNEL: 'CLEAR_IMPORTED_CHANNEL'
 }
 
-const decodeChannel = createAction(actionTypes.DECODE_CHANNEL, uriToChannel)
+const setData = createAction(actionTypes.SET_DECODED_CHANNEL)
+const setDecoding = createAction(actionTypes.SET_DECODING_CHANNEL)
+const setDecodingError = createAction(actionTypes.SET_DECODING_ERROR)
 const clear = createAction(actionTypes.CLEAR_CHANNEL)
 
 const actions = {
-  decodeChannel,
-  clear
+  clear,
+  setData,
+  setDecoding,
+  setDecodingError
 }
 
 const importChannel = () => async (dispatch, getState) => {
@@ -61,15 +68,19 @@ const importChannel = () => async (dispatch, getState) => {
 }
 
 const decodeChannelEpic = (uri) => async (dispatch) => {
+  dispatch(setDecoding(true))
   try {
-    await dispatch(decodeChannel(uri))
+    const channel = await uriToChannel(uri)
+    dispatch(setData(channel))
   } catch (err) {
+    dispatch(setDecodingError(err))
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar(
-        errorNotification({ message: 'Invalid channel URI' })
+        errorNotification({ message: `Invalid channel URI: ${err.message}` })
       )
     )
   }
+  dispatch(setDecoding(false))
 }
 
 const epics = {
@@ -78,15 +89,9 @@ const epics = {
 }
 
 const reducer = handleActions({
-  [typePending(actionTypes.DECODE_CHANNEL)]: (state, { payload: errors }) => state
-    .set('errors', '')
-    .set('decoding', true),
-  [typeFulfilled(actionTypes.DECODE_CHANNEL)]: (state, { payload: channel }) => state
-    .set('decoding', false)
-    .set('data', Immutable.fromJS(channel)),
-  [typeRejected(actionTypes.DECODE_CHANNEL)]: (state, { payload: errors }) => state
-    .set('decoding', false)
-    .set('errors', errors),
+  [actionTypes.SET_DECODED_CHANNEL]: (state, { payload: channel }) => state.set('data', Immutable.fromJS(channel)),
+  [actionTypes.SET_DECODING_CHANNEL]: (state, { payload: decoding }) => state.set('decoding', decoding),
+  [actionTypes.SET_DECODING_ERROR]: (state, { payload: error }) => state.set('errors', error),
   [clear]: () => ImportedChannelState()
 }, initialState)
 

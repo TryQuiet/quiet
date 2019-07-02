@@ -49,7 +49,10 @@ export const messages = createSelector(
     )
     return displayableBroadcasted.concat(displayablePending.values())
       .sortBy(m => m.get('createdAt'))
-  })
+  }
+)
+
+export const shareableUri = createSelector(channel, c => c.shareableUri)
 
 export default {
   data,
@@ -58,5 +61,6 @@ export default {
   spentFilterValue,
   message,
   pendingMessages,
+  shareableUri,
   messages
 }

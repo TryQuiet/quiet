@@ -5,7 +5,6 @@ Array [
   Object {
     "address": "zs1testaddress1",
     "description": "Channel about 1",
-    "hash": "eJxNjTEOwjAMRa+CPCdD1q6cxDQWsUqdKk6CoOrd6wADk633vv7fgSNMwYHgSjDBNaEIPS4BHGyFO1ajtTRykFCTJSpp9eP3I4MxFlI1/tYw1A8M16QQftsj6Vx4q5zlbwRvudXP1EIv69iB+2KeZc4ry913pue4pm3tOE48Yzmm",
     "keys": "{\\"ivk\\":\\"incoming-viewing-key-1\\"}",
     "name": "Channel 1",
     "private": "1",
@@ -15,7 +14,6 @@ Array [
   Object {
     "address": "zs1testaddress2",
     "description": "",
-    "hash": "eJwtjEEOgzAMBL+CfE4O5ci1L7GISyzAoDhNBYi/11Z78mpmvRdwgqEPILgSDPDMKEJL10OAvXDDavSFi1KAjJqtUklr9By9hCkVUjV+6sPVH7h7SyH8zSfSsfBeeROrmpvpsKcLuM0GWMZtZZliY/r4NW3z9/0FKdQ0sg==",
     "keys": "{\\"ivk\\":\\"incoming-viewing-key-2\\"}",
     "name": "Channel 2",
     "private": "0",
@@ -29,7 +27,6 @@ exports[`channels importChannel when no group for identity 1`] = `
 Object {
   "address": "zs1testaddress1",
   "description": "Channel about 1",
-  "hash": "eJxNjTEOwjAMRa+CPCdD1q6cxDQWsUqdKk6CoOrd6wADk633vv7fgSNMwYHgSjDBNaEIPS4BHGyFO1ajtTRykFCTJSpp9eP3I4MxFlI1/tYw1A8M16QQftsj6Vx4q5zlbwRvudXP1EIv69iB+2KeZc4ry913pue4pm3tOE48Yzmm",
   "keys": "{\\"ivk\\":\\"incoming-viewing-key-1\\"}",
   "name": "Channel 1",
   "private": "1",
@@ -42,7 +39,6 @@ exports[`channels importChannel when no group for identity 2`] = `
 Object {
   "address": "zs1testaddress1",
   "description": "Channel about 1",
-  "hash": "eJxNjTEOwjAMRa+CPCdD1q6cxDQWsUqdKk6CoOrd6wADk633vv7fgSNMwYHgSjDBNaEIPS4BHGyFO1ajtTRykFCTJSpp9eP3I4MxFlI1/tYw1A8M16QQftsj6Vx4q5zlbwRvudXP1EIv69iB+2KeZc4ry913pue4pm3tOE48Yzmm",
   "keys": "{\\"ivk\\":\\"incoming-viewing-key-1\\"}",
   "name": "Channel 1",
   "private": "1",

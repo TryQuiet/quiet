@@ -12,6 +12,7 @@ import operationsSelectors from '../selectors/operations'
 import { getClient } from '../../zcash'
 import { messages } from '../../zbay'
 import { errorNotification, LoaderState } from './utils'
+import { channelToUri } from '../../zbay/channels'
 
 export const MessagesState = Immutable.Record({
   loader: LoaderState({ loading: true }),
@@ -23,6 +24,7 @@ export const ChannelState = Immutable.Record({
   spentFilterValue: new BigNumber(0),
   id: null,
   message: '',
+  shareableUri: '',
   messages: MessagesState(),
   members: null
 }, 'ChannelState')
@@ -35,12 +37,14 @@ const setChannelId = createAction('SET_CHANNEL_ID')
 const setMessages = createAction('SET_CHANNEL_MESSAGES')
 const setLoading = createAction('SET_CHANNEL_LOADING')
 const setLoadingMessage = createAction('SET_CHANNEL_LOADING_MESSAGE')
+const setShareableUri = createAction('SET_CHANNEL_SHAREABLE_URI')
 
 export const actions = {
   setLoading,
   setLoadingMessage,
   setSpentFilterValue,
   setMessage,
+  setShareableUri,
   setChannelId
 }
 
@@ -74,6 +78,13 @@ const loadChannel = (id) => async (dispatch, getState) => {
   dispatch(setLoadingMessage('Loading messages'))
   try {
     dispatch(setChannelId(id))
+
+    // Calculate URI on load, that way it won't be outdated, even if someone decides
+    // to update channel in vault manually
+    const channel = channelSelectors.data(getState())
+    const uri = await channelToUri(channel.toJS())
+    dispatch(setShareableUri(uri))
+
     await dispatch(loadMessages())
   } catch (err) {}
   dispatch(setLoading(false))
@@ -157,6 +168,7 @@ export const reducer = handleActions({
   [setSpentFilterValue]: (state, { payload: value }) => state.set('spentFilterValue', new BigNumber(value)),
   [setMessage]: (state, { payload: value }) => state.set('message', value),
   [setChannelId]: (state, { payload: id }) => state.set('id', id),
+  [setShareableUri]: (state, { payload: uri }) => state.set('shareableUri', uri),
   [setMessages]: (state, { payload: messages }) => state.update(
     'messages',
     msgMeta => msgMeta

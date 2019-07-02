@@ -1,20 +1,24 @@
 import * as R from 'ramda'
-import Joi from 'joi'
+import * as Yup from 'yup'
 
-import { inflate } from '../compression'
+import { inflate, deflate } from '../compression'
 
 export const URI_PREFIX = 'zbay.io/channel/'
+export const ADDRESS_PREFIX = 'zbay.io/uri/'
 
-const channelSchema = Joi.object().keys({
-  name: Joi.string().required(),
-  private: Joi.boolean().required(),
-  address: Joi.string().required(),
-  description: Joi.string().required(),
-  keys: Joi.object().keys({
-    ivk: Joi.string(),
-    sk: Joi.string()
-  }).or('ivk', 'sk')
-}).required()
+export const getZbayAddress = (zcashAddress) => `${ADDRESS_PREFIX}${zcashAddress}`
+export const getZbayChannelUri = (hash) => `${URI_PREFIX}${hash}`
+
+const channelSchema = Yup.object().shape({
+  name: Yup.string().required(),
+  private: Yup.boolean(),
+  address: Yup.string().required(),
+  description: Yup.string().required(),
+  keys: Yup.object().shape({
+    ivk: Yup.string(),
+    sk: Yup.string()
+  }).required()
+})
 
 const _inflateOrThrow = async (hash) => {
   try {
@@ -32,13 +36,29 @@ export const uriToChannel = async (uri) => {
       : uri
   )
   const channel = await _inflateOrThrow(hash)
-  const { error, value } = Joi.validate(channel, channelSchema, { abortEarly: false })
-  if (error) {
-    throw new Error(`Incorrect export format for ${uri}: ${error}`)
+  try {
+    const validated = await channelSchema.validate(channel)
+    return validated
+  } catch (err) {
+    throw new Error(`Incorrect export format for ${uri}: ${err}`)
   }
-  return value
+}
+
+export const channelToUri = async (channel) => {
+  const exportable = {
+    name: channel.name,
+    address: channel.address,
+    description: channel.description,
+    keys: {
+      ivk: channel.keys.ivk
+    }
+  }
+  const hash = await deflate(exportable)
+  return getZbayChannelUri(hash)
 }
 
 export default {
-  uriToChannel
+  uriToChannel,
+  getZbayAddress,
+  getZbayChannelUri
 }
