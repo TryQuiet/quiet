@@ -29,4 +29,10 @@ describe('vault selectors', () => {
     store.dispatch(actions.togglePasswordVisibility())
     expect(selectors.passwordVisible(store.getState())).toEqual(true)
   })
+
+  it('passwordVisible', () => {
+    expect(selectors.unlocking(store.getState())).toEqual(false)
+    store.dispatch(actions.setUnlocking(true))
+    expect(selectors.unlocking(store.getState())).toEqual(true)
+  })
 })

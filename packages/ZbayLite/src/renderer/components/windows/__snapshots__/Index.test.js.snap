@@ -25,7 +25,7 @@ exports[`Index renders component 1`] = `
         >
           Waiting for Zcash node.
         </WithStyles(Typography)>
-        <Connect(Component) />
+        <WithStyles(LinearProgress) />
       </WithStyles(CardContent)>
     </WithStyles(Grid)>
   </WithStyles(Card)>
@@ -57,7 +57,7 @@ exports[`Index renders when bootstrapping 1`] = `
         >
           Launching node
         </WithStyles(Typography)>
-        <Connect(Component) />
+        <WithStyles(LinearProgress) />
       </WithStyles(CardContent)>
     </WithStyles(Grid)>
   </WithStyles(Card)>

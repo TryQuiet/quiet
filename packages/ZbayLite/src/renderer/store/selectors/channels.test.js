@@ -6,7 +6,9 @@ import * as R from 'ramda'
 import channelsSelectors from './channels'
 
 import create from '../create'
+import zbayChannels from '../../zcash/channels'
 import { ChannelsState } from '../handlers/channels'
+import { NodeState } from '../handlers/node'
 import { createChannel } from '../../testUtils'
 import { LoaderState } from '../handlers/utils'
 
@@ -38,5 +40,27 @@ describe('Channels selectors', () => {
 
   it('- loader', async () => {
     expect(channelsSelectors.loader(store.getState())).toMatchSnapshot()
+  })
+
+  it('- generalChannelId', async () => {
+    const id = 'general-channel-id'
+    store = create({
+      initialState: Immutable.Map({
+        node: NodeState({
+          isTestnet: true
+        }),
+        channels: ChannelsState({
+          data: [
+            Immutable.fromJS({
+              ...zbayChannels.general.testnet,
+              id
+            })
+          ]
+        })
+      })
+
+    })
+    const retrievedId = channelsSelectors.generalChannelId(store.getState())
+    expect(retrievedId).toEqual(id)
   })
 })

@@ -37,11 +37,9 @@ export const create = async ({ masterPassword, network }) => {
 
 export const unlock = async ({ masterPassword, network, createSource = false }) => {
   if (!_vault) {
-    console.log('creating vault')
     await create({ masterPassword, network })
   }
   try {
-    console.log('unlocking vault')
     await _vault.unlock(masterPassword, createSource)
   } catch (err) {
     _vault = null

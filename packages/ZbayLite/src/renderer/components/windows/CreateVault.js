@@ -55,7 +55,7 @@ export const CreateVault = ({
       open={error.length > 0}
       onClose={onCloseSnackbar}
     />
-    { finished && <Redirect to='/main' />}
+    { finished && <Redirect to='/main/channel/general' />}
     <Grid container justify='center' alignItems='center' className={classes.gridRoot}>
       <Grid item>
         <Paper className={classes.paper}>

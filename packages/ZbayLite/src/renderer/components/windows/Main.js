@@ -7,7 +7,6 @@ import { withStyles } from '@material-ui/core/styles'
 
 import WindowWrapper from '../ui/WindowWrapper'
 import Sidebar from '../widgets/sidebar/Sidebar'
-import Home from '../pages/Home'
 import Channel from '../../containers/pages/Channel'
 
 const styles = {
@@ -24,7 +23,6 @@ export const Main = ({ match, classes }) => (
         <Sidebar />
       </Grid>
       <Grid item xs>
-        <Route exact path={match.url} component={Home} />
         <Route exact path={`${match.url}/channel/:id`} component={Channel} />
       </Grid>
     </Grid>

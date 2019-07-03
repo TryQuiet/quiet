@@ -19,11 +19,6 @@ exports[`Main renders component 1`] = `
       <Route
         component={[Function]}
         exact={true}
-        path="test"
-      />
-      <Route
-        component={[Function]}
-        exact={true}
         path="test/channel/:id"
       />
     </WithStyles(Grid)>

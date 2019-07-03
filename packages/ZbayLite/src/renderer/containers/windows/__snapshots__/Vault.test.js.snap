@@ -11,6 +11,7 @@ Object {
   "exists": true,
   "locked": false,
   "nodeConnected": true,
+  "unlocking": false,
 }
 `;
 
@@ -26,7 +27,7 @@ exports[`Vault will render redirect when node not connected 1`] = `
 exports[`Vault will render redirect when vault unlocked 1`] = `
 <Redirect
   push={false}
-  to="/main"
+  to="/main/channel/general"
 />
 `;
 

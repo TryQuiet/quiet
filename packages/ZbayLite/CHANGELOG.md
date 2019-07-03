@@ -5,10 +5,12 @@
 ### Features
 
 * Channel info that contains channel description and shareable hash
+* General channel as landing page
 
 ### Fixes
 
 * Fixed errors during channel import - if hash is invalid app doesn't quit anymore.
+* Changed node status to a linear loader on node's connection page
 
 <a name="0.2.0"></a>
 # [0.2.0](TBR)

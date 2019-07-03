@@ -61,6 +61,11 @@ describe('VaultUnlocker reducer', () => {
       await store.dispatch(actions.clearUnlocker())
       assertStoreState()
     })
+
+    it('- setUnlocking', () => {
+      store.dispatch(actions.setUnlocking(true))
+      assertStoreState()
+    })
   })
 
   describe('handles epics', () => {

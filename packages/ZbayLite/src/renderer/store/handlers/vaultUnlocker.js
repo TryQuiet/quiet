@@ -9,19 +9,19 @@ import nodeSelectors from '../selectors/node'
 
 export const VaultUnlockerState = Immutable.Record({
   password: '',
+  unlocking: false,
   passwordVisible: false
 }, 'VaultUnlockerState')
 
-const initialState = VaultUnlockerState({
-  password: '',
-  passwordVisible: false
-})
+const initialState = VaultUnlockerState()
 
+const setUnlocking = createAction('SET_UNLOCKER_UNLOCKING')
 const setPassword = createAction('SET_UNLOCKER_PASSWORD', e => e.target.value)
 const togglePasswordVisibility = createAction('TOGGLE_UNLOCKER_PASSWORD')
 const clearUnlocker = createAction('CLEAR_UNLOCKER')
 
 const unlockVault = () => async (dispatch, getState) => {
+  dispatch(setUnlocking(true))
   const state = getState()
   const network = nodeSelectors.network(state)
   const masterPassword = vaultUnlockerSelectors.password(state)
@@ -37,12 +37,14 @@ const reducer = handleActions({
     !state.passwordVisible
   ),
   [setPassword]: (state, { payload: password }) => state.set('password', password),
+  [setUnlocking]: (state, { payload: unlocking }) => state.set('unlocking', unlocking),
   [clearUnlocker]: state => state.clear()
 }, initialState)
 
 export const actions = {
   togglePasswordVisibility,
   clearUnlocker,
+  setUnlocking,
   setPassword
 }
 
