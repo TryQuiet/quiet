@@ -1,15 +1,22 @@
 /* eslint import/first: 0 */
 jest.mock('../../vault')
 jest.mock('../../zcash')
+jest.mock('./messagesQueue', () => ({
+  ...jest.requireActual('./messagesQueue'),
+  epics: {
+    addMessage: jest.fn(() => jest.fn().mockResolvedValue())
+  }
+}))
 
 import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
 import { DateTime } from 'luxon'
 
 import create from '../create'
-import { packMemo, unpackMemo } from '../../zbay/transit'
+import { packMemo } from '../../zbay/transit'
 import { ChannelState, actions, epics } from './channel'
 import operationsHandlers, { operationTypes, PendingMessageOp } from './operations'
+import messagesQueueHandlers from './messagesQueue'
 import { ChannelsState } from './channels'
 import { IdentityState, Identity } from './identity'
 import channelSelectors from '../selectors/channel'
@@ -235,17 +242,7 @@ describe('channel reducer', () => {
 
         await store.dispatch(epics.sendOnEnter(event))
 
-        expect(zcashMock.requestManager.z_sendmany).toHaveBeenCalled()
-        const [from, amounts] = zcashMock.requestManager.z_sendmany.mock.calls[0]
-        expect(from).toEqual(address)
-        const withUnpacked = {
-          ...amounts[0],
-          memo: await unpackMemo(amounts[0].memo)
-        }
-        expect(withUnpacked).toMatchSnapshot()
-        expect(
-          channelSelectors.message(store.getState())
-        ).toEqual('')
+        expect(messagesQueueHandlers.epics.addMessage.mock.calls).toMatchSnapshot()
       })
 
       it('doesn\'t send when shift is pressed', async () => {
@@ -255,7 +252,7 @@ describe('channel reducer', () => {
 
         await store.dispatch(epics.sendOnEnter(event))
 
-        expect(zcashMock.requestManager.z_sendmany).not.toHaveBeenCalled()
+        expect(messagesQueueHandlers.epics.addMessage).not.toHaveBeenCalled()
       })
 
       it('doesn\'t send when enter not pressed', async () => {
@@ -265,19 +262,7 @@ describe('channel reducer', () => {
 
         await store.dispatch(epics.sendOnEnter(event))
 
-        expect(zcashMock.requestManager.z_sendmany).not.toHaveBeenCalled()
-      })
-
-      it('creates and resolves pending message on finish', async () => {
-        jest.spyOn(DateTime, 'utc').mockReturnValue(now)
-        const msg = 'this is some message'
-        const event = keyPressEvent(msg, 13, false)
-        store.dispatch(actions.setChannelId('this-is-a-test-id'))
-        zcashMock.requestManager.z_sendmany.mockResolvedValue('new-op-id')
-
-        await store.dispatch(epics.sendOnEnter(event))
-
-        expect(operationsSelectors.pendingMessages(store.getState())).toMatchSnapshot()
+        expect(messagesQueueHandlers.epics.addMessage).not.toHaveBeenCalled()
       })
     })
   })

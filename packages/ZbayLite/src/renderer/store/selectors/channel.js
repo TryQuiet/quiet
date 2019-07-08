@@ -1,6 +1,7 @@
 import { createSelector } from 'reselect'
 import channelsSelector from './channels'
 import identitySelectors from './identity'
+import messagesQueueSelectors from './messagesQueue'
 import operationsSelectors from './operations'
 import { operationTypes } from '../handlers/operations'
 
@@ -26,6 +27,12 @@ export const pendingMessages = createSelector(
   )
 )
 
+export const queuedMessages = createSelector(
+  messagesQueueSelectors.queue,
+  channel,
+  (queue, channel) => queue.filter(m => m.channelId === channel.id)
+)
+
 export const messagesMeta = createSelector(channel, c => c.messages)
 
 const _isOwner = (address, message) => message.getIn(['sender', 'replyTo']) === address
@@ -36,7 +43,8 @@ export const messages = createSelector(
   identitySelectors.data,
   messagesMeta,
   pendingMessages,
-  (identity, meta, pendingMessages) => {
+  queuedMessages,
+  (identity, meta, pendingMessages, queuedMessages) => {
     const displayableBroadcasted = meta.data.map(
       m => m.set('fromYou', _isOwner(identity.address, m))
     )
@@ -47,8 +55,16 @@ export const messages = createSelector(
         .set('id', m.get('opId'))
         .set('fromYou', _isOwner(identity.address, m.meta.message))
     )
-    return displayableBroadcasted.concat(displayablePending.values())
-      .sortBy(m => m.get('createdAt'))
+
+    const displayableQueued = queuedMessages.map(
+      (m, key) => m.message.set('fromYou', _isOwner(identity.address, m.message))
+        .set('id', key)
+        .set('status', 'pending')
+    )
+    return displayableBroadcasted.concat(
+      displayablePending.values(),
+      displayableQueued.values()
+    ).sortBy(m => m.get('createdAt'))
   }
 )
 

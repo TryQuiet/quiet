@@ -1,5 +1,19 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Channels selectors - channelById 1`] = `
+Immutable.Map {
+  "id": 1,
+  "name": "Channel 1",
+  "private": true,
+  "address": "zs1testaddress1",
+  "unread": 1,
+  "description": "Channel about 1",
+  "keys": Immutable.Map {
+    "ivk": "incoming-viewing-key-1",
+  },
+}
+`;
+
 exports[`Channels selectors - channels 1`] = `
 Immutable.ChannelsState {
   "data": Array [

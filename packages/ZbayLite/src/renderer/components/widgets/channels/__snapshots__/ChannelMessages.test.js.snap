@@ -43,7 +43,6 @@ exports[`ChannelMessages renders component 1`] = `
               "type": 1,
               "createdAt": 0,
               "message": "This is some message 0",
-              "spent": "23.23",
               "sender": Immutable.Map {
                 "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
               },
@@ -58,7 +57,6 @@ exports[`ChannelMessages renders component 1`] = `
               "type": 1,
               "createdAt": 1,
               "message": "This is some message 1",
-              "spent": "23.23",
               "sender": Immutable.Map {
                 "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
               },
@@ -73,7 +71,6 @@ exports[`ChannelMessages renders component 1`] = `
               "type": 1,
               "createdAt": 2,
               "message": "This is some message 2",
-              "spent": "23.23",
               "sender": Immutable.Map {
                 "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
               },
@@ -88,7 +85,6 @@ exports[`ChannelMessages renders component 1`] = `
               "type": 1,
               "createdAt": 3,
               "message": "This is some message 3",
-              "spent": "23.23",
               "sender": Immutable.Map {
                 "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
               },

@@ -51,16 +51,19 @@ export const createMessage = ({ messageData, identity }) => ({
   message: messageData.data
 })
 
-export const messageToTransfer = async ({ message, channel, amount = '0.0001' }) => ({
-  from: message.sender.replyTo,
-  amounts: [
-    {
-      address: channel.address,
-      amount: amount,
-      memo: await packMemo(message)
-    }
-  ]
-})
+export const messageToTransfer = async ({ message, channel, amount = '0.0001' }) => {
+  const memo = await packMemo(message)
+  return {
+    from: message.sender.replyTo,
+    amounts: [
+      {
+        address: channel.address,
+        amount: amount,
+        memo
+      }
+    ]
+  }
+}
 
 export const transfersToMessages = async (transfers, owner, isTestnet) => {
   const msgs = await Promise.all(transfers.map(t => transferToMessage(t, isTestnet)))

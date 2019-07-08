@@ -1,5 +1,4 @@
 import { DateTime, Settings } from 'luxon'
-import BigNumber from 'bignumber.js'
 
 import { messages as zbayMessages } from '../zbay'
 
@@ -31,7 +30,6 @@ export const createMessage = (
   type: zbayMessages.messageType.BASIC,
   createdAt,
   message: `This is some message ${id}`,
-  spent: new BigNumber('23.23'),
   sender: {
     replyTo: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya'
   }

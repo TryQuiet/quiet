@@ -6,6 +6,7 @@
 
 * Channel info that contains channel description and shareable hash
 * General channel as landing page
+* Debounce channel messages
 
 ### Fixes
 

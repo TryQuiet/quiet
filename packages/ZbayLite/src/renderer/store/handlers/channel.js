@@ -5,6 +5,7 @@ import { createAction, handleActions } from 'redux-actions'
 
 import operationsHandlers, { operationTypes, PendingMessageOp } from './operations'
 import notificationsHandlers from './notifications'
+import messagesQueueHandlers from './messagesQueue'
 import channelSelectors from '../selectors/channel'
 import identitySelectors from '../selectors/identity'
 import nodeSelectors from '../selectors/node'
@@ -103,27 +104,7 @@ const sendOnEnter = (event) => async (dispatch, getState) => {
       }
     })
     const channel = channelSelectors.data(getState()).toJS()
-    const transfer = await messages.messageToTransfer({
-      message,
-      channel
-    })
-    try {
-      const opId = await getClient().payment.send(transfer)
-      await dispatch(operationsHandlers.epics.observeOperation({
-        opId,
-        type: operationTypes.pendingMessage,
-        meta: PendingMessageOp({
-          channelId: channel.id,
-          message: Immutable.fromJS(message)
-        })
-      }))
-    } catch (err) {
-      notificationsHandlers.actions.enqueueSnackbar(
-        errorNotification({
-          message: 'Couldn\'t send the message, please check node connection.'
-        })
-      )
-    }
+    dispatch(messagesQueueHandlers.epics.addMessage({ message, channelId: channel.id }))
     dispatch(setMessage(''))
   }
 }

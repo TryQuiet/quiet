@@ -1,0 +1,323 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Messages queue reducer handles actions - addMessage when different channel 1`] = `
+Immutable.Map {
+  "81ef205fe0740b59c42077e13bcafae477437d737b748c7a4cce4026979cced8": Immutable.PendingMessage {
+    "channelId": "test-channel-id",
+    "message": Immutable.Map {
+      "id": "test-message-id",
+      "type": 1,
+      "createdAt": 1551963828,
+      "message": "This is some message test-message-id",
+      "sender": Immutable.Map {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      },
+    },
+  },
+  "b211c5afc2ce5af6be220b354ccd971a6af720f4d15581cf3e4b3b59aac00997": Immutable.PendingMessage {
+    "channelId": "test-channel-id-2",
+    "message": Immutable.Map {
+      "id": "test-message-id-2",
+      "type": 1,
+      "createdAt": 1551963829,
+      "message": "This is some message test-message-id-2",
+      "sender": Immutable.Map {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      },
+    },
+  },
+}
+`;
+
+exports[`Messages queue reducer handles actions - addMessage when different sender 1`] = `
+Immutable.Map {
+  "81ef205fe0740b59c42077e13bcafae477437d737b748c7a4cce4026979cced8": Immutable.PendingMessage {
+    "channelId": "test-channel-id",
+    "message": Immutable.Map {
+      "id": "test-message-id",
+      "type": 1,
+      "createdAt": 1551963828,
+      "message": "This is some message test-message-id",
+      "sender": Immutable.Map {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      },
+    },
+  },
+  "27954fbac6e2e9d985a252eabdb605852865222d62dde2a2a71df48199a0f54e": Immutable.PendingMessage {
+    "channelId": "test-channel-id",
+    "message": Immutable.Map {
+      "id": "test-message-id-2",
+      "type": 1,
+      "createdAt": 1551963829,
+      "message": "This is some message test-message-id-2",
+      "sender": Immutable.Map {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Mercury",
+      },
+    },
+  },
+}
+`;
+
+exports[`Messages queue reducer handles actions - addMessage when different type 1`] = `
+Immutable.Map {
+  "81ef205fe0740b59c42077e13bcafae477437d737b748c7a4cce4026979cced8": Immutable.PendingMessage {
+    "channelId": "test-channel-id",
+    "message": Immutable.Map {
+      "id": "test-message-id",
+      "type": 1,
+      "createdAt": 1551963828,
+      "message": "This is some message test-message-id",
+      "sender": Immutable.Map {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      },
+    },
+  },
+  "c547dbe9e867e012bb11db7f4a8f1f4680e7780513901f22c2d166bda0a28c4d": Immutable.PendingMessage {
+    "channelId": "test-channel-id",
+    "message": Immutable.Map {
+      "id": "test-message-id-2",
+      "type": 2,
+      "createdAt": 1551963829,
+      "message": "This is some message test-message-id-2",
+      "sender": Immutable.Map {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      },
+    },
+  },
+}
+`;
+
+exports[`Messages queue reducer handles actions - addMessage when empty 1`] = `
+Immutable.Map {
+  "81ef205fe0740b59c42077e13bcafae477437d737b748c7a4cce4026979cced8": Immutable.PendingMessage {
+    "channelId": "test-channel-id",
+    "message": Immutable.Map {
+      "id": "test-message-id",
+      "type": 1,
+      "createdAt": 1551963828,
+      "message": "This is some message test-message-id",
+      "sender": Immutable.Map {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      },
+    },
+  },
+}
+`;
+
+exports[`Messages queue reducer handles actions - addMessage when has matching message 1`] = `
+Immutable.Map {
+  "81ef205fe0740b59c42077e13bcafae477437d737b748c7a4cce4026979cced8": Immutable.PendingMessage {
+    "channelId": "test-channel-id",
+    "message": Immutable.Map {
+      "id": "test-message-id",
+      "type": 1,
+      "createdAt": 1551963828,
+      "message": "This is some message test-message-id
+This is some message test-message-id-2",
+      "sender": Immutable.Map {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      },
+    },
+  },
+}
+`;
+
+exports[`Messages queue reducer handles actions - removeMessage 1`] = `Immutable.Map {}`;
+
+exports[`Messages queue reducer handles epics - addMessage adds and sends message 1`] = `
+Immutable.Map {
+  "operation-id": Immutable.Operation {
+    "opId": "operation-id",
+    "type": "pendingMessage",
+    "meta": Immutable.Record {
+      "message": Immutable.Map {
+        "id": "test-message-id",
+        "type": 1,
+        "createdAt": 1551963828,
+        "message": "This is some message test-message-id",
+        "sender": Immutable.Map {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        },
+      },
+      "channelId": 1,
+    },
+    "txId": "test-tx-id",
+    "error": Immutable.ZcashError {
+      "code": -1,
+      "message": "no error",
+    },
+    "status": "success",
+  },
+}
+`;
+
+exports[`Messages queue reducer handles epics - addMessage debounces sendPendingMessages 1`] = `
+Immutable.Map {
+  "operation-id": Immutable.Operation {
+    "opId": "operation-id",
+    "type": "pendingMessage",
+    "meta": Immutable.Record {
+      "message": Immutable.Map {
+        "id": "test-message-id",
+        "type": 1,
+        "createdAt": 1551963828,
+        "message": "This is some message test-message-id
+This is some message test-message-id-2",
+        "sender": Immutable.Map {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        },
+      },
+      "channelId": 1,
+    },
+    "txId": "test-tx-id",
+    "error": Immutable.ZcashError {
+      "code": -1,
+      "message": "no error",
+    },
+    "status": "success",
+  },
+}
+`;
+
+exports[`Messages queue reducer handles epics - addMessage does not debounce after interval 1`] = `
+Immutable.Map {
+  "operation-id": Immutable.Operation {
+    "opId": "operation-id",
+    "type": "pendingMessage",
+    "meta": Immutable.Record {
+      "message": Immutable.Map {
+        "id": "test-message-id",
+        "type": 1,
+        "createdAt": 1551963828,
+        "message": "This is some message test-message-id",
+        "sender": Immutable.Map {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        },
+      },
+      "channelId": 1,
+    },
+    "txId": "test-tx-id",
+    "error": Immutable.ZcashError {
+      "code": -1,
+      "message": "no error",
+    },
+    "status": "success",
+  },
+  "operation-id-2": Immutable.Operation {
+    "opId": "operation-id-2",
+    "type": "pendingMessage",
+    "meta": Immutable.Record {
+      "message": Immutable.Map {
+        "id": "test-message-id-2",
+        "type": 1,
+        "createdAt": 1551963828,
+        "message": "This is some message test-message-id-2",
+        "sender": Immutable.Map {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        },
+      },
+      "channelId": 1,
+    },
+    "txId": "test-tx-id",
+    "error": Immutable.ZcashError {
+      "code": -1,
+      "message": "no error",
+    },
+    "status": "success",
+  },
+}
+`;
+
+exports[`Messages queue reducer handles epics - sendPendingMessages adds operation observers 1`] = `
+Immutable.Map {
+  "op-id-1": Immutable.Operation {
+    "opId": "op-id-1",
+    "type": "pendingMessage",
+    "meta": Immutable.Record {
+      "message": Immutable.Map {
+        "id": "test-message-id",
+        "type": 1,
+        "createdAt": 1551963828,
+        "message": "This is some message test-message-id",
+        "sender": Immutable.Map {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        },
+      },
+      "channelId": 1,
+    },
+    "txId": "test-tx-id",
+    "error": Immutable.ZcashError {
+      "code": -1,
+      "message": "no error",
+    },
+    "status": "success",
+  },
+  "op-id-2": Immutable.Operation {
+    "opId": "op-id-2",
+    "type": "pendingMessage",
+    "meta": Immutable.Record {
+      "message": Immutable.Map {
+        "id": "test-message-id-2",
+        "type": 1,
+        "createdAt": 1551963829,
+        "message": "This is some message test-message-id-2",
+        "sender": Immutable.Map {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        },
+      },
+      "channelId": 2,
+    },
+    "txId": "test-tx-id",
+    "error": Immutable.ZcashError {
+      "code": -1,
+      "message": "no error",
+    },
+    "status": "success",
+  },
+}
+`;
+
+exports[`Messages queue reducer handles epics - sendPendingMessages clears queue 1`] = `Immutable.Map {}`;
+
+exports[`Messages queue reducer handles epics - sendPendingMessages handles node errors using notifications 1`] = `
+Immutable.List [
+  Immutable.Map {
+    "options": Immutable.Map {
+      "persist": true,
+      "variant": "error",
+      "action": [Function],
+    },
+    "message": "Couldn't send the message, please check node connection.",
+  },
+]
+`;
+
+exports[`Messages queue reducer handles epics - sendPendingMessages sends messages 1`] = `
+Array [
+  Array [
+    "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+    Array [
+      Object {
+        "address": "zs1testaddress1",
+        "amount": "0.0001",
+        "memo": "1787997c30e94f050c634d9dbe9b948e6bccbf9fc0dcfbd4d441e5f7d57db3db1deebe6357dbf5601fed3400000000000000000000000000000000000000005c8116b401654a785443736e494c4659416f754c3833465346334e54693473543056495753314f4953585368484e7a4e4643514148536732650000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      },
+    ],
+    1,
+    0.0001,
+  ],
+  Array [
+    "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+    Array [
+      Object {
+        "address": "zs1testaddress2",
+        "amount": "0.0001",
+        "memo": "1787997c30e94f050c634d9dbe9b948e6bccbf9fc0dcfbd4d441e5f7d57db3db1deebe6357dbf5601fed3400000000000000000000000000000000000000005c8116b501654a785443736e494c4659416f754c3833465346334e54693473543056495753314f4953585368484e7a4e463130674a41434d744466303d00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      },
+    ],
+    1,
+    0.0001,
+  ],
+]
+`;

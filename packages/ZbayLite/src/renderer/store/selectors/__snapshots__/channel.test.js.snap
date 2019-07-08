@@ -17,7 +17,6 @@ Immutable.ChannelState {
         "type": 1,
         "createdAt": 1551963828,
         "message": "This is some message 0",
-        "spent": "23.23",
         "sender": Immutable.Map {
           "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         },
@@ -27,7 +26,6 @@ Immutable.ChannelState {
         "type": 1,
         "createdAt": 1551956628,
         "message": "This is some message 1",
-        "spent": "23.23",
         "sender": Immutable.Map {
           "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         },
@@ -37,7 +35,6 @@ Immutable.ChannelState {
         "type": 1,
         "createdAt": 1551949428,
         "message": "This is some message 2",
-        "spent": "23.23",
         "sender": Immutable.Map {
           "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         },
@@ -47,7 +44,6 @@ Immutable.ChannelState {
         "type": 1,
         "createdAt": 1551942228,
         "message": "This is some message 3",
-        "spent": "23.23",
         "sender": Immutable.Map {
           "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         },
@@ -89,31 +85,28 @@ Immutable.List [
     "type": 1,
     "createdAt": 1551942228,
     "message": "This is some message 3",
-    "spent": "23.23",
     "sender": Immutable.Map {
       "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
     },
     "fromYou": false,
   },
   Immutable.Map {
+    "id": "test-operation-id-3",
+    "type": 1,
+    "createdAt": 1551945828,
     "message": "This is some message test-message-id-3",
-    "error": null,
-    "spent": "23.23",
-    "status": "success",
-    "fromYou": false,
     "sender": Immutable.Map {
       "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
     },
-    "type": 1,
-    "id": "test-operation-id-3",
-    "createdAt": 1551945828,
+    "error": null,
+    "status": "success",
+    "fromYou": false,
   },
   Immutable.Map {
     "id": 2,
     "type": 1,
     "createdAt": 1551949428,
     "message": "This is some message 2",
-    "spent": "23.23",
     "sender": Immutable.Map {
       "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
     },
@@ -124,31 +117,39 @@ Immutable.List [
     "type": 1,
     "createdAt": 1551956628,
     "message": "This is some message 1",
-    "spent": "23.23",
     "sender": Immutable.Map {
       "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
     },
     "fromYou": false,
   },
   Immutable.Map {
-    "message": "This is some message test-message-id",
-    "error": null,
-    "spent": "23.23",
-    "status": "success",
-    "fromYou": false,
+    "id": "messageHash",
+    "type": 1,
+    "createdAt": 1551956628,
+    "message": "This is some message test-pending-message",
     "sender": Immutable.Map {
       "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
     },
-    "type": 1,
+    "fromYou": false,
+    "status": "pending",
+  },
+  Immutable.Map {
     "id": "test-operation-id",
+    "type": 1,
     "createdAt": 1551960228,
+    "message": "This is some message test-message-id",
+    "sender": Immutable.Map {
+      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+    },
+    "error": null,
+    "status": "success",
+    "fromYou": false,
   },
   Immutable.Map {
     "id": 0,
     "type": 1,
     "createdAt": 1551963828,
     "message": "This is some message 0",
-    "spent": "23.23",
     "sender": Immutable.Map {
       "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
     },
@@ -168,7 +169,6 @@ Immutable.Map {
         "type": 1,
         "createdAt": 1551960228,
         "message": "This is some message test-message-id",
-        "spent": "23.23",
         "sender": Immutable.Map {
           "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         },
@@ -188,7 +188,6 @@ Immutable.Map {
         "type": 1,
         "createdAt": 1551945828,
         "message": "This is some message test-message-id-3",
-        "spent": "23.23",
         "sender": Immutable.Map {
           "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         },

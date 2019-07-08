@@ -9,6 +9,7 @@ import { operationTypes, PendingMessageOp, Operation } from '../handlers/operati
 import create from '../create'
 import { ChannelState, MessagesState } from '../handlers/channel'
 import { ChannelsState } from '../handlers/channels'
+import { PendingMessage } from '../handlers/messagesQueue'
 import { createMessage, createChannel, now } from '../../testUtils'
 import { LoaderState } from '../handlers/utils'
 
@@ -39,6 +40,14 @@ describe('Channel selector', () => {
         }),
         channels: ChannelsState({
           data: Immutable.fromJS([createChannel(channelId)])
+        }),
+        messagesQueue: Immutable.Map({
+          'messageHash': PendingMessage({
+            channelId,
+            message: Immutable.fromJS(
+              createMessage('test-pending-message', now.minus({ hours: 2 }).toSeconds())
+            )
+          })
         }),
         operations: Immutable.fromJS({
           'test-operation-id': Operation({

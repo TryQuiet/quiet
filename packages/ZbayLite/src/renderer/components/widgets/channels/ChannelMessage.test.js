@@ -4,7 +4,7 @@ import { DateTime } from 'luxon'
 import { shallow } from 'enzyme'
 
 import { ChannelMessage } from './ChannelMessage'
-import { ZcashError } from '../../../store/handlers/pendingMessages'
+import { ZcashError } from '../../../store/handlers/operations'
 import { mockClasses } from '../../../../shared/testing/mocks'
 import { now, createMessage } from '../../../testUtils'
 

@@ -44,7 +44,8 @@ const styles = theme => ({
   },
   message: {
     fontSize: '0.855rem',
-    marginTop: theme.spacing.unit
+    marginTop: theme.spacing.unit,
+    whiteSpace: 'pre-line'
   },
   statusIcon: {
     color: theme.typography.caption.color,

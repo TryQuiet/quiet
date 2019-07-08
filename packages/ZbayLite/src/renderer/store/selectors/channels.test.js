@@ -63,4 +63,9 @@ describe('Channels selectors', () => {
     const retrievedId = channelsSelectors.generalChannelId(store.getState())
     expect(retrievedId).toEqual(id)
   })
+
+  it('- channelById', async () => {
+    const channel = channelsSelectors.channelById(1)(store.getState())
+    expect(channel).toMatchSnapshot()
+  })
 })

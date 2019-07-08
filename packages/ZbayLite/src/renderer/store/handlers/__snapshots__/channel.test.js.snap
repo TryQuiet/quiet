@@ -112,7 +112,6 @@ Immutable.Map {
         "sender": Object {
           "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         },
-        "spent": "23.23",
         "type": 1,
       },
       "channelId": "this-is-a-test-id",
@@ -132,7 +131,6 @@ Immutable.Map {
         "sender": Object {
           "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         },
-        "spent": "23.23",
         "type": 1,
       },
       "channelId": "this-is-a-test-id",
@@ -182,7 +180,6 @@ Immutable.Map {
         "type": 1,
         "createdAt": 1551963828,
         "message": "This is some message test-1",
-        "spent": "23.23",
         "sender": Immutable.Map {
           "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         },
@@ -196,45 +193,21 @@ Immutable.Map {
 }
 `;
 
-exports[`channel reducer handles epics - sendOnEnter creates and resolves pending message on finish 1`] = `
-Immutable.Map {
-  "new-op-id": Immutable.Operation {
-    "opId": "new-op-id",
-    "type": "pendingMessage",
-    "meta": Immutable.Record {
-      "message": Immutable.Map {
-        "type": 1,
-        "sender": Immutable.Map {
+exports[`channel reducer handles epics - sendOnEnter sends message 1`] = `
+Array [
+  Array [
+    Object {
+      "channelId": "this-is-a-test-id",
+      "message": Object {
+        "createdAt": 1551963828,
+        "message": "this is some message",
+        "sender": Object {
           "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
           "username": "Saturn",
         },
-        "createdAt": 1551963828,
-        "message": "this is some message",
+        "type": 1,
       },
-      "channelId": "this-is-a-test-id",
     },
-    "txId": "test-tx-id",
-    "error": Immutable.ZcashError {
-      "code": -1,
-      "message": "no error",
-    },
-    "status": "success",
-  },
-}
-`;
-
-exports[`channel reducer handles epics - sendOnEnter sends message 1`] = `
-Object {
-  "address": "zs1testaddressthis-is-a-test-id",
-  "amount": "0.0001",
-  "memo": Object {
-    "createdAt": 1551963828,
-    "message": "this is some message",
-    "sender": Object {
-      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-      "username": "Saturn",
-    },
-    "type": 1,
-  },
-}
+  ],
+]
 `;

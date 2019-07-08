@@ -37,7 +37,8 @@ export const packMemo = async (message) => {
   type.writeUInt8(message.type)
 
   const msgData = Buffer.alloc(MESSAGE_SIZE)
-  msgData.write(await deflate(message.message))
+  const d = await deflate(message.message)
+  msgData.write(d)
 
   const result = Buffer.concat([
     replyTo,

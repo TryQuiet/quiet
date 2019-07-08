@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`operations selectors  - queue 1`] = `
+Immutable.Map {
+  "messageHash": Immutable.PendingMessage {
+    "channelId": "test-channel-id-1",
+    "message": Immutable.Map {
+      "id": 1,
+      "type": 1,
+      "createdAt": 1551960228,
+      "message": "This is some message 1",
+      "sender": Immutable.Map {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      },
+    },
+  },
+  "messageHash2": Immutable.PendingMessage {
+    "channelId": "test-channel-id-1",
+    "message": Immutable.Map {
+      "id": 1,
+      "type": 1,
+      "createdAt": 1551960228,
+      "message": "This is some message 1",
+      "sender": Immutable.Map {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      },
+    },
+  },
+}
+`;

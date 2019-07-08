@@ -11,12 +11,12 @@ import vaultHandlers from './handlers/vault'
 import vaultUnlockerHandlers from './handlers/vaultUnlocker'
 import modalsHandlers from './handlers/modals'
 import operationsHandlers from './handlers/operations'
-import pendingMessagesHandlers from './handlers/pendingMessages'
+import messagesQueueHandlers from './handlers/messagesQueue'
 import criticalErrorHandlers from './handlers/criticalError'
 
 export default combineReducers({
   operations: operationsHandlers.reducer,
-  pendingMessages: pendingMessagesHandlers.reducer,
+  messagesQueue: messagesQueueHandlers.reducer,
   modals: modalsHandlers.reducer,
   identity: identityHandlers.reducer,
   notifications: notificationsHandlers.reducer,

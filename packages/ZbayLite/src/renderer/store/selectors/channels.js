@@ -18,7 +18,13 @@ const generalChannelId = createSelector(
   ).get('id')
 )
 
+const channelById = id => createSelector(
+  data,
+  (ch) => ch.find(c => c.get('id') === id)
+)
+
 export default {
+  channelById,
   generalChannelId,
   channels,
   loader,
