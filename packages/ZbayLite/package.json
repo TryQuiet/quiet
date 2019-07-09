@@ -17,7 +17,7 @@
     },
     "extraResources": "zcash/**/*"
   },
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Distributed goods and bulletin board",
   "main": "dist/main.js",
   "scripts": {

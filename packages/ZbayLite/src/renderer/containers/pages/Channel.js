@@ -19,11 +19,13 @@ export const mapDispatchToProps = dispatch => bindActionCreators({
 const Channel = ({ loadChannel, generalChannelId, match }) => {
   useEffect(() => {
     if (match.params.id === 'general') {
-      loadChannel(generalChannelId)
+      if (generalChannelId) {
+        loadChannel(generalChannelId)
+      }
     } else {
       loadChannel(match.params.id)
     }
-  }, [match.params.id])
+  }, [match.params.id, generalChannelId])
   return (<ChannelComponent />)
 }
 
