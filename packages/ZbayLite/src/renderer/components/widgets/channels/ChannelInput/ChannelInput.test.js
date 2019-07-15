@@ -1,7 +1,7 @@
 import React from 'react'
 import { shallow } from 'enzyme'
 
-import { mockClasses } from '../../../../shared/testing/mocks'
+import { mockClasses } from '../../../../../shared/testing/mocks'
 import { ChannelInput } from './ChannelInput'
 
 describe('ChannelInput', () => {

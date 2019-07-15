@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ZcashBalance will receive right props 1`] = `
+Object {
+  "usdBalance": "67.166008",
+  "usdLocked": "25.166008",
+  "zecBalance": "33.583004",
+  "zecLocked": "12.583004",
+}
+`;

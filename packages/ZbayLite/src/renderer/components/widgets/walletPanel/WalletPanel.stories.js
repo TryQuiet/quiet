@@ -2,7 +2,6 @@ import React from 'react'
 import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
 import { storiesOf } from '@storybook/react'
-import { withKnobs } from '@storybook/addon-knobs'
 import { action } from '@storybook/addon-actions'
 
 import Paper from '@material-ui/core/Paper'
@@ -27,11 +26,10 @@ const store = create({
 })
 
 storiesOf('Containers/Widgets/WallePanel/WalletPanel', module)
-  .addDecorator(withKnobs)
   .addDecorator(withStore(store))
   .add('playground', () => {
     return (
-      <Paper>
+      <Paper style={{ witdh: 300 }}>
         <WalletPanel getBalance={action('getBalance')} />
       </Paper>
     )

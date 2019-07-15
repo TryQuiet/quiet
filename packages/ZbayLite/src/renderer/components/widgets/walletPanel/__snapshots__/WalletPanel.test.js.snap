@@ -9,26 +9,13 @@ exports[`WalletPanelActions renders component 1`] = `
     item={true}
   >
     <WithStyles(Grid)
+      alignItems="center"
+      container={true}
+      direction="row"
       item={true}
+      justify="space-between"
     >
-      <WithStyles(Grid)
-        alignItems="center"
-        container={true}
-        direction="row"
-        justify="space-between"
-      >
-        <WithStyles(Grid)
-          item={true}
-        >
-          <Connect(Component) />
-        </WithStyles(Grid)>
-        <WithStyles(Grid)
-          className="zec-mock"
-          item={true}
-        >
-          <Connect(Component) />
-        </WithStyles(Grid)>
-      </WithStyles(Grid)>
+      <Connect(Component) />
     </WithStyles(Grid)>
     <WithStyles(Grid)
       className="actions-mock"

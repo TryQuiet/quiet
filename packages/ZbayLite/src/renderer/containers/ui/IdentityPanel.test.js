@@ -17,6 +17,7 @@ describe('IdentityPanel', () => {
           data: Identity({
             address: 'zctestaddress',
             balance: '23.435432',
+            lockedBalance: '13.123432',
             name: 'saturn'
           })
         })

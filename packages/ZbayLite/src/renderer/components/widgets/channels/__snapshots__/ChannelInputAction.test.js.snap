@@ -9,6 +9,7 @@ exports[`ChannelInputAction renders component 1`] = `
       "icon": "icon-mock",
     }
   }
+  disabled={false}
   offset="0 12"
 >
   <Memo(WithStyles(MenuActionItem))

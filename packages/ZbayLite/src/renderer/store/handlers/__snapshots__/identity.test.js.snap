@@ -8,6 +8,7 @@ Immutable.IdentityState {
     "transparentAddress": "",
     "name": "",
     "balance": null,
+    "lockedBalance": null,
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
@@ -28,6 +29,7 @@ Immutable.IdentityState {
     "transparentAddress": "",
     "name": "",
     "balance": "2.34",
+    "lockedBalance": null,
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
@@ -46,6 +48,7 @@ Immutable.IdentityState {
     "transparentAddress": "",
     "name": "",
     "balance": null,
+    "lockedBalance": null,
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
@@ -64,6 +67,7 @@ Immutable.IdentityState {
     "transparentAddress": "",
     "name": "",
     "balance": null,
+    "lockedBalance": null,
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
@@ -82,6 +86,7 @@ Immutable.IdentityState {
     "transparentAddress": "",
     "name": "",
     "balance": null,
+    "lockedBalance": null,
   },
   "fetchingBalance": true,
   "loader": Immutable.Record {
@@ -100,6 +105,26 @@ Immutable.IdentityState {
     "transparentAddress": "transparent-test-address",
     "name": "Saturn",
     "balance": null,
+    "lockedBalance": null,
+  },
+  "fetchingBalance": false,
+  "loader": Immutable.Record {
+    "loading": true,
+    "message": "",
+  },
+  "errors": "",
+}
+`;
+
+exports[`Identity reducer handles actions handles setLockedBalance 1`] = `
+Immutable.IdentityState {
+  "data": Immutable.Identity {
+    "id": null,
+    "address": "",
+    "transparentAddress": "",
+    "name": "",
+    "balance": null,
+    "lockedBalance": "2.34",
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
@@ -135,6 +160,7 @@ Immutable.IdentityState {
     "transparentAddress": "transparent-test-address",
     "name": "Saturn",
     "balance": "2.2352",
+    "lockedBalance": "0",
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
@@ -153,6 +179,7 @@ Immutable.IdentityState {
     "transparentAddress": "transparent-test-address",
     "name": "Saturn",
     "balance": null,
+    "lockedBalance": null,
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
@@ -265,6 +292,7 @@ Immutable.IdentityState {
     "transparentAddress": "transparent-test-address",
     "name": "Saturn",
     "balance": "2.2352",
+    "lockedBalance": "0",
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {

@@ -75,6 +75,13 @@ describe('Identity reducer handles', () => {
       assertStoreState()
     })
 
+    it('handles setLockedBalance', async () => {
+      await store.dispatch(
+        identityHandlers.actions.setLockedBalance(new BigNumber('2.34'))
+      )
+      assertStoreState()
+    })
+
     it('handles setErrors', async () => {
       await store.dispatch(
         identityHandlers.actions.setErrors(new Error('this is some error'))

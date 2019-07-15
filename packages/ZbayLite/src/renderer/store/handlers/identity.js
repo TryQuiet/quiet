@@ -1,4 +1,5 @@
 import Immutable from 'immutable'
+import BigNumber from 'bignumber.js'
 import { createAction, handleActions } from 'redux-actions'
 
 import { getClient } from '../../zcash'
@@ -19,7 +20,8 @@ export const Identity = Immutable.Record({
   address: '',
   transparentAddress: '',
   name: '',
-  balance: null
+  balance: null,
+  lockedBalance: null
 }, 'Identity')
 
 export const IdentityState = Immutable.Record({
@@ -33,6 +35,7 @@ export const initialState = IdentityState()
 
 export const setIdentity = createAction('SET_IDENTITY')
 export const setBalance = createAction('SET_IDENTITY_BALANCE')
+export const setLockedBalance = createAction('SET_IDENTITY_LOCKED_BALANCE')
 export const setErrors = createAction('SET_IDENTITY_ERROR')
 export const setFetchingBalance = createAction('SET_FETCHING_BALANCE')
 export const setLoading = createAction('SET_IDENTITY_LOADING')
@@ -44,6 +47,7 @@ const actions = {
   setErrors,
   setLoading,
   setLoadingMessage,
+  setLockedBalance,
   setBalance
 }
 
@@ -78,6 +82,15 @@ export const fetchBalance = () => async (dispatch, getState) => {
     const balance = await getClient().accounting.balance(address)
     const transparentBalance = await getClient().accounting.balance(tAddress)
     const realTBalance = transparentBalance.minus(fee)
+    const lockedBalanceNotes = await getClient().payment.unspentNotes({
+      addresses: [address],
+      minConfirmations: 0,
+      maxConfirmations: 0
+    })
+    const lockedBalance = lockedBalanceNotes.reduce(
+      (acc, current) => acc.plus(new BigNumber(current.amount || 0)),
+      new BigNumber(0)
+    )
     if (realTBalance.gt(0)) {
       await dispatch(shieldBalance({
         from: tAddress,
@@ -86,6 +99,7 @@ export const fetchBalance = () => async (dispatch, getState) => {
         fee
       }))
     }
+    dispatch(setLockedBalance(lockedBalance))
     dispatch(setBalance(balance))
   } catch (err) {
     dispatch(setErrors(err.message))
@@ -169,6 +183,10 @@ export const reducer = handleActions({
   [setBalance]: (state, { payload: balance }) => state.update(
     'data',
     data => data.set('balance', balance)
+  ),
+  [setLockedBalance]: (state, { payload: balance }) => state.update(
+    'data',
+    data => data.set('lockedBalance', balance)
   ),
   [setFetchingBalance]: (state, { payload: fetching }) => state.set('fetchingBalance', fetching),
   [setErrors]: (state, { payload: errors }) => state.set('errors', errors)

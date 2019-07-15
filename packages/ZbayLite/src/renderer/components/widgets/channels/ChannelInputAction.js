@@ -21,7 +21,7 @@ const styles = theme => ({
   }
 })
 
-export const ChannelInputAction = ({ classes, onPostOffer, onSendMoney }) => (
+export const ChannelInputAction = ({ classes, onPostOffer, onSendMoney, disabled }) => (
   <MenuAction
     classes={{
       button: classes.button,
@@ -29,6 +29,7 @@ export const ChannelInputAction = ({ classes, onPostOffer, onSendMoney }) => (
     }}
     Icon={AddIcon}
     offset='0 12'
+    disabled={disabled}
   >
     <MenuActionItem onClick={onPostOffer} title='Post an offer' />
     <MenuActionItem onClick={onSendMoney} title='Send money' />
@@ -37,8 +38,13 @@ export const ChannelInputAction = ({ classes, onPostOffer, onSendMoney }) => (
 
 ChannelInputAction.propTypes = {
   classes: PropTypes.object.isRequired,
+  disabled: PropTypes.bool.isRequired,
   onPostOffer: PropTypes.func.isRequired,
   onSendMoney: PropTypes.func.isRequired
+}
+
+ChannelInputAction.defaultProps = {
+  disabled: false
 }
 
 export default R.compose(

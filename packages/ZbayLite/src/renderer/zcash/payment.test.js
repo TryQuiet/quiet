@@ -14,7 +14,8 @@ describe('payment', () => {
   const zcashClient = {
     request: {
       z_listreceivedbyaddress: jest.fn(async (address) => received[address]),
-      z_sendmany: sendMock
+      z_sendmany: sendMock,
+      z_listunspent: jest.fn(async () => [{ key: 'value' }])
     }
   }
 
@@ -26,6 +27,16 @@ describe('payment', () => {
 
   it('receives lists received by address', async () => {
     expect(payment.received(address)).resolves.toMatchSnapshot()
+  })
+
+  it('unspentNotes', async () => {
+    await payment.unspentNotes({
+      minConfirmations: 2,
+      maxConfirmations: 5,
+      includeWatchonly: true,
+      addresses: ['test-addresss-1']
+    })
+    expect(zcashClient.request.z_listunspent.mock.calls).toMatchSnapshot()
   })
 
   describe('send', () => {

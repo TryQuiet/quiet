@@ -104,7 +104,11 @@ describe('VaultUnlocker reducer', () => {
 
         const currentIdentity = identitySelectors.identity(store.getState())
 
-        expect(currentIdentity.toJS().data).toEqual({ ...R.omit(['keys'], identity), balance })
+        expect(currentIdentity.toJS().data).toEqual({
+          ...R.omit(['keys'], identity),
+          balance,
+          lockedBalance: new BigNumber(0)
+        })
         const channels = channelsSelectors.data(store.getState())
         expect(channels.map(ch => ch.delete('id')))
       })

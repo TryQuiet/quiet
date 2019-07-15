@@ -57,3 +57,16 @@ Array [
   ],
 ]
 `;
+
+exports[`payment unspentNotes 1`] = `
+Array [
+  Array [
+    2,
+    5,
+    true,
+    Array [
+      "test-addresss-1",
+    ],
+  ],
+]
+`;

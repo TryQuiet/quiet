@@ -7,6 +7,27 @@ exports[`ChannelInput renders component 1`] = `
   direction="column"
   justify="center"
 >
+  <WithTheme(Fade)
+    in={false}
+  >
+    <WithStyles(Grid)
+      alignItems="center"
+      className="backdrop-mock"
+      container={true}
+      direction="column"
+      justify="center"
+    >
+      <pure(WarningIcon)
+        className="warningIcon-mock"
+      />
+      <WithStyles(Typography)
+        align="center"
+        variant="caption"
+      >
+        Sending messages is locked due to insufficient funds - this may be resolved by topping up your account or waiting for the funds locked by the network.
+      </WithStyles(Typography)>
+    </WithStyles(Grid)>
+  </WithTheme(Fade)>
   <WithStyles(Grid)
     alignItems="center"
     container={true}
@@ -26,6 +47,7 @@ exports[`ChannelInput renders component 1`] = `
             },
           }
         }
+        disabled={false}
         fullWidth={true}
         id="channel-input"
         inputProps={
@@ -48,7 +70,9 @@ exports[`ChannelInput renders component 1`] = `
     <WithStyles(Grid)
       item={true}
     >
-      <Connect(Component) />
+      <Connect(Component)
+        disabled={false}
+      />
     </WithStyles(Grid)>
   </WithStyles(Grid)>
 </WithStyles(Grid)>

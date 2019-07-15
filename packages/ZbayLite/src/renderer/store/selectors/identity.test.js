@@ -23,7 +23,8 @@ describe('identity selectors', () => {
             transparentAddress,
             name: 'Saturn',
             transparentBalance: '12.123456',
-            balance: '33.583004'
+            balance: '33.583004',
+            lockedBalance: '12.583004'
           }),
           loader: LoaderState({
             message: 'Test loading message',
@@ -86,6 +87,13 @@ describe('identity selectors', () => {
   it('transparentBalance', () => {
     expect(selectors.transparentBalance(store.getState())).toMatchSnapshot()
   })
+
+  each(['usd', 'zec']).test(
+    'lockedBalance for %s',
+    (currency) => {
+      expect(selectors.lockedBalance(currency)(store.getState())).toMatchSnapshot()
+    }
+  )
 
   it('data', () => {
     expect(selectors.data(store.getState())).toMatchSnapshot()

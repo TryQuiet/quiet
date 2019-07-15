@@ -6,6 +6,7 @@ const requestManager = {
   z_importkey: jest.fn(async () => null),
   z_exportkey: jest.fn(async (address) => `${address}-spending-key`),
   z_getbalance: jest.fn(async () => null),
+  z_listunspent: jest.fn(async () => [0]),
   z_sendmany: jest.fn(async () => null),
   z_getoperationstatus: jest.fn(async () => []),
   z_getnewaddress: jest.fn(async (type) => `${type}-private-address`),

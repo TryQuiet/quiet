@@ -1,45 +1,23 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`UsdBalance renders component 1`] = `
-<WithStyles(Grid)
-  container={true}
-  direction="column"
+<WithStyles(Typography)
+  className="value-mock"
+  variant="h5"
 >
-  <WithStyles(Typography)
-    className="title-mock"
-    variant="body2"
-  >
-    Available
-  </WithStyles(Typography)>
-  <WithStyles(Typography)
-    className="value-mock"
-    variant="h5"
-  >
-    $
-    3,243.25
-     USD
-  </WithStyles(Typography)>
-</WithStyles(Grid)>
+  $ 
+  3,243.25
+   USD
+</WithStyles(Typography)>
 `;
 
 exports[`UsdBalance renders when no value 1`] = `
-<WithStyles(Grid)
-  container={true}
-  direction="column"
+<WithStyles(Typography)
+  className="value-mock"
+  variant="h5"
 >
-  <WithStyles(Typography)
-    className="title-mock"
-    variant="body2"
-  >
-    Available
-  </WithStyles(Typography)>
-  <WithStyles(Typography)
-    className="value-mock"
-    variant="h5"
-  >
-    $
-    -
-     USD
-  </WithStyles(Typography)>
-</WithStyles(Grid)>
+  $ 
+  -
+   USD
+</WithStyles(Typography)>
 `;

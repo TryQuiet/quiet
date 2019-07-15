@@ -10,6 +10,7 @@ exports[`MenuAction renders component 1`] = `
     buttonRef={[Function]}
     className="button-mock"
     disableRipple={true}
+    disabled={false}
     onClick={[Function]}
   >
     <Icon
@@ -52,6 +53,7 @@ exports[`MenuAction renders with optional props 1`] = `
     buttonRef={[Function]}
     className="button-mock"
     disableRipple={true}
+    disabled={false}
     onClick={[Function]}
   >
     <Icon

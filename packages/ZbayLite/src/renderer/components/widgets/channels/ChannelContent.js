@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import BigNumber from 'bignumber.js'
 import * as R from 'ramda'
 
 import Grid from '@material-ui/core/Grid'
@@ -16,7 +17,7 @@ const styles = {
 }
 
 // TODO: filter by spent
-export const ChannelContent = ({ classes, channelId }) => (
+export const ChannelContent = ({ classes, channelId, balance }) => (
   <Grid
     container
     direction='column'
@@ -24,12 +25,18 @@ export const ChannelContent = ({ classes, channelId }) => (
     className={classes.fullHeight}
   >
     <ChannelMessages channelId={channelId} />
-    <ChannelInput />
+    <ChannelInput disabled={balance.isZero()} />
   </Grid>
 )
 
 ChannelContent.propTypes = {
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
+  channelId: PropTypes.string,
+  balance: PropTypes.instanceOf(BigNumber)
+}
+
+ChannelContent.defaultProps = {
+  balance: new BigNumber(0)
 }
 
 export default R.compose(

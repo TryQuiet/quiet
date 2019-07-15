@@ -7,8 +7,7 @@ import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
 
 import WalletPanelActions from '../../../containers/widgets/walletPanel/WalletPanelActions'
-import UsdBalance from '../../../containers/widgets/walletPanel/UsdBalance'
-import ZecBalance from '../../../containers/widgets/walletPanel/ZecBalance'
+import ZcashBalance from '../../../containers/widgets/walletPanel/ZcashBalance'
 import TopUpModal from '../../../containers/widgets/walletPanel/TopUpModal'
 
 const styles = theme => ({
@@ -35,15 +34,8 @@ export const WalletPanel = ({
   return (
     <React.Fragment>
       <Grid item container direction='column' className={classes.root}>
-        <Grid item>
-          <Grid container direction='row' justify='space-between' alignItems='center' >
-            <Grid item>
-              <UsdBalance />
-            </Grid>
-            <Grid item className={classes.zec} >
-              <ZecBalance />
-            </Grid>
-          </Grid>
+        <Grid item container direction='row' justify='space-between' alignItems='center' >
+          <ZcashBalance />
         </Grid>
         <Grid item className={classes.actions}>
           <WalletPanelActions onReceive={handleReceive} />
@@ -67,6 +59,5 @@ WalletPanel.defaultProps = {
 }
 
 export default R.compose(
-  React.memo,
   withStyles(styles)
 )(WalletPanel)

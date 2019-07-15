@@ -8,6 +8,7 @@ Object {
     "transparentAddress": "",
     "name": "saturn",
     "balance": "23.435432",
+    "lockedBalance": "13.123432",
   },
   "loader": Immutable.Record {
     "loading": true,

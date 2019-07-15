@@ -18,6 +18,12 @@ const balance = currency => createSelector(
   (d, rate) => rate.times(new BigNumber(d.balance || 0))
 )
 
+const lockedBalance = currency => createSelector(
+  data,
+  rate(currency),
+  (d, rate) => rate.times(new BigNumber(d.lockedBalance || 0))
+)
+
 const id = createSelector(data, d => d.id)
 
 const address = createSelector(data, d => d.address)
@@ -49,6 +55,7 @@ export default {
   address,
   transparentAddress,
   transparentBalance,
+  lockedBalance,
   balance,
   loader
 }

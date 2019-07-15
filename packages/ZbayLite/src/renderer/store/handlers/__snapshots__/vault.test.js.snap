@@ -23,6 +23,7 @@ Immutable.IdentityState {
     "transparentAddress": "transparent-address",
     "name": "Mercury",
     "balance": "2.2352",
+    "lockedBalance": "0",
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {

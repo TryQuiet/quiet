@@ -199,11 +199,14 @@ describe('vault reducer', () => {
         zcashMock.requestManager.z_getbalance = jest.fn(
           async (addr) => addr === 'sapling-private-address' ? '2.2352' : '0.00234'
         )
+        zcashMock.requestManager.z_listunspent = jest.fn(async () => [0])
+
         await store.dispatch(epics.createVault(formValues, formActions))
 
         expect(identitySelectors.identity(store.getState())).toMatchSnapshot()
         expect(zcashMock.requestManager.z_getnewaddress).toHaveBeenCalledWith('sapling')
         expect(zcashMock.requestManager.z_getbalance).toHaveBeenCalledWith('sapling-private-address')
+        expect(zcashMock.requestManager.z_listunspent).toHaveBeenCalledWith(0, 0, false, ['sapling-private-address'])
       })
 
       it('bootstraps general channel to new account', async () => {
