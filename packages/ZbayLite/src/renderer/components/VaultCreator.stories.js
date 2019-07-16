@@ -11,7 +11,7 @@ const finishSubmitting = decorate([args => {
   return args
 }])
 
-storiesOf('Components/Widgets/VaultCrator', module)
+storiesOf('Components/Widgets/VaultCreator', module)
   .add('initial screen', () => {
     return (
       <Paper style={{ padding: 8 }}>

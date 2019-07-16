@@ -7,7 +7,7 @@ import { withStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
 
 import WindowWrapper from '../ui/WindowWrapper'
-import VaultUnlocker from '../../containers/VaultUnlocker'
+import VaultUnlockerForm from '../../containers/widgets/VaultUnlockerForm'
 
 const countdownRenderer = ({ completed }) => completed && <Redirect to='/main/channel/general' />
 
@@ -24,7 +24,7 @@ export const UnlockVault = ({
   return (
     <WindowWrapper>
       <Grid container justify='center' alignItems='center' className={classes.gridRoot}>
-        <VaultUnlocker />
+        <VaultUnlockerForm />
       </Grid>
       { !locked && <Countdown date={Date.now() + 1000} renderer={countdownRenderer} /> }
     </WindowWrapper>

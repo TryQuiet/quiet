@@ -1,6 +1,6 @@
 /* eslint import/first: 0 */
-jest.mock('../../containers/VaultUnlocker', () => {
-  const VaultUnlocker = () => (<div>VaultUnlocker</div>)
+jest.mock('../../containers/widgets/VaultUnlockerForm', () => {
+  const VaultUnlocker = () => (<div>VaultUnlockerForm</div>)
   return VaultUnlocker
 })
 import React from 'react'

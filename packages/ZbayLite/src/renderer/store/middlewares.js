@@ -19,6 +19,9 @@ const _dispatchError = (store, err) => {
 }
 
 export const errorsMiddleware = store => next => action => {
+  if (action.meta && action.meta.ignoreError) {
+    return next(action)
+  }
   // Handle action with Promise payload
   if (isPromise(action.payload)) {
     return next(action).catch(error => {

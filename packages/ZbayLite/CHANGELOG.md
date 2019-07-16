@@ -1,5 +1,21 @@
+<a name="0.4.1"></a>
+# [0.4.1](TBR)
+
+
+### Fixes
+
+* Fixed login screen - incorrect password is now handled correctly and enter works as a form submit
+
+<a name="0.4.0"></a>
+# [0.4.0]
+
+
+### Features
+
+* Lock message input if current balance is 0 and display locked funds in wallet panel
+
 <a name="0.3.0"></a>
-# [0.3.0](TBR)
+# [0.3.0]
 
 
 ### Features
@@ -14,7 +30,7 @@
 * Changed node status to a linear loader on node's connection page
 
 <a name="0.2.0"></a>
-# [0.2.0](TBR)
+# [0.2.0]
 
 
 ### Features

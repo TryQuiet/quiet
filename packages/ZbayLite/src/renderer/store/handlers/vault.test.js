@@ -56,7 +56,7 @@ describe('vault reducer', () => {
 
   it('handles unlockVault', async () => {
     await store.dispatch(actions.createVault())
-    await store.dispatch(actions.unlockVault())
+    await store.dispatch(actions.unlockVault({ masterPassword: 'test' }))
     assertStoreState()
   })
 
@@ -70,7 +70,7 @@ describe('vault reducer', () => {
     await store.dispatch(actions.createVault())
     vault.unlock.mockImplementationOnce(async () => { throw Error('This is a test error') })
     try {
-      await store.dispatch(actions.unlockVault())
+      await store.dispatch(actions.unlockVault({ masterPassword: 'test' }))
     } catch (err) {}
     assertStoreState()
   })
@@ -107,7 +107,7 @@ describe('vault reducer', () => {
     const errorMsg = 'This is a test error'
     vault.unlock.mockImplementationOnce(async () => { throw Error(errorMsg) })
     try {
-      await store.dispatch(actions.unlockVault())
+      await store.dispatch(actions.unlockVault({ masterPassword: 'password' }))
     } catch (err) {}
 
     const vaultStore = store.getState().get('vault')

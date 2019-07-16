@@ -41,7 +41,8 @@ export const ProgressFab = ({
   loading,
   success,
   disabled,
-  onClick
+  onClick,
+  ...props
 }) => (
   <div className={
     classNames({
@@ -58,6 +59,7 @@ export const ProgressFab = ({
       }}
       onClick={onClick}
       disabled={disabled}
+      {...props}
     >
       {success ? <CheckIcon /> : children }
     </Fab>
@@ -72,7 +74,7 @@ ProgressFab.propTypes = {
   loading: PropTypes.bool.isRequired,
   success: PropTypes.bool.isRequired,
   disabled: PropTypes.bool.isRequired,
-  onClick: PropTypes.func.isRequired
+  onClick: PropTypes.func
 }
 
 ProgressFab.defaultProps = {

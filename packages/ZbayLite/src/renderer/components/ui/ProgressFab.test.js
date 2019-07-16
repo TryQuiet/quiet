@@ -24,7 +24,6 @@ describe('ProgressFab', () => {
     const result = shallow(
       <ProgressFab
         classes={mockClasses}
-        Icon={Icon}
         onClick={jest.fn()}
         success
       >
@@ -38,7 +37,6 @@ describe('ProgressFab', () => {
     const result = shallow(
       <ProgressFab
         classes={mockClasses}
-        Icon={Icon}
         onClick={jest.fn()}
         loading
       >
@@ -52,7 +50,6 @@ describe('ProgressFab', () => {
     const result = shallow(
       <ProgressFab
         classes={mockClasses}
-        Icon={Icon}
         onClick={jest.fn()}
         success
         disabled

@@ -15,7 +15,7 @@ describe('Index', () => {
   })
 
   it('will receive right props', async () => {
-    await store.dispatch(vaultHandlers.actions.unlockVault())
+    await store.dispatch(vaultHandlers.actions.unlockVault({ masterPassword: 'test' }))
     const props = mapStateToProps(store.getState())
     expect(props).toMatchSnapshot()
   })

@@ -1,10 +1,10 @@
 /* eslint import/first: 0 */
-jest.mock('../vault')
-import { mapStateToProps, mapDispatchToProps } from './VaultUnlocker'
+jest.mock('../../vault')
+import { mapStateToProps, mapDispatchToProps } from './VaultUnlockerForm'
 
-import create from '../store/create'
+import create from '../../store/create'
 
-describe('VaultUnlocker', () => {
+describe('VaultUnlockerForm', () => {
   let store = null
   beforeEach(() => {
     jest.clearAllMocks()

@@ -22,7 +22,7 @@ describe('vault selectors', () => {
 
   it('locked', async () => {
     expect(selectors.locked(store.getState())).toEqual(true)
-    await store.dispatch(actions.unlockVault())
+    await store.dispatch(actions.unlockVault({ masterPassword: 'test' }))
     expect(selectors.locked(store.getState())).toEqual(false)
   })
 

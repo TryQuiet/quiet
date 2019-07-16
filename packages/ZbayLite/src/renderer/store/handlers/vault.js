@@ -4,6 +4,7 @@ import { createAction, handleActions } from 'redux-actions'
 import { typeFulfilled, typeRejected, typePending, errorNotification } from './utils'
 import nodeSelectors from '../selectors/node'
 import identityHandlers from './identity'
+import vaultHandlers from './vault'
 import notificationsHandlers from './notifications'
 
 import vault from '../../vault'
@@ -28,7 +29,11 @@ export const actionTypes = {
 }
 
 const createVault = createAction(actionTypes.CREATE, vault.create)
-const unlockVault = createAction(actionTypes.UNLOCK, vault.unlock)
+const unlockVault = createAction(
+  actionTypes.UNLOCK,
+  vault.unlock,
+  ({ ignoreError = false }) => ({ ignoreError })
+)
 const createIdentity = createAction(actionTypes.CREATE_IDENTITY, vault.identity.createIdentity)
 const clearError = createAction(actionTypes.CLEAR_ERROR)
 const setVaultStatus = createAction(actionTypes.SET_STATUS)
@@ -59,15 +64,35 @@ const createVaultEpic = ({ name, password }, formActions) => async (dispatch, ge
     await dispatch(identityHandlers.epics.setIdentity(identity))
   } catch (error) {
     dispatch(notificationsHandlers.actions.enqueueSnackbar(
-      errorNotification({ message: `Failed to create channel: ${error.message}` })
+      errorNotification({ message: `Failed to create vault: ${error.message}` })
     ))
+  }
+  formActions.setSubmitting(false)
+}
+
+const unlockVaultEpic = ({ password: masterPassword }, formActions) => async (dispatch, getState) => {
+  const state = getState()
+  const network = nodeSelectors.network(state)
+  try {
+    await dispatch(vaultHandlers.actions.unlockVault({ masterPassword, network, ignoreError: true }))
+    const [identity] = await vault.identity.listIdentities()
+    await dispatch(identityHandlers.epics.setIdentity(identity))
+  } catch (error) {
+    if (error.message.includes('Authentication failed')) {
+      dispatch(notificationsHandlers.actions.enqueueSnackbar(
+        errorNotification({ message: 'Incorrect password' }, { persist: false })
+      ))
+    } else {
+      throw error
+    }
   }
   formActions.setSubmitting(false)
 }
 
 export const epics = {
   loadVaultStatus,
-  createVault: createVaultEpic
+  createVault: createVaultEpic,
+  unlockVault: unlockVaultEpic
 }
 
 export const reducer = handleActions({

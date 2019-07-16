@@ -65,13 +65,4 @@ describe('Vault', () => {
     const result = shallow(<Vault {...props} />)
     expect(result).toMatchSnapshot()
   })
-
-  it('will render redirect when vault unlocked', () => {
-    const props = {
-      ...mapDispatchToProps(x => x),
-      ...mapStateToProps(store.getState())
-    }
-    const result = shallow(<Vault {...props} />)
-    expect(result).toMatchSnapshot()
-  })
 })
