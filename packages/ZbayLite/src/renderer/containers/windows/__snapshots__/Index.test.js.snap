@@ -3,6 +3,7 @@
 exports[`Index will receive right actions 1`] = `
 Object {
   "getStatus": [Function],
+  "loadVersion": [Function],
 }
 `;
 

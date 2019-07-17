@@ -1,10 +1,14 @@
 <a name="0.4.1"></a>
 # [0.4.1](TBR)
 
+### Features
+
+* App version in sidebar panel
 
 ### Fixes
 
 * Fixed login screen - incorrect password is now handled correctly and enter works as a form submit
+* Display message input only when user currently has no funds and there are some locked funds
 
 <a name="0.4.0"></a>
 # [0.4.0]

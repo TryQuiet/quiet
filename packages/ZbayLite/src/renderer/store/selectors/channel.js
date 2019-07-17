@@ -70,8 +70,15 @@ export const messages = createSelector(
 
 export const shareableUri = createSelector(channel, c => c.shareableUri)
 
+export const inputLocked = createSelector(
+  identitySelectors.balance('zec'),
+  identitySelectors.lockedBalance('zec'),
+  (available, locked) => available.isZero() && locked.gt(0)
+)
+
 export default {
   data,
+  inputLocked,
   loader,
   channel,
   spentFilterValue,

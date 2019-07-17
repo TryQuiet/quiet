@@ -12,7 +12,7 @@ import { withStyles } from '@material-ui/core/styles'
 import ExpandLessIcon from '@material-ui/icons/ExpandLess'
 
 import NodeStatus from '../../../containers/widgets/node/NodeStatus'
-import NodePanelDetails from './NodePanelDetails'
+import NodePanelDetails from '../../../containers/widgets/node/NodePanelDetails'
 
 const styles = theme => ({
   expansionDetails: {

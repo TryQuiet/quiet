@@ -12,8 +12,10 @@ import modalsHandlers from './handlers/modals'
 import operationsHandlers from './handlers/operations'
 import messagesQueueHandlers from './handlers/messagesQueue'
 import criticalErrorHandlers from './handlers/criticalError'
+import appHandlers from './handlers/app'
 
 export default combineReducers({
+  app: appHandlers.reducer,
   operations: operationsHandlers.reducer,
   messagesQueue: messagesQueueHandlers.reducer,
   modals: modalsHandlers.reducer,

@@ -13,17 +13,3 @@ exports[`ChannelContent renders component 1`] = `
   />
 </WithStyles(Grid)>
 `;
-
-exports[`ChannelContent renders not disabled when balance not 0 1`] = `
-<WithStyles(Grid)
-  className="fullHeight-mock"
-  container={true}
-  direction="column"
-  justify="center"
->
-  <Connect(ChannelMessages) />
-  <Connect(Component)
-    disabled={false}
-  />
-</WithStyles(Grid)>
-`;

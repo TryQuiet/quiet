@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import * as R from 'ramda'
 
 import Grid from '@material-ui/core/Grid'
+import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
 
 // import NodePanelActions from '../../../containers/widgets/node/NodePanelActions'
@@ -10,6 +11,7 @@ import NodePanelBlocksField from '../../../containers/widgets/node/NodePanelBloc
 import NodePanelConnectionsField from '../../../containers/widgets/node/NodePanelConnectionsField'
 import NodePanelNetworkField from '../../../containers/widgets/node/NodePanelNetworkField'
 // import NodePanelUptimeField from '../../../containers/widgets/node/NodePanelUptimeField'
+import NodePanelField from './NodePanelField'
 
 const styles = theme => ({
   details: {
@@ -20,12 +22,17 @@ const styles = theme => ({
 
 // TODO: add actions
 // TODO: add uptime
-export const NodePanelDetails = ({ classes }) => (
+export const NodePanelDetails = ({ classes, zbayVersion }) => (
   <Grid container direction='column'>
     <Grid container direction='column' className={classes.details}>
       <NodePanelNetworkField />
       <NodePanelBlocksField />
       <NodePanelConnectionsField />
+      <NodePanelField name='Zbay version'>
+        <Typography inline variant='overline'>
+          {zbayVersion}
+        </Typography>
+      </NodePanelField>
       {/* <NodePanelUptimeField /> */}
     </Grid>
     {/* <NodePanelActions /> */}

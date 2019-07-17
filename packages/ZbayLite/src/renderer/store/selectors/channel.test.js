@@ -9,88 +9,97 @@ import { operationTypes, PendingMessageOp, Operation } from '../handlers/operati
 import create from '../create'
 import { ChannelState, MessagesState } from '../handlers/channel'
 import { ChannelsState } from '../handlers/channels'
+import { IdentityState, Identity } from '../handlers/identity'
 import { PendingMessage } from '../handlers/messagesQueue'
 import { createMessage, createChannel, now } from '../../testUtils'
 import { LoaderState } from '../handlers/utils'
 
-describe('Channel selector', () => {
-  const channelId = 'this-is-a-test-id'
+const channelId = 'this-is-a-test-id'
 
+const storeState = {
+  identity: IdentityState({
+    data: Identity({
+      balance: new BigNumber(0),
+      lockedBalance: new BigNumber(23)
+    })
+  }),
+  channel: ChannelState({
+    spentFilterValue: 38,
+    id: channelId,
+    shareableUri: 'zbay.io/channel/my-hash',
+    members: new BigNumber(0),
+    message: 'Message written in the input',
+    messages: MessagesState({
+      data: Immutable.fromJS(
+        R.range(0, 4)
+          .map(i => createMessage(i, now.minus({ hours: 2 * i }).toSeconds()))
+      ),
+      loader: LoaderState({
+        message: 'Test loading message',
+        loading: true
+      })
+    })
+  }),
+  channels: ChannelsState({
+    data: Immutable.fromJS([createChannel(channelId)])
+  }),
+  messagesQueue: Immutable.Map({
+    'messageHash': PendingMessage({
+      channelId,
+      message: Immutable.fromJS(
+        createMessage('test-pending-message', now.minus({ hours: 2 }).toSeconds())
+      )
+    })
+  }),
+  operations: Immutable.fromJS({
+    'test-operation-id': Operation({
+      opId: 'test-operation-id',
+      txId: 'transaction-id',
+      type: operationTypes.pendingMessage,
+      meta: PendingMessageOp({
+        message: Immutable.fromJS(createMessage(
+          'test-message-id',
+          now.minus({ hours: 1 }).toSeconds()
+        )),
+        channelId
+      }),
+      status: 'success'
+    }),
+    'test-operation-id-2': Operation({
+      opId: 'test-operation-id-2',
+      txId: 'transaction-id-2',
+      type: operationTypes.pendingMessage,
+      meta: PendingMessageOp({
+        message: Immutable.fromJS(createMessage(
+          'test-message-id-2',
+          now.minus({ hours: 3 }).toSeconds()
+        )),
+        channelId: `not-${channelId}`
+      }),
+      status: 'success'
+    }),
+    'test-operation-id-3': Operation({
+      opId: 'test-operation-id-3',
+      txId: 'transaction-id-3',
+      type: operationTypes.pendingMessage,
+      meta: PendingMessageOp({
+        message: Immutable.fromJS(createMessage(
+          'test-message-id-3',
+          now.minus({ hours: 5 }).toSeconds()
+        )),
+        channelId
+      }),
+      status: 'success'
+    })
+  })
+}
+
+describe('Channel selector', () => {
   let store = null
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({
-        channel: ChannelState({
-          spentFilterValue: 38,
-          id: channelId,
-          shareableUri: 'zbay.io/channel/my-hash',
-          members: new BigNumber(0),
-          message: 'Message written in the input',
-          messages: MessagesState({
-            data: Immutable.fromJS(
-              R.range(0, 4)
-                .map(i => createMessage(i, now.minus({ hours: 2 * i }).toSeconds()))
-            ),
-            loader: LoaderState({
-              message: 'Test loading message',
-              loading: true
-            })
-          })
-        }),
-        channels: ChannelsState({
-          data: Immutable.fromJS([createChannel(channelId)])
-        }),
-        messagesQueue: Immutable.Map({
-          'messageHash': PendingMessage({
-            channelId,
-            message: Immutable.fromJS(
-              createMessage('test-pending-message', now.minus({ hours: 2 }).toSeconds())
-            )
-          })
-        }),
-        operations: Immutable.fromJS({
-          'test-operation-id': Operation({
-            opId: 'test-operation-id',
-            txId: 'transaction-id',
-            type: operationTypes.pendingMessage,
-            meta: PendingMessageOp({
-              message: Immutable.fromJS(createMessage(
-                'test-message-id',
-                now.minus({ hours: 1 }).toSeconds()
-              )),
-              channelId
-            }),
-            status: 'success'
-          }),
-          'test-operation-id-2': Operation({
-            opId: 'test-operation-id-2',
-            txId: 'transaction-id-2',
-            type: operationTypes.pendingMessage,
-            meta: PendingMessageOp({
-              message: Immutable.fromJS(createMessage(
-                'test-message-id-2',
-                now.minus({ hours: 3 }).toSeconds()
-              )),
-              channelId: `not-${channelId}`
-            }),
-            status: 'success'
-          }),
-          'test-operation-id-3': Operation({
-            opId: 'test-operation-id-3',
-            txId: 'transaction-id-3',
-            type: operationTypes.pendingMessage,
-            meta: PendingMessageOp({
-              message: Immutable.fromJS(createMessage(
-                'test-message-id-3',
-                now.minus({ hours: 5 }).toSeconds()
-              )),
-              channelId
-            }),
-            status: 'success'
-          })
-        })
-      })
+      initialState: Immutable.Map(storeState)
     })
   })
 
@@ -124,5 +133,56 @@ describe('Channel selector', () => {
 
   it('shareableUri', () => {
     expect(channelSelectors.shareableUri(store.getState())).toMatchSnapshot()
+  })
+
+  describe('inputLocked', () => {
+    it('when balance=0 and lockedBalance > 0', () => {
+      expect(channelSelectors.inputLocked(store.getState())).toBeTruthy()
+    })
+
+    it('when balance=0 and lockedBalance=0', () => {
+      store = create({
+        initialState: Immutable.Map({
+          ...storeState,
+          identity: IdentityState({
+            data: Identity({
+              balance: new BigNumber(0),
+              lockedBalance: new BigNumber(0)
+            })
+          })
+        })
+      })
+      expect(channelSelectors.inputLocked(store.getState())).toBeFalsy()
+    })
+
+    it('when balance > 0 and lockedBalance > 0', () => {
+      store = create({
+        initialState: Immutable.Map({
+          ...storeState,
+          identity: IdentityState({
+            data: Identity({
+              balance: new BigNumber(12),
+              lockedBalance: new BigNumber(12)
+            })
+          })
+        })
+      })
+      expect(channelSelectors.inputLocked(store.getState())).toBeFalsy()
+    })
+
+    it('when balance > 0 and lockedBalance=0', () => {
+      store = create({
+        initialState: Immutable.Map({
+          ...storeState,
+          identity: IdentityState({
+            data: Identity({
+              balance: new BigNumber(12),
+              lockedBalance: new BigNumber(0)
+            })
+          })
+        })
+      })
+      expect(channelSelectors.inputLocked(store.getState())).toBeFalsy()
+    })
   })
 })
