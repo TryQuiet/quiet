@@ -1,5 +1,19 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`messages - calculate diff 1`] = `
+Immutable.List [
+  Immutable.Map {
+    "type": 1,
+    "sender": Immutable.Map {
+      "replyTo": "saturn-private-address",
+      "username": "Saturn",
+    },
+    "createdAt": 1551963828,
+    "message": "This is a new message",
+  },
+]
+`;
+
 exports[`messages - message to transfer creates transfer from simple message 1`] = `
 Object {
   "createdAt": 1551963828,

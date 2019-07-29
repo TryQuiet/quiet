@@ -7,9 +7,9 @@ import channelsSelectors from './channels'
 
 import create from '../create'
 import zbayChannels from '../../zcash/channels'
-import { ChannelsState } from '../handlers/channels'
+import channelsHandlers, { ChannelsState } from '../handlers/channels'
 import { NodeState } from '../handlers/node'
-import { createChannel } from '../../testUtils'
+import { createChannel, now } from '../../testUtils'
 import { LoaderState } from '../handlers/utils'
 
 describe('Channels selectors', () => {
@@ -23,11 +23,8 @@ describe('Channels selectors', () => {
             loading: true,
             message: 'Loading messages'
           }),
-          data: R.range(0, 3).map(
-            R.compose(
-              Immutable.fromJS,
-              createChannel
-            )
+          data: Immutable.fromJS(
+            R.range(0, 3).map(createChannel)
           )
         })
       })
@@ -67,5 +64,15 @@ describe('Channels selectors', () => {
   it('- channelById', async () => {
     const channel = channelsSelectors.channelById(1)(store.getState())
     expect(channel).toMatchSnapshot()
+  })
+
+  it('- lastSeen', () => {
+    store.dispatch(channelsHandlers.actions.setLastSeen({
+      channelId: 1,
+      lastSeen: now.minus({ years: 2 })
+    }))
+
+    const updated = channelsSelectors.lastSeen(1)(store.getState())
+    expect(updated).toEqual(now.minus({ years: 2 }))
   })
 })

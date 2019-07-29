@@ -4,7 +4,7 @@ import Immutable from 'immutable'
 import { mapStateToProps } from './ChannelContent'
 
 import create from '../../../store/create'
-import { ChannelState, MessagesState } from '../../../store/handlers/channel'
+import { ChannelState } from '../../../store/handlers/channel'
 
 describe('ChannelContent', () => {
   let store = null
@@ -12,9 +12,7 @@ describe('ChannelContent', () => {
     jest.clearAllMocks()
     store = create({
       initialState: Immutable.Map({
-        channel: ChannelState({
-          messages: MessagesState()
-        })
+        channel: ChannelState()
       })
     })
   })

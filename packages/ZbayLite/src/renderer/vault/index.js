@@ -133,7 +133,6 @@ export const locked = () => {
   return _vault === null || _vault.locked()
 }
 
-// TODO: display channels on frontend
 export default ({
   // TODO: [refactoring] those using withWorkspace should be moved to Vault
   // as plug in modules

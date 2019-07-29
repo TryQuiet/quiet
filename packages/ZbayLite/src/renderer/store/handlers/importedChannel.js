@@ -44,7 +44,11 @@ const importChannel = () => async (dispatch, getState) => {
   const channel = importedChannelSelectors.data(state).toJS()
   try {
     await getVault().channels.importChannel(identityId, channel)
-    await getClient().keys.importSK({ sk: channel.keys.sk, address: channel.address })
+    if (channel.keys.sk) {
+      await getClient().keys.importSK({ sk: channel.keys.sk, address: channel.address })
+    } else {
+      await getClient().keys.importIVK({ ivk: channel.keys.ivk, address: channel.address })
+    }
     await dispatch(channelsHandlers.actions.loadChannels(identityId))
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar({

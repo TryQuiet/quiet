@@ -7,11 +7,12 @@ import * as R from 'ramda'
 import channelSelectors from './channel'
 import { operationTypes, PendingMessageOp, Operation } from '../handlers/operations'
 import create from '../create'
-import { ChannelState, MessagesState } from '../handlers/channel'
+import { ChannelState } from '../handlers/channel'
 import { ChannelsState } from '../handlers/channels'
 import { IdentityState, Identity } from '../handlers/identity'
 import { PendingMessage } from '../handlers/messagesQueue'
-import { createMessage, createChannel, now } from '../../testUtils'
+import { ReceivedMessage, ChannelMessages } from '../handlers/messages'
+import { createMessage, createChannel, now, createReceivedMessage } from '../../testUtils'
 import { LoaderState } from '../handlers/utils'
 
 const channelId = 'this-is-a-test-id'
@@ -29,15 +30,18 @@ const storeState = {
     shareableUri: 'zbay.io/channel/my-hash',
     members: new BigNumber(0),
     message: 'Message written in the input',
-    messages: MessagesState({
-      data: Immutable.fromJS(
-        R.range(0, 4)
-          .map(i => createMessage(i, now.minus({ hours: 2 * i }).toSeconds()))
-      ),
-      loader: LoaderState({
-        message: 'Test loading message',
-        loading: true
-      })
+    loader: LoaderState({
+      message: 'Test loading message',
+      loading: true
+    })
+  }),
+  messages: Immutable.Map({
+    [channelId]: ChannelMessages({
+      messages: Immutable.List(Immutable.fromJS(
+        R.range(0, 4).map(id => ReceivedMessage(
+          createReceivedMessage({ id, createdAt: now.minus({ hours: 2 * id }).toSeconds() })
+        ))
+      ))
     })
   }),
   channels: ChannelsState({
@@ -184,5 +188,9 @@ describe('Channel selector', () => {
       })
       expect(channelSelectors.inputLocked(store.getState())).toBeFalsy()
     })
+  })
+
+  it('channelId', () => {
+    expect(channelSelectors.channelId(store.getState())).toMatchSnapshot()
   })
 })

@@ -1,0 +1,522 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`messages reducer handles actions - appendNewMessages when there are new messages 1`] = `
+Immutable.Map {
+  "test-channel-1": Immutable.ChannelMessages {
+    "messages": Immutable.List [],
+    "newMessages": Immutable.List [
+      "message-id-0",
+      "message-id-1",
+      "message-id-2",
+      "message-id-3",
+      "message-id-4",
+    ],
+  },
+}
+`;
+
+exports[`messages reducer handles actions - appendNewMessages when there are no new messages 1`] = `
+Immutable.Map {
+  "test-channel-1": Immutable.ChannelMessages {
+    "messages": Immutable.List [],
+    "newMessages": Immutable.List [
+      "message-id-0",
+      "message-id-1",
+      "message-id-2",
+    ],
+  },
+}
+`;
+
+exports[`messages reducer handles actions - cleanNewMessages when there are new messages 1`] = `
+Immutable.Map {
+  "test-channel-1": Immutable.ChannelMessages {
+    "messages": Immutable.List [],
+    "newMessages": Immutable.List [],
+  },
+}
+`;
+
+exports[`messages reducer handles actions - cleanNewMessages when there are no new messages 1`] = `Immutable.Map {}`;
+
+exports[`messages reducer handles actions - setMessages overwrites messages 1`] = `
+Immutable.Map {
+  "test-channel-1": Immutable.ChannelMessages {
+    "messages": Immutable.List [
+      Immutable.Map {
+        "id": "test-message-3",
+        "spent": "0.32",
+        "type": 1,
+        "createdAt": 1551963828,
+        "message": "This is a message with id test-message-3",
+        "sender": Immutable.Map {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+          "username": "Wenus",
+        },
+      },
+      Immutable.Map {
+        "id": "test-message-4",
+        "spent": "0.32",
+        "type": 1,
+        "createdAt": 1551963828,
+        "message": "This is a message with id test-message-4",
+        "sender": Immutable.Map {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+          "username": "Wenus",
+        },
+      },
+    ],
+    "newMessages": Immutable.List [],
+  },
+}
+`;
+
+exports[`messages reducer handles actions - setMessages sets messages when empty 1`] = `
+Immutable.Map {
+  "test-channel-1": Immutable.ChannelMessages {
+    "messages": Immutable.List [
+      Immutable.Map {
+        "id": "test-message-0",
+        "spent": "0.32",
+        "type": 1,
+        "createdAt": 1551963828,
+        "message": "This is a message with id test-message-0",
+        "sender": Immutable.Map {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+          "username": "Wenus",
+        },
+      },
+      Immutable.Map {
+        "id": "test-message-1",
+        "spent": "0.32",
+        "type": 1,
+        "createdAt": 1551963828,
+        "message": "This is a message with id test-message-1",
+        "sender": Immutable.Map {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+          "username": "Wenus",
+        },
+      },
+      Immutable.Map {
+        "id": "test-message-2",
+        "spent": "0.32",
+        "type": 1,
+        "createdAt": 1551963828,
+        "message": "This is a message with id test-message-2",
+        "sender": Immutable.Map {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+          "username": "Wenus",
+        },
+      },
+    ],
+    "newMessages": Immutable.List [],
+  },
+  "test-channel-2": Immutable.ChannelMessages {
+    "messages": Immutable.List [
+      Immutable.Map {
+        "id": "test-message-3",
+        "spent": "0.32",
+        "type": 1,
+        "createdAt": 1551963828,
+        "message": "This is a message with id test-message-3",
+        "sender": Immutable.Map {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+          "username": "Wenus",
+        },
+      },
+      Immutable.Map {
+        "id": "test-message-4",
+        "spent": "0.32",
+        "type": 1,
+        "createdAt": 1551963828,
+        "message": "This is a message with id test-message-4",
+        "sender": Immutable.Map {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+          "username": "Wenus",
+        },
+      },
+    ],
+    "newMessages": Immutable.List [],
+  },
+}
+`;
+
+exports[`messages reducer handles epics - fetch messages resolves pending messages 1`] = `Immutable.Map {}`;
+
+exports[`messages reducer handles epics - fetch messages when has to calculate diff 1`] = `
+Object {
+  "criticalError": Immutable.CriticalError {
+    "message": "",
+    "traceback": "",
+  },
+  "messages": Immutable.Map {
+    0: Immutable.ChannelMessages {
+      "messages": Immutable.List [
+        Immutable.ReceivedMessage {
+          "id": "tx-id-0-zs1testaddress0",
+          "type": 1,
+          "sender": Immutable.MessageSender {
+            "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+            "username": "Wenus",
+          },
+          "createdAt": 1551963828,
+          "message": "message 0 for zs1testaddress0",
+          "spent": "0.0001",
+        },
+        Immutable.ReceivedMessage {
+          "id": "tx-id-1-zs1testaddress0",
+          "type": 1,
+          "sender": Immutable.MessageSender {
+            "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+            "username": "Wenus",
+          },
+          "createdAt": 1551960228,
+          "message": "message 1 for zs1testaddress0",
+          "spent": "0.0001",
+        },
+        Immutable.ReceivedMessage {
+          "id": "tx-id-2-zs1testaddress0",
+          "type": 1,
+          "sender": Immutable.MessageSender {
+            "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+            "username": "Wenus",
+          },
+          "createdAt": 1551956628,
+          "message": "message 2 for zs1testaddress0",
+          "spent": "0.0001",
+        },
+      ],
+      "newMessages": Immutable.List [
+        "tx-id-0-zs1testaddress0",
+        "tx-id-1-zs1testaddress0",
+        "tx-id-2-zs1testaddress0",
+      ],
+    },
+    1: Immutable.ChannelMessages {
+      "messages": Immutable.List [
+        Immutable.ReceivedMessage {
+          "id": "tx-id-0-zs1testaddress1",
+          "type": 1,
+          "sender": Immutable.MessageSender {
+            "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+            "username": "Wenus",
+          },
+          "createdAt": 1551963828,
+          "message": "message 0 for zs1testaddress1",
+          "spent": "0.0001",
+        },
+        Immutable.ReceivedMessage {
+          "id": "tx-id-1-zs1testaddress1",
+          "type": 1,
+          "sender": Immutable.MessageSender {
+            "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+            "username": "Wenus",
+          },
+          "createdAt": 1551960228,
+          "message": "message 1 for zs1testaddress1",
+          "spent": "0.0001",
+        },
+        Immutable.ReceivedMessage {
+          "id": "tx-id-2-zs1testaddress1",
+          "type": 1,
+          "sender": Immutable.MessageSender {
+            "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+            "username": "Wenus",
+          },
+          "createdAt": 1551956628,
+          "message": "message 2 for zs1testaddress1",
+          "spent": "0.0001",
+        },
+      ],
+      "newMessages": Immutable.List [
+        "tx-id-0-zs1testaddress1",
+        "tx-id-1-zs1testaddress1",
+        "tx-id-2-zs1testaddress1",
+      ],
+    },
+  },
+  "operations": Immutable.Map {},
+}
+`;
+
+exports[`messages reducer handles epics - fetch messages when lastSeen not set 1`] = `
+Object {
+  "criticalError": Immutable.CriticalError {
+    "message": "",
+    "traceback": "",
+  },
+  "messages": Immutable.Map {
+    0: Immutable.ChannelMessages {
+      "messages": Immutable.List [
+        Immutable.ReceivedMessage {
+          "id": "tx-id-0-zs1testaddress0",
+          "type": 1,
+          "sender": Immutable.MessageSender {
+            "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+            "username": "Wenus",
+          },
+          "createdAt": 1551963828,
+          "message": "message 0 for zs1testaddress0",
+          "spent": "0.0001",
+        },
+        Immutable.ReceivedMessage {
+          "id": "tx-id-1-zs1testaddress0",
+          "type": 1,
+          "sender": Immutable.MessageSender {
+            "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+            "username": "Wenus",
+          },
+          "createdAt": 1551960228,
+          "message": "message 1 for zs1testaddress0",
+          "spent": "0.0001",
+        },
+      ],
+      "newMessages": Immutable.List [
+        "tx-id-0-zs1testaddress0",
+        "tx-id-1-zs1testaddress0",
+      ],
+    },
+    1: Immutable.ChannelMessages {
+      "messages": Immutable.List [
+        Immutable.ReceivedMessage {
+          "id": "tx-id-0-zs1testaddress1",
+          "type": 1,
+          "sender": Immutable.MessageSender {
+            "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+            "username": "Wenus",
+          },
+          "createdAt": 1551963828,
+          "message": "message 0 for zs1testaddress1",
+          "spent": "0.0001",
+        },
+        Immutable.ReceivedMessage {
+          "id": "tx-id-1-zs1testaddress1",
+          "type": 1,
+          "sender": Immutable.MessageSender {
+            "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+            "username": "Wenus",
+          },
+          "createdAt": 1551960228,
+          "message": "message 1 for zs1testaddress1",
+          "spent": "0.0001",
+        },
+      ],
+      "newMessages": Immutable.List [
+        "tx-id-0-zs1testaddress1",
+        "tx-id-1-zs1testaddress1",
+      ],
+    },
+  },
+  "operations": Immutable.Map {},
+}
+`;
+
+exports[`messages reducer handles epics - fetch messages when new messages are sent by current identity 1`] = `
+Object {
+  "criticalError": Immutable.CriticalError {
+    "message": "",
+    "traceback": "",
+  },
+  "messages": Immutable.Map {
+    0: Immutable.ChannelMessages {
+      "messages": Immutable.List [
+        Immutable.ReceivedMessage {
+          "id": "tx-id-0-zs1testaddress0",
+          "type": 1,
+          "sender": Immutable.MessageSender {
+            "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+            "username": "Wenus",
+          },
+          "createdAt": 1551963828,
+          "message": "message 0 for zs1testaddress0",
+          "spent": "0.0001",
+        },
+        Immutable.ReceivedMessage {
+          "id": "tx-id-1-zs1testaddress0",
+          "type": 1,
+          "sender": Immutable.MessageSender {
+            "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+            "username": "Wenus",
+          },
+          "createdAt": 1551960228,
+          "message": "message 1 for zs1testaddress0",
+          "spent": "0.0001",
+        },
+      ],
+      "newMessages": Immutable.List [],
+    },
+    1: Immutable.ChannelMessages {
+      "messages": Immutable.List [
+        Immutable.ReceivedMessage {
+          "id": "tx-id-0-zs1testaddress1",
+          "type": 1,
+          "sender": Immutable.MessageSender {
+            "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+            "username": "Wenus",
+          },
+          "createdAt": 1551963828,
+          "message": "message 0 for zs1testaddress1",
+          "spent": "0.0001",
+        },
+        Immutable.ReceivedMessage {
+          "id": "tx-id-1-zs1testaddress1",
+          "type": 1,
+          "sender": Immutable.MessageSender {
+            "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+            "username": "Wenus",
+          },
+          "createdAt": 1551960228,
+          "message": "message 1 for zs1testaddress1",
+          "spent": "0.0001",
+        },
+      ],
+      "newMessages": Immutable.List [],
+    },
+  },
+  "operations": Immutable.Map {},
+}
+`;
+
+exports[`messages reducer handles epics - fetch messages when no channel messages 1`] = `
+Object {
+  "criticalError": Immutable.CriticalError {
+    "message": "",
+    "traceback": "",
+  },
+  "messages": Immutable.Map {
+    0: Immutable.ChannelMessages {
+      "messages": Immutable.List [
+        Immutable.ReceivedMessage {
+          "id": "tx-id-0-zs1testaddress0",
+          "type": 1,
+          "sender": Immutable.MessageSender {
+            "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+            "username": "Wenus",
+          },
+          "createdAt": 1551963828,
+          "message": "message 0 for zs1testaddress0",
+          "spent": "0.0001",
+        },
+        Immutable.ReceivedMessage {
+          "id": "tx-id-1-zs1testaddress0",
+          "type": 1,
+          "sender": Immutable.MessageSender {
+            "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+            "username": "Wenus",
+          },
+          "createdAt": 1551960228,
+          "message": "message 1 for zs1testaddress0",
+          "spent": "0.0001",
+        },
+      ],
+      "newMessages": Immutable.List [
+        "tx-id-0-zs1testaddress0",
+        "tx-id-1-zs1testaddress0",
+      ],
+    },
+    1: Immutable.ChannelMessages {
+      "messages": Immutable.List [
+        Immutable.ReceivedMessage {
+          "id": "tx-id-0-zs1testaddress1",
+          "type": 1,
+          "sender": Immutable.MessageSender {
+            "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+            "username": "Wenus",
+          },
+          "createdAt": 1551963828,
+          "message": "message 0 for zs1testaddress1",
+          "spent": "0.0001",
+        },
+        Immutable.ReceivedMessage {
+          "id": "tx-id-1-zs1testaddress1",
+          "type": 1,
+          "sender": Immutable.MessageSender {
+            "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+            "username": "Wenus",
+          },
+          "createdAt": 1551960228,
+          "message": "message 1 for zs1testaddress1",
+          "spent": "0.0001",
+        },
+      ],
+      "newMessages": Immutable.List [
+        "tx-id-0-zs1testaddress1",
+        "tx-id-1-zs1testaddress1",
+      ],
+    },
+  },
+  "operations": Immutable.Map {},
+}
+`;
+
+exports[`messages reducer handles epics - fetch messages when some messages are new 1`] = `
+Object {
+  "criticalError": Immutable.CriticalError {
+    "message": "",
+    "traceback": "",
+  },
+  "messages": Immutable.Map {
+    0: Immutable.ChannelMessages {
+      "messages": Immutable.List [
+        Immutable.ReceivedMessage {
+          "id": "tx-id-0-zs1testaddress0",
+          "type": 1,
+          "sender": Immutable.MessageSender {
+            "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+            "username": "Wenus",
+          },
+          "createdAt": 1551963828,
+          "message": "message 0 for zs1testaddress0",
+          "spent": "0.0001",
+        },
+        Immutable.ReceivedMessage {
+          "id": "tx-id-1-zs1testaddress0",
+          "type": 1,
+          "sender": Immutable.MessageSender {
+            "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+            "username": "Wenus",
+          },
+          "createdAt": 1551960228,
+          "message": "message 1 for zs1testaddress0",
+          "spent": "0.0001",
+        },
+      ],
+      "newMessages": Immutable.List [
+        "tx-id-0-zs1testaddress0",
+        "tx-id-1-zs1testaddress0",
+      ],
+    },
+    1: Immutable.ChannelMessages {
+      "messages": Immutable.List [
+        Immutable.ReceivedMessage {
+          "id": "tx-id-0-zs1testaddress1",
+          "type": 1,
+          "sender": Immutable.MessageSender {
+            "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+            "username": "Wenus",
+          },
+          "createdAt": 1551963828,
+          "message": "message 0 for zs1testaddress1",
+          "spent": "0.0001",
+        },
+        Immutable.ReceivedMessage {
+          "id": "tx-id-1-zs1testaddress1",
+          "type": 1,
+          "sender": Immutable.MessageSender {
+            "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+            "username": "Wenus",
+          },
+          "createdAt": 1551960228,
+          "message": "message 1 for zs1testaddress1",
+          "spent": "0.0001",
+        },
+      ],
+      "newMessages": Immutable.List [
+        "tx-id-0-zs1testaddress1",
+        "tx-id-1-zs1testaddress1",
+      ],
+    },
+  },
+  "operations": Immutable.Map {},
+}
+`;

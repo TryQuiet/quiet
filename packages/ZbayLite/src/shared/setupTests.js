@@ -6,3 +6,5 @@ global.fetch = jest.fn(() => Promise.resolve())
 global.each = each
 
 Enzyme.configure({ adapter: new Adapter() })
+
+jest.resetAllMocks()

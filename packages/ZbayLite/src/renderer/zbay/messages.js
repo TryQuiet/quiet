@@ -1,4 +1,5 @@
 import { DateTime } from 'luxon'
+import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
 import * as R from 'ramda'
 import * as Yup from 'yup'
@@ -11,7 +12,58 @@ export const messageType = {
   TRANSFER: 4
 }
 
-const messageSchema = Yup.object().shape({
+export const MessageSender = Immutable.Record({
+  replyTo: '',
+  username: 'Unnamed'
+}, 'MessageSender')
+
+export const _DisplayableMessage = Immutable.Record({
+  id: null,
+  type: messageType.BASIC,
+  sender: MessageSender(),
+  createdAt: null,
+  message: '',
+  spent: new BigNumber(0),
+  fromYou: false,
+  status: 'broadcasted',
+  error: null
+}, 'DisplayableMessage')
+
+export const DisplayableMessage = (values) => {
+  const record = _DisplayableMessage(values)
+  return record.set('sender', MessageSender(record.sender))
+}
+
+const _isOwner = (address, message) => message.getIn(['sender', 'replyTo']) === address
+
+export const receivedToDisplayableMessage = ({
+  message,
+  identityAddress
+}) => DisplayableMessage(message).set(
+  'fromYou', _isOwner(identityAddress, message)
+)
+
+export const operationToDisplayableMessage = ({
+  operation,
+  identityAddress
+}) => DisplayableMessage(operation.meta.message).merge({
+  error: operation.error,
+  status: operation.status,
+  id: operation.opId,
+  fromYou: _isOwner(identityAddress, operation.meta.message)
+})
+
+export const queuedToDisplayableMessage = ({
+  messageKey,
+  queuedMessage,
+  identityAddress
+}) => DisplayableMessage(queuedMessage.message).merge({
+  fromYou: _isOwner(identityAddress, queuedMessage.message),
+  id: messageKey,
+  status: 'pending'
+})
+
+export const messageSchema = Yup.object().shape({
   type: Yup.number().oneOf(R.values(messageType)).required(),
   sender: Yup.object().shape({
     replyTo: Yup.string().required(),
@@ -70,7 +122,13 @@ export const transfersToMessages = async (transfers, owner, isTestnet) => {
   return msgs.filter(x => x)
 }
 
+export const calculateDiff = (oldMsgs, newMsgs) => newMsgs.filter(m => !oldMsgs.includes(m))
+
 export default {
+  receivedToDisplayableMessage,
+  queuedToDisplayableMessage,
+  operationToDisplayableMessage,
+  calculateDiff,
   createMessage,
   messageType,
   messageToTransfer,

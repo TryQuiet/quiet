@@ -24,7 +24,8 @@ export const ChannelsState = Immutable.Record({
 export const initialState = ChannelsState()
 
 export const actionTypes = {
-  LOAD_CHANNELS: 'LOAD_IDENTITY_CHANNELS'
+  LOAD_CHANNELS: 'LOAD_IDENTITY_CHANNELS',
+  SET_LAST_SEEN: 'SET_CHANNELS_LAST_SEEN'
 }
 
 const loadChannels = createAction(actionTypes.LOAD_CHANNELS, async (id) => {
@@ -38,8 +39,11 @@ const loadChannels = createAction(actionTypes.LOAD_CHANNELS, async (id) => {
   return channels
 })
 
+const setLastSeen = createAction(actionTypes.SET_LAST_SEEN)
+
 export const actions = {
-  loadChannels
+  loadChannels,
+  setLastSeen
 }
 
 const _createChannel = async (identityId, { name, description }) => {
@@ -91,7 +95,11 @@ export const reducer = handleActions({
     .set('data', Immutable.fromJS(data))
     .setIn(['loader', 'loading'], false),
   [typeRejected(actionTypes.LOAD_CHANNELS)]: (state, { payload: error }) => state
-    .setIn(['loader', 'loading'], false)
+    .setIn(['loader', 'loading'], false),
+  [setLastSeen]: (state, { payload: { channelId, lastSeen } }) => {
+    const index = state.data.findIndex(channel => channel.get('id') === channelId)
+    return state.updateIn(['data', index], ch => ch.set('lastSeen', lastSeen))
+  }
 }, initialState)
 
 export default {

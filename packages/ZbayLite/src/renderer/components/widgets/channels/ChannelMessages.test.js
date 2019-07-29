@@ -11,7 +11,7 @@ import { mockClasses } from '../../../../shared/testing/mocks'
 describe('ChannelMessages', () => {
   it('renders component', () => {
     jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => now)
-    const messages = Immutable.fromJS(R.range(0, 4).map(createMessage))
+    const messages = Immutable.fromJS(R.range(0, 4).map(m => createMessage(m)))
     const ref = React.createRef()
     const contentRect = {
       bounds: {

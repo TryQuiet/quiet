@@ -2,7 +2,9 @@
 jest.mock('../../../shared/migrations/0_2_0')
 jest.mock('../../vault')
 jest.mock('../../zcash')
+
 import Immutable from 'immutable'
+import { DateTime } from 'luxon'
 
 import { actions, epics, initialState, actionTypes } from './vault'
 import { typePending } from './utils'
@@ -14,7 +16,7 @@ import identitySelectors from '../selectors/identity'
 import { NodeState } from './node'
 import { mock as zcashMock } from '../../zcash'
 import { createArchive } from '../../vault/marshalling'
-import { createIdentity } from '../../testUtils'
+import { createIdentity, now } from '../../testUtils'
 
 describe('vault reducer', () => {
   let store = null
@@ -172,6 +174,7 @@ describe('vault reducer', () => {
       beforeEach(() => {
         mock.setArchive(createArchive())
 
+        jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => now)
         vault.identity.createIdentity.mockImplementation(
           async (identity) => ({ ...identity, id: 'thisisatestid' })
         )

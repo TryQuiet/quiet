@@ -1,32 +1,28 @@
 import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
+import { DateTime } from 'luxon'
 import * as R from 'ramda'
 import { createAction, handleActions } from 'redux-actions'
 
 import operationsHandlers, { operationTypes, PendingMessageOp } from './operations'
 import notificationsHandlers from './notifications'
 import messagesQueueHandlers from './messagesQueue'
+import messagesHandlers from './messages'
+import channelsHandlers from './channels'
 import channelSelectors from '../selectors/channel'
 import identitySelectors from '../selectors/identity'
-import nodeSelectors from '../selectors/node'
-import operationsSelectors from '../selectors/operations'
 import { getClient } from '../../zcash'
 import { messages } from '../../zbay'
+import { getVault } from '../../vault'
 import { errorNotification, LoaderState } from './utils'
 import { channelToUri } from '../../zbay/channels'
-
-export const MessagesState = Immutable.Record({
-  loader: LoaderState({ loading: true }),
-  data: Immutable.List(),
-  errors: ''
-})
 
 export const ChannelState = Immutable.Record({
   spentFilterValue: new BigNumber(0),
   id: null,
   message: '',
   shareableUri: '',
-  messages: MessagesState(),
+  loader: LoaderState({ loading: true }),
   members: null
 }, 'ChannelState')
 
@@ -35,7 +31,6 @@ export const initialState = ChannelState()
 const setSpentFilterValue = createAction('SET_SPENT_FILTER_VALUE', (_, value) => value)
 const setMessage = createAction('SET_CHANNEL_MESSAGE', R.path(['target', 'value']))
 const setChannelId = createAction('SET_CHANNEL_ID')
-const setMessages = createAction('SET_CHANNEL_MESSAGES')
 const setLoading = createAction('SET_CHANNEL_LOADING')
 const setLoadingMessage = createAction('SET_CHANNEL_LOADING_MESSAGE')
 const setShareableUri = createAction('SET_CHANNEL_SHAREABLE_URI')
@@ -47,31 +42,6 @@ export const actions = {
   setMessage,
   setShareableUri,
   setChannelId
-}
-
-const loadMessages = () => async (dispatch, getState) => {
-  const channel = channelSelectors.data(getState())
-  const isTestnet = nodeSelectors.node(getState()).isTestnet
-  const transfers = await getClient().payment.received(channel.get('address'))
-
-  const pendingMessages = operationsSelectors.pendingMessages(getState())
-
-  const msgs = await Promise.all(transfers.map(
-    async (transfer) => {
-      const message = await messages.transferToMessage(transfer, isTestnet)
-
-      const pendingMessage = pendingMessages.find(
-        pm => pm.txId && pm.txId === message.id)
-      if (pendingMessage) {
-        dispatch(
-          operationsHandlers.actions.removeOperation(pendingMessage.opId)
-        )
-      }
-      return message
-    }
-  ))
-
-  dispatch(setMessages(msgs))
 }
 
 const loadChannel = (id) => async (dispatch, getState) => {
@@ -86,7 +56,8 @@ const loadChannel = (id) => async (dispatch, getState) => {
     const uri = await channelToUri(channel.toJS())
     dispatch(setShareableUri(uri))
 
-    await dispatch(loadMessages())
+    await dispatch(updateLastSeen())
+    await dispatch(messagesHandlers.epics.fetchMessages())
   } catch (err) {}
   dispatch(setLoading(false))
 }
@@ -135,26 +106,39 @@ const resendMessage = (message) => async (dispatch, getState) => {
   }
 }
 
+const updateLastSeen = () => async (dispatch, getState) => {
+  const identity = identitySelectors.data(getState())
+  const channelId = channelSelectors.channelId(getState())
+  const lastSeen = DateTime.utc()
+  getVault().channels.updateLastSeen({
+    identityId: identity.get('id'),
+    channelId,
+    lastSeen
+  })
+  dispatch(channelsHandlers.actions.setLastSeen({ channelId, lastSeen }))
+}
+
+const clearNewMessages = () => async (dispatch, getState) => {
+  const channelId = channelSelectors.channelId(getState())
+  dispatch(messagesHandlers.actions.cleanNewMessages({ channelId }))
+}
+
 export const epics = {
   sendOnEnter,
   loadChannel,
   resendMessage,
-  loadMessages
+  clearNewMessages,
+  updateLastSeen
 }
 
 // TODO: we should have a global loader map
 export const reducer = handleActions({
-  [setLoading]: (state, { payload: loading }) => state.setIn(['messages', 'loader', 'loading'], loading),
-  [setLoadingMessage]: (state, { payload: message }) => state.setIn(['messages', 'loader', 'message'], message),
+  [setLoading]: (state, { payload: loading }) => state.setIn(['loader', 'loading'], loading),
+  [setLoadingMessage]: (state, { payload: message }) => state.setIn(['loader', 'message'], message),
   [setSpentFilterValue]: (state, { payload: value }) => state.set('spentFilterValue', new BigNumber(value)),
   [setMessage]: (state, { payload: value }) => state.set('message', value),
   [setChannelId]: (state, { payload: id }) => state.set('id', id),
-  [setShareableUri]: (state, { payload: uri }) => state.set('shareableUri', uri),
-  [setMessages]: (state, { payload: messages }) => state.update(
-    'messages',
-    msgMeta => msgMeta
-      .set('data', Immutable.fromJS(messages))
-  )
+  [setShareableUri]: (state, { payload: uri }) => state.set('shareableUri', uri)
 }, initialState)
 
 export default {

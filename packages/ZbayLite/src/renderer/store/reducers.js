@@ -13,8 +13,10 @@ import operationsHandlers from './handlers/operations'
 import messagesQueueHandlers from './handlers/messagesQueue'
 import criticalErrorHandlers from './handlers/criticalError'
 import appHandlers from './handlers/app'
+import messagesHandlers from './handlers/messages'
 
 export default combineReducers({
+  messages: messagesHandlers.reducer,
   app: appHandlers.reducer,
   operations: operationsHandlers.reducer,
   messagesQueue: messagesQueueHandlers.reducer,

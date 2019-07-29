@@ -6,13 +6,9 @@ Immutable.ChannelState {
   "id": "this-is-a-test-id",
   "message": "",
   "shareableUri": "",
-  "messages": Immutable.Record {
-    "loader": Immutable.Record {
-      "loading": true,
-      "message": "",
-    },
-    "data": Immutable.List [],
-    "errors": "",
+  "loader": Immutable.Record {
+    "loading": true,
+    "message": "",
   },
   "members": null,
 }
@@ -24,13 +20,9 @@ Immutable.ChannelState {
   "id": null,
   "message": "",
   "shareableUri": "",
-  "messages": Immutable.Record {
-    "loader": Immutable.Record {
-      "loading": true,
-      "message": "",
-    },
-    "data": Immutable.List [],
-    "errors": "",
+  "loader": Immutable.Record {
+    "loading": false,
+    "message": "",
   },
   "members": null,
 }
@@ -42,13 +34,9 @@ Immutable.ChannelState {
   "id": null,
   "message": "",
   "shareableUri": "",
-  "messages": Immutable.Record {
-    "loader": Immutable.Record {
-      "loading": true,
-      "message": "this is a loading message",
-    },
-    "data": Immutable.List [],
-    "errors": "",
+  "loader": Immutable.Record {
+    "loading": true,
+    "message": "this is a loading message",
   },
   "members": null,
 }
@@ -60,114 +48,48 @@ Immutable.ChannelState {
   "id": null,
   "message": "",
   "shareableUri": "zbay.io/channel/this-is-a-hash",
-  "messages": Immutable.Record {
-    "loader": Immutable.Record {
-      "loading": true,
-      "message": "",
-    },
-    "data": Immutable.List [],
-    "errors": "",
+  "loader": Immutable.Record {
+    "loading": true,
+    "message": "",
   },
   "members": null,
 }
 `;
 
-exports[`channel reducer handles epics - loadChannel 1`] = `
+exports[`channel reducer handles epics - loadChannel fetches messages 1`] = `
 Immutable.List [
-  Immutable.Map {
-    "sender": Immutable.Map {
-      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-    },
-    "message": "This is some message test-1",
-    "createdAt": 1551963828,
-    "type": 1,
+  Immutable.DisplayableMessage {
     "id": "test-1",
-    "spent": "0.2",
-    "fromYou": true,
-  },
-  Immutable.Map {
-    "sender": Immutable.Map {
-      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-    },
-    "message": "This is some message test-2",
-    "createdAt": 1551963828,
     "type": 1,
-    "id": "test-2",
+    "sender": Immutable.MessageSender {
+      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "username": "",
+    },
+    "createdAt": 1551963828,
+    "message": "This is some message test-1",
     "spent": "0.2",
     "fromYou": true,
+    "status": "broadcasted",
+    "error": null,
+  },
+  Immutable.DisplayableMessage {
+    "id": "test-2",
+    "type": 1,
+    "sender": Immutable.MessageSender {
+      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "username": "",
+    },
+    "createdAt": 1551963828,
+    "message": "This is some message test-2",
+    "spent": "0.2",
+    "fromYou": true,
+    "status": "broadcasted",
+    "error": null,
   },
 ]
 `;
 
-exports[`channel reducer handles epics - loadMessages clears out pending messages 1`] = `
-Immutable.Map {
-  "test-1-op": Immutable.Operation {
-    "opId": "test-1-op",
-    "type": "pendingMessage",
-    "meta": Immutable.Record {
-      "message": Object {
-        "createdAt": 1551963828,
-        "id": "test-1",
-        "message": "This is some message test-1",
-        "sender": Object {
-          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-        },
-        "type": 1,
-      },
-      "channelId": "this-is-a-test-id",
-    },
-    "txId": null,
-    "error": null,
-    "status": "pending",
-  },
-  "test-2-op": Immutable.Operation {
-    "opId": "test-2-op",
-    "type": "pendingMessage",
-    "meta": Immutable.Record {
-      "message": Object {
-        "createdAt": 1551963828,
-        "id": "test-2",
-        "message": "This is some message test-2",
-        "sender": Object {
-          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-        },
-        "type": 1,
-      },
-      "channelId": "this-is-a-test-id",
-    },
-    "txId": null,
-    "error": null,
-    "status": "pending",
-  },
-}
-`;
-
-exports[`channel reducer handles epics - loadMessages loads for current channel 1`] = `
-Immutable.List [
-  Immutable.Map {
-    "sender": Immutable.Map {
-      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-    },
-    "message": "This is some message test-1",
-    "createdAt": 1551963828,
-    "type": 1,
-    "id": "test-1",
-    "spent": "0.2",
-    "fromYou": true,
-  },
-  Immutable.Map {
-    "sender": Immutable.Map {
-      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-    },
-    "message": "This is some message test-2",
-    "createdAt": 1551963828,
-    "type": 1,
-    "id": "test-2",
-    "spent": "0.2",
-    "fromYou": true,
-  },
-]
-`;
+exports[`channel reducer handles epics - loadChannel sets uri 1`] = `"zbay.io/channel/eJxNizEOgCAMAL9iGkcdWF19CUqjDVKMRY0S/i4YB6dL7nIRWDuEDvpZM+NSKWhAG7OhSLa3qIASPlGXaFDGjdZAnn+bHvwe3tnilc8IdNjciUfviKf2IDwLc24VpPQAl0oo4g=="`;
 
 exports[`channel reducer handles epics - resendMessage resend selected message 1`] = `
 Immutable.Map {
@@ -184,7 +106,7 @@ Immutable.Map {
           "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         },
       },
-      "channelId": "this-is-a-test-id",
+      "channelId": "",
     },
     "txId": null,
     "error": null,
@@ -194,20 +116,43 @@ Immutable.Map {
 `;
 
 exports[`channel reducer handles epics - sendOnEnter sends message 1`] = `
-Array [
-  Array [
-    Object {
-      "channelId": "this-is-a-test-id",
-      "message": Object {
-        "createdAt": 1551963828,
-        "message": "this is some message",
-        "sender": Object {
-          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-          "username": "Saturn",
-        },
-        "type": 1,
+Object {
+  "createdAt": 1551963828,
+  "message": "this is some message",
+  "sender": Object {
+    "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+    "username": "Saturn",
+  },
+  "type": 1,
+}
+`;
+
+exports[`channel reducer handles epics -clearNewMessages clears new messages for current channel 1`] = `
+Immutable.ChannelMessages {
+  "messages": Immutable.List [
+    Immutable.ReceivedMessage {
+      "id": "test-1",
+      "type": 1,
+      "sender": Immutable.MessageSender {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "",
       },
+      "createdAt": 1551963828,
+      "message": "This is some message test-1",
+      "spent": "0.2",
+    },
+    Immutable.ReceivedMessage {
+      "id": "test-2",
+      "type": 1,
+      "sender": Immutable.MessageSender {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "",
+      },
+      "createdAt": 1551963828,
+      "message": "This is some message test-2",
+      "spent": "0.2",
     },
   ],
-]
+  "newMessages": Immutable.List [],
+}
 `;

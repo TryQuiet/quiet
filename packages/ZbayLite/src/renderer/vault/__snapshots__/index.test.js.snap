@@ -42,6 +42,7 @@ Array [
     "keys": Object {
       "ivk": "incoming-viewing-key-3",
     },
+    "lastSeen": "2019-03-07T13:03:48.000Z",
     "name": "Channel 3",
     "private": true,
     "unread": 3,
@@ -52,6 +53,7 @@ Array [
     "keys": Object {
       "ivk": "incoming-viewing-key-2",
     },
+    "lastSeen": "2019-03-07T13:03:48.000Z",
     "name": "Channel 2",
     "private": true,
     "unread": 2,
@@ -62,6 +64,7 @@ Array [
     "keys": Object {
       "ivk": "incoming-viewing-key-1",
     },
+    "lastSeen": "2019-03-07T13:03:48.000Z",
     "name": "Channel 1",
     "private": true,
     "unread": 1,
@@ -106,6 +109,7 @@ Vault {
   "channels": Object {
     "importChannel": [Function],
     "listChannels": [Function],
+    "updateLastSeen": [Function],
   },
   "lock": [MockFunction],
   "withWorkspace": [Function],

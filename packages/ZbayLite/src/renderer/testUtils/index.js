@@ -1,4 +1,5 @@
 import { DateTime, Settings } from 'luxon'
+import BigNumber from 'bignumber.js'
 
 import { messages as zbayMessages } from '../zbay'
 
@@ -24,18 +25,49 @@ export const channels = {
 
 export const createMessage = (
   id,
-  createdAt = now.minus({ hours: id }).toSeconds()
+  createdAt = now.minus({ hours: id }).toSeconds(),
+  replyTo = 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya'
 ) => ({
   id,
   type: zbayMessages.messageType.BASIC,
   createdAt,
   message: `This is some message ${id}`,
   sender: {
-    replyTo: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya'
+    replyTo
   }
 })
 
+export const createReceivedMessage = ({
+  id,
+  createdAt = now.toSeconds()
+}) => ({
+  id,
+  spent: new BigNumber('0.32'),
+  type: zbayMessages.messageType.BASIC,
+  createdAt,
+  message: `This is a message with id ${id}`,
+  sender: {
+    replyTo: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya',
+    username: 'Wenus'
+  }
+})
+
+export const createSendableMessage = ({
+  message,
+  createdAt = now.toSeconds()
+}) => ({
+  type: zbayMessages.messageType.BASIC,
+  sender: {
+    replyTo: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya',
+    username: 'Wenus'
+  },
+  createdAt,
+  message
+})
+
 export const messages = {
+  createReceivedMessage,
+  createSendableMessage,
   createMessage
 }
 
@@ -71,6 +103,7 @@ export const createIdentity = ({
 })
 
 export default {
+  now,
   transfers,
   channels,
   messages,

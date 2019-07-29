@@ -3,6 +3,7 @@ jest.mock('../../vault')
 jest.mock('../../zcash')
 
 import Immutable from 'immutable'
+import { DateTime } from 'luxon'
 import * as R from 'ramda'
 
 import create from '../create'
@@ -33,6 +34,7 @@ describe('channels reducer', () => {
     it('when fulfilled', async () => {
       const id = 'this is'
       mock.setArchive(createArchive())
+      jest.spyOn(DateTime, 'utc').mockImplementation(() => testUtils.now)
       await Promise.all(
         R.range(0, 3).map(
           R.compose(
@@ -81,6 +83,27 @@ describe('channels reducer', () => {
       const action = { type: typePending(actionTypes.LOAD_CHANNELS) }
       await store.dispatch(action)
       assertStoreState()
+    })
+  })
+
+  describe('handles actions', () => {
+    it('-setLastSeen sets last seen for channel', () => {
+      const channels = R.range(0, 3).map(testUtils.channels.createChannel)
+      store = create({
+        initialState: Immutable.Map({
+          channels: ChannelsState({
+            data: Immutable.fromJS(channels)
+          })
+        })
+      })
+
+      store.dispatch(actions.setLastSeen({
+        channelId: channels[1].id,
+        lastSeen: testUtils.now.minus({ hours: 2 })
+      }))
+
+      const updatedChannels = channelsSelectors.channels(store.getState())
+      expect(updatedChannels.data.map(ch => ch.delete('id'))).toMatchSnapshot()
     })
   })
 })

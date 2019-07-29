@@ -3,6 +3,8 @@ import channelsSelector from './channels'
 import identitySelectors from './identity'
 import messagesQueueSelectors from './messagesQueue'
 import operationsSelectors from './operations'
+import messagesSelectors from './messages'
+import zbayMessages from '../../zbay/messages'
 import { operationTypes } from '../handlers/operations'
 
 const store = s => s
@@ -33,33 +35,33 @@ export const queuedMessages = createSelector(
   (queue, channel) => queue.filter(m => m.channelId === channel.id)
 )
 
-export const messagesMeta = createSelector(channel, c => c.messages)
+export const currentChannelMessages = createSelector(
+  channel,
+  store,
+  (ch, store) => messagesSelectors.currentChannelMessages(ch.id)(store)
+)
 
-const _isOwner = (address, message) => message.getIn(['sender', 'replyTo']) === address
-
-export const loader = createSelector(messagesMeta, meta => meta.loader)
+export const loader = createSelector(channel, meta => meta.loader)
 
 export const messages = createSelector(
   identitySelectors.data,
-  messagesMeta,
+  currentChannelMessages,
   pendingMessages,
   queuedMessages,
-  (identity, meta, pendingMessages, queuedMessages) => {
-    const displayableBroadcasted = meta.data.map(
-      m => m.set('fromYou', _isOwner(identity.address, m))
+  (identity, receivedMessages, pendingMessages, queuedMessages) => {
+    const identityAddress = identity.address
+    const displayableBroadcasted = receivedMessages.map(
+      message => zbayMessages.receivedToDisplayableMessage({ message, identityAddress })
     )
+
     const displayablePending = pendingMessages.map(
-      m => m.meta.message
-        .set('error', m.get('error'))
-        .set('status', m.get('status'))
-        .set('id', m.get('opId'))
-        .set('fromYou', _isOwner(identity.address, m.meta.message))
+      operation => zbayMessages.operationToDisplayableMessage({ operation, identityAddress })
     )
 
     const displayableQueued = queuedMessages.map(
-      (m, key) => m.message.set('fromYou', _isOwner(identity.address, m.message))
-        .set('id', key)
-        .set('status', 'pending')
+      (queuedMessage, messageKey) => zbayMessages.queuedToDisplayableMessage({
+        queuedMessage, messageKey, identityAddress
+      })
     )
     return displayableBroadcasted.concat(
       displayablePending.values(),
@@ -76,6 +78,8 @@ export const inputLocked = createSelector(
   (available, locked) => available.isZero() && locked.gt(0)
 )
 
+export const channelId = createSelector(channel, ch => ch.id)
+
 export default {
   data,
   inputLocked,
@@ -85,5 +89,6 @@ export default {
   message,
   pendingMessages,
   shareableUri,
+  channelId,
   messages
 }

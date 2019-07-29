@@ -4,6 +4,7 @@ jest.mock('../../vault')
 jest.mock('../../zcash')
 
 import BigNumber from 'bignumber.js'
+import { DateTime } from 'luxon'
 
 import Immutable from 'immutable'
 import * as R from 'ramda'
@@ -105,6 +106,10 @@ describe('Identity reducer handles', () => {
   })
 
   describe('epics', () => {
+    beforeEach(() => {
+      jest.spyOn(DateTime, 'utc').mockImplementation(() => testUtils.now)
+    })
+
     describe('- fetchBalance', () => {
       it('creates shield balance operation', async () => {
         store.dispatch(identityHandlers.actions.setIdentity(identity))

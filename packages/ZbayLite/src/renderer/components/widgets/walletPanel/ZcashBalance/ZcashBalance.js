@@ -34,7 +34,6 @@ const styles = theme => ({
 
 const TOOLTIP_MESSAGE = 'Because of the network\'s consensus requirements funds may be locked while your message is being broadcasted.'
 
-// TODO: no need for align and title
 export const ZcashBalance = ({ classes, usdBalance, zecBalance, usdLocked, zecLocked }) => (
   <Grid container direction='row' justify='flex-start' alignItems='stretch' spacing={8} >
     <Grid item>

@@ -1,5 +1,16 @@
+<a name="0.5.0"></a>
+# [0.5.0](TBR)
+
+### Features
+
+* Desktop notifications
+
+### Fixes
+
+* Fixed channel imports when no SK
+
 <a name="0.4.1"></a>
-# [0.4.1](TBR)
+# [0.4.1]
 
 ### Features
 

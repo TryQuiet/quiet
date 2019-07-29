@@ -7,6 +7,7 @@ jest.mock('./marshalling', () => ({
 }))
 jest.mock('electron')
 
+import { DateTime } from 'luxon'
 import * as R from 'ramda'
 
 import { createArchive } from './marshalling'
@@ -115,6 +116,7 @@ describe('vault instance', () => {
   describe('list channels', () => {
     it('when contains channels', async () => {
       const identityId = 'this-is-a-test-id'
+      jest.spyOn(DateTime, 'utc').mockImplementation(() => testUtils.now)
       await Promise.all(
         R.range(1, 4)
           .map(testUtils.channels.createChannel)

@@ -1,5 +1,8 @@
 /* eslint import/first: 0 */
 jest.mock('../zcash')
+
+import { DateTime } from 'luxon'
+
 import { createArchive } from './marshalling'
 import channelsFactory from './channels'
 
@@ -19,23 +22,12 @@ describe('channels', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    jest.spyOn(DateTime, 'utc').mockImplementation(() => testUtils.now)
     workspace.archive = createArchive()
   })
 
   describe('importChannel', () => {
     const channel = testUtils.channels.createChannel(1)
-
-    it('when no group for identity', async () => {
-      await channels.importChannel(identityId, channel)
-      const [identityChannel] = (
-        workspace.archive
-          .findGroupsByTitle('Channels')[0]
-          .getGroups()
-          .filter(g => g.getTitle() === identityId)
-      )
-      const [importedChannel] = identityChannel.getEntries().map(e => e.toObject().properties)
-      expect(importedChannel).toMatchSnapshot()
-    })
 
     it('when no group for identity', async () => {
       await channels.importChannel(identityId, channel)

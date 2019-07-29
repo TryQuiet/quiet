@@ -26,11 +26,17 @@ const channelById = id => createSelector(
   (ch) => ch.find(c => c.get('id') === id)
 )
 
+const lastSeen = id => createSelector(
+  channelById(id),
+  (ch) => ch.get('lastSeen')
+)
+
 export default {
   channelById,
   generalChannelId,
   channels,
   loader,
+  lastSeen,
   data,
   errors
 }

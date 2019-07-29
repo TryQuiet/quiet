@@ -3,6 +3,7 @@ jest.mock('../../vault')
 jest.mock('../../zcash')
 
 import Immutable from 'immutable'
+import { DateTime } from 'luxon'
 
 import create from '../create'
 import { uriToChannel } from '../../zbay/channels'
@@ -13,6 +14,7 @@ import notificationsSelectors from '../selectors/notifications'
 import { IdentityState, Identity } from './identity'
 import { getVault, mock } from '../../vault'
 import { createArchive } from '../../vault/marshalling'
+import { now } from '../../testUtils'
 
 describe('Imported channel reducer handles', () => {
   let store = null
@@ -89,6 +91,7 @@ describe('Imported channel reducer handles', () => {
       })
 
       it('reloads channels', async () => {
+        jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => now)
         mock.setArchive(createArchive())
         await store.dispatch(importedChannelHandlers.epics.decodeChannel(channelUri))
 

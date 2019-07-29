@@ -1,5 +1,7 @@
+import { DateTime } from 'luxon'
 import * as R from 'ramda'
 
+// TODO: [refactoring] remove unread property
 const _entryToChannel = (channel) => {
   const entryObj = channel.toObject()
   return {
@@ -9,7 +11,8 @@ const _entryToChannel = (channel) => {
     address: entryObj.properties.address,
     unread: parseInt(entryObj.properties.unread),
     description: entryObj.properties.description,
-    keys: JSON.parse(entryObj.properties.keys)
+    keys: JSON.parse(entryObj.properties.keys),
+    lastSeen: DateTime.fromSeconds(parseInt(entryObj.properties.lastSeen))
   }
 }
 
@@ -35,6 +38,7 @@ export default (vault) => {
         .setProperty('unread', `${channel.unread || 0}`)
         .setProperty('description', channel.description)
         .setProperty('keys', JSON.stringify(channel.keys))
+        .setProperty('lastSeen', `${DateTime.utc().toSeconds()}`)
       workspace.save()
     })
   }
@@ -49,8 +53,19 @@ export default (vault) => {
     return processEntries(channelsEntries)
   }
 
+  const updateLastSeen = async ({ identityId, channelId, lastSeen }) => {
+    await vault.withWorkspace(workspace => {
+      const [channels] = workspace.archive.findGroupsByTitle('Channels')
+      const [identityChannels] = channels.findGroupsByTitle(identityId)
+      const channel = identityChannels.findEntryByID(channelId)
+      channel.setProperty('lastSeen', `${lastSeen.toSeconds()}`)
+      workspace.save()
+    })
+  }
+
   return {
     listChannels,
+    updateLastSeen,
     importChannel
   }
 }

@@ -7,6 +7,7 @@ import { ChannelMessage } from './ChannelMessage'
 import { ZcashError } from '../../../store/handlers/operations'
 import { mockClasses } from '../../../../shared/testing/mocks'
 import { now, createMessage } from '../../../testUtils'
+import { DisplayableMessage } from '../../../zbay/messages'
 
 describe('ChannelMessage', () => {
   beforeEach(() => {
@@ -19,7 +20,7 @@ describe('ChannelMessage', () => {
     const result = shallow(
       <ChannelMessage
         classes={mockClasses}
-        message={message}
+        message={DisplayableMessage(message)}
         onResend={jest.fn()}
         onReply={jest.fn()}
       />
@@ -32,7 +33,7 @@ describe('ChannelMessage', () => {
     const result = shallow(
       <ChannelMessage
         classes={mockClasses}
-        message={message}
+        message={DisplayableMessage(message)}
         onResend={jest.fn()}
         onReply={jest.fn()}
       />
@@ -45,7 +46,7 @@ describe('ChannelMessage', () => {
     const result = shallow(
       <ChannelMessage
         classes={mockClasses}
-        message={message}
+        message={DisplayableMessage(message)}
         onResend={jest.fn()}
         onReply={jest.fn()}
       />
@@ -58,7 +59,7 @@ describe('ChannelMessage', () => {
     const result = shallow(
       <ChannelMessage
         classes={mockClasses}
-        message={message}
+        message={DisplayableMessage(message)}
         onResend={jest.fn()}
         onReply={jest.fn()}
       />
@@ -71,7 +72,7 @@ describe('ChannelMessage', () => {
     const result = shallow(
       <ChannelMessage
         classes={mockClasses}
-        message={message}
+        message={DisplayableMessage(message)}
         onResend={jest.fn()}
         onReply={jest.fn()}
       />
@@ -86,7 +87,7 @@ describe('ChannelMessage', () => {
     const result = shallow(
       <ChannelMessage
         classes={mockClasses}
-        message={message}
+        message={DisplayableMessage(message)}
         onResend={jest.fn()}
         onReply={jest.fn()}
       />
@@ -105,7 +106,7 @@ describe('ChannelMessage', () => {
       const result = shallow(
         <ChannelMessage
           classes={mockClasses}
-          message={message}
+          message={DisplayableMessage(message)}
           onResend={jest.fn()}
           onReply={jest.fn()}
         />
@@ -126,7 +127,7 @@ describe('ChannelMessage', () => {
     const result = shallow(
       <ChannelMessage
         classes={mockClasses}
-        message={message}
+        message={DisplayableMessage(message)}
         onResend={jest.fn()}
         onReply={jest.fn()}
       />

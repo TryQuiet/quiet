@@ -16,7 +16,7 @@ Immutable.Map {
 
 exports[`Channels selectors - channels 1`] = `
 Immutable.ChannelsState {
-  "data": Array [
+  "data": Immutable.List [
     Immutable.Map {
       "id": 0,
       "name": "Channel 0",

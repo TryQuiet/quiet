@@ -1,5 +1,41 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`channels reducer handles actions -setLastSeen sets last seen for channel 1`] = `
+Immutable.List [
+  Immutable.Map {
+    "keys": Immutable.Map {
+      "ivk": "incoming-viewing-key-0",
+    },
+    "name": "Channel 0",
+    "private": false,
+    "address": "zs1testaddress0",
+    "unread": 0,
+    "description": "",
+  },
+  Immutable.Map {
+    "lastSeen": "2019-03-07T11:03:48.000Z",
+    "name": "Channel 1",
+    "private": true,
+    "address": "zs1testaddress1",
+    "unread": 1,
+    "description": "Channel about 1",
+    "keys": Immutable.Map {
+      "ivk": "incoming-viewing-key-1",
+    },
+  },
+  Immutable.Map {
+    "keys": Immutable.Map {
+      "ivk": "incoming-viewing-key-2",
+    },
+    "name": "Channel 2",
+    "private": false,
+    "address": "zs1testaddress2",
+    "unread": 2,
+    "description": "",
+  },
+]
+`;
+
 exports[`channels reducer handles load channels cleans up loading when rejected 1`] = `
 Immutable.Record {
   "loading": false,
@@ -33,34 +69,37 @@ Array [
 exports[`channels reducer handles load channels when fulfilled 1`] = `
 Immutable.List [
   Immutable.Map {
-    "keys": Immutable.Map {
-      "ivk": "incoming-viewing-key-2",
-    },
+    "lastSeen": "2019-03-07T13:03:48.000Z",
     "name": "Channel 2",
     "private": true,
     "address": "zs1testaddress2",
     "unread": 2,
     "description": "",
+    "keys": Immutable.Map {
+      "ivk": "incoming-viewing-key-2",
+    },
   },
   Immutable.Map {
-    "keys": Immutable.Map {
-      "ivk": "incoming-viewing-key-1",
-    },
+    "lastSeen": "2019-03-07T13:03:48.000Z",
     "name": "Channel 1",
     "private": true,
     "address": "zs1testaddress1",
     "unread": 1,
     "description": "Channel about 1",
+    "keys": Immutable.Map {
+      "ivk": "incoming-viewing-key-1",
+    },
   },
   Immutable.Map {
-    "keys": Immutable.Map {
-      "ivk": "incoming-viewing-key-0",
-    },
+    "lastSeen": "2019-03-07T13:03:48.000Z",
     "name": "Channel 0",
     "private": true,
     "address": "zs1testaddress0",
     "unread": 0,
     "description": "",
+    "keys": Immutable.Map {
+      "ivk": "incoming-viewing-key-0",
+    },
   },
 ]
 `;

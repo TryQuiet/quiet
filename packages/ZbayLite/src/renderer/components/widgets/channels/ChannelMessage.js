@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
-import Immutable from 'immutable'
 import { DateTime } from 'luxon'
 import classNames from 'classnames'
 import * as R from 'ramda'
@@ -22,6 +21,7 @@ import ErrorIcon from '@material-ui/icons/ErrorOutline'
 import BlockIcon from '@material-ui/icons/Block'
 
 import { getZbayAddress } from '../../../zbay/channels'
+import { _DisplayableMessage } from '../../../zbay/messages'
 import Elipsis from '../../ui/Elipsis'
 import ChannelMessageActions from './ChannelMessageActions'
 
@@ -163,7 +163,7 @@ export const ChannelMessage = ({ classes, message, onResend, onReply, onCancel }
 
 ChannelMessage.propTypes = {
   classes: PropTypes.object.isRequired,
-  message: PropTypes.instanceOf(Immutable.Map).isRequired,
+  message: PropTypes.instanceOf(_DisplayableMessage).isRequired,
   onResend: PropTypes.func,
   onCancel: PropTypes.func,
   onReply: PropTypes.func

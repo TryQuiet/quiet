@@ -230,7 +230,7 @@ Immutable.Map {
 `;
 
 exports[`Messages queue reducer handles epics - sendPendingMessages adds operation observers 1`] = `
-Immutable.Map {
+Immutable.OrderedMap {
   "op-id-1": Immutable.Operation {
     "opId": "op-id-1",
     "type": "pendingMessage",
@@ -263,7 +263,7 @@ Immutable.Map {
         "createdAt": 1551963829,
         "message": "This is some message test-message-id-2",
         "sender": Immutable.Map {
-          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+          "replyTo": "zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
         },
       },
       "channelId": 2,

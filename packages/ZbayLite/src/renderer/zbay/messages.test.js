@@ -1,10 +1,11 @@
 import { DateTime } from 'luxon'
+import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
 import * as R from 'ramda'
 
-import { createTransfer, createMessage, createChannel, now } from '../testUtils'
+import { createTransfer, createMessage, createChannel, createIdentity, now } from '../testUtils'
 import { packMemo, unpackMemo } from './transit'
-import { transferToMessage, messageToTransfer, messageType } from './messages'
+import zbayMessages, { transferToMessage, messageToTransfer, messageType } from './messages'
 import { Identity } from '../store/handlers/identity'
 
 describe('messages -', () => {
@@ -13,6 +14,7 @@ describe('messages -', () => {
     const spent = '234.56'
 
     beforeEach(() => {
+      jest.spyOn(DateTime, 'utc').mockReturnValueOnce(now)
       jest.clearAllMocks()
     })
 
@@ -122,5 +124,30 @@ describe('messages -', () => {
       id: txid,
       spent: new BigNumber(amount)
     })
+  })
+
+  it('calculate diff', async () => {
+    const identity = createIdentity()
+    const messages = R.range(0, 4).map(i => zbayMessages.createMessage({
+      identity,
+      messageData: {
+        type: messageType.BASIC,
+        data: `This is message nr ${i}`
+      }
+    }))
+    const newMessage = zbayMessages.createMessage({
+      identity,
+      messageData: {
+        type: messageType.BASIC,
+        data: 'This is a new message'
+      }
+    })
+    const newMessages = Immutable.fromJS([
+      ...messages,
+      newMessage
+    ])
+
+    const diff = zbayMessages.calculateDiff(Immutable.fromJS(messages), newMessages)
+    expect(diff).toMatchSnapshot()
   })
 })

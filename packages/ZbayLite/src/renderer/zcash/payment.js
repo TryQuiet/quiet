@@ -1,6 +1,5 @@
 import * as Yup from 'yup'
 
-// // TODO: remove joi and use yup since joi doesn't support browsers
 const amountsSchema = Yup.array().of(
   Yup.object().shape({
     address: Yup.string().required(),
