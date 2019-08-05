@@ -8,7 +8,7 @@ export const AppState = Immutable.Record({
 
 export const initialState = AppState()
 
-const loadVersion = createAction('SET_APP_VERSION', remote.app.getVersion)
+const loadVersion = createAction('SET_APP_VERSION', () => remote.app.getVersion())
 
 const actions = {
   loadVersion
