@@ -1,0 +1,29 @@
+version: '3.7'
+services:
+  znode-mainnet:
+    image: 045028348791.dkr.ecr.eu-central-1.amazonaws.com/zcash:2.0.5-1-fork
+    tty: true
+    ports:
+      - 8334:8334
+    volumes:
+      - ./zcash/mainnet.conf:/root/.zcash/zcash.conf
+      - znode:/znode
+      - zcash:/root/.zcash
+    command: bash -c "/znode/src/zcashd -debug"
+
+  znode-testnet:
+    image: 045028348791.dkr.ecr.eu-central-1.amazonaws.com/zcash:2.0.5-1-fork
+    tty: true
+    ports:
+      - 8334:8334
+    volumes:
+      - ./zcash/testnet.conf:/root/.zcash/zcash.conf
+      - znode-testnet:/znode
+      - zcash-testnet:/root/.zcash
+    command: bash -c "/znode/src/zcashd -debug"
+
+volumes:
+  znode:
+  zcash:
+  znode-testnet:
+  zcash-testnet:
