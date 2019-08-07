@@ -1,6 +1,5 @@
 import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
-import { DateTime } from 'luxon'
 import * as R from 'ramda'
 import { createAction, handleActions } from 'redux-actions'
 
@@ -13,7 +12,6 @@ import channelSelectors from '../selectors/channel'
 import identitySelectors from '../selectors/identity'
 import { getClient } from '../../zcash'
 import { messages } from '../../zbay'
-import { getVault } from '../../vault'
 import { errorNotification, LoaderState } from './utils'
 import { channelToUri } from '../../zbay/channels'
 
@@ -107,15 +105,8 @@ const resendMessage = (message) => async (dispatch, getState) => {
 }
 
 const updateLastSeen = () => async (dispatch, getState) => {
-  const identity = identitySelectors.data(getState())
   const channelId = channelSelectors.channelId(getState())
-  const lastSeen = DateTime.utc()
-  getVault().channels.updateLastSeen({
-    identityId: identity.get('id'),
-    channelId,
-    lastSeen
-  })
-  dispatch(channelsHandlers.actions.setLastSeen({ channelId, lastSeen }))
+  return dispatch(channelsHandlers.epics.updateLastSeen({ channelId }))
 }
 
 const clearNewMessages = () => async (dispatch, getState) => {

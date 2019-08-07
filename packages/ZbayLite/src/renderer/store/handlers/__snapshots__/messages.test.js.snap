@@ -149,7 +149,7 @@ Object {
     "message": "",
     "traceback": "",
   },
-  "messages": Immutable.Map {
+  "messages": Immutable.OrderedMap {
     0: Immutable.ChannelMessages {
       "messages": Immutable.List [
         Immutable.ReceivedMessage {
@@ -245,7 +245,7 @@ Object {
     "message": "",
     "traceback": "",
   },
-  "messages": Immutable.Map {
+  "messages": Immutable.OrderedMap {
     0: Immutable.ChannelMessages {
       "messages": Immutable.List [
         Immutable.ReceivedMessage {
@@ -301,10 +301,7 @@ Object {
           "spent": "0.0001",
         },
       ],
-      "newMessages": Immutable.List [
-        "tx-id-0-zs1testaddress1",
-        "tx-id-1-zs1testaddress1",
-      ],
+      "newMessages": Immutable.List [],
     },
   },
   "operations": Immutable.Map {},
@@ -317,7 +314,7 @@ Object {
     "message": "",
     "traceback": "",
   },
-  "messages": Immutable.Map {
+  "messages": Immutable.OrderedMap {
     0: Immutable.ChannelMessages {
       "messages": Immutable.List [
         Immutable.ReceivedMessage {
@@ -383,7 +380,7 @@ Object {
     "message": "",
     "traceback": "",
   },
-  "messages": Immutable.Map {
+  "messages": Immutable.OrderedMap {
     0: Immutable.ChannelMessages {
       "messages": Immutable.List [
         Immutable.ReceivedMessage {
@@ -455,7 +452,7 @@ Object {
     "message": "",
     "traceback": "",
   },
-  "messages": Immutable.Map {
+  "messages": Immutable.OrderedMap {
     0: Immutable.ChannelMessages {
       "messages": Immutable.List [
         Immutable.ReceivedMessage {

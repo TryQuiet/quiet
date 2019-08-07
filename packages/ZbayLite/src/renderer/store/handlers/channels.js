@@ -1,4 +1,5 @@
 import Immutable from 'immutable'
+import { DateTime } from 'luxon'
 import { createAction, handleActions } from 'redux-actions'
 
 import {
@@ -84,8 +85,20 @@ const createChannel = (values, formActions) => async (dispatch, getState) => {
   }
 }
 
+const updateLastSeen = ({ channelId }) => async (dispatch, getState) => {
+  const identity = identitySelectors.data(getState())
+  const lastSeen = DateTime.utc()
+  await getVault().channels.updateLastSeen({
+    identityId: identity.get('id'),
+    channelId,
+    lastSeen
+  })
+  dispatch(setLastSeen({ channelId, lastSeen }))
+}
+
 export const epics = {
-  createChannel
+  createChannel,
+  updateLastSeen
 }
 
 export const reducer = handleActions({

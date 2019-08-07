@@ -9,8 +9,9 @@ import * as R from 'ramda'
 import create from '../create'
 import vault, { mock } from '../../vault'
 import { createArchive } from '../../vault/marshalling'
-import { ChannelsState, actions, actionTypes } from './channels'
+import { ChannelsState, actions, epics, actionTypes } from './channels'
 import channelsSelectors from '../selectors/channels'
+import { IdentityState, Identity } from './identity'
 import testUtils from '../../testUtils'
 import { typePending } from './utils'
 import { mock as zcashMock } from '../../zcash'
@@ -68,7 +69,7 @@ describe('channels reducer', () => {
     })
 
     it('cleans up loading when rejected', async () => {
-      vault.getVault.mockImplementation(() => ({
+      vault.getVault.mockImplementationOnce(() => ({
         channels: {
           listChannels: jest.fn(async () => { throw Error('list channels error') })
         }
@@ -104,6 +105,52 @@ describe('channels reducer', () => {
 
       const updatedChannels = channelsSelectors.channels(store.getState())
       expect(updatedChannels.data.map(ch => ch.delete('id'))).toMatchSnapshot()
+    })
+  })
+
+  describe('handles epics', () => {
+    describe('- updateLastSeen', () => {
+      const newLastSeen = testUtils.now.plus({ hours: 2 })
+      const identityId = 'test-identity-id'
+      let channel
+      beforeEach(async () => {
+        jest.spyOn(DateTime, 'utc').mockImplementation(() => newLastSeen)
+        await vault.getVault().channels.importChannel(identityId, testUtils.channels.createChannel(0))
+        const channels = await vault.getVault().channels.listChannels(identityId)
+        channel = channels[0]
+        store = create({
+          initialState: Immutable.Map({
+            identity: IdentityState({
+              data: Identity({
+                id: identityId
+              })
+            }),
+            channels: ChannelsState({
+              data: Immutable.fromJS(channels)
+            })
+          })
+        })
+      })
+
+      it('updates lastSeen in vault', async () => {
+        const channelId = channel.id
+
+        await store.dispatch(epics.updateLastSeen({ channelId }))
+
+        channelsSelectors.channelById(channelId)(store.getState())
+
+        const [vaultUpdatedChannel] = await vault.getVault().channels.listChannels(identityId)
+        expect(vaultUpdatedChannel.lastSeen).toEqual(newLastSeen)
+      })
+
+      it('updates lastSeen in store', async () => {
+        const channelId = channel.id
+
+        await store.dispatch(epics.updateLastSeen({ channelId }))
+
+        const updatedChannel = channelsSelectors.channelById(channelId)(store.getState())
+        expect(updatedChannel.get('lastSeen')).toEqual(newLastSeen)
+      })
     })
   })
 })

@@ -10,7 +10,7 @@ import nodeSelectors from '../selectors/node'
 import identitySelectors from '../selectors/identity'
 import operationsSelectors from '../selectors/operations'
 import operationsHandlers from './operations'
-import channelHandlers from './channel'
+import channelsHandlers from './channels'
 import { messageType } from '../../zbay/messages'
 import { messages as zbayMessages } from '../../zbay'
 import { getClient } from '../../zcash'
@@ -60,6 +60,7 @@ export const fetchMessages = () => async (dispatch, getState) => {
 
   return Promise.all(
     channels.map(async (channel) => {
+      const channelId = channel.get('id')
       const transfers = await getClient().payment.received(channel.get('address'))
 
       const messages = await Promise.all(transfers.map(
@@ -76,12 +77,12 @@ export const fetchMessages = () => async (dispatch, getState) => {
           return ReceivedMessage(message)
         }
       ))
-      const previousMessages = selectors.currentChannelMessages(channel.get('id'))(getState())
+      const previousMessages = selectors.currentChannelMessages(channelId)(getState())
 
-      let lastSeen = channelsSelectors.lastSeen(channel.get('id'))(getState())
+      let lastSeen = channelsSelectors.lastSeen(channelId)(getState())
       if (!lastSeen) {
-        await channelHandlers.epics.updateLastSeen()
-        lastSeen = channelsSelectors.lastSeen(channel.get('id'))(getState())
+        await dispatch(channelsHandlers.epics.updateLastSeen({ channelId }))
+        lastSeen = channelsSelectors.lastSeen(channelId)(getState())
       }
       const newMessages = zbayMessages.calculateDiff(previousMessages, Immutable.List(messages)).filter(
         nm => {
@@ -90,7 +91,6 @@ export const fetchMessages = () => async (dispatch, getState) => {
           return isNew && notOwner
         }
       )
-      const channelId = channel.get('id')
       dispatch(appendNewMessages({
         channelId,
         messagesIds: newMessages.map(R.prop('id'))

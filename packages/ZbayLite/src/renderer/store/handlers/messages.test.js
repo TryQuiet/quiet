@@ -1,7 +1,9 @@
 /* eslint import/first: 0 */
 jest.mock('../../zcash')
+jest.mock('../../vault')
 
 import Immutable from 'immutable'
+import { DateTime } from 'luxon'
 import * as R from 'ramda'
 
 import handlers, { initialState } from './messages'
@@ -11,12 +13,14 @@ import operationsHandlers, { operationTypes, PendingMessageOp } from './operatio
 import identityHandlers from './identity'
 import selectors from '../selectors/messages'
 import operationsSelectors from '../selectors/operations'
+import channelsSelectors from '../selectors/channels'
 import criticalErrorSelectors from '../selectors/criticalError'
 import create from '../create'
 import testUtils from '../../testUtils'
 import { mock as zcashMock } from '../../zcash'
 import { packMemo } from '../../zbay/transit'
 import { transferToMessage } from '../../zbay/messages'
+import { getVault } from '../../vault'
 
 describe('messages reducer', () => {
   let store = null
@@ -131,7 +135,7 @@ describe('messages reducer', () => {
 
       const assertState = () => {
         expect({
-          messages: selectors.messages(store.getState()),
+          messages: selectors.messages(store.getState()).sortBy((_, key) => key),
           operations: operationsSelectors.operations(store.getState()),
           criticalError: criticalErrorSelectors.criticalError(store.getState())
         }).toMatchSnapshot()
@@ -144,6 +148,13 @@ describe('messages reducer', () => {
         const identity = testUtils.createIdentity()
         await store.dispatch(identityHandlers.actions.setIdentity(identity))
         window.Notification = NotificationMock
+        const updateVaultLastSeen = jest.fn(async () => null)
+        getVault.mockImplementationOnce(() => ({
+          channels: {
+            updateLastSeen: updateVaultLastSeen
+          }
+        }))
+        jest.spyOn(DateTime, 'utc').mockImplementation(() => testUtils.now)
       })
 
       it('when no channel messages', async () => {
@@ -173,14 +184,18 @@ describe('messages reducer', () => {
       })
 
       it('when lastSeen not set', async () => {
-        channels.map(ch => store.dispatch(channelsHandlers.actions.setLastSeen({
-          lastSeen: null,
-          channelId: ch.get('id')
-        })))
+        const channelId = channels[1].get('id')
+        channels.filter(ch => ch.get('id') !== channelId)
+          .map(ch => store.dispatch(channelsHandlers.actions.setLastSeen({
+            lastSeen: testUtils.now.minus({ hours: 3 }),
+            channelId: ch.get('id')
+          })))
+        expect(channelsSelectors.lastSeen(channelId)(store.getState())).toBeUndefined()
 
         await store.dispatch(handlers.epics.fetchMessages())
 
         assertState()
+        expect(channelsSelectors.lastSeen(channelId)(store.getState())).toEqual(testUtils.now)
       })
 
       it('when some messages are new', async () => {
