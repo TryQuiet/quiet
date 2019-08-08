@@ -61,9 +61,13 @@ Immutable.List [
   Immutable.DisplayableMessage {
     "id": "test-1",
     "type": 1,
-    "sender": Immutable.MessageSender {
+    "sender": Immutable.ExchangeParticipant {
       "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
       "username": "",
+    },
+    "receiver": Immutable.ExchangeParticipant {
+      "replyTo": "",
+      "username": "Unnamed",
     },
     "createdAt": 1551963828,
     "message": "This is some message test-1",
@@ -75,9 +79,13 @@ Immutable.List [
   Immutable.DisplayableMessage {
     "id": "test-2",
     "type": 1,
-    "sender": Immutable.MessageSender {
+    "sender": Immutable.ExchangeParticipant {
       "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
       "username": "",
+    },
+    "receiver": Immutable.ExchangeParticipant {
+      "replyTo": "",
+      "username": "Unnamed",
     },
     "createdAt": 1551963828,
     "message": "This is some message test-2",

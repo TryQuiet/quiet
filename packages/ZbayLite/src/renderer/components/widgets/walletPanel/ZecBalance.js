@@ -12,7 +12,6 @@ import ZcashIcon from '../../ui/ZcashIcon'
 const styles = theme => ({
   icon: {
     fill: theme.palette.primary.main,
-    marginTop: '2px',
     marginRight: '4px'
   },
   value: {
@@ -20,18 +19,28 @@ const styles = theme => ({
   }
 })
 
-export const ZecBalance = ({ classes, value }) => (
-  <Grid container>
-    <ZcashIcon size={14} className={classes.icon} />
-    <Typography variant='caption' className={classes.value}>
-      {R.isNil(value) ? '-' : value.toFormat(6)}
-    </Typography>
-  </Grid>
-)
+export const ZecBalance = ({ classes, value, size }) => {
+  return (
+    <Grid container alignItems='center'>
+      <ZcashIcon size={size} className={classes.icon} />
+      <Typography
+        variant='caption'
+        style={{ fontSize: `${size / 20}rem`, marginTop: size / 7 }}
+        className={classes.value}
+      >
+        {R.isNil(value) ? '-' : value.toFormat(6)}
+      </Typography>
+    </Grid>
+  )
+}
 
 ZecBalance.propTypes = {
   classes: PropTypes.object.isRequired,
+  size: PropTypes.number.isRequired,
   value: PropTypes.instanceOf(BigNumber)
+}
+ZecBalance.defaultProps = {
+  size: 14
 }
 
 export default R.compose(

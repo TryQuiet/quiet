@@ -6,9 +6,13 @@ Object {
     Immutable.DisplayableMessage {
       "id": 3,
       "type": 1,
-      "sender": Immutable.MessageSender {
+      "sender": Immutable.ExchangeParticipant {
         "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         "username": "Wenus",
+      },
+      "receiver": Immutable.ExchangeParticipant {
+        "replyTo": "",
+        "username": "Unnamed",
       },
       "createdAt": 1551942228,
       "message": "This is a message with id 3",
@@ -20,9 +24,13 @@ Object {
     Immutable.DisplayableMessage {
       "id": 2,
       "type": 1,
-      "sender": Immutable.MessageSender {
+      "sender": Immutable.ExchangeParticipant {
         "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         "username": "Wenus",
+      },
+      "receiver": Immutable.ExchangeParticipant {
+        "replyTo": "",
+        "username": "Unnamed",
       },
       "createdAt": 1551949428,
       "message": "This is a message with id 2",
@@ -34,9 +42,13 @@ Object {
     Immutable.DisplayableMessage {
       "id": 1,
       "type": 1,
-      "sender": Immutable.MessageSender {
+      "sender": Immutable.ExchangeParticipant {
         "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         "username": "Wenus",
+      },
+      "receiver": Immutable.ExchangeParticipant {
+        "replyTo": "",
+        "username": "Unnamed",
       },
       "createdAt": 1551956628,
       "message": "This is a message with id 1",
@@ -48,9 +60,13 @@ Object {
     Immutable.DisplayableMessage {
       "id": 0,
       "type": 1,
-      "sender": Immutable.MessageSender {
+      "sender": Immutable.ExchangeParticipant {
         "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         "username": "Wenus",
+      },
+      "receiver": Immutable.ExchangeParticipant {
+        "replyTo": "",
+        "username": "Unnamed",
       },
       "createdAt": 1551963828,
       "message": "This is a message with id 0",

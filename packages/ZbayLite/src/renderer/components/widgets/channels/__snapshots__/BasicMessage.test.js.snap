@@ -1,0 +1,583 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BasicMessage renders component 1`] = `
+<WithStyles(ListItem)
+  alignItems="flex-start"
+  className="wrapper-mock"
+  onClick={[Function]}
+>
+  <WithStyles(ListItemText)
+    className="messageCard-mock"
+    disableTypography={true}
+    primary={
+      <WithStyles(Grid)
+        alignItems="flex-start"
+        container={true}
+        direction="row"
+        justify="space-between"
+      >
+        <WithStyles(Grid)
+          item={true}
+        >
+          <WithStyles(Typography)
+            className="username-mock"
+            color="textPrimary"
+          >
+            Unnamed
+          </WithStyles(Typography)>
+          <WithStyles(Typography)
+            variant="caption"
+          >
+            zbay.io/uri/zs1z7rejlpsa98s2rrrf
+            ...
+          </WithStyles(Typography)>
+        </WithStyles(Grid)>
+        <WithStyles(Grid)
+          item={true}
+        >
+          <WithStyles(Grid)
+            alignItems="center"
+            container={true}
+            direction="row"
+            justify="flex-end"
+          >
+            <WithStyles(Typography)
+              variant="caption"
+            >
+              12:03
+            </WithStyles(Typography)>
+            <pure(DoneAllIcon)
+              className="statusIcon-mock broadcasted-mock"
+            />
+          </WithStyles(Grid)>
+        </WithStyles(Grid)>
+      </WithStyles(Grid)>
+    }
+  />
+</WithStyles(ListItem)>
+`;
+
+exports[`BasicMessage renders component when message is sent by owner 1`] = `
+<WithStyles(ListItem)
+  alignItems="flex-start"
+  className="wrapper-mock"
+  onClick={[Function]}
+>
+  <WithStyles(ListItemText)
+    className="messageCard-mock"
+    disableTypography={true}
+    primary={
+      <WithStyles(Grid)
+        alignItems="flex-start"
+        container={true}
+        direction="row"
+        justify="space-between"
+      >
+        <WithStyles(Grid)
+          item={true}
+        >
+          <WithStyles(Typography)
+            className="username-mock"
+            color="textPrimary"
+          >
+            Unnamed
+             (You)
+          </WithStyles(Typography)>
+          <WithStyles(Typography)
+            variant="caption"
+          >
+            zbay.io/uri/zs1z7rejlpsa98s2rrrf
+            ...
+          </WithStyles(Typography)>
+        </WithStyles(Grid)>
+        <WithStyles(Grid)
+          item={true}
+        >
+          <WithStyles(Grid)
+            alignItems="center"
+            container={true}
+            direction="row"
+            justify="flex-end"
+          >
+            <WithStyles(Typography)
+              variant="caption"
+            >
+              12:03
+            </WithStyles(Typography)>
+            <pure(DoneAllIcon)
+              className="statusIcon-mock broadcasted-mock"
+            />
+          </WithStyles(Grid)>
+        </WithStyles(Grid)>
+      </WithStyles(Grid)>
+    }
+  />
+</WithStyles(ListItem)>
+`;
+
+exports[`BasicMessage renders component with status failed 1`] = `
+<WithStyles(ListItem)
+  alignItems="flex-start"
+  className="wrapper-mock clickable-mock wrapperPending-mock"
+  onClick={[Function]}
+>
+  <WithStyles(ListItemText)
+    className="messageCard-mock"
+    disableTypography={true}
+    primary={
+      <WithStyles(Grid)
+        alignItems="flex-start"
+        container={true}
+        direction="row"
+        justify="space-between"
+      >
+        <WithStyles(Grid)
+          item={true}
+        >
+          <WithStyles(Typography)
+            className="username-mock"
+            color="textPrimary"
+          >
+            Unnamed
+          </WithStyles(Typography)>
+          <WithStyles(Typography)
+            variant="caption"
+          >
+            zbay.io/uri/zs1z7rejlpsa98s2rrrf
+            ...
+          </WithStyles(Typography)>
+        </WithStyles(Grid)>
+        <WithStyles(Grid)
+          item={true}
+        >
+          <WithStyles(Grid)
+            alignItems="center"
+            container={true}
+            direction="row"
+            justify="flex-end"
+          >
+            <WithStyles(Typography)
+              variant="caption"
+            >
+              12:03
+            </WithStyles(Typography)>
+            <pure(ErrorOutlineIcon)
+              className="statusIcon-mock failed-mock"
+            />
+          </WithStyles(Grid)>
+          <Elipsis
+            classes={
+              Object {
+                "content": "failed-mock",
+              }
+            }
+            content="Error -2: This is some kind of error message"
+            interactive={true}
+            length={60}
+            tooltipPlacement="bottom"
+          />
+        </WithStyles(Grid)>
+      </WithStyles(Grid)>
+    }
+  />
+</WithStyles(ListItem)>
+`;
+
+exports[`BasicMessage renders correct time for different month 1`] = `
+<WithStyles(ListItem)
+  alignItems="flex-start"
+  className="wrapper-mock"
+  onClick={[Function]}
+>
+  <WithStyles(ListItemText)
+    className="messageCard-mock"
+    disableTypography={true}
+    primary={
+      <WithStyles(Grid)
+        alignItems="flex-start"
+        container={true}
+        direction="row"
+        justify="space-between"
+      >
+        <WithStyles(Grid)
+          item={true}
+        >
+          <WithStyles(Typography)
+            className="username-mock"
+            color="textPrimary"
+          >
+            Unnamed
+          </WithStyles(Typography)>
+          <WithStyles(Typography)
+            variant="caption"
+          >
+            zbay.io/uri/zs1z7rejlpsa98s2rrrf
+            ...
+          </WithStyles(Typography)>
+        </WithStyles(Grid)>
+        <WithStyles(Grid)
+          item={true}
+        >
+          <WithStyles(Grid)
+            alignItems="center"
+            container={true}
+            direction="row"
+            justify="flex-end"
+          >
+            <WithStyles(Typography)
+              variant="caption"
+            >
+              Feb 07, 13:03
+            </WithStyles(Typography)>
+            <pure(DoneAllIcon)
+              className="statusIcon-mock broadcasted-mock"
+            />
+          </WithStyles(Grid)>
+        </WithStyles(Grid)>
+      </WithStyles(Grid)>
+    }
+  />
+</WithStyles(ListItem)>
+`;
+
+exports[`BasicMessage renders correct time for different year 1`] = `
+<WithStyles(ListItem)
+  alignItems="flex-start"
+  className="wrapper-mock"
+  onClick={[Function]}
+>
+  <WithStyles(ListItemText)
+    className="messageCard-mock"
+    disableTypography={true}
+    primary={
+      <WithStyles(Grid)
+        alignItems="flex-start"
+        container={true}
+        direction="row"
+        justify="space-between"
+      >
+        <WithStyles(Grid)
+          item={true}
+        >
+          <WithStyles(Typography)
+            className="username-mock"
+            color="textPrimary"
+          >
+            Unnamed
+          </WithStyles(Typography)>
+          <WithStyles(Typography)
+            variant="caption"
+          >
+            zbay.io/uri/zs1z7rejlpsa98s2rrrf
+            ...
+          </WithStyles(Typography)>
+        </WithStyles(Grid)>
+        <WithStyles(Grid)
+          item={true}
+        >
+          <WithStyles(Grid)
+            alignItems="center"
+            container={true}
+            direction="row"
+            justify="flex-end"
+          >
+            <WithStyles(Typography)
+              variant="caption"
+            >
+              Mar 07, 2018, 13:03
+            </WithStyles(Typography)>
+            <pure(DoneAllIcon)
+              className="statusIcon-mock broadcasted-mock"
+            />
+          </WithStyles(Grid)>
+        </WithStyles(Grid)>
+      </WithStyles(Grid)>
+    }
+  />
+</WithStyles(ListItem)>
+`;
+
+exports[`BasicMessage renders correct time for same week 1`] = `
+<WithStyles(ListItem)
+  alignItems="flex-start"
+  className="wrapper-mock"
+  onClick={[Function]}
+>
+  <WithStyles(ListItemText)
+    className="messageCard-mock"
+    disableTypography={true}
+    primary={
+      <WithStyles(Grid)
+        alignItems="flex-start"
+        container={true}
+        direction="row"
+        justify="space-between"
+      >
+        <WithStyles(Grid)
+          item={true}
+        >
+          <WithStyles(Typography)
+            className="username-mock"
+            color="textPrimary"
+          >
+            Unnamed
+          </WithStyles(Typography)>
+          <WithStyles(Typography)
+            variant="caption"
+          >
+            zbay.io/uri/zs1z7rejlpsa98s2rrrf
+            ...
+          </WithStyles(Typography)>
+        </WithStyles(Grid)>
+        <WithStyles(Grid)
+          item={true}
+        >
+          <WithStyles(Grid)
+            alignItems="center"
+            container={true}
+            direction="row"
+            justify="flex-end"
+          >
+            <WithStyles(Typography)
+              variant="caption"
+            >
+              Wed, 13:03
+            </WithStyles(Typography)>
+            <pure(DoneAllIcon)
+              className="statusIcon-mock broadcasted-mock"
+            />
+          </WithStyles(Grid)>
+        </WithStyles(Grid)>
+      </WithStyles(Grid)>
+    }
+  />
+</WithStyles(ListItem)>
+`;
+
+exports[`BasicMessage renders username 1`] = `
+<WithStyles(ListItem)
+  alignItems="flex-start"
+  className="wrapper-mock"
+  onClick={[Function]}
+>
+  <WithStyles(ListItemText)
+    className="messageCard-mock"
+    disableTypography={true}
+    primary={
+      <WithStyles(Grid)
+        alignItems="flex-start"
+        container={true}
+        direction="row"
+        justify="space-between"
+      >
+        <WithStyles(Grid)
+          item={true}
+        >
+          <WithStyles(Typography)
+            className="username-mock"
+            color="textPrimary"
+          >
+            Saturn
+          </WithStyles(Typography)>
+          <WithStyles(Typography)
+            variant="caption"
+          >
+            zbay.io/uri/zs1z7rejlpsa98s2rrrf
+            ...
+          </WithStyles(Typography)>
+        </WithStyles(Grid)>
+        <WithStyles(Grid)
+          item={true}
+        >
+          <WithStyles(Grid)
+            alignItems="center"
+            container={true}
+            direction="row"
+            justify="flex-end"
+          >
+            <WithStyles(Typography)
+              variant="caption"
+            >
+              11:03
+            </WithStyles(Typography)>
+            <pure(DoneAllIcon)
+              className="statusIcon-mock broadcasted-mock"
+            />
+          </WithStyles(Grid)>
+        </WithStyles(Grid)>
+      </WithStyles(Grid)>
+    }
+  />
+</WithStyles(ListItem)>
+`;
+
+exports[`BasicMessage renders with status cancelled 1`] = `
+<WithStyles(ListItem)
+  alignItems="flex-start"
+  className="wrapper-mock clickable-mock wrapperPending-mock"
+  onClick={[Function]}
+>
+  <WithStyles(ListItemText)
+    className="messageCard-mock"
+    disableTypography={true}
+    primary={
+      <WithStyles(Grid)
+        alignItems="flex-start"
+        container={true}
+        direction="row"
+        justify="space-between"
+      >
+        <WithStyles(Grid)
+          item={true}
+        >
+          <WithStyles(Typography)
+            className="username-mock"
+            color="textPrimary"
+          >
+            Unnamed
+          </WithStyles(Typography)>
+          <WithStyles(Typography)
+            variant="caption"
+          >
+            zbay.io/uri/zs1z7rejlpsa98s2rrrf
+            ...
+          </WithStyles(Typography)>
+        </WithStyles(Grid)>
+        <WithStyles(Grid)
+          item={true}
+        >
+          <WithStyles(Grid)
+            alignItems="center"
+            container={true}
+            direction="row"
+            justify="flex-end"
+          >
+            <WithStyles(Typography)
+              variant="caption"
+            >
+              12:03
+            </WithStyles(Typography)>
+            <pure(BlockIcon)
+              className="statusIcon-mock"
+            />
+          </WithStyles(Grid)>
+        </WithStyles(Grid)>
+      </WithStyles(Grid)>
+    }
+  />
+</WithStyles(ListItem)>
+`;
+
+exports[`BasicMessage renders with status pending 1`] = `
+<WithStyles(ListItem)
+  alignItems="flex-start"
+  className="wrapper-mock wrapperPending-mock"
+  onClick={[Function]}
+>
+  <WithStyles(ListItemText)
+    className="messageCard-mock"
+    disableTypography={true}
+    primary={
+      <WithStyles(Grid)
+        alignItems="flex-start"
+        container={true}
+        direction="row"
+        justify="space-between"
+      >
+        <WithStyles(Grid)
+          item={true}
+        >
+          <WithStyles(Typography)
+            className="username-mock"
+            color="textPrimary"
+          >
+            Unnamed
+          </WithStyles(Typography)>
+          <WithStyles(Typography)
+            variant="caption"
+          >
+            zbay.io/uri/zs1z7rejlpsa98s2rrrf
+            ...
+          </WithStyles(Typography)>
+        </WithStyles(Grid)>
+        <WithStyles(Grid)
+          item={true}
+        >
+          <WithStyles(Grid)
+            alignItems="center"
+            container={true}
+            direction="row"
+            justify="flex-end"
+          >
+            <WithStyles(Typography)
+              variant="caption"
+            >
+              12:03
+            </WithStyles(Typography)>
+            <pending
+              className="statusIcon-mock"
+            />
+          </WithStyles(Grid)>
+        </WithStyles(Grid)>
+      </WithStyles(Grid)>
+    }
+  />
+</WithStyles(ListItem)>
+`;
+
+exports[`BasicMessage renders with status success 1`] = `
+<WithStyles(ListItem)
+  alignItems="flex-start"
+  className="wrapper-mock wrapperPending-mock"
+  onClick={[Function]}
+>
+  <WithStyles(ListItemText)
+    className="messageCard-mock"
+    disableTypography={true}
+    primary={
+      <WithStyles(Grid)
+        alignItems="flex-start"
+        container={true}
+        direction="row"
+        justify="space-between"
+      >
+        <WithStyles(Grid)
+          item={true}
+        >
+          <WithStyles(Typography)
+            className="username-mock"
+            color="textPrimary"
+          >
+            Unnamed
+          </WithStyles(Typography)>
+          <WithStyles(Typography)
+            variant="caption"
+          >
+            zbay.io/uri/zs1z7rejlpsa98s2rrrf
+            ...
+          </WithStyles(Typography)>
+        </WithStyles(Grid)>
+        <WithStyles(Grid)
+          item={true}
+        >
+          <WithStyles(Grid)
+            alignItems="center"
+            container={true}
+            direction="row"
+            justify="flex-end"
+          >
+            <WithStyles(Typography)
+              variant="caption"
+            >
+              12:03
+            </WithStyles(Typography)>
+            <pure(DoneIcon)
+              className="statusIcon-mock"
+            />
+          </WithStyles(Grid)>
+        </WithStyles(Grid)>
+      </WithStyles(Grid)>
+    }
+  />
+</WithStyles(ListItem)>
+`;

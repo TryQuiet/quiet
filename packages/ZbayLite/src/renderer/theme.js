@@ -13,6 +13,9 @@ export default createMuiTheme({
       light: '#e9e9e9',
       main: '#8d8d8d',
       dark: '#4a4a4a'
+    },
+    colors: {
+      blue: '#2196f3'
     }
   },
   overrides: {

@@ -65,9 +65,44 @@ export const createSendableMessage = ({
   message
 })
 
+export const createSendableTransferMessage = ({
+  message,
+  createdAt = now.toSeconds()
+}) => ({
+  type: zbayMessages.messageType.TRANSFER,
+  sender: {
+    replyTo: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya',
+    username: 'Wenus'
+  },
+  receiver: {
+    replyTo: 'zs1z9rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya',
+    username: 'Sun'
+  },
+  createdAt,
+  message
+})
+
+export const createReceivedTransferMessage = ({ id, createdAt = now.toSeconds() }) => ({
+  id,
+  spent: new BigNumber('0.32'),
+  type: zbayMessages.messageType.TRANSFER,
+  createdAt,
+  message: `This is a message with id ${id}`,
+  sender: {
+    replyTo: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya',
+    username: 'Wenus'
+  },
+  receiver: {
+    replyTo: 'zs1z9rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya',
+    username: 'Sun'
+  }
+})
+
 export const messages = {
   createReceivedMessage,
   createSendableMessage,
+  createReceivedTransferMessage,
+  createSendableTransferMessage,
   createMessage
 }
 

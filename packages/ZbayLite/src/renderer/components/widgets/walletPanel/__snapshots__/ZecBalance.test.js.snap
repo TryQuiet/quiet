@@ -2,6 +2,7 @@
 
 exports[`ZecBalance renders component 1`] = `
 <WithStyles(Grid)
+  alignItems="center"
   container={true}
 >
   <Memo(ZcashIcon)
@@ -10,6 +11,12 @@ exports[`ZecBalance renders component 1`] = `
   />
   <WithStyles(Typography)
     className="value-mock"
+    style={
+      Object {
+        "fontSize": "0.7rem",
+        "marginTop": 2,
+      }
+    }
     variant="caption"
   >
     3,243.253232
@@ -19,6 +26,7 @@ exports[`ZecBalance renders component 1`] = `
 
 exports[`ZecBalance renders when no value 1`] = `
 <WithStyles(Grid)
+  alignItems="center"
   container={true}
 >
   <Memo(ZcashIcon)
@@ -27,6 +35,12 @@ exports[`ZecBalance renders when no value 1`] = `
   />
   <WithStyles(Typography)
     className="value-mock"
+    style={
+      Object {
+        "fontSize": "0.7rem",
+        "marginTop": 2,
+      }
+    }
     variant="caption"
   >
     -

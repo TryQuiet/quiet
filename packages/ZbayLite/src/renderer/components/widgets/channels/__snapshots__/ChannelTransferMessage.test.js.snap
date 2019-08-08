@@ -1,0 +1,974 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChannelTransferMessage renders component 1`] = `
+<Memo(WithStyles(BasicMessage))
+  actionsOpen={false}
+  message={
+    Immutable.DisplayableMessage {
+      "id": null,
+      "type": 4,
+      "sender": Immutable.ExchangeParticipant {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Wenus",
+      },
+      "receiver": Immutable.ExchangeParticipant {
+        "replyTo": "zs1z9rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Sun",
+      },
+      "createdAt": 1551963828,
+      "message": "This is a message with id undefined",
+      "spent": "0.32",
+      "fromYou": false,
+      "status": "broadcasted",
+      "error": null,
+    }
+  }
+  setActionsOpen={[Function]}
+>
+  <WithStyles(Divider)
+    className="divider-mock"
+  />
+  <WithStyles(Grid)
+    alignItems="center"
+    container={true}
+    direction="column"
+    justify="space-evenly"
+  >
+    <WithStyles(Grid)
+      alignItems="center"
+      className="transactionCard-mock"
+      container={true}
+      direction="column"
+      justify="space-evenly"
+      spacing={0}
+    >
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="boldText-mock"
+          variant="h5"
+        >
+          $
+          0.32
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="boldText-mock"
+          variant="h5"
+        >
+          <Memo(WithStyles(ZecBalance))
+            size={18}
+            value={"0.32"}
+          />
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="boldText-mock"
+          variant="subtitle2"
+        >
+          Sent to :
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="boldText-mock"
+          variant="subtitle2"
+        >
+          Sun
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Link)
+          className="link-mock"
+          onClick={[Function]}
+          variant="body1"
+        />
+      </WithStyles(Grid)>
+    </WithStyles(Grid)>
+    <WithStyles(Divider)
+      className="divider-mock"
+    />
+    <WithStyles(Grid)
+      alignItems="center"
+      className="info-mock"
+      container={true}
+      direction="row"
+      justify="flex-start"
+    >
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="message-mock"
+          variant="body2"
+        >
+          This is a message with id undefined
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+    </WithStyles(Grid)>
+  </WithStyles(Grid)>
+  <WithStyles(Collapse)
+    in={false}
+    timeout="auto"
+  >
+    <Memo(ChannelMessageActions)
+      fromYou={false}
+      onCancel={[MockFunction]}
+      onReply={[Function]}
+      onResend={[Function]}
+      status="broadcasted"
+    />
+  </WithStyles(Collapse)>
+</Memo(WithStyles(BasicMessage))>
+`;
+
+exports[`ChannelTransferMessage renders component when message is broadcasted 1`] = `
+<Memo(WithStyles(BasicMessage))
+  actionsOpen={false}
+  message={
+    Immutable.DisplayableMessage {
+      "id": null,
+      "type": 4,
+      "sender": Immutable.ExchangeParticipant {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Wenus",
+      },
+      "receiver": Immutable.ExchangeParticipant {
+        "replyTo": "zs1z9rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Sun",
+      },
+      "createdAt": 1551963828,
+      "message": "",
+      "spent": "0",
+      "fromYou": false,
+      "status": "broadcasted",
+      "error": null,
+    }
+  }
+  setActionsOpen={[Function]}
+>
+  <WithStyles(Divider)
+    className="divider-mock"
+  />
+  <WithStyles(Grid)
+    alignItems="center"
+    container={true}
+    direction="column"
+    justify="space-evenly"
+  >
+    <WithStyles(Grid)
+      alignItems="center"
+      className="transactionCard-mock"
+      container={true}
+      direction="column"
+      justify="space-evenly"
+      spacing={0}
+    >
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="boldText-mock"
+          variant="h5"
+        >
+          $
+          0.00
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="boldText-mock"
+          variant="h5"
+        >
+          <Memo(WithStyles(ZecBalance))
+            size={18}
+            value={"0"}
+          />
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="boldText-mock"
+          variant="subtitle2"
+        >
+          Sent to :
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="boldText-mock"
+          variant="subtitle2"
+        >
+          Sun
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Link)
+          className="link-mock"
+          onClick={[Function]}
+          variant="body1"
+        />
+      </WithStyles(Grid)>
+    </WithStyles(Grid)>
+    <WithStyles(Divider)
+      className="divider-mock"
+    />
+    <WithStyles(Grid)
+      alignItems="center"
+      className="info-mock"
+      container={true}
+      direction="row"
+      justify="flex-start"
+    >
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="message-mock"
+          variant="body2"
+        />
+      </WithStyles(Grid)>
+    </WithStyles(Grid)>
+  </WithStyles(Grid)>
+  <WithStyles(Collapse)
+    in={false}
+    timeout="auto"
+  >
+    <Memo(ChannelMessageActions)
+      fromYou={false}
+      onCancel={[MockFunction]}
+      onReply={[Function]}
+      onResend={[Function]}
+      status="broadcasted"
+    />
+  </WithStyles(Collapse)>
+</Memo(WithStyles(BasicMessage))>
+`;
+
+exports[`ChannelTransferMessage renders component when message is cancelled 1`] = `
+<Memo(WithStyles(BasicMessage))
+  actionsOpen={false}
+  message={
+    Immutable.DisplayableMessage {
+      "id": null,
+      "type": 4,
+      "sender": Immutable.ExchangeParticipant {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Wenus",
+      },
+      "receiver": Immutable.ExchangeParticipant {
+        "replyTo": "zs1z9rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Sun",
+      },
+      "createdAt": 1551963828,
+      "message": "",
+      "spent": "0",
+      "fromYou": false,
+      "status": "cancelled",
+      "error": null,
+    }
+  }
+  setActionsOpen={[Function]}
+>
+  <WithStyles(Divider)
+    className="divider-mock"
+  />
+  <WithStyles(Grid)
+    alignItems="center"
+    container={true}
+    direction="column"
+    justify="space-evenly"
+  >
+    <WithStyles(Grid)
+      alignItems="center"
+      className="transactionCard-mock"
+      container={true}
+      direction="column"
+      justify="space-evenly"
+      spacing={0}
+    >
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="boldText-mock"
+          variant="h5"
+        >
+          $
+          0.00
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="boldText-mock"
+          variant="h5"
+        >
+          <Memo(WithStyles(ZecBalance))
+            size={18}
+            value={"0"}
+          />
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="boldText-mock"
+          variant="subtitle2"
+        >
+          Sent to :
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="boldText-mock"
+          variant="subtitle2"
+        >
+          Sun
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <Elipsis
+          classes={
+            Object {
+              "content": "failed-mock",
+            }
+          }
+          content="Cancelled"
+          interactive={true}
+          length={60}
+          tooltipPlacement="bottom"
+        />
+      </WithStyles(Grid)>
+    </WithStyles(Grid)>
+    <WithStyles(Divider)
+      className="divider-mock"
+    />
+    <WithStyles(Grid)
+      alignItems="center"
+      className="info-mock"
+      container={true}
+      direction="row"
+      justify="flex-start"
+    >
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="message-mock"
+          variant="body2"
+        />
+      </WithStyles(Grid)>
+    </WithStyles(Grid)>
+  </WithStyles(Grid)>
+  <WithStyles(Collapse)
+    in={false}
+    timeout="auto"
+  >
+    <Memo(ChannelMessageActions)
+      fromYou={false}
+      onCancel={[MockFunction]}
+      onReply={[Function]}
+      onResend={[Function]}
+      status="cancelled"
+    />
+  </WithStyles(Collapse)>
+</Memo(WithStyles(BasicMessage))>
+`;
+
+exports[`ChannelTransferMessage renders component when message is failed 1`] = `
+<Memo(WithStyles(BasicMessage))
+  actionsOpen={false}
+  message={
+    Immutable.DisplayableMessage {
+      "id": null,
+      "type": 4,
+      "sender": Immutable.ExchangeParticipant {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Wenus",
+      },
+      "receiver": Immutable.ExchangeParticipant {
+        "replyTo": "zs1z9rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Sun",
+      },
+      "createdAt": 1551963828,
+      "message": "",
+      "spent": "0",
+      "fromYou": false,
+      "status": "failed",
+      "error": Object {
+        "code": 1,
+        "message": "error",
+      },
+    }
+  }
+  setActionsOpen={[Function]}
+>
+  <WithStyles(Divider)
+    className="divider-mock"
+  />
+  <WithStyles(Grid)
+    alignItems="center"
+    container={true}
+    direction="column"
+    justify="space-evenly"
+  >
+    <WithStyles(Grid)
+      alignItems="center"
+      className="transactionCard-mock"
+      container={true}
+      direction="column"
+      justify="space-evenly"
+      spacing={0}
+    >
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="boldText-mock"
+          variant="h5"
+        >
+          $
+          0.00
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="boldText-mock"
+          variant="h5"
+        >
+          <Memo(WithStyles(ZecBalance))
+            size={18}
+            value={"0"}
+          />
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="boldText-mock"
+          variant="subtitle2"
+        >
+          Sent to :
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="boldText-mock"
+          variant="subtitle2"
+        >
+          Sun
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <Elipsis
+          classes={
+            Object {
+              "content": "failed-mock",
+            }
+          }
+          content="Error 1: error"
+          interactive={true}
+          length={60}
+          tooltipPlacement="bottom"
+        />
+      </WithStyles(Grid)>
+    </WithStyles(Grid)>
+    <WithStyles(Divider)
+      className="divider-mock"
+    />
+    <WithStyles(Grid)
+      alignItems="center"
+      className="info-mock"
+      container={true}
+      direction="row"
+      justify="flex-start"
+    >
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="message-mock"
+          variant="body2"
+        />
+      </WithStyles(Grid)>
+    </WithStyles(Grid)>
+  </WithStyles(Grid)>
+  <WithStyles(Collapse)
+    in={false}
+    timeout="auto"
+  >
+    <Memo(ChannelMessageActions)
+      fromYou={false}
+      onCancel={[MockFunction]}
+      onReply={[Function]}
+      onResend={[Function]}
+      status="failed"
+    />
+  </WithStyles(Collapse)>
+</Memo(WithStyles(BasicMessage))>
+`;
+
+exports[`ChannelTransferMessage renders component when message is pending 1`] = `
+<Memo(WithStyles(BasicMessage))
+  actionsOpen={false}
+  message={
+    Immutable.DisplayableMessage {
+      "id": null,
+      "type": 4,
+      "sender": Immutable.ExchangeParticipant {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Wenus",
+      },
+      "receiver": Immutable.ExchangeParticipant {
+        "replyTo": "zs1z9rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Sun",
+      },
+      "createdAt": 1551963828,
+      "message": "",
+      "spent": "0",
+      "fromYou": false,
+      "status": "pending",
+      "error": null,
+    }
+  }
+  setActionsOpen={[Function]}
+>
+  <WithStyles(Divider)
+    className="divider-mock"
+  />
+  <WithStyles(Grid)
+    alignItems="center"
+    container={true}
+    direction="column"
+    justify="space-evenly"
+  >
+    <WithStyles(Grid)
+      alignItems="center"
+      className="transactionCard-mock"
+      container={true}
+      direction="column"
+      justify="space-evenly"
+      spacing={0}
+    >
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="boldText-mock"
+          variant="h5"
+        >
+          $
+          0.00
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="boldText-mock"
+          variant="h5"
+        >
+          <Memo(WithStyles(ZecBalance))
+            size={18}
+            value={"0"}
+          />
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="boldText-mock"
+          variant="subtitle2"
+        >
+          Sent to :
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="boldText-mock"
+          variant="subtitle2"
+        >
+          Sun
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <Memo(WithStyles(SpinnerLoader))
+          message="Loading Transaction Id"
+        />
+      </WithStyles(Grid)>
+    </WithStyles(Grid)>
+    <WithStyles(Divider)
+      className="divider-mock"
+    />
+    <WithStyles(Grid)
+      alignItems="center"
+      className="info-mock"
+      container={true}
+      direction="row"
+      justify="flex-start"
+    >
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="message-mock"
+          variant="body2"
+        />
+      </WithStyles(Grid)>
+    </WithStyles(Grid)>
+  </WithStyles(Grid)>
+  <WithStyles(Collapse)
+    in={false}
+    timeout="auto"
+  >
+    <Memo(ChannelMessageActions)
+      fromYou={false}
+      onCancel={[MockFunction]}
+      onReply={[Function]}
+      onResend={[Function]}
+      status="pending"
+    />
+  </WithStyles(Collapse)>
+</Memo(WithStyles(BasicMessage))>
+`;
+
+exports[`ChannelTransferMessage renders component when message is sent by owner 1`] = `
+<Memo(WithStyles(BasicMessage))
+  actionsOpen={false}
+  message={
+    Immutable.DisplayableMessage {
+      "id": null,
+      "type": 4,
+      "sender": Immutable.ExchangeParticipant {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Wenus",
+      },
+      "receiver": Immutable.ExchangeParticipant {
+        "replyTo": "zs1z9rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Sun",
+      },
+      "createdAt": 1551963828,
+      "message": "",
+      "spent": "0",
+      "fromYou": true,
+      "status": "broadcasted",
+      "error": null,
+    }
+  }
+  setActionsOpen={[Function]}
+>
+  <WithStyles(Divider)
+    className="divider-mock"
+  />
+  <WithStyles(Grid)
+    alignItems="center"
+    container={true}
+    direction="column"
+    justify="space-evenly"
+  >
+    <WithStyles(Grid)
+      alignItems="center"
+      className="transactionCard-mock"
+      container={true}
+      direction="column"
+      justify="space-evenly"
+      spacing={0}
+    >
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="boldText-mock"
+          variant="h5"
+        >
+          $
+          0.00
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="boldText-mock"
+          variant="h5"
+        >
+          <Memo(WithStyles(ZecBalance))
+            size={18}
+            value={"0"}
+          />
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="boldText-mock"
+          variant="subtitle2"
+        >
+          Sent to :
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="boldText-mock"
+          variant="subtitle2"
+        >
+          Sun
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Link)
+          className="link-mock"
+          onClick={[Function]}
+          variant="body1"
+        />
+      </WithStyles(Grid)>
+    </WithStyles(Grid)>
+    <WithStyles(Divider)
+      className="divider-mock"
+    />
+    <WithStyles(Grid)
+      alignItems="center"
+      className="info-mock"
+      container={true}
+      direction="row"
+      justify="flex-start"
+    >
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="message-mock"
+          variant="body2"
+        />
+      </WithStyles(Grid)>
+    </WithStyles(Grid)>
+  </WithStyles(Grid)>
+  <WithStyles(Collapse)
+    in={false}
+    timeout="auto"
+  >
+    <Memo(ChannelMessageActions)
+      fromYou={true}
+      onCancel={[MockFunction]}
+      onReply={[Function]}
+      onResend={[Function]}
+      status="broadcasted"
+    />
+  </WithStyles(Collapse)>
+</Memo(WithStyles(BasicMessage))>
+`;
+
+exports[`ChannelTransferMessage renders component when message is success 1`] = `
+<Memo(WithStyles(BasicMessage))
+  actionsOpen={false}
+  message={
+    Immutable.DisplayableMessage {
+      "id": null,
+      "type": 4,
+      "sender": Immutable.ExchangeParticipant {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Wenus",
+      },
+      "receiver": Immutable.ExchangeParticipant {
+        "replyTo": "zs1z9rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Sun",
+      },
+      "createdAt": 1551963828,
+      "message": "",
+      "spent": "0",
+      "fromYou": false,
+      "status": "success",
+      "error": null,
+    }
+  }
+  setActionsOpen={[Function]}
+>
+  <WithStyles(Divider)
+    className="divider-mock"
+  />
+  <WithStyles(Grid)
+    alignItems="center"
+    container={true}
+    direction="column"
+    justify="space-evenly"
+  >
+    <WithStyles(Grid)
+      alignItems="center"
+      className="transactionCard-mock"
+      container={true}
+      direction="column"
+      justify="space-evenly"
+      spacing={0}
+    >
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="boldText-mock"
+          variant="h5"
+        >
+          $
+          0.00
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="boldText-mock"
+          variant="h5"
+        >
+          <Memo(WithStyles(ZecBalance))
+            size={18}
+            value={"0"}
+          />
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="boldText-mock"
+          variant="subtitle2"
+        >
+          Sent to :
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="boldText-mock"
+          variant="subtitle2"
+        >
+          Sun
+        </WithStyles(Typography)>
+      </WithStyles(Grid)>
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <Memo(WithStyles(SpinnerLoader))
+          message="Waiting for transaction to be mined 
+    ID: null"
+        />
+      </WithStyles(Grid)>
+    </WithStyles(Grid)>
+    <WithStyles(Divider)
+      className="divider-mock"
+    />
+    <WithStyles(Grid)
+      alignItems="center"
+      className="info-mock"
+      container={true}
+      direction="row"
+      justify="flex-start"
+    >
+      <WithStyles(Grid)
+        item={true}
+        xs={12}
+      >
+        <WithStyles(Typography)
+          className="message-mock"
+          variant="body2"
+        />
+      </WithStyles(Grid)>
+    </WithStyles(Grid)>
+  </WithStyles(Grid)>
+  <WithStyles(Collapse)
+    in={false}
+    timeout="auto"
+  >
+    <Memo(ChannelMessageActions)
+      fromYou={false}
+      onCancel={[MockFunction]}
+      onReply={[Function]}
+      onResend={[Function]}
+      status="success"
+    />
+  </WithStyles(Collapse)>
+</Memo(WithStyles(BasicMessage))>
+`;
