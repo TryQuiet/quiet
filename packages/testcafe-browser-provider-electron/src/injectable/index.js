@@ -5,8 +5,11 @@ module.exports = function (config, testPageUrl) {
 
     Module._load = function (...args) {
         if (args[2]) {
-            if (config.appEntryPoint)
+            if (config.appPath) {
+                config.appEntryPoint = require.resolve(config.appPath);
+
                 args[0] = config.appEntryPoint;
+            }
             else
                 config.appEntryPoint = require.resolve(args[0]);
 

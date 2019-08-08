@@ -56,7 +56,7 @@ const ElectronBrowserProvider = {
     async isLocalBrowser () {
         return true;
     },
-    
+
     async openBrowser (id, pageUrl, mainPath) {
         if (!isAbsolute(mainPath))
             mainPath = path.join(process.cwd(), mainPath);

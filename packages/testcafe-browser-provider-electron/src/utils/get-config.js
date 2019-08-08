@@ -16,12 +16,8 @@ export default function (id, mainPath) {
 
     var config = JSON.parse(configString);
 
-    if (config.appPath) {
-        if (!isAbsolute(config.appPath))
-            config.appPath = path.resolve(mainDir, config.appPath);
-
-        config.appEntryPoint = require.resolve(config.appPath);
-    }
+    if (config.appPath && !isAbsolute(config.appPath))
+        config.appPath = path.resolve(mainDir, config.appPath);
 
     if (config.electronPath) {
         if (!isAbsolute(config.electronPath))
