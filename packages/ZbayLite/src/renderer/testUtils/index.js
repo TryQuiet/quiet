@@ -23,6 +23,23 @@ export const channels = {
   createChannel
 }
 
+export const createVaultMessage = (
+  id,
+  createdAt = now.minus({ hours: id }).toSeconds(),
+  replyTo = 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya'
+) => ({
+  id,
+  status: 'broadcasted',
+  spent: new BigNumber('123'),
+  type: zbayMessages.messageType.BASIC,
+  createdAt,
+  message: `This is some message ${id}`,
+  sender: {
+    replyTo,
+    username: 'test'
+  }
+})
+
 export const createMessage = (
   id,
   createdAt = now.minus({ hours: id }).toSeconds(),
@@ -103,7 +120,8 @@ export const messages = {
   createSendableMessage,
   createReceivedTransferMessage,
   createSendableTransferMessage,
-  createMessage
+  createMessage,
+  createVaultMessage
 }
 
 export const createTransfer = ({

@@ -4,6 +4,7 @@ export const createArchive = () => {
   const archive = new Archive()
   archive.createGroup('Identities')
   archive.createGroup('Channels')
+  archive.createGroup('Contacts')
   return archive
 }
 

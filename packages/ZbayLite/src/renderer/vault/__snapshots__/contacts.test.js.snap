@@ -1,0 +1,131 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`messages delete message should delete message with appropriate id, recipient should have empty messages array 1`] = `Array []`;
+
+exports[`messages delete message should delete message with appropriate id, recipient should have messages array with message title = 2 1`] = `
+Array [
+  Object {
+    "createdAt": "1551956628",
+    "id": "2",
+    "message": "\\"This is some message 2\\"",
+    "sender": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+    "spent": "123",
+    "status": "broadcasted",
+    "title": "2",
+    "type": "1",
+  },
+]
+`;
+
+exports[`messages delete message should not crash if message doesn't exist 1`] = `Array []`;
+
+exports[`messages get list of messages should not crash if there is no messsages for identityId 1`] = `
+Object {
+  "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slba",
+  "messages": Array [],
+  "username": "Tommy",
+}
+`;
+
+exports[`messages get list of messages should return all messages sent to recipient 1`] = `
+Object {
+  "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slba",
+  "messages": Array [
+    Object {
+      "createdAt": "2019-03-07T11:03:48.000Z",
+      "id": "2",
+      "message": "This is some message 2",
+      "sender": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "spent": "123",
+      "status": "broadcasted",
+      "type": 1,
+    },
+    Object {
+      "createdAt": "2019-03-07T12:03:48.000Z",
+      "id": "1",
+      "message": "This is some message 1",
+      "sender": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "spent": "123",
+      "status": "broadcasted",
+      "type": 1,
+    },
+  ],
+  "username": "Tommy",
+}
+`;
+
+exports[`messages last seen value should return lastSeen value 1`] = `null`;
+
+exports[`messages last seen value should return null for lastSeen if no identity 1`] = `null`;
+
+exports[`messages last seen value should return null for lastSeen if there is identity and no recipiet 1`] = `null`;
+
+exports[`messages store own messages group should have two messages 1`] = `
+Array [
+  Object {
+    "createdAt": "1551960228",
+    "id": "1",
+    "message": "\\"This is some message 1\\"",
+    "sender": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+    "spent": "123",
+    "status": "broadcasted",
+    "title": "1",
+    "type": "1",
+  },
+  Object {
+    "createdAt": "1551956628",
+    "id": "2",
+    "message": "\\"This is some message 2\\"",
+    "sender": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+    "spent": "123",
+    "status": "broadcasted",
+    "title": "2",
+    "type": "1",
+  },
+]
+`;
+
+exports[`messages store own messages when no group for identity 1`] = `
+Object {
+  "createdAt": "1551960228",
+  "id": "1",
+  "message": "\\"This is some message 1\\"",
+  "sender": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+  "spent": "123",
+  "status": "broadcasted",
+  "title": "1",
+  "type": "1",
+}
+`;
+
+exports[`messages update message should not crash if message doesn't exist 1`] = `[Error: Message with id 1 doesn't exist]`;
+
+exports[`messages update message should update message with appropriate id 1`] = `
+Object {
+  "createdAt": 1551960228,
+  "id": 1,
+  "message": "This is some message 1",
+  "sender": Object {
+    "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+    "username": "test",
+  },
+  "spent": "123",
+  "status": "broadcasted",
+  "type": 1,
+}
+`;
+
+exports[`messages update message should update message with appropriate id 2`] = `
+Array [
+  Object {
+    "createdAt": "1551960228",
+    "id": "1",
+    "message": "\\"This is some message 1\\"",
+    "sender": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+    "spent": "123",
+    "status": "sent",
+    "title": "1",
+    "type": "1",
+  },
+]
+`;

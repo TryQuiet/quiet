@@ -81,8 +81,15 @@ Array [
         Array [
           "Channels",
         ],
+        Array [
+          "Contacts",
+        ],
       ],
       "results": Array [
+        Object {
+          "type": "return",
+          "value": undefined,
+        },
         Object {
           "type": "return",
           "value": undefined,
