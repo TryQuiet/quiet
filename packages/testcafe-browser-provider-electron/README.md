@@ -1,7 +1,7 @@
 # testcafe-browser-provider-electron
 [![Build Status](https://travis-ci.org/DevExpress/testcafe-browser-provider-electron.svg)](https://travis-ci.org/DevExpress/testcafe-browser-provider-electron)
 
-Use this plugin to test **Electron** applications witn [TestCafe](http://devexpress.github.io/testcafe).
+Use this plugin to test **Electron** applications with [TestCafe](http://devexpress.github.io/testcafe).
 
 ## Getting Started
 
