@@ -133,7 +133,16 @@ export const transfersToMessages = async (transfers, owner, isTestnet) => {
   return msgs.filter(x => x)
 }
 
-export const calculateDiff = (oldMsgs, newMsgs) => newMsgs.filter(m => !oldMsgs.includes(m))
+export const calculateDiff = ({
+  previousMessages,
+  nextMessages,
+  identityAddress,
+  lastSeen
+}) => nextMessages.filter(nextMessage => {
+  const isNew = DateTime.fromSeconds(nextMessage.createdAt) > lastSeen
+  const notOwner = identityAddress !== nextMessage.sender.replyTo
+  return isNew && notOwner && !previousMessages.includes(nextMessage)
+})
 
 export default {
   receivedToDisplayableMessage,

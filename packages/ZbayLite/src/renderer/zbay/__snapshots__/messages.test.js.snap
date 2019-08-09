@@ -1,18 +1,111 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`messages - calculate diff 1`] = `
+exports[`messages - calculate diff when new messages 1`] = `
 Immutable.List [
-  Immutable.Map {
+  Immutable.ReceivedMessage {
+    "id": 3,
     "type": 1,
-    "sender": Immutable.Map {
-      "replyTo": "saturn-private-address",
-      "username": "Saturn",
+    "sender": Immutable.MessageSender {
+      "replyTo": "zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
+      "username": "Mars",
     },
-    "createdAt": 1551963828,
-    "message": "This is a new message",
+    "createdAt": 1551942228,
+    "message": "This is a message with id 3",
+    "spent": "0.32",
+  },
+  Immutable.ReceivedMessage {
+    "id": 4,
+    "type": 1,
+    "sender": Immutable.MessageSender {
+      "replyTo": "zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
+      "username": "Mars",
+    },
+    "createdAt": 1551935028,
+    "message": "This is a message with id 4",
+    "spent": "0.32",
   },
 ]
 `;
+
+exports[`messages - calculate diff when new messages but some were already seen 1`] = `
+Immutable.List [
+  Immutable.ReceivedMessage {
+    "id": 3,
+    "type": 1,
+    "sender": Immutable.MessageSender {
+      "replyTo": "zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
+      "username": "Mars",
+    },
+    "createdAt": 1551942228,
+    "message": "This is a message with id 3",
+    "spent": "0.32",
+  },
+]
+`;
+
+exports[`messages - calculate diff when no new messages 1`] = `Immutable.List []`;
+
+exports[`messages - calculate diff when no previous messages 1`] = `
+Immutable.List [
+  Immutable.ReceivedMessage {
+    "id": 0,
+    "type": 1,
+    "sender": Immutable.MessageSender {
+      "replyTo": "zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
+      "username": "Mars",
+    },
+    "createdAt": 1551963828,
+    "message": "This is a message with id 0",
+    "spent": "0.32",
+  },
+  Immutable.ReceivedMessage {
+    "id": 1,
+    "type": 1,
+    "sender": Immutable.MessageSender {
+      "replyTo": "zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
+      "username": "Mars",
+    },
+    "createdAt": 1551956628,
+    "message": "This is a message with id 1",
+    "spent": "0.32",
+  },
+  Immutable.ReceivedMessage {
+    "id": 2,
+    "type": 1,
+    "sender": Immutable.MessageSender {
+      "replyTo": "zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
+      "username": "Mars",
+    },
+    "createdAt": 1551949428,
+    "message": "This is a message with id 2",
+    "spent": "0.32",
+  },
+  Immutable.ReceivedMessage {
+    "id": 3,
+    "type": 1,
+    "sender": Immutable.MessageSender {
+      "replyTo": "zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
+      "username": "Mars",
+    },
+    "createdAt": 1551942228,
+    "message": "This is a message with id 3",
+    "spent": "0.32",
+  },
+  Immutable.ReceivedMessage {
+    "id": 4,
+    "type": 1,
+    "sender": Immutable.MessageSender {
+      "replyTo": "zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
+      "username": "Mars",
+    },
+    "createdAt": 1551935028,
+    "message": "This is a message with id 4",
+    "spent": "0.32",
+  },
+]
+`;
+
+exports[`messages - calculate diff when some messages disappeared 1`] = `Immutable.List []`;
 
 exports[`messages - message to transfer creates transfer from simple message 1`] = `
 Object {

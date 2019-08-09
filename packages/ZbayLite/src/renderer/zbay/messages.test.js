@@ -3,10 +3,11 @@ import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
 import * as R from 'ramda'
 
-import { createTransfer, createMessage, createChannel, createIdentity, now } from '../testUtils'
+import testUtils from '../testUtils'
 import { packMemo, unpackMemo } from './transit'
 import zbayMessages, { transferToMessage, messageToTransfer, messageType } from './messages'
 import { Identity } from '../store/handlers/identity'
+import { ReceivedMessage } from '../store/handlers/messages'
 
 describe('messages -', () => {
   describe('transfer to message', () => {
@@ -14,13 +15,13 @@ describe('messages -', () => {
     const spent = '234.56'
 
     beforeEach(() => {
-      jest.spyOn(DateTime, 'utc').mockReturnValueOnce(now)
+      jest.spyOn(DateTime, 'utc').mockReturnValueOnce(testUtils.now)
       jest.clearAllMocks()
     })
 
     it('when memo is a message', async () => {
-      const message = R.omit(['id', 'spent'], createMessage(txid))
-      const transfer = createTransfer({
+      const message = R.omit(['id', 'spent'], testUtils.messages.createMessage(txid))
+      const transfer = testUtils.transfers.createTransfer({
         txid,
         memo: await packMemo(message),
         amount: spent
@@ -33,8 +34,8 @@ describe('messages -', () => {
     })
 
     it('when on testnet', async () => {
-      const message = R.omit(['id', 'spent'], createMessage(txid))
-      const transfer = createTransfer({
+      const message = R.omit(['id', 'spent'], testUtils.messages.createMessage(txid))
+      const transfer = testUtils.transfers.createTransfer({
         txid,
         memo: await packMemo(message),
         amount: spent
@@ -47,7 +48,7 @@ describe('messages -', () => {
 
     it('when memo isn\'t compressed string', async () => {
       jest.spyOn(console, 'warn').mockImplementation()
-      const transfer = createTransfer({
+      const transfer = testUtils.transfers.createTransfer({
         txid,
         memo: 'random memo',
         amount: spent
@@ -60,19 +61,19 @@ describe('messages -', () => {
 
   describe('message to transfer', () => {
     it('creates transfer from simple message', async () => {
-      jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => now)
+      jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => testUtils.now)
       const identity = Identity({
         address: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya',
         name: 'Mercury'
       }).toJS()
-      const message = createMessage({
+      const message = testUtils.messages.createMessage({
         messageData: {
           type: messageType.BASIC,
           data: 'This is some simple message created by client'
         },
         identity
       })
-      const channel = createChannel('test-id')
+      const channel = testUtils.channels.createChannel('test-id')
       const amount = '0.1'
 
       const { amounts, ...result } = await messageToTransfer({ message, channel, amount })
@@ -95,20 +96,20 @@ describe('messages -', () => {
   })
 
   it('message -> transfer -> message', async () => {
-    jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => now)
+    jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => testUtils.now)
     const identity = Identity({
       address: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya',
       name: 'Mercury'
     }).toJS()
     const txid = 'test-op-id'
-    const message = createMessage({
+    const message = testUtils.messages.createMessage({
       messageData: {
         type: messageType.BASIC,
         data: 'This is some simple message created by client'
       },
       identity
     })
-    const channel = createChannel('test-id')
+    const channel = testUtils.channels.createChannel('test-id')
     const amount = '0.1'
 
     const transfer = await messageToTransfer({ message, channel, amount })
@@ -126,28 +127,70 @@ describe('messages -', () => {
     })
   })
 
-  it('calculate diff', async () => {
-    const identity = createIdentity()
-    const messages = R.range(0, 4).map(i => zbayMessages.createMessage({
-      identity,
-      messageData: {
-        type: messageType.BASIC,
-        data: `This is message nr ${i}`
-      }
-    }))
-    const newMessage = zbayMessages.createMessage({
-      identity,
-      messageData: {
-        type: messageType.BASIC,
-        data: 'This is a new message'
-      }
-    })
-    const newMessages = Immutable.fromJS([
-      ...messages,
-      newMessage
-    ])
+  describe('calculate diff', () => {
+    const nextMessages = Immutable.List(
+      R.range(0, 5).map(id => ReceivedMessage(
+        testUtils.messages.createReceivedMessage({
+          id,
+          createdAt: testUtils.now.minus({ hours: 2 * id }).toSeconds(),
+          sender: testUtils.identities[1]
+        })
+      ))
+    )
 
-    const diff = zbayMessages.calculateDiff(Immutable.fromJS(messages), newMessages)
-    expect(diff).toMatchSnapshot()
+    const previousMessages = nextMessages.slice(0, 3)
+
+    const lastSeen = testUtils.now.minus({ hours: 2 * nextMessages.size })
+    const identityAddress = testUtils.identities[0].address
+
+    it('when no new messages', () => {
+      const diff = zbayMessages.calculateDiff({
+        previousMessages,
+        nextMessages: previousMessages,
+        identityAddress,
+        lastSeen
+      })
+      expect(diff).toMatchSnapshot()
+    })
+
+    it('when new messages', () => {
+      const diff = zbayMessages.calculateDiff({
+        previousMessages,
+        nextMessages,
+        identityAddress,
+        lastSeen
+      })
+      expect(diff).toMatchSnapshot()
+    })
+
+    it('when new messages but some were already seen', () => {
+      const diff = zbayMessages.calculateDiff({
+        previousMessages,
+        nextMessages,
+        identityAddress,
+        lastSeen: testUtils.now.minus({ hours: 2 * (nextMessages.size - 1) - 1 })
+      })
+      expect(diff).toMatchSnapshot()
+    })
+
+    it('when some messages disappeared', () => {
+      const diff = zbayMessages.calculateDiff({
+        previousMessages,
+        nextMessages: previousMessages.pop(),
+        identityAddress,
+        lastSeen
+      })
+      expect(diff).toMatchSnapshot()
+    })
+
+    it('when no previous messages', () => {
+      const diff = zbayMessages.calculateDiff({
+        previousMessages: Immutable.List(),
+        nextMessages,
+        identityAddress,
+        lastSeen
+      })
+      expect(diff).toMatchSnapshot()
+    })
   })
 })

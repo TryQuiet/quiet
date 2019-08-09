@@ -1,6 +1,5 @@
 import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
-import { DateTime } from 'luxon'
 import * as R from 'ramda'
 import { createAction, handleActions } from 'redux-actions'
 
@@ -84,13 +83,12 @@ export const fetchMessages = () => async (dispatch, getState) => {
         await dispatch(channelsHandlers.epics.updateLastSeen({ channelId }))
         lastSeen = channelsSelectors.lastSeen(channelId)(getState())
       }
-      const newMessages = zbayMessages.calculateDiff(previousMessages, Immutable.List(messages)).filter(
-        nm => {
-          const isNew = DateTime.fromSeconds(nm.createdAt) > lastSeen
-          const notOwner = identityAddress !== nm.sender.replyTo
-          return isNew && notOwner
-        }
-      )
+      const newMessages = zbayMessages.calculateDiff({
+        previousMessages,
+        nextMessages: Immutable.List(messages),
+        lastSeen,
+        identityAddress
+      })
       dispatch(appendNewMessages({
         channelId,
         messagesIds: newMessages.map(R.prop('id'))

@@ -111,6 +111,14 @@ Vault {
     "listChannels": [Function],
     "updateLastSeen": [Function],
   },
+  "contacts": Object {
+    "deleteMessage": [Function],
+    "getLastSeen": [Function],
+    "listMessages": [Function],
+    "saveMessage": [Function],
+    "updateLastSeen": [Function],
+    "updateMessage": [Function],
+  },
   "lock": [MockFunction],
   "withWorkspace": [Function],
 }

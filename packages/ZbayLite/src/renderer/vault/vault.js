@@ -9,6 +9,7 @@ import {
 } from './marshalling'
 import { Credentials } from '../vendor/buttercup'
 import channelsFactory from './channels'
+import contactsFactory from './contacts'
 
 export default class Vault {
   constructor (sourceCredentials, archiveCredentials) {
@@ -23,6 +24,7 @@ export default class Vault {
     this._sourceCredentials = sourceCredentials
     this._archiveCredentials = archiveCredentials
     this.channels = channelsFactory(this)
+    this.contacts = contactsFactory(this)
   }
 
   _enqueueStateChange (cb) {

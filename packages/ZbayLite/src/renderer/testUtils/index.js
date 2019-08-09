@@ -5,6 +5,17 @@ import { messages as zbayMessages } from '../zbay'
 
 Settings.defaultZoneName = 'utc'
 
+const identities = [
+  {
+    address: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya',
+    username: 'Wenus'
+  },
+  {
+    address: 'zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq',
+    username: 'Mars'
+  }
+]
+
 export const now = DateTime.utc(2019, 3, 7, 13, 3, 48)
 
 export const createChannel = id => ({
@@ -56,7 +67,8 @@ export const createMessage = (
 
 export const createReceivedMessage = ({
   id,
-  createdAt = now.toSeconds()
+  createdAt = now.toSeconds(),
+  sender = identities[0]
 }) => ({
   id,
   spent: new BigNumber('0.32'),
@@ -64,19 +76,22 @@ export const createReceivedMessage = ({
   createdAt,
   message: `This is a message with id ${id}`,
   sender: {
-    replyTo: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya',
-    username: 'Wenus'
+    replyTo: sender.address,
+    username: sender.username
   }
 })
 
 export const createSendableMessage = ({
   message,
-  createdAt = now.toSeconds()
+  createdAt = now.toSeconds(),
+  replyTo = identities[0].address,
+  username = identities[0].username,
+  type = zbayMessages.messageType.BASIC
 }) => ({
-  type: zbayMessages.messageType.BASIC,
+  type,
   sender: {
-    replyTo: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya',
-    username: 'Wenus'
+    replyTo,
+    username
   },
   createdAt,
   message
@@ -156,6 +171,7 @@ export const createIdentity = ({
 })
 
 export default {
+  identities,
   now,
   transfers,
   channels,

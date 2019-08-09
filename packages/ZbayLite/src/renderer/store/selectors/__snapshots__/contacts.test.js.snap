@@ -1,0 +1,105 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`operations selectors  - contact 1`] = `
+Immutable.Record {
+  "lastSeen": "2019-03-07T13:03:48.000Z",
+  "username": "Wenus",
+  "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+  "messages": Immutable.List [
+    Immutable.ReceivedMessage {
+      "id": 0,
+      "type": 1,
+      "sender": Immutable.MessageSender {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Wenus",
+      },
+      "createdAt": 1551963828,
+      "message": "This is a message with id 0",
+      "spent": "0.32",
+    },
+    Immutable.ReceivedMessage {
+      "id": 1,
+      "type": 1,
+      "sender": Immutable.MessageSender {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Wenus",
+      },
+      "createdAt": 1551956628,
+      "message": "This is a message with id 1",
+      "spent": "0.32",
+    },
+  ],
+  "newMessages": Immutable.List [],
+}
+`;
+
+exports[`operations selectors  - contacts 1`] = `
+Immutable.Map {
+  "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya": Immutable.Record {
+    "lastSeen": "2019-03-07T13:03:48.000Z",
+    "username": "Wenus",
+    "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+    "messages": Immutable.List [
+      Immutable.ReceivedMessage {
+        "id": 0,
+        "type": 1,
+        "sender": Immutable.MessageSender {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+          "username": "Wenus",
+        },
+        "createdAt": 1551963828,
+        "message": "This is a message with id 0",
+        "spent": "0.32",
+      },
+      Immutable.ReceivedMessage {
+        "id": 1,
+        "type": 1,
+        "sender": Immutable.MessageSender {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+          "username": "Wenus",
+        },
+        "createdAt": 1551956628,
+        "message": "This is a message with id 1",
+        "spent": "0.32",
+      },
+    ],
+    "newMessages": Immutable.List [],
+  },
+  "zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq": Immutable.Record {
+    "lastSeen": null,
+    "username": "Mars",
+    "address": "zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
+    "messages": Immutable.List [],
+    "newMessages": Immutable.List [],
+  },
+}
+`;
+
+exports[`operations selectors  - lastSeen 1`] = `"2019-03-07T13:03:48.000Z"`;
+
+exports[`operations selectors  - messages 1`] = `
+Immutable.List [
+  Immutable.ReceivedMessage {
+    "id": 0,
+    "type": 1,
+    "sender": Immutable.MessageSender {
+      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "username": "Wenus",
+    },
+    "createdAt": 1551963828,
+    "message": "This is a message with id 0",
+    "spent": "0.32",
+  },
+  Immutable.ReceivedMessage {
+    "id": 1,
+    "type": 1,
+    "sender": Immutable.MessageSender {
+      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "username": "Wenus",
+    },
+    "createdAt": 1551956628,
+    "message": "This is a message with id 1",
+    "spent": "0.32",
+  },
+]
+`;

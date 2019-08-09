@@ -14,6 +14,7 @@ import messagesQueueHandlers from './handlers/messagesQueue'
 import criticalErrorHandlers from './handlers/criticalError'
 import appHandlers from './handlers/app'
 import messagesHandlers from './handlers/messages'
+import contactsHandlers from './handlers/contacts'
 
 export default combineReducers({
   messages: messagesHandlers.reducer,
@@ -29,5 +30,6 @@ export default combineReducers({
   channels: channelsHandlers.reducer,
   node: nodeHandlers.reducer,
   vault: vaultHandlers.reducer,
-  criticalError: criticalErrorHandlers.reducer
+  criticalError: criticalErrorHandlers.reducer,
+  contacts: contactsHandlers.reducer
 })
