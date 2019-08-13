@@ -12,22 +12,20 @@ import { LoaderState } from '../../store/handlers/utils'
 const styles = theme => ({
   message: {
     marginTop: theme.spacing.unit * 2,
-    color: theme.palette.primary.main,
-    fontSize: '0.9rem'
+    color: theme.palette.primary.main
   }
 })
 
-export const SpinnerLoader = ({ classes, message, className }) => (
-  <Grid
-    container
-    justify='center'
-    alignItems='center'
-    direction='column'
-    className={className}
-  >
-    <CircularProgress />
-    <Typography variant='caption' className={classes.message} align='center'>
-      { message }
+export const SpinnerLoader = ({ classes, size, message, className }) => (
+  <Grid container justify='center' alignItems='center' direction='column' className={className}>
+    <CircularProgress size={size} />
+    <Typography
+      variant='caption'
+      style={{ fontSize: `${size / 44}rem` }}
+      className={classes.message}
+      align='center'
+    >
+      {message}
     </Typography>
   </Grid>
 )
@@ -37,18 +35,18 @@ SpinnerLoader.propTypes = {
   classname: PropTypes.string,
   message: PropTypes.string
 }
+SpinnerLoader.defaultProps = {
+  size: 40
+}
 
 const SpinnerLoaderComponent = R.compose(
   React.memo,
   withStyles(styles)
 )(SpinnerLoader)
 
-const withSpinnerLoader = (Wrapped) => {
-  const C = ({ loader, ...props }) => (
-    loader.loading
-      ? <SpinnerLoaderComponent message={loader.message} />
-      : <Wrapped {...props} />
-  )
+const withSpinnerLoader = Wrapped => {
+  const C = ({ loader, ...props }) =>
+    loader.loading ? <SpinnerLoaderComponent message={loader.message} /> : <Wrapped {...props} />
   C.displayName = Wrapped.displayName || Wrapped.name || 'Component'
   C.propTypes = {
     loader: PropTypes.instanceOf(LoaderState)
@@ -58,6 +56,4 @@ const withSpinnerLoader = (Wrapped) => {
 
 export default SpinnerLoaderComponent
 
-export {
-  withSpinnerLoader
-}
+export { withSpinnerLoader }

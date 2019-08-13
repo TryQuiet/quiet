@@ -9,6 +9,7 @@ import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
 
 import ClearIcon from '@material-ui/icons/Clear'
+import BackIcon from '@material-ui/icons/ArrowBack'
 
 import IconButton from './IconButton'
 
@@ -48,26 +49,36 @@ const styles = theme => ({
   }
 })
 
-export const Modal = ({ classes, open, handleClose, title, fullPage, children }) => (
-  <MaterialModal
-    open={open}
-    onClose={handleClose}
-    className={classes.root}
-  >
-    <Grid container direction='column' className={classNames({
-      [classes.centered]: !fullPage
-    })}>
-      <Grid
-        container
-        item
-        className={classes.header}
-        direction='row'
-        alignItems='center'
-      >
+export const Modal = ({
+  classes,
+  open,
+  handleClose,
+  title,
+  fullPage,
+  canGoBack,
+  step,
+  setStep,
+  children
+}) => (
+  <MaterialModal open={open} onClose={handleClose} className={classes.root}>
+    <Grid
+      container
+      direction='column'
+      className={classNames({
+        [classes.centered]: !fullPage
+      })}
+    >
+      <Grid container item className={classes.header} direction='row' alignItems='center'>
         <Grid item xs className={classes.actions}>
-          <IconButton onClick={handleClose}>
-            <ClearIcon />
-          </IconButton>
+          {canGoBack ? (
+            <IconButton onClick={() => setStep(step - 1)}>
+              <BackIcon />
+            </IconButton>
+          ) : (
+            <IconButton onClick={handleClose}>
+              <ClearIcon />
+            </IconButton>
+          )}
         </Grid>
         <Grid item xs>
           <Typography variant='subtitle1' className={classes.title} align='center'>
@@ -76,10 +87,14 @@ export const Modal = ({ classes, open, handleClose, title, fullPage, children })
         </Grid>
         <Grid item xs />
       </Grid>
-      <Grid container item className={classNames({
-        [classes.content]: true,
-        [classes.fullPage]: fullPage
-      })}>
+      <Grid
+        container
+        item
+        className={classNames({
+          [classes.content]: true,
+          [classes.fullPage]: fullPage
+        })}
+      >
         {children}
       </Grid>
     </Grid>
@@ -92,14 +107,16 @@ Modal.propTypes = {
   handleClose: PropTypes.func.isRequired,
   title: PropTypes.string.isRequired,
   fullPage: PropTypes.bool.isRequired,
-  children: PropTypes.oneOfType([
-    PropTypes.arrayOf(PropTypes.element),
-    PropTypes.element
-  ]).isRequired
+  step: PropTypes.number,
+  setStep: PropTypes.func,
+  canGoBack: PropTypes.bool,
+  children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.element), PropTypes.element])
+    .isRequired
 }
 
 Modal.defaultProps = {
-  fullPage: false
+  fullPage: false,
+  canGoBack: false
 }
 
 export default R.compose(

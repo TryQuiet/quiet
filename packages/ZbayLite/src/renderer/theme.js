@@ -15,7 +15,8 @@ export default createMuiTheme({
       dark: '#4a4a4a'
     },
     colors: {
-      blue: '#2196f3'
+      blue: '#2196f3',
+      white: '#000000'
     }
   },
   overrides: {

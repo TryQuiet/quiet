@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SendMoneyModal will receive right props 1`] = `
+Object {
+  "balanceZec": "2",
+  "rateUsd": "10",
+  "rateZec": "1",
+  "userData": Object {
+    "address": "test",
+    "balance": "2",
+    "id": "1",
+    "name": "Mars",
+  },
+}
+`;

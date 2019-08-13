@@ -11,6 +11,7 @@ export const WalletPanelActions = ({ onSend, onReceive }) => (
         variant='contained'
         size='small'
         color='primary'
+        onClick={onSend}
       >
         Send Money
       </Button>

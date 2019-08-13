@@ -13,6 +13,7 @@ import Vault from './containers/windows/Vault'
 import Notifier from './containers/ui/Notifier'
 import ErrorModal from './containers/ui/ErrorModal'
 import QuitAppDialog from './containers/ui/QuitAppDialog'
+import SendMoneyModal from './containers/ui/sendMoney/SendMoneyModal'
 
 import theme from './theme'
 
@@ -24,6 +25,7 @@ export default () => (
           <Notifier />
           <ErrorModal />
           <QuitAppDialog />
+          <SendMoneyModal />
           <CssBaseline />
           <Route path='/' exact component={Index} />
           <Route path='/main' component={Main} />

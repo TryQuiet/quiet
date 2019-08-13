@@ -8,10 +8,17 @@ exports[`SpinnerLoader renders component 1`] = `
   direction="column"
   justify="center"
 >
-  <WithStyles(CircularProgress) />
+  <WithStyles(CircularProgress)
+    size={40}
+  />
   <WithStyles(Typography)
     align="center"
     className="message-mock"
+    style={
+      Object {
+        "fontSize": "0.9090909090909091rem",
+      }
+    }
     variant="caption"
   >
     Test loading message

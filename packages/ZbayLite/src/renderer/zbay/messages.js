@@ -114,6 +114,24 @@ export const createMessage = ({ messageData, identity }) => ({
   message: messageData.data
 })
 
+export const createTransfer = (values) => (DisplayableMessage({
+  type: messageType.TRANSFER,
+  sender: {
+    replyTo: values.sender.address,
+    username: values.sender.name
+  },
+  receiver: {
+    replyTo: values.recipient,
+    username: ''
+  },
+  createdAt: DateTime.utc().toSeconds(),
+  message: values.memo,
+  spent: values.amountZec,
+  fromYou: true,
+  status: 'broadcasted',
+  error: null
+}))
+
 export const messageToTransfer = async ({ message, channel, amount = '0.0001' }) => {
   const memo = await packMemo(message)
   return {

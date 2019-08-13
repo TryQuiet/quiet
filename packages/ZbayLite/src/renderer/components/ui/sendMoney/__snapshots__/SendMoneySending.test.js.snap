@@ -1,0 +1,79 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SendMoneySending renders component when sent != true 1`] = `
+<WithStyles(Grid)
+  alignItems="center"
+  className="root-mock"
+  container={true}
+  justify="center"
+  spacing={0}
+>
+  <WithStyles(Grid)
+    item={true}
+    xs={12}
+  >
+    <Memo(WithStyles(SpinnerLoader))
+      message="Sending transaction"
+      size={80}
+    />
+  </WithStyles(Grid)>
+</WithStyles(Grid)>
+`;
+
+exports[`SendMoneySending renders component when sent = true 1`] = `
+<WithStyles(Grid)
+  alignItems="center"
+  className="root-mock"
+  container={true}
+  justify="center"
+  spacing={0}
+>
+  <WithStyles(Grid)
+    item={true}
+    xs={12}
+  >
+    <pure(DoneIcon)
+      className="doneIcon-mock"
+    />
+  </WithStyles(Grid)>
+  <WithStyles(Grid)
+    item={true}
+    xs={12}
+  >
+    <WithStyles(Typography)
+      variant="h5"
+    >
+      Your Zcash send is complete!
+    </WithStyles(Typography)>
+  </WithStyles(Grid)>
+  <WithStyles(Grid)
+    className="info-mock"
+    item={true}
+    xs={12}
+  >
+    <WithStyles(Typography)
+      variant="body1"
+    >
+      You sent 
+      20.1
+       ZEC ($
+      10.1000
+       USD) to the address you specified.
+    </WithStyles(Typography)>
+  </WithStyles(Grid)>
+  <WithStyles(Grid)
+    item={true}
+    xs={12}
+  >
+    <WithStyles(Button)
+      className="button-mock"
+      color="primary"
+      fullWidth={true}
+      onClick={[Function]}
+      variant="contained"
+    >
+      View Details
+    </WithStyles(Button)>
+  </WithStyles(Grid)>
+</WithStyles(Grid)>
+`;
