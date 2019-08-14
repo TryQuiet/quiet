@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-
+import * as R from 'ramda'
 import ChannelMessagesComponent from '../../../components/widgets/channels/ChannelMessages'
 import channelSelectors from '../../../store/selectors/channel'
 import messagesHandlers from '../../../store/handlers/messages'
@@ -11,15 +11,31 @@ export const mapStateToProps = state => ({
   messages: channelSelectors.messages(state)
 })
 
-export const mapDispatchToProps = dispatch => bindActionCreators({
-  fetchMessages: messagesHandlers.epics.fetchMessages
-}, dispatch)
+export const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    {
+      fetchMessages: messagesHandlers.epics.fetchMessages
+    },
+    dispatch
+  )
 
 export const ChannelMessages = ({ className, messages, loadMessages, fetchMessages, loader }) => {
   useInterval(fetchMessages, 15000)
+  const [scrollPosition, setScrollPosition] = React.useState(-1)
   return (
-    <ChannelMessagesComponent messages={messages} loader={loader} />
+    <ChannelMessagesComponent
+      scrollPosition={scrollPosition}
+      setScrollPosition={setScrollPosition}
+      messages={messages}
+      loader={loader}
+    />
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ChannelMessages)
+export default R.compose(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  ),
+  React.memo
+)(ChannelMessages)

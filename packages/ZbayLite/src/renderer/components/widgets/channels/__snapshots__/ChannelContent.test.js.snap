@@ -7,7 +7,7 @@ exports[`ChannelContent renders component 1`] = `
   direction="column"
   justify="center"
 >
-  <Connect(ChannelMessages) />
+  <Connect(Component) />
   <Connect(Component)
     disabled={true}
   />

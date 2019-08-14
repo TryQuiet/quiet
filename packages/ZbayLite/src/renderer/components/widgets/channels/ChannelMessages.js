@@ -26,9 +26,21 @@ const styles = theme => ({
 })
 
 // TODO: scrollbar smart pagination
-export const ChannelMessages = ({ classes, messages, measureRef, contentRect }) => {
-  const scrollbarRef = ref => ref && ref.scrollToBottom()
-
+export const ChannelMessages = ({
+  classes,
+  messages,
+  measureRef,
+  contentRect,
+  setScrollPosition,
+  scrollPosition
+}) => {
+  const scrollbarRef = ref => {
+    if (ref !== null) {
+      if (scrollPosition === -1 || scrollPosition === 1) {
+        ref.scrollToBottom()
+      }
+    }
+  }
   return (
     <RootRef rootRef={measureRef}>
       <Grid container direction='column' justify='flex-end' className={classes.wrapper}>
@@ -38,6 +50,9 @@ export const ChannelMessages = ({ classes, messages, measureRef, contentRect }) 
           autoHeightMax={contentRect.bounds.height}
           ref={scrollbarRef}
           autoHideTimeout={500}
+          onScrollFrame={e => {
+            setScrollPosition(e.top)
+          }}
         >
           <List disablePadding className={classes.list}>
             {messages.map(msg => {

@@ -22,6 +22,7 @@ exports[`ChannelMessages renders component 1`] = `
       autoHideDuration={200}
       autoHideTimeout={500}
       hideTracksWhenNotNeeded={false}
+      onScrollFrame={[Function]}
       renderThumbHorizontal={[Function]}
       renderThumbVertical={[Function]}
       renderTrackHorizontal={[Function]}
