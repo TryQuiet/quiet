@@ -58,7 +58,17 @@ module.exports = function install (config, testPageUrl) {
 
     var { Menu, dialog, app } = require('electron');
 
-    var { WebContents } = process.atomBinding('web_contents');
+    var WebContents;
+
+    if ( process.atomBinding ) {
+        // < electron 6
+        WebContents = process.atomBinding('web_contents').WebContents;
+    }
+    else {
+        // electron 6+
+        WebContents = process.electronBinding('web_contents').WebContents;
+    }
+
 
     var origLoadURL = WebContents.prototype.loadURL;
 
@@ -135,4 +145,3 @@ module.exports = function install (config, testPageUrl) {
 
     process.argv.splice(1, 2);
 };
-

@@ -12,7 +12,7 @@ var win = null;
 
 function createWindow () {
     // Create the browser window.
-    win = new BrowserWindow({ width: 1024, height: 768 });
+    win = new BrowserWindow({ width: 1024, height: 768, webPreferences: { nodeIntegration: true } });
 
     // and load the index.html of the app.
     win.webContents.loadURL('file://' + path.join(__dirname, 'index.html'));
