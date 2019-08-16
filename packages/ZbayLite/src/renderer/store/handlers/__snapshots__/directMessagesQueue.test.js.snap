@@ -1,0 +1,110 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Messages queue reducer handles actions - addMessage - removeMessage 1`] = `Immutable.Map {}`;
+
+exports[`Messages queue reducer handles actions - addMessage when empty 1`] = `
+Immutable.Map {
+  "b89604fe6bf897ccea9d76f432a3f0d90453a755ac83a7155911d526118fc895": Immutable.PendingDirectMessage {
+    "recipientAddress": "test-recipient-address",
+    "recipientUsername": "test-recipient-username",
+    "message": Immutable.Map {
+      "type": 4,
+      "spent": "0.32",
+      "sender": Immutable.Map {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Wenus",
+      },
+      "receiver": Immutable.Map {
+        "replyTo": "zs1z9rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Sun",
+      },
+      "createdAt": 1551963828,
+      "message": "test-message-id",
+    },
+  },
+}
+`;
+
+exports[`Messages queue reducer handles actions - addMessage when has matching message 1`] = `
+Immutable.Map {
+  "b89604fe6bf897ccea9d76f432a3f0d90453a755ac83a7155911d526118fc895": Immutable.PendingDirectMessage {
+    "recipientAddress": "test-recipient-address",
+    "recipientUsername": "test-recipient-username",
+    "message": Immutable.Map {
+      "type": 4,
+      "spent": "0.32",
+      "sender": Immutable.Map {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Wenus",
+      },
+      "receiver": Immutable.Map {
+        "replyTo": "zs1z9rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Sun",
+      },
+      "createdAt": 1551963828,
+      "message": "test-message-id
+test-message-id-2",
+    },
+  },
+}
+`;
+
+exports[`Messages queue reducer handles epics - checkConfirmationStatus change confirmation status of messages in vault, store should not have any pending direct messages 1`] = `Object {}`;
+
+exports[`Messages queue reducer handles epics - checkConfirmationStatus change confirmation status of messages in vault, store should not have any pending direct messages 2`] = `
+Object {
+  "address": "test-recipient-address",
+  "messages": Array [
+    Object {
+      "createdAt": "2019-03-07T13:03:48.000Z",
+      "id": "test-tx-id",
+      "message": "test-message-id",
+      "sender": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "spent": "0.32",
+      "status": "success",
+      "type": 4,
+    },
+    Object {
+      "createdAt": "2019-03-07T13:03:48.000Z",
+      "id": "test-tx-id",
+      "message": "test-message-id",
+      "sender": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "spent": "0.32",
+      "status": "confirmed",
+      "type": 4,
+    },
+  ],
+  "username": "test-recipient-username",
+}
+`;
+
+exports[`Messages queue reducer handles epics - checkConfirmationStatus polls when no finished, vault should have stored message with status success 1`] = `
+Array [
+  Array [
+    [Function],
+    60000,
+  ],
+  Array [
+    [Function],
+    60000,
+  ],
+]
+`;
+
+exports[`Messages queue reducer handles epics - checkConfirmationStatus polls when no finished, vault should have stored message with status success 2`] = `
+Object {
+  "address": "test-recipient-address",
+  "messages": Array [
+    Object {
+      "createdAt": "2019-03-07T13:03:48.000Z",
+      "id": "test-tx-id",
+      "message": "test-message-id",
+      "sender": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "spent": "0.32",
+      "status": "success",
+      "type": 4,
+    },
+  ],
+  "username": "test-recipient-username",
+}
+`;

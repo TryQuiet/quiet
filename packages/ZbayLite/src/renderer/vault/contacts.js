@@ -43,18 +43,18 @@ export default (vault) => {
     return recipientGroup
   }
 
-  const saveMessage = async ({ identityId, message, recipientAddress, recipientUsername }) => {
+  const saveMessage = async ({ identityId, message, recipientAddress, recipientUsername, status, txId }) => {
     await vault.withWorkspace(workspace => {
       const identityGroup = _getIdentityMessages({ identityId, workspace })
       const recipientGroup = _getRecipientMessages({ identityGroup, recipientAddress, recipientUsername, workspace })
-      recipientGroup.createEntry(message.id.toString())
-        .setProperty('id', message.id.toString())
+      recipientGroup.createEntry(txId)
+        .setProperty('id', txId)
         .setProperty('type', message.type.toString())
         .setProperty('sender', message.sender.replyTo)
         .setProperty('message', JSON.stringify(message.message))
         .setProperty('spent', message.spent.toString())
         .setProperty('createdAt', message.createdAt.toString())
-        .setProperty('status', message.status)
+        .setProperty('status', status)
       workspace.save()
     })
   }

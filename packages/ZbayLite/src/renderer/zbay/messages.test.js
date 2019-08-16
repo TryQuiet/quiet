@@ -87,7 +87,7 @@ describe('messages -', () => {
       const [{ memo, ...amountSent }] = amounts
       expect(amountSent).toEqual({
         address: channel.address,
-        amount
+        amount: amount.toString()
       })
 
       const sentMemo = await unpackMemo(memo)

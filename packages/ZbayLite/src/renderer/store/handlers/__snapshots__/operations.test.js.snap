@@ -114,3 +114,118 @@ Array [
   ],
 ]
 `;
+
+exports[`Operations reducer handles for direct messages actions - addOperation 1`] = `
+Immutable.Map {
+  "test-op-id-1": Immutable.Operation {
+    "opId": "test-op-id-1",
+    "type": "pendingDirectMessage",
+    "meta": Immutable.Record {
+      "message": Immutable.Map {
+        "type": 4,
+        "spent": "0.32",
+        "sender": Immutable.Map {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+          "username": "Wenus",
+        },
+        "receiver": Immutable.Map {
+          "replyTo": "zs1z9rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+          "username": "Sun",
+        },
+        "createdAt": 1551963828,
+        "message": undefined,
+      },
+      "recipientAddress": "ztestsapling18qgdx9qtwyrawas5yc9mcm7wrx6ukn5unkdkz3dryufum2gjnt8me2kql6nvhca3vdv2704ud4t",
+      "recipientUsername": "",
+    },
+    "txId": null,
+    "error": null,
+    "status": "pending",
+  },
+}
+`;
+
+exports[`Operations reducer handles for direct messages actions - removeOperation 1`] = `Immutable.Map {}`;
+
+exports[`Operations reducer handles for direct messages actions - removeOperations by txId 1`] = `undefined`;
+
+exports[`Operations reducer handles for direct messages actions - resolveOperation - when error 1`] = `
+Immutable.Map {
+  "test-op-id-1": Immutable.Operation {
+    "opId": "test-op-id-1",
+    "type": "pendingDirectMessage",
+    "meta": Immutable.Record {
+      "message": Immutable.Map {
+        "type": 4,
+        "spent": "0.32",
+        "sender": Immutable.Map {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+          "username": "Wenus",
+        },
+        "receiver": Immutable.Map {
+          "replyTo": "zs1z9rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+          "username": "Sun",
+        },
+        "createdAt": 1551963828,
+        "message": undefined,
+      },
+      "recipientAddress": "ztestsapling18qgdx9qtwyrawas5yc9mcm7wrx6ukn5unkdkz3dryufum2gjnt8me2kql6nvhca3vdv2704ud4t",
+      "recipientUsername": "",
+    },
+    "txId": null,
+    "error": Immutable.ZcashError {
+      "code": -4,
+      "message": "Some error",
+    },
+    "status": "failed",
+  },
+}
+`;
+
+exports[`Operations reducer handles for direct messages actions - resolveOperation - when success 1`] = `
+Immutable.Map {
+  "test-op-id-1": Immutable.Operation {
+    "opId": "test-op-id-1",
+    "type": "pendingDirectMessage",
+    "meta": Immutable.Record {
+      "message": Immutable.Map {
+        "type": 4,
+        "spent": "0.32",
+        "sender": Immutable.Map {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+          "username": "Wenus",
+        },
+        "receiver": Immutable.Map {
+          "replyTo": "zs1z9rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+          "username": "Sun",
+        },
+        "createdAt": 1551963828,
+        "message": undefined,
+      },
+      "recipientAddress": "ztestsapling18qgdx9qtwyrawas5yc9mcm7wrx6ukn5unkdkz3dryufum2gjnt8me2kql6nvhca3vdv2704ud4t",
+      "recipientUsername": "",
+    },
+    "txId": "test-tx-id",
+    "error": null,
+    "status": "success",
+  },
+}
+`;
+
+exports[`Operations reducer handles for direct messages epics - observeOperation calls callback funtion with proper parameters 1`] = `
+Array [
+  Array [
+    Object {
+      "dispatch": [Function],
+      "error": Object {
+        "code": -1,
+        "message": "no error",
+      },
+      "getState": [Function],
+      "opId": "test-op-id-1",
+      "status": "success",
+      "txId": "test-tx-id",
+    },
+  ],
+]
+`;

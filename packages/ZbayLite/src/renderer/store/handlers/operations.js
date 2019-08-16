@@ -29,9 +29,16 @@ export const PendingMessageOp = Immutable.Record({
   channelId: ''
 })
 
+export const PendingDirectMessageOp = Immutable.Record({
+  message: Immutable.Map(),
+  recipientAddress: '',
+  recipientUsername: ''
+})
+
 export const operationTypes = {
   shieldBalance: 'shieldBalance',
-  pendingMessage: 'pendingMessage'
+  pendingMessage: 'pendingMessage',
+  pendingDirectMessage: 'pendingDirectMessage'
 }
 
 export const Operation = Immutable.Record({
@@ -53,7 +60,7 @@ export const actions = {
   removeOperation
 }
 
-const observeOperation = ({ opId, type, meta }) => async (dispatch) => {
+const observeOperation = ({ opId, type, meta, checkConfirmationNumber }) => async (dispatch, getState) => {
   dispatch(addOperation({ opId, type, meta }))
 
   const subscribe = async (callback) => {
@@ -74,6 +81,9 @@ const observeOperation = ({ opId, type, meta }) => async (dispatch) => {
 
   return subscribe((error, { status, txId }) => {
     dispatch(resolveOperation({ opId, status, txId, error }))
+    if (checkConfirmationNumber) {
+      checkConfirmationNumber({ opId, status, txId, getState, dispatch, error })
+    }
   })
 }
 

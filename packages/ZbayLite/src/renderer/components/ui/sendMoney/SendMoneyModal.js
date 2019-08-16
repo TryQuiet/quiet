@@ -57,20 +57,21 @@ export const SendMoneyModal = ({
   rateZec,
   feeZec = 0.001,
   feeUsd = rateUsd.times(feeZec).toNumber(),
-  userData
+  userData,
+  sendMessageHandler
 }) => {
   const StepComponent = stepToComponent[step]
   return (
     <Formik
       onSubmit={(values, { resetForm }) => {
-        createTransfer({
+        const messageToTransfer = createTransfer({
           ...values,
           sender: {
             address: userData.address,
             name: userData.name
           }
         })
-        // Send to handler
+        sendMessageHandler(messageToTransfer.toJS())
       }}
       validationSchema={formSchema}
       initialValues={initialValues}
@@ -140,7 +141,8 @@ SendMoneyModal.propTypes = {
   feeZec: PropTypes.number,
   feeUsd: PropTypes.number,
   handleClose: PropTypes.func.isRequired,
-  userData: PropTypes.object.isRequired
+  userData: PropTypes.object.isRequired,
+  sendMessageHandler: PropTypes.func.isRequired
 }
 
 SendMoneyModal.defaultProps = {

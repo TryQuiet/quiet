@@ -10,7 +10,13 @@ const pendingMessages = createSelector(
   ops => ops.filter(o => o.type === operationTypes.pendingMessage)
 )
 
+const pendingDirectMessages = createSelector(
+  operations,
+  ops => ops.filter(o => o.type === operationTypes.pendingDirectMessage)
+)
+
 export default {
   operations,
-  pendingMessages
+  pendingMessages,
+  pendingDirectMessages
 }

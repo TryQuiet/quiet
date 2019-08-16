@@ -11,6 +11,7 @@ import vaultHandlers from './handlers/vault'
 import modalsHandlers from './handlers/modals'
 import operationsHandlers from './handlers/operations'
 import messagesQueueHandlers from './handlers/messagesQueue'
+import directMessagesQueueHandlers from './handlers/directMessagesQueue'
 import criticalErrorHandlers from './handlers/criticalError'
 import appHandlers from './handlers/app'
 import messagesHandlers from './handlers/messages'
@@ -21,6 +22,7 @@ export default combineReducers({
   app: appHandlers.reducer,
   operations: operationsHandlers.reducer,
   messagesQueue: messagesQueueHandlers.reducer,
+  directMessagesQueue: directMessagesQueueHandlers.reducer,
   modals: modalsHandlers.reducer,
   identity: identityHandlers.reducer,
   notifications: notificationsHandlers.reducer,

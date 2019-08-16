@@ -1,7 +1,9 @@
+
 import Immutable from 'immutable'
 import { DateTime } from 'luxon'
 import { createAction, handleActions } from 'redux-actions'
 import * as R from 'ramda'
+import BigNumber from 'bignumber.js'
 
 import identitySelectors from '../selectors/identity'
 import nodeSelectors from '../selectors/node'
@@ -11,6 +13,22 @@ import { getClient } from '../../zcash'
 import { getVault } from '../../vault'
 import { displayDirectMessageNotification } from '../../notifications'
 import { ReceivedMessage } from './messages'
+import directMessagesQueueHandlers from './directMessagesQueue'
+
+const sendDirectMessage = (payload) => async (dispatch, getState) => {
+  const { spent, type, message: messageData } = payload
+  const message = zbayMessages.createMessage({
+    identity: identitySelectors.data(getState()).toJS(),
+    messageData: {
+      type,
+      data: messageData,
+      spent: new BigNumber(spent)
+    }
+  })
+  const { replyTo: recipientAddress, username: recipientUsername } = payload.receiver
+  console.log(message, recipientAddress, recipientUsername)
+  dispatch(directMessagesQueueHandlers.epics.addDirectMessage({ message, recipientAddress, recipientUsername }))
+}
 
 const initialState = Immutable.Map()
 
@@ -85,7 +103,8 @@ export const updateLastSeen = ({ contact }) => async (dispatch, getState) => {
 
 export const epics = {
   fetchMessages,
-  updateLastSeen
+  updateLastSeen,
+  sendDirectMessage
 }
 
 export const reducer = handleActions({

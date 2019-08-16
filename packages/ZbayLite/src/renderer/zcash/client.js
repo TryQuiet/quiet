@@ -6,6 +6,7 @@ import accounting from './accounting'
 import payment from './payment'
 import keys from './keys'
 import operations from './operations'
+import confirmations from './confirmations'
 
 export default function Zcash (config) {
   const RequestManager = config.requestManager || JRPC
@@ -16,4 +17,5 @@ export default function Zcash (config) {
   this.payment = payment(this)
   this.keys = keys(this)
   this.operations = operations(this)
+  this.confirmations = confirmations(this)
 }

@@ -106,6 +106,7 @@ export const transferToMessage = async ({ txid, amount, memo }, isTestnet) => {
 
 export const createMessage = ({ messageData, identity }) => ({
   type: messageData.type,
+  spent: messageData.spent,
   sender: {
     replyTo: identity.address,
     username: identity.name
@@ -132,14 +133,14 @@ export const createTransfer = (values) => (DisplayableMessage({
   error: null
 }))
 
-export const messageToTransfer = async ({ message, channel, amount = '0.0001' }) => {
+export const messageToTransfer = async ({ message, channel, amount = '0.0001', recipientAddress }) => {
   const memo = await packMemo(message)
   return {
     from: message.sender.replyTo,
     amounts: [
       {
-        address: channel.address,
-        amount: amount,
+        address: recipientAddress || channel.address,
+        amount: amount.toString(),
         memo
       }
     ]

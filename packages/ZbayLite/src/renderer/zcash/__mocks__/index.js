@@ -12,7 +12,8 @@ const requestManager = {
   z_getnewaddress: jest.fn(async (type) => `${type}-private-address`),
   getnewaddress: jest.fn(async () => 'transparent-address'),
   dumpprivkey: jest.fn(async (address) => `${address}-private-key`),
-  importprivkey: jest.fn(async (address) => `${address}-private-key`)
+  importprivkey: jest.fn(async (address) => `${address}-private-key`),
+  gettransaction: jest.fn(async () => null)
 }
 
 const client = new Zcash({ requestManager: jest.fn(() => requestManager) })
