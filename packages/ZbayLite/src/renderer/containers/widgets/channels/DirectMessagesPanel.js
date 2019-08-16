@@ -7,6 +7,7 @@ import DirectMessagesPanelComponent from '../../../components/widgets/channels/D
 
 import contactsSelectors from '../../../store/selectors/contacts'
 import contactsHandlers from '../../../store/handlers/contacts'
+import { useInterval } from '../../hooks'
 
 export const mapStateToProps = state => ({
   channels: contactsSelectors.contacts(state).toList()
@@ -21,9 +22,10 @@ export const mapDispatchToProps = dispatch => {
   )
 }
 
-export const DirectMessagesPanel = ({ channels, isLoading, fetchMessages }) => (
-  <DirectMessagesPanelComponent isLoading={isLoading} channels={channels} />
-)
+export const DirectMessagesPanel = ({ channels, isLoading, fetchMessages }) => {
+  useInterval(fetchMessages, 15000)
+  return <DirectMessagesPanelComponent isLoading={isLoading} channels={channels} />
+}
 
 export default R.compose(
   connect(

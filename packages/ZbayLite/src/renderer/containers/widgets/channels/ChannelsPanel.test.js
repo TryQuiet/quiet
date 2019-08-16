@@ -1,7 +1,7 @@
 import Immutable from 'immutable'
 
 import { ChannelsState } from '../../../store/handlers/channels'
-import { mapStateToProps } from './ChannelsPanel'
+import { mapStateToProps, mapDispatchToProps } from './ChannelsPanel'
 import { createChannel } from '../../../testUtils'
 import create from '../../../store/create'
 
@@ -13,10 +13,7 @@ describe('ChannelsPanel', () => {
     store = create({
       initialState: Immutable.Map({
         channels: ChannelsState({
-          data: Immutable.fromJS([
-            createChannel(1),
-            createChannel(2)
-          ])
+          data: Immutable.fromJS([createChannel(1), createChannel(2)])
         })
       })
     })
@@ -25,5 +22,9 @@ describe('ChannelsPanel', () => {
   it('will receive right props', async () => {
     const props = mapStateToProps(store.getState())
     expect(props).toMatchSnapshot()
+  })
+  it('will receive right actions', () => {
+    const actions = mapDispatchToProps(x => x)
+    expect(actions).toMatchSnapshot()
   })
 })

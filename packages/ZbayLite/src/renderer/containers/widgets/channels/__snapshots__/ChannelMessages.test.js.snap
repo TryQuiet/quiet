@@ -1,17 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ChannelInput will receive right actions for channel 1`] = `
-Object {
-  "fetchMessages": [Function],
-}
-`;
-
-exports[`ChannelInput will receive right actionsfor direct message 1`] = `
-Object {
-  "fetchMessages": [Function],
-}
-`;
-
 exports[`ChannelInput will receive right props for channel 1`] = `
 Object {
   "messages": Immutable.List [

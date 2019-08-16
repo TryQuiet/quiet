@@ -1,13 +1,9 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
 import * as R from 'ramda'
 import ChannelMessagesComponent from '../../../components/widgets/channels/ChannelMessages'
 import channelSelectors from '../../../store/selectors/channel'
 import contactsSelectors from '../../../store/selectors/contacts'
-import messagesHandlers from '../../../store/handlers/messages'
-import contactsHandlers from '../../../store/handlers/contacts'
-import { useInterval } from '../../hooks'
 
 export const mapStateToProps = (state, { contactId }) => {
   return {
@@ -17,18 +13,7 @@ export const mapStateToProps = (state, { contactId }) => {
   }
 }
 
-export const mapDispatchToProps = (dispatch, { contactId }) => {
-  return bindActionCreators(
-    {
-      fetchMessages: contactId
-        ? contactsHandlers.epics.fetchMessages
-        : messagesHandlers.epics.fetchMessages
-    },
-    dispatch
-  )
-}
-export const ChannelMessages = ({ className, messages, loadMessages, fetchMessages, loader }) => {
-  useInterval(fetchMessages, 15000)
+export const ChannelMessages = ({ className, messages, loadMessages, loader }) => {
   const [scrollPosition, setScrollPosition] = React.useState(-1)
   return (
     <ChannelMessagesComponent
@@ -42,8 +27,7 @@ export const ChannelMessages = ({ className, messages, loadMessages, fetchMessag
 
 export default R.compose(
   connect(
-    mapStateToProps,
-    mapDispatchToProps
+    mapStateToProps
   ),
   React.memo
 )(ChannelMessages)

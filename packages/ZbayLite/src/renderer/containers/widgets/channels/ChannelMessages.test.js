@@ -4,7 +4,7 @@ import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
 import * as R from 'ramda'
 
-import { mapStateToProps, mapDispatchToProps } from './ChannelMessages'
+import { mapStateToProps } from './ChannelMessages'
 
 import { createReceivedMessage, now } from '../../../testUtils'
 import create from '../../../store/create'
@@ -54,18 +54,8 @@ describe('ChannelInput', () => {
     expect(props).toMatchSnapshot()
   })
 
-  it('will receive right actions for channel', () => {
-    const actions = mapDispatchToProps(x => x, {})
-    expect(actions).toMatchSnapshot()
-  })
-
   it('will receive right props for direct message', async () => {
     const props = mapStateToProps(store.getState(), { contactId: 'address123' })
     expect(props).toMatchSnapshot()
-  })
-
-  it('will receive right actionsfor direct message', () => {
-    const actions = mapDispatchToProps(x => x, { contactId: 'address123' })
-    expect(actions).toMatchSnapshot()
   })
 })
