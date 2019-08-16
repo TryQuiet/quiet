@@ -16,7 +16,7 @@ const styles = theme => ({
   icon: {}
 })
 
-export const MenuAction = ({ classes, IconButton, Icon, children, offset, disabled }) => {
+export const MenuAction = ({ classes, IconButton, Icon, children, offset, disabled, onClick }) => {
   const [open, setOpen] = useState(false)
   const [anchor, setAnchor] = useState(React.createRef())
   const closeMenu = () => setOpen(false)
@@ -27,7 +27,7 @@ export const MenuAction = ({ classes, IconButton, Icon, children, offset, disabl
         <IconButton
           className={classes.button}
           buttonRef={setAnchor}
-          onClick={toggleMenu}
+          onClick={onClick || toggleMenu}
           disabled={disabled}
           disableRipple
         >
@@ -53,12 +53,13 @@ MenuAction.propTypes = {
   Icon: PropTypes.elementType.isRequired,
   children: PropTypes.arrayOf(
     PropTypes.element
-  ).isRequired,
+  ),
   offset: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.number
   ]),
-  disabled: PropTypes.bool.isRequired
+  disabled: PropTypes.bool.isRequired,
+  onClick: PropTypes.func
 }
 
 MenuAction.defaultProps = {

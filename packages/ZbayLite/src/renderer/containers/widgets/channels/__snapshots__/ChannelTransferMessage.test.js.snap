@@ -10,5 +10,6 @@ Object {
 exports[`ChannelMessage will receive right props 1`] = `
 Object {
   "rateUsd": "1",
+  "userAddress": "123445",
 }
 `;

@@ -8,25 +8,27 @@ import Page from '../ui/page/Page'
 import PageHeader from '../ui/page/PageHeader'
 
 import ChannelHeader from '../../containers/widgets/channels/ChannelHeader'
+import DirectMessagesHeader from '../../containers/widgets/channels/DirectMessagesHeader'
 import ChannelContent from '../../containers/widgets/channels/ChannelContent'
 
 const styles = {
   root: {}
 }
 
-export const Channel = ({ classes }) => (
+export const Channel = ({ classes, contactId }) => (
   <Page>
     <PageHeader>
-      <ChannelHeader />
+      {contactId ? <DirectMessagesHeader contactId={contactId} /> : <ChannelHeader />}
     </PageHeader>
     <PageContent>
-      <ChannelContent />
+      <ChannelContent contactId={contactId} />
     </PageContent>
   </Page>
 )
 
 Channel.propTypes = {
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
+  contactId: PropTypes.string
 }
 
 export default withStyles(styles)(Channel)

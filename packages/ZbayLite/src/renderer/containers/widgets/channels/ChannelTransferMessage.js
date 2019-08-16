@@ -5,9 +5,11 @@ import operationsHandlers from '../../../store/handlers/operations'
 import channelHandlers from '../../../store/handlers/channel'
 import ChannelTransferMessage from '../../../components/widgets/channels/ChannelTransferMessage'
 import { rate } from '../../../store/selectors/rates'
+import identitySelectors from '../../../store/selectors/identity'
 
 export const mapStateToProps = state => ({
-  rateUsd: rate('usd')(state)
+  rateUsd: rate('usd')(state),
+  userAddress: identitySelectors.address(state)
 })
 
 export const mapDispatchToProps = (dispatch, ownProps) =>

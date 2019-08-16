@@ -81,7 +81,7 @@ export const messageSchema = Yup.object().shape({
     username: Yup.string()
   }).required(),
   createdAt: Yup.number().required(),
-  message: Yup.string().required()
+  message: Yup.string()
 })
 
 export const transferToMessage = async ({ txid, amount, memo }, isTestnet) => {

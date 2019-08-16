@@ -1,9 +1,9 @@
 /* eslint import/first: 0 */
 jest.mock('../../../vault')
 import Immutable from 'immutable'
-import Bignumber from 'bignumber.js'
+import BigNumber from 'bignumber.js'
 import { mapDispatchToProps, mapStateToProps } from './ChannelTransferMessage'
-
+import { IdentityState, Identity } from '../../../store/handlers/identity'
 import create from '../../../store/create'
 
 describe('ChannelMessage', () => {
@@ -14,8 +14,13 @@ describe('ChannelMessage', () => {
     store = create({
       initialState: Immutable.Map({
         rates: Immutable.Map({
-          usd: new Bignumber(1),
-          zec: new Bignumber(1)
+          usd: new BigNumber(1),
+          zec: new BigNumber(1)
+        }),
+        identity: IdentityState({
+          data: Identity({
+            address: '123445'
+          })
         })
       })
     })

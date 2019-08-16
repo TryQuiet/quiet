@@ -29,6 +29,7 @@ describe('ChannelTransferMessage', () => {
         onReply={jest.fn()}
         onCancel={jest.fn()}
         rateUsd={new Bignumber(1)}
+        userAddress='zs1testaddress1234'
       />
     )
     expect(result).toMatchSnapshot()
@@ -44,6 +45,7 @@ describe('ChannelTransferMessage', () => {
         onReply={jest.fn()}
         onCancel={jest.fn()}
         rateUsd={new Bignumber(1)}
+        userAddress='zs1testaddress1234'
       />
     )
     expect(result).toMatchSnapshot()
@@ -58,6 +60,7 @@ describe('ChannelTransferMessage', () => {
         onReply={jest.fn()}
         onCancel={jest.fn()}
         rateUsd={new Bignumber(1)}
+        userAddress='zs1testaddress1234'
       />
     )
     expect(result).toMatchSnapshot()
@@ -72,6 +75,7 @@ describe('ChannelTransferMessage', () => {
         onReply={jest.fn()}
         onCancel={jest.fn()}
         rateUsd={new Bignumber(1)}
+        userAddress='zs1testaddress1234'
       />
     )
     expect(result).toMatchSnapshot()
@@ -86,6 +90,7 @@ describe('ChannelTransferMessage', () => {
         onReply={jest.fn()}
         onCancel={jest.fn()}
         rateUsd={new Bignumber(1)}
+        userAddress='zs1testaddress1234'
       />
     )
     expect(result).toMatchSnapshot()
@@ -100,6 +105,7 @@ describe('ChannelTransferMessage', () => {
         onReply={jest.fn()}
         onCancel={jest.fn()}
         rateUsd={new Bignumber(1)}
+        userAddress='zs1testaddress1234'
       />
     )
     expect(result).toMatchSnapshot()
@@ -116,6 +122,7 @@ describe('ChannelTransferMessage', () => {
         onReply={jest.fn()}
         onCancel={jest.fn()}
         rateUsd={new Bignumber(1)}
+        userAddress='zs1testaddress1234'
       />
     )
     expect(result).toMatchSnapshot()

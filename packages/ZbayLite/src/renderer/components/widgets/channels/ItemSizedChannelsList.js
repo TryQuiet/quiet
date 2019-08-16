@@ -4,18 +4,22 @@ import PropTypes from 'prop-types'
 
 import BaseChannelsList, { getItemSize } from './BaseChannelsList'
 
-export const ItemSizedChannelsList = ({ channels, itemsCount, displayAddress }) => (
-  <BaseChannelsList
-    height={itemsCount * getItemSize(displayAddress)}
-    channels={channels}
-    displayAddress={displayAddress}
-  />
-)
+export const ItemSizedChannelsList = ({ channels, itemsCount, displayAddress, directMessages }) => {
+  return (
+    <BaseChannelsList
+      height={itemsCount * getItemSize(displayAddress)}
+      channels={channels}
+      displayAddress={displayAddress}
+      directMessages={directMessages}
+    />
+  )
+}
 
 ItemSizedChannelsList.propTypes = {
   channels: PropTypes.instanceOf(Immutable.List),
   displayAddress: PropTypes.bool,
-  itemsCount: PropTypes.number
+  itemsCount: PropTypes.number,
+  directMessages: PropTypes.bool
 }
 
 ItemSizedChannelsList.defaultProps = {

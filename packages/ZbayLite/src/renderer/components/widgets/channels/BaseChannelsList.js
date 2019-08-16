@@ -23,39 +23,37 @@ export const propTypes = {
   })
 }
 
-export const getItemSize = displayAddress => (
-  displayAddress
-    ? constants.itemWithSecondarySize
-    : constants.itemSize
-)
+export const getItemSize = displayAddress =>
+  displayAddress ? constants.itemWithSecondarySize : constants.itemSize
 
-export const BaseChannelsList = ({ channels, height, displayAddress }) => (
-  <Scrollbars
-    autoHide
-    style={{ height }}
-    autoHideTimeout={500}
-  >
-    <List disablePadding>
-      {
-        channels.map(
-          channel => (
-            <ChannelsListItem key={channel.get('id')} channel={channel} displayAddress={displayAddress} />
-          )
-        )
-      }
-    </List>
-  </Scrollbars>
-)
+export const BaseChannelsList = ({ channels, height, displayAddress, directMessages }) => {
+  return (
+    <Scrollbars autoHide style={{ height }} autoHideTimeout={500}>
+      <List disablePadding>
+        {channels.map(channel => (
+          <ChannelsListItem
+            key={directMessages ? channel.get('address') : channel.get('id')}
+            channel={channel}
+            displayAddress={displayAddress}
+            directMessages={directMessages}
+          />
+        ))}
+      </List>
+    </Scrollbars>
+  )
+}
 
 BaseChannelsList.propTypes = {
   height: PropTypes.number.isRequired,
   channels: PropTypes.instanceOf(Immutable.List).isRequired,
-  displayAddress: PropTypes.bool
+  displayAddress: PropTypes.bool,
+  directMessages: PropTypes.bool
 }
 
 BaseChannelsList.defaultProps = {
   channels: Immutable.List(),
-  displayAddress: false
+  displayAddress: false,
+  directMessages: false
 }
 
 export default React.memo(BaseChannelsList)

@@ -8,7 +8,7 @@ import NodePanel from '../../../containers/widgets/node/NodePanel'
 import IdentityPanel from '../../../containers/ui/IdentityPanel'
 import WalletPanel from '../../../containers/widgets/walletPanel/WalletPanel'
 import ChannelsPanel from '../../../containers/widgets/channels/ChannelsPanel'
-// import DirectMessagesPanel from '../channels/DirectMessagesPanel'
+import DirectMessagesPanel from '../../../containers/widgets/channels/DirectMessagesPanel'
 
 const styles = theme => ({
   root: {
@@ -37,7 +37,7 @@ const Sidebar = ({ classes }) => (
     <IdentityPanel />
     <WalletPanel />
     <ChannelsPanel />
-    {/* <DirectMessagesPanel channels={channels} /> */}
+    <DirectMessagesPanel />
     <NodePanel hexColor='#cca92c' className={classes.statusBar} />
   </Grid>
 )

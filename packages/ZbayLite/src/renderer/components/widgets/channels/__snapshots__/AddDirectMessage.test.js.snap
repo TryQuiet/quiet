@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AddDirectMessage renders component 1`] = `
+<Fragment>
+  <WithStyles(MenuAction)
+    Icon={[Function]}
+    IconButton={[Function]}
+    classes={
+      Object {
+        "button": "button-mock",
+        "icon": "icon-mock",
+      }
+    }
+    offset="0 8"
+  />
+</Fragment>
+`;

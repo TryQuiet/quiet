@@ -38,12 +38,16 @@ const styles = theme => ({
   }
 })
 
-export const ChannelsListItem = ({ classes, channel, displayAddress, history }) => {
+export const ChannelsListItem = ({ classes, channel, displayAddress, history, directMessages }) => {
   const channelObj = channel.toJS()
   return (
     <ListItem
       button
-      onClick={() => history.push(`/main/channel/${channelObj.id}`)}
+      onClick={() => {
+        history.push(
+          `/main/${directMessages ? `direct-messages/${channelObj.address}` : `channel/${channelObj.id}`}/`
+        )
+      }}
       className={classes.root}
       alignItems={displayAddress ? 'flex-start' : 'center'}
     >
@@ -53,18 +57,20 @@ export const ChannelsListItem = ({ classes, channel, displayAddress, history }) 
       <ListItemText
         primary={
           <Badge
-            badgeContent={channelObj.unread}
+            badgeContent={directMessages ? channelObj.newMessages.length : channelObj.unread}
             classes={{
               badge: classes.badge
             }}
           >
-            {channelObj.name}
+            {directMessages ? channelObj.username : channelObj.name}
           </Badge>
         }
         secondary={
-          displayAddress
-            ? <Elipsis tooltipPlacement='bottom' content={channelObj.address} length={30} />
-            : ''
+          displayAddress ? (
+            <Elipsis tooltipPlacement='bottom' content={channelObj.address} length={30} />
+          ) : (
+            ''
+          )
         }
         className={classes.itemText}
         secondaryTypographyProps={{ variant: 'caption' }}
@@ -75,12 +81,17 @@ export const ChannelsListItem = ({ classes, channel, displayAddress, history }) 
 }
 ChannelsListItem.propTypes = {
   classes: PropTypes.object.isRequired,
-  channel: PropTypes.instanceOf(Immutable.Map).isRequired,
-  displayAddress: PropTypes.bool
+  channel: PropTypes.oneOfType([
+    PropTypes.instanceOf(Immutable.Map),
+    PropTypes.instanceOf(Immutable.Record)
+  ]).isRequired,
+  displayAddress: PropTypes.bool,
+  directMessages: PropTypes.bool
 }
 
 ChannelsListItem.defaultProps = {
-  displayAddress: false
+  displayAddress: false,
+  directMessages: false
 }
 
 export default R.compose(

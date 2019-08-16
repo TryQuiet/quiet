@@ -21,6 +21,11 @@ exports[`Main renders component 1`] = `
         exact={true}
         path="test/channel/:id"
       />
+      <Route
+        component={[Function]}
+        exact={true}
+        path="test/direct-messages/:id"
+      />
     </WithStyles(Grid)>
   </WithStyles(Grid)>
 </Memo(WithStyles(WindowWrapper))>

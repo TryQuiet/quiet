@@ -4,7 +4,7 @@ import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
 import * as R from 'ramda'
 
-import { mapStateToProps } from './ChannelMessages'
+import { mapStateToProps, mapDispatchToProps } from './ChannelMessages'
 
 import { createReceivedMessage, now } from '../../../testUtils'
 import create from '../../../store/create'
@@ -24,21 +24,48 @@ describe('ChannelInput', () => {
           members: new BigNumber(0),
           message: 'This is a test message'
         }),
+        contacts: Immutable.Map({
+          address123: {
+            messages: ['123', '124']
+          }
+        }),
         messages: Immutable.Map({
           [channelId]: ChannelMessages({
-            messages: Immutable.List(Immutable.fromJS(
-              R.range(0, 4).map(id => ReceivedMessage(
-                createReceivedMessage({ id, createdAt: now.minus({ hours: 2 * id }).toSeconds() })
-              ))
-            ))
+            messages: Immutable.List(
+              Immutable.fromJS(
+                R.range(0, 4).map(id =>
+                  ReceivedMessage(
+                    createReceivedMessage({
+                      id,
+                      createdAt: now.minus({ hours: 2 * id }).toSeconds()
+                    })
+                  )
+                )
+              )
+            )
           })
         })
       })
     })
   })
 
-  it('will receive right props', async () => {
-    const props = mapStateToProps(store.getState())
+  it('will receive right props for channel', async () => {
+    const props = mapStateToProps(store.getState(), {})
     expect(props).toMatchSnapshot()
+  })
+
+  it('will receive right actions for channel', () => {
+    const actions = mapDispatchToProps(x => x, {})
+    expect(actions).toMatchSnapshot()
+  })
+
+  it('will receive right props for direct message', async () => {
+    const props = mapStateToProps(store.getState(), { contactId: 'address123' })
+    expect(props).toMatchSnapshot()
+  })
+
+  it('will receive right actionsfor direct message', () => {
+    const actions = mapDispatchToProps(x => x, { contactId: 'address123' })
+    expect(actions).toMatchSnapshot()
   })
 })

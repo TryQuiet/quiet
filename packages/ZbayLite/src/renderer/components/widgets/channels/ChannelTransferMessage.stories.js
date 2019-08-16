@@ -46,6 +46,7 @@ storiesOf('Components/Widgets/Channels/ChannelTransferMessage', module)
         onReply={action('Replying')}
         onCancel={action('Cancelling')}
         rateUsd={new BigNumber(2.6)}
+        userAddress='zs1testaddress1234'
       />
     )
   })

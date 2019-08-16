@@ -7,7 +7,11 @@ exports[`DirectMessagesPanel renders component 1`] = `
   item={true}
 >
   <Memo(WithStyles(SidebarHeader))
-    actions={Array []}
+    actions={
+      Array [
+        <Connect(WithStyles(Component)) />,
+      ]
+    }
     title="Direct Messages"
   />
   <Memo(ItemSizedChannelsList)
@@ -59,6 +63,7 @@ exports[`DirectMessagesPanel renders component 1`] = `
         },
       ]
     }
+    directMessages={true}
     displayAddress={true}
     itemsCount={4}
   />

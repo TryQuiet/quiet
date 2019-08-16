@@ -57,18 +57,18 @@ export const ChannelTransferMessage = ({
   rateUsd,
   onResend,
   onReply,
-  onCancel
+  onCancel,
+  userAddress
 }) => {
   const [actionsOpen, setActionsOpen] = useState(false)
-
   const tnx = message.id
   const spentZec = message.spent
   const spentUsd = rateUsd.times(new BigNumber(spentZec || 0)).toFormat(2)
   const info = message.message
-  const receiver = message.receiver
+  const receiver = message.receiver || { username: '', replyTo: '' } // until we merge messages from vault
   const receiverUsername = receiver.username || 'Not Defined'
   const fromYou = message.fromYou || false
-  const toYou = message.sender.replyTo === message.receiver.replyTo || false
+  const toYou = userAddress === receiver.replyTo || false
 
   const status = message.status || 'broadcasted'
   const error = message.error
@@ -189,7 +189,8 @@ ChannelTransferMessage.propTypes = {
   onResend: PropTypes.func,
   onCancel: PropTypes.func,
   onReply: PropTypes.func,
-  rateUsd: PropTypes.instanceOf(BigNumber)
+  rateUsd: PropTypes.instanceOf(BigNumber),
+  userAddress: PropTypes.string.isRequired
 }
 
 export default R.compose(
