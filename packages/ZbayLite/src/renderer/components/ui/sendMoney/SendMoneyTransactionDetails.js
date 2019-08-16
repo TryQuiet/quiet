@@ -82,7 +82,7 @@ export const SendMoneyTransactionDetails = ({
       </Grid>
       <Grid item xs={8}>
         <Typography variant='body1'>
-          {parseInt(amountZec) + feeZec} ZEC (${(parseInt(amountUsd) + feeUsd).toFixed(4)} USD)
+          {parseFloat(amountZec) + feeZec} ZEC (${(parseFloat(amountUsd) + feeUsd).toFixed(4)} USD)
         </Typography>
       </Grid>
       {!(step === 4) && (
