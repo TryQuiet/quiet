@@ -7,6 +7,7 @@ import {
   credentialsToDatasource,
   credentialsToWorkspace
 } from './marshalling'
+import * as validateArchive from './validateArchive'
 import { Credentials, Datasources, Workspace } from '../vendor/buttercup'
 
 describe('marshalling', () => {
@@ -104,6 +105,8 @@ describe('marshalling', () => {
     })
 
     it('loads archive', async () => {
+      const mockValidation = jest.spyOn(validateArchive, 'validateArchiveGroups')
+      mockValidation.mockImplementation(() => {})
       const sourceCredentials = new Credentials()
       sourceCredentials.getValueOrFail.mockImplementationOnce((key) => key === 'datasource' && datasourceObj)
       const archiveCredentials = new Credentials()
@@ -112,10 +115,10 @@ describe('marshalling', () => {
       }
       Datasources.objectToDatasource.mockReturnValue(datasourceMock)
       Workspace.prototype.setArchive.mockImplementation((...args) => expect(args).toMatchSnapshot())
-
-      expect.assertions(2)
+      expect.assertions(3)
       await credentialsToWorkspace({ sourceCredentials, archiveCredentials })
       expect(datasourceMock.load).toHaveBeenCalled()
+      expect(mockValidation).toHaveBeenCalled()
     })
   })
 })

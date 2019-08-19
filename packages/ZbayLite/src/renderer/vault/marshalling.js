@@ -1,20 +1,23 @@
 import { Archive, Workspace, Credentials, Datasources } from '../vendor/buttercup'
+import { validateArchiveGroups } from './validateArchive'
+
+export const archiveGroups = ['Identities', 'Channels', 'Contacts']
 
 export const createArchive = () => {
   const archive = new Archive()
-  archive.createGroup('Identities')
-  archive.createGroup('Channels')
-  archive.createGroup('Contacts')
+  archiveGroups.forEach(group => {
+    archive.createGroup(group)
+  })
+
   return archive
 }
 
 export const credentialsToDatasource = ({ sourceCredentials }) => {
   const datasourceDescriptionRaw = sourceCredentials.getValueOrFail('datasource')
-  const datasourceDescription = (
+  const datasourceDescription =
     typeof datasourceDescriptionRaw === 'string'
       ? JSON.parse(datasourceDescriptionRaw)
       : datasourceDescriptionRaw
-  )
 
   if (typeof datasourceDescription.type !== 'string') {
     throw new Error('Invalid or missing type')
@@ -36,6 +39,7 @@ export const credentialsToWorkspace = async ({
   } else {
     const history = await datasource.load(archiveCredentials)
     archive = Archive.createFromHistory(history)
+    validateArchiveGroups(archive)
   }
   const workspace = new Workspace()
   workspace.setArchive(archive, datasource, archiveCredentials)
