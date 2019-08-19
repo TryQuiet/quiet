@@ -55,7 +55,7 @@ exports[`SendMoneyForm renders component when valid = false 1`] = `
           />
           <WithStyles(Typography)
             className="value-mock"
-            variant="title"
+            variant="h6"
           >
             Zcash Wallet
           </WithStyles(Typography)>
@@ -77,7 +77,7 @@ exports[`SendMoneyForm renders component when valid = false 1`] = `
           >
             <WithStyles(Typography)
               className="balanceZec-mock"
-              variant="title"
+              variant="h6"
             >
               0.7
                ZEC
@@ -272,7 +272,7 @@ exports[`SendMoneyForm renders component when valid = true 1`] = `
           />
           <WithStyles(Typography)
             className="value-mock"
-            variant="title"
+            variant="h6"
           >
             Zcash Wallet
           </WithStyles(Typography)>
@@ -294,7 +294,7 @@ exports[`SendMoneyForm renders component when valid = true 1`] = `
           >
             <WithStyles(Typography)
               className="balanceZec-mock"
-              variant="title"
+              variant="h6"
             >
               0.7
                ZEC

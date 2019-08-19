@@ -80,7 +80,7 @@ export const SendMoneyForm = ({
           <Grid item xs={4} className={classes.balanceField}>
             <Grid container alignItems='center'>
               <ZcashIcon size={20} />
-              <Typography variant='title' className={classes.value}>
+              <Typography variant='h6' className={classes.value}>
                 Zcash Wallet
               </Typography>
             </Grid>
@@ -88,7 +88,7 @@ export const SendMoneyForm = ({
           <Grid item xs={4}>
             <Grid container direction='column' justify='center' alignItems='flex-end'>
               <Grid item xs={12}>
-                <Typography variant='title' className={classes.balanceZec}>
+                <Typography variant='h6' className={classes.balanceZec}>
                   {balanceZec.toString()} ZEC
                 </Typography>
               </Grid>

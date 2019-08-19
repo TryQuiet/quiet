@@ -7,7 +7,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel'
 export const CheckboxWithLabel = ({ name, label, ...props }) => (
   <FormControlLabel
     control={
-      <Field name={name} component={Checkbox} fullWidth {...props} />
+      <Field name={name} component={Checkbox} {...props} />
     }
     label={label}
   />
