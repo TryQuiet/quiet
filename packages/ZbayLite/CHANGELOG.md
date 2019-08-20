@@ -1,3 +1,10 @@
+<a name="0.6.1"></a>
+# [0.6.1]
+
+### Fixes
+
+* Fixed paste / copy 
+
 <a name="0.6.0"></a>
 # [0.6.0]
 
