@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, Menu } from 'electron'
 
 import { spawnZcashNode, ensureZcashParams } from './zcash/bootstrap'
 
@@ -18,7 +18,7 @@ const installExtensions = async () => {
   try {
     await Promise.all(extensions.map(ext => installer.default(installer[ext], forceDownload)))
   } catch (err) {
-    console.error('Couldn\'t install devtools.')
+    console.error("Couldn't install devtools.")
   }
 }
 
@@ -30,12 +30,12 @@ const windowSize = {
 var mainWindow
 var nodeProc = null
 
-const createZcashNode = (win) => {
+const createZcashNode = win => {
   win.webContents.send('bootstrappingNode', {
     message: 'Ensuring zcash params are present',
     bootstrapping: true
   })
-  ensureZcashParams(process.platform, (error) => {
+  ensureZcashParams(process.platform, error => {
     if (error) {
       throw error
     }
@@ -62,10 +62,7 @@ const createWindow = () => {
       nodeIntegration: true
     }
   })
-  mainWindow.setMinimumSize(
-    windowSize.width,
-    windowSize.height
-  )
+  mainWindow.setMinimumSize(windowSize.width, windowSize.height)
   mainWindow.loadURL(`file://${__dirname}/index.html`)
 
   // Open the DevTools.
@@ -82,6 +79,37 @@ app.on('ready', async () => {
     await installExtensions()
   }
   createWindow()
+
+  const template = [
+    {
+      label: 'Application',
+      submenu: [
+        { label: 'About Application', selector: 'orderFrontStandardAboutPanel:' },
+        { type: 'separator' },
+        {
+          label: 'Quit',
+          accelerator: 'Command+Q',
+          click: function () {
+            app.quit()
+          }
+        }
+      ]
+    },
+    {
+      label: 'Edit',
+      submenu: [
+        { label: 'Undo', accelerator: 'CmdOrCtrl+Z', selector: 'undo:' },
+        { label: 'Redo', accelerator: 'Shift+CmdOrCtrl+Z', selector: 'redo:' },
+        { type: 'separator' },
+        { label: 'Cut', accelerator: 'CmdOrCtrl+X', selector: 'cut:' },
+        { label: 'Copy', accelerator: 'CmdOrCtrl+C', selector: 'copy:' },
+        { label: 'Paste', accelerator: 'CmdOrCtrl+V', selector: 'paste:' },
+        { label: 'Select All', accelerator: 'CmdOrCtrl+A', selector: 'selectAll:' }
+      ]
+    }
+  ]
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template))
+
   mainWindow.webContents.on('did-finish-load', () => {
     mainWindow.webContents.send('ping')
     if (!nodeURL) {
