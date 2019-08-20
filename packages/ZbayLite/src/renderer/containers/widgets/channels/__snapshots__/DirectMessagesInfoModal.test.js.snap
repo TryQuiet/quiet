@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChannelInfoModal will receive right props 1`] = `
+Object {
+  "channel": Object {
+    "targetRecipientAddress": "ztestsapling18qgdx9qtwyrawas5yc9mcm7wrx6ukn5unkdkz3dryufum2gjnt8me2kql6nvhca3vdv2704ud4t",
+    "targetRecipientUsername": "TEST",
+  },
+  "directMessage": true,
+}
+`;

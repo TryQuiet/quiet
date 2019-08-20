@@ -16,6 +16,7 @@ describe('SendMoneyForm', () => {
         rateUsd={new BigNumber(50)}
         rateZec={new BigNumber(0.4)}
         balanceZec={new BigNumber(0.7)}
+        values={{ recipient: 'address123' }}
         isValid
       />
     )
@@ -29,6 +30,7 @@ describe('SendMoneyForm', () => {
         setStep={jest.fn()}
         rateUsd={new BigNumber(50)}
         rateZec={new BigNumber(0.4)}
+        values={{ recipient: 'address123' }}
         balanceZec={new BigNumber(0.7)}
         isValid={false}
       />

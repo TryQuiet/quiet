@@ -184,9 +184,13 @@ exports[`SendMoneyForm renders component when valid = false 1`] = `
           "className": "field-mock",
         }
       }
+      disabled={false}
       label=""
       name="memo"
       placeholder="Enter an optional message"
+    />
+    <WithStyles(Typography)
+      variant="body1"
     />
   </WithStyles(Grid)>
   <WithStyles(Grid)
@@ -401,9 +405,13 @@ exports[`SendMoneyForm renders component when valid = true 1`] = `
           "className": "field-mock",
         }
       }
+      disabled={false}
       label=""
       name="memo"
       placeholder="Enter an optional message"
+    />
+    <WithStyles(Typography)
+      variant="body1"
     />
   </WithStyles(Grid)>
   <WithStyles(Grid)

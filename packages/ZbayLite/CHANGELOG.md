@@ -1,3 +1,17 @@
+<a name="0.6.0"></a>
+# [0.6.0]
+
+### Features
+
+* Direct messages
+* Direct transfers
+* Send money modal
+* New message type
+
+### Fixes
+
+* Fixed channel scrolls down on message refresh
+
 <a name="0.5.0"></a>
 # [0.5.0](TBR)
 

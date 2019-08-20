@@ -57,6 +57,7 @@ exports[`ChannelInfoModal renders component 1`] = `
           variant="subtitle1"
         >
           Share link
+          Share link
         </WithStyles(Typography)>
         <CopyToClipboard
           text="zbay.io/channel/channel-hash"
@@ -141,6 +142,7 @@ exports[`ChannelInfoModal renders component when closed 1`] = `
           inline={true}
           variant="subtitle1"
         >
+          Share link
           Share link
         </WithStyles(Typography)>
         <CopyToClipboard

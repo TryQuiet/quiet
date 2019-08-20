@@ -201,27 +201,41 @@ Immutable.Map {
     "username": "Wenus",
     "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
     "messages": Immutable.List [
-      Immutable.ReceivedMessage {
+      Immutable.DisplayableMessage {
         "id": "tx-id-0-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         "type": 4,
-        "sender": Immutable.MessageSender {
+        "sender": Immutable.ExchangeParticipant {
           "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
           "username": "Wenus",
+        },
+        "receiver": Immutable.ExchangeParticipant {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+          "username": "Saturn",
         },
         "createdAt": 1551963828,
         "message": "message 0 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         "spent": "0.0001",
+        "fromYou": true,
+        "status": "broadcasted",
+        "error": null,
       },
-      Immutable.ReceivedMessage {
+      Immutable.DisplayableMessage {
         "id": "tx-id-1-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         "type": 1,
-        "sender": Immutable.MessageSender {
+        "sender": Immutable.ExchangeParticipant {
           "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
           "username": "Wenus",
+        },
+        "receiver": Immutable.ExchangeParticipant {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+          "username": "Saturn",
         },
         "createdAt": 1551960228,
         "message": "message 1 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         "spent": "0.0001",
+        "fromYou": true,
+        "status": "broadcasted",
+        "error": null,
       },
     ],
     "newMessages": Immutable.List [],
@@ -232,27 +246,41 @@ Immutable.Map {
     "username": "Mars",
     "address": "zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
     "messages": Immutable.List [
-      Immutable.ReceivedMessage {
+      Immutable.DisplayableMessage {
         "id": "tx-id-0-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
         "type": 4,
-        "sender": Immutable.MessageSender {
+        "sender": Immutable.ExchangeParticipant {
           "replyTo": "zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
           "username": "Mars",
+        },
+        "receiver": Immutable.ExchangeParticipant {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+          "username": "Saturn",
         },
         "createdAt": 1551963828,
         "message": "message 0 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         "spent": "0.0001",
+        "fromYou": false,
+        "status": "broadcasted",
+        "error": null,
       },
-      Immutable.ReceivedMessage {
+      Immutable.DisplayableMessage {
         "id": "tx-id-1-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
         "type": 1,
-        "sender": Immutable.MessageSender {
+        "sender": Immutable.ExchangeParticipant {
           "replyTo": "zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
           "username": "Mars",
+        },
+        "receiver": Immutable.ExchangeParticipant {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+          "username": "Saturn",
         },
         "createdAt": 1551960228,
         "message": "message 1 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         "spent": "0.0001",
+        "fromYou": false,
+        "status": "broadcasted",
+        "error": null,
       },
     ],
     "newMessages": Immutable.List [],
@@ -268,27 +296,41 @@ Immutable.Map {
     "username": "Wenus",
     "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
     "messages": Immutable.List [
-      Immutable.ReceivedMessage {
+      Immutable.DisplayableMessage {
         "id": "tx-id-0-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         "type": 4,
-        "sender": Immutable.MessageSender {
+        "sender": Immutable.ExchangeParticipant {
           "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
           "username": "Wenus",
+        },
+        "receiver": Immutable.ExchangeParticipant {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+          "username": "Saturn",
         },
         "createdAt": 1551963828,
         "message": "message 0 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         "spent": "0.0001",
+        "fromYou": true,
+        "status": "broadcasted",
+        "error": null,
       },
-      Immutable.ReceivedMessage {
+      Immutable.DisplayableMessage {
         "id": "tx-id-1-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         "type": 1,
-        "sender": Immutable.MessageSender {
+        "sender": Immutable.ExchangeParticipant {
           "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
           "username": "Wenus",
+        },
+        "receiver": Immutable.ExchangeParticipant {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+          "username": "Saturn",
         },
         "createdAt": 1551960228,
         "message": "message 1 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         "spent": "0.0001",
+        "fromYou": true,
+        "status": "broadcasted",
+        "error": null,
       },
     ],
     "newMessages": Immutable.List [],
@@ -299,27 +341,41 @@ Immutable.Map {
     "username": "Mars",
     "address": "zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
     "messages": Immutable.List [
-      Immutable.ReceivedMessage {
+      Immutable.DisplayableMessage {
         "id": "tx-id-0-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
         "type": 4,
-        "sender": Immutable.MessageSender {
+        "sender": Immutable.ExchangeParticipant {
           "replyTo": "zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
           "username": "Mars",
+        },
+        "receiver": Immutable.ExchangeParticipant {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+          "username": "Saturn",
         },
         "createdAt": 1551963828,
         "message": "message 0 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         "spent": "0.0001",
+        "fromYou": false,
+        "status": "broadcasted",
+        "error": null,
       },
-      Immutable.ReceivedMessage {
+      Immutable.DisplayableMessage {
         "id": "tx-id-1-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
         "type": 1,
-        "sender": Immutable.MessageSender {
+        "sender": Immutable.ExchangeParticipant {
           "replyTo": "zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
           "username": "Mars",
+        },
+        "receiver": Immutable.ExchangeParticipant {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+          "username": "Saturn",
         },
         "createdAt": 1551960228,
         "message": "message 1 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         "spent": "0.0001",
+        "fromYou": false,
+        "status": "broadcasted",
+        "error": null,
       },
     ],
     "newMessages": Immutable.List [

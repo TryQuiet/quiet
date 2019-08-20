@@ -41,64 +41,68 @@ const styles = theme => ({
   }
 })
 
-export const ChannelInfoModal = ({ classes, channel, shareUri, open, handleClose }) => (
-  <Modal
-    open={open}
-    handleClose={handleClose}
-    title='Info'
-    fullPage
-  >
-    <Grid
-      container
-      direction='column'
-      className={classes.root}
-    >
-      <Grid item className={classes.section}>
-        <Typography variant='subtitle1' className={classes.title}>
-          {channel.get('name')}
-        </Typography>
-      </Grid>
-      <Grid item className={classes.section}>
-        <Typography variant='subtitle1' className={classes.infoTitle}>
-          About
-        </Typography>
-        <Typography variant='caption' className={classes.description}>
-          {channel.get('description')}
-        </Typography>
-      </Grid>
-      <Grid item container direction='column' className={classes.section}>
-        <Grid container item direction='row'>
-          <Typography variant='subtitle1' inline className={classes.infoTitle}>
-            Share link
+export const ChannelInfoModal = ({
+  classes,
+  channel,
+  shareUri,
+  open,
+  handleClose,
+  directMessage
+}) => {
+  const address = directMessage ? channel.get('targetRecipientAddress') : shareUri
+  return (
+    <Modal open={open} handleClose={handleClose} title='Info' fullPage>
+      <Grid container direction='column' className={classes.root}>
+        <Grid item className={classes.section}>
+          <Typography variant='subtitle1' className={classes.title}>
+            {directMessage ? channel.get('targetRecipientUsername') : channel.get('name')}
           </Typography>
-          <CopyToClipboard text={shareUri}>
-            <IconButton className={classes.copyButton}>
-              <FileCopyIcon fontSize='inherit' />
-            </IconButton>
-          </CopyToClipboard>
         </Grid>
-        <Grid item>
+        <Grid item className={classes.section}>
+          <Typography variant='subtitle1' className={classes.infoTitle}>
+            {!directMessage && 'About'}
+          </Typography>
           <Typography variant='caption' className={classes.description}>
-            {shareUri}
+            {channel.get('description')}
           </Typography>
         </Grid>
+        <Grid item container direction='column' className={classes.section}>
+          <Grid container item direction='row'>
+            <Typography variant='subtitle1' inline className={classes.infoTitle}>
+              Share link
+              {directMessage ? 'Address' : 'Share link'}
+            </Typography>
+            <CopyToClipboard text={address}>
+              <IconButton className={classes.copyButton}>
+                <FileCopyIcon fontSize='inherit' />
+              </IconButton>
+            </CopyToClipboard>
+          </Grid>
+          <Grid item>
+            <Typography variant='caption' className={classes.description}>
+              {address}
+            </Typography>
+          </Grid>
+        </Grid>
       </Grid>
-    </Grid>
-  </Modal>
-)
+    </Modal>
+  )
+}
 
 ChannelInfoModal.propTypes = {
   classes: PropTypes.object.isRequired,
   channel: PropTypes.instanceOf(Immutable.Map).isRequired,
   shareUrl: PropTypes.string.isRequired,
   handleClose: PropTypes.func.isRequired,
-  open: PropTypes.bool.isRequired
+  open: PropTypes.bool.isRequired,
+  directMessage: PropTypes.bool.isRequired
 }
 
 ChannelInfoModal.defaultProps = {
   open: false,
   channel: Immutable.Map(),
-  shareUrl: ''
+  shareUrl: '',
+  directMessage: false
 }
 
 export default R.compose(

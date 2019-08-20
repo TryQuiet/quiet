@@ -14,7 +14,8 @@ const styles = theme => ({
   message: {
     fontSize: '0.855rem',
     marginTop: theme.spacing.unit,
-    whiteSpace: 'pre-line'
+    whiteSpace: 'pre-line',
+    wordBreak: 'break-word'
   }
 })
 

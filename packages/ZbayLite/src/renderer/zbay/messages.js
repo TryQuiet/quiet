@@ -145,6 +145,17 @@ export const createTransfer = (values) => (DisplayableMessage({
 }))
 
 export const messageToTransfer = async ({ message, channel, amount = '0.0001', recipientAddress }) => {
+  if ((recipientAddress || channel).length === 35) {
+    return {
+      from: message.sender.replyTo,
+      amounts: [
+        {
+          address: recipientAddress || channel.address,
+          amount: amount.toString()
+        }
+      ]
+    }
+  }
   const memo = await packMemo(message)
   return {
     from: message.sender.replyTo,

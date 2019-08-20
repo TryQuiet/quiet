@@ -57,7 +57,8 @@ export const SendMoneyForm = ({
   setStep,
   rateZec,
   rateUsd,
-  isValid
+  isValid,
+  values
 }) => {
   return (
     <Grid container className={classes.root} spacing={24}>
@@ -141,12 +142,17 @@ export const SendMoneyForm = ({
       </Grid>
       <Grid item xs={12}>
         <Typography variant='body1'>Memo</Typography>
-
         <TextField
           name='memo'
-          placeholder='Enter an optional message'
+          placeholder={
+            values.recipient.length === 35
+              ? `You can't include message to transparent address`
+              : 'Enter an optional message'
+          }
           InputProps={{ className: classes.field }}
+          disabled={values.recipient.length === 35}
         />
+        <Typography variant='body1' />
       </Grid>
       <Grid item xs={12}>
         <CheckboxWithLabel color='primary' name='shippingInfo' label='Include my shipping info' />

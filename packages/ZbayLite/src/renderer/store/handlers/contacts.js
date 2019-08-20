@@ -102,10 +102,17 @@ export const fetchMessages = () => async (dispatch, getState) => {
         contactAddress,
         messagesIds: newMessages.map(R.prop('id'))
       }))
-      dispatch(setMessages({ messages: contactMessages, contactAddress }))
+      dispatch(loadFechedMessages({ messages: contactMessages, contactAddress }))
       newMessages.map(nm => displayDirectMessageNotification({ message: nm, username: contact.username }))
     }
   ))
+}
+
+export const loadFechedMessages = ({ messages: contactMessages, contactAddress }) => async (dispatch, getState) => {
+  const identityAddress = identitySelectors.address(getState())
+  const identityName = identitySelectors.name(getState())
+  const fetchedMessagesToDisplay = contactMessages.map(msg => zbayMessages.receivedToDisplayableMessage({ message: msg, identityAddress, receiver: { replyTo: identityAddress, username: identityName } }))
+  dispatch(setMessages({ messages: fetchedMessagesToDisplay, contactAddress }))
 }
 
 export const updateLastSeen = ({ contact }) => async (dispatch, getState) => {

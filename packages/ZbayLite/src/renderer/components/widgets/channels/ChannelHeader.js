@@ -11,6 +11,7 @@ import SearchIcon from '@material-ui/icons/Search'
 
 import ChannelMenuAction from '../../../containers/widgets/channels/ChannelMenuAction'
 import ChannelInfoModal from '../../../containers/widgets/channels/ChannelInfoModal'
+import DirectMessagesInfoModal from '../../../containers/widgets/channels/DirectMessagesInfoModal'
 import SpentFilterAction from './SpentFilterAction'
 import IconButton from '../../ui/IconButton'
 
@@ -39,19 +40,23 @@ const styles = theme => ({
 })
 
 // TODO: [reafactoring] we should have channel stats for unread and members count
-export const ChannelHeader = ({ classes, channel }) => (
-  <Grid container alignItems='center' justify='space-between' className={classes.root} direction='row'>
+export const ChannelHeader = ({ classes, channel, directMessage }) => (
+  <Grid
+    container
+    alignItems='center'
+    justify='space-between'
+    className={classes.root}
+    direction='row'
+  >
     <Grid item>
       <Typography variant='subtitle1' className={classes.title}>
         {channel.get('name')}
       </Typography>
-      {
-        !R.isNil(channel.get('members')) ? (
-          <Typography variant='caption' className={classes.subtitle}>
-            {channel.get('members').toFormat(0)}
-          </Typography>
-        ) : null
-      }
+      {!R.isNil(channel.get('members')) ? (
+        <Typography variant='caption' className={classes.subtitle}>
+          {channel.get('members').toFormat(0)}
+        </Typography>
+      ) : null}
     </Grid>
     <Grid item container className={classes.actions} justify='space-between' alignItems='center'>
       <Grid item>
@@ -64,7 +69,7 @@ export const ChannelHeader = ({ classes, channel }) => (
       </Grid>
       <Grid item>
         <ChannelMenuAction />
-        <ChannelInfoModal />
+        {directMessage ? <DirectMessagesInfoModal /> : <ChannelInfoModal />}
       </Grid>
     </Grid>
   </Grid>
@@ -72,11 +77,13 @@ export const ChannelHeader = ({ classes, channel }) => (
 
 ChannelHeader.propTypes = {
   classes: PropTypes.object.isRequired,
+  directMessage: PropTypes.bool.isRequired,
   channel: PropTypes.instanceOf(Immutable.Map).isRequired
 }
 
 ChannelHeader.defaultProps = {
-  channel: Immutable.Map()
+  channel: Immutable.Map(),
+  directMessage: false
 }
 
 export default R.compose(
