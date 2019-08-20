@@ -9,7 +9,7 @@ import { operationTypes } from '../handlers/operations'
 
 const store = s => s
 
-const channel = createSelector(store, state => state.get('channel'))
+export const channel = createSelector(store, state => state.get('channel'))
 
 const data = createSelector(
   channelsSelector.data,

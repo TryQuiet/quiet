@@ -24,7 +24,7 @@ exports[`Main renders component 1`] = `
       <Route
         component={[Function]}
         exact={true}
-        path="test/direct-messages/:id"
+        path="test/direct-messages/:id/:username"
       />
     </WithStyles(Grid)>
   </WithStyles(Grid)>

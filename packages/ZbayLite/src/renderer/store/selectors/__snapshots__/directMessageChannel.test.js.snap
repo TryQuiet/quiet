@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`directMessageChannel selector channel data selector 1`] = `
+Immutable.DirectMessageChannelState {
+  "targetRecipientAddress": "test-address",
+  "targetRecipientUsername": "test-username",
+}
+`;

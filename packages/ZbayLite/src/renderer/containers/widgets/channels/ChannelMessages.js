@@ -8,7 +8,7 @@ import contactsSelectors from '../../../store/selectors/contacts'
 export const mapStateToProps = (state, { contactId }) => {
   return {
     messages: contactId
-      ? contactsSelectors.messages(contactId)(state)
+      ? contactsSelectors.directMessages(contactId)(state)
       : channelSelectors.messages(state)
   }
 }

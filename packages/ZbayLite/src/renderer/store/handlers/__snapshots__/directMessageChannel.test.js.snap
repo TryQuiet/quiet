@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`directMessageChannel reducer handles actions - setTargetRecipientAddress 1`] = `
+Immutable.DirectMessageChannelState {
+  "targetRecipientAddress": "target-user-address",
+  "targetRecipientUsername": null,
+}
+`;
+
+exports[`directMessageChannel reducer handles actions - setTargetRecipientUsername 1`] = `
+Immutable.DirectMessageChannelState {
+  "targetRecipientAddress": null,
+  "targetRecipientUsername": "target-user-username",
+}
+`;

@@ -81,9 +81,112 @@ Object {
 
 exports[`ChannelInput will receive right props for direct message 1`] = `
 Object {
-  "messages": Array [
-    "123",
-    "124",
+  "messages": Immutable.List [
+    Immutable.ReceivedMessage {
+      "id": 7,
+      "type": 1,
+      "sender": Immutable.MessageSender {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Wenus",
+      },
+      "createdAt": 1551913428,
+      "message": "This is a message with id 7",
+      "spent": "0.32",
+    },
+    Immutable.ReceivedMessage {
+      "id": 6,
+      "type": 1,
+      "sender": Immutable.MessageSender {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Wenus",
+      },
+      "createdAt": 1551920628,
+      "message": "This is a message with id 6",
+      "spent": "0.32",
+    },
+    Immutable.ReceivedMessage {
+      "id": 5,
+      "type": 1,
+      "sender": Immutable.MessageSender {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Wenus",
+      },
+      "createdAt": 1551927828,
+      "message": "This is a message with id 5",
+      "spent": "0.32",
+    },
+    Immutable.DisplayableMessage {
+      "id": 3,
+      "type": 1,
+      "sender": Immutable.ExchangeParticipant {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Wenus",
+      },
+      "receiver": Immutable.ExchangeParticipant {
+        "replyTo": "",
+        "username": [Function],
+      },
+      "createdAt": 1551942228,
+      "message": "This is a message with id 3",
+      "spent": "0.32",
+      "fromYou": false,
+      "status": "broadcasted",
+      "error": null,
+    },
+    Immutable.DisplayableMessage {
+      "id": 2,
+      "type": 1,
+      "sender": Immutable.ExchangeParticipant {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Wenus",
+      },
+      "receiver": Immutable.ExchangeParticipant {
+        "replyTo": "",
+        "username": [Function],
+      },
+      "createdAt": 1551949428,
+      "message": "This is a message with id 2",
+      "spent": "0.32",
+      "fromYou": false,
+      "status": "broadcasted",
+      "error": null,
+    },
+    Immutable.DisplayableMessage {
+      "id": 1,
+      "type": 1,
+      "sender": Immutable.ExchangeParticipant {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Wenus",
+      },
+      "receiver": Immutable.ExchangeParticipant {
+        "replyTo": "",
+        "username": [Function],
+      },
+      "createdAt": 1551956628,
+      "message": "This is a message with id 1",
+      "spent": "0.32",
+      "fromYou": false,
+      "status": "broadcasted",
+      "error": null,
+    },
+    Immutable.DisplayableMessage {
+      "id": 0,
+      "type": 1,
+      "sender": Immutable.ExchangeParticipant {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Wenus",
+      },
+      "receiver": Immutable.ExchangeParticipant {
+        "replyTo": "",
+        "username": [Function],
+      },
+      "createdAt": 1551963828,
+      "message": "This is a message with id 0",
+      "spent": "0.32",
+      "fromYou": false,
+      "status": "broadcasted",
+      "error": null,
+    },
   ],
 }
 `;

@@ -6,11 +6,14 @@ const _entryToMessage = (message) => {
   const entryObj = message.toObject()
   return {
     id: entryObj.properties.title,
-    sender: entryObj.properties.sender,
+    sender: {
+      replyTo: entryObj.properties.sender,
+      username: entryObj.properties.senderUsername
+    },
     type: parseInt(entryObj.properties.type),
     message: JSON.parse(entryObj.properties.message),
     spent: new BigNumber(entryObj.properties.spent),
-    createdAt: DateTime.fromSeconds(parseInt(entryObj.properties.createdAt)),
+    createdAt: parseInt(entryObj.properties.createdAt),
     status: entryObj.properties.status
   }
 }
@@ -51,8 +54,9 @@ export default (vault) => {
         .setProperty('id', txId)
         .setProperty('type', message.type.toString())
         .setProperty('sender', message.sender.replyTo)
+        .setProperty('senderUsername', message.sender.username)
         .setProperty('message', JSON.stringify(message.message))
-        .setProperty('spent', message.spent.toString())
+        .setProperty('spent', message.spent ? message.spent.toString() : null)
         .setProperty('createdAt', message.createdAt.toString())
         .setProperty('status', status)
       workspace.save()
@@ -99,6 +103,19 @@ export default (vault) => {
     }
   }
 
+  const loadAllSentMessages = async ({ identityId }) => {
+    let messagesGroups = []
+    await vault.withWorkspace(workspace => {
+      const identityGroup = _getIdentityMessages({ identityId, workspace })
+      messagesGroups = identityGroup.getGroups()
+    })
+    const initialMessages = await Promise.all(messagesGroups.map(async (group) => {
+      const messages = await listMessages({ identityId, recipientAddress: group.getAttribute('address'), recipientUsername: group.getAttribute('username') })
+      return messages
+    }))
+    return initialMessages
+  }
+
   const updateLastSeen = async ({ identityId, recipientAddress, recipientUsername, lastSeen }) => {
     await vault.withWorkspace(workspace => {
       const identityGroup = _getIdentityMessages({ identityId, workspace })
@@ -124,6 +141,7 @@ export default (vault) => {
     updateLastSeen,
     getLastSeen,
     deleteMessage,
-    updateMessage
+    updateMessage,
+    loadAllSentMessages
   }
 }

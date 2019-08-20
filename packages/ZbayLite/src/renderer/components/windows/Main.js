@@ -26,7 +26,7 @@ export const Main = ({ match, classes }) => {
         </Grid>
         <Grid item xs>
           <Route exact path={`${match.url}/channel/:id`} component={Channel} />
-          <Route exact path={`${match.url}/direct-messages/:id`} component={DirectMessages} />
+          <Route exact path={`${match.url}/direct-messages/:id/:username`} component={DirectMessages} />
         </Grid>
       </Grid>
     </WindowWrapper>

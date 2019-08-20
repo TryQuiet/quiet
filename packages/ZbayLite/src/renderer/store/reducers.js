@@ -16,6 +16,7 @@ import criticalErrorHandlers from './handlers/criticalError'
 import appHandlers from './handlers/app'
 import messagesHandlers from './handlers/messages'
 import contactsHandlers from './handlers/contacts'
+import directMessageChannelHandlers from './handlers/directMessageChannel'
 
 export default combineReducers({
   messages: messagesHandlers.reducer,
@@ -33,5 +34,6 @@ export default combineReducers({
   node: nodeHandlers.reducer,
   vault: vaultHandlers.reducer,
   criticalError: criticalErrorHandlers.reducer,
-  contacts: contactsHandlers.reducer
+  contacts: contactsHandlers.reducer,
+  directMessageChannel: directMessageChannelHandlers.reducer
 })

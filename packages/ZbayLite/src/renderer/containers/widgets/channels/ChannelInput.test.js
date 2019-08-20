@@ -31,7 +31,7 @@ describe('ChannelInput', () => {
   })
 
   it('will receive right actions', async () => {
-    const actions = mapDispatchToProps(x => x)
+    const actions = mapDispatchToProps(x => x, { contactId: 'address123' })
     expect(actions).toMatchSnapshot()
   })
 })

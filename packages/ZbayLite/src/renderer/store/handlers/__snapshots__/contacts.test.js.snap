@@ -10,6 +10,7 @@ Immutable.Record {
     "message-id-1",
     "message-id-2",
   ],
+  "vaultMessages": Immutable.List [],
 }
 `;
 
@@ -23,6 +24,7 @@ Immutable.Record {
     "message-id-1",
     "message-id-2",
   ],
+  "vaultMessages": Immutable.List [],
 }
 `;
 
@@ -37,6 +39,7 @@ Immutable.Record {
     "message-id-1",
     "message-id-2",
   ],
+  "vaultMessages": Immutable.List [],
 }
 `;
 
@@ -47,6 +50,7 @@ Immutable.Record {
   "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
   "messages": Immutable.List [],
   "newMessages": Immutable.List [],
+  "vaultMessages": Immutable.List [],
 }
 `;
 
@@ -57,6 +61,7 @@ Immutable.Record {
   "address": "",
   "messages": Immutable.List [],
   "newMessages": Immutable.List [],
+  "vaultMessages": Immutable.List [],
 }
 `;
 
@@ -67,6 +72,7 @@ Immutable.Record {
   "address": "",
   "messages": Immutable.List [],
   "newMessages": Immutable.List [],
+  "vaultMessages": Immutable.List [],
 }
 `;
 
@@ -77,6 +83,7 @@ Immutable.Record {
   "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
   "messages": Immutable.List [],
   "newMessages": Immutable.List [],
+  "vaultMessages": Immutable.List [],
 }
 `;
 
@@ -87,6 +94,7 @@ Immutable.Record {
   "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
   "messages": Immutable.List [],
   "newMessages": Immutable.List [],
+  "vaultMessages": Immutable.List [],
 }
 `;
 
@@ -97,6 +105,7 @@ Immutable.Record {
   "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
   "messages": Immutable.List [],
   "newMessages": Immutable.List [],
+  "vaultMessages": Immutable.List [],
 }
 `;
 
@@ -130,6 +139,7 @@ Immutable.Record {
     },
   ],
   "newMessages": Immutable.List [],
+  "vaultMessages": Immutable.List [],
 }
 `;
 
@@ -163,6 +173,7 @@ Immutable.Record {
     },
   ],
   "newMessages": Immutable.List [],
+  "vaultMessages": Immutable.List [],
 }
 `;
 
@@ -214,6 +225,7 @@ Immutable.Map {
       },
     ],
     "newMessages": Immutable.List [],
+    "vaultMessages": Immutable.List [],
   },
   "zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq": Immutable.Record {
     "lastSeen": "2019-03-07T13:03:48.000Z",
@@ -244,6 +256,7 @@ Immutable.Map {
       },
     ],
     "newMessages": Immutable.List [],
+    "vaultMessages": Immutable.List [],
   },
 }
 `;
@@ -279,6 +292,7 @@ Immutable.Map {
       },
     ],
     "newMessages": Immutable.List [],
+    "vaultMessages": Immutable.List [],
   },
   "zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq": Immutable.Record {
     "lastSeen": "2019-03-07T12:33:48.000Z",
@@ -311,6 +325,7 @@ Immutable.Map {
     "newMessages": Immutable.List [
       "tx-id-0-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
     ],
+    "vaultMessages": Immutable.List [],
   },
 }
 `;
@@ -323,6 +338,7 @@ Immutable.Map {
     "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
     "messages": Immutable.List [],
     "newMessages": Immutable.List [],
+    "vaultMessages": Immutable.List [],
   },
 }
 `;
@@ -335,6 +351,7 @@ Immutable.Map {
     "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
     "messages": Immutable.List [],
     "newMessages": Immutable.List [],
+    "vaultMessages": Immutable.List [],
   },
 }
 `;

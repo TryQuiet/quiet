@@ -26,7 +26,30 @@ describe('ChannelInput', () => {
         }),
         contacts: Immutable.Map({
           address123: {
-            messages: ['123', '124']
+            messages: Immutable.List(
+              Immutable.fromJS(
+                R.range(0, 4).map(id =>
+                  ReceivedMessage(
+                    createReceivedMessage({
+                      id,
+                      createdAt: now.minus({ hours: 2 * id }).toSeconds()
+                    })
+                  )
+                )
+              )
+            ),
+            vaultMessages: Immutable.List(
+              Immutable.fromJS(
+                R.range(5, 8).map(id =>
+                  ReceivedMessage(
+                    createReceivedMessage({
+                      id,
+                      createdAt: now.minus({ hours: 2 * id }).toSeconds()
+                    })
+                  )
+                )
+              )
+            )
           }
         }),
         messages: Immutable.Map({

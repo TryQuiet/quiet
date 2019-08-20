@@ -115,6 +115,7 @@ Vault {
     "deleteMessage": [Function],
     "getLastSeen": [Function],
     "listMessages": [Function],
+    "loadAllSentMessages": [Function],
     "saveMessage": [Function],
     "updateLastSeen": [Function],
     "updateMessage": [Function],

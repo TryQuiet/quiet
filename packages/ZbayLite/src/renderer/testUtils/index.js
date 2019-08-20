@@ -177,5 +177,6 @@ export default {
   transfers,
   channels,
   messages,
-  createIdentity
+  createIdentity,
+  createMessage
 }

@@ -24,7 +24,7 @@ export const ChannelContent = ({ classes, channelId, inputLocked, contactId }) =
     className={classes.fullHeight}
   >
     <ChannelMessages channelId={channelId} contactId={contactId} />
-    <ChannelInput disabled={inputLocked} />
+    <ChannelInput disabled={inputLocked} contactId={contactId} />
   </Grid>
 )
 

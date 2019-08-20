@@ -50,6 +50,17 @@ export const receivedToDisplayableMessage = ({
   }))
 }
 
+export const vaultToDisplayableMessage = ({
+  message,
+  identityAddress,
+  receiver = { replyTo: '', username: 'Unnamed' }
+}) => {
+  return (DisplayableMessage(message).merge({
+    fromYou: true,
+    receiver: ExchangeParticipant(receiver)
+  }))
+}
+
 export const operationToDisplayableMessage = ({
   operation,
   identityAddress,
@@ -172,5 +183,6 @@ export default {
   messageType,
   messageToTransfer,
   transferToMessage,
-  transfersToMessages
+  transfersToMessages,
+  vaultToDisplayableMessage
 }

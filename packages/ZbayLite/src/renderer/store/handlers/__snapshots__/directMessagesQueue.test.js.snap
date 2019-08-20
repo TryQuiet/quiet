@@ -56,21 +56,27 @@ Object {
   "address": "test-recipient-address",
   "messages": Array [
     Object {
-      "createdAt": "2019-03-07T13:03:48.000Z",
+      "createdAt": 1551963828,
       "id": "test-tx-id",
       "message": "test-message-id",
-      "sender": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "sender": Object {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Wenus",
+      },
       "spent": "0.32",
       "status": "success",
       "type": 4,
     },
     Object {
-      "createdAt": "2019-03-07T13:03:48.000Z",
+      "createdAt": 1551963828,
       "id": "test-tx-id",
       "message": "test-message-id",
-      "sender": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "sender": Object {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Wenus",
+      },
       "spent": "0.32",
-      "status": "confirmed",
+      "status": "broadcasted",
       "type": 4,
     },
   ],
@@ -96,10 +102,13 @@ Object {
   "address": "test-recipient-address",
   "messages": Array [
     Object {
-      "createdAt": "2019-03-07T13:03:48.000Z",
+      "createdAt": 1551963828,
       "id": "test-tx-id",
       "message": "test-message-id",
-      "sender": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "sender": Object {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Wenus",
+      },
       "spent": "0.32",
       "status": "success",
       "type": 4,

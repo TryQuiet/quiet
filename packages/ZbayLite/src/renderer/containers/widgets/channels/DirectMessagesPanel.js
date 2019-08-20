@@ -16,7 +16,8 @@ export const mapStateToProps = state => ({
 export const mapDispatchToProps = dispatch => {
   return bindActionCreators(
     {
-      fetchMessages: contactsHandlers.epics.fetchMessages
+      fetchMessages: contactsHandlers.epics.fetchMessages,
+      loadVaultMessages: contactsHandlers.epics.loadAllSentMessages
     },
     dispatch
   )
@@ -35,6 +36,7 @@ export default R.compose(
   withState('isLoading', 'setIsLoading', true),
   lifecycle({
     async componentDidMount () {
+      await this.props.loadVaultMessages()
       await this.props.fetchMessages()
       this.props.setIsLoading(false)
     }

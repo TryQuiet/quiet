@@ -45,7 +45,7 @@ export const ChannelsListItem = ({ classes, channel, displayAddress, history, di
       button
       onClick={() => {
         history.push(
-          `/main/${directMessages ? `direct-messages/${channelObj.address}` : `channel/${channelObj.id}`}/`
+          `/main/${directMessages ? `direct-messages/${channelObj.address}/${channelObj.username}` : `channel/${channelObj.id}`}`
         )
       }}
       className={classes.root}

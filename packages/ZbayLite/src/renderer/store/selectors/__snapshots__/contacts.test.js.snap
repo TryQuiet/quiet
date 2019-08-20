@@ -30,6 +30,30 @@ Immutable.Record {
     },
   ],
   "newMessages": Immutable.List [],
+  "vaultMessages": Immutable.List [
+    Immutable.ReceivedMessage {
+      "id": 0,
+      "type": 1,
+      "sender": Immutable.MessageSender {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Wenus",
+      },
+      "createdAt": 1551963828,
+      "message": "This is a message with id 0",
+      "spent": "0.32",
+    },
+    Immutable.ReceivedMessage {
+      "id": 1,
+      "type": 1,
+      "sender": Immutable.MessageSender {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "username": "Wenus",
+      },
+      "createdAt": 1551956628,
+      "message": "This is a message with id 1",
+      "spent": "0.32",
+    },
+  ],
 }
 `;
 
@@ -64,6 +88,30 @@ Immutable.Map {
       },
     ],
     "newMessages": Immutable.List [],
+    "vaultMessages": Immutable.List [
+      Immutable.ReceivedMessage {
+        "id": 0,
+        "type": 1,
+        "sender": Immutable.MessageSender {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+          "username": "Wenus",
+        },
+        "createdAt": 1551963828,
+        "message": "This is a message with id 0",
+        "spent": "0.32",
+      },
+      Immutable.ReceivedMessage {
+        "id": 1,
+        "type": 1,
+        "sender": Immutable.MessageSender {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+          "username": "Wenus",
+        },
+        "createdAt": 1551956628,
+        "message": "This is a message with id 1",
+        "spent": "0.32",
+      },
+    ],
   },
   "zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq": Immutable.Record {
     "lastSeen": null,
@@ -71,13 +119,259 @@ Immutable.Map {
     "address": "zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
     "messages": Immutable.List [],
     "newMessages": Immutable.List [],
+    "vaultMessages": Immutable.List [],
   },
 }
+`;
+
+exports[`operations selectors  - direct messages 1`] = `
+Immutable.List [
+  Immutable.DisplayableMessage {
+    "id": "test-operation-id-3",
+    "type": 1,
+    "sender": Immutable.ExchangeParticipant {
+      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "username": "Unnamed",
+    },
+    "receiver": Immutable.ExchangeParticipant {
+      "replyTo": "",
+      "username": "Unnamed",
+    },
+    "createdAt": 1551945828,
+    "message": "This is some message test-message-id-3",
+    "spent": "0",
+    "fromYou": false,
+    "status": "success",
+    "error": null,
+  },
+  Immutable.DisplayableMessage {
+    "id": "test-operation-id-2",
+    "type": 1,
+    "sender": Immutable.ExchangeParticipant {
+      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "username": "Unnamed",
+    },
+    "receiver": Immutable.ExchangeParticipant {
+      "replyTo": "",
+      "username": "Unnamed",
+    },
+    "createdAt": 1551953028,
+    "message": "This is some message test-message-id-2",
+    "spent": "0",
+    "fromYou": false,
+    "status": "success",
+    "error": null,
+  },
+  Immutable.DisplayableMessage {
+    "id": 1,
+    "type": 1,
+    "sender": Immutable.ExchangeParticipant {
+      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "username": "Wenus",
+    },
+    "receiver": Immutable.ExchangeParticipant {
+      "replyTo": "",
+      "username": [Function],
+    },
+    "createdAt": 1551956628,
+    "message": "This is a message with id 1",
+    "spent": "0.32",
+    "fromYou": false,
+    "status": "broadcasted",
+    "error": null,
+  },
+  Immutable.ReceivedMessage {
+    "id": 1,
+    "type": 1,
+    "sender": Immutable.MessageSender {
+      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "username": "Wenus",
+    },
+    "createdAt": 1551956628,
+    "message": "This is a message with id 1",
+    "spent": "0.32",
+  },
+  Immutable.DisplayableMessage {
+    "id": "messageHash",
+    "type": 1,
+    "sender": Immutable.ExchangeParticipant {
+      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "username": "Unnamed",
+    },
+    "receiver": Immutable.ExchangeParticipant {
+      "replyTo": "",
+      "username": "Unnamed",
+    },
+    "createdAt": 1551956628,
+    "message": "This is some message test-pending-message",
+    "spent": "0",
+    "fromYou": false,
+    "status": "pending",
+    "error": null,
+  },
+  Immutable.DisplayableMessage {
+    "id": "test-operation-id",
+    "type": 1,
+    "sender": Immutable.ExchangeParticipant {
+      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "username": "Unnamed",
+    },
+    "receiver": Immutable.ExchangeParticipant {
+      "replyTo": "",
+      "username": "Unnamed",
+    },
+    "createdAt": 1551960228,
+    "message": "This is some message test-message-id",
+    "spent": "0",
+    "fromYou": false,
+    "status": "success",
+    "error": null,
+  },
+  Immutable.DisplayableMessage {
+    "id": 0,
+    "type": 1,
+    "sender": Immutable.ExchangeParticipant {
+      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "username": "Wenus",
+    },
+    "receiver": Immutable.ExchangeParticipant {
+      "replyTo": "",
+      "username": [Function],
+    },
+    "createdAt": 1551963828,
+    "message": "This is a message with id 0",
+    "spent": "0.32",
+    "fromYou": false,
+    "status": "broadcasted",
+    "error": null,
+  },
+  Immutable.ReceivedMessage {
+    "id": 0,
+    "type": 1,
+    "sender": Immutable.MessageSender {
+      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "username": "Wenus",
+    },
+    "createdAt": 1551963828,
+    "message": "This is a message with id 0",
+    "spent": "0.32",
+  },
+]
 `;
 
 exports[`operations selectors  - lastSeen 1`] = `"2019-03-07T13:03:48.000Z"`;
 
 exports[`operations selectors  - messages 1`] = `
+Immutable.List [
+  Immutable.ReceivedMessage {
+    "id": 0,
+    "type": 1,
+    "sender": Immutable.MessageSender {
+      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "username": "Wenus",
+    },
+    "createdAt": 1551963828,
+    "message": "This is a message with id 0",
+    "spent": "0.32",
+  },
+  Immutable.ReceivedMessage {
+    "id": 1,
+    "type": 1,
+    "sender": Immutable.MessageSender {
+      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "username": "Wenus",
+    },
+    "createdAt": 1551956628,
+    "message": "This is a message with id 1",
+    "spent": "0.32",
+  },
+]
+`;
+
+exports[`operations selectors  - pending messages 1`] = `
+Immutable.Map {
+  "test-operation-id": Immutable.Operation {
+    "opId": "test-operation-id",
+    "type": "pendingDirectMessage",
+    "meta": Immutable.Record {
+      "message": Immutable.Map {
+        "id": "test-message-id",
+        "type": 1,
+        "createdAt": 1551960228,
+        "message": "This is some message test-message-id",
+        "sender": Immutable.Map {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        },
+      },
+      "recipientAddress": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "recipientUsername": "test-recipient-username",
+    },
+    "txId": "transaction-id",
+    "error": null,
+    "status": "success",
+  },
+  "test-operation-id-2": Immutable.Operation {
+    "opId": "test-operation-id-2",
+    "type": "pendingDirectMessage",
+    "meta": Immutable.Record {
+      "message": Immutable.Map {
+        "id": "test-message-id-2",
+        "type": 1,
+        "createdAt": 1551953028,
+        "message": "This is some message test-message-id-2",
+        "sender": Immutable.Map {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        },
+      },
+      "recipientAddress": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "recipientUsername": "test-recipient-username",
+    },
+    "txId": "transaction-id-2",
+    "error": null,
+    "status": "success",
+  },
+  "test-operation-id-3": Immutable.Operation {
+    "opId": "test-operation-id-3",
+    "type": "pendingDirectMessage",
+    "meta": Immutable.Record {
+      "message": Immutable.Map {
+        "id": "test-message-id-3",
+        "type": 1,
+        "createdAt": 1551945828,
+        "message": "This is some message test-message-id-3",
+        "sender": Immutable.Map {
+          "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        },
+      },
+      "recipientAddress": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "recipientUsername": "test-recipient-username",
+    },
+    "txId": "transaction-id-3",
+    "error": null,
+    "status": "success",
+  },
+}
+`;
+
+exports[`operations selectors  - queue messages 1`] = `
+Immutable.Map {
+  "messageHash": Immutable.PendingDirectMessage {
+    "recipientAddress": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+    "recipientUsername": "test-recipient-username",
+    "message": Immutable.Map {
+      "id": "test-pending-message",
+      "type": 1,
+      "createdAt": 1551956628,
+      "message": "This is some message test-pending-message",
+      "sender": Immutable.Map {
+        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      },
+    },
+  },
+}
+`;
+
+exports[`operations selectors  - vault messages 1`] = `
 Immutable.List [
   Immutable.ReceivedMessage {
     "id": 0,
