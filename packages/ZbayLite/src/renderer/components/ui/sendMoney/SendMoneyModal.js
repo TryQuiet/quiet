@@ -55,7 +55,7 @@ export const SendMoneyModal = ({
   open,
   rateUsd,
   rateZec,
-  feeZec = 0.001,
+  feeZec = 0.0001,
   feeUsd = rateUsd.times(feeZec).toNumber(),
   userData,
   sendMessageHandler
