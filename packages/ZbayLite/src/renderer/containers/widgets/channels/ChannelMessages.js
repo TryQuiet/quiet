@@ -13,7 +13,7 @@ export const mapStateToProps = (state, { contactId }) => {
   }
 }
 
-export const ChannelMessages = ({ className, messages, loadMessages, loader }) => {
+export const ChannelMessages = ({ className, messages, loadMessages, loader, contactId }) => {
   const [scrollPosition, setScrollPosition] = React.useState(-1)
   return (
     <ChannelMessagesComponent
@@ -21,6 +21,7 @@ export const ChannelMessages = ({ className, messages, loadMessages, loader }) =
       setScrollPosition={setScrollPosition}
       messages={messages}
       loader={loader}
+      contactId={contactId}
     />
   )
 }

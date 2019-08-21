@@ -13,9 +13,12 @@ import { messages as zbayMessages } from '../../zbay'
 import { getClient } from '../../zcash'
 import { getVault } from '../../vault'
 import { displayDirectMessageNotification } from '../../notifications'
+import operationsHandlers, { operationTypes, PendingDirectMessageOp } from './operations'
 import { ReceivedMessage } from './messages'
-import directMessagesQueueHandlers from './directMessagesQueue'
+import directMessagesQueueHandlers, { checkConfirmationNumber } from './directMessagesQueue'
 import channelHandlers from './channel'
+import notificationsHandlers from './notifications'
+import { errorNotification } from './utils'
 
 const sendDirectMessageOnEnter = (event) => async (dispatch, getState) => {
   const enterPressed = event.nativeEvent.keyCode === 13
@@ -47,6 +50,34 @@ const sendDirectMessage = (payload) => async (dispatch, getState) => {
   })
   const { replyTo: recipientAddress, username: recipientUsername } = payload.receiver
   dispatch(directMessagesQueueHandlers.epics.addDirectMessage({ message, recipientAddress, recipientUsername }))
+}
+
+const resendMessage = (message) => async (dispatch, getState) => {
+  dispatch(operationsHandlers.actions.removeOperation(message.id))
+  const transfer = await zbayMessages.messageToTransfer({
+    message,
+    recipientAddress: message.receiver.replyTo,
+    amount: message.type === zbayMessages.messageType.TRANSFER ? message.spent : '0.0001'
+  })
+  try {
+    const opId = await getClient().payment.send(transfer)
+    await dispatch(operationsHandlers.epics.observeOperation({
+      opId,
+      type: operationTypes.pendingDirectMessage,
+      meta: PendingDirectMessageOp({
+        recipientAddress: message.receiver.replyTo,
+        recipientUsername: message.receiver.username,
+        message: Immutable.fromJS(message)
+      }),
+      checkConfirmationNumber
+    }))
+  } catch (err) {
+    notificationsHandlers.actions.enqueueSnackbar(
+      errorNotification({
+        message: 'Couldn\'t send the message, please check node connection.'
+      })
+    )
+  }
 }
 
 const initialState = Immutable.Map()
@@ -160,7 +191,8 @@ export const epics = {
   sendDirectMessage,
   loadVaultMessages,
   sendDirectMessageOnEnter,
-  loadAllSentMessages
+  loadAllSentMessages,
+  resendMessage
 }
 
 export const reducer = handleActions({

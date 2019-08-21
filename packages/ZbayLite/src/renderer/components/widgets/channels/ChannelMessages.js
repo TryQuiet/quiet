@@ -32,7 +32,8 @@ export const ChannelMessages = ({
   measureRef,
   contentRect,
   setScrollPosition,
-  scrollPosition
+  scrollPosition,
+  contactId
 }) => {
   const scrollbarRef = ref => {
     if (ref !== null) {
@@ -57,7 +58,7 @@ export const ChannelMessages = ({
           <List disablePadding className={classes.list}>
             {messages.map(msg => {
               const MessageComponent = typeToMessageComponent[msg.get('type')]
-              return <MessageComponent key={msg.get('id')} message={msg} />
+              return <MessageComponent key={msg.get('id')} message={msg} contactId={contactId} />
             })}
           </List>
         </Scrollbars>
@@ -73,6 +74,7 @@ const typeToMessageComponent = {
 
 ChannelMessages.propTypes = {
   classes: PropTypes.object.isRequired,
+  contactId: PropTypes.string,
   messages: PropTypes.instanceOf(Immutable.List).isRequired,
   measureRef: PropTypes.oneOfType([
     PropTypes.func,

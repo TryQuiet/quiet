@@ -18,6 +18,8 @@ import testUtils from '../../testUtils'
 import { packMemo } from '../../zbay/transit'
 import selectors, { Contact } from '../selectors/contacts'
 import { MessageSender, ReceivedMessage } from './messages'
+import operationsSelectors from '../selectors/operations'
+import operationsHandlers, { operationTypes, PendingDirectMessageOp } from './operations'
 
 describe('contacts reducer', () => {
   let store = null
@@ -331,6 +333,43 @@ describe('contacts reducer', () => {
           })
 
           expect(newLastSeen).toEqual(testUtils.now)
+        })
+
+        it('- resendMessage resend selected direct message', async () => {
+          const messages = [
+            testUtils.createSendableTransferMessage({})
+          ]
+          const opId = `message-op-id`
+          const message = {
+            ...messages[0],
+            id: opId
+          }
+          zcashMock.requestManager.z_getoperationstatus.mockImplementationOnce(async () => [{
+            id: opId,
+            status: 'failed',
+            result: {
+              txid: 'message-op-id'
+            },
+            error: { code: -1, message: 'no funds' }
+          }])
+          zcashMock.requestManager.z_sendmany.mockResolvedValue('new-op-id')
+
+          await store.dispatch(operationsHandlers.epics.observeOperation({
+            meta: PendingDirectMessageOp({
+              recipientAddress: message.receiver.replyTo,
+              recipientUsername: message.receiver.username,
+              message
+            }),
+            type: operationTypes.pendingDirectMessage,
+            opId
+          }))
+          const beforeResend = operationsSelectors.pendingDirectMessages(store.getState())
+          expect(beforeResend.getIn([opId, 'status'])).toEqual('failed')
+
+          await store.dispatch(epics.resendMessage(message))
+
+          const pendingMessages = operationsSelectors.pendingDirectMessages(store.getState())
+          expect(pendingMessages.map(m => m.removeIn(['meta', 'recipientId']))).toMatchSnapshot()
         })
       })
     })

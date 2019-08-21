@@ -134,8 +134,8 @@ Immutable.List [
       "username": "Unnamed",
     },
     "receiver": Immutable.ExchangeParticipant {
-      "replyTo": "",
-      "username": "Unnamed",
+      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "username": "test-recipient-username",
     },
     "createdAt": 1551945828,
     "message": "This is some message test-message-id-3",
@@ -152,8 +152,8 @@ Immutable.List [
       "username": "Unnamed",
     },
     "receiver": Immutable.ExchangeParticipant {
-      "replyTo": "",
-      "username": "Unnamed",
+      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "username": "test-recipient-username",
     },
     "createdAt": 1551953028,
     "message": "This is some message test-message-id-2",
@@ -217,8 +217,8 @@ Immutable.List [
       "username": "Unnamed",
     },
     "receiver": Immutable.ExchangeParticipant {
-      "replyTo": "",
-      "username": "Unnamed",
+      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "username": "test-recipient-username",
     },
     "createdAt": 1551960228,
     "message": "This is some message test-message-id",

@@ -244,7 +244,7 @@ describe('Operations reducer handles for direct messages', () => {
           result: {
             txid: 'test-tx-id'
           },
-          error: { code: -1, message: 'no error' }
+          error: null
         }])
       })
       const message = Immutable.fromJS(createMessage(`test-message-id-1`))

@@ -50,7 +50,7 @@ export const actions = {
   removeMessage
 }
 
-export const checkConfirmationNumber = async ({ opId, status, txId, error, dispatch, getState }) => {
+export const checkConfirmationNumber = async ({ opId, status, txId, dispatch, getState }) => {
   const { meta: message } = operationsSelectors.pendingDirectMessages(getState()).get(opId).toJS()
   const identityId = identitySelectors.id(getState())
   const messageContent = message.message
@@ -70,7 +70,7 @@ export const checkConfirmationNumber = async ({ opId, status, txId, error, dispa
   } }))
   const subscribe = async (callback) => {
     async function poll () {
-      const { confirmations } = await getClient().confirmations.getResult(txId) || {}
+      const { confirmations, error = null } = await getClient().confirmations.getResult(txId) || {}
       if (confirmations >= 1) {
         return callback(error, { confirmations })
       } else {
@@ -87,7 +87,7 @@ export const checkConfirmationNumber = async ({ opId, status, txId, error, dispa
       username: recipientUsername
     } }))
     if (error) {
-      await getVault().contacts.updateMessage({ identityId, messageId: txId, recipientAddress, recipientUsername, newMessageStatus: 'error' })
+      await getVault().contacts.updateMessage({ identityId, messageId: txId, recipientAddress, recipientUsername, newMessageStatus: error })
     }
   })
 }

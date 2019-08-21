@@ -98,7 +98,7 @@ export const createSendableMessage = ({
 })
 
 export const createSendableTransferMessage = ({
-  message,
+  message = 'hello',
   createdAt = now.toSeconds()
 }) => ({
   type: zbayMessages.messageType.TRANSFER,
@@ -178,5 +178,6 @@ export default {
   channels,
   messages,
   createIdentity,
-  createMessage
+  createMessage,
+  createSendableTransferMessage
 }

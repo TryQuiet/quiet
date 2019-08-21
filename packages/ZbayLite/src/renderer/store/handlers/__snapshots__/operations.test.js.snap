@@ -133,7 +133,7 @@ Immutable.Map {
           "username": "Sun",
         },
         "createdAt": 1551963828,
-        "message": undefined,
+        "message": "hello",
       },
       "recipientAddress": "ztestsapling18qgdx9qtwyrawas5yc9mcm7wrx6ukn5unkdkz3dryufum2gjnt8me2kql6nvhca3vdv2704ud4t",
       "recipientUsername": "",
@@ -167,7 +167,7 @@ Immutable.Map {
           "username": "Sun",
         },
         "createdAt": 1551963828,
-        "message": undefined,
+        "message": "hello",
       },
       "recipientAddress": "ztestsapling18qgdx9qtwyrawas5yc9mcm7wrx6ukn5unkdkz3dryufum2gjnt8me2kql6nvhca3vdv2704ud4t",
       "recipientUsername": "",
@@ -200,7 +200,7 @@ Immutable.Map {
           "username": "Sun",
         },
         "createdAt": 1551963828,
-        "message": undefined,
+        "message": "hello",
       },
       "recipientAddress": "ztestsapling18qgdx9qtwyrawas5yc9mcm7wrx6ukn5unkdkz3dryufum2gjnt8me2kql6nvhca3vdv2704ud4t",
       "recipientUsername": "",
@@ -217,10 +217,6 @@ Array [
   Array [
     Object {
       "dispatch": [Function],
-      "error": Object {
-        "code": -1,
-        "message": "no error",
-      },
       "getState": [Function],
       "opId": "test-op-id-1",
       "status": "success",

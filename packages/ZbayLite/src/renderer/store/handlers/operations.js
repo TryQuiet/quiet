@@ -81,8 +81,8 @@ const observeOperation = ({ opId, type, meta, checkConfirmationNumber }) => asyn
 
   return subscribe((error, { status, txId }) => {
     dispatch(resolveOperation({ opId, status, txId, error }))
-    if (checkConfirmationNumber) {
-      checkConfirmationNumber({ opId, status, txId, getState, dispatch, error })
+    if (checkConfirmationNumber && !error) {
+      checkConfirmationNumber({ opId, status, txId, getState, dispatch })
     }
   })
 }

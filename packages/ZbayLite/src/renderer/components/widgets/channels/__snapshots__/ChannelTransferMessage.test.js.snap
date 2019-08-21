@@ -155,7 +155,7 @@ exports[`ChannelTransferMessage renders component when message is broadcasted 1`
         "username": "Sun",
       },
       "createdAt": 1551963828,
-      "message": "",
+      "message": "hello",
       "spent": "0.32",
       "fromYou": false,
       "status": "broadcasted",
@@ -257,7 +257,9 @@ exports[`ChannelTransferMessage renders component when message is broadcasted 1`
         <WithStyles(Typography)
           className="message-mock"
           variant="body2"
-        />
+        >
+          hello
+        </WithStyles(Typography)>
       </WithStyles(Grid)>
     </WithStyles(Grid)>
   </WithStyles(Grid)>
@@ -292,7 +294,7 @@ exports[`ChannelTransferMessage renders component when message is cancelled 1`] 
         "username": "Sun",
       },
       "createdAt": 1551963828,
-      "message": "",
+      "message": "hello",
       "spent": "0.32",
       "fromYou": false,
       "status": "cancelled",
@@ -400,7 +402,9 @@ exports[`ChannelTransferMessage renders component when message is cancelled 1`] 
         <WithStyles(Typography)
           className="message-mock"
           variant="body2"
-        />
+        >
+          hello
+        </WithStyles(Typography)>
       </WithStyles(Grid)>
     </WithStyles(Grid)>
   </WithStyles(Grid)>
@@ -435,7 +439,7 @@ exports[`ChannelTransferMessage renders component when message is failed 1`] = `
         "username": "Sun",
       },
       "createdAt": 1551963828,
-      "message": "",
+      "message": "hello",
       "spent": "0.32",
       "fromYou": false,
       "status": "failed",
@@ -546,7 +550,9 @@ exports[`ChannelTransferMessage renders component when message is failed 1`] = `
         <WithStyles(Typography)
           className="message-mock"
           variant="body2"
-        />
+        >
+          hello
+        </WithStyles(Typography)>
       </WithStyles(Grid)>
     </WithStyles(Grid)>
   </WithStyles(Grid)>
@@ -581,7 +587,7 @@ exports[`ChannelTransferMessage renders component when message is pending 1`] = 
         "username": "Sun",
       },
       "createdAt": 1551963828,
-      "message": "",
+      "message": "hello",
       "spent": "0.32",
       "fromYou": false,
       "status": "pending",
@@ -681,7 +687,9 @@ exports[`ChannelTransferMessage renders component when message is pending 1`] = 
         <WithStyles(Typography)
           className="message-mock"
           variant="body2"
-        />
+        >
+          hello
+        </WithStyles(Typography)>
       </WithStyles(Grid)>
     </WithStyles(Grid)>
   </WithStyles(Grid)>
@@ -716,7 +724,7 @@ exports[`ChannelTransferMessage renders component when message is sent by owner 
         "username": "Sun",
       },
       "createdAt": 1551963828,
-      "message": "",
+      "message": "hello",
       "spent": "0.32",
       "fromYou": true,
       "status": "broadcasted",
@@ -818,7 +826,9 @@ exports[`ChannelTransferMessage renders component when message is sent by owner 
         <WithStyles(Typography)
           className="message-mock"
           variant="body2"
-        />
+        >
+          hello
+        </WithStyles(Typography)>
       </WithStyles(Grid)>
     </WithStyles(Grid)>
   </WithStyles(Grid)>
@@ -853,7 +863,7 @@ exports[`ChannelTransferMessage renders component when message is success 1`] = 
         "username": "Sun",
       },
       "createdAt": 1551963828,
-      "message": "",
+      "message": "hello",
       "spent": "0.32",
       "fromYou": false,
       "status": "success",
@@ -954,7 +964,9 @@ exports[`ChannelTransferMessage renders component when message is success 1`] = 
         <WithStyles(Typography)
           className="message-mock"
           variant="body2"
-        />
+        >
+          hello
+        </WithStyles(Typography)>
       </WithStyles(Grid)>
     </WithStyles(Grid)>
   </WithStyles(Grid)>

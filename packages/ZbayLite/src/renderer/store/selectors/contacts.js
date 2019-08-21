@@ -48,7 +48,7 @@ export const directMessages = address => createSelector(
     const identityName = identitySelectors.name
 
     const displayablePending = pendingMessages.map(
-      operation => zbayMessages.operationToDisplayableMessage({ operation, identityAddress })
+      operation => zbayMessages.operationToDisplayableMessage({ operation, identityAddress, receiver: { replyTo: operation.meta.recipientAddress, username: operation.meta.recipientUsername } })
     )
 
     const displayableQueued = queuedMessages.map(
