@@ -3,7 +3,8 @@ import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
 import * as R from 'ramda'
 import * as Yup from 'yup'
-
+import secp256k1 from 'secp256k1'
+import createKeccakHash from 'keccak'
 import { packMemo, unpackMemo } from './transit'
 
 export const messageType = {
@@ -12,42 +13,49 @@ export const messageType = {
   TRANSFER: 4
 }
 
-export const ExchangeParticipant = Immutable.Record({
-  replyTo: '',
-  username: 'Unnamed'
-}, 'ExchangeParticipant')
+export const ExchangeParticipant = Immutable.Record(
+  {
+    replyTo: '',
+    username: 'Unnamed'
+  },
+  'ExchangeParticipant'
+)
 
-export const _DisplayableMessage = Immutable.Record({
-  id: null,
-  type: messageType.BASIC,
-  sender: ExchangeParticipant(),
-  receiver: ExchangeParticipant(),
-  createdAt: null,
-  message: '',
-  spent: new BigNumber(0),
-  fromYou: false,
-  status: 'broadcasted',
-  error: null
-}, 'DisplayableMessage')
+export const _DisplayableMessage = Immutable.Record(
+  {
+    id: null,
+    type: messageType.BASIC,
+    sender: ExchangeParticipant(),
+    receiver: ExchangeParticipant(),
+    createdAt: null,
+    message: '',
+    spent: new BigNumber(0),
+    fromYou: false,
+    status: 'broadcasted',
+    error: null
+  },
+  'DisplayableMessage'
+)
 
-export const DisplayableMessage = (values) => {
+export const DisplayableMessage = values => {
   const record = _DisplayableMessage(values)
   return record.merge({
     sender: ExchangeParticipant(record.sender),
-    receiver: ExchangeParticipant(record.receiver) })
+    receiver: ExchangeParticipant(record.receiver)
+  })
 }
 
-const _isOwner = (address, message) => message.getIn(['sender', 'replyTo']) === address
+// fromYou check if publicKey from signature is yours
 
 export const receivedToDisplayableMessage = ({
   message,
   identityAddress,
   receiver = { replyTo: '', username: 'Unnamed' }
 }) => {
-  return (DisplayableMessage(message).merge({
-    fromYou: _isOwner(identityAddress, message),
+  return DisplayableMessage(message).merge({
+    fromYou: true,
     receiver: ExchangeParticipant(receiver)
-  }))
+  })
 }
 
 export const vaultToDisplayableMessage = ({
@@ -55,50 +63,52 @@ export const vaultToDisplayableMessage = ({
   identityAddress,
   receiver = { replyTo: '', username: 'Unnamed' }
 }) => {
-  return (DisplayableMessage(message).merge({
+  return DisplayableMessage(message).merge({
     fromYou: true,
     receiver: ExchangeParticipant(receiver)
-  }))
+  })
 }
 
 export const operationToDisplayableMessage = ({
   operation,
   identityAddress,
   receiver = { replyTo: '', username: 'Unnamed' }
-}) => DisplayableMessage(operation.meta.message).merge({
-  error: operation.error,
-  status: operation.status,
-  id: operation.opId,
-  fromYou: _isOwner(identityAddress, operation.meta.message),
-  receiver: ExchangeParticipant(receiver)
-})
+}) =>
+  DisplayableMessage(operation.meta.message).merge({
+    error: operation.error,
+    status: operation.status,
+    id: operation.opId,
+    fromYou: true,
+    receiver: ExchangeParticipant(receiver)
+  })
 
 export const queuedToDisplayableMessage = ({
   messageKey,
   queuedMessage,
   identityAddress,
   receiver = { replyTo: '', username: 'Unnamed' }
-}) => DisplayableMessage(queuedMessage.message).merge({
-  fromYou: _isOwner(identityAddress, queuedMessage.message),
-  id: messageKey,
-  status: 'pending',
-  receiver: ExchangeParticipant(receiver)
-})
+}) =>
+  DisplayableMessage(queuedMessage.message).merge({
+    fromYou: true,
+    id: messageKey,
+    status: 'pending',
+    receiver: ExchangeParticipant(receiver)
+  })
 
 export const messageSchema = Yup.object().shape({
-  type: Yup.number().oneOf(R.values(messageType)).required(),
-  sender: Yup.object().shape({
-    replyTo: Yup.string().required(),
-    username: Yup.string()
-  }).required(),
+  type: Yup.number()
+    .oneOf(R.values(messageType))
+    .required(),
+  signature: Yup.Buffer,
   createdAt: Yup.number().required(),
   message: Yup.string()
 })
 
-export const transferToMessage = async ({ txid, amount, memo }, isTestnet) => {
+export const transferToMessage = async props => {
+  const { txid, amount, memo } = props
   let message = null
   try {
-    message = await unpackMemo(memo, isTestnet)
+    message = await unpackMemo(memo)
   } catch (err) {
     console.warn(err)
     return null
@@ -108,6 +118,11 @@ export const transferToMessage = async ({ txid, amount, memo }, isTestnet) => {
       ...(await messageSchema.validate(message)),
       id: txid,
       spent: new BigNumber(amount)
+      // sender: {
+      //   replyTo: 'INSERT',
+      //   username: 'HERE'
+      // }
+      // Add sender here
     }
   } catch (err) {
     console.warn('Incorrect message format: ', err)
@@ -115,39 +130,65 @@ export const transferToMessage = async ({ txid, amount, memo }, isTestnet) => {
   }
 }
 
-export const createMessage = ({ messageData, identity }) => ({
-  type: messageData.type,
-  spent: messageData.spent,
-  sender: {
-    replyTo: identity.address,
-    username: identity.name
-  },
-  createdAt: DateTime.utc().toSeconds(),
-  message: messageData.data
-})
+export const hash = data => {
+  return createKeccakHash('keccak256')
+    .update(data)
+    .digest()
+}
 
-export const createTransfer = (values) => (DisplayableMessage({
-  type: messageType.TRANSFER,
-  sender: {
-    replyTo: values.sender.address,
-    username: values.sender.name
-  },
-  receiver: {
-    replyTo: values.recipient,
-    username: ''
-  },
-  createdAt: DateTime.utc().toSeconds(),
-  message: values.memo,
-  spent: values.amountZec,
-  fromYou: true,
-  status: 'broadcasted',
-  error: null
-}))
+export const signMessage = ({ messageData }) => {
+  const privateKey = 'ceea41a1c9e91f839c96fba253b620da70992954b2a28b19322b191d8f5e56db' // import private key from vault
+  const pKey = Buffer.alloc(32)
+  pKey.write(privateKey, 0, 'hex')
+  // sign the messageData
+  const sigObj = secp256k1.sign(hash(messageData.data), pKey)
 
-export const messageToTransfer = async ({ message, channel, amount = '0.0001', recipientAddress }) => {
+  return {
+    type: messageData.type,
+    signature: sigObj.signature,
+    createdAt: DateTime.utc().toSeconds(),
+    message: messageData.data
+  }
+}
+export const getPublicKeysFromSignature = message => {
+  return [
+    secp256k1.recover(hash(message.message), message.signature, 0),
+    secp256k1.recover(hash(message.message), message.signature, 1)
+  ]
+}
+export const createMessage = ({ messageData }) => {
+  return signMessage({ messageData })
+}
+
+export const createTransfer = values =>
+  DisplayableMessage({
+    type: messageType.TRANSFER,
+    sender: {
+      replyTo: values.sender.address,
+      username: values.sender.name
+    },
+    receiver: {
+      replyTo: values.recipient,
+      username: ''
+    },
+    createdAt: DateTime.utc().toSeconds(),
+    message: values.memo,
+    spent: values.amountZec,
+    fromYou: true,
+    status: 'broadcasted',
+    error: null
+  })
+
+export const messageToTransfer = async ({
+  message,
+  channel,
+  amount = '0.0001',
+  recipientAddress
+}) => {
   if ((recipientAddress || channel).length === 35) {
     return {
-      from: message.sender.replyTo,
+      from:
+        'ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r',
       amounts: [
         {
           address: recipientAddress || channel.address,
@@ -158,7 +199,8 @@ export const messageToTransfer = async ({ message, channel, amount = '0.0001', r
   }
   const memo = await packMemo(message)
   return {
-    from: message.sender.replyTo,
+    from:
+      'ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r',
     amounts: [
       {
         address: recipientAddress || channel.address,
@@ -169,21 +211,18 @@ export const messageToTransfer = async ({ message, channel, amount = '0.0001', r
   }
 }
 
-export const transfersToMessages = async (transfers, owner, isTestnet) => {
-  const msgs = await Promise.all(transfers.map(t => transferToMessage(t, isTestnet)))
+export const transfersToMessages = async (transfers, owner) => {
+  const msgs = await Promise.all(transfers.map(t => transferToMessage(t)))
+
   return msgs.filter(x => x)
 }
 
-export const calculateDiff = ({
-  previousMessages,
-  nextMessages,
-  identityAddress,
-  lastSeen
-}) => nextMessages.filter(nextMessage => {
-  const isNew = DateTime.fromSeconds(nextMessage.createdAt) > lastSeen
-  const notOwner = identityAddress !== nextMessage.sender.replyTo
-  return isNew && notOwner && !previousMessages.includes(nextMessage)
-})
+export const calculateDiff = ({ previousMessages, nextMessages, identityAddress, lastSeen }) =>
+  nextMessages.filter(nextMessage => {
+    const isNew = DateTime.fromSeconds(nextMessage.createdAt) > lastSeen
+    const notOwner = identityAddress !== nextMessage.sender.replyTo
+    return isNew && notOwner && !previousMessages.includes(nextMessage)
+  })
 
 export default {
   receivedToDisplayableMessage,

@@ -11,7 +11,7 @@ const _entryToMessage = (message) => {
       username: entryObj.properties.senderUsername
     },
     type: parseInt(entryObj.properties.type),
-    message: JSON.parse(entryObj.properties.message),
+    message: entryObj.properties.message ? JSON.parse(entryObj.properties.message) : 'no message in vault', // until we update saving message to vault
     spent: new BigNumber(entryObj.properties.spent),
     createdAt: parseInt(entryObj.properties.createdAt),
     status: entryObj.properties.status

@@ -8,7 +8,7 @@ exports[`ChannelMessage renders component 1`] = `
       "id": 1,
       "type": 1,
       "sender": Immutable.ExchangeParticipant {
-        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "replyTo": "",
         "username": "Unnamed",
       },
       "receiver": Immutable.ExchangeParticipant {
@@ -53,7 +53,7 @@ exports[`ChannelMessage renders component when message is sent by owner 1`] = `
       "id": 1,
       "type": 1,
       "sender": Immutable.ExchangeParticipant {
-        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "replyTo": "",
         "username": "Unnamed",
       },
       "receiver": Immutable.ExchangeParticipant {

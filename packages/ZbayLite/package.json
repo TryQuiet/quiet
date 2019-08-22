@@ -76,7 +76,9 @@
     "webpack-cli": "^3.2.1",
     "webpack-dev-server": "^3.1.14",
     "webpack-node-externals": "^1.7.2",
-    "write-file-webpack-plugin": "^4.5.0"
+    "write-file-webpack-plugin": "^4.5.0",
+    "keccak": "^2.0.0",
+    "secp256k1": "^3.7.1"
   },
   "standard": {
     "parser": "babel-eslint",

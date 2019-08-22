@@ -8,12 +8,12 @@ exports[`ChannelTransferMessage renders component 1`] = `
       "id": null,
       "type": 4,
       "sender": Immutable.ExchangeParticipant {
-        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-        "username": "Wenus",
+        "replyTo": "",
+        "username": "Unnamed",
       },
       "receiver": Immutable.ExchangeParticipant {
-        "replyTo": "zs1z9rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-        "username": "Sun",
+        "replyTo": "",
+        "username": "Unnamed",
       },
       "createdAt": 1551963828,
       "message": "This is a message with id undefined",
@@ -87,7 +87,7 @@ exports[`ChannelTransferMessage renders component 1`] = `
           className="boldText-mock"
           variant="subtitle2"
         >
-          Sun
+          Unnamed
         </WithStyles(Typography)>
       </WithStyles(Grid)>
       <WithStyles(Grid)

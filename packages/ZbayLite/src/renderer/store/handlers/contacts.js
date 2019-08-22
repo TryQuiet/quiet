@@ -26,7 +26,6 @@ const sendDirectMessageOnEnter = (event) => async (dispatch, getState) => {
   if (enterPressed && !shiftPressed) {
     event.preventDefault()
     const message = zbayMessages.createMessage({
-      identity: identitySelectors.data(getState()).toJS(),
       messageData: {
         type: zbayMessages.messageType.BASIC,
         data: event.target.value
@@ -41,7 +40,6 @@ const sendDirectMessageOnEnter = (event) => async (dispatch, getState) => {
 const sendDirectMessage = (payload) => async (dispatch, getState) => {
   const { spent, type, message: messageData } = payload
   const message = zbayMessages.createMessage({
-    identity: identitySelectors.data(getState()).toJS(),
     messageData: {
       type,
       data: messageData,

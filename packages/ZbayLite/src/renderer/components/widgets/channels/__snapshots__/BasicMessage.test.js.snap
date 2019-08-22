@@ -28,7 +28,7 @@ exports[`BasicMessage renders component 1`] = `
           <WithStyles(Typography)
             variant="caption"
           >
-            zbay.io/uri/zs1z7rejlpsa98s2rrrf
+            zbay.io/uri/
             ...
           </WithStyles(Typography)>
         </WithStyles(Grid)>
@@ -86,7 +86,7 @@ exports[`BasicMessage renders component when message is sent by owner 1`] = `
           <WithStyles(Typography)
             variant="caption"
           >
-            zbay.io/uri/zs1z7rejlpsa98s2rrrf
+            zbay.io/uri/
             ...
           </WithStyles(Typography)>
         </WithStyles(Grid)>
@@ -143,7 +143,7 @@ exports[`BasicMessage renders component with status failed 1`] = `
           <WithStyles(Typography)
             variant="caption"
           >
-            zbay.io/uri/zs1z7rejlpsa98s2rrrf
+            zbay.io/uri/
             ...
           </WithStyles(Typography)>
         </WithStyles(Grid)>
@@ -211,7 +211,7 @@ exports[`BasicMessage renders correct time for different month 1`] = `
           <WithStyles(Typography)
             variant="caption"
           >
-            zbay.io/uri/zs1z7rejlpsa98s2rrrf
+            zbay.io/uri/
             ...
           </WithStyles(Typography)>
         </WithStyles(Grid)>
@@ -268,7 +268,7 @@ exports[`BasicMessage renders correct time for different year 1`] = `
           <WithStyles(Typography)
             variant="caption"
           >
-            zbay.io/uri/zs1z7rejlpsa98s2rrrf
+            zbay.io/uri/
             ...
           </WithStyles(Typography)>
         </WithStyles(Grid)>
@@ -325,7 +325,7 @@ exports[`BasicMessage renders correct time for same week 1`] = `
           <WithStyles(Typography)
             variant="caption"
           >
-            zbay.io/uri/zs1z7rejlpsa98s2rrrf
+            zbay.io/uri/
             ...
           </WithStyles(Typography)>
         </WithStyles(Grid)>
@@ -377,12 +377,12 @@ exports[`BasicMessage renders username 1`] = `
             className="username-mock"
             color="textPrimary"
           >
-            Saturn
+            Unnamed
           </WithStyles(Typography)>
           <WithStyles(Typography)
             variant="caption"
           >
-            zbay.io/uri/zs1z7rejlpsa98s2rrrf
+            zbay.io/uri/
             ...
           </WithStyles(Typography)>
         </WithStyles(Grid)>
@@ -439,7 +439,7 @@ exports[`BasicMessage renders with status cancelled 1`] = `
           <WithStyles(Typography)
             variant="caption"
           >
-            zbay.io/uri/zs1z7rejlpsa98s2rrrf
+            zbay.io/uri/
             ...
           </WithStyles(Typography)>
         </WithStyles(Grid)>
@@ -496,7 +496,7 @@ exports[`BasicMessage renders with status pending 1`] = `
           <WithStyles(Typography)
             variant="caption"
           >
-            zbay.io/uri/zs1z7rejlpsa98s2rrrf
+            zbay.io/uri/
             ...
           </WithStyles(Typography)>
         </WithStyles(Grid)>
@@ -553,7 +553,7 @@ exports[`BasicMessage renders with status success 1`] = `
           <WithStyles(Typography)
             variant="caption"
           >
-            zbay.io/uri/zs1z7rejlpsa98s2rrrf
+            zbay.io/uri/
             ...
           </WithStyles(Typography)>
         </WithStyles(Grid)>

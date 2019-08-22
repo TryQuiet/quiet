@@ -2,7 +2,7 @@ import { DateTime } from 'luxon'
 import * as R from 'ramda'
 
 // TODO: [refactoring] remove unread property
-const _entryToChannel = (channel) => {
+const _entryToChannel = channel => {
   const entryObj = channel.toObject()
   return {
     id: entryObj.id,
@@ -22,7 +22,7 @@ const processEntries = R.compose(
   R.map(_entryToChannel)
 )
 
-export default (vault) => {
+export default vault => {
   const importChannel = async (identityId, channel) => {
     await vault.withWorkspace(workspace => {
       const [channels] = workspace.archive.findGroupsByTitle('Channels')
@@ -31,7 +31,8 @@ export default (vault) => {
         identityGroup = channels.createGroup(identityId)
       }
       const isPrivate = channel.private ? 1 : 0
-      identityGroup.createEntry(channel.address)
+      identityGroup
+        .createEntry(channel.address)
         .setProperty('name', channel.name)
         .setProperty('private', isPrivate.toString())
         .setProperty('address', channel.address)
@@ -43,7 +44,7 @@ export default (vault) => {
     })
   }
 
-  const listChannels = async (identityId) => {
+  const listChannels = async identityId => {
     let channelsEntries = []
     await vault.withWorkspace(workspace => {
       const [channels] = workspace.archive.findGroupsByTitle('Channels')
@@ -58,7 +59,9 @@ export default (vault) => {
       const [channels] = workspace.archive.findGroupsByTitle('Channels')
       const [identityChannels] = channels.findGroupsByTitle(identityId)
       const channel = identityChannels.findEntryByID(channelId)
-      channel.setProperty('lastSeen', `${lastSeen.toSeconds()}`)
+      if (channel !== null) {
+        channel.setProperty('lastSeen', `${lastSeen.toSeconds()}`)
+      }
       workspace.save()
     })
   }

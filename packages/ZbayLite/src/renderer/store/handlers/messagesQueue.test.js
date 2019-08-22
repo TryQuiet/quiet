@@ -79,11 +79,7 @@ describe('Messages queue reducer handles', () => {
         store.dispatch(actions.addMessage({ message, channelId: 'test-channel-id' }))
         store.dispatch(actions.addMessage({
           message: {
-            ...message2,
-            sender: {
-              replyTo: message2.sender.replyTo,
-              username: 'Mercury'
-            }
+            ...message2
           },
           channelId: 'test-channel-id'
         }))

@@ -1,92 +1,42 @@
-import bech32 from 'bech32'
-
 import { inflate, deflate } from '../compression'
 
 export const MEMO_SIZE = 512
-const ADDRESS_SIZE = 43
-const USERNAME_SIZE = 20
-const TIMESTAMP_SIZE = 4
 const TYPE_SIZE = 1
-const MESSAGE_SIZE = MEMO_SIZE - (
-  ADDRESS_SIZE +
-  USERNAME_SIZE +
-  TIMESTAMP_SIZE +
-  TYPE_SIZE
-)
+const SIGNATURE_SIZE = 64
+const TIMESTAMP_SIZE = 4
+const MESSAGE_SIZE = MEMO_SIZE - (TIMESTAMP_SIZE + SIGNATURE_SIZE + TYPE_SIZE)
 
-const decodeAddress = (address) => {
-  const { words } = bech32.decode(address)
-  return Buffer.from(bech32.fromWords(words))
-}
-
-const encodeAddress = (address, prefix) => bech32.encode(
-  prefix,
-  bech32.toWords(Buffer.from(address))
-)
-
-export const packMemo = async (message) => {
-  const replyTo = decodeAddress(message.sender.replyTo)
-
-  const username = Buffer.alloc(USERNAME_SIZE)
-  username.write(message.sender.username || '')
-
+export const packMemo = async message => {
+  const type = Buffer.alloc(TYPE_SIZE)
+  type.writeUInt8(message.type)
+  const signatureData = message.signature
   const ts = Buffer.alloc(TIMESTAMP_SIZE)
   ts.writeUInt32BE(message.createdAt)
-
-  const type = Buffer.alloc(1)
-  type.writeUInt8(message.type)
 
   const msgData = Buffer.alloc(MESSAGE_SIZE)
   const d = await deflate(message.message)
   msgData.write(d)
 
-  const result = Buffer.concat([
-    replyTo,
-    username,
-    ts,
-    type,
-    msgData
-  ])
+  const result = Buffer.concat([type, signatureData, ts, msgData])
   return result.toString('hex')
 }
 
-const terminatedStringLength = (stringB) => {
-  const terminatorIndex = stringB.indexOf(0)
-  if (terminatorIndex === -1) {
-    return Buffer.byteLength(stringB)
-  }
-  return terminatorIndex
-}
-
-export const unpackMemo = async (memo, testnet) => {
-  const prefix = testnet ? 'ztestsapling' : 'zs'
+export const unpackMemo = async (memo) => {
   const memoBuff = Buffer.from(memo, 'hex')
 
-  const replyTo = encodeAddress(memoBuff.slice(0, ADDRESS_SIZE), prefix)
+  const typeEnds = TYPE_SIZE
+  const type = memoBuff.slice(0, typeEnds).readUInt8()
 
-  const usernameEnds = ADDRESS_SIZE + USERNAME_SIZE
-  const usernameBuff = memoBuff.slice(ADDRESS_SIZE, usernameEnds)
-  const username = usernameBuff.toString(
-    'utf8',
-    0,
-    terminatedStringLength(usernameBuff)
-  )
-
-  const timestampEnds = usernameEnds + TIMESTAMP_SIZE
-  const createdAt = memoBuff.slice(usernameEnds, timestampEnds).readUInt32BE()
-
-  const typeEnds = timestampEnds + TYPE_SIZE
-  const type = memoBuff.slice(timestampEnds, typeEnds).readUInt8()
-
-  const message = memoBuff.slice(typeEnds)
+  const signatureEnds = typeEnds + SIGNATURE_SIZE
+  const signature = memoBuff.slice(typeEnds, signatureEnds)
+  const timestampEnds = signatureEnds + TIMESTAMP_SIZE
+  const createdAt = memoBuff.slice(signatureEnds, timestampEnds).readUInt32BE()
+  const message = memoBuff.slice(timestampEnds)
 
   return {
-    sender: {
-      replyTo,
-      ...(username && { username })
-    },
+    type,
+    signature,
     message: await inflate(message.toString()),
-    createdAt,
-    type
+    createdAt
   }
 }

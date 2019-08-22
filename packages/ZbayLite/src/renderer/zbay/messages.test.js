@@ -13,6 +13,9 @@ describe('messages -', () => {
   describe('transfer to message', () => {
     const txid = 'test-id'
     const spent = '234.56'
+    const privateKey = 'ceea41a1c9e91f839c96fba253b620da70992954b2a28b19322b191d8f5e56db'
+    const pKey = Buffer.alloc(32)
+    pKey.write(privateKey, 0, 'hex')
 
     beforeEach(() => {
       jest.spyOn(DateTime, 'utc').mockReturnValueOnce(testUtils.now)
@@ -20,7 +23,7 @@ describe('messages -', () => {
     })
 
     it('when memo is a message', async () => {
-      const message = R.omit(['id', 'spent'], testUtils.messages.createMessage(txid))
+      const message = testUtils.messages.createMessage(txid)
       const transfer = testUtils.transfers.createTransfer({
         txid,
         memo: await packMemo(message),
@@ -34,7 +37,7 @@ describe('messages -', () => {
     })
 
     it('when on testnet', async () => {
-      const message = R.omit(['id', 'spent'], testUtils.messages.createMessage(txid))
+      const message = testUtils.messages.createMessage(txid)
       const transfer = testUtils.transfers.createTransfer({
         txid,
         memo: await packMemo(message),
@@ -46,7 +49,7 @@ describe('messages -', () => {
       expect(received).toMatchSnapshot()
     })
 
-    it('when memo isn\'t compressed string', async () => {
+    it("when memo isn't compressed string", async () => {
       jest.spyOn(console, 'warn').mockImplementation()
       const transfer = testUtils.transfers.createTransfer({
         txid,
@@ -76,12 +79,10 @@ describe('messages -', () => {
       const channel = testUtils.channels.createChannel('test-id')
       const amount = '0.1'
 
-      const { amounts, ...result } = await messageToTransfer({ message, channel, amount })
+      const { amounts } = await messageToTransfer({ message, channel, amount })
 
       // We have to deflate memo since encryption may be a little different on each run
       // and the test may flicker
-
-      expect(result).toEqual({ from: identity.address })
 
       expect(amounts).toHaveLength(1)
       const [{ memo, ...amountSent }] = amounts
@@ -97,27 +98,17 @@ describe('messages -', () => {
 
   it('message -> transfer -> message', async () => {
     jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => testUtils.now)
-    const identity = Identity({
-      address: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya',
-      name: 'Mercury'
-    }).toJS()
     const txid = 'test-op-id'
-    const message = testUtils.messages.createMessage({
-      messageData: {
-        type: messageType.BASIC,
-        data: 'This is some simple message created by client'
-      },
-      identity
-    })
+    const message = testUtils.messages.createMessage('test-op-id12')
     const channel = testUtils.channels.createChannel('test-id')
     const amount = '0.1'
-
     const transfer = await messageToTransfer({ message, channel, amount })
     const receivedTransfer = {
       txid,
       amount: transfer.amounts[0].amount,
       memo: transfer.amounts[0].memo
     }
+
     const receivedMessage = await transferToMessage(receivedTransfer)
 
     expect(receivedMessage).toEqual({
@@ -129,13 +120,15 @@ describe('messages -', () => {
 
   describe('calculate diff', () => {
     const nextMessages = Immutable.List(
-      R.range(0, 5).map(id => ReceivedMessage(
-        testUtils.messages.createReceivedMessage({
-          id,
-          createdAt: testUtils.now.minus({ hours: 2 * id }).toSeconds(),
-          sender: testUtils.identities[1]
-        })
-      ))
+      R.range(0, 5).map(id =>
+        ReceivedMessage(
+          testUtils.messages.createReceivedMessage({
+            id,
+            createdAt: testUtils.now.minus({ hours: 2 * id }).toSeconds(),
+            sender: testUtils.identities[1]
+          })
+        )
+      )
     )
 
     const previousMessages = nextMessages.slice(0, 3)

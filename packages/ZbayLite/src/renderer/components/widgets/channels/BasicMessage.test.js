@@ -83,8 +83,7 @@ describe('BasicMessage', () => {
 
   it('renders username', () => {
     const message = Immutable.fromJS(createMessage(1, now.minus({ hours: 2 }).toSeconds())).update(
-      'sender',
-      sender => sender.set('username', 'Saturn')
+      m => m.set(['sender', 'username'], 'Saturn')
     )
     const result = shallow(
       <BasicMessage

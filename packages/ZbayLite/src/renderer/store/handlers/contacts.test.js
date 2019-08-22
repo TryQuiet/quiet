@@ -36,51 +36,46 @@ describe('contacts reducer', () => {
     username: identity2.username
   })
 
-  const receivedMock = async (address) => {
+  const receivedMock = async address => {
     if (address === identityAddress) {
-      const messagesForIdentity1 = await Promise.all(R.range(0, 2).map(
-        async (i) => {
+      const messagesForIdentity1 = await Promise.all(
+        R.range(0, 2).map(async i => {
           const message = testUtils.messages.createSendableMessage({
             message: `message ${i} for ${identityAddress}`,
             createdAt: testUtils.now.minus({ hours: i }).toSeconds(),
-            replyTo: identity1.address,
-            username: identity1.username,
             type: i % 2 ? messageType.BASIC : messageType.TRANSFER
           })
           return testUtils.transfers.createTransfer({
             txid: `tx-id-${i}-${identity1.address}`,
             memo: await packMemo(message)
           })
-        }
-      ))
+        })
+      )
 
-      const messagesForIdentity2 = await Promise.all(R.range(0, 2).map(
-        async (i) => {
+      const messagesForIdentity2 = await Promise.all(
+        R.range(0, 2).map(async i => {
           const message = testUtils.messages.createSendableMessage({
             message: `message ${i} for ${identityAddress}`,
             createdAt: testUtils.now.minus({ hours: i }).toSeconds(),
-            replyTo: identity2.address,
-            username: identity2.username,
             type: i % 2 ? messageType.BASIC : messageType.TRANSFER
           })
           return testUtils.transfers.createTransfer({
             txid: `tx-id-${i}-${identity2.address}`,
             memo: await packMemo(message)
           })
-        }
-      ))
-
-      const normalTransfers = await Promise.all(R.range(0, 2).map(
-        async (i) => testUtils.transfers.createTransfer({
-          txid: `tx-id-${i}-${identityAddress}`,
-          memo: Buffer.from(`This is a simple transfer nr ${i}`).toString('hex')
         })
-      ))
-      return [
-        ...messagesForIdentity1,
-        ...messagesForIdentity2,
-        ...normalTransfers
-      ]
+      )
+
+      const normalTransfers = await Promise.all(
+        R.range(0, 2).map(async i => {
+          const message = testUtils.messages.createMessage('test-id')
+          return testUtils.transfers.createTransfer({
+            txid: `tx-id-${i}-${identityAddress}`,
+            memo: await packMemo(message)
+          })
+        })
+      )
+      return [...messagesForIdentity1, ...messagesForIdentity2, ...normalTransfers]
     }
     return []
   }
@@ -111,14 +106,15 @@ describe('contacts reducer', () => {
     describe('handles actions', () => {
       describe('- setMessages', () => {
         const messages = Immutable.List(
-          R.range(0, 2).map(id => ReceivedMessage(
-            testUtils.messages.createReceivedMessage({
-              id,
-              createdAt: testUtils.now.minus({ hours: 2 * id }).toSeconds(),
-              sender: identity1
-            })
-          ))
-
+          R.range(0, 2).map(id =>
+            ReceivedMessage(
+              testUtils.messages.createReceivedMessage({
+                id,
+                createdAt: testUtils.now.minus({ hours: 2 * id }).toSeconds(),
+                sender: identity1
+              })
+            )
+          )
         )
 
         it('when no contact', () => {
@@ -151,7 +147,9 @@ describe('contacts reducer', () => {
         const messagesIds = ['message-id-1', 'message-id-2']
 
         it('- when no contact', () => {
-          store.dispatch(actions.appendNewMessages({ messagesIds, contactAddress: identity1.address }))
+          store.dispatch(
+            actions.appendNewMessages({ messagesIds, contactAddress: identity1.address })
+          )
 
           const contact = selectors.contact(identity1.address)(store.getState())
           expect(contact).toMatchSnapshot()
@@ -170,16 +168,25 @@ describe('contacts reducer', () => {
             })
           })
 
-          store.dispatch(actions.appendNewMessages({ messagesIds, contactAddress: identity1.address }))
+          store.dispatch(
+            actions.appendNewMessages({ messagesIds, contactAddress: identity1.address })
+          )
 
           const contact = selectors.contact(identity1.address)(store.getState())
           expect(contact).toMatchSnapshot()
         })
 
         it('when there are already new messages', () => {
-          store.dispatch(actions.appendNewMessages({ messagesIds: ['prev-id-1'], contactAddress: identity1.address }))
+          store.dispatch(
+            actions.appendNewMessages({
+              messagesIds: ['prev-id-1'],
+              contactAddress: identity1.address
+            })
+          )
 
-          store.dispatch(actions.appendNewMessages({ messagesIds, contactAddress: identity1.address }))
+          store.dispatch(
+            actions.appendNewMessages({ messagesIds, contactAddress: identity1.address })
+          )
 
           const contact = selectors.contact(identity1.address)(store.getState())
           expect(contact).toMatchSnapshot()
@@ -214,7 +221,12 @@ describe('contacts reducer', () => {
         })
 
         it('when there are already new messages', () => {
-          store.dispatch(actions.appendNewMessages({ messagesIds: ['prev-id-1'], contactAddress: identity1.address }))
+          store.dispatch(
+            actions.appendNewMessages({
+              messagesIds: ['prev-id-1'],
+              contactAddress: identity1.address
+            })
+          )
 
           store.dispatch(actions.cleanNewMessages({ contactAddress: identity1.address }))
 
@@ -225,10 +237,12 @@ describe('contacts reducer', () => {
 
       describe('- setLastSeen', () => {
         it('- when no contact', () => {
-          store.dispatch(actions.setLastSeen({
-            lastSeen: testUtils.now,
-            contact: contact1
-          }))
+          store.dispatch(
+            actions.setLastSeen({
+              lastSeen: testUtils.now,
+              contact: contact1
+            })
+          )
 
           const contact = selectors.contact(identity1.address)(store.getState())
           expect(contact).toMatchSnapshot()
@@ -247,25 +261,31 @@ describe('contacts reducer', () => {
             })
           })
 
-          store.dispatch(actions.setLastSeen({
-            lastSeen: testUtils.now,
-            contact: contact1
-          }))
+          store.dispatch(
+            actions.setLastSeen({
+              lastSeen: testUtils.now,
+              contact: contact1
+            })
+          )
 
           const contact = selectors.contact(identity1.address)(store.getState())
           expect(contact).toMatchSnapshot()
         })
 
         it('when last seen already set', () => {
-          store.dispatch(actions.setLastSeen({
-            lastSeen: testUtils.now,
-            contact: contact1
-          }))
+          store.dispatch(
+            actions.setLastSeen({
+              lastSeen: testUtils.now,
+              contact: contact1
+            })
+          )
 
-          store.dispatch(actions.setLastSeen({
-            lastSeen: testUtils.now.plus({ hours: 2 }),
-            contact: contact1
-          }))
+          store.dispatch(
+            actions.setLastSeen({
+              lastSeen: testUtils.now.plus({ hours: 2 }),
+              contact: contact1
+            })
+          )
 
           const contact = selectors.contact(identity1.address)(store.getState())
           expect(contact).toMatchSnapshot()

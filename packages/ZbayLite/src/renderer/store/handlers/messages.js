@@ -5,7 +5,6 @@ import { createAction, handleActions } from 'redux-actions'
 
 import selectors from '../selectors/messages'
 import channelsSelectors from '../selectors/channels'
-import nodeSelectors from '../selectors/node'
 import identitySelectors from '../selectors/identity'
 import operationsSelectors from '../selectors/operations'
 import operationsHandlers from './operations'
@@ -15,29 +14,38 @@ import { messages as zbayMessages } from '../../zbay'
 import { getClient } from '../../zcash'
 import { displayMessageNotification } from '../../notifications'
 
-export const MessageSender = Immutable.Record({
-  replyTo: '',
-  username: ''
-}, 'MessageSender')
+export const MessageSender = Immutable.Record(
+  {
+    replyTo: '',
+    username: ''
+  },
+  'MessageSender'
+)
 
-const _ReceivedMessage = Immutable.Record({
-  id: null,
-  type: messageType.BASIC,
-  sender: MessageSender(),
-  createdAt: null,
-  message: '',
-  spent: new BigNumber(0)
-}, 'ReceivedMessage')
+const _ReceivedMessage = Immutable.Record(
+  {
+    id: null,
+    type: messageType.BASIC,
+    sender: MessageSender(),
+    createdAt: 0,
+    message: '',
+    spent: new BigNumber(0)
+  },
+  'ReceivedMessage'
+)
 
-export const ReceivedMessage = (values) => {
+export const ReceivedMessage = values => {
   const record = _ReceivedMessage(values)
   return record.set('sender', MessageSender(record.sender))
 }
 
-export const ChannelMessages = Immutable.Record({
-  messages: Immutable.List(),
-  newMessages: Immutable.List()
-}, 'ChannelMessages')
+export const ChannelMessages = Immutable.Record(
+  {
+    messages: Immutable.List(),
+    newMessages: Immutable.List()
+  },
+  'ChannelMessages'
+)
 
 export const initialState = Immutable.Map()
 
@@ -52,30 +60,29 @@ export const actions = {
 }
 
 export const fetchMessages = () => async (dispatch, getState) => {
-  const isTestnet = nodeSelectors.node(getState()).isTestnet
   const channels = channelsSelectors.data(getState())
   const pendingMessages = operationsSelectors.pendingMessages(getState())
   const identityAddress = identitySelectors.address(getState())
 
   return Promise.all(
-    channels.map(async (channel) => {
+    channels.map(async channel => {
       const channelId = channel.get('id')
       const transfers = await getClient().payment.received(channel.get('address'))
-
-      const messages = await Promise.all(transfers.map(
-        async (transfer) => {
-          const message = await zbayMessages.transferToMessage(transfer, isTestnet)
-
-          const pendingMessage = pendingMessages.find(
-            pm => pm.txId && pm.txId === message.id)
+      const messagesAll = await Promise.all(
+        transfers.map(async transfer => {
+          const message = await zbayMessages.transferToMessage(transfer)
+          if (message === null) {
+            return ReceivedMessage(message)
+          }
+          const pendingMessage = pendingMessages.find(pm => pm.txId && pm.txId === message.id)
           if (pendingMessage) {
-            dispatch(
-              operationsHandlers.actions.removeOperation(pendingMessage.opId)
-            )
+            dispatch(operationsHandlers.actions.removeOperation(pendingMessage.opId))
           }
           return ReceivedMessage(message)
-        }
-      ))
+        })
+      )
+      const messages = messagesAll.filter(message => message.id !== null)
+
       const previousMessages = selectors.currentChannelMessages(channelId)(getState())
 
       let lastSeen = channelsSelectors.lastSeen(channelId)(getState())
@@ -89,10 +96,12 @@ export const fetchMessages = () => async (dispatch, getState) => {
         lastSeen,
         identityAddress
       })
-      dispatch(appendNewMessages({
-        channelId,
-        messagesIds: newMessages.map(R.prop('id'))
-      }))
+      dispatch(
+        appendNewMessages({
+          channelId,
+          messagesIds: newMessages.map(R.prop('id'))
+        })
+      )
       dispatch(setMessages({ messages, channelId }))
       newMessages.map(nm => displayMessageNotification({ message: nm, channel }))
     })
@@ -103,22 +112,21 @@ export const epics = {
   fetchMessages
 }
 
-export const reducer = handleActions({
-  [setMessages]: (state, { payload: { channelId, messages } }) => state.update(
-    channelId,
-    ChannelMessages(),
-    cm => cm.set('messages', Immutable.fromJS(messages))
-  ),
-  [cleanNewMessages]: (state, { payload: { channelId } }) => state.update(
-    channelId,
-    ChannelMessages(),
-    cm => cm.set('newMessages', Immutable.List())
-  ),
-  [appendNewMessages]: (state, { payload: { channelId, messagesIds } }) => state.update(
-    channelId,
-    ChannelMessages(),
-    cm => cm.update('newMessages', nm => nm.concat(messagesIds)))
-}, initialState)
+export const reducer = handleActions(
+  {
+    [setMessages]: (state, { payload: { channelId, messages } }) =>
+      state.update(channelId, ChannelMessages(), cm =>
+        cm.set('messages', Immutable.fromJS(messages))
+      ),
+    [cleanNewMessages]: (state, { payload: { channelId } }) =>
+      state.update(channelId, ChannelMessages(), cm => cm.set('newMessages', Immutable.List())),
+    [appendNewMessages]: (state, { payload: { channelId, messagesIds } }) =>
+      state.update(channelId, ChannelMessages(), cm =>
+        cm.update('newMessages', nm => nm.concat(messagesIds))
+      )
+  },
+  initialState
+)
 
 export default {
   reducer,
