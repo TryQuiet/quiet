@@ -1,6 +1,8 @@
 import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
 import { createAction, handleActions } from 'redux-actions'
+import secp256k1 from 'secp256k1'
+import { randomBytes } from 'crypto'
 
 import { getClient } from '../../zcash'
 import channels from '../../zcash/channels'
@@ -19,6 +21,8 @@ export const Identity = Immutable.Record({
   id: null,
   address: '',
   transparentAddress: '',
+  signerPrivKey: '',
+  signerPubKey: '',
   name: '',
   balance: null,
   lockedBalance: null
@@ -108,6 +112,17 @@ export const fetchBalance = () => async (dispatch, getState) => {
   }
 }
 
+export const createSignerKeys = () => {
+  let signerPrivKey
+  do {
+    signerPrivKey = randomBytes(32)
+  } while (!secp256k1.privateKeyVerify(signerPrivKey))
+  return {
+    signerPrivKey: signerPrivKey,
+    signerPubKey: secp256k1.publicKeyCreate(signerPrivKey, true)
+  }
+}
+
 export const createIdentity = ({ name }) => async (dispatch, getState) => {
   try {
     const [{ value: address }, transparentAddress] = await Promise.all([
@@ -119,10 +134,14 @@ export const createIdentity = ({ name }) => async (dispatch, getState) => {
       await getClient().keys.exportSK(address)
     ])
 
+    const { signerPrivKey, signerPubKey } = exportFunctions.createSignerKeys()
+
     const { value: identity } = await dispatch(vaultHandlers.actions.createIdentity({
       name,
       address,
       transparentAddress,
+      signerPubKey,
+      signerPrivKey,
       keys: {
         tpk,
         sk
@@ -142,12 +161,11 @@ export const createIdentity = ({ name }) => async (dispatch, getState) => {
   }
 }
 
-export const setIdentityEpic = (identityToSet) => async (dispatch) => {
+export const setIdentityEpic = (identityToSet) => async (dispatch, getState) => {
   dispatch(setLoading(true))
   try {
     dispatch(setLoadingMessage('Ensuring identity integrity'))
-    const identity = await migrateTo_0_2_0.ensureIdentityHasKeys(identityToSet)
-
+    let identity = await migrateTo_0_2_0.ensureIdentityHasKeys(identityToSet)
     // Make sure identity is handled by the node
     dispatch(setLoadingMessage('Ensuring node contains identity keys'))
     await Promise.all([
@@ -156,7 +174,19 @@ export const setIdentityEpic = (identityToSet) => async (dispatch) => {
     ])
 
     dispatch(setLoadingMessage('Setting identity'))
+    // Check if identity has signerKeys
+    if (!identity.signerPrivKey || !identity.signerPubKey) {
+      const { signerPrivKey, signerPubKey } = createSignerKeys()
+      const { value: updatedIdentity } = await dispatch(vaultHandlers.actions.updateIdentitySignerKeys({
+        id: identity.id,
+        signerPubKey,
+        signerPrivKey
+      }))
+      identity = updatedIdentity
+    }
     dispatch(setIdentity(identity))
+    console.log(identity)
+    console.log(identitySelectors.signerPrivKey(getState()))
     dispatch(setLoadingMessage('Fetching balance and loading channels'))
     await Promise.all([
       dispatch(fetchBalance()),
@@ -170,7 +200,12 @@ export const setIdentityEpic = (identityToSet) => async (dispatch) => {
 const epics = {
   fetchBalance,
   createIdentity,
-  setIdentity: setIdentityEpic
+  setIdentity: setIdentityEpic,
+  createSignerKeys
+}
+
+const exportFunctions = {
+  createSignerKeys
 }
 
 export const reducer = handleActions({
@@ -195,5 +230,6 @@ export const reducer = handleActions({
 export default {
   actions,
   epics,
-  reducer
+  reducer,
+  exportFunctions
 }

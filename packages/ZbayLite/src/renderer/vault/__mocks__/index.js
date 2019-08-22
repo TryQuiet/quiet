@@ -11,6 +11,7 @@ export default {
   getVault,
   identity: {
     createIdentity: jest.fn(async () => { throw Error('createIdentity mock not implemented') }),
-    listIdentities: jest.fn(async () => { throw Error('listIdentities mock not implemented') })
+    listIdentities: jest.fn(async () => { throw Error('listIdentities mock not implemented') }),
+    updateIdentitySignerKeys: jest.fn(async () => { throw Error('updateIdentitySignerKeys mock not implemented') })
   }
 }

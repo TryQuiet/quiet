@@ -19,7 +19,8 @@ import {
   getVault,
   listIdentities,
   updateIdentity,
-  withVaultInitialized
+  withVaultInitialized,
+  updateIdentitySignerKeys
 } from './'
 import testUtils from '../testUtils'
 
@@ -107,6 +108,28 @@ describe('vault instance', () => {
       }
 
       await updateIdentity(updatedIdentity)
+
+      const result = await listIdentities()
+      expect(result.map(R.omit(['id']))).toMatchSnapshot()
+    })
+
+    it('updates existing identity by signer private and public keys', async () => {
+      const [group] = mock.workspace.archive.findGroupsByTitle('Identities')
+      identities.map(
+        id => group.createEntry(id.name)
+          .setProperty('name', id.name)
+          .setProperty('address', id.address)
+          .setProperty('transparentAddress', id.transparentAddress)
+          .setProperty('keys', JSON.stringify(id.keys))
+      )
+      const ids = await listIdentities()
+      const updatedIdentity = {
+        id: ids[0].id,
+        signerPrivKey: Buffer.from('this is test buffer'),
+        signerPubKey: Buffer.from('this is test buffer')
+      }
+
+      await updateIdentitySignerKeys(updatedIdentity)
 
       const result = await listIdentities()
       expect(result.map(R.omit(['id']))).toMatchSnapshot()

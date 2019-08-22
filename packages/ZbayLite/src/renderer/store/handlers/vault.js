@@ -22,6 +22,7 @@ export const initialState = VaultState()
 
 export const actionTypes = {
   CREATE: 'CREATE_VAULT',
+  UPDATE_IDENTITY_SIGNER_KEYS: 'UPDATE_IDENTITY_SIGNER_KEYS',
   SET_STATUS: 'SET_VAULT_STATUS',
   UNLOCK: 'UNLOCK_VAULT',
   CREATE_IDENTITY: 'CREATE_VAULT_IDENTITY',
@@ -35,11 +36,13 @@ const unlockVault = createAction(
   ({ ignoreError = false }) => ({ ignoreError })
 )
 const createIdentity = createAction(actionTypes.CREATE_IDENTITY, vault.identity.createIdentity)
+const updateIdentitySignerKeys = createAction(actionTypes.UPDATE_IDENTITY_SIGNER_KEYS, vault.identity.updateIdentitySignerKeys)
 const clearError = createAction(actionTypes.CLEAR_ERROR)
 const setVaultStatus = createAction(actionTypes.SET_STATUS)
 
 export const actions = {
   createIdentity,
+  updateIdentitySignerKeys,
   createVault,
   unlockVault,
   setVaultStatus,

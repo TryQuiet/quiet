@@ -55,6 +55,8 @@ const _entryToIdentity = entry => {
     id: entryObj.id,
     name: entryObj.properties.name,
     address: entryObj.properties.address,
+    signerPrivKey: entryObj.properties.signerPrivKey,
+    signerPubKey: entryObj.properties.signerPubKey,
     transparentAddress: entryObj.properties.transparentAddress,
     keys: JSON.parse(entryObj.properties.keys || '{}')
   }
@@ -66,6 +68,8 @@ const newIdentitySchema = Yup.object().shape({
   name: Yup.string().required(),
   transparentAddress: Yup.string().required(),
   address: Yup.string().required(),
+  signerPrivKey: Yup.string().required(),
+  signerPubKey: Yup.string().required(),
   keys: Yup.object().shape({
     sk: Yup.string().required(),
     tpk: Yup.string().required()
@@ -81,6 +85,8 @@ export const createIdentity = async (identity) => {
       .setProperty('name', identity.name)
       .setProperty('address', identity.address)
       .setProperty('transparentAddress', identity.transparentAddress)
+      .setProperty('signerPubKey', identity.signerPubKey)
+      .setProperty('signerPrivKey', identity.signerPrivKey)
       .setProperty('keys', JSON.stringify(identity.keys))
     workspace.save()
   })
@@ -113,6 +119,24 @@ export const updateIdentity = async (identity) => {
   return _entryToIdentity(entry)
 }
 
+const updateIdentitySignerKeysSchema = Yup.object().shape({
+  signerPubKey: Yup.string().required(),
+  signerPrivKey: Yup.string().required()
+})
+
+export const updateIdentitySignerKeys = async (identity) => {
+  let entry = null
+  await updateIdentitySignerKeysSchema.validate(identity)
+  await _vault.withWorkspace(workspace => {
+    const [identitiesGroup] = workspace.archive.findGroupsByTitle('Identities')
+    entry = identitiesGroup.findEntryByID(identity.id)
+      .setProperty('signerPubKey', identity.signerPubKey)
+      .setProperty('signerPrivKey', identity.signerPrivKey)
+    workspace.save()
+  })
+  return _entryToIdentity(entry)
+}
+
 export const listIdentities = async () => {
   let identities = []
   await _vault.withWorkspace(workspace => {
@@ -138,7 +162,8 @@ export default ({
   // as plug in modules
   identity: {
     createIdentity: withVaultInitialized(createIdentity),
-    listIdentities: withVaultInitialized(listIdentities)
+    listIdentities: withVaultInitialized(listIdentities),
+    updateIdentitySignerKeys: withVaultInitialized(updateIdentitySignerKeys)
   },
   locked,
   getVault,

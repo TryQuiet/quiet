@@ -22,6 +22,8 @@ Immutable.IdentityState {
     "id": "thisisatestid",
     "address": "sapling-private-address",
     "transparentAddress": "transparent-address",
+    "signerPrivKey": "KbtPfOrzAoAkbZxsNt/VdIp3J5owzgCFcm5PRs4iYBQ=",
+    "signerPubKey": "Ay4dSDZfpd9qRDxc80nDE4Ee+PGZ3aY4h3uxONDcBnK2",
     "name": "Mercury",
     "balance": "2.2352",
     "lockedBalance": "0",
@@ -162,6 +164,32 @@ Immutable.VaultState {
   "exists": true,
   "creating": false,
   "unlocking": true,
+  "creatingIdentity": false,
+  "locked": true,
+  "error": "",
+}
+`;
+
+exports[`vault reducer handles updateIdentitySignerKeys 1`] = `
+Object {
+  "address": "saturn-private-address",
+  "id": "test id",
+  "keys": Object {
+    "sk": "saturn-sk",
+    "tpk": "saturn-tpk",
+  },
+  "name": "Saturn",
+  "signerPrivKey": "AyrXTov+4FEyle1BrxndDhePlUOB1nPV5YvyexC8m6E=",
+  "signerPubKey": "Alw9G29ahXm5et9T7FJF3lbXVXNkapR826yPtfMVJYnK",
+  "transparentAddress": "saturn-transparent-address",
+}
+`;
+
+exports[`vault reducer handles updateIdentitySignerKeys 2`] = `
+Immutable.VaultState {
+  "exists": false,
+  "creating": false,
+  "unlocking": false,
   "creatingIdentity": false,
   "locked": true,
   "error": "",

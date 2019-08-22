@@ -26,6 +26,8 @@ describe('Identity reducer handles', () => {
     name: 'Saturn',
     id: 'test-id',
     address: 'testaddress',
+    signerPrivKey: Buffer.alloc(32),
+    signerPubKey: Buffer.alloc(32),
     transparentAddress: 'transparent-test-address',
     keys: {
       sk: 'sapling-private-key',
@@ -200,6 +202,10 @@ describe('Identity reducer handles', () => {
       })
 
       it('creates identity in vault', async () => {
+        identityHandlers.exportFunctions.createSignerKeys = jest.fn().mockReturnValue({
+          signerPrivKey: Buffer.alloc(32),
+          signerPubKey: Buffer.alloc(32)
+        })
         await store.dispatch(identityHandlers.epics.createIdentity(identity))
         expect(vault.identity.createIdentity.mock.calls).toMatchSnapshot()
       })

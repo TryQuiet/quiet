@@ -27,6 +27,9 @@ const lockedBalance = currency => createSelector(
 const id = createSelector(data, d => d.id)
 const name = createSelector(data, d => d.name)
 
+const signerPrivKey = createSelector(data, d => d.signerPrivKey)
+const signerPubKey = createSelector(data, d => d.signerPubKey)
+
 const address = createSelector(data, d => d.address)
 const transparentAddress = createSelector(data, d => d.transparentAddress)
 
@@ -59,5 +62,7 @@ export default {
   transparentBalance,
   lockedBalance,
   balance,
-  loader
+  loader,
+  signerPrivKey,
+  signerPubKey
 }

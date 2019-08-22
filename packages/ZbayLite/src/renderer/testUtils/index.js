@@ -139,6 +139,8 @@ export const createIdentity = ({
   name = 'Saturn',
   address = 'saturn-private-address',
   transparentAddress = 'saturn-transparent-address',
+  signerPrivKey = 'AyrXTov+4FEyle1BrxndDhePlUOB1nPV5YvyexC8m6E=',
+  signerPubKey = 'Alw9G29ahXm5et9T7FJF3lbXVXNkapR826yPtfMVJYnK',
   keys = {
     tpk: 'saturn-tpk',
     sk: 'saturn-sk'
@@ -147,6 +149,8 @@ export const createIdentity = ({
   name,
   address,
   transparentAddress,
+  signerPrivKey,
+  signerPubKey,
   keys
 })
 

@@ -7,6 +7,7 @@ import Immutable from 'immutable'
 import { DateTime } from 'luxon'
 
 import { actions, epics, initialState, actionTypes } from './vault'
+import identityHandlers from './identity'
 import { typePending } from './utils'
 import create from '../create'
 import vault, { mock } from '../../vault'
@@ -89,6 +90,33 @@ describe('vault reducer', () => {
     )
     expect(vault.identity.createIdentity).toHaveBeenCalledWith(identityObj)
     expect(result.value).toEqual(createdIdentity)
+    assertStoreState()
+  })
+
+  it('handles updateIdentitySignerKeys', async () => {
+    const updatedIdentity = {
+      id: 'test id',
+      name: 'Saturn',
+      address: 'saturn-private-address',
+      transparentAddress: 'saturn-transparent-address',
+      signerPrivKey: 'AyrXTov+4FEyle1BrxndDhePlUOB1nPV5YvyexC8m6E=',
+      signerPubKey: 'Alw9G29ahXm5et9T7FJF3lbXVXNkapR826yPtfMVJYnK',
+      keys: {
+        tpk: 'saturn-tpk',
+        sk: 'saturn-sk'
+      }
+    }
+    const updateSignerKeysObj = {
+      id: 'test id',
+      signerPrivKey: 'KbtPfOrzAoAkbZxsNt/VdIp3J5owzgCFcm5PRs4iYBQ=',
+      signerPubKey: 'Ay4dSDZfpd9qRDxc80nDE4Ee+PGZ3aY4h3uxONDcBnK2'
+    }
+    vault.identity.updateIdentitySignerKeys.mockImplementation(async () => updatedIdentity)
+    const result = await store.dispatch(
+      actions.updateIdentitySignerKeys(updateSignerKeysObj)
+    )
+    expect(vault.identity.updateIdentitySignerKeys).toHaveBeenCalledWith(updateSignerKeysObj)
+    expect(result.value).toMatchSnapshot()
     assertStoreState()
   })
 
@@ -199,6 +227,10 @@ describe('vault reducer', () => {
       })
 
       it('creates identity and sets balance', async () => {
+        identityHandlers.exportFunctions.createSignerKeys = jest.fn().mockReturnValue({
+          signerPrivKey: 'KbtPfOrzAoAkbZxsNt/VdIp3J5owzgCFcm5PRs4iYBQ=',
+          signerPubKey: 'Ay4dSDZfpd9qRDxc80nDE4Ee+PGZ3aY4h3uxONDcBnK2'
+        })
         zcashMock.requestManager.z_getbalance = jest.fn(
           async (addr) => addr === 'sapling-private-address' ? '2.2352' : '0.00234'
         )
