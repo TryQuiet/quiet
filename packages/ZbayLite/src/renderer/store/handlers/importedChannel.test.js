@@ -15,12 +15,16 @@ import { IdentityState, Identity } from './identity'
 import { getVault, mock } from '../../vault'
 import { createArchive } from '../../vault/marshalling'
 import { now } from '../../testUtils'
+import { NodeState } from './node'
 
 describe('Imported channel reducer handles', () => {
   let store = null
   beforeEach(() => {
     store = create({
       initialState: Immutable.Map({
+        node: NodeState({
+          isTestnet: true
+        }),
         importedChannel: ImportedChannelState(),
         identity: IdentityState({
           data: Identity({

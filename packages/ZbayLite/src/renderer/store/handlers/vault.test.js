@@ -250,10 +250,10 @@ describe('vault reducer', () => {
         const channels = channelsSelectors.channels(store.getState())
         expect(channels.data.map(ch => ch.delete('id'))).toMatchSnapshot()
         expect(zcashMock.requestManager.z_importviewingkey).toHaveBeenCalledWith(
-          'zivktestsapling1p5rp2czztl8amalqm5ghzvhr35n08h26vhphnw2x6k83trft7sqsn9qkd6',
+          'zivktestsapling1algnz2x84pqcnfdxrlntw73wpuqm3v568cepf5tuctyusm9javpqyjyzqy',
           'whenkeyisnew',
           0,
-          'ztestsapling16e4wekqjyx80yjjzf24ztyflt2c5tt6avt4nftgnj694n8e5x8fz5pr9ejsd3l9lmymf29khjnk'
+          'ztestsapling1dfjv308amnk40s89trkvz646ne69553us0g858mmpgsw540efgftn4tf25gts2cttg3jgk9y8lx'
         )
       })
 

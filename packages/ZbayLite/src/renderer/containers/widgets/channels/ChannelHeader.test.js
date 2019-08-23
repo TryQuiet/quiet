@@ -8,6 +8,7 @@ import create from '../../../store/create'
 import { ChannelState } from '../../../store/handlers/channel'
 import { ChannelsState } from '../../../store/handlers/channels'
 import { createChannel } from '../../../testUtils'
+import { NodeState } from '../../../store/handlers/node'
 
 describe('ChannelHeader', () => {
   let store = null
@@ -18,6 +19,9 @@ describe('ChannelHeader', () => {
         channel: ChannelState({
           spentFilterValue: 38,
           id: 1
+        }),
+        node: NodeState({
+          isTestnet: true
         }),
         channels: ChannelsState({
           data: Immutable.fromJS([

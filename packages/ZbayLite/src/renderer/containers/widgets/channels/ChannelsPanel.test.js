@@ -4,6 +4,7 @@ import { ChannelsState } from '../../../store/handlers/channels'
 import { mapStateToProps, mapDispatchToProps } from './ChannelsPanel'
 import { createChannel } from '../../../testUtils'
 import create from '../../../store/create'
+import { NodeState } from '../../../store/handlers/node'
 
 describe('ChannelsPanel', () => {
   let store = null
@@ -12,6 +13,9 @@ describe('ChannelsPanel', () => {
     jest.clearAllMocks()
     store = create({
       initialState: Immutable.Map({
+        node: NodeState({
+          isTestnet: true
+        }),
         channels: ChannelsState({
           data: Immutable.fromJS([createChannel(1), createChannel(2)])
         })

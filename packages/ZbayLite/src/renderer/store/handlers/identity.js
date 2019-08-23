@@ -15,6 +15,7 @@ import vaultHandlers from './vault'
 import nodeHandlers from './node'
 import { getVault } from '../../vault'
 import migrateTo_0_2_0 from '../../../shared/migrations/0_2_0' // eslint-disable-line camelcase
+import migrateTo_0_7_0 from '../../../shared/migrations/0_7_0' // eslint-disable-line camelcase
 import { LoaderState } from './utils'
 
 export const Identity = Immutable.Record({
@@ -150,7 +151,9 @@ export const createIdentity = ({ name }) => async (dispatch, getState) => {
 
     const network = nodeSelectors.network(getState())
     const generalChannel = channels.general[network]
+    const usersChannel = channels.registeredUsers[network]
     await getVault().channels.importChannel(identity.id, generalChannel)
+    await getVault().channels.importChannel(identity.id, usersChannel)
     await getClient().keys.importIVK({
       ivk: generalChannel.keys.ivk,
       address: generalChannel.address
@@ -185,8 +188,8 @@ export const setIdentityEpic = (identityToSet) => async (dispatch, getState) => 
       identity = updatedIdentity
     }
     dispatch(setIdentity(identity))
-    console.log(identity)
-    console.log(identitySelectors.signerPrivKey(getState()))
+    const network = nodeSelectors.network(getState())
+    await migrateTo_0_7_0.ensureDefaultChannels(identity, network)
     dispatch(setLoadingMessage('Fetching balance and loading channels'))
     await Promise.all([
       dispatch(fetchBalance()),

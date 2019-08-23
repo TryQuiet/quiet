@@ -8,6 +8,7 @@ import create from '../../../store/create'
 import { ChannelState } from '../../../store/handlers/channel'
 import { ChannelsState } from '../../../store/handlers/channels'
 import { createChannel } from '../../../testUtils'
+import { NodeState } from '../../../store/handlers/node'
 
 describe('ChannelInfoModal', () => {
   let store = null
@@ -15,6 +16,9 @@ describe('ChannelInfoModal', () => {
     jest.clearAllMocks()
     store = create({
       initialState: Immutable.Map({
+        node: NodeState({
+          isTestnet: true
+        }),
         channel: ChannelState({
           spentFilterValue: 38,
           id: 'this-is-a-test-id',

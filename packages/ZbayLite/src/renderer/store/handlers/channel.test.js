@@ -28,6 +28,7 @@ import { createIdentity, createTransfer, createMessage, now } from '../../testUt
 import { mock as zcashMock } from '../../zcash'
 import { mock as vaultMock, getVault } from '../../vault'
 import { createArchive } from '../../vault/marshalling'
+import { NodeState } from './node'
 
 describe('channel reducer', () => {
   const spent = 0.2
@@ -64,6 +65,9 @@ describe('channel reducer', () => {
         channel: ChannelState(),
         channels: ChannelsState({
           data: Immutable.fromJS([channel])
+        }),
+        node: NodeState({
+          isTestnet: true
         }),
         identity: IdentityState({
           data: Identity({

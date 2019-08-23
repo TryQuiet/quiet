@@ -13,6 +13,7 @@ import { createMessage, createChannel, now } from '../../testUtils'
 import { ChannelsState } from './channels'
 import { messageType } from '../../zbay/messages'
 import { mock as zcashMock } from '../../zcash'
+import { NodeState } from './node'
 
 describe('Messages queue reducer handles', () => {
   let store = null
@@ -22,6 +23,9 @@ describe('Messages queue reducer handles', () => {
     store = create({
       initialState: Immutable.Map({
         messagesQueue: initialState,
+        node: NodeState({
+          isTestnet: true
+        }),
         channels: ChannelsState({
           data: R.range(0, 3).map(
             R.compose(

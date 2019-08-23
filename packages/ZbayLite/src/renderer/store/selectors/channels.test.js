@@ -18,6 +18,9 @@ describe('Channels selectors', () => {
     jest.clearAllMocks()
     store = create({
       initialState: Immutable.Map({
+        node: NodeState({
+          isTestnet: true
+        }),
         channels: ChannelsState({
           loader: LoaderState({
             loading: true,

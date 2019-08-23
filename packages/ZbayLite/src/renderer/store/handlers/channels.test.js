@@ -15,12 +15,16 @@ import { IdentityState, Identity } from './identity'
 import testUtils from '../../testUtils'
 import { typePending } from './utils'
 import { mock as zcashMock } from '../../zcash'
+import { NodeState } from './node'
 
 describe('channels reducer', () => {
   let store = null
   beforeEach(async () => {
     store = create({
       initialState: Immutable.Map({
+        node: NodeState({
+          isTestnet: true
+        }),
         channels: ChannelsState()
       })
     })
@@ -94,6 +98,9 @@ describe('channels reducer', () => {
         initialState: Immutable.Map({
           channels: ChannelsState({
             data: Immutable.fromJS(channels)
+          }),
+          node: NodeState({
+            isTestnet: true
           })
         })
       })
@@ -124,6 +131,9 @@ describe('channels reducer', () => {
               data: Identity({
                 id: identityId
               })
+            }),
+            node: NodeState({
+              isTestnet: true
             }),
             channels: ChannelsState({
               data: Immutable.fromJS(channels)

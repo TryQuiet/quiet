@@ -14,6 +14,7 @@ import { PendingMessage } from '../handlers/messagesQueue'
 import { ReceivedMessage, ChannelMessages } from '../handlers/messages'
 import { createMessage, createChannel, now, createReceivedMessage } from '../../testUtils'
 import { LoaderState } from '../handlers/utils'
+import { NodeState } from '../handlers/node'
 
 const channelId = 'this-is-a-test-id'
 
@@ -23,6 +24,9 @@ const storeState = {
       balance: new BigNumber(0),
       lockedBalance: new BigNumber(23)
     })
+  }),
+  node: NodeState({
+    isTestnet: true
   }),
   channel: ChannelState({
     spentFilterValue: 38,
