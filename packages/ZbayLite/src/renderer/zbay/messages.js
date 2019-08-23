@@ -10,7 +10,8 @@ import { packMemo, unpackMemo } from './transit'
 export const messageType = {
   BASIC: 1,
   AD: 2,
-  TRANSFER: 4
+  TRANSFER: 4,
+  USER: 5
 }
 
 export const ExchangeParticipant = Immutable.Record(
