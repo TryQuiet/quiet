@@ -47,8 +47,8 @@ Array [
       "tpk": "saturn-transparent-private-key",
     },
     "name": "Saturn",
-    "signerPrivKey": "this is test buffer",
-    "signerPubKey": "this is test buffer",
+    "signerPrivKey": "test-hex-key",
+    "signerPubKey": "test-hex-key",
     "transparentAddress": "saturn-t-address",
   },
   Object {

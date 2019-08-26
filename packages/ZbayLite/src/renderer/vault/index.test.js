@@ -125,8 +125,8 @@ describe('vault instance', () => {
       const ids = await listIdentities()
       const updatedIdentity = {
         id: ids[0].id,
-        signerPrivKey: Buffer.from('this is test buffer'),
-        signerPubKey: Buffer.from('this is test buffer')
+        signerPrivKey: 'test-hex-key',
+        signerPubKey: 'test-hex-key'
       }
 
       await updateIdentitySignerKeys(updatedIdentity)

@@ -119,8 +119,8 @@ export const createSignerKeys = () => {
     signerPrivKey = randomBytes(32)
   } while (!secp256k1.privateKeyVerify(signerPrivKey))
   return {
-    signerPrivKey: signerPrivKey,
-    signerPubKey: secp256k1.publicKeyCreate(signerPrivKey, true)
+    signerPrivKey: signerPrivKey.toString('hex'),
+    signerPubKey: secp256k1.publicKeyCreate(signerPrivKey, true).toString('hex')
   }
 }
 
