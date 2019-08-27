@@ -5,6 +5,7 @@ import { createAction, handleActions } from 'redux-actions'
 
 import selectors from '../selectors/messagesQueue'
 import channelsSelectors from '../selectors/channels'
+import identitySelectors from '../selectors/identity'
 import { messageToTransfer } from '../../zbay/messages'
 import operationsHandlers, { PendingMessageOp, operationTypes } from './operations'
 import notificationsHandlers from './notifications'
@@ -46,9 +47,11 @@ const _sendPendingMessages = async (dispatch, getState) => {
   await Promise.all(
     messages.map(async (msg, key) => {
       const channel = channelsSelectors.channelById(msg.channelId)(getState())
+      const identityAddress = identitySelectors.address(getState())
       const transfer = await messageToTransfer({
         message: msg.message.toJS(),
-        channel: channel.toJS()
+        channel: channel.toJS(),
+        identityAddress
       })
 
       let opId

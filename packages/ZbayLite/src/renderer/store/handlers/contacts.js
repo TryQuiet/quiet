@@ -28,7 +28,8 @@ const sendDirectMessageOnEnter = (event) => async (dispatch, getState) => {
     const message = zbayMessages.createMessage({
       messageData: {
         type: zbayMessages.messageType.BASIC,
-        data: event.target.value
+        data: event.target.value,
+        spent: '0.0001'
       }
     })
     const channel = directMessageChannel(getState()).toJS()
@@ -43,7 +44,7 @@ const sendDirectMessage = (payload) => async (dispatch, getState) => {
     messageData: {
       type,
       data: messageData,
-      spent: new BigNumber(spent)
+      spent: type === zbayMessages.messageType.TRANSFER ? spent : '0.0001'
     }
   })
   const { replyTo: recipientAddress, username: recipientUsername } = payload.receiver
@@ -52,10 +53,12 @@ const sendDirectMessage = (payload) => async (dispatch, getState) => {
 
 const resendMessage = (message) => async (dispatch, getState) => {
   dispatch(operationsHandlers.actions.removeOperation(message.id))
+  const identityAddress = identitySelectors.address(getState())
   const transfer = await zbayMessages.messageToTransfer({
     message,
     recipientAddress: message.receiver.replyTo,
-    amount: message.type === zbayMessages.messageType.TRANSFER ? message.spent : '0.0001'
+    amount: message.type === zbayMessages.messageType.TRANSFER ? new BigNumber(message.spent) : new BigNumber('0.0001'),
+    identityAddress
   })
   try {
     const opId = await getClient().payment.send(transfer)

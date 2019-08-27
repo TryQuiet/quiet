@@ -143,9 +143,9 @@ export const signMessage = ({ messageData }) => {
   pKey.write(privateKey, 0, 'hex')
   // sign the messageData
   const sigObj = secp256k1.sign(hash(messageData.data), pKey)
-
   return {
     type: messageData.type,
+    spent: messageData.spent,
     signature: sigObj.signature,
     createdAt: DateTime.utc().toSeconds(),
     message: messageData.data
@@ -184,12 +184,13 @@ export const messageToTransfer = async ({
   message,
   channel,
   amount = '0.0001',
-  recipientAddress
+  recipientAddress,
+  identityAddress
 }) => {
   if ((recipientAddress || channel).length === 35) {
     return {
       from:
-        'ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r',
+        identityAddress,
       amounts: [
         {
           address: recipientAddress || channel.address,
@@ -201,7 +202,7 @@ export const messageToTransfer = async ({
   const memo = await packMemo(message)
   return {
     from:
-      'ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r',
+      identityAddress,
     amounts: [
       {
         address: recipientAddress || channel.address,

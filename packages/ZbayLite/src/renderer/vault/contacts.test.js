@@ -19,6 +19,8 @@ describe('messages', () => {
   const identityId = 'this-is-a-test-id'
   const recipientAddress = 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slba'
   const recipientUsername = 'Tommy'
+  const identityName = 'TestUser'
+  const identityAddress = 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sb4aa'
   const txId = '87ccae921436493ff4ec03edd9c0fe66d863cf0e05b5f9ee49f08fa6823f700c'
   const status = 'brodcasted'
 
@@ -35,7 +37,7 @@ describe('messages', () => {
     const secondMessage = testUtils.messages.createVaultMessage(2)
 
     it('when no group for identity', async () => {
-      await messages.saveMessage({ identityId, message, recipientAddress, recipientUsername, txId, status })
+      await messages.saveMessage({ identityId, identityName, identityAddress, message, recipientAddress, recipientUsername, txId, status })
       const [identitySender] = (
         workspace.archive
           .findGroupsByTitle('Contacts')[0]
@@ -48,8 +50,8 @@ describe('messages', () => {
     })
     it('group should have two messages', async () => {
       const txId = '1c2001077c2475c8a241fb514bec5224de3ca73be7ed7d782f2efbf689fea6bb'
-      await messages.saveMessage({ identityId, message, recipientAddress, recipientUsername, txId, status })
-      await messages.saveMessage({ identityId, message: secondMessage, recipientAddress, recipientUsername, txId, status })
+      await messages.saveMessage({ identityId, identityName, identityAddress, message, recipientAddress, recipientUsername, txId, status })
+      await messages.saveMessage({ identityId, identityName, identityAddress, message: secondMessage, recipientAddress, recipientUsername, txId, status })
       const [identitySender] = (
         workspace.archive
           .findGroupsByTitle('Contacts')[0]
@@ -68,16 +70,16 @@ describe('messages', () => {
 
     it('should return all messages sent to recipient', async () => {
       const otherTxId = '1c2001077c2475c8a241fb514bec5224de3ca73be7ed7d782f2efbf689fea6bb'
-      await messages.saveMessage({ identityId, message, recipientAddress, recipientUsername, status, txId: otherTxId })
-      await messages.saveMessage({ identityId, message: secondMessage, recipientAddress, recipientUsername, status, txId })
+      await messages.saveMessage({ identityId, identityName, identityAddress, message, recipientAddress, recipientUsername, status, txId: otherTxId })
+      await messages.saveMessage({ identityId, identityName, identityAddress, message: secondMessage, recipientAddress, recipientUsername, status, txId })
       const messagesFromSender = await messages.listMessages({ identityId, recipientAddress, recipientUsername })
       expect(messagesFromSender).toMatchSnapshot()
     })
 
     it('should not crash if there is no messsages for identityId', async () => {
       const otherTxId = '1c2001077c2475c8a241fb514bec5224de3ca73be7ed7d782f2efbf689fea6bb'
-      await messages.saveMessage({ identityId, message, recipientAddress, recipientUsername, txId: otherTxId, status })
-      await messages.saveMessage({ identityId, message: secondMessage, recipientAddress, recipientUsername, txId, status })
+      await messages.saveMessage({ identityId, identityName, identityAddress, message, recipientAddress, recipientUsername, txId: otherTxId, status })
+      await messages.saveMessage({ identityId, identityName, identityAddress, message: secondMessage, recipientAddress, recipientUsername, txId, status })
       const randomIdentity = 'new-identity-id'
 
       const messagesFromSender = await messages.listMessages({ identityId: randomIdentity, recipientAddress, recipientUsername })
@@ -89,7 +91,7 @@ describe('messages', () => {
     const message = testUtils.messages.createVaultMessage(1)
 
     it('should update message with appropriate id', async () => {
-      await messages.saveMessage({ identityId, message, recipientAddress, recipientUsername, txId, status })
+      await messages.saveMessage({ identityId, identityName, identityAddress, message, recipientAddress, recipientUsername, txId, status })
       await messages.updateMessage({ messageId: txId, identityId, recipientAddress, recipientUsername, newMessageStatus: 'sent' })
       const [recipientMessages] = (
         workspace.archive
@@ -118,7 +120,7 @@ describe('messages', () => {
     const secondMessage = testUtils.messages.createVaultMessage(2)
 
     it('should delete message with appropriate id, recipient should have empty messages array', async () => {
-      await messages.saveMessage({ identityId, message, recipientAddress, recipientUsername, txId, status })
+      await messages.saveMessage({ identityId, identityName, identityAddress, message, recipientAddress, recipientUsername, txId, status })
       await messages.deleteMessage({ messageId: txId, identityId, recipientAddress, recipientUsername })
       const [recipientMessages] = (
         workspace.archive
@@ -133,8 +135,8 @@ describe('messages', () => {
 
     it('should delete message with appropriate id, recipient should have messages array with message title = 2', async () => {
       const otherTxId = 'c9115101fd36eed535366c87c4bca473b4eee8545c118d16e7f34a162b7463ad'
-      await messages.saveMessage({ identityId, message, recipientAddress, recipientUsername, txId, status })
-      await messages.saveMessage({ identityId, message: secondMessage, recipientAddress, txId: otherTxId, status, recipientUsername })
+      await messages.saveMessage({ identityId, identityName, identityAddress, message, recipientAddress, recipientUsername, txId, status })
+      await messages.saveMessage({ identityId, identityName, identityAddress, message: secondMessage, recipientAddress, txId: otherTxId, status, recipientUsername })
       await messages.deleteMessage({ messageId: txId, identityId, recipientAddress, recipientUsername })
       const [recipientMessages] = (
         workspace.archive
@@ -166,7 +168,7 @@ describe('messages', () => {
 
     it('should update lastSeen', async () => {
       const lastSeen = testUtils.now.minus({ hours: 2 })
-      await messages.saveMessage({ identityId, message, recipientAddress, recipientUsername, txId, status })
+      await messages.saveMessage({ identityId, identityName, identityAddress, message, recipientAddress, recipientUsername, txId, status })
       await messages.updateLastSeen({ identityId, recipientAddress, recipientUsername, lastSeen })
       const [identitySender] = (
         workspace.archive
@@ -181,7 +183,7 @@ describe('messages', () => {
     it('should update lastSeen if there is no identity', async () => {
       const lastSeen = testUtils.now.minus({ hours: 2 })
       const randomIdentity = 'new-identity-id'
-      await messages.saveMessage({ identityId, message, recipientAddress, recipientUsername, txId, status })
+      await messages.saveMessage({ identityId, identityName, identityAddress, message, recipientAddress, recipientUsername, txId, status })
       await messages.updateLastSeen({ identityId: randomIdentity, recipientAddress, recipientUsername, lastSeen })
       const [identitySender] = (
         workspace.archive
@@ -197,7 +199,7 @@ describe('messages', () => {
       const lastSeen = testUtils.now.minus({ hours: 2 })
       const randomIdentity = 'new-identity-id'
       const randomRecipient = 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slk4'
-      await messages.saveMessage({ identityId, message, recipientAddress, recipientUsername, txId, status })
+      await messages.saveMessage({ identityId, identityName, identityAddress, message, recipientAddress, recipientUsername, txId, status })
       await messages.updateLastSeen({ identityId: randomIdentity, recipientAddress: randomRecipient, recipientUsername, lastSeen })
       const [identitySender] = (
         workspace.archive
@@ -210,20 +212,20 @@ describe('messages', () => {
     })
 
     it('should return lastSeen value', async () => {
-      await messages.saveMessage({ identityId, message, recipientAddress, recipientUsername, txId, status })
+      await messages.saveMessage({ identityId, identityName, identityAddress, message, recipientAddress, recipientUsername, txId, status })
       const lastSeenValue = await messages.getLastSeen({ identityId, recipientAddress, recipientUsername })
       expect(lastSeenValue).toMatchSnapshot()
     })
 
     it('should return null for lastSeen if no identity', async () => {
       const randomIdentity = 'new-identity-id'
-      await messages.saveMessage({ identityId, message, recipientAddress, recipientUsername, txId, status })
+      await messages.saveMessage({ identityId, identityName, identityAddress, message, recipientAddress, recipientUsername, txId, status })
       const lastSeenValue = await messages.getLastSeen({ randomIdentity, recipientAddress, recipientUsername })
       expect(lastSeenValue).toMatchSnapshot()
     })
 
     it('should return null for lastSeen if there is identity and no recipiet', async () => {
-      await messages.saveMessage({ identityId, message, recipientAddress, recipientUsername, txId, status })
+      await messages.saveMessage({ identityId, identityName, identityAddress, message, recipientAddress, recipientUsername, txId, status })
       const lastSeenValue = await messages.getLastSeen({ identityId, recipientAddress, recipientUsername })
       expect(lastSeenValue).toMatchSnapshot()
     })

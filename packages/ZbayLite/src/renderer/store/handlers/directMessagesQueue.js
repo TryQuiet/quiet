@@ -52,10 +52,10 @@ export const actions = {
 
 export const checkConfirmationNumber = async ({ opId, status, txId, dispatch, getState }) => {
   const { meta: message } = operationsSelectors.pendingDirectMessages(getState()).get(opId).toJS()
-  const identityId = identitySelectors.id(getState())
+  const { id, address, name } = identitySelectors.identity(getState()).toJS().data
   const messageContent = message.message
   const { recipientAddress, recipientUsername } = message
-  await getVault().contacts.saveMessage({ identityId, message: messageContent, recipientAddress, recipientUsername, status, txId })
+  await getVault().contacts.saveMessage({ identityId: id, identityAddress: address, identityName: name, message: messageContent, recipientAddress, recipientUsername, status, txId })
   const { username } = contactsSelectors.contact(recipientAddress)(getState())
   if (!username) {
     await dispatch(contactsHandlers.epics.updateLastSeen({ contact: {
@@ -81,26 +81,28 @@ export const checkConfirmationNumber = async ({ opId, status, txId, dispatch, ge
   }
 
   return subscribe(async (error, { confirmations }) => {
-    await getVault().contacts.updateMessage({ identityId, messageId: txId, recipientAddress, recipientUsername, newMessageStatus: 'broadcasted' })
+    await getVault().contacts.updateMessage({ identityId: id, messageId: txId, recipientAddress, recipientUsername, newMessageStatus: 'broadcasted' })
     dispatch(contactsHandlers.epics.loadVaultMessages({ contact: {
       replyTo: recipientAddress,
       username: recipientUsername
     } }))
     if (error) {
-      await getVault().contacts.updateMessage({ identityId, messageId: txId, recipientAddress, recipientUsername, newMessageStatus: error })
+      await getVault().contacts.updateMessage({ identityId: id, messageId: txId, recipientAddress, recipientUsername, newMessageStatus: error })
     }
   })
 }
 
 const _sendPendingDirectMessages = async (dispatch, getState) => {
   const messages = selectors.queue(getState())
+  const identityAddress = identitySelectors.address(getState())
   await Promise.all(
     messages.map(async (msg, key) => {
       const { message, recipientAddress } = msg.toJS()
       const transfer = await messageToTransfer({
         message,
         recipientAddress,
-        amount: message.type === messageType.TRANSFER ? message.spent : '0.0001'
+        amount: message.type === messageType.TRANSFER ? message.spent : '0.0001',
+        identityAddress
       })
 
       let opId

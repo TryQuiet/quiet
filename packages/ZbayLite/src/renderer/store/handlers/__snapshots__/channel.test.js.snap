@@ -262,6 +262,7 @@ Object {
     ],
     "type": "Buffer",
   },
+  "spent": undefined,
   "type": 1,
 }
 `;

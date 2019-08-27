@@ -6,6 +6,7 @@ import * as R from 'ramda'
 
 import create from '../create'
 import { actions, epics, initialState, DEFAULT_DEBOUNCE_INTERVAL } from './messagesQueue'
+import { IdentityState, Identity } from './identity'
 import selectors from '../selectors/messagesQueue'
 import operationsSelectors from '../selectors/operations'
 import notificationsSelectors from '../selectors/notifications'
@@ -25,6 +26,14 @@ describe('Messages queue reducer handles', () => {
         messagesQueue: initialState,
         node: NodeState({
           isTestnet: true
+        }),
+        identity: IdentityState({
+          data: Identity({
+            address: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly',
+            name: 'Saturn',
+            id: 'this-is-a-test-identity-id',
+            balance: '33.583004'
+          })
         }),
         channels: ChannelsState({
           data: R.range(0, 3).map(

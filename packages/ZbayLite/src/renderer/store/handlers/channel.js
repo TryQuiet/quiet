@@ -80,10 +80,12 @@ const sendOnEnter = (event) => async (dispatch, getState) => {
 
 const resendMessage = (message) => async (dispatch, getState) => {
   dispatch(operationsHandlers.actions.removeOperation(message.id))
+  const identityAddress = identitySelectors.address(getState())
   const channel = channelSelectors.data(getState()).toJS()
   const transfer = await messages.messageToTransfer({
     message,
-    channel
+    channel,
+    identityAddress
   })
   try {
     const opId = await getClient().payment.send(transfer)

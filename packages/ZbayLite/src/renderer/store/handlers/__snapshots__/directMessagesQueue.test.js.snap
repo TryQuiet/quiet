@@ -198,8 +198,8 @@ Object {
       "id": "test-tx-id",
       "message": "test-message-id",
       "sender": Object {
-        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-        "username": "Wenus",
+        "replyTo": "test-address",
+        "username": "Saturn",
       },
       "spent": "0.32",
       "status": "success",
@@ -210,8 +210,8 @@ Object {
       "id": "test-tx-id",
       "message": "test-message-id",
       "sender": Object {
-        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-        "username": "Wenus",
+        "replyTo": "test-address",
+        "username": "Saturn",
       },
       "spent": "0.32",
       "status": "broadcasted",
@@ -244,8 +244,8 @@ Object {
       "id": "test-tx-id",
       "message": "test-message-id",
       "sender": Object {
-        "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-        "username": "Wenus",
+        "replyTo": "test-address",
+        "username": "Saturn",
       },
       "spent": "0.32",
       "status": "success",
