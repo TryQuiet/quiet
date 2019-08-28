@@ -11,6 +11,7 @@ Array [
 
 exports[`WalletPanel will receive right actions 1`] = `
 Object {
+  "fetchUsers": [Function],
   "getBalance": [Function],
 }
 `;

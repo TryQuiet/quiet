@@ -27,14 +27,6 @@ describe('Messages queue reducer handles', () => {
         node: NodeState({
           isTestnet: true
         }),
-        identity: IdentityState({
-          data: Identity({
-            address: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly',
-            name: 'Saturn',
-            id: 'this-is-a-test-identity-id',
-            balance: '33.583004'
-          })
-        }),
         channels: ChannelsState({
           data: R.range(0, 3).map(
             R.compose(
@@ -42,6 +34,15 @@ describe('Messages queue reducer handles', () => {
               createChannel
             )
           )
+        }),
+        identity: IdentityState({
+          data: Identity({
+            id: 'test-id',
+            address: 'test address',
+            name: 'Saturn',
+            balance: '33.583004',
+            signerPrivKey: '879aff43df53606d8ae1219d9347360e7a30d1c2f141e14c9bc96bb29bf930cb'
+          })
         })
       })
     })
@@ -76,13 +77,15 @@ describe('Messages queue reducer handles', () => {
         const message = createMessage('test-message-id', now.toSeconds())
         const message2 = createMessage('test-message-id-2', now.plus({ seconds: 1 }).toSeconds())
         store.dispatch(actions.addMessage({ message, channelId: 'test-channel-id' }))
-        store.dispatch(actions.addMessage({
-          message: {
-            ...message2,
-            type: messageType.AD
-          },
-          channelId: 'test-channel-id'
-        }))
+        store.dispatch(
+          actions.addMessage({
+            message: {
+              ...message2,
+              type: messageType.AD
+            },
+            channelId: 'test-channel-id'
+          })
+        )
         expect(selectors.queue(store.getState())).toMatchSnapshot()
       })
 
@@ -90,19 +93,23 @@ describe('Messages queue reducer handles', () => {
         const message = createMessage('test-message-id', now.toSeconds())
         const message2 = createMessage('test-message-id-2', now.plus({ seconds: 1 }).toSeconds())
         store.dispatch(actions.addMessage({ message, channelId: 'test-channel-id' }))
-        store.dispatch(actions.addMessage({
-          message: {
-            ...message2
-          },
-          channelId: 'test-channel-id'
-        }))
+        store.dispatch(
+          actions.addMessage({
+            message: {
+              ...message2
+            },
+            channelId: 'test-channel-id'
+          })
+        )
         expect(selectors.queue(store.getState())).toMatchSnapshot()
       })
     })
 
     it('- removeMessage', () => {
       const message = createMessage('test-message-id')
-      const { payload: { key } } = store.dispatch(actions.addMessage({ message, channelId: 'test-channel-id' }))
+      const {
+        payload: { key }
+      } = store.dispatch(actions.addMessage({ message, channelId: 'test-channel-id' }))
 
       store.dispatch(actions.removeMessage(key))
 
@@ -113,25 +120,31 @@ describe('Messages queue reducer handles', () => {
   describe('epics', () => {
     describe('- sendPendingMessages', () => {
       beforeEach(() => {
-        zcashMock.requestManager.z_getoperationstatus.mockImplementation(async () => [{
-          id: 'operation-id',
-          status: 'success',
-          result: {
-            txid: 'test-tx-id'
-          },
-          error: { code: -1, message: 'no error' }
-        }])
+        zcashMock.requestManager.z_getoperationstatus.mockImplementation(async () => [
+          {
+            id: 'operation-id',
+            status: 'success',
+            result: {
+              txid: 'test-tx-id'
+            },
+            error: { code: -1, message: 'no error' }
+          }
+        ])
       })
 
       it('sends messages', async () => {
-        store.dispatch(actions.addMessage({
-          message: createMessage('test-message-id', now.toSeconds()),
-          channelId: 1
-        }))
-        store.dispatch(actions.addMessage({
-          message: createMessage('test-message-id-2', now.plus({ seconds: 1 }).toSeconds()),
-          channelId: 2
-        }))
+        store.dispatch(
+          actions.addMessage({
+            message: createMessage('test-message-id', now.toSeconds()),
+            channelId: 1
+          })
+        )
+        store.dispatch(
+          actions.addMessage({
+            message: createMessage('test-message-id-2', now.plus({ seconds: 1 }).toSeconds()),
+            channelId: 2
+          })
+        )
 
         const actionPromise = store.dispatch(epics.sendPendingMessages())
         jest.runAllTimers()
@@ -139,39 +152,41 @@ describe('Messages queue reducer handles', () => {
 
         const result = zcashMock.requestManager.z_sendmany.mock.calls
         expect(
-          R.sortBy(
-            call => {
-              const [, transfer] = call
-              return transfer.address
-            },
-            result
-          )
+          R.sortBy(call => {
+            const [, transfer] = call
+            return transfer.address
+          }, result)
         ).toMatchSnapshot()
       })
 
       it('adds operation observers', async () => {
-        const address1 = 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya'
-        const address2 = 'zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq'
-        store.dispatch(actions.addMessage({
-          message: createMessage(
-            'test-message-id',
-            now.toSeconds(),
-            address1
-          ),
-          channelId: 1
-        }))
-        store.dispatch(actions.addMessage({
-          message: createMessage(
-            'test-message-id-2',
-            now.plus({ seconds: 1 }).toSeconds(),
-            address2
-          ),
-          channelId: 2
-        }))
-        zcashMock.requestManager.z_sendmany.mockImplementation(async (address) => ({
-          [address1]: 'op-id-1',
-          [address2]: 'op-id-2'
-        })[address])
+        const address1 =
+          'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya'
+        const address2 =
+          'zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq'
+        store.dispatch(
+          actions.addMessage({
+            message: createMessage('test-message-id', now.toSeconds(), address1),
+            channelId: 1
+          })
+        )
+        store.dispatch(
+          actions.addMessage({
+            message: createMessage(
+              'test-message-id-2',
+              now.plus({ seconds: 1 }).toSeconds(),
+              address2
+            ),
+            channelId: 2
+          })
+        )
+        zcashMock.requestManager.z_sendmany.mockImplementation(
+          async address =>
+            ({
+              [address1]: 'op-id-1',
+              [address2]: 'op-id-2'
+            }[address])
+        )
 
         const actionPromise = store.dispatch(epics.sendPendingMessages())
         jest.runAllTimers()
@@ -182,14 +197,18 @@ describe('Messages queue reducer handles', () => {
       })
 
       it('clears queue', async () => {
-        store.dispatch(actions.addMessage({
-          message: createMessage('test-message-id', now.toSeconds()),
-          channelId: 1
-        }))
-        store.dispatch(actions.addMessage({
-          message: createMessage('test-message-id-2', now.plus({ seconds: 1 }).toSeconds()),
-          channelId: 2
-        }))
+        store.dispatch(
+          actions.addMessage({
+            message: createMessage('test-message-id', now.toSeconds()),
+            channelId: 1
+          })
+        )
+        store.dispatch(
+          actions.addMessage({
+            message: createMessage('test-message-id-2', now.plus({ seconds: 1 }).toSeconds()),
+            channelId: 2
+          })
+        )
 
         const actionPromise = store.dispatch(epics.sendPendingMessages())
         jest.runAllTimers()
@@ -199,11 +218,15 @@ describe('Messages queue reducer handles', () => {
       })
 
       it('handles node errors using notifications', async () => {
-        store.dispatch(actions.addMessage({
-          message: createMessage('test-message-id', now.toSeconds()),
-          channelId: 1
-        }))
-        zcashMock.requestManager.z_sendmany.mockImplementation(async () => { throw Error('Test node error') })
+        store.dispatch(
+          actions.addMessage({
+            message: createMessage('test-message-id', now.toSeconds()),
+            channelId: 1
+          })
+        )
+        zcashMock.requestManager.z_sendmany.mockImplementation(async () => {
+          throw Error('Test node error')
+        })
 
         const actionPromise = store.dispatch(epics.sendPendingMessages())
         jest.runAllTimers()
@@ -216,14 +239,16 @@ describe('Messages queue reducer handles', () => {
 
     describe('- addMessage', () => {
       beforeEach(() => {
-        zcashMock.requestManager.z_getoperationstatus.mockImplementation(async () => [{
-          id: 'operation-id',
-          status: 'success',
-          result: {
-            txid: 'test-tx-id'
-          },
-          error: { code: -1, message: 'no error' }
-        }])
+        zcashMock.requestManager.z_getoperationstatus.mockImplementation(async () => [
+          {
+            id: 'operation-id',
+            status: 'success',
+            result: {
+              txid: 'test-tx-id'
+            },
+            error: { code: -1, message: 'no error' }
+          }
+        ])
         zcashMock.requestManager.z_sendmany.mockResolvedValue('operation-id')
       })
 
@@ -251,7 +276,8 @@ describe('Messages queue reducer handles', () => {
       })
 
       it('does not debounce after interval', async () => {
-        zcashMock.requestManager.z_sendmany.mockResolvedValueOnce('operation-id')
+        zcashMock.requestManager.z_sendmany
+          .mockResolvedValueOnce('operation-id')
           .mockResolvedValueOnce('operation-id-2')
         const message = createMessage('test-message-id')
         const message2 = createMessage('test-message-id-2')

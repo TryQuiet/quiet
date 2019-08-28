@@ -15,11 +15,13 @@ import directMessagesQueueHandlers from './handlers/directMessagesQueue'
 import criticalErrorHandlers from './handlers/criticalError'
 import appHandlers from './handlers/app'
 import messagesHandlers from './handlers/messages'
+import usersHandlers from './handlers/users'
 import contactsHandlers from './handlers/contacts'
 import directMessageChannelHandlers from './handlers/directMessageChannel'
 
 export default combineReducers({
   messages: messagesHandlers.reducer,
+  users: usersHandlers.reducer,
   app: appHandlers.reducer,
   operations: operationsHandlers.reducer,
   messagesQueue: messagesQueueHandlers.reducer,

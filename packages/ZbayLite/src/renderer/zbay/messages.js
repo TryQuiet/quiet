@@ -46,7 +46,7 @@ export const DisplayableMessage = values => {
   })
 }
 
-// fromYou check if publicKey from signature is yours
+const _isOwner = (identityAddress, message) => message.sender.replyTo === identityAddress
 
 export const receivedToDisplayableMessage = ({
   message,
@@ -54,7 +54,7 @@ export const receivedToDisplayableMessage = ({
   receiver = { replyTo: '', username: 'Unnamed' }
 }) => {
   return DisplayableMessage(message).merge({
-    fromYou: true,
+    fromYou: _isOwner(identityAddress, message),
     receiver: ExchangeParticipant(receiver)
   })
 }
@@ -65,7 +65,7 @@ export const vaultToDisplayableMessage = ({
   receiver = { replyTo: '', username: 'Unnamed' }
 }) => {
   return DisplayableMessage(message).merge({
-    fromYou: true,
+    fromYou: _isOwner(identityAddress, message),
     receiver: ExchangeParticipant(receiver)
   })
 }
@@ -73,43 +73,83 @@ export const vaultToDisplayableMessage = ({
 export const operationToDisplayableMessage = ({
   operation,
   identityAddress,
+  identityName,
   receiver = { replyTo: '', username: 'Unnamed' }
-}) =>
-  DisplayableMessage(operation.meta.message).merge({
+}) => {
+  return DisplayableMessage(operation.meta.message).merge({
     error: operation.error,
     status: operation.status,
     id: operation.opId,
+    sender: ExchangeParticipant({ replyTo: identityAddress, username: identityName }),
     fromYou: true,
     receiver: ExchangeParticipant(receiver)
   })
+}
 
 export const queuedToDisplayableMessage = ({
   messageKey,
   queuedMessage,
   identityAddress,
+  identityName,
   receiver = { replyTo: '', username: 'Unnamed' }
 }) =>
   DisplayableMessage(queuedMessage.message).merge({
     fromYou: true,
     id: messageKey,
     status: 'pending',
+    sender: ExchangeParticipant({ replyTo: identityAddress, username: identityName }),
     receiver: ExchangeParticipant(receiver)
   })
 
+Yup.addMethod(Yup.mixed, 'validateMessage', function (params) {
+  return this.test('test', null, async function (value) {
+    if (value === null) {
+      return true
+    }
+    if (typeof value === 'string') {
+      return true
+    }
+    if (typeof value === 'object') {
+      try {
+        await _validateMessage.validate(value)
+        return true
+      } catch (err) {
+        return false
+      }
+    }
+    return false
+  })
+})
+const _validateMessage = Yup.object().shape({
+  firstName: Yup.string(),
+  lastName: Yup.string(),
+  nickname: Yup.string(),
+  address: Yup.string()
+})
 export const messageSchema = Yup.object().shape({
   type: Yup.number()
     .oneOf(R.values(messageType))
     .required(),
   signature: Yup.Buffer,
   createdAt: Yup.number().required(),
-  message: Yup.string()
+  message: Yup.mixed().validateMessage()
 })
 
-export const transferToMessage = async props => {
+export const transferToMessage = async (props, users) => {
   const { txid, amount, memo } = props
   let message = null
+  let sender = { replyTo: '', username: 'Unnamed' }
   try {
     message = await unpackMemo(memo)
+    const publicKey = getPublicKeysFromSignature(message)[0].toString('hex')
+    const publicKey1 = getPublicKeysFromSignature(message)[1].toString('hex')
+
+    if (users !== undefined) {
+      const fromUser = users.get(publicKey) || users.get(publicKey1)
+      if (fromUser !== undefined) {
+        sender = ExchangeParticipant({ replyTo: fromUser.address, username: fromUser.nickname })
+      }
+    }
   } catch (err) {
     console.warn(err)
     return null
@@ -118,12 +158,8 @@ export const transferToMessage = async props => {
     return {
       ...(await messageSchema.validate(message)),
       id: txid,
-      spent: new BigNumber(amount)
-      // sender: {
-      //   replyTo: 'INSERT',
-      //   username: 'HERE'
-      // }
-      // Add sender here
+      spent: new BigNumber(amount),
+      sender: sender
     }
   } catch (err) {
     console.warn('Incorrect message format: ', err)
@@ -137,12 +173,9 @@ export const hash = data => {
     .digest()
 }
 
-export const signMessage = ({ messageData }) => {
-  const privateKey = 'ceea41a1c9e91f839c96fba253b620da70992954b2a28b19322b191d8f5e56db' // import private key from vault
-  const pKey = Buffer.alloc(32)
-  pKey.write(privateKey, 0, 'hex')
+export const signMessage = ({ messageData, privKey }) => {
   // sign the messageData
-  const sigObj = secp256k1.sign(hash(messageData.data), pKey)
+  const sigObj = secp256k1.sign(hash(JSON.stringify(messageData.data)), Buffer.from(privKey, 'hex'))
   return {
     type: messageData.type,
     spent: messageData.spent,
@@ -153,12 +186,12 @@ export const signMessage = ({ messageData }) => {
 }
 export const getPublicKeysFromSignature = message => {
   return [
-    secp256k1.recover(hash(message.message), message.signature, 0),
-    secp256k1.recover(hash(message.message), message.signature, 1)
+    secp256k1.recover(hash(JSON.stringify(message.message)), message.signature, 0),
+    secp256k1.recover(hash(JSON.stringify(message.message)), message.signature, 1)
   ]
 }
-export const createMessage = ({ messageData }) => {
-  return signMessage({ messageData })
+export const createMessage = ({ messageData, privKey }) => {
+  return signMessage({ messageData, privKey })
 }
 
 export const createTransfer = values =>

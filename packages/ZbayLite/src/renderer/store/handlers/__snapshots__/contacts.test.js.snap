@@ -180,37 +180,37 @@ Immutable.Record {
 exports[`contacts reducer Direct messages reducer handles epics - fetchMessages displays notifications for vault 1`] = `
 Array [
   Array [
-    "New message from Unnamed",
+    "New message from testnickname",
     Object {
       "body": "message 0 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04t...",
     },
   ],
   Array [
-    "New message from Unnamed",
+    "New message from testnickname",
     Object {
       "body": "message 1 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04t...",
     },
   ],
   Array [
-    "New message from Unnamed",
+    "New message from testnickname",
     Object {
       "body": "message 0 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04t...",
     },
   ],
   Array [
-    "New message from Unnamed",
+    "New message from testnickname",
     Object {
       "body": "message 1 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04t...",
     },
   ],
   Array [
-    "New message from Unnamed",
+    "New message from testnickname",
     Object {
       "body": "This is some message test-id",
     },
   ],
   Array [
-    "New message from Unnamed",
+    "New message from testnickname",
     Object {
       "body": "This is some message test-id",
     },
@@ -220,17 +220,17 @@ Array [
 
 exports[`contacts reducer Direct messages reducer handles epics - fetchMessages fetches messages 1`] = `
 Immutable.Map {
-  "": Immutable.Record {
+  "test adddress": Immutable.Record {
     "lastSeen": "2019-03-07T13:03:48.000Z",
-    "username": "",
-    "address": "",
+    "username": "testnickname",
+    "address": "test adddress",
     "messages": Immutable.List [
       Immutable.ReceivedMessage {
         "id": "tx-id-0-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         "type": 4,
         "sender": Immutable.MessageSender {
-          "replyTo": "",
-          "username": "",
+          "replyTo": "test adddress",
+          "username": "testnickname",
         },
         "createdAt": 1551963828,
         "message": "message 0 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
@@ -240,8 +240,8 @@ Immutable.Map {
         "id": "tx-id-1-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         "type": 1,
         "sender": Immutable.MessageSender {
-          "replyTo": "",
-          "username": "",
+          "replyTo": "test adddress",
+          "username": "testnickname",
         },
         "createdAt": 1551960228,
         "message": "message 1 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
@@ -251,8 +251,8 @@ Immutable.Map {
         "id": "tx-id-0-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
         "type": 4,
         "sender": Immutable.MessageSender {
-          "replyTo": "",
-          "username": "",
+          "replyTo": "test adddress",
+          "username": "testnickname",
         },
         "createdAt": 1551963828,
         "message": "message 0 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
@@ -262,8 +262,8 @@ Immutable.Map {
         "id": "tx-id-1-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
         "type": 1,
         "sender": Immutable.MessageSender {
-          "replyTo": "",
-          "username": "",
+          "replyTo": "test adddress",
+          "username": "testnickname",
         },
         "createdAt": 1551960228,
         "message": "message 1 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
@@ -273,8 +273,8 @@ Immutable.Map {
         "id": "tx-id-0-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         "type": 1,
         "sender": Immutable.MessageSender {
-          "replyTo": "",
-          "username": "",
+          "replyTo": "test adddress",
+          "username": "testnickname",
         },
         "createdAt": 1551963828,
         "message": "This is some message test-id",
@@ -284,8 +284,8 @@ Immutable.Map {
         "id": "tx-id-1-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         "type": 1,
         "sender": Immutable.MessageSender {
-          "replyTo": "",
-          "username": "",
+          "replyTo": "test adddress",
+          "username": "testnickname",
         },
         "createdAt": 1551963828,
         "message": "This is some message test-id",
@@ -316,17 +316,17 @@ Immutable.Map {
     "newMessages": Immutable.List [],
     "vaultMessages": Immutable.List [],
   },
-  "": Immutable.Record {
+  "test adddress": Immutable.Record {
     "lastSeen": "2019-03-07T12:33:48.000Z",
-    "username": "",
-    "address": "",
+    "username": "testnickname",
+    "address": "test adddress",
     "messages": Immutable.List [
       Immutable.ReceivedMessage {
         "id": "tx-id-0-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         "type": 4,
         "sender": Immutable.MessageSender {
-          "replyTo": "",
-          "username": "",
+          "replyTo": "test adddress",
+          "username": "testnickname",
         },
         "createdAt": 1551963828,
         "message": "message 0 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
@@ -336,8 +336,8 @@ Immutable.Map {
         "id": "tx-id-1-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         "type": 1,
         "sender": Immutable.MessageSender {
-          "replyTo": "",
-          "username": "",
+          "replyTo": "test adddress",
+          "username": "testnickname",
         },
         "createdAt": 1551960228,
         "message": "message 1 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
@@ -347,8 +347,8 @@ Immutable.Map {
         "id": "tx-id-0-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
         "type": 4,
         "sender": Immutable.MessageSender {
-          "replyTo": "",
-          "username": "",
+          "replyTo": "test adddress",
+          "username": "testnickname",
         },
         "createdAt": 1551963828,
         "message": "message 0 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
@@ -358,8 +358,8 @@ Immutable.Map {
         "id": "tx-id-1-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
         "type": 1,
         "sender": Immutable.MessageSender {
-          "replyTo": "",
-          "username": "",
+          "replyTo": "test adddress",
+          "username": "testnickname",
         },
         "createdAt": 1551960228,
         "message": "message 1 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
@@ -369,8 +369,8 @@ Immutable.Map {
         "id": "tx-id-0-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         "type": 1,
         "sender": Immutable.MessageSender {
-          "replyTo": "",
-          "username": "",
+          "replyTo": "test adddress",
+          "username": "testnickname",
         },
         "createdAt": 1551963828,
         "message": "This is some message test-id",
@@ -380,8 +380,8 @@ Immutable.Map {
         "id": "tx-id-1-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         "type": 1,
         "sender": Immutable.MessageSender {
-          "replyTo": "",
-          "username": "",
+          "replyTo": "test adddress",
+          "username": "testnickname",
         },
         "createdAt": 1551963828,
         "message": "This is some message test-id",

@@ -32,7 +32,12 @@ describe('messages -', () => {
 
       const received = await transferToMessage(transfer)
 
-      const expected = { ...message, spent: new BigNumber(spent), id: txid }
+      const expected = {
+        ...message,
+        spent: new BigNumber(spent),
+        id: txid,
+        sender: { replyTo: '', username: 'Unnamed' }
+      }
       expect(received).toEqual(expected)
     })
 
@@ -43,9 +48,7 @@ describe('messages -', () => {
         memo: await packMemo(message),
         amount: spent
       })
-
-      const received = await transferToMessage(transfer, true)
-
+      const received = await transferToMessage(transfer)
       expect(received).toMatchSnapshot()
     })
 
@@ -114,7 +117,8 @@ describe('messages -', () => {
     expect(receivedMessage).toEqual({
       ...message,
       id: txid,
-      spent: new BigNumber(amount)
+      spent: new BigNumber(amount),
+      sender: { replyTo: '', username: 'Unnamed' }
     })
   })
 

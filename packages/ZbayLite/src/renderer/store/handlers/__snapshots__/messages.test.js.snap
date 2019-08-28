@@ -612,7 +612,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "",
+            "username": "Unnamed",
           },
           "createdAt": 1551963828,
           "message": "message 0 for zs1testaddress0",
@@ -623,7 +623,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "",
+            "username": "Unnamed",
           },
           "createdAt": 1551960228,
           "message": "message 1 for zs1testaddress0",
@@ -634,7 +634,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "",
+            "username": "Unnamed",
           },
           "createdAt": 1551956628,
           "message": "message 2 for zs1testaddress0",
@@ -654,7 +654,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "",
+            "username": "Unnamed",
           },
           "createdAt": 1551963828,
           "message": "message 0 for zs1testaddress1",
@@ -665,7 +665,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "",
+            "username": "Unnamed",
           },
           "createdAt": 1551960228,
           "message": "message 1 for zs1testaddress1",
@@ -676,7 +676,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "",
+            "username": "Unnamed",
           },
           "createdAt": 1551956628,
           "message": "message 2 for zs1testaddress1",
@@ -708,7 +708,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "",
+            "username": "Unnamed",
           },
           "createdAt": 1551963828,
           "message": "message 0 for zs1testaddress0",
@@ -719,7 +719,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "",
+            "username": "Unnamed",
           },
           "createdAt": 1551960228,
           "message": "message 1 for zs1testaddress0",
@@ -738,7 +738,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "",
+            "username": "Unnamed",
           },
           "createdAt": 1551963828,
           "message": "message 0 for zs1testaddress1",
@@ -749,7 +749,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "",
+            "username": "Unnamed",
           },
           "createdAt": 1551960228,
           "message": "message 1 for zs1testaddress1",
@@ -777,7 +777,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "",
+            "username": "Unnamed",
           },
           "createdAt": 1551963828,
           "message": "message 0 for zs1testaddress0",
@@ -788,7 +788,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "",
+            "username": "Unnamed",
           },
           "createdAt": 1551960228,
           "message": "message 1 for zs1testaddress0",
@@ -807,7 +807,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "",
+            "username": "Unnamed",
           },
           "createdAt": 1551963828,
           "message": "message 0 for zs1testaddress1",
@@ -818,7 +818,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "",
+            "username": "Unnamed",
           },
           "createdAt": 1551960228,
           "message": "message 1 for zs1testaddress1",
@@ -849,7 +849,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "",
+            "username": "Unnamed",
           },
           "createdAt": 1551963828,
           "message": "message 0 for zs1testaddress0",
@@ -860,7 +860,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "",
+            "username": "Unnamed",
           },
           "createdAt": 1551960228,
           "message": "message 1 for zs1testaddress0",
@@ -879,7 +879,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "",
+            "username": "Unnamed",
           },
           "createdAt": 1551963828,
           "message": "message 0 for zs1testaddress1",
@@ -890,7 +890,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "",
+            "username": "Unnamed",
           },
           "createdAt": 1551960228,
           "message": "message 1 for zs1testaddress1",
@@ -921,7 +921,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "",
+            "username": "Unnamed",
           },
           "createdAt": 1551963828,
           "message": "message 0 for zs1testaddress0",
@@ -932,7 +932,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "",
+            "username": "Unnamed",
           },
           "createdAt": 1551960228,
           "message": "message 1 for zs1testaddress0",
@@ -951,7 +951,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "",
+            "username": "Unnamed",
           },
           "createdAt": 1551963828,
           "message": "message 0 for zs1testaddress1",
@@ -962,7 +962,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "",
+            "username": "Unnamed",
           },
           "createdAt": 1551960228,
           "message": "message 1 for zs1testaddress1",

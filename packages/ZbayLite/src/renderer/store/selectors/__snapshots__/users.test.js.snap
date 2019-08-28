@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`users selectors  - users 1`] = `
+Immutable.Map {
+  "address": Immutable.Map {
+    "firstName": "testname",
+    "lastName": "testlastname",
+    "nickname": "nickname",
+    "address": "ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r",
+  },
+  "address2": Immutable.Map {
+    "firstName": "testname2",
+    "lastName": "testlastname2",
+    "nickname": "nickname2",
+    "address": "ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r",
+  },
+}
+`;

@@ -1,4 +1,3 @@
-
 import Immutable from 'immutable'
 import { DateTime } from 'luxon'
 import { createAction, handleActions } from 'redux-actions'
@@ -6,7 +5,7 @@ import * as R from 'ramda'
 import BigNumber from 'bignumber.js'
 
 import identitySelectors from '../selectors/identity'
-import nodeSelectors from '../selectors/node'
+import usersSelectors from '../selectors/users'
 import selectors, { Contact } from '../selectors/contacts'
 import { directMessageChannel } from '../selectors/directMessageChannel'
 import { messages as zbayMessages } from '../../zbay'
@@ -20,9 +19,10 @@ import channelHandlers from './channel'
 import notificationsHandlers from './notifications'
 import { errorNotification } from './utils'
 
-const sendDirectMessageOnEnter = (event) => async (dispatch, getState) => {
+const sendDirectMessageOnEnter = event => async (dispatch, getState) => {
   const enterPressed = event.nativeEvent.keyCode === 13
   const shiftPressed = event.nativeEvent.shiftKey === true
+  const privKey = identitySelectors.signerPrivKey(getState())
   if (enterPressed && !shiftPressed) {
     event.preventDefault()
     const message = zbayMessages.createMessage({
@@ -30,52 +30,72 @@ const sendDirectMessageOnEnter = (event) => async (dispatch, getState) => {
         type: zbayMessages.messageType.BASIC,
         data: event.target.value,
         spent: '0.0001'
-      }
+      },
+      privKey
     })
     const channel = directMessageChannel(getState()).toJS()
-    dispatch(directMessagesQueueHandlers.epics.addDirectMessage({ message, recipientAddress: channel.targetRecipientAddress, recipientUsername: channel.targetRecipientUsername }))
+    dispatch(
+      directMessagesQueueHandlers.epics.addDirectMessage({
+        message,
+        recipientAddress: channel.targetRecipientAddress,
+        recipientUsername: channel.targetRecipientUsername
+      })
+    )
     dispatch(channelHandlers.actions.setMessage(''))
   }
 }
 
-const sendDirectMessage = (payload) => async (dispatch, getState) => {
+const sendDirectMessage = payload => async (dispatch, getState) => {
   const { spent, type, message: messageData } = payload
+  const privKey = identitySelectors.signerPrivKey(getState())
   const message = zbayMessages.createMessage({
     messageData: {
       type,
       data: messageData,
       spent: type === zbayMessages.messageType.TRANSFER ? spent : '0.0001'
-    }
+    },
+    privKey
   })
   const { replyTo: recipientAddress, username: recipientUsername } = payload.receiver
-  dispatch(directMessagesQueueHandlers.epics.addDirectMessage({ message, recipientAddress, recipientUsername }))
+  dispatch(
+    directMessagesQueueHandlers.epics.addDirectMessage({
+      message,
+      recipientAddress,
+      recipientUsername
+    })
+  )
 }
 
-const resendMessage = (message) => async (dispatch, getState) => {
+const resendMessage = message => async (dispatch, getState) => {
   dispatch(operationsHandlers.actions.removeOperation(message.id))
   const identityAddress = identitySelectors.address(getState())
   const transfer = await zbayMessages.messageToTransfer({
     message,
     recipientAddress: message.receiver.replyTo,
-    amount: message.type === zbayMessages.messageType.TRANSFER ? new BigNumber(message.spent) : new BigNumber('0.0001'),
+    amount:
+      message.type === zbayMessages.messageType.TRANSFER
+        ? new BigNumber(message.spent)
+        : new BigNumber('0.0001'),
     identityAddress
   })
   try {
     const opId = await getClient().payment.send(transfer)
-    await dispatch(operationsHandlers.epics.observeOperation({
-      opId,
-      type: operationTypes.pendingDirectMessage,
-      meta: PendingDirectMessageOp({
-        recipientAddress: message.receiver.replyTo,
-        recipientUsername: message.receiver.username,
-        message: Immutable.fromJS(message)
-      }),
-      checkConfirmationNumber
-    }))
+    await dispatch(
+      operationsHandlers.epics.observeOperation({
+        opId,
+        type: operationTypes.pendingDirectMessage,
+        meta: PendingDirectMessageOp({
+          recipientAddress: message.receiver.replyTo,
+          recipientUsername: message.receiver.username,
+          message: Immutable.fromJS(message)
+        }),
+        checkConfirmationNumber
+      })
+    )
   } catch (err) {
     notificationsHandlers.actions.enqueueSnackbar(
       errorNotification({
-        message: 'Couldn\'t send the message, please check node connection.'
+        message: "Couldn't send the message, please check node connection."
       })
     )
   }
@@ -99,21 +119,25 @@ export const actions = {
 
 export const fetchMessages = () => async (dispatch, getState) => {
   const identityAddress = identitySelectors.address(getState())
-  const isTestnet = nodeSelectors.node(getState()).isTestnet
   const transfers = await getClient().payment.received(identityAddress)
-  const messages = await Promise.all(transfers.map(
-    async (transfer) => {
-      const message = await zbayMessages.transferToMessage(transfer, isTestnet)
-      return message && ReceivedMessage(message)
-    }
-  ))
+  const users = usersSelectors.users(getState())
+  const messagesAll = await Promise.all(
+    transfers
+      .map(async transfer => {
+        const message = await zbayMessages.transferToMessage(transfer, users)
+
+        return message && ReceivedMessage(message)
+      })
+      .filter(msg => msg !== null)
+  )
+  const messages = messagesAll.filter(msg => msg !== null).filter(msg => msg.sender.replyTo !== '')
   const senderToMessages = R.compose(
     R.groupBy(msg => msg.sender.replyTo),
     R.filter(R.identity)
   )(messages)
 
-  await Promise.all(Object.entries(senderToMessages).map(
-    async ([contactAddress, contactMessages]) => {
+  await Promise.all(
+    Object.entries(senderToMessages).map(async ([contactAddress, contactMessages]) => {
       const contact = contactMessages[0].sender
       await dispatch(loadVaultMessages({ contact }))
       const previousMessages = selectors.messages(contactAddress)(getState())
@@ -130,14 +154,18 @@ export const fetchMessages = () => async (dispatch, getState) => {
         identityAddress
       })
 
-      dispatch(appendNewMessages({
-        contactAddress,
-        messagesIds: newMessages.map(R.prop('id'))
-      }))
+      dispatch(
+        appendNewMessages({
+          contactAddress,
+          messagesIds: newMessages.map(R.prop('id'))
+        })
+      )
       dispatch(setMessages({ messages: contactMessages, contactAddress }))
-      newMessages.map(nm => displayDirectMessageNotification({ message: nm, username: contact.username }))
-    }
-  ))
+      newMessages.map(nm =>
+        displayDirectMessageNotification({ message: nm, username: contact.username })
+      )
+    })
+  )
 }
 
 export const updateLastSeen = ({ contact }) => async (dispatch, getState) => {
@@ -149,21 +177,35 @@ export const updateLastSeen = ({ contact }) => async (dispatch, getState) => {
     recipientAddress: contact.replyTo,
     lastSeen
   })
-  dispatch(setLastSeen({
-    lastSeen,
-    contact
-  }))
+  dispatch(
+    setLastSeen({
+      lastSeen,
+      contact
+    })
+  )
 }
 
 export const loadVaultMessages = ({ contact }) => async (dispatch, getState) => {
   const identityId = identitySelectors.id(getState())
   const identityAddress = identitySelectors.address(getState())
-  const { messages: vaultMessages } = await getVault().contacts.listMessages({ identityId, recipientUsername: contact.username, recipientAddress: contact.replyTo })
-  const vaultMessagesToDisplay = vaultMessages.map(msg => zbayMessages.vaultToDisplayableMessage({ message: msg, identityAddress, receiver: { replyTo: contact.replyTo, username: contact.username } }))
-  dispatch(setVaultMessages({
-    contactAddress: contact.replyTo,
-    vaultMessagesToDisplay
-  }))
+  const { messages: vaultMessages } = await getVault().contacts.listMessages({
+    identityId,
+    recipientUsername: contact.username,
+    recipientAddress: contact.replyTo
+  })
+  const vaultMessagesToDisplay = vaultMessages.map(msg =>
+    zbayMessages.vaultToDisplayableMessage({
+      message: msg,
+      identityAddress,
+      receiver: { replyTo: contact.replyTo, username: contact.username }
+    })
+  )
+  dispatch(
+    setVaultMessages({
+      contactAddress: contact.replyTo,
+      vaultMessagesToDisplay
+    })
+  )
 }
 
 export const loadAllSentMessages = () => async (dispatch, getState) => {
@@ -171,18 +213,28 @@ export const loadAllSentMessages = () => async (dispatch, getState) => {
   const identityAddress = identitySelectors.address(getState())
   const allMessages = await getVault().contacts.loadAllSentMessages({ identityId })
   allMessages.forEach(contact => {
-    const vaultMessagesToDisplay = contact.messages.map(msg => zbayMessages.vaultToDisplayableMessage({ message: msg, identityAddress, receiver: { replyTo: contact.address, username: contact.username } }))
-    dispatch(setVaultMessages({
-      contactAddress: contact.address,
-      vaultMessagesToDisplay
-    }))
-    dispatch(setLastSeen({
-      lastSeen: null,
-      contact: {
-        replyTo: contact.address,
-        username: contact.address.substring(0, 10)
-      }
-    }))
+    const vaultMessagesToDisplay = contact.messages.map(msg =>
+      zbayMessages.vaultToDisplayableMessage({
+        message: msg,
+        identityAddress,
+        receiver: { replyTo: contact.address, username: contact.username }
+      })
+    )
+    dispatch(
+      setVaultMessages({
+        contactAddress: contact.address,
+        vaultMessagesToDisplay
+      })
+    )
+    dispatch(
+      setLastSeen({
+        lastSeen: null,
+        contact: {
+          replyTo: contact.address,
+          username: contact.address.substring(0, 10)
+        }
+      })
+    )
   })
 }
 
@@ -196,37 +248,34 @@ export const epics = {
   resendMessage
 }
 
-export const reducer = handleActions({
-  [setMessages]: (state, { payload: { contactAddress, messages } }) => state.update(
-    contactAddress,
-    Contact(),
-    cm => cm.set('messages', Immutable.fromJS(messages))
-  ),
-  [setVaultMessages]: (state, { payload: { contactAddress, vaultMessagesToDisplay } }) => state.update(
-    contactAddress,
-    Contact(),
-    cm => cm.set('vaultMessages', Immutable.fromJS(vaultMessagesToDisplay))
-  ),
-  [cleanNewMessages]: (state, { payload: { contactAddress } }) => {
-    const newState = state.update(
-      contactAddress,
-      Contact(),
-      cm => cm.set('newMessages', Immutable.List())
-    )
-    return newState
+export const reducer = handleActions(
+  {
+    [setMessages]: (state, { payload: { contactAddress, messages } }) =>
+      state.update(contactAddress, Contact(), cm => cm.set('messages', Immutable.fromJS(messages))),
+    [setVaultMessages]: (state, { payload: { contactAddress, vaultMessagesToDisplay } }) =>
+      state.update(contactAddress, Contact(), cm =>
+        cm.set('vaultMessages', Immutable.fromJS(vaultMessagesToDisplay))
+      ),
+    [cleanNewMessages]: (state, { payload: { contactAddress } }) => {
+      const newState = state.update(contactAddress, Contact(), cm =>
+        cm.set('newMessages', Immutable.List())
+      )
+      return newState
+    },
+    [appendNewMessages]: (state, { payload: { contactAddress, messagesIds } }) =>
+      state.update(contactAddress, Contact(), cm =>
+        cm.update('newMessages', nm => nm.concat(messagesIds))
+      ),
+    [setLastSeen]: (state, { payload: { lastSeen, contact } }) =>
+      state.update(contact.replyTo, Contact(), cm =>
+        cm
+          .set('lastSeen', lastSeen)
+          .set('username', contact.username)
+          .set('address', contact.replyTo)
+      )
   },
-  [appendNewMessages]: (state, { payload: { contactAddress, messagesIds } }) => state.update(
-    contactAddress,
-    Contact(),
-    cm => cm.update('newMessages', nm => nm.concat(messagesIds))),
-  [setLastSeen]: (state, { payload: { lastSeen, contact } }) => state.update(
-    contact.replyTo,
-    Contact(),
-    cm => cm.set('lastSeen', lastSeen)
-      .set('username', contact.username)
-      .set('address', contact.replyTo)
-  )
-}, initialState)
+  initialState
+)
 
 export default {
   epics,

@@ -191,6 +191,10 @@ Object {
   "createdAt": 1551963828,
   "id": "test-id",
   "message": "This is some message test-id",
+  "sender": Object {
+    "replyTo": "",
+    "username": "Unnamed",
+  },
   "signature": Object {
     "data": Array [
       49,

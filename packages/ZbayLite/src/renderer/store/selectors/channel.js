@@ -50,17 +50,22 @@ export const messages = createSelector(
   queuedMessages,
   (identity, receivedMessages, pendingMessages, queuedMessages) => {
     const identityAddress = identity.address
+    const identityName = identity.name
     const displayableBroadcasted = receivedMessages.map(
-      message => zbayMessages.receivedToDisplayableMessage({ message, identityAddress })
+      message => {
+        return zbayMessages.receivedToDisplayableMessage({ message, identityAddress })
+      }
     )
 
     const displayablePending = pendingMessages.map(
-      operation => zbayMessages.operationToDisplayableMessage({ operation, identityAddress })
+      operation => {
+        return zbayMessages.operationToDisplayableMessage({ operation, identityAddress, identityName })
+      }
     )
 
     const displayableQueued = queuedMessages.map(
       (queuedMessage, messageKey) => zbayMessages.queuedToDisplayableMessage({
-        queuedMessage, messageKey, identityAddress
+        queuedMessage, messageKey, identityAddress, identityName
       })
     )
     return displayableBroadcasted.concat(

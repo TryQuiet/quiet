@@ -7,15 +7,16 @@ import { DateTime } from 'luxon'
 import * as R from 'ramda'
 
 import { IdentityState, Identity } from './identity'
+import { setUsers } from './users'
 import { NodeState } from './node'
 import { epics, actions } from './contacts'
 import create from '../create'
 import { mock as zcashMock } from '../../zcash'
 import { createArchive } from '../../vault/marshalling'
 import { mock as vaultMock, getVault } from '../../vault'
-import { messageType } from '../../zbay/messages'
+import { messageType, getPublicKeysFromSignature } from '../../zbay/messages'
 import testUtils from '../../testUtils'
-import { packMemo } from '../../zbay/transit'
+import { packMemo, unpackMemo } from '../../zbay/transit'
 import selectors, { Contact } from '../selectors/contacts'
 import { MessageSender, ReceivedMessage } from './messages'
 import operationsSelectors from '../selectors/operations'
@@ -89,15 +90,40 @@ describe('contacts reducer', () => {
         name: 'Saturn'
       })
     }),
+    users: Immutable.Map(),
     node: NodeState({ isTestnet: false })
   }
 
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.clearAllMocks()
     window.Notification = jest.fn()
     jest.spyOn(DateTime, 'utc').mockImplementation(() => testUtils.now)
     store = create({
       initialState: Immutable.Map(initialState)
+    })
+    const transactions = await receivedMock(identityAddress)
+    transactions.forEach(async txn => {
+      const data = await unpackMemo(txn.memo)
+      const publicKey0 = getPublicKeysFromSignature(data)[0].toString('hex')
+      const publicKey1 = getPublicKeysFromSignature(data)[1].toString('hex')
+      store.dispatch(
+        setUsers({
+          users: {
+            [publicKey0]: {
+              firstName: 'testfirstname',
+              lastName: 'testlastname',
+              nickname: 'testnickname',
+              address: 'test adddress'
+            },
+            [publicKey1]: {
+              firstName: 'testfirstname',
+              lastName: 'testlastname',
+              nickname: 'testnickname',
+              address: 'test adddress'
+            }
+          }
+        })
+      )
     })
     zcashMock.requestManager.z_listreceivedbyaddress.mockImplementation(receivedMock)
   })
@@ -301,7 +327,6 @@ describe('contacts reducer', () => {
       describe('- fetchMessages', () => {
         it('fetches messages', async () => {
           await store.dispatch(epics.fetchMessages())
-
           expect(selectors.contacts(store.getState())).toMatchSnapshot()
         })
 
@@ -356,33 +381,35 @@ describe('contacts reducer', () => {
         })
 
         it('- resendMessage resend selected direct message', async () => {
-          const messages = [
-            testUtils.createSendableTransferMessage({})
-          ]
+          const messages = [testUtils.createSendableTransferMessage({})]
           const opId = `message-op-id`
           const message = {
             ...messages[0],
             id: opId
           }
-          zcashMock.requestManager.z_getoperationstatus.mockImplementationOnce(async () => [{
-            id: opId,
-            status: 'failed',
-            result: {
-              txid: 'message-op-id'
-            },
-            error: { code: -1, message: 'no funds' }
-          }])
+          zcashMock.requestManager.z_getoperationstatus.mockImplementationOnce(async () => [
+            {
+              id: opId,
+              status: 'failed',
+              result: {
+                txid: 'message-op-id'
+              },
+              error: { code: -1, message: 'no funds' }
+            }
+          ])
           zcashMock.requestManager.z_sendmany.mockResolvedValue('new-op-id')
 
-          await store.dispatch(operationsHandlers.epics.observeOperation({
-            meta: PendingDirectMessageOp({
-              recipientAddress: message.receiver.replyTo,
-              recipientUsername: message.receiver.username,
-              message
-            }),
-            type: operationTypes.pendingDirectMessage,
-            opId
-          }))
+          await store.dispatch(
+            operationsHandlers.epics.observeOperation({
+              meta: PendingDirectMessageOp({
+                recipientAddress: message.receiver.replyTo,
+                recipientUsername: message.receiver.username,
+                message
+              }),
+              type: operationTypes.pendingDirectMessage,
+              opId
+            })
+          )
           const beforeResend = operationsSelectors.pendingDirectMessages(store.getState())
           expect(beforeResend.getIn([opId, 'status'])).toEqual('failed')
 

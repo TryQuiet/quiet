@@ -64,7 +64,7 @@ Immutable.List [
     "type": 1,
     "sender": Immutable.ExchangeParticipant {
       "replyTo": "",
-      "username": "Unnamed",
+      "username": "",
     },
     "receiver": Immutable.ExchangeParticipant {
       "replyTo": "",
@@ -118,7 +118,7 @@ Immutable.List [
     "type": 1,
     "sender": Immutable.ExchangeParticipant {
       "replyTo": "",
-      "username": "Unnamed",
+      "username": "",
     },
     "receiver": Immutable.ExchangeParticipant {
       "replyTo": "",
@@ -136,7 +136,7 @@ Immutable.List [
     "type": 1,
     "sender": Immutable.ExchangeParticipant {
       "replyTo": "",
-      "username": "Unnamed",
+      "username": "",
     },
     "receiver": Immutable.ExchangeParticipant {
       "replyTo": "",

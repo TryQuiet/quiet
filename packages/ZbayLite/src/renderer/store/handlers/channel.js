@@ -60,17 +60,18 @@ const loadChannel = (id) => async (dispatch, getState) => {
   dispatch(setLoading(false))
 }
 
-const sendOnEnter = (event) => async (dispatch, getState) => {
+const sendOnEnter = event => async (dispatch, getState) => {
   const enterPressed = event.nativeEvent.keyCode === 13
   const shiftPressed = event.nativeEvent.shiftKey === true
   if (enterPressed && !shiftPressed) {
     event.preventDefault()
+    const privKey = identitySelectors.signerPrivKey(getState())
     const message = messages.createMessage({
-      identity: identitySelectors.data(getState()).toJS(),
       messageData: {
         type: messages.messageType.BASIC,
         data: event.target.value
-      }
+      },
+      privKey: privKey
     })
     const channel = channelSelectors.data(getState()).toJS()
     dispatch(messagesQueueHandlers.epics.addMessage({ message, channelId: channel.id }))

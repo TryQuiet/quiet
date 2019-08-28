@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`users reducer handles actions - setUsers sets users when empty 1`] = `Immutable.Map {}`;
+
+exports[`users reducer handles epics - fetch users when users 1`] = `
+Immutable.Map {
+  "035302fc10b2dc5cbe747779cd1cbcd7fe111161e09282e210d72dee9f6e68b17a": Immutable.UserData {
+    "firstName": "testname",
+    "lastName": "testlastname",
+    "nickname": "nickname",
+    "address": "ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r",
+  },
+  "037128c776aa4b67f744425a67968562667d8793c4ea52aef214a912772f80ebf0": Immutable.UserData {
+    "firstName": "testname",
+    "lastName": "testlastname",
+    "nickname": "nickname",
+    "address": "ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r",
+  },
+  "02b7e647acb166a81139b1bcbdde82b8df610f1fb93af5edd0359dd0d7138d9166": Immutable.UserData {
+    "firstName": "testname",
+    "lastName": "testlastname",
+    "nickname": "nickname",
+    "address": "ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r",
+  },
+  "03c5eb408fd7016d9f27547abd54110de58644e4d29b63cee5401a51e1f409df67": Immutable.UserData {
+    "firstName": "testname",
+    "lastName": "testlastname",
+    "nickname": "nickname",
+    "address": "ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r",
+  },
+}
+`;

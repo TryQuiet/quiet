@@ -5,6 +5,7 @@ import { createAction, handleActions } from 'redux-actions'
 
 import selectors from '../selectors/messages'
 import channelsSelectors from '../selectors/channels'
+import usersSelectors from '../selectors/users'
 import identitySelectors from '../selectors/identity'
 import operationsSelectors from '../selectors/operations'
 import operationsHandlers from './operations'
@@ -63,14 +64,14 @@ export const fetchMessages = () => async (dispatch, getState) => {
   const channels = channelsSelectors.data(getState())
   const pendingMessages = operationsSelectors.pendingMessages(getState())
   const identityAddress = identitySelectors.address(getState())
-
+  const users = usersSelectors.users(getState())
   return Promise.all(
     channels.map(async channel => {
       const channelId = channel.get('id')
       const transfers = await getClient().payment.received(channel.get('address'))
       const messagesAll = await Promise.all(
         transfers.map(async transfer => {
-          const message = await zbayMessages.transferToMessage(transfer)
+          const message = await zbayMessages.transferToMessage(transfer, users)
           if (message === null) {
             return ReceivedMessage(message)
           }

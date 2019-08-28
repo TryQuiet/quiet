@@ -131,7 +131,7 @@ Immutable.List [
     "type": 1,
     "sender": Immutable.ExchangeParticipant {
       "replyTo": "",
-      "username": "Unnamed",
+      "username": "",
     },
     "receiver": Immutable.ExchangeParticipant {
       "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
@@ -149,7 +149,7 @@ Immutable.List [
     "type": 1,
     "sender": Immutable.ExchangeParticipant {
       "replyTo": "",
-      "username": "Unnamed",
+      "username": "",
     },
     "receiver": Immutable.ExchangeParticipant {
       "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
@@ -171,7 +171,7 @@ Immutable.List [
     },
     "receiver": Immutable.ExchangeParticipant {
       "replyTo": "",
-      "username": [Function],
+      "username": "",
     },
     "createdAt": 1551956628,
     "message": "This is a message with id 1",
@@ -196,7 +196,7 @@ Immutable.List [
     "type": 1,
     "sender": Immutable.ExchangeParticipant {
       "replyTo": "",
-      "username": "Unnamed",
+      "username": "",
     },
     "receiver": Immutable.ExchangeParticipant {
       "replyTo": "",
@@ -214,7 +214,7 @@ Immutable.List [
     "type": 1,
     "sender": Immutable.ExchangeParticipant {
       "replyTo": "",
-      "username": "Unnamed",
+      "username": "",
     },
     "receiver": Immutable.ExchangeParticipant {
       "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
@@ -236,7 +236,7 @@ Immutable.List [
     },
     "receiver": Immutable.ExchangeParticipant {
       "replyTo": "",
-      "username": [Function],
+      "username": "",
     },
     "createdAt": 1551963828,
     "message": "This is a message with id 0",

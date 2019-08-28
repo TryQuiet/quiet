@@ -2,14 +2,22 @@ import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
+import { lifecycle } from 'recompose'
+import * as R from 'ramda'
 
 import WalletPanelComponent from '../../../components/widgets/walletPanel/WalletPanel'
 import identityHandlers from '../../../store/handlers/identity'
+import usersHandlers from '../../../store/handlers/users'
 import { useInterval } from '../../hooks'
 
-export const mapDispatchToProps = dispatch => bindActionCreators({
-  getBalance: identityHandlers.epics.fetchBalance
-}, dispatch)
+export const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    {
+      getBalance: identityHandlers.epics.fetchBalance,
+      fetchUsers: usersHandlers.epics.fetchUsers
+    },
+    dispatch
+  )
 
 export const WalletPanel = ({ className, getBalance }) => {
   useInterval(getBalance, 15000)
@@ -27,4 +35,15 @@ WalletPanel.propTypes = {
   getBalance: PropTypes.func.isRequired
 }
 
-export default connect(null, mapDispatchToProps)(WalletPanel)
+export default R.compose(
+  connect(
+    null,
+    mapDispatchToProps
+  ),
+  lifecycle({
+    async componentDidMount () {
+      await this.props.getBalance()
+      await this.props.fetchUsers()
+    }
+  })
+)(WalletPanel)

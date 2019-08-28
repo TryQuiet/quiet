@@ -39,15 +39,17 @@ const generalChannelId = createSelector(
     return generalChannel && generalChannel.get('id')
   }
 )
-
-const usersChannelId = createSelector(
-  data,
+const usersChannel = createSelector(
+  store,
   nodeSelectors.network,
-  (ch, network) => {
-    const usersChannel = ch.find(
-      c => c.get('address') === zcashChannels.registeredUsers[network].address
-    )
-    return usersChannel && usersChannel.get('id')
+  (state, network) => {
+    return state
+      .get('channels')
+      .updateIn(['data'], channel =>
+        channel.find(
+          channel => channel.get('address') === zcashChannels.registeredUsers[network].address
+        )
+      ).data
   }
 )
 
@@ -66,7 +68,7 @@ const lastSeen = id =>
 export default {
   channelById,
   generalChannelId,
-  usersChannelId,
+  usersChannel,
   channels,
   loader,
   lastSeen,

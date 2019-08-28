@@ -3,6 +3,7 @@ import secp256k1 from 'secp256k1'
 import BigNumber from 'bignumber.js'
 import { messages as zbayMessages } from '../zbay'
 import { hash } from '../zbay/messages'
+import defaultChannels from '../zcash/channels'
 Settings.defaultZoneName = 'utc'
 
 const identities = [
@@ -34,8 +35,23 @@ export const createChannel = id => ({
   }
 })
 
+export const createUsersChannel = (id, network = 'testnet') => {
+  return {
+    id: id,
+    name: `Channel ${id}`,
+    private: Boolean(id % 2),
+    address: defaultChannels.registeredUsers[network].address,
+    unread: id,
+    description: id % 2 === 0 ? '' : `Channel about ${id}`,
+    keys: {
+      ivk: `incoming-viewing-key-${id}`
+    }
+  }
+}
+
 export const channels = {
-  createChannel
+  createChannel,
+  createUsersChannel
 }
 
 export const createVaultMessage = (
@@ -87,6 +103,17 @@ export const createSendableMessage = ({
   message
 })
 
+export const createSendableUserMessage = ({
+  message,
+  createdAt = now.toSeconds(),
+  type = zbayMessages.messageType.USER
+}) => ({
+  type,
+  signature: secp256k1.sign(hash(JSON.stringify(message) + createdAt), pKey).signature,
+  createdAt,
+  message
+})
+
 export const createSendableTransferMessage = ({
   message = 'hello',
   createdAt = now.toSeconds()
@@ -115,13 +142,41 @@ export const createReceivedTransferMessage = ({ id, createdAt = now.toSeconds() 
   signature: secp256k1.sign(hash(`This is a message with id ${id}`), pKey).signature
 })
 
+export const createReceivedUserMessage = ({ id, createdAt = now.toSeconds() }) => ({
+  id,
+  spent: new BigNumber('0.32'),
+  type: zbayMessages.messageType.USER,
+  createdAt,
+  message: {
+    firstName: 'testname',
+    lastName: 'testlastname',
+    nickname: 'nickname',
+    address:
+      'ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r'
+  },
+  signature: secp256k1.sign(
+    hash(
+      JSON.stringify({
+        firstName: 'testname',
+        lastName: 'testlastname',
+        nickname: 'nickname',
+        address:
+          'ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r'
+      }) + id
+    ),
+    pKey
+  ).signature
+})
+
 export const messages = {
   createReceivedMessage,
   createSendableMessage,
   createReceivedTransferMessage,
   createSendableTransferMessage,
   createMessage,
-  createVaultMessage
+  createVaultMessage,
+  createReceivedUserMessage,
+  createSendableUserMessage
 }
 
 export const createTransfer = ({ txid, amount = '0.0001', memo = '', change = false }) => ({

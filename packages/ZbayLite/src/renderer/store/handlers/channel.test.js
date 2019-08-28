@@ -74,7 +74,8 @@ describe('channel reducer', () => {
             id: identityId,
             address,
             name: 'Saturn',
-            balance: '33.583004'
+            balance: '33.583004',
+            signerPrivKey: '879aff43df53606d8ae1219d9347360e7a30d1c2f141e14c9bc96bb29bf930cb'
           })
         }),
         operations: Immutable.Map()

@@ -124,7 +124,7 @@ Object {
       },
       "receiver": Immutable.ExchangeParticipant {
         "replyTo": "",
-        "username": [Function],
+        "username": "",
       },
       "createdAt": 1551942228,
       "message": "This is a message with id 3",
@@ -142,7 +142,7 @@ Object {
       },
       "receiver": Immutable.ExchangeParticipant {
         "replyTo": "",
-        "username": [Function],
+        "username": "",
       },
       "createdAt": 1551949428,
       "message": "This is a message with id 2",
@@ -160,7 +160,7 @@ Object {
       },
       "receiver": Immutable.ExchangeParticipant {
         "replyTo": "",
-        "username": [Function],
+        "username": "",
       },
       "createdAt": 1551956628,
       "message": "This is a message with id 1",
@@ -178,7 +178,7 @@ Object {
       },
       "receiver": Immutable.ExchangeParticipant {
         "replyTo": "",
-        "username": [Function],
+        "username": "",
       },
       "createdAt": 1551963828,
       "message": "This is a message with id 0",
