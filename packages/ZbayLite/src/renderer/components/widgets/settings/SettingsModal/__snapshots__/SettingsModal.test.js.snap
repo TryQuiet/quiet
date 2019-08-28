@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SettingsModal renders component 1`] = `
+<Memo(WithStyles(Modal))
+  handleClose={[MockFunction]}
+  open={true}
+  title="Settings"
+>
+  <WithStyles(AppBar)
+    color="default"
+    position="static"
+  >
+    <WithStyles(Tabs)
+      indicatorColor="primary"
+      onChange={[Function]}
+      value="account"
+    >
+      <WithStyles(Tab)
+        label="Account"
+        value="account"
+      />
+      <WithStyles(Tab)
+        label="Shipping"
+        value="shipping"
+      />
+    </WithStyles(Tabs)>
+  </WithStyles(AppBar)>
+  <Connect(WithStyles(AccountSettingsForm)) />
+</Memo(WithStyles(Modal))>
+`;

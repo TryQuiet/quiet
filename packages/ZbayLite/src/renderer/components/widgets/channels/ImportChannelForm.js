@@ -47,9 +47,6 @@ export const ImportChannelForm = ({
                 placeholder='zbay.io/channel/...'
                 value={uri}
                 onChange={e => setUri(e.target.value)}
-                inputProps={{
-                  className: classes.input
-                }}
                 fullWidth
               />
             </Grid>

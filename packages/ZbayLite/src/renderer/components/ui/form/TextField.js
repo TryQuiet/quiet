@@ -3,24 +3,15 @@ import PropTypes from 'prop-types'
 import { Field } from 'formik'
 import { TextField as FormikTextField } from 'formik-material-ui'
 
-export const TextField = ({ name, label, ...props }) => (
+export const TextField = (props) => (
   <Field
-    name={name}
     component={FormikTextField}
-    label={label}
-    variant='outlined'
-    fullWidth
     {...props}
   />
 )
 
 TextField.propTypes = {
-  name: PropTypes.string.isRequired,
-  label: PropTypes.string
+  name: PropTypes.string.isRequired
 }
 
-TextField.defaultProps = {
-  label: ''
-}
-
-export default React.memo(TextField)
+export default TextField

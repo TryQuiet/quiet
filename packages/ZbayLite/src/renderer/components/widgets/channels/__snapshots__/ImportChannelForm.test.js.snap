@@ -23,11 +23,6 @@ exports[`ImportChannelForm renders component 1`] = `
       <TextField
         fullWidth={true}
         id="channel-uri"
-        inputProps={
-          Object {
-            "className": "input-mock",
-          }
-        }
         margin="none"
         onChange={[Function]}
         placeholder="zbay.io/channel/..."
@@ -76,11 +71,6 @@ exports[`ImportChannelForm renders decoding 1`] = `
       <TextField
         fullWidth={true}
         id="channel-uri"
-        inputProps={
-          Object {
-            "className": "input-mock",
-          }
-        }
         margin="none"
         onChange={[Function]}
         placeholder="zbay.io/channel/..."

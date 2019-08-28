@@ -78,9 +78,7 @@
     "webpack-cli": "^3.2.1",
     "webpack-dev-server": "^3.1.14",
     "webpack-node-externals": "^1.7.2",
-    "write-file-webpack-plugin": "^4.5.0",
-    "keccak": "^2.0.0",
-    "secp256k1": "^3.7.1"
+    "write-file-webpack-plugin": "^4.5.0"
   },
   "standard": {
     "parser": "babel-eslint",
@@ -113,6 +111,7 @@
     "bignumber.js": "^8.1.1",
     "buttercup": "^2.10.0",
     "classnames": "^2.2.6",
+    "country-region-data": "^1.4.7",
     "electron-updater": "^4.0.6",
     "formik": "^1.5.4",
     "formik-material-ui": "0.0.16",

@@ -35,7 +35,7 @@ export const VaultUnlockerForm = ({
     initialValues={initialValues}
   >
     {({ isSubmitting }) => (
-      <Form className={classes.fullContainer}>
+      <Form>
         <Paper className={classes.paper}>
           <Grid container direction='row' spacing={16} alignItems='center'>
             <Grid item>

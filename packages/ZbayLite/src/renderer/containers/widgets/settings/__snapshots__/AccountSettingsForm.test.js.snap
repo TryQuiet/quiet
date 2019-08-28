@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AccountSettingsForm will receive right actions 1`] = `
+Object {
+  "handleSubmit": [Function],
+}
+`;
+
+exports[`AccountSettingsForm will receive right props 1`] = `
+Object {
+  "initialValues": Object {
+    "nickname": "Saturn",
+  },
+  "privateAddress": "test-z-address",
+  "transparentAddress": "test-t-address",
+}
+`;

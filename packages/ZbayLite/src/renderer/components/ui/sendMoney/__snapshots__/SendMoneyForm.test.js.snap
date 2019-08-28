@@ -21,7 +21,6 @@ exports[`SendMoneyForm renders component when valid = false 1`] = `
           "className": "field-mock",
         }
       }
-      label=""
       name="recipient"
       placeholder="Enter Zcash Address"
     />
@@ -185,7 +184,6 @@ exports[`SendMoneyForm renders component when valid = false 1`] = `
         }
       }
       disabled={false}
-      label=""
       name="memo"
       placeholder="Enter an optional message"
     />
@@ -242,7 +240,6 @@ exports[`SendMoneyForm renders component when valid = true 1`] = `
           "className": "field-mock",
         }
       }
-      label=""
       name="recipient"
       placeholder="Enter Zcash Address"
     />
@@ -406,7 +403,6 @@ exports[`SendMoneyForm renders component when valid = true 1`] = `
         }
       }
       disabled={false}
-      label=""
       name="memo"
       placeholder="Enter an optional message"
     />
