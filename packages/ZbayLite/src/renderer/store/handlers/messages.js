@@ -82,7 +82,8 @@ export const fetchMessages = () => async (dispatch, getState) => {
           return ReceivedMessage(message)
         })
       )
-      const messages = messagesAll.filter(message => message.id !== null)
+      const messages = messagesAll
+        .filter(message => message.id !== null)
 
       const previousMessages = selectors.currentChannelMessages(channelId)(getState())
 

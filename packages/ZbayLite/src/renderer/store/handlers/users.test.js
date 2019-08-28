@@ -35,33 +35,39 @@ describe('users reducer', () => {
 
   describe('handles actions -', () => {
     describe('setUsers', () => {
-      it('sets users when empty', () => {
-        const users = R.range(0, 3)
+      it('sets users when empty', async () => {
+        const users = await R.range(0, 3)
           .map(id => testUtils.messages.createReceivedUserMessage({ id: `test-user-${id}` }))
-          .reduce(
-            async (acc = Promise.resolve(Immutable.Map({})), message) => {
-              const accumulator = await acc
-              return Promise.resolve(
-                accumulator.merge(ReceivedUser(message, 0)).merge(ReceivedUser(message, 1))
-              )
-            },
-            Promise.resolve(Immutable.Map({}))
-          )
-        const users2 = R.range(3, 5)
+          .reduce(async (acc = Promise.resolve(Immutable.Map({})), message) => {
+            const accumulator = await acc
+            const user = ReceivedUser(message, accumulator)
+
+            return Promise.resolve(accumulator.merge(user[0]).merge(user[1]))
+          }, Promise.resolve(Immutable.Map({})))
+        const users2 = await R.range(3, 5)
           .map(id => testUtils.messages.createReceivedUserMessage({ id: `test-user-${id}` }))
-          .reduce(
-            async (acc = Promise.resolve(Immutable.Map({})), message) => {
-              const accumulator = await acc
-              return Promise.resolve(
-                accumulator.merge(ReceivedUser(message, 0)).merge(ReceivedUser(message, 1))
-              )
-            },
-            Promise.resolve(Immutable.Map({}))
-          )
+          .reduce(async (acc = Promise.resolve(Immutable.Map({})), message) => {
+            const accumulator = await acc
+            const user = ReceivedUser(message, accumulator)
+
+            return Promise.resolve(accumulator.merge(user[0]).merge(user[1]))
+          }, Promise.resolve(Immutable.Map({})))
 
         store.dispatch(handlers.actions.setUsers({ users }))
         store.dispatch(handlers.actions.setUsers({ messages: users2 }))
 
+        expect(selectors.users(store.getState())).toMatchSnapshot()
+      })
+      it('sets users with same usernames', async () => {
+        const users = await R.range(0, 3)
+          .map(id => testUtils.messages.createReceivedUserMessage({ id: `test-user-${id}` }))
+          .reduce(async (acc = Promise.resolve(Immutable.Map({})), message) => {
+            const accumulator = await acc
+            const user = ReceivedUser(message, accumulator)
+
+            return Promise.resolve(accumulator.merge(user[0]).merge(user[1]))
+          }, Promise.resolve(Immutable.Map({})))
+        store.dispatch(handlers.actions.setUsers({ users }))
         expect(selectors.users(store.getState())).toMatchSnapshot()
       })
     })

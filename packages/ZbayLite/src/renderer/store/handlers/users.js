@@ -24,15 +24,45 @@ const _UserData = Immutable.Record(
   },
   'UserData'
 )
-export const ReceivedUser = (values, r) => {
+
+const usersNicknames = new Set()
+
+export const ReceivedUser = (values, registeredUsers) => {
   if (values === null) {
     return null
   }
   if (values.type === messageType.USER) {
-    const publicKey = getPublicKeysFromSignature(values)[r].toString('hex')
-    const record = _ReceivedUser(publicKey)()
-    return record.set(publicKey, _UserData(values.message))
+    const publicKey0 = getPublicKeysFromSignature(values)[0].toString('hex')
+    const publicKey1 = getPublicKeysFromSignature(values)[1].toString('hex')
+    const record0 = _ReceivedUser(publicKey0)()
+    const record1 = _ReceivedUser(publicKey1)()
+    if (
+      usersNicknames.has(values.message.nickname) &&
+      registeredUsers.get(publicKey0) === undefined
+    ) {
+      let i = 2
+      while (usersNicknames.has(`${values.message.nickname} #${i}`)) {
+        i++
+      }
+      usersNicknames.add(`${values.message.nickname} #${i}`)
+      return [
+        record0.set(
+          publicKey0,
+          _UserData({ ...values.message, nickname: `${values.message.nickname} #${i}` })
+        ),
+        record1.set(
+          publicKey1,
+          _UserData({ ...values.message, nickname: `${values.message.nickname} #${i}` })
+        )
+      ]
+    }
+    usersNicknames.add(values.message.nickname)
+    return [
+      record0.set(publicKey0, _UserData(values.message)),
+      record1.set(publicKey1, _UserData(values.message))
+    ]
   }
+  return null
 }
 
 export const initialState = Immutable.Map()
@@ -51,13 +81,16 @@ export const fetchUsers = () => async (dispatch, getState) => {
     async (acc = Promise.resolve(Immutable.Map({})), transfer) => {
       const accumulator = await acc
       const message = await zbayMessages.transferToMessage(transfer)
-      return Promise.resolve(
-        accumulator.merge(ReceivedUser(message, 0)).merge(ReceivedUser(message, 1))
-      )
+      const user = ReceivedUser(message, accumulator)
+
+      if (user === null) {
+        return Promise.resolve(accumulator)
+      }
+
+      return Promise.resolve(accumulator.merge(user[0]).merge(user[1]))
     },
     Promise.resolve(Immutable.Map({}))
   )
-
   dispatch(setUsers({ users }))
 }
 

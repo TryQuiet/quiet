@@ -17,12 +17,6 @@ exports[`ChannelHeader renders component 1`] = `
     >
       Channel 1
     </WithStyles(Typography)>
-    <WithStyles(Typography)
-      className="subtitle-mock"
-      variant="caption"
-    >
-      2,345
-    </WithStyles(Typography)>
   </WithStyles(Grid)>
   <WithStyles(Grid)
     alignItems="center"
@@ -77,6 +71,7 @@ exports[`ChannelHeader renders members when 0 1`] = `
       variant="caption"
     >
       0
+       Members
     </WithStyles(Typography)>
   </WithStyles(Grid)>
   <WithStyles(Grid)
@@ -126,6 +121,13 @@ exports[`ChannelHeader renders without members count 1`] = `
       variant="subtitle1"
     >
       Channel 1
+    </WithStyles(Typography)>
+    <WithStyles(Typography)
+      className="subtitle-mock"
+      variant="caption"
+    >
+      4
+       Members
     </WithStyles(Typography)>
   </WithStyles(Grid)>
   <WithStyles(Grid)

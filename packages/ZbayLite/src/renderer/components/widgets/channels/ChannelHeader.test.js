@@ -1,5 +1,4 @@
 import React from 'react'
-import BigNumber from 'bignumber.js'
 import Immutable from 'immutable'
 import { shallow } from 'enzyme'
 
@@ -9,20 +8,24 @@ import { createChannel } from '../../../testUtils'
 
 describe('ChannelHeader', () => {
   it('renders component', () => {
-    const channel = Immutable.fromJS(createChannel(1)).set('members', new BigNumber(2345))
-    const result = shallow(<ChannelHeader classes={mockClasses} channel={channel} />)
+    const channel = Immutable.fromJS(createChannel(1))
+    const result = shallow(<ChannelHeader classes={mockClasses} channel={channel} members={null} />)
     expect(result).toMatchSnapshot()
   })
 
   it('renders without members count', () => {
     const channel = Immutable.fromJS(createChannel(1))
-    const result = shallow(<ChannelHeader classes={mockClasses} channel={channel} />)
+    const result = shallow(
+      <ChannelHeader classes={mockClasses} channel={channel} members={new Set([1, 2, 3, 4])} />
+    )
     expect(result).toMatchSnapshot()
   })
 
   it('renders members when 0', () => {
-    const channel = Immutable.fromJS(createChannel(1)).set('members', new BigNumber(0))
-    const result = shallow(<ChannelHeader classes={mockClasses} channel={channel} />)
+    const channel = Immutable.fromJS(createChannel(1))
+    const result = shallow(
+      <ChannelHeader classes={mockClasses} channel={channel} members={new Set()} />
+    )
     expect(result).toMatchSnapshot()
   })
 })

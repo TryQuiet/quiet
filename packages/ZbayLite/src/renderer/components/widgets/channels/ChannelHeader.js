@@ -40,7 +40,7 @@ const styles = theme => ({
 })
 
 // TODO: [reafactoring] we should have channel stats for unread and members count
-export const ChannelHeader = ({ classes, channel, directMessage }) => (
+export const ChannelHeader = ({ classes, channel, directMessage, members }) => (
   <Grid
     container
     alignItems='center'
@@ -52,9 +52,9 @@ export const ChannelHeader = ({ classes, channel, directMessage }) => (
       <Typography variant='subtitle1' className={classes.title}>
         {channel.get('name')}
       </Typography>
-      {!R.isNil(channel.get('members')) ? (
+      {!R.isNil(members) ? (
         <Typography variant='caption' className={classes.subtitle}>
-          {channel.get('members').toFormat(0)}
+          {members.size} Members
         </Typography>
       ) : null}
     </Grid>
@@ -78,7 +78,8 @@ export const ChannelHeader = ({ classes, channel, directMessage }) => (
 ChannelHeader.propTypes = {
   classes: PropTypes.object.isRequired,
   directMessage: PropTypes.bool.isRequired,
-  channel: PropTypes.instanceOf(Immutable.Map).isRequired
+  channel: PropTypes.instanceOf(Immutable.Map).isRequired,
+  members: PropTypes.instanceOf(Set)
 }
 
 ChannelHeader.defaultProps = {

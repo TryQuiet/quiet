@@ -13,5 +13,6 @@ Object {
       "ivk": "incoming-viewing-key-1",
     },
   },
+  "members": Set {},
 }
 `;
