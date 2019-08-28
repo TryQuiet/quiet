@@ -1,7 +1,9 @@
 import Immutable from 'immutable'
 import { createAction, handleActions } from 'redux-actions'
+import * as R from 'ramda'
 
 import channelsSelectors from '../selectors/channels'
+import usersSelector from '../selectors/users'
 import { messageType, getPublicKeysFromSignature } from '../../zbay/messages'
 import { messages as zbayMessages } from '../../zbay'
 import { getClient } from '../../zcash'
@@ -59,8 +61,18 @@ export const fetchUsers = () => async (dispatch, getState) => {
   dispatch(setUsers({ users }))
 }
 
+export const isNicknameTaken = (username) => async (dispatch, getState) => {
+  const users = usersSelector.users(getState()).toJS()
+  const userNames = Object.keys(users).map((key, index) => {
+    return users[key].nickname
+  })
+  const uniqUsernames = R.uniq(userNames)
+  return R.includes(username, uniqUsernames)
+}
+
 export const epics = {
-  fetchUsers
+  fetchUsers,
+  isNicknameTaken
 }
 
 export const reducer = handleActions(

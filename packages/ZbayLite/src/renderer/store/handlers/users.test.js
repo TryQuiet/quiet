@@ -97,5 +97,69 @@ describe('users reducer', () => {
         expect(selectors.users(store.getState())).toMatchSnapshot()
       })
     })
+
+    describe('isNicknameTaken', () => {
+      beforeEach(() => {
+        store = create({
+          initialState: Immutable.Map({
+            node: NodeState({ isTestnet: true }),
+            users: Immutable.fromJS({
+              '02c9b30ea203dcd5776d014e0062a3232c00b74273094ebb1f119fb5cee88c2392': {
+                firstName: 'testname',
+                lastName: 'testlastname',
+                nickname: 'test-user-1',
+                address: 'ztestsapling1k059n2xjz5apmu49ud6xa0g4lywetd0zgpz2txe9xs5pu27fjjnp7c9yvtkcqlwz0n7qxrhyb4c'
+              },
+              '02c9b30ea203dcd5776d014e0062a3232c00b74273094ebb1f119fb5cee88c23vb': {
+                firstName: 'testname',
+                lastName: 'testlastname',
+                nickname: 'test-user-1',
+                address: 'ztestsapling1k059n2xjz5apmu49ud6xa0g4lywetd0zgpz2txe9xs5pu27fjjnp7c9yvtkcqlwz0n7qxrhyb4c'
+              },
+              '04c9b30ea203dcd5776d014e0062a3232c00b74273094ebb1f119fb5cee88c2355': {
+                firstName: 'testname',
+                lastName: 'testlastname',
+                nickname: 'test-user-2',
+                address: 'ztestsapling1k059n2xjz5apmu49ud6xa0g4lywetd0zgpz2txe9xs5pu27fjjnp7c9yvtkcqlwz0n7qxrhylnn'
+              },
+              '04c9b30ea203dcd5776d014e0062a3232c00b74273094ebb1f119fb5cee88c2vbf': {
+                firstName: 'testname',
+                lastName: 'testlastname',
+                nickname: 'test-user-2',
+                address: 'ztestsapling1k059n2xjz5apmu49ud6xa0g4lywetd0zgpz2txe9xs5pu27fjjnp7c9yvtkcqlwz0n7qxrhylnn'
+              }
+            })
+          })
+        })
+        jest.clearAllMocks()
+      })
+
+      it('should return true for taken username', async () => {
+        const isNicknameTaken = await store.dispatch(handlers.epics.isNicknameTaken('test-user-2'))
+        expect(isNicknameTaken).toBeTruthy()
+      })
+
+      it('should return false for available username', async () => {
+        const isNicknameTaken = await store.dispatch(handlers.epics.isNicknameTaken('test-new-user'))
+        expect(isNicknameTaken).toBeFalsy()
+      })
+    })
+
+    describe('isNicknameTaken on empty store', () => {
+      beforeEach(() => {
+        store = create({
+          initialState: Immutable.Map({
+            node: NodeState({ isTestnet: true }),
+            users: initialState
+          })
+        })
+        jest.clearAllMocks()
+      })
+
+      it('should return false for available username when no users', async () => {
+        const isNicknameTaken = await store.dispatch(handlers.epics.isNicknameTaken('test-user-2'))
+        expect(isNicknameTaken).toBeFalsy()
+      })
+    })
   })
 })
