@@ -4,6 +4,7 @@ import Paper from '@material-ui/core/Paper'
 import Grid from '@material-ui/core/Grid'
 import { storiesOf } from '@storybook/react'
 import { withKnobs, boolean, text } from '@storybook/addon-knobs'
+import { action } from '@storybook/addon-actions'
 import StoryRouter from 'storybook-react-router'
 import BigNumber from 'bignumber.js'
 
@@ -24,7 +25,7 @@ storiesOf('Components/UI/IdentityPanel', module)
   .add('playground', () => {
     const identity = Identity({
       id: 'some-test-id',
-      address: 'sapling-private-address',
+      address: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly',
       transparentAddress: 'transparent-address',
       name: 'Mercury',
       balance: new BigNumber('32.232')
@@ -38,6 +39,7 @@ storiesOf('Components/UI/IdentityPanel', module)
               loading: boolean('Loading', false),
               message: text('Loading message', 'Loading identity')
             })}
+            handleSettings={action('handleSettings')}
           />
         </Grid>
       </Paper>

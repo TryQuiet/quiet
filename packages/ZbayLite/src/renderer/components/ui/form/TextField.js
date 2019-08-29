@@ -6,6 +6,7 @@ import { TextField as FormikTextField } from 'formik-material-ui'
 export const TextField = (props) => (
   <Field
     component={FormikTextField}
+    variant='outlined'
     {...props}
   />
 )

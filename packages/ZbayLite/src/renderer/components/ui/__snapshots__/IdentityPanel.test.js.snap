@@ -1,29 +1,48 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`IdentityPanel renders component 1`] = `
-<WithStyles(Grid)
-  className="root-mock"
-  container={true}
-  direction="column"
-  item={true}
->
-  <WithStyles(Typography)
-    className="name-mock"
-    variant="subtitle1"
+<Fragment>
+  <WithStyles(Grid)
+    alignItems="center"
+    className="root-mock"
+    container={true}
+    direction="row"
+    justify="space-between"
   >
-    Saturn
-     (you)
-  </WithStyles(Typography)>
-  <Elipsis
-    classes={
-      Object {
-        "content": "uri-mock",
-      }
-    }
-    content="zbay.io/uri/zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly"
-    interactive={true}
-    length={40}
-    tooltipPlacement="bottom-start"
-  />
-</WithStyles(Grid)>
+    <WithStyles(Grid)
+      item={true}
+    >
+      <WithStyles(Grid)
+        container={true}
+        direction="column"
+      >
+        <WithStyles(Typography)
+          className="name-mock"
+          variant="subtitle1"
+        >
+          Saturn
+           (you)
+        </WithStyles(Typography)>
+        <Elipsis
+          classes={
+            Object {
+              "content": "uri-mock",
+            }
+          }
+          content="zbay.io/uri/zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly"
+          interactive={true}
+          length={30}
+          tooltipPlacement="bottom-start"
+        />
+      </WithStyles(Grid)>
+    </WithStyles(Grid)>
+    <WithStyles(IconButton)
+      className="settingsButton-mock"
+      onClick={[MockFunction]}
+    >
+      <pure(PersonIcon) />
+    </WithStyles(IconButton)>
+  </WithStyles(Grid)>
+  <withModal(SettingsModal) />
+</Fragment>
 `;

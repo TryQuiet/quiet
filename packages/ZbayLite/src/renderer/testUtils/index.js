@@ -199,6 +199,15 @@ export const createIdentity = ({
   keys = {
     tpk: 'saturn-tpk',
     sk: 'saturn-sk'
+  },
+  shippingData = {
+    firstName: 'Saturn',
+    lastName: 'the Planet',
+    street: 'Coders Dv',
+    country: 'Poland',
+    region: 'Malopolska',
+    city: 'Krakow',
+    postalCode: '1337-455'
   }
 } = {}) => ({
   name,
@@ -206,6 +215,7 @@ export const createIdentity = ({
   transparentAddress,
   signerPrivKey,
   signerPubKey,
+  shippingData,
   keys
 })
 

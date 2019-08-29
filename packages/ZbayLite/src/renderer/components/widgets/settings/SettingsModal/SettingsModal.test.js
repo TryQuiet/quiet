@@ -9,7 +9,7 @@ describe('SettingsModal', () => {
     const result = shallow(
       <SettingsModal
         open
-        handleExit={jest.fn()}
+        handleClose={jest.fn()}
       />
     )
     expect(result).toMatchSnapshot()

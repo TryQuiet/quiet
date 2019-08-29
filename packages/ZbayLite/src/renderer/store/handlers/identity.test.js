@@ -34,6 +34,15 @@ describe('Identity reducer handles', () => {
       tpk: 'transparent-private-key'
     }
   }
+  const shippingData = {
+    firstName: 'Rumble',
+    lastName: 'Fish',
+    street: 'RumbleFish street',
+    country: 'RumbleFish country',
+    region: 'Fish Region',
+    city: 'Fishville',
+    postalCode: '1337-455'
+  }
 
   let store = null
   beforeEach(() => {
@@ -103,7 +112,14 @@ describe('Identity reducer handles', () => {
       await store.dispatch(
         identityHandlers.actions.setLoadingMessage('This is a loading message')
       )
-      expect({}).toMatchSnapshot()
+      assertStoreState()
+    })
+
+    it('- setShippingData', async () => {
+      await store.dispatch(
+        identityHandlers.actions.setShippingData(shippingData)
+      )
+      assertStoreState()
     })
   })
 
@@ -143,6 +159,36 @@ describe('Identity reducer handles', () => {
 
         await store.dispatch(identityHandlers.epics.fetchBalance())
         assertStoreState()
+      })
+    })
+
+    describe('handles updateShippingData', () => {
+      const formActions = {
+        setSubmitting: jest.fn()
+      }
+
+      it('- sets shipping data in store', async () => {
+        vault.identity.updateShippingData.mockImplementation(async () => ({ ...identity, shippingData }))
+        await store.dispatch(identityHandlers.epics.setIdentity(identity))
+
+        await store.dispatch(identityHandlers.epics.updateShippingData(shippingData, formActions))
+        assertStoreState()
+      })
+
+      it('- sets shipping data in vault', async () => {
+        vault.identity.updateShippingData.mockImplementation(async () => ({ ...identity, shippingData }))
+        await store.dispatch(identityHandlers.epics.setIdentity(identity))
+
+        await store.dispatch(identityHandlers.epics.updateShippingData(shippingData, formActions))
+        expect(vault.identity.updateShippingData.mock.calls).toMatchSnapshot()
+      })
+
+      it('- finishes form submitting', async () => {
+        vault.identity.updateShippingData.mockImplementation(async () => ({ ...identity, shippingData }))
+        await store.dispatch(identityHandlers.epics.setIdentity(identity))
+
+        await store.dispatch(identityHandlers.epics.updateShippingData(shippingData, formActions))
+        expect(formActions.setSubmitting.mock.calls).toMatchSnapshot()
       })
     })
 

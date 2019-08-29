@@ -5,6 +5,7 @@ import * as Yup from 'yup'
 import { remote } from 'electron'
 
 import { passwordToSecureStrings } from './marshalling'
+import { formSchema as shippingDataSchema } from '../components/widgets/settings/ShippingSettingsForm'
 import Vault from './vault'
 
 const getVaultPath = (network) => path.join(remote.app.getPath('userData'), `vault-${network}.bcup`)
@@ -58,7 +59,8 @@ const _entryToIdentity = entry => {
     signerPrivKey: entryObj.properties.signerPrivKey,
     signerPubKey: entryObj.properties.signerPubKey,
     transparentAddress: entryObj.properties.transparentAddress,
-    keys: JSON.parse(entryObj.properties.keys || '{}')
+    keys: JSON.parse(entryObj.properties.keys || '{}'),
+    shippingData: JSON.parse(entryObj.properties.shippingData || '{}')
   }
 }
 
@@ -119,6 +121,18 @@ export const updateIdentity = async (identity) => {
   return _entryToIdentity(entry)
 }
 
+export const updateShippingData = async (identityId, shippingData) => {
+  let entry = null
+  await shippingDataSchema.validate(shippingData)
+  await _vault.withWorkspace(workspace => {
+    const [identitiesGroup] = workspace.archive.findGroupsByTitle('Identities')
+    entry = identitiesGroup.findEntryByID(identityId)
+      .setProperty('shippingData', JSON.stringify(shippingData))
+    workspace.save()
+  })
+  return _entryToIdentity(entry)
+}
+
 const updateIdentitySignerKeysSchema = Yup.object().shape({
   signerPubKey: Yup.string().required(),
   signerPrivKey: Yup.string().required()
@@ -163,6 +177,7 @@ export default ({
   identity: {
     createIdentity: withVaultInitialized(createIdentity),
     listIdentities: withVaultInitialized(listIdentities),
+    updateShippingData: withVaultInitialized(updateShippingData),
     updateIdentitySignerKeys: withVaultInitialized(updateIdentitySignerKeys)
   },
   locked,

@@ -9,6 +9,7 @@ Array [
       "tpk": "saturn-transparent-private-key",
     },
     "name": "Saturn",
+    "shippingData": Object {},
     "signerPrivKey": undefined,
     "signerPubKey": undefined,
     "transparentAddress": "saturn-t-address",
@@ -20,6 +21,7 @@ Array [
       "tpk": "mars-transparent-private-key",
     },
     "name": "Mars",
+    "shippingData": Object {},
     "signerPrivKey": undefined,
     "signerPubKey": undefined,
     "transparentAddress": "mars-t-address",
@@ -31,6 +33,7 @@ Array [
       "tpk": "jupiter-transparent-private-key",
     },
     "name": "Jupiter",
+    "shippingData": Object {},
     "signerPrivKey": undefined,
     "signerPubKey": undefined,
     "transparentAddress": "jupiter-t-address",
@@ -47,6 +50,7 @@ Array [
       "tpk": "saturn-transparent-private-key",
     },
     "name": "Saturn",
+    "shippingData": Object {},
     "signerPrivKey": "test-hex-key",
     "signerPubKey": "test-hex-key",
     "transparentAddress": "saturn-t-address",
@@ -58,6 +62,7 @@ Array [
       "tpk": "mars-transparent-private-key",
     },
     "name": "Mars",
+    "shippingData": Object {},
     "signerPrivKey": undefined,
     "signerPubKey": undefined,
     "transparentAddress": "mars-t-address",
@@ -69,6 +74,7 @@ Array [
       "tpk": "jupiter-transparent-private-key",
     },
     "name": "Jupiter",
+    "shippingData": Object {},
     "signerPrivKey": undefined,
     "signerPubKey": undefined,
     "transparentAddress": "jupiter-t-address",
@@ -125,6 +131,7 @@ Array [
       "tpk": "saturn-transparent-private-key",
     },
     "name": "Saturn",
+    "shippingData": Object {},
     "signerPrivKey": undefined,
     "signerPubKey": undefined,
     "transparentAddress": "saturn-t-address",
@@ -136,6 +143,7 @@ Array [
       "tpk": "mars-transparent-private-key",
     },
     "name": "Mars",
+    "shippingData": Object {},
     "signerPrivKey": undefined,
     "signerPubKey": undefined,
     "transparentAddress": "mars-t-address",
@@ -147,6 +155,7 @@ Array [
       "tpk": "jupiter-transparent-private-key",
     },
     "name": "Jupiter",
+    "shippingData": Object {},
     "signerPrivKey": undefined,
     "signerPubKey": undefined,
     "transparentAddress": "jupiter-t-address",
@@ -172,5 +181,31 @@ Vault {
   },
   "lock": [MockFunction],
   "withWorkspace": [Function],
+}
+`;
+
+exports[`vault instance updateShippingData -  when no shipping data 1`] = `
+Object {
+  "address": "saturn-private-address",
+  "keys": "{\\"tpk\\":\\"saturn-tpk\\",\\"sk\\":\\"saturn-sk\\"}",
+  "name": "Saturn",
+  "shippingData": "{\\"firstName\\":\\"Rumble\\",\\"lastName\\":\\"Fish\\",\\"street\\":\\"RumbleFish street\\",\\"country\\":\\"Poland\\",\\"region\\":\\"Malopolskie\\",\\"city\\":\\"Fishville\\",\\"postalCode\\":\\"1337-455\\"}",
+  "signerPrivKey": "AyrXTov+4FEyle1BrxndDhePlUOB1nPV5YvyexC8m6E=",
+  "signerPubKey": "Alw9G29ahXm5et9T7FJF3lbXVXNkapR826yPtfMVJYnK",
+  "title": "Saturn",
+  "transparentAddress": "saturn-transparent-address",
+}
+`;
+
+exports[`vault instance updateShippingData -  when shipping data already exist 1`] = `
+Object {
+  "address": "saturn-private-address",
+  "keys": "{\\"tpk\\":\\"saturn-tpk\\",\\"sk\\":\\"saturn-sk\\"}",
+  "name": "Saturn",
+  "shippingData": "{\\"firstName\\":\\"Rumble2\\",\\"lastName\\":\\"Fish2\\",\\"street\\":\\"RumbleFish street2\\",\\"country\\":\\"Poland\\",\\"region\\":\\"Malopolskie\\",\\"city\\":\\"Fishville2\\",\\"postalCode\\":\\"1337-455\\"}",
+  "signerPrivKey": "AyrXTov+4FEyle1BrxndDhePlUOB1nPV5YvyexC8m6E=",
+  "signerPubKey": "Alw9G29ahXm5et9T7FJF3lbXVXNkapR826yPtfMVJYnK",
+  "title": "Saturn",
+  "transparentAddress": "saturn-transparent-address",
 }
 `;

@@ -13,21 +13,40 @@ import channelsHandlers from './channels'
 import operationHandlers, { operationTypes, ShieldBalanceOp } from './operations'
 import vaultHandlers from './vault'
 import nodeHandlers from './node'
-import { getVault } from '../../vault'
+import vault, { getVault } from '../../vault'
 import migrateTo_0_2_0 from '../../../shared/migrations/0_2_0' // eslint-disable-line camelcase
 import migrateTo_0_7_0 from '../../../shared/migrations/0_7_0' // eslint-disable-line camelcase
 import { LoaderState } from './utils'
 
-export const Identity = Immutable.Record({
+export const ShippingData = Immutable.Record(
+  {
+    firstName: '',
+    lastName: '',
+    street: '',
+    country: '',
+    region: '',
+    city: '',
+    postalCode: ''
+  },
+  'ShippingData'
+)
+
+const _Identity = Immutable.Record({
   id: null,
   address: '',
   transparentAddress: '',
   signerPrivKey: '',
   signerPubKey: '',
   name: '',
+  shippingData: ShippingData(),
   balance: null,
   lockedBalance: null
 }, 'Identity')
+
+export const Identity = values => {
+  const record = _Identity(values)
+  return record.set('shippingData', ShippingData(record.shippingData))
+}
 
 export const IdentityState = Immutable.Record({
   data: Identity(),
@@ -45,6 +64,7 @@ export const setErrors = createAction('SET_IDENTITY_ERROR')
 export const setFetchingBalance = createAction('SET_FETCHING_BALANCE')
 export const setLoading = createAction('SET_IDENTITY_LOADING')
 export const setLoadingMessage = createAction('SET_IDENTITY_LOADING_MESSAGE')
+export const setShippingData = createAction('SET_IDENTITY_SHIPPING_DATA')
 
 const actions = {
   setIdentity,
@@ -53,6 +73,7 @@ const actions = {
   setLoading,
   setLoadingMessage,
   setLockedBalance,
+  setShippingData,
   setBalance
 }
 
@@ -200,10 +221,18 @@ export const setIdentityEpic = (identityToSet) => async (dispatch, getState) => 
   dispatch(setLoading(false))
 }
 
+export const updateShippingData = (values, formActions) => async (dispatch, getState) => {
+  const id = identitySelectors.id(getState())
+  const identity = await vault.identity.updateShippingData(id, values)
+  await dispatch(setShippingData(identity.shippingData))
+  formActions.setSubmitting(false)
+}
+
 const epics = {
   fetchBalance,
   createIdentity,
   setIdentity: setIdentityEpic,
+  updateShippingData,
   createSignerKeys
 }
 
@@ -227,7 +256,8 @@ export const reducer = handleActions({
     data => data.set('lockedBalance', balance)
   ),
   [setFetchingBalance]: (state, { payload: fetching }) => state.set('fetchingBalance', fetching),
-  [setErrors]: (state, { payload: errors }) => state.set('errors', errors)
+  [setErrors]: (state, { payload: errors }) => state.set('errors', errors),
+  [setShippingData]: (state, { payload: shippingData }) => state.setIn(['data', 'shippingData'], ShippingData(shippingData))
 }, initialState)
 
 export default {

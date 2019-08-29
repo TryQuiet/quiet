@@ -52,6 +52,8 @@ const transparentBalance = createSelector(
 
 const loader = createSelector(identity, i => i.loader)
 
+const shippingData = createSelector(data, d => d.shippingData)
+
 export default {
   id,
   name,
@@ -63,6 +65,7 @@ export default {
   lockedBalance,
   balance,
   loader,
+  shippingData,
   signerPrivKey,
   signerPubKey
 }

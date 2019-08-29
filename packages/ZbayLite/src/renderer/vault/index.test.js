@@ -20,7 +20,8 @@ import {
   listIdentities,
   updateIdentity,
   withVaultInitialized,
-  updateIdentitySignerKeys
+  updateIdentitySignerKeys,
+  updateShippingData
 } from './'
 import testUtils from '../testUtils'
 
@@ -174,5 +175,54 @@ describe('vault instance', () => {
     await wrapped(arg1, arg2)
 
     expect(foo).toHaveBeenCalledWith(arg1, arg2)
+  })
+
+  describe('updateShippingData - ', () => {
+    it('when no shipping data', async () => {
+      const [group] = mock.workspace.archive.findGroupsByTitle('Identities')
+      const { id } = await createIdentity(testUtils.createIdentity())
+
+      await updateShippingData(id, {
+        firstName: 'Rumble',
+        lastName: 'Fish',
+        street: 'RumbleFish street',
+        country: 'Poland',
+        region: 'Malopolskie',
+        city: 'Fishville',
+        postalCode: '1337-455'
+      })
+
+      const [identity] = group.getEntries()
+      expect(identity.toObject().properties).toMatchSnapshot()
+      expect(mock.workspace.save).toHaveBeenCalled()
+    })
+
+    it('when shipping data already exist', async () => {
+      const [group] = mock.workspace.archive.findGroupsByTitle('Identities')
+      const { id } = await createIdentity(testUtils.createIdentity())
+
+      await updateShippingData(id, {
+        firstName: 'Rumble',
+        lastName: 'Fish',
+        street: 'RumbleFish street',
+        country: 'Poland',
+        region: 'Malopolskie',
+        city: 'Fishville',
+        postalCode: '1337-455'
+      })
+      await updateShippingData(id, {
+        firstName: 'Rumble2',
+        lastName: 'Fish2',
+        street: 'RumbleFish street2',
+        country: 'Poland',
+        region: 'Malopolskie',
+        city: 'Fishville2',
+        postalCode: '1337-455'
+      })
+
+      const [identity] = group.getEntries()
+      expect(identity.toObject().properties).toMatchSnapshot()
+      expect(mock.workspace.save).toHaveBeenCalled()
+    })
   })
 })

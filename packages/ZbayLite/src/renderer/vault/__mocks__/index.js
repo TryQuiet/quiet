@@ -12,6 +12,7 @@ export default {
   identity: {
     createIdentity: jest.fn(async () => { throw Error('createIdentity mock not implemented') }),
     listIdentities: jest.fn(async () => { throw Error('listIdentities mock not implemented') }),
-    updateIdentitySignerKeys: jest.fn(async () => { throw Error('updateIdentitySignerKeys mock not implemented') })
+    updateIdentitySignerKeys: jest.fn(async () => { throw Error('updateIdentitySignerKeys mock not implemented') }),
+    updateShippingData: jest.fn(async () => null)
   }
 }

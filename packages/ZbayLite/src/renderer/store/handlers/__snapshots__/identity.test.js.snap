@@ -9,6 +9,15 @@ Immutable.IdentityState {
     "signerPrivKey": "",
     "signerPubKey": "",
     "name": "",
+    "shippingData": Immutable.ShippingData {
+      "firstName": "",
+      "lastName": "",
+      "street": "",
+      "country": "",
+      "region": "",
+      "city": "",
+      "postalCode": "",
+    },
     "balance": null,
     "lockedBalance": null,
   },
@@ -21,7 +30,65 @@ Immutable.IdentityState {
 }
 `;
 
-exports[`Identity reducer handles actions - setLoadingMessage 1`] = `Object {}`;
+exports[`Identity reducer handles actions - setLoadingMessage 1`] = `
+Immutable.IdentityState {
+  "data": Immutable.Identity {
+    "id": null,
+    "address": "",
+    "transparentAddress": "",
+    "signerPrivKey": "",
+    "signerPubKey": "",
+    "name": "",
+    "shippingData": Immutable.ShippingData {
+      "firstName": "",
+      "lastName": "",
+      "street": "",
+      "country": "",
+      "region": "",
+      "city": "",
+      "postalCode": "",
+    },
+    "balance": null,
+    "lockedBalance": null,
+  },
+  "fetchingBalance": false,
+  "loader": Immutable.Record {
+    "loading": true,
+    "message": "This is a loading message",
+  },
+  "errors": "",
+}
+`;
+
+exports[`Identity reducer handles actions - setShippingData 1`] = `
+Immutable.IdentityState {
+  "data": Immutable.Identity {
+    "id": null,
+    "address": "",
+    "transparentAddress": "",
+    "signerPrivKey": "",
+    "signerPubKey": "",
+    "name": "",
+    "shippingData": Immutable.ShippingData {
+      "firstName": "Rumble",
+      "lastName": "Fish",
+      "street": "RumbleFish street",
+      "country": "RumbleFish country",
+      "region": "Fish Region",
+      "city": "Fishville",
+      "postalCode": "1337-455",
+    },
+    "balance": null,
+    "lockedBalance": null,
+  },
+  "fetchingBalance": false,
+  "loader": Immutable.Record {
+    "loading": true,
+    "message": "",
+  },
+  "errors": "",
+}
+`;
 
 exports[`Identity reducer handles actions handles setBalance 1`] = `
 Immutable.IdentityState {
@@ -32,6 +99,15 @@ Immutable.IdentityState {
     "signerPrivKey": "",
     "signerPubKey": "",
     "name": "",
+    "shippingData": Immutable.ShippingData {
+      "firstName": "",
+      "lastName": "",
+      "street": "",
+      "country": "",
+      "region": "",
+      "city": "",
+      "postalCode": "",
+    },
     "balance": "2.34",
     "lockedBalance": null,
   },
@@ -53,6 +129,15 @@ Immutable.IdentityState {
     "signerPrivKey": "",
     "signerPubKey": "",
     "name": "",
+    "shippingData": Immutable.ShippingData {
+      "firstName": "",
+      "lastName": "",
+      "street": "",
+      "country": "",
+      "region": "",
+      "city": "",
+      "postalCode": "",
+    },
     "balance": null,
     "lockedBalance": null,
   },
@@ -74,6 +159,15 @@ Immutable.IdentityState {
     "signerPrivKey": "",
     "signerPubKey": "",
     "name": "",
+    "shippingData": Immutable.ShippingData {
+      "firstName": "",
+      "lastName": "",
+      "street": "",
+      "country": "",
+      "region": "",
+      "city": "",
+      "postalCode": "",
+    },
     "balance": null,
     "lockedBalance": null,
   },
@@ -95,6 +189,15 @@ Immutable.IdentityState {
     "signerPrivKey": "",
     "signerPubKey": "",
     "name": "",
+    "shippingData": Immutable.ShippingData {
+      "firstName": "",
+      "lastName": "",
+      "street": "",
+      "country": "",
+      "region": "",
+      "city": "",
+      "postalCode": "",
+    },
     "balance": null,
     "lockedBalance": null,
   },
@@ -116,6 +219,15 @@ Immutable.IdentityState {
     "signerPrivKey": "test-hex-key",
     "signerPubKey": "test-hex-key",
     "name": "Saturn",
+    "shippingData": Immutable.ShippingData {
+      "firstName": "",
+      "lastName": "",
+      "street": "",
+      "country": "",
+      "region": "",
+      "city": "",
+      "postalCode": "",
+    },
     "balance": null,
     "lockedBalance": null,
   },
@@ -137,6 +249,15 @@ Immutable.IdentityState {
     "signerPrivKey": "",
     "signerPubKey": "",
     "name": "",
+    "shippingData": Immutable.ShippingData {
+      "firstName": "",
+      "lastName": "",
+      "street": "",
+      "country": "",
+      "region": "",
+      "city": "",
+      "postalCode": "",
+    },
     "balance": null,
     "lockedBalance": "2.34",
   },
@@ -175,6 +296,15 @@ Immutable.IdentityState {
     "signerPrivKey": "test-hex-key",
     "signerPubKey": "test-hex-key",
     "name": "Saturn",
+    "shippingData": Immutable.ShippingData {
+      "firstName": "",
+      "lastName": "",
+      "street": "",
+      "country": "",
+      "region": "",
+      "city": "",
+      "postalCode": "",
+    },
     "balance": "2.2352",
     "lockedBalance": "0",
   },
@@ -196,6 +326,15 @@ Immutable.IdentityState {
     "signerPrivKey": "test-hex-key",
     "signerPubKey": "test-hex-key",
     "name": "Saturn",
+    "shippingData": Immutable.ShippingData {
+      "firstName": "",
+      "lastName": "",
+      "street": "",
+      "country": "",
+      "region": "",
+      "city": "",
+      "postalCode": "",
+    },
     "balance": null,
     "lockedBalance": null,
   },
@@ -353,6 +492,15 @@ Immutable.IdentityState {
     "signerPrivKey": "test-hex-key",
     "signerPubKey": "test-hex-key",
     "name": "Saturn",
+    "shippingData": Immutable.ShippingData {
+      "firstName": "",
+      "lastName": "",
+      "street": "",
+      "country": "",
+      "region": "",
+      "city": "",
+      "postalCode": "",
+    },
     "balance": "2.2352",
     "lockedBalance": "0",
   },
@@ -363,4 +511,59 @@ Immutable.IdentityState {
   },
   "errors": "",
 }
+`;
+
+exports[`Identity reducer handles epics handles updateShippingData - finishes form submitting 1`] = `
+Array [
+  Array [
+    false,
+  ],
+]
+`;
+
+exports[`Identity reducer handles epics handles updateShippingData - sets shipping data in store 1`] = `
+Immutable.IdentityState {
+  "data": Immutable.Identity {
+    "id": "test-id",
+    "address": "testaddress",
+    "transparentAddress": "transparent-test-address",
+    "signerPrivKey": "test-hex-key",
+    "signerPubKey": "test-hex-key",
+    "name": "Saturn",
+    "shippingData": Immutable.ShippingData {
+      "firstName": "Rumble",
+      "lastName": "Fish",
+      "street": "RumbleFish street",
+      "country": "RumbleFish country",
+      "region": "Fish Region",
+      "city": "Fishville",
+      "postalCode": "1337-455",
+    },
+    "balance": null,
+    "lockedBalance": null,
+  },
+  "fetchingBalance": false,
+  "loader": Immutable.Record {
+    "loading": false,
+    "message": "Fetching balance and loading channels",
+  },
+  "errors": "node error",
+}
+`;
+
+exports[`Identity reducer handles epics handles updateShippingData - sets shipping data in vault 1`] = `
+Array [
+  Array [
+    "test-id",
+    Object {
+      "city": "Fishville",
+      "country": "RumbleFish country",
+      "firstName": "Rumble",
+      "lastName": "Fish",
+      "postalCode": "1337-455",
+      "region": "Fish Region",
+      "street": "RumbleFish street",
+    },
+  ],
+]
 `;

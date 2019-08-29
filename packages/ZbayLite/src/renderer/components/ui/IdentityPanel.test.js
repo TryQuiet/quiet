@@ -16,6 +16,7 @@ describe('IdentityPanel', () => {
       <IdentityPanel
         classes={mockClasses}
         identity={identity}
+        handleSettings={jest.fn()}
       />
     )
     expect(result).toMatchSnapshot()

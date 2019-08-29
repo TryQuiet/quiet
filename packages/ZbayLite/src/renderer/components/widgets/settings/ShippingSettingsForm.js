@@ -29,7 +29,7 @@ const styles = theme => ({
   }
 })
 
-const formSchema = Yup.object().shape({
+export const formSchema = Yup.object().shape({
   firstName: Yup.string().required('Required'),
   lastName: Yup.string().required('Required'),
   street: Yup.string().required('Required'),

@@ -11,6 +11,7 @@ Array [
       "tpk": "transparent-address-private-key",
     },
     "name": "Saturn",
+    "shippingData": Object {},
     "signerPrivKey": undefined,
     "signerPubKey": undefined,
     "transparentAddress": "transparent-address",

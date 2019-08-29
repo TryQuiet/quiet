@@ -16,14 +16,14 @@ const tabs = {
 
 export const SettingsModal = ({
   open,
-  handleExit
+  handleClose
 }) => {
   const [currentTab, setCurrentTab] = useState('account')
   const TabComponent = tabs[currentTab]
   return (
     <Modal
       open={open}
-      handleClose={handleExit}
+      handleClose={handleClose}
       title='Settings'
     >
       <AppBar position='static' color='default'>
@@ -39,7 +39,7 @@ export const SettingsModal = ({
 
 SettingsModal.propTypes = {
   open: PropTypes.bool.isRequired,
-  handleExit: PropTypes.func.isRequired
+  handleClose: PropTypes.func.isRequired
 }
 
 export default SettingsModal

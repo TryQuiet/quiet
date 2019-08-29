@@ -4,7 +4,7 @@ import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
 
 import create from '../create'
-import { IdentityState, Identity } from '../handlers/identity'
+import { IdentityState, Identity, ShippingData } from '../handlers/identity'
 import { RatesState } from '../handlers/rates'
 import { Operation, operationTypes, ShieldBalanceOp } from '../handlers/operations'
 import { LoaderState } from '../handlers/utils'
@@ -15,6 +15,15 @@ describe('identity selectors', () => {
   const address = 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly'
   const signerPrivKey = Buffer.alloc(32)
   const signerPubKey = Buffer.alloc(32)
+  const shippingData = {
+    firstName: 'Saturn',
+    lastName: 'the Planet',
+    street: 'Coders Dv',
+    country: 'Poland',
+    region: 'Malopolska',
+    city: 'Krakow',
+    postalCode: '1337-455'
+  }
   let store = null
   beforeEach(() => {
     store = create({
@@ -27,6 +36,7 @@ describe('identity selectors', () => {
             transparentBalance: '12.123456',
             balance: '33.583004',
             lockedBalance: '12.583004',
+            shippingData: ShippingData(shippingData),
             signerPrivKey,
             signerPubKey
           }),
@@ -113,5 +123,9 @@ describe('identity selectors', () => {
 
   it('signerPubKey', () => {
     expect(selectors.signerPubKey(store.getState())).toMatchSnapshot()
+  })
+
+  it('shippingData', () => {
+    expect(selectors.shippingData(store.getState())).toMatchSnapshot()
   })
 })

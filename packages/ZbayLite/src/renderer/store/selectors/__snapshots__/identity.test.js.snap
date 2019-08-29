@@ -86,6 +86,15 @@ Immutable.Identity {
     "type": "Buffer",
   },
   "name": "Saturn",
+  "shippingData": Immutable.ShippingData {
+    "firstName": "Saturn",
+    "lastName": "the Planet",
+    "street": "Coders Dv",
+    "country": "Poland",
+    "region": "Malopolska",
+    "city": "Krakow",
+    "postalCode": "1337-455",
+  },
   "balance": "33.583004",
   "lockedBalance": "12.583004",
 }
@@ -172,6 +181,15 @@ Immutable.IdentityState {
       "type": "Buffer",
     },
     "name": "Saturn",
+    "shippingData": Immutable.ShippingData {
+      "firstName": "Saturn",
+      "lastName": "the Planet",
+      "street": "Coders Dv",
+      "country": "Poland",
+      "region": "Malopolska",
+      "city": "Krakow",
+      "postalCode": "1337-455",
+    },
     "balance": "33.583004",
     "lockedBalance": "12.583004",
   },
@@ -194,6 +212,18 @@ Immutable.Record {
 exports[`identity selectors lockedBalance for usd 1`] = `"25.166008"`;
 
 exports[`identity selectors lockedBalance for zec 1`] = `"12.583004"`;
+
+exports[`identity selectors shippingData 1`] = `
+Immutable.ShippingData {
+  "firstName": "Saturn",
+  "lastName": "the Planet",
+  "street": "Coders Dv",
+  "country": "Poland",
+  "region": "Malopolska",
+  "city": "Krakow",
+  "postalCode": "1337-455",
+}
+`;
 
 exports[`identity selectors signerPrivKey 1`] = `
 Object {
