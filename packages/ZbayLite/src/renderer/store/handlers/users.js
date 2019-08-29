@@ -2,8 +2,11 @@ import Immutable from 'immutable'
 import { createAction, handleActions } from 'redux-actions'
 import * as R from 'ramda'
 
+import notificationsHandlers from './notifications'
 import channelsSelectors from '../selectors/channels'
 import usersSelector from '../selectors/users'
+import identitySelector from '../selectors/identity'
+import { errorNotification } from './utils'
 import { messageType, getPublicKeysFromSignature } from '../../zbay/messages'
 import { messages as zbayMessages } from '../../zbay'
 import { getClient } from '../../zcash'
@@ -73,6 +76,40 @@ export const actions = {
   setUsers
 }
 
+export const createOrUpdateUser = (payload) => async (dispatch, getState) => {
+  const { nickname, firstName, lastName } = payload
+  const address = identitySelector.address(getState())
+  const privKey = identitySelector.signerPrivKey(getState())
+  const messageData = {
+    firstName,
+    lastName,
+    nickname,
+    address
+  }
+  const usersChannel = channelsSelectors.usersChannel(getState()).toJS()
+  const registrationMessage = zbayMessages.createMessage({
+    messageData: {
+      type: zbayMessages.messageType.USER,
+      data: messageData
+    },
+    privKey
+  })
+  const transfer = await zbayMessages.messageToTransfer({
+    message: registrationMessage,
+    channel: usersChannel,
+    identityAddress: address
+  })
+  try {
+    await getClient().payment.send(transfer)
+  } catch (err) {
+    notificationsHandlers.actions.enqueueSnackbar(
+      errorNotification({
+        message: 'Couldn\'t send the message, please check node connection.'
+      })
+    )
+  }
+}
+
 export const fetchUsers = () => async (dispatch, getState) => {
   const usersChannel = channelsSelectors.usersChannel(getState())
   const transfers = await getClient().payment.received(usersChannel.get('address'))
@@ -105,7 +142,8 @@ export const isNicknameTaken = (username) => async (dispatch, getState) => {
 
 export const epics = {
   fetchUsers,
-  isNicknameTaken
+  isNicknameTaken,
+  createOrUpdateUser
 }
 
 export const reducer = handleActions(

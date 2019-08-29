@@ -11,7 +11,7 @@ import selectors from '../selectors/users'
 import { packMemo } from '../../zbay/transit'
 import { mock as zcashMock } from '../../zcash'
 import { ChannelsState } from './channels'
-
+import { IdentityState, Identity } from './identity'
 import create from '../create'
 import testUtils from '../../testUtils'
 
@@ -24,6 +24,16 @@ describe('users reducer', () => {
     store = create({
       initialState: Immutable.Map({
         node: NodeState({ isTestnet: true }),
+        identity: IdentityState({
+          data: Identity({
+            name: 'Saturn',
+            id: 'test-id',
+            address: 'ztestsapling1mwmpvwy2aah7dlt0c9l47gde982xv6snxq2srddfzx8efn2qht6mxnz65rtst0426gtxje0eqlm',
+            signerPrivKey: '4e577989a286937f565cea6426bd75fc0c3b166d7bd28d8357ba633b3736a41d',
+            signerPubKey: '033ec8436690fc8313202e16a531b2ec4799dd91a33025357a5386979f3cf081af',
+            transparentAddress: 'transparent-test-address'
+          })
+        }),
         users: initialState,
         channels: ChannelsState({
           data: userChannel
@@ -165,6 +175,27 @@ describe('users reducer', () => {
       it('should return false for available username when no users', async () => {
         const isNicknameTaken = await store.dispatch(handlers.epics.isNicknameTaken('test-user-2'))
         expect(isNicknameTaken).toBeFalsy()
+      })
+    })
+
+    describe('createOrUpdateUser', () => {
+      beforeEach(() => {
+        Date.now = jest.fn(() => testUtils.now)
+      })
+
+      it('sends registration message', async () => {
+        const message = {
+          firstName: 'testname',
+          lastName: 'testlastname',
+          nickname: 'nickname',
+          address: 'ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r'
+        }
+
+        await store.dispatch(handlers.epics.createOrUpdateUser(message))
+
+        const result = zcashMock.requestManager.z_sendmany.mock.calls
+        expect(result.length).toBe(1)
+        expect(result).toMatchSnapshot()
       })
     })
   })
