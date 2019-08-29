@@ -1,7 +1,7 @@
 import React from 'react'
 import Immutable from 'immutable'
 import { storiesOf } from '@storybook/react'
-import { withKnobs, boolean } from '@storybook/addon-knobs'
+import { withKnobs, number } from '@storybook/addon-knobs'
 import { action } from '@storybook/addon-actions'
 
 import Grid from '@material-ui/core/Grid'
@@ -21,7 +21,7 @@ storiesOf('Components/Widgets/Channels/ChannelInput', module)
     return (
       <Grid container style={{ width: 724 }}>
         <ChannelInput
-          disabled={boolean('disabled', false)}
+          inputState={number(0)}
           onChange={action('onChange')}
           onKeyPress={action('onKeyPress')}
         />

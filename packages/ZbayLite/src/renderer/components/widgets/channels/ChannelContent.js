@@ -16,7 +16,7 @@ const styles = {
 }
 
 // TODO: filter by spent
-export const ChannelContent = ({ classes, channelId, inputLocked, contactId }) => (
+export const ChannelContent = ({ classes, channelId, inputState, contactId }) => (
   <Grid
     container
     direction='column'
@@ -24,7 +24,7 @@ export const ChannelContent = ({ classes, channelId, inputLocked, contactId }) =
     className={classes.fullHeight}
   >
     <ChannelMessages channelId={channelId} contactId={contactId} />
-    <ChannelInput disabled={inputLocked} contactId={contactId} />
+    <ChannelInput inputState={inputState} contactId={contactId} />
   </Grid>
 )
 
@@ -32,11 +32,7 @@ ChannelContent.propTypes = {
   classes: PropTypes.object.isRequired,
   channelId: PropTypes.string,
   contactId: PropTypes.string,
-  inputLocked: PropTypes.bool
-}
-
-ChannelContent.defaultProps = {
-  inputLocked: false
+  inputState: PropTypes.number
 }
 
 export default R.compose(

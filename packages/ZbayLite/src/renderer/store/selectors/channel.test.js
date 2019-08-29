@@ -4,7 +4,7 @@ import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
 import * as R from 'ramda'
 
-import channelSelectors from './channel'
+import channelSelectors, { INPUT_STATE } from './channel'
 import { operationTypes, PendingMessageOp, Operation } from '../handlers/operations'
 import create from '../create'
 import { ChannelState } from '../handlers/channel'
@@ -46,6 +46,7 @@ const storeState = {
           createReceivedMessage({ id, createdAt: now.minus({ hours: 2 * id }).toSeconds() })
         ))
       ))
+
     })
   }),
   channels: ChannelsState({
@@ -145,7 +146,7 @@ describe('Channel selector', () => {
 
   describe('inputLocked', () => {
     it('when balance=0 and lockedBalance > 0', () => {
-      expect(channelSelectors.inputLocked(store.getState())).toBeTruthy()
+      expect(channelSelectors.inputLocked(store.getState())).toEqual(INPUT_STATE.LOCKED)
     })
 
     it('when balance=0 and lockedBalance=0', () => {
@@ -160,10 +161,10 @@ describe('Channel selector', () => {
           })
         })
       })
-      expect(channelSelectors.inputLocked(store.getState())).toBeFalsy()
+      expect(channelSelectors.inputLocked(store.getState())).toEqual(INPUT_STATE.DISABLE)
     })
 
-    it('when balance > 0 and lockedBalance > 0', () => {
+    it('when balance > 0.0002 and lockedBalance > 0.0002', () => {
       store = create({
         initialState: Immutable.Map({
           ...storeState,
@@ -175,7 +176,7 @@ describe('Channel selector', () => {
           })
         })
       })
-      expect(channelSelectors.inputLocked(store.getState())).toBeFalsy()
+      expect(channelSelectors.inputLocked(store.getState())).toEqual(INPUT_STATE.AVAILABLE)
     })
 
     it('when balance > 0 and lockedBalance=0', () => {
@@ -190,7 +191,7 @@ describe('Channel selector', () => {
           })
         })
       })
-      expect(channelSelectors.inputLocked(store.getState())).toBeFalsy()
+      expect(channelSelectors.inputLocked(store.getState())).toEqual(INPUT_STATE.AVAILABLE)
     })
   })
 

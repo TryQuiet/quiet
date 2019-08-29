@@ -80,8 +80,23 @@ export const shareableUri = createSelector(channel, c => c.shareableUri)
 export const inputLocked = createSelector(
   identitySelectors.balance('zec'),
   identitySelectors.lockedBalance('zec'),
-  (available, locked) => available.isZero() && locked.gt(0)
+  (available, locked) => {
+    if (available.gt(0.0002)) {
+      return INPUT_STATE.AVAILABLE
+    } else {
+      if (locked.gt(0.0002)) {
+        return INPUT_STATE.LOCKED
+      }
+    }
+    return INPUT_STATE.DISABLE
+  }
 )
+
+export const INPUT_STATE = {
+  DISABLE: 0,
+  AVAILABLE: 1,
+  LOCKED: 2
+}
 
 export const channelId = createSelector(channel, ch => ch.id)
 

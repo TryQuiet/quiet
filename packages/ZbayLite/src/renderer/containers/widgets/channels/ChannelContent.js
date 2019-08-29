@@ -5,7 +5,7 @@ import channelSelectors from '../../../store/selectors/channel'
 
 export const mapStateToProps = state => ({
   loader: channelSelectors.loader(state),
-  inputLocked: channelSelectors.inputLocked(state)
+  inputState: channelSelectors.inputLocked(state)
 })
 
 export default connect(mapStateToProps)(ChannelContent)

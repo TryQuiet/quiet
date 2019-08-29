@@ -2,7 +2,7 @@
 
 exports[`ChannelContent will receive right props 1`] = `
 Object {
-  "inputLocked": false,
+  "inputState": 0,
   "loader": Immutable.Record {
     "loading": true,
     "message": "",

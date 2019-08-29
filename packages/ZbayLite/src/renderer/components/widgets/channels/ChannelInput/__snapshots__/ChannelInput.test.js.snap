@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ChannelInput renders component 1`] = `
+exports[`ChannelInput renders component input Disable  1`] = `
 <WithStyles(Grid)
   className="root-mock"
   container={true}
@@ -8,7 +8,7 @@ exports[`ChannelInput renders component 1`] = `
   justify="center"
 >
   <WithTheme(Fade)
-    in={false}
+    in={true}
   >
     <WithStyles(Grid)
       alignItems="center"
@@ -24,12 +24,13 @@ exports[`ChannelInput renders component 1`] = `
         align="center"
         variant="caption"
       >
-        Sending messages is locked due to insufficient funds - this may be resolved by topping up your account or waiting for the funds locked by the network.
+        Sending messages is locked due to insufficient funds - this may be resolved by topping up your account
       </WithStyles(Typography)>
     </WithStyles(Grid)>
   </WithTheme(Fade)>
   <WithStyles(Grid)
     alignItems="center"
+    className="inputsDiv-mock"
     container={true}
     direction="row"
     justify="center"
@@ -47,7 +48,6 @@ exports[`ChannelInput renders component 1`] = `
             },
           }
         }
-        disabled={false}
         fullWidth={true}
         id="channel-input"
         inputProps={
@@ -58,7 +58,142 @@ exports[`ChannelInput renders component 1`] = `
         margin="none"
         multiline={true}
         onChange={[MockFunction]}
-        onKeyPress={[MockFunction]}
+        onKeyPress={[Function]}
+        placeholder="Send a message"
+        required={false}
+        rowsMax="15"
+        select={false}
+        value="this is just a test message"
+        variant="outlined"
+      />
+    </WithStyles(Grid)>
+    <WithStyles(Grid)
+      item={true}
+    >
+      <Connect(Component)
+        disabled={true}
+      />
+    </WithStyles(Grid)>
+  </WithStyles(Grid)>
+</WithStyles(Grid)>
+`;
+
+exports[`ChannelInput renders component input Locked  1`] = `
+<WithStyles(Grid)
+  className="root-mock"
+  container={true}
+  direction="column"
+  justify="center"
+>
+  <WithTheme(Fade)
+    in={true}
+  >
+    <WithStyles(Grid)
+      alignItems="center"
+      className="backdrop-mock"
+      container={true}
+      direction="column"
+      justify="center"
+    >
+      <pure(WarningIcon)
+        className="warningIcon-mock"
+      />
+      <WithStyles(Typography)
+        align="center"
+        variant="caption"
+      >
+        All of your funds are locked - please wait for network confirmation or deposit more ZEC to your account
+      </WithStyles(Typography)>
+    </WithStyles(Grid)>
+  </WithTheme(Fade)>
+  <WithStyles(Grid)
+    alignItems="center"
+    className="inputsDiv-mock"
+    container={true}
+    direction="row"
+    justify="center"
+    spacing={16}
+  >
+    <WithStyles(Grid)
+      item={true}
+      xs={true}
+    >
+      <TextField
+        InputProps={
+          Object {
+            "classes": Object {
+              "multiline": "multiline-mock",
+            },
+          }
+        }
+        fullWidth={true}
+        id="channel-input"
+        inputProps={
+          Object {
+            "className": "input-mock",
+          }
+        }
+        margin="none"
+        multiline={true}
+        onChange={[MockFunction]}
+        onKeyPress={[Function]}
+        placeholder="Send a message"
+        required={false}
+        rowsMax="15"
+        select={false}
+        value="this is just a test message"
+        variant="outlined"
+      />
+    </WithStyles(Grid)>
+    <WithStyles(Grid)
+      item={true}
+    >
+      <Connect(Component)
+        disabled={true}
+      />
+    </WithStyles(Grid)>
+  </WithStyles(Grid)>
+</WithStyles(Grid)>
+`;
+
+exports[`ChannelInput renders component input available  1`] = `
+<WithStyles(Grid)
+  className="root-mock"
+  container={true}
+  direction="column"
+  justify="center"
+>
+  <WithStyles(Grid)
+    alignItems="center"
+    className="inputsDiv-mock"
+    container={true}
+    direction="row"
+    justify="center"
+    spacing={16}
+  >
+    <WithStyles(Grid)
+      item={true}
+      xs={true}
+    >
+      <TextField
+        InputProps={
+          Object {
+            "classes": Object {
+              "multiline": "multiline-mock",
+            },
+          }
+        }
+        fullWidth={true}
+        id="channel-input"
+        inputProps={
+          Object {
+            "className": "input-mock",
+          }
+        }
+        margin="none"
+        multiline={true}
+        onChange={[MockFunction]}
+        onKeyPress={[Function]}
         placeholder="Send a message"
         required={false}
         rowsMax="15"
