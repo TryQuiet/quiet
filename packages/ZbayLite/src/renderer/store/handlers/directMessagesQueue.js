@@ -14,6 +14,7 @@ import { errorNotification } from './utils'
 import { getClient } from '../../zcash'
 import { getVault } from '../../vault'
 import contactsHandlers from './contacts'
+import BigNumber from 'bignumber.js'
 
 export const DEFAULT_DEBOUNCE_INTERVAL = 3000
 const POLLING_OFFSET = 60000
@@ -101,10 +102,9 @@ const _sendPendingDirectMessages = async (dispatch, getState) => {
       const transfer = await messageToTransfer({
         message,
         recipientAddress,
-        amount: message.type === messageType.TRANSFER ? message.spent : '0.0001',
+        amount: message.type === messageType.TRANSFER ? message.spent : new BigNumber('0.0001'),
         identityAddress
       })
-
       let opId
       try {
         opId = await getClient().payment.send(transfer)

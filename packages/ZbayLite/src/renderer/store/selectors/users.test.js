@@ -33,4 +33,8 @@ describe('users selectors', () => {
   it(' - users', () => {
     expect(selectors.users(store.getState())).toMatchSnapshot()
   })
+
+  it(' - username', () => {
+    expect(selectors.registeredUsername('address')(store.getState())).toMatchSnapshot()
+  })
 })

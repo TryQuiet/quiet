@@ -6,6 +6,14 @@ const users = createSelector(
   state => state.get('users')
 )
 
+const registeredUsername = (signerPubKey) => createSelector(
+  users,
+  users => users
+    .get(signerPubKey)
+    .get('nickname')
+)
+
 export default {
-  users
+  users,
+  registeredUsername
 }

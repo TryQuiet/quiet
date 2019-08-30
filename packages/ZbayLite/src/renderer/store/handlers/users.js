@@ -2,6 +2,7 @@ import Immutable from 'immutable'
 import { createAction, handleActions } from 'redux-actions'
 import * as R from 'ramda'
 
+import { actionCreators } from './modals'
 import notificationsHandlers from './notifications'
 import channelsSelectors from '../selectors/channels'
 import usersSelector from '../selectors/users'
@@ -77,7 +78,7 @@ export const actions = {
 }
 
 export const createOrUpdateUser = (payload) => async (dispatch, getState) => {
-  const { nickname, firstName, lastName } = payload
+  const { nickname, firstName = '', lastName = '' } = payload
   const address = identitySelector.address(getState())
   const privKey = identitySelector.signerPrivKey(getState())
   const messageData = {
@@ -99,6 +100,7 @@ export const createOrUpdateUser = (payload) => async (dispatch, getState) => {
     channel: usersChannel,
     identityAddress: address
   })
+  dispatch(actionCreators.closeModal('accountSettingsModal')())
   try {
     await getClient().payment.send(transfer)
   } catch (err) {
@@ -113,17 +115,20 @@ export const createOrUpdateUser = (payload) => async (dispatch, getState) => {
 export const fetchUsers = () => async (dispatch, getState) => {
   const usersChannel = channelsSelectors.usersChannel(getState())
   const transfers = await getClient().payment.received(usersChannel.get('address'))
+  const registrationMessages = await Promise.all(transfers.map((transfer) => {
+    const message = zbayMessages.transferToMessage(transfer)
+    return message
+  }))
+  const sortedMessages = registrationMessages.sort((a, b) => a.createdAt - b.createdAt)
 
-  const users = await transfers.reduce(
-    async (acc = Promise.resolve(Immutable.Map({})), transfer) => {
+  const users = await sortedMessages.reduce(
+    async (acc = Promise.resolve(Immutable.Map({})), message) => {
       const accumulator = await acc
-      const message = await zbayMessages.transferToMessage(transfer)
       const user = ReceivedUser(message, accumulator)
 
       if (user === null) {
         return Promise.resolve(accumulator)
       }
-
       return Promise.resolve(accumulator.merge(user[0]).merge(user[1]))
     },
     Promise.resolve(Immutable.Map({}))

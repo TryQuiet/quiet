@@ -52,7 +52,7 @@ const sendDirectMessage = payload => async (dispatch, getState) => {
     messageData: {
       type,
       data: messageData,
-      spent: type === zbayMessages.messageType.TRANSFER ? spent : '0.0001'
+      spent: type === zbayMessages.messageType.TRANSFER ? new BigNumber(spent) : new BigNumber('0.0001')
     },
     privKey
   })

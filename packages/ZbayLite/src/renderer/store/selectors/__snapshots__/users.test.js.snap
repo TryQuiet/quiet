@@ -1,5 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`users selectors  - username 1`] = `"nickname"`;
+
 exports[`users selectors  - users 1`] = `
 Immutable.Map {
   "address": Immutable.Map {

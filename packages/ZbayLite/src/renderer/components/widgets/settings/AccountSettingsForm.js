@@ -31,8 +31,15 @@ const styles = theme => ({
   }
 })
 
-const formSchema = Yup.object().shape({
-  nickname: Yup.string().min(3).max(20).required('Required')
+Yup.addMethod(Yup.mixed, 'validateMessage', function (checkNickname) {
+  return this.test('test', 'Sorry username already taken. please choose another', async function (value) {
+    const isUsernameTaken = await checkNickname(value)
+    return !isUsernameTaken
+  })
+})
+
+const formSchema = (checkNickname) => Yup.object().shape({
+  nickname: Yup.string().min(3).max(20).validateMessage(checkNickname).required('Required')
 })
 
 export const AccountSettingsForm = ({
@@ -41,15 +48,16 @@ export const AccountSettingsForm = ({
   transparentAddress,
   privateAddress,
   handleCopy,
-  handleSubmit
+  handleSubmit,
+  checkNickname
 }) => (
   <Formik
     onSubmit={handleSubmit}
-    validationSchema={formSchema}
+    validationSchema={formSchema(checkNickname)}
     initialValues={initialValues}
   >
     {
-      ({ values, isSubmitting }) => (
+      ({ values, isSubmitting, isValid }) => (
         <Form className={classes.fullWidth}>
           <Grid
             container
@@ -58,6 +66,11 @@ export const AccountSettingsForm = ({
             alignItems='flex-start'
             className={classes.container}
           >
+            <Grid item>
+              <Typography variant='body2'>
+                {initialValues.nickname ? `You have registered username: ${initialValues.nickname}` : `You don't have a Zbay nickname registered` }
+              </Typography>
+            </Grid>
             <Grid item>
               <Typography variant='body2'>
                 Nickname
@@ -127,7 +140,7 @@ export const AccountSettingsForm = ({
                 size='small'
                 color='primary'
                 type='submit'
-                disabled={isSubmitting}
+                disabled={!isValid || isSubmitting}
               >
                 Save
               </Button>
@@ -147,7 +160,8 @@ AccountSettingsForm.propTypes = {
   transparentAddress: PropTypes.string.isRequired,
   privateAddress: PropTypes.string.isRequired,
   handleSubmit: PropTypes.func.isRequired,
-  handleCopy: PropTypes.func
+  handleCopy: PropTypes.func,
+  checkNickname: PropTypes.func
 }
 
 AccountSettingsForm.defaultProps = {

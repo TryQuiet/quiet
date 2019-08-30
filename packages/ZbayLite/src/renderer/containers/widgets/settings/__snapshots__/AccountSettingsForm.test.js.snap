@@ -2,6 +2,7 @@
 
 exports[`AccountSettingsForm will receive right actions 1`] = `
 Object {
+  "checkNickname": [Function],
   "handleSubmit": [Function],
 }
 `;
@@ -9,7 +10,7 @@ Object {
 exports[`AccountSettingsForm will receive right props 1`] = `
 Object {
   "initialValues": Object {
-    "nickname": "Saturn",
+    "nickname": "nickname",
   },
   "privateAddress": "test-z-address",
   "transparentAddress": "test-t-address",

@@ -1,19 +1,22 @@
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
+import usersHandlers from '../../../store/handlers/users'
 import AccountSettingsForm from '../../../components/widgets/settings/AccountSettingsForm'
 import identitySelectors from '../../../store/selectors/identity'
+import usersSelectors from '../../../store/selectors/users'
 
 export const mapStateToProps = state => ({
   initialValues: {
-    nickname: identitySelectors.name(state)
+    nickname: usersSelectors.registeredUsername(identitySelectors.signerPubKey(state))(state)
   },
   transparentAddress: identitySelectors.transparentAddress(state),
   privateAddress: identitySelectors.address(state)
 })
 
-export const mapDispatchToProps = dispatch => bindActionCreators({
-  handleSubmit: (data) => console.log('Submitting: ', data)
+export const mapDispatchToProps = (dispatch, props) => bindActionCreators({
+  checkNickname: usersHandlers.epics.isNicknameTaken,
+  handleSubmit: ({ nickname }) => usersHandlers.epics.createOrUpdateUser({ nickname })
 }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(AccountSettingsForm)
