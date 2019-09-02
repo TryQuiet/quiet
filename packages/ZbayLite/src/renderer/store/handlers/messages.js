@@ -4,12 +4,14 @@ import * as R from 'ramda'
 import { createAction, handleActions } from 'redux-actions'
 
 import selectors from '../selectors/messages'
+import appSelectors from '../selectors/app'
 import channelsSelectors from '../selectors/channels'
 import usersSelectors from '../selectors/users'
 import identitySelectors from '../selectors/identity'
 import operationsSelectors from '../selectors/operations'
 import operationsHandlers from './operations'
 import channelsHandlers from './channels'
+import appHandlers from './app'
 import { messageType } from '../../zbay/messages'
 import { messages as zbayMessages } from '../../zbay'
 import { getClient } from '../../zcash'
@@ -68,7 +70,16 @@ export const fetchMessages = () => async (dispatch, getState) => {
   return Promise.all(
     channels.map(async channel => {
       const channelId = channel.get('id')
+      const previousMessages = selectors.currentChannelMessages(channelId)(getState())
+
       const transfers = await getClient().payment.received(channel.get('address'))
+
+      if (transfers.length === appSelectors.transfers(getState()).get(channelId)) {
+        return
+      } else {
+        dispatch(appHandlers.actions.setTransfers({ id: channelId, value: transfers.length }))
+      }
+
       const messagesAll = await Promise.all(
         transfers.map(async transfer => {
           const message = await zbayMessages.transferToMessage(transfer, users)
@@ -82,10 +93,7 @@ export const fetchMessages = () => async (dispatch, getState) => {
           return ReceivedMessage(message)
         })
       )
-      const messages = messagesAll
-        .filter(message => message.id !== null)
-
-      const previousMessages = selectors.currentChannelMessages(channelId)(getState())
+      const messages = messagesAll.filter(message => message.id !== null)
 
       let lastSeen = channelsSelectors.lastSeen(channelId)(getState())
       if (!lastSeen) {

@@ -1,3 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`criticalError reducer handles actions - loadVersion 1`] = `"0.13.37"`;
+
+exports[`criticalError reducer handles actions - set transfers 1`] = `
+Immutable.Map {
+  "testid": "testvalue",
+}
+`;

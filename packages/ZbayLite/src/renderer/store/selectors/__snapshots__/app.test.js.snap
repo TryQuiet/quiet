@@ -1,3 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`app - version selector 1`] = `"0.13.37"`;
+
+exports[`app - version transfers 1`] = `Immutable.Map {}`;

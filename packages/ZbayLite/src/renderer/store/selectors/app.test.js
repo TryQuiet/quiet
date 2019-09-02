@@ -13,7 +13,8 @@ describe('app -', () => {
     store = create({
       initialState: Immutable.Map({
         app: AppState({
-          version: '0.13.37'
+          version: '0.13.37',
+          transfers: Immutable.Map()
         })
       })
     })
@@ -21,5 +22,8 @@ describe('app -', () => {
 
   it('version selector', async () => {
     expect(selectors.version(store.getState())).toMatchSnapshot()
+  })
+  it('version transfers', async () => {
+    expect(selectors.transfers(store.getState())).toMatchSnapshot()
   })
 })

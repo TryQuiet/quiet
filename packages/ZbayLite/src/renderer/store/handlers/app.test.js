@@ -31,5 +31,16 @@ describe('criticalError reducer', () => {
 
       expect(selectors.version(store.getState())).toMatchSnapshot()
     })
+
+    it('set transfers', () => {
+      store.dispatch(handlers.actions.setTransfers({ id: 'testid', value: 'testvalue' }))
+      expect(selectors.transfers(store.getState())).toMatchSnapshot()
+    })
+
+    it('overwrite transfers with same id', () => {
+      store.dispatch(handlers.actions.setTransfers({ id: 'testid', value: 'testvalue' }))
+      store.dispatch(handlers.actions.setTransfers({ id: 'testid', value: 'testvalue2' }))
+      expect(selectors.transfers(store.getState()).get('testid')).toEqual('testvalue2')
+    })
   })
 })

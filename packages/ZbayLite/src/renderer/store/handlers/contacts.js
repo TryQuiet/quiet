@@ -6,6 +6,7 @@ import BigNumber from 'bignumber.js'
 
 import identitySelectors from '../selectors/identity'
 import usersSelectors from '../selectors/users'
+import appSelectors from '../selectors/app'
 import selectors, { Contact } from '../selectors/contacts'
 import { directMessageChannel } from '../selectors/directMessageChannel'
 import { messages as zbayMessages } from '../../zbay'
@@ -16,6 +17,7 @@ import operationsHandlers, { operationTypes, PendingDirectMessageOp } from './op
 import { ReceivedMessage } from './messages'
 import directMessagesQueueHandlers, { checkConfirmationNumber } from './directMessagesQueue'
 import channelHandlers from './channel'
+import appHandlers from './app'
 import notificationsHandlers from './notifications'
 import { errorNotification } from './utils'
 
@@ -126,6 +128,12 @@ export const loadContact = address => async (dispatch, getState) => {
 export const fetchMessages = () => async (dispatch, getState) => {
   const identityAddress = identitySelectors.address(getState())
   const transfers = await getClient().payment.received(identityAddress)
+  if (transfers.length === appSelectors.transfers(getState()).get(identityAddress)) {
+    return
+  } else {
+    dispatch(appHandlers.actions.setTransfers({ id: identityAddress, value: transfers.length }))
+  }
+
   const users = usersSelectors.users(getState())
   const messagesAll = await Promise.all(
     transfers
