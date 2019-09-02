@@ -1,31 +1,42 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import { lifecycle, withState } from 'recompose'
 import * as R from 'ramda'
+import Grid from '@material-ui/core/Grid'
 import DirectMessagesPanelComponent from '../../../components/widgets/channels/DirectMessagesPanel'
-
+import identitySelectors from '../../../store/selectors/identity'
 import contactsSelectors from '../../../store/selectors/contacts'
 import contactsHandlers from '../../../store/handlers/contacts'
+import SidebarHeader from '../../../components/ui/SidebarHeader'
+import AddDirectMessage from './AddDirectMessage'
 import { useInterval } from '../../hooks'
 
 export const mapStateToProps = state => ({
-  channels: contactsSelectors.contacts(state).toList()
+  channels: contactsSelectors.contacts(state).toList(),
+  loader: identitySelectors.loader(state)
 })
 
 export const mapDispatchToProps = dispatch => {
   return bindActionCreators(
     {
-      fetchMessages: contactsHandlers.epics.fetchMessages,
-      loadVaultMessages: contactsHandlers.epics.loadAllSentMessages
+      fetchMessages: contactsHandlers.epics.fetchMessages
     },
     dispatch
   )
 }
 
-export const DirectMessagesPanel = ({ channels, isLoading, fetchMessages }) => {
+export const DirectMessagesPanel = ({ channels, loader, fetchMessages }) => {
   useInterval(fetchMessages, 15000)
-  return <DirectMessagesPanelComponent isLoading={isLoading} channels={channels} />
+
+  return (
+    <Grid item container direction='column'>
+      <SidebarHeader
+        title='Direct Messages'
+        actions={[<AddDirectMessage key='create-channel' />]}
+      />
+      <DirectMessagesPanelComponent loader={loader} channels={channels} />
+    </Grid>
+  )
 }
 
 export default R.compose(
@@ -33,12 +44,5 @@ export default R.compose(
     mapStateToProps,
     mapDispatchToProps
   ),
-  withState('isLoading', 'setIsLoading', true),
-  lifecycle({
-    async componentDidMount () {
-      await this.props.loadVaultMessages()
-      await this.props.fetchMessages()
-      this.props.setIsLoading(false)
-    }
-  })
+  React.memo
 )(DirectMessagesPanel)

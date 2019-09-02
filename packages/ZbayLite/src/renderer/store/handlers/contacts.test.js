@@ -317,6 +317,56 @@ describe('contacts reducer', () => {
           expect(contact).toMatchSnapshot()
         })
       })
+      describe('- setUsernames', () => {
+        it('- when no contact', () => {
+          store.dispatch(
+            actions.setUsernames({
+              sender: contact1
+            })
+          )
+          const contact = selectors.contact(identity1.address)(store.getState())
+          expect(contact).toMatchSnapshot()
+        })
+        it('- when contact exists', () => {
+          store = create({
+            initialState: Immutable.Map({
+              ...initialState,
+              contacts: Immutable.Map({
+                [identity1.address]: Contact({
+                  username: identity1.username,
+                  address: identity1.address
+                })
+              })
+            })
+          })
+
+          store.dispatch(
+            actions.setUsernames({
+              sender: contact1
+            })
+          )
+
+          const contact = selectors.contact(identity1.address)(store.getState())
+          expect(contact).toMatchSnapshot()
+        })
+
+        it('when username already set', () => {
+          store.dispatch(
+            actions.setUsernames({
+              sender: contact1
+            })
+          )
+
+          store.dispatch(
+            actions.setUsernames({
+              sender: contact2
+            })
+          )
+
+          const contact = selectors.contact(identity1.address)(store.getState())
+          expect(contact).toMatchSnapshot()
+        })
+      })
     })
 
     describe('handles epics', () => {

@@ -55,7 +55,6 @@ const loadChannel = (id) => async (dispatch, getState) => {
     dispatch(setShareableUri(uri))
 
     await dispatch(updateLastSeen())
-    await dispatch(messagesHandlers.epics.fetchMessages())
   } catch (err) {}
   dispatch(setLoading(false))
 }

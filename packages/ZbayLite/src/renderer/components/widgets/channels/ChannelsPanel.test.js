@@ -12,7 +12,6 @@ describe('ChannelsPanel', () => {
   )
 
   it('renders component', () => {
-    const ref = React.createRef()
     const contentRect = {
       bounds: {
         height: 200
@@ -23,14 +22,12 @@ describe('ChannelsPanel', () => {
       <ChannelsPanel
         channels={channels}
         contentRect={contentRect}
-        measureRef={ref}
       />
     )
     expect(result).toMatchSnapshot()
   })
 
   it('renders collapsed list if no bounds', () => {
-    const ref = React.createRef()
     const contentRect = {
       bounds: {}
     }
@@ -39,25 +36,6 @@ describe('ChannelsPanel', () => {
       <ChannelsPanel
         channels={channels}
         contentRect={contentRect}
-        measureRef={ref}
-      />
-    )
-    expect(result).toMatchSnapshot()
-  })
-
-  it('renders loading', () => {
-    const ref = React.createRef()
-    const contentRect = {
-      bounds: {
-        height: 200
-      }
-    }
-
-    const result = shallow(
-      <ChannelsPanel
-        loading
-        contentRect={contentRect}
-        measureRef={ref}
       />
     )
     expect(result).toMatchSnapshot()

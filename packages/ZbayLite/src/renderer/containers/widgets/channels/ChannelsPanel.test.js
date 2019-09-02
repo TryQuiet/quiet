@@ -5,7 +5,8 @@ import { mapStateToProps, mapDispatchToProps } from './ChannelsPanel'
 import { createChannel } from '../../../testUtils'
 import create from '../../../store/create'
 import { NodeState } from '../../../store/handlers/node'
-
+import { IdentityState } from '../../../store/handlers/identity'
+import { LoaderState } from '../../../store/handlers/utils'
 describe('ChannelsPanel', () => {
   let store = null
 
@@ -18,6 +19,9 @@ describe('ChannelsPanel', () => {
         }),
         channels: ChannelsState({
           data: Immutable.fromJS([createChannel(1), createChannel(2)])
+        }),
+        identity: IdentityState({
+          loader: LoaderState({ loading: false })
         })
       })
     })

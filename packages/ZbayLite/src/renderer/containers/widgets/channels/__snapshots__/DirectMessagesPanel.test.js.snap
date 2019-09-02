@@ -3,7 +3,6 @@
 exports[`ChannelsPanel will receive right actions 1`] = `
 Object {
   "fetchMessages": [Function],
-  "loadVaultMessages": [Function],
 }
 `;
 
@@ -14,5 +13,9 @@ Object {
       "username": "testusername",
     },
   ],
+  "loader": Immutable.Record {
+    "loading": false,
+    "message": "",
+  },
 }
 `;

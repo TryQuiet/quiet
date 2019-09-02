@@ -3,7 +3,7 @@ import Immutable from 'immutable'
 import Paper from '@material-ui/core/Paper'
 import Grid from '@material-ui/core/Grid'
 import { storiesOf } from '@storybook/react'
-import { withKnobs, boolean } from '@storybook/addon-knobs'
+import { withKnobs } from '@storybook/addon-knobs'
 import StoryRouter from 'storybook-react-router'
 import * as R from 'ramda'
 
@@ -30,7 +30,6 @@ storiesOf('Components/Widgets/Channels/ChannelsPanel', module)
         <Grid container direction='column' style={{ minHeight: '100%', width: 300 }}>
           <ChannelsPanel
             channels={channels}
-            loading={boolean('Loading', false)}
           />
         </Grid>
       </Paper>

@@ -1,25 +1,13 @@
 import React from 'react'
-import Grid from '@material-ui/core/Grid'
+
+import * as R from 'ramda'
 
 import ItemSizedChannelsList from './ItemSizedChannelsList'
-import SidebarHeader from '../../ui/SidebarHeader'
-import AddDirectMessage from '../../../containers/widgets/channels/AddDirectMessage'
-import SpinnerLoader from '../../ui/SpinnerLoader'
 
-export const DirectMessagesPanel = ({ isLoading, channels }) => {
-  return (
-    <Grid item container direction='column'>
-      <SidebarHeader
-        title='Direct Messages'
-        actions={[<AddDirectMessage key='create-channel' />]}
-      />
-      {isLoading ? (
-        <SpinnerLoader />
-      ) : (
-        <ItemSizedChannelsList channels={channels} directMessages itemsCount={4} displayAddress />
-      )}
-    </Grid>
-  )
+import { withSpinnerLoader } from '../../ui/SpinnerLoader'
+
+export const DirectMessagesPanel = ({ channels }) => {
+  return <ItemSizedChannelsList channels={channels} directMessages itemsCount={4} displayAddress />
 }
 
-export default DirectMessagesPanel
+export default R.compose(withSpinnerLoader)(DirectMessagesPanel)

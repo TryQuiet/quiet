@@ -2,7 +2,8 @@ import Immutable from 'immutable'
 
 import { mapStateToProps, mapDispatchToProps } from './DirectMessagesPanel'
 import create from '../../../store/create'
-
+import { IdentityState } from '../../../store/handlers/identity'
+import { LoaderState } from '../../../store/handlers/utils'
 describe('ChannelsPanel', () => {
   let store = null
 
@@ -14,7 +15,10 @@ describe('ChannelsPanel', () => {
           address123: {
             username: 'testusername'
           }
-        }
+        },
+        identity: IdentityState({
+          loader: LoaderState({ loading: false })
+        })
       })
     })
   })

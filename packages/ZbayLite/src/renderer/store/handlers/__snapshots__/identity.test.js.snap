@@ -507,7 +507,7 @@ Immutable.IdentityState {
   "fetchingBalance": false,
   "loader": Immutable.Record {
     "loading": false,
-    "message": "Fetching balance and loading channels",
+    "message": "Loading users and messages",
   },
   "errors": "",
 }
@@ -545,7 +545,7 @@ Immutable.IdentityState {
   "fetchingBalance": false,
   "loader": Immutable.Record {
     "loading": false,
-    "message": "Fetching balance and loading channels",
+    "message": "Loading users and messages",
   },
   "errors": "node error",
 }

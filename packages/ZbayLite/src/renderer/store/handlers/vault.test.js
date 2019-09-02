@@ -14,6 +14,7 @@ import vault, { mock } from '../../vault'
 import vaultSelectors from '../selectors/vault'
 import channelsSelectors from '../selectors/channels'
 import identitySelectors from '../selectors/identity'
+import usersHandlers from './users'
 import { NodeState } from './node'
 import { mock as zcashMock } from '../../zcash'
 import { createArchive } from '../../vault/marshalling'
@@ -206,6 +207,7 @@ describe('vault reducer', () => {
         vault.identity.createIdentity.mockImplementation(
           async (identity) => ({ ...identity, id: 'thisisatestid' })
         )
+        jest.spyOn(usersHandlers.epics, 'fetchUsers').mockImplementation(() => {})
       })
 
       it('creates the vault', async () => {

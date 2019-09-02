@@ -56,46 +56,7 @@ Immutable.ChannelState {
 }
 `;
 
-exports[`channel reducer handles epics - loadChannel fetches messages 1`] = `
-Immutable.List [
-  Immutable.DisplayableMessage {
-    "id": "test-1",
-    "type": 1,
-    "sender": Immutable.ExchangeParticipant {
-      "replyTo": "",
-      "username": "Unnamed",
-    },
-    "receiver": Immutable.ExchangeParticipant {
-      "replyTo": "",
-      "username": "Unnamed",
-    },
-    "createdAt": 1551963828,
-    "message": "This is some message test-1",
-    "spent": "0.2",
-    "fromYou": false,
-    "status": "broadcasted",
-    "error": null,
-  },
-  Immutable.DisplayableMessage {
-    "id": "test-2",
-    "type": 1,
-    "sender": Immutable.ExchangeParticipant {
-      "replyTo": "",
-      "username": "Unnamed",
-    },
-    "receiver": Immutable.ExchangeParticipant {
-      "replyTo": "",
-      "username": "Unnamed",
-    },
-    "createdAt": 1551963828,
-    "message": "This is some message test-2",
-    "spent": "0.2",
-    "fromYou": false,
-    "status": "broadcasted",
-    "error": null,
-  },
-]
-`;
+exports[`channel reducer handles epics - loadChannel fetches messages 1`] = `Immutable.List []`;
 
 exports[`channel reducer handles epics - loadChannel sets uri 1`] = `"zbay.io/channel/eJxNizEOgCAMAL9iGkcdWF19CUqjDVKMRY0S/i4YB6dL7nIRWDuEDvpZM+NSKWhAG7OhSLa3qIASPlGXaFDGjdZAnn+bHvwe3tnilc8IdNjciUfviKf2IDwLc24VpPQAl0oo4g=="`;
 
@@ -267,32 +228,4 @@ Object {
 }
 `;
 
-exports[`channel reducer handles epics -clearNewMessages clears new messages for current channel 1`] = `
-Immutable.ChannelMessages {
-  "messages": Immutable.List [
-    Immutable.ReceivedMessage {
-      "id": "test-1",
-      "type": 1,
-      "sender": Immutable.MessageSender {
-        "replyTo": "",
-        "username": "Unnamed",
-      },
-      "createdAt": 1551963828,
-      "message": "This is some message test-1",
-      "spent": "0.2",
-    },
-    Immutable.ReceivedMessage {
-      "id": "test-2",
-      "type": 1,
-      "sender": Immutable.MessageSender {
-        "replyTo": "",
-        "username": "Unnamed",
-      },
-      "createdAt": 1551963828,
-      "message": "This is some message test-2",
-      "spent": "0.2",
-    },
-  ],
-  "newMessages": Immutable.List [],
-}
-`;
+exports[`channel reducer handles epics -clearNewMessages clears new messages for current channel 1`] = `undefined`;

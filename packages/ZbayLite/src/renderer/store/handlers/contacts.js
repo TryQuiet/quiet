@@ -108,13 +108,19 @@ const setVaultMessages = createAction('SET_VAULT_DIRECT_MESSAGES')
 const cleanNewMessages = createAction('CLEAN_NEW_DIRECT_MESSAGESS')
 const appendNewMessages = createAction('APPEND_NEW_DIRECT_MESSAGES')
 const setLastSeen = createAction('SET_CONTACTS_LAST_SEEN')
+const setUsernames = createAction('SET_CONTACTS_USERNAMES')
 
 export const actions = {
   setMessages,
   setVaultMessages,
   cleanNewMessages,
   appendNewMessages,
-  setLastSeen
+  setLastSeen,
+  setUsernames
+}
+export const loadContact = address => async (dispatch, getState) => {
+  const contact = selectors.contact(address)(getState())
+  dispatch(updateLastSeen({ contact }))
 }
 
 export const fetchMessages = () => async (dispatch, getState) => {
@@ -136,30 +142,31 @@ export const fetchMessages = () => async (dispatch, getState) => {
     R.filter(R.identity)
   )(messages)
 
+  if (!R.isEmpty(senderToMessages)) {
+    R.keys(senderToMessages).forEach(async sender => {
+      await dispatch(setUsernames({ sender: senderToMessages[sender].pop().sender }))
+    })
+  }
+
   await Promise.all(
     Object.entries(senderToMessages).map(async ([contactAddress, contactMessages]) => {
       const contact = contactMessages[0].sender
       await dispatch(loadVaultMessages({ contact }))
       const previousMessages = selectors.messages(contactAddress)(getState())
       let lastSeen = selectors.lastSeen(contactAddress)(getState())
-      if (!lastSeen) {
-        await dispatch(updateLastSeen({ contact }))
-        lastSeen = selectors.lastSeen(contactAddress)(getState())
-      }
-
       const newMessages = zbayMessages.calculateDiff({
         previousMessages,
         nextMessages: Immutable.List(contactMessages),
         lastSeen,
         identityAddress
       })
-
       dispatch(
         appendNewMessages({
           contactAddress,
           messagesIds: newMessages.map(R.prop('id'))
         })
       )
+
       dispatch(setMessages({ messages: contactMessages, contactAddress }))
       newMessages.map(nm =>
         displayDirectMessageNotification({ message: nm, username: contact.username })
@@ -174,7 +181,7 @@ export const updateLastSeen = ({ contact }) => async (dispatch, getState) => {
   await getVault().contacts.updateLastSeen({
     identityId,
     recipientUsername: contact.username,
-    recipientAddress: contact.replyTo,
+    recipientAddress: contact.replyTo || contact.address,
     lastSeen
   })
   dispatch(
@@ -200,6 +207,7 @@ export const loadVaultMessages = ({ contact }) => async (dispatch, getState) => 
       receiver: { replyTo: contact.replyTo, username: contact.username }
     })
   )
+
   dispatch(
     setVaultMessages({
       contactAddress: contact.replyTo,
@@ -212,7 +220,7 @@ export const loadAllSentMessages = () => async (dispatch, getState) => {
   const identityId = identitySelectors.id(getState())
   const identityAddress = identitySelectors.address(getState())
   const allMessages = await getVault().contacts.loadAllSentMessages({ identityId })
-  allMessages.forEach(contact => {
+  allMessages.forEach(async contact => {
     const vaultMessagesToDisplay = contact.messages.map(msg =>
       zbayMessages.vaultToDisplayableMessage({
         message: msg,
@@ -226,10 +234,22 @@ export const loadAllSentMessages = () => async (dispatch, getState) => {
         vaultMessagesToDisplay
       })
     )
-    dispatch(
+    const lastSeen = await getVault().contacts.getLastSeen({
+      identityId,
+      recipientAddress: contact.address,
+      recipientUsername: contact.username
+    })
+    await dispatch(
       setLastSeen({
-        lastSeen: null,
+        lastSeen,
         contact: {
+          replyTo: contact.address
+        }
+      })
+    )
+    await dispatch(
+      setUsernames({
+        sender: {
           replyTo: contact.address,
           username: contact.address.substring(0, 10)
         }
@@ -245,7 +265,8 @@ export const epics = {
   loadVaultMessages,
   sendDirectMessageOnEnter,
   loadAllSentMessages,
-  resendMessage
+  resendMessage,
+  loadContact
 }
 
 export const reducer = handleActions(
@@ -267,11 +288,12 @@ export const reducer = handleActions(
         cm.update('newMessages', nm => nm.concat(messagesIds))
       ),
     [setLastSeen]: (state, { payload: { lastSeen, contact } }) =>
-      state.update(contact.replyTo, Contact(), cm =>
-        cm
-          .set('lastSeen', lastSeen)
-          .set('username', contact.username)
-          .set('address', contact.replyTo)
+      state.update(contact.replyTo || contact.address, Contact(), cm =>
+        cm.set('lastSeen', lastSeen)
+      ),
+    [setUsernames]: (state, { payload: { sender } }) =>
+      state.update(sender.replyTo, Contact(), cm =>
+        cm.set('username', sender.username).set('address', sender.replyTo)
       )
   },
   initialState

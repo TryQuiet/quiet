@@ -1,71 +1,57 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`DirectMessagesPanel renders component 1`] = `
-<WithStyles(Grid)
-  container={true}
-  direction="column"
-  item={true}
->
-  <Memo(WithStyles(SidebarHeader))
-    actions={
-      Array [
-        <Connect(WithStyles(Component)) />,
-      ]
-    }
-    title="Direct Messages"
-  />
-  <Memo(ItemSizedChannelsList)
-    channels={
-      Array [
-        Object {
-          "address": "zs1testaddress0",
-          "description": "",
-          "id": 0,
-          "keys": Object {
-            "ivk": "incoming-viewing-key-0",
-          },
-          "name": "Channel 0",
-          "private": false,
-          "unread": 0,
+<Memo(ItemSizedChannelsList)
+  channels={
+    Array [
+      Object {
+        "address": "zs1testaddress0",
+        "description": "",
+        "id": 0,
+        "keys": Object {
+          "ivk": "incoming-viewing-key-0",
         },
-        Object {
-          "address": "zs1testaddress1",
-          "description": "Channel about 1",
-          "id": 1,
-          "keys": Object {
-            "ivk": "incoming-viewing-key-1",
-          },
-          "name": "Channel 1",
-          "private": true,
-          "unread": 1,
+        "name": "Channel 0",
+        "private": false,
+        "unread": 0,
+      },
+      Object {
+        "address": "zs1testaddress1",
+        "description": "Channel about 1",
+        "id": 1,
+        "keys": Object {
+          "ivk": "incoming-viewing-key-1",
         },
-        Object {
-          "address": "zs1testaddress2",
-          "description": "",
-          "id": 2,
-          "keys": Object {
-            "ivk": "incoming-viewing-key-2",
-          },
-          "name": "Channel 2",
-          "private": false,
-          "unread": 2,
+        "name": "Channel 1",
+        "private": true,
+        "unread": 1,
+      },
+      Object {
+        "address": "zs1testaddress2",
+        "description": "",
+        "id": 2,
+        "keys": Object {
+          "ivk": "incoming-viewing-key-2",
         },
-        Object {
-          "address": "zs1testaddress3",
-          "description": "Channel about 3",
-          "id": 3,
-          "keys": Object {
-            "ivk": "incoming-viewing-key-3",
-          },
-          "name": "Channel 3",
-          "private": true,
-          "unread": 3,
+        "name": "Channel 2",
+        "private": false,
+        "unread": 2,
+      },
+      Object {
+        "address": "zs1testaddress3",
+        "description": "Channel about 3",
+        "id": 3,
+        "keys": Object {
+          "ivk": "incoming-viewing-key-3",
         },
-      ]
-    }
-    directMessages={true}
-    displayAddress={true}
-    itemsCount={4}
-  />
-</WithStyles(Grid)>
+        "name": "Channel 3",
+        "private": true,
+        "unread": 3,
+      },
+    ]
+  }
+  directMessages={true}
+  displayAddress={true}
+  itemsCount={4}
+/>
 `;

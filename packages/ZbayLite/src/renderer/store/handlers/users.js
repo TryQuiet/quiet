@@ -106,7 +106,7 @@ export const createOrUpdateUser = (payload) => async (dispatch, getState) => {
   } catch (err) {
     notificationsHandlers.actions.enqueueSnackbar(
       errorNotification({
-        message: 'Couldn\'t send the message, please check node connection.'
+        message: "Couldn't send the message, please check node connection."
       })
     )
   }
@@ -136,7 +136,7 @@ export const fetchUsers = () => async (dispatch, getState) => {
   dispatch(setUsers({ users }))
 }
 
-export const isNicknameTaken = (username) => async (dispatch, getState) => {
+export const isNicknameTaken = username => async (dispatch, getState) => {
   const users = usersSelector.users(getState()).toJS()
   const userNames = Object.keys(users).map((key, index) => {
     return users[key].nickname

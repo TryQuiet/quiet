@@ -90,8 +90,8 @@ Immutable.Record {
 exports[`contacts reducer Direct messages reducer handles actions - setLastSeen - when no contact 1`] = `
 Immutable.Record {
   "lastSeen": "2019-03-07T13:03:48.000Z",
-  "username": "Wenus",
-  "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+  "username": "",
+  "address": "",
   "messages": Immutable.List [],
   "newMessages": Immutable.List [],
   "vaultMessages": Immutable.List [],
@@ -101,8 +101,8 @@ Immutable.Record {
 exports[`contacts reducer Direct messages reducer handles actions - setLastSeen when last seen already set 1`] = `
 Immutable.Record {
   "lastSeen": "2019-03-07T15:03:48.000Z",
-  "username": "Wenus",
-  "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+  "username": "",
+  "address": "",
   "messages": Immutable.List [],
   "newMessages": Immutable.List [],
   "vaultMessages": Immutable.List [],
@@ -177,6 +177,39 @@ Immutable.Record {
 }
 `;
 
+exports[`contacts reducer Direct messages reducer handles actions - setUsernames - when contact exists 1`] = `
+Immutable.Record {
+  "lastSeen": null,
+  "username": "Wenus",
+  "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+  "messages": Immutable.List [],
+  "newMessages": Immutable.List [],
+  "vaultMessages": Immutable.List [],
+}
+`;
+
+exports[`contacts reducer Direct messages reducer handles actions - setUsernames - when no contact 1`] = `
+Immutable.Record {
+  "lastSeen": null,
+  "username": "Wenus",
+  "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+  "messages": Immutable.List [],
+  "newMessages": Immutable.List [],
+  "vaultMessages": Immutable.List [],
+}
+`;
+
+exports[`contacts reducer Direct messages reducer handles actions - setUsernames when username already set 1`] = `
+Immutable.Record {
+  "lastSeen": null,
+  "username": "Wenus",
+  "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+  "messages": Immutable.List [],
+  "newMessages": Immutable.List [],
+  "vaultMessages": Immutable.List [],
+}
+`;
+
 exports[`contacts reducer Direct messages reducer handles epics - fetchMessages displays notifications for vault 1`] = `
 Array [
   Array [
@@ -209,19 +242,13 @@ Array [
       "body": "This is some message test-id",
     },
   ],
-  Array [
-    "New message from testnickname",
-    Object {
-      "body": "This is some message test-id",
-    },
-  ],
 ]
 `;
 
 exports[`contacts reducer Direct messages reducer handles epics - fetchMessages fetches messages 1`] = `
 Immutable.Map {
   "test adddress": Immutable.Record {
-    "lastSeen": "2019-03-07T13:03:48.000Z",
+    "lastSeen": null,
     "username": "testnickname",
     "address": "test adddress",
     "messages": Immutable.List [
@@ -271,113 +298,6 @@ Immutable.Map {
       },
       Immutable.ReceivedMessage {
         "id": "tx-id-0-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-        "type": 1,
-        "sender": Immutable.MessageSender {
-          "replyTo": "test adddress",
-          "username": "testnickname",
-        },
-        "createdAt": 1551963828,
-        "message": "This is some message test-id",
-        "spent": "0.0001",
-      },
-      Immutable.ReceivedMessage {
-        "id": "tx-id-1-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-        "type": 1,
-        "sender": Immutable.MessageSender {
-          "replyTo": "test adddress",
-          "username": "testnickname",
-        },
-        "createdAt": 1551963828,
-        "message": "This is some message test-id",
-        "spent": "0.0001",
-      },
-    ],
-    "newMessages": Immutable.List [],
-    "vaultMessages": Immutable.List [],
-  },
-}
-`;
-
-exports[`contacts reducer Direct messages reducer handles epics - fetchMessages sets new messages 1`] = `
-Immutable.Map {
-  "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya": Immutable.Record {
-    "lastSeen": "2019-03-07T08:03:48.000Z",
-    "username": "Wenus",
-    "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-    "messages": Immutable.List [],
-    "newMessages": Immutable.List [],
-    "vaultMessages": Immutable.List [],
-  },
-  "zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq": Immutable.Record {
-    "lastSeen": "2019-03-07T12:33:48.000Z",
-    "username": "Mars",
-    "address": "zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
-    "messages": Immutable.List [],
-    "newMessages": Immutable.List [],
-    "vaultMessages": Immutable.List [],
-  },
-  "test adddress": Immutable.Record {
-    "lastSeen": "2019-03-07T12:33:48.000Z",
-    "username": "testnickname",
-    "address": "test adddress",
-    "messages": Immutable.List [
-      Immutable.ReceivedMessage {
-        "id": "tx-id-0-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-        "type": 4,
-        "sender": Immutable.MessageSender {
-          "replyTo": "test adddress",
-          "username": "testnickname",
-        },
-        "createdAt": 1551963828,
-        "message": "message 0 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-        "spent": "0.0001",
-      },
-      Immutable.ReceivedMessage {
-        "id": "tx-id-1-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-        "type": 1,
-        "sender": Immutable.MessageSender {
-          "replyTo": "test adddress",
-          "username": "testnickname",
-        },
-        "createdAt": 1551960228,
-        "message": "message 1 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-        "spent": "0.0001",
-      },
-      Immutable.ReceivedMessage {
-        "id": "tx-id-0-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
-        "type": 4,
-        "sender": Immutable.MessageSender {
-          "replyTo": "test adddress",
-          "username": "testnickname",
-        },
-        "createdAt": 1551963828,
-        "message": "message 0 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-        "spent": "0.0001",
-      },
-      Immutable.ReceivedMessage {
-        "id": "tx-id-1-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
-        "type": 1,
-        "sender": Immutable.MessageSender {
-          "replyTo": "test adddress",
-          "username": "testnickname",
-        },
-        "createdAt": 1551960228,
-        "message": "message 1 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-        "spent": "0.0001",
-      },
-      Immutable.ReceivedMessage {
-        "id": "tx-id-0-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-        "type": 1,
-        "sender": Immutable.MessageSender {
-          "replyTo": "test adddress",
-          "username": "testnickname",
-        },
-        "createdAt": 1551963828,
-        "message": "This is some message test-id",
-        "spent": "0.0001",
-      },
-      Immutable.ReceivedMessage {
-        "id": "tx-id-1-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         "type": 1,
         "sender": Immutable.MessageSender {
           "replyTo": "test adddress",
@@ -390,9 +310,101 @@ Immutable.Map {
     ],
     "newMessages": Immutable.List [
       "tx-id-0-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "tx-id-1-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
       "tx-id-0-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
+      "tx-id-1-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
+      "tx-id-0-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+    ],
+    "vaultMessages": Immutable.List [],
+  },
+}
+`;
+
+exports[`contacts reducer Direct messages reducer handles epics - fetchMessages sets new messages 1`] = `
+Immutable.Map {
+  "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya": Immutable.Record {
+    "lastSeen": "2019-03-07T08:03:48.000Z",
+    "username": "",
+    "address": "",
+    "messages": Immutable.List [],
+    "newMessages": Immutable.List [],
+    "vaultMessages": Immutable.List [],
+  },
+  "zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq": Immutable.Record {
+    "lastSeen": "2019-03-07T12:33:48.000Z",
+    "username": "",
+    "address": "",
+    "messages": Immutable.List [],
+    "newMessages": Immutable.List [],
+    "vaultMessages": Immutable.List [],
+  },
+  "test adddress": Immutable.Record {
+    "lastSeen": null,
+    "username": "testnickname",
+    "address": "test adddress",
+    "messages": Immutable.List [
+      Immutable.ReceivedMessage {
+        "id": "tx-id-0-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "type": 4,
+        "sender": Immutable.MessageSender {
+          "replyTo": "test adddress",
+          "username": "testnickname",
+        },
+        "createdAt": 1551963828,
+        "message": "message 0 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "spent": "0.0001",
+      },
+      Immutable.ReceivedMessage {
+        "id": "tx-id-1-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "type": 1,
+        "sender": Immutable.MessageSender {
+          "replyTo": "test adddress",
+          "username": "testnickname",
+        },
+        "createdAt": 1551960228,
+        "message": "message 1 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "spent": "0.0001",
+      },
+      Immutable.ReceivedMessage {
+        "id": "tx-id-0-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
+        "type": 4,
+        "sender": Immutable.MessageSender {
+          "replyTo": "test adddress",
+          "username": "testnickname",
+        },
+        "createdAt": 1551963828,
+        "message": "message 0 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "spent": "0.0001",
+      },
+      Immutable.ReceivedMessage {
+        "id": "tx-id-1-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
+        "type": 1,
+        "sender": Immutable.MessageSender {
+          "replyTo": "test adddress",
+          "username": "testnickname",
+        },
+        "createdAt": 1551960228,
+        "message": "message 1 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "spent": "0.0001",
+      },
+      Immutable.ReceivedMessage {
+        "id": "tx-id-0-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "type": 1,
+        "sender": Immutable.MessageSender {
+          "replyTo": "test adddress",
+          "username": "testnickname",
+        },
+        "createdAt": 1551963828,
+        "message": "This is some message test-id",
+        "spent": "0.0001",
+      },
+    ],
+    "newMessages": Immutable.List [
       "tx-id-0-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
       "tx-id-1-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "tx-id-0-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
+      "tx-id-1-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
+      "tx-id-0-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
     ],
     "vaultMessages": Immutable.List [],
   },
@@ -503,8 +515,8 @@ exports[`contacts reducer Direct messages reducer handles epics - updateLastSeen
 Immutable.Map {
   "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya": Immutable.Record {
     "lastSeen": "2019-03-07T13:33:48.000Z",
-    "username": "Wenus",
-    "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+    "username": "",
+    "address": "",
     "messages": Immutable.List [],
     "newMessages": Immutable.List [],
     "vaultMessages": Immutable.List [],
@@ -516,8 +528,8 @@ exports[`contacts reducer Direct messages reducer handles epics - updateLastSeen
 Immutable.Map {
   "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya": Immutable.Record {
     "lastSeen": "2019-03-07T13:03:48.000Z",
-    "username": "Wenus",
-    "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+    "username": "",
+    "address": "",
     "messages": Immutable.List [],
     "newMessages": Immutable.List [],
     "vaultMessages": Immutable.List [],

@@ -19,6 +19,8 @@ describe('SendMoneyModal', () => {
         userData={{ userData: { address: 'test', name: 'test' } }}
         open
         handleClose={jest.fn()}
+        sendMessageHandler={jest.fn()}
+
       />
     )
     expect(result).toMatchSnapshot()
@@ -35,6 +37,7 @@ describe('SendMoneyModal', () => {
         userData={{ userData: { address: 'test', name: 'test' } }}
         open
         handleClose={jest.fn()}
+        sendMessageHandler={jest.fn()}
       />
     )
     expect(result).toMatchSnapshot()
@@ -51,6 +54,7 @@ describe('SendMoneyModal', () => {
         userData={{ userData: { address: 'test', name: 'test' } }}
         open
         handleClose={jest.fn()}
+        sendMessageHandler={jest.fn()}
       />
     )
     expect(result).toMatchSnapshot()
@@ -67,6 +71,7 @@ describe('SendMoneyModal', () => {
         userData={{ userData: { address: 'test', name: 'test' } }}
         open
         handleClose={jest.fn()}
+        sendMessageHandler={jest.fn()}
       />
     )
     expect(result).toMatchSnapshot()
