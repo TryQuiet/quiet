@@ -12,16 +12,16 @@ import TopUpModal from '../../../containers/widgets/walletPanel/TopUpModal'
 
 const styles = theme => ({
   root: {
-    paddingLeft: 2 * theme.spacing.unit,
-    paddingTop: 2.5 * theme.spacing.unit,
-    paddingRight: 4 * theme.spacing.unit,
-    paddingBottom: theme.spacing.unit
+    paddingLeft: theme.spacing(2),
+    paddingTop: theme.spacing(2.5),
+    paddingRight: theme.spacing(4),
+    paddingBottom: theme.spacing(1)
   },
   actions: {
-    marginTop: 2 * theme.spacing.unit
+    marginTop: theme.spacing(2)
   },
   zec: {
-    paddingTop: 2 * theme.spacing.unit
+    paddingTop: theme.spacing(2)
   }
 })
 

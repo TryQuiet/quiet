@@ -18,10 +18,10 @@ import Modal from '../../../ui/Modal'
 
 const styles = theme => ({
   root: {
-    padding: theme.spacing.unit * 4
+    padding: theme.spacing(4)
   },
   title: {
-    paddingBottom: theme.spacing.unit
+    paddingBottom: theme.spacing(1)
   },
   select: {
     ...theme.typography.h5,
@@ -32,17 +32,17 @@ const styles = theme => ({
     borderBottom: 'none'
   },
   shield: {
-    marginTop: theme.spacing.unit * 2
+    marginTop: theme.spacing(2)
   },
   dataRoot: {
-    padding: `0 ${theme.spacing.unit * 4}px`
+    padding: `0 ${theme.spacing(4)}px`
   },
   description: {
-    marginBottom: theme.spacing.unit * 2
+    marginBottom: theme.spacing(2)
   },
   copyField: {
     width: 500,
-    marginBottom: theme.spacing.unit * 2
+    marginBottom: theme.spacing(2)
   },
   copyInput: {
     color: theme.typography.caption.color
@@ -91,7 +91,7 @@ export const TopUpModal = ({
           justify='center'
           alignItems='center'
           className={classes.dataRoot}
-          spacing={16}
+          spacing={2}
         >
           <Grid item>
             <Typography variant='body2' className={classes.description}>

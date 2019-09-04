@@ -15,8 +15,8 @@ import NodePanelField from './NodePanelField'
 
 const styles = theme => ({
   details: {
-    paddingLeft: 2 * theme.spacing.unit,
-    paddingRight: 2.5 * theme.spacing.unit
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2.5)
   }
 })
 
@@ -29,7 +29,7 @@ export const NodePanelDetails = ({ classes, zbayVersion }) => (
       <NodePanelBlocksField />
       <NodePanelConnectionsField />
       <NodePanelField name='Zbay version'>
-        <Typography inline variant='overline'>
+        <Typography display='inline' variant='overline'>
           {zbayVersion}
         </Typography>
       </NodePanelField>

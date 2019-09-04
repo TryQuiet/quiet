@@ -20,7 +20,7 @@ export const QuitAppDialog = ({ classes, handleClose, handleQuit, open }) => (
       </Typography>
     </DialogContent>
     <DialogActions>
-      <Grid container direction='row' spacing={8} justify='flex-end'>
+      <Grid container direction='row' spacing={1} justify='flex-end'>
         <Grid item>
           <Button
             variant='contained'

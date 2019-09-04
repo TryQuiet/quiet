@@ -15,7 +15,7 @@ const styles = theme => ({
     height: '100%'
   },
   gutter: {
-    marginBottom: 4 * theme.spacing.unit
+    marginBottom: theme.spacing(4)
   },
   button: {
     width: 165

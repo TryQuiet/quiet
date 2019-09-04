@@ -1,11 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`NodePanelDetails renders component 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   container={true}
   direction="column"
 >
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     className="details-mock"
     container={true}
     direction="column"
@@ -16,11 +16,11 @@ exports[`NodePanelDetails renders component 1`] = `
     <Memo(NodePanelField)
       name="Zbay version"
     >
-      <WithStyles(Typography)
-        inline={true}
+      <WithStyles(ForwardRef(Typography))
+        display="inline"
         variant="overline"
       />
     </Memo(NodePanelField)>
-  </WithStyles(Grid)>
-</WithStyles(Grid)>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
 `;

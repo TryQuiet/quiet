@@ -1,117 +1,117 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`NodeStatus renders for status down 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   container={true}
 >
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     item={true}
   >
     <Memo(WithStyles(PulseDot))
       color="down"
       size={8}
     />
-    <WithStyles(Typography)
+    <WithStyles(ForwardRef(Typography))
       className="status-mock"
-      inline={true}
+      display="inline"
       variant="overline"
     >
       down
        
-    </WithStyles(Typography)>
-  </WithStyles(Grid)>
-</WithStyles(Grid)>
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
 `;
 
 exports[`NodeStatus renders for status healthy 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   container={true}
 >
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     item={true}
   >
     <Memo(WithStyles(PulseDot))
       color="healthy"
       size={8}
     />
-    <WithStyles(Typography)
+    <WithStyles(ForwardRef(Typography))
       className="status-mock"
-      inline={true}
+      display="inline"
       variant="overline"
     >
       healthy
        
-    </WithStyles(Typography)>
-  </WithStyles(Grid)>
-</WithStyles(Grid)>
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
 `;
 
 exports[`NodeStatus renders for status restarting 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   container={true}
 >
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     item={true}
   >
     <Memo(WithStyles(PulseDot))
       color="restarting"
       size={8}
     />
-    <WithStyles(Typography)
+    <WithStyles(ForwardRef(Typography))
       className="status-mock"
-      inline={true}
+      display="inline"
       variant="overline"
     >
       restarting
        
-    </WithStyles(Typography)>
-  </WithStyles(Grid)>
-</WithStyles(Grid)>
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
 `;
 
 exports[`NodeStatus renders for status syncing 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   container={true}
 >
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     item={true}
   >
     <Memo(WithStyles(PulseDot))
       color="syncing"
       size={8}
     />
-    <WithStyles(Typography)
+    <WithStyles(ForwardRef(Typography))
       className="status-mock"
-      inline={true}
+      display="inline"
       variant="overline"
     >
       syncing
        
-    </WithStyles(Typography)>
-  </WithStyles(Grid)>
-</WithStyles(Grid)>
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
 `;
 
 exports[`NodeStatus renders sync progress in percent 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   container={true}
 >
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     item={true}
   >
     <Memo(WithStyles(PulseDot))
       color="syncing"
       size={8}
     />
-    <WithStyles(Typography)
+    <WithStyles(ForwardRef(Typography))
       className="status-mock"
-      inline={true}
+      display="inline"
       variant="overline"
     >
       syncing
        
       78%
-    </WithStyles(Typography)>
-  </WithStyles(Grid)>
-</WithStyles(Grid)>
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
 `;

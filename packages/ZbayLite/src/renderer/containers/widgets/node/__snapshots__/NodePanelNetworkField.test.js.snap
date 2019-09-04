@@ -4,12 +4,12 @@ exports[`NodePanelNetworkField renders the field 1`] = `
 <Memo(NodePanelField)
   name="Network"
 >
-  <WithStyles(Typography)
-    inline={true}
+  <WithStyles(ForwardRef(Typography))
+    display="inline"
     variant="overline"
   >
     testnet
-  </WithStyles(Typography)>
+  </WithStyles(ForwardRef(Typography))>
 </Memo(NodePanelField)>
 `;
 
@@ -17,12 +17,12 @@ exports[`NodePanelNetworkField renders the field when no network 1`] = `
 <Memo(NodePanelField)
   name="Network"
 >
-  <WithStyles(Typography)
-    inline={true}
+  <WithStyles(ForwardRef(Typography))
+    display="inline"
     variant="overline"
   >
     ?
-  </WithStyles(Typography)>
+  </WithStyles(ForwardRef(Typography))>
 </Memo(NodePanelField)>
 `;
 

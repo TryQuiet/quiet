@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ChannelMessageActions renders component with status=broadcasted and fromYou=false 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   alignItems="center"
   container={true}
   direction="row"
@@ -10,7 +10,7 @@ exports[`ChannelMessageActions renders component with status=broadcasted and fro
 `;
 
 exports[`ChannelMessageActions renders component with status=broadcasted and fromYou=true 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   alignItems="center"
   container={true}
   direction="row"
@@ -19,7 +19,7 @@ exports[`ChannelMessageActions renders component with status=broadcasted and fro
 `;
 
 exports[`ChannelMessageActions renders component with status=cancelled and fromYou=false 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   alignItems="center"
   container={true}
   direction="row"
@@ -28,39 +28,39 @@ exports[`ChannelMessageActions renders component with status=cancelled and fromY
 `;
 
 exports[`ChannelMessageActions renders component with status=cancelled and fromYou=true 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   alignItems="center"
   container={true}
   direction="row"
   justify="flex-end"
 >
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     item={true}
   >
-    <WithStyles(Button)
+    <WithStyles(ForwardRef(Button))
       color="primary"
       onClick={[MockFunction]}
       size="small"
     >
       resend
-    </WithStyles(Button)>
-  </WithStyles(Grid)>
-  <WithStyles(Grid)
+    </WithStyles(ForwardRef(Button))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
     item={true}
   >
-    <WithStyles(Button)
+    <WithStyles(ForwardRef(Button))
       color="primary"
       onClick={[MockFunction]}
       size="small"
     >
       cancel
-    </WithStyles(Button)>
-  </WithStyles(Grid)>
-</WithStyles(Grid)>
+    </WithStyles(ForwardRef(Button))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
 `;
 
 exports[`ChannelMessageActions renders component with status=failed and fromYou=false 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   alignItems="center"
   container={true}
   direction="row"
@@ -69,39 +69,39 @@ exports[`ChannelMessageActions renders component with status=failed and fromYou=
 `;
 
 exports[`ChannelMessageActions renders component with status=failed and fromYou=true 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   alignItems="center"
   container={true}
   direction="row"
   justify="flex-end"
 >
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     item={true}
   >
-    <WithStyles(Button)
+    <WithStyles(ForwardRef(Button))
       color="primary"
       onClick={[MockFunction]}
       size="small"
     >
       resend
-    </WithStyles(Button)>
-  </WithStyles(Grid)>
-  <WithStyles(Grid)
+    </WithStyles(ForwardRef(Button))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
     item={true}
   >
-    <WithStyles(Button)
+    <WithStyles(ForwardRef(Button))
       color="primary"
       onClick={[MockFunction]}
       size="small"
     >
       cancel
-    </WithStyles(Button)>
-  </WithStyles(Grid)>
-</WithStyles(Grid)>
+    </WithStyles(ForwardRef(Button))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
 `;
 
 exports[`ChannelMessageActions renders component with status=pending and fromYou=false 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   alignItems="center"
   container={true}
   direction="row"
@@ -110,7 +110,7 @@ exports[`ChannelMessageActions renders component with status=pending and fromYou
 `;
 
 exports[`ChannelMessageActions renders component with status=pending and fromYou=true 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   alignItems="center"
   container={true}
   direction="row"
@@ -119,7 +119,7 @@ exports[`ChannelMessageActions renders component with status=pending and fromYou
 `;
 
 exports[`ChannelMessageActions renders component with status=success and fromYou=false 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   alignItems="center"
   container={true}
   direction="row"
@@ -128,7 +128,7 @@ exports[`ChannelMessageActions renders component with status=success and fromYou
 `;
 
 exports[`ChannelMessageActions renders component with status=success and fromYou=true 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   alignItems="center"
   container={true}
   direction="row"

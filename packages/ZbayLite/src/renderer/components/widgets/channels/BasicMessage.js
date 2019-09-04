@@ -29,7 +29,7 @@ const styles = theme => ({
   },
   wrapper: {
     background: '#fff',
-    marginBottom: theme.spacing.unit
+    marginBottom: theme.spacing(1)
   },
   clickable: {
     cursor: 'pointer'
@@ -42,13 +42,13 @@ const styles = theme => ({
   },
   message: {
     fontSize: '0.855rem',
-    marginTop: theme.spacing.unit,
+    marginTop: theme.spacing(1),
     whiteSpace: 'pre-line'
   },
   statusIcon: {
     color: theme.typography.caption.color,
     fontSize: '0.95rem',
-    marginLeft: theme.spacing.unit
+    marginLeft: theme.spacing(1)
   },
   broadcasted: {
     color: lightGreen[600]

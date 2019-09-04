@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Page renders component 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   container={true}
   direction="column"
 >
@@ -19,5 +19,5 @@ exports[`Page renders component 1`] = `
       Test content
     </div>
   </Memo(WithStyles(PageContent))>
-</WithStyles(Grid)>
+</WithStyles(ForwardRef(Grid))>
 `;

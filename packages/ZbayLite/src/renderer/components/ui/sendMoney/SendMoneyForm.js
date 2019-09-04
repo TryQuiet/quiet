@@ -15,19 +15,21 @@ import ZcashIcon from '../ZcashIcon'
 
 const styles = theme => ({
   root: {
-    padding: 3 * theme.spacing.unit
+    padding: theme.spacing(3)
+  },
+  textBetweenInputsItem: {
+    width: '100%',
+    textAlign: 'center',
+    marginTop: theme.spacing(2)
   },
   textBetweenInputs: {
-    width: '100%',
-    fontSize: `1.3rem`,
-    textAlign: 'center',
-    marginTop: 2 * theme.spacing.unit
+    fontSize: `1.3rem`
   },
   button: {
-    padding: 2 * theme.spacing.unit
+    padding: theme.spacing(2)
   },
   field: {
-    padding: 1 * theme.spacing.unit,
+    padding: theme.spacing(1),
     boxSizing: 'border-box'
   },
   balance: {
@@ -35,7 +37,7 @@ const styles = theme => ({
     borderWidth: '1px',
     borderRadius: '4px',
     borderColor: 'rgba(0,0,0,0.23)',
-    padding: 1 * theme.spacing.unit + 14
+    padding: theme.spacing(1) + 14
   },
   value: {
     marginLeft: '5px',
@@ -61,7 +63,7 @@ export const SendMoneyForm = ({
   values
 }) => {
   return (
-    <Grid container className={classes.root} spacing={24}>
+    <Grid container className={classes.root} spacing={3}>
       <Grid item xs={12}>
         <Typography variant='body1'>Recipient</Typography>
         <TextField
@@ -121,7 +123,7 @@ export const SendMoneyForm = ({
               }}
             />
           </Grid>
-          <Grid item xs={2}>
+          <Grid item xs={2} className={classes.textBetweenInputsItem}>
             <Typography className={classes.textBetweenInputs} variant='caption'>
               OR
             </Typography>

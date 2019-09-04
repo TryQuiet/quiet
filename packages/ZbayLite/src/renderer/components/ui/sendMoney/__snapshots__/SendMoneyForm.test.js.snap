@@ -1,20 +1,20 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`SendMoneyForm renders component when valid = false 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   className="root-mock"
   container={true}
-  spacing={24}
+  spacing={3}
 >
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     item={true}
     xs={12}
   >
-    <WithStyles(Typography)
+    <WithStyles(ForwardRef(Typography))
       variant="body1"
     >
       Recipient
-    </WithStyles(Typography)>
+    </WithStyles(ForwardRef(Typography))>
     <TextField
       InputProps={
         Object {
@@ -24,94 +24,94 @@ exports[`SendMoneyForm renders component when valid = false 1`] = `
       name="recipient"
       placeholder="Enter Zcash Address"
     />
-  </WithStyles(Grid)>
-  <WithStyles(Grid)
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
     item={true}
     xs={12}
   >
-    <WithStyles(Typography)
+    <WithStyles(ForwardRef(Typography))
       variant="body1"
     >
       Available to send
-    </WithStyles(Typography)>
-    <WithStyles(Grid)
+    </WithStyles(ForwardRef(Typography))>
+    <WithStyles(ForwardRef(Grid))
       alignItems="center"
       className="balance-mock field-mock"
       container={true}
       justify="space-between"
     >
-      <WithStyles(Grid)
+      <WithStyles(ForwardRef(Grid))
         className="balanceField-mock"
         item={true}
         xs={4}
       >
-        <WithStyles(Grid)
+        <WithStyles(ForwardRef(Grid))
           alignItems="center"
           container={true}
         >
           <Memo(ZcashIcon)
             size={20}
           />
-          <WithStyles(Typography)
+          <WithStyles(ForwardRef(Typography))
             className="value-mock"
             variant="h6"
           >
             Zcash Wallet
-          </WithStyles(Typography)>
-        </WithStyles(Grid)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+          </WithStyles(ForwardRef(Typography))>
+        </WithStyles(ForwardRef(Grid))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={4}
       >
-        <WithStyles(Grid)
+        <WithStyles(ForwardRef(Grid))
           alignItems="flex-end"
           container={true}
           direction="column"
           justify="center"
         >
-          <WithStyles(Grid)
+          <WithStyles(ForwardRef(Grid))
             item={true}
             xs={12}
           >
-            <WithStyles(Typography)
+            <WithStyles(ForwardRef(Typography))
               className="balanceZec-mock"
               variant="h6"
             >
               0.7
                ZEC
-            </WithStyles(Typography)>
-          </WithStyles(Grid)>
-          <WithStyles(Grid)
+            </WithStyles(ForwardRef(Typography))>
+          </WithStyles(ForwardRef(Grid))>
+          <WithStyles(ForwardRef(Grid))
             item={true}
             xs={12}
           >
-            <WithStyles(Typography)
+            <WithStyles(ForwardRef(Typography))
               className="balanceUsd-mock"
               variant="caption"
             >
               $
               35.0000
-            </WithStyles(Typography)>
-          </WithStyles(Grid)>
-        </WithStyles(Grid)>
-      </WithStyles(Grid)>
-    </WithStyles(Grid)>
-  </WithStyles(Grid)>
-  <WithStyles(Grid)
+            </WithStyles(ForwardRef(Typography))>
+          </WithStyles(ForwardRef(Grid))>
+        </WithStyles(ForwardRef(Grid))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
     item={true}
     xs={12}
   >
-    <WithStyles(Typography)
+    <WithStyles(ForwardRef(Typography))
       variant="body1"
     >
       Amount
-    </WithStyles(Typography)>
-    <WithStyles(Grid)
+    </WithStyles(ForwardRef(Typography))>
+    <WithStyles(ForwardRef(Grid))
       container={true}
       justify="space-between"
     >
-      <WithStyles(Grid)
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={5}
       >
@@ -119,11 +119,11 @@ exports[`SendMoneyForm renders component when valid = false 1`] = `
           InputProps={
             Object {
               "className": "field-mock",
-              "endAdornment": <WithStyles(WithFormControlContext(InputAdornment))
+              "endAdornment": <ForwardRef(WithStyles)
                 position="end"
               >
                 ZEC
-              </WithStyles(WithFormControlContext(InputAdornment))>,
+              </ForwardRef(WithStyles)>,
             }
           }
           label=""
@@ -132,19 +132,20 @@ exports[`SendMoneyForm renders component when valid = false 1`] = `
           placeholder="0.00"
           transformer={"50"}
         />
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
+        className="textBetweenInputsItem-mock"
         item={true}
         xs={2}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="textBetweenInputs-mock"
           variant="caption"
         >
           OR
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={5}
       >
@@ -152,11 +153,11 @@ exports[`SendMoneyForm renders component when valid = false 1`] = `
           InputProps={
             Object {
               "className": "field-mock",
-              "endAdornment": <WithStyles(WithFormControlContext(InputAdornment))
+              "endAdornment": <ForwardRef(WithStyles)
                 position="end"
               >
                 USD
-              </WithStyles(WithFormControlContext(InputAdornment))>,
+              </ForwardRef(WithStyles)>,
             }
           }
           label=""
@@ -165,18 +166,18 @@ exports[`SendMoneyForm renders component when valid = false 1`] = `
           placeholder="0.00"
           transformer={"0.4"}
         />
-      </WithStyles(Grid)>
-    </WithStyles(Grid)>
-  </WithStyles(Grid)>
-  <WithStyles(Grid)
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
     item={true}
     xs={12}
   >
-    <WithStyles(Typography)
+    <WithStyles(ForwardRef(Typography))
       variant="body1"
     >
       Memo
-    </WithStyles(Typography)>
+    </WithStyles(ForwardRef(Typography))>
     <TextField
       InputProps={
         Object {
@@ -187,11 +188,11 @@ exports[`SendMoneyForm renders component when valid = false 1`] = `
       name="memo"
       placeholder="Enter an optional message"
     />
-    <WithStyles(Typography)
+    <WithStyles(ForwardRef(Typography))
       variant="body1"
     />
-  </WithStyles(Grid)>
-  <WithStyles(Grid)
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
     item={true}
     xs={12}
   >
@@ -200,12 +201,12 @@ exports[`SendMoneyForm renders component when valid = false 1`] = `
       label="Include my shipping info"
       name="shippingInfo"
     />
-  </WithStyles(Grid)>
-  <WithStyles(Grid)
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
     item={true}
     xs={12}
   >
-    <WithStyles(Button)
+    <WithStyles(ForwardRef(Button))
       className="button-mock"
       color="primary"
       disabled={true}
@@ -214,26 +215,26 @@ exports[`SendMoneyForm renders component when valid = false 1`] = `
       variant="contained"
     >
       Continue
-    </WithStyles(Button)>
-  </WithStyles(Grid)>
-</WithStyles(Grid)>
+    </WithStyles(ForwardRef(Button))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
 `;
 
 exports[`SendMoneyForm renders component when valid = true 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   className="root-mock"
   container={true}
-  spacing={24}
+  spacing={3}
 >
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     item={true}
     xs={12}
   >
-    <WithStyles(Typography)
+    <WithStyles(ForwardRef(Typography))
       variant="body1"
     >
       Recipient
-    </WithStyles(Typography)>
+    </WithStyles(ForwardRef(Typography))>
     <TextField
       InputProps={
         Object {
@@ -243,94 +244,94 @@ exports[`SendMoneyForm renders component when valid = true 1`] = `
       name="recipient"
       placeholder="Enter Zcash Address"
     />
-  </WithStyles(Grid)>
-  <WithStyles(Grid)
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
     item={true}
     xs={12}
   >
-    <WithStyles(Typography)
+    <WithStyles(ForwardRef(Typography))
       variant="body1"
     >
       Available to send
-    </WithStyles(Typography)>
-    <WithStyles(Grid)
+    </WithStyles(ForwardRef(Typography))>
+    <WithStyles(ForwardRef(Grid))
       alignItems="center"
       className="balance-mock field-mock"
       container={true}
       justify="space-between"
     >
-      <WithStyles(Grid)
+      <WithStyles(ForwardRef(Grid))
         className="balanceField-mock"
         item={true}
         xs={4}
       >
-        <WithStyles(Grid)
+        <WithStyles(ForwardRef(Grid))
           alignItems="center"
           container={true}
         >
           <Memo(ZcashIcon)
             size={20}
           />
-          <WithStyles(Typography)
+          <WithStyles(ForwardRef(Typography))
             className="value-mock"
             variant="h6"
           >
             Zcash Wallet
-          </WithStyles(Typography)>
-        </WithStyles(Grid)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+          </WithStyles(ForwardRef(Typography))>
+        </WithStyles(ForwardRef(Grid))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={4}
       >
-        <WithStyles(Grid)
+        <WithStyles(ForwardRef(Grid))
           alignItems="flex-end"
           container={true}
           direction="column"
           justify="center"
         >
-          <WithStyles(Grid)
+          <WithStyles(ForwardRef(Grid))
             item={true}
             xs={12}
           >
-            <WithStyles(Typography)
+            <WithStyles(ForwardRef(Typography))
               className="balanceZec-mock"
               variant="h6"
             >
               0.7
                ZEC
-            </WithStyles(Typography)>
-          </WithStyles(Grid)>
-          <WithStyles(Grid)
+            </WithStyles(ForwardRef(Typography))>
+          </WithStyles(ForwardRef(Grid))>
+          <WithStyles(ForwardRef(Grid))
             item={true}
             xs={12}
           >
-            <WithStyles(Typography)
+            <WithStyles(ForwardRef(Typography))
               className="balanceUsd-mock"
               variant="caption"
             >
               $
               35.0000
-            </WithStyles(Typography)>
-          </WithStyles(Grid)>
-        </WithStyles(Grid)>
-      </WithStyles(Grid)>
-    </WithStyles(Grid)>
-  </WithStyles(Grid)>
-  <WithStyles(Grid)
+            </WithStyles(ForwardRef(Typography))>
+          </WithStyles(ForwardRef(Grid))>
+        </WithStyles(ForwardRef(Grid))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
     item={true}
     xs={12}
   >
-    <WithStyles(Typography)
+    <WithStyles(ForwardRef(Typography))
       variant="body1"
     >
       Amount
-    </WithStyles(Typography)>
-    <WithStyles(Grid)
+    </WithStyles(ForwardRef(Typography))>
+    <WithStyles(ForwardRef(Grid))
       container={true}
       justify="space-between"
     >
-      <WithStyles(Grid)
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={5}
       >
@@ -338,11 +339,11 @@ exports[`SendMoneyForm renders component when valid = true 1`] = `
           InputProps={
             Object {
               "className": "field-mock",
-              "endAdornment": <WithStyles(WithFormControlContext(InputAdornment))
+              "endAdornment": <ForwardRef(WithStyles)
                 position="end"
               >
                 ZEC
-              </WithStyles(WithFormControlContext(InputAdornment))>,
+              </ForwardRef(WithStyles)>,
             }
           }
           label=""
@@ -351,19 +352,20 @@ exports[`SendMoneyForm renders component when valid = true 1`] = `
           placeholder="0.00"
           transformer={"50"}
         />
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
+        className="textBetweenInputsItem-mock"
         item={true}
         xs={2}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="textBetweenInputs-mock"
           variant="caption"
         >
           OR
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={5}
       >
@@ -371,11 +373,11 @@ exports[`SendMoneyForm renders component when valid = true 1`] = `
           InputProps={
             Object {
               "className": "field-mock",
-              "endAdornment": <WithStyles(WithFormControlContext(InputAdornment))
+              "endAdornment": <ForwardRef(WithStyles)
                 position="end"
               >
                 USD
-              </WithStyles(WithFormControlContext(InputAdornment))>,
+              </ForwardRef(WithStyles)>,
             }
           }
           label=""
@@ -384,18 +386,18 @@ exports[`SendMoneyForm renders component when valid = true 1`] = `
           placeholder="0.00"
           transformer={"0.4"}
         />
-      </WithStyles(Grid)>
-    </WithStyles(Grid)>
-  </WithStyles(Grid)>
-  <WithStyles(Grid)
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
     item={true}
     xs={12}
   >
-    <WithStyles(Typography)
+    <WithStyles(ForwardRef(Typography))
       variant="body1"
     >
       Memo
-    </WithStyles(Typography)>
+    </WithStyles(ForwardRef(Typography))>
     <TextField
       InputProps={
         Object {
@@ -406,11 +408,11 @@ exports[`SendMoneyForm renders component when valid = true 1`] = `
       name="memo"
       placeholder="Enter an optional message"
     />
-    <WithStyles(Typography)
+    <WithStyles(ForwardRef(Typography))
       variant="body1"
     />
-  </WithStyles(Grid)>
-  <WithStyles(Grid)
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
     item={true}
     xs={12}
   >
@@ -419,12 +421,12 @@ exports[`SendMoneyForm renders component when valid = true 1`] = `
       label="Include my shipping info"
       name="shippingInfo"
     />
-  </WithStyles(Grid)>
-  <WithStyles(Grid)
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
     item={true}
     xs={12}
   >
-    <WithStyles(Button)
+    <WithStyles(ForwardRef(Button))
       className="button-mock"
       color="primary"
       disabled={false}
@@ -433,7 +435,7 @@ exports[`SendMoneyForm renders component when valid = true 1`] = `
       variant="contained"
     >
       Continue
-    </WithStyles(Button)>
-  </WithStyles(Grid)>
-</WithStyles(Grid)>
+    </WithStyles(ForwardRef(Button))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
 `;

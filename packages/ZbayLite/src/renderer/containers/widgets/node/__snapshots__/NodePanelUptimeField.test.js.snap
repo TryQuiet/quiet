@@ -4,14 +4,14 @@ exports[`NodePanelConnectionsField renders the uptime 1`] = `
 <Memo(NodePanelField)
   name="Uptime"
 >
-  <WithStyles(Typography)
-    inline={true}
+  <WithStyles(ForwardRef(Typography))
+    display="inline"
     variant="overline"
   >
     1d  
     1h  
     10m
-  </WithStyles(Typography)>
+  </WithStyles(ForwardRef(Typography))>
 </Memo(NodePanelField)>
 `;
 
@@ -19,13 +19,13 @@ exports[`NodePanelConnectionsField renders the uptime when less than day 1`] = `
 <Memo(NodePanelField)
   name="Uptime"
 >
-  <WithStyles(Typography)
-    inline={true}
+  <WithStyles(ForwardRef(Typography))
+    display="inline"
     variant="overline"
   >
     1h  
     10m
-  </WithStyles(Typography)>
+  </WithStyles(ForwardRef(Typography))>
 </Memo(NodePanelField)>
 `;
 
@@ -33,12 +33,12 @@ exports[`NodePanelConnectionsField renders the uptime when less than hour 1`] = 
 <Memo(NodePanelField)
   name="Uptime"
 >
-  <WithStyles(Typography)
-    inline={true}
+  <WithStyles(ForwardRef(Typography))
+    display="inline"
     variant="overline"
   >
     45m
-  </WithStyles(Typography)>
+  </WithStyles(ForwardRef(Typography))>
 </Memo(NodePanelField)>
 `;
 

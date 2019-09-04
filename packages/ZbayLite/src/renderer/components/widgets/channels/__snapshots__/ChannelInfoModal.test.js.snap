@@ -7,82 +7,82 @@ exports[`ChannelInfoModal renders component 1`] = `
   open={true}
   title="Info"
 >
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     className="root-mock"
     container={true}
     direction="column"
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       className="section-mock"
       item={true}
     >
-      <WithStyles(Typography)
+      <WithStyles(ForwardRef(Typography))
         className="title-mock"
         variant="subtitle1"
       >
         Channel 1
-      </WithStyles(Typography)>
-    </WithStyles(Grid)>
-    <WithStyles(Grid)
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
       className="section-mock"
       item={true}
     >
-      <WithStyles(Typography)
+      <WithStyles(ForwardRef(Typography))
         className="infoTitle-mock"
         variant="subtitle1"
       >
         About
-      </WithStyles(Typography)>
-      <WithStyles(Typography)
+      </WithStyles(ForwardRef(Typography))>
+      <WithStyles(ForwardRef(Typography))
         className="description-mock"
         variant="caption"
       >
         Channel about 1
-      </WithStyles(Typography)>
-    </WithStyles(Grid)>
-    <WithStyles(Grid)
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
       className="section-mock"
       container={true}
       direction="column"
       item={true}
     >
-      <WithStyles(Grid)
+      <WithStyles(ForwardRef(Grid))
         container={true}
         direction="row"
         item={true}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="infoTitle-mock"
-          inline={true}
+          display="inline"
           variant="subtitle1"
         >
           Share link
           Share link
-        </WithStyles(Typography)>
+        </WithStyles(ForwardRef(Typography))>
         <CopyToClipboard
           text="zbay.io/channel/channel-hash"
         >
-          <WithStyles(IconButton)
+          <WithStyles(ForwardRef(IconButton))
             className="copyButton-mock"
           >
-            <pure(FileCopyIcon)
+            <FileCopyIcon
               fontSize="inherit"
             />
-          </WithStyles(IconButton)>
+          </WithStyles(ForwardRef(IconButton))>
         </CopyToClipboard>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="description-mock"
           variant="caption"
         >
           zbay.io/channel/channel-hash
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-    </WithStyles(Grid)>
-  </WithStyles(Grid)>
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
 </Memo(WithStyles(Modal))>
 `;
 
@@ -93,81 +93,81 @@ exports[`ChannelInfoModal renders component when closed 1`] = `
   open={false}
   title="Info"
 >
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     className="root-mock"
     container={true}
     direction="column"
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       className="section-mock"
       item={true}
     >
-      <WithStyles(Typography)
+      <WithStyles(ForwardRef(Typography))
         className="title-mock"
         variant="subtitle1"
       >
         Channel 1
-      </WithStyles(Typography)>
-    </WithStyles(Grid)>
-    <WithStyles(Grid)
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
       className="section-mock"
       item={true}
     >
-      <WithStyles(Typography)
+      <WithStyles(ForwardRef(Typography))
         className="infoTitle-mock"
         variant="subtitle1"
       >
         About
-      </WithStyles(Typography)>
-      <WithStyles(Typography)
+      </WithStyles(ForwardRef(Typography))>
+      <WithStyles(ForwardRef(Typography))
         className="description-mock"
         variant="caption"
       >
         Channel about 1
-      </WithStyles(Typography)>
-    </WithStyles(Grid)>
-    <WithStyles(Grid)
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
       className="section-mock"
       container={true}
       direction="column"
       item={true}
     >
-      <WithStyles(Grid)
+      <WithStyles(ForwardRef(Grid))
         container={true}
         direction="row"
         item={true}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="infoTitle-mock"
-          inline={true}
+          display="inline"
           variant="subtitle1"
         >
           Share link
           Share link
-        </WithStyles(Typography)>
+        </WithStyles(ForwardRef(Typography))>
         <CopyToClipboard
           text="zbay.io/channel/channel-hash"
         >
-          <WithStyles(IconButton)
+          <WithStyles(ForwardRef(IconButton))
             className="copyButton-mock"
           >
-            <pure(FileCopyIcon)
+            <FileCopyIcon
               fontSize="inherit"
             />
-          </WithStyles(IconButton)>
+          </WithStyles(ForwardRef(IconButton))>
         </CopyToClipboard>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="description-mock"
           variant="caption"
         >
           zbay.io/channel/channel-hash
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-    </WithStyles(Grid)>
-  </WithStyles(Grid)>
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
 </Memo(WithStyles(Modal))>
 `;

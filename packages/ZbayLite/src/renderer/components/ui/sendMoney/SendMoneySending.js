@@ -10,15 +10,15 @@ import SpinnerLoader from '../SpinnerLoader'
 
 const styles = theme => ({
   root: {
-    padding: 3 * theme.spacing.unit,
+    padding: theme.spacing(3),
     textAlign: 'center'
   },
   info: {
-    marginTop: theme.spacing.unit
+    marginTop: theme.spacing(1)
   },
   button: {
-    marginTop: 4 * theme.spacing.unit,
-    padding: 2 * theme.spacing.unit
+    marginTop: theme.spacing(3),
+    padding: theme.spacing(2)
   },
   doneIcon: {
     fontSize: '8rem'

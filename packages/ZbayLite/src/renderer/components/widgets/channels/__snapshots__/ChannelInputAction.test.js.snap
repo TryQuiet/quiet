@@ -2,7 +2,18 @@
 
 exports[`ChannelInputAction renders component 1`] = `
 <WithStyles(MenuAction)
-  Icon={[Function]}
+  Icon={
+    Object {
+      "$$typeof": Symbol(react.memo),
+      "compare": null,
+      "displayName": "AddIcon",
+      "muiName": "SvgIcon",
+      "type": Object {
+        "$$typeof": Symbol(react.forward_ref),
+        "render": [Function],
+      },
+    }
+  }
   classes={
     Object {
       "button": "button-mock",

@@ -17,13 +17,13 @@ import SettingsModal from '../../containers/widgets/settings/SettingsModal'
 
 const styles = theme => ({
   root: {
-    padding: `${1.5 * theme.spacing.unit}px ${2 * theme.spacing.unit}px`
+    padding: `${theme.spacing(1.5)}px ${theme.spacing(2)}px`
   },
   name: {
     lineHeight: 1.2
   },
   settingsButton: {
-    padding: theme.spacing.unit * 0.5
+    padding: theme.spacing(0.5)
   },
   uri: {
     lineHeight: 1.2

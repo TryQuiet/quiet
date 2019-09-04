@@ -2,11 +2,9 @@
 
 exports[`SpentFilter renders component 1`] = `
 <ClickAwayListener
-  mouseEvent="onMouseUp"
   onClickAway={[Function]}
-  touchEvent="onTouchEnd"
 >
-  <WithStyles(Button)
+  <WithStyles(ForwardRef(Button))
     buttonRef={[Function]}
     className="spendButton-mock"
     color="primary"
@@ -15,7 +13,7 @@ exports[`SpentFilter renders component 1`] = `
     variant="contained"
   >
     Ad Spend
-  </WithStyles(Button)>
+  </WithStyles(ForwardRef(Button))>
   <Memo(WithStyles(PopupMenu))
     anchorEl={
       Object {

@@ -13,7 +13,7 @@ import BasicMessage from './BasicMessage'
 const styles = theme => ({
   message: {
     fontSize: '0.855rem',
-    marginTop: theme.spacing.unit,
+    marginTop: theme.spacing(1),
     whiteSpace: 'pre-line',
     wordBreak: 'break-word'
   }

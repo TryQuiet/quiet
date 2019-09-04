@@ -1,22 +1,22 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ChannelsListItem renders component 1`] = `
-<WithStyles(ListItem)
+<WithStyles(ForwardRef(ListItem))
   alignItems="center"
   button={true}
   className="root-mock"
   onClick={[Function]}
 >
-  <WithStyles(ListItemIcon)
+  <WithStyles(ForwardRef(ListItemIcon))
     className="itemIcon-mock"
   >
-    <pure(HttpsOutlinedIcon) />
-  </WithStyles(ListItemIcon)>
-  <WithStyles(ListItemText)
+    <HttpsOutlinedIcon />
+  </WithStyles(ForwardRef(ListItemIcon))>
+  <WithStyles(ForwardRef(ListItemText))
     address="zs1testaddress1"
     className="itemText-mock"
     primary={
-      <WithStyles(Badge)
+      <ForwardRef(WithStyles)
         badgeContent={1}
         classes={
           Object {
@@ -25,7 +25,7 @@ exports[`ChannelsListItem renders component 1`] = `
         }
       >
         Channel 1
-      </WithStyles(Badge)>
+      </ForwardRef(WithStyles)>
     }
     secondary=""
     secondaryTypographyProps={
@@ -34,28 +34,28 @@ exports[`ChannelsListItem renders component 1`] = `
       }
     }
   />
-</WithStyles(ListItem)>
+</WithStyles(ForwardRef(ListItem))>
 `;
 
 exports[`ChannelsListItem renders component when public 1`] = `
-<WithStyles(ListItem)
+<WithStyles(ForwardRef(ListItem))
   alignItems="center"
   button={true}
   className="root-mock"
   onClick={[Function]}
 >
-  <WithStyles(ListItemIcon)
+  <WithStyles(ForwardRef(ListItemIcon))
     className="itemIcon-mock"
   >
-    <pure(ChatBubbleOutlineIcon)
+    <ChatBubbleOutlineIcon
       className="icon-mock"
     />
-  </WithStyles(ListItemIcon)>
-  <WithStyles(ListItemText)
+  </WithStyles(ForwardRef(ListItemIcon))>
+  <WithStyles(ForwardRef(ListItemText))
     address="zs1testaddress0"
     className="itemText-mock"
     primary={
-      <WithStyles(Badge)
+      <ForwardRef(WithStyles)
         badgeContent={0}
         classes={
           Object {
@@ -64,7 +64,7 @@ exports[`ChannelsListItem renders component when public 1`] = `
         }
       >
         Channel 0
-      </WithStyles(Badge)>
+      </ForwardRef(WithStyles)>
     }
     secondary=""
     secondaryTypographyProps={
@@ -73,26 +73,26 @@ exports[`ChannelsListItem renders component when public 1`] = `
       }
     }
   />
-</WithStyles(ListItem)>
+</WithStyles(ForwardRef(ListItem))>
 `;
 
 exports[`ChannelsListItem renders component with address 1`] = `
-<WithStyles(ListItem)
+<WithStyles(ForwardRef(ListItem))
   alignItems="flex-start"
   button={true}
   className="root-mock"
   onClick={[Function]}
 >
-  <WithStyles(ListItemIcon)
+  <WithStyles(ForwardRef(ListItemIcon))
     className="itemIcon-mock"
   >
-    <pure(HttpsOutlinedIcon) />
-  </WithStyles(ListItemIcon)>
-  <WithStyles(ListItemText)
+    <HttpsOutlinedIcon />
+  </WithStyles(ForwardRef(ListItemIcon))>
+  <WithStyles(ForwardRef(ListItemText))
     address="zs1testaddress1"
     className="itemText-mock"
     primary={
-      <WithStyles(Badge)
+      <ForwardRef(WithStyles)
         badgeContent={1}
         classes={
           Object {
@@ -101,7 +101,7 @@ exports[`ChannelsListItem renders component with address 1`] = `
         }
       >
         Channel 1
-      </WithStyles(Badge)>
+      </ForwardRef(WithStyles)>
     }
     secondary={
       <Elipsis
@@ -122,5 +122,5 @@ exports[`ChannelsListItem renders component with address 1`] = `
       }
     }
   />
-</WithStyles(ListItem)>
+</WithStyles(ForwardRef(ListItem))>
 `;

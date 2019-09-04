@@ -16,10 +16,10 @@ import NodePanelDetails from '../../../containers/widgets/node/NodePanelDetails'
 
 const styles = theme => ({
   expansionDetails: {
-    paddingLeft: 3 * theme.spacing.unit,
-    paddingRight: 2 * theme.spacing.unit,
+    paddingLeft: theme.spacing(3),
+    paddingRight: theme.spacing(2),
     paddingTop: 0,
-    paddingBottom: 1.5 * theme.spacing.unit
+    paddingBottom: theme.spacing(1.5)
   },
   expander: {
     backgroundColor: theme.palette.primary.light,

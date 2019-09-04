@@ -1,14 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`SendMoneySending renders component when sent != true 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   alignItems="center"
   className="root-mock"
   container={true}
   justify="center"
   spacing={0}
 >
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     item={true}
     xs={12}
   >
@@ -16,42 +16,42 @@ exports[`SendMoneySending renders component when sent != true 1`] = `
       message="Sending transaction"
       size={80}
     />
-  </WithStyles(Grid)>
-</WithStyles(Grid)>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
 `;
 
 exports[`SendMoneySending renders component when sent = true 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   alignItems="center"
   className="root-mock"
   container={true}
   justify="center"
   spacing={0}
 >
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     item={true}
     xs={12}
   >
-    <pure(DoneIcon)
+    <DoneIcon
       className="doneIcon-mock"
     />
-  </WithStyles(Grid)>
-  <WithStyles(Grid)
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
     item={true}
     xs={12}
   >
-    <WithStyles(Typography)
+    <WithStyles(ForwardRef(Typography))
       variant="h5"
     >
       Your Zcash send is complete!
-    </WithStyles(Typography)>
-  </WithStyles(Grid)>
-  <WithStyles(Grid)
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
     className="info-mock"
     item={true}
     xs={12}
   >
-    <WithStyles(Typography)
+    <WithStyles(ForwardRef(Typography))
       variant="body1"
     >
       You sent 
@@ -59,13 +59,13 @@ exports[`SendMoneySending renders component when sent = true 1`] = `
        ZEC ($
       10.1000
        USD) to the address you specified.
-    </WithStyles(Typography)>
-  </WithStyles(Grid)>
-  <WithStyles(Grid)
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
     item={true}
     xs={12}
   >
-    <WithStyles(Button)
+    <WithStyles(ForwardRef(Button))
       className="button-mock"
       color="primary"
       fullWidth={true}
@@ -73,7 +73,7 @@ exports[`SendMoneySending renders component when sent = true 1`] = `
       variant="contained"
     >
       View Details
-    </WithStyles(Button)>
-  </WithStyles(Grid)>
-</WithStyles(Grid)>
+    </WithStyles(ForwardRef(Button))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
 `;

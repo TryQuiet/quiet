@@ -2,11 +2,9 @@
 
 exports[`MenuAction renders component 1`] = `
 <ClickAwayListener
-  mouseEvent="onMouseUp"
   onClickAway={[Function]}
-  touchEvent="onTouchEnd"
 >
-  <WithStyles(IconButton)
+  <WithStyles(ForwardRef(IconButton))
     buttonRef={[Function]}
     className="button-mock"
     disableRipple={true}
@@ -17,7 +15,7 @@ exports[`MenuAction renders component 1`] = `
       className="icon-mock"
       fontSize="inherit"
     />
-  </WithStyles(IconButton)>
+  </WithStyles(ForwardRef(IconButton))>
   <Memo(WithStyles(PopupMenu))
     anchorEl={
       Object {
@@ -26,9 +24,8 @@ exports[`MenuAction renders component 1`] = `
     }
     open={false}
   >
-    <MenuList
+    <ForwardRef(MenuList)
       className="menuList-mock"
-      disableListWrap={false}
     >
       <Memo(WithStyles(MenuActionItem))
         onClick={[MockFunction]}
@@ -38,16 +35,14 @@ exports[`MenuAction renders component 1`] = `
         onClick={[MockFunction]}
         title="test 2"
       />
-    </MenuList>
+    </ForwardRef(MenuList)>
   </Memo(WithStyles(PopupMenu))>
 </ClickAwayListener>
 `;
 
 exports[`MenuAction renders with optional props 1`] = `
 <ClickAwayListener
-  mouseEvent="onMouseUp"
   onClickAway={[Function]}
-  touchEvent="onTouchEnd"
 >
   <IconButton
     buttonRef={[Function]}
@@ -70,9 +65,8 @@ exports[`MenuAction renders with optional props 1`] = `
     offset="0 20"
     open={false}
   >
-    <MenuList
+    <ForwardRef(MenuList)
       className="menuList-mock"
-      disableListWrap={false}
     >
       <Memo(WithStyles(MenuActionItem))
         onClick={[MockFunction]}
@@ -82,7 +76,7 @@ exports[`MenuAction renders with optional props 1`] = `
         onClick={[MockFunction]}
         title="test 2"
       />
-    </MenuList>
+    </ForwardRef(MenuList)>
   </Memo(WithStyles(PopupMenu))>
 </ClickAwayListener>
 `;

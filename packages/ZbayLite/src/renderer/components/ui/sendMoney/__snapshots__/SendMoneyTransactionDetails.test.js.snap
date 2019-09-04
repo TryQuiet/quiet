@@ -1,149 +1,149 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`SendMoneyTransactionDetails renders component 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   className="root-mock"
   container={true}
-  spacing={24}
+  spacing={3}
 >
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     item={true}
     xs={12}
   >
-    <WithStyles(Typography)
+    <WithStyles(ForwardRef(Typography))
       variant="body1"
     >
       Transaction Details
-    </WithStyles(Typography)>
-  </WithStyles(Grid)>
-  <WithStyles(Divider)
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Divider))
     className="divider-mock"
   />
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     item={true}
     xs={4}
   >
-    <WithStyles(Typography)
+    <WithStyles(ForwardRef(Typography))
       variant="body1"
     >
       To
-    </WithStyles(Typography)>
-  </WithStyles(Grid)>
-  <WithStyles(Grid)
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
     item={true}
     xs={8}
   >
-    <WithStyles(Typography)
+    <WithStyles(ForwardRef(Typography))
       className="address-mock"
       variant="body1"
     >
       test
-    </WithStyles(Typography)>
-  </WithStyles(Grid)>
-  <WithStyles(Divider)
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Divider))
     className="divider-mock"
   />
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     item={true}
     xs={4}
   >
-    <WithStyles(Typography)
+    <WithStyles(ForwardRef(Typography))
       variant="body1"
     >
       Amount
-    </WithStyles(Typography)>
-  </WithStyles(Grid)>
-  <WithStyles(Grid)
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
     item={true}
     xs={8}
   >
-    <WithStyles(Typography)
+    <WithStyles(ForwardRef(Typography))
       variant="body1"
     >
       20
        ZEC ($
       10
        USD)
-    </WithStyles(Typography)>
-  </WithStyles(Grid)>
-  <WithStyles(Divider)
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Divider))
     className="divider-mock"
   />
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     item={true}
     xs={4}
   >
-    <WithStyles(Typography)
+    <WithStyles(ForwardRef(Typography))
       variant="body1"
     >
       Fee
-    </WithStyles(Typography)>
-  </WithStyles(Grid)>
-  <WithStyles(Grid)
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
     item={true}
     xs={8}
   >
-    <WithStyles(Typography)
+    <WithStyles(ForwardRef(Typography))
       variant="body1"
     >
       $
       0.1000
-    </WithStyles(Typography)>
-  </WithStyles(Grid)>
-  <WithStyles(Divider)
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Divider))
     className="divider-mock"
   />
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     item={true}
     xs={4}
   >
-    <WithStyles(Typography)
+    <WithStyles(ForwardRef(Typography))
       variant="body1"
     >
       Note
-    </WithStyles(Typography)>
-  </WithStyles(Grid)>
-  <WithStyles(Grid)
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
     item={true}
     xs={8}
   >
-    <WithStyles(Typography)
+    <WithStyles(ForwardRef(Typography))
       variant="body1"
     >
       test
-    </WithStyles(Typography)>
-  </WithStyles(Grid)>
-  <WithStyles(Divider)
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Divider))
     className="divider-mock"
   />
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     item={true}
     xs={4}
   >
-    <WithStyles(Typography)
+    <WithStyles(ForwardRef(Typography))
       variant="body1"
     >
       Total
-    </WithStyles(Typography)>
-  </WithStyles(Grid)>
-  <WithStyles(Grid)
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
     item={true}
     xs={8}
   >
-    <WithStyles(Typography)
+    <WithStyles(ForwardRef(Typography))
       variant="body1"
     >
       20.1
        ZEC ($
       10.1000
        USD)
-    </WithStyles(Typography)>
-  </WithStyles(Grid)>
-  <WithStyles(Grid)
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
     item={true}
     xs={12}
   >
-    <WithStyles(Button)
+    <WithStyles(ForwardRef(Button))
       className="button-mock"
       color="primary"
       fullWidth={true}
@@ -151,7 +151,7 @@ exports[`SendMoneyTransactionDetails renders component 1`] = `
       variant="contained"
     >
       Confirm
-    </WithStyles(Button)>
-  </WithStyles(Grid)>
-</WithStyles(Grid)>
+    </WithStyles(ForwardRef(Button))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
 `;

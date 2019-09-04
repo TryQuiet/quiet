@@ -19,13 +19,13 @@ const styles = theme => ({
     width: '100%'
   },
   container: {
-    padding: theme.spacing.unit * 6
+    padding: theme.spacing(6)
   },
   field: {
     width: 270
   },
   submitButton: {
-    marginTop: theme.spacing.unit * 3
+    marginTop: theme.spacing(3)
   }
 })
 
@@ -58,7 +58,7 @@ export const ShippingSettingsForm = ({
           <Grid
             container
             direction='column'
-            spacing={16}
+            spacing={2}
             alignItems='flex-start'
             className={classes.container}
           >

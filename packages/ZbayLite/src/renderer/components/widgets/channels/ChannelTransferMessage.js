@@ -22,12 +22,12 @@ import BasicMessage from './BasicMessage'
 
 const styles = theme => ({
   transactionCard: {
-    paddingTop: 2 * theme.spacing.unit,
-    paddingBottom: 2 * theme.spacing.unit
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2)
   },
   divider: {
-    minWidth: `calc(100% + ${4 * theme.spacing.unit}px)`,
-    marginLeft: -2 * theme.spacing.unit,
+    minWidth: `calc(100% + ${theme.spacing(4)}px)`,
+    marginLeft: theme.spacing(-2),
     color: theme.palette.primary.main,
     height: 2
   },
@@ -36,7 +36,7 @@ const styles = theme => ({
     fontSize: '0.9rem'
   },
   info: {
-    paddingTop: theme.spacing.unit
+    paddingTop: theme.spacing(1)
   },
   failed: {
     color: red[500]
@@ -46,7 +46,7 @@ const styles = theme => ({
   },
   message: {
     fontSize: '0.855rem',
-    marginTop: theme.spacing.unit,
+    marginTop: theme.spacing(1),
     whiteSpace: 'pre-line',
     wordBreak: 'break-word'
   }

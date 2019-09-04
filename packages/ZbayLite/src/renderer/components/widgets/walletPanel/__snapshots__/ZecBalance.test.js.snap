@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ZecBalance renders component 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   alignItems="center"
   container={true}
 >
@@ -9,7 +9,7 @@ exports[`ZecBalance renders component 1`] = `
     className="icon-mock"
     size={14}
   />
-  <WithStyles(Typography)
+  <WithStyles(ForwardRef(Typography))
     className="value-mock"
     style={
       Object {
@@ -20,12 +20,12 @@ exports[`ZecBalance renders component 1`] = `
     variant="caption"
   >
     3,243.253232
-  </WithStyles(Typography)>
-</WithStyles(Grid)>
+  </WithStyles(ForwardRef(Typography))>
+</WithStyles(ForwardRef(Grid))>
 `;
 
 exports[`ZecBalance renders when no value 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   alignItems="center"
   container={true}
 >
@@ -33,7 +33,7 @@ exports[`ZecBalance renders when no value 1`] = `
     className="icon-mock"
     size={14}
   />
-  <WithStyles(Typography)
+  <WithStyles(ForwardRef(Typography))
     className="value-mock"
     style={
       Object {
@@ -44,6 +44,6 @@ exports[`ZecBalance renders when no value 1`] = `
     variant="caption"
   >
     -
-  </WithStyles(Typography)>
-</WithStyles(Grid)>
+  </WithStyles(ForwardRef(Typography))>
+</WithStyles(ForwardRef(Grid))>
 `;

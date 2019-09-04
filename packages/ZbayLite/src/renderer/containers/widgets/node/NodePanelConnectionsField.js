@@ -15,7 +15,7 @@ export const mapStateToProps = state => ({
 
 export const NodePanelConnectionsField = ({ connections }) => (
   <NodePanelField name='Connections'>
-    <Typography inline variant='overline'>
+    <Typography display='inline' variant='overline'>
       {connections.toString()}
     </Typography>
   </NodePanelField>

@@ -7,6 +7,7 @@ export const TextField = (props) => (
   <Field
     component={FormikTextField}
     variant='outlined'
+    fullWidth
     {...props}
   />
 )

@@ -2,17 +2,17 @@
 
 exports[`Main renders component 1`] = `
 <Memo(WithStyles(WindowWrapper))>
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     className="gridRoot-mock"
     container={true}
     direction="row"
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       item={true}
     >
       <WithStyles(Sidebar) />
-    </WithStyles(Grid)>
-    <WithStyles(Grid)
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
       item={true}
       xs={true}
     >
@@ -26,7 +26,7 @@ exports[`Main renders component 1`] = `
         exact={true}
         path="test/direct-messages/:id/:username"
       />
-    </WithStyles(Grid)>
-  </WithStyles(Grid)>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
 </Memo(WithStyles(WindowWrapper))>
 `;

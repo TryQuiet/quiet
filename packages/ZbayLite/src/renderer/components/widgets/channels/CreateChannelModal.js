@@ -10,7 +10,7 @@ import CreateChannelForm from '../../../containers/widgets/channels/CreateChanne
 
 const styles = theme => ({
   root: {
-    padding: `${8 * theme.spacing.unit}px ${16 * theme.spacing.unit}px`,
+    padding: `${theme.spacing(8)}px ${theme.spacing(16)}px`,
     height: '100%',
     width: '100%'
   }

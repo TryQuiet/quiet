@@ -23,7 +23,8 @@ const styles = theme => ({
     paddingLeft: '12px'
   },
   itemIcon: {
-    marginRight: 0
+    marginRight: 0,
+    minWidth: 0
   },
   icon: {
     marginTop: '2px'
@@ -31,7 +32,7 @@ const styles = theme => ({
   badge: {
     padding: 6,
     top: '50%',
-    right: -3 * theme.spacing.unit,
+    right: theme.spacing(-3),
     fontSize: 10,
     background: theme.typography.body1.color,
     color: '#fff'

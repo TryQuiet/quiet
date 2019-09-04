@@ -2,13 +2,13 @@
 
 exports[`WalletPanelActions renders component 1`] = `
 <Fragment>
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     className="root-mock"
     container={true}
     direction="column"
     item={true}
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       alignItems="center"
       container={true}
       direction="row"
@@ -16,16 +16,16 @@ exports[`WalletPanelActions renders component 1`] = `
       justify="space-between"
     >
       <Connect(Component) />
-    </WithStyles(Grid)>
-    <WithStyles(Grid)
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
       className="actions-mock"
       item={true}
     >
       <Connect(Component)
         onReceive={[MockFunction]}
       />
-    </WithStyles(Grid)>
-  </WithStyles(Grid)>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
   <Connect(TopUpModal)
     handleClose={[MockFunction]}
     open={false}

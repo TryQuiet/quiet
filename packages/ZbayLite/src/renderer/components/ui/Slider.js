@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import * as R from 'ramda'
 
-import MuiSlider from '@material-ui/lab/Slider'
+import MuiSlider from '@material-ui/core/Slider'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
@@ -63,7 +63,7 @@ export const Slider = ({
     <Grid item>
       <Grid container direction='row'>
         <Grid item>
-          <Typography variant='body2' inline className={classes.label}>
+          <Typography variant='body2' display='inline' className={classes.label}>
             {minLabel}
           </Typography>
         </Grid>
@@ -86,7 +86,7 @@ export const Slider = ({
           />
         </Grid>
         <Grid item>
-          <Typography variant='body2' inline className={classes.label}>
+          <Typography variant='body2' display='inline' className={classes.label}>
             {maxLabel}
           </Typography>
         </Grid>

@@ -14,11 +14,11 @@ import Elipsis from '../../ui/Elipsis'
 
 const styles = theme => ({
   root: {
-    padding: theme.spacing.unit * 4
+    padding: theme.spacing(4)
   },
   about: {
-    paddingLeft: theme.spacing.unit,
-    paddingRight: theme.spacing.unit,
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1),
     color: theme.palette.primary.main
   },
   uri: {
@@ -32,14 +32,14 @@ const styles = theme => ({
     fontSize: '0.9rem'
   },
   actions: {
-    marginTop: theme.spacing.unit
+    marginTop: theme.spacing(1)
   }
 })
 
 export const ImportedChannel = ({ classes, channel, onAccept, onCancel }) => (
   channel
     ? (
-      <Grid container item direction='column' spacing={16} className={classes.root}>
+      <Grid container item direction='column' spacing={2} className={classes.root}>
         <Grid item container>
           <Grid container item alignItems='flex-end'>
             <Typography variant='subtitle1' className={classes.title}>
@@ -66,7 +66,7 @@ export const ImportedChannel = ({ classes, channel, onAccept, onCancel }) => (
             {channel.get('description')}
           </Typography>
         </Grid>
-        <Grid item container spacing={16} justify='flex-end' className={classes.actions}>
+        <Grid item container spacing={2} justify='flex-end' className={classes.actions}>
           <Grid item>
             <Button
               variant='outlined'

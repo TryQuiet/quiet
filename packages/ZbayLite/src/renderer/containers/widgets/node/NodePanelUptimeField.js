@@ -15,7 +15,7 @@ export const mapStateToProps = state => ({
 
 export const NodePanelUptimeField = ({ uptime }) => (
   <NodePanelField name='Uptime'>
-    <Typography inline variant='overline'>
+    <Typography display='inline' variant='overline'>
       {R.isEmpty(uptime) ? '-' : null}
       {uptime.days ? `${uptime.days}d  ` : null}
       {uptime.hours ? `${uptime.hours}h  ` : null}

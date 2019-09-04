@@ -30,12 +30,12 @@ const styles = theme => ({
     fontSize: 15
   },
   inputsDiv: {
-    padding: `18px ${2 * theme.spacing.unit}px`,
+    padding: `18px ${theme.spacing(2)}px`,
     width: '100%',
     margin: '0px'
   },
   multiline: {
-    padding: `10px ${2 * theme.spacing.unit}px 9px`
+    padding: `10px ${theme.spacing(2)}px 9px`
   },
   warningIcon: {
     color: orange[500]
@@ -48,7 +48,7 @@ const styles = theme => ({
   },
   backdrop: {
     height: 'auto',
-    padding: `${theme.spacing.unit}px`,
+    padding: `${theme.spacing(1)}px`,
     backgroundColor: 'rgba(0, 0, 0, 0.75)',
     WebkitTapHighlightColor: 'transparent',
     pointerEvents: 'none',
@@ -95,7 +95,7 @@ export const ChannelInput = ({
         direction='row'
         alignItems='center'
         justify='center'
-        spacing={16}
+        spacing={2}
         className={classes.inputsDiv}
       >
         <Grid item xs>

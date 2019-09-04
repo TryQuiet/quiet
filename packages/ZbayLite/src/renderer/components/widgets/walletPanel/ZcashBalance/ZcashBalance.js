@@ -19,7 +19,7 @@ const styles = theme => ({
     fontSize: '0.71rem'
   },
   lockedTitle: {
-    marginLeft: theme.spacing.unit * 1.25,
+    marginLeft: theme.spacing(1.25),
     fontSize: '0.71rem'
   },
   lockedRoot: {
@@ -28,14 +28,14 @@ const styles = theme => ({
   icon: {
     color: theme.typography.caption.color,
     fontSize: 16,
-    marginLeft: theme.spacing.unit * 0.5
+    marginLeft: theme.spacing(0.5)
   }
 })
 
 const TOOLTIP_MESSAGE = 'Because of the network\'s consensus requirements funds may be locked while your message is being broadcasted.'
 
 export const ZcashBalance = ({ classes, usdBalance, zecBalance, usdLocked, zecLocked }) => (
-  <Grid container direction='row' justify='flex-start' alignItems='stretch' spacing={8} >
+  <Grid container direction='row' justify='flex-start' alignItems='stretch' spacing={1} >
     <Grid item>
       <Grid container direction='column'>
         <Typography variant='body2' className={classes.title}>
@@ -59,7 +59,7 @@ export const ZcashBalance = ({ classes, usdBalance, zecBalance, usdLocked, zecLo
           className={classes.lockedRoot}
         >
           <Grid item container alignItems='center'>
-            <Typography variant='caption' inline className={classes.lockedTitle}>
+            <Typography variant='caption' display='inline' className={classes.lockedTitle}>
               Locked
             </Typography>
             <Tooltip

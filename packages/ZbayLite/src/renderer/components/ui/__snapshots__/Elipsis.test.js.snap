@@ -7,12 +7,12 @@ exports[`Elipsis disables if shorter than limit 1`] = `
   placement="bottom-start"
   title="this is a sample text"
 >
-  <WithStyles(Typography)
+  <WithStyles(ForwardRef(Typography))
     className="content-mock"
     variant="caption"
   >
     this is a sample text
-  </WithStyles(Typography)>
+  </WithStyles(ForwardRef(Typography))>
 </Memo(WithStyles(Tooltip))>
 `;
 
@@ -23,12 +23,12 @@ exports[`Elipsis renders with custom size 1`] = `
   placement="bottom-start"
   title="this is a sample text"
 >
-  <WithStyles(Typography)
+  <WithStyles(ForwardRef(Typography))
     className="content-mock"
     variant="caption"
   >
     this ...
-  </WithStyles(Typography)>
+  </WithStyles(ForwardRef(Typography))>
 </Memo(WithStyles(Tooltip))>
 `;
 
@@ -39,12 +39,12 @@ exports[`Elipsis renders with placement bottom 1`] = `
   placement="bottom"
   title="this is a sample text"
 >
-  <WithStyles(Typography)
+  <WithStyles(ForwardRef(Typography))
     className="content-mock"
     variant="caption"
   >
     this ...
-  </WithStyles(Typography)>
+  </WithStyles(ForwardRef(Typography))>
 </Memo(WithStyles(Tooltip))>
 `;
 
@@ -55,12 +55,12 @@ exports[`Elipsis renders with placement bottom-end 1`] = `
   placement="bottom-end"
   title="this is a sample text"
 >
-  <WithStyles(Typography)
+  <WithStyles(ForwardRef(Typography))
     className="content-mock"
     variant="caption"
   >
     this ...
-  </WithStyles(Typography)>
+  </WithStyles(ForwardRef(Typography))>
 </Memo(WithStyles(Tooltip))>
 `;
 
@@ -71,11 +71,11 @@ exports[`Elipsis renders with placement bottom-start 1`] = `
   placement="bottom-start"
   title="this is a sample text"
 >
-  <WithStyles(Typography)
+  <WithStyles(ForwardRef(Typography))
     className="content-mock"
     variant="caption"
   >
     this ...
-  </WithStyles(Typography)>
+  </WithStyles(ForwardRef(Typography))>
 </Memo(WithStyles(Tooltip))>
 `;

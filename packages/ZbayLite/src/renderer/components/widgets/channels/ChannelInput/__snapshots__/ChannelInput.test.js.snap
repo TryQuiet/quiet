@@ -1,46 +1,46 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ChannelInput renders component input Disable  1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   className="root-mock"
   container={true}
   direction="column"
   justify="center"
 >
-  <WithTheme(Fade)
+  <ForwardRef(Fade)
     in={true}
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       alignItems="center"
       className="backdrop-mock"
       container={true}
       direction="column"
       justify="center"
     >
-      <pure(WarningIcon)
+      <WarningIcon
         className="warningIcon-mock"
       />
-      <WithStyles(Typography)
+      <WithStyles(ForwardRef(Typography))
         align="center"
         variant="caption"
       >
         Sending messages is locked due to insufficient funds - this may be resolved by topping up your account
-      </WithStyles(Typography)>
-    </WithStyles(Grid)>
-  </WithTheme(Fade)>
-  <WithStyles(Grid)
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+  </ForwardRef(Fade)>
+  <WithStyles(ForwardRef(Grid))
     alignItems="center"
     className="inputsDiv-mock"
     container={true}
     direction="row"
     justify="center"
-    spacing={16}
+    spacing={2}
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       item={true}
       xs={true}
     >
-      <TextField
+      <WithStyles(ForwardRef(TextField))
         InputProps={
           Object {
             "classes": Object {
@@ -60,65 +60,63 @@ exports[`ChannelInput renders component input Disable  1`] = `
         onChange={[MockFunction]}
         onKeyPress={[Function]}
         placeholder="Send a message"
-        required={false}
         rowsMax="15"
-        select={false}
         value="this is just a test message"
         variant="outlined"
       />
-    </WithStyles(Grid)>
-    <WithStyles(Grid)
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
       item={true}
     >
       <Connect(Component)
         disabled={true}
       />
-    </WithStyles(Grid)>
-  </WithStyles(Grid)>
-</WithStyles(Grid)>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
 `;
 
 exports[`ChannelInput renders component input Locked  1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   className="root-mock"
   container={true}
   direction="column"
   justify="center"
 >
-  <WithTheme(Fade)
+  <ForwardRef(Fade)
     in={true}
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       alignItems="center"
       className="backdrop-mock"
       container={true}
       direction="column"
       justify="center"
     >
-      <pure(WarningIcon)
+      <WarningIcon
         className="warningIcon-mock"
       />
-      <WithStyles(Typography)
+      <WithStyles(ForwardRef(Typography))
         align="center"
         variant="caption"
       >
         All of your funds are locked - please wait for network confirmation or deposit more ZEC to your account
-      </WithStyles(Typography)>
-    </WithStyles(Grid)>
-  </WithTheme(Fade)>
-  <WithStyles(Grid)
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+  </ForwardRef(Fade)>
+  <WithStyles(ForwardRef(Grid))
     alignItems="center"
     className="inputsDiv-mock"
     container={true}
     direction="row"
     justify="center"
-    spacing={16}
+    spacing={2}
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       item={true}
       xs={true}
     >
-      <TextField
+      <WithStyles(ForwardRef(TextField))
         InputProps={
           Object {
             "classes": Object {
@@ -138,44 +136,42 @@ exports[`ChannelInput renders component input Locked  1`] = `
         onChange={[MockFunction]}
         onKeyPress={[Function]}
         placeholder="Send a message"
-        required={false}
         rowsMax="15"
-        select={false}
         value="this is just a test message"
         variant="outlined"
       />
-    </WithStyles(Grid)>
-    <WithStyles(Grid)
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
       item={true}
     >
       <Connect(Component)
         disabled={true}
       />
-    </WithStyles(Grid)>
-  </WithStyles(Grid)>
-</WithStyles(Grid)>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
 `;
 
 exports[`ChannelInput renders component input available  1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   className="root-mock"
   container={true}
   direction="column"
   justify="center"
 >
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     alignItems="center"
     className="inputsDiv-mock"
     container={true}
     direction="row"
     justify="center"
-    spacing={16}
+    spacing={2}
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       item={true}
       xs={true}
     >
-      <TextField
+      <WithStyles(ForwardRef(TextField))
         InputProps={
           Object {
             "classes": Object {
@@ -195,20 +191,18 @@ exports[`ChannelInput renders component input available  1`] = `
         onChange={[MockFunction]}
         onKeyPress={[Function]}
         placeholder="Send a message"
-        required={false}
         rowsMax="15"
-        select={false}
         value="this is just a test message"
         variant="outlined"
       />
-    </WithStyles(Grid)>
-    <WithStyles(Grid)
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
       item={true}
     >
       <Connect(Component)
         disabled={false}
       />
-    </WithStyles(Grid)>
-  </WithStyles(Grid)>
-</WithStyles(Grid)>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
 `;

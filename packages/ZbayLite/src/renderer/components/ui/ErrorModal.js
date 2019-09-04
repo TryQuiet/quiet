@@ -18,7 +18,7 @@ import Modal from './Modal'
 
 const styles = theme => ({
   root: {
-    padding: theme.spacing.unit * 4
+    padding: theme.spacing(4)
   },
   icon: {
     fontSize: '10rem',
@@ -51,7 +51,7 @@ export const ErrorModal = ({
     <Grid
       container
       justify='flex-start'
-      spacing={24}
+      spacing={3}
       direction='column'
       className={classes.root}
     >
@@ -61,9 +61,9 @@ export const ErrorModal = ({
           { message }
         </Typography>
       </Grid>
-      <Grid item container spacing={16} direction='column'>
+      <Grid item container spacing={2} direction='column'>
         <Grid item container direction='row' alignItems='center'>
-          <Typography variant='h5' display='inline'>
+          <Typography variant='h5' display='inline' >
             Traceback
           </Typography>
           <CopyToClipboard text={traceback} onCopy={handleCopy}>

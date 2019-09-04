@@ -25,13 +25,13 @@ exports[`ChannelMessage renders component 1`] = `
   }
   setActionsOpen={[Function]}
 >
-  <WithStyles(Typography)
+  <WithStyles(ForwardRef(Typography))
     className="message-mock"
     variant="body2"
   >
     This is some message 1
-  </WithStyles(Typography)>
-  <WithStyles(Collapse)
+  </WithStyles(ForwardRef(Typography))>
+  <WithStyles(ForwardRef(Collapse))
     in={false}
     timeout="auto"
   >
@@ -41,7 +41,7 @@ exports[`ChannelMessage renders component 1`] = `
       onResend={[Function]}
       status="broadcasted"
     />
-  </WithStyles(Collapse)>
+  </WithStyles(ForwardRef(Collapse))>
 </Memo(WithStyles(BasicMessage))>
 `;
 
@@ -70,13 +70,13 @@ exports[`ChannelMessage renders component when message is sent by owner 1`] = `
   }
   setActionsOpen={[Function]}
 >
-  <WithStyles(Typography)
+  <WithStyles(ForwardRef(Typography))
     className="message-mock"
     variant="body2"
   >
     This is some message 1
-  </WithStyles(Typography)>
-  <WithStyles(Collapse)
+  </WithStyles(ForwardRef(Typography))>
+  <WithStyles(ForwardRef(Collapse))
     in={false}
     timeout="auto"
   >
@@ -86,6 +86,6 @@ exports[`ChannelMessage renders component when message is sent by owner 1`] = `
       onResend={[Function]}
       status="broadcasted"
     />
-  </WithStyles(Collapse)>
+  </WithStyles(ForwardRef(Collapse))>
 </Memo(WithStyles(BasicMessage))>
 `;

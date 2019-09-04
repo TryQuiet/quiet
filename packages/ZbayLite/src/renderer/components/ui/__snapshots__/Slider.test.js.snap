@@ -1,42 +1,42 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Slider renders component 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   alignItems="center"
   container={true}
   direction="column"
   justify="center"
 >
-  <WithStyles(Typography)
+  <WithStyles(ForwardRef(Typography))
     className="title-mock"
     variant="caption"
   >
     this is a title of the slider
-  </WithStyles(Typography)>
-  <WithStyles(Grid)
+  </WithStyles(ForwardRef(Typography))>
+  <WithStyles(ForwardRef(Grid))
     item={true}
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       container={true}
       direction="row"
     >
-      <WithStyles(Grid)
+      <WithStyles(ForwardRef(Grid))
         item={true}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="label-mock"
-          inline={true}
+          display="inline"
           variant="body2"
         >
           $0
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         className="sliderContainer-mock"
         item={true}
         xs={true}
       >
-        <WithStyles(Slider)
+        <WithStyles(ForwardRef(Slider))
           classes={
             Object {
               "activated": "activated-mock",
@@ -54,60 +54,60 @@ exports[`Slider renders component 1`] = `
           thumb={<Memo(WithStyles(SliderThumb)) />}
           value={23}
         />
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="label-mock"
-          inline={true}
+          display="inline"
           variant="body2"
         >
           $max
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-    </WithStyles(Grid)>
-  </WithStyles(Grid)>
-</WithStyles(Grid)>
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
 `;
 
 exports[`Slider renders custom min/max 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   alignItems="center"
   container={true}
   direction="column"
   justify="center"
 >
-  <WithStyles(Typography)
+  <WithStyles(ForwardRef(Typography))
     className="title-mock"
     variant="caption"
   >
     this is a title of the slider
-  </WithStyles(Typography)>
-  <WithStyles(Grid)
+  </WithStyles(ForwardRef(Typography))>
+  <WithStyles(ForwardRef(Grid))
     item={true}
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       container={true}
       direction="row"
     >
-      <WithStyles(Grid)
+      <WithStyles(ForwardRef(Grid))
         item={true}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="label-mock"
-          inline={true}
+          display="inline"
           variant="body2"
         >
           $0
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         className="sliderContainer-mock"
         item={true}
         xs={true}
       >
-        <WithStyles(Slider)
+        <WithStyles(ForwardRef(Slider))
           classes={
             Object {
               "activated": "activated-mock",
@@ -125,60 +125,60 @@ exports[`Slider renders custom min/max 1`] = `
           thumb={<Memo(WithStyles(SliderThumb)) />}
           value={8}
         />
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="label-mock"
-          inline={true}
+          display="inline"
           variant="body2"
         >
           $max
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-    </WithStyles(Grid)>
-  </WithStyles(Grid)>
-</WithStyles(Grid)>
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
 `;
 
 exports[`Slider renders with labels 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   alignItems="center"
   container={true}
   direction="column"
   justify="center"
 >
-  <WithStyles(Typography)
+  <WithStyles(ForwardRef(Typography))
     className="title-mock"
     variant="caption"
   >
     this is a title of the slider
-  </WithStyles(Typography)>
-  <WithStyles(Grid)
+  </WithStyles(ForwardRef(Typography))>
+  <WithStyles(ForwardRef(Grid))
     item={true}
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       container={true}
       direction="row"
     >
-      <WithStyles(Grid)
+      <WithStyles(ForwardRef(Grid))
         item={true}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="label-mock"
-          inline={true}
+          display="inline"
           variant="body2"
         >
           $ MIN
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         className="sliderContainer-mock"
         item={true}
         xs={true}
       >
-        <WithStyles(Slider)
+        <WithStyles(ForwardRef(Slider))
           classes={
             Object {
               "activated": "activated-mock",
@@ -196,19 +196,19 @@ exports[`Slider renders with labels 1`] = `
           thumb={<Memo(WithStyles(SliderThumb)) />}
           value={23}
         />
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="label-mock"
-          inline={true}
+          display="inline"
           variant="body2"
         >
           $ MAX
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-    </WithStyles(Grid)>
-  </WithStyles(Grid)>
-</WithStyles(Grid)>
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
 `;

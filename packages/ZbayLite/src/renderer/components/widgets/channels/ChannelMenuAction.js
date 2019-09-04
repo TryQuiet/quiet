@@ -14,12 +14,12 @@ const styles = theme => ({
   menuItem: {
     height: 8,
     width: 80,
-    paddingLeft: 2.5 * theme.spacing.unit,
-    paddingRight: 2.5 * theme.spacing.unit,
+    paddingLeft: theme.spacing(2.5),
+    paddingRight: theme.spacing(2.5),
     fontSize: '0.75rem'
   },
   menuList: {
-    padding: `${1.5 * theme.spacing.unit}px 0`
+    padding: `${theme.spacing(1.5)}px 0`
   }
 })
 

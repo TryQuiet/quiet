@@ -1,162 +1,162 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ChannelHeader renders component 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   alignItems="center"
   className="root-mock"
   container={true}
   direction="row"
   justify="space-between"
 >
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     item={true}
   >
-    <WithStyles(Typography)
+    <WithStyles(ForwardRef(Typography))
       className="title-mock"
       variant="subtitle1"
     >
       Channel 1
-    </WithStyles(Typography)>
-  </WithStyles(Grid)>
-  <WithStyles(Grid)
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
     alignItems="center"
     className="actions-mock"
     container={true}
     item={true}
     justify="space-between"
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       item={true}
     >
       <Memo(WithStyles(SpentFilterAction)) />
-    </WithStyles(Grid)>
-    <WithStyles(Grid)
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
       item={true}
     >
       <Memo(WithStyles(IconButton))
         className="iconButton-mock"
       >
-        <pure(SearchIcon) />
+        <SearchIcon />
       </Memo(WithStyles(IconButton))>
-    </WithStyles(Grid)>
-    <WithStyles(Grid)
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
       item={true}
     >
       <Connect(Component) />
       <Connect(withModal(Component)) />
-    </WithStyles(Grid)>
-  </WithStyles(Grid)>
-</WithStyles(Grid)>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
 `;
 
 exports[`ChannelHeader renders members when 0 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   alignItems="center"
   className="root-mock"
   container={true}
   direction="row"
   justify="space-between"
 >
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     item={true}
   >
-    <WithStyles(Typography)
+    <WithStyles(ForwardRef(Typography))
       className="title-mock"
       variant="subtitle1"
     >
       Channel 1
-    </WithStyles(Typography)>
-    <WithStyles(Typography)
+    </WithStyles(ForwardRef(Typography))>
+    <WithStyles(ForwardRef(Typography))
       className="subtitle-mock"
       variant="caption"
     >
       0
        Members
-    </WithStyles(Typography)>
-  </WithStyles(Grid)>
-  <WithStyles(Grid)
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
     alignItems="center"
     className="actions-mock"
     container={true}
     item={true}
     justify="space-between"
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       item={true}
     >
       <Memo(WithStyles(SpentFilterAction)) />
-    </WithStyles(Grid)>
-    <WithStyles(Grid)
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
       item={true}
     >
       <Memo(WithStyles(IconButton))
         className="iconButton-mock"
       >
-        <pure(SearchIcon) />
+        <SearchIcon />
       </Memo(WithStyles(IconButton))>
-    </WithStyles(Grid)>
-    <WithStyles(Grid)
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
       item={true}
     >
       <Connect(Component) />
       <Connect(withModal(Component)) />
-    </WithStyles(Grid)>
-  </WithStyles(Grid)>
-</WithStyles(Grid)>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
 `;
 
 exports[`ChannelHeader renders without members count 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   alignItems="center"
   className="root-mock"
   container={true}
   direction="row"
   justify="space-between"
 >
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     item={true}
   >
-    <WithStyles(Typography)
+    <WithStyles(ForwardRef(Typography))
       className="title-mock"
       variant="subtitle1"
     >
       Channel 1
-    </WithStyles(Typography)>
-    <WithStyles(Typography)
+    </WithStyles(ForwardRef(Typography))>
+    <WithStyles(ForwardRef(Typography))
       className="subtitle-mock"
       variant="caption"
     >
       4
        Members
-    </WithStyles(Typography)>
-  </WithStyles(Grid)>
-  <WithStyles(Grid)
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
     alignItems="center"
     className="actions-mock"
     container={true}
     item={true}
     justify="space-between"
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       item={true}
     >
       <Memo(WithStyles(SpentFilterAction)) />
-    </WithStyles(Grid)>
-    <WithStyles(Grid)
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
       item={true}
     >
       <Memo(WithStyles(IconButton))
         className="iconButton-mock"
       >
-        <pure(SearchIcon) />
+        <SearchIcon />
       </Memo(WithStyles(IconButton))>
-    </WithStyles(Grid)>
-    <WithStyles(Grid)
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
       item={true}
     >
       <Connect(Component) />
       <Connect(withModal(Component)) />
-    </WithStyles(Grid)>
-  </WithStyles(Grid)>
-</WithStyles(Grid)>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
 `;

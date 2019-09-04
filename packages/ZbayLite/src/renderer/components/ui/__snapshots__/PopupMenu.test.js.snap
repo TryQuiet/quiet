@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`PopupMenu renders component 1`] = `
-<Popper
+<ForwardRef(Popper)
   anchorEl={
     Object {
       "current": null,
@@ -25,11 +25,11 @@ exports[`PopupMenu renders component 1`] = `
   transition={true}
 >
   <Component />
-</Popper>
+</ForwardRef(Popper)>
 `;
 
 exports[`PopupMenu renders when closed 1`] = `
-<Popper
+<ForwardRef(Popper)
   anchorEl={
     Object {
       "current": null,
@@ -53,11 +53,11 @@ exports[`PopupMenu renders when closed 1`] = `
   transition={true}
 >
   <Component />
-</Popper>
+</ForwardRef(Popper)>
 `;
 
 exports[`PopupMenu renders with offset 1`] = `
-<Popper
+<ForwardRef(Popper)
   anchorEl={
     Object {
       "current": null,
@@ -81,5 +81,5 @@ exports[`PopupMenu renders with offset 1`] = `
   transition={true}
 >
   <Component />
-</Popper>
+</ForwardRef(Popper)>
 `;

@@ -15,7 +15,7 @@ import Modal from '../../ui/Modal'
 
 const styles = theme => ({
   root: {
-    padding: `${4 * theme.spacing.unit}px ${4 * theme.spacing.unit}px`,
+    padding: `${theme.spacing(4)}px ${theme.spacing(4)}px`,
     height: '100%',
     width: '100%'
   },
@@ -24,7 +24,7 @@ const styles = theme => ({
     lineHeight: '1.66'
   },
   infoTitle: {
-    marginTop: theme.spacing.unit * 2,
+    marginTop: theme.spacing(2),
     fontSize: '0.9rem'
   },
   description: {
@@ -68,7 +68,7 @@ export const ChannelInfoModal = ({
         </Grid>
         <Grid item container direction='column' className={classes.section}>
           <Grid container item direction='row'>
-            <Typography variant='subtitle1' inline className={classes.infoTitle}>
+            <Typography variant='subtitle1' display='inline' className={classes.infoTitle}>
               Share link
               {directMessage ? 'Address' : 'Share link'}
             </Typography>

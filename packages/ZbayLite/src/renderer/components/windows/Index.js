@@ -18,7 +18,7 @@ const styles = theme => ({
     height: 200
   },
   card: {
-    padding: 2 * theme.spacing.unit
+    padding: theme.spacing(2)
   },
   content: {
     display: 'flex',

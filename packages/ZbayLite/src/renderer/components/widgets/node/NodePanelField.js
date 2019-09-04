@@ -6,7 +6,7 @@ import Typography from '@material-ui/core/Typography'
 
 export const NodePanelField = ({ classes, name, children }) => (
   <Grid container justify='space-between'>
-    <Typography inline variant='overline'>
+    <Typography display='inline' variant='overline'>
       {name}:
     </Typography>
     {children}

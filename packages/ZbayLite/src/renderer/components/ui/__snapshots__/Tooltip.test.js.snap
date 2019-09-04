@@ -24,7 +24,11 @@ exports[`Tooltip renders component 1`] = `
   placement="bottom"
   title={
     <React.Fragment>
-      test-title
+      <span
+        className="text-mock"
+      >
+        test-title
+      </span>
       <span
         className="arrow-mock"
       />
@@ -59,7 +63,11 @@ exports[`Tooltip renders component with correct arrow placement - bottom 1`] = `
   placement="bottom"
   title={
     <React.Fragment>
-      test-title
+      <span
+        className="text-mock"
+      >
+        test-title
+      </span>
       <span
         className="arrow-mock"
       />
@@ -94,7 +102,11 @@ exports[`Tooltip renders component with correct arrow placement - bottom-end 1`]
   placement="bottom-end"
   title={
     <React.Fragment>
-      test-title
+      <span
+        className="text-mock"
+      >
+        test-title
+      </span>
       <span
         className="arrow-mock"
       />
@@ -129,7 +141,11 @@ exports[`Tooltip renders component with correct arrow placement - bottom-start 1
   placement="bottom-start"
   title={
     <React.Fragment>
-      test-title
+      <span
+        className="text-mock"
+      >
+        test-title
+      </span>
       <span
         className="arrow-mock"
       />
@@ -164,7 +180,11 @@ exports[`Tooltip renders component with correct arrow placement - top 1`] = `
   placement="top"
   title={
     <React.Fragment>
-      test-title
+      <span
+        className="text-mock"
+      >
+        test-title
+      </span>
       <span
         className="arrow-mock"
       />
@@ -199,7 +219,11 @@ exports[`Tooltip renders component with correct arrow placement - top-end 1`] = 
   placement="top-end"
   title={
     <React.Fragment>
-      test-title
+      <span
+        className="text-mock"
+      >
+        test-title
+      </span>
       <span
         className="arrow-mock"
       />
@@ -234,7 +258,11 @@ exports[`Tooltip renders component with correct arrow placement - top-start 1`] 
   placement="top-start"
   title={
     <React.Fragment>
-      test-title
+      <span
+        className="text-mock"
+      >
+        test-title
+      </span>
       <span
         className="arrow-mock"
       />
@@ -269,7 +297,11 @@ exports[`Tooltip renders component with optional props 1`] = `
   placement="bottom"
   title={
     <React.Fragment>
-      test-title
+      <span
+        className="text-mock"
+      >
+        test-title
+      </span>
       <span
         className="arrow-mock"
       />

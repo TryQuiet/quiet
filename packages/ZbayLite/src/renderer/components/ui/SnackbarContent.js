@@ -19,7 +19,7 @@ import amber from '@material-ui/core/colors/amber'
 
 const styles = theme => ({
   close: {
-    padding: theme.spacing.unit / 2,
+    padding: theme.spacing(0.5),
     margin: 0
   },
   success: {
@@ -55,7 +55,7 @@ const styles = theme => ({
     alignItems: 'center'
   },
   message: {
-    paddingLeft: 2 * theme.spacing.unit
+    paddingLeft: theme.spacing(2)
   }
 })
 

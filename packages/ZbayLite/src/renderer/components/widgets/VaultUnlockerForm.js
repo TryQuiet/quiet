@@ -37,7 +37,7 @@ export const VaultUnlockerForm = ({
     {({ isSubmitting }) => (
       <Form>
         <Paper className={classes.paper}>
-          <Grid container direction='row' spacing={16} alignItems='center'>
+          <Grid container direction='row' spacing={2} alignItems='center'>
             <Grid item>
               <PasswordField
                 name='password'

@@ -1,191 +1,191 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ZcashBalance renders component 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   alignItems="stretch"
   container={true}
   direction="row"
   justify="flex-start"
-  spacing={8}
+  spacing={1}
 >
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     item={true}
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       container={true}
       direction="column"
     >
-      <WithStyles(Typography)
+      <WithStyles(ForwardRef(Typography))
         className="title-mock"
         variant="body2"
       >
         Available
-      </WithStyles(Typography)>
-      <WithStyles(Grid)
+      </WithStyles(ForwardRef(Typography))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
       >
         <Memo(WithStyles(UsdBalance))
           value={"3243.25"}
         />
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         className="zec-mock"
         item={true}
       >
         <Memo(WithStyles(ZecBalance))
           value={"12.323212"}
         />
-      </WithStyles(Grid)>
-    </WithStyles(Grid)>
-  </WithStyles(Grid)>
-  <WithTheme(Grow)
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+  <ForwardRef(Grow)
     in={false}
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       item={true}
     >
-      <WithStyles(Grid)
+      <WithStyles(ForwardRef(Grid))
         alignItems="flex-start"
         className="lockedRoot-mock"
         container={true}
         direction="column"
         justify="space-between"
       >
-        <WithStyles(Grid)
+        <WithStyles(ForwardRef(Grid))
           alignItems="center"
           container={true}
           item={true}
         >
-          <WithStyles(Typography)
+          <WithStyles(ForwardRef(Typography))
             className="lockedTitle-mock"
-            inline={true}
+            display="inline"
             variant="caption"
           >
             Locked
-          </WithStyles(Typography)>
+          </WithStyles(ForwardRef(Typography))>
           <Memo(WithStyles(Tooltip))
             placement="bottom"
             title="Because of the network's consensus requirements funds may be locked while your message is being broadcasted."
           >
-            <pure(InfoOutlinedIcon)
+            <InfoOutlinedIcon
               className="icon-mock"
             />
           </Memo(WithStyles(Tooltip))>
-        </WithStyles(Grid)>
-        <WithStyles(Typography)
+        </WithStyles(ForwardRef(Grid))>
+        <WithStyles(ForwardRef(Typography))
           variant="caption"
         >
           + 
           0.00
-        </WithStyles(Typography)>
-        <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+        <WithStyles(ForwardRef(Grid))
           className="zec-mock"
           item={true}
         >
-          <WithStyles(Typography)
+          <WithStyles(ForwardRef(Typography))
             variant="caption"
           >
             + 
             0.000000
-          </WithStyles(Typography)>
-        </WithStyles(Grid)>
-      </WithStyles(Grid)>
-    </WithStyles(Grid)>
-  </WithTheme(Grow)>
-</WithStyles(Grid)>
+          </WithStyles(ForwardRef(Typography))>
+        </WithStyles(ForwardRef(Grid))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </ForwardRef(Grow)>
+</WithStyles(ForwardRef(Grid))>
 `;
 
 exports[`ZcashBalance renders when balanced locked 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   alignItems="stretch"
   container={true}
   direction="row"
   justify="flex-start"
-  spacing={8}
+  spacing={1}
 >
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     item={true}
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       container={true}
       direction="column"
     >
-      <WithStyles(Typography)
+      <WithStyles(ForwardRef(Typography))
         className="title-mock"
         variant="body2"
       >
         Available
-      </WithStyles(Typography)>
-      <WithStyles(Grid)
+      </WithStyles(ForwardRef(Typography))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
       >
         <Memo(WithStyles(UsdBalance))
           value={"0"}
         />
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         className="zec-mock"
         item={true}
       >
         <Memo(WithStyles(ZecBalance))
           value={"0"}
         />
-      </WithStyles(Grid)>
-    </WithStyles(Grid)>
-  </WithStyles(Grid)>
-  <WithTheme(Grow)
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+  <ForwardRef(Grow)
     in={true}
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       item={true}
     >
-      <WithStyles(Grid)
+      <WithStyles(ForwardRef(Grid))
         alignItems="flex-start"
         className="lockedRoot-mock"
         container={true}
         direction="column"
         justify="space-between"
       >
-        <WithStyles(Grid)
+        <WithStyles(ForwardRef(Grid))
           alignItems="center"
           container={true}
           item={true}
         >
-          <WithStyles(Typography)
+          <WithStyles(ForwardRef(Typography))
             className="lockedTitle-mock"
-            inline={true}
+            display="inline"
             variant="caption"
           >
             Locked
-          </WithStyles(Typography)>
+          </WithStyles(ForwardRef(Typography))>
           <Memo(WithStyles(Tooltip))
             placement="bottom"
             title="Because of the network's consensus requirements funds may be locked while your message is being broadcasted."
           >
-            <pure(InfoOutlinedIcon)
+            <InfoOutlinedIcon
               className="icon-mock"
             />
           </Memo(WithStyles(Tooltip))>
-        </WithStyles(Grid)>
-        <WithStyles(Typography)
+        </WithStyles(ForwardRef(Grid))>
+        <WithStyles(ForwardRef(Typography))
           variant="caption"
         >
           + 
           3,243.25
-        </WithStyles(Typography)>
-        <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+        <WithStyles(ForwardRef(Grid))
           className="zec-mock"
           item={true}
         >
-          <WithStyles(Typography)
+          <WithStyles(ForwardRef(Typography))
             variant="caption"
           >
             + 
             12.323212
-          </WithStyles(Typography)>
-        </WithStyles(Grid)>
-      </WithStyles(Grid)>
-    </WithStyles(Grid)>
-  </WithTheme(Grow)>
-</WithStyles(Grid)>
+          </WithStyles(ForwardRef(Typography))>
+        </WithStyles(ForwardRef(Grid))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </ForwardRef(Grow)>
+</WithStyles(ForwardRef(Grid))>
 `;

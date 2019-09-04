@@ -8,7 +8,7 @@ exports[`ChannelMessages renders component 1`] = `
     }
   }
 >
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     className="wrapper-mock"
     container={true}
     direction="column"
@@ -32,7 +32,7 @@ exports[`ChannelMessages renders component 1`] = `
       thumbMinSize={30}
       universal={false}
     >
-      <WithStyles(List)
+      <WithStyles(ForwardRef(List))
         className="list-mock"
         disablePadding={true}
       >
@@ -356,8 +356,8 @@ exports[`ChannelMessages renders component 1`] = `
             }
           }
         />
-      </WithStyles(List)>
+      </WithStyles(ForwardRef(List))>
     </Scrollbars>
-  </WithStyles(Grid)>
+  </WithStyles(ForwardRef(Grid))>
 </RootRef>
 `;

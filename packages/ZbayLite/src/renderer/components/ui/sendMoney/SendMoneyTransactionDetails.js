@@ -8,7 +8,7 @@ import Typography from '@material-ui/core/Typography'
 
 const styles = theme => ({
   root: {
-    padding: 3 * theme.spacing.unit
+    padding: theme.spacing(3)
   },
   divider: {
     color: theme.palette.primary.main,
@@ -19,7 +19,7 @@ const styles = theme => ({
     wordBreak: 'break-all'
   },
   button: {
-    padding: 2 * theme.spacing.unit
+    padding: theme.spacing(2)
   }
 })
 
@@ -36,7 +36,7 @@ export const SendMoneyTransactionDetails = ({
   setStep
 }) => {
   return (
-    <Grid container className={classes.root} spacing={24}>
+    <Grid container className={classes.root} spacing={3}>
       {!(step === 4) && (
         <>
           <Grid item xs={12}>

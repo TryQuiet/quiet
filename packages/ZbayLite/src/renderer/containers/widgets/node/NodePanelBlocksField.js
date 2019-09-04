@@ -22,7 +22,7 @@ export const NodePanelBlocksField = ({ latestBlock, currentBlock }) => {
   )
   return (
     <NodePanelField name='Blocks'>
-      <Typography inline variant='overline'>
+      <Typography display='inline' variant='overline'>
         {currentBlock.toString()} / {outOf}
       </Typography>
     </NodePanelField>

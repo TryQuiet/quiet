@@ -23,7 +23,7 @@ exports[`BaseChannelsList renders component 1`] = `
   thumbMinSize={30}
   universal={false}
 >
-  <WithStyles(List)
+  <WithStyles(ForwardRef(List))
     disablePadding={true}
   >
     <withRouter(undefined)
@@ -242,7 +242,7 @@ exports[`BaseChannelsList renders component 1`] = `
       displayAddress={false}
       key="11"
     />
-  </WithStyles(List)>
+  </WithStyles(ForwardRef(List))>
 </Scrollbars>
 `;
 
@@ -269,7 +269,7 @@ exports[`BaseChannelsList renders list elements with displayAddress 1`] = `
   thumbMinSize={30}
   universal={false}
 >
-  <WithStyles(List)
+  <WithStyles(ForwardRef(List))
     disablePadding={true}
   >
     <withRouter(undefined)
@@ -326,6 +326,6 @@ exports[`BaseChannelsList renders list elements with displayAddress 1`] = `
       displayAddress={true}
       key="2"
     />
-  </WithStyles(List)>
+  </WithStyles(ForwardRef(List))>
 </Scrollbars>
 `;

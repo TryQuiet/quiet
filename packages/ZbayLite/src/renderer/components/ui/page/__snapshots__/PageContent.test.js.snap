@@ -1,11 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`PageContent renders component 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   className="root-mock"
   item={true}
   xs={true}
 >
   <Content />
-</WithStyles(Grid)>
+</WithStyles(ForwardRef(Grid))>
 `;

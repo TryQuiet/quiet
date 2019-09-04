@@ -1,170 +1,170 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`BasicMessage renders component 1`] = `
-<WithStyles(ListItem)
+<WithStyles(ForwardRef(ListItem))
   alignItems="flex-start"
   className="wrapper-mock"
   onClick={[Function]}
 >
-  <WithStyles(ListItemText)
+  <WithStyles(ForwardRef(ListItemText))
     className="messageCard-mock"
     disableTypography={true}
     primary={
-      <WithStyles(Grid)
+      <ForwardRef(WithStyles)
         alignItems="flex-start"
         container={true}
         direction="row"
         justify="space-between"
       >
-        <WithStyles(Grid)
+        <ForwardRef(WithStyles)
           item={true}
         >
-          <WithStyles(Typography)
+          <ForwardRef(WithStyles)
             className="username-mock"
             color="textPrimary"
           >
             Unnamed
-          </WithStyles(Typography)>
-          <WithStyles(Typography)
+          </ForwardRef(WithStyles)>
+          <ForwardRef(WithStyles)
             variant="caption"
           >
             zbay.io/uri/
             ...
-          </WithStyles(Typography)>
-        </WithStyles(Grid)>
-        <WithStyles(Grid)
+          </ForwardRef(WithStyles)>
+        </ForwardRef(WithStyles)>
+        <ForwardRef(WithStyles)
           item={true}
         >
-          <WithStyles(Grid)
+          <ForwardRef(WithStyles)
             alignItems="center"
             container={true}
             direction="row"
             justify="flex-end"
           >
-            <WithStyles(Typography)
+            <ForwardRef(WithStyles)
               variant="caption"
             >
               12:03
-            </WithStyles(Typography)>
-            <pure(DoneAllIcon)
+            </ForwardRef(WithStyles)>
+            <Memo
               className="statusIcon-mock broadcasted-mock"
             />
-          </WithStyles(Grid)>
-        </WithStyles(Grid)>
-      </WithStyles(Grid)>
+          </ForwardRef(WithStyles)>
+        </ForwardRef(WithStyles)>
+      </ForwardRef(WithStyles)>
     }
   />
-</WithStyles(ListItem)>
+</WithStyles(ForwardRef(ListItem))>
 `;
 
 exports[`BasicMessage renders component when message is sent by owner 1`] = `
-<WithStyles(ListItem)
+<WithStyles(ForwardRef(ListItem))
   alignItems="flex-start"
   className="wrapper-mock"
   onClick={[Function]}
 >
-  <WithStyles(ListItemText)
+  <WithStyles(ForwardRef(ListItemText))
     className="messageCard-mock"
     disableTypography={true}
     primary={
-      <WithStyles(Grid)
+      <ForwardRef(WithStyles)
         alignItems="flex-start"
         container={true}
         direction="row"
         justify="space-between"
       >
-        <WithStyles(Grid)
+        <ForwardRef(WithStyles)
           item={true}
         >
-          <WithStyles(Typography)
+          <ForwardRef(WithStyles)
             className="username-mock"
             color="textPrimary"
           >
             Unnamed
              (You)
-          </WithStyles(Typography)>
-          <WithStyles(Typography)
+          </ForwardRef(WithStyles)>
+          <ForwardRef(WithStyles)
             variant="caption"
           >
             zbay.io/uri/
             ...
-          </WithStyles(Typography)>
-        </WithStyles(Grid)>
-        <WithStyles(Grid)
+          </ForwardRef(WithStyles)>
+        </ForwardRef(WithStyles)>
+        <ForwardRef(WithStyles)
           item={true}
         >
-          <WithStyles(Grid)
+          <ForwardRef(WithStyles)
             alignItems="center"
             container={true}
             direction="row"
             justify="flex-end"
           >
-            <WithStyles(Typography)
+            <ForwardRef(WithStyles)
               variant="caption"
             >
               12:03
-            </WithStyles(Typography)>
-            <pure(DoneAllIcon)
+            </ForwardRef(WithStyles)>
+            <Memo
               className="statusIcon-mock broadcasted-mock"
             />
-          </WithStyles(Grid)>
-        </WithStyles(Grid)>
-      </WithStyles(Grid)>
+          </ForwardRef(WithStyles)>
+        </ForwardRef(WithStyles)>
+      </ForwardRef(WithStyles)>
     }
   />
-</WithStyles(ListItem)>
+</WithStyles(ForwardRef(ListItem))>
 `;
 
 exports[`BasicMessage renders component with status failed 1`] = `
-<WithStyles(ListItem)
+<WithStyles(ForwardRef(ListItem))
   alignItems="flex-start"
   className="wrapper-mock clickable-mock wrapperPending-mock"
   onClick={[Function]}
 >
-  <WithStyles(ListItemText)
+  <WithStyles(ForwardRef(ListItemText))
     className="messageCard-mock"
     disableTypography={true}
     primary={
-      <WithStyles(Grid)
+      <ForwardRef(WithStyles)
         alignItems="flex-start"
         container={true}
         direction="row"
         justify="space-between"
       >
-        <WithStyles(Grid)
+        <ForwardRef(WithStyles)
           item={true}
         >
-          <WithStyles(Typography)
+          <ForwardRef(WithStyles)
             className="username-mock"
             color="textPrimary"
           >
             Unnamed
-          </WithStyles(Typography)>
-          <WithStyles(Typography)
+          </ForwardRef(WithStyles)>
+          <ForwardRef(WithStyles)
             variant="caption"
           >
             zbay.io/uri/
             ...
-          </WithStyles(Typography)>
-        </WithStyles(Grid)>
-        <WithStyles(Grid)
+          </ForwardRef(WithStyles)>
+        </ForwardRef(WithStyles)>
+        <ForwardRef(WithStyles)
           item={true}
         >
-          <WithStyles(Grid)
+          <ForwardRef(WithStyles)
             alignItems="center"
             container={true}
             direction="row"
             justify="flex-end"
           >
-            <WithStyles(Typography)
+            <ForwardRef(WithStyles)
               variant="caption"
             >
               12:03
-            </WithStyles(Typography)>
-            <pure(ErrorOutlineIcon)
+            </ForwardRef(WithStyles)>
+            <Memo
               className="statusIcon-mock failed-mock"
             />
-          </WithStyles(Grid)>
+          </ForwardRef(WithStyles)>
           <Elipsis
             classes={
               Object {
@@ -176,408 +176,408 @@ exports[`BasicMessage renders component with status failed 1`] = `
             length={60}
             tooltipPlacement="bottom"
           />
-        </WithStyles(Grid)>
-      </WithStyles(Grid)>
+        </ForwardRef(WithStyles)>
+      </ForwardRef(WithStyles)>
     }
   />
-</WithStyles(ListItem)>
+</WithStyles(ForwardRef(ListItem))>
 `;
 
 exports[`BasicMessage renders correct time for different month 1`] = `
-<WithStyles(ListItem)
+<WithStyles(ForwardRef(ListItem))
   alignItems="flex-start"
   className="wrapper-mock"
   onClick={[Function]}
 >
-  <WithStyles(ListItemText)
+  <WithStyles(ForwardRef(ListItemText))
     className="messageCard-mock"
     disableTypography={true}
     primary={
-      <WithStyles(Grid)
+      <ForwardRef(WithStyles)
         alignItems="flex-start"
         container={true}
         direction="row"
         justify="space-between"
       >
-        <WithStyles(Grid)
+        <ForwardRef(WithStyles)
           item={true}
         >
-          <WithStyles(Typography)
+          <ForwardRef(WithStyles)
             className="username-mock"
             color="textPrimary"
           >
             Unnamed
-          </WithStyles(Typography)>
-          <WithStyles(Typography)
+          </ForwardRef(WithStyles)>
+          <ForwardRef(WithStyles)
             variant="caption"
           >
             zbay.io/uri/
             ...
-          </WithStyles(Typography)>
-        </WithStyles(Grid)>
-        <WithStyles(Grid)
+          </ForwardRef(WithStyles)>
+        </ForwardRef(WithStyles)>
+        <ForwardRef(WithStyles)
           item={true}
         >
-          <WithStyles(Grid)
+          <ForwardRef(WithStyles)
             alignItems="center"
             container={true}
             direction="row"
             justify="flex-end"
           >
-            <WithStyles(Typography)
+            <ForwardRef(WithStyles)
               variant="caption"
             >
               Feb 07, 13:03
-            </WithStyles(Typography)>
-            <pure(DoneAllIcon)
+            </ForwardRef(WithStyles)>
+            <Memo
               className="statusIcon-mock broadcasted-mock"
             />
-          </WithStyles(Grid)>
-        </WithStyles(Grid)>
-      </WithStyles(Grid)>
+          </ForwardRef(WithStyles)>
+        </ForwardRef(WithStyles)>
+      </ForwardRef(WithStyles)>
     }
   />
-</WithStyles(ListItem)>
+</WithStyles(ForwardRef(ListItem))>
 `;
 
 exports[`BasicMessage renders correct time for different year 1`] = `
-<WithStyles(ListItem)
+<WithStyles(ForwardRef(ListItem))
   alignItems="flex-start"
   className="wrapper-mock"
   onClick={[Function]}
 >
-  <WithStyles(ListItemText)
+  <WithStyles(ForwardRef(ListItemText))
     className="messageCard-mock"
     disableTypography={true}
     primary={
-      <WithStyles(Grid)
+      <ForwardRef(WithStyles)
         alignItems="flex-start"
         container={true}
         direction="row"
         justify="space-between"
       >
-        <WithStyles(Grid)
+        <ForwardRef(WithStyles)
           item={true}
         >
-          <WithStyles(Typography)
+          <ForwardRef(WithStyles)
             className="username-mock"
             color="textPrimary"
           >
             Unnamed
-          </WithStyles(Typography)>
-          <WithStyles(Typography)
+          </ForwardRef(WithStyles)>
+          <ForwardRef(WithStyles)
             variant="caption"
           >
             zbay.io/uri/
             ...
-          </WithStyles(Typography)>
-        </WithStyles(Grid)>
-        <WithStyles(Grid)
+          </ForwardRef(WithStyles)>
+        </ForwardRef(WithStyles)>
+        <ForwardRef(WithStyles)
           item={true}
         >
-          <WithStyles(Grid)
+          <ForwardRef(WithStyles)
             alignItems="center"
             container={true}
             direction="row"
             justify="flex-end"
           >
-            <WithStyles(Typography)
+            <ForwardRef(WithStyles)
               variant="caption"
             >
               Mar 07, 2018, 13:03
-            </WithStyles(Typography)>
-            <pure(DoneAllIcon)
+            </ForwardRef(WithStyles)>
+            <Memo
               className="statusIcon-mock broadcasted-mock"
             />
-          </WithStyles(Grid)>
-        </WithStyles(Grid)>
-      </WithStyles(Grid)>
+          </ForwardRef(WithStyles)>
+        </ForwardRef(WithStyles)>
+      </ForwardRef(WithStyles)>
     }
   />
-</WithStyles(ListItem)>
+</WithStyles(ForwardRef(ListItem))>
 `;
 
 exports[`BasicMessage renders correct time for same week 1`] = `
-<WithStyles(ListItem)
+<WithStyles(ForwardRef(ListItem))
   alignItems="flex-start"
   className="wrapper-mock"
   onClick={[Function]}
 >
-  <WithStyles(ListItemText)
+  <WithStyles(ForwardRef(ListItemText))
     className="messageCard-mock"
     disableTypography={true}
     primary={
-      <WithStyles(Grid)
+      <ForwardRef(WithStyles)
         alignItems="flex-start"
         container={true}
         direction="row"
         justify="space-between"
       >
-        <WithStyles(Grid)
+        <ForwardRef(WithStyles)
           item={true}
         >
-          <WithStyles(Typography)
+          <ForwardRef(WithStyles)
             className="username-mock"
             color="textPrimary"
           >
             Unnamed
-          </WithStyles(Typography)>
-          <WithStyles(Typography)
+          </ForwardRef(WithStyles)>
+          <ForwardRef(WithStyles)
             variant="caption"
           >
             zbay.io/uri/
             ...
-          </WithStyles(Typography)>
-        </WithStyles(Grid)>
-        <WithStyles(Grid)
+          </ForwardRef(WithStyles)>
+        </ForwardRef(WithStyles)>
+        <ForwardRef(WithStyles)
           item={true}
         >
-          <WithStyles(Grid)
+          <ForwardRef(WithStyles)
             alignItems="center"
             container={true}
             direction="row"
             justify="flex-end"
           >
-            <WithStyles(Typography)
+            <ForwardRef(WithStyles)
               variant="caption"
             >
               Wed, 13:03
-            </WithStyles(Typography)>
-            <pure(DoneAllIcon)
+            </ForwardRef(WithStyles)>
+            <Memo
               className="statusIcon-mock broadcasted-mock"
             />
-          </WithStyles(Grid)>
-        </WithStyles(Grid)>
-      </WithStyles(Grid)>
+          </ForwardRef(WithStyles)>
+        </ForwardRef(WithStyles)>
+      </ForwardRef(WithStyles)>
     }
   />
-</WithStyles(ListItem)>
+</WithStyles(ForwardRef(ListItem))>
 `;
 
 exports[`BasicMessage renders username 1`] = `
-<WithStyles(ListItem)
+<WithStyles(ForwardRef(ListItem))
   alignItems="flex-start"
   className="wrapper-mock"
   onClick={[Function]}
 >
-  <WithStyles(ListItemText)
+  <WithStyles(ForwardRef(ListItemText))
     className="messageCard-mock"
     disableTypography={true}
     primary={
-      <WithStyles(Grid)
+      <ForwardRef(WithStyles)
         alignItems="flex-start"
         container={true}
         direction="row"
         justify="space-between"
       >
-        <WithStyles(Grid)
+        <ForwardRef(WithStyles)
           item={true}
         >
-          <WithStyles(Typography)
+          <ForwardRef(WithStyles)
             className="username-mock"
             color="textPrimary"
           >
             Unnamed
-          </WithStyles(Typography)>
-          <WithStyles(Typography)
+          </ForwardRef(WithStyles)>
+          <ForwardRef(WithStyles)
             variant="caption"
           >
             zbay.io/uri/
             ...
-          </WithStyles(Typography)>
-        </WithStyles(Grid)>
-        <WithStyles(Grid)
+          </ForwardRef(WithStyles)>
+        </ForwardRef(WithStyles)>
+        <ForwardRef(WithStyles)
           item={true}
         >
-          <WithStyles(Grid)
+          <ForwardRef(WithStyles)
             alignItems="center"
             container={true}
             direction="row"
             justify="flex-end"
           >
-            <WithStyles(Typography)
+            <ForwardRef(WithStyles)
               variant="caption"
             >
               11:03
-            </WithStyles(Typography)>
-            <pure(DoneAllIcon)
+            </ForwardRef(WithStyles)>
+            <Memo
               className="statusIcon-mock broadcasted-mock"
             />
-          </WithStyles(Grid)>
-        </WithStyles(Grid)>
-      </WithStyles(Grid)>
+          </ForwardRef(WithStyles)>
+        </ForwardRef(WithStyles)>
+      </ForwardRef(WithStyles)>
     }
   />
-</WithStyles(ListItem)>
+</WithStyles(ForwardRef(ListItem))>
 `;
 
 exports[`BasicMessage renders with status cancelled 1`] = `
-<WithStyles(ListItem)
+<WithStyles(ForwardRef(ListItem))
   alignItems="flex-start"
   className="wrapper-mock clickable-mock wrapperPending-mock"
   onClick={[Function]}
 >
-  <WithStyles(ListItemText)
+  <WithStyles(ForwardRef(ListItemText))
     className="messageCard-mock"
     disableTypography={true}
     primary={
-      <WithStyles(Grid)
+      <ForwardRef(WithStyles)
         alignItems="flex-start"
         container={true}
         direction="row"
         justify="space-between"
       >
-        <WithStyles(Grid)
+        <ForwardRef(WithStyles)
           item={true}
         >
-          <WithStyles(Typography)
+          <ForwardRef(WithStyles)
             className="username-mock"
             color="textPrimary"
           >
             Unnamed
-          </WithStyles(Typography)>
-          <WithStyles(Typography)
+          </ForwardRef(WithStyles)>
+          <ForwardRef(WithStyles)
             variant="caption"
           >
             zbay.io/uri/
             ...
-          </WithStyles(Typography)>
-        </WithStyles(Grid)>
-        <WithStyles(Grid)
+          </ForwardRef(WithStyles)>
+        </ForwardRef(WithStyles)>
+        <ForwardRef(WithStyles)
           item={true}
         >
-          <WithStyles(Grid)
+          <ForwardRef(WithStyles)
             alignItems="center"
             container={true}
             direction="row"
             justify="flex-end"
           >
-            <WithStyles(Typography)
+            <ForwardRef(WithStyles)
               variant="caption"
             >
               12:03
-            </WithStyles(Typography)>
-            <pure(BlockIcon)
+            </ForwardRef(WithStyles)>
+            <Memo
               className="statusIcon-mock"
             />
-          </WithStyles(Grid)>
-        </WithStyles(Grid)>
-      </WithStyles(Grid)>
+          </ForwardRef(WithStyles)>
+        </ForwardRef(WithStyles)>
+      </ForwardRef(WithStyles)>
     }
   />
-</WithStyles(ListItem)>
+</WithStyles(ForwardRef(ListItem))>
 `;
 
 exports[`BasicMessage renders with status pending 1`] = `
-<WithStyles(ListItem)
+<WithStyles(ForwardRef(ListItem))
   alignItems="flex-start"
   className="wrapper-mock wrapperPending-mock"
   onClick={[Function]}
 >
-  <WithStyles(ListItemText)
+  <WithStyles(ForwardRef(ListItemText))
     className="messageCard-mock"
     disableTypography={true}
     primary={
-      <WithStyles(Grid)
+      <ForwardRef(WithStyles)
         alignItems="flex-start"
         container={true}
         direction="row"
         justify="space-between"
       >
-        <WithStyles(Grid)
+        <ForwardRef(WithStyles)
           item={true}
         >
-          <WithStyles(Typography)
+          <ForwardRef(WithStyles)
             className="username-mock"
             color="textPrimary"
           >
             Unnamed
-          </WithStyles(Typography)>
-          <WithStyles(Typography)
+          </ForwardRef(WithStyles)>
+          <ForwardRef(WithStyles)
             variant="caption"
           >
             zbay.io/uri/
             ...
-          </WithStyles(Typography)>
-        </WithStyles(Grid)>
-        <WithStyles(Grid)
+          </ForwardRef(WithStyles)>
+        </ForwardRef(WithStyles)>
+        <ForwardRef(WithStyles)
           item={true}
         >
-          <WithStyles(Grid)
+          <ForwardRef(WithStyles)
             alignItems="center"
             container={true}
             direction="row"
             justify="flex-end"
           >
-            <WithStyles(Typography)
+            <ForwardRef(WithStyles)
               variant="caption"
             >
               12:03
-            </WithStyles(Typography)>
+            </ForwardRef(WithStyles)>
             <pending
               className="statusIcon-mock"
             />
-          </WithStyles(Grid)>
-        </WithStyles(Grid)>
-      </WithStyles(Grid)>
+          </ForwardRef(WithStyles)>
+        </ForwardRef(WithStyles)>
+      </ForwardRef(WithStyles)>
     }
   />
-</WithStyles(ListItem)>
+</WithStyles(ForwardRef(ListItem))>
 `;
 
 exports[`BasicMessage renders with status success 1`] = `
-<WithStyles(ListItem)
+<WithStyles(ForwardRef(ListItem))
   alignItems="flex-start"
   className="wrapper-mock wrapperPending-mock"
   onClick={[Function]}
 >
-  <WithStyles(ListItemText)
+  <WithStyles(ForwardRef(ListItemText))
     className="messageCard-mock"
     disableTypography={true}
     primary={
-      <WithStyles(Grid)
+      <ForwardRef(WithStyles)
         alignItems="flex-start"
         container={true}
         direction="row"
         justify="space-between"
       >
-        <WithStyles(Grid)
+        <ForwardRef(WithStyles)
           item={true}
         >
-          <WithStyles(Typography)
+          <ForwardRef(WithStyles)
             className="username-mock"
             color="textPrimary"
           >
             Unnamed
-          </WithStyles(Typography)>
-          <WithStyles(Typography)
+          </ForwardRef(WithStyles)>
+          <ForwardRef(WithStyles)
             variant="caption"
           >
             zbay.io/uri/
             ...
-          </WithStyles(Typography)>
-        </WithStyles(Grid)>
-        <WithStyles(Grid)
+          </ForwardRef(WithStyles)>
+        </ForwardRef(WithStyles)>
+        <ForwardRef(WithStyles)
           item={true}
         >
-          <WithStyles(Grid)
+          <ForwardRef(WithStyles)
             alignItems="center"
             container={true}
             direction="row"
             justify="flex-end"
           >
-            <WithStyles(Typography)
+            <ForwardRef(WithStyles)
               variant="caption"
             >
               12:03
-            </WithStyles(Typography)>
-            <pure(DoneIcon)
+            </ForwardRef(WithStyles)>
+            <Memo
               className="statusIcon-mock"
             />
-          </WithStyles(Grid)>
-        </WithStyles(Grid)>
-      </WithStyles(Grid)>
+          </ForwardRef(WithStyles)>
+        </ForwardRef(WithStyles)>
+      </ForwardRef(WithStyles)>
     }
   />
-</WithStyles(ListItem)>
+</WithStyles(ForwardRef(ListItem))>
 `;

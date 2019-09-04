@@ -14,54 +14,54 @@ exports[`CreateVault renders component 1`] = `
     open={false}
     variant="error"
   />
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     alignItems="center"
     className="gridRoot-mock"
     container={true}
     justify="center"
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       item={true}
     >
-      <WithStyles(Paper)
+      <WithStyles(ForwardRef(Paper))
         className="paper-mock"
       >
-        <WithStyles(Grid)
+        <WithStyles(ForwardRef(Grid))
           alignItems="center"
           container={true}
           direction="row"
           justify="center"
         >
-          <WithStyles(Grid)
+          <WithStyles(ForwardRef(Grid))
             className="welcome-mock"
             item={true}
           >
-            <WithStyles(Typography)
+            <WithStyles(ForwardRef(Typography))
               gutterBottom={true}
               variant="h4"
             >
               Hey there!
-            </WithStyles(Typography)>
-            <WithStyles(Typography)
+            </WithStyles(ForwardRef(Typography))>
+            <WithStyles(ForwardRef(Typography))
               align="justify"
               gutterBottom={true}
               variant="body1"
             >
               Zbay vault is not configured on this computer. In order to proceed you need to choose a password for your secure vault.
-            </WithStyles(Typography)>
-          </WithStyles(Grid)>
-          <WithStyles(Grid)
+            </WithStyles(ForwardRef(Typography))>
+          </WithStyles(ForwardRef(Grid))>
+          <WithStyles(ForwardRef(Grid))
             item={true}
           >
             <VaultCreator
               buttonStyles="button-mock"
               className="vault-mock"
             />
-          </WithStyles(Grid)>
-        </WithStyles(Grid)>
-      </WithStyles(Paper)>
-    </WithStyles(Grid)>
-  </WithStyles(Grid)>
+          </WithStyles(ForwardRef(Grid))>
+        </WithStyles(ForwardRef(Grid))>
+      </WithStyles(ForwardRef(Paper))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
 </Memo(WithStyles(WindowWrapper))>
 `;
 
@@ -79,54 +79,54 @@ exports[`CreateVault renders error 1`] = `
     open={true}
     variant="error"
   />
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     alignItems="center"
     className="gridRoot-mock"
     container={true}
     justify="center"
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       item={true}
     >
-      <WithStyles(Paper)
+      <WithStyles(ForwardRef(Paper))
         className="paper-mock"
       >
-        <WithStyles(Grid)
+        <WithStyles(ForwardRef(Grid))
           alignItems="center"
           container={true}
           direction="row"
           justify="center"
         >
-          <WithStyles(Grid)
+          <WithStyles(ForwardRef(Grid))
             className="welcome-mock"
             item={true}
           >
-            <WithStyles(Typography)
+            <WithStyles(ForwardRef(Typography))
               gutterBottom={true}
               variant="h4"
             >
               Hey there!
-            </WithStyles(Typography)>
-            <WithStyles(Typography)
+            </WithStyles(ForwardRef(Typography))>
+            <WithStyles(ForwardRef(Typography))
               align="justify"
               gutterBottom={true}
               variant="body1"
             >
               Zbay vault is not configured on this computer. In order to proceed you need to choose a password for your secure vault.
-            </WithStyles(Typography)>
-          </WithStyles(Grid)>
-          <WithStyles(Grid)
+            </WithStyles(ForwardRef(Typography))>
+          </WithStyles(ForwardRef(Grid))>
+          <WithStyles(ForwardRef(Grid))
             item={true}
           >
             <VaultCreator
               buttonStyles="button-mock"
               className="vault-mock"
             />
-          </WithStyles(Grid)>
-        </WithStyles(Grid)>
-      </WithStyles(Paper)>
-    </WithStyles(Grid)>
-  </WithStyles(Grid)>
+          </WithStyles(ForwardRef(Grid))>
+        </WithStyles(ForwardRef(Grid))>
+      </WithStyles(ForwardRef(Paper))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
 </Memo(WithStyles(WindowWrapper))>
 `;
 
@@ -144,53 +144,53 @@ exports[`CreateVault renders inProgress 1`] = `
     open={false}
     variant="error"
   />
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     alignItems="center"
     className="gridRoot-mock"
     container={true}
     justify="center"
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       item={true}
     >
-      <WithStyles(Paper)
+      <WithStyles(ForwardRef(Paper))
         className="paper-mock"
       >
-        <WithStyles(Grid)
+        <WithStyles(ForwardRef(Grid))
           alignItems="center"
           container={true}
           direction="row"
           justify="center"
         >
-          <WithStyles(Grid)
+          <WithStyles(ForwardRef(Grid))
             className="welcome-mock"
             item={true}
           >
-            <WithStyles(Typography)
+            <WithStyles(ForwardRef(Typography))
               gutterBottom={true}
               variant="h4"
             >
               Hey there!
-            </WithStyles(Typography)>
-            <WithStyles(Typography)
+            </WithStyles(ForwardRef(Typography))>
+            <WithStyles(ForwardRef(Typography))
               align="justify"
               gutterBottom={true}
               variant="body1"
             >
               Zbay vault is not configured on this computer. In order to proceed you need to choose a password for your secure vault.
-            </WithStyles(Typography)>
-          </WithStyles(Grid)>
-          <WithStyles(Grid)
+            </WithStyles(ForwardRef(Typography))>
+          </WithStyles(ForwardRef(Grid))>
+          <WithStyles(ForwardRef(Grid))
             item={true}
           >
             <VaultCreator
               buttonStyles="button-mock"
               className="vault-mock"
             />
-          </WithStyles(Grid)>
-        </WithStyles(Grid)>
-      </WithStyles(Paper)>
-    </WithStyles(Grid)>
-  </WithStyles(Grid)>
+          </WithStyles(ForwardRef(Grid))>
+        </WithStyles(ForwardRef(Grid))>
+      </WithStyles(ForwardRef(Paper))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
 </Memo(WithStyles(WindowWrapper))>
 `;

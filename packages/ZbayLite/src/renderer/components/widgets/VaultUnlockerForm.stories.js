@@ -15,7 +15,7 @@ storiesOf('Components/Widgets/VaultUnlockerForm', module)
   .addDecorator(withKnobs)
   .add('playground', () => {
     return (
-      <Grid container direction='column' spacing={16}>
+      <Grid container direction='column' spacing={2}>
         <Grid item>
           <VaultUnlockerForm
             onSubmit={finishSubmitting.action('onSubmit')}

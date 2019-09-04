@@ -4,14 +4,14 @@ exports[`NodePanelBlocksField renders the field 1`] = `
 <Memo(NodePanelField)
   name="Blocks"
 >
-  <WithStyles(Typography)
-    inline={true}
+  <WithStyles(ForwardRef(Typography))
+    display="inline"
     variant="overline"
   >
     18
      / 
     ~12345
-  </WithStyles(Typography)>
+  </WithStyles(ForwardRef(Typography))>
 </Memo(NodePanelField)>
 `;
 
@@ -19,14 +19,14 @@ exports[`NodePanelBlocksField renders the field when no latestBlock 1`] = `
 <Memo(NodePanelField)
   name="Blocks"
 >
-  <WithStyles(Typography)
-    inline={true}
+  <WithStyles(ForwardRef(Typography))
+    display="inline"
     variant="overline"
   >
     0
      / 
     ?
-  </WithStyles(Typography)>
+  </WithStyles(ForwardRef(Typography))>
 </Memo(NodePanelField)>
 `;
 

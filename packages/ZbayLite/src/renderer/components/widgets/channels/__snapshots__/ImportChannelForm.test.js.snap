@@ -1,37 +1,35 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ImportChannelForm renders component 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   className="content-mock"
   container={true}
 >
-  <WithStyles(Typography)
+  <WithStyles(ForwardRef(Typography))
     className="subfieldTitle-mock"
     variant="subtitle1"
   >
     Channel URI
-  </WithStyles(Typography)>
-  <WithStyles(Grid)
+  </WithStyles(ForwardRef(Typography))>
+  <WithStyles(ForwardRef(Grid))
     container={true}
     direction="row"
     item={true}
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       item={true}
       xs={true}
     >
-      <TextField
+      <WithStyles(ForwardRef(TextField))
         fullWidth={true}
         id="channel-uri"
         margin="none"
         onChange={[Function]}
         placeholder="zbay.io/channel/..."
-        required={false}
-        select={false}
         value=""
         variant="outlined"
       />
-    </WithStyles(Grid)>
+    </WithStyles(ForwardRef(Grid))>
     <Memo(WithStyles(ProgressFab))
       className="fab-mock"
       disabled={false}
@@ -40,46 +38,44 @@ exports[`ImportChannelForm renders component 1`] = `
       onClick={[Function]}
       success={false}
     >
-      <pure(VpnKeyIcon) />
+      <VpnKeyIcon />
     </Memo(WithStyles(ProgressFab))>
-  </WithStyles(Grid)>
-</WithStyles(Grid)>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
 `;
 
 exports[`ImportChannelForm renders decoded 1`] = `""`;
 
 exports[`ImportChannelForm renders decoding 1`] = `
-<WithStyles(Grid)
+<WithStyles(ForwardRef(Grid))
   className="content-mock"
   container={true}
 >
-  <WithStyles(Typography)
+  <WithStyles(ForwardRef(Typography))
     className="subfieldTitle-mock"
     variant="subtitle1"
   >
     Channel URI
-  </WithStyles(Typography)>
-  <WithStyles(Grid)
+  </WithStyles(ForwardRef(Typography))>
+  <WithStyles(ForwardRef(Grid))
     container={true}
     direction="row"
     item={true}
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       item={true}
       xs={true}
     >
-      <TextField
+      <WithStyles(ForwardRef(TextField))
         fullWidth={true}
         id="channel-uri"
         margin="none"
         onChange={[Function]}
         placeholder="zbay.io/channel/..."
-        required={false}
-        select={false}
         value=""
         variant="outlined"
       />
-    </WithStyles(Grid)>
+    </WithStyles(ForwardRef(Grid))>
     <Memo(WithStyles(ProgressFab))
       className="fab-mock"
       disabled={false}
@@ -88,8 +84,8 @@ exports[`ImportChannelForm renders decoding 1`] = `
       onClick={[Function]}
       success={false}
     >
-      <pure(VpnKeyIcon) />
+      <VpnKeyIcon />
     </Memo(WithStyles(ProgressFab))>
-  </WithStyles(Grid)>
-</WithStyles(Grid)>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
 `;

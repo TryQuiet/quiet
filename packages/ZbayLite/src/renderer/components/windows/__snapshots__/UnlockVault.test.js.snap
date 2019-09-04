@@ -2,27 +2,27 @@
 
 exports[`UnlockVault renders component 1`] = `
 <Memo(WithStyles(WindowWrapper))>
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     alignItems="center"
     className="gridRoot-mock"
     container={true}
     justify="center"
   >
     <VaultUnlocker />
-  </WithStyles(Grid)>
+  </WithStyles(ForwardRef(Grid))>
 </Memo(WithStyles(WindowWrapper))>
 `;
 
 exports[`UnlockVault renders unlocked 1`] = `
 <Memo(WithStyles(WindowWrapper))>
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     alignItems="center"
     className="gridRoot-mock"
     container={true}
     justify="center"
   >
     <VaultUnlocker />
-  </WithStyles(Grid)>
+  </WithStyles(ForwardRef(Grid))>
   <Countdown
     date={1536662639084}
     renderer={[Function]}

@@ -4,31 +4,31 @@ exports[`Index renders component 1`] = `
 <Memo(WithStyles(WindowWrapper))
   className="root-mock"
 >
-  <WithStyles(Card)
+  <WithStyles(ForwardRef(Card))
     className="card-mock"
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       container={true}
       direction="row"
     >
-      <WithStyles(CardMedia)
+      <WithStyles(ForwardRef(CardMedia))
         className="icon-mock"
         image="test-file-stub"
       />
-      <WithStyles(CardContent)
+      <WithStyles(ForwardRef(CardContent))
         className="content-mock"
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           align="justify"
           gutterBottom={true}
           variant="body1"
         >
           Waiting for Zcash node.
-        </WithStyles(Typography)>
-        <WithStyles(LinearProgress) />
-      </WithStyles(CardContent)>
-    </WithStyles(Grid)>
-  </WithStyles(Card)>
+        </WithStyles(ForwardRef(Typography))>
+        <WithStyles(ForwardRef(LinearProgress)) />
+      </WithStyles(ForwardRef(CardContent))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Card))>
 </Memo(WithStyles(WindowWrapper))>
 `;
 
@@ -36,30 +36,30 @@ exports[`Index renders when bootstrapping 1`] = `
 <Memo(WithStyles(WindowWrapper))
   className="root-mock"
 >
-  <WithStyles(Card)
+  <WithStyles(ForwardRef(Card))
     className="card-mock"
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       container={true}
       direction="row"
     >
-      <WithStyles(CardMedia)
+      <WithStyles(ForwardRef(CardMedia))
         className="icon-mock"
         image="test-file-stub"
       />
-      <WithStyles(CardContent)
+      <WithStyles(ForwardRef(CardContent))
         className="content-mock"
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           align="justify"
           gutterBottom={true}
           variant="body1"
         >
           Launching node
-        </WithStyles(Typography)>
-        <WithStyles(LinearProgress) />
-      </WithStyles(CardContent)>
-    </WithStyles(Grid)>
-  </WithStyles(Card)>
+        </WithStyles(ForwardRef(Typography))>
+        <WithStyles(ForwardRef(LinearProgress)) />
+      </WithStyles(ForwardRef(CardContent))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Card))>
 </Memo(WithStyles(WindowWrapper))>
 `;

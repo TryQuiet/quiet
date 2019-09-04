@@ -47,7 +47,7 @@ export const VaultCreator = ({ classes, onSend, initialValues }) => (
       <Form >
         <Grid
           container
-          spacing={16}
+          spacing={2}
           justify='flex-start'
           direction='column'
           className={classes.fullContainer}

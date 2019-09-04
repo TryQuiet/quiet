@@ -25,16 +25,16 @@ exports[`ChannelTransferMessage renders component 1`] = `
   }
   setActionsOpen={[Function]}
 >
-  <WithStyles(Divider)
+  <WithStyles(ForwardRef(Divider))
     className="divider-mock"
   />
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     alignItems="center"
     container={true}
     direction="column"
     justify="space-evenly"
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       alignItems="center"
       className="transactionCard-mock"
       container={true}
@@ -42,23 +42,23 @@ exports[`ChannelTransferMessage renders component 1`] = `
       justify="space-evenly"
       spacing={0}
     >
-      <WithStyles(Grid)
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="boldText-mock"
           variant="h5"
         >
           $
           0.32
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="boldText-mock"
           variant="h5"
         >
@@ -66,65 +66,65 @@ exports[`ChannelTransferMessage renders component 1`] = `
             size={18}
             value={"0.32"}
           />
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="boldText-mock"
           variant="subtitle2"
         >
           Sent to :
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="boldText-mock"
           variant="subtitle2"
         >
           Unnamed
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Link)
+        <WithStyles(ForwardRef(Link))
           className="link-mock"
           onClick={[Function]}
           variant="body1"
         />
-      </WithStyles(Grid)>
-    </WithStyles(Grid)>
-    <WithStyles(Divider)
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Divider))
       className="divider-mock"
     />
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       alignItems="center"
       className="info-mock"
       container={true}
       direction="row"
       justify="flex-start"
     >
-      <WithStyles(Grid)
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="message-mock"
           variant="body2"
         >
           This is a message with id undefined
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-    </WithStyles(Grid)>
-  </WithStyles(Grid)>
-  <WithStyles(Collapse)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Collapse))
     in={false}
     timeout="auto"
   >
@@ -135,7 +135,7 @@ exports[`ChannelTransferMessage renders component 1`] = `
       onResend={[Function]}
       status="broadcasted"
     />
-  </WithStyles(Collapse)>
+  </WithStyles(ForwardRef(Collapse))>
 </Memo(WithStyles(BasicMessage))>
 `;
 
@@ -164,16 +164,16 @@ exports[`ChannelTransferMessage renders component when message is broadcasted 1`
   }
   setActionsOpen={[Function]}
 >
-  <WithStyles(Divider)
+  <WithStyles(ForwardRef(Divider))
     className="divider-mock"
   />
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     alignItems="center"
     container={true}
     direction="column"
     justify="space-evenly"
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       alignItems="center"
       className="transactionCard-mock"
       container={true}
@@ -181,23 +181,23 @@ exports[`ChannelTransferMessage renders component when message is broadcasted 1`
       justify="space-evenly"
       spacing={0}
     >
-      <WithStyles(Grid)
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="boldText-mock"
           variant="h5"
         >
           $
           0.32
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="boldText-mock"
           variant="h5"
         >
@@ -205,65 +205,65 @@ exports[`ChannelTransferMessage renders component when message is broadcasted 1`
             size={18}
             value={"0.32"}
           />
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="boldText-mock"
           variant="subtitle2"
         >
           Sent to :
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="boldText-mock"
           variant="subtitle2"
         >
           Sun
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Link)
+        <WithStyles(ForwardRef(Link))
           className="link-mock"
           onClick={[Function]}
           variant="body1"
         />
-      </WithStyles(Grid)>
-    </WithStyles(Grid)>
-    <WithStyles(Divider)
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Divider))
       className="divider-mock"
     />
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       alignItems="center"
       className="info-mock"
       container={true}
       direction="row"
       justify="flex-start"
     >
-      <WithStyles(Grid)
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="message-mock"
           variant="body2"
         >
           hello
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-    </WithStyles(Grid)>
-  </WithStyles(Grid)>
-  <WithStyles(Collapse)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Collapse))
     in={false}
     timeout="auto"
   >
@@ -274,7 +274,7 @@ exports[`ChannelTransferMessage renders component when message is broadcasted 1`
       onResend={[Function]}
       status="broadcasted"
     />
-  </WithStyles(Collapse)>
+  </WithStyles(ForwardRef(Collapse))>
 </Memo(WithStyles(BasicMessage))>
 `;
 
@@ -303,16 +303,16 @@ exports[`ChannelTransferMessage renders component when message is cancelled 1`] 
   }
   setActionsOpen={[Function]}
 >
-  <WithStyles(Divider)
+  <WithStyles(ForwardRef(Divider))
     className="divider-mock"
   />
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     alignItems="center"
     container={true}
     direction="column"
     justify="space-evenly"
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       alignItems="center"
       className="transactionCard-mock"
       container={true}
@@ -320,23 +320,23 @@ exports[`ChannelTransferMessage renders component when message is cancelled 1`] 
       justify="space-evenly"
       spacing={0}
     >
-      <WithStyles(Grid)
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="boldText-mock"
           variant="h5"
         >
           $
           0.32
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="boldText-mock"
           variant="h5"
         >
@@ -344,31 +344,31 @@ exports[`ChannelTransferMessage renders component when message is cancelled 1`] 
             size={18}
             value={"0.32"}
           />
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="boldText-mock"
           variant="subtitle2"
         >
           Sent to :
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="boldText-mock"
           variant="subtitle2"
         >
           Sun
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
@@ -383,32 +383,32 @@ exports[`ChannelTransferMessage renders component when message is cancelled 1`] 
           length={60}
           tooltipPlacement="bottom"
         />
-      </WithStyles(Grid)>
-    </WithStyles(Grid)>
-    <WithStyles(Divider)
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Divider))
       className="divider-mock"
     />
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       alignItems="center"
       className="info-mock"
       container={true}
       direction="row"
       justify="flex-start"
     >
-      <WithStyles(Grid)
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="message-mock"
           variant="body2"
         >
           hello
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-    </WithStyles(Grid)>
-  </WithStyles(Grid)>
-  <WithStyles(Collapse)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Collapse))
     in={false}
     timeout="auto"
   >
@@ -419,7 +419,7 @@ exports[`ChannelTransferMessage renders component when message is cancelled 1`] 
       onResend={[Function]}
       status="cancelled"
     />
-  </WithStyles(Collapse)>
+  </WithStyles(ForwardRef(Collapse))>
 </Memo(WithStyles(BasicMessage))>
 `;
 
@@ -451,16 +451,16 @@ exports[`ChannelTransferMessage renders component when message is failed 1`] = `
   }
   setActionsOpen={[Function]}
 >
-  <WithStyles(Divider)
+  <WithStyles(ForwardRef(Divider))
     className="divider-mock"
   />
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     alignItems="center"
     container={true}
     direction="column"
     justify="space-evenly"
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       alignItems="center"
       className="transactionCard-mock"
       container={true}
@@ -468,23 +468,23 @@ exports[`ChannelTransferMessage renders component when message is failed 1`] = `
       justify="space-evenly"
       spacing={0}
     >
-      <WithStyles(Grid)
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="boldText-mock"
           variant="h5"
         >
           $
           0.32
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="boldText-mock"
           variant="h5"
         >
@@ -492,31 +492,31 @@ exports[`ChannelTransferMessage renders component when message is failed 1`] = `
             size={18}
             value={"0.32"}
           />
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="boldText-mock"
           variant="subtitle2"
         >
           Sent to :
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="boldText-mock"
           variant="subtitle2"
         >
           Sun
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
@@ -531,32 +531,32 @@ exports[`ChannelTransferMessage renders component when message is failed 1`] = `
           length={60}
           tooltipPlacement="bottom"
         />
-      </WithStyles(Grid)>
-    </WithStyles(Grid)>
-    <WithStyles(Divider)
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Divider))
       className="divider-mock"
     />
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       alignItems="center"
       className="info-mock"
       container={true}
       direction="row"
       justify="flex-start"
     >
-      <WithStyles(Grid)
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="message-mock"
           variant="body2"
         >
           hello
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-    </WithStyles(Grid)>
-  </WithStyles(Grid)>
-  <WithStyles(Collapse)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Collapse))
     in={false}
     timeout="auto"
   >
@@ -567,7 +567,7 @@ exports[`ChannelTransferMessage renders component when message is failed 1`] = `
       onResend={[Function]}
       status="failed"
     />
-  </WithStyles(Collapse)>
+  </WithStyles(ForwardRef(Collapse))>
 </Memo(WithStyles(BasicMessage))>
 `;
 
@@ -596,16 +596,16 @@ exports[`ChannelTransferMessage renders component when message is pending 1`] = 
   }
   setActionsOpen={[Function]}
 >
-  <WithStyles(Divider)
+  <WithStyles(ForwardRef(Divider))
     className="divider-mock"
   />
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     alignItems="center"
     container={true}
     direction="column"
     justify="space-evenly"
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       alignItems="center"
       className="transactionCard-mock"
       container={true}
@@ -613,23 +613,23 @@ exports[`ChannelTransferMessage renders component when message is pending 1`] = 
       justify="space-evenly"
       spacing={0}
     >
-      <WithStyles(Grid)
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="boldText-mock"
           variant="h5"
         >
           $
           0.32
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="boldText-mock"
           variant="h5"
         >
@@ -637,63 +637,63 @@ exports[`ChannelTransferMessage renders component when message is pending 1`] = 
             size={18}
             value={"0.32"}
           />
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="boldText-mock"
           variant="subtitle2"
         >
           Sent to :
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="boldText-mock"
           variant="subtitle2"
         >
           Sun
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
         <Memo(WithStyles(SpinnerLoader))
           message="Loading Transaction Id"
         />
-      </WithStyles(Grid)>
-    </WithStyles(Grid)>
-    <WithStyles(Divider)
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Divider))
       className="divider-mock"
     />
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       alignItems="center"
       className="info-mock"
       container={true}
       direction="row"
       justify="flex-start"
     >
-      <WithStyles(Grid)
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="message-mock"
           variant="body2"
         >
           hello
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-    </WithStyles(Grid)>
-  </WithStyles(Grid)>
-  <WithStyles(Collapse)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Collapse))
     in={false}
     timeout="auto"
   >
@@ -704,7 +704,7 @@ exports[`ChannelTransferMessage renders component when message is pending 1`] = 
       onResend={[Function]}
       status="pending"
     />
-  </WithStyles(Collapse)>
+  </WithStyles(ForwardRef(Collapse))>
 </Memo(WithStyles(BasicMessage))>
 `;
 
@@ -733,16 +733,16 @@ exports[`ChannelTransferMessage renders component when message is sent by owner 
   }
   setActionsOpen={[Function]}
 >
-  <WithStyles(Divider)
+  <WithStyles(ForwardRef(Divider))
     className="divider-mock"
   />
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     alignItems="center"
     container={true}
     direction="column"
     justify="space-evenly"
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       alignItems="center"
       className="transactionCard-mock"
       container={true}
@@ -750,23 +750,23 @@ exports[`ChannelTransferMessage renders component when message is sent by owner 
       justify="space-evenly"
       spacing={0}
     >
-      <WithStyles(Grid)
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="boldText-mock"
           variant="h5"
         >
           $
           0.32
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="boldText-mock"
           variant="h5"
         >
@@ -774,65 +774,65 @@ exports[`ChannelTransferMessage renders component when message is sent by owner 
             size={18}
             value={"0.32"}
           />
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="boldText-mock"
           variant="subtitle2"
         >
           Sent to :
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="boldText-mock"
           variant="subtitle2"
         >
           Sun
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Link)
+        <WithStyles(ForwardRef(Link))
           className="link-mock"
           onClick={[Function]}
           variant="body1"
         />
-      </WithStyles(Grid)>
-    </WithStyles(Grid)>
-    <WithStyles(Divider)
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Divider))
       className="divider-mock"
     />
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       alignItems="center"
       className="info-mock"
       container={true}
       direction="row"
       justify="flex-start"
     >
-      <WithStyles(Grid)
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="message-mock"
           variant="body2"
         >
           hello
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-    </WithStyles(Grid)>
-  </WithStyles(Grid)>
-  <WithStyles(Collapse)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Collapse))
     in={false}
     timeout="auto"
   >
@@ -843,7 +843,7 @@ exports[`ChannelTransferMessage renders component when message is sent by owner 
       onResend={[Function]}
       status="broadcasted"
     />
-  </WithStyles(Collapse)>
+  </WithStyles(ForwardRef(Collapse))>
 </Memo(WithStyles(BasicMessage))>
 `;
 
@@ -872,16 +872,16 @@ exports[`ChannelTransferMessage renders component when message is success 1`] = 
   }
   setActionsOpen={[Function]}
 >
-  <WithStyles(Divider)
+  <WithStyles(ForwardRef(Divider))
     className="divider-mock"
   />
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     alignItems="center"
     container={true}
     direction="column"
     justify="space-evenly"
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       alignItems="center"
       className="transactionCard-mock"
       container={true}
@@ -889,23 +889,23 @@ exports[`ChannelTransferMessage renders component when message is success 1`] = 
       justify="space-evenly"
       spacing={0}
     >
-      <WithStyles(Grid)
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="boldText-mock"
           variant="h5"
         >
           $
           0.32
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="boldText-mock"
           variant="h5"
         >
@@ -913,31 +913,31 @@ exports[`ChannelTransferMessage renders component when message is success 1`] = 
             size={18}
             value={"0.32"}
           />
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="boldText-mock"
           variant="subtitle2"
         >
           Sent to :
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="boldText-mock"
           variant="subtitle2"
         >
           Sun
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
@@ -945,32 +945,32 @@ exports[`ChannelTransferMessage renders component when message is success 1`] = 
           message="Waiting for transaction to be mined 
     ID: null"
         />
-      </WithStyles(Grid)>
-    </WithStyles(Grid)>
-    <WithStyles(Divider)
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Divider))
       className="divider-mock"
     />
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       alignItems="center"
       className="info-mock"
       container={true}
       direction="row"
       justify="flex-start"
     >
-      <WithStyles(Grid)
+      <WithStyles(ForwardRef(Grid))
         item={true}
         xs={12}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="message-mock"
           variant="body2"
         >
           hello
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-    </WithStyles(Grid)>
-  </WithStyles(Grid)>
-  <WithStyles(Collapse)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Collapse))
     in={false}
     timeout="auto"
   >
@@ -981,6 +981,6 @@ exports[`ChannelTransferMessage renders component when message is success 1`] = 
       onResend={[Function]}
       status="success"
     />
-  </WithStyles(Collapse)>
+  </WithStyles(ForwardRef(Collapse))>
 </Memo(WithStyles(BasicMessage))>
 `;

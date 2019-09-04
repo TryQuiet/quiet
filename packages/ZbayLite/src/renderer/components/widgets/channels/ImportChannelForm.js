@@ -13,13 +13,13 @@ import ProgressFab from '../../ui/ProgressFab'
 
 const styles = theme => ({
   content: {
-    padding: theme.spacing.unit * 4
+    padding: theme.spacing(4)
   },
   subfieldTitle: {
     fontSize: '0.9rem'
   },
   fab: {
-    marginLeft: 2 * theme.spacing.unit
+    marginLeft: theme.spacing(2)
   }
 })
 

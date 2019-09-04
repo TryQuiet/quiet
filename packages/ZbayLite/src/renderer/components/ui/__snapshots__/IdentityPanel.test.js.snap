@@ -2,27 +2,27 @@
 
 exports[`IdentityPanel renders component 1`] = `
 <Fragment>
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     alignItems="center"
     className="root-mock"
     container={true}
     direction="row"
     justify="space-between"
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       item={true}
     >
-      <WithStyles(Grid)
+      <WithStyles(ForwardRef(Grid))
         container={true}
         direction="column"
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           className="name-mock"
           variant="subtitle1"
         >
           Saturn
            (you)
-        </WithStyles(Typography)>
+        </WithStyles(ForwardRef(Typography))>
         <Elipsis
           classes={
             Object {
@@ -34,15 +34,15 @@ exports[`IdentityPanel renders component 1`] = `
           length={30}
           tooltipPlacement="bottom-start"
         />
-      </WithStyles(Grid)>
-    </WithStyles(Grid)>
-    <WithStyles(IconButton)
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(IconButton))
       className="settingsButton-mock"
       onClick={[MockFunction]}
     >
-      <pure(PersonIcon) />
-    </WithStyles(IconButton)>
-  </WithStyles(Grid)>
+      <PersonIcon />
+    </WithStyles(ForwardRef(IconButton))>
+  </WithStyles(ForwardRef(Grid))>
   <withModal(SettingsModal) />
 </Fragment>
 `;

@@ -1,49 +1,49 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`QuitAppDialog renders component 1`] = `
-<WithStyles(Dialog)
+<WithStyles(ForwardRef(Dialog))
   onClose={[MockFunction]}
   open={true}
 >
-  <WithStyles(DialogContent)>
-    <WithStyles(Typography)
+  <WithStyles(ForwardRef(DialogContent))>
+    <WithStyles(ForwardRef(Typography))
       variant="body2"
     >
       Do you really want to quit Zbay?
-    </WithStyles(Typography)>
-  </WithStyles(DialogContent)>
-  <WithStyles(DialogActions)>
-    <WithStyles(Grid)
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(DialogContent))>
+  <WithStyles(ForwardRef(DialogActions))>
+    <WithStyles(ForwardRef(Grid))
       container={true}
       direction="row"
       justify="flex-end"
-      spacing={8}
+      spacing={1}
     >
-      <WithStyles(Grid)
+      <WithStyles(ForwardRef(Grid))
         item={true}
       >
-        <WithStyles(Button)
+        <WithStyles(ForwardRef(Button))
           color="primary"
           onClick={[MockFunction]}
           size="small"
           variant="contained"
         >
           Quit
-        </WithStyles(Button)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Button))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
       >
-        <WithStyles(Button)
+        <WithStyles(ForwardRef(Button))
           color="primary"
           onClick={[MockFunction]}
           size="small"
           variant="outlined"
         >
           Cancel
-        </WithStyles(Button)>
-      </WithStyles(Grid)>
-    </WithStyles(Grid)>
-  </WithStyles(DialogActions)>
-</WithStyles(Dialog)>
+        </WithStyles(ForwardRef(Button))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(DialogActions))>
+</WithStyles(ForwardRef(Dialog))>
 `;

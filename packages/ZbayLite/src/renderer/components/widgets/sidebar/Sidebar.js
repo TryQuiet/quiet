@@ -20,7 +20,7 @@ const styles = theme => ({
     position: 'relative'
   },
   gutterBottom: {
-    marginBottom: 4 * theme.spacing.unit
+    marginBottom: theme.spacing(4)
   },
   statusBar: {
     position: 'absolute',

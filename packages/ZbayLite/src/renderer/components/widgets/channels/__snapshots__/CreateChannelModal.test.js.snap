@@ -7,11 +7,11 @@ exports[`CreateChannelModal renders closed component 1`] = `
   open={false}
   title="New Channel"
 >
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     className="root-mock"
   >
     <Connect(Component) />
-  </WithStyles(Grid)>
+  </WithStyles(ForwardRef(Grid))>
 </Memo(WithStyles(Modal))>
 `;
 
@@ -22,10 +22,10 @@ exports[`CreateChannelModal renders component 1`] = `
   open={true}
   title="New Channel"
 >
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     className="root-mock"
   >
     <Connect(Component) />
-  </WithStyles(Grid)>
+  </WithStyles(ForwardRef(Grid))>
 </Memo(WithStyles(Modal))>
 `;

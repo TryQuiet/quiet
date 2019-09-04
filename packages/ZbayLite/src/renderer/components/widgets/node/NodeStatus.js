@@ -9,7 +9,7 @@ import PulseDot from '../../ui/PulseDot'
 const styles = theme => ({
   root: {},
   status: {
-    paddingLeft: theme.spacing.unit
+    paddingLeft: theme.spacing(1)
   }
 })
 
@@ -17,7 +17,7 @@ export const NodeStatus = ({ classes, status, percentSynced }) => (
   <Grid container>
     <Grid item>
       <PulseDot size={8} color={status} />
-      <Typography inline variant='overline' className={classes.status}>
+      <Typography display='inline' variant='overline' className={classes.status}>
         {status} { percentSynced !== null && `${percentSynced}%`}
       </Typography>
     </Grid>

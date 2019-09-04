@@ -32,7 +32,7 @@ const styles = theme => ({
     borderBottom: 'solid #cbcbcb 2px'
   },
   actions: {
-    paddingLeft: 2 * theme.spacing.unit
+    paddingLeft: theme.spacing(2)
   },
   content: {
     background: '#fff'

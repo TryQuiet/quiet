@@ -11,7 +11,7 @@ import { LoaderState } from '../../store/handlers/utils'
 
 const styles = theme => ({
   message: {
-    marginTop: theme.spacing.unit * 2,
+    marginTop: theme.spacing(2),
     color: theme.palette.primary.main
   }
 })

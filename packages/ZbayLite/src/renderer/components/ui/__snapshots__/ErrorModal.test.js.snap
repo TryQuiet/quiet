@@ -6,68 +6,68 @@ exports[`ErrorModal renders component 1`] = `
   open={true}
   title="Error"
 >
-  <WithStyles(Grid)
+  <WithStyles(ForwardRef(Grid))
     className="root-mock"
     container={true}
     direction="column"
     justify="flex-start"
-    spacing={24}
+    spacing={3}
   >
-    <WithStyles(Grid)
+    <WithStyles(ForwardRef(Grid))
       alignItems="center"
       container={true}
       direction="column"
       item={true}
     >
-      <pure(ErrorOutlineIcon)
+      <ErrorOutlineIcon
         className="icon-mock"
       />
-      <WithStyles(Typography)
+      <WithStyles(ForwardRef(Typography))
         className="message-mock"
       >
         Test error message
-      </WithStyles(Typography)>
-    </WithStyles(Grid)>
-    <WithStyles(Grid)
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
       container={true}
       direction="column"
       item={true}
-      spacing={16}
+      spacing={2}
     >
-      <WithStyles(Grid)
+      <WithStyles(ForwardRef(Grid))
         alignItems="center"
         container={true}
         direction="row"
         item={true}
       >
-        <WithStyles(Typography)
+        <WithStyles(ForwardRef(Typography))
           display="inline"
           variant="h5"
         >
           Traceback
-        </WithStyles(Typography)>
+        </WithStyles(ForwardRef(Typography))>
         <CopyToClipboard
           onCopy={[MockFunction]}
           text="Error: Test error message, error traceback"
         >
-          <WithStyles(IconButton)
+          <WithStyles(ForwardRef(IconButton))
             className="copyButton-mock"
           >
-            <pure(FileCopyIcon) />
-          </WithStyles(IconButton)>
+            <FileCopyIcon />
+          </WithStyles(ForwardRef(IconButton))>
         </CopyToClipboard>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
       >
-        <WithStyles(Typography)>
+        <WithStyles(ForwardRef(Typography))>
           Before sending error traceback to our devs please make sure it doesn't contain any private data.
-        </WithStyles(Typography)>
-      </WithStyles(Grid)>
-      <WithStyles(Grid)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
         item={true}
       >
-        <TextField
+        <WithStyles(ForwardRef(TextField))
           InputProps={
             Object {
               "classes": Object {
@@ -79,14 +79,12 @@ exports[`ErrorModal renders component 1`] = `
           fullWidth={true}
           id="traceback"
           multiline={true}
-          required={false}
           rows={10}
-          select={false}
           value="Error: Test error message, error traceback"
           variant="outlined"
         />
-      </WithStyles(Grid)>
-    </WithStyles(Grid)>
-  </WithStyles(Grid)>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
 </Memo(WithStyles(Modal))>
 `;
