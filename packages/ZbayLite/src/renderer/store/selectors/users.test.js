@@ -35,6 +35,6 @@ describe('users selectors', () => {
   })
 
   it(' - username', () => {
-    expect(selectors.registeredUsername('address')(store.getState())).toMatchSnapshot()
+    expect(selectors.registeredUser('address')(store.getState())).toMatchSnapshot()
   })
 })

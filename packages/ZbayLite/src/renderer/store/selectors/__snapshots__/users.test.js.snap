@@ -1,6 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`users selectors  - username 1`] = `"nickname"`;
+exports[`users selectors  - username 1`] = `
+Immutable.Map {
+  "firstName": "testname",
+  "lastName": "testlastname",
+  "nickname": "nickname",
+  "address": "ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r",
+}
+`;
 
 exports[`users selectors  - users 1`] = `
 Immutable.Map {

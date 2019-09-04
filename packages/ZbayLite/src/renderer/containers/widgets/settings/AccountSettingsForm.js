@@ -6,17 +6,30 @@ import AccountSettingsForm from '../../../components/widgets/settings/AccountSet
 import identitySelectors from '../../../store/selectors/identity'
 import usersSelectors from '../../../store/selectors/users'
 
-export const mapStateToProps = state => ({
-  initialValues: {
-    nickname: usersSelectors.registeredUsername(identitySelectors.signerPubKey(state))(state)
-  },
-  transparentAddress: identitySelectors.transparentAddress(state),
-  privateAddress: identitySelectors.address(state)
-})
+export const mapStateToProps = state => {
+  return {
+    initialValues: {
+      nickname: usersSelectors.registeredUser(identitySelectors.signerPubKey(state))(state)
+        ? usersSelectors
+          .registeredUser(identitySelectors.signerPubKey(state))(state)
+          .get('nickname')
+        : null
+    },
+    transparentAddress: identitySelectors.transparentAddress(state),
+    privateAddress: identitySelectors.address(state)
+  }
+}
 
-export const mapDispatchToProps = (dispatch, props) => bindActionCreators({
-  checkNickname: usersHandlers.epics.isNicknameTaken,
-  handleSubmit: ({ nickname }) => usersHandlers.epics.createOrUpdateUser({ nickname })
-}, dispatch)
+export const mapDispatchToProps = (dispatch, props) =>
+  bindActionCreators(
+    {
+      checkNickname: usersHandlers.epics.isNicknameTaken,
+      handleSubmit: ({ nickname }) => usersHandlers.epics.createOrUpdateUser({ nickname })
+    },
+    dispatch
+  )
 
-export default connect(mapStateToProps, mapDispatchToProps)(AccountSettingsForm)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(AccountSettingsForm)
