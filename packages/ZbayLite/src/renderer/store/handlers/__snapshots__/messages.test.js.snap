@@ -612,7 +612,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "Unnamed",
+            "username": "Anon #027dc4331327df226c32cb7244b951dfc442e487e36bff0b233ac4418b83ce3ea8",
           },
           "createdAt": 1551963828,
           "message": "message 0 for zs1testaddress0",
@@ -623,7 +623,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "Unnamed",
+            "username": "Anon #02eb1ae3baf33284937640479afeabb738326d21c7ed438126f7a70484307dce30",
           },
           "createdAt": 1551960228,
           "message": "message 1 for zs1testaddress0",
@@ -634,7 +634,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "Unnamed",
+            "username": "Anon #02462d3080bc99cb3ec1f03867a205f1b562fdcabb62ff578f6622f227b4c25b2e",
           },
           "createdAt": 1551956628,
           "message": "message 2 for zs1testaddress0",
@@ -654,7 +654,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "Unnamed",
+            "username": "Anon #031717e47dc514725aefba30fee5951eec3e1348b3686630ce09d2666fff9105d4",
           },
           "createdAt": 1551963828,
           "message": "message 0 for zs1testaddress1",
@@ -665,7 +665,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "Unnamed",
+            "username": "Anon #03047bea4e0fa41d9ad46353e57e7694156aa4bcc88f88d705cd69b12b456eb83f",
           },
           "createdAt": 1551960228,
           "message": "message 1 for zs1testaddress1",
@@ -676,7 +676,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "Unnamed",
+            "username": "Anon #0370c0ad534968fa63de16c35ec0a65d3fb7b7921460ea8876d19939b3a405f608",
           },
           "createdAt": 1551956628,
           "message": "message 2 for zs1testaddress1",
@@ -708,7 +708,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "Unnamed",
+            "username": "Anon #027dc4331327df226c32cb7244b951dfc442e487e36bff0b233ac4418b83ce3ea8",
           },
           "createdAt": 1551963828,
           "message": "message 0 for zs1testaddress0",
@@ -719,7 +719,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "Unnamed",
+            "username": "Anon #02eb1ae3baf33284937640479afeabb738326d21c7ed438126f7a70484307dce30",
           },
           "createdAt": 1551960228,
           "message": "message 1 for zs1testaddress0",
@@ -738,7 +738,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "Unnamed",
+            "username": "Anon #031717e47dc514725aefba30fee5951eec3e1348b3686630ce09d2666fff9105d4",
           },
           "createdAt": 1551963828,
           "message": "message 0 for zs1testaddress1",
@@ -749,7 +749,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "Unnamed",
+            "username": "Anon #03047bea4e0fa41d9ad46353e57e7694156aa4bcc88f88d705cd69b12b456eb83f",
           },
           "createdAt": 1551960228,
           "message": "message 1 for zs1testaddress1",
@@ -777,7 +777,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "Unnamed",
+            "username": "Anon #027dc4331327df226c32cb7244b951dfc442e487e36bff0b233ac4418b83ce3ea8",
           },
           "createdAt": 1551963828,
           "message": "message 0 for zs1testaddress0",
@@ -788,7 +788,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "Unnamed",
+            "username": "Anon #02eb1ae3baf33284937640479afeabb738326d21c7ed438126f7a70484307dce30",
           },
           "createdAt": 1551960228,
           "message": "message 1 for zs1testaddress0",
@@ -807,7 +807,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "Unnamed",
+            "username": "Anon #031717e47dc514725aefba30fee5951eec3e1348b3686630ce09d2666fff9105d4",
           },
           "createdAt": 1551963828,
           "message": "message 0 for zs1testaddress1",
@@ -818,7 +818,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "Unnamed",
+            "username": "Anon #03047bea4e0fa41d9ad46353e57e7694156aa4bcc88f88d705cd69b12b456eb83f",
           },
           "createdAt": 1551960228,
           "message": "message 1 for zs1testaddress1",
@@ -849,7 +849,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "Unnamed",
+            "username": "Anon #027dc4331327df226c32cb7244b951dfc442e487e36bff0b233ac4418b83ce3ea8",
           },
           "createdAt": 1551963828,
           "message": "message 0 for zs1testaddress0",
@@ -860,7 +860,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "Unnamed",
+            "username": "Anon #02eb1ae3baf33284937640479afeabb738326d21c7ed438126f7a70484307dce30",
           },
           "createdAt": 1551960228,
           "message": "message 1 for zs1testaddress0",
@@ -879,7 +879,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "Unnamed",
+            "username": "Anon #031717e47dc514725aefba30fee5951eec3e1348b3686630ce09d2666fff9105d4",
           },
           "createdAt": 1551963828,
           "message": "message 0 for zs1testaddress1",
@@ -890,7 +890,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "Unnamed",
+            "username": "Anon #03047bea4e0fa41d9ad46353e57e7694156aa4bcc88f88d705cd69b12b456eb83f",
           },
           "createdAt": 1551960228,
           "message": "message 1 for zs1testaddress1",
@@ -921,7 +921,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "Unnamed",
+            "username": "Anon #027dc4331327df226c32cb7244b951dfc442e487e36bff0b233ac4418b83ce3ea8",
           },
           "createdAt": 1551963828,
           "message": "message 0 for zs1testaddress0",
@@ -932,7 +932,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "Unnamed",
+            "username": "Anon #02eb1ae3baf33284937640479afeabb738326d21c7ed438126f7a70484307dce30",
           },
           "createdAt": 1551960228,
           "message": "message 1 for zs1testaddress0",
@@ -951,7 +951,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "Unnamed",
+            "username": "Anon #031717e47dc514725aefba30fee5951eec3e1348b3686630ce09d2666fff9105d4",
           },
           "createdAt": 1551963828,
           "message": "message 0 for zs1testaddress1",
@@ -962,7 +962,7 @@ Object {
           "type": 1,
           "sender": Immutable.MessageSender {
             "replyTo": "",
-            "username": "Unnamed",
+            "username": "Anon #03047bea4e0fa41d9ad46353e57e7694156aa4bcc88f88d705cd69b12b456eb83f",
           },
           "createdAt": 1551960228,
           "message": "message 1 for zs1testaddress1",

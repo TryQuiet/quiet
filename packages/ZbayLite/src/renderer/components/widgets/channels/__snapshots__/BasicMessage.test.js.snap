@@ -20,16 +20,41 @@ exports[`BasicMessage renders component 1`] = `
           item={true}
         >
           <ForwardRef(WithStyles)
-            className="username-mock"
-            color="textPrimary"
+            alignItems="center"
+            container={true}
           >
-            Unnamed
-          </ForwardRef(WithStyles)>
-          <ForwardRef(WithStyles)
-            variant="caption"
-          >
-            zbay.io/uri/
-            ...
+            <ForwardRef(WithStyles)
+              alignItems="center"
+              className="avatar-mock"
+              item={true}
+              xs="auto"
+            >
+              <span
+                className="alignAvatar-mock"
+              >
+                <Jdenticon
+                  size="55"
+                  value="Unnamed"
+                />
+              </span>
+            </ForwardRef(WithStyles)>
+            <ForwardRef(WithStyles)
+              item={true}
+              xs="auto"
+            >
+              <ForwardRef(WithStyles)
+                className="username-mock"
+                color="textPrimary"
+              >
+                Unnamed
+              </ForwardRef(WithStyles)>
+              <ForwardRef(WithStyles)
+                variant="caption"
+              >
+                zbay.io/uri/
+                ...
+              </ForwardRef(WithStyles)>
+            </ForwardRef(WithStyles)>
           </ForwardRef(WithStyles)>
         </ForwardRef(WithStyles)>
         <ForwardRef(WithStyles)
@@ -77,17 +102,42 @@ exports[`BasicMessage renders component when message is sent by owner 1`] = `
           item={true}
         >
           <ForwardRef(WithStyles)
-            className="username-mock"
-            color="textPrimary"
+            alignItems="center"
+            container={true}
           >
-            Unnamed
-             (You)
-          </ForwardRef(WithStyles)>
-          <ForwardRef(WithStyles)
-            variant="caption"
-          >
-            zbay.io/uri/
-            ...
+            <ForwardRef(WithStyles)
+              alignItems="center"
+              className="avatar-mock"
+              item={true}
+              xs="auto"
+            >
+              <span
+                className="alignAvatar-mock"
+              >
+                <Jdenticon
+                  size="55"
+                  value="Unnamed"
+                />
+              </span>
+            </ForwardRef(WithStyles)>
+            <ForwardRef(WithStyles)
+              item={true}
+              xs="auto"
+            >
+              <ForwardRef(WithStyles)
+                className="username-mock"
+                color="textPrimary"
+              >
+                Unnamed
+                 (You)
+              </ForwardRef(WithStyles)>
+              <ForwardRef(WithStyles)
+                variant="caption"
+              >
+                zbay.io/uri/
+                ...
+              </ForwardRef(WithStyles)>
+            </ForwardRef(WithStyles)>
           </ForwardRef(WithStyles)>
         </ForwardRef(WithStyles)>
         <ForwardRef(WithStyles)
@@ -135,16 +185,41 @@ exports[`BasicMessage renders component with status failed 1`] = `
           item={true}
         >
           <ForwardRef(WithStyles)
-            className="username-mock"
-            color="textPrimary"
+            alignItems="center"
+            container={true}
           >
-            Unnamed
-          </ForwardRef(WithStyles)>
-          <ForwardRef(WithStyles)
-            variant="caption"
-          >
-            zbay.io/uri/
-            ...
+            <ForwardRef(WithStyles)
+              alignItems="center"
+              className="avatar-mock"
+              item={true}
+              xs="auto"
+            >
+              <span
+                className="alignAvatar-mock"
+              >
+                <Jdenticon
+                  size="55"
+                  value="Unnamed"
+                />
+              </span>
+            </ForwardRef(WithStyles)>
+            <ForwardRef(WithStyles)
+              item={true}
+              xs="auto"
+            >
+              <ForwardRef(WithStyles)
+                className="username-mock"
+                color="textPrimary"
+              >
+                Unnamed
+              </ForwardRef(WithStyles)>
+              <ForwardRef(WithStyles)
+                variant="caption"
+              >
+                zbay.io/uri/
+                ...
+              </ForwardRef(WithStyles)>
+            </ForwardRef(WithStyles)>
           </ForwardRef(WithStyles)>
         </ForwardRef(WithStyles)>
         <ForwardRef(WithStyles)
@@ -203,16 +278,41 @@ exports[`BasicMessage renders correct time for different month 1`] = `
           item={true}
         >
           <ForwardRef(WithStyles)
-            className="username-mock"
-            color="textPrimary"
+            alignItems="center"
+            container={true}
           >
-            Unnamed
-          </ForwardRef(WithStyles)>
-          <ForwardRef(WithStyles)
-            variant="caption"
-          >
-            zbay.io/uri/
-            ...
+            <ForwardRef(WithStyles)
+              alignItems="center"
+              className="avatar-mock"
+              item={true}
+              xs="auto"
+            >
+              <span
+                className="alignAvatar-mock"
+              >
+                <Jdenticon
+                  size="55"
+                  value="Unnamed"
+                />
+              </span>
+            </ForwardRef(WithStyles)>
+            <ForwardRef(WithStyles)
+              item={true}
+              xs="auto"
+            >
+              <ForwardRef(WithStyles)
+                className="username-mock"
+                color="textPrimary"
+              >
+                Unnamed
+              </ForwardRef(WithStyles)>
+              <ForwardRef(WithStyles)
+                variant="caption"
+              >
+                zbay.io/uri/
+                ...
+              </ForwardRef(WithStyles)>
+            </ForwardRef(WithStyles)>
           </ForwardRef(WithStyles)>
         </ForwardRef(WithStyles)>
         <ForwardRef(WithStyles)
@@ -260,16 +360,41 @@ exports[`BasicMessage renders correct time for different year 1`] = `
           item={true}
         >
           <ForwardRef(WithStyles)
-            className="username-mock"
-            color="textPrimary"
+            alignItems="center"
+            container={true}
           >
-            Unnamed
-          </ForwardRef(WithStyles)>
-          <ForwardRef(WithStyles)
-            variant="caption"
-          >
-            zbay.io/uri/
-            ...
+            <ForwardRef(WithStyles)
+              alignItems="center"
+              className="avatar-mock"
+              item={true}
+              xs="auto"
+            >
+              <span
+                className="alignAvatar-mock"
+              >
+                <Jdenticon
+                  size="55"
+                  value="Unnamed"
+                />
+              </span>
+            </ForwardRef(WithStyles)>
+            <ForwardRef(WithStyles)
+              item={true}
+              xs="auto"
+            >
+              <ForwardRef(WithStyles)
+                className="username-mock"
+                color="textPrimary"
+              >
+                Unnamed
+              </ForwardRef(WithStyles)>
+              <ForwardRef(WithStyles)
+                variant="caption"
+              >
+                zbay.io/uri/
+                ...
+              </ForwardRef(WithStyles)>
+            </ForwardRef(WithStyles)>
           </ForwardRef(WithStyles)>
         </ForwardRef(WithStyles)>
         <ForwardRef(WithStyles)
@@ -317,16 +442,41 @@ exports[`BasicMessage renders correct time for same week 1`] = `
           item={true}
         >
           <ForwardRef(WithStyles)
-            className="username-mock"
-            color="textPrimary"
+            alignItems="center"
+            container={true}
           >
-            Unnamed
-          </ForwardRef(WithStyles)>
-          <ForwardRef(WithStyles)
-            variant="caption"
-          >
-            zbay.io/uri/
-            ...
+            <ForwardRef(WithStyles)
+              alignItems="center"
+              className="avatar-mock"
+              item={true}
+              xs="auto"
+            >
+              <span
+                className="alignAvatar-mock"
+              >
+                <Jdenticon
+                  size="55"
+                  value="Unnamed"
+                />
+              </span>
+            </ForwardRef(WithStyles)>
+            <ForwardRef(WithStyles)
+              item={true}
+              xs="auto"
+            >
+              <ForwardRef(WithStyles)
+                className="username-mock"
+                color="textPrimary"
+              >
+                Unnamed
+              </ForwardRef(WithStyles)>
+              <ForwardRef(WithStyles)
+                variant="caption"
+              >
+                zbay.io/uri/
+                ...
+              </ForwardRef(WithStyles)>
+            </ForwardRef(WithStyles)>
           </ForwardRef(WithStyles)>
         </ForwardRef(WithStyles)>
         <ForwardRef(WithStyles)
@@ -374,16 +524,41 @@ exports[`BasicMessage renders username 1`] = `
           item={true}
         >
           <ForwardRef(WithStyles)
-            className="username-mock"
-            color="textPrimary"
+            alignItems="center"
+            container={true}
           >
-            Unnamed
-          </ForwardRef(WithStyles)>
-          <ForwardRef(WithStyles)
-            variant="caption"
-          >
-            zbay.io/uri/
-            ...
+            <ForwardRef(WithStyles)
+              alignItems="center"
+              className="avatar-mock"
+              item={true}
+              xs="auto"
+            >
+              <span
+                className="alignAvatar-mock"
+              >
+                <Jdenticon
+                  size="55"
+                  value="Unnamed"
+                />
+              </span>
+            </ForwardRef(WithStyles)>
+            <ForwardRef(WithStyles)
+              item={true}
+              xs="auto"
+            >
+              <ForwardRef(WithStyles)
+                className="username-mock"
+                color="textPrimary"
+              >
+                Unnamed
+              </ForwardRef(WithStyles)>
+              <ForwardRef(WithStyles)
+                variant="caption"
+              >
+                zbay.io/uri/
+                ...
+              </ForwardRef(WithStyles)>
+            </ForwardRef(WithStyles)>
           </ForwardRef(WithStyles)>
         </ForwardRef(WithStyles)>
         <ForwardRef(WithStyles)
@@ -431,16 +606,41 @@ exports[`BasicMessage renders with status cancelled 1`] = `
           item={true}
         >
           <ForwardRef(WithStyles)
-            className="username-mock"
-            color="textPrimary"
+            alignItems="center"
+            container={true}
           >
-            Unnamed
-          </ForwardRef(WithStyles)>
-          <ForwardRef(WithStyles)
-            variant="caption"
-          >
-            zbay.io/uri/
-            ...
+            <ForwardRef(WithStyles)
+              alignItems="center"
+              className="avatar-mock"
+              item={true}
+              xs="auto"
+            >
+              <span
+                className="alignAvatar-mock"
+              >
+                <Jdenticon
+                  size="55"
+                  value="Unnamed"
+                />
+              </span>
+            </ForwardRef(WithStyles)>
+            <ForwardRef(WithStyles)
+              item={true}
+              xs="auto"
+            >
+              <ForwardRef(WithStyles)
+                className="username-mock"
+                color="textPrimary"
+              >
+                Unnamed
+              </ForwardRef(WithStyles)>
+              <ForwardRef(WithStyles)
+                variant="caption"
+              >
+                zbay.io/uri/
+                ...
+              </ForwardRef(WithStyles)>
+            </ForwardRef(WithStyles)>
           </ForwardRef(WithStyles)>
         </ForwardRef(WithStyles)>
         <ForwardRef(WithStyles)
@@ -488,16 +688,41 @@ exports[`BasicMessage renders with status pending 1`] = `
           item={true}
         >
           <ForwardRef(WithStyles)
-            className="username-mock"
-            color="textPrimary"
+            alignItems="center"
+            container={true}
           >
-            Unnamed
-          </ForwardRef(WithStyles)>
-          <ForwardRef(WithStyles)
-            variant="caption"
-          >
-            zbay.io/uri/
-            ...
+            <ForwardRef(WithStyles)
+              alignItems="center"
+              className="avatar-mock"
+              item={true}
+              xs="auto"
+            >
+              <span
+                className="alignAvatar-mock"
+              >
+                <Jdenticon
+                  size="55"
+                  value="Unnamed"
+                />
+              </span>
+            </ForwardRef(WithStyles)>
+            <ForwardRef(WithStyles)
+              item={true}
+              xs="auto"
+            >
+              <ForwardRef(WithStyles)
+                className="username-mock"
+                color="textPrimary"
+              >
+                Unnamed
+              </ForwardRef(WithStyles)>
+              <ForwardRef(WithStyles)
+                variant="caption"
+              >
+                zbay.io/uri/
+                ...
+              </ForwardRef(WithStyles)>
+            </ForwardRef(WithStyles)>
           </ForwardRef(WithStyles)>
         </ForwardRef(WithStyles)>
         <ForwardRef(WithStyles)
@@ -545,16 +770,41 @@ exports[`BasicMessage renders with status success 1`] = `
           item={true}
         >
           <ForwardRef(WithStyles)
-            className="username-mock"
-            color="textPrimary"
+            alignItems="center"
+            container={true}
           >
-            Unnamed
-          </ForwardRef(WithStyles)>
-          <ForwardRef(WithStyles)
-            variant="caption"
-          >
-            zbay.io/uri/
-            ...
+            <ForwardRef(WithStyles)
+              alignItems="center"
+              className="avatar-mock"
+              item={true}
+              xs="auto"
+            >
+              <span
+                className="alignAvatar-mock"
+              >
+                <Jdenticon
+                  size="55"
+                  value="Unnamed"
+                />
+              </span>
+            </ForwardRef(WithStyles)>
+            <ForwardRef(WithStyles)
+              item={true}
+              xs="auto"
+            >
+              <ForwardRef(WithStyles)
+                className="username-mock"
+                color="textPrimary"
+              >
+                Unnamed
+              </ForwardRef(WithStyles)>
+              <ForwardRef(WithStyles)
+                variant="caption"
+              >
+                zbay.io/uri/
+                ...
+              </ForwardRef(WithStyles)>
+            </ForwardRef(WithStyles)>
           </ForwardRef(WithStyles)>
         </ForwardRef(WithStyles)>
         <ForwardRef(WithStyles)

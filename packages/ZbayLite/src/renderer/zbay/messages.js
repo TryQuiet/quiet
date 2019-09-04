@@ -147,6 +147,11 @@ export const transferToMessage = async (props, users) => {
       const fromUser = users.get(publicKey)
       if (fromUser !== undefined) {
         sender = ExchangeParticipant({ replyTo: fromUser.address, username: fromUser.nickname })
+      } else {
+        sender = ExchangeParticipant({
+          replyTo: '',
+          username: `Anon #${publicKey}`
+        })
       }
     }
   } catch (err) {
@@ -184,7 +189,7 @@ export const signMessage = ({ messageData, privKey }) => {
     message: messageData.data
   }
 }
-export const getPublicKeysFromSignature = (message) => {
+export const getPublicKeysFromSignature = message => {
   return secp256k1.recover(hash(JSON.stringify(message.message)), message.signature, message.r)
 }
 export const createMessage = ({ messageData, privKey }) => {

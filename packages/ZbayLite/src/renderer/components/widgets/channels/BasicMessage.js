@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { DateTime } from 'luxon'
 import classNames from 'classnames'
 import * as R from 'ramda'
+import Jdenticon from 'react-jdenticon'
 
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
@@ -38,7 +39,8 @@ const styles = theme => ({
     background: '#eeeeee'
   },
   username: {
-    fontSize: '0.855rem'
+    fontSize: '0.855rem',
+    marginTop: -4
   },
   message: {
     fontSize: '0.855rem',
@@ -55,6 +57,20 @@ const styles = theme => ({
   },
   failed: {
     color: red[500]
+  },
+  avatar: {
+    maxHeight: 44,
+    maxWidth: 44,
+    borderRadius: '50%',
+    overflow: 'hidden',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+    marginBottom: 4
+  },
+  alignAvatar: {
+    marginTop: 4
   }
 })
 
@@ -81,7 +97,7 @@ const getTimeFormat = time => {
 export const BasicMessage = ({ classes, message, children, actionsOpen, setActionsOpen }) => {
   const fromYou = message.fromYou || false
   const sender = message.sender
-  const username = sender.username || 'Unnamed'
+  const username = sender.username.substring(0, 20) || 'Unnamed'
   const address = getZbayAddress(message.sender.replyTo)
   const time = DateTime.fromSeconds(message.createdAt)
   const timeFormat = getTimeFormat(time)
@@ -106,11 +122,20 @@ export const BasicMessage = ({ classes, message, children, actionsOpen, setActio
         primary={
           <Grid container direction='row' justify='space-between' alignItems='flex-start'>
             <Grid item>
-              <Typography color='textPrimary' className={classes.username}>
-                {username}
-                {fromYou ? ' (You)' : null}
-              </Typography>
-              <Typography variant='caption'>{address.substring(0, 32)}...</Typography>
+              <Grid container alignItems='center'>
+                <Grid item xs='auto' alignItems='center' className={classes.avatar}>
+                  <span className={classes.alignAvatar}>
+                    <Jdenticon size='55' value={username} />
+                  </span>
+                </Grid>
+                <Grid item xs='auto'>
+                  <Typography color='textPrimary' className={classes.username}>
+                    {username}
+                    {fromYou ? ' (You)' : null}
+                  </Typography>
+                  <Typography variant='caption'>{address.substring(0, 32)}...</Typography>
+                </Grid>
+              </Grid>
             </Grid>
             <Grid item>
               <Grid container direction='row' alignItems='center' justify='flex-end'>

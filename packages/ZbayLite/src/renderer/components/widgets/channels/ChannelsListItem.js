@@ -2,6 +2,7 @@ import React from 'react'
 import Immutable from 'immutable'
 import PropTypes from 'prop-types'
 import * as R from 'ramda'
+import Jdenticon from 'react-jdenticon'
 
 import { withStyles } from '@material-ui/core/styles'
 
@@ -11,7 +12,6 @@ import ListItemText from '@material-ui/core/ListItemText'
 import Badge from '@material-ui/core/Badge'
 
 import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline'
-import HttpsIcon from '@material-ui/icons/HttpsOutlined'
 
 import Elipsis from '../../ui/Elipsis'
 
@@ -36,6 +36,18 @@ const styles = theme => ({
     fontSize: 10,
     background: theme.typography.body1.color,
     color: '#fff'
+  },
+  avatar: {
+    maxHeight: 60,
+    maxWidth: 60,
+    borderRadius: '50%',
+    overflow: 'hidden',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  alignAvatar: {
+    marginTop: 4
   }
 })
 
@@ -46,14 +58,26 @@ export const ChannelsListItem = ({ classes, channel, displayAddress, history, di
       button
       onClick={() => {
         history.push(
-          `/main/${directMessages ? `direct-messages/${channelObj.address}/${channelObj.username}` : `channel/${channelObj.id}`}`
+          `/main/${
+            directMessages
+              ? `direct-messages/${channelObj.address}/${channelObj.username}`
+              : `channel/${channelObj.id}`
+          }`
         )
       }}
       className={classes.root}
       alignItems={displayAddress ? 'flex-start' : 'center'}
     >
       <ListItemIcon className={classes.itemIcon}>
-        {channelObj.private ? <HttpsIcon /> : <ChatBubbleOutlineIcon className={classes.icon} />}
+        {directMessages ? (
+          <span className={classes.Avatar}>
+            <span className={classes.alignAvatar}>
+              <Jdenticon size='38' value={channelObj.username} />
+            </span>
+          </span>
+        ) : (
+          <ChatBubbleOutlineIcon className={classes.icon} />
+        )}
       </ListItemIcon>
       <ListItemText
         primary={

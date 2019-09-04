@@ -10,7 +10,9 @@ exports[`ChannelsListItem renders component 1`] = `
   <WithStyles(ForwardRef(ListItemIcon))
     className="itemIcon-mock"
   >
-    <HttpsOutlinedIcon />
+    <ChatBubbleOutlineIcon
+      className="icon-mock"
+    />
   </WithStyles(ForwardRef(ListItemIcon))>
   <WithStyles(ForwardRef(ListItemText))
     address="zs1testaddress1"
@@ -86,7 +88,9 @@ exports[`ChannelsListItem renders component with address 1`] = `
   <WithStyles(ForwardRef(ListItemIcon))
     className="itemIcon-mock"
   >
-    <HttpsOutlinedIcon />
+    <ChatBubbleOutlineIcon
+      className="icon-mock"
+    />
   </WithStyles(ForwardRef(ListItemIcon))>
   <WithStyles(ForwardRef(ListItemText))
     address="zs1testaddress1"
