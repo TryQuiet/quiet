@@ -111,6 +111,7 @@ exports[`messages - message to transfer creates transfer from simple message 1`]
 Object {
   "createdAt": 1551963828,
   "message": "This is some message [object Object]",
+  "r": 0,
   "signature": Object {
     "data": Array [
       17,
@@ -191,6 +192,7 @@ Object {
   "createdAt": 1551963828,
   "id": "test-id",
   "message": "This is some message test-id",
+  "r": 0,
   "sender": Object {
     "replyTo": "",
     "username": "Unnamed",

@@ -32,14 +32,13 @@ const _UserData = Immutable.Record(
 const usersNicknames = new Set()
 
 export const ReceivedUser = (values, registeredUsers) => {
-  if (values === null) {
+  if (values === null || ![0, 1].includes(values.r)) {
     return null
   }
+
   if (values.type === messageType.USER) {
-    const publicKey0 = getPublicKeysFromSignature(values)[0].toString('hex')
-    const publicKey1 = getPublicKeysFromSignature(values)[1].toString('hex')
+    const publicKey0 = getPublicKeysFromSignature(values).toString('hex')
     const record0 = _ReceivedUser(publicKey0)()
-    const record1 = _ReceivedUser(publicKey1)()
     if (
       usersNicknames.has(values.message.nickname) &&
       registeredUsers.get(publicKey0) === undefined
@@ -49,22 +48,13 @@ export const ReceivedUser = (values, registeredUsers) => {
         i++
       }
       usersNicknames.add(`${values.message.nickname} #${i}`)
-      return [
-        record0.set(
-          publicKey0,
-          _UserData({ ...values.message, nickname: `${values.message.nickname} #${i}` })
-        ),
-        record1.set(
-          publicKey1,
-          _UserData({ ...values.message, nickname: `${values.message.nickname} #${i}` })
-        )
-      ]
+      return record0.set(
+        publicKey0,
+        _UserData({ ...values.message, nickname: `${values.message.nickname} #${i}` })
+      )
     }
     usersNicknames.add(values.message.nickname)
-    return [
-      record0.set(publicKey0, _UserData(values.message)),
-      record1.set(publicKey1, _UserData(values.message))
-    ]
+    return record0.set(publicKey0, _UserData(values.message))
   }
   return null
 }
@@ -77,7 +67,7 @@ export const actions = {
   setUsers
 }
 
-export const createOrUpdateUser = (payload) => async (dispatch, getState) => {
+export const createOrUpdateUser = payload => async (dispatch, getState) => {
   const { nickname, firstName = '', lastName = '' } = payload
   const address = identitySelector.address(getState())
   const privKey = identitySelector.signerPrivKey(getState())
@@ -115,21 +105,23 @@ export const createOrUpdateUser = (payload) => async (dispatch, getState) => {
 export const fetchUsers = () => async (dispatch, getState) => {
   const usersChannel = channelsSelectors.usersChannel(getState())
   const transfers = await getClient().payment.received(usersChannel.get('address'))
-  const registrationMessages = await Promise.all(transfers.map((transfer) => {
-    const message = zbayMessages.transferToMessage(transfer)
-    return message
-  }))
-  const sortedMessages = registrationMessages.sort((a, b) => a.createdAt - b.createdAt)
-
+  const registrationMessages = await Promise.all(
+    transfers.map(transfer => {
+      const message = zbayMessages.transferToMessage(transfer)
+      return message
+    })
+  )
+  const sortedMessages = registrationMessages
+    .filter(msg => msg !== null)
+    .sort((a, b) => a.createdAt - b.createdAt)
   const users = await sortedMessages.reduce(
     async (acc = Promise.resolve(Immutable.Map({})), message) => {
       const accumulator = await acc
       const user = ReceivedUser(message, accumulator)
-
       if (user === null) {
         return Promise.resolve(accumulator)
       }
-      return Promise.resolve(accumulator.merge(user[0]).merge(user[1]))
+      return Promise.resolve(accumulator.merge(user))
     },
     Promise.resolve(Immutable.Map({}))
   )

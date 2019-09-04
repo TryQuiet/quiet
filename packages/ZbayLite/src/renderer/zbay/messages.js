@@ -131,6 +131,7 @@ export const messageSchema = Yup.object().shape({
     .oneOf(R.values(messageType))
     .required(),
   signature: Yup.Buffer,
+  r: Yup.number().required(),
   createdAt: Yup.number().required(),
   message: Yup.mixed().validateMessage()
 })
@@ -141,11 +142,9 @@ export const transferToMessage = async (props, users) => {
   let sender = { replyTo: '', username: 'Unnamed' }
   try {
     message = await unpackMemo(memo)
-    const publicKey = getPublicKeysFromSignature(message)[0].toString('hex')
-    const publicKey1 = getPublicKeysFromSignature(message)[1].toString('hex')
-
+    const publicKey = getPublicKeysFromSignature(message).toString('hex')
     if (users !== undefined) {
-      const fromUser = users.get(publicKey) || users.get(publicKey1)
+      const fromUser = users.get(publicKey)
       if (fromUser !== undefined) {
         sender = ExchangeParticipant({ replyTo: fromUser.address, username: fromUser.nickname })
       }
@@ -180,15 +179,13 @@ export const signMessage = ({ messageData, privKey }) => {
     type: messageData.type,
     spent: messageData.spent,
     signature: sigObj.signature,
+    r: sigObj.recovery,
     createdAt: DateTime.utc().toSeconds(),
     message: messageData.data
   }
 }
-export const getPublicKeysFromSignature = message => {
-  return [
-    secp256k1.recover(hash(JSON.stringify(message.message)), message.signature, 0),
-    secp256k1.recover(hash(JSON.stringify(message.message)), message.signature, 1)
-  ]
+export const getPublicKeysFromSignature = (message) => {
+  return secp256k1.recover(hash(JSON.stringify(message.message)), message.signature, message.r)
 }
 export const createMessage = ({ messageData, privKey }) => {
   return signMessage({ messageData, privKey })
@@ -222,8 +219,7 @@ export const messageToTransfer = async ({
 }) => {
   if ((recipientAddress || channel).length === 35) {
     return {
-      from:
-        identityAddress,
+      from: identityAddress,
       amounts: [
         {
           address: recipientAddress || channel.address,
@@ -234,8 +230,7 @@ export const messageToTransfer = async ({
   }
   const memo = await packMemo(message)
   return {
-    from:
-      identityAddress,
+    from: identityAddress,
     amounts: [
       {
         address: recipientAddress || channel.address,

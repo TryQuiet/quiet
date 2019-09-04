@@ -154,6 +154,7 @@ exports[`channel reducer handles epics - sendOnEnter sends message 1`] = `
 Object {
   "createdAt": 1551963828,
   "message": "this is some message",
+  "r": 1,
   "signature": Object {
     "data": Array [
       93,

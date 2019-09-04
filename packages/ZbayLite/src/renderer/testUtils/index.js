@@ -165,7 +165,19 @@ export const createReceivedUserMessage = ({ id, createdAt = now.toSeconds() }) =
       }) + id
     ),
     pKey
-  ).signature
+  ).signature,
+  r: secp256k1.sign(
+    hash(
+      JSON.stringify({
+        firstName: 'testname',
+        lastName: 'testlastname',
+        nickname: 'nickname',
+        address:
+          'ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r'
+      }) + id
+    ),
+    pKey
+  ).recovery
 })
 
 export const messages = {

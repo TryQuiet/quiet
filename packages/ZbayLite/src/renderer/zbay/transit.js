@@ -3,8 +3,9 @@ import { messageType } from './messages'
 export const MEMO_SIZE = 512
 const TYPE_SIZE = 1
 const SIGNATURE_SIZE = 64
+const SIGNATURE_R_SIZE = 1
 const TIMESTAMP_SIZE = 4
-const MESSAGE_SIZE = MEMO_SIZE - (TIMESTAMP_SIZE + SIGNATURE_SIZE + TYPE_SIZE)
+const MESSAGE_SIZE = MEMO_SIZE - (TIMESTAMP_SIZE + SIGNATURE_SIZE + SIGNATURE_R_SIZE + TYPE_SIZE)
 
 const ADDRESS_TYPE = {
   SHIELDED_MAINNET: 1,
@@ -30,6 +31,8 @@ export const packMemo = async message => {
   const type = Buffer.alloc(TYPE_SIZE)
   type.writeUInt8(message.type)
   const signatureData = message.signature
+  const r = Buffer.alloc(SIGNATURE_R_SIZE)
+  r.writeUInt8(message.r)
   const ts = Buffer.alloc(TIMESTAMP_SIZE)
   ts.writeUInt32BE(message.createdAt)
 
@@ -57,7 +60,7 @@ export const packMemo = async message => {
     const d = await deflate(message.message)
     msgData.write(d)
   }
-  const result = Buffer.concat([type, signatureData, ts, msgData])
+  const result = Buffer.concat([type, signatureData, r, ts, msgData])
   return result.toString('hex')
 }
 
@@ -69,8 +72,11 @@ export const unpackMemo = async memo => {
 
   const signatureEnds = typeEnds + SIGNATURE_SIZE
   const signature = memoBuff.slice(typeEnds, signatureEnds)
-  const timestampEnds = signatureEnds + TIMESTAMP_SIZE
-  const createdAt = memoBuff.slice(signatureEnds, timestampEnds).readUInt32BE()
+  const rEnds = signatureEnds + SIGNATURE_R_SIZE
+  const r = memoBuff.slice(signatureEnds, rEnds).readUInt8()
+
+  const timestampEnds = rEnds + TIMESTAMP_SIZE
+  const createdAt = memoBuff.slice(rEnds, timestampEnds).readUInt32BE()
   if (type === messageType.USER) {
     const firstNameEnds = timestampEnds + FIRST_NAME_SIZE
     const firstName = memoBuff.slice(timestampEnds, firstNameEnds)
@@ -89,6 +95,7 @@ export const unpackMemo = async memo => {
     return {
       type,
       signature,
+      r,
       message: {
         firstName: trimNull(firstName.toString()),
         lastName: trimNull(lastName.toString()),
@@ -102,6 +109,7 @@ export const unpackMemo = async memo => {
     return {
       type,
       signature,
+      r,
       message: await inflate(message.toString()),
       createdAt
     }

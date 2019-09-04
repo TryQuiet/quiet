@@ -52,7 +52,7 @@ describe('users reducer', () => {
             const accumulator = await acc
             const user = ReceivedUser(message, accumulator)
 
-            return Promise.resolve(accumulator.merge(user[0]).merge(user[1]))
+            return Promise.resolve(accumulator.merge(user))
           }, Promise.resolve(Immutable.Map({})))
         const users2 = await R.range(3, 5)
           .map(id => testUtils.messages.createReceivedUserMessage({ id: `test-user-${id}` }))
@@ -60,7 +60,7 @@ describe('users reducer', () => {
             const accumulator = await acc
             const user = ReceivedUser(message, accumulator)
 
-            return Promise.resolve(accumulator.merge(user[0]).merge(user[1]))
+            return Promise.resolve(accumulator.merge(user))
           }, Promise.resolve(Immutable.Map({})))
 
         store.dispatch(handlers.actions.setUsers({ users }))
@@ -75,7 +75,7 @@ describe('users reducer', () => {
             const accumulator = await acc
             const user = ReceivedUser(message, accumulator)
 
-            return Promise.resolve(accumulator.merge(user[0]).merge(user[1]))
+            return Promise.resolve(accumulator.merge(user))
           }, Promise.resolve(Immutable.Map({})))
         store.dispatch(handlers.actions.setUsers({ users }))
         expect(selectors.users(store.getState())).toMatchSnapshot()

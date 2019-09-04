@@ -2,7 +2,6 @@ import { DateTime } from 'luxon'
 import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
 import * as R from 'ramda'
-
 import testUtils from '../testUtils'
 import { packMemo, unpackMemo } from './transit'
 import zbayMessages, { transferToMessage, messageToTransfer, messageType } from './messages'
@@ -36,6 +35,7 @@ describe('messages -', () => {
         ...message,
         spent: new BigNumber(spent),
         id: txid,
+        r: 0,
         sender: { replyTo: '', username: 'Unnamed' }
       }
       expect(received).toEqual(expected)
@@ -117,6 +117,7 @@ describe('messages -', () => {
     expect(receivedMessage).toEqual({
       ...message,
       id: txid,
+      r: 0,
       spent: new BigNumber(amount),
       sender: { replyTo: '', username: 'Unnamed' }
     })

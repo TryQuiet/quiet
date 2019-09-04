@@ -104,18 +104,11 @@ describe('contacts reducer', () => {
     const transactions = await receivedMock(identityAddress)
     transactions.forEach(async txn => {
       const data = await unpackMemo(txn.memo)
-      const publicKey0 = getPublicKeysFromSignature(data)[0].toString('hex')
-      const publicKey1 = getPublicKeysFromSignature(data)[1].toString('hex')
+      const publicKey0 = getPublicKeysFromSignature(data).toString('hex')
       store.dispatch(
         setUsers({
           users: {
             [publicKey0]: {
-              firstName: 'testfirstname',
-              lastName: 'testlastname',
-              nickname: 'testnickname',
-              address: 'test adddress'
-            },
-            [publicKey1]: {
               firstName: 'testfirstname',
               lastName: 'testlastname',
               nickname: 'testnickname',
