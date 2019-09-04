@@ -54,7 +54,8 @@ const sendDirectMessage = payload => async (dispatch, getState) => {
     messageData: {
       type,
       data: messageData,
-      spent: type === zbayMessages.messageType.TRANSFER ? new BigNumber(spent) : new BigNumber('0.0001')
+      spent:
+        type === zbayMessages.messageType.TRANSFER ? new BigNumber(spent) : new BigNumber('0.0001')
     },
     privKey
   })
@@ -145,17 +146,16 @@ export const fetchMessages = () => async (dispatch, getState) => {
       .filter(msg => msg !== null)
   )
   const messages = messagesAll.filter(msg => msg !== null).filter(msg => msg.sender.replyTo !== '')
+
   const senderToMessages = R.compose(
     R.groupBy(msg => msg.sender.replyTo),
     R.filter(R.identity)
   )(messages)
-
   if (!R.isEmpty(senderToMessages)) {
     R.keys(senderToMessages).forEach(async sender => {
-      await dispatch(setUsernames({ sender: senderToMessages[sender].pop().sender }))
+      await dispatch(setUsernames({ sender: R.last(senderToMessages[sender]).sender }))
     })
   }
-
   await Promise.all(
     Object.entries(senderToMessages).map(async ([contactAddress, contactMessages]) => {
       const contact = contactMessages[0].sender
