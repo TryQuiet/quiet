@@ -1,3 +1,17 @@
+<a name="0.6.3"></a>
+# [0.6.3]
+
+### Features
+
+* Store shipping data for user profile
+* Add registraion of nicknames
+* Add antyspoofing protection
+
+
+### Fixes
+
+* Update internal node version linux / mac
+
 <a name="0.6.2"></a>
 # [0.6.2]
 
