@@ -1,33 +1,17 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`NodePanelBlocksField renders the field 1`] = `
-<Memo(NodePanelField)
+<Memo(WithStyles(NodePanelField))
   name="Blocks"
->
-  <WithStyles(ForwardRef(Typography))
-    display="inline"
-    variant="overline"
-  >
-    18
-     / 
-    ~12345
-  </WithStyles(ForwardRef(Typography))>
-</Memo(NodePanelField)>
+  value="18 / ~12345"
+/>
 `;
 
 exports[`NodePanelBlocksField renders the field when no latestBlock 1`] = `
-<Memo(NodePanelField)
+<Memo(WithStyles(NodePanelField))
   name="Blocks"
->
-  <WithStyles(ForwardRef(Typography))
-    display="inline"
-    variant="overline"
-  >
-    0
-     / 
-    ?
-  </WithStyles(ForwardRef(Typography))>
-</Memo(NodePanelField)>
+  value="0 / ?"
+/>
 `;
 
 exports[`NodePanelBlocksField will receive right props 1`] = `

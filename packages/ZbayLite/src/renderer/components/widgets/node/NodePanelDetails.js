@@ -3,7 +3,6 @@ import PropTypes from 'prop-types'
 import * as R from 'ramda'
 
 import Grid from '@material-ui/core/Grid'
-import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
 
 // import NodePanelActions from '../../../containers/widgets/node/NodePanelActions'
@@ -15,8 +14,8 @@ import NodePanelField from './NodePanelField'
 
 const styles = theme => ({
   details: {
-    paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(2.5)
+    paddingLeft: theme.spacing(0),
+    paddingRight: theme.spacing(2)
   }
 })
 
@@ -28,11 +27,7 @@ export const NodePanelDetails = ({ classes, zbayVersion }) => (
       <NodePanelNetworkField />
       <NodePanelBlocksField />
       <NodePanelConnectionsField />
-      <NodePanelField name='Zbay version'>
-        <Typography display='inline' variant='overline'>
-          {zbayVersion}
-        </Typography>
-      </NodePanelField>
+      <NodePanelField name='Zbay version' value={zbayVersion} />
       {/* <NodePanelUptimeField /> */}
     </Grid>
     {/* <NodePanelActions /> */}

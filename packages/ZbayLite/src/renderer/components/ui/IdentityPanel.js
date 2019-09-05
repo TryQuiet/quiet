@@ -26,7 +26,8 @@ const styles = theme => ({
     padding: theme.spacing(0.5)
   },
   uri: {
-    lineHeight: 1.2
+    lineHeight: 1.2,
+    color: 'rgb(255,255,255,0.6)'
   }
 })
 

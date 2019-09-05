@@ -2,8 +2,6 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 
-import Typography from '@material-ui/core/Typography'
-
 import NodePanelField from '../../../components/widgets/node/NodePanelField'
 
 import nodeSelectors from '../../../store/selectors/node'
@@ -13,11 +11,7 @@ export const mapStateToProps = state => ({
 })
 
 export const NodePanelNetworkField = ({ network }) => (
-  <NodePanelField name='Network'>
-    <Typography display='inline' variant='overline'>
-      {network || '?'}
-    </Typography>
-  </NodePanelField>
+  <NodePanelField name='Network' value={network} />
 )
 
 NodePanelNetworkField.propTypes = {

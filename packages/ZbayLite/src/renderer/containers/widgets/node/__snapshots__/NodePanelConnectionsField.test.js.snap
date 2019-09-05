@@ -1,16 +1,10 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`NodePanelConnectionsField renders the field 1`] = `
-<Memo(NodePanelField)
+<Memo(WithStyles(NodePanelField))
   name="Connections"
->
-  <WithStyles(ForwardRef(Typography))
-    display="inline"
-    variant="overline"
-  >
-    12
-  </WithStyles(ForwardRef(Typography))>
-</Memo(NodePanelField)>
+  value="12"
+/>
 `;
 
 exports[`NodePanelConnectionsField will receive right props 1`] = `

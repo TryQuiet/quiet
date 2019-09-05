@@ -6,6 +6,9 @@ export default createMuiTheme({
     caption: {
       color: '#b2b2b2',
       fontSize: '0.71rem'
+    },
+    subtitle1: {
+      fontSize: '1.2rem'
     }
   },
   palette: {
@@ -16,7 +19,8 @@ export default createMuiTheme({
     },
     colors: {
       blue: '#2196f3',
-      white: '#000000'
+      white: '#FFFFFF',
+      purple: '#521C74'
     }
   },
   overrides: {

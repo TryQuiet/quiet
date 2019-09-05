@@ -17,6 +17,11 @@ exports[`ChannelsListItem renders component 1`] = `
   <WithStyles(ForwardRef(ListItemText))
     address="zs1testaddress1"
     className="itemText-mock"
+    classes={
+      Object {
+        "primary": "primary-mock",
+      }
+    }
     primary={
       <ForwardRef(WithStyles)
         badgeContent={1}
@@ -56,6 +61,11 @@ exports[`ChannelsListItem renders component when public 1`] = `
   <WithStyles(ForwardRef(ListItemText))
     address="zs1testaddress0"
     className="itemText-mock"
+    classes={
+      Object {
+        "primary": "primary-mock",
+      }
+    }
     primary={
       <ForwardRef(WithStyles)
         badgeContent={0}
@@ -95,6 +105,11 @@ exports[`ChannelsListItem renders component with address 1`] = `
   <WithStyles(ForwardRef(ListItemText))
     address="zs1testaddress1"
     className="itemText-mock"
+    classes={
+      Object {
+        "primary": "primary-mock",
+      }
+    }
     primary={
       <ForwardRef(WithStyles)
         badgeContent={1}
@@ -116,7 +131,7 @@ exports[`ChannelsListItem renders component with address 1`] = `
         }
         content="zs1testaddress1"
         interactive={false}
-        length={30}
+        length={20}
         tooltipPlacement="bottom"
       />
     }

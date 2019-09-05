@@ -1,29 +1,17 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`NodePanelNetworkField renders the field 1`] = `
-<Memo(NodePanelField)
+<Memo(WithStyles(NodePanelField))
   name="Network"
->
-  <WithStyles(ForwardRef(Typography))
-    display="inline"
-    variant="overline"
-  >
-    testnet
-  </WithStyles(ForwardRef(Typography))>
-</Memo(NodePanelField)>
+  value="testnet"
+/>
 `;
 
 exports[`NodePanelNetworkField renders the field when no network 1`] = `
-<Memo(NodePanelField)
+<Memo(WithStyles(NodePanelField))
   name="Network"
->
-  <WithStyles(ForwardRef(Typography))
-    display="inline"
-    variant="overline"
-  >
-    ?
-  </WithStyles(ForwardRef(Typography))>
-</Memo(NodePanelField)>
+  value={null}
+/>
 `;
 
 exports[`NodePanelNetworkField will receive right props 1`] = `

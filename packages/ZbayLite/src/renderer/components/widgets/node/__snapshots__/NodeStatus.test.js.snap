@@ -9,7 +9,7 @@ exports[`NodeStatus renders for status down 1`] = `
   >
     <Memo(WithStyles(PulseDot))
       color="down"
-      size={8}
+      size={10}
     />
     <WithStyles(ForwardRef(Typography))
       className="status-mock"
@@ -32,7 +32,7 @@ exports[`NodeStatus renders for status healthy 1`] = `
   >
     <Memo(WithStyles(PulseDot))
       color="healthy"
-      size={8}
+      size={10}
     />
     <WithStyles(ForwardRef(Typography))
       className="status-mock"
@@ -55,7 +55,7 @@ exports[`NodeStatus renders for status restarting 1`] = `
   >
     <Memo(WithStyles(PulseDot))
       color="restarting"
-      size={8}
+      size={10}
     />
     <WithStyles(ForwardRef(Typography))
       className="status-mock"
@@ -78,7 +78,7 @@ exports[`NodeStatus renders for status syncing 1`] = `
   >
     <Memo(WithStyles(PulseDot))
       color="syncing"
-      size={8}
+      size={10}
     />
     <WithStyles(ForwardRef(Typography))
       className="status-mock"
@@ -101,7 +101,7 @@ exports[`NodeStatus renders sync progress in percent 1`] = `
   >
     <Memo(WithStyles(PulseDot))
       color="syncing"
-      size={8}
+      size={10}
     />
     <WithStyles(ForwardRef(Typography))
       className="status-mock"

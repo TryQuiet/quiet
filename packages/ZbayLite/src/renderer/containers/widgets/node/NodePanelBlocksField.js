@@ -3,8 +3,6 @@ import BigNumber from 'bignumber.js'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 
-import Typography from '@material-ui/core/Typography'
-
 import NodePanelField from '../../../components/widgets/node/NodePanelField'
 
 import nodeSelectors from '../../../store/selectors/node'
@@ -15,18 +13,8 @@ export const mapStateToProps = state => ({
 })
 
 export const NodePanelBlocksField = ({ latestBlock, currentBlock }) => {
-  const outOf = (
-    latestBlock.isZero()
-      ? '?'
-      : `~${latestBlock.toString()}`
-  )
-  return (
-    <NodePanelField name='Blocks'>
-      <Typography display='inline' variant='overline'>
-        {currentBlock.toString()} / {outOf}
-      </Typography>
-    </NodePanelField>
-  )
+  const outOf = latestBlock.isZero() ? '?' : `~${latestBlock.toString()}`
+  return <NodePanelField name='Blocks' value={`${currentBlock.toString()} / ${outOf}`} />
 }
 
 NodePanelBlocksField.propTypes = {

@@ -27,14 +27,15 @@ const styles = theme => ({
     minWidth: 0
   },
   icon: {
-    marginTop: '2px'
+    marginTop: '2px',
+    color: theme.palette.colors.white
   },
   badge: {
     padding: 6,
     top: '50%',
     right: theme.spacing(-3),
     fontSize: 10,
-    background: theme.typography.body1.color,
+    background: 'rgb(0,0,0,0.3)',
     color: '#fff'
   },
   avatar: {
@@ -45,6 +46,9 @@ const styles = theme => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center'
+  },
+  primary: {
+    display: 'flex'
   },
   alignAvatar: {
     marginTop: 4
@@ -92,11 +96,14 @@ export const ChannelsListItem = ({ classes, channel, displayAddress, history, di
         }
         secondary={
           displayAddress ? (
-            <Elipsis tooltipPlacement='bottom' content={channelObj.address} length={30} />
+            <Elipsis tooltipPlacement='bottom' content={channelObj.address} length={20} />
           ) : (
             ''
           )
         }
+        classes={{
+          primary: classes.primary
+        }}
         className={classes.itemText}
         secondaryTypographyProps={{ variant: 'caption' }}
         address={channelObj.address}

@@ -21,12 +21,11 @@ const styles = theme => ({
     padding: `0 ${theme.spacing(2)}px`
   },
   title: {
-    fontSize: '0.9rem',
+    fontSize: '1rem',
     lineHeight: '1.66'
   },
   subtitle: {
-    fontSize: '0.64rem',
-    lineHeight: '1.66'
+    fontSize: '0.8rem'
   },
   spendButton: {
     fontSize: 13

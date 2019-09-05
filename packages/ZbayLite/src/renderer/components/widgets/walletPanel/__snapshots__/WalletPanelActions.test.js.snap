@@ -10,9 +10,8 @@ exports[`WalletPanelActions renders component 1`] = `
     item={true}
   >
     <WithStyles(ForwardRef(Button))
-      color="primary"
+      className="button-mock"
       onClick={[MockFunction]}
-      size="small"
       variant="contained"
     >
       Send Money
@@ -22,9 +21,8 @@ exports[`WalletPanelActions renders component 1`] = `
     item={true}
   >
     <WithStyles(ForwardRef(Button))
-      color="primary"
+      className="button-mock"
       onClick={[MockFunction]}
-      size="small"
       variant="contained"
     >
       Receive Money

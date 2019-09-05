@@ -1,28 +1,35 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import * as R from 'ramda'
 
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
+import { withStyles } from '@material-ui/core/styles'
 
-export const WalletPanelActions = ({ onSend, onReceive }) => (
+const styles = theme => ({
+  button: {
+    width: 150,
+    heigth: 80,
+    paddingTop: theme.spacing(1.2),
+    paddingBottom: theme.spacing(1.2),
+    paddingLeft: theme.spacing(1.6),
+    paddingRight: theme.spacing(1.6),
+    color: theme.palette.colors.white,
+    fontSize: '0.9rem',
+    backgroundColor: 'rgb(0,0,50,0.55)',
+    textTransform: 'none'
+  }
+})
+
+export const WalletPanelActions = ({ classes, onSend, onReceive }) => (
   <Grid container direction='row' justify='space-between'>
     <Grid item>
-      <Button
-        variant='contained'
-        size='small'
-        color='primary'
-        onClick={onSend}
-      >
+      <Button variant='contained' className={classes.button} onClick={onSend}>
         Send Money
       </Button>
     </Grid>
     <Grid item>
-      <Button
-        variant='contained'
-        size='small'
-        color='primary'
-        onClick={onReceive}
-      >
+      <Button variant='contained' className={classes.button} onClick={onReceive}>
         Receive Money
       </Button>
     </Grid>
@@ -34,4 +41,7 @@ WalletPanelActions.propTypes = {
   onReceive: PropTypes.func.isRequired
 }
 
-export default React.memo(WalletPanelActions)
+export default R.compose(
+  withStyles(styles),
+  React.memo
+)(WalletPanelActions)

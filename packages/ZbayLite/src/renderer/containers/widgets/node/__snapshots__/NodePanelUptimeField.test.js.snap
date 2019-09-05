@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`NodePanelConnectionsField renders the uptime 1`] = `
-<Memo(NodePanelField)
+<Memo(WithStyles(NodePanelField))
   name="Uptime"
 >
   <WithStyles(ForwardRef(Typography))
@@ -12,11 +12,11 @@ exports[`NodePanelConnectionsField renders the uptime 1`] = `
     1h  
     10m
   </WithStyles(ForwardRef(Typography))>
-</Memo(NodePanelField)>
+</Memo(WithStyles(NodePanelField))>
 `;
 
 exports[`NodePanelConnectionsField renders the uptime when less than day 1`] = `
-<Memo(NodePanelField)
+<Memo(WithStyles(NodePanelField))
   name="Uptime"
 >
   <WithStyles(ForwardRef(Typography))
@@ -26,11 +26,11 @@ exports[`NodePanelConnectionsField renders the uptime when less than day 1`] = `
     1h  
     10m
   </WithStyles(ForwardRef(Typography))>
-</Memo(NodePanelField)>
+</Memo(WithStyles(NodePanelField))>
 `;
 
 exports[`NodePanelConnectionsField renders the uptime when less than hour 1`] = `
-<Memo(NodePanelField)
+<Memo(WithStyles(NodePanelField))
   name="Uptime"
 >
   <WithStyles(ForwardRef(Typography))
@@ -39,7 +39,7 @@ exports[`NodePanelConnectionsField renders the uptime when less than hour 1`] = 
   >
     45m
   </WithStyles(ForwardRef(Typography))>
-</Memo(NodePanelField)>
+</Memo(WithStyles(NodePanelField))>
 `;
 
 exports[`NodePanelConnectionsField will receive right props 1`] = `

@@ -3,16 +3,11 @@ import React from 'react'
 import { shallow } from 'enzyme'
 
 import { NodePanelField } from './NodePanelField'
+import { mockClasses } from '../../../../shared/testing/mocks'
 
 describe('VaultCreator', () => {
   it('renders component', () => {
-    const Content = () => <div>Test Content</div>
-
-    const result = shallow(
-      <NodePanelField name='test field'>
-        <Content />
-      </NodePanelField>
-    )
+    const result = shallow(<NodePanelField name='test field' classes={mockClasses} />)
     expect(result).toMatchSnapshot()
   })
 })

@@ -16,6 +16,11 @@ exports[`NodePanel renders component 1`] = `
       square={true}
     >
       <WithStyles(ForwardRef(ExpansionPanelSummary))
+        classes={
+          Object {
+            "expandIcon": "icon-mock",
+          }
+        }
         expandIcon={<Memo />}
       >
         <Connect(Component) />

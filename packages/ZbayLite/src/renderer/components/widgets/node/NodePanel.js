@@ -19,14 +19,18 @@ const styles = theme => ({
     paddingLeft: theme.spacing(3),
     paddingRight: theme.spacing(2),
     paddingTop: 0,
-    paddingBottom: theme.spacing(1.5)
+    paddingBottom: theme.spacing(1)
   },
   expander: {
-    backgroundColor: theme.palette.primary.light,
-    boxShadow: 'none'
+    backgroundColor: 'rgb(31,31,31,0.63)',
+    boxShadow: 'none',
+    color: theme.palette.colors.white
   },
   root: {
     position: 'relative'
+  },
+  icon: {
+    color: theme.palette.colors.white
   }
 })
 
@@ -38,10 +42,16 @@ export const NodePanel = ({ classes, className }) => (
     className={classNames({
       [classes.root]: true,
       [className]: className
-    })}>
+    })}
+  >
     <Grid item xs>
       <ExpansionPanel square className={classes.expander}>
-        <ExpansionPanelSummary expandIcon={<ExpandLessIcon />}>
+        <ExpansionPanelSummary
+          classes={{
+            expandIcon: classes.icon
+          }}
+          expandIcon={<ExpandLessIcon />}
+        >
           <NodeStatus />
         </ExpansionPanelSummary>
         <ExpansionPanelDetails className={classes.expansionDetails}>

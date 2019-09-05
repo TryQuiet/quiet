@@ -3,8 +3,6 @@ import BigNumber from 'bignumber.js'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 
-import Typography from '@material-ui/core/Typography'
-
 import NodePanelField from '../../../components/widgets/node/NodePanelField'
 
 import nodeSelectors from '../../../store/selectors/node'
@@ -14,11 +12,7 @@ export const mapStateToProps = state => ({
 })
 
 export const NodePanelConnectionsField = ({ connections }) => (
-  <NodePanelField name='Connections'>
-    <Typography display='inline' variant='overline'>
-      {connections.toString()}
-    </Typography>
-  </NodePanelField>
+  <NodePanelField name='Connections' value={connections.toString()} />
 )
 
 NodePanelConnectionsField.propTypes = {

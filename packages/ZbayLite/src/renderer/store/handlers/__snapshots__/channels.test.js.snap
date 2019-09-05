@@ -71,7 +71,7 @@ Immutable.List [
 ]
 `;
 
-exports[`channels reducer handles actions -setUnread sets unread for channel 1`] = `
+exports[`channels reducer handles actions -setUnread sets unread for channel 2`] = `
 Immutable.List [
   Immutable.Map {
     "keys": Immutable.Map {

@@ -13,11 +13,13 @@ import DirectMessagesPanel from '../../../containers/widgets/channels/DirectMess
 const styles = theme => ({
   root: {
     minHeight: '100%',
-    width: '300px',
+    width: '350px',
     background: '#fff',
     borderRight: 'solid #e8e8e8 1px',
     paddingBottom: '55px',
-    position: 'relative'
+    position: 'relative',
+    backgroundImage: 'linear-gradient(-44deg, #521576 6%, #E42656 100%)',
+    color: 'white'
   },
   gutterBottom: {
     marginBottom: theme.spacing(4)
