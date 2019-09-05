@@ -257,7 +257,7 @@ describe('channel reducer', () => {
 
         await store.dispatch(epics.loadChannel(channel.id))
 
-        const loadedMessages = channelSelectors.messages(store.getState())
+        const loadedMessages = channelSelectors.messages()(store.getState())
         expect(loadedMessages).toMatchSnapshot()
       })
 

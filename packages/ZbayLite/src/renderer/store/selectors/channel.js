@@ -1,6 +1,7 @@
 import { createSelector } from 'reselect'
 import channelsSelector from './channels'
 import identitySelectors from './identity'
+import usersSelectors from './users'
 import messagesQueueSelectors from './messagesQueue'
 import operationsSelectors from './operations'
 import messagesSelectors from './messages'
@@ -43,14 +44,16 @@ export const currentChannelMessages = createSelector(
 
 export const loader = createSelector(channel, meta => meta.loader)
 
-export const messages = createSelector(
+export const messages = signerPubKey => createSelector(
   identitySelectors.data,
+  usersSelectors.registeredUser(signerPubKey),
   currentChannelMessages,
   pendingMessages,
   queuedMessages,
-  (identity, receivedMessages, pendingMessages, queuedMessages) => {
+  (identity, registeredUser, receivedMessages, pendingMessages, queuedMessages) => {
+    const userData = registeredUser ? registeredUser.toJS() : null
     const identityAddress = identity.address
-    const identityName = identity.name
+    const identityName = userData ? userData.nickname : identity.name
     const displayableBroadcasted = receivedMessages.map(
       message => {
         return zbayMessages.receivedToDisplayableMessage({ message, identityAddress })

@@ -2,11 +2,13 @@ import Immutable from 'immutable'
 import * as R from 'ramda'
 import crypto from 'crypto'
 import { createAction, handleActions } from 'redux-actions'
+import BigNumber from 'bignumber.js'
 
 import selectors from '../selectors/directMessagesQueue'
 import operationsSelectors from '../selectors/operations'
 import identitySelectors from '../selectors/identity'
 import contactsSelectors from '../selectors/contacts'
+import usersSelectors from '../selectors/users'
 import { messageToTransfer, messageType } from '../../zbay/messages'
 import operationsHandlers, { PendingDirectMessageOp, operationTypes } from './operations'
 import notificationsHandlers from './notifications'
@@ -14,7 +16,6 @@ import { errorNotification } from './utils'
 import { getClient } from '../../zcash'
 import { getVault } from '../../vault'
 import contactsHandlers from './contacts'
-import BigNumber from 'bignumber.js'
 
 export const DEFAULT_DEBOUNCE_INTERVAL = 3000
 const POLLING_OFFSET = 60000
@@ -53,16 +54,29 @@ export const actions = {
 
 export const checkConfirmationNumber = async ({ opId, status, txId, dispatch, getState }) => {
   const { meta: message } = operationsSelectors.pendingDirectMessages(getState()).get(opId).toJS()
-  const { id, address, name } = identitySelectors.identity(getState()).toJS().data
+  const { id, address, name, signerPubKey } = identitySelectors.identity(getState()).toJS().data
+  const userData = usersSelectors.registeredUser(signerPubKey)(getState())
   const messageContent = message.message
   const { recipientAddress, recipientUsername } = message
-  await getVault().contacts.saveMessage({ identityId: id, identityAddress: address, identityName: name, message: messageContent, recipientAddress, recipientUsername, status, txId })
+  await getVault().contacts.saveMessage({
+    identityId: id,
+    identityAddress: address,
+    identityName: userData ? userData.nickname : name,
+    message: messageContent,
+    recipientAddress,
+    recipientUsername,
+    status,
+    txId })
   const { username } = contactsSelectors.contact(recipientAddress)(getState())
   if (!username) {
-    await dispatch(contactsHandlers.epics.updateLastSeen({ contact: {
-      replyTo: recipientAddress,
-      username: recipientAddress.substring(1, 10)
-    } }))
+    dispatch(
+      contactsHandlers.actions.setUsernames({
+        sender: {
+          replyTo: recipientAddress,
+          username: recipientAddress.substring(0, 10)
+        }
+      })
+    )
   }
   dispatch(operationsHandlers.actions.removeOperation(opId))
   dispatch(contactsHandlers.epics.loadVaultMessages({ contact: {

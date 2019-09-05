@@ -125,7 +125,7 @@ describe('Channel selector', () => {
   })
 
   it('messages selector', async () => {
-    expect(channelSelectors.messages(store.getState())).toMatchSnapshot()
+    expect(channelSelectors.messages()(store.getState())).toMatchSnapshot()
   })
 
   it('data selector', async () => {

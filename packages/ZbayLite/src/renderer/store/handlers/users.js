@@ -35,7 +35,6 @@ export const ReceivedUser = (values, registeredUsers) => {
   if (values === null || ![0, 1].includes(values.r)) {
     return null
   }
-
   if (values.type === messageType.USER) {
     const publicKey0 = getPublicKeysFromSignature(values).toString('hex')
     const record0 = _ReceivedUser(publicKey0)()

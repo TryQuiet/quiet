@@ -5,6 +5,7 @@ import directMssagesQueueSelectors from './directMessagesQueue'
 import zbayMessages from '../../zbay/messages'
 import operationsSelectors from './operations'
 import { operationTypes } from '../handlers/operations'
+import usersSelectors from './users'
 
 export const Contact = Immutable.Record({
   lastSeen: null,
@@ -37,15 +38,17 @@ export const pendingMessages = address => createSelector(
     )
 )
 
-export const directMessages = address => createSelector(
+export const directMessages = (address, signerPubKey) => createSelector(
   identitySelectors.data,
+  usersSelectors.registeredUser(signerPubKey),
   messages(address),
   vaultMessages(address),
   pendingMessages(address),
   queuedMessages(address),
-  (identity, messages, vaultMessages, pendingMessages, queuedMessages) => {
+  (identity, registeredUser, messages, vaultMessages, pendingMessages, queuedMessages) => {
+    const userData = registeredUser ? registeredUser.toJS() : null
     const identityAddress = identity.address
-    const identityName = identity.name
+    const identityName = userData ? userData.nickname : identity.name
 
     const displayablePending = pendingMessages.map(
       operation => zbayMessages.operationToDisplayableMessage({ operation, identityAddress, identityName, receiver: { replyTo: operation.meta.recipientAddress, username: operation.meta.recipientUsername } })

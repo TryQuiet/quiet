@@ -5,11 +5,11 @@ import ChannelMessagesComponent from '../../../components/widgets/channels/Chann
 import channelSelectors from '../../../store/selectors/channel'
 import contactsSelectors from '../../../store/selectors/contacts'
 
-export const mapStateToProps = (state, { contactId }) => {
+export const mapStateToProps = (state, { contactId, signerPubKey }) => {
   return {
     messages: contactId
-      ? contactsSelectors.directMessages(contactId)(state)
-      : channelSelectors.messages(state)
+      ? contactsSelectors.directMessages(contactId, signerPubKey)(state)
+      : channelSelectors.messages(signerPubKey)(state)
   }
 }
 

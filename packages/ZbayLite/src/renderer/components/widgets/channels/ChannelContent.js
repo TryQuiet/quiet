@@ -16,14 +16,14 @@ const styles = {
 }
 
 // TODO: filter by spent
-export const ChannelContent = ({ classes, channelId, inputState, contactId }) => (
+export const ChannelContent = ({ classes, channelId, inputState, contactId, signerPubKey }) => (
   <Grid
     container
     direction='column'
     justify='center'
     className={classes.fullHeight}
   >
-    <ChannelMessages channelId={channelId} contactId={contactId} />
+    <ChannelMessages channelId={channelId} contactId={contactId} signerPubKey={signerPubKey} />
     <ChannelInput inputState={inputState} contactId={contactId} />
   </Grid>
 )
