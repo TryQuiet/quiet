@@ -106,6 +106,7 @@ export const fetchMessages = () => async (dispatch, getState) => {
         lastSeen,
         identityAddress
       })
+      await dispatch(channelsHandlers.actions.setUnread({ channelId, unread: newMessages.size }))
       dispatch(
         appendNewMessages({
           channelId,

@@ -26,7 +26,8 @@ export const initialState = ChannelsState()
 
 export const actionTypes = {
   LOAD_CHANNELS: 'LOAD_IDENTITY_CHANNELS',
-  SET_LAST_SEEN: 'SET_CHANNELS_LAST_SEEN'
+  SET_LAST_SEEN: 'SET_CHANNELS_LAST_SEEN',
+  SET_UNREAD: 'SET_CHANNEL_UNREAD'
 }
 
 const loadChannels = createAction(actionTypes.LOAD_CHANNELS, async (id) => {
@@ -41,10 +42,12 @@ const loadChannels = createAction(actionTypes.LOAD_CHANNELS, async (id) => {
 })
 
 const setLastSeen = createAction(actionTypes.SET_LAST_SEEN)
+const setUnread = createAction(actionTypes.SET_UNREAD)
 
 export const actions = {
   loadChannels,
-  setLastSeen
+  setLastSeen,
+  setUnread
 }
 
 const _createChannel = async (identityId, { name, description }) => {
@@ -94,6 +97,7 @@ const updateLastSeen = ({ channelId }) => async (dispatch, getState) => {
     lastSeen
   })
   dispatch(setLastSeen({ channelId, lastSeen }))
+  dispatch(setUnread({ channelId, unread: 0 }))
 }
 
 export const epics = {
@@ -112,6 +116,10 @@ export const reducer = handleActions({
   [setLastSeen]: (state, { payload: { channelId, lastSeen } }) => {
     const index = state.data.findIndex(channel => channel.get('id') === channelId)
     return state.updateIn(['data', index], ch => ch.set('lastSeen', lastSeen))
+  },
+  [setUnread]: (state, { payload: { channelId, unread } }) => {
+    const index = state.data.findIndex(channel => channel.get('id') === channelId)
+    return state.updateIn(['data', index], ch => ch.set('unread', unread))
   }
 }, initialState)
 

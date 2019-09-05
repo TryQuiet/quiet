@@ -20,7 +20,7 @@ export const ChannelState = Immutable.Record({
   id: null,
   message: '',
   shareableUri: '',
-  loader: LoaderState({ loading: true }),
+  loader: LoaderState({ loading: false }),
   members: null
 }, 'ChannelState')
 
@@ -43,8 +43,6 @@ export const actions = {
 }
 
 const loadChannel = (id) => async (dispatch, getState) => {
-  dispatch(setLoading(true))
-  dispatch(setLoadingMessage('Loading messages'))
   try {
     dispatch(setChannelId(id))
 
@@ -53,10 +51,9 @@ const loadChannel = (id) => async (dispatch, getState) => {
     const channel = channelSelectors.data(getState())
     const uri = await channelToUri(channel.toJS())
     dispatch(setShareableUri(uri))
-
+    await dispatch(clearNewMessages())
     await dispatch(updateLastSeen())
   } catch (err) {}
-  dispatch(setLoading(false))
 }
 
 const sendOnEnter = event => async (dispatch, getState) => {
