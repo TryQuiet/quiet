@@ -171,9 +171,6 @@ export const epics = {
 
 export const reducer = handleActions({
   [addDirectMessage]: (state, { payload: { recipientUsername, recipientAddress, message, key } }) => {
-    if (state.has(key)) {
-      return state.updateIn([key, 'message', 'message'], m => [m, message.message].join('\n'))
-    }
     return state.set(key, PendingMessage({
       recipientAddress,
       recipientUsername,

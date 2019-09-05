@@ -44,6 +44,7 @@ export const actions = {
 
 const _sendPendingMessages = async (dispatch, getState) => {
   const messages = selectors.queue(getState())
+
   await Promise.all(
     messages.map(async (msg, key) => {
       const channel = channelsSelectors.channelById(msg.channelId)(getState())
@@ -101,9 +102,6 @@ export const epics = {
 
 export const reducer = handleActions({
   [addMessage]: (state, { payload: { channelId, message, key } }) => {
-    if (state.has(key)) {
-      return state.updateIn([key, 'message', 'message'], m => [m, message.message].join('\n'))
-    }
     return state.set(key, PendingMessage({
       channelId,
       message: Immutable.fromJS(message)

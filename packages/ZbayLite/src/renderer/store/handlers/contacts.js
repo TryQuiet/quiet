@@ -9,6 +9,7 @@ import usersSelectors from '../selectors/users'
 import appSelectors from '../selectors/app'
 import selectors, { Contact } from '../selectors/contacts'
 import { directMessageChannel } from '../selectors/directMessageChannel'
+import directMessagesQueue from '../selectors/directMessagesQueue'
 import { messages as zbayMessages } from '../../zbay'
 import { getClient } from '../../zcash'
 import { getVault } from '../../vault'
@@ -25,17 +26,34 @@ const sendDirectMessageOnEnter = event => async (dispatch, getState) => {
   const enterPressed = event.nativeEvent.keyCode === 13
   const shiftPressed = event.nativeEvent.shiftKey === true
   const privKey = identitySelectors.signerPrivKey(getState())
+  const dmQueue = directMessagesQueue.queue(getState())
+  const channel = directMessageChannel(getState()).toJS()
+  const currentMessage = dmQueue.find(
+    dm => dm.get('recipientAddress') === channel.targetRecipientAddress
+  )
+
   if (enterPressed && !shiftPressed) {
     event.preventDefault()
-    const message = zbayMessages.createMessage({
-      messageData: {
-        type: zbayMessages.messageType.BASIC,
-        data: event.target.value,
-        spent: '0.0001'
-      },
-      privKey
-    })
-    const channel = directMessageChannel(getState()).toJS()
+    let message
+    if (currentMessage !== undefined) {
+      message = zbayMessages.createMessage({
+        messageData: {
+          type: zbayMessages.messageType.BASIC,
+          data: currentMessage.get('message').get('message') + '\n' + event.target.value,
+          spent: '0.0001'
+        },
+        privKey
+      })
+    } else {
+      message = zbayMessages.createMessage({
+        messageData: {
+          type: zbayMessages.messageType.BASIC,
+          data: event.target.value,
+          spent: '0.0001'
+        },
+        privKey
+      })
+    }
     dispatch(
       directMessagesQueueHandlers.epics.addDirectMessage({
         message,

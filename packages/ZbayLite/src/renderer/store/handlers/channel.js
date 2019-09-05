@@ -6,6 +6,7 @@ import { createAction, handleActions } from 'redux-actions'
 import operationsHandlers, { operationTypes, PendingMessageOp } from './operations'
 import notificationsHandlers from './notifications'
 import messagesQueueHandlers from './messagesQueue'
+import messagesQueue from '../selectors/messagesQueue'
 import messagesHandlers from './messages'
 import channelsHandlers from './channels'
 import channelSelectors from '../selectors/channel'
@@ -59,17 +60,31 @@ const loadChannel = (id) => async (dispatch, getState) => {
 const sendOnEnter = event => async (dispatch, getState) => {
   const enterPressed = event.nativeEvent.keyCode === 13
   const shiftPressed = event.nativeEvent.shiftKey === true
+  const channel = channelSelectors.data(getState()).toJS()
+  const currentMessage = messagesQueue.queue(getState()).find(
+    dm => dm.get('channelId') === channel.id
+  )
   if (enterPressed && !shiftPressed) {
     event.preventDefault()
     const privKey = identitySelectors.signerPrivKey(getState())
-    const message = messages.createMessage({
-      messageData: {
-        type: messages.messageType.BASIC,
-        data: event.target.value
-      },
-      privKey: privKey
-    })
-    const channel = channelSelectors.data(getState()).toJS()
+    let message
+    if (currentMessage !== undefined) {
+      message = messages.createMessage({
+        messageData: {
+          type: messages.messageType.BASIC,
+          data: currentMessage.get('message').get('message') + '\n' + event.target.value
+        },
+        privKey: privKey
+      })
+    } else {
+      message = messages.createMessage({
+        messageData: {
+          type: messages.messageType.BASIC,
+          data: event.target.value
+        },
+        privKey: privKey
+      })
+    }
     dispatch(messagesQueueHandlers.epics.addMessage({ message, channelId: channel.id }))
     dispatch(setMessage(''))
   }

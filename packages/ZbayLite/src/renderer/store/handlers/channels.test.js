@@ -134,6 +134,27 @@ describe('channels reducer', () => {
       const updatedChannels = channelsSelectors.channels(store.getState())
       expect(updatedChannels.data.map(ch => ch.delete('id'))).toMatchSnapshot()
     })
+    it('-setUnread sets unread for channel', () => {
+      const channels = R.range(0, 3).map(testUtils.channels.createChannel)
+      store = create({
+        initialState: Immutable.Map({
+          channels: ChannelsState({
+            data: Immutable.fromJS(channels)
+          }),
+          node: NodeState({
+            isTestnet: true
+          })
+        })
+      })
+
+      store.dispatch(actions.setUnread({
+        channelId: channels[1].id,
+        unread: 2
+      }))
+
+      const updatedChannels = channelsSelectors.channels(store.getState())
+      expect(updatedChannels.data.map(ch => ch.delete('id'))).toMatchSnapshot()
+    })
   })
 
   describe('handles epics', () => {
