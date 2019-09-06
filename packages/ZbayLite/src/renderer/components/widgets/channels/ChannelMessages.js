@@ -16,7 +16,7 @@ import ChannelTransferMessage from '../../../containers/widgets/channels/Channel
 
 const styles = theme => ({
   wrapper: {
-    background: theme.palette.primary.light,
+    backgroundImage: 'linear-gradient(318deg, #ffffff, #eae5ed)',
     flexGrow: 1
   },
   list: {

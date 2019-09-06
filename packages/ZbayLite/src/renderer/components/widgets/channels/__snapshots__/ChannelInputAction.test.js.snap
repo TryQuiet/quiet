@@ -2,18 +2,7 @@
 
 exports[`ChannelInputAction renders component 1`] = `
 <WithStyles(MenuAction)
-  Icon={
-    Object {
-      "$$typeof": Symbol(react.memo),
-      "compare": null,
-      "displayName": "AddIcon",
-      "muiName": "SvgIcon",
-      "type": Object {
-        "$$typeof": Symbol(react.forward_ref),
-        "render": [Function],
-      },
-    }
-  }
+  Icon={[Function]}
   classes={
     Object {
       "button": "button-mock",
@@ -21,7 +10,8 @@ exports[`ChannelInputAction renders component 1`] = `
     }
   }
   disabled={false}
-  offset="0 12"
+  offset="-10 12"
+  placement="top-end"
 >
   <Memo(WithStyles(MenuActionItem))
     onClick={[MockFunction]}

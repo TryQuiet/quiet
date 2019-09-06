@@ -23,7 +23,8 @@ const styles = theme => ({
     lineHeight: 1.2
   },
   settingsButton: {
-    padding: theme.spacing(0.5)
+    padding: theme.spacing(0.5),
+    color: theme.palette.colors.white
   },
   uri: {
     lineHeight: 1.2,

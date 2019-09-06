@@ -7,7 +7,6 @@ import { withStyles } from '@material-ui/core/styles'
 const styles = theme => ({
   root: {
     height: 8,
-    width: 80,
     paddingLeft: theme.spacing(2.5),
     paddingRight: theme.spacing(2.5),
     fontSize: '0.75rem'

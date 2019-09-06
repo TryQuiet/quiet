@@ -10,7 +10,10 @@ import MenuAction from '../../ui/MenuAction'
 
 const styles = theme => ({
   icon: {
-    fontSize: 26
+    fontSize: 26,
+    color: theme.palette.colors.white,
+    backgroundColor: 'rgb(0,0,0,0.26)',
+    borderRadius: 19
   },
   button: {
     padding: 4,

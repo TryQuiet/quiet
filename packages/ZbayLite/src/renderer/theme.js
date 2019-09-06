@@ -20,7 +20,9 @@ export default createMuiTheme({
     colors: {
       blue: '#2196f3',
       white: '#FFFFFF',
-      purple: '#521C74'
+      purple: '#521C74',
+      gray: '#e7e7e7',
+      black: '#333333'
     }
   },
   overrides: {

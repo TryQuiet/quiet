@@ -55,14 +55,14 @@ const styles = theme => ({
   }
 })
 
-export const PopupMenu = ({ open, anchorEl, classes, children, className, offset }) => {
+export const PopupMenu = ({ open, anchorEl, classes, children, className, offset, placement }) => {
   const [arrowRef, setArrowRef] = useState(null)
   return (
     <Popper
       open={open}
       anchorEl={anchorEl}
       transition
-      placement='bottom-end'
+      placement={placement || 'bottom-end'}
       disablePortal
       className={classes.popper}
       modifiers={{
@@ -75,29 +75,32 @@ export const PopupMenu = ({ open, anchorEl, classes, children, className, offset
         }
       }}
     >
-      {({ TransitionProps, placement }) => (
-        <Grow
-          {...TransitionProps}
-          style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
-        >
-          <div className={classes.wrapper}>
-            <Paper
-              className={classNames({
-                [classes.paper]: true,
-                [className]: className
-              })}
-            >
-              {children}
-            </Paper>
-            <span
-              className={classNames({
-                [classes.arrow]: true,
-                [classes[R.split('-', placement)[0]]]: true
-              })}
-              ref={setArrowRef} />
-          </div>
-        </Grow>
-      )}
+      {({ TransitionProps, placement }) => {
+        return (
+          <Grow
+            {...TransitionProps}
+            style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
+          >
+            <div className={classes.wrapper}>
+              <Paper
+                className={classNames({
+                  [classes.paper]: true,
+                  [className]: className
+                })}
+              >
+                {children}
+              </Paper>
+              <span
+                className={classNames({
+                  [classes.arrow]: true,
+                  [classes[R.split('-', placement)[0]]]: true
+                })}
+                ref={setArrowRef}
+              />
+            </div>
+          </Grow>
+        )
+      }}
     </Popper>
   )
 }
@@ -110,10 +113,8 @@ PopupMenu.propTypes = {
   ]),
   classes: PropTypes.object.isRequired,
   className: PropTypes.string,
-  offset: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number
-  ])
+  placement: PropTypes.string,
+  offset: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
 }
 
 PopupMenu.defaultProps = {

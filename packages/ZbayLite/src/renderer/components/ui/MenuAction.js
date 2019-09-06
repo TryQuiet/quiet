@@ -16,7 +16,16 @@ const styles = theme => ({
   icon: {}
 })
 
-export const MenuAction = ({ classes, IconButton, Icon, children, offset, disabled, onClick }) => {
+export const MenuAction = ({
+  classes,
+  IconButton,
+  Icon,
+  children,
+  offset,
+  disabled,
+  onClick,
+  placement
+}) => {
   const [open, setOpen] = useState(false)
   const [anchor, setAnchor] = useState(React.createRef())
   const closeMenu = () => setOpen(false)
@@ -33,14 +42,8 @@ export const MenuAction = ({ classes, IconButton, Icon, children, offset, disabl
         >
           <Icon className={classes.icon} fontSize='inherit' />
         </IconButton>
-        <PopupMenu
-          open={open}
-          anchorEl={anchor}
-          offset={offset}
-        >
-          <MenuList className={classes.menuList}>
-            { children }
-          </MenuList>
+        <PopupMenu open={open} anchorEl={anchor} offset={offset} placement={placement}>
+          <MenuList className={classes.menuList}>{children}</MenuList>
         </PopupMenu>
       </React.Fragment>
     </ClickAwayListener>
@@ -51,14 +54,10 @@ MenuAction.propTypes = {
   classes: PropTypes.object.isRequired,
   IconButton: PropTypes.elementType.isRequired,
   Icon: PropTypes.elementType.isRequired,
-  children: PropTypes.arrayOf(
-    PropTypes.element
-  ),
-  offset: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number
-  ]),
+  children: PropTypes.arrayOf(PropTypes.element),
+  offset: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   disabled: PropTypes.bool.isRequired,
+  placement: PropTypes.string,
   onClick: PropTypes.func
 }
 

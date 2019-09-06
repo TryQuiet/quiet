@@ -18,9 +18,10 @@ import { INPUT_STATE } from '../../../../store/selectors/channel'
 const styles = theme => ({
   root: {
     background: '#fff',
-    borderTop: 'solid #cbcbcb 2px',
+    boxShadow: '0 2px 15px 10px rgba(0, 0, 0, 0.07)',
     height: '100%',
-    width: '100%'
+    width: '100%',
+    zIndex: 10
   },
   '@keyframes blinker': {
     from: { opacity: 0 },
@@ -35,7 +36,8 @@ const styles = theme => ({
     margin: '0px'
   },
   multiline: {
-    padding: `10px ${theme.spacing(2)}px 9px`
+    padding: `10px ${theme.spacing(2)}px 9px`,
+    backgroundColor: theme.palette.colors.gray
   },
   warningIcon: {
     color: orange[500]

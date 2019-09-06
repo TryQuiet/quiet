@@ -29,8 +29,10 @@ const styles = theme => ({
     padding: 0
   },
   wrapper: {
-    background: '#fff',
-    marginBottom: theme.spacing(1)
+    marginBottom: theme.spacing(1),
+    borderRadius: 2,
+    boxShadow: '0 0 20px 0 rgba(0, 0, 0, 0.08)',
+    backgroundColor: '#ffffff'
   },
   clickable: {
     cursor: 'pointer'

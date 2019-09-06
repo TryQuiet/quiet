@@ -18,7 +18,7 @@ import IconButton from '../../ui/IconButton'
 const styles = theme => ({
   root: {
     minHeight: '100%',
-    padding: `0 ${theme.spacing(2)}px`
+    padding: theme.spacing(2)
   },
   title: {
     fontSize: '1rem',

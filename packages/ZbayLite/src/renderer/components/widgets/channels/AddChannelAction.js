@@ -13,7 +13,10 @@ import ImportChannelModal from './ImportChannelModal'
 
 const styles = theme => ({
   icon: {
-    fontSize: '26px'
+    fontSize: 26,
+    color: theme.palette.colors.white,
+    backgroundColor: 'rgb(0,0,0,0.26)',
+    borderRadius: 19
   },
   button: {
     padding: '4px',
@@ -38,10 +41,7 @@ export const AddChannelAction = ({ classes, openCreateModal }) => {
         <MenuActionItem onClick={openCreateModal} title='Create' />
       </MenuAction>
       <CreateChannelModal />
-      <ImportChannelModal
-        open={importOpen}
-        handleClose={() => setImportOpen(false)}
-      />
+      <ImportChannelModal open={importOpen} handleClose={() => setImportOpen(false)} />
     </React.Fragment>
   )
 }
