@@ -2,16 +2,19 @@
 
 exports[`TopUpModal renders component with private option 1`] = `
 <Memo(WithStyles(Modal))
+  fullPage={true}
   handleClose={[MockFunction]}
   open={false}
-  title="Receive money"
+  title="Add founds to your wallet"
 >
   <WithStyles(ForwardRef(Grid))
+    alignContent="flex-start"
     className="root-mock"
     container={true}
     justify="center"
   >
     <WithStyles(ForwardRef(Grid))
+      alignItems="flex-start"
       className="title-mock"
       container={true}
       item={true}
@@ -20,7 +23,7 @@ exports[`TopUpModal renders component with private option 1`] = `
       <WithStyles(ForwardRef(Typography))
         variant="h5"
       >
-        Add funds to your
+        Add founds
       </WithStyles(ForwardRef(Typography))>
       <WithStyles(ForwardRef(Select))
         className="selectWrapper-mock"
@@ -81,7 +84,7 @@ exports[`TopUpModal renders component with private option 1`] = `
             includeMargin={false}
             level="L"
             renderAs="canvas"
-            size={192}
+            size={250}
             value="zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly"
           />
         </WithStyles(ForwardRef(Grid))>
@@ -102,7 +105,7 @@ exports[`TopUpModal renders component with private option 1`] = `
                     text="zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly"
                   >
                     <ForwardRef(WithStyles)>
-                      <Memo />
+                      <Memo(WithStyles(IconCopy)) />
                     </ForwardRef(WithStyles)>
                   </CopyToClipboard>
                 </ForwardRef(WithStyles)>,
@@ -124,16 +127,19 @@ exports[`TopUpModal renders component with private option 1`] = `
 
 exports[`TopUpModal renders component with transparent option 1`] = `
 <Memo(WithStyles(Modal))
+  fullPage={true}
   handleClose={[MockFunction]}
   open={false}
-  title="Receive money"
+  title="Add founds to your wallet"
 >
   <WithStyles(ForwardRef(Grid))
+    alignContent="flex-start"
     className="root-mock"
     container={true}
     justify="center"
   >
     <WithStyles(ForwardRef(Grid))
+      alignItems="flex-start"
       className="title-mock"
       container={true}
       item={true}
@@ -142,7 +148,7 @@ exports[`TopUpModal renders component with transparent option 1`] = `
       <WithStyles(ForwardRef(Typography))
         variant="h5"
       >
-        Add funds to your
+        Add founds
       </WithStyles(ForwardRef(Typography))>
       <WithStyles(ForwardRef(Select))
         className="selectWrapper-mock"
@@ -203,7 +209,7 @@ exports[`TopUpModal renders component with transparent option 1`] = `
             includeMargin={false}
             level="L"
             renderAs="canvas"
-            size={192}
+            size={250}
             value="t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1"
           />
         </WithStyles(ForwardRef(Grid))>
@@ -224,7 +230,7 @@ exports[`TopUpModal renders component with transparent option 1`] = `
                     text="t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1"
                   >
                     <ForwardRef(WithStyles)>
-                      <Memo />
+                      <Memo(WithStyles(IconCopy)) />
                     </ForwardRef(WithStyles)>
                   </CopyToClipboard>
                 </ForwardRef(WithStyles)>,

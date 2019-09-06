@@ -12,9 +12,8 @@ import InputAdornment from '@material-ui/core/InputAdornment'
 import Select from '@material-ui/core/Select'
 import { withStyles } from '@material-ui/core/styles'
 
-import FileCopyIcon from '@material-ui/icons/FileCopy'
-
 import Modal from '../../../ui/Modal'
+import IconCopy from '../../../ui/IconCopy'
 
 const styles = theme => ({
   root: {
@@ -41,11 +40,14 @@ const styles = theme => ({
     marginBottom: theme.spacing(2)
   },
   copyField: {
-    width: 500,
+    width: 370,
+    borderRadius: 4,
     marginBottom: theme.spacing(2)
   },
   copyInput: {
-    color: theme.typography.caption.color
+    borderRight: `1px solid`,
+    paddingTop: 18,
+    paddingBottom: 18
   }
 })
 
@@ -62,12 +64,13 @@ export const TopUpModal = ({
   <Modal
     open={open}
     handleClose={handleClose}
-    title='Receive money'
+    title='Add founds to your wallet'
+    fullPage
   >
-    <Grid container justify='center' className={classes.root}>
-      <Grid item container justify='center' className={classes.title}>
+    <Grid container justify='center' alignContent='flex-start' className={classes.root}>
+      <Grid item container justify='center' alignItems='flex-start' className={classes.title}>
         <Typography variant='h5'>
-          Add funds to your
+          Add founds
         </Typography>
         <Select
           displayEmpty
@@ -99,7 +102,7 @@ export const TopUpModal = ({
             </Typography>
           </Grid>
           <Grid item>
-            <QRCode value={address} size={192} />
+            <QRCode value={address} size={250} />
           </Grid>
           <Grid item>
             <TextField
@@ -115,7 +118,7 @@ export const TopUpModal = ({
                   <InputAdornment position='end'>
                     <CopyToClipboard text={address} onCopy={handleCopy}>
                       <IconButton>
-                        <FileCopyIcon />
+                        <IconCopy />
                       </IconButton>
                     </CopyToClipboard>
                   </InputAdornment>

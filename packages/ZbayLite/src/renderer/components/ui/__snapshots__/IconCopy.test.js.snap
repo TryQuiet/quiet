@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`IconCopy renders component 1`] = `
+<div
+  className="name-mock"
+>
+  <div
+    className="squareTop-mock"
+  >
+    <div
+      className="gradient-mock"
+    >
+      <div
+        className="squareFill-mock"
+      />
+    </div>
+  </div>
+  <div
+    className="squareBottom-mock"
+  >
+    <div
+      className="gradient-mock"
+    >
+      <div
+        className="squareFill-mock"
+      />
+    </div>
+  </div>
+</div>
+`;
