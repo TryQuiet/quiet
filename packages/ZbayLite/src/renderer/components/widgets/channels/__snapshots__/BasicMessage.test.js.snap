@@ -18,9 +18,17 @@ exports[`BasicMessage renders component 1`] = `
         <ForwardRef(WithStyles)
           item={true}
         >
+          <Memo(WithStyles(SendMessagePopover))
+            address="zbay.io/uri/"
+            anchorEl={null}
+            handleClose={[Function]}
+            username="Unnamed"
+          />
           <ForwardRef(WithStyles)
             alignItems="center"
+            className="pointer-mock"
             container={true}
+            onClick={[Function]}
           >
             <ForwardRef(WithStyles)
               className="avatar-mock"
@@ -98,9 +106,17 @@ exports[`BasicMessage renders component when message is sent by owner 1`] = `
         <ForwardRef(WithStyles)
           item={true}
         >
+          <Memo(WithStyles(SendMessagePopover))
+            address="zbay.io/uri/"
+            anchorEl={null}
+            handleClose={[Function]}
+            username="Unnamed"
+          />
           <ForwardRef(WithStyles)
             alignItems="center"
+            className="pointer-mock"
             container={true}
+            onClick={[Function]}
           >
             <ForwardRef(WithStyles)
               className="avatar-mock"
@@ -179,9 +195,17 @@ exports[`BasicMessage renders component with status failed 1`] = `
         <ForwardRef(WithStyles)
           item={true}
         >
+          <Memo(WithStyles(SendMessagePopover))
+            address="zbay.io/uri/"
+            anchorEl={null}
+            handleClose={[Function]}
+            username="Unnamed"
+          />
           <ForwardRef(WithStyles)
             alignItems="center"
+            className="pointer-mock"
             container={true}
+            onClick={[Function]}
           >
             <ForwardRef(WithStyles)
               className="avatar-mock"
@@ -270,9 +294,17 @@ exports[`BasicMessage renders correct time for different month 1`] = `
         <ForwardRef(WithStyles)
           item={true}
         >
+          <Memo(WithStyles(SendMessagePopover))
+            address="zbay.io/uri/"
+            anchorEl={null}
+            handleClose={[Function]}
+            username="Unnamed"
+          />
           <ForwardRef(WithStyles)
             alignItems="center"
+            className="pointer-mock"
             container={true}
+            onClick={[Function]}
           >
             <ForwardRef(WithStyles)
               className="avatar-mock"
@@ -350,9 +382,17 @@ exports[`BasicMessage renders correct time for different year 1`] = `
         <ForwardRef(WithStyles)
           item={true}
         >
+          <Memo(WithStyles(SendMessagePopover))
+            address="zbay.io/uri/"
+            anchorEl={null}
+            handleClose={[Function]}
+            username="Unnamed"
+          />
           <ForwardRef(WithStyles)
             alignItems="center"
+            className="pointer-mock"
             container={true}
+            onClick={[Function]}
           >
             <ForwardRef(WithStyles)
               className="avatar-mock"
@@ -430,9 +470,17 @@ exports[`BasicMessage renders correct time for same week 1`] = `
         <ForwardRef(WithStyles)
           item={true}
         >
+          <Memo(WithStyles(SendMessagePopover))
+            address="zbay.io/uri/"
+            anchorEl={null}
+            handleClose={[Function]}
+            username="Unnamed"
+          />
           <ForwardRef(WithStyles)
             alignItems="center"
+            className="pointer-mock"
             container={true}
+            onClick={[Function]}
           >
             <ForwardRef(WithStyles)
               className="avatar-mock"
@@ -510,9 +558,17 @@ exports[`BasicMessage renders username 1`] = `
         <ForwardRef(WithStyles)
           item={true}
         >
+          <Memo(WithStyles(SendMessagePopover))
+            address="zbay.io/uri/"
+            anchorEl={null}
+            handleClose={[Function]}
+            username="Unnamed"
+          />
           <ForwardRef(WithStyles)
             alignItems="center"
+            className="pointer-mock"
             container={true}
+            onClick={[Function]}
           >
             <ForwardRef(WithStyles)
               className="avatar-mock"
@@ -590,9 +646,17 @@ exports[`BasicMessage renders with status cancelled 1`] = `
         <ForwardRef(WithStyles)
           item={true}
         >
+          <Memo(WithStyles(SendMessagePopover))
+            address="zbay.io/uri/"
+            anchorEl={null}
+            handleClose={[Function]}
+            username="Unnamed"
+          />
           <ForwardRef(WithStyles)
             alignItems="center"
+            className="pointer-mock"
             container={true}
+            onClick={[Function]}
           >
             <ForwardRef(WithStyles)
               className="avatar-mock"
@@ -670,9 +734,17 @@ exports[`BasicMessage renders with status pending 1`] = `
         <ForwardRef(WithStyles)
           item={true}
         >
+          <Memo(WithStyles(SendMessagePopover))
+            address="zbay.io/uri/"
+            anchorEl={null}
+            handleClose={[Function]}
+            username="Unnamed"
+          />
           <ForwardRef(WithStyles)
             alignItems="center"
+            className="pointer-mock"
             container={true}
+            onClick={[Function]}
           >
             <ForwardRef(WithStyles)
               className="avatar-mock"
@@ -750,9 +822,17 @@ exports[`BasicMessage renders with status success 1`] = `
         <ForwardRef(WithStyles)
           item={true}
         >
+          <Memo(WithStyles(SendMessagePopover))
+            address="zbay.io/uri/"
+            anchorEl={null}
+            handleClose={[Function]}
+            username="Unnamed"
+          />
           <ForwardRef(WithStyles)
             alignItems="center"
+            className="pointer-mock"
             container={true}
+            onClick={[Function]}
           >
             <ForwardRef(WithStyles)
               className="avatar-mock"

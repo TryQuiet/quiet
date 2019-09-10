@@ -1,0 +1,88 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SendMessagePopover renders popover 1`] = `
+<WithStyles(ForwardRef(Popover))
+  anchorEl={true}
+  anchorOrigin={
+    Object {
+      "horizontal": "center",
+      "vertical": "bottom",
+    }
+  }
+  className="popover-mock"
+  id="simple-popover"
+  onClose={[MockFunction]}
+  open={true}
+  transformOrigin={
+    Object {
+      "horizontal": "center",
+      "vertical": "top",
+    }
+  }
+>
+  <WithStyles(ForwardRef(Grid))
+    alignItems="center"
+    className="container-mock"
+    container={true}
+    direction="column"
+    justify="flex-start"
+  >
+    <WithStyles(ForwardRef(Grid))
+      className="icon-mock"
+      container={true}
+      direction="row"
+      item={true}
+      justify="flex-start"
+    >
+      <Memo(WithStyles(IconButton))
+        className="closeIcon-mock"
+        onClick={[MockFunction]}
+      >
+        <ClearIcon />
+      </Memo(WithStyles(IconButton))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      item={true}
+    >
+      <span
+        className="alignAvatarPopover-mock"
+      >
+        <Jdenticon
+          size="100"
+          value="TestUser"
+        />
+      </span>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      item={12}
+    >
+      <WithStyles(ForwardRef(Typography))
+        className="usernamePopover-mock"
+        color="textPrimary"
+      >
+        TestUser
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      item={12}
+    >
+      <WithStyles(ForwardRef(Typography))
+        variant="caption"
+      >
+        ztestsapling1juf4322spfp2nhmqaz5
+        ...
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      item={12}
+    >
+      <WithStyles(ForwardRef(Button))
+        className="button-mock"
+        variant="contained"
+      >
+        Send message
+      </WithStyles(ForwardRef(Button))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Popover))>
+`;

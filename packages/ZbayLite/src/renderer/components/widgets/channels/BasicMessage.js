@@ -20,6 +20,7 @@ import DoneAllIcon from '@material-ui/icons/DoneAll'
 import ErrorIcon from '@material-ui/icons/ErrorOutline'
 import BlockIcon from '@material-ui/icons/Block'
 
+import SendMessagePopover from './SendMessagePopover'
 import { getZbayAddress } from '../../../zbay/channels'
 import { _DisplayableMessage } from '../../../zbay/messages'
 import Elipsis from '../../ui/Elipsis'
@@ -73,6 +74,9 @@ const styles = theme => ({
   },
   alignAvatar: {
     marginTop: 4
+  },
+  pointer: {
+    cursor: 'pointer'
   }
 })
 
@@ -97,6 +101,9 @@ const getTimeFormat = time => {
 }
 
 export const BasicMessage = ({ classes, message, children, actionsOpen, setActionsOpen }) => {
+  const [anchorEl, setAnchorEl] = React.useState(null)
+  const handleClick = (event) => setAnchorEl(event.currentTarget)
+  const handleClose = () => setAnchorEl(null)
   const fromYou = message.fromYou || false
   const sender = message.sender
   const username = sender.username.substring(0, 20) || 'Unnamed'
@@ -123,7 +130,8 @@ export const BasicMessage = ({ classes, message, children, actionsOpen, setActio
         primary={
           <Grid container direction='row' justify='space-between' alignItems='flex-start'>
             <Grid item>
-              <Grid container alignItems='center'>
+              <SendMessagePopover username={username} address={address} anchorEl={anchorEl} handleClose={handleClose} />
+              <Grid container className={classes.pointer} alignItems='center' onClick={handleClick}>
                 <Grid item xs='auto' className={classes.avatar}>
                   <span className={classes.alignAvatar}>
                     <Jdenticon size='55' value={username} />

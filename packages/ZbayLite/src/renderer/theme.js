@@ -60,6 +60,13 @@ export default createMuiTheme({
         paddingTop: 14.5,
         paddingBottom: 14.5
       }
+    },
+    MuiPopover: {
+      paper: {
+        minWidth: 320,
+        minHeight: 350,
+        borderRadius: 8
+      }
     }
   }
 })
