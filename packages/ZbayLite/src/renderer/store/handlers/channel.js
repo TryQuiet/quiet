@@ -90,10 +90,19 @@ const sendOnEnter = event => async (dispatch, getState) => {
   }
 }
 
-const resendMessage = (message) => async (dispatch, getState) => {
-  dispatch(operationsHandlers.actions.removeOperation(message.id))
+const resendMessage = (messageData) => async (dispatch, getState) => {
+  dispatch(operationsHandlers.actions.removeOperation(messageData.id))
   const identityAddress = identitySelectors.address(getState())
   const channel = channelSelectors.data(getState()).toJS()
+  const privKey = identitySelectors.signerPrivKey(getState())
+  const message = messages.createMessage({
+    messageData: {
+      type: messageData.type,
+      data: messageData.message,
+      spent: new BigNumber('0.0001')
+    },
+    privKey
+  })
   const transfer = await messages.messageToTransfer({
     message,
     channel,

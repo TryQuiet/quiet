@@ -87,7 +87,8 @@ describe('contacts reducer', () => {
         id: identityId,
         address: identityAddress,
         transparentAddress: 'test-transparent-identity-address',
-        name: 'Saturn'
+        name: 'Saturn',
+        signerPrivKey: '879aff43df53606d8ae1219d9347360e7a30d1c2f141e14c9bc96bb29bf930cb'
       })
     }),
     users: Immutable.Map(),

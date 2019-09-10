@@ -87,16 +87,25 @@ const sendDirectMessage = payload => async (dispatch, getState) => {
   )
 }
 
-const resendMessage = message => async (dispatch, getState) => {
-  dispatch(operationsHandlers.actions.removeOperation(message.id))
+const resendMessage = messageData => async (dispatch, getState) => {
+  dispatch(operationsHandlers.actions.removeOperation(messageData.id))
   const identityAddress = identitySelectors.address(getState())
+  const privKey = identitySelectors.signerPrivKey(getState())
+  const message = zbayMessages.createMessage({
+    messageData: {
+      type: messageData.type,
+      data: messageData.message,
+      spent:
+        messageData.type === zbayMessages.messageType.TRANSFER
+          ? new BigNumber(messageData.spent)
+          : new BigNumber('0.0001')
+    },
+    privKey
+  })
   const transfer = await zbayMessages.messageToTransfer({
     message,
-    recipientAddress: message.receiver.replyTo,
-    amount:
-      message.type === zbayMessages.messageType.TRANSFER
-        ? new BigNumber(message.spent)
-        : new BigNumber('0.0001'),
+    recipientAddress: messageData.receiver.replyTo,
+    amount: message.spent,
     identityAddress
   })
   try {
@@ -106,8 +115,8 @@ const resendMessage = message => async (dispatch, getState) => {
         opId,
         type: operationTypes.pendingDirectMessage,
         meta: PendingDirectMessageOp({
-          recipientAddress: message.receiver.replyTo,
-          recipientUsername: message.receiver.username,
+          recipientAddress: messageData.receiver.replyTo,
+          recipientUsername: messageData.receiver.username,
           message: Immutable.fromJS(message)
         }),
         checkConfirmationNumber
