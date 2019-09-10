@@ -38,20 +38,20 @@ const styles = theme => ({
     background: 'rgb(0,0,0,0.3)',
     color: '#fff'
   },
-  avatar: {
-    maxHeight: 60,
-    maxWidth: 60,
+  primary: {
+    display: 'flex'
+  },
+  Avatar: {
+    maxHeight: 40,
+    maxWidth: 40,
     borderRadius: '50%',
     overflow: 'hidden',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center'
   },
-  primary: {
-    display: 'flex'
-  },
   alignAvatar: {
-    marginTop: 4
+    marginTop: '4px'
   }
 })
 
@@ -74,11 +74,11 @@ export const ChannelsListItem = ({ classes, channel, displayAddress, history, di
     >
       <ListItemIcon className={classes.itemIcon}>
         {directMessages ? (
-          <span className={classes.Avatar}>
-            <span className={classes.alignAvatar}>
-              <Jdenticon size='38' value={channelObj.username} />
-            </span>
-          </span>
+          <div className={classes.Avatar}>
+            <div className={classes.alignAvatar}>
+              <Jdenticon size='48' value={channelObj.username} />
+            </div>
+          </div>
         ) : (
           <ChatBubbleOutlineIcon className={classes.icon} />
         )}

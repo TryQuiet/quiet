@@ -30,14 +30,19 @@ const styles = theme => ({
     bottom: 0,
     left: 0,
     right: 0
+  },
+  walletInfo: {
+    backgroundColor: 'rgb(0,0,0,0.1)'
   }
 })
 
 // TODO: add direct messages panel
 const Sidebar = ({ classes }) => (
   <Grid container direction='column' className={classes.root}>
-    <IdentityPanel />
-    <WalletPanel />
+    <span className={classes.walletInfo}>
+      <IdentityPanel />
+      <WalletPanel />
+    </span>
     <ChannelsPanel />
     <DirectMessagesPanel />
     <NodePanel hexColor='#cca92c' className={classes.statusBar} />

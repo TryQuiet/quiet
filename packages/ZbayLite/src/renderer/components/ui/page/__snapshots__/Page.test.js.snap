@@ -4,6 +4,11 @@ exports[`Page renders component 1`] = `
 <WithStyles(ForwardRef(Grid))
   container={true}
   direction="column"
+  style={
+    Object {
+      "height": "100vh",
+    }
+  }
 >
   <Memo(WithStyles(PageHeader))
     classes={null}
@@ -12,12 +17,5 @@ exports[`Page renders component 1`] = `
       Test header
     </div>
   </Memo(WithStyles(PageHeader))>
-  <Memo(WithStyles(PageContent))
-    classes={null}
-  >
-    <div>
-      Test content
-    </div>
-  </Memo(WithStyles(PageContent))>
 </WithStyles(ForwardRef(Grid))>
 `;

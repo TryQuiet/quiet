@@ -14,7 +14,7 @@ describe('ScallingChannelsList', () => {
     )
     const targetHeight = constants.itemSize * 4
     const result = shallow(
-      <ScalingChannelsList channels={channels} maxHeight={targetHeight + 20} />
+      <ScalingChannelsList channels={channels} maxHeight={targetHeight} />
     )
     expect(result.prop('height')).toEqual(targetHeight)
     expect(result).toMatchSnapshot()

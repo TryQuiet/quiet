@@ -8,16 +8,15 @@ import ScalingChannelsList from './ScalingChannelsList'
 import { withSpinnerLoader } from '../../ui/SpinnerLoader'
 
 const constants = {
-  sidebarHeight: 50,
-  gutter: 20
+  sidebarHeight: 40,
+  gutter: 10
 }
 
 export const ChannelsPanel = ({ channels, contentRect }) => {
-  const baseHeight = contentRect.bounds.height || constants.sidebarHeight + constants.gutter
   return (
     <ScalingChannelsList
       channels={channels}
-      maxHeight={baseHeight - constants.sidebarHeight - constants.gutter}
+      maxHeight={contentRect.bounds.height - constants.sidebarHeight - constants.gutter}
     />
   )
 }
@@ -35,6 +34,4 @@ ChannelsPanel.defaultProps = {
   channels: Immutable.List()
 }
 
-export default R.compose(
-  withSpinnerLoader
-)(ChannelsPanel)
+export default R.compose(withSpinnerLoader)(ChannelsPanel)

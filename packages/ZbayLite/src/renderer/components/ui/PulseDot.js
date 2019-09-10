@@ -38,7 +38,7 @@ const styles = {
       height: '100%',
       borderRadius: '50%',
       opacity: 0,
-      animation: 'pulse 2s infinite'
+      animation: '$pulse 2s infinite'
     }
   },
   healthy: {

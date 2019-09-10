@@ -9,6 +9,7 @@ exports[`SpinnerLoader renders component 1`] = `
   justify="center"
 >
   <WithStyles(ForwardRef(CircularProgress))
+    className="spinner-mock"
     size={40}
   />
   <WithStyles(ForwardRef(Typography))

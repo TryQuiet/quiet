@@ -18,7 +18,7 @@ const styles = theme => ({
 
 export const SpinnerLoader = ({ classes, size, message, className }) => (
   <Grid container justify='center' alignItems='center' direction='column' className={className}>
-    <CircularProgress size={size} />
+    <CircularProgress className={classes.spinner} size={size} />
     <Typography
       variant='caption'
       style={{ fontSize: `${size / 44}rem` }}

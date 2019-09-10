@@ -11,7 +11,9 @@ const styles = {
     background: '#fff',
     height: constants.headerHeight,
     order: -1,
-    borderBottom: 'solid #cbcbcb 2px'
+    borderBottom: 'solid #cbcbcb 2px',
+    boxShadow: '0 2px 20px 0 rgba(0, 0, 0, 0.15)',
+    zIndex: 10
   }
 }
 

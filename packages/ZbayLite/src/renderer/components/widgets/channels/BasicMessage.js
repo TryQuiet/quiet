@@ -115,7 +115,6 @@ export const BasicMessage = ({ classes, message, children, actionsOpen, setActio
         [classes.clickable]: ['failed', 'cancelled'].includes(status),
         [classes.wrapperPending]: status !== 'broadcasted'
       })}
-      alignItems='flex-start'
       onClick={() => setActionsOpen(!actionsOpen)}
     >
       <ListItemText
@@ -125,7 +124,7 @@ export const BasicMessage = ({ classes, message, children, actionsOpen, setActio
           <Grid container direction='row' justify='space-between' alignItems='flex-start'>
             <Grid item>
               <Grid container alignItems='center'>
-                <Grid item xs='auto' alignItems='center' className={classes.avatar}>
+                <Grid item xs='auto' className={classes.avatar}>
                   <span className={classes.alignAvatar}>
                     <Jdenticon size='55' value={username} />
                   </span>

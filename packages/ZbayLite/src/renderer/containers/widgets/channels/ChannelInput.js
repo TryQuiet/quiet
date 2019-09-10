@@ -8,7 +8,8 @@ import contactsHandlers from '../../../store/handlers/contacts'
 import channelSelectors from '../../../store/selectors/channel'
 
 export const mapStateToProps = state => ({
-  message: channelSelectors.message(state)
+  message: channelSelectors.message(state),
+  inputState: channelSelectors.inputLocked(state)
 })
 
 export const mapDispatchToProps = (dispatch, { contactId }) =>

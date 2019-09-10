@@ -18,10 +18,8 @@ import { INPUT_STATE } from '../../../../store/selectors/channel'
 const styles = theme => ({
   root: {
     background: '#fff',
-    boxShadow: '0 2px 15px 10px rgba(0, 0, 0, 0.07)',
     height: '100%',
-    width: '100%',
-    zIndex: 10
+    width: '100%'
   },
   '@keyframes blinker': {
     from: { opacity: 0 },
@@ -43,7 +41,7 @@ const styles = theme => ({
     color: orange[500]
   },
   blinkAnimation: {
-    animationName: 'blinker',
+    animationName: '$blinker',
     animationDuration: '1s',
     animationTimingFunction: 'linear',
     animationIterationCount: 1

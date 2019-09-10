@@ -16,7 +16,7 @@ exports[`BaseChannelsList renders component 1`] = `
   renderView={[Function]}
   style={
     Object {
-      "height": 444,
+      "height": 420,
     }
   }
   tagName="div"
@@ -262,7 +262,7 @@ exports[`BaseChannelsList renders list elements with displayAddress 1`] = `
   renderView={[Function]}
   style={
     Object {
-      "height": 148,
+      "height": 140,
     }
   }
   tagName="div"

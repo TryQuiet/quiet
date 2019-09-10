@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import Grid from '@material-ui/core/Grid'
 
 export const Page = ({ children }) => (
-  <Grid container direction='column'>
+  <Grid container direction='column' style={{ height: '100vh' }}>
     {children}
   </Grid>
 )

@@ -17,7 +17,7 @@ import SettingsModal from '../../containers/widgets/settings/SettingsModal'
 
 const styles = theme => ({
   root: {
-    padding: `${theme.spacing(1.5)}px ${theme.spacing(2)}px`
+    padding: `${theme.spacing(1)}px ${theme.spacing(2)}px`
   },
   name: {
     lineHeight: 1.2

@@ -2,17 +2,10 @@ import React from 'react'
 import Immutable from 'immutable'
 import PropTypes from 'prop-types'
 
-import BaseChannelsList, { getItemSize } from './BaseChannelsList'
+import BaseChannelsList from './BaseChannelsList'
 
 export const ScalingChannelsList = ({ channels, maxHeight, displayAddress }) => {
-  const itemSize = getItemSize(displayAddress)
-  return (
-    <BaseChannelsList
-      height={parseInt(maxHeight / itemSize) * itemSize}
-      channels={channels}
-      displayAddress={displayAddress}
-    />
-  )
+  return <BaseChannelsList height={maxHeight} channels={channels} displayAddress={displayAddress} />
 }
 
 ScalingChannelsList.propTypes = {

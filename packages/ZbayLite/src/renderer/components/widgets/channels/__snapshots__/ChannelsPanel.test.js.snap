@@ -50,7 +50,7 @@ exports[`ChannelsPanel renders collapsed list if no bounds 1`] = `
       },
     ]
   }
-  maxHeight={0}
+  maxHeight={NaN}
 />
 `;
 
@@ -104,6 +104,6 @@ exports[`ChannelsPanel renders component 1`] = `
       },
     ]
   }
-  maxHeight={130}
+  maxHeight={150}
 />
 `;

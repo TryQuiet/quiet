@@ -10,14 +10,17 @@ const styles = theme => ({
   button: {
     width: 150,
     heigth: 80,
-    paddingTop: theme.spacing(1.2),
-    paddingBottom: theme.spacing(1.2),
+    paddingTop: theme.spacing(0.6),
+    paddingBottom: theme.spacing(0.6),
     paddingLeft: theme.spacing(1.6),
     paddingRight: theme.spacing(1.6),
     color: theme.palette.colors.white,
     fontSize: '0.9rem',
-    backgroundColor: 'rgb(0,0,50,0.55)',
-    textTransform: 'none'
+    backgroundColor: 'rgb(0,0,0,0.6)',
+    textTransform: 'none',
+    '&:hover': {
+      backgroundColor: 'rgb(0,0,0,0.9)'
+    }
   }
 })
 

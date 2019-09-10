@@ -4,38 +4,55 @@ import * as R from 'ramda'
 
 import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
+import RootRef from '@material-ui/core/RootRef'
+import { withContentRect } from 'react-measure'
 
-import ChannelInput from '../../../containers/widgets/channels/ChannelInput'
 import ChannelMessages from '../../../containers/widgets/channels/ChannelMessages'
 import { withSpinnerLoader } from '../../ui/SpinnerLoader'
 
 const styles = {
   fullHeight: {
-    minHeight: '100%'
+    height: '100%',
+    backgroundImage: 'linear-gradient(318deg, #ffffff, #eae5ed)'
   }
 }
 
 // TODO: filter by spent
-export const ChannelContent = ({ classes, channelId, inputState, contactId, signerPubKey }) => (
-  <Grid
-    container
-    direction='column'
-    justify='center'
-    className={classes.fullHeight}
-  >
-    <ChannelMessages channelId={channelId} contactId={contactId} signerPubKey={signerPubKey} />
-    <ChannelInput inputState={inputState} contactId={contactId} />
-  </Grid>
-)
-
+export const ChannelContent = ({
+  classes,
+  channelId,
+  inputState,
+  contactId,
+  signerPubKey,
+  measureRef,
+  contentRect
+}) => {
+  return (
+    <RootRef rootRef={measureRef}>
+      <Grid item className={classes.fullHeight}>
+        <ChannelMessages
+          channelId={channelId}
+          contactId={contactId}
+          signerPubKey={signerPubKey}
+          inputState={inputState}
+          contentRect={contentRect}
+        />
+      </Grid>
+    </RootRef>
+  )
+}
 ChannelContent.propTypes = {
   classes: PropTypes.object.isRequired,
   channelId: PropTypes.string,
   contactId: PropTypes.string,
-  inputState: PropTypes.number
+  inputState: PropTypes.number,
+  signerPubKey: PropTypes.string,
+  measureRef: PropTypes.func.isRequired,
+  contentRect: PropTypes.object.isRequired
 }
 
 export default R.compose(
   withSpinnerLoader,
-  withStyles(styles)
+  withStyles(styles),
+  withContentRect('bounds')
 )(ChannelContent)

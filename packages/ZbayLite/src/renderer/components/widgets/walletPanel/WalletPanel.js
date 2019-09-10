@@ -15,7 +15,7 @@ const styles = theme => ({
     paddingLeft: theme.spacing(2),
     paddingTop: theme.spacing(1),
     paddingRight: theme.spacing(2),
-    paddingBottom: theme.spacing(3)
+    paddingBottom: theme.spacing(2)
   },
   actions: {
     marginTop: theme.spacing(2)
@@ -25,16 +25,11 @@ const styles = theme => ({
   }
 })
 
-export const WalletPanel = ({
-  classes,
-  topUpOpen,
-  handleReceive,
-  handleCloseTopUp
-}) => {
+export const WalletPanel = ({ classes, topUpOpen, handleReceive, handleCloseTopUp }) => {
   return (
     <React.Fragment>
       <Grid item container direction='column' className={classes.root}>
-        <Grid item container direction='row' justify='space-between' alignItems='center' >
+        <Grid item container direction='row' justify='space-between' alignItems='center'>
           <ZcashBalance />
         </Grid>
         <Grid item className={classes.actions}>
@@ -58,6 +53,4 @@ WalletPanel.defaultProps = {
   transparentBalance: new BigNumber(0)
 }
 
-export default R.compose(
-  withStyles(styles)
-)(WalletPanel)
+export default R.compose(withStyles(styles))(WalletPanel)

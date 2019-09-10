@@ -2,7 +2,6 @@
 
 exports[`BasicMessage renders component 1`] = `
 <WithStyles(ForwardRef(ListItem))
-  alignItems="flex-start"
   className="wrapper-mock"
   onClick={[Function]}
 >
@@ -24,7 +23,6 @@ exports[`BasicMessage renders component 1`] = `
             container={true}
           >
             <ForwardRef(WithStyles)
-              alignItems="center"
               className="avatar-mock"
               item={true}
               xs="auto"
@@ -84,7 +82,6 @@ exports[`BasicMessage renders component 1`] = `
 
 exports[`BasicMessage renders component when message is sent by owner 1`] = `
 <WithStyles(ForwardRef(ListItem))
-  alignItems="flex-start"
   className="wrapper-mock"
   onClick={[Function]}
 >
@@ -106,7 +103,6 @@ exports[`BasicMessage renders component when message is sent by owner 1`] = `
             container={true}
           >
             <ForwardRef(WithStyles)
-              alignItems="center"
               className="avatar-mock"
               item={true}
               xs="auto"
@@ -167,7 +163,6 @@ exports[`BasicMessage renders component when message is sent by owner 1`] = `
 
 exports[`BasicMessage renders component with status failed 1`] = `
 <WithStyles(ForwardRef(ListItem))
-  alignItems="flex-start"
   className="wrapper-mock clickable-mock wrapperPending-mock"
   onClick={[Function]}
 >
@@ -189,7 +184,6 @@ exports[`BasicMessage renders component with status failed 1`] = `
             container={true}
           >
             <ForwardRef(WithStyles)
-              alignItems="center"
               className="avatar-mock"
               item={true}
               xs="auto"
@@ -260,7 +254,6 @@ exports[`BasicMessage renders component with status failed 1`] = `
 
 exports[`BasicMessage renders correct time for different month 1`] = `
 <WithStyles(ForwardRef(ListItem))
-  alignItems="flex-start"
   className="wrapper-mock"
   onClick={[Function]}
 >
@@ -282,7 +275,6 @@ exports[`BasicMessage renders correct time for different month 1`] = `
             container={true}
           >
             <ForwardRef(WithStyles)
-              alignItems="center"
               className="avatar-mock"
               item={true}
               xs="auto"
@@ -342,7 +334,6 @@ exports[`BasicMessage renders correct time for different month 1`] = `
 
 exports[`BasicMessage renders correct time for different year 1`] = `
 <WithStyles(ForwardRef(ListItem))
-  alignItems="flex-start"
   className="wrapper-mock"
   onClick={[Function]}
 >
@@ -364,7 +355,6 @@ exports[`BasicMessage renders correct time for different year 1`] = `
             container={true}
           >
             <ForwardRef(WithStyles)
-              alignItems="center"
               className="avatar-mock"
               item={true}
               xs="auto"
@@ -424,7 +414,6 @@ exports[`BasicMessage renders correct time for different year 1`] = `
 
 exports[`BasicMessage renders correct time for same week 1`] = `
 <WithStyles(ForwardRef(ListItem))
-  alignItems="flex-start"
   className="wrapper-mock"
   onClick={[Function]}
 >
@@ -446,7 +435,6 @@ exports[`BasicMessage renders correct time for same week 1`] = `
             container={true}
           >
             <ForwardRef(WithStyles)
-              alignItems="center"
               className="avatar-mock"
               item={true}
               xs="auto"
@@ -506,7 +494,6 @@ exports[`BasicMessage renders correct time for same week 1`] = `
 
 exports[`BasicMessage renders username 1`] = `
 <WithStyles(ForwardRef(ListItem))
-  alignItems="flex-start"
   className="wrapper-mock"
   onClick={[Function]}
 >
@@ -528,7 +515,6 @@ exports[`BasicMessage renders username 1`] = `
             container={true}
           >
             <ForwardRef(WithStyles)
-              alignItems="center"
               className="avatar-mock"
               item={true}
               xs="auto"
@@ -588,7 +574,6 @@ exports[`BasicMessage renders username 1`] = `
 
 exports[`BasicMessage renders with status cancelled 1`] = `
 <WithStyles(ForwardRef(ListItem))
-  alignItems="flex-start"
   className="wrapper-mock clickable-mock wrapperPending-mock"
   onClick={[Function]}
 >
@@ -610,7 +595,6 @@ exports[`BasicMessage renders with status cancelled 1`] = `
             container={true}
           >
             <ForwardRef(WithStyles)
-              alignItems="center"
               className="avatar-mock"
               item={true}
               xs="auto"
@@ -670,7 +654,6 @@ exports[`BasicMessage renders with status cancelled 1`] = `
 
 exports[`BasicMessage renders with status pending 1`] = `
 <WithStyles(ForwardRef(ListItem))
-  alignItems="flex-start"
   className="wrapper-mock wrapperPending-mock"
   onClick={[Function]}
 >
@@ -692,7 +675,6 @@ exports[`BasicMessage renders with status pending 1`] = `
             container={true}
           >
             <ForwardRef(WithStyles)
-              alignItems="center"
               className="avatar-mock"
               item={true}
               xs="auto"
@@ -752,7 +734,6 @@ exports[`BasicMessage renders with status pending 1`] = `
 
 exports[`BasicMessage renders with status success 1`] = `
 <WithStyles(ForwardRef(ListItem))
-  alignItems="flex-start"
   className="wrapper-mock wrapperPending-mock"
   onClick={[Function]}
 >
@@ -774,7 +755,6 @@ exports[`BasicMessage renders with status success 1`] = `
             container={true}
           >
             <ForwardRef(WithStyles)
-              alignItems="center"
               className="avatar-mock"
               item={true}
               xs="auto"

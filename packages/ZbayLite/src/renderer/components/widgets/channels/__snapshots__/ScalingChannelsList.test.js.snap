@@ -50,6 +50,6 @@ exports[`ScallingChannelsList renders component 1`] = `
       },
     ]
   }
-  height={148}
+  height={140}
 />
 `;

@@ -8,7 +8,7 @@ import List from '@material-ui/core/List'
 import ChannelsListItem from '../../../containers/widgets/channels/ChannelsListItem'
 
 export const constants = {
-  itemSize: 37,
+  itemSize: 35,
   itemWithSecondarySize: 54
 }
 
