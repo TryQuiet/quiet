@@ -2,6 +2,7 @@
 
 exports[`ChannelInput will receive right props for channel 1`] = `
 Object {
+  "channelId": "this-is-test-channel-id",
   "messages": Immutable.List [
     Immutable.DisplayableMessage {
       "id": 3,
@@ -81,6 +82,7 @@ Object {
 
 exports[`ChannelInput will receive right props for direct message 1`] = `
 Object {
+  "channelId": "this-is-test-channel-id",
   "messages": Immutable.List [
     Immutable.ReceivedMessage {
       "id": 7,

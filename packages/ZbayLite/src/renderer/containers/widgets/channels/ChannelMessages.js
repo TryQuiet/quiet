@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
 import * as R from 'ramda'
 import ChannelMessagesComponent from '../../../components/widgets/channels/ChannelMessages'
@@ -9,12 +9,27 @@ export const mapStateToProps = (state, { contactId, signerPubKey }) => {
   return {
     messages: contactId
       ? contactsSelectors.directMessages(contactId, signerPubKey)(state)
-      : channelSelectors.messages(signerPubKey)(state)
+      : channelSelectors.messages(signerPubKey)(state),
+    channelId: channelSelectors.channelId(state)
   }
 }
 
-export const ChannelMessages = ({ className, messages, loader, contactId, contentRect }) => {
+export const ChannelMessages = ({
+  className,
+  messages,
+  loader,
+  contactId,
+  channelId,
+  contentRect
+}) => {
   const [scrollPosition, setScrollPosition] = React.useState(-1)
+  useEffect(
+    () => {
+      setScrollPosition(-1)
+    },
+    [channelId, contactId]
+  )
+
   return (
     <ChannelMessagesComponent
       scrollPosition={scrollPosition}
@@ -28,8 +43,6 @@ export const ChannelMessages = ({ className, messages, loader, contactId, conten
 }
 
 export default R.compose(
-  connect(
-    mapStateToProps
-  ),
+  connect(mapStateToProps),
   React.memo
 )(ChannelMessages)
