@@ -19,8 +19,9 @@ export const mapDispatchToProps = dispatch =>
     dispatch
   )
 
-export const WalletPanel = ({ className, getBalance }) => {
+export const WalletPanel = ({ className, fetchUsers, getBalance }) => {
   useInterval(getBalance, 15000)
+  useInterval(fetchUsers, 15000)
   const [topUpOpen, setTopUpOpen] = useState(false)
   return (
     <WalletPanelComponent

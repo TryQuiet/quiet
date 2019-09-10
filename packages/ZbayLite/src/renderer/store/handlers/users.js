@@ -7,6 +7,8 @@ import notificationsHandlers from './notifications'
 import channelsSelectors from '../selectors/channels'
 import usersSelector from '../selectors/users'
 import identitySelector from '../selectors/identity'
+import appSelectors from '../selectors/app'
+import appHandlers from '../handlers/app'
 import { errorNotification } from './utils'
 import { messageType, getPublicKeysFromSignature } from '../../zbay/messages'
 import { messages as zbayMessages } from '../../zbay'
@@ -104,6 +106,11 @@ export const createOrUpdateUser = payload => async (dispatch, getState) => {
 export const fetchUsers = () => async (dispatch, getState) => {
   const usersChannel = channelsSelectors.usersChannel(getState())
   const transfers = await getClient().payment.received(usersChannel.get('address'))
+  if (transfers.length === appSelectors.transfers(getState()).get(usersChannel.get('address'))) {
+    return
+  } else {
+    dispatch(appHandlers.actions.setTransfers({ id: usersChannel.get('address'), value: transfers.length }))
+  }
   const registrationMessages = await Promise.all(
     transfers.map(transfer => {
       const message = zbayMessages.transferToMessage(transfer)

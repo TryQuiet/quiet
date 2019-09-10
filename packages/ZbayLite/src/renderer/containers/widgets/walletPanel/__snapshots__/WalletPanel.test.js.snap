@@ -6,6 +6,10 @@ Array [
     [MockFunction],
     15000,
   ],
+  Array [
+    undefined,
+    15000,
+  ],
 ]
 `;
 
