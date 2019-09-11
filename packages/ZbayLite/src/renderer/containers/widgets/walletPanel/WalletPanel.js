@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { lifecycle } from 'recompose'
 import * as R from 'ramda'
 
 import WalletPanelComponent from '../../../components/widgets/walletPanel/WalletPanel'
@@ -40,11 +39,5 @@ export default R.compose(
   connect(
     null,
     mapDispatchToProps
-  ),
-  lifecycle({
-    async componentDidMount () {
-      await this.props.getBalance()
-      await this.props.fetchUsers()
-    }
-  })
+  )
 )(WalletPanel)

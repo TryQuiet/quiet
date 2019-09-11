@@ -43,6 +43,6 @@ exports[`IdentityPanel renders component 1`] = `
       <PersonIcon />
     </WithStyles(ForwardRef(IconButton))>
   </WithStyles(ForwardRef(Grid))>
-  <withModal(SettingsModal) />
+  <withModal(WithStyles(SettingsModal)) />
 </Fragment>
 `;

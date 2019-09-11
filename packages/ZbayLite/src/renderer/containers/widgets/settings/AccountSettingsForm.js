@@ -13,7 +13,7 @@ export const mapStateToProps = state => {
         ? usersSelectors
           .registeredUser(identitySelectors.signerPubKey(state))(state)
           .get('nickname')
-        : null
+        : ''
     },
     transparentAddress: identitySelectors.transparentAddress(state),
     privateAddress: identitySelectors.address(state)

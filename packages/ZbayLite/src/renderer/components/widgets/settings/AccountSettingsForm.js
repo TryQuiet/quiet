@@ -11,9 +11,9 @@ import MuiTextField from '@material-ui/core/TextField'
 import IconButton from '@material-ui/core/IconButton'
 import Button from '@material-ui/core/Button'
 import { withStyles } from '@material-ui/core/styles'
+import { Divider } from '@material-ui/core'
 
-import FileCopyIcon from '@material-ui/icons/FileCopy'
-
+import IconCopy from '../../ui/IconCopy'
 import TextField from '../../ui/form/TextField'
 
 const styles = theme => ({
@@ -21,26 +21,58 @@ const styles = theme => ({
     width: '100%'
   },
   container: {
-    padding: theme.spacing(6)
+    padding: theme.spacing(3),
+    marginTop: theme.spacing(1)
   },
   textField: {
-    width: 270
+    width: '100%',
+    height: 60,
+    '& > :first-child': {
+      padding: theme.spacing(1)
+    }
   },
-  submitButton: {
-    marginTop: theme.spacing(3)
+  icon: {
+    width: 60,
+    height: 60,
+    justifyContent: 'center'
+  },
+  buttonDiv: {
+    marginTop: theme.spacing(1)
+  },
+  button: {
+    backgroundColor: theme.palette.colors.purple,
+    padding: theme.spacing(2),
+    '&:hover': {
+      backgroundColor: theme.palette.colors.darkPurple
+    },
+    '&:disabled': {
+      backgroundColor: 'theme.palette.colors.gray'
+    }
+  },
+  divider: {
+    height: 60,
+    marginLeft: 10,
+    width: 1
   }
 })
 
 Yup.addMethod(Yup.mixed, 'validateMessage', function (checkNickname) {
-  return this.test('test', 'Sorry username already taken. please choose another', async function (value) {
+  return this.test('test', 'Sorry username already taken. please choose another', async function (
+    value
+  ) {
     const isUsernameTaken = await checkNickname(value)
     return !isUsernameTaken
   })
 })
 
-const formSchema = (checkNickname) => Yup.object().shape({
-  nickname: Yup.string().min(3).max(20).validateMessage(checkNickname).required('Required')
-})
+const formSchema = checkNickname =>
+  Yup.object().shape({
+    nickname: Yup.string()
+      .min(3)
+      .max(20)
+      .validateMessage(checkNickname)
+      .required('Required')
+  })
 
 export const AccountSettingsForm = ({
   classes,
@@ -56,107 +88,96 @@ export const AccountSettingsForm = ({
     validationSchema={formSchema(checkNickname)}
     initialValues={initialValues}
   >
-    {
-      ({ values, isSubmitting, isValid }) => (
-        <Form className={classes.fullWidth}>
-          <Grid
-            container
-            direction='column'
-            spacing={2}
-            alignItems='flex-start'
-            className={classes.container}
-          >
-            <Grid item>
-              <Typography variant='body2'>
-                {initialValues.nickname ? `You have registered username: ${initialValues.nickname}` : `You don't have a Zbay nickname registered` }
-              </Typography>
-            </Grid>
-            <Grid item>
-              <Typography variant='body2'>
-                Nickname
-              </Typography>
-              <TextField
-                id='nickname'
-                name='nickname'
-                className={classes.textField}
-                margin='none'
-                variant='outlined'
-                value={values.nickname}
-              />
-            </Grid>
-            <Grid item container direction='row' justify='space-between'>
-              <Grid item>
-                <Typography variant='body2'>
-                  Private address
-                </Typography>
-                <MuiTextField
-                  id='private-address'
-                  className={classes.textField}
-                  variant='outlined'
-                  type='text'
-                  value={privateAddress}
-                  disabled
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position='end'>
-                        <CopyToClipboard text={privateAddress} onCopy={handleCopy}>
-                          <IconButton>
-                            <FileCopyIcon />
-                          </IconButton>
-                        </CopyToClipboard>
-                      </InputAdornment>
-                    )
-                  }}
-                />
-              </Grid>
-              <Grid item>
-                <Typography variant='body2'>
-                  Transparent address
-                </Typography>
-                <MuiTextField
-                  id='transparent-address'
-                  className={classes.textField}
-                  variant='outlined'
-                  type='text'
-                  value={transparentAddress}
-                  disabled
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position='end'>
-                        <CopyToClipboard text={transparentAddress} onCopy={handleCopy}>
-                          <IconButton>
-                            <FileCopyIcon />
-                          </IconButton>
-                        </CopyToClipboard>
-                      </InputAdornment>
-                    )
-                  }}
-                />
-              </Grid>
-            </Grid>
-            <Grid item className={classes.submitButton}>
-              <Button
-                variant='contained'
-                size='small'
-                color='primary'
-                type='submit'
-                disabled={!isValid || isSubmitting}
-              >
-                Save
-              </Button>
-            </Grid>
+    {({ values, isSubmitting, isValid }) => (
+      <Form className={classes.fullWidth}>
+        <Grid container className={classes.container} spacing={4}>
+          <Grid item xs={12}>
+            <Typography variant='body2'>Nickname</Typography>
+            <TextField
+              id='nickname'
+              name='nickname'
+              className={classes.textField}
+              margin='none'
+              placeholder={`Sorry you don't have registered nickname`}
+              variant='outlined'
+              value={values.nickname}
+            />
           </Grid>
-        </Form>
-      )
-    }
+          <Grid item xs={12}>
+            <Typography variant='body2'>Private address</Typography>
+            <MuiTextField
+              id='private-address'
+              className={classes.textField}
+              variant='outlined'
+              type='text'
+              value={privateAddress}
+              disabled
+              classes={{ root: classes.textFieldd }}
+              InputProps={{
+                endAdornment: (
+                  <>
+                    <Divider className={classes.divider} orientation='vertical' />
+                    <InputAdornment position='end' className={classes.icon}>
+                      <IconButton>
+                        <CopyToClipboard text={privateAddress} onCopy={handleCopy}>
+                          <IconCopy />
+                        </CopyToClipboard>
+                      </IconButton>
+                    </InputAdornment>
+                  </>
+                )
+              }}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Typography variant='body2'>Transparent address</Typography>
+            <MuiTextField
+              id='transparent-address'
+              className={classes.textField}
+              variant='outlined'
+              type='text'
+              value={transparentAddress}
+              disabled
+              InputProps={{
+                endAdornment: (
+                  <>
+                    <Divider className={classes.divider} orientation='vertical' />
+                    <InputAdornment position='end' className={classes.icon}>
+                      <IconButton>
+                        <CopyToClipboard text={transparentAddress} onCopy={handleCopy}>
+                          <IconCopy />
+                        </CopyToClipboard>
+                      </IconButton>
+                    </InputAdornment>
+                  </>
+                )
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} className={classes.buttonDiv}>
+            <Button
+              variant='contained'
+              size='small'
+              color='primary'
+              type='submit'
+              fullWidth
+              disabled={!isValid || isSubmitting}
+              className={classes.button}
+            >
+              Save
+            </Button>
+          </Grid>
+        </Grid>
+      </Form>
+    )}
   </Formik>
 )
 
 AccountSettingsForm.propTypes = {
   classes: PropTypes.object.isRequired,
   initialValues: PropTypes.shape({
-    nickname: PropTypes.string.isRequired
-  }).isRequired,
+    nickname: PropTypes.string
+  }),
   transparentAddress: PropTypes.string.isRequired,
   privateAddress: PropTypes.string.isRequired,
   handleSubmit: PropTypes.func.isRequired,

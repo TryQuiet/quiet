@@ -7,10 +7,17 @@ exports[`SettingsModal renders component 1`] = `
   title="Settings"
 >
   <WithStyles(ForwardRef(AppBar))
+    className="appbar-mock"
     color="default"
     position="static"
   >
     <WithStyles(ForwardRef(Tabs))
+      className="tabs-mock"
+      classes={
+        Object {
+          "indicator": "indicator-mock",
+        }
+      }
       indicatorColor="primary"
       onChange={[Function]}
       value="account"

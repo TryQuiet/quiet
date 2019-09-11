@@ -21,6 +21,7 @@ export default createMuiTheme({
       blue: '#2196f3',
       white: '#FFFFFF',
       purple: '#521C74',
+      darkPurple: '#4d1a6d',
       gray: '#e7e7e7',
       black: '#333333'
     }
