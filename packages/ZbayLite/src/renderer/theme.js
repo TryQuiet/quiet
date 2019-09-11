@@ -66,8 +66,6 @@ export default createMuiTheme({
     },
     MuiPopover: {
       paper: {
-        minWidth: 320,
-        minHeight: 350,
         borderRadius: 8
       }
     }
