@@ -2,13 +2,13 @@ import Immutable from 'immutable'
 import { createAction, handleActions } from 'redux-actions'
 import * as R from 'ramda'
 
+import appSelectors from '../selectors/app'
+import appHandlers from '../handlers/app'
 import { actionCreators } from './modals'
 import notificationsHandlers from './notifications'
 import channelsSelectors from '../selectors/channels'
 import usersSelector from '../selectors/users'
 import identitySelector from '../selectors/identity'
-import appSelectors from '../selectors/app'
-import appHandlers from '../handlers/app'
 import { errorNotification } from './utils'
 import { messageType, getPublicKeysFromSignature } from '../../zbay/messages'
 import { messages as zbayMessages } from '../../zbay'
@@ -31,9 +31,9 @@ const _UserData = Immutable.Record(
   'UserData'
 )
 
-const usersNicknames = new Set()
+const usersNicknames = new Map()
 
-export const ReceivedUser = (values, registeredUsers) => {
+export const ReceivedUser = (values) => {
   if (values === null || ![0, 1].includes(values.r)) {
     return null
   }
@@ -41,20 +41,22 @@ export const ReceivedUser = (values, registeredUsers) => {
     const publicKey0 = getPublicKeysFromSignature(values).toString('hex')
     const record0 = _ReceivedUser(publicKey0)()
     if (
-      usersNicknames.has(values.message.nickname) &&
-      registeredUsers.get(publicKey0) === undefined
+      usersNicknames.get(values.message.nickname) &&
+      usersNicknames.get(values.message.nickname) !== publicKey0
     ) {
       let i = 2
-      while (usersNicknames.has(`${values.message.nickname} #${i}`)) {
+      while (usersNicknames.get(`${values.message.nickname} #${i}`)) {
         i++
       }
-      usersNicknames.add(`${values.message.nickname} #${i}`)
+      usersNicknames.set(`${values.message.nickname} #${i}`, publicKey0)
       return record0.set(
         publicKey0,
         _UserData({ ...values.message, nickname: `${values.message.nickname} #${i}` })
       )
+    } else {
+      usersNicknames.set(values.message.nickname, publicKey0)
     }
-    usersNicknames.add(values.message.nickname)
+
     return record0.set(publicKey0, _UserData(values.message))
   }
   return null
@@ -131,7 +133,7 @@ export const fetchUsers = () => async (dispatch, getState) => {
     },
     Promise.resolve(Immutable.Map({}))
   )
-  dispatch(setUsers({ users }))
+  await dispatch(setUsers({ users }))
 }
 
 export const isNicknameTaken = username => async (dispatch, getState) => {

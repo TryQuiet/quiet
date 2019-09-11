@@ -28,19 +28,19 @@ Immutable.Map {
   "039ea1be861812ac6e210c96ac54fd2523f6d738a2db460613cc9aa8bd1886607f": Immutable.UserData {
     "firstName": "testname",
     "lastName": "testlastname",
-    "nickname": "nickname #6",
+    "nickname": "nickname",
     "address": "ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r",
   },
   "0214dc56ab3467e74b3bc1fed80d08e0146b251caceddc2ad6bfe37caca5fcc2e5": Immutable.UserData {
     "firstName": "testname",
     "lastName": "testlastname",
-    "nickname": "nickname #7",
+    "nickname": "nickname #6",
     "address": "ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r",
   },
   "026918cbe1c9ace24ff065006c06b3c6344a5d7203ad42a45ddc7c7a41c6edfcc2": Immutable.UserData {
     "firstName": "testname",
     "lastName": "testlastname",
-    "nickname": "nickname #8",
+    "nickname": "nickname #7",
     "address": "ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r",
   },
 }
@@ -68,13 +68,13 @@ Immutable.Map {
   "02b7e647acb166a81139b1bcbdde82b8df610f1fb93af5edd0359dd0d7138d9166": Immutable.UserData {
     "firstName": "testname",
     "lastName": "testlastname",
-    "nickname": "nickname #9",
+    "nickname": "nickname #8",
     "address": "ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r",
   },
   "035302fc10b2dc5cbe747779cd1cbcd7fe111161e09282e210d72dee9f6e68b17a": Immutable.UserData {
     "firstName": "testname",
     "lastName": "testlastname",
-    "nickname": "nickname #10",
+    "nickname": "nickname #9",
     "address": "ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r",
   },
 }
