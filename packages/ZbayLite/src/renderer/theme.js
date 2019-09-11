@@ -23,7 +23,9 @@ export default createMuiTheme({
       purple: '#521C74',
       darkPurple: '#4d1a6d',
       gray: '#e7e7e7',
-      black: '#333333'
+      black: '#333333',
+      trueBlack: '#000000',
+      zbayBlue: '#521c74'
     }
   },
   overrides: {
@@ -58,8 +60,8 @@ export default createMuiTheme({
     },
     MuiOutlinedInput: {
       input: {
-        paddingTop: 14.5,
-        paddingBottom: 14.5
+        paddingTop: 20,
+        paddingBottom: 20
       }
     },
     MuiPopover: {

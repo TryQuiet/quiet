@@ -36,7 +36,7 @@
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
   },
-  "author": "Bartlomiej Lisiecki",
+  "author": "Bartlomiej Lisiecki, Norbert Bodziony ",
   "license": "ISC",
   "devDependencies": {
     "@babel/core": "^7.2.2",

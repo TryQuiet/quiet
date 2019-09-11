@@ -13,19 +13,30 @@ import { withStyles } from '@material-ui/core/styles'
 import TextField from '../../ui/form/TextField'
 import SelectField from '../../ui/form/SelectField'
 import countryData from './countryData'
+import UnfoldMore from '@material-ui/icons/UnfoldMore'
 
 const styles = theme => ({
   fullWidth: {
     width: '100%'
   },
   container: {
-    padding: theme.spacing(6)
+    padding: theme.spacing(4)
   },
   field: {
     width: 270
   },
   submitButton: {
-    marginTop: theme.spacing(3)
+    marginTop: theme.spacing(1)
+  },
+  label: {
+    fontSize: 12,
+    marginBottom: 8,
+    color: theme.palette.colors.trueBlack
+  },
+  button: {
+    height: 60,
+    fontSize: '0.9rem',
+    backgroundColor: theme.palette.colors.zbayBlue
   }
 })
 
@@ -64,7 +75,7 @@ export const ShippingSettingsForm = ({
           >
             <Grid item container direction='row' justify='space-between'>
               <Grid item>
-                <Typography variant='body2'>
+                <Typography className={classes.label} variant='body2'>
                   First Name
                 </Typography>
                 <TextField
@@ -77,7 +88,7 @@ export const ShippingSettingsForm = ({
                 />
               </Grid>
               <Grid item>
-                <Typography variant='body2'>
+                <Typography className={classes.label} variant='body2'>
                   Last Name
                 </Typography>
                 <TextField
@@ -91,28 +102,32 @@ export const ShippingSettingsForm = ({
               </Grid>
             </Grid>
             <Grid item container direction='row' justify='space-between'>
-              <Grid item>
-                <Typography variant='body2'>
+              <Grid item xs={12}>
+                <Typography className={classes.label} variant='body2'>
                   Country
                 </Typography>
                 <SelectField
                   id='country'
                   name='country'
                   variant='outlined'
-                  className={classes.field}
+                  fullWidth
+                  IconComponent={UnfoldMore}
                 >
                   { R.keys(countryData).map(c => <MenuItem key={c} value={c}>{c}</MenuItem>) }
                 </SelectField>
               </Grid>
-              <Grid item>
-                <Typography variant='body2'>
+            </Grid>
+            <Grid item container direction='row' justify='space-between'>
+              <Grid item xs={12}>
+                <Typography className={classes.label} variant='body2'>
                   Region
                 </Typography>
                 <SelectField
                   id='region'
                   name='region'
                   variant='outlined'
-                  className={classes.field}
+                  fullWidth
+                  IconComponent={UnfoldMore}
                 >
                   {
                     R.propOr(
@@ -126,7 +141,7 @@ export const ShippingSettingsForm = ({
             </Grid>
             <Grid item container direction='row' justify='space-between'>
               <Grid item>
-                <Typography variant='body2'>
+                <Typography className={classes.label} variant='body2'>
                   City
                 </Typography>
                 <TextField
@@ -139,7 +154,7 @@ export const ShippingSettingsForm = ({
                 />
               </Grid>
               <Grid item>
-                <Typography variant='body2'>
+                <Typography className={classes.label} variant='body2'>
                   Postal Code
                 </Typography>
                 <TextField
@@ -152,29 +167,35 @@ export const ShippingSettingsForm = ({
                 />
               </Grid>
             </Grid>
-            <Grid item>
-              <Typography variant='body2'>
+            <Grid container item>
+              <Grid item xs={12}>
+                <Typography className={classes.label} variant='body2'>
                 Street Address
-              </Typography>
-              <TextField
-                id='street-address'
-                name='street'
-                className={classes.field}
-                margin='none'
-                variant='outlined'
-                value={values.street}
-              />
+                </Typography>
+                <TextField
+                  id='street-address'
+                  name='street'
+                  fullWidth
+                  margin='none'
+                  variant='outlined'
+                  value={values.street}
+                />
+              </Grid>
             </Grid>
-            <Grid item className={classes.submitButton}>
-              <Button
-                variant='contained'
-                size='small'
-                color='primary'
-                type='submit'
-                disabled={isSubmitting}
-              >
+            <Grid container item>
+              <Grid item xs={12} className={classes.submitButton}>
+                <Button
+                  variant='contained'
+                  size='large'
+                  color='primary'
+                  type='submit'
+                  fullWidth
+                  disabled={isSubmitting}
+                  className={classes.button}
+                >
                 Save
-              </Button>
+                </Button>
+              </Grid>
             </Grid>
           </Grid>
         </Form>
