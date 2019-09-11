@@ -33,12 +33,15 @@ const _UserData = Immutable.Record(
 
 const usersNicknames = new Map()
 
-export const ReceivedUser = (values) => {
+export const ReceivedUser = values => {
   if (values === null || ![0, 1].includes(values.r)) {
     return null
   }
   if (values.type === messageType.USER) {
     const publicKey0 = getPublicKeysFromSignature(values).toString('hex')
+    for (let i of usersNicknames.keys()) {
+      if (usersNicknames.get(i) === publicKey0) usersNicknames.delete(i)
+    }
     const record0 = _ReceivedUser(publicKey0)()
     if (
       usersNicknames.get(values.message.nickname) &&
@@ -111,7 +114,9 @@ export const fetchUsers = () => async (dispatch, getState) => {
   if (transfers.length === appSelectors.transfers(getState()).get(usersChannel.get('address'))) {
     return
   } else {
-    dispatch(appHandlers.actions.setTransfers({ id: usersChannel.get('address'), value: transfers.length }))
+    dispatch(
+      appHandlers.actions.setTransfers({ id: usersChannel.get('address'), value: transfers.length })
+    )
   }
   const registrationMessages = await Promise.all(
     transfers.map(transfer => {
