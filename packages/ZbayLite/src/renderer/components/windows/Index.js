@@ -9,13 +9,13 @@ import CardMedia from '@material-ui/core/CardMedia'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import { withStyles } from '@material-ui/core/styles'
 
-import ZcashIcon from '../../static/images/zcash/zcash-icon-fullcolor.svg'
+import ZcashIcon from '../../static/images/zcash/zbay-icon.svg'
 import WindowWrapper from '../ui/WindowWrapper'
 
 const styles = theme => ({
   icon: {
-    width: 200,
-    height: 200
+    width: 150,
+    height: 150
   },
   card: {
     padding: theme.spacing(2)
