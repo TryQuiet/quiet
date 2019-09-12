@@ -26,7 +26,7 @@ describe('ChannelInput', () => {
   })
 
   it('will receive right props', async () => {
-    const props = mapStateToProps(store.getState())
+    const props = mapStateToProps(store.getState(), { props: {} })
     expect(props).toMatchSnapshot()
   })
 

@@ -60,7 +60,9 @@ const inputStateToMessage = {
   [INPUT_STATE.DISABLE]:
     'Sending messages is locked due to insufficient funds - this may be resolved by topping up your account',
   [INPUT_STATE.LOCKED]:
-    'All of your funds are locked - please wait for network confirmation or deposit more ZEC to your account'
+    'All of your funds are locked - please wait for network confirmation or deposit more ZEC to your account',
+  [INPUT_STATE.UNREGISTERED]:
+    'You can not reply to this message because you are not registered. Please register your nickname ( button next to your balance )'
 }
 // TODO: refactor with formik
 export const ChannelInput = ({

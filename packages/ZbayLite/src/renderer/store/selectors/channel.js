@@ -98,7 +98,8 @@ export const inputLocked = createSelector(
 export const INPUT_STATE = {
   DISABLE: 0,
   AVAILABLE: 1,
-  LOCKED: 2
+  LOCKED: 2,
+  UNREGISTERED: 3
 }
 
 export const channelId = createSelector(channel, ch => ch.id)

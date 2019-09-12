@@ -5,12 +5,19 @@ import PropTypes from 'prop-types'
 import ChannelInputComponent from '../../../components/widgets/channels/ChannelInput'
 import channelHandlers from '../../../store/handlers/channel'
 import contactsHandlers from '../../../store/handlers/contacts'
-import channelSelectors from '../../../store/selectors/channel'
+import channelSelectors, { INPUT_STATE } from '../../../store/selectors/channel'
+import usersSelectors from '../../../store/selectors/users'
+import identitySelectors from '../../../store/selectors/identity'
 
-export const mapStateToProps = state => ({
-  message: channelSelectors.message(state),
-  inputState: channelSelectors.inputLocked(state)
-})
+export const mapStateToProps = (state, { contactId }) => {
+  const registered = contactId
+    ? !!usersSelectors.registeredUser(identitySelectors.signerPubKey(state))(state)
+    : true
+  return {
+    message: channelSelectors.message(state),
+    inputState: registered ? channelSelectors.inputLocked(state) : INPUT_STATE.UNREGISTERED
+  }
+}
 
 export const mapDispatchToProps = (dispatch, { contactId }) =>
   bindActionCreators(
