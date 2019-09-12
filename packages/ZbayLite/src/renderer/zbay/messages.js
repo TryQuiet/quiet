@@ -6,7 +6,7 @@ import * as Yup from 'yup'
 import secp256k1 from 'secp256k1'
 import createKeccakHash from 'keccak'
 import { packMemo, unpackMemo } from './transit'
-
+import { getClient } from '../zcash'
 export const messageType = {
   BASIC: 1,
   AD: 2,
@@ -215,37 +215,48 @@ export const createTransfer = values =>
     error: null
   })
 
-export const messageToTransfer = async ({
-  message,
-  channel,
-  amount = '0.0001',
-  recipientAddress,
-  identityAddress
-}) => {
-  if ((recipientAddress || channel).length === 35) {
-    return {
-      from: identityAddress,
-      amounts: [
-        {
-          address: recipientAddress || channel.address,
-          amount: amount.toString()
-        }
-      ]
+const _splitUtxo = ({ transfer, utxos, splitTreshhold, fee, identityAddress }) => {
+  const utxo = utxos.find(utxo => utxo.amount > (parseFloat(transfer.amount.toString()) + 2 * splitTreshhold + fee))
+  if (utxo) {
+    const newUtxo = {
+      address:
+      identityAddress,
+      amount: parseFloat((utxo.amount - parseFloat(transfer.amount.toString()) - fee) / 2).toFixed(4)
     }
-  }
-  const memo = await packMemo(message)
-  return {
-    from: identityAddress,
-    amounts: [
-      {
-        address: recipientAddress || channel.address,
-        amount: amount.toString(),
-        memo
-      }
-    ]
+    return [transfer, newUtxo]
+  } else {
+    return [transfer]
   }
 }
-
+export const messageToTransfer = async ({
+  message,
+  amount = '0.0001',
+  address,
+  identityAddress,
+  splitTreshhold = 0.005,
+  fee = 0.0001
+}) => {
+  const utxos = await getClient().payment.unspentNotes({ addresses: [identityAddress] })
+  let transfer
+  let memo
+  if (address.length === 35) {
+    transfer = {
+      address: address,
+      amount: amount.toString()
+    }
+  } else {
+    memo = await packMemo(message)
+    transfer = {
+      address: address,
+      amount: amount.toString(),
+      memo
+    }
+  }
+  return {
+    from: identityAddress,
+    amounts: identityAddress === address ? [transfer] : _splitUtxo({ transfer, utxos, splitTreshhold, fee, identityAddress })
+  }
+}
 export const transfersToMessages = async (transfers, owner) => {
   const msgs = await Promise.all(transfers.map(t => transferToMessage(t)))
 

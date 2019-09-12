@@ -115,7 +115,7 @@ const _sendPendingDirectMessages = async (dispatch, getState) => {
       const { message, recipientAddress } = msg.toJS()
       const transfer = await messageToTransfer({
         message,
-        recipientAddress,
+        address: recipientAddress,
         amount: message.type === messageType.TRANSFER ? message.spent : new BigNumber('0.0001'),
         identityAddress
       })

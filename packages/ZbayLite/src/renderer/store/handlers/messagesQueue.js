@@ -51,7 +51,7 @@ const _sendPendingMessages = async (dispatch, getState) => {
       const identityAddress = identitySelectors.address(getState())
       const transfer = await messageToTransfer({
         message: msg.message.toJS(),
-        channel: channel.toJS(),
+        address: channel.get('address'),
         identityAddress
       })
 

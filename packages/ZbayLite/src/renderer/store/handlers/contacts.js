@@ -104,7 +104,7 @@ const resendMessage = messageData => async (dispatch, getState) => {
   })
   const transfer = await zbayMessages.messageToTransfer({
     message,
-    recipientAddress: messageData.receiver.replyTo,
+    address: messageData.receiver.replyTo,
     amount: message.spent,
     identityAddress
   })

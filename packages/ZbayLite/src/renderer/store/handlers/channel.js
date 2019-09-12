@@ -105,7 +105,7 @@ const resendMessage = (messageData) => async (dispatch, getState) => {
   })
   const transfer = await messages.messageToTransfer({
     message,
-    channel,
+    address: channel.address,
     identityAddress
   })
   try {

@@ -7,7 +7,7 @@ import { packMemo, unpackMemo } from './transit'
 import zbayMessages, { transferToMessage, messageToTransfer, messageType } from './messages'
 import { Identity } from '../store/handlers/identity'
 import { ReceivedMessage } from '../store/handlers/messages'
-
+import { getClient } from '../zcash'
 describe('messages -', () => {
   describe('transfer to message', () => {
     const txid = 'test-id'
@@ -18,6 +18,7 @@ describe('messages -', () => {
 
     beforeEach(() => {
       jest.spyOn(DateTime, 'utc').mockReturnValueOnce(testUtils.now)
+      jest.spyOn(getClient().payment, 'unspentNotes').mockReturnValueOnce([])
       jest.clearAllMocks()
     })
 
@@ -82,7 +83,7 @@ describe('messages -', () => {
       const channel = testUtils.channels.createChannel('test-id')
       const amount = '0.1'
 
-      const { amounts } = await messageToTransfer({ message, channel, amount })
+      const { amounts } = await messageToTransfer({ message, address: channel.address, amount })
 
       // We have to deflate memo since encryption may be a little different on each run
       // and the test may flicker
@@ -105,7 +106,7 @@ describe('messages -', () => {
     const message = testUtils.messages.createMessage('test-op-id12')
     const channel = testUtils.channels.createChannel('test-id')
     const amount = '0.1'
-    const transfer = await messageToTransfer({ message, channel, amount })
+    const transfer = await messageToTransfer({ message, address: channel.address, amount })
     const receivedTransfer = {
       txid,
       amount: transfer.amounts[0].amount,

@@ -83,7 +83,7 @@ export const createOrUpdateUser = payload => async (dispatch, getState) => {
     nickname,
     address
   }
-  const usersChannel = channelsSelectors.usersChannel(getState()).toJS()
+  const usersChannel = channelsSelectors.usersChannel(getState())
   const registrationMessage = zbayMessages.createMessage({
     messageData: {
       type: zbayMessages.messageType.USER,
@@ -93,7 +93,7 @@ export const createOrUpdateUser = payload => async (dispatch, getState) => {
   })
   const transfer = await zbayMessages.messageToTransfer({
     message: registrationMessage,
-    channel: usersChannel,
+    address: usersChannel.get('address'),
     identityAddress: address
   })
   dispatch(actionCreators.closeModal('accountSettingsModal')())
