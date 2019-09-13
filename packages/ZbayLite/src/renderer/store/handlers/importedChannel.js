@@ -4,11 +4,15 @@ import { createAction, handleActions } from 'redux-actions'
 import { uriToChannel } from '../../zbay/channels'
 import { errorNotification } from './utils'
 import identitySelectors from '../selectors/identity'
+import channelSelectors from '../selectors/channel'
+import channelsSelectors from '../selectors/channels'
 import importedChannelSelectors from '../selectors/importedChannel'
 import channelsHandlers from './channels'
 import notificationsHandlers from './notifications'
 import { getVault } from '../../vault'
 import { getClient } from '../../zcash'
+import channels from '../../zcash/channels'
+import nodeSelectors from '../selectors/node'
 
 export const ImportedChannelState = Immutable.Record({
   data: null,
@@ -36,6 +40,47 @@ const actions = {
   setData,
   setDecoding,
   setDecodingError
+}
+
+const removeChannel = (history) => async (dispatch, getState) => {
+  const state = getState()
+  const identityId = identitySelectors.id(state)
+  const channel = channelSelectors.channel(state).toJS()
+  try {
+    const network = nodeSelectors.network(getState())
+    const generalChannel = channels.general[network]
+    if (generalChannel.address !== channel.address) {
+      await getVault().channels.removeChannel({ identityId, channelId: channel.address })
+      dispatch(channelsHandlers.actions.loadChannels(identityId))
+      history.push(`/main/channel/${channelsSelectors.generalChannelId(state)}`)
+      dispatch(
+        notificationsHandlers.actions.enqueueSnackbar({
+          message: `Successfully deleted channel`,
+          options: {
+            variant: 'success'
+          }
+        })
+      )
+    } else {
+      dispatch(
+        notificationsHandlers.actions.enqueueSnackbar({
+          message: 'General channel cannot be deleted',
+          options: {
+            variant: 'error'
+          }
+        })
+      )
+    }
+  } catch (err) {
+    dispatch(
+      notificationsHandlers.actions.enqueueSnackbar({
+        message: err.message,
+        options: {
+          variant: 'error'
+        }
+      })
+    )
+  }
 }
 
 const importChannel = () => async (dispatch, getState) => {
@@ -89,6 +134,7 @@ const decodeChannelEpic = (uri) => async (dispatch) => {
 
 const epics = {
   importChannel,
+  removeChannel,
   decodeChannel: decodeChannelEpic
 }
 

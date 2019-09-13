@@ -25,6 +25,23 @@ Array [
 ]
 `;
 
+exports[`channels importChannel remove channel 1`] = `
+Array [
+  Object {
+    "address": "zs1testaddress1",
+    "description": "Channel about 1",
+    "keys": "{\\"ivk\\":\\"incoming-viewing-key-1\\"}",
+    "lastSeen": "1551963828",
+    "name": "Channel 1",
+    "private": "1",
+    "title": "zs1testaddress1",
+    "unread": "1",
+  },
+]
+`;
+
+exports[`channels importChannel remove channel 2`] = `Array []`;
+
 exports[`channels importChannel when no group for identity 1`] = `
 Object {
   "address": "zs1testaddress1",

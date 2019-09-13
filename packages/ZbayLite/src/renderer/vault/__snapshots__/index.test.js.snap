@@ -168,6 +168,7 @@ Vault {
   "channels": Object {
     "importChannel": [Function],
     "listChannels": [Function],
+    "removeChannel": [Function],
     "updateLastSeen": [Function],
   },
   "contacts": Object {

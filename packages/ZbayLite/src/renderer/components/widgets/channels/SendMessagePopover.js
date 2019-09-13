@@ -18,7 +18,7 @@ const styles = theme => ({
   },
   button: {
     marginTop: theme.spacing(1.2),
-    width: 198,
+    width: 260,
     height: 60,
     paddingTop: theme.spacing(1.2),
     paddingBottom: theme.spacing(1.2),
@@ -30,7 +30,8 @@ const styles = theme => ({
     textTransform: 'none'
   },
   container: {
-    height: 350
+    height: 350,
+    width: 288
   },
   usernamePopover: {
     fontSize: '1.2rem',

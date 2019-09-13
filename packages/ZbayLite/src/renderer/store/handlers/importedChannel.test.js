@@ -16,14 +16,29 @@ import { getVault, mock } from '../../vault'
 import { createArchive } from '../../vault/marshalling'
 import { now } from '../../testUtils'
 import { NodeState } from './node'
+import zbayChannels from '../../zcash/channels'
+import { ChannelsState } from './channels'
+import { ChannelState } from './channel'
 
 describe('Imported channel reducer handles', () => {
   let store = null
+  const id = 'general-channel-id'
   beforeEach(() => {
     store = create({
       initialState: Immutable.Map({
         node: NodeState({
           isTestnet: true
+        }),
+        channel: ChannelState({
+          address: 'test-address'
+        }),
+        channels: ChannelsState({
+          data: [
+            Immutable.fromJS({
+              ...zbayChannels.general.testnet,
+              id
+            })
+          ]
         }),
         importedChannel: ImportedChannelState(),
         identity: IdentityState({
@@ -153,6 +168,20 @@ describe('Imported channel reducer handles', () => {
         expect(
           notifications.map(n => n.delete('key'))
         ).toMatchSnapshot()
+      })
+    })
+
+    describe('removeChannel', () => {
+      it('calls remove channel', async () => {
+        const removeChannelMock = jest.fn(() => Promise.resolve())
+        getVault.mockImplementationOnce(() => ({
+          channels: {
+            removeChannel: removeChannelMock
+          }
+        }))
+        await store.dispatch(importedChannelHandlers.epics.removeChannel())
+
+        expect(removeChannelMock.mock.calls).toMatchSnapshot()
       })
     })
   })

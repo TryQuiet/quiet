@@ -6,6 +6,7 @@ Immutable.ChannelState {
   "id": "this-is-a-test-id",
   "message": "",
   "shareableUri": "",
+  "address": "",
   "loader": Immutable.Record {
     "loading": false,
     "message": "",
@@ -20,6 +21,7 @@ Immutable.ChannelState {
   "id": null,
   "message": "",
   "shareableUri": "",
+  "address": "",
   "loader": Immutable.Record {
     "loading": false,
     "message": "",
@@ -34,6 +36,7 @@ Immutable.ChannelState {
   "id": null,
   "message": "",
   "shareableUri": "",
+  "address": "",
   "loader": Immutable.Record {
     "loading": false,
     "message": "this is a loading message",
@@ -48,6 +51,7 @@ Immutable.ChannelState {
   "id": null,
   "message": "",
   "shareableUri": "zbay.io/channel/this-is-a-hash",
+  "address": "",
   "loader": Immutable.Record {
     "loading": false,
     "message": "",

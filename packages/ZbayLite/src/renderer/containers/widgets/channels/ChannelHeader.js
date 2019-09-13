@@ -1,3 +1,4 @@
+
 import { connect } from 'react-redux'
 
 import ChannelHeader from '../../../components/widgets/channels/ChannelHeader'

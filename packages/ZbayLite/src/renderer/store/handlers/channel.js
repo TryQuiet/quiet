@@ -21,6 +21,7 @@ export const ChannelState = Immutable.Record({
   id: null,
   message: '',
   shareableUri: '',
+  address: '',
   loader: LoaderState({ loading: false }),
   members: null
 }, 'ChannelState')
@@ -33,6 +34,7 @@ const setChannelId = createAction('SET_CHANNEL_ID')
 const setLoading = createAction('SET_CHANNEL_LOADING')
 const setLoadingMessage = createAction('SET_CHANNEL_LOADING_MESSAGE')
 const setShareableUri = createAction('SET_CHANNEL_SHAREABLE_URI')
+const setAddress = createAction('SET_CHANNEL_ADDRESS')
 
 export const actions = {
   setLoading,
@@ -49,9 +51,10 @@ const loadChannel = (id) => async (dispatch, getState) => {
 
     // Calculate URI on load, that way it won't be outdated, even if someone decides
     // to update channel in vault manually
-    const channel = channelSelectors.data(getState())
-    const uri = await channelToUri(channel.toJS())
+    const channel = channelSelectors.data(getState()).toJS()
+    const uri = await channelToUri(channel)
     dispatch(setShareableUri(uri))
+    dispatch(setAddress(channel.address))
     await dispatch(clearNewMessages())
     await dispatch(updateLastSeen())
   } catch (err) {}
@@ -152,7 +155,8 @@ export const reducer = handleActions({
   [setSpentFilterValue]: (state, { payload: value }) => state.set('spentFilterValue', new BigNumber(value)),
   [setMessage]: (state, { payload: value }) => state.set('message', value),
   [setChannelId]: (state, { payload: id }) => state.set('id', id),
-  [setShareableUri]: (state, { payload: uri }) => state.set('shareableUri', uri)
+  [setShareableUri]: (state, { payload: uri }) => state.set('shareableUri', uri),
+  [setAddress]: (state, { payload: address }) => state.set('address', address)
 }, initialState)
 
 export default {

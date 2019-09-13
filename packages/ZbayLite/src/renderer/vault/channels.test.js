@@ -53,5 +53,20 @@ describe('channels', () => {
       const importedChannels = identityChannel.getEntries().map(e => e.toObject().properties)
       expect(importedChannels).toMatchSnapshot()
     })
+
+    it('remove channel', async () => {
+      await channels.importChannel(identityId, channel)
+      const [identityChannel] = (
+        workspace.archive
+          .findGroupsByTitle('Channels')[0]
+          .getGroups()
+          .filter(g => g.getTitle() === identityId)
+      )
+      const importedChannels = identityChannel.getEntries().map(e => e.toObject().properties)
+      await channels.removeChannel({ identityId, channelId: channel.address })
+      const channelsAfterDelete = identityChannel.getEntries().map(e => e.toObject().properties)
+      expect(importedChannels).toMatchSnapshot()
+      expect(channelsAfterDelete).toMatchSnapshot()
+    })
   })
 })

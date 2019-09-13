@@ -90,3 +90,14 @@ Array [
   ],
 ]
 `;
+
+exports[`Imported channel reducer handles epics removeChannel calls remove channel 1`] = `
+Array [
+  Array [
+    Object {
+      "channelId": "test-address",
+      "identityId": "this-is-a-test-identity-id",
+    },
+  ],
+]
+`;

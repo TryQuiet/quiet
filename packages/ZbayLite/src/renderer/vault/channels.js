@@ -44,6 +44,22 @@ export default vault => {
     })
   }
 
+  const removeChannel = async ({ identityId, channelId }) => {
+    await vault.withWorkspace(workspace => {
+      const [channels] = workspace.archive.findGroupsByTitle('Channels')
+      let [identityGroup] = channels.getGroups().filter(g => g.getTitle() === identityId)
+      if (!identityGroup) {
+        identityGroup = channels.createGroup(identityId)
+      }
+      const [identityChannels] = channels.findGroupsByTitle(identityId)
+      const [entry] = identityChannels.getEntries().filter(e => e.toObject().properties.title === channelId.toString())
+      if (entry !== null) {
+        entry.delete()
+      }
+      workspace.save()
+    })
+  }
+
   const listChannels = async identityId => {
     let channelsEntries = []
     await vault.withWorkspace(workspace => {
@@ -69,6 +85,7 @@ export default vault => {
   return {
     listChannels,
     updateLastSeen,
-    importChannel
+    importChannel,
+    removeChannel
   }
 }
