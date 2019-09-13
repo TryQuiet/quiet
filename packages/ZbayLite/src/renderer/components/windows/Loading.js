@@ -4,6 +4,7 @@ import { withStyles } from '@material-ui/core/styles'
 
 import WindowWrapper from '../ui/WindowWrapper'
 import SpinnerLoader from '../ui/SpinnerLoader'
+
 const styles = theme => ({
   root: {
     display: 'flex',
@@ -19,7 +20,8 @@ export const Loading = ({ classes, message }) => (
 )
 
 Loading.propTypes = {
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
+  message: PropTypes.string
 }
 
 export default withStyles(styles)(Loading)
