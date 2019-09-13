@@ -1,7 +1,7 @@
 /* eslint import/first: 0 */
 import Immutable from 'immutable'
 import { mapStateToProps } from './SendMoneyModal'
-
+import { ShippingData } from '../../../store/handlers/identity'
 import create from '../../../store/create'
 
 describe('SendMoneyModal', () => {
@@ -19,7 +19,8 @@ describe('SendMoneyModal', () => {
             id: '1',
             address: 'test',
             name: 'Mars',
-            balance: '2'
+            balance: '2',
+            shippingData: ShippingData({ firstName: 'testName', lastName: 'testLastName' })
           }
         }
       })

@@ -9,7 +9,7 @@ const amountsSchema = Yup.array().of(
 ).min(1)
 
 export default (zcashClient) => {
-  const received = async (address) => zcashClient.request.z_listreceivedbyaddress(address)
+  const received = async (address) => zcashClient.request.z_listreceivedbyaddress(address, 0)
 
   const unspentNotes = async ({
     minConfirmations = 1,

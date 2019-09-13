@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Loading renders component 1`] = `
+<Memo(WithStyles(WindowWrapper))
+  className="root-mock"
+>
+  <Memo(WithStyles(SpinnerLoader))
+    message="test Msg"
+    size={150}
+  />
+</Memo(WithStyles(WindowWrapper))>
+`;

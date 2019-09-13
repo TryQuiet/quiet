@@ -5,8 +5,6 @@ import * as R from 'ramda'
 
 import ScalingChannelsList from './ScalingChannelsList'
 
-import { withSpinnerLoader } from '../../ui/SpinnerLoader'
-
 const constants = {
   sidebarHeight: 40,
   gutter: 10
@@ -34,4 +32,4 @@ ChannelsPanel.defaultProps = {
   channels: Immutable.List()
 }
 
-export default R.compose(withSpinnerLoader)(ChannelsPanel)
+export default R.compose(React.memo)(ChannelsPanel)

@@ -13,7 +13,8 @@ export const mapStateToProps = state => ({
   rateUsd: rate('usd')(state),
   rateZec: rate('zec')(state),
   balanceZec: identitySelector.balance('zec')(state),
-  userData: identitySelector.data(state)
+  userData: identitySelector.data(state),
+  shippingData: identitySelector.shippingData(state)
 })
 
 export const SendMoneyModal = props => {

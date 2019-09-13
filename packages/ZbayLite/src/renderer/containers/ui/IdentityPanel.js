@@ -7,8 +7,7 @@ import identitySelectors from '../../store/selectors/identity'
 import { actionCreators } from '../../store/handlers/modals'
 
 export const mapStateToProps = state => ({
-  identity: identitySelectors.data(state),
-  loader: identitySelectors.loader(state)
+  identity: identitySelectors.data(state)
 })
 
 export const mapDispatchToProps = dispatch => bindActionCreators({

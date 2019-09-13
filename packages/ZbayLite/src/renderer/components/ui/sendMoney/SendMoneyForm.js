@@ -1,12 +1,13 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import classNames from 'classnames'
+import BigNumber from 'bignumber.js'
+import * as R from 'ramda'
 import { withStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import InputAdornment from '@material-ui/core/InputAdornment'
-import classNames from 'classnames'
 import Button from '@material-ui/core/Button'
-import BigNumber from 'bignumber.js'
 
 import { TextField } from '../form/TextField'
 import { LinkedTextField } from '../form/LinkedTextField'
@@ -60,7 +61,8 @@ export const SendMoneyForm = ({
   rateZec,
   rateUsd,
   isValid,
-  values
+  values,
+  shippingData
 }) => {
   return (
     <Grid container className={classes.root} spacing={3}>
@@ -157,7 +159,15 @@ export const SendMoneyForm = ({
         <Typography variant='body1' />
       </Grid>
       <Grid item xs={12}>
-        <CheckboxWithLabel color='primary' name='shippingInfo' label='Include my shipping info' />
+        <CheckboxWithLabel
+          color='primary'
+          name='shippingInfo'
+          label='Include my shipping info'
+          disabled={R.isEmpty(shippingData)}
+        />
+        {R.isEmpty(shippingData) && (
+          <Typography> Please fill your shipping information if you want to include it.</Typography>
+        )}
       </Grid>
       <Grid item xs={12}>
         <Button

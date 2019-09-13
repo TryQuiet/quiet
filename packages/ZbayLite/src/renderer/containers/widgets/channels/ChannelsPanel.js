@@ -10,13 +10,11 @@ import ChannelsPanelComponent from '../../../components/widgets/channels/Channel
 import SidebarHeader from '../../../components/ui/SidebarHeader'
 import AddChannelAction from './AddChannelAction'
 import channelsSelectors from '../../../store/selectors/channels'
-import identitySelectors from '../../../store/selectors/identity'
 import messagesHandlers from '../../../store/handlers/messages'
 import { useInterval } from '../../hooks'
 
 export const mapStateToProps = state => ({
-  channels: channelsSelectors.data(state),
-  loader: identitySelectors.loader(state)
+  channels: channelsSelectors.data(state)
 })
 
 export const mapDispatchToProps = dispatch => {

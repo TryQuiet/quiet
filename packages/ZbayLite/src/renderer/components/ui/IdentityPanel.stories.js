@@ -3,7 +3,7 @@ import Immutable from 'immutable'
 import Paper from '@material-ui/core/Paper'
 import Grid from '@material-ui/core/Grid'
 import { storiesOf } from '@storybook/react'
-import { withKnobs, boolean, text } from '@storybook/addon-knobs'
+import { withKnobs } from '@storybook/addon-knobs'
 import { action } from '@storybook/addon-actions'
 import StoryRouter from 'storybook-react-router'
 import BigNumber from 'bignumber.js'
@@ -11,7 +11,6 @@ import BigNumber from 'bignumber.js'
 import { withStore } from '../../../../.storybook/decorators'
 import create from '../../store/create'
 import { Identity } from '../../store/handlers/identity'
-import { LoaderState } from '../../store/handlers/utils'
 import IdentityPanel from './IdentityPanel'
 
 const store = create({
@@ -35,10 +34,6 @@ storiesOf('Components/UI/IdentityPanel', module)
         <Grid container direction='column' style={{ minHeight: '100%', width: 300 }}>
           <IdentityPanel
             identity={identity}
-            loader={LoaderState({
-              loading: boolean('Loading', false),
-              message: text('Loading message', 'Loading identity')
-            })}
             handleSettings={action('handleSettings')}
           />
         </Grid>

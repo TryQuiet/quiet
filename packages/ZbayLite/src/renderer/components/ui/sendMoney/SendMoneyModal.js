@@ -11,6 +11,7 @@ import SendMoneyForm from './SendMoneyForm'
 import SendMoneyTransactionDetails from './SendMoneyTransactionDetails'
 import SendMoneySending from './SendMoneySending'
 import { createTransfer } from '../../../zbay/messages'
+import { MESSAGE_SIZE } from '../../../zbay/transit'
 
 const styles = theme => ({})
 
@@ -22,20 +23,25 @@ export const formSchema = Yup.object().shape(
     amountZec: Yup.number()
       .min(0.00000001, 'Please insert amount to send')
       .required('Required'),
-    amountUsd: Yup.number()
-      .required('Required'),
-    memo: Yup.string().max(300, 'Your messsage is too long'),
+    amountUsd: Yup.number().required('Required'),
+    memo: Yup.string().max(MESSAGE_SIZE, 'Your messsage is too long'),
     shippingInfo: Yup.bool().required('Required')
   },
   ['recipient', 'amountZec', 'amountUsd', 'memo', 'shippingInfo']
 )
 
-export const validateForm = balanceZec => values => {
-  return (
-    balanceZec.isLessThan(values.amountZec) && {
-      amountZec: `You can't send more than ${balanceZec}`
-    }
-  )
+export const validateForm = ({ balanceZec, shippingData }) => values => {
+  let errors = {}
+  if (balanceZec.isLessThan(values.amountZec)) {
+    errors['amountZec'] = `You can't send more than ${balanceZec} ZEC`
+  }
+  if (
+    values.shippingInfo === true &&
+    values.memo.length > MESSAGE_SIZE - JSON.stringify(shippingData).length - 40 // TODO decide max size of shippingData
+  ) {
+    errors['memo'] = `Your messsage and shipping informations are too long`
+  }
+  return errors
 }
 const handleCloseForm = ({ step, handleClose, resetForm, setStep }) => {
   handleClose()
@@ -58,7 +64,8 @@ export const SendMoneyModal = ({
   feeZec = 0.0001,
   feeUsd = rateUsd.times(feeZec).toNumber(),
   userData,
-  sendMessageHandler
+  sendMessageHandler,
+  shippingData
 }) => {
   const StepComponent = stepToComponent[step]
   return (
@@ -66,6 +73,7 @@ export const SendMoneyModal = ({
       onSubmit={(values, { resetForm }) => {
         const messageToTransfer = createTransfer({
           ...values,
+          shippingData,
           sender: {
             address: userData.address,
             name: userData.name
@@ -75,7 +83,7 @@ export const SendMoneyModal = ({
       }}
       validationSchema={formSchema}
       initialValues={initialValues}
-      validate={validateForm(balanceZec)}
+      validate={validateForm({ balanceZec, shippingData })}
     >
       {({ values, isValid, submitForm, resetForm }) => {
         const stepToTitle = {
@@ -110,6 +118,7 @@ export const SendMoneyModal = ({
               rateUsd={rateUsd}
               submitForm={submitForm}
               resetForm={resetForm}
+              shippingData={shippingData}
             />
           </Modal>
         )

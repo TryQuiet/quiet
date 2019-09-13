@@ -198,6 +198,7 @@ exports[`SendMoneyForm renders component when valid = false 1`] = `
   >
     <CheckboxWithLabel
       color="primary"
+      disabled={false}
       label="Include my shipping info"
       name="shippingInfo"
     />
@@ -418,6 +419,7 @@ exports[`SendMoneyForm renders component when valid = true 1`] = `
   >
     <CheckboxWithLabel
       color="primary"
+      disabled={false}
       label="Include my shipping info"
       name="shippingInfo"
     />

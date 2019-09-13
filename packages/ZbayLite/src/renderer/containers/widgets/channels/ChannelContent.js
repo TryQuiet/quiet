@@ -5,7 +5,6 @@ import channelSelectors from '../../../store/selectors/channel'
 import identitySelectors from '../../../store/selectors/identity'
 
 export const mapStateToProps = state => ({
-  loader: channelSelectors.loader(state),
   inputState: channelSelectors.inputLocked(state),
   signerPubKey: identitySelectors.signerPubKey(state)
 })

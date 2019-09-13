@@ -196,8 +196,16 @@ export const createMessage = ({ messageData, privKey }) => {
   return signMessage({ messageData, privKey })
 }
 
-export const createTransfer = values =>
-  DisplayableMessage({
+export const createTransfer = values => {
+  let memo = values.memo
+  if (values.shippingInfo) {
+    memo += `\n\n Shipping information : \n${values.shippingData.firstName} ${
+      values.shippingData.lastName
+    }\n${values.shippingData.country} ${values.shippingData.region} \n ${
+      values.shippingData.city
+    } ${values.shippingData.street} ${values.shippingData.postalCode}`
+  }
+  return DisplayableMessage({
     type: messageType.TRANSFER,
     sender: {
       replyTo: values.sender.address,
@@ -208,20 +216,24 @@ export const createTransfer = values =>
       username: ''
     },
     createdAt: DateTime.utc().toSeconds(),
-    message: values.memo,
+    message: memo,
     spent: values.amountZec,
     fromYou: true,
     status: 'broadcasted',
     error: null
   })
+}
 
 const _splitUtxo = ({ transfer, utxos, splitTreshhold, fee, identityAddress }) => {
-  const utxo = utxos.find(utxo => utxo.amount > (parseFloat(transfer.amount.toString()) + 2 * splitTreshhold + fee))
+  const utxo = utxos.find(
+    utxo => utxo.amount > parseFloat(transfer.amount.toString()) + 2 * splitTreshhold + fee
+  )
   if (utxo) {
     const newUtxo = {
-      address:
-      identityAddress,
-      amount: parseFloat((utxo.amount - parseFloat(transfer.amount.toString()) - fee) / 2).toFixed(4)
+      address: identityAddress,
+      amount: parseFloat((utxo.amount - parseFloat(transfer.amount.toString()) - fee) / 2).toFixed(
+        4
+      )
     }
     return [transfer, newUtxo]
   } else {
@@ -254,7 +266,10 @@ export const messageToTransfer = async ({
   }
   return {
     from: identityAddress,
-    amounts: identityAddress === address ? [transfer] : _splitUtxo({ transfer, utxos, splitTreshhold, fee, identityAddress })
+    amounts:
+      identityAddress === address
+        ? [transfer]
+        : _splitUtxo({ transfer, utxos, splitTreshhold, fee, identityAddress })
   }
 }
 export const transfersToMessages = async (transfers, owner) => {

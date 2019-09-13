@@ -17,7 +17,6 @@ export const mapStateToProps = (state, { contactId, signerPubKey }) => {
 export const ChannelMessages = ({
   className,
   messages,
-  loader,
   contactId,
   channelId,
   contentRect
@@ -35,7 +34,6 @@ export const ChannelMessages = ({
       scrollPosition={scrollPosition}
       setScrollPosition={setScrollPosition}
       messages={messages}
-      loader={loader}
       contactId={contactId}
       contentRect={contentRect}
     />

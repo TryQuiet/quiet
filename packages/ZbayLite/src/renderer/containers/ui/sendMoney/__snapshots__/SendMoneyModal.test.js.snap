@@ -5,11 +5,29 @@ Object {
   "balanceZec": "2",
   "rateUsd": "10",
   "rateZec": "1",
+  "shippingData": Immutable.ShippingData {
+    "firstName": "testName",
+    "lastName": "testLastName",
+    "street": "",
+    "country": "",
+    "region": "",
+    "city": "",
+    "postalCode": "",
+  },
   "userData": Object {
     "address": "test",
     "balance": "2",
     "id": "1",
     "name": "Mars",
+    "shippingData": Immutable.ShippingData {
+      "firstName": "testName",
+      "lastName": "testLastName",
+      "street": "",
+      "country": "",
+      "region": "",
+      "city": "",
+      "postalCode": "",
+    },
   },
 }
 `;

@@ -9,7 +9,7 @@ import Grid from '@material-ui/core/Grid'
 import WindowWrapper from '../ui/WindowWrapper'
 import VaultUnlockerForm from '../../containers/widgets/VaultUnlockerForm'
 
-const countdownRenderer = ({ completed }) => completed && <Redirect to='/main/channel/general' />
+const countdownRenderer = ({ completed }) => completed && <Redirect to='/loading' />
 
 const styles = theme => ({
   gridRoot: {

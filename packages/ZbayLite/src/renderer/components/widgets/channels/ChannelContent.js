@@ -8,7 +8,6 @@ import RootRef from '@material-ui/core/RootRef'
 import { withContentRect } from 'react-measure'
 
 import ChannelMessages from '../../../containers/widgets/channels/ChannelMessages'
-import { withSpinnerLoader } from '../../ui/SpinnerLoader'
 
 const styles = {
   fullHeight: {
@@ -52,7 +51,6 @@ ChannelContent.propTypes = {
 }
 
 export default R.compose(
-  withSpinnerLoader,
   withStyles(styles),
   withContentRect('bounds')
 )(ChannelContent)

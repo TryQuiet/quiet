@@ -13,9 +13,5 @@ Object {
       "username": "testusername",
     },
   ],
-  "loader": Immutable.Record {
-    "loading": false,
-    "message": "",
-  },
 }
 `;

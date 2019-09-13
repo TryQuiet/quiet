@@ -11,7 +11,6 @@ import IconButton from '@material-ui/core/IconButton'
 import PersonIcon from '@material-ui/icons/Person'
 
 import Elipsis from '../ui/Elipsis'
-import { withSpinnerLoader } from '../ui/SpinnerLoader'
 import { getZbayAddress } from '../../zbay/channels'
 import SettingsModal from '../../containers/widgets/settings/SettingsModal'
 
@@ -71,6 +70,5 @@ IdentityPanel.propTypes = {
 
 export default R.compose(
   React.memo,
-  withSpinnerLoader,
   withStyles(styles)
 )(IdentityPanel)
