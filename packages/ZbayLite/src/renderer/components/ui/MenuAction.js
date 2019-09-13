@@ -31,22 +31,26 @@ export const MenuAction = ({
   const closeMenu = () => setOpen(false)
   const toggleMenu = () => setOpen(!open)
   return (
-    <ClickAwayListener onClickAway={closeMenu}>
-      <React.Fragment>
-        <IconButton
-          className={classes.button}
-          buttonRef={setAnchor}
-          onClick={onClick || toggleMenu}
-          disabled={disabled}
-          disableRipple
-        >
-          <Icon className={classes.icon} fontSize='inherit' />
-        </IconButton>
-        <PopupMenu open={open} anchorEl={anchor} offset={offset} placement={placement}>
-          <MenuList className={classes.menuList}>{children}</MenuList>
-        </PopupMenu>
-      </React.Fragment>
-    </ClickAwayListener>
+    <React.Fragment>
+      <IconButton
+        className={classes.button}
+        buttonRef={setAnchor}
+        onClick={onClick || toggleMenu}
+        disabled={disabled}
+        disableRipple
+      >
+        <Icon className={classes.icon} fontSize='inherit' />
+      </IconButton>
+      <PopupMenu open={open} anchorEl={anchor} offset={offset} placement={placement}>
+        <ClickAwayListener onClickAway={closeMenu}>
+          <MenuList className={classes.menuList}>
+            {React.Children.map(children, child =>
+              React.cloneElement(child, { close: closeMenu })
+            )}
+          </MenuList>
+        </ClickAwayListener>
+      </PopupMenu>
+    </React.Fragment>
   )
 }
 

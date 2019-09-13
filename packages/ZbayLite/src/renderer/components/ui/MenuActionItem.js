@@ -13,9 +13,16 @@ const styles = theme => ({
   }
 })
 
-export const MenuActionItem = ({ classes, onClick, title }) => {
+export const MenuActionItem = ({ classes, onClick, title, close }) => {
   return (
-    <MuiMenuItem onClick={onClick} className={classes.root} key={title}>
+    <MuiMenuItem
+      onClick={e => {
+        onClick(e)
+        close()
+      }}
+      className={classes.root}
+      key={title}
+    >
       {title}
     </MuiMenuItem>
   )

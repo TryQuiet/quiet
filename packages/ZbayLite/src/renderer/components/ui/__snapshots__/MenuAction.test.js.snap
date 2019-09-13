@@ -1,9 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`MenuAction renders component 1`] = `
-<ClickAwayListener
-  onClickAway={[Function]}
->
+<Fragment>
   <WithStyles(ForwardRef(IconButton))
     buttonRef={[Function]}
     className="button-mock"
@@ -24,26 +22,32 @@ exports[`MenuAction renders component 1`] = `
     }
     open={false}
   >
-    <ForwardRef(MenuList)
-      className="menuList-mock"
+    <ClickAwayListener
+      onClickAway={[Function]}
     >
-      <Memo(WithStyles(MenuActionItem))
-        onClick={[MockFunction]}
-        title="test"
-      />
-      <Memo(WithStyles(MenuActionItem))
-        onClick={[MockFunction]}
-        title="test 2"
-      />
-    </ForwardRef(MenuList)>
+      <ForwardRef(MenuList)
+        className="menuList-mock"
+      >
+        <Memo(WithStyles(MenuActionItem))
+          close={[Function]}
+          key=".0"
+          onClick={[MockFunction]}
+          title="test"
+        />
+        <Memo(WithStyles(MenuActionItem))
+          close={[Function]}
+          key=".1"
+          onClick={[MockFunction]}
+          title="test 2"
+        />
+      </ForwardRef(MenuList)>
+    </ClickAwayListener>
   </Memo(WithStyles(PopupMenu))>
-</ClickAwayListener>
+</Fragment>
 `;
 
 exports[`MenuAction renders with optional props 1`] = `
-<ClickAwayListener
-  onClickAway={[Function]}
->
+<Fragment>
   <IconButton
     buttonRef={[Function]}
     className="button-mock"
@@ -65,18 +69,26 @@ exports[`MenuAction renders with optional props 1`] = `
     offset="0 20"
     open={false}
   >
-    <ForwardRef(MenuList)
-      className="menuList-mock"
+    <ClickAwayListener
+      onClickAway={[Function]}
     >
-      <Memo(WithStyles(MenuActionItem))
-        onClick={[MockFunction]}
-        title="test"
-      />
-      <Memo(WithStyles(MenuActionItem))
-        onClick={[MockFunction]}
-        title="test 2"
-      />
-    </ForwardRef(MenuList)>
+      <ForwardRef(MenuList)
+        className="menuList-mock"
+      >
+        <Memo(WithStyles(MenuActionItem))
+          close={[Function]}
+          key=".0"
+          onClick={[MockFunction]}
+          title="test"
+        />
+        <Memo(WithStyles(MenuActionItem))
+          close={[Function]}
+          key=".1"
+          onClick={[MockFunction]}
+          title="test 2"
+        />
+      </ForwardRef(MenuList)>
+    </ClickAwayListener>
   </Memo(WithStyles(PopupMenu))>
-</ClickAwayListener>
+</Fragment>
 `;
