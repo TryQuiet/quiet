@@ -21,6 +21,7 @@ Object {
       "fromYou": true,
       "status": "broadcasted",
       "error": null,
+      "isUnregistered": false,
     },
     Immutable.DisplayableMessage {
       "id": 2,
@@ -39,6 +40,7 @@ Object {
       "fromYou": true,
       "status": "broadcasted",
       "error": null,
+      "isUnregistered": false,
     },
     Immutable.DisplayableMessage {
       "id": 1,
@@ -57,6 +59,7 @@ Object {
       "fromYou": true,
       "status": "broadcasted",
       "error": null,
+      "isUnregistered": false,
     },
     Immutable.DisplayableMessage {
       "id": 0,
@@ -75,6 +78,7 @@ Object {
       "fromYou": true,
       "status": "broadcasted",
       "error": null,
+      "isUnregistered": false,
     },
   ],
 }
@@ -94,6 +98,7 @@ Object {
       "createdAt": 1551913428,
       "message": "This is a message with id 7",
       "spent": "0.32",
+      "isUnregistered": false,
     },
     Immutable.ReceivedMessage {
       "id": 6,
@@ -105,6 +110,7 @@ Object {
       "createdAt": 1551920628,
       "message": "This is a message with id 6",
       "spent": "0.32",
+      "isUnregistered": false,
     },
     Immutable.ReceivedMessage {
       "id": 5,
@@ -116,6 +122,7 @@ Object {
       "createdAt": 1551927828,
       "message": "This is a message with id 5",
       "spent": "0.32",
+      "isUnregistered": false,
     },
     Immutable.DisplayableMessage {
       "id": 3,
@@ -134,6 +141,7 @@ Object {
       "fromYou": true,
       "status": "broadcasted",
       "error": null,
+      "isUnregistered": false,
     },
     Immutable.DisplayableMessage {
       "id": 2,
@@ -152,6 +160,7 @@ Object {
       "fromYou": true,
       "status": "broadcasted",
       "error": null,
+      "isUnregistered": false,
     },
     Immutable.DisplayableMessage {
       "id": 1,
@@ -170,6 +179,7 @@ Object {
       "fromYou": true,
       "status": "broadcasted",
       "error": null,
+      "isUnregistered": false,
     },
     Immutable.DisplayableMessage {
       "id": 0,
@@ -188,6 +198,7 @@ Object {
       "fromYou": true,
       "status": "broadcasted",
       "error": null,
+      "isUnregistered": false,
     },
   ],
 }

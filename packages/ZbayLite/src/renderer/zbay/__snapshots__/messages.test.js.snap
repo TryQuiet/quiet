@@ -12,6 +12,7 @@ Immutable.List [
     "createdAt": 1551942228,
     "message": "This is a message with id 3",
     "spent": "0.32",
+    "isUnregistered": false,
   },
   Immutable.ReceivedMessage {
     "id": 4,
@@ -23,6 +24,7 @@ Immutable.List [
     "createdAt": 1551935028,
     "message": "This is a message with id 4",
     "spent": "0.32",
+    "isUnregistered": false,
   },
 ]
 `;
@@ -39,6 +41,7 @@ Immutable.List [
     "createdAt": 1551942228,
     "message": "This is a message with id 3",
     "spent": "0.32",
+    "isUnregistered": false,
   },
 ]
 `;
@@ -57,6 +60,7 @@ Immutable.List [
     "createdAt": 1551963828,
     "message": "This is a message with id 0",
     "spent": "0.32",
+    "isUnregistered": false,
   },
   Immutable.ReceivedMessage {
     "id": 1,
@@ -68,6 +72,7 @@ Immutable.List [
     "createdAt": 1551956628,
     "message": "This is a message with id 1",
     "spent": "0.32",
+    "isUnregistered": false,
   },
   Immutable.ReceivedMessage {
     "id": 2,
@@ -79,6 +84,7 @@ Immutable.List [
     "createdAt": 1551949428,
     "message": "This is a message with id 2",
     "spent": "0.32",
+    "isUnregistered": false,
   },
   Immutable.ReceivedMessage {
     "id": 3,
@@ -90,6 +96,7 @@ Immutable.List [
     "createdAt": 1551942228,
     "message": "This is a message with id 3",
     "spent": "0.32",
+    "isUnregistered": false,
   },
   Immutable.ReceivedMessage {
     "id": 4,
@@ -101,6 +108,7 @@ Immutable.List [
     "createdAt": 1551935028,
     "message": "This is a message with id 4",
     "spent": "0.32",
+    "isUnregistered": false,
   },
 ]
 `;
@@ -191,6 +199,7 @@ exports[`messages - transfer to message when on testnet 1`] = `
 Object {
   "createdAt": 1551963828,
   "id": "test-id",
+  "isUnregistered": false,
   "message": "This is some message test-id",
   "r": 0,
   "sender": Object {

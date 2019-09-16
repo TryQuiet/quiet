@@ -617,6 +617,7 @@ Object {
           "createdAt": 1551963828,
           "message": "message 0 for zs1testaddress0",
           "spent": "0.0001",
+          "isUnregistered": true,
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-1-zs1testaddress0",
@@ -628,6 +629,7 @@ Object {
           "createdAt": 1551960228,
           "message": "message 1 for zs1testaddress0",
           "spent": "0.0001",
+          "isUnregistered": true,
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-2-zs1testaddress0",
@@ -639,6 +641,7 @@ Object {
           "createdAt": 1551956628,
           "message": "message 2 for zs1testaddress0",
           "spent": "0.0001",
+          "isUnregistered": true,
         },
       ],
       "newMessages": Immutable.List [
@@ -659,6 +662,7 @@ Object {
           "createdAt": 1551963828,
           "message": "message 0 for zs1testaddress1",
           "spent": "0.0001",
+          "isUnregistered": true,
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-1-zs1testaddress1",
@@ -670,6 +674,7 @@ Object {
           "createdAt": 1551960228,
           "message": "message 1 for zs1testaddress1",
           "spent": "0.0001",
+          "isUnregistered": true,
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-2-zs1testaddress1",
@@ -681,6 +686,7 @@ Object {
           "createdAt": 1551956628,
           "message": "message 2 for zs1testaddress1",
           "spent": "0.0001",
+          "isUnregistered": true,
         },
       ],
       "newMessages": Immutable.List [
@@ -713,6 +719,7 @@ Object {
           "createdAt": 1551963828,
           "message": "message 0 for zs1testaddress0",
           "spent": "0.0001",
+          "isUnregistered": true,
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-1-zs1testaddress0",
@@ -724,6 +731,7 @@ Object {
           "createdAt": 1551960228,
           "message": "message 1 for zs1testaddress0",
           "spent": "0.0001",
+          "isUnregistered": true,
         },
       ],
       "newMessages": Immutable.List [
@@ -743,6 +751,7 @@ Object {
           "createdAt": 1551963828,
           "message": "message 0 for zs1testaddress1",
           "spent": "0.0001",
+          "isUnregistered": true,
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-1-zs1testaddress1",
@@ -754,6 +763,7 @@ Object {
           "createdAt": 1551960228,
           "message": "message 1 for zs1testaddress1",
           "spent": "0.0001",
+          "isUnregistered": true,
         },
       ],
       "newMessages": Immutable.List [],
@@ -782,6 +792,7 @@ Object {
           "createdAt": 1551963828,
           "message": "message 0 for zs1testaddress0",
           "spent": "0.0001",
+          "isUnregistered": true,
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-1-zs1testaddress0",
@@ -793,6 +804,7 @@ Object {
           "createdAt": 1551960228,
           "message": "message 1 for zs1testaddress0",
           "spent": "0.0001",
+          "isUnregistered": true,
         },
       ],
       "newMessages": Immutable.List [
@@ -812,6 +824,7 @@ Object {
           "createdAt": 1551963828,
           "message": "message 0 for zs1testaddress1",
           "spent": "0.0001",
+          "isUnregistered": true,
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-1-zs1testaddress1",
@@ -823,6 +836,7 @@ Object {
           "createdAt": 1551960228,
           "message": "message 1 for zs1testaddress1",
           "spent": "0.0001",
+          "isUnregistered": true,
         },
       ],
       "newMessages": Immutable.List [
@@ -854,6 +868,7 @@ Object {
           "createdAt": 1551963828,
           "message": "message 0 for zs1testaddress0",
           "spent": "0.0001",
+          "isUnregistered": true,
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-1-zs1testaddress0",
@@ -865,6 +880,7 @@ Object {
           "createdAt": 1551960228,
           "message": "message 1 for zs1testaddress0",
           "spent": "0.0001",
+          "isUnregistered": true,
         },
       ],
       "newMessages": Immutable.List [
@@ -884,6 +900,7 @@ Object {
           "createdAt": 1551963828,
           "message": "message 0 for zs1testaddress1",
           "spent": "0.0001",
+          "isUnregistered": true,
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-1-zs1testaddress1",
@@ -895,6 +912,7 @@ Object {
           "createdAt": 1551960228,
           "message": "message 1 for zs1testaddress1",
           "spent": "0.0001",
+          "isUnregistered": true,
         },
       ],
       "newMessages": Immutable.List [
@@ -926,6 +944,7 @@ Object {
           "createdAt": 1551963828,
           "message": "message 0 for zs1testaddress0",
           "spent": "0.0001",
+          "isUnregistered": true,
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-1-zs1testaddress0",
@@ -937,6 +956,7 @@ Object {
           "createdAt": 1551960228,
           "message": "message 1 for zs1testaddress0",
           "spent": "0.0001",
+          "isUnregistered": true,
         },
       ],
       "newMessages": Immutable.List [
@@ -956,6 +976,7 @@ Object {
           "createdAt": 1551963828,
           "message": "message 0 for zs1testaddress1",
           "spent": "0.0001",
+          "isUnregistered": true,
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-1-zs1testaddress1",
@@ -967,6 +988,7 @@ Object {
           "createdAt": 1551960228,
           "message": "message 1 for zs1testaddress1",
           "spent": "0.0001",
+          "isUnregistered": true,
         },
       ],
       "newMessages": Immutable.List [

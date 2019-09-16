@@ -32,7 +32,8 @@ const _ReceivedMessage = Immutable.Record(
     sender: MessageSender(),
     createdAt: 0,
     message: '',
-    spent: new BigNumber(0)
+    spent: new BigNumber(0),
+    isUnregistered: false
   },
   'ReceivedMessage'
 )

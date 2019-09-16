@@ -59,6 +59,7 @@ Immutable.List [
     "fromYou": true,
     "status": "broadcasted",
     "error": null,
+    "isUnregistered": false,
   },
   Immutable.DisplayableMessage {
     "id": "test-operation-id-3",
@@ -77,6 +78,7 @@ Immutable.List [
     "fromYou": true,
     "status": "success",
     "error": null,
+    "isUnregistered": false,
   },
   Immutable.DisplayableMessage {
     "id": 2,
@@ -95,6 +97,7 @@ Immutable.List [
     "fromYou": true,
     "status": "broadcasted",
     "error": null,
+    "isUnregistered": false,
   },
   Immutable.DisplayableMessage {
     "id": 1,
@@ -113,6 +116,7 @@ Immutable.List [
     "fromYou": true,
     "status": "broadcasted",
     "error": null,
+    "isUnregistered": false,
   },
   Immutable.DisplayableMessage {
     "id": "messageHash",
@@ -131,6 +135,7 @@ Immutable.List [
     "fromYou": true,
     "status": "pending",
     "error": null,
+    "isUnregistered": false,
   },
   Immutable.DisplayableMessage {
     "id": "test-operation-id",
@@ -149,6 +154,7 @@ Immutable.List [
     "fromYou": true,
     "status": "success",
     "error": null,
+    "isUnregistered": false,
   },
   Immutable.DisplayableMessage {
     "id": 0,
@@ -167,6 +173,7 @@ Immutable.List [
     "fromYou": true,
     "status": "broadcasted",
     "error": null,
+    "isUnregistered": false,
   },
 ]
 `;

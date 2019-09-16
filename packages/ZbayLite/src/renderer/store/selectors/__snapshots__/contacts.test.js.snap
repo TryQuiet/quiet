@@ -16,6 +16,7 @@ Immutable.Record {
       "createdAt": 1551963828,
       "message": "This is a message with id 0",
       "spent": "0.32",
+      "isUnregistered": false,
     },
     Immutable.ReceivedMessage {
       "id": 1,
@@ -27,6 +28,7 @@ Immutable.Record {
       "createdAt": 1551956628,
       "message": "This is a message with id 1",
       "spent": "0.32",
+      "isUnregistered": false,
     },
   ],
   "newMessages": Immutable.List [],
@@ -41,6 +43,7 @@ Immutable.Record {
       "createdAt": 1551963828,
       "message": "This is a message with id 0",
       "spent": "0.32",
+      "isUnregistered": false,
     },
     Immutable.ReceivedMessage {
       "id": 1,
@@ -52,6 +55,7 @@ Immutable.Record {
       "createdAt": 1551956628,
       "message": "This is a message with id 1",
       "spent": "0.32",
+      "isUnregistered": false,
     },
   ],
 }
@@ -74,6 +78,7 @@ Immutable.Map {
         "createdAt": 1551963828,
         "message": "This is a message with id 0",
         "spent": "0.32",
+        "isUnregistered": false,
       },
       Immutable.ReceivedMessage {
         "id": 1,
@@ -85,6 +90,7 @@ Immutable.Map {
         "createdAt": 1551956628,
         "message": "This is a message with id 1",
         "spent": "0.32",
+        "isUnregistered": false,
       },
     ],
     "newMessages": Immutable.List [],
@@ -99,6 +105,7 @@ Immutable.Map {
         "createdAt": 1551963828,
         "message": "This is a message with id 0",
         "spent": "0.32",
+        "isUnregistered": false,
       },
       Immutable.ReceivedMessage {
         "id": 1,
@@ -110,6 +117,7 @@ Immutable.Map {
         "createdAt": 1551956628,
         "message": "This is a message with id 1",
         "spent": "0.32",
+        "isUnregistered": false,
       },
     ],
   },
@@ -143,6 +151,7 @@ Immutable.List [
     "fromYou": true,
     "status": "success",
     "error": null,
+    "isUnregistered": false,
   },
   Immutable.DisplayableMessage {
     "id": "test-operation-id-2",
@@ -161,6 +170,7 @@ Immutable.List [
     "fromYou": true,
     "status": "success",
     "error": null,
+    "isUnregistered": false,
   },
   Immutable.DisplayableMessage {
     "id": 1,
@@ -179,6 +189,7 @@ Immutable.List [
     "fromYou": true,
     "status": "broadcasted",
     "error": null,
+    "isUnregistered": false,
   },
   Immutable.ReceivedMessage {
     "id": 1,
@@ -190,6 +201,7 @@ Immutable.List [
     "createdAt": 1551956628,
     "message": "This is a message with id 1",
     "spent": "0.32",
+    "isUnregistered": false,
   },
   Immutable.DisplayableMessage {
     "id": "messageHash",
@@ -208,6 +220,7 @@ Immutable.List [
     "fromYou": true,
     "status": "pending",
     "error": null,
+    "isUnregistered": false,
   },
   Immutable.DisplayableMessage {
     "id": "test-operation-id",
@@ -226,6 +239,7 @@ Immutable.List [
     "fromYou": true,
     "status": "success",
     "error": null,
+    "isUnregistered": false,
   },
   Immutable.DisplayableMessage {
     "id": 0,
@@ -244,6 +258,7 @@ Immutable.List [
     "fromYou": true,
     "status": "broadcasted",
     "error": null,
+    "isUnregistered": false,
   },
   Immutable.ReceivedMessage {
     "id": 0,
@@ -255,6 +270,7 @@ Immutable.List [
     "createdAt": 1551963828,
     "message": "This is a message with id 0",
     "spent": "0.32",
+    "isUnregistered": false,
   },
 ]
 `;
@@ -273,6 +289,7 @@ Immutable.List [
     "createdAt": 1551963828,
     "message": "This is a message with id 0",
     "spent": "0.32",
+    "isUnregistered": false,
   },
   Immutable.ReceivedMessage {
     "id": 1,
@@ -284,6 +301,7 @@ Immutable.List [
     "createdAt": 1551956628,
     "message": "This is a message with id 1",
     "spent": "0.32",
+    "isUnregistered": false,
   },
 ]
 `;
@@ -647,6 +665,7 @@ Immutable.List [
     "createdAt": 1551963828,
     "message": "This is a message with id 0",
     "spent": "0.32",
+    "isUnregistered": false,
   },
   Immutable.ReceivedMessage {
     "id": 1,
@@ -658,6 +677,7 @@ Immutable.List [
     "createdAt": 1551956628,
     "message": "This is a message with id 1",
     "spent": "0.32",
+    "isUnregistered": false,
   },
 ]
 `;

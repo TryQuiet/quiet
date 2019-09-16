@@ -20,7 +20,7 @@ import DoneAllIcon from '@material-ui/icons/DoneAll'
 import ErrorIcon from '@material-ui/icons/ErrorOutline'
 import BlockIcon from '@material-ui/icons/Block'
 
-import SendMessagePopover from './SendMessagePopover'
+import SendMessagePopover from '../../../containers/widgets/channels/SendMessagePopover'
 import { getZbayAddress } from '../../../zbay/channels'
 import { _DisplayableMessage } from '../../../zbay/messages'
 import Elipsis from '../../ui/Elipsis'
@@ -106,6 +106,7 @@ export const BasicMessage = ({ classes, message, children, actionsOpen, setActio
   const handleClose = () => setAnchorEl(null)
   const fromYou = message.fromYou || false
   const sender = message.sender
+  const isUnregistered = message.isUnregistered
   const username = sender.username.substring(0, 20) || 'Unnamed'
   const address = getZbayAddress(message.sender.replyTo)
   const time = DateTime.fromSeconds(message.createdAt)
@@ -130,7 +131,7 @@ export const BasicMessage = ({ classes, message, children, actionsOpen, setActio
         primary={
           <Grid container direction='row' justify='space-between' alignItems='flex-start'>
             <Grid item>
-              <SendMessagePopover username={username} address={address} anchorEl={anchorEl} handleClose={handleClose} />
+              <SendMessagePopover username={username} address={message.sender.replyTo} anchorEl={anchorEl} handleClose={handleClose} isUnregistered={isUnregistered} />
               <Grid container className={classes.pointer} alignItems='center' onClick={handleClick}>
                 <Grid item xs='auto' className={classes.avatar}>
                   <span className={classes.alignAvatar}>

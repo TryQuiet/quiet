@@ -35,6 +35,7 @@ describe('messages -', () => {
       const expected = {
         ...message,
         spent: new BigNumber(spent),
+        isUnregistered: false,
         id: txid,
         r: 0,
         sender: { replyTo: '', username: 'Unnamed' }
@@ -117,6 +118,7 @@ describe('messages -', () => {
 
     expect(receivedMessage).toEqual({
       ...message,
+      isUnregistered: false,
       id: txid,
       r: 0,
       spent: new BigNumber(amount),

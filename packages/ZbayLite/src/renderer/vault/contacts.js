@@ -29,6 +29,7 @@ export default (vault) => {
     const [identityGroup] = contacts.findGroupsByTitle(identityId)
     if (!identityGroup) {
       const createdIdentityGroup = contacts.createGroup(identityId)
+      workspace.save()
       return createdIdentityGroup
     }
     return identityGroup
@@ -41,6 +42,7 @@ export default (vault) => {
       createdRecipientGroup.setAttribute('username', recipientUsername)
       createdRecipientGroup.setAttribute('address', recipientAddress)
       createdRecipientGroup.setAttribute('lastSeen', '')
+      workspace.save()
       return createdRecipientGroup
     }
     return recipientGroup

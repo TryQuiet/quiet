@@ -251,6 +251,25 @@ export const loadVaultMessages = ({ contact }) => async (dispatch, getState) => 
   )
 }
 
+export const createVaultContact = ({ contact, history }) => async (dispatch, getState) => {
+  const identityId = identitySelectors.id(getState())
+  await getVault().contacts.listMessages({
+    identityId,
+    recipientUsername: contact.username,
+    recipientAddress: contact.replyTo
+  })
+
+  dispatch(
+    setUsernames({
+      sender: {
+        replyTo: contact.replyTo,
+        username: contact.username
+      }
+    })
+  )
+  history.push(`/main/direct-messages/${contact.replyTo}/${contact.username}`)
+}
+
 export const loadAllSentMessages = () => async (dispatch, getState) => {
   const identityId = identitySelectors.id(getState())
   const identityAddress = identitySelectors.address(getState())
@@ -286,7 +305,7 @@ export const loadAllSentMessages = () => async (dispatch, getState) => {
       setUsernames({
         sender: {
           replyTo: contact.address,
-          username: contact.address.substring(0, 10)
+          username: contact.username ? contact.username : contact.address.substring(0, 10)
         }
       })
     )
@@ -301,7 +320,8 @@ export const epics = {
   sendDirectMessageOnEnter,
   loadAllSentMessages,
   resendMessage,
-  loadContact
+  loadContact,
+  createVaultContact
 }
 
 export const reducer = handleActions(

@@ -28,7 +28,6 @@ export const ChannelMessages = ({
     },
     [channelId, contactId]
   )
-
   return (
     <ChannelMessagesComponent
       scrollPosition={scrollPosition}

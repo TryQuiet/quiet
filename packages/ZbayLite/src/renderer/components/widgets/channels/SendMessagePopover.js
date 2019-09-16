@@ -40,10 +40,15 @@ const styles = theme => ({
   },
   closeIcon: {
     margin: theme.spacing(2)
+  },
+  info: {
+    marginTop: theme.spacing(1.2),
+    color: theme.palette.colors.zbayBlue,
+    textAlign: 'center'
   }
 })
 
-export const SendMessagePopover = ({ classes, username, address, anchorEl, handleClose }) => {
+export const SendMessagePopover = ({ classes, username, address, anchorEl, handleClose, isUnregistered, identityId, createContact, history }) => {
   const open = Boolean(anchorEl)
   const id = open ? 'simple-popover' : undefined
   return (
@@ -79,9 +84,23 @@ export const SendMessagePopover = ({ classes, username, address, anchorEl, handl
         <Grid item={12}>
           <Typography variant='caption'>{address.substring(0, 32)}...</Typography>
         </Grid>
-        <Grid item={12}>
-          <Button variant={'contained'} className={classes.button}>Send message</Button>
-        </Grid>
+        {isUnregistered ? (
+          <Grid container item={12} justify={'center'}>
+            <Button disabled variant={'contained'} className={classes.button}>Send message</Button>
+            <Typography className={classes.info} variant='caption'>Sending direct messages is only available for registered users</Typography>
+          </Grid>
+        ) : (
+          <Grid item={12}>
+            <Button variant={'contained'} className={classes.button} onClick={() => createContact(
+              { contact: {
+                replyTo: address,
+                username
+              },
+              history
+              })}>Send message</Button>
+          </Grid>
+        )
+        }
       </Grid>
     </Popover>
   )
@@ -92,7 +111,8 @@ SendMessagePopover.propTypes = {
   username: PropTypes.string.isRequired,
   handleClose: PropTypes.func.isRequired,
   address: PropTypes.string.isRequired,
-  anchorEl: PropTypes.bool
+  anchorEl: PropTypes.bool,
+  isUnregistered: PropTypes.bool
 }
 
 export default R.compose(

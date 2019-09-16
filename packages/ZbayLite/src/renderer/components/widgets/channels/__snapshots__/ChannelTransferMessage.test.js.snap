@@ -21,6 +21,7 @@ exports[`ChannelTransferMessage renders component 1`] = `
       "fromYou": false,
       "status": "broadcasted",
       "error": null,
+      "isUnregistered": false,
     }
   }
   setActionsOpen={[Function]}
@@ -160,6 +161,7 @@ exports[`ChannelTransferMessage renders component when message is broadcasted 1`
       "fromYou": false,
       "status": "broadcasted",
       "error": null,
+      "isUnregistered": false,
     }
   }
   setActionsOpen={[Function]}
@@ -299,6 +301,7 @@ exports[`ChannelTransferMessage renders component when message is cancelled 1`] 
       "fromYou": false,
       "status": "cancelled",
       "error": null,
+      "isUnregistered": false,
     }
   }
   setActionsOpen={[Function]}
@@ -447,6 +450,7 @@ exports[`ChannelTransferMessage renders component when message is failed 1`] = `
         "code": 1,
         "message": "error",
       },
+      "isUnregistered": false,
     }
   }
   setActionsOpen={[Function]}
@@ -592,6 +596,7 @@ exports[`ChannelTransferMessage renders component when message is pending 1`] = 
       "fromYou": false,
       "status": "pending",
       "error": null,
+      "isUnregistered": false,
     }
   }
   setActionsOpen={[Function]}
@@ -729,6 +734,7 @@ exports[`ChannelTransferMessage renders component when message is sent by owner 
       "fromYou": true,
       "status": "broadcasted",
       "error": null,
+      "isUnregistered": false,
     }
   }
   setActionsOpen={[Function]}
@@ -868,6 +874,7 @@ exports[`ChannelTransferMessage renders component when message is success 1`] = 
       "fromYou": false,
       "status": "success",
       "error": null,
+      "isUnregistered": false,
     }
   }
   setActionsOpen={[Function]}
