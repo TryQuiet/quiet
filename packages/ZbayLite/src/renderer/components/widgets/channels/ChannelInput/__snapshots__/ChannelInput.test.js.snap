@@ -44,7 +44,7 @@ exports[`ChannelInput renders component input Disable  1`] = `
         InputProps={
           Object {
             "classes": Object {
-              "multiline": "multiline-mock",
+              "root": "textField-mock",
             },
           }
         }
@@ -56,11 +56,9 @@ exports[`ChannelInput renders component input Disable  1`] = `
           }
         }
         margin="none"
-        multiline={true}
         onChange={[MockFunction]}
         onKeyPress={[Function]}
         placeholder="Send a message"
-        rowsMax="15"
         value="this is just a test message"
         variant="outlined"
       />
@@ -120,7 +118,7 @@ exports[`ChannelInput renders component input Locked  1`] = `
         InputProps={
           Object {
             "classes": Object {
-              "multiline": "multiline-mock",
+              "root": "textField-mock",
             },
           }
         }
@@ -132,11 +130,9 @@ exports[`ChannelInput renders component input Locked  1`] = `
           }
         }
         margin="none"
-        multiline={true}
         onChange={[MockFunction]}
         onKeyPress={[Function]}
         placeholder="Send a message"
-        rowsMax="15"
         value="this is just a test message"
         variant="outlined"
       />
@@ -175,7 +171,7 @@ exports[`ChannelInput renders component input available  1`] = `
         InputProps={
           Object {
             "classes": Object {
-              "multiline": "multiline-mock",
+              "root": "textField-mock",
             },
           }
         }
@@ -187,11 +183,9 @@ exports[`ChannelInput renders component input available  1`] = `
           }
         }
         margin="none"
-        multiline={true}
         onChange={[MockFunction]}
         onKeyPress={[Function]}
         placeholder="Send a message"
-        rowsMax="15"
         value="this is just a test message"
         variant="outlined"
       />

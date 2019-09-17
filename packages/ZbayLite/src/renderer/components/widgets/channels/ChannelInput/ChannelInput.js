@@ -33,8 +33,8 @@ const styles = theme => ({
     width: '100%',
     margin: '0px'
   },
-  multiline: {
-    padding: `10px ${theme.spacing(2)}px 9px`,
+  textField: {
+    height: '2.8rem',
     backgroundColor: theme.palette.colors.gray
   },
   warningIcon: {
@@ -103,10 +103,8 @@ export const ChannelInput = ({
         <Grid item xs>
           <TextField
             id='channel-input'
-            multiline
             fullWidth
             margin='none'
-            rowsMax='15'
             variant='outlined'
             placeholder='Send a message'
             value={message}
@@ -129,7 +127,7 @@ export const ChannelInput = ({
             }}
             InputProps={{
               classes: {
-                multiline: classes.multiline
+                root: classes.textField
               }
             }}
           />
