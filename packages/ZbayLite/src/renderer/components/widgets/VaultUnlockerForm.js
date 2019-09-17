@@ -3,18 +3,38 @@ import PropTypes from 'prop-types'
 import * as Yup from 'yup'
 import { Formik, Form } from 'formik'
 
-import Paper from '@material-ui/core/Paper'
 import Grid from '@material-ui/core/Grid'
+import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
 
-import LockOpenIcon from '@material-ui/icons/LockOpen'
-
 import PasswordField from '../ui/form/PasswordField'
-import ProgressFab from '../ui/ProgressFab'
+import Icon from '../ui/Icon'
+import LoadindButton from '../ui/LoadingButton'
+
+import icon from '../../static/images/zcash/logo-lockup--circle.svg'
 
 const styles = theme => ({
   paper: {
-    padding: '20px'
+    width: '100vw',
+    height: '100vh',
+    padding: 20
+  },
+  icon: {
+    width: 285,
+    height: 67
+  },
+  logoContainer: {
+    height: 167
+  },
+  passwordField: {
+    width: 286
+  },
+  title: {
+    textAlign: 'center',
+    width: '100%',
+    fontSize: 24,
+    height: 36,
+    marginBottom: 16
   }
 })
 
@@ -36,28 +56,37 @@ export const VaultUnlockerForm = ({
   >
     {({ isSubmitting }) => (
       <Form>
-        <Paper className={classes.paper}>
-          <Grid container direction='row' spacing={2} alignItems='center'>
-            <Grid item>
-              <PasswordField
-                name='password'
-                label='Master password'
-                fullWidth
-              />
-            </Grid>
-            <Grid item>
-              <ProgressFab
-                label='Unlock'
-                type='submit'
-                loading={isSubmitting || unlocking}
-                success={!locked}
-                disabled={!locked || isSubmitting}
-              >
-                <LockOpenIcon />
-              </ProgressFab>
-            </Grid>
+        <Grid container direction='column' spacing={2} justfy='center' alignItems='center' alignContent='center'>
+          <Grid className={classes.logoContainer} container item xs={12} justify='center' alignItems='center' alignContent='center'>
+            <Icon className={classes.icon} src={icon} />
           </Grid>
-        </Paper>
+          <Grid container item xs={12} wrap='wrap' justify='center'>
+            <Typography className={classes.title} variant='h4' gutterBottom>
+                  Log in
+            </Typography>
+          </Grid>
+          <Grid container item justify='center'>
+            <PasswordField
+              name='password'
+              className={classes.passwordField}
+              label='Enter Password'
+              fullWidth
+            />
+          </Grid>
+          <Grid container item justify='center'>
+            <LoadindButton
+              type='submit'
+              variant='contained'
+              size='large'
+              color='primary'
+              margin='normal'
+              text='Login'
+              fullWidth
+              disabled={isSubmitting || unlocking}
+              inProgress={isSubmitting || unlocking}
+            />
+          </Grid>
+        </Grid>
       </Form>
     )}
   </Formik>

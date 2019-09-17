@@ -6,11 +6,14 @@ import CircularProgress from '@material-ui/core/CircularProgress'
 
 const styles = theme => ({
   button: {
-    minWidth: 150,
+    maxWidth: 286,
     height: 60,
     backgroundColor: theme.palette.colors.zbayBlue,
     color: theme.palette.colors.white,
     '&:hover': {
+      backgroundColor: theme.palette.colors.zbayBlue
+    },
+    '&:disabled': {
       backgroundColor: theme.palette.colors.zbayBlue
     }
   },
@@ -19,7 +22,7 @@ const styles = theme => ({
   }
 })
 
-export const LoadingButton = ({ classes, inProgress, ...other }) => {
+export const LoadingButton = ({ classes, inProgress, text, ...other }) => {
   if (inProgress) {
     return (
       <Button className={classes.button} {...other}>
@@ -29,7 +32,7 @@ export const LoadingButton = ({ classes, inProgress, ...other }) => {
   } else {
     return (
       <Button className={classes.button} {...other} >
-        Continue
+        {text || 'Continue'}
       </Button>
     )
   }
