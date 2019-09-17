@@ -15,47 +15,70 @@ exports[`CreateVault renders component 1`] = `
     variant="error"
   />
   <WithStyles(ForwardRef(Grid))
-    alignItems="center"
+    alignContent="flex-start"
     className="gridRoot-mock"
     container={true}
     justify="center"
   >
     <WithStyles(ForwardRef(Grid))
+      container={true}
       item={true}
     >
       <WithStyles(ForwardRef(Paper))
         className="paper-mock"
       >
         <WithStyles(ForwardRef(Grid))
-          alignItems="center"
+          alignContent="flex-start"
+          className="welcome-mock"
           container={true}
           direction="row"
           justify="center"
+          wrap="wrap"
         >
           <WithStyles(ForwardRef(Grid))
-            className="welcome-mock"
+            alignItems="center"
+            className="logoContainer-mock"
+            container={true}
             item={true}
+            justify="center"
+            xs={12}
+          >
+            <Memo(Icon)
+              className="icon-mock"
+              src="test-file-stub"
+            />
+          </WithStyles(ForwardRef(Grid))>
+          <WithStyles(ForwardRef(Grid))
+            container={true}
+            item={true}
+            justify="center"
+            wrap="wrap"
+            xs={12}
           >
             <WithStyles(ForwardRef(Typography))
+              className="title-mock"
               gutterBottom={true}
               variant="h4"
             >
-              Hey there!
+              Create a password
             </WithStyles(ForwardRef(Typography))>
             <WithStyles(ForwardRef(Typography))
               align="justify"
+              className="caption-mock"
               gutterBottom={true}
               variant="body1"
             >
-              Zbay vault is not configured on this computer. In order to proceed you need to choose a password for your secure vault.
+              To set up the secure Zbay vault, you need to create a password.
             </WithStyles(ForwardRef(Typography))>
           </WithStyles(ForwardRef(Grid))>
           <WithStyles(ForwardRef(Grid))
+            className="form-mock"
             item={true}
           >
             <VaultCreator
               buttonStyles="button-mock"
               className="vault-mock"
+              inProgress={false}
             />
           </WithStyles(ForwardRef(Grid))>
         </WithStyles(ForwardRef(Grid))>
@@ -80,47 +103,70 @@ exports[`CreateVault renders error 1`] = `
     variant="error"
   />
   <WithStyles(ForwardRef(Grid))
-    alignItems="center"
+    alignContent="flex-start"
     className="gridRoot-mock"
     container={true}
     justify="center"
   >
     <WithStyles(ForwardRef(Grid))
+      container={true}
       item={true}
     >
       <WithStyles(ForwardRef(Paper))
         className="paper-mock"
       >
         <WithStyles(ForwardRef(Grid))
-          alignItems="center"
+          alignContent="flex-start"
+          className="welcome-mock"
           container={true}
           direction="row"
           justify="center"
+          wrap="wrap"
         >
           <WithStyles(ForwardRef(Grid))
-            className="welcome-mock"
+            alignItems="center"
+            className="logoContainer-mock"
+            container={true}
             item={true}
+            justify="center"
+            xs={12}
+          >
+            <Memo(Icon)
+              className="icon-mock"
+              src="test-file-stub"
+            />
+          </WithStyles(ForwardRef(Grid))>
+          <WithStyles(ForwardRef(Grid))
+            container={true}
+            item={true}
+            justify="center"
+            wrap="wrap"
+            xs={12}
           >
             <WithStyles(ForwardRef(Typography))
+              className="title-mock"
               gutterBottom={true}
               variant="h4"
             >
-              Hey there!
+              Create a password
             </WithStyles(ForwardRef(Typography))>
             <WithStyles(ForwardRef(Typography))
               align="justify"
+              className="caption-mock"
               gutterBottom={true}
               variant="body1"
             >
-              Zbay vault is not configured on this computer. In order to proceed you need to choose a password for your secure vault.
+              To set up the secure Zbay vault, you need to create a password.
             </WithStyles(ForwardRef(Typography))>
           </WithStyles(ForwardRef(Grid))>
           <WithStyles(ForwardRef(Grid))
+            className="form-mock"
             item={true}
           >
             <VaultCreator
               buttonStyles="button-mock"
               className="vault-mock"
+              inProgress={false}
             />
           </WithStyles(ForwardRef(Grid))>
         </WithStyles(ForwardRef(Grid))>
@@ -145,47 +191,70 @@ exports[`CreateVault renders inProgress 1`] = `
     variant="error"
   />
   <WithStyles(ForwardRef(Grid))
-    alignItems="center"
+    alignContent="flex-start"
     className="gridRoot-mock"
     container={true}
     justify="center"
   >
     <WithStyles(ForwardRef(Grid))
+      container={true}
       item={true}
     >
       <WithStyles(ForwardRef(Paper))
         className="paper-mock"
       >
         <WithStyles(ForwardRef(Grid))
-          alignItems="center"
+          alignContent="flex-start"
+          className="welcome-mock"
           container={true}
           direction="row"
           justify="center"
+          wrap="wrap"
         >
           <WithStyles(ForwardRef(Grid))
-            className="welcome-mock"
+            alignItems="center"
+            className="logoContainer-mock"
+            container={true}
             item={true}
+            justify="center"
+            xs={12}
+          >
+            <Memo(Icon)
+              className="icon-mock"
+              src="test-file-stub"
+            />
+          </WithStyles(ForwardRef(Grid))>
+          <WithStyles(ForwardRef(Grid))
+            container={true}
+            item={true}
+            justify="center"
+            wrap="wrap"
+            xs={12}
           >
             <WithStyles(ForwardRef(Typography))
+              className="title-mock"
               gutterBottom={true}
               variant="h4"
             >
-              Hey there!
+              Create a password
             </WithStyles(ForwardRef(Typography))>
             <WithStyles(ForwardRef(Typography))
               align="justify"
+              className="caption-mock"
               gutterBottom={true}
               variant="body1"
             >
-              Zbay vault is not configured on this computer. In order to proceed you need to choose a password for your secure vault.
+              To set up the secure Zbay vault, you need to create a password.
             </WithStyles(ForwardRef(Typography))>
           </WithStyles(ForwardRef(Grid))>
           <WithStyles(ForwardRef(Grid))
+            className="form-mock"
             item={true}
           >
             <VaultCreator
               buttonStyles="button-mock"
               className="vault-mock"
+              inProgress={true}
             />
           </WithStyles(ForwardRef(Grid))>
         </WithStyles(ForwardRef(Grid))>

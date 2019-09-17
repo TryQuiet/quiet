@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Loading button renders component 1`] = `
+<WithStyles(ForwardRef(Button))
+  className="button-mock"
+  props={
+    Object {
+      "inProgress": false,
+    }
+  }
+>
+  Continue
+</WithStyles(ForwardRef(Button))>
+`;

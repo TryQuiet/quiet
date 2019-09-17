@@ -1,15 +1,14 @@
 import React from 'react'
 import { Formik, Form } from 'formik'
-import classNames from 'classnames'
 import PropTypes from 'prop-types'
 import * as Yup from 'yup'
 
-import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
 
 import PasswordField from './ui/form/PasswordField'
 import TextField from './ui/form/TextField'
+import LoadindButton from './ui/LoadingButton'
 
 const styles = theme => ({
   submit: {
@@ -36,7 +35,7 @@ export const validateForm = values => (
     { repeat: 'Doesn\'t match password.' }
 )
 
-export const VaultCreator = ({ classes, onSend, initialValues }) => (
+export const VaultCreator = ({ classes, onSend, initialValues, buttonStyles, finished, inProgress }) => (
   <Formik
     onSubmit={onSend}
     validationSchema={formSchema}
@@ -56,42 +55,33 @@ export const VaultCreator = ({ classes, onSend, initialValues }) => (
             <TextField
               name='name'
               label='Name'
-              className={classes.gutter}
             />
           </Grid>
           <Grid item>
             <PasswordField
               name='password'
-              label='Password'
+              label='Enter a password'
               fullWidth
             />
           </Grid>
           <Grid item>
             <PasswordField
               name='repeat'
-              label='Repeat password'
+              label='Re-enter password'
               error={errors.repeat}
               fullWidth
             />
           </Grid>
           <Grid item>
-            <Button
+            <LoadindButton
               type='submit'
               variant='contained'
               size='large'
               color='primary'
-              className={
-                classNames({
-                  [classes.submit]: true,
-                  [styles.button]: styles.button
-                })
-              }
-              disabled={isSubmitting}
               margin='normal'
               fullWidth
-            >
-              Submit
-            </Button>
+              inProgress={inProgress}
+            />
           </Grid>
         </Grid>
       </Form>

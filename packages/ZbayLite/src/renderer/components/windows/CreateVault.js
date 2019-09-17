@@ -9,30 +9,57 @@ import { withStyles } from '@material-ui/core/styles'
 
 import WindowWrapper from '../ui/WindowWrapper'
 import Snackbar from '../ui/Snackbar'
+import Icon from '../ui/Icon'
 import VaultCreator from '../../containers/VaultCreator'
+import icon from '../../static/images/zcash/logo-lockup--circle.svg'
 
-const styles = {
+const styles = (theme) => ({
   gridRoot: {
-    'min-height': '100vh'
+    width: '100vw',
+    minHeight: '100vh'
   },
   paper: {
-    padding: '20px'
+    width: '100%',
+    padding: 0
   },
   welcome: {
-    width: '260px',
-    'margin-right': '20px'
+    width: '100%',
+    height: '100vh',
+    marginRight: 20
   },
   vault: {
-    width: '260px'
+    width: '100%'
   },
   button: {
-    backgroundColor: '#8d8d8d',
-    color: '#fff',
+    backgroundColor: theme.palette.colors.zbayBlue,
+    color: theme.palette.colors.white,
     '&:hover': {
-      backgroundColor: '#737373'
+      backgroundColor: theme.palette.colors.zbayBlue
     }
+  },
+  logoContainer: {
+    height: 167
+  },
+  title: {
+    textAlign: 'center',
+    width: '100%',
+    fontSize: 24,
+    height: 36
+  },
+  caption: {
+    textAlign: 'center',
+    width: '100%',
+    fontSize: 14,
+    color: theme.palette.colors.darkGray
+  },
+  form: {
+    marginTop: 25
+  },
+  icon: {
+    width: 285,
+    height: 67
   }
-}
+})
 
 export const CreateVault = ({
   classes,
@@ -41,42 +68,47 @@ export const CreateVault = ({
   inProgressMsg,
   error,
   onCloseSnackbar
-}) => (
-  <WindowWrapper>
-    <Snackbar
-      variant='loading'
-      message={inProgressMsg}
-      open={inProgress}
-      fullWidth
-    />
-    <Snackbar
-      variant='error'
-      message={error}
-      open={error.length > 0}
-      onClose={onCloseSnackbar}
-    />
-    { finished && <Redirect to='/main/channel/general' />}
-    <Grid container justify='center' alignItems='center' className={classes.gridRoot}>
-      <Grid item>
-        <Paper className={classes.paper}>
-          <Grid container direction='row' justify='center' alignItems='center'>
-            <Grid item className={classes.welcome}>
-              <Typography variant='h4' gutterBottom>
-                Hey there!
-              </Typography>
-              <Typography variant='body1' align='justify' gutterBottom>
-                Zbay vault is not configured on this computer. In order to proceed you need to choose a password for your secure vault.
-              </Typography>
+}) => {
+  return (
+    <WindowWrapper>
+      <Snackbar
+        variant='loading'
+        message={inProgressMsg}
+        open={inProgress}
+        fullWidth
+      />
+      <Snackbar
+        variant='error'
+        message={error}
+        open={error.length > 0}
+        onClose={onCloseSnackbar}
+      />
+      { finished && <Redirect to='/main/channel/general' />}
+      <Grid container justify='center' alignContent='flex-start' className={classes.gridRoot}>
+        <Grid container item>
+          <Paper className={classes.paper}>
+            <Grid container direction='row' justify='center' alignContent='flex-start' wrap='wrap' className={classes.welcome}>
+              <Grid className={classes.logoContainer} container item xs={12} justify='center' alignItems={'center'}>
+                <Icon className={classes.icon} src={icon} />
+              </Grid>
+              <Grid container item xs={12} wrap='wrap' justify='center'>
+                <Typography className={classes.title} variant='h4' gutterBottom>
+                  Create a password
+                </Typography>
+                <Typography className={classes.caption} variant='body1' align='justify' gutterBottom>
+                  To set up the secure Zbay vault, you need to create a password.
+                </Typography>
+              </Grid>
+              <Grid item className={classes.form}>
+                <VaultCreator className={classes.vault} buttonStyles={classes.button} inProgress={inProgress} />
+              </Grid>
             </Grid>
-            <Grid item>
-              <VaultCreator className={classes.vault} buttonStyles={classes.button} />
-            </Grid>
-          </Grid>
-        </Paper>
+          </Paper>
+        </Grid>
       </Grid>
-    </Grid>
-  </WindowWrapper>
-)
+    </WindowWrapper>
+  )
+}
 
 CreateVault.propTypes = {
   classes: PropTypes.object.isRequired,
