@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
@@ -21,18 +21,12 @@ export const mapDispatchToProps = dispatch =>
 export const WalletPanel = ({ className, fetchUsers, getBalance }) => {
   useInterval(getBalance, 15000)
   useInterval(fetchUsers, 15000)
-  const [topUpOpen, setTopUpOpen] = useState(false)
-  return (
-    <WalletPanelComponent
-      handleReceive={() => setTopUpOpen(true)}
-      handleCloseTopUp={() => setTopUpOpen(false)}
-      topUpOpen={topUpOpen}
-    />
-  )
+  return <WalletPanelComponent />
 }
 
 WalletPanel.propTypes = {
-  getBalance: PropTypes.func.isRequired
+  getBalance: PropTypes.func.isRequired,
+  fetchUsers: PropTypes.func.isRequired
 }
 
 export default R.compose(

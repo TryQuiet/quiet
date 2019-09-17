@@ -12,8 +12,8 @@ import InputAdornment from '@material-ui/core/InputAdornment'
 import Select from '@material-ui/core/Select'
 import { withStyles } from '@material-ui/core/styles'
 
-import Modal from '../../../ui/Modal'
-import IconCopy from '../../../ui/IconCopy'
+import Modal from '../Modal'
+import IconCopy from '../IconCopy'
 
 const styles = theme => ({
   root: {

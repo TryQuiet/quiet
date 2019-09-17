@@ -1,9 +1,10 @@
 import React from 'react'
 import Immutable from 'immutable'
 import { storiesOf } from '@storybook/react'
-import { withKnobs, number } from '@storybook/addon-knobs'
+import { withKnobs, number, text } from '@storybook/addon-knobs'
 import * as R from 'ramda'
 import BigNumber from 'bignumber.js'
+import { HashRouter } from 'react-router-dom'
 
 import { withStore } from '../../../../.storybook/decorators'
 import Channel from './Channel'
@@ -31,7 +32,7 @@ storiesOf('Pages/Channel', module)
           spentFilterValue: 38,
           id: channelId,
           members: new BigNumber(0),
-          message: 'This is a test message'
+          message: text('input', 'text')
         }),
         messages: Immutable.Map({
           [channelId]: ChannelMessages({
@@ -54,5 +55,9 @@ storiesOf('Pages/Channel', module)
     return withStore(store)(e)
   })
   .add('playground', () => {
-    return <Channel />
+    return (
+      <HashRouter>
+        <Channel />
+      </HashRouter>
+    )
   })

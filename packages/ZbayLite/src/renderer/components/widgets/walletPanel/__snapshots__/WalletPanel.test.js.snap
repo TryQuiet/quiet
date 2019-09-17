@@ -21,14 +21,8 @@ exports[`WalletPanelActions renders component 1`] = `
       className="actions-mock"
       item={true}
     >
-      <Connect(WithStyles(undefined))
-        onReceive={[MockFunction]}
-      />
+      <Connect(WithStyles(undefined)) />
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
-  <Connect(TopUpModal)
-    handleClose={[MockFunction]}
-    open={false}
-  />
 </Fragment>
 `;

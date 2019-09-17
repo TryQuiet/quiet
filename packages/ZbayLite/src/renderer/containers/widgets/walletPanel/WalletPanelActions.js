@@ -7,7 +7,8 @@ import WalletPanelActions from '../../../components/widgets/walletPanel/WalletPa
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      onSend: actionCreators.openModal('sendMoney')
+      onSend: actionCreators.openModal('sendMoney'),
+      onReceive: actionCreators.openModal('topUp')
     },
     dispatch
   )

@@ -4,11 +4,11 @@ import { storiesOf } from '@storybook/react'
 import { withKnobs, boolean } from '@storybook/addon-knobs'
 import { action } from '@storybook/addon-actions'
 
-import { withStore } from '../../../../../../.storybook/decorators'
+import { withStore } from '../../../../../.storybook/decorators'
 
-import TopUpModal from '../../../../containers/widgets/walletPanel/TopUpModal'
-import create from '../../../../store/create'
-import { IdentityState, Identity } from '../../../../store/handlers/identity'
+import TopUpModal from '../../../containers/ui/TopUpModal'
+import create from '../../../store/create'
+import { IdentityState, Identity } from '../../../store/handlers/identity'
 
 const store = create({
   initialState: Immutable.Map({
@@ -21,7 +21,7 @@ const store = create({
   })
 })
 
-storiesOf('Containers/Widgets/WallePanel/TopUpModal', module)
+storiesOf('Components/UI/TopUpModal', module)
   .addDecorator(withKnobs)
   .addDecorator(withStore(store))
   .add('playground', () => {

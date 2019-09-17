@@ -20,6 +20,7 @@ import vault, { getVault } from '../../vault'
 import migrateTo_0_2_0 from '../../../shared/migrations/0_2_0' // eslint-disable-line camelcase
 import migrateTo_0_7_0 from '../../../shared/migrations/0_7_0' // eslint-disable-line camelcase
 import { LoaderState } from './utils'
+import modalsHandlers from './modals'
 
 export const ShippingData = Immutable.Record(
   {
@@ -228,6 +229,11 @@ export const setIdentityEpic = (identityToSet) => async (dispatch, getState) => 
   } catch (err) {
   }
   dispatch(setLoading(false))
+  const balance = identitySelectors.balance('zec')(getState())
+  const lockedBalance = identitySelectors.lockedBalance('zec')(getState())
+  if (lockedBalance.plus(balance).lt(0.0002)) {
+    setTimeout(() => dispatch(modalsHandlers.actionCreators.openModal('depositMoney')()), 500)
+  }
 }
 
 export const updateShippingData = (values, formActions) => async (dispatch, getState) => {

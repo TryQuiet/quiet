@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DepositMoneyModal renders component 1`] = `
+<WithStyles(ForwardRef(Dialog))
+  className="root-mock"
+  onClose={[MockFunction]}
+  open={true}
+>
+  <Memo(WithStyles(QuickActionLayout))
+    buttonName="Add funds"
+    handleClose={[MockFunction]}
+    info="sub susbusbuu sub sbu sub "
+    main="Add funds now?"
+    onClick={[MockFunction]}
+  >
+    <Icon />
+  </Memo(WithStyles(QuickActionLayout))>
+</WithStyles(ForwardRef(Dialog))>
+`;

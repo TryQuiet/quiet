@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
+import * as R from 'ramda'
 
-import TopUpModalComponent from '../../../components/widgets/walletPanel/TopUpModal'
-import identitySelectors from '../../../store/selectors/identity'
+import TopUpModalComponent from '../../components/ui/TopUpModal'
+import identitySelectors from '../../store/selectors/identity'
+import { withModal } from '../../store/handlers/modals'
 
 const descriptions = {
   transparent: `If you are buying ZEC on a crypto exchange you most likely have to use a transparent address. After topping up your transparent balance, your ZEC will be automatically shielded and added to your private address.`,
@@ -15,7 +17,7 @@ export const mapStateToProps = state => ({
   transparentAddress: identitySelectors.transparentAddress(state)
 })
 
-export const TopUpModal = (props) => {
+export const TopUpModal = props => {
   const [type, setType] = useState('transparent')
   const address = type === 'transparent' ? props.transparentAddress : props.privateAddress
   const description = descriptions[type]
@@ -36,4 +38,7 @@ TopUpModal.propTypes = {
   handleCopy: PropTypes.func
 }
 
-export default connect(mapStateToProps)(TopUpModal)
+export default R.compose(
+  connect(mapStateToProps),
+  withModal('topUp')
+)(TopUpModal)

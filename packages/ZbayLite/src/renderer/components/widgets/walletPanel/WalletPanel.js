@@ -1,5 +1,4 @@
 import React from 'react'
-import BigNumber from 'bignumber.js'
 import PropTypes from 'prop-types'
 import * as R from 'ramda'
 
@@ -8,7 +7,6 @@ import { withStyles } from '@material-ui/core/styles'
 
 import WalletPanelActions from '../../../containers/widgets/walletPanel/WalletPanelActions'
 import ZcashBalance from '../../../containers/widgets/walletPanel/ZcashBalance'
-import TopUpModal from '../../../containers/widgets/walletPanel/TopUpModal'
 
 const styles = theme => ({
   root: {
@@ -25,7 +23,7 @@ const styles = theme => ({
   }
 })
 
-export const WalletPanel = ({ classes, topUpOpen, handleReceive, handleCloseTopUp }) => {
+export const WalletPanel = ({ classes }) => {
   return (
     <React.Fragment>
       <Grid item container direction='column' className={classes.root}>
@@ -33,24 +31,15 @@ export const WalletPanel = ({ classes, topUpOpen, handleReceive, handleCloseTopU
           <ZcashBalance />
         </Grid>
         <Grid item className={classes.actions}>
-          <WalletPanelActions onReceive={handleReceive} />
+          <WalletPanelActions />
         </Grid>
       </Grid>
-      <TopUpModal open={topUpOpen} handleClose={handleCloseTopUp} />
     </React.Fragment>
   )
 }
 
 WalletPanel.propTypes = {
-  classes: PropTypes.object.isRequired,
-  topUpOpen: PropTypes.bool.isRequired,
-  handleReceive: PropTypes.func.isRequired,
-  handleCloseTopUp: PropTypes.func.isRequired
-}
-
-WalletPanel.defaultProps = {
-  topUpOpen: false,
-  transparentBalance: new BigNumber(0)
+  classes: PropTypes.object.isRequired
 }
 
 export default R.compose(withStyles(styles))(WalletPanel)
