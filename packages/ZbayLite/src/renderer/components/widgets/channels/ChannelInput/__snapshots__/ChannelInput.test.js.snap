@@ -48,11 +48,17 @@ exports[`ChannelInput renders component input Disable  1`] = `
             },
           }
         }
+        autoFocus={true}
         fullWidth={true}
         id="channel-input"
         inputProps={
           Object {
             "className": "input-mock",
+          }
+        }
+        inputRef={
+          Object {
+            "current": null,
           }
         }
         margin="none"
@@ -122,11 +128,17 @@ exports[`ChannelInput renders component input Locked  1`] = `
             },
           }
         }
+        autoFocus={true}
         fullWidth={true}
         id="channel-input"
         inputProps={
           Object {
             "className": "input-mock",
+          }
+        }
+        inputRef={
+          Object {
+            "current": null,
           }
         }
         margin="none"
@@ -175,11 +187,17 @@ exports[`ChannelInput renders component input available  1`] = `
             },
           }
         }
+        autoFocus={true}
         fullWidth={true}
         id="channel-input"
         inputProps={
           Object {
             "className": "input-mock",
+          }
+        }
+        inputRef={
+          Object {
+            "current": null,
           }
         }
         margin="none"

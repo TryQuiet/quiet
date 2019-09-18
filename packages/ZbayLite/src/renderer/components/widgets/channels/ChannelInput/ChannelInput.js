@@ -65,6 +65,7 @@ const inputStateToMessage = {
     'You can not reply to this message because you are not registered. Please register your nickname ( button next to your balance )'
 }
 // TODO: refactor with formik
+
 export const ChannelInput = ({
   classes,
   onChange,
@@ -74,6 +75,10 @@ export const ChannelInput = ({
   infoClass,
   setInfoClass
 }) => {
+  const inputRef = React.createRef()
+  window.onfocus = () => {
+    inputRef.current.focus()
+  }
   return (
     <Grid container className={classes.root} direction='column' justify='center'>
       {inputState !== INPUT_STATE.AVAILABLE && (
@@ -102,8 +107,10 @@ export const ChannelInput = ({
       >
         <Grid item xs>
           <TextField
+            inputRef={inputRef}
             id='channel-input'
             fullWidth
+            autoFocus
             margin='none'
             variant='outlined'
             placeholder='Send a message'
