@@ -26,7 +26,7 @@ export const propTypes = {
 export const getItemSize = displayAddress =>
   displayAddress ? constants.itemWithSecondarySize : constants.itemSize
 
-export const BaseChannelsList = ({ channels, height, displayAddress, directMessages, selected }) => {
+export const BaseChannelsList = ({ channels, height, displayAddress, directMessages }) => {
   return (
     <Scrollbars autoHide style={{ height }} autoHideTimeout={500}>
       <List disablePadding>
@@ -36,7 +36,6 @@ export const BaseChannelsList = ({ channels, height, displayAddress, directMessa
             channel={channel}
             displayAddress={displayAddress}
             directMessages={directMessages}
-            selected={selected}
           />
         ))}
       </List>
@@ -47,7 +46,6 @@ export const BaseChannelsList = ({ channels, height, displayAddress, directMessa
 BaseChannelsList.propTypes = {
   height: PropTypes.number.isRequired,
   channels: PropTypes.instanceOf(Immutable.List).isRequired,
-  selected: PropTypes.instanceOf(Immutable.Record).isRequired,
   displayAddress: PropTypes.bool,
   directMessages: PropTypes.bool
 }

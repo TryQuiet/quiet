@@ -43,7 +43,6 @@ exports[`BaseChannelsList renders component 1`] = `
       directMessages={false}
       displayAddress={false}
       key="0"
-      selected={Immutable.Record {}}
     />
     <withRouter(undefined)
       channel={
@@ -62,7 +61,6 @@ exports[`BaseChannelsList renders component 1`] = `
       directMessages={false}
       displayAddress={false}
       key="1"
-      selected={Immutable.Record {}}
     />
     <withRouter(undefined)
       channel={
@@ -81,7 +79,6 @@ exports[`BaseChannelsList renders component 1`] = `
       directMessages={false}
       displayAddress={false}
       key="2"
-      selected={Immutable.Record {}}
     />
     <withRouter(undefined)
       channel={
@@ -100,7 +97,6 @@ exports[`BaseChannelsList renders component 1`] = `
       directMessages={false}
       displayAddress={false}
       key="3"
-      selected={Immutable.Record {}}
     />
     <withRouter(undefined)
       channel={
@@ -119,7 +115,6 @@ exports[`BaseChannelsList renders component 1`] = `
       directMessages={false}
       displayAddress={false}
       key="4"
-      selected={Immutable.Record {}}
     />
     <withRouter(undefined)
       channel={
@@ -138,7 +133,6 @@ exports[`BaseChannelsList renders component 1`] = `
       directMessages={false}
       displayAddress={false}
       key="5"
-      selected={Immutable.Record {}}
     />
     <withRouter(undefined)
       channel={
@@ -157,7 +151,6 @@ exports[`BaseChannelsList renders component 1`] = `
       directMessages={false}
       displayAddress={false}
       key="6"
-      selected={Immutable.Record {}}
     />
     <withRouter(undefined)
       channel={
@@ -176,7 +169,6 @@ exports[`BaseChannelsList renders component 1`] = `
       directMessages={false}
       displayAddress={false}
       key="7"
-      selected={Immutable.Record {}}
     />
     <withRouter(undefined)
       channel={
@@ -195,7 +187,6 @@ exports[`BaseChannelsList renders component 1`] = `
       directMessages={false}
       displayAddress={false}
       key="8"
-      selected={Immutable.Record {}}
     />
     <withRouter(undefined)
       channel={
@@ -214,7 +205,6 @@ exports[`BaseChannelsList renders component 1`] = `
       directMessages={false}
       displayAddress={false}
       key="9"
-      selected={Immutable.Record {}}
     />
     <withRouter(undefined)
       channel={
@@ -233,7 +223,6 @@ exports[`BaseChannelsList renders component 1`] = `
       directMessages={false}
       displayAddress={false}
       key="10"
-      selected={Immutable.Record {}}
     />
     <withRouter(undefined)
       channel={
@@ -252,7 +241,6 @@ exports[`BaseChannelsList renders component 1`] = `
       directMessages={false}
       displayAddress={false}
       key="11"
-      selected={Immutable.Record {}}
     />
   </WithStyles(ForwardRef(List))>
 </Scrollbars>
@@ -301,7 +289,6 @@ exports[`BaseChannelsList renders list elements with displayAddress 1`] = `
       directMessages={false}
       displayAddress={true}
       key="0"
-      selected={Immutable.Record {}}
     />
     <withRouter(undefined)
       channel={
@@ -320,7 +307,6 @@ exports[`BaseChannelsList renders list elements with displayAddress 1`] = `
       directMessages={false}
       displayAddress={true}
       key="1"
-      selected={Immutable.Record {}}
     />
     <withRouter(undefined)
       channel={
@@ -339,7 +325,6 @@ exports[`BaseChannelsList renders list elements with displayAddress 1`] = `
       directMessages={false}
       displayAddress={true}
       key="2"
-      selected={Immutable.Record {}}
     />
   </WithStyles(ForwardRef(List))>
 </Scrollbars>

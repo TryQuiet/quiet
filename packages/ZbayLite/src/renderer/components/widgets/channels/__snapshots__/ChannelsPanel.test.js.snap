@@ -51,7 +51,6 @@ exports[`ChannelsPanel renders collapsed list if no bounds 1`] = `
     ]
   }
   maxHeight={NaN}
-  selected={Immutable.Record {}}
 />
 `;
 
@@ -106,6 +105,5 @@ exports[`ChannelsPanel renders component 1`] = `
     ]
   }
   maxHeight={150}
-  selected={Immutable.Record {}}
 />
 `;

@@ -12,34 +12,21 @@ describe('ChannelsListItem', () => {
 
   it('renders component', () => {
     const result = shallow(
-      <ChannelsListItem
-        classes={mockClasses}
-        channel={privateChannel}
-        selected={Immutable.Record({})()}
-      />
+      <ChannelsListItem classes={mockClasses} channel={privateChannel} />
     )
     expect(result).toMatchSnapshot()
   })
 
   it('renders component with address', () => {
     const result = shallow(
-      <ChannelsListItem
-        classes={mockClasses}
-        channel={privateChannel}
-        displayAddress
-        selected={Immutable.Record({})()}
-      />
+      <ChannelsListItem classes={mockClasses} channel={privateChannel} displayAddress />
     )
     expect(result).toMatchSnapshot()
   })
 
   it('renders component when public', () => {
     const result = shallow(
-      <ChannelsListItem
-        classes={mockClasses}
-        channel={publicChannel}
-        selected={Immutable.Record({})()}
-      />
+      <ChannelsListItem classes={mockClasses} channel={publicChannel} />
     )
     expect(result).toMatchSnapshot()
   })

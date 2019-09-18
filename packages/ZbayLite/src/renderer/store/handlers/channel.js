@@ -35,7 +35,6 @@ const setLoading = createAction('SET_CHANNEL_LOADING')
 const setLoadingMessage = createAction('SET_CHANNEL_LOADING_MESSAGE')
 const setShareableUri = createAction('SET_CHANNEL_SHAREABLE_URI')
 const setAddress = createAction('SET_CHANNEL_ADDRESS')
-const resetChannel = createAction('SET_CHANNEL')
 
 export const actions = {
   setLoading,
@@ -43,8 +42,7 @@ export const actions = {
   setSpentFilterValue,
   setMessage,
   setShareableUri,
-  setChannelId,
-  resetChannel
+  setChannelId
 }
 
 const loadChannel = (id) => async (dispatch, getState) => {
@@ -158,8 +156,7 @@ export const reducer = handleActions({
   [setMessage]: (state, { payload: value }) => state.set('message', value),
   [setChannelId]: (state, { payload: id }) => state.set('id', id),
   [setShareableUri]: (state, { payload: uri }) => state.set('shareableUri', uri),
-  [setAddress]: (state, { payload: address }) => state.set('address', address),
-  [resetChannel]: () => initialState
+  [setAddress]: (state, { payload: address }) => state.set('address', address)
 }, initialState)
 
 export default {

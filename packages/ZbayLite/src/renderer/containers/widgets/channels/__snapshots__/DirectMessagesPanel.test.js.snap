@@ -13,9 +13,5 @@ Object {
       "username": "testusername",
     },
   ],
-  "selected": Immutable.DirectMessageChannelState {
-    "targetRecipientAddress": null,
-    "targetRecipientUsername": null,
-  },
 }
 `;

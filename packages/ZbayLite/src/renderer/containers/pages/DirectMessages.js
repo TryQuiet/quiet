@@ -4,7 +4,6 @@ import { connect } from 'react-redux'
 
 import directMessageChannel from '../../store/handlers/directMessageChannel'
 import contactsHandlers from '../../store/handlers/contacts'
-import channelHandlers from '../../store/handlers/channel'
 import ChannelComponent from '../../components/pages/Channel'
 
 export const mapDispatchToProps = dispatch =>
@@ -13,8 +12,7 @@ export const mapDispatchToProps = dispatch =>
       loadRecipientAddress: directMessageChannel.actions.setDirectMessageRecipientAddress,
       loadRecipientUsername: directMessageChannel.actions.setDirectMessageRecipientUsername,
       cleanNewMessages: contactsHandlers.actions.cleanNewMessages,
-      loadContact: contactsHandlers.epics.loadContact,
-      resetChannel: channelHandlers.actions.resetChannel
+      loadContact: contactsHandlers.epics.loadContact
     },
     dispatch
   )
@@ -24,12 +22,10 @@ const DirectMessages = ({
   loadRecipientUsername,
   loadRecipientAddress,
   cleanNewMessages,
-  loadContact,
-  resetChannel
+  loadContact
 }) => {
   useEffect(
     () => {
-      resetChannel()
       loadRecipientAddress(match.params.id)
       loadRecipientUsername(match.params.username)
       cleanNewMessages({ contactAddress: match.params.id })

@@ -2,6 +2,7 @@ import React from 'react'
 import Immutable from 'immutable'
 import { shallow } from 'enzyme'
 import * as R from 'ramda'
+
 import { BaseChannelsList, constants } from './BaseChannelsList'
 import { createChannel } from '../../../testUtils'
 
@@ -10,7 +11,7 @@ describe('BaseChannelsList', () => {
     const channels = Immutable.fromJS(R.range(0, 12).map(createChannel))
     const height = constants.itemSize * 12
     const result = shallow(
-      <BaseChannelsList channels={channels} height={height} selected={Immutable.Record({})()} />
+      <BaseChannelsList channels={channels} height={height} />
     )
     expect(result).toMatchSnapshot()
   })
@@ -23,7 +24,6 @@ describe('BaseChannelsList', () => {
         channels={channels}
         height={height}
         displayAddress
-        selected={Immutable.Record({})()}
       />
     )
     expect(result).toMatchSnapshot()

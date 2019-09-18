@@ -51,6 +51,5 @@ exports[`ScallingChannelsList renders component 1`] = `
     ]
   }
   height={140}
-  selected={Immutable.Record {}}
 />
 `;

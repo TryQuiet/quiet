@@ -9,15 +9,13 @@ import { createChannel } from '../../../testUtils'
 
 describe('ItemSizedChannelsList', () => {
   const itemsCount = 4
-  const channels = Immutable.fromJS(R.range(0, itemsCount).map(createChannel))
+  const channels = Immutable.fromJS(
+    R.range(0, itemsCount).map(createChannel)
+  )
 
   it('renders component', () => {
     const result = shallow(
-      <ItemSizedChannelsList
-        channels={channels}
-        itemsCount={itemsCount}
-        selected={Immutable.Record({})()}
-      />
+      <ItemSizedChannelsList channels={channels} itemsCount={itemsCount} />
     )
     expect(result.prop('height')).toEqual(constants.itemSize * itemsCount)
     expect(result).toMatchSnapshot()
@@ -25,12 +23,7 @@ describe('ItemSizedChannelsList', () => {
 
   it('renders with correct height when displayAddress = true', () => {
     const result = shallow(
-      <ItemSizedChannelsList
-        channels={channels}
-        itemsCount={itemsCount}
-        displayAddress
-        selected={Immutable.Record({})()}
-      />
+      <ItemSizedChannelsList channels={channels} itemsCount={itemsCount} displayAddress />
     )
     expect(result.prop('height')).toEqual(constants.itemWithSecondarySize * itemsCount)
     expect(result).toMatchSnapshot()

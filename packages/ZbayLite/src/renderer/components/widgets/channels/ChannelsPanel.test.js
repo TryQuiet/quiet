@@ -22,7 +22,6 @@ describe('ChannelsPanel', () => {
       <ChannelsPanel
         channels={channels}
         contentRect={contentRect}
-        selected={Immutable.Record({})()}
       />
     )
     expect(result).toMatchSnapshot()
@@ -37,7 +36,6 @@ describe('ChannelsPanel', () => {
       <ChannelsPanel
         channels={channels}
         contentRect={contentRect}
-        selected={Immutable.Record({})()}
       />
     )
     expect(result).toMatchSnapshot()

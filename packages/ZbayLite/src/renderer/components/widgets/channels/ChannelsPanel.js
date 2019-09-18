@@ -10,19 +10,17 @@ const constants = {
   gutter: 10
 }
 
-export const ChannelsPanel = ({ channels, contentRect, selected }) => {
+export const ChannelsPanel = ({ channels, contentRect }) => {
   return (
     <ScalingChannelsList
       channels={channels}
       maxHeight={contentRect.bounds.height - constants.sidebarHeight - constants.gutter}
-      selected={selected}
     />
   )
 }
 
 ChannelsPanel.propTypes = {
   channels: PropTypes.instanceOf(Immutable.List).isRequired,
-  selected: PropTypes.instanceOf(Immutable.Record).isRequired,
   contentRect: PropTypes.shape({
     bounds: PropTypes.shape({
       height: PropTypes.number
