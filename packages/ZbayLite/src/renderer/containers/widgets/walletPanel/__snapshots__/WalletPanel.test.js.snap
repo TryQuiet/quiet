@@ -10,11 +10,16 @@ Array [
     undefined,
     15000,
   ],
+  Array [
+    undefined,
+    60000,
+  ],
 ]
 `;
 
 exports[`WalletPanel will receive right actions 1`] = `
 Object {
+  "fetchPrices": [Function],
   "fetchUsers": [Function],
   "getBalance": [Function],
 }
