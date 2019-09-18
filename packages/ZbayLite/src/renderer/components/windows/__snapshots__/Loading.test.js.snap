@@ -1,12 +1,102 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Loading renders component 1`] = `
-<Memo(WithStyles(WindowWrapper))
+<WithStyles(ForwardRef(Grid))
+  alignItems="center"
   className="root-mock"
+  container={true}
+  direction="column"
+  justify="center"
 >
-  <Memo(WithStyles(SpinnerLoader))
-    message="test Msg"
-    size={150}
-  />
-</Memo(WithStyles(WindowWrapper))>
+  <WithStyles(ForwardRef(Grid))
+    container={true}
+    item={true}
+    justify="center"
+  >
+    <Memo(Icon)
+      className="icon-mock"
+      src="test-file-stub"
+    />
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="carouselContainer-mock"
+    container={true}
+    item={true}
+  >
+    <AliceCarousel
+      autoHeight={false}
+      autoPlay={true}
+      autoPlayDirection="ltr"
+      autoPlayInterval={2000}
+      buttonsDisabled={true}
+      disableAutoPlayOnAction={false}
+      dotsDisabled={true}
+      duration={250}
+      fadeOutAnimation={false}
+      infinite={true}
+      items={Array []}
+      keysControlDisabled={false}
+      mouseDragEnabled={false}
+      playButtonEnabled={false}
+      preventEventOnTouchMove={false}
+      responsive={Object {}}
+      showSlideInfo={false}
+      slideToIndex={0}
+      stagePadding={Object {}}
+      startIndex={0}
+      stopAutoPlayOnHover={true}
+      swipeDisabled={false}
+    >
+      <div
+        className="tipContainer-mock"
+      >
+        <WithStyles(ForwardRef(Typography))
+          className="typography-mock"
+          variant="caption"
+        >
+          A social marketplace for physical goods, information, and ideas. Owned by no one.
+        </WithStyles(ForwardRef(Typography))>
+      </div>
+      <div
+        className="tipContainer-mock"
+      >
+        <WithStyles(ForwardRef(Typography))
+          className="typography-mock"
+          variant="caption"
+        >
+          A social marketplace for physical goods, information, and ideas. Owned by no one.
+        </WithStyles(ForwardRef(Typography))>
+      </div>
+      <div
+        className="tipContainer-mock"
+      >
+        <WithStyles(ForwardRef(Typography))
+          className="typography-mock"
+          variant="caption"
+        >
+          A social marketplace for physical goods, information, and ideas. Owned by no one.
+        </WithStyles(ForwardRef(Typography))>
+      </div>
+    </AliceCarousel>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="progressBarContainer-mock"
+    item={true}
+  >
+    <WithStyles(ForwardRef(LinearProgress))
+      className="progressBar-mock"
+    />
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="messageContainer-mock"
+    item={true}
+  >
+    <WithStyles(ForwardRef(Typography))
+      className="message-mock"
+      variant="caption"
+    >
+      test Msg
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
 `;

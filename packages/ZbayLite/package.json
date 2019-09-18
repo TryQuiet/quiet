@@ -94,7 +94,8 @@
       "<rootDir>/src/shared/setupTests.js"
     ],
     "moduleNameMapper": {
-      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/src/shared/testing/fileMock.js"
+      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/src/shared/testing/fileMock.js",
+      "\\.(css|less)$": "identity-obj-proxy"
     },
     "testRegex": "src/.*\\.test\\.js$",
     "snapshotSerializers": [
@@ -115,6 +116,7 @@
     "electron-updater": "^4.0.6",
     "formik": "^1.5.4",
     "formik-material-ui": "0.0.22",
+    "identity-obj-proxy": "^3.0.0",
     "immutable": "^4.0.0-rc.12",
     "jest-each": "^24.0.0",
     "luxon": "^1.11.4",
@@ -123,6 +125,7 @@
     "qrcode.react": "^0.9.3",
     "ramda": "^0.26.1",
     "react": "^16.9.0",
+    "react-alice-carousel": "^1.15.3",
     "react-copy-to-clipboard": "^5.0.1",
     "react-countdown-now": "^2.1.0",
     "react-custom-scrollbars": "^4.2.1",
