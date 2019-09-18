@@ -3,14 +3,13 @@ import Immutable from 'immutable'
 import PropTypes from 'prop-types'
 import * as R from 'ramda'
 import Jdenticon from 'react-jdenticon'
+import classNames from 'classnames'
 
 import { withStyles } from '@material-ui/core/styles'
-
 import ListItem from '@material-ui/core/ListItem'
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import ListItemText from '@material-ui/core/ListItemText'
 import Badge from '@material-ui/core/Badge'
-
 import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline'
 
 import Elipsis from '../../ui/Elipsis'
@@ -18,6 +17,9 @@ import Elipsis from '../../ui/Elipsis'
 const styles = theme => ({
   root: {
     padding: '5px 16px 6px'
+  },
+  selected: {
+    backgroundColor: 'rgb(255,255,255,0.4)'
   },
   itemText: {
     paddingLeft: '12px'
@@ -55,8 +57,18 @@ const styles = theme => ({
   }
 })
 
-export const ChannelsListItem = ({ classes, channel, displayAddress, history, directMessages }) => {
+export const ChannelsListItem = ({
+  classes,
+  channel,
+  displayAddress,
+  history,
+  directMessages,
+  selected
+}) => {
   const channelObj = channel.toJS()
+  const highlight = directMessages
+    ? selected.targetRecipientAddress === channel.address
+    : channelObj.address === selected.address
   return (
     <ListItem
       button
@@ -69,7 +81,9 @@ export const ChannelsListItem = ({ classes, channel, displayAddress, history, di
           }`
         )
       }}
-      className={classes.root}
+      className={classNames(classes.root, {
+        [classes.selected]: highlight
+      })}
       alignItems={displayAddress ? 'flex-start' : 'center'}
     >
       <ListItemIcon className={classes.itemIcon}>
@@ -117,6 +131,7 @@ ChannelsListItem.propTypes = {
     PropTypes.instanceOf(Immutable.Map),
     PropTypes.instanceOf(Immutable.Record)
   ]).isRequired,
+  selected: PropTypes.instanceOf(Immutable.Record).isRequired,
   displayAddress: PropTypes.bool,
   directMessages: PropTypes.bool
 }

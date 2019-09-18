@@ -51,6 +51,7 @@ exports[`ItemSizedChannelsList renders component 1`] = `
     ]
   }
   height={140}
+  selected={Immutable.Record {}}
 />
 `;
 
@@ -106,5 +107,6 @@ exports[`ItemSizedChannelsList renders with correct height when displayAddress =
   }
   displayAddress={true}
   height={216}
+  selected={Immutable.Record {}}
 />
 `;
