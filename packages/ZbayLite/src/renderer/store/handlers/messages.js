@@ -68,6 +68,11 @@ export const fetchMessages = () => async (dispatch, getState) => {
   const pendingMessages = operationsSelectors.pendingMessages(getState())
   const identityAddress = identitySelectors.address(getState())
   const users = usersSelectors.users(getState())
+
+  if (pendingMessages.find(msg => msg.status === 'pending')) {
+    return
+  }
+
   return Promise.all(
     channels.map(async channel => {
       const channelId = channel.get('id')
