@@ -14,7 +14,6 @@ import Loading from './containers//windows/Loading'
 import Notifier from './containers/ui/Notifier'
 import ErrorModal from './containers/ui/ErrorModal'
 import QuitAppDialog from './containers/ui/QuitAppDialog'
-import DepositMoneyModal from './containers/ui/DepositMoneyModal'
 import TopUpModal from './containers/ui/TopUpModal'
 import SendMoneyModal from './containers/ui/sendMoney/SendMoneyModal'
 
@@ -28,7 +27,6 @@ export default () => (
           <Notifier />
           <ErrorModal />
           <QuitAppDialog />
-          <DepositMoneyModal />
           <SendMoneyModal />
           <TopUpModal />
           <CssBaseline />

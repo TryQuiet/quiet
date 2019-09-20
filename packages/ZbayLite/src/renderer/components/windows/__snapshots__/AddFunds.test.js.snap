@@ -1,0 +1,92 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AddFunds renders component 1`] = `
+<Memo(WithStyles(WindowWrapper))>
+  <WithStyles(ForwardRef(Grid))
+    className="gridRoot-mock"
+    container={true}
+  >
+    <WithStyles(ForwardRef(Paper))
+      className="paper-mock"
+    >
+      <WithStyles(ForwardRef(Grid))
+        alignContent="center"
+        className="welcome-mock"
+        container={true}
+        direction="row"
+        justify="center"
+        wrap="wrap"
+      >
+        <WithStyles(ForwardRef(Grid))
+          alignItems="center"
+          className="logoContainer-mock"
+          container={true}
+          item={true}
+          justify="center"
+          xs={12}
+        >
+          <Memo(Icon)
+            className="icon-mock"
+            src="test-file-stub"
+          />
+        </WithStyles(ForwardRef(Grid))>
+        <WithStyles(ForwardRef(Grid))
+          container={true}
+          item={true}
+          justify="center"
+          wrap="wrap"
+          xs={12}
+        >
+          <WithStyles(ForwardRef(Typography))
+            className="title-mock"
+            gutterBottom={true}
+            variant="h4"
+          >
+            Add funds to your wallet
+          </WithStyles(ForwardRef(Typography))>
+          <WithStyles(ForwardRef(Typography))
+            align="justify"
+            className="caption-mock"
+            gutterBottom={true}
+            variant="body1"
+          >
+            Before you go into the app you can deposit money to your account
+          </WithStyles(ForwardRef(Typography))>
+        </WithStyles(ForwardRef(Grid))>
+        <WithStyles(ForwardRef(Grid))
+          alignItems="center"
+          className="buttons-mock"
+          container={true}
+          direction="column"
+          item={true}
+          justify="center"
+          xs={12}
+        >
+          <WithStyles(ForwardRef(Button))
+            className="button-mock"
+            color="primary"
+            fullWidth={true}
+            margin="normal"
+            onClick={[MockFunction]}
+            size="large"
+            variant="contained"
+          >
+            Add funds now
+          </WithStyles(ForwardRef(Button))>
+          <WithStyles(ForwardRef(Button))
+            className="buttonSkip-mock"
+            color="primary"
+            fullWidth={true}
+            margin="normal"
+            onClick={[Function]}
+            size="large"
+            variant="contained"
+          >
+            I'll do this later
+          </WithStyles(ForwardRef(Button))>
+        </WithStyles(ForwardRef(Grid))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Paper))>
+  </WithStyles(ForwardRef(Grid))>
+</Memo(WithStyles(WindowWrapper))>
+`;

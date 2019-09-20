@@ -6,5 +6,6 @@ Object {
     "loading": false,
     "message": "",
   },
+  "newUser": false,
 }
 `;

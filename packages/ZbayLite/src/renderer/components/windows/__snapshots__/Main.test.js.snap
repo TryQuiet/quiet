@@ -1,32 +1,35 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Main renders component 1`] = `
-<Memo(WithStyles(WindowWrapper))>
-  <WithStyles(ForwardRef(Grid))
-    className="gridRoot-mock"
-    container={true}
-    direction="row"
-  >
+<Fragment>
+  <Connect(withModal(Component)) />
+  <Memo(WithStyles(WindowWrapper))>
     <WithStyles(ForwardRef(Grid))
-      item={true}
+      className="gridRoot-mock"
+      container={true}
+      direction="row"
     >
-      <WithStyles(Sidebar) />
+      <WithStyles(ForwardRef(Grid))
+        item={true}
+      >
+        <WithStyles(Sidebar) />
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
+        item={true}
+        xs={true}
+      >
+        <Route
+          component={[Function]}
+          exact={true}
+          path="test/channel/:id"
+        />
+        <Route
+          component={[Function]}
+          exact={true}
+          path="test/direct-messages/:id/:username"
+        />
+      </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      item={true}
-      xs={true}
-    >
-      <Route
-        component={[Function]}
-        exact={true}
-        path="test/channel/:id"
-      />
-      <Route
-        component={[Function]}
-        exact={true}
-        path="test/direct-messages/:id/:username"
-      />
-    </WithStyles(ForwardRef(Grid))>
-  </WithStyles(ForwardRef(Grid))>
-</Memo(WithStyles(WindowWrapper))>
+  </Memo(WithStyles(WindowWrapper))>
+</Fragment>
 `;

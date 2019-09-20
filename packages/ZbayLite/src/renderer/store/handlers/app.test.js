@@ -42,5 +42,9 @@ describe('criticalError reducer', () => {
       store.dispatch(handlers.actions.setTransfers({ id: 'testid', value: 'testvalue2' }))
       expect(selectors.transfers(store.getState()).get('testid')).toEqual('testvalue2')
     })
+    it('set newUser', () => {
+      store.dispatch(handlers.actions.setNewUser(true))
+      expect(selectors.newUser(store.getState())).toMatchSnapshot()
+    })
   })
 })

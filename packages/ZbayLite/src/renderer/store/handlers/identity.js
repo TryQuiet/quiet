@@ -9,6 +9,7 @@ import channels from '../../zcash/channels'
 
 import identitySelectors from '../selectors/identity'
 import nodeSelectors from '../selectors/node'
+import appSelectors from '../selectors/app'
 import channelsHandlers from './channels'
 import usersHandlers from './users'
 import contactsHandlers from './contacts'
@@ -231,7 +232,8 @@ export const setIdentityEpic = (identityToSet) => async (dispatch, getState) => 
   dispatch(setLoading(false))
   const balance = identitySelectors.balance('zec')(getState())
   const lockedBalance = identitySelectors.lockedBalance('zec')(getState())
-  if (lockedBalance.plus(balance).lt(0.0002)) {
+  const newUser = appSelectors.newUser(getState())
+  if (lockedBalance.plus(balance).lt(0.0002) && newUser === false) {
     setTimeout(() => dispatch(modalsHandlers.actionCreators.openModal('depositMoney')()), 500)
   }
 }

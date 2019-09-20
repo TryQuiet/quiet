@@ -9,6 +9,7 @@ import WindowWrapper from '../ui/WindowWrapper'
 import Sidebar from '../widgets/sidebar/Sidebar'
 import Channel from '../../containers/pages/Channel'
 import DirectMessages from '../../containers/pages/DirectMessages'
+import DepositMoneyModal from '../../containers/ui/DepositMoneyModal'
 
 const styles = {
   gridRoot: {
@@ -19,17 +20,24 @@ const styles = {
 
 export const Main = ({ match, classes }) => {
   return (
-    <WindowWrapper>
-      <Grid container direction='row' className={classes.gridRoot}>
-        <Grid item>
-          <Sidebar />
+    <>
+      <DepositMoneyModal />
+      <WindowWrapper>
+        <Grid container direction='row' className={classes.gridRoot}>
+          <Grid item>
+            <Sidebar />
+          </Grid>
+          <Grid item xs>
+            <Route exact path={`${match.url}/channel/:id`} component={Channel} />
+            <Route
+              exact
+              path={`${match.url}/direct-messages/:id/:username`}
+              component={DirectMessages}
+            />
+          </Grid>
         </Grid>
-        <Grid item xs>
-          <Route exact path={`${match.url}/channel/:id`} component={Channel} />
-          <Route exact path={`${match.url}/direct-messages/:id/:username`} component={DirectMessages} />
-        </Grid>
-      </Grid>
-    </WindowWrapper>
+      </WindowWrapper>
+    </>
   )
 }
 

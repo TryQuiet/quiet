@@ -6,6 +6,7 @@ import nodeSelectors from '../selectors/node'
 import identityHandlers from './identity'
 import vaultHandlers from './vault'
 import notificationsHandlers from './notifications'
+import appHandlers from './app'
 
 import vault from '../../vault'
 
@@ -57,6 +58,7 @@ const loadVaultStatus = () => (dispatch, getState) => {
 const createVaultEpic = ({ name, password }, formActions) => async (dispatch, getState) => {
   const network = nodeSelectors.network(getState())
   try {
+    await dispatch(appHandlers.actions.setNewUser(true))
     await dispatch(createVault({ masterPassword: password, network }))
     await dispatch(actions.unlockVault({
       masterPassword: password,
