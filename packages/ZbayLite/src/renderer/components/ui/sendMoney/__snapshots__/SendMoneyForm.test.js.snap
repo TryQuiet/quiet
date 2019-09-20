@@ -4,7 +4,7 @@ exports[`SendMoneyForm renders component when valid = false 1`] = `
 <WithStyles(ForwardRef(Grid))
   className="root-mock"
   container={true}
-  spacing={3}
+  spacing={2}
 >
   <WithStyles(ForwardRef(Grid))
     item={true}
@@ -225,7 +225,7 @@ exports[`SendMoneyForm renders component when valid = true 1`] = `
 <WithStyles(ForwardRef(Grid))
   className="root-mock"
   container={true}
-  spacing={3}
+  spacing={2}
 >
   <WithStyles(ForwardRef(Grid))
     item={true}

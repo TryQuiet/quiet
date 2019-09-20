@@ -64,8 +64,8 @@ export const Loading = ({ classes, message }) => (
     <Grid className={classes.carouselContainer} container item>
       <AliceCarousel buttonsDisabled dotsDisabled autoPlay autoPlayInterval={2000}>
         {
-          carouselStrings.map(text => (
-            <div className={classes.tipContainer}>
+          carouselStrings.map((text, i) => (
+            <div key={i} className={classes.tipContainer}>
               <Typography className={classes.typography} variant='caption'>{text}</Typography>
             </div>
           ))

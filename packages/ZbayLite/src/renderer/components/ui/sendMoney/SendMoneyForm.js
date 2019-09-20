@@ -27,6 +27,7 @@ const styles = theme => ({
     fontSize: `1.3rem`
   },
   button: {
+    backgroundColor: theme.palette.colors.zbayBlue,
     padding: theme.spacing(2)
   },
   field: {
@@ -65,7 +66,7 @@ export const SendMoneyForm = ({
   shippingData
 }) => {
   return (
-    <Grid container className={classes.root} spacing={3}>
+    <Grid container className={classes.root} spacing={2}>
       <Grid item xs={12}>
         <Typography variant='body1'>Recipient</Typography>
         <TextField

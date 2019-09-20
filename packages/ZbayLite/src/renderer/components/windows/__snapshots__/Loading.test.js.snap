@@ -49,6 +49,7 @@ exports[`Loading renders component 1`] = `
     >
       <div
         className="tipContainer-mock"
+        key="0"
       >
         <WithStyles(ForwardRef(Typography))
           className="typography-mock"
@@ -59,6 +60,7 @@ exports[`Loading renders component 1`] = `
       </div>
       <div
         className="tipContainer-mock"
+        key="1"
       >
         <WithStyles(ForwardRef(Typography))
           className="typography-mock"
@@ -69,6 +71,7 @@ exports[`Loading renders component 1`] = `
       </div>
       <div
         className="tipContainer-mock"
+        key="2"
       >
         <WithStyles(ForwardRef(Typography))
           className="typography-mock"

@@ -91,7 +91,10 @@ export const ChannelInfoModal = ({
 
 ChannelInfoModal.propTypes = {
   classes: PropTypes.object.isRequired,
-  channel: PropTypes.instanceOf(Immutable.Map).isRequired,
+  channel: PropTypes.oneOfType([
+    PropTypes.instanceOf(Immutable.Map),
+    PropTypes.instanceOf(Immutable.Record)
+  ]).isRequired,
   shareUrl: PropTypes.string.isRequired,
   handleClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
