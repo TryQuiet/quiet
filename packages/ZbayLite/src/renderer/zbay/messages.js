@@ -141,7 +141,7 @@ export const usernameSchema = Yup.object().shape({
   nickname: Yup.string()
     .min(3)
     .max(20)
-    .matches(/^[a-z0-9]/)
+    .matches(/^[a-z0-9]+$/)
 })
 
 export const transferToMessage = async (props, users) => {

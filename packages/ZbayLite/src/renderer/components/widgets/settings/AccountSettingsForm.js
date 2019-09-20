@@ -70,7 +70,7 @@ const formSchema = checkNickname =>
     nickname: Yup.string()
       .min(3)
       .max(20)
-      .matches(/^[a-z0-9]/, {
+      .matches(/^[a-z0-9]+$/, {
         message: 'Usernames should only be lowercase letters a-z and numbers 0-9',
         excludeEmptyString: true
       })
