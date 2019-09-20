@@ -21,7 +21,7 @@ export const mapDispatchToProps = dispatch => bindActionCreators({
 export const Vault = ({ loadVaultStatus, exists, nodeConnected }) => {
   useEffect(() => {
     loadVaultStatus()
-  })
+  }, [])
   if (!nodeConnected) {
     return <Redirect to='/' />
   }
