@@ -77,7 +77,7 @@ const createWindow = () => {
 app.on('ready', async () => {
   const template = [
     {
-      label: 'Edit',
+      label: 'Zbay',
       submenu: [
         { role: 'undo' },
         { role: 'redo' },
@@ -87,7 +87,9 @@ app.on('ready', async () => {
         { role: 'paste' },
         { role: 'pasteandmatchstyle' },
         { role: 'delete' },
-        { role: 'selectall' }
+        { role: 'selectall' },
+        { type: 'separator' },
+        { role: 'quit' }
       ]
     }
   ]
