@@ -137,6 +137,13 @@ export const messageSchema = Yup.object().shape({
   message: Yup.mixed().validateMessage()
 })
 
+export const usernameSchema = Yup.object().shape({
+  nickname: Yup.string()
+    .min(3)
+    .max(20)
+    .matches(/^[a-z0-9]/)
+})
+
 export const transferToMessage = async (props, users) => {
   const { txid, amount, memo } = props
   let message = null
@@ -148,7 +155,8 @@ export const transferToMessage = async (props, users) => {
     if (users !== undefined) {
       const fromUser = users.get(publicKey)
       if (fromUser !== undefined) {
-        sender = ExchangeParticipant({ replyTo: fromUser.address, username: fromUser.nickname })
+        const isUsernameValid = usernameSchema.isValidSync(fromUser)
+        sender = ExchangeParticipant({ replyTo: fromUser.address, username: isUsernameValid ? fromUser.nickname : `Anon #${publicKey.substring(0, 20)}` })
       } else {
         sender = ExchangeParticipant({
           replyTo: '',

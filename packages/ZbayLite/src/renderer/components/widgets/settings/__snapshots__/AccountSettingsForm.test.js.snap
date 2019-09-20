@@ -50,6 +50,7 @@ exports[`AccountSettingsForm renders component 1`] = `
             "min": true,
             "required": true,
             "test": false,
+            "undefined": false,
           },
           "_mutate": undefined,
           "_options": Object {
@@ -63,6 +64,7 @@ exports[`AccountSettingsForm renders component 1`] = `
             "refs": Map {},
           },
           "tests": Array [
+            [Function],
             [Function],
             [Function],
             [Function],
