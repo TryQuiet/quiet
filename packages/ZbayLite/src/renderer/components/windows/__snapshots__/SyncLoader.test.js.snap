@@ -1,0 +1,206 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SyncLoader renders component 1`] = `
+<Memo(WithStyles(WindowWrapper))
+  className="root-mock"
+>
+  <WithStyles(ForwardRef(Grid))
+    alignItems="center"
+    container={true}
+    justify="center"
+  >
+    <WithStyles(ForwardRef(Grid))
+      alignItems="center"
+      container={true}
+      direction="column"
+      item={true}
+      justify="center"
+    >
+      <WithStyles(ForwardRef(Grid))
+        className="iconDiv-mock"
+        item={true}
+      >
+        <div
+          style={
+            Object {
+              "maxHeight": 247.5,
+              "overflow": "hidden",
+            }
+          }
+        >
+          <WithStyles(ForwardRef(CardMedia))
+            className="icongray-mock"
+            image="test-file-stub"
+          />
+        </div>
+        <div
+          style={
+            Object {
+              "maxHeight": 2.5,
+              "overflow": "hidden",
+            }
+          }
+        >
+          <WithStyles(ForwardRef(CardMedia))
+            className="icon-mock"
+            image="test-file-stub"
+            style={
+              Object {
+                "marginTop": -247.5,
+              }
+            }
+          />
+        </div>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      className="carouselContainer-mock"
+      container={true}
+      item={true}
+    >
+      <AliceCarousel
+        autoHeight={false}
+        autoPlay={true}
+        autoPlayDirection="ltr"
+        autoPlayInterval={2000}
+        buttonsDisabled={true}
+        disableAutoPlayOnAction={false}
+        dotsDisabled={true}
+        duration={250}
+        fadeOutAnimation={false}
+        infinite={true}
+        items={Array []}
+        keysControlDisabled={false}
+        mouseDragEnabled={false}
+        playButtonEnabled={false}
+        preventEventOnTouchMove={false}
+        responsive={Object {}}
+        showSlideInfo={false}
+        slideToIndex={0}
+        stagePadding={Object {}}
+        startIndex={0}
+        stopAutoPlayOnHover={true}
+        swipeDisabled={false}
+      >
+        <div
+          className="tipContainer-mock"
+          key="0"
+        >
+          <WithStyles(ForwardRef(Typography))
+            className="typography-mock"
+            variant="caption"
+          >
+            A social marketplace for physical goods, information, and ideas. Owned by no one.
+          </WithStyles(ForwardRef(Typography))>
+        </div>
+        <div
+          className="tipContainer-mock"
+          key="1"
+        >
+          <WithStyles(ForwardRef(Typography))
+            className="typography-mock"
+            variant="caption"
+          >
+            A social marketplace for physical goods, information, and ideas. Owned by no one.
+          </WithStyles(ForwardRef(Typography))>
+        </div>
+        <div
+          className="tipContainer-mock"
+          key="2"
+        >
+          <WithStyles(ForwardRef(Typography))
+            className="typography-mock"
+            variant="caption"
+          >
+            A social marketplace for physical goods, information, and ideas. Owned by no one.
+          </WithStyles(ForwardRef(Typography))>
+        </div>
+      </AliceCarousel>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      alignItems="center"
+      container={true}
+      item={true}
+      justify="center"
+    >
+      <WithStyles(ForwardRef(LinearProgress))
+        className="progressBar-mock"
+      />
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      className="statusDiv-mock"
+      item={true}
+      xs={12}
+    >
+      <WithStyles(ForwardRef(Typography))
+        className="status-mock"
+        variant="caption"
+      >
+        Syncing 
+        1.00
+        %
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      alignItems="center"
+      className="infoContainer-mock"
+      container={true}
+      direction="column"
+      item={true}
+      justify="center"
+    >
+      <WithStyles(ForwardRef(Grid))
+        className="detailsDiv-mock"
+        container={true}
+        item={true}
+        justify="space-between"
+      >
+        <WithStyles(ForwardRef(Typography))
+          className="text-mock"
+        >
+          network
+        </WithStyles(ForwardRef(Typography))>
+        <WithStyles(ForwardRef(Typography))
+          className="text-mock"
+        >
+          mainnet
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
+        className="detailsDiv-mock"
+        container={true}
+        item={true}
+        justify="space-between"
+      >
+        <WithStyles(ForwardRef(Typography))
+          className="text-mock"
+        >
+          blocks
+        </WithStyles(ForwardRef(Typography))>
+        <WithStyles(ForwardRef(Typography))
+          className="text-mock"
+        >
+          1 / ~100
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
+        className="detailsDiv-mock"
+        container={true}
+        item={true}
+        justify="space-between"
+      >
+        <WithStyles(ForwardRef(Typography))
+          className="text-mock"
+        >
+          connections
+        </WithStyles(ForwardRef(Typography))>
+        <WithStyles(ForwardRef(Typography))
+          className="text-mock"
+        >
+          0
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+</Memo(WithStyles(WindowWrapper))>
+`;

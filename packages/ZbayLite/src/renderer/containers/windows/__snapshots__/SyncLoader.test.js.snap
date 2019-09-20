@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SyncLoader will receive right props 1`] = `
+Object {
+  "node": Immutable.NodeState {
+    "latestBlock": 100,
+    "currentBlock": 1,
+    "connections": "0",
+    "isTestnet": null,
+    "status": "connecting",
+    "errors": "",
+    "bootstrapLoader": Immutable.Record {
+      "loading": false,
+      "message": "",
+    },
+    "startedAt": null,
+  },
+}
+`;
