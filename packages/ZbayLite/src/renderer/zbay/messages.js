@@ -156,11 +156,11 @@ export const transferToMessage = async (props, users) => {
       const fromUser = users.get(publicKey)
       if (fromUser !== undefined) {
         const isUsernameValid = usernameSchema.isValidSync(fromUser)
-        sender = ExchangeParticipant({ replyTo: fromUser.address, username: isUsernameValid ? fromUser.nickname : `Anon #${publicKey.substring(0, 20)}` })
+        sender = ExchangeParticipant({ replyTo: fromUser.address, username: isUsernameValid ? fromUser.nickname : `anon${publicKey.substring(0, 15)}` })
       } else {
         sender = ExchangeParticipant({
           replyTo: '',
-          username: `Anon #${publicKey}`
+          username: `anon${publicKey}`
         })
         isUnregistered = true
       }
