@@ -15,13 +15,25 @@
         "bucket": "zbay-release"
       }
     },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "files": [
+        "dist/**/*",
+        "package.json"
+      ]
+    },
     "extraResources": "zcash/**/*"
   },
+  "homepage": "https://gitlab.rumblefishdev.com/holmes/zbay",
   "version": "0.6.3-dev-2",
   "description": "Distributed goods and bulletin board",
   "main": "dist/main.js",
   "scripts": {
     "dist": "npm run build:prod && electron-builder -p always --mac",
+    "distlinux": "npm run build:prod && electron-builder --linux",
     "lint": "standard",
     "test": "npm run lint && jest",
     "test:watch": "npm run lint && jest --watchAll",
@@ -36,7 +48,10 @@
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
   },
-  "author": "Bartlomiej Lisiecki, Norbert Bodziony ",
+  "author": {
+    "name": "Bartlomiej Lisiecki/Norbert Bodziony",
+    "email": "rumblefish@rumblefish.pl"
+  },
   "license": "ISC",
   "devDependencies": {
     "@babel/core": "^7.2.2",
