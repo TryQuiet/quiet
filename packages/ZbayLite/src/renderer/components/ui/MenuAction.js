@@ -12,9 +12,7 @@ import PopupMenu from '../ui/PopupMenu'
 const styles = theme => ({
   menuList: {
     padding: `${theme.spacing(1.5)}px 0`
-  },
-  button: {},
-  icon: {}
+  }
 })
 
 export const MenuAction = ({

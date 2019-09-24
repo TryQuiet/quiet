@@ -4,8 +4,7 @@ import * as R from 'ramda'
 
 import { withStyles } from '@material-ui/core/styles'
 
-import MoreHorizIcon from '@material-ui/icons/MoreHoriz'
-
+import dotsIcon from '../../../static/images/zcash/dots-icon.svg'
 import IconButton from '../../ui/IconButton'
 import MenuAction from '../../ui/MenuAction'
 import MenuActionItem from '../../ui/MenuActionItem'
@@ -20,6 +19,10 @@ const styles = theme => ({
   },
   menuList: {
     padding: `${theme.spacing(1.5)}px 0`
+  },
+  icon: {
+    width: 30,
+    height: 30
   }
 })
 
@@ -29,7 +32,8 @@ export const ChannelMenuAction = ({ classes, onInfo, onMute, onDelete }) => (
       button: classes.button,
       icon: classes.icon
     }}
-    Icon={MoreHorizIcon}
+    icon={dotsIcon}
+    iconHover={dotsIcon}
     IconButton={IconButton}
     offset='0 8'
   >

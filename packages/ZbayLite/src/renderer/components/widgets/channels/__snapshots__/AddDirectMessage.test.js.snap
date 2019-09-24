@@ -3,18 +3,6 @@
 exports[`AddDirectMessage renders component 1`] = `
 <Fragment>
   <WithStyles(MenuAction)
-    Icon={
-      Object {
-        "$$typeof": Symbol(react.memo),
-        "compare": null,
-        "displayName": "AddIcon",
-        "muiName": "SvgIcon",
-        "type": Object {
-          "$$typeof": Symbol(react.forward_ref),
-          "render": [Function],
-        },
-      }
-    }
     IconButton={
       Object {
         "$$typeof": Symbol(react.forward_ref),
@@ -315,6 +303,8 @@ exports[`AddDirectMessage renders component 1`] = `
         "icon": "icon-mock",
       }
     }
+    icon="test-file-stub"
+    iconHover="test-file-stub"
     offset="0 8"
   />
 </Fragment>

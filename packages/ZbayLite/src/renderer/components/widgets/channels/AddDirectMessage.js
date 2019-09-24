@@ -4,20 +4,21 @@ import * as R from 'ramda'
 import IconButton from '@material-ui/core/IconButton'
 import { withStyles } from '@material-ui/core/styles'
 
-import AddIcon from '@material-ui/icons/Add'
-
 import MenuAction from '../../ui/MenuAction'
+import addIcon from '../../../static/images/zcash/add-icon.svg'
 
 const styles = theme => ({
   icon: {
-    fontSize: 26,
-    color: theme.palette.colors.white,
-    backgroundColor: 'rgb(0,0,0,0.26)',
-    borderRadius: 19
+    width: 15,
+    height: 15
   },
   button: {
+    width: 25,
+    height: 25,
     padding: 4,
-    color: theme.typography.body2.color
+    color: theme.typography.body2.color,
+    backgroundColor: 'rgb(0,0,0,0.26)',
+    borderRadius: '50%'
   }
 })
 
@@ -29,7 +30,8 @@ export const AddDirectMessage = ({ classes, openModal }) => {
           button: classes.button,
           icon: classes.icon
         }}
-        Icon={AddIcon}
+        icon={addIcon}
+        iconHover={addIcon}
         IconButton={IconButton}
         offset='0 8'
         onClick={openModal}
