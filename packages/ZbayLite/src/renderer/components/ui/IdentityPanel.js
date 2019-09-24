@@ -16,7 +16,8 @@ import SettingsModal from '../../containers/widgets/settings/SettingsModal'
 
 const styles = theme => ({
   root: {
-    padding: `${theme.spacing(1)}px ${theme.spacing(2)}px`
+    padding: `${theme.spacing(1)}px ${theme.spacing(2)}px`,
+    marginTop: process.platform === 'darwin' && theme.spacing(1.5)
   },
   name: {
     lineHeight: 1.2
@@ -35,7 +36,13 @@ export const IdentityPanel = ({ classes, identity, handleSettings }) => {
   const zbayUri = getZbayAddress(identity.address)
   return (
     <React.Fragment>
-      <Grid container className={classes.root} direction='row' justify='space-between' alignItems='center'>
+      <Grid
+        container
+        className={classes.root}
+        direction='row'
+        justify='space-between'
+        alignItems='center'
+      >
         <Grid item>
           <Grid container direction='column'>
             <Typography variant='subtitle1' className={classes.name}>
