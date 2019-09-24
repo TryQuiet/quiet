@@ -13,6 +13,7 @@ import ChannelTransferMessage from '../../../containers/widgets/channels/Channel
 
 const styles = theme => ({
   list: {
+    backgroundColor: theme.palette.colors.white,
     padding: '0 8px',
     width: '100%'
   }

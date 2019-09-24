@@ -1,7 +1,13 @@
+import '../renderer/fonts/app.scss'
 import { createMuiTheme } from '@material-ui/core/styles'
+
+const font = "'Rubik', sans-serif"
 
 export default createMuiTheme({
   typography: {
+    fontFamily: [
+      font
+    ].join(','),
     useNextVariants: true,
     caption: {
       color: '#b2b2b2',
@@ -27,7 +33,8 @@ export default createMuiTheme({
       trueBlack: '#000000',
       zbayBlue: '#521c74',
       darkGray: '#7F7F7F',
-      lushSky: '#67BFD3'
+      lushSky: '#67BFD3',
+      lightGray: '#B2B2B2'
     }
   },
   overrides: {

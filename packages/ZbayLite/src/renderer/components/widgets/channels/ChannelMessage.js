@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import * as R from 'ramda'
 
+import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import Collapse from '@material-ui/core/Collapse'
 import { withStyles } from '@material-ui/core/styles'
@@ -12,10 +13,16 @@ import BasicMessage from './BasicMessage'
 
 const styles = theme => ({
   message: {
-    fontSize: '0.855rem',
+    fontSize: 14,
+    letterSpacing: 0.4,
+    lineHeight: '24px',
     marginTop: theme.spacing(1),
     whiteSpace: 'pre-line',
     wordBreak: 'break-word'
+  },
+  messageInput: {
+    marginTop: -25,
+    marginLeft: 50
   }
 })
 
@@ -26,7 +33,7 @@ export const ChannelMessage = ({ classes, message, onResend, onReply, onCancel }
 
   return (
     <BasicMessage message={message} actionsOpen={actionsOpen} setActionsOpen={setActionsOpen}>
-      <React.Fragment>
+      <Grid className={classes.messageInput} item>
         <Typography variant='body2' className={classes.message}>
           {message.get('message')}
         </Typography>
@@ -39,7 +46,7 @@ export const ChannelMessage = ({ classes, message, onResend, onReply, onCancel }
             status={status}
           />
         </Collapse>
-      </React.Fragment>
+      </Grid>
     </BasicMessage>
   )
 }

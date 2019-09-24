@@ -9,11 +9,9 @@ import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
-import CircularProgress from '@material-ui/core/CircularProgress'
 import { withStyles } from '@material-ui/core/styles'
 
 import red from '@material-ui/core/colors/red'
-import lightGreen from '@material-ui/core/colors/lightGreen'
 
 import DoneIcon from '@material-ui/icons/Done'
 import DoneAllIcon from '@material-ui/icons/DoneAll'
@@ -21,7 +19,6 @@ import ErrorIcon from '@material-ui/icons/ErrorOutline'
 import BlockIcon from '@material-ui/icons/Block'
 
 import SendMessagePopover from '../../../containers/widgets/channels/SendMessagePopover'
-import { getZbayAddress } from '../../../zbay/channels'
 import { _DisplayableMessage } from '../../../zbay/messages'
 import Elipsis from '../../ui/Elipsis'
 
@@ -30,20 +27,19 @@ const styles = theme => ({
     padding: 0
   },
   wrapper: {
-    marginBottom: theme.spacing(1),
-    borderRadius: 2,
-    boxShadow: '0 0 20px 0 rgba(0, 0, 0, 0.08)',
-    backgroundColor: '#ffffff'
+    backgroundColor: theme.palette.colors.white
   },
   clickable: {
     cursor: 'pointer'
   },
   wrapperPending: {
-    background: '#eeeeee'
+    background: theme.palette.colors.white
   },
   username: {
-    fontSize: '0.855rem',
-    marginTop: -4
+    fontSize: 16,
+    fontWeight: 500,
+    marginTop: -4,
+    marginRight: 5
   },
   message: {
     fontSize: '0.855rem',
@@ -51,12 +47,12 @@ const styles = theme => ({
     whiteSpace: 'pre-line'
   },
   statusIcon: {
-    color: theme.typography.caption.color,
-    fontSize: '0.95rem',
+    color: theme.palette.colors.lightGray,
+    fontSize: 21,
     marginLeft: theme.spacing(1)
   },
   broadcasted: {
-    color: lightGreen[600]
+    color: theme.palette.colors.lightGray
   },
   failed: {
     color: red[500]
@@ -64,7 +60,6 @@ const styles = theme => ({
   avatar: {
     maxHeight: 44,
     maxWidth: 44,
-    borderRadius: '50%',
     overflow: 'hidden',
     display: 'flex',
     alignItems: 'center',
@@ -77,12 +72,21 @@ const styles = theme => ({
   },
   pointer: {
     cursor: 'pointer'
+  },
+  time: {
+    color: theme.palette.colors.lightGray,
+    fontSize: 16,
+    marginTop: -4,
+    marginRight: 5
+  },
+  iconBox: {
+    marginTop: -4
   }
 })
 
 const statusComponent = {
   broadcasted: DoneAllIcon,
-  pending: props => <CircularProgress size={12} {...props} />,
+  pending: DoneIcon,
   success: DoneIcon,
   failed: ErrorIcon,
   cancelled: BlockIcon
@@ -108,7 +112,6 @@ export const BasicMessage = ({ classes, message, children, actionsOpen, setActio
   const sender = message.sender
   const isUnregistered = message.isUnregistered
   const username = sender.username.substring(0, 20) || 'Unnamed'
-  const address = getZbayAddress(message.sender.replyTo)
   const time = DateTime.fromSeconds(message.createdAt)
   const timeFormat = getTimeFormat(time)
   const timeString = time.toFormat(timeFormat)
@@ -129,27 +132,24 @@ export const BasicMessage = ({ classes, message, children, actionsOpen, setActio
         disableTypography
         className={classes.messageCard}
         primary={
-          <Grid container direction='row' justify='space-between' alignItems='flex-start'>
-            <Grid item>
-              <SendMessagePopover username={username} address={message.sender.replyTo} anchorEl={anchorEl} handleClose={handleClose} isUnregistered={isUnregistered} />
-              <Grid container className={classes.pointer} alignItems='center' onClick={handleClick}>
-                <Grid item xs='auto' className={classes.avatar}>
-                  <span className={classes.alignAvatar}>
-                    <Jdenticon size='55' value={username} />
-                  </span>
-                </Grid>
-                <Grid item xs='auto'>
-                  <Typography color='textPrimary' className={classes.username}>
-                    {username}
-                    {fromYou ? ' (You)' : null}
-                  </Typography>
-                  <Typography variant='caption'>{address.substring(0, 32)}...</Typography>
-                </Grid>
-              </Grid>
+          <Grid container direction='row' justify='flex-start' alignItems='flex-start' wrap={'nowrap'}>
+            <SendMessagePopover username={username} address={message.sender.replyTo} anchorEl={anchorEl} handleClose={handleClose} isUnregistered={isUnregistered} />
+            <Grid item className={classes.avatar}>
+              <span className={classes.alignAvatar}>
+                <Jdenticon size='55' value={username} />
+              </span>
             </Grid>
-            <Grid item>
-              <Grid container direction='row' alignItems='center' justify='flex-end'>
-                <Typography variant='caption'>{timeString}</Typography>
+            <Grid container item xs='auto' className={classes.pointer} alignItems='flex-start' wrap='nowrap' onClick={handleClick}>
+              <Grid item>
+                <Typography color='textPrimary' className={classes.username}>
+                  {username}
+                  {fromYou ? ' (You)' : null}
+                </Typography>
+              </Grid>
+              <Grid item>
+                <Typography className={classes.time}>{timeString}</Typography>
+              </Grid>
+              <Grid className={classes.iconBox} item>
                 <StatusIcon
                   className={classNames({
                     [classes.statusIcon]: true,
@@ -157,16 +157,16 @@ export const BasicMessage = ({ classes, message, children, actionsOpen, setActio
                     [classes.broadcasted]: status === 'broadcasted'
                   })}
                 />
+                {status === 'failed' ? (
+                  <Elipsis
+                    interactive
+                    content={`Error ${error.code}: ${error.message}`}
+                    tooltipPlacement='top'
+                    length={60}
+                    classes={{ content: classes.failed }}
+                  />
+                ) : null}
               </Grid>
-              {status === 'failed' ? (
-                <Elipsis
-                  interactive
-                  content={`Error ${error.code}: ${error.message}`}
-                  tooltipPlacement='bottom'
-                  length={60}
-                  classes={{ content: classes.failed }}
-                />
-              ) : null}
             </Grid>
           </Grid>
         }

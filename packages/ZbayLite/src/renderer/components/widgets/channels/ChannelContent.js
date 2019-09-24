@@ -9,12 +9,12 @@ import { withContentRect } from 'react-measure'
 
 import ChannelMessages from '../../../containers/widgets/channels/ChannelMessages'
 
-const styles = {
+const styles = theme => ({
   fullHeight: {
     height: '100%',
-    backgroundImage: 'linear-gradient(318deg, #ffffff, #eae5ed)'
+    backgroundColor: theme.palette.colors.white
   }
-}
+})
 
 // TODO: filter by spent
 export const ChannelContent = ({
