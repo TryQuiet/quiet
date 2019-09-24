@@ -6,6 +6,7 @@ import MenuList from '@material-ui/core/MenuList'
 import IconButton from '@material-ui/core/IconButton'
 import { withStyles } from '@material-ui/core/styles'
 
+import Icon from './Icon'
 import PopupMenu from '../ui/PopupMenu'
 
 const styles = theme => ({
@@ -19,7 +20,8 @@ const styles = theme => ({
 export const MenuAction = ({
   classes,
   IconButton,
-  Icon,
+  icon,
+  iconHover,
   children,
   offset,
   disabled,
@@ -27,6 +29,8 @@ export const MenuAction = ({
   placement
 }) => {
   const [open, setOpen] = useState(false)
+  const [hover, setHover] = useState(false)
+  const toggleHover = () => setHover(!hover)
   const [anchor, setAnchor] = useState(React.createRef())
   const closeMenu = () => setOpen(false)
   const toggleMenu = () => setOpen(!open)
@@ -38,15 +42,15 @@ export const MenuAction = ({
         onClick={onClick || toggleMenu}
         disabled={disabled}
         disableRipple
+        onMouseEnter={toggleHover}
+        onMouseLeave={toggleHover}
       >
-        <Icon className={classes.icon} fontSize='inherit' />
+        <Icon className={classes.icon} fontSize='inherit' src={hover ? iconHover : icon} />
       </IconButton>
       <PopupMenu open={open} anchorEl={anchor} offset={offset} placement={placement}>
         <ClickAwayListener onClickAway={closeMenu}>
           <MenuList className={classes.menuList}>
-            {React.Children.map(children, child =>
-              React.cloneElement(child, { close: closeMenu })
-            )}
+            {React.Children.map(children, child => React.cloneElement(child, { close: closeMenu }))}
           </MenuList>
         </ClickAwayListener>
       </PopupMenu>
@@ -57,7 +61,8 @@ export const MenuAction = ({
 MenuAction.propTypes = {
   classes: PropTypes.object.isRequired,
   IconButton: PropTypes.elementType.isRequired,
-  Icon: PropTypes.elementType.isRequired,
+  icon: PropTypes.string.isRequired,
+  iconHover: PropTypes.string.isRequired,
   children: PropTypes.arrayOf(PropTypes.element),
   offset: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   disabled: PropTypes.bool.isRequired,

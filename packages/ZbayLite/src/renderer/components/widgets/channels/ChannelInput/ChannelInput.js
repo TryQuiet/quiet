@@ -8,9 +8,8 @@ import Fade from '@material-ui/core/Fade'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
-
 import WarningIcon from '@material-ui/icons/Warning'
-
+import { InputAdornment } from '@material-ui/core'
 import orange from '@material-ui/core/colors/orange'
 
 import ChannelInputAction from '../../../../containers/widgets/channels/ChannelInputAction'
@@ -26,16 +25,14 @@ const styles = theme => ({
     to: { opacity: 1 }
   },
   input: {
-    fontSize: 15
+    fontSize: 14
   },
   inputsDiv: {
-    padding: `18px ${theme.spacing(2)}px`,
+    paddingLeft: `18px`,
+    paddingRight: `18px`,
+    paddingBottom: `18px`,
     width: '100%',
     margin: '0px'
-  },
-  textField: {
-    height: '2.8rem',
-    backgroundColor: theme.palette.colors.gray
   },
   warningIcon: {
     color: orange[500]
@@ -102,7 +99,7 @@ export const ChannelInput = ({
         direction='row'
         alignItems='center'
         justify='center'
-        spacing={2}
+        spacing={0}
         className={classes.inputsDiv}
       >
         <Grid item xs>
@@ -114,6 +111,8 @@ export const ChannelInput = ({
             margin='none'
             variant='outlined'
             placeholder='Send a message'
+            multiline
+            rowsMax={5}
             value={message}
             onKeyPress={e => {
               if (inputState === INPUT_STATE.AVAILABLE) {
@@ -133,14 +132,13 @@ export const ChannelInput = ({
               className: classes.input
             }}
             InputProps={{
-              classes: {
-                root: classes.textField
-              }
+              endAdornment: (
+                <InputAdornment position='end'>
+                  <ChannelInputAction disabled={inputState !== INPUT_STATE.AVAILABLE} />
+                </InputAdornment>
+              )
             }}
           />
-        </Grid>
-        <Grid item>
-          <ChannelInputAction disabled={inputState !== INPUT_STATE.AVAILABLE} />
         </Grid>
       </Grid>
     </Grid>

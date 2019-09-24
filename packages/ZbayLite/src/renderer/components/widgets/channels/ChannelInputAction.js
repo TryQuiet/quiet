@@ -3,7 +3,8 @@ import PropTypes from 'prop-types'
 import * as R from 'ramda'
 
 import { withStyles } from '@material-ui/core/styles'
-import icon from '../../ui/assets/plusIcon.png'
+import iconHover from '../../../static/images/zcash/plus-icon.svg'
+import icon from '../../../static/images/zcash/plus-icon-gray.svg'
 import MenuAction from '../../ui/MenuAction'
 import MenuActionItem from '../../ui/MenuActionItem'
 
@@ -13,11 +14,10 @@ const styles = theme => ({
     padding: 2
   },
   icon: {
-    width: 40,
-    height: 40
+    width: 28,
+    height: 28
   }
 })
-const Icon = ({ className }) => <img className={className} src={icon} />
 export const ChannelInputAction = ({ classes, onPostOffer, onSendMoney, disabled }) => {
   return (
     <MenuAction
@@ -25,7 +25,8 @@ export const ChannelInputAction = ({ classes, onPostOffer, onSendMoney, disabled
         button: classes.button,
         icon: classes.icon
       }}
-      Icon={Icon}
+      icon={icon}
+      iconHover={iconHover}
       offset='-10 12'
       disabled={disabled}
       placement='top-end'

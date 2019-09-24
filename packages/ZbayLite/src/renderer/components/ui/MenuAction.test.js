@@ -7,9 +7,10 @@ import MenuActionItem from './MenuActionItem'
 
 describe('MenuAction', () => {
   it('renders component', () => {
-    const Icon = () => (<div>Icon</div>)
+    const icon = 'icon'
+    const iconHover = 'iconHover'
     const result = shallow(
-      <MenuAction classes={mockClasses} Icon={Icon}>
+      <MenuAction classes={mockClasses} icon={icon} iconHover={iconHover}>
         <MenuActionItem onClick={jest.fn()} title='test' />
         <MenuActionItem onClick={jest.fn()} title='test 2' />
       </MenuAction>
@@ -18,12 +19,14 @@ describe('MenuAction', () => {
   })
 
   it('renders with optional props', () => {
-    const Icon = () => (<div>Icon</div>)
-    const IconButton = () => (<div>IconButton</div>)
+    const icon = 'icon'
+    const iconHover = 'iconHover'
+    const IconButton = () => <div>IconButton</div>
     const result = shallow(
       <MenuAction
         classes={mockClasses}
-        Icon={Icon}
+        icon={icon}
+        iconHover={iconHover}
         IconButton={IconButton}
         offset='0 20'
       >

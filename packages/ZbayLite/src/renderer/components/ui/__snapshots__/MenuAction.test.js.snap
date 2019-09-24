@@ -8,10 +8,13 @@ exports[`MenuAction renders component 1`] = `
     disableRipple={true}
     disabled={false}
     onClick={[Function]}
+    onMouseEnter={[Function]}
+    onMouseLeave={[Function]}
   >
-    <Icon
+    <Memo(Icon)
       className="icon-mock"
       fontSize="inherit"
+      src="icon"
     />
   </WithStyles(ForwardRef(IconButton))>
   <Memo(WithStyles(PopupMenu))
@@ -54,10 +57,13 @@ exports[`MenuAction renders with optional props 1`] = `
     disableRipple={true}
     disabled={false}
     onClick={[Function]}
+    onMouseEnter={[Function]}
+    onMouseLeave={[Function]}
   >
-    <Icon
+    <Memo(Icon)
       className="icon-mock"
       fontSize="inherit"
+      src="icon"
     />
   </IconButton>
   <Memo(WithStyles(PopupMenu))

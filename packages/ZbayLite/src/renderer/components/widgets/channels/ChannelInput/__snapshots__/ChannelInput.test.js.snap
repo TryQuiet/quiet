@@ -34,7 +34,7 @@ exports[`ChannelInput renders component input Disable  1`] = `
     container={true}
     direction="row"
     justify="center"
-    spacing={2}
+    spacing={0}
   >
     <WithStyles(ForwardRef(Grid))
       item={true}
@@ -43,9 +43,13 @@ exports[`ChannelInput renders component input Disable  1`] = `
       <WithStyles(ForwardRef(TextField))
         InputProps={
           Object {
-            "classes": Object {
-              "root": "textField-mock",
-            },
+            "endAdornment": <ForwardRef(WithStyles)
+              position="end"
+            >
+              <Connect(Component)
+                disabled={true}
+              />
+            </ForwardRef(WithStyles)>,
           }
         }
         autoFocus={true}
@@ -62,18 +66,13 @@ exports[`ChannelInput renders component input Disable  1`] = `
           }
         }
         margin="none"
+        multiline={true}
         onChange={[MockFunction]}
         onKeyPress={[Function]}
         placeholder="Send a message"
+        rowsMax={5}
         value="this is just a test message"
         variant="outlined"
-      />
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      item={true}
-    >
-      <Connect(Component)
-        disabled={true}
       />
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
@@ -114,7 +113,7 @@ exports[`ChannelInput renders component input Locked  1`] = `
     container={true}
     direction="row"
     justify="center"
-    spacing={2}
+    spacing={0}
   >
     <WithStyles(ForwardRef(Grid))
       item={true}
@@ -123,9 +122,13 @@ exports[`ChannelInput renders component input Locked  1`] = `
       <WithStyles(ForwardRef(TextField))
         InputProps={
           Object {
-            "classes": Object {
-              "root": "textField-mock",
-            },
+            "endAdornment": <ForwardRef(WithStyles)
+              position="end"
+            >
+              <Connect(Component)
+                disabled={true}
+              />
+            </ForwardRef(WithStyles)>,
           }
         }
         autoFocus={true}
@@ -142,18 +145,13 @@ exports[`ChannelInput renders component input Locked  1`] = `
           }
         }
         margin="none"
+        multiline={true}
         onChange={[MockFunction]}
         onKeyPress={[Function]}
         placeholder="Send a message"
+        rowsMax={5}
         value="this is just a test message"
         variant="outlined"
-      />
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      item={true}
-    >
-      <Connect(Component)
-        disabled={true}
       />
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
@@ -173,7 +171,7 @@ exports[`ChannelInput renders component input available  1`] = `
     container={true}
     direction="row"
     justify="center"
-    spacing={2}
+    spacing={0}
   >
     <WithStyles(ForwardRef(Grid))
       item={true}
@@ -182,9 +180,13 @@ exports[`ChannelInput renders component input available  1`] = `
       <WithStyles(ForwardRef(TextField))
         InputProps={
           Object {
-            "classes": Object {
-              "root": "textField-mock",
-            },
+            "endAdornment": <ForwardRef(WithStyles)
+              position="end"
+            >
+              <Connect(Component)
+                disabled={false}
+              />
+            </ForwardRef(WithStyles)>,
           }
         }
         autoFocus={true}
@@ -201,18 +203,13 @@ exports[`ChannelInput renders component input available  1`] = `
           }
         }
         margin="none"
+        multiline={true}
         onChange={[MockFunction]}
         onKeyPress={[Function]}
         placeholder="Send a message"
+        rowsMax={5}
         value="this is just a test message"
         variant="outlined"
-      />
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      item={true}
-    >
-      <Connect(Component)
-        disabled={false}
       />
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>

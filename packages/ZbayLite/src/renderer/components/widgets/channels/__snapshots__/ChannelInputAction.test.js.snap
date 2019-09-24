@@ -2,7 +2,6 @@
 
 exports[`ChannelInputAction renders component 1`] = `
 <WithStyles(MenuAction)
-  Icon={[Function]}
   classes={
     Object {
       "button": "button-mock",
@@ -10,6 +9,8 @@ exports[`ChannelInputAction renders component 1`] = `
     }
   }
   disabled={false}
+  icon="test-file-stub"
+  iconHover="test-file-stub"
   offset="-10 12"
   placement="top-end"
 >

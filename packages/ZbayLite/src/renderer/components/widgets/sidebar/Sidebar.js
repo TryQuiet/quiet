@@ -14,12 +14,11 @@ const styles = theme => ({
   root: {
     minHeight: '100%',
     width: '350px',
-    background: '#fff',
-    borderRight: 'solid #e8e8e8 1px',
+    background: theme.palette.colors.white,
     paddingBottom: '55px',
     position: 'relative',
     backgroundImage: 'linear-gradient(-44deg, #521576 6%, #E42656 100%)',
-    color: 'white'
+    color: theme.palette.colors.white
   },
   gutterBottom: {
     marginBottom: theme.spacing(4)
