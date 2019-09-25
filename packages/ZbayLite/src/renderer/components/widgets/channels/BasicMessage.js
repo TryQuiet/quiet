@@ -108,7 +108,6 @@ export const BasicMessage = ({ classes, message, children, actionsOpen, setActio
   const [anchorEl, setAnchorEl] = React.useState(null)
   const handleClick = (event) => setAnchorEl(event.currentTarget)
   const handleClose = () => setAnchorEl(null)
-  const fromYou = message.fromYou || false
   const sender = message.sender
   const isUnregistered = message.isUnregistered
   const username = sender.username.substring(0, 20) || 'Unnamed'
@@ -143,7 +142,6 @@ export const BasicMessage = ({ classes, message, children, actionsOpen, setActio
               <Grid item>
                 <Typography color='textPrimary' className={classes.username}>
                   {username}
-                  {fromYou ? ' (You)' : null}
                 </Typography>
               </Grid>
               <Grid item>

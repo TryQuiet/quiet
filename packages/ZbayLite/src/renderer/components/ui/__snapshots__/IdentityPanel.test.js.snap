@@ -21,7 +21,6 @@ exports[`IdentityPanel renders component 1`] = `
           variant="subtitle1"
         >
           Saturn
-           (you)
         </WithStyles(ForwardRef(Typography))>
         <Elipsis
           classes={

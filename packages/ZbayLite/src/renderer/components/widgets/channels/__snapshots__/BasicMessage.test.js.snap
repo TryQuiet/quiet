@@ -132,7 +132,6 @@ exports[`BasicMessage renders component when message is sent by owner 1`] = `
               color="textPrimary"
             >
               Unnamed
-               (You)
             </ForwardRef(WithStyles)>
           </ForwardRef(WithStyles)>
           <ForwardRef(WithStyles)
