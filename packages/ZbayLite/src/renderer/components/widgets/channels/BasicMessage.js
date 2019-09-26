@@ -95,13 +95,18 @@ const statusComponent = {
 const getTimeFormat = time => {
   const today = DateTime.utc()
   if (time.hasSame(today, 'day')) {
-    return 'T'
+    return 't'
   } else if (time.hasSame(today, 'week')) {
-    return 'ccc, HH:mm'
+    return 'ccc, t'
   } else if (time.hasSame(today, 'year')) {
-    return 'LLL dd, HH:mm'
+    return 'LLL dd, t'
   }
-  return 'LLL dd, y, HH:mm'
+  return 'LLL dd, y, t'
+}
+
+const transformToLowercase = string => {
+  const hasPM = string.search('PM')
+  return hasPM !== -1 ? string.replace('PM', 'pm') : string.replace('AM', 'am')
 }
 
 export const BasicMessage = ({ classes, message, children, actionsOpen, setActionsOpen }) => {
@@ -113,7 +118,7 @@ export const BasicMessage = ({ classes, message, children, actionsOpen, setActio
   const username = sender.username.substring(0, 20) || 'Unnamed'
   const time = DateTime.fromSeconds(message.createdAt)
   const timeFormat = getTimeFormat(time)
-  const timeString = time.toFormat(timeFormat)
+  const timeString = transformToLowercase(time.toFormat(timeFormat))
 
   const status = message.status || 'broadcasted'
   const StatusIcon = statusComponent[status]
