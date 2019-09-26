@@ -23,22 +23,8 @@ exports[`ChannelHeader renders component 1`] = `
     className="actions-mock"
     container={true}
     item={true}
-    justify="space-between"
+    justify="flex-end"
   >
-    <WithStyles(ForwardRef(Grid))
-      item={true}
-    >
-      <Memo(WithStyles(SpentFilterAction)) />
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      item={true}
-    >
-      <Memo(WithStyles(IconButton))
-        className="iconButton-mock"
-      >
-        <SearchIcon />
-      </Memo(WithStyles(IconButton))>
-    </WithStyles(ForwardRef(Grid))>
     <WithStyles(ForwardRef(Grid))
       item={true}
     >
@@ -79,22 +65,8 @@ exports[`ChannelHeader renders members when 0 1`] = `
     className="actions-mock"
     container={true}
     item={true}
-    justify="space-between"
+    justify="flex-end"
   >
-    <WithStyles(ForwardRef(Grid))
-      item={true}
-    >
-      <Memo(WithStyles(SpentFilterAction)) />
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      item={true}
-    >
-      <Memo(WithStyles(IconButton))
-        className="iconButton-mock"
-      >
-        <SearchIcon />
-      </Memo(WithStyles(IconButton))>
-    </WithStyles(ForwardRef(Grid))>
     <WithStyles(ForwardRef(Grid))
       item={true}
     >
@@ -135,22 +107,8 @@ exports[`ChannelHeader renders without members count 1`] = `
     className="actions-mock"
     container={true}
     item={true}
-    justify="space-between"
+    justify="flex-end"
   >
-    <WithStyles(ForwardRef(Grid))
-      item={true}
-    >
-      <Memo(WithStyles(SpentFilterAction)) />
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      item={true}
-    >
-      <Memo(WithStyles(IconButton))
-        className="iconButton-mock"
-      >
-        <SearchIcon />
-      </Memo(WithStyles(IconButton))>
-    </WithStyles(ForwardRef(Grid))>
     <WithStyles(ForwardRef(Grid))
       item={true}
     >

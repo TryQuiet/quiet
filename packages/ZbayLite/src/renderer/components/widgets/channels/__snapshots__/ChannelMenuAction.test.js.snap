@@ -285,12 +285,6 @@ exports[`ChannelMenuAction renders component 1`] = `
       },
     }
   }
-  classes={
-    Object {
-      "button": "button-mock",
-      "icon": "icon-mock",
-    }
-  }
   icon="test-file-stub"
   iconHover="test-file-stub"
   offset="0 8"

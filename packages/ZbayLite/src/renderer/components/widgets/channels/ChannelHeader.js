@@ -7,18 +7,17 @@ import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
 
-import SearchIcon from '@material-ui/icons/Search'
-
 import ChannelMenuAction from '../../../containers/widgets/channels/ChannelMenuAction'
 import ChannelInfoModal from '../../../containers/widgets/channels/ChannelInfoModal'
 import DirectMessagesInfoModal from '../../../containers/widgets/channels/DirectMessagesInfoModal'
-import SpentFilterAction from './SpentFilterAction'
-import IconButton from '../../ui/IconButton'
 
 const styles = theme => ({
   root: {
     minHeight: '100%',
-    padding: theme.spacing(2)
+    paddingTop: 16,
+    paddingBottom: 36,
+    paddingLeft: 20,
+    paddingRight: 24
   },
   title: {
     fontSize: '1rem',
@@ -29,9 +28,6 @@ const styles = theme => ({
   },
   spendButton: {
     fontSize: 13
-  },
-  iconButton: {
-    padding: 6
   },
   actions: {
     width: 180
@@ -57,15 +53,7 @@ export const ChannelHeader = ({ classes, channel, directMessage, members }) => (
         </Typography>
       ) : null}
     </Grid>
-    <Grid item container className={classes.actions} justify='space-between' alignItems='center'>
-      <Grid item>
-        <SpentFilterAction />
-      </Grid>
-      <Grid item>
-        <IconButton className={classes.iconButton}>
-          <SearchIcon />
-        </IconButton>
-      </Grid>
+    <Grid item container className={classes.actions} justify='flex-end' alignItems='center'>
       <Grid item>
         <ChannelMenuAction />
         {directMessage ? <DirectMessagesInfoModal /> : <ChannelInfoModal />}

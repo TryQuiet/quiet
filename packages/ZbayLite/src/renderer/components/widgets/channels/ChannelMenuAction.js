@@ -10,13 +10,6 @@ import MenuAction from '../../ui/MenuAction'
 import MenuActionItem from '../../ui/MenuActionItem'
 
 const styles = theme => ({
-  menuItem: {
-    height: 8,
-    width: 80,
-    paddingLeft: theme.spacing(2.5),
-    paddingRight: theme.spacing(2.5),
-    fontSize: '0.75rem'
-  },
   menuList: {
     padding: `${theme.spacing(1.5)}px 0`
   },
@@ -28,10 +21,6 @@ const styles = theme => ({
 
 export const ChannelMenuAction = ({ classes, onInfo, onMute, onDelete }) => (
   <MenuAction
-    classes={{
-      button: classes.button,
-      icon: classes.icon
-    }}
     icon={dotsIcon}
     iconHover={dotsIcon}
     IconButton={IconButton}

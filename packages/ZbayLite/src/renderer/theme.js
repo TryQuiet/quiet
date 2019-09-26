@@ -34,7 +34,8 @@ export default createMuiTheme({
       zbayBlue: '#521c74',
       darkGray: '#7F7F7F',
       lushSky: '#67BFD3',
-      lightGray: '#B2B2B2'
+      lightGray: '#B2B2B2',
+      veryLightGray: '#F0F0F0'
     }
   },
   overrides: {

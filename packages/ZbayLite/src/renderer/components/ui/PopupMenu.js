@@ -14,11 +14,11 @@ const constants = {
 
 const styles = theme => ({
   wrapper: {
-    filter: 'drop-shadow(0 0 14px #aaaaaa)'
   },
   paper: {
     background: theme.palette.background.default,
-    boxShadow: 'none'
+    boxShadow: '0px 2px 25px rgba(0, 0, 0, 0.2)',
+    borderRadius: 8
   },
   arrow: {
     opacity: 1,
@@ -92,7 +92,6 @@ export const PopupMenu = ({ open, anchorEl, classes, children, className, offset
               </Paper>
               <span
                 className={classNames({
-                  [classes.arrow]: true,
                   [classes[R.split('-', placement)[0]]]: true
                 })}
                 ref={setArrowRef}

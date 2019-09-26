@@ -6,14 +6,16 @@ import { withStyles } from '@material-ui/core/styles'
 
 const styles = theme => ({
   root: {
-    height: 8,
-    paddingLeft: theme.spacing(2.5),
-    paddingRight: theme.spacing(2.5),
-    fontSize: '0.75rem'
+    minHeight: 25,
+    margin: 0,
+    fontSize: 14,
+    letterSpacing: 0.4,
+    paddingTop: 5,
+    paddingBottom: 5
   }
 })
 
-export const MenuActionItem = ({ classes, onClick, title, close }) => {
+export const MenuActionItem = ({ classes, className, onClick, title, close }) => {
   return (
     <MuiMenuItem
       onClick={e => {

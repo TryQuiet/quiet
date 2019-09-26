@@ -6,16 +6,15 @@ import { withStyles } from '@material-ui/core/styles'
 
 import constants from './constants'
 
-const styles = {
+const styles = (theme) => ({
   root: {
-    background: '#fff',
+    background: theme.palette.colors.white,
     height: constants.headerHeight,
+    borderBottom: `1px solid ${theme.palette.colors.veryLightGray}`,
     order: -1,
-    borderBottom: 'solid #cbcbcb 2px',
-    boxShadow: '0 2px 20px 0 rgba(0, 0, 0, 0.15)',
     zIndex: 10
   }
-}
+})
 
 export const PageHeader = ({ classes, children }) => (
   <Grid item className={classes.root}>
