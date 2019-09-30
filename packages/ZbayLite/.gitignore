@@ -24,6 +24,9 @@ composer.lock
 */node_modules
 *.log
 /lib
+zcash/darwin
+zcash/linux
+zcash/win32
 tmp
 .changelog
 coverage/
