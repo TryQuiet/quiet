@@ -13,10 +13,6 @@ import ChannelContent from '../../containers/widgets/channels/ChannelContent'
 
 const styles = {
   root: {},
-  input: {
-    boxShadow: '0 2px 15px 10px rgba(0, 0, 0, 0.07)',
-    zIndex: 10
-  },
   messages: {
     height: 0 // It seems like flexGrow breaks if we dont set some default height
   }
@@ -31,7 +27,7 @@ export const Channel = ({ classes, contactId }) => {
       <Grid item xs className={classes.messages}>
         <ChannelContent contactId={contactId} />
       </Grid>
-      <Grid item className={classes.input}>
+      <Grid item>
         <ChannelInput contactId={contactId} />
       </Grid>
     </Page>

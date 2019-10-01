@@ -4,7 +4,7 @@ import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
 import * as R from 'ramda'
 
-import channelSelectors, { INPUT_STATE } from './channel'
+import channelSelectors, { INPUT_STATE, mergeIntoOne } from './channel'
 import { operationTypes, PendingMessageOp, Operation } from '../handlers/operations'
 import create from '../create'
 import { ChannelState } from '../handlers/channel'
@@ -15,6 +15,7 @@ import { ReceivedMessage, ChannelMessages } from '../handlers/messages'
 import { createMessage, createChannel, now, createReceivedMessage } from '../../testUtils'
 import { LoaderState } from '../handlers/utils'
 import { NodeState } from '../handlers/node'
+import { receivedToDisplayableMessage } from '../../zbay/messages'
 
 const channelId = 'this-is-a-test-id'
 
@@ -192,6 +193,216 @@ describe('Channel selector', () => {
         })
       })
       expect(channelSelectors.inputLocked(store.getState())).toEqual(INPUT_STATE.AVAILABLE)
+    })
+  })
+
+  describe('mergeMessages', () => {
+    it('merge messages', () => {
+      const messages = [{
+        message: {
+          createdAt: 1567683647,
+          id: 'test-1',
+          type: 1,
+          message: 'test-1',
+          sender: {
+            replyTo: '',
+            username: 'test123'
+          },
+          receiver: {
+            replyTo: '',
+            username: 'test123'
+          },
+          status: 'succes'
+        },
+        identityAddress: 'zs0123'
+      },
+      {
+        message: {
+          createdAt: 1567683757,
+          id: 'test-2',
+          type: 1,
+          message: 'test-2',
+          sender: {
+            replyTo: '',
+            username: 'test123'
+          },
+          receiver: {
+            replyTo: '',
+            username: 'test123'
+          },
+          status: 'success'
+        },
+        identityAddress: 'zs0123'
+      }]
+
+      const displayableMessages = messages.map(msg => receivedToDisplayableMessage(msg))
+      const merged = mergeIntoOne(displayableMessages)
+      expect(merged).toMatchSnapshot()
+    })
+
+    it('should not merge messages if time window is exceeded', () => {
+      const messages = [{
+        message: {
+          createdAt: 1567683647,
+          id: 'test-1',
+          type: 1,
+          message: 'test-1',
+          sender: {
+            replyTo: '',
+            username: 'test123'
+          },
+          receiver: {
+            replyTo: '',
+            username: 'test123'
+          },
+          status: 'succes'
+        },
+        identityAddress: 'zs0123'
+      },
+      {
+        message: {
+          createdAt: 1567683987,
+          id: 'test-2',
+          type: 1,
+          message: 'test-2',
+          sender: {
+            replyTo: '',
+            username: 'test123'
+          },
+          receiver: {
+            replyTo: '',
+            username: 'test123'
+          },
+          status: 'success'
+        },
+        identityAddress: 'zs0123'
+      }]
+
+      const displayableMessages = messages.map(msg => receivedToDisplayableMessage(msg))
+      const merged = mergeIntoOne(displayableMessages)
+      expect(merged).toMatchSnapshot()
+    })
+
+    it('should not merge message with error', () => {
+      const messages = [{
+        message: {
+          createdAt: 1567683647,
+          id: 'test-1',
+          type: 1,
+          message: 'test-1',
+          sender: {
+            replyTo: '',
+            username: 'test123'
+          },
+          receiver: {
+            replyTo: '',
+            username: 'test123'
+          },
+          status: 'success'
+        },
+        identityAddress: 'zs0123'
+      },
+      {
+        message: {
+          createdAt: 1567683767,
+          id: 'test-2',
+          type: 1,
+          message: 'test-2',
+          sender: {
+            replyTo: '',
+            username: 'test123'
+          },
+          receiver: {
+            replyTo: '',
+            username: 'test123'
+          },
+          status: 'success'
+        },
+        identityAddress: 'zs0123'
+      },
+      {
+        message: {
+          createdAt: 1567683787,
+          id: 'test-3',
+          type: 1,
+          message: 'message with error',
+          sender: {
+            replyTo: '',
+            username: 'test123'
+          },
+          receiver: {
+            replyTo: '',
+            username: 'test123'
+          },
+          status: 'failed'
+        },
+        identityAddress: 'zs0123'
+      }]
+
+      const displayableMessages = messages.map(msg => receivedToDisplayableMessage(msg))
+      const merged = mergeIntoOne(displayableMessages)
+      expect(merged).toMatchSnapshot()
+    })
+
+    it('should not merge message with different type', () => {
+      const messages = [{
+        message: {
+          createdAt: 1567683647,
+          id: 'test-1',
+          type: 4,
+          message: 'test-1',
+          sender: {
+            replyTo: '',
+            username: 'test123'
+          },
+          receiver: {
+            replyTo: '',
+            username: 'test123'
+          },
+          status: 'success'
+        },
+        identityAddress: 'zs0123'
+      },
+      {
+        message: {
+          createdAt: 1567683767,
+          id: 'test-2',
+          type: 4,
+          message: 'test-2',
+          sender: {
+            replyTo: '',
+            username: 'test123'
+          },
+          receiver: {
+            replyTo: '',
+            username: 'test123'
+          },
+          status: 'success'
+        },
+        identityAddress: 'zs0123'
+      },
+      {
+        message: {
+          createdAt: 1567683787,
+          id: 'test-3',
+          type: 1,
+          message: 'test3',
+          sender: {
+            replyTo: '',
+            username: 'test123'
+          },
+          receiver: {
+            replyTo: '',
+            username: 'test123'
+          },
+          status: 'success'
+        },
+        identityAddress: 'zs0123'
+      }]
+
+      const displayableMessages = messages.map(msg => receivedToDisplayableMessage(msg))
+      const merged = mergeIntoOne(displayableMessages)
+      expect(merged).toMatchSnapshot()
     })
   })
 

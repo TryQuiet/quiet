@@ -53,7 +53,7 @@ const styles = theme => ({
     justifyContent: 'center'
   },
   alignAvatar: {
-    marginTop: '4px'
+    marginTop: '5px'
   }
 })
 

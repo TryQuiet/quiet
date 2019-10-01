@@ -184,39 +184,10 @@ Immutable.List [
       "username": "",
     },
     "createdAt": 1551956628,
-    "message": "This is a message with id 1",
+    "message": "This is a message with id 1
+This is a message with id 1
+This is some message test-pending-message",
     "spent": "0.32",
-    "fromYou": true,
-    "status": "broadcasted",
-    "error": null,
-    "isUnregistered": false,
-  },
-  Immutable.ReceivedMessage {
-    "id": 1,
-    "type": 1,
-    "sender": Immutable.MessageSender {
-      "replyTo": "",
-      "username": "",
-    },
-    "createdAt": 1551956628,
-    "message": "This is a message with id 1",
-    "spent": "0.32",
-    "isUnregistered": false,
-  },
-  Immutable.DisplayableMessage {
-    "id": "messageHash",
-    "type": 1,
-    "sender": Immutable.ExchangeParticipant {
-      "replyTo": "",
-      "username": "",
-    },
-    "receiver": Immutable.ExchangeParticipant {
-      "replyTo": "",
-      "username": "Unnamed",
-    },
-    "createdAt": 1551956628,
-    "message": "This is some message test-pending-message",
-    "spent": "0",
     "fromYou": true,
     "status": "pending",
     "error": null,
@@ -253,23 +224,12 @@ Immutable.List [
       "username": "",
     },
     "createdAt": 1551963828,
-    "message": "This is a message with id 0",
+    "message": "This is a message with id 0
+This is a message with id 0",
     "spent": "0.32",
     "fromYou": true,
     "status": "broadcasted",
     "error": null,
-    "isUnregistered": false,
-  },
-  Immutable.ReceivedMessage {
-    "id": 0,
-    "type": 1,
-    "sender": Immutable.MessageSender {
-      "replyTo": "",
-      "username": "",
-    },
-    "createdAt": 1551963828,
-    "message": "This is a message with id 0",
-    "spent": "0.32",
     "isUnregistered": false,
   },
 ]

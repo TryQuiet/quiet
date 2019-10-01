@@ -41,9 +41,8 @@
   "description": "Distributed goods and bulletin board",
   "main": "dist/main.js",
   "scripts": {
-    "dist": "npm run build:prod && electron-builder -p always --mac",
-    "distlinux": "npm run build:prod && electron-builder --linux",
-    "snaplinux": "npm run build:prod && electron-builder --linux snap",
+    "dist": "aws s3 sync s3://zbay-zcash-binaries/darwin zcash/darwin  &&   npm run build:prod && electron-builder -p always --mac",
+    "distlinux": "aws s3 sync s3://zbay-zcash-binaries/linux zcash/linux  && npm run build:prod && electron-builder --linux",
     "lint": "standard",
     "test": "npm run lint && jest",
     "test:watch": "npm run lint && jest --watchAll",

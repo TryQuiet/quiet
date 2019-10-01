@@ -7,6 +7,7 @@ import operationsSelectors from './operations'
 import messagesSelectors from './messages'
 import zbayMessages from '../../zbay/messages'
 import { operationTypes } from '../handlers/operations'
+import Immutable from 'immutable'
 
 const store = s => s
 
@@ -44,6 +45,54 @@ export const currentChannelMessages = createSelector(
 
 export const loader = createSelector(channel, meta => meta.loader)
 
+const checkMessageTargetTimeWindow = ({ targetCreatedAt, timeStamp, timeWindow }) => {
+  const inRange = ({ timeStamp, targetCreatedAt, timeWindow }) => {
+    return ((timeStamp - targetCreatedAt) * (timeStamp - timeWindow) <= 0)
+  }
+  return inRange({ timeStamp, targetCreatedAt, timeWindow })
+}
+
+const concatMessages = (mainMsg, messagesToConcat) => {
+  if (messagesToConcat.size === 1) {
+    return mainMsg
+  } else {
+    const messagesArray = messagesToConcat.map(msg => msg.message)
+    const lastMessageStatus = messagesToConcat.getIn([messagesToConcat.size - 1, 'status'])
+    const concatedMessages = messagesArray.join('\n')
+    const mergedMessage = mainMsg
+      .set('message', concatedMessages)
+      .set('status', lastMessageStatus)
+    return mergedMessage
+  }
+}
+
+export const mergeIntoOne = messages => {
+  if (messages.size === 0) return
+  let result = [[]]
+  let last = null
+  for (const msg of messages) {
+    const isMessageInTargetZone = last ? checkMessageTargetTimeWindow({ targetCreatedAt: last.createdAt, timeStamp: msg.createdAt, timeWindow: last.createdAt + 300 }) : true
+    if (last && msg.status === 'failed') {
+      result.push([])
+      result[result.length - 1].push(msg)
+    } else if ((last && (msg.type !== 1 || last.type !== 1))) {
+      result.push([])
+      result[result.length - 1].push(msg)
+    } else if ((last && last.sender.replyTo !== msg.sender.replyTo) || !isMessageInTargetZone) {
+      result.push([])
+      result[result.length - 1].push(msg)
+    } else {
+      result[result.length - 1].push(msg)
+    }
+    last = msg
+  }
+  const list = Immutable.fromJS(result)
+  const concatedMessages = list.map(array => {
+    return concatMessages(array.get(0), array)
+  })
+  return concatedMessages
+}
+
 export const messages = signerPubKey => createSelector(
   identitySelectors.data,
   usersSelectors.registeredUser(signerPubKey),
@@ -71,10 +120,15 @@ export const messages = signerPubKey => createSelector(
         queuedMessage, messageKey, identityAddress, identityName
       })
     )
-    return displayableBroadcasted.concat(
+    let concatedMessages = displayableBroadcasted.concat(
       displayablePending.values(),
       displayableQueued.values()
     ).sortBy(m => m.get('createdAt'))
+    if (concatedMessages.size > 0) {
+      const merged = mergeIntoOne(concatedMessages)
+      concatedMessages = Immutable.fromJS(merged)
+    }
+    return concatedMessages
   }
 )
 

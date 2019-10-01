@@ -31,9 +31,11 @@ const sendDirectMessageOnEnter = event => async (dispatch, getState) => {
   const currentMessage = dmQueue.find(
     dm => dm.get('recipientAddress') === channel.targetRecipientAddress
   )
-
   if (enterPressed && !shiftPressed) {
     event.preventDefault()
+    if (!event.target.value.replace(/\s/g, '').length) {
+      return
+    }
     let message
     if (currentMessage !== undefined) {
       message = zbayMessages.createMessage({

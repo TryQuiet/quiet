@@ -6,6 +6,7 @@ import zbayMessages from '../../zbay/messages'
 import operationsSelectors from './operations'
 import { operationTypes } from '../handlers/operations'
 import usersSelectors from './users'
+import { mergeIntoOne } from './channel'
 
 export const Contact = Immutable.Record({
   lastSeen: null,
@@ -62,11 +63,13 @@ export const directMessages = (address, signerPubKey) => createSelector(
 
     const fetchedMessagesToDisplay = messages.map(msg => zbayMessages.receivedToDisplayableMessage({ message: msg, identityAddress, receiver: { replyTo: identityAddress, username: identityName } }))
 
-    return fetchedMessagesToDisplay.concat(
+    const concatedMessages = fetchedMessagesToDisplay.concat(
       vaultMessages.values(),
       displayableQueued.values(),
       displayablePending.values()
     ).sortBy(m => m.get('createdAt'))
+    const merged = mergeIntoOne(concatedMessages)
+    return merged
   }
 )
 

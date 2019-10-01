@@ -71,6 +71,9 @@ const sendOnEnter = event => async (dispatch, getState) => {
   )
   if (enterPressed && !shiftPressed) {
     event.preventDefault()
+    if (!event.target.value.replace(/\s/g, '').length) {
+      return
+    }
     const privKey = identitySelectors.signerPrivKey(getState())
     let message
     if (currentMessage !== undefined) {

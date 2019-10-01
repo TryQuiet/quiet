@@ -27,6 +27,13 @@ const styles = theme => ({
   input: {
     fontSize: 14
   },
+  textfield: {
+    borderColor: theme.palette.colors.inputGray,
+    '&:focus': {
+      borderStyle: 'solid',
+      borderWidth: '1px'
+    }
+  },
   inputsDiv: {
     paddingLeft: `18px`,
     paddingRight: `18px`,
@@ -114,6 +121,7 @@ export const ChannelInput = ({
             multiline
             rowsMax={5}
             value={message}
+            className={classes.textfield}
             onKeyPress={e => {
               if (inputState === INPUT_STATE.AVAILABLE) {
                 onKeyPress(e)

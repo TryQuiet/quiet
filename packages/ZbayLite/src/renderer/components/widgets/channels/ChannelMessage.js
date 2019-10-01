@@ -21,7 +21,7 @@ const styles = theme => ({
     wordBreak: 'break-word'
   },
   messageInput: {
-    marginTop: -25,
+    marginTop: -35,
     marginLeft: 50
   }
 })

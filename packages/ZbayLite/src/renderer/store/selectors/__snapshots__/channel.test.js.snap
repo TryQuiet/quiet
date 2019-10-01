@@ -38,6 +38,180 @@ Immutable.Record {
 }
 `;
 
+exports[`Channel selector mergeMessages merge messages 1`] = `
+Immutable.List [
+  Immutable.DisplayableMessage {
+    "id": "test-1",
+    "type": 1,
+    "sender": Immutable.ExchangeParticipant {
+      "replyTo": "",
+      "username": "test123",
+    },
+    "receiver": Immutable.ExchangeParticipant {
+      "replyTo": "",
+      "username": "Unnamed",
+    },
+    "createdAt": 1567683647,
+    "message": "test-1
+test-2",
+    "spent": "0",
+    "fromYou": false,
+    "status": "success",
+    "error": null,
+    "isUnregistered": false,
+  },
+]
+`;
+
+exports[`Channel selector mergeMessages should not merge message with different type 1`] = `
+Immutable.List [
+  Immutable.DisplayableMessage {
+    "id": "test-1",
+    "type": 4,
+    "sender": Immutable.ExchangeParticipant {
+      "replyTo": "",
+      "username": "test123",
+    },
+    "receiver": Immutable.ExchangeParticipant {
+      "replyTo": "",
+      "username": "Unnamed",
+    },
+    "createdAt": 1567683647,
+    "message": "test-1",
+    "spent": "0",
+    "fromYou": false,
+    "status": "success",
+    "error": null,
+    "isUnregistered": false,
+  },
+  Immutable.DisplayableMessage {
+    "id": "test-2",
+    "type": 4,
+    "sender": Immutable.ExchangeParticipant {
+      "replyTo": "",
+      "username": "test123",
+    },
+    "receiver": Immutable.ExchangeParticipant {
+      "replyTo": "",
+      "username": "Unnamed",
+    },
+    "createdAt": 1567683767,
+    "message": "test-2",
+    "spent": "0",
+    "fromYou": false,
+    "status": "success",
+    "error": null,
+    "isUnregistered": false,
+  },
+  Immutable.DisplayableMessage {
+    "id": "test-3",
+    "type": 1,
+    "sender": Immutable.ExchangeParticipant {
+      "replyTo": "",
+      "username": "test123",
+    },
+    "receiver": Immutable.ExchangeParticipant {
+      "replyTo": "",
+      "username": "Unnamed",
+    },
+    "createdAt": 1567683787,
+    "message": "test3",
+    "spent": "0",
+    "fromYou": false,
+    "status": "success",
+    "error": null,
+    "isUnregistered": false,
+  },
+]
+`;
+
+exports[`Channel selector mergeMessages should not merge message with error 1`] = `
+Immutable.List [
+  Immutable.DisplayableMessage {
+    "id": "test-1",
+    "type": 1,
+    "sender": Immutable.ExchangeParticipant {
+      "replyTo": "",
+      "username": "test123",
+    },
+    "receiver": Immutable.ExchangeParticipant {
+      "replyTo": "",
+      "username": "Unnamed",
+    },
+    "createdAt": 1567683647,
+    "message": "test-1
+test-2",
+    "spent": "0",
+    "fromYou": false,
+    "status": "success",
+    "error": null,
+    "isUnregistered": false,
+  },
+  Immutable.DisplayableMessage {
+    "id": "test-3",
+    "type": 1,
+    "sender": Immutable.ExchangeParticipant {
+      "replyTo": "",
+      "username": "test123",
+    },
+    "receiver": Immutable.ExchangeParticipant {
+      "replyTo": "",
+      "username": "Unnamed",
+    },
+    "createdAt": 1567683787,
+    "message": "message with error",
+    "spent": "0",
+    "fromYou": false,
+    "status": "failed",
+    "error": null,
+    "isUnregistered": false,
+  },
+]
+`;
+
+exports[`Channel selector mergeMessages should not merge messages if time window is exceeded 1`] = `
+Immutable.List [
+  Immutable.DisplayableMessage {
+    "id": "test-1",
+    "type": 1,
+    "sender": Immutable.ExchangeParticipant {
+      "replyTo": "",
+      "username": "test123",
+    },
+    "receiver": Immutable.ExchangeParticipant {
+      "replyTo": "",
+      "username": "Unnamed",
+    },
+    "createdAt": 1567683647,
+    "message": "test-1",
+    "spent": "0",
+    "fromYou": false,
+    "status": "succes",
+    "error": null,
+    "isUnregistered": false,
+  },
+  Immutable.DisplayableMessage {
+    "id": "test-2",
+    "type": 1,
+    "sender": Immutable.ExchangeParticipant {
+      "replyTo": "",
+      "username": "test123",
+    },
+    "receiver": Immutable.ExchangeParticipant {
+      "replyTo": "",
+      "username": "Unnamed",
+    },
+    "createdAt": 1567683987,
+    "message": "test-2",
+    "spent": "0",
+    "fromYou": false,
+    "status": "success",
+    "error": null,
+    "isUnregistered": false,
+  },
+]
+`;
+
 exports[`Channel selector message selector 1`] = `"Message written in the input"`;
 
 exports[`Channel selector messages selector 1`] = `
@@ -111,27 +285,9 @@ Immutable.List [
       "username": "Unnamed",
     },
     "createdAt": 1551956628,
-    "message": "This is a message with id 1",
+    "message": "This is a message with id 1
+This is some message test-pending-message",
     "spent": "0.32",
-    "fromYou": true,
-    "status": "broadcasted",
-    "error": null,
-    "isUnregistered": false,
-  },
-  Immutable.DisplayableMessage {
-    "id": "messageHash",
-    "type": 1,
-    "sender": Immutable.ExchangeParticipant {
-      "replyTo": "",
-      "username": "",
-    },
-    "receiver": Immutable.ExchangeParticipant {
-      "replyTo": "",
-      "username": "Unnamed",
-    },
-    "createdAt": 1551956628,
-    "message": "This is some message test-pending-message",
-    "spent": "0",
     "fromYou": true,
     "status": "pending",
     "error": null,
