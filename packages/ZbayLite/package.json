@@ -28,9 +28,10 @@
       "stagePackages": [
         "default",
         "curl",
+        "build-essential",
         "wget",
         "libgomp1",
-        "gcc",
+        "gcc-6",
         "libc6-dev"
       ]
     },
@@ -43,6 +44,7 @@
   "scripts": {
     "dist": "aws s3 sync s3://zbay-zcash-binaries/darwin zcash/darwin  &&   npm run build:prod && electron-builder -p always --mac",
     "distlinux": "aws s3 sync s3://zbay-zcash-binaries/linux zcash/linux  && npm run build:prod && electron-builder --linux",
+    "snaplinux": "aws s3 sync s3://zbay-zcash-binaries/linux zcash/linux && npm run build:prod && electron-builder --linux snap",
     "lint": "standard",
     "test": "npm run lint && jest",
     "test:watch": "npm run lint && jest --watchAll",

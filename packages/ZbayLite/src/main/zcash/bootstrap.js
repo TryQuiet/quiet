@@ -1,6 +1,5 @@
 import path from 'path'
 import { exec, spawn } from 'child_process'
-
 const ZCASH_RESOURCES = 'zcash'
 
 const isDev = process.env.NODE_ENV === 'development'
@@ -14,11 +13,7 @@ export const getResourcesPath = (...paths) => {
   return path.join.apply(null, [process.resourcesPath, ...paths])
 }
 
-const getZcashResource = (name, platform) => getResourcesPath(
-  ZCASH_RESOURCES,
-  platform,
-  name
-)
+const getZcashResource = (name, platform) => getResourcesPath(ZCASH_RESOURCES, platform, name)
 
 export const ensureZcashParams = (platform, callback) => {
   const binaryPath = getZcashResource('zcash-fetch-params', platform)
@@ -28,11 +23,8 @@ export const ensureZcashParams = (platform, callback) => {
 export const spawnZcashNode = (platform, isTestnet) => {
   const zcashdPath = getZcashResource('zcashd', platform)
   const configName = isTestnet ? 'testnet.conf' : 'mainnet.conf'
-  const options = [
-    `-conf=${getResourcesPath(ZCASH_RESOURCES, configName)}`,
-    '-debug=1'
-  ]
-  return spawn(zcashdPath, options)
+  const options = [`-conf=${getResourcesPath(ZCASH_RESOURCES, configName)}`, '-debug=1']
+  return spawn(zcashdPath, options, { stdio: 'inherit' })
 }
 
 export default {

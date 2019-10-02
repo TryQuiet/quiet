@@ -6,16 +6,19 @@ import { withStyles } from '@material-ui/core/styles'
 const styles = {
   root: {},
   wrapper: {
-    'min-height': '100vh'
+    'min-height': '100vh',
+    WebkitAppRegion: 'drag'
   }
 }
 
 export const WindowWrapper = ({ classes, children, className }) => (
-  <div className={classNames({
-    [classes.wrapper]: true,
-    [className]: className
-  })}>
-    { children }
+  <div
+    className={classNames({
+      [classes.wrapper]: true,
+      [className]: className
+    })}
+  >
+    {children}
   </div>
 )
 
