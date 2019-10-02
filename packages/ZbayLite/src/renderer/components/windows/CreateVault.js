@@ -83,7 +83,7 @@ export const CreateVault = ({
         open={error.length > 0}
         onClose={onCloseSnackbar}
       />
-      { finished && <Redirect to='/main/channel/general' />}
+      { finished && <Redirect to='/' />}
       <Grid container justify='center' alignContent='flex-start' className={classes.gridRoot}>
         <Grid container item>
           <Paper className={classes.paper}>

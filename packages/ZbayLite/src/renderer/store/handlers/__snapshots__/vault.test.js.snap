@@ -71,7 +71,7 @@ Array [
 
 exports[`vault reducer handles clear error 1`] = `
 Immutable.VaultState {
-  "exists": false,
+  "exists": null,
   "creating": false,
   "unlocking": false,
   "creatingIdentity": false,
@@ -82,7 +82,7 @@ Immutable.VaultState {
 
 exports[`vault reducer handles createIdentity 1`] = `
 Immutable.VaultState {
-  "exists": false,
+  "exists": null,
   "creating": false,
   "unlocking": false,
   "creatingIdentity": false,
@@ -93,7 +93,7 @@ Immutable.VaultState {
 
 exports[`vault reducer handles createIdentity error 1`] = `
 Immutable.VaultState {
-  "exists": false,
+  "exists": null,
   "creating": false,
   "unlocking": false,
   "creatingIdentity": false,
@@ -115,7 +115,7 @@ Immutable.VaultState {
 
 exports[`vault reducer handles createVault error 1`] = `
 Immutable.VaultState {
-  "exists": false,
+  "exists": null,
   "creating": false,
   "unlocking": false,
   "creatingIdentity": false,
@@ -126,7 +126,7 @@ Immutable.VaultState {
 
 exports[`vault reducer handles createVault with loading state 1`] = `
 Immutable.VaultState {
-  "exists": false,
+  "exists": null,
   "creating": true,
   "unlocking": false,
   "creatingIdentity": false,
@@ -137,7 +137,7 @@ Immutable.VaultState {
 
 exports[`vault reducer handles pending createIdentity 1`] = `
 Immutable.VaultState {
-  "exists": false,
+  "exists": null,
   "creating": false,
   "unlocking": false,
   "creatingIdentity": true,
@@ -196,7 +196,7 @@ Object {
 
 exports[`vault reducer handles updateIdentitySignerKeys 2`] = `
 Immutable.VaultState {
-  "exists": false,
+  "exists": null,
   "creating": false,
   "unlocking": false,
   "creatingIdentity": false,

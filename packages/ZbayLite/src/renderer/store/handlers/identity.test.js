@@ -280,6 +280,7 @@ describe('Identity reducer handles', () => {
             })
           })
         })
+        process.env.ZBAY_IS_TESTNET = 0
         await store.dispatch(identityHandlers.epics.createIdentity(identity))
         const channels = await vault.getVault().channels.listChannels('thisisatestid')
         expect(channels.map(R.omit(['id', 'hash']))).toMatchSnapshot()

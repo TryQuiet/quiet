@@ -27,10 +27,11 @@ const percentSynced = createSelector(
   }
 )
 const network = createSelector(node, n => {
-  if (n.isTestnet !== null) {
-    return n.isTestnet ? 'testnet' : 'mainnet'
+  if (parseInt(process.env.ZBAY_IS_TESTNET) === 1) {
+    return 'testnet'
+  } else {
+    return 'mainnet'
   }
-  return null
 })
 
 const isConnected = createSelector(status, s => ['healthy', 'syncing'].includes(s))

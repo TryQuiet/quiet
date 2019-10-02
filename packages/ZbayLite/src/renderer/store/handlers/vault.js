@@ -11,7 +11,7 @@ import appHandlers from './app'
 import vault from '../../vault'
 
 export const VaultState = Immutable.Record({
-  exists: false,
+  exists: null,
   creating: false,
   unlocking: false,
   creatingIdentity: false,
@@ -50,9 +50,9 @@ export const actions = {
   clearError
 }
 
-const loadVaultStatus = () => (dispatch, getState) => {
+const loadVaultStatus = () => async (dispatch, getState) => {
   const network = nodeSelectors.network(getState())
-  return dispatch(setVaultStatus(vault.exists(network)))
+  await dispatch(setVaultStatus(vault.exists(network)))
 }
 
 const createVaultEpic = ({ name, password }, formActions) => async (dispatch, getState) => {
@@ -75,14 +75,19 @@ const createVaultEpic = ({ name, password }, formActions) => async (dispatch, ge
   }
   formActions.setSubmitting(false)
 }
-
+export const setVaultIdentity = () => async (dispatch, getState) => {
+  try {
+    const [identity] = await vault.identity.listIdentities()
+    await dispatch(identityHandlers.epics.setIdentity(identity))
+  } catch (err) {
+    console.log(err)
+  }
+}
 const unlockVaultEpic = ({ password: masterPassword }, formActions) => async (dispatch, getState) => {
   const state = getState()
   const network = nodeSelectors.network(state)
   try {
     await dispatch(vaultHandlers.actions.unlockVault({ masterPassword, network, ignoreError: true }))
-    const [identity] = await vault.identity.listIdentities()
-    await dispatch(identityHandlers.epics.setIdentity(identity))
   } catch (error) {
     if (error.message.includes('Authentication failed')) {
       dispatch(notificationsHandlers.actions.enqueueSnackbar(
@@ -97,6 +102,7 @@ const unlockVaultEpic = ({ password: masterPassword }, formActions) => async (di
 
 export const epics = {
   loadVaultStatus,
+  setVaultIdentity,
   createVault: createVaultEpic,
   unlockVault: unlockVaultEpic
 }

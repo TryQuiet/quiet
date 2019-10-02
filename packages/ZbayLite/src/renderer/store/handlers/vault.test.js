@@ -6,7 +6,7 @@ jest.mock('../../zcash')
 import Immutable from 'immutable'
 import { DateTime } from 'luxon'
 
-import { actions, epics, initialState, actionTypes } from './vault'
+import { actions, epics, actionTypes } from './vault'
 import identityHandlers from './identity'
 import { typePending } from './utils'
 import create from '../create'
@@ -34,11 +34,6 @@ describe('vault reducer', () => {
   })
 
   const assertStoreState = () => expect(store.getState().get('vault')).toMatchSnapshot()
-
-  it('is initialized with vault existence information', async () => {
-    expect(initialState.exists).toBeDefined()
-    expect(initialState.exists).toEqual(vault.exists())
-  })
 
   it('handles createVault', async () => {
     await store.dispatch(actions.createVault())
@@ -164,6 +159,7 @@ describe('vault reducer', () => {
         vault.identity.createIdentity.mockImplementation(
           async ({ name, address }) => ({ id: 'thisisatestid', name, address })
         )
+        process.env.ZBAY_IS_TESTNET = 1
       })
 
       it('when vault exists', () => {
@@ -172,9 +168,8 @@ describe('vault reducer', () => {
             node: NodeState({ isTestnet: false })
           })
         })
-
+        process.env.ZBAY_IS_TESTNET = 0
         store.dispatch(epics.loadVaultStatus())
-
         expect(vaultSelectors.exists(store.getState())).toBeTruthy()
       })
 

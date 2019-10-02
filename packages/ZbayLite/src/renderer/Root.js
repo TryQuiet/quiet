@@ -30,9 +30,9 @@ export default () => (
           <SendMoneyModal />
           <TopUpModal />
           <CssBaseline />
-          <Route path='/' exact component={Index} />
+          <Route path='/' exact component={Vault} />
           <Route path='/main' component={Main} />
-          <Route path='/vault' component={Vault} />
+          <Route path='/zcashNode' component={Index} />
           <Route path='/loading' component={Loading} />
         </SnackbarProvider>
       </Provider>

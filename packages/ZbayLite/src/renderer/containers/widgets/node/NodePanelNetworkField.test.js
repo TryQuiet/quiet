@@ -35,18 +35,4 @@ describe('NodePanelNetworkField', () => {
     )
     expect(result).toMatchSnapshot()
   })
-
-  it('renders the field when no network', async () => {
-    store = create({
-      initialState: Immutable.Map({
-        node: NodeState()
-      })
-    })
-    const result = shallow(
-      <NodePanelNetworkField
-        {...mapStateToProps(store.getState())}
-      />
-    )
-    expect(result).toMatchSnapshot()
-  })
 })

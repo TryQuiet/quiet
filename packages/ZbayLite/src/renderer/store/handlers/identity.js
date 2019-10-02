@@ -213,7 +213,7 @@ export const setIdentityEpic = (identityToSet) => async (dispatch, getState) => 
       }))
       identity = updatedIdentity
     }
-    dispatch(setIdentity(identity))
+    await dispatch(setIdentity(identity))
     const network = nodeSelectors.network(getState())
     await migrateTo_0_7_0.ensureDefaultChannels(identity, network)
     dispatch(setLoadingMessage('Fetching balance and loading channels'))

@@ -15,7 +15,7 @@ describe('vault selectors', () => {
   })
 
   it('exists', async () => {
-    expect(selectors.exists(store.getState())).toEqual(false)
+    expect(selectors.exists(store.getState())).toEqual(null)
     await store.dispatch(actions.createVault())
     expect(selectors.exists(store.getState())).toEqual(true)
   })

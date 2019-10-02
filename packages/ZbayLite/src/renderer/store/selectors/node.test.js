@@ -68,39 +68,27 @@ describe('node selectors', () => {
   })
 
   it('network when mainnet', () => {
-    store = create({
-      initialState: Immutable.Map({
-        node: NodeState({
-          isTestnet: false
-        })
-      })
-    })
+    process.env.ZBAY_IS_TESTNET = 0
     expect(selectors.network(store.getState())).toEqual('mainnet')
   })
 
-  each(['healthy', 'syncing']).test(
-    'isConnected when status %s',
-    async (status) => {
-      store = create({
-        initialState: Immutable.Map({
-          node: NodeState({ status })
-        })
+  each(['healthy', 'syncing']).test('isConnected when status %s', async status => {
+    store = create({
+      initialState: Immutable.Map({
+        node: NodeState({ status })
       })
-      expect(selectors.isConnected(store.getState())).toBeTruthy()
-    }
-  )
+    })
+    expect(selectors.isConnected(store.getState())).toBeTruthy()
+  })
 
-  each(['restarting', 'down', 'connecting']).test(
-    'isConnected when status %s',
-    async (status) => {
-      store = create({
-        initialState: Immutable.Map({
-          node: NodeState({ status })
-        })
+  each(['restarting', 'down', 'connecting']).test('isConnected when status %s', async status => {
+    store = create({
+      initialState: Immutable.Map({
+        node: NodeState({ status })
       })
-      expect(selectors.isConnected(store.getState())).toBeFalsy()
-    }
-  )
+    })
+    expect(selectors.isConnected(store.getState())).toBeFalsy()
+  })
 
   it('bootstrapping', () => {
     expect(selectors.bootstrapping(store.getState())).toMatchSnapshot()

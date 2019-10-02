@@ -7,13 +7,6 @@ exports[`NodePanelNetworkField renders the field 1`] = `
 />
 `;
 
-exports[`NodePanelNetworkField renders the field when no network 1`] = `
-<Memo(WithStyles(NodePanelField))
-  name="Network"
-  value={null}
-/>
-`;
-
 exports[`NodePanelNetworkField will receive right props 1`] = `
 Object {
   "network": "testnet",

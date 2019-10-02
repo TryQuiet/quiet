@@ -15,11 +15,6 @@ Object {
 
 exports[`Vault will render creator when vault does not exist 1`] = `<Connect(CreateVaultWrapper) />`;
 
-exports[`Vault will render redirect when node not connected 1`] = `
-<Redirect
-  push={false}
-  to="/"
-/>
-`;
+exports[`Vault will render redirect when node not connected 1`] = `<Connect(WithStyles(UnlockVault)) />`;
 
 exports[`Vault will render unlocker when vault locked 1`] = `<Connect(WithStyles(UnlockVault)) />`;
