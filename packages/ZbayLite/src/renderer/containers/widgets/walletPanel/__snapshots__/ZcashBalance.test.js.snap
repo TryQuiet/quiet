@@ -2,9 +2,9 @@
 
 exports[`ZcashBalance will receive right props 1`] = `
 Object {
-  "usdBalance": "67.166008",
+  "usdBalance": "92.332016",
   "usdLocked": "25.166008",
-  "zecBalance": "33.583004",
+  "zecBalance": "46.166008",
   "zecLocked": "12.583004",
 }
 `;

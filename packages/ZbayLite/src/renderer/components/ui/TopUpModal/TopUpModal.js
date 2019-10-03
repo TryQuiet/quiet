@@ -64,13 +64,13 @@ export const TopUpModal = ({
   <Modal
     open={open}
     handleClose={handleClose}
-    title='Add founds to your wallet'
+    title='Add funds to your wallet'
     fullPage
   >
     <Grid container justify='center' alignContent='flex-start' className={classes.root}>
       <Grid item container justify='center' alignItems='flex-start' className={classes.title}>
         <Typography variant='h5'>
-          Add founds
+          Add funds to
         </Typography>
         <Select
           displayEmpty

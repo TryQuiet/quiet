@@ -16,6 +16,7 @@ import identitySelectors from '../selectors/identity'
 import channelsSelectors from '../selectors/channels'
 import operationsSelectors from '../selectors/operations'
 import usersHandlers from './users'
+import ratesHandlers from './rates'
 import { mock as zcashMock } from '../../zcash'
 import vault, { mock } from '../../vault'
 import testUtils from '../../testUtils'
@@ -207,6 +208,7 @@ describe('Identity reducer handles', () => {
             )
           )
         )
+        jest.spyOn(ratesHandlers.epics, 'fetchPrices').mockImplementation(() => async () => {})
         zcashMock.requestManager.z_sendmany.mockImplementation(async (from) => `${from}-op-id`)
       })
 

@@ -11,7 +11,10 @@ import MenuActionItem from '../../ui/MenuActionItem'
 const styles = theme => ({
   button: {
     fontSize: 36,
-    padding: 2
+    padding: 2,
+    '&:hover': {
+      backgroundColor: theme.palette.colors.white
+    }
   },
   icon: {
     width: 28,

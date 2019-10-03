@@ -28,12 +28,18 @@ const styles = theme => ({
     fontSize: 14
   },
   textfield: {
-    borderColor: theme.palette.colors.inputGray,
-    '&:focus': {
+    '&$cssFocused $notchedOutline': {
       borderStyle: 'solid',
       borderWidth: '1px'
     }
   },
+
+  cssFocused: {},
+
+  notchedOutline: {
+    borderColor: theme.palette.colors.inputGray
+  },
+
   inputsDiv: {
     paddingLeft: `18px`,
     paddingRight: `18px`,
@@ -121,7 +127,6 @@ export const ChannelInput = ({
             multiline
             rowsMax={5}
             value={message}
-            className={classes.textfield}
             onKeyPress={e => {
               if (inputState === INPUT_STATE.AVAILABLE) {
                 onKeyPress(e)
@@ -140,6 +145,11 @@ export const ChannelInput = ({
               className: classes.input
             }}
             InputProps={{
+              classes: {
+                root: classes.textfield,
+                focused: classes.cssFocused,
+                notchedOutline: classes.notchedOutline
+              },
               endAdornment: (
                 <InputAdornment position='end'>
                   <ChannelInputAction disabled={inputState !== INPUT_STATE.AVAILABLE} />

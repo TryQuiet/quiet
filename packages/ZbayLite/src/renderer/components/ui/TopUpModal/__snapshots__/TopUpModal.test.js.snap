@@ -5,7 +5,7 @@ exports[`TopUpModal renders component with private option 1`] = `
   fullPage={true}
   handleClose={[MockFunction]}
   open={false}
-  title="Add founds to your wallet"
+  title="Add funds to your wallet"
 >
   <WithStyles(ForwardRef(Grid))
     alignContent="flex-start"
@@ -23,7 +23,7 @@ exports[`TopUpModal renders component with private option 1`] = `
       <WithStyles(ForwardRef(Typography))
         variant="h5"
       >
-        Add founds
+        Add funds to
       </WithStyles(ForwardRef(Typography))>
       <WithStyles(ForwardRef(Select))
         className="selectWrapper-mock"
@@ -130,7 +130,7 @@ exports[`TopUpModal renders component with transparent option 1`] = `
   fullPage={true}
   handleClose={[MockFunction]}
   open={false}
-  title="Add founds to your wallet"
+  title="Add funds to your wallet"
 >
   <WithStyles(ForwardRef(Grid))
     alignContent="flex-start"
@@ -148,7 +148,7 @@ exports[`TopUpModal renders component with transparent option 1`] = `
       <WithStyles(ForwardRef(Typography))
         variant="h5"
       >
-        Add founds
+        Add funds to
       </WithStyles(ForwardRef(Typography))>
       <WithStyles(ForwardRef(Select))
         className="selectWrapper-mock"

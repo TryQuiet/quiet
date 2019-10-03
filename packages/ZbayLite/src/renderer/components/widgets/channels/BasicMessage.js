@@ -111,7 +111,7 @@ const transformToLowercase = string => {
 
 export const BasicMessage = ({ classes, message, children, actionsOpen, setActionsOpen }) => {
   const [anchorEl, setAnchorEl] = React.useState(null)
-  const handleClick = (event) => setAnchorEl(event.currentTarget)
+  const handleClick = event => setAnchorEl(event.currentTarget)
   const handleClose = () => setAnchorEl(null)
   const sender = message.sender
   const isUnregistered = message.isUnregistered
@@ -119,7 +119,7 @@ export const BasicMessage = ({ classes, message, children, actionsOpen, setActio
   const time = DateTime.fromSeconds(message.createdAt)
   const timeFormat = getTimeFormat(time)
   const timeString = transformToLowercase(time.toFormat(timeFormat))
-
+  const fromYou = message.fromYou
   const status = message.status || 'broadcasted'
   const StatusIcon = statusComponent[status]
   const error = message.error
@@ -136,14 +136,34 @@ export const BasicMessage = ({ classes, message, children, actionsOpen, setActio
         disableTypography
         className={classes.messageCard}
         primary={
-          <Grid container direction='row' justify='flex-start' alignItems='flex-start' wrap={'nowrap'}>
-            <SendMessagePopover username={username} address={message.sender.replyTo} anchorEl={anchorEl} handleClose={handleClose} isUnregistered={isUnregistered} />
+          <Grid
+            container
+            direction='row'
+            justify='flex-start'
+            alignItems='flex-start'
+            wrap={'nowrap'}
+          >
+            <SendMessagePopover
+              username={username}
+              address={message.sender.replyTo}
+              anchorEl={anchorEl}
+              handleClose={handleClose}
+              isUnregistered={isUnregistered}
+            />
             <Grid item className={classes.avatar}>
               <span className={classes.alignAvatar}>
                 <Jdenticon size='55' value={username} />
               </span>
             </Grid>
-            <Grid container item xs='auto' className={classes.pointer} alignItems='flex-start' wrap='nowrap' onClick={handleClick}>
+            <Grid
+              container
+              item
+              xs='auto'
+              className={classes.pointer}
+              alignItems='flex-start'
+              wrap='nowrap'
+              onClick={handleClick}
+            >
               <Grid item>
                 <Typography color='textPrimary' className={classes.username}>
                   {username}
@@ -153,13 +173,15 @@ export const BasicMessage = ({ classes, message, children, actionsOpen, setActio
                 <Typography className={classes.time}>{timeString}</Typography>
               </Grid>
               <Grid className={classes.iconBox} item>
-                <StatusIcon
-                  className={classNames({
-                    [classes.statusIcon]: true,
-                    [classes.failed]: status === 'failed',
-                    [classes.broadcasted]: status === 'broadcasted'
-                  })}
-                />
+                {fromYou && (
+                  <StatusIcon
+                    className={classNames({
+                      [classes.statusIcon]: true,
+                      [classes.failed]: status === 'failed',
+                      [classes.broadcasted]: status === 'broadcasted'
+                    })}
+                  />
+                )}
                 {status === 'failed' ? (
                   <Elipsis
                     interactive

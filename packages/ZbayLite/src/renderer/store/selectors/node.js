@@ -1,5 +1,6 @@
 import { DateTime, Interval } from 'luxon'
 import { createSelector } from 'reselect'
+import BigNumber from 'bignumber.js'
 
 const store = s => s
 
@@ -21,7 +22,7 @@ const percentSynced = createSelector(
   [currentBlock, latestBlock],
   (current, latest) => {
     if (!latest.isZero()) {
-      return current.dividedBy(latest).multipliedBy(100).toFixed(0)
+      return current.dividedBy(latest).multipliedBy(100).toFixed(0, BigNumber.ROUND_DOWN)
     }
     return null
   }

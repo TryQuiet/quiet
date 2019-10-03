@@ -16,6 +16,7 @@ import contactsHandlers from './contacts'
 import messagesHandlers from './messages'
 import operationHandlers, { operationTypes, ShieldBalanceOp } from './operations'
 import vaultHandlers from './vault'
+import ratesHandlers from './rates'
 import nodeHandlers from './node'
 import vault, { getVault } from '../../vault'
 import migrateTo_0_2_0 from '../../../shared/migrations/0_2_0' // eslint-disable-line camelcase
@@ -217,6 +218,7 @@ export const setIdentityEpic = (identityToSet) => async (dispatch, getState) => 
     const network = nodeSelectors.network(getState())
     await migrateTo_0_7_0.ensureDefaultChannels(identity, network)
     dispatch(setLoadingMessage('Fetching balance and loading channels'))
+    dispatch(ratesHandlers.epics.fetchPrices())
     await Promise.all([
       dispatch(fetchBalance()),
       dispatch(channelsHandlers.actions.loadChannels(identity.id))
@@ -230,6 +232,7 @@ export const setIdentityEpic = (identityToSet) => async (dispatch, getState) => 
   } catch (err) {
   }
   dispatch(setLoading(false))
+
   const balance = identitySelectors.balance('zec')(getState())
   const lockedBalance = identitySelectors.lockedBalance('zec')(getState())
   const newUser = appSelectors.newUser(getState())
