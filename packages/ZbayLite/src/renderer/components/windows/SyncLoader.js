@@ -2,14 +2,13 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
 import CardMedia from '@material-ui/core/CardMedia'
-import AliceCarousel from 'react-alice-carousel'
 import { Grid, LinearProgress, Typography } from '@material-ui/core'
 import Immutable from 'immutable'
 
 import WindowWrapper from '../ui/WindowWrapper'
 import ZcashIcon from '../../static/images/zcash/zbay-icon.svg'
 import ZcashIconGray from '../../static/images/zcash/zbay-icon-gray.svg'
-import carouselStrings from '../../static/text/carouselStrings.js'
+import Carousel from '../widgets/Carousel'
 
 const SIZE = 250
 
@@ -33,18 +32,6 @@ const styles = theme => ({
   progressBar: {
     backgroundColor: theme.palette.colors.lushSky,
     width: 350
-  },
-  typography: {
-    color: theme.palette.colors.black,
-    width: 542,
-    fontSize: 24,
-    textAlign: 'center'
-  },
-  tipContainer: {
-    width: '100%',
-    height: 100,
-    display: 'flex',
-    justifyContent: 'center'
   },
   carouselContainer: {
     marginTop: theme.spacing(5)
@@ -96,15 +83,7 @@ export const SyncLoader = ({ classes, node }) => {
           </Grid>
         </Grid>
         <Grid className={classes.carouselContainer} container item>
-          <AliceCarousel buttonsDisabled dotsDisabled autoPlay autoPlayInterval={2000}>
-            {carouselStrings.map((text, key) => (
-              <div key={key} className={classes.tipContainer}>
-                <Typography className={classes.typography} variant='caption'>
-                  {text}
-                </Typography>
-              </div>
-            ))}
-          </AliceCarousel>
+          <Carousel />
         </Grid>
         <Grid item container justify='center' alignItems='center'>
           <LinearProgress className={classes.progressBar} />

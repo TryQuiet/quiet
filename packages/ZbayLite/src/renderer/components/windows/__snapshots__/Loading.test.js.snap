@@ -23,64 +23,7 @@ exports[`Loading renders component 1`] = `
     container={true}
     item={true}
   >
-    <AliceCarousel
-      autoHeight={false}
-      autoPlay={true}
-      autoPlayDirection="ltr"
-      autoPlayInterval={2000}
-      buttonsDisabled={true}
-      disableAutoPlayOnAction={false}
-      dotsDisabled={true}
-      duration={250}
-      fadeOutAnimation={false}
-      infinite={true}
-      items={Array []}
-      keysControlDisabled={false}
-      mouseDragEnabled={false}
-      playButtonEnabled={false}
-      preventEventOnTouchMove={false}
-      responsive={Object {}}
-      showSlideInfo={false}
-      slideToIndex={0}
-      stagePadding={Object {}}
-      startIndex={0}
-      stopAutoPlayOnHover={true}
-      swipeDisabled={false}
-    >
-      <div
-        className="tipContainer-mock"
-        key="0"
-      >
-        <WithStyles(ForwardRef(Typography))
-          className="typography-mock"
-          variant="caption"
-        >
-          A social marketplace for physical goods, information, and ideas. Owned by no one.
-        </WithStyles(ForwardRef(Typography))>
-      </div>
-      <div
-        className="tipContainer-mock"
-        key="1"
-      >
-        <WithStyles(ForwardRef(Typography))
-          className="typography-mock"
-          variant="caption"
-        >
-          A social marketplace for physical goods, information, and ideas. Owned by no one.
-        </WithStyles(ForwardRef(Typography))>
-      </div>
-      <div
-        className="tipContainer-mock"
-        key="2"
-      >
-        <WithStyles(ForwardRef(Typography))
-          className="typography-mock"
-          variant="caption"
-        >
-          A social marketplace for physical goods, information, and ideas. Owned by no one.
-        </WithStyles(ForwardRef(Typography))>
-      </div>
-    </AliceCarousel>
+    <WithStyles(Carousel) />
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
     className="progressBarContainer-mock"
