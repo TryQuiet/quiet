@@ -156,7 +156,10 @@ export const transferToMessage = async (props, users) => {
       const fromUser = users.get(publicKey)
       if (fromUser !== undefined) {
         const isUsernameValid = usernameSchema.isValidSync(fromUser)
-        sender = ExchangeParticipant({ replyTo: fromUser.address, username: isUsernameValid ? fromUser.nickname : `anon${publicKey.substring(0, 15)}` })
+        sender = ExchangeParticipant({
+          replyTo: fromUser.address,
+          username: isUsernameValid ? fromUser.nickname : `anon${publicKey.substring(0, 15)}`
+        })
       } else {
         sender = ExchangeParticipant({
           replyTo: '',
@@ -236,29 +239,48 @@ export const createTransfer = values => {
   })
 }
 
-const _splitUtxo = ({ transfer, utxos, splitTreshhold, fee, identityAddress }) => {
+const _buildUtxo = ({ transfer, utxos, splitTreshhold, fee, identityAddress, donation }) => {
+  let transfers = [transfer]
+  let includedDonation = 0
+  const donationAmount = new BigNumber(fee)
+  const balance = utxos.reduce((acc, utxo) => acc.plus(utxo.amount), new BigNumber(0))
+  if (
+    donation.allow &&
+    balance.gt(new BigNumber(transfer.amount).plus(donationAmount)) &&
+    transfer.address !== donation.address
+  ) {
+    includedDonation = donationAmount
+    const donate = {
+      address: donation.address,
+      amount: donationAmount.toString()
+    }
+    transfers.push(donate)
+  }
   const utxo = utxos.find(
-    utxo => utxo.amount > parseFloat(transfer.amount.toString()) + 2 * splitTreshhold + fee
+    utxo =>
+      utxo.amount >
+      parseFloat(transfer.amount) + 2 * splitTreshhold + fee + includedDonation
   )
   if (utxo) {
     const newUtxo = {
       address: identityAddress,
-      amount: parseFloat((utxo.amount - parseFloat(transfer.amount.toString()) - fee) / 2).toFixed(
-        4
-      )
+      amount: new BigNumber((utxo.amount - parseFloat(transfer.amount) - fee) / 2)
+        .toFixed(4)
+        .toString()
     }
-    return [transfer, newUtxo]
-  } else {
-    return [transfer]
+    transfers.push(newUtxo)
   }
+  return transfers
 }
+
 export const messageToTransfer = async ({
   message,
   amount = '0.0001',
   address,
   identityAddress,
   splitTreshhold = 0.005,
-  fee = 0.0001
+  fee = 0.0001,
+  donation = { allow: false }
 }) => {
   const utxos = await getClient().payment.unspentNotes({ addresses: [identityAddress] })
   let transfer
@@ -281,7 +303,14 @@ export const messageToTransfer = async ({
     amounts:
       identityAddress === address
         ? [transfer]
-        : _splitUtxo({ transfer, utxos, splitTreshhold, fee, identityAddress })
+        : _buildUtxo({
+          transfer,
+          utxos,
+          splitTreshhold,
+          fee,
+          identityAddress,
+          donation
+        })
   }
 }
 export const transfersToMessages = async (transfers, owner) => {

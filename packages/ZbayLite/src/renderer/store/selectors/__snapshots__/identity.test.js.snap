@@ -97,8 +97,21 @@ Immutable.Identity {
   },
   "balance": "33.583004",
   "lockedBalance": "12.583004",
+  "donationAllow": "false",
+  "donationAddress": "test",
 }
 `;
+
+exports[`identity selectors donation 1`] = `
+Object {
+  "address": "test",
+  "allow": "false",
+}
+`;
+
+exports[`identity selectors donationAddress 1`] = `"test"`;
+
+exports[`identity selectors donationAllow 1`] = `"false"`;
 
 exports[`identity selectors identity 1`] = `
 Immutable.IdentityState {
@@ -192,6 +205,8 @@ Immutable.IdentityState {
     },
     "balance": "33.583004",
     "lockedBalance": "12.583004",
+    "donationAllow": "false",
+    "donationAddress": "test",
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {

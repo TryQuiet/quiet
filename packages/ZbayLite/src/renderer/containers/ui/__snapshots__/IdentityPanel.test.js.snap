@@ -20,6 +20,8 @@ Object {
     },
     "balance": "23.435432",
     "lockedBalance": "13.123432",
+    "donationAllow": true,
+    "donationAddress": "",
   },
 }
 `;

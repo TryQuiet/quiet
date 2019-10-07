@@ -38,7 +38,9 @@ describe('identity selectors', () => {
             lockedBalance: '12.583004',
             shippingData: ShippingData(shippingData),
             signerPrivKey,
-            signerPubKey
+            signerPubKey,
+            donationAllow: 'false',
+            donationAddress: 'test'
           }),
           loader: LoaderState({
             message: 'Test loading message',
@@ -83,12 +85,9 @@ describe('identity selectors', () => {
     expect(selectors.identity(store.getState())).toMatchSnapshot()
   })
 
-  each(['usd', 'zec']).test(
-    'balance for %s',
-    (currency) => {
-      expect(selectors.balance(currency)(store.getState())).toMatchSnapshot()
-    }
-  )
+  each(['usd', 'zec']).test('balance for %s', currency => {
+    expect(selectors.balance(currency)(store.getState())).toMatchSnapshot()
+  })
 
   it('address', () => {
     expect(selectors.address(store.getState())).toMatchSnapshot()
@@ -102,12 +101,9 @@ describe('identity selectors', () => {
     expect(selectors.transparentBalance(store.getState())).toMatchSnapshot()
   })
 
-  each(['usd', 'zec']).test(
-    'lockedBalance for %s',
-    (currency) => {
-      expect(selectors.lockedBalance(currency)(store.getState())).toMatchSnapshot()
-    }
-  )
+  each(['usd', 'zec']).test('lockedBalance for %s', currency => {
+    expect(selectors.lockedBalance(currency)(store.getState())).toMatchSnapshot()
+  })
 
   it('data', () => {
     expect(selectors.data(store.getState())).toMatchSnapshot()
@@ -127,5 +123,16 @@ describe('identity selectors', () => {
 
   it('shippingData', () => {
     expect(selectors.shippingData(store.getState())).toMatchSnapshot()
+  })
+
+  it('donationAllow', () => {
+    expect(selectors.donationAllow(store.getState())).toMatchSnapshot()
+  })
+
+  it('donationAddress', () => {
+    expect(selectors.donationAddress(store.getState())).toMatchSnapshot()
+  })
+  it('donation', () => {
+    expect(selectors.donation(store.getState())).toMatchSnapshot()
   })
 })

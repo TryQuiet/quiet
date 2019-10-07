@@ -1,5 +1,37 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Identity reducer handles actions - setDonationAllow 1`] = `
+Immutable.IdentityState {
+  "data": Immutable.Identity {
+    "id": null,
+    "address": "",
+    "transparentAddress": "",
+    "signerPrivKey": "",
+    "signerPubKey": "",
+    "name": "",
+    "shippingData": Immutable.ShippingData {
+      "firstName": "",
+      "lastName": "",
+      "street": "",
+      "country": "",
+      "region": "",
+      "city": "",
+      "postalCode": "",
+    },
+    "balance": null,
+    "lockedBalance": null,
+    "donationAllow": false,
+    "donationAddress": "",
+  },
+  "fetchingBalance": false,
+  "loader": Immutable.Record {
+    "loading": true,
+    "message": "",
+  },
+  "errors": "",
+}
+`;
+
 exports[`Identity reducer handles actions - setLoading 1`] = `
 Immutable.IdentityState {
   "data": Immutable.Identity {
@@ -20,6 +52,8 @@ Immutable.IdentityState {
     },
     "balance": null,
     "lockedBalance": null,
+    "donationAllow": true,
+    "donationAddress": "",
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
@@ -50,6 +84,8 @@ Immutable.IdentityState {
     },
     "balance": null,
     "lockedBalance": null,
+    "donationAllow": true,
+    "donationAddress": "",
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
@@ -80,6 +116,8 @@ Immutable.IdentityState {
     },
     "balance": null,
     "lockedBalance": null,
+    "donationAllow": true,
+    "donationAddress": "",
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
@@ -110,6 +148,8 @@ Immutable.IdentityState {
     },
     "balance": "2.34",
     "lockedBalance": null,
+    "donationAllow": true,
+    "donationAddress": "",
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
@@ -140,6 +180,8 @@ Immutable.IdentityState {
     },
     "balance": null,
     "lockedBalance": null,
+    "donationAllow": true,
+    "donationAddress": "",
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
@@ -170,6 +212,8 @@ Immutable.IdentityState {
     },
     "balance": null,
     "lockedBalance": null,
+    "donationAllow": true,
+    "donationAddress": "",
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
@@ -200,6 +244,8 @@ Immutable.IdentityState {
     },
     "balance": null,
     "lockedBalance": null,
+    "donationAllow": true,
+    "donationAddress": "",
   },
   "fetchingBalance": true,
   "loader": Immutable.Record {
@@ -230,6 +276,8 @@ Immutable.IdentityState {
     },
     "balance": null,
     "lockedBalance": null,
+    "donationAllow": true,
+    "donationAddress": "",
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
@@ -260,6 +308,8 @@ Immutable.IdentityState {
     },
     "balance": null,
     "lockedBalance": "2.34",
+    "donationAllow": true,
+    "donationAddress": "",
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
@@ -307,6 +357,8 @@ Immutable.IdentityState {
     },
     "balance": "2.2352",
     "lockedBalance": "0",
+    "donationAllow": true,
+    "donationAddress": "",
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
@@ -337,6 +389,8 @@ Immutable.IdentityState {
     },
     "balance": null,
     "lockedBalance": null,
+    "donationAllow": true,
+    "donationAddress": "",
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
@@ -503,6 +557,8 @@ Immutable.IdentityState {
     },
     "balance": "2.2352",
     "lockedBalance": "0",
+    "donationAllow": true,
+    "donationAddress": "",
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
@@ -541,6 +597,8 @@ Immutable.IdentityState {
     },
     "balance": null,
     "lockedBalance": null,
+    "donationAllow": true,
+    "donationAddress": "",
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {

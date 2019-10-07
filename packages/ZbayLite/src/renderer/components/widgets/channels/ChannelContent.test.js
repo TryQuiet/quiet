@@ -6,7 +6,7 @@ import { mockClasses } from '../../../../shared/testing/mocks'
 
 describe('ChannelContent', () => {
   it('renders component', () => {
-    const result = shallow(<ChannelContent classes={mockClasses} inputLocked />)
+    const result = shallow(<ChannelContent classes={mockClasses} measureRef={jest.fn()} contentRect={{}} inputLocked />)
     expect(result).toMatchSnapshot()
   })
 })

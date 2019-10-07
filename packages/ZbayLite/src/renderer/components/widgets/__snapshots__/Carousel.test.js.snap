@@ -5,7 +5,7 @@ exports[`Carousel renders component 1`] = `
   autoHeight={false}
   autoPlay={true}
   autoPlayDirection="ltr"
-  autoPlayInterval={4000}
+  autoPlayInterval={8000}
   buttonsDisabled={true}
   disableAutoPlayOnAction={false}
   dotsDisabled={true}
@@ -67,12 +67,23 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      But first, on Zbay you can...
+      But first, let’s go over a few basics:
     </WithStyles(ForwardRef(Typography))>
   </div>
   <div
     className="tipContainer-mock"
     key="4"
+  >
+    <WithStyles(ForwardRef(Typography))
+      className="typography-mock"
+      variant="caption"
+    >
+      On Zbay you’ll be able to do things like:
+    </WithStyles(ForwardRef(Typography))>
+  </div>
+  <div
+    className="tipContainer-mock"
+    key="5"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -84,7 +95,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="5"
+    key="6"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -96,7 +107,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="6"
+    key="7"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -108,7 +119,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="7"
+    key="8"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -120,7 +131,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="8"
+    key="9"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -132,7 +143,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="9"
+    key="10"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -144,25 +155,13 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="10"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="caption"
-    >
-      Earn money by promoting Zcash to friends or on the Internet.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
     key="11"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
       variant="caption"
     >
-      So, to continue the story...
+      You can even make money using Zbay…
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -174,7 +173,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      When you first run Zbay, it downloads a large amount of data to "catch up" with the network.
+      By promoting Zcash to friends or on the Internet.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -186,7 +185,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Downloading this data can take days or more, depending on your Internet connection.
+      And earning a share of what they spend.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -198,7 +197,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      It might also slow down your computer, or make your laptop heat up. (We're sorry!)
+      Okay, now let’s continue our explanation...
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -210,7 +209,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      The good news is, it'll be done soon. You should only have to do this once.
+      Of why Zbay is so slow to get started. 
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -222,7 +221,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      The next time you run Zbay, it might be slower than most apps, but it shouldn't take forever or slow down your computer.
+      Here goes!
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -234,7 +233,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      The next question to answer is, "Why?"
+      When you first run Zbay, it downloads a large amount of data to "catch up" with the network.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -246,7 +245,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Here's a hint. The answer starts with the letter "M"...
+      Downloading this data can take days or more, depending on your Internet connection.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -258,7 +257,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      And ends in "Uckerberg."
+      It might also slow down your computer, or make your laptop heat up. (We're sorry!)
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -270,7 +269,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Did you guess it? Good!
+      The good news is, it'll be done soon. You should only have to do this once.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -282,7 +281,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      In short, Zbay is slow because we're attempting something that hasn't been done before.
+      The next time you run Zbay, it might be slower than most apps, but it shouldn't take forever or slow down your computer.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -294,7 +293,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      We want to build a patch of online life that's controlled by the people of the Internet.
+      The next question to answer is, "Why?"
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -306,7 +305,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Not by one rich man in California, like Facebook is.
+      Here's a hint. The answer starts with the letter "M"...
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -318,7 +317,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Or by a reprehensible dictatorship, like WeChat and TikTok are.
+      And ends in "Uckerberg."
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -330,7 +329,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Or by a corporation legally bound to squeeze as much money from us as possible, like Google is.
+      Did you guess it? Good!
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -342,7 +341,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Technically and institutionally speaking, this is hard to do. But it's not impossible.
+      In short, Zbay is slow because we're attempting something that hasn't been done before.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -354,7 +353,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Zbay builds on two technical/institutional building blocks: "free software" and "blockchain".
+      We want to build a patch of online life that's controlled by the people of the Internet.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -366,7 +365,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Spoiler: the second building block, "blockchain," is the part that's slow.
+      Not by one rich man in California, like Facebook is.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -378,7 +377,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      But the first building block, "free software," depends on it, which we'll explain in a moment.
+      Or by a reprehensible dictatorship, like WeChat and TikTok are.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -390,7 +389,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Our story starts in Cambridge, Massachusetts in 1980. (Like, back when all computers were this slow.)
+      Or by a corporation legally bound to squeeze as much money from us as possible, like Google is.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -402,7 +401,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      A bearded guy named Richard M. Stallman, annoyed by a broken printer, had a powerful revelation...
+      Technically and institutionally speaking, this is hard to do. But it's not impossible.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -414,7 +413,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      He realized that software makers had legal and technical power to control software users...
+      To do it, Zbay builds on two technical/institutional building blocks: "free software" and "blockchain".
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -426,7 +425,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      And that they could use this power in nefarious ways, to extort, spy, censor, or worse.
+      These technical/institutional building blocks are "free software" and "blockchain".
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -438,7 +437,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Stallman defined what he called the "four freedoms" to rally software engineers around a brighter future.
+      Spoiler: the second building block, "blockchain," is the part that's slow.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -450,7 +449,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      The four freedoms were... (drumroll, please)
+      But the first building block, "free software," depends on it, which we'll explain in a moment.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -462,7 +461,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      1. The freedom to run a program as you wish, for any purpose.
+      Our story starts in Cambridge, Massachusetts in 1980. (Like, back when all computers were this slow.)
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -474,7 +473,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      2. The freedom to understand how a program works, and change it how you wish.
+      A bearded guy named Richard M. Stallman, annoyed by a broken printer, had a powerful revelation...
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -486,7 +485,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      3. The freedom to redistribute copies of a program, to help others.
+      He realized that software makers had legal and technical power to control software users...
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -498,7 +497,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      4. The freedom to redistribute your changes, so the wider community can benefit from your work.
+      And that they could use this power in nefarious ways, to extort, spy, censor, or worse.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -510,7 +509,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      In 1989, Stallman wrote the GNU GPL, a software license that encoded the four freedoms into law.
+      Stallman defined what he called the "four freedoms" to rally software engineers around a brighter future.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -522,7 +521,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      The GNU GPL was politically ingenious and breathtakingly awesome for the world.
+      The four freedoms were... (drumroll, please)
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -534,7 +533,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      It gave software engineers a legal, contractual way to give their users all four freedoms...
+      1. The freedom to run a program as you wish, for any purpose.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -546,7 +545,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      ...Which meant that anyone in the world could build on their work.
+      2. The freedom to understand how a program works, and change it how you wish.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -558,7 +557,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      But it had an epically crafty catch.
+      3. The freedom to redistribute copies of a program, to help others.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -570,7 +569,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      If you built on GPL code, it was illegal to redistribute your work unless you granted others the same freedoms.
+      4. The freedom to redistribute your changes, so the wider community can benefit from your work.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -582,7 +581,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      How amazing is that? It was like an engineered epidemic of freedom!
+      In 1989, Stallman wrote the GNU GPL, a software license that encoded the four freedoms into law.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -594,7 +593,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Stallman called software that respected your freedoms "Free Software".
+      The GNU GPL was politically ingenious and breathtakingly awesome for the world.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -606,7 +605,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      And he called licenses like the GNU GPL "copyleft." (Like, as opposed to "copyright." Nerd humor, sigh.)
+      It gave software engineers a legal, contractual way to give their users all four freedoms...
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -618,7 +617,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Free software became one of the most successful social movements in human history.
+      ...Which meant that anyone in the world could build on their work.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -630,7 +629,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Right now nearly every company in the world uses free software.
+      But only if they granted others the same freedoms...
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -642,7 +641,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      And an operating system built on free software (Android) powers 2.5 billion phones and tablets.
+      And released it under a GPL-compatible license!
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -654,7 +653,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Computing isn't just for rich people anymore, and it's largely thanks to free software.
+      Because of these clever rules, the body of code available under the GNU GPL grew like wildfire.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -666,7 +665,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Free software also let heroes like Edward Snowden and journalist Laura Poitras communicate privately...
+      Stallman called software that respected your freedoms "Free Software".
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -678,7 +677,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      So they could successfully blow the whistle on the world's most powerful spy agencies, the NSA and GCHQ.
+      And he called licenses like the GNU GPL "copyleft." (As opposed to "copyright." Nerd humor, sigh.)
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -690,7 +689,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Most of all, free software contains a powerful institutional guarantee:
+      Free software became one of the most successful social movements in human history.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -702,7 +701,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      If software makers start being evil its users can "fork".
+      Right now nearly every company in the world uses free software.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -714,7 +713,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      That is, they can band together, take the code, and build in a new direction.
+      And an operating system built on free software (Android) powers 2.5 billion phones and tablets.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -726,7 +725,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Zbay is free software. Anyone can fork us. That keeps us honest.
+      Computing isn't just for rich people anymore, and it's largely thanks to free software.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -738,7 +737,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      And we love it.
+      Free software also let heroes like Edward Snowden and journalist Laura Poitras communicate privately...
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -750,7 +749,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      You might ask, "If free software is so great, why is the Internet run by a new class of robber baron?"
+      So they could successfully blow the whistle on the world's most powerful spy agencies.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -762,7 +761,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Well, the free software movement had an important limitation.
+      Most of all, free software contains a powerful institutional guarantee:
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -774,7 +773,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Because of the freedoms it granted, companies could use GPL-licensed code however they chose...
+      If software makers start being evil its users can "fork".
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -786,7 +785,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      And if they didn't *distribute* it, they didn't have to give their users the four freedoms...
+      That is, they can band together, take the code, and build in a new direction.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -798,7 +797,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      And while selling an app was "distributing" software, using code to run a website (like Facebook.com, or Google.com) wasn't.
+      Zbay is free software. Anyone can fork us. That keeps us honest.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -810,7 +809,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Copyleft licenses didn't have the same power over a website, precisely because of the four freedoms.
+      And we love it.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -822,7 +821,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Remember: the first freedom lets anyone (including you, and Facebook) use the software however they want.
+      You might ask, "If free software is so great, why is the Internet run by a new class of robber baron?"
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -834,7 +833,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Moreover, the idea of "having control" over software on a server run by someone else is an illusion.
+      Well, the free software movement had an important limitation.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -846,7 +845,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Facebook is mostly running on Facebook's computers, not yours.
+      Because of the freedoms it granted, companies could use GPL-licensed code however they chose...
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -858,7 +857,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      If they were doing something evil with your data, how would you know? It's their computer.
+      And if they didn't *distribute* it, they didn't have to give their users the four freedoms...
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -870,8 +869,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      If you wanted to change something important, how would you? It's their computer.
-
+      And while selling an app was "distributing" software...,
     </WithStyles(ForwardRef(Typography))>
   </div>
   <div
@@ -882,7 +880,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      And if you wanted to change something in Facebook's code, would others even want to let you?
+      Using code to run a website (like Facebook.com, or Google.com) wasn't.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -894,8 +892,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      You could be an awful person. You could make the code do something awful. 
-
+      Copyleft licenses didn't have the same power over a website...,
     </WithStyles(ForwardRef(Typography))>
   </div>
   <div
@@ -906,7 +903,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Okay, we know *you're* not an awful person.
+      Precisely because free software gives so much freedom to its users.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -918,7 +915,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      But what about those other 7 billion people? Some of them are total psychos.
+      Remember: the first freedom lets anyone (including you, and Facebook) use the software however they want.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -930,7 +927,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Control over Facebook's code is too much power, so Facebook users trust Zuckerberg. 
+      Moreover, the idea of "having control" over software on a server run by someone else is an illusion.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -942,7 +939,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Which suits him fine.
+      Facebook is mostly running on Facebook's computers, not yours.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -954,7 +951,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Stallman's "four freedoms" only made sense when our apps ran on *our* computers.
+      If they were doing something evil with your data, how would you know? It's their computer.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -966,7 +963,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Once we started using websites like Facebook or Google Docs, those companies had freedom. Not us.
+      If you wanted to change something important, how would you? It's their computer.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -978,7 +975,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      We can't go back to the 90s and run apps we bought on floppy disks or CD-ROMS.
+      And if you wanted to change something in Facebook's code, why would others let you?
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -990,7 +987,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Humans are social beings. Our software will be social too.
+      You could be an awful person. You could make the code do something awful. 
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1002,7 +999,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      But until you could make a shared, global, social app that ran on *our own* computers...
+      Okay, we know *you're* not an awful person.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1014,7 +1011,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      One that you could trust to not be immediately ruined by psychos...
+      But what about those other 7 billion people? Some of them are total psychos.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1026,7 +1023,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Humanity's best tool for enforcing computing freedom and ethics, free software...
+      Control over Facebook's code is too much power, so Facebook users trust Zuckerberg. 
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1038,7 +1035,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      ...was stuck on the sidelines of the battlefield for freedom!
+      Which suits him fine.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1050,7 +1047,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      (Yes, that was a mixed metaphor, sorry.)
+      Stallman's "four freedoms" only made sense when our apps ran on *our* computers.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1062,7 +1059,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Worse, building a social network that runs on everyone's computer is super hard.
+      Once we started using websites like Facebook or Google Docs, those companies had freedom. Not us.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1074,7 +1071,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Think about it. It's kind of a paradox.
+      We can't go back to the 90s and run apps we bought on floppy disks or CD-ROMS.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1086,7 +1083,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      If everyone runs the app on their own computers, and it's free software...
+      Humans are social beings. Our software will be social too.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1098,7 +1095,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      That means everyone (including the psychos) could change the app to do whatever they want...
+      But until you could make a shared, global, social app that ran on *our own* computers...
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1110,7 +1107,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      And basically ruin it for everyone.
+      One that you could trust to not be immediately ruined by psychos...
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1122,7 +1119,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      This paradox teased a good percentage of computer science grad students throughout the nineties and early 2000s.
+      Humanity's best tool for enforcing computing freedom and ethics, free software...
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1134,7 +1131,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      A) Because it was trippy. B) Because you might get famous if you solved it.
+      ...was stuck on the sidelines of the battlefield for freedom!
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1146,7 +1143,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      And they came up with some cool ideas. But nothing ever really caught on.
+      (Yes, that was a mixed metaphor, sorry.)
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1158,7 +1155,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Everything that got made was too wonky. Or it didn't really work.
+      Worse, building a social network that runs on everyone's computer is super hard.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1170,7 +1167,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Then... 
+      Think about it. It's kind of a paradox.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1182,7 +1179,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      In 2008…
+      If everyone runs the app on their own computers, and it's free software...
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1194,7 +1191,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Another drumroll, please...
+      That means everyone (including the psychos) could change the app to do whatever they want...
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1206,7 +1203,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      When most developers were scrambling to learn how to build iPhone apps, or Facebook apps…
+      And basically ruin it for everyone.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1218,7 +1215,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      And everyone else was about to lose their job, or their house...
+      This paradox teased a good percentage of computer science grad students throughout the nineties and early 2000s.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1230,7 +1227,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Something really historic and surprising happened.
+      A) Because it was trippy. B) Because you might get famous if you solved it.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1242,7 +1239,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Someone, it seemed, had come out of the woodwork with an answer to the paradox.
+      And they came up with some cool ideas. But nothing ever really caught on.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1254,7 +1251,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      And the answer wasn't just an academic paper, it was working code.
+      Everything that got made was too wonky. Or it didn't really work.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1266,7 +1263,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Working code you could actually sort of use!
+      Then... 
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1278,7 +1275,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      The person was Satoshi Nakamoto.
+      In 2008…
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1290,7 +1287,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Oh, and that's definitely not his real name.
+      Another drumroll, please...
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1302,7 +1299,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Oh, and he might not actually have ever existed.
+      When most developers were scrambling to learn how to build iPhone apps, or Facebook apps…
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1314,7 +1311,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Oh, and the project was called Bitcoin.
+      And everyone else was about to lose their job, or their house...
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1326,7 +1323,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      You've probably heard of it?
+      Something really historic and surprising happened.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1338,7 +1335,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      And you probably have tons of ideas about it.
+      Someone, it seemed, had come out of the woodwork with an answer to the paradox.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1350,7 +1347,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Maybe you got rich off it, maybe you lost your life savings.
+      And the answer wasn't just an academic paper, it was working code.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1362,7 +1359,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Maybe it's the answer to the tyranny of big banks.
+      Working code you could actually sort of use!
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1374,7 +1371,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Maybe it's a hypercapitalist acid trip from Burning Man.
+      The person was Satoshi Nakamoto.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1386,7 +1383,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      The important thing is that Bitcoin was the first to crack the paradox.
+      Oh, and that's definitely not his real name.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1398,7 +1395,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      It was the first global network that ran on *our* computers but could connect us to others anywhere.
+      Oh, and he might not actually have ever existed.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1410,7 +1407,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Bitcoin, of course, was free software.
+      Oh, and the project was called Bitcoin.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1422,7 +1419,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Bitcoin was missing one important thing though: privacy.
+      You've probably heard of it?
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -1434,13 +1431,109 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="caption"
     >
-      Anything you did there would be visible to the entire world, they just might not know it was you.
+      And you probably have tons of ideas about it.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
   <div
     className="tipContainer-mock"
     key="118"
+  >
+    <WithStyles(ForwardRef(Typography))
+      className="typography-mock"
+      variant="caption"
+    >
+      Maybe you got rich off it, maybe you lost your life savings.
+
+    </WithStyles(ForwardRef(Typography))>
+  </div>
+  <div
+    className="tipContainer-mock"
+    key="119"
+  >
+    <WithStyles(ForwardRef(Typography))
+      className="typography-mock"
+      variant="caption"
+    >
+      Maybe it's the answer to the tyranny of big banks.
+
+    </WithStyles(ForwardRef(Typography))>
+  </div>
+  <div
+    className="tipContainer-mock"
+    key="120"
+  >
+    <WithStyles(ForwardRef(Typography))
+      className="typography-mock"
+      variant="caption"
+    >
+      Maybe it's a hypercapitalist acid trip from Burning Man.
+
+    </WithStyles(ForwardRef(Typography))>
+  </div>
+  <div
+    className="tipContainer-mock"
+    key="121"
+  >
+    <WithStyles(ForwardRef(Typography))
+      className="typography-mock"
+      variant="caption"
+    >
+      The important thing is that Bitcoin was the first to crack the paradox.
+
+    </WithStyles(ForwardRef(Typography))>
+  </div>
+  <div
+    className="tipContainer-mock"
+    key="122"
+  >
+    <WithStyles(ForwardRef(Typography))
+      className="typography-mock"
+      variant="caption"
+    >
+      It was the first global network that ran on *our* computers but could connect us to others anywhere.
+
+    </WithStyles(ForwardRef(Typography))>
+  </div>
+  <div
+    className="tipContainer-mock"
+    key="123"
+  >
+    <WithStyles(ForwardRef(Typography))
+      className="typography-mock"
+      variant="caption"
+    >
+      Bitcoin, of course, was free software.
+
+    </WithStyles(ForwardRef(Typography))>
+  </div>
+  <div
+    className="tipContainer-mock"
+    key="124"
+  >
+    <WithStyles(ForwardRef(Typography))
+      className="typography-mock"
+      variant="caption"
+    >
+      Bitcoin was missing one important thing though: privacy.
+
+    </WithStyles(ForwardRef(Typography))>
+  </div>
+  <div
+    className="tipContainer-mock"
+    key="125"
+  >
+    <WithStyles(ForwardRef(Typography))
+      className="typography-mock"
+      variant="caption"
+    >
+      Anything you did there would be visible to the entire world, they just might not know it was you.
+
+    </WithStyles(ForwardRef(Typography))>
+  </div>
+  <div
+    className="tipContainer-mock"
+    key="126"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1453,7 +1546,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="119"
+    key="127"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1465,7 +1558,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="120"
+    key="128"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1477,7 +1570,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="121"
+    key="129"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1489,7 +1582,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="122"
+    key="130"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1501,7 +1594,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="123"
+    key="131"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1513,7 +1606,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="124"
+    key="132"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1525,7 +1618,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="125"
+    key="133"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1537,7 +1630,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="126"
+    key="134"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1549,7 +1642,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="127"
+    key="135"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1561,7 +1654,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="128"
+    key="136"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1573,7 +1666,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="129"
+    key="137"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1585,7 +1678,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="130"
+    key="138"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1597,7 +1690,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="131"
+    key="139"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1609,7 +1702,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="132"
+    key="140"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1621,7 +1714,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="133"
+    key="141"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1633,7 +1726,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="134"
+    key="142"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1645,7 +1738,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="135"
+    key="143"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1657,7 +1750,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="136"
+    key="144"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1669,7 +1762,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="137"
+    key="145"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1681,7 +1774,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="138"
+    key="146"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1693,7 +1786,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="139"
+    key="147"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1705,7 +1798,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="140"
+    key="148"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1717,7 +1810,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="141"
+    key="149"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1729,7 +1822,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="142"
+    key="150"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1741,7 +1834,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="143"
+    key="151"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1753,7 +1846,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="144"
+    key="152"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1765,7 +1858,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="145"
+    key="153"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1777,7 +1870,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="146"
+    key="154"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1789,7 +1882,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="147"
+    key="155"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1801,7 +1894,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="148"
+    key="156"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1813,7 +1906,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="149"
+    key="157"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1825,7 +1918,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="150"
+    key="158"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1837,7 +1930,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="151"
+    key="159"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1849,7 +1942,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="152"
+    key="160"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"
@@ -1861,7 +1954,7 @@ exports[`Carousel renders component 1`] = `
   </div>
   <div
     className="tipContainer-mock"
-    key="153"
+    key="161"
   >
     <WithStyles(ForwardRef(Typography))
       className="typography-mock"

@@ -44,7 +44,7 @@ export const actions = {
 
 const _sendPendingMessages = async (dispatch, getState) => {
   const messages = selectors.queue(getState())
-
+  const donation = identitySelectors.donation(getState())
   await Promise.all(
     messages.map(async (msg, key) => {
       const channel = channelsSelectors.channelById(msg.channelId)(getState())
@@ -52,7 +52,8 @@ const _sendPendingMessages = async (dispatch, getState) => {
       const transfer = await messageToTransfer({
         message: msg.message.toJS(),
         address: channel.get('address'),
-        identityAddress
+        identityAddress,
+        donation
       })
 
       let opId

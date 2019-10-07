@@ -27,6 +27,10 @@ const lockedBalance = currency => createSelector(
 const id = createSelector(data, d => d.id)
 const name = createSelector(data, d => d.name)
 
+const donationAllow = createSelector(data, d => d.donationAllow)
+const donationAddress = createSelector(data, d => d.donationAddress)
+
+const donation = createSelector(data, d => ({ allow: d.donationAllow, address: d.donationAddress }))
 const signerPrivKey = createSelector(data, d => d.signerPrivKey)
 const signerPubKey = createSelector(data, d => d.signerPubKey)
 
@@ -67,5 +71,8 @@ export default {
   loader,
   shippingData,
   signerPrivKey,
-  signerPubKey
+  signerPubKey,
+  donationAllow,
+  donationAddress,
+  donation
 }

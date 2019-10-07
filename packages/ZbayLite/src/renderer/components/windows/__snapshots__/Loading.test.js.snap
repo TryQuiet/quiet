@@ -23,7 +23,7 @@ exports[`Loading renders component 1`] = `
     container={true}
     item={true}
   >
-    <WithStyles(Carousel) />
+    <WithStyles(undefined) />
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
     className="progressBarContainer-mock"

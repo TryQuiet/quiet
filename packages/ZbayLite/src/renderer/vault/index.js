@@ -8,18 +8,18 @@ import { passwordToSecureStrings } from './marshalling'
 import { formSchema as shippingDataSchema } from '../components/widgets/settings/ShippingSettingsForm'
 import Vault from './vault'
 
-const getVaultPath = (network) => path.join(remote.app.getPath('userData'), `vault-${network}.bcup`)
+const getVaultPath = network => path.join(remote.app.getPath('userData'), `vault-${network}.bcup`)
 
 let _vault = null
 
-export const withVaultInitialized = (fn) => (...args) => {
+export const withVaultInitialized = fn => (...args) => {
   if (!_vault) {
     throw Error('Archive not initialized.')
   }
   return fn(...args)
 }
 
-export const exists = (network) => fs.existsSync(getVaultPath(network))
+export const exists = network => fs.existsSync(getVaultPath(network))
 
 export const create = async ({ masterPassword, network }) => {
   if (_vault !== null) {
@@ -60,7 +60,11 @@ const _entryToIdentity = entry => {
     signerPubKey: entryObj.properties.signerPubKey,
     transparentAddress: entryObj.properties.transparentAddress,
     keys: JSON.parse(entryObj.properties.keys || '{}'),
-    shippingData: JSON.parse(entryObj.properties.shippingData || '{}')
+    shippingData: JSON.parse(entryObj.properties.shippingData || '{}'),
+    donationAllow: entryObj.properties.donationAllow || 'true',
+    donationAddress: parseInt(process.env.ZBAY_IS_TESTNET)
+      ? 'ztestsapling1e2fr65z5t537cyahpu55fm335a2z26293nvj4wu0jjw55s66r669kaw4k26hmgnk23zeqw2k74n'
+      : 'zs1ecsq8thnu84ejvfx2jcfsa6zas2k057n3hrhuy0pahmlvqfwterjaz3h772ldlsgp5r2xwvml9g' // TODO add real donation address
   }
 }
 
@@ -72,18 +76,21 @@ const newIdentitySchema = Yup.object().shape({
   address: Yup.string().required(),
   signerPrivKey: Yup.string().required(),
   signerPubKey: Yup.string().required(),
-  keys: Yup.object().shape({
-    sk: Yup.string().required(),
-    tpk: Yup.string().required()
-  }).required()
+  keys: Yup.object()
+    .shape({
+      sk: Yup.string().required(),
+      tpk: Yup.string().required()
+    })
+    .required()
 })
 
-export const createIdentity = async (identity) => {
+export const createIdentity = async identity => {
   let entry = null
   await newIdentitySchema.validate(identity)
   await _vault.withWorkspace(workspace => {
     const [identitiesGroup] = workspace.archive.findGroupsByTitle('Identities')
-    entry = identitiesGroup.createEntry(identity.name)
+    entry = identitiesGroup
+      .createEntry(identity.name)
       .setProperty('name', identity.name)
       .setProperty('address', identity.address)
       .setProperty('transparentAddress', identity.transparentAddress)
@@ -100,18 +107,21 @@ const updateIdentitySchema = Yup.object().shape({
   name: Yup.string().required(),
   transparentAddress: Yup.string().required(),
   address: Yup.string().required(),
-  keys: Yup.object().shape({
-    sk: Yup.string().required(),
-    tpk: Yup.string().required()
-  }).required()
+  keys: Yup.object()
+    .shape({
+      sk: Yup.string().required(),
+      tpk: Yup.string().required()
+    })
+    .required()
 })
 
-export const updateIdentity = async (identity) => {
+export const updateIdentity = async identity => {
   let entry = null
   await updateIdentitySchema.validate(identity)
   await _vault.withWorkspace(workspace => {
     const [identitiesGroup] = workspace.archive.findGroupsByTitle('Identities')
-    entry = identitiesGroup.findEntryByID(identity.id)
+    entry = identitiesGroup
+      .findEntryByID(identity.id)
       .setProperty('name', identity.name)
       .setProperty('address', identity.address)
       .setProperty('transparentAddress', identity.transparentAddress)
@@ -126,7 +136,8 @@ export const updateShippingData = async (identityId, shippingData) => {
   await shippingDataSchema.validate(shippingData)
   await _vault.withWorkspace(workspace => {
     const [identitiesGroup] = workspace.archive.findGroupsByTitle('Identities')
-    entry = identitiesGroup.findEntryByID(identityId)
+    entry = identitiesGroup
+      .findEntryByID(identityId)
       .setProperty('shippingData', JSON.stringify(shippingData))
     workspace.save()
   })
@@ -138,14 +149,28 @@ const updateIdentitySignerKeysSchema = Yup.object().shape({
   signerPrivKey: Yup.string().required()
 })
 
-export const updateIdentitySignerKeys = async (identity) => {
+export const updateIdentitySignerKeys = async identity => {
   let entry = null
   await updateIdentitySignerKeysSchema.validate(identity)
   await _vault.withWorkspace(workspace => {
     const [identitiesGroup] = workspace.archive.findGroupsByTitle('Identities')
-    entry = identitiesGroup.findEntryByID(identity.id)
+    entry = identitiesGroup
+      .findEntryByID(identity.id)
       .setProperty('signerPubKey', identity.signerPubKey)
       .setProperty('signerPrivKey', identity.signerPrivKey)
+    workspace.save()
+  })
+  return _entryToIdentity(entry)
+}
+
+const updateDonationSchema = Yup.boolean().required()
+
+export const updateDonation = async (identityId, allow) => {
+  let entry = null
+  await updateDonationSchema.validate(allow)
+  await _vault.withWorkspace(workspace => {
+    const [identitiesGroup] = workspace.archive.findGroupsByTitle('Identities')
+    entry = identitiesGroup.findEntryByID(identityId).setProperty('donationAllow', allow.toString())
     workspace.save()
   })
   return _entryToIdentity(entry)
@@ -171,14 +196,15 @@ export const locked = () => {
   return _vault === null || _vault.locked()
 }
 
-export default ({
+export default {
   // TODO: [refactoring] those using withWorkspace should be moved to Vault
   // as plug in modules
   identity: {
     createIdentity: withVaultInitialized(createIdentity),
     listIdentities: withVaultInitialized(listIdentities),
     updateShippingData: withVaultInitialized(updateShippingData),
-    updateIdentitySignerKeys: withVaultInitialized(updateIdentitySignerKeys)
+    updateIdentitySignerKeys: withVaultInitialized(updateIdentitySignerKeys),
+    updateDonation: withVaultInitialized(updateDonation)
   },
   locked,
   getVault,
@@ -187,4 +213,4 @@ export default ({
   create,
   unlock,
   lock: withVaultInitialized(lock)
-})
+}

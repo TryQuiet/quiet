@@ -38,29 +38,37 @@ export const ShippingData = Immutable.Record(
   'ShippingData'
 )
 
-const _Identity = Immutable.Record({
-  id: null,
-  address: '',
-  transparentAddress: '',
-  signerPrivKey: '',
-  signerPubKey: '',
-  name: '',
-  shippingData: ShippingData(),
-  balance: null,
-  lockedBalance: null
-}, 'Identity')
+const _Identity = Immutable.Record(
+  {
+    id: null,
+    address: '',
+    transparentAddress: '',
+    signerPrivKey: '',
+    signerPubKey: '',
+    name: '',
+    shippingData: ShippingData(),
+    balance: null,
+    lockedBalance: null,
+    donationAllow: true,
+    donationAddress: ''
+  },
+  'Identity'
+)
 
 export const Identity = values => {
   const record = _Identity(values)
   return record.set('shippingData', ShippingData(record.shippingData))
 }
 
-export const IdentityState = Immutable.Record({
-  data: Identity(),
-  fetchingBalance: false,
-  loader: LoaderState({ loading: true }),
-  errors: ''
-}, 'IdentityState')
+export const IdentityState = Immutable.Record(
+  {
+    data: Identity(),
+    fetchingBalance: false,
+    loader: LoaderState({ loading: true }),
+    errors: ''
+  },
+  'IdentityState'
+)
 
 export const initialState = IdentityState()
 
@@ -72,6 +80,7 @@ export const setFetchingBalance = createAction('SET_FETCHING_BALANCE')
 export const setLoading = createAction('SET_IDENTITY_LOADING')
 export const setLoadingMessage = createAction('SET_IDENTITY_LOADING_MESSAGE')
 export const setShippingData = createAction('SET_IDENTITY_SHIPPING_DATA')
+export const setDonationAllow = createAction('SET_DONATION_ALLOW')
 
 const actions = {
   setIdentity,
@@ -81,16 +90,19 @@ const actions = {
   setLoadingMessage,
   setLockedBalance,
   setShippingData,
-  setBalance
+  setBalance,
+  setDonationAllow
 }
 
 export const shieldBalance = ({ from, to, amount, fee }) => async (dispatch, getState) => {
   const opId = await getClient().payment.send({
     from,
-    amounts: [{
-      address: to,
-      amount: amount.toString()
-    }],
+    amounts: [
+      {
+        address: to,
+        amount: amount.toString()
+      }
+    ],
     fee
   })
   dispatch(
@@ -125,12 +137,14 @@ export const fetchBalance = () => async (dispatch, getState) => {
       new BigNumber(0)
     )
     if (realTBalance.gt(0)) {
-      await dispatch(shieldBalance({
-        from: tAddress,
-        to: address,
-        amount: realTBalance,
-        fee
-      }))
+      await dispatch(
+        shieldBalance({
+          from: tAddress,
+          to: address,
+          amount: realTBalance,
+          fee
+        })
+      )
     }
     dispatch(setLockedBalance(lockedBalance))
     dispatch(setBalance(balance))
@@ -165,17 +179,19 @@ export const createIdentity = ({ name }) => async (dispatch, getState) => {
 
     const { signerPrivKey, signerPubKey } = exportFunctions.createSignerKeys()
 
-    const { value: identity } = await dispatch(vaultHandlers.actions.createIdentity({
-      name,
-      address,
-      transparentAddress,
-      signerPubKey,
-      signerPrivKey,
-      keys: {
-        tpk,
-        sk
-      }
-    }))
+    const { value: identity } = await dispatch(
+      vaultHandlers.actions.createIdentity({
+        name,
+        address,
+        transparentAddress,
+        signerPubKey,
+        signerPrivKey,
+        keys: {
+          tpk,
+          sk
+        }
+      })
+    )
 
     const network = nodeSelectors.network(getState())
     const generalChannel = channels.general[network]
@@ -192,7 +208,7 @@ export const createIdentity = ({ name }) => async (dispatch, getState) => {
   }
 }
 
-export const setIdentityEpic = (identityToSet) => async (dispatch, getState) => {
+export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
   dispatch(setLoading(true))
   try {
     dispatch(setLoadingMessage('Ensuring identity integrity'))
@@ -208,11 +224,13 @@ export const setIdentityEpic = (identityToSet) => async (dispatch, getState) => 
     // Check if identity has signerKeys
     if (!identity.signerPrivKey || !identity.signerPubKey) {
       const { signerPrivKey, signerPubKey } = createSignerKeys()
-      const { value: updatedIdentity } = await dispatch(vaultHandlers.actions.updateIdentitySignerKeys({
-        id: identity.id,
-        signerPubKey,
-        signerPrivKey
-      }))
+      const { value: updatedIdentity } = await dispatch(
+        vaultHandlers.actions.updateIdentitySignerKeys({
+          id: identity.id,
+          signerPubKey,
+          signerPrivKey
+        })
+      )
       identity = updatedIdentity
     }
     await dispatch(setIdentity(identity))
@@ -252,38 +270,45 @@ export const updateShippingData = (values, formActions) => async (dispatch, getS
   await dispatch(setShippingData(identity.shippingData))
   formActions.setSubmitting(false)
 }
+export const updateDonation = allow => async (dispatch, getState) => {
+  const id = identitySelectors.id(getState())
+  const identity = await vault.identity.updateDonation(id, allow)
+  await dispatch(setDonationAllow(identity.donationAllow))
+}
 
 const epics = {
   fetchBalance,
   createIdentity,
   setIdentity: setIdentityEpic,
   updateShippingData,
-  createSignerKeys
+  createSignerKeys,
+  updateDonation
 }
 
 const exportFunctions = {
   createSignerKeys
 }
 
-export const reducer = handleActions({
-  [setLoading]: (state, { payload: loading }) => state.setIn(['loader', 'loading'], loading),
-  [setLoadingMessage]: (state, { payload: message }) => state.setIn(['loader', 'message'], message),
-  [setIdentity]: (state, { payload: identity }) => state.update(
-    'data',
-    data => data.merge(identity)
-  ),
-  [setBalance]: (state, { payload: balance }) => state.update(
-    'data',
-    data => data.set('balance', balance)
-  ),
-  [setLockedBalance]: (state, { payload: balance }) => state.update(
-    'data',
-    data => data.set('lockedBalance', balance)
-  ),
-  [setFetchingBalance]: (state, { payload: fetching }) => state.set('fetchingBalance', fetching),
-  [setErrors]: (state, { payload: errors }) => state.set('errors', errors),
-  [setShippingData]: (state, { payload: shippingData }) => state.setIn(['data', 'shippingData'], ShippingData(shippingData))
-}, initialState)
+export const reducer = handleActions(
+  {
+    [setLoading]: (state, { payload: loading }) => state.setIn(['loader', 'loading'], loading),
+    [setLoadingMessage]: (state, { payload: message }) =>
+      state.setIn(['loader', 'message'], message),
+    [setIdentity]: (state, { payload: identity }) =>
+      state.update('data', data => data.merge(identity)),
+    [setBalance]: (state, { payload: balance }) =>
+      state.update('data', data => data.set('balance', balance)),
+    [setLockedBalance]: (state, { payload: balance }) =>
+      state.update('data', data => data.set('lockedBalance', balance)),
+    [setFetchingBalance]: (state, { payload: fetching }) => state.set('fetchingBalance', fetching),
+    [setErrors]: (state, { payload: errors }) => state.set('errors', errors),
+    [setShippingData]: (state, { payload: shippingData }) =>
+      state.setIn(['data', 'shippingData'], ShippingData(shippingData)),
+    [setDonationAllow]: (state, { payload: allow }) =>
+      state.setIn(['data', 'donationAllow'], allow)
+  },
+  initialState
+)
 
 export default {
   actions,

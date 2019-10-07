@@ -6,6 +6,8 @@ exports[`0.2.0 migrations - ensureIdentityHasKeys updates identity in the vault 
 Array [
   Object {
     "address": "sapling-private-address",
+    "donationAddress": "ztestsapling1e2fr65z5t537cyahpu55fm335a2z26293nvj4wu0jjw55s66r669kaw4k26hmgnk23zeqw2k74n",
+    "donationAllow": "true",
     "keys": Object {
       "sk": "sapling-private-address-spending-key",
       "tpk": "transparent-address-private-key",

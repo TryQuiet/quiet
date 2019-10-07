@@ -124,6 +124,12 @@ describe('Identity reducer handles', () => {
       )
       assertStoreState()
     })
+    it('- setDonationAllow', async () => {
+      await store.dispatch(
+        identityHandlers.actions.setDonationAllow(false)
+      )
+      assertStoreState()
+    })
   })
 
   describe('epics', () => {

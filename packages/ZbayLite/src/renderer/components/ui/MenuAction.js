@@ -15,7 +15,9 @@ const styles = theme => ({
     paddingBottom: 24,
     minWidth: 136,
     borderRadius: 8
-  }
+  },
+  icon: {},
+  button: {}
 })
 
 export const MenuAction = ({

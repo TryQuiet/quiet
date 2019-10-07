@@ -4,6 +4,8 @@ exports[`vault instance - updateIdentity updates existing identity 1`] = `
 Array [
   Object {
     "address": "sapling-new-updated-address",
+    "donationAddress": "ztestsapling1e2fr65z5t537cyahpu55fm335a2z26293nvj4wu0jjw55s66r669kaw4k26hmgnk23zeqw2k74n",
+    "donationAllow": "true",
     "keys": Object {
       "sk": "saturn-spending-key",
       "tpk": "saturn-transparent-private-key",
@@ -16,6 +18,8 @@ Array [
   },
   Object {
     "address": "mars-address-zcash",
+    "donationAddress": "ztestsapling1e2fr65z5t537cyahpu55fm335a2z26293nvj4wu0jjw55s66r669kaw4k26hmgnk23zeqw2k74n",
+    "donationAllow": "true",
     "keys": Object {
       "sk": "mars-spending-key",
       "tpk": "mars-transparent-private-key",
@@ -28,6 +32,8 @@ Array [
   },
   Object {
     "address": "jupiter-address-zcash",
+    "donationAddress": "ztestsapling1e2fr65z5t537cyahpu55fm335a2z26293nvj4wu0jjw55s66r669kaw4k26hmgnk23zeqw2k74n",
+    "donationAllow": "true",
     "keys": Object {
       "sk": "jupiter-spending-key",
       "tpk": "jupiter-transparent-private-key",
@@ -45,6 +51,8 @@ exports[`vault instance - updateIdentity updates existing identity by signer pri
 Array [
   Object {
     "address": "saturn-address-zcash",
+    "donationAddress": "ztestsapling1e2fr65z5t537cyahpu55fm335a2z26293nvj4wu0jjw55s66r669kaw4k26hmgnk23zeqw2k74n",
+    "donationAllow": "true",
     "keys": Object {
       "sk": "saturn-spending-key",
       "tpk": "saturn-transparent-private-key",
@@ -57,6 +65,8 @@ Array [
   },
   Object {
     "address": "mars-address-zcash",
+    "donationAddress": "ztestsapling1e2fr65z5t537cyahpu55fm335a2z26293nvj4wu0jjw55s66r669kaw4k26hmgnk23zeqw2k74n",
+    "donationAllow": "true",
     "keys": Object {
       "sk": "mars-spending-key",
       "tpk": "mars-transparent-private-key",
@@ -69,6 +79,8 @@ Array [
   },
   Object {
     "address": "jupiter-address-zcash",
+    "donationAddress": "ztestsapling1e2fr65z5t537cyahpu55fm335a2z26293nvj4wu0jjw55s66r669kaw4k26hmgnk23zeqw2k74n",
+    "donationAllow": "true",
     "keys": Object {
       "sk": "jupiter-spending-key",
       "tpk": "jupiter-transparent-private-key",
@@ -126,6 +138,8 @@ exports[`vault instance lists identities 1`] = `
 Array [
   Object {
     "address": "saturn-address-zcash",
+    "donationAddress": "ztestsapling1e2fr65z5t537cyahpu55fm335a2z26293nvj4wu0jjw55s66r669kaw4k26hmgnk23zeqw2k74n",
+    "donationAllow": "true",
     "keys": Object {
       "sk": "saturn-spending-key",
       "tpk": "saturn-transparent-private-key",
@@ -138,6 +152,8 @@ Array [
   },
   Object {
     "address": "mars-address-zcash",
+    "donationAddress": "ztestsapling1e2fr65z5t537cyahpu55fm335a2z26293nvj4wu0jjw55s66r669kaw4k26hmgnk23zeqw2k74n",
+    "donationAllow": "true",
     "keys": Object {
       "sk": "mars-spending-key",
       "tpk": "mars-transparent-private-key",
@@ -150,6 +166,8 @@ Array [
   },
   Object {
     "address": "jupiter-address-zcash",
+    "donationAddress": "ztestsapling1e2fr65z5t537cyahpu55fm335a2z26293nvj4wu0jjw55s66r669kaw4k26hmgnk23zeqw2k74n",
+    "donationAllow": "true",
     "keys": Object {
       "sk": "jupiter-spending-key",
       "tpk": "jupiter-transparent-private-key",

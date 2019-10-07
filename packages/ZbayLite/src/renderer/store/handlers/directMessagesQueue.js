@@ -110,6 +110,7 @@ export const checkConfirmationNumber = async ({ opId, status, txId, dispatch, ge
 const _sendPendingDirectMessages = async (dispatch, getState) => {
   const messages = selectors.queue(getState())
   const identityAddress = identitySelectors.address(getState())
+  const donation = identitySelectors.donation(getState())
   await Promise.all(
     messages.map(async (msg, key) => {
       const { message, recipientAddress } = msg.toJS()
@@ -117,7 +118,8 @@ const _sendPendingDirectMessages = async (dispatch, getState) => {
         message,
         address: recipientAddress,
         amount: message.type === messageType.TRANSFER ? message.spent : new BigNumber('0.0001'),
-        identityAddress
+        identityAddress,
+        donation
       })
       let opId
       try {

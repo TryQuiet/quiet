@@ -4,5 +4,6 @@ exports[`AccountSettingsForm will receive right actions 1`] = `
 Object {
   "checkNickname": [Function],
   "handleSubmit": [Function],
+  "updateDonation": [Function],
 }
 `;

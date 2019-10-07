@@ -3,7 +3,8 @@ module.exports = [
   `The first question to answer is "What's taking so long?"
 `,
   `It's actually a long and important story, but we have time!`,
-  `But first, on Zbay you can...`,
+  `But first, let’s go over a few basics:`,
+  `On Zbay you’ll be able to do things like:`,
   `Register a username. (@yourname on Zcash)
 `,
   `Send messages to others.
@@ -16,9 +17,17 @@ module.exports = [
 `,
   `Send money to friends, even friends who haven't joined yet.
 `,
-  `Earn money by promoting Zcash to friends or on the Internet.
+  `You can even make money using Zbay…
 `,
-  `So, to continue the story...
+  `By promoting Zcash to friends or on the Internet.
+`,
+  `And earning a share of what they spend.
+`,
+  `Okay, now let’s continue our explanation...
+`,
+  `Of why Zbay is so slow to get started. 
+`,
+  `Here goes!
 `,
   `When you first run Zbay, it downloads a large amount of data to "catch up" with the network.
 `,
@@ -50,7 +59,9 @@ module.exports = [
 `,
   `Technically and institutionally speaking, this is hard to do. But it's not impossible.
 `,
-  `Zbay builds on two technical/institutional building blocks: "free software" and "blockchain".
+  `To do it, Zbay builds on two technical/institutional building blocks: "free software" and "blockchain".
+`,
+  `These technical/institutional building blocks are "free software" and "blockchain".
 `,
   `Spoiler: the second building block, "blockchain," is the part that's slow.
 `,
@@ -84,15 +95,15 @@ module.exports = [
 `,
   `...Which meant that anyone in the world could build on their work.
 `,
-  `But it had an epically crafty catch.
+  `But only if they granted others the same freedoms...
 `,
-  `If you built on GPL code, it was illegal to redistribute your work unless you granted others the same freedoms.
+  `And released it under a GPL-compatible license!
 `,
-  `How amazing is that? It was like an engineered epidemic of freedom!
+  `Because of these clever rules, the body of code available under the GNU GPL grew like wildfire.
 `,
   `Stallman called software that respected your freedoms "Free Software".
 `,
-  `And he called licenses like the GNU GPL "copyleft." (Like, as opposed to "copyright." Nerd humor, sigh.)
+  `And he called licenses like the GNU GPL "copyleft." (As opposed to "copyright." Nerd humor, sigh.)
 `,
   `Free software became one of the most successful social movements in human history.
 `,
@@ -104,7 +115,7 @@ module.exports = [
 `,
   `Free software also let heroes like Edward Snowden and journalist Laura Poitras communicate privately...
 `,
-  `So they could successfully blow the whistle on the world's most powerful spy agencies, the NSA and GCHQ.
+  `So they could successfully blow the whistle on the world's most powerful spy agencies.
 `,
   `Most of all, free software contains a powerful institutional guarantee:
 `,
@@ -124,9 +135,11 @@ module.exports = [
 `,
   `And if they didn't *distribute* it, they didn't have to give their users the four freedoms...
 `,
-  `And while selling an app was "distributing" software, using code to run a website (like Facebook.com, or Google.com) wasn't.
+  `And while selling an app was "distributing" software...,`,
+  `Using code to run a website (like Facebook.com, or Google.com) wasn't.
 `,
-  `Copyleft licenses didn't have the same power over a website, precisely because of the four freedoms.
+  `Copyleft licenses didn't have the same power over a website...,`,
+  `Precisely because free software gives so much freedom to its users.
 `,
   `Remember: the first freedom lets anyone (including you, and Facebook) use the software however they want.
 `,
@@ -138,7 +151,7 @@ module.exports = [
 `,
   `If you wanted to change something important, how would you? It's their computer.
 `,
-  `And if you wanted to change something in Facebook's code, would others even want to let you?
+  `And if you wanted to change something in Facebook's code, why would others let you?
 `,
   `You could be an awful person. You could make the code do something awful. 
 `,
