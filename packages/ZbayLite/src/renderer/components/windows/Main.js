@@ -10,6 +10,7 @@ import Sidebar from '../widgets/sidebar/Sidebar'
 import Channel from '../../containers/pages/Channel'
 import DirectMessages from '../../containers/pages/DirectMessages'
 import DepositMoneyModal from '../../containers/ui/DepositMoneyModal'
+import InvitationModal from '../../containers/ui/InvitationModal/InvitationModal'
 
 const styles = {
   gridRoot: {
@@ -22,6 +23,7 @@ export const Main = ({ match, classes }) => {
   return (
     <>
       <DepositMoneyModal />
+      <InvitationModal />
       <WindowWrapper>
         <Grid container direction='row' className={classes.gridRoot}>
           <Grid item>

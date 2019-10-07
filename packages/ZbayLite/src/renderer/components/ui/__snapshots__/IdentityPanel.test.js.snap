@@ -35,12 +35,21 @@ exports[`IdentityPanel renders component 1`] = `
         />
       </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(IconButton))
-      className="settingsButton-mock"
-      onClick={[MockFunction]}
+    <WithStyles(ForwardRef(Grid))
+      item={true}
     >
-      <PersonIcon />
-    </WithStyles(ForwardRef(IconButton))>
+      <WithStyles(ForwardRef(IconButton))
+        className="settingsButton-mock"
+      >
+        <AttachMoneyIcon />
+      </WithStyles(ForwardRef(IconButton))>
+      <WithStyles(ForwardRef(IconButton))
+        className="settingsButton-mock"
+        onClick={[MockFunction]}
+      >
+        <PersonIcon />
+      </WithStyles(ForwardRef(IconButton))>
+    </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
   <withModal(WithStyles(SettingsModal)) />
 </Fragment>

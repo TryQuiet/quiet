@@ -1,0 +1,52 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`InvitationModal renders component 1`] = `
+<WithStyles(ForwardRef(Dialog))
+  onClose={[MockFunction]}
+  open={true}
+>
+  <WithStyles(ForwardRef(Grid))
+    align="center"
+    className="root-mock"
+    container={true}
+    direction="column"
+    justify="flex-start"
+  >
+    <WithStyles(ForwardRef(Grid))
+      className="icon-mock"
+      container={true}
+      direction="row"
+      item={true}
+      justify="flex-start"
+    >
+      <Memo(WithStyles(IconButton))
+        className="closeIcon-mock"
+        onClick={[MockFunction]}
+      >
+        <ClearIcon />
+      </Memo(WithStyles(IconButton))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      className="header-mock"
+      item={true}
+    >
+      <WithStyles(ForwardRef(Typography))
+        variant="h5"
+      >
+        test tiltle
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      className="info-mock"
+      item={true}
+    >
+      <WithStyles(ForwardRef(Typography))
+        className="infoText-mock"
+        variant="body2"
+      >
+        test info
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Dialog))>
+`;

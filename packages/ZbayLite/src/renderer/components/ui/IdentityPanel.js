@@ -9,6 +9,7 @@ import { withStyles } from '@material-ui/core/styles'
 import IconButton from '@material-ui/core/IconButton'
 
 import PersonIcon from '@material-ui/icons/Person'
+import AttachMoneyIcon from '@material-ui/icons/AttachMoney'
 
 import Elipsis from '../ui/Elipsis'
 import { getZbayAddress } from '../../zbay/channels'
@@ -32,7 +33,7 @@ const styles = theme => ({
   }
 })
 
-export const IdentityPanel = ({ classes, identity, handleSettings }) => {
+export const IdentityPanel = ({ classes, identity, handleSettings, handleInvitation }) => {
   const zbayUri = getZbayAddress(identity.address)
   return (
     <React.Fragment>
@@ -57,9 +58,14 @@ export const IdentityPanel = ({ classes, identity, handleSettings }) => {
             />
           </Grid>
         </Grid>
-        <IconButton className={classes.settingsButton} onClick={handleSettings}>
-          <PersonIcon />
-        </IconButton>
+        <Grid item>
+          <IconButton className={classes.settingsButton} onClick={handleInvitation}>
+            <AttachMoneyIcon />
+          </IconButton>
+          <IconButton className={classes.settingsButton} onClick={handleSettings}>
+            <PersonIcon />
+          </IconButton>
+        </Grid>
       </Grid>
       <SettingsModal />
     </React.Fragment>
@@ -72,7 +78,8 @@ IdentityPanel.propTypes = {
     name: PropTypes.string.isRequired,
     address: PropTypes.string.isRequired
   }).isRequired,
-  handleSettings: PropTypes.func.isRequired
+  handleSettings: PropTypes.func.isRequired,
+  handleInvitation: PropTypes.func.isRequired
 }
 
 export default R.compose(

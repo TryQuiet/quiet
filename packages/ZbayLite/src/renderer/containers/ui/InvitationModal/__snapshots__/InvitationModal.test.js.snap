@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ErrorModal will receive right actions 1`] = `
+Object {
+  "includeAffiliate": [Function],
+  "reset": [Function],
+  "setAmount": [Function],
+}
+`;
+
+exports[`ErrorModal will receive right props 1`] = `
+Object {
+  "affiliate": false,
+  "amount": 0,
+  "zecRate": 70.45230379033394,
+}
+`;

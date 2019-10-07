@@ -18,6 +18,7 @@ import messagesHandlers from './handlers/messages'
 import usersHandlers from './handlers/users'
 import contactsHandlers from './handlers/contacts'
 import directMessageChannelHandlers from './handlers/directMessageChannel'
+import invitationHandlers from './handlers/invitation'
 import coordinatorHandlers from './handlers/coordinator'
 
 export default combineReducers({
@@ -39,5 +40,6 @@ export default combineReducers({
   criticalError: criticalErrorHandlers.reducer,
   contacts: contactsHandlers.reducer,
   directMessageChannel: directMessageChannelHandlers.reducer,
+  invitation: invitationHandlers.reducer,
   coordinator: coordinatorHandlers.reducer
 })

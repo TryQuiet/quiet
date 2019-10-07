@@ -1,0 +1,119 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`InvitationModalGenerate renders component 1`] = `
+<Memo(WithStyles(InvitationModal))
+  handleClose={[MockFunction]}
+  info="Invite friends to Zbay and (optionally)
+     give them
+  some funds to get started"
+  open={true}
+  title="Invite a friend"
+>
+  <WithStyles(ForwardRef(Grid))
+    className="warrning-mock"
+    item={true}
+  >
+    <WithStyles(ForwardRef(Typography))
+      className="warrningText-mock"
+      variant="body2"
+    >
+      ( This will generate a special invite link you can share with a friend. Once your friend installs Zbay they can open it to reclaim funds. You can use it to reclaim the funds yourself too - just dont't lose the link! )
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    align="center"
+    className="amountDiv-mock"
+    container={true}
+    justify="center"
+  >
+    <WithStyles(ForwardRef(Grid))
+      item={true}
+    >
+      <WithStyles(ForwardRef(Typography))
+        variant="h6"
+      >
+        $ 
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      item={true}
+    >
+      <WithStyles(ForwardRef(TextField))
+        InputProps={
+          Object {
+            "inputProps": Object {
+              "max": 99,
+              "min": 0,
+            },
+          }
+        }
+        className="inputDiv-mock"
+        classes={
+          Object {
+            "input": "input-mock",
+          }
+        }
+        onChange={[Function]}
+        type="number"
+        value={9}
+      />
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      item={true}
+    >
+      <WithStyles(ForwardRef(Typography))
+        variant="h6"
+      >
+         USD
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="zecAmount-mock"
+    item={true}
+  >
+    <WithStyles(ForwardRef(Typography))
+      variant="body2"
+    >
+      9.0000
+       ZEC
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+  >
+    <WithStyles(ForwardRef(FormControlLabel))
+      className="checkboxDiv-mock"
+      control={
+        <ForwardRef(WithStyles)
+          checked={true}
+          classes={
+            Object {
+              "checked": "checked-mock",
+              "root": "checkboxRoot-mock",
+            }
+          }
+          onChange={[Function]}
+        />
+      }
+      label="Include your affiliate code, so that you'll earn 1% of their purchases. (They can disable this at any time.)"
+    />
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="buttonDiv-mock"
+    item={true}
+  >
+    <WithStyles(ForwardRef(Button))
+      className="button-mock"
+      color="primary"
+      fullWidth={true}
+      onClick={[Function]}
+      size="large"
+      type="submit"
+      variant="contained"
+    >
+      Generate invitation
+    </WithStyles(ForwardRef(Button))>
+  </WithStyles(ForwardRef(Grid))>
+</Memo(WithStyles(InvitationModal))>
+`;
