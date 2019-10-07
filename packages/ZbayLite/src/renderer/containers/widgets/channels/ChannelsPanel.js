@@ -1,6 +1,5 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
 import * as R from 'ramda'
 import Grid from '@material-ui/core/Grid'
 import RootRef from '@material-ui/core/RootRef'
@@ -11,25 +10,13 @@ import SidebarHeader from '../../../components/ui/SidebarHeader'
 import AddChannelAction from './AddChannelAction'
 import channelsSelectors from '../../../store/selectors/channels'
 import channelSelectors from '../../../store/selectors/channel'
-import messagesHandlers from '../../../store/handlers/messages'
-import { useInterval } from '../../hooks'
 
 export const mapStateToProps = state => ({
   channels: channelsSelectors.data(state),
   selected: channelSelectors.channel(state)
 })
 
-export const mapDispatchToProps = dispatch => {
-  return bindActionCreators(
-    {
-      fetchChannelsMessages: messagesHandlers.epics.fetchMessages
-    },
-    dispatch
-  )
-}
-
 export const ChannelsPanel = ({ fetchChannelsMessages, measureRef, ...props }) => {
-  useInterval(fetchChannelsMessages, 15000)
   return (
     <RootRef rootRef={measureRef}>
       <Grid container item xs direction='column'>
@@ -42,8 +29,7 @@ export const ChannelsPanel = ({ fetchChannelsMessages, measureRef, ...props }) =
 
 export default R.compose(
   connect(
-    mapStateToProps,
-    mapDispatchToProps
+    mapStateToProps
   ),
   withContentRect('bounds'),
   React.memo

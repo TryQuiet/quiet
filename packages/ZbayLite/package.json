@@ -10,10 +10,25 @@
         "dist/**/*",
         "package.json"
       ],
+      "extraResources": "zcash/**/*",
       "publish": {
         "provider": "s3",
         "bucket": "zbay-release"
       }
+    },
+    "win": {
+      "target": "NSIS",
+      "files": [
+        "dist/**/*",
+        "package.json"
+      ],
+      "extraResources": [
+        "zcash/**/*",
+        {
+          "from": "../.zcash-params",
+          "to": "zcash/ZcashParams"
+        }
+      ]
     },
     "linux": {
       "target": [
@@ -45,6 +60,8 @@
     "dist": "aws s3 sync s3://zbay-zcash-binaries/darwin zcash/darwin  &&   npm run build:prod && electron-builder -p always --mac",
     "distlinux": "aws s3 sync s3://zbay-zcash-binaries/linux zcash/linux  && npm run build:prod && electron-builder --linux",
     "snaplinux": "aws s3 sync s3://zbay-zcash-binaries/linux zcash/linux && npm run build:prod && electron-builder --linux snap",
+    "distwin": " aws s3 sync s3://zbay-zcash-binaries/win32 zcash/win32 && npm run pullResources && npm run build:prod && electron-builder --win",
+    "pullResources": "./zcash/win32/zcash-fetch-params",
     "lint": "standard",
     "test": "npm run lint && jest",
     "test:watch": "npm run lint && jest --watchAll",
@@ -144,6 +161,7 @@
     "electron-updater": "^4.0.6",
     "formik": "^1.5.4",
     "formik-material-ui": "0.0.22",
+    "fs-extra": "^8.1.0",
     "identity-obj-proxy": "^3.0.0",
     "immutable": "^4.0.0-rc.12",
     "jest-each": "^24.0.0",

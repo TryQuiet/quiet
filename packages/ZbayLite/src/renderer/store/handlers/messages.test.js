@@ -163,9 +163,10 @@ describe('messages reducer', () => {
           lastSeen: testUtils.now.minus({ hours: 3 }),
           channelId: ch.get('id')
         })))
-
-        await store.dispatch(handlers.epics.fetchMessages())
-
+        const actions = channels.map(channel => () => handlers.epics.fetchMessages(channel))
+        for (let i = 0; i < actions.length; i++) {
+          await store.dispatch(actions[i]())
+        }
         assertState()
       })
 
@@ -175,10 +176,16 @@ describe('messages reducer', () => {
           channelId: ch.get('id')
         })))
         zcashMock.requestManager.z_listreceivedbyaddress.mockImplementation(_createMessagesForChannel(2))
-        await store.dispatch(handlers.epics.fetchMessages())
+        const actions = channels.map(channel => () => handlers.epics.fetchMessages(channel))
+        for (let i = 0; i < actions.length; i++) {
+          await store.dispatch(actions[i]())
+        }
 
         zcashMock.requestManager.z_listreceivedbyaddress.mockImplementation(_createMessagesForChannel(3))
-        await store.dispatch(handlers.epics.fetchMessages())
+        const actions2 = channels.map(channel => () => handlers.epics.fetchMessages(channel))
+        for (let i = 0; i < actions2.length; i++) {
+          await store.dispatch(actions2[i]())
+        }
 
         assertState()
       })
@@ -192,7 +199,10 @@ describe('messages reducer', () => {
           })))
         expect(channelsSelectors.lastSeen(channelId)(store.getState())).toBeUndefined()
 
-        await store.dispatch(handlers.epics.fetchMessages())
+        const actions = channels.map(channel => () => handlers.epics.fetchMessages(channel))
+        for (let i = 0; i < actions.length; i++) {
+          await store.dispatch(actions[i]())
+        }
 
         assertState()
         expect(channelsSelectors.lastSeen(channelId)(store.getState())).toEqual(testUtils.now)
@@ -204,7 +214,10 @@ describe('messages reducer', () => {
           channelId: ch.get('id')
         })))
 
-        await store.dispatch(handlers.epics.fetchMessages())
+        const actions = channels.map(channel => () => handlers.epics.fetchMessages(channel))
+        for (let i = 0; i < actions.length; i++) {
+          await store.dispatch(actions[i]())
+        }
 
         assertState()
       })
@@ -251,7 +264,10 @@ describe('messages reducer', () => {
           })
         }))
 
-        await store.dispatch(handlers.epics.fetchMessages())
+        const actions = channels.map(channel => () => handlers.epics.fetchMessages(channel))
+        for (let i = 0; i < actions.length; i++) {
+          await store.dispatch(actions[i]())
+        }
 
         expect(operationsSelectors.operations(store.getState())).toMatchSnapshot()
       })
@@ -266,7 +282,10 @@ describe('messages reducer', () => {
           channelId: ch.get('id')
         })))
 
-        await store.dispatch(handlers.epics.fetchMessages())
+        const actions = channels.map(channel => () => handlers.epics.fetchMessages(channel))
+        for (let i = 0; i < actions.length; i++) {
+          await store.dispatch(actions[i]())
+        }
 
         assertState()
       })

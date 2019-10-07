@@ -63,8 +63,7 @@ export const actions = {
   appendNewMessages
 }
 
-export const fetchMessages = () => async (dispatch, getState) => {
-  const channels = channelsSelectors.data(getState())
+export const fetchMessages = channel => async (dispatch, getState) => {
   const pendingMessages = operationsSelectors.pendingMessages(getState())
   const identityAddress = identitySelectors.address(getState())
   const users = usersSelectors.users(getState())
@@ -72,57 +71,52 @@ export const fetchMessages = () => async (dispatch, getState) => {
   if (pendingMessages.find(msg => msg.status === 'pending')) {
     return
   }
+  const channelId = channel.get('id')
+  const previousMessages = selectors.currentChannelMessages(channelId)(getState())
 
-  return Promise.all(
-    channels.map(async channel => {
-      const channelId = channel.get('id')
-      const previousMessages = selectors.currentChannelMessages(channelId)(getState())
+  const transfers = await getClient().payment.received(channel.get('address'))
 
-      const transfers = await getClient().payment.received(channel.get('address'))
+  if (transfers.length === appSelectors.transfers(getState()).get(channelId)) {
+    return
+  } else {
+    dispatch(appHandlers.actions.setTransfers({ id: channelId, value: transfers.length }))
+  }
 
-      if (transfers.length === appSelectors.transfers(getState()).get(channelId)) {
-        return
-      } else {
-        dispatch(appHandlers.actions.setTransfers({ id: channelId, value: transfers.length }))
+  const messagesAll = await Promise.all(
+    transfers.map(async transfer => {
+      const message = await zbayMessages.transferToMessage(transfer, users)
+      if (message === null) {
+        return ReceivedMessage(message)
       }
-
-      const messagesAll = await Promise.all(
-        transfers.map(async transfer => {
-          const message = await zbayMessages.transferToMessage(transfer, users)
-          if (message === null) {
-            return ReceivedMessage(message)
-          }
-          const pendingMessage = pendingMessages.find(pm => pm.txId && pm.txId === message.id)
-          if (pendingMessage) {
-            dispatch(operationsHandlers.actions.removeOperation(pendingMessage.opId))
-          }
-          return ReceivedMessage(message)
-        })
-      )
-      const messages = messagesAll.filter(message => message.id !== null)
-
-      let lastSeen = channelsSelectors.lastSeen(channelId)(getState())
-      if (!lastSeen) {
-        await dispatch(channelsHandlers.epics.updateLastSeen({ channelId }))
-        lastSeen = channelsSelectors.lastSeen(channelId)(getState())
+      const pendingMessage = pendingMessages.find(pm => pm.txId && pm.txId === message.id)
+      if (pendingMessage) {
+        dispatch(operationsHandlers.actions.removeOperation(pendingMessage.opId))
       }
-      const newMessages = zbayMessages.calculateDiff({
-        previousMessages,
-        nextMessages: Immutable.List(messages),
-        lastSeen,
-        identityAddress
-      })
-      await dispatch(channelsHandlers.actions.setUnread({ channelId, unread: newMessages.size }))
-      dispatch(
-        appendNewMessages({
-          channelId,
-          messagesIds: newMessages.map(R.prop('id'))
-        })
-      )
-      dispatch(setMessages({ messages, channelId }))
-      newMessages.map(nm => displayMessageNotification({ message: nm, channel }))
+      return ReceivedMessage(message)
     })
   )
+  const messages = messagesAll.filter(message => message.id !== null)
+
+  let lastSeen = channelsSelectors.lastSeen(channelId)(getState())
+  if (!lastSeen) {
+    await dispatch(channelsHandlers.epics.updateLastSeen({ channelId }))
+    lastSeen = channelsSelectors.lastSeen(channelId)(getState())
+  }
+  const newMessages = zbayMessages.calculateDiff({
+    previousMessages,
+    nextMessages: Immutable.List(messages),
+    lastSeen,
+    identityAddress
+  })
+  await dispatch(channelsHandlers.actions.setUnread({ channelId, unread: newMessages.size }))
+  await dispatch(
+    appendNewMessages({
+      channelId,
+      messagesIds: newMessages.map(R.prop('id'))
+    })
+  )
+  await dispatch(setMessages({ messages, channelId }))
+  newMessages.map(nm => displayMessageNotification({ message: nm, channel }))
 }
 
 export const epics = {

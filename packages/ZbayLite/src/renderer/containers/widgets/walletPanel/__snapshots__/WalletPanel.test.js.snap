@@ -3,16 +3,8 @@
 exports[`WalletPanel sets interval for getBalance 1`] = `
 Array [
   Array [
-    [MockFunction],
-    15000,
-  ],
-  Array [
     undefined,
     15000,
-  ],
-  Array [
-    undefined,
-    60000,
   ],
 ]
 `;
@@ -20,7 +12,5 @@ Array [
 exports[`WalletPanel will receive right actions 1`] = `
 Object {
   "fetchPrices": [Function],
-  "fetchUsers": [Function],
-  "getBalance": [Function],
 }
 `;

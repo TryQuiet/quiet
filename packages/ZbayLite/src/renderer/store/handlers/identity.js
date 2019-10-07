@@ -10,6 +10,7 @@ import channels from '../../zcash/channels'
 import identitySelectors from '../selectors/identity'
 import nodeSelectors from '../selectors/node'
 import appSelectors from '../selectors/app'
+import channelsSelectors from '../selectors/channels'
 import channelsHandlers from './channels'
 import usersHandlers from './users'
 import contactsHandlers from './contacts'
@@ -225,12 +226,16 @@ export const setIdentityEpic = (identityToSet) => async (dispatch, getState) => 
     ])
     dispatch(setLoadingMessage('Loading users and messages'))
     await dispatch(usersHandlers.epics.fetchUsers())
-    await Promise.all([dispatch(contactsHandlers.epics.fetchMessages()),
-      dispatch(contactsHandlers.epics.loadAllSentMessages()),
-      dispatch(messagesHandlers.epics.fetchMessages())
+    await Promise.all([
+      dispatch(contactsHandlers.epics.fetchMessages()),
+      dispatch(contactsHandlers.epics.loadAllSentMessages())
     ])
-  } catch (err) {
-  }
+    await Promise.all(
+      channelsSelectors
+        .data(getState())
+        .map(channel => dispatch(messagesHandlers.epics.fetchMessages(channel)))
+    )
+  } catch (err) {}
   dispatch(setLoading(false))
 
   const balance = identitySelectors.balance('zec')(getState())
