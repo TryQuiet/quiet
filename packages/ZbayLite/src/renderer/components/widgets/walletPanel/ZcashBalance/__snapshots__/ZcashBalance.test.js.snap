@@ -27,7 +27,7 @@ exports[`ZcashBalance renders component 1`] = `
       <WithStyles(ForwardRef(Grid))
         item={true}
       >
-        <Memo(WithStyles(UsdBalance))
+        <WithStyles(UsdBalance)
           value={"3243.25"}
         />
       </WithStyles(ForwardRef(Grid))>
@@ -73,7 +73,7 @@ exports[`ZcashBalance renders when balanced locked 1`] = `
       <WithStyles(ForwardRef(Grid))
         item={true}
       >
-        <Memo(WithStyles(UsdBalance))
+        <WithStyles(UsdBalance)
           value={"0"}
         />
       </WithStyles(ForwardRef(Grid))>

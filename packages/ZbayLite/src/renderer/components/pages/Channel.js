@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import * as R from 'ramda'
 
 import { withStyles } from '@material-ui/core/styles'
 import { Grid } from '@material-ui/core'
@@ -39,4 +40,7 @@ Channel.propTypes = {
   contactId: PropTypes.string
 }
 
-export default withStyles(styles)(Channel)
+export default R.compose(
+  React.memo,
+  withStyles(styles)
+)(Channel)

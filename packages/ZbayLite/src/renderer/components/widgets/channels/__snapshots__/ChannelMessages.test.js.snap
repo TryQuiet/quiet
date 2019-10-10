@@ -8,7 +8,6 @@ exports[`ChannelMessages renders component 1`] = `
   autoHide={false}
   autoHideDuration={200}
   autoHideTimeout={500}
-  height={200}
   hideTracksWhenNotNeeded={false}
   onScrollFrame={[Function]}
   renderThumbHorizontal={[Function]}
@@ -24,7 +23,7 @@ exports[`ChannelMessages renders component 1`] = `
     className="list-mock"
     disablePadding={true}
   >
-    <Connect(Component)
+    <Memo(Connect(Component))
       key="0"
       message={
         Immutable.Map {
@@ -104,7 +103,7 @@ exports[`ChannelMessages renders component 1`] = `
         }
       }
     />
-    <Connect(Component)
+    <Memo(Connect(Component))
       key="1"
       message={
         Immutable.Map {
@@ -184,7 +183,7 @@ exports[`ChannelMessages renders component 1`] = `
         }
       }
     />
-    <Connect(Component)
+    <Memo(Connect(Component))
       key="2"
       message={
         Immutable.Map {
@@ -264,7 +263,7 @@ exports[`ChannelMessages renders component 1`] = `
         }
       }
     />
-    <Connect(Component)
+    <Memo(Connect(Component))
       key="3"
       message={
         Immutable.Map {

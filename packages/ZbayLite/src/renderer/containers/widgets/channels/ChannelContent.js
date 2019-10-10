@@ -1,4 +1,6 @@
+import React from 'react'
 import { connect } from 'react-redux'
+import * as R from 'ramda'
 
 import ChannelContent from '../../../components/widgets/channels/ChannelContent'
 import channelSelectors from '../../../store/selectors/channel'
@@ -9,4 +11,9 @@ export const mapStateToProps = state => ({
   signerPubKey: identitySelectors.signerPubKey(state)
 })
 
-export default connect(mapStateToProps)(ChannelContent)
+export default R.compose(
+  React.memo,
+  connect(
+    mapStateToProps
+  )
+)(ChannelContent)

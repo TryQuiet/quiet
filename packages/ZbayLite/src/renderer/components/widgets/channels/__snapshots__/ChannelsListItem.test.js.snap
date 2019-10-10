@@ -123,14 +123,8 @@ exports[`ChannelsListItem renders component with address 1`] = `
       </ForwardRef(WithStyles)>
     }
     secondary={
-      <Elipsis
-        classes={
-          Object {
-            "content": "",
-          }
-        }
+      <Memo(Elipsis)
         content="zs1testaddress1"
-        interactive={false}
         length={20}
         tooltipPlacement="bottom"
       />

@@ -49,6 +49,6 @@ export const AddChannelAction = ({ classes, openCreateModal }) => {
 }
 
 export default R.compose(
-  withStyles(styles),
-  React.memo
+  React.memo,
+  withStyles(styles)
 )(AddChannelAction)

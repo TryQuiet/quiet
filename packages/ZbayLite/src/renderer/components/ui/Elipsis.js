@@ -38,4 +38,4 @@ Elipsis.defaultProps = {
   length: 40
 }
 
-export default Elipsis
+export default React.memo(Elipsis)

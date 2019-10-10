@@ -51,6 +51,7 @@ ChannelContent.propTypes = {
 }
 
 export default R.compose(
+  React.memo,
   withStyles(styles),
   withContentRect('bounds')
 )(ChannelContent)

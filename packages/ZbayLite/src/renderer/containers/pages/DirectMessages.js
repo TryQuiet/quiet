@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
+import * as R from 'ramda'
 
 import directMessageChannel from '../../store/handlers/directMessageChannel'
 import contactsHandlers from '../../store/handlers/contacts'
@@ -40,7 +41,10 @@ const DirectMessages = ({
   return <ChannelComponent contactId={match.params.id} />
 }
 
-export default connect(
-  null,
-  mapDispatchToProps
+export default R.compose(
+  React.memo,
+  connect(
+    null,
+    mapDispatchToProps
+  )
 )(DirectMessages)

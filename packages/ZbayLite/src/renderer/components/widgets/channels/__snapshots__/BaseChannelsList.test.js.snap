@@ -26,7 +26,7 @@ exports[`BaseChannelsList renders component 1`] = `
   <WithStyles(ForwardRef(List))
     disablePadding={true}
   >
-    <withRouter(undefined)
+    <Memo(withRouter(undefined))
       channel={
         Immutable.Map {
           "id": 0,
@@ -45,7 +45,7 @@ exports[`BaseChannelsList renders component 1`] = `
       key="0"
       selected={Immutable.Record {}}
     />
-    <withRouter(undefined)
+    <Memo(withRouter(undefined))
       channel={
         Immutable.Map {
           "id": 1,
@@ -64,7 +64,7 @@ exports[`BaseChannelsList renders component 1`] = `
       key="1"
       selected={Immutable.Record {}}
     />
-    <withRouter(undefined)
+    <Memo(withRouter(undefined))
       channel={
         Immutable.Map {
           "id": 2,
@@ -83,7 +83,7 @@ exports[`BaseChannelsList renders component 1`] = `
       key="2"
       selected={Immutable.Record {}}
     />
-    <withRouter(undefined)
+    <Memo(withRouter(undefined))
       channel={
         Immutable.Map {
           "id": 3,
@@ -102,7 +102,7 @@ exports[`BaseChannelsList renders component 1`] = `
       key="3"
       selected={Immutable.Record {}}
     />
-    <withRouter(undefined)
+    <Memo(withRouter(undefined))
       channel={
         Immutable.Map {
           "id": 4,
@@ -121,7 +121,7 @@ exports[`BaseChannelsList renders component 1`] = `
       key="4"
       selected={Immutable.Record {}}
     />
-    <withRouter(undefined)
+    <Memo(withRouter(undefined))
       channel={
         Immutable.Map {
           "id": 5,
@@ -140,7 +140,7 @@ exports[`BaseChannelsList renders component 1`] = `
       key="5"
       selected={Immutable.Record {}}
     />
-    <withRouter(undefined)
+    <Memo(withRouter(undefined))
       channel={
         Immutable.Map {
           "id": 6,
@@ -159,7 +159,7 @@ exports[`BaseChannelsList renders component 1`] = `
       key="6"
       selected={Immutable.Record {}}
     />
-    <withRouter(undefined)
+    <Memo(withRouter(undefined))
       channel={
         Immutable.Map {
           "id": 7,
@@ -178,7 +178,7 @@ exports[`BaseChannelsList renders component 1`] = `
       key="7"
       selected={Immutable.Record {}}
     />
-    <withRouter(undefined)
+    <Memo(withRouter(undefined))
       channel={
         Immutable.Map {
           "id": 8,
@@ -197,7 +197,7 @@ exports[`BaseChannelsList renders component 1`] = `
       key="8"
       selected={Immutable.Record {}}
     />
-    <withRouter(undefined)
+    <Memo(withRouter(undefined))
       channel={
         Immutable.Map {
           "id": 9,
@@ -216,7 +216,7 @@ exports[`BaseChannelsList renders component 1`] = `
       key="9"
       selected={Immutable.Record {}}
     />
-    <withRouter(undefined)
+    <Memo(withRouter(undefined))
       channel={
         Immutable.Map {
           "id": 10,
@@ -235,7 +235,7 @@ exports[`BaseChannelsList renders component 1`] = `
       key="10"
       selected={Immutable.Record {}}
     />
-    <withRouter(undefined)
+    <Memo(withRouter(undefined))
       channel={
         Immutable.Map {
           "id": 11,
@@ -284,7 +284,7 @@ exports[`BaseChannelsList renders list elements with displayAddress 1`] = `
   <WithStyles(ForwardRef(List))
     disablePadding={true}
   >
-    <withRouter(undefined)
+    <Memo(withRouter(undefined))
       channel={
         Immutable.Map {
           "id": 0,
@@ -303,7 +303,7 @@ exports[`BaseChannelsList renders list elements with displayAddress 1`] = `
       key="0"
       selected={Immutable.Record {}}
     />
-    <withRouter(undefined)
+    <Memo(withRouter(undefined))
       channel={
         Immutable.Map {
           "id": 1,
@@ -322,7 +322,7 @@ exports[`BaseChannelsList renders list elements with displayAddress 1`] = `
       key="1"
       selected={Immutable.Record {}}
     />
-    <withRouter(undefined)
+    <Memo(withRouter(undefined))
       channel={
         Immutable.Map {
           "id": 2,

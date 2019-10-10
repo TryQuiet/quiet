@@ -46,55 +46,56 @@ const styles = theme => ({
   }
 })
 
-export const ZcashBalance = ({ classes, usdBalance, zecBalance, usdLocked, zecLocked }) => (
-  <Grid container direction='row' justify='flex-start' alignItems='stretch' spacing={1}>
-    <Grid item xs={12}>
-      <Typography variant='body2' className={classes.title}>
-        Available
-      </Typography>
-      <Grid container justify='space-between' align='center' direction='row'>
-        <Grid item>
-          <UsdBalance value={usdBalance} />
-        </Grid>
-        <Grid item className={classes.zec}>
-          <ZecBalance size={16} value={zecBalance} style='white' />
-        </Grid>
-      </Grid>
-    </Grid>
-    {(!usdLocked.isZero() || !zecLocked.isZero()) && (
-      <Grow in={!usdLocked.isZero() || !zecLocked.isZero()}>
-        <Grid item xs={12}>
-          <Grid
-            container
-            direction='row'
-            justify='space-evenly'
-            alignItems='center'
-            className={classes.lockedRoot}
-            spacing={0}
-          >
-            <Grid item xs={2} className={classes.alignHorizontal}>
-              <SpinnerLoader classes={classes} size={30} />
-            </Grid>
-            <Grid item xs={7} container alignItems='center'>
-              <Grid item xs={12}>
-                <Typography variant='caption' display='inline' className={classes.lockedTitle}>
-                  Pending <span className={classes.usd}>${usdLocked.toFormat(2)}</span> USD
-                </Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <Typography variant='caption'>{zecLocked.toFormat(6)} ZEC</Typography>
-              </Grid>
-            </Grid>
-            <Grid item xs={2} className={classes.alignHorizontal}>
-              <InfoIcon className={classes.icon} />
-            </Grid>
+export const ZcashBalance = ({ classes, usdBalance, zecBalance, usdLocked, zecLocked }) => {
+  return (
+    <Grid container direction='row' justify='flex-start' alignItems='stretch' spacing={1}>
+      <Grid item xs={12}>
+        <Typography variant='body2' className={classes.title}>
+          Available
+        </Typography>
+        <Grid container justify='space-between' align='center' direction='row'>
+          <Grid item>
+            <UsdBalance value={usdBalance} />
+          </Grid>
+          <Grid item className={classes.zec}>
+            <ZecBalance size={16} value={zecBalance} style='white' />
           </Grid>
         </Grid>
-      </Grow>
-    )}
-  </Grid>
-)
-
+      </Grid>
+      {(!usdLocked.isZero() || !zecLocked.isZero()) && (
+        <Grow in={!usdLocked.isZero() || !zecLocked.isZero()}>
+          <Grid item xs={12}>
+            <Grid
+              container
+              direction='row'
+              justify='space-evenly'
+              alignItems='center'
+              className={classes.lockedRoot}
+              spacing={0}
+            >
+              <Grid item xs={2} className={classes.alignHorizontal}>
+                <SpinnerLoader classes={classes} size={30} />
+              </Grid>
+              <Grid item xs={7} container alignItems='center'>
+                <Grid item xs={12}>
+                  <Typography variant='caption' display='inline' className={classes.lockedTitle}>
+                    Pending <span className={classes.usd}>${usdLocked.toFormat(2)}</span> USD
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography variant='caption'>{zecLocked.toFormat(6)} ZEC</Typography>
+                </Grid>
+              </Grid>
+              <Grid item xs={2} className={classes.alignHorizontal}>
+                <InfoIcon className={classes.icon} />
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grow>
+      )}
+    </Grid>
+  )
+}
 ZcashBalance.propTypes = {
   classes: PropTypes.object.isRequired,
   usdBalance: PropTypes.instanceOf(BigNumber),
@@ -111,6 +112,5 @@ ZcashBalance.defaultProps = {
 }
 
 export default R.compose(
-  React.memo,
   withStyles(styles)
 )(ZcashBalance)

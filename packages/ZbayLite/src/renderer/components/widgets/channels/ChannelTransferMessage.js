@@ -73,7 +73,6 @@ export const ChannelTransferMessage = ({
 
   const status = message.status || 'broadcasted'
   const error = message.error
-
   return (
     <BasicMessage message={message} actionsOpen={actionsOpen} setActionsOpen={setActionsOpen}>
       <React.Fragment>

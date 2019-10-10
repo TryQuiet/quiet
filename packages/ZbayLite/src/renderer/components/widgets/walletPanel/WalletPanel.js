@@ -42,4 +42,7 @@ WalletPanel.propTypes = {
   classes: PropTypes.object.isRequired
 }
 
-export default R.compose(withStyles(styles))(WalletPanel)
+export default R.compose(
+  React.memo,
+  withStyles(styles)
+)(WalletPanel)

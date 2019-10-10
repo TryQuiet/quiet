@@ -1,7 +1,6 @@
 import React from 'react'
 import Immutable from 'immutable'
 import PropTypes from 'prop-types'
-import * as R from 'ramda'
 
 import ScalingChannelsList from './ScalingChannelsList'
 
@@ -34,4 +33,4 @@ ChannelsPanel.defaultProps = {
   channels: Immutable.List()
 }
 
-export default R.compose(React.memo)(ChannelsPanel)
+export default React.memo(ChannelsPanel)

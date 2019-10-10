@@ -1,5 +1,8 @@
+import React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
+import Immutable from 'immutable'
+import * as R from 'ramda'
 
 import operationsHandlers from '../../../store/handlers/operations'
 import channelHandlers from '../../../store/handlers/channel'
@@ -17,12 +20,21 @@ export const mapDispatchToProps = (dispatch, ownProps) =>
   bindActionCreators(
     {
       onCancel: () => operationsHandlers.actions.removeOperation(ownProps.message.get('id')),
-      onResend: () => ownProps.contactId ? contactsHandlers.epics.resendMessage(ownProps.message.toJS()) : channelHandlers.epics.resendMessage(ownProps.message.toJS())
+      onResend: () =>
+        ownProps.contactId
+          ? contactsHandlers.epics.resendMessage(ownProps.message.toJS())
+          : channelHandlers.epics.resendMessage(ownProps.message.toJS())
     },
     dispatch
   )
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ChannelTransferMessage)
+export default R.compose(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )
+)(
+  React.memo(ChannelTransferMessage, (before, after) => {
+    return Immutable.is(after.message, before.message)
+  })
+)

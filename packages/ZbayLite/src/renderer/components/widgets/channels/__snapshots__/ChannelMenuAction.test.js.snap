@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ChannelMenuAction renders component 1`] = `
-<WithStyles(MenuAction)
+<Memo(WithStyles(MenuAction))
   IconButton={
     Object {
       "$$typeof": Symbol(react.memo),
@@ -301,5 +301,5 @@ exports[`ChannelMenuAction renders component 1`] = `
     onClick={[MockFunction]}
     title="Delete"
   />
-</WithStyles(MenuAction)>
+</Memo(WithStyles(MenuAction))>
 `;

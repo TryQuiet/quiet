@@ -22,7 +22,7 @@ exports[`IdentityPanel renders component 1`] = `
         >
           Saturn
         </WithStyles(ForwardRef(Typography))>
-        <Elipsis
+        <Memo(Elipsis)
           classes={
             Object {
               "content": "uri-mock",

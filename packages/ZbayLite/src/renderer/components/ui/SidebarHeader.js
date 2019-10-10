@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import * as R from 'ramda'
 
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
@@ -13,29 +14,29 @@ const styles = theme => ({
   }
 })
 
-export const SidebarHeader = ({ classes, title, actions }) => (
-  <Grid
-    container
-    direction='row'
-    justify='space-between'
-    alignItems='center'
-    className={classes.root}
-  >
-    <Grid item>
-      <Typography variant='subtitle1'>
-        {title}
-      </Typography>
+export const SidebarHeader = ({ classes, title, actions }) => {
+  return (
+    <Grid
+      container
+      direction='row'
+      justify='space-between'
+      alignItems='center'
+      className={classes.root}
+    >
+      <Grid item>
+        <Typography variant='subtitle1'>{title}</Typography>
+      </Grid>
+      <Grid item>{actions}</Grid>
     </Grid>
-    <Grid item>
-      {actions}
-    </Grid>
-  </Grid>
-)
-
+  )
+}
 SidebarHeader.propTypes = {
   classes: PropTypes.object.isRequired,
   title: PropTypes.string.isRequired,
   actions: PropTypes.arrayOf(PropTypes.element)
 }
 
-export default React.memo(withStyles(styles)(SidebarHeader))
+export default R.compose(
+  React.memo,
+  withStyles(styles)
+)(SidebarHeader)

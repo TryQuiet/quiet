@@ -16,7 +16,7 @@ exports[`BasicMessage renders component 1`] = `
         justify="flex-start"
         wrap="nowrap"
       >
-        <withRouter(Connect(Component))
+        <Memo(withRouter(Connect(Component)))
           address=""
           anchorEl={null}
           handleClose={[Function]}
@@ -91,7 +91,7 @@ exports[`BasicMessage renders component when message is sent by owner 1`] = `
         justify="flex-start"
         wrap="nowrap"
       >
-        <withRouter(Connect(Component))
+        <Memo(withRouter(Connect(Component)))
           address=""
           anchorEl={null}
           handleClose={[Function]}
@@ -170,7 +170,7 @@ exports[`BasicMessage renders component with status failed 1`] = `
         justify="flex-start"
         wrap="nowrap"
       >
-        <withRouter(Connect(Component))
+        <Memo(withRouter(Connect(Component)))
           address=""
           anchorEl={null}
           handleClose={[Function]}
@@ -222,7 +222,7 @@ exports[`BasicMessage renders component with status failed 1`] = `
             className="iconBox-mock"
             item={true}
           >
-            <Elipsis
+            <Memo(Elipsis)
               classes={
                 Object {
                   "content": "failed-mock",
@@ -257,7 +257,7 @@ exports[`BasicMessage renders correct time for different month 1`] = `
         justify="flex-start"
         wrap="nowrap"
       >
-        <withRouter(Connect(Component))
+        <Memo(withRouter(Connect(Component)))
           address=""
           anchorEl={null}
           handleClose={[Function]}
@@ -332,7 +332,7 @@ exports[`BasicMessage renders correct time for different year 1`] = `
         justify="flex-start"
         wrap="nowrap"
       >
-        <withRouter(Connect(Component))
+        <Memo(withRouter(Connect(Component)))
           address=""
           anchorEl={null}
           handleClose={[Function]}
@@ -407,7 +407,7 @@ exports[`BasicMessage renders correct time for same week 1`] = `
         justify="flex-start"
         wrap="nowrap"
       >
-        <withRouter(Connect(Component))
+        <Memo(withRouter(Connect(Component)))
           address=""
           anchorEl={null}
           handleClose={[Function]}
@@ -482,7 +482,7 @@ exports[`BasicMessage renders username 1`] = `
         justify="flex-start"
         wrap="nowrap"
       >
-        <withRouter(Connect(Component))
+        <Memo(withRouter(Connect(Component)))
           address=""
           anchorEl={null}
           handleClose={[Function]}
@@ -557,7 +557,7 @@ exports[`BasicMessage renders with status cancelled 1`] = `
         justify="flex-start"
         wrap="nowrap"
       >
-        <withRouter(Connect(Component))
+        <Memo(withRouter(Connect(Component)))
           address=""
           anchorEl={null}
           handleClose={[Function]}
@@ -632,7 +632,7 @@ exports[`BasicMessage renders with status pending 1`] = `
         justify="flex-start"
         wrap="nowrap"
       >
-        <withRouter(Connect(Component))
+        <Memo(withRouter(Connect(Component)))
           address=""
           anchorEl={null}
           handleClose={[Function]}
@@ -707,7 +707,7 @@ exports[`BasicMessage renders with status success 1`] = `
         justify="flex-start"
         wrap="nowrap"
       >
-        <withRouter(Connect(Component))
+        <Memo(withRouter(Connect(Component)))
           address=""
           anchorEl={null}
           handleClose={[Function]}

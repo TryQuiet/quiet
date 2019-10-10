@@ -13,7 +13,9 @@ import ratesSelectors from '../../../store/selectors/rates'
 export const mapStateToProps = state => ({
   amount: parseInt(invitationSelectors.amount(state)),
   affiliate: invitationSelectors.affiliateCode(state),
-  zecRate: ratesSelectors.rate('usd')(state).toNumber()
+  zecRate: ratesSelectors
+    .rate('usd')(state)
+    .toNumber()
 })
 
 export const mapDispatchToProps = dispatch =>
@@ -35,6 +37,7 @@ export const InvitationModal = ({ ...props }) => {
   return <InvitationModalComponent {...props} setStep={setStep} />
 }
 export default R.compose(
+  React.memo,
   connect(
     mapStateToProps,
     mapDispatchToProps

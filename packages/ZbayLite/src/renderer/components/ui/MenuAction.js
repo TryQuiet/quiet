@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
+import * as R from 'ramda'
 
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import MenuList from '@material-ui/core/MenuList'
@@ -78,4 +79,7 @@ MenuAction.defaultProps = {
   disabled: false
 }
 
-export default withStyles(styles)(MenuAction)
+export default R.compose(
+  React.memo,
+  withStyles(styles)
+)(MenuAction)

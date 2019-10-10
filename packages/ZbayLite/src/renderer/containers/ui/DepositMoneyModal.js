@@ -1,3 +1,4 @@
+import React from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import * as R from 'ramda'
@@ -14,6 +15,7 @@ export const mapDispatchToProps = dispatch =>
   )
 
 export default R.compose(
+  React.memo,
   connect(
     null,
     mapDispatchToProps

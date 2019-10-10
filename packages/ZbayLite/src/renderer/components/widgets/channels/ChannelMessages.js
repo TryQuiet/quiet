@@ -1,7 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import Immutable from 'immutable'
-import * as R from 'ramda'
 import { Scrollbars } from 'react-custom-scrollbars'
 
 import List from '@material-ui/core/List'
@@ -37,7 +36,6 @@ export const ChannelMessages = ({
   }
   return (
     <Scrollbars
-      height={contentRect.bounds.height}
       ref={scrollbarRef}
       autoHideTimeout={500}
       onScrollFrame={e => {
@@ -74,7 +72,4 @@ ChannelMessages.defaultProps = {
   messages: []
 }
 
-export default R.compose(
-  React.memo,
-  withStyles(styles)
-)(ChannelMessages)
+export default React.memo(withStyles(styles)(ChannelMessages))

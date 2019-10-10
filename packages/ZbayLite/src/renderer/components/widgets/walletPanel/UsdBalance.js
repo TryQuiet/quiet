@@ -24,6 +24,5 @@ UsdBalance.propTypes = {
 }
 
 export default R.compose(
-  React.memo,
   withStyles(styles)
 )(UsdBalance)

@@ -8,6 +8,7 @@
       "category": "public.app-category.social-networking",
       "files": [
         "dist/**/*",
+        "build/icon.*",
         "package.json"
       ],
       "extraResources": "zcash/**/*",
@@ -20,22 +21,24 @@
       "target": "NSIS",
       "files": [
         "dist/**/*",
+        "build/icon.*",
         "package.json"
       ],
       "extraResources": [
         "zcash/**/*",
         {
-          "from": "../.zcash-params",
+          "from": "../../../.zcash-params",
           "to": "zcash/ZcashParams"
         }
       ]
     },
     "linux": {
       "target": [
-        "snap"
+        "deb"
       ],
       "files": [
         "dist/**/*",
+        "build/icon.*",
         "package.json"
       ]
     },

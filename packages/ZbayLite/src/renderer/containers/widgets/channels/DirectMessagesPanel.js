@@ -1,6 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import * as R from 'ramda'
+import Immutable from 'immutable'
+
 import Grid from '@material-ui/core/Grid'
 import DirectMessagesPanelComponent from '../../../components/widgets/channels/DirectMessagesPanel'
 import contactsSelectors from '../../../store/selectors/contacts'
@@ -25,7 +26,10 @@ export const DirectMessagesPanel = ({ channels, selected }) => {
   )
 }
 
-export default R.compose(
-  connect(mapStateToProps),
-  React.memo
-)(DirectMessagesPanel)
+export default connect(mapStateToProps)(
+  React.memo(DirectMessagesPanel, (before, after) => {
+    return (
+      Immutable.is(before.channels, after.channels) && Immutable.is(before.selected, after.selected)
+    )
+  })
+)

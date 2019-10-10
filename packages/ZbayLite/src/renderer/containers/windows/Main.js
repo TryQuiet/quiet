@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { Redirect } from 'react-router'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
+import * as R from 'ramda'
 
 import MainComponent from '../../components/windows/Main'
 import vaultSelectors from '../../store/selectors/vault'
@@ -26,7 +27,10 @@ export const Main = ({ vaultLocked, fetch, ...props }) => {
   return vaultLocked ? <Redirect to='/vault' /> : <MainComponent {...props} />
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
+export default R.compose(
+  React.memo,
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )
 )(Main)

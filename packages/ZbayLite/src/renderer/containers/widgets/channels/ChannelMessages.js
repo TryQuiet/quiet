@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
-import * as R from 'ramda'
+import Immutable from 'immutable'
+
 import ChannelMessagesComponent from '../../../components/widgets/channels/ChannelMessages'
 import channelSelectors from '../../../store/selectors/channel'
 import contactsSelectors from '../../../store/selectors/contacts'
@@ -14,13 +15,7 @@ export const mapStateToProps = (state, { contactId, signerPubKey }) => {
   }
 }
 
-export const ChannelMessages = ({
-  className,
-  messages,
-  contactId,
-  channelId,
-  contentRect
-}) => {
+export const ChannelMessages = ({ className, messages, contactId, channelId, contentRect }) => {
   const [scrollPosition, setScrollPosition] = React.useState(-1)
   useEffect(
     () => {
@@ -39,7 +34,8 @@ export const ChannelMessages = ({
   )
 }
 
-export default R.compose(
-  connect(mapStateToProps),
-  React.memo
-)(ChannelMessages)
+export default connect(mapStateToProps)(
+  React.memo(ChannelMessages, (before, after) => {
+    return Immutable.is(before.messages, after.messages)
+  })
+)

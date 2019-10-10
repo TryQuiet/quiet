@@ -1,3 +1,4 @@
+import React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { withRouter } from 'react-router-dom'
@@ -11,11 +12,19 @@ export const mapStateToProps = state => ({
   identityId: identitySelectors.id(state)
 })
 
-export const mapDispatchToProps = dispatch => bindActionCreators({
-  createContact: contactsHandlers.epics.createVaultContact
-}, dispatch)
+export const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    {
+      createContact: contactsHandlers.epics.createVaultContact
+    },
+    dispatch
+  )
 
 export default R.compose(
+  React.memo,
   withRouter,
-  connect(mapStateToProps, mapDispatchToProps)
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )
 )(SendMessagePopover)

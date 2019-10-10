@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ChannelInputAction renders component 1`] = `
-<WithStyles(MenuAction)
+<Memo(WithStyles(MenuAction))
   classes={
     Object {
       "button": "button-mock",
@@ -22,5 +22,5 @@ exports[`ChannelInputAction renders component 1`] = `
     onClick={[MockFunction]}
     title="Send money"
   />
-</WithStyles(MenuAction)>
+</Memo(WithStyles(MenuAction))>
 `;

@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import * as R from 'ramda'
 
 import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
@@ -36,20 +37,25 @@ const styles = theme => ({
 })
 
 // TODO: add direct messages panel
-const Sidebar = ({ classes }) => (
-  <Grid container direction='column' className={classes.root}>
-    <span className={classes.walletInfo}>
-      <IdentityPanel />
-      <WalletPanel />
-    </span>
-    <ChannelsPanel />
-    <DirectMessagesPanel />
-    <NodePanel hexColor='#cca92c' className={classes.statusBar} />
-  </Grid>
-)
+const Sidebar = ({ classes }) => {
+  return (
+    <Grid container direction='column' className={classes.root}>
+      <span className={classes.walletInfo}>
+        <IdentityPanel />
+        <WalletPanel />
+      </span>
+      <ChannelsPanel />
+      <DirectMessagesPanel />
+      <NodePanel hexColor='#cca92c' className={classes.statusBar} />
+    </Grid>
+  )
+}
 
 Sidebar.propTypes = {
   classes: PropTypes.object.isRequired
 }
 
-export default withStyles(styles)(Sidebar)
+export default R.compose(
+  React.memo,
+  withStyles(styles)
+)(Sidebar)

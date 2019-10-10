@@ -1,3 +1,4 @@
+import React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import * as R from 'ramda'
@@ -11,11 +12,19 @@ export const mapStateToProps = state => ({
   traceback: criticalErrorSelectors.traceback(state)
 })
 
-export const mapDispatchToProps = dispatch => bindActionCreators({
-  handleExit: modalsHandlers.actionCreators.openModal('quitApp')
-}, dispatch)
+export const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    {
+      handleExit: modalsHandlers.actionCreators.openModal('quitApp')
+    },
+    dispatch
+  )
 
 export default R.compose(
-  connect(mapStateToProps, mapDispatchToProps),
+  React.memo,
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  ),
   withModal('criticalError')
 )(ErrorModal)

@@ -26,6 +26,7 @@ WalletPanel.propTypes = {
 }
 
 export default R.compose(
+  React.memo,
   connect(
     null,
     mapDispatchToProps

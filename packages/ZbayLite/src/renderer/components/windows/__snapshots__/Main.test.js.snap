@@ -2,8 +2,8 @@
 
 exports[`Main renders component 1`] = `
 <Fragment>
-  <Connect(withModal(Component)) />
-  <Connect(withModal(InvitationModal)) />
+  <Memo(Connect(withModal(Component))) />
+  <Memo(Connect(withModal(InvitationModal))) />
   <Memo(WithStyles(WindowWrapper))>
     <WithStyles(ForwardRef(Grid))
       className="gridRoot-mock"
@@ -13,7 +13,7 @@ exports[`Main renders component 1`] = `
       <WithStyles(ForwardRef(Grid))
         item={true}
       >
-        <WithStyles(Sidebar) />
+        <Memo(WithStyles(Sidebar)) />
       </WithStyles(ForwardRef(Grid))>
       <WithStyles(ForwardRef(Grid))
         item={true}
@@ -25,7 +25,13 @@ exports[`Main renders component 1`] = `
           path="test/channel/:id"
         />
         <Route
-          component={[Function]}
+          component={
+            Object {
+              "$$typeof": Symbol(react.memo),
+              "compare": null,
+              "type": [Function],
+            }
+          }
           exact={true}
           path="test/direct-messages/:id/:username"
         />

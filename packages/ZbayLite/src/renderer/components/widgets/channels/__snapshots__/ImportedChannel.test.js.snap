@@ -28,7 +28,7 @@ exports[`ImportedChannel renders private channel 1`] = `
         fontSize="inherit"
       />
     </WithStyles(ForwardRef(Grid))>
-    <Elipsis
+    <Memo(Elipsis)
       classes={
         Object {
           "content": "uri-mock",
@@ -36,7 +36,6 @@ exports[`ImportedChannel renders private channel 1`] = `
       }
       content="testaddress"
       interactive={true}
-      length={40}
       tooltipPlacement="bottom-start"
     />
   </WithStyles(ForwardRef(Grid))>
@@ -114,7 +113,7 @@ exports[`ImportedChannel renders public channel 1`] = `
         Test channel
       </WithStyles(ForwardRef(Typography))>
     </WithStyles(ForwardRef(Grid))>
-    <Elipsis
+    <Memo(Elipsis)
       classes={
         Object {
           "content": "uri-mock",
@@ -122,7 +121,6 @@ exports[`ImportedChannel renders public channel 1`] = `
       }
       content="testaddress"
       interactive={true}
-      length={40}
       tooltipPlacement="bottom-start"
     />
   </WithStyles(ForwardRef(Grid))>

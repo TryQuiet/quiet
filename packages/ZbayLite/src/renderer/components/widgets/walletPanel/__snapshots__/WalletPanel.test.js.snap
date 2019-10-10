@@ -15,7 +15,7 @@ exports[`WalletPanelActions renders component 1`] = `
       item={true}
       justify="space-between"
     >
-      <Connect(Component) />
+      <Memo(Connect(WithStyles(ZcashBalance))) />
     </WithStyles(ForwardRef(Grid))>
     <WithStyles(ForwardRef(Grid))
       className="actions-mock"

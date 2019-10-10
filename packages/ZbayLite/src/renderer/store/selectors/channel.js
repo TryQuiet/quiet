@@ -12,6 +12,7 @@ import Immutable from 'immutable'
 const store = s => s
 
 export const channel = createSelector(store, state => state.get('channel'))
+export const channelInfo = createSelector(store, state => state.get('channel').delete('message')) // TODO refactor
 
 const data = createSelector(
   channelsSelector.data,
@@ -168,5 +169,6 @@ export default {
   pendingMessages,
   shareableUri,
   channelId,
-  messages
+  messages,
+  channelInfo
 }

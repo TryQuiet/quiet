@@ -375,7 +375,7 @@ exports[`ChannelTransferMessage renders component when message is cancelled 1`] 
         item={true}
         xs={12}
       >
-        <Elipsis
+        <Memo(Elipsis)
           classes={
             Object {
               "content": "failed-mock",
@@ -524,7 +524,7 @@ exports[`ChannelTransferMessage renders component when message is failed 1`] = `
         item={true}
         xs={12}
       >
-        <Elipsis
+        <Memo(Elipsis)
           classes={
             Object {
               "content": "failed-mock",

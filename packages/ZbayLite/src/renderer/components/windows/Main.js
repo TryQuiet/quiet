@@ -1,6 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { Route } from 'react-router-dom'
+import * as R from 'ramda'
 
 import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
@@ -50,4 +51,7 @@ Main.propTypes = {
   }).isRequired
 }
 
-export default withStyles(styles)(Main)
+export default R.compose(
+  React.memo,
+  withStyles(styles)
+)(Main)

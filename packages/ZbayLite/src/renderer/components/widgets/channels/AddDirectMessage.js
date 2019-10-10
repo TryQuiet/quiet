@@ -41,6 +41,6 @@ export const AddDirectMessage = ({ classes, openModal }) => {
 }
 
 export default R.compose(
-  withStyles(styles),
-  React.memo
+  React.memo,
+  withStyles(styles)
 )(AddDirectMessage)

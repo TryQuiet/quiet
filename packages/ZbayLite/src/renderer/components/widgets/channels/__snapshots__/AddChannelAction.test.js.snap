@@ -2,7 +2,7 @@
 
 exports[`BaseChannelsList renders component 1`] = `
 <Fragment>
-  <WithStyles(MenuAction)
+  <Memo(WithStyles(MenuAction))
     IconButton={
       Object {
         "$$typeof": Symbol(react.forward_ref),
@@ -314,8 +314,8 @@ exports[`BaseChannelsList renders component 1`] = `
     <Memo(WithStyles(MenuActionItem))
       title="Create"
     />
-  </WithStyles(MenuAction)>
-  <withModal(Component) />
+  </Memo(WithStyles(MenuAction))>
+  <Memo(withModal(Component)) />
   <Memo(ImportChannelModal)
     handleClose={[Function]}
     open={false}
