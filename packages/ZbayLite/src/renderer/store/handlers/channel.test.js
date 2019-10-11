@@ -120,7 +120,7 @@ describe('channel reducer', () => {
     })
 
     it('- setShareableUri', () => {
-      store.dispatch(actions.setShareableUri('zbay.io/channel/this-is-a-hash'))
+      store.dispatch(actions.setShareableUri('zbay://channel/this-is-a-hash'))
       const channel = channelSelectors.channel(store.getState())
       expect(channel).toMatchSnapshot()
     })

@@ -17,6 +17,9 @@ describe('InvitationModalGenerate', () => {
         setStep={jest.fn()}
         includeAffiliate={jest.fn()}
         setAmount={jest.fn()}
+        isLoading={jest.fn()}
+        setLoading={jest.fn()}
+        generateInvitation={jest.fn()}
         affiliate
       />
     )

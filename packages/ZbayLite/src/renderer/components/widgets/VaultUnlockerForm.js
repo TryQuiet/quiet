@@ -61,7 +61,7 @@ export const VaultUnlockerForm = ({
             <Icon className={classes.icon} src={icon} />
           </Grid>
           <Grid container item xs={12} wrap='wrap' justify='center'>
-            <Typography className={classes.title} variant='h4' gutterBottom>
+            <Typography className={classes.title} variant='body1' gutterBottom>
                   Log in
             </Typography>
           </Grid>

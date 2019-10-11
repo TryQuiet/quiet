@@ -13,6 +13,7 @@ import ratesSelectors from '../../../store/selectors/rates'
 export const mapStateToProps = state => ({
   amount: parseInt(invitationSelectors.amount(state)),
   affiliate: invitationSelectors.affiliateCode(state),
+  generatedInvitation: invitationSelectors.generatedInvitation(state),
   zecRate: ratesSelectors
     .rate('usd')(state)
     .toNumber()
@@ -23,7 +24,8 @@ export const mapDispatchToProps = dispatch =>
     {
       setAmount: invitationHandlers.actions.setInvitationAmount,
       includeAffiliate: invitationHandlers.actions.setAffiliateCode,
-      reset: invitationHandlers.actions.resetInvitation
+      reset: invitationHandlers.actions.resetInvitation,
+      generateInvitation: invitationHandlers.epics.generateInvitation
     },
     dispatch
   )
@@ -33,8 +35,9 @@ const stepToComponent = {
 }
 export const InvitationModal = ({ ...props }) => {
   const [step, setStep] = React.useState(0)
+  const [isLoading, setLoading] = React.useState(false)
   const InvitationModalComponent = stepToComponent[step]
-  return <InvitationModalComponent {...props} setStep={setStep} />
+  return <InvitationModalComponent {...props} isLoading={isLoading} setLoading={setLoading} setStep={setStep} />
 }
 export default R.compose(
   React.memo,

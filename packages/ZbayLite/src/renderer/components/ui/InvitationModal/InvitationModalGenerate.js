@@ -4,9 +4,10 @@ import * as R from 'ramda'
 
 import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
-import { Typography, TextField, FormControlLabel, Checkbox, Button } from '@material-ui/core'
-
+import { Typography, TextField, FormControlLabel, Checkbox } from '@material-ui/core'
+import LoadingButton from '../LoadingButton'
 import InvitationModal from './InvitationModal'
+
 const styles = theme => ({
   warrning: {
     marginTop: theme.spacing(1)
@@ -65,8 +66,11 @@ export const InvitationModalGenerate = ({
   amount,
   includeAffiliate,
   affiliate,
+  generateInvitation,
+  setAmount,
   setStep,
-  setAmount
+  isLoading,
+  setLoading
 }) => (
   <InvitationModal
     open={open}
@@ -122,17 +126,23 @@ export const InvitationModalGenerate = ({
       />
     </Grid>
     <Grid item className={classes.buttonDiv}>
-      <Button
+      <LoadingButton
         variant='contained'
         size='large'
         color='primary'
         type='submit'
         fullWidth
+        inProgress={isLoading}
         className={classes.button}
-        onClick={() => setStep(1)}
+        onClick={async () => {
+          setLoading(true)
+          await generateInvitation(1)
+          setStep(1)
+          setLoading(false)
+        }}
       >
         Generate invitation
-      </Button>
+      </LoadingButton>
     </Grid>
   </InvitationModal>
 )
@@ -146,7 +156,10 @@ InvitationModalGenerate.propTypes = {
   includeAffiliate: PropTypes.func.isRequired,
   setStep: PropTypes.func.isRequired,
   affiliate: PropTypes.bool.isRequired,
-  setAmount: PropTypes.func.isRequired
+  setAmount: PropTypes.func.isRequired,
+  generateInvitation: PropTypes.func.isRequired,
+  setLoading: PropTypes.func.isRequired,
+  isLoading: PropTypes.func.isRequired
 }
 
 export default R.compose(

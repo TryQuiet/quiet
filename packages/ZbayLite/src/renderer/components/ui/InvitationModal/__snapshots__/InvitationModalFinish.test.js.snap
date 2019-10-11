@@ -17,7 +17,7 @@ exports[`InvitationModalFinish renders component 1`] = `
       variant="body1"
     >
       I just sent you $9 on Zbay! To claim it, install Zbay from https://zbay.io, run it,
-        and then open this link : HERE IS A LINK
+        and then open link : click below to copy
     </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
@@ -25,7 +25,7 @@ exports[`InvitationModalFinish renders component 1`] = `
     item={true}
   >
     <CopyToClipboard
-      text="LINK"
+      text="test invitation"
     >
       <WithStyles(ForwardRef(Button))
         className="button-mock"

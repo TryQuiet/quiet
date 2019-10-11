@@ -13,6 +13,6 @@ Object {
       "ivk": "incoming-viewing-key-this-is-a-test-id",
     },
   },
-  "shareUri": "zbay.io/channel/test-hash",
+  "shareUri": "zbay://channel/test-hash",
 }
 `;

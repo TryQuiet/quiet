@@ -6,14 +6,17 @@ import { ipcRenderer } from 'electron'
 import Root from './Root'
 import store from './store'
 import nodeHandlers from './store/handlers/node'
-// import channelHandlers from './store/handlers/channel'
-// import vaultSelectors from './store/selectors/vault'
+import updateHandlers from './store/handlers/update'
 
 Web.HashingTools.patchCorePBKDF()
 
 ipcRenderer.on('bootstrappingNode', (event, { bootstrapping, message }) => {
   store.dispatch(nodeHandlers.actions.setBootstrapping(bootstrapping))
   store.dispatch(nodeHandlers.actions.setBootstrappingMessage(message))
+})
+
+ipcRenderer.on('newUpdateAvailable', (event) => {
+  store.dispatch(updateHandlers.epics.checkForUpdate())
 })
 
 window.jdenticon_config = {
@@ -27,13 +30,6 @@ window.jdenticon_config = {
   },
   backColor: '#f3f0f6ff'
 }
-// remote.app.on('browser-window-focus', () => {
-//   const vaultUnlocked = !vaultSelectors.locked(store.getState())
-//   if (vaultUnlocked) {
-//     store.dispatch(channelHandlers.epics.updateLastSeen())
-//     store.dispatch(channelHandlers.epics.clearNewMessages())
-//   }
-// })
 
 render(<Root />, document.getElementById('root'))
 

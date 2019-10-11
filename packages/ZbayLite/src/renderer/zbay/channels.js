@@ -3,8 +3,8 @@ import * as Yup from 'yup'
 
 import { inflate, deflate } from '../compression'
 
-export const URI_PREFIX = 'zbay.io/channel/'
-export const ADDRESS_PREFIX = 'zbay.io/uri/'
+export const URI_PREFIX = 'zbay://channel/'
+export const ADDRESS_PREFIX = 'zbay://uri/'
 
 export const getZbayAddress = (zcashAddress) => `${ADDRESS_PREFIX}${zcashAddress}`
 export const getZbayChannelUri = (hash) => `${URI_PREFIX}${hash}`

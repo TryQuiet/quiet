@@ -25,7 +25,7 @@ exports[`ImportChannelForm renders component 1`] = `
         id="channel-uri"
         margin="none"
         onChange={[Function]}
-        placeholder="zbay.io/channel/..."
+        placeholder="zbay//channel/..."
         value=""
         variant="outlined"
       />
@@ -71,7 +71,7 @@ exports[`ImportChannelForm renders decoding 1`] = `
         id="channel-uri"
         margin="none"
         onChange={[Function]}
-        placeholder="zbay.io/channel/..."
+        placeholder="zbay//channel/..."
         value=""
         variant="outlined"
       />

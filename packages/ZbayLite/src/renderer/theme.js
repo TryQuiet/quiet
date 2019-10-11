@@ -8,13 +8,55 @@ export default createMuiTheme({
     fontFamily: [
       font
     ].join(','),
+    fontStyle: 'normal',
+    fontWeight: 'normal',
     useNextVariants: true,
     caption: {
-      color: '#b2b2b2',
-      fontSize: '0.71rem'
+      fontSize: 12,
+      lineHeight: '20px',
+      letterSpacing: '0.4px',
+      color: '#b2b2b2'
+    },
+    body1: {
+      fontSize: 16,
+      lineHeight: '26px'
+    },
+    body2: {
+      fontSize: 14,
+      lineHeight: '24px',
+      letterSpacing: '0.4px'
     },
     subtitle1: {
-      fontSize: '1.2rem'
+      fontSize: 16,
+      lineHeight: '26px'
+    },
+    subtitle2: {
+      fontSize: 14,
+      lineHeight: '23px'
+    },
+    h1: {
+      fontWeight: 500,
+      fontSize: 48,
+      lineHeight: '40px'
+    },
+    h2: {
+      fontWeight: 500,
+      fontSize: 34,
+      lineHeight: '40px'
+    },
+    h3: {
+      fontWeight: 500,
+      fontSize: 28,
+      lineHeight: '34px'
+    },
+    h4: {
+      fontWeight: 500,
+      fontSize: 18,
+      lineHeight: '27px'
+    },
+    h5: {
+      fontSize: 16,
+      lineHeight: '26px'
     }
   },
   palette: {

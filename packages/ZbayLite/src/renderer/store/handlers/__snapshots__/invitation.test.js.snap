@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`criticalError reducer handles epics - generateInvitation with money 1`] = `"https://zbay.io/invitation/invtitation=eJx1i0sOwiAQQO/C2iYKnWnqzqMQmf6wIzK0pBjvriaNO7fv81Ti1VmJDbeR+yrEcbWJKutcJJFKArH7Ck+bOqgd/x8+jbuzTeOdL7+2JJK0DyfSXUQokMA0180OYQHoZmPA6qJRt4bXqc7LcZoygCBGxNbbXHuNw9yz16bQI2vf1Kxeb2teQn4="`;
+
+exports[`criticalError reducer handles epics - generateInvitation without money 1`] = `"https://zbay.io/invitation/invtitation=eJwFwVsSwiAMAMC7cAJNSDr1z6NkhD7AppVQGXG8u7tfF3aVuu56D6FEM3dzvUarJsdz1fkaYSpMnSrh8PjIcpxE04ZIAh0YRtR38u28pNSIjLkwj1maz8DLNmsG7PHVIA9e3e8PY04lkQ=="`;
+
+exports[`criticalError reducer handles epics - handleInvitation 1`] = `""`;

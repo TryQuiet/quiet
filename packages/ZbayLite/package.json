@@ -34,13 +34,17 @@
     },
     "linux": {
       "target": [
-        "deb"
+        "AppImage"
       ],
       "files": [
         "dist/**/*",
         "build/icon.*",
         "package.json"
-      ]
+      ],
+      "publish": {
+        "provider": "s3",
+        "bucket": "zbay-release-linux"
+      }
     },
     "snap": {
       "stagePackages": [
@@ -61,7 +65,7 @@
   "main": "dist/main.js",
   "scripts": {
     "dist": "aws s3 sync s3://zbay-zcash-binaries/darwin zcash/darwin  &&   npm run build:prod && electron-builder -p always --mac",
-    "distlinux": "aws s3 sync s3://zbay-zcash-binaries/linux zcash/linux  && npm run build:prod && electron-builder --linux",
+    "distlinux": "aws s3 sync s3://zbay-zcash-binaries/linux zcash/linux  && npm run build:prod && electron-builder -p always --linux",
     "snaplinux": "aws s3 sync s3://zbay-zcash-binaries/linux zcash/linux && npm run build:prod && electron-builder --linux snap",
     "distwin": " aws s3 sync s3://zbay-zcash-binaries/win32 zcash/win32 && npm run pullResources && npm run build:prod && electron-builder --win",
     "pullResources": "./zcash/win32/zcash-fetch-params",

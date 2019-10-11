@@ -5,7 +5,7 @@ Immutable.ChannelState {
   "spentFilterValue": 38,
   "id": "this-is-a-test-id",
   "message": "Message written in the input",
-  "shareableUri": "zbay.io/channel/my-hash",
+  "shareableUri": "zbay://channel/my-hash",
   "address": "",
   "loader": Immutable.Record {
     "loading": true,
@@ -509,6 +509,6 @@ Immutable.Map {
 }
 `;
 
-exports[`Channel selector shareableUri 1`] = `"zbay.io/channel/my-hash"`;
+exports[`Channel selector shareableUri 1`] = `"zbay://channel/my-hash"`;
 
 exports[`Channel selector spent filter value selector 1`] = `38`;

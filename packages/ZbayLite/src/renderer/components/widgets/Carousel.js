@@ -13,6 +13,7 @@ const styles = theme => ({
     color: theme.palette.colors.black,
     width: 542,
     fontSize: 24,
+    lineHeight: '36px',
     textAlign: 'center'
   },
   tipContainer: {
@@ -27,7 +28,7 @@ export const Carousel = ({ classes }) => (
   <AliceCarousel buttonsDisabled dotsDisabled autoPlay autoPlayInterval={8000}>
     {carouselStrings.map((text, i) => (
       <div key={i} className={classes.tipContainer}>
-        <Typography className={classes.typography} variant='caption'>
+        <Typography className={classes.typography} variant='body1'>
           {text}
         </Typography>
       </div>

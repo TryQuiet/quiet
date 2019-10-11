@@ -1,8 +1,10 @@
-import { app, BrowserWindow, Menu } from 'electron'
+import { app, BrowserWindow, Menu, ipcMain } from 'electron'
 
 import { spawnZcashNode, ensureZcashParams } from './zcash/bootstrap'
+import { autoUpdater } from 'electron-updater'
 
 const isDev = process.env.NODE_ENV === 'development'
+
 const isTestnet = parseInt(process.env.ZBAY_IS_TESTNET)
 const nodeURL = process.env.ZBAY_NODE_URL
 
@@ -75,6 +77,23 @@ const createWindow = () => {
   })
 }
 
+const checkForUpdate = win => {
+  autoUpdater.checkForUpdates()
+  autoUpdater.on('check-for-update', () => {
+    console.log('checking for updates...')
+  })
+  autoUpdater.on('error', (error) => {
+    console.log(error)
+  })
+  autoUpdater.on('update-available', (info) => {
+    console.log(info)
+  })
+
+  autoUpdater.on('update-downloaded', (info) => {
+    win.webContents.send('newUpdateAvailable')
+  })
+}
+
 app.on('ready', async () => {
   const template = [
     {
@@ -106,6 +125,13 @@ app.on('ready', async () => {
     if (!nodeURL) {
       createZcashNode(mainWindow)
     }
+    if (!isDev) {
+      checkForUpdate(mainWindow)
+    }
+  })
+
+  ipcMain.on('proceed-update', (event, arg) => {
+    autoUpdater.quitAndInstall()
   })
 })
 

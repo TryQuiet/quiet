@@ -2,20 +2,18 @@
 import React from 'react'
 import { shallow } from 'enzyme'
 
+import { UpdateModal } from './UpdateModal'
 import { mockClasses } from '../../../../shared/testing/mocks'
-import { InvitationModalFinish } from './InvitationModalFinish'
 
-describe('InvitationModalFinish', () => {
+describe('UpdateModal', () => {
   it('renders component', () => {
     const result = shallow(
-      <InvitationModalFinish
+      <UpdateModal
+        open
         classes={mockClasses}
         handleClose={jest.fn()}
-        open
-        amount={9}
-        generatedInvitation='test invitation'
-        setStep={jest.fn()}
-        reset={jest.fn()}
+        handleUpdate={jest.fn()}
+        handleReject={jest.fn()}
       />
     )
     expect(result).toMatchSnapshot()

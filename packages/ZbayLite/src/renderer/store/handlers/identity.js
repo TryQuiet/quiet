@@ -81,6 +81,7 @@ export const setLoading = createAction('SET_IDENTITY_LOADING')
 export const setLoadingMessage = createAction('SET_IDENTITY_LOADING_MESSAGE')
 export const setShippingData = createAction('SET_IDENTITY_SHIPPING_DATA')
 export const setDonationAllow = createAction('SET_DONATION_ALLOW')
+export const setDonationAddress = createAction('SET_DONATION_ADDRESS')
 
 const actions = {
   setIdentity,
@@ -91,7 +92,8 @@ const actions = {
   setLockedBalance,
   setShippingData,
   setBalance,
-  setDonationAllow
+  setDonationAllow,
+  setDonationAddress
 }
 
 export const shieldBalance = ({ from, to, amount, fee }) => async (dispatch, getState) => {
@@ -270,10 +272,17 @@ export const updateShippingData = (values, formActions) => async (dispatch, getS
   await dispatch(setShippingData(identity.shippingData))
   formActions.setSubmitting(false)
 }
+
 export const updateDonation = allow => async (dispatch, getState) => {
   const id = identitySelectors.id(getState())
   const identity = await vault.identity.updateDonation(id, allow)
   await dispatch(setDonationAllow(identity.donationAllow))
+}
+
+export const updateDonationAddress = address => async (dispatch, getState) => {
+  const id = identitySelectors.id(getState())
+  const identity = await vault.identity.updateDonationAddress(id, address)
+  await dispatch(setDonationAddress(identity.donationAddress))
 }
 
 const epics = {
@@ -282,7 +291,8 @@ const epics = {
   setIdentity: setIdentityEpic,
   updateShippingData,
   createSignerKeys,
-  updateDonation
+  updateDonation,
+  updateDonationAddress
 }
 
 const exportFunctions = {
@@ -305,7 +315,9 @@ export const reducer = handleActions(
     [setShippingData]: (state, { payload: shippingData }) =>
       state.setIn(['data', 'shippingData'], ShippingData(shippingData)),
     [setDonationAllow]: (state, { payload: allow }) =>
-      state.setIn(['data', 'donationAllow'], allow)
+      state.setIn(['data', 'donationAllow'], allow),
+    [setDonationAddress]: (state, { payload: address }) =>
+      state.setIn(['data', 'donationAddress'], address)
   },
   initialState
 )

@@ -257,9 +257,7 @@ const _buildUtxo = ({ transfer, utxos, splitTreshhold, fee, identityAddress, don
     transfers.push(donate)
   }
   const utxo = utxos.find(
-    utxo =>
-      utxo.amount >
-      parseFloat(transfer.amount) + 2 * splitTreshhold + fee + includedDonation
+    utxo => utxo.amount > parseFloat(transfer.amount) + 2 * splitTreshhold + fee + includedDonation
   )
   if (utxo) {
     const newUtxo = {
@@ -313,6 +311,17 @@ export const messageToTransfer = async ({
         })
   }
 }
+export const createEmptyTransfer = ({ identityAddress, address, amount }) => {
+  return {
+    from: identityAddress,
+    amounts: [
+      {
+        address: address,
+        amount: amount.toString()
+      }
+    ]
+  }
+}
 export const transfersToMessages = async (transfers, owner) => {
   const msgs = await Promise.all(transfers.map(t => transferToMessage(t)))
 
@@ -336,5 +345,6 @@ export default {
   messageToTransfer,
   transferToMessage,
   transfersToMessages,
-  vaultToDisplayableMessage
+  vaultToDisplayableMessage,
+  createEmptyTransfer
 }

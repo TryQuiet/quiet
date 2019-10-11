@@ -44,7 +44,7 @@ export const ImportChannelForm = ({
                 id='channel-uri'
                 margin='none'
                 variant='outlined'
-                placeholder='zbay.io/channel/...'
+                placeholder='zbay//channel/...'
                 value={uri}
                 onChange={e => setUri(e.target.value)}
                 fullWidth

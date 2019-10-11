@@ -15,7 +15,7 @@ describe('ChannelInfoModal', () => {
         open
         classes={mockClasses}
         channel={channel}
-        shareUri='zbay.io/channel/channel-hash'
+        shareUri='zbay://channel/channel-hash'
         handleClose={jest.fn()}
       />
     )
@@ -28,7 +28,7 @@ describe('ChannelInfoModal', () => {
       <ChannelInfoModal
         classes={mockClasses}
         channel={channel}
-        shareUri='zbay.io/channel/channel-hash'
+        shareUri='zbay://channel/channel-hash'
         handleClose={jest.fn()}
       />
     )

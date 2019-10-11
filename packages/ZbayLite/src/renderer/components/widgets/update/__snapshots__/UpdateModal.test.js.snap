@@ -1,0 +1,76 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`UpdateModal renders component 1`] = `
+<Memo(WithStyles(Modal))
+  handleClose={[MockFunction]}
+  open={true}
+  title="Update available"
+>
+  <WithStyles(ForwardRef(AppBar))
+    color="default"
+    position="static"
+  >
+    <WithStyles(ForwardRef(Grid))
+      alignItems="center"
+      className="root-mock"
+      container={true}
+      direction="column"
+      justify="center"
+    >
+      <WithStyles(ForwardRef(Grid))
+        className="info-mock"
+        container={true}
+        justify="center"
+        spacing={8}
+      >
+        <WithStyles(ForwardRef(Grid))
+          item={true}
+        >
+          <WithStyles(ForwardRef(Typography))
+            variant="subtitle2"
+          >
+            New update for Zbay is available, do you want to proceed ?
+          </WithStyles(ForwardRef(Typography))>
+        </WithStyles(ForwardRef(Grid))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
+        container={true}
+        justify="center"
+        spacing={8}
+      >
+        <WithStyles(ForwardRef(Grid))
+          item={true}
+          xs={4}
+        >
+          <WithStyles(ForwardRef(Button))
+            className="button-mock"
+            color="primary"
+            fullWidth={true}
+            onClick={[MockFunction]}
+            size="large"
+            type="submit"
+            variant="contained"
+          >
+            Yes
+          </WithStyles(ForwardRef(Button))>
+        </WithStyles(ForwardRef(Grid))>
+        <WithStyles(ForwardRef(Grid))
+          item={true}
+          xs={4}
+        >
+          <WithStyles(ForwardRef(Button))
+            className="button-mock"
+            color="primary"
+            fullWidth={true}
+            size="large"
+            type="submit"
+            variant="contained"
+          >
+            No
+          </WithStyles(ForwardRef(Button))>
+        </WithStyles(ForwardRef(Grid))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(AppBar))>
+</Memo(WithStyles(Modal))>
+`;

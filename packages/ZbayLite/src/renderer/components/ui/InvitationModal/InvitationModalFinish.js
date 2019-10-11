@@ -10,6 +10,7 @@ import FileCopyIcon from '@material-ui/icons/FileCopy'
 import EmailIcon from '@material-ui/icons/Email'
 
 import InvitationModal from './InvitationModal'
+
 const styles = theme => ({
   linkDiv: {
     marginTop: theme.spacing(3.5),
@@ -30,7 +31,15 @@ const styles = theme => ({
   }
 })
 
-export const InvitationModalFinish = ({ classes, open, handleClose, amount, setStep, reset }) => (
+export const InvitationModalFinish = ({
+  classes,
+  open,
+  handleClose,
+  amount,
+  setStep,
+  reset,
+  generatedInvitation
+}) => (
   <InvitationModal
     open={open}
     handleClose={() => {
@@ -51,13 +60,13 @@ export const InvitationModalFinish = ({ classes, open, handleClose, amount, setS
       <Typography variant='body1'>
         {amount !== 0
           ? `I just sent you $${amount} on Zbay! To claim it, install Zbay from https://zbay.io, run it,
-        and then open this link : HERE IS A LINK`
+        and then open link : click below to copy`
           : `You should try Zbay! Install Zbay from https://zbay.io, run it,
-        and then open this link : HERE IS A LINK `}
+        and then open link : click below to copy`}
       </Typography>
     </Grid>
     <Grid item className={classes.buttonDiv}>
-      <CopyToClipboard text={'LINK'}>
+      <CopyToClipboard text={generatedInvitation}>
         <Button
           variant='contained'
           size='large'
@@ -92,7 +101,8 @@ InvitationModalFinish.propTypes = {
   open: PropTypes.bool.isRequired,
   handleClose: PropTypes.func.isRequired,
   reset: PropTypes.func.isRequired,
-  amount: PropTypes.number.isRequired
+  amount: PropTypes.number.isRequired,
+  generatedInvitation: PropTypes.string.isRequired
 }
 
 export default R.compose(

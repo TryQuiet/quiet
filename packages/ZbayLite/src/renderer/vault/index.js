@@ -62,9 +62,11 @@ const _entryToIdentity = entry => {
     keys: JSON.parse(entryObj.properties.keys || '{}'),
     shippingData: JSON.parse(entryObj.properties.shippingData || '{}'),
     donationAllow: entryObj.properties.donationAllow || 'true',
-    donationAddress: parseInt(process.env.ZBAY_IS_TESTNET)
-      ? 'ztestsapling1e2fr65z5t537cyahpu55fm335a2z26293nvj4wu0jjw55s66r669kaw4k26hmgnk23zeqw2k74n'
-      : 'zs1ecsq8thnu84ejvfx2jcfsa6zas2k057n3hrhuy0pahmlvqfwterjaz3h772ldlsgp5r2xwvml9g' // TODO add real donation address
+    donationAddress:
+      entryObj.properties.donationAddress ||
+      (parseInt(process.env.ZBAY_IS_TESTNET)
+        ? 'ztestsapling1e2fr65z5t537cyahpu55fm335a2z26293nvj4wu0jjw55s66r669kaw4k26hmgnk23zeqw2k74n'
+        : 'zs1ecsq8thnu84ejvfx2jcfsa6zas2k057n3hrhuy0pahmlvqfwterjaz3h772ldlsgp5r2xwvml9g') // TODO add real donation address
   }
 }
 
@@ -176,6 +178,18 @@ export const updateDonation = async (identityId, allow) => {
   return _entryToIdentity(entry)
 }
 
+export const updateDonationAddress = async (identityId, address) => {
+  let entry = null
+  await _vault.withWorkspace(workspace => {
+    const [identitiesGroup] = workspace.archive.findGroupsByTitle('Identities')
+    entry = identitiesGroup
+      .findEntryByID(identityId)
+      .setProperty('donationAddress', address.toString())
+    workspace.save()
+  })
+  return _entryToIdentity(entry)
+}
+
 export const listIdentities = async () => {
   let identities = []
   await _vault.withWorkspace(workspace => {
@@ -204,7 +218,8 @@ export default {
     listIdentities: withVaultInitialized(listIdentities),
     updateShippingData: withVaultInitialized(updateShippingData),
     updateIdentitySignerKeys: withVaultInitialized(updateIdentitySignerKeys),
-    updateDonation: withVaultInitialized(updateDonation)
+    updateDonation: withVaultInitialized(updateDonation),
+    updateDonationAddress: withVaultInitialized(updateDonationAddress)
   },
   locked,
   getVault,

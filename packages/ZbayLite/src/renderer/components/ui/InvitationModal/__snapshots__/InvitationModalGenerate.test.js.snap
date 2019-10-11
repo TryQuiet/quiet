@@ -103,17 +103,18 @@ exports[`InvitationModalGenerate renders component 1`] = `
     className="buttonDiv-mock"
     item={true}
   >
-    <WithStyles(ForwardRef(Button))
+    <WithStyles(LoadingButton)
       className="button-mock"
       color="primary"
       fullWidth={true}
+      inProgress={[MockFunction]}
       onClick={[Function]}
       size="large"
       type="submit"
       variant="contained"
     >
       Generate invitation
-    </WithStyles(ForwardRef(Button))>
+    </WithStyles(LoadingButton)>
   </WithStyles(ForwardRef(Grid))>
 </Memo(WithStyles(InvitationModal))>
 `;

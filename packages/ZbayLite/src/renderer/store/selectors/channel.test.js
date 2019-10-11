@@ -32,7 +32,7 @@ const storeState = {
   channel: ChannelState({
     spentFilterValue: 38,
     id: channelId,
-    shareableUri: 'zbay.io/channel/my-hash',
+    shareableUri: 'zbay://channel/my-hash',
     members: new BigNumber(0),
     message: 'Message written in the input',
     loader: LoaderState({

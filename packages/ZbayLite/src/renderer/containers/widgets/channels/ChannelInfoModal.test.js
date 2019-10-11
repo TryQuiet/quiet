@@ -22,7 +22,7 @@ describe('ChannelInfoModal', () => {
         channel: ChannelState({
           spentFilterValue: 38,
           id: 'this-is-a-test-id',
-          shareableUri: 'zbay.io/channel/test-hash',
+          shareableUri: 'zbay://channel/test-hash',
           members: new BigNumber(0),
           message: 'This is a test message',
           messages: []

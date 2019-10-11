@@ -9,13 +9,16 @@ import { withStyles } from '@material-ui/core/styles'
 const styles = theme => ({
   button: {
     width: 150,
-    heigth: 80,
+    minHeight: 32,
     paddingTop: theme.spacing(0.6),
     paddingBottom: theme.spacing(0.6),
     paddingLeft: theme.spacing(1.6),
     paddingRight: theme.spacing(1.6),
     color: theme.palette.colors.white,
-    fontSize: '0.9rem',
+    fontSize: 12,
+    fontStyle: 'normal',
+    fontWeight: 'normal',
+    lineHeight: '14px',
     backgroundColor: 'rgb(0,0,0,0.6)',
     textTransform: 'none',
     '&:hover': {

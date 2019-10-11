@@ -8,7 +8,7 @@ Object {
 
 exports[`Send message popover will receive right props 1`] = `
 Object {
-  "address": "zbay.io/uri/",
+  "address": "zbay://uri/",
   "identityId": null,
 }
 `;

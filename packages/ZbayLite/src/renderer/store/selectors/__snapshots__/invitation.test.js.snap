@@ -8,5 +8,6 @@ exports[`invitation - invitation selector 1`] = `
 Immutable.Invitation {
   "amount": 0,
   "affiliateCode": false,
+  "generatedInvitation": "",
 }
 `;

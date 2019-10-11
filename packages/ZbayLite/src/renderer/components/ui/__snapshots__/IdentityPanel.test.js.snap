@@ -18,7 +18,7 @@ exports[`IdentityPanel renders component 1`] = `
       >
         <WithStyles(ForwardRef(Typography))
           className="name-mock"
-          variant="subtitle1"
+          variant="body2"
         >
           Saturn
         </WithStyles(ForwardRef(Typography))>
@@ -28,7 +28,7 @@ exports[`IdentityPanel renders component 1`] = `
               "content": "uri-mock",
             }
           }
-          content="zbay.io/uri/zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly"
+          content="zbay://uri/zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly"
           interactive={true}
           length={30}
           tooltipPlacement="bottom-start"
@@ -52,5 +52,6 @@ exports[`IdentityPanel renders component 1`] = `
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
   <withModal(WithStyles(SettingsModal)) />
+  <Connect(withModal(WithStyles(UpdateModal))) />
 </Fragment>
 `;

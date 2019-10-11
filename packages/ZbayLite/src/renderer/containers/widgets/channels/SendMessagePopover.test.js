@@ -30,7 +30,7 @@ describe('Send message popover', () => {
     const state = mapStateToProps(store.getState())
     const props = {
       ...state,
-      address: 'zbay.io/uri/'
+      address: 'zbay://uri/'
     }
     expect(props).toMatchSnapshot()
   })

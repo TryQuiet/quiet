@@ -13,7 +13,7 @@ import IconButton from '../IconButton'
 const styles = theme => ({
   root: {
     width: 600,
-    height: 450,
+    height: 500,
     padding: theme.spacing(4)
   },
   closeIcon: {

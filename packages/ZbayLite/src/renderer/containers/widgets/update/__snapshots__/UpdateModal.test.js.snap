@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`UpdateModal will receive right actions 1`] = `
+Object {
+  "handleUpdate": [Function],
+  "rejectUpdate": [Function],
+}
+`;
