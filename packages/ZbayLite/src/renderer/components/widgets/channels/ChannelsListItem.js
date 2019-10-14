@@ -33,11 +33,10 @@ const styles = theme => ({
     color: theme.palette.colors.white
   },
   badge: {
+    padding: 6,
+    top: '50%',
     right: theme.spacing(-3),
-    fontSize: 14,
-    lineHeight: '21px',
-    fontStyle: 'normal',
-    fontWeight: 'normal',
+    fontSize: 10,
     background: 'rgb(0,0,0,0.3)',
     color: '#fff'
   },
