@@ -15,6 +15,7 @@ import Elipsis from '../ui/Elipsis'
 import { getZbayAddress } from '../../zbay/channels'
 import SettingsModal from '../../containers/widgets/settings/SettingsModal'
 import UpdateModal from '../../containers/widgets/update/UpdateModal'
+import ReceivedInvitationModal from '../../containers/ui/InvitationModal/ReceivedInvitationModal'
 
 const styles = theme => ({
   root: {
@@ -70,6 +71,7 @@ export const IdentityPanel = ({ classes, identity, handleSettings, handleInvitat
       </Grid>
       <SettingsModal />
       <UpdateModal />
+      <ReceivedInvitationModal />
     </React.Fragment>
   )
 }

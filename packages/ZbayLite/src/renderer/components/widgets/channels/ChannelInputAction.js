@@ -21,7 +21,8 @@ const styles = theme => ({
     height: 28
   }
 })
-export const ChannelInputAction = ({ classes, onPostOffer, onSendMoney, disabled }) => {
+
+export const ChannelInputAction = ({ classes, onPostOffer, onSendMoney, disabled, directMessageChannel, targetRecipientAddress }) => {
   return (
     <MenuAction
       classes={{
@@ -35,7 +36,7 @@ export const ChannelInputAction = ({ classes, onPostOffer, onSendMoney, disabled
       placement='top-end'
     >
       <MenuActionItem onClick={onPostOffer} title='Post an offer' />
-      <MenuActionItem onClick={onSendMoney} title='Send money' />
+      <MenuActionItem onClick={() => onSendMoney('sendMoney', targetRecipientAddress)} title='Send money' />
     </MenuAction>
   )
 }

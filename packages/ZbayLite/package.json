@@ -4,6 +4,12 @@
   "build": {
     "productName": "Zbay",
     "appId": "Zbay",
+    "protocols": {
+      "name": "electron-deep-linking",
+      "schemes": [
+        "zbay"
+      ]
+    },
     "mac": {
       "category": "public.app-category.social-networking",
       "files": [
@@ -34,7 +40,7 @@
     },
     "linux": {
       "target": [
-        "AppImage"
+        "deb"
       ],
       "files": [
         "dist/**/*",
@@ -46,17 +52,6 @@
         "bucket": "zbay-release-linux"
       }
     },
-    "snap": {
-      "stagePackages": [
-        "default",
-        "curl",
-        "build-essential",
-        "wget",
-        "libgomp1",
-        "gcc-6",
-        "libc6-dev"
-      ]
-    },
     "extraResources": "zcash/**/*"
   },
   "homepage": "https://gitlab.rumblefishdev.com/holmes/zbay",
@@ -65,7 +60,7 @@
   "main": "dist/main.js",
   "scripts": {
     "dist": "aws s3 sync s3://zbay-zcash-binaries/darwin zcash/darwin  &&   npm run build:prod && electron-builder -p always --mac",
-    "distlinux": "aws s3 sync s3://zbay-zcash-binaries/linux zcash/linux  && npm run build:prod && electron-builder -p always --linux",
+    "distlinux": "aws s3 sync s3://zbay-zcash-binaries/linux zcash/linux && npm run build:prod && electron-builder -p always --linux",
     "snaplinux": "aws s3 sync s3://zbay-zcash-binaries/linux zcash/linux && npm run build:prod && electron-builder --linux snap",
     "distwin": " aws s3 sync s3://zbay-zcash-binaries/win32 zcash/win32 && npm run pullResources && npm run build:prod && electron-builder --win",
     "pullResources": "./zcash/win32/zcash-fetch-params",

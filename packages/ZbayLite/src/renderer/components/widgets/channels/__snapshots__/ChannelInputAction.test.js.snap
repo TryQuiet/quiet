@@ -19,7 +19,7 @@ exports[`ChannelInputAction renders component 1`] = `
     title="Post an offer"
   />
   <Memo(WithStyles(MenuActionItem))
-    onClick={[MockFunction]}
+    onClick={[Function]}
     title="Send money"
   />
 </Memo(WithStyles(MenuAction))>

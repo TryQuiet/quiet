@@ -2,7 +2,7 @@
 
 exports[`SendMoneyModal renders component step 1 1`] = `
 <Formik
-  enableReinitialize={false}
+  enableReinitialize={true}
   initialValues={
     Object {
       "amountUsd": "",
@@ -207,7 +207,7 @@ exports[`SendMoneyModal renders component step 1 1`] = `
 
 exports[`SendMoneyModal renders component step 2 1`] = `
 <Formik
-  enableReinitialize={false}
+  enableReinitialize={true}
   initialValues={
     Object {
       "amountUsd": "",
@@ -412,7 +412,7 @@ exports[`SendMoneyModal renders component step 2 1`] = `
 
 exports[`SendMoneyModal renders component step 3 1`] = `
 <Formik
-  enableReinitialize={false}
+  enableReinitialize={true}
   initialValues={
     Object {
       "amountUsd": "",
@@ -617,7 +617,7 @@ exports[`SendMoneyModal renders component step 3 1`] = `
 
 exports[`SendMoneyModal renders component step 4 1`] = `
 <Formik
-  enableReinitialize={false}
+  enableReinitialize={true}
   initialValues={
     Object {
       "amountUsd": "",

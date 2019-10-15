@@ -1,0 +1,67 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ReceivedInvitationModal renders component 1`] = `
+<WithStyles(ForwardRef(Grid))
+  alignItems="center"
+  container={true}
+  direction="column"
+  justify="flex-start"
+>
+  <WithStyles(ForwardRef(Grid))
+    className="icon-mock"
+    container={true}
+    direction="row"
+    item={true}
+    justify="flex-start"
+  >
+    <Memo(WithStyles(IconButton))
+      className="closeIcon-mock"
+      onClick={[MockFunction]}
+    >
+      <ClearIcon />
+    </Memo(WithStyles(IconButton))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    alignItems="center"
+    className="root-mock"
+    container={true}
+    direction="column"
+    item={true}
+    justify="flex-start"
+  >
+    <WithStyles(ForwardRef(Grid))
+      item={true}
+    >
+      <DoneAllIcon
+        className="icon-mock"
+      />
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      item={true}
+    >
+      <WithStyles(ForwardRef(Typography))
+        className="font-mock"
+        variant="body"
+      >
+         
+        Invitation accepted successfully
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      item={true}
+    >
+      <WithStyles(ForwardRef(Grid))
+        item={true}
+      >
+        <WithStyles(ForwardRef(Button))
+          className="button-mock"
+          onClick={[MockFunction]}
+          variant="contained"
+        >
+           Close modal
+        </WithStyles(ForwardRef(Button))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
+`;

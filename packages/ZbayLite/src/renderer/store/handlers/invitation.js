@@ -12,10 +12,12 @@ import identityHandlers from './identity'
 import { deflate, inflate } from '../../compression'
 import { messages } from '../../zbay'
 import { donationTarget } from '../../zcash/donation'
+import { actionCreators } from './modals'
 
-export const URI_PREFIX = 'https://zbay.io/invitation/'
+export const URI_PREFIX = 'zbay://'
 
-export const getInvitationUrl = invitation => `${URI_PREFIX}invtitation=${invitation}`
+export const getInvitationUrl = invitation =>
+  `${URI_PREFIX}?invitation=${encodeURIComponent(invitation)}`
 
 export const Invitation = Immutable.Record(
   {
@@ -77,9 +79,9 @@ const invitationSchema = Yup.object().shape({
 })
 
 export const handleInvitation = invitationPacked => async (dispatch, getState) => {
-  const invitation = await inflate(invitationPacked)
-  const identityAddress = identitySelectors.address(getState())
   try {
+    const identityAddress = identitySelectors.address(getState())
+    const invitation = await inflate(invitationPacked)
     await invitationSchema.validate(invitation)
     if (invitation.sk) {
       await getClient().keys.importSK({ sk: invitation.sk })
@@ -94,10 +96,9 @@ export const handleInvitation = invitationPacked => async (dispatch, getState) =
       }
     }
     await dispatch(identityHandlers.epics.updateDonationAddress(invitation.donationAddress))
-    console.log('accepted show modal')
+    dispatch(actionCreators.openModal('receivedInvitationModal')())
   } catch (err) {
-    console.log('there was an error')
-    console.log(err)
+    dispatch(actionCreators.openModal('receivedInvitationModal', { err: 'Error, try again' })())
   }
 }
 export const epics = {

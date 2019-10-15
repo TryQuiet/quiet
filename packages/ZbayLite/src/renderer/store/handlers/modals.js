@@ -12,7 +12,11 @@ const actionTypes = {
   CLOSE_MODAL: 'CLOSE_MODAL'
 }
 
-const openModal = (modalName) => createAction(actionTypes.OPEN_MODAL, () => modalName)
+const openModal = (modalName, data) => createAction(actionTypes.OPEN_MODAL, () => ({
+  modalName,
+  data
+}))
+
 const closeModal = (modalName) => createAction(actionTypes.CLOSE_MODAL, () => modalName)
 
 export const actionCreators = {
@@ -21,8 +25,16 @@ export const actionCreators = {
 }
 
 export const reducer = handleActions({
-  [actionTypes.OPEN_MODAL]: (state, { payload: modalName }) => state.set(modalName, true),
-  [actionTypes.CLOSE_MODAL]: (state, { payload: modalName }) => state.set(modalName, false)
+  [actionTypes.OPEN_MODAL]: (state, { payload }) => (
+    state
+      .set(payload.modalName, true)
+      .set('payload', payload.data)
+  ),
+  [actionTypes.CLOSE_MODAL]: (state, { payload: modalName }) => (
+    state
+      .set(modalName, false)
+      .set('payload', null)
+  )
 }, initialState)
 
 export const withModal = (name) => (Component) => {

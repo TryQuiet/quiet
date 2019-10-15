@@ -242,7 +242,7 @@ export const createTransfer = values => {
 const _buildUtxo = ({ transfer, utxos, splitTreshhold, fee, identityAddress, donation }) => {
   let transfers = [transfer]
   let includedDonation = 0
-  const donationAmount = new BigNumber(fee)
+  const donationAmount = new BigNumber(transfer.amount).div(100).toFixed(8)
   const balance = utxos.reduce((acc, utxo) => acc.plus(utxo.amount), new BigNumber(0))
   if (
     donation.allow &&

@@ -8,13 +8,15 @@ import SendMoneyModalComponent from '../../../components/ui/sendMoney'
 import { rate } from '../../../store/selectors/rates'
 import identitySelector from '../../../store/selectors/identity'
 import directMessages from '../../../store/handlers/contacts'
+import modalsSelectors from '../../../store/selectors/modals'
 
 export const mapStateToProps = state => ({
   rateUsd: rate('usd')(state),
   rateZec: rate('zec')(state),
   balanceZec: identitySelector.balance('zec')(state),
   userData: identitySelector.data(state),
-  shippingData: identitySelector.shippingData(state)
+  shippingData: identitySelector.shippingData(state),
+  targetRecipientAddress: modalsSelectors.payload(state)
 })
 
 export const SendMoneyModal = props => {

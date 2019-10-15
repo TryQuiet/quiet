@@ -32,6 +32,36 @@ const windowSize = {
 var mainWindow
 var nodeProc = null
 
+const gotTheLock = app.requestSingleInstanceLock()
+
+if (!gotTheLock) {
+  app.quit()
+} else {
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore()
+      mainWindow.focus()
+    }
+    const url = new URL(commandLine[1])
+    if (url.searchParams.has('invitation')) {
+      mainWindow.webContents.send('newInvitation', {
+        invitation: url.searchParams.get('invitation')
+      })
+    }
+  })
+}
+app.on('open-url', (event, url) => {
+  event.preventDefault()
+  const data = new URL(url)
+  if (mainWindow) {
+    if (data.searchParams.has('invitation')) {
+      mainWindow.webContents.send('newInvitation', {
+        invitation: data.searchParams.get('invitation')
+      })
+    }
+  }
+})
+
 const createZcashNode = win => {
   win.webContents.send('bootstrappingNode', {
     message: 'Ensuring zcash params are present',
@@ -67,7 +97,6 @@ const createWindow = () => {
   })
   mainWindow.setMinimumSize(windowSize.width, windowSize.height)
   mainWindow.loadURL(`file://${__dirname}/index.html`)
-
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
 
@@ -82,14 +111,14 @@ const checkForUpdate = win => {
   autoUpdater.on('check-for-update', () => {
     console.log('checking for updates...')
   })
-  autoUpdater.on('error', (error) => {
+  autoUpdater.on('error', error => {
     console.log(error)
   })
-  autoUpdater.on('update-available', (info) => {
+  autoUpdater.on('update-available', info => {
     console.log(info)
   })
 
-  autoUpdater.on('update-downloaded', (info) => {
+  autoUpdater.on('update-downloaded', info => {
     win.webContents.send('newUpdateAvailable')
   })
 }
@@ -140,6 +169,7 @@ process.on('exit', () => {
     nodeProc.kill()
   }
 })
+app.setAsDefaultProtocolClient('zbay')
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
