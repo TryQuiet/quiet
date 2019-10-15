@@ -24,7 +24,7 @@ ipcRenderer.on('newUpdateAvailable', event => {
 })
 
 ipcRenderer.on('newInvitation', (event, { invitation }) => {
-  if (nodeSelectors.status(store.getState()) === 'healthy1') {
+  if (nodeSelectors.status(store.getState()) === 'healthy') {
     store.dispatch(invitationHandlers.epics.handleInvitation(invitation))
   } else {
     store.dispatch(
