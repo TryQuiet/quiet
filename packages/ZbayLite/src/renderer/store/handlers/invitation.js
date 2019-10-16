@@ -17,7 +17,7 @@ import { actionCreators } from './modals'
 export const URI_PREFIX = 'zbay://'
 
 export const getInvitationUrl = invitation =>
-  `${URI_PREFIX}?invitation=${encodeURIComponent(invitation)}`
+  `${URI_PREFIX}invitation=${encodeURIComponent(invitation)}`
 
 export const Invitation = Immutable.Record(
   {
