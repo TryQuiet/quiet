@@ -245,7 +245,7 @@ const _buildUtxo = ({ transfer, utxos, splitTreshhold, fee, identityAddress, don
   const donationAmount = new BigNumber(transfer.amount).div(100).toFixed(8)
   const balance = utxos.reduce((acc, utxo) => acc.plus(utxo.amount), new BigNumber(0))
   if (
-    donation.allow &&
+    donation.allow === 'true' &&
     balance.gt(new BigNumber(transfer.amount).plus(donationAmount)) &&
     transfer.address !== donation.address
   ) {
