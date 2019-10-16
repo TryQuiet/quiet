@@ -20,7 +20,8 @@ import ReceivedInvitationModal from '../../containers/ui/InvitationModal/Receive
 const styles = theme => ({
   root: {
     padding: `${theme.spacing(1)}px ${theme.spacing(2)}px`,
-    marginTop: process.platform === 'darwin' && theme.spacing(1.5)
+    marginTop: process.platform === 'darwin' && theme.spacing(1.5),
+    WebkitAppRegion: 'drag'
   },
   name: {
     lineHeight: 1.2

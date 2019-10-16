@@ -23,9 +23,5 @@ exports[`UnlockVault renders unlocked 1`] = `
   >
     <VaultUnlocker />
   </WithStyles(ForwardRef(Grid))>
-  <Countdown
-    date={1536662639084}
-    renderer={[Function]}
-  />
 </Memo(WithStyles(WindowWrapper))>
 `;

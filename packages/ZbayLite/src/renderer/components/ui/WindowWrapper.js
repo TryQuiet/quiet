@@ -6,8 +6,7 @@ import { withStyles } from '@material-ui/core/styles'
 const styles = {
   root: {},
   wrapper: {
-    'min-height': '100vh',
-    WebkitAppRegion: 'drag'
+    'min-height': '100vh'
   }
 }
 

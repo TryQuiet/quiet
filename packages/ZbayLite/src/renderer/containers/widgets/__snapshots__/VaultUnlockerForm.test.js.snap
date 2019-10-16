@@ -2,13 +2,21 @@
 
 exports[`VaultUnlockerForm will receive right actions 1`] = `
 Object {
+  "getStatus": [Function],
   "onSubmit": [Function],
+  "setVaultIdentity": [Function],
 }
 `;
 
 exports[`VaultUnlockerForm will receive right props 1`] = `
 Object {
+  "loader": Immutable.Record {
+    "loading": false,
+    "message": "",
+  },
   "locked": true,
+  "newUser": false,
+  "nodeConnected": false,
   "unlocking": false,
 }
 `;

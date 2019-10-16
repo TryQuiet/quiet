@@ -31,9 +31,8 @@ export const Main = ({ match, classes }) => {
             <Sidebar />
           </Grid>
           <Grid item xs>
-            <Route exact path={`${match.url}/channel/:id`} component={Channel} />
+            <Route path={`${match.url}/channel/:id`} component={Channel} />
             <Route
-              exact
               path={`${match.url}/direct-messages/:id/:username`}
               component={DirectMessages}
             />

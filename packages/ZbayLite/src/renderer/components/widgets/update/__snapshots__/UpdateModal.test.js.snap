@@ -62,6 +62,7 @@ exports[`UpdateModal renders component 1`] = `
             className="button-mock"
             color="primary"
             fullWidth={true}
+            onClick={[MockFunction]}
             size="large"
             type="submit"
             variant="contained"

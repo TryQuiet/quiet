@@ -13,8 +13,8 @@ describe('Page', () => {
       <Page>
         <PageHeader classes={mockClasses}>
           <div>Test header</div>
-          <div>Test header</div>
         </PageHeader>
+        <div>Test header</div>
       </Page>
     )
     expect(result).toMatchSnapshot()

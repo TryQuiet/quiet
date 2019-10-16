@@ -86,6 +86,7 @@ export const setVaultIdentity = () => async (dispatch, getState) => {
 const unlockVaultEpic = ({ password: masterPassword }, formActions) => async (dispatch, getState) => {
   const state = getState()
   const network = nodeSelectors.network(state)
+
   try {
     await dispatch(vaultHandlers.actions.unlockVault({ masterPassword, network, ignoreError: true }))
   } catch (error) {

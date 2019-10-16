@@ -12,7 +12,8 @@ const styles = (theme) => ({
     height: constants.headerHeight,
     borderBottom: `1px solid ${theme.palette.colors.veryLightGray}`,
     order: -1,
-    zIndex: 10
+    zIndex: 10,
+    WebkitAppRegion: 'drag'
   }
 })
 

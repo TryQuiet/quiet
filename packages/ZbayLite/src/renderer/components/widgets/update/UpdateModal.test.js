@@ -13,7 +13,7 @@ describe('UpdateModal', () => {
         classes={mockClasses}
         handleClose={jest.fn()}
         handleUpdate={jest.fn()}
-        handleReject={jest.fn()}
+        rejectUpdate={jest.fn()}
       />
     )
     expect(result).toMatchSnapshot()

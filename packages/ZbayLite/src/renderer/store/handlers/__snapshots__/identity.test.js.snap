@@ -25,7 +25,7 @@ Immutable.IdentityState {
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
-    "loading": true,
+    "loading": false,
     "message": "",
   },
   "errors": "",
@@ -89,7 +89,7 @@ Immutable.IdentityState {
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
-    "loading": true,
+    "loading": false,
     "message": "This is a loading message",
   },
   "errors": "",
@@ -121,7 +121,7 @@ Immutable.IdentityState {
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
-    "loading": true,
+    "loading": false,
     "message": "",
   },
   "errors": "",
@@ -153,7 +153,7 @@ Immutable.IdentityState {
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
-    "loading": true,
+    "loading": false,
     "message": "",
   },
   "errors": "",
@@ -185,7 +185,7 @@ Immutable.IdentityState {
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
-    "loading": true,
+    "loading": false,
     "message": "",
   },
   "errors": [Error: this is some error],
@@ -217,7 +217,7 @@ Immutable.IdentityState {
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
-    "loading": true,
+    "loading": false,
     "message": "",
   },
   "errors": "",
@@ -249,7 +249,7 @@ Immutable.IdentityState {
   },
   "fetchingBalance": true,
   "loader": Immutable.Record {
-    "loading": true,
+    "loading": false,
     "message": "",
   },
   "errors": "",
@@ -281,7 +281,7 @@ Immutable.IdentityState {
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
-    "loading": true,
+    "loading": false,
     "message": "",
   },
   "errors": "",
@@ -313,7 +313,7 @@ Immutable.IdentityState {
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
-    "loading": true,
+    "loading": false,
     "message": "",
   },
   "errors": "",
@@ -362,7 +362,7 @@ Immutable.IdentityState {
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
-    "loading": true,
+    "loading": false,
     "message": "",
   },
   "errors": "",
@@ -394,7 +394,7 @@ Immutable.IdentityState {
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
-    "loading": true,
+    "loading": false,
     "message": "",
   },
   "errors": "node error",

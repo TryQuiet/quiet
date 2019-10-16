@@ -16,9 +16,9 @@ exports[`Page renders component 1`] = `
     <div>
       Test header
     </div>
-    <div>
-      Test header
-    </div>
   </Memo(WithStyles(PageHeader))>
+  <div>
+    Test header
+  </div>
 </WithStyles(ForwardRef(Grid))>
 `;

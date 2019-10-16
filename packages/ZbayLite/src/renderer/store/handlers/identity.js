@@ -64,7 +64,7 @@ export const IdentityState = Immutable.Record(
   {
     data: Identity(),
     fetchingBalance: false,
-    loader: LoaderState({ loading: true }),
+    loader: LoaderState({ loading: false }),
     errors: ''
   },
   'IdentityState'

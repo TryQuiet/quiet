@@ -40,6 +40,7 @@ exports[`IdentityPanel renders component 1`] = `
     >
       <WithStyles(ForwardRef(IconButton))
         className="settingsButton-mock"
+        onClick={[MockFunction]}
       >
         <AttachMoneyIcon />
       </WithStyles(ForwardRef(IconButton))>

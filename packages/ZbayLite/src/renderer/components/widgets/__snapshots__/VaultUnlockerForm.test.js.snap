@@ -9,7 +9,7 @@ exports[`VaultUnlockerForm renders component 1`] = `
     }
   }
   isInitialValid={false}
-  onSubmit={[MockFunction]}
+  onSubmit={[Function]}
   validateOnBlur={true}
   validateOnChange={true}
   validationSchema={

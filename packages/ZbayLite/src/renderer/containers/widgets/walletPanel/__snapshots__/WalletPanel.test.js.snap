@@ -3,7 +3,7 @@
 exports[`WalletPanel sets interval for getBalance 1`] = `
 Array [
   Array [
-    undefined,
+    [MockFunction],
     15000,
   ],
 ]

@@ -181,7 +181,7 @@
     "react-jdenticon": "0.0.8",
     "react-measure": "^2.2.4",
     "react-redux": "^6.0.0",
-    "react-router-dom": "^4.3.1",
+    "react-router-dom": "^5.1.2",
     "redux": "^4.0.1",
     "redux-actions": "^2.6.4",
     "redux-debounced": "^0.5.0",

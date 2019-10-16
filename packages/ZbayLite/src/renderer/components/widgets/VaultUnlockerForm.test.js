@@ -12,6 +12,10 @@ describe('VaultUnlockerForm', () => {
         classes={mockClasses}
         locked
         onSubmit={jest.fn()}
+        newUser={false}
+        done={false}
+        nodeConnected={false}
+        loader={{}}
       />
     )
     expect(result).toMatchSnapshot()

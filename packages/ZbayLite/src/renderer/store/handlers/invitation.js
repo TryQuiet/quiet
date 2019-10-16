@@ -13,11 +13,10 @@ import { deflate, inflate } from '../../compression'
 import { messages } from '../../zbay'
 import { donationTarget } from '../../zcash/donation'
 import { actionCreators } from './modals'
-
-export const URI_PREFIX = 'zbay://'
+import { DOMAIN } from '../../../shared/constants'
 
 export const getInvitationUrl = invitation =>
-  `${URI_PREFIX}invitation=${encodeURIComponent(invitation)}`
+  `https://${DOMAIN}/invitation=${encodeURIComponent(invitation)}`
 
 export const Invitation = Immutable.Record(
   {

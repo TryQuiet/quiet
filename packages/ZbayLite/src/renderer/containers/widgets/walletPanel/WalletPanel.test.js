@@ -14,7 +14,7 @@ describe('WalletPanel', () => {
   })
 
   it('sets interval for getBalance', () => {
-    shallow(<WalletPanel getBalance={jest.fn()} />)
+    shallow(<WalletPanel fetchPrices={jest.fn()} />)
     expect(useInterval.mock.calls).toMatchSnapshot()
   })
 })
