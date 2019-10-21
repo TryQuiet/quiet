@@ -9,10 +9,12 @@ import Modal from '../../../ui/Modal'
 import Tab from '../../../ui/Tab'
 import AccountSettingsForm from '../../../../containers/widgets/settings/AccountSettingsForm'
 import ShippingSettingsForm from '../../../../containers/widgets/settings/ShippingSettingsForm'
+import DonationsSettingsForm from '../../../../containers/widgets/settings/DonationsSettingsForm'
 
 const tabs = {
   account: AccountSettingsForm,
-  shipping: ShippingSettingsForm
+  shipping: ShippingSettingsForm,
+  donations: DonationsSettingsForm
 }
 
 const styles = theme => ({
@@ -39,6 +41,7 @@ export const SettingsModal = ({ classes, open, handleClose }) => {
         >
           <Tab value='account' label='Account' />
           <Tab value='shipping' label='Shipping' />
+          <Tab value='donations' label='Dontaions' />
         </Tabs>
       </AppBar>
       <TabComponent />

@@ -11,7 +11,7 @@ import MuiTextField from '@material-ui/core/TextField'
 import IconButton from '@material-ui/core/IconButton'
 import Button from '@material-ui/core/Button'
 import { withStyles } from '@material-ui/core/styles'
-import { Divider, FormControlLabel, Checkbox } from '@material-ui/core'
+import { Divider } from '@material-ui/core'
 
 import IconCopy from '../../ui/IconCopy'
 import TextField from '../../ui/form/TextField'
@@ -85,9 +85,7 @@ export const AccountSettingsForm = ({
   privateAddress,
   handleCopy,
   handleSubmit,
-  checkNickname,
-  updateDonation,
-  donationAllow
+  checkNickname
 }) => (
   <Formik
     onSubmit={handleSubmit}
@@ -158,20 +156,6 @@ export const AccountSettingsForm = ({
                   </>
                 )
               }}
-            />
-          </Grid>
-          <Grid item>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={donationAllow === 'true'}
-                  onChange={e => {
-                    updateDonation(e.target.checked)
-                  }}
-                  color='primary'
-                />
-              }
-              label='Allow for sending a small donation to Zbay team'
             />
           </Grid>
           <Grid item xs={12} className={classes.buttonDiv}>

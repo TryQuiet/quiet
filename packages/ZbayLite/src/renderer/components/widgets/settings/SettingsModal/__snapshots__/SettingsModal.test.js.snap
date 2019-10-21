@@ -30,6 +30,10 @@ exports[`SettingsModal renders component 1`] = `
         label="Shipping"
         value="shipping"
       />
+      <WithStyles(Tab)
+        label="Dontaions"
+        value="donations"
+      />
     </WithStyles(ForwardRef(Tabs))>
   </WithStyles(ForwardRef(AppBar))>
   <Connect(WithStyles(AccountSettingsForm)) />

@@ -2,7 +2,6 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
 import usersHandlers from '../../../store/handlers/users'
-import identityHandlers from '../../../store/handlers/identity'
 import AccountSettingsForm from '../../../components/widgets/settings/AccountSettingsForm'
 import identitySelectors from '../../../store/selectors/identity'
 import usersSelectors from '../../../store/selectors/users'
@@ -17,8 +16,7 @@ export const mapStateToProps = state => {
         : ''
     },
     transparentAddress: identitySelectors.transparentAddress(state),
-    privateAddress: identitySelectors.address(state),
-    donationAllow: identitySelectors.donationAllow(state)
+    privateAddress: identitySelectors.address(state)
   }
 }
 
@@ -26,7 +24,6 @@ export const mapDispatchToProps = (dispatch, props) =>
   bindActionCreators(
     {
       checkNickname: usersHandlers.epics.isNicknameTaken,
-      updateDonation: identityHandlers.epics.updateDonation,
       handleSubmit: ({ nickname }) => usersHandlers.epics.createOrUpdateUser({ nickname })
     },
     dispatch

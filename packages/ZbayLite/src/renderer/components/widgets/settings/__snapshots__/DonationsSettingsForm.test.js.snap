@@ -1,0 +1,53 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DonationsSettingsForm renders component 1`] = `
+<WithStyles(ForwardRef(Grid))
+  className="container-mock"
+  container={true}
+  direction="row"
+  spacing={2}
+>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+    xs={12}
+  >
+    <WithStyles(ForwardRef(Grid))
+      item={true}
+      xs={12}
+    >
+      <WithStyles(ForwardRef(Typography))
+        variant="body1"
+      >
+        Dontaion Recipient
+      </WithStyles(ForwardRef(Typography))>
+      <WithStyles(ForwardRef(TextField))
+        InputProps={
+          Object {
+            "className": "field-mock",
+          }
+        }
+        defaultValue="test-zash-address"
+        fullWidth={true}
+        name="donationAddress"
+        onChange={[Function]}
+        placeholder="Enter Zcash Address"
+      />
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+    xs={12}
+  >
+    <WithStyles(ForwardRef(FormControlLabel))
+      control={
+        <ForwardRef(WithStyles)
+          checked={false}
+          color="primary"
+          onChange={[Function]}
+        />
+      }
+      label="Allow for sending a small donation to Zbay team"
+    />
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
+`;
