@@ -1,5 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`ChannelsPanel will receive right actions 1`] = `
+Object {
+  "openModal": [Function],
+}
+`;
+
 exports[`ChannelsPanel will receive right props 1`] = `
 Object {
   "channels": Immutable.List [

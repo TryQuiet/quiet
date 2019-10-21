@@ -13,12 +13,15 @@ const styles = theme => ({
   message: {
     marginTop: theme.spacing(2),
     color: theme.palette.primary.main
+  },
+  spinner: {
+    color: theme.palette.colors.white
   }
 })
 
 export const SpinnerLoader = ({ classes, size, message, className }) => (
   <Grid container justify='center' alignItems='center' direction='column' className={className}>
-    <CircularProgress className={classes.spinner} size={size} />
+    <CircularProgress color='inherit' className={classes.spinner} size={size} />
     <Typography
       variant='caption'
       style={{ fontSize: `${size / 44}rem` }}

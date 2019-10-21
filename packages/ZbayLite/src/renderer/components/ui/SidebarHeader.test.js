@@ -12,6 +12,7 @@ describe('SidebarHeader', () => {
       <SidebarHeader
         classes={mockClasses}
         title='sample title'
+        tooltipText='sample text'
         actions={[<Action key={1} />]}
       />
     )

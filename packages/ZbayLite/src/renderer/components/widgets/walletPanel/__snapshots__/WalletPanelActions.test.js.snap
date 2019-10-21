@@ -4,7 +4,7 @@ exports[`WalletPanelActions renders component 1`] = `
 <WithStyles(ForwardRef(Grid))
   container={true}
   direction="row"
-  justify="space-between"
+  spacing={1}
 >
   <WithStyles(ForwardRef(Grid))
     item={true}
@@ -12,9 +12,14 @@ exports[`WalletPanelActions renders component 1`] = `
     <WithStyles(ForwardRef(Button))
       className="button-mock"
       onClick={[MockFunction]}
-      variant="contained"
+      variant="text"
     >
-      Send Money
+      <WithStyles(ForwardRef(Typography))
+        className="buttonText-mock"
+        variant="caption"
+      >
+        Add Funds
+      </WithStyles(ForwardRef(Typography))>
     </WithStyles(ForwardRef(Button))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
@@ -23,9 +28,14 @@ exports[`WalletPanelActions renders component 1`] = `
     <WithStyles(ForwardRef(Button))
       className="button-mock"
       onClick={[MockFunction]}
-      variant="contained"
+      variant="text"
     >
-      Receive Money
+      <WithStyles(ForwardRef(Typography))
+        className="buttonText-mock"
+        variant="caption"
+      >
+        Send Funds
+      </WithStyles(ForwardRef(Typography))>
     </WithStyles(ForwardRef(Button))>
   </WithStyles(ForwardRef(Grid))>
 </WithStyles(ForwardRef(Grid))>

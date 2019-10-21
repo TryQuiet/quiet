@@ -7,7 +7,6 @@ import { withStyles } from '@material-ui/core/styles'
 import addIcon from '../../../static/images/zcash/add-icon.svg'
 import MenuAction from '../../ui/MenuAction'
 import MenuActionItem from '../../ui/MenuActionItem'
-import CreateChannelModal from '../../../containers/widgets/channels/CreateChannelModal'
 import ImportChannelModal from './ImportChannelModal'
 
 const styles = theme => ({
@@ -42,7 +41,7 @@ export const AddChannelAction = ({ classes, openCreateModal }) => {
         <MenuActionItem onClick={() => setImportOpen(true)} title='Import' />
         <MenuActionItem onClick={openCreateModal} title='Create' />
       </MenuAction>
-      <CreateChannelModal />
+
       <ImportChannelModal open={importOpen} handleClose={() => setImportOpen(false)} />
     </React.Fragment>
   )

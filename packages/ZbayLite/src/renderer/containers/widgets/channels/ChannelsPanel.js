@@ -2,34 +2,47 @@ import React from 'react'
 import { connect } from 'react-redux'
 import * as R from 'ramda'
 import Grid from '@material-ui/core/Grid'
-import RootRef from '@material-ui/core/RootRef'
-import { withContentRect } from 'react-measure'
 import Immutable from 'immutable'
+import { bindActionCreators } from 'redux'
 
-import ChannelsPanelComponent from '../../../components/widgets/channels/ChannelsPanel'
+import BaseChannelsList from '../../../components/widgets/channels/BaseChannelsList'
 import SidebarHeader from '../../../components/ui/SidebarHeader'
-import AddChannelAction from './AddChannelAction'
 import channelsSelectors from '../../../store/selectors/channels'
 import channelSelectors from '../../../store/selectors/channel'
+import { actionCreators } from '../../../store/handlers/modals'
+import QuickActionButton from '../../../components/widgets/sidebar/QuickActionButton'
 
 export const mapStateToProps = state => ({
   channels: channelsSelectors.data(state),
   selected: channelSelectors.channelInfo(state)
 })
-
-export const ChannelsPanel = ({ measureRef, ...props }) => {
+export const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    {
+      openCreateModal: actionCreators.openModal('createChannel')
+    },
+    dispatch
+  )
+export const ChannelsPanel = ({ title, openCreateModal, ...props }) => {
   return (
-    <RootRef rootRef={measureRef}>
-      <Grid container item xs direction='column'>
-        <SidebarHeader title='Channels' actions={[<AddChannelAction key='create-channel' />]} />
-        <ChannelsPanelComponent {...props} />
+    <Grid container item xs direction='column'>
+      <Grid item>
+        <SidebarHeader title={title} action={openCreateModal} tooltipText='Create new channel' />
       </Grid>
-    </RootRef>
+      <Grid item>
+        <BaseChannelsList {...props} />
+      </Grid>
+      <Grid item>
+        <QuickActionButton text='Add Channel' action={openCreateModal} />
+      </Grid>
+    </Grid>
   )
 }
 export default R.compose(
-  withContentRect('bounds'),
-  connect(mapStateToProps)
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )
 )(
   React.memo(ChannelsPanel, (before, after) => {
     return (

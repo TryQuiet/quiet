@@ -4,6 +4,8 @@ import * as R from 'ramda'
 
 import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
+import { Scrollbars } from 'react-custom-scrollbars'
+import { AutoSizer } from 'react-virtualized'
 
 import NodePanel from '../../../containers/widgets/node/NodePanel'
 import IdentityPanel from '../../../containers/ui/IdentityPanel'
@@ -14,39 +16,45 @@ import DirectMessagesPanel from '../../../containers/widgets/channels/DirectMess
 const styles = theme => ({
   root: {
     minHeight: '100%',
-    width: '350px',
-    background: theme.palette.colors.white,
-    paddingBottom: '55px',
+    width: '220px',
     position: 'relative',
-    backgroundImage: 'linear-gradient(-44deg, #521576 6%, #E42656 100%)',
+    backgroundImage: 'linear-gradient(290.29deg, #521576 18.61%, #E42656 96.07%)',
     color: theme.palette.colors.white
+  },
+  padding: {
+    padding: 0
+  },
+  content: {
+    height: '100%'
   },
   gutterBottom: {
     marginBottom: theme.spacing(4)
-  },
-  statusBar: {
-    position: 'absolute',
-    zIndex: 1000,
-    bottom: 0,
-    left: 0,
-    right: 0
   },
   walletInfo: {
     backgroundColor: 'rgb(0,0,0,0.1)'
   }
 })
 
-// TODO: add direct messages panel
 const Sidebar = ({ classes }) => {
   return (
     <Grid container direction='column' className={classes.root}>
-      <span className={classes.walletInfo}>
-        <IdentityPanel />
-        <WalletPanel />
-      </span>
-      <ChannelsPanel />
-      <DirectMessagesPanel />
-      <NodePanel hexColor='#cca92c' className={classes.statusBar} />
+      <Grid item xs container direction='column' className={classes.padding}>
+        <Grid item direction='column'>
+          <NodePanel className={classes.statusBar} />
+          <IdentityPanel />
+        </Grid>
+        <Grid item xs container direction='column'>
+          <AutoSizer>
+            {({ width, height }) => (
+              <Scrollbars autoHideTimeout={500} style={{ width: width, height: height }}>
+                <WalletPanel />
+                <ChannelsPanel title='Channels' />
+                <DirectMessagesPanel title='Direct Messages' />
+              </Scrollbars>
+            )}
+          </AutoSizer>
+        </Grid>
+      </Grid>
     </Grid>
   )
 }

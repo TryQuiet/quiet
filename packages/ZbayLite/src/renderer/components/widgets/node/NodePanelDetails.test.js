@@ -6,9 +6,7 @@ import { mockClasses } from '../../../../shared/testing/mocks'
 
 describe('NodePanelDetails', () => {
   it('renders component', () => {
-    const result = shallow(
-      <NodePanelDetails classes={mockClasses} />
-    )
+    const result = shallow(<NodePanelDetails classes={mockClasses} expanded />)
     expect(result).toMatchSnapshot()
   })
 })

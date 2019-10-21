@@ -2,35 +2,22 @@ import React from 'react'
 import Immutable from 'immutable'
 import PropTypes from 'prop-types'
 import * as R from 'ramda'
-import Jdenticon from 'react-jdenticon'
 import classNames from 'classnames'
 
 import { withStyles } from '@material-ui/core/styles'
 import ListItem from '@material-ui/core/ListItem'
-import ListItemIcon from '@material-ui/core/ListItemIcon'
 import ListItemText from '@material-ui/core/ListItemText'
-import Badge from '@material-ui/core/Badge'
-import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline'
+import { Typography, Grid } from '@material-ui/core'
 
-import Elipsis from '../../ui/Elipsis'
-
+import ZcashIcon from '../../ui/ZcashIcon'
+import { messageType } from '../../../zbay/messages'
 const styles = theme => ({
   root: {
-    padding: '5px 16px 6px'
+    padding: 0,
+    height: 24
   },
   selected: {
-    backgroundColor: 'rgb(255,255,255,0.4)'
-  },
-  itemText: {
-    paddingLeft: '12px'
-  },
-  itemIcon: {
-    marginRight: 0,
-    minWidth: 0
-  },
-  icon: {
-    marginTop: '2px',
-    color: theme.palette.colors.white
+    backgroundColor: theme.palette.colors.lushSky
   },
   badge: {
     padding: 6,
@@ -43,35 +30,36 @@ const styles = theme => ({
   primary: {
     display: 'flex'
   },
-  Avatar: {
-    maxHeight: 40,
-    maxWidth: 40,
-    borderRadius: '50%',
-    overflow: 'hidden',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
+  title: {
+    opacity: 0.7,
+    paddingLeft: 16,
+    paddingRight: 16
   },
-  alignAvatar: {
-    marginTop: '5px'
+  newMessages: {
+    opacity: 1
+  },
+  icon: {
+    marginTop: 6,
+    fill: theme.palette.colors.green
   }
 })
 
-export const ChannelsListItem = ({
-  classes,
-  channel,
-  displayAddress,
-  history,
-  directMessages,
-  selected
-}) => {
+export const ChannelsListItem = ({ classes, channel, history, directMessages, selected }) => {
   const channelObj = channel.toJS()
+  const size = 15
   const highlight = directMessages
     ? selected.targetRecipientAddress === channel.address
     : channelObj.address === selected.address
+  const newMessages = directMessages ? channelObj.newMessages.length : channelObj.unread
+  const recievedMoney =
+    directMessages &&
+    channelObj.messages.find(
+      msg => msg.type === messageType.TRANSFER && channelObj.newMessages.includes(msg.id)
+    )
   return (
     <ListItem
       button
+      disableGutters
       onClick={() => {
         history.push(
           `/main/${
@@ -84,43 +72,31 @@ export const ChannelsListItem = ({
       className={classNames(classes.root, {
         [classes.selected]: highlight
       })}
-      alignItems={displayAddress ? 'flex-start' : 'center'}
     >
-      <ListItemIcon className={classes.itemIcon}>
-        {directMessages ? (
-          <div className={classes.Avatar}>
-            <div className={classes.alignAvatar}>
-              <Jdenticon size='48' value={channelObj.username} />
-            </div>
-          </div>
-        ) : (
-          <ChatBubbleOutlineIcon className={classes.icon} />
-        )}
-      </ListItemIcon>
       <ListItemText
         primary={
-          <Badge
-            badgeContent={directMessages ? channelObj.newMessages.length : channelObj.unread}
-            classes={{
-              badge: classes.badge
-            }}
-          >
-            {directMessages ? channelObj.username : channelObj.name}
-          </Badge>
-        }
-        secondary={
-          displayAddress ? (
-            <Elipsis tooltipPlacement='bottom' content={channelObj.address} length={20} />
-          ) : (
-            ''
-          )
+          <Grid container alignItems='center'>
+            <Grid item>
+              <Typography
+                variant='body2'
+                className={classNames(classes.title, {
+                  [classes.newMessages]: newMessages
+                })}
+              >
+                {directMessages ? `@ ${channelObj.username}` : `# ${channelObj.name}`}
+              </Typography>
+            </Grid>
+            {recievedMoney && (
+              <Grid item>
+                <ZcashIcon size={size} className={classes.icon} />
+              </Grid>
+            )}
+          </Grid>
         }
         classes={{
           primary: classes.primary
         }}
         className={classes.itemText}
-        secondaryTypographyProps={{ variant: 'caption' }}
-        address={channelObj.address}
       />
     </ListItem>
   )
@@ -132,12 +108,11 @@ ChannelsListItem.propTypes = {
     PropTypes.instanceOf(Immutable.Record)
   ]).isRequired,
   selected: PropTypes.instanceOf(Immutable.Record).isRequired,
-  displayAddress: PropTypes.bool,
-  directMessages: PropTypes.bool
+  directMessages: PropTypes.bool,
+  history: PropTypes.object.isRequired
 }
 
 ChannelsListItem.defaultProps = {
-  displayAddress: false,
   directMessages: false
 }
 

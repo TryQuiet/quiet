@@ -4,20 +4,19 @@ exports[`VaultCreator renders component 1`] = `
 <WithStyles(ForwardRef(Grid))
   className="root-mock"
   container={true}
-  justify="space-between"
+  direction="column"
+  spacing={0}
 >
   <WithStyles(ForwardRef(Typography))
     className="text-mock"
-    display="inline"
     variant="overline"
   >
     test field
     :
   </WithStyles(ForwardRef(Typography))>
   <WithStyles(ForwardRef(Typography))
-    className="text-mock"
-    display="inline"
-    variant="overline"
+    className="textValue-mock"
+    variant="body2"
   />
 </WithStyles(ForwardRef(Grid))>
 `;

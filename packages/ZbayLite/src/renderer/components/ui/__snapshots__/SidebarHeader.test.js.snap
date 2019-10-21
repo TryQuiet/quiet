@@ -12,7 +12,8 @@ exports[`SidebarHeader renders component 1`] = `
     item={true}
   >
     <WithStyles(ForwardRef(Typography))
-      variant="subtitle1"
+      className="title-mock"
+      variant="body2"
     >
       sample title
     </WithStyles(ForwardRef(Typography))>
@@ -20,9 +21,20 @@ exports[`SidebarHeader renders component 1`] = `
   <WithStyles(ForwardRef(Grid))
     item={true}
   >
-    <Action
-      key="1"
-    />
+    <Memo(WithStyles(Tooltip))
+      className="tooltip-mock"
+      placement="bottom"
+      title="sample text"
+    >
+      <WithStyles(ForwardRef(IconButton))
+        className="iconButton-mock"
+        edge="end"
+      >
+        <PlusIcon
+          color="white"
+        />
+      </WithStyles(ForwardRef(IconButton))>
+    </Memo(WithStyles(Tooltip))>
   </WithStyles(ForwardRef(Grid))>
 </WithStyles(ForwardRef(Grid))>
 `;

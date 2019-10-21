@@ -1,59 +1,30 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`IdentityPanel renders component 1`] = `
-<Fragment>
-  <WithStyles(ForwardRef(Grid))
-    alignItems="center"
-    className="root-mock"
-    container={true}
-    direction="row"
-    justify="space-between"
+<div
+  className="root-mock"
+>
+  <WithStyles(ForwardRef(Button))
+    classes={
+      Object {
+        "label": "buttonLabel-mock",
+        "root": "button-mock",
+      }
+    }
+    component="span"
+    onClick={[MockFunction]}
   >
-    <WithStyles(ForwardRef(Grid))
-      item={true}
+    <WithStyles(ForwardRef(Typography))
+      variant="h4"
     >
-      <WithStyles(ForwardRef(Grid))
-        container={true}
-        direction="column"
-      >
-        <WithStyles(ForwardRef(Typography))
-          className="name-mock"
-          variant="body2"
-        >
-          Saturn
-        </WithStyles(ForwardRef(Typography))>
-        <Memo(Elipsis)
-          classes={
-            Object {
-              "content": "uri-mock",
-            }
-          }
-          content="zbay://uri/zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly"
-          interactive={true}
-          length={30}
-          tooltipPlacement="bottom-start"
-        />
-      </WithStyles(ForwardRef(Grid))>
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      item={true}
-    >
-      <WithStyles(ForwardRef(IconButton))
-        className="settingsButton-mock"
-        onClick={[MockFunction]}
-      >
-        <AttachMoneyIcon />
-      </WithStyles(ForwardRef(IconButton))>
-      <WithStyles(ForwardRef(IconButton))
-        className="settingsButton-mock"
-        onClick={[MockFunction]}
-      >
-        <PersonIcon />
-      </WithStyles(ForwardRef(IconButton))>
-    </WithStyles(ForwardRef(Grid))>
-  </WithStyles(ForwardRef(Grid))>
+      Saturn
+    </WithStyles(ForwardRef(Typography))>
+    <ExpandMoreIcon
+      fontSize="small"
+    />
+  </WithStyles(ForwardRef(Button))>
   <withModal(WithStyles(SettingsModal)) />
   <Connect(withModal(WithStyles(UpdateModal))) />
   <Memo(Connect(withModal(ReceivedInvitaionModalContainer))) />
-</Fragment>
+</div>
 `;

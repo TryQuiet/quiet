@@ -103,6 +103,7 @@
     "electron": "^4.0.3",
     "electron-builder": "^21.2.0",
     "electron-debug": "^2.1.0",
+    "react-virtualized": "^9.21.1",
     "electron-devtools-installer": "^2.2.4",
     "enzyme": "^3.8.0",
     "enzyme-adapter-react-16": "^1.13.2",

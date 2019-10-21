@@ -13,9 +13,6 @@ exports[`NodePanelDetails renders component 1`] = `
     <Connect(NodePanelNetworkField) />
     <Connect(NodePanelBlocksField) />
     <Connect(NodePanelConnectionsField) />
-    <Memo(WithStyles(NodePanelField))
-      name="Zbay version"
-    />
   </WithStyles(ForwardRef(Grid))>
 </WithStyles(ForwardRef(Grid))>
 `;

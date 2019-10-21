@@ -2,166 +2,83 @@
 
 exports[`ZcashBalance renders component 1`] = `
 <WithStyles(ForwardRef(Grid))
-  alignItems="stretch"
+  align="flex-start"
   container={true}
-  direction="row"
-  justify="flex-start"
-  spacing={1}
+  direction="column"
+  spacing={0}
 >
   <WithStyles(ForwardRef(Grid))
     item={true}
-    xs={12}
   >
     <WithStyles(ForwardRef(Typography))
-      className="title-mock"
+      className="zecBalance-mock"
+      display="inline"
       variant="body2"
     >
-      Available
+      12.32
+       ZEC
     </WithStyles(ForwardRef(Typography))>
-    <WithStyles(ForwardRef(Grid))
-      align="center"
-      container={true}
-      direction="row"
-      justify="space-between"
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+  >
+    <WithStyles(ForwardRef(Typography))
+      className="usdBalance-mock"
+      variant="caption"
     >
-      <WithStyles(ForwardRef(Grid))
-        item={true}
-      >
-        <WithStyles(UsdBalance)
-          value={"3243.25"}
-        />
-      </WithStyles(ForwardRef(Grid))>
-      <WithStyles(ForwardRef(Grid))
-        className="zec-mock"
-        item={true}
-      >
-        <Memo(WithStyles(ZecBalance))
-          size={16}
-          style="white"
-          value={"12.323212"}
-        />
-      </WithStyles(ForwardRef(Grid))>
-    </WithStyles(ForwardRef(Grid))>
+      $
+      3243
+       
+      USD
+    </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>
 </WithStyles(ForwardRef(Grid))>
 `;
 
 exports[`ZcashBalance renders when balanced locked 1`] = `
 <WithStyles(ForwardRef(Grid))
-  alignItems="stretch"
+  align="flex-start"
   container={true}
-  direction="row"
-  justify="flex-start"
-  spacing={1}
+  direction="column"
+  spacing={0}
 >
   <WithStyles(ForwardRef(Grid))
     item={true}
-    xs={12}
   >
     <WithStyles(ForwardRef(Typography))
-      className="title-mock"
+      className="zecBalance-mock"
+      display="inline"
       variant="body2"
     >
-      Available
+      0
+       ZEC
     </WithStyles(ForwardRef(Typography))>
-    <WithStyles(ForwardRef(Grid))
-      align="center"
-      container={true}
-      direction="row"
-      justify="space-between"
+    <Memo(WithStyles(Tooltip))
+      className="tooltip-mock"
+      placement="bottom"
+      title="This is the pending text that holmes will provide"
     >
-      <WithStyles(ForwardRef(Grid))
-        item={true}
+      <WithStyles(ForwardRef(Typography))
+        className="pending-mock"
+        display="inline"
+        variant="caption"
       >
-        <WithStyles(UsdBalance)
-          value={"0"}
-        />
-      </WithStyles(ForwardRef(Grid))>
-      <WithStyles(ForwardRef(Grid))
-        className="zec-mock"
-        item={true}
-      >
-        <Memo(WithStyles(ZecBalance))
-          size={16}
-          style="white"
-          value={"0"}
-        />
-      </WithStyles(ForwardRef(Grid))>
-    </WithStyles(ForwardRef(Grid))>
+        Pending...
+      </WithStyles(ForwardRef(Typography))>
+    </Memo(WithStyles(Tooltip))>
   </WithStyles(ForwardRef(Grid))>
-  <ForwardRef(Grow)
-    in={true}
+  <WithStyles(ForwardRef(Grid))
+    item={true}
   >
-    <WithStyles(ForwardRef(Grid))
-      item={true}
-      xs={12}
+    <WithStyles(ForwardRef(Typography))
+      className="usdBalance-mock"
+      variant="caption"
     >
-      <WithStyles(ForwardRef(Grid))
-        alignItems="center"
-        className="lockedRoot-mock"
-        container={true}
-        direction="row"
-        justify="space-evenly"
-        spacing={0}
-      >
-        <WithStyles(ForwardRef(Grid))
-          className="alignHorizontal-mock"
-          item={true}
-          xs={2}
-        >
-          <SpinnerLoader
-            classes={null}
-            size={30}
-          />
-        </WithStyles(ForwardRef(Grid))>
-        <WithStyles(ForwardRef(Grid))
-          alignItems="center"
-          container={true}
-          item={true}
-          xs={7}
-        >
-          <WithStyles(ForwardRef(Grid))
-            item={true}
-            xs={12}
-          >
-            <WithStyles(ForwardRef(Typography))
-              className="lockedTitle-mock"
-              display="inline"
-              variant="caption"
-            >
-              Pending 
-              <span
-                className="usd-mock"
-              >
-                $
-                3,243.25
-              </span>
-               USD
-            </WithStyles(ForwardRef(Typography))>
-          </WithStyles(ForwardRef(Grid))>
-          <WithStyles(ForwardRef(Grid))
-            item={true}
-            xs={12}
-          >
-            <WithStyles(ForwardRef(Typography))
-              variant="caption"
-            >
-              12.323212
-               ZEC
-            </WithStyles(ForwardRef(Typography))>
-          </WithStyles(ForwardRef(Grid))>
-        </WithStyles(ForwardRef(Grid))>
-        <WithStyles(ForwardRef(Grid))
-          className="alignHorizontal-mock"
-          item={true}
-          xs={2}
-        >
-          <InfoOutlinedIcon
-            className="icon-mock"
-          />
-        </WithStyles(ForwardRef(Grid))>
-      </WithStyles(ForwardRef(Grid))>
-    </WithStyles(ForwardRef(Grid))>
-  </ForwardRef(Grow)>
+      $
+      0.00
+       
+      USD
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
 </WithStyles(ForwardRef(Grid))>
 `;

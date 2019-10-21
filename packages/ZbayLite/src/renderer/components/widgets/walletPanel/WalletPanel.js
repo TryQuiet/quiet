@@ -7,39 +7,39 @@ import { withStyles } from '@material-ui/core/styles'
 
 import WalletPanelActions from '../../../containers/widgets/walletPanel/WalletPanelActions'
 import ZcashBalance from '../../../containers/widgets/walletPanel/ZcashBalance'
+import QuickActionButton from '../sidebar/QuickActionButton'
 
 const styles = theme => ({
   root: {
-    paddingLeft: theme.spacing(2),
-    paddingTop: theme.spacing(1),
-    paddingRight: theme.spacing(2),
-    paddingBottom: theme.spacing(2)
-  },
-  actions: {
-    marginTop: theme.spacing(2)
-  },
-  zec: {
-    paddingTop: theme.spacing(2)
+    paddingLeft: 16,
+    paddingRight: 16
   }
 })
 
-export const WalletPanel = ({ classes }) => {
+export const WalletPanel = ({ classes, handleInvitation }) => {
   return (
-    <React.Fragment>
-      <Grid item container direction='column' className={classes.root}>
-        <Grid item container direction='row' justify='space-between' alignItems='center'>
-          <ZcashBalance />
-        </Grid>
-        <Grid item className={classes.actions}>
+    <>
+      <Grid
+        item
+        container
+        direction='row'
+        justify='space-between'
+        alignItems='center'
+        className={classes.root}
+      >
+        <ZcashBalance />
+        <Grid item>
           <WalletPanelActions />
         </Grid>
       </Grid>
-    </React.Fragment>
+      <QuickActionButton text='Invite firends' action={handleInvitation} />
+    </>
   )
 }
 
 WalletPanel.propTypes = {
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
+  handleInvitation: PropTypes.func.isRequired
 }
 
 export default R.compose(

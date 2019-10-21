@@ -5,26 +5,42 @@ import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
 import PulseDot from '../../ui/PulseDot'
+import SpinnerLoader from '../../ui/SpinnerLoader'
 
 const styles = theme => ({
   root: {},
   status: {
-    paddingLeft: theme.spacing(2),
-    fontSize: '0.9rem'
+    color: 'inherit'
+  },
+  icon: {
+    marginRight: 8,
+    marginBottom: 1
+  },
+  spinner: {
+    marginTop: 18,
+    marginRight: 8,
+    color: 'inherit'
   }
 })
 
-export const NodeStatus = ({ classes, status, percentSynced }) => (
-  <Grid container>
-    <Grid item>
-      <PulseDot size={10} color={status} />
-      <Typography display='inline' variant='overline' className={classes.status}>
-        {status} {percentSynced !== null && `${percentSynced}%`}
-      </Typography>
+export const NodeStatus = ({ classes, status, percentSynced }) => {
+  return (
+    <Grid container direction='row' alignItems='center' justify='flex-end'>
+      <Grid item>
+        {status === 'healthy' || status === 'down' ? (
+          <PulseDot size={6} color={status} className={classes.icon} />
+        ) : (
+          <SpinnerLoader size={10} classes={{ spinner: classes.spinner }} />
+        )}
+      </Grid>
+      <Grid item>
+        <Typography display='inline' variant='caption' className={classes.status}>
+          {percentSynced !== null && `${percentSynced}%`}
+        </Typography>
+      </Grid>
     </Grid>
-  </Grid>
-)
-
+  )
+}
 NodeStatus.propTypes = {
   classes: PropTypes.object.isRequired,
   status: PropTypes.oneOf(['healthy', 'syncing', 'restarting', 'down', 'connecting']).isRequired,

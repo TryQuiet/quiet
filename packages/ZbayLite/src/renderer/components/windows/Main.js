@@ -16,7 +16,8 @@ import InvitationModal from '../../containers/ui/InvitationModal/InvitationModal
 const styles = {
   gridRoot: {
     'min-height': '100vh',
-    'min-width': '100vw'
+    'min-width': '100vw',
+    overflow: 'hidden'
   }
 }
 
@@ -32,10 +33,7 @@ export const Main = ({ match, classes }) => {
           </Grid>
           <Grid item xs>
             <Route path={`${match.url}/channel/:id`} component={Channel} />
-            <Route
-              path={`${match.url}/direct-messages/:id/:username`}
-              component={DirectMessages}
-            />
+            <Route path={`${match.url}/direct-messages/:id/:username`} component={DirectMessages} />
           </Grid>
         </Grid>
       </WindowWrapper>

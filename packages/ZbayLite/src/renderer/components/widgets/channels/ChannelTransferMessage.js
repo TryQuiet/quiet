@@ -49,6 +49,9 @@ const styles = theme => ({
     marginTop: theme.spacing(1),
     whiteSpace: 'pre-line',
     wordBreak: 'break-word'
+  },
+  spinner: {
+    color: theme.palette.primary.main
   }
 })
 
@@ -174,12 +177,18 @@ const showStatusInfo = ({ status, classes, tnx, error }) => {
     case 'success':
       return (
         <SpinnerLoaderComponent
+          classes={{ spinner: classes.spinner }}
           message={`Waiting for transaction to be mined 
     ID: ${tnx}`}
         />
       )
     default:
-      return <SpinnerLoaderComponent message={'Loading Transaction Id'} />
+      return (
+        <SpinnerLoaderComponent
+          classes={{ spinner: classes.spinner }}
+          message={'Loading Transaction Id'}
+        />
+      )
   }
 }
 

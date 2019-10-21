@@ -2,20 +2,12 @@
 
 exports[`ChannelsListItem renders component 1`] = `
 <WithStyles(ForwardRef(ListItem))
-  alignItems="center"
   button={true}
   className="root-mock"
+  disableGutters={true}
   onClick={[Function]}
 >
-  <WithStyles(ForwardRef(ListItemIcon))
-    className="itemIcon-mock"
-  >
-    <ChatBubbleOutlineIcon
-      className="icon-mock"
-    />
-  </WithStyles(ForwardRef(ListItemIcon))>
   <WithStyles(ForwardRef(ListItemText))
-    address="zs1testaddress1"
     className="itemText-mock"
     classes={
       Object {
@@ -24,21 +16,20 @@ exports[`ChannelsListItem renders component 1`] = `
     }
     primary={
       <ForwardRef(WithStyles)
-        badgeContent={1}
-        classes={
-          Object {
-            "badge": "badge-mock",
-          }
-        }
+        alignItems="center"
+        container={true}
       >
-        Channel 1
+        <ForwardRef(WithStyles)
+          item={true}
+        >
+          <ForwardRef(WithStyles)
+            className="title-mock newMessages-mock"
+            variant="body2"
+          >
+            # Channel 1
+          </ForwardRef(WithStyles)>
+        </ForwardRef(WithStyles)>
       </ForwardRef(WithStyles)>
-    }
-    secondary=""
-    secondaryTypographyProps={
-      Object {
-        "variant": "caption",
-      }
     }
   />
 </WithStyles(ForwardRef(ListItem))>
@@ -46,20 +37,12 @@ exports[`ChannelsListItem renders component 1`] = `
 
 exports[`ChannelsListItem renders component when public 1`] = `
 <WithStyles(ForwardRef(ListItem))
-  alignItems="center"
   button={true}
   className="root-mock"
+  disableGutters={true}
   onClick={[Function]}
 >
-  <WithStyles(ForwardRef(ListItemIcon))
-    className="itemIcon-mock"
-  >
-    <ChatBubbleOutlineIcon
-      className="icon-mock"
-    />
-  </WithStyles(ForwardRef(ListItemIcon))>
   <WithStyles(ForwardRef(ListItemText))
-    address="zs1testaddress0"
     className="itemText-mock"
     classes={
       Object {
@@ -68,21 +51,20 @@ exports[`ChannelsListItem renders component when public 1`] = `
     }
     primary={
       <ForwardRef(WithStyles)
-        badgeContent={0}
-        classes={
-          Object {
-            "badge": "badge-mock",
-          }
-        }
+        alignItems="center"
+        container={true}
       >
-        Channel 0
+        <ForwardRef(WithStyles)
+          item={true}
+        >
+          <ForwardRef(WithStyles)
+            className="title-mock"
+            variant="body2"
+          >
+            # Channel 0
+          </ForwardRef(WithStyles)>
+        </ForwardRef(WithStyles)>
       </ForwardRef(WithStyles)>
-    }
-    secondary=""
-    secondaryTypographyProps={
-      Object {
-        "variant": "caption",
-      }
     }
   />
 </WithStyles(ForwardRef(ListItem))>
@@ -90,20 +72,12 @@ exports[`ChannelsListItem renders component when public 1`] = `
 
 exports[`ChannelsListItem renders component with address 1`] = `
 <WithStyles(ForwardRef(ListItem))
-  alignItems="flex-start"
   button={true}
   className="root-mock"
+  disableGutters={true}
   onClick={[Function]}
 >
-  <WithStyles(ForwardRef(ListItemIcon))
-    className="itemIcon-mock"
-  >
-    <ChatBubbleOutlineIcon
-      className="icon-mock"
-    />
-  </WithStyles(ForwardRef(ListItemIcon))>
   <WithStyles(ForwardRef(ListItemText))
-    address="zs1testaddress1"
     className="itemText-mock"
     classes={
       Object {
@@ -112,27 +86,20 @@ exports[`ChannelsListItem renders component with address 1`] = `
     }
     primary={
       <ForwardRef(WithStyles)
-        badgeContent={1}
-        classes={
-          Object {
-            "badge": "badge-mock",
-          }
-        }
+        alignItems="center"
+        container={true}
       >
-        Channel 1
+        <ForwardRef(WithStyles)
+          item={true}
+        >
+          <ForwardRef(WithStyles)
+            className="title-mock newMessages-mock"
+            variant="body2"
+          >
+            # Channel 1
+          </ForwardRef(WithStyles)>
+        </ForwardRef(WithStyles)>
       </ForwardRef(WithStyles)>
-    }
-    secondary={
-      <Memo(Elipsis)
-        content="zs1testaddress1"
-        length={20}
-        tooltipPlacement="bottom"
-      />
-    }
-    secondaryTypographyProps={
-      Object {
-        "variant": "caption",
-      }
     }
   />
 </WithStyles(ForwardRef(ListItem))>

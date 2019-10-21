@@ -3,26 +3,23 @@
 exports[`WalletPanelActions renders component 1`] = `
 <Fragment>
   <WithStyles(ForwardRef(Grid))
+    alignItems="center"
     className="root-mock"
     container={true}
-    direction="column"
+    direction="row"
     item={true}
+    justify="space-between"
   >
+    <Memo(Connect(WithStyles(ZcashBalance))) />
     <WithStyles(ForwardRef(Grid))
-      alignItems="center"
-      container={true}
-      direction="row"
-      item={true}
-      justify="space-between"
-    >
-      <Memo(Connect(WithStyles(ZcashBalance))) />
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      className="actions-mock"
       item={true}
     >
       <Connect(WithStyles(undefined)) />
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
+  <WithStyles(undefined)
+    action={[MockFunction]}
+    text="Invite firends"
+  />
 </Fragment>
 `;

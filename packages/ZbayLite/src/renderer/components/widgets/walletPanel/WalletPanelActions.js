@@ -5,44 +5,44 @@ import * as R from 'ramda'
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
 import { withStyles } from '@material-ui/core/styles'
+import { Typography } from '@material-ui/core'
 
 const styles = theme => ({
   button: {
-    width: 150,
-    minHeight: 32,
-    paddingTop: theme.spacing(0.6),
-    paddingBottom: theme.spacing(0.6),
-    paddingLeft: theme.spacing(1.6),
-    paddingRight: theme.spacing(1.6),
-    color: theme.palette.colors.white,
-    fontSize: 12,
-    fontStyle: 'normal',
-    fontWeight: 'normal',
-    lineHeight: '14px',
-    backgroundColor: 'rgb(0,0,0,0.6)',
+    padding: 0,
     textTransform: 'none',
     '&:hover': {
-      backgroundColor: 'rgb(0,0,0,0.9)'
-    }
+      opacity: 1,
+      backgroundColor: 'inherit'
+    },
+    opacity: 0.5
+  },
+  buttonText: {
+    color: theme.palette.colors.white
   }
 })
 
 export const WalletPanelActions = ({ classes, onSend, onReceive }) => (
-  <Grid container direction='row' justify='space-between'>
+  <Grid container direction='row' spacing={1}>
     <Grid item>
-      <Button variant='contained' className={classes.button} onClick={onSend}>
-        Send Money
+      <Button variant='text' className={classes.button} onClick={onReceive}>
+        <Typography variant='caption' className={classes.buttonText}>
+          Add Funds
+        </Typography>
       </Button>
     </Grid>
     <Grid item>
-      <Button variant='contained' className={classes.button} onClick={onReceive}>
-        Receive Money
+      <Button variant='text' className={classes.button} onClick={onSend}>
+        <Typography variant='caption' className={classes.buttonText}>
+          Send Funds
+        </Typography>
       </Button>
     </Grid>
   </Grid>
 )
 
 WalletPanelActions.propTypes = {
+  classes: PropTypes.object.isRequired,
   onSend: PropTypes.func.isRequired,
   onReceive: PropTypes.func.isRequired
 }

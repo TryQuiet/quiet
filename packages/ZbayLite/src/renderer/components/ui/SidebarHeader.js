@@ -5,16 +5,35 @@ import * as R from 'ramda'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
+import IconButton from '@material-ui/core/IconButton'
+
+import PlusIconWithBorder from './Icons/PlusIconWithBorder'
+import Tooltip from './Tooltip'
 
 const styles = theme => ({
   root: {
-    paddingLeft: theme.spacing(2),
-    height: '42px',
-    paddingRight: theme.spacing(1)
+    marginTop: 25,
+    height: 32,
+    paddingLeft: 16,
+    paddingRight: 16
+  },
+  title: {
+    opacity: 0.7,
+    fontWeight: 500
+  },
+  iconButton: {
+    opacity: 0.7,
+    '&:hover': {
+      backgroundColor: 'inherit',
+      opacity: 1
+    }
+  },
+  tooltip: {
+    marginTop: -1
   }
 })
 
-export const SidebarHeader = ({ classes, title, actions }) => {
+export const SidebarHeader = ({ classes, title, action, tooltipText }) => {
   return (
     <Grid
       container
@@ -24,15 +43,24 @@ export const SidebarHeader = ({ classes, title, actions }) => {
       className={classes.root}
     >
       <Grid item>
-        <Typography variant='subtitle1'>{title}</Typography>
+        <Typography variant='body2' className={classes.title}>
+          {title}
+        </Typography>
       </Grid>
-      <Grid item>{actions}</Grid>
+      <Grid item>
+        <Tooltip title={tooltipText} className={classes.tooltip} placement='bottom'>
+          <IconButton className={classes.iconButton} edge='end' onClick={action}>
+            <PlusIconWithBorder color='white' />
+          </IconButton>
+        </Tooltip>
+      </Grid>
     </Grid>
   )
 }
 SidebarHeader.propTypes = {
   classes: PropTypes.object.isRequired,
   title: PropTypes.string.isRequired,
+  tooltipText: PropTypes.string.isRequired,
   actions: PropTypes.arrayOf(PropTypes.element)
 }
 

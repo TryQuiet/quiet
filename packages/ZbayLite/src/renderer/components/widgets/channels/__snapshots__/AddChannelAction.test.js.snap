@@ -315,7 +315,6 @@ exports[`BaseChannelsList renders component 1`] = `
       title="Create"
     />
   </Memo(WithStyles(MenuAction))>
-  <Memo(withModal(Component)) />
   <Memo(ImportChannelModal)
     handleClose={[Function]}
     open={false}

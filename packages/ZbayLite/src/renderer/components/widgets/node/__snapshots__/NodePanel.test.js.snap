@@ -5,30 +5,51 @@ exports[`NodePanel renders component 1`] = `
   className="root-mock"
   container={true}
   item={true}
-  justify="center"
+  justify="flex-end"
 >
   <WithStyles(ForwardRef(Grid))
+    className="baseNotExpanded-mock"
     item={true}
-    xs={true}
   >
     <WithStyles(ForwardRef(ExpansionPanel))
-      className="expander-mock"
+      classes={
+        Object {
+          "expanded": "expanded-mock",
+          "root": "expander-mock",
+        }
+      }
+      expanded={false}
+      onClick={[Function]}
       square={true}
     >
-      <WithStyles(ForwardRef(ExpansionPanelSummary))
-        classes={
-          Object {
-            "expandIcon": "icon-mock",
-          }
-        }
-        expandIcon={<Memo />}
+      <Memo(WithStyles(Tooltip))
+        className="tooltip-mock"
+        placement="bottom-end"
+        title="Node status"
       >
-        <Connect(Component) />
-      </WithStyles(ForwardRef(ExpansionPanelSummary))>
+        <WithStyles(ForwardRef(ExpansionPanelSummary))
+          classes={
+            Object {
+              "expandIcon": "icon-mock",
+              "expanded": "expandedSummary-mock",
+              "root": "panelSummary-mock",
+            }
+          }
+          expandIcon={
+            <Memo
+              fontSize="inherit"
+            />
+          }
+        >
+          <Connect(Component) />
+        </WithStyles(ForwardRef(ExpansionPanelSummary))>
+      </Memo(WithStyles(Tooltip))>
       <WithStyles(ForwardRef(ExpansionPanelDetails))
         className="expansionDetails-mock"
       >
-        <Connect(Component) />
+        <Connect(Component)
+          expanded={false}
+        />
       </WithStyles(ForwardRef(ExpansionPanelDetails))>
     </WithStyles(ForwardRef(ExpansionPanel))>
   </WithStyles(ForwardRef(Grid))>

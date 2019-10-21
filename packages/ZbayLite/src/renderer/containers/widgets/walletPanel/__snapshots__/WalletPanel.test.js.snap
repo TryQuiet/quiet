@@ -12,5 +12,6 @@ Array [
 exports[`WalletPanel will receive right actions 1`] = `
 Object {
   "fetchPrices": [Function],
+  "handleInvitation": [Function],
 }
 `;

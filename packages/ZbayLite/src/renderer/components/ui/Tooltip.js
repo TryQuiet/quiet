@@ -11,31 +11,29 @@ function arrowGenerator (color, theme) {
     opacity: 1,
     '&[x-placement*="bottom"] $arrow': {
       opacity: 1,
-      top: 0,
       left: 0,
       marginTop: '-0.95em',
+
       '&::before': {
-        borderWidth: '0 1em 1em 1em',
+        borderWidth: '0 0.5em 0.5em 0.5em',
         borderColor: `transparent transparent ${color} transparent`
       }
     },
     '&[x-placement*="bottom-end"] $arrow': {
       opacity: 1,
-      top: 0,
       left: `calc(100% - ${theme.spacing(1)}px - ${constants.arrowSize}) !important`,
       marginTop: '-0.95em',
       '&::before': {
-        borderWidth: '0 1em 1em 1em',
+        borderWidth: '0 0.5em 0.5em 0.5em',
         borderColor: `transparent transparent ${color} transparent`
       }
     },
     '&[x-placement*="bottom-start"] $arrow': {
       opacity: 1,
-      top: 0,
       left: `${theme.spacing(1)}px !important`,
       marginTop: '-0.95em',
       '&::before': {
-        borderWidth: '0 1em 1em 1em',
+        borderWidth: '0 0.5em 0.5em 0.5em',
         borderColor: `transparent transparent ${color} transparent`
       }
     },
@@ -44,7 +42,7 @@ function arrowGenerator (color, theme) {
       left: 0,
       marginBottom: '-0.95em',
       '&::before': {
-        borderWidth: '1em 1em 0 1em',
+        borderWidth: '0.5em 0.5em 0 0.5em',
         borderColor: `${color} transparent transparent transparent`
       }
     },
@@ -52,7 +50,7 @@ function arrowGenerator (color, theme) {
       left: 0,
       marginLeft: '-0.95em',
       '&::before': {
-        borderWidth: '1em 1em 1em 0',
+        borderWidth: '0.5em 0.5em 0.5em 0',
         borderColor: `transparent ${color} transparent transparent`
       }
     },
@@ -60,7 +58,7 @@ function arrowGenerator (color, theme) {
       right: 0,
       marginRight: '-0.95em',
       '&::before': {
-        borderWidth: '1em 0 1em 1em',
+        borderWidth: '0.5em 0 0.5em 0.5em',
         borderColor: `transparent transparent transparent ${color}`
       }
     }
@@ -74,16 +72,22 @@ const constants = {
 const styles = theme => ({
   noWrap: {
     maxWidth: 'none',
-    filter: 'drop-shadow(0 0 14px #aaaaaa)'
+    filter: 'drop-shadow(0 0 0px #aaaaaa)'
   },
   tooltip: {
-    background: theme.palette.background.default,
-    color: theme.typography.body1.color
+    background: theme.palette.colors.trueBlack,
+    color: theme.typography.body1.color,
+    paddingTop: 12,
+    paddingBottom: 12,
+    paddingLeft: 16,
+    paddingRight: 16,
+    borderRadius: 8
   },
   arrow: {
     position: 'absolute',
     width: constants.arrowSize,
     height: constants.arrowSize,
+    top: '0.5em',
     '&::before': {
       content: '""',
       margin: 'auto',
@@ -94,25 +98,20 @@ const styles = theme => ({
     }
   },
   text: {
-    color: theme.palette.primary.dark
+    color: theme.palette.colors.white,
+    fontSize: 12,
+    fontWeight: 500
   },
-  arrowPopper: arrowGenerator(theme.palette.background.default, theme)
+  arrowPopper: arrowGenerator(theme.palette.colors.trueBlack, theme)
 })
 
-export const Tooltip = ({
-  classes,
-  children,
-  title,
-  noWrap,
-  className,
-  ...props
-}) => {
+export const Tooltip = ({ classes, children, title, noWrap, className, ...props }) => {
   const [arrowRef, setArrowRef] = useState(null)
   return (
     <MuiTooltip
       {...props}
       title={
-        <React.Fragment >
+        <React.Fragment>
           <span className={classes.text}>{title}</span>
           <span className={classes.arrow} ref={setArrowRef} />
         </React.Fragment>
@@ -149,10 +148,7 @@ const joiningProd = R.compose(
 Tooltip.propTypes = {
   classes: PropTypes.object.isRequired,
   children: PropTypes.element.isRequired,
-  title: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.object
-  ]).isRequired,
+  title: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
   placement: PropTypes.oneOf(joiningProd(['bottom', 'top'], ['-start', '-end', ''])),
   interactive: PropTypes.bool,
   className: PropTypes.string,
@@ -161,7 +157,7 @@ Tooltip.propTypes = {
 
 Tooltip.defaultProps = {
   noWrap: true,
-  interactive: false,
+  interactive: true,
   className: '',
   placement: 'bottom'
 }

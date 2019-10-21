@@ -16,6 +16,7 @@ import ErrorModal from './containers/ui/ErrorModal'
 import QuitAppDialog from './containers/ui/QuitAppDialog'
 import TopUpModal from './containers/ui/TopUpModal'
 import SendMoneyModal from './containers/ui/sendMoney/SendMoneyModal'
+import CreateChannelModal from './containers/widgets/channels/CreateChannelModal'
 
 import theme from './theme'
 
@@ -30,6 +31,7 @@ export default () => (
           <SendMoneyModal />
           <TopUpModal />
           <CssBaseline />
+          <CreateChannelModal />
           <Route path='/' exact component={Vault} />
           <Route path='/main' component={Main} />
           <Route path='/zcashNode' component={Index} />

@@ -13,49 +13,95 @@ import ExpandLessIcon from '@material-ui/icons/ExpandLess'
 
 import NodeStatus from '../../../containers/widgets/node/NodeStatus'
 import NodePanelDetails from '../../../containers/widgets/node/NodePanelDetails'
+import Tooltip from '../../ui/Tooltip'
 
 const styles = theme => ({
   expansionDetails: {
-    paddingLeft: theme.spacing(3),
-    paddingRight: theme.spacing(2),
-    paddingTop: 0,
-    paddingBottom: theme.spacing(1)
+    padding: 0,
+    margin: 0
   },
   expander: {
-    backgroundColor: 'rgb(31,31,31,0.63)',
     boxShadow: 'none',
-    color: theme.palette.colors.white
+    color: theme.palette.colors.white,
+    backgroundColor: 'transparent',
+    padding: 0,
+    margin: 0,
+    width: '100%'
   },
   root: {
     position: 'relative'
   },
   icon: {
-    color: theme.palette.colors.white
+    color: 'inherit',
+    fontSize: 15,
+    marginLeft: -10,
+    marginRight: 0
+  },
+  panelSummary: {
+    padding: 0,
+    margin: 0,
+    height: 35,
+    minHeight: 15,
+    color: 'rgba(255, 255, 255, 0.5)',
+    '&:hover': {
+      color: 'rgba(255, 255, 255, 1)'
+    }
+  },
+  expanded: {
+    backgroundColor: 'rgb(0,0,0,0.3)'
+  },
+  expandedSummary: {
+    minHeight: '15px !important'
+  },
+  tooltip: {
+    marginRight: 10,
+    marginTop: 0
+  },
+  baseNotExpanded: {
+    width: '80px'
+  },
+  baseExpanded: {
+    width: '100%'
   }
 })
 
-export const NodePanel = ({ classes, className }) => (
+export const NodePanel = ({ classes, expanded, setExpanded }) => (
   <Grid
     item
     container
-    justify='center'
+    justify='flex-end'
     className={classNames({
-      [classes.root]: true,
-      [className]: className
+      [classes.root]: true
     })}
   >
-    <Grid item xs>
-      <ExpansionPanel square className={classes.expander}>
-        <ExpansionPanelSummary
-          classes={{
-            expandIcon: classes.icon
-          }}
-          expandIcon={<ExpandLessIcon />}
-        >
-          <NodeStatus />
-        </ExpansionPanelSummary>
+    <Grid
+      item
+      className={classNames({
+        [classes.baseExpanded]: expanded,
+        [classes.baseNotExpanded]: !expanded
+      })}
+    >
+      <ExpansionPanel
+        expanded={expanded}
+        onClick={() => setExpanded(!expanded)}
+        square
+        classes={{ root: classes.expander, expanded: classes.expanded }}
+      >
+        <Tooltip title='Node status' className={classes.tooltip} placement='bottom-end'>
+          <ExpansionPanelSummary
+            classes={{
+              root: classes.panelSummary,
+              expandIcon: classes.icon,
+              expanded: classes.expandedSummary
+            }}
+            expandIcon={<ExpandLessIcon fontSize='inherit' />}
+          >
+            <NodeStatus />
+          </ExpansionPanelSummary>
+        </Tooltip>
+
         <ExpansionPanelDetails className={classes.expansionDetails}>
-          <NodePanelDetails />
+          <NodePanelDetails expanded={expanded} />
         </ExpansionPanelDetails>
       </ExpansionPanel>
     </Grid>
@@ -63,8 +109,7 @@ export const NodePanel = ({ classes, className }) => (
 )
 
 NodePanel.propTypes = {
-  classes: PropTypes.object.isRequired,
-  className: PropTypes.string
+  classes: PropTypes.object.isRequired
 }
 
 export default R.compose(

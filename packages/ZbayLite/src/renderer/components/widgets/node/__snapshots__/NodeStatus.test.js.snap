@@ -2,114 +2,149 @@
 
 exports[`NodeStatus renders for status down 1`] = `
 <WithStyles(ForwardRef(Grid))
+  alignItems="center"
   container={true}
+  direction="row"
+  justify="flex-end"
 >
   <WithStyles(ForwardRef(Grid))
     item={true}
   >
     <Memo(WithStyles(PulseDot))
+      className="icon-mock"
       color="down"
-      size={10}
+      size={6}
     />
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+  >
     <WithStyles(ForwardRef(Typography))
       className="status-mock"
       display="inline"
-      variant="overline"
-    >
-      down
-       
-    </WithStyles(ForwardRef(Typography))>
+      variant="caption"
+    />
   </WithStyles(ForwardRef(Grid))>
 </WithStyles(ForwardRef(Grid))>
 `;
 
 exports[`NodeStatus renders for status healthy 1`] = `
 <WithStyles(ForwardRef(Grid))
+  alignItems="center"
   container={true}
+  direction="row"
+  justify="flex-end"
 >
   <WithStyles(ForwardRef(Grid))
     item={true}
   >
     <Memo(WithStyles(PulseDot))
+      className="icon-mock"
       color="healthy"
-      size={10}
+      size={6}
     />
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+  >
     <WithStyles(ForwardRef(Typography))
       className="status-mock"
       display="inline"
-      variant="overline"
-    >
-      healthy
-       
-    </WithStyles(ForwardRef(Typography))>
+      variant="caption"
+    />
   </WithStyles(ForwardRef(Grid))>
 </WithStyles(ForwardRef(Grid))>
 `;
 
 exports[`NodeStatus renders for status restarting 1`] = `
 <WithStyles(ForwardRef(Grid))
+  alignItems="center"
   container={true}
+  direction="row"
+  justify="flex-end"
 >
   <WithStyles(ForwardRef(Grid))
     item={true}
   >
-    <Memo(WithStyles(PulseDot))
-      color="restarting"
+    <Memo(WithStyles(SpinnerLoader))
+      classes={
+        Object {
+          "spinner": "spinner-mock",
+        }
+      }
       size={10}
     />
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+  >
     <WithStyles(ForwardRef(Typography))
       className="status-mock"
       display="inline"
-      variant="overline"
-    >
-      restarting
-       
-    </WithStyles(ForwardRef(Typography))>
+      variant="caption"
+    />
   </WithStyles(ForwardRef(Grid))>
 </WithStyles(ForwardRef(Grid))>
 `;
 
 exports[`NodeStatus renders for status syncing 1`] = `
 <WithStyles(ForwardRef(Grid))
+  alignItems="center"
   container={true}
+  direction="row"
+  justify="flex-end"
 >
   <WithStyles(ForwardRef(Grid))
     item={true}
   >
-    <Memo(WithStyles(PulseDot))
-      color="syncing"
+    <Memo(WithStyles(SpinnerLoader))
+      classes={
+        Object {
+          "spinner": "spinner-mock",
+        }
+      }
       size={10}
     />
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+  >
     <WithStyles(ForwardRef(Typography))
       className="status-mock"
       display="inline"
-      variant="overline"
-    >
-      syncing
-       
-    </WithStyles(ForwardRef(Typography))>
+      variant="caption"
+    />
   </WithStyles(ForwardRef(Grid))>
 </WithStyles(ForwardRef(Grid))>
 `;
 
 exports[`NodeStatus renders sync progress in percent 1`] = `
 <WithStyles(ForwardRef(Grid))
+  alignItems="center"
   container={true}
+  direction="row"
+  justify="flex-end"
 >
   <WithStyles(ForwardRef(Grid))
     item={true}
   >
-    <Memo(WithStyles(PulseDot))
-      color="syncing"
+    <Memo(WithStyles(SpinnerLoader))
+      classes={
+        Object {
+          "spinner": "spinner-mock",
+        }
+      }
       size={10}
     />
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+  >
     <WithStyles(ForwardRef(Typography))
       className="status-mock"
       display="inline"
-      variant="overline"
+      variant="caption"
     >
-      syncing
-       
       78%
     </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>

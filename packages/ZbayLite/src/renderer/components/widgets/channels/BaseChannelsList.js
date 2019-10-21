@@ -1,16 +1,10 @@
 import React from 'react'
 import Immutable from 'immutable'
 import PropTypes from 'prop-types'
-import { Scrollbars } from 'react-custom-scrollbars'
 
 import List from '@material-ui/core/List'
 
 import ChannelsListItem from '../../../containers/widgets/channels/ChannelsListItem'
-
-export const constants = {
-  itemSize: 35,
-  itemWithSecondarySize: 54
-}
 
 export const propTypes = {
   channel: PropTypes.shape({
@@ -23,32 +17,24 @@ export const propTypes = {
   })
 }
 
-export const getItemSize = displayAddress =>
-  displayAddress ? constants.itemWithSecondarySize : constants.itemSize
-
-export const BaseChannelsList = ({ channels, height, displayAddress, directMessages, selected }) => {
+export const BaseChannelsList = ({ channels, directMessages, selected }) => {
   return (
-    <Scrollbars autoHide style={{ height }} autoHideTimeout={500}>
-      <List disablePadding>
-        {channels.map(channel => (
-          <ChannelsListItem
-            key={directMessages ? channel.get('address') : channel.get('id')}
-            channel={channel}
-            displayAddress={displayAddress}
-            directMessages={directMessages}
-            selected={selected}
-          />
-        ))}
-      </List>
-    </Scrollbars>
+    <List disablePadding>
+      {channels.map(channel => (
+        <ChannelsListItem
+          key={directMessages ? channel.get('address') : channel.get('id')}
+          channel={channel}
+          directMessages={directMessages}
+          selected={selected}
+        />
+      ))}
+    </List>
   )
 }
 
 BaseChannelsList.propTypes = {
-  height: PropTypes.number.isRequired,
   channels: PropTypes.instanceOf(Immutable.List).isRequired,
   selected: PropTypes.instanceOf(Immutable.Record).isRequired,
-  displayAddress: PropTypes.bool,
   directMessages: PropTypes.bool
 }
 

@@ -5,12 +5,15 @@ const font = "'Rubik', sans-serif"
 
 export default createMuiTheme({
   typography: {
-    fontFamily: [
-      font
-    ].join(','),
+    fontFamily: [font].join(','),
     fontStyle: 'normal',
     fontWeight: 'normal',
     useNextVariants: true,
+    overline: {
+      fontSize: 10,
+      lineHeight: '16px',
+      fontWeight: 500
+    },
     caption: {
       fontSize: 12,
       lineHeight: '20px',
