@@ -7,9 +7,9 @@ import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
-
 import HttpsIcon from '@material-ui/icons/HttpsOutlined'
 
+import Modal from '../../ui/Modal'
 import Elipsis from '../../ui/Elipsis'
 
 const styles = theme => ({
@@ -36,66 +36,71 @@ const styles = theme => ({
   }
 })
 
-export const ImportedChannel = ({ classes, channel, onAccept, onCancel }) => (
-  channel
-    ? (
-      <Grid container item direction='column' spacing={2} className={classes.root}>
-        <Grid item container>
-          <Grid container item alignItems='flex-end'>
-            <Typography variant='subtitle1' className={classes.title}>
-              {channel.get('name')}
-            </Typography>
-            {
-              channel.get('private', false)
-                ? <HttpsIcon fontSize='inherit' className={classes.privacy} />
-                : null
-            }
+export const ImportedChannel = ({ classes, channel, onAccept, onCancel, open, handleClose }) => (
+  <Modal open={open} handleClose={handleClose} title='Import Channel'>
+    {channel
+      ? (
+        <Grid container item direction='column' spacing={2} className={classes.root}>
+          <Grid item container>
+            <Grid container item alignItems='flex-end'>
+              <Typography variant='subtitle1' className={classes.title}>
+                {channel.get('name')}
+              </Typography>
+              {
+                channel.get('private', false)
+                  ? <HttpsIcon fontSize='inherit' className={classes.privacy} />
+                  : null
+              }
+            </Grid>
+            <Elipsis
+              interactive
+              content={channel.get('address')}
+              tooltipPlacement='bottom-start'
+              classes={{ content: classes.uri }}
+            />
           </Grid>
-          <Elipsis
-            interactive
-            content={channel.get('address')}
-            tooltipPlacement='bottom-start'
-            classes={{ content: classes.uri }}
-          />
-        </Grid>
-        <Grid item>
-          <Typography variant='subtitle1'>
+          <Grid item>
+            <Typography variant='subtitle1'>
             About
-          </Typography>
-          <Typography variant='body2' className={classes.about}>
-            {channel.get('description')}
-          </Typography>
-        </Grid>
-        <Grid item container spacing={2} justify='flex-end' className={classes.actions}>
-          <Grid item>
-            <Button
-              variant='outlined'
-              size='small'
-              color='primary'
-              onClick={onCancel}
-            >
+            </Typography>
+            <Typography variant='body2' className={classes.about}>
+              {channel.get('description')}
+            </Typography>
+          </Grid>
+          <Grid item container spacing={2} justify='flex-end' className={classes.actions}>
+            <Grid item>
+              <Button
+                variant='outlined'
+                size='small'
+                color='primary'
+                onClick={onCancel}
+              >
               Cancel
-            </Button>
-          </Grid>
-          <Grid item>
-            <Button
-              variant='contained'
-              size='small'
-              color='primary'
-              onClick={onAccept}
-            >
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                variant='contained'
+                size='small'
+                color='primary'
+                onClick={onAccept}
+              >
               Accept
-            </Button>
+              </Button>
+            </Grid>
           </Grid>
         </Grid>
-      </Grid>
-    )
-    : null
-)
+      )
+      : null}
+  </Modal>)
 
 ImportedChannel.propTypes = {
   classes: PropTypes.object.isRequired,
-  channel: PropTypes.instanceOf(Immutable.Map)
+  channel: PropTypes.instanceOf(Immutable.Map),
+  onAccept: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  open: PropTypes.bool.isRequired,
+  handleClose: PropTypes.func.isRequired
 }
 
 export default R.compose(

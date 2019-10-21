@@ -48,6 +48,11 @@ if (!gotTheLock) {
         invitation: url.searchParams.get('invitation')
       })
     }
+    if (url.searchParams.has('importchannel')) {
+      mainWindow.webContents.send('newChannel', {
+        channelParams: url.searchParams.get('importchannel')
+      })
+    }
   })
 }
 app.on('open-url', (event, url) => {
@@ -57,6 +62,11 @@ app.on('open-url', (event, url) => {
     if (data.searchParams.has('invitation')) {
       mainWindow.webContents.send('newInvitation', {
         invitation: data.searchParams.get('invitation')
+      })
+    }
+    if (url.searchParams.has('importchannel')) {
+      mainWindow.webContents.send('newChannel', {
+        channelParams: url.searchParams.get('importchannel')
       })
     }
   }

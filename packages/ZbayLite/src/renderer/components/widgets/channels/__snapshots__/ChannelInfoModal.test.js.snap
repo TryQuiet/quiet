@@ -60,7 +60,7 @@ exports[`ChannelInfoModal renders component 1`] = `
           Share link
         </WithStyles(ForwardRef(Typography))>
         <CopyToClipboard
-          text="zbay://channel/channel-hash"
+          text="https://zbay.rumblefish.dev/importchannel=channel-hash"
         >
           <WithStyles(ForwardRef(IconButton))
             className="copyButton-mock"
@@ -78,7 +78,7 @@ exports[`ChannelInfoModal renders component 1`] = `
           className="description-mock"
           variant="caption"
         >
-          zbay://channel/channel-hash
+          https://zbay.rumblefish.dev/importchannel=channel-hash
         </WithStyles(ForwardRef(Typography))>
       </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>
@@ -146,7 +146,7 @@ exports[`ChannelInfoModal renders component when closed 1`] = `
           Share link
         </WithStyles(ForwardRef(Typography))>
         <CopyToClipboard
-          text="zbay://channel/channel-hash"
+          text="https://zbay.rumblefish.dev/importchannel=channel-hash"
         >
           <WithStyles(ForwardRef(IconButton))
             className="copyButton-mock"
@@ -164,7 +164,7 @@ exports[`ChannelInfoModal renders component when closed 1`] = `
           className="description-mock"
           variant="caption"
         >
-          zbay://channel/channel-hash
+          https://zbay.rumblefish.dev/importchannel=channel-hash
         </WithStyles(ForwardRef(Typography))>
       </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>

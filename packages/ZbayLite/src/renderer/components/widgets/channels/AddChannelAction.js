@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import * as R from 'ramda'
 
 import IconButton from '@material-ui/core/IconButton'
@@ -7,7 +7,7 @@ import { withStyles } from '@material-ui/core/styles'
 import addIcon from '../../../static/images/zcash/add-icon.svg'
 import MenuAction from '../../ui/MenuAction'
 import MenuActionItem from '../../ui/MenuActionItem'
-import ImportChannelModal from './ImportChannelModal'
+import CreateChannelModal from '../../../containers/widgets/channels/CreateChannelModal'
 
 const styles = theme => ({
   icon: {
@@ -25,7 +25,6 @@ const styles = theme => ({
 })
 
 export const AddChannelAction = ({ classes, openCreateModal }) => {
-  const [importOpen, setImportOpen] = useState(false)
   return (
     <React.Fragment>
       <MenuAction
@@ -38,11 +37,9 @@ export const AddChannelAction = ({ classes, openCreateModal }) => {
         IconButton={IconButton}
         offset='0 8'
       >
-        <MenuActionItem onClick={() => setImportOpen(true)} title='Import' />
         <MenuActionItem onClick={openCreateModal} title='Create' />
       </MenuAction>
-
-      <ImportChannelModal open={importOpen} handleClose={() => setImportOpen(false)} />
+      <CreateChannelModal />
     </React.Fragment>
   )
 }

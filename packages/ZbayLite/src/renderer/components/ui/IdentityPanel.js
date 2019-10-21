@@ -10,6 +10,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import SettingsModal from '../../containers/widgets/settings/SettingsModal'
 import UpdateModal from '../../containers/widgets/update/UpdateModal'
 import ReceivedInvitationModal from '../../containers/ui/InvitationModal/ReceivedInvitationModal'
+import ImportChannelModal from '../../containers/widgets/channels/importChannel/ImportChannelModal'
 
 const styles = theme => ({
   root: {
@@ -48,6 +49,7 @@ export const IdentityPanel = ({ classes, identity, handleSettings }) => {
       <SettingsModal />
       <UpdateModal />
       <ReceivedInvitationModal />
+      <ImportChannelModal />
     </div>
   )
 }

@@ -13,6 +13,7 @@ import { getVault } from '../../vault'
 import { getClient } from '../../zcash'
 import channels from '../../zcash/channels'
 import nodeSelectors from '../selectors/node'
+import modalsHandlers from './modals'
 
 export const ImportedChannelState = Immutable.Record({
   data: null,
@@ -103,6 +104,7 @@ const importChannel = () => async (dispatch, getState) => {
         }
       })
     )
+    dispatch(modalsHandlers.actionCreators.closeModal('importChannelModal')())
     dispatch(clear())
   } catch (err) {
     dispatch(
@@ -121,6 +123,8 @@ const decodeChannelEpic = (uri) => async (dispatch) => {
   try {
     const channel = await uriToChannel(uri)
     dispatch(setData(channel))
+    const openModal = modalsHandlers.actionCreators.openModal('importChannelModal')
+    dispatch(openModal())
   } catch (err) {
     dispatch(setDecodingError(err))
     dispatch(

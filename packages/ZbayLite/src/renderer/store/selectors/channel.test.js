@@ -16,8 +16,10 @@ import { createMessage, createChannel, now, createReceivedMessage } from '../../
 import { LoaderState } from '../handlers/utils'
 import { NodeState } from '../handlers/node'
 import { receivedToDisplayableMessage } from '../../zbay/messages'
+import { DOMAIN } from '../../../shared/constants'
 
 const channelId = 'this-is-a-test-id'
+const uri = `https://${DOMAIN}/importchannel=channel-hash`
 
 const storeState = {
   identity: IdentityState({
@@ -32,7 +34,7 @@ const storeState = {
   channel: ChannelState({
     spentFilterValue: 38,
     id: channelId,
-    shareableUri: 'zbay://channel/my-hash',
+    shareableUri: uri,
     members: new BigNumber(0),
     message: 'Message written in the input',
     loader: LoaderState({

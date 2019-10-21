@@ -6,8 +6,10 @@ import { shallow } from 'enzyme'
 import { ChannelInfoModal } from './ChannelInfoModal'
 import { mockClasses } from '../../../../shared/testing/mocks'
 import { createChannel } from '../../../testUtils'
+import { DOMAIN } from '../../../../shared/constants'
 
 describe('ChannelInfoModal', () => {
+  const uri = `https://${DOMAIN}/importchannel=channel-hash`
   it('renders component', () => {
     const channel = Immutable.fromJS(createChannel(1)).set('members', new BigNumber(2345))
     const result = shallow(
@@ -15,7 +17,7 @@ describe('ChannelInfoModal', () => {
         open
         classes={mockClasses}
         channel={channel}
-        shareUri='zbay://channel/channel-hash'
+        shareUri={uri}
         handleClose={jest.fn()}
       />
     )
@@ -28,7 +30,7 @@ describe('ChannelInfoModal', () => {
       <ChannelInfoModal
         classes={mockClasses}
         channel={channel}
-        shareUri='zbay://channel/channel-hash'
+        shareUri={uri}
         handleClose={jest.fn()}
       />
     )

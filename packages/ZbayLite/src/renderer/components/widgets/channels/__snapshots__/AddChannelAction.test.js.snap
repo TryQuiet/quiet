@@ -308,16 +308,9 @@ exports[`BaseChannelsList renders component 1`] = `
     offset="0 8"
   >
     <Memo(WithStyles(MenuActionItem))
-      onClick={[Function]}
-      title="Import"
-    />
-    <Memo(WithStyles(MenuActionItem))
       title="Create"
     />
   </Memo(WithStyles(MenuAction))>
-  <Memo(ImportChannelModal)
-    handleClose={[Function]}
-    open={false}
-  />
+  <Memo(withModal(Component)) />
 </Fragment>
 `;

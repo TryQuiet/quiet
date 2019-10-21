@@ -8,6 +8,7 @@ import store from './store'
 import nodeHandlers from './store/handlers/node'
 import updateHandlers from './store/handlers/update'
 import invitationHandlers from './store/handlers/invitation'
+import importChannelHandlers from './store/handlers/importedChannel'
 import nodeSelectors from './store/selectors/node'
 import { errorNotification } from './store/handlers/utils'
 import notificationsHandlers from './store/handlers/notifications'
@@ -30,6 +31,18 @@ ipcRenderer.on('newInvitation', (event, { invitation }) => {
     store.dispatch(
       notificationsHandlers.actions.enqueueSnackbar(
         errorNotification({ message: `Please wait for full node sync before opening invitation` })
+      )
+    )
+  }
+})
+
+ipcRenderer.on('newChannel', (event, { channelParams }) => {
+  if (nodeSelectors.status(store.getState()) === 'healthy') {
+    store.dispatch(importChannelHandlers.epics.decodeChannel(`https://zbay.rumblefish.dev/importchannel=${channelParams}`))
+  } else {
+    store.dispatch(
+      notificationsHandlers.actions.enqueueSnackbar(
+        errorNotification({ message: `Please wait for full node sync before importing channel` })
       )
     )
   }

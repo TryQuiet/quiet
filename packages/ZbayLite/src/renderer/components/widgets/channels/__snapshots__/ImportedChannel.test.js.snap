@@ -1,175 +1,183 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ImportedChannel renders private channel 1`] = `
-<WithStyles(ForwardRef(Grid))
-  className="root-mock"
-  container={true}
-  direction="column"
-  item={true}
-  spacing={2}
+<Memo(WithStyles(Modal))
+  title="Import Channel"
 >
   <WithStyles(ForwardRef(Grid))
+    className="root-mock"
     container={true}
+    direction="column"
     item={true}
-  >
-    <WithStyles(ForwardRef(Grid))
-      alignItems="flex-end"
-      container={true}
-      item={true}
-    >
-      <WithStyles(ForwardRef(Typography))
-        className="title-mock"
-        variant="subtitle1"
-      >
-        Test channel
-      </WithStyles(ForwardRef(Typography))>
-      <HttpsOutlinedIcon
-        className="privacy-mock"
-        fontSize="inherit"
-      />
-    </WithStyles(ForwardRef(Grid))>
-    <Memo(Elipsis)
-      classes={
-        Object {
-          "content": "uri-mock",
-        }
-      }
-      content="testaddress"
-      interactive={true}
-      tooltipPlacement="bottom-start"
-    />
-  </WithStyles(ForwardRef(Grid))>
-  <WithStyles(ForwardRef(Grid))
-    item={true}
-  >
-    <WithStyles(ForwardRef(Typography))
-      variant="subtitle1"
-    >
-      About
-    </WithStyles(ForwardRef(Typography))>
-    <WithStyles(ForwardRef(Typography))
-      className="about-mock"
-      variant="body2"
-    >
-      This is a description of the test channel
-    </WithStyles(ForwardRef(Typography))>
-  </WithStyles(ForwardRef(Grid))>
-  <WithStyles(ForwardRef(Grid))
-    className="actions-mock"
-    container={true}
-    item={true}
-    justify="flex-end"
     spacing={2}
   >
     <WithStyles(ForwardRef(Grid))
+      container={true}
       item={true}
     >
-      <WithStyles(ForwardRef(Button))
-        color="primary"
-        onClick={[MockFunction]}
-        size="small"
-        variant="outlined"
+      <WithStyles(ForwardRef(Grid))
+        alignItems="flex-end"
+        container={true}
+        item={true}
       >
-        Cancel
-      </WithStyles(ForwardRef(Button))>
+        <WithStyles(ForwardRef(Typography))
+          className="title-mock"
+          variant="subtitle1"
+        >
+          Test channel
+        </WithStyles(ForwardRef(Typography))>
+        <HttpsOutlinedIcon
+          className="privacy-mock"
+          fontSize="inherit"
+        />
+      </WithStyles(ForwardRef(Grid))>
+      <Memo(Elipsis)
+        classes={
+          Object {
+            "content": "uri-mock",
+          }
+        }
+        content="testaddress"
+        interactive={true}
+        tooltipPlacement="bottom-start"
+      />
     </WithStyles(ForwardRef(Grid))>
     <WithStyles(ForwardRef(Grid))
       item={true}
     >
-      <WithStyles(ForwardRef(Button))
-        color="primary"
-        onClick={[MockFunction]}
-        size="small"
-        variant="contained"
+      <WithStyles(ForwardRef(Typography))
+        variant="subtitle1"
       >
-        Accept
-      </WithStyles(ForwardRef(Button))>
+        About
+      </WithStyles(ForwardRef(Typography))>
+      <WithStyles(ForwardRef(Typography))
+        className="about-mock"
+        variant="body2"
+      >
+        This is a description of the test channel
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      className="actions-mock"
+      container={true}
+      item={true}
+      justify="flex-end"
+      spacing={2}
+    >
+      <WithStyles(ForwardRef(Grid))
+        item={true}
+      >
+        <WithStyles(ForwardRef(Button))
+          color="primary"
+          onClick={[MockFunction]}
+          size="small"
+          variant="outlined"
+        >
+          Cancel
+        </WithStyles(ForwardRef(Button))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
+        item={true}
+      >
+        <WithStyles(ForwardRef(Button))
+          color="primary"
+          onClick={[MockFunction]}
+          size="small"
+          variant="contained"
+        >
+          Accept
+        </WithStyles(ForwardRef(Button))>
+      </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
-</WithStyles(ForwardRef(Grid))>
+</Memo(WithStyles(Modal))>
 `;
 
 exports[`ImportedChannel renders public channel 1`] = `
-<WithStyles(ForwardRef(Grid))
-  className="root-mock"
-  container={true}
-  direction="column"
-  item={true}
-  spacing={2}
+<Memo(WithStyles(Modal))
+  title="Import Channel"
 >
   <WithStyles(ForwardRef(Grid))
+    className="root-mock"
     container={true}
+    direction="column"
     item={true}
-  >
-    <WithStyles(ForwardRef(Grid))
-      alignItems="flex-end"
-      container={true}
-      item={true}
-    >
-      <WithStyles(ForwardRef(Typography))
-        className="title-mock"
-        variant="subtitle1"
-      >
-        Test channel
-      </WithStyles(ForwardRef(Typography))>
-    </WithStyles(ForwardRef(Grid))>
-    <Memo(Elipsis)
-      classes={
-        Object {
-          "content": "uri-mock",
-        }
-      }
-      content="testaddress"
-      interactive={true}
-      tooltipPlacement="bottom-start"
-    />
-  </WithStyles(ForwardRef(Grid))>
-  <WithStyles(ForwardRef(Grid))
-    item={true}
-  >
-    <WithStyles(ForwardRef(Typography))
-      variant="subtitle1"
-    >
-      About
-    </WithStyles(ForwardRef(Typography))>
-    <WithStyles(ForwardRef(Typography))
-      className="about-mock"
-      variant="body2"
-    >
-      This is a description of the test channel
-    </WithStyles(ForwardRef(Typography))>
-  </WithStyles(ForwardRef(Grid))>
-  <WithStyles(ForwardRef(Grid))
-    className="actions-mock"
-    container={true}
-    item={true}
-    justify="flex-end"
     spacing={2}
   >
     <WithStyles(ForwardRef(Grid))
+      container={true}
       item={true}
     >
-      <WithStyles(ForwardRef(Button))
-        color="primary"
-        onClick={[MockFunction]}
-        size="small"
-        variant="outlined"
+      <WithStyles(ForwardRef(Grid))
+        alignItems="flex-end"
+        container={true}
+        item={true}
       >
-        Cancel
-      </WithStyles(ForwardRef(Button))>
+        <WithStyles(ForwardRef(Typography))
+          className="title-mock"
+          variant="subtitle1"
+        >
+          Test channel
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <Memo(Elipsis)
+        classes={
+          Object {
+            "content": "uri-mock",
+          }
+        }
+        content="testaddress"
+        interactive={true}
+        tooltipPlacement="bottom-start"
+      />
     </WithStyles(ForwardRef(Grid))>
     <WithStyles(ForwardRef(Grid))
       item={true}
     >
-      <WithStyles(ForwardRef(Button))
-        color="primary"
-        onClick={[MockFunction]}
-        size="small"
-        variant="contained"
+      <WithStyles(ForwardRef(Typography))
+        variant="subtitle1"
       >
-        Accept
-      </WithStyles(ForwardRef(Button))>
+        About
+      </WithStyles(ForwardRef(Typography))>
+      <WithStyles(ForwardRef(Typography))
+        className="about-mock"
+        variant="body2"
+      >
+        This is a description of the test channel
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      className="actions-mock"
+      container={true}
+      item={true}
+      justify="flex-end"
+      spacing={2}
+    >
+      <WithStyles(ForwardRef(Grid))
+        item={true}
+      >
+        <WithStyles(ForwardRef(Button))
+          color="primary"
+          onClick={[MockFunction]}
+          size="small"
+          variant="outlined"
+        >
+          Cancel
+        </WithStyles(ForwardRef(Button))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
+        item={true}
+      >
+        <WithStyles(ForwardRef(Button))
+          color="primary"
+          onClick={[MockFunction]}
+          size="small"
+          variant="contained"
+        >
+          Accept
+        </WithStyles(ForwardRef(Button))>
+      </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
-</WithStyles(ForwardRef(Grid))>
+</Memo(WithStyles(Modal))>
 `;

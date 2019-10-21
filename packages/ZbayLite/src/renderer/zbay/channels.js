@@ -2,8 +2,12 @@ import * as R from 'ramda'
 import * as Yup from 'yup'
 
 import { inflate, deflate } from '../compression'
+import { DOMAIN } from '../../shared/constants'
 
-export const URI_PREFIX = 'zbay://channel/'
+export const getChannelUrl = hash =>
+  `https://${DOMAIN}/importchannel=${encodeURIComponent(hash)}`
+
+export const URI_PREFIX = `https://${DOMAIN}/importchannel=`
 export const ADDRESS_PREFIX = 'zbay://uri/'
 
 export const getZbayAddress = (zcashAddress) => `${ADDRESS_PREFIX}${zcashAddress}`
@@ -54,7 +58,7 @@ export const channelToUri = async (channel) => {
     }
   }
   const hash = await deflate(exportable)
-  return getZbayChannelUri(hash)
+  return getChannelUrl(hash)
 }
 
 export default {
