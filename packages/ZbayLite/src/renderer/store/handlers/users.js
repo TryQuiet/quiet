@@ -109,36 +109,43 @@ export const createOrUpdateUser = payload => async (dispatch, getState) => {
 }
 
 export const fetchUsers = () => async (dispatch, getState) => {
-  const usersChannel = channelsSelectors.usersChannel(getState())
-  const transfers = await getClient().payment.received(usersChannel.get('address'))
-  if (transfers.length === appSelectors.transfers(getState()).get(usersChannel.get('address'))) {
-    return
-  } else {
-    dispatch(
-      appHandlers.actions.setTransfers({ id: usersChannel.get('address'), value: transfers.length })
+  try {
+    const usersChannel = channelsSelectors.usersChannel(getState())
+    const transfers = await getClient().payment.received(usersChannel.get('address'))
+    if (transfers.length === appSelectors.transfers(getState()).get(usersChannel.get('address'))) {
+      return
+    } else {
+      dispatch(
+        appHandlers.actions.setTransfers({
+          id: usersChannel.get('address'),
+          value: transfers.length
+        })
+      )
+    }
+    const registrationMessages = await Promise.all(
+      transfers.map(transfer => {
+        const message = zbayMessages.transferToMessage(transfer)
+        return message
+      })
     )
+    const sortedMessages = registrationMessages
+      .filter(msg => msg !== null)
+      .sort((a, b) => a.createdAt - b.createdAt)
+    const users = await sortedMessages.reduce(
+      async (acc = Promise.resolve(Immutable.Map({})), message) => {
+        const accumulator = await acc
+        const user = ReceivedUser(message, accumulator)
+        if (user === null) {
+          return Promise.resolve(accumulator)
+        }
+        return Promise.resolve(accumulator.merge(user))
+      },
+      Promise.resolve(Immutable.Map({}))
+    )
+    await dispatch(setUsers({ users }))
+  } catch (err) {
+    console.warn(err)
   }
-  const registrationMessages = await Promise.all(
-    transfers.map(transfer => {
-      const message = zbayMessages.transferToMessage(transfer)
-      return message
-    })
-  )
-  const sortedMessages = registrationMessages
-    .filter(msg => msg !== null)
-    .sort((a, b) => a.createdAt - b.createdAt)
-  const users = await sortedMessages.reduce(
-    async (acc = Promise.resolve(Immutable.Map({})), message) => {
-      const accumulator = await acc
-      const user = ReceivedUser(message, accumulator)
-      if (user === null) {
-        return Promise.resolve(accumulator)
-      }
-      return Promise.resolve(accumulator.merge(user))
-    },
-    Promise.resolve(Immutable.Map({}))
-  )
-  await dispatch(setUsers({ users }))
 }
 
 export const isNicknameTaken = username => async (dispatch, getState) => {

@@ -156,60 +156,66 @@ export const loadContact = address => async (dispatch, getState) => {
 }
 
 export const fetchMessages = () => async (dispatch, getState) => {
-  const identityAddress = identitySelectors.address(getState())
-  const transfers = await getClient().payment.received(identityAddress)
-  if (transfers.length === appSelectors.transfers(getState()).get(identityAddress)) {
-    return
-  } else {
-    dispatch(appHandlers.actions.setTransfers({ id: identityAddress, value: transfers.length }))
-  }
+  try {
+    const identityAddress = identitySelectors.address(getState())
+    const transfers = await getClient().payment.received(identityAddress)
+    if (transfers.length === appSelectors.transfers(getState()).get(identityAddress)) {
+      return
+    } else {
+      dispatch(appHandlers.actions.setTransfers({ id: identityAddress, value: transfers.length }))
+    }
 
-  const users = usersSelectors.users(getState())
-  const messagesAll = await Promise.all(
-    transfers
-      .map(async transfer => {
-        const message = await zbayMessages.transferToMessage(transfer, users)
+    const users = usersSelectors.users(getState())
+    const messagesAll = await Promise.all(
+      transfers
+        .map(async transfer => {
+          const message = await zbayMessages.transferToMessage(transfer, users)
 
-        return message && ReceivedMessage(message)
-      })
-      .filter(msg => msg !== null)
-  )
-  const messages = messagesAll.filter(msg => msg !== null).filter(msg => msg.sender.replyTo !== '')
-
-  const senderToMessages = R.compose(
-    R.groupBy(msg => msg.sender.replyTo),
-    R.filter(R.identity)
-  )(messages)
-  if (!R.isEmpty(senderToMessages)) {
-    R.keys(senderToMessages).forEach(async sender => {
-      await dispatch(setUsernames({ sender: R.last(senderToMessages[sender]).sender }))
-    })
-  }
-  await Promise.all(
-    Object.entries(senderToMessages).map(async ([contactAddress, contactMessages]) => {
-      const contact = contactMessages[0].sender
-      await dispatch(loadVaultMessages({ contact }))
-      const previousMessages = selectors.messages(contactAddress)(getState())
-      let lastSeen = selectors.lastSeen(contactAddress)(getState())
-      const newMessages = zbayMessages.calculateDiff({
-        previousMessages,
-        nextMessages: Immutable.List(contactMessages),
-        lastSeen,
-        identityAddress
-      })
-      dispatch(
-        appendNewMessages({
-          contactAddress,
-          messagesIds: newMessages.map(R.prop('id'))
+          return message && ReceivedMessage(message)
         })
-      )
+        .filter(msg => msg !== null)
+    )
+    const messages = messagesAll
+      .filter(msg => msg !== null)
+      .filter(msg => msg.sender.replyTo !== '')
 
-      dispatch(setMessages({ messages: contactMessages, contactAddress }))
-      newMessages.map(nm =>
-        displayDirectMessageNotification({ message: nm, username: contact.username })
-      )
-    })
-  )
+    const senderToMessages = R.compose(
+      R.groupBy(msg => msg.sender.replyTo),
+      R.filter(R.identity)
+    )(messages)
+    if (!R.isEmpty(senderToMessages)) {
+      R.keys(senderToMessages).forEach(async sender => {
+        await dispatch(setUsernames({ sender: R.last(senderToMessages[sender]).sender }))
+      })
+    }
+    await Promise.all(
+      Object.entries(senderToMessages).map(async ([contactAddress, contactMessages]) => {
+        const contact = contactMessages[0].sender
+        await dispatch(loadVaultMessages({ contact }))
+        const previousMessages = selectors.messages(contactAddress)(getState())
+        let lastSeen = selectors.lastSeen(contactAddress)(getState())
+        const newMessages = zbayMessages.calculateDiff({
+          previousMessages,
+          nextMessages: Immutable.List(contactMessages),
+          lastSeen,
+          identityAddress
+        })
+        dispatch(
+          appendNewMessages({
+            contactAddress,
+            messagesIds: newMessages.map(R.prop('id'))
+          })
+        )
+
+        dispatch(setMessages({ messages: contactMessages, contactAddress }))
+        newMessages.map(nm =>
+          displayDirectMessageNotification({ message: nm, username: contact.username })
+        )
+      })
+    )
+  } catch (err) {
+    console.warn(err)
+  }
 }
 
 export const updateLastSeen = ({ contact }) => async (dispatch, getState) => {

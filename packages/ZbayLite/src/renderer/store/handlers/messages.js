@@ -64,59 +64,63 @@ export const actions = {
 }
 
 export const fetchMessages = channel => async (dispatch, getState) => {
-  const pendingMessages = operationsSelectors.pendingMessages(getState())
-  const identityAddress = identitySelectors.address(getState())
-  const users = usersSelectors.users(getState())
+  try {
+    const pendingMessages = operationsSelectors.pendingMessages(getState())
+    const identityAddress = identitySelectors.address(getState())
+    const users = usersSelectors.users(getState())
 
-  if (pendingMessages.find(msg => msg.status === 'pending')) {
-    return
-  }
-  const channelId = channel.get('id')
-  const previousMessages = selectors.currentChannelMessages(channelId)(getState())
+    if (pendingMessages.find(msg => msg.status === 'pending')) {
+      return
+    }
+    const channelId = channel.get('id')
+    const previousMessages = selectors.currentChannelMessages(channelId)(getState())
 
-  const transfers = await getClient().payment.received(channel.get('address'))
+    const transfers = await getClient().payment.received(channel.get('address'))
 
-  if (transfers.length === appSelectors.transfers(getState()).get(channelId)) {
-    return
-  } else {
-    dispatch(appHandlers.actions.setTransfers({ id: channelId, value: transfers.length }))
-  }
+    if (transfers.length === appSelectors.transfers(getState()).get(channelId)) {
+      return
+    } else {
+      dispatch(appHandlers.actions.setTransfers({ id: channelId, value: transfers.length }))
+    }
 
-  const messagesAll = await Promise.all(
-    transfers.map(async transfer => {
-      const message = await zbayMessages.transferToMessage(transfer, users)
-      if (message === null) {
+    const messagesAll = await Promise.all(
+      transfers.map(async transfer => {
+        const message = await zbayMessages.transferToMessage(transfer, users)
+        if (message === null) {
+          return ReceivedMessage(message)
+        }
+        const pendingMessage = pendingMessages.find(pm => pm.txId && pm.txId === message.id)
+        if (pendingMessage) {
+          dispatch(operationsHandlers.actions.removeOperation(pendingMessage.opId))
+        }
         return ReceivedMessage(message)
-      }
-      const pendingMessage = pendingMessages.find(pm => pm.txId && pm.txId === message.id)
-      if (pendingMessage) {
-        dispatch(operationsHandlers.actions.removeOperation(pendingMessage.opId))
-      }
-      return ReceivedMessage(message)
-    })
-  )
-  const messages = messagesAll.filter(message => message.id !== null)
+      })
+    )
+    const messages = messagesAll.filter(message => message.id !== null)
 
-  let lastSeen = channelsSelectors.lastSeen(channelId)(getState())
-  if (!lastSeen) {
-    await dispatch(channelsHandlers.epics.updateLastSeen({ channelId }))
-    lastSeen = channelsSelectors.lastSeen(channelId)(getState())
-  }
-  const newMessages = zbayMessages.calculateDiff({
-    previousMessages,
-    nextMessages: Immutable.List(messages),
-    lastSeen,
-    identityAddress
-  })
-  await dispatch(channelsHandlers.actions.setUnread({ channelId, unread: newMessages.size }))
-  await dispatch(
-    appendNewMessages({
-      channelId,
-      messagesIds: newMessages.map(R.prop('id'))
+    let lastSeen = channelsSelectors.lastSeen(channelId)(getState())
+    if (!lastSeen) {
+      await dispatch(channelsHandlers.epics.updateLastSeen({ channelId }))
+      lastSeen = channelsSelectors.lastSeen(channelId)(getState())
+    }
+    const newMessages = zbayMessages.calculateDiff({
+      previousMessages,
+      nextMessages: Immutable.List(messages),
+      lastSeen,
+      identityAddress
     })
-  )
-  await dispatch(setMessages({ messages, channelId }))
-  newMessages.map(nm => displayMessageNotification({ message: nm, channel }))
+    await dispatch(channelsHandlers.actions.setUnread({ channelId, unread: newMessages.size }))
+    await dispatch(
+      appendNewMessages({
+        channelId,
+        messagesIds: newMessages.map(R.prop('id'))
+      })
+    )
+    await dispatch(setMessages({ messages, channelId }))
+    newMessages.map(nm => displayMessageNotification({ message: nm, channel }))
+  } catch (err) {
+    console.warn(err)
+  }
 }
 
 export const epics = {
