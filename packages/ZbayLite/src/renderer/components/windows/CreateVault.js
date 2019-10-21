@@ -16,7 +16,8 @@ import icon from '../../static/images/zcash/logo-lockup--circle.svg'
 const styles = (theme) => ({
   gridRoot: {
     width: '100vw',
-    minHeight: '100vh'
+    minHeight: '100vh',
+    WebkitAppRegion: 'drag'
   },
   paper: {
     width: '100%',

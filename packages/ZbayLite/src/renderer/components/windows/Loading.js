@@ -14,7 +14,8 @@ import Carousel from '../widgets/Carousel'
 const styles = theme => ({
   root: {
     width: '100vw',
-    height: '100vh'
+    height: '100vh',
+    WebkitAppRegion: 'drag'
   },
   icon: {
     width: 285,

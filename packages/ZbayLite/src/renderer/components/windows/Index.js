@@ -10,7 +10,8 @@ const styles = theme => ({
   root: {
     display: 'flex',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    WebkitAppRegion: 'drag'
   }
 })
 

@@ -19,7 +19,8 @@ const styles = theme => ({
   paper: {
     width: '100vw',
     height: '100vh',
-    padding: 20
+    padding: 20,
+    WebkitAppRegion: 'drag'
   },
   icon: {
     width: 285,
