@@ -133,7 +133,7 @@ exports[`SendMoneyTransactionDetails renders component 1`] = `
     <WithStyles(ForwardRef(Typography))
       variant="body1"
     >
-      20.1
+      20.1000
        ZEC ($
       10.1000
        USD)
