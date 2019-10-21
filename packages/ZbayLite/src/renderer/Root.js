@@ -16,6 +16,7 @@ import ErrorModal from './containers/ui/ErrorModal'
 import QuitAppDialog from './containers/ui/QuitAppDialog'
 import TopUpModal from './containers/ui/TopUpModal'
 import SendMoneyModal from './containers/ui/sendMoney/SendMoneyModal'
+import UpdateModal from './containers/widgets/update/UpdateModal'
 import CreateChannelModal from './containers/widgets/channels/CreateChannelModal'
 
 import theme from './theme'
@@ -28,6 +29,7 @@ export default () => (
           <Notifier />
           <ErrorModal />
           <QuitAppDialog />
+          <UpdateModal />
           <SendMoneyModal />
           <TopUpModal />
           <CssBaseline />

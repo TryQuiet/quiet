@@ -64,9 +64,9 @@ app.on('open-url', (event, url) => {
         invitation: data.searchParams.get('invitation')
       })
     }
-    if (url.searchParams.has('importchannel')) {
+    if (data.searchParams.has('importchannel')) {
       mainWindow.webContents.send('newChannel', {
-        channelParams: url.searchParams.get('importchannel')
+        channelParams: data.searchParams.get('importchannel')
       })
     }
   }
