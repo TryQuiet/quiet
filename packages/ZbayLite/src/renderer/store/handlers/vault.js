@@ -83,10 +83,10 @@ export const setVaultIdentity = () => async (dispatch, getState) => {
     console.log(err)
   }
 }
-const unlockVaultEpic = ({ password: masterPassword }, formActions) => async (dispatch, getState) => {
+const unlockVaultEpic = ({ password: masterPassword }, formActions, setDone) => async (dispatch, getState) => {
   const state = getState()
   const network = nodeSelectors.network(state)
-
+  setDone(false)
   try {
     await dispatch(vaultHandlers.actions.unlockVault({ masterPassword, network, ignoreError: true }))
   } catch (error) {
@@ -94,6 +94,7 @@ const unlockVaultEpic = ({ password: masterPassword }, formActions) => async (di
       dispatch(notificationsHandlers.actions.enqueueSnackbar(
         errorNotification({ message: 'Incorrect password' }, { persist: false })
       ))
+      setDone(true)
     } else {
       throw error
     }

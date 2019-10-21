@@ -13,7 +13,7 @@ import Icon from '../ui/Icon'
 import VaultCreator from '../../containers/VaultCreator'
 import icon from '../../static/images/zcash/logo-lockup--circle.svg'
 
-const styles = (theme) => ({
+const styles = theme => ({
   gridRoot: {
     width: '100vw',
     minHeight: '100vh',
@@ -72,36 +72,50 @@ export const CreateVault = ({
 }) => {
   return (
     <WindowWrapper>
-      <Snackbar
-        variant='loading'
-        message={inProgressMsg}
-        open={inProgress}
-        fullWidth
-      />
-      <Snackbar
-        variant='error'
-        message={error}
-        open={error.length > 0}
-        onClose={onCloseSnackbar}
-      />
-      { finished && <Redirect to='/' />}
+      <Snackbar variant='loading' message={inProgressMsg} open={inProgress} fullWidth />
+      <Snackbar variant='error' message={error} open={error.length > 0} onClose={onCloseSnackbar} />
+      {finished === true && <Redirect to='/' />}
       <Grid container justify='center' alignContent='flex-start' className={classes.gridRoot}>
         <Grid container item>
           <Paper className={classes.paper}>
-            <Grid container direction='row' justify='center' alignContent='flex-start' wrap='wrap' className={classes.welcome}>
-              <Grid className={classes.logoContainer} container item xs={12} justify='center' alignItems={'center'}>
+            <Grid
+              container
+              direction='row'
+              justify='center'
+              alignContent='flex-start'
+              wrap='wrap'
+              className={classes.welcome}
+            >
+              <Grid
+                className={classes.logoContainer}
+                container
+                item
+                xs={12}
+                justify='center'
+                alignItems={'center'}
+              >
                 <Icon className={classes.icon} src={icon} />
               </Grid>
               <Grid container item xs={12} wrap='wrap' justify='center'>
                 <Typography className={classes.title} variant='h4' gutterBottom>
                   Create a password
                 </Typography>
-                <Typography className={classes.caption} variant='body1' align='justify' gutterBottom>
+                <Typography
+                  className={classes.caption}
+                  variant='body1'
+                  align='justify'
+                  gutterBottom
+                >
                   To set up the secure Zbay vault, you need to create a password.
                 </Typography>
               </Grid>
               <Grid item className={classes.form}>
-                <VaultCreator className={classes.vault} buttonStyles={classes.button} inProgress={inProgress} />
+                <VaultCreator
+                  className={classes.vault}
+                  buttonStyles={classes.button}
+                  inProgress={inProgress}
+                  finished={finished}
+                />
               </Grid>
             </Grid>
           </Paper>

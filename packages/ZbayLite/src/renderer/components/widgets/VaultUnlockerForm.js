@@ -3,7 +3,6 @@ import PropTypes from 'prop-types'
 import * as Yup from 'yup'
 import { Formik, Form } from 'formik'
 import { Redirect } from 'react-router'
-import Countdown from 'react-countdown-now'
 
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
@@ -45,9 +44,6 @@ const formSchema = Yup.object().shape({
   password: Yup.string().required('Required')
 })
 
-const countdownRenderer = ({ completed, newUser }) =>
-  completed && (newUser ? <Redirect to='/zcashNode' /> : <Redirect to='/main/channel/general' />)
-
 export const VaultUnlockerForm = ({
   classes,
   locked,
@@ -57,12 +53,13 @@ export const VaultUnlockerForm = ({
   newUser,
   loader,
   nodeConnected,
-  done
+  done,
+  setDone
 }) => {
   return (
     <Formik
       onSubmit={(values, actions) => {
-        onSubmit(values, actions)
+        onSubmit(values, actions, setDone)
       }}
       validationSchema={formSchema}
       initialValues={initialValues}
@@ -125,12 +122,11 @@ export const VaultUnlockerForm = ({
               </Grid>
             )}
           </Grid>
-          {!locked && !loader.loading && nodeConnected && (newUser ? true : done) && (
-            <Countdown
-              date={Date.now() + 1000}
-              renderer={e => countdownRenderer({ ...e, newUser })}
-            />
-          )}
+          {!locked &&
+            !loader.loading &&
+            nodeConnected &&
+            (newUser ? true : done) &&
+            (newUser ? <Redirect to='/zcashNode' /> : <Redirect to='/main/channel/general' />)}
         </Form>
       )}
     </Formik>

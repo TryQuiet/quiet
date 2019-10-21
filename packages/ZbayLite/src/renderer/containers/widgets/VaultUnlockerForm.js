@@ -37,7 +37,7 @@ export const VaultUnlockerForm = ({
   nodeConnected,
   ...props
 }) => {
-  const [done, setDone] = useState(false)
+  const [done, setDone] = useState(true)
   useEffect(
     () => {
       if (!newUser && !locked && nodeConnected) {
@@ -53,12 +53,6 @@ export const VaultUnlockerForm = ({
       }
     },
     [loader.loading]
-  )
-  useEffect(
-    () => {
-      setDone(!done)
-    },
-    [locked]
   )
 
   useInterval(getStatus, 1000)

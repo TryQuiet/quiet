@@ -30,12 +30,17 @@ export const formSchema = Yup.object().shape({
     .required('Required')
 })
 
-export const validateForm = values => (
-  values.repeat !== values.password &&
-    { repeat: 'Doesn\'t match password.' }
-)
+export const validateForm = values =>
+  values.repeat !== values.password && { repeat: "Doesn't match password." }
 
-export const VaultCreator = ({ classes, onSend, initialValues, buttonStyles, finished, inProgress }) => (
+export const VaultCreator = ({
+  classes,
+  onSend,
+  initialValues,
+  buttonStyles,
+  finished,
+  inProgress
+}) => (
   <Formik
     onSubmit={onSend}
     validationSchema={formSchema}
@@ -43,7 +48,7 @@ export const VaultCreator = ({ classes, onSend, initialValues, buttonStyles, fin
     validate={validateForm}
   >
     {({ errors, isSubmitting }) => (
-      <Form >
+      <Form>
         <Grid
           container
           spacing={2}
@@ -52,16 +57,14 @@ export const VaultCreator = ({ classes, onSend, initialValues, buttonStyles, fin
           className={classes.fullContainer}
         >
           <Grid item>
-            <TextField
-              name='name'
-              label='Name'
-            />
+            <TextField name='name' label='Name' disabled={finished === false || isSubmitting} />
           </Grid>
           <Grid item>
             <PasswordField
               name='password'
               label='Enter a password'
               fullWidth
+              disabled={finished === false || isSubmitting}
             />
           </Grid>
           <Grid item>
@@ -70,6 +73,7 @@ export const VaultCreator = ({ classes, onSend, initialValues, buttonStyles, fin
               label='Re-enter password'
               error={errors.repeat}
               fullWidth
+              disabled={finished === false || isSubmitting}
             />
           </Grid>
           <Grid item>
@@ -80,7 +84,8 @@ export const VaultCreator = ({ classes, onSend, initialValues, buttonStyles, fin
               color='primary'
               margin='normal'
               fullWidth
-              inProgress={inProgress}
+              inProgress={finished === false || isSubmitting}
+              disabled={finished === false || isSubmitting}
             />
           </Grid>
         </Grid>
