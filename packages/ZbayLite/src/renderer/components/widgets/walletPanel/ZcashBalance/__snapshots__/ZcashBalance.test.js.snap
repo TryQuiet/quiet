@@ -56,7 +56,7 @@ exports[`ZcashBalance renders when balanced locked 1`] = `
     <Memo(WithStyles(Tooltip))
       className="tooltip-mock"
       placement="bottom"
-      title="This is the pending text that holmes will provide"
+      title="Some funds are unavailable until pending transactions complete."
     >
       <WithStyles(ForwardRef(Typography))
         className="pending-mock"
