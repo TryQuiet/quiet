@@ -32,7 +32,7 @@ export const WalletPanel = ({ classes, handleInvitation }) => {
           <WalletPanelActions />
         </Grid>
       </Grid>
-      <QuickActionButton text='Invite firends' action={handleInvitation} />
+      <QuickActionButton text='Invite friends' action={handleInvitation} />
     </>
   )
 }
