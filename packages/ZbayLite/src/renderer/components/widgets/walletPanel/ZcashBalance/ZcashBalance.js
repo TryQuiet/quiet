@@ -38,7 +38,7 @@ export const ZcashBalance = ({ classes, usdBalance, zecBalance, usdLocked, zecLo
         </Typography>
         {(!usdLocked.isZero() || !zecLocked.isZero()) && (
           <Tooltip
-            title='This is the pending text that holmes will provide'
+            title='Some funds are unavailable until pending transactions complete.'
             className={classes.tooltip}
             placement='bottom'
           >
