@@ -19,7 +19,7 @@ exports[`WalletPanelActions renders component 1`] = `
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(undefined)
     action={[MockFunction]}
-    text="Invite firends"
+    text="Invite friends"
   />
 </Fragment>
 `;
