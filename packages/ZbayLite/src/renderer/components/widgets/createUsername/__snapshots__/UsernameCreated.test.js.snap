@@ -1,0 +1,65 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`UsernameCreated renders component 1`] = `
+<WithStyles(ForwardRef(Grid))
+  container={true}
+  justify="center"
+>
+  <WithStyles(ForwardRef(Grid))
+    className="usernameConatainer-mock"
+    container={true}
+    direction="row"
+    item={true}
+    justify="center"
+    xs={12}
+  >
+    <Memo(Icon)
+      className="usernameIcon-mock"
+      src="test-file-stub"
+    />
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="usernameConatainer-mock"
+    container={true}
+    direction="row"
+    item={true}
+    justify="center"
+    xs={12}
+  >
+    <WithStyles(ForwardRef(Typography))
+      variant="h4"
+    >
+      You created a username
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="descConatainer-mock"
+    container={true}
+    direction="row"
+    item={true}
+    justify="center"
+    xs={12}
+  >
+    <WithStyles(ForwardRef(Typography))
+      variant="body2"
+    >
+      Your username will be be registered shortly
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="buttonContainer-mock"
+    item={true}
+    xs="auto"
+  >
+    <WithStyles(ForwardRef(Button))
+      className="button-mock"
+      fullWidth={true}
+      onClick={[Function]}
+      size="small"
+      variant="contained"
+    >
+      Done
+    </WithStyles(ForwardRef(Button))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
+`;

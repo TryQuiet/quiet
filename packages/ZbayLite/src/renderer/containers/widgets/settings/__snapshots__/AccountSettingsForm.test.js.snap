@@ -2,16 +2,14 @@
 
 exports[`AccountSettingsForm will receive right actions 1`] = `
 Object {
-  "checkNickname": [Function],
+  "closeModal": [Function],
   "handleSubmit": [Function],
+  "openModal": [Function],
 }
 `;
 
 exports[`AccountSettingsForm will receive right props 1`] = `
 Object {
-  "initialValues": Object {
-    "nickname": "nickname",
-  },
   "privateAddress": "test-z-address",
   "transparentAddress": "test-t-address",
 }

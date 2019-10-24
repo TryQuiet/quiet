@@ -2,7 +2,8 @@
 
 exports[`AccountSettingsForm will receive right actions 1`] = `
 Object {
-  "checkNickname": [Function],
+  "closeModal": [Function],
   "handleSubmit": [Function],
+  "openModal": [Function],
 }
 `;

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import PropTypes from 'prop-types'
 import * as Yup from 'yup'
 import { Formik, Form } from 'formik'
@@ -13,12 +13,22 @@ import Button from '@material-ui/core/Button'
 import { withStyles } from '@material-ui/core/styles'
 import { Divider } from '@material-ui/core'
 
+import Icon from '../../ui/Icon'
+import usernameIcon from '../../../static/images/username.svg'
 import IconCopy from '../../ui/IconCopy'
-import TextField from '../../ui/form/TextField'
 
 const styles = theme => ({
   fullWidth: {
-    width: '100%'
+    width: 570
+  },
+  mainCreateUsernameContainer: {
+    marginTop: 25
+  },
+  createUsernameContainer: {
+    width: 522,
+    height: 115,
+    borderRadius: 4,
+    backgroundColor: theme.palette.colors.veryLightGray
   },
   container: {
     padding: theme.spacing(3),
@@ -36,6 +46,11 @@ const styles = theme => ({
     height: 60,
     justifyContent: 'center'
   },
+  usernameIcon: {
+    width: 32,
+    height: 32,
+    justifyContent: 'center'
+  },
   buttonDiv: {
     marginTop: theme.spacing(1)
   },
@@ -49,10 +64,12 @@ const styles = theme => ({
       backgroundColor: 'theme.palette.colors.gray'
     }
   },
-  divider: {
-    height: 60,
-    marginLeft: 10,
-    width: 1
+  link: {
+    cursor: 'pointer',
+    color: theme.palette.colors.linkBlue
+  },
+  info: {
+    color: theme.palette.colors.darkGray
   }
 })
 
@@ -65,60 +82,60 @@ Yup.addMethod(Yup.mixed, 'validateMessage', function (checkNickname) {
   })
 })
 
-const formSchema = checkNickname =>
-  Yup.object().shape({
-    nickname: Yup.string()
-      .min(3)
-      .max(20)
-      .matches(/^[a-z0-9]+$/, {
-        message: 'Usernames should only be lowercase letters a-z and numbers 0-9',
-        excludeEmptyString: true
-      })
-      .validateMessage(checkNickname)
-      .required('Required')
-  })
+const openCreateUsernameModal = (openModal, closeModal) => {
+  closeModal()
+  openModal()
+}
 
 export const AccountSettingsForm = ({
   classes,
-  initialValues,
   transparentAddress,
   privateAddress,
   handleCopy,
   handleSubmit,
-  checkNickname
+  checkNickname,
+  updateDonation,
+  donationAllow,
+  openModal,
+  closeModal
 }) => (
-  <Formik
-    onSubmit={handleSubmit}
-    validationSchema={formSchema(checkNickname)}
-    initialValues={initialValues}
-  >
-    {({ values, isSubmitting, isValid }) => (
-      <Form className={classes.fullWidth}>
-        <Grid container className={classes.container} spacing={4}>
-          <Grid item xs={12}>
-            <Typography variant='body2'>Nickname</Typography>
-            <TextField
-              id='nickname'
-              name='nickname'
-              className={classes.textField}
-              margin='none'
-              placeholder={`Sorry you don't have registered nickname`}
-              variant='outlined'
-              value={values.nickname}
-            />
+  <Fragment>
+    <Grid container spacing={4} className={classes.mainCreateUsernameContainer} direction='row' justify='center'>
+      <Grid container item className={classes.createUsernameContainer}>
+        <Grid item xs={12}>
+          <Typography variant={'h4'}>Create a username</Typography>
+        </Grid>
+        <Grid container item direction='row' alignItems='center' justify='space-between'>
+          <Grid item xs={10}>
+            <Typography className={classes.info} variant={'body2'}>You need this to send and receive direct messages.</Typography>
           </Grid>
-          <Grid item xs={12}>
-            <Typography variant='body2'>Private address</Typography>
-            <MuiTextField
-              id='private-address'
-              className={classes.textField}
-              variant='outlined'
-              type='text'
-              value={privateAddress}
-              disabled
-              classes={{ root: classes.textFieldd }}
-              InputProps={{
-                endAdornment: (
+          <Grid container item xs={2} direction='row' justify='flex-end'>
+            <Icon className={classes.usernameIcon} src={usernameIcon} />
+          </Grid>
+        </Grid>
+        <Grid item xs={12}>
+          <Typography className={classes.link} onClick={() => openCreateUsernameModal(openModal, closeModal)} variant={'body2'}>Create username</Typography>
+        </Grid>
+      </Grid>
+    </Grid>
+    <Formik
+      onSubmit={handleSubmit}
+    >
+      {({ values, isSubmitting, isValid }) => (
+        <Form className={classes.fullWidth}>
+          <Grid container className={classes.container} spacing={4}>
+            <Grid item xs={12}>
+              <Typography variant='body2'>Private address</Typography>
+              <MuiTextField
+                id='private-address'
+                className={classes.textField}
+                variant='outlined'
+                type='text'
+                value={privateAddress}
+                disabled
+                classes={{ root: classes.textFieldd }}
+                InputProps={{
+                  endAdornment: (
                   <>
                     <Divider className={classes.divider} orientation='vertical' />
                     <InputAdornment position='end' className={classes.icon}>
@@ -129,21 +146,21 @@ export const AccountSettingsForm = ({
                       </IconButton>
                     </InputAdornment>
                   </>
-                )
-              }}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <Typography variant='body2'>Transparent address</Typography>
-            <MuiTextField
-              id='transparent-address'
-              className={classes.textField}
-              variant='outlined'
-              type='text'
-              value={transparentAddress}
-              disabled
-              InputProps={{
-                endAdornment: (
+                  )
+                }}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant='body2'>Transparent address</Typography>
+              <MuiTextField
+                id='transparent-address'
+                className={classes.textField}
+                variant='outlined'
+                type='text'
+                value={transparentAddress}
+                disabled
+                InputProps={{
+                  endAdornment: (
                   <>
                     <Divider className={classes.divider} orientation='vertical' />
                     <InputAdornment position='end' className={classes.icon}>
@@ -154,27 +171,28 @@ export const AccountSettingsForm = ({
                       </IconButton>
                     </InputAdornment>
                   </>
-                )
-              }}
-            />
-          </Grid>
-          <Grid item xs={12} className={classes.buttonDiv}>
-            <Button
-              variant='contained'
-              size='small'
-              color='primary'
-              type='submit'
-              fullWidth
-              disabled={!isValid || isSubmitting}
-              className={classes.button}
-            >
+                  )
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} className={classes.buttonDiv}>
+              <Button
+                variant='contained'
+                size='small'
+                color='primary'
+                type='submit'
+                fullWidth
+                disabled={!isValid || isSubmitting}
+                className={classes.button}
+              >
               Save
-            </Button>
+              </Button>
+            </Grid>
           </Grid>
-        </Grid>
-      </Form>
-    )}
-  </Formik>
+        </Form>
+      )}
+    </Formik>
+  </Fragment>
 )
 
 AccountSettingsForm.propTypes = {

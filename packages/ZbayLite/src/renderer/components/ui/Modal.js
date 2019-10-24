@@ -22,14 +22,16 @@ const styles = theme => ({
     padding: '0 15%'
   },
   title: {
-    fontSize: '0.9rem',
-    lineHeight: '1.66'
+    fontSize: 15,
+    color: theme.palette.colors.trueBlack,
+    lineHeight: '18px',
+    fontStyle: 'normal',
+    fontWeight: 'normal'
   },
   header: {
     background: '#fff',
     height: constants.headerHeight,
-    order: -1,
-    borderBottom: 'solid #cbcbcb 2px'
+    order: -1
   },
   actions: {
     paddingLeft: theme.spacing(2)
@@ -41,7 +43,7 @@ const styles = theme => ({
     height: `calc(100vh - ${constants.headerHeight}px)`
   },
   centered: {
-    maxWidth: 680,
+    maxWidth: 570,
     position: 'absolute',
     top: '50%',
     left: '50%',
@@ -65,6 +67,7 @@ export const Modal = ({
     <Grid
       container
       direction='column'
+      justify='center'
       className={classNames({
         [classes.centered]: !fullPage
       })}

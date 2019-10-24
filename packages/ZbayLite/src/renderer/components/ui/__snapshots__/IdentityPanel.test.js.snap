@@ -26,5 +26,6 @@ exports[`IdentityPanel renders component 1`] = `
   <withModal(WithStyles(SettingsModal)) />
   <Memo(Connect(withModal(ReceivedInvitaionModalContainer))) />
   <Memo(withModal(Connect(Component))) />
+  <Connect(withModal(Component)) />
 </div>
 `;

@@ -23,10 +23,8 @@ const styles = theme => ({
     padding: theme.spacing(4)
   },
   field: {
-    width: 270
   },
   submitButton: {
-    marginTop: theme.spacing(1)
   },
   label: {
     fontSize: 12,
@@ -68,13 +66,13 @@ export const ShippingSettingsForm = ({
         <Form className={classes.fullWidth}>
           <Grid
             container
+            spacing={1}
             direction='column'
-            spacing={2}
             alignItems='flex-start'
             className={classes.container}
           >
-            <Grid item container direction='row' justify='space-between'>
-              <Grid item>
+            <Grid item container direction='row' justify='space-between' spacing={2}>
+              <Grid item xs={6}>
                 <Typography className={classes.label} variant='body2'>
                   First Name
                 </Typography>
@@ -87,7 +85,7 @@ export const ShippingSettingsForm = ({
                   value={values.firstName}
                 />
               </Grid>
-              <Grid item>
+              <Grid item xs={6}>
                 <Typography className={classes.label} variant='body2'>
                   Last Name
                 </Typography>
@@ -139,8 +137,8 @@ export const ShippingSettingsForm = ({
                 </SelectField>
               </Grid>
             </Grid>
-            <Grid item container direction='row' justify='space-between'>
-              <Grid item>
+            <Grid item container direction='row' justify='space-between' spacing={2} >
+              <Grid item xs={6}>
                 <Typography className={classes.label} variant='body2'>
                   City
                 </Typography>
@@ -153,7 +151,7 @@ export const ShippingSettingsForm = ({
                   value={values.city}
                 />
               </Grid>
-              <Grid item>
+              <Grid item xs={6}>
                 <Typography className={classes.label} variant='body2'>
                   Postal Code
                 </Typography>

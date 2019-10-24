@@ -2,19 +2,12 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
 import usersHandlers from '../../../store/handlers/users'
+import modalsHandlers from '../../../store/handlers/modals'
 import AccountSettingsForm from '../../../components/widgets/settings/AccountSettingsForm'
 import identitySelectors from '../../../store/selectors/identity'
-import usersSelectors from '../../../store/selectors/users'
 
 export const mapStateToProps = state => {
   return {
-    initialValues: {
-      nickname: usersSelectors.registeredUser(identitySelectors.signerPubKey(state))(state)
-        ? usersSelectors
-          .registeredUser(identitySelectors.signerPubKey(state))(state)
-          .get('nickname')
-        : ''
-    },
     transparentAddress: identitySelectors.transparentAddress(state),
     privateAddress: identitySelectors.address(state)
   }
@@ -23,7 +16,8 @@ export const mapStateToProps = state => {
 export const mapDispatchToProps = (dispatch, props) =>
   bindActionCreators(
     {
-      checkNickname: usersHandlers.epics.isNicknameTaken,
+      openModal: modalsHandlers.actionCreators.openModal('createUsernameModal'),
+      closeModal: modalsHandlers.actionCreators.closeModal('accountSettingsModal'),
       handleSubmit: ({ nickname }) => usersHandlers.epics.createOrUpdateUser({ nickname })
     },
     dispatch

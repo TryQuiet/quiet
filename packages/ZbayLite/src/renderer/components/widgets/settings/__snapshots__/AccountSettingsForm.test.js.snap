@@ -1,87 +1,82 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`AccountSettingsForm renders component 1`] = `
-<Formik
-  enableReinitialize={false}
-  initialValues={
-    Object {
-      "nickname": "Saturn",
-    }
-  }
-  isInitialValid={false}
-  onSubmit={[MockFunction]}
-  validateOnBlur={true}
-  validateOnChange={true}
-  validationSchema={
-    ObjectSchema {
-      "_blacklist": RefSet {
-        "list": Set {},
-        "refs": Map {},
-      },
-      "_conditions": Array [],
-      "_defaultDefault": [Function],
-      "_deps": Array [],
-      "_excludedEdges": Array [],
-      "_exclusive": Object {},
-      "_mutate": undefined,
-      "_nodes": Array [
-        "nickname",
-      ],
-      "_options": Object {
-        "abortEarly": true,
-        "recursive": true,
-      },
-      "_type": "object",
-      "_typeError": [Function],
-      "_whitelist": RefSet {
-        "list": Set {},
-        "refs": Map {},
-      },
-      "fields": Object {
-        "nickname": StringSchema {
-          "_blacklist": RefSet {
-            "list": Set {},
-            "refs": Map {},
-          },
-          "_conditions": Array [],
-          "_deps": Array [],
-          "_exclusive": Object {
-            "max": true,
-            "min": true,
-            "required": true,
-            "test": false,
-            "undefined": false,
-          },
-          "_mutate": undefined,
-          "_options": Object {
-            "abortEarly": true,
-            "recursive": true,
-          },
-          "_type": "string",
-          "_typeError": [Function],
-          "_whitelist": RefSet {
-            "list": Set {},
-            "refs": Map {},
-          },
-          "tests": Array [
-            [Function],
-            [Function],
-            [Function],
-            [Function],
-            [Function],
-          ],
-          "transforms": Array [
-            [Function],
-          ],
-        },
-      },
-      "tests": Array [],
-      "transforms": Array [
-        [Function],
-      ],
-    }
-  }
->
-  <Component />
-</Formik>
+<Fragment>
+  <WithStyles(ForwardRef(Grid))
+    className="mainCreateUsernameContainer-mock"
+    container={true}
+    direction="row"
+    justify="center"
+    spacing={4}
+  >
+    <WithStyles(ForwardRef(Grid))
+      className="createUsernameContainer-mock"
+      container={true}
+      item={true}
+    >
+      <WithStyles(ForwardRef(Grid))
+        item={true}
+        xs={12}
+      >
+        <WithStyles(ForwardRef(Typography))
+          variant="h4"
+        >
+          Create a username
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
+        alignItems="center"
+        container={true}
+        direction="row"
+        item={true}
+        justify="space-between"
+      >
+        <WithStyles(ForwardRef(Grid))
+          item={true}
+          xs={10}
+        >
+          <WithStyles(ForwardRef(Typography))
+            className="info-mock"
+            variant="body2"
+          >
+            You need this to send and receive direct messages.
+          </WithStyles(ForwardRef(Typography))>
+        </WithStyles(ForwardRef(Grid))>
+        <WithStyles(ForwardRef(Grid))
+          container={true}
+          direction="row"
+          item={true}
+          justify="flex-end"
+          xs={2}
+        >
+          <Memo(Icon)
+            className="usernameIcon-mock"
+            src="test-file-stub"
+          />
+        </WithStyles(ForwardRef(Grid))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
+        item={true}
+        xs={12}
+      >
+        <WithStyles(ForwardRef(Typography))
+          className="link-mock"
+          onClick={[Function]}
+          variant="body2"
+        >
+          Create username
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+  <Formik
+    enableReinitialize={false}
+    isInitialValid={false}
+    onSubmit={[MockFunction]}
+    validateOnBlur={true}
+    validateOnChange={true}
+  >
+    <Component />
+  </Formik>
+</Fragment>
 `;

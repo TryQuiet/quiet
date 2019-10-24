@@ -18,8 +18,8 @@ exports[`SettingsModal renders component 1`] = `
           "indicator": "indicator-mock",
         }
       }
-      indicatorColor="primary"
       onChange={[Function]}
+      textColor="primary"
       value="account"
     >
       <WithStyles(Tab)

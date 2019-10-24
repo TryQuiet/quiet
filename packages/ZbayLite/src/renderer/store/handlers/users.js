@@ -148,7 +148,7 @@ export const fetchUsers = () => async (dispatch, getState) => {
   }
 }
 
-export const isNicknameTaken = username => async (dispatch, getState) => {
+export const isNicknameTaken = username => (dispatch, getState) => {
   const users = usersSelector.users(getState()).toJS()
   const userNames = Object.keys(users).map((key, index) => {
     return users[key].nickname

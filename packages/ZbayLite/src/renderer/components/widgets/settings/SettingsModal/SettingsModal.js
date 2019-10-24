@@ -22,7 +22,18 @@ const styles = theme => ({
     color: theme.palette.colors.purple
   },
   indicator: {
-    backgroundColor: theme.palette.colors.purple
+    backgroundColor: theme.palette.colors.purple,
+    height: 3
+  },
+  appbar: {
+    backgroundColor: '#fff',
+    boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.12)'
+  },
+  disabled: {
+    fontSize: 25,
+    lineHeight: '15px',
+    fontStyle: 'normal',
+    fontWeight: 'normal'
   }
 })
 
@@ -35,7 +46,7 @@ export const SettingsModal = ({ classes, open, handleClose }) => {
         <Tabs
           value={currentTab}
           onChange={(e, value) => setCurrentTab(value)}
-          indicatorColor='primary'
+          textColor='primary'
           className={classes.tabs}
           classes={{ indicator: classes.indicator }}
         >
