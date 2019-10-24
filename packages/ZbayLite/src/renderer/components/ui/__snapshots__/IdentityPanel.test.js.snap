@@ -1,6 +1,36 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`IdentityPanel renders component 1`] = `
+exports[`IdentityPanel renders component with username 1`] = `
+<div
+  className="root-mock"
+>
+  <WithStyles(ForwardRef(Button))
+    classes={
+      Object {
+        "label": "buttonLabel-mock",
+        "root": "button-mock",
+      }
+    }
+    component="span"
+    onClick={[MockFunction]}
+  >
+    <WithStyles(ForwardRef(Typography))
+      variant="h4"
+    >
+      test
+    </WithStyles(ForwardRef(Typography))>
+    <ExpandMoreIcon
+      fontSize="small"
+    />
+  </WithStyles(ForwardRef(Button))>
+  <withModal(WithStyles(SettingsModal)) />
+  <Memo(Connect(withModal(ReceivedInvitaionModalContainer))) />
+  <Memo(withModal(Connect(Component))) />
+  <Connect(withModal(Component)) />
+</div>
+`;
+
+exports[`IdentityPanel renders component without username 1`] = `
 <div
   className="root-mock"
 >
