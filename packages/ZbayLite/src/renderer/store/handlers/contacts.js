@@ -3,7 +3,7 @@ import { DateTime } from 'luxon'
 import { createAction, handleActions } from 'redux-actions'
 import * as R from 'ramda'
 import BigNumber from 'bignumber.js'
-
+import history from '../../../shared/history'
 import identitySelectors from '../selectors/identity'
 import usersSelectors from '../selectors/users'
 import appSelectors from '../selectors/app'
@@ -208,9 +208,15 @@ export const fetchMessages = () => async (dispatch, getState) => {
         )
 
         dispatch(setMessages({ messages: contactMessages, contactAddress }))
-        newMessages.map(nm =>
-          displayDirectMessageNotification({ message: nm, username: contact.username })
-        )
+        newMessages.map(nm => {
+          const notification = displayDirectMessageNotification({
+            message: nm,
+            username: contact.username
+          })
+          notification.onclick = () => {
+            history.push(`/main/direct-messages/${contact.replyTo}/${contact.username}`)
+          }
+        })
       })
     )
   } catch (err) {
@@ -275,7 +281,6 @@ export const createVaultContact = ({ contact, history }) => async (dispatch, get
       }
     })
   )
-  history.push(`/main/direct-messages/${contact.replyTo}/${contact.username}`)
 }
 
 export const loadAllSentMessages = () => async (dispatch, getState) => {
