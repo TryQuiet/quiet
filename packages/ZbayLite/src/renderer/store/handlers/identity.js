@@ -217,10 +217,9 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
     let identity = await migrateTo_0_2_0.ensureIdentityHasKeys(identityToSet)
     // Make sure identity is handled by the node
     dispatch(setLoadingMessage('Ensuring node contains identity keys'))
-    await Promise.all([
-      getClient().keys.importSK({ sk: identity.keys.sk }),
-      getClient().keys.importTPK(identity.keys.tpk)
-    ])
+
+    await getClient().keys.importSK({ sk: identity.keys.sk })
+    await getClient().keys.importTPK(identity.keys.tpk)
 
     dispatch(setLoadingMessage('Setting identity'))
     // Check if identity has signerKeys
@@ -240,21 +239,18 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
     await migrateTo_0_7_0.ensureDefaultChannels(identity, network)
     dispatch(setLoadingMessage('Fetching balance and loading channels'))
     dispatch(ratesHandlers.epics.fetchPrices())
-    await Promise.all([
-      dispatch(fetchBalance()),
-      dispatch(channelsHandlers.actions.loadChannels(identity.id))
-    ])
+    await dispatch(fetchBalance())
+    await dispatch(channelsHandlers.actions.loadChannels(identity.id))
     dispatch(setLoadingMessage('Loading users and messages'))
     await dispatch(usersHandlers.epics.fetchUsers())
-    await Promise.all([
-      dispatch(contactsHandlers.epics.fetchMessages()),
-      dispatch(contactsHandlers.epics.loadAllSentMessages())
-    ])
-    await Promise.all(
-      channelsSelectors
-        .data(getState())
-        .map(channel => dispatch(messagesHandlers.epics.fetchMessages(channel)))
-    )
+    await dispatch(contactsHandlers.epics.fetchMessages())
+    await dispatch(contactsHandlers.epics.loadAllSentMessages())
+    const channels = channelsSelectors
+      .data(getState())
+      .map(channel => () => messagesHandlers.epics.fetchMessages(channel))
+    for (let i = 0; i < channels.size; i++) {
+      await dispatch(channels.get(i)())
+    }
   } catch (err) {}
   dispatch(setLoading(false))
 
