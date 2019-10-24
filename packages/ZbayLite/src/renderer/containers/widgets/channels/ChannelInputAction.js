@@ -10,7 +10,7 @@ export const mapDispatchToProps = (dispatch) => {
   return (
     bindActionCreators(
       {
-        onPostOffer: () => console.warn('[ChannelInputAction] onPostOffer not implemented'),
+        onPostOffer: (payload) => actionCreators.openModal('advert', payload)(),
         onSendMoney: (modalName, payload) => actionCreators.openModal(modalName, payload)()
       },
       dispatch

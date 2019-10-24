@@ -1,18 +1,28 @@
 /* eslint import/first: 0 */
 import Immutable from 'immutable'
 
-import { mapStateToProps, mapDispatchToProps } from './InvitationModal'
+import { mapStateToProps, mapDispatchToProps } from './AdvertModal'
 
 import create from '../../../store/create'
-import { Invitation } from '../../../store/handlers/invitation'
 
-describe('InvitationModal', () => {
+describe('AdvertModal', () => {
   let store = null
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
       initialState: Immutable.Map({
-        criticalError: Invitation()
+        rates: Immutable.Map({
+          usd: '10',
+          zec: '1'
+        }),
+        identity: {
+          data: {
+            id: '1',
+            address: 'test',
+            name: 'Mars',
+            balance: '2'
+          }
+        }
       })
     })
   })

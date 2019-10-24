@@ -14,7 +14,8 @@ const styles = theme => ({
       backgroundColor: theme.palette.colors.zbayBlue
     },
     '&:disabled': {
-      backgroundColor: theme.palette.colors.zbayBlue
+      backgroundColor: theme.palette.colors.darkGray,
+      opacity: 0.7
     }
   },
   progress: {
@@ -23,19 +24,15 @@ const styles = theme => ({
 })
 
 export const LoadingButton = ({ classes, inProgress, text, ...other }) => {
-  if (inProgress) {
-    return (
-      <Button className={classes.button} {...other}>
-        <CircularProgress className={classes.progress} />
-      </Button>
-    )
-  } else {
-    return (
-      <Button className={classes.button} {...other} >
-        {text || 'Continue'}
-      </Button>
-    )
-  }
+  return inProgress ? (
+    <Button className={classes.button} {...other}>
+      <CircularProgress className={classes.progress} />
+    </Button>
+  ) : (
+    <Button className={classes.button} {...other}>
+      {text || 'Continue'}
+    </Button>
+  )
 }
 
 LoadingButton.defaultProps = {

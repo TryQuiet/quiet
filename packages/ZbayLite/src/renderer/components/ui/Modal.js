@@ -49,7 +49,8 @@ const styles = theme => ({
     left: '50%',
     transform: 'translate(-50%, -50%)',
     outline: 0
-  }
+  },
+  window: {}
 })
 
 export const Modal = ({
@@ -69,7 +70,8 @@ export const Modal = ({
       direction='column'
       justify='center'
       className={classNames({
-        [classes.centered]: !fullPage
+        [classes.centered]: !fullPage,
+        [classes.window]: true
       })}
     >
       <Grid container item className={classes.header} direction='row' alignItems='center'>

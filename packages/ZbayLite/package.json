@@ -126,7 +126,8 @@
     "webpack-cli": "^3.2.1",
     "webpack-dev-server": "^3.1.14",
     "webpack-node-externals": "^1.7.2",
-    "write-file-webpack-plugin": "^4.5.0"
+    "write-file-webpack-plugin": "^4.5.0",
+    "babel-plugin-require-context-hook": "^1.0.0"
   },
   "standard": {
     "parser": "babel-eslint",
