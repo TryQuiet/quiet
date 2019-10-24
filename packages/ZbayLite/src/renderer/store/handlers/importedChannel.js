@@ -118,13 +118,22 @@ const importChannel = () => async (dispatch, getState) => {
   }
 }
 
-const decodeChannelEpic = (uri) => async (dispatch) => {
+const decodeChannelEpic = (uri) => async (dispatch, getState) => {
   dispatch(setDecoding(true))
   try {
     const channel = await uriToChannel(uri)
-    dispatch(setData(channel))
-    const openModal = modalsHandlers.actionCreators.openModal('importChannelModal')
-    dispatch(openModal())
+    const allChannel = channelsSelectors.data(getState())
+    if (allChannel.find(ch => ch.get('address') === channel.address)) {
+      dispatch(
+        notificationsHandlers.actions.enqueueSnackbar(
+          errorNotification({ message: `You already imported this channel` })
+        )
+      )
+    } else {
+      dispatch(setData(channel))
+      const openModal = modalsHandlers.actionCreators.openModal('importChannelModal')
+      dispatch(openModal())
+    }
   } catch (err) {
     dispatch(setDecodingError(err))
     dispatch(

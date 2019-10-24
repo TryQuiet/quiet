@@ -37,6 +37,9 @@ const styles = theme => ({
     fontSize: 24,
     height: 36,
     marginBottom: 16
+  },
+  message: {
+    height: 24
   }
 })
 
@@ -111,16 +114,14 @@ export const VaultUnlockerForm = ({
                 inProgress={isSubmitting || unlocking || !done}
               />
             </Grid>
-            {!nodeConnected && !done && (
-              <Grid item>
-                <Typography variant='body2'>{`Creating a zcash node`}</Typography>
-              </Grid>
-            )}
-            {loader.loading && (
-              <Grid item>
-                <Typography variant='body2'>{loader.message}</Typography>
-              </Grid>
-            )}
+            <Grid item className={classes.message}>
+              <Typography variant='body2'>{loader.loading && loader.message}</Typography>
+              {!nodeConnected && !done && (
+                <Grid item>
+                  <Typography variant='body2'>{`Creating a zcash node`}</Typography>
+                </Grid>
+              )}
+            </Grid>
           </Grid>
           {!locked &&
             !loader.loading &&

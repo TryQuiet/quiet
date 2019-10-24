@@ -58,6 +58,7 @@ exports[`ChannelInput renders component input Disable  1`] = `
           }
         }
         autoFocus={true}
+        className="textField-mock"
         fullWidth={true}
         id="channel-input"
         inputProps={
@@ -142,6 +143,7 @@ exports[`ChannelInput renders component input Locked  1`] = `
           }
         }
         autoFocus={true}
+        className="textField-mock"
         fullWidth={true}
         id="channel-input"
         inputProps={
@@ -205,6 +207,7 @@ exports[`ChannelInput renders component input available  1`] = `
           }
         }
         autoFocus={true}
+        className="textField-mock"
         fullWidth={true}
         id="channel-input"
         inputProps={

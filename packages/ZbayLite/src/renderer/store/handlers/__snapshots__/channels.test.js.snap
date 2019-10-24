@@ -117,19 +117,19 @@ exports[`channels reducer handles load channels makes sure keys are present 1`] 
 Array [
   Array [
     "incoming-viewing-key-2",
-    "whenkeyisnew",
+    "no",
     0,
     "zs1testaddress2",
   ],
   Array [
     "incoming-viewing-key-1",
-    "whenkeyisnew",
+    "no",
     0,
     "zs1testaddress1",
   ],
   Array [
     "incoming-viewing-key-0",
-    "whenkeyisnew",
+    "no",
     0,
     "zs1testaddress0",
   ],

@@ -39,7 +39,7 @@ const Sidebar = ({ classes }) => {
   return (
     <Grid container direction='column' className={classes.root}>
       <Grid item xs container direction='column' className={classes.padding}>
-        <Grid item direction='column'>
+        <Grid item >
           <NodePanel className={classes.statusBar} />
           <IdentityPanel />
         </Grid>

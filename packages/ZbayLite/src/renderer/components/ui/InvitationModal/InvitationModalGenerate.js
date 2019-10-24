@@ -158,8 +158,7 @@ InvitationModalGenerate.propTypes = {
   affiliate: PropTypes.bool.isRequired,
   setAmount: PropTypes.func.isRequired,
   generateInvitation: PropTypes.func.isRequired,
-  setLoading: PropTypes.func.isRequired,
-  isLoading: PropTypes.func.isRequired
+  setLoading: PropTypes.func.isRequired
 }
 
 export default R.compose(

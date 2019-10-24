@@ -29,7 +29,7 @@ const styles = theme => ({
 
 export const QuickActionButton = ({ classes, text, action }) => (
   <Button variant='text' className={classes.button} onClick={action}>
-    <AddIcon color='white' className={classes.icon} />
+    <AddIcon className={classes.icon} />
     <Typography variant='body2'>{text}</Typography>
   </Button>
 )

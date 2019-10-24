@@ -158,7 +158,7 @@ export const transferToMessage = async (props, users) => {
         const isUsernameValid = usernameSchema.isValidSync(fromUser)
         sender = ExchangeParticipant({
           replyTo: fromUser.address,
-          username: isUsernameValid ? fromUser.nickname : `anon${publicKey.substring(0, 15)}`
+          username: isUsernameValid ? fromUser.nickname : `anon${publicKey.substring(0, 10)}`
         })
       } else {
         sender = ExchangeParticipant({

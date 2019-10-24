@@ -17,7 +17,10 @@ const styles = theme => ({
     height: 24
   },
   selected: {
-    backgroundColor: theme.palette.colors.lushSky
+    backgroundColor: theme.palette.colors.lushSky,
+    '&:hover': {
+      backgroundColor: theme.palette.colors.lushSky
+    }
   },
   badge: {
     padding: 6,

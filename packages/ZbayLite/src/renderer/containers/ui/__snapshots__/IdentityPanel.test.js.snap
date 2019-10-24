@@ -23,5 +23,6 @@ Object {
     "donationAllow": true,
     "donationAddress": "",
   },
+  "user": undefined,
 }
 `;

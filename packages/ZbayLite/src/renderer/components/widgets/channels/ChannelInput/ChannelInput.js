@@ -41,9 +41,9 @@ const styles = theme => ({
   },
 
   inputsDiv: {
-    paddingLeft: `18px`,
-    paddingRight: `18px`,
-    paddingBottom: `18px`,
+    paddingLeft: `20px`,
+    paddingRight: `20px`,
+    marginBottom: `20px`,
     width: '100%',
     margin: '0px'
   },
@@ -63,6 +63,9 @@ const styles = theme => ({
     WebkitTapHighlightColor: 'transparent',
     pointerEvents: 'none',
     touchAction: 'none'
+  },
+  textField: {
+    height: 42
   }
 })
 
@@ -125,6 +128,7 @@ export const ChannelInput = ({
             variant='outlined'
             placeholder='Send a message'
             multiline
+            className={classes.textField}
             rowsMax={5}
             value={message}
             onKeyPress={e => {

@@ -30,11 +30,13 @@ const styles = theme => ({
     }
   },
   buttonLabel: {
-    justifyContent: 'flex-start'
+    justifyContent: 'flex-start',
+    textTransform: 'none'
   }
 })
 
-export const IdentityPanel = ({ classes, identity, handleSettings }) => {
+export const IdentityPanel = ({ classes, identity, handleSettings, user }) => {
+  const nickname = user ? user.nickname : `anon${identity.signerPubKey.substring(0, 10)}`
   return (
     <div className={classes.root}>
       <Button
@@ -42,7 +44,7 @@ export const IdentityPanel = ({ classes, identity, handleSettings }) => {
         component='span'
         classes={{ root: classes.button, label: classes.buttonLabel }}
       >
-        <Typography variant='h4'>{identity.name}</Typography>
+        <Typography variant='h4'>{nickname}</Typography>
         <ExpandMoreIcon fontSize='small' />
       </Button>
       <SettingsModal />
@@ -56,9 +58,13 @@ IdentityPanel.propTypes = {
   classes: PropTypes.object.isRequired,
   identity: PropTypes.shape({
     name: PropTypes.string.isRequired,
-    address: PropTypes.string.isRequired
+    address: PropTypes.string.isRequired,
+    signerPubKey: PropTypes.string.isRequired
   }).isRequired,
-  handleSettings: PropTypes.func.isRequired
+  handleSettings: PropTypes.func.isRequired,
+  user: PropTypes.shape({
+    nickname: PropTypes.string.isRequired
+  }).isRequired
 }
 
 export default R.compose(
