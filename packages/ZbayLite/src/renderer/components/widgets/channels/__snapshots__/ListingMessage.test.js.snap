@@ -1,0 +1,126 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SendMessagePopover renders popover 1`] = `
+<WithStyles(ForwardRef(Grid))
+  alignItem="center"
+  className="root-mock"
+  container={true}
+  direction="column"
+  justify="flex-start"
+  onClick={[Function]}
+>
+  <WithStyles(ForwardRef(Grid))
+    alignItems="center"
+    className="backgroundImage-mock"
+    container={true}
+    item={true}
+    justify="center"
+    style={
+      Object {
+        "background": "url(98c9e4113d76a80d654096c9938fb1a3.svg)",
+      }
+    }
+  >
+    <WithStyles(ForwardRef(Grid))
+      alignItems="center"
+      className="tagContainer-mock"
+      container={true}
+      item={true}
+      justify="center"
+      style={
+        Object {
+          "width": 155,
+        }
+      }
+    >
+      <WithStyles(ForwardRef(Typography))
+        className="tag-mock"
+        variant="h1"
+      >
+        <span
+          className="hash-mock"
+        >
+          #
+        </span>
+        dirtyBike
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="contentContainer-mock"
+    container={true}
+    direction="column"
+    item={true}
+    justify="flex-start"
+  >
+    <WithStyles(ForwardRef(Grid))
+      container={true}
+      item={true}
+    >
+      <WithStyles(ForwardRef(Typography))
+        className="title-mock"
+        variant="body2"
+      >
+        Apollo X4 110cc Dirt Bike for...
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      container={true}
+      item={true}
+    >
+      <WithStyles(ForwardRef(Typography))
+        className="description-mock"
+        variant="caption"
+      >
+        Great quality bike for half the price as a name brand dirt bike! The X4
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="actionContainer-mock"
+    container={true}
+    direction="row"
+    item={true}
+    justify="flex-start"
+    wrap="nowrap"
+  >
+    <WithStyles(ForwardRef(Grid))
+      item={true}
+    >
+      <WithStyles(ForwardRef(Button))
+        className="button-mock"
+        onClick={[MockFunction]}
+      >
+        <span
+          className="buttonString-mock"
+        >
+          BUY
+        </span>
+      </WithStyles(ForwardRef(Button))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      item={true}
+    >
+      <WithStyles(ForwardRef(Typography))
+        className="priceUsd-mock"
+        variant="caption"
+      >
+        $
+        300
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      item={true}
+    >
+      <WithStyles(ForwardRef(Typography))
+        className="priceZcash-mock"
+        variant="caption"
+      >
+        (
+        4000 ZEC
+        )
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
+`;

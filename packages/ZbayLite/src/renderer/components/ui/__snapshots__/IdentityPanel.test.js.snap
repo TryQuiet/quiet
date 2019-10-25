@@ -47,7 +47,7 @@ exports[`IdentityPanel renders component without username 1`] = `
     <WithStyles(ForwardRef(Typography))
       variant="h4"
     >
-      anon
+      test
     </WithStyles(ForwardRef(Typography))>
     <ExpandMoreIcon
       fontSize="small"

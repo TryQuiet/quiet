@@ -2,6 +2,8 @@
 
 exports[`ImportedChannel renders private channel 1`] = `
 <Memo(WithStyles(Modal))
+  handleClose={[MockFunction]}
+  open={true}
   title="Import Channel"
 >
   <WithStyles(ForwardRef(Grid))
@@ -95,6 +97,8 @@ exports[`ImportedChannel renders private channel 1`] = `
 
 exports[`ImportedChannel renders public channel 1`] = `
 <Memo(WithStyles(Modal))
+  handleClose={[MockFunction]}
+  open={true}
   title="Import Channel"
 >
   <WithStyles(ForwardRef(Grid))

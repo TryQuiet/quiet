@@ -15,9 +15,11 @@ describe('ImportedChannel', () => {
     })
     const result = shallow(
       <ImportedChannel
+        open
         classes={mockClasses}
         onAccept={jest.fn()}
         onCancel={jest.fn()}
+        handleClose={jest.fn()}
         channel={channel}
       />
     )
@@ -33,9 +35,11 @@ describe('ImportedChannel', () => {
     })
     const result = shallow(
       <ImportedChannel
+        open
         classes={mockClasses}
         onAccept={jest.fn()}
         onCancel={jest.fn()}
+        handleClose={jest.fn()}
         channel={channel}
       />
     )

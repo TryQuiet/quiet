@@ -32,6 +32,7 @@ describe('IdentityPanel', () => {
         classes={mockClasses}
         identity={identity}
         handleSettings={jest.fn()}
+        user={{ nickname: 'test' }}
       />
     )
     expect(result).toMatchSnapshot()

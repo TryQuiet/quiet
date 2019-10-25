@@ -13,6 +13,7 @@ describe('DonationsSettingsForm', () => {
         initialValues={{ donationAddress: 'test-zash-address' }
         }
         updateDonation={jest.fn()}
+        updateDonationAddress={jest.fn()}
       />
     )
     expect(result).toMatchSnapshot()

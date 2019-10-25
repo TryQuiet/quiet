@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SendMessagePopover renders popover 1`] = `
+<Memo(WithStyles(Modal))
+  classes={
+    Object {
+      "window": "window-mock",
+    }
+  }
+  fullPage={true}
+  handleClose={[MockFunction]}
+  open={true}
+  title="#dirtyBike @roks33"
+>
+  <AutoSizer
+    disableHeight={false}
+    disableWidth={false}
+    onResize={[Function]}
+    style={Object {}}
+  >
+    <Component />
+  </AutoSizer>
+</Memo(WithStyles(Modal))>
+`;

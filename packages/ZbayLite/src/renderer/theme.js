@@ -69,6 +69,7 @@ export default createMuiTheme({
       dark: '#4a4a4a'
     },
     colors: {
+      titleGray: '#555555',
       blue: '#2196f3',
       white: '#FFFFFF',
       purple: '#521C74',
@@ -84,7 +85,8 @@ export default createMuiTheme({
       veryLightGray: '#F0F0F0',
       green: '#4CBB17',
       red: '#FF0000',
-      linkBlue: '#59c0d5'
+      linkBlue: '#59c0d5',
+      buttonGray: '#E3E3E3'
     }
   },
   overrides: {

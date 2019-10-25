@@ -19,6 +19,7 @@ import SendMoneyModal from './containers/ui/sendMoney/SendMoneyModal'
 import UpdateModal from './containers/widgets/update/UpdateModal'
 import CreateChannelModal from './containers/widgets/channels/CreateChannelModal'
 import AdvertModal from './containers/ui/adverts/AdvertModal'
+import AdvertActionsModal from './containers/ui/adverts/AdvertActionsModal'
 
 import theme from './theme'
 
@@ -36,6 +37,7 @@ export default () => (
           <CssBaseline />
           <CreateChannelModal />
           <AdvertModal />
+          <AdvertActionsModal />
           <Route path='/' exact component={Vault} />
           <Route path='/main' component={Main} />
           <Route path='/zcashNode' component={Index} />
