@@ -72,6 +72,7 @@ exports[`ImportedChannel renders private channel 1`] = `
         <WithStyles(ForwardRef(Button))
           className="button-mock"
           color="primary"
+          onClick={[MockFunction]}
           size="small"
           variant="outlined"
         >
@@ -164,6 +165,7 @@ exports[`ImportedChannel renders public channel 1`] = `
         <WithStyles(ForwardRef(Button))
           className="button-mock"
           color="primary"
+          onClick={[MockFunction]}
           size="small"
           variant="outlined"
         >
