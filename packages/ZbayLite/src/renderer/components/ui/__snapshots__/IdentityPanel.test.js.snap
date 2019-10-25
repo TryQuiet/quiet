@@ -25,7 +25,7 @@ exports[`IdentityPanel renders component with username 1`] = `
   </WithStyles(ForwardRef(Button))>
   <withModal(WithStyles(SettingsModal)) />
   <Memo(Connect(withModal(ReceivedInvitaionModalContainer))) />
-  <Memo(withModal(Connect(Component))) />
+  <Memo(withModal(Connect(ImportedChannel))) />
   <Connect(withModal(Component)) />
 </div>
 `;
@@ -55,7 +55,7 @@ exports[`IdentityPanel renders component without username 1`] = `
   </WithStyles(ForwardRef(Button))>
   <withModal(WithStyles(SettingsModal)) />
   <Memo(Connect(withModal(ReceivedInvitaionModalContainer))) />
-  <Memo(withModal(Connect(Component))) />
+  <Memo(withModal(Connect(ImportedChannel))) />
   <Connect(withModal(Component)) />
 </div>
 `;

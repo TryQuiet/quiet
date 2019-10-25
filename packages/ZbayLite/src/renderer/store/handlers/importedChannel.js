@@ -15,11 +15,14 @@ import channels from '../../zcash/channels'
 import nodeSelectors from '../selectors/node'
 import modalsHandlers from './modals'
 
-export const ImportedChannelState = Immutable.Record({
-  data: null,
-  decoding: false,
-  errors: ''
-}, 'ImportedChannelState')
+export const ImportedChannelState = Immutable.Record(
+  {
+    data: null,
+    decoding: false,
+    errors: ''
+  },
+  'ImportedChannelState'
+)
 
 const initialState = ImportedChannelState()
 
@@ -43,12 +46,13 @@ const actions = {
   setDecodingError
 }
 
-const removeChannel = (history) => async (dispatch, getState) => {
+const removeChannel = history => async (dispatch, getState) => {
   const state = getState()
   const identityId = identitySelectors.id(state)
   const channel = channelSelectors.channel(state).toJS()
   try {
     const network = nodeSelectors.network(getState())
+
     const generalChannel = channels.general[network]
     if (generalChannel.address !== channel.address) {
       await getVault().channels.removeChannel({ identityId, channelId: channel.address })
@@ -88,12 +92,24 @@ const importChannel = () => async (dispatch, getState) => {
   const state = getState()
   const identityId = identitySelectors.id(state)
   const channel = importedChannelSelectors.data(state).toJS()
+  const lastblock = nodeSelectors.latestBlock(getState())
+  const fetchTreshold = lastblock - 2000
   try {
     await getVault().channels.importChannel(identityId, channel)
     if (channel.keys.sk) {
-      await getClient().keys.importSK({ sk: channel.keys.sk, address: channel.address })
+      await getClient().keys.importSK({
+        sk: channel.keys.sk,
+        rescan: 'yes',
+        startHeight: fetchTreshold,
+        address: channel.address
+      })
     } else {
-      await getClient().keys.importIVK({ ivk: channel.keys.ivk, address: channel.address })
+      await getClient().keys.importIVK({
+        ivk: channel.keys.ivk,
+        rescan: 'yes',
+        startHeight: fetchTreshold,
+        address: channel.address
+      })
     }
     await dispatch(channelsHandlers.actions.loadChannels(identityId))
     dispatch(
@@ -118,7 +134,7 @@ const importChannel = () => async (dispatch, getState) => {
   }
 }
 
-const decodeChannelEpic = (uri) => async (dispatch, getState) => {
+const decodeChannelEpic = uri => async (dispatch, getState) => {
   dispatch(setDecoding(true))
   try {
     const channel = await uriToChannel(uri)
@@ -151,12 +167,17 @@ const epics = {
   decodeChannel: decodeChannelEpic
 }
 
-const reducer = handleActions({
-  [actionTypes.SET_DECODED_CHANNEL]: (state, { payload: channel }) => state.set('data', Immutable.fromJS(channel)),
-  [actionTypes.SET_DECODING_CHANNEL]: (state, { payload: decoding }) => state.set('decoding', decoding),
-  [actionTypes.SET_DECODING_ERROR]: (state, { payload: error }) => state.set('errors', error),
-  [clear]: () => ImportedChannelState()
-}, initialState)
+const reducer = handleActions(
+  {
+    [actionTypes.SET_DECODED_CHANNEL]: (state, { payload: channel }) =>
+      state.set('data', Immutable.fromJS(channel)),
+    [actionTypes.SET_DECODING_CHANNEL]: (state, { payload: decoding }) =>
+      state.set('decoding', decoding),
+    [actionTypes.SET_DECODING_ERROR]: (state, { payload: error }) => state.set('errors', error),
+    [clear]: () => ImportedChannelState()
+  },
+  initialState
+)
 
 export default {
   actions,

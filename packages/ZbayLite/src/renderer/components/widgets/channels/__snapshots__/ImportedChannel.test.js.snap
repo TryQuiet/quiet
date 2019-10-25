@@ -70,8 +70,8 @@ exports[`ImportedChannel renders private channel 1`] = `
         item={true}
       >
         <WithStyles(ForwardRef(Button))
+          className="button-mock"
           color="primary"
-          onClick={[MockFunction]}
           size="small"
           variant="outlined"
         >
@@ -82,8 +82,9 @@ exports[`ImportedChannel renders private channel 1`] = `
         item={true}
       >
         <WithStyles(ForwardRef(Button))
+          className="button-mock"
           color="primary"
-          onClick={[MockFunction]}
+          onClick={[Function]}
           size="small"
           variant="contained"
         >
@@ -161,8 +162,8 @@ exports[`ImportedChannel renders public channel 1`] = `
         item={true}
       >
         <WithStyles(ForwardRef(Button))
+          className="button-mock"
           color="primary"
-          onClick={[MockFunction]}
           size="small"
           variant="outlined"
         >
@@ -173,8 +174,9 @@ exports[`ImportedChannel renders public channel 1`] = `
         item={true}
       >
         <WithStyles(ForwardRef(Button))
+          className="button-mock"
           color="primary"
-          onClick={[MockFunction]}
+          onClick={[Function]}
           size="small"
           variant="contained"
         >

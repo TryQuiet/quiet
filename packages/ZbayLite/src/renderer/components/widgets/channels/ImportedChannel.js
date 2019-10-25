@@ -11,7 +11,7 @@ import HttpsIcon from '@material-ui/icons/HttpsOutlined'
 
 import Modal from '../../ui/Modal'
 import Elipsis from '../../ui/Elipsis'
-
+import Spinner from '../../ui/SpinnerLoader'
 const styles = theme => ({
   root: {
     padding: theme.spacing(4)
@@ -33,24 +33,38 @@ const styles = theme => ({
   },
   actions: {
     marginTop: theme.spacing(1)
+  },
+  button: {
+    height: 34,
+    width: 77
+  },
+  spinner: {
+    marginTop: 3
   }
 })
 
-export const ImportedChannel = ({ classes, channel, onAccept, onCancel, open, handleClose }) => (
-  <Modal open={open} handleClose={handleClose} title='Import Channel'>
-    {channel
-      ? (
+export const ImportedChannel = ({
+  classes,
+  onAccept,
+  onCancel,
+  open,
+  handleClose,
+  setIsLoading,
+  isLoading,
+  channel
+}) => {
+  return (
+    <Modal open={open} handleClose={handleClose} title='Import Channel'>
+      {channel ? (
         <Grid container item direction='column' spacing={2} className={classes.root}>
           <Grid item container>
             <Grid container item alignItems='flex-end'>
               <Typography variant='subtitle1' className={classes.title}>
                 {channel.get('name')}
               </Typography>
-              {
-                channel.get('private', false)
-                  ? <HttpsIcon fontSize='inherit' className={classes.privacy} />
-                  : null
-              }
+              {channel.get('private', false) ? (
+                <HttpsIcon fontSize='inherit' className={classes.privacy} />
+              ) : null}
             </Grid>
             <Elipsis
               interactive
@@ -60,9 +74,7 @@ export const ImportedChannel = ({ classes, channel, onAccept, onCancel, open, ha
             />
           </Grid>
           <Grid item>
-            <Typography variant='subtitle1'>
-            About
-            </Typography>
+            <Typography variant='subtitle1'>About</Typography>
             <Typography variant='body2' className={classes.about}>
               {channel.get('description')}
             </Typography>
@@ -73,9 +85,10 @@ export const ImportedChannel = ({ classes, channel, onAccept, onCancel, open, ha
                 variant='outlined'
                 size='small'
                 color='primary'
-                onClick={onCancel}
+                onClick={handleClose}
+                className={classes.button}
               >
-              Cancel
+                Cancel
               </Button>
             </Grid>
             <Grid item>
@@ -83,22 +96,31 @@ export const ImportedChannel = ({ classes, channel, onAccept, onCancel, open, ha
                 variant='contained'
                 size='small'
                 color='primary'
-                onClick={onAccept}
+                onClick={async () => {
+                  setIsLoading(true)
+                  await onAccept()
+                  setIsLoading(false)
+                }}
+                className={classes.button}
+                disabled={isLoading}
               >
-              Accept
+                {isLoading ? <Spinner size={20} className={classes.spinner} /> : 'Accept'}
               </Button>
             </Grid>
           </Grid>
         </Grid>
-      )
-      : null}
-  </Modal>)
+      ) : null}
+    </Modal>
+  )
+}
 
 ImportedChannel.propTypes = {
   classes: PropTypes.object.isRequired,
   channel: PropTypes.instanceOf(Immutable.Map),
   onAccept: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired,
+  setIsLoading: PropTypes.func.isRequired,
+  isLoading: PropTypes.bool.isRequired,
   open: PropTypes.bool.isRequired,
   handleClose: PropTypes.func.isRequired
 }
