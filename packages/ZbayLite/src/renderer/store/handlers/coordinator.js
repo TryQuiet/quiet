@@ -26,15 +26,15 @@ const actions = {
   startCoordinator
 }
 const coordinator = () => async (dispatch, getState) => {
-  const actions = channelsSelectors
-    .data(getState())
-    .map(channel => () => messagesHandlers.epics.fetchMessages(channel))
-    .push(() => contactsHandlers.epics.fetchMessages())
-    .push(() => nodeHandlers.epics.getStatus())
-    .push(() => identityHandlers.epics.fetchBalance())
-    .push(() => usersHandlers.epics.fetchUsers())
   let index = 0
   while (coordinatorSelectors.running(getState())) {
+    const actions = channelsSelectors
+      .data(getState())
+      .map(channel => () => messagesHandlers.epics.fetchMessages(channel))
+      .push(() => contactsHandlers.epics.fetchMessages())
+      .push(() => nodeHandlers.epics.getStatus())
+      .push(() => identityHandlers.epics.fetchBalance())
+      .push(() => usersHandlers.epics.fetchUsers())
     await dispatch(actions.get(index % actions.size)())
     index += 1
   }

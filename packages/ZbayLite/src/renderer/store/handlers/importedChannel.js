@@ -138,8 +138,8 @@ const decodeChannelEpic = uri => async (dispatch, getState) => {
   dispatch(setDecoding(true))
   try {
     const channel = await uriToChannel(uri)
-    const allChannel = channelsSelectors.data(getState())
-    if (allChannel.find(ch => ch.get('address') === channel.address)) {
+    const allChannels = channelsSelectors.data(getState())
+    if (allChannels.find(ch => ch.get('address') === channel.address)) {
       dispatch(
         notificationsHandlers.actions.enqueueSnackbar(
           errorNotification({ message: `You already imported this channel` })

@@ -330,7 +330,10 @@ export const transfersToMessages = async (transfers, owner) => {
 
 export const calculateDiff = ({ previousMessages, nextMessages, identityAddress, lastSeen }) =>
   nextMessages.filter(nextMessage => {
-    const isNew = DateTime.fromSeconds(nextMessage.createdAt) > lastSeen || lastSeen === null
+    const isNew =
+      DateTime.fromSeconds(nextMessage.createdAt) > lastSeen ||
+      lastSeen === null ||
+      lastSeen === undefined
     const notOwner = identityAddress !== nextMessage.sender.replyTo
     return isNew && notOwner && !previousMessages.includes(nextMessage)
   })

@@ -97,7 +97,6 @@ export const fetchMessages = channel => async (dispatch, getState) => {
       })
     )
     const messages = messagesAll.filter(message => message.id !== null)
-
     let lastSeen = channelsSelectors.lastSeen(channelId)(getState())
     if (!lastSeen) {
       await dispatch(channelsHandlers.epics.updateLastSeen({ channelId }))
