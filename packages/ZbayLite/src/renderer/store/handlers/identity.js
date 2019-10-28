@@ -243,8 +243,8 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
     await dispatch(channelsHandlers.actions.loadChannels(identity.id))
     dispatch(setLoadingMessage('Loading users and messages'))
     await dispatch(usersHandlers.epics.fetchUsers())
-    await dispatch(contactsHandlers.epics.fetchMessages())
     await dispatch(contactsHandlers.epics.loadAllSentMessages())
+    await dispatch(contactsHandlers.epics.fetchMessages())
     const channels = channelsSelectors
       .data(getState())
       .map(channel => () => messagesHandlers.epics.fetchMessages(channel))
