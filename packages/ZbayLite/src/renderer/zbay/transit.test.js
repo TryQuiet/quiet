@@ -8,40 +8,54 @@ const sigObj = secp256k1.sign(
   hash(JSON.stringify('test DATA')),
   Buffer.alloc(32, 'test private key')
 )
+const message = {
+  type: messageType.BASIC,
+  signature: sigObj.signature,
+  r: sigObj.recovery,
+  createdAt: now.toSeconds(),
+  message: 'This is a simple message'
+}
 
+const messageUserTestnet = {
+  type: messageType.USER,
+  signature: sigObj.signature,
+  r: sigObj.recovery,
+  createdAt: now.toSeconds(),
+  message: {
+    firstName: 'testname',
+    lastName: 'testlastname',
+    nickname: 'nickname',
+    address:
+      'ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r'
+  }
+}
+const messageUserMainnet = {
+  type: messageType.USER,
+  signature: sigObj.signature,
+  r: sigObj.recovery,
+  createdAt: now.toSeconds(),
+  message: {
+    firstName: 'testname',
+    lastName: 'testlastname',
+    nickname: 'nickname',
+    address: 'zs1ecsq8thnu84ejvfx2jcfsa6zas2k057n3hrhuy0pahmlvqfwterjaz3h772ldlsgp5r2xwvml9g'
+  }
+}
+const advert = {
+  type: messageType.AD,
+  signature: sigObj.signature,
+  r: sigObj.recovery,
+  createdAt: now.toSeconds(),
+  message: {
+    tag: 'tag',
+    background: '244',
+    title: 'title',
+    provideShipping: '1',
+    amount: '122.234',
+    description: 'hello heloo description wowo'
+  }
+}
 describe('transit', () => {
-  const message = {
-    type: messageType.BASIC,
-    signature: sigObj.signature,
-    r: sigObj.recovery,
-    createdAt: now.toSeconds(),
-    message: 'This is a simple message'
-  }
-  const messageUserTestnet = {
-    type: messageType.USER,
-    signature: sigObj.signature,
-    r: sigObj.recovery,
-    createdAt: now.toSeconds(),
-    message: {
-      firstName: 'testname',
-      lastName: 'testlastname',
-      nickname: 'nickname',
-      address:
-        'ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r'
-    }
-  }
-  const messageUserMainnet = {
-    type: messageType.USER,
-    signature: sigObj.signature,
-    r: sigObj.recovery,
-    createdAt: now.toSeconds(),
-    message: {
-      firstName: 'testname',
-      lastName: 'testlastname',
-      nickname: 'nickname',
-      address: 'zs1ecsq8thnu84ejvfx2jcfsa6zas2k057n3hrhuy0pahmlvqfwterjaz3h772ldlsgp5r2xwvml9g'
-    }
-  }
   describe('pack/unpack memo', () => {
     it('is symmetrical', async () => {
       const data = await packMemo(message)
@@ -63,6 +77,14 @@ describe('transit', () => {
       expect(Buffer.byteLength(data, 'hex')).toEqual(MEMO_SIZE)
       const output = await unpackMemo(data)
       expect(output).toEqual(messageUserMainnet)
+    })
+  })
+  describe('pack/unpack Advert memo', () => {
+    it('is symmetrical', async () => {
+      const data = await packMemo(advert)
+      expect(Buffer.byteLength(data, 'hex')).toEqual(MEMO_SIZE)
+      const output = await unpackMemo(data)
+      expect(output).toEqual(advert)
     })
   })
 })
