@@ -39,7 +39,9 @@ const styles = theme => ({
   notchedOutline: {
     borderColor: theme.palette.colors.inputGray
   },
-
+  multiline: {
+    padding: '12px 16px'
+  },
   inputsDiv: {
     paddingLeft: `20px`,
     paddingRight: `20px`,
@@ -63,9 +65,6 @@ const styles = theme => ({
     WebkitTapHighlightColor: 'transparent',
     pointerEvents: 'none',
     touchAction: 'none'
-  },
-  textField: {
-    height: 42
   }
 })
 
@@ -128,7 +127,6 @@ export const ChannelInput = ({
             variant='outlined'
             placeholder='Send a message'
             multiline
-            className={classes.textField}
             rowsMax={5}
             value={message}
             onKeyPress={e => {
@@ -152,7 +150,8 @@ export const ChannelInput = ({
               classes: {
                 root: classes.textfield,
                 focused: classes.cssFocused,
-                notchedOutline: classes.notchedOutline
+                notchedOutline: classes.notchedOutline,
+                multiline: classes.multiline
               },
               endAdornment: (
                 <InputAdornment position='end'>

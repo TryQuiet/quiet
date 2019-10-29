@@ -45,6 +45,7 @@ exports[`ChannelInput renders component input Disable  1`] = `
           Object {
             "classes": Object {
               "focused": "cssFocused-mock",
+              "multiline": "multiline-mock",
               "notchedOutline": "notchedOutline-mock",
               "root": "textfield-mock",
             },
@@ -58,7 +59,6 @@ exports[`ChannelInput renders component input Disable  1`] = `
           }
         }
         autoFocus={true}
-        className="textField-mock"
         fullWidth={true}
         id="channel-input"
         inputProps={
@@ -130,6 +130,7 @@ exports[`ChannelInput renders component input Locked  1`] = `
           Object {
             "classes": Object {
               "focused": "cssFocused-mock",
+              "multiline": "multiline-mock",
               "notchedOutline": "notchedOutline-mock",
               "root": "textfield-mock",
             },
@@ -143,7 +144,6 @@ exports[`ChannelInput renders component input Locked  1`] = `
           }
         }
         autoFocus={true}
-        className="textField-mock"
         fullWidth={true}
         id="channel-input"
         inputProps={
@@ -194,6 +194,7 @@ exports[`ChannelInput renders component input available  1`] = `
           Object {
             "classes": Object {
               "focused": "cssFocused-mock",
+              "multiline": "multiline-mock",
               "notchedOutline": "notchedOutline-mock",
               "root": "textfield-mock",
             },
@@ -207,7 +208,6 @@ exports[`ChannelInput renders component input available  1`] = `
           }
         }
         autoFocus={true}
-        className="textField-mock"
         fullWidth={true}
         id="channel-input"
         inputProps={
