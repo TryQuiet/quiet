@@ -160,7 +160,6 @@ export const unpackMemo = async memo => {
 
       const descriptionEnds = amountEnds + DESCRIPTION_SIZE
       const description = memoBuff.slice(amountEnds, descriptionEnds)
-
       return {
         type,
         signature,

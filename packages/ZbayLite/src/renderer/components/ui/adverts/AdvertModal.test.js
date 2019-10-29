@@ -23,6 +23,7 @@ describe('AdvertModal', () => {
         touched={{}}
         errors={{}}
         submitForm={jest.fn()}
+        sending={false}
       />
     )
     expect(result).toMatchSnapshot()

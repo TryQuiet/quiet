@@ -20,6 +20,8 @@ describe('ImportedChannel', () => {
         onAccept={jest.fn()}
         onCancel={jest.fn()}
         handleClose={jest.fn()}
+        setIsLoading={jest.fn()}
+        isLoading={false}
         channel={channel}
       />
     )
@@ -40,6 +42,8 @@ describe('ImportedChannel', () => {
         onAccept={jest.fn()}
         onCancel={jest.fn()}
         handleClose={jest.fn()}
+        setIsLoading={jest.fn()}
+        isLoading={false}
         channel={channel}
       />
     )

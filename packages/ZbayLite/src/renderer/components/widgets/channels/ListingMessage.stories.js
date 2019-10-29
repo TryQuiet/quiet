@@ -15,7 +15,7 @@ storiesOf('Components/Widgets/Channels/ListingMessages', module)
       title: 'Apollo X4 110cc Dirt Bike for...',
       priceUSD: '300',
       priceZcash: '4000',
-      background: '98c9e4113d76a80d654096c9938fb1a3.svg'
+      background: 28
     }
     return (
       <Grid container direction='column' spacing={2}>

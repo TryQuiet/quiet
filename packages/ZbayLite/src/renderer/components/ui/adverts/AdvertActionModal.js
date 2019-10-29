@@ -10,6 +10,7 @@ import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
 
 import Modal from '../Modal'
+const reqSvgs = require && require.context('../assets/backgrounds', true, /\.svg$/)
 
 const styles = theme => ({
   window: {
@@ -115,8 +116,8 @@ export const AdvertActionModal = ({
       {({ width, height }) => (
         <Scrollbars autoHideTimeout={500} style={{ width: width, height: height }}>
           <Grid container dirention={'column'} justify={'center'} alignContent={'flex-start'} className={classes.main}>
-            <Grid container className={classes.backgroundImage} style={{ background: `url(${payload.background})` }} item justify={'center'} alignContent={'center'}>
-              <Grid container item className={classes.tagContainer} style={{ width: 30 + payload.tag.length * 15 }} justify={'center'} alignItems={'center'}>
+            <Grid container className={classes.backgroundImage} style={{ background: `url(${reqSvgs(reqSvgs.keys()[payload.background])})` }} item justify={'center'} alignItems={'center'}>
+              <Grid container item className={classes.tagContainer} style={{ width: 50 + payload.tag.length * 15 }} justify={'center'} alignItems={'center'}>
                 <Typography variant={'h1'} className={classes.tag}><span className={classes.hash}>#</span>{payload.tag}</Typography>
               </Grid>
             </Grid>

@@ -30,13 +30,8 @@ export const formSchema = Yup.object().shape(
   ['title', 'zec', 'usd', 'description', 'shippingInfo', 'tag']
 )
 
-export const AdvertForm = ({
-  classes,
-  initialValues,
-  handleSend,
-  handleClose,
-  ...props
-}) => {
+export const AdvertForm = ({ classes, initialValues, handleSend, handleClose, ...props }) => {
+  const [sending, setSending] = React.useState(false)
   return (
     <Formik
       enableReinitialize
@@ -44,10 +39,12 @@ export const AdvertForm = ({
       initialValues={{
         ...initialValues
       }}
-      onSubmit={(values, { resetForm }) => {
-        handleSend({ values })
+      onSubmit={async (values, { resetForm }) => {
+        setSending(true)
+        await handleSend({ values })
         resetForm()
         handleClose()
+        setSending(false)
       }}
     >
       {({ values, isValid, submitForm, resetForm, setFieldValue, errors, touched }) => {
@@ -61,6 +58,7 @@ export const AdvertForm = ({
             touched={touched}
             submitForm={submitForm}
             handleClose={handleClose}
+            sending={sending}
           />
         )
       }}
@@ -75,7 +73,7 @@ AdvertForm.propTypes = {
     zec: PropTypes.string.isRequired,
     usd: PropTypes.string.isRequired,
     description: PropTypes.string.isRequired,
-    background: PropTypes.string.isRequired,
+    background: PropTypes.number.isRequired,
     tag: PropTypes.string.isRequired,
     shippingInfo: PropTypes.bool.isRequired
   }).isRequired,
@@ -90,7 +88,7 @@ AdvertForm.defaultProps = {
     usd: '',
     description: '',
     shippingInfo: false,
-    background: '98c9e4113d76a80d654096c9938fb1a3.svg',
+    background: 2,
     tag: ''
   }
 }

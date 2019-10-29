@@ -17,7 +17,7 @@ exports[`SendMessagePopover renders popover 1`] = `
     justify="center"
     style={
       Object {
-        "background": "url(98c9e4113d76a80d654096c9938fb1a3.svg)",
+        "background": "url([object Object])",
       }
     }
   >
@@ -29,7 +29,7 @@ exports[`SendMessagePopover renders popover 1`] = `
       justify="center"
       style={
         Object {
-          "width": 155,
+          "width": 185,
         }
       }
     >
@@ -72,7 +72,7 @@ exports[`SendMessagePopover renders popover 1`] = `
         className="description-mock"
         variant="caption"
       >
-        Great quality bike for half the price as a name brand dirt bike! The X4
+        Great quality bike for half the price as a name brand dirt b
       </WithStyles(ForwardRef(Typography))>
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>

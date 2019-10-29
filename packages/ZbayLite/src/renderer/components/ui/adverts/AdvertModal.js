@@ -186,7 +186,8 @@ export const AdvertModal = ({
   balanceZec,
   touched,
   errors,
-  submitForm
+  submitForm,
+  sending
 }) => {
   const [inputWidth, setInputWidth] = React.useState(80)
   const [colapse, setColapse] = React.useState(false)
@@ -219,7 +220,7 @@ export const AdvertModal = ({
                 justify='center'
                 alignItems='center'
                 className={classes.backgroundDiv}
-                style={{ background: `url(${values.background})` }}
+                style={{ background: `url(${reqSvgs(reqSvgs.keys()[values.background])})` }}
               >
                 <Badge
                   color='primary'
@@ -274,7 +275,10 @@ export const AdvertModal = ({
                     </Grid>
                     <Grid item xs container justify='flex-end'>
                       <Grid item className={classes.selectIconBackgroundDiv}>
-                        <Icon className={classes.selectIconBackground} src={values.background} />
+                        <Icon
+                          className={classes.selectIconBackground}
+                          src={reqSvgs(reqSvgs.keys()[values.background])}
+                        />
                       </Grid>
                       <Grid item className={classes.downIcon}>
                         <ExpandMoreIcon fontSize='small' />
@@ -289,7 +293,7 @@ export const AdvertModal = ({
                         item
                         key={key}
                         onClick={() => {
-                          setFieldValue('background', reqSvgs(key))
+                          setFieldValue('background', reqSvgs.keys().indexOf(key))
                           setColapse(!colapse)
                         }}
                         className={classes.backgroundElement}
@@ -387,13 +391,14 @@ export const AdvertModal = ({
                   size='large'
                   margin='normal'
                   onClick={submitForm}
+                  inProgress={sending}
                   text={
                     <>
                       <span className={classes.postLabel}>Post </span>
                       <span className={classes.postLabelGray}>($5 USD)</span>
                     </>
                   }
-                  disabled={!valid}
+                  disabled={!valid || sending}
                   classes={{ button: classes.postButton }}
                 />
               </Grid>
@@ -426,7 +431,8 @@ AdvertModal.propTypes = {
   isValid: PropTypes.bool.isRequired,
   balanceZec: PropTypes.object.isRequired,
   touched: PropTypes.object.isRequired,
-  errors: PropTypes.object.isRequired
+  errors: PropTypes.object.isRequired,
+  sending: PropTypes.bool.isRequired
 }
 export default R.compose(
   React.memo,

@@ -5,7 +5,7 @@ exports[`AdvertForm renders component AdvertForm 1`] = `
   enableReinitialize={true}
   initialValues={
     Object {
-      "background": "98c9e4113d76a80d654096c9938fb1a3.svg",
+      "background": 2,
       "description": "",
       "shippingInfo": false,
       "tag": "",
