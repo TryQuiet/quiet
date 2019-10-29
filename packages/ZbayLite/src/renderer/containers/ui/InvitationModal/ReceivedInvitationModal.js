@@ -14,7 +14,7 @@ const ReceivedInvitaionModalContainer = ({ open, handleClose, ...rest }) => (
 )
 
 export const mapStateToProps = state => ({
-  modalPayload: modalsSelectors.payload(state)
+  modalPayload: modalsSelectors.payload('receivedInvitationModal')(state)
 })
 
 export default R.compose(

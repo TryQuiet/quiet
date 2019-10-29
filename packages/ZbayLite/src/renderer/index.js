@@ -11,6 +11,7 @@ import invitationHandlers from './store/handlers/invitation'
 import importChannelHandlers from './store/handlers/importedChannel'
 import nodeSelectors from './store/selectors/node'
 import { errorNotification } from './store/handlers/utils'
+
 import notificationsHandlers from './store/handlers/notifications'
 
 Web.HashingTools.patchCorePBKDF()
@@ -22,6 +23,14 @@ ipcRenderer.on('bootstrappingNode', (event, { bootstrapping, message }) => {
 
 ipcRenderer.on('newUpdateAvailable', event => {
   store.dispatch(updateHandlers.epics.checkForUpdate())
+})
+
+ipcRenderer.on('checkDiskSpace', (event, msg) => {
+  store.dispatch(
+    notificationsHandlers.actions.enqueueSnackbar(
+      errorNotification({ message: msg })
+    )
+  )
 })
 
 ipcRenderer.on('newInvitation', (event, { invitation }) => {

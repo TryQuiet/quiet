@@ -5,7 +5,7 @@ import { createAction, handleActions } from 'redux-actions'
 
 import modalsSelectors from '../selectors/modals'
 
-export const initialState = Immutable.Map()
+export const initialState = Immutable.fromJS({ payloads: {} })
 
 const actionTypes = {
   OPEN_MODAL: 'OPEN_MODAL',
@@ -25,16 +25,20 @@ export const actionCreators = {
 }
 
 export const reducer = handleActions({
-  [actionTypes.OPEN_MODAL]: (state, { payload }) => (
-    state
-      .set(payload.modalName, true)
-      .set('payload', payload.data)
-  ),
-  [actionTypes.CLOSE_MODAL]: (state, { payload: modalName }) => (
-    state
-      .set(modalName, false)
-      .set('payload', null)
-  )
+  [actionTypes.OPEN_MODAL]: (state, { payload }) => {
+    return (
+      state
+        .set(payload.modalName, true)
+        .set('payloads', state.get('payloads').set(payload.modalName, payload.data))
+    )
+  },
+  [actionTypes.CLOSE_MODAL]: (state, { payload: modalName }) => {
+    return (
+      state
+        .set(modalName, false)
+        .set('payloads', state.get('payloads').set(modalName, null))
+    )
+  }
 }, initialState)
 
 export const withModal = (name) => (Component) => {

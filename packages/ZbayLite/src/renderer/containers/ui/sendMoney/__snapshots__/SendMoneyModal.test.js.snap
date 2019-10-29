@@ -14,7 +14,7 @@ Object {
     "city": "",
     "postalCode": "",
   },
-  "targetRecipientAddress": null,
+  "targetRecipientAddress": undefined,
   "userData": Object {
     "address": "test",
     "balance": "2",

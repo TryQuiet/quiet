@@ -93,7 +93,7 @@ export const SendMoneyModal = ({
       {({ values, isValid, submitForm, resetForm }) => {
         const stepToTitle = {
           1: 'Send Money',
-          2: `Send Money to ${open ? values.recipient.substring(0, 32) : null}...`,
+          2: `Send Money to ${open ? initialValues.recipient.substring(0, 32) : null}...`,
           3: 'Send Complete',
           4: 'Transaction Details'
         }

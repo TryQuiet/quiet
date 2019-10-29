@@ -32,7 +32,7 @@ export const getResourcesPath = (...paths) => {
   return path.join.apply(null, [process.resourcesPath, ...paths])
 }
 
-const getZcashResource = (name, platform) => getResourcesPath(ZCASH_RESOURCES, platform, name)
+export const getZcashResource = (name, platform) => getResourcesPath(ZCASH_RESOURCES, platform, name)
 
 export const ensureZcashParams = async (platform, callback) => {
   const binaryPath = getZcashResource('zcash-fetch-params', platform)

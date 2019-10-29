@@ -1,4 +1,7 @@
+import getSize from 'get-folder-size'
+import checkDiskSpace from 'check-disk-space'
 import { app, BrowserWindow, Menu, ipcMain } from 'electron'
+import os from 'os'
 
 import { spawnZcashNode, ensureZcashParams } from './zcash/bootstrap'
 import { autoUpdater } from 'electron-updater'
@@ -164,6 +167,28 @@ app.on('ready', async () => {
     if (!nodeURL) {
       createZcashNode(mainWindow)
     }
+
+    const osPaths = {
+      darwin: `${process.env.HOME || process.env.USERPROFILE}/Library/Application Support/Zcash`,
+      linux: `${process.env.HOME || process.env.USERPROFILE}/.zcash`,
+      win32: `${os.userInfo().homedir}\\AppData\\Roaming\\Zcash`
+    }
+
+    const BLOCKCHAIN_SIZE = 27843545600
+    const REQUIRED_FREE_SPACE = 1073741824
+    const ZCASH_PARAMS = 1825361100
+
+    getSize(osPaths[process.platform], (err, downloadedSize) => {
+      if (err) { throw err }
+      checkDiskSpace('/').then((diskspace) => {
+        const blockchainSizeLeftToFetch = BLOCKCHAIN_SIZE - downloadedSize
+        const freeSpaceLeft = diskspace.free - (blockchainSizeLeftToFetch + ZCASH_PARAMS + REQUIRED_FREE_SPACE)
+        if (freeSpaceLeft <= 0) {
+          mainWindow.webContents.send('checkDiskSpace', `Sorry, but Zbay needs ${(blockchainSizeLeftToFetch / (1024 ** 3)).toFixed(2)} GB to connect to its network and you only have ${(diskspace.free / (1024 ** 3)).toFixed(2)} free.`)
+        }
+      })
+    })
+
     if (!isDev) {
       checkForUpdate(mainWindow)
     }

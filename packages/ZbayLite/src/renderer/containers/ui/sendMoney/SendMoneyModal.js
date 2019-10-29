@@ -16,7 +16,7 @@ export const mapStateToProps = state => ({
   balanceZec: identitySelector.balance('zec')(state),
   userData: identitySelector.data(state),
   shippingData: identitySelector.shippingData(state),
-  targetRecipientAddress: modalsSelectors.payload(state)
+  targetRecipientAddress: modalsSelectors.payload('sendMoney')(state)
 })
 
 export const SendMoneyModal = props => {
