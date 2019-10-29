@@ -7,7 +7,7 @@ import AdvertActionsComponent from '../../../components/ui/adverts/AdvertActionM
 import modalsSelectors from '../../../store/selectors/modals'
 
 export const mapStateToProps = state => ({
-  payload: modalsSelectors.payload(state)
+  payload: modalsSelectors.payload('advertActions')(state)
 })
 
 export const AdvertActionsModal = props => {

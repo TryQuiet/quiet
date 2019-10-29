@@ -10,6 +10,7 @@ import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
 
 import Modal from '../Modal'
+
 const reqSvgs = require && require.context('../assets/backgrounds', true, /\.svg$/)
 
 const styles = theme => ({
