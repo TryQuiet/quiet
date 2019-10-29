@@ -272,8 +272,7 @@ export const createVaultContact = ({ contact, history }) => async (dispatch, get
     recipientUsername: contact.username,
     recipientAddress: contact.replyTo
   })
-
-  dispatch(
+  await dispatch(
     setUsernames({
       sender: {
         replyTo: contact.replyTo,
@@ -281,6 +280,7 @@ export const createVaultContact = ({ contact, history }) => async (dispatch, get
       }
     })
   )
+  history.push(`/main/direct-messages/${contact.replyTo}/${contact.username}`)
 }
 
 export const loadAllSentMessages = () => async (dispatch, getState) => {

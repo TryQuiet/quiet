@@ -7,10 +7,15 @@ import { withStyles } from '@material-ui/core/styles'
 import { Typography } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
 
+import BasicMessage from './BasicMessage'
+import { _DisplayableMessage } from '../../../zbay/messages'
+
 const reqSvgs = require && require.context('../../ui/assets/backgrounds', true, /\.svg$/)
 
 const styles = theme => ({
   root: {
+    marginTop: -20,
+    marginLeft: 52,
     position: 'relative',
     backgroundColor: theme.palette.colors.white,
     width: 256,
@@ -92,83 +97,92 @@ const styles = theme => ({
   }
 })
 
-export const ListingMessage = ({ classes, handleBuy, payload, buyActions }) => {
+export const ListingMessage = ({
+  message,
+  classes,
+  handleBuy,
+  payload,
+  buyActions
+}) => {
+  const [actionsOpen, setActionsOpen] = React.useState(false)
   const inputWidth = 50 + payload.tag.length * 15
   const { tag, description, background, title, priceUSD, priceZcash } = payload
   return (
-    <Grid
-      className={classes.root}
-      justify={'flex-start'}
-      alignItem={'center'}
-      direction={'column'}
-      container
-      onClick={() => buyActions('advertActions', payload)}
-    >
+    <BasicMessage message={message} actionsOpen={actionsOpen} setActionsOpen={setActionsOpen}>
       <Grid
+        className={classes.root}
+        justify={'flex-start'}
+        alignItem={'center'}
+        direction={'column'}
         container
-        item
-        className={classes.backgroundImage}
-        style={{ background: `url(${reqSvgs(reqSvgs.keys()[background])})` }}
-        justify={'center'}
-        alignItems={'center'}
+        onClick={() => buyActions('advertActions', payload)}
       >
         <Grid
           container
           item
-          className={classes.tagContainer}
-          style={{ width: inputWidth }}
+          className={classes.backgroundImage}
+          style={{ background: `url(${reqSvgs(reqSvgs.keys()[background])})` }}
           justify={'center'}
           alignItems={'center'}
         >
-          <Typography variant={'h1'} className={classes.tag}>
-            <span className={classes.hash}>#</span>
-            {tag}
-          </Typography>
+          <Grid
+            container
+            item
+            className={classes.tagContainer}
+            style={{ width: inputWidth }}
+            justify={'center'}
+            alignItems={'center'}
+          >
+            <Typography variant={'h1'} className={classes.tag}>
+              <span className={classes.hash}>#</span>
+              {tag}
+            </Typography>
+          </Grid>
+        </Grid>
+        <Grid
+          container
+          direction={'column'}
+          className={classes.contentContainer}
+          item
+          justify={'flex-start'}
+        >
+          <Grid container item>
+            <Typography variant={'body2'} className={classes.title}>
+              {title}
+            </Typography>
+          </Grid>
+          <Grid container item>
+            <Typography variant={'caption'} className={classes.description}>
+              {description.substring(0, 60)}
+            </Typography>
+          </Grid>
+        </Grid>
+        <Grid
+          container
+          direction={'row'}
+          className={classes.actionContainer}
+          wrap={'nowrap'}
+          item
+          justify={'flex-start'}
+        >
+          <Grid item>
+            <Button onClick={handleBuy} className={classes.button}>
+              <span className={classes.buttonString}>BUY</span>
+            </Button>
+          </Grid>
+          <Grid item>
+            <Typography variant={'caption'} className={classes.priceUsd}>
+              ${priceUSD}
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Typography variant={'caption'} className={classes.priceZcash}>
+              ({`${priceZcash} ZEC`})
+            </Typography>
+          </Grid>
         </Grid>
       </Grid>
-      <Grid
-        container
-        direction={'column'}
-        className={classes.contentContainer}
-        item
-        justify={'flex-start'}
-      >
-        <Grid container item>
-          <Typography variant={'body2'} className={classes.title}>
-            {title}
-          </Typography>
-        </Grid>
-        <Grid container item>
-          <Typography variant={'caption'} className={classes.description}>
-            {description.substring(0, 60)}
-          </Typography>
-        </Grid>
-      </Grid>
-      <Grid
-        container
-        direction={'row'}
-        className={classes.actionContainer}
-        wrap={'nowrap'}
-        item
-        justify={'flex-start'}
-      >
-        <Grid item>
-          <Button onClick={handleBuy} className={classes.button}>
-            <span className={classes.buttonString}>BUY</span>
-          </Button>
-        </Grid>
-        <Grid item>
-          <Typography variant={'caption'} className={classes.priceUsd}>
-            ${priceUSD}
-          </Typography>
-        </Grid>
-        <Grid item>
-          <Typography variant={'caption'} className={classes.priceZcash}>
-            ({`${priceZcash} ZEC`})
-          </Typography>
-        </Grid>
-      </Grid>
-    </Grid>
+    </BasicMessage>
   )
 }
 
@@ -183,7 +197,8 @@ ListingMessage.propTypes = {
     title: PropTypes.string.isRequired
   }),
   handleBuy: PropTypes.func.isRequired,
-  buyActions: PropTypes.func.isRequired
+  buyActions: PropTypes.func.isRequired,
+  message: PropTypes.instanceOf(_DisplayableMessage).isRequired
 }
 
 export default R.compose(

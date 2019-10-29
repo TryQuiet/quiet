@@ -2,6 +2,7 @@ import React from 'react'
 import * as R from 'ramda'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
+import Immutable from 'immutable'
 
 import ListingMessageComponent from '../../../components/widgets/channels/ListingMessage'
 import { actionCreators } from '../../../store/handlers/modals'
@@ -24,14 +25,17 @@ const ListingMessage = ({ message, rateUsd, ...props }) => {
     background: message.message.background,
     title: message.message.title,
     priceZcash: message.message.amount,
-    priceUSD: rateUsd.times(message.message.amount).toFixed(2).toString()
+    priceUSD: rateUsd
+      .times(message.message.amount)
+      .toFixed(2)
+      .toString(),
+    offerOwner: message.sender.username
   }
-  return <ListingMessageComponent payload={payload} {...props} />
+  return <ListingMessageComponent payload={payload} message={message} {...props} />
 }
 export default R.compose(
-  React.memo,
   connect(
     mapStateToProps,
     mapDispatchToProps
   )
-)(ListingMessage)
+)(React.memo(ListingMessage, (before, after) => Immutable.is(after.message, before.message)))

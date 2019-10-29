@@ -28,7 +28,7 @@ export const mapDispatchToProps = dispatch => bindActionCreators({
 }, dispatch)
 
 export default R.compose(
-  React.memo,
   connect(mapStateToProps, mapDispatchToProps),
-  withModal('sendMoney')
+  withModal('sendMoney'),
+  React.memo
 )(SendMoneyModal)

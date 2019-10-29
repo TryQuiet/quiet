@@ -22,6 +22,7 @@ const styles = theme => ({
     padding: '0 15%'
   },
   title: {
+    marginLeft: -36,
     fontSize: 15,
     color: theme.palette.colors.trueBlack,
     lineHeight: '18px',
@@ -75,7 +76,7 @@ export const Modal = ({
       })}
     >
       <Grid container item className={classes.header} direction='row' alignItems='center'>
-        <Grid item xs className={classes.actions}>
+        <Grid item className={classes.actions}>
           {canGoBack ? (
             <IconButton onClick={() => setStep(step - 1)}>
               <BackIcon />
@@ -86,12 +87,11 @@ export const Modal = ({
             </IconButton>
           )}
         </Grid>
-        <Grid item xs>
+        <Grid item xs container justify='center' alignItems='center'>
           <Typography variant='subtitle1' className={classes.title} align='center'>
             {title}
           </Typography>
         </Grid>
-        <Grid item xs />
       </Grid>
       <Grid
         container

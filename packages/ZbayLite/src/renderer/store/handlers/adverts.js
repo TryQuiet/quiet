@@ -11,9 +11,9 @@ import { errorNotification, successNotification } from './utils'
 const handleSend = ({ values }) => async (dispatch, getState) => {
   const data = {
     tag: values.tag,
-    background: values.background,
+    background: values.background.toString(),
     title: values.title,
-    provideShipping: values.shippingInfo,
+    provideShipping: values.shippingInfo ? '1' : '0',
     amount: values.zec,
     description: values.description
   }
@@ -35,16 +35,18 @@ const handleSend = ({ values }) => async (dispatch, getState) => {
   })
   try {
     await getClient().payment.send(transfer)
-    notificationsHandlers.actions.enqueueSnackbar(
-      successNotification({
-        message: 'Advert successfully posted'
-      })
+    dispatch(
+      notificationsHandlers.actions.enqueueSnackbar(
+        successNotification('Advert successfully posted')
+      )
     )
   } catch (err) {
     notificationsHandlers.actions.enqueueSnackbar(
-      errorNotification({
-        message: "Couldn't send the message, please check node connection."
-      })
+      dispatch(
+        errorNotification({
+          message: "Couldn't send the message, please check node connection."
+        })
+      )
     )
   }
 }

@@ -109,7 +109,7 @@ export const AdvertActionModal = ({
     open={open}
     handleClose={handleClose}
     classes={{ window: classes.window }}
-    title={`#${payload.tag} @${payload.offerOwner}`}
+    title={`#${payload.tag} @${payload.offerOwner.substring(0, 20)}`}
     fullPage
   >
     <AutoSizer>
