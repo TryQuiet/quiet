@@ -97,13 +97,7 @@ const styles = theme => ({
   }
 })
 
-export const ListingMessage = ({
-  message,
-  classes,
-  handleBuy,
-  payload,
-  buyActions
-}) => {
+export const ListingMessage = ({ message, classes, handleBuy, payload, buyActions }) => {
   const [actionsOpen, setActionsOpen] = React.useState(false)
   const inputWidth = 50 + payload.tag.length * 15
   const { tag, description, background, title, priceUSD, priceZcash } = payload
@@ -112,7 +106,7 @@ export const ListingMessage = ({
       <Grid
         className={classes.root}
         justify={'flex-start'}
-        alignItem={'center'}
+        alignItems={'center'}
         direction={'column'}
         container
         onClick={() => buyActions('advertActions', payload)}

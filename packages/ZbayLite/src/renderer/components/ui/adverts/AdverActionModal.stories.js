@@ -14,14 +14,8 @@ storiesOf('Components/UI/AdvertActionModal', module)
       priceUSD: '300',
       offerOwner: 'roks33',
       priceZcash: '4000',
-      background: 28
+      background: 28,
+      username: 'test User'
     }
-    return (
-      <AdvertActionModal
-        open
-        priceUSD={300}
-        priceZcash={4000}
-        payload={payload}
-      />
-    )
+    return <AdvertActionModal open priceUSD={300} priceZcash={4000} payload={payload} />
   })

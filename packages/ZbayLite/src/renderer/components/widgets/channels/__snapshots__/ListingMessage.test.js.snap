@@ -6,7 +6,7 @@ exports[`SendMessagePopover renders popover 1`] = `
   setActionsOpen={[Function]}
 >
   <WithStyles(ForwardRef(Grid))
-    alignItem="center"
+    alignItems="center"
     className="root-mock"
     container={true}
     direction="column"

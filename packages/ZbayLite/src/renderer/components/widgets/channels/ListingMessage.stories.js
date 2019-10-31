@@ -15,14 +15,13 @@ storiesOf('Components/Widgets/Channels/ListingMessages', module)
       title: 'Apollo X4 110cc Dirt Bike for...',
       priceUSD: '300',
       priceZcash: '4000',
-      background: 28
+      background: 28,
+      username: 'test'
     }
     return (
       <Grid container direction='column' spacing={2}>
         <Grid item>
-          <ListingMessage
-            payload={payload}
-          />
+          <ListingMessage payload={payload} />
         </Grid>
       </Grid>
     )
