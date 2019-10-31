@@ -14,6 +14,11 @@ import Modal from '../Modal'
 
 const reqSvgs = require && require.context('../assets/backgrounds', true, /\.svg$/)
 
+const sendFounds = (handleClose, onSendFoundsAction, payload) => {
+  handleClose()
+  onSendFoundsAction('advertSendFounds', payload)
+}
+
 const styles = theme => ({
   window: {
     width: 570,
@@ -128,7 +133,8 @@ export const AdvertActionModal = ({
   payload,
   handleBuy,
   handleClose,
-  handleMessage
+  handleMessage,
+  onSendFoundsAction
 }) =>
   payload ? (
     <Modal
@@ -247,7 +253,7 @@ export const AdvertActionModal = ({
               </Grid>
             </Grid>
             <Grid item>
-              <Button variant='contained' className={classes.buyButton} onClick={handleBuy}>
+              <Button variant='contained' className={classes.buyButton} onClick={() => sendFounds(handleClose, onSendFoundsAction, payload)}>
                 Buy
               </Button>
             </Grid>

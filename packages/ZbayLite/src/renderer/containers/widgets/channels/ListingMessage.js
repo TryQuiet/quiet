@@ -29,6 +29,7 @@ const ListingMessage = ({ message, rateUsd, ...props }) => {
       .times(message.message.amount)
       .toFixed(2)
       .toString(),
+    address: message.sender.replyTo,
     offerOwner: message.sender.username
   }
   return <ListingMessageComponent payload={payload} message={message} {...props} />

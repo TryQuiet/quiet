@@ -188,7 +188,8 @@ ListingMessage.propTypes = {
     priceZcash: PropTypes.string.isRequired,
     offerOwner: PropTypes.string.isRequired,
     description: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired
+    title: PropTypes.string.isRequired,
+    address: PropTypes.string.isRequired
   }),
   handleBuy: PropTypes.func.isRequired,
   buyActions: PropTypes.func.isRequired,

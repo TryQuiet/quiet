@@ -154,7 +154,7 @@ exports[`SendMessagePopover renders popover 1`] = `
         >
           <WithStyles(ForwardRef(Button))
             className="buyButton-mock"
-            onClick={[MockFunction]}
+            onClick={[Function]}
             variant="contained"
           >
             Buy

@@ -13,7 +13,8 @@ describe('SendMessagePopover', () => {
       title: 'Apollo X4 110cc Dirt Bike for...',
       priceUSD: '300',
       priceZcash: '4000',
-      background: '1'
+      background: '1',
+      address: 'test-zcash-address'
     }
     const result = shallow(
       <ListingMessage
