@@ -27,7 +27,9 @@ exports[`DonationsSettingsForm renders component 1`] = `
           }
         }
         defaultValue="test-zash-address"
+        error={false}
         fullWidth={true}
+        helperText={true}
         name="donationAddress"
         onChange={[Function]}
         placeholder="Enter Zcash Address"

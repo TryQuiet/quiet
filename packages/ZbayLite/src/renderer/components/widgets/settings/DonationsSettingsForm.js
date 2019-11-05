@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 
 import Grid from '@material-ui/core/Grid'
@@ -17,6 +17,16 @@ const styles = theme => ({
   }
 })
 
+const checkAddress = (address, updateDonationAddress, setAddressStatus) => {
+  const isValid = (/^t1[a-zA-Z0-9]{33}$|^ztestsapling1[a-z0-9]{75}$|^zs1[a-z0-9]{85}$/).test(address)
+  if (isValid) {
+    updateDonationAddress(address)
+    setAddressStatus(true)
+  } else {
+    setAddressStatus(false)
+  }
+}
+
 export const DonationsSettingsForm = ({
   classes,
   updateDonation,
@@ -24,6 +34,7 @@ export const DonationsSettingsForm = ({
   initialValues,
   updateDonationAddress
 }) => {
+  const [isAddressValid, setAddressStatus] = useState(!!initialValues.donationAddress)
   return (
     <Grid container direction={'row'} className={classes.container} spacing={2}>
       <Grid xs={12} item>
@@ -34,7 +45,9 @@ export const DonationsSettingsForm = ({
             fullWidth
             defaultValue={initialValues.donationAddress || ''}
             placeholder='Enter Zcash Address'
-            onChange={(e) => updateDonationAddress(e.target.value)}
+            helperText={isAddressValid || 'Please insert correct address'}
+            error={!isAddressValid}
+            onChange={(e) => checkAddress(e.target.value, updateDonationAddress, setAddressStatus)}
             InputProps={{ className: classes.field }}
           />
         </Grid>
