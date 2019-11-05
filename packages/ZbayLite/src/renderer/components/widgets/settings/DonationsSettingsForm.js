@@ -18,7 +18,7 @@ const styles = theme => ({
 })
 
 const checkAddress = (address, updateDonationAddress, setAddressStatus) => {
-  const isValid = (/^t1[a-zA-Z0-9]{33}$|^ztestsapling1[a-z0-9]{75}$|^zs1[a-z0-9]{85}$/).test(address)
+  const isValid = (/^t1[a-zA-Z0-9]{33}$|^ztestsapling1[a-z0-9]{75}$|^zs1[a-z0-9]{75}$/).test(address)
   if (isValid) {
     updateDonationAddress(address)
     setAddressStatus(true)
