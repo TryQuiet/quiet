@@ -322,7 +322,7 @@ export const SendFundsModal = ({
                   disabled={hasNoFounds || !isValid}
                   text={
                     <>
-                    Send Founds
+                    Send Funds
                     </>
                   }
                   classes={{ button: classes.postButton }}
