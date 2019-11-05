@@ -6,6 +6,32 @@ import { hash } from '../zbay/messages'
 import defaultChannels from '../zcash/channels'
 Settings.defaultZoneName = 'utc'
 
+export const vaultTestMessages = [
+  {
+    id: '123',
+    properties: {
+      title: 'test',
+      createdAt: '123456',
+      message: `{"itemId":"6b31f1a5c68902a767eb542fa17daeb338e32d12704ac124ce55994754a5001e","text":"hello"}`,
+      sender: 'testsender',
+      senderUsername: 'testusername',
+      type: '11',
+      id: '049a7d2ab30817765ea9875bfca40299669e1631329fc58b2a053ff58f78b007'
+    }
+  },
+  {
+    id: '1234',
+    properties: {
+      title: 'test2',
+      createdAt: '123456',
+      message: `{"itemId":"6b31f1a5c68902a767eb542fa17daeb338e32d12704ac124ce55994754a5001e","text":"hello"}`,
+      sender: 'testsender',
+      senderUsername: 'testusername',
+      type: '11',
+      id: '149a7d2ab30817765ea9875bfca40299669e1631329fc58b2a053ff58f78b007'
+    }
+  }
+]
 const identities = [
   {
     address: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya',
@@ -76,6 +102,13 @@ export const createMessage = (id, createdAt = now.minus({ hours: id }).toSeconds
   type: zbayMessages.messageType.BASIC,
   createdAt,
   message: `This is some message ${id}`,
+  signature: secp256k1.sign(hash(`This is a message with id ${id}`), pKey).signature
+})
+export const createItemMessage = (id, createdAt = now.minus({ hours: id }).toSeconds()) => ({
+  id,
+  type: zbayMessages.messageType.BASIC,
+  createdAt,
+  message: { itemId: 'test1', test: `This is some message ${id}` },
   signature: secp256k1.sign(hash(`This is a message with id ${id}`), pKey).signature
 })
 
@@ -239,5 +272,8 @@ export default {
   messages,
   createIdentity,
   createMessage,
-  createSendableTransferMessage
+  createSendableTransferMessage,
+  createItemMessage,
+  createReceivedMessage,
+  vaultTestMessages
 }

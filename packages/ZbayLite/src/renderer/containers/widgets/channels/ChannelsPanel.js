@@ -9,12 +9,14 @@ import BaseChannelsList from '../../../components/widgets/channels/BaseChannelsL
 import SidebarHeader from '../../../components/ui/SidebarHeader'
 import channelsSelectors from '../../../store/selectors/channels'
 import channelSelectors from '../../../store/selectors/channel'
+import offersSelectors from '../../../store/selectors/offers'
 import { actionCreators } from '../../../store/handlers/modals'
 import QuickActionButton from '../../../components/widgets/sidebar/QuickActionButton'
 
 export const mapStateToProps = state => ({
   channels: channelsSelectors.data(state),
-  selected: channelSelectors.channelInfo(state)
+  selected: channelSelectors.channelInfo(state),
+  offers: offersSelectors.offers(state)
 })
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
@@ -48,7 +50,7 @@ export default R.compose(
     return (
       Immutable.is(before.channels, after.channels) &&
       Immutable.is(before.selected, after.selected) &&
-      Object.is(before.contentRect, after.contentRect)
+      Object.is(before.contentRect, after.contentRect) && Immutable.is(before.offers, after.offers)
     )
   })
 )

@@ -9,6 +9,7 @@ import { withStyles } from '@material-ui/core/styles'
 import WindowWrapper from '../ui/WindowWrapper'
 import Sidebar from '../widgets/sidebar/Sidebar'
 import Channel from '../../containers/pages/Channel'
+import Offer from '../../containers/pages/Offer'
 import DirectMessages from '../../containers/pages/DirectMessages'
 import DepositMoneyModal from '../../containers/ui/DepositMoneyModal'
 import InvitationModal from '../../containers/ui/InvitationModal/InvitationModal'
@@ -34,6 +35,7 @@ export const Main = ({ match, classes }) => {
           <Grid item xs>
             <Route path={`${match.url}/channel/:id`} component={Channel} />
             <Route path={`${match.url}/direct-messages/:id/:username`} component={DirectMessages} />
+            <Route path={`${match.url}/offers/:id/:address`} component={Offer} />
           </Grid>
         </Grid>
       </WindowWrapper>

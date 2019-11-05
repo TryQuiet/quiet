@@ -5,8 +5,13 @@ const TYPE_SIZE = 1
 const SIGNATURE_SIZE = 64
 const SIGNATURE_R_SIZE = 1
 const TIMESTAMP_SIZE = 4
+const LINKED_ITEM_SIZE = 64
+
 export const MESSAGE_SIZE =
   MEMO_SIZE - (TIMESTAMP_SIZE + SIGNATURE_SIZE + SIGNATURE_R_SIZE + TYPE_SIZE)
+
+export const MESSAGE_ITEM_SIZE =
+  MEMO_SIZE - (TIMESTAMP_SIZE + SIGNATURE_SIZE + SIGNATURE_R_SIZE + TYPE_SIZE + LINKED_ITEM_SIZE)
 
 const ADDRESS_TYPE = {
   SHIELDED_MAINNET: 1,
@@ -88,6 +93,13 @@ export const packMemo = async message => {
         [tag, background, title, provideShipping, amount, description],
         MESSAGE_SIZE
       )
+      break
+    case messageType.ITEM_BASIC || messageType.ITEM_TRANSFER:
+      const item = Buffer.alloc(LINKED_ITEM_SIZE)
+      item.write(message.message.itemId)
+      const msg = Buffer.alloc(MESSAGE_ITEM_SIZE)
+      msg.write(message.message.text)
+      msgData = Buffer.concat([item, msg])
       break
     default:
       msgData = Buffer.alloc(MESSAGE_SIZE)
@@ -171,6 +183,21 @@ export const unpackMemo = async memo => {
           provideShipping: trimNull(provideShipping.toString()),
           amount: trimNull(amount.toString()),
           description: trimNull(description.toString())
+        },
+        createdAt
+      }
+    case messageType.ITEM_BASIC || messageType.ITEM_TRANSFER:
+      const itemEnds = timestampEnds + LINKED_ITEM_SIZE
+      const item = memoBuff.slice(timestampEnds, itemEnds)
+      const msgEnds = itemEnds + MESSAGE_ITEM_SIZE
+      const msg = memoBuff.slice(itemEnds, msgEnds)
+      return {
+        type,
+        signature,
+        r,
+        message: {
+          itemId: trimNull(item.toString()),
+          text: trimNull(msg.toString())
         },
         createdAt
       }

@@ -1,7 +1,7 @@
 import { Archive, Workspace, Credentials, Datasources } from '../vendor/buttercup'
 import { validateArchiveGroups } from './validateArchive'
 
-export const archiveGroups = ['Identities', 'Channels', 'Contacts']
+export const archiveGroups = ['Identities', 'Channels', 'Contacts', 'Offers']
 
 export const createArchive = () => {
   const archive = new Archive()
@@ -66,18 +66,17 @@ export const credentialsFromSecureStrings = async ({
   sourceCredentials,
   archiveCredentials,
   masterPassword
-}) => Promise.all([
-  Credentials.fromSecureString(sourceCredentials, masterPassword),
-  Credentials.fromSecureString(archiveCredentials, masterPassword)
-])
+}) =>
+  Promise.all([
+    Credentials.fromSecureString(sourceCredentials, masterPassword),
+    Credentials.fromSecureString(archiveCredentials, masterPassword)
+  ])
 
-export const credentialsToSecureStrings = async ({
-  sourceCredentials,
-  archiveCredentials
-}) => Promise.all([
-  sourceCredentials.toSecureString(archiveCredentials.password),
-  archiveCredentials.toSecureString(archiveCredentials.password)
-])
+export const credentialsToSecureStrings = async ({ sourceCredentials, archiveCredentials }) =>
+  Promise.all([
+    sourceCredentials.toSecureString(archiveCredentials.password),
+    archiveCredentials.toSecureString(archiveCredentials.password)
+  ])
 
 export default {
   credentialsToWorkspace,

@@ -9,6 +9,7 @@ import messagesQueueHandlers from './messagesQueue'
 import messagesQueue from '../selectors/messagesQueue'
 import messagesHandlers from './messages'
 import channelsHandlers from './channels'
+import offersHandlers from './offers'
 import channelSelectors from '../selectors/channel'
 import identitySelectors from '../selectors/identity'
 import { getClient } from '../../zcash'
@@ -59,6 +60,14 @@ const loadChannel = (id) => async (dispatch, getState) => {
     dispatch(setAddress(channel.address))
     await dispatch(clearNewMessages())
     await dispatch(updateLastSeen())
+  } catch (err) {}
+}
+const loadOffer = (id, address) => async (dispatch, getState) => {
+  try {
+    await dispatch(offersHandlers.epics.updateLastSeen({ itemId: id }))
+    dispatch(setChannelId(id))
+    dispatch(setShareableUri(''))
+    dispatch(setAddress(address))
   } catch (err) {}
 }
 
@@ -150,7 +159,8 @@ export const epics = {
   loadChannel,
   resendMessage,
   clearNewMessages,
-  updateLastSeen
+  updateLastSeen,
+  loadOffer
 }
 
 // TODO: we should have a global loader map

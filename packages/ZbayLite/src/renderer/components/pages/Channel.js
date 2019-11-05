@@ -19,17 +19,17 @@ const styles = {
   }
 }
 
-export const Channel = ({ classes, contactId }) => {
+export const Channel = ({ classes, contactId, offer }) => {
   return (
     <Page>
       <PageHeader>
         {contactId ? <DirectMessagesHeader contactId={contactId} /> : <ChannelHeader />}
       </PageHeader>
       <Grid item xs className={classes.messages}>
-        <ChannelContent contactId={contactId} />
+        <ChannelContent contactId={offer || contactId} />
       </Grid>
       <Grid item>
-        <ChannelInput contactId={contactId} />
+        <ChannelInput contactId={offer || contactId} />
       </Grid>
     </Page>
   )

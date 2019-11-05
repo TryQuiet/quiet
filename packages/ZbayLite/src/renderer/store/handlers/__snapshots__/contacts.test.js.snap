@@ -541,6 +541,7 @@ Immutable.Map {
       },
       "recipientAddress": "zs1z9rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
       "recipientUsername": "Sun",
+      "offerId": "",
     },
     "txId": null,
     "error": null,

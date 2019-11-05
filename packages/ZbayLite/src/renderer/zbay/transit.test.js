@@ -55,6 +55,26 @@ const advert = {
     description: 'hello heloo description wowo'
   }
 }
+const itemBasic = {
+  type: messageType.ITEM_BASIC,
+  signature: sigObj.signature,
+  r: sigObj.recovery,
+  createdAt: now.toSeconds(),
+  message: {
+    itemId: '6b31f1a5c68902a767eb542fa17daeb338e32d12704ac124ce55994754a5001e',
+    text: 'hello heloo description wowo'
+  }
+}
+const itemTransfer = {
+  type: messageType.ITEM_TRANSFER,
+  signature: sigObj.signature,
+  r: sigObj.recovery,
+  createdAt: now.toSeconds(),
+  message: {
+    itemId: '6b31f1a5c68902a767eb542fa17daeb338e32d12704ac124ce55994754a5001e',
+    text: 'hello heloo description wowo'
+  }
+}
 describe('transit', () => {
   describe('pack/unpack memo', () => {
     it('is symmetrical', async () => {
@@ -85,6 +105,22 @@ describe('transit', () => {
       expect(Buffer.byteLength(data, 'hex')).toEqual(MEMO_SIZE)
       const output = await unpackMemo(data)
       expect(output).toEqual(advert)
+    })
+  })
+  describe('pack/unpack Item Basic memo', () => {
+    it('is symmetrical', async () => {
+      const data = await packMemo(itemBasic)
+      expect(Buffer.byteLength(data, 'hex')).toEqual(MEMO_SIZE)
+      const output = await unpackMemo(data)
+      expect(output).toEqual(itemBasic)
+    })
+  })
+  describe('pack/unpack Item Transfer memo', () => {
+    it('is symmetrical', async () => {
+      const data = await packMemo(itemTransfer)
+      expect(Buffer.byteLength(data, 'hex')).toEqual(MEMO_SIZE)
+      const output = await unpackMemo(data)
+      expect(output).toEqual(itemTransfer)
     })
   })
 })

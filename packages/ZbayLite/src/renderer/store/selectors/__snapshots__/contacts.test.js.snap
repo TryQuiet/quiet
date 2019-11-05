@@ -349,6 +349,7 @@ Immutable.Map {
       },
       "recipientAddress": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
       "recipientUsername": "test-recipient-username",
+      "offerId": "",
     },
     "txId": "transaction-id",
     "error": null,
@@ -435,6 +436,7 @@ Immutable.Map {
       },
       "recipientAddress": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
       "recipientUsername": "test-recipient-username",
+      "offerId": "",
     },
     "txId": "transaction-id-2",
     "error": null,
@@ -521,6 +523,7 @@ Immutable.Map {
       },
       "recipientAddress": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
       "recipientUsername": "test-recipient-username",
+      "offerId": "",
     },
     "txId": "transaction-id-3",
     "error": null,
@@ -534,6 +537,7 @@ Immutable.Map {
   "messageHash": Immutable.PendingDirectMessage {
     "recipientAddress": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
     "recipientUsername": "test-recipient-username",
+    "offerId": "",
     "message": Immutable.Map {
       "id": "test-pending-message",
       "type": 1,

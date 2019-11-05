@@ -5,11 +5,15 @@ import Immutable from 'immutable'
 import ChannelMessagesComponent from '../../../components/widgets/channels/ChannelMessages'
 import channelSelectors from '../../../store/selectors/channel'
 import contactsSelectors from '../../../store/selectors/contacts'
+import offersSelectors from '../../../store/selectors/offers'
 
 export const mapStateToProps = (state, { contactId, signerPubKey }) => {
+  const offersMessages = offersSelectors.offer(contactId)(state)
   return {
     messages: contactId
-      ? contactsSelectors.directMessages(contactId, signerPubKey)(state)
+      ? offersMessages
+        ? offersSelectors.offerMessages(contactId, signerPubKey)(state)
+        : contactsSelectors.directMessages(contactId, signerPubKey)(state)
       : channelSelectors.messages(signerPubKey)(state),
     channelId: channelSelectors.channelId(state)
   }

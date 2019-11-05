@@ -7,6 +7,7 @@ Immutable.Map {
   "b89604fe6bf897ccea9d76f432a3f0d90453a755ac83a7155911d526118fc895": Immutable.PendingDirectMessage {
     "recipientAddress": "test-recipient-address",
     "recipientUsername": "test-recipient-username",
+    "offerId": "",
     "message": Immutable.Map {
       "type": 4,
       "spent": "0.32",
@@ -99,6 +100,7 @@ Immutable.Map {
   "b89604fe6bf897ccea9d76f432a3f0d90453a755ac83a7155911d526118fc895": Immutable.PendingDirectMessage {
     "recipientAddress": "test-recipient-address",
     "recipientUsername": "test-recipient-username",
+    "offerId": "",
     "message": Immutable.Map {
       "type": 4,
       "spent": "0.32",

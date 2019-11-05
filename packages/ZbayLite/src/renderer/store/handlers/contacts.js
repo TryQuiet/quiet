@@ -7,6 +7,8 @@ import history from '../../../shared/history'
 import identitySelectors from '../selectors/identity'
 import usersSelectors from '../selectors/users'
 import appSelectors from '../selectors/app'
+import offersSelectors from '../selectors/offers'
+import messagesSelectors from '../selectors/messages'
 import selectors, { Contact } from '../selectors/contacts'
 import { directMessageChannel } from '../selectors/directMessageChannel'
 import directMessagesQueue from '../selectors/directMessagesQueue'
@@ -16,8 +18,11 @@ import { getVault } from '../../vault'
 import { displayDirectMessageNotification } from '../../notifications'
 import operationsHandlers, { operationTypes, PendingDirectMessageOp } from './operations'
 import { ReceivedMessage } from './messages'
+import { messageType } from '../../zbay/messages'
+
 import directMessagesQueueHandlers, { checkConfirmationNumber } from './directMessagesQueue'
 import channelHandlers from './channel'
+import offersHandlers from './offers'
 import appHandlers from './app'
 import notificationsHandlers from './notifications'
 import { errorNotification } from './utils'
@@ -178,7 +183,44 @@ export const fetchMessages = () => async (dispatch, getState) => {
     const messages = messagesAll
       .filter(msg => msg !== null)
       .filter(msg => msg.sender.replyTo !== '')
+      .filter(msg => msg.type !== messageType.ITEM_BASIC && msg.type !== messageType.ITEM_TRANSFER)
 
+    const messagesOffers = messagesAll
+      .filter(msg => msg !== null)
+      .filter(msg => msg.sender.replyTo !== '')
+      .filter(msg => msg.type === messageType.ITEM_BASIC || msg.type === messageType.ITEM_TRANSFER)
+
+    await messagesOffers.forEach(async msg => {
+      let offer = offersSelectors.offer(msg.message.itemId)(getState())
+      if (!offer) {
+        const ad = messagesSelectors.messageById(msg.message.itemId)(getState())
+        const payload = {
+          tag: ad.message.tag,
+          offerOwner: msg.sender.username,
+          id: msg.message.itemId,
+          address: msg.sender.replyTo
+        }
+        await dispatch(offersHandlers.epics.createOffer({ payload }))
+      }
+      offer = offersSelectors.offer(msg.message.itemId)(getState())
+      if (!offer.messages.find(message => message.id === msg.id)) {
+        await dispatch(
+          offersHandlers.actions.appendMessages({
+            message: msg.merge({ message: msg.message.text }),
+            itemId: msg.message.itemId
+          })
+        )
+        const lastSeen = offersSelectors.lastSeen(msg.message.itemId)(getState())
+        if (DateTime.fromSeconds(msg.createdAt) > lastSeen) {
+          await dispatch(
+            offersHandlers.actions.appendNewMessages({
+              message: msg.id,
+              itemId: msg.message.itemId
+            })
+          )
+        }
+      }
+    })
     const senderToMessages = R.compose(
       R.groupBy(msg => msg.sender.replyTo),
       R.filter(R.identity)
@@ -249,13 +291,15 @@ export const loadVaultMessages = ({ contact }) => async (dispatch, getState) => 
     recipientUsername: contact.username,
     recipientAddress: contact.replyTo
   })
-  const vaultMessagesToDisplay = vaultMessages.map(msg =>
-    zbayMessages.vaultToDisplayableMessage({
-      message: msg,
-      identityAddress,
-      receiver: { replyTo: contact.replyTo, username: contact.username }
-    })
-  )
+  const vaultMessagesToDisplay = vaultMessages
+    .filter(m => m.type !== messageType.ITEM_BASIC && m.type !== messageType.ITEM_TRANSFER)
+    .map(msg =>
+      zbayMessages.vaultToDisplayableMessage({
+        message: msg,
+        identityAddress,
+        receiver: { replyTo: contact.replyTo, username: contact.username }
+      })
+    )
 
   dispatch(
     setVaultMessages({
@@ -281,6 +325,24 @@ export const createVaultContact = ({ contact, history }) => async (dispatch, get
     })
   )
   history.push(`/main/direct-messages/${contact.replyTo}/${contact.username}`)
+}
+
+export const createVaultContactOffer = ({ contact, history }) => async (dispatch, getState) => {
+  const identityId = identitySelectors.id(getState())
+  await getVault().contacts.listMessages({
+    identityId,
+    recipientUsername: contact.username,
+    recipientAddress: contact.replyTo
+  })
+  await dispatch(
+    setUsernames({
+      sender: {
+        replyTo: contact.replyTo,
+        username: contact.username
+      }
+    })
+  )
+  history.push(`/main/offers/${contact.replyTo}/${contact.username}`)
 }
 
 export const loadAllSentMessages = () => async (dispatch, getState) => {

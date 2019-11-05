@@ -39,6 +39,16 @@ exports[`Main renders component 1`] = `
           }
           path="test/direct-messages/:id/:username"
         />
+        <Route
+          component={
+            Object {
+              "$$typeof": Symbol(react.memo),
+              "compare": null,
+              "type": [Function],
+            }
+          }
+          path="test/offers/:id/:address"
+        />
       </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>
   </Memo(WithStyles(WindowWrapper))>

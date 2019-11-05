@@ -1,0 +1,137 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Offers reducer handles actions - addOffer 1`] = `
+Immutable.Offer {
+  "address": "offer.address",
+  "itemId": "itemId",
+  "name": "offer.name",
+  "lastSeen": 123,
+  "messages": Immutable.List [],
+  "newMessages": Immutable.List [],
+}
+`;
+
+exports[`Offers reducer handles actions - cleanNewMessages 1`] = `
+Immutable.List [
+  "test",
+]
+`;
+
+exports[`Offers reducer handles actions - setMessages 1`] = `
+Immutable.List [
+  Immutable.ReceivedMessage {
+    "id": 3,
+    "type": 1,
+    "sender": Immutable.MessageSender {
+      "replyTo": "",
+      "username": "",
+    },
+    "createdAt": 1551942228,
+    "message": "This is a message with id 3",
+    "spent": "0.32",
+    "isUnregistered": false,
+  },
+  Immutable.ReceivedMessage {
+    "id": 2,
+    "type": 1,
+    "sender": Immutable.MessageSender {
+      "replyTo": "",
+      "username": "",
+    },
+    "createdAt": 1551949428,
+    "message": "This is a message with id 2",
+    "spent": "0.32",
+    "isUnregistered": false,
+  },
+  Immutable.ReceivedMessage {
+    "id": 1,
+    "type": 1,
+    "sender": Immutable.MessageSender {
+      "replyTo": "",
+      "username": "",
+    },
+    "createdAt": 1551956628,
+    "message": "This is a message with id 1",
+    "spent": "0.32",
+    "isUnregistered": false,
+  },
+  Immutable.ReceivedMessage {
+    "id": 0,
+    "type": 1,
+    "sender": Immutable.MessageSender {
+      "replyTo": "",
+      "username": "",
+    },
+    "createdAt": 1551963828,
+    "message": "This is a message with id 0",
+    "spent": "0.32",
+    "isUnregistered": false,
+  },
+]
+`;
+
+exports[`Offers reducer handles actions - setNewMessages 1`] = `
+Immutable.List [
+  "test",
+]
+`;
+
+exports[`Offers reducer handles epics initMessage 1`] = `
+Immutable.List [
+  Immutable.DisplayableMessage {
+    "id": "049a7d2ab30817765ea9875bfca40299669e1631329fc58b2a053ff58f78b007",
+    "type": 1,
+    "sender": Immutable.ExchangeParticipant {
+      "replyTo": "testsender",
+      "username": "testusername",
+    },
+    "receiver": Immutable.ExchangeParticipant {
+      "replyTo": "offer.address",
+      "username": "",
+    },
+    "createdAt": 123456,
+    "message": "hello",
+    "spent": "0",
+    "fromYou": false,
+    "status": "broadcasted",
+    "error": null,
+    "isUnregistered": false,
+  },
+]
+`;
+
+exports[`Offers reducer handles epics refreshMessages 1`] = `
+Immutable.List [
+  Immutable.DisplayableMessage {
+    "id": "049a7d2ab30817765ea9875bfca40299669e1631329fc58b2a053ff58f78b007",
+    "type": 1,
+    "sender": Immutable.ExchangeParticipant {
+      "replyTo": "testsender",
+      "username": "testusername",
+    },
+    "receiver": Immutable.ExchangeParticipant {
+      "replyTo": "offer.address",
+      "username": "",
+    },
+    "createdAt": 123456,
+    "message": "hello
+hello",
+    "spent": "0",
+    "fromYou": false,
+    "status": "broadcasted",
+    "error": null,
+    "isUnregistered": false,
+  },
+]
+`;
+
+exports[`Offers reducer handles epics update lastSeen 1`] = `
+Immutable.Offer {
+  "address": "offer.address",
+  "itemId": "itemId",
+  "name": "offer.name",
+  "lastSeen": "2019-03-07T13:03:48.000Z",
+  "messages": Immutable.List [],
+  "newMessages": Immutable.List [],
+}
+`;

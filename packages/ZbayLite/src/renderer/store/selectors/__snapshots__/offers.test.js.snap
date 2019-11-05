@@ -1,0 +1,168 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Channels selectors - offer by id 1`] = `
+Immutable.Offer {
+  "address": "testAddress",
+  "itemId": "testID",
+  "name": "testname",
+  "lastSeen": "123",
+  "messages": Immutable.List [
+    Immutable.ReceivedMessage {
+      "id": 0,
+      "type": 1,
+      "sender": Immutable.MessageSender {
+        "replyTo": "",
+        "username": "",
+      },
+      "createdAt": 1551963828,
+      "message": "This is a message with id 0",
+      "spent": "0.32",
+      "isUnregistered": false,
+    },
+    Immutable.ReceivedMessage {
+      "id": 1,
+      "type": 1,
+      "sender": Immutable.MessageSender {
+        "replyTo": "",
+        "username": "",
+      },
+      "createdAt": 1551956628,
+      "message": "This is a message with id 1",
+      "spent": "0.32",
+      "isUnregistered": false,
+    },
+  ],
+  "newMessages": Immutable.List [
+    "123",
+    "1234",
+  ],
+}
+`;
+
+exports[`Channels selectors - offer messages 1`] = `
+Immutable.List [
+  Immutable.DisplayableMessage {
+    "id": "test-operation-id-3",
+    "type": 1,
+    "sender": Immutable.ExchangeParticipant {
+      "replyTo": "",
+      "username": "",
+    },
+    "receiver": Immutable.ExchangeParticipant {
+      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "username": "test-recipient-username",
+    },
+    "createdAt": 1551945828,
+    "message": "",
+    "spent": "0",
+    "fromYou": true,
+    "status": "success",
+    "error": null,
+    "isUnregistered": false,
+  },
+  Immutable.DisplayableMessage {
+    "id": "test-operation-id-2",
+    "type": 1,
+    "sender": Immutable.ExchangeParticipant {
+      "replyTo": "",
+      "username": "",
+    },
+    "receiver": Immutable.ExchangeParticipant {
+      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "username": "test-recipient-username",
+    },
+    "createdAt": 1551953028,
+    "message": "",
+    "spent": "0",
+    "fromYou": true,
+    "status": "success",
+    "error": null,
+    "isUnregistered": false,
+  },
+  Immutable.ReceivedMessage {
+    "id": 1,
+    "type": 1,
+    "sender": Immutable.MessageSender {
+      "replyTo": "",
+      "username": "",
+    },
+    "createdAt": 1551956628,
+    "message": "This is a message with id 1
+",
+    "spent": "0.32",
+    "isUnregistered": false,
+  },
+  Immutable.DisplayableMessage {
+    "id": "test-operation-id",
+    "type": 1,
+    "sender": Immutable.ExchangeParticipant {
+      "replyTo": "",
+      "username": "",
+    },
+    "receiver": Immutable.ExchangeParticipant {
+      "replyTo": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "username": "test-recipient-username",
+    },
+    "createdAt": 1551960228,
+    "message": "",
+    "spent": "0",
+    "fromYou": true,
+    "status": "success",
+    "error": null,
+    "isUnregistered": false,
+  },
+  Immutable.ReceivedMessage {
+    "id": 0,
+    "type": 1,
+    "sender": Immutable.MessageSender {
+      "replyTo": "",
+      "username": "",
+    },
+    "createdAt": 1551963828,
+    "message": "This is a message with id 0",
+    "spent": "0.32",
+    "isUnregistered": false,
+  },
+]
+`;
+
+exports[`Channels selectors - offers 1`] = `
+Immutable.Map {
+  "test1": Immutable.Offer {
+    "address": "testAddress",
+    "itemId": "testID",
+    "name": "testname",
+    "lastSeen": "123",
+    "messages": Immutable.List [
+      Immutable.ReceivedMessage {
+        "id": 0,
+        "type": 1,
+        "sender": Immutable.MessageSender {
+          "replyTo": "",
+          "username": "",
+        },
+        "createdAt": 1551963828,
+        "message": "This is a message with id 0",
+        "spent": "0.32",
+        "isUnregistered": false,
+      },
+      Immutable.ReceivedMessage {
+        "id": 1,
+        "type": 1,
+        "sender": Immutable.MessageSender {
+          "replyTo": "",
+          "username": "",
+        },
+        "createdAt": 1551956628,
+        "message": "This is a message with id 1",
+        "spent": "0.32",
+        "isUnregistered": false,
+      },
+    ],
+    "newMessages": Immutable.List [
+      "123",
+      "1234",
+    ],
+  },
+}
+`;

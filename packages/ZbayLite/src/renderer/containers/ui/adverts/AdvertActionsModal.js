@@ -2,10 +2,12 @@ import React from 'react'
 import * as R from 'ramda'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
+import { withRouter } from 'react-router-dom'
 
 import { withModal, actionCreators } from '../../../store/handlers/modals'
 import AdvertActionsComponent from '../../../components/ui/adverts/AdvertActionModal'
 import modalsSelectors from '../../../store/selectors/modals'
+import offersHandlers from '../../../store/handlers/offers'
 
 export const mapStateToProps = state => ({
   payload: modalsSelectors.payload('advertActions')(state)
@@ -14,7 +16,8 @@ export const mapStateToProps = state => ({
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      onSendFoundsAction: (modalName, payload) => actionCreators.openModal(modalName, payload)()
+      onSendFoundsAction: (modalName, payload) => actionCreators.openModal(modalName, payload)(),
+      handleMessage: offersHandlers.epics.createOfferAdvert
     },
     dispatch
   )
@@ -22,12 +25,12 @@ export const mapDispatchToProps = dispatch =>
 export const AdvertActionsModal = props => {
   return <AdvertActionsComponent {...props} />
 }
-
 export default R.compose(
   React.memo,
   connect(
     mapStateToProps,
     mapDispatchToProps
   ),
-  withModal('advertActions')
+  withModal('advertActions'),
+  withRouter
 )(AdvertActionsModal)

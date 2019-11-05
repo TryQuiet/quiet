@@ -5,6 +5,7 @@ import PropTypes from 'prop-types'
 import List from '@material-ui/core/List'
 
 import ChannelsListItem from '../../../containers/widgets/channels/ChannelsListItem'
+import OfferListItem from '../../../containers/widgets/channels/OfferListItem'
 
 export const propTypes = {
   channel: PropTypes.shape({
@@ -17,7 +18,7 @@ export const propTypes = {
   })
 }
 
-export const BaseChannelsList = ({ channels, directMessages, selected }) => {
+export const BaseChannelsList = ({ channels, directMessages, selected, offers }) => {
   return (
     <List disablePadding>
       {channels.map(channel => (
@@ -27,6 +28,9 @@ export const BaseChannelsList = ({ channels, directMessages, selected }) => {
           directMessages={directMessages}
           selected={selected}
         />
+      ))}
+      {offers.toList().map(offer => (
+        <OfferListItem key={offer.name} channel={offer} selected={selected} />
       ))}
     </List>
   )
@@ -40,6 +44,7 @@ BaseChannelsList.propTypes = {
 
 BaseChannelsList.defaultProps = {
   channels: Immutable.List(),
+  offers: Immutable.Map(),
   displayAddress: false,
   directMessages: false
 }

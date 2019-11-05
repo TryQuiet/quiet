@@ -470,6 +470,7 @@ Immutable.Map {
       },
       "recipientAddress": "ztestsapling18qgdx9qtwyrawas5yc9mcm7wrx6ukn5unkdkz3dryufum2gjnt8me2kql6nvhca3vdv2704ud4t",
       "recipientUsername": "",
+      "offerId": "",
     },
     "txId": null,
     "error": null,
@@ -573,6 +574,7 @@ Immutable.Map {
       },
       "recipientAddress": "ztestsapling18qgdx9qtwyrawas5yc9mcm7wrx6ukn5unkdkz3dryufum2gjnt8me2kql6nvhca3vdv2704ud4t",
       "recipientUsername": "",
+      "offerId": "",
     },
     "txId": null,
     "error": Immutable.ZcashError {
@@ -675,6 +677,7 @@ Immutable.Map {
       },
       "recipientAddress": "ztestsapling18qgdx9qtwyrawas5yc9mcm7wrx6ukn5unkdkz3dryufum2gjnt8me2kql6nvhca3vdv2704ud4t",
       "recipientUsername": "",
+      "offerId": "",
     },
     "txId": "test-tx-id",
     "error": null,

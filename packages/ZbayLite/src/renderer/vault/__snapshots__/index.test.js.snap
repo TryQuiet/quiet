@@ -199,6 +199,14 @@ Vault {
     "updateMessage": [Function],
   },
   "lock": [MockFunction],
+  "offers": Object {
+    "importOffer": [Function],
+    "listMessages": [Function],
+    "listOffers": [Function],
+    "removeOffer": [Function],
+    "saveMessage": [Function],
+    "updateLastSeen": [Function],
+  },
   "withWorkspace": [Function],
 }
 `;

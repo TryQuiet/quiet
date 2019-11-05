@@ -11,7 +11,9 @@ export const messageType = {
   BASIC: 1,
   AD: 2,
   TRANSFER: 4,
-  USER: 5
+  USER: 5,
+  ITEM_BASIC: 11,
+  ITEM_TRANSFER: 41
 }
 
 export const ExchangeParticipant = Immutable.Record(

@@ -32,7 +32,8 @@ export const PendingMessageOp = Immutable.Record({
 export const PendingDirectMessageOp = Immutable.Record({
   message: Immutable.Map(),
   recipientAddress: '',
-  recipientUsername: ''
+  recipientUsername: '',
+  offerId: ''
 })
 
 export const operationTypes = {

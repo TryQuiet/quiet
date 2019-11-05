@@ -55,6 +55,8 @@ export const ChannelMessages = ({
 
 const typeToMessageComponent = {
   [messageType.BASIC]: ChannelMessage,
+  [messageType.ITEM_BASIC]: ChannelMessage,
+  [messageType.ITEM_TRANSFER]: ChannelTransferMessage,
   [messageType.TRANSFER]: ChannelTransferMessage,
   [messageType.AD]: ChannelAdMessage
 }

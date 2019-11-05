@@ -3,13 +3,16 @@
 exports[`ChannelInput will receive right actions 1`] = `
 Object {
   "onChange": [Function],
-  "onKeyPress": [Function],
+  "sendDirectMessageOnEnter": [Function],
+  "sendItemMessageOnEnter": [Function],
+  "sendOnEnter": [Function],
 }
 `;
 
 exports[`ChannelInput will receive right props 1`] = `
 Object {
   "inputState": 0,
+  "isOffer": false,
   "message": "This is a test message",
 }
 `;

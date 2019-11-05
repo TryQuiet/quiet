@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import ChannelInputComponent from '../../../components/widgets/channels/ChannelInput'
 import channelHandlers from '../../../store/handlers/channel'
+import offersHandlers from '../../../store/handlers/offers'
 import contactsHandlers from '../../../store/handlers/contacts'
 import channelSelectors, { INPUT_STATE } from '../../../store/selectors/channel'
 import usersSelectors from '../../../store/selectors/users'
@@ -15,22 +16,38 @@ export const mapStateToProps = (state, { contactId }) => {
     : true
   return {
     message: channelSelectors.message(state),
-    inputState: registered ? channelSelectors.inputLocked(state) : INPUT_STATE.UNREGISTERED
+    inputState: registered ? channelSelectors.inputLocked(state) : INPUT_STATE.UNREGISTERED,
+    isOffer: channelSelectors.channelId(state) === contactId
   }
 }
 
-export const mapDispatchToProps = (dispatch, { contactId }) =>
-  bindActionCreators(
+export const mapDispatchToProps = (dispatch, { contactId }) => {
+  return bindActionCreators(
     {
       onChange: channelHandlers.actions.setMessage,
-      onKeyPress: contactId
-        ? contactsHandlers.epics.sendDirectMessageOnEnter
-        : channelHandlers.epics.sendOnEnter
+      sendItemMessageOnEnter: offersHandlers.epics.sendItemMessageOnEnter,
+      sendDirectMessageOnEnter: contactsHandlers.epics.sendDirectMessageOnEnter,
+      sendOnEnter: channelHandlers.epics.sendOnEnter
     },
     dispatch
   )
-export const ChannelInput = ({ onChange, onKeyPress, message, inputState }) => {
+}
+export const ChannelInput = ({
+  onChange,
+  sendItemMessageOnEnter,
+  sendDirectMessageOnEnter,
+  sendOnEnter,
+  contactId,
+  isOffer,
+  message,
+  inputState
+}) => {
   const [infoClass, setInfoClass] = React.useState(null)
+  const onKeyPress = contactId
+    ? isOffer
+      ? sendItemMessageOnEnter
+      : sendDirectMessageOnEnter
+    : sendOnEnter
   return (
     <ChannelInputComponent
       infoClass={infoClass}

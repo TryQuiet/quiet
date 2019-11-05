@@ -84,8 +84,15 @@ Array [
         Array [
           "Contacts",
         ],
+        Array [
+          "Offers",
+        ],
       ],
       "results": Array [
+        Object {
+          "type": "return",
+          "value": undefined,
+        },
         Object {
           "type": "return",
           "value": undefined,

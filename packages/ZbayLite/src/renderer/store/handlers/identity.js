@@ -15,6 +15,7 @@ import channelsHandlers from './channels'
 import usersHandlers from './users'
 import contactsHandlers from './contacts'
 import messagesHandlers from './messages'
+import offersHandlers from './offers'
 import operationHandlers, { operationTypes, ShieldBalanceOp } from './operations'
 import vaultHandlers from './vault'
 import ratesHandlers from './rates'
@@ -244,13 +245,15 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
     dispatch(setLoadingMessage('Loading users and messages'))
     await dispatch(usersHandlers.epics.fetchUsers())
     await dispatch(contactsHandlers.epics.loadAllSentMessages())
-    await dispatch(contactsHandlers.epics.fetchMessages())
     const channels = channelsSelectors
       .data(getState())
       .map(channel => () => messagesHandlers.epics.fetchMessages(channel))
     for (let i = 0; i < channels.size; i++) {
       await dispatch(channels.get(i)())
     }
+    await dispatch(offersHandlers.epics.loadVaultContacts())
+    await dispatch(offersHandlers.epics.initMessage())
+    await dispatch(contactsHandlers.epics.fetchMessages())
   } catch (err) {}
   dispatch(setLoading(false))
 

@@ -134,6 +134,7 @@ export const AdvertActionModal = ({
   handleBuy,
   handleClose,
   handleMessage,
+  history,
   onSendFoundsAction
 }) =>
   payload ? (
@@ -173,7 +174,14 @@ export const AdvertActionModal = ({
             </Grid>
           </Grid>
           <Grid item>
-            <Button variant='outlined' className={classes.buttonMessage} onClick={handleMessage}>
+            <Button
+              variant='outlined'
+              className={classes.buttonMessage}
+              onClick={() => {
+                handleMessage({ payload, history })
+                handleClose()
+              }}
+            >
               Message
             </Button>
           </Grid>
@@ -253,7 +261,11 @@ export const AdvertActionModal = ({
               </Grid>
             </Grid>
             <Grid item>
-              <Button variant='contained' className={classes.buyButton} onClick={() => sendFounds(handleClose, onSendFoundsAction, payload)}>
+              <Button
+                variant='contained'
+                className={classes.buyButton}
+                onClick={() => sendFounds(handleClose, onSendFoundsAction, payload)}
+              >
                 Buy
               </Button>
             </Grid>
