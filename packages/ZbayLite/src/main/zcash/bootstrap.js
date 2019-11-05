@@ -64,7 +64,7 @@ export const spawnZcashNode = (platform, isTestnet) => {
     ]
     zcashdPath = zcashdPath + '.exe'
   } else {
-    options = [`-conf=${getResourcesPath(ZCASH_RESOURCES, configName)}`, '-debug=1']
+    options = [`-conf=${getResourcesPath(ZCASH_RESOURCES, configName)}`, '-debug=1', '-txexpirydelta=18000']
   }
 
   return spawn(zcashdPath, options)
