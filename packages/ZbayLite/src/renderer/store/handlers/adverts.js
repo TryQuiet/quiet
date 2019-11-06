@@ -7,6 +7,7 @@ import { messages } from '../../zbay'
 import { getClient } from '../../zcash'
 import notificationsHandlers from './notifications'
 import { errorNotification, successNotification } from './utils'
+import operationsHandlers, { operationTypes } from './operations'
 
 const handleSend = ({ values }) => async (dispatch, getState) => {
   const data = {
@@ -34,7 +35,17 @@ const handleSend = ({ values }) => async (dispatch, getState) => {
     identityAddress
   })
   try {
-    await getClient().payment.send(transfer)
+    const opId = await getClient().payment.send(transfer)
+    await dispatch(
+      operationsHandlers.epics.observeOperation({
+        opId,
+        type: operationTypes.pendingMessage,
+        meta: {
+          channelId: channel.id,
+          message: message
+        }
+      })
+    )
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar(
         successNotification('Advert successfully posted')

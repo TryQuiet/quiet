@@ -5,7 +5,7 @@ import * as R from 'ramda'
 import { Formik } from 'formik'
 import { withStyles } from '@material-ui/core/styles'
 
-import { MESSAGE_SIZE } from '../../../zbay/transit'
+import { MESSAGE_SIZE, TAG_SIZE, TITLE_SIZE } from '../../../zbay/transit'
 import AdvertModal from './AdvertModal'
 
 const styles = theme => ({})
@@ -13,17 +13,19 @@ const styles = theme => ({})
 export const formSchema = Yup.object().shape(
   {
     title: Yup.string()
-      .max(12)
+      .max(TITLE_SIZE)
       .required('Include a title'),
     zec: Yup.number().required('You must enter an amount'),
-    usd: Yup.number().required('You must enter an amount'),
+    usd: Yup.number()
+      .max(9999)
+      .required('You must enter an amount'),
     description: Yup.string()
       .max(MESSAGE_SIZE, 'Your messsage is too long')
       .required('Include a description'),
     shippingInfo: Yup.bool().required('Required'),
     background: Yup.string(),
     tag: Yup.string()
-      .max(9)
+      .max(TAG_SIZE)
       .min(1)
       .required('Include a tag')
   },

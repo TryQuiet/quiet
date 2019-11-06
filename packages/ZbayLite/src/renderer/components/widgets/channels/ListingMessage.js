@@ -142,12 +142,12 @@ export const ListingMessage = ({ message, classes, handleBuy, payload, buyAction
         >
           <Grid container item>
             <Typography variant={'body2'} className={classes.title}>
-              {title}
+              {title.length > 20 ? `${title.substring(0, 20)}...` : title}
             </Typography>
           </Grid>
           <Grid container item>
             <Typography variant={'caption'} className={classes.description}>
-              {description.substring(0, 60)}
+              {description.length > 50 ? `${description.substring(0, 50)}...` : description}
             </Typography>
           </Grid>
         </Grid>

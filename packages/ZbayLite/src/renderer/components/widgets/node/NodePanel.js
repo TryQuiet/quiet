@@ -9,7 +9,7 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary'
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails'
 import { withStyles } from '@material-ui/core/styles'
 
-import ExpandLessIcon from '@material-ui/icons/ExpandLess'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 
 import NodeStatus from '../../../containers/widgets/node/NodeStatus'
 import NodePanelDetails from '../../../containers/widgets/node/NodePanelDetails'
@@ -94,7 +94,7 @@ export const NodePanel = ({ classes, expanded, setExpanded }) => (
               expandIcon: classes.icon,
               expanded: classes.expandedSummary
             }}
-            expandIcon={<ExpandLessIcon fontSize='inherit' />}
+            expandIcon={<ExpandMoreIcon fontSize='inherit' />}
           >
             <NodeStatus />
           </ExpansionPanelSummary>

@@ -204,6 +204,7 @@ exports[`AdvertForm renders component AdvertForm 1`] = `
           "_conditions": Array [],
           "_deps": Array [],
           "_exclusive": Object {
+            "max": true,
             "required": true,
           },
           "_mutate": undefined,
@@ -218,6 +219,7 @@ exports[`AdvertForm renders component AdvertForm 1`] = `
             "refs": Map {},
           },
           "tests": Array [
+            [Function],
             [Function],
           ],
           "transforms": Array [
