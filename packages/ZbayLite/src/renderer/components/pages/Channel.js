@@ -9,6 +9,7 @@ import Page from '../ui/page/Page'
 import PageHeader from '../ui/page/PageHeader'
 import ChannelInput from '../../containers/widgets/channels/ChannelInput'
 import ChannelHeader from '../../containers/widgets/channels/ChannelHeader'
+import OfferChannelHeader from '../../containers/widgets/channels/OfferChannelHeader'
 import DirectMessagesHeader from '../../containers/widgets/channels/DirectMessagesHeader'
 import ChannelContent from '../../containers/widgets/channels/ChannelContent'
 
@@ -23,7 +24,13 @@ export const Channel = ({ classes, contactId, offer }) => {
   return (
     <Page>
       <PageHeader>
-        {contactId ? <DirectMessagesHeader contactId={contactId} /> : <ChannelHeader />}
+        {contactId ? (
+          <DirectMessagesHeader contactId={contactId} />
+        ) : offer ? (
+          <OfferChannelHeader offer={offer} />
+        ) : (
+          <ChannelHeader />
+        )}
       </PageHeader>
       <Grid item xs className={classes.messages}>
         <ChannelContent contactId={offer || contactId} />

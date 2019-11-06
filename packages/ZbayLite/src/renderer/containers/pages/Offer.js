@@ -33,7 +33,7 @@ const Channel = ({ loadOffer, match, resetDirectMessageChannel, msg }) => {
     },
     [match.params.id]
   )
-  return <ChannelComponent contactId={match.params.id} />
+  return <ChannelComponent offer={match.params.id} />
 }
 
 export default R.compose(
