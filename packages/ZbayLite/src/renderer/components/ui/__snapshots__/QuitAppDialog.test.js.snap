@@ -5,43 +5,49 @@ exports[`QuitAppDialog renders component 1`] = `
   onClose={[MockFunction]}
   open={true}
 >
-  <WithStyles(ForwardRef(DialogContent))>
+  <WithStyles(ForwardRef(DialogContent))
+    className="dialogContent-mock"
+  >
     <WithStyles(ForwardRef(Typography))
+      className="info-mock"
       variant="body2"
     >
-      Do you really want to quit Zbay?
+      Do you want to quit Zbay?
     </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(DialogContent))>
-  <WithStyles(ForwardRef(DialogActions))>
+  <WithStyles(ForwardRef(DialogActions))
+    className="dialogActions-mock"
+  >
     <WithStyles(ForwardRef(Grid))
       container={true}
       direction="row"
       justify="flex-end"
-      spacing={1}
     >
       <WithStyles(ForwardRef(Grid))
+        className="buttonNo-mock"
         item={true}
+        onClick={[MockFunction]}
+        xs={true}
       >
-        <WithStyles(ForwardRef(Button))
-          color="primary"
-          onClick={[MockFunction]}
-          size="small"
-          variant="contained"
+        <WithStyles(ForwardRef(Typography))
+          className="typography-mock"
+          variant="body1"
         >
-          Quit
-        </WithStyles(ForwardRef(Button))>
+          No
+        </WithStyles(ForwardRef(Typography))>
       </WithStyles(ForwardRef(Grid))>
       <WithStyles(ForwardRef(Grid))
+        className="buttonYes-mock"
         item={true}
+        onClick={[MockFunction]}
+        xs={true}
       >
-        <WithStyles(ForwardRef(Button))
-          color="primary"
-          onClick={[MockFunction]}
-          size="small"
-          variant="outlined"
+        <WithStyles(ForwardRef(Typography))
+          className="typography-mock"
+          variant="body1"
         >
-          Cancel
-        </WithStyles(ForwardRef(Button))>
+          Yes
+        </WithStyles(ForwardRef(Typography))>
       </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(DialogActions))>

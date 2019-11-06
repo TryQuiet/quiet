@@ -1,20 +1,18 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { CopyToClipboard } from 'react-copy-to-clipboard'
 import * as R from 'ramda'
 
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import TextField from '@material-ui/core/TextField'
-import IconButton from '@material-ui/core/IconButton'
 import { withStyles } from '@material-ui/core/styles'
 
 import red from '@material-ui/core/colors/red'
 
-import FileCopyIcon from '@material-ui/icons/FileCopy'
-import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline'
-
+import Icon from './Icon'
+import exclamationMark from '../../static/images/exclamationMark.svg'
 import Modal from './Modal'
+import LoadingButton from './LoadingButton'
 
 const styles = theme => ({
   root: {
@@ -22,59 +20,48 @@ const styles = theme => ({
   },
   icon: {
     fontSize: '10rem',
-    color: red[500]
+    color: red[500],
+    width: 80,
+    height: 70
   },
   stackTrace: {
-    fontSize: '0.71rem'
-  },
-  copyButton: {
-    marginBottom: 4
+    fontSize: '14px',
+    wordBreak: 'break-all'
   },
   message: {
-    wordBreak: 'break-all'
+    wordBreak: 'break-all',
+    marginTop: 20,
+    fontWeight: 500
+  },
+  info: {
+    textAlign: 'center'
+  },
+  textfield: {},
+  cssDisabled: {
+    backgroundColor: theme.palette.colors.inputGray,
+    color: theme.palette.colors.red
+  },
+  button: {
+    textTransform: 'none',
+    width: 150,
+    height: 60
   }
 })
 
-export const ErrorModal = ({
-  classes,
-  open,
-  message,
-  traceback,
-  handleExit,
-  handleCopy
-}) => (
-  <Modal
-    open={open}
-    handleClose={handleExit}
-    title='Error'
-  >
-    <Grid
-      container
-      justify='flex-start'
-      spacing={3}
-      direction='column'
-      className={classes.root}
-    >
+export const ErrorModal = ({ classes, open, message, traceback, handleExit }) => (
+  <Modal open={open} handleClose={handleExit} title='Error'>
+    <Grid container justify='flex-start' spacing={3} direction='column' className={classes.root}>
       <Grid item container direction='column' alignItems='center'>
-        <ErrorOutlineIcon className={classes.icon} />
-        <Typography className={classes.message}>
-          { message }
+        <Icon className={classes.icon} src={exclamationMark} />
+        <Typography variant='h3' className={classes.message}>
+          {message}
         </Typography>
       </Grid>
       <Grid item container spacing={2} direction='column'>
-        <Grid item container direction='row' alignItems='center'>
-          <Typography variant='h5' display='inline' >
-            Traceback
-          </Typography>
-          <CopyToClipboard text={traceback} onCopy={handleCopy}>
-            <IconButton className={classes.copyButton}>
-              <FileCopyIcon />
-            </IconButton>
-          </CopyToClipboard>
-        </Grid>
         <Grid item>
-          <Typography>
-            Before sending error traceback to our devs please make sure it doesn't contain any private data.
+          <Typography variant='body2' className={classes.info}>
+            You can send us this error traceback to help us improve. Before sending make sure it
+            doesn't contain any private data.
           </Typography>
         </Grid>
         <Grid item>
@@ -88,10 +75,15 @@ export const ErrorModal = ({
             value={traceback}
             InputProps={{
               classes: {
-                multiline: classes.stackTrace
+                root: classes.textfield,
+                multiline: classes.stackTrace,
+                disabled: classes.cssDisabled
               }
             }}
           />
+        </Grid>
+        <Grid item container justify='center' alignItems='center'>
+          <LoadingButton classes={{ button: classes.button }} text='Send to Zbay' />
         </Grid>
       </Grid>
     </Grid>
@@ -103,8 +95,7 @@ ErrorModal.propTypes = {
   open: PropTypes.bool.isRequired,
   message: PropTypes.string.isRequired,
   traceback: PropTypes.string.isRequired,
-  handleExit: PropTypes.func.isRequired,
-  handleCopy: PropTypes.func
+  handleExit: PropTypes.func.isRequired
 }
 
 ErrorModal.defaultProps = {

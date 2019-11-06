@@ -19,11 +19,13 @@ exports[`ErrorModal renders component 1`] = `
       direction="column"
       item={true}
     >
-      <ErrorOutlineIcon
+      <Memo(Icon)
         className="icon-mock"
+        src="test-file-stub"
       />
       <WithStyles(ForwardRef(Typography))
         className="message-mock"
+        variant="h3"
       >
         Test error message
       </WithStyles(ForwardRef(Typography))>
@@ -35,33 +37,13 @@ exports[`ErrorModal renders component 1`] = `
       spacing={2}
     >
       <WithStyles(ForwardRef(Grid))
-        alignItems="center"
-        container={true}
-        direction="row"
         item={true}
       >
         <WithStyles(ForwardRef(Typography))
-          display="inline"
-          variant="h5"
+          className="info-mock"
+          variant="body2"
         >
-          Traceback
-        </WithStyles(ForwardRef(Typography))>
-        <CopyToClipboard
-          onCopy={[MockFunction]}
-          text="Error: Test error message, error traceback"
-        >
-          <WithStyles(ForwardRef(IconButton))
-            className="copyButton-mock"
-          >
-            <FileCopyIcon />
-          </WithStyles(ForwardRef(IconButton))>
-        </CopyToClipboard>
-      </WithStyles(ForwardRef(Grid))>
-      <WithStyles(ForwardRef(Grid))
-        item={true}
-      >
-        <WithStyles(ForwardRef(Typography))>
-          Before sending error traceback to our devs please make sure it doesn't contain any private data.
+          You can send us this error traceback to help us improve. Before sending make sure it doesn't contain any private data.
         </WithStyles(ForwardRef(Typography))>
       </WithStyles(ForwardRef(Grid))>
       <WithStyles(ForwardRef(Grid))
@@ -71,7 +53,9 @@ exports[`ErrorModal renders component 1`] = `
           InputProps={
             Object {
               "classes": Object {
+                "disabled": "cssDisabled-mock",
                 "multiline": "stackTrace-mock",
+                "root": "textfield-mock",
               },
             }
           }
@@ -82,6 +66,21 @@ exports[`ErrorModal renders component 1`] = `
           rows={10}
           value="Error: Test error message, error traceback"
           variant="outlined"
+        />
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
+        alignItems="center"
+        container={true}
+        item={true}
+        justify="center"
+      >
+        <WithStyles(LoadingButton)
+          classes={
+            Object {
+              "button": "button-mock",
+            }
+          }
+          text="Send to Zbay"
         />
       </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>
