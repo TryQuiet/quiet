@@ -24,8 +24,9 @@ const ListingMessage = ({ message, rateUsd, ...props }) => {
     description: message.message.description,
     background: message.message.background,
     title: message.message.title,
-    priceZcash: message.message.amount,
-    priceUSD: rateUsd
+    priceUSD: message.message.amount,
+    priceZcash: rateUsd
+      .div(rateUsd.times(rateUsd))
       .times(message.message.amount)
       .toFixed(2)
       .toString(),
