@@ -80,7 +80,7 @@ exports[`Offers reducer handles epics initMessage 1`] = `
 Immutable.List [
   Immutable.DisplayableMessage {
     "id": "049a7d2ab30817765ea9875bfca40299669e1631329fc58b2a053ff58f78b007",
-    "type": 1,
+    "type": "11",
     "sender": Immutable.ExchangeParticipant {
       "replyTo": "testsender",
       "username": "testusername",
@@ -104,7 +104,7 @@ exports[`Offers reducer handles epics refreshMessages 1`] = `
 Immutable.List [
   Immutable.DisplayableMessage {
     "id": "049a7d2ab30817765ea9875bfca40299669e1631329fc58b2a053ff58f78b007",
-    "type": 1,
+    "type": "11",
     "sender": Immutable.ExchangeParticipant {
       "replyTo": "testsender",
       "username": "testusername",
@@ -114,8 +114,26 @@ Immutable.List [
       "username": "",
     },
     "createdAt": 123456,
-    "message": "hello
-hello",
+    "message": "hello",
+    "spent": "0",
+    "fromYou": false,
+    "status": "broadcasted",
+    "error": null,
+    "isUnregistered": false,
+  },
+  Immutable.DisplayableMessage {
+    "id": "149a7d2ab30817765ea9875bfca40299669e1631329fc58b2a053ff58f78b007",
+    "type": "11",
+    "sender": Immutable.ExchangeParticipant {
+      "replyTo": "testsender",
+      "username": "testusername",
+    },
+    "receiver": Immutable.ExchangeParticipant {
+      "replyTo": "offer.address",
+      "username": "",
+    },
+    "createdAt": 123456,
+    "message": "hello",
     "spent": "0",
     "fromYou": false,
     "status": "broadcasted",

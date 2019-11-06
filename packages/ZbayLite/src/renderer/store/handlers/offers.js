@@ -12,7 +12,6 @@ import channelSelectors from '../selectors/channel'
 import contactsSelectors from '../selectors/contacts'
 import channelHandlers from './channel'
 import directMessagesQueueHandlers from './directMessagesQueue'
-import { messageType } from '../../zbay/messages'
 
 import * as Here from './offers'
 
@@ -89,7 +88,6 @@ export const initMessage = () => async (dispatch, getState) => {
       return zbayMessages.vaultToDisplayableMessage({
         message: {
           ...msg.properties,
-          type: mapMessagesType[msg.properties.type],
           message: JSON.parse(msg.properties['message']).text,
           sender: { replyTo: msg.properties.sender, username: msg.properties.senderUsername },
           createdAt: parseInt(msg.properties.createdAt)
@@ -114,7 +112,6 @@ const refreshMessages = id => async (dispatch, getState) => {
     return zbayMessages.vaultToDisplayableMessage({
       message: {
         ...msg.properties,
-        type: mapMessagesType[msg.properties.type],
         message: JSON.parse(msg.properties['message']).text,
         sender: { replyTo: msg.properties.sender, username: msg.properties.senderUsername },
         createdAt: parseInt(msg.properties.createdAt)
@@ -129,10 +126,7 @@ const refreshMessages = id => async (dispatch, getState) => {
     }
   })
 }
-const mapMessagesType = {
-  [messageType.ITEM_BASIC]: messageType.BASIC,
-  [messageType.ITEM_TRANSFER]: messageType.TRANSFER
-}
+
 const sendItemMessageOnEnter = event => async (dispatch, getState) => {
   const enterPressed = event.nativeEvent.keyCode === 13
   const shiftPressed = event.nativeEvent.shiftKey === true
