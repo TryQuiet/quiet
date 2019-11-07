@@ -191,7 +191,10 @@ export const fetchMessages = () => async (dispatch, getState) => {
       .filter(msg => msg.type === messageType.ITEM_BASIC || msg.type === messageType.ITEM_TRANSFER)
 
     await messagesOffers.forEach(async msg => {
-      let offer = offersSelectors.offer(msg.message.itemId)(getState())
+      let offer = offersSelectors.offer(msg.message.itemId + msg.sender.username)(getState())
+      if (msg.message.itemId === null || msg.message.itemId === undefined) {
+        return
+      }
       if (!offer) {
         const ad = messagesSelectors.messageById(msg.message.itemId)(getState())
         const payload = {
@@ -202,20 +205,22 @@ export const fetchMessages = () => async (dispatch, getState) => {
         }
         await dispatch(offersHandlers.epics.createOffer({ payload }))
       }
-      offer = offersSelectors.offer(msg.message.itemId)(getState())
+      offer = offersSelectors.offer(msg.message.itemId + msg.sender.username)(getState())
       if (!offer.messages.find(message => message.id === msg.id)) {
         await dispatch(
           offersHandlers.actions.appendMessages({
             message: msg.merge({ message: msg.message.text }),
-            itemId: msg.message.itemId
+            itemId: msg.message.itemId + msg.sender.username
           })
         )
-        const lastSeen = offersSelectors.lastSeen(msg.message.itemId)(getState())
+        const lastSeen = offersSelectors.lastSeen(msg.message.itemId + msg.sender.username)(
+          getState()
+        )
         if (DateTime.fromSeconds(msg.createdAt) > lastSeen) {
           await dispatch(
             offersHandlers.actions.appendNewMessages({
               message: msg.id,
-              itemId: msg.message.itemId
+              itemId: msg.message.itemId + msg.sender.username
             })
           )
         }

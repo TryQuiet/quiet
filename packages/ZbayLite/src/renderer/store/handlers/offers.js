@@ -45,11 +45,11 @@ export const actions = {
 }
 const createOfferAdvert = ({ payload, history }) => async (dispatch, getState) => {
   await dispatch(createOffer({ payload }))
-  history.push(`/main/offers/${payload.id}/${payload.address}`)
+  history.push(`/main/offers/${payload.id + payload.offerOwner}/${payload.address}`)
 }
 const createOffer = ({ payload }) => async (dispatch, getState) => {
   const offers = offersSelectors.offers(getState())
-  if (!offers.find(e => e.itemId === payload.id)) {
+  if (!offers.find(e => e.itemId === payload.id + payload.offerOwner)) {
     const identityId = identitySelectors.id(getState())
     await getVault().offers.importOffer(identityId, payload)
     await dispatch(Here.loadVaultContacts())
@@ -68,7 +68,7 @@ export const loadVaultContacts = () => async (dispatch, getState) => {
         lastSeen: offer.lastSeen
       })
       await dispatch(addOffer({ newOffer }))
-      const message = messagesSelectors.messageById(offer.offerId)(getState())
+      const message = messagesSelectors.messageById(offer.offerId.substring(0, 64))(getState())
       await dispatch(appendMessages({ message, itemId: offer.offerId }))
     }
   })
@@ -147,7 +147,7 @@ const sendItemMessageOnEnter = event => async (dispatch, getState) => {
         messageData: {
           type: zbayMessages.messageType.ITEM_BASIC,
           data: {
-            itemId: channel.id,
+            itemId: channel.id.substring(0, 64),
             text: currentMessage.get('message').get('message') + '\n' + event.target.value
           },
           spent: '0.0001'
@@ -159,7 +159,7 @@ const sendItemMessageOnEnter = event => async (dispatch, getState) => {
         messageData: {
           type: zbayMessages.messageType.ITEM_BASIC,
           data: {
-            itemId: channel.id,
+            itemId: channel.id.substring(0, 64),
             text: event.target.value
           },
           spent: '0.0001'
@@ -171,7 +171,7 @@ const sendItemMessageOnEnter = event => async (dispatch, getState) => {
       directMessagesQueueHandlers.epics.addDirectMessage({
         message,
         recipientAddress: channel.address,
-        recipientUsername: 'none'
+        recipientUsername: channel.id.substring(64)
       })
     )
     dispatch(channelHandlers.actions.setMessage(''))

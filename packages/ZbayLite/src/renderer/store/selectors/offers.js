@@ -21,13 +21,19 @@ const offer = id =>
 export const queuedMessages = id =>
   createSelector(
     directMssagesQueueSelectors.queue,
-    queue => queue.filter(m => m.offerId === id)
+    queue =>
+      queue.filter(
+        m => m.offerId === id.substring(0, 64) && m.recipientUsername === id.substring(64)
+      )
   )
 
 export const pendingMessages = id =>
   createSelector(
     operationsSelectors.operations,
-    operations => operations.filter(o => o.meta.offerId === id)
+    operations =>
+      operations.filter(
+        o => o.meta.offerId === id.substring(0, 64) && o.meta.recipientUsername === id.substring(64)
+      )
   )
 const offerMessages = (id, signerPubKey) =>
   createSelector(

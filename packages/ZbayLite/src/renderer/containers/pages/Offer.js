@@ -12,7 +12,7 @@ import directMessageHandlers from '../../store/handlers/directMessageChannel'
 
 export const mapStateToProps = (state, { match }) => ({
   generalChannelId: channelsSelectors.generalChannelId(state),
-  msg: messagesSelectors.messageById(match.params.id)(state)
+  msg: messagesSelectors.messageById(match.params.id.substring(0, 64))(state)
 })
 
 export const mapDispatchToProps = dispatch =>

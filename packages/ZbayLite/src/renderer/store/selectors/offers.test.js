@@ -15,7 +15,7 @@ import { operationTypes, PendingDirectMessageOp, Operation } from '../handlers/o
 
 const [identity1] = testUtils.identities
 const recipientUsername = 'test-recipient-username'
-
+const adId = '019a591525c10eb53017e07e91c27f60c0c41bd1059ee3e0762453f7625a82db'
 describe('Channels selectors', () => {
   let store = null
   beforeEach(() => {
@@ -23,7 +23,7 @@ describe('Channels selectors', () => {
     store = create({
       initialState: Immutable.Map({
         offers: Immutable.Map({
-          test1: Offer({
+          [`${adId}${recipientUsername}`]: Offer({
             address: 'testAddress',
             itemId: 'testID',
             name: 'testname',
@@ -43,12 +43,15 @@ describe('Channels selectors', () => {
           })
         }),
         directMessagesQueue: Immutable.Map({
-          'messageHash': PendingMessage({
+          messageHash: PendingMessage({
             recipientAddress: identity1.address,
             recipientUsername,
-            offerId: 'test1',
+            offerId: adId,
             message: Immutable.fromJS(
-              testUtils.createItemMessage('test-pending-message', testUtils.now.minus({ hours: 2 }).toSeconds())
+              testUtils.createItemMessage(
+                'test-pending-message',
+                testUtils.now.minus({ hours: 2 }).toSeconds()
+              )
             )
           })
         }),
@@ -58,13 +61,15 @@ describe('Channels selectors', () => {
             txId: 'transaction-id',
             type: operationTypes.pendingDirectMessage,
             meta: PendingDirectMessageOp({
-              message: Immutable.fromJS(testUtils.createItemMessage(
-                'test-message-id',
-                testUtils.now.minus({ hours: 1 }).toSeconds()
-              )),
+              message: Immutable.fromJS(
+                testUtils.createItemMessage(
+                  'test-message-id',
+                  testUtils.now.minus({ hours: 1 }).toSeconds()
+                )
+              ),
               recipientAddress: identity1.address,
               recipientUsername,
-              offerId: 'test1'
+              offerId: adId
             }),
             status: 'success'
           }),
@@ -73,13 +78,15 @@ describe('Channels selectors', () => {
             txId: 'transaction-id-2',
             type: operationTypes.pendingDirectMessage,
             meta: PendingDirectMessageOp({
-              message: Immutable.fromJS(testUtils.createItemMessage(
-                'test-message-id-2',
-                testUtils.now.minus({ hours: 3 }).toSeconds()
-              )),
+              message: Immutable.fromJS(
+                testUtils.createItemMessage(
+                  'test-message-id-2',
+                  testUtils.now.minus({ hours: 3 }).toSeconds()
+                )
+              ),
               recipientAddress: identity1.address,
               recipientUsername,
-              offerId: 'test1'
+              offerId: adId
             }),
             status: 'success'
           }),
@@ -88,13 +95,15 @@ describe('Channels selectors', () => {
             txId: 'transaction-id-3',
             type: operationTypes.pendingDirectMessage,
             meta: PendingDirectMessageOp({
-              message: Immutable.fromJS(testUtils.createItemMessage(
-                'test-message-id-3',
-                testUtils.now.minus({ hours: 5 }).toSeconds()
-              )),
+              message: Immutable.fromJS(
+                testUtils.createItemMessage(
+                  'test-message-id-3',
+                  testUtils.now.minus({ hours: 5 }).toSeconds()
+                )
+              ),
               recipientAddress: identity1.address,
               recipientUsername,
-              offerId: 'test1'
+              offerId: adId
             }),
             status: 'success'
           })
@@ -107,11 +116,13 @@ describe('Channels selectors', () => {
     expect(offersSelectors.offers(store.getState())).toMatchSnapshot()
   })
   it('- offer messages', async () => {
-    expect(offersSelectors.offerMessages('test1')(store.getState())).toMatchSnapshot()
+    expect(
+      offersSelectors.offerMessages(`${adId}${recipientUsername}`)(store.getState())
+    ).toMatchSnapshot()
   })
 
   it('- offer by id', async () => {
-    const channel = offersSelectors.offer('test1')(store.getState())
+    const channel = offersSelectors.offer(`${adId}${recipientUsername}`)(store.getState())
     expect(channel).toMatchSnapshot()
   })
 
@@ -119,12 +130,12 @@ describe('Channels selectors', () => {
     const now = DateTime.utc()
     store.dispatch(
       offersHandlers.actions.setLastSeen({
-        itemId: 'test1',
+        itemId: `${adId}${recipientUsername}`,
         lastSeen: now.minus({ years: 2 })
       })
     )
 
-    const updated = offersSelectors.lastSeen('test1')(store.getState())
+    const updated = offersSelectors.lastSeen(`${adId}${recipientUsername}`)(store.getState())
     expect(updated).toEqual(now.minus({ years: 2 }))
   })
 })

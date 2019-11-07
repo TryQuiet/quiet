@@ -72,8 +72,7 @@ export const checkConfirmationNumber = async ({ opId, status, txId, dispatch, ge
   const userData = usersSelectors.registeredUser(signerPubKey)(getState())
   const messageContent = message.message
   const { recipientAddress, recipientUsername } = message
-  const item = offersSelectors.offer(messageContent.message.itemId)(getState())
-
+  const item = offersSelectors.offer(messageContent.message.itemId + recipientUsername)(getState())
   if (item) {
     await getVault().offers.saveMessage({
       identityAddress: address,
@@ -84,7 +83,9 @@ export const checkConfirmationNumber = async ({ opId, status, txId, dispatch, ge
       status,
       txId
     })
-    await dispatch(offersHandlers.epics.refreshMessages(messageContent.message.itemId))
+    await dispatch(
+      offersHandlers.epics.refreshMessages(messageContent.message.itemId + recipientUsername)
+    )
     await dispatch(operationsHandlers.actions.removeOperation(opId))
   } else {
     await getVault().contacts.saveMessage({

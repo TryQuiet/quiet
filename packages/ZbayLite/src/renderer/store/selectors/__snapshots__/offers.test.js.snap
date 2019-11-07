@@ -128,7 +128,7 @@ Immutable.List [
 
 exports[`Channels selectors - offers 1`] = `
 Immutable.Map {
-  "test1": Immutable.Offer {
+  "019a591525c10eb53017e07e91c27f60c0c41bd1059ee3e0762453f7625a82dbtest-recipient-username": Immutable.Offer {
     "address": "testAddress",
     "itemId": "testID",
     "name": "testname",

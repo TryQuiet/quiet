@@ -25,25 +25,36 @@ export default vault => {
       if (!identityGroup) {
         identityGroup = offers.createGroup(identityId)
       }
-      if (identityGroup.getGroups().find(entry => entry.getAttributes().offerId === offer.id)) {
+      if (
+        identityGroup
+          .getGroups()
+          .find(entry => entry.getAttributes().offerId === offer.id + offer.offerOwner)
+      ) {
         return
       }
       identityGroup
-        .createGroup(offer.id)
+        .createGroup(offer.id + offer.offerOwner)
         .setAttribute('name', `${offer.tag} @${offer.offerOwner}`)
-        .setAttribute('offerId', offer.id)
+        .setAttribute('offerId', offer.id + offer.offerOwner)
         .setAttribute('address', offer.address)
         .setAttribute('lastSeen', `0`)
       workspace.save()
     })
   }
-  const saveMessage = async ({ identityAddress, identityName, message, status, txId }) => {
+  const saveMessage = async ({
+    identityAddress,
+    recipientUsername,
+    identityName,
+    message,
+    status,
+    txId
+  }) => {
     await vault.withWorkspace(workspace => {
       const [offers] = workspace.archive.findGroupsByTitle('Offers')
       let [identityGroup] = offers
         .getGroups()[0]
         .getGroups()
-        .filter(g => g.getTitle() === message.message.itemId)
+        .filter(g => g.getTitle() === message.message.itemId + recipientUsername)
       identityGroup
         .createEntry(txId)
         .setProperty('id', txId)
