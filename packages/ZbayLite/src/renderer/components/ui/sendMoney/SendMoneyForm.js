@@ -16,6 +16,7 @@ import ZcashIcon from '../ZcashIcon'
 
 const styles = theme => ({
   root: {
+    maxWidth: 600,
     padding: theme.spacing(3)
   },
   textBetweenInputsItem: {

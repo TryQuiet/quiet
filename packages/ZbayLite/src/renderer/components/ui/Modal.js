@@ -22,7 +22,7 @@ const styles = theme => ({
     padding: '0 15%'
   },
   title: {
-    marginLeft: -36,
+    marginLeft: 36,
     fontSize: 15,
     color: theme.palette.colors.trueBlack,
     lineHeight: '18px',
@@ -30,21 +30,24 @@ const styles = theme => ({
     fontWeight: 'normal'
   },
   header: {
-    background: '#fff',
+    background: theme.palette.colors.white,
     height: constants.headerHeight,
-    order: -1
+    borderBottom: `1px solid ${theme.palette.colors.contentGray}`
   },
   actions: {
-    paddingLeft: theme.spacing(2)
+    paddingRight: theme.spacing(2)
   },
   content: {
-    background: '#fff'
+    background: theme.palette.colors.white,
+    width: 600
   },
   fullPage: {
+    width: '100%',
     height: `calc(100vh - ${constants.headerHeight}px)`
   },
   centered: {
-    maxWidth: 570,
+    background: theme.palette.colors.white,
+    width: '100vw',
     position: 'absolute',
     top: '50%',
     left: '50%',
@@ -71,11 +74,16 @@ export const Modal = ({
       direction='column'
       justify='center'
       className={classNames({
-        [classes.centered]: !fullPage,
+        [classes.centered]: true,
         [classes.window]: true
       })}
     >
       <Grid container item className={classes.header} direction='row' alignItems='center'>
+        <Grid item xs container justify='center' alignItems='center'>
+          <Typography variant='subtitle1' className={classes.title} align='center'>
+            {title}
+          </Typography>
+        </Grid>
         <Grid item className={classes.actions}>
           {canGoBack ? (
             <IconButton onClick={() => setStep(step - 1)}>
@@ -87,21 +95,21 @@ export const Modal = ({
             </IconButton>
           )}
         </Grid>
-        <Grid item xs container justify='center' alignItems='center'>
-          <Typography variant='subtitle1' className={classes.title} align='center'>
-            {title}
-          </Typography>
-        </Grid>
       </Grid>
       <Grid
         container
         item
-        className={classNames({
-          [classes.content]: true,
-          [classes.fullPage]: fullPage
-        })}
-      >
-        {children}
+        direction={'row'}
+        justify={'center'}
+        className={classes.fullPage}>
+        <Grid
+          container
+          item
+          justify={'center'}
+          className={classes.content}
+        >
+          {children}
+        </Grid>
       </Grid>
     </Grid>
   </MaterialModal>

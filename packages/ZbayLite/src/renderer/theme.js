@@ -69,6 +69,7 @@ export default createMuiTheme({
       dark: '#4a4a4a'
     },
     colors: {
+      contentGray: '#D2D2D2',
       titleGray: '#555555',
       blue: '#2196f3',
       white: '#FFFFFF',
