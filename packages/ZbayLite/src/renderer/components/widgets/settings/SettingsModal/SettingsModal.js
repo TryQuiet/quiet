@@ -4,6 +4,7 @@ import PropTypes from 'prop-types'
 import Tabs from '@material-ui/core/Tabs'
 import AppBar from '@material-ui/core/AppBar'
 import { withStyles } from '@material-ui/core/styles'
+import { Grid } from '@material-ui/core'
 
 import Modal from '../../../ui/Modal'
 import Tab from '../../../ui/Tab'
@@ -18,22 +19,35 @@ const tabs = {
 }
 
 const styles = theme => ({
+  root: {
+    padding: 20
+  },
   tabs: {
-    color: theme.palette.colors.purple
+    color: theme.palette.colors.trueBlack
   },
   indicator: {
-    backgroundColor: theme.palette.colors.purple,
-    height: 3
+    height: '0 !important'
   },
   appbar: {
     backgroundColor: '#fff',
-    boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.12)'
+    boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.0)'
   },
   disabled: {
     fontSize: 25,
     lineHeight: '15px',
     fontStyle: 'normal',
     fontWeight: 'normal'
+  },
+  tabsDiv: {
+    width: 168
+  },
+  selected: {
+    backgroundColor: theme.palette.colors.lushSky,
+    borderRadius: 5,
+    color: theme.palette.colors.white
+  },
+  tab: {
+    minHeight: 32
   }
 })
 
@@ -42,20 +56,39 @@ export const SettingsModal = ({ classes, open, handleClose }) => {
   const TabComponent = tabs[currentTab]
   return (
     <Modal open={open} handleClose={handleClose} title='Settings'>
-      <AppBar position='static' color='default' className={classes.appbar}>
-        <Tabs
-          value={currentTab}
-          onChange={(e, value) => setCurrentTab(value)}
-          textColor='primary'
-          className={classes.tabs}
-          classes={{ indicator: classes.indicator }}
-        >
-          <Tab value='account' label='Account' />
-          <Tab value='shipping' label='Shipping' />
-          <Tab value='donations' label='Dontaions' />
-        </Tabs>
-      </AppBar>
-      <TabComponent />
+      <Grid container direction='row' className={classes.root}>
+        <Grid item className={classes.tabsDiv}>
+          <AppBar position='static' className={classes.appbar}>
+            <Tabs
+              value={currentTab}
+              onChange={(e, value) => setCurrentTab(value)}
+              orientation='vertical'
+              className={classes.tabs}
+              textColor='inherit'
+              classes={{ indicator: classes.indicator }}
+            >
+              <Tab
+                value='account'
+                label='Account'
+                classes={{ tabRoot: classes.tab, selected: classes.selected }}
+              />
+              <Tab
+                value='shipping'
+                label='Shipping'
+                classes={{ tabRoot: classes.tab, selected: classes.selected }}
+              />
+              <Tab
+                value='donations'
+                label='Donations'
+                classes={{ tabRoot: classes.tab, selected: classes.selected }}
+              />
+            </Tabs>
+          </AppBar>
+        </Grid>
+        <Grid item xs>
+          <TabComponent />
+        </Grid>
+      </Grid>
     </Modal>
   )
 }

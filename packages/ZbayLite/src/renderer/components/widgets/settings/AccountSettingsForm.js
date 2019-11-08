@@ -18,9 +18,6 @@ import usernameIcon from '../../../static/images/username.svg'
 import IconCopy from '../../ui/IconCopy'
 
 const styles = theme => ({
-  fullWidth: {
-    width: 570
-  },
   mainCreateUsernameContainer: {
     marginTop: 25
   },
@@ -100,27 +97,39 @@ export const AccountSettingsForm = ({
   closeModal
 }) => (
   <Fragment>
-    <Grid container spacing={4} className={classes.mainCreateUsernameContainer} direction='row' justify='center'>
+    <Grid
+      container
+      spacing={4}
+      className={classes.mainCreateUsernameContainer}
+      direction='row'
+      justify='center'
+    >
       <Grid container item className={classes.createUsernameContainer}>
         <Grid item xs={12}>
           <Typography variant={'h4'}>Create a username</Typography>
         </Grid>
         <Grid container item direction='row' alignItems='center' justify='space-between'>
           <Grid item xs={10}>
-            <Typography className={classes.info} variant={'body2'}>You need this to send and receive direct messages.</Typography>
+            <Typography className={classes.info} variant={'body2'}>
+              You need this to send and receive direct messages.
+            </Typography>
           </Grid>
           <Grid container item xs={2} direction='row' justify='flex-end'>
             <Icon className={classes.usernameIcon} src={usernameIcon} />
           </Grid>
         </Grid>
         <Grid item xs={12}>
-          <Typography className={classes.link} onClick={() => openCreateUsernameModal(openModal, closeModal)} variant={'body2'}>Create username</Typography>
+          <Typography
+            className={classes.link}
+            onClick={() => openCreateUsernameModal(openModal, closeModal)}
+            variant={'body2'}
+          >
+            Create username
+          </Typography>
         </Grid>
       </Grid>
     </Grid>
-    <Formik
-      onSubmit={handleSubmit}
-    >
+    <Formik onSubmit={handleSubmit}>
       {({ values, isSubmitting, isValid }) => (
         <Form className={classes.fullWidth}>
           <Grid container className={classes.container} spacing={4}>
@@ -136,16 +145,16 @@ export const AccountSettingsForm = ({
                 classes={{ root: classes.textFieldd }}
                 InputProps={{
                   endAdornment: (
-                  <>
-                    <Divider className={classes.divider} orientation='vertical' />
-                    <InputAdornment position='end' className={classes.icon}>
-                      <IconButton>
-                        <CopyToClipboard text={privateAddress} onCopy={handleCopy}>
-                          <IconCopy />
-                        </CopyToClipboard>
-                      </IconButton>
-                    </InputAdornment>
-                  </>
+                    <>
+                      <Divider className={classes.divider} orientation='vertical' />
+                      <InputAdornment position='end' className={classes.icon}>
+                        <IconButton>
+                          <CopyToClipboard text={privateAddress} onCopy={handleCopy}>
+                            <IconCopy />
+                          </CopyToClipboard>
+                        </IconButton>
+                      </InputAdornment>
+                    </>
                   )
                 }}
               />
@@ -161,16 +170,16 @@ export const AccountSettingsForm = ({
                 disabled
                 InputProps={{
                   endAdornment: (
-                  <>
-                    <Divider className={classes.divider} orientation='vertical' />
-                    <InputAdornment position='end' className={classes.icon}>
-                      <IconButton>
-                        <CopyToClipboard text={transparentAddress} onCopy={handleCopy}>
-                          <IconCopy />
-                        </CopyToClipboard>
-                      </IconButton>
-                    </InputAdornment>
-                  </>
+                    <>
+                      <Divider className={classes.divider} orientation='vertical' />
+                      <InputAdornment position='end' className={classes.icon}>
+                        <IconButton>
+                          <CopyToClipboard text={transparentAddress} onCopy={handleCopy}>
+                            <IconCopy />
+                          </CopyToClipboard>
+                        </IconButton>
+                      </InputAdornment>
+                    </>
                   )
                 }}
               />
@@ -185,7 +194,7 @@ export const AccountSettingsForm = ({
                 disabled={!isValid || isSubmitting}
                 className={classes.button}
               >
-              Save
+                Save
               </Button>
             </Grid>
           </Grid>

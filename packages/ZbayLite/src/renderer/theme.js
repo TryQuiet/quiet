@@ -97,6 +97,11 @@ export default createMuiTheme({
         wordBreak: 'break-all'
       }
     },
+    MuiTab: {
+      wrapper: {
+        alignItems: 'flex-start'
+      }
+    },
     MuiButton: {
       sizeSmall: {
         textTransform: 'none',

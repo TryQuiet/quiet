@@ -6,36 +6,70 @@ exports[`SettingsModal renders component 1`] = `
   open={true}
   title="Settings"
 >
-  <WithStyles(ForwardRef(AppBar))
-    className="appbar-mock"
-    color="default"
-    position="static"
+  <WithStyles(ForwardRef(Grid))
+    className="root-mock"
+    container={true}
+    direction="row"
   >
-    <WithStyles(ForwardRef(Tabs))
-      className="tabs-mock"
-      classes={
-        Object {
-          "indicator": "indicator-mock",
-        }
-      }
-      onChange={[Function]}
-      textColor="primary"
-      value="account"
+    <WithStyles(ForwardRef(Grid))
+      className="tabsDiv-mock"
+      item={true}
     >
-      <WithStyles(Tab)
-        label="Account"
-        value="account"
-      />
-      <WithStyles(Tab)
-        label="Shipping"
-        value="shipping"
-      />
-      <WithStyles(Tab)
-        label="Dontaions"
-        value="donations"
-      />
-    </WithStyles(ForwardRef(Tabs))>
-  </WithStyles(ForwardRef(AppBar))>
-  <Connect(WithStyles(AccountSettingsForm)) />
+      <WithStyles(ForwardRef(AppBar))
+        className="appbar-mock"
+        position="static"
+      >
+        <WithStyles(ForwardRef(Tabs))
+          className="tabs-mock"
+          classes={
+            Object {
+              "indicator": "indicator-mock",
+            }
+          }
+          onChange={[Function]}
+          orientation="vertical"
+          textColor="inherit"
+          value="account"
+        >
+          <WithStyles(Tab)
+            classes={
+              Object {
+                "selected": "selected-mock",
+                "tabRoot": "tab-mock",
+              }
+            }
+            label="Account"
+            value="account"
+          />
+          <WithStyles(Tab)
+            classes={
+              Object {
+                "selected": "selected-mock",
+                "tabRoot": "tab-mock",
+              }
+            }
+            label="Shipping"
+            value="shipping"
+          />
+          <WithStyles(Tab)
+            classes={
+              Object {
+                "selected": "selected-mock",
+                "tabRoot": "tab-mock",
+              }
+            }
+            label="Donations"
+            value="donations"
+          />
+        </WithStyles(ForwardRef(Tabs))>
+      </WithStyles(ForwardRef(AppBar))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      item={true}
+      xs={true}
+    >
+      <Connect(WithStyles(AccountSettingsForm)) />
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
 </Memo(WithStyles(Modal))>
 `;
