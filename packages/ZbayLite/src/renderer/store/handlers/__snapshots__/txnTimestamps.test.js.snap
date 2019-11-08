@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Operations reducer handles  actions - addTxnTimestamp 1`] = `
+Immutable.Map {
+  "123": "1234",
+}
+`;
+
+exports[`Operations reducer handles  epics - getTnxTimestamps 1`] = `
+Immutable.Map {
+  "123": "test1",
+  "1234": "test2",
+}
+`;

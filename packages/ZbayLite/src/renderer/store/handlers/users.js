@@ -4,6 +4,8 @@ import * as R from 'ramda'
 
 import appSelectors from '../selectors/app'
 import appHandlers from '../handlers/app'
+import txnTimestampsHandlers from '../handlers/txnTimestamps'
+import txnTimestampsSelector from '../selectors/txnTimestamps'
 import { actionCreators } from './modals'
 import notificationsHandlers from './notifications'
 import channelsSelectors from '../selectors/channels'
@@ -13,6 +15,7 @@ import { errorNotification } from './utils'
 import { messageType, getPublicKeysFromSignature } from '../../zbay/messages'
 import { messages as zbayMessages } from '../../zbay'
 import { getClient } from '../../zcash'
+import { getVault } from '../../vault'
 
 const _ReceivedUser = publicKey =>
   Immutable.Record(
@@ -112,6 +115,8 @@ export const fetchUsers = () => async (dispatch, getState) => {
   try {
     const usersChannel = channelsSelectors.usersChannel(getState())
     const transfers = await getClient().payment.received(usersChannel.get('address'))
+    const txnTimestamps = txnTimestampsSelector.tnxTimestamps(getState())
+
     if (transfers.length === appSelectors.transfers(getState()).get(usersChannel.get('address'))) {
       return
     } else {
@@ -122,15 +127,27 @@ export const fetchUsers = () => async (dispatch, getState) => {
         })
       )
     }
+    await transfers.forEach(async transfer => {
+      if (!txnTimestamps.get(transfer.txid)) {
+        const result = await getClient().confirmations.getResult(transfer.txid)
+        await getVault().transactionsTimestamps.addTransaction(transfer.txid, result.blocktime)
+        await dispatch(
+          txnTimestampsHandlers.actions.addTxnTimestamp({
+            tnxs: { [transfer.txid]: result.blocktime.toString() }
+          })
+        )
+      }
+    })
+    const sortedTransfers = transfers.sort(
+      (a, b) => txnTimestamps.get(a.txid) - txnTimestamps.get(b.txid)
+    )
     const registrationMessages = await Promise.all(
-      transfers.map(transfer => {
+      sortedTransfers.map(transfer => {
         const message = zbayMessages.transferToMessage(transfer)
         return message
       })
     )
-    const sortedMessages = registrationMessages
-      .filter(msg => msg !== null)
-      .sort((a, b) => a.createdAt - b.createdAt)
+    const sortedMessages = registrationMessages.filter(msg => msg !== null)
     const users = await sortedMessages.reduce(
       async (acc = Promise.resolve(Immutable.Map({})), message) => {
         const accumulator = await acc

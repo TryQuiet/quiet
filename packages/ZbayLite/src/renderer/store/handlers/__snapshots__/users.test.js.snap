@@ -65,13 +65,13 @@ Array [
 
 exports[`users reducer handles epics - fetch users when users 1`] = `
 Immutable.Map {
-  "02b7e647acb166a81139b1bcbdde82b8df610f1fb93af5edd0359dd0d7138d9166": Immutable.UserData {
+  "035302fc10b2dc5cbe747779cd1cbcd7fe111161e09282e210d72dee9f6e68b17a": Immutable.UserData {
     "firstName": "testname",
     "lastName": "testlastname",
     "nickname": "nickname #6",
     "address": "ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r",
   },
-  "035302fc10b2dc5cbe747779cd1cbcd7fe111161e09282e210d72dee9f6e68b17a": Immutable.UserData {
+  "02b7e647acb166a81139b1bcbdde82b8df610f1fb93af5edd0359dd0d7138d9166": Immutable.UserData {
     "firstName": "testname",
     "lastName": "testlastname",
     "nickname": "nickname #7",

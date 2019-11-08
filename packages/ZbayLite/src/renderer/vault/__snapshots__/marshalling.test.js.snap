@@ -87,8 +87,15 @@ Array [
         Array [
           "Offers",
         ],
+        Array [
+          "TxnTs",
+        ],
       ],
       "results": Array [
+        Object {
+          "type": "return",
+          "value": undefined,
+        },
         Object {
           "type": "return",
           "value": undefined,

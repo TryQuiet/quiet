@@ -34,5 +34,9 @@ export default {
       return testUtils.vaultTestMessages
     }),
     updateLastSeen: jest.fn(async () => {})
+  },
+  transactionsTimestamps: {
+    addTransaction: jest.fn(async () => {}),
+    listTransactions: jest.fn(async () => {})
   }
 }

@@ -16,6 +16,7 @@ import usersHandlers from './users'
 import contactsHandlers from './contacts'
 import messagesHandlers from './messages'
 import offersHandlers from './offers'
+import txnTimestampsHandlers from './txnTimestamps'
 import operationHandlers, { operationTypes, ShieldBalanceOp } from './operations'
 import vaultHandlers from './vault'
 import ratesHandlers from './rates'
@@ -236,6 +237,7 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
       identity = updatedIdentity
     }
     await dispatch(setIdentity(identity))
+    await dispatch(txnTimestampsHandlers.epics.getTnxTimestamps())
     const network = nodeSelectors.network(getState())
     await migrateTo_0_7_0.ensureDefaultChannels(identity, network)
     dispatch(setLoadingMessage('Fetching balance and loading channels'))

@@ -207,6 +207,10 @@ Vault {
     "saveMessage": [Function],
     "updateLastSeen": [Function],
   },
+  "transactionsTimestamps": Object {
+    "addTransaction": [Function],
+    "listTransactions": [Function],
+  },
   "withWorkspace": [Function],
 }
 `;

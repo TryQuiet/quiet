@@ -11,11 +11,14 @@ import identitySelectors from '../selectors/identity'
 import operationsSelectors from '../selectors/operations'
 import operationsHandlers from './operations'
 import channelsHandlers from './channels'
+import txnTimestampsHandlers from '../handlers/txnTimestamps'
+import txnTimestampsSelector from '../selectors/txnTimestamps'
 import appHandlers from './app'
 import { messageType } from '../../zbay/messages'
 import { messages as zbayMessages } from '../../zbay'
 import { getClient } from '../../zcash'
 import { displayMessageNotification } from '../../notifications'
+import { getVault } from '../../vault'
 
 export const MessageSender = Immutable.Record(
   {
@@ -68,6 +71,7 @@ export const fetchMessages = channel => async (dispatch, getState) => {
     const pendingMessages = operationsSelectors.pendingMessages(getState())
     const identityAddress = identitySelectors.address(getState())
     const users = usersSelectors.users(getState())
+    const txnTimestamps = txnTimestampsSelector.tnxTimestamps(getState())
 
     if (pendingMessages.find(msg => msg.status === 'pending')) {
       return
@@ -82,9 +86,22 @@ export const fetchMessages = channel => async (dispatch, getState) => {
     } else {
       dispatch(appHandlers.actions.setTransfers({ id: channelId, value: transfers.length }))
     }
-
+    await transfers.forEach(async transfer => {
+      if (!txnTimestamps.get(transfer.txid)) {
+        const result = await getClient().confirmations.getResult(transfer.txid)
+        await getVault().transactionsTimestamps.addTransaction(transfer.txid, result.blocktime)
+        await dispatch(
+          txnTimestampsHandlers.actions.addTxnTimestamp({
+            tnxs: { [transfer.txid]: result.blocktime.toString() }
+          })
+        )
+      }
+    })
+    const sortedTransfers = transfers.sort(
+      (a, b) => txnTimestamps.get(a.txid) - txnTimestamps.get(b.txid)
+    )
     const messagesAll = await Promise.all(
-      transfers.map(async transfer => {
+      sortedTransfers.map(async transfer => {
         const message = await zbayMessages.transferToMessage(transfer, users)
         if (message === null) {
           return ReceivedMessage(message)
