@@ -2,6 +2,7 @@ import React from 'react'
 import * as R from 'ramda'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
+import { withRouter } from 'react-router-dom'
 
 import { withModal } from '../../../store/handlers/modals'
 import { rate } from '../../../store/selectors/rates'
@@ -21,7 +22,7 @@ export const mapStateToProps = state => ({
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      handleSend: advertHandlers.epics.handleSend
+      handleSendTransfer: advertHandlers.epics.handleSendTransfer
     },
     dispatch
   )
@@ -32,5 +33,6 @@ export default R.compose(
     mapDispatchToProps
   ),
   withModal('advertSendFounds'),
+  withRouter,
   React.memo
 )(SendFundsForm)

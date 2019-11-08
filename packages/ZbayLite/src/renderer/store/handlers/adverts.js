@@ -2,10 +2,12 @@ import BigNumber from 'bignumber.js'
 
 import identitySelectors from '../selectors/identity'
 import channelSelectors from '../selectors/channel'
+import offersHandlers from '../../store/handlers/offers'
 import { messageType } from '../../zbay/messages'
 import { messages } from '../../zbay'
 import { getClient } from '../../zcash'
 import notificationsHandlers from './notifications'
+import directMessagesQueueHandlers from './directMessagesQueue'
 import { errorNotification, successNotification } from './utils'
 import operationsHandlers, { operationTypes } from './operations'
 
@@ -61,8 +63,35 @@ const handleSend = ({ values }) => async (dispatch, getState) => {
     )
   }
 }
+
+const handleSendTransfer = ({ values, history, payload }) => async (dispatch, getState) => {
+  const shippingData = identitySelectors.shippingData(getState())
+  const privKey = identitySelectors.signerPrivKey(getState())
+  const message = messages.createMessage({
+    messageData: {
+      type: messageType.ITEM_TRANSFER,
+      data: {
+        itemId: payload.id.substring(0, 64),
+        tag: payload.tag,
+        offerOwner: payload.offerOwner,
+        shippingData
+      },
+      spent: new BigNumber(values.zec)
+    },
+    privKey
+  })
+  dispatch(offersHandlers.epics.createOfferAdvert({ payload, history }))
+  dispatch(directMessagesQueueHandlers.epics.addDirectMessage({
+    message,
+    recipientAddress: payload.address,
+    recipientUsername: payload.offerOwner
+  })
+  )
+}
+
 export const epics = {
-  handleSend
+  handleSend,
+  handleSendTransfer
 }
 
 export default {

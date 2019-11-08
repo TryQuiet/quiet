@@ -58,6 +58,9 @@ Immutable.List [
     "fromYou": true,
     "status": "success",
     "error": null,
+    "shippingData": null,
+    "tag": "",
+    "offerOwner": null,
     "isUnregistered": false,
   },
   Immutable.DisplayableMessage {
@@ -77,6 +80,9 @@ Immutable.List [
     "fromYou": true,
     "status": "success",
     "error": null,
+    "shippingData": null,
+    "tag": "",
+    "offerOwner": null,
     "isUnregistered": false,
   },
   Immutable.ReceivedMessage {
@@ -109,6 +115,9 @@ Immutable.List [
     "fromYou": true,
     "status": "success",
     "error": null,
+    "shippingData": null,
+    "tag": "",
+    "offerOwner": null,
     "isUnregistered": false,
   },
   Immutable.ReceivedMessage {

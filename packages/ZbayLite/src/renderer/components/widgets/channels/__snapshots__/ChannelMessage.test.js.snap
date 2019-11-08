@@ -21,6 +21,9 @@ exports[`ChannelMessage renders component 1`] = `
       "fromYou": false,
       "status": "broadcasted",
       "error": null,
+      "shippingData": null,
+      "tag": "",
+      "offerOwner": null,
       "isUnregistered": false,
     }
   }
@@ -72,6 +75,9 @@ exports[`ChannelMessage renders component when message is sent by owner 1`] = `
       "fromYou": true,
       "status": "broadcasted",
       "error": null,
+      "shippingData": null,
+      "tag": "",
+      "offerOwner": null,
       "isUnregistered": false,
     }
   }

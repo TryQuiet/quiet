@@ -36,6 +36,9 @@ export const _DisplayableMessage = Immutable.Record(
     fromYou: false,
     status: 'broadcasted',
     error: null,
+    shippingData: null,
+    tag: '',
+    offerOwner: null,
     isUnregistered: false
   },
   'DisplayableMessage'
@@ -75,11 +78,15 @@ export const vaultToDisplayableMessage = ({
 
 export const operationToDisplayableMessage = ({
   operation,
+  tag,
+  offerOwner,
   identityAddress,
   identityName,
   receiver = { replyTo: '', username: 'Unnamed' }
 }) => {
   return DisplayableMessage(operation.meta.message).merge({
+    tag,
+    offerOwner,
     error: operation.error,
     status: operation.status,
     id: operation.opId,
@@ -91,12 +98,16 @@ export const operationToDisplayableMessage = ({
 
 export const queuedToDisplayableMessage = ({
   messageKey,
+  tag,
+  offerOwner,
   queuedMessage,
   identityAddress,
   identityName,
   receiver = { replyTo: '', username: 'Unnamed' }
 }) =>
   DisplayableMessage(queuedMessage.message).merge({
+    tag,
+    offerOwner,
     fromYou: true,
     id: messageKey,
     status: 'pending',

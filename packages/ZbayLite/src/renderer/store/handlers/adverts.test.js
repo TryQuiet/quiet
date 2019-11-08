@@ -6,6 +6,7 @@ jest.mock('../../zcash')
 import Immutable from 'immutable'
 import * as R from 'ramda'
 import { DateTime } from 'luxon'
+import BigNumber from 'bignumber.js'
 
 import create from '../create'
 import advertHandlers from './adverts'
@@ -23,7 +24,8 @@ describe('Messages queue reducer handles', () => {
     title: 'testtitle',
     provideShipping: 1,
     amount: 123.1,
-    description: 'random description'
+    description: 'random description',
+    zec: new BigNumber('0.123')
   }
 
   beforeEach(() => {

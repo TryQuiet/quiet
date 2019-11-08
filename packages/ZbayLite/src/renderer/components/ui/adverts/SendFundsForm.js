@@ -18,18 +18,23 @@ export const formSchema = Yup.object().shape(
   ['zec', 'usd']
 )
 
-export const SendFundsForm = ({ classes, handleSend, handleClose, initialValues, ...props }) => {
+export const SendFundsForm = ({ classes, handleSendTransfer, handleClose, initialValues, payload, history, ...props }) => {
   return (
     <Formik
+      enableReinitialize
       validationSchema={formSchema}
       initialValues={initialValues}
       onSubmit={async (values, { resetForm }) => {
+        handleSendTransfer({ values, payload, history })
+        resetForm()
+        handleClose()
       }}
     >
       {({ values, isValid, submitForm, resetForm, setFieldValue, errors, touched }) => {
         return (
           <SendFundsModal
             {...props}
+            payload={payload}
             isValid={isValid}
             values={values}
             setFieldValue={setFieldValue}

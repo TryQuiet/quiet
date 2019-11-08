@@ -95,6 +95,9 @@ Immutable.List [
     "fromYou": false,
     "status": "broadcasted",
     "error": null,
+    "shippingData": null,
+    "tag": "",
+    "offerOwner": null,
     "isUnregistered": false,
   },
 ]
@@ -119,6 +122,9 @@ Immutable.List [
     "fromYou": false,
     "status": "broadcasted",
     "error": null,
+    "shippingData": null,
+    "tag": "",
+    "offerOwner": null,
     "isUnregistered": false,
   },
   Immutable.DisplayableMessage {
@@ -138,6 +144,9 @@ Immutable.List [
     "fromYou": false,
     "status": "broadcasted",
     "error": null,
+    "shippingData": null,
+    "tag": "",
+    "offerOwner": null,
     "isUnregistered": false,
   },
 ]

@@ -2,7 +2,7 @@
 
 exports[`SendFundsForm renders component SendFoundsForm 1`] = `
 <Formik
-  enableReinitialize={false}
+  enableReinitialize={true}
   initialValues={
     Object {
       "shippingData": Object {},

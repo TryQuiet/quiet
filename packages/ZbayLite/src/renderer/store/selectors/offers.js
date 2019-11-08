@@ -46,10 +46,11 @@ const offerMessages = (id, signerPubKey) =>
       const userData = registeredUser ? registeredUser.toJS() : null
       const identityAddress = identity.address
       const identityName = userData ? userData.nickname : identity.name
-
       const displayablePending = pendingMessages.map(operation => {
         return zbayMessages.operationToDisplayableMessage({
           operation: operation.updateIn(['meta', 'message', 'message'], msg => msg.get('text')),
+          tag: operation.getIn(['meta', 'message', 'message', 'tag']),
+          offerOwner: operation.getIn(['meta', 'message', 'message', 'offerOwner']),
           identityAddress,
           identityName,
           receiver: {
@@ -61,6 +62,8 @@ const offerMessages = (id, signerPubKey) =>
       const displayableQueued = queuedMessages.map((queuedMessage, messageKey) => {
         return zbayMessages.queuedToDisplayableMessage({
           queuedMessage: queuedMessage.updateIn(['message', 'message'], msg => msg.get('text')),
+          tag: queuedMessage.getIn(['message', 'message', 'tag']),
+          offerOwner: queuedMessage.getIn(['message', 'message', 'offerOwner']),
           messageKey,
           identityAddress,
           identityName

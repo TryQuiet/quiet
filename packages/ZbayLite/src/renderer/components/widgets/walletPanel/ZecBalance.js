@@ -35,7 +35,7 @@ export const ZecBalance = ({ classes, value, size, style }) => {
         style={{ fontSize: `${size / 20}rem`, marginTop: size / 7 }}
         className={style === 'white' ? classes.valueWhite : classes.value}
       >
-        {R.isNil(value) ? '-' : value.toFormat(6)}
+        {R.isNil(value) ? '-' : new BigNumber(value).toFormat(6)}
       </Typography>
     </Grid>
   )

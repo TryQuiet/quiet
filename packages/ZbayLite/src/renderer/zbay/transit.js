@@ -1,5 +1,6 @@
 import { inflate, deflate } from '../compression'
 import { messageType } from './messages'
+
 export const MEMO_SIZE = 512
 const TYPE_SIZE = 1
 const SIGNATURE_SIZE = 64

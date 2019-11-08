@@ -9,6 +9,7 @@ import { withStyles } from '@material-ui/core/styles'
 import { messageType } from '../../../zbay/messages'
 import ChannelMessage from '../../../containers/widgets/channels/ChannelMessage'
 import ChannelTransferMessage from '../../../containers/widgets/channels/ChannelTransferMessage'
+import ChannelItemTransferMessage from '../../../containers/widgets/channels/ItemTransferMessage'
 import ChannelAdMessage from '../../../containers/widgets/channels/ListingMessage'
 
 const styles = theme => ({
@@ -56,7 +57,7 @@ export const ChannelMessages = ({
 const typeToMessageComponent = {
   [messageType.BASIC]: ChannelMessage,
   [messageType.ITEM_BASIC]: ChannelMessage,
-  [messageType.ITEM_TRANSFER]: ChannelTransferMessage,
+  [messageType.ITEM_TRANSFER]: ChannelItemTransferMessage,
   [messageType.TRANSFER]: ChannelTransferMessage,
   [messageType.AD]: ChannelAdMessage
 }

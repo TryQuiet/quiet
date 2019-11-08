@@ -1,0 +1,44 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ItemTransferMessage renders component 1`] = `
+<Memo(WithStyles(BasicMessage))
+  actionsOpen={false}
+  message={
+    Immutable.DisplayableMessage {
+      "id": null,
+      "type": 1,
+      "sender": Immutable.ExchangeParticipant {
+        "replyTo": "test-address",
+        "username": "test",
+      },
+      "receiver": Immutable.ExchangeParticipant {
+        "replyTo": "",
+        "username": "Unnamed",
+      },
+      "createdAt": 1313246566,
+      "message": "",
+      "spent": 120,
+      "fromYou": false,
+      "status": "broadcasted",
+      "error": Immutable.Map {},
+      "shippingData": null,
+      "tag": "test",
+      "offerOwner": "tester",
+      "isUnregistered": false,
+    }
+  }
+  setActionsOpen={[Function]}
+>
+  <WithStyles(ForwardRef(Grid))
+    className="messageInput-mock"
+    item={true}
+  >
+    <WithStyles(ForwardRef(Typography))
+      className="message-mock"
+      variant="body2"
+    >
+      Sent 4560.00 (120 ZEC) to @tester for #test
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+</Memo(WithStyles(BasicMessage))>
+`;

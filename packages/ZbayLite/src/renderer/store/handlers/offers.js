@@ -89,6 +89,9 @@ export const initMessage = () => async (dispatch, getState) => {
         message: {
           ...msg.properties,
           message: JSON.parse(msg.properties['message']).text,
+          shippingData: JSON.parse(msg.properties['message']).shippingData,
+          tag: JSON.parse(msg.properties['message']).tag,
+          offerOwner: JSON.parse(msg.properties['message']).offerOwner,
           sender: { replyTo: msg.properties.sender, username: msg.properties.senderUsername },
           createdAt: parseInt(msg.properties.createdAt)
         },
@@ -113,6 +116,9 @@ const refreshMessages = id => async (dispatch, getState) => {
       message: {
         ...msg.properties,
         message: JSON.parse(msg.properties['message']).text,
+        shippingData: JSON.parse(msg.properties['message']).shippingData,
+        tag: JSON.parse(msg.properties['message']).tag,
+        offerOwner: JSON.parse(msg.properties['message']).offerOwner,
         sender: { replyTo: msg.properties.sender, username: msg.properties.senderUsername },
         createdAt: parseInt(msg.properties.createdAt)
       },
@@ -193,6 +199,7 @@ export const epics = {
   loadVaultContacts,
   initMessage,
   sendItemMessageOnEnter,
+  // sendItemTransferMessage,
   refreshMessages,
   createOffer,
   updateLastSeen

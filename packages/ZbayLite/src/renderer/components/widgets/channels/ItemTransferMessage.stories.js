@@ -5,36 +5,30 @@ import { storiesOf } from '@storybook/react'
 import { withKnobs } from '@storybook/addon-knobs'
 import StoryRouter from 'storybook-react-router'
 import create from '../../../store/create'
+import BigNumber from 'bignumber.js'
 
 import { withStore } from '../../../../../.storybook/decorators'
 
-import ListingMessage from './ListingMessage'
+import ItemTransferMessage from './ItemTransferMessage'
 
 const store = create({
   initialState: Immutable.Map({})
 })
 
-storiesOf('Components/Widgets/Channels/ListingMessages', module)
+storiesOf('Components/Widgets/Channels/ItemTransferMessage', module)
   .addDecorator(withKnobs)
   .addDecorator(StoryRouter())
   .addDecorator(withStore(store))
   .add('playground', () => {
-    const payload = {
-      tag: 'dirtyBike',
-      offerOwner: 'roks33',
-      description: 'Great quality bike for half the price as a name brand dirt bike! The X4',
-      title: 'Apollo X4 110cc Dirt Bike for...',
-      priceUSD: '300',
-      priceZcash: '4000',
-      background: 28,
-      username: 'test'
-    }
     const message = {
       replyTo: 'test-address',
+      spent: 120,
       sender: {
         username: 'test',
         replyTo: 'test-address'
       },
+      tag: 'test',
+      offerOwner: 'tester',
       isUnregistered: false,
       username: 'test',
       fromYou: false,
@@ -45,7 +39,7 @@ storiesOf('Components/Widgets/Channels/ListingMessages', module)
     return (
       <Grid container direction='column' spacing={2}>
         <Grid item>
-          <ListingMessage payload={payload} message={message} />
+          <ItemTransferMessage message={message} rateUsd={new BigNumber(38)} />
         </Grid>
       </Grid>
     )
