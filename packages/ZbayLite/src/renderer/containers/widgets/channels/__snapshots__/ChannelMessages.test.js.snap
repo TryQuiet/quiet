@@ -23,7 +23,7 @@ Object {
       "error": null,
       "shippingData": null,
       "tag": "",
-      "offerOwner": null,
+      "offerOwner": "",
       "isUnregistered": false,
     },
     Immutable.DisplayableMessage {
@@ -45,7 +45,7 @@ Object {
       "error": null,
       "shippingData": null,
       "tag": "",
-      "offerOwner": null,
+      "offerOwner": "",
       "isUnregistered": false,
     },
     Immutable.DisplayableMessage {
@@ -67,7 +67,7 @@ Object {
       "error": null,
       "shippingData": null,
       "tag": "",
-      "offerOwner": null,
+      "offerOwner": "",
       "isUnregistered": false,
     },
     Immutable.DisplayableMessage {
@@ -89,7 +89,7 @@ Object {
       "error": null,
       "shippingData": null,
       "tag": "",
-      "offerOwner": null,
+      "offerOwner": "",
       "isUnregistered": false,
     },
   ],
@@ -113,6 +113,8 @@ Object {
       "message": "This is a message with id 7",
       "spent": "0.32",
       "isUnregistered": false,
+      "tag": "",
+      "offerOwner": "",
     },
     Immutable.ReceivedMessage {
       "id": 6,
@@ -125,6 +127,8 @@ Object {
       "message": "This is a message with id 6",
       "spent": "0.32",
       "isUnregistered": false,
+      "tag": "",
+      "offerOwner": "",
     },
     Immutable.ReceivedMessage {
       "id": 5,
@@ -137,6 +141,8 @@ Object {
       "message": "This is a message with id 5",
       "spent": "0.32",
       "isUnregistered": false,
+      "tag": "",
+      "offerOwner": "",
     },
     Immutable.DisplayableMessage {
       "id": 3,
@@ -157,7 +163,7 @@ Object {
       "error": null,
       "shippingData": null,
       "tag": "",
-      "offerOwner": null,
+      "offerOwner": "",
       "isUnregistered": false,
     },
     Immutable.DisplayableMessage {
@@ -179,7 +185,7 @@ Object {
       "error": null,
       "shippingData": null,
       "tag": "",
-      "offerOwner": null,
+      "offerOwner": "",
       "isUnregistered": false,
     },
     Immutable.DisplayableMessage {
@@ -201,7 +207,7 @@ Object {
       "error": null,
       "shippingData": null,
       "tag": "",
-      "offerOwner": null,
+      "offerOwner": "",
       "isUnregistered": false,
     },
     Immutable.DisplayableMessage {
@@ -223,7 +229,7 @@ Object {
       "error": null,
       "shippingData": null,
       "tag": "",
-      "offerOwner": null,
+      "offerOwner": "",
       "isUnregistered": false,
     },
   ],

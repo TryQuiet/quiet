@@ -17,6 +17,8 @@ Immutable.Record {
       "message": "This is a message with id 0",
       "spent": "0.32",
       "isUnregistered": false,
+      "tag": "",
+      "offerOwner": "",
     },
     Immutable.ReceivedMessage {
       "id": 1,
@@ -29,6 +31,8 @@ Immutable.Record {
       "message": "This is a message with id 1",
       "spent": "0.32",
       "isUnregistered": false,
+      "tag": "",
+      "offerOwner": "",
     },
   ],
   "newMessages": Immutable.List [],
@@ -44,6 +48,8 @@ Immutable.Record {
       "message": "This is a message with id 0",
       "spent": "0.32",
       "isUnregistered": false,
+      "tag": "",
+      "offerOwner": "",
     },
     Immutable.ReceivedMessage {
       "id": 1,
@@ -56,6 +62,8 @@ Immutable.Record {
       "message": "This is a message with id 1",
       "spent": "0.32",
       "isUnregistered": false,
+      "tag": "",
+      "offerOwner": "",
     },
   ],
 }
@@ -79,6 +87,8 @@ Immutable.Map {
         "message": "This is a message with id 0",
         "spent": "0.32",
         "isUnregistered": false,
+        "tag": "",
+        "offerOwner": "",
       },
       Immutable.ReceivedMessage {
         "id": 1,
@@ -91,6 +101,8 @@ Immutable.Map {
         "message": "This is a message with id 1",
         "spent": "0.32",
         "isUnregistered": false,
+        "tag": "",
+        "offerOwner": "",
       },
     ],
     "newMessages": Immutable.List [],
@@ -106,6 +118,8 @@ Immutable.Map {
         "message": "This is a message with id 0",
         "spent": "0.32",
         "isUnregistered": false,
+        "tag": "",
+        "offerOwner": "",
       },
       Immutable.ReceivedMessage {
         "id": 1,
@@ -118,6 +132,8 @@ Immutable.Map {
         "message": "This is a message with id 1",
         "spent": "0.32",
         "isUnregistered": false,
+        "tag": "",
+        "offerOwner": "",
       },
     ],
   },
@@ -199,7 +215,7 @@ This is some message test-pending-message",
     "error": null,
     "shippingData": null,
     "tag": "",
-    "offerOwner": null,
+    "offerOwner": "",
     "isUnregistered": false,
   },
   Immutable.DisplayableMessage {
@@ -244,7 +260,7 @@ This is a message with id 0",
     "error": null,
     "shippingData": null,
     "tag": "",
-    "offerOwner": null,
+    "offerOwner": "",
     "isUnregistered": false,
   },
 ]
@@ -265,6 +281,8 @@ Immutable.List [
     "message": "This is a message with id 0",
     "spent": "0.32",
     "isUnregistered": false,
+    "tag": "",
+    "offerOwner": "",
   },
   Immutable.ReceivedMessage {
     "id": 1,
@@ -277,6 +295,8 @@ Immutable.List [
     "message": "This is a message with id 1",
     "spent": "0.32",
     "isUnregistered": false,
+    "tag": "",
+    "offerOwner": "",
   },
 ]
 `;
@@ -645,6 +665,8 @@ Immutable.List [
     "message": "This is a message with id 0",
     "spent": "0.32",
     "isUnregistered": false,
+    "tag": "",
+    "offerOwner": "",
   },
   Immutable.ReceivedMessage {
     "id": 1,
@@ -657,6 +679,8 @@ Immutable.List [
     "message": "This is a message with id 1",
     "spent": "0.32",
     "isUnregistered": false,
+    "tag": "",
+    "offerOwner": "",
   },
 ]
 `;

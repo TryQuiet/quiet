@@ -18,6 +18,8 @@ Immutable.Offer {
       "message": "This is a message with id 0",
       "spent": "0.32",
       "isUnregistered": false,
+      "tag": "",
+      "offerOwner": "",
     },
     Immutable.ReceivedMessage {
       "id": 1,
@@ -30,6 +32,8 @@ Immutable.Offer {
       "message": "This is a message with id 1",
       "spent": "0.32",
       "isUnregistered": false,
+      "tag": "",
+      "offerOwner": "",
     },
   ],
   "newMessages": Immutable.List [
@@ -97,6 +101,8 @@ Immutable.List [
 ",
     "spent": "0.32",
     "isUnregistered": false,
+    "tag": "",
+    "offerOwner": "",
   },
   Immutable.DisplayableMessage {
     "id": "test-operation-id",
@@ -131,6 +137,8 @@ Immutable.List [
     "message": "This is a message with id 0",
     "spent": "0.32",
     "isUnregistered": false,
+    "tag": "",
+    "offerOwner": "",
   },
 ]
 `;
@@ -154,6 +162,8 @@ Immutable.Map {
         "message": "This is a message with id 0",
         "spent": "0.32",
         "isUnregistered": false,
+        "tag": "",
+        "offerOwner": "",
       },
       Immutable.ReceivedMessage {
         "id": 1,
@@ -166,6 +176,8 @@ Immutable.Map {
         "message": "This is a message with id 1",
         "spent": "0.32",
         "isUnregistered": false,
+        "tag": "",
+        "offerOwner": "",
       },
     ],
     "newMessages": Immutable.List [

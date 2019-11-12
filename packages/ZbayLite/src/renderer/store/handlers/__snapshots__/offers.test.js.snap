@@ -30,6 +30,8 @@ Immutable.List [
     "message": "This is a message with id 3",
     "spent": "0.32",
     "isUnregistered": false,
+    "tag": "",
+    "offerOwner": "",
   },
   Immutable.ReceivedMessage {
     "id": 2,
@@ -42,6 +44,8 @@ Immutable.List [
     "message": "This is a message with id 2",
     "spent": "0.32",
     "isUnregistered": false,
+    "tag": "",
+    "offerOwner": "",
   },
   Immutable.ReceivedMessage {
     "id": 1,
@@ -54,6 +58,8 @@ Immutable.List [
     "message": "This is a message with id 1",
     "spent": "0.32",
     "isUnregistered": false,
+    "tag": "",
+    "offerOwner": "",
   },
   Immutable.ReceivedMessage {
     "id": 0,
@@ -66,6 +72,8 @@ Immutable.List [
     "message": "This is a message with id 0",
     "spent": "0.32",
     "isUnregistered": false,
+    "tag": "",
+    "offerOwner": "",
   },
 ]
 `;

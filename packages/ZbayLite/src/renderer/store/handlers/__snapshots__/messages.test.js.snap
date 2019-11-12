@@ -618,6 +618,8 @@ Object {
           "message": "message 0 for zs1testaddress0",
           "spent": "0.0001",
           "isUnregistered": true,
+          "tag": "",
+          "offerOwner": "",
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-1-zs1testaddress0",
@@ -630,6 +632,8 @@ Object {
           "message": "message 1 for zs1testaddress0",
           "spent": "0.0001",
           "isUnregistered": true,
+          "tag": "",
+          "offerOwner": "",
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-2-zs1testaddress0",
@@ -642,6 +646,8 @@ Object {
           "message": "message 2 for zs1testaddress0",
           "spent": "0.0001",
           "isUnregistered": true,
+          "tag": "",
+          "offerOwner": "",
         },
       ],
       "newMessages": Immutable.List [
@@ -663,6 +669,8 @@ Object {
           "message": "message 0 for zs1testaddress1",
           "spent": "0.0001",
           "isUnregistered": true,
+          "tag": "",
+          "offerOwner": "",
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-1-zs1testaddress1",
@@ -675,6 +683,8 @@ Object {
           "message": "message 1 for zs1testaddress1",
           "spent": "0.0001",
           "isUnregistered": true,
+          "tag": "",
+          "offerOwner": "",
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-2-zs1testaddress1",
@@ -687,6 +697,8 @@ Object {
           "message": "message 2 for zs1testaddress1",
           "spent": "0.0001",
           "isUnregistered": true,
+          "tag": "",
+          "offerOwner": "",
         },
       ],
       "newMessages": Immutable.List [
@@ -720,6 +732,8 @@ Object {
           "message": "message 0 for zs1testaddress0",
           "spent": "0.0001",
           "isUnregistered": true,
+          "tag": "",
+          "offerOwner": "",
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-1-zs1testaddress0",
@@ -732,6 +746,8 @@ Object {
           "message": "message 1 for zs1testaddress0",
           "spent": "0.0001",
           "isUnregistered": true,
+          "tag": "",
+          "offerOwner": "",
         },
       ],
       "newMessages": Immutable.List [
@@ -752,6 +768,8 @@ Object {
           "message": "message 0 for zs1testaddress1",
           "spent": "0.0001",
           "isUnregistered": true,
+          "tag": "",
+          "offerOwner": "",
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-1-zs1testaddress1",
@@ -764,6 +782,8 @@ Object {
           "message": "message 1 for zs1testaddress1",
           "spent": "0.0001",
           "isUnregistered": true,
+          "tag": "",
+          "offerOwner": "",
         },
       ],
       "newMessages": Immutable.List [],
@@ -793,6 +813,8 @@ Object {
           "message": "message 0 for zs1testaddress0",
           "spent": "0.0001",
           "isUnregistered": true,
+          "tag": "",
+          "offerOwner": "",
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-1-zs1testaddress0",
@@ -805,6 +827,8 @@ Object {
           "message": "message 1 for zs1testaddress0",
           "spent": "0.0001",
           "isUnregistered": true,
+          "tag": "",
+          "offerOwner": "",
         },
       ],
       "newMessages": Immutable.List [
@@ -825,6 +849,8 @@ Object {
           "message": "message 0 for zs1testaddress1",
           "spent": "0.0001",
           "isUnregistered": true,
+          "tag": "",
+          "offerOwner": "",
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-1-zs1testaddress1",
@@ -837,6 +863,8 @@ Object {
           "message": "message 1 for zs1testaddress1",
           "spent": "0.0001",
           "isUnregistered": true,
+          "tag": "",
+          "offerOwner": "",
         },
       ],
       "newMessages": Immutable.List [
@@ -869,6 +897,8 @@ Object {
           "message": "message 0 for zs1testaddress0",
           "spent": "0.0001",
           "isUnregistered": true,
+          "tag": "",
+          "offerOwner": "",
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-1-zs1testaddress0",
@@ -881,6 +911,8 @@ Object {
           "message": "message 1 for zs1testaddress0",
           "spent": "0.0001",
           "isUnregistered": true,
+          "tag": "",
+          "offerOwner": "",
         },
       ],
       "newMessages": Immutable.List [
@@ -901,6 +933,8 @@ Object {
           "message": "message 0 for zs1testaddress1",
           "spent": "0.0001",
           "isUnregistered": true,
+          "tag": "",
+          "offerOwner": "",
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-1-zs1testaddress1",
@@ -913,6 +947,8 @@ Object {
           "message": "message 1 for zs1testaddress1",
           "spent": "0.0001",
           "isUnregistered": true,
+          "tag": "",
+          "offerOwner": "",
         },
       ],
       "newMessages": Immutable.List [
@@ -945,6 +981,8 @@ Object {
           "message": "message 0 for zs1testaddress0",
           "spent": "0.0001",
           "isUnregistered": true,
+          "tag": "",
+          "offerOwner": "",
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-1-zs1testaddress0",
@@ -957,6 +995,8 @@ Object {
           "message": "message 1 for zs1testaddress0",
           "spent": "0.0001",
           "isUnregistered": true,
+          "tag": "",
+          "offerOwner": "",
         },
       ],
       "newMessages": Immutable.List [
@@ -977,6 +1017,8 @@ Object {
           "message": "message 0 for zs1testaddress1",
           "spent": "0.0001",
           "isUnregistered": true,
+          "tag": "",
+          "offerOwner": "",
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-1-zs1testaddress1",
@@ -989,6 +1031,8 @@ Object {
           "message": "message 1 for zs1testaddress1",
           "spent": "0.0001",
           "isUnregistered": true,
+          "tag": "",
+          "offerOwner": "",
         },
       ],
       "newMessages": Immutable.List [

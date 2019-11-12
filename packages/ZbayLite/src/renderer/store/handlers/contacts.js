@@ -209,7 +209,10 @@ export const fetchMessages = () => async (dispatch, getState) => {
       if (!offer.messages.find(message => message.id === msg.id)) {
         await dispatch(
           offersHandlers.actions.appendMessages({
-            message: msg.merge({ message: msg.message.text }),
+            message: msg
+              .merge({ message: msg.message.text })
+              .set('tag', msg.message.tag)
+              .set('offerOwner', msg.message.offerOwner),
             itemId: msg.message.itemId + msg.sender.username
           })
         )
