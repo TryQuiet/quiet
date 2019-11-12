@@ -148,7 +148,7 @@ describe('messages reducer', () => {
           _createMessagesForChannel(2)
         )
         zcashMock.requestManager.gettransaction.mockImplementation(async () => ({
-          blocktime: '1234'
+          timereceived: '1234'
         }))
         const identity = testUtils.createIdentity()
         await store.dispatch(identityHandlers.actions.setIdentity(identity))

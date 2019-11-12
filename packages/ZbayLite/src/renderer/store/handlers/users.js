@@ -130,10 +130,10 @@ export const fetchUsers = () => async (dispatch, getState) => {
     await transfers.forEach(async transfer => {
       if (!txnTimestamps.get(transfer.txid)) {
         const result = await getClient().confirmations.getResult(transfer.txid)
-        await getVault().transactionsTimestamps.addTransaction(transfer.txid, result.blocktime)
+        await getVault().transactionsTimestamps.addTransaction(transfer.txid, result.timereceived)
         await dispatch(
           txnTimestampsHandlers.actions.addTxnTimestamp({
-            tnxs: { [transfer.txid]: result.blocktime.toString() }
+            tnxs: { [transfer.txid]: result.timereceived.toString() }
           })
         )
       }
