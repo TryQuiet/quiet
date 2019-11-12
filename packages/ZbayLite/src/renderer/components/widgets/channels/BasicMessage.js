@@ -99,9 +99,9 @@ const getTimeFormat = time => {
   } else if (time.hasSame(today, 'week')) {
     return 'ccc, t'
   } else if (time.hasSame(today, 'year')) {
-    return 'LLL dd, t'
+    return 'LLL d, t'
   }
-  return 'LLL dd, y, t'
+  return 'LLL d, y, t'
 }
 
 const transformToLowercase = string => {
