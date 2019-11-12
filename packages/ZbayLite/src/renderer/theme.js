@@ -88,7 +88,8 @@ export default createMuiTheme({
       greenDark: '#9BD174',
       red: '#FF0000',
       linkBlue: '#59c0d5',
-      buttonGray: '#E3E3E3'
+      buttonGray: '#E3E3E3',
+      black30: '#4C4C4C'
     }
   },
   overrides: {
@@ -128,8 +129,6 @@ export default createMuiTheme({
     },
     MuiOutlinedInput: {
       input: {
-        paddingTop: 20,
-        paddingBottom: 20
       }
     },
     MuiPopover: {

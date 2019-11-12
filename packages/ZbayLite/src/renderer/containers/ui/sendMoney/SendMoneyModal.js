@@ -12,7 +12,7 @@ import modalsSelectors from '../../../store/selectors/modals'
 
 export const mapStateToProps = state => ({
   rateUsd: rate('usd')(state),
-  rateZec: rate('zec')(state),
+  rateZec: 1 / rate('usd')(state),
   balanceZec: identitySelector.balance('zec')(state),
   userData: identitySelector.data(state),
   shippingData: identitySelector.shippingData(state),

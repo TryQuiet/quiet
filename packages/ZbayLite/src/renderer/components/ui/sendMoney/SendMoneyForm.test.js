@@ -33,6 +33,8 @@ describe('SendMoneyForm', () => {
         values={{ recipient: 'address123' }}
         balanceZec={new BigNumber(0.7)}
         isValid={false}
+        errors={{}}
+        touched={false}
       />
     )
     expect(result).toMatchSnapshot()

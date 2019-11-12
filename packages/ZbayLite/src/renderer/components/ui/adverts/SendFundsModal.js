@@ -176,7 +176,7 @@ export const SendFundsModal = ({
   const ErrorText = ({ name }) => {
     return errors[name] && touched[name] ? (
       <Grid item xs className={classes.error}>
-        <Typography variant='body2'>{errors[name]}</Typography>
+        <Typography variant='caption'>{errors[name]}</Typography>
       </Grid>
     ) : (
       <span />

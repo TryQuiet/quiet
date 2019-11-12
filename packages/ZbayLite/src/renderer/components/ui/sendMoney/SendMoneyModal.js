@@ -90,7 +90,7 @@ export const SendMoneyModal = ({
       }}
       validate={validateForm({ balanceZec, shippingData })}
     >
-      {({ values, isValid, submitForm, resetForm }) => {
+      {({ values, isValid, submitForm, resetForm, errors, touched }) => {
         const stepToTitle = {
           1: 'Send Money',
           2: `Send Money to ${open ? initialValues.recipient.substring(0, 32) : null}...`,
@@ -108,6 +108,8 @@ export const SendMoneyModal = ({
           >
             <StepComponent
               step={step}
+              errors={errors}
+              touched={touched}
               setStep={setStep}
               amountUsd={values.amountUsd}
               amountZec={values.amountZec}

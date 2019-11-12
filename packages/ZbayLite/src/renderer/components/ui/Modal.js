@@ -105,7 +105,6 @@ export const Modal = ({
         <Grid
           container
           item
-          justify={'center'}
           className={classes.content}
         >
           {children}

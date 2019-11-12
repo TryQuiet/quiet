@@ -4,7 +4,7 @@ exports[`SendMoneyModal will receive right props 1`] = `
 Object {
   "balanceZec": "2",
   "rateUsd": "10",
-  "rateZec": "1",
+  "rateZec": 0.1,
   "shippingData": Immutable.ShippingData {
     "firstName": "testName",
     "lastName": "testLastName",
