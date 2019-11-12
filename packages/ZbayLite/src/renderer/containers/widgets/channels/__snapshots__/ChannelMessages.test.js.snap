@@ -93,6 +93,8 @@ Object {
       "isUnregistered": false,
     },
   ],
+  "qMessages": Immutable.Map {},
+  "triggerScroll": false,
 }
 `;
 
@@ -225,5 +227,7 @@ Object {
       "isUnregistered": false,
     },
   ],
+  "qMessages": Immutable.Map {},
+  "triggerScroll": false,
 }
 `;

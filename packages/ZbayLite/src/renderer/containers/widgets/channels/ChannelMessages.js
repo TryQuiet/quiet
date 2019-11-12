@@ -6,10 +6,16 @@ import ChannelMessagesComponent from '../../../components/widgets/channels/Chann
 import channelSelectors from '../../../store/selectors/channel'
 import contactsSelectors from '../../../store/selectors/contacts'
 import offersSelectors from '../../../store/selectors/offers'
+import dmQueueMessages from '../../../store/selectors/directMessagesQueue'
+import queueMessages from '../../../store/selectors/messagesQueue'
 
 export const mapStateToProps = (state, { contactId, signerPubKey }) => {
   const offersMessages = offersSelectors.offer(contactId)(state)
+  const qMessages = queueMessages.queue(state)
+  const qDmMessages = dmQueueMessages.queue(state)
   return {
+    triggerScroll: qDmMessages.size + qMessages.size > 0,
+    qMessages: qMessages,
     messages: contactId
       ? offersMessages
         ? offersSelectors.offerMessages(contactId, signerPubKey)(state)
@@ -19,13 +25,28 @@ export const mapStateToProps = (state, { contactId, signerPubKey }) => {
   }
 }
 
-export const ChannelMessages = ({ className, messages, contactId, channelId, contentRect }) => {
+export const ChannelMessages = ({
+  className,
+  messages,
+  contactId,
+  channelId,
+  contentRect,
+  triggerScroll
+}) => {
   const [scrollPosition, setScrollPosition] = React.useState(-1)
   useEffect(
     () => {
       setScrollPosition(-1)
     },
     [channelId, contactId]
+  )
+  useEffect(
+    () => {
+      if (triggerScroll) {
+        setScrollPosition(-1)
+      }
+    },
+    [triggerScroll]
   )
   return (
     <ChannelMessagesComponent
