@@ -10,7 +10,7 @@ import CreateChannelForm from '../../../containers/widgets/channels/CreateChanne
 
 const styles = theme => ({
   root: {
-    padding: `${theme.spacing(8)}px ${theme.spacing(16)}px`,
+    padding: 32,
     height: '100%',
     width: '100%'
   }
@@ -20,7 +20,7 @@ export const CreateChannelModal = ({ classes, open, handleClose }) => (
   <Modal
     open={open}
     handleClose={handleClose}
-    title='New Channel'
+    title=''
     fullPage
   >
     <Grid className={classes.root}>

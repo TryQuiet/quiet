@@ -5,7 +5,7 @@ exports[`CreateChannelModal renders closed component 1`] = `
   fullPage={true}
   handleClose={[MockFunction]}
   open={false}
-  title="New Channel"
+  title=""
 >
   <WithStyles(ForwardRef(Grid))
     className="root-mock"
@@ -20,7 +20,7 @@ exports[`CreateChannelModal renders component 1`] = `
   fullPage={true}
   handleClose={[MockFunction]}
   open={true}
-  title="New Channel"
+  title=""
 >
   <WithStyles(ForwardRef(Grid))
     className="root-mock"

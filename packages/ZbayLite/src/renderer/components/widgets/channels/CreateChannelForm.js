@@ -8,6 +8,7 @@ import Button from '@material-ui/core/Button'
 import { withStyles } from '@material-ui/core/styles'
 
 import TextField from '../../ui/form/TextField'
+import { Typography } from '@material-ui/core'
 
 const styles = theme => ({
   fullContainer: {
@@ -18,34 +19,31 @@ const styles = theme => ({
     marginBottom: theme.spacing(4)
   },
   button: {
-    width: 165
+    width: 165,
+    backgroundColor: theme.palette.colors.zbayBlue,
+    color: theme.palette.colors.white,
+    '&:hover': {
+      backgroundColor: theme.palette.colors.zbayBlue
+    }
+  },
+  title: {
+    marginBottom: 24
   }
 })
 
 export const CreateChannelForm = ({ classes, onSubmit }) => (
-  <Formik
-    onSubmit={onSubmit}
-  >
+  <Formik onSubmit={onSubmit}>
     {({ isSubmitting }) => (
       <Form className={classes.fullContainer}>
-        <Grid
-          container
-          justify='flex-start'
-          direction='column'
-          className={classes.fullContainer}
-        >
-          <TextField
-            name='name'
-            label='Channel name'
-            className={classes.gutter}
-          />
-          <TextField
-            multiline
-            rows='6'
-            name='description'
-            label='Channel description'
-            className={classes.gutter}
-          />
+        <Grid container justify='flex-start' direction='column' className={classes.fullContainer}>
+          <Typography variant='h3' className={classes.title}>
+            Create a new channel
+          </Typography>
+          <Typography variant='body2'>Channel name</Typography>
+          <TextField name='name' className={classes.gutter} />
+          <Typography variant='body2'>Channel description</Typography>
+
+          <TextField multiline name='description' className={classes.gutter} />
           <Button
             className={classes.button}
             variant='contained'
