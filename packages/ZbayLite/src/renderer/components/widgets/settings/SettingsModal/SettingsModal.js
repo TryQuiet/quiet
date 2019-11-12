@@ -11,11 +11,13 @@ import Tab from '../../../ui/Tab'
 import AccountSettingsForm from '../../../../containers/widgets/settings/AccountSettingsForm'
 import ShippingSettingsForm from '../../../../containers/widgets/settings/ShippingSettingsForm'
 import DonationsSettingsForm from '../../../../containers/widgets/settings/DonationsSettingsForm'
+import InvitationModal from '../../../../containers/ui/InvitationModal/InvitationModal'
 
 const tabs = {
   account: AccountSettingsForm,
   shipping: ShippingSettingsForm,
-  donations: DonationsSettingsForm
+  donations: DonationsSettingsForm,
+  invite: InvitationModal
 }
 
 const styles = theme => ({
@@ -80,6 +82,11 @@ export const SettingsModal = ({ classes, open, handleClose }) => {
               <Tab
                 value='donations'
                 label='Donations'
+                classes={{ tabRoot: classes.tab, selected: classes.selected }}
+              />
+              <Tab
+                value='invite'
+                label='invite a Friend'
                 classes={{ tabRoot: classes.tab, selected: classes.selected }}
               />
             </Tabs>

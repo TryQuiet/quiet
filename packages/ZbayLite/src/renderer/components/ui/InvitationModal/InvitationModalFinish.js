@@ -7,22 +7,22 @@ import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
 import { Button, Typography } from '@material-ui/core'
 import FileCopyIcon from '@material-ui/icons/FileCopy'
-import EmailIcon from '@material-ui/icons/Email'
-
 import InvitationModal from './InvitationModal'
 
 const styles = theme => ({
   linkDiv: {
     marginTop: theme.spacing(3.5),
-    borderStyle: 'solid',
-    borderWidth: 2
+    borderRadius: 5,
+    borderWidth: 2,
+    backgroundColor: theme.palette.colors.inputGray,
+    padding: 24
   },
   buttonDiv: {
     marginTop: theme.spacing(2)
   },
   button: {
     height: 60,
-    width: 350,
+    width: '100%',
     fontSize: '0.9rem',
     backgroundColor: theme.palette.colors.zbayBlue
   },
@@ -31,22 +31,8 @@ const styles = theme => ({
   }
 })
 
-export const InvitationModalFinish = ({
-  classes,
-  open,
-  handleClose,
-  amount,
-  setStep,
-  reset,
-  generatedInvitation
-}) => (
+export const InvitationModalFinish = ({ classes, amount, generatedInvitation }) => (
   <InvitationModal
-    open={open}
-    handleClose={() => {
-      handleClose()
-      setStep(0)
-      reset()
-    }}
     title={`Here's your invitation!`}
     info={
       amount !== 0
@@ -57,50 +43,34 @@ export const InvitationModalFinish = ({
     }
   >
     <Grid item className={classes.linkDiv}>
-      <Typography variant='body1'>
+      <Typography variant='body2'>
         {amount !== 0
           ? `I just sent you $${amount} on Zbay! To claim it, install Zbay from https://zbay.io, run it,
-        and then open link : click below to copy`
+        and then open link`
           : `You should try Zbay! Install Zbay from https://zbay.io, run it,
-        and then open link : click below to copy`}
+        and then open link`}
       </Typography>
-    </Grid>
-    <Grid item className={classes.buttonDiv}>
-      <CopyToClipboard text={generatedInvitation}>
-        <Button
-          variant='contained'
-          size='large'
-          color='primary'
-          type='submit'
-          className={classes.button}
-          onClick={() => {}}
-        >
-          <FileCopyIcon className={classes.icon} />
-          Copy to clipboard
-        </Button>
-      </CopyToClipboard>
-    </Grid>
-    <Grid item className={classes.buttonDiv}>
-      <Button
-        variant='contained'
-        size='large'
-        color='primary'
-        type='submit'
-        onClick={() => {}}
-        className={classes.button}
-      >
-        <EmailIcon className={classes.icon} />
-        Share with email
-      </Button>
+      <Grid item container justify='center' alignItems='center' className={classes.buttonDiv}>
+        <CopyToClipboard text={generatedInvitation}>
+          <Button
+            variant='contained'
+            size='large'
+            color='primary'
+            type='submit'
+            className={classes.button}
+            onClick={() => {}}
+          >
+            <FileCopyIcon className={classes.icon} />
+            Copy to clipboard
+          </Button>
+        </CopyToClipboard>
+      </Grid>
     </Grid>
   </InvitationModal>
 )
 
 InvitationModalFinish.propTypes = {
   classes: PropTypes.object.isRequired,
-  open: PropTypes.bool.isRequired,
-  handleClose: PropTypes.func.isRequired,
-  reset: PropTypes.func.isRequired,
   amount: PropTypes.number.isRequired,
   generatedInvitation: PropTypes.string.isRequired
 }

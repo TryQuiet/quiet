@@ -3,7 +3,6 @@
 exports[`Main renders component 1`] = `
 <Fragment>
   <Memo(Connect(withModal(Component))) />
-  <Memo(Connect(withModal(InvitationModal))) />
   <Memo(WithStyles(WindowWrapper))>
     <WithStyles(ForwardRef(Grid))
       className="gridRoot-mock"

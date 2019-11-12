@@ -6,6 +6,7 @@ Object {
   "includeAffiliate": [Function],
   "reset": [Function],
   "setAmount": [Function],
+  "setAmountZec": [Function],
 }
 `;
 
@@ -13,6 +14,8 @@ exports[`InvitationModal will receive right props 1`] = `
 Object {
   "affiliate": false,
   "amount": 0,
+  "amountZec": 0,
+  "balance": "0",
   "generatedInvitation": "",
   "zecRate": 70.45230379033394,
 }

@@ -2,11 +2,9 @@
 
 exports[`InvitationModalGenerate renders component 1`] = `
 <Memo(WithStyles(InvitationModal))
-  handleClose={[MockFunction]}
   info="Invite friends to Zbay and (optionally)
      give them
   some funds to get started"
-  open={true}
   title="Invite a friend"
 >
   <WithStyles(ForwardRef(Grid))
@@ -21,63 +19,78 @@ exports[`InvitationModalGenerate renders component 1`] = `
     </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
-    align="center"
-    className="amountDiv-mock"
+    className="divMoney-mock"
     container={true}
-    justify="center"
   >
     <WithStyles(ForwardRef(Grid))
+      className="moneyDiv-mock"
       item={true}
-    >
-      <WithStyles(ForwardRef(Typography))
-        variant="h6"
-      >
-        $ 
-      </WithStyles(ForwardRef(Typography))>
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      item={true}
+      xs={true}
     >
       <WithStyles(ForwardRef(TextField))
         InputProps={
           Object {
+            "className": "moneyInput-mock",
+            "endAdornment": <ForwardRef(WithStyles)
+              position="end"
+            >
+              <span
+                className="inputMark-mock"
+              >
+                USD
+              </span>
+            </ForwardRef(WithStyles)>,
             "inputProps": Object {
               "max": 99,
               "min": 0,
             },
           }
         }
-        className="inputDiv-mock"
-        classes={
-          Object {
-            "input": "input-mock",
-          }
-        }
+        name="usd"
         onChange={[Function]}
-        type="number"
-        value={9}
+        placeholder="0.00"
+        value="0.00"
+        variant="outlined"
       />
     </WithStyles(ForwardRef(Grid))>
     <WithStyles(ForwardRef(Grid))
+      alignItems="center"
+      className="exchangeDiv-mock"
+      container={true}
       item={true}
+      justify="center"
     >
-      <WithStyles(ForwardRef(Typography))
-        variant="h6"
-      >
-         USD
-      </WithStyles(ForwardRef(Typography))>
+      <Memo(Icon)
+        src="test-file-stub"
+      />
     </WithStyles(ForwardRef(Grid))>
-  </WithStyles(ForwardRef(Grid))>
-  <WithStyles(ForwardRef(Grid))
-    className="zecAmount-mock"
-    item={true}
-  >
-    <WithStyles(ForwardRef(Typography))
-      variant="body2"
+    <WithStyles(ForwardRef(Grid))
+      className="moneyDiv-mock"
+      item={true}
+      xs={true}
     >
-      9.0000
-       ZEC
-    </WithStyles(ForwardRef(Typography))>
+      <WithStyles(ForwardRef(TextField))
+        InputProps={
+          Object {
+            "className": "moneyInput-mock",
+            "endAdornment": <ForwardRef(WithStyles)
+              position="end"
+            >
+              <span
+                className="inputMark-mock"
+              >
+                ZEC
+              </span>
+            </ForwardRef(WithStyles)>,
+          }
+        }
+        name="zec"
+        onChange={[Function]}
+        placeholder="0.00"
+        value="9.0000"
+        variant="outlined"
+      />
+    </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
     item={true}
@@ -106,6 +119,7 @@ exports[`InvitationModalGenerate renders component 1`] = `
     <WithStyles(LoadingButton)
       className="button-mock"
       color="primary"
+      disabled={false}
       fullWidth={true}
       inProgress={[MockFunction]}
       onClick={[Function]}

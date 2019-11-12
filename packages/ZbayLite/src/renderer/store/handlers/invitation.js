@@ -21,6 +21,7 @@ export const getInvitationUrl = invitation =>
 export const Invitation = Immutable.Record(
   {
     amount: 0,
+    amountZec: 0,
     affiliateCode: false,
     generatedInvitation: ''
   },
@@ -30,6 +31,7 @@ export const Invitation = Immutable.Record(
 export const initialState = Invitation()
 
 const setInvitationAmount = createAction('SET_INVITATION_AMOUNT')
+const setInvitationAmountZec = createAction('SET_INVITATION_AMOUNT_ZEC')
 const setAffiliateCode = createAction('SET_AFFILIATE_CODE')
 const resetInvitation = createAction('RESET_INVITATION')
 const setGeneratedInvitation = createAction('SET_GENERATED_INVITATION')
@@ -38,14 +40,17 @@ export const actions = {
   setInvitationAmount,
   setAffiliateCode,
   resetInvitation,
-  setGeneratedInvitation
+  setGeneratedInvitation,
+  setInvitationAmountZec
 }
 
 export const generateInvitation = () => async (dispatch, getState) => {
-  const amount = invitationSelector.amount(getState())
+  const amountUsd = invitationSelector.amount(getState())
+  const amountZec = invitationSelector.amountZec(getState())
   const includeAffiliate = invitationSelector.affiliateCode(getState())
   const identityAddress = identitySelectors.address(getState())
   const zecRate = ratesSelectors.rate('usd')(getState())
+  const amount = amountZec || new BigNumber(amountUsd / zecRate).toFixed(8).toString()
   let donationAddress
   if (includeAffiliate) {
     donationAddress = identityAddress
@@ -57,7 +62,7 @@ export const generateInvitation = () => async (dispatch, getState) => {
     const sk = await getClient().keys.exportSK(address)
     const transfer = messages.createEmptyTransfer({
       address,
-      amount: new BigNumber(amount / zecRate).toFixed(8).toString(), // TODO change to real amount for production
+      amount: amount, // TODO change to real amount for production
       identityAddress
     })
     await getClient().payment.send(transfer)
@@ -69,6 +74,7 @@ export const generateInvitation = () => async (dispatch, getState) => {
     const invitationUrl = getInvitationUrl(invitation)
     await dispatch(setGeneratedInvitation(invitationUrl))
   }
+  await dispatch(setInvitationAmount((amount * zecRate).toFixed(2)))
 }
 
 const invitationSchema = Yup.object().shape({
@@ -107,6 +113,7 @@ export const epics = {
 export const reducer = handleActions(
   {
     [setInvitationAmount]: (state, { payload: amount }) => state.set('amount', amount),
+    [setInvitationAmountZec]: (state, { payload: amount }) => state.set('amountZec', amount),
     [setGeneratedInvitation]: (state, { payload: invitation }) =>
       state.set('generatedInvitation', invitation),
     [resetInvitation]: state => initialState,

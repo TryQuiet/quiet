@@ -10,6 +10,10 @@ const amount = createSelector(
   invitation,
   state => state.get('amount')
 )
+const amountZec = createSelector(
+  invitation,
+  state => state.get('amountZec')
+)
 const affiliateCode = createSelector(
   invitation,
   state => state.get('affiliateCode')
@@ -23,5 +27,6 @@ export default {
   invitation,
   amount,
   affiliateCode,
-  generatedInvitation
+  generatedInvitation,
+  amountZec
 }

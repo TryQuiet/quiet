@@ -2,11 +2,9 @@
 
 exports[`InvitationModalFinish renders component 1`] = `
 <Memo(WithStyles(InvitationModal))
-  handleClose={[Function]}
   info="It has $9 attached, so don't lose it! You can share it however you like,
      but don't share large amounts by email or other insecure means.
      Note: it will take a few minutes for funds to become available."
-  open={true}
   title="Here's your invitation!"
 >
   <WithStyles(ForwardRef(Grid))
@@ -14,51 +12,36 @@ exports[`InvitationModalFinish renders component 1`] = `
     item={true}
   >
     <WithStyles(ForwardRef(Typography))
-      variant="body1"
+      variant="body2"
     >
       I just sent you $9 on Zbay! To claim it, install Zbay from https://zbay.io, run it,
-        and then open link : click below to copy
+        and then open link
     </WithStyles(ForwardRef(Typography))>
-  </WithStyles(ForwardRef(Grid))>
-  <WithStyles(ForwardRef(Grid))
-    className="buttonDiv-mock"
-    item={true}
-  >
-    <CopyToClipboard
-      text="test invitation"
+    <WithStyles(ForwardRef(Grid))
+      alignItems="center"
+      className="buttonDiv-mock"
+      container={true}
+      item={true}
+      justify="center"
     >
-      <WithStyles(ForwardRef(Button))
-        className="button-mock"
-        color="primary"
-        onClick={[Function]}
-        size="large"
-        type="submit"
-        variant="contained"
+      <CopyToClipboard
+        text="test invitation"
       >
-        <FileCopyIcon
-          className="icon-mock"
-        />
-        Copy to clipboard
-      </WithStyles(ForwardRef(Button))>
-    </CopyToClipboard>
-  </WithStyles(ForwardRef(Grid))>
-  <WithStyles(ForwardRef(Grid))
-    className="buttonDiv-mock"
-    item={true}
-  >
-    <WithStyles(ForwardRef(Button))
-      className="button-mock"
-      color="primary"
-      onClick={[Function]}
-      size="large"
-      type="submit"
-      variant="contained"
-    >
-      <EmailIcon
-        className="icon-mock"
-      />
-      Share with email
-    </WithStyles(ForwardRef(Button))>
+        <WithStyles(ForwardRef(Button))
+          className="button-mock"
+          color="primary"
+          onClick={[Function]}
+          size="large"
+          type="submit"
+          variant="contained"
+        >
+          <FileCopyIcon
+            className="icon-mock"
+          />
+          Copy to clipboard
+        </WithStyles(ForwardRef(Button))>
+      </CopyToClipboard>
+    </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
 </Memo(WithStyles(InvitationModal))>
 `;
