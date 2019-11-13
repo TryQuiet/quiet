@@ -6,11 +6,18 @@ import { withModal } from '../../store/handlers/modals'
 import QuitAppDialog from '../../components/ui/QuitAppDialog'
 import { remote } from 'electron'
 
-export const mapDispatchToProps = dispatch => bindActionCreators({
-  handleQuit: () => () => remote.getCurrentWindow().close()
-}, dispatch)
+export const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    {
+      handleQuit: () => () => remote.app.quit()
+    },
+    dispatch
+  )
 
 export default R.compose(
-  connect(null, mapDispatchToProps),
+  connect(
+    null,
+    mapDispatchToProps
+  ),
   withModal('quitApp')
 )(QuitAppDialog)
