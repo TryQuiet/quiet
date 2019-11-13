@@ -11,8 +11,7 @@ import { Typography, Grid } from '@material-ui/core'
 
 const styles = theme => ({
   root: {
-    padding: 0,
-    height: 24
+    padding: 0
   },
   selected: {
     backgroundColor: theme.palette.colors.lushSky,
@@ -42,6 +41,12 @@ const styles = theme => ({
   icon: {
     marginTop: 6,
     fill: theme.palette.colors.green
+  },
+  itemText: {
+    margin: 0
+  },
+  nameSpacing: {
+    marginLeft: 4
   }
 })
 
@@ -70,7 +75,14 @@ export const OfferListItem = ({ classes, channel, history, selected }) => {
                   [classes.newMessages]: newMessages
                 })}
               >
-                # {channelObj.name}
+                <Grid container direction='row'>
+                  <Grid item>
+                    <span>{'#'}</span>
+                  </Grid>
+                  <Grid item xs className={classes.nameSpacing}>
+                    <span>{`${channelObj.name}`}</span>
+                  </Grid>
+                </Grid>
               </Typography>
             </Grid>
           </Grid>

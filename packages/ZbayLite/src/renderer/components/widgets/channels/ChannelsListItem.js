@@ -13,8 +13,7 @@ import ZcashIcon from '../../ui/ZcashIcon'
 import { messageType } from '../../../zbay/messages'
 const styles = theme => ({
   root: {
-    padding: 0,
-    height: 24
+    padding: 0
   },
   selected: {
     backgroundColor: theme.palette.colors.lushSky,
@@ -44,6 +43,12 @@ const styles = theme => ({
   icon: {
     marginTop: 6,
     fill: theme.palette.colors.green
+  },
+  itemText: {
+    margin: 0
+  },
+  nameSpacing: {
+    marginLeft: 4
   }
 })
 
@@ -86,7 +91,18 @@ export const ChannelsListItem = ({ classes, channel, history, directMessages, se
                   [classes.newMessages]: newMessages
                 })}
               >
-                {directMessages ? `@ ${channelObj.username}` : `# ${channelObj.name}`}
+                {directMessages ? (
+                  `@ ${channelObj.username}`
+                ) : (
+                  <Grid container direction='row'>
+                    <Grid item>
+                      <span>{'#'}</span>
+                    </Grid>
+                    <Grid item xs className={classes.nameSpacing}>
+                      <span>{`${channelObj.name}`}</span>
+                    </Grid>
+                  </Grid>
+                )}
               </Typography>
             </Grid>
             {recievedMoney && (

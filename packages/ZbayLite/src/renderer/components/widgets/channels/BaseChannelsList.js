@@ -19,6 +19,7 @@ export const propTypes = {
 }
 
 export const BaseChannelsList = ({ channels, directMessages, selected, offers }) => {
+  const [...keys] = offers.keys()
   return (
     <List disablePadding>
       {channels.map(channel => (
@@ -29,8 +30,8 @@ export const BaseChannelsList = ({ channels, directMessages, selected, offers })
           selected={selected}
         />
       ))}
-      {offers.toList().map(offer => (
-        <OfferListItem key={offer.name} channel={offer} selected={selected} />
+      {offers.toList().map((offer, index) => (
+        <OfferListItem key={keys[index]} channel={offer} selected={selected} />
       ))}
     </List>
   )
