@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 import * as Yup from 'yup'
 import { Formik, Form } from 'formik'
@@ -19,16 +19,18 @@ import IconCopy from '../../ui/IconCopy'
 
 const styles = theme => ({
   mainCreateUsernameContainer: {
-    marginTop: 25
+    paddingLeft: 15,
+    paddingRight: 15
   },
   createUsernameContainer: {
-    width: 522,
-    height: 115,
+    paddingTop: 16,
+    paddingBottom: 16,
+    paddingLeft: 24,
+    paddingRight: 24,
     borderRadius: 4,
     backgroundColor: theme.palette.colors.veryLightGray
   },
   container: {
-    padding: theme.spacing(3),
     marginTop: theme.spacing(1)
   },
   textField: {
@@ -67,6 +69,9 @@ const styles = theme => ({
   },
   info: {
     color: theme.palette.colors.darkGray
+  },
+  title: {
+    marginBottom: 24
   }
 })
 
@@ -90,21 +95,15 @@ export const AccountSettingsForm = ({
   privateAddress,
   handleCopy,
   handleSubmit,
-  checkNickname,
-  updateDonation,
-  donationAllow,
   openModal,
   closeModal
 }) => (
-  <Fragment>
-    <Grid
-      container
-      spacing={4}
-      className={classes.mainCreateUsernameContainer}
-      direction='row'
-      justify='center'
-    >
-      <Grid container item className={classes.createUsernameContainer}>
+  <Grid container direction column className={classes.mainCreateUsernameContainer}>
+    <Grid item className={classes.title}>
+      <Typography variant='h3'>Account</Typography>
+    </Grid>
+    <Grid container justify='center'>
+      <Grid container xs item className={classes.createUsernameContainer}>
         <Grid item xs={12}>
           <Typography variant={'h4'}>Create a username</Typography>
         </Grid>
@@ -201,7 +200,7 @@ export const AccountSettingsForm = ({
         </Form>
       )}
     </Formik>
-  </Fragment>
+  </Grid>
 )
 
 AccountSettingsForm.propTypes = {

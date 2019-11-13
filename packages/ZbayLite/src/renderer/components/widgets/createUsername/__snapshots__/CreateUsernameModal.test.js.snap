@@ -4,56 +4,47 @@ exports[`CreateUsernameModal renders component 1`] = `
 <Memo(WithStyles(Modal))
   handleClose={[MockFunction]}
   open={true}
-  title="Create username"
 >
-  <WithStyles(ForwardRef(AppBar))
-    color="default"
-    position="static"
+  <WithStyles(ForwardRef(Grid))
+    className="main-mock"
+    container={true}
+    direction="column"
   >
     <WithStyles(ForwardRef(Grid))
-      className="main-mock"
-      container={true}
-      direction="column"
-      justify="center"
+      className="title-mock"
+      item={true}
     >
-      <WithStyles(ForwardRef(Grid))
-        className="title-mock"
-        item={true}
-        xs={12}
+      <WithStyles(ForwardRef(Typography))
+        variant="h3"
       >
-        <WithStyles(ForwardRef(Typography))
-          variant="h4"
-        >
-          Create username
-        </WithStyles(ForwardRef(Typography))>
-      </WithStyles(ForwardRef(Grid))>
-      <WithStyles(ForwardRef(Grid))
-        className="description-mock"
-        item={true}
-        xs={12}
-      >
-        <WithStyles(ForwardRef(Typography))
-          variant="body2"
-        >
-          You need a username to send and receive direct messages. Your username will last forever, so choose it well. To support future development, Zbay charges a small fee of 0.025 ZEC, which is approximately $1 USD.
-        </WithStyles(ForwardRef(Typography))>
-      </WithStyles(ForwardRef(Grid))>
-      <Formik
-        enableReinitialize={false}
-        initialValues={
-          Object {
-            "nickname": "test",
-          }
-        }
-        isInitialValid={false}
-        onSubmit={[MockFunction]}
-        validate={[Function]}
-        validateOnBlur={true}
-        validateOnChange={true}
-      >
-        <Component />
-      </Formik>
+        Create username
+      </WithStyles(ForwardRef(Typography))>
     </WithStyles(ForwardRef(Grid))>
-  </WithStyles(ForwardRef(AppBar))>
+    <WithStyles(ForwardRef(Grid))
+      className="description-mock"
+      item={true}
+    >
+      <WithStyles(ForwardRef(Typography))
+        variant="body2"
+      >
+        You need a username to send and receive direct messages. Your username will last forever, so choose it well. To support future development, Zbay charges a small fee of 0.025 ZEC, which is approximately $1 USD.
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <Formik
+      enableReinitialize={false}
+      initialValues={
+        Object {
+          "nickname": "test",
+        }
+      }
+      isInitialValid={false}
+      onSubmit={[MockFunction]}
+      validate={[Function]}
+      validateOnBlur={true}
+      validateOnChange={true}
+    >
+      <Component />
+    </Formik>
+  </WithStyles(ForwardRef(Grid))>
 </Memo(WithStyles(Modal))>
 `;

@@ -102,17 +102,8 @@ export const Modal = ({
           )}
         </Grid>
       </Grid>
-      <Grid
-        container
-        item
-        direction={'row'}
-        justify={'center'}
-        className={classes.fullPage}>
-        <Grid
-          container
-          item
-          className={classes.content}
-        >
+      <Grid container item direction={'row'} justify={'center'} className={classes.fullPage}>
+        <Grid container item className={classes.content}>
           {children}
         </Grid>
       </Grid>

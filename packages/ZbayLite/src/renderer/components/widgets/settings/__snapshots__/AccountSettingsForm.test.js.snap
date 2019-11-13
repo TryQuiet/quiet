@@ -1,18 +1,31 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`AccountSettingsForm renders component 1`] = `
-<Fragment>
+<WithStyles(ForwardRef(Grid))
+  className="mainCreateUsernameContainer-mock"
+  column={true}
+  container={true}
+  direction={true}
+>
   <WithStyles(ForwardRef(Grid))
-    className="mainCreateUsernameContainer-mock"
+    className="title-mock"
+    item={true}
+  >
+    <WithStyles(ForwardRef(Typography))
+      variant="h3"
+    >
+      Account
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
     container={true}
-    direction="row"
     justify="center"
-    spacing={4}
   >
     <WithStyles(ForwardRef(Grid))
       className="createUsernameContainer-mock"
       container={true}
       item={true}
+      xs={true}
     >
       <WithStyles(ForwardRef(Grid))
         item={true}
@@ -78,5 +91,5 @@ exports[`AccountSettingsForm renders component 1`] = `
   >
     <Component />
   </Formik>
-</Fragment>
+</WithStyles(ForwardRef(Grid))>
 `;
