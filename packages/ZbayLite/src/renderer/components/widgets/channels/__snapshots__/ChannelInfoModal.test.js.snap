@@ -5,7 +5,6 @@ exports[`ChannelInfoModal renders component 1`] = `
   fullPage={true}
   handleClose={[MockFunction]}
   open={true}
-  title="Info"
 >
   <WithStyles(ForwardRef(Grid))
     className="root-mock"
@@ -18,7 +17,7 @@ exports[`ChannelInfoModal renders component 1`] = `
     >
       <WithStyles(ForwardRef(Typography))
         className="title-mock"
-        variant="subtitle1"
+        variant="h3"
       >
         Channel 1
       </WithStyles(ForwardRef(Typography))>
@@ -35,7 +34,7 @@ exports[`ChannelInfoModal renders component 1`] = `
       </WithStyles(ForwardRef(Typography))>
       <WithStyles(ForwardRef(Typography))
         className="description-mock"
-        variant="caption"
+        variant="body2"
       >
         Channel about 1
       </WithStyles(ForwardRef(Typography))>
@@ -57,29 +56,35 @@ exports[`ChannelInfoModal renders component 1`] = `
           variant="subtitle1"
         >
           Share link
-          Share link
         </WithStyles(ForwardRef(Typography))>
-        <CopyToClipboard
-          text="https://zbay.rumblefish.dev/importchannel=channel-hash"
-        >
-          <WithStyles(ForwardRef(IconButton))
-            className="copyButton-mock"
-          >
-            <FileCopyIcon
-              fontSize="inherit"
-            />
-          </WithStyles(ForwardRef(IconButton))>
-        </CopyToClipboard>
       </WithStyles(ForwardRef(Grid))>
       <WithStyles(ForwardRef(Grid))
+        className="addressBox-mock"
+        container={true}
         item={true}
       >
-        <WithStyles(ForwardRef(Typography))
-          className="description-mock"
-          variant="caption"
+        <WithStyles(ForwardRef(Grid))
+          item={true}
         >
-          https://zbay.rumblefish.dev/importchannel=channel-hash
-        </WithStyles(ForwardRef(Typography))>
+          <WithStyles(ForwardRef(Typography))
+            className="description-mock"
+            variant="body2"
+          >
+            https://zbay.rumblefish.dev/importchannel=channel-hash
+          </WithStyles(ForwardRef(Typography))>
+        </WithStyles(ForwardRef(Grid))>
+        <WithStyles(ForwardRef(Grid))>
+          <CopyToClipboard
+            text="https://zbay.rumblefish.dev/importchannel=channel-hash"
+          >
+            <WithStyles(ForwardRef(Button))
+              className="copyButton-mock"
+              variant="large"
+            >
+              Copy to clipboard
+            </WithStyles(ForwardRef(Button))>
+          </CopyToClipboard>
+        </WithStyles(ForwardRef(Grid))>
       </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
@@ -91,7 +96,6 @@ exports[`ChannelInfoModal renders component when closed 1`] = `
   fullPage={true}
   handleClose={[MockFunction]}
   open={false}
-  title="Info"
 >
   <WithStyles(ForwardRef(Grid))
     className="root-mock"
@@ -104,7 +108,7 @@ exports[`ChannelInfoModal renders component when closed 1`] = `
     >
       <WithStyles(ForwardRef(Typography))
         className="title-mock"
-        variant="subtitle1"
+        variant="h3"
       >
         Channel 1
       </WithStyles(ForwardRef(Typography))>
@@ -121,7 +125,7 @@ exports[`ChannelInfoModal renders component when closed 1`] = `
       </WithStyles(ForwardRef(Typography))>
       <WithStyles(ForwardRef(Typography))
         className="description-mock"
-        variant="caption"
+        variant="body2"
       >
         Channel about 1
       </WithStyles(ForwardRef(Typography))>
@@ -143,29 +147,35 @@ exports[`ChannelInfoModal renders component when closed 1`] = `
           variant="subtitle1"
         >
           Share link
-          Share link
         </WithStyles(ForwardRef(Typography))>
-        <CopyToClipboard
-          text="https://zbay.rumblefish.dev/importchannel=channel-hash"
-        >
-          <WithStyles(ForwardRef(IconButton))
-            className="copyButton-mock"
-          >
-            <FileCopyIcon
-              fontSize="inherit"
-            />
-          </WithStyles(ForwardRef(IconButton))>
-        </CopyToClipboard>
       </WithStyles(ForwardRef(Grid))>
       <WithStyles(ForwardRef(Grid))
+        className="addressBox-mock"
+        container={true}
         item={true}
       >
-        <WithStyles(ForwardRef(Typography))
-          className="description-mock"
-          variant="caption"
+        <WithStyles(ForwardRef(Grid))
+          item={true}
         >
-          https://zbay.rumblefish.dev/importchannel=channel-hash
-        </WithStyles(ForwardRef(Typography))>
+          <WithStyles(ForwardRef(Typography))
+            className="description-mock"
+            variant="body2"
+          >
+            https://zbay.rumblefish.dev/importchannel=channel-hash
+          </WithStyles(ForwardRef(Typography))>
+        </WithStyles(ForwardRef(Grid))>
+        <WithStyles(ForwardRef(Grid))>
+          <CopyToClipboard
+            text="https://zbay.rumblefish.dev/importchannel=channel-hash"
+          >
+            <WithStyles(ForwardRef(Button))
+              className="copyButton-mock"
+              variant="large"
+            >
+              Copy to clipboard
+            </WithStyles(ForwardRef(Button))>
+          </CopyToClipboard>
+        </WithStyles(ForwardRef(Grid))>
       </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>

@@ -31,7 +31,9 @@ const styles = theme => ({
   },
   header: {
     background: theme.palette.colors.white,
-    height: constants.headerHeight,
+    height: constants.headerHeight
+  },
+  headerBorder: {
     borderBottom: `1px solid ${theme.palette.colors.contentGray}`
   },
   actions: {
@@ -66,7 +68,8 @@ export const Modal = ({
   canGoBack,
   step,
   setStep,
-  children
+  children,
+  addBorder
 }) => (
   <MaterialModal open={open} onClose={handleClose} className={classes.root}>
     <Grid
@@ -78,7 +81,10 @@ export const Modal = ({
         [classes.window]: true
       })}
     >
-      <Grid container item className={classes.header} direction='row' alignItems='center'>
+      <Grid container item className={classNames({
+        [classes.header]: true,
+        [classes.headerBorder]: addBorder
+      })} direction='row' alignItems='center'>
         <Grid item xs container justify='center' alignItems='center'>
           <Typography variant='subtitle1' className={classes.title} align='center'>
             {title}

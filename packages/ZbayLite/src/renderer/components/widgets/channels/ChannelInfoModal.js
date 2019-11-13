@@ -5,11 +5,9 @@ import { CopyToClipboard } from 'react-copy-to-clipboard'
 import * as R from 'ramda'
 
 import Grid from '@material-ui/core/Grid'
+import { Button } from '@material-ui/core'
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
-
-import IconButton from '@material-ui/core/IconButton'
-import FileCopyIcon from '@material-ui/icons/FileCopy'
 
 import Modal from '../../ui/Modal'
 
@@ -20,24 +18,38 @@ const styles = theme => ({
     width: '100%'
   },
   title: {
-    fontSize: '1.2rem',
-    lineHeight: '1.66'
+    fontWeight: 500
   },
   infoTitle: {
-    marginTop: theme.spacing(2),
-    fontSize: '0.9rem'
+    fontWeight: 500,
+    marginTop: theme.spacing(2)
   },
   description: {
-    fontSize: '0.8rem',
-    color: theme.palette.primary.main
+    marginTop: 6,
+    fontWeight: 'normal',
+    fontStyle: 'normal',
+    color: theme.palette.colors.trueBlack
   },
   section: {
     width: '100%',
     wordBreak: 'break-all'
   },
   copyButton: {
-    fontSize: '1.2rem',
-    marginTop: 6
+    marginTop: 24,
+    textTransform: 'none',
+    width: 488,
+    height: 60,
+    color: theme.palette.colors.white,
+    backgroundColor: theme.palette.colors.purple
+  },
+  addressBox: {
+    marginTop: 24,
+    fontSize: 16,
+    lineHeight: '19px',
+    width: 536,
+    padding: 24,
+    borderRadius: 4,
+    backgroundColor: theme.palette.colors.veryLightGray
   }
 })
 
@@ -51,10 +63,10 @@ export const ChannelInfoModal = ({
 }) => {
   const address = directMessage ? channel.get('targetRecipientAddress') : shareUri
   return (
-    <Modal open={open} handleClose={handleClose} title='Info' fullPage>
+    <Modal open={open} handleClose={handleClose} fullPage>
       <Grid container direction='column' className={classes.root}>
         <Grid item className={classes.section}>
-          <Typography variant='subtitle1' className={classes.title}>
+          <Typography variant='h3' className={classes.title}>
             {directMessage ? channel.get('targetRecipientUsername') : channel.get('name')}
           </Typography>
         </Grid>
@@ -62,26 +74,27 @@ export const ChannelInfoModal = ({
           <Typography variant='subtitle1' className={classes.infoTitle}>
             {!directMessage && 'About'}
           </Typography>
-          <Typography variant='caption' className={classes.description}>
+          <Typography variant='body2' className={classes.description}>
             {channel.get('description')}
           </Typography>
         </Grid>
         <Grid item container direction='column' className={classes.section}>
           <Grid container item direction='row'>
             <Typography variant='subtitle1' display='inline' className={classes.infoTitle}>
-              Share link
               {directMessage ? 'Address' : 'Share link'}
             </Typography>
-            <CopyToClipboard text={address}>
-              <IconButton className={classes.copyButton}>
-                <FileCopyIcon fontSize='inherit' />
-              </IconButton>
-            </CopyToClipboard>
           </Grid>
-          <Grid item>
-            <Typography variant='caption' className={classes.description}>
-              {address}
-            </Typography>
+          <Grid container item className={classes.addressBox}>
+            <Grid item>
+              <Typography variant='body2' className={classes.description}>
+                {address}
+              </Typography>
+            </Grid>
+            <Grid>
+              <CopyToClipboard text={address}>
+                <Button className={classes.copyButton} variant={'large'}>Copy to clipboard</Button>
+              </CopyToClipboard>
+            </Grid>
           </Grid>
         </Grid>
       </Grid>
