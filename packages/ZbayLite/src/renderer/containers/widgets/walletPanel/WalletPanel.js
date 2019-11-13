@@ -6,14 +6,12 @@ import * as R from 'ramda'
 
 import WalletPanelComponent from '../../../components/widgets/walletPanel/WalletPanel'
 import ratesHandlers from '../../../store/handlers/rates'
-import { actionCreators } from '../../../store/handlers/modals'
 import { useInterval } from '../../hooks'
 
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      fetchPrices: ratesHandlers.epics.fetchPrices,
-      handleInvitation: actionCreators.openModal('invitationModal')
+      fetchPrices: ratesHandlers.epics.fetchPrices
     },
     dispatch
   )
@@ -24,8 +22,7 @@ export const WalletPanel = ({ fetchPrices, ...props }) => {
 }
 
 WalletPanel.propTypes = {
-  fetchPrices: PropTypes.func.isRequired,
-  handleInvitation: PropTypes.func.isRequired
+  fetchPrices: PropTypes.func.isRequired
 }
 
 export default R.compose(

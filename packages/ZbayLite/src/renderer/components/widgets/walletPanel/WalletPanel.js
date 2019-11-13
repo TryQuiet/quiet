@@ -7,7 +7,6 @@ import { withStyles } from '@material-ui/core/styles'
 
 import WalletPanelActions from '../../../containers/widgets/walletPanel/WalletPanelActions'
 import ZcashBalance from '../../../containers/widgets/walletPanel/ZcashBalance'
-import QuickActionButton from '../sidebar/QuickActionButton'
 
 const styles = theme => ({
   root: {
@@ -16,7 +15,7 @@ const styles = theme => ({
   }
 })
 
-export const WalletPanel = ({ classes, handleInvitation }) => {
+export const WalletPanel = ({ classes }) => {
   return (
     <>
       <Grid
@@ -32,14 +31,12 @@ export const WalletPanel = ({ classes, handleInvitation }) => {
           <WalletPanelActions />
         </Grid>
       </Grid>
-      <QuickActionButton text='Invite friends' action={handleInvitation} />
     </>
   )
 }
 
 WalletPanel.propTypes = {
-  classes: PropTypes.object.isRequired,
-  handleInvitation: PropTypes.func.isRequired
+  classes: PropTypes.object.isRequired
 }
 
 export default R.compose(
