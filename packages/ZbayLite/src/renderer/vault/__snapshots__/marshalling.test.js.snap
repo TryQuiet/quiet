@@ -90,8 +90,15 @@ Array [
         Array [
           "TxnTs",
         ],
+        Array [
+          "Adverts",
+        ],
       ],
       "results": Array [
+        Object {
+          "type": "return",
+          "value": undefined,
+        },
         Object {
           "type": "return",
           "value": undefined,

@@ -5,7 +5,6 @@ import { DateTime } from 'luxon'
 import { getVault } from '../../vault'
 import identitySelectors from '../selectors/identity'
 import offersSelectors from '../selectors/offers'
-import messagesSelectors from '../selectors/messages'
 import directMessagesQueue from '../selectors/directMessagesQueue'
 import { messages as zbayMessages } from '../../zbay'
 import channelSelectors from '../selectors/channel'
@@ -68,7 +67,7 @@ export const loadVaultContacts = () => async (dispatch, getState) => {
         lastSeen: offer.lastSeen
       })
       await dispatch(addOffer({ newOffer }))
-      const message = messagesSelectors.messageById(offer.offerId.substring(0, 64))(getState())
+      const message = await getVault().adverts.getAdvert(offer.offerId.substring(0, 64))
       await dispatch(appendMessages({ message, itemId: offer.offerId }))
     }
   })

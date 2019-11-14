@@ -121,6 +121,11 @@ export const fetchMessages = channel => async (dispatch, getState) => {
       await dispatch(channelsHandlers.epics.updateLastSeen({ channelId }))
       lastSeen = channelsSelectors.lastSeen(channelId)(getState())
     }
+    await messages.forEach(async msg => {
+      if (msg.type === messageType.AD) {
+        await getVault().adverts.addAdvert(msg)
+      }
+    })
     const newMessages = zbayMessages.calculateDiff({
       previousMessages,
       nextMessages: Immutable.List(messages),

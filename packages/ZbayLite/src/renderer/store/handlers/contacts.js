@@ -185,6 +185,11 @@ export const fetchMessages = () => async (dispatch, getState) => {
       .filter(msg => msg.sender.replyTo !== '')
       .filter(msg => msg.type !== messageType.ITEM_BASIC && msg.type !== messageType.ITEM_TRANSFER)
 
+    await messages.forEach(async msg => {
+      if (msg.type === messageType.AD) {
+        await getVault().adverts.addAdvert(msg)
+      }
+    })
     const messagesOffers = messagesAll
       .filter(msg => msg !== null)
       .filter(msg => msg.sender.replyTo !== '')
