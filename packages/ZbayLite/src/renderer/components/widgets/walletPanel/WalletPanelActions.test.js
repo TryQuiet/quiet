@@ -12,6 +12,7 @@ describe('WalletPanelActions', () => {
         classes={mockClasses}
         onSend={jest.fn()}
         onReceive={jest.fn()}
+        setTabToOpen={jest.fn()}
       />
     )
     expect(result).toMatchSnapshot()

@@ -3,12 +3,13 @@ import * as R from 'ramda'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 
-import { withModal } from '../../../store/handlers/modals'
+import { withModal, actionCreators } from '../../../store/handlers/modals'
 import SendMoneyModalComponent from '../../../components/ui/sendMoney'
 import { rate } from '../../../store/selectors/rates'
 import identitySelector from '../../../store/selectors/identity'
 import directMessages from '../../../store/handlers/contacts'
 import modalsSelectors from '../../../store/selectors/modals'
+import appHandlers from '../../../store/handlers/app'
 
 export const mapStateToProps = state => ({
   rateUsd: rate('usd')(state),
@@ -24,7 +25,9 @@ export const SendMoneyModal = props => {
   return <SendMoneyModalComponent {...props} step={step} setStep={setStep} />
 }
 export const mapDispatchToProps = dispatch => bindActionCreators({
-  sendMessageHandler: directMessages.epics.sendDirectMessage
+  sendMessageHandler: directMessages.epics.sendDirectMessage,
+  openShippingTab: () => appHandlers.actions.setModalTab('shipping'),
+  openSettingsModal: actionCreators.openModal('accountSettingsModal')
 }, dispatch)
 
 export default R.compose(

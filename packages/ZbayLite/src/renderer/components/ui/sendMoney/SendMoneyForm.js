@@ -110,12 +110,18 @@ const styles = theme => ({
     lineHeight: '18px'
   },
   link: {
+    cursor: 'pointer',
     color: theme.palette.colors.linkBlue
   },
   error: {
     color: theme.palette.colors.red
   }
 })
+const handleOpenAddShippingData = (openSettingsModal, openShippingTab, handleClose) => {
+  handleClose()
+  openShippingTab()
+  openSettingsModal()
+}
 
 export const SendMoneyForm = ({
   classes,
@@ -128,6 +134,9 @@ export const SendMoneyForm = ({
   values,
   shippingData,
   touched,
+  openShippingTab,
+  openSettingsModal,
+  handleClose,
   errors
 }) => {
   const ErrorText = ({ name }) => {
@@ -283,7 +292,7 @@ export const SendMoneyForm = ({
                 labelClass={classes.checkboxLabel}
               />
               {R.isEmpty(shippingData) && (
-                <Typography className={classes.shippingDataInfo}> Please <span className={classes.link}>fill your shipping information </span> if you want to include it.</Typography>
+                <Typography className={classes.shippingDataInfo}> Please <span onClick={() => handleOpenAddShippingData(openSettingsModal, openShippingTab, handleClose)} className={classes.link}>fill your shipping information </span> if you want to include it.</Typography>
               )}
             </Grid>
             <Grid item xs={12}>

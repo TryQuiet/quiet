@@ -11,7 +11,7 @@ exports[`WalletPanelActions renders component 1`] = `
   >
     <WithStyles(ForwardRef(Button))
       className="button-mock"
-      onClick={[MockFunction]}
+      onClick={[Function]}
       variant="text"
     >
       <WithStyles(ForwardRef(Typography))

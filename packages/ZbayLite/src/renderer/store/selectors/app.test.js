@@ -14,7 +14,8 @@ describe('app -', () => {
       initialState: Immutable.Map({
         app: AppState({
           version: '0.13.37',
-          transfers: Immutable.Map()
+          transfers: Immutable.Map(),
+          modalTabToOpen: 'addFunds'
         })
       })
     })
@@ -25,5 +26,8 @@ describe('app -', () => {
   })
   it('version transfers', async () => {
     expect(selectors.transfers(store.getState())).toMatchSnapshot()
+  })
+  it('modal tab to open', async () => {
+    expect(selectors.currentModalTab(store.getState())).toMatchSnapshot()
   })
 })

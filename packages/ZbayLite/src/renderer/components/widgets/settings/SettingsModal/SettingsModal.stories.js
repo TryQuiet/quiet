@@ -27,6 +27,6 @@ storiesOf('Components/Widgets/Settings/SettingsModal', module)
   .addDecorator(withStore(store))
   .add('initial screen', () => {
     return (
-      <SettingsModal open={boolean('Open', true)} handleClose={action('handleClose')} />
+      <SettingsModal open={boolean('Open', true)} handleClose={action('handleClose')} modalTabToOpen={'addFunds'} currentTab={'addFunds'} />
     )
   })

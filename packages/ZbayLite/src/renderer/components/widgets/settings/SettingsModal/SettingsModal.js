@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 
 import Tabs from '@material-ui/core/Tabs'
@@ -12,12 +12,14 @@ import AccountSettingsForm from '../../../../containers/widgets/settings/Account
 import ShippingSettingsForm from '../../../../containers/widgets/settings/ShippingSettingsForm'
 import DonationsSettingsForm from '../../../../containers/widgets/settings/DonationsSettingsForm'
 import InvitationModal from '../../../../containers/ui/InvitationModal/InvitationModal'
+import AddFundsModal from '../../../../containers/widgets/settings/AddFunds'
 
 const tabs = {
   account: AccountSettingsForm,
   shipping: ShippingSettingsForm,
   donations: DonationsSettingsForm,
-  invite: InvitationModal
+  invite: InvitationModal,
+  addFunds: AddFundsModal
 }
 
 const styles = theme => ({
@@ -53,16 +55,15 @@ const styles = theme => ({
   }
 })
 
-export const SettingsModal = ({ classes, open, handleClose }) => {
-  const [currentTab, setCurrentTab] = useState('account')
-  const TabComponent = tabs[currentTab]
+export const SettingsModal = ({ classes, open, handleClose, modalTabToOpen, clearCurrentOpenTab, currentTab, setCurrentTab }) => {
+  const TabComponent = tabs[modalTabToOpen || currentTab]
   return (
     <Modal open={open} handleClose={handleClose} title='Settings'>
       <Grid container direction='row' className={classes.root}>
         <Grid item className={classes.tabsDiv}>
           <AppBar position='static' className={classes.appbar}>
             <Tabs
-              value={currentTab}
+              value={modalTabToOpen || currentTab}
               onChange={(e, value) => setCurrentTab(value)}
               orientation='vertical'
               className={classes.tabs}
@@ -85,6 +86,11 @@ export const SettingsModal = ({ classes, open, handleClose }) => {
                 classes={{ tabRoot: classes.tab, selected: classes.selected }}
               />
               <Tab
+                value='addFunds'
+                label='Add Funds'
+                classes={{ tabRoot: classes.tab, selected: classes.selected }}
+              />
+              <Tab
                 value='invite'
                 label='invite a Friend'
                 classes={{ tabRoot: classes.tab, selected: classes.selected }}
@@ -102,7 +108,11 @@ export const SettingsModal = ({ classes, open, handleClose }) => {
 
 SettingsModal.propTypes = {
   open: PropTypes.bool.isRequired,
-  handleClose: PropTypes.func.isRequired
+  handleClose: PropTypes.func.isRequired,
+  modalTabToOpen: PropTypes.func.isRequired,
+  clearCurrentOpenTab: PropTypes.func.isRequired,
+  currentTab: PropTypes.string.isRequired,
+  setCurrentTab: PropTypes.func.isRequired
 }
 
 export default withStyles(styles)(SettingsModal)

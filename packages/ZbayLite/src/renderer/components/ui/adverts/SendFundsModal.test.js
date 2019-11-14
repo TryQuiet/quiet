@@ -17,6 +17,9 @@ describe('SendFundsModal', () => {
         handleClose={jest.fn()}
         handleSend={jest.fn()}
         setFieldValue={jest.fn()}
+        clearCurrentOpenTab={jest.fn()}
+        openAddFundsTab={jest.fn()}
+        openSettingsModal={jest.fn()}
         open
         isValid
         values={{}}

@@ -29,7 +29,7 @@ exports[`SettingsModal renders component 1`] = `
           onChange={[Function]}
           orientation="vertical"
           textColor="inherit"
-          value="account"
+          value={[MockFunction]}
         >
           <WithStyles(Tab)
             classes={
@@ -68,6 +68,16 @@ exports[`SettingsModal renders component 1`] = `
                 "tabRoot": "tab-mock",
               }
             }
+            label="Add Funds"
+            value="addFunds"
+          />
+          <WithStyles(Tab)
+            classes={
+              Object {
+                "selected": "selected-mock",
+                "tabRoot": "tab-mock",
+              }
+            }
             label="invite a Friend"
             value="invite"
           />
@@ -78,7 +88,7 @@ exports[`SettingsModal renders component 1`] = `
       item={true}
       xs={true}
     >
-      <Connect(WithStyles(AccountSettingsForm)) />
+      <Component />
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
 </Memo(WithStyles(Modal))>

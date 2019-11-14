@@ -50,6 +50,7 @@ const handleCloseForm = ({ step, handleClose, resetForm, setStep }) => {
     setStep(1)
   }
 }
+
 export const SendMoneyModal = ({
   classes,
   initialValues,
@@ -66,7 +67,9 @@ export const SendMoneyModal = ({
   userData,
   sendMessageHandler,
   shippingData,
-  targetRecipientAddress
+  targetRecipientAddress,
+  openShippingTab,
+  openSettingsModal
 }) => {
   const StepComponent = stepToComponent[step]
   return (
@@ -107,6 +110,7 @@ export const SendMoneyModal = ({
             handleClose={() => handleCloseForm({ handleClose, setStep, step, resetForm })}
           >
             <StepComponent
+              handleClose={handleClose}
               step={step}
               errors={errors}
               touched={touched}
@@ -126,6 +130,8 @@ export const SendMoneyModal = ({
               submitForm={submitForm}
               resetForm={resetForm}
               shippingData={shippingData}
+              openShippingTab={openShippingTab}
+              openSettingsModal={openSettingsModal}
             />
           </Modal>
         )

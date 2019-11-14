@@ -12,6 +12,10 @@ describe('SettingsModal', () => {
         open
         classes={mockClasses}
         handleClose={jest.fn()}
+        modalTabToOpen={jest.fn()}
+        clearCurrentOpenTab={jest.fn()}
+        currentTab={'addFunds'}
+        setCurrentTab={jest.fn()}
       />
     )
     expect(result).toMatchSnapshot()

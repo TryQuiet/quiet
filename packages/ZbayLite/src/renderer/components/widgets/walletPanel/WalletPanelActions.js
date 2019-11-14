@@ -22,10 +22,15 @@ const styles = theme => ({
   }
 })
 
-export const WalletPanelActions = ({ classes, onSend, onReceive }) => (
+const setModalTab = (onReceive, setTabToOpen) => {
+  setTabToOpen()
+  onReceive()
+}
+
+export const WalletPanelActions = ({ classes, onSend, onReceive, setTabToOpen }) => (
   <Grid container direction='row' spacing={1}>
     <Grid item>
-      <Button variant='text' className={classes.button} onClick={onReceive}>
+      <Button variant='text' className={classes.button} onClick={() => setModalTab(onReceive, setTabToOpen)}>
         <Typography variant='caption' className={classes.buttonText}>
           Add Funds
         </Typography>
@@ -44,7 +49,8 @@ export const WalletPanelActions = ({ classes, onSend, onReceive }) => (
 WalletPanelActions.propTypes = {
   classes: PropTypes.object.isRequired,
   onSend: PropTypes.func.isRequired,
-  onReceive: PropTypes.func.isRequired
+  onReceive: PropTypes.func.isRequired,
+  setTabToOpen: PropTypes.func.isRequired
 }
 
 export default R.compose(

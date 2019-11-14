@@ -148,6 +148,7 @@ const styles = theme => ({
     backgroundColor: theme.palette.colors.veryLightGray
   },
   addFounds: {
+    cursor: 'pointer',
     color: theme.palette.colors.linkBlue
   },
   error: {
@@ -155,6 +156,12 @@ const styles = theme => ({
   },
   exchange: {}
 })
+
+const handleAddFunds = (openAddFundsTab, openSettingsModal, handleClose) => {
+  handleClose()
+  openAddFundsTab()
+  openSettingsModal()
+}
 
 export const SendFundsModal = ({
   classes,
@@ -169,7 +176,9 @@ export const SendFundsModal = ({
   submitForm,
   balanceZec,
   isValid,
-  shippingData
+  shippingData,
+  openAddFundsTab,
+  openSettingsModal
 }) => {
   const { zec: zecOffer } = values
   const hasNoFounds = balanceZec.lt(zecOffer)
@@ -305,7 +314,7 @@ export const SendFundsModal = ({
                     </Grid>
                     <Grid container item>
                       <Grid item>
-                        <Typography variant={'body2'} className={classes.description}>You don’t have enough funds. <span className={classes.addFounds}>Add funds now.</span></Typography>
+                        <Typography variant={'body2'} className={classes.description}>You don’t have enough funds. <span onClick={() => handleAddFunds(openAddFundsTab, openSettingsModal, handleClose)} className={classes.addFounds}>Add funds now.</span></Typography>
                       </Grid>
                     </Grid>
                   </Grid>
@@ -349,7 +358,9 @@ SendFundsModal.propTypes = {
   touched: PropTypes.object.isRequired,
   errors: PropTypes.object.isRequired,
   payload: PropTypes.object.isRequired,
-  shippingData: PropTypes.object.isRequired
+  shippingData: PropTypes.object.isRequired,
+  openAddFundsTab: PropTypes.func.isRequired,
+  openSettingsModal: PropTypes.func.isRequired
 }
 
 SendFundsModal.defaultProps = {
