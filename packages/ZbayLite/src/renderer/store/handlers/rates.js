@@ -20,8 +20,12 @@ export const actions = {
   setPriceUsd
 }
 export const fetchPrices = () => async (dispatch, getState) => {
-  const zecPrice = await client.avgPrice({ symbol: 'ZECUSDT' })
-  dispatch(setPriceUsd({ priceUsd: zecPrice.price }))
+  try {
+    const zecPrice = await client.avgPrice({ symbol: 'ZECUSDT' })
+    dispatch(setPriceUsd({ priceUsd: zecPrice.price }))
+  } catch (err) {
+    console.warn(err)
+  }
 }
 export const epics = {
   fetchPrices
