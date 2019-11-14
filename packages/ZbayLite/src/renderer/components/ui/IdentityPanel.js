@@ -33,6 +33,12 @@ const styles = theme => ({
   buttonLabel: {
     justifyContent: 'flex-start',
     textTransform: 'none'
+  },
+  nickname: {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    maxWidth: 175,
+    whiteSpace: 'nowrap'
   }
 })
 
@@ -45,7 +51,7 @@ export const IdentityPanel = ({ classes, identity, handleSettings, user }) => {
         component='span'
         classes={{ root: classes.button, label: classes.buttonLabel }}
       >
-        <Typography variant='h4'>{nickname}</Typography>
+        <Typography variant='h4' className={classes.nickname}>{nickname}</Typography>
         <ExpandMoreIcon fontSize='small' />
       </Button>
       <SettingsModal />

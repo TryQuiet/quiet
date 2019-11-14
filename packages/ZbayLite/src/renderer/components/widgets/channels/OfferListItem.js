@@ -33,7 +33,11 @@ const styles = theme => ({
   title: {
     opacity: 0.7,
     paddingLeft: 16,
-    paddingRight: 16
+    paddingRight: 16,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    maxWidth: 230,
+    whiteSpace: 'nowrap'
   },
   newMessages: {
     opacity: 1
@@ -75,14 +79,7 @@ export const OfferListItem = ({ classes, channel, history, selected }) => {
                   [classes.newMessages]: newMessages
                 })}
               >
-                <Grid container direction='row'>
-                  <Grid item>
-                    <span>{'#'}</span>
-                  </Grid>
-                  <Grid item xs className={classes.nameSpacing}>
-                    <span>{`${channelObj.name}`}</span>
-                  </Grid>
-                </Grid>
+                {`# ${channelObj.name}`}
               </Typography>
             </Grid>
           </Grid>

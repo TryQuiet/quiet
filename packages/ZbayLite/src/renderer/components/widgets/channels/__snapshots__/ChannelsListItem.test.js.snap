@@ -26,27 +26,7 @@ exports[`ChannelsListItem renders component 1`] = `
             className="title-mock newMessages-mock"
             variant="body2"
           >
-            <ForwardRef(WithStyles)
-              container={true}
-              direction="row"
-            >
-              <ForwardRef(WithStyles)
-                item={true}
-              >
-                <span>
-                  #
-                </span>
-              </ForwardRef(WithStyles)>
-              <ForwardRef(WithStyles)
-                className="nameSpacing-mock"
-                item={true}
-                xs={true}
-              >
-                <span>
-                  Channel 1
-                </span>
-              </ForwardRef(WithStyles)>
-            </ForwardRef(WithStyles)>
+            # Channel 1
           </ForwardRef(WithStyles)>
         </ForwardRef(WithStyles)>
       </ForwardRef(WithStyles)>
@@ -81,27 +61,7 @@ exports[`ChannelsListItem renders component when public 1`] = `
             className="title-mock"
             variant="body2"
           >
-            <ForwardRef(WithStyles)
-              container={true}
-              direction="row"
-            >
-              <ForwardRef(WithStyles)
-                item={true}
-              >
-                <span>
-                  #
-                </span>
-              </ForwardRef(WithStyles)>
-              <ForwardRef(WithStyles)
-                className="nameSpacing-mock"
-                item={true}
-                xs={true}
-              >
-                <span>
-                  Channel 0
-                </span>
-              </ForwardRef(WithStyles)>
-            </ForwardRef(WithStyles)>
+            # Channel 0
           </ForwardRef(WithStyles)>
         </ForwardRef(WithStyles)>
       </ForwardRef(WithStyles)>
@@ -136,27 +96,7 @@ exports[`ChannelsListItem renders component with address 1`] = `
             className="title-mock newMessages-mock"
             variant="body2"
           >
-            <ForwardRef(WithStyles)
-              container={true}
-              direction="row"
-            >
-              <ForwardRef(WithStyles)
-                item={true}
-              >
-                <span>
-                  #
-                </span>
-              </ForwardRef(WithStyles)>
-              <ForwardRef(WithStyles)
-                className="nameSpacing-mock"
-                item={true}
-                xs={true}
-              >
-                <span>
-                  Channel 1
-                </span>
-              </ForwardRef(WithStyles)>
-            </ForwardRef(WithStyles)>
+            # Channel 1
           </ForwardRef(WithStyles)>
         </ForwardRef(WithStyles)>
       </ForwardRef(WithStyles)>

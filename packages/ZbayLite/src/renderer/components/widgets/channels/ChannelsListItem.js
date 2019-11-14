@@ -35,7 +35,11 @@ const styles = theme => ({
   title: {
     opacity: 0.7,
     paddingLeft: 16,
-    paddingRight: 16
+    paddingRight: 16,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    maxWidth: 230,
+    whiteSpace: 'nowrap'
   },
   newMessages: {
     opacity: 1
@@ -91,18 +95,7 @@ export const ChannelsListItem = ({ classes, channel, history, directMessages, se
                   [classes.newMessages]: newMessages
                 })}
               >
-                {directMessages ? (
-                  `@ ${channelObj.username}`
-                ) : (
-                  <Grid container direction='row'>
-                    <Grid item>
-                      <span>{'#'}</span>
-                    </Grid>
-                    <Grid item xs className={classes.nameSpacing}>
-                      <span>{`${channelObj.name}`}</span>
-                    </Grid>
-                  </Grid>
-                )}
+                {directMessages ? `@ ${channelObj.username}` : `# ${channelObj.name}`}
               </Typography>
             </Grid>
             {recievedMoney && (

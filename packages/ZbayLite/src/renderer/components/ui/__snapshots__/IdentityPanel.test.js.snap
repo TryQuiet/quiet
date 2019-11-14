@@ -15,6 +15,7 @@ exports[`IdentityPanel renders component with username 1`] = `
     onClick={[MockFunction]}
   >
     <WithStyles(ForwardRef(Typography))
+      className="nickname-mock"
       variant="h4"
     >
       test
@@ -45,6 +46,7 @@ exports[`IdentityPanel renders component without username 1`] = `
     onClick={[MockFunction]}
   >
     <WithStyles(ForwardRef(Typography))
+      className="nickname-mock"
       variant="h4"
     >
       test
