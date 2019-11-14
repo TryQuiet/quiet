@@ -62,7 +62,6 @@ export const ChannelInput = ({
 
 ChannelInput.propTypes = {
   onChange: PropTypes.func.isRequired,
-  onKeyPress: PropTypes.func.isRequired,
   inputState: PropTypes.number.isRequired,
   message: PropTypes.string
 }

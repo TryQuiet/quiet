@@ -115,7 +115,7 @@ Modal.propTypes = {
   classes: PropTypes.object.isRequired,
   open: PropTypes.bool.isRequired,
   handleClose: PropTypes.func.isRequired,
-  title: PropTypes.string.isRequired,
+  title: PropTypes.string,
   fullPage: PropTypes.bool.isRequired,
   step: PropTypes.number,
   setStep: PropTypes.func,

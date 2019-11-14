@@ -57,7 +57,7 @@ SendFundsForm.propTypes = {
     shippingInfo: PropTypes.bool.isRequired,
     shippingData: PropTypes.object
   }).isRequired,
-  handleSend: PropTypes.func.isRequired,
+  handleSendTransfer: PropTypes.func.isRequired,
   handleClose: PropTypes.func.isRequired
 }
 

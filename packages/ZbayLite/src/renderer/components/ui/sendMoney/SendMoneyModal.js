@@ -159,7 +159,7 @@ SendMoneyModal.propTypes = {
   setStep: PropTypes.func.isRequired,
   balanceZec: PropTypes.instanceOf(BigNumber).isRequired,
   rateUsd: PropTypes.instanceOf(BigNumber).isRequired,
-  rateZec: PropTypes.instanceOf(BigNumber).isRequired,
+  rateZec: PropTypes.number.isRequired,
   feeZec: PropTypes.number,
   feeUsd: PropTypes.number,
   handleClose: PropTypes.func.isRequired,

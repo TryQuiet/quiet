@@ -425,7 +425,7 @@ AdvertModal.propTypes = {
   handleClose: PropTypes.func.isRequired,
   submitForm: PropTypes.func.isRequired,
   rateUsd: PropTypes.object.isRequired,
-  rateZec: PropTypes.object.isRequired,
+  rateZec: PropTypes.number.isRequired,
   values: PropTypes.object.isRequired,
   setFieldValue: PropTypes.func.isRequired,
   isValid: PropTypes.bool.isRequired,

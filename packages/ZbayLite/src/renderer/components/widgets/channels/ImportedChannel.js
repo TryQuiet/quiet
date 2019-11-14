@@ -109,7 +109,9 @@ export const ImportedChannel = ({
             </Grid>
           </Grid>
         </Grid>
-      ) : null}
+      ) : (
+        <span />
+      )}
     </Modal>
   )
 }

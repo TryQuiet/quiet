@@ -13,11 +13,14 @@ describe('SendMoneyForm', () => {
         classes={mockClasses}
         step={1}
         setStep={jest.fn()}
-        rateUsd={new BigNumber(50)}
-        rateZec={new BigNumber(0.4)}
+        rateUsd={1}
+        rateZec={1}
         balanceZec={new BigNumber(0.7)}
         values={{ recipient: 'address123' }}
+        touched={false}
         isValid
+        errors={{}}
+        shippingData={{ data: 'test' }}
       />
     )
     expect(result).toMatchSnapshot()
@@ -28,13 +31,14 @@ describe('SendMoneyForm', () => {
         classes={mockClasses}
         step={1}
         setStep={jest.fn()}
-        rateUsd={new BigNumber(50)}
-        rateZec={new BigNumber(0.4)}
+        rateUsd={1}
+        rateZec={1}
         values={{ recipient: 'address123' }}
         balanceZec={new BigNumber(0.7)}
         isValid={false}
         errors={{}}
         touched={false}
+        shippingData={{ data: 'test' }}
       />
     )
     expect(result).toMatchSnapshot()

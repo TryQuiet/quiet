@@ -286,7 +286,6 @@ AdvertActionModal.propTypes = {
     description: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired
   }),
-  handleBuy: PropTypes.func.isRequired,
   handleMessage: PropTypes.func.isRequired,
   handleClose: PropTypes.func.isRequired
 }
