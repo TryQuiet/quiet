@@ -37,6 +37,9 @@ describe('Channels selectors', () => {
   it('- channels', async () => {
     expect(channelsSelectors.channels(store.getState())).toMatchSnapshot()
   })
+  it('- ownedChannels', async () => {
+    expect(channelsSelectors.ownedChannels(store.getState())).toMatchSnapshot()
+  })
 
   it('- loader', async () => {
     expect(channelsSelectors.loader(store.getState())).toMatchSnapshot()

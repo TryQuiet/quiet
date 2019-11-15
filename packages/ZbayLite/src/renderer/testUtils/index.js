@@ -57,7 +57,8 @@ export const createChannel = id => ({
   unread: id,
   description: id % 2 === 0 ? '' : `Channel about ${id}`,
   keys: {
-    ivk: `incoming-viewing-key-${id}`
+    ivk: `incoming-viewing-key-${id}`,
+    sk: 'test-secret-key'
   }
 })
 

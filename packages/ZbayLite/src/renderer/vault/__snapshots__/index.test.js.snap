@@ -103,6 +103,7 @@ Array [
     "description": "Channel about 3",
     "keys": Object {
       "ivk": "incoming-viewing-key-3",
+      "sk": "test-secret-key",
     },
     "lastSeen": "2019-03-07T13:03:48.000Z",
     "name": "Channel 3",
@@ -114,6 +115,7 @@ Array [
     "description": "",
     "keys": Object {
       "ivk": "incoming-viewing-key-2",
+      "sk": "test-secret-key",
     },
     "lastSeen": "2019-03-07T13:03:48.000Z",
     "name": "Channel 2",
@@ -125,6 +127,7 @@ Array [
     "description": "Channel about 1",
     "keys": Object {
       "ivk": "incoming-viewing-key-1",
+      "sk": "test-secret-key",
     },
     "lastSeen": "2019-03-07T13:03:48.000Z",
     "name": "Channel 1",

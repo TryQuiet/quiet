@@ -11,6 +11,7 @@ Object {
     "description": "Channel about 1",
     "keys": Immutable.Map {
       "ivk": "incoming-viewing-key-1",
+      "sk": "test-secret-key",
     },
   },
   "members": Set {},

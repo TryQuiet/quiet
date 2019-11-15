@@ -13,14 +13,17 @@ import {
 import notificationsHandlers from './notifications'
 import identitySelectors from '../selectors/identity'
 import modalsHandlers from './modals'
-
+import { messages } from '../../zbay'
 import { getVault } from '../../vault'
 import { getClient } from '../../zcash'
 
-export const ChannelsState = Immutable.Record({
-  data: Immutable.List(),
-  loader: LoaderState({ loading: true })
-}, 'ChannelsState')
+export const ChannelsState = Immutable.Record(
+  {
+    data: Immutable.List(),
+    loader: LoaderState({ loading: true })
+  },
+  'ChannelsState'
+)
 
 export const initialState = ChannelsState()
 
@@ -30,12 +33,12 @@ export const actionTypes = {
   SET_UNREAD: 'SET_CHANNEL_UNREAD'
 }
 
-const loadChannels = createAction(actionTypes.LOAD_CHANNELS, async (id) => {
+const loadChannels = createAction(actionTypes.LOAD_CHANNELS, async id => {
   const channels = await getVault().channels.listChannels(id)
 
   await Promise.all(
-    channels.map(
-      channel => getClient().keys.importIVK({ ivk: channel.keys.ivk, address: channel.address })
+    channels.map(channel =>
+      getClient().keys.importIVK({ ivk: channel.keys.ivk, address: channel.address })
     )
   )
   return channels
@@ -74,17 +77,35 @@ const createChannel = (values, formActions) => async (dispatch, getState) => {
   try {
     const identityId = identitySelectors.id(getState())
     await _createChannel(identityId, values)
-    dispatch(notificationsHandlers.actions.enqueueSnackbar(
-      successNotification(`Successfully created ${values.name} channel.`)
-    ))
+    dispatch(
+      notificationsHandlers.actions.enqueueSnackbar(
+        successNotification(`Successfully created ${values.name} channel.`)
+      )
+    )
     formActions.setSubmitting(false)
     dispatch(closeModal())
     dispatch(loadChannels(identityId))
   } catch (error) {
-    dispatch(notificationsHandlers.actions.enqueueSnackbar(
-      errorNotification({ message: `Failed to create channel: ${error.message}` })
-    ))
+    dispatch(
+      notificationsHandlers.actions.enqueueSnackbar(
+        errorNotification({ message: `Failed to create channel: ${error.message}` })
+      )
+    )
     formActions.setSubmitting(false)
+  }
+}
+
+const getMoneyFromChannel = (address) => async (dispatch, getState) => {
+  const amount = await getClient().accounting.balance(address)
+  const identityAddress = identitySelectors.address(getState())
+
+  if (amount.gt(0.0001)) {
+    const transfer = messages.createEmptyTransfer({
+      address: identityAddress,
+      amount: amount.minus(0.0001).toString(),
+      identityAddress: address
+    })
+    await getClient().payment.send(transfer)
   }
 }
 
@@ -102,26 +123,29 @@ const updateLastSeen = ({ channelId }) => async (dispatch, getState) => {
 
 export const epics = {
   createChannel,
-  updateLastSeen
+  updateLastSeen,
+  getMoneyFromChannel
 }
 
-export const reducer = handleActions({
-  [typePending(actionTypes.LOAD_CHANNELS)]: state => state.setIn(['loader', 'loading'], true)
-    .setIn(['loader', 'message'], 'Loading channels'),
-  [typeFulfilled(actionTypes.LOAD_CHANNELS)]: (state, { payload: data }) => state
-    .set('data', Immutable.fromJS(data))
-    .setIn(['loader', 'loading'], false),
-  [typeRejected(actionTypes.LOAD_CHANNELS)]: (state, { payload: error }) => state
-    .setIn(['loader', 'loading'], false),
-  [setLastSeen]: (state, { payload: { channelId, lastSeen } }) => {
-    const index = state.data.findIndex(channel => channel.get('id') === channelId)
-    return state.updateIn(['data', index], ch => ch.set('lastSeen', lastSeen))
+export const reducer = handleActions(
+  {
+    [typePending(actionTypes.LOAD_CHANNELS)]: state =>
+      state.setIn(['loader', 'loading'], true).setIn(['loader', 'message'], 'Loading channels'),
+    [typeFulfilled(actionTypes.LOAD_CHANNELS)]: (state, { payload: data }) =>
+      state.set('data', Immutable.fromJS(data)).setIn(['loader', 'loading'], false),
+    [typeRejected(actionTypes.LOAD_CHANNELS)]: (state, { payload: error }) =>
+      state.setIn(['loader', 'loading'], false),
+    [setLastSeen]: (state, { payload: { channelId, lastSeen } }) => {
+      const index = state.data.findIndex(channel => channel.get('id') === channelId)
+      return state.updateIn(['data', index], ch => ch.set('lastSeen', lastSeen))
+    },
+    [setUnread]: (state, { payload: { channelId, unread } }) => {
+      const index = state.data.findIndex(channel => channel.get('id') === channelId)
+      return state.updateIn(['data', index], ch => ch.set('unread', unread))
+    }
   },
-  [setUnread]: (state, { payload: { channelId, unread } }) => {
-    const index = state.data.findIndex(channel => channel.get('id') === channelId)
-    return state.updateIn(['data', index], ch => ch.set('unread', unread))
-  }
-}, initialState)
+  initialState
+)
 
 export default {
   actions,

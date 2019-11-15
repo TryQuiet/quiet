@@ -27,6 +27,7 @@ Immutable.Map {
   "description": "Channel about this-is-a-test-id",
   "keys": Immutable.Map {
     "ivk": "incoming-viewing-key-this-is-a-test-id",
+    "sk": "test-secret-key",
   },
 }
 `;

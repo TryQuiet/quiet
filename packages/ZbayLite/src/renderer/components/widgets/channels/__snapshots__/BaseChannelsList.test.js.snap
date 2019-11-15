@@ -15,6 +15,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "description": "",
         "keys": Immutable.Map {
           "ivk": "incoming-viewing-key-0",
+          "sk": "test-secret-key",
         },
       }
     }
@@ -33,6 +34,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "description": "Channel about 1",
         "keys": Immutable.Map {
           "ivk": "incoming-viewing-key-1",
+          "sk": "test-secret-key",
         },
       }
     }
@@ -51,6 +53,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "description": "",
         "keys": Immutable.Map {
           "ivk": "incoming-viewing-key-2",
+          "sk": "test-secret-key",
         },
       }
     }
@@ -69,6 +72,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "description": "Channel about 3",
         "keys": Immutable.Map {
           "ivk": "incoming-viewing-key-3",
+          "sk": "test-secret-key",
         },
       }
     }
@@ -87,6 +91,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "description": "",
         "keys": Immutable.Map {
           "ivk": "incoming-viewing-key-4",
+          "sk": "test-secret-key",
         },
       }
     }
@@ -105,6 +110,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "description": "Channel about 5",
         "keys": Immutable.Map {
           "ivk": "incoming-viewing-key-5",
+          "sk": "test-secret-key",
         },
       }
     }
@@ -123,6 +129,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "description": "",
         "keys": Immutable.Map {
           "ivk": "incoming-viewing-key-6",
+          "sk": "test-secret-key",
         },
       }
     }
@@ -141,6 +148,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "description": "Channel about 7",
         "keys": Immutable.Map {
           "ivk": "incoming-viewing-key-7",
+          "sk": "test-secret-key",
         },
       }
     }
@@ -159,6 +167,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "description": "",
         "keys": Immutable.Map {
           "ivk": "incoming-viewing-key-8",
+          "sk": "test-secret-key",
         },
       }
     }
@@ -177,6 +186,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "description": "Channel about 9",
         "keys": Immutable.Map {
           "ivk": "incoming-viewing-key-9",
+          "sk": "test-secret-key",
         },
       }
     }
@@ -195,6 +205,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "description": "",
         "keys": Immutable.Map {
           "ivk": "incoming-viewing-key-10",
+          "sk": "test-secret-key",
         },
       }
     }
@@ -213,6 +224,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "description": "Channel about 11",
         "keys": Immutable.Map {
           "ivk": "incoming-viewing-key-11",
+          "sk": "test-secret-key",
         },
       }
     }

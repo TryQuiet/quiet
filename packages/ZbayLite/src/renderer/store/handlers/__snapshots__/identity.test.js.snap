@@ -499,6 +499,7 @@ Immutable.List [
     "description": "",
     "keys": Immutable.Map {
       "ivk": "incoming-viewing-key-2",
+      "sk": "test-secret-key",
     },
   },
   Immutable.Map {
@@ -510,6 +511,7 @@ Immutable.List [
     "description": "Channel about 1",
     "keys": Immutable.Map {
       "ivk": "incoming-viewing-key-1",
+      "sk": "test-secret-key",
     },
   },
   Immutable.Map {
@@ -532,6 +534,7 @@ Immutable.List [
     "description": "",
     "keys": Immutable.Map {
       "ivk": "incoming-viewing-key-0",
+      "sk": "test-secret-key",
     },
   },
 ]

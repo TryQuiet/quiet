@@ -58,6 +58,13 @@ const channelById = id =>
     data,
     ch => ch.find(c => c.get('id') === id)
   )
+const ownedChannels = createSelector(
+  data,
+  ch =>
+    ch.filter(c => {
+      return c.get('keys').get('sk')
+    })
+)
 
 const lastSeen = id =>
   createSelector(
@@ -73,5 +80,6 @@ export default {
   loader,
   lastSeen,
   data,
-  errors
+  errors,
+  ownedChannels
 }
