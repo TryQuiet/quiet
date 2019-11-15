@@ -209,6 +209,7 @@ Vault {
     "removeOffer": [Function],
     "saveMessage": [Function],
     "updateLastSeen": [Function],
+    "updateNickname": [Function],
   },
   "transactionsTimestamps": Object {
     "addTransaction": [Function],

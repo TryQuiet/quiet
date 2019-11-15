@@ -10,6 +10,7 @@ import { NodeState } from './node'
 import selectors from '../selectors/users'
 import { packMemo } from '../../zbay/transit'
 import { mock as zcashMock } from '../../zcash'
+import vault from '../../vault'
 import { ChannelsState } from './channels'
 import { IdentityState, Identity } from './identity'
 import create from '../create'
@@ -28,7 +29,8 @@ describe('users reducer', () => {
           data: Identity({
             name: 'Saturn',
             id: 'test-id',
-            address: 'ztestsapling1mwmpvwy2aah7dlt0c9l47gde982xv6snxq2srddfzx8efn2qht6mxnz65rtst0426gtxje0eqlm',
+            address:
+              'ztestsapling1mwmpvwy2aah7dlt0c9l47gde982xv6snxq2srddfzx8efn2qht6mxnz65rtst0426gtxje0eqlm',
             signerPrivKey: '4e577989a286937f565cea6426bd75fc0c3b166d7bd28d8357ba633b3736a41d',
             signerPubKey: '033ec8436690fc8313202e16a531b2ec4799dd91a33025357a5386979f3cf081af',
             transparentAddress: 'transparent-test-address'
@@ -100,15 +102,27 @@ describe('users reducer', () => {
             })
             return testUtils.transfers.createTransfer({
               txid: `tx-id-${i}-${address}`,
-              memo: await packMemo(message)
+              memo: await packMemo(message),
+              timereceived: i * 2
             })
           })
         )
+      const _createTransfersInfo = num => async tx => ({
+        txid: `${tx}2`,
+        memo: 'memo',
+        timereceived: 123
+      })
 
       it('when users', async () => {
         await zcashMock.requestManager.z_listreceivedbyaddress.mockImplementation(
           _createMessagesForUsers(2)
         )
+        await zcashMock.requestManager.gettransaction.mockImplementation(_createTransfersInfo(2))
+        vault.getVault.mockImplementation(() => ({
+          transactionsTimestamps: {
+            addTransaction: jest.fn(async () => {})
+          }
+        }))
         await store.dispatch(handlers.epics.fetchUsers())
         expect(selectors.users(store.getState())).toMatchSnapshot()
       })
@@ -124,25 +138,29 @@ describe('users reducer', () => {
                 firstName: 'testname',
                 lastName: 'testlastname',
                 nickname: 'test-user-1',
-                address: 'ztestsapling1k059n2xjz5apmu49ud6xa0g4lywetd0zgpz2txe9xs5pu27fjjnp7c9yvtkcqlwz0n7qxrhyb4c'
+                address:
+                  'ztestsapling1k059n2xjz5apmu49ud6xa0g4lywetd0zgpz2txe9xs5pu27fjjnp7c9yvtkcqlwz0n7qxrhyb4c'
               },
               '02c9b30ea203dcd5776d014e0062a3232c00b74273094ebb1f119fb5cee88c23vb': {
                 firstName: 'testname',
                 lastName: 'testlastname',
                 nickname: 'test-user-1',
-                address: 'ztestsapling1k059n2xjz5apmu49ud6xa0g4lywetd0zgpz2txe9xs5pu27fjjnp7c9yvtkcqlwz0n7qxrhyb4c'
+                address:
+                  'ztestsapling1k059n2xjz5apmu49ud6xa0g4lywetd0zgpz2txe9xs5pu27fjjnp7c9yvtkcqlwz0n7qxrhyb4c'
               },
               '04c9b30ea203dcd5776d014e0062a3232c00b74273094ebb1f119fb5cee88c2355': {
                 firstName: 'testname',
                 lastName: 'testlastname',
                 nickname: 'test-user-2',
-                address: 'ztestsapling1k059n2xjz5apmu49ud6xa0g4lywetd0zgpz2txe9xs5pu27fjjnp7c9yvtkcqlwz0n7qxrhylnn'
+                address:
+                  'ztestsapling1k059n2xjz5apmu49ud6xa0g4lywetd0zgpz2txe9xs5pu27fjjnp7c9yvtkcqlwz0n7qxrhylnn'
               },
               '04c9b30ea203dcd5776d014e0062a3232c00b74273094ebb1f119fb5cee88c2vbf': {
                 firstName: 'testname',
                 lastName: 'testlastname',
                 nickname: 'test-user-2',
-                address: 'ztestsapling1k059n2xjz5apmu49ud6xa0g4lywetd0zgpz2txe9xs5pu27fjjnp7c9yvtkcqlwz0n7qxrhylnn'
+                address:
+                  'ztestsapling1k059n2xjz5apmu49ud6xa0g4lywetd0zgpz2txe9xs5pu27fjjnp7c9yvtkcqlwz0n7qxrhylnn'
               }
             })
           })
@@ -156,7 +174,9 @@ describe('users reducer', () => {
       })
 
       it('should return false for available username', async () => {
-        const isNicknameTaken = await store.dispatch(handlers.epics.isNicknameTaken('test-new-user'))
+        const isNicknameTaken = await store.dispatch(
+          handlers.epics.isNicknameTaken('test-new-user')
+        )
         expect(isNicknameTaken).toBeFalsy()
       })
     })
@@ -188,7 +208,8 @@ describe('users reducer', () => {
           firstName: 'testname',
           lastName: 'testlastname',
           nickname: 'nickname',
-          address: 'ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r'
+          address:
+            'ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r'
         }
 
         await store.dispatch(handlers.epics.createOrUpdateUser(message))

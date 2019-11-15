@@ -196,7 +196,10 @@ export const fetchMessages = () => async (dispatch, getState) => {
       .filter(msg => msg.type === messageType.ITEM_BASIC || msg.type === messageType.ITEM_TRANSFER)
 
     await messagesOffers.forEach(async msg => {
-      let offer = offersSelectors.offer(msg.message.itemId + msg.sender.username)(getState())
+      let offer = offersSelectors.offers(getState()).find(
+        off =>
+          off.itemId.substring(0, 64) === msg.message.itemId && off.address === msg.sender.replyTo // TODO find better solution when user changes nickname
+      )
       if (msg.message.itemId === null || msg.message.itemId === undefined) {
         return
       }
@@ -210,7 +213,12 @@ export const fetchMessages = () => async (dispatch, getState) => {
         }
         await dispatch(offersHandlers.epics.createOffer({ payload }))
       }
-      offer = offersSelectors.offer(msg.message.itemId + msg.sender.username)(getState())
+      offer = offersSelectors
+        .offers(getState())
+        .find(
+          off =>
+            off.itemId.substring(0, 64) === msg.message.itemId && off.address === msg.sender.replyTo
+        )
       if (!offer.messages.find(message => message.id === msg.id)) {
         await dispatch(
           offersHandlers.actions.appendMessages({
@@ -218,17 +226,15 @@ export const fetchMessages = () => async (dispatch, getState) => {
               .merge({ message: msg.message.text })
               .set('tag', msg.message.tag)
               .set('offerOwner', msg.message.offerOwner),
-            itemId: msg.message.itemId + msg.sender.username
+            itemId: offer.itemId
           })
         )
-        const lastSeen = offersSelectors.lastSeen(msg.message.itemId + msg.sender.username)(
-          getState()
-        )
+        const lastSeen = offersSelectors.lastSeen(offer.itemId)(getState())
         if (DateTime.fromSeconds(msg.createdAt) > lastSeen) {
           await dispatch(
             offersHandlers.actions.appendNewMessages({
               message: msg.id,
-              itemId: msg.message.itemId + msg.sender.username
+              itemId: offer.itemId
             })
           )
         }

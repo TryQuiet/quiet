@@ -108,6 +108,19 @@ export default vault => {
       workspace.save()
     })
   }
+  const updateNickname = async ({ offerId, tag, nickname }) => {
+    await vault.withWorkspace(workspace => {
+      const [offers] = workspace.archive.findGroupsByTitle('Offers')
+      let [offer] = offers
+        .getGroups()[0]
+        .getGroups()
+        .filter(g => g.getTitle() === offerId)
+      if (offer !== null) {
+        offer.setAttribute('name', `${tag} @${nickname}`)
+      }
+      workspace.save()
+    })
+  }
 
   return {
     listOffers,
@@ -115,6 +128,7 @@ export default vault => {
     importOffer,
     removeOffer,
     saveMessage,
-    listMessages
+    listMessages,
+    updateNickname
   }
 }

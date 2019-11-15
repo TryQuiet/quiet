@@ -115,7 +115,7 @@ export const fetchUsers = () => async (dispatch, getState) => {
   try {
     const usersChannel = channelsSelectors.usersChannel(getState())
     const transfers = await getClient().payment.received(usersChannel.get('address'))
-    const txnTimestamps = txnTimestampsSelector.tnxTimestamps(getState())
+    let txnTimestamps = txnTimestampsSelector.tnxTimestamps(getState())
 
     if (transfers.length === appSelectors.transfers(getState()).get(usersChannel.get('address'))) {
       return
@@ -127,7 +127,8 @@ export const fetchUsers = () => async (dispatch, getState) => {
         })
       )
     }
-    await transfers.forEach(async transfer => {
+    for (const key in transfers) {
+      const transfer = transfers[key]
       if (!txnTimestamps.get(transfer.txid)) {
         const result = await getClient().confirmations.getResult(transfer.txid)
         await getVault().transactionsTimestamps.addTransaction(transfer.txid, result.timereceived)
@@ -137,7 +138,8 @@ export const fetchUsers = () => async (dispatch, getState) => {
           })
         )
       }
-    })
+    }
+    txnTimestamps = txnTimestampsSelector.tnxTimestamps(getState())
     const sortedTransfers = transfers.sort(
       (a, b) => txnTimestamps.get(a.txid) - txnTimestamps.get(b.txid)
     )
@@ -147,7 +149,9 @@ export const fetchUsers = () => async (dispatch, getState) => {
         return message
       })
     )
-    const sortedMessages = registrationMessages.filter(msg => msg !== null)
+    const sortedMessages = registrationMessages
+      .filter(msg => msg !== null)
+      .sort((a, b) => txnTimestamps.get(a.id) - txnTimestamps.get(b.id))
     const users = await sortedMessages.reduce(
       async (acc = Promise.resolve(Immutable.Map({})), message) => {
         const accumulator = await acc
