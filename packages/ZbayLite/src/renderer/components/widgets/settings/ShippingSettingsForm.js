@@ -20,12 +20,11 @@ const styles = theme => ({
     width: '100%'
   },
   container: {
-    padding: theme.spacing(4)
+    paddingLeft: 15,
+    paddingRight: 15
   },
-  field: {
-  },
-  submitButton: {
-  },
+  field: {},
+  submitButton: {},
   label: {
     fontSize: 12,
     marginBottom: 8,
@@ -35,6 +34,9 @@ const styles = theme => ({
     height: 60,
     fontSize: '0.9rem',
     backgroundColor: theme.palette.colors.zbayBlue
+  },
+  title: {
+    marginBottom: 24
   }
 })
 
@@ -42,163 +44,160 @@ export const formSchema = Yup.object().shape({
   firstName: Yup.string().required('Required'),
   lastName: Yup.string().required('Required'),
   street: Yup.string().required('Required'),
-  country: Yup.string().oneOf(R.keys(countryData)).required('Required'),
-  region: Yup.string().when(
-    'country',
-    (country, schema) => schema.oneOf(R.propOr([], country, countryData))
-  ).required('Required'),
+  country: Yup.string()
+    .oneOf(R.keys(countryData))
+    .required('Required'),
+  region: Yup.string()
+    .when('country', (country, schema) => schema.oneOf(R.propOr([], country, countryData)))
+    .required('Required'),
   city: Yup.string().required('Required'),
   postalCode: Yup.string().required('Required')
 })
 
-export const ShippingSettingsForm = ({
-  classes,
-  initialValues,
-  handleSubmit
-}) => (
-  <Formik
-    onSubmit={handleSubmit}
-    validationSchema={formSchema}
-    initialValues={initialValues}
-  >
-    {
-      ({ values, isSubmitting }) => (
-        <Form className={classes.fullWidth}>
-          <Grid
-            container
-            spacing={1}
-            direction='column'
-            alignItems='flex-start'
-            className={classes.container}
-          >
-            <Grid item container direction='row' justify='space-between' spacing={2}>
-              <Grid item xs={6}>
-                <Typography className={classes.label} variant='body2'>
-                  First Name
-                </Typography>
-                <TextField
-                  id='first-name'
-                  name='firstName'
-                  className={classes.field}
-                  margin='none'
-                  variant='outlined'
-                  value={values.firstName}
-                />
-              </Grid>
-              <Grid item xs={6}>
-                <Typography className={classes.label} variant='body2'>
-                  Last Name
-                </Typography>
-                <TextField
-                  id='last-name'
-                  name='lastName'
-                  className={classes.field}
-                  margin='none'
-                  variant='outlined'
-                  value={values.lastName}
-                />
-              </Grid>
+export const ShippingSettingsForm = ({ classes, initialValues, handleSubmit }) => (
+  <Formik onSubmit={handleSubmit} validationSchema={formSchema} initialValues={initialValues}>
+    {({ values, isSubmitting }) => (
+      <Form className={classes.fullWidth}>
+        <Grid
+          container
+          spacing={1}
+          direction='column'
+          alignItems='flex-start'
+          className={classes.container}
+        >
+          <Grid item className={classes.title}>
+            <Typography variant='h3'>Shipping Address</Typography>
+          </Grid>
+
+          <Grid item container direction='row' justify='space-between' spacing={2}>
+            <Grid item xs={6}>
+              <Typography className={classes.label} variant='body2'>
+                First Name
+              </Typography>
+              <TextField
+                id='first-name'
+                name='firstName'
+                className={classes.field}
+                margin='none'
+                variant='outlined'
+                value={values.firstName}
+              />
             </Grid>
-            <Grid item container direction='row' justify='space-between'>
-              <Grid item xs={12}>
-                <Typography className={classes.label} variant='body2'>
-                  Country
-                </Typography>
-                <SelectField
-                  id='country'
-                  name='country'
-                  variant='outlined'
-                  fullWidth
-                  IconComponent={UnfoldMore}
-                >
-                  { R.keys(countryData).map(c => <MenuItem key={c} value={c}>{c}</MenuItem>) }
-                </SelectField>
-              </Grid>
-            </Grid>
-            <Grid item container direction='row' justify='space-between'>
-              <Grid item xs={12}>
-                <Typography className={classes.label} variant='body2'>
-                  Region
-                </Typography>
-                <SelectField
-                  id='region'
-                  name='region'
-                  variant='outlined'
-                  fullWidth
-                  IconComponent={UnfoldMore}
-                >
-                  {
-                    R.propOr(
-                      [],
-                      values.country,
-                      countryData
-                    ).map(r => <MenuItem key={r} value={r}>{r}</MenuItem>)
-                  }
-                </SelectField>
-              </Grid>
-            </Grid>
-            <Grid item container direction='row' justify='space-between' spacing={2} >
-              <Grid item xs={6}>
-                <Typography className={classes.label} variant='body2'>
-                  City
-                </Typography>
-                <TextField
-                  id='city'
-                  name='city'
-                  className={classes.field}
-                  margin='none'
-                  variant='outlined'
-                  value={values.city}
-                />
-              </Grid>
-              <Grid item xs={6}>
-                <Typography className={classes.label} variant='body2'>
-                  Postal Code
-                </Typography>
-                <TextField
-                  id='postal-code'
-                  name='postalCode'
-                  className={classes.field}
-                  margin='none'
-                  variant='outlined'
-                  value={values.postalCode}
-                />
-              </Grid>
-            </Grid>
-            <Grid container item>
-              <Grid item xs={12}>
-                <Typography className={classes.label} variant='body2'>
-                Street Address
-                </Typography>
-                <TextField
-                  id='street-address'
-                  name='street'
-                  fullWidth
-                  margin='none'
-                  variant='outlined'
-                  value={values.street}
-                />
-              </Grid>
-            </Grid>
-            <Grid container item>
-              <Grid item xs={12} className={classes.submitButton}>
-                <Button
-                  variant='contained'
-                  size='large'
-                  color='primary'
-                  type='submit'
-                  fullWidth
-                  disabled={isSubmitting}
-                  className={classes.button}
-                >
-                Save
-                </Button>
-              </Grid>
+            <Grid item xs={6}>
+              <Typography className={classes.label} variant='body2'>
+                Last Name
+              </Typography>
+              <TextField
+                id='last-name'
+                name='lastName'
+                className={classes.field}
+                margin='none'
+                variant='outlined'
+                value={values.lastName}
+              />
             </Grid>
           </Grid>
-        </Form>
-      )
-    }
+          <Grid item container direction='row' justify='space-between'>
+            <Grid item xs={12}>
+              <Typography className={classes.label} variant='body2'>
+                Country
+              </Typography>
+              <SelectField
+                id='country'
+                name='country'
+                variant='outlined'
+                fullWidth
+                IconComponent={UnfoldMore}
+              >
+                {R.keys(countryData).map(c => (
+                  <MenuItem key={c} value={c}>
+                    {c}
+                  </MenuItem>
+                ))}
+              </SelectField>
+            </Grid>
+          </Grid>
+          <Grid item container direction='row' justify='space-between'>
+            <Grid item xs={12}>
+              <Typography className={classes.label} variant='body2'>
+                Region
+              </Typography>
+              <SelectField
+                id='region'
+                name='region'
+                variant='outlined'
+                fullWidth
+                IconComponent={UnfoldMore}
+              >
+                {R.propOr([], values.country, countryData).map(r => (
+                  <MenuItem key={r} value={r}>
+                    {r}
+                  </MenuItem>
+                ))}
+              </SelectField>
+            </Grid>
+          </Grid>
+          <Grid item container direction='row' justify='space-between' spacing={2}>
+            <Grid item xs={6}>
+              <Typography className={classes.label} variant='body2'>
+                City
+              </Typography>
+              <TextField
+                id='city'
+                name='city'
+                className={classes.field}
+                margin='none'
+                variant='outlined'
+                value={values.city}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <Typography className={classes.label} variant='body2'>
+                Postal Code
+              </Typography>
+              <TextField
+                id='postal-code'
+                name='postalCode'
+                className={classes.field}
+                margin='none'
+                variant='outlined'
+                value={values.postalCode}
+              />
+            </Grid>
+          </Grid>
+          <Grid container item>
+            <Grid item xs={12}>
+              <Typography className={classes.label} variant='body2'>
+                Street Address
+              </Typography>
+              <TextField
+                id='street-address'
+                name='street'
+                fullWidth
+                margin='none'
+                variant='outlined'
+                value={values.street}
+              />
+            </Grid>
+          </Grid>
+          <Grid container item>
+            <Grid item xs={12} className={classes.submitButton}>
+              <Button
+                variant='contained'
+                size='large'
+                color='primary'
+                type='submit'
+                fullWidth
+                disabled={isSubmitting}
+                className={classes.button}
+              >
+                Save
+              </Button>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Form>
+    )}
   </Formik>
 )
 

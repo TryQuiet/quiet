@@ -5,20 +5,26 @@ exports[`DonationsSettingsForm renders component 1`] = `
   className="container-mock"
   container={true}
   direction="row"
-  spacing={2}
 >
   <WithStyles(ForwardRef(Grid))
     item={true}
     xs={12}
   >
+    <WithStyles(ForwardRef(Typography))
+      variant="h3"
+    >
+      Donations
+    </WithStyles(ForwardRef(Typography))>
     <WithStyles(ForwardRef(Grid))
+      className="addressField-mock"
       item={true}
       xs={12}
     >
       <WithStyles(ForwardRef(Typography))
-        variant="body1"
+        className="label-mock"
+        variant="caption"
       >
-        Dontaion Recipient
+        Donation recipient
       </WithStyles(ForwardRef(Typography))>
       <WithStyles(ForwardRef(TextField))
         InputProps={
@@ -33,10 +39,12 @@ exports[`DonationsSettingsForm renders component 1`] = `
         name="donationAddress"
         onChange={[Function]}
         placeholder="Enter Zcash Address"
+        variant="outlined"
       />
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
+    className="checkboxDiv-mock"
     item={true}
     xs={12}
   >
@@ -48,7 +56,14 @@ exports[`DonationsSettingsForm renders component 1`] = `
           onChange={[Function]}
         />
       }
-      label="Allow for sending a small donation to Zbay team"
+      label={
+        <ForwardRef(WithStyles)
+          className="checkboxLabel-mock"
+          variant="body2"
+        >
+          Allow for sending a small donation to Zbay team
+        </ForwardRef(WithStyles)>
+      }
     />
   </WithStyles(ForwardRef(Grid))>
 </WithStyles(ForwardRef(Grid))>
