@@ -19,59 +19,103 @@ export const Contact = Immutable.Record({
 
 const store = s => s
 
-const contacts = createSelector(store, state => state.get('contacts'))
-const contact = address => createSelector(contacts, c => c.get(address, Contact()))
-const messages = address => createSelector(contact(address), c => c.messages)
-const lastSeen = address => createSelector(contact(address), c => c.lastSeen)
-const username = address => createSelector(contact(address), c => c.username)
-const vaultMessages = address => createSelector(contact(address), c => c.vaultMessages)
-
-export const queuedMessages = address => createSelector(
-  directMssagesQueueSelectors.queue,
-  (queue) => queue.filter(m => m.recipientAddress === address)
+const contacts = createSelector(
+  store,
+  state => state.get('contacts')
 )
+const contact = address =>
+  createSelector(
+    contacts,
+    c => c.get(address, Contact())
+  )
+const messages = address =>
+  createSelector(
+    contact(address),
+    c => c.messages
+  )
+const lastSeen = address =>
+  createSelector(
+    contact(address),
+    c => c.lastSeen
+  )
+const username = address =>
+  createSelector(
+    contact(address),
+    c => c.username
+  )
+const vaultMessages = address =>
+  createSelector(
+    contact(address),
+    c => c.vaultMessages
+  )
 
-export const pendingMessages = address => createSelector(
-  operationsSelectors.operations,
-  (operations) =>
-    operations.filter(
-      o => o.type === operationTypes.pendingDirectMessage && o.meta.recipientAddress === address
-    )
-)
+export const queuedMessages = address =>
+  createSelector(
+    directMssagesQueueSelectors.queue,
+    queue => queue.filter(m => m.recipientAddress === address && m.message.get('type') < 10) //  separate offer messages and direct messages
+  )
 
-export const directMessages = (address, signerPubKey) => createSelector(
-  identitySelectors.data,
-  usersSelectors.registeredUser(signerPubKey),
-  messages(address),
-  vaultMessages(address),
-  pendingMessages(address),
-  queuedMessages(address),
-  (identity, registeredUser, messages, vaultMessages, pendingMessages, queuedMessages) => {
-    const userData = registeredUser ? registeredUser.toJS() : null
-    const identityAddress = identity.address
-    const identityName = userData ? userData.nickname : identity.name
+export const pendingMessages = address =>
+  createSelector(
+    operationsSelectors.operations,
+    operations =>
+      operations.filter(
+        o =>
+          o.type === operationTypes.pendingDirectMessage &&
+          o.meta.recipientAddress === address &&
+          o.meta.message.get('type') < 10 //  separate offer messages and direct messages
+      )
+  )
 
-    const displayablePending = pendingMessages.map(
-      operation => zbayMessages.operationToDisplayableMessage({ operation, identityAddress, identityName, receiver: { replyTo: operation.meta.recipientAddress, username: operation.meta.recipientUsername } })
-    )
+export const directMessages = (address, signerPubKey) =>
+  createSelector(
+    identitySelectors.data,
+    usersSelectors.registeredUser(signerPubKey),
+    messages(address),
+    vaultMessages(address),
+    pendingMessages(address),
+    queuedMessages(address),
+    (identity, registeredUser, messages, vaultMessages, pendingMessages, queuedMessages) => {
+      const userData = registeredUser ? registeredUser.toJS() : null
+      const identityAddress = identity.address
+      const identityName = userData ? userData.nickname : identity.name
 
-    const displayableQueued = queuedMessages.map(
-      (queuedMessage, messageKey) => zbayMessages.queuedToDisplayableMessage({
-        queuedMessage, messageKey, identityAddress, identityName
-      })
-    )
+      const displayablePending = pendingMessages.map(operation =>
+        zbayMessages.operationToDisplayableMessage({
+          operation,
+          identityAddress,
+          identityName,
+          receiver: {
+            replyTo: operation.meta.recipientAddress,
+            username: operation.meta.recipientUsername
+          }
+        })
+      )
 
-    const fetchedMessagesToDisplay = messages.map(msg => zbayMessages.receivedToDisplayableMessage({ message: msg, identityAddress, receiver: { replyTo: identityAddress, username: identityName } }))
+      const displayableQueued = queuedMessages.map((queuedMessage, messageKey) =>
+        zbayMessages.queuedToDisplayableMessage({
+          queuedMessage,
+          messageKey,
+          identityAddress,
+          identityName
+        })
+      )
 
-    const concatedMessages = fetchedMessagesToDisplay.concat(
-      vaultMessages.values(),
-      displayableQueued.values(),
-      displayablePending.values()
-    ).sortBy(m => m.get('createdAt'))
-    const merged = mergeIntoOne(concatedMessages)
-    return merged
-  }
-)
+      const fetchedMessagesToDisplay = messages.map(msg =>
+        zbayMessages.receivedToDisplayableMessage({
+          message: msg,
+          identityAddress,
+          receiver: { replyTo: identityAddress, username: identityName }
+        })
+      )
+
+      const concatedMessages = fetchedMessagesToDisplay
+        .concat(vaultMessages.values(), displayableQueued.values(), displayablePending.values())
+        .sortBy(m => m.get('createdAt'))
+      const merged = mergeIntoOne(concatedMessages)
+      return merged
+    }
+  )
 
 export default {
   contacts,

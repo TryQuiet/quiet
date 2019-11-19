@@ -11,6 +11,7 @@ import channelSelectors from '../selectors/channel'
 import contactsSelectors from '../selectors/contacts'
 import channelHandlers from './channel'
 import directMessagesQueueHandlers from './directMessagesQueue'
+import { messageType } from '../../zbay/messages'
 
 import * as Here from './offers'
 
@@ -139,7 +140,9 @@ const sendItemMessageOnEnter = event => async (dispatch, getState) => {
   const dmQueue = directMessagesQueue.queue(getState())
   const channel = channelSelectors.channel(getState()).toJS()
   const currentMessage = dmQueue.find(
-    dm => dm.get('recipientAddress') === channel.targetRecipientAddress
+    dm =>
+      dm.get('recipientAddress') === channel.address &&
+      dm.message.get('type') === messageType.ITEM_BASIC
   )
   if (enterPressed && !shiftPressed) {
     event.preventDefault()
@@ -153,7 +156,7 @@ const sendItemMessageOnEnter = event => async (dispatch, getState) => {
           type: zbayMessages.messageType.ITEM_BASIC,
           data: {
             itemId: channel.id.substring(0, 64),
-            text: currentMessage.get('message').get('message') + '\n' + event.target.value
+            text: currentMessage.message.getIn(['message', 'text']) + '\n' + event.target.value
           },
           spent: '0.0001'
         },

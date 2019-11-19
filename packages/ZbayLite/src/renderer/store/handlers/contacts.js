@@ -34,8 +34,11 @@ const sendDirectMessageOnEnter = event => async (dispatch, getState) => {
   const dmQueue = directMessagesQueue.queue(getState())
   const channel = directMessageChannel(getState()).toJS()
   const currentMessage = dmQueue.find(
-    dm => dm.get('recipientAddress') === channel.targetRecipientAddress
+    dm =>
+      dm.get('recipientAddress') === channel.targetRecipientAddress &&
+      dm.message.get('type') === messageType.BASIC
   )
+
   if (enterPressed && !shiftPressed) {
     event.preventDefault()
     if (!event.target.value.replace(/\s/g, '').length) {
