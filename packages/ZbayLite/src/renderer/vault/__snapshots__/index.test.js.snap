@@ -201,6 +201,10 @@ Vault {
     "updateLastSeen": [Function],
     "updateMessage": [Function],
   },
+  "disabledChannels": Object {
+    "addToRemoved": [Function],
+    "listRemovedChannels": [Function],
+  },
   "lock": [MockFunction],
   "offers": Object {
     "importOffer": [Function],

@@ -13,14 +13,15 @@ export const mapStateToProps = state => ({
   payload: modalsSelectors.payload('advertActions')(state)
 })
 
-export const mapDispatchToProps = dispatch =>
-  bindActionCreators(
+export const mapDispatchToProps = (dispatch, { payload }) => {
+  return bindActionCreators(
     {
       onSendFoundsAction: (modalName, payload) => actionCreators.openModal(modalName, payload)(),
       handleMessage: offersHandlers.epics.createOfferAdvert
     },
     dispatch
   )
+}
 
 export const AdvertActionsModal = props => {
   return <AdvertActionsComponent {...props} />

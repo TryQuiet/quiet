@@ -12,6 +12,7 @@ import channelsFactory from './channels'
 import contactsFactory from './contacts'
 import offersFactory from './offers'
 import transactionsTimestampsFactory from './transactionsTimestamps'
+import disabledChannelsFactory from './deletedChannels'
 import advertsFactory from './adverts'
 
 export default class Vault {
@@ -31,6 +32,7 @@ export default class Vault {
     this.offers = offersFactory(this)
     this.adverts = advertsFactory(this)
     this.transactionsTimestamps = transactionsTimestampsFactory(this)
+    this.disabledChannels = disabledChannelsFactory(this)
   }
 
   _enqueueStateChange (cb) {

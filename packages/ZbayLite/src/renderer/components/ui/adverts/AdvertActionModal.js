@@ -134,10 +134,11 @@ export const AdvertActionModal = ({
   handleBuy,
   handleClose,
   handleMessage,
+  updateTimestamp,
   history,
   onSendFoundsAction
-}) =>
-  payload ? (
+}) => {
+  return payload ? (
     <Modal
       open={open}
       handleClose={handleClose}
@@ -274,6 +275,7 @@ export const AdvertActionModal = ({
       </Grid>
     </Modal>
   ) : null
+}
 
 AdvertActionModal.propTypes = {
   classes: PropTypes.object.isRequired,

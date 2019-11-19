@@ -1,7 +1,7 @@
 import { Archive, Workspace, Credentials, Datasources } from '../vendor/buttercup'
 import { validateArchiveGroups } from './validateArchive'
 
-export const archiveGroups = ['Identities', 'Channels', 'Contacts', 'Offers', 'TxnTs', 'Adverts']
+export const archiveGroups = ['Identities', 'Channels', 'Contacts', 'Offers', 'TxnTs', 'Adverts', 'RemovedChannels']
 
 export const createArchive = () => {
   const archive = new Archive()

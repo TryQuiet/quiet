@@ -35,32 +35,34 @@ const styles = theme => ({
 })
 
 // TODO: [reafactoring] we should have channel stats for unread and members count
-export const ChannelHeader = ({ classes, channel, directMessage, members }) => (
-  <Grid
-    container
-    alignItems='center'
-    justify='space-between'
-    className={classes.root}
-    direction='row'
-  >
-    <Grid item>
-      <Typography variant='subtitle1' className={classes.title}>
-        {channel.get('name')}
-      </Typography>
-      {!R.isNil(members) ? (
-        <Typography variant='caption' className={classes.subtitle}>
-          {members.size} Members
-        </Typography>
-      ) : null}
-    </Grid>
-    <Grid item container className={classes.actions} justify='flex-end' alignItems='center'>
+export const ChannelHeader = ({ classes, channel, directMessage, offer, members }) => {
+  return (
+    <Grid
+      container
+      alignItems='center'
+      justify='space-between'
+      className={classes.root}
+      direction='row'
+    >
       <Grid item>
-        <ChannelMenuAction />
-        {directMessage ? <DirectMessagesInfoModal /> : <ChannelInfoModal />}
+        <Typography variant='subtitle1' className={classes.title}>
+          {channel.get('name')}
+        </Typography>
+        {!R.isNil(members) ? (
+          <Typography variant='caption' className={classes.subtitle}>
+            {members.size} Members
+          </Typography>
+        ) : null}
+      </Grid>
+      <Grid item container className={classes.actions} justify='flex-end' alignItems='center'>
+        <Grid item>
+          <ChannelMenuAction directMessage={directMessage} offer={offer} />
+          {directMessage ? <DirectMessagesInfoModal /> : <ChannelInfoModal />}
+        </Grid>
       </Grid>
     </Grid>
-  </Grid>
-)
+  )
+}
 
 ChannelHeader.propTypes = {
   classes: PropTypes.object.isRequired,

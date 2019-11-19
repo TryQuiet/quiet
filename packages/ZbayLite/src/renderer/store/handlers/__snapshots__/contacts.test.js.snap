@@ -233,31 +233,31 @@ Array [
   Array [
     "New message from testnickname",
     Object {
-      "body": "message 1 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04t...",
-    },
-  ],
-  Array [
-    "New message from testnickname",
-    Object {
       "body": "message 0 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04t...",
     },
   ],
   Array [
     "New message from testnickname",
     Object {
+      "body": "This is some message test-id",
+    },
+  ],
+  Array [
+    "New message from testnickname",
+    Object {
+      "body": "This is some message test-id",
+    },
+  ],
+  Array [
+    "New message from testnickname",
+    Object {
       "body": "message 1 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04t...",
     },
   ],
   Array [
     "New message from testnickname",
     Object {
-      "body": "This is some message test-id",
-    },
-  ],
-  Array [
-    "New message from testnickname",
-    Object {
-      "body": "This is some message test-id",
+      "body": "message 1 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04t...",
     },
   ],
 ]
@@ -285,20 +285,6 @@ Immutable.Map {
         "offerOwner": "",
       },
       Immutable.ReceivedMessage {
-        "id": "tx-id-1-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-        "type": 1,
-        "sender": Immutable.MessageSender {
-          "replyTo": "test adddress",
-          "username": "testnickname",
-        },
-        "createdAt": 1551960228,
-        "message": "message 1 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-        "spent": "0.0001",
-        "isUnregistered": false,
-        "tag": "",
-        "offerOwner": "",
-      },
-      Immutable.ReceivedMessage {
         "id": "tx-id-0-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
         "type": 4,
         "sender": Immutable.MessageSender {
@@ -307,20 +293,6 @@ Immutable.Map {
         },
         "createdAt": 1551963828,
         "message": "message 0 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-        "spent": "0.0001",
-        "isUnregistered": false,
-        "tag": "",
-        "offerOwner": "",
-      },
-      Immutable.ReceivedMessage {
-        "id": "tx-id-1-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
-        "type": 1,
-        "sender": Immutable.MessageSender {
-          "replyTo": "test adddress",
-          "username": "testnickname",
-        },
-        "createdAt": 1551960228,
-        "message": "message 1 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         "spent": "0.0001",
         "isUnregistered": false,
         "tag": "",
@@ -354,14 +326,42 @@ Immutable.Map {
         "tag": "",
         "offerOwner": "",
       },
+      Immutable.ReceivedMessage {
+        "id": "tx-id-1-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "type": 1,
+        "sender": Immutable.MessageSender {
+          "replyTo": "test adddress",
+          "username": "testnickname",
+        },
+        "createdAt": 1551960228,
+        "message": "message 1 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "spent": "0.0001",
+        "isUnregistered": false,
+        "tag": "",
+        "offerOwner": "",
+      },
+      Immutable.ReceivedMessage {
+        "id": "tx-id-1-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
+        "type": 1,
+        "sender": Immutable.MessageSender {
+          "replyTo": "test adddress",
+          "username": "testnickname",
+        },
+        "createdAt": 1551960228,
+        "message": "message 1 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "spent": "0.0001",
+        "isUnregistered": false,
+        "tag": "",
+        "offerOwner": "",
+      },
     ],
     "newMessages": Immutable.List [
       "tx-id-0-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-      "tx-id-1-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
       "tx-id-0-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
-      "tx-id-1-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
       "tx-id-0-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
       "tx-id-1-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "tx-id-1-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "tx-id-1-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
     ],
     "vaultMessages": Immutable.List [],
   },
@@ -406,20 +406,6 @@ Immutable.Map {
         "offerOwner": "",
       },
       Immutable.ReceivedMessage {
-        "id": "tx-id-1-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-        "type": 1,
-        "sender": Immutable.MessageSender {
-          "replyTo": "test adddress",
-          "username": "testnickname",
-        },
-        "createdAt": 1551960228,
-        "message": "message 1 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-        "spent": "0.0001",
-        "isUnregistered": false,
-        "tag": "",
-        "offerOwner": "",
-      },
-      Immutable.ReceivedMessage {
         "id": "tx-id-0-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
         "type": 4,
         "sender": Immutable.MessageSender {
@@ -428,20 +414,6 @@ Immutable.Map {
         },
         "createdAt": 1551963828,
         "message": "message 0 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-        "spent": "0.0001",
-        "isUnregistered": false,
-        "tag": "",
-        "offerOwner": "",
-      },
-      Immutable.ReceivedMessage {
-        "id": "tx-id-1-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
-        "type": 1,
-        "sender": Immutable.MessageSender {
-          "replyTo": "test adddress",
-          "username": "testnickname",
-        },
-        "createdAt": 1551960228,
-        "message": "message 1 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
         "spent": "0.0001",
         "isUnregistered": false,
         "tag": "",
@@ -475,14 +447,42 @@ Immutable.Map {
         "tag": "",
         "offerOwner": "",
       },
+      Immutable.ReceivedMessage {
+        "id": "tx-id-1-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "type": 1,
+        "sender": Immutable.MessageSender {
+          "replyTo": "test adddress",
+          "username": "testnickname",
+        },
+        "createdAt": 1551960228,
+        "message": "message 1 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "spent": "0.0001",
+        "isUnregistered": false,
+        "tag": "",
+        "offerOwner": "",
+      },
+      Immutable.ReceivedMessage {
+        "id": "tx-id-1-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
+        "type": 1,
+        "sender": Immutable.MessageSender {
+          "replyTo": "test adddress",
+          "username": "testnickname",
+        },
+        "createdAt": 1551960228,
+        "message": "message 1 for zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+        "spent": "0.0001",
+        "isUnregistered": false,
+        "tag": "",
+        "offerOwner": "",
+      },
     ],
     "newMessages": Immutable.List [
       "tx-id-0-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
-      "tx-id-1-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
       "tx-id-0-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
-      "tx-id-1-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
       "tx-id-0-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
       "tx-id-1-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "tx-id-1-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+      "tx-id-1-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
     ],
     "vaultMessages": Immutable.List [],
   },

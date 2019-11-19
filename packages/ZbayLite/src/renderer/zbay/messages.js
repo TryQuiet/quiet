@@ -341,8 +341,8 @@ export const transfersToMessages = async (transfers, owner) => {
   return msgs.filter(x => x)
 }
 
-export const calculateDiff = ({ previousMessages, nextMessages, identityAddress, lastSeen }) =>
-  nextMessages.filter(nextMessage => {
+export const calculateDiff = ({ previousMessages, nextMessages, identityAddress, lastSeen }) => {
+  return nextMessages.filter(nextMessage => {
     const isNew =
       DateTime.fromSeconds(nextMessage.createdAt) > lastSeen ||
       lastSeen === null ||
@@ -350,6 +350,7 @@ export const calculateDiff = ({ previousMessages, nextMessages, identityAddress,
     const notOwner = identityAddress !== nextMessage.sender.replyTo
     return isNew && notOwner && !previousMessages.includes(nextMessage)
   })
+}
 
 export default {
   receivedToDisplayableMessage,

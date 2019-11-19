@@ -10,6 +10,7 @@ import notificationsHandlers from './notifications'
 import directMessagesQueueHandlers from './directMessagesQueue'
 import { errorNotification, successNotification } from './utils'
 import operationsHandlers, { operationTypes } from './operations'
+import contactsHandlers from './contacts'
 
 const handleSend = ({ values }) => async (dispatch, getState) => {
   const data = {
@@ -87,6 +88,7 @@ const handleSendTransfer = ({ values, history, payload }) => async (dispatch, ge
     recipientUsername: payload.offerOwner
   })
   )
+  dispatch(contactsHandlers.epics.updateDeletedChannelTimestamp({ address: payload.id + payload.offerOwner, timestamp: 0 }))
 }
 
 export const epics = {

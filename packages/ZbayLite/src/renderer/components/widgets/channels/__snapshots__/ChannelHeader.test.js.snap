@@ -28,7 +28,9 @@ exports[`ChannelHeader renders component 1`] = `
     <WithStyles(ForwardRef(Grid))
       item={true}
     >
-      <withRouter(Connect(Component)) />
+      <withRouter(Connect(Component))
+        directMessage={false}
+      />
       <Connect(withModal(Component)) />
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
@@ -70,7 +72,9 @@ exports[`ChannelHeader renders members when 0 1`] = `
     <WithStyles(ForwardRef(Grid))
       item={true}
     >
-      <withRouter(Connect(Component)) />
+      <withRouter(Connect(Component))
+        directMessage={false}
+      />
       <Connect(withModal(Component)) />
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
@@ -112,7 +116,9 @@ exports[`ChannelHeader renders without members count 1`] = `
     <WithStyles(ForwardRef(Grid))
       item={true}
     >
-      <withRouter(Connect(Component)) />
+      <withRouter(Connect(Component))
+        directMessage={false}
+      />
       <Connect(withModal(Component)) />
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>

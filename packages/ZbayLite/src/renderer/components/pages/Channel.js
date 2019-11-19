@@ -20,7 +20,7 @@ const styles = {
   }
 }
 
-export const Channel = ({ classes, contactId, offer }) => {
+export const Channel = ({ classes, contactId, offer, directMessage }) => {
   return (
     <Page>
       <PageHeader>

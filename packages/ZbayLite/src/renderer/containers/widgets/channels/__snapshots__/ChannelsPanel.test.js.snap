@@ -34,7 +34,7 @@ Object {
       },
     },
   ],
-  "offers": Immutable.Map {},
+  "offers": Immutable.List [],
   "selected": Immutable.ChannelState {
     "spentFilterValue": "0",
     "id": null,

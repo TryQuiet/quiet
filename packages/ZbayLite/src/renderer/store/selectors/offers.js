@@ -1,15 +1,38 @@
 import { createSelector } from 'reselect'
+import * as R from 'ramda'
 import directMssagesQueueSelectors from './directMessagesQueue'
 import operationsSelectors from './operations'
+import removedChannelsSelectors from './removedChannels'
 import zbayMessages from '../../zbay/messages'
 import identitySelectors from './identity'
 import usersSelectors from './users'
 import { mergeIntoOne } from './channel'
+
 const store = s => s
 
 const offers = createSelector(
   store,
   s => s.get('offers')
+)
+
+const filteredOffers = createSelector(
+  store,
+  removedChannelsSelectors.removedChannels,
+  (s, removedChannels) => {
+    const filteredOffers = s.get('offers').toList().map((offer, i) => {
+      const messages = offer.get('messages')
+      const [newestMsg] = messages.sort((a, b) => parseInt(b.createdAt) - parseInt(a.createdAt))
+      const removedChannelTimestamp = removedChannels.get(offer.get('itemId'))
+      if (!newestMsg) {
+        return
+      }
+      const { createdAt: contactMsgTimestamp } = newestMsg
+      if (removedChannelTimestamp && parseInt(removedChannelTimestamp) > parseInt(contactMsgTimestamp)) {
+        return null
+      } else return offer
+    })
+    return filteredOffers.filter(offer => !R.isNil(offer))
+  }
 )
 
 const offer = id =>
@@ -85,6 +108,7 @@ const lastSeen = id =>
 export default {
   offers,
   offer,
+  filteredOffers,
   offerMessages,
   lastSeen
 }

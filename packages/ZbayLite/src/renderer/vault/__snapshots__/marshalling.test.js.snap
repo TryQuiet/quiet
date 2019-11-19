@@ -93,8 +93,15 @@ Array [
         Array [
           "Adverts",
         ],
+        Array [
+          "RemovedChannels",
+        ],
       ],
       "results": Array [
+        Object {
+          "type": "return",
+          "value": undefined,
+        },
         Object {
           "type": "return",
           "value": undefined,

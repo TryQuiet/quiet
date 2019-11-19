@@ -1,6 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import * as R from 'ramda'
+import { DateTime } from 'luxon'
 
 import { withStyles } from '@material-ui/core/styles'
 
@@ -19,18 +20,20 @@ const styles = theme => ({
   }
 })
 
-export const ChannelMenuAction = ({ classes, onInfo, onMute, onDelete }) => (
-  <MenuAction
-    icon={dotsIcon}
-    iconHover={dotsIcon}
-    IconButton={IconButton}
-    offset='0 8'
-  >
-    <MenuActionItem onClick={onInfo} title='Info' />
-    <MenuActionItem onClick={onMute} title='Mute' />
-    <MenuActionItem onClick={onDelete} title='Delete' />
-  </MenuAction>
-)
+export const ChannelMenuAction = ({ classes, onInfo, onMute, onDelete, directMessage, targetAddress, offer }) => {
+  return (
+    <MenuAction
+      icon={dotsIcon}
+      iconHover={dotsIcon}
+      IconButton={IconButton}
+      offset='0 8'
+    >
+      <MenuActionItem onClick={onInfo} title='Info' />
+      <MenuActionItem onClick={onMute} title='Mute' />
+      <MenuActionItem onClick={() => directMessage ? onDelete({ address: offer || targetAddress, timestamp: parseInt(DateTime.utc().toSeconds()) }) : onDelete()} title='Delete' />
+    </MenuAction>
+  )
+}
 
 ChannelMenuAction.propTypes = {
   classes: PropTypes.object.isRequired,

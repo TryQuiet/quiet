@@ -10,6 +10,7 @@ import { messages as zbayMessages } from '../../zbay'
 import channelSelectors from '../selectors/channel'
 import contactsSelectors from '../selectors/contacts'
 import channelHandlers from './channel'
+import contactsHandlers from './contacts'
 import directMessagesQueueHandlers from './directMessagesQueue'
 import { messageType } from '../../zbay/messages'
 
@@ -45,6 +46,7 @@ export const actions = {
 }
 const createOfferAdvert = ({ payload, history }) => async (dispatch, getState) => {
   await dispatch(createOffer({ payload }))
+  await dispatch(contactsHandlers.epics.updateDeletedChannelTimestamp({ address: payload.id + payload.offerOwner, timestamp: 0 }))
   history.push(`/main/offers/${payload.id + payload.offerOwner}/${payload.address}`)
 }
 const createOffer = ({ payload }) => async (dispatch, getState) => {

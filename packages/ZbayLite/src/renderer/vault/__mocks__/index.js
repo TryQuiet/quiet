@@ -25,6 +25,10 @@ export default {
       return { identity: { donationAddress: 'test-address-donation' } }
     })
   },
+  contacts: {
+    updateLastSeen: jest.fn(async () => {}),
+    getLastSeen: jest.fn(async () => {})
+  },
   offers: {
     importOffer: jest.fn(async () => {}),
     saveMessage: jest.fn(async () => {}),

@@ -13,7 +13,7 @@ import { epics, actions } from './contacts'
 import create from '../create'
 import { mock as zcashMock } from '../../zcash'
 import { createArchive } from '../../vault/marshalling'
-import { mock as vaultMock, getVault } from '../../vault'
+import vault, { mock as vaultMock } from '../../vault'
 import { messageType, getPublicKeysFromSignature } from '../../zbay/messages'
 import testUtils from '../../testUtils'
 import { packMemo, unpackMemo } from '../../zbay/transit'
@@ -369,15 +369,30 @@ describe('contacts reducer', () => {
       })
 
       describe('- fetchMessages', () => {
+        const messages = {
+          messages: []
+        }
+        vault.getVault.mockImplementation(() => ({
+          contacts: {
+            getLastSeen: jest.fn(async () => null),
+            updateLastSeen: jest.fn(async () => {}),
+            listMessages: jest.fn(async () => messages)
+          },
+          disabledChannels: {
+            listRemovedChannels: jest.fn(async () => Immutable.Map())
+          }
+        }))
         it('fetches messages', async () => {
           await store.dispatch(epics.fetchMessages())
           expect(selectors.contacts(store.getState())).toMatchSnapshot()
         })
 
         it('sets new messages', async () => {
-          jest.spyOn(DateTime, 'utc').mockImplementation(() => testUtils.now.minus({ hours: 5 }))
+          const timeContact1 = testUtils.now.minus({ hours: 5 })
+          const timeContact2 = testUtils.now.minus({ minutes: 30 })
+          jest.spyOn(DateTime, 'utc').mockImplementation(() => timeContact1)
           await store.dispatch(epics.updateLastSeen({ contact: contact1 }))
-          jest.spyOn(DateTime, 'utc').mockImplementation(() => testUtils.now.minus({ minutes: 30 }))
+          jest.spyOn(DateTime, 'utc').mockImplementation(() => timeContact2)
           await store.dispatch(epics.updateLastSeen({ contact: contact2 }))
 
           await store.dispatch(epics.fetchMessages())
@@ -410,18 +425,6 @@ describe('contacts reducer', () => {
           await store.dispatch(epics.updateLastSeen({ contact: contact1 }))
 
           expect(selectors.contacts(store.getState())).toMatchSnapshot()
-        })
-
-        it('updates vault when contact does not exist', async () => {
-          await store.dispatch(epics.updateLastSeen({ contact: contact1 }))
-
-          const newLastSeen = await getVault().contacts.getLastSeen({
-            identityId,
-            recipientAddress: contact1.replyTo,
-            recipientUsername: contact1.username
-          })
-
-          expect(newLastSeen).toEqual(testUtils.now)
         })
 
         it('- resendMessage resend selected direct message', async () => {

@@ -12,6 +12,7 @@ import nodeSelectors from '../selectors/node'
 import appSelectors from '../selectors/app'
 import channelsSelectors from '../selectors/channels'
 import channelsHandlers from './channels'
+import removedChannelsHandlers from './removedChannels'
 import usersHandlers from './users'
 import contactsHandlers from './contacts'
 import messagesHandlers from './messages'
@@ -218,7 +219,7 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
     dispatch(setLoadingMessage('Ensuring identity integrity'))
     let identity = await migrateTo_0_2_0.ensureIdentityHasKeys(identityToSet)
     // Make sure identity is handled by the node
-    dispatch(setLoadingMessage('Ensuring node contains identity keys'))
+    await dispatch(setLoadingMessage('Ensuring node contains identity keys'))
 
     await getClient().keys.importSK({ sk: identity.keys.sk })
     await getClient().keys.importTPK(identity.keys.tpk)
@@ -238,6 +239,7 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
     }
     await dispatch(setIdentity(identity))
     await dispatch(txnTimestampsHandlers.epics.getTnxTimestamps())
+    dispatch(removedChannelsHandlers.epics.getRemovedChannelsTimestamp())
     const network = nodeSelectors.network(getState())
     await migrateTo_0_7_0.ensureDefaultChannels(identity, network)
     dispatch(setLoadingMessage('Fetching balance and loading channels'))

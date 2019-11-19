@@ -16,7 +16,7 @@ import QuickActionButton from '../../../components/widgets/sidebar/QuickActionBu
 export const mapStateToProps = state => ({
   channels: channelsSelectors.data(state),
   selected: channelSelectors.channelInfo(state),
-  offers: offersSelectors.offers(state)
+  offers: offersSelectors.filteredOffers(state)
 })
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
