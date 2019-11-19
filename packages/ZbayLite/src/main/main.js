@@ -2,15 +2,11 @@ import getSize from 'get-folder-size'
 import checkDiskSpace from 'check-disk-space'
 import { app, BrowserWindow, Menu, ipcMain } from 'electron'
 import os from 'os'
-
-import { spawnZcashNode, ensureZcashParams } from './zcash/bootstrap'
+import path from 'path'
+import url from 'url'
 import { autoUpdater } from 'electron-updater'
 
 const isDev = process.env.NODE_ENV === 'development'
-
-const isTestnet = parseInt(process.env.ZBAY_IS_TESTNET)
-const nodeURL = process.env.ZBAY_NODE_URL
-
 const installExtensions = async () => {
   require('electron-debug')({
     showDevTools: true
@@ -33,7 +29,6 @@ const windowSize = {
 }
 
 var mainWindow
-var nodeProc = null
 
 const gotTheLock = app.requestSingleInstanceLock()
 
@@ -75,30 +70,6 @@ app.on('open-url', (event, url) => {
   }
 })
 
-const createZcashNode = win => {
-  win.webContents.send('bootstrappingNode', {
-    message: 'Ensuring zcash params are present',
-    bootstrapping: true
-  })
-  ensureZcashParams(process.platform, error => {
-    if (error) {
-      throw error
-    }
-    win.webContents.send('bootstrappingNode', {
-      message: 'Launching zcash node',
-      bootstrapping: true
-    })
-    nodeProc = spawnZcashNode(process.platform, isTestnet)
-    mainWindow.webContents.send('bootstrappingNode', {
-      message: '',
-      bootstrapping: false
-    })
-    nodeProc.on('close', () => {
-      nodeProc = null
-    })
-  })
-}
-
 const createWindow = () => {
   mainWindow = new BrowserWindow({
     width: windowSize.width,
@@ -108,8 +79,15 @@ const createWindow = () => {
       nodeIntegration: true
     }
   })
-  mainWindow.setMinimumSize(windowSize.width, windowSize.height)
-  mainWindow.loadURL(`file://${__dirname}/index.html`)
+
+  mainWindow.loadURL(
+    url.format({
+      pathname: path.join(__dirname, './index.html'),
+      protocol: 'file:',
+      slashes: true,
+      hash: '/tor'
+    })
+  )
   // Open the DevTools.
   mainWindow.webContents.openDevTools()
 
@@ -161,13 +139,8 @@ app.on('ready', async () => {
     await installExtensions()
   }
   createWindow()
-
   mainWindow.webContents.on('did-finish-load', () => {
     mainWindow.webContents.send('ping')
-    if (!nodeURL) {
-      createZcashNode(mainWindow)
-    }
-
     const osPaths = {
       darwin: `${process.env.HOME || process.env.USERPROFILE}/Library/Application Support/Zcash`,
       linux: `${process.env.HOME || process.env.USERPROFILE}/.zcash`,
@@ -179,12 +152,23 @@ app.on('ready', async () => {
     const ZCASH_PARAMS = 1825361100
 
     getSize(osPaths[process.platform], (err, downloadedSize) => {
-      if (err) { throw err }
-      checkDiskSpace('/').then((diskspace) => {
+      if (err) {
+        throw err
+      }
+      checkDiskSpace('/').then(diskspace => {
         const blockchainSizeLeftToFetch = BLOCKCHAIN_SIZE - downloadedSize
-        const freeSpaceLeft = diskspace.free - (blockchainSizeLeftToFetch + ZCASH_PARAMS + REQUIRED_FREE_SPACE)
+        const freeSpaceLeft =
+          diskspace.free - (blockchainSizeLeftToFetch + ZCASH_PARAMS + REQUIRED_FREE_SPACE)
         if (freeSpaceLeft <= 0) {
-          mainWindow.webContents.send('checkDiskSpace', `Sorry, but Zbay needs ${(blockchainSizeLeftToFetch / (1024 ** 3)).toFixed(2)} GB to connect to its network and you only have ${(diskspace.free / (1024 ** 3)).toFixed(2)} free.`)
+          mainWindow.webContents.send(
+            'checkDiskSpace',
+            `Sorry, but Zbay needs ${(blockchainSizeLeftToFetch / 1024 ** 3).toFixed(
+              2
+            )} GB to connect to its network and you only have ${(
+              diskspace.free /
+              1024 ** 3
+            ).toFixed(2)} free.`
+          )
         }
       })
     })
@@ -199,11 +183,6 @@ app.on('ready', async () => {
   })
 })
 
-process.on('exit', () => {
-  if (nodeProc !== null) {
-    nodeProc.kill()
-  }
-})
 app.setAsDefaultProtocolClient('zbay')
 
 // Quit when all windows are closed.
@@ -214,7 +193,6 @@ app.on('window-all-closed', () => {
     app.quit()
   }
 })
-
 app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.

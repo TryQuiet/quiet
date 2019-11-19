@@ -2,7 +2,7 @@ import Immutable from 'immutable'
 import { handleActions, createAction } from 'redux-actions'
 import Binance from 'binance-api-node'
 
-const client = Binance()
+export const client = Binance()
 
 export const RatesState = Immutable.Record(
   {

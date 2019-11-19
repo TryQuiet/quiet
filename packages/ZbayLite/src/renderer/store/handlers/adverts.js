@@ -51,7 +51,7 @@ const handleSend = ({ values }) => async (dispatch, getState) => {
     )
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar(
-        successNotification('Advert successfully posted')
+        successNotification({ message: 'Advert successfully posted' })
       )
     )
   } catch (err) {
@@ -82,11 +82,12 @@ const handleSendTransfer = ({ values, history, payload }) => async (dispatch, ge
     privKey
   })
   dispatch(offersHandlers.epics.createOfferAdvert({ payload, history }))
-  dispatch(directMessagesQueueHandlers.epics.addDirectMessage({
-    message,
-    recipientAddress: payload.address,
-    recipientUsername: payload.offerOwner
-  })
+  dispatch(
+    directMessagesQueueHandlers.epics.addDirectMessage({
+      message,
+      recipientAddress: payload.address,
+      recipientUsername: payload.offerOwner
+    })
   )
   dispatch(contactsHandlers.epics.updateDeletedChannelTimestamp({ address: payload.id + payload.offerOwner, timestamp: 0 }))
 }

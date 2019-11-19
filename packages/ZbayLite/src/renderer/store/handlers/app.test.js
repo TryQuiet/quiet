@@ -2,6 +2,8 @@
 jest.mock('electron', () => {
   const remote = jest.mock()
   remote.app = jest.mock()
+  remote.process = jest.mock()
+  remote.process.on = jest.fn()
   remote.app.getVersion = jest.fn().mockReturnValue('0.13.37')
   return { remote }
 })

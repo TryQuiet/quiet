@@ -171,6 +171,7 @@
     "get-folder-size": "^2.0.1",
     "identity-obj-proxy": "^3.0.0",
     "immutable": "^4.0.0-rc.12",
+    "is-port-reachable": "^3.0.0",
     "jest-each": "^24.0.0",
     "luxon": "^1.11.4",
     "notistack": "^0.8.2",

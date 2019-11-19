@@ -31,10 +31,10 @@ export const Index = ({ getStatus, nodeConnected, loadVersion, locked, ...props 
   useEffect(() => {
     loadVersion()
   })
-  useInterval(getStatus, 1000)
+  useInterval(getStatus, 5000)
   return nodeConnected ? (
     locked ? (
-      <Redirect to='/' />
+      <Redirect to='/vault' />
     ) : (
       <Redirect to='/loading' />
     )

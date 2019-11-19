@@ -16,7 +16,7 @@ import identitySelectors from '../selectors/identity'
 import channelsSelectors from '../selectors/channels'
 import operationsSelectors from '../selectors/operations'
 import usersHandlers from './users'
-import ratesHandlers from './rates'
+import ratesHandlers, { client } from './rates'
 import { mock as zcashMock } from '../../zcash'
 import vault, { mock } from '../../vault'
 import testUtils from '../../testUtils'
@@ -61,11 +61,15 @@ describe('Identity reducer handles', () => {
     jest.clearAllMocks()
     mock.setArchive(createArchive())
     jest.spyOn(usersHandlers.epics, 'fetchUsers').mockImplementation(() => {})
+    jest.spyOn(client, 'avgPrice').mockImplementation(() => ({
+      zecPrice: {
+        price: 12
+      }
+    }))
   })
 
-  const assertStoreState = () => expect(
-    identitySelectors.identity(store.getState())
-  ).toMatchSnapshot()
+  const assertStoreState = () =>
+    expect(identitySelectors.identity(store.getState())).toMatchSnapshot()
 
   describe('actions', () => {
     it('handles setIdentity', () => {
@@ -73,61 +77,42 @@ describe('Identity reducer handles', () => {
       assertStoreState()
     })
 
-    each([true, false]).test(
-      'handles setFetchingBalance to %s',
-      async (fetching) => {
-        await store.dispatch(
-          identityHandlers.actions.setFetchingBalance(fetching)
-        )
-        assertStoreState()
-      }
-    )
+    each([true, false]).test('handles setFetchingBalance to %s', async fetching => {
+      await store.dispatch(identityHandlers.actions.setFetchingBalance(fetching))
+      assertStoreState()
+    })
 
     it('handles setBalance', async () => {
-      await store.dispatch(
-        identityHandlers.actions.setBalance(new BigNumber('2.34'))
-      )
+      await store.dispatch(identityHandlers.actions.setBalance(new BigNumber('2.34')))
       assertStoreState()
     })
 
     it('handles setLockedBalance', async () => {
-      await store.dispatch(
-        identityHandlers.actions.setLockedBalance(new BigNumber('2.34'))
-      )
+      await store.dispatch(identityHandlers.actions.setLockedBalance(new BigNumber('2.34')))
       assertStoreState()
     })
 
     it('handles setErrors', async () => {
-      await store.dispatch(
-        identityHandlers.actions.setErrors(new Error('this is some error'))
-      )
+      await store.dispatch(identityHandlers.actions.setErrors(new Error('this is some error')))
       assertStoreState()
     })
 
     it('- setLoading', async () => {
-      await store.dispatch(
-        identityHandlers.actions.setLoading(true)
-      )
+      await store.dispatch(identityHandlers.actions.setLoading(true))
       assertStoreState()
     })
 
     it('- setLoadingMessage', async () => {
-      await store.dispatch(
-        identityHandlers.actions.setLoadingMessage('This is a loading message')
-      )
+      await store.dispatch(identityHandlers.actions.setLoadingMessage('This is a loading message'))
       assertStoreState()
     })
 
     it('- setShippingData', async () => {
-      await store.dispatch(
-        identityHandlers.actions.setShippingData(shippingData)
-      )
+      await store.dispatch(identityHandlers.actions.setShippingData(shippingData))
       assertStoreState()
     })
     it('- setDonationAllow', async () => {
-      await store.dispatch(
-        identityHandlers.actions.setDonationAllow(false)
-      )
+      await store.dispatch(identityHandlers.actions.setDonationAllow(false))
       assertStoreState()
     })
   })
@@ -140,8 +125,8 @@ describe('Identity reducer handles', () => {
     describe('- fetchBalance', () => {
       it('creates shield balance operation', async () => {
         store.dispatch(identityHandlers.actions.setIdentity(identity))
-        zcashMock.requestManager.z_getbalance.mockImplementation(
-          async (address) => address === identity.address ? '2.2352' : '0.00234'
+        zcashMock.requestManager.z_getbalance.mockImplementation(async address =>
+          address === identity.address ? '2.2352' : '0.00234'
         )
         zcashMock.requestManager.z_sendmany.mockResolvedValue('test-op-id')
 
@@ -151,8 +136,8 @@ describe('Identity reducer handles', () => {
       })
 
       it('fetches transparent and private balances', async () => {
-        zcashMock.requestManager.z_getbalance = jest.fn(
-          async (address) => address === identity.address ? '2.2352' : '0.00234'
+        zcashMock.requestManager.z_getbalance = jest.fn(async address =>
+          address === identity.address ? '2.2352' : '0.00234'
         )
         await store.dispatch(identityHandlers.actions.setIdentity(identity))
 
@@ -161,7 +146,7 @@ describe('Identity reducer handles', () => {
       })
 
       it('handles errors', async () => {
-        zcashMock.requestManager.z_getbalance = jest.fn(async (address) => {
+        zcashMock.requestManager.z_getbalance = jest.fn(async address => {
           throw Error('node error')
         })
         await store.dispatch(identityHandlers.actions.setIdentity(identity))
@@ -177,7 +162,10 @@ describe('Identity reducer handles', () => {
       }
 
       it('- sets shipping data in store', async () => {
-        vault.identity.updateShippingData.mockImplementation(async () => ({ ...identity, shippingData }))
+        vault.identity.updateShippingData.mockImplementation(async () => ({
+          ...identity,
+          shippingData
+        }))
         await store.dispatch(identityHandlers.epics.setIdentity(identity))
 
         await store.dispatch(identityHandlers.epics.updateShippingData(shippingData, formActions))
@@ -185,7 +173,10 @@ describe('Identity reducer handles', () => {
       })
 
       it('- sets shipping data in vault', async () => {
-        vault.identity.updateShippingData.mockImplementation(async () => ({ ...identity, shippingData }))
+        vault.identity.updateShippingData.mockImplementation(async () => ({
+          ...identity,
+          shippingData
+        }))
         await store.dispatch(identityHandlers.epics.setIdentity(identity))
 
         await store.dispatch(identityHandlers.epics.updateShippingData(shippingData, formActions))
@@ -193,7 +184,10 @@ describe('Identity reducer handles', () => {
       })
 
       it('- finishes form submitting', async () => {
-        vault.identity.updateShippingData.mockImplementation(async () => ({ ...identity, shippingData }))
+        vault.identity.updateShippingData.mockImplementation(async () => ({
+          ...identity,
+          shippingData
+        }))
         await store.dispatch(identityHandlers.epics.setIdentity(identity))
 
         await store.dispatch(identityHandlers.epics.updateShippingData(shippingData, formActions))
@@ -203,8 +197,8 @@ describe('Identity reducer handles', () => {
 
     describe('handles set identity', () => {
       beforeEach(async () => {
-        zcashMock.requestManager.z_getbalance = jest.fn(
-          async (address) => address === identity.address ? '2.2352' : '0.00234'
+        zcashMock.requestManager.z_getbalance = jest.fn(async address =>
+          address === identity.address ? '2.2352' : '0.00234'
         )
         await Promise.all(
           R.range(0, 3).map(
@@ -215,7 +209,7 @@ describe('Identity reducer handles', () => {
           )
         )
         jest.spyOn(ratesHandlers.epics, 'fetchPrices').mockImplementation(() => async () => {})
-        zcashMock.requestManager.z_sendmany.mockImplementation(async (from) => `${from}-op-id`)
+        zcashMock.requestManager.z_sendmany.mockImplementation(async from => `${from}-op-id`)
       })
 
       it('- sets identity', async () => {
@@ -239,7 +233,9 @@ describe('Identity reducer handles', () => {
         await store.dispatch(identityHandlers.epics.setIdentity(identity))
 
         expect(zcashMock.requestManager.z_importkey).toHaveBeenCalledWith(
-          identity.keys.sk, 'whenkeyisnew', 0
+          identity.keys.sk,
+          'whenkeyisnew',
+          0
         )
         expect(zcashMock.requestManager.importprivkey).toHaveBeenCalledWith(identity.keys.tpk)
       })
@@ -251,10 +247,11 @@ describe('Identity reducer handles', () => {
       }
 
       beforeEach(() => {
-        zcashMock.requestManager.z_getbalance = jest.fn(async (address) => '12.345')
-        vault.identity.createIdentity.mockImplementation(
-          async (identity) => ({ id: 'thisisatestid', ...identity })
-        )
+        zcashMock.requestManager.z_getbalance = jest.fn(async address => '12.345')
+        vault.identity.createIdentity.mockImplementation(async identity => ({
+          id: 'thisisatestid',
+          ...identity
+        }))
       })
 
       it('creates identity in vault', async () => {

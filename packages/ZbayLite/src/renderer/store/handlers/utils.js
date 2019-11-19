@@ -16,7 +16,7 @@ export const errorNotification = ({ message, options }) => ({
   }
 })
 
-export const successNotification = (message, options = {}) => ({
+export const successNotification = ({ message, options }) => ({
   message,
   options: {
     variant: 'success',

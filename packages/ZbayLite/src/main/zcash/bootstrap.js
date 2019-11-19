@@ -32,7 +32,8 @@ export const getResourcesPath = (...paths) => {
   return path.join.apply(null, [process.resourcesPath, ...paths])
 }
 
-export const getZcashResource = (name, platform) => getResourcesPath(ZCASH_RESOURCES, platform, name)
+export const getZcashResource = (name, platform) =>
+  getResourcesPath(ZCASH_RESOURCES, platform, name)
 
 export const ensureZcashParams = async (platform, callback) => {
   const binaryPath = getZcashResource('zcash-fetch-params', platform)
@@ -50,8 +51,7 @@ export const ensureZcashParams = async (platform, callback) => {
     exec(binaryPath, callback)
   }
 }
-
-export const spawnZcashNode = (platform, isTestnet) => {
+export const spawnZcashNode = (platform, isTestnet, torUrl = false) => {
   let zcashdPath = getZcashResource('zcashd', platform)
   const configName = isTestnet ? 'testnet.conf' : 'mainnet.conf'
   let options
@@ -64,9 +64,16 @@ export const spawnZcashNode = (platform, isTestnet) => {
     ]
     zcashdPath = zcashdPath + '.exe'
   } else {
-    options = [`-conf=${getResourcesPath(ZCASH_RESOURCES, configName)}`, '-debug=1', '-txexpirydelta=18000']
+    options = [
+      `-conf=${getResourcesPath(ZCASH_RESOURCES, configName)}`,
+      '-debug=1',
+      '-txexpirydelta=18000'
+    ]
   }
 
+  if (torUrl) {
+    options.push(`-proxy=${torUrl}`)
+  }
   return spawn(zcashdPath, options)
 }
 

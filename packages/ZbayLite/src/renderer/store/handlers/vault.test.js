@@ -10,6 +10,7 @@ import { actions, epics, actionTypes } from './vault'
 import identityHandlers from './identity'
 import { typePending } from './utils'
 import create from '../create'
+import { client } from './rates'
 import vault, { mock } from '../../vault'
 import vaultSelectors from '../selectors/vault'
 import channelsSelectors from '../selectors/channels'
@@ -31,6 +32,7 @@ describe('vault reducer', () => {
         })
       })
     })
+    jest.spyOn(client, 'avgPrice').mockImplementation(() => {})
   })
 
   const assertStoreState = () => expect(store.getState().get('vault')).toMatchSnapshot()
@@ -46,7 +48,9 @@ describe('vault reducer', () => {
   })
 
   it('handles createVault error', async () => {
-    vault.create.mockImplementationOnce(async () => { throw Error('This is a test error') })
+    vault.create.mockImplementationOnce(async () => {
+      throw Error('This is a test error')
+    })
     try {
       await store.dispatch(actions.createVault())
     } catch (err) {}
@@ -67,7 +71,9 @@ describe('vault reducer', () => {
 
   it('handles unlockVault error', async () => {
     await store.dispatch(actions.createVault())
-    vault.unlock.mockImplementationOnce(async () => { throw Error('This is a test error') })
+    vault.unlock.mockImplementationOnce(async () => {
+      throw Error('This is a test error')
+    })
     try {
       await store.dispatch(actions.unlockVault({ masterPassword: 'test' }))
     } catch (err) {}
@@ -81,9 +87,7 @@ describe('vault reducer', () => {
       ...identityObj
     }
     vault.identity.createIdentity.mockImplementation(async () => createdIdentity)
-    const result = await store.dispatch(
-      actions.createIdentity(identityObj)
-    )
+    const result = await store.dispatch(actions.createIdentity(identityObj))
     expect(vault.identity.createIdentity).toHaveBeenCalledWith(identityObj)
     expect(result.value).toEqual(createdIdentity)
     assertStoreState()
@@ -108,9 +112,7 @@ describe('vault reducer', () => {
       signerPubKey: 'Ay4dSDZfpd9qRDxc80nDE4Ee+PGZ3aY4h3uxONDcBnK2'
     }
     vault.identity.updateIdentitySignerKeys.mockImplementation(async () => updatedIdentity)
-    const result = await store.dispatch(
-      actions.updateIdentitySignerKeys(updateSignerKeysObj)
-    )
+    const result = await store.dispatch(actions.updateIdentitySignerKeys(updateSignerKeysObj))
     expect(vault.identity.updateIdentitySignerKeys).toHaveBeenCalledWith(updateSignerKeysObj)
     expect(result.value).toMatchSnapshot()
     assertStoreState()
@@ -122,7 +124,9 @@ describe('vault reducer', () => {
   })
 
   it('handles createIdentity error', async () => {
-    vault.identity.createIdentity.mockImplementationOnce(async () => { throw Error('This is a test error') })
+    vault.identity.createIdentity.mockImplementationOnce(async () => {
+      throw Error('This is a test error')
+    })
     try {
       await store.dispatch(actions.createIdentity({ name: 'test', address: 'testaddress' }))
     } catch (err) {}
@@ -131,7 +135,9 @@ describe('vault reducer', () => {
 
   it('handles clear error', async () => {
     const errorMsg = 'This is a test error'
-    vault.unlock.mockImplementationOnce(async () => { throw Error(errorMsg) })
+    vault.unlock.mockImplementationOnce(async () => {
+      throw Error(errorMsg)
+    })
     try {
       await store.dispatch(actions.unlockVault({ masterPassword: 'password' }))
     } catch (err) {}
@@ -156,9 +162,11 @@ describe('vault reducer', () => {
         vault.exists.mockImplementation(network => network === 'mainnet')
 
         // old vault client mock
-        vault.identity.createIdentity.mockImplementation(
-          async ({ name, address }) => ({ id: 'thisisatestid', name, address })
-        )
+        vault.identity.createIdentity.mockImplementation(async ({ name, address }) => ({
+          id: 'thisisatestid',
+          name,
+          address
+        }))
         process.env.ZBAY_IS_TESTNET = 1
       })
 
@@ -199,9 +207,10 @@ describe('vault reducer', () => {
         mock.setArchive(createArchive())
 
         jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => now)
-        vault.identity.createIdentity.mockImplementation(
-          async (identity) => ({ ...identity, id: 'thisisatestid' })
-        )
+        vault.identity.createIdentity.mockImplementation(async identity => ({
+          ...identity,
+          id: 'thisisatestid'
+        }))
         jest.spyOn(usersHandlers.epics, 'fetchUsers').mockImplementation(() => {})
       })
 
@@ -228,8 +237,8 @@ describe('vault reducer', () => {
           signerPrivKey: 'KbtPfOrzAoAkbZxsNt/VdIp3J5owzgCFcm5PRs4iYBQ=',
           signerPubKey: 'Ay4dSDZfpd9qRDxc80nDE4Ee+PGZ3aY4h3uxONDcBnK2'
         })
-        zcashMock.requestManager.z_getbalance = jest.fn(
-          async (addr) => addr === 'sapling-private-address' ? '2.2352' : '0.00234'
+        zcashMock.requestManager.z_getbalance = jest.fn(async addr =>
+          addr === 'sapling-private-address' ? '2.2352' : '0.00234'
         )
         zcashMock.requestManager.z_listunspent = jest.fn(async () => [0])
 
@@ -237,8 +246,12 @@ describe('vault reducer', () => {
 
         expect(identitySelectors.identity(store.getState())).toMatchSnapshot()
         expect(zcashMock.requestManager.z_getnewaddress).toHaveBeenCalledWith('sapling')
-        expect(zcashMock.requestManager.z_getbalance).toHaveBeenCalledWith('sapling-private-address')
-        expect(zcashMock.requestManager.z_listunspent).toHaveBeenCalledWith(0, 0, false, ['sapling-private-address'])
+        expect(zcashMock.requestManager.z_getbalance).toHaveBeenCalledWith(
+          'sapling-private-address'
+        )
+        expect(zcashMock.requestManager.z_listunspent).toHaveBeenCalledWith(0, 0, false, [
+          'sapling-private-address'
+        ])
       })
 
       it('bootstraps general channel to new account', async () => {

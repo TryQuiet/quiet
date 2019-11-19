@@ -21,7 +21,27 @@ services:
       - znode-testnet:/znode
       - zcash-testnet:/root/.zcash
     command: bash -c "/znode/src/zcashd -txexpirydelta=18000"
+    networks:
+      vpcbr:
+        ipv4_address: 10.3.0.2
+    depends_on:
+      - tor-socks
+      
+  tor-socks:
+    container_name: tor-socks
+    image: tor-socks
+    ports:
+      - '9050:9050'
+    networks:
+      vpcbr:
+        ipv4_address: 10.3.0.3
 
+networks:
+  vpcbr:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.3.0.0/16
 volumes:
   znode:
   zcash:

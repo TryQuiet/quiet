@@ -10,7 +10,7 @@ import updateHandlers from './store/handlers/update'
 import invitationHandlers from './store/handlers/invitation'
 import importChannelHandlers from './store/handlers/importedChannel'
 import nodeSelectors from './store/selectors/node'
-import { errorNotification } from './store/handlers/utils'
+import { errorNotification, successNotification } from './store/handlers/utils'
 
 import notificationsHandlers from './store/handlers/notifications'
 
@@ -26,10 +26,11 @@ ipcRenderer.on('newUpdateAvailable', event => {
 })
 
 ipcRenderer.on('checkDiskSpace', (event, msg) => {
+  store.dispatch(notificationsHandlers.actions.enqueueSnackbar(errorNotification({ message: msg })))
+})
+ipcRenderer.on('successMessage', (event, msg) => {
   store.dispatch(
-    notificationsHandlers.actions.enqueueSnackbar(
-      errorNotification({ message: msg })
-    )
+    notificationsHandlers.actions.enqueueSnackbar(successNotification({ message: msg }))
   )
 })
 
@@ -47,7 +48,11 @@ ipcRenderer.on('newInvitation', (event, { invitation }) => {
 
 ipcRenderer.on('newChannel', (event, { channelParams }) => {
   if (nodeSelectors.status(store.getState()) === 'healthy') {
-    store.dispatch(importChannelHandlers.epics.decodeChannel(`https://zbay.rumblefish.dev/importchannel=${channelParams}`))
+    store.dispatch(
+      importChannelHandlers.epics.decodeChannel(
+        `https://zbay.rumblefish.dev/importchannel=${channelParams}`
+      )
+    )
   } else {
     store.dispatch(
       notificationsHandlers.actions.enqueueSnackbar(

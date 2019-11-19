@@ -79,7 +79,7 @@ const createChannel = (values, formActions) => async (dispatch, getState) => {
     await _createChannel(identityId, values)
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar(
-        successNotification(`Successfully created ${values.name} channel.`)
+        successNotification({ message: `Successfully created ${values.name} channel.` })
       )
     )
     formActions.setSubmitting(false)
@@ -95,7 +95,7 @@ const createChannel = (values, formActions) => async (dispatch, getState) => {
   }
 }
 
-const getMoneyFromChannel = (address) => async (dispatch, getState) => {
+const getMoneyFromChannel = address => async (dispatch, getState) => {
   const amount = await getClient().accounting.balance(address)
   const identityAddress = identitySelectors.address(getState())
 

@@ -22,6 +22,7 @@ import invitationHandlers from './handlers/invitation'
 import coordinatorHandlers from './handlers/coordinator'
 import offersHandlers from './handlers/offers'
 import txnTimestampsHandlers from './handlers/txnTimestamps'
+import torHandlers from './handlers/tor'
 import removedChannelsHandlers from './handlers/removedChannels'
 
 export default combineReducers({
@@ -47,5 +48,6 @@ export default combineReducers({
   coordinator: coordinatorHandlers.reducer,
   offers: offersHandlers.reducer,
   txnTimestamps: txnTimestampsHandlers.reducer,
+  tor: torHandlers.reducer,
   removedChannels: removedChannelsHandlers.reducer
 })

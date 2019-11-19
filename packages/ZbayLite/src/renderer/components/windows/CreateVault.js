@@ -74,7 +74,7 @@ export const CreateVault = ({
     <WindowWrapper>
       <Snackbar variant='loading' message={inProgressMsg} open={inProgress} fullWidth />
       <Snackbar variant='error' message={error} open={error.length > 0} onClose={onCloseSnackbar} />
-      {finished === true && <Redirect to='/' />}
+      {finished === true && <Redirect to='/vault' />}
       <Grid container justify='center' alignContent='flex-start' className={classes.gridRoot}>
         <Grid container item>
           <Paper className={classes.paper}>

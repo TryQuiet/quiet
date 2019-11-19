@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`rates selectors selects tor data 1`] = `
+Immutable.Tor {
+  "url": "",
+  "enabled": false,
+  "error": null,
+  "status": "",
+}
+`;

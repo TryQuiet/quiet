@@ -12,3 +12,9 @@ test:
 
 storybook:
 	npm run storybook
+
+testnet:
+	docker-compose up znode-testnet
+
+mainet:
+	docker-compose up znode-mainnet
