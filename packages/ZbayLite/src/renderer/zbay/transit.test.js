@@ -75,6 +75,17 @@ const itemTransfer = {
     text: 'hello heloo description wowo'
   }
 }
+const channelSettings = {
+  type: messageType.CHANNEL_SETTINGS,
+  signature: sigObj.signature,
+  r: sigObj.recovery,
+  createdAt: now.toSeconds(),
+  message: {
+    owner: '6b31f1a5c68902a767eb542fa17daeb338e32d12704ac124ce55994754a5001e',
+    minFee: '4294967295',
+    onlyRegistered: '1'
+  }
+}
 describe('transit', () => {
   describe('pack/unpack memo', () => {
     it('is symmetrical', async () => {
@@ -121,6 +132,14 @@ describe('transit', () => {
       expect(Buffer.byteLength(data, 'hex')).toEqual(MEMO_SIZE)
       const output = await unpackMemo(data)
       expect(output).toEqual(itemTransfer)
+    })
+  })
+  describe('pack/unpack Channel Settings memo', () => {
+    it('is symmetrical', async () => {
+      const data = await packMemo(channelSettings)
+      expect(Buffer.byteLength(data, 'hex')).toEqual(MEMO_SIZE)
+      const output = await unpackMemo(data)
+      expect(output).toEqual(channelSettings)
     })
   })
 })

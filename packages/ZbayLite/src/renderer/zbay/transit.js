@@ -25,6 +25,10 @@ const NICKNAME_SIZE = 20
 const ADDRESS_TYPE_SIZE = 1
 const SHIELDED_MAINNET_SIZE = 78
 const SHIELDED_TESTNET_SIZE = 88
+// TYPE CHANNEL_SETTINGS
+const OWNER_SIZE = 64
+const MIN_FEE_SIZE = 4
+const ONLY_FOR_REGISTERED_SIZE = 1
 // TYPE AD
 export const TAG_SIZE = 9
 const BACKGROUND_SIZE = 2
@@ -101,6 +105,16 @@ export const packMemo = async message => {
       const msg = Buffer.alloc(MESSAGE_ITEM_SIZE)
       msg.write(message.message.text)
       msgData = Buffer.concat([item, msg])
+      break
+    case messageType.CHANNEL_SETTINGS:
+      const owner = Buffer.alloc(OWNER_SIZE)
+      owner.write(message.message.owner)
+      const minFee = Buffer.alloc(MIN_FEE_SIZE)
+      minFee.writeUInt32BE(message.message.minFee)
+      const onlyRegistered = Buffer.alloc(ONLY_FOR_REGISTERED_SIZE)
+      onlyRegistered.writeUInt8(message.message.onlyRegistered)
+
+      msgData = Buffer.concat([owner, minFee, onlyRegistered], MESSAGE_SIZE)
       break
     default:
       msgData = Buffer.alloc(MESSAGE_SIZE)
@@ -199,6 +213,25 @@ export const unpackMemo = async memo => {
         message: {
           itemId: trimNull(item.toString()),
           text: trimNull(msg.toString())
+        },
+        createdAt
+      }
+    case messageType.CHANNEL_SETTINGS:
+      const ownerEnds = timestampEnds + OWNER_SIZE
+      const owner = memoBuff.slice(timestampEnds, ownerEnds)
+      const minFeeEnds = ownerEnds + MIN_FEE_SIZE
+      const minFee = memoBuff.slice(ownerEnds, minFeeEnds).readUInt32BE()
+      const onlyRegisteredEnds = minFeeEnds + ONLY_FOR_REGISTERED_SIZE
+      const onlyRegistered = memoBuff.slice(minFeeEnds, onlyRegisteredEnds).readUInt8()
+
+      return {
+        type,
+        signature,
+        r,
+        message: {
+          owner: trimNull(owner.toString()),
+          minFee: trimNull(minFee.toString()),
+          onlyRegistered: trimNull(onlyRegistered.toString())
         },
         createdAt
       }

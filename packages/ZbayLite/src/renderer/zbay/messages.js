@@ -12,6 +12,7 @@ export const messageType = {
   AD: 2,
   TRANSFER: 4,
   USER: 5,
+  CHANNEL_SETTINGS: 6,
   ITEM_BASIC: 11,
   ITEM_TRANSFER: 41
 }
