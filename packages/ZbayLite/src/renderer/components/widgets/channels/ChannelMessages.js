@@ -20,6 +20,8 @@ const styles = theme => ({
   }
 })
 
+const messagesTypesToDisplay = [1, 2, 4, 11, 41]
+
 // TODO: scrollbar smart pagination
 export const ChannelMessages = ({
   classes,
@@ -45,7 +47,7 @@ export const ChannelMessages = ({
       }}
     >
       <List disablePadding className={classes.list}>
-        {messages.map(msg => {
+        {messages.filter(msg => messagesTypesToDisplay.includes(msg.get('type'))).map(msg => {
           const MessageComponent = typeToMessageComponent[msg.get('type')]
           return <MessageComponent key={msg.get('id')} message={msg} contactId={contactId} />
         })}
