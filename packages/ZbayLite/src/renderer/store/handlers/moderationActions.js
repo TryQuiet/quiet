@@ -4,7 +4,7 @@ import notificationsHandlers from './notifications'
 import { getClient } from '../../zcash'
 import identitySelectors from '../selectors/identity'
 import { messages as zbayMessages } from '../../zbay'
-import operationsHandlers, { operationTypes } from './operations'
+// import operationsHandlers, { operationTypes } from './operations'
 import channelSelectors from '../selectors/channel'
 import { errorNotification, successNotification } from './utils'
 
@@ -17,7 +17,10 @@ export const moderationActionsType = {
   REMOVE_CHANNEL: 'REMOVE_CHANNEL'
 }
 
-const handleModerationAction = ({ moderationType, moderationTarget }) => async (dispatch, getState) => {
+const handleModerationAction = ({ moderationType, moderationTarget }) => async (
+  dispatch,
+  getState
+) => {
   const identityAddress = identitySelectors.address(getState())
   const channel = channelSelectors.data(getState()).toJS()
   const privKey = identitySelectors.signerPrivKey(getState())
@@ -38,17 +41,17 @@ const handleModerationAction = ({ moderationType, moderationTarget }) => async (
     identityAddress
   })
   try {
-    const opId = await getClient().payment.send(transfer)
-    await dispatch(
-      operationsHandlers.epics.observeOperation({
-        opId,
-        type: operationTypes.pendingMessage,
-        meta: {
-          channelId: channel.id,
-          message: message
-        }
-      })
-    )
+    await getClient().payment.send(transfer)
+    // await dispatch(
+    //   operationsHandlers.epics.observeOperation({
+    //     opId,
+    //     type: operationTypes.pendingMessage,
+    //     meta: {
+    //       channelId: channel.id,
+    //       message: message
+    //     }
+    //   })
+    // )
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar(
         successNotification({ message: 'Successfully sent inctruction to channel' })

@@ -36,7 +36,10 @@ describe('Send message popover', () => {
   })
 
   it('will receive right actions', () => {
-    const actions = mapDispatchToProps(x => x)
+    const actions = mapDispatchToProps(x => x, {
+      publicKey: '030d0e5278e297d5c4d2038dfd7fe434592e00c9039c3b2a3884fa1bc167798180',
+      txid: '030d0e5278e297d5c4d2038dfd7fe434592e00c9039c3b2a3884fa1bc1677981'
+    })
     expect(actions).toMatchSnapshot()
   })
 })

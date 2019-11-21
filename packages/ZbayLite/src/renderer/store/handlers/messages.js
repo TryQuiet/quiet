@@ -74,7 +74,7 @@ export const fetchMessages = channel => async (dispatch, getState) => {
     const pendingMessages = operationsSelectors.pendingMessages(getState())
     const identityAddress = identitySelectors.address(getState())
     const users = usersSelectors.users(getState())
-    const txnTimestamps = txnTimestampsSelector.tnxTimestamps(getState())
+    let txnTimestamps = txnTimestampsSelector.tnxTimestamps(getState())
 
     if (pendingMessages.find(msg => msg.status === 'pending')) {
       return
@@ -89,7 +89,8 @@ export const fetchMessages = channel => async (dispatch, getState) => {
     } else {
       dispatch(appHandlers.actions.setTransfers({ id: channelId, value: transfers.length }))
     }
-    await transfers.forEach(async transfer => {
+    for (const key in transfers) {
+      const transfer = transfers[key]
       if (!txnTimestamps.get(transfer.txid)) {
         const result = await getClient().confirmations.getResult(transfer.txid)
         await getVault().transactionsTimestamps.addTransaction(transfer.txid, result.timereceived)
@@ -99,7 +100,8 @@ export const fetchMessages = channel => async (dispatch, getState) => {
           })
         )
       }
-    })
+    }
+    txnTimestamps = txnTimestampsSelector.tnxTimestamps(getState())
     const sortedTransfers = transfers.sort(
       (a, b) => txnTimestamps.get(a.txid) - txnTimestamps.get(b.txid)
     )

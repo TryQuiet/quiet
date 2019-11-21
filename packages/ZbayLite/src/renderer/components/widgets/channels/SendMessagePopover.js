@@ -4,10 +4,54 @@ import * as R from 'ramda'
 import Popover from '@material-ui/core/Popover'
 import Jdenticon from 'react-jdenticon'
 import { withStyles } from '@material-ui/core/styles'
+import Typography from '@material-ui/core/Typography'
+import Button from '@material-ui/core/Button'
+import Grid from '@material-ui/core/Grid'
+import ClearIcon from '@material-ui/icons/Clear'
 
-import QuickActionLayout from '../../ui/QuickActionLayout'
+import IconButton from '../../ui/IconButton'
 
-const styles = theme => ({})
+const styles = theme => ({
+  alignAvatarPopover: {
+    marginTop: theme.spacing(0)
+  },
+  button: {
+    width: 260,
+    height: 60,
+    marginTop: theme.spacing(0.5),
+    paddingBottom: theme.spacing(1.2),
+    paddingLeft: theme.spacing(1.6),
+    paddingRight: theme.spacing(1.6),
+    color: theme.palette.colors.white,
+    fontSize: '0.9rem',
+    backgroundColor: theme.palette.colors.purple,
+    textTransform: 'none'
+  },
+  container: {
+    height: 400,
+    width: 320
+  },
+  usernamePopover: {
+    marginTop: theme.spacing(0),
+    fontSize: '1.2rem',
+    fontWeight: '600'
+  },
+  closeIcon: {
+    margin: theme.spacing(0)
+  },
+  info: {
+    color: theme.palette.colors.zbayBlue
+  },
+  infoDiv: {
+    textAlign: 'center',
+    marginTop: theme.spacing(0),
+    marginLeft: theme.spacing(4),
+    marginRight: theme.spacing(4)
+  },
+  avatar: {
+    marginTop: theme.spacing(0)
+  }
+})
 
 export const SendMessagePopover = ({
   classes,
@@ -18,7 +62,9 @@ export const SendMessagePopover = ({
   isUnregistered,
   identityId,
   createContact,
-  history
+  history,
+  removeMessage,
+  banUser
 }) => {
   const open = Boolean(anchorEl)
   const id = open ? 'simple-popover' : undefined
@@ -38,26 +84,73 @@ export const SendMessagePopover = ({
         horizontal: 'center'
       }}
     >
-      <QuickActionLayout
-        main={username}
-        info={`${address.substring(0, 32)}...`}
-        buttonName='Send message'
-        handleClose={handleClose}
-        warrning={
-          isUnregistered ? 'Sending direct messages is only available for registered users' : null
-        }
-        onClick={() =>
-          createContact({
-            contact: {
-              replyTo: address,
-              username
-            },
-            history
-          })
-        }
+      <Grid
+        container
+        className={classes.container}
+        direction='column'
+        justify='flex-start'
+        alignItems='center'
       >
-        <Jdenticon size='100' value={username} />
-      </QuickActionLayout>
+        <Grid className={classes.icon} container item direction='row' justify='flex-start'>
+          <IconButton className={classes.closeIcon} onClick={handleClose}>
+            <ClearIcon />
+          </IconButton>
+        </Grid>
+        <Grid item className={classes.avatar}>
+          <span className={classes.alignAvatarPopover}>
+            <Jdenticon size='100' value={username} />
+          </span>
+        </Grid>
+        <Grid item>
+          <Typography color='textPrimary' className={classes.usernamePopover}>
+            {username}
+          </Typography>
+        </Grid>
+        <Grid item>
+          <Typography className={classes.info} variant='caption'>
+            {`${address.substring(0, 32)}...`}
+          </Typography>
+        </Grid>
+        <Grid item>
+          <Button
+            variant={'contained'}
+            onClick={() =>
+              createContact({
+                contact: {
+                  replyTo: address,
+                  username
+                },
+                history
+              })
+            }
+            disabled={
+              !!(isUnregistered
+                ? 'Sending direct messages is only available for registered users'
+                : null)
+            }
+            className={classes.button}
+          >
+            Send message
+          </Button>
+        </Grid>
+        <Grid item>
+          <Button variant={'contained'} onClick={removeMessage} className={classes.button}>
+            Remove message
+          </Button>
+        </Grid>
+        <Grid item>
+          <Button variant={'contained'} onClick={banUser} className={classes.button}>
+            Block user
+          </Button>
+        </Grid>
+        <Grid item className={classes.infoDiv}>
+          <Typography className={classes.info} variant='caption'>
+            {isUnregistered
+              ? 'Sending direct messages is only available for registered users'
+              : null}
+          </Typography>
+        </Grid>
+      </Grid>
     </Popover>
   )
 }
@@ -66,6 +159,8 @@ SendMessagePopover.propTypes = {
   classes: PropTypes.object.isRequired,
   username: PropTypes.string.isRequired,
   handleClose: PropTypes.func.isRequired,
+  banUser: PropTypes.func.isRequired,
+  removeMessage: PropTypes.func.isRequired,
   address: PropTypes.string.isRequired,
   anchorEl: PropTypes.bool,
   isUnregistered: PropTypes.bool

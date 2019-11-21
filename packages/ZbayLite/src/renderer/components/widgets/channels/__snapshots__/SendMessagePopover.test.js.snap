@@ -20,18 +20,101 @@ exports[`SendMessagePopover renders popover 1`] = `
     }
   }
 >
-  <Memo(WithStyles(QuickActionLayout))
-    buttonName="Send message"
-    handleClose={[MockFunction]}
-    info="ztestsapling1juf4322spfp2nhmqaz5..."
-    main="TestUser"
-    onClick={[Function]}
-    warrning={null}
+  <WithStyles(ForwardRef(Grid))
+    alignItems="center"
+    className="container-mock"
+    container={true}
+    direction="column"
+    justify="flex-start"
   >
-    <Jdenticon
-      size="100"
-      value="TestUser"
-    />
-  </Memo(WithStyles(QuickActionLayout))>
+    <WithStyles(ForwardRef(Grid))
+      className="icon-mock"
+      container={true}
+      direction="row"
+      item={true}
+      justify="flex-start"
+    >
+      <Memo(WithStyles(IconButton))
+        className="closeIcon-mock"
+        onClick={[MockFunction]}
+      >
+        <ClearIcon />
+      </Memo(WithStyles(IconButton))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      className="avatar-mock"
+      item={true}
+    >
+      <span
+        className="alignAvatarPopover-mock"
+      >
+        <Jdenticon
+          size="100"
+          value="TestUser"
+        />
+      </span>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      item={true}
+    >
+      <WithStyles(ForwardRef(Typography))
+        className="usernamePopover-mock"
+        color="textPrimary"
+      >
+        TestUser
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      item={true}
+    >
+      <WithStyles(ForwardRef(Typography))
+        className="info-mock"
+        variant="caption"
+      >
+        ztestsapling1juf4322spfp2nhmqaz5...
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      item={true}
+    >
+      <WithStyles(ForwardRef(Button))
+        className="button-mock"
+        disabled={false}
+        onClick={[Function]}
+        variant="contained"
+      >
+        Send message
+      </WithStyles(ForwardRef(Button))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      item={true}
+    >
+      <WithStyles(ForwardRef(Button))
+        className="button-mock"
+        variant="contained"
+      >
+        Remove message
+      </WithStyles(ForwardRef(Button))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      item={true}
+    >
+      <WithStyles(ForwardRef(Button))
+        className="button-mock"
+        variant="contained"
+      >
+        Block user
+      </WithStyles(ForwardRef(Button))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      className="infoDiv-mock"
+      item={true}
+    >
+      <WithStyles(ForwardRef(Typography))
+        className="info-mock"
+        variant="caption"
+      />
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
 </WithStyles(ForwardRef(Popover))>
 `;

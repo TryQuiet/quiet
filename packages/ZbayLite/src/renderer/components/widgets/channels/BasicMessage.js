@@ -146,6 +146,8 @@ export const BasicMessage = ({ classes, message, children, actionsOpen, setActio
             <SendMessagePopover
               username={username}
               address={message.sender.replyTo}
+              publicKey={message.publicKey}
+              txid={message.id}
               anchorEl={anchorEl}
               handleClose={handleClose}
               isUnregistered={isUnregistered}
