@@ -38,7 +38,8 @@ const _ReceivedMessage = Immutable.Record(
     spent: new BigNumber(0),
     isUnregistered: false,
     tag: '',
-    offerOwner: ''
+    offerOwner: '',
+    publicKey: null
   },
   'ReceivedMessage'
 )

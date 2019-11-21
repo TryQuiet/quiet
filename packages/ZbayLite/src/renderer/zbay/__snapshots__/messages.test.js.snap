@@ -15,6 +15,7 @@ Immutable.List [
     "isUnregistered": false,
     "tag": "",
     "offerOwner": "",
+    "publicKey": null,
   },
   Immutable.ReceivedMessage {
     "id": 4,
@@ -29,6 +30,7 @@ Immutable.List [
     "isUnregistered": false,
     "tag": "",
     "offerOwner": "",
+    "publicKey": null,
   },
 ]
 `;
@@ -48,6 +50,7 @@ Immutable.List [
     "isUnregistered": false,
     "tag": "",
     "offerOwner": "",
+    "publicKey": null,
   },
 ]
 `;
@@ -69,6 +72,7 @@ Immutable.List [
     "isUnregistered": false,
     "tag": "",
     "offerOwner": "",
+    "publicKey": null,
   },
   Immutable.ReceivedMessage {
     "id": 1,
@@ -83,6 +87,7 @@ Immutable.List [
     "isUnregistered": false,
     "tag": "",
     "offerOwner": "",
+    "publicKey": null,
   },
   Immutable.ReceivedMessage {
     "id": 2,
@@ -97,6 +102,7 @@ Immutable.List [
     "isUnregistered": false,
     "tag": "",
     "offerOwner": "",
+    "publicKey": null,
   },
   Immutable.ReceivedMessage {
     "id": 3,
@@ -111,6 +117,7 @@ Immutable.List [
     "isUnregistered": false,
     "tag": "",
     "offerOwner": "",
+    "publicKey": null,
   },
   Immutable.ReceivedMessage {
     "id": 4,
@@ -125,6 +132,7 @@ Immutable.List [
     "isUnregistered": false,
     "tag": "",
     "offerOwner": "",
+    "publicKey": null,
   },
 ]
 `;
@@ -217,6 +225,7 @@ Object {
   "id": "test-id",
   "isUnregistered": false,
   "message": "This is some message test-id",
+  "publicKey": "03c876809f5ecb6013e9d056f592d86cd4679d0bf3a4467a594882b34751d9d46d",
   "r": 0,
   "sender": Object {
     "replyTo": "",

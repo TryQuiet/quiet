@@ -25,6 +25,7 @@ exports[`ChannelTransferMessage renders component 1`] = `
       "tag": "",
       "offerOwner": null,
       "isUnregistered": false,
+      "publicKey": null,
     }
   }
   setActionsOpen={[Function]}
@@ -168,6 +169,7 @@ exports[`ChannelTransferMessage renders component when message is broadcasted 1`
       "tag": "",
       "offerOwner": null,
       "isUnregistered": false,
+      "publicKey": null,
     }
   }
   setActionsOpen={[Function]}
@@ -311,6 +313,7 @@ exports[`ChannelTransferMessage renders component when message is cancelled 1`] 
       "tag": "",
       "offerOwner": null,
       "isUnregistered": false,
+      "publicKey": null,
     }
   }
   setActionsOpen={[Function]}
@@ -463,6 +466,7 @@ exports[`ChannelTransferMessage renders component when message is failed 1`] = `
       "tag": "",
       "offerOwner": null,
       "isUnregistered": false,
+      "publicKey": null,
     }
   }
   setActionsOpen={[Function]}
@@ -612,6 +616,7 @@ exports[`ChannelTransferMessage renders component when message is pending 1`] = 
       "tag": "",
       "offerOwner": null,
       "isUnregistered": false,
+      "publicKey": null,
     }
   }
   setActionsOpen={[Function]}
@@ -758,6 +763,7 @@ exports[`ChannelTransferMessage renders component when message is sent by owner 
       "tag": "",
       "offerOwner": null,
       "isUnregistered": false,
+      "publicKey": null,
     }
   }
   setActionsOpen={[Function]}
@@ -901,6 +907,7 @@ exports[`ChannelTransferMessage renders component when message is success 1`] = 
       "tag": "",
       "offerOwner": null,
       "isUnregistered": false,
+      "publicKey": null,
     }
   }
   setActionsOpen={[Function]}

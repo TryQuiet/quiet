@@ -25,6 +25,7 @@ Object {
       "tag": "",
       "offerOwner": "",
       "isUnregistered": false,
+      "publicKey": null,
     },
     Immutable.DisplayableMessage {
       "id": 2,
@@ -47,6 +48,7 @@ Object {
       "tag": "",
       "offerOwner": "",
       "isUnregistered": false,
+      "publicKey": null,
     },
     Immutable.DisplayableMessage {
       "id": 1,
@@ -69,6 +71,7 @@ Object {
       "tag": "",
       "offerOwner": "",
       "isUnregistered": false,
+      "publicKey": null,
     },
     Immutable.DisplayableMessage {
       "id": 0,
@@ -91,6 +94,7 @@ Object {
       "tag": "",
       "offerOwner": "",
       "isUnregistered": false,
+      "publicKey": null,
     },
   ],
   "qMessages": Immutable.Map {},
@@ -115,6 +119,7 @@ Object {
       "isUnregistered": false,
       "tag": "",
       "offerOwner": "",
+      "publicKey": null,
     },
     Immutable.ReceivedMessage {
       "id": 6,
@@ -129,6 +134,7 @@ Object {
       "isUnregistered": false,
       "tag": "",
       "offerOwner": "",
+      "publicKey": null,
     },
     Immutable.ReceivedMessage {
       "id": 5,
@@ -143,6 +149,7 @@ Object {
       "isUnregistered": false,
       "tag": "",
       "offerOwner": "",
+      "publicKey": null,
     },
     Immutable.DisplayableMessage {
       "id": 3,
@@ -165,6 +172,7 @@ Object {
       "tag": "",
       "offerOwner": "",
       "isUnregistered": false,
+      "publicKey": null,
     },
     Immutable.DisplayableMessage {
       "id": 2,
@@ -187,6 +195,7 @@ Object {
       "tag": "",
       "offerOwner": "",
       "isUnregistered": false,
+      "publicKey": null,
     },
     Immutable.DisplayableMessage {
       "id": 1,
@@ -209,6 +218,7 @@ Object {
       "tag": "",
       "offerOwner": "",
       "isUnregistered": false,
+      "publicKey": null,
     },
     Immutable.DisplayableMessage {
       "id": 0,
@@ -231,6 +241,7 @@ Object {
       "tag": "",
       "offerOwner": "",
       "isUnregistered": false,
+      "publicKey": null,
     },
   ],
   "qMessages": Immutable.Map {},

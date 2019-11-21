@@ -44,6 +44,12 @@ export const currentChannelMessages = createSelector(
   (ch, store) => messagesSelectors.currentChannelMessages(ch.id)(store)
 )
 
+export const channelOwner = createSelector(
+  channel,
+  store,
+  (ch, store) => messagesSelectors.channelOwner(ch.id)(store)
+)
+
 export const loader = createSelector(channel, meta => meta.loader)
 
 const checkMessageTargetTimeWindow = ({ targetCreatedAt, timeStamp, timeWindow }) => {
@@ -169,6 +175,7 @@ export default {
   pendingMessages,
   shareableUri,
   channelId,
+  channelOwner,
   messages,
   channelInfo
 }

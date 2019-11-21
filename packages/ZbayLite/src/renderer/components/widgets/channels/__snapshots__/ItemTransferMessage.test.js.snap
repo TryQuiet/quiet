@@ -25,6 +25,7 @@ exports[`ItemTransferMessage renders component 1`] = `
       "tag": "test",
       "offerOwner": "tester",
       "isUnregistered": false,
+      "publicKey": null,
     }
   }
   setActionsOpen={[Function]}

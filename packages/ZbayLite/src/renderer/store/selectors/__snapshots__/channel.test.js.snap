@@ -63,6 +63,7 @@ test-2",
     "tag": "",
     "offerOwner": null,
     "isUnregistered": false,
+    "publicKey": null,
   },
 ]
 `;
@@ -90,6 +91,7 @@ Immutable.List [
     "tag": "",
     "offerOwner": null,
     "isUnregistered": false,
+    "publicKey": null,
   },
   Immutable.DisplayableMessage {
     "id": "test-2",
@@ -112,6 +114,7 @@ Immutable.List [
     "tag": "",
     "offerOwner": null,
     "isUnregistered": false,
+    "publicKey": null,
   },
   Immutable.DisplayableMessage {
     "id": "test-3",
@@ -134,6 +137,7 @@ Immutable.List [
     "tag": "",
     "offerOwner": null,
     "isUnregistered": false,
+    "publicKey": null,
   },
 ]
 `;
@@ -162,6 +166,7 @@ test-2",
     "tag": "",
     "offerOwner": null,
     "isUnregistered": false,
+    "publicKey": null,
   },
   Immutable.DisplayableMessage {
     "id": "test-3",
@@ -184,6 +189,7 @@ test-2",
     "tag": "",
     "offerOwner": null,
     "isUnregistered": false,
+    "publicKey": null,
   },
 ]
 `;
@@ -211,6 +217,7 @@ Immutable.List [
     "tag": "",
     "offerOwner": null,
     "isUnregistered": false,
+    "publicKey": null,
   },
   Immutable.DisplayableMessage {
     "id": "test-2",
@@ -233,6 +240,7 @@ Immutable.List [
     "tag": "",
     "offerOwner": null,
     "isUnregistered": false,
+    "publicKey": null,
   },
 ]
 `;
@@ -262,6 +270,7 @@ Immutable.List [
     "tag": "",
     "offerOwner": "",
     "isUnregistered": false,
+    "publicKey": null,
   },
   Immutable.DisplayableMessage {
     "id": "test-operation-id-3",
@@ -284,6 +293,7 @@ Immutable.List [
     "tag": "",
     "offerOwner": null,
     "isUnregistered": false,
+    "publicKey": null,
   },
   Immutable.DisplayableMessage {
     "id": 2,
@@ -306,6 +316,7 @@ Immutable.List [
     "tag": "",
     "offerOwner": "",
     "isUnregistered": false,
+    "publicKey": null,
   },
   Immutable.DisplayableMessage {
     "id": 1,
@@ -329,6 +340,7 @@ This is some message test-pending-message",
     "tag": "",
     "offerOwner": "",
     "isUnregistered": false,
+    "publicKey": null,
   },
   Immutable.DisplayableMessage {
     "id": "test-operation-id",
@@ -351,6 +363,7 @@ This is some message test-pending-message",
     "tag": "",
     "offerOwner": null,
     "isUnregistered": false,
+    "publicKey": null,
   },
   Immutable.DisplayableMessage {
     "id": 0,
@@ -373,6 +386,7 @@ This is some message test-pending-message",
     "tag": "",
     "offerOwner": "",
     "isUnregistered": false,
+    "publicKey": null,
   },
 ]
 `;

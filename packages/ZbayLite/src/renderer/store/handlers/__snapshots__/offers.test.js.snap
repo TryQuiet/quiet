@@ -32,6 +32,7 @@ Immutable.List [
     "isUnregistered": false,
     "tag": "",
     "offerOwner": "",
+    "publicKey": null,
   },
   Immutable.ReceivedMessage {
     "id": 2,
@@ -46,6 +47,7 @@ Immutable.List [
     "isUnregistered": false,
     "tag": "",
     "offerOwner": "",
+    "publicKey": null,
   },
   Immutable.ReceivedMessage {
     "id": 1,
@@ -60,6 +62,7 @@ Immutable.List [
     "isUnregistered": false,
     "tag": "",
     "offerOwner": "",
+    "publicKey": null,
   },
   Immutable.ReceivedMessage {
     "id": 0,
@@ -74,6 +77,7 @@ Immutable.List [
     "isUnregistered": false,
     "tag": "",
     "offerOwner": "",
+    "publicKey": null,
   },
 ]
 `;
@@ -107,6 +111,7 @@ Immutable.List [
     "tag": "",
     "offerOwner": null,
     "isUnregistered": false,
+    "publicKey": null,
   },
 ]
 `;
@@ -134,6 +139,7 @@ Immutable.List [
     "tag": "",
     "offerOwner": null,
     "isUnregistered": false,
+    "publicKey": null,
   },
   Immutable.DisplayableMessage {
     "id": "149a7d2ab30817765ea9875bfca40299669e1631329fc58b2a053ff58f78b007",
@@ -156,6 +162,7 @@ Immutable.List [
     "tag": "",
     "offerOwner": null,
     "isUnregistered": false,
+    "publicKey": null,
   },
 ]
 `;

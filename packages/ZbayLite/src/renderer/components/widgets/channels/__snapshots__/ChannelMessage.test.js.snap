@@ -25,6 +25,7 @@ exports[`ChannelMessage renders component 1`] = `
       "tag": "",
       "offerOwner": null,
       "isUnregistered": false,
+      "publicKey": null,
     }
   }
   setActionsOpen={[Function]}
@@ -79,6 +80,7 @@ exports[`ChannelMessage renders component when message is sent by owner 1`] = `
       "tag": "",
       "offerOwner": null,
       "isUnregistered": false,
+      "publicKey": null,
     }
   }
   setActionsOpen={[Function]}

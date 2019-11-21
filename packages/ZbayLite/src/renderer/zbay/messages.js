@@ -41,7 +41,8 @@ export const _DisplayableMessage = Immutable.Record(
     shippingData: null,
     tag: '',
     offerOwner: null,
-    isUnregistered: false
+    isUnregistered: false,
+    publicKey: null
   },
   'DisplayableMessage'
 )
@@ -164,9 +165,10 @@ export const transferToMessage = async (props, users) => {
   let message = null
   let sender = { replyTo: '', username: 'Unnamed' }
   let isUnregistered = false
+  let publicKey = null
   try {
     message = await unpackMemo(memo)
-    const publicKey = getPublicKeysFromSignature(message).toString('hex')
+    publicKey = getPublicKeysFromSignature(message).toString('hex')
     if (users !== undefined) {
       const fromUser = users.get(publicKey)
       if (fromUser !== undefined) {
@@ -193,7 +195,8 @@ export const transferToMessage = async (props, users) => {
       id: txid,
       spent: new BigNumber(amount),
       sender: sender,
-      isUnregistered
+      isUnregistered,
+      publicKey
     }
   } catch (err) {
     console.warn('Incorrect message format: ', err)

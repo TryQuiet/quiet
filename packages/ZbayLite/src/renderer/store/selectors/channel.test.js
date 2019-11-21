@@ -411,4 +411,150 @@ describe('Channel selector', () => {
   it('channelId', () => {
     expect(channelSelectors.channelId(store.getState())).toMatchSnapshot()
   })
+
+  describe('channel owner selector', () => {
+    const messages = [{
+      createdAt: 1567683647,
+      id: 'test-1',
+      type: 6,
+      message: {
+        minFee: '100',
+        onlyRegistered: '1',
+        owner: '03638eb7aaae341acf66db8b79c9b31e3627715d8bf1795b87e817bda45cc80d'
+      },
+      publicKey: '03638eb7aaae341acf66db8b79c9b31e3627715d8bf1795b87e817bda45cc80d',
+      sender: {
+        replyTo: '',
+        username: 'test123'
+      }
+    },
+    {
+      createdAt: 1567683687,
+      id: 'test-1',
+      type: 6,
+      message: {
+        minFee: '100',
+        onlyRegistered: '1',
+        owner: 'random-public-key'
+      },
+      publicKey: 'random-public-key',
+      sender: {
+        replyTo: '',
+        username: 'test123'
+      }
+    },
+    {
+      createdAt: 1567683747,
+      id: 'test-1',
+      type: 6,
+      message: {
+        minFee: '100',
+        onlyRegistered: '1',
+        owner: 'random-public-key-2'
+      },
+      publicKey: 'random-public-key-2',
+      sender: {
+        replyTo: '',
+        username: 'test123'
+      }
+    }
+    ]
+    const baseStore = { identity: IdentityState({
+      data: Identity({
+        balance: new BigNumber(0),
+        lockedBalance: new BigNumber(23)
+      })
+    }),
+    node: NodeState({
+      isTestnet: true
+    }),
+    channel: ChannelState({
+      spentFilterValue: 38,
+      id: channelId,
+      shareableUri: uri,
+      members: new BigNumber(0),
+      message: 'Message written in the input',
+      loader: LoaderState({
+        message: 'Test loading message',
+        loading: true
+      })
+    }),
+    channels: ChannelsState({
+      data: Immutable.fromJS([createChannel(channelId)])
+    }) }
+    it('channel owner', () => {
+      store = create({
+        initialState: Immutable.Map({
+          ...baseStore,
+          messages: Immutable.Map({
+            [channelId]: ChannelMessages({
+              messages: Immutable.List(Immutable.fromJS(messages)
+              )
+            })
+          })
+        })
+      })
+      expect(channelSelectors.channelOwner(store.getState())).toEqual('03638eb7aaae341acf66db8b79c9b31e3627715d8bf1795b87e817bda45cc80d')
+    })
+    it('should return new channel owner', () => {
+      const messages = [{
+        createdAt: 1567683647,
+        id: 'test-1',
+        type: 6,
+        message: {
+          minFee: '100',
+          onlyRegistered: '1',
+          owner: '03638eb7aaae341acf66db8b79c9b31e3627715d8bf1795b87e817bda45cc80d'
+        },
+        publicKey: '03638eb7aaae341acf66db8b79c9b31e3627715d8bf1795b87e817bda45cc80d',
+        sender: {
+          replyTo: '',
+          username: 'test123'
+        }
+      },
+      {
+        createdAt: 1567683687,
+        id: 'test-1',
+        type: 6,
+        message: {
+          minFee: '100',
+          onlyRegistered: '1',
+          owner: 'random-public-key'
+        },
+        publicKey: '03638eb7aaae341acf66db8b79c9b31e3627715d8bf1795b87e817bda45cc80d',
+        sender: {
+          replyTo: '',
+          username: 'test123'
+        }
+      },
+      {
+        createdAt: 1567683747,
+        id: 'test-1',
+        type: 6,
+        message: {
+          minFee: '100',
+          onlyRegistered: '1',
+          owner: 'random-public-key-2'
+        },
+        publicKey: 'random-public-key-2',
+        sender: {
+          replyTo: '',
+          username: 'test123'
+        }
+      }
+      ]
+      store = create({
+        initialState: Immutable.Map({
+          ...baseStore,
+          messages: Immutable.Map({
+            [channelId]: ChannelMessages({
+              messages: Immutable.List(Immutable.fromJS(messages)
+              )
+            })
+          })
+        })
+      })
+      expect(channelSelectors.channelOwner(store.getState())).toEqual('random-public-key')
+    })
+  })
 })

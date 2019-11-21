@@ -27,8 +27,29 @@ const messageById = id =>
     }
   )
 
+const channelSettingsMessages = channelId => createSelector(
+  messages,
+  msgs => msgs.getIn([channelId, 'messages'], Immutable.List()).filter(msg => msg.get('type') === 6)
+)
+
+const channelOwner = channelId => createSelector(
+  channelSettingsMessages(channelId),
+  msgs => {
+    let channelOwner = null
+    channelOwner = msgs.get(0) ? msgs.get(0).get('publicKey') : null
+    for (const msg of msgs) {
+      if (channelOwner === msg.get('publicKey')) {
+        channelOwner = msg.getIn(['message', 'owner'])
+      }
+    }
+    return channelOwner
+  }
+)
+
 export default {
   messages,
+  channelOwner,
+  channelSettingsMessages,
   currentChannelMessages,
   messageById,
   allMessages

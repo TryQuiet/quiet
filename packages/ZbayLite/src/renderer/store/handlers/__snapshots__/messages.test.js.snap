@@ -620,6 +620,7 @@ Object {
           "isUnregistered": true,
           "tag": "",
           "offerOwner": "",
+          "publicKey": "027dc4331327df226c32cb7244b951dfc442e487e36bff0b233ac4418b83ce3ea8",
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-1-zs1testaddress0",
@@ -634,6 +635,7 @@ Object {
           "isUnregistered": true,
           "tag": "",
           "offerOwner": "",
+          "publicKey": "02eb1ae3baf33284937640479afeabb738326d21c7ed438126f7a70484307dce30",
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-2-zs1testaddress0",
@@ -648,6 +650,7 @@ Object {
           "isUnregistered": true,
           "tag": "",
           "offerOwner": "",
+          "publicKey": "02462d3080bc99cb3ec1f03867a205f1b562fdcabb62ff578f6622f227b4c25b2e",
         },
       ],
       "newMessages": Immutable.List [
@@ -671,6 +674,7 @@ Object {
           "isUnregistered": true,
           "tag": "",
           "offerOwner": "",
+          "publicKey": "031717e47dc514725aefba30fee5951eec3e1348b3686630ce09d2666fff9105d4",
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-1-zs1testaddress1",
@@ -685,6 +689,7 @@ Object {
           "isUnregistered": true,
           "tag": "",
           "offerOwner": "",
+          "publicKey": "03047bea4e0fa41d9ad46353e57e7694156aa4bcc88f88d705cd69b12b456eb83f",
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-2-zs1testaddress1",
@@ -699,6 +704,7 @@ Object {
           "isUnregistered": true,
           "tag": "",
           "offerOwner": "",
+          "publicKey": "0370c0ad534968fa63de16c35ec0a65d3fb7b7921460ea8876d19939b3a405f608",
         },
       ],
       "newMessages": Immutable.List [
@@ -734,6 +740,7 @@ Object {
           "isUnregistered": true,
           "tag": "",
           "offerOwner": "",
+          "publicKey": "027dc4331327df226c32cb7244b951dfc442e487e36bff0b233ac4418b83ce3ea8",
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-1-zs1testaddress0",
@@ -748,6 +755,7 @@ Object {
           "isUnregistered": true,
           "tag": "",
           "offerOwner": "",
+          "publicKey": "02eb1ae3baf33284937640479afeabb738326d21c7ed438126f7a70484307dce30",
         },
       ],
       "newMessages": Immutable.List [
@@ -770,6 +778,7 @@ Object {
           "isUnregistered": true,
           "tag": "",
           "offerOwner": "",
+          "publicKey": "031717e47dc514725aefba30fee5951eec3e1348b3686630ce09d2666fff9105d4",
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-1-zs1testaddress1",
@@ -784,6 +793,7 @@ Object {
           "isUnregistered": true,
           "tag": "",
           "offerOwner": "",
+          "publicKey": "03047bea4e0fa41d9ad46353e57e7694156aa4bcc88f88d705cd69b12b456eb83f",
         },
       ],
       "newMessages": Immutable.List [],
@@ -815,6 +825,7 @@ Object {
           "isUnregistered": true,
           "tag": "",
           "offerOwner": "",
+          "publicKey": "027dc4331327df226c32cb7244b951dfc442e487e36bff0b233ac4418b83ce3ea8",
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-1-zs1testaddress0",
@@ -829,6 +840,7 @@ Object {
           "isUnregistered": true,
           "tag": "",
           "offerOwner": "",
+          "publicKey": "02eb1ae3baf33284937640479afeabb738326d21c7ed438126f7a70484307dce30",
         },
       ],
       "newMessages": Immutable.List [
@@ -851,6 +863,7 @@ Object {
           "isUnregistered": true,
           "tag": "",
           "offerOwner": "",
+          "publicKey": "031717e47dc514725aefba30fee5951eec3e1348b3686630ce09d2666fff9105d4",
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-1-zs1testaddress1",
@@ -865,6 +878,7 @@ Object {
           "isUnregistered": true,
           "tag": "",
           "offerOwner": "",
+          "publicKey": "03047bea4e0fa41d9ad46353e57e7694156aa4bcc88f88d705cd69b12b456eb83f",
         },
       ],
       "newMessages": Immutable.List [
@@ -899,6 +913,7 @@ Object {
           "isUnregistered": true,
           "tag": "",
           "offerOwner": "",
+          "publicKey": "027dc4331327df226c32cb7244b951dfc442e487e36bff0b233ac4418b83ce3ea8",
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-1-zs1testaddress0",
@@ -913,6 +928,7 @@ Object {
           "isUnregistered": true,
           "tag": "",
           "offerOwner": "",
+          "publicKey": "02eb1ae3baf33284937640479afeabb738326d21c7ed438126f7a70484307dce30",
         },
       ],
       "newMessages": Immutable.List [
@@ -935,6 +951,7 @@ Object {
           "isUnregistered": true,
           "tag": "",
           "offerOwner": "",
+          "publicKey": "031717e47dc514725aefba30fee5951eec3e1348b3686630ce09d2666fff9105d4",
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-1-zs1testaddress1",
@@ -949,6 +966,7 @@ Object {
           "isUnregistered": true,
           "tag": "",
           "offerOwner": "",
+          "publicKey": "03047bea4e0fa41d9ad46353e57e7694156aa4bcc88f88d705cd69b12b456eb83f",
         },
       ],
       "newMessages": Immutable.List [
@@ -983,6 +1001,7 @@ Object {
           "isUnregistered": true,
           "tag": "",
           "offerOwner": "",
+          "publicKey": "027dc4331327df226c32cb7244b951dfc442e487e36bff0b233ac4418b83ce3ea8",
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-1-zs1testaddress0",
@@ -997,6 +1016,7 @@ Object {
           "isUnregistered": true,
           "tag": "",
           "offerOwner": "",
+          "publicKey": "02eb1ae3baf33284937640479afeabb738326d21c7ed438126f7a70484307dce30",
         },
       ],
       "newMessages": Immutable.List [
@@ -1019,6 +1039,7 @@ Object {
           "isUnregistered": true,
           "tag": "",
           "offerOwner": "",
+          "publicKey": "031717e47dc514725aefba30fee5951eec3e1348b3686630ce09d2666fff9105d4",
         },
         Immutable.ReceivedMessage {
           "id": "tx-id-1-zs1testaddress1",
@@ -1033,6 +1054,7 @@ Object {
           "isUnregistered": true,
           "tag": "",
           "offerOwner": "",
+          "publicKey": "03047bea4e0fa41d9ad46353e57e7694156aa4bcc88f88d705cd69b12b456eb83f",
         },
       ],
       "newMessages": Immutable.List [

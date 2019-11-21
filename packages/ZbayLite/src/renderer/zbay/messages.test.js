@@ -38,6 +38,7 @@ describe('messages -', () => {
         isUnregistered: false,
         id: txid,
         r: 0,
+        publicKey: '03c876809f5ecb6013e9d056f592d86cd4679d0bf3a4467a594882b34751d9d46d',
         sender: { replyTo: '', username: 'Unnamed' }
       }
       expect(received).toEqual(expected)
@@ -122,6 +123,7 @@ describe('messages -', () => {
       id: txid,
       r: 0,
       spent: new BigNumber(amount),
+      publicKey: '030d0e5278e297d5c4d2038dfd7fe434592e00c9039c3b2a3884fa1bc167798180',
       sender: { replyTo: '', username: 'Unnamed' }
     })
   })
