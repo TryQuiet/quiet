@@ -404,6 +404,17 @@ Immutable.IdentityState {
 exports[`Identity reducer handles epics handles createIdentity bootstraps general for mainnet 1`] = `
 Array [
   Object {
+    "address": "zs16u4chc3nd525eqjc50zjv4chuwdpkj3kvnvcnvhj77g430q0kccelmnz6vrksw6cq4q3khshvs3",
+    "description": "Contains list of public channels",
+    "keys": Object {
+      "ivk": "zivks14fgrxnk2f6qhtndxtc23cwy74kuyptq78qen9jq2ts2hnz0e7vrqazzytr",
+    },
+    "lastSeen": "2019-03-07T13:03:48.000Z",
+    "name": "channelOfChannels",
+    "private": true,
+    "unread": 0,
+  },
+  Object {
     "address": "zs1gj85kyte6lar223qdk0x2l2krua0xs4wpmmkz5ffqyya9ea92lnn9d02tpg6eavqefptu8p83tw",
     "description": "Store data about users.",
     "keys": Object {
@@ -430,6 +441,17 @@ Array [
 
 exports[`Identity reducer handles epics handles createIdentity bootstraps general for testnet 1`] = `
 Array [
+  Object {
+    "address": "ztestsapling1rwqrk7uclurs5dqm70g4zf0rh9dmjf60qqtw2n68pa37ycs2zccglcymjg0nnmus70m3wkdyxx0",
+    "description": "Contains list of public channels",
+    "keys": Object {
+      "ivk": "zivktestsapling194t7fk8ns0v2u4jysmrmwyh2ymq52t5378ey8jym23d2dpy3d5pssyk97t",
+    },
+    "lastSeen": "2019-03-07T13:03:48.000Z",
+    "name": "channelOfChannels",
+    "private": true,
+    "unread": 0,
+  },
   Object {
     "address": "ztestsapling1ggtntm4dgfc0remdxzex0pz722swjtqxc7wxj4eeqksmups04dkhjvcj5vcklmud2y3yvgj302m",
     "description": "Store data about users.",

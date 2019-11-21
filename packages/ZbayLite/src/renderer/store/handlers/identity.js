@@ -201,8 +201,10 @@ export const createIdentity = ({ name }) => async (dispatch, getState) => {
     const network = nodeSelectors.network(getState())
     const generalChannel = channels.general[network]
     const usersChannel = channels.registeredUsers[network]
+    const channelOfChannels = channels.channelOfChannels[network]
     await getVault().channels.importChannel(identity.id, generalChannel)
     await getVault().channels.importChannel(identity.id, usersChannel)
+    await getVault().channels.importChannel(identity.id, channelOfChannels)
     await getClient().keys.importIVK({
       ivk: generalChannel.keys.ivk,
       address: generalChannel.address

@@ -2,8 +2,11 @@ import { createSelector } from 'reselect'
 
 import zcashChannels from '../../zcash/channels'
 import nodeSelectors from './node'
+const ignoredChannels = network => [
+  zcashChannels.registeredUsers[network].address,
+  zcashChannels.channelOfChannels[network].address
+]
 const store = s => s
-
 const channels = createSelector(
   store,
   nodeSelectors.network,
@@ -11,9 +14,7 @@ const channels = createSelector(
     return state
       .get('channels')
       .updateIn(['data'], channel =>
-        channel.filter(
-          channel => channel.get('address') !== zcashChannels.registeredUsers[network].address
-        )
+        channel.filter(channel => !ignoredChannels(network).includes(channel.get('address')))
       )
   }
 )

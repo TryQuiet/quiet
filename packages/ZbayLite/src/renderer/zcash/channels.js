@@ -40,5 +40,26 @@ export default {
         ivk: 'zivks1257u0x5aspyrclysawre5duaxfck2txmv7lm2tjudlyh4flh55zquklc2s'
       }
     }
+  },
+  channelOfChannels: {
+    testnet: {
+      name: 'channelOfChannels',
+      private: true,
+      address:
+        'ztestsapling1rwqrk7uclurs5dqm70g4zf0rh9dmjf60qqtw2n68pa37ycs2zccglcymjg0nnmus70m3wkdyxx0',
+      description: 'Contains list of public channels',
+      keys: {
+        ivk: 'zivktestsapling194t7fk8ns0v2u4jysmrmwyh2ymq52t5378ey8jym23d2dpy3d5pssyk97t'
+      }
+    },
+    mainnet: {
+      name: 'channelOfChannels',
+      private: true,
+      address: 'zs16u4chc3nd525eqjc50zjv4chuwdpkj3kvnvcnvhj77g430q0kccelmnz6vrksw6cq4q3khshvs3',
+      description: 'Contains list of public channels',
+      keys: {
+        ivk: 'zivks14fgrxnk2f6qhtndxtc23cwy74kuyptq78qen9jq2ts2hnz0e7vrqazzytr'
+      }
+    }
   }
 }
