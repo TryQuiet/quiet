@@ -17,7 +17,7 @@ export const moderationActionsType = {
   REMOVE_CHANNEL: 'REMOVE_CHANNEL'
 }
 
-const handleModerationAction = ({ actionType, payload }) => async (dispatch, getState) => {
+const handleModerationAction = ({ moderationType, moderationTarget }) => async (dispatch, getState) => {
   const identityAddress = identitySelectors.address(getState())
   const channel = channelSelectors.data(getState()).toJS()
   const privKey = identitySelectors.signerPrivKey(getState())
@@ -25,8 +25,8 @@ const handleModerationAction = ({ actionType, payload }) => async (dispatch, get
     messageData: {
       type: zbayMessages.messageType.MODERATION,
       data: {
-        actionType,
-        ...payload
+        moderationType,
+        moderationTarget
       },
       spent: new BigNumber('0.0001')
     },

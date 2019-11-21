@@ -3,6 +3,7 @@ import secp256k1 from 'secp256k1'
 import { packMemo, unpackMemo, MEMO_SIZE } from './transit'
 import { now } from '../testUtils'
 import { messageType, hash } from './messages'
+import { moderationActionsType } from '../store/handlers/moderationActions'
 
 const sigObj = secp256k1.sign(
   hash(JSON.stringify('test DATA')),
@@ -86,6 +87,16 @@ const channelSettings = {
     onlyRegistered: '1'
   }
 }
+const moderationMessage = (moderationType, moderationTarget) => ({
+  type: messageType.MODERATION,
+  signature: sigObj.signature,
+  r: sigObj.recovery,
+  createdAt: now.toSeconds(),
+  message: {
+    moderationTarget: moderationTarget,
+    moderationType: moderationType
+  }
+})
 describe('transit', () => {
   describe('pack/unpack memo', () => {
     it('is symmetrical', async () => {
@@ -140,6 +151,68 @@ describe('transit', () => {
       expect(Buffer.byteLength(data, 'hex')).toEqual(MEMO_SIZE)
       const output = await unpackMemo(data)
       expect(output).toEqual(channelSettings)
+    })
+  })
+  describe('pack/unpack Moderation memo', () => {
+    it('is symmetrical remove channel', async () => {
+      const removeChannelMessage = moderationMessage(
+        moderationActionsType.REMOVE_CHANNEL,
+        '6b31f1a5c68902a767eb542fa17daeb338e32d12704ac124ce55994754a5001e'
+      )
+      const data = await packMemo(removeChannelMessage)
+      expect(Buffer.byteLength(data, 'hex')).toEqual(MEMO_SIZE)
+      const output = await unpackMemo(data)
+      expect(output).toEqual(removeChannelMessage)
+    })
+    it('is symmetrical remove message', async () => {
+      const removeMessageMessage = moderationMessage(
+        moderationActionsType.REMOVE_MESSAGE,
+        '6b31f1a5c68902a767eb542fa17daeb338e32d12704ac124ce55994754a5001e'
+      )
+      const data = await packMemo(removeMessageMessage)
+      expect(Buffer.byteLength(data, 'hex')).toEqual(MEMO_SIZE)
+      const output = await unpackMemo(data)
+      expect(output).toEqual(removeMessageMessage)
+    })
+    it('is symmetrical add mod', async () => {
+      const addModMessage = moderationMessage(
+        moderationActionsType.ADD_MOD,
+        '0208be86d3cac41fdb539b0b761bedccedaa300d5a09fd3ca34b6acad1ba856bcb'
+      )
+      const data = await packMemo(addModMessage)
+      expect(Buffer.byteLength(data, 'hex')).toEqual(MEMO_SIZE)
+      const output = await unpackMemo(data)
+      expect(output).toEqual(addModMessage)
+    })
+    it('is symmetrical remove mod', async () => {
+      const removeModMessage = moderationMessage(
+        moderationActionsType.REMOVE_MOD,
+        '0208be86d3cac41fdb539b0b761bedccedaa300d5a09fd3ca34b6acad1ba856bcb'
+      )
+      const data = await packMemo(removeModMessage)
+      expect(Buffer.byteLength(data, 'hex')).toEqual(MEMO_SIZE)
+      const output = await unpackMemo(data)
+      expect(output).toEqual(removeModMessage)
+    })
+    it('is symmetrical block user', async () => {
+      const blockUserMessage = moderationMessage(
+        moderationActionsType.BLOCK_USER,
+        '0208be86d3cac41fdb539b0b761bedccedaa300d5a09fd3ca34b6acad1ba856bcb'
+      )
+      const data = await packMemo(blockUserMessage)
+      expect(Buffer.byteLength(data, 'hex')).toEqual(MEMO_SIZE)
+      const output = await unpackMemo(data)
+      expect(output).toEqual(blockUserMessage)
+    })
+    it('is symmetrical unblock user', async () => {
+      const unblockUserMessage = moderationMessage(
+        moderationActionsType.UNBLOCK_USER,
+        '0208be86d3cac41fdb539b0b761bedccedaa300d5a09fd3ca34b6acad1ba856bcb'
+      )
+      const data = await packMemo(unblockUserMessage)
+      expect(Buffer.byteLength(data, 'hex')).toEqual(MEMO_SIZE)
+      const output = await unpackMemo(data)
+      expect(output).toEqual(unblockUserMessage)
     })
   })
 })

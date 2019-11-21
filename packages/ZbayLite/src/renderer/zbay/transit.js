@@ -1,12 +1,14 @@
 import { inflate, deflate } from '../compression'
 import { messageType } from './messages'
-
+import { moderationActionsType } from '../store/handlers/moderationActions'
 export const MEMO_SIZE = 512
 const TYPE_SIZE = 1
 const SIGNATURE_SIZE = 64
 const SIGNATURE_R_SIZE = 1
 const TIMESTAMP_SIZE = 4
 const LINKED_ITEM_SIZE = 64
+const PUBLIC_KEY_SIZE = 66
+const TXID_SIZE = 64
 
 export const MESSAGE_SIZE =
   MEMO_SIZE - (TIMESTAMP_SIZE + SIGNATURE_SIZE + SIGNATURE_R_SIZE + TYPE_SIZE)
@@ -25,6 +27,9 @@ const NICKNAME_SIZE = 20
 const ADDRESS_TYPE_SIZE = 1
 const SHIELDED_MAINNET_SIZE = 78
 const SHIELDED_TESTNET_SIZE = 88
+// TYPE MODERATION
+const MODERATION_TYPE_SIZE = 20
+const TARGET_SIZE_FLAG = 1
 // TYPE CHANNEL_SETTINGS
 const OWNER_SIZE = 64
 const MIN_FEE_SIZE = 4
@@ -46,7 +51,14 @@ const typeToAddressSize = {
   [ADDRESS_TYPE.SHIELDED_MAINNET]: SHIELDED_MAINNET_SIZE,
   [ADDRESS_TYPE.SHIELDED_TESTNET]: SHIELDED_TESTNET_SIZE
 }
-
+const moderationTypeToSize = {
+  [moderationActionsType.ADD_MOD]: PUBLIC_KEY_SIZE,
+  [moderationActionsType.BLOCK_USER]: PUBLIC_KEY_SIZE,
+  [moderationActionsType.REMOVE_MOD]: PUBLIC_KEY_SIZE,
+  [moderationActionsType.UNBLOCK_USER]: PUBLIC_KEY_SIZE,
+  [moderationActionsType.REMOVE_CHANNEL]: TXID_SIZE,
+  [moderationActionsType.REMOVE_MESSAGE]: TXID_SIZE
+}
 export const packMemo = async message => {
   const type = Buffer.alloc(TYPE_SIZE)
   type.writeUInt8(message.type)
@@ -113,8 +125,16 @@ export const packMemo = async message => {
       minFee.writeUInt32BE(message.message.minFee)
       const onlyRegistered = Buffer.alloc(ONLY_FOR_REGISTERED_SIZE)
       onlyRegistered.writeUInt8(message.message.onlyRegistered)
-
       msgData = Buffer.concat([owner, minFee, onlyRegistered], MESSAGE_SIZE)
+      break
+    case messageType.MODERATION:
+      const moderationType = Buffer.alloc(MODERATION_TYPE_SIZE)
+      moderationType.write(message.message.moderationType)
+      const targetSize = Buffer.alloc(TARGET_SIZE_FLAG)
+      targetSize.writeUInt8(moderationTypeToSize[message.message.moderationType])
+      const moderationTarget = Buffer.alloc(moderationTypeToSize[message.message.moderationType])
+      moderationTarget.write(message.message.moderationTarget)
+      msgData = Buffer.concat([moderationType, targetSize, moderationTarget], MESSAGE_SIZE)
       break
     default:
       msgData = Buffer.alloc(MESSAGE_SIZE)
@@ -232,6 +252,24 @@ export const unpackMemo = async memo => {
           owner: trimNull(owner.toString()),
           minFee: trimNull(minFee.toString()),
           onlyRegistered: trimNull(onlyRegistered.toString())
+        },
+        createdAt
+      }
+    case messageType.MODERATION:
+      const moderationTypeEnds = timestampEnds + MODERATION_TYPE_SIZE
+      const moderationType = memoBuff.slice(timestampEnds, moderationTypeEnds)
+      const targetSizeFlagEnds = moderationTypeEnds + TARGET_SIZE_FLAG
+      const targetSizeFlag = memoBuff.slice(moderationTypeEnds, targetSizeFlagEnds).readUInt8()
+      const moderationTargetEnds = targetSizeFlagEnds + targetSizeFlag
+      const moderationTarget = memoBuff.slice(targetSizeFlagEnds, moderationTargetEnds)
+
+      return {
+        type,
+        signature,
+        r,
+        message: {
+          moderationType: trimNull(moderationType.toString()),
+          moderationTarget: trimNull(moderationTarget.toString())
         },
         createdAt
       }

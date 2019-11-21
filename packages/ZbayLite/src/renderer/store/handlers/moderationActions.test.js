@@ -43,10 +43,12 @@ describe('epics', () => {
     return DateTime.fromSeconds(123)
   })
   it('sends moderation action', async () => {
-    const payload = {
-      messageId: 'test-message-id'
-    }
-    const actionPromise = store.dispatch(moderationActionsHandler.epics.handleModerationAction({ actionType: moderationActionsType.REMOVE_MESSAGE, payload }))
+    const actionPromise = store.dispatch(
+      moderationActionsHandler.epics.handleModerationAction({
+        moderationType: moderationActionsType.REMOVE_MESSAGE,
+        moderationTarget: 'test-message-id'
+      })
+    )
 
     await actionPromise
     const result = zcashMock.requestManager.z_sendmany.mock.calls
