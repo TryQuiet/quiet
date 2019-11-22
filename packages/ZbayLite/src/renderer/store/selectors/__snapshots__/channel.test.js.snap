@@ -568,4 +568,75 @@ Immutable.Map {
 
 exports[`Channel selector shareableUri 1`] = `"https://zbay.rumblefish.dev/importchannel=channel-hash"`;
 
+exports[`Channel selector should not display messages after user was blocked not display blocked user messages 1`] = `
+Immutable.Map {
+  "channelModerators": Immutable.List [
+    "new-moderator-public-key",
+  ],
+  "messsagesToRemove": Immutable.List [],
+  "blockedUsers": Immutable.List [
+    "public-key-user-to-block",
+  ],
+  "visibleMessages": Immutable.List [
+    Immutable.Map {
+      "createdAt": 1567683647,
+      "id": "test-1-basic",
+      "type": 1,
+      "message": Immutable.Map {
+        "message": "test-msg",
+      },
+      "publicKey": "public-key-user-to-block",
+      "sender": Immutable.Map {
+        "replyTo": "",
+        "username": "test123",
+      },
+    },
+    Immutable.Map {
+      "createdAt": 1567683647,
+      "id": "test-2-basic",
+      "type": 1,
+      "message": Immutable.Map {
+        "message": "test-msg",
+      },
+      "publicKey": "public-key-user-to-block",
+      "sender": Immutable.Map {
+        "replyTo": "",
+        "username": "test123",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Channel selector should not display messages after user was blocked not display blocked user messages 2`] = `
+Immutable.List [
+  Immutable.Map {
+    "createdAt": 1567683647,
+    "id": "test-1-basic",
+    "type": 1,
+    "message": Immutable.Map {
+      "message": "test-msg",
+    },
+    "publicKey": "public-key-user-to-block",
+    "sender": Immutable.Map {
+      "replyTo": "",
+      "username": "test123",
+    },
+  },
+  Immutable.Map {
+    "createdAt": 1567683647,
+    "id": "test-2-basic",
+    "type": 1,
+    "message": Immutable.Map {
+      "message": "test-msg",
+    },
+    "publicKey": "public-key-user-to-block",
+    "sender": Immutable.Map {
+      "replyTo": "",
+      "username": "test123",
+    },
+  },
+]
+`;
+
 exports[`Channel selector spent filter value selector 1`] = `38`;

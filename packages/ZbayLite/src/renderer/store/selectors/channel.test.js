@@ -557,4 +557,582 @@ describe('Channel selector', () => {
       expect(channelSelectors.channelOwner(store.getState())).toEqual('random-public-key')
     })
   })
+  describe('channel moderators selector', () => {
+    const messages = [
+      {
+        createdAt: 1567683687,
+        id: 'test-1',
+        type: 6,
+        message: {
+          minFee: '100',
+          onlyRegistered: '1',
+          owner: '03638eb7aaae341acf66db8b79c9b31e3627715d8bf1795b87e817bda45cc80d'
+        },
+        publicKey: '03638eb7aaae341acf66db8b79c9b31e3627715d8bf1795b87e817bda45cc80d',
+        sender: {
+          replyTo: '',
+          username: 'test123'
+        }
+      },
+      {
+        createdAt: 1567683647,
+        id: 'test-1',
+        type: 7,
+        message: {
+          moderationType: 'ADD_MOD',
+          moderationTarget: 'new-moderator-public-key'
+        },
+        publicKey: '03638eb7aaae341acf66db8b79c9b31e3627715d8bf1795b87e817bda45cc80d',
+        sender: {
+          replyTo: '',
+          username: 'test123'
+        }
+      },
+      {
+        createdAt: 1567683747,
+        id: 'test-1',
+        type: 7,
+        message: {
+          moderationType: 'ADD_MOD',
+          moderationTarget: 'fake-moderator-public-key'
+        },
+        publicKey: 'random-public-key-2',
+        sender: {
+          replyTo: '',
+          username: 'test123'
+        }
+      }
+    ]
+    const baseStore = { identity: IdentityState({
+      data: Identity({
+        balance: new BigNumber(0),
+        lockedBalance: new BigNumber(23)
+      })
+    }),
+    node: NodeState({
+      isTestnet: true
+    }),
+    channel: ChannelState({
+      spentFilterValue: 38,
+      id: channelId,
+      shareableUri: uri,
+      members: new BigNumber(0),
+      message: 'Message written in the input',
+      loader: LoaderState({
+        message: 'Test loading message',
+        loading: true
+      })
+    }),
+    channels: ChannelsState({
+      data: Immutable.fromJS([createChannel(channelId)])
+    }) }
+    it('add channel moderator', () => {
+      store = create({
+        initialState: Immutable.Map({
+          ...baseStore,
+          messages: Immutable.Map({
+            [channelId]: ChannelMessages({
+              messages: Immutable.List(Immutable.fromJS(messages)
+              )
+            })
+          })
+        })
+      })
+      expect(channelSelectors.getFilteredContext(store.getState())).toEqual(Immutable.fromJS({
+        channelModerators: ['new-moderator-public-key'],
+        messsagesToRemove: [],
+        blockedUsers: [],
+        visibleMessages: []
+      }))
+    })
+    it('remove channel moderator', () => {
+      const messages = [
+        {
+          createdAt: 1567683687,
+          id: 'test-1',
+          type: 6,
+          message: {
+            minFee: '100',
+            onlyRegistered: '1',
+            owner: '03638eb7aaae341acf66db8b79c9b31e3627715d8bf1795b87e817bda45cc80d'
+          },
+          publicKey: '03638eb7aaae341acf66db8b79c9b31e3627715d8bf1795b87e817bda45cc80d',
+          sender: {
+            replyTo: '',
+            username: 'test123'
+          }
+        },
+        {
+          createdAt: 1567683647,
+          id: 'test-1',
+          type: 7,
+          message: {
+            moderationType: 'ADD_MOD',
+            moderationTarget: 'new-moderator-public-key-2'
+          },
+          publicKey: 'fake-add-mod-user-public-key',
+          sender: {
+            replyTo: '',
+            username: 'test123'
+          }
+        },
+        {
+          createdAt: 1567683647,
+          id: 'test-1',
+          type: 7,
+          message: {
+            moderationType: 'ADD_MOD',
+            moderationTarget: 'new-moderator-public-key'
+          },
+          publicKey: '03638eb7aaae341acf66db8b79c9b31e3627715d8bf1795b87e817bda45cc80d',
+          sender: {
+            replyTo: '',
+            username: 'test123'
+          }
+        },
+        {
+          createdAt: 1567683647,
+          id: 'test-1',
+          type: 7,
+          message: {
+            moderationType: 'REMOVE_MOD',
+            moderationTarget: 'new-moderator-public-key-2'
+          },
+          publicKey: 'fake-remove-mod-user-public-key',
+          sender: {
+            replyTo: '',
+            username: 'test123'
+          }
+        },
+        {
+          createdAt: 1567683747,
+          id: 'test-1',
+          type: 7,
+          message: {
+            moderationType: 'REMOVE_MOD',
+            moderationTarget: 'new-moderator-public-key'
+          },
+          publicKey: '03638eb7aaae341acf66db8b79c9b31e3627715d8bf1795b87e817bda45cc80d',
+          sender: {
+            replyTo: '',
+            username: 'test123'
+          }
+        }
+      ]
+      store = create({
+        initialState: Immutable.Map({
+          ...baseStore,
+          messages: Immutable.Map({
+            [channelId]: ChannelMessages({
+              messages: Immutable.List(Immutable.fromJS(messages)
+              )
+            })
+          })
+        })
+      })
+      expect(channelSelectors.getFilteredContext(store.getState())).toEqual(Immutable.fromJS({
+        channelModerators: [],
+        messsagesToRemove: [],
+        blockedUsers: [],
+        visibleMessages: []
+      }))
+    })
+    it('not fail if moderator to remove is not in moderator list', () => {
+      const messages = [
+        {
+          createdAt: 1567683687,
+          id: 'test-1',
+          type: 6,
+          message: {
+            minFee: '100',
+            onlyRegistered: '1',
+            owner: '03638eb7aaae341acf66db8b79c9b31e3627715d8bf1795b87e817bda45cc80d'
+          },
+          publicKey: '03638eb7aaae341acf66db8b79c9b31e3627715d8bf1795b87e817bda45cc80d',
+          sender: {
+            replyTo: '',
+            username: 'test123'
+          }
+        },
+        {
+          createdAt: 1567683747,
+          id: 'test-1',
+          type: 7,
+          message: {
+            moderationType: 'REMOVE_MOD',
+            moderationTarget: 'new-moderator-public-key'
+          },
+          publicKey: '03638eb7aaae341acf66db8b79c9b31e3627715d8bf1795b87e817bda45cc80d',
+          sender: {
+            replyTo: '',
+            username: 'test123'
+          }
+        }
+      ]
+      store = create({
+        initialState: Immutable.Map({
+          ...baseStore,
+          messages: Immutable.Map({
+            [channelId]: ChannelMessages({
+              messages: Immutable.List(Immutable.fromJS(messages)
+              )
+            })
+          })
+        })
+      })
+      expect(channelSelectors.getFilteredContext(store.getState())).toEqual(Immutable.fromJS({
+        channelModerators: [],
+        messsagesToRemove: [],
+        blockedUsers: [],
+        visibleMessages: []
+      }))
+    })
+  })
+  describe('channel blocked users selector', () => {
+    const messages = [
+      {
+        createdAt: 1567683687,
+        id: 'test-1',
+        type: 6,
+        message: {
+          minFee: '100',
+          onlyRegistered: '1',
+          owner: '03638eb7aaae341acf66db8b79c9b31e3627715d8bf1795b87e817bda45cc80d'
+        },
+        publicKey: '03638eb7aaae341acf66db8b79c9b31e3627715d8bf1795b87e817bda45cc80d',
+        sender: {
+          replyTo: '',
+          username: 'test123'
+        }
+      },
+      {
+        createdAt: 1567683647,
+        id: 'test-1',
+        type: 7,
+        message: {
+          moderationType: 'BLOCK_USER',
+          moderationTarget: 'new-blocked-user-public-key-added-by-channel-owner'
+        },
+        publicKey: '03638eb7aaae341acf66db8b79c9b31e3627715d8bf1795b87e817bda45cc80d',
+        sender: {
+          replyTo: '',
+          username: 'test123'
+        }
+      },
+      {
+        createdAt: 1567683747,
+        id: 'test-1',
+        type: 7,
+        message: {
+          moderationType: 'ADD_MOD',
+          moderationTarget: 'new-moderator-public-key'
+        },
+        publicKey: '03638eb7aaae341acf66db8b79c9b31e3627715d8bf1795b87e817bda45cc80d',
+        sender: {
+          replyTo: '',
+          username: 'test123'
+        }
+      },
+      {
+        createdAt: 1567683647,
+        id: 'test-1',
+        type: 7,
+        message: {
+          moderationType: 'BLOCK_USER',
+          moderationTarget: 'new-blocked-user-public-key-added-by-channel-moderator'
+        },
+        publicKey: 'new-moderator-public-key',
+        sender: {
+          replyTo: '',
+          username: 'test123'
+        }
+      },
+      {
+        createdAt: 1567683647,
+        id: 'test-1',
+        type: 7,
+        message: {
+          moderationType: 'UNBLOCK_USER',
+          moderationTarget: 'new-blocked-user-public-key-added-by-channel-moderator'
+        },
+        publicKey: 'fake-unblock-user-public-key',
+        sender: {
+          replyTo: '',
+          username: 'test123'
+        }
+      }
+    ]
+    const baseStore = { identity: IdentityState({
+      data: Identity({
+        balance: new BigNumber(0),
+        lockedBalance: new BigNumber(23)
+      })
+    }),
+    node: NodeState({
+      isTestnet: true
+    }),
+    channel: ChannelState({
+      spentFilterValue: 38,
+      id: channelId,
+      shareableUri: uri,
+      members: new BigNumber(0),
+      message: 'Message written in the input',
+      loader: LoaderState({
+        message: 'Test loading message',
+        loading: true
+      })
+    }),
+    channels: ChannelsState({
+      data: Immutable.fromJS([createChannel(channelId)])
+    }) }
+    it('blocked channel users', () => {
+      store = create({
+        initialState: Immutable.Map({
+          ...baseStore,
+          messages: Immutable.Map({
+            [channelId]: ChannelMessages({
+              messages: Immutable.List(Immutable.fromJS(messages)
+              )
+            })
+          })
+        })
+      })
+      expect(channelSelectors.getFilteredContext(store.getState())).toEqual(Immutable.fromJS({
+        channelModerators: ['new-moderator-public-key'],
+        messsagesToRemove: [],
+        blockedUsers: ['new-blocked-user-public-key-added-by-channel-owner', 'new-blocked-user-public-key-added-by-channel-moderator'],
+        visibleMessages: []
+      }))
+    })
+    it('should unblock user blocked by channel owner', () => {
+      const messages = [
+        {
+          createdAt: 1567683687,
+          id: 'test-1',
+          type: 6,
+          message: {
+            minFee: '100',
+            onlyRegistered: '1',
+            owner: '03638eb7aaae341acf66db8b79c9b31e3627715d8bf1795b87e817bda45cc80d'
+          },
+          publicKey: '03638eb7aaae341acf66db8b79c9b31e3627715d8bf1795b87e817bda45cc80d',
+          sender: {
+            replyTo: '',
+            username: 'test123'
+          }
+        },
+        {
+          createdAt: 1567683647,
+          id: 'test-1',
+          type: 7,
+          message: {
+            moderationType: 'BLOCK_USER',
+            moderationTarget: 'new-blocked-user-public-key-added-by-channel-owner'
+          },
+          publicKey: '03638eb7aaae341acf66db8b79c9b31e3627715d8bf1795b87e817bda45cc80d',
+          sender: {
+            replyTo: '',
+            username: 'test123'
+          }
+        },
+        {
+          createdAt: 1567683747,
+          id: 'test-1',
+          type: 7,
+          message: {
+            moderationType: 'ADD_MOD',
+            moderationTarget: 'new-moderator-public-key'
+          },
+          publicKey: '03638eb7aaae341acf66db8b79c9b31e3627715d8bf1795b87e817bda45cc80d',
+          sender: {
+            replyTo: '',
+            username: 'test123'
+          }
+        },
+        {
+          createdAt: 1567683647,
+          id: 'test-1',
+          type: 7,
+          message: {
+            moderationType: 'BLOCK_USER',
+            moderationTarget: 'new-blocked-user-public-key-added-by-channel-moderator'
+          },
+          publicKey: 'new-moderator-public-key',
+          sender: {
+            replyTo: '',
+            username: 'test123'
+          }
+        },
+        {
+          createdAt: 1567683647,
+          id: 'test-1',
+          type: 7,
+          message: {
+            moderationType: 'UNBLOCK_USER',
+            moderationTarget: 'new-blocked-user-public-key-added-by-channel-moderator'
+          },
+          publicKey: 'fake-unblock-user-public-key',
+          sender: {
+            replyTo: '',
+            username: 'test123'
+          }
+        },
+        {
+          createdAt: 1567683647,
+          id: 'test-1',
+          type: 7,
+          message: {
+            moderationType: 'UNBLOCK_USER',
+            moderationTarget: 'new-blocked-user-public-key-added-by-channel-owner'
+          },
+          publicKey: 'new-moderator-public-key',
+          sender: {
+            replyTo: '',
+            username: 'test123'
+          }
+        }
+      ]
+      store = create({
+        initialState: Immutable.Map({
+          ...baseStore,
+          messages: Immutable.Map({
+            [channelId]: ChannelMessages({
+              messages: Immutable.List(Immutable.fromJS(messages)
+              )
+            })
+          })
+        })
+      })
+      expect(channelSelectors.getFilteredContext(store.getState())).toEqual(Immutable.fromJS({
+        channelModerators: ['new-moderator-public-key'],
+        messsagesToRemove: [],
+        blockedUsers: ['new-blocked-user-public-key-added-by-channel-moderator'],
+        visibleMessages: []
+      }))
+    })
+  })
+  describe('should not display messages after user was blocked', () => {
+    const messages = [
+      {
+        createdAt: 1567683687,
+        id: 'test-1',
+        type: 6,
+        message: {
+          minFee: '100',
+          onlyRegistered: '1',
+          owner: '03638eb7aaae341acf66db8b79c9b31e3627715d8bf1795b87e817bda45cc80d'
+        },
+        publicKey: '03638eb7aaae341acf66db8b79c9b31e3627715d8bf1795b87e817bda45cc80d',
+        sender: {
+          replyTo: '',
+          username: 'test123'
+        }
+      },
+      {
+        createdAt: 1567683647,
+        id: 'test-1-basic',
+        type: 1,
+        message: {
+          message: 'test-msg'
+        },
+        publicKey: 'public-key-user-to-block',
+        sender: {
+          replyTo: '',
+          username: 'test123'
+        }
+      },
+      {
+        createdAt: 1567683647,
+        id: 'test-2-basic',
+        type: 1,
+        message: {
+          message: 'test-msg'
+        },
+        publicKey: 'public-key-user-to-block',
+        sender: {
+          replyTo: '',
+          username: 'test123'
+        }
+      },
+      {
+        createdAt: 1567683747,
+        id: 'test-1',
+        type: 7,
+        message: {
+          moderationType: 'ADD_MOD',
+          moderationTarget: 'new-moderator-public-key'
+        },
+        publicKey: '03638eb7aaae341acf66db8b79c9b31e3627715d8bf1795b87e817bda45cc80d',
+        sender: {
+          replyTo: '',
+          username: 'test123'
+        }
+      },
+      {
+        createdAt: 1567683647,
+        id: 'test-1',
+        type: 7,
+        message: {
+          moderationType: 'BLOCK_USER',
+          moderationTarget: 'public-key-user-to-block'
+        },
+        publicKey: 'new-moderator-public-key',
+        sender: {
+          replyTo: '',
+          username: 'test123'
+        }
+      },
+      {
+        createdAt: 1567683647,
+        id: 'test-1-basic-3',
+        type: 1,
+        message: {
+          message: 'test-msg'
+        },
+        publicKey: 'public-key-user-to-block',
+        sender: {
+          replyTo: '',
+          username: 'test123'
+        }
+      }
+    ]
+    const baseStore = { identity: IdentityState({
+      data: Identity({
+        balance: new BigNumber(0),
+        lockedBalance: new BigNumber(23)
+      })
+    }),
+    node: NodeState({
+      isTestnet: true
+    }),
+    channel: ChannelState({
+      spentFilterValue: 38,
+      id: channelId,
+      shareableUri: uri,
+      members: new BigNumber(0),
+      message: 'Message written in the input',
+      loader: LoaderState({
+        message: 'Test loading message',
+        loading: true
+      })
+    }),
+    channels: ChannelsState({
+      data: Immutable.fromJS([createChannel(channelId)])
+    }) }
+    it('not display blocked user messages', () => {
+      store = create({
+        initialState: Immutable.Map({
+          ...baseStore,
+          messages: Immutable.Map({
+            [channelId]: ChannelMessages({
+              messages: Immutable.List(Immutable.fromJS(messages)
+              )
+            })
+          })
+        })
+      })
+      expect(channelSelectors.getFilteredContext(store.getState())).toMatchSnapshot()
+      expect(channelSelectors.getChannelFilteredMessages(store.getState())).toMatchSnapshot()
+    })
+  })
 })

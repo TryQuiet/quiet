@@ -50,6 +50,30 @@ export const channelOwner = createSelector(
   (ch, store) => messagesSelectors.channelOwner(ch.id)(store)
 )
 
+export const channelModerators = createSelector(
+  channel,
+  store,
+  (ch, store) => messagesSelectors.channelModerators(ch.id)(store)
+)
+
+export const channelBlockedUsers = createSelector(
+  channel,
+  store,
+  (ch, store) => messagesSelectors.channelBlockedUsers(ch.id)(store)
+)
+
+export const getFilteredContext = createSelector(
+  channel,
+  store,
+  (ch, store) => messagesSelectors.getFilteredContexed(ch.id)(store)
+)
+
+export const getChannelFilteredMessages = createSelector(
+  channel,
+  store,
+  (ch, store) => messagesSelectors.getChannelFilteredMessages(ch.id)(store)
+)
+
 export const loader = createSelector(channel, meta => meta.loader)
 
 const checkMessageTargetTimeWindow = ({ targetCreatedAt, timeStamp, timeWindow }) => {
@@ -103,7 +127,7 @@ export const mergeIntoOne = messages => {
 export const messages = signerPubKey => createSelector(
   identitySelectors.data,
   usersSelectors.registeredUser(signerPubKey),
-  currentChannelMessages,
+  getChannelFilteredMessages,
   pendingMessages,
   queuedMessages,
   (identity, registeredUser, receivedMessages, pendingMessages, queuedMessages) => {
@@ -176,6 +200,10 @@ export default {
   shareableUri,
   channelId,
   channelOwner,
+  channelModerators,
+  channelBlockedUsers,
+  getChannelFilteredMessages,
+  getFilteredContext,
   messages,
   channelInfo
 }
