@@ -1,7 +1,7 @@
 /* eslint import/first: 0 */
 import Immutable from 'immutable'
 
-import { mapStateToProps, mapDispatchToProps } from './Loading'
+import { mapStateToProps } from './Loading'
 import create from '../../store/create'
 import { IdentityState } from '../../store/handlers/identity'
 import { LoaderState } from '../../store/handlers/utils'
@@ -17,11 +17,6 @@ describe('Loading', () => {
         })
       })
     })
-  })
-
-  it('will receive right actions', async () => {
-    const actions = mapDispatchToProps(x => x)
-    expect(actions).toMatchSnapshot()
   })
 
   it('will receive right props', async () => {

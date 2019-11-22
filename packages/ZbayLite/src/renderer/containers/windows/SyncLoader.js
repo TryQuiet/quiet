@@ -22,7 +22,7 @@ export const mapDispatchToProps = dispatch =>
 
 export const SyncLoader = ({ node, getStatus }) => {
   useInterval(getStatus, 15000)
-  return node.currentBlock.div(node.latestBlock).lt(0.97) ? (
+  return node.currentBlock.div(node.latestBlock).lt(0.99) ? (
     <SyncLoaderComponent node={node} />
   ) : (
     <Redirect to='/main/channel/general' />

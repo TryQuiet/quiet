@@ -1,17 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Loading will receive right actions 1`] = `
-Object {
-  "setVaultIdentity": [Function],
-}
-`;
-
 exports[`Loading will receive right props 1`] = `
 Object {
-  "loader": Immutable.Record {
-    "loading": false,
-    "message": "",
-  },
   "newUser": false,
 }
 `;

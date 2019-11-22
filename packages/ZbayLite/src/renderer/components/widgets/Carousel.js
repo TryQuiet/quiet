@@ -12,8 +12,8 @@ const styles = theme => ({
   typography: {
     color: theme.palette.colors.black,
     width: 542,
-    fontSize: 24,
-    lineHeight: '36px',
+    fontSize: 18,
+    lineHeight: '24px',
     textAlign: 'center'
   },
   tipContainer: {

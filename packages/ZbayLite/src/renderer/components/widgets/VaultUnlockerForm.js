@@ -123,11 +123,9 @@ export const VaultUnlockerForm = ({
               )}
             </Grid>
           </Grid>
-          {!locked &&
-            !loader.loading &&
-            nodeConnected &&
-            (newUser ? true : done) &&
-            (newUser ? <Redirect to='/zcashNode' /> : <Redirect to='/main/channel/general' />)}
+          {!locked && !loader.loading && nodeConnected && (newUser ? true : done) && (
+            <Redirect to='/zcashNode' />
+          )}
         </Form>
       )}
     </Formik>
