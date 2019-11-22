@@ -17,15 +17,18 @@ import { messages } from '../../zbay'
 import { errorNotification, LoaderState } from './utils'
 import { channelToUri } from '../../zbay/channels'
 
-export const ChannelState = Immutable.Record({
-  spentFilterValue: new BigNumber(0),
-  id: null,
-  message: '',
-  shareableUri: '',
-  address: '',
-  loader: LoaderState({ loading: false }),
-  members: null
-}, 'ChannelState')
+export const ChannelState = Immutable.Record(
+  {
+    spentFilterValue: new BigNumber(0),
+    id: null,
+    message: '',
+    shareableUri: '',
+    address: '',
+    loader: LoaderState({ loading: false }),
+    members: null
+  },
+  'ChannelState'
+)
 
 export const initialState = ChannelState()
 
@@ -48,7 +51,7 @@ export const actions = {
   resetChannel
 }
 
-const loadChannel = (id) => async (dispatch, getState) => {
+const loadChannel = id => async (dispatch, getState) => {
   try {
     dispatch(setChannelId(id))
 
@@ -75,9 +78,9 @@ const sendOnEnter = event => async (dispatch, getState) => {
   const enterPressed = event.nativeEvent.keyCode === 13
   const shiftPressed = event.nativeEvent.shiftKey === true
   const channel = channelSelectors.data(getState()).toJS()
-  const currentMessage = messagesQueue.queue(getState()).find(
-    dm => dm.get('channelId') === channel.id
-  )
+  const currentMessage = messagesQueue
+    .queue(getState())
+    .find(dm => dm.get('channelId') === channel.id)
   if (enterPressed && !shiftPressed) {
     event.preventDefault()
     if (!event.target.value.replace(/\s/g, '').length) {
@@ -106,8 +109,42 @@ const sendOnEnter = event => async (dispatch, getState) => {
     dispatch(setMessage(''))
   }
 }
+const sendChannelSettingsMessage = ({ address, owner, minFee, onlyRegistered }) => async (
+  dispatch,
+  getState
+) => {
+  const identityAddress = identitySelectors.address(getState())
+  const privKey = identitySelectors.signerPrivKey(getState())
+  const message = messages.createMessage({
+    messageData: {
+      type: messages.messageType.CHANNEL_SETTINGS,
+      data: {
+        owner,
+        minFee,
+        onlyRegistered
+      }
+    },
+    privKey: privKey
+  })
+  const transfer = await messages.messageToTransfer({
+    message,
+    address: address,
+    identityAddress
+  })
+  try {
+    await getClient().payment.send(transfer)
+  } catch (err) {
+    notificationsHandlers.actions.enqueueSnackbar(
+      dispatch(
+        errorNotification({
+          message: "Couldn't create channel, please check node connection."
+        })
+      )
+    )
+  }
+}
 
-const resendMessage = (messageData) => async (dispatch, getState) => {
+const resendMessage = messageData => async (dispatch, getState) => {
   dispatch(operationsHandlers.actions.removeOperation(messageData.id))
   const identityAddress = identitySelectors.address(getState())
   const channel = channelSelectors.data(getState()).toJS()
@@ -127,18 +164,20 @@ const resendMessage = (messageData) => async (dispatch, getState) => {
   })
   try {
     const opId = await getClient().payment.send(transfer)
-    await dispatch(operationsHandlers.epics.observeOperation({
-      opId,
-      type: operationTypes.pendingMessage,
-      meta: PendingMessageOp({
-        channelId: channel.id,
-        message: Immutable.fromJS(message)
+    await dispatch(
+      operationsHandlers.epics.observeOperation({
+        opId,
+        type: operationTypes.pendingMessage,
+        meta: PendingMessageOp({
+          channelId: channel.id,
+          message: Immutable.fromJS(message)
+        })
       })
-    }))
+    )
   } catch (err) {
     notificationsHandlers.actions.enqueueSnackbar(
       errorNotification({
-        message: 'Couldn\'t send the message, please check node connection.'
+        message: "Couldn't send the message, please check node connection."
       })
     )
   }
@@ -160,20 +199,26 @@ export const epics = {
   resendMessage,
   clearNewMessages,
   updateLastSeen,
-  loadOffer
+  loadOffer,
+  sendChannelSettingsMessage
 }
 
 // TODO: we should have a global loader map
-export const reducer = handleActions({
-  [setLoading]: (state, { payload: loading }) => state.setIn(['loader', 'loading'], loading),
-  [setLoadingMessage]: (state, { payload: message }) => state.setIn(['loader', 'message'], message),
-  [setSpentFilterValue]: (state, { payload: value }) => state.set('spentFilterValue', new BigNumber(value)),
-  [setMessage]: (state, { payload: value }) => state.set('message', value),
-  [setChannelId]: (state, { payload: id }) => state.set('id', id),
-  [setShareableUri]: (state, { payload: uri }) => state.set('shareableUri', uri),
-  [setAddress]: (state, { payload: address }) => state.set('address', address),
-  [resetChannel]: () => initialState
-}, initialState)
+export const reducer = handleActions(
+  {
+    [setLoading]: (state, { payload: loading }) => state.setIn(['loader', 'loading'], loading),
+    [setLoadingMessage]: (state, { payload: message }) =>
+      state.setIn(['loader', 'message'], message),
+    [setSpentFilterValue]: (state, { payload: value }) =>
+      state.set('spentFilterValue', new BigNumber(value)),
+    [setMessage]: (state, { payload: value }) => state.set('message', value),
+    [setChannelId]: (state, { payload: id }) => state.set('id', id),
+    [setShareableUri]: (state, { payload: uri }) => state.set('shareableUri', uri),
+    [setAddress]: (state, { payload: address }) => state.set('address', address),
+    [resetChannel]: () => initialState
+  },
+  initialState
+)
 
 export default {
   reducer,

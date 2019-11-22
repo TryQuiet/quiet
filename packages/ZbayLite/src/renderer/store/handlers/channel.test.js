@@ -25,18 +25,16 @@ import messagesSelectors from '../selectors/messages'
 import operationsSelectors from '../selectors/operations'
 import { mockEvent } from '../../../shared/testing/mocks'
 import { createIdentity, createTransfer, createMessage, now } from '../../testUtils'
-import { mock as zcashMock } from '../../zcash'
+import { mock as zcashMock, getClient } from '../../zcash'
 import { mock as vaultMock, getVault } from '../../vault'
 import { createArchive } from '../../vault/marshalling'
 import { NodeState } from './node'
+import { messages as messagesZbay } from '../../zbay'
 
 describe('channel reducer', () => {
   const spent = 0.2
   const identityId = 'test-identity-id'
-  const messages = [
-    createMessage('test-1'),
-    createMessage('test-2')
-  ]
+  const messages = [createMessage('test-1'), createMessage('test-2')]
   const address = 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya'
   let channel
 
@@ -134,24 +132,28 @@ describe('channel reducer', () => {
         ...messages[0],
         id: opId
       }
-      zcashMock.requestManager.z_getoperationstatus.mockImplementationOnce(async () => [{
-        id: opId,
-        status: 'failed',
-        result: {
-          txid: 'message-op-id'
-        },
-        error: { code: -1, message: 'no funds' }
-      }])
+      zcashMock.requestManager.z_getoperationstatus.mockImplementationOnce(async () => [
+        {
+          id: opId,
+          status: 'failed',
+          result: {
+            txid: 'message-op-id'
+          },
+          error: { code: -1, message: 'no funds' }
+        }
+      ])
       zcashMock.requestManager.z_sendmany.mockResolvedValue('new-op-id')
 
-      await store.dispatch(operationsHandlers.epics.observeOperation({
-        meta: PendingMessageOp({
-          channelId: channel.id,
-          message
-        }),
-        type: operationTypes.pendingMessage,
-        opId
-      }))
+      await store.dispatch(
+        operationsHandlers.epics.observeOperation({
+          meta: PendingMessageOp({
+            channelId: channel.id,
+            message
+          }),
+          type: operationTypes.pendingMessage,
+          opId
+        })
+      )
       const beforeResend = operationsSelectors.pendingMessages(store.getState())
       expect(beforeResend.getIn([opId, 'status'])).toEqual('failed')
 
@@ -160,17 +162,40 @@ describe('channel reducer', () => {
       const pendingMessages = operationsSelectors.pendingMessages(store.getState())
       expect(pendingMessages.map(m => m.removeIn(['meta', 'channelId']))).toMatchSnapshot()
     })
+    it('- send settings message', async () => {
+      const address = 'test address'
+      const owner = 'test owner'
+      const minFee = '0'
+      const onlyRegistered = '1'
+      const transferCreationMock = jest
+        .spyOn(messagesZbay, 'messageToTransfer')
+        .mockImplementation(async () => 'test transfer')
+      const sendMock = jest
+        .spyOn(getClient().payment, 'send')
+        .mockImplementation(async () => 'send')
+
+      await store.dispatch(
+        epics.sendChannelSettingsMessage({ address, owner, minFee, onlyRegistered })
+      )
+
+      expect(transferCreationMock).toHaveBeenCalled()
+      expect(sendMock).toHaveBeenCalled()
+    })
 
     describe('- updateLastSeen', () => {
       it('updates lastSeen in vault', async () => {
         const transfers = await Promise.all(
-          messages.map(async (m) => createTransfer({
-            txid: m.id,
-            memo: await packMemo(m),
-            amount: spent
-          }))
+          messages.map(async m =>
+            createTransfer({
+              txid: m.id,
+              memo: await packMemo(m),
+              amount: spent
+            })
+          )
         )
-        zcashMock.requestManager.z_listreceivedbyaddress.mockImplementationOnce(async () => transfers)
+        zcashMock.requestManager.z_listreceivedbyaddress.mockImplementationOnce(
+          async () => transfers
+        )
         const newLastSeen = now.plus({ hours: 2 })
         jest.spyOn(DateTime, 'utc').mockImplementation(() => newLastSeen)
 
@@ -182,13 +207,17 @@ describe('channel reducer', () => {
 
       it('updates lastSeen in store', async () => {
         const transfers = await Promise.all(
-          messages.map(async (m) => createTransfer({
-            txid: m.id,
-            memo: await packMemo(m),
-            amount: spent
-          }))
+          messages.map(async m =>
+            createTransfer({
+              txid: m.id,
+              memo: await packMemo(m),
+              amount: spent
+            })
+          )
         )
-        zcashMock.requestManager.z_listreceivedbyaddress.mockImplementationOnce(async () => transfers)
+        zcashMock.requestManager.z_listreceivedbyaddress.mockImplementationOnce(
+          async () => transfers
+        )
         const newLastSeen = now.plus({ hours: 2 })
         jest.spyOn(DateTime, 'utc').mockImplementation(() => newLastSeen)
 
@@ -204,13 +233,17 @@ describe('channel reducer', () => {
         const identity = createIdentity()
         await store.dispatch(identityHandlers.actions.setIdentity(identity))
         const transfers = await Promise.all(
-          messages.map(async (m) => createTransfer({
-            txid: m.id,
-            memo: await packMemo(m),
-            amount: spent
-          }))
+          messages.map(async m =>
+            createTransfer({
+              txid: m.id,
+              memo: await packMemo(m),
+              amount: spent
+            })
+          )
         )
-        zcashMock.requestManager.z_listreceivedbyaddress.mockImplementationOnce(async () => transfers)
+        zcashMock.requestManager.z_listreceivedbyaddress.mockImplementationOnce(
+          async () => transfers
+        )
         const newLastSeen = now.minus({ hours: 2 })
         jest.spyOn(DateTime, 'utc').mockImplementation(() => newLastSeen)
         await store.dispatch(epics.loadChannel(channel.id))
@@ -225,13 +258,17 @@ describe('channel reducer', () => {
     describe('- loadChannel', () => {
       it('updates lastSeen', async () => {
         const transfers = await Promise.all(
-          messages.map(async (m) => createTransfer({
-            txid: m.id,
-            memo: await packMemo(m),
-            amount: spent
-          }))
+          messages.map(async m =>
+            createTransfer({
+              txid: m.id,
+              memo: await packMemo(m),
+              amount: spent
+            })
+          )
         )
-        zcashMock.requestManager.z_listreceivedbyaddress.mockImplementationOnce(async () => transfers)
+        zcashMock.requestManager.z_listreceivedbyaddress.mockImplementationOnce(
+          async () => transfers
+        )
         const newLastSeen = now.plus({ hours: 2 })
         jest.spyOn(DateTime, 'utc').mockImplementation(() => newLastSeen)
 
@@ -245,13 +282,17 @@ describe('channel reducer', () => {
 
       it('fetches messages', async () => {
         const transfers = await Promise.all(
-          messages.map(async (m) => createTransfer({
-            txid: m.id,
-            memo: await packMemo(m),
-            amount: spent
-          }))
+          messages.map(async m =>
+            createTransfer({
+              txid: m.id,
+              memo: await packMemo(m),
+              amount: spent
+            })
+          )
         )
-        zcashMock.requestManager.z_listreceivedbyaddress.mockImplementationOnce(async () => transfers)
+        zcashMock.requestManager.z_listreceivedbyaddress.mockImplementationOnce(
+          async () => transfers
+        )
         const newLastSeen = now.plus({ hours: 2 })
         jest.spyOn(DateTime, 'utc').mockImplementation(() => newLastSeen)
 
@@ -263,13 +304,17 @@ describe('channel reducer', () => {
 
       it('sets uri', async () => {
         const transfers = await Promise.all(
-          messages.map(async (m) => createTransfer({
-            txid: m.id,
-            memo: await packMemo(m),
-            amount: spent
-          }))
+          messages.map(async m =>
+            createTransfer({
+              txid: m.id,
+              memo: await packMemo(m),
+              amount: spent
+            })
+          )
         )
-        zcashMock.requestManager.z_listreceivedbyaddress.mockImplementationOnce(async () => transfers)
+        zcashMock.requestManager.z_listreceivedbyaddress.mockImplementationOnce(
+          async () => transfers
+        )
         const newLastSeen = now.plus({ hours: 2 })
         jest.spyOn(DateTime, 'utc').mockImplementation(() => newLastSeen)
 
@@ -292,14 +337,16 @@ describe('channel reducer', () => {
       }
 
       beforeEach(() => {
-        zcashMock.requestManager.z_getoperationstatus.mockImplementation(async () => [{
-          id: 'operation-id',
-          status: 'success',
-          result: {
-            txid: 'test-tx-id'
-          },
-          error: { code: -1, message: 'no error' }
-        }])
+        zcashMock.requestManager.z_getoperationstatus.mockImplementation(async () => [
+          {
+            id: 'operation-id',
+            status: 'success',
+            result: {
+              txid: 'test-tx-id'
+            },
+            error: { code: -1, message: 'no error' }
+          }
+        ])
       })
 
       it('sends message', async () => {
@@ -314,7 +361,7 @@ describe('channel reducer', () => {
         expect(message).toMatchSnapshot()
       })
 
-      it('doesn\'t send when shift is pressed', async () => {
+      it("doesn't send when shift is pressed", async () => {
         const msg = 'this is some message'
         const event = keyPressEvent(msg, 13, true)
         store.dispatch(actions.setChannelId(channel.id))
@@ -324,7 +371,7 @@ describe('channel reducer', () => {
         expect(messagesQueueHandlers.epics.addMessage).not.toHaveBeenCalled()
       })
 
-      it('doesn\'t send when enter not pressed', async () => {
+      it("doesn't send when enter not pressed", async () => {
         const msg = 'this is some message'
         const event = keyPressEvent(msg, 23, false)
         store.dispatch(actions.setChannelId(channel.id))
