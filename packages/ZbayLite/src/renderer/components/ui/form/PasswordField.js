@@ -34,6 +34,7 @@ export const PasswordField = ({ classes, name, label, ...props }) => {
             <IconButton
               aria-label='Toggle password visibility'
               onClick={() => setVisible(!visible)}
+              tabIndex='-1'
             >
               {visible ? <Visibility /> : <VisibilityOff />}
             </IconButton>
