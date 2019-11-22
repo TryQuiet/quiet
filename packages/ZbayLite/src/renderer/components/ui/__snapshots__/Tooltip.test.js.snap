@@ -27,7 +27,7 @@ exports[`Tooltip renders component 1`] = `
       <span
         className="text-mock"
       >
-        test-title
+        Test-title
       </span>
       <span
         className="arrow-mock"
@@ -66,7 +66,7 @@ exports[`Tooltip renders component with correct arrow placement - bottom 1`] = `
       <span
         className="text-mock"
       >
-        test-title
+        Test-title
       </span>
       <span
         className="arrow-mock"
@@ -105,7 +105,7 @@ exports[`Tooltip renders component with correct arrow placement - bottom-end 1`]
       <span
         className="text-mock"
       >
-        test-title
+        Test-title
       </span>
       <span
         className="arrow-mock"
@@ -144,7 +144,7 @@ exports[`Tooltip renders component with correct arrow placement - bottom-start 1
       <span
         className="text-mock"
       >
-        test-title
+        Test-title
       </span>
       <span
         className="arrow-mock"
@@ -183,7 +183,7 @@ exports[`Tooltip renders component with correct arrow placement - top 1`] = `
       <span
         className="text-mock"
       >
-        test-title
+        Test-title
       </span>
       <span
         className="arrow-mock"
@@ -222,7 +222,7 @@ exports[`Tooltip renders component with correct arrow placement - top-end 1`] = 
       <span
         className="text-mock"
       >
-        test-title
+        Test-title
       </span>
       <span
         className="arrow-mock"
@@ -261,7 +261,7 @@ exports[`Tooltip renders component with correct arrow placement - top-start 1`] 
       <span
         className="text-mock"
       >
-        test-title
+        Test-title
       </span>
       <span
         className="arrow-mock"
@@ -300,7 +300,7 @@ exports[`Tooltip renders component with optional props 1`] = `
       <span
         className="text-mock"
       >
-        test-title
+        Test-title
       </span>
       <span
         className="arrow-mock"

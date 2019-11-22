@@ -112,7 +112,7 @@ export const Tooltip = ({ classes, children, title, noWrap, className, ...props 
       {...props}
       title={
         <React.Fragment>
-          <span className={classes.text}>{title}</span>
+          <span className={classes.text}>{title.charAt(0).toUpperCase() + title.slice(1)}</span>
           <span className={classes.arrow} ref={setArrowRef} />
         </React.Fragment>
       }

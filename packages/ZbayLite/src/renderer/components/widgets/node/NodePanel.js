@@ -65,7 +65,7 @@ const styles = theme => ({
   }
 })
 
-export const NodePanel = ({ classes, expanded, setExpanded }) => (
+export const NodePanel = ({ classes, expanded, status, setExpanded }) => (
   <Grid
     item
     container
@@ -87,7 +87,7 @@ export const NodePanel = ({ classes, expanded, setExpanded }) => (
         square
         classes={{ root: classes.expander, expanded: classes.expanded }}
       >
-        <Tooltip title='Node status' className={classes.tooltip} placement='bottom-end'>
+        <Tooltip title={status} className={classes.tooltip} placement='bottom-end'>
           <ExpansionPanelSummary
             classes={{
               root: classes.panelSummary,

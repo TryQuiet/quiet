@@ -25,7 +25,6 @@ exports[`NodePanel renders component 1`] = `
       <Memo(WithStyles(Tooltip))
         className="tooltip-mock"
         placement="bottom-end"
-        title="Node status"
       >
         <WithStyles(ForwardRef(ExpansionPanelSummary))
           classes={
