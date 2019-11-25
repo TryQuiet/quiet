@@ -5,11 +5,13 @@ import usersHandlers from '../../../store/handlers/users'
 import modalsHandlers from '../../../store/handlers/modals'
 import AccountSettingsForm from '../../../components/widgets/settings/AccountSettingsForm'
 import identitySelectors from '../../../store/selectors/identity'
+import usersSelector from '../../../store/selectors/users'
 
 export const mapStateToProps = state => {
   return {
     transparentAddress: identitySelectors.transparentAddress(state),
-    privateAddress: identitySelectors.address(state)
+    privateAddress: identitySelectors.address(state),
+    user: usersSelector.registeredUser(identitySelectors.signerPubKey(state))(state)
   }
 }
 

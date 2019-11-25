@@ -9,7 +9,6 @@ import Typography from '@material-ui/core/Typography'
 import InputAdornment from '@material-ui/core/InputAdornment'
 import MuiTextField from '@material-ui/core/TextField'
 import IconButton from '@material-ui/core/IconButton'
-import Button from '@material-ui/core/Button'
 import { withStyles } from '@material-ui/core/styles'
 import { Divider } from '@material-ui/core'
 
@@ -50,19 +49,6 @@ const styles = theme => ({
     height: 32,
     justifyContent: 'center'
   },
-  buttonDiv: {
-    marginTop: theme.spacing(1)
-  },
-  button: {
-    backgroundColor: theme.palette.colors.purple,
-    padding: theme.spacing(2),
-    '&:hover': {
-      backgroundColor: theme.palette.colors.darkPurple
-    },
-    '&:disabled': {
-      backgroundColor: 'theme.palette.colors.gray'
-    }
-  },
   link: {
     cursor: 'pointer',
     color: theme.palette.colors.linkBlue
@@ -96,113 +82,110 @@ export const AccountSettingsForm = ({
   handleCopy,
   handleSubmit,
   openModal,
-  closeModal
-}) => (
-  <Grid container direction column className={classes.mainCreateUsernameContainer}>
-    <Grid item className={classes.title}>
-      <Typography variant='h3'>Account</Typography>
-    </Grid>
-    <Grid container justify='center'>
-      <Grid container xs item className={classes.createUsernameContainer}>
-        <Grid item xs={12}>
-          <Typography variant={'h4'}>Create a username</Typography>
-        </Grid>
-        <Grid container item direction='row' alignItems='center' justify='space-between'>
-          <Grid item xs={10}>
-            <Typography className={classes.info} variant={'body2'}>
-              You need this to send and receive direct messages.
-            </Typography>
-          </Grid>
-          <Grid container item xs={2} direction='row' justify='flex-end'>
-            <Icon className={classes.usernameIcon} src={usernameIcon} />
-          </Grid>
-        </Grid>
-        <Grid item xs={12}>
-          <Typography
-            className={classes.link}
-            onClick={() => openCreateUsernameModal(openModal, closeModal)}
-            variant={'body2'}
-          >
-            Create username
-          </Typography>
+  closeModal,
+  user
+}) => {
+  return (
+    <Grid container direction column className={classes.mainCreateUsernameContainer}>
+      <Grid item className={classes.title}>
+        <Typography variant='h3'>Account</Typography>
+      </Grid>
+      <Grid container justify='center'>
+        <Grid container xs item className={classes.createUsernameContainer}>
+          {user ? (
+            <Grid item xs={12}>
+              <Typography variant='h4'>@{user.nickname}</Typography>
+            </Grid>
+          ) : (
+            <>
+              <Grid item xs={12}>
+                <Typography variant={'h4'}>Create a username</Typography>
+              </Grid>
+              <Grid container item direction='row' alignItems='center' justify='space-between'>
+                <Grid item xs={10}>
+                  <Typography className={classes.info} variant={'body2'}>
+                    You need this to send and receive direct messages.
+                  </Typography>
+                </Grid>
+                <Grid container item xs={2} direction='row' justify='flex-end'>
+                  <Icon className={classes.usernameIcon} src={usernameIcon} />
+                </Grid>
+              </Grid>
+              <Grid item xs={12}>
+                <Typography
+                  className={classes.link}
+                  onClick={() => openCreateUsernameModal(openModal, closeModal)}
+                  variant={'body2'}
+                >
+                  Create username
+                </Typography>
+              </Grid>
+            </>
+          )}
         </Grid>
       </Grid>
+      <Formik onSubmit={handleSubmit}>
+        {({ values, isSubmitting, isValid }) => (
+          <Form className={classes.fullWidth}>
+            <Grid container className={classes.container} spacing={4}>
+              <Grid item xs={12}>
+                <Typography variant='body2'>Private address</Typography>
+                <MuiTextField
+                  id='private-address'
+                  className={classes.textField}
+                  variant='outlined'
+                  type='text'
+                  value={privateAddress}
+                  disabled
+                  classes={{ root: classes.textFieldd }}
+                  InputProps={{
+                    endAdornment: (
+                      <>
+                        <Divider className={classes.divider} orientation='vertical' />
+                        <InputAdornment position='end' className={classes.icon}>
+                          <IconButton>
+                            <CopyToClipboard text={privateAddress} onCopy={handleCopy}>
+                              <IconCopy />
+                            </CopyToClipboard>
+                          </IconButton>
+                        </InputAdornment>
+                      </>
+                    )
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Typography variant='body2'>Transparent address</Typography>
+                <MuiTextField
+                  id='transparent-address'
+                  className={classes.textField}
+                  variant='outlined'
+                  type='text'
+                  value={transparentAddress}
+                  disabled
+                  InputProps={{
+                    endAdornment: (
+                      <>
+                        <Divider className={classes.divider} orientation='vertical' />
+                        <InputAdornment position='end' className={classes.icon}>
+                          <IconButton>
+                            <CopyToClipboard text={transparentAddress} onCopy={handleCopy}>
+                              <IconCopy />
+                            </CopyToClipboard>
+                          </IconButton>
+                        </InputAdornment>
+                      </>
+                    )
+                  }}
+                />
+              </Grid>
+            </Grid>
+          </Form>
+        )}
+      </Formik>
     </Grid>
-    <Formik onSubmit={handleSubmit}>
-      {({ values, isSubmitting, isValid }) => (
-        <Form className={classes.fullWidth}>
-          <Grid container className={classes.container} spacing={4}>
-            <Grid item xs={12}>
-              <Typography variant='body2'>Private address</Typography>
-              <MuiTextField
-                id='private-address'
-                className={classes.textField}
-                variant='outlined'
-                type='text'
-                value={privateAddress}
-                disabled
-                classes={{ root: classes.textFieldd }}
-                InputProps={{
-                  endAdornment: (
-                    <>
-                      <Divider className={classes.divider} orientation='vertical' />
-                      <InputAdornment position='end' className={classes.icon}>
-                        <IconButton>
-                          <CopyToClipboard text={privateAddress} onCopy={handleCopy}>
-                            <IconCopy />
-                          </CopyToClipboard>
-                        </IconButton>
-                      </InputAdornment>
-                    </>
-                  )
-                }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Typography variant='body2'>Transparent address</Typography>
-              <MuiTextField
-                id='transparent-address'
-                className={classes.textField}
-                variant='outlined'
-                type='text'
-                value={transparentAddress}
-                disabled
-                InputProps={{
-                  endAdornment: (
-                    <>
-                      <Divider className={classes.divider} orientation='vertical' />
-                      <InputAdornment position='end' className={classes.icon}>
-                        <IconButton>
-                          <CopyToClipboard text={transparentAddress} onCopy={handleCopy}>
-                            <IconCopy />
-                          </CopyToClipboard>
-                        </IconButton>
-                      </InputAdornment>
-                    </>
-                  )
-                }}
-              />
-            </Grid>
-            <Grid item xs={12} className={classes.buttonDiv}>
-              <Button
-                variant='contained'
-                size='small'
-                color='primary'
-                type='submit'
-                fullWidth
-                disabled={!isValid || isSubmitting}
-                className={classes.button}
-              >
-                Save
-              </Button>
-            </Grid>
-          </Grid>
-        </Form>
-      )}
-    </Formik>
-  </Grid>
-)
-
+  )
+}
 AccountSettingsForm.propTypes = {
   classes: PropTypes.object.isRequired,
   initialValues: PropTypes.shape({

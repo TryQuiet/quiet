@@ -12,5 +12,11 @@ exports[`AccountSettingsForm will receive right props 1`] = `
 Object {
   "privateAddress": "test-z-address",
   "transparentAddress": "test-t-address",
+  "user": Immutable.Map {
+    "firstName": "testname",
+    "lastName": "testlastname",
+    "nickname": "nickname",
+    "address": "ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r",
+  },
 }
 `;
