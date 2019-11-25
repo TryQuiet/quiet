@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import QRCode from 'qrcode.react'
 import PropTypes from 'prop-types'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
@@ -11,6 +11,7 @@ import Typography from '@material-ui/core/Typography'
 import InputAdornment from '@material-ui/core/InputAdornment'
 import Select from '@material-ui/core/Select'
 import { withStyles } from '@material-ui/core/styles'
+import { shell } from 'electron'
 
 import Modal from '../Modal'
 import IconCopy from '../IconCopy'
@@ -50,28 +51,40 @@ const styles = theme => ({
     paddingBottom: 18
   }
 })
+const descriptions = {
+  transparent: (
+    <Fragment>
+      You need Zcash (ZEC) to use Zbay. So buy some ZEC at{' '}
+      <a
+        onClick={e => {
+          e.preventDefault()
+          shell.openExternal('http://coinbase.com')
+        }}
+        href='coinbase.com'
+      >
+        Coinbase.com
+      </a>{' '}
+      and send it to the address below. Note: Coinbase and most exchanges will not send to a private
+      address, but Zbay automatically moves your ZEC to your own private address as soon as it
+      arrives.
+    </Fragment>
+  ),
+  private: 'You can use your private address to exchange ZEC with other people.'
+}
 
 export const TopUpModal = ({
   classes,
   open,
   type,
   address,
-  description,
   handleChange,
   handleClose,
   handleCopy
 }) => (
-  <Modal
-    open={open}
-    handleClose={handleClose}
-    title='Add funds to your wallet'
-    fullPage
-  >
+  <Modal open={open} handleClose={handleClose} title='Add funds to your wallet' fullPage>
     <Grid container justify='center' alignContent='flex-start' className={classes.root}>
       <Grid item container justify='center' alignItems='flex-start' className={classes.title}>
-        <Typography variant='h5'>
-          Add funds to
-        </Typography>
+        <Typography variant='h5'>Add funds to</Typography>
         <Select
           displayEmpty
           name='address'
@@ -80,12 +93,10 @@ export const TopUpModal = ({
           className={classes.selectWrapper}
           classes={{ select: classes.select }}
         >
-          <MenuItem value={'transparent'}>transparent</MenuItem>
-          <MenuItem value={'private'}>private</MenuItem>
+          <MenuItem value={'transparent'}>Transparent</MenuItem>
+          <MenuItem value={'private'}>Private</MenuItem>
         </Select>
-        <Typography variant='h5'>
-          address
-        </Typography>
+        <Typography variant='h5'>address</Typography>
       </Grid>
       <Grid item>
         <Grid
@@ -98,7 +109,7 @@ export const TopUpModal = ({
         >
           <Grid item>
             <Typography variant='body2' className={classes.description}>
-              {description}
+              {descriptions[type]}
             </Typography>
           </Grid>
           <Grid item>
@@ -137,7 +148,6 @@ TopUpModal.propTypes = {
   open: PropTypes.bool.isRequired,
   type: PropTypes.oneOf(['transparent', 'private']),
   address: PropTypes.string.isRequired,
-  description: PropTypes.string.isRequired,
   handleChange: PropTypes.func.isRequired,
   handleClose: PropTypes.func.isRequired,
   handleCopy: PropTypes.func

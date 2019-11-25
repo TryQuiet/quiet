@@ -166,7 +166,7 @@ export const SendMoneyForm = ({
             </Grid>
             <Grid item xs={12} container className={classes.divMoney}>
               <Grid className={classes.titleBox} item xs={12}>
-                <Typography className={classes.fieldTitle} variant={'body2'}>Amount to send</Typography>
+                <Typography className={classes.fieldTitle} variant={'body2'}>Available to send</Typography>
               </Grid>
               <Grid item className={classes.moneyDiv}>
                 <LinkedTextField

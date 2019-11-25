@@ -79,7 +79,7 @@ const createWindow = () => {
       nodeIntegration: true
     }
   })
-
+  mainWindow.setMinimumSize(600, 400)
   mainWindow.loadURL(
     url.format({
       pathname: path.join(__dirname, './index.html'),

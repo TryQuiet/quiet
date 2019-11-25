@@ -40,12 +40,12 @@ exports[`TopUpModal renders component with private option 1`] = `
         <WithStyles(ForwardRef(MenuItem))
           value="transparent"
         >
-          transparent
+          Transparent
         </WithStyles(ForwardRef(MenuItem))>
         <WithStyles(ForwardRef(MenuItem))
           value="private"
         >
-          private
+          Private
         </WithStyles(ForwardRef(MenuItem))>
       </WithStyles(ForwardRef(Select))>
       <WithStyles(ForwardRef(Typography))
@@ -72,7 +72,7 @@ exports[`TopUpModal renders component with private option 1`] = `
             className="description-mock"
             variant="body2"
           >
-            Private description
+            You can use your private address to exchange ZEC with other people.
           </WithStyles(ForwardRef(Typography))>
         </WithStyles(ForwardRef(Grid))>
         <WithStyles(ForwardRef(Grid))
@@ -165,12 +165,12 @@ exports[`TopUpModal renders component with transparent option 1`] = `
         <WithStyles(ForwardRef(MenuItem))
           value="transparent"
         >
-          transparent
+          Transparent
         </WithStyles(ForwardRef(MenuItem))>
         <WithStyles(ForwardRef(MenuItem))
           value="private"
         >
-          private
+          Private
         </WithStyles(ForwardRef(MenuItem))>
       </WithStyles(ForwardRef(Select))>
       <WithStyles(ForwardRef(Typography))
@@ -197,7 +197,16 @@ exports[`TopUpModal renders component with transparent option 1`] = `
             className="description-mock"
             variant="body2"
           >
-            Transparent description
+            You need Zcash (ZEC) to use Zbay. So buy some ZEC at
+             
+            <a
+              href="coinbase.com"
+              onClick={[Function]}
+            >
+              Coinbase.com
+            </a>
+             
+            and send it to the address below. Note: Coinbase and most exchanges will not send to a private address, but Zbay automatically moves your ZEC to your own private address as soon as it arrives.
           </WithStyles(ForwardRef(Typography))>
         </WithStyles(ForwardRef(Grid))>
         <WithStyles(ForwardRef(Grid))
