@@ -55,6 +55,11 @@ const styles = theme => ({
   }
 })
 
+const handleChange = (clearCurrentOpenTab, setCurrentTab, value) => {
+  clearCurrentOpenTab()
+  setCurrentTab(value)
+}
+
 export const SettingsModal = ({ classes, open, handleClose, modalTabToOpen, clearCurrentOpenTab, currentTab, setCurrentTab }) => {
   const TabComponent = tabs[modalTabToOpen || currentTab]
   return (
@@ -64,7 +69,7 @@ export const SettingsModal = ({ classes, open, handleClose, modalTabToOpen, clea
           <AppBar position='static' className={classes.appbar}>
             <Tabs
               value={modalTabToOpen || currentTab}
-              onChange={(e, value) => setCurrentTab(value)}
+              onChange={(e, value) => handleChange(clearCurrentOpenTab, setCurrentTab, value)}
               orientation='vertical'
               className={classes.tabs}
               textColor='inherit'

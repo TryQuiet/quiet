@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import * as R from 'ramda'
@@ -18,13 +18,6 @@ const mapDispatchToProps = (dispatch) => bindActionCreators({
 
 const SettingsModalContainer = (props) => {
   const [currentTab, setCurrentTab] = useState('account')
-
-  useEffect(
-    () => {
-      props.clearCurrentOpenTab()
-    },
-    [currentTab]
-  )
   return <SettingsModal {...props} setCurrentTab={setCurrentTab} currentTab={currentTab} />
 }
 
