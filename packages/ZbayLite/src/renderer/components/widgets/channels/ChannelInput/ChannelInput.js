@@ -65,6 +65,9 @@ const styles = theme => ({
     WebkitTapHighlightColor: 'transparent',
     pointerEvents: 'none',
     touchAction: 'none'
+  },
+  displayNone: {
+    display: 'none'
   }
 })
 
@@ -92,7 +95,15 @@ export const ChannelInput = ({
     inputRef.current.focus()
   }
   return (
-    <Grid container className={classes.root} direction='column' justify='center'>
+    <Grid
+      container
+      className={classNames({
+        [classes.root]: true,
+        [classes.displayNone]: inputState === INPUT_STATE.DISABLE || inputState === INPUT_STATE.LOCKED
+      })}
+      direction='column'
+      justify='center'
+    >
       {inputState !== INPUT_STATE.AVAILABLE && (
         <Fade in>
           <Grid

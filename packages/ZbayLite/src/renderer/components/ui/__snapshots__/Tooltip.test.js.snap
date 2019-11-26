@@ -1,313 +1,345 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Tooltip renders component 1`] = `
-<WithStyles(Tooltip)
-  PopperProps={
-    Object {
-      "popperOptions": Object {
-        "modifiers": Object {
-          "arrow": Object {
-            "element": null,
-            "enabled": false,
+<span
+  onClick={[Function]}
+>
+  <WithStyles(Tooltip)
+    PopperProps={
+      Object {
+        "popperOptions": Object {
+          "modifiers": Object {
+            "arrow": Object {
+              "element": null,
+              "enabled": false,
+            },
           },
         },
-      },
+      }
     }
-  }
-  classes={
-    Object {
-      "popper": "arrowPopper-mock",
-      "tooltip": "noWrap-mock tooltip-mock",
+    classes={
+      Object {
+        "popper": "arrowPopper-mock",
+        "tooltip": "noWrap-mock tooltip-mock",
+      }
     }
-  }
-  interactive={true}
-  placement="bottom"
-  title={
-    <React.Fragment>
-      <span
-        className="text-mock"
-      >
-        Test-title
-      </span>
-      <span
-        className="arrow-mock"
-      />
-    </React.Fragment>
-  }
->
-  <TooltipContent />
-</WithStyles(Tooltip)>
+    interactive={true}
+    placement="bottom"
+    title={
+      <React.Fragment>
+        <span
+          className="text-mock"
+        >
+          Test-title
+        </span>
+        <span
+          className="arrow-mock"
+        />
+      </React.Fragment>
+    }
+  >
+    <TooltipContent />
+  </WithStyles(Tooltip)>
+</span>
 `;
 
 exports[`Tooltip renders component with correct arrow placement - bottom 1`] = `
-<WithStyles(Tooltip)
-  PopperProps={
-    Object {
-      "popperOptions": Object {
-        "modifiers": Object {
-          "arrow": Object {
-            "element": null,
-            "enabled": false,
+<span
+  onClick={[Function]}
+>
+  <WithStyles(Tooltip)
+    PopperProps={
+      Object {
+        "popperOptions": Object {
+          "modifiers": Object {
+            "arrow": Object {
+              "element": null,
+              "enabled": false,
+            },
           },
         },
-      },
+      }
     }
-  }
-  classes={
-    Object {
-      "popper": "arrowPopper-mock",
-      "tooltip": "noWrap-mock tooltip-mock",
+    classes={
+      Object {
+        "popper": "arrowPopper-mock",
+        "tooltip": "noWrap-mock tooltip-mock",
+      }
     }
-  }
-  interactive={true}
-  placement="bottom"
-  title={
-    <React.Fragment>
-      <span
-        className="text-mock"
-      >
-        Test-title
-      </span>
-      <span
-        className="arrow-mock"
-      />
-    </React.Fragment>
-  }
->
-  <TooltipContent />
-</WithStyles(Tooltip)>
+    interactive={true}
+    placement="bottom"
+    title={
+      <React.Fragment>
+        <span
+          className="text-mock"
+        >
+          Test-title
+        </span>
+        <span
+          className="arrow-mock"
+        />
+      </React.Fragment>
+    }
+  >
+    <TooltipContent />
+  </WithStyles(Tooltip)>
+</span>
 `;
 
 exports[`Tooltip renders component with correct arrow placement - bottom-end 1`] = `
-<WithStyles(Tooltip)
-  PopperProps={
-    Object {
-      "popperOptions": Object {
-        "modifiers": Object {
-          "arrow": Object {
-            "element": null,
-            "enabled": false,
+<span
+  onClick={[Function]}
+>
+  <WithStyles(Tooltip)
+    PopperProps={
+      Object {
+        "popperOptions": Object {
+          "modifiers": Object {
+            "arrow": Object {
+              "element": null,
+              "enabled": false,
+            },
           },
         },
-      },
+      }
     }
-  }
-  classes={
-    Object {
-      "popper": "arrowPopper-mock",
-      "tooltip": "noWrap-mock tooltip-mock",
+    classes={
+      Object {
+        "popper": "arrowPopper-mock",
+        "tooltip": "noWrap-mock tooltip-mock",
+      }
     }
-  }
-  interactive={true}
-  placement="bottom-end"
-  title={
-    <React.Fragment>
-      <span
-        className="text-mock"
-      >
-        Test-title
-      </span>
-      <span
-        className="arrow-mock"
-      />
-    </React.Fragment>
-  }
->
-  <TooltipContent />
-</WithStyles(Tooltip)>
+    interactive={true}
+    placement="bottom-end"
+    title={
+      <React.Fragment>
+        <span
+          className="text-mock"
+        >
+          Test-title
+        </span>
+        <span
+          className="arrow-mock"
+        />
+      </React.Fragment>
+    }
+  >
+    <TooltipContent />
+  </WithStyles(Tooltip)>
+</span>
 `;
 
 exports[`Tooltip renders component with correct arrow placement - bottom-start 1`] = `
-<WithStyles(Tooltip)
-  PopperProps={
-    Object {
-      "popperOptions": Object {
-        "modifiers": Object {
-          "arrow": Object {
-            "element": null,
-            "enabled": false,
+<span
+  onClick={[Function]}
+>
+  <WithStyles(Tooltip)
+    PopperProps={
+      Object {
+        "popperOptions": Object {
+          "modifiers": Object {
+            "arrow": Object {
+              "element": null,
+              "enabled": false,
+            },
           },
         },
-      },
+      }
     }
-  }
-  classes={
-    Object {
-      "popper": "arrowPopper-mock",
-      "tooltip": "noWrap-mock tooltip-mock",
+    classes={
+      Object {
+        "popper": "arrowPopper-mock",
+        "tooltip": "noWrap-mock tooltip-mock",
+      }
     }
-  }
-  interactive={true}
-  placement="bottom-start"
-  title={
-    <React.Fragment>
-      <span
-        className="text-mock"
-      >
-        Test-title
-      </span>
-      <span
-        className="arrow-mock"
-      />
-    </React.Fragment>
-  }
->
-  <TooltipContent />
-</WithStyles(Tooltip)>
+    interactive={true}
+    placement="bottom-start"
+    title={
+      <React.Fragment>
+        <span
+          className="text-mock"
+        >
+          Test-title
+        </span>
+        <span
+          className="arrow-mock"
+        />
+      </React.Fragment>
+    }
+  >
+    <TooltipContent />
+  </WithStyles(Tooltip)>
+</span>
 `;
 
 exports[`Tooltip renders component with correct arrow placement - top 1`] = `
-<WithStyles(Tooltip)
-  PopperProps={
-    Object {
-      "popperOptions": Object {
-        "modifiers": Object {
-          "arrow": Object {
-            "element": null,
-            "enabled": false,
+<span
+  onClick={[Function]}
+>
+  <WithStyles(Tooltip)
+    PopperProps={
+      Object {
+        "popperOptions": Object {
+          "modifiers": Object {
+            "arrow": Object {
+              "element": null,
+              "enabled": false,
+            },
           },
         },
-      },
+      }
     }
-  }
-  classes={
-    Object {
-      "popper": "arrowPopper-mock",
-      "tooltip": "noWrap-mock tooltip-mock",
+    classes={
+      Object {
+        "popper": "arrowPopper-mock",
+        "tooltip": "noWrap-mock tooltip-mock",
+      }
     }
-  }
-  interactive={true}
-  placement="top"
-  title={
-    <React.Fragment>
-      <span
-        className="text-mock"
-      >
-        Test-title
-      </span>
-      <span
-        className="arrow-mock"
-      />
-    </React.Fragment>
-  }
->
-  <TooltipContent />
-</WithStyles(Tooltip)>
+    interactive={true}
+    placement="top"
+    title={
+      <React.Fragment>
+        <span
+          className="text-mock"
+        >
+          Test-title
+        </span>
+        <span
+          className="arrow-mock"
+        />
+      </React.Fragment>
+    }
+  >
+    <TooltipContent />
+  </WithStyles(Tooltip)>
+</span>
 `;
 
 exports[`Tooltip renders component with correct arrow placement - top-end 1`] = `
-<WithStyles(Tooltip)
-  PopperProps={
-    Object {
-      "popperOptions": Object {
-        "modifiers": Object {
-          "arrow": Object {
-            "element": null,
-            "enabled": false,
+<span
+  onClick={[Function]}
+>
+  <WithStyles(Tooltip)
+    PopperProps={
+      Object {
+        "popperOptions": Object {
+          "modifiers": Object {
+            "arrow": Object {
+              "element": null,
+              "enabled": false,
+            },
           },
         },
-      },
+      }
     }
-  }
-  classes={
-    Object {
-      "popper": "arrowPopper-mock",
-      "tooltip": "noWrap-mock tooltip-mock",
+    classes={
+      Object {
+        "popper": "arrowPopper-mock",
+        "tooltip": "noWrap-mock tooltip-mock",
+      }
     }
-  }
-  interactive={true}
-  placement="top-end"
-  title={
-    <React.Fragment>
-      <span
-        className="text-mock"
-      >
-        Test-title
-      </span>
-      <span
-        className="arrow-mock"
-      />
-    </React.Fragment>
-  }
->
-  <TooltipContent />
-</WithStyles(Tooltip)>
+    interactive={true}
+    placement="top-end"
+    title={
+      <React.Fragment>
+        <span
+          className="text-mock"
+        >
+          Test-title
+        </span>
+        <span
+          className="arrow-mock"
+        />
+      </React.Fragment>
+    }
+  >
+    <TooltipContent />
+  </WithStyles(Tooltip)>
+</span>
 `;
 
 exports[`Tooltip renders component with correct arrow placement - top-start 1`] = `
-<WithStyles(Tooltip)
-  PopperProps={
-    Object {
-      "popperOptions": Object {
-        "modifiers": Object {
-          "arrow": Object {
-            "element": null,
-            "enabled": false,
+<span
+  onClick={[Function]}
+>
+  <WithStyles(Tooltip)
+    PopperProps={
+      Object {
+        "popperOptions": Object {
+          "modifiers": Object {
+            "arrow": Object {
+              "element": null,
+              "enabled": false,
+            },
           },
         },
-      },
+      }
     }
-  }
-  classes={
-    Object {
-      "popper": "arrowPopper-mock",
-      "tooltip": "noWrap-mock tooltip-mock",
+    classes={
+      Object {
+        "popper": "arrowPopper-mock",
+        "tooltip": "noWrap-mock tooltip-mock",
+      }
     }
-  }
-  interactive={true}
-  placement="top-start"
-  title={
-    <React.Fragment>
-      <span
-        className="text-mock"
-      >
-        Test-title
-      </span>
-      <span
-        className="arrow-mock"
-      />
-    </React.Fragment>
-  }
->
-  <TooltipContent />
-</WithStyles(Tooltip)>
+    interactive={true}
+    placement="top-start"
+    title={
+      <React.Fragment>
+        <span
+          className="text-mock"
+        >
+          Test-title
+        </span>
+        <span
+          className="arrow-mock"
+        />
+      </React.Fragment>
+    }
+  >
+    <TooltipContent />
+  </WithStyles(Tooltip)>
+</span>
 `;
 
 exports[`Tooltip renders component with optional props 1`] = `
-<WithStyles(Tooltip)
-  PopperProps={
-    Object {
-      "popperOptions": Object {
-        "modifiers": Object {
-          "arrow": Object {
-            "element": null,
-            "enabled": false,
+<span
+  onClick={[Function]}
+>
+  <WithStyles(Tooltip)
+    PopperProps={
+      Object {
+        "popperOptions": Object {
+          "modifiers": Object {
+            "arrow": Object {
+              "element": null,
+              "enabled": false,
+            },
           },
         },
-      },
+      }
     }
-  }
-  classes={
-    Object {
-      "popper": "arrowPopper-mock",
-      "tooltip": "noWrap-mock tooltip-mock",
+    classes={
+      Object {
+        "popper": "arrowPopper-mock",
+        "tooltip": "noWrap-mock tooltip-mock",
+      }
     }
-  }
-  interactive={true}
-  placement="bottom"
-  title={
-    <React.Fragment>
-      <span
-        className="text-mock"
-      >
-        Test-title
-      </span>
-      <span
-        className="arrow-mock"
-      />
-    </React.Fragment>
-  }
->
-  <TooltipContent />
-</WithStyles(Tooltip)>
+    interactive={true}
+    placement="bottom"
+    title={
+      <React.Fragment>
+        <span
+          className="text-mock"
+        >
+          Test-title
+        </span>
+        <span
+          className="arrow-mock"
+        />
+      </React.Fragment>
+    }
+  >
+    <TooltipContent />
+  </WithStyles(Tooltip)>
+</span>
 `;

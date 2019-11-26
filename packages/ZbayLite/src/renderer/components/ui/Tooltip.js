@@ -8,6 +8,7 @@ import { withStyles } from '@material-ui/core/styles'
 
 function arrowGenerator (color, theme) {
   return {
+    zIndex: 10,
     opacity: 1,
     '&[x-placement*="bottom"] $arrow': {
       opacity: 1,
@@ -105,38 +106,40 @@ const styles = theme => ({
   arrowPopper: arrowGenerator(theme.palette.colors.trueBlack, theme)
 })
 
-export const Tooltip = ({ classes, children, title, noWrap, className, ...props }) => {
+export const Tooltip = ({ classes, children, title, noWrap, className, onClick, ...props }) => {
   const [arrowRef, setArrowRef] = useState(null)
   return (
-    <MuiTooltip
-      {...props}
-      title={
-        <React.Fragment>
-          <span className={classes.text}>{title.charAt(0).toUpperCase() + title.slice(1)}</span>
-          <span className={classes.arrow} ref={setArrowRef} />
-        </React.Fragment>
-      }
-      classes={{
-        tooltip: classNames({
-          [classes.noWrap]: noWrap,
-          [className]: className,
-          [classes.tooltip]: true
-        }),
-        popper: classes.arrowPopper
-      }}
-      PopperProps={{
-        popperOptions: {
-          modifiers: {
-            arrow: {
-              enabled: Boolean(arrowRef),
-              element: arrowRef
+    <span onClick={onClick}>
+      <MuiTooltip
+        {...props}
+        title={
+          <React.Fragment>
+            <span className={classes.text}>{title.charAt(0).toUpperCase() + title.slice(1)}</span>
+            <span className={classes.arrow} ref={setArrowRef} />
+          </React.Fragment>
+        }
+        classes={{
+          tooltip: classNames({
+            [classes.noWrap]: noWrap,
+            [className]: className,
+            [classes.tooltip]: true
+          }),
+          popper: classes.arrowPopper
+        }}
+        PopperProps={{
+          popperOptions: {
+            modifiers: {
+              arrow: {
+                enabled: Boolean(arrowRef),
+                element: arrowRef
+              }
             }
           }
-        }
-      }}
-    >
-      {children}
-    </MuiTooltip>
+        }}
+      >
+        {children}
+      </MuiTooltip>
+    </span>
   )
 }
 
@@ -152,14 +155,16 @@ Tooltip.propTypes = {
   placement: PropTypes.oneOf(joiningProd(['bottom', 'top'], ['-start', '-end', ''])),
   interactive: PropTypes.bool,
   className: PropTypes.string,
-  noWrap: PropTypes.bool
+  noWrap: PropTypes.bool,
+  onClick: PropTypes.func
 }
 
 Tooltip.defaultProps = {
   noWrap: true,
   interactive: true,
   className: '',
-  placement: 'bottom'
+  placement: 'bottom',
+  onClick: () => {}
 }
 
 export default R.compose(

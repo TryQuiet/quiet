@@ -7,3 +7,9 @@ Object {
   "setTabToOpen": [Function],
 }
 `;
+
+exports[`WalletPanelActions will receive right props 1`] = `
+Object {
+  "showDepositInfo": false,
+}
+`;

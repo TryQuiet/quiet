@@ -2,7 +2,7 @@
 
 exports[`ChannelInput renders component input Disable  1`] = `
 <WithStyles(ForwardRef(Grid))
-  className="root-mock"
+  className="root-mock displayNone-mock"
   container={true}
   direction="column"
   justify="center"
@@ -87,7 +87,7 @@ exports[`ChannelInput renders component input Disable  1`] = `
 
 exports[`ChannelInput renders component input Locked  1`] = `
 <WithStyles(ForwardRef(Grid))
-  className="root-mock"
+  className="root-mock displayNone-mock"
   container={true}
   direction="column"
   justify="center"

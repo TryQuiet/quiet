@@ -24,6 +24,7 @@ const tabs = {
 
 const styles = theme => ({
   root: {
+    zIndex: 1000,
     paddingLeft: 20,
     paddingTop: 32,
     paddingRight: 32
