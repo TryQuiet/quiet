@@ -17,7 +17,6 @@ export default createMuiTheme({
     caption: {
       fontSize: 12,
       lineHeight: '20px',
-      letterSpacing: '0.4px',
       color: '#b2b2b2'
     },
     body1: {
@@ -26,8 +25,7 @@ export default createMuiTheme({
     },
     body2: {
       fontSize: 14,
-      lineHeight: '24px',
-      letterSpacing: '0.4px'
+      lineHeight: '24px'
     },
     subtitle1: {
       fontSize: 16,
@@ -129,8 +127,7 @@ export default createMuiTheme({
       }
     },
     MuiOutlinedInput: {
-      input: {
-      }
+      input: {}
     },
     MuiPopover: {
       paper: {
