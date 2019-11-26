@@ -13,6 +13,7 @@ import Icon from '../ui/Icon'
 import LoadindButton from '../ui/LoadingButton'
 
 import icon from '../../static/images/zcash/logo-lockup--circle.svg'
+import Tor from '../../containers/windows/Tor'
 
 const styles = theme => ({
   paper: {
@@ -40,6 +41,9 @@ const styles = theme => ({
   },
   message: {
     height: 24
+  },
+  torDiv: {
+    marginTop: -8
   }
 })
 
@@ -57,7 +61,8 @@ export const VaultUnlockerForm = ({
   loader,
   nodeConnected,
   done,
-  setDone
+  setDone,
+  tor
 }) => {
   return (
     <Formik
@@ -110,10 +115,17 @@ export const VaultUnlockerForm = ({
                 margin='normal'
                 text='Login'
                 fullWidth
-                disabled={isSubmitting || unlocking}
-                inProgress={isSubmitting || unlocking || !done}
+                disabled={
+                  isSubmitting || unlocking || (tor.enabled === true && tor.status !== 'stable')
+                }
+                inProgress={isSubmitting || unlocking || !done || tor.status === 'loading'}
               />
             </Grid>
+            {locked && (
+              <Grid item className={classes.torDiv}>
+                <Tor />
+              </Grid>
+            )}
             <Grid item className={classes.message}>
               <Typography variant='body2'>{loader.loading && loader.message}</Typography>
               {!nodeConnected && !done && (

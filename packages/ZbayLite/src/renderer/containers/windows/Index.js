@@ -10,6 +10,7 @@ import appHandlers from '../../store/handlers/app'
 import nodeSelectors from '../../store/selectors/node'
 import { useInterval } from '../hooks'
 import vaultSelectors from '../../store/selectors/vault'
+import torHandlers from '../../store/handlers/tor'
 
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
@@ -24,13 +25,24 @@ export const mapStateToProps = state => ({
   nodeConnected: nodeSelectors.isConnected(state),
   bootstrapping: nodeSelectors.bootstrapping(state),
   bootstrappingMessage: nodeSelectors.bootstrappingMessage(state),
-  locked: vaultSelectors.locked(state)
+  locked: vaultSelectors.locked(state),
+  createZcashNode: torHandlers.epics.createZcashNode
 })
 
-export const Index = ({ getStatus, nodeConnected, loadVersion, locked, ...props }) => {
+export const Index = ({
+  getStatus,
+  nodeConnected,
+  loadVersion,
+  locked,
+  createZcashNode,
+  ...props
+}) => {
   useEffect(() => {
     loadVersion()
   })
+  useEffect(() => {
+    createZcashNode()
+  }, [])
   useInterval(getStatus, 5000)
   return nodeConnected ? (
     locked ? (

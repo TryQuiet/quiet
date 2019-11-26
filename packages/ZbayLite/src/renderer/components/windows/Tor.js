@@ -1,45 +1,19 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import { shell } from 'electron'
 import { withStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
 import TextField from '@material-ui/core/TextField'
 import 'react-alice-carousel/lib/alice-carousel.css'
+import InputAdornment from '@material-ui/core/InputAdornment'
 
-import Icon from '../ui/Icon'
-import icon from '../../static/images/zcash/logo-lockup--circle.svg'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Checkbox from '@material-ui/core/Checkbox'
 import IconButton from '@material-ui/core/IconButton'
 import RefreshIcon from '@material-ui/icons/Refresh'
-import LoadindButton from '../ui/LoadingButton'
 import { Typography } from '@material-ui/core'
 
 const styles = theme => ({
-  root: {
-    width: '100vw',
-    height: '100vh',
-    WebkitAppRegion: 'drag'
-  },
-  icon: {
-    width: 285,
-    height: 67
-  },
-  iconDiv: {
-    marginBottom: 140,
-    marginTop: 140
-  },
-  svg: {
-    width: 100,
-    height: 100
-  },
-  addressDiv: {},
-  button: {
-    width: 400,
-    fontSize: 20
-  },
-  buttonDiv: {
-    marginTop: 26
-  },
   message: {
     color: theme.palette.colors.darkGray,
     fontSize: 16
@@ -47,67 +21,97 @@ const styles = theme => ({
   error: {
     marginTop: 8,
     color: theme.palette.colors.red
+  },
+  addressDiv: {
+    width: 286,
+    marginTop: -8
   }
 })
 
-export const Tor = ({ classes, tor, setUrl, setEnabled, checkTor, createZcashNode, history }) => (
+export const Tor = ({
+  classes,
+  checkDeafult,
+  tor,
+  setUrl,
+  setEnabled,
+  checkTor,
+  createZcashNode,
+  history
+}) => (
   <Grid className={classes.root} container direction='column' alignItems='center'>
-    <Grid container item className={classes.iconDiv} justify='center'>
-      <Icon className={classes.icon} src={icon} />
-    </Grid>
     <Grid className={classes.checkbox} item>
       <FormControlLabel
         control={
           <Checkbox
             checked={tor.enabled}
-            onChange={e => setEnabled({ enabled: e.target.checked })}
+            onChange={e => {
+              setEnabled({ enabled: e.target.checked })
+              checkDeafult()
+            }}
             color='default'
           />
         }
-        label='Use Tor proxy for better security'
+        label={<Typography variant='body2'>Connect through Tor (optional)</Typography>}
       />
     </Grid>
-    <Grid className={classes.addressDiv} container justify='center' alignItems='center' item>
-      <Grid item>
-        <TextField
-          label='URL of Tor proxy'
-          className={classes.textField}
-          value={tor.url}
-          disabled={tor.enabled === false}
-          onChange={e => setUrl({ url: e.target.value })}
-          margin='normal'
-          variant='outlined'
-          required
-        />
+    {tor.enabled && (
+      <Grid
+        className={classes.addressDiv}
+        container
+        direction='column'
+        justify='center'
+        alignItems='center'
+        item
+      >
+        <Grid item>
+          <TextField
+            label='URL of Tor proxy'
+            className={classes.textField}
+            value={tor.url}
+            disabled={tor.enabled === false}
+            onChange={e => setUrl({ url: e.target.value })}
+            margin='normal'
+            variant='outlined'
+            required
+            InputProps={{
+              // TODO: Should be removed after migrating to material v4.0
+              className: classes.borderBox,
+              endAdornment: (
+                <InputAdornment position='end' style={{ padding: 0 }}>
+                  <IconButton
+                    className={classes.refresh}
+                    onClick={checkTor}
+                    disabled={tor.enabled === false}
+                  >
+                    <RefreshIcon fontSize='large' />
+                  </IconButton>
+                </InputAdornment>
+              )
+            }}
+          />
+        </Grid>
+        <Grid item>
+          <Typography variant='body2'>
+            Using Tor?{' '}
+            <a
+              onClick={e => {
+                e.preventDefault()
+                shell.openExternal('https://zcash.readthedocs.io/en/latest/rtd_pages/tor.html')
+              }}
+              href='#'
+            >
+              Read this warning
+            </a>
+          </Typography>
+        </Grid>
       </Grid>
-      <Grid item>
-        <IconButton className={classes.refresh} onClick={checkTor} disabled={tor.enabled === false}>
-          <RefreshIcon fontSize='large' />
-        </IconButton>
-      </Grid>
-    </Grid>
+    )}
+
     {tor.error && (
       <Grid item className={classes.error}>
         <Typography variant='body2'>{tor.error}</Typography>
       </Grid>
     )}
-    <Grid item className={classes.buttonDiv}>
-      <LoadindButton
-        color='primary'
-        variant='contained'
-        fullWidth
-        size='large'
-        margin='normal'
-        text='Continue'
-        onClick={() => {
-          createZcashNode(tor.url)
-          history.push('/vault')
-        }}
-        inProgress={tor.status === 'loading'}
-        disabled={tor.enabled === true && tor.status !== 'stable'}
-        classes={{ button: classes.button }}
-      />
-    </Grid>
   </Grid>
 )
 

@@ -11,7 +11,6 @@ import Index from './containers/windows/Index'
 import Main from './containers/windows/Main'
 import Vault from './containers/windows/Vault'
 import Loading from './containers//windows/Loading'
-import Tor from './containers/windows/Tor'
 import Notifier from './containers/ui/Notifier'
 import ErrorModal from './containers/ui/ErrorModal'
 import QuitAppDialog from './containers/ui/QuitAppDialog'
@@ -45,7 +44,6 @@ export default () => (
           <Route path='/main' component={Main} />
           <Route path='/zcashNode' component={Index} />
           <Route path='/loading' component={Loading} />
-          <Route path='/tor' component={Tor} />
         </SnackbarProvider>
       </Provider>
     </HashRouter>

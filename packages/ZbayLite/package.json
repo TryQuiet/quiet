@@ -159,6 +159,7 @@
     "axios": "^0.18.0",
     "bech32": "^1.1.3",
     "bignumber.js": "^8.1.1",
+    "electron-store": "^5.1.0",
     "binance-api-node": "^0.9.5",
     "buttercup": "^2.10.0",
     "check-disk-space": "^2.1.0",

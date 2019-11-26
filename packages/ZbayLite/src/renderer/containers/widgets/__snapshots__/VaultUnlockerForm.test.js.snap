@@ -2,6 +2,7 @@
 
 exports[`VaultUnlockerForm will receive right actions 1`] = `
 Object {
+  "createZcashNode": [Function],
   "getStatus": [Function],
   "onSubmit": [Function],
   "setVaultIdentity": [Function],
@@ -17,6 +18,12 @@ Object {
   "locked": true,
   "newUser": false,
   "nodeConnected": false,
+  "tor": Immutable.Tor {
+    "url": "",
+    "enabled": false,
+    "error": null,
+    "status": "",
+  },
   "unlocking": false,
 }
 `;

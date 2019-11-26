@@ -1,6 +1,7 @@
 import Immutable from 'immutable'
-import { createAction, handleActions } from 'redux-actions'
+import Store from 'electron-store'
 import net from 'net'
+import { createAction, handleActions } from 'redux-actions'
 import { remote } from 'electron'
 
 import bootstrap from '../../../main/zcash/bootstrap'
@@ -10,6 +11,10 @@ import notificationsHandlers from './notifications'
 import nodeHandlers from './node'
 
 export const client = new net.Socket()
+export const store = new Store()
+
+export const defaultTorUrlProxy = 'localhost:9050'
+export const defaultTorUrlBrowser = 'localhost:9150'
 
 const isTestnet = parseInt(process.env.ZBAY_IS_TESTNET)
 export var nodeProc = null
@@ -41,6 +46,43 @@ export const actions = {
   setEnabled,
   setError,
   setStatus
+}
+
+const checkDeafult = () => async (dispatch, getState) => {
+  const url = defaultTorUrlProxy.split(':')
+  const url2 = defaultTorUrlBrowser.split(':')
+  let checkedUrl
+  try {
+    checkedUrl = defaultTorUrlProxy
+    client.connect(
+      url[1],
+      url[0],
+      () => {
+        const msg = Buffer.from('050100', 'hex')
+        client.write(msg)
+      }
+    )
+  } catch (err) {
+    checkedUrl = defaultTorUrlBrowser
+    client.connect(
+      url2[1],
+      url2[0],
+      () => {
+        const msg = Buffer.from('050100', 'hex')
+        client.write(msg)
+      }
+    )
+  }
+  client.on('data', data => {
+    client.destroy() // kill client after server's response
+    if (Buffer.from(data).toString('hex') === '0500') {
+      console.log(checkedUrl)
+      dispatch(setUrl({ url: checkedUrl }))
+      dispatch(setStatus({ status: 'stable' }))
+      dispatch(setError({ error: '' }))
+    } else {
+    }
+  })
 }
 
 const checkTor = () => async (dispatch, getState) => {
@@ -82,6 +124,7 @@ const checkTor = () => async (dispatch, getState) => {
   })
 }
 export const createZcashNode = torUrl => async (dispatch, getState) => {
+  store.set('torEnabled', !!torUrl)
   dispatch(nodeHandlers.actions.setBootstrapping(true))
   dispatch(nodeHandlers.actions.setBootstrappingMessage('Ensuring zcash params are present'))
   if (torUrl) {
@@ -108,7 +151,8 @@ export const createZcashNode = torUrl => async (dispatch, getState) => {
 }
 export const epics = {
   checkTor,
-  createZcashNode
+  createZcashNode,
+  checkDeafult
 }
 
 export const reducer = handleActions(

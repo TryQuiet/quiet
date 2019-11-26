@@ -11,6 +11,7 @@ exports[`Index will receive right props 1`] = `
 Object {
   "bootstrapping": false,
   "bootstrappingMessage": "",
+  "createZcashNode": [Function],
   "locked": false,
   "nodeConnected": false,
 }
