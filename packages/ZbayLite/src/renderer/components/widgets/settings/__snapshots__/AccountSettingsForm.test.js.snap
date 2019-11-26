@@ -2,7 +2,6 @@
 
 exports[`AccountSettingsForm renders component 1`] = `
 <WithStyles(ForwardRef(Grid))
-  className="mainCreateUsernameContainer-mock"
   column={true}
   container={true}
   direction={true}

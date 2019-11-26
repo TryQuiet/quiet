@@ -10,7 +10,6 @@ exports[`InvitationModal renders component 1`] = `
   xs={true}
 >
   <WithStyles(ForwardRef(Grid))
-    className="header-mock"
     item={true}
   >
     <WithStyles(ForwardRef(Typography))
@@ -24,7 +23,6 @@ exports[`InvitationModal renders component 1`] = `
     item={true}
   >
     <WithStyles(ForwardRef(Typography))
-      className="infoText-mock"
       variant="body2"
     >
       test info

@@ -7,36 +7,21 @@ import { withStyles } from '@material-ui/core/styles'
 import { Typography } from '@material-ui/core'
 
 const styles = theme => ({
-  root: {
-    marginTop: 20,
-    paddingLeft: 15,
-    paddingRight: 15
-  },
-  closeIcon: {
-    marginTop: -theme.spacing(2),
-    marginLeft: -theme.spacing(2)
-  },
+  root: {},
   info: {
-    marginTop: theme.spacing(3)
-  },
-  infoText: {
-    width: 350
-  },
-  header: {
-    marginTop: -theme.spacing(2)
+    marginTop: theme.spacing(3),
+    letterSpacing: 0
   }
 })
 
 export const InvitationModal = ({ classes, children, info, title }) => {
   return (
     <Grid item xs container justify='flex-start' direction='column' className={classes.root}>
-      <Grid item className={classes.header}>
+      <Grid item>
         <Typography variant='h3'>{title}</Typography>
       </Grid>
       <Grid item className={classes.info}>
-        <Typography variant='body2' className={classes.infoText}>
-          {info}
-        </Typography>
+        <Typography variant='body2'>{info}</Typography>
       </Grid>
       {children}
     </Grid>

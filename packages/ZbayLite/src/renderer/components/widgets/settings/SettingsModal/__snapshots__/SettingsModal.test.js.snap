@@ -2,9 +2,10 @@
 
 exports[`SettingsModal renders component 1`] = `
 <Memo(WithStyles(Modal))
+  addBorder={true}
   handleClose={[MockFunction]}
+  isBold={true}
   open={true}
-  title="Settings"
 >
   <WithStyles(ForwardRef(Grid))
     className="root-mock"
@@ -78,13 +79,14 @@ exports[`SettingsModal renders component 1`] = `
                 "tabRoot": "tab-mock",
               }
             }
-            label="invite a Friend"
+            label="Invite a Friend"
             value="invite"
           />
         </WithStyles(ForwardRef(Tabs))>
       </WithStyles(ForwardRef(AppBar))>
     </WithStyles(ForwardRef(Grid))>
     <WithStyles(ForwardRef(Grid))
+      className="content-mock"
       item={true}
       xs={true}
     >

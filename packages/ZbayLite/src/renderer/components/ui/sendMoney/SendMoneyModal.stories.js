@@ -1,12 +1,11 @@
 import React from 'react'
 import { storiesOf } from '@storybook/react'
-import { withKnobs, boolean, number } from '@storybook/addon-knobs'
+import { boolean, number } from '@storybook/addon-knobs'
 import BigNumber from 'bignumber.js'
 
 import SendMoneyModal from './SendMoneyModal'
 
 storiesOf('Components/Widgets/SendMoneyModal', module)
-  .addDecorator(withKnobs)
   .add('playground', () => {
     let step = number('Step', 1)
     return (

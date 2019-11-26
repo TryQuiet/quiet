@@ -21,10 +21,10 @@ import CopyIcon from '../../../../renderer/static/images/copylink.svg'
 
 const styles = theme => ({
   root: {
-    marginLeft: 33,
     backgroundColor: theme.palette.colors.white,
     width: 348,
     borderRadius: 4,
+    marginTop: 24,
     border: `1px solid ${theme.palette.colors.inputGray}`
   },
   title: {
@@ -84,7 +84,8 @@ const styles = theme => ({
     backgroundColor: theme.palette.colors.white
   },
   copyInputBox: {
-    marginTop: 0
+    marginTop: 0,
+    paddingLeft: 24
   },
   iconBackground: {
     margin: 0,
@@ -101,15 +102,12 @@ const styles = theme => ({
     width: 24,
     height: 24
   },
-  titleBox: {
-    paddingLeft: 24
-  },
+  titleBox: {},
   adornedEnd: {
     padding: 0
   },
   tabTitle: {
-    marginLeft: 33,
-    marginBottom: 24
+    letterSpacing: -0.5
   }
 })
 
@@ -139,8 +137,10 @@ export const AddFunds = ({ classes, type, address, handleChange, handleClose, ha
     <AutoSizer>
       {({ width, height }) => (
         <Scrollbars autoHideTimeout={500} style={{ width: width, height: height }}>
-          <Grid className={classes.tabTitle} item>
-            <Typography variant={'h3'}>Add funds to your wallet</Typography>
+          <Grid item>
+            <Typography variant={'h3'} className={classes.tabTitle}>
+              Add funds to your wallet
+            </Typography>
           </Grid>
           <Grid container justify='center' alignContent='flex-start' className={classes.root}>
             <Grid
@@ -180,13 +180,19 @@ export const AddFunds = ({ classes, type, address, handleChange, handleClose, ha
                 <Typography variant={'body2'}>{descriptions[type]}</Typography>
               </Grid>
             </Grid>
-            <Grid container className={classes.copyInputBox} item justify={'center'}>
+            <Grid
+              container
+              className={classes.copyInputBox}
+              item
+              alignContent={'center'}
+              justify={'center'}
+            >
               <Grid className={classes.titleBox} item xs>
                 <Typography className={classes.fieldTitle} variant='subtitle2'>
                   {type === 'transparent' ? 'Transparent Address' : 'Private Address'}
                 </Typography>
               </Grid>
-              <Grid item>
+              <Grid item xs>
                 <TextField
                   id='copy-address'
                   className={classes.copyField}

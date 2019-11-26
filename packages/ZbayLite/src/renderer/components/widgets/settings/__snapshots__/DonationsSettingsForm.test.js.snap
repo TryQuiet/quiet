@@ -2,7 +2,6 @@
 
 exports[`DonationsSettingsForm renders component 1`] = `
 <WithStyles(ForwardRef(Grid))
-  className="container-mock"
   container={true}
   direction="row"
 >
@@ -49,10 +48,30 @@ exports[`DonationsSettingsForm renders component 1`] = `
     xs={12}
   >
     <WithStyles(ForwardRef(FormControlLabel))
+      className="controlLabel-mock"
       control={
         <ForwardRef(WithStyles)
           checked={false}
+          checkedIcon={
+            <Memo
+              style={
+                Object {
+                  "fontSize": 18,
+                }
+              }
+            />
+          }
+          className="checkbox-mock"
           color="primary"
+          icon={
+            <Memo
+              style={
+                Object {
+                  "fontSize": 18,
+                }
+              }
+            />
+          }
           onChange={[Function]}
         />
       }

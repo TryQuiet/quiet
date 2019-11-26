@@ -5,12 +5,10 @@ import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
 import { FormControlLabel, Checkbox, TextField } from '@material-ui/core'
+import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank'
+import CheckBoxIcon from '@material-ui/icons/CheckBox'
 
 const styles = theme => ({
-  container: {
-    paddingLeft: 15,
-    paddingRight: 15
-  },
   addressField: {
     marginTop: 24
   },
@@ -19,10 +17,19 @@ const styles = theme => ({
     color: theme.palette.colors.black30
   },
   checkboxLabel: {
-    fontSize: 13
+    fontSize: 14,
+    letterSpacing: 0.2
   },
   checkboxDiv: {
-    marginTop: 24
+    marginTop: 6
+  },
+  controlLabel: {
+    marginRight: 0
+  },
+  checkbox: {
+    padding: 4,
+    marginBottom: 1,
+    marginLeft: 7
   }
 })
 
@@ -45,7 +52,7 @@ export const DonationsSettingsForm = ({
 }) => {
   const [isAddressValid, setAddressStatus] = useState(!!initialValues.donationAddress)
   return (
-    <Grid container direction={'row'} className={classes.container}>
+    <Grid container direction={'row'}>
       <Grid xs={12} item>
         <Typography variant='h3'>Donations</Typography>
         <Grid item xs={12} className={classes.addressField}>
@@ -74,8 +81,12 @@ export const DonationsSettingsForm = ({
                 updateDonation(e.target.checked)
               }}
               color='primary'
+              className={classes.checkbox}
+              icon={<CheckBoxOutlineBlankIcon style={{ fontSize: 18 }} />}
+              checkedIcon={<CheckBoxIcon style={{ fontSize: 18 }} />}
             />
           }
+          className={classes.controlLabel}
           label={
             <Typography variant='body2' className={classes.checkboxLabel}>
               Allow for sending a small donation to Zbay team

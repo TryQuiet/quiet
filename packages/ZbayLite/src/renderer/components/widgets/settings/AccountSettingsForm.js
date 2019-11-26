@@ -17,10 +17,6 @@ import usernameIcon from '../../../static/images/username.svg'
 import IconCopy from '../../ui/IconCopy'
 
 const styles = theme => ({
-  mainCreateUsernameContainer: {
-    paddingLeft: 15,
-    paddingRight: 15
-  },
   createUsernameContainer: {
     paddingTop: 16,
     paddingBottom: 16,
@@ -86,7 +82,7 @@ export const AccountSettingsForm = ({
   user
 }) => {
   return (
-    <Grid container direction column className={classes.mainCreateUsernameContainer}>
+    <Grid container direction column >
       <Grid item className={classes.title}>
         <Typography variant='h3'>Account</Typography>
       </Grid>

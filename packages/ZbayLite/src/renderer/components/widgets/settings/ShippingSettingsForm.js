@@ -19,24 +19,23 @@ const styles = theme => ({
   fullWidth: {
     width: '100%'
   },
-  container: {
-    paddingLeft: 15,
-    paddingRight: 15
+  item: {
+    marginTop: 19
   },
-  field: {},
   submitButton: {},
   label: {
     fontSize: 12,
-    marginBottom: 8,
-    color: theme.palette.colors.trueBlack
+    color: theme.palette.colors.black30
   },
   button: {
+    marginTop: 14,
     height: 60,
+    width: 126,
     fontSize: '0.9rem',
     backgroundColor: theme.palette.colors.zbayBlue
   },
   title: {
-    marginBottom: 24
+    marginBottom: 14
   }
 })
 
@@ -58,18 +57,12 @@ export const ShippingSettingsForm = ({ classes, initialValues, handleSubmit }) =
   <Formik onSubmit={handleSubmit} validationSchema={formSchema} initialValues={initialValues}>
     {({ values, isSubmitting }) => (
       <Form className={classes.fullWidth}>
-        <Grid
-          container
-          spacing={1}
-          direction='column'
-          alignItems='flex-start'
-          className={classes.container}
-        >
+        <Grid container direction='column' alignItems='flex-start'>
           <Grid item className={classes.title}>
             <Typography variant='h3'>Shipping Address</Typography>
           </Grid>
 
-          <Grid item container direction='row' justify='space-between' spacing={2}>
+          <Grid item container direction='row' justify='space-between' spacing={2} >
             <Grid item xs={6}>
               <Typography className={classes.label} variant='body2'>
                 First Name
@@ -97,7 +90,7 @@ export const ShippingSettingsForm = ({ classes, initialValues, handleSubmit }) =
               />
             </Grid>
           </Grid>
-          <Grid item container direction='row' justify='space-between'>
+          <Grid item container direction='row' justify='space-between' className={classes.item}>
             <Grid item xs={12}>
               <Typography className={classes.label} variant='body2'>
                 Country
@@ -117,7 +110,7 @@ export const ShippingSettingsForm = ({ classes, initialValues, handleSubmit }) =
               </SelectField>
             </Grid>
           </Grid>
-          <Grid item container direction='row' justify='space-between'>
+          <Grid item container direction='row' justify='space-between' className={classes.item}>
             <Grid item xs={12}>
               <Typography className={classes.label} variant='body2'>
                 Region
@@ -137,7 +130,7 @@ export const ShippingSettingsForm = ({ classes, initialValues, handleSubmit }) =
               </SelectField>
             </Grid>
           </Grid>
-          <Grid item container direction='row' justify='space-between' spacing={2}>
+          <Grid item container direction='row' justify='space-between' spacing={2} className={classes.item}>
             <Grid item xs={6}>
               <Typography className={classes.label} variant='body2'>
                 City
@@ -165,7 +158,7 @@ export const ShippingSettingsForm = ({ classes, initialValues, handleSubmit }) =
               />
             </Grid>
           </Grid>
-          <Grid container item>
+          <Grid container item className={classes.item}>
             <Grid item xs={12}>
               <Typography className={classes.label} variant='body2'>
                 Street Address

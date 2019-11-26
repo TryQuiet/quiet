@@ -7,7 +7,8 @@ import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
 import { Typography, TextField, FormControlLabel, Checkbox } from '@material-ui/core'
 import InputAdornment from '@material-ui/core/InputAdornment'
-
+import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank'
+import CheckBoxIcon from '@material-ui/icons/CheckBox'
 import LoadingButton from '../LoadingButton'
 import InvitationModal from './InvitationModal'
 import exchange from '../../../static/images/zcash/exchange.svg'
@@ -16,9 +17,6 @@ import Icon from '../Icon'
 const styles = theme => ({
   warrning: {
     marginTop: theme.spacing(1)
-  },
-  warrningText: {
-    maxWidth: 400
   },
   inputDiv: {
     width: 45,
@@ -39,14 +37,12 @@ const styles = theme => ({
     marginTop: theme.spacing(1)
   },
   checkboxDiv: {
-    maxWidth: 450,
-    marginTop: theme.spacing(1),
-    '& span': {
-      fontSize: '0.8rem'
-    }
+    marginTop: 24,
+    marginRight: 0,
+    alignItems: 'flex-start'
   },
   buttonDiv: {
-    marginTop: theme.spacing(2)
+    marginTop: 24
   },
   button: {
     height: 60,
@@ -54,20 +50,14 @@ const styles = theme => ({
     fontSize: '0.9rem',
     backgroundColor: theme.palette.colors.zbayBlue
   },
-  checkboxRoot: {
-    color: theme.palette.colors.zbayBlue,
-    '&$checked': {
-      color: theme.palette.colors.zbayBlue
-    }
-  },
-  checked: {},
   exchangeDiv: {
     width: 40
   },
-  moneyInput: {},
+  moneyInput: {
+    height: 60
+  },
   divMoney: {
     width: '100%',
-    marginTop: 16,
     minHeight: 42,
     '& .MuiFormHelperText-contained': {
       display: 'none'
@@ -79,6 +69,22 @@ const styles = theme => ({
   error: {
     marginTop: 8,
     color: theme.palette.colors.red
+  },
+  fieldTitle: {
+    marginTop: 24,
+    fontStyle: 'normal',
+    fontWeight: 'normal',
+    fontSize: 12,
+    lineHeight: '14px',
+    color: theme.palette.colors.black30,
+    marginBottom: 6
+  },
+  checkbox: {
+    marginTop: -7,
+    padding: 8
+  },
+  checkboxLabel: {
+    letterSpacing: -0.1
   }
 })
 
@@ -105,17 +111,20 @@ export const InvitationModalGenerate = ({
     <InvitationModal
       title={`Invite a friend`}
       info={`Invite friends to Zbay and (optionally)
-     give them
-  some funds to get started`}
+     give them some funds to get started`}
     >
       <Grid item className={classes.warrning}>
-        <Typography variant='body2' className={classes.warrningText}>
-          ( This will generate a special invite link you can share with a friend. Once your friend
+        <Typography variant='body2'>
+          This will generate a special invite link you can share with a friend. Once your friend
           installs Zbay they can open it to reclaim funds. You can use it to reclaim the funds
-          yourself too - just dont't lose the link! )
+          yourself too - just dont't lose the link!
         </Typography>
       </Grid>
-
+      <Grid item xs>
+        <Typography className={classes.fieldTitle} variant='subtitle2'>
+          Funds to give to friend
+        </Typography>
+      </Grid>
       <Grid container className={classes.divMoney}>
         <Grid xs item className={classes.moneyDiv}>
           <TextField
@@ -174,14 +183,22 @@ export const InvitationModalGenerate = ({
           control={
             <Checkbox
               checked={affiliate}
+              color='primary'
               onChange={e => {
                 includeAffiliate(e.target.checked)
               }}
-              classes={{ root: classes.checkboxRoot, checked: classes.checked }}
+              className={classes.checkbox}
+              icon={<CheckBoxOutlineBlankIcon style={{ fontSize: 18 }} />}
+              checkedIcon={<CheckBoxIcon style={{ fontSize: 18 }} />}
             />
           }
           className={classes.checkboxDiv}
-          label={`Include your affiliate code, so that you'll earn 1% of their purchases. (They can disable this at any time.)`}
+          label={
+            <Typography variant='body2' className={classes.checkboxLabel}>
+              Include your affiliate code, so that you'll earn 1% of their purchases. (They can
+              disable this at any time.)
+            </Typography>
+          }
         />
       </Grid>
       <Grid item className={classes.buttonDiv}>

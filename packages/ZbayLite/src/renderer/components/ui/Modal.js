@@ -56,7 +56,12 @@ const styles = theme => ({
     transform: 'translate(-50%, -50%)',
     outline: 0
   },
-  window: {}
+  window: {},
+  bold: {
+    fontSize: 16,
+    lineHeight: 26,
+    fontWeight: 500
+  }
 })
 
 export const Modal = ({
@@ -69,7 +74,8 @@ export const Modal = ({
   step,
   setStep,
   children,
-  addBorder
+  addBorder,
+  isBold
 }) => (
   <MaterialModal open={open} onClose={handleClose} className={classes.root}>
     <Grid
@@ -81,12 +87,22 @@ export const Modal = ({
         [classes.window]: true
       })}
     >
-      <Grid container item className={classNames({
-        [classes.header]: true,
-        [classes.headerBorder]: addBorder
-      })} direction='row' alignItems='center'>
+      <Grid
+        container
+        item
+        className={classNames({
+          [classes.header]: true,
+          [classes.headerBorder]: addBorder
+        })}
+        direction='row'
+        alignItems='center'
+      >
         <Grid item xs container justify='center' alignItems='center'>
-          <Typography variant='subtitle1' className={classes.title} align='center'>
+          <Typography
+            variant='subtitle1'
+            className={classNames({ [classes.title]: true, [classes.bold]: isBold })}
+            align='center'
+          >
             {title}
           </Typography>
         </Grid>
@@ -117,6 +133,7 @@ Modal.propTypes = {
   handleClose: PropTypes.func.isRequired,
   title: PropTypes.string,
   fullPage: PropTypes.bool.isRequired,
+  isBold: PropTypes.bool.isRequired,
   step: PropTypes.number,
   setStep: PropTypes.func,
   canGoBack: PropTypes.bool,
@@ -126,7 +143,8 @@ Modal.propTypes = {
 
 Modal.defaultProps = {
   fullPage: false,
-  canGoBack: false
+  canGoBack: false,
+  isBold: false
 }
 
 export default R.compose(

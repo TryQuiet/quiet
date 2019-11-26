@@ -24,7 +24,9 @@ const tabs = {
 
 const styles = theme => ({
   root: {
-    padding: 20
+    paddingLeft: 20,
+    paddingTop: 32,
+    paddingRight: 32
   },
   tabs: {
     color: theme.palette.colors.trueBlack
@@ -52,6 +54,9 @@ const styles = theme => ({
   },
   tab: {
     minHeight: 32
+  },
+  content: {
+    marginLeft: 32
   }
 })
 
@@ -60,10 +65,19 @@ const handleChange = (clearCurrentOpenTab, setCurrentTab, value) => {
   setCurrentTab(value)
 }
 
-export const SettingsModal = ({ classes, open, handleClose, modalTabToOpen, clearCurrentOpenTab, currentTab, setCurrentTab }) => {
+export const SettingsModal = ({
+  classes,
+  open,
+  handleClose,
+  modalTabToOpen,
+  clearCurrentOpenTab,
+  currentTab,
+  setCurrentTab,
+  user
+}) => {
   const TabComponent = tabs[modalTabToOpen || currentTab]
   return (
-    <Modal open={open} handleClose={handleClose} title='Settings'>
+    <Modal open={open} handleClose={handleClose} title={user} isBold addBorder>
       <Grid container direction='row' className={classes.root}>
         <Grid item className={classes.tabsDiv}>
           <AppBar position='static' className={classes.appbar}>
@@ -97,13 +111,13 @@ export const SettingsModal = ({ classes, open, handleClose, modalTabToOpen, clea
               />
               <Tab
                 value='invite'
-                label='invite a Friend'
+                label='Invite a Friend'
                 classes={{ tabRoot: classes.tab, selected: classes.selected }}
               />
             </Tabs>
           </AppBar>
         </Grid>
-        <Grid item xs>
+        <Grid item xs className={classes.content}>
           <TabComponent />
         </Grid>
       </Grid>

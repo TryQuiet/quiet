@@ -3,8 +3,7 @@
 exports[`InvitationModalGenerate renders component 1`] = `
 <Memo(WithStyles(InvitationModal))
   info="Invite friends to Zbay and (optionally)
-     give them
-  some funds to get started"
+     give them some funds to get started"
   title="Invite a friend"
 >
   <WithStyles(ForwardRef(Grid))
@@ -12,10 +11,20 @@ exports[`InvitationModalGenerate renders component 1`] = `
     item={true}
   >
     <WithStyles(ForwardRef(Typography))
-      className="warrningText-mock"
       variant="body2"
     >
-      ( This will generate a special invite link you can share with a friend. Once your friend installs Zbay they can open it to reclaim funds. You can use it to reclaim the funds yourself too - just dont't lose the link! )
+      This will generate a special invite link you can share with a friend. Once your friend installs Zbay they can open it to reclaim funds. You can use it to reclaim the funds yourself too - just dont't lose the link!
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+    xs={true}
+  >
+    <WithStyles(ForwardRef(Typography))
+      className="fieldTitle-mock"
+      variant="subtitle2"
+    >
+      Funds to give to friend
     </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
@@ -100,16 +109,37 @@ exports[`InvitationModalGenerate renders component 1`] = `
       control={
         <ForwardRef(WithStyles)
           checked={true}
-          classes={
-            Object {
-              "checked": "checked-mock",
-              "root": "checkboxRoot-mock",
-            }
+          checkedIcon={
+            <Memo
+              style={
+                Object {
+                  "fontSize": 18,
+                }
+              }
+            />
+          }
+          className="checkbox-mock"
+          color="primary"
+          icon={
+            <Memo
+              style={
+                Object {
+                  "fontSize": 18,
+                }
+              }
+            />
           }
           onChange={[Function]}
         />
       }
-      label="Include your affiliate code, so that you'll earn 1% of their purchases. (They can disable this at any time.)"
+      label={
+        <ForwardRef(WithStyles)
+          className="checkboxLabel-mock"
+          variant="body2"
+        >
+          Include your affiliate code, so that you'll earn 1% of their purchases. (They can disable this at any time.)
+        </ForwardRef(WithStyles)>
+      }
     />
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
