@@ -5,10 +5,8 @@ exports[`SendFundsForm renders component SendFoundsForm 1`] = `
   enableReinitialize={true}
   initialValues={
     Object {
-      "shippingData": Object {},
-      "shippingInfo": false,
-      "usd": "",
-      "zec": "",
+      "usd": "123.00",
+      "zec": "0.1200",
     }
   }
   isInitialValid={false}

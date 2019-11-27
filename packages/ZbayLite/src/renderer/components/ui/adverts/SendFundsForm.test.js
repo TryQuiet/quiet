@@ -11,7 +11,9 @@ describe('SendFundsForm', () => {
     const payload = {
       background: 28,
       tag: 'dirtbike',
-      nickname: 'roks33'
+      nickname: 'roks33',
+      priceUSD: 123,
+      priceZcash: 0.12
     }
     const result = shallow(
       <SendFundsForm

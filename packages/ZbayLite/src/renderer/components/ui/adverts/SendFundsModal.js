@@ -259,6 +259,7 @@ export const SendFundsModal = ({
                     placeholder='0.00'
                     fullWidth
                     otherField='zec'
+                    precise={4}
                     transformer={rateZec}
                     InputProps={{
                       error: errors['zec'] && touched['zec'],
@@ -286,6 +287,7 @@ export const SendFundsModal = ({
                     type='number'
                     placeholder='0.00'
                     fullWidth
+                    precise={2}
                     otherField='usd'
                     transformer={rateUsd}
                     InputProps={{

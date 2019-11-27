@@ -1,7 +1,8 @@
 import React from 'react'
 import { TextField } from 'formik-material-ui'
 
-export const formikLinkedTextField = ({ variant, transformer, otherField, ...props }) => {
+export const formikLinkedTextField = ({ variant, transformer, otherField, precise, ...props }) => {
+  const decimalPlaces = precise || 4
   return (
     <TextField
       variant='outlined'
@@ -9,7 +10,7 @@ export const formikLinkedTextField = ({ variant, transformer, otherField, ...pro
       inputProps={{
         onChange: ({ target: { value } }) => {
           props.form.setFieldValue(props.field.name, value)
-          props.form.setFieldValue(otherField, (value * transformer).toFixed(4))
+          props.form.setFieldValue(otherField, (value * transformer).toFixed(decimalPlaces))
         }
       }}
     />

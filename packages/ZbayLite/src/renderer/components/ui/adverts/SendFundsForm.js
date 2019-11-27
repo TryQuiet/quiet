@@ -23,7 +23,10 @@ export const SendFundsForm = ({ classes, handleSendTransfer, handleClose, initia
     <Formik
       enableReinitialize
       validationSchema={formSchema}
-      initialValues={initialValues}
+      initialValues={{
+        zec: payload ? parseFloat(payload.priceZcash).toFixed(4) : 0.00,
+        usd: payload ? parseFloat(payload.priceUSD).toFixed(2) : 0.00
+      }}
       onSubmit={async (values, { resetForm }) => {
         handleSendTransfer({ values, payload, history })
         resetForm()
