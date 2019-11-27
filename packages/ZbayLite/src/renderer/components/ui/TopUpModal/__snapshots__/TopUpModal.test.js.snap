@@ -2,124 +2,25 @@
 
 exports[`TopUpModal renders component with private option 1`] = `
 <Memo(WithStyles(Modal))
-  fullPage={true}
   handleClose={[MockFunction]}
   open={false}
-  title="Add funds to your wallet"
 >
   <WithStyles(ForwardRef(Grid))
-    alignContent="flex-start"
-    className="root-mock"
     container={true}
     justify="center"
   >
     <WithStyles(ForwardRef(Grid))
-      alignItems="flex-start"
-      className="title-mock"
-      container={true}
       item={true}
-      justify="center"
+      xs={true}
     >
-      <WithStyles(ForwardRef(Typography))
-        variant="h5"
-      >
-        Add funds to
-      </WithStyles(ForwardRef(Typography))>
-      <WithStyles(ForwardRef(Select))
-        className="selectWrapper-mock"
-        classes={
-          Object {
-            "select": "select-mock",
-          }
-        }
-        displayEmpty={true}
-        name="address"
-        onChange={[MockFunction]}
-        value="private"
-      >
-        <WithStyles(ForwardRef(MenuItem))
-          value="transparent"
-        >
-          Transparent
-        </WithStyles(ForwardRef(MenuItem))>
-        <WithStyles(ForwardRef(MenuItem))
-          value="private"
-        >
-          Private
-        </WithStyles(ForwardRef(MenuItem))>
-      </WithStyles(ForwardRef(Select))>
-      <WithStyles(ForwardRef(Typography))
-        variant="h5"
-      >
-        address
-      </WithStyles(ForwardRef(Typography))>
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      item={true}
-    >
-      <WithStyles(ForwardRef(Grid))
-        alignItems="center"
-        className="dataRoot-mock"
-        container={true}
-        direction="column"
-        justify="center"
-        spacing={2}
-      >
-        <WithStyles(ForwardRef(Grid))
-          item={true}
-        >
-          <WithStyles(ForwardRef(Typography))
-            className="description-mock"
-            variant="body2"
-          >
-            You can use your private address to exchange ZEC with other people.
-          </WithStyles(ForwardRef(Typography))>
-        </WithStyles(ForwardRef(Grid))>
-        <WithStyles(ForwardRef(Grid))
-          item={true}
-        >
-          <QRCode
-            bgColor="#FFFFFF"
-            fgColor="#000000"
-            includeMargin={false}
-            level="L"
-            renderAs="canvas"
-            size={250}
-            value="zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly"
-          />
-        </WithStyles(ForwardRef(Grid))>
-        <WithStyles(ForwardRef(Grid))
-          item={true}
-        >
-          <WithStyles(ForwardRef(TextField))
-            InputProps={
-              Object {
-                "classes": Object {
-                  "input": "copyInput-mock",
-                },
-                "endAdornment": <ForwardRef(WithStyles)
-                  position="end"
-                >
-                  <CopyToClipboard
-                    onCopy={[MockFunction]}
-                    text="zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly"
-                  >
-                    <ForwardRef(WithStyles)>
-                      <Memo(WithStyles(IconCopy)) />
-                    </ForwardRef(WithStyles)>
-                  </CopyToClipboard>
-                </ForwardRef(WithStyles)>,
-              }
-            }
-            className="copyField-mock"
-            disabled={true}
-            id="copy-address"
-            type="text"
-            value="zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly"
-            variant="outlined"
-          />
-        </WithStyles(ForwardRef(Grid))>
-      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(AddFunds)
+        address="zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly"
+        description="Private description"
+        handleChange={[MockFunction]}
+        handleCopy={[MockFunction]}
+        type="private"
+        variant="wide"
+      />
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
 </Memo(WithStyles(Modal))>
@@ -127,133 +28,25 @@ exports[`TopUpModal renders component with private option 1`] = `
 
 exports[`TopUpModal renders component with transparent option 1`] = `
 <Memo(WithStyles(Modal))
-  fullPage={true}
   handleClose={[MockFunction]}
   open={false}
-  title="Add funds to your wallet"
 >
   <WithStyles(ForwardRef(Grid))
-    alignContent="flex-start"
-    className="root-mock"
     container={true}
     justify="center"
   >
     <WithStyles(ForwardRef(Grid))
-      alignItems="flex-start"
-      className="title-mock"
-      container={true}
       item={true}
-      justify="center"
+      xs={true}
     >
-      <WithStyles(ForwardRef(Typography))
-        variant="h5"
-      >
-        Add funds to
-      </WithStyles(ForwardRef(Typography))>
-      <WithStyles(ForwardRef(Select))
-        className="selectWrapper-mock"
-        classes={
-          Object {
-            "select": "select-mock",
-          }
-        }
-        displayEmpty={true}
-        name="address"
-        onChange={[MockFunction]}
-        value="transparent"
-      >
-        <WithStyles(ForwardRef(MenuItem))
-          value="transparent"
-        >
-          Transparent
-        </WithStyles(ForwardRef(MenuItem))>
-        <WithStyles(ForwardRef(MenuItem))
-          value="private"
-        >
-          Private
-        </WithStyles(ForwardRef(MenuItem))>
-      </WithStyles(ForwardRef(Select))>
-      <WithStyles(ForwardRef(Typography))
-        variant="h5"
-      >
-        address
-      </WithStyles(ForwardRef(Typography))>
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      item={true}
-    >
-      <WithStyles(ForwardRef(Grid))
-        alignItems="center"
-        className="dataRoot-mock"
-        container={true}
-        direction="column"
-        justify="center"
-        spacing={2}
-      >
-        <WithStyles(ForwardRef(Grid))
-          item={true}
-        >
-          <WithStyles(ForwardRef(Typography))
-            className="description-mock"
-            variant="body2"
-          >
-            You need Zcash (ZEC) to use Zbay. So buy some ZEC at
-             
-            <a
-              href="coinbase.com"
-              onClick={[Function]}
-            >
-              Coinbase.com
-            </a>
-             
-            and send it to the address below. Note: Coinbase and most exchanges will not send to a private address, but Zbay automatically moves your ZEC to your own private address as soon as it arrives.
-          </WithStyles(ForwardRef(Typography))>
-        </WithStyles(ForwardRef(Grid))>
-        <WithStyles(ForwardRef(Grid))
-          item={true}
-        >
-          <QRCode
-            bgColor="#FFFFFF"
-            fgColor="#000000"
-            includeMargin={false}
-            level="L"
-            renderAs="canvas"
-            size={250}
-            value="t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1"
-          />
-        </WithStyles(ForwardRef(Grid))>
-        <WithStyles(ForwardRef(Grid))
-          item={true}
-        >
-          <WithStyles(ForwardRef(TextField))
-            InputProps={
-              Object {
-                "classes": Object {
-                  "input": "copyInput-mock",
-                },
-                "endAdornment": <ForwardRef(WithStyles)
-                  position="end"
-                >
-                  <CopyToClipboard
-                    onCopy={[MockFunction]}
-                    text="t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1"
-                  >
-                    <ForwardRef(WithStyles)>
-                      <Memo(WithStyles(IconCopy)) />
-                    </ForwardRef(WithStyles)>
-                  </CopyToClipboard>
-                </ForwardRef(WithStyles)>,
-              }
-            }
-            className="copyField-mock"
-            disabled={true}
-            id="copy-address"
-            type="text"
-            value="t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1"
-            variant="outlined"
-          />
-        </WithStyles(ForwardRef(Grid))>
-      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(AddFunds)
+        address="t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1"
+        description="Transparent description"
+        handleChange={[MockFunction]}
+        handleCopy={[MockFunction]}
+        type="transparent"
+        variant="wide"
+      />
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
 </Memo(WithStyles(Modal))>

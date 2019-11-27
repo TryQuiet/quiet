@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import * as R from 'ramda'
 
-import TopUpModalComponent from '../../components/ui/TopUpModal'
+import TopUpModalComponent from '../../components/ui/TopUpModal/TopUpModal'
 import identitySelectors from '../../store/selectors/identity'
 import { withModal } from '../../store/handlers/modals'
 

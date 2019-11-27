@@ -4,6 +4,7 @@ import PropTypes from 'prop-types'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { AutoSizer } from 'react-virtualized'
 import { Scrollbars } from 'react-custom-scrollbars'
+import classNames from 'classnames'
 
 import MenuItem from '@material-ui/core/MenuItem'
 import Grid from '@material-ui/core/Grid'
@@ -45,7 +46,8 @@ const styles = theme => ({
     marginBottom: theme.spacing(2)
   },
   copyField: {
-    width: 300,
+    paddingRight: 24,
+    width: '100%',
     borderRadius: 4,
     marginBottom: theme.spacing(2)
   },
@@ -71,7 +73,7 @@ const styles = theme => ({
     borderBottom: `1px solid ${theme.palette.colors.inputGray}`
   },
   QRCodeBox: {
-    width: 348,
+    width: '100%',
     height: 268,
     backgroundColor: theme.palette.colors.veryLightGray,
     borderBottom: `1px solid ${theme.palette.colors.inputGray}`
@@ -108,6 +110,12 @@ const styles = theme => ({
   },
   tabTitle: {
     letterSpacing: -0.5
+  },
+  wideSelectWrapper: {
+    width: '100%'
+  },
+  changeSize: {
+    width: 600
   }
 })
 
@@ -132,107 +140,118 @@ const descriptions = {
   private: 'You can use your private address to exchange ZEC with other people.'
 }
 
-export const AddFunds = ({ classes, type, address, handleChange, handleClose, handleCopy }) => {
+export const AddFunds = ({ classes, type, address, handleChange, handleClose, handleCopy, variant }) => {
   return (
     <AutoSizer>
       {({ width, height }) => (
-        <Scrollbars autoHideTimeout={500} style={{ width: width, height: height }}>
-          <Grid item>
+        <Scrollbars autoHideTimeout={500} style={{ width: variant === 'wide' ? 650 : 380, height: height }}>
+          <Grid container item justify={variant === 'wide' ? 'center' : 'flex-start'}>
             <Typography variant={'h3'} className={classes.tabTitle}>
               Add funds to your wallet
             </Typography>
           </Grid>
-          <Grid container justify='center' alignContent='flex-start' className={classes.root}>
-            <Grid
-              item
-              direction={'column'}
-              className={classes.addressSelectBox}
-              container
-              justify={'center'}
-              alignContent={'center'}
-              wrap='wrap'
+          <Grid container item justify={variant === 'wide' ? 'center' : 'flex-start'}>
+            <Grid container justify='center' alignContent='flex-start' className={classNames({
+              [classes.root]: true,
+              [classes.changeSize]: variant === 'wide'
+            })}
             >
-              <Grid item xs>
-                <Typography className={classes.fieldTitle} variant='subtitle2'>
+              <Grid
+                item
+                direction={'column'}
+                className={classes.addressSelectBox}
+                container
+                justify={'center'}
+                alignContent={'center'}
+                wrap='wrap'
+              >
+                <Grid item xs>
+                  <Typography className={classes.fieldTitle} variant='subtitle2'>
                   Address to add funds
-                </Typography>
+                  </Typography>
+                </Grid>
+                <Grid item xs>
+                  <Select
+                    displayEmpty
+                    IconComponent={UnfoldMore}
+                    input={
+                      <OutlinedInput
+                        name='address'
+                        id='outlined-address'
+                        className={classes.select}
+                      />
+                    }
+                    value={type}
+                    onChange={handleChange}
+                    className={classNames({
+                      [classes.selectWrapper]: true,
+                      [classes.wideSelectWrapper]: variant === 'wide'
+                    })}
+                  >
+                    <MenuItem value={'transparent'}>Transparent</MenuItem>
+                    <MenuItem value={'private'}>Private</MenuItem>
+                  </Select>
+                </Grid>
+                <Grid className={classes.helperText} item>
+                  <Typography variant={'body2'}>{descriptions[type]}</Typography>
+                </Grid>
               </Grid>
-              <Grid item xs>
-                <Select
-                  displayEmpty
-                  IconComponent={UnfoldMore}
-                  input={
-                    <OutlinedInput
-                      name='address'
-                      id='outlined-address'
-                      className={classes.select}
-                    />
-                  }
-                  value={type}
-                  onChange={handleChange}
-                  className={classes.selectWrapper}
-                >
-                  <MenuItem value={'transparent'}>Transparent</MenuItem>
-                  <MenuItem value={'private'}>Private</MenuItem>
-                </Select>
+              <Grid
+                container
+                className={classes.copyInputBox}
+                item
+                direction={'column'}
+                wrap={'no-wrap'}
+                alignContent={'center'}
+                justify={'center'}
+              >
+                <Grid className={classes.titleBox} item xs>
+                  <Typography className={classes.fieldTitle} variant='subtitle2'>
+                    {type === 'transparent' ? 'Transparent Address' : 'Private Address'}
+                  </Typography>
+                </Grid>
+                <Grid item xs>
+                  <TextField
+                    id='copy-address'
+                    className={classes.copyField}
+                    variant='outlined'
+                    type='text'
+                    value={address}
+                    disabled
+                    InputProps={{
+                      classes: { input: classes.copyInput, adornedEnd: classes.adornedEnd },
+                      endAdornment: (
+                        <Grid
+                          item
+                          container
+                          justify={'center'}
+                          alignItems={'center'}
+                          className={classes.iconBox}
+                        >
+                          <InputAdornment position='end' className={classes.iconBackground}>
+                            <CopyToClipboard text={address} onCopy={handleCopy}>
+                              <IconButton>
+                                <Icon src={CopyIcon} />
+                              </IconButton>
+                            </CopyToClipboard>
+                          </InputAdornment>
+                        </Grid>
+                      )
+                    }}
+                  />
+                </Grid>
               </Grid>
-              <Grid className={classes.helperText} item>
-                <Typography variant={'body2'}>{descriptions[type]}</Typography>
-              </Grid>
-            </Grid>
-            <Grid
-              container
-              className={classes.copyInputBox}
-              item
-              alignContent={'center'}
-              justify={'center'}
-            >
-              <Grid className={classes.titleBox} item xs>
-                <Typography className={classes.fieldTitle} variant='subtitle2'>
-                  {type === 'transparent' ? 'Transparent Address' : 'Private Address'}
-                </Typography>
-              </Grid>
-              <Grid item xs>
-                <TextField
-                  id='copy-address'
-                  className={classes.copyField}
-                  variant='outlined'
-                  type='text'
-                  value={address}
-                  disabled
-                  InputProps={{
-                    classes: { input: classes.copyInput, adornedEnd: classes.adornedEnd },
-                    endAdornment: (
-                      <Grid
-                        item
-                        container
-                        justify={'center'}
-                        alignItems={'center'}
-                        className={classes.iconBox}
-                      >
-                        <InputAdornment position='end' className={classes.iconBackground}>
-                          <CopyToClipboard text={address} onCopy={handleCopy}>
-                            <IconButton>
-                              <Icon src={CopyIcon} />
-                            </IconButton>
-                          </CopyToClipboard>
-                        </InputAdornment>
-                      </Grid>
-                    )
-                  }}
-                />
-              </Grid>
-            </Grid>
-            <Grid container justify={'center'} className={classes.QRCodeBox} item>
-              <Grid container justify={'center'} alignItems={'center'} item>
-                <Grid
-                  container
-                  justify={'center'}
-                  alignItems={'center'}
-                  item
-                  className={classes.whiteBox}
-                >
-                  <QRCode value={address} size={200} />
+              <Grid container justify={'center'} className={classes.QRCodeBox} item>
+                <Grid container justify={'center'} alignItems={'center'} item>
+                  <Grid
+                    container
+                    justify={'center'}
+                    alignItems={'center'}
+                    item
+                    className={classes.whiteBox}
+                  >
+                    <QRCode value={address} size={200} />
+                  </Grid>
                 </Grid>
               </Grid>
             </Grid>
