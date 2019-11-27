@@ -46,7 +46,9 @@ export const Tor = ({
             checked={tor.enabled}
             onChange={e => {
               setEnabled({ enabled: e.target.checked })
-              checkDeafult()
+              if (e.target.checked) {
+                checkDeafult()
+              }
             }}
             color='default'
           />

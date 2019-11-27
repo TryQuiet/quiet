@@ -157,8 +157,17 @@ export const epics = {
 
 export const reducer = handleActions(
   {
-    [setEnabled]: (state, { payload: { enabled } }) =>
-      state.set('enabled', enabled).set('status', 'down'),
+    [setEnabled]: (state, { payload: { enabled } }) => {
+      if (enabled) {
+        return state.set('enabled', enabled).set('status', 'down')
+      } else {
+        return state
+          .set('enabled', enabled)
+          .set('status', 'down')
+          .set('url', '')
+          .set('error', '')
+      }
+    },
     [setUrl]: (state, { payload: { url } }) => state.set('url', url).set('status', 'down'),
     [setError]: (state, { payload: { error } }) => state.set('error', error),
     [setStatus]: (state, { payload: { status } }) => state.set('status', status)
