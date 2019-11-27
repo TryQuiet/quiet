@@ -25,8 +25,9 @@ import nodeHandlers from './node'
 import vault, { getVault } from '../../vault'
 import migrateTo_0_2_0 from '../../../shared/migrations/0_2_0' // eslint-disable-line camelcase
 import migrateTo_0_7_0 from '../../../shared/migrations/0_7_0' // eslint-disable-line camelcase
-import { LoaderState } from './utils'
+import { LoaderState, successNotification } from './utils'
 import modalsHandlers from './modals'
+import notificationsHandlers from './notifications'
 
 export const ShippingData = Immutable.Record(
   {
@@ -275,6 +276,11 @@ export const updateShippingData = (values, formActions) => async (dispatch, getS
   const id = identitySelectors.id(getState())
   const identity = await vault.identity.updateShippingData(id, values)
   await dispatch(setShippingData(identity.shippingData))
+  dispatch(
+    notificationsHandlers.actions.enqueueSnackbar(
+      successNotification({ message: 'Shipping Address Updated' })
+    )
+  )
   formActions.setSubmitting(false)
 }
 
