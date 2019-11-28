@@ -1,9 +1,54 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ChannelInput will receive right props for channel 1`] = `
+exports[`ChannelInput will receive right props for direct message 1`] = `
 Object {
   "channelId": "this-is-test-channel-id",
   "messages": Immutable.List [
+    Immutable.ReceivedMessage {
+      "id": 7,
+      "type": 1,
+      "sender": Immutable.MessageSender {
+        "replyTo": "",
+        "username": "",
+      },
+      "createdAt": 1551913428,
+      "message": "This is a message with id 7",
+      "spent": "0.32",
+      "isUnregistered": false,
+      "tag": "",
+      "offerOwner": "",
+      "publicKey": null,
+    },
+    Immutable.ReceivedMessage {
+      "id": 6,
+      "type": 1,
+      "sender": Immutable.MessageSender {
+        "replyTo": "",
+        "username": "",
+      },
+      "createdAt": 1551920628,
+      "message": "This is a message with id 6",
+      "spent": "0.32",
+      "isUnregistered": false,
+      "tag": "",
+      "offerOwner": "",
+      "publicKey": null,
+    },
+    Immutable.ReceivedMessage {
+      "id": 5,
+      "type": 1,
+      "sender": Immutable.MessageSender {
+        "replyTo": "",
+        "username": "",
+      },
+      "createdAt": 1551927828,
+      "message": "This is a message with id 5",
+      "spent": "0.32",
+      "isUnregistered": false,
+      "tag": "",
+      "offerOwner": "",
+      "publicKey": null,
+    },
     Immutable.DisplayableMessage {
       "id": 3,
       "type": 1,
@@ -13,7 +58,7 @@ Object {
       },
       "receiver": Immutable.ExchangeParticipant {
         "replyTo": "",
-        "username": "Unnamed",
+        "username": "",
       },
       "createdAt": 1551942228,
       "message": "This is a message with id 3",
@@ -36,7 +81,7 @@ Object {
       },
       "receiver": Immutable.ExchangeParticipant {
         "replyTo": "",
-        "username": "Unnamed",
+        "username": "",
       },
       "createdAt": 1551949428,
       "message": "This is a message with id 2",
@@ -59,7 +104,7 @@ Object {
       },
       "receiver": Immutable.ExchangeParticipant {
         "replyTo": "",
-        "username": "Unnamed",
+        "username": "",
       },
       "createdAt": 1551956628,
       "message": "This is a message with id 1",
@@ -82,7 +127,7 @@ Object {
       },
       "receiver": Immutable.ExchangeParticipant {
         "replyTo": "",
-        "username": "Unnamed",
+        "username": "",
       },
       "createdAt": 1551963828,
       "message": "This is a message with id 0",

@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import * as R from 'ramda'
 
 import ChannelComponent from '../../components/pages/Channel'
+import { CHANNEL_TYPE } from '../../components/pages/ChannelMapping'
 
 import channelHandlers from '../../store/handlers/channel'
 import channelsSelectors from '../../store/selectors/channels'
@@ -33,7 +34,7 @@ const Channel = ({ loadOffer, match, resetDirectMessageChannel, msg }) => {
     },
     [match.params.id]
   )
-  return <ChannelComponent offer={match.params.id} />
+  return <ChannelComponent channelType={CHANNEL_TYPE.OFFER} offer={match.params.id} />
 }
 
 export default R.compose(

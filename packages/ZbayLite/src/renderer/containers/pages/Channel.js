@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import * as R from 'ramda'
 
 import ChannelComponent from '../../components/pages/Channel'
+import { CHANNEL_TYPE } from '../../components/pages/ChannelMapping'
 
 import channelHandlers from '../../store/handlers/channel'
 import channelsSelectors from '../../store/selectors/channels'
@@ -37,7 +38,7 @@ const Channel = ({ loadChannel, generalChannelId, match, resetDirectMessageChann
     },
     [match.params.id, generalChannelId]
   )
-  return <ChannelComponent />
+  return <ChannelComponent channelType={CHANNEL_TYPE.NORMAL} />
 }
 
 export default R.compose(

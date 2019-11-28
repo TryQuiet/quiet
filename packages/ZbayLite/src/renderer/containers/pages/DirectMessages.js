@@ -7,6 +7,7 @@ import directMessageChannel from '../../store/handlers/directMessageChannel'
 import contactsHandlers from '../../store/handlers/contacts'
 import channelHandlers from '../../store/handlers/channel'
 import ChannelComponent from '../../components/pages/Channel'
+import { CHANNEL_TYPE } from '../../components/pages/ChannelMapping'
 
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
@@ -38,7 +39,7 @@ const DirectMessages = ({
     },
     [match.params.id]
   )
-  return <ChannelComponent contactId={match.params.id} />
+  return <ChannelComponent channelType={CHANNEL_TYPE.DIRECT_MESSAGE} contactId={match.params.id} />
 }
 
 export default R.compose(

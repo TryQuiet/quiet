@@ -4,12 +4,12 @@ import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
 import * as R from 'ramda'
 
-import { mapStateToProps } from './ChannelMessages'
+import { mapStateToProps } from './DirectMessagesMessages'
 
 import { createReceivedMessage, now } from '../../../testUtils'
 import create from '../../../store/create'
 import { ChannelState } from '../../../store/handlers/channel'
-import { ReceivedMessage, ChannelMessages } from '../../../store/handlers/messages'
+import { ReceivedMessage } from '../../../store/handlers/messages'
 
 describe('ChannelInput', () => {
   let store = null
@@ -24,8 +24,8 @@ describe('ChannelInput', () => {
           members: new BigNumber(0),
           message: 'This is a test message'
         }),
-        messages: Immutable.Map({
-          [channelId]: ChannelMessages({
+        contacts: Immutable.Map({
+          address123: {
             messages: Immutable.List(
               Immutable.fromJS(
                 R.range(0, 4).map(id =>
@@ -37,15 +37,27 @@ describe('ChannelInput', () => {
                   )
                 )
               )
+            ),
+            vaultMessages: Immutable.List(
+              Immutable.fromJS(
+                R.range(5, 8).map(id =>
+                  ReceivedMessage(
+                    createReceivedMessage({
+                      id,
+                      createdAt: now.minus({ hours: 2 * id }).toSeconds()
+                    })
+                  )
+                )
+              )
             )
-          })
+          }
         })
       })
     })
   })
 
-  it('will receive right props for channel', async () => {
-    const props = mapStateToProps(store.getState(), {})
+  it('will receive right props for direct message', async () => {
+    const props = mapStateToProps(store.getState(), { contactId: 'address123' })
     expect(props).toMatchSnapshot()
   })
 })

@@ -1,0 +1,41 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChannelInput will receive right props for offers 1`] = `
+Object {
+  "channelId": "this-is-test-channel-id",
+  "messages": Immutable.List [
+    Immutable.ReceivedMessage {
+      "id": 1,
+      "type": 1,
+      "sender": Immutable.MessageSender {
+        "replyTo": "",
+        "username": "",
+      },
+      "createdAt": 1551956628,
+      "message": "This is a message with id 1",
+      "spent": "0.32",
+      "isUnregistered": false,
+      "tag": "",
+      "offerOwner": "",
+      "publicKey": null,
+    },
+    Immutable.ReceivedMessage {
+      "id": 0,
+      "type": 1,
+      "sender": Immutable.MessageSender {
+        "replyTo": "",
+        "username": "",
+      },
+      "createdAt": 1551963828,
+      "message": "This is a message with id 0",
+      "spent": "0.32",
+      "isUnregistered": false,
+      "tag": "",
+      "offerOwner": "",
+      "publicKey": null,
+    },
+  ],
+  "qMessages": Immutable.Map {},
+  "triggerScroll": false,
+}
+`;

@@ -7,10 +7,7 @@ import { Grid } from '@material-ui/core'
 
 import Page from '../ui/page/Page'
 import PageHeader from '../ui/page/PageHeader'
-import ChannelInput from '../../containers/widgets/channels/ChannelInput'
-import ChannelHeader from '../../containers/widgets/channels/ChannelHeader'
-import OfferChannelHeader from '../../containers/widgets/channels/OfferChannelHeader'
-import DirectMessagesHeader from '../../containers/widgets/channels/DirectMessagesHeader'
+import { channelTypeToHeader, channelTypeToInput } from './ChannelMapping'
 import ChannelContent from '../../containers/widgets/channels/ChannelContent'
 
 const styles = {
@@ -20,23 +17,19 @@ const styles = {
   }
 }
 
-export const Channel = ({ classes, contactId, offer, directMessage }) => {
+export const Channel = ({ classes, channelType, ...props }) => {
+  const Header = channelTypeToHeader[channelType]
+  const Input = channelTypeToInput[channelType]
   return (
     <Page>
       <PageHeader>
-        {contactId ? (
-          <DirectMessagesHeader contactId={contactId} />
-        ) : offer ? (
-          <OfferChannelHeader offer={offer} />
-        ) : (
-          <ChannelHeader />
-        )}
+        <Header {...props} />
       </PageHeader>
       <Grid item xs className={classes.messages}>
-        <ChannelContent contactId={offer || contactId} />
+        <ChannelContent {...props} channelType={channelType} />
       </Grid>
       <Grid item>
-        <ChannelInput contactId={offer || contactId} />
+        <Input {...props} />
       </Grid>
     </Page>
   )

@@ -4,27 +4,28 @@ import Immutable from 'immutable'
 
 import ChannelMessagesComponent from '../../../components/widgets/channels/ChannelMessages'
 import channelSelectors from '../../../store/selectors/channel'
+import offersSelectors from '../../../store/selectors/offers'
 import dmQueueMessages from '../../../store/selectors/directMessagesQueue'
 import queueMessages from '../../../store/selectors/messagesQueue'
 
-export const mapStateToProps = (state, { signerPubKey }) => {
+export const mapStateToProps = (state, { offer, signerPubKey }) => {
   const qMessages = queueMessages.queue(state)
   const qDmMessages = dmQueueMessages.queue(state)
   return {
     triggerScroll: qDmMessages.size + qMessages.size > 0,
     qMessages: qMessages,
-    messages: channelSelectors.messages(signerPubKey)(state),
+    messages: offersSelectors.offerMessages(offer, signerPubKey)(state),
     channelId: channelSelectors.channelId(state)
   }
 }
 
-export const ChannelMessages = ({ messages, contactId, channelId, contentRect, triggerScroll }) => {
+export const ChannelMessages = ({ messages, offer, channelId, contentRect, triggerScroll }) => {
   const [scrollPosition, setScrollPosition] = React.useState(-1)
   useEffect(
     () => {
       setScrollPosition(-1)
     },
-    [channelId, contactId]
+    [channelId, offer]
   )
   useEffect(
     () => {
@@ -39,7 +40,7 @@ export const ChannelMessages = ({ messages, contactId, channelId, contentRect, t
       scrollPosition={scrollPosition}
       setScrollPosition={setScrollPosition}
       messages={messages}
-      contactId={contactId}
+      contactId={offer}
       contentRect={contentRect}
     />
   )

@@ -3,13 +3,13 @@
 exports[`ChannelInput will receive right actions 1`] = `
 Object {
   "onChange": [Function],
-  "sendOnEnter": [Function],
+  "sendDirectMessageOnEnter": [Function],
 }
 `;
 
 exports[`ChannelInput will receive right props 1`] = `
 Object {
-  "inputState": 0,
+  "inputState": 3,
   "message": "This is a test message",
 }
 `;

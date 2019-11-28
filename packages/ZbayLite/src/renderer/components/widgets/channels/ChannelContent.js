@@ -7,7 +7,7 @@ import { withStyles } from '@material-ui/core/styles'
 import RootRef from '@material-ui/core/RootRef'
 import { withContentRect } from 'react-measure'
 
-import ChannelMessages from '../../../containers/widgets/channels/ChannelMessages'
+import { channelTypeToMessages } from '../../pages/ChannelMapping'
 
 const styles = theme => ({
   fullHeight: {
@@ -24,14 +24,18 @@ export const ChannelContent = ({
   contactId,
   signerPubKey,
   measureRef,
-  contentRect
+  contentRect,
+  channelType,
+  offer
 }) => {
+  const ChannelMessages = channelTypeToMessages[channelType]
   return (
     <RootRef rootRef={measureRef}>
       <Grid item className={classes.fullHeight}>
         <ChannelMessages
           channelId={channelId}
           contactId={contactId}
+          offer={offer}
           signerPubKey={signerPubKey}
           inputState={inputState}
           contentRect={contentRect}
@@ -45,6 +49,7 @@ ChannelContent.propTypes = {
   channelId: PropTypes.string,
   contactId: PropTypes.string,
   inputState: PropTypes.number,
+  channelType: PropTypes.number.isRequired,
   signerPubKey: PropTypes.string,
   measureRef: PropTypes.func.isRequired,
   contentRect: PropTypes.object.isRequired
