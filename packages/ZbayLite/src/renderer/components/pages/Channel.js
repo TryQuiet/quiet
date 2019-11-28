@@ -23,7 +23,7 @@ export const Channel = ({ classes, channelType, ...props }) => {
   return (
     <Page>
       <PageHeader>
-        <Header {...props} />
+        <Header {...props} channelType={channelType} />
       </PageHeader>
       <Grid item xs className={classes.messages}>
         <ChannelContent {...props} channelType={channelType} />

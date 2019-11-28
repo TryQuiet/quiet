@@ -13,7 +13,8 @@ describe('SendMessagePopover', () => {
       priceUSD: '300',
       offerOwner: 'roks33',
       priceZcash: '4000',
-      background: '98c9e4113d76a80d654096c9938fb1a3.svg'
+      background: '98c9e4113d76a80d654096c9938fb1a3.svg',
+      id: 'test-id'
     }
     const result = shallow(
       <AdvertActionModal

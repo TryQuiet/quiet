@@ -298,7 +298,7 @@ exports[`ChannelMenuAction renders component 1`] = `
     title="Mute"
   />
   <Memo(WithStyles(MenuActionItem))
-    onClick={[Function]}
+    onClick={[MockFunction]}
     title="Delete"
   />
 </Memo(WithStyles(MenuAction))>

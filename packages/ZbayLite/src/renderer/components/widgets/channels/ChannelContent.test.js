@@ -3,7 +3,7 @@ import { shallow } from 'enzyme'
 
 import { ChannelContent } from './ChannelContent'
 import { mockClasses } from '../../../../shared/testing/mocks'
-import { CHANNEL_TYPE } from '../../pages/ChannelMapping'
+import { CHANNEL_TYPE } from '../../pages/ChannelTypes'
 describe('ChannelContent', () => {
   it('renders component', () => {
     const result = shallow(

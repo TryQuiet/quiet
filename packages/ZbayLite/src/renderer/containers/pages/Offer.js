@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import * as R from 'ramda'
 
 import ChannelComponent from '../../components/pages/Channel'
-import { CHANNEL_TYPE } from '../../components/pages/ChannelMapping'
+import { CHANNEL_TYPE } from '../../components/pages/ChannelTypes'
 
 import channelHandlers from '../../store/handlers/channel'
 import channelsSelectors from '../../store/selectors/channels'

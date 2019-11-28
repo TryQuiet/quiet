@@ -76,7 +76,6 @@ const checkDeafult = () => async (dispatch, getState) => {
   client.on('data', data => {
     client.destroy() // kill client after server's response
     if (Buffer.from(data).toString('hex') === '0500') {
-      console.log(checkedUrl)
       dispatch(setUrl({ url: checkedUrl }))
       dispatch(setStatus({ status: 'stable' }))
       dispatch(setError({ error: '' }))

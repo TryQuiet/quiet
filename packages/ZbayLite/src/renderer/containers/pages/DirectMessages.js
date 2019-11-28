@@ -7,7 +7,7 @@ import directMessageChannel from '../../store/handlers/directMessageChannel'
 import contactsHandlers from '../../store/handlers/contacts'
 import channelHandlers from '../../store/handlers/channel'
 import ChannelComponent from '../../components/pages/Channel'
-import { CHANNEL_TYPE } from '../../components/pages/ChannelMapping'
+import { CHANNEL_TYPE } from '../../components/pages/ChannelTypes'
 
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(

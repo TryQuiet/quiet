@@ -286,7 +286,9 @@ AdvertActionModal.propTypes = {
     priceZcash: PropTypes.string.isRequired,
     offerOwner: PropTypes.string.isRequired,
     description: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired
+    title: PropTypes.string.isRequired,
+    background: PropTypes.string.isRequired,
+    id: PropTypes.string.isRequired
   }),
   handleMessage: PropTypes.func.isRequired,
   handleClose: PropTypes.func.isRequired
@@ -299,7 +301,9 @@ AdvertActionModal.defaultProps = {
     priceZcash: '',
     offerOwner: '',
     description: '',
-    title: ''
+    title: '',
+    background: '1',
+    id: ''
   }
 }
 

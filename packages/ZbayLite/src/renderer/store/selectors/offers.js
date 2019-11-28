@@ -19,18 +19,24 @@ const filteredOffers = createSelector(
   store,
   removedChannelsSelectors.removedChannels,
   (s, removedChannels) => {
-    const filteredOffers = s.get('offers').toList().map((offer, i) => {
-      const messages = offer.get('messages')
-      const [newestMsg] = messages.sort((a, b) => parseInt(b.createdAt) - parseInt(a.createdAt))
-      const removedChannelTimestamp = removedChannels.get(offer.get('itemId'))
-      if (!newestMsg) {
-        return
-      }
-      const { createdAt: contactMsgTimestamp } = newestMsg
-      if (removedChannelTimestamp && parseInt(removedChannelTimestamp) > parseInt(contactMsgTimestamp)) {
-        return null
-      } else return offer
-    })
+    const filteredOffers = s
+      .get('offers')
+      .toList()
+      .map((offer, i) => {
+        const messages = offer.get('messages')
+        const [newestMsg] = messages.sort((a, b) => parseInt(b.createdAt) - parseInt(a.createdAt))
+        const removedChannelTimestamp = removedChannels.get(offer.get('itemId'))
+        if (!newestMsg) {
+          return
+        }
+        const { createdAt: contactMsgTimestamp } = newestMsg
+        if (
+          removedChannelTimestamp &&
+          parseInt(removedChannelTimestamp) > parseInt(contactMsgTimestamp)
+        ) {
+          return null
+        } else return offer
+      })
     return filteredOffers.filter(offer => !R.isNil(offer))
   }
 )
@@ -48,6 +54,11 @@ export const queuedMessages = id =>
       queue.filter(
         m => m.offerId === id.substring(0, 64) && m.recipientUsername === id.substring(64)
       )
+  )
+export const advertMessage = id =>
+  createSelector(
+    offer(id),
+    offer => offer.messages.find(msg => msg.type === 2)
   )
 
 export const pendingMessages = id =>
@@ -110,5 +121,6 @@ export default {
   offer,
   filteredOffers,
   offerMessages,
-  lastSeen
+  lastSeen,
+  advertMessage
 }

@@ -7,9 +7,12 @@ import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
 
-import ChannelMenuAction from '../../../containers/widgets/channels/ChannelMenuAction'
 import ChannelInfoModal from '../../../containers/widgets/channels/ChannelInfoModal'
 import DirectMessagesInfoModal from '../../../containers/widgets/channels/DirectMessagesInfoModal'
+import { CHANNEL_TYPE } from '../../../components/pages/ChannelTypes'
+import ChannelMenuAction from '../../../containers/widgets/channels/ChannelMenuAction'
+import OfferMenuActions from '../../../containers/widgets/channels/OfferMenuActions'
+import DirectMessagesMenuActions from '../../../containers/widgets/channels/DirectMessagesMenuActions'
 
 const styles = theme => ({
   root: {
@@ -34,8 +37,16 @@ const styles = theme => ({
   }
 })
 
+export const channelTypeToActions = {
+  [CHANNEL_TYPE.OFFER]: OfferMenuActions,
+  [CHANNEL_TYPE.DIRECT_MESSAGE]: DirectMessagesMenuActions,
+  [CHANNEL_TYPE.NORMAL]: ChannelMenuAction
+}
+
 // TODO: [reafactoring] we should have channel stats for unread and members count
-export const ChannelHeader = ({ classes, channel, directMessage, offer, members }) => {
+
+export const ChannelHeader = ({ classes, channel, directMessage, offer, members, channelType }) => {
+  const ActionsMenu = channelTypeToActions[channelType]
   return (
     <Grid
       container
@@ -56,7 +67,7 @@ export const ChannelHeader = ({ classes, channel, directMessage, offer, members 
       </Grid>
       <Grid item container className={classes.actions} justify='flex-end' alignItems='center'>
         <Grid item>
-          <ChannelMenuAction directMessage={directMessage} offer={offer} />
+          <ActionsMenu directMessage={directMessage} offer={offer} />
           {directMessage ? <DirectMessagesInfoModal /> : <ChannelInfoModal />}
         </Grid>
       </Grid>
@@ -67,13 +78,15 @@ export const ChannelHeader = ({ classes, channel, directMessage, offer, members 
 ChannelHeader.propTypes = {
   classes: PropTypes.object.isRequired,
   directMessage: PropTypes.bool.isRequired,
+  channelType: PropTypes.number.isRequired,
   channel: PropTypes.instanceOf(Immutable.Map).isRequired,
   members: PropTypes.instanceOf(Set)
 }
 
 ChannelHeader.defaultProps = {
   channel: Immutable.Map(),
-  directMessage: false
+  directMessage: false,
+  channelType: 3
 }
 
 export default R.compose(
