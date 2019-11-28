@@ -16,7 +16,8 @@ export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
       getStatus: nodeHandlers.epics.getStatus,
-      loadVersion: appHandlers.actions.loadVersion
+      loadVersion: appHandlers.actions.loadVersion,
+      createZcashNode: torHandlers.epics.createZcashNode
     },
     dispatch
   )
@@ -25,8 +26,7 @@ export const mapStateToProps = state => ({
   nodeConnected: nodeSelectors.isConnected(state),
   bootstrapping: nodeSelectors.bootstrapping(state),
   bootstrappingMessage: nodeSelectors.bootstrappingMessage(state),
-  locked: vaultSelectors.locked(state),
-  createZcashNode: torHandlers.epics.createZcashNode
+  locked: vaultSelectors.locked(state)
 })
 
 export const Index = ({
