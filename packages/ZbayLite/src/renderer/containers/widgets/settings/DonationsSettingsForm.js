@@ -18,6 +18,8 @@ export const mapDispatchToProps = (dispatch, props) =>
   bindActionCreators(
     {
       updateDonation: identityHandlers.epics.updateDonation,
+      setDonationAddress: identityHandlers.actions.setDonationAddress,
+      setDonationAllow: identityHandlers.actions.setDonationAllow,
       updateDonationAddress: (address) => identityHandlers.epics.updateDonationAddress(address)
     },
     dispatch

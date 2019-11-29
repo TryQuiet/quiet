@@ -85,5 +85,23 @@ exports[`DonationsSettingsForm renders component 1`] = `
       }
     />
   </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="submitButton-mock"
+    item={true}
+    xs={12}
+  >
+    <WithStyles(ForwardRef(Button))
+      className="button-mock"
+      color="primary"
+      disabled={false}
+      fullWidth={true}
+      onClick={[Function]}
+      size="large"
+      type="submit"
+      variant="contained"
+    >
+      Save
+    </WithStyles(ForwardRef(Button))>
+  </WithStyles(ForwardRef(Grid))>
 </WithStyles(ForwardRef(Grid))>
 `;

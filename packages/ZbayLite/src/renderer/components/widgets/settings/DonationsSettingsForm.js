@@ -7,6 +7,7 @@ import { withStyles } from '@material-ui/core/styles'
 import { FormControlLabel, Checkbox, TextField } from '@material-ui/core'
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank'
 import CheckBoxIcon from '@material-ui/icons/CheckBox'
+import Button from '@material-ui/core/Button'
 
 const styles = theme => ({
   addressField: {
@@ -30,13 +31,20 @@ const styles = theme => ({
     padding: 4,
     marginBottom: 1,
     marginLeft: 7
+  },
+  button: {
+    marginTop: 14,
+    height: 60,
+    width: 126,
+    fontSize: '0.9rem',
+    backgroundColor: theme.palette.colors.zbayBlue
   }
 })
 
-const checkAddress = (address, updateDonationAddress, setAddressStatus) => {
+const checkAddress = (address, setDonationAddress, setAddressStatus) => {
   const isValid = /^t1[a-zA-Z0-9]{33}$|^ztestsapling1[a-z0-9]{75}$|^zs1[a-z0-9]{75}$/.test(address)
   if (isValid) {
-    updateDonationAddress(address)
+    setDonationAddress(address)
     setAddressStatus(true)
   } else {
     setAddressStatus(false)
@@ -48,7 +56,9 @@ export const DonationsSettingsForm = ({
   updateDonation,
   donationAllow,
   initialValues,
-  updateDonationAddress
+  updateDonationAddress,
+  setDonationAllow,
+  setDonationAddress
 }) => {
   const [isAddressValid, setAddressStatus] = useState(!!initialValues.donationAddress)
   return (
@@ -67,7 +77,7 @@ export const DonationsSettingsForm = ({
             placeholder='Enter Zcash Address'
             helperText={isAddressValid || 'Please insert correct address'}
             error={!isAddressValid}
-            onChange={e => checkAddress(e.target.value, updateDonationAddress, setAddressStatus)}
+            onChange={e => checkAddress(e.target.value, setDonationAddress, setAddressStatus)}
             InputProps={{ className: classes.field }}
           />
         </Grid>
@@ -78,7 +88,7 @@ export const DonationsSettingsForm = ({
             <Checkbox
               checked={donationAllow === 'true'}
               onChange={e => {
-                updateDonation(e.target.checked)
+                setDonationAllow(e.target.checked.toString())
               }}
               color='primary'
               className={classes.checkbox}
@@ -94,6 +104,23 @@ export const DonationsSettingsForm = ({
           }
         />
       </Grid>
+      <Grid item xs={12} className={classes.submitButton}>
+        <Button
+          variant='contained'
+          size='large'
+          color='primary'
+          type='submit'
+          fullWidth
+          disabled={!isAddressValid}
+          className={classes.button}
+          onClick={() => {
+            updateDonationAddress(initialValues.donationAddress)
+            updateDonation(donationAllow)
+          }}
+        >
+          Save
+        </Button>
+      </Grid>
     </Grid>
   )
 }
@@ -103,6 +130,8 @@ DonationsSettingsForm.propTypes = {
   donationAllow: PropTypes.string,
   initialValues: PropTypes.object.isRequired,
   updateDonation: PropTypes.func.isRequired,
+  setDonationAddress: PropTypes.func.isRequired,
+  setDonationAllow: PropTypes.func.isRequired,
   updateDonationAddress: PropTypes.func.isRequired
 }
 

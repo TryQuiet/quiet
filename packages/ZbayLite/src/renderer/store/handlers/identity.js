@@ -288,6 +288,11 @@ export const updateDonation = allow => async (dispatch, getState) => {
   const id = identitySelectors.id(getState())
   const identity = await vault.identity.updateDonation(id, allow)
   await dispatch(setDonationAllow(identity.donationAllow))
+  dispatch(
+    notificationsHandlers.actions.enqueueSnackbar(
+      successNotification({ message: 'Donation informations updated' })
+    )
+  )
 }
 
 export const updateDonationAddress = address => async (dispatch, getState) => {
