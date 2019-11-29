@@ -135,7 +135,7 @@ exports[`SendMoneyTransactionDetails renders component 1`] = `
     >
       20.1000
        ZEC ($
-      10.1000
+      10.10
        USD)
     </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>

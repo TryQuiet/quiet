@@ -51,7 +51,7 @@ export const SendMoneySending = ({
           </Grid>
           <Grid item xs={12} className={classes.info}>
             <Typography variant='body1'>
-              You sent {(parseFloat(amountZec) + feeZec)} ZEC (${(parseFloat(amountUsd) + feeUsd).toFixed(4)} USD) to the address you
+              You sent {(parseFloat(amountZec) + feeZec)} ZEC (${(parseFloat(amountUsd) + feeUsd).toFixed(2)} USD) to the address you
               specified.
             </Typography>
           </Grid>

@@ -157,7 +157,9 @@ export const SendMoneyForm = ({
               <Typography variant='h3'>Send Funds</Typography>
             </Grid>
             <Grid item xs={12}>
-              <Typography className={classes.fieldTitle} variant='body1'>Recipient</Typography>
+              <Typography className={classes.fieldTitle} variant='body1'>
+                Recipient
+              </Typography>
               <TextField
                 name='recipient'
                 placeholder='Enter Zcash Address'
@@ -166,7 +168,9 @@ export const SendMoneyForm = ({
             </Grid>
             <Grid item xs={12} container className={classes.divMoney}>
               <Grid className={classes.titleBox} item xs={12}>
-                <Typography className={classes.fieldTitle} variant={'body2'}>Available to send</Typography>
+                <Typography className={classes.fieldTitle} variant={'body2'}>
+                  Available to send
+                </Typography>
               </Grid>
               <Grid item className={classes.moneyDiv}>
                 <LinkedTextField
@@ -199,7 +203,7 @@ export const SendMoneyForm = ({
               <Grid item className={classes.moneyDiv}>
                 <LinkedTextField
                   name='disabelValueZec'
-                  placeholder={balanceZec.toFixed(2)}
+                  placeholder={balanceZec.toFixed(4)}
                   fullWidth
                   disabled
                   otherField='usd'
@@ -218,7 +222,9 @@ export const SendMoneyForm = ({
             </Grid>
             <Grid item xs={12} container className={classes.divMoney}>
               <Grid className={classes.titleBox} item xs={12}>
-                <Typography className={classes.fieldTitle} variant={'body2'}>Amount to send</Typography>
+                <Typography className={classes.fieldTitle} variant={'body2'}>
+                  Amount to send
+                </Typography>
               </Grid>
               <Grid item className={classes.moneyDiv}>
                 <LinkedTextField
@@ -228,6 +234,7 @@ export const SendMoneyForm = ({
                   fullWidth
                   otherField='amountZec'
                   transformer={rateZec}
+                  precise={4}
                   InputProps={{
                     error: errors['amountZec'] && touched['amountZec'],
                     endAdornment: (
@@ -256,6 +263,7 @@ export const SendMoneyForm = ({
                   fullWidth
                   otherField='amountUsd'
                   transformer={rateUsd}
+                  precise={2}
                   InputProps={{
                     error: errors['amountUsd'] && touched['amountUsd'],
                     endAdornment: (
@@ -270,7 +278,9 @@ export const SendMoneyForm = ({
               <ErrorText name={'amountZec'} />
             </Grid>
             <Grid item xs={12}>
-              <Typography className={classes.fieldTitle} variant='body1'>Memo</Typography>
+              <Typography className={classes.fieldTitle} variant='body1'>
+                Memo
+              </Typography>
               <TextField
                 name='memo'
                 placeholder={
@@ -292,7 +302,19 @@ export const SendMoneyForm = ({
                 labelClass={classes.checkboxLabel}
               />
               {R.isEmpty(shippingData) && (
-                <Typography className={classes.shippingDataInfo}> Please <span onClick={() => handleOpenAddShippingData(openSettingsModal, openShippingTab, handleClose)} className={classes.link}>fill your shipping information </span> if you want to include it.</Typography>
+                <Typography className={classes.shippingDataInfo}>
+                  {' '}
+                  Please{' '}
+                  <span
+                    onClick={() =>
+                      handleOpenAddShippingData(openSettingsModal, openShippingTab, handleClose)
+                    }
+                    className={classes.link}
+                  >
+                    fill your shipping information{' '}
+                  </span>{' '}
+                  if you want to include it.
+                </Typography>
               )}
             </Grid>
             <Grid item xs={12}>
@@ -304,7 +326,7 @@ export const SendMoneyForm = ({
                 className={classes.button}
                 disabled={!isValid}
               >
-          Continue
+                Continue
               </Button>
             </Grid>
           </Grid>
