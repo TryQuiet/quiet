@@ -22,7 +22,6 @@ const styles = theme => ({
     padding: '0 15%'
   },
   title: {
-    marginLeft: 36,
     fontSize: 15,
     color: theme.palette.colors.trueBlack,
     lineHeight: '18px',
@@ -37,7 +36,7 @@ const styles = theme => ({
     borderBottom: `1px solid ${theme.palette.colors.contentGray}`
   },
   actions: {
-    paddingRight: theme.spacing(2)
+    paddingLeft: 10
   },
   content: {
     background: theme.palette.colors.white,
@@ -97,25 +96,27 @@ export const Modal = ({
         direction='row'
         alignItems='center'
       >
-        <Grid item xs container justify='center' alignItems='center'>
-          <Typography
-            variant='subtitle1'
-            className={classNames({ [classes.title]: true, [classes.bold]: isBold })}
-            align='center'
-          >
-            {title}
-          </Typography>
-        </Grid>
-        <Grid item className={classes.actions}>
-          {canGoBack ? (
-            <IconButton onClick={() => setStep(step - 1)}>
-              <BackIcon />
-            </IconButton>
-          ) : (
-            <IconButton onClick={handleClose}>
-              <ClearIcon />
-            </IconButton>
-          )}
+        <Grid item xs container justify='flex-start' alignItems='center'>
+          <Grid item xs={4} className={classes.actions}>
+            {canGoBack ? (
+              <IconButton onClick={() => setStep(step - 1)}>
+                <BackIcon />
+              </IconButton>
+            ) : (
+              <IconButton onClick={handleClose}>
+                <ClearIcon />
+              </IconButton>
+            )}
+          </Grid>
+          <Grid item xs={4}>
+            <Typography
+              variant='subtitle1'
+              className={classNames({ [classes.title]: true, [classes.bold]: isBold })}
+              align='center'
+            >
+              {title}
+            </Typography>
+          </Grid>
         </Grid>
       </Grid>
       <Grid container item direction={'row'} justify={'center'} className={classes.fullPage}>

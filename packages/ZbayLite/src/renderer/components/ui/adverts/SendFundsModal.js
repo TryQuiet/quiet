@@ -3,11 +3,13 @@ import PropTypes from 'prop-types'
 import * as R from 'ramda'
 import { AutoSizer } from 'react-virtualized'
 import { Scrollbars } from 'react-custom-scrollbars'
+import { shell } from 'electron'
 
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
 import InputAdornment from '@material-ui/core/InputAdornment'
+import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord'
 
 import Modal from '../Modal'
 import Icon from '../Icon'
@@ -78,6 +80,7 @@ const styles = theme => ({
   description: {
     fontWeight: 'normal',
     fontStyle: 'normal',
+    cursor: 'pointer',
     color: theme.palette.colors.darkGray
   },
   checkboxLabel: {
@@ -85,23 +88,31 @@ const styles = theme => ({
     lineHeight: '24px',
     fontSize: 14,
     fontWeight: 'normal',
-    fontStyle: 'normal'
+    fontStyle: 'normal',
+    height: 24,
+    color: theme.palette.colors.trueBlack
   },
   shipping: {
     marginTop: 32,
     padding: '0px 20px'
   },
+  addressBox: {
+    height: 32,
+    margin: 0,
+    padding: 0
+  },
   address: {
-    paddingLeft: 23,
+    margin: 0,
+    paddingLeft: 20,
     color: theme.palette.colors.darkGray,
     fontSize: 12,
-    lineHeight: '20px',
-    letterSpacing: '0.4px'
+    letterSpacing: '0.4px',
+    lineHeight: '14px'
   },
   divMoney: {
     padding: '0px 20px',
     width: '100%',
-    marginTop: 16,
+    marginTop: 26,
     marginBottom: 32,
     minHeight: 42,
     '& .MuiFormHelperText-contained': {
@@ -154,12 +165,47 @@ const styles = theme => ({
   error: {
     color: theme.palette.colors.red
   },
-  exchange: {}
+  exchange: {},
+  iconDot: {
+    fontSize: 5,
+    marginRight: 3,
+    color: theme.palette.colors.darkGray
+  },
+  linkBlue: {
+    fontWeight: 'normal',
+    fontStyle: 'normal',
+    cursor: 'pointer',
+    color: theme.palette.colors.linkBlue
+  },
+  rootClass: {
+    height: 24
+  },
+  shippingDataInfo: {
+    fontSize: 12,
+    lineHeight: '18px'
+  },
+  link: {
+    cursor: 'pointer',
+    color: theme.palette.colors.linkBlue
+  }
 })
+
+const handleLinkOpen = ({ event, target, username }) => {
+  const googleLink = `https://www.google.com/search?q=${username}+zbay`
+  const redditLink = `https://www.reddit.com/search?q=${username}+zbay+&restrict_sr=&sort=relevance&t=all`
+  event.preventDefault()
+  shell.openExternal(target === 'google' ? googleLink : redditLink)
+}
 
 const handleAddFunds = (openAddFundsTab, openSettingsModal, handleClose) => {
   handleClose()
   openAddFundsTab()
+  openSettingsModal()
+}
+
+const handleFillShipping = (openSettingsModal, openShippingTab, handleClose) => {
+  handleClose()
+  openShippingTab()
   openSettingsModal()
 }
 
@@ -178,7 +224,8 @@ export const SendFundsModal = ({
   isValid,
   shippingData,
   openAddFundsTab,
-  openSettingsModal
+  openSettingsModal,
+  openShippingTab
 }) => {
   const { zec: zecOffer } = values
   const hasNoFounds = balanceZec.lt(zecOffer)
@@ -224,29 +271,43 @@ export const SendFundsModal = ({
                       <Icon className={classes.exclamationMarkIcon} src={exclamationMark} />
                     </Grid>
                   </Grid>
-                  <Grid container item className={classes.sellerInfo}>
-                    <Grid item>
-                      <Typography className={classes.description} variant={'body2'}>This is a strong warning with a link to Google the seller's zcash address for reviews and feedback. You can also check the following:</Typography>
+                  <Grid container item className={classes.sellerInfo} direction={'column'} wrap={'nowrap'}>
+                    <Grid item xs>
+                      <Typography align={'justify'} className={classes.description} variant={'body2'}>Funds may not be recoverable. Never send significant sums of money without strong reasons to trust the seller. Research the seller’s reputation on the web, and be cautious!</Typography>
+                    </Grid>
+                    <Grid item container wrap={'wrap'} alignItems={'center'}>
+                      <FiberManualRecordIcon className={classes.iconDot} />
+                      <Typography align={'justify'} className={classes.linkBlue} onClick={(e) => handleLinkOpen({ event: e, target: 'reddit', username: payload.offerOwner })} variant={'body2'}>Search reddit</Typography>
+                    </Grid>
+                    <Grid container item wrap={'wrap'} alignItems={'center'}>
+                      <FiberManualRecordIcon className={classes.iconDot} />
+                      <Typography align={'justify'} className={classes.linkBlue} onClick={(e) => handleLinkOpen({ event: e, target: 'google', username: payload.offerOwner })} variant={'body2'}>Search google</Typography>
                     </Grid>
                   </Grid>
                 </Grid>
               </Grid>
-              <Grid container item className={classes.shipping} direction={'column'}>
-                <Grid item>
-                  <CheckboxWithLabel
-                    color='primary'
-                    name='shippingInfo'
-                    label='Include shipping address'
-                    labelClass={classes.checkboxLabel}
-                  />
-                </Grid>
-                <Grid item>
-                  <Typography variant={'caption'} className={classes.address}>{shippingData.street}</Typography>
-                </Grid>
-                <Grid item>
-                  <Typography variant={'caption'} className={classes.address}>{`${shippingData.city} ${shippingData.postalCode}
+              <Grid container item className={classes.shipping} direction={'column'} alignContent={'flex-start'}>
+                {!R.isEmpty(shippingData) ? (
+                  <Grid item>
+                    <CheckboxWithLabel
+                      color='primary'
+                      disabled={R.isEmpty(shippingData)}
+                      name='shippingInfo'
+                      label='Include shipping address'
+                      labelClass={classes.checkboxLabel}
+                      rootClass={classes.rootClass}
+                    />
+                  </Grid>
+                ) : null}
+                {R.isEmpty(shippingData) ? (
+                  <Typography className={classes.shippingDataInfo}> Please <span onClick={() => handleFillShipping(openSettingsModal, openShippingTab, handleClose)} className={classes.link}>fill your shipping information </span> if you want to include it.</Typography>
+                ) : (
+                  <Grid className={classes.addressBox} container item direction={'column'} justify={'space-between'} alignContent={'center'} wrap={'wrap'}>
+                    <Typography variant={'caption'} className={classes.address}>{shippingData.street}</Typography>
+                    <Typography variant={'caption'} className={classes.address}>{`${shippingData.city} ${shippingData.postalCode}
                   ${shippingData.region} ${shippingData.country}`}</Typography>
-                </Grid>
+                  </Grid>
+                )}
               </Grid>
               <Grid item xs container className={classes.divMoney}>
                 <Grid className={classes.titleBox} item xs={12}>
@@ -308,7 +369,7 @@ export const SendFundsModal = ({
                   <Grid container item className={classes.errorBox}>
                     <Grid container direction={'row'} justify={'space-between'}>
                       <Grid item>
-                        <Typography variant={'h4'}>Not enough fund</Typography>
+                        <Typography variant={'h4'}>Not enough funds</Typography>
                       </Grid>
                       <Grid item>
                         <Icon className={classes.exclamationMarkIcon} src={exclamationMark} />

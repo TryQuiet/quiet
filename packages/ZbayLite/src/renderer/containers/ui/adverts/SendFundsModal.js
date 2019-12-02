@@ -25,6 +25,7 @@ export const mapDispatchToProps = dispatch =>
     {
       handleSendTransfer: advertHandlers.epics.handleSendTransfer,
       openAddFundsTab: () => appHandlers.actions.setModalTab('addFunds'),
+      openShippingTab: () => appHandlers.actions.setModalTab('shipping'),
       openSettingsModal: actionCreators.openModal('accountSettingsModal')
     },
     dispatch
