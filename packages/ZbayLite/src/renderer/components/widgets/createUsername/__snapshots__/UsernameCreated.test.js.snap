@@ -19,7 +19,7 @@ exports[`UsernameCreated renders component 1`] = `
     />
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
-    className="usernameConatainer-mock"
+    className="infoConatainer-mock"
     container={true}
     direction="row"
     item={true}

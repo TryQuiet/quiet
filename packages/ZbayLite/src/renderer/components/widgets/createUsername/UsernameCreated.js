@@ -11,21 +11,19 @@ import Icon from '../../ui/Icon'
 import usernameIcon from '../../../static/images/username.svg'
 
 const styles = theme => ({
-  root: {
-
-  },
+  root: {},
   usernameConatainer: {
-    marginTop: 43
+    marginTop: 24
   },
   infoConatainer: {
-    marginTop: 43
+    marginTop: 24
   },
   descConatainer: {
     marginTop: 8
   },
   usernameIcon: {
-    width: 93,
-    height: 78,
+    width: 118,
+    height: 118,
     justifyContent: 'center'
   },
   buttonContainer: {
@@ -54,13 +52,34 @@ const handleModalClose = (handleClose, setFormSent) => {
 
 export const UsernameCreated = ({ classes, handleClose, setFormSent }) => (
   <Grid container justify={'center'}>
-    <Grid container className={classes.usernameConatainer} item xs={12} direction='row' justify='center'>
+    <Grid
+      container
+      className={classes.usernameConatainer}
+      item
+      xs={12}
+      direction='row'
+      justify='center'
+    >
       <Icon className={classes.usernameIcon} src={usernameIcon} />
     </Grid>
-    <Grid container item className={classes.usernameConatainer} xs={12} direction='row' justify='center'>
+    <Grid
+      container
+      item
+      className={classes.infoConatainer}
+      xs={12}
+      direction='row'
+      justify='center'
+    >
       <Typography variant={'h4'}>You created a username</Typography>
     </Grid>
-    <Grid container item className={classes.descConatainer} xs={12} direction='row' justify='center'>
+    <Grid
+      container
+      item
+      className={classes.descConatainer}
+      xs={12}
+      direction='row'
+      justify='center'
+    >
       <Typography variant={'body2'}>Your username will be be registered shortly</Typography>
     </Grid>
     <Grid item xs={'auto'} className={classes.buttonContainer}>
@@ -71,7 +90,7 @@ export const UsernameCreated = ({ classes, handleClose, setFormSent }) => (
         fullWidth
         className={classes.button}
       >
-                Done
+        Done
       </Button>
     </Grid>
   </Grid>
