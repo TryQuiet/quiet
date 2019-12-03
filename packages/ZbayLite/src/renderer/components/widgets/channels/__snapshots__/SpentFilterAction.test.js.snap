@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`SpentFilter renders component 1`] = `
-<ClickAwayListener
+<ForwardRef(ClickAwayListener)
   onClickAway={[Function]}
 >
   <WithStyles(ForwardRef(Button))
@@ -28,5 +28,5 @@ exports[`SpentFilter renders component 1`] = `
       onClickAway={[Function]}
     />
   </Memo(WithStyles(PopupMenu))>
-</ClickAwayListener>
+</ForwardRef(ClickAwayListener)>
 `;

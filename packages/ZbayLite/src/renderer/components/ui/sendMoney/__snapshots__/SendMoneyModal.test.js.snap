@@ -135,7 +135,7 @@ exports[`SendMoneyModal renders component step 1 1`] = `
             [Function],
           ],
         },
-        "recipient": StringSchema {
+        "recipient": SchemaType {
           "_blacklist": RefSet {
             "list": Set {},
             "refs": Map {},
@@ -143,15 +143,15 @@ exports[`SendMoneyModal renders component step 1 1`] = `
           "_conditions": Array [],
           "_deps": Array [],
           "_exclusive": Object {
+            "match": false,
             "required": true,
-            "undefined": false,
           },
           "_mutate": undefined,
           "_options": Object {
             "abortEarly": true,
             "recursive": true,
           },
-          "_type": "string",
+          "_type": "mixed",
           "_typeError": [Function],
           "_whitelist": RefSet {
             "list": Set {},
@@ -161,9 +161,7 @@ exports[`SendMoneyModal renders component step 1 1`] = `
             [Function],
             [Function],
           ],
-          "transforms": Array [
-            [Function],
-          ],
+          "transforms": Array [],
         },
         "shippingInfo": BooleanSchema {
           "_blacklist": RefSet {
@@ -340,7 +338,7 @@ exports[`SendMoneyModal renders component step 2 1`] = `
             [Function],
           ],
         },
-        "recipient": StringSchema {
+        "recipient": SchemaType {
           "_blacklist": RefSet {
             "list": Set {},
             "refs": Map {},
@@ -348,15 +346,15 @@ exports[`SendMoneyModal renders component step 2 1`] = `
           "_conditions": Array [],
           "_deps": Array [],
           "_exclusive": Object {
+            "match": false,
             "required": true,
-            "undefined": false,
           },
           "_mutate": undefined,
           "_options": Object {
             "abortEarly": true,
             "recursive": true,
           },
-          "_type": "string",
+          "_type": "mixed",
           "_typeError": [Function],
           "_whitelist": RefSet {
             "list": Set {},
@@ -366,9 +364,7 @@ exports[`SendMoneyModal renders component step 2 1`] = `
             [Function],
             [Function],
           ],
-          "transforms": Array [
-            [Function],
-          ],
+          "transforms": Array [],
         },
         "shippingInfo": BooleanSchema {
           "_blacklist": RefSet {
@@ -545,7 +541,7 @@ exports[`SendMoneyModal renders component step 3 1`] = `
             [Function],
           ],
         },
-        "recipient": StringSchema {
+        "recipient": SchemaType {
           "_blacklist": RefSet {
             "list": Set {},
             "refs": Map {},
@@ -553,15 +549,15 @@ exports[`SendMoneyModal renders component step 3 1`] = `
           "_conditions": Array [],
           "_deps": Array [],
           "_exclusive": Object {
+            "match": false,
             "required": true,
-            "undefined": false,
           },
           "_mutate": undefined,
           "_options": Object {
             "abortEarly": true,
             "recursive": true,
           },
-          "_type": "string",
+          "_type": "mixed",
           "_typeError": [Function],
           "_whitelist": RefSet {
             "list": Set {},
@@ -571,9 +567,7 @@ exports[`SendMoneyModal renders component step 3 1`] = `
             [Function],
             [Function],
           ],
-          "transforms": Array [
-            [Function],
-          ],
+          "transforms": Array [],
         },
         "shippingInfo": BooleanSchema {
           "_blacklist": RefSet {
@@ -750,7 +744,7 @@ exports[`SendMoneyModal renders component step 4 1`] = `
             [Function],
           ],
         },
-        "recipient": StringSchema {
+        "recipient": SchemaType {
           "_blacklist": RefSet {
             "list": Set {},
             "refs": Map {},
@@ -758,15 +752,15 @@ exports[`SendMoneyModal renders component step 4 1`] = `
           "_conditions": Array [],
           "_deps": Array [],
           "_exclusive": Object {
+            "match": false,
             "required": true,
-            "undefined": false,
           },
           "_mutate": undefined,
           "_options": Object {
             "abortEarly": true,
             "recursive": true,
           },
-          "_type": "string",
+          "_type": "mixed",
           "_typeError": [Function],
           "_whitelist": RefSet {
             "list": Set {},
@@ -776,9 +770,7 @@ exports[`SendMoneyModal renders component step 4 1`] = `
             [Function],
             [Function],
           ],
-          "transforms": Array [
-            [Function],
-          ],
+          "transforms": Array [],
         },
         "shippingInfo": BooleanSchema {
           "_blacklist": RefSet {

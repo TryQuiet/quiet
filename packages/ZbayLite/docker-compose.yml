@@ -24,8 +24,8 @@ services:
     networks:
       vpcbr:
         ipv4_address: 10.3.0.2
-    depends_on:
-      - tor-socks
+    # depends_on:
+    #   - tor-socks
 
   tor-socks:
     container_name: tor-socks

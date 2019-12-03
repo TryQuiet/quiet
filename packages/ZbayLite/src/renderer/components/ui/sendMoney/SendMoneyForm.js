@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import PropTypes from 'prop-types'
 import BigNumber from 'bignumber.js'
 import * as R from 'ramda'
@@ -9,17 +9,20 @@ import InputAdornment from '@material-ui/core/InputAdornment'
 import Button from '@material-ui/core/Button'
 import { AutoSizer } from 'react-virtualized'
 import { Scrollbars } from 'react-custom-scrollbars'
+import { TextField as MaterialTextField } from '@material-ui/core'
 
 import Icon from '../Icon'
 import { TextField } from '../form/TextField'
 import { LinkedTextField } from '../form/LinkedTextField'
 import { CheckboxWithLabel } from '../form/CheckboxWithLabel'
+import { AutocompleteField } from '../form/Autocomplete'
 import exchange from '../../../static/images/zcash/exchange.svg'
 
 const styles = theme => ({
   root: {
     maxWidth: 600,
-    padding: theme.spacing(3)
+    paddingLeft: theme.spacing(3),
+    paddingRight: theme.spacing(3)
   },
   textBetweenInputsItem: {
     width: '100%',
@@ -71,7 +74,6 @@ const styles = theme => ({
   divMoney: {
     padding: '0px 20px',
     width: '100%',
-    marginTop: 16,
     marginBottom: 4,
     minHeight: 42,
     '& .MuiFormHelperText-contained': {
@@ -100,21 +102,48 @@ const styles = theme => ({
   exchangeDiv: {
     width: 40
   },
+  rootClass: {
+    height: 24
+  },
   checkboxLabel: {
+    marginLeft: -6,
     fontSize: 14,
-    lineHeight: '24px'
+    lineHeight: '24px',
+    height: '24px'
   },
   shippingDataInfo: {
-    marginLeft: 32,
     fontSize: 12,
     lineHeight: '18px'
+  },
+  addressBox: {
+    paddingLeft: 20
   },
   link: {
     cursor: 'pointer',
     color: theme.palette.colors.linkBlue
   },
   error: {
+    marginTop: 5,
     color: theme.palette.colors.red
+  },
+  recipient: {
+    '& .MuiFormHelperText-contained': {
+      margin: '5px 0px'
+    },
+    '& .Mui-error': {
+      color: theme.palette.colors.red
+    }
+  },
+  autoCompleteField: {
+    paddingTop: 0,
+    marginTop: 0,
+    marginBottom: 0
+  },
+  address: {
+    fontSize: 12,
+    lineHeight: '18px',
+    letterSpacing: '0.4px',
+    color: theme.palette.colors.darkGray
   }
 })
 const handleOpenAddShippingData = (openSettingsModal, openShippingTab, handleClose) => {
@@ -137,13 +166,14 @@ export const SendMoneyForm = ({
   openShippingTab,
   openSettingsModal,
   handleClose,
+  users,
+  setFieldValue,
   errors
 }) => {
+  const usersArray = users.toList().toJS()
   const ErrorText = ({ name }) => {
     return errors[name] ? (
-      <Grid item xs className={classes.error}>
-        <Typography variant='caption'>{errors[name]}</Typography>
-      </Grid>
+      <Typography className={classes.error} variant='caption'>{errors[name]}</Typography>
     ) : (
       <span />
     )
@@ -154,17 +184,34 @@ export const SendMoneyForm = ({
         <Scrollbars autoHideTimeout={500} style={{ width: width, height: height }}>
           <Grid container className={classes.root} spacing={2}>
             <Grid className={classes.title} item xs={12}>
-              <Typography variant='h3'>Send Funds</Typography>
+              <Typography variant='h3'>Send Message or Funds</Typography>
             </Grid>
-            <Grid item xs={12}>
+            <Grid container item direction={'column'} justify={'flex-start'} xs={12}>
               <Typography className={classes.fieldTitle} variant='body1'>
                 Recipient
               </Typography>
-              <TextField
-                name='recipient'
-                placeholder='Enter Zcash Address'
-                InputProps={{ className: classes.field }}
+              <AutocompleteField
+                freeSolo
+                name={'recipient'}
+                inputValue={values.recipient || ''}
+                options={usersArray.map(option => option.nickname)}
+                filterOptions={(options, state) => options.filter(o => o.toLowerCase().includes(values.recipient || ''.toLowerCase()))}
+                value={values.recipient}
+                onChange={(e, v) => setFieldValue('recipient', v)}
+                onInputChange={(e, v) => {
+                  setFieldValue('recipient', v)
+                }}
+                renderInput={params => <MaterialTextField
+                  {...params}
+                  className={classes.autoCompleteField}
+                  variant='outlined'
+                  placeholder='Enter Zcash address or Zbay username'
+                  margin='normal'
+                  fullWidth
+                />
+                }
               />
+              <ErrorText name={'recipient'} />
             </Grid>
             <Grid item xs={12} container className={classes.divMoney}>
               <Grid className={classes.titleBox} item xs={12}>
@@ -283,36 +330,40 @@ export const SendMoneyForm = ({
               </Typography>
               <TextField
                 name='memo'
-                placeholder={
-                  values.recipient.length === 35
-                    ? `You can't include message to transparent address`
-                    : 'Enter an optional message'
-                }
+                placeholder={'Enter message (optional)'}
                 InputProps={{ className: classes.field }}
-                disabled={values.recipient.length === 35}
               />
               <Typography variant='body1' />
             </Grid>
             <Grid item xs={12}>
-              <CheckboxWithLabel
-                color='primary'
-                name='shippingInfo'
-                label='Include my shipping info'
-                disabled={R.isEmpty(shippingData)}
-                labelClass={classes.checkboxLabel}
-              />
+              {!R.isEmpty(shippingData) && (
+                <Fragment>
+                  <CheckboxWithLabel
+                    color='primary'
+                    name='shippingInfo'
+                    label='Include my shipping info'
+                    disabled={R.isEmpty(shippingData)}
+                    labelClass={classes.checkboxLabel}
+                    rootClass={classes.rootClass}
+                  />
+                  <Grid className={classes.addressBox} container item direction={'column'} justify={'space-between'} alignContent={'center'} wrap={'wrap'}>
+                    <Typography variant={'caption'} className={classes.address}>{`${shippingData.firstName} ${shippingData.lastName}`}</Typography>
+                    <Typography variant={'caption'} className={classes.address}>{`${shippingData.city} ${shippingData.postalCode}
+                  ${shippingData.region} ${shippingData.country}`}</Typography>
+                  </Grid>
+                </Fragment>
+              )}
               {R.isEmpty(shippingData) && (
                 <Typography className={classes.shippingDataInfo}>
-                  {' '}
-                  Please{' '}
+                  Please
                   <span
                     onClick={() =>
                       handleOpenAddShippingData(openSettingsModal, openShippingTab, handleClose)
                     }
                     className={classes.link}
                   >
-                    fill your shipping information{' '}
-                  </span>{' '}
+                    fill your shipping information
+                  </span>
                   if you want to include it.
                 </Typography>
               )}
@@ -326,7 +377,7 @@ export const SendMoneyForm = ({
                 className={classes.button}
                 disabled={!isValid}
               >
-                Continue
+          SEND
               </Button>
             </Grid>
           </Grid>

@@ -80,6 +80,7 @@ exports[`ErrorModal renders component 1`] = `
               "button": "button-mock",
             }
           }
+          inProgress={false}
           text="Send to Zbay"
         />
       </WithStyles(ForwardRef(Grid))>

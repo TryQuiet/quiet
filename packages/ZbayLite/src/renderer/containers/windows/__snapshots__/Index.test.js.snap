@@ -16,7 +16,12 @@ Object {
 }
 `;
 
-exports[`Index will render component when node not connected 1`] = `<WithStyles(Index) />`;
+exports[`Index will render component when node not connected 1`] = `
+<WithStyles(Index)
+  bootstrapping={false}
+  bootstrappingMessage=""
+/>
+`;
 
 exports[`Index will render redirect when node connected 1`] = `
 <Redirect

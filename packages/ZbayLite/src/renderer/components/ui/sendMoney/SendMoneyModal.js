@@ -15,20 +15,26 @@ import { MESSAGE_SIZE } from '../../../zbay/transit'
 
 const styles = theme => ({})
 
-export const formSchema = Yup.object().shape(
-  {
-    recipient: Yup.string()
-      .matches(/^t1[a-zA-Z0-9]{33}$|^ztestsapling1[a-z0-9]{75}$|^zs1[a-z0-9]{75}$/, 'Please insert correct address')
-      .required('Required'),
-    amountZec: Yup.number()
-      .min(0.00000001, 'Please insert amount to send')
-      .required('Required'),
-    amountUsd: Yup.number().required('Required'),
-    memo: Yup.string().max(MESSAGE_SIZE, 'Your messsage is too long'),
-    shippingInfo: Yup.bool().required('Required')
-  },
-  ['recipient', 'amountZec', 'amountUsd', 'memo', 'shippingInfo']
-)
+export const formSchema = (users) => {
+  return Yup.object().shape(
+    {
+      recipient: Yup
+        .mixed().test('match', 'Wrong address format or username not exists', function (string) {
+          const isAddressValid = /^t1[a-zA-Z0-9]{33}$|^ztestsapling1[a-z0-9]{75}$|^zs1[a-z0-9]{75}$/.test(string)
+          const includesNickname = users.toList().filter(obj => obj.get('nickname') === string).first()
+          return includesNickname || isAddressValid
+        })
+        .required('Required'),
+      amountZec: Yup.number()
+        .min(0.00000001, 'Please insert amount to send')
+        .required('Required'),
+      amountUsd: Yup.number().required('Required'),
+      memo: Yup.string().max(MESSAGE_SIZE, 'Your messsage is too long'),
+      shippingInfo: Yup.bool().required('Required')
+    },
+    ['recipient', 'amountZec', 'amoundUsd', 'memo']
+  )
+}
 
 export const validateForm = ({ balanceZec, shippingData }) => values => {
   let errors = {}
@@ -69,33 +75,50 @@ export const SendMoneyModal = ({
   shippingData,
   targetRecipientAddress,
   openShippingTab,
-  openSettingsModal
+  openSettingsModal,
+  users
 }) => {
   const StepComponent = stepToComponent[step]
   return (
     <Formik
       enableReinitialize
       onSubmit={(values, { resetForm }) => {
-        const messageToTransfer = createTransfer({
-          ...values,
-          shippingData,
-          sender: {
-            address: userData.address,
-            name: userData.name
-          }
-        })
-        sendMessageHandler(messageToTransfer.toJS())
+        const { recipient, ...rest } = values
+        const includesNickname = users.toList().filter(obj => obj.get('nickname') === recipient).first()
+        if (includesNickname) {
+          const messageToTransfer = createTransfer({
+            recipient: includesNickname.get('address'),
+            ...rest,
+            shippingData,
+            sender: {
+              address: userData.address,
+              name: userData.name
+            }
+          })
+          sendMessageHandler(messageToTransfer.toJS())
+        } else {
+          const messageToTransfer = createTransfer({
+            recipient,
+            ...rest,
+            shippingData,
+            sender: {
+              address: userData.address,
+              name: userData.name
+            }
+          })
+          sendMessageHandler(messageToTransfer.toJS())
+        }
       }}
-      validationSchema={formSchema}
+      validationSchema={formSchema(users)}
       initialValues={{
         ...initialValues,
         recipient: targetRecipientAddress || ''
       }}
       validate={validateForm({ balanceZec, shippingData })}
     >
-      {({ values, isValid, submitForm, resetForm, errors, touched }) => {
+      {({ values, isValid, submitForm, resetForm, errors, touched, setFieldValue }) => {
         const stepToTitle = {
-          1: 'Send Money',
+          1: '',
           2: `Send Money to ${open ? initialValues.recipient.substring(0, 32) : null}...`,
           3: 'Send Complete',
           4: 'Transaction Details'
@@ -112,6 +135,7 @@ export const SendMoneyModal = ({
             <StepComponent
               handleClose={handleClose}
               step={step}
+              setFieldValue={setFieldValue}
               errors={errors}
               touched={touched}
               setStep={setStep}
@@ -132,6 +156,7 @@ export const SendMoneyModal = ({
               shippingData={shippingData}
               openShippingTab={openShippingTab}
               openSettingsModal={openSettingsModal}
+              users={users}
             />
           </Modal>
         )

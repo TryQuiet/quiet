@@ -25,7 +25,7 @@ exports[`MenuAction renders component 1`] = `
     }
     open={false}
   >
-    <ClickAwayListener
+    <ForwardRef(ClickAwayListener)
       onClickAway={[Function]}
     >
       <ForwardRef(MenuList)
@@ -44,7 +44,7 @@ exports[`MenuAction renders component 1`] = `
           title="test 2"
         />
       </ForwardRef(MenuList)>
-    </ClickAwayListener>
+    </ForwardRef(ClickAwayListener)>
   </Memo(WithStyles(PopupMenu))>
 </Fragment>
 `;
@@ -75,7 +75,7 @@ exports[`MenuAction renders with optional props 1`] = `
     offset="0 20"
     open={false}
   >
-    <ClickAwayListener
+    <ForwardRef(ClickAwayListener)
       onClickAway={[Function]}
     >
       <ForwardRef(MenuList)
@@ -94,7 +94,7 @@ exports[`MenuAction renders with optional props 1`] = `
           title="test 2"
         />
       </ForwardRef(MenuList)>
-    </ClickAwayListener>
+    </ForwardRef(ClickAwayListener)>
   </Memo(WithStyles(PopupMenu))>
 </Fragment>
 `;

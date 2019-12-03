@@ -30,5 +30,6 @@ Object {
       "postalCode": "",
     },
   },
+  "users": Immutable.Map {},
 }
 `;

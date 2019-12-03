@@ -2,6 +2,7 @@
 import React from 'react'
 import BigNumber from 'bignumber.js'
 import { shallow } from 'enzyme'
+import Immutable from 'immutable'
 
 import { SendMoneyForm } from './SendMoneyForm'
 import { mockClasses } from '../../../../shared/testing/mocks'
@@ -20,6 +21,12 @@ describe('SendMoneyForm', () => {
         touched={false}
         isValid
         errors={{}}
+        users={Immutable.fromJS([
+          {
+            nickname: 'test',
+            address: 'test-address'
+          }
+        ])}
         shippingData={{ data: 'test' }}
       />
     )
@@ -38,6 +45,12 @@ describe('SendMoneyForm', () => {
         isValid={false}
         errors={{}}
         touched={false}
+        users={Immutable.fromJS([
+          {
+            nickname: 'test',
+            address: 'test-address'
+          }
+        ])}
         shippingData={{ data: 'test' }}
       />
     )

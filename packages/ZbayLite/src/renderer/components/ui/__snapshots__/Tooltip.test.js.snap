@@ -4,7 +4,7 @@ exports[`Tooltip renders component 1`] = `
 <span
   onClick={[Function]}
 >
-  <WithStyles(Tooltip)
+  <WithStyles(ForwardRef(Tooltip))
     PopperProps={
       Object {
         "popperOptions": Object {
@@ -39,7 +39,7 @@ exports[`Tooltip renders component 1`] = `
     }
   >
     <TooltipContent />
-  </WithStyles(Tooltip)>
+  </WithStyles(ForwardRef(Tooltip))>
 </span>
 `;
 
@@ -47,7 +47,7 @@ exports[`Tooltip renders component with correct arrow placement - bottom 1`] = `
 <span
   onClick={[Function]}
 >
-  <WithStyles(Tooltip)
+  <WithStyles(ForwardRef(Tooltip))
     PopperProps={
       Object {
         "popperOptions": Object {
@@ -82,7 +82,7 @@ exports[`Tooltip renders component with correct arrow placement - bottom 1`] = `
     }
   >
     <TooltipContent />
-  </WithStyles(Tooltip)>
+  </WithStyles(ForwardRef(Tooltip))>
 </span>
 `;
 
@@ -90,7 +90,7 @@ exports[`Tooltip renders component with correct arrow placement - bottom-end 1`]
 <span
   onClick={[Function]}
 >
-  <WithStyles(Tooltip)
+  <WithStyles(ForwardRef(Tooltip))
     PopperProps={
       Object {
         "popperOptions": Object {
@@ -125,7 +125,7 @@ exports[`Tooltip renders component with correct arrow placement - bottom-end 1`]
     }
   >
     <TooltipContent />
-  </WithStyles(Tooltip)>
+  </WithStyles(ForwardRef(Tooltip))>
 </span>
 `;
 
@@ -133,7 +133,7 @@ exports[`Tooltip renders component with correct arrow placement - bottom-start 1
 <span
   onClick={[Function]}
 >
-  <WithStyles(Tooltip)
+  <WithStyles(ForwardRef(Tooltip))
     PopperProps={
       Object {
         "popperOptions": Object {
@@ -168,7 +168,7 @@ exports[`Tooltip renders component with correct arrow placement - bottom-start 1
     }
   >
     <TooltipContent />
-  </WithStyles(Tooltip)>
+  </WithStyles(ForwardRef(Tooltip))>
 </span>
 `;
 
@@ -176,7 +176,7 @@ exports[`Tooltip renders component with correct arrow placement - top 1`] = `
 <span
   onClick={[Function]}
 >
-  <WithStyles(Tooltip)
+  <WithStyles(ForwardRef(Tooltip))
     PopperProps={
       Object {
         "popperOptions": Object {
@@ -211,7 +211,7 @@ exports[`Tooltip renders component with correct arrow placement - top 1`] = `
     }
   >
     <TooltipContent />
-  </WithStyles(Tooltip)>
+  </WithStyles(ForwardRef(Tooltip))>
 </span>
 `;
 
@@ -219,7 +219,7 @@ exports[`Tooltip renders component with correct arrow placement - top-end 1`] = 
 <span
   onClick={[Function]}
 >
-  <WithStyles(Tooltip)
+  <WithStyles(ForwardRef(Tooltip))
     PopperProps={
       Object {
         "popperOptions": Object {
@@ -254,7 +254,7 @@ exports[`Tooltip renders component with correct arrow placement - top-end 1`] = 
     }
   >
     <TooltipContent />
-  </WithStyles(Tooltip)>
+  </WithStyles(ForwardRef(Tooltip))>
 </span>
 `;
 
@@ -262,7 +262,7 @@ exports[`Tooltip renders component with correct arrow placement - top-start 1`] 
 <span
   onClick={[Function]}
 >
-  <WithStyles(Tooltip)
+  <WithStyles(ForwardRef(Tooltip))
     PopperProps={
       Object {
         "popperOptions": Object {
@@ -297,7 +297,7 @@ exports[`Tooltip renders component with correct arrow placement - top-start 1`] 
     }
   >
     <TooltipContent />
-  </WithStyles(Tooltip)>
+  </WithStyles(ForwardRef(Tooltip))>
 </span>
 `;
 
@@ -305,7 +305,7 @@ exports[`Tooltip renders component with optional props 1`] = `
 <span
   onClick={[Function]}
 >
-  <WithStyles(Tooltip)
+  <WithStyles(ForwardRef(Tooltip))
     PopperProps={
       Object {
         "popperOptions": Object {
@@ -340,6 +340,6 @@ exports[`Tooltip renders component with optional props 1`] = `
     }
   >
     <TooltipContent />
-  </WithStyles(Tooltip)>
+  </WithStyles(ForwardRef(Tooltip))>
 </span>
 `;
