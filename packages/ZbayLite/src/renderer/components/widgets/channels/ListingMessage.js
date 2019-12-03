@@ -14,8 +14,8 @@ const reqSvgs = require && require.context('../../ui/assets/backgrounds', true, 
 
 const styles = theme => ({
   root: {
-    marginTop: -20,
-    marginLeft: 52,
+    marginTop: -26,
+    marginLeft: 58,
     position: 'relative',
     backgroundColor: theme.palette.colors.white,
     width: 256,
@@ -25,9 +25,8 @@ const styles = theme => ({
   },
   contentContainer: {
     position: 'absolute',
-    padding: '0px 20px',
+    padding: '0px 16px',
     top: 144,
-    width: 256,
     height: 130
   },
   backgroundImage: {
@@ -58,27 +57,38 @@ const styles = theme => ({
   title: {
     marginTop: 16,
     fontWeight: 500,
-    color: theme.palette.colors.titleGray
+    color: theme.palette.colors.titleGray,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap'
   },
   description: {
-    color: theme.palette.colors.darkGray
+    color: theme.palette.colors.darkGray,
+    overflow: 'hidden',
+    display: '-webkit-box',
+    textOverflow: 'ellipsis',
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: 'vertical',
+    lineHeight: '18px'
   },
   button: {
     minWidth: 42,
     height: 24,
     padding: 0,
     margin: 0,
+    color: theme.palette.colors.purple,
     backgroundColor: 'transparent',
-    border: `1px solid ${theme.palette.colors.trueBlack}`
+    border: `1px solid `,
+    textTransform: 'none'
   },
   buttonString: {
-    fontWeight: 500,
+    fontWeight: 'normal',
     fontSize: 11,
-    lineHeight: '10px'
+    lineHeight: '13px'
   },
   actionContainer: {
     position: 'absolute',
-    padding: '0px 20px',
+    padding: '0px 16px',
     top: 230
   },
   priceUsd: {
@@ -142,12 +152,12 @@ export const ListingMessage = ({ message, classes, handleBuy, payload, buyAction
         >
           <Grid container item>
             <Typography variant={'body2'} className={classes.title}>
-              {title.length > 20 ? `${title.substring(0, 20)}...` : title}
+              {title}
             </Typography>
           </Grid>
           <Grid container item>
             <Typography variant={'caption'} className={classes.description}>
-              {description.length > 50 ? `${description.substring(0, 50)}...` : description}
+              {description}
             </Typography>
           </Grid>
         </Grid>
@@ -161,7 +171,7 @@ export const ListingMessage = ({ message, classes, handleBuy, payload, buyAction
         >
           <Grid item>
             <Button onClick={handleBuy} className={classes.button}>
-              <span className={classes.buttonString}>BUY</span>
+              <span className={classes.buttonString}>Buy</span>
             </Button>
           </Grid>
           <Grid item>

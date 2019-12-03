@@ -64,7 +64,7 @@ const styles = theme => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 10,
+    marginRight: 16,
     marginBottom: 4
   },
   alignAvatar: {
@@ -75,7 +75,7 @@ const styles = theme => ({
   },
   time: {
     color: theme.palette.colors.lightGray,
-    fontSize: 16,
+    fontSize: 14,
     marginTop: -4,
     marginRight: 5
   },

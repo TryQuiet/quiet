@@ -22,8 +22,9 @@ storiesOf('Components/Widgets/Channels/ListingMessages', module)
     const payload = {
       tag: 'dirtyBike',
       offerOwner: 'roks33',
-      description: 'Great quality bike for half the price as a name brand dirt bike! The X4',
-      title: 'Apollo X4 110cc Dirt Bike for...',
+      description:
+        'Great quality bike for half the price as a name brand dirt bike! The X4 ame brand dirt bike! The X4 ',
+      title: 'Apollo X4 110cc Dirt Bike for 110cc Dirt Bike for 110cc Dirt Bike for...',
       priceUSD: '300',
       priceZcash: '4000',
       background: 28,
@@ -32,14 +33,14 @@ storiesOf('Components/Widgets/Channels/ListingMessages', module)
     const message = {
       replyTo: 'test-address',
       sender: {
-        username: 'test',
+        username: 'roks33',
         replyTo: 'test-address'
       },
       isUnregistered: false,
       username: 'test',
       fromYou: false,
       status: 'broadcasted',
-      createdAt: 1313246566,
+      createdAt: 1575246566,
       error: {}
     }
     return (

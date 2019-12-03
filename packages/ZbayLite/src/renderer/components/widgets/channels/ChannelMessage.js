@@ -14,6 +14,7 @@ import BasicMessage from './BasicMessage'
 const styles = theme => ({
   message: {
     marginTop: theme.spacing(1),
+    marginLeft: 6,
     whiteSpace: 'pre-line',
     wordBreak: 'break-word'
   },

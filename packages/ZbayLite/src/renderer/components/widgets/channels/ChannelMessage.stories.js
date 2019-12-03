@@ -2,13 +2,23 @@ import React from 'react'
 import Immutable from 'immutable'
 import { DateTime } from 'luxon'
 import { storiesOf } from '@storybook/react'
+import StoryRouter from 'storybook-react-router'
 import { withKnobs, select, text, boolean } from '@storybook/addon-knobs'
 import { action } from '@storybook/addon-actions'
+
 import { DisplayableMessage } from '../../../zbay/messages'
 import ChannelMessage from './ChannelMessage'
+import { withStore } from '../../../../../.storybook/decorators'
+import create from '../../../store/create'
+
+const store = create({
+  initialState: Immutable.Map({})
+})
 
 storiesOf('Components/Widgets/Channels/ChannelMessage', module)
   .addDecorator(withKnobs)
+  .addDecorator(StoryRouter())
+  .addDecorator(withStore(store))
   .add('playground', () => {
     const stateValue = select(
       'Status',

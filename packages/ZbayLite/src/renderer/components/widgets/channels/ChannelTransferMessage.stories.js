@@ -1,16 +1,26 @@
 import React from 'react'
 import Immutable from 'immutable'
 import { DateTime } from 'luxon'
+import Grid from '@material-ui/core/Grid'
+import StoryRouter from 'storybook-react-router'
+
 import { storiesOf } from '@storybook/react'
 import { withKnobs, select, boolean } from '@storybook/addon-knobs'
 import { action } from '@storybook/addon-actions'
 import BigNumber from 'bignumber.js'
 
+import { withStore } from '../../../../../.storybook/decorators'
+import create from '../../../store/create'
+
 import { DisplayableMessage } from '../../../zbay/messages'
 import ChannelTransferMessage from './ChannelTransferMessage'
-
+const store = create({
+  initialState: Immutable.Map({})
+})
 storiesOf('Components/Widgets/Channels/ChannelTransferMessage', module)
   .addDecorator(withKnobs)
+  .addDecorator(StoryRouter())
+  .addDecorator(withStore(store))
   .add('playground', () => {
     const stateValue = select(
       'Status',
@@ -40,13 +50,17 @@ storiesOf('Components/Widgets/Channels/ChannelTransferMessage', module)
       spent: new BigNumber(10)
     }).set('error', error)
     return (
-      <ChannelTransferMessage
-        message={DisplayableMessage(message)}
-        onResend={action('Resending')}
-        onReply={action('Replying')}
-        onCancel={action('Cancelling')}
-        rateUsd={new BigNumber(2.6)}
-        userAddress='zs1testaddress1234'
-      />
+      <Grid container direction='column' spacing={2}>
+        <Grid item>
+          <ChannelTransferMessage
+            message={DisplayableMessage(message)}
+            onResend={action('Resending')}
+            onReply={action('Replying')}
+            onCancel={action('Cancelling')}
+            rateUsd={new BigNumber(2.6)}
+            userAddress='zs1testaddress1234'
+          />
+        </Grid>
+      </Grid>
     )
   })
