@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import * as R from 'ramda'
 import { AutoSizer } from 'react-virtualized'
 import { Scrollbars } from 'react-custom-scrollbars'
+import { DateTime } from 'luxon'
 
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
@@ -10,6 +11,7 @@ import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
 import Jdenticon from 'react-jdenticon'
 
+import { getTimeFormat } from '../../widgets/channels/BasicMessage'
 import Modal from '../Modal'
 
 const reqSvgs = require && require.context('../assets/backgrounds', true, /\.svg$/)
@@ -21,7 +23,7 @@ const sendFounds = (handleClose, onSendFoundsAction, payload) => {
 
 const styles = theme => ({
   window: {
-    width: 570,
+    width: 600,
     position: 'absolute',
     top: '50%',
     left: '50%',
@@ -86,7 +88,8 @@ const styles = theme => ({
     backgroundColor: 'transparent',
     color: theme.palette.colors.purple,
     borderColor: theme.palette.colors.purple,
-    textTransform: 'none'
+    textTransform: 'none',
+    fontWeight: 'normal'
   },
   buttonString: {
     fontStyle: 'normal',
@@ -123,7 +126,17 @@ const styles = theme => ({
   buyButton: {
     backgroundColor: theme.palette.colors.greenDark,
     color: theme.palette.colors.white,
-    textTransform: 'none'
+    textTransform: 'none',
+    fontWeight: 'normal',
+    padding: 0,
+    minWidth: 0,
+    width: '100%',
+    height: '100%',
+    fontSize: 12
+  },
+  buyButtonDiv: {
+    width: 49,
+    height: 32
   }
 })
 
@@ -138,12 +151,17 @@ export const AdvertActionModal = ({
   history,
   onSendFoundsAction
 }) => {
+  const time = DateTime.fromSeconds(parseInt(payload.createdAt))
+  const timeFormat = getTimeFormat(time)
+  const timeString = time.toFormat(timeFormat)
+
   return payload ? (
     <Modal
       open={open}
       handleClose={handleClose}
       classes={{ window: classes.window }}
       title={`#${payload.tag} @${payload.offerOwner.substring(0, 20)}`}
+      isBold
       fullPage
     >
       <Grid container direction='column'>
@@ -225,10 +243,17 @@ export const AdvertActionModal = ({
                       {payload.title}
                     </Typography>
                   </Grid>
-                  <Grid container className={classes.descriptionContainer} item>
-                    <Typography variant={'caption'} className={classes.description}>
-                      {payload.description}
-                    </Typography>
+                  <Grid container direction='column' className={classes.descriptionContainer} item>
+                    <Grid item>
+                      <Typography variant={'caption'} className={classes.description}>
+                        {payload.description}
+                      </Typography>
+                    </Grid>
+                    <Grid item>
+                      <Typography variant={'caption'} className={classes.description}>
+                        {`Posted: ${timeString}`}
+                      </Typography>
+                    </Grid>
                   </Grid>
                 </Grid>
               </Scrollbars>
@@ -261,9 +286,9 @@ export const AdvertActionModal = ({
                 </Grid>
               </Grid>
             </Grid>
-            <Grid item>
+            <Grid item className={classes.buyButtonDiv}>
               <Button
-                variant='contained'
+                variant='text'
                 className={classes.buyButton}
                 onClick={() => sendFounds(handleClose, onSendFoundsAction, payload)}
               >
@@ -288,7 +313,8 @@ AdvertActionModal.propTypes = {
     description: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
     background: PropTypes.string.isRequired,
-    id: PropTypes.string.isRequired
+    id: PropTypes.string.isRequired,
+    createdAt: PropTypes.number.isRequired
   }),
   handleMessage: PropTypes.func.isRequired,
   handleClose: PropTypes.func.isRequired
@@ -303,7 +329,8 @@ AdvertActionModal.defaultProps = {
     description: '',
     title: '',
     background: '1',
-    id: ''
+    id: '',
+    createdAt: 0
   }
 }
 

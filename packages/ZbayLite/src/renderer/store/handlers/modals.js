@@ -36,7 +36,7 @@ export const reducer = handleActions({
     return (
       state
         .set(modalName, false)
-        .set('payloads', state.get('payloads').set(modalName, null))
+        .set('payloads', state.get('payloads'))
     )
   }
 }, initialState)

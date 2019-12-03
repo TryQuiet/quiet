@@ -9,6 +9,7 @@ exports[`SendMessagePopover renders popover 1`] = `
   }
   fullPage={true}
   handleClose={[MockFunction]}
+  isBold={true}
   open={true}
   title="#dirtyBike @roks33"
 >
@@ -150,12 +151,13 @@ exports[`SendMessagePopover renders popover 1`] = `
           </WithStyles(ForwardRef(Grid))>
         </WithStyles(ForwardRef(Grid))>
         <WithStyles(ForwardRef(Grid))
+          className="buyButtonDiv-mock"
           item={true}
         >
           <WithStyles(ForwardRef(Button))
             className="buyButton-mock"
             onClick={[Function]}
-            variant="contained"
+            variant="text"
           >
             Buy
           </WithStyles(ForwardRef(Button))>

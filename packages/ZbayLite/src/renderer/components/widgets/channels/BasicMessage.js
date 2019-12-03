@@ -92,7 +92,7 @@ const statusComponent = {
   cancelled: BlockIcon
 }
 
-const getTimeFormat = time => {
+export const getTimeFormat = time => {
   const today = DateTime.utc()
   if (time.hasSame(today, 'day')) {
     return 't'
