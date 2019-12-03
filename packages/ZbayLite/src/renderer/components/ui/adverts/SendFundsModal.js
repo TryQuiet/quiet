@@ -22,8 +22,7 @@ import LoadindButton from '../LoadingButton'
 const reqSvgs = require && require.context('../../ui/assets/backgrounds', true, /\.svg$/)
 
 const styles = theme => ({
-  root: {
-  },
+  root: {},
   window: {
     width: 440,
     position: 'absolute',
@@ -81,7 +80,15 @@ const styles = theme => ({
     fontWeight: 'normal',
     fontStyle: 'normal',
     cursor: 'pointer',
-    color: theme.palette.colors.darkGray
+    color: theme.palette.colors.darkGray,
+    width: '88%'
+  },
+  descriptionFunds: {
+    fontWeight: 'normal',
+    fontStyle: 'normal',
+    cursor: 'pointer',
+    color: theme.palette.colors.darkGray,
+    width: '100%'
   },
   checkboxLabel: {
     marginLeft: -6,
@@ -143,7 +150,8 @@ const styles = theme => ({
     '&:disabled': {
       color: theme.palette.colors.white
     },
-    maxWidth: 400
+    maxWidth: 400,
+    fontSize: 16
   },
   divButton: {
     marginTop: 32,
@@ -245,19 +253,37 @@ export const SendFundsModal = ({
       classes={{ window: classes.window }}
       title='Send Funds'
       fullPage
+      isBold
     >
       <AutoSizer>
         {({ width, height }) => (
           <Scrollbars autoHideTimeout={500} style={{ width: width, height: height }}>
             <Grid container direction='column' className={classes.root}>
-              <Grid container item className={classes.userBox} direction={'row'} justify={'flex-start'} alignItems={'center'} wrap={'nowrap'}>
-                <Grid container className={classes.backgroundImage} style={{ background: `url(${reqSvgs(reqSvgs.keys()[payload.background])})` }} />
+              <Grid
+                container
+                item
+                className={classes.userBox}
+                direction={'row'}
+                justify={'flex-start'}
+                alignItems={'center'}
+                wrap={'nowrap'}
+              >
+                <Grid
+                  container
+                  className={classes.backgroundImage}
+                  style={{ background: `url(${reqSvgs(reqSvgs.keys()[payload.background])})` }}
+                />
                 <Grid className={classes.offerOwner} container item direction={'column'}>
                   <Grid item>
-                    <Typography className={classes.nickname} variant={'subtitle1'}>{payload.offerOwner}</Typography>
+                    <Typography className={classes.nickname} variant={'subtitle1'}>
+                      {payload.offerOwner}
+                    </Typography>
                   </Grid>
                   <Grid item>
-                    <Typography className={classes.tag} variant={'caption'}><span className={classes.hash}>#</span>{payload.tag}</Typography>
+                    <Typography className={classes.tag} variant={'caption'}>
+                      <span className={classes.hash}>#</span>
+                      {payload.tag}
+                    </Typography>
                   </Grid>
                 </Grid>
               </Grid>
@@ -271,22 +297,68 @@ export const SendFundsModal = ({
                       <Icon className={classes.exclamationMarkIcon} src={exclamationMark} />
                     </Grid>
                   </Grid>
-                  <Grid container item className={classes.sellerInfo} direction={'column'} wrap={'nowrap'}>
+                  <Grid
+                    container
+                    item
+                    className={classes.sellerInfo}
+                    direction={'column'}
+                    wrap={'nowrap'}
+                  >
                     <Grid item xs>
-                      <Typography align={'justify'} className={classes.description} variant={'body2'}>Funds may not be recoverable. Never send significant sums of money without strong reasons to trust the seller. Research the seller’s reputation on the web, and be cautious!</Typography>
+                      <Typography
+                        align={'justify'}
+                        className={classes.description}
+                        variant={'body2'}
+                      >
+                        Funds may not be recoverable. Never send significant sums of money without
+                        strong reasons to trust the seller. Research the seller’s reputation on the
+                        web, and be cautious!
+                      </Typography>
                     </Grid>
                     <Grid item container wrap={'wrap'} alignItems={'center'}>
                       <FiberManualRecordIcon className={classes.iconDot} />
-                      <Typography align={'justify'} className={classes.linkBlue} onClick={(e) => handleLinkOpen({ event: e, target: 'reddit', username: payload.offerOwner })} variant={'body2'}>Search reddit</Typography>
+                      <Typography
+                        align={'justify'}
+                        className={classes.linkBlue}
+                        onClick={e =>
+                          handleLinkOpen({
+                            event: e,
+                            target: 'reddit',
+                            username: payload.offerOwner
+                          })
+                        }
+                        variant={'body2'}
+                      >
+                        Search reddit
+                      </Typography>
                     </Grid>
                     <Grid container item wrap={'wrap'} alignItems={'center'}>
                       <FiberManualRecordIcon className={classes.iconDot} />
-                      <Typography align={'justify'} className={classes.linkBlue} onClick={(e) => handleLinkOpen({ event: e, target: 'google', username: payload.offerOwner })} variant={'body2'}>Search google</Typography>
+                      <Typography
+                        align={'justify'}
+                        className={classes.linkBlue}
+                        onClick={e =>
+                          handleLinkOpen({
+                            event: e,
+                            target: 'google',
+                            username: payload.offerOwner
+                          })
+                        }
+                        variant={'body2'}
+                      >
+                        Search google
+                      </Typography>
                     </Grid>
                   </Grid>
                 </Grid>
               </Grid>
-              <Grid container item className={classes.shipping} direction={'column'} alignContent={'flex-start'}>
+              <Grid
+                container
+                item
+                className={classes.shipping}
+                direction={'column'}
+                alignContent={'flex-start'}
+              >
                 {!R.isEmpty(shippingData) ? (
                   <Grid item>
                     <CheckboxWithLabel
@@ -300,11 +372,35 @@ export const SendFundsModal = ({
                   </Grid>
                 ) : null}
                 {R.isEmpty(shippingData) ? (
-                  <Typography className={classes.shippingDataInfo}> Please <span onClick={() => handleFillShipping(openSettingsModal, openShippingTab, handleClose)} className={classes.link}>fill your shipping information </span> if you want to include it.</Typography>
+                  <Typography className={classes.shippingDataInfo}>
+                    {' '}
+                    Please{' '}
+                    <span
+                      onClick={() =>
+                        handleFillShipping(openSettingsModal, openShippingTab, handleClose)
+                      }
+                      className={classes.link}
+                    >
+                      fill your shipping information{' '}
+                    </span>{' '}
+                    if you want to include it.
+                  </Typography>
                 ) : (
-                  <Grid className={classes.addressBox} container item direction={'column'} justify={'space-between'} alignContent={'center'} wrap={'wrap'}>
-                    <Typography variant={'caption'} className={classes.address}>{shippingData.street}</Typography>
-                    <Typography variant={'caption'} className={classes.address}>{`${shippingData.city} ${shippingData.postalCode}
+                  <Grid
+                    className={classes.addressBox}
+                    container
+                    item
+                    direction={'column'}
+                    justify={'space-between'}
+                    alignContent={'center'}
+                    wrap={'wrap'}
+                  >
+                    <Typography variant={'caption'} className={classes.address}>
+                      {shippingData.street}
+                    </Typography>
+                    <Typography variant={'caption'} className={classes.address}>{`${
+                      shippingData.city
+                    } ${shippingData.postalCode}
                   ${shippingData.region} ${shippingData.country}`}</Typography>
                   </Grid>
                 )}
@@ -377,7 +473,17 @@ export const SendFundsModal = ({
                     </Grid>
                     <Grid container item>
                       <Grid item>
-                        <Typography variant={'body2'} className={classes.description}>You don’t have enough funds. <span onClick={() => handleAddFunds(openAddFundsTab, openSettingsModal, handleClose)} className={classes.addFounds}>Add funds now.</span></Typography>
+                        <Typography variant={'body2'} className={classes.descriptionFunds}>
+                          You don’t have enough funds.{' '}
+                          <span
+                            onClick={() =>
+                              handleAddFunds(openAddFundsTab, openSettingsModal, handleClose)
+                            }
+                            className={classes.addFounds}
+                          >
+                            Add funds now.
+                          </span>
+                        </Typography>
                       </Grid>
                     </Grid>
                   </Grid>
@@ -392,11 +498,7 @@ export const SendFundsModal = ({
                   margin='normal'
                   onClick={submitForm}
                   disabled={hasNoFounds || !isValid}
-                  text={
-                    <>
-                    Send Funds
-                    </>
-                  }
+                  text={<>Send Funds</>}
                   classes={{ button: classes.postButton }}
                 />
               </Grid>

@@ -9,6 +9,7 @@ exports[`SendFundsModal renders component SendFundsModal 1`] = `
   }
   fullPage={true}
   handleClose={[MockFunction]}
+  isBold={true}
   open={true}
   title="Send Funds"
 >
