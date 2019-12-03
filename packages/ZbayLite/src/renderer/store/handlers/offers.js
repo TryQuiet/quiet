@@ -46,7 +46,12 @@ export const actions = {
 }
 const createOfferAdvert = ({ payload, history }) => async (dispatch, getState) => {
   await dispatch(createOffer({ payload }))
-  await dispatch(contactsHandlers.epics.updateDeletedChannelTimestamp({ address: payload.id + payload.offerOwner, timestamp: 0 }))
+  await dispatch(
+    contactsHandlers.epics.updateDeletedChannelTimestamp({
+      address: payload.id + payload.offerOwner,
+      timestamp: 0
+    })
+  )
   history.push(`/main/offers/${payload.id + payload.offerOwner}/${payload.address}`)
 }
 const createOffer = ({ payload }) => async (dispatch, getState) => {
@@ -95,7 +100,8 @@ export const initMessage = () => async (dispatch, getState) => {
           tag: JSON.parse(msg.properties['message']).tag,
           offerOwner: JSON.parse(msg.properties['message']).offerOwner,
           sender: { replyTo: msg.properties.sender, username: msg.properties.senderUsername },
-          createdAt: parseInt(msg.properties.createdAt)
+          createdAt: parseInt(msg.properties.createdAt),
+          type: parseInt(msg.properties.type)
         },
         identityAddress,
         receiver: { replyTo: offer.address, username: contact.username }
@@ -122,7 +128,8 @@ const refreshMessages = id => async (dispatch, getState) => {
         tag: JSON.parse(msg.properties['message']).tag,
         offerOwner: JSON.parse(msg.properties['message']).offerOwner,
         sender: { replyTo: msg.properties.sender, username: msg.properties.senderUsername },
-        createdAt: parseInt(msg.properties.createdAt)
+        createdAt: parseInt(msg.properties.createdAt),
+        type: parseInt(msg.properties.type)
       },
       identityAddress,
       receiver: { replyTo: offer.address, username: contact.username }
