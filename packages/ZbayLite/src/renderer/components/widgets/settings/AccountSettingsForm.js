@@ -10,11 +10,10 @@ import InputAdornment from '@material-ui/core/InputAdornment'
 import MuiTextField from '@material-ui/core/TextField'
 import IconButton from '@material-ui/core/IconButton'
 import { withStyles } from '@material-ui/core/styles'
-import { Divider } from '@material-ui/core'
+import CopyIcon from '../../../../renderer/static/images/copylink.svg'
 
 import Icon from '../../ui/Icon'
 import usernameIcon from '../../../static/images/username.svg'
-import IconCopy from '../../ui/IconCopy'
 
 const styles = theme => ({
   createUsernameContainer: {
@@ -30,10 +29,7 @@ const styles = theme => ({
   },
   textField: {
     width: '100%',
-    height: 60,
-    '& > :first-child': {
-      padding: theme.spacing(1)
-    }
+    height: 60
   },
   icon: {
     width: 60,
@@ -54,6 +50,26 @@ const styles = theme => ({
   },
   title: {
     marginBottom: 24
+  },
+  iconBackground: {
+    margin: 0,
+    padding: 0
+  },
+  iconBox: {
+    margin: 0,
+    padding: 5,
+    width: 60,
+    height: 56,
+    backgroundColor: theme.palette.colors.gray30
+  },
+  adornedEnd: {
+    padding: 0
+  },
+  copyInput: {
+    borderRight: `1px solid ${theme.palette.colors.inputGray}`,
+    paddingTop: 18,
+    paddingBottom: 18,
+    paddingLeft: 16
   }
 })
 
@@ -82,7 +98,7 @@ export const AccountSettingsForm = ({
   user
 }) => {
   return (
-    <Grid container direction column >
+    <Grid container direction column>
       <Grid item className={classes.title}>
         <Typography variant='h3'>Account</Typography>
       </Grid>
@@ -133,19 +149,25 @@ export const AccountSettingsForm = ({
                   type='text'
                   value={privateAddress}
                   disabled
-                  classes={{ root: classes.textFieldd }}
+                  classes={{ root: classes.textField }}
                   InputProps={{
+                    classes: { input: classes.copyInput, adornedEnd: classes.adornedEnd },
                     endAdornment: (
-                      <>
-                        <Divider className={classes.divider} orientation='vertical' />
-                        <InputAdornment position='end' className={classes.icon}>
-                          <IconButton>
-                            <CopyToClipboard text={privateAddress} onCopy={handleCopy}>
-                              <IconCopy />
-                            </CopyToClipboard>
-                          </IconButton>
+                      <Grid
+                        item
+                        container
+                        justify={'center'}
+                        alignItems={'center'}
+                        className={classes.iconBox}
+                      >
+                        <InputAdornment position='end' className={classes.iconBackground}>
+                          <CopyToClipboard text={privateAddress} onCopy={handleCopy}>
+                            <IconButton>
+                              <Icon src={CopyIcon} />
+                            </IconButton>
+                          </CopyToClipboard>
                         </InputAdornment>
-                      </>
+                      </Grid>
                     )
                   }}
                 />
@@ -160,17 +182,23 @@ export const AccountSettingsForm = ({
                   value={transparentAddress}
                   disabled
                   InputProps={{
+                    classes: { input: classes.copyInput, adornedEnd: classes.adornedEnd },
                     endAdornment: (
-                      <>
-                        <Divider className={classes.divider} orientation='vertical' />
-                        <InputAdornment position='end' className={classes.icon}>
-                          <IconButton>
-                            <CopyToClipboard text={transparentAddress} onCopy={handleCopy}>
-                              <IconCopy />
-                            </CopyToClipboard>
-                          </IconButton>
+                      <Grid
+                        item
+                        container
+                        justify={'center'}
+                        alignItems={'center'}
+                        className={classes.iconBox}
+                      >
+                        <InputAdornment position='end' className={classes.iconBackground}>
+                          <CopyToClipboard text={transparentAddress} onCopy={handleCopy}>
+                            <IconButton>
+                              <Icon src={CopyIcon} />
+                            </IconButton>
+                          </CopyToClipboard>
                         </InputAdornment>
-                      </>
+                      </Grid>
                     )
                   }}
                 />
