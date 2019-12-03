@@ -19,7 +19,7 @@ export const formSchema = (users) => {
   return Yup.object().shape(
     {
       recipient: Yup
-        .mixed().test('match', 'Wrong address format or username not exists', function (string) {
+        .mixed().test('match', 'Wrong address format or username does not exist', function (string) {
           const isAddressValid = /^t1[a-zA-Z0-9]{33}$|^ztestsapling1[a-z0-9]{75}$|^zs1[a-z0-9]{75}$/.test(string)
           const includesNickname = users.toList().filter(obj => obj.get('nickname') === string).first()
           return includesNickname || isAddressValid
