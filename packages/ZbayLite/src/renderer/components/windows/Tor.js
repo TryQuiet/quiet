@@ -34,9 +34,7 @@ export const Tor = ({
   tor,
   setUrl,
   setEnabled,
-  checkTor,
-  createZcashNode,
-  history
+  checkTor
 }) => (
   <Grid className={classes.root} container direction='column' alignItems='center'>
     <Grid className={classes.checkbox} item>
@@ -123,7 +121,6 @@ Tor.propTypes = {
   setUrl: PropTypes.func.isRequired,
   checkTor: PropTypes.func.isRequired,
   setEnabled: PropTypes.func.isRequired,
-  createZcashNode: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired
 }
 export default withStyles(styles)(Tor)

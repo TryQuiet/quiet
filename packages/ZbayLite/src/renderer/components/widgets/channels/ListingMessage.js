@@ -107,7 +107,7 @@ const styles = theme => ({
   }
 })
 
-export const ListingMessage = ({ message, classes, handleBuy, payload, buyActions }) => {
+export const ListingMessage = ({ message, classes, payload, buyActions }) => {
   const [actionsOpen, setActionsOpen] = React.useState(false)
   const inputWidth = 50 + payload.tag.length * 15
   const { tag, description, background, title, priceUSD, priceZcash } = payload
@@ -170,7 +170,7 @@ export const ListingMessage = ({ message, classes, handleBuy, payload, buyAction
           justify={'flex-start'}
         >
           <Grid item>
-            <Button onClick={handleBuy} className={classes.button}>
+            <Button onClick={() => buyActions('advertSendFounds', payload)} className={classes.button}>
               <span className={classes.buttonString}>Buy</span>
             </Button>
           </Grid>
@@ -201,7 +201,6 @@ ListingMessage.propTypes = {
     title: PropTypes.string.isRequired,
     address: PropTypes.string.isRequired
   }),
-  handleBuy: PropTypes.func.isRequired,
   buyActions: PropTypes.func.isRequired,
   message: PropTypes.instanceOf(_DisplayableMessage).isRequired
 }

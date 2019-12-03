@@ -75,7 +75,7 @@ export const DonationsSettingsForm = ({
             variant='outlined'
             defaultValue={initialValues.donationAddress || ''}
             placeholder='Enter Zcash Address'
-            helperText={isAddressValid || 'Please insert correct address'}
+            helperText={!isAddressValid && 'Please insert correct address'}
             error={!isAddressValid}
             onChange={e => checkAddress(e.target.value, setDonationAddress, setAddressStatus)}
             InputProps={{ className: classes.field }}

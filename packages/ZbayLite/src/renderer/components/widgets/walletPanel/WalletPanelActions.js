@@ -77,7 +77,7 @@ WalletPanelActions.propTypes = {
   onSend: PropTypes.func.isRequired,
   onReceive: PropTypes.func.isRequired,
   setTabToOpen: PropTypes.func.isRequired,
-  showDepositInfo: PropTypes.number
+  showDepositInfo: PropTypes.bool
 }
 
 export default R.compose(

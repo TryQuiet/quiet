@@ -93,7 +93,7 @@ exports[`SendMessagePopover renders popover 1`] = `
       >
         <WithStyles(ForwardRef(Button))
           className="button-mock"
-          onClick={[MockFunction]}
+          onClick={[Function]}
         >
           <span
             className="buttonString-mock"

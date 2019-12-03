@@ -25,7 +25,6 @@ export const TopUpModal = props => {
 }
 
 TopUpModal.propTypes = {
-  open: PropTypes.bool.isRequired,
   handleClose: PropTypes.func.isRequired,
   handleCopy: PropTypes.func
 }

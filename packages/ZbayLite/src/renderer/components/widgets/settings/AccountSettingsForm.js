@@ -98,7 +98,7 @@ export const AccountSettingsForm = ({
   user
 }) => {
   return (
-    <Grid container direction column>
+    <Grid container direction='column'>
       <Grid item className={classes.title}>
         <Typography variant='h3'>Account</Typography>
       </Grid>
