@@ -5,6 +5,12 @@ import os from 'os'
 import path from 'path'
 import url from 'url'
 import { autoUpdater } from 'electron-updater'
+import fs from 'fs-extra'
+
+import { spawnZcashNode, ensureZcashParams } from './zcash/bootstrap'
+
+const isTestnet = parseInt(process.env.ZBAY_IS_TESTNET)
+let nodeProc = null
 
 const isDev = process.env.NODE_ENV === 'development'
 const installExtensions = async () => {
@@ -114,6 +120,30 @@ const checkForUpdate = win => {
   })
 }
 
+const createZcashNode = (win, torUrl) => {
+  win.webContents.send('bootstrappingNode', {
+    message: 'Ensuring zcash params are present',
+    bootstrapping: true
+  })
+  ensureZcashParams(process.platform, error => {
+    if (error) {
+      throw error
+    }
+    win.webContents.send('bootstrappingNode', {
+      message: 'Launching zcash node',
+      bootstrapping: true
+    })
+    nodeProc = spawnZcashNode(process.platform, isTestnet, torUrl)
+    mainWindow.webContents.send('bootstrappingNode', {
+      message: '',
+      bootstrapping: false
+    })
+    nodeProc.on('close', () => {
+      nodeProc = null
+    })
+  })
+}
+
 app.on('ready', async () => {
   const template = [
     {
@@ -151,6 +181,10 @@ app.on('ready', async () => {
     const REQUIRED_FREE_SPACE = 1073741824
     const ZCASH_PARAMS = 1825361100
 
+    if (!fs.existsSync(osPaths[process.platform])) {
+      fs.mkdirSync(osPaths[process.platform])
+    }
+
     getSize(osPaths[process.platform], (err, downloadedSize) => {
       if (err) {
         throw err
@@ -181,9 +215,25 @@ app.on('ready', async () => {
   ipcMain.on('proceed-update', (event, arg) => {
     autoUpdater.quitAndInstall()
   })
+
+  ipcMain.on('create-node', (event, arg) => {
+    let torUrl
+    if (arg) {
+      torUrl = arg.toString()
+    }
+    if (!nodeProc) {
+      createZcashNode(mainWindow, torUrl)
+    }
+  })
 })
 
 app.setAsDefaultProtocolClient('zbay')
+
+process.on('exit', () => {
+  if (nodeProc !== null) {
+    nodeProc.kill()
+  }
+})
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {

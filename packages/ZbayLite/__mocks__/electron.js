@@ -7,7 +7,9 @@ export const remote = {
   })),
   process: { on: jest.fn() }
 }
+export const ipcRenderer = { send: jest.fn() }
 
 export default {
-  remote
+  remote,
+  ipcRenderer
 }

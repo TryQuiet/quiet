@@ -9,6 +9,7 @@ import vaultHandlers from '../../store/handlers/vault'
 import CreateVault from './CreateVault'
 import UnlockVault from './UnlockVault'
 import SpinnerLoader from '../../components/ui/SpinnerLoader'
+import torHandlers from '../../store/handlers/tor'
 
 export const mapStateToProps = state => ({
   exists: vaultSelectors.exists(state),
@@ -18,15 +19,21 @@ export const mapStateToProps = state => ({
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      loadVaultStatus: vaultHandlers.epics.loadVaultStatus
+      loadVaultStatus: vaultHandlers.epics.loadVaultStatus,
+      createZcashNode: torHandlers.epics.createZcashNode
     },
     dispatch
   )
 
-export const Vault = ({ loadVaultStatus, exists, nodeConnected }) => {
+export const Vault = ({ loadVaultStatus, createZcashNode, exists, nodeConnected }) => {
   useEffect(() => {
     loadVaultStatus()
   })
+  useEffect(() => {
+    if (exists === false && !nodeConnected) {
+      createZcashNode()
+    }
+  }, [exists])
   if (exists === false) {
     if (!nodeConnected) {
       return <Redirect to='/zcashNode' />

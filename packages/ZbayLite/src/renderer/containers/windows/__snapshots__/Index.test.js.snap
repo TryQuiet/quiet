@@ -2,7 +2,6 @@
 
 exports[`Index will receive right actions 1`] = `
 Object {
-  "createZcashNode": [Function],
   "getStatus": [Function],
   "loadVersion": [Function],
 }

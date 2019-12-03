@@ -1,29 +1,16 @@
 import Immutable from 'immutable'
-import Store from 'electron-store'
 import net from 'net'
-import { createAction, handleActions } from 'redux-actions'
-import { remote } from 'electron'
+import { ipcRenderer } from 'electron'
 
-import bootstrap from '../../../main/zcash/bootstrap'
+import { createAction, handleActions } from 'redux-actions'
 import torSelectors from '../selectors/tor'
 import { successNotification } from './utils'
 import notificationsHandlers from './notifications'
-import nodeHandlers from './node'
+import electronStore from '../../../shared/electronStore'
 
 export const client = new net.Socket()
-export const store = new Store()
-
 export const defaultTorUrlProxy = 'localhost:9050'
 export const defaultTorUrlBrowser = 'localhost:9150'
-
-const isTestnet = parseInt(process.env.ZBAY_IS_TESTNET)
-export var nodeProc = null
-
-remote.process.on('exit', () => {
-  if (nodeProc !== null) {
-    nodeProc.kill()
-  }
-})
 
 export const Tor = Immutable.Record(
   {
@@ -123,9 +110,14 @@ const checkTor = () => async (dispatch, getState) => {
   })
 }
 export const createZcashNode = torUrl => async (dispatch, getState) => {
-  store.set('torEnabled', !!torUrl)
-  dispatch(nodeHandlers.actions.setBootstrapping(true))
-  dispatch(nodeHandlers.actions.setBootstrappingMessage('Ensuring zcash params are present'))
+  electronStore.set('torEnabled', !!torUrl)
+  let ipAddress
+  if (torUrl && torUrl.startsWith('localhost')) {
+    ipAddress = torUrl.replace('localhost', '127.0.0.1')
+  } else {
+    ipAddress = torUrl
+  }
+  ipcRenderer.send('create-node', ipAddress)
   if (torUrl) {
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar(
@@ -133,20 +125,6 @@ export const createZcashNode = torUrl => async (dispatch, getState) => {
       )
     )
   }
-  bootstrap.ensureZcashParams(process.platform, error => {
-    if (error) {
-      throw error
-    }
-    dispatch(nodeHandlers.actions.setBootstrapping(true))
-    dispatch(nodeHandlers.actions.setBootstrappingMessage('Launching zcash node'))
-
-    nodeProc = bootstrap.spawnZcashNode(process.platform, isTestnet, torUrl)
-    dispatch(nodeHandlers.actions.setBootstrapping(false))
-    dispatch(nodeHandlers.actions.setBootstrappingMessage(''))
-    nodeProc.on('close', () => {
-      nodeProc = null
-    })
-  })
 }
 export const epics = {
   checkTor,

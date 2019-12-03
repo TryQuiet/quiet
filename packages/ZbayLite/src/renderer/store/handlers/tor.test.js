@@ -1,11 +1,15 @@
 import Immutable from 'immutable'
+import { ipcRenderer } from 'electron'
 
 import create from '../create'
 import { actions, initialState, epics, client } from './tor'
 import selectors from '../selectors/tor'
-import bootstrap from '../../../main/zcash/bootstrap'
+import electronStore from '../../../shared/electronStore'
 
 jest.mock('../../vault')
+jest.mock('../../../shared/electronStore', () => ({
+  set: () => {}
+}))
 
 describe('Tor reducer handles ', () => {
   let store = null
@@ -40,20 +44,18 @@ describe('Tor reducer handles ', () => {
   describe('epics', () => {
     it('- checkTor', async () => {
       const connectMock = jest.spyOn(client, 'connect').mockImplementation(() => {})
+
       await store.dispatch(epics.checkTor())
       expect(connectMock).toHaveBeenCalled()
     })
     it('- createZcashNode', async () => {
-      const ensureZcashParamsMock = jest
-        .spyOn(bootstrap, 'ensureZcashParams')
-        .mockImplementation((platform, callback) => callback())
       const spawnZcashNodeMock = jest
-        .spyOn(bootstrap, 'spawnZcashNode')
+        .spyOn(ipcRenderer, 'send')
         .mockImplementation(() => ({ on: () => {} }))
-
+      const electronStoreMock = jest.spyOn(electronStore, 'set').mockImplementation(() => {})
       await store.dispatch(epics.createZcashNode())
-      expect(ensureZcashParamsMock).toHaveBeenCalled()
       expect(spawnZcashNodeMock).toHaveBeenCalled()
+      expect(electronStoreMock).toHaveBeenCalled()
     })
   })
 })

@@ -65,7 +65,8 @@ const styles = theme => ({
 })
 
 export const SyncLoader = ({ classes, node }) => {
-  const sync = parseFloat(node.currentBlock.div(node.latestBlock) * 100).toFixed(2)
+  const lastBlock = node.latestBlock.isEqualTo(0) ? 999999 : node.latestBlock
+  const sync = parseFloat(node.currentBlock.div(lastBlock) * 100).toFixed(2)
   const loaded = (sync * SIZE) / 100
   return (
     <WindowWrapper className={classes.root}>

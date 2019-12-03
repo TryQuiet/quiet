@@ -6,8 +6,8 @@ import * as R from 'ramda'
 
 import TorComponent from '../../components/windows/Tor'
 import torSelectors from '../../store/selectors/tor'
-import torHandlers, { store } from '../../store/handlers/tor'
-
+import torHandlers from '../../store/handlers/tor'
+import electronStore from '../../../shared/electronStore'
 export const mapStateToProps = state => ({
   tor: torSelectors.tor(state)
 })
@@ -17,7 +17,6 @@ export const mapDispatchToProps = dispatch =>
       setEnabled: torHandlers.actions.setEnabled,
       setUrl: torHandlers.actions.setUrl,
       checkTor: torHandlers.epics.checkTor,
-
       checkDeafult: torHandlers.epics.checkDeafult
     },
     dispatch
@@ -25,7 +24,7 @@ export const mapDispatchToProps = dispatch =>
 
 const Tor = ({ ...props }) => {
   useEffect(() => {
-    if (store.get('torEnabled')) {
+    if (electronStore.get('torEnabled')) {
       props.setEnabled({ enabled: true })
       props.checkDeafult()
     }

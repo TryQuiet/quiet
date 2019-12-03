@@ -2,6 +2,7 @@
 
 exports[`Vault will receive right actions 1`] = `
 Object {
+  "createZcashNode": [Function],
   "loadVaultStatus": [Function],
 }
 `;

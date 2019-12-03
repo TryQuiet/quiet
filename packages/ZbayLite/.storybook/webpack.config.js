@@ -2,7 +2,6 @@ const path = require('path')
 
 module.exports = {
   plugins: [],
-
   module: {
     rules: [
       {
@@ -17,11 +16,12 @@ module.exports = {
   },
   node: {
     console: true,
-    net: 'empty',
     tls: 'empty'
   },
   resolve: {
     alias: {
+      'electron-store-webpack-wrapper': path.resolve(__dirname, 'electronStoreMock.js'),
+      net: path.resolve(__dirname, 'netMock.js'),
       fs: path.resolve(__dirname, 'fsMock.js')
     }
   }
