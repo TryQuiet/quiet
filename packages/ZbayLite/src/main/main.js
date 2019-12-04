@@ -35,6 +35,7 @@ const windowSize = {
 }
 
 var mainWindow
+let running = false
 
 const gotTheLock = app.requestSingleInstanceLock()
 
@@ -221,7 +222,8 @@ app.on('ready', async () => {
     if (arg) {
       torUrl = arg.toString()
     }
-    if (!nodeProc) {
+    if (!running) {
+      running = true
       createZcashNode(mainWindow, torUrl)
     }
   })
