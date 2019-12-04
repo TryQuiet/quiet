@@ -355,7 +355,7 @@ export const SendMoneyForm = ({
               )}
               {R.isEmpty(shippingData) && (
                 <Typography className={classes.shippingDataInfo}>
-                  Please
+                  {'Please '}
                   <span
                     onClick={() =>
                       handleOpenAddShippingData(openSettingsModal, openShippingTab, handleClose)
@@ -364,7 +364,7 @@ export const SendMoneyForm = ({
                   >
                     fill your shipping information
                   </span>
-                  if you want to include it.
+                  {' if you want to include it.'}
                 </Typography>
               )}
             </Grid>

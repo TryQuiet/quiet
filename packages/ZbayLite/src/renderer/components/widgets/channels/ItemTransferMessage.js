@@ -11,6 +11,7 @@ import { Typography } from '@material-ui/core'
 
 const styles = theme => ({
   message: {
+    marginLeft: 6,
     marginTop: theme.spacing(1),
     whiteSpace: 'pre-line',
     fontStyle: 'normal',
