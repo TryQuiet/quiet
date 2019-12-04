@@ -381,7 +381,7 @@ export const SendFundsModal = ({
                       }
                       className={classes.link}
                     >
-                      fill your shipping information{' '}
+                      enter your shipping information{' '}
                     </span>{' '}
                     if you want to include it.
                   </Typography>

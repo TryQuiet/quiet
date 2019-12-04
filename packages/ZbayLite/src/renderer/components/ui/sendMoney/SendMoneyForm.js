@@ -216,7 +216,7 @@ export const SendMoneyForm = ({
             <Grid item xs={12} container className={classes.divMoney}>
               <Grid className={classes.titleBox} item xs={12}>
                 <Typography className={classes.fieldTitle} variant={'body2'}>
-                  Available to send
+                Amount available
                 </Typography>
               </Grid>
               <Grid item className={classes.moneyDiv}>
@@ -362,7 +362,7 @@ export const SendMoneyForm = ({
                     }
                     className={classes.link}
                   >
-                    fill your shipping information
+                    enter your shipping information
                   </span>
                   {' if you want to include it.'}
                 </Typography>
