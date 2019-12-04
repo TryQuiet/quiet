@@ -1,9 +1,6 @@
-cache:
-  key: "$CI_BUILD_NAME"
-  untracked: true
-
 stages:
   - test
+  - storybook
 
 test:
   image: node:10.12.0
@@ -13,3 +10,21 @@ test:
   script:
     - npm install
     - npm run test
+
+update-storybook:
+  image: node:10.12.0
+  stage: storybook
+  only:
+    - develop
+  before_script:
+    - apt-get update
+    - apt-get install -y python-pip
+    - pip install awscli
+  variables:
+    STORYBOOK_BUCKET: s3://zbay-storybook-76421.rumblefish.dev
+    CLOUDFRONT_DISTRIBUTION_ID: EOYSDRL0ZK6JQ
+  script:
+    - npm install
+    - npm run build-storybook
+    - aws s3 sync storybook-static/ $STORYBOOK_BUCKET --exact-timestamps --delete
+    - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/*"
