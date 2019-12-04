@@ -163,6 +163,7 @@ export const AdvertActionModal = ({
       title={`#${payload.tag} @${payload.offerOwner.substring(0, 20)}`}
       isBold
       fullPage
+      alignCloseLeft
     >
       <Grid container direction='column'>
         <Grid

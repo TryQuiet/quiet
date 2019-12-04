@@ -80,7 +80,7 @@ export const UsernameCreated = ({ classes, handleClose, setFormSent }) => (
       direction='row'
       justify='center'
     >
-      <Typography variant={'body2'}>Your username will be be registered shortly</Typography>
+      <Typography variant={'body2'}>Your username will be be registered shortly.</Typography>
     </Grid>
     <Grid item xs={'auto'} className={classes.buttonContainer}>
       <Button

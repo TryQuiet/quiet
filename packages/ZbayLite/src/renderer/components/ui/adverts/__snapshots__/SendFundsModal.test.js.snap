@@ -2,6 +2,7 @@
 
 exports[`SendFundsModal renders component SendFundsModal 1`] = `
 <Memo(WithStyles(Modal))
+  alignCloseLeft={true}
   classes={
     Object {
       "window": "window-mock",

@@ -36,7 +36,8 @@ const styles = theme => ({
     borderBottom: `1px solid ${theme.palette.colors.contentGray}`
   },
   actions: {
-    paddingLeft: 10
+    paddingLeft: 10,
+    paddingRight: 10
   },
   content: {
     background: theme.palette.colors.white,
@@ -74,7 +75,8 @@ export const Modal = ({
   setStep,
   children,
   addBorder,
-  isBold
+  isBold,
+  alignCloseLeft
 }) => (
   <MaterialModal open={open} onClose={handleClose} className={classes.root}>
     <Grid
@@ -96,8 +98,18 @@ export const Modal = ({
         direction='row'
         alignItems='center'
       >
-        <Grid item xs container justify='flex-start' alignItems='center'>
-          <Grid item xs={4} className={classes.actions}>
+        <Grid item xs container direction={alignCloseLeft ? 'row-reverse' : 'row'} justify='center' alignItems='center'>
+          <Grid item xs={4} />
+          <Grid item xs={4}>
+            <Typography
+              variant='subtitle1'
+              className={classNames({ [classes.title]: true, [classes.bold]: isBold })}
+              align='center'
+            >
+              {title}
+            </Typography>
+          </Grid>
+          <Grid container item xs={4} justify={alignCloseLeft ? 'flex-start' : 'flex-end'} className={classes.actions}>
             {canGoBack ? (
               <IconButton onClick={() => setStep(step - 1)}>
                 <BackIcon />
@@ -107,15 +119,6 @@ export const Modal = ({
                 <ClearIcon />
               </IconButton>
             )}
-          </Grid>
-          <Grid item xs={4}>
-            <Typography
-              variant='subtitle1'
-              className={classNames({ [classes.title]: true, [classes.bold]: isBold })}
-              align='center'
-            >
-              {title}
-            </Typography>
           </Grid>
         </Grid>
       </Grid>

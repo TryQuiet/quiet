@@ -209,6 +209,7 @@ export const AdvertModal = ({
       classes={{ window: classes.window }}
       title='New Listing'
       fullPage
+      alignCloseLeft
     >
       <AutoSizer>
         {({ width, height }) => (

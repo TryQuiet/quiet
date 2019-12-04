@@ -254,6 +254,7 @@ export const SendFundsModal = ({
       title='Send Funds'
       fullPage
       isBold
+      alignCloseLeft
     >
       <AutoSizer>
         {({ width, height }) => (

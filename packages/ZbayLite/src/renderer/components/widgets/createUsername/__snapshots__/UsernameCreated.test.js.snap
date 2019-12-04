@@ -43,7 +43,7 @@ exports[`UsernameCreated renders component 1`] = `
     <WithStyles(ForwardRef(Typography))
       variant="body2"
     >
-      Your username will be be registered shortly
+      Your username will be be registered shortly.
     </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
