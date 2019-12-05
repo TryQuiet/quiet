@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
 import CircularProgress from '@material-ui/core/CircularProgress'
+import classNames from 'classnames'
 
 const styles = theme => ({
   button: {
@@ -18,6 +19,12 @@ const styles = theme => ({
       opacity: 0.7
     }
   },
+  inProgress: {
+    '&:disabled': {
+      backgroundColor: theme.palette.colors.zbayBlue,
+      opacity: 1
+    }
+  },
   progress: {
     color: theme.palette.colors.white
   }
@@ -25,7 +32,10 @@ const styles = theme => ({
 
 export const LoadingButton = ({ classes, inProgress, text, ...other }) => {
   return inProgress ? (
-    <Button className={classes.button} {...other}>
+    <Button
+      className={classNames({ [classes.button]: true, [classes.inProgress]: true })}
+      {...other}
+    >
       <CircularProgress className={classes.progress} />
     </Button>
   ) : (

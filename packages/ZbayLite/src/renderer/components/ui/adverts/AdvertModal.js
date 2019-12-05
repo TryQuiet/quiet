@@ -12,7 +12,7 @@ import InputAdornment from '@material-ui/core/InputAdornment'
 import { withStyles } from '@material-ui/core/styles'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 
-import LoadindButton from '../LoadingButton'
+import LoadingButton from '../LoadingButton'
 
 import { TextField } from '../form/TextField'
 import LinkedTextField from '../form/LinkedTextField'
@@ -385,7 +385,7 @@ export const AdvertModal = ({
                 />
               </Grid>
               <Grid item xs className={classes.div}>
-                <LoadindButton
+                <LoadingButton
                   color='primary'
                   variant='contained'
                   fullWidth

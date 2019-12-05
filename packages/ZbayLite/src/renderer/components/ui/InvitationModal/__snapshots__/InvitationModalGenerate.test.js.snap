@@ -149,7 +149,7 @@ exports[`InvitationModalGenerate renders component 1`] = `
     <WithStyles(LoadingButton)
       className="button-mock"
       color="primary"
-      disabled={false}
+      disabled={[MockFunction]}
       fullWidth={true}
       inProgress={[MockFunction]}
       onClick={[Function]}

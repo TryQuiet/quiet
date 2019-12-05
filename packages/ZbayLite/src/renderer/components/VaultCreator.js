@@ -8,7 +8,7 @@ import { withStyles } from '@material-ui/core/styles'
 
 import PasswordField from './ui/form/PasswordField'
 import TextField from './ui/form/TextField'
-import LoadindButton from './ui/LoadingButton'
+import LoadingButton from './ui/LoadingButton'
 
 const styles = theme => ({
   submit: {
@@ -77,7 +77,7 @@ export const VaultCreator = ({
             />
           </Grid>
           <Grid item>
-            <LoadindButton
+            <LoadingButton
               type='submit'
               variant='contained'
               size='large'

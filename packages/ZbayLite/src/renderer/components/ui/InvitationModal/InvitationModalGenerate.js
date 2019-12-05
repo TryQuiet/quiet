@@ -208,7 +208,7 @@ export const InvitationModalGenerate = ({
           color='primary'
           type='submit'
           fullWidth
-          disabled={disable}
+          disabled={disable || isLoading}
           inProgress={isLoading}
           className={classes.button}
           onClick={async () => {

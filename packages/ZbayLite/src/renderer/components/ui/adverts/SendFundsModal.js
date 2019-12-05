@@ -17,7 +17,7 @@ import exclamationMark from '../../../static/images/exclamationMark.svg'
 import exchange from '../../../static/images/zcash/exchange.svg'
 import CheckboxWithLabel from '../form/CheckboxWithLabel'
 import LinkedTextField from '../form/LinkedTextField'
-import LoadindButton from '../LoadingButton'
+import LoadingButton from '../LoadingButton'
 
 const reqSvgs = require && require.context('../../ui/assets/backgrounds', true, /\.svg$/)
 
@@ -491,7 +491,7 @@ export const SendFundsModal = ({
                 </Grid>
               )}
               <Grid item xs className={classes.divButton}>
-                <LoadindButton
+                <LoadingButton
                   color='primary'
                   variant='contained'
                   fullWidth

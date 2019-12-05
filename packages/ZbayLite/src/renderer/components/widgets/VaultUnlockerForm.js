@@ -10,7 +10,7 @@ import { withStyles } from '@material-ui/core/styles'
 
 import PasswordField from '../ui/form/PasswordField'
 import Icon from '../ui/Icon'
-import LoadindButton from '../ui/LoadingButton'
+import LoadingButton from '../ui/LoadingButton'
 
 import icon from '../../static/images/zcash/logo-lockup--circle.svg'
 import Tor from '../../containers/windows/Tor'
@@ -107,7 +107,7 @@ export const VaultUnlockerForm = ({
               />
             </Grid>
             <Grid container item justify='center'>
-              <LoadindButton
+              <LoadingButton
                 type='submit'
                 variant='contained'
                 size='large'
@@ -116,7 +116,11 @@ export const VaultUnlockerForm = ({
                 text='Login'
                 fullWidth
                 disabled={
-                  isSubmitting || unlocking || (tor.enabled === true && tor.status !== 'stable')
+                  isSubmitting ||
+                  unlocking ||
+                  (tor.enabled === true && tor.status !== 'stable') ||
+                  !done ||
+                  tor.status === 'loading'
                 }
                 inProgress={isSubmitting || unlocking || !done || tor.status === 'loading'}
               />
