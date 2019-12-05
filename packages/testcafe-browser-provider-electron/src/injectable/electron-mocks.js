@@ -61,11 +61,11 @@ module.exports = function install (config, testPageUrl) {
     var WebContents;
 
     if ( process.atomBinding ) {
-        // < electron 6
+        // NOTE: < Electron 6
         WebContents = process.atomBinding('web_contents').WebContents;
     }
     else {
-        // electron 6+
+        // NOTE: >= Electron 6
         WebContents = process.electronBinding('web_contents').WebContents;
     }
 

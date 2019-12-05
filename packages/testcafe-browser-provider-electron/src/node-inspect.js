@@ -31,7 +31,9 @@ export default class NodeInspect {
     }
 
     async _setupRemoteInterface () {
-        this.client.Debugger.enable();
+        this.client.Debugger.enable().then(async () => {
+            return this.client.Debugger.setBreakpointByUrl({ lineNumber: 16, url: 'internal/main/run_main_module\.js' });
+        });
 
         var pausedEvent = promisifyEvent(this.client, 'Debugger.paused');
 
