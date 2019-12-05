@@ -8,6 +8,7 @@ import contactsHandlers from './contacts'
 import nodeHandlers from './node'
 import identityHandlers from './identity'
 import usersHandlers from './users'
+import publicChannelsHandlers from './publicChannels'
 
 export const Coordinator = Immutable.Record(
   {
@@ -35,6 +36,7 @@ const coordinator = () => async (dispatch, getState) => {
       .push(() => nodeHandlers.epics.getStatus())
       .push(() => identityHandlers.epics.fetchBalance())
       .push(() => usersHandlers.epics.fetchUsers())
+      .push(() => publicChannelsHandlers.epics.fetchPublicChannels())
     await dispatch(actions.get(index % actions.size)())
     index += 1
   }

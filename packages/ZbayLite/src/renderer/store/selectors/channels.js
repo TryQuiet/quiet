@@ -53,6 +53,19 @@ const usersChannel = createSelector(
       ).data
   }
 )
+const publicChannels = createSelector(
+  store,
+  nodeSelectors.network,
+  (state, network) => {
+    return state
+      .get('channels')
+      .updateIn(['data'], channel =>
+        channel.find(
+          channel => channel.get('address') === zcashChannels.channelOfChannels[network].address
+        )
+      ).data
+  }
+)
 
 const channelById = id =>
   createSelector(
@@ -82,5 +95,6 @@ export default {
   lastSeen,
   data,
   errors,
-  ownedChannels
+  ownedChannels,
+  publicChannels
 }

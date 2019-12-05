@@ -1,0 +1,36 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`operations selectors  - publicChannels 1`] = `
+Immutable.Map {
+  "testaddress1": Immutable.PublicChannelData {
+    "address": "testAddress1",
+    "minFee": "1",
+    "name": "testname1",
+    "description": "sadadsdsadsa",
+    "onlyForRegistered": "0",
+    "owner": "me",
+    "ivk": "zivks14fgrxnk2f6qhtndxtc23cwy74kuyptq78qen9jq2ts2hnz0e7vrqazzyt1",
+  },
+  "testaddress2": Immutable.PublicChannelData {
+    "address": "XXXX2",
+    "minFee": "12",
+    "name": "testname2",
+    "description": "sadadsdsadsa",
+    "onlyForRegistered": "1",
+    "owner": "you",
+    "ivk": "zivks14fgrxnk2f6qhtndxtc23cwy74kuyptq78qen9jq2ts2hnz0e7vrqazzyt2",
+  },
+}
+`;
+
+exports[`operations selectors  - publicChannelsByAddress 1`] = `
+Immutable.PublicChannelData {
+  "address": "testAddress1",
+  "minFee": "1",
+  "name": "testname1",
+  "description": "sadadsdsadsa",
+  "onlyForRegistered": "0",
+  "owner": "me",
+  "ivk": "zivks14fgrxnk2f6qhtndxtc23cwy74kuyptq78qen9jq2ts2hnz0e7vrqazzyt1",
+}
+`;

@@ -16,6 +16,7 @@ import removedChannelsHandlers from './removedChannels'
 import usersHandlers from './users'
 import contactsHandlers from './contacts'
 import messagesHandlers from './messages'
+import publicChannelsHandlers from './publicChannels'
 import offersHandlers from './offers'
 import txnTimestampsHandlers from './txnTimestamps'
 import operationHandlers, { operationTypes, ShieldBalanceOp } from './operations'
@@ -261,6 +262,7 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
     await dispatch(offersHandlers.epics.loadVaultContacts())
     await dispatch(offersHandlers.epics.initMessage())
     await dispatch(contactsHandlers.epics.fetchMessages())
+    await dispatch(publicChannelsHandlers.epics.fetchPublicChannels())
   } catch (err) {}
   dispatch(setLoading(false))
 
