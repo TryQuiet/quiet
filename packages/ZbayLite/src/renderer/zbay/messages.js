@@ -13,9 +13,10 @@ export const messageType = {
   TRANSFER: 4,
   USER: 5,
   CHANNEL_SETTINGS: 6,
+  MODERATION: 7,
+  PUBLISH_CHANNEL: 8,
   ITEM_BASIC: 11,
-  ITEM_TRANSFER: 41,
-  MODERATION: 7
+  ITEM_TRANSFER: 41
 }
 
 export const ExchangeParticipant = Immutable.Record(

@@ -1,6 +1,6 @@
 import secp256k1 from 'secp256k1'
 
-import { packMemo, unpackMemo, MEMO_SIZE } from './transit'
+import { packMemo, unpackMemo, MEMO_SIZE, ADDRESS_TYPE } from './transit'
 import { now } from '../testUtils'
 import { messageType, hash } from './messages'
 import { moderationActionsType } from '../store/handlers/moderationActions'
@@ -97,6 +97,40 @@ const moderationMessage = (moderationType, moderationTarget) => ({
     moderationType: moderationType
   }
 })
+const publishChannelMainnetMessage = {
+  type: messageType.PUBLISH_CHANNEL,
+  signature: sigObj.signature,
+  r: sigObj.recovery,
+  createdAt: now.toSeconds(),
+  message: {
+    channelName: 'test channel name',
+    channelOwner: '027101da0887f14b447cf4d7d6ea776d7cd2cb96c534a8205a330ab5a75732c3db',
+    channelMinFee: '12',
+    channelonlyRegistered: '1',
+    channelAddress:
+      'zs1ecsq8thnu84ejvfx2jcfsa6zas2k057n3hrhuy0pahmlvqfwterjaz3h772ldlsgp5r2xwvml9g',
+    channelIvk: 'zivks1mm9azwml2k3m4428sy7adwruwvcwd7r3vc5fpfathm4mfd95yczsnrspx5',
+    channelDescription: ' random channel test ',
+    networkType: ADDRESS_TYPE.SHIELDED_MAINNET.toString()
+  }
+}
+const publishChannelTestnetMessage = {
+  type: messageType.PUBLISH_CHANNEL,
+  signature: sigObj.signature,
+  r: sigObj.recovery,
+  createdAt: now.toSeconds(),
+  message: {
+    channelName: 'test channel name',
+    channelOwner: '027101da0887f14b447cf4d7d6ea776d7cd2cb96c534a8205a330ab5a75732c3db',
+    channelMinFee: '12',
+    channelonlyRegistered: '1',
+    channelAddress:
+      '1234567890zs1ecsq8thnu84ejvfx2jcfsa6zas2k057n3hrhuy0pahmlvqfwterjaz3h772ldlsgp5r2xwvml9g',
+    channelIvk: '1234567890zivks1mm9azwml2k3m4428sy7adwruwvcwd7r3vc5fpfathm4mfd95yczsnrspx5',
+    channelDescription: ' random channel test ',
+    networkType: ADDRESS_TYPE.SHIELDED_TESTNET.toString()
+  }
+}
 describe('transit', () => {
   describe('pack/unpack memo', () => {
     it('is symmetrical', async () => {
@@ -151,6 +185,20 @@ describe('transit', () => {
       expect(Buffer.byteLength(data, 'hex')).toEqual(MEMO_SIZE)
       const output = await unpackMemo(data)
       expect(output).toEqual(channelSettings)
+    })
+  })
+  describe('pack/unpack Publish Channel memo', () => {
+    it('is symmetrical mainnet', async () => {
+      const data = await packMemo(publishChannelMainnetMessage)
+      expect(Buffer.byteLength(data, 'hex')).toEqual(MEMO_SIZE)
+      const output = await unpackMemo(data)
+      expect(output).toEqual(publishChannelMainnetMessage)
+    })
+    it('is symmetrical testnet', async () => {
+      const data = await packMemo(publishChannelTestnetMessage)
+      expect(Buffer.byteLength(data, 'hex')).toEqual(MEMO_SIZE)
+      const output = await unpackMemo(data)
+      expect(output).toEqual(publishChannelTestnetMessage)
     })
   })
   describe('pack/unpack Moderation memo', () => {
