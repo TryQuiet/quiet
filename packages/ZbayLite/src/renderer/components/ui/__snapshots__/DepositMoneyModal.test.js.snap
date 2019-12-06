@@ -9,7 +9,7 @@ exports[`DepositMoneyModal renders component 1`] = `
   <Memo(WithStyles(QuickActionLayout))
     buttonName="Add funds"
     handleClose={[MockFunction]}
-    info="sub susbusbuu sub sbu sub "
+    info="You'll need some funds to send messages."
     main="Add funds now?"
     onClick={[MockFunction]}
   >
