@@ -16,7 +16,8 @@ export const messageType = {
   MODERATION: 7,
   PUBLISH_CHANNEL: 8,
   ITEM_BASIC: 11,
-  ITEM_TRANSFER: 41
+  ITEM_TRANSFER: 41,
+  AFFILIATE: 170 // 'aa' in hex
 }
 
 export const ExchangeParticipant = Immutable.Record(
@@ -271,7 +272,8 @@ const _buildUtxo = ({ transfer, utxos, splitTreshhold, fee, identityAddress, don
     includedDonation = donationAmount
     const donate = {
       address: donation.address,
-      amount: donationAmount.toString()
+      amount: donationAmount.toString(),
+      memo: Buffer.from('aa', 'hex').toString('hex')
     }
     transfers.push(donate)
   }

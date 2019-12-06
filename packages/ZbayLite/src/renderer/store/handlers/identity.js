@@ -10,6 +10,7 @@ import channels from '../../zcash/channels'
 import identitySelectors from '../selectors/identity'
 import nodeSelectors from '../selectors/node'
 import appSelectors from '../selectors/app'
+import txnTimestampsSelector from '../selectors/txnTimestamps'
 import channelsSelectors from '../selectors/channels'
 import channelsHandlers from './channels'
 import removedChannelsHandlers from './removedChannels'
@@ -124,7 +125,37 @@ export const shieldBalance = ({ from, to, amount, fee }) => async (dispatch, get
     })
   )
 }
-
+export const fetchAffiliateMoney = () => async (dispatch, getState) => {
+  try {
+    const identityAddress = identitySelectors.address(getState())
+    const transfers = await getClient().payment.received(identityAddress)
+    const identityId = identitySelectors.id(getState())
+    const affiliatesTransfers = transfers.filter(msg => msg.memo.startsWith('aa'))
+    let amount = 0
+    let txnTimestamps = txnTimestampsSelector.tnxTimestamps(getState())
+    for (const key in affiliatesTransfers) {
+      const transfer = transfers[key]
+      if (!txnTimestamps.get(transfer.txid)) {
+        amount += transfer.amount
+        const result = await getClient().confirmations.getResult(transfer.txid)
+        await getVault().transactionsTimestamps.addTransaction(transfer.txid, result.timereceived)
+        await dispatch(
+          txnTimestampsHandlers.actions.addTxnTimestamp({
+            tnxs: { [transfer.txid]: result.timereceived.toString() }
+          })
+        )
+      }
+    }
+    if (amount) {
+      dispatch(
+        notificationsHandlers.actions.enqueueSnackbar(
+          successNotification({ message: `You recived ${amount} ZEC from your affiliates` })
+        )
+      )
+    }
+    vault.identity.updateLastLogin(identityId)
+  } catch (err) {}
+}
 export const fetchBalance = () => async (dispatch, getState) => {
   const fee = 0.0001
   dispatch(setFetchingBalance(true))
@@ -272,6 +303,7 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
   if (lockedBalance.plus(balance).lt(0.0002) && newUser === false) {
     setTimeout(() => dispatch(modalsHandlers.actionCreators.openModal('depositMoney')()), 500)
   }
+  dispatch(fetchAffiliateMoney())
 }
 
 export const updateShippingData = (values, formActions) => async (dispatch, getState) => {

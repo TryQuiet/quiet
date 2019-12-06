@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import * as Yup from 'yup'
+import { DateTime } from 'luxon'
 
 import { remote } from 'electron'
 
@@ -189,6 +190,28 @@ export const updateDonationAddress = async (identityId, address) => {
   })
   return _entryToIdentity(entry)
 }
+export const updateLastLogin = async identityId => {
+  let entry = null
+  await _vault.withWorkspace(workspace => {
+    const [identitiesGroup] = workspace.archive.findGroupsByTitle('Identities')
+    entry = identitiesGroup.findEntryByID(identityId).setProperty(
+      'lastLogin',
+      DateTime.utc()
+        .toSeconds()
+        .toString()
+    )
+    workspace.save()
+  })
+  return _entryToIdentity(entry)
+}
+export const getLastLogin = async identityId => {
+  let entry = null
+  await _vault.withWorkspace(workspace => {
+    const [identitiesGroup] = workspace.archive.findGroupsByTitle('Identities')
+    entry = identitiesGroup.findEntryByID(identityId).getProperty('lastLogin')
+  })
+  return entry
+}
 
 export const listIdentities = async () => {
   let identities = []
@@ -215,6 +238,8 @@ export default {
   // as plug in modules
   identity: {
     createIdentity: withVaultInitialized(createIdentity),
+    getLastLogin: withVaultInitialized(getLastLogin),
+    updateLastLogin: withVaultInitialized(updateLastLogin),
     listIdentities: withVaultInitialized(listIdentities),
     updateShippingData: withVaultInitialized(updateShippingData),
     updateIdentitySignerKeys: withVaultInitialized(updateIdentitySignerKeys),
