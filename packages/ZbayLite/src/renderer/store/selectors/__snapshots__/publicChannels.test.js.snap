@@ -9,7 +9,9 @@ Immutable.Map {
     "description": "sadadsdsadsa",
     "onlyForRegistered": "0",
     "owner": "me",
-    "ivk": "zivks14fgrxnk2f6qhtndxtc23cwy74kuyptq78qen9jq2ts2hnz0e7vrqazzyt1",
+    "keys": Object {
+      "ivk": "zivks14fgrxnk2f6qhtndxtc23cwy74kuyptq78qen9jq2ts2hnz0e7vrqazzyt1",
+    },
   },
   "testaddress2": Immutable.PublicChannelData {
     "address": "XXXX2",
@@ -18,7 +20,9 @@ Immutable.Map {
     "description": "sadadsdsadsa",
     "onlyForRegistered": "1",
     "owner": "you",
-    "ivk": "zivks14fgrxnk2f6qhtndxtc23cwy74kuyptq78qen9jq2ts2hnz0e7vrqazzyt2",
+    "keys": Object {
+      "ivk": "zivks14fgrxnk2f6qhtndxtc23cwy74kuyptq78qen9jq2ts2hnz0e7vrqazzyt2",
+    },
   },
 }
 `;
@@ -31,6 +35,8 @@ Immutable.PublicChannelData {
   "description": "sadadsdsadsa",
   "onlyForRegistered": "0",
   "owner": "me",
-  "ivk": "zivks14fgrxnk2f6qhtndxtc23cwy74kuyptq78qen9jq2ts2hnz0e7vrqazzyt1",
+  "keys": Object {
+    "ivk": "zivks14fgrxnk2f6qhtndxtc23cwy74kuyptq78qen9jq2ts2hnz0e7vrqazzyt1",
+  },
 }
 `;

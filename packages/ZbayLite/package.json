@@ -163,6 +163,7 @@
     "bech32": "^1.1.3",
     "bignumber.js": "^8.1.1",
     "electron-store": "^5.1.0",
+    "react-string-replace": "^0.4.4",
     "electron-store-webpack-wrapper": "^0.0.2",
     "binance-api-node": "^0.9.5",
     "buttercup": "^2.10.0",

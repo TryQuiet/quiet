@@ -165,7 +165,35 @@ export const loadContact = address => async (dispatch, getState) => {
   const contact = selectors.contact(address)(getState())
   dispatch(updateLastSeen({ contact }))
 }
-
+export const linkUserRedirect = contact => async (dispatch, getState) => {
+  const contacts = selectors.contacts(getState())
+  if (contacts.get(contact.address)) {
+    history.push(`/main/direct-messages/${contact.address}/${contact.nickname}`)
+  }
+  const identityId = identitySelectors.id(getState())
+  await getVault().contacts.listMessages({
+    identityId,
+    recipientUsername: contact.nickname,
+    recipientAddress: contact.address
+  })
+  await dispatch(
+    setUsernames({
+      sender: {
+        replyTo: contact.address,
+        username: contact.nickname
+      }
+    })
+  )
+  dispatch(
+    loadVaultMessages({
+      contact: {
+        username: contact.nickname,
+        replyTo: contact.address
+      }
+    })
+  )
+  history.push(`/main/direct-messages/${contact.address}/${contact.nickname}`)
+}
 export const fetchMessages = () => async (dispatch, getState) => {
   try {
     const identityAddress = identitySelectors.address(getState())
@@ -460,7 +488,8 @@ export const epics = {
   loadContact,
   createVaultContact,
   updateDeletedChannelTimestamp,
-  deleteChannel
+  deleteChannel,
+  linkUserRedirect
 }
 
 export const reducer = handleActions(

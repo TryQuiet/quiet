@@ -16,7 +16,7 @@ describe('Operations reducer handles ', () => {
     description: 'sadadsdsadsa',
     onlyForRegistered: 'saddsa',
     owner: 'dsaasdasddsa',
-    ivk: 'zivks14fgrxnk2f6qhtndxtc23cwy74kuyptq78qen9jq2ts2hnz0e7vrqazzytr'
+    keys: { ivk: 'zivks14fgrxnk2f6qhtndxtc23cwy74kuyptq78qen9jq2ts2hnz0e7vrqazzytr' }
   }
   beforeEach(() => {
     store = create({
@@ -39,18 +39,19 @@ describe('Operations reducer handles ', () => {
     it('- merge Channels', () => {
       store.dispatch(
         actions.setPublicChannels({
-          publicChannels: { testaddress2: _PublicChannelData(testPublicChannelData) }
+          publicChannels: { name: _PublicChannelData(testPublicChannelData) }
         })
       )
       store.dispatch(
         actions.setPublicChannels({
-          publicChannels: { testaddress2: _PublicChannelData(testPublicChannelData) }
+          publicChannels: { name: _PublicChannelData(testPublicChannelData) }
         })
       )
       expect(selectors.publicChannels(store.getState()).size).toEqual(1)
+
       store.dispatch(
         actions.setPublicChannels({
-          publicChannels: { testaddress2: _PublicChannelData(testPublicChannelData) }
+          publicChannels: { name: _PublicChannelData(testPublicChannelData) }
         })
       )
       expect(selectors.publicChannels(store.getState()).size).toEqual(1)

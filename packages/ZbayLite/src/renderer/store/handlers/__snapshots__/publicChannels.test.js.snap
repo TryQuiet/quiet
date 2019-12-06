@@ -9,7 +9,9 @@ Immutable.Map {
     "description": "sadadsdsadsa",
     "onlyForRegistered": "saddsa",
     "owner": "dsaasdasddsa",
-    "ivk": "zivks14fgrxnk2f6qhtndxtc23cwy74kuyptq78qen9jq2ts2hnz0e7vrqazzytr",
+    "keys": Object {
+      "ivk": "zivks14fgrxnk2f6qhtndxtc23cwy74kuyptq78qen9jq2ts2hnz0e7vrqazzytr",
+    },
   },
 }
 `;

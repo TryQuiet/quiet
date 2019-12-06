@@ -3,6 +3,7 @@ import BigNumber from 'bignumber.js'
 import * as R from 'ramda'
 import { createAction, handleActions } from 'redux-actions'
 
+import history from '../../../shared/history'
 import operationsHandlers, { operationTypes, PendingMessageOp } from './operations'
 import notificationsHandlers from './notifications'
 import messagesQueueHandlers from './messagesQueue'
@@ -11,11 +12,14 @@ import messagesHandlers from './messages'
 import channelsHandlers from './channels'
 import offersHandlers from './offers'
 import channelSelectors from '../selectors/channel'
+import channelsSelectors from '../selectors/channels'
 import identitySelectors from '../selectors/identity'
 import { getClient } from '../../zcash'
 import { messages } from '../../zbay'
 import { errorNotification, LoaderState } from './utils'
 import { channelToUri } from '../../zbay/channels'
+import nodeSelectors from '../selectors/node'
+import { getVault } from '../../vault'
 
 export const ChannelState = Immutable.Record(
   {
@@ -73,7 +77,40 @@ const loadOffer = (id, address) => async (dispatch, getState) => {
     dispatch(setAddress(address))
   } catch (err) {}
 }
-
+const linkChannelRedirect = targetChannel => async (dispatch, getState) => {
+  let channels = channelsSelectors.channels(getState())
+  let channel = channels.data.find(channel => channel.get('address') === targetChannel.address)
+  const identityId = identitySelectors.id(getState())
+  const lastblock = nodeSelectors.latestBlock(getState())
+  const fetchTreshold = lastblock - 2000
+  if (channel) {
+    history.push(`/main/channel/${channel.get('id')}`)
+    return
+  }
+  try {
+    await getVault().channels.importChannel(identityId, targetChannel)
+    getClient().keys.importIVK({
+      ivk: targetChannel.keys.ivk,
+      rescan: 'yes',
+      startHeight: fetchTreshold,
+      address: targetChannel.address
+    })
+    await dispatch(channelsHandlers.actions.loadChannels(identityId))
+    dispatch(
+      notificationsHandlers.actions.enqueueSnackbar({
+        message: `Successfully imported channel ${targetChannel.name}`,
+        options: {
+          variant: 'success'
+        }
+      })
+    )
+    channels = channelsSelectors.channels(getState())
+    channel = channels.data.find(channel => channel.get('address') === targetChannel.address)
+    history.push(`/main/channel/${channel.get('id')}`)
+  } catch (err) {
+    console.log(err)
+  }
+}
 const sendOnEnter = event => async (dispatch, getState) => {
   const enterPressed = event.nativeEvent.keyCode === 13
   const shiftPressed = event.nativeEvent.shiftKey === true
@@ -200,7 +237,8 @@ export const epics = {
   clearNewMessages,
   updateLastSeen,
   loadOffer,
-  sendChannelSettingsMessage
+  sendChannelSettingsMessage,
+  linkChannelRedirect
 }
 
 // TODO: we should have a global loader map

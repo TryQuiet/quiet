@@ -18,7 +18,7 @@ describe('operations selectors', () => {
             description: 'sadadsdsadsa',
             onlyForRegistered: '0',
             owner: 'me',
-            ivk: 'zivks14fgrxnk2f6qhtndxtc23cwy74kuyptq78qen9jq2ts2hnz0e7vrqazzyt1'
+            keys: { ivk: 'zivks14fgrxnk2f6qhtndxtc23cwy74kuyptq78qen9jq2ts2hnz0e7vrqazzyt1' }
           }),
           testaddress2: _PublicChannelData({
             address: 'XXXX2',
@@ -27,7 +27,7 @@ describe('operations selectors', () => {
             description: 'sadadsdsadsa',
             onlyForRegistered: '1',
             owner: 'you',
-            ivk: 'zivks14fgrxnk2f6qhtndxtc23cwy74kuyptq78qen9jq2ts2hnz0e7vrqazzyt2'
+            keys: { ivk: 'zivks14fgrxnk2f6qhtndxtc23cwy74kuyptq78qen9jq2ts2hnz0e7vrqazzyt2' }
           })
         })
       })

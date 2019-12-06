@@ -14,7 +14,7 @@ import channelsSelectors from '../selectors/channels'
 import { IdentityState, Identity } from './identity'
 import testUtils from '../../testUtils'
 import { typePending } from './utils'
-import { mock as zcashMock } from '../../zcash'
+// import { mock as zcashMock } from '../../zcash'
 import { NodeState } from './node'
 
 describe('channels reducer', () => {
@@ -55,22 +55,23 @@ describe('channels reducer', () => {
       expect(channels.data.map(ch => ch.delete('id'))).toMatchSnapshot()
     })
 
-    it('makes sure keys are present', async () => {
-      const id = 'this is'
-      mock.setArchive(createArchive())
-      await Promise.all(
-        R.range(0, 3).map(
-          R.compose(
-            R.curry(vault.getVault().channels.importChannel)(id),
-            testUtils.channels.createChannel
-          )
-        )
-      )
+    // it('makes sure keys are present', async () => {
+    //   const id = 'this is'
+    //   mock.setArchive(createArchive())
+    //   await Promise.all(
+    //     R.range(0, 3).map(
+    //       R.compose(
+    //         R.curry(vault.getVault().channels.importChannel)(id),
+    //         testUtils.channels.createChannel
+    //       )
+    //     )
+    //   )
 
-      await store.dispatch(actions.loadChannels(id))
+    //   await store.dispatch(actions.loadChannels(id))
 
-      expect(zcashMock.requestManager.z_importviewingkey.mock.calls).toMatchSnapshot()
-    })
+    //   expect(zcashMock.requestManager.z_importviewingkey.mock.calls).toMatchSnapshot()
+    // })
+    // We dont need to send keys on every load
 
     it('cleans up loading when rejected', async () => {
       vault.getVault.mockImplementationOnce(() => ({
