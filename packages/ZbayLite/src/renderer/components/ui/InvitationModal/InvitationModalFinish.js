@@ -5,7 +5,7 @@ import { CopyToClipboard } from 'react-copy-to-clipboard'
 
 import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
-import { Button, Typography } from '@material-ui/core'
+import { Button, TextField } from '@material-ui/core'
 import FileCopyIcon from '@material-ui/icons/FileCopy'
 import InvitationModal from './InvitationModal'
 
@@ -28,6 +28,12 @@ const styles = theme => ({
   },
   icon: {
     marginRight: theme.spacing(1)
+  },
+  textfield: {
+    backgroundColor: theme.palette.colors.white
+  },
+  disabled: {
+    color: theme.palette.colors.trueBlack
   }
 })
 
@@ -43,13 +49,21 @@ export const InvitationModalFinish = ({ classes, amount, generatedInvitation }) 
     }
   >
     <Grid item className={classes.linkDiv}>
-      <Typography variant='body2'>
-        {amount !== 0
-          ? `I just sent you $${amount} on Zbay! To claim it, install Zbay from https://zbay.io, run it,
-        and then open link`
-          : `You should try Zbay! Install Zbay from https://zbay.io, run it,
-        and then open link`}
-      </Typography>
+      <TextField
+        id='traceback'
+        disabled
+        variant='outlined'
+        multiline
+        fullWidth
+        rows={4}
+        value={generatedInvitation}
+        InputProps={{
+          classes: {
+            root: classes.textfield,
+            disabled: classes.disabled
+          }
+        }}
+      />
       <Grid item container justify='center' alignItems='center' className={classes.buttonDiv}>
         <CopyToClipboard text={generatedInvitation}>
           <Button

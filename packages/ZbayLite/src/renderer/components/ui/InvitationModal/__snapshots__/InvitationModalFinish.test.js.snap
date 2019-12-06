@@ -11,12 +11,23 @@ exports[`InvitationModalFinish renders component 1`] = `
     className="linkDiv-mock"
     item={true}
   >
-    <WithStyles(ForwardRef(Typography))
-      variant="body2"
-    >
-      I just sent you $9 on Zbay! To claim it, install Zbay from https://zbay.io, run it,
-        and then open link
-    </WithStyles(ForwardRef(Typography))>
+    <WithStyles(ForwardRef(TextField))
+      InputProps={
+        Object {
+          "classes": Object {
+            "disabled": "disabled-mock",
+            "root": "textfield-mock",
+          },
+        }
+      }
+      disabled={true}
+      fullWidth={true}
+      id="traceback"
+      multiline={true}
+      rows={4}
+      value="test invitation"
+      variant="outlined"
+    />
     <WithStyles(ForwardRef(Grid))
       alignItems="center"
       className="buttonDiv-mock"
