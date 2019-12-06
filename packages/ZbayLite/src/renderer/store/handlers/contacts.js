@@ -266,7 +266,11 @@ export const fetchMessages = () => async (dispatch, getState) => {
         const previousMessages = selectors.messages(contactAddress)(getState())
         let lastSeen = selectors.lastSeen(contactAddress)(getState())
         if (!lastSeen) {
-          lastSeen = await getVault().contacts.getLastSeen({ identityId, recipientAddress: contactAddress, recipientUsername: newestMsg.sender })
+          lastSeen = await getVault().contacts.getLastSeen({
+            identityId,
+            recipientAddress: contactAddress,
+            recipientUsername: newestMsg.sender
+          })
         }
         const newMessages = zbayMessages.calculateDiff({
           previousMessages,
@@ -383,10 +387,15 @@ export const loadAllSentMessages = () => async (dispatch, getState) => {
   const removedChannels = await getVault().disabledChannels.listRemovedChannels()
   allMessages.forEach(async contact => {
     const [newestMsg] = contact.messages.sort((a, b) => b.createdAt - a.createdAt)
-    const { createdAt: contactMsgTimestamp } = newestMsg
     const removedTimeStamp = removedChannels[contact.address]
-    if (removedTimeStamp && parseInt(removedTimeStamp) > contactMsgTimestamp) {
+    if (!newestMsg && removedTimeStamp) {
       return
+    }
+    if (newestMsg) {
+      const { createdAt: contactMsgTimestamp } = newestMsg
+      if (removedTimeStamp && parseInt(removedTimeStamp) > contactMsgTimestamp) {
+        return
+      }
     }
     const vaultMessagesToDisplay = contact.messages.map(msg =>
       zbayMessages.vaultToDisplayableMessage({
@@ -425,7 +434,10 @@ export const loadAllSentMessages = () => async (dispatch, getState) => {
   })
 }
 
-export const updateDeletedChannelTimestamp = ({ address, timestamp }) => async (dispatch, getState) => {
+export const updateDeletedChannelTimestamp = ({ address, timestamp }) => async (
+  dispatch,
+  getState
+) => {
   await getVault().disabledChannels.addToRemoved(address, timestamp)
   await dispatch(removedChannelsHandlers.epics.getRemovedChannelsTimestamp())
 }
@@ -473,8 +485,7 @@ export const reducer = handleActions(
       state.update(contact.replyTo || contact.address, Contact(), cm =>
         cm.set('lastSeen', lastSeen)
       ),
-    [removeContact]: (state, { payload: address }) =>
-      state.delete(address),
+    [removeContact]: (state, { payload: address }) => state.delete(address),
     [setUsernames]: (state, { payload: { sender } }) =>
       state.update(sender.replyTo, Contact(), cm =>
         cm.set('username', sender.username).set('address', sender.replyTo)
