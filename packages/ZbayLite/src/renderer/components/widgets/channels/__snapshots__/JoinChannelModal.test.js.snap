@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`JoinChannelModal renders component 1`] = `
+<Memo(WithStyles(Modal))
+  fullPage={true}
+  handleClose={[Function]}
+  open={true}
+  title=""
+>
+  <WithStyles(ForwardRef(Grid))
+    className="root-mock"
+  >
+    <Formik
+      enableReinitialize={false}
+      isInitialValid={false}
+      onSubmit={[Function]}
+      validateOnBlur={true}
+      validateOnChange={true}
+    >
+      <Component />
+    </Formik>
+  </WithStyles(ForwardRef(Grid))>
+</Memo(WithStyles(Modal))>
+`;

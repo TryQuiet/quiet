@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`JoinChannelModal will receive right actions 1`] = `
+Object {
+  "joinChannel": [Function],
+  "joinChannelUrl": [Function],
+  "showNotification": [Function],
+}
+`;
+
+exports[`JoinChannelModal will receive right props 1`] = `
+Object {
+  "publicChannels": Immutable.Map {},
+}
+`;

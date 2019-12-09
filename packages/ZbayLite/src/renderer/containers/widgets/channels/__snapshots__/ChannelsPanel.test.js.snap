@@ -3,6 +3,7 @@
 exports[`ChannelsPanel will receive right actions 1`] = `
 Object {
   "openCreateModal": [Function],
+  "openJoinChannel": [Function],
 }
 `;
 

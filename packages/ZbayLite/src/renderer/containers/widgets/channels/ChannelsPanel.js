@@ -21,21 +21,23 @@ export const mapStateToProps = state => ({
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      openCreateModal: actionCreators.openModal('createChannel')
+      openCreateModal: actionCreators.openModal('createChannel'),
+      openJoinChannel: actionCreators.openModal('joinChannel')
     },
     dispatch
   )
-export const ChannelsPanel = ({ title, openCreateModal, ...props }) => {
+export const ChannelsPanel = ({ title, openCreateModal, openJoinChannel, ...props }) => {
   return (
     <Grid container item xs direction='column'>
       <Grid item>
-        <SidebarHeader title={title} action={openCreateModal} tooltipText='Create new channel' />
+        <SidebarHeader title={title} action={openJoinChannel} tooltipText='Create new channel' />
       </Grid>
       <Grid item>
         <BaseChannelsList {...props} />
       </Grid>
       <Grid item>
-        <QuickActionButton text='Add Channel' action={openCreateModal} />
+        <QuickActionButton text='Join Channel' action={openJoinChannel} />
+        <QuickActionButton text='New Channel' action={openCreateModal} />
       </Grid>
     </Grid>
   )
@@ -50,7 +52,8 @@ export default R.compose(
     return (
       Immutable.is(before.channels, after.channels) &&
       Immutable.is(before.selected, after.selected) &&
-      Object.is(before.contentRect, after.contentRect) && Immutable.is(before.offers, after.offers)
+      Object.is(before.contentRect, after.contentRect) &&
+      Immutable.is(before.offers, after.offers)
     )
   })
 )
