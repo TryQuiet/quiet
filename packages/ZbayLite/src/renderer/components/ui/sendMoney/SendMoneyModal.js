@@ -26,7 +26,7 @@ export const formSchema = (users) => {
         })
         .required('Required'),
       amountZec: Yup.number()
-        .min(0.00000001, 'Please insert amount to send')
+        .min(0.00000000, 'Please insert amount to send')
         .required('Required'),
       amountUsd: Yup.number().required('Required'),
       memo: Yup.string().max(MESSAGE_SIZE, 'Your messsage is too long'),
