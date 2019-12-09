@@ -37,15 +37,32 @@ exports[`ReceivedInvitationModal renders component 1`] = `
       />
     </WithStyles(ForwardRef(Grid))>
     <WithStyles(ForwardRef(Grid))
+      alignItems="center"
+      container={true}
+      direction="column"
       item={true}
+      justify="center"
     >
-      <WithStyles(ForwardRef(Typography))
-        className="font-mock"
-        variant="body"
+      <WithStyles(ForwardRef(Grid))
+        item={true}
       >
-         
-        Invitation accepted successfully
-      </WithStyles(ForwardRef(Typography))>
+        <WithStyles(ForwardRef(Typography))
+          className="font-mock"
+          variant="body"
+        >
+          Invitation accepted.
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
+        item={true}
+      >
+        <WithStyles(ForwardRef(Typography))
+          className="font-mock"
+          variant="body"
+        >
+          Any attached funds will be available soon.
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>
     <WithStyles(ForwardRef(Grid))
       item={true}
@@ -58,7 +75,7 @@ exports[`ReceivedInvitationModal renders component 1`] = `
           onClick={[MockFunction]}
           variant="contained"
         >
-           Close modal
+          Continue
         </WithStyles(ForwardRef(Button))>
       </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>

@@ -55,20 +55,45 @@ export const ReceivedInvitationModal = ({ classes, open, handleClose, modalPaylo
           <ClearIcon />
         </IconButton>
       </Grid>
-      <Grid container item justify='flex-start' alignItems='center' direction='column' className={classes.root}>
+      <Grid
+        container
+        item
+        justify='flex-start'
+        alignItems='center'
+        direction='column'
+        className={classes.root}
+      >
         <Grid item>
-          {modalPayload ? <Error className={classes.iconError} /> : <DoneAll className={classes.icon} />}
+          {modalPayload ? (
+            <Error className={classes.iconError} />
+          ) : (
+            <DoneAll className={classes.icon} />
+          )}
         </Grid>
-        <Grid item>
-          <Typography className={classes.font} variant='body'> {modalPayload ? 'Error, please try again' : 'Invitation accepted successfully'}</Typography>
+        <Grid item container direction='column' alignItems='center' justify='center'>
+          {modalPayload ? (
+            <Typography className={classes.font} variant='body'>
+              'Error, please try again'
+            </Typography>
+          ) : (
+            <>
+              <Grid item>
+                <Typography className={classes.font} variant='body'>
+                  Invitation accepted.
+                </Typography>
+              </Grid>
+              <Grid item>
+                <Typography className={classes.font} variant='body'>
+                  Any attached funds will be available soon.
+                </Typography>
+              </Grid>
+            </>
+          )}
         </Grid>
         <Grid item>
           <Grid item>
-            <Button
-              variant={'contained'}
-              onClick={handleClose}
-              className={classes.button}
-            > Close modal
+            <Button variant={'contained'} onClick={handleClose} className={classes.button}>
+              Continue
             </Button>
           </Grid>
         </Grid>
@@ -87,10 +112,8 @@ ReceivedInvitationModal.defaultProps = {
   open: false
 }
 
-export default R.compose(
-  withStyles(styles)
-)(
+export default R.compose(withStyles(styles))(
   React.memo(ReceivedInvitationModal, (before, after) => {
-    return (after.modalPayload === null)
+    return after.modalPayload === null
   })
 )
