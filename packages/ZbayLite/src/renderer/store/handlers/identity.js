@@ -280,7 +280,7 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
     dispatch(setLoadingMessage('Fetching balance and loading channels'))
     dispatch(ratesHandlers.epics.fetchPrices())
     await dispatch(fetchBalance())
-    await dispatch(channelsHandlers.actions.loadChannels(identity.id))
+    await dispatch(channelsHandlers.actions.loadChannelsToNode(identity.id))
     dispatch(setLoadingMessage('Loading users and messages'))
     await dispatch(usersHandlers.epics.fetchUsers())
     await dispatch(contactsHandlers.epics.loadAllSentMessages())

@@ -39,13 +39,16 @@ export const actionTypes = {
 
 const loadChannels = createAction(actionTypes.LOAD_CHANNELS, async id => {
   const channels = await getVault().channels.listChannels(id)
-  // await Promise.all(
-  //   channels.map(channel =>
-  //     getClient().keys.importIVK({ ivk: channel.keys.ivk, address: channel.address })
-  //   )
-  // )
-  // unnecessary import of keys
-  // needed when importing vault
+
+  return channels
+})
+const loadChannelsToNode = createAction(actionTypes.LOAD_CHANNELS, async id => {
+  const channels = await getVault().channels.listChannels(id)
+  await Promise.all(
+    channels.map(channel =>
+      getClient().keys.importIVK({ ivk: channel.keys.ivk, address: channel.address })
+    )
+  )
   return channels
 })
 
@@ -55,7 +58,8 @@ const setUnread = createAction(actionTypes.SET_UNREAD)
 export const actions = {
   loadChannels,
   setLastSeen,
-  setUnread
+  setUnread,
+  loadChannelsToNode
 }
 
 const _createChannel = async (identityId, { name, description }) => {
@@ -111,7 +115,11 @@ const withdrawMoneyFromChannels = () => async (dispatch, getState) => {
   if (earnedAmount.gt(toBigNumber(0))) {
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar(
-        successNotification({ message: `You will shortly receive ${earnedAmount.toFixed(4)} zash for commission from your created channels.` })
+        successNotification({
+          message: `You will shortly receive ${earnedAmount.toFixed(
+            4
+          )} zash for commission from your created channels.`
+        })
       )
     )
   }
