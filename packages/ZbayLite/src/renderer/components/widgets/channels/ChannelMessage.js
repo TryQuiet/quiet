@@ -25,7 +25,7 @@ const styles = theme => ({
 })
 const checkLinking = (tags, users, onLinkedChannel, onLinkedUser, message) => {
   let parsedMessage = message
-  parsedMessage = reactStringReplace(parsedMessage, /#[a-z0-9_-]/g, (match, i) => {
+  parsedMessage = reactStringReplace(parsedMessage, /#(\w+)/g, (match, i) => {
     if (!tags.get(match)) {
       return `#${match}`
     }
@@ -43,7 +43,7 @@ const checkLinking = (tags, users, onLinkedChannel, onLinkedUser, message) => {
       </a>
     )
   })
-  parsedMessage = reactStringReplace(parsedMessage, /@[a-z0-9_-]/g, (match, i) => {
+  parsedMessage = reactStringReplace(parsedMessage, /@(\w+)/g, (match, i) => {
     if (!users.find(user => user.nickname === match)) {
       return `@${match}`
     }
