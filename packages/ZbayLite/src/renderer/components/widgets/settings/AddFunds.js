@@ -122,7 +122,17 @@ const styles = theme => ({
 const descriptions = {
   transparent: (
     <Fragment>
-      You need Zcash (ZEC) to use Zbay. So buy some ZEC at{' '}
+      You need{' '}
+      <a
+        onClick={e => {
+          e.preventDefault()
+          shell.openExternal('http://z.cash/')
+        }}
+        href='z.cash'
+      >
+        Zcash
+      </a>
+      {' '}to use Zbay.{' '}
       <a
         onClick={e => {
           e.preventDefault()
@@ -130,31 +140,45 @@ const descriptions = {
         }}
         href='coinbase.com'
       >
-        Coinbase.com
+        {`Buy Zcash on Coinbase`}
       </a>{' '}
-      and send it to the address below. Note: Coinbase and most exchanges will not send to a private
-      address, but Zbay automatically moves your ZEC to your own private address as soon as it
-      arrives.
+      and send it to the address below. (Coinbase won't send to private addresses, but Zbay
+      automatically moves your Zcash to a private address once it arrives.)
     </Fragment>
   ),
   private: 'You can use your private address to exchange ZEC with other people.'
 }
 
-export const AddFunds = ({ classes, type, address, handleChange, handleClose, handleCopy, variant }) => {
+export const AddFunds = ({
+  classes,
+  type,
+  address,
+  handleChange,
+  handleClose,
+  handleCopy,
+  variant
+}) => {
   return (
     <AutoSizer>
       {({ width, height }) => (
-        <Scrollbars autoHideTimeout={500} style={{ width: variant === 'wide' ? 650 : 380, height: height }}>
+        <Scrollbars
+          autoHideTimeout={500}
+          style={{ width: variant === 'wide' ? 650 : 380, height: height }}
+        >
           <Grid container item justify={variant === 'wide' ? 'center' : 'flex-start'}>
             <Typography variant={'h3'} className={classes.tabTitle}>
               Add funds to your wallet
             </Typography>
           </Grid>
           <Grid container item justify={variant === 'wide' ? 'center' : 'flex-start'}>
-            <Grid container justify='center' alignContent='flex-start' className={classNames({
-              [classes.root]: true,
-              [classes.changeSize]: variant === 'wide'
-            })}
+            <Grid
+              container
+              justify='center'
+              alignContent='flex-start'
+              className={classNames({
+                [classes.root]: true,
+                [classes.changeSize]: variant === 'wide'
+              })}
             >
               <Grid
                 item
@@ -167,7 +191,7 @@ export const AddFunds = ({ classes, type, address, handleChange, handleClose, ha
               >
                 <Grid item xs>
                   <Typography className={classes.fieldTitle} variant='subtitle2'>
-                  Address to add funds
+                    Address to add funds
                   </Typography>
                 </Grid>
                 <Grid item xs>
