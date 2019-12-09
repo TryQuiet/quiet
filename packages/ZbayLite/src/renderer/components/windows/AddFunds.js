@@ -31,7 +31,7 @@ const styles = theme => ({
     backgroundColor: theme.palette.colors.zbayBlue,
     color: theme.palette.colors.white,
     '&:hover': {
-      backgroundColor: theme.palette.colors.zbayBlue
+      backgroundColor: theme.palette.colors.lightGray
     }
   },
   buttonSkip: {
@@ -40,7 +40,7 @@ const styles = theme => ({
     backgroundColor: theme.palette.colors.white,
     color: theme.palette.colors.lushSky,
     '&:hover': {
-      backgroundColor: theme.palette.colors.white
+      backgroundColor: theme.palette.colors.gray
     }
   },
   logoContainer: {
@@ -109,7 +109,7 @@ export const AddFunds = ({ classes, openModal, skip }) => {
             >
               <Button
                 className={classes.button}
-                variant='contained'
+                variant='text'
                 size='large'
                 color='primary'
                 margin='normal'
@@ -120,7 +120,7 @@ export const AddFunds = ({ classes, openModal, skip }) => {
               </Button>
               <Button
                 className={classes.buttonSkip}
-                variant='contained'
+                variant='text'
                 size='large'
                 color='primary'
                 margin='normal'

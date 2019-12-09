@@ -69,7 +69,7 @@ exports[`AddFunds renders component 1`] = `
             margin="normal"
             onClick={[MockFunction]}
             size="large"
-            variant="contained"
+            variant="text"
           >
             Add funds now
           </WithStyles(ForwardRef(Button))>
@@ -80,7 +80,7 @@ exports[`AddFunds renders component 1`] = `
             margin="normal"
             onClick={[Function]}
             size="large"
-            variant="contained"
+            variant="text"
           >
             I'll do this later
           </WithStyles(ForwardRef(Button))>
