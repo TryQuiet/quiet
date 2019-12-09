@@ -2,9 +2,7 @@
 
 exports[`Send message popover will receive right actions 1`] = `
 Object {
-  "banUser": [Function],
   "createContact": [Function],
-  "removeMessage": [Function],
 }
 `;
 
