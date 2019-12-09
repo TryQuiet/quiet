@@ -1,6 +1,7 @@
 import Immutable from 'immutable'
 import { DateTime } from 'luxon'
 import { createAction, handleActions } from 'redux-actions'
+import BigNumber from 'bignumber.js'
 
 import {
   typeFulfilled,
@@ -12,10 +13,13 @@ import {
 } from './utils'
 import notificationsHandlers from './notifications'
 import identitySelectors from '../selectors/identity'
+import channelsSelectors from '../selectors/channels'
 import modalsHandlers from './modals'
 import { messages } from '../../zbay'
 import { getVault } from '../../vault'
 import { getClient } from '../../zcash'
+
+const toBigNumber = x => new BigNumber(x)
 
 export const ChannelsState = Immutable.Record(
   {
@@ -96,18 +100,36 @@ const createChannel = (values, formActions) => async (dispatch, getState) => {
   }
 }
 
+const withdrawMoneyFromChannels = () => async (dispatch, getState) => {
+  const ownedChannels = channelsSelectors.ownedChannels(getState())
+  let earnedAmount = toBigNumber(0)
+  for (const channel of ownedChannels) {
+    const channelAddress = channel.get('address')
+    const amount = await getMoneyFromChannel(channelAddress)(dispatch, getState)
+    earnedAmount = earnedAmount.plus(amount)
+  }
+  if (earnedAmount.gt(toBigNumber(0))) {
+    dispatch(
+      notificationsHandlers.actions.enqueueSnackbar(
+        successNotification({ message: `You will shortly receive ${earnedAmount.toFixed(4)} zash for commission from your created channels.` })
+      )
+    )
+  }
+}
+
 const getMoneyFromChannel = address => async (dispatch, getState) => {
   const amount = await getClient().accounting.balance(address)
   const identityAddress = identitySelectors.address(getState())
-
-  if (amount.gt(0.0001)) {
+  if (amount.gt(0.0005)) {
     const transfer = messages.createEmptyTransfer({
       address: identityAddress,
       amount: amount.minus(0.0001).toString(),
       identityAddress: address
     })
     await getClient().payment.send(transfer)
+    return amount.minus(0.0001)
   }
+  return toBigNumber(0)
 }
 
 const updateLastSeen = ({ channelId }) => async (dispatch, getState) => {
@@ -125,7 +147,8 @@ const updateLastSeen = ({ channelId }) => async (dispatch, getState) => {
 export const epics = {
   createChannel,
   updateLastSeen,
-  getMoneyFromChannel
+  getMoneyFromChannel,
+  withdrawMoneyFromChannels
 }
 
 export const reducer = handleActions(

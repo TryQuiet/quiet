@@ -294,6 +294,7 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
     await dispatch(offersHandlers.epics.initMessage())
     await dispatch(contactsHandlers.epics.fetchMessages())
     await dispatch(publicChannelsHandlers.epics.fetchPublicChannels())
+    await dispatch(channelsHandlers.epics.withdrawMoneyFromChannels())
   } catch (err) {}
   dispatch(setLoading(false))
 

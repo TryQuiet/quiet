@@ -2,6 +2,7 @@ import { createSelector } from 'reselect'
 
 import zcashChannels from '../../zcash/channels'
 import nodeSelectors from './node'
+
 const ignoredChannels = network => [
   zcashChannels.registeredUsers[network].address,
   zcashChannels.channelOfChannels[network].address
