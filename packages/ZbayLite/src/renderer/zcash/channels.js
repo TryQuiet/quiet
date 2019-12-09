@@ -13,10 +13,10 @@ export default {
     mainnet: {
       name: 'General',
       private: true,
-      address: 'zs1fcs4lt0pavh0zf3qnzt2lf4cu2krm6y96czpmqzheph3ya43zhfr6nh6khjs0g5xgsgcj4p775r',
+      address: 'zs1qm5kdw592l9x704xqtjln3msyn7gqnfat2uxf05yky2u7xzmsuu5ekel3tf8v4ulqnux6u3f4ac',
       description: 'This is a general channel available to all users of Zbay by default.',
       keys: {
-        ivk: 'zivks19kx22qytvd48u06qk52prjnjx66d3g09a6mulawp25n8v6xk0vqqwuydge'
+        ivk: 'zivks1y3csr6f8uga948gepdpgq86mxg4dn0a6jx9qnvz07t6jqf53j5rslc9mu3'
       }
     }
   },
@@ -34,10 +34,10 @@ export default {
     mainnet: {
       name: 'RegisteredUsers',
       private: true,
-      address: 'zs1gj85kyte6lar223qdk0x2l2krua0xs4wpmmkz5ffqyya9ea92lnn9d02tpg6eavqefptu8p83tw',
+      address: 'zs1n4xfm0rsmju0fyevqwvgu5jve54v6etqv0sa7djv7kjfpwjpv7fsq54nuykax4y820ggy9g74y6',
       description: 'Store data about users.',
       keys: {
-        ivk: 'zivks1257u0x5aspyrclysawre5duaxfck2txmv7lm2tjudlyh4flh55zquklc2s'
+        ivk: 'zivks1s4cw25evj50cagzmx8ng2jrsjvefsmpm37znwsdve6cp3fv5eczskzll2h'
       }
     }
   },
@@ -55,10 +55,10 @@ export default {
     mainnet: {
       name: 'channelOfChannels',
       private: true,
-      address: 'zs16u4chc3nd525eqjc50zjv4chuwdpkj3kvnvcnvhj77g430q0kccelmnz6vrksw6cq4q3khshvs3',
+      address: 'zs1k2kqrssynect92hpaef8ewmgwersrz5apc2gn8eyy9g0pk5gu2a6twdxaytfprkms56qcpafg72',
       description: 'Contains list of public channels',
       keys: {
-        ivk: 'zivks14fgrxnk2f6qhtndxtc23cwy74kuyptq78qen9jq2ts2hnz0e7vrqazzytr'
+        ivk: 'zivks14g72xlh44vsy3nk0d7y83q39hs5jkelp0de8l6a8cdkecxwfa5pquav8as'
       }
     }
   }

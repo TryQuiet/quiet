@@ -16,5 +16,5 @@ storybook:
 testnet:
 	docker-compose up znode-testnet
 
-mainet:
+mainnet:
 	docker-compose up znode-mainnet
