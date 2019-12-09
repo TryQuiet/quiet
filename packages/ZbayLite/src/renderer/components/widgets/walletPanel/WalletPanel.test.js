@@ -10,7 +10,8 @@ describe('WalletPanelActions', () => {
     const result = shallow(
       <WalletPanel
         classes={mockClasses}
-        handleInvitation={jest.fn()}
+        openInvitationModal={jest.fn()}
+        setModalTab={jest.fn()}
       />
     )
     expect(result).toMatchSnapshot()

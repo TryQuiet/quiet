@@ -12,5 +12,7 @@ Array [
 exports[`WalletPanel will receive right actions 1`] = `
 Object {
   "fetchPrices": [Function],
+  "openInvitationModal": [Function],
+  "setModalTab": [Function],
 }
 `;

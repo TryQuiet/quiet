@@ -7,11 +7,15 @@ import * as R from 'ramda'
 import WalletPanelComponent from '../../../components/widgets/walletPanel/WalletPanel'
 import ratesHandlers from '../../../store/handlers/rates'
 import { useInterval } from '../../hooks'
+import { actions } from '../../../store/handlers/app'
+import { actionCreators } from '../../../store/handlers/modals'
 
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      fetchPrices: ratesHandlers.epics.fetchPrices
+      fetchPrices: ratesHandlers.epics.fetchPrices,
+      setModalTab: () => actions.setModalTab('invite'),
+      openInvitationModal: actionCreators.openModal('accountSettingsModal')
     },
     dispatch
   )
