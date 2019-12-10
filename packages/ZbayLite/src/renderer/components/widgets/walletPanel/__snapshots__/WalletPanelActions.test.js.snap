@@ -9,26 +9,18 @@ exports[`WalletPanelActions renders component 1`] = `
   <WithStyles(ForwardRef(Grid))
     item={true}
   >
-    <Memo(WithStyles(Tooltip))
-      className="tooltip-mock"
-      interactive={true}
+    <WithStyles(ForwardRef(Button))
+      className="button-mock"
       onClick={[Function]}
-      placement="bottom"
-      title="Add funds now"
+      variant="text"
     >
-      <WithStyles(ForwardRef(Button))
-        className="button-mock"
-        onClick={[Function]}
-        variant="text"
+      <WithStyles(ForwardRef(Typography))
+        className="buttonText-mock"
+        variant="caption"
       >
-        <WithStyles(ForwardRef(Typography))
-          className="buttonText-mock"
-          variant="caption"
-        >
-          Add Funds
-        </WithStyles(ForwardRef(Typography))>
-      </WithStyles(ForwardRef(Button))>
-    </Memo(WithStyles(Tooltip))>
+        Add Funds
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Button))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
     item={true}

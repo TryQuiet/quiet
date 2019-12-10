@@ -7,8 +7,6 @@ import Button from '@material-ui/core/Button'
 import { withStyles } from '@material-ui/core/styles'
 import { Typography } from '@material-ui/core'
 
-import Tooltip from '../../ui/Tooltip'
-
 const styles = theme => ({
   button: {
     padding: 0,
@@ -22,9 +20,33 @@ const styles = theme => ({
   buttonText: {
     color: theme.palette.colors.white
   },
-  tooltip: {
-    marginTop: 5,
-    cursor: 'pointer'
+  text: {
+    color: theme.palette.colors.white,
+    fontSize: 12,
+    fontWeight: 500,
+    '&::before': {
+      content: '""',
+      margin: 'auto',
+      display: 'block',
+      borderStyle: 'solid',
+      position: 'absolute',
+      bottom: '100%',
+      left: '25%',
+      borderWidth: 6,
+      borderColor: 'transparent transparent black transparent'
+    }
+  },
+  deposit: {
+    position: 'relative',
+    background: theme.palette.colors.trueBlack,
+    color: theme.typography.body1.color,
+    paddingTop: 12,
+    paddingBottom: 12,
+    paddingLeft: 16,
+    paddingRight: 16,
+    borderRadius: 8,
+    cursor: 'pointer',
+    lineHeight: '16px'
   }
 })
 
@@ -43,24 +65,15 @@ export const WalletPanelActions = ({
   return (
     <Grid container direction='row' spacing={1}>
       <Grid item>
-        <Tooltip
-          open={showDepositInfo}
-          title='Add funds now'
-          className={classes.tooltip}
-          placement='bottom'
-          interactive
+        <Button
+          variant='text'
+          className={classes.button}
           onClick={() => setModalTab(onReceive, setTabToOpen)}
         >
-          <Button
-            variant='text'
-            className={classes.button}
-            onClick={() => setModalTab(onReceive, setTabToOpen)}
-          >
-            <Typography variant='caption' className={classes.buttonText}>
-              Add Funds
-            </Typography>
-          </Button>
-        </Tooltip>
+          <Typography variant='caption' className={classes.buttonText}>
+            Add Funds
+          </Typography>
+        </Button>
       </Grid>
       <Grid item>
         <Button variant='text' className={classes.button} onClick={onSend}>
@@ -69,6 +82,11 @@ export const WalletPanelActions = ({
           </Typography>
         </Button>
       </Grid>
+      {showDepositInfo && (
+        <div className={classes.deposit} onClick={() => setModalTab(onReceive, setTabToOpen)}>
+          <span className={classes.text}>Add funds now</span>
+        </div>
+      )}
     </Grid>
   )
 }
