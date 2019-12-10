@@ -10,29 +10,40 @@ import SidebarHeader from '../../../components/ui/SidebarHeader'
 import { actionCreators } from '../../../store/handlers/modals'
 import QuickActionButton from '../../../components/widgets/sidebar/QuickActionButton'
 import BaseChannelsList from '../../../components/widgets/channels/BaseChannelsList'
+import channelSelectors, { INPUT_STATE } from '../../../store/selectors/channel'
 
 export const mapStateToProps = state => ({
   channels: contactsSelectors.contacts(state).toList(),
-  selected: directMessageSelectors.directMessageChannel(state)
+  selected: directMessageSelectors.directMessageChannel(state),
+  fundsLocked:
+    channelSelectors.inputLocked(state) === INPUT_STATE.DISABLE ||
+    channelSelectors.inputLocked(state) === INPUT_STATE.LOCKED
 })
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      openModal: actionCreators.openModal('sendMoney')
+      openModal: actionCreators.openModal('sendMoney'),
+      openDepositMonet: actionCreators.openModal('depositMoney')
     },
     dispatch
   )
-export const DirectMessagesPanel = ({ title, openModal, ...props }) => {
+export const DirectMessagesPanel = ({
+  title,
+  openModal,
+  fundsLocked,
+  openDepositMonet,
+  ...props
+}) => {
   return (
     <Grid container item xs direction='column'>
       <Grid item>
-        <SidebarHeader title={title} action={openModal} tooltipText='Create new message' />
+        <SidebarHeader title={title} action={fundsLocked ? openDepositMonet : openModal} tooltipText='Create new message' />
       </Grid>
       <Grid item>
         <BaseChannelsList directMessages {...props} />
       </Grid>
       <Grid item>
-        <QuickActionButton text='New Message' action={openModal} />
+        <QuickActionButton text='New Message' action={fundsLocked ? openDepositMonet : openModal} />
       </Grid>
     </Grid>
   )

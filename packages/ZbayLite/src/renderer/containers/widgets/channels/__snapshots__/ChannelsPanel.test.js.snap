@@ -3,6 +3,7 @@
 exports[`ChannelsPanel will receive right actions 1`] = `
 Object {
   "openCreateModal": [Function],
+  "openDepositMonet": [Function],
   "openJoinChannel": [Function],
 }
 `;
@@ -35,6 +36,7 @@ Object {
       },
     },
   ],
+  "fundsLocked": true,
   "offers": Immutable.List [],
   "selected": Immutable.ChannelState {
     "spentFilterValue": "0",

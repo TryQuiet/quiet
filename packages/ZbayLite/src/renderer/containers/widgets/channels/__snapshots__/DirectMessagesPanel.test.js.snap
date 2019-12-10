@@ -2,6 +2,7 @@
 
 exports[`ChannelsPanel will receive right actions 1`] = `
 Object {
+  "openDepositMonet": [Function],
   "openModal": [Function],
 }
 `;
@@ -13,6 +14,7 @@ Object {
       "username": "testusername",
     },
   ],
+  "fundsLocked": true,
   "selected": Immutable.DirectMessageChannelState {
     "targetRecipientAddress": null,
     "targetRecipientUsername": null,

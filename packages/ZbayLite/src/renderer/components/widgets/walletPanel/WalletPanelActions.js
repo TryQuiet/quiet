@@ -60,7 +60,8 @@ export const WalletPanelActions = ({
   onSend,
   onReceive,
   setTabToOpen,
-  showDepositInfo
+  showDepositInfo,
+  openDepositMonet
 }) => {
   return (
     <Grid container direction='row' spacing={1}>
@@ -76,7 +77,11 @@ export const WalletPanelActions = ({
         </Button>
       </Grid>
       <Grid item>
-        <Button variant='text' className={classes.button} onClick={onSend}>
+        <Button
+          variant='text'
+          className={classes.button}
+          onClick={showDepositInfo ? openDepositMonet : onSend}
+        >
           <Typography variant='caption' className={classes.buttonText}>
             Send Funds
           </Typography>
@@ -95,6 +100,7 @@ WalletPanelActions.propTypes = {
   onSend: PropTypes.func.isRequired,
   onReceive: PropTypes.func.isRequired,
   setTabToOpen: PropTypes.func.isRequired,
+  openDepositMonet: PropTypes.func.isRequired,
   showDepositInfo: PropTypes.bool
 }
 

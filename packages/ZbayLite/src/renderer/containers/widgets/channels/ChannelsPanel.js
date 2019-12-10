@@ -8,7 +8,7 @@ import { bindActionCreators } from 'redux'
 import BaseChannelsList from '../../../components/widgets/channels/BaseChannelsList'
 import SidebarHeader from '../../../components/ui/SidebarHeader'
 import channelsSelectors from '../../../store/selectors/channels'
-import channelSelectors from '../../../store/selectors/channel'
+import channelSelectors, { INPUT_STATE } from '../../../store/selectors/channel'
 import offersSelectors from '../../../store/selectors/offers'
 import { actionCreators } from '../../../store/handlers/modals'
 import QuickActionButton from '../../../components/widgets/sidebar/QuickActionButton'
@@ -16,17 +16,28 @@ import QuickActionButton from '../../../components/widgets/sidebar/QuickActionBu
 export const mapStateToProps = state => ({
   channels: channelsSelectors.data(state),
   selected: channelSelectors.channelInfo(state),
-  offers: offersSelectors.filteredOffers(state)
+  offers: offersSelectors.filteredOffers(state),
+  fundsLocked:
+    channelSelectors.inputLocked(state) === INPUT_STATE.DISABLE ||
+    channelSelectors.inputLocked(state) === INPUT_STATE.LOCKED
 })
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
       openCreateModal: actionCreators.openModal('createChannel'),
-      openJoinChannel: actionCreators.openModal('joinChannel')
+      openJoinChannel: actionCreators.openModal('joinChannel'),
+      openDepositMonet: actionCreators.openModal('depositMoney')
     },
     dispatch
   )
-export const ChannelsPanel = ({ title, openCreateModal, openJoinChannel, ...props }) => {
+export const ChannelsPanel = ({
+  title,
+  openCreateModal,
+  openJoinChannel,
+  fundsLocked,
+  openDepositMonet,
+  ...props
+}) => {
   return (
     <Grid container item xs direction='column'>
       <Grid item>
@@ -37,7 +48,10 @@ export const ChannelsPanel = ({ title, openCreateModal, openJoinChannel, ...prop
       </Grid>
       <Grid item>
         <QuickActionButton text='Join Channel' action={openJoinChannel} />
-        <QuickActionButton text='New Channel' action={openCreateModal} />
+        <QuickActionButton
+          text='New Channel'
+          action={fundsLocked ? openDepositMonet : openCreateModal}
+        />
       </Grid>
     </Grid>
   )

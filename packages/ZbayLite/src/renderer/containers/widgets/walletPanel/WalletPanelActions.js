@@ -17,6 +17,7 @@ export const mapDispatchToProps = dispatch =>
     {
       onSend: actionCreators.openModal('sendMoney'),
       onReceive: actionCreators.openModal('accountSettingsModal'),
+      openDepositMonet: actionCreators.openModal('depositMoney'),
       setTabToOpen: () => actions.setModalTab('addFunds')
     },
     dispatch
