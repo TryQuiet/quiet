@@ -28,7 +28,7 @@ exports[`Imported channel reducer handles epics decodeChannel sends notification
 Immutable.List [
   Immutable.Map {
     "options": Immutable.Map {
-      "persist": true,
+      "persist": false,
       "variant": "error",
       "action": [Function],
     },

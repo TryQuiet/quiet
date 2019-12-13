@@ -22,7 +22,7 @@ export const mapStateToProps = state => ({
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      openModal: actionCreators.openModal('sendMoney'),
+      openModal: actionCreators.openModal('newMessage'),
       openDepositMonet: actionCreators.openModal('depositMoney')
     },
     dispatch

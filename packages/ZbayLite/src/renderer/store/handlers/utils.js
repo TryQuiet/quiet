@@ -9,7 +9,7 @@ export const typeRejected = name => `${name}_REJECTED`
 export const errorNotification = ({ message, options }) => ({
   message,
   options: {
-    persist: true,
+    persist: false,
     variant: 'error',
     action: notifierAction,
     ...options

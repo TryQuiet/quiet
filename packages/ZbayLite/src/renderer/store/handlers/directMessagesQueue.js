@@ -104,7 +104,7 @@ export const checkConfirmationNumber = async ({ opId, status, txId, dispatch, ge
         contactsHandlers.actions.setUsernames({
           sender: {
             replyTo: recipientAddress,
-            username: recipientAddress.substring(0, 10)
+            username: recipientUsername || recipientAddress.substring(0, 15)
           }
         })
       )

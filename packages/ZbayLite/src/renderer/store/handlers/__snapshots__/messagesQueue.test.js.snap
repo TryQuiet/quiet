@@ -1039,7 +1039,7 @@ exports[`Messages queue reducer handles epics - sendPendingMessages handles node
 Immutable.List [
   Immutable.Map {
     "options": Immutable.Map {
-      "persist": true,
+      "persist": false,
       "variant": "error",
       "action": [Function],
     },

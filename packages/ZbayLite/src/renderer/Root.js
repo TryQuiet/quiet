@@ -18,6 +18,7 @@ import TopUpModal from './containers/ui/TopUpModal'
 import SendMoneyModal from './containers/ui/sendMoney/SendMoneyModal'
 import UpdateModal from './containers/widgets/update/UpdateModal'
 import CreateChannelModal from './containers/widgets/channels/CreateChannelModal'
+import NewMessageModal from './containers/widgets/channels/NewMessageModal'
 import JoinChannelModal from './containers/widgets/channels/JoinChannelModal'
 import AdvertModal from './containers/ui/adverts/AdvertModal'
 import AdvertActionsModal from './containers/ui/adverts/AdvertActionsModal'
@@ -38,6 +39,7 @@ export default () => (
           <TopUpModal />
           <CssBaseline />
           <CreateChannelModal />
+          <NewMessageModal />
           <JoinChannelModal />
           <AdvertModal />
           <AdvertActionsModal />

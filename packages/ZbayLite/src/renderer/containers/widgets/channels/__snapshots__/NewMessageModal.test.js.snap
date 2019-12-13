@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NewMessageModal will receive right actions 1`] = `
+Object {
+  "sendMessage": [Function],
+  "showNotification": [Function],
+}
+`;
+
+exports[`NewMessageModal will receive right props 1`] = `
+Object {
+  "users": Immutable.Map {
+    "testuser1": "user 1 data",
+    "testuser2": "user 2 data",
+  },
+}
+`;
