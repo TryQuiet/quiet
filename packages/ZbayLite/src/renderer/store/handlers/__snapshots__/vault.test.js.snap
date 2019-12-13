@@ -37,6 +37,7 @@ Immutable.IdentityState {
     "balance": "2.2352",
     "lockedBalance": "0",
     "donationAllow": true,
+    "shieldingTax": true,
     "donationAddress": "",
   },
   "fetchingBalance": false,

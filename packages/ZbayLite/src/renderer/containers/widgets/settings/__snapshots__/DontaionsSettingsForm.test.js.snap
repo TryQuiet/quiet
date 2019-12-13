@@ -4,7 +4,9 @@ exports[`AccountSettingsForm will receive right actions 1`] = `
 Object {
   "setDonationAddress": [Function],
   "setDonationAllow": [Function],
+  "setShieldingTax": [Function],
   "updateDonation": [Function],
   "updateDonationAddress": [Function],
+  "updateShieldingTax": [Function],
 }
 `;

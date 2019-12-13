@@ -10,7 +10,8 @@ export const mapStateToProps = state => {
     initialValues: {
       donationAddress: identitySelectors.donationAddress(state)
     },
-    donationAllow: identitySelectors.donationAllow(state)
+    donationAllow: identitySelectors.donationAllow(state),
+    shieldingTax: identitySelectors.shieldingTax(state)
   }
 }
 
@@ -20,6 +21,8 @@ export const mapDispatchToProps = (dispatch, props) =>
       updateDonation: identityHandlers.epics.updateDonation,
       setDonationAddress: identityHandlers.actions.setDonationAddress,
       setDonationAllow: identityHandlers.actions.setDonationAllow,
+      setShieldingTax: identityHandlers.actions.setShieldingTax,
+      updateShieldingTax: identityHandlers.epics.updateShieldingTax,
       updateDonationAddress: (address) => identityHandlers.epics.updateDonationAddress(address)
     },
     dispatch

@@ -188,10 +188,10 @@ const _sendPendingDirectMessages = async (dispatch, getState) => {
           )
           return
         }
+        dispatch(removeMessage(key))
         if (recipientAddress.length === 35) {
           return
         }
-        dispatch(removeMessage(key))
         await dispatch(
           operationsHandlers.epics.observeOperation({
             opId,

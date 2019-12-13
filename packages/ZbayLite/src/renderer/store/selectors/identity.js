@@ -28,6 +28,7 @@ const id = createSelector(data, d => d.id)
 const name = createSelector(data, d => d.name)
 
 const donationAllow = createSelector(data, d => d.donationAllow)
+const shieldingTax = createSelector(data, d => d.shieldingTax)
 const donationAddress = createSelector(data, d => d.donationAddress)
 
 const donation = createSelector(data, d => ({ allow: d.donationAllow, address: d.donationAddress }))
@@ -74,5 +75,6 @@ export default {
   signerPubKey,
   donationAllow,
   donationAddress,
-  donation
+  donation,
+  shieldingTax
 }

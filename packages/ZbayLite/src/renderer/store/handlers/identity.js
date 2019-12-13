@@ -56,6 +56,7 @@ const _Identity = Immutable.Record(
     balance: null,
     lockedBalance: null,
     donationAllow: true,
+    shieldingTax: true,
     donationAddress: ''
   },
   'Identity'
@@ -88,6 +89,7 @@ export const setLoadingMessage = createAction('SET_IDENTITY_LOADING_MESSAGE')
 export const setShippingData = createAction('SET_IDENTITY_SHIPPING_DATA')
 export const setDonationAllow = createAction('SET_DONATION_ALLOW')
 export const setDonationAddress = createAction('SET_DONATION_ADDRESS')
+export const setShieldingTax = createAction('SET_SHIELDING_TAX')
 
 const actions = {
   setIdentity,
@@ -99,20 +101,44 @@ const actions = {
   setShippingData,
   setBalance,
   setDonationAllow,
-  setDonationAddress
+  setDonationAddress,
+  setShieldingTax
 }
 
 export const shieldBalance = ({ from, to, amount, fee }) => async (dispatch, getState) => {
+  const shieldingTax = identitySelectors.shieldingTax(getState())
+  const network = nodeSelectors.network(getState())
+  const zbay = channels.zbay[network]
+  let transactions = []
+  const taxAmount = amount.div(100) // 1% tax
+  const newAmount = amount.minus(taxAmount)
+  if (shieldingTax === 'true') {
+    transactions.push({
+      address: zbay.address,
+      amount: taxAmount.toString()
+    })
+    transactions.push({
+      address: to,
+      amount: newAmount.toString()
+    })
+  } else {
+    transactions.push({
+      address: to,
+      amount: amount.toString()
+    })
+  }
   const opId = await getClient().payment.send({
     from,
-    amounts: [
-      {
-        address: to,
-        amount: amount.toString()
-      }
-    ],
+    amounts: transactions,
     fee
   })
+  dispatch(
+    notificationsHandlers.actions.enqueueSnackbar(
+      successNotification({
+        message: `You will soon recive ${newAmount.toString()} from your transparent address`
+      })
+    )
+  )
   dispatch(
     operationHandlers.epics.observeOperation({
       opId,
@@ -335,6 +361,11 @@ export const updateDonationAddress = address => async (dispatch, getState) => {
   const identity = await vault.identity.updateDonationAddress(id, address)
   await dispatch(setDonationAddress(identity.donationAddress))
 }
+export const updateShieldingTax = allow => async (dispatch, getState) => {
+  const id = identitySelectors.id(getState())
+  const identity = await vault.identity.updateShieldingTax(id, allow)
+  await dispatch(setShieldingTax(identity.shieldingTax))
+}
 
 const epics = {
   fetchBalance,
@@ -343,7 +374,8 @@ const epics = {
   updateShippingData,
   createSignerKeys,
   updateDonation,
-  updateDonationAddress
+  updateDonationAddress,
+  updateShieldingTax
 }
 
 const exportFunctions = {
@@ -368,7 +400,8 @@ export const reducer = handleActions(
     [setDonationAllow]: (state, { payload: allow }) =>
       state.setIn(['data', 'donationAllow'], allow),
     [setDonationAddress]: (state, { payload: address }) =>
-      state.setIn(['data', 'donationAddress'], address)
+      state.setIn(['data', 'donationAddress'], address),
+    [setShieldingTax]: (state, { payload: allow }) => state.setIn(['data', 'shieldingTax'], allow)
   },
   initialState
 )

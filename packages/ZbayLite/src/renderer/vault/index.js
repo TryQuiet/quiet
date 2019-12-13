@@ -63,6 +63,7 @@ const _entryToIdentity = entry => {
     keys: JSON.parse(entryObj.properties.keys || '{}'),
     shippingData: JSON.parse(entryObj.properties.shippingData || '{}'),
     donationAllow: entryObj.properties.donationAllow || 'true',
+    shieldingTax: entryObj.properties.shieldingTax || 'true',
     donationAddress:
       entryObj.properties.donationAddress ||
       (parseInt(process.env.ZBAY_IS_TESTNET)
@@ -178,6 +179,15 @@ export const updateDonation = async (identityId, allow) => {
   })
   return _entryToIdentity(entry)
 }
+export const updateShieldingTax = async (identityId, allow) => {
+  let entry = null
+  await _vault.withWorkspace(workspace => {
+    const [identitiesGroup] = workspace.archive.findGroupsByTitle('Identities')
+    entry = identitiesGroup.findEntryByID(identityId).setProperty('shieldingTax', allow.toString())
+    workspace.save()
+  })
+  return _entryToIdentity(entry)
+}
 
 export const updateDonationAddress = async (identityId, address) => {
   let entry = null
@@ -244,7 +254,8 @@ export default {
     updateShippingData: withVaultInitialized(updateShippingData),
     updateIdentitySignerKeys: withVaultInitialized(updateIdentitySignerKeys),
     updateDonation: withVaultInitialized(updateDonation),
-    updateDonationAddress: withVaultInitialized(updateDonationAddress)
+    updateDonationAddress: withVaultInitialized(updateDonationAddress),
+    updateShieldingTax: withVaultInitialized(updateShieldingTax)
   },
   locked,
   getVault,

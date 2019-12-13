@@ -13,6 +13,7 @@ Array [
       "tpk": "transparent-address-private-key",
     },
     "name": "Saturn",
+    "shieldingTax": "true",
     "shippingData": Object {},
     "signerPrivKey": undefined,
     "signerPubKey": undefined,

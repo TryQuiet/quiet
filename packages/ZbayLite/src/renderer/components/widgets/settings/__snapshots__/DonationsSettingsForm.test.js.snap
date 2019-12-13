@@ -86,6 +86,30 @@ exports[`DonationsSettingsForm renders component 1`] = `
     />
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
+    item={true}
+    xs={12}
+  >
+    <WithStyles(ForwardRef(FormControlLabel))
+      control={
+        <ForwardRef(WithStyles)
+          classes={
+            Object {
+              "checked": "checked-mock",
+              "switchBase": "switchBase-mock",
+              "track": "track-mock",
+            }
+          }
+          onChange={[Function]}
+          value="antoine"
+        />
+      }
+      label="Allow 1% shielding tax"
+    />
+    <WithStyles(ForwardRef(FormHelperText))>
+      Here Holmes will provide some text
+    </WithStyles(ForwardRef(FormHelperText))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
     className="submitButton-mock"
     item={true}
     xs={12}

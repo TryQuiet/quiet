@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
-import { FormControlLabel, Checkbox, TextField } from '@material-ui/core'
+import { FormControlLabel, Checkbox, TextField, FormHelperText, Switch } from '@material-ui/core'
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank'
 import CheckBoxIcon from '@material-ui/icons/CheckBox'
 import Button from '@material-ui/core/Button'
@@ -38,7 +38,17 @@ const styles = theme => ({
     width: 126,
     fontSize: '0.9rem',
     backgroundColor: theme.palette.colors.zbayBlue
-  }
+  },
+  switchBase: {
+    '&$checked': {
+      color: theme.palette.colors.purple
+    },
+    '&$checked + $track': {
+      backgroundColor: theme.palette.colors.purple
+    }
+  },
+  checked: {},
+  track: {}
 })
 
 const checkAddress = (address, setDonationAddress, setAddressStatus) => {
@@ -58,7 +68,10 @@ export const DonationsSettingsForm = ({
   initialValues,
   updateDonationAddress,
   setDonationAllow,
-  setDonationAddress
+  setDonationAddress,
+  setShieldingTax,
+  updateShieldingTax,
+  shieldingTax
 }) => {
   const [isAddressValid, setAddressStatus] = useState(!!initialValues.donationAddress)
   return (
@@ -104,6 +117,26 @@ export const DonationsSettingsForm = ({
           }
         />
       </Grid>
+      <Grid xs={12} item>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={shieldingTax}
+              onChange={e => {
+                setShieldingTax(e.target.checked.toString())
+              }}
+              classes={{
+                switchBase: classes.switchBase,
+                track: classes.track,
+                checked: classes.checked
+              }}
+              value='antoine'
+            />
+          }
+          label='Allow 1% shielding tax'
+        />
+        <FormHelperText>Here Holmes will provide some text</FormHelperText>
+      </Grid>
       <Grid item xs={12} className={classes.submitButton}>
         <Button
           variant='contained'
@@ -115,6 +148,7 @@ export const DonationsSettingsForm = ({
           className={classes.button}
           onClick={() => {
             updateDonationAddress(initialValues.donationAddress)
+            updateShieldingTax(shieldingTax)
             updateDonation(donationAllow)
           }}
         >
@@ -132,7 +166,10 @@ DonationsSettingsForm.propTypes = {
   updateDonation: PropTypes.func.isRequired,
   setDonationAddress: PropTypes.func.isRequired,
   setDonationAllow: PropTypes.func.isRequired,
-  updateDonationAddress: PropTypes.func.isRequired
+  updateDonationAddress: PropTypes.func.isRequired,
+  setShieldingTax: PropTypes.func.isRequired,
+  updateShieldingTax: PropTypes.func.isRequired,
+  shieldingTax: PropTypes.bool.isRequired
 }
 
 export default withStyles(styles)(DonationsSettingsForm)

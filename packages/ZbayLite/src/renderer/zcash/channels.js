@@ -61,5 +61,17 @@ export default {
         ivk: 'zivks14g72xlh44vsy3nk0d7y83q39hs5jkelp0de8l6a8cdkecxwfa5pquav8as'
       }
     }
+  },
+  // Create new accounts for donations
+  zbay: {
+    testnet: {
+      name: 'donation',
+      address:
+        'ztestsapling10tfwmgy9jjzvhxxnlfqcakjpaddn8yq9qhwammfmxgf8ln2vkdafr8ut80kplerjer4nktmys07'
+    },
+    mainnet: {
+      name: 'donation',
+      address: 'zs15myy2d3sgn90p0rvcjlamaczqzglsdnqua6a3mz72fy5fhnke9txpg250kmzzndlu096s3d70j0'
+    }
   }
 }
