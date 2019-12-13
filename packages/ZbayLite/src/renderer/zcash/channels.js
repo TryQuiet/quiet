@@ -1,7 +1,7 @@
 export default {
   general: {
     testnet: {
-      name: 'General',
+      name: 'general',
       private: true,
       address:
         'ztestsapling1dfjv308amnk40s89trkvz646ne69553us0g858mmpgsw540efgftn4tf25gts2cttg3jgk9y8lx',
@@ -11,7 +11,7 @@ export default {
       }
     },
     mainnet: {
-      name: 'General',
+      name: 'general',
       private: true,
       address: 'zs1qm5kdw592l9x704xqtjln3msyn7gqnfat2uxf05yky2u7xzmsuu5ekel3tf8v4ulqnux6u3f4ac',
       description: 'This is a general channel available to all users of Zbay by default.',

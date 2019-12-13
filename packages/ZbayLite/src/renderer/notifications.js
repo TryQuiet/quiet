@@ -6,9 +6,10 @@ export const createNotification = ({ title, body }) =>
 export const displayMessageNotification = ({ message, channel }) =>
   createNotification({
     title: `New message in ${channel.get('name')}`,
-    body: `${message.sender.username || 'Anonymous'}: ${message.message.substring(0, 64)}${
-      message.message.length > 64 ? '...' : ''
-    }`
+    body: `${message.sender.username.substring(0, 20) || 'Anonymous'}: ${message.message.substring(
+      0,
+      64
+    )}${message.message.length > 64 ? '...' : ''}`
   })
 
 export const displayDirectMessageNotification = ({ message, username }) =>

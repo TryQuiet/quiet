@@ -39,7 +39,8 @@ const styles = theme => ({
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     maxWidth: 230,
-    whiteSpace: 'nowrap'
+    whiteSpace: 'nowrap',
+    textTransform: 'lowercase'
   },
   newMessages: {
     opacity: 1

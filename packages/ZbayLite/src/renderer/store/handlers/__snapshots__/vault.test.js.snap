@@ -4,7 +4,7 @@ exports[`vault reducer epics - createVault bootstraps general channel to new acc
 Immutable.List [
   Immutable.Map {
     "lastSeen": "2019-03-07T13:03:48.000Z",
-    "name": "General",
+    "name": "general",
     "private": true,
     "address": "ztestsapling1dfjv308amnk40s89trkvz646ne69553us0g858mmpgsw540efgftn4tf25gts2cttg3jgk9y8lx",
     "unread": 0,

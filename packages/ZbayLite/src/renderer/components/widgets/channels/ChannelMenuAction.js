@@ -24,7 +24,7 @@ export const ChannelMenuAction = ({ classes, onInfo, onMute, onDelete }) => {
     <MenuAction icon={dotsIcon} iconHover={dotsIcon} IconButton={IconButton} offset='0 8'>
       <MenuActionItem onClick={onInfo} title='Info' />
       <MenuActionItem onClick={onMute} title='Mute' />
-      <MenuActionItem onClick={onDelete} title='Delete' />
+      <MenuActionItem onClick={onDelete} title='Remove' />
     </MenuAction>
   )
 }
