@@ -19,12 +19,48 @@ exports[`ChannelHeader renders component 1`] = `
     </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
+    alignContent="center"
     alignItems="center"
     className="actions-mock"
     container={true}
     item={true}
     justify="flex-end"
+    xs={true}
   >
+    <WithStyles(ForwardRef(Grid))
+      className="switch-mock"
+      item={true}
+    >
+      <WithStyles(ForwardRef(Tabs))
+        classes={
+          Object {
+            "indicator": "indicator-mock",
+            "root": "tabs-mock",
+          }
+        }
+        onChange={[Function]}
+        value={0}
+      >
+        <WithStyles(ForwardRef(Tab))
+          classes={
+            Object {
+              "root": "tab-mock",
+              "selected": "selected-mock",
+            }
+          }
+          label="All"
+        />
+        <WithStyles(ForwardRef(Tab))
+          classes={
+            Object {
+              "root": "tab-mock",
+              "selected": "selected-mock",
+            }
+          }
+          label="For sale"
+        />
+      </WithStyles(ForwardRef(Tabs))>
+    </WithStyles(ForwardRef(Grid))>
     <WithStyles(ForwardRef(Grid))
       item={true}
     >
@@ -63,12 +99,48 @@ exports[`ChannelHeader renders members when 0 1`] = `
     </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
+    alignContent="center"
     alignItems="center"
     className="actions-mock"
     container={true}
     item={true}
     justify="flex-end"
+    xs={true}
   >
+    <WithStyles(ForwardRef(Grid))
+      className="switch-mock"
+      item={true}
+    >
+      <WithStyles(ForwardRef(Tabs))
+        classes={
+          Object {
+            "indicator": "indicator-mock",
+            "root": "tabs-mock",
+          }
+        }
+        onChange={[Function]}
+        value={0}
+      >
+        <WithStyles(ForwardRef(Tab))
+          classes={
+            Object {
+              "root": "tab-mock",
+              "selected": "selected-mock",
+            }
+          }
+          label="All"
+        />
+        <WithStyles(ForwardRef(Tab))
+          classes={
+            Object {
+              "root": "tab-mock",
+              "selected": "selected-mock",
+            }
+          }
+          label="For sale"
+        />
+      </WithStyles(ForwardRef(Tabs))>
+    </WithStyles(ForwardRef(Grid))>
     <WithStyles(ForwardRef(Grid))
       item={true}
     >
@@ -107,12 +179,48 @@ exports[`ChannelHeader renders without members count 1`] = `
     </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
+    alignContent="center"
     alignItems="center"
     className="actions-mock"
     container={true}
     item={true}
     justify="flex-end"
+    xs={true}
   >
+    <WithStyles(ForwardRef(Grid))
+      className="switch-mock"
+      item={true}
+    >
+      <WithStyles(ForwardRef(Tabs))
+        classes={
+          Object {
+            "indicator": "indicator-mock",
+            "root": "tabs-mock",
+          }
+        }
+        onChange={[Function]}
+        value={0}
+      >
+        <WithStyles(ForwardRef(Tab))
+          classes={
+            Object {
+              "root": "tab-mock",
+              "selected": "selected-mock",
+            }
+          }
+          label="All"
+        />
+        <WithStyles(ForwardRef(Tab))
+          classes={
+            Object {
+              "root": "tab-mock",
+              "selected": "selected-mock",
+            }
+          }
+          label="For sale"
+        />
+      </WithStyles(ForwardRef(Tabs))>
+    </WithStyles(ForwardRef(Grid))>
     <WithStyles(ForwardRef(Grid))
       item={true}
     >

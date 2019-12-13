@@ -20,13 +20,14 @@ const styles = {
 export const Channel = ({ classes, channelType, ...props }) => {
   const Header = channelTypeToHeader[channelType]
   const Input = channelTypeToInput[channelType]
+  const [tab, setTab] = React.useState(0)
   return (
     <Page>
       <PageHeader>
-        <Header {...props} channelType={channelType} />
+        <Header {...props} tab={tab} setTab={setTab} channelType={channelType} />
       </PageHeader>
       <Grid item xs className={classes.messages}>
-        <ChannelContent {...props} channelType={channelType} />
+        <ChannelContent tab={tab} {...props} channelType={channelType} />
       </Grid>
       <Grid item>
         <Input {...props} />

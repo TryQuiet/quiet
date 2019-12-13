@@ -6,6 +6,7 @@ import ChannelMessagesComponent from '../../../components/widgets/channels/Chann
 import channelSelectors from '../../../store/selectors/channel'
 import dmQueueMessages from '../../../store/selectors/directMessagesQueue'
 import queueMessages from '../../../store/selectors/messagesQueue'
+import { messageType } from '../../../zbay/messages'
 
 export const mapStateToProps = (state, { signerPubKey }) => {
   const qMessages = queueMessages.queue(state)
@@ -18,7 +19,14 @@ export const mapStateToProps = (state, { signerPubKey }) => {
   }
 }
 
-export const ChannelMessages = ({ messages, contactId, channelId, contentRect, triggerScroll }) => {
+export const ChannelMessages = ({
+  messages,
+  tab,
+  contactId,
+  channelId,
+  contentRect,
+  triggerScroll
+}) => {
   const [scrollPosition, setScrollPosition] = React.useState(-1)
   useEffect(
     () => {
@@ -38,7 +46,7 @@ export const ChannelMessages = ({ messages, contactId, channelId, contentRect, t
     <ChannelMessagesComponent
       scrollPosition={scrollPosition}
       setScrollPosition={setScrollPosition}
-      messages={messages}
+      messages={tab === 0 ? messages : messages.filter(msg => msg.type === messageType.AD)}
       contactId={contactId}
       contentRect={contentRect}
     />
@@ -47,6 +55,6 @@ export const ChannelMessages = ({ messages, contactId, channelId, contentRect, t
 
 export default connect(mapStateToProps)(
   React.memo(ChannelMessages, (before, after) => {
-    return Immutable.is(before.messages, after.messages)
+    return Immutable.is(before.messages, after.messages) && before.tab === after.tab
   })
 )

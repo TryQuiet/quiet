@@ -79,6 +79,8 @@ export default createMuiTheme({
       trueBlack: '#000000',
       zbayBlue: '#521c74',
       darkGray: '#7F7F7F',
+      gray03: '#F7F7F7',
+      gray40: '#999999',
       lushSky: '#67BFD3',
       lightGray: '#B2B2B2',
       veryLightGray: '#F0F0F0',

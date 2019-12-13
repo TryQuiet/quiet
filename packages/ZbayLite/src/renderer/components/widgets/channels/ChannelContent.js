@@ -26,13 +26,15 @@ export const ChannelContent = ({
   measureRef,
   contentRect,
   channelType,
-  offer
+  offer,
+  tab
 }) => {
   const ChannelMessages = channelTypeToMessages[channelType]
   return (
     <RootRef rootRef={measureRef}>
       <Grid item className={classes.fullHeight}>
         <ChannelMessages
+          tab={tab}
           channelId={channelId}
           contactId={contactId}
           offer={offer}
@@ -49,6 +51,7 @@ ChannelContent.propTypes = {
   channelId: PropTypes.string,
   contactId: PropTypes.string,
   inputState: PropTypes.number,
+  tab: PropTypes.number,
   channelType: PropTypes.number.isRequired,
   signerPubKey: PropTypes.string,
   measureRef: PropTypes.func.isRequired,

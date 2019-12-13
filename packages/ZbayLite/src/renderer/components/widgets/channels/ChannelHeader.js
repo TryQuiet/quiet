@@ -13,6 +13,7 @@ import { CHANNEL_TYPE } from '../../../components/pages/ChannelTypes'
 import ChannelMenuAction from '../../../containers/widgets/channels/ChannelMenuAction'
 import OfferMenuActions from '../../../containers/widgets/channels/OfferMenuActions'
 import DirectMessagesMenuActions from '../../../containers/widgets/channels/DirectMessagesMenuActions'
+import { Tabs, Tab } from '@material-ui/core'
 
 const styles = theme => ({
   root: {
@@ -32,8 +33,36 @@ const styles = theme => ({
   spendButton: {
     fontSize: 13
   },
-  actions: {
-    width: 180
+  actions: {},
+  switch: {
+    maxWidth: 138,
+    marginRight: 18,
+    borderRadius: 4,
+    borderStyle: 'solid',
+    borderColor: theme.palette.colors.gray03
+  },
+  tab: {
+    fontSize: 12,
+    minHeight: 22,
+    width: 65,
+    minWidth: 0,
+    lineHeight: '18px',
+    padding: 0,
+    textAlign: '-webkit-center',
+    textTransform: 'none',
+    backgroundColor: theme.palette.colors.gray03,
+    color: theme.palette.colors.gray40,
+    fontWeight: 'normal'
+  },
+  tabs: {
+    minHeight: 0
+  },
+  selected: {
+    color: theme.palette.colors.trueBlack,
+    backgroundColor: theme.palette.colors.white
+  },
+  indicator: {
+    maxHeight: 0
   }
 })
 
@@ -45,7 +74,16 @@ export const channelTypeToActions = {
 
 // TODO: [reafactoring] we should have channel stats for unread and members count
 
-export const ChannelHeader = ({ classes, channel, directMessage, offer, members, channelType }) => {
+export const ChannelHeader = ({
+  classes,
+  tab,
+  setTab,
+  channel,
+  directMessage,
+  offer,
+  members,
+  channelType
+}) => {
   const ActionsMenu = channelTypeToActions[channelType]
   return (
     <Grid
@@ -65,7 +103,30 @@ export const ChannelHeader = ({ classes, channel, directMessage, offer, members,
           </Typography>
         ) : null}
       </Grid>
-      <Grid item container className={classes.actions} justify='flex-end' alignItems='center'>
+
+      <Grid
+        item
+        xs
+        container
+        className={classes.actions}
+        justify='flex-end'
+        alignContent='center'
+        alignItems='center'
+      >
+        {channelType === CHANNEL_TYPE.NORMAL && (
+          <Grid item className={classes.switch}>
+            <Tabs
+              value={tab}
+              onChange={(e, value) => {
+                setTab(value)
+              }}
+              classes={{ root: classes.tabs, indicator: classes.indicator }}
+            >
+              <Tab label='All' classes={{ root: classes.tab, selected: classes.selected }} />
+              <Tab label='For sale' classes={{ root: classes.tab, selected: classes.selected }} />
+            </Tabs>
+          </Grid>
+        )}
         <Grid item>
           <ActionsMenu directMessage={directMessage} offer={offer} />
           {directMessage ? <DirectMessagesInfoModal /> : <ChannelInfoModal />}
@@ -79,6 +140,8 @@ ChannelHeader.propTypes = {
   classes: PropTypes.object.isRequired,
   directMessage: PropTypes.bool.isRequired,
   channelType: PropTypes.number.isRequired,
+  tab: PropTypes.number.isRequired,
+  setTab: PropTypes.func.isRequired,
   channel: PropTypes.instanceOf(Immutable.Map).isRequired,
   members: PropTypes.instanceOf(Set)
 }
