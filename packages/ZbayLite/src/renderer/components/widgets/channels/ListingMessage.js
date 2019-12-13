@@ -10,7 +10,8 @@ import Button from '@material-ui/core/Button'
 import BasicMessage from './BasicMessage'
 import { _DisplayableMessage } from '../../../zbay/messages'
 
-const reqSvgs = require && require.context('../../ui/assets/backgrounds', true, /\.svg$/)
+const reqSvgs =
+  require && require.context('../../ui/assets/backgrounds', true, /\.svg$/)
 
 const styles = theme => ({
   root: {
@@ -112,7 +113,11 @@ export const ListingMessage = ({ message, classes, payload, buyActions }) => {
   const inputWidth = 50 + payload.tag.length * 15
   const { tag, description, background, title, priceUSD, priceZcash } = payload
   return (
-    <BasicMessage message={message} actionsOpen={actionsOpen} setActionsOpen={setActionsOpen}>
+    <BasicMessage
+      message={message}
+      actionsOpen={actionsOpen}
+      setActionsOpen={setActionsOpen}
+    >
       <Grid
         className={classes.root}
         justify={'flex-start'}
@@ -170,7 +175,13 @@ export const ListingMessage = ({ message, classes, payload, buyActions }) => {
           justify={'flex-start'}
         >
           <Grid item>
-            <Button onClick={() => buyActions('advertSendFounds', payload)} className={classes.button}>
+            <Button
+              onClick={e => {
+                e.stopPropagation()
+                buyActions('advertSendFounds', payload)
+              }}
+              className={classes.button}
+            >
               <span className={classes.buttonString}>Buy</span>
             </Button>
           </Grid>
@@ -205,7 +216,4 @@ ListingMessage.propTypes = {
   message: PropTypes.instanceOf(_DisplayableMessage).isRequired
 }
 
-export default R.compose(
-  React.memo,
-  withStyles(styles)
-)(ListingMessage)
+export default R.compose(React.memo, withStyles(styles))(ListingMessage)
