@@ -5,6 +5,7 @@ import classNames from 'classnames'
 import * as R from 'ramda'
 import Jdenticon from 'react-jdenticon'
 
+import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import ListItem from '@material-ui/core/ListItem'
@@ -18,7 +19,10 @@ import DoneAllIcon from '@material-ui/icons/DoneAll'
 import ErrorIcon from '@material-ui/icons/ErrorOutline'
 import BlockIcon from '@material-ui/icons/Block'
 
+import Icon from '../../ui/Icon'
+import dotsIcon from '../../../static/images/zcash/dots-icon.svg'
 import SendMessagePopover from '../../../containers/widgets/channels/SendMessagePopover'
+import ModeratorActionsPopper from '../../../containers/widgets/channels/ModeratorActionsPopper'
 import { _DisplayableMessage } from '../../../zbay/messages'
 import Elipsis from '../../ui/Elipsis'
 
@@ -70,8 +74,9 @@ const styles = theme => ({
   alignAvatar: {
     marginTop: 4
   },
-  pointer: {
-    cursor: 'pointer'
+  moderation: {
+    cursor: 'pointer',
+    marginRight: 10
   },
   time: {
     color: theme.palette.colors.lightGray,
@@ -110,7 +115,10 @@ const transformToLowercase = string => {
 }
 
 export const BasicMessage = ({ classes, message, children, actionsOpen, setActionsOpen }) => {
+  const [open, setOpen] = React.useState(false)
   const [anchorEl, setAnchorEl] = React.useState(null)
+  const [hovered, setHovered] = React.useState(false)
+  const [anchorModeration, setAnchorModeration] = React.useState(null)
   const handleClick = event => setAnchorEl(event.currentTarget)
   const handleClose = () => setAnchorEl(null)
   const sender = message.sender
@@ -131,6 +139,12 @@ export const BasicMessage = ({ classes, message, children, actionsOpen, setActio
         [classes.wrapperPending]: status !== 'broadcasted'
       })}
       onClick={() => setActionsOpen(!actionsOpen)}
+      onMouseOver={() => {
+        setHovered(true)
+      }}
+      onMouseLeave={() => {
+        setHovered(false)
+      }}
     >
       <ListItemText
         disableTypography
@@ -157,43 +171,72 @@ export const BasicMessage = ({ classes, message, children, actionsOpen, setActio
                 <Jdenticon size='55' value={username} />
               </span>
             </Grid>
-            <Grid
-              container
-              item
-              xs='auto'
-              className={classes.pointer}
-              alignItems='flex-start'
-              wrap='nowrap'
-              onClick={handleClick}
-            >
-              <Grid item>
-                <Typography color='textPrimary' className={classes.username}>
-                  {username}
-                </Typography>
+            <Grid container item direction='row' justify='space-between'>
+              <Grid
+                container
+                item
+                xs
+                className={classes.pointer}
+                alignItems='flex-start'
+                wrap='nowrap'
+                onClick={handleClick}
+              >
+                <Grid item>
+                  <Typography color='textPrimary' className={classes.username}>
+                    {username}
+                  </Typography>
+                </Grid>
+                <Grid item>
+                  <Typography className={classes.time}>{timeString}</Typography>
+                </Grid>
+                <Grid className={classes.iconBox} item>
+                  {fromYou && (
+                    <StatusIcon
+                      className={classNames({
+                        [classes.statusIcon]: true,
+                        [classes.failed]: status === 'failed',
+                        [classes.broadcasted]: status === 'broadcasted'
+                      })}
+                    />
+                  )}
+                  {status === 'failed' ? (
+                    <Elipsis
+                      interactive
+                      content={`Error ${error.code}: ${error.message}`}
+                      tooltipPlacement='top'
+                      length={60}
+                      classes={{ content: classes.failed }}
+                    />
+                  ) : null}
+                </Grid>
               </Grid>
-              <Grid item>
-                <Typography className={classes.time}>{timeString}</Typography>
-              </Grid>
-              <Grid className={classes.iconBox} item>
-                {fromYou && (
-                  <StatusIcon
-                    className={classNames({
-                      [classes.statusIcon]: true,
-                      [classes.failed]: status === 'failed',
-                      [classes.broadcasted]: status === 'broadcasted'
-                    })}
-                  />
-                )}
-                {status === 'failed' ? (
-                  <Elipsis
-                    interactive
-                    content={`Error ${error.code}: ${error.message}`}
-                    tooltipPlacement='top'
-                    length={60}
-                    classes={{ content: classes.failed }}
-                  />
-                ) : null}
-              </Grid>
+              {hovered && (
+                <ClickAwayListener
+                  onClickAway={() => {
+                    setOpen(false)
+                  }}
+                >
+                  <Grid
+                    item
+                    className={classes.moderation}
+                    onClick={e => {
+                      setOpen(!open)
+                      setAnchorModeration(e.currentTarget)
+                    }}
+                  >
+                    <Icon className={classes.user} src={dotsIcon} />
+
+                    <ModeratorActionsPopper
+                      address={message.sender.replyTo}
+                      name={username}
+                      open={open}
+                      anchorEl={anchorModeration}
+                      publicKey={message.publicKey}
+                      txid={message.id}
+                    />
+                  </Grid>
+                </ClickAwayListener>
+              )}
             </Grid>
           </Grid>
         }

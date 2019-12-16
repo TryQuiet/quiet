@@ -1,0 +1,136 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ModeratorActionsPopper renders 1`] = `
+<ForwardRef(Popper)
+  anchorEl={
+    Object {
+      "current": null,
+    }
+  }
+  anchorOrigin={
+    Object {
+      "horizontal": "center",
+      "vertical": "bottom",
+    }
+  }
+  open={true}
+  transformOrigin={
+    Object {
+      "horizontal": "center",
+      "vertical": "top",
+    }
+  }
+  transition={true}
+>
+  <Component />
+  <WithStyles(ForwardRef(Grid))
+    className="root-mock"
+    container={true}
+    direction="column"
+  >
+    <WithStyles(ForwardRef(Grid))
+      className="info-mock"
+      container={true}
+      direction="row"
+      item={true}
+      spacing={0}
+    >
+      <WithStyles(ForwardRef(Grid))
+        item={true}
+      >
+        <Memo(Icon)
+          className="user-mock"
+          src="test-file-stub"
+        />
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
+        item={true}
+      >
+        <WithStyles(ForwardRef(Grid))
+          item={true}
+          xs={12}
+        >
+          <WithStyles(ForwardRef(Typography))
+            className="username-mock"
+            variant="h5"
+          >
+            123
+          </WithStyles(ForwardRef(Typography))>
+        </WithStyles(ForwardRef(Grid))>
+        <WithStyles(ForwardRef(Grid))
+          item={true}
+          xs={12}
+        >
+          <WithStyles(ForwardRef(Typography))
+            className="address-mock"
+            variant="caption"
+          >
+            123
+          </WithStyles(ForwardRef(Typography))>
+        </WithStyles(ForwardRef(Grid))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      alignItems="center"
+      className="actions-mock"
+      container={true}
+      direction="column"
+      item={true}
+      justify="space-between"
+    >
+      <WithStyles(ForwardRef(Grid))
+        className="pointer-mock"
+        container={true}
+        item={true}
+        onClick={[Function]}
+      >
+        <WithStyles(ForwardRef(Grid))
+          item={true}
+        >
+          <Memo(Icon)
+            className="removeIcon-mock"
+            src="test-file-stub"
+          />
+        </WithStyles(ForwardRef(Grid))>
+        <WithStyles(ForwardRef(Grid))
+          item={true}
+          xs={true}
+        >
+          <WithStyles(ForwardRef(Typography))
+            className="action-mock"
+            variant="body1"
+          >
+            Hide message
+          </WithStyles(ForwardRef(Typography))>
+        </WithStyles(ForwardRef(Grid))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
+        className="banDiv-mock"
+        container={true}
+        item={true}
+        onClick={[Function]}
+      >
+        <WithStyles(ForwardRef(Grid))
+          item={true}
+        >
+          <Memo(Icon)
+            className="banIcon-mock"
+            src="test-file-stub"
+          />
+        </WithStyles(ForwardRef(Grid))>
+        <WithStyles(ForwardRef(Grid))
+          item={true}
+          xs={true}
+        >
+          <WithStyles(ForwardRef(Typography))
+            className="action-mock"
+            variant="body1"
+          >
+            Ban user
+          </WithStyles(ForwardRef(Typography))>
+        </WithStyles(ForwardRef(Grid))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+</ForwardRef(Popper)>
+`;

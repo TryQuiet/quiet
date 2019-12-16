@@ -4,7 +4,6 @@ import notificationsHandlers from './notifications'
 import { getClient } from '../../zcash'
 import identitySelectors from '../selectors/identity'
 import { messages as zbayMessages } from '../../zbay'
-// import operationsHandlers, { operationTypes } from './operations'
 import channelSelectors from '../selectors/channel'
 import { errorNotification, successNotification } from './utils'
 
