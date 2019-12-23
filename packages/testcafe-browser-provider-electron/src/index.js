@@ -3,6 +3,8 @@ import { statSync } from 'fs';
 import { spawn } from 'child_process';
 import Promise from 'pinkie';
 import OS from 'os-family';
+import debug from 'debug';
+import lodash from 'lodash';
 import { getFreePorts } from 'endpoint-utils';
 import NodeDebug from './node-debug';
 import NodeInspect from './node-inspect';
@@ -15,6 +17,9 @@ import ERRORS from './errors';
 
 import testRunTracker from 'testcafe/lib/api/test-run-tracker';
 
+const DEBUG_LOGGER = debug('testcafe:browser-provider-electron');
+const STDOUT_LOGGER = DEBUG_LOGGER.extend('spawn:stdout');
+const STDERR_LOGGER = DEBUG_LOGGER.extend('spawn:stderr');
 
 function startElectron (config, ports) {
     var cmd            = '';
@@ -31,7 +36,10 @@ function startElectron (config, ports) {
         args = debugPortsArgs.concat(extraArgs);
     }
 
-    spawn(cmd, args, { stdio: 'ignore' });
+    var proc = spawn(cmd, args, { stdio: ['ignore', 'pipe', 'pipe'] });
+
+    proc.stdout.on('data', buf => STDOUT_LOGGER(lodash.trimEnd(String(buf), '\n')));
+    proc.stderr.on('data', buf => STDERR_LOGGER(lodash.trimEnd(String(buf), '\n')));
 }
 
 async function injectHookCode (client, code) {
