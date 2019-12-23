@@ -99,7 +99,7 @@ export const ChannelHeader = ({
         </Typography>
         {!R.isNil(members) ? (
           <Typography variant='caption' className={classes.subtitle}>
-            {members.size} Members
+            {members.size} Participants
           </Typography>
         ) : null}
       </Grid>

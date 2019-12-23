@@ -95,7 +95,7 @@ exports[`ChannelHeader renders members when 0 1`] = `
       variant="caption"
     >
       0
-       Members
+       Participants
     </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
@@ -175,7 +175,7 @@ exports[`ChannelHeader renders without members count 1`] = `
       variant="caption"
     >
       4
-       Members
+       Participants
     </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
