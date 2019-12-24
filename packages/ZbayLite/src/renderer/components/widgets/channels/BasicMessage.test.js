@@ -23,6 +23,7 @@ describe('BasicMessage', () => {
         message={DisplayableMessage(message)}
         actionsOpen={false}
         setActionsOpen={jest.fn()}
+        allowModeration
       />
     )
     expect(result).toMatchSnapshot()
@@ -37,6 +38,7 @@ describe('BasicMessage', () => {
         message={DisplayableMessage(message)}
         actionsOpen={false}
         setActionsOpen={jest.fn()}
+        allowModeration
       />
     )
     expect(result).toMatchSnapshot()
@@ -50,6 +52,7 @@ describe('BasicMessage', () => {
         message={DisplayableMessage(message)}
         actionsOpen={false}
         setActionsOpen={jest.fn()}
+        allowModeration
       />
     )
     expect(result).toMatchSnapshot()
@@ -63,6 +66,7 @@ describe('BasicMessage', () => {
         message={DisplayableMessage(message)}
         actionsOpen={false}
         setActionsOpen={jest.fn()}
+        allowModeration
       />
     )
     expect(result).toMatchSnapshot()
@@ -76,6 +80,7 @@ describe('BasicMessage', () => {
         message={DisplayableMessage(message)}
         actionsOpen={false}
         setActionsOpen={jest.fn()}
+        allowModeration
       />
     )
     expect(result).toMatchSnapshot()
@@ -91,6 +96,7 @@ describe('BasicMessage', () => {
         message={DisplayableMessage(message)}
         actionsOpen={false}
         setActionsOpen={jest.fn()}
+        allowModeration
       />
     )
     expect(result).toMatchSnapshot()
@@ -106,6 +112,7 @@ describe('BasicMessage', () => {
         setActionsOpen={jest.fn()}
         onResend={jest.fn()}
         onReply={jest.fn()}
+        allowModeration
       />
     )
     expect(result).toMatchSnapshot()
@@ -127,6 +134,7 @@ describe('BasicMessage', () => {
         message={DisplayableMessage(message)}
         actionsOpen={false}
         setActionsOpen={jest.fn()}
+        allowModeration
       />
     )
     expect(result).toMatchSnapshot()

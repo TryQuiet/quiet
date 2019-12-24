@@ -114,7 +114,14 @@ const transformToLowercase = string => {
   return hasPM !== -1 ? string.replace('PM', 'pm') : string.replace('AM', 'am')
 }
 
-export const BasicMessage = ({ classes, message, children, actionsOpen, setActionsOpen }) => {
+export const BasicMessage = ({
+  classes,
+  message,
+  children,
+  actionsOpen,
+  setActionsOpen,
+  allowModeration
+}) => {
   const [open, setOpen] = React.useState(false)
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [hovered, setHovered] = React.useState(false)
@@ -210,7 +217,7 @@ export const BasicMessage = ({ classes, message, children, actionsOpen, setActio
                   ) : null}
                 </Grid>
               </Grid>
-              {hovered && (
+              {hovered && allowModeration && (
                 <ClickAwayListener
                   onClickAway={() => {
                     setOpen(false)
@@ -251,7 +258,8 @@ BasicMessage.propTypes = {
   message: PropTypes.instanceOf(_DisplayableMessage).isRequired,
   children: PropTypes.node,
   setActionsOpen: PropTypes.func.isRequired,
-  actionsOpen: PropTypes.bool.isRequired
+  actionsOpen: PropTypes.bool.isRequired,
+  allowModeration: PropTypes.bool.isRequired
 }
 
 export default R.compose(

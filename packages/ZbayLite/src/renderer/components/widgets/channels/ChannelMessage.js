@@ -9,7 +9,7 @@ import { withStyles } from '@material-ui/core/styles'
 
 import { _DisplayableMessage } from '../../../zbay/messages'
 import ChannelMessageActions from './ChannelMessageActions'
-import BasicMessage from './BasicMessage'
+import BasicMessage from '../../../containers/widgets/channels/BasicMessage'
 
 const styles = theme => ({
   message: {

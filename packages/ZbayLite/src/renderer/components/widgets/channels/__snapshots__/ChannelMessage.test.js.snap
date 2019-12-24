@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ChannelMessage renders component 1`] = `
-<Memo(WithStyles(BasicMessage))
+<Connect(Component)
   actionsOpen={false}
   message={
     Immutable.DisplayableMessage {
@@ -52,11 +52,11 @@ exports[`ChannelMessage renders component 1`] = `
       />
     </WithStyles(ForwardRef(Collapse))>
   </WithStyles(ForwardRef(Grid))>
-</Memo(WithStyles(BasicMessage))>
+</Connect(Component)>
 `;
 
 exports[`ChannelMessage renders component when message is sent by owner 1`] = `
-<Memo(WithStyles(BasicMessage))
+<Connect(Component)
   actionsOpen={false}
   message={
     Immutable.DisplayableMessage {
@@ -107,5 +107,5 @@ exports[`ChannelMessage renders component when message is sent by owner 1`] = `
       />
     </WithStyles(ForwardRef(Collapse))>
   </WithStyles(ForwardRef(Grid))>
-</Memo(WithStyles(BasicMessage))>
+</Connect(Component)>
 `;

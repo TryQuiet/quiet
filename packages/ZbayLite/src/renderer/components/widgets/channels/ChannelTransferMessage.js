@@ -18,7 +18,7 @@ import ChannelMessageActions from './ChannelMessageActions'
 import ZecBalance from '../walletPanel/ZecBalance'
 import SpinnerLoaderComponent from '../../ui/SpinnerLoader'
 import Elipsis from '../../ui/Elipsis'
-import BasicMessage from './BasicMessage'
+import BasicMessage from '../../../containers/widgets/channels/BasicMessage'
 
 const styles = theme => ({
   transactionCard: {

@@ -5,7 +5,7 @@ import BigNumber from 'bignumber.js'
 
 import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
-import BasicMessage from './BasicMessage'
+import BasicMessage from '../../../containers/widgets/channels/BasicMessage'
 import { _DisplayableMessage } from '../../../zbay/messages'
 import { Typography } from '@material-ui/core'
 

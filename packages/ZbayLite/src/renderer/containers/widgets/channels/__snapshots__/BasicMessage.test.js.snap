@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChannelContent will receive right props 1`] = `
+Object {
+  "inputState": 0,
+  "signerPubKey": 123,
+}
+`;
