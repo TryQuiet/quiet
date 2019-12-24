@@ -20,7 +20,10 @@ import messagesHandlers from './messages'
 import publicChannelsHandlers from './publicChannels'
 import offersHandlers from './offers'
 import txnTimestampsHandlers from './txnTimestamps'
-import operationHandlers, { operationTypes, ShieldBalanceOp } from './operations'
+import operationHandlers, {
+  operationTypes,
+  ShieldBalanceOp
+} from './operations'
 import vaultHandlers from './vault'
 import ratesHandlers from './rates'
 import nodeHandlers from './node'
@@ -156,7 +159,9 @@ export const fetchAffiliateMoney = () => async (dispatch, getState) => {
     const identityAddress = identitySelectors.address(getState())
     const transfers = await getClient().payment.received(identityAddress)
     const identityId = identitySelectors.id(getState())
-    const affiliatesTransfers = transfers.filter(msg => msg.memo.startsWith('aa'))
+    const affiliatesTransfers = transfers.filter(msg =>
+      msg.memo.startsWith('aa')
+    )
     let amount = 0
     let txnTimestamps = txnTimestampsSelector.tnxTimestamps(getState())
     for (const key in affiliatesTransfers) {
@@ -164,7 +169,10 @@ export const fetchAffiliateMoney = () => async (dispatch, getState) => {
       if (!txnTimestamps.get(transfer.txid)) {
         amount += transfer.amount
         const result = await getClient().confirmations.getResult(transfer.txid)
-        await getVault().transactionsTimestamps.addTransaction(transfer.txid, result.timereceived)
+        await getVault().transactionsTimestamps.addTransaction(
+          transfer.txid,
+          result.timereceived
+        )
         await dispatch(
           txnTimestampsHandlers.actions.addTxnTimestamp({
             tnxs: { [transfer.txid]: result.timereceived.toString() }
@@ -175,7 +183,9 @@ export const fetchAffiliateMoney = () => async (dispatch, getState) => {
     if (amount) {
       dispatch(
         notificationsHandlers.actions.enqueueSnackbar(
-          successNotification({ message: `You recived ${amount} ZEC from your affiliates` })
+          successNotification({
+            message: `You recived ${amount} ZEC from your affiliates`
+          })
         )
       )
     }
@@ -282,7 +292,7 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
     // Make sure identity is handled by the node
     await dispatch(setLoadingMessage('Ensuring node contains identity keys'))
 
-    await getClient().keys.importSK({ sk: identity.keys.sk })
+    await getClient().keys.importSK({ sk: identity.keys.sk, rescan: 'no' })
     await getClient().keys.importTPK(identity.keys.tpk)
 
     dispatch(setLoadingMessage('Setting identity'))
@@ -328,12 +338,18 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
   const lockedBalance = identitySelectors.lockedBalance('zec')(getState())
   const newUser = appSelectors.newUser(getState())
   if (lockedBalance.plus(balance).lt(0.0002) && newUser === false) {
-    setTimeout(() => dispatch(modalsHandlers.actionCreators.openModal('depositMoney')()), 500)
+    setTimeout(
+      () => dispatch(modalsHandlers.actionCreators.openModal('depositMoney')()),
+      500
+    )
   }
   dispatch(fetchAffiliateMoney())
 }
 
-export const updateShippingData = (values, formActions) => async (dispatch, getState) => {
+export const updateShippingData = (values, formActions) => async (
+  dispatch,
+  getState
+) => {
   const id = identitySelectors.id(getState())
   const identity = await vault.identity.updateShippingData(id, values)
   await dispatch(setShippingData(identity.shippingData))
@@ -384,7 +400,8 @@ const exportFunctions = {
 
 export const reducer = handleActions(
   {
-    [setLoading]: (state, { payload: loading }) => state.setIn(['loader', 'loading'], loading),
+    [setLoading]: (state, { payload: loading }) =>
+      state.setIn(['loader', 'loading'], loading),
     [setLoadingMessage]: (state, { payload: message }) =>
       state.setIn(['loader', 'message'], message),
     [setIdentity]: (state, { payload: identity }) =>
@@ -393,7 +410,8 @@ export const reducer = handleActions(
       state.update('data', data => data.set('balance', balance)),
     [setLockedBalance]: (state, { payload: balance }) =>
       state.update('data', data => data.set('lockedBalance', balance)),
-    [setFetchingBalance]: (state, { payload: fetching }) => state.set('fetchingBalance', fetching),
+    [setFetchingBalance]: (state, { payload: fetching }) =>
+      state.set('fetchingBalance', fetching),
     [setErrors]: (state, { payload: errors }) => state.set('errors', errors),
     [setShippingData]: (state, { payload: shippingData }) =>
       state.setIn(['data', 'shippingData'], ShippingData(shippingData)),

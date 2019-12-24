@@ -67,7 +67,10 @@ export const spawnZcashNode = (platform, isTestnet, torUrl = false) => {
     options = [
       `-conf=${getResourcesPath(ZCASH_RESOURCES, configName)}`,
       '-debug=1',
-      '-txexpirydelta=18000'
+      '-txexpirydelta=18000',
+      '-checklevel=0',
+      '-checkblocks=10',
+      '-dbcache=500'
     ]
   }
 
@@ -76,7 +79,6 @@ export const spawnZcashNode = (platform, isTestnet, torUrl = false) => {
   }
   return spawn(zcashdPath, options)
 }
-
 export default {
   spawnZcashNode,
   ensureZcashParams

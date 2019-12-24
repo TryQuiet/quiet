@@ -234,7 +234,7 @@ describe('Identity reducer handles', () => {
 
         expect(zcashMock.requestManager.z_importkey).toHaveBeenCalledWith(
           identity.keys.sk,
-          'whenkeyisnew',
+          'no',
           0
         )
         expect(zcashMock.requestManager.importprivkey).toHaveBeenCalledWith(identity.keys.tpk)
