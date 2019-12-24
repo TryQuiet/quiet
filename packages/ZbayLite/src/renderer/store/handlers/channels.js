@@ -12,6 +12,7 @@ import {
   LoaderState
 } from './utils'
 import notificationsHandlers from './notifications'
+import channelHandlers from './channel'
 import identitySelectors from '../selectors/identity'
 import channelsSelectors from '../selectors/channels'
 import modalsHandlers from './modals'
@@ -78,14 +79,26 @@ const _createChannel = async (identityId, { name, description }) => {
       sk
     }
   }
-  return getVault().channels.importChannel(identityId, channel)
+  await getVault().channels.importChannel(identityId, channel)
+  return address
 }
 
 const createChannel = (values, formActions) => async (dispatch, getState) => {
   const closeModal = modalsHandlers.actionCreators.closeModal('createChannel')
+  const balance = identitySelectors.balance('zec')(getState())
   try {
+    if (balance.lt(0.0002)) {
+      dispatch(
+        notificationsHandlers.actions.enqueueSnackbar(
+          errorNotification({ message: `You need minimum 0.0002 ZEC to create a channel. ` })
+        )
+      )
+      formActions.setSubmitting(false)
+      return
+    }
     const identityId = identitySelectors.id(getState())
-    await _createChannel(identityId, values)
+    const address = await _createChannel(identityId, values)
+    await dispatch(channelHandlers.epics.sendChannelSettingsMessage({ address: address }))
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar(
         successNotification({ message: `Successfully created ${values.name} channel.` })

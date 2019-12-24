@@ -146,11 +146,12 @@ const sendOnEnter = event => async (dispatch, getState) => {
     dispatch(setMessage(''))
   }
 }
-const sendChannelSettingsMessage = ({ address, owner, minFee, onlyRegistered }) => async (
+const sendChannelSettingsMessage = ({ address, minFee = 0, onlyRegistered = 0 }) => async (
   dispatch,
   getState
 ) => {
   const identityAddress = identitySelectors.address(getState())
+  const owner = identitySelectors.signerPubKey(getState())
   const privKey = identitySelectors.signerPrivKey(getState())
   const message = messages.createMessage({
     messageData: {
