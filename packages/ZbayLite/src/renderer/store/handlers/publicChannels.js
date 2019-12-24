@@ -2,9 +2,21 @@ import Immutable from 'immutable'
 import { createAction, handleActions } from 'redux-actions'
 import appSelectors from '../selectors/app'
 import appHandlers from './app'
-// import txnTimestampsSelector from '../selectors/txnTimestamps'
 import channelsSelectors from '../selectors/channels'
+import feesSelectors from '../selectors/fees'
+import nodeSelectors from '../selectors/node'
 import { getClient } from '../../zcash'
+import { errorNotification, successNotification } from './utils'
+import identitySelectors from '../selectors/identity'
+import notificationsHandlers from './notifications'
+import { messages } from '../../zbay'
+import { ADDRESS_TYPE } from '../../zbay/transit'
+import txnTimestampsHandlers from '../handlers/txnTimestamps'
+import txnTimestampsSelector from '../selectors/txnTimestamps'
+import { getVault } from '../../vault'
+import { messageType } from '../../zbay/messages'
+import feesHandlers from '../handlers/fees'
+import staticChannels from '../../zcash/channels'
 
 export const _PublicChannelData = Immutable.Record(
   {
@@ -18,35 +30,7 @@ export const _PublicChannelData = Immutable.Record(
   },
   'PublicChannelData'
 )
-// const testPublicChannelData = {
-//   address: '1234',
-//   minFee: '1',
-//   name: '121',
-//   description: 'sadadsdsadsa',
-//   onlyForRegistered: 'saddsa',
-//   owner: 'dsaasdasddsa'
-// }
-export const initialState = Immutable.Map({
-  // General: _PublicChannelData({
-  //   address:
-  //     'ztestsapling1dfjv308amnk40s89trkvz646ne69553us0g858mmpgsw540efgftn4tf25gts2cttg3jgk9y8lx',
-  //   minFee: '0',
-  //   name: 'General',
-  //   description: 'This is a general channel available to all users of Zbay by default.',
-  //   onlyForRegistered: '0',
-  //   owner: '0208be86d3cac41fdb539b0b761bedccedaa300d5a09fd3ca34b6acad1ba856bcb'
-  // }),
-  // Test: _PublicChannelData({
-  //   address:
-  //     'ztestsapling1x7wn5g6y3c9fjnv0k78ks7dfprpuk0uvqmjxye0pwnwf73yh50krkgyempp09fjdlzaxuz90wxx',
-  //   minFee: '0',
-  //   name: 'Test',
-  //   description: '22222',
-  //   onlyForRegistered: '0',
-  //   owner: '0208be86d3cac41fdb539b0b761bedccedaa300d5a09fd3ca34b6acad1ba856bcb',
-  //   keys: { ivk: 'zivktestsapling15seuz0zraqvkhrc9elhm4k4xvnsgmyy4tkfka8lm5j62z4hejgzq3n3xxw' }
-  // })
-})
+export const initialState = Immutable.Map({})
 
 export const setPublicChannels = createAction('SET_PUBLIC_CHANNELS')
 
@@ -56,12 +40,13 @@ export const actions = {
 export const fetchPublicChannels = () => async (dispatch, getState) => {
   try {
     const publicChannels = channelsSelectors.publicChannels(getState())
-    const transfers = await getClient().payment.received(publicChannels.get('address'))
-    // let txnTimestamps = txnTimestampsSelector.tnxTimestamps(getState())
-    // const testChannel = _PublicChannelData(testPublicChannelData)
-    // await dispatch(setPublicChannels({ publicChannels: { [i]: testChannel } }))
+    let txnTimestamps = txnTimestampsSelector.tnxTimestamps(getState())
+    const transfers = await getClient().payment.received(
+      publicChannels.get('address')
+    )
     if (
-      transfers.length === appSelectors.transfers(getState()).get(publicChannels.get('address'))
+      transfers.length ===
+      appSelectors.transfers(getState()).get(publicChannels.get('address'))
     ) {
       return
     } else {
@@ -72,18 +57,132 @@ export const fetchPublicChannels = () => async (dispatch, getState) => {
         })
       )
     }
+    for (const key in transfers) {
+      const transfer = transfers[key]
+      if (!txnTimestamps.get(transfer.txid)) {
+        const result = await getClient().confirmations.getResult(transfer.txid)
+        await getVault().transactionsTimestamps.addTransaction(
+          transfer.txid,
+          result.timereceived
+        )
+        await dispatch(
+          txnTimestampsHandlers.actions.addTxnTimestamp({
+            tnxs: { [transfer.txid]: result.timereceived.toString() }
+          })
+        )
+      }
+    }
+    txnTimestamps = txnTimestampsSelector.tnxTimestamps(getState())
+    const sortedTransfers = transfers.sort(
+      (a, b) => txnTimestamps.get(a.txid) - txnTimestamps.get(b.txid)
+    )
+    const registrationMessages = await Promise.all(
+      sortedTransfers.map(transfer => {
+        const message = messages.transferToMessage(transfer)
+        return message
+      })
+    )
+    const sortedMessages = registrationMessages
+      .filter(msg => msg !== null)
+      .sort((a, b) => txnTimestamps.get(a.id) - txnTimestamps.get(b.id))
+    let minfee = 0
+    let publicChannelsMap = Immutable.Map({})
+    const network = nodeSelectors.network(getState())
+    for (const msg of sortedMessages) {
+      if (
+        msg.type === messageType.CHANNEL_SETTINGS &&
+        staticChannels.zbay[network].publicKey === msg.publicKey
+      ) {
+        minfee = parseFloat(msg.message.minFee)
+      }
+      if (!msg.spent.gte(minfee) || msg.type !== messageType.PUBLISH_CHANNEL) {
+        continue
+      }
+      const channel = _PublicChannelData({
+        address: msg.message.channelAddress,
+        minFee: msg.message.channelMinFee,
+        name: msg.message.channelName,
+        description: msg.message.channelDescription,
+        onlyForRegistered: msg.message.channelonlyRegistered,
+        owner: msg.message.channelOwner,
+        keys: { sk: msg.message.channelIvk }
+      })
+      if (channel !== null && !publicChannelsMap.get(channel.name)) {
+        publicChannelsMap = publicChannelsMap.merge({ [channel.name]: channel })
+      }
+    }
+    await dispatch(feesHandlers.actions.setPublicChannelFee(minfee))
+    await dispatch(setPublicChannels(publicChannelsMap))
   } catch (err) {
     console.warn(err)
   }
 }
-
+export const publishChannel = ({
+  channelAddress,
+  channelMinFee = '0',
+  channelonlyRegistered = '0',
+  channelName,
+  channelDescription,
+  channelIvk
+}) => async (dispatch, getState) => {
+  const identityAddress = identitySelectors.address(getState())
+  const signerPubKey = identitySelectors.signerPubKey(getState())
+  const privKey = identitySelectors.signerPrivKey(getState())
+  const network = nodeSelectors.network(getState())
+  const publicChannel = channelsSelectors.publicChannels(getState())
+  const fee = feesSelectors.publicChannelfee(getState())
+  const message = messages.createMessage({
+    messageData: {
+      type: messages.messageType.PUBLISH_CHANNEL,
+      data: {
+        channelName,
+        channelOwner: signerPubKey,
+        channelMinFee,
+        channelonlyRegistered,
+        channelAddress,
+        channelIvk,
+        channelDescription,
+        networkType:
+          network === 'testnet'
+            ? ADDRESS_TYPE.SHIELDED_TESTNET
+            : ADDRESS_TYPE.SHIELDED_MAINNET
+      }
+    },
+    privKey: privKey
+  })
+  const transfer = await messages.messageToTransfer({
+    message,
+    address: publicChannel.get('address'),
+    identityAddress,
+    amount: fee
+  })
+  try {
+    await getClient().payment.send(transfer)
+    notificationsHandlers.actions.enqueueSnackbar(
+      dispatch(
+        successNotification({
+          message: 'Your channel has been published.'
+        })
+      )
+    )
+  } catch (err) {
+    notificationsHandlers.actions.enqueueSnackbar(
+      dispatch(
+        errorNotification({
+          message: "Couldn't create channel, please check node connection."
+        })
+      )
+    )
+  }
+}
 export const epics = {
-  fetchPublicChannels
+  fetchPublicChannels,
+  publishChannel
 }
 
 export const reducer = handleActions(
   {
-    [setPublicChannels]: (state, { payload: { publicChannels } }) => {
+    [setPublicChannels]: (state, { payload: publicChannels }) => {
       return state.merge(publicChannels)
     }
   },

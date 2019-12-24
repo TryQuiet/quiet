@@ -2,15 +2,17 @@
 
 exports[`Operations reducer handles  actions - setPublicChannels 1`] = `
 Immutable.Map {
-  "testaddress1": Immutable.PublicChannelData {
-    "address": "1234",
-    "minFee": "1",
-    "name": "121",
-    "description": "sadadsdsadsa",
-    "onlyForRegistered": "saddsa",
-    "owner": "dsaasdasddsa",
-    "keys": Object {
-      "ivk": "zivks14fgrxnk2f6qhtndxtc23cwy74kuyptq78qen9jq2ts2hnz0e7vrqazzytr",
+  "publicChannels": Object {
+    "testaddress1": Immutable.PublicChannelData {
+      "address": "1234",
+      "minFee": "1",
+      "name": "121",
+      "description": "sadadsdsadsa",
+      "onlyForRegistered": "saddsa",
+      "owner": "dsaasdasddsa",
+      "keys": Object {
+        "ivk": "zivks14fgrxnk2f6qhtndxtc23cwy74kuyptq78qen9jq2ts2hnz0e7vrqazzytr",
+      },
     },
   },
 }
