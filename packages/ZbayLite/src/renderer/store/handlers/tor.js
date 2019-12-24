@@ -10,7 +10,6 @@ import electronStore from '../../../shared/electronStore'
 
 export const client = new net.Socket()
 export const defaultTorUrlProxy = 'localhost:9050'
-export const defaultTorUrlBrowser = 'localhost:9150'
 
 export const Tor = Immutable.Record(
   {
@@ -34,40 +33,33 @@ export const actions = {
   setError,
   setStatus
 }
-
-const checkDeafult = () => async (dispatch, getState) => {
-  const url = defaultTorUrlProxy.split(':')
-  const url2 = defaultTorUrlBrowser.split(':')
-  let checkedUrl
-  try {
-    checkedUrl = defaultTorUrlProxy
-    client.connect(
-      url[1],
-      url[0],
-      () => {
-        const msg = Buffer.from('050100', 'hex')
-        client.write(msg)
-      }
-    )
-  } catch (err) {
-    checkedUrl = defaultTorUrlBrowser
-    client.connect(
-      url2[1],
-      url2[0],
-      () => {
-        const msg = Buffer.from('050100', 'hex')
-        client.write(msg)
-      }
-    )
-  }
+let init = false
+const initEvents = () => async (dispatch, getState) => {
+  client.on('error', data => {
+    client.destroy()
+    dispatch(setStatus({ status: 'down' }))
+    dispatch(setError({ error: 'Can not establish a connection' }))
+  })
   client.on('data', data => {
-    client.destroy() // kill client after server's response
+    client.destroy()
     if (Buffer.from(data).toString('hex') === '0500') {
-      dispatch(setUrl({ url: checkedUrl }))
       dispatch(setStatus({ status: 'stable' }))
       dispatch(setError({ error: '' }))
-    } else {
     }
+  })
+}
+const checkDeafult = () => async (dispatch, getState) => {
+  if (init === false) {
+    init = true
+    await dispatch(initEvents())
+  }
+  const url = defaultTorUrlProxy.split(':')
+
+  let checkedUrl = defaultTorUrlProxy
+  dispatch(setUrl({ url: checkedUrl }))
+  client.connect(url[1], url[0], () => {
+    const msg = Buffer.from('050100', 'hex')
+    client.write(msg)
   })
 }
 
@@ -81,32 +73,10 @@ const checkTor = () => async (dispatch, getState) => {
       dispatch(setError({ error: 'Timeout error' }))
     }
   }, 5000)
-  try {
-    client.connect(
-      url[1],
-      url[0],
-      () => {
-        const msg = Buffer.from('050100', 'hex')
-        client.write(msg)
-      }
-    )
-  } catch (err) {
-    dispatch(setStatus({ status: 'down' }))
-    dispatch(setError({ error: err.message }))
-  }
-  client.on('error', () => {
-    dispatch(setStatus({ status: 'down' }))
-    dispatch(setError({ error: 'Can not establish a connection' }))
-  })
-  client.on('data', data => {
-    client.destroy() // kill client after server's response
-    if (Buffer.from(data).toString('hex') === '0500') {
-      dispatch(setStatus({ status: 'stable' }))
-      dispatch(setError({ error: '' }))
-    } else {
-      dispatch(setStatus({ status: 'down' }))
-      dispatch(setError({ error: 'Can not establish a connection' }))
-    }
+
+  client.connect(url[1], url[0], () => {
+    const msg = Buffer.from('050100', 'hex')
+    client.write(msg)
   })
 }
 export const createZcashNode = torUrl => async (dispatch, getState) => {
@@ -145,7 +115,8 @@ export const reducer = handleActions(
           .set('error', '')
       }
     },
-    [setUrl]: (state, { payload: { url } }) => state.set('url', url).set('status', 'down'),
+    [setUrl]: (state, { payload: { url } }) =>
+      state.set('url', url).set('status', 'down'),
     [setError]: (state, { payload: { error } }) => state.set('error', error),
     [setStatus]: (state, { payload: { status } }) => state.set('status', status)
   },
