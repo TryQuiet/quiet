@@ -83,7 +83,7 @@ const channelSettings = {
   createdAt: now.toSeconds(),
   message: {
     owner: '6b31f1a5c68902a767eb542fa17daeb338e32d12704ac124ce55994754a5001e',
-    minFee: '4294967295',
+    minFee: '42',
     onlyRegistered: '1'
   }
 }

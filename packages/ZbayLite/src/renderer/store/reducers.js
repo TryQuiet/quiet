@@ -25,6 +25,7 @@ import txnTimestampsHandlers from './handlers/txnTimestamps'
 import torHandlers from './handlers/tor'
 import removedChannelsHandlers from './handlers/removedChannels'
 import publicChannelsHandlers from './handlers/publicChannels'
+import feesHandlers from './handlers/fees'
 
 export default combineReducers({
   messages: messagesHandlers.reducer,
@@ -51,5 +52,6 @@ export default combineReducers({
   txnTimestamps: txnTimestampsHandlers.reducer,
   tor: torHandlers.reducer,
   removedChannels: removedChannelsHandlers.reducer,
-  publicChannels: publicChannelsHandlers.reducer
+  publicChannels: publicChannelsHandlers.reducer,
+  fees: feesHandlers.reducer
 })

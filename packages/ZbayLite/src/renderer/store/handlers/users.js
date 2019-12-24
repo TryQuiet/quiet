@@ -3,7 +3,10 @@ import { createAction, handleActions } from 'redux-actions'
 import * as R from 'ramda'
 
 import appSelectors from '../selectors/app'
+import feesSelector from '../selectors/fees'
+import nodeSelectors from '../selectors/node'
 import appHandlers from '../handlers/app'
+import feesHandlers from '../handlers/fees'
 import txnTimestampsHandlers from '../handlers/txnTimestamps'
 import txnTimestampsSelector from '../selectors/txnTimestamps'
 import { actionCreators } from './modals'
@@ -16,6 +19,7 @@ import { messageType, getPublicKeysFromSignature } from '../../zbay/messages'
 import { messages as zbayMessages } from '../../zbay'
 import { getClient } from '../../zcash'
 import { getVault } from '../../vault'
+import staticChannels from '../../zcash/channels'
 
 const _ReceivedUser = publicKey =>
   Immutable.Record(
@@ -57,7 +61,10 @@ export const ReceivedUser = values => {
       usersNicknames.set(`${values.message.nickname} #${i}`, publicKey0)
       return record0.set(
         publicKey0,
-        _UserData({ ...values.message, nickname: `${values.message.nickname} #${i}` })
+        _UserData({
+          ...values.message,
+          nickname: `${values.message.nickname} #${i}`
+        })
       )
     } else {
       usersNicknames.set(values.message.nickname, publicKey0)
@@ -80,6 +87,7 @@ export const createOrUpdateUser = payload => async (dispatch, getState) => {
   const { nickname, firstName = '', lastName = '' } = payload
   const address = identitySelector.address(getState())
   const privKey = identitySelector.signerPrivKey(getState())
+  const fee = feesSelector.userFee(getState())
   const messageData = {
     firstName,
     lastName,
@@ -97,7 +105,8 @@ export const createOrUpdateUser = payload => async (dispatch, getState) => {
   const transfer = await zbayMessages.messageToTransfer({
     message: registrationMessage,
     address: usersChannel.get('address'),
-    identityAddress: address
+    identityAddress: address,
+    amount: fee.toString()
   })
   dispatch(actionCreators.closeModal('accountSettingsModal')())
   try {
@@ -114,10 +123,15 @@ export const createOrUpdateUser = payload => async (dispatch, getState) => {
 export const fetchUsers = () => async (dispatch, getState) => {
   try {
     const usersChannel = channelsSelectors.usersChannel(getState())
-    const transfers = await getClient().payment.received(usersChannel.get('address'))
+    const transfers = await getClient().payment.received(
+      usersChannel.get('address')
+    )
     let txnTimestamps = txnTimestampsSelector.tnxTimestamps(getState())
 
-    if (transfers.length === appSelectors.transfers(getState()).get(usersChannel.get('address'))) {
+    if (
+      transfers.length ===
+      appSelectors.transfers(getState()).get(usersChannel.get('address'))
+    ) {
       return
     } else {
       dispatch(
@@ -131,7 +145,10 @@ export const fetchUsers = () => async (dispatch, getState) => {
       const transfer = transfers[key]
       if (!txnTimestamps.get(transfer.txid)) {
         const result = await getClient().confirmations.getResult(transfer.txid)
-        await getVault().transactionsTimestamps.addTransaction(transfer.txid, result.timereceived)
+        await getVault().transactionsTimestamps.addTransaction(
+          transfer.txid,
+          result.timereceived
+        )
         await dispatch(
           txnTimestampsHandlers.actions.addTxnTimestamp({
             tnxs: { [transfer.txid]: result.timereceived.toString() }
@@ -152,17 +169,26 @@ export const fetchUsers = () => async (dispatch, getState) => {
     const sortedMessages = registrationMessages
       .filter(msg => msg !== null)
       .sort((a, b) => txnTimestamps.get(a.id) - txnTimestamps.get(b.id))
-    const users = await sortedMessages.reduce(
-      async (acc = Promise.resolve(Immutable.Map({})), message) => {
-        const accumulator = await acc
-        const user = ReceivedUser(message, accumulator)
-        if (user === null) {
-          return Promise.resolve(accumulator)
-        }
-        return Promise.resolve(accumulator.merge(user))
-      },
-      Promise.resolve(Immutable.Map({}))
-    )
+
+    let minfee = 0
+    let users = Immutable.Map({})
+    const network = nodeSelectors.network(getState())
+    for (const msg of sortedMessages) {
+      if (
+        msg.type === messageType.CHANNEL_SETTINGS &&
+        staticChannels.zbay[network].publicKey === msg.publicKey
+      ) {
+        minfee = parseFloat(msg.message.minFee)
+      }
+      if (!msg.spent.gte(minfee) || msg.type !== messageType.USER) {
+        continue
+      }
+      const user = ReceivedUser(msg)
+      if (user !== null) {
+        users = users.merge(user)
+      }
+    }
+    await dispatch(feesHandlers.actions.setUserFee(minfee))
     await dispatch(setUsers({ users }))
   } catch (err) {
     console.warn(err)

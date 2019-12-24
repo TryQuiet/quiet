@@ -89,10 +89,14 @@ const styles = theme => ({
 })
 
 Yup.addMethod(Yup.mixed, 'validateMessage', function (checkNickname) {
-  return this.test('test', 'Sorry username already taken. please choose another', function (value) {
-    const isUsernameTaken = checkNickname(value)
-    return !isUsernameTaken
-  })
+  return this.test(
+    'test',
+    'Sorry username already taken. please choose another',
+    function (value) {
+      const isUsernameTaken = checkNickname(value)
+      return !isUsernameTaken
+    }
+  )
 })
 
 const getErrorsFromValidationError = validationError => {
@@ -136,7 +140,12 @@ const getValidationSchema = (values, checkNickname) => {
   })
 }
 
-const CustomInputComponent = ({ classes, field, form: { touched, errors, values }, ...props }) => {
+const CustomInputComponent = ({
+  classes,
+  field,
+  form: { touched, errors, values },
+  ...props
+}) => {
   const { value, ...rest } = field
   const updatedValue = sanitize(value)
   return (
@@ -171,7 +180,8 @@ export const CreateUsernameModal = ({
   handleClose,
   initialValues,
   checkNickname,
-  handleSubmit
+  handleSubmit,
+  enoughMoney
 }) => {
   const [formSent, setFormSent] = useState(false)
   return (
@@ -184,9 +194,10 @@ export const CreateUsernameModal = ({
             </Grid>
             <Grid className={classes.description} item>
               <Typography variant={'body2'}>
-                You need a username to send and receive direct messages. Your username will last
-                forever, so choose it well. To support future development, Zbay charges a small fee
-                of 0.025 ZEC, which is approximately $1 USD.
+                You need a username to send and receive direct messages. Your
+                username will last forever, so choose it well. To support future
+                development, Zbay charges a small fee of 0.025 ZEC, which is
+                approximately $1 USD.
               </Typography>
             </Grid>
             <Formik
@@ -194,7 +205,14 @@ export const CreateUsernameModal = ({
               initialValues={initialValues}
               validate={values => validate(values, checkNickname)}
             >
-              {({ values, isSubmitting, isValid, handleChange, validateForm, validateField }) => {
+              {({
+                values,
+                isSubmitting,
+                isValid,
+                handleChange,
+                validateForm,
+                validateField
+              }) => {
                 return (
                   <Form className={classes.fullWidth}>
                     <Grid container className={classes.container}>
@@ -202,12 +220,16 @@ export const CreateUsernameModal = ({
                         <Typography variant='caption' className={classes.label}>
                           Username
                         </Typography>
-                        <Field name='nickname' classes={classes} component={CustomInputComponent} />
+                        <Field
+                          name='nickname'
+                          classes={classes}
+                          component={CustomInputComponent}
+                        />
                       </Grid>
                       <Grid className={classes.info} item xs={12}>
                         <Typography variant='caption'>
-                          Your username cannot have any spaces or special characters, must be
-                          lowercase letters and numbers only
+                          Your username cannot have any spaces or special
+                          characters, must be lowercase letters and numbers only
                         </Typography>
                       </Grid>
                     </Grid>
@@ -223,9 +245,11 @@ export const CreateUsernameModal = ({
                           variant='contained'
                           size='small'
                           color='primary'
-                          onClick={() => submitForm(handleSubmit, values, setFormSent)}
+                          onClick={() =>
+                            submitForm(handleSubmit, values, setFormSent)
+                          }
                           fullWidth
-                          disabled={!isValid || isSubmitting}
+                          disabled={!isValid || isSubmitting || !enoughMoney}
                           className={classes.button}
                         >
                           Create username
@@ -238,7 +262,10 @@ export const CreateUsernameModal = ({
             </Formik>
           </React.Fragment>
         ) : (
-          <UsernameCreated handleClose={handleClose} setFormSent={setFormSent} />
+          <UsernameCreated
+            handleClose={handleClose}
+            setFormSent={setFormSent}
+          />
         )}
       </Grid>
     </Modal>
@@ -250,10 +277,8 @@ CreateUsernameModal.propTypes = {
   handleClose: PropTypes.func.isRequired,
   initialValues: PropTypes.object.isRequired,
   checkNickname: PropTypes.func.isRequired,
-  handleSubmit: PropTypes.func.isRequired
+  handleSubmit: PropTypes.func.isRequired,
+  enoughMoney: PropTypes.bool.isRequired
 }
 
-export default R.compose(
-  React.memo,
-  withStyles(styles)
-)(CreateUsernameModal)
+export default R.compose(React.memo, withStyles(styles))(CreateUsernameModal)
