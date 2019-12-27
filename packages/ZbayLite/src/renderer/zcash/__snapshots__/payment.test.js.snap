@@ -3,13 +3,13 @@
 exports[`payment receives lists received by address 1`] = `
 Array [
   Object {
-    "amount": "0.0001",
+    "amount": "0",
     "change": false,
     "memo": "",
     "txid": "test-1",
   },
   Object {
-    "amount": "0.0001",
+    "amount": "0",
     "change": false,
     "memo": "",
     "txid": "test-2",
@@ -36,7 +36,7 @@ Array [
       },
     ],
     1,
-    0.0001,
+    0.0000025,
   ],
   Array [
     "zs1zxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
@@ -53,7 +53,7 @@ Array [
       },
     ],
     1,
-    0.0001,
+    0.0000025,
   ],
 ]
 `;

@@ -19,6 +19,7 @@ import modalsHandlers from './modals'
 import { messages } from '../../zbay'
 import { getVault } from '../../vault'
 import { getClient } from '../../zcash'
+import { networkFee } from '../../../shared/static'
 
 const toBigNumber = x => new BigNumber(x)
 
@@ -144,11 +145,11 @@ const getMoneyFromChannel = address => async (dispatch, getState) => {
   if (amount.gt(0.0005)) {
     const transfer = messages.createEmptyTransfer({
       address: identityAddress,
-      amount: amount.minus(0.0001).toString(),
+      amount: amount.minus(networkFee).toString(),
       identityAddress: address
     })
     await getClient().payment.send(transfer)
-    return amount.minus(0.0001)
+    return amount.minus(networkFee)
   }
   return toBigNumber(0)
 }

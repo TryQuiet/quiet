@@ -5,7 +5,12 @@ import BigNumber from 'bignumber.js'
 
 import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
-import { Typography, TextField, FormControlLabel, Checkbox } from '@material-ui/core'
+import {
+  Typography,
+  TextField,
+  FormControlLabel,
+  Checkbox
+} from '@material-ui/core'
 import InputAdornment from '@material-ui/core/InputAdornment'
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank'
 import CheckBoxIcon from '@material-ui/icons/CheckBox'
@@ -13,7 +18,7 @@ import LoadingButton from '../LoadingButton'
 import InvitationModal from './InvitationModal'
 import exchange from '../../../static/images/zcash/exchange.svg'
 import Icon from '../Icon'
-
+import { networkFee } from '../../../../shared/static'
 const styles = theme => ({
   warrning: {
     marginTop: theme.spacing(1)
@@ -105,7 +110,7 @@ export const InvitationModalGenerate = ({
 }) => {
   const disable = balance
     .minus(amountZec || amount / zecRate)
-    .minus(0.0001)
+    .minus(networkFee)
     .lt(0)
   return (
     <InvitationModal
@@ -115,9 +120,10 @@ export const InvitationModalGenerate = ({
     >
       <Grid item className={classes.warrning}>
         <Typography variant='body2'>
-          This will generate a special invite link you can share with a friend. Once your friend
-          installs Zbay they can open it to reclaim funds. You can use it to reclaim the funds
-          yourself too - just dont't lose the link!
+          This will generate a special invite link you can share with a friend.
+          Once your friend installs Zbay they can open it to reclaim funds. You
+          can use it to reclaim the funds yourself too - just dont't lose the
+          link!
         </Typography>
       </Grid>
       <Grid item xs>
@@ -147,7 +153,13 @@ export const InvitationModalGenerate = ({
             }}
           />
         </Grid>
-        <Grid item container alignItems='center' justify='center' className={classes.exchangeDiv}>
+        <Grid
+          item
+          container
+          alignItems='center'
+          justify='center'
+          className={classes.exchangeDiv}
+        >
           <Icon src={exchange} />
         </Grid>
         <Grid xs item className={classes.moneyDiv}>
@@ -174,7 +186,7 @@ export const InvitationModalGenerate = ({
       {disable && (
         <Grid item xs className={classes.error}>
           <Typography variant='body2'>{`You can't send more than ${balance.minus(
-            0.0001
+            networkFee
           )}`}</Typography>
         </Grid>
       )}
@@ -195,8 +207,8 @@ export const InvitationModalGenerate = ({
           className={classes.checkboxDiv}
           label={
             <Typography variant='body2' className={classes.checkboxLabel}>
-              Include your affiliate code, so that you'll earn 1% of their purchases. (They can
-              disable this at any time.)
+              Include your affiliate code, so that you'll earn 1% of their
+              purchases. (They can disable this at any time.)
             </Typography>
           }
         />

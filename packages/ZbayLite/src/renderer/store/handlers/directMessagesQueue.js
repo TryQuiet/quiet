@@ -2,7 +2,6 @@ import Immutable from 'immutable'
 import * as R from 'ramda'
 import crypto from 'crypto'
 import { createAction, handleActions } from 'redux-actions'
-import BigNumber from 'bignumber.js'
 
 import selectors from '../selectors/directMessagesQueue'
 import operationsSelectors from '../selectors/operations'
@@ -171,7 +170,7 @@ const _sendPendingDirectMessages = async (dispatch, getState) => {
         const transfer = await messageToTransfer({
           message,
           address: recipientAddress,
-          amount: message.type === messageType.TRANSFER || messageType.ITEM_TRANSFER ? message.spent : new BigNumber('0.0001'),
+          amount: message.type === messageType.TRANSFER || messageType.ITEM_TRANSFER ? message.spent : '0',
           identityAddress,
           donation
         })

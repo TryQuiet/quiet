@@ -1,4 +1,3 @@
-import BigNumber from 'bignumber.js'
 
 import notificationsHandlers from './notifications'
 import { getClient } from '../../zcash'
@@ -29,8 +28,7 @@ const handleModerationAction = ({ moderationType, moderationTarget }) => async (
       data: {
         moderationType,
         moderationTarget
-      },
-      spent: new BigNumber('0.0001')
+      }
     },
     privKey
   })

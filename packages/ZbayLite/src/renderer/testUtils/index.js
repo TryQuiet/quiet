@@ -225,7 +225,7 @@ export const messages = {
   createSendableUserMessage
 }
 
-export const createTransfer = ({ txid, amount = '0.0001', memo = '', change = false }) => ({
+export const createTransfer = ({ txid, amount = '0', memo = '', change = false }) => ({
   txid,
   amount,
   memo,

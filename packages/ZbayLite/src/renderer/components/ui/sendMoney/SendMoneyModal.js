@@ -12,6 +12,7 @@ import SendMoneyTransactionDetails from './SendMoneyTransactionDetails'
 import SendMoneySending from './SendMoneySending'
 import { createTransfer } from '../../../zbay/messages'
 import { MESSAGE_SIZE } from '../../../zbay/transit'
+import { networkFee } from '../../../../shared/static'
 
 const styles = theme => ({})
 
@@ -68,7 +69,7 @@ export const SendMoneyModal = ({
   open,
   rateUsd,
   rateZec,
-  feeZec = 0.0001,
+  feeZec = networkFee,
   feeUsd = rateUsd.times(feeZec).toNumber(),
   userData,
   sendMessageHandler,

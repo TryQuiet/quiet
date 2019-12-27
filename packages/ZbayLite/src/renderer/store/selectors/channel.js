@@ -8,7 +8,7 @@ import messagesSelectors from './messages'
 import zbayMessages from '../../zbay/messages'
 import { operationTypes } from '../handlers/operations'
 import Immutable from 'immutable'
-
+import { networkFee } from '../../../shared/static'
 const store = s => s
 
 export const channel = createSelector(store, state => state.get('channel'))
@@ -169,10 +169,10 @@ export const inputLocked = createSelector(
   identitySelectors.balance('zec'),
   identitySelectors.lockedBalance('zec'),
   (available, locked) => {
-    if (available.gt(0.0002)) {
+    if (available.gt(networkFee)) {
       return INPUT_STATE.AVAILABLE
     } else {
-      if (locked.gt(0.0002)) {
+      if (locked.gt(networkFee)) {
         return INPUT_STATE.LOCKED
       }
     }

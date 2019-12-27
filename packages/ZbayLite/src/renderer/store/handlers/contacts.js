@@ -50,8 +50,7 @@ const sendDirectMessageOnEnter = event => async (dispatch, getState) => {
       message = zbayMessages.createMessage({
         messageData: {
           type: zbayMessages.messageType.BASIC,
-          data: currentMessage.get('message').get('message') + '\n' + event.target.value,
-          spent: '0.0001'
+          data: currentMessage.get('message').get('message') + '\n' + event.target.value
         },
         privKey
       })
@@ -59,8 +58,7 @@ const sendDirectMessageOnEnter = event => async (dispatch, getState) => {
       message = zbayMessages.createMessage({
         messageData: {
           type: zbayMessages.messageType.BASIC,
-          data: event.target.value,
-          spent: '0.0001'
+          data: event.target.value
         },
         privKey
       })
@@ -84,7 +82,7 @@ const sendDirectMessage = payload => async (dispatch, getState) => {
       type,
       data: messageData,
       spent:
-        type === zbayMessages.messageType.TRANSFER ? new BigNumber(spent) : new BigNumber('0.0001')
+        type === zbayMessages.messageType.TRANSFER ? new BigNumber(spent) : '0'
     },
     privKey
   })
@@ -109,7 +107,7 @@ const resendMessage = messageData => async (dispatch, getState) => {
       spent:
         messageData.type === zbayMessages.messageType.TRANSFER
           ? new BigNumber(messageData.spent)
-          : new BigNumber('0.0001')
+          : '0'
     },
     privKey
   })

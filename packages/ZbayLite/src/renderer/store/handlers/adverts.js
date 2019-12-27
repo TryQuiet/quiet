@@ -28,7 +28,7 @@ const handleSend = ({ values }) => async (dispatch, getState) => {
     messageData: {
       type: messageType.AD,
       data: data,
-      spent: new BigNumber('0.0001')
+      spent: '0'
     },
     privKey
   })

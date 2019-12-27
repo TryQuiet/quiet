@@ -14,7 +14,7 @@ import { messages } from '../../zbay'
 import { donationTarget } from '../../zcash/donation'
 import { actionCreators } from './modals'
 import { DOMAIN } from '../../../shared/constants'
-
+import { networkFee } from '../../../shared/static'
 export const getInvitationUrl = invitation =>
   `https://${DOMAIN}/invitation=${encodeURIComponent(invitation)}`
 
@@ -91,10 +91,10 @@ export const handleInvitation = invitationPacked => async (dispatch, getState) =
     if (invitation.sk) {
       await getClient().keys.importSK({ sk: invitation.sk })
       const amount = await getClient().accounting.balance(invitation.address)
-      if (amount.gt(0.0001)) {
+      if (amount.gt(networkFee)) {
         const transfer = messages.createEmptyTransfer({
           address: identityAddress,
-          amount: amount.minus(0.0001).toString(),
+          amount: amount.minus(networkFee).toString(),
           identityAddress: invitation.address
         })
         await getClient().payment.send(transfer)

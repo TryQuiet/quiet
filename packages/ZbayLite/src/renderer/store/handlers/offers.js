@@ -166,8 +166,7 @@ const sendItemMessageOnEnter = event => async (dispatch, getState) => {
           data: {
             itemId: channel.id.substring(0, 64),
             text: currentMessage.message.getIn(['message', 'text']) + '\n' + event.target.value
-          },
-          spent: '0.0001'
+          }
         },
         privKey
       })
@@ -178,8 +177,7 @@ const sendItemMessageOnEnter = event => async (dispatch, getState) => {
           data: {
             itemId: channel.id.substring(0, 64),
             text: event.target.value
-          },
-          spent: '0.0001'
+          }
         },
         privKey
       })

@@ -7,6 +7,7 @@ import secp256k1 from 'secp256k1'
 import createKeccakHash from 'keccak'
 import { packMemo, unpackMemo } from './transit'
 import { getClient } from '../zcash'
+import { networkFee } from '../../shared/static'
 export const messageType = {
   BASIC: 1,
   AD: 2,
@@ -278,13 +279,13 @@ const _buildUtxo = ({ transfer, utxos, splitTreshhold, fee, identityAddress, don
     transfers.push(donate)
   }
   const utxo = utxos.find(
-    utxo => utxo.amount > parseFloat(transfer.amount) + 2 * splitTreshhold + fee + includedDonation
+    utxo => utxo.amount > parseFloat(transfer.amount) + splitTreshhold + fee + includedDonation
   )
   if (utxo) {
     const newUtxo = {
       address: identityAddress,
-      amount: new BigNumber((utxo.amount - parseFloat(transfer.amount) - fee) / 2)
-        .toFixed(4)
+      amount: new BigNumber(splitTreshhold)
+        .toFixed(8)
         .toString()
     }
     transfers.push(newUtxo)
@@ -294,11 +295,11 @@ const _buildUtxo = ({ transfer, utxos, splitTreshhold, fee, identityAddress, don
 
 export const messageToTransfer = async ({
   message,
-  amount = '0.0001',
+  amount = '0',
   address,
   identityAddress,
-  splitTreshhold = 0.005,
-  fee = 0.0001,
+  splitTreshhold = networkFee * 25,
+  fee = networkFee,
   donation = { allow: false }
 }) => {
   const utxos = await getClient().payment.unspentNotes({ addresses: [identityAddress] })

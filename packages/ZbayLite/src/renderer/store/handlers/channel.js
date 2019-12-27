@@ -191,7 +191,7 @@ const resendMessage = messageData => async (dispatch, getState) => {
     messageData: {
       type: messageData.type,
       data: messageData.message,
-      spent: new BigNumber('0.0001')
+      spent: '0'
     },
     privKey
   })

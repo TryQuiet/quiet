@@ -337,11 +337,8 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
   const balance = identitySelectors.balance('zec')(getState())
   const lockedBalance = identitySelectors.lockedBalance('zec')(getState())
   const newUser = appSelectors.newUser(getState())
-  if (lockedBalance.plus(balance).lt(0.0002) && newUser === false) {
-    setTimeout(
-      () => dispatch(modalsHandlers.actionCreators.openModal('depositMoney')()),
-      500
-    )
+  if (lockedBalance.plus(balance).lt(0.0001) && newUser === false) {
+    setTimeout(() => dispatch(modalsHandlers.actionCreators.openModal('depositMoney')()), 500)
   }
   dispatch(fetchAffiliateMoney())
 }
