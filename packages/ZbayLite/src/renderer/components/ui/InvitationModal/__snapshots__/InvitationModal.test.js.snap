@@ -1,32 +1,12 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`InvitationModal renders component 1`] = `
-<WithStyles(ForwardRef(Grid))
-  className="root-mock"
-  container={true}
-  direction="column"
-  item={true}
-  justify="flex-start"
-  xs={true}
+<AutoSizer
+  disableHeight={false}
+  disableWidth={false}
+  onResize={[Function]}
+  style={Object {}}
 >
-  <WithStyles(ForwardRef(Grid))
-    item={true}
-  >
-    <WithStyles(ForwardRef(Typography))
-      variant="h3"
-    >
-      test tiltle
-    </WithStyles(ForwardRef(Typography))>
-  </WithStyles(ForwardRef(Grid))>
-  <WithStyles(ForwardRef(Grid))
-    className="info-mock"
-    item={true}
-  >
-    <WithStyles(ForwardRef(Typography))
-      variant="body2"
-    >
-      test info
-    </WithStyles(ForwardRef(Typography))>
-  </WithStyles(ForwardRef(Grid))>
-</WithStyles(ForwardRef(Grid))>
+  <Component />
+</AutoSizer>
 `;

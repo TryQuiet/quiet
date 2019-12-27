@@ -1,10 +1,17 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
-
+import { AutoSizer } from 'react-virtualized'
+import { Scrollbars } from 'react-custom-scrollbars'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
-import { FormControlLabel, Checkbox, TextField, FormHelperText, Switch } from '@material-ui/core'
+import {
+  FormControlLabel,
+  Checkbox,
+  TextField,
+  FormHelperText,
+  Switch
+} from '@material-ui/core'
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank'
 import CheckBoxIcon from '@material-ui/icons/CheckBox'
 import Button from '@material-ui/core/Button'
@@ -52,7 +59,9 @@ const styles = theme => ({
 })
 
 const checkAddress = (address, setDonationAddress, setAddressStatus) => {
-  const isValid = /^t1[a-zA-Z0-9]{33}$|^ztestsapling1[a-z0-9]{75}$|^zs1[a-z0-9]{75}$/.test(address)
+  const isValid = /^t1[a-zA-Z0-9]{33}$|^ztestsapling1[a-z0-9]{75}$|^zs1[a-z0-9]{75}$/.test(
+    address
+  )
   if (isValid) {
     setDonationAddress(address)
     setAddressStatus(true)
@@ -73,89 +82,110 @@ export const DonationsSettingsForm = ({
   updateShieldingTax,
   shieldingTax
 }) => {
-  const [isAddressValid, setAddressStatus] = useState(!!initialValues.donationAddress)
+  const [isAddressValid, setAddressStatus] = useState(
+    !!initialValues.donationAddress
+  )
   return (
-    <Grid container direction={'row'}>
-      <Grid xs={12} item>
-        <Typography variant='h3'>Donations</Typography>
-        <Grid item xs={12} className={classes.addressField}>
-          <Typography variant='caption' className={classes.label}>
-            Donation recipient
-          </Typography>
-          <TextField
-            name='donationAddress'
-            fullWidth
-            variant='outlined'
-            defaultValue={initialValues.donationAddress || ''}
-            placeholder='Enter Zcash Address'
-            helperText={!isAddressValid && 'Please insert correct address'}
-            error={!isAddressValid}
-            onChange={e => checkAddress(e.target.value, setDonationAddress, setAddressStatus)}
-            InputProps={{ className: classes.field }}
-          />
-        </Grid>
-      </Grid>
-      <Grid xs={12} item className={classes.checkboxDiv}>
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={donationAllow === 'true'}
-              onChange={e => {
-                setDonationAllow(e.target.checked.toString())
-              }}
-              color='primary'
-              className={classes.checkbox}
-              icon={<CheckBoxOutlineBlankIcon style={{ fontSize: 18 }} />}
-              checkedIcon={<CheckBoxIcon style={{ fontSize: 18 }} />}
-            />
-          }
-          className={classes.controlLabel}
-          label={
-            <Typography variant='body2' className={classes.checkboxLabel}>
-              Allow for sending a small donation to Zbay team
-            </Typography>
-          }
-        />
-      </Grid>
-      <Grid xs={12} item>
-        <FormControlLabel
-          control={
-            <Switch
-              checked={shieldingTax}
-              onChange={e => {
-                setShieldingTax(e.target.checked.toString())
-              }}
-              classes={{
-                switchBase: classes.switchBase,
-                track: classes.track,
-                checked: classes.checked
-              }}
-              value='antoine'
-            />
-          }
-          label='Allow 1% shielding tax'
-        />
-        <FormHelperText>Here Holmes will provide some text</FormHelperText>
-      </Grid>
-      <Grid item xs={12} className={classes.submitButton}>
-        <Button
-          variant='contained'
-          size='large'
-          color='primary'
-          type='submit'
-          fullWidth
-          disabled={!isAddressValid}
-          className={classes.button}
-          onClick={() => {
-            updateDonationAddress(initialValues.donationAddress)
-            updateShieldingTax(shieldingTax)
-            updateDonation(donationAllow)
-          }}
+    <AutoSizer>
+      {({ width, height }) => (
+        <Scrollbars
+          autoHideTimeout={500}
+          style={{ width: width, height: height }}
         >
-          Save
-        </Button>
-      </Grid>
-    </Grid>
+          <Grid container direction={'row'}>
+            <Grid xs={12} item>
+              <Typography variant='h3'>Donations</Typography>
+              <Grid item xs={12} className={classes.addressField}>
+                <Typography variant='caption' className={classes.label}>
+                  Donation recipient
+                </Typography>
+                <TextField
+                  name='donationAddress'
+                  fullWidth
+                  variant='outlined'
+                  defaultValue={initialValues.donationAddress || ''}
+                  placeholder='Enter Zcash Address'
+                  helperText={
+                    !isAddressValid && 'Please insert correct address'
+                  }
+                  error={!isAddressValid}
+                  onChange={e =>
+                    checkAddress(
+                      e.target.value,
+                      setDonationAddress,
+                      setAddressStatus
+                    )
+                  }
+                  InputProps={{ className: classes.field }}
+                />
+              </Grid>
+            </Grid>
+            <Grid xs={12} item className={classes.checkboxDiv}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={donationAllow === 'true'}
+                    onChange={e => {
+                      setDonationAllow(e.target.checked.toString())
+                    }}
+                    color='primary'
+                    className={classes.checkbox}
+                    icon={<CheckBoxOutlineBlankIcon style={{ fontSize: 18 }} />}
+                    checkedIcon={<CheckBoxIcon style={{ fontSize: 18 }} />}
+                  />
+                }
+                className={classes.controlLabel}
+                label={
+                  <Typography variant='body2' className={classes.checkboxLabel}>
+                    Allow for sending a small donation to Zbay team
+                  </Typography>
+                }
+              />
+            </Grid>
+            <Grid xs={12} item>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={shieldingTax}
+                    onChange={e => {
+                      setShieldingTax(e.target.checked.toString())
+                    }}
+                    classes={{
+                      switchBase: classes.switchBase,
+                      track: classes.track,
+                      checked: classes.checked
+                    }}
+                    value='antoine'
+                  />
+                }
+                label='Allow 1% shielding tax'
+              />
+              <FormHelperText>
+                Here Holmes will provide some text
+              </FormHelperText>
+            </Grid>
+            <Grid item xs={12} className={classes.submitButton}>
+              <Button
+                variant='contained'
+                size='large'
+                color='primary'
+                type='submit'
+                fullWidth
+                disabled={!isAddressValid}
+                className={classes.button}
+                onClick={() => {
+                  updateDonationAddress(initialValues.donationAddress)
+                  updateShieldingTax(shieldingTax)
+                  updateDonation(donationAllow)
+                }}
+              >
+                Save
+              </Button>
+            </Grid>
+          </Grid>
+        </Scrollbars>
+      )}
+    </AutoSizer>
   )
 }
 
