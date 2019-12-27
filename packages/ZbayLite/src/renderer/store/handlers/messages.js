@@ -6,6 +6,7 @@ import { createAction, handleActions } from 'redux-actions'
 import selectors from '../selectors/messages'
 import appSelectors from '../selectors/app'
 import channelsSelectors from '../selectors/channels'
+import channelSelectors from '../selectors/channel'
 import usersSelectors from '../selectors/users'
 import identitySelectors from '../selectors/identity'
 import operationsSelectors from '../selectors/operations'
@@ -73,6 +74,7 @@ export const fetchMessages = channel => async (dispatch, getState) => {
   try {
     const pendingMessages = operationsSelectors.pendingMessages(getState())
     const identityAddress = identitySelectors.address(getState())
+    const currentChannel = channelSelectors.channel(getState())
     const users = usersSelectors.users(getState())
     let txnTimestamps = txnTimestampsSelector.tnxTimestamps(getState())
 
@@ -80,20 +82,32 @@ export const fetchMessages = channel => async (dispatch, getState) => {
       return
     }
     const channelId = channel.get('id')
-    const previousMessages = selectors.currentChannelMessages(channelId)(getState())
+    const previousMessages = selectors.currentChannelMessages(channelId)(
+      getState()
+    )
 
     const transfers = await getClient().payment.received(channel.get('address'))
 
-    if (transfers.length === appSelectors.transfers(getState()).get(channelId)) {
+    if (
+      transfers.length === appSelectors.transfers(getState()).get(channelId)
+    ) {
       return
     } else {
-      dispatch(appHandlers.actions.setTransfers({ id: channelId, value: transfers.length }))
+      dispatch(
+        appHandlers.actions.setTransfers({
+          id: channelId,
+          value: transfers.length
+        })
+      )
     }
     for (const key in transfers) {
       const transfer = transfers[key]
       if (!txnTimestamps.get(transfer.txid)) {
         const result = await getClient().confirmations.getResult(transfer.txid)
-        await getVault().transactionsTimestamps.addTransaction(transfer.txid, result.timereceived)
+        await getVault().transactionsTimestamps.addTransaction(
+          transfer.txid,
+          result.timereceived
+        )
         await dispatch(
           txnTimestampsHandlers.actions.addTxnTimestamp({
             tnxs: { [transfer.txid]: result.timereceived.toString() }
@@ -111,9 +125,13 @@ export const fetchMessages = channel => async (dispatch, getState) => {
         if (message === null) {
           return ReceivedMessage(message)
         }
-        const pendingMessage = pendingMessages.find(pm => pm.txId && pm.txId === message.id)
+        const pendingMessage = pendingMessages.find(
+          pm => pm.txId && pm.txId === message.id
+        )
         if (pendingMessage) {
-          dispatch(operationsHandlers.actions.removeOperation(pendingMessage.opId))
+          dispatch(
+            operationsHandlers.actions.removeOperation(pendingMessage.opId)
+          )
         }
         return ReceivedMessage(message)
       })
@@ -129,20 +147,28 @@ export const fetchMessages = channel => async (dispatch, getState) => {
         await getVault().adverts.addAdvert(msg)
       }
     })
+    await dispatch(setMessages({ messages, channelId }))
+    if (currentChannel.address === channel.get('address')) {
+      return
+    }
     const newMessages = zbayMessages.calculateDiff({
       previousMessages,
       nextMessages: Immutable.List(messages),
       lastSeen,
       identityAddress
     })
-    await dispatch(channelsHandlers.actions.setUnread({ channelId, unread: newMessages.size }))
+    await dispatch(
+      channelsHandlers.actions.setUnread({
+        channelId,
+        unread: newMessages.size
+      })
+    )
     await dispatch(
       appendNewMessages({
         channelId,
         messagesIds: newMessages.map(R.prop('id'))
       })
     )
-    await dispatch(setMessages({ messages, channelId }))
     newMessages.map(nm => displayMessageNotification({ message: nm, channel }))
   } catch (err) {
     console.warn(err)
@@ -160,7 +186,9 @@ export const reducer = handleActions(
         cm.set('messages', Immutable.fromJS(messages))
       ),
     [cleanNewMessages]: (state, { payload: { channelId } }) =>
-      state.update(channelId, ChannelMessages(), cm => cm.set('newMessages', Immutable.List())),
+      state.update(channelId, ChannelMessages(), cm =>
+        cm.set('newMessages', Immutable.List())
+      ),
     [appendNewMessages]: (state, { payload: { channelId, messagesIds } }) =>
       state.update(channelId, ChannelMessages(), cm =>
         cm.update('newMessages', nm => nm.concat(messagesIds))
