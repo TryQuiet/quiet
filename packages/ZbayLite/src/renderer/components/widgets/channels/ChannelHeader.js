@@ -82,7 +82,8 @@ export const ChannelHeader = ({
   directMessage,
   offer,
   members,
-  channelType
+  channelType,
+  showAdSwitch
 }) => {
   const ActionsMenu = channelTypeToActions[channelType]
   return (
@@ -113,7 +114,7 @@ export const ChannelHeader = ({
         alignContent='center'
         alignItems='center'
       >
-        {channelType === CHANNEL_TYPE.NORMAL && (
+        {channelType === CHANNEL_TYPE.NORMAL && showAdSwitch && (
           <Grid item className={classes.switch}>
             <Tabs
               value={tab}
@@ -122,8 +123,14 @@ export const ChannelHeader = ({
               }}
               classes={{ root: classes.tabs, indicator: classes.indicator }}
             >
-              <Tab label='All' classes={{ root: classes.tab, selected: classes.selected }} />
-              <Tab label='For sale' classes={{ root: classes.tab, selected: classes.selected }} />
+              <Tab
+                label='All'
+                classes={{ root: classes.tab, selected: classes.selected }}
+              />
+              <Tab
+                label='For sale'
+                classes={{ root: classes.tab, selected: classes.selected }}
+              />
             </Tabs>
           </Grid>
         )}
@@ -139,6 +146,7 @@ export const ChannelHeader = ({
 ChannelHeader.propTypes = {
   classes: PropTypes.object.isRequired,
   directMessage: PropTypes.bool.isRequired,
+  showAdSwitch: PropTypes.bool,
   channelType: PropTypes.number.isRequired,
   tab: PropTypes.number.isRequired,
   setTab: PropTypes.func.isRequired,
@@ -149,10 +157,8 @@ ChannelHeader.propTypes = {
 ChannelHeader.defaultProps = {
   channel: Immutable.Map(),
   directMessage: false,
-  channelType: 3
+  channelType: 3,
+  showAdSwitch: false
 }
 
-export default R.compose(
-  React.memo,
-  withStyles(styles)
-)(ChannelHeader)
+export default R.compose(React.memo, withStyles(styles))(ChannelHeader)
