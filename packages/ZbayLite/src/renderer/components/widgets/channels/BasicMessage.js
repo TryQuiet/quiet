@@ -86,6 +86,9 @@ const styles = theme => ({
   },
   iconBox: {
     marginTop: -4
+  },
+  pending: {
+    display: 'none'
   }
 })
 
@@ -202,7 +205,8 @@ export const BasicMessage = ({
                       className={classNames({
                         [classes.statusIcon]: true,
                         [classes.failed]: status === 'failed',
-                        [classes.broadcasted]: status === 'broadcasted'
+                        [classes.broadcasted]: status === 'broadcasted',
+                        [classes.pending]: status === 'pending'
                       })}
                     />
                   )}
@@ -262,7 +266,4 @@ BasicMessage.propTypes = {
   allowModeration: PropTypes.bool.isRequired
 }
 
-export default R.compose(
-  React.memo,
-  withStyles(styles)
-)(BasicMessage)
+export default R.compose(React.memo, withStyles(styles))(BasicMessage)
