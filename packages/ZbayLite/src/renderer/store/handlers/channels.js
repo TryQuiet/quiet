@@ -51,6 +51,11 @@ const loadChannelsToNode = createAction(actionTypes.LOAD_CHANNELS, async id => {
       getClient().keys.importIVK({ ivk: channel.keys.ivk, address: channel.address })
     )
   )
+  await Promise.all(
+    channels.filter(ch => ch.keys.sk).map(channel =>
+      getClient().keys.importSK({ sk: channel.keys.sk, rescan: 'no' })
+    )
+  )
   return channels
 })
 

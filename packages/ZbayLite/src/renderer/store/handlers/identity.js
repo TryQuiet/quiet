@@ -292,6 +292,7 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
     // Make sure identity is handled by the node
     await dispatch(setLoadingMessage('Ensuring node contains identity keys'))
 
+    await dispatch(channelsHandlers.actions.loadChannelsToNode(identity.id))
     await getClient().keys.importSK({ sk: identity.keys.sk, rescan: 'no' })
     await getClient().keys.importTPK(identity.keys.tpk)
 
@@ -316,7 +317,6 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
     dispatch(setLoadingMessage('Fetching balance and loading channels'))
     dispatch(ratesHandlers.epics.fetchPrices())
     await dispatch(fetchBalance())
-    await dispatch(channelsHandlers.actions.loadChannelsToNode(identity.id))
     dispatch(setLoadingMessage('Loading users and messages'))
     await dispatch(usersHandlers.epics.fetchUsers())
     await dispatch(contactsHandlers.epics.loadAllSentMessages())
