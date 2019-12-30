@@ -10,14 +10,12 @@ import Modal from '../../../ui/Modal'
 import Tab from '../../../ui/Tab'
 import AccountSettingsForm from '../../../../containers/widgets/settings/AccountSettingsForm'
 import ShippingSettingsForm from '../../../../containers/widgets/settings/ShippingSettingsForm'
-import DonationsSettingsForm from '../../../../containers/widgets/settings/DonationsSettingsForm'
 import InvitationModal from '../../../../containers/ui/InvitationModal/InvitationModal'
 import AddFundsModal from '../../../../containers/widgets/settings/AddFunds'
 
 const tabs = {
   account: AccountSettingsForm,
   shipping: ShippingSettingsForm,
-  donations: DonationsSettingsForm,
   invite: InvitationModal,
   addFunds: AddFundsModal
 }
@@ -98,11 +96,6 @@ export const SettingsModal = ({
               <Tab
                 value='shipping'
                 label='Shipping'
-                classes={{ tabRoot: classes.tab, selected: classes.selected }}
-              />
-              <Tab
-                value='donations'
-                label='Donations'
                 classes={{ tabRoot: classes.tab, selected: classes.selected }}
               />
               <Tab

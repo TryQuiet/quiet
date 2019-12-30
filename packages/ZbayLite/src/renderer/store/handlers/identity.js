@@ -371,8 +371,7 @@ export const updateDonation = allow => async (dispatch, getState) => {
 
 export const updateDonationAddress = address => async (dispatch, getState) => {
   const id = identitySelectors.id(getState())
-  const identity = await vault.identity.updateDonationAddress(id, address)
-  await dispatch(setDonationAddress(identity.donationAddress))
+  await vault.identity.updateDonationAddress(id, address)
 }
 export const updateShieldingTax = allow => async (dispatch, getState) => {
   const id = identitySelectors.id(getState())

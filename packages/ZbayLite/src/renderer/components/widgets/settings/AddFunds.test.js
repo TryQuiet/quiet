@@ -1,6 +1,6 @@
 import React from 'react'
 import { shallow } from 'enzyme'
-
+import Immutable from 'immutable'
 import { AddFunds } from './AddFunds'
 import { mockClasses } from '../../../../shared/testing/mocks'
 
@@ -13,11 +13,11 @@ describe('AddFunds', () => {
       description: 'test-description',
       handleChange: jest.fn(),
       handleClose: jest.fn(),
-      handleCopy: jest.fn()
+      handleCopy: jest.fn(),
+      users: Immutable.Map({}),
+      donationAddress: 'test'
     }
-    const result = shallow(
-      <AddFunds {...props} />
-    )
+    const result = shallow(<AddFunds {...props} />)
     expect(result).toMatchSnapshot()
   })
 })

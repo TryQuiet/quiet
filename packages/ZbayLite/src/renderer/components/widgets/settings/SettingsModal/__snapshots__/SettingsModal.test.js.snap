@@ -59,16 +59,6 @@ exports[`SettingsModal renders component 1`] = `
                 "tabRoot": "tab-mock",
               }
             }
-            label="Donations"
-            value="donations"
-          />
-          <WithStyles(Tab)
-            classes={
-              Object {
-                "selected": "selected-mock",
-                "tabRoot": "tab-mock",
-              }
-            }
             label="Add Funds"
             value="addFunds"
           />
