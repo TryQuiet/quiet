@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`invitation - affiliateCode selector 1`] = `false`;
+exports[`invitation - affiliateCode selector 1`] = `true`;
 
 exports[`invitation - amount selector 1`] = `0`;
 
@@ -8,7 +8,7 @@ exports[`invitation - invitation selector 1`] = `
 Immutable.Invitation {
   "amount": 0,
   "amountZec": 0,
-  "affiliateCode": false,
+  "affiliateCode": true,
   "generatedInvitation": "",
 }
 `;

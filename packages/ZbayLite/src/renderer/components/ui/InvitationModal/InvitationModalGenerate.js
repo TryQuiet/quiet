@@ -21,7 +21,7 @@ import Icon from '../Icon'
 import { networkFee } from '../../../../shared/static'
 const styles = theme => ({
   warrning: {
-    marginTop: theme.spacing(1)
+    marginTop: -16
   },
   inputDiv: {
     width: 45,
@@ -63,6 +63,7 @@ const styles = theme => ({
   },
   divMoney: {
     width: '100%',
+    marginTop: 24,
     minHeight: 42,
     '& .MuiFormHelperText-contained': {
       display: 'none'
@@ -74,15 +75,6 @@ const styles = theme => ({
   error: {
     marginTop: 8,
     color: theme.palette.colors.red
-  },
-  fieldTitle: {
-    marginTop: 24,
-    fontStyle: 'normal',
-    fontWeight: 'normal',
-    fontSize: 12,
-    lineHeight: '14px',
-    color: theme.palette.colors.black30,
-    marginBottom: 6
   },
   checkbox: {
     marginTop: -7,
@@ -113,22 +105,13 @@ export const InvitationModalGenerate = ({
     .minus(networkFee)
     .lt(0)
   return (
-    <InvitationModal
-      title={`Invite a friend`}
-      info={`Invite friends to Zbay and (optionally)
-     give them some funds to get started`}
-    >
+    <InvitationModal title={`Invite a friend`}>
       <Grid item className={classes.warrning}>
         <Typography variant='body2'>
-          This will generate a special invite link you can share with a friend.
-          Once your friend installs Zbay they can open it to reclaim funds. You
-          can use it to reclaim the funds yourself too - just dont't lose the
-          link!
-        </Typography>
-      </Grid>
-      <Grid item xs>
-        <Typography className={classes.fieldTitle} variant='subtitle2'>
-          Funds to give to friend
+          Send a Zbay invite link to a friend with some funds attached. Once
+          they install Zbay, they can open the link to reclaim funds. If you
+          include an affiliate code, their automatic 1% donation will start
+          going to you, not the Zbay team, so you'll earn money!
         </Typography>
       </Grid>
       <Grid container className={classes.divMoney}>
@@ -207,8 +190,7 @@ export const InvitationModalGenerate = ({
           className={classes.checkboxDiv}
           label={
             <Typography variant='body2' className={classes.checkboxLabel}>
-              Include your affiliate code, so that you'll earn 1% of their
-              purchases. (They can disable this at any time.)
+              Include affiliate code
             </Typography>
           }
         />
@@ -229,9 +211,8 @@ export const InvitationModalGenerate = ({
             setStep(1)
             setLoading(false)
           }}
-        >
-          Generate invitation
-        </LoadingButton>
+          text='Create link'
+        />
       </Grid>
     </InvitationModal>
   )

@@ -5,7 +5,7 @@ exports[`InvitationModalFinish renders component 1`] = `
   info="It has $9 attached, so don't lose it! You can share it however you like,
      but don't share large amounts by email or other insecure means.
      Note: it will take a few minutes for funds to become available."
-  title="Here's your invitation!"
+  title="Here’s your invite link"
 >
   <WithStyles(ForwardRef(Grid))
     className="linkDiv-mock"

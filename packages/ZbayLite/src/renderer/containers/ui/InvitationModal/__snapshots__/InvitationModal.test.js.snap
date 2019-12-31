@@ -12,7 +12,7 @@ Object {
 
 exports[`InvitationModal will receive right props 1`] = `
 Object {
-  "affiliate": false,
+  "affiliate": true,
   "amount": 0,
   "amountZec": 0,
   "balance": "0",

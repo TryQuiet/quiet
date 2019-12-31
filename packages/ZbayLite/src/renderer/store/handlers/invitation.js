@@ -22,7 +22,7 @@ export const Invitation = Immutable.Record(
   {
     amount: 0,
     amountZec: 0,
-    affiliateCode: false,
+    affiliateCode: true,
     generatedInvitation: ''
   },
   'Invitation'

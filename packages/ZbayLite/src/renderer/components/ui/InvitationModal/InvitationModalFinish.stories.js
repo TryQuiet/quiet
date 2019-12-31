@@ -7,10 +7,12 @@ import InvitationModalFinish from './InvitationModalFinish'
 storiesOf('Components/UI/InvitationModalFinish', module)
   .addDecorator(withKnobs)
   .add('playground', () => (
-    <InvitationModalFinish
-      open
-      handleClose={() => {}}
-      reset={() => {}}
-      amount={number('amount', 4)}
-    />
+    <div style={{ width: 400, height: 600, backgroundColor: 'white' }}>
+      <InvitationModalFinish
+        open
+        handleClose={() => {}}
+        reset={() => {}}
+        amount={number('amount', 4)}
+      />
+    </div>
   ))

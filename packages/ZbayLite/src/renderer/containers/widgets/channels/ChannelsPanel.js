@@ -41,7 +41,7 @@ export const ChannelsPanel = ({
   return (
     <Grid container item xs direction='column'>
       <Grid item>
-        <SidebarHeader title={title} action={openJoinChannel} tooltipText='Create new channel' />
+        <SidebarHeader title={title} action={openCreateModal} tooltipText='Create new channel' />
       </Grid>
       <Grid item>
         <BaseChannelsList {...props} />
