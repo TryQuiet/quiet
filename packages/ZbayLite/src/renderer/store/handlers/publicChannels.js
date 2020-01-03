@@ -160,16 +160,16 @@ export const publishChannel = ({
   })
   try {
     await getClient().payment.send(transfer)
-    notificationsHandlers.actions.enqueueSnackbar(
-      dispatch(
+    dispatch(
+      notificationsHandlers.actions.enqueueSnackbar(
         successNotification({
           message: 'Your channel has been published.'
         })
       )
     )
   } catch (err) {
-    notificationsHandlers.actions.enqueueSnackbar(
-      dispatch(
+    dispatch(
+      notificationsHandlers.actions.enqueueSnackbar(
         errorNotification({
           message: "Couldn't create channel, please check node connection."
         })

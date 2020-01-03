@@ -22,6 +22,7 @@ import NewMessageModal from './containers/widgets/channels/NewMessageModal'
 import JoinChannelModal from './containers/widgets/channels/JoinChannelModal'
 import AdvertModal from './containers/ui/adverts/AdvertModal'
 import AdvertActionsModal from './containers/ui/adverts/AdvertActionsModal'
+import PublishChannelModal from './containers/ui/PublishChannelModal'
 import SendFundsModal from './containers/ui/adverts/SendFundsModal'
 
 import theme from './theme'
@@ -44,6 +45,7 @@ export default () => (
           <AdvertModal />
           <AdvertActionsModal />
           <SendFundsModal />
+          <PublishChannelModal />
           <Route path='/vault' exact component={Vault} />
           <Route path='/main' component={Main} />
           <Route path='/zcashNode' component={Index} />

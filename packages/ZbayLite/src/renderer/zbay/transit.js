@@ -34,12 +34,13 @@ const SHIELDED_MAINNET_SIZE = 78
 const SHIELDED_TESTNET_SIZE = 88
 // TYPE PUBLISH_CHANNEL
 const PUBLISH_CHANNEL_NETWORK_TYPE_SIZE = 1
-const PUBLISH_CHANNEL_NAME_SIZE = 20
+export const PUBLISH_CHANNEL_NAME_SIZE = 20
 const PUBLISH_CHANNEL_OWNER_SIZE = 66
 const PUBLISH_CHANNEL_MIN_FEE_SIZE = 4
 const PUBLISH_CHANNEL_ONLY_REGISTERED_SIZE = 1
 const PUBLISH_CHANNEL_IVK_MAINNET_SIZE = 64
 const PUBLISH_CHANNEL_IVK_TESTNET_SIZE = 74
+
 // TYPE MODERATION
 const MODERATION_TYPE_SIZE = 20
 const TARGET_SIZE_FLAG = 1
@@ -77,6 +78,16 @@ const typeToIvkSize = {
   [ADDRESS_TYPE.SHIELDED_MAINNET]: PUBLISH_CHANNEL_IVK_MAINNET_SIZE,
   [ADDRESS_TYPE.SHIELDED_TESTNET]: PUBLISH_CHANNEL_IVK_TESTNET_SIZE
 }
+export const CHANNEL_DESCRIPTION_SIZE = networkType =>
+  MESSAGE_SIZE -
+  (PUBLISH_CHANNEL_NETWORK_TYPE_SIZE +
+    PUBLISH_CHANNEL_NAME_SIZE +
+    PUBLISH_CHANNEL_OWNER_SIZE +
+    PUBLISH_CHANNEL_MIN_FEE_SIZE +
+    PUBLISH_CHANNEL_ONLY_REGISTERED_SIZE +
+    typeToAddressSize[networkType] +
+    typeToIvkSize[networkType])
+
 const moderationTypeToSize = {
   [moderationActionsType.ADD_MOD]: PUBLIC_KEY_SIZE,
   [moderationActionsType.BLOCK_USER]: PUBLIC_KEY_SIZE,
@@ -184,16 +195,7 @@ export const packMemo = async message => {
         typeToIvkSize[message.message.networkType]
       )
       channelIvk.write(message.message.channelIvk)
-      const CHANNEL_DESCRIPTION_SIZE =
-        MESSAGE_SIZE -
-        (PUBLISH_CHANNEL_NETWORK_TYPE_SIZE +
-          PUBLISH_CHANNEL_NAME_SIZE +
-          PUBLISH_CHANNEL_OWNER_SIZE +
-          PUBLISH_CHANNEL_MIN_FEE_SIZE +
-          PUBLISH_CHANNEL_ONLY_REGISTERED_SIZE +
-          typeToAddressSize[message.message.networkType] +
-          typeToIvkSize[message.message.networkType])
-      const channelDescription = Buffer.alloc(CHANNEL_DESCRIPTION_SIZE)
+      const channelDescription = Buffer.alloc(CHANNEL_DESCRIPTION_SIZE(message.message.networkType))
 
       channelDescription.write(message.message.channelDescription)
       msgData = Buffer.concat(
@@ -386,16 +388,7 @@ export const unpackMemo = async memo => {
       )
       const channelIvkEnds = channelAddressEnds + typeToIvkSize[networkType]
       const channelIvk = memoBuff.slice(channelAddressEnds, channelIvkEnds)
-      const CHANNEL_DESCRIPTION_SIZE =
-        MESSAGE_SIZE -
-        (PUBLISH_CHANNEL_NETWORK_TYPE_SIZE +
-          PUBLISH_CHANNEL_NAME_SIZE +
-          PUBLISH_CHANNEL_OWNER_SIZE +
-          PUBLISH_CHANNEL_MIN_FEE_SIZE +
-          PUBLISH_CHANNEL_ONLY_REGISTERED_SIZE +
-          typeToAddressSize[networkType] +
-          typeToIvkSize[networkType])
-      const channelDescriptionEnds = channelIvkEnds + CHANNEL_DESCRIPTION_SIZE
+      const channelDescriptionEnds = channelIvkEnds + CHANNEL_DESCRIPTION_SIZE(networkType)
       const channelDescription = memoBuff.slice(
         channelIvkEnds,
         channelDescriptionEnds

@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PublishChannelModal will receive right actions 1`] = `
+Object {
+  "publishChannel": [Function],
+}
+`;
+
+exports[`PublishChannelModal will receive right props 1`] = `
+Object {
+  "balance": "23.435432",
+  "channel": Immutable.Map {
+    "id": 1,
+    "address": "testAddress",
+  },
+  "publicChannelFee": 0.1,
+  "publicChannels": Object {},
+  "zcashRate": "232.11",
+}
+`;

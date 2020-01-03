@@ -19,12 +19,34 @@ const styles = theme => ({
   }
 })
 
-export const ChannelMenuAction = ({ classes, onInfo, onMute, onDelete }) => {
+export const ChannelMenuAction = ({
+  classes,
+  onInfo,
+  onMute,
+  onDelete,
+  publishChannel,
+  isOwner,
+  publicChannels,
+  channel
+}) => {
+  const alreadyRegistered = publicChannels.find(
+    ch => ch.address === channel.get('address')
+  )
   return (
-    <MenuAction icon={dotsIcon} iconHover={dotsIcon} IconButton={IconButton} offset='0 8'>
+    <MenuAction
+      icon={dotsIcon}
+      iconHover={dotsIcon}
+      IconButton={IconButton}
+      offset='0 8'
+    >
       <MenuActionItem onClick={onInfo} title='Info' />
       <MenuActionItem onClick={onMute} title='Mute' />
       <MenuActionItem onClick={onDelete} title='Remove' />
+      {isOwner && !alreadyRegistered ? (
+        <MenuActionItem onClick={publishChannel} title='Publish channel' />
+      ) : (
+        <span />
+      )}
     </MenuAction>
   )
 }
@@ -32,11 +54,12 @@ export const ChannelMenuAction = ({ classes, onInfo, onMute, onDelete }) => {
 ChannelMenuAction.propTypes = {
   classes: PropTypes.object.isRequired,
   onInfo: PropTypes.func.isRequired,
+  publishChannel: PropTypes.func.isRequired,
   onMute: PropTypes.func.isRequired,
-  onDelete: PropTypes.func.isRequired
+  onDelete: PropTypes.func.isRequired,
+  isOwner: PropTypes.bool.isRequired,
+  publicChannels: PropTypes.object.isRequired,
+  channel: PropTypes.object.isRequired
 }
 
-export default R.compose(
-  React.memo,
-  withStyles(styles)
-)(ChannelMenuAction)
+export default R.compose(React.memo, withStyles(styles))(ChannelMenuAction)

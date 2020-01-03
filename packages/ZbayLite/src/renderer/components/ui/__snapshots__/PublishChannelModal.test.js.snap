@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PubliPublishChannelModal renders component 1`] = `
+<Formik
+  enableReinitialize={true}
+  initialValues={
+    Object {
+      "description": "",
+    }
+  }
+  isInitialValid={false}
+  onSubmit={[Function]}
+  validate={[Function]}
+  validateOnBlur={true}
+  validateOnChange={true}
+>
+  <Component />
+</Formik>
+`;

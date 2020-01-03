@@ -7,9 +7,17 @@ import ChannelMenuAction from '../../../components/widgets/channels/ChannelMenuA
 import { actionCreators } from '../../../store/handlers/modals'
 import importedChannelHandler from '../../../store/handlers/importedChannel'
 import dmChannelSelectors from '../../../store/selectors/directMessageChannel'
+import identitySelectors from '../../../store/selectors/identity'
+import channelSelectors from '../../../store/selectors/channel'
+import publicChannelsSelectors from '../../../store/selectors/publicChannels'
 
 export const mapStateToProps = state => ({
-  targetAddress: dmChannelSelectors.targetRecipientAddress(state)
+  targetAddress: dmChannelSelectors.targetRecipientAddress(state),
+  isOwner:
+    channelSelectors.channelOwner(state) ===
+    identitySelectors.signerPubKey(state),
+  publicChannels: publicChannelsSelectors.publicChannels(state),
+  channel: channelSelectors.data(state)
 })
 
 export const mapDispatchToProps = (dispatch, { history }) => {
@@ -17,7 +25,8 @@ export const mapDispatchToProps = (dispatch, { history }) => {
     {
       onInfo: actionCreators.openModal('channelInfo'),
       onMute: () => console.warn('[ChannelMenuAction] onMute not implemented'),
-      onDelete: () => importedChannelHandler.epics.removeChannel(history)
+      onDelete: () => importedChannelHandler.epics.removeChannel(history),
+      publishChannel: actionCreators.openModal('publishChannel')
     },
     dispatch
   )
@@ -25,8 +34,5 @@ export const mapDispatchToProps = (dispatch, { history }) => {
 
 export default R.compose(
   withRouter,
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )
+  connect(mapStateToProps, mapDispatchToProps)
 )(ChannelMenuAction)
