@@ -81,6 +81,7 @@ exports[`ErrorModal renders component 1`] = `
             }
           }
           inProgress={false}
+          onClick={[Function]}
           text="Send to Zbay"
         />
       </WithStyles(ForwardRef(Grid))>

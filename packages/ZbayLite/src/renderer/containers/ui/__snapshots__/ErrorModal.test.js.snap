@@ -2,7 +2,9 @@
 
 exports[`ErrorModal will receive right actions 1`] = `
 Object {
+  "errorSnackbar": [Function],
   "handleExit": [Function],
+  "successSnackbar": [Function],
 }
 `;
 
