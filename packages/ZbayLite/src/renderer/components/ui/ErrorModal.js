@@ -71,7 +71,7 @@ export const ErrorModal = ({
 }) => {
   const [send, setSend] = React.useState(false)
   return (
-    <Modal open handleClose={handleExit} title='Error'>
+    <Modal open={open} handleClose={handleExit} title='Error'>
       <Grid
         container
         justify='flex-start'
