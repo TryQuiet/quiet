@@ -12,9 +12,9 @@ describe('JoinChannelModal', () => {
         open
         handleClose={() => {}}
         joinChannel={() => {}}
-        joinChannelUrl={() => {}}
         showNotification={() => {}}
         publicChannels={Immutable.Map({})}
+        users={Immutable.Map({})}
         classes={mockClasses}
       />
     )

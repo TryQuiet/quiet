@@ -10,7 +10,9 @@ import { withStore } from '../../../../../.storybook/decorators'
 import JoinChannelModal from './JoinChannelModal'
 
 const store = create({
-  initialState: Immutable.Map({})
+  initialState: Immutable.Map({
+    publicChannels: Immutable.Map({})
+  })
 })
 
 storiesOf('Components/Widgets/Channels/JoinChannelModal', module)
@@ -18,5 +20,11 @@ storiesOf('Components/Widgets/Channels/JoinChannelModal', module)
   .addDecorator(StoryRouter())
   .addDecorator(withStore(store))
   .add('playground', () => {
-    return <JoinChannelModal open handleClose={() => {}} />
+    return (
+      <JoinChannelModal
+        open
+        publicChannels={Immutable.Map({ 1: { name: 'test' } })}
+        handleClose={() => {}}
+      />
+    )
   })

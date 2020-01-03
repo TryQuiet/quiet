@@ -26,6 +26,7 @@ export const _PublicChannelData = Immutable.Record(
     description: '',
     onlyForRegistered: '',
     owner: '',
+    timestamp: 0,
     keys: {}
   },
   'PublicChannelData'
@@ -105,7 +106,8 @@ export const fetchPublicChannels = () => async (dispatch, getState) => {
         description: msg.message.channelDescription,
         onlyForRegistered: msg.message.channelonlyRegistered,
         owner: msg.message.channelOwner,
-        keys: { sk: msg.message.channelIvk }
+        keys: { ivk: msg.message.channelIvk },
+        timestamp: txnTimestamps.get(msg.id)
       })
       if (channel !== null && !publicChannelsMap.get(channel.name)) {
         publicChannelsMap = publicChannelsMap.merge({ [channel.name]: channel })

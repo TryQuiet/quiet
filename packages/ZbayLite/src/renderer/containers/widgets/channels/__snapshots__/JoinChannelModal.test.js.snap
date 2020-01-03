@@ -3,7 +3,6 @@
 exports[`JoinChannelModal will receive right actions 1`] = `
 Object {
   "joinChannel": [Function],
-  "joinChannelUrl": [Function],
   "showNotification": [Function],
 }
 `;
@@ -11,5 +10,6 @@ Object {
 exports[`JoinChannelModal will receive right props 1`] = `
 Object {
   "publicChannels": Immutable.Map {},
+  "users": Immutable.Map {},
 }
 `;
