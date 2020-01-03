@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`criticalError reducer handles epics - generateInvitation with money 1`] = `"https://zbay.rumblefish.dev/invitation=eJyrVirOVrJSKk4syMnMS9ctKMosSyxJ1U1MSSlKLS7WLS5IzUsBSWSnVirpKEGFcWsAqknJz0ssyczPc4SrLUktLoErqAUAUIMpnQ%3D%3D"`;
+exports[`criticalError reducer handles epics - generateInvitation with money 1`] = `"https://handlers.zbay.app/invitation=eJyrVirOVrJSKk4syMnMS9ctKMosSyxJ1U1MSSlKLS7WLS5IzUsBSWSnVirpKEGFcWsAqknJz0ssyczPc4SrLUktLoErqAUAUIMpnQ%3D%3D"`;
 
-exports[`criticalError reducer handles epics - generateInvitation without money 1`] = `"https://zbay.rumblefish.dev/invitation=eJyrVkrJz0ssyczPc0xJKUotLlayUipJLS7RTYRyawHfRwyw"`;
+exports[`criticalError reducer handles epics - generateInvitation without money 1`] = `"https://handlers.zbay.app/invitation=eJyrVkrJz0ssyczPc0xJKUotLlayUipJLS7RTYRyawHfRwyw"`;
 
 exports[`criticalError reducer handles epics - handleInvitation 1`] = `""`;

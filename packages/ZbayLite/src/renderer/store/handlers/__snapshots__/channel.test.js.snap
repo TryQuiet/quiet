@@ -62,7 +62,7 @@ Immutable.ChannelState {
 
 exports[`channel reducer handles epics - loadChannel fetches messages 1`] = `Immutable.List []`;
 
-exports[`channel reducer handles epics - loadChannel sets uri 1`] = `"https://zbay.rumblefish.dev/importchannel=eJxNizEOgCAMAL9iGkcdWF19CUqjDVKMRY0S%2Fi4YB6dL7nIRWDuEDvpZM%2BNSKWhAG7OhSLa3qIASPlGXaFDGjdZAnn%2BbHvwe3tnilc8IdNjciUfviKf2IDwLc24VpPQAl0oo4g%3D%3D"`;
+exports[`channel reducer handles epics - loadChannel sets uri 1`] = `"https://handlers.zbay.app/importchannel=eJxNizEOgCAMAL9iGkcdWF19CUqjDVKMRY0S%2Fi4YB6dL7nIRWDuEDvpZM%2BNSKWhAG7OhSLa3qIASPlGXaFDGjdZAnn%2BbHvwe3tnilc8IdNjciUfviKf2IDwLc24VpPQAl0oo4g%3D%3D"`;
 
 exports[`channel reducer handles epics - resendMessage resend selected message 1`] = `
 Immutable.Map {

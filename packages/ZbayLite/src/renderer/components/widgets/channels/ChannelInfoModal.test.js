@@ -6,7 +6,7 @@ import { shallow } from 'enzyme'
 import { ChannelInfoModal } from './ChannelInfoModal'
 import { mockClasses } from '../../../../shared/testing/mocks'
 import { createChannel } from '../../../testUtils'
-import { DOMAIN } from '../../../../shared/constants'
+import { DOMAIN } from '../../../../shared/static'
 
 describe('ChannelInfoModal', () => {
   const uri = `https://${DOMAIN}/importchannel=channel-hash`

@@ -16,7 +16,7 @@ import { createMessage, createChannel, now, createReceivedMessage } from '../../
 import { LoaderState } from '../handlers/utils'
 import { NodeState } from '../handlers/node'
 import { receivedToDisplayableMessage } from '../../zbay/messages'
-import { DOMAIN } from '../../../shared/constants'
+import { DOMAIN } from '../../../shared/static'
 
 const channelId = 'this-is-a-test-id'
 const uri = `https://${DOMAIN}/importchannel=channel-hash`

@@ -70,12 +70,12 @@ exports[`ChannelInfoModal renders component 1`] = `
             className="description-mock"
             variant="body2"
           >
-            https://zbay.rumblefish.dev/importchannel=channel-hash
+            https://handlers.zbay.app/importchannel=channel-hash
           </WithStyles(ForwardRef(Typography))>
         </WithStyles(ForwardRef(Grid))>
         <WithStyles(ForwardRef(Grid))>
           <CopyToClipboard
-            text="https://zbay.rumblefish.dev/importchannel=channel-hash"
+            text="https://handlers.zbay.app/importchannel=channel-hash"
           >
             <WithStyles(ForwardRef(Button))
               className="copyButton-mock"
@@ -161,12 +161,12 @@ exports[`ChannelInfoModal renders component when closed 1`] = `
             className="description-mock"
             variant="body2"
           >
-            https://zbay.rumblefish.dev/importchannel=channel-hash
+            https://handlers.zbay.app/importchannel=channel-hash
           </WithStyles(ForwardRef(Typography))>
         </WithStyles(ForwardRef(Grid))>
         <WithStyles(ForwardRef(Grid))>
           <CopyToClipboard
-            text="https://zbay.rumblefish.dev/importchannel=channel-hash"
+            text="https://handlers.zbay.app/importchannel=channel-hash"
           >
             <WithStyles(ForwardRef(Button))
               className="copyButton-mock"

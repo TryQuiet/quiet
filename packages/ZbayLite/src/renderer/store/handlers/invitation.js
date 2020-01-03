@@ -13,8 +13,8 @@ import { deflate, inflate } from '../../compression'
 import { messages } from '../../zbay'
 import { donationTarget } from '../../zcash/donation'
 import { actionCreators } from './modals'
-import { DOMAIN } from '../../../shared/constants'
-import { networkFee } from '../../../shared/static'
+import { DOMAIN, networkFee } from '../../../shared/static'
+
 export const getInvitationUrl = invitation =>
   `https://${DOMAIN}/invitation=${encodeURIComponent(invitation)}`
 
@@ -50,7 +50,8 @@ export const generateInvitation = () => async (dispatch, getState) => {
   const includeAffiliate = invitationSelector.affiliateCode(getState())
   const identityAddress = identitySelectors.address(getState())
   const zecRate = ratesSelectors.rate('usd')(getState())
-  const amount = amountZec || new BigNumber(amountUsd / zecRate).toFixed(8).toString()
+  const amount =
+    amountZec || new BigNumber(amountUsd / zecRate).toFixed(8).toString()
   let donationAddress
   if (includeAffiliate) {
     donationAddress = identityAddress
@@ -58,7 +59,9 @@ export const generateInvitation = () => async (dispatch, getState) => {
     donationAddress = donationTarget
   }
   if (parseFloat(amount) > 0) {
-    const { value: address } = await dispatch(nodeHandlers.actions.createAddress())
+    const { value: address } = await dispatch(
+      nodeHandlers.actions.createAddress()
+    )
     const sk = await getClient().keys.exportSK(address)
     const transfer = messages.createEmptyTransfer({
       address,
@@ -83,7 +86,10 @@ const invitationSchema = Yup.object().shape({
   sk: Yup.string()
 })
 
-export const handleInvitation = invitationPacked => async (dispatch, getState) => {
+export const handleInvitation = invitationPacked => async (
+  dispatch,
+  getState
+) => {
   try {
     const identityAddress = identitySelectors.address(getState())
     const invitation = await inflate(invitationPacked)
@@ -100,10 +106,16 @@ export const handleInvitation = invitationPacked => async (dispatch, getState) =
         await getClient().payment.send(transfer)
       }
     }
-    await dispatch(identityHandlers.epics.updateDonationAddress(invitation.donationAddress))
+    await dispatch(
+      identityHandlers.epics.updateDonationAddress(invitation.donationAddress)
+    )
     dispatch(actionCreators.openModal('receivedInvitationModal')())
   } catch (err) {
-    dispatch(actionCreators.openModal('receivedInvitationModal', { err: 'Error, try again' })())
+    dispatch(
+      actionCreators.openModal('receivedInvitationModal', {
+        err: 'Error, try again'
+      })()
+    )
   }
 }
 export const epics = {
@@ -112,8 +124,10 @@ export const epics = {
 }
 export const reducer = handleActions(
   {
-    [setInvitationAmount]: (state, { payload: amount }) => state.set('amount', amount),
-    [setInvitationAmountZec]: (state, { payload: amount }) => state.set('amountZec', amount),
+    [setInvitationAmount]: (state, { payload: amount }) =>
+      state.set('amount', amount),
+    [setInvitationAmountZec]: (state, { payload: amount }) =>
+      state.set('amountZec', amount),
     [setGeneratedInvitation]: (state, { payload: invitation }) =>
       state.set('generatedInvitation', invitation),
     [resetInvitation]: state => initialState,

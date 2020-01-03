@@ -19,7 +19,7 @@ import { NodeState } from './node'
 import zbayChannels from '../../zcash/channels'
 import { ChannelsState } from './channels'
 import { ChannelState } from './channel'
-import { DOMAIN } from '../../../shared/constants'
+import { DOMAIN } from '../../../shared/static'
 
 describe('Imported channel reducer handles', () => {
   let store = null

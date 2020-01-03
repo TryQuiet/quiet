@@ -2,7 +2,7 @@ import * as R from 'ramda'
 import * as Yup from 'yup'
 
 import { inflate, deflate } from '../compression'
-import { DOMAIN } from '../../shared/constants'
+import { DOMAIN } from '../../shared/static'
 
 export const getChannelUrl = hash =>
   `https://${DOMAIN}/importchannel=${encodeURIComponent(hash)}`

@@ -1,1 +1,2 @@
-export const networkFee = 0.00000250
+export const networkFee = 0.0000025
+export const DOMAIN = 'handlers.zbay.app'
