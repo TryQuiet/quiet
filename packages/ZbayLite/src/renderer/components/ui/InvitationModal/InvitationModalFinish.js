@@ -37,59 +37,70 @@ const styles = theme => ({
   }
 })
 
-export const InvitationModalFinish = ({ classes, amount, generatedInvitation }) => (
-  <InvitationModal
-    title={`Here’s your invite link`}
-    info={
-      parseFloat(amount) !== 0
-        ? `It has $${amount} attached, so don't lose it! You can share it however you like,
+export const InvitationModalFinish = ({
+  classes,
+  amount,
+  generatedInvitation,
+  amountZec
+}) => {
+  return (
+    <InvitationModal
+      title={`Here’s your invite link`}
+      info={
+        parseFloat(amount) !== 0 || parseFloat(amountZec) !== 0
+          ? `It has $${amount} attached, so don't lose it! You can share it however you like,
      but don't share large amounts by email or other insecure means.
      Note: it will take a few minutes for funds to become available.`
-        : ``
-    }
-  >
-    <Grid item className={classes.linkDiv}>
-      <TextField
-        id='traceback'
-        disabled
-        variant='outlined'
-        multiline
-        fullWidth
-        rows={4}
-        value={generatedInvitation}
-        InputProps={{
-          classes: {
-            root: classes.textfield,
-            disabled: classes.disabled
-          }
-        }}
-      />
-      <Grid item container justify='center' alignItems='center' className={classes.buttonDiv}>
-        <CopyToClipboard text={generatedInvitation}>
-          <Button
-            variant='contained'
-            size='large'
-            color='primary'
-            type='submit'
-            className={classes.button}
-            onClick={() => {}}
-          >
-            <FileCopyIcon className={classes.icon} />
-            Copy to clipboard
-          </Button>
-        </CopyToClipboard>
+          : ``
+      }
+    >
+      <Grid item className={classes.linkDiv}>
+        <TextField
+          id='traceback'
+          disabled
+          variant='outlined'
+          multiline
+          fullWidth
+          rows={4}
+          value={generatedInvitation}
+          InputProps={{
+            classes: {
+              root: classes.textfield,
+              disabled: classes.disabled
+            }
+          }}
+        />
+        <Grid
+          item
+          container
+          justify='center'
+          alignItems='center'
+          className={classes.buttonDiv}
+        >
+          <CopyToClipboard text={generatedInvitation}>
+            <Button
+              variant='contained'
+              size='large'
+              color='primary'
+              type='submit'
+              className={classes.button}
+              onClick={() => {}}
+            >
+              <FileCopyIcon className={classes.icon} />
+              Copy to clipboard
+            </Button>
+          </CopyToClipboard>
+        </Grid>
       </Grid>
-    </Grid>
-  </InvitationModal>
-)
+    </InvitationModal>
+  )
+}
 
 InvitationModalFinish.propTypes = {
   classes: PropTypes.object.isRequired,
-  amount: PropTypes.number.isRequired,
+  amount: PropTypes.string.isRequired,
+  amountZec: PropTypes.string.isRequired,
   generatedInvitation: PropTypes.string.isRequired
 }
 
-export default R.compose(
-  React.memo,
-  withStyles(styles)
-)(InvitationModalFinish)
+export default R.compose(React.memo, withStyles(styles))(InvitationModalFinish)
