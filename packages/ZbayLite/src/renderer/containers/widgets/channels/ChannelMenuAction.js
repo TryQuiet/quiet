@@ -2,7 +2,7 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import * as R from 'ramda'
 import { withRouter } from 'react-router-dom'
-
+import Immutable from 'immutable'
 import ChannelMenuAction from '../../../components/widgets/channels/ChannelMenuAction'
 import { actionCreators } from '../../../store/handlers/modals'
 import importedChannelHandler from '../../../store/handlers/importedChannel'
@@ -17,7 +17,7 @@ export const mapStateToProps = state => ({
     channelSelectors.channelOwner(state) ===
     identitySelectors.signerPubKey(state),
   publicChannels: publicChannelsSelectors.publicChannels(state),
-  channel: channelSelectors.data(state)
+  channel: channelSelectors.data(state) || Immutable.Map({})
 })
 
 export const mapDispatchToProps = (dispatch, { history }) => {

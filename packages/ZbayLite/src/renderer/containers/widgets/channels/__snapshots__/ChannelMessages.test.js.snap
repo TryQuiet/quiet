@@ -2,7 +2,9 @@
 
 exports[`ChannelInput will receive right props for channel 1`] = `
 Object {
-  "channelData": undefined,
+  "channelData": Immutable.Map {
+    "keys": Immutable.Map {},
+  },
   "channelId": "this-is-test-channel-id",
   "messages": Immutable.List [
     Immutable.DisplayableMessage {

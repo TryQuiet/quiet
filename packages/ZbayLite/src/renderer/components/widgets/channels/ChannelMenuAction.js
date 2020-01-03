@@ -1,6 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import * as R from 'ramda'
+import Immutable from 'immutable'
 
 import { withStyles } from '@material-ui/core/styles'
 
@@ -60,6 +61,9 @@ ChannelMenuAction.propTypes = {
   isOwner: PropTypes.bool.isRequired,
   publicChannels: PropTypes.object.isRequired,
   channel: PropTypes.object.isRequired
+}
+ChannelMenuAction.defaultProps = {
+  publicChannels: Immutable.Map({})
 }
 
 export default R.compose(React.memo, withStyles(styles))(ChannelMenuAction)

@@ -15,9 +15,9 @@ export const mapStateToProps = (state, { signerPubKey }) => {
   return {
     triggerScroll: qDmMessages.size + qMessages.size > 0,
     qMessages: qMessages,
-    channelData: channelsSelectors.channelById(
-      channelSelectors.channelId(state)
-    )(state),
+    channelData:
+      channelsSelectors.channelById(channelSelectors.channelId(state))(state) ||
+      Immutable.fromJS({ keys: {} }),
     messages: channelSelectors.messages(signerPubKey)(state),
     channelId: channelSelectors.channelId(state)
   }
