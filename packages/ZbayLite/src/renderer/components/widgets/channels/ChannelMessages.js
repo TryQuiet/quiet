@@ -8,6 +8,7 @@ import { withStyles } from '@material-ui/core/styles'
 
 import { messageType } from '../../../zbay/messages'
 import ChannelMessage from '../../../containers/widgets/channels/ChannelMessage'
+import WelcomeMessage from './WelcomeMessage'
 import ChannelTransferMessage from '../../../containers/widgets/channels/ChannelTransferMessage'
 import ChannelItemTransferMessage from '../../../containers/widgets/channels/ItemTransferMessage'
 import ChannelAdMessage from '../../../containers/widgets/channels/ListingMessage'
@@ -27,6 +28,7 @@ export const ChannelMessages = ({
   classes,
   messages,
   contentRect,
+  isOwner,
   setScrollPosition,
   scrollPosition,
   contactId
@@ -47,10 +49,19 @@ export const ChannelMessages = ({
       }}
     >
       <List disablePadding className={classes.list}>
-        {messages.filter(msg => messagesTypesToDisplay.includes(msg.get('type'))).map(msg => {
-          const MessageComponent = typeToMessageComponent[msg.get('type')]
-          return <MessageComponent key={msg.get('id')} message={msg} contactId={contactId} />
-        })}
+        {isOwner && <WelcomeMessage />}
+        {messages
+          .filter(msg => messagesTypesToDisplay.includes(msg.get('type')))
+          .map(msg => {
+            const MessageComponent = typeToMessageComponent[msg.get('type')]
+            return (
+              <MessageComponent
+                key={msg.get('id')}
+                message={msg}
+                contactId={contactId}
+              />
+            )
+          })}
       </List>
     </Scrollbars>
   )
@@ -67,6 +78,7 @@ const typeToMessageComponent = {
 ChannelMessages.propTypes = {
   classes: PropTypes.object.isRequired,
   contactId: PropTypes.string,
+  isOwner: PropTypes.bool.isRequired,
   messages: PropTypes.instanceOf(Immutable.List).isRequired,
   contentRect: PropTypes.shape({
     bounds: PropTypes.shape({
@@ -76,7 +88,8 @@ ChannelMessages.propTypes = {
 }
 
 ChannelMessages.defaultProps = {
-  messages: []
+  messages: [],
+  isOwner: false
 }
 
 export default React.memo(withStyles(styles)(ChannelMessages))

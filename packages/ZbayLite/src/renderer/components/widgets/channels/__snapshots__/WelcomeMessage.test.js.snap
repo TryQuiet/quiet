@@ -1,0 +1,69 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`WelcomeMessage renders component 1`] = `
+<WithStyles(ForwardRef(ListItem))
+  className="wrapper-mock"
+>
+  <WithStyles(ForwardRef(ListItemText))
+    className="messageCard-mock"
+    disableTypography={true}
+    primary={
+      <ForwardRef(WithStyles)
+        alignItems="flex-start"
+        container={true}
+        direction="row"
+        justify="flex-start"
+        wrap="nowrap"
+      >
+        <ForwardRef(WithStyles)
+          className="avatar-mock"
+          item={true}
+        >
+          <Memo(Icon)
+            className="icon-mock"
+            src="test-file-stub"
+          />
+        </ForwardRef(WithStyles)>
+        <ForwardRef(WithStyles)
+          container={true}
+          direction="row"
+          item={true}
+          justify="space-between"
+        >
+          <ForwardRef(WithStyles)
+            alignItems="flex-start"
+            container={true}
+            item={true}
+            wrap="nowrap"
+            xs={true}
+          >
+            <ForwardRef(WithStyles)
+              item={true}
+            >
+              <ForwardRef(WithStyles)
+                className="username-mock"
+                color="textPrimary"
+              >
+                Zbay
+              </ForwardRef(WithStyles)>
+            </ForwardRef(WithStyles)>
+          </ForwardRef(WithStyles)>
+        </ForwardRef(WithStyles)>
+      </ForwardRef(WithStyles)>
+    }
+    secondary={
+      <ForwardRef(WithStyles)
+        className="messageInput-mock"
+        item={true}
+      >
+        <ForwardRef(WithStyles)
+          className="message-mock"
+          variant="body2"
+        >
+          Congrats! You created a channel. You can make your channel public or share the channel link with others by accessing the “•••” menu at the top. You’ll also find a bunch of other settings. Have a great time!
+        </ForwardRef(WithStyles)>
+      </ForwardRef(WithStyles)>
+    }
+  />
+</WithStyles(ForwardRef(ListItem))>
+`;
