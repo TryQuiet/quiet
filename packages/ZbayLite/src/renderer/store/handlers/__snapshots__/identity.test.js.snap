@@ -336,7 +336,7 @@ Immutable.Map {
     "opId": "test-op-id",
     "type": "shieldBalance",
     "meta": Immutable.Record {
-      "amount": "0.00224",
+      "amount": "0.0023375",
       "from": "transparent-test-address",
       "to": "testaddress",
     },

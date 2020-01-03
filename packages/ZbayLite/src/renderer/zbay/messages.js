@@ -263,21 +263,22 @@ export const createTransfer = values => {
 const _buildUtxo = ({ transfer, utxos, splitTreshhold, fee, identityAddress, donation }) => {
   let transfers = [transfer]
   let includedDonation = 0
-  const donationAmount = new BigNumber(transfer.amount).div(100).toFixed(8)
-  const balance = utxos.reduce((acc, utxo) => acc.plus(utxo.amount), new BigNumber(0))
-  if (
-    donation.allow === 'true' &&
-    balance.gt(new BigNumber(transfer.amount).plus(donationAmount)) &&
-    transfer.address !== donation.address
-  ) {
-    includedDonation = donationAmount
-    const donate = {
-      address: donation.address,
-      amount: donationAmount.toString(),
-      memo: Buffer.from('aa', 'hex').toString('hex')
-    }
-    transfers.push(donate)
-  }
+  // Ignore donations 02.01.2020
+  // const donationAmount = new BigNumber(transfer.amount).div(100).toFixed(8)
+  // const balance = utxos.reduce((acc, utxo) => acc.plus(utxo.amount), new BigNumber(0))
+  // if (
+  //   donation.allow === 'true' &&
+  //   balance.gt(new BigNumber(transfer.amount).plus(donationAmount)) &&
+  //   transfer.address !== donation.address
+  // ) {
+  //   includedDonation = donationAmount
+  //   const donate = {
+  //     address: donation.address,
+  //     amount: donationAmount.toString(),
+  //     memo: Buffer.from('aa', 'hex').toString('hex')
+  //   }
+  //   transfers.push(donate)
+  // }
   const utxo = utxos.find(
     utxo => utxo.amount > parseFloat(transfer.amount) + splitTreshhold + fee + includedDonation
   )

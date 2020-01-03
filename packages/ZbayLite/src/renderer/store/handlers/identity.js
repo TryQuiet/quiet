@@ -33,6 +33,7 @@ import migrateTo_0_7_0 from '../../../shared/migrations/0_7_0' // eslint-disable
 import { LoaderState, successNotification } from './utils'
 import modalsHandlers from './modals'
 import notificationsHandlers from './notifications'
+import { networkFee } from '../../../shared/static'
 
 export const ShippingData = Immutable.Record(
   {
@@ -108,16 +109,23 @@ const actions = {
   setShieldingTax
 }
 
-export const shieldBalance = ({ from, to, amount, fee }) => async (dispatch, getState) => {
-  const shieldingTax = identitySelectors.shieldingTax(getState())
+export const shieldBalance = ({ from, to, amount, fee }) => async (
+  dispatch,
+  getState
+) => {
+  const donationAllow = identitySelectors.donationAllow(getState())
   const network = nodeSelectors.network(getState())
   const zbay = channels.zbay[network]
+  const donationAddress = identitySelectors.donationAddress(getState())
+  const isAddressValid = /^t1[a-zA-Z0-9]{33}$|^ztestsapling1[a-z0-9]{75}$|^zs1[a-z0-9]{75}$|[A-Za-z0-9]{35}/.test(
+    donationAddress
+  )
   let transactions = []
-  const taxAmount = amount.div(100) // 1% tax
-  const newAmount = amount.minus(taxAmount)
-  if (shieldingTax === 'true') {
+  const taxAmount = amount.div(100).toFixed(8) // 1% tax
+  const newAmount = amount.minus(taxAmount).toFixed(8)
+  if (donationAllow === 'true') {
     transactions.push({
-      address: zbay.address,
+      address: isAddressValid ? donationAddress : zbay.address,
       amount: taxAmount.toString()
     })
     transactions.push({
@@ -193,7 +201,7 @@ export const fetchAffiliateMoney = () => async (dispatch, getState) => {
   } catch (err) {}
 }
 export const fetchBalance = () => async (dispatch, getState) => {
-  const fee = 0.0001
+  const fee = networkFee
   dispatch(setFetchingBalance(true))
   const address = identitySelectors.address(getState())
   const tAddress = identitySelectors.transparentAddress(getState())
@@ -338,7 +346,10 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
   const lockedBalance = identitySelectors.lockedBalance('zec')(getState())
   const newUser = appSelectors.newUser(getState())
   if (lockedBalance.plus(balance).lt(0.0001) && newUser === false) {
-    setTimeout(() => dispatch(modalsHandlers.actionCreators.openModal('depositMoney')()), 500)
+    setTimeout(
+      () => dispatch(modalsHandlers.actionCreators.openModal('depositMoney')()),
+      500
+    )
   }
   dispatch(fetchAffiliateMoney())
 }
@@ -415,7 +426,8 @@ export const reducer = handleActions(
       state.setIn(['data', 'donationAllow'], allow),
     [setDonationAddress]: (state, { payload: address }) =>
       state.setIn(['data', 'donationAddress'], address),
-    [setShieldingTax]: (state, { payload: allow }) => state.setIn(['data', 'shieldingTax'], allow)
+    [setShieldingTax]: (state, { payload: allow }) =>
+      state.setIn(['data', 'shieldingTax'], allow)
   },
   initialState
 )

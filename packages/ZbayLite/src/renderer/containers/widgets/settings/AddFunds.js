@@ -22,8 +22,6 @@ export const mapDispatchToProps = (dispatch, props) =>
       updateDonation: identityHandlers.epics.updateDonation,
       setDonationAddress: identityHandlers.actions.setDonationAddress,
       setDonationAllow: identityHandlers.actions.setDonationAllow,
-      setShieldingTax: identityHandlers.actions.setShieldingTax,
-      updateShieldingTax: identityHandlers.epics.updateShieldingTax,
       updateDonationAddress: address =>
         identityHandlers.epics.updateDonationAddress(address)
     },
