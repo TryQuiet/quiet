@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   znode-mainnet:
-    image: 045028348791.dkr.ecr.eu-central-1.amazonaws.com/zcash:2.0.5-1-fork
+    image: 896536426663.dkr.ecr.us-east-1.amazonaws.com/zcash:2.0.5-1-fork
     tty: true
     ports:
       - 8334:8334
@@ -12,7 +12,7 @@ services:
     command: bash -c "/znode/src/zcashd -debug -txexpirydelta=18000 -checklevel=0 -checkblocks=10 -dbcache=500"
 
   znode-testnet:
-    image: 045028348791.dkr.ecr.eu-central-1.amazonaws.com/zcash:2.0.5-1-fork
+    image: 896536426663.dkr.ecr.ue-east-1.amazonaws.com/zcash:2.0.5-1-fork
     tty: true
     ports:
       - 8334:8334
