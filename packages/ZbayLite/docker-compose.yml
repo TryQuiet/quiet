@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   znode-mainnet:
-    image: 896536426663.dkr.ecr.us-east-1.amazonaws.com/zcash:2.0.5-1-fork
+    image: rumblefish1337/zcashnode:v2.1.0-1
     tty: true
     ports:
       - 8334:8334
@@ -12,7 +12,7 @@ services:
     command: bash -c "/znode/src/zcashd -debug -txexpirydelta=18000 -checklevel=0 -checkblocks=10 -dbcache=500"
 
   znode-testnet:
-    image: 896536426663.dkr.ecr.ue-east-1.amazonaws.com/zcash:2.0.5-1-fork
+    image: rumblefish1337/zcashnode:v2.1.0-1
     tty: true
     ports:
       - 8334:8334
@@ -20,7 +20,7 @@ services:
       - ./zcash/testnet.conf:/root/.zcash/zcash.conf
       - znode-testnet:/znode
       - zcash-testnet:/root/.zcash
-    command: bash -c "/znode/src/zcashd -txexpirydelta=18000 -checklevel=0 -checkblocks=10 -dbcache=500"
+    command: bash -c "/znode/src/zcashd -debug -txexpirydelta=18000 -checklevel=0 -checkblocks=10 -dbcache=500"
     networks:
       vpcbr:
         ipv4_address: 10.3.0.2
