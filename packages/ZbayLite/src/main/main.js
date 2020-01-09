@@ -224,7 +224,9 @@ app.on('ready', async () => {
     }
     if (!running) {
       running = true
-      createZcashNode(mainWindow, torUrl)
+      if (!isDev) {
+        createZcashNode(mainWindow, torUrl)
+      }
     }
   })
 })
