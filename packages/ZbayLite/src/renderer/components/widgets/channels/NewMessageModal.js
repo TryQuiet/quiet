@@ -78,7 +78,7 @@ export const NewMessageModal = ({
               resetForm()
               showNotification(
                 successNotification({
-                  message: `Message has been send. It will be shortly visible in UI`
+                  message: `Message sent! It will appear momentarily.`
                 })
               )
               return
@@ -98,7 +98,7 @@ export const NewMessageModal = ({
               resetForm()
               showNotification(
                 successNotification({
-                  message: `Message has been send. It will be shortly visible in UI`
+                  message: `Message sent! It will appear momentarily.`
                 })
               )
               return
