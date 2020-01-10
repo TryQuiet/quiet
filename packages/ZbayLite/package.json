@@ -17,11 +17,7 @@
         "build/icon.*",
         "package.json"
       ],
-      "extraResources": "zcash/**/*",
-      "publish": {
-        "provider": "s3",
-        "bucket": "zbay-release"
-      }
+      "extraResources": "zcash/**/*"
     },
     "win": {
       "target": "NSIS",
@@ -46,11 +42,11 @@
         "dist/**/*",
         "build/icon.*",
         "package.json"
-      ],
-      "publish": {
-        "provider": "s3",
-        "bucket": "zbay-release-linux"
-      }
+      ]
+    },
+    "publish": {
+      "provider": "s3",
+      "bucket": "release.zbay.app"
     },
     "extraResources": "zcash/**/*"
   },
