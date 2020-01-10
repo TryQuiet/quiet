@@ -6,10 +6,11 @@ import usersHandlers from '../../../store/handlers/users'
 import identitySelectors from '../../../store/selectors/identity'
 import usersSelectors from '../../../store/selectors/users'
 import feesSelectors from '../../../store/selectors/fees'
+import ratesSelectors from '../../../store/selectors/rates'
 
 import CreateUsernameModal from '../../../components/widgets/createUsername/CreateUsernameModal'
 import { withModal } from '../../../store/handlers/modals'
-
+import { networkFee } from '../../../../shared/static'
 export const mapStateToProps = state => {
   return {
     initialValues: {
@@ -21,9 +22,11 @@ export const mapStateToProps = state => {
           .get('nickname')
         : ''
     },
+    usernameFee: feesSelectors.userFee(state),
+    zecRate: ratesSelectors.rate('usd')(state),
     enoughMoney: identitySelectors
       .balance('zec')(state)
-      .gt(feesSelectors.userFee(state) + 0.0001)
+      .gt(feesSelectors.userFee(state) + networkFee)
   }
 }
 

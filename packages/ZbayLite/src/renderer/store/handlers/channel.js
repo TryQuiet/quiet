@@ -146,7 +146,7 @@ const sendOnEnter = event => async (dispatch, getState) => {
     dispatch(setMessage(''))
   }
 }
-const sendChannelSettingsMessage = ({ address, minFee = 0, onlyRegistered = 0 }) => async (
+const sendChannelSettingsMessage = ({ address, minFee = '0', onlyRegistered = '0' }) => async (
   dispatch,
   getState
 ) => {

@@ -27,7 +27,10 @@ exports[`CreateUsernameModal renders component 1`] = `
       <WithStyles(ForwardRef(Typography))
         variant="body2"
       >
-        You need a username to send and receive direct messages. Your username will last forever, so choose it well. To support future development, Zbay charges a small fee of 0.025 ZEC, which is approximately $1 USD.
+        You need a username to send and receive direct messages. Your
+                username will last forever, so choose it well. To support future
+                development, Zbay charges a small fee of 0.025 ZEC, which is
+                approximately $0.05 USD.
       </WithStyles(ForwardRef(Typography))>
     </WithStyles(ForwardRef(Grid))>
     <Formik

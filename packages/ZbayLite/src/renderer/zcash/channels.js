@@ -16,11 +16,11 @@ export default {
       name: 'general',
       private: true,
       address:
-        'zs1qm5kdw592l9x704xqtjln3msyn7gqnfat2uxf05yky2u7xzmsuu5ekel3tf8v4ulqnux6u3f4ac',
+        'zs12nwl3q345gumclndp7awk9exmgdm9lehk0zyrjarrmqhg97uh5pw8vkmw6554m3e7rrmqvck9js',
       description:
         'This is a general channel available to all users of Zbay by default.',
       keys: {
-        ivk: 'zivks1y3csr6f8uga948gepdpgq86mxg4dn0a6jx9qnvz07t6jqf53j5rslc9mu3'
+        ivk: 'zivks1hjwr7pqzp22cku022fjuvxsjdj40t34ht3areat9tr5kq0k7qsrqx9s8yu'
       }
     }
   },
@@ -40,10 +40,10 @@ export default {
       name: 'RegisteredUsers',
       private: true,
       address:
-        'zs1n4xfm0rsmju0fyevqwvgu5jve54v6etqv0sa7djv7kjfpwjpv7fsq54nuykax4y820ggy9g74y6',
+        'zs1e3u6jury8ahlfccudwk9z8dctsnlk32y0wc5l5tsv0e2yud4y5sdyfq69cynlscz02qnxph3uur',
       description: 'Store data about users.',
       keys: {
-        ivk: 'zivks1s4cw25evj50cagzmx8ng2jrsjvefsmpm37znwsdve6cp3fv5eczskzll2h'
+        ivk: 'zivks1gpspx8v7h34k9zptv5vdaeuhqcrkvk6g872eldt49mqzsjdzlcpqezzh95'
       }
     }
   },
@@ -63,10 +63,10 @@ export default {
       name: 'channelOfChannels',
       private: true,
       address:
-        'zs1k2kqrssynect92hpaef8ewmgwersrz5apc2gn8eyy9g0pk5gu2a6twdxaytfprkms56qcpafg72',
+        'zs1lrc8s53ajqy2suwnderegv3ap3psm9shcx0h2j0qtyp3j4dgm7f8fadulxmckrztl83egl2l05r',
       description: 'Contains list of public channels',
       keys: {
-        ivk: 'zivks14g72xlh44vsy3nk0d7y83q39hs5jkelp0de8l6a8cdkecxwfa5pquav8as'
+        ivk: 'zivks145lmuzdneatnqq737aq0zx8msaamtr8aeksryrrcm8eqgfppzgzsvugld4'
       }
     }
   },
@@ -82,9 +82,9 @@ export default {
     mainnet: {
       name: 'donation',
       address:
-        'zs15myy2d3sgn90p0rvcjlamaczqzglsdnqua6a3mz72fy5fhnke9txpg250kmzzndlu096s3d70j0',
+        'zs18hrn0u2h2u7y4fndvdmyyt8sgrsf37t7martl2pl889gkyfrsm27ga8uwxxzelx3a852s226hmd',
       publicKey:
-        '03c5c6d4199607a69f4586d00e06432e4e9370d612ce7e075b0aa3240533bb24c4'
+        '027f74dd11ad584bb4e2f77eda7ee3550469366a81963930531f037659a9d334f8'
     }
   }
 }

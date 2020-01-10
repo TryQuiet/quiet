@@ -144,10 +144,12 @@ const CustomInputComponent = ({
   classes,
   field,
   form: { touched, errors, values },
+
   ...props
 }) => {
   const { value, ...rest } = field
   const updatedValue = sanitize(value)
+
   return (
     <TextField
       variant={'outlined'}
@@ -181,8 +183,14 @@ export const CreateUsernameModal = ({
   initialValues,
   checkNickname,
   handleSubmit,
-  enoughMoney
+  enoughMoney,
+  usernameFee,
+  zecRate
 }) => {
+  const feeUsd = zecRate
+    .times(usernameFee)
+    .toFixed(2)
+    .toString()
   const [formSent, setFormSent] = useState(false)
   return (
     <Modal open={open} handleClose={handleClose}>
@@ -194,10 +202,10 @@ export const CreateUsernameModal = ({
             </Grid>
             <Grid className={classes.description} item>
               <Typography variant={'body2'}>
-                You need a username to send and receive direct messages. Your
+                {`You need a username to send and receive direct messages. Your
                 username will last forever, so choose it well. To support future
-                development, Zbay charges a small fee of 0.025 ZEC, which is
-                approximately $1 USD.
+                development, Zbay charges a small fee of ${usernameFee} ZEC, which is
+                approximately $${feeUsd} USD.`}
               </Typography>
             </Grid>
             <Formik
@@ -278,7 +286,9 @@ CreateUsernameModal.propTypes = {
   initialValues: PropTypes.object.isRequired,
   checkNickname: PropTypes.func.isRequired,
   handleSubmit: PropTypes.func.isRequired,
-  enoughMoney: PropTypes.bool.isRequired
+  enoughMoney: PropTypes.bool.isRequired,
+  usernameFee: PropTypes.number.isRequired,
+  zecRate: PropTypes.object.isRequired
 }
 
 export default R.compose(React.memo, withStyles(styles))(CreateUsernameModal)
