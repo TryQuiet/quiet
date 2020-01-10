@@ -210,6 +210,9 @@ app.on('ready', async () => {
 
     if (!isDev) {
       checkForUpdate(mainWindow)
+      setInterval(() => {
+        checkForUpdate(mainWindow)
+      }, 15 * 60)
     }
   })
 
