@@ -235,7 +235,7 @@ export const createMessage = ({ messageData, privKey }) => {
 export const createTransfer = values => {
   let memo = values.memo
   if (values.shippingInfo) {
-    memo += `\n\n Shipping information : \n${values.shippingData.firstName} ${
+    memo += `\n\n Ship to: \n${values.shippingData.firstName} ${
       values.shippingData.lastName
     }\n${values.shippingData.country} ${values.shippingData.region} \n ${
       values.shippingData.city
@@ -249,7 +249,7 @@ export const createTransfer = values => {
     },
     receiver: {
       replyTo: values.recipient,
-      username: ''
+      username: values.recipientUsername || ''
     },
     createdAt: DateTime.utc().toSeconds(),
     message: memo,

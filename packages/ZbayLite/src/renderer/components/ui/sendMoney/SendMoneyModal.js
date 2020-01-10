@@ -16,18 +16,27 @@ import { networkFee } from '../../../../shared/static'
 
 const styles = theme => ({})
 
-export const formSchema = (users) => {
+export const formSchema = users => {
   return Yup.object().shape(
     {
-      recipient: Yup
-        .mixed().test('match', 'Wrong address format or username does not exist', function (string) {
-          const isAddressValid = /^t1[a-zA-Z0-9]{33}$|^ztestsapling1[a-z0-9]{75}$|^zs1[a-z0-9]{75}$|[A-Za-z0-9]{35}/.test(string)
-          const includesNickname = users.toList().filter(obj => obj.get('nickname') === string).first()
-          return includesNickname || isAddressValid
-        })
+      recipient: Yup.mixed()
+        .test(
+          'match',
+          'Wrong address format or username does not exist',
+          function (string) {
+            const isAddressValid = /^t1[a-zA-Z0-9]{33}$|^ztestsapling1[a-z0-9]{75}$|^zs1[a-z0-9]{75}$|[A-Za-z0-9]{35}/.test(
+              string
+            )
+            const includesNickname = users
+              .toList()
+              .filter(obj => obj.get('nickname') === string)
+              .first()
+            return includesNickname || isAddressValid
+          }
+        )
         .required('Required'),
       amountZec: Yup.number()
-        .min(0.00000000, 'Please insert amount to send')
+        .min(0.0, 'Please insert amount to send')
         .required('Required'),
       amountUsd: Yup.number().required('Required'),
       memo: Yup.string().max(MESSAGE_SIZE, 'Your messsage is too long'),
@@ -85,10 +94,19 @@ export const SendMoneyModal = ({
       enableReinitialize
       onSubmit={(values, { resetForm }) => {
         const { recipient, ...rest } = values
-        const includesNickname = users.toList().filter(obj => obj.get('nickname') === recipient).first()
+        const includesNickname =
+          users
+            .toList()
+            .filter(obj => obj.get('nickname') === recipient)
+            .first() ||
+          users
+            .toList()
+            .filter(obj => obj.get('address') === recipient)
+            .first()
         if (includesNickname) {
           const messageToTransfer = createTransfer({
             recipient: includesNickname.get('address'),
+            recipientUsername: includesNickname.get('nickname'),
             ...rest,
             shippingData,
             sender: {
@@ -117,10 +135,20 @@ export const SendMoneyModal = ({
       }}
       validate={validateForm({ balanceZec, shippingData })}
     >
-      {({ values, isValid, submitForm, resetForm, errors, touched, setFieldValue }) => {
+      {({
+        values,
+        isValid,
+        submitForm,
+        resetForm,
+        errors,
+        touched,
+        setFieldValue
+      }) => {
         const stepToTitle = {
           1: '',
-          2: `Send Money to ${open ? initialValues.recipient.substring(0, 32) : null}...`,
+          2: `Send Money to ${
+            open ? initialValues.recipient.substring(0, 32) : null
+          }...`,
           3: 'Send Complete',
           4: 'Transaction Details'
         }
@@ -131,7 +159,9 @@ export const SendMoneyModal = ({
             setStep={setStep}
             open={open}
             canGoBack={step === 2}
-            handleClose={() => handleCloseForm({ handleClose, setStep, step, resetForm })}
+            handleClose={() =>
+              handleCloseForm({ handleClose, setStep, step, resetForm })
+            }
           >
             <StepComponent
               handleClose={handleClose}
@@ -203,7 +233,4 @@ SendMoneyModal.defaultProps = {
   }
 }
 
-export default R.compose(
-  React.memo,
-  withStyles(styles)
-)(SendMoneyModal)
+export default R.compose(React.memo, withStyles(styles))(SendMoneyModal)

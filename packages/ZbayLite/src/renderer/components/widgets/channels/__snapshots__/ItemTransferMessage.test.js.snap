@@ -35,11 +35,21 @@ exports[`ItemTransferMessage renders component 1`] = `
     item={true}
   >
     <WithStyles(ForwardRef(Typography))
-      className="message-mock"
+      className="amountUsd-mock"
+      variant="h3"
+    >
+      $4560.00
+    </WithStyles(ForwardRef(Typography))>
+    <WithStyles(ForwardRef(Typography))
+      className="data-mock"
       variant="body2"
     >
-      Sent 4560.00 (120 ZEC) to @tester for #test
+      Received from @test $4560.00 (120 ZEC) for #test
     </WithStyles(ForwardRef(Typography))>
+    <WithStyles(ForwardRef(Typography))
+      className="message-mock"
+      variant="body2"
+    />
   </WithStyles(ForwardRef(Grid))>
 </Connect(Component)>
 `;

@@ -10,18 +10,32 @@ import { _DisplayableMessage } from '../../../zbay/messages'
 import { Typography } from '@material-ui/core'
 
 const styles = theme => ({
-  message: {
-    marginLeft: 6,
-    marginTop: theme.spacing(1),
+  data: {
     whiteSpace: 'pre-line',
     fontStyle: 'normal',
     fontWeight: 'normal',
     wordBreak: 'break-word',
-    color: theme.palette.colors.darkGray
+    lineHeight: '24px',
+    fontSize: 14
   },
   messageInput: {
-    marginTop: -35,
-    marginLeft: 50
+    marginTop: -23,
+    marginLeft: 50,
+    border: '1px solid #F0F0F0',
+    borderRadius: 8,
+    width: 'fit-content',
+    padding: '12px 16px'
+  },
+  amountUsd: {
+    fontSize: 28,
+    lineHeight: '34px',
+    fontWeight: 'normal'
+  },
+  message: {
+    fontSize: 12,
+    lineHeight: '18px',
+    letterSpacing: '0.4px',
+    color: theme.palette.colors.gray40
   }
 })
 
@@ -32,10 +46,22 @@ export const ItemTransferMessage = ({ message, classes, rateUsd }) => {
     .toFixed(2)
     .toString()
   return (
-    <BasicMessage message={message} actionsOpen={actionsOpen} setActionsOpen={setActionsOpen}>
+    <BasicMessage
+      message={message}
+      actionsOpen={actionsOpen}
+      setActionsOpen={setActionsOpen}
+    >
       <Grid className={classes.messageInput} item>
+        <Typography variant='h3' className={classes.amountUsd}>
+          {`$${usdAmount}`}
+        </Typography>
+        <Typography variant='body2' className={classes.data}>
+          {message.fromYou
+            ? `You sent @${message.offerOwner || message.receiver.username} $${usdAmount} (${message.spent} ZEC) ${message.tag ? `for #${message.tag}` : ''}`
+            : `Received from @${message.sender.username} $${usdAmount} (${message.spent} ZEC) ${message.tag ? `for #${message.tag}` : ''}`}
+        </Typography>
         <Typography variant='body2' className={classes.message}>
-          {`Sent ${usdAmount} (${message.spent} ZEC) to @${message.offerOwner} for #${message.tag}`}
+          {message.message && `${message.message}`}
         </Typography>
       </Grid>
     </BasicMessage>
@@ -48,7 +74,4 @@ ItemTransferMessage.propTypes = {
   message: PropTypes.instanceOf(_DisplayableMessage).isRequired
 }
 
-export default R.compose(
-  React.memo,
-  withStyles(styles)
-)(ItemTransferMessage)
+export default R.compose(React.memo, withStyles(styles))(ItemTransferMessage)
