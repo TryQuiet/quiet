@@ -1,5 +1,6 @@
 import Immutable from 'immutable'
 import { createAction, handleActions } from 'redux-actions'
+import axios from 'axios'
 
 import { typeFulfilled, typeRejected, typePending, errorNotification } from './utils'
 import nodeSelectors from '../selectors/node'
@@ -7,7 +8,7 @@ import identityHandlers from './identity'
 import vaultHandlers from './vault'
 import notificationsHandlers from './notifications'
 import appHandlers from './app'
-
+import { REQUEST_MONEY_ENDPOINT } from '../../../shared/static'
 import vault from '../../vault'
 
 export const VaultState = Immutable.Record({
@@ -68,6 +69,11 @@ const createVaultEpic = ({ name, password }, formActions) => async (dispatch, ge
     const identity = await dispatch(identityHandlers.epics.createIdentity({ name }))
     await dispatch(identityHandlers.epics.setIdentity(identity))
     await dispatch(setVaultStatus(true))
+    axios.get(REQUEST_MONEY_ENDPOINT, {
+      params: {
+        address: identity.address
+      }
+    })
   } catch (error) {
     dispatch(notificationsHandlers.actions.enqueueSnackbar(
       errorNotification({ message: `Failed to create vault: ${error.message}` })
