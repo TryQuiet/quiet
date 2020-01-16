@@ -351,6 +351,9 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
       500
     )
   }
+  if (newUser === true) {
+    dispatch(modalsHandlers.actionCreators.openModal('createUsernameModal')())
+  }
   dispatch(fetchAffiliateMoney())
 }
 
