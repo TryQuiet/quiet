@@ -57,7 +57,7 @@ export const ItemTransferMessage = ({ message, classes, rateUsd }) => {
         </Typography>
         <Typography variant='body2' className={classes.data}>
           {message.fromYou
-            ? `You sent @${message.offerOwner || message.receiver.username} $${usdAmount} (${message.spent} ZEC) ${message.tag ? `for #${message.tag}` : ''}`
+            ? `You sent @${message.offerOwner || message.receiver.username} $${usdAmount} (${message.spent.toFixed(4)} ZEC) ${message.tag ? `for #${message.tag}` : ''}`
             : `Received from @${message.sender.username} $${usdAmount} (${message.spent} ZEC) ${message.tag ? `for #${message.tag}` : ''}`}
         </Typography>
         <Typography variant='body2' className={classes.message}>

@@ -167,7 +167,6 @@ const _sendPendingDirectMessages = async (dispatch, getState) => {
     messages
       .map(async (msg, key) => {
         const { message, recipientAddress } = msg.toJS()
-        console.log(msg.toJS())
         const transfer = await messageToTransfer({
           message,
           address: recipientAddress,

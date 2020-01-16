@@ -361,7 +361,6 @@ export const loadVaultMessages = ({ contact }) => async (dispatch, getState) => 
         receiver: { replyTo: contact.replyTo, username: contact.username }
       })
     )
-
   dispatch(
     setVaultMessages({
       contactAddress: contact.replyTo,
@@ -421,6 +420,31 @@ export const loadAllSentMessages = () => async (dispatch, getState) => {
       const { createdAt: contactMsgTimestamp } = newestMsg
       if (removedTimeStamp && parseInt(removedTimeStamp) > contactMsgTimestamp) {
         return
+      }
+    }
+    for (const txn of contact.messages) {
+      if (txn.status === 'pending' || txn.status === 'success') {
+        try {
+          const tx = await getClient().confirmations.getResult(txn.id)
+          if (tx.confirmations >= 1) {
+            txn.status = 'broadcasted'
+            await getVault().contacts.updateMessage({
+              identityId: identityId,
+              messageId: txn.id,
+              recipientAddress: contact.address,
+              recipientUsername: contact.username,
+              newMessageStatus: 'broadcasted'
+            })
+          }
+        } catch (error) {
+          await getVault().contacts.updateMessage({
+            identityId: identityId,
+            messageId: txn.id,
+            recipientAddress: contact.address,
+            recipientUsername: contact.username,
+            newMessageStatus: 'failed'
+          })
+        }
       }
     }
     const vaultMessagesToDisplay = contact.messages.map(msg =>
