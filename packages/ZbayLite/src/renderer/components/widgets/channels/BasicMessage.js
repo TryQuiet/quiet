@@ -62,17 +62,18 @@ const styles = theme => ({
     color: red[500]
   },
   avatar: {
-    maxHeight: 44,
-    maxWidth: 44,
-    overflow: 'hidden',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 16,
-    marginBottom: 4
+    minHeight: 36,
+    minWidth: 36,
+    marginRight: 10,
+    marginBottom: 4,
+    borderRadius: 4,
+    backgroundColor: theme.palette.colors.grayBackgroud
   },
   alignAvatar: {
-    marginTop: 4
+    marginTop: 2,
+    marginLeft: 2,
+    width: 32,
+    height: 32
   },
   moderation: {
     cursor: 'pointer',
@@ -177,9 +178,9 @@ export const BasicMessage = ({
               isUnregistered={isUnregistered}
             />
             <Grid item className={classes.avatar}>
-              <span className={classes.alignAvatar}>
-                <Jdenticon size='55' value={username} />
-              </span>
+              <div className={classes.alignAvatar}>
+                <Jdenticon size='32' value={username} />
+              </div>
             </Grid>
             <Grid container item direction='row' justify='space-between'>
               <Grid

@@ -31,14 +31,14 @@ exports[`BasicMessage renders component 1`] = `
           className="avatar-mock"
           item={true}
         >
-          <span
+          <div
             className="alignAvatar-mock"
           >
             <Jdenticon
-              size="55"
+              size="32"
               value="Unnamed"
             />
-          </span>
+          </div>
         </ForwardRef(WithStyles)>
         <ForwardRef(WithStyles)
           container={true}
@@ -117,14 +117,14 @@ exports[`BasicMessage renders component when message is sent by owner 1`] = `
           className="avatar-mock"
           item={true}
         >
-          <span
+          <div
             className="alignAvatar-mock"
           >
             <Jdenticon
-              size="55"
+              size="32"
               value="Unnamed"
             />
-          </span>
+          </div>
         </ForwardRef(WithStyles)>
         <ForwardRef(WithStyles)
           container={true}
@@ -207,14 +207,14 @@ exports[`BasicMessage renders component with status failed 1`] = `
           className="avatar-mock"
           item={true}
         >
-          <span
+          <div
             className="alignAvatar-mock"
           >
             <Jdenticon
-              size="55"
+              size="32"
               value="Unnamed"
             />
-          </span>
+          </div>
         </ForwardRef(WithStyles)>
         <ForwardRef(WithStyles)
           container={true}
@@ -305,14 +305,14 @@ exports[`BasicMessage renders correct time for different month 1`] = `
           className="avatar-mock"
           item={true}
         >
-          <span
+          <div
             className="alignAvatar-mock"
           >
             <Jdenticon
-              size="55"
+              size="32"
               value="Unnamed"
             />
-          </span>
+          </div>
         </ForwardRef(WithStyles)>
         <ForwardRef(WithStyles)
           container={true}
@@ -391,14 +391,14 @@ exports[`BasicMessage renders correct time for different year 1`] = `
           className="avatar-mock"
           item={true}
         >
-          <span
+          <div
             className="alignAvatar-mock"
           >
             <Jdenticon
-              size="55"
+              size="32"
               value="Unnamed"
             />
-          </span>
+          </div>
         </ForwardRef(WithStyles)>
         <ForwardRef(WithStyles)
           container={true}
@@ -477,14 +477,14 @@ exports[`BasicMessage renders correct time for same week 1`] = `
           className="avatar-mock"
           item={true}
         >
-          <span
+          <div
             className="alignAvatar-mock"
           >
             <Jdenticon
-              size="55"
+              size="32"
               value="Unnamed"
             />
-          </span>
+          </div>
         </ForwardRef(WithStyles)>
         <ForwardRef(WithStyles)
           container={true}
@@ -563,14 +563,14 @@ exports[`BasicMessage renders username 1`] = `
           className="avatar-mock"
           item={true}
         >
-          <span
+          <div
             className="alignAvatar-mock"
           >
             <Jdenticon
-              size="55"
+              size="32"
               value="Unnamed"
             />
-          </span>
+          </div>
         </ForwardRef(WithStyles)>
         <ForwardRef(WithStyles)
           container={true}
@@ -649,14 +649,14 @@ exports[`BasicMessage renders with status cancelled 1`] = `
           className="avatar-mock"
           item={true}
         >
-          <span
+          <div
             className="alignAvatar-mock"
           >
             <Jdenticon
-              size="55"
+              size="32"
               value="Unnamed"
             />
-          </span>
+          </div>
         </ForwardRef(WithStyles)>
         <ForwardRef(WithStyles)
           container={true}
@@ -735,14 +735,14 @@ exports[`BasicMessage renders with status pending 1`] = `
           className="avatar-mock"
           item={true}
         >
-          <span
+          <div
             className="alignAvatar-mock"
           >
             <Jdenticon
-              size="55"
+              size="32"
               value="Unnamed"
             />
-          </span>
+          </div>
         </ForwardRef(WithStyles)>
         <ForwardRef(WithStyles)
           container={true}
@@ -821,14 +821,14 @@ exports[`BasicMessage renders with status success 1`] = `
           className="avatar-mock"
           item={true}
         >
-          <span
+          <div
             className="alignAvatar-mock"
           >
             <Jdenticon
-              size="55"
+              size="32"
               value="Unnamed"
             />
-          </span>
+          </div>
         </ForwardRef(WithStyles)>
         <ForwardRef(WithStyles)
           container={true}

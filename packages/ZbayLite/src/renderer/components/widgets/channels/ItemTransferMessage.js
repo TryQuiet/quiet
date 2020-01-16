@@ -19,9 +19,9 @@ const styles = theme => ({
     fontSize: 14
   },
   messageInput: {
-    marginTop: -23,
-    marginLeft: 50,
-    border: '1px solid #F0F0F0',
+    marginTop: -16,
+    marginLeft: 46,
+    border: `1px solid ${theme.palette.colors.veryLightGray}`,
     borderRadius: 8,
     width: 'fit-content',
     padding: '12px 16px'

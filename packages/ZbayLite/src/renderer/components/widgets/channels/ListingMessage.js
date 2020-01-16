@@ -15,8 +15,8 @@ const reqSvgs =
 
 const styles = theme => ({
   root: {
-    marginTop: -26,
-    marginLeft: 58,
+    marginTop: -16,
+    marginLeft: 48,
     position: 'relative',
     backgroundColor: theme.palette.colors.white,
     width: 256,

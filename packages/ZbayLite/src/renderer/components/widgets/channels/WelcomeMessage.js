@@ -27,11 +27,11 @@ const styles = theme => ({
     marginRight: 5
   },
   avatar: {
-    marginRight: 13
+    marginRight: 10
   },
   message: {
-    marginTop: theme.spacing(1),
-    marginLeft: 6,
+    marginTop: 14,
+    marginLeft: -4,
     whiteSpace: 'pre-line',
     wordBreak: 'break-word'
   },
@@ -40,8 +40,8 @@ const styles = theme => ({
     marginLeft: 50
   },
   icon: {
-    width: 44,
-    height: 44,
+    width: 36,
+    height: 36,
     borderRadius: 4
   }
 })

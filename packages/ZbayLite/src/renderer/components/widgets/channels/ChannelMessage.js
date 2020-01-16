@@ -13,8 +13,8 @@ import BasicMessage from '../../../containers/widgets/channels/BasicMessage'
 
 const styles = theme => ({
   message: {
-    marginTop: theme.spacing(1),
-    marginLeft: 6,
+    marginTop: 14,
+    marginLeft: -4,
     whiteSpace: 'pre-line',
     wordBreak: 'break-word'
   },
