@@ -3,6 +3,15 @@
   <head>
     <meta charset="utf-8">
     <title><%= htmlWebpackPlugin.options.title %></title>
+    <script>
+      document.addEventListener("keydown", function (e) {
+        if (e.which === 123) {
+          require('electron').remote.getCurrentWindow().toggleDevTools();
+        } else if (e.which === 116) {
+          location.reload();
+        }
+      });
+    </script>
   </head>
   <body>
     <div id="root"></div>

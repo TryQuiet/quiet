@@ -23,7 +23,9 @@ const installExtensions = async () => {
   const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS']
 
   try {
-    await Promise.all(extensions.map(ext => installer.default(installer[ext], forceDownload)))
+    await Promise.all(
+      extensions.map(ext => installer.default(installer[ext], forceDownload))
+    )
   } catch (err) {
     console.error("Couldn't install devtools.")
   }
@@ -95,8 +97,6 @@ const createWindow = () => {
       hash: '/vault'
     })
   )
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools()
 
   // Emitted when the window is closed.
   mainWindow.on('closed', () => {
@@ -166,14 +166,15 @@ app.on('ready', async () => {
   ]
   const menu = Menu.buildFromTemplate(template)
   Menu.setApplicationMenu(menu)
-  if (isDev) {
-    await installExtensions()
-  }
+
+  await installExtensions()
+
   createWindow()
   mainWindow.webContents.on('did-finish-load', () => {
     mainWindow.webContents.send('ping')
     const osPaths = {
-      darwin: `${process.env.HOME || process.env.USERPROFILE}/Library/Application Support/Zcash`,
+      darwin: `${process.env.HOME ||
+        process.env.USERPROFILE}/Library/Application Support/Zcash`,
       linux: `${process.env.HOME || process.env.USERPROFILE}/.zcash`,
       win32: `${os.userInfo().homedir}\\AppData\\Roaming\\Zcash`
     }
@@ -193,13 +194,15 @@ app.on('ready', async () => {
       checkDiskSpace('/').then(diskspace => {
         const blockchainSizeLeftToFetch = BLOCKCHAIN_SIZE - downloadedSize
         const freeSpaceLeft =
-          diskspace.free - (blockchainSizeLeftToFetch + ZCASH_PARAMS + REQUIRED_FREE_SPACE)
+          diskspace.free -
+          (blockchainSizeLeftToFetch + ZCASH_PARAMS + REQUIRED_FREE_SPACE)
         if (freeSpaceLeft <= 0) {
           mainWindow.webContents.send(
             'checkDiskSpace',
-            `Sorry, but Zbay needs ${(blockchainSizeLeftToFetch / 1024 ** 3).toFixed(
-              2
-            )} GB to connect to its network and you only have ${(
+            `Sorry, but Zbay needs ${(
+              blockchainSizeLeftToFetch /
+              1024 ** 3
+            ).toFixed(2)} GB to connect to its network and you only have ${(
               diskspace.free /
               1024 ** 3
             ).toFixed(2)} free.`
