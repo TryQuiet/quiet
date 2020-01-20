@@ -1,6 +1,6 @@
 import getSize from 'get-folder-size'
 import checkDiskSpace from 'check-disk-space'
-import { app, BrowserWindow, Menu, ipcMain } from 'electron'
+import { app, BrowserWindow, Menu, ipcMain, globalShortcut } from 'electron'
 import os from 'os'
 import path from 'path'
 import url from 'url'
@@ -166,6 +166,10 @@ app.on('ready', async () => {
   ]
   const menu = Menu.buildFromTemplate(template)
   Menu.setApplicationMenu(menu)
+
+  globalShortcut.register('F11', () => {
+    mainWindow.webContents.send('toggleCoordinator', {})
+  })
 
   await installExtensions()
 

@@ -9,7 +9,9 @@ import nodeHandlers from './store/handlers/node'
 import updateHandlers from './store/handlers/update'
 import invitationHandlers from './store/handlers/invitation'
 import importChannelHandlers from './store/handlers/importedChannel'
+import coordinatorHandlers from './store/handlers/coordinator'
 import nodeSelectors from './store/selectors/node'
+import coordinatorSelectors from './store/selectors/coordinator'
 import { errorNotification, successNotification } from './store/handlers/utils'
 
 import notificationsHandlers from './store/handlers/notifications'
@@ -43,6 +45,15 @@ ipcRenderer.on('newInvitation', (event, { invitation }) => {
         errorNotification({ message: `Please wait for full node sync before opening invitation` })
       )
     )
+  }
+})
+ipcRenderer.on('toggleCoordinator', () => {
+  if (coordinatorSelectors.running(store.getState()) === true) {
+    store.dispatch(coordinatorHandlers.actions.stopCoordinator())
+    console.log('coordinator stopped')
+  } else {
+    store.dispatch(coordinatorHandlers.actions.startCoordinator())
+    console.log('coordinator started')
   }
 })
 
