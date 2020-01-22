@@ -268,6 +268,8 @@ const fetchBlockchain = async (win, torUrl) => {
     const convertedSpeed = speed ? Math.abs(speed.toFixed()) : null
     const eta = convertedSpeed ? convert(((BLOCKCHAIN_SIZE - fetchedSize) / convertedSpeed).toFixed()) : null
     mainWindow.webContents.send('fetchingStatus', {
+      sizeLeft: BLOCKCHAIN_SIZE - fetchedSize,
+      part: 'blockchain',
       eta,
       speed: convertedSpeed
     })
@@ -304,7 +306,7 @@ const createZcashNode = async (win, torUrl) => {
   const isFetchedFromExternalSource = blockchainFolderSize >= 26046042950
   let AppStatus = electronStore.get('AppStatus')
   const vaultStatus = electronStore.get('vaultStatus')
-  if (!isDev) {
+  if (isDev) {
     if (!AppStatus && !isFetchedFromExternalSource) {
       electronStore.set('AppStatus', {
         params: {
@@ -425,7 +427,7 @@ app.on('ready', async () => {
       })
     })
 
-    if (!isDev) {
+    if (isDev) {
       checkForUpdate(mainWindow)
       setInterval(() => {
         checkForUpdate(mainWindow)
@@ -439,7 +441,7 @@ app.on('ready', async () => {
 
   ipcMain.on('vault-created', (event, arg) => {
     electronStore.set('vaultStatus', config.VAULT_STATUSES.CREATED)
-    if (!isDev) {
+    if (isDev) {
       const { status } = electronStore.get('AppStatus.blockchain')
       if (status !== config.BLOCKCHAIN_STATUSES.SUCCESS) {
         nodeProc.on('close', (code) => {
@@ -459,7 +461,7 @@ app.on('ready', async () => {
     }
     if (!running) {
       running = true
-      if (!isDev) {
+      if (isDev) {
         createZcashNode(mainWindow, torUrl)
       }
     }
