@@ -22,6 +22,17 @@ Immutable.NodeState {
     "loading": false,
     "message": "",
   },
+  "fetchingStatus": Immutable.Record {
+    "sizeLeft": 0,
+    "part": "",
+    "fetchingStatus": "",
+    "fetchingSpeed": "",
+    "fetchingEndTime": Object {
+      "hours": null,
+      "minutes": null,
+      "seconds": null,
+    },
+  },
   "startedAt": null,
 }
 `;
@@ -38,6 +49,17 @@ Immutable.NodeState {
     "loading": false,
     "message": "",
   },
+  "fetchingStatus": Immutable.Record {
+    "sizeLeft": 0,
+    "part": "",
+    "fetchingStatus": "",
+    "fetchingSpeed": "",
+    "fetchingEndTime": Object {
+      "hours": null,
+      "minutes": null,
+      "seconds": null,
+    },
+  },
   "startedAt": null,
 }
 `;
@@ -53,6 +75,17 @@ Immutable.NodeState {
   "bootstrapLoader": Immutable.Record {
     "loading": false,
     "message": "",
+  },
+  "fetchingStatus": Immutable.Record {
+    "sizeLeft": 0,
+    "part": "",
+    "fetchingStatus": "",
+    "fetchingSpeed": "",
+    "fetchingEndTime": Object {
+      "hours": null,
+      "minutes": null,
+      "seconds": null,
+    },
   },
   "startedAt": null,
 }

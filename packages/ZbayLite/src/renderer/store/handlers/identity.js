@@ -292,11 +292,11 @@ export const createIdentity = ({ name }) => async (dispatch, getState) => {
   }
 }
 
-export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
+export const setIdentityEpic = (identityToSet, isNewUser) => async (dispatch, getState) => {
+  let identity = await migrateTo_0_2_0.ensureIdentityHasKeys(identityToSet)
   dispatch(setLoading(true))
   try {
     dispatch(setLoadingMessage('Ensuring identity integrity'))
-    let identity = await migrateTo_0_2_0.ensureIdentityHasKeys(identityToSet)
     // Make sure identity is handled by the node
     await dispatch(setLoadingMessage('Ensuring node contains identity keys'))
 

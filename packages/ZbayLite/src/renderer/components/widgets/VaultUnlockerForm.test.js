@@ -4,6 +4,10 @@ import { shallow } from 'enzyme'
 
 import { mockClasses } from '../../../shared/testing/mocks'
 import { VaultUnlockerForm } from './VaultUnlockerForm'
+jest.mock('../../../shared/electronStore', () => ({
+  set: () => {},
+  get: () => {}
+}))
 
 describe('VaultUnlockerForm', () => {
   it('renders component', () => {

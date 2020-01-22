@@ -38,8 +38,14 @@ const network = createSelector(node, n => {
 const isConnected = createSelector(status, s => ['healthy', 'syncing'].includes(s))
 
 const loader = createSelector(node, n => n.bootstrapLoader)
+const fetching = createSelector(node, n => n.fetchingStatus)
 const bootstrapping = createSelector(loader, n => n.loading)
 const bootstrappingMessage = createSelector(loader, n => n.message)
+const fetchingPart = createSelector(fetching, n => n.part)
+const fetchingSize = createSelector(fetching, n => n.sizeLeft)
+const fetchingStatus = createSelector(fetching, n => n.fetchingStatus)
+const fetchingSpeed = createSelector(fetching, n => n.fetchingSpeed)
+const fetchingEndTime = createSelector(fetching, n => n.fetchingEndTime)
 
 export default {
   node,
@@ -52,5 +58,10 @@ export default {
   percentSynced,
   isConnected,
   bootstrapping,
-  bootstrappingMessage
+  bootstrappingMessage,
+  fetchingPart,
+  fetchingSize,
+  fetchingStatus,
+  fetchingSpeed,
+  fetchingEndTime
 }

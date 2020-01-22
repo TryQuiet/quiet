@@ -2,6 +2,21 @@
 
 exports[`SyncLoader will receive right props 1`] = `
 Object {
+  "bootstrapping": false,
+  "bootstrappingMessage": "",
+  "creating": false,
+  "exists": null,
+  "fetchingEndTime": Object {
+    "hours": null,
+    "minutes": null,
+    "seconds": null,
+  },
+  "fetchingPart": "",
+  "fetchingSizeLeft": 0,
+  "fetchingSpeed": "",
+  "fetchingStatus": "",
+  "hasAddress": "",
+  "locked": true,
   "node": Immutable.NodeState {
     "latestBlock": 100,
     "currentBlock": 1,
@@ -13,7 +28,19 @@ Object {
       "loading": false,
       "message": "",
     },
+    "fetchingStatus": Immutable.Record {
+      "sizeLeft": 0,
+      "part": "",
+      "fetchingStatus": "",
+      "fetchingSpeed": "",
+      "fetchingEndTime": Object {
+        "hours": null,
+        "minutes": null,
+        "seconds": null,
+      },
+    },
     "startedAt": null,
   },
+  "nodeConnected": false,
 }
 `;

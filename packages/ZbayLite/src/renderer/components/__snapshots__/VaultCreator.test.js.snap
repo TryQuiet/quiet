@@ -11,7 +11,6 @@ exports[`VaultCreator passes initial values 1`] = `
     }
   }
   isInitialValid={false}
-  onSubmit={[MockFunction]}
   validate={[Function]}
   validateOnBlur={true}
   validateOnChange={true}
@@ -30,7 +29,6 @@ exports[`VaultCreator passes initial values 1`] = `
       "_nodes": Array [
         "repeat",
         "password",
-        "name",
       ],
       "_options": Object {
         "abortEarly": true,
@@ -43,40 +41,6 @@ exports[`VaultCreator passes initial values 1`] = `
         "refs": Map {},
       },
       "fields": Object {
-        "name": StringSchema {
-          "_blacklist": RefSet {
-            "list": Set {},
-            "refs": Map {},
-          },
-          "_conditions": Array [],
-          "_deps": Array [],
-          "_exclusive": Object {
-            "max": true,
-            "min": true,
-            "required": true,
-            "undefined": false,
-          },
-          "_mutate": undefined,
-          "_options": Object {
-            "abortEarly": true,
-            "recursive": true,
-          },
-          "_type": "string",
-          "_typeError": [Function],
-          "_whitelist": RefSet {
-            "list": Set {},
-            "refs": Map {},
-          },
-          "tests": Array [
-            [Function],
-            [Function],
-            [Function],
-            [Function],
-          ],
-          "transforms": Array [
-            [Function],
-          ],
-        },
         "password": StringSchema {
           "_blacklist": RefSet {
             "list": Set {},
@@ -158,13 +122,11 @@ exports[`VaultCreator renders component 1`] = `
   enableReinitialize={false}
   initialValues={
     Object {
-      "name": "",
       "password": "",
       "repeat": "",
     }
   }
   isInitialValid={false}
-  onSubmit={[MockFunction]}
   validate={[Function]}
   validateOnBlur={true}
   validateOnChange={true}
@@ -183,7 +145,6 @@ exports[`VaultCreator renders component 1`] = `
       "_nodes": Array [
         "repeat",
         "password",
-        "name",
       ],
       "_options": Object {
         "abortEarly": true,
@@ -196,40 +157,6 @@ exports[`VaultCreator renders component 1`] = `
         "refs": Map {},
       },
       "fields": Object {
-        "name": StringSchema {
-          "_blacklist": RefSet {
-            "list": Set {},
-            "refs": Map {},
-          },
-          "_conditions": Array [],
-          "_deps": Array [],
-          "_exclusive": Object {
-            "max": true,
-            "min": true,
-            "required": true,
-            "undefined": false,
-          },
-          "_mutate": undefined,
-          "_options": Object {
-            "abortEarly": true,
-            "recursive": true,
-          },
-          "_type": "string",
-          "_typeError": [Function],
-          "_whitelist": RefSet {
-            "list": Set {},
-            "refs": Map {},
-          },
-          "tests": Array [
-            [Function],
-            [Function],
-            [Function],
-            [Function],
-          ],
-          "transforms": Array [
-            [Function],
-          ],
-        },
         "password": StringSchema {
           "_blacklist": RefSet {
             "list": Set {},
@@ -311,11 +238,3 @@ Object {
 exports[`VaultCreator repeat is longer than 6 characters 1`] = `[ValidationError: Should contain at least 6 characters]`;
 
 exports[`VaultCreator repeat is present 1`] = `[ValidationError: Required]`;
-
-exports[`VaultCreator validates contains only alphanumeric characters and underscore 1`] = `[ValidationError: Should only contain alphanumeric characters and underscore.]`;
-
-exports[`VaultCreator validates is present 1`] = `[ValidationError: Required]`;
-
-exports[`VaultCreator validates name is longer than 2 characters 1`] = `[ValidationError: Should contain at least 3 characters]`;
-
-exports[`VaultCreator validates name is shorter than 21 characters 1`] = `[ValidationError: Should contain no more than 20 characters]`;

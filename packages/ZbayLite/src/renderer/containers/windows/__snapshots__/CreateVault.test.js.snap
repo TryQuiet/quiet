@@ -6,21 +6,32 @@ exports[`CreateVault should render wrapped component correctly 1`] = `
   finished={null}
   inProgress={false}
   inProgressMsg="creating"
+  isVaultCreationComplete={null}
+  passwordPosted={null}
+  setPasswordPosted={[Function]}
+  storePass={[Function]}
 />
 `;
 
 exports[`CreateVault will receive right actions 1`] = `
 Object {
+  "createVault": [Function],
+  "getStatus": [Function],
   "onCloseSnackbar": [Function],
 }
 `;
 
 exports[`CreateVault will receive right props 1`] = `
 Object {
+  "bootstrapping": false,
+  "bootstrappingMessage": "",
+  "creating": false,
   "error": "",
   "exists": true,
   "loading": false,
   "locked": false,
+  "newUser": false,
+  "nodeConnected": false,
   "unlocking": false,
 }
 `;

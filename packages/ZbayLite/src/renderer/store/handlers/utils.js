@@ -29,6 +29,18 @@ export const LoaderState = Immutable.Record({
   message: ''
 })
 
+export const FetchingState = Immutable.Record({
+  sizeLeft: 0,
+  part: '',
+  fetchingStatus: '',
+  fetchingSpeed: '',
+  fetchingEndTime: {
+    hours: null,
+    minutes: null,
+    seconds: null
+  }
+})
+
 export default {
   typePending,
   typeFulfilled,

@@ -4,6 +4,11 @@ import { mapStateToProps } from './SyncLoader'
 import create from '../../store/create'
 import { NodeState } from '../../store/handlers/node'
 
+jest.mock('../../../shared/electronStore', () => ({
+  set: () => {},
+  get: () => {}
+}))
+
 describe('SyncLoader', () => {
   let store = null
   beforeEach(() => {

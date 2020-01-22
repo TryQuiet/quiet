@@ -2,7 +2,13 @@
 jest.mock('../../../shared/migrations/0_2_0')
 jest.mock('../../vault')
 jest.mock('../../zcash')
+jest.mock('crypto')
+jest.mock('../../../shared/electronStore', () => ({
+  set: () => {},
+  get: () => {}
+}))
 
+import crypto from 'crypto'
 import Immutable from 'immutable'
 import { DateTime } from 'luxon'
 
@@ -20,6 +26,7 @@ import { NodeState } from './node'
 import { mock as zcashMock } from '../../zcash'
 import { createArchive } from '../../vault/marshalling'
 import { createIdentity, now } from '../../testUtils'
+import electronStore from '../../../shared/electronStore'
 
 describe('vault reducer', () => {
   let store = null
@@ -204,8 +211,8 @@ describe('vault reducer', () => {
       }
 
       beforeEach(() => {
+        crypto.randomBytes.mockImplementationOnce(() => Buffer.from('test'))
         mock.setArchive(createArchive())
-
         jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => now)
         vault.identity.createIdentity.mockImplementation(async identity => ({
           ...identity,
@@ -233,6 +240,7 @@ describe('vault reducer', () => {
       })
 
       it('creates identity and sets balance', async () => {
+        jest.spyOn(electronStore, 'get').mockImplementation(() => 'SUCCESS')
         identityHandlers.exportFunctions.createSignerKeys = jest.fn().mockReturnValue({
           signerPrivKey: 'KbtPfOrzAoAkbZxsNt/VdIp3J5owzgCFcm5PRs4iYBQ=',
           signerPubKey: 'Ay4dSDZfpd9qRDxc80nDE4Ee+PGZ3aY4h3uxONDcBnK2'
@@ -255,6 +263,7 @@ describe('vault reducer', () => {
       })
 
       it('bootstraps general channel to new account', async () => {
+        jest.spyOn(electronStore, 'get').mockImplementation(() => 'SUCCESS')
         await store.dispatch(epics.createVault(formValues, formActions))
 
         const channels = channelsSelectors.channels(store.getState())
@@ -265,12 +274,6 @@ describe('vault reducer', () => {
           0,
           'ztestsapling1dfjv308amnk40s89trkvz646ne69553us0g858mmpgsw540efgftn4tf25gts2cttg3jgk9y8lx'
         )
-      })
-
-      it('terminates submission', async () => {
-        await store.dispatch(epics.createVault(formValues, formActions))
-
-        expect(formActions.setSubmitting).toHaveBeenCalledWith(false)
       })
     })
   })

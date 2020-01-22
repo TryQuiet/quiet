@@ -10,6 +10,7 @@ Object {
 exports[`Vault will receive right props 1`] = `
 Object {
   "exists": true,
+  "newUser": false,
   "nodeConnected": true,
 }
 `;

@@ -1,5 +1,10 @@
 /* eslint import/first: 0 */
 jest.mock('../../vault')
+jest.mock('../../../shared/electronStore', () => ({
+  set: () => {},
+  get: () => {}
+}))
+
 import { mapStateToProps, mapDispatchToProps } from './VaultUnlockerForm'
 
 import create from '../../store/create'

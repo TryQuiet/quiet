@@ -4,7 +4,6 @@ import { Redirect } from 'react-router'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 
-import IndexComponent from '../../components/windows/Index'
 import nodeHandlers from '../../store/handlers/node'
 import appHandlers from '../../store/handlers/app'
 import nodeSelectors from '../../store/selectors/node'
@@ -33,6 +32,7 @@ export const Index = ({
   loadVersion,
   locked,
   createZcashNode,
+  bootstrapping,
   ...props
 }) => {
   useEffect(() => {
@@ -40,15 +40,7 @@ export const Index = ({
   })
 
   useInterval(getStatus, 5000)
-  return nodeConnected ? (
-    locked ? (
-      <Redirect to='/vault' />
-    ) : (
-      <Redirect to='/loading' />
-    )
-  ) : (
-    <IndexComponent {...props} />
-  )
+  return locked ? <Redirect to='/vault' /> : <Redirect to='/loading' />
 }
 
 Index.propTypes = {

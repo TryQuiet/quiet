@@ -16,6 +16,17 @@ Immutable.NodeState {
     "loading": true,
     "message": "Test loader message",
   },
+  "fetchingStatus": Immutable.Record {
+    "sizeLeft": 0,
+    "part": "",
+    "fetchingStatus": "",
+    "fetchingSpeed": "",
+    "fetchingEndTime": Object {
+      "hours": null,
+      "minutes": null,
+      "seconds": null,
+    },
+  },
   "startedAt": "2019-03-05T09:34:48.000Z",
 }
 `;

@@ -5,52 +5,30 @@ exports[`SyncLoader renders component 1`] = `
   className="root-mock"
 >
   <WithStyles(ForwardRef(Grid))
+    alignContent="center"
     alignItems="center"
+    className="box-mock"
     container={true}
     justify="center"
   >
     <WithStyles(ForwardRef(Grid))
+      alignContent="center"
       alignItems="center"
+      className="logoContainer-mock"
       container={true}
-      direction="column"
       item={true}
       justify="center"
+      xs={12}
     >
       <WithStyles(ForwardRef(Grid))
         className="iconDiv-mock"
         item={true}
       >
-        <div
-          style={
-            Object {
-              "maxHeight": 247.5,
-              "overflow": "hidden",
-            }
-          }
-        >
-          <WithStyles(ForwardRef(CardMedia))
-            className="icongray-mock"
-            image="test-file-stub"
-          />
-        </div>
-        <div
-          style={
-            Object {
-              "maxHeight": 2.5,
-              "overflow": "hidden",
-            }
-          }
-        >
-          <WithStyles(ForwardRef(CardMedia))
-            className="icon-mock"
-            image="test-file-stub"
-            style={
-              Object {
-                "marginTop": -247.5,
-              }
-            }
-          />
-        </div>
+        <Memo(Icon)
+          className="icon-mock"
+          image="test-file-stub"
+          src="test-file-stub"
+        />
       </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>
     <WithStyles(ForwardRef(Grid))
@@ -61,87 +39,55 @@ exports[`SyncLoader renders component 1`] = `
       <WithStyles(undefined) />
     </WithStyles(ForwardRef(Grid))>
     <WithStyles(ForwardRef(Grid))
-      alignItems="center"
       container={true}
       item={true}
-      justify="center"
-    >
-      <WithStyles(ForwardRef(LinearProgress))
-        className="progressBar-mock"
-      />
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      className="statusDiv-mock"
-      item={true}
-      xs={12}
-    >
-      <WithStyles(ForwardRef(Typography))
-        className="status-mock"
-        variant="caption"
-      >
-        Syncing 
-        1.00
-        %
-      </WithStyles(ForwardRef(Typography))>
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      alignItems="center"
-      className="infoContainer-mock"
-      container={true}
-      direction="column"
-      item={true}
-      justify="center"
     >
       <WithStyles(ForwardRef(Grid))
-        className="detailsDiv-mock"
+        alignItems="center"
         container={true}
         item={true}
-        justify="space-between"
+        justify="center"
       >
-        <WithStyles(ForwardRef(Typography))
-          className="text-mock"
-        >
-          network
-        </WithStyles(ForwardRef(Typography))>
-        <WithStyles(ForwardRef(Typography))
-          className="text-mock"
-        >
-          mainnet
-        </WithStyles(ForwardRef(Typography))>
+        <WithStyles(ForwardRef(LinearProgress))
+          classes={
+            Object {
+              "barColorPrimary": "progressBar-mock",
+              "root": "rootBar-mock",
+            }
+          }
+          value="NaN"
+          variant="determinate"
+        />
       </WithStyles(ForwardRef(Grid))>
       <WithStyles(ForwardRef(Grid))
-        className="detailsDiv-mock"
-        container={true}
+        className="statusDiv-mock"
         item={true}
-        justify="space-between"
+        xs={12}
       >
-        <WithStyles(ForwardRef(Typography))
-          className="text-mock"
+        <WithStyles(ForwardRef(Grid))
+          alignItems="center"
+          container={true}
+          item={true}
+          justify="center"
+          wrap="wrap"
         >
-          blocks
-        </WithStyles(ForwardRef(Typography))>
-        <WithStyles(ForwardRef(Typography))
-          className="text-mock"
-        >
-          1 / ~100
-        </WithStyles(ForwardRef(Typography))>
-      </WithStyles(ForwardRef(Grid))>
-      <WithStyles(ForwardRef(Grid))
-        className="detailsDiv-mock"
-        container={true}
-        item={true}
-        justify="space-between"
-      >
-        <WithStyles(ForwardRef(Typography))
-          className="text-mock"
-        >
-          connections
-        </WithStyles(ForwardRef(Typography))>
-        <WithStyles(ForwardRef(Typography))
-          className="text-mock"
-        >
-          0
-        </WithStyles(ForwardRef(Typography))>
+          <WithStyles(ForwardRef(Typography))
+            className="status-mock"
+            variant="caption"
+          >
+            Downloading undefined data from S3, size left NaN GB / ~ 20 GB
+          </WithStyles(ForwardRef(Typography))>
+          <WithStyles(ForwardRef(Typography))
+            className="status-mock"
+            variant="caption"
+          >
+            Current Download Speed: NaN MB/s,
+          </WithStyles(ForwardRef(Typography))>
+          <WithStyles(ForwardRef(Typography))
+            className="status-mock"
+            variant="caption"
+          />
+        </WithStyles(ForwardRef(Grid))>
       </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>

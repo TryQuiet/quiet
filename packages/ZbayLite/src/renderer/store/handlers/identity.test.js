@@ -2,6 +2,10 @@
 jest.mock('../../../shared/migrations/0_2_0')
 jest.mock('../../vault')
 jest.mock('../../zcash')
+jest.mock('../../../shared/electronStore', () => ({
+  set: () => {},
+  get: () => {}
+}))
 
 import BigNumber from 'bignumber.js'
 import { DateTime } from 'luxon'

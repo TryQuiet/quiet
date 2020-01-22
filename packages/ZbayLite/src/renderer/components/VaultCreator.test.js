@@ -34,62 +34,6 @@ describe('VaultCreator', () => {
     expect(result).toMatchSnapshot()
   })
 
-  describe('validates', () => {
-    describe('name', () => {
-      it('is longer than 2 characters', async () => {
-        expect.assertions(1)
-        try {
-          await formSchema.validate({
-            ...validValues,
-            name: 'ts'
-          })
-        } catch (err) {
-          expect(err).toMatchSnapshot()
-        }
-      })
-
-      it('is shorter than 21 characters', async () => {
-        expect.assertions(1)
-        try {
-          await formSchema.validate({
-            ...validValues,
-            name: 'ThisNameIsWaaaaaaaayTooLong'
-          })
-        } catch (err) {
-          expect(err).toMatchSnapshot()
-        }
-      })
-    })
-
-    it('contains only alphanumeric characters and underscore', async () => {
-      const valid = {
-        ...validValues,
-        name: 'GoodName_1234'
-      }
-      const validated = await formSchema.validate(valid)
-
-      expect.assertions(2)
-      expect(validated).toEqual(valid)
-      try {
-        await formSchema.validate({
-          ...validValues,
-          name: '!GoodName'
-        })
-      } catch (err) {
-        expect(err).toMatchSnapshot()
-      }
-    })
-
-    it('is present', async () => {
-      expect.assertions(1)
-      try {
-        await formSchema.validate(R.omit(['name'], validValues))
-      } catch (err) {
-        expect(err).toMatchSnapshot()
-      }
-    })
-  })
-
   describe('password', () => {
     it('is longer than 6 characters', async () => {
       expect.assertions(1)

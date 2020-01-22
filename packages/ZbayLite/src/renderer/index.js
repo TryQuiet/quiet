@@ -23,6 +23,24 @@ ipcRenderer.on('bootstrappingNode', (event, { bootstrapping, message }) => {
   store.dispatch(nodeHandlers.actions.setBootstrappingMessage(message))
 })
 
+ipcRenderer.on('fetchingStatus', (event, { sizeLeft, part, status, speed, eta }) => {
+  if (sizeLeft) {
+    store.dispatch(nodeHandlers.actions.setFetchingSizeLeft(sizeLeft))
+  }
+  if (part) {
+    store.dispatch(nodeHandlers.actions.setFetchingPart(part))
+  }
+  if (status) {
+    store.dispatch(nodeHandlers.actions.setFetchingStatus(status))
+  }
+  if (speed) {
+    store.dispatch(nodeHandlers.actions.setFetchingSpeed(speed))
+  }
+  if (eta) {
+    store.dispatch(nodeHandlers.actions.setFetchingEndTime(eta))
+  }
+})
+
 ipcRenderer.on('newUpdateAvailable', event => {
   store.dispatch(updateHandlers.epics.checkForUpdate())
 })
@@ -30,6 +48,7 @@ ipcRenderer.on('newUpdateAvailable', event => {
 ipcRenderer.on('checkDiskSpace', (event, msg) => {
   store.dispatch(notificationsHandlers.actions.enqueueSnackbar(errorNotification({ message: msg })))
 })
+
 ipcRenderer.on('successMessage', (event, msg) => {
   store.dispatch(
     notificationsHandlers.actions.enqueueSnackbar(successNotification({ message: msg }))

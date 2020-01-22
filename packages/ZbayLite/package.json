@@ -26,13 +26,7 @@
         "build/icon.*",
         "package.json"
       ],
-      "extraResources": [
-        "zcash/**/*",
-        {
-          "from": "../../../.zcash-params",
-          "to": "zcash/ZcashParams"
-        }
-      ]
+      "extraResources": "zcash/**/*"
     },
     "linux": {
       "target": [
@@ -51,7 +45,7 @@
     "extraResources": "zcash/**/*"
   },
   "homepage": "https://gitlab.rumblefishdev.com/holmes/zbay",
-  "version": "0.9.6-dev-2",
+  "version": "0.9.96-dev-2",
   "description": "Distributed goods and bulletin board",
   "main": "dist/main.js",
   "scripts": {
@@ -59,7 +53,7 @@
     "disttest": "export SOURCE_PATH=darwin && export TARGET_PATH=darwin && npm run pullBinaries && npm run build:prod && electron-builder --mac",
     "distUbuntu16": "export SOURCE_PATH=linux/ubuntu16 && export TARGET_PATH=linux && npm run pullBinaries && npm run build:prod && electron-builder --linux",
     "distUbuntu18": "export SOURCE_PATH=linux/ubuntu18 && export TARGET_PATH=linux && npm run pullBinaries && npm run build:prod && electron-builder --linux",
-    "distwin": "export SOURCE_PATH=win32 && export TARGET_PATH=win32 && npm run pullBinariesWin && npm run pullResources && npm run build:prod && electron-builder --win",
+    "distwin": "export SOURCE_PATH=win32 && export TARGET_PATH=win32 && npm run pullBinariesWin && npm run build:prod && electron-builder --win",
     "pullResources": "./zcash/win32/zcash-fetch-params",
     "pullBinaries": "wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/zcashd -P ./zcash/$TARGET_PATH/ && wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/zcash-fetch-params -P ./zcash/$TARGET_PATH/",
     "pullBinariesWin": "wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/zcashd.exe -P ./zcash/$TARGET_PATH/ && wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/zcash-fetch-params -P ./zcash/$TARGET_PATH/",
@@ -154,6 +148,7 @@
     "@material-ui/core": "^4.7.1",
     "@material-ui/icons": "^4.2.1",
     "@material-ui/lab": "^4.0.0-alpha.34",
+    "async": "^3.1.0",
     "electron-debug": "^2.1.0",
     "electron-devtools-installer": "^2.2.4",
     "axios": "^0.18.0",
@@ -163,10 +158,12 @@
     "buttercup": "^2.10.0",
     "check-disk-space": "^2.1.0",
     "classnames": "^2.2.6",
+    "convert-seconds": "^1.0.1",
     "country-region-data": "^1.4.7",
     "electron-store": "^5.1.0",
     "electron-store-webpack-wrapper": "^0.0.2",
     "electron-updater": "^4.0.6",
+    "find-process": "^1.4.3",
     "formik": "^1.5.4",
     "formik-material-ui": "0.0.22",
     "fs-extra": "^8.1.0",
@@ -199,6 +196,8 @@
     "redux-immutable": "^4.0.0",
     "redux-promise-middleware": "^5.1.1",
     "redux-thunk": "^2.3.0",
+    "request": "^2.88.0",
+    "request-progress": "^3.0.0",
     "reselect": "^4.0.0",
     "typeface-roboto": "0.0.54",
     "yup": "^0.27.0"

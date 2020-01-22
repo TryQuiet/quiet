@@ -2,13 +2,21 @@ import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 
+import { useInterval } from '../hooks'
 import CreateVault from '../../components/windows/CreateVault'
+import Loading from '../../containers/windows/Loading'
 import vaultSelectors from '../../store/selectors/vault'
+import appSelectors from '../../store/selectors/app'
+import nodeSelectors from '../../store/selectors/node'
 import vaultHandlers from '../../store/handlers/vault'
+import nodeHandlers from '../../store/handlers/node'
+
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      onCloseSnackbar: vaultHandlers.actions.clearError
+      onCloseSnackbar: vaultHandlers.actions.clearError,
+      getStatus: nodeHandlers.epics.getStatus,
+      createVault: (password) => vaultHandlers.epics.createVault({ password })
     },
     dispatch
   )
@@ -18,7 +26,12 @@ export const mapStateToProps = state => ({
   locked: vaultSelectors.locked(state),
   error: vaultSelectors.error(state),
   unlocking: vaultSelectors.unlocking(state),
-  loading: vaultSelectors.creating(state)
+  loading: vaultSelectors.creating(state),
+  nodeConnected: nodeSelectors.isConnected(state),
+  bootstrapping: nodeSelectors.bootstrapping(state),
+  bootstrappingMessage: nodeSelectors.bootstrappingMessage(state),
+  newUser: appSelectors.newUser(state),
+  creating: vaultSelectors.creating(state)
 })
 
 export const CreateVaultWrapper = ({
@@ -27,9 +40,19 @@ export const CreateVaultWrapper = ({
   error,
   unlocking,
   loading,
-  onCloseSnackbar
+  onCloseSnackbar,
+  bootstrapping,
+  bootstrappingMessage,
+  nodeConnected,
+  getStatus,
+  createVault,
+  newUser,
+  creating
 }) => {
+  useInterval(getStatus, 5000)
   const [done, setDone] = useState(null)
+  const [password, storePass] = useState(null)
+  const [passwordPosted, setPasswordPosted] = useState(null)
   useEffect(
     () => {
       if (exists && !locked) {
@@ -46,13 +69,27 @@ export const CreateVaultWrapper = ({
     },
     [unlocking]
   )
-  return (
+  useEffect(
+    () => {
+      if (passwordPosted && !bootstrapping && nodeConnected) {
+        createVault(password)
+      }
+    },
+    [passwordPosted, bootstrapping, nodeConnected]
+  )
+  const isVaultCreationComplete = passwordPosted && !bootstrapping && nodeConnected
+  const isDev = process.env.NODE_ENV === 'development'
+  return (!isDev && (passwordPosted || newUser)) ? <Loading message={bootstrapping ? bootstrappingMessage : null} /> : (
     <CreateVault
       inProgress={loading || unlocking}
       inProgressMsg={loading ? 'loading' : 'creating'}
       finished={done}
       error={error}
+      storePass={storePass}
+      setPasswordPosted={setPasswordPosted}
       onCloseSnackbar={onCloseSnackbar}
+      passwordPosted={passwordPosted}
+      isVaultCreationComplete={isVaultCreationComplete}
     />
   )
 }

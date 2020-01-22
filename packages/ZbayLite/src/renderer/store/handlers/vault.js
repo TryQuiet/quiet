@@ -1,5 +1,7 @@
 import Immutable from 'immutable'
 import { createAction, handleActions } from 'redux-actions'
+import crypto from 'crypto'
+import { ipcRenderer } from 'electron'
 import axios from 'axios'
 
 import { typeFulfilled, typeRejected, typePending, errorNotification } from './utils'
@@ -56,8 +58,9 @@ const loadVaultStatus = () => async (dispatch, getState) => {
   await dispatch(setVaultStatus(vault.exists(network)))
 }
 
-const createVaultEpic = ({ name, password }, formActions) => async (dispatch, getState) => {
+const createVaultEpic = ({ password }) => async (dispatch, getState) => {
   const network = nodeSelectors.network(getState())
+  const randomBytes = crypto.randomBytes(32).toString('hex')
   try {
     await dispatch(appHandlers.actions.setNewUser(true))
     await dispatch(createVault({ masterPassword: password, network }))
@@ -66,9 +69,10 @@ const createVaultEpic = ({ name, password }, formActions) => async (dispatch, ge
       createSource: true,
       network
     }))
-    const identity = await dispatch(identityHandlers.epics.createIdentity({ name }))
+    const identity = await dispatch(identityHandlers.epics.createIdentity({ name: randomBytes }))
     await dispatch(identityHandlers.epics.setIdentity(identity))
     await dispatch(setVaultStatus(true))
+    ipcRenderer.send('vault-created')
     axios.get(REQUEST_MONEY_ENDPOINT, {
       params: {
         address: identity.address
@@ -79,7 +83,6 @@ const createVaultEpic = ({ name, password }, formActions) => async (dispatch, ge
       errorNotification({ message: `Failed to create vault: ${error.message}` })
     ))
   }
-  formActions.setSubmitting(false)
 }
 export const setVaultIdentity = () => async (dispatch, getState) => {
   try {

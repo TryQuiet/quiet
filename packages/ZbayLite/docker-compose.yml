@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   znode-mainnet:
-    image: rumblefish1337/zcashnode:v2.1.0-1
+    image: 045028348791.dkr.ecr.eu-central-1.amazonaws.com/zcash:2.0.5-1-fork
     tty: true
     ports:
       - 8334:8334
@@ -9,10 +9,10 @@ services:
       - ./zcash/mainnet.conf:/root/.zcash/zcash.conf
       - znode:/znode
       - zcash:/root/.zcash
-    command: bash -c "/znode/src/zcashd -debug -txexpirydelta=18000 -checklevel=0 -checkblocks=10 -dbcache=500"
+    command: bash -c "/znode/src/zcashd -debug -txexpirydelta=18000"
 
   znode-testnet:
-    image: rumblefish1337/zcashnode:v2.1.0-1
+    image: 045028348791.dkr.ecr.eu-central-1.amazonaws.com/zcash:2.0.5-1-fork
     tty: true
     ports:
       - 8334:8334
@@ -20,28 +20,8 @@ services:
       - ./zcash/testnet.conf:/root/.zcash/zcash.conf
       - znode-testnet:/znode
       - zcash-testnet:/root/.zcash
-    command: bash -c "/znode/src/zcashd -debug -txexpirydelta=18000 -checklevel=0 -checkblocks=10 -dbcache=500"
-    networks:
-      vpcbr:
-        ipv4_address: 10.3.0.2
-    # depends_on:
-    #   - tor-socks
+    command: bash -c "/znode/src/zcashd -txexpirydelta=18000"
 
-  tor-socks:
-    container_name: tor-socks
-    image: tor-socks
-    ports:
-      - '9050:9050'
-    networks:
-      vpcbr:
-        ipv4_address: 10.3.0.3
-
-networks:
-  vpcbr:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 10.3.0.0/16
 volumes:
   znode:
   zcash:

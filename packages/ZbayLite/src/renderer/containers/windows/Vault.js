@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react'
 import { bindActionCreators } from 'redux'
-import { Redirect } from 'react-router'
 import { connect } from 'react-redux'
 
 import vaultSelectors from '../../store/selectors/vault'
 import nodeSelectors from '../../store/selectors/node'
+import appSelectors from '../../store/selectors/app'
 import vaultHandlers from '../../store/handlers/vault'
 import CreateVault from './CreateVault'
 import UnlockVault from './UnlockVault'
@@ -13,7 +13,8 @@ import torHandlers from '../../store/handlers/tor'
 
 export const mapStateToProps = state => ({
   exists: vaultSelectors.exists(state),
-  nodeConnected: nodeSelectors.isConnected(state)
+  nodeConnected: nodeSelectors.isConnected(state),
+  newUser: appSelectors.newUser(state)
 })
 
 export const mapDispatchToProps = dispatch =>
@@ -25,7 +26,7 @@ export const mapDispatchToProps = dispatch =>
     dispatch
   )
 
-export const Vault = ({ loadVaultStatus, createZcashNode, exists, nodeConnected }) => {
+export const Vault = ({ loadVaultStatus, createZcashNode, exists, nodeConnected, newUser }) => {
   useEffect(() => {
     loadVaultStatus()
   })
@@ -35,9 +36,6 @@ export const Vault = ({ loadVaultStatus, createZcashNode, exists, nodeConnected 
     }
   }, [exists])
   if (exists === false) {
-    if (!nodeConnected) {
-      return <Redirect to='/zcashNode' />
-    }
     return <CreateVault />
   } else {
     if (exists === true) {

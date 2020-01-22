@@ -17,9 +17,8 @@ Object {
 `;
 
 exports[`Index will render component when node not connected 1`] = `
-<WithStyles(Index)
-  bootstrapping={false}
-  bootstrappingMessage=""
+<Redirect
+  to="/loading"
 />
 `;
 

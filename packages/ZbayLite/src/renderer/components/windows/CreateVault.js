@@ -68,7 +68,11 @@ export const CreateVault = ({
   finished,
   inProgressMsg,
   error,
-  onCloseSnackbar
+  onCloseSnackbar,
+  storePass,
+  setPasswordPosted,
+  isVaultCreationComplete,
+  passwordPosted
 }) => {
   return (
     <WindowWrapper>
@@ -115,6 +119,10 @@ export const CreateVault = ({
                   buttonStyles={classes.button}
                   inProgress={inProgress}
                   finished={finished}
+                  storePass={storePass}
+                  setPasswordPosted={setPasswordPosted}
+                  isVaultCreationComplete={isVaultCreationComplete}
+                  passwordPosted={passwordPosted}
                 />
               </Grid>
             </Grid>

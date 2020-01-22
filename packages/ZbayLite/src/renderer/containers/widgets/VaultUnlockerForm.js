@@ -62,7 +62,7 @@ export const VaultUnlockerForm = ({
   )
   useEffect(
     () => {
-      if (!newUser && !locked && !loader.loading && nodeConnected) {
+      if (!newUser && !locked && !loader.loading) {
         setDone(true)
       }
     },
