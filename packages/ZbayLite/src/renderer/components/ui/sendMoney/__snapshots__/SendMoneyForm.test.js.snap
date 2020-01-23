@@ -1,23 +1,619 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`SendMoneyForm renders component when valid = false 1`] = `
-<AutoSizer
-  disableHeight={false}
-  disableWidth={false}
-  onResize={[Function]}
-  style={Object {}}
+<WithStyles(ForwardRef(Grid))
+  className="root-mock"
+  container={true}
+  spacing={2}
 >
-  <Component />
-</AutoSizer>
+  <WithStyles(ForwardRef(Grid))
+    className="title-mock"
+    item={true}
+    xs={12}
+  >
+    <WithStyles(ForwardRef(Typography))
+      variant="h3"
+    >
+      Send Message or Funds
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    container={true}
+    direction="column"
+    item={true}
+    justify="flex-start"
+    xs={12}
+  >
+    <WithStyles(ForwardRef(Typography))
+      className="fieldTitle-mock"
+      variant="body1"
+    >
+      Recipient
+    </WithStyles(ForwardRef(Typography))>
+    <AutocompleteField
+      filterOptions={[Function]}
+      freeSolo={true}
+      inputValue="address123"
+      name="recipient"
+      onChange={[Function]}
+      onInputChange={[Function]}
+      options={
+        Array [
+          "test",
+        ]
+      }
+      renderInput={[Function]}
+      value="address123"
+    />
+    <ErrorText
+      name="recipient"
+    />
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="divMoney-mock"
+    container={true}
+    item={true}
+    xs={12}
+  >
+    <WithStyles(ForwardRef(Grid))
+      className="titleBox-mock"
+      item={true}
+      xs={12}
+    >
+      <WithStyles(ForwardRef(Typography))
+        className="fieldTitle-mock"
+        variant="body2"
+      >
+        Amount available
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      className="moneyDiv-mock"
+      item={true}
+    >
+      <LinkedTextField
+        InputProps={
+          Object {
+            "className": "disabledInput-mock",
+            "endAdornment": <ForwardRef(WithStyles)
+              position="end"
+            >
+              <span
+                className="inputMark-mock"
+              >
+                USD
+              </span>
+            </ForwardRef(WithStyles)>,
+            "error": undefined,
+          }
+        }
+        disabled={true}
+        fullWidth={true}
+        label=""
+        name="disabledValueUsd"
+        otherField="zec"
+        placeholder="0.70"
+        transformer={1}
+      />
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      alignItems="center"
+      className="exchangeDiv-mock"
+      container={true}
+      item={true}
+      justify="center"
+    >
+      <Memo(Icon)
+        className="exchnage-mock"
+        src="test-file-stub"
+      />
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      className="moneyDiv-mock"
+      item={true}
+    >
+      <LinkedTextField
+        InputProps={
+          Object {
+            "className": "disabledInput-mock",
+            "endAdornment": <ForwardRef(WithStyles)
+              position="end"
+            >
+              <span
+                className="inputMark-mock"
+              >
+                ZEC
+              </span>
+            </ForwardRef(WithStyles)>,
+            "error": undefined,
+          }
+        }
+        disabled={true}
+        fullWidth={true}
+        label=""
+        name="disabelValueZec"
+        otherField="usd"
+        placeholder="0.7000"
+        transformer={1}
+      />
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="divMoney-mock"
+    container={true}
+    item={true}
+    xs={12}
+  >
+    <WithStyles(ForwardRef(Grid))
+      className="titleBox-mock"
+      item={true}
+      xs={12}
+    >
+      <WithStyles(ForwardRef(Typography))
+        className="fieldTitle-mock"
+        variant="body2"
+      >
+        Amount to send
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      className="moneyDiv-mock"
+      item={true}
+    >
+      <LinkedTextField
+        InputProps={
+          Object {
+            "className": "moneyInput-mock",
+            "endAdornment": <ForwardRef(WithStyles)
+              position="end"
+            >
+              <span
+                className="inputMark-mock"
+              >
+                USD
+              </span>
+            </ForwardRef(WithStyles)>,
+            "error": undefined,
+          }
+        }
+        fullWidth={true}
+        label=""
+        name="amountUsd"
+        otherField="amountZec"
+        placeholder="0.00"
+        precise={4}
+        transformer={1}
+        type="number"
+      />
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      alignItems="center"
+      className="exchangeDiv-mock"
+      container={true}
+      item={true}
+      justify="center"
+    >
+      <Memo(Icon)
+        className="exchnage-mock"
+        src="test-file-stub"
+      />
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      className="moneyDiv-mock"
+      item={true}
+    >
+      <LinkedTextField
+        InputProps={
+          Object {
+            "className": "moneyInput-mock",
+            "endAdornment": <ForwardRef(WithStyles)
+              position="end"
+            >
+              <span
+                className="inputMark-mock"
+              >
+                ZEC
+              </span>
+            </ForwardRef(WithStyles)>,
+            "error": undefined,
+          }
+        }
+        fullWidth={true}
+        label=""
+        name="amountZec"
+        otherField="amountUsd"
+        placeholder="0.00"
+        precise={2}
+        transformer={1}
+        type="number"
+      />
+    </WithStyles(ForwardRef(Grid))>
+    <ErrorText
+      name="amountZec"
+    />
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+    xs={12}
+  >
+    <WithStyles(ForwardRef(Typography))
+      className="fieldTitle-mock"
+      variant="body1"
+    >
+      Memo
+    </WithStyles(ForwardRef(Typography))>
+    <TextField
+      InputProps={
+        Object {
+          "className": "field-mock",
+        }
+      }
+      name="memo"
+      placeholder="Enter message (optional)"
+    />
+    <WithStyles(ForwardRef(Typography))
+      variant="body1"
+    />
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+    xs={12}
+  >
+    <CheckboxWithLabel
+      color="primary"
+      disabled={false}
+      label="Include my shipping info"
+      labelClass="checkboxLabel-mock"
+      name="shippingInfo"
+      rootClass="rootClass-mock"
+    />
+    <WithStyles(ForwardRef(Grid))
+      alignContent="center"
+      className="addressBox-mock"
+      container={true}
+      direction="column"
+      item={true}
+      justify="space-between"
+      wrap="wrap"
+    >
+      <WithStyles(ForwardRef(Typography))
+        className="address-mock"
+        variant="caption"
+      >
+        undefined undefined
+      </WithStyles(ForwardRef(Typography))>
+      <WithStyles(ForwardRef(Typography))
+        className="address-mock"
+        variant="caption"
+      >
+        undefined undefined
+                  undefined undefined
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+    xs={12}
+  >
+    <WithStyles(ForwardRef(Button))
+      className="button-mock"
+      color="primary"
+      disabled={true}
+      fullWidth={true}
+      onClick={[Function]}
+      variant="contained"
+    >
+      Continue
+    </WithStyles(ForwardRef(Button))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
 `;
 
 exports[`SendMoneyForm renders component when valid = true 1`] = `
-<AutoSizer
-  disableHeight={false}
-  disableWidth={false}
-  onResize={[Function]}
-  style={Object {}}
+<WithStyles(ForwardRef(Grid))
+  className="root-mock"
+  container={true}
+  spacing={2}
 >
-  <Component />
-</AutoSizer>
+  <WithStyles(ForwardRef(Grid))
+    className="title-mock"
+    item={true}
+    xs={12}
+  >
+    <WithStyles(ForwardRef(Typography))
+      variant="h3"
+    >
+      Send Message or Funds
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    container={true}
+    direction="column"
+    item={true}
+    justify="flex-start"
+    xs={12}
+  >
+    <WithStyles(ForwardRef(Typography))
+      className="fieldTitle-mock"
+      variant="body1"
+    >
+      Recipient
+    </WithStyles(ForwardRef(Typography))>
+    <AutocompleteField
+      filterOptions={[Function]}
+      freeSolo={true}
+      inputValue="address123"
+      name="recipient"
+      onChange={[Function]}
+      onInputChange={[Function]}
+      options={
+        Array [
+          "test",
+        ]
+      }
+      renderInput={[Function]}
+      value="address123"
+    />
+    <ErrorText
+      name="recipient"
+    />
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="divMoney-mock"
+    container={true}
+    item={true}
+    xs={12}
+  >
+    <WithStyles(ForwardRef(Grid))
+      className="titleBox-mock"
+      item={true}
+      xs={12}
+    >
+      <WithStyles(ForwardRef(Typography))
+        className="fieldTitle-mock"
+        variant="body2"
+      >
+        Amount available
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      className="moneyDiv-mock"
+      item={true}
+    >
+      <LinkedTextField
+        InputProps={
+          Object {
+            "className": "disabledInput-mock",
+            "endAdornment": <ForwardRef(WithStyles)
+              position="end"
+            >
+              <span
+                className="inputMark-mock"
+              >
+                USD
+              </span>
+            </ForwardRef(WithStyles)>,
+            "error": undefined,
+          }
+        }
+        disabled={true}
+        fullWidth={true}
+        label=""
+        name="disabledValueUsd"
+        otherField="zec"
+        placeholder="0.70"
+        transformer={1}
+      />
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      alignItems="center"
+      className="exchangeDiv-mock"
+      container={true}
+      item={true}
+      justify="center"
+    >
+      <Memo(Icon)
+        className="exchnage-mock"
+        src="test-file-stub"
+      />
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      className="moneyDiv-mock"
+      item={true}
+    >
+      <LinkedTextField
+        InputProps={
+          Object {
+            "className": "disabledInput-mock",
+            "endAdornment": <ForwardRef(WithStyles)
+              position="end"
+            >
+              <span
+                className="inputMark-mock"
+              >
+                ZEC
+              </span>
+            </ForwardRef(WithStyles)>,
+            "error": undefined,
+          }
+        }
+        disabled={true}
+        fullWidth={true}
+        label=""
+        name="disabelValueZec"
+        otherField="usd"
+        placeholder="0.7000"
+        transformer={1}
+      />
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="divMoney-mock"
+    container={true}
+    item={true}
+    xs={12}
+  >
+    <WithStyles(ForwardRef(Grid))
+      className="titleBox-mock"
+      item={true}
+      xs={12}
+    >
+      <WithStyles(ForwardRef(Typography))
+        className="fieldTitle-mock"
+        variant="body2"
+      >
+        Amount to send
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      className="moneyDiv-mock"
+      item={true}
+    >
+      <LinkedTextField
+        InputProps={
+          Object {
+            "className": "moneyInput-mock",
+            "endAdornment": <ForwardRef(WithStyles)
+              position="end"
+            >
+              <span
+                className="inputMark-mock"
+              >
+                USD
+              </span>
+            </ForwardRef(WithStyles)>,
+            "error": undefined,
+          }
+        }
+        fullWidth={true}
+        label=""
+        name="amountUsd"
+        otherField="amountZec"
+        placeholder="0.00"
+        precise={4}
+        transformer={1}
+        type="number"
+      />
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      alignItems="center"
+      className="exchangeDiv-mock"
+      container={true}
+      item={true}
+      justify="center"
+    >
+      <Memo(Icon)
+        className="exchnage-mock"
+        src="test-file-stub"
+      />
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      className="moneyDiv-mock"
+      item={true}
+    >
+      <LinkedTextField
+        InputProps={
+          Object {
+            "className": "moneyInput-mock",
+            "endAdornment": <ForwardRef(WithStyles)
+              position="end"
+            >
+              <span
+                className="inputMark-mock"
+              >
+                ZEC
+              </span>
+            </ForwardRef(WithStyles)>,
+            "error": undefined,
+          }
+        }
+        fullWidth={true}
+        label=""
+        name="amountZec"
+        otherField="amountUsd"
+        placeholder="0.00"
+        precise={2}
+        transformer={1}
+        type="number"
+      />
+    </WithStyles(ForwardRef(Grid))>
+    <ErrorText
+      name="amountZec"
+    />
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+    xs={12}
+  >
+    <WithStyles(ForwardRef(Typography))
+      className="fieldTitle-mock"
+      variant="body1"
+    >
+      Memo
+    </WithStyles(ForwardRef(Typography))>
+    <TextField
+      InputProps={
+        Object {
+          "className": "field-mock",
+        }
+      }
+      name="memo"
+      placeholder="Enter message (optional)"
+    />
+    <WithStyles(ForwardRef(Typography))
+      variant="body1"
+    />
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+    xs={12}
+  >
+    <CheckboxWithLabel
+      color="primary"
+      disabled={false}
+      label="Include my shipping info"
+      labelClass="checkboxLabel-mock"
+      name="shippingInfo"
+      rootClass="rootClass-mock"
+    />
+    <WithStyles(ForwardRef(Grid))
+      alignContent="center"
+      className="addressBox-mock"
+      container={true}
+      direction="column"
+      item={true}
+      justify="space-between"
+      wrap="wrap"
+    >
+      <WithStyles(ForwardRef(Typography))
+        className="address-mock"
+        variant="caption"
+      >
+        undefined undefined
+      </WithStyles(ForwardRef(Typography))>
+      <WithStyles(ForwardRef(Typography))
+        className="address-mock"
+        variant="caption"
+      >
+        undefined undefined
+                  undefined undefined
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+    xs={12}
+  >
+    <WithStyles(ForwardRef(Button))
+      className="button-mock"
+      color="primary"
+      disabled={false}
+      fullWidth={true}
+      onClick={[Function]}
+      variant="contained"
+    >
+      Continue
+    </WithStyles(ForwardRef(Button))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
 `;

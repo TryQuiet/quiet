@@ -33,6 +33,7 @@ exports[`ItemTransferMessage renders component 1`] = `
   <WithStyles(ForwardRef(Grid))
     className="messageInput-mock"
     item={true}
+    onClick={[Function]}
   >
     <WithStyles(ForwardRef(Typography))
       className="amountUsd-mock"

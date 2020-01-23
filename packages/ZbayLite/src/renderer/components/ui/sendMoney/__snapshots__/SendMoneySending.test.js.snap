@@ -12,10 +12,49 @@ exports[`SendMoneySending renders component when sent != true 1`] = `
     item={true}
     xs={12}
   >
-    <Memo(WithStyles(SpinnerLoader))
-      message="Sending transaction"
-      size={80}
+    <Memo(Icon)
+      className="icon-mock"
+      src="test-file-stub"
     />
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+    xs={12}
+  >
+    <WithStyles(ForwardRef(Typography))
+      variant="h3"
+    >
+      Send complete
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+    xs={12}
+  >
+    <WithStyles(ForwardRef(Typography))
+      className="infoText-mock"
+      variant="body1"
+    >
+      You sent 
+      20.1000
+       ZEC ($
+      10.10
+       USD) to a Zcash recipient
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+    xs={12}
+  >
+    <WithStyles(ForwardRef(Button))
+      className="button-mock"
+      color="primary"
+      fullWidth={true}
+      onClick={[Function]}
+      variant="contained"
+    >
+      View Details
+    </WithStyles(ForwardRef(Button))>
   </WithStyles(ForwardRef(Grid))>
 </WithStyles(ForwardRef(Grid))>
 `;
@@ -32,8 +71,9 @@ exports[`SendMoneySending renders component when sent = true 1`] = `
     item={true}
     xs={12}
   >
-    <DoneIcon
-      className="doneIcon-mock"
+    <Memo(Icon)
+      className="icon-mock"
+      src="test-file-stub"
     />
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
@@ -41,24 +81,24 @@ exports[`SendMoneySending renders component when sent = true 1`] = `
     xs={12}
   >
     <WithStyles(ForwardRef(Typography))
-      variant="h5"
+      variant="h3"
     >
-      Your Zcash send is complete!
+      Send complete
     </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
-    className="info-mock"
     item={true}
     xs={12}
   >
     <WithStyles(ForwardRef(Typography))
+      className="infoText-mock"
       variant="body1"
     >
       You sent 
-      20.1
+      20.1000
        ZEC ($
       10.10
-       USD) to the address you specified.
+       USD) to a Zcash recipient
     </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))

@@ -4,10 +4,10 @@ import { withStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
-import DoneIcon from '@material-ui/icons/Done'
+import { DateTime } from 'luxon'
 
-import SpinnerLoader from '../SpinnerLoader'
-
+import Icon from '../Icon'
+import checkmark from '../../../static/images/checkmark.svg'
 const styles = theme => ({
   root: {
     padding: theme.spacing(3),
@@ -16,12 +16,24 @@ const styles = theme => ({
   info: {
     marginTop: theme.spacing(1)
   },
-  button: {
-    marginTop: theme.spacing(3),
-    padding: theme.spacing(2)
+  icon: {
+    marginBottom: 20
   },
-  doneIcon: {
-    fontSize: '8rem'
+  infoText: {
+    fontSize: 14,
+    marginTop: 16,
+    lineHeight: '24px'
+  },
+  button: {
+    marginTop: 32,
+    width: 145,
+    height: 60,
+    padding: theme.spacing(2),
+    textTransform: 'none',
+    backgroundColor: theme.palette.colors.zbayBlue,
+    fontWeight: 'normal',
+    fontSize: 16,
+    lineHeight: '19px'
   }
 })
 
@@ -31,56 +43,76 @@ export const SendMoneySending = ({
   amountUsd,
   feeZec,
   feeUsd,
-  step,
+  recipient,
+  memo,
   setStep,
-  sent
+  handleClose,
+  resetForm,
+  openSentFundsModal
 }) => {
   return (
-    <Grid container className={classes.root} spacing={0} alignItems='center' justify='center'>
-      {sent === false ? (
+    <Grid
+      container
+      className={classes.root}
+      spacing={0}
+      alignItems='center'
+      justify='center'
+    >
+      <>
         <Grid item xs={12}>
-          <SpinnerLoader size={80} message='Sending transaction' />
+          <Icon className={classes.icon} src={checkmark} />
         </Grid>
-      ) : (
-        <>
-          <Grid item xs={12}>
-            <DoneIcon className={classes.doneIcon} />
-          </Grid>
-          <Grid item xs={12}>
-            <Typography variant='h5'>Your Zcash send is complete!</Typography>
-          </Grid>
-          <Grid item xs={12} className={classes.info}>
-            <Typography variant='body1'>
-              You sent {(parseFloat(amountZec) + feeZec)} ZEC (${(parseFloat(amountUsd) + feeUsd).toFixed(2)} USD) to the address you
-              specified.
-            </Typography>
-          </Grid>
-          <Grid item xs={12}>
-            <Button
-              color='primary'
-              variant='contained'
-              onClick={() => setStep(step + 1)}
-              fullWidth
-              className={classes.button}
-            >
-              View Details
-            </Button>
-          </Grid>
-        </>
-      )}
+        <Grid item xs={12}>
+          <Typography variant='h3'>Send complete</Typography>
+        </Grid>
+        <Grid item xs={12}>
+          <Typography className={classes.infoText} variant='body1'>
+            You sent {(parseFloat(amountZec) + feeZec).toFixed(4)} ZEC ($
+            {(parseFloat(amountUsd) + feeUsd).toFixed(2)} USD) to a Zcash
+            recipient
+          </Typography>
+        </Grid>
+        <Grid item xs={12}>
+          <Button
+            color='primary'
+            variant='contained'
+            onClick={() => {
+              handleClose()
+              setStep(1)
+              resetForm()
+              openSentFundsModal({
+                amountZec,
+                amountUsd,
+                feeUsd,
+                feeZec,
+                recipient,
+                memo,
+                timestamp: DateTime.utc().toSeconds()
+              })
+            }}
+            fullWidth
+            className={classes.button}
+          >
+            View Details
+          </Button>
+        </Grid>
+      </>
     </Grid>
   )
 }
 
 SendMoneySending.propTypes = {
   classes: PropTypes.object.isRequired,
-  amountUsd: PropTypes.string.isRequired,
-  amountZec: PropTypes.string.isRequired,
+  amountUsd: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  amountZec: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   feeUsd: PropTypes.number.isRequired,
   feeZec: PropTypes.number.isRequired,
   setStep: PropTypes.func.isRequired,
   step: PropTypes.number.isRequired,
-  sent: PropTypes.bool.isRequired
+  sent: PropTypes.bool.isRequired,
+  openSentFundsModal: PropTypes.func.isRequired,
+  handleClose: PropTypes.func.isRequired,
+  resetForm: PropTypes.func.isRequired
 }
 
 SendMoneySending.defaultProps = {}

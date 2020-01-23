@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SentFundsModal renders component 1`] = `
+<Memo(WithStyles(Modal))
+  handleClose={[Function]}
+  open={true}
+>
+  <AutoSizer
+    disableHeight={false}
+    disableWidth={false}
+    onResize={[Function]}
+    style={Object {}}
+  >
+    <Component />
+  </AutoSizer>
+</Memo(WithStyles(Modal))>
+`;

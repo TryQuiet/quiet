@@ -311,7 +311,7 @@ PublishChannelModal.propTypes = {
   }).isRequired,
   balance: PropTypes.instanceOf(BigNumber).isRequired,
   publicChannelFee: PropTypes.number.isRequired,
-  zcashRate: PropTypes.number.isRequired,
+  zcashRate: PropTypes.object.isRequired,
   handleClose: PropTypes.func.isRequired,
   publishChannel: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
@@ -322,7 +322,8 @@ PublishChannelModal.propTypes = {
 PublishChannelModal.defaultProps = {
   initialValues: {
     description: ''
-  }
+  },
+  channel: {}
 }
 
 export default R.compose(React.memo, withStyles(styles))(PublishChannelModal)

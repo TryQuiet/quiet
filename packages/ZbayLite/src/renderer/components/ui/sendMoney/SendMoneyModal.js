@@ -5,6 +5,8 @@ import * as R from 'ramda'
 import { Formik } from 'formik'
 import BigNumber from 'bignumber.js'
 import { withStyles } from '@material-ui/core/styles'
+import { AutoSizer } from 'react-virtualized'
+import { Scrollbars } from 'react-custom-scrollbars'
 
 import Modal from '../Modal'
 import SendMoneyForm from './SendMoneyForm'
@@ -61,7 +63,7 @@ export const validateForm = ({ balanceZec, shippingData }) => values => {
 }
 const handleCloseForm = ({ step, handleClose, resetForm, setStep }) => {
   handleClose()
-  if (step === 4 || step === 3) {
+  if (step === 3) {
     resetForm()
     setStep(1)
   }
@@ -86,6 +88,7 @@ export const SendMoneyModal = ({
   targetRecipientAddress,
   openShippingTab,
   openSettingsModal,
+  openSentFundsModal,
   users
 }) => {
   const StepComponent = stepToComponent[step]
@@ -144,51 +147,51 @@ export const SendMoneyModal = ({
         touched,
         setFieldValue
       }) => {
-        const stepToTitle = {
-          1: '',
-          2: `Send Money to ${
-            open ? initialValues.recipient.substring(0, 32) : null
-          }...`,
-          3: 'Send Complete',
-          4: 'Transaction Details'
-        }
         return (
           <Modal
-            title={stepToTitle[step]}
             step={step}
             setStep={setStep}
             open={open}
-            canGoBack={step === 2}
             handleClose={() =>
               handleCloseForm({ handleClose, setStep, step, resetForm })
             }
           >
-            <StepComponent
-              handleClose={handleClose}
-              step={step}
-              setFieldValue={setFieldValue}
-              errors={errors}
-              touched={touched}
-              setStep={setStep}
-              amountUsd={values.amountUsd}
-              amountZec={values.amountZec}
-              feeZec={feeZec}
-              feeUsd={feeUsd}
-              sent={sent}
-              values={values}
-              memo={values.memo}
-              recipient={targetRecipientAddress || values.recipient}
-              balanceZec={balanceZec}
-              isValid={isValid}
-              rateZec={rateZec}
-              rateUsd={rateUsd}
-              submitForm={submitForm}
-              resetForm={resetForm}
-              shippingData={shippingData}
-              openShippingTab={openShippingTab}
-              openSettingsModal={openSettingsModal}
-              users={users}
-            />
+            <AutoSizer>
+              {({ width, height }) => (
+                <Scrollbars
+                  autoHideTimeout={500}
+                  style={{ width: width, height: height }}
+                >
+                  <StepComponent
+                    handleClose={handleClose}
+                    openSentFundsModal={openSentFundsModal}
+                    step={step}
+                    setFieldValue={setFieldValue}
+                    errors={errors}
+                    touched={touched}
+                    setStep={setStep}
+                    amountUsd={values.amountUsd}
+                    amountZec={values.amountZec}
+                    feeZec={feeZec}
+                    feeUsd={feeUsd}
+                    sent={sent}
+                    values={values}
+                    memo={values.memo}
+                    recipient={targetRecipientAddress || values.recipient}
+                    balanceZec={balanceZec}
+                    isValid={isValid}
+                    rateZec={rateZec}
+                    rateUsd={rateUsd}
+                    submitForm={submitForm}
+                    resetForm={resetForm}
+                    shippingData={shippingData}
+                    openShippingTab={openShippingTab}
+                    openSettingsModal={openSettingsModal}
+                    users={users}
+                  />
+                </Scrollbars>
+              )}
+            </AutoSizer>
           </Modal>
         )
       }}
@@ -198,8 +201,7 @@ export const SendMoneyModal = ({
 const stepToComponent = {
   1: SendMoneyForm,
   2: SendMoneyTransactionDetails,
-  3: SendMoneySending,
-  4: SendMoneyTransactionDetails
+  3: SendMoneySending
 }
 
 SendMoneyModal.propTypes = {

@@ -39,7 +39,12 @@ const styles = theme => ({
   }
 })
 
-export const ItemTransferMessage = ({ message, classes, rateUsd }) => {
+export const ItemTransferMessage = ({
+  message,
+  classes,
+  rateUsd,
+  openSentModal
+}) => {
   const [actionsOpen, setActionsOpen] = React.useState(false)
   const usdAmount = new BigNumber(message.spent)
     .times(rateUsd)
@@ -51,14 +56,33 @@ export const ItemTransferMessage = ({ message, classes, rateUsd }) => {
       actionsOpen={actionsOpen}
       setActionsOpen={setActionsOpen}
     >
-      <Grid className={classes.messageInput} item>
+      <Grid
+        className={classes.messageInput}
+        onClick={() =>
+          openSentModal({
+            fromYou: true,
+            amountZec: parseFloat(message.spent.toString()),
+            txid: message.id,
+            memo: message.message,
+            recipient: message.receiver.replyTo,
+            timestamp: message.createdAt
+          })
+        }
+        item
+      >
         <Typography variant='h3' className={classes.amountUsd}>
           {`$${usdAmount}`}
         </Typography>
         <Typography variant='body2' className={classes.data}>
           {message.fromYou
-            ? `You sent @${message.offerOwner || message.receiver.username} $${usdAmount} (${message.spent.toFixed(4)} ZEC) ${message.tag ? `for #${message.tag}` : ''}`
-            : `Received from @${message.sender.username} $${usdAmount} (${message.spent} ZEC) ${message.tag ? `for #${message.tag}` : ''}`}
+            ? `You sent @${message.offerOwner ||
+                message.receiver
+                  .username} $${usdAmount} (${message.spent.toFixed(4)} ZEC) ${
+              message.tag ? `for #${message.tag}` : ''
+            }`
+            : `Received from @${message.sender.username} $${usdAmount} (${
+              message.spent
+            } ZEC) ${message.tag ? `for #${message.tag}` : ''}`}
         </Typography>
         <Typography variant='body2' className={classes.message}>
           {message.message && `${message.message}`}
@@ -71,6 +95,7 @@ export const ItemTransferMessage = ({ message, classes, rateUsd }) => {
 ItemTransferMessage.propTypes = {
   classes: PropTypes.object.isRequired,
   rateUsd: PropTypes.object.isRequired,
+  openSentModal: PropTypes.func.isRequired,
   message: PropTypes.instanceOf(_DisplayableMessage).isRequired
 }
 

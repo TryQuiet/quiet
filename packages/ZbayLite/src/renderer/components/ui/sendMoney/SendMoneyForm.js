@@ -7,8 +7,7 @@ import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import InputAdornment from '@material-ui/core/InputAdornment'
 import Button from '@material-ui/core/Button'
-import { AutoSizer } from 'react-virtualized'
-import { Scrollbars } from 'react-custom-scrollbars'
+
 import { TextField as MaterialTextField } from '@material-ui/core'
 
 import Icon from '../Icon'
@@ -35,8 +34,12 @@ const styles = theme => ({
   button: {
     width: 140,
     height: 60,
+    padding: theme.spacing(2),
+    textTransform: 'none',
     backgroundColor: theme.palette.colors.zbayBlue,
-    padding: theme.spacing(2)
+    fontWeight: 'normal',
+    fontSize: 16,
+    lineHeight: '19px'
   },
   field: {
     height: 60,
@@ -146,7 +149,11 @@ const styles = theme => ({
     color: theme.palette.colors.darkGray
   }
 })
-const handleOpenAddShippingData = (openSettingsModal, openShippingTab, handleClose) => {
+const handleOpenAddShippingData = (
+  openSettingsModal,
+  openShippingTab,
+  handleClose
+) => {
   handleClose()
   openShippingTab()
   openSettingsModal()
@@ -173,217 +180,236 @@ export const SendMoneyForm = ({
   const usersArray = users.toList().toJS()
   const ErrorText = ({ name }) => {
     return errors[name] ? (
-      <Typography className={classes.error} variant='caption'>{errors[name]}</Typography>
+      <Typography className={classes.error} variant='caption'>
+        {errors[name]}
+      </Typography>
     ) : (
       <span />
     )
   }
   return (
-    <AutoSizer>
-      {({ width, height }) => (
-        <Scrollbars autoHideTimeout={500} style={{ width: width, height: height }}>
-          <Grid container className={classes.root} spacing={2}>
-            <Grid className={classes.title} item xs={12}>
-              <Typography variant='h3'>Send Message or Funds</Typography>
-            </Grid>
-            <Grid container item direction={'column'} justify={'flex-start'} xs={12}>
-              <Typography className={classes.fieldTitle} variant='body1'>
-                Recipient
-              </Typography>
-              <AutocompleteField
-                freeSolo
-                name={'recipient'}
-                inputValue={values.recipient || ''}
-                options={usersArray.map(option => option.nickname)}
-                filterOptions={(options, state) => options.filter(o => o.toLowerCase().includes(values.recipient || ''.toLowerCase()))}
-                value={values.recipient}
-                onChange={(e, v) => setFieldValue('recipient', v)}
-                onInputChange={(e, v) => {
-                  setFieldValue('recipient', v)
-                }}
-                renderInput={params => <MaterialTextField
-                  {...params}
-                  className={classes.autoCompleteField}
-                  variant='outlined'
-                  placeholder='Enter Zcash address or Zbay username'
-                  margin='normal'
-                  fullWidth
-                />
-                }
-              />
-              <ErrorText name={'recipient'} />
-            </Grid>
-            <Grid item xs={12} container className={classes.divMoney}>
-              <Grid className={classes.titleBox} item xs={12}>
-                <Typography className={classes.fieldTitle} variant={'body2'}>
-                Amount available
-                </Typography>
-              </Grid>
-              <Grid item className={classes.moneyDiv}>
-                <LinkedTextField
-                  name='disabledValueUsd'
-                  placeholder={balanceZec.times(rateUsd).toFixed(2)}
-                  fullWidth
-                  disabled
-                  otherField='zec'
-                  transformer={rateZec}
-                  InputProps={{
-                    error: errors['zec'] && touched['zec'],
-                    endAdornment: (
-                      <InputAdornment position='end'>
-                        <span className={classes.inputMark}>USD</span>
-                      </InputAdornment>
-                    ),
-                    className: classes.disabledInput
-                  }}
-                />
-              </Grid>
-              <Grid
-                item
-                container
-                alignItems='center'
-                justify='center'
-                className={classes.exchangeDiv}
-              >
-                <Icon className={classes.exchnage} src={exchange} />
-              </Grid>
-              <Grid item className={classes.moneyDiv}>
-                <LinkedTextField
-                  name='disabelValueZec'
-                  placeholder={balanceZec.toFixed(4)}
-                  fullWidth
-                  disabled
-                  otherField='usd'
-                  transformer={rateUsd}
-                  InputProps={{
-                    error: errors['usd'] && touched['usd'],
-                    endAdornment: (
-                      <InputAdornment position='end'>
-                        <span className={classes.inputMark}>ZEC</span>
-                      </InputAdornment>
-                    ),
-                    className: classes.disabledInput
-                  }}
-                />
-              </Grid>
-            </Grid>
-            <Grid item xs={12} container className={classes.divMoney}>
-              <Grid className={classes.titleBox} item xs={12}>
-                <Typography className={classes.fieldTitle} variant={'body2'}>
-                  Amount to send
-                </Typography>
-              </Grid>
-              <Grid item className={classes.moneyDiv}>
-                <LinkedTextField
-                  name='amountUsd'
-                  type='number'
-                  placeholder='0.00'
-                  fullWidth
-                  otherField='amountZec'
-                  transformer={rateZec}
-                  precise={4}
-                  InputProps={{
-                    error: errors['amountZec'] && touched['amountZec'],
-                    endAdornment: (
-                      <InputAdornment position='end'>
-                        <span className={classes.inputMark}>USD</span>
-                      </InputAdornment>
-                    ),
-                    className: classes.moneyInput
-                  }}
-                />
-              </Grid>
-              <Grid
-                item
-                container
-                alignItems='center'
-                justify='center'
-                className={classes.exchangeDiv}
-              >
-                <Icon className={classes.exchnage} src={exchange} />
-              </Grid>
-              <Grid item className={classes.moneyDiv}>
-                <LinkedTextField
-                  name='amountZec'
-                  type='number'
-                  placeholder='0.00'
-                  fullWidth
-                  otherField='amountUsd'
-                  transformer={rateUsd}
-                  precise={2}
-                  InputProps={{
-                    error: errors['amountUsd'] && touched['amountUsd'],
-                    endAdornment: (
-                      <InputAdornment position='end'>
-                        <span className={classes.inputMark}>ZEC</span>
-                      </InputAdornment>
-                    ),
-                    className: classes.moneyInput
-                  }}
-                />
-              </Grid>
-              <ErrorText name={'amountZec'} />
-            </Grid>
-            <Grid item xs={12}>
-              <Typography className={classes.fieldTitle} variant='body1'>
-                Memo
-              </Typography>
-              <TextField
-                name='memo'
-                placeholder={'Enter message (optional)'}
-                InputProps={{ className: classes.field }}
-              />
-              <Typography variant='body1' />
-            </Grid>
-            <Grid item xs={12}>
-              {!R.isEmpty(shippingData) && (
-                <Fragment>
-                  <CheckboxWithLabel
-                    color='primary'
-                    name='shippingInfo'
-                    label='Include my shipping info'
-                    disabled={R.isEmpty(shippingData)}
-                    labelClass={classes.checkboxLabel}
-                    rootClass={classes.rootClass}
-                  />
-                  <Grid className={classes.addressBox} container item direction={'column'} justify={'space-between'} alignContent={'center'} wrap={'wrap'}>
-                    <Typography variant={'caption'} className={classes.address}>{`${shippingData.firstName} ${shippingData.lastName}`}</Typography>
-                    <Typography variant={'caption'} className={classes.address}>{`${shippingData.city} ${shippingData.postalCode}
+    <Grid container className={classes.root} spacing={2}>
+      <Grid className={classes.title} item xs={12}>
+        <Typography variant='h3'>Send Message or Funds</Typography>
+      </Grid>
+      <Grid container item direction={'column'} justify={'flex-start'} xs={12}>
+        <Typography className={classes.fieldTitle} variant='body1'>
+          Recipient
+        </Typography>
+        <AutocompleteField
+          freeSolo
+          name={'recipient'}
+          inputValue={values.recipient || ''}
+          options={usersArray.map(option => option.nickname)}
+          filterOptions={(options, state) =>
+            options.filter(o =>
+              o.toLowerCase().includes(values.recipient || ''.toLowerCase())
+            )
+          }
+          value={values.recipient}
+          onChange={(e, v) => setFieldValue('recipient', v)}
+          onInputChange={(e, v) => {
+            setFieldValue('recipient', v)
+          }}
+          renderInput={params => (
+            <MaterialTextField
+              {...params}
+              className={classes.autoCompleteField}
+              variant='outlined'
+              placeholder='Enter Zcash address or Zbay username'
+              margin='normal'
+              fullWidth
+            />
+          )}
+        />
+        <ErrorText name={'recipient'} />
+      </Grid>
+      <Grid item xs={12} container className={classes.divMoney}>
+        <Grid className={classes.titleBox} item xs={12}>
+          <Typography className={classes.fieldTitle} variant={'body2'}>
+            Amount available
+          </Typography>
+        </Grid>
+        <Grid item className={classes.moneyDiv}>
+          <LinkedTextField
+            name='disabledValueUsd'
+            placeholder={balanceZec.times(rateUsd).toFixed(2)}
+            fullWidth
+            disabled
+            otherField='zec'
+            transformer={rateZec}
+            InputProps={{
+              error: errors['zec'] && touched['zec'],
+              endAdornment: (
+                <InputAdornment position='end'>
+                  <span className={classes.inputMark}>USD</span>
+                </InputAdornment>
+              ),
+              className: classes.disabledInput
+            }}
+          />
+        </Grid>
+        <Grid
+          item
+          container
+          alignItems='center'
+          justify='center'
+          className={classes.exchangeDiv}
+        >
+          <Icon className={classes.exchnage} src={exchange} />
+        </Grid>
+        <Grid item className={classes.moneyDiv}>
+          <LinkedTextField
+            name='disabelValueZec'
+            placeholder={balanceZec.toFixed(4)}
+            fullWidth
+            disabled
+            otherField='usd'
+            transformer={rateUsd}
+            InputProps={{
+              error: errors['usd'] && touched['usd'],
+              endAdornment: (
+                <InputAdornment position='end'>
+                  <span className={classes.inputMark}>ZEC</span>
+                </InputAdornment>
+              ),
+              className: classes.disabledInput
+            }}
+          />
+        </Grid>
+      </Grid>
+      <Grid item xs={12} container className={classes.divMoney}>
+        <Grid className={classes.titleBox} item xs={12}>
+          <Typography className={classes.fieldTitle} variant={'body2'}>
+            Amount to send
+          </Typography>
+        </Grid>
+        <Grid item className={classes.moneyDiv}>
+          <LinkedTextField
+            name='amountUsd'
+            type='number'
+            placeholder='0.00'
+            fullWidth
+            otherField='amountZec'
+            transformer={rateZec}
+            precise={4}
+            InputProps={{
+              error: errors['amountZec'] && touched['amountZec'],
+              endAdornment: (
+                <InputAdornment position='end'>
+                  <span className={classes.inputMark}>USD</span>
+                </InputAdornment>
+              ),
+              className: classes.moneyInput
+            }}
+          />
+        </Grid>
+        <Grid
+          item
+          container
+          alignItems='center'
+          justify='center'
+          className={classes.exchangeDiv}
+        >
+          <Icon className={classes.exchnage} src={exchange} />
+        </Grid>
+        <Grid item className={classes.moneyDiv}>
+          <LinkedTextField
+            name='amountZec'
+            type='number'
+            placeholder='0.00'
+            fullWidth
+            otherField='amountUsd'
+            transformer={rateUsd}
+            precise={2}
+            InputProps={{
+              error: errors['amountUsd'] && touched['amountUsd'],
+              endAdornment: (
+                <InputAdornment position='end'>
+                  <span className={classes.inputMark}>ZEC</span>
+                </InputAdornment>
+              ),
+              className: classes.moneyInput
+            }}
+          />
+        </Grid>
+        <ErrorText name={'amountZec'} />
+      </Grid>
+      <Grid item xs={12}>
+        <Typography className={classes.fieldTitle} variant='body1'>
+          Memo
+        </Typography>
+        <TextField
+          name='memo'
+          placeholder={'Enter message (optional)'}
+          InputProps={{ className: classes.field }}
+        />
+        <Typography variant='body1' />
+      </Grid>
+      <Grid item xs={12}>
+        {!R.isEmpty(shippingData) && (
+          <Fragment>
+            <CheckboxWithLabel
+              color='primary'
+              name='shippingInfo'
+              label='Include my shipping info'
+              disabled={R.isEmpty(shippingData)}
+              labelClass={classes.checkboxLabel}
+              rootClass={classes.rootClass}
+            />
+            <Grid
+              className={classes.addressBox}
+              container
+              item
+              direction={'column'}
+              justify={'space-between'}
+              alignContent={'center'}
+              wrap={'wrap'}
+            >
+              <Typography
+                variant={'caption'}
+                className={classes.address}
+              >{`${shippingData.firstName} ${shippingData.lastName}`}</Typography>
+              <Typography
+                variant={'caption'}
+                className={classes.address}
+              >{`${shippingData.city} ${shippingData.postalCode}
                   ${shippingData.region} ${shippingData.country}`}</Typography>
-                  </Grid>
-                </Fragment>
-              )}
-              {R.isEmpty(shippingData) && (
-                <Typography className={classes.shippingDataInfo}>
-                  {'Please '}
-                  <span
-                    onClick={() =>
-                      handleOpenAddShippingData(openSettingsModal, openShippingTab, handleClose)
-                    }
-                    className={classes.link}
-                  >
-                    enter your shipping information
-                  </span>
-                  {' if you want to include it.'}
-                </Typography>
-              )}
             </Grid>
-            <Grid item xs={12}>
-              <Button
-                color='primary'
-                variant='contained'
-                onClick={() => setStep(step + 1)}
-                fullWidth
-                className={classes.button}
-                disabled={!isValid}
-              >
-          SEND
-              </Button>
-            </Grid>
-          </Grid>
-        </Scrollbars>
-      )}
-    </AutoSizer>
+          </Fragment>
+        )}
+        {R.isEmpty(shippingData) && (
+          <Typography className={classes.shippingDataInfo}>
+            {'Please '}
+            <span
+              onClick={() =>
+                handleOpenAddShippingData(
+                  openSettingsModal,
+                  openShippingTab,
+                  handleClose
+                )
+              }
+              className={classes.link}
+            >
+              enter your shipping information
+            </span>
+            {' if you want to include it.'}
+          </Typography>
+        )}
+      </Grid>
+      <Grid item xs={12}>
+        <Button
+          color='primary'
+          variant='contained'
+          onClick={() => setStep(step + 1)}
+          fullWidth
+          className={classes.button}
+          disabled={!isValid}
+        >
+          Continue
+        </Button>
+      </Grid>
+    </Grid>
   )
 }
 

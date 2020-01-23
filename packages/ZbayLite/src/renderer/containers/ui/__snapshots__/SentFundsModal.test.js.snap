@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SentFundsModal will receive right props 1`] = `
+Object {
+  "payload": Immutable.Map {
+    "recipient": "test",
+    "amountZec": 10,
+    "amountUsd": 10,
+    "feeUsd": 0,
+    "feeZec": 0,
+    "memo": "test memo",
+    "timestamp": 1483228800,
+  },
+  "rateUsd": "10",
+}
+`;
