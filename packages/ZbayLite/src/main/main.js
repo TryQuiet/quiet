@@ -1,6 +1,13 @@
 import getSize from 'get-folder-size'
 import checkDiskSpace from 'check-disk-space'
-import { app, BrowserWindow, Menu, ipcMain, globalShortcut, powerSaveBlocker } from 'electron'
+import {
+  app,
+  BrowserWindow,
+  Menu,
+  ipcMain,
+  globalShortcut,
+  powerSaveBlocker
+} from 'electron'
 import os from 'os'
 import path from 'path'
 import url from 'url'
@@ -12,13 +19,15 @@ import zlib from 'zlib'
 import progress from 'request-progress'
 import util from 'util'
 import convert from 'convert-seconds'
+import { createRpcCredentials } from '../renderer/zcash'
 
 import config from './config'
 import { spawnZcashNode } from './zcash/bootstrap'
 import electronStore from '../shared/electronStore'
 
 const osPathsBlockchain = {
-  darwin: `${process.env.HOME || process.env.USERPROFILE}/Library/Application Support/Zcash/`,
+  darwin: `${process.env.HOME ||
+    process.env.USERPROFILE}/Library/Application Support/Zcash/`,
   linux: `${process.env.HOME || process.env.USERPROFILE}/.zcash/`,
   win32: `${os.userInfo().homedir}\\AppData\\Roaming\\Zcash\\`
 }
@@ -27,14 +36,25 @@ const BLOCKCHAIN_SIZE = 21602539059
 
 const downloadedFilesSizes = [0, 0, 0, 0]
 
-const calculateDownloadSpeed = (fetchedSize) => {
-  const v = (-downloadedFilesSizes[0] / 3) + (3 * downloadedFilesSizes[1] / 2) - (3 * downloadedFilesSizes[2]) + (11 / 6 * downloadedFilesSizes[3])
+const calculateDownloadSpeed = fetchedSize => {
+  const v =
+    -downloadedFilesSizes[0] / 3 +
+    (3 * downloadedFilesSizes[1]) / 2 -
+    3 * downloadedFilesSizes[2] +
+    (11 / 6) * downloadedFilesSizes[3]
   downloadedFilesSizes.shift()
   downloadedFilesSizes.push(fetchedSize)
   return v
 }
 
-const downloadManagerForZipped = function ({ url, path, index, fileName, part, length }) {
+const downloadManagerForZipped = function ({
+  url,
+  path,
+  index,
+  fileName,
+  part,
+  length
+}) {
   const gunzip = zlib.createGunzip()
 
   return new Promise(function (resolve, reject) {
@@ -42,18 +62,21 @@ const downloadManagerForZipped = function ({ url, path, index, fileName, part, l
     const fetchedSize = electronStore.get('AppStatus.fetchedSize')
     progress(request(url), {
       throttle: 500
-    }).on('progress', function (state) {
-      fileSize = state.size.total
-      if (part === 'params') {
-        const eta = state.speed ? convert(((BLOCKCHAIN_SIZE - fetchedSize) / state.speed).toFixed()) : null
-        mainWindow.webContents.send('fetchingStatus', {
-          part: part,
-          sizeLeft: BLOCKCHAIN_SIZE - fetchedSize,
-          speed: state.speed || null,
-          eta
-        })
-      }
     })
+      .on('progress', function (state) {
+        fileSize = state.size.total
+        if (part === 'params') {
+          const eta = state.speed
+            ? convert(((BLOCKCHAIN_SIZE - fetchedSize) / state.speed).toFixed())
+            : null
+          mainWindow.webContents.send('fetchingStatus', {
+            part: part,
+            sizeLeft: BLOCKCHAIN_SIZE - fetchedSize,
+            speed: state.speed || null,
+            eta
+          })
+        }
+      })
       .on('error', function (err) {
         electronStore.set(`AppStatus.${part}`, {
           status: config.PARAMS_STATUSES.ERROR,
@@ -69,7 +92,7 @@ const downloadManagerForZipped = function ({ url, path, index, fileName, part, l
           index
         })
         electronStore.set('AppStatus.fetchedSize', fetchedSize + fileSize)
-        if ((index === length - 1) && part === 'blockchain') {
+        if (index === length - 1 && part === 'blockchain') {
           mainWindow.webContents.send('fetchingStatus', {
             part: part,
             status: config.BLOCKCHAIN_STATUSES.SUCCESS
@@ -77,7 +100,8 @@ const downloadManagerForZipped = function ({ url, path, index, fileName, part, l
         }
         resolve(console.log('100% \n Download Completed'))
       })
-      .pipe(gunzip).pipe(fs.createWriteStream(path))
+      .pipe(gunzip)
+      .pipe(fs.createWriteStream(path))
   })
 }
 
@@ -193,7 +217,7 @@ const checkForUpdate = win => {
   })
 }
 
-const checkPath = (pathToCreate) => {
+const checkPath = pathToCreate => {
   if (!fs.existsSync(pathToCreate)) {
     fs.mkdirSync(pathToCreate)
   }
@@ -201,7 +225,8 @@ const checkPath = (pathToCreate) => {
 
 const fetchParams = async (win, torUrl) => {
   const osPathsParams = {
-    darwin: `${process.env.HOME || process.env.USERPROFILE}/Library/Application Support/ZcashParams/`,
+    darwin: `${process.env.HOME ||
+      process.env.USERPROFILE}/Library/Application Support/ZcashParams/`,
     linux: `${process.env.HOME || process.env.USERPROFILE}/.zcash-params/`,
     win32: `${os.userInfo().homedir}\\AppData\\Roaming\\ZcashParams\\`
   }
@@ -218,8 +243,16 @@ const fetchParams = async (win, torUrl) => {
   }
   for (const target of data.slice(index, data.length)) {
     const { fileName, targetUrl, index } = target
-    const preparedFilePath = process.platform === 'win32' ? fileName.split('/').join('\\\\') : fileName
-    await downloadManagerForZipped({ url: targetUrl, path: `${osPathsParams[process.platform]}${preparedFilePath}`, index, fileName: preparedFilePath, part: 'params', length: indexSize })
+    const preparedFilePath =
+      process.platform === 'win32' ? fileName.split('/').join('\\\\') : fileName
+    await downloadManagerForZipped({
+      url: targetUrl,
+      path: `${osPathsParams[process.platform]}${preparedFilePath}`,
+      index,
+      fileName: preparedFilePath,
+      part: 'params',
+      length: indexSize
+    })
   }
   electronStore.set('AppStatus.params', {
     status: config.PARAMS_STATUSES.SUCCESS
@@ -241,9 +274,15 @@ const fetchParams = async (win, torUrl) => {
 const fetchBlockchain = async (win, torUrl) => {
   const pathList = [
     `${osPathsBlockchain[process.platform]}`,
-    `${osPathsBlockchain[process.platform]}${process.platform === 'win32' ? 'blocks\\' : 'blocks/'}`,
-    `${osPathsBlockchain[process.platform]}${process.platform === 'win32' ? 'blocks\\index\\' : 'blocks/index/'}`,
-    `${osPathsBlockchain[process.platform]}${process.platform === 'win32' ? 'chainstate\\' : 'chainstate/'}`
+    `${osPathsBlockchain[process.platform]}${
+      process.platform === 'win32' ? 'blocks\\' : 'blocks/'
+    }`,
+    `${osPathsBlockchain[process.platform]}${
+      process.platform === 'win32' ? 'blocks\\index\\' : 'blocks/index/'
+    }`,
+    `${osPathsBlockchain[process.platform]}${
+      process.platform === 'win32' ? 'chainstate\\' : 'chainstate/'
+    }`
   ]
 
   const { data } = await axios({
@@ -251,12 +290,17 @@ const fetchBlockchain = async (win, torUrl) => {
     method: 'get'
   })
 
-  const { index, status, lastDownload } = electronStore.get('AppStatus.blockchain')
+  const { index, status, lastDownload } = electronStore.get(
+    'AppStatus.blockchain'
+  )
   if (status === config.BLOCKCHAIN_STATUSES.TO_FETCH) {
     fs.emptyDirSync(osPathsBlockchain[process.platform])
   }
 
-  if (status === config.BLOCKCHAIN_STATUSES.ERROR || status === config.BLOCKCHAIN_STATUSES.FETCHING) {
+  if (
+    status === config.BLOCKCHAIN_STATUSES.ERROR ||
+    status === config.BLOCKCHAIN_STATUSES.FETCHING
+  ) {
     fs.unlinkSync(`${osPathsBlockchain[process.platform]}${lastDownload}`)
   }
 
@@ -266,7 +310,9 @@ const fetchBlockchain = async (win, torUrl) => {
     const fetchedSize = electronStore.get('AppStatus.fetchedSize')
     const speed = calculateDownloadSpeed(fetchedSize)
     const convertedSpeed = speed ? Math.abs(speed.toFixed()) : null
-    const eta = convertedSpeed ? convert(((BLOCKCHAIN_SIZE - fetchedSize) / convertedSpeed).toFixed()) : null
+    const eta = convertedSpeed
+      ? convert(((BLOCKCHAIN_SIZE - fetchedSize) / convertedSpeed).toFixed())
+      : null
     mainWindow.webContents.send('fetchingStatus', {
       sizeLeft: BLOCKCHAIN_SIZE - fetchedSize,
       part: 'blockchain',
@@ -277,8 +323,16 @@ const fetchBlockchain = async (win, torUrl) => {
 
   for (const target of data.slice(index, data.length)) {
     const { fileName, targetUrl, index } = target
-    const preparedFilePath = process.platform === 'win32' ? fileName.split('/').join('\\\\') : fileName
-    await downloadManagerForZipped({ url: targetUrl, path: `${osPathsBlockchain[process.platform]}${preparedFilePath}`, index, fileName: preparedFilePath, part: 'blockchain', length: data.length })
+    const preparedFilePath =
+      process.platform === 'win32' ? fileName.split('/').join('\\\\') : fileName
+    await downloadManagerForZipped({
+      url: targetUrl,
+      path: `${osPathsBlockchain[process.platform]}${preparedFilePath}`,
+      index,
+      fileName: preparedFilePath,
+      part: 'blockchain',
+      length: data.length
+    })
   }
 
   clearInterval(refreshInterval)
@@ -302,7 +356,9 @@ const fetchBlockchain = async (win, torUrl) => {
 
 const createZcashNode = async (win, torUrl) => {
   const getFolderSizePromise = util.promisify(getSize)
-  const blockchainFolderSize = await getFolderSizePromise(`${osPathsBlockchain[process.platform]}`)
+  const blockchainFolderSize = await getFolderSizePromise(
+    `${osPathsBlockchain[process.platform]}`
+  )
   const isFetchedFromExternalSource = blockchainFolderSize >= 26046042950
   let AppStatus = electronStore.get('AppStatus')
   const vaultStatus = electronStore.get('vaultStatus')
@@ -324,11 +380,20 @@ const createZcashNode = async (win, torUrl) => {
       await fetchParams(win, torUrl)
     }
     const { status: paramsStatus } = electronStore.get('AppStatus.params')
-    const { status: blockchainStatus } = electronStore.get('AppStatus.blockchain')
-    if (paramsStatus !== config.PARAMS_STATUSES.SUCCESS && !isFetchedFromExternalSource) {
+    const { status: blockchainStatus } = electronStore.get(
+      'AppStatus.blockchain'
+    )
+    if (
+      paramsStatus !== config.PARAMS_STATUSES.SUCCESS &&
+      !isFetchedFromExternalSource
+    ) {
       await fetchParams(win, torUrl)
     }
-    if (blockchainStatus !== config.PARAMS_STATUSES.SUCCESS && vaultStatus === config.VAULT_STATUSES.CREATED && !isFetchedFromExternalSource) {
+    if (
+      blockchainStatus !== config.PARAMS_STATUSES.SUCCESS &&
+      vaultStatus === config.VAULT_STATUSES.CREATED &&
+      !isFetchedFromExternalSource
+    ) {
       await fetchBlockchain(win, torUrl)
     } else {
       if (vaultStatus) {
@@ -444,7 +509,7 @@ app.on('ready', async () => {
     if (!isDev) {
       const { status } = electronStore.get('AppStatus.blockchain')
       if (status !== config.BLOCKCHAIN_STATUSES.SUCCESS) {
-        nodeProc.on('close', (code) => {
+        nodeProc.on('close', code => {
           setTimeout(() => {
             fetchBlockchain(mainWindow)
           }, 1000)
@@ -454,7 +519,7 @@ app.on('ready', async () => {
     }
   })
 
-  ipcMain.on('create-node', (event, arg) => {
+  ipcMain.on('create-node', async (event, arg) => {
     let torUrl
     if (arg) {
       torUrl = arg.toString()
@@ -462,6 +527,9 @@ app.on('ready', async () => {
     if (!running) {
       running = true
       if (!isDev) {
+        if (!electronStore.get('username')) {
+          await createRpcCredentials()
+        }
         createZcashNode(mainWindow, torUrl)
       }
     }

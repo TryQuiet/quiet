@@ -6,7 +6,7 @@ services:
     ports:
       - 8334:8334
     volumes:
-      - ./zcash/mainnet.conf:/root/.zcash/zcash.conf
+      - ./zcash/dockermainnet.conf:/root/.zcash/zcash.conf
       - znode:/znode
       - zcash:/root/.zcash
     command: bash -c "/znode/src/zcashd -debug -rescan -txexpirydelta=18000 -checklevel=0 -checkblocks=10 -dbcache=500"

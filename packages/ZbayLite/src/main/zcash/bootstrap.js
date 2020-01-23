@@ -3,6 +3,8 @@ import { exec, spawn } from 'child_process'
 import fs from 'fs-extra'
 import os from 'os'
 
+import { credentials } from '../../renderer/zcash'
+
 const ZCASH_RESOURCES = 'zcash'
 const ZCASH_PARAMS = 'ZcashParams'
 
@@ -77,6 +79,9 @@ export const spawnZcashNode = (platform, isTestnet, torUrl = false) => {
   if (torUrl) {
     options.push(`-proxy=${torUrl}`)
   }
+  const rpcCredentials = credentials()
+  options.push(`-rpcuser=${rpcCredentials.username}`)
+  options.push(`-rpcpassword=${rpcCredentials.password}`)
   return spawn(zcashdPath, options)
 }
 export default {
