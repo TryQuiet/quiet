@@ -6,88 +6,14 @@ exports[`ChannelInfoModal renders component 1`] = `
   handleClose={[MockFunction]}
   open={true}
 >
-  <WithStyles(ForwardRef(Grid))
-    className="root-mock"
-    container={true}
-    direction="column"
+  <AutoSizer
+    disableHeight={false}
+    disableWidth={false}
+    onResize={[Function]}
+    style={Object {}}
   >
-    <WithStyles(ForwardRef(Grid))
-      className="section-mock"
-      item={true}
-    >
-      <WithStyles(ForwardRef(Typography))
-        className="title-mock"
-        variant="h3"
-      >
-        Channel 1
-      </WithStyles(ForwardRef(Typography))>
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      className="section-mock"
-      item={true}
-    >
-      <WithStyles(ForwardRef(Typography))
-        className="infoTitle-mock"
-        variant="subtitle1"
-      >
-        About
-      </WithStyles(ForwardRef(Typography))>
-      <WithStyles(ForwardRef(Typography))
-        className="description-mock"
-        variant="body2"
-      >
-        Channel about 1
-      </WithStyles(ForwardRef(Typography))>
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      className="section-mock"
-      container={true}
-      direction="column"
-      item={true}
-    >
-      <WithStyles(ForwardRef(Grid))
-        container={true}
-        direction="row"
-        item={true}
-      >
-        <WithStyles(ForwardRef(Typography))
-          className="infoTitle-mock"
-          display="inline"
-          variant="subtitle1"
-        >
-          Share link
-        </WithStyles(ForwardRef(Typography))>
-      </WithStyles(ForwardRef(Grid))>
-      <WithStyles(ForwardRef(Grid))
-        className="addressBox-mock"
-        container={true}
-        item={true}
-      >
-        <WithStyles(ForwardRef(Grid))
-          item={true}
-        >
-          <WithStyles(ForwardRef(Typography))
-            className="description-mock"
-            variant="body2"
-          >
-            https://handlers.zbay.app/importchannel=channel-hash
-          </WithStyles(ForwardRef(Typography))>
-        </WithStyles(ForwardRef(Grid))>
-        <WithStyles(ForwardRef(Grid))>
-          <CopyToClipboard
-            text="https://handlers.zbay.app/importchannel=channel-hash"
-          >
-            <WithStyles(ForwardRef(Button))
-              className="copyButton-mock"
-              variant="large"
-            >
-              Copy to clipboard
-            </WithStyles(ForwardRef(Button))>
-          </CopyToClipboard>
-        </WithStyles(ForwardRef(Grid))>
-      </WithStyles(ForwardRef(Grid))>
-    </WithStyles(ForwardRef(Grid))>
-  </WithStyles(ForwardRef(Grid))>
+    <Component />
+  </AutoSizer>
 </Memo(WithStyles(Modal))>
 `;
 
@@ -97,87 +23,13 @@ exports[`ChannelInfoModal renders component when closed 1`] = `
   handleClose={[MockFunction]}
   open={false}
 >
-  <WithStyles(ForwardRef(Grid))
-    className="root-mock"
-    container={true}
-    direction="column"
+  <AutoSizer
+    disableHeight={false}
+    disableWidth={false}
+    onResize={[Function]}
+    style={Object {}}
   >
-    <WithStyles(ForwardRef(Grid))
-      className="section-mock"
-      item={true}
-    >
-      <WithStyles(ForwardRef(Typography))
-        className="title-mock"
-        variant="h3"
-      >
-        Channel 1
-      </WithStyles(ForwardRef(Typography))>
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      className="section-mock"
-      item={true}
-    >
-      <WithStyles(ForwardRef(Typography))
-        className="infoTitle-mock"
-        variant="subtitle1"
-      >
-        About
-      </WithStyles(ForwardRef(Typography))>
-      <WithStyles(ForwardRef(Typography))
-        className="description-mock"
-        variant="body2"
-      >
-        Channel about 1
-      </WithStyles(ForwardRef(Typography))>
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      className="section-mock"
-      container={true}
-      direction="column"
-      item={true}
-    >
-      <WithStyles(ForwardRef(Grid))
-        container={true}
-        direction="row"
-        item={true}
-      >
-        <WithStyles(ForwardRef(Typography))
-          className="infoTitle-mock"
-          display="inline"
-          variant="subtitle1"
-        >
-          Share link
-        </WithStyles(ForwardRef(Typography))>
-      </WithStyles(ForwardRef(Grid))>
-      <WithStyles(ForwardRef(Grid))
-        className="addressBox-mock"
-        container={true}
-        item={true}
-      >
-        <WithStyles(ForwardRef(Grid))
-          item={true}
-        >
-          <WithStyles(ForwardRef(Typography))
-            className="description-mock"
-            variant="body2"
-          >
-            https://handlers.zbay.app/importchannel=channel-hash
-          </WithStyles(ForwardRef(Typography))>
-        </WithStyles(ForwardRef(Grid))>
-        <WithStyles(ForwardRef(Grid))>
-          <CopyToClipboard
-            text="https://handlers.zbay.app/importchannel=channel-hash"
-          >
-            <WithStyles(ForwardRef(Button))
-              className="copyButton-mock"
-              variant="large"
-            >
-              Copy to clipboard
-            </WithStyles(ForwardRef(Button))>
-          </CopyToClipboard>
-        </WithStyles(ForwardRef(Grid))>
-      </WithStyles(ForwardRef(Grid))>
-    </WithStyles(ForwardRef(Grid))>
-  </WithStyles(ForwardRef(Grid))>
+    <Component />
+  </AutoSizer>
 </Memo(WithStyles(Modal))>
 `;

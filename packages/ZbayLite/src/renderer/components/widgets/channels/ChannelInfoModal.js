@@ -3,6 +3,8 @@ import PropTypes from 'prop-types'
 import Immutable from 'immutable'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import * as R from 'ramda'
+import { AutoSizer } from 'react-virtualized'
+import { Scrollbars } from 'react-custom-scrollbars'
 
 import Grid from '@material-ui/core/Grid'
 import { Button } from '@material-ui/core'
@@ -13,9 +15,7 @@ import Modal from '../../ui/Modal'
 
 const styles = theme => ({
   root: {
-    padding: `${theme.spacing(4)}px ${theme.spacing(4)}px`,
-    height: '100%',
-    width: '100%'
+    padding: `${theme.spacing(4)}px ${theme.spacing(4)}px`
   },
   title: {
     fontWeight: 500
@@ -61,43 +61,67 @@ export const ChannelInfoModal = ({
   handleClose,
   directMessage
 }) => {
-  const address = directMessage ? channel.get('targetRecipientAddress') : shareUri
+  const address = directMessage
+    ? channel.get('targetRecipientAddress')
+    : shareUri
   return (
     <Modal open={open} handleClose={handleClose} fullPage>
-      <Grid container direction='column' className={classes.root}>
-        <Grid item className={classes.section}>
-          <Typography variant='h3' className={classes.title}>
-            {directMessage ? channel.get('targetRecipientUsername') : channel.get('name')}
-          </Typography>
-        </Grid>
-        <Grid item className={classes.section}>
-          <Typography variant='subtitle1' className={classes.infoTitle}>
-            {!directMessage && 'About'}
-          </Typography>
-          <Typography variant='body2' className={classes.description}>
-            {channel.get('description')}
-          </Typography>
-        </Grid>
-        <Grid item container direction='column' className={classes.section}>
-          <Grid container item direction='row'>
-            <Typography variant='subtitle1' display='inline' className={classes.infoTitle}>
-              {directMessage ? 'Address' : 'Share link'}
-            </Typography>
-          </Grid>
-          <Grid container item className={classes.addressBox}>
-            <Grid item>
-              <Typography variant='body2' className={classes.description}>
-                {address}
-              </Typography>
+      <AutoSizer>
+        {({ width, height }) => (
+          <Scrollbars
+            autoHideTimeout={500}
+            style={{ width: width, height: height }}
+          >
+            <Grid container direction='column' className={classes.root}>
+              <Grid item className={classes.section}>
+                <Typography variant='h3' className={classes.title}>
+                  {directMessage
+                    ? channel.get('targetRecipientUsername')
+                    : channel.get('name')}
+                </Typography>
+              </Grid>
+              <Grid item className={classes.section}>
+                <Typography variant='subtitle1' className={classes.infoTitle}>
+                  {!directMessage && 'About'}
+                </Typography>
+                <Typography variant='body2' className={classes.description}>
+                  {channel.get('description')}
+                </Typography>
+              </Grid>
+              <Grid
+                item
+                container
+                direction='column'
+                className={classes.section}
+              >
+                <Grid container item direction='row'>
+                  <Typography
+                    variant='subtitle1'
+                    display='inline'
+                    className={classes.infoTitle}
+                  >
+                    {directMessage ? 'Address' : 'Share link'}
+                  </Typography>
+                </Grid>
+                <Grid container item className={classes.addressBox}>
+                  <Grid item>
+                    <Typography variant='body2' className={classes.description}>
+                      {address}
+                    </Typography>
+                  </Grid>
+                  <Grid>
+                    <CopyToClipboard text={address}>
+                      <Button className={classes.copyButton} variant={'large'}>
+                        Copy to clipboard
+                      </Button>
+                    </CopyToClipboard>
+                  </Grid>
+                </Grid>
+              </Grid>
             </Grid>
-            <Grid>
-              <CopyToClipboard text={address}>
-                <Button className={classes.copyButton} variant={'large'}>Copy to clipboard</Button>
-              </CopyToClipboard>
-            </Grid>
-          </Grid>
-        </Grid>
-      </Grid>
+          </Scrollbars>
+        )}
+      </AutoSizer>
     </Modal>
   )
 }
@@ -121,7 +145,4 @@ ChannelInfoModal.defaultProps = {
   directMessage: false
 }
 
-export default R.compose(
-  React.memo,
-  withStyles(styles)
-)(ChannelInfoModal)
+export default R.compose(React.memo, withStyles(styles))(ChannelInfoModal)
