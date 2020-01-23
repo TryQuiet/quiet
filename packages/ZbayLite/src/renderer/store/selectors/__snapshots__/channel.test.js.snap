@@ -12,6 +12,7 @@ Immutable.ChannelState {
     "message": "Test loading message",
   },
   "members": "0",
+  "showInfoMsg": true,
 }
 `;
 

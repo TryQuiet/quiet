@@ -114,6 +114,7 @@ Array [
     "lastSeen": "2019-03-07T13:03:48.000Z",
     "name": "Channel 3",
     "private": true,
+    "showInfoMsg": true,
     "unread": 3,
   },
   Object {
@@ -126,6 +127,7 @@ Array [
     "lastSeen": "2019-03-07T13:03:48.000Z",
     "name": "Channel 2",
     "private": true,
+    "showInfoMsg": true,
     "unread": 2,
   },
   Object {
@@ -138,6 +140,7 @@ Array [
     "lastSeen": "2019-03-07T13:03:48.000Z",
     "name": "Channel 1",
     "private": true,
+    "showInfoMsg": true,
     "unread": 1,
   },
 ]
@@ -200,6 +203,7 @@ Vault {
     "listChannels": [Function],
     "removeChannel": [Function],
     "updateLastSeen": [Function],
+    "updateShowInfoMsg": [Function],
   },
   "contacts": Object {
     "deleteMessage": [Function],

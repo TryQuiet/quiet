@@ -29,7 +29,8 @@ export const ChannelState = Immutable.Record(
     shareableUri: '',
     address: '',
     loader: LoaderState({ loading: false }),
-    members: null
+    members: null,
+    showInfoMsg: true
   },
   'ChannelState'
 )

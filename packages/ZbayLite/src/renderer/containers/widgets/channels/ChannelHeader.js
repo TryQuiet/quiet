@@ -1,6 +1,8 @@
 import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
 
 import ChannelHeader from '../../../components/widgets/channels/ChannelHeader'
+import channelsHandlers from '../../../store/handlers/channels'
 
 import channelSelectors from '../../../store/selectors/channel'
 
@@ -19,5 +21,11 @@ export const mapStateToProps = state => {
       .find(msg => msg.type === messageType.AD)
   }
 }
-
-export default connect(mapStateToProps)(ChannelHeader)
+export const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    {
+      updateShowInfoMsg: channelsHandlers.epics.updateShowInfoMsg
+    },
+    dispatch
+  )
+export default connect(mapStateToProps, mapDispatchToProps)(ChannelHeader)

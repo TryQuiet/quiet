@@ -125,40 +125,43 @@ Immutable.Record {
 exports[`channels reducer handles load channels when fulfilled 1`] = `
 Immutable.List [
   Immutable.Map {
-    "lastSeen": "2019-03-07T13:03:48.000Z",
-    "name": "Channel 2",
     "private": true,
-    "address": "zs1testaddress2",
+    "name": "Channel 2",
     "unread": 2,
-    "description": "",
+    "lastSeen": "2019-03-07T13:03:48.000Z",
     "keys": Immutable.Map {
       "ivk": "incoming-viewing-key-2",
       "sk": "test-secret-key",
     },
+    "address": "zs1testaddress2",
+    "showInfoMsg": true,
+    "description": "",
   },
   Immutable.Map {
-    "lastSeen": "2019-03-07T13:03:48.000Z",
-    "name": "Channel 1",
     "private": true,
-    "address": "zs1testaddress1",
+    "name": "Channel 1",
     "unread": 1,
-    "description": "Channel about 1",
+    "lastSeen": "2019-03-07T13:03:48.000Z",
     "keys": Immutable.Map {
       "ivk": "incoming-viewing-key-1",
       "sk": "test-secret-key",
     },
+    "address": "zs1testaddress1",
+    "showInfoMsg": true,
+    "description": "Channel about 1",
   },
   Immutable.Map {
-    "lastSeen": "2019-03-07T13:03:48.000Z",
-    "name": "Channel 0",
     "private": true,
-    "address": "zs1testaddress0",
+    "name": "Channel 0",
     "unread": 0,
-    "description": "",
+    "lastSeen": "2019-03-07T13:03:48.000Z",
     "keys": Immutable.Map {
       "ivk": "incoming-viewing-key-0",
       "sk": "test-secret-key",
     },
+    "address": "zs1testaddress0",
+    "showInfoMsg": true,
+    "description": "",
   },
 ]
 `;

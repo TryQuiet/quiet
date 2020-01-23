@@ -15,6 +15,7 @@ import notificationsHandlers from './notifications'
 import channelHandlers from './channel'
 import identitySelectors from '../selectors/identity'
 import channelsSelectors from '../selectors/channels'
+import channelSelectors from '../selectors/channel'
 import modalsHandlers from './modals'
 import { messages } from '../../zbay'
 import { getVault } from '../../vault'
@@ -36,7 +37,8 @@ export const initialState = ChannelsState()
 export const actionTypes = {
   LOAD_CHANNELS: 'LOAD_IDENTITY_CHANNELS',
   SET_LAST_SEEN: 'SET_CHANNELS_LAST_SEEN',
-  SET_UNREAD: 'SET_CHANNEL_UNREAD'
+  SET_UNREAD: 'SET_CHANNEL_UNREAD',
+  SET_SHOW_INFO_MSG: 'SET_SHOW_INFO_MSG'
 }
 
 const loadChannels = createAction(actionTypes.LOAD_CHANNELS, async id => {
@@ -61,6 +63,7 @@ const loadChannelsToNode = createAction(actionTypes.LOAD_CHANNELS, async id => {
 
 const setLastSeen = createAction(actionTypes.SET_LAST_SEEN)
 const setUnread = createAction(actionTypes.SET_UNREAD)
+const setShowInfoMsg = createAction(actionTypes.SET_SHOW_INFO_MSG)
 
 export const actions = {
   loadChannels,
@@ -171,11 +174,23 @@ const updateLastSeen = ({ channelId }) => async (dispatch, getState) => {
   dispatch(setUnread({ channelId, unread: 0 }))
 }
 
+const updateShowInfoMsg = (showInfoMsg) => async (dispatch, getState) => {
+  const channelId = channelSelectors.channelId(getState())
+  const identity = identitySelectors.data(getState())
+  await getVault().channels.updateShowInfoMsg({
+    identityId: identity.get('id'),
+    channelId,
+    showInfoMsg: showInfoMsg === false ? '' : 'true'
+  })
+  dispatch(setShowInfoMsg({ channelId, showInfoMsg }))
+}
+
 export const epics = {
   createChannel,
   updateLastSeen,
   getMoneyFromChannel,
-  withdrawMoneyFromChannels
+  withdrawMoneyFromChannels,
+  updateShowInfoMsg
 }
 
 export const reducer = handleActions(
@@ -189,6 +204,10 @@ export const reducer = handleActions(
     [setLastSeen]: (state, { payload: { channelId, lastSeen } }) => {
       const index = state.data.findIndex(channel => channel.get('id') === channelId)
       return state.updateIn(['data', index], ch => ch.set('lastSeen', lastSeen))
+    },
+    [setShowInfoMsg]: (state, { payload: { channelId, showInfoMsg } }) => {
+      const index = state.data.findIndex(channel => channel.get('id') === channelId)
+      return state.updateIn(['data', index], ch => ch.set('showInfoMsg', showInfoMsg))
     },
     [setUnread]: (state, { payload: { channelId, unread } }) => {
       const index = state.data.findIndex(channel => channel.get('id') === channelId)

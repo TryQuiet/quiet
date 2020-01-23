@@ -62,15 +62,16 @@ Immutable.List [
 exports[`Imported channel reducer handles epics importChannel reloads channels 1`] = `
 Immutable.List [
   Immutable.Map {
-    "lastSeen": "2019-03-07T13:03:48.000Z",
-    "name": "General",
     "private": true,
-    "address": "ztestsapling16e4wekqjyx80yjjzf24ztyflt2c5tt6avt4nftgnj694n8e5x8fz5pr9ejsd3l9lmymf29khjnk",
+    "name": "General",
     "unread": 0,
-    "description": "This is a general channel available to all users of Zbay by default.",
+    "lastSeen": "2019-03-07T13:03:48.000Z",
     "keys": Immutable.Map {
       "ivk": "zivktestsapling1p5rp2czztl8amalqm5ghzvhr35n08h26vhphnw2x6k83trft7sqsn9qkd6",
     },
+    "address": "ztestsapling16e4wekqjyx80yjjzf24ztyflt2c5tt6avt4nftgnj694n8e5x8fz5pr9ejsd3l9lmymf29khjnk",
+    "showInfoMsg": true,
+    "description": "This is a general channel available to all users of Zbay by default.",
   },
 ]
 `;

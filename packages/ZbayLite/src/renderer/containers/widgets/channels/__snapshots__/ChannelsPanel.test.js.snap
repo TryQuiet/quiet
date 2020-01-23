@@ -49,6 +49,7 @@ Object {
       "message": "",
     },
     "members": null,
+    "showInfoMsg": true,
   },
 }
 `;

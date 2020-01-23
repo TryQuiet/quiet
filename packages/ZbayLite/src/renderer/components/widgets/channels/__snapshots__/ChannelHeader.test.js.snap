@@ -1,132 +1,144 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ChannelHeader renders component 1`] = `
-<WithStyles(ForwardRef(Grid))
-  alignItems="center"
-  className="root-mock"
-  container={true}
-  direction="row"
-  justify="space-between"
+<div
+  className="wrapper-mock"
 >
   <WithStyles(ForwardRef(Grid))
-    item={true}
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="title-mock"
-      variant="subtitle1"
-    >
-      Channel 1
-    </WithStyles(ForwardRef(Typography))>
-  </WithStyles(ForwardRef(Grid))>
-  <WithStyles(ForwardRef(Grid))
-    alignContent="center"
     alignItems="center"
-    className="actions-mock"
+    className="root-mock"
     container={true}
-    item={true}
-    justify="flex-end"
-    xs={true}
+    direction="row"
+    justify="space-between"
   >
     <WithStyles(ForwardRef(Grid))
       item={true}
     >
-      <withRouter(Connect(Component))
-        directMessage={false}
-      />
-      <Connect(withModal(Component)) />
+      <WithStyles(ForwardRef(Typography))
+        className="title-mock"
+        variant="subtitle1"
+      >
+        Channel 1
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      alignContent="center"
+      alignItems="center"
+      className="actions-mock"
+      container={true}
+      item={true}
+      justify="flex-end"
+      xs={true}
+    >
+      <WithStyles(ForwardRef(Grid))
+        item={true}
+      >
+        <withRouter(Connect(Component))
+          directMessage={false}
+        />
+        <Connect(withModal(Component)) />
+      </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
-</WithStyles(ForwardRef(Grid))>
+</div>
 `;
 
 exports[`ChannelHeader renders members when 0 1`] = `
-<WithStyles(ForwardRef(Grid))
-  alignItems="center"
-  className="root-mock"
-  container={true}
-  direction="row"
-  justify="space-between"
+<div
+  className="wrapper-mock"
 >
   <WithStyles(ForwardRef(Grid))
-    item={true}
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="title-mock"
-      variant="subtitle1"
-    >
-      Channel 1
-    </WithStyles(ForwardRef(Typography))>
-    <WithStyles(ForwardRef(Typography))
-      className="subtitle-mock"
-      variant="caption"
-    >
-      0
-       Participants
-    </WithStyles(ForwardRef(Typography))>
-  </WithStyles(ForwardRef(Grid))>
-  <WithStyles(ForwardRef(Grid))
-    alignContent="center"
     alignItems="center"
-    className="actions-mock"
+    className="root-mock"
     container={true}
-    item={true}
-    justify="flex-end"
-    xs={true}
+    direction="row"
+    justify="space-between"
   >
     <WithStyles(ForwardRef(Grid))
       item={true}
     >
-      <withRouter(Connect(Component))
-        directMessage={false}
-      />
-      <Connect(withModal(Component)) />
+      <WithStyles(ForwardRef(Typography))
+        className="title-mock"
+        variant="subtitle1"
+      >
+        Channel 1
+      </WithStyles(ForwardRef(Typography))>
+      <WithStyles(ForwardRef(Typography))
+        className="subtitle-mock"
+        variant="caption"
+      >
+        0
+         Participants
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      alignContent="center"
+      alignItems="center"
+      className="actions-mock"
+      container={true}
+      item={true}
+      justify="flex-end"
+      xs={true}
+    >
+      <WithStyles(ForwardRef(Grid))
+        item={true}
+      >
+        <withRouter(Connect(Component))
+          directMessage={false}
+        />
+        <Connect(withModal(Component)) />
+      </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
-</WithStyles(ForwardRef(Grid))>
+</div>
 `;
 
 exports[`ChannelHeader renders without members count 1`] = `
-<WithStyles(ForwardRef(Grid))
-  alignItems="center"
-  className="root-mock"
-  container={true}
-  direction="row"
-  justify="space-between"
+<div
+  className="wrapper-mock"
 >
   <WithStyles(ForwardRef(Grid))
-    item={true}
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="title-mock"
-      variant="subtitle1"
-    >
-      Channel 1
-    </WithStyles(ForwardRef(Typography))>
-    <WithStyles(ForwardRef(Typography))
-      className="subtitle-mock"
-      variant="caption"
-    >
-      4
-       Participants
-    </WithStyles(ForwardRef(Typography))>
-  </WithStyles(ForwardRef(Grid))>
-  <WithStyles(ForwardRef(Grid))
-    alignContent="center"
     alignItems="center"
-    className="actions-mock"
+    className="root-mock"
     container={true}
-    item={true}
-    justify="flex-end"
-    xs={true}
+    direction="row"
+    justify="space-between"
   >
     <WithStyles(ForwardRef(Grid))
       item={true}
     >
-      <withRouter(Connect(Component))
-        directMessage={false}
-      />
-      <Connect(withModal(Component)) />
+      <WithStyles(ForwardRef(Typography))
+        className="title-mock"
+        variant="subtitle1"
+      >
+        Channel 1
+      </WithStyles(ForwardRef(Typography))>
+      <WithStyles(ForwardRef(Typography))
+        className="subtitle-mock"
+        variant="caption"
+      >
+        4
+         Participants
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      alignContent="center"
+      alignItems="center"
+      className="actions-mock"
+      container={true}
+      item={true}
+      justify="flex-end"
+      xs={true}
+    >
+      <WithStyles(ForwardRef(Grid))
+        item={true}
+      >
+        <withRouter(Connect(Component))
+          directMessage={false}
+        />
+        <Connect(withModal(Component)) />
+      </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
-</WithStyles(ForwardRef(Grid))>
+</div>
 `;
