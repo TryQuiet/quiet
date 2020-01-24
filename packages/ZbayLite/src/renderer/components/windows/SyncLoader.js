@@ -86,8 +86,8 @@ export const SyncLoader = ({ classes, hasAddress, blockchainStatus, node, bootst
   const fetching = (((20602539059 - fetchingSizeLeft) * 100) / 20602539059).toFixed()
   let ETA = null
   if (fetchingEndTime) {
-    const { hours, minutes, seconds } = fetchingEndTime
-    ETA = `Time left: ${hours ? `${hours} hours,` : ''} ${minutes ? `${minutes} minutes,` : ''} ${seconds ? `${seconds} seconds.` : ''}`
+    const { hours, minutes } = fetchingEndTime
+    ETA = `${hours ? `${hours}h` : ''} ${minutes ? `${minutes}m` : ''} left`
   }
   return (
     <WindowWrapper className={classes.root}>
@@ -118,13 +118,7 @@ export const SyncLoader = ({ classes, hasAddress, blockchainStatus, node, bootst
             </Typography> : fetchingStatus !== 'SUCCESS' && blockchainStatus !== 'SUCCESS' ? (
               <Grid item container justify='center' alignItems='center' wrap={'wrap'}>
                 <Typography variant='caption' className={classes.status}>
-                  {`Downloading ${fetchingPart} data from S3, size left ${(fetchingSizeLeft / 1024 ** 3).toFixed(2)} GB / ~ 20 GB`}
-                </Typography>
-                <Typography variant='caption' className={classes.status}>
-                  {`Current Download Speed: ${(fetchingSpeed / 1024 ** 2).toFixed(2)} MB/s,`}
-                </Typography>
-                <Typography variant='caption' className={classes.status}>
-                  {`${ETA || ''}`}
+                  {`Syncing, ${ETA || ''} (${(fetchingSpeed / 1024 ** 2).toFixed(2)} MB/s)`}
                 </Typography>
               </Grid>
             ) : <Typography variant='caption' className={classes.status}>

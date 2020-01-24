@@ -75,18 +75,8 @@ exports[`SyncLoader renders component 1`] = `
             className="status-mock"
             variant="caption"
           >
-            Downloading undefined data from S3, size left NaN GB / ~ 20 GB
+            Syncing,  (NaN MB/s)
           </WithStyles(ForwardRef(Typography))>
-          <WithStyles(ForwardRef(Typography))
-            className="status-mock"
-            variant="caption"
-          >
-            Current Download Speed: NaN MB/s,
-          </WithStyles(ForwardRef(Typography))>
-          <WithStyles(ForwardRef(Typography))
-            className="status-mock"
-            variant="caption"
-          />
         </WithStyles(ForwardRef(Grid))>
       </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>
