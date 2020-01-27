@@ -43,7 +43,7 @@ export const SendMessagePopover = ({
         buttonName='Send message'
         handleClose={handleClose}
         warrning={
-          isUnregistered ? 'Sending direct messages is only available for registered users' : null
+          isUnregistered ? 'Unregistered users cannot receive messages.' : null
         }
         onClick={() =>
           createContact({
