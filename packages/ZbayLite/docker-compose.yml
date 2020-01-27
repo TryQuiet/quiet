@@ -9,7 +9,7 @@ services:
       - ./zcash/dockermainnet.conf:/root/.zcash/zcash.conf
       - znode:/znode
       - zcash:/root/.zcash
-    command: bash -c "/znode/src/zcashd -debug -rescan -txexpirydelta=18000 -checklevel=0 -checkblocks=10 -dbcache=500"
+    command: bash -c "/znode/src/zcashd -debug -txexpirydelta=18000 -checklevel=0 -checkblocks=10 -dbcache=500"
 
   znode-testnet:
     image: rumblefish1337/zcashnode:v2.1.0-1

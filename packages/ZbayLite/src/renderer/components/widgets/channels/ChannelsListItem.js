@@ -10,7 +10,8 @@ import ListItemText from '@material-ui/core/ListItemText'
 import { Typography, Grid } from '@material-ui/core'
 
 import ZcashIcon from '../../ui/ZcashIcon'
-import { messageType } from '../../../zbay/messages'
+import { messageType } from '../../../../shared/static'
+
 const styles = theme => ({
   root: {
     padding: 0

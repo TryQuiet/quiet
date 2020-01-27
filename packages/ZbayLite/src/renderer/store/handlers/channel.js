@@ -20,6 +20,7 @@ import { errorNotification, LoaderState } from './utils'
 import { channelToUri } from '../../zbay/channels'
 import nodeSelectors from '../selectors/node'
 import { getVault } from '../../vault'
+import { messageType } from '../../../shared/static'
 
 export const ChannelState = Immutable.Record(
   {
@@ -129,7 +130,7 @@ const sendOnEnter = event => async (dispatch, getState) => {
     if (currentMessage !== undefined) {
       message = messages.createMessage({
         messageData: {
-          type: messages.messageType.BASIC,
+          type: messageType.BASIC,
           data: currentMessage.get('message').get('message') + '\n' + event.target.value
         },
         privKey: privKey
@@ -137,7 +138,7 @@ const sendOnEnter = event => async (dispatch, getState) => {
     } else {
       message = messages.createMessage({
         messageData: {
-          type: messages.messageType.BASIC,
+          type: messageType.BASIC,
           data: event.target.value
         },
         privKey: privKey
@@ -156,7 +157,7 @@ const sendChannelSettingsMessage = ({ address, minFee = '0', onlyRegistered = '0
   const privKey = identitySelectors.signerPrivKey(getState())
   const message = messages.createMessage({
     messageData: {
-      type: messages.messageType.CHANNEL_SETTINGS,
+      type: messageType.CHANNEL_SETTINGS,
       data: {
         owner,
         minFee,

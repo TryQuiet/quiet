@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Send message popover will receive right actions 1`] = `
+Object {
+  "clearCurrentOpenTab": [Function],
+}
+`;
+
+exports[`Send message popover will receive right props 1`] = `
+Object {
+  "channel": Immutable.Map {
+    "id": "randomid",
+    "name": "Channel randomid",
+    "private": false,
+    "address": "zs1testaddressrandomid",
+    "unread": "randomid",
+    "description": "Channel about randomid",
+    "keys": Immutable.Map {
+      "ivk": "incoming-viewing-key-randomid",
+      "sk": "test-secret-key",
+    },
+  },
+}
+`;

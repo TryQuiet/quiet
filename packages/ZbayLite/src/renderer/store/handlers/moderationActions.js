@@ -5,6 +5,7 @@ import identitySelectors from '../selectors/identity'
 import { messages as zbayMessages } from '../../zbay'
 import channelSelectors from '../selectors/channel'
 import { errorNotification, successNotification } from './utils'
+import { messageType } from '../../../shared/static'
 
 export const moderationActionsType = {
   REMOVE_MESSAGE: 'REMOVE_MESSAGE',
@@ -24,7 +25,7 @@ const handleModerationAction = ({ moderationType, moderationTarget }) => async (
   const privKey = identitySelectors.signerPrivKey(getState())
   const message = zbayMessages.createMessage({
     messageData: {
-      type: zbayMessages.messageType.MODERATION,
+      type: messageType.MODERATION,
       data: {
         moderationType,
         moderationTarget

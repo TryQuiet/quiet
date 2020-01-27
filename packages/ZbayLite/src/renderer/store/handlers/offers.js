@@ -12,7 +12,7 @@ import contactsSelectors from '../selectors/contacts'
 import channelHandlers from './channel'
 import contactsHandlers from './contacts'
 import directMessagesQueueHandlers from './directMessagesQueue'
-import { messageType } from '../../zbay/messages'
+import { messageType } from '../../../shared/static'
 
 import * as Here from './offers'
 

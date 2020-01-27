@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`UserListItem renders component 1`] = `
+<WithStyles(ForwardRef(Grid))
+  alignItems="center"
+  className="root-mock"
+  container={true}
+  item={true}
+  justify="space-between"
+  xs={true}
+>
+  <Memo(WithStyles(ConfirmModal))
+    actionName="testactionname"
+    handleAction={[Function]}
+    handleClose={[Function]}
+    open={false}
+    title="testactionname 'testname'"
+  />
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+  >
+    <WithStyles(ForwardRef(Typography))
+      className="name-mock"
+      variant="subtitle1"
+    >
+      @
+      testname
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="pointer-mock"
+    item={true}
+    onClick={[Function]}
+  >
+    <WithStyles(ForwardRef(Typography))
+      className="actionName-mock"
+      variant="body2"
+    >
+      testactionname
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
+`;

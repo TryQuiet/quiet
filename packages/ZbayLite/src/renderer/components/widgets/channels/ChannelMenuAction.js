@@ -28,7 +28,8 @@ export const ChannelMenuAction = ({
   publishChannel,
   isOwner,
   publicChannels,
-  channel
+  channel,
+  onSettings
 }) => {
   const alreadyRegistered = publicChannels.find(
     ch => ch.address === channel.get('address')
@@ -43,6 +44,11 @@ export const ChannelMenuAction = ({
       <MenuActionItem onClick={onInfo} title='Info' />
       <MenuActionItem onClick={onMute} title='Mute' />
       <MenuActionItem onClick={onDelete} title='Remove' />
+      {isOwner && alreadyRegistered ? (
+        <MenuActionItem onClick={onSettings} title='Settings' />
+      ) : (
+        <span />
+      )}
       {isOwner && !alreadyRegistered ? (
         <MenuActionItem onClick={publishChannel} title='Publish channel' />
       ) : (
@@ -58,6 +64,7 @@ ChannelMenuAction.propTypes = {
   publishChannel: PropTypes.func.isRequired,
   onMute: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
+  onSettings: PropTypes.func.isRequired,
   isOwner: PropTypes.bool.isRequired,
   publicChannels: PropTypes.object.isRequired,
   channel: PropTypes.object.isRequired

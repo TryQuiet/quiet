@@ -14,9 +14,9 @@ import { ADDRESS_TYPE } from '../../zbay/transit'
 import txnTimestampsHandlers from '../handlers/txnTimestamps'
 import txnTimestampsSelector from '../selectors/txnTimestamps'
 import { getVault } from '../../vault'
-import { messageType } from '../../zbay/messages'
 import feesHandlers from '../handlers/fees'
 import staticChannels from '../../zcash/channels'
+import { messageType } from '../../../shared/static'
 
 export const _PublicChannelData = Immutable.Record(
   {

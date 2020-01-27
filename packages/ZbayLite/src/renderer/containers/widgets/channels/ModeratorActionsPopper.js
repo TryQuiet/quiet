@@ -2,9 +2,8 @@ import React from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import ModeratorActionsPopperComponent from '../../../components/widgets/channels/ModeratorActionsPopper'
-import moderationHandlers, {
-  moderationActionsType
-} from '../../../store/handlers/moderationActions'
+import moderationHandlers from '../../../store/handlers/moderationActions'
+import { moderationActionsType } from '../../../../shared/static'
 
 export const mapDispatchToProps = (dispatch, { publicKey, txid }) => {
   return bindActionCreators(
@@ -43,7 +42,4 @@ export const ModeratorActionsPopper = ({
   )
 }
 
-export default connect(
-  null,
-  mapDispatchToProps
-)(ModeratorActionsPopper)
+export default connect(null, mapDispatchToProps)(ModeratorActionsPopper)

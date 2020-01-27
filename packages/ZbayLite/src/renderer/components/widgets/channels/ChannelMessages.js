@@ -6,7 +6,7 @@ import { Scrollbars } from 'react-custom-scrollbars'
 import List from '@material-ui/core/List'
 import { withStyles } from '@material-ui/core/styles'
 
-import { messageType } from '../../../zbay/messages'
+import { messageType } from '../../../../shared/static'
 import ChannelMessage from '../../../containers/widgets/channels/ChannelMessage'
 import WelcomeMessage from './WelcomeMessage'
 import ChannelItemTransferMessage from '../../../containers/widgets/channels/ItemTransferMessage'

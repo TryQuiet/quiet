@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Moderators renders component 1`] = `
+<AutoSizer
+  disableHeight={false}
+  disableWidth={false}
+  onResize={[Function]}
+  style={Object {}}
+>
+  <Component />
+</AutoSizer>
+`;

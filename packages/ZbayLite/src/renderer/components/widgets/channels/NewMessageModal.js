@@ -13,7 +13,7 @@ import { TextField as FormikTextField } from '../../ui/form/TextField'
 import Modal from '../../ui/Modal'
 import { AutocompleteField } from '../../ui/form/Autocomplete'
 import { errorNotification, successNotification } from '../../../store/handlers/utils'
-import { messages as zbayMessages } from '../../../zbay'
+import { messageType } from '../../../zbay/messages'
 
 const styles = theme => ({
   root: {
@@ -67,7 +67,7 @@ export const NewMessageModal = ({
               payload = {
                 message: values.message || '',
                 spent: 0.0,
-                type: zbayMessages.messageType.BASIC,
+                type: messageType.BASIC,
                 receiver: {
                   replyTo: targetUser.address,
                   username: targetUser.nickname
@@ -87,7 +87,7 @@ export const NewMessageModal = ({
               payload = {
                 message: values.message || '',
                 spent: 0.0,
-                type: zbayMessages.messageType.BASIC,
+                type: messageType.BASIC,
                 receiver: {
                   replyTo: values.recipient,
                   username: values.recipient.substring(0, 15)

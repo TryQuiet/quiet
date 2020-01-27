@@ -1,9 +1,9 @@
 import { DateTime, Settings } from 'luxon'
 import secp256k1 from 'secp256k1'
 import BigNumber from 'bignumber.js'
-import { messages as zbayMessages } from '../zbay'
 import { hash } from '../zbay/messages'
 import defaultChannels from '../zcash/channels'
+import { messageType } from '../../shared/static'
 Settings.defaultZoneName = 'utc'
 
 export const vaultTestMessages = [
@@ -89,7 +89,7 @@ export const createVaultMessage = (
   id,
   status: 'broadcasted',
   spent: new BigNumber('123'),
-  type: zbayMessages.messageType.BASIC,
+  type: messageType.BASIC,
   createdAt,
   message: `This is some message ${id}`,
   sender: {
@@ -100,14 +100,14 @@ export const createVaultMessage = (
 
 export const createMessage = (id, createdAt = now.minus({ hours: id }).toSeconds()) => ({
   id,
-  type: zbayMessages.messageType.BASIC,
+  type: messageType.BASIC,
   createdAt,
   message: `This is some message ${id}`,
   signature: secp256k1.sign(hash(`This is a message with id ${id}`), pKey).signature
 })
 export const createItemMessage = (id, createdAt = now.minus({ hours: id }).toSeconds()) => ({
   id,
-  type: zbayMessages.messageType.BASIC,
+  type: messageType.BASIC,
   createdAt,
   message: { itemId: 'test1', test: `This is some message ${id}` },
   signature: secp256k1.sign(hash(`This is a message with id ${id}`), pKey).signature
@@ -120,7 +120,7 @@ export const createReceivedMessage = ({
 }) => ({
   id,
   spent: new BigNumber('0.32'),
-  type: zbayMessages.messageType.BASIC,
+  type: messageType.BASIC,
   createdAt,
   message: `This is a message with id ${id}`,
   signature: secp256k1.sign(hash(`This is a message with id ${id}`), pKey).signature
@@ -129,7 +129,7 @@ export const createReceivedMessage = ({
 export const createSendableMessage = ({
   message,
   createdAt = now.toSeconds(),
-  type = zbayMessages.messageType.BASIC
+  type = messageType.BASIC
 }) => ({
   type,
   signature: secp256k1.sign(hash(message), pKey).signature,
@@ -140,7 +140,7 @@ export const createSendableMessage = ({
 export const createSendableUserMessage = ({
   message,
   createdAt = now.toSeconds(),
-  type = zbayMessages.messageType.USER
+  type = messageType.USER
 }) => ({
   type,
   signature: secp256k1.sign(hash(JSON.stringify(message) + createdAt), pKey).signature,
@@ -152,7 +152,7 @@ export const createSendableTransferMessage = ({
   message = 'hello',
   createdAt = now.toSeconds()
 }) => ({
-  type: zbayMessages.messageType.TRANSFER,
+  type: messageType.TRANSFER,
   spent: new BigNumber('0.32'),
   sender: {
     replyTo: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya',
@@ -170,7 +170,7 @@ export const createSendableTransferMessage = ({
 export const createReceivedTransferMessage = ({ id, createdAt = now.toSeconds() }) => ({
   id,
   spent: new BigNumber('0.32'),
-  type: zbayMessages.messageType.TRANSFER,
+  type: messageType.TRANSFER,
   createdAt,
   message: `This is a message with id ${id}`,
   signature: secp256k1.sign(hash(`This is a message with id ${id}`), pKey).signature
@@ -179,7 +179,7 @@ export const createReceivedTransferMessage = ({ id, createdAt = now.toSeconds() 
 export const createReceivedUserMessage = ({ id, createdAt = now.toSeconds() }) => ({
   id,
   spent: new BigNumber('0.32'),
-  type: zbayMessages.messageType.USER,
+  type: messageType.USER,
   createdAt,
   message: {
     firstName: 'testname',

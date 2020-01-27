@@ -92,7 +92,8 @@ export default createMuiTheme({
       buttonGray: '#E3E3E3',
       black30: '#4C4C4C',
       gray30: '#FAFAFA',
-      grayBackgroud: '#F3F0F6'
+      grayBackgroud: '#F3F0F6',
+      gray50: '#B3B3B3'
     }
   },
   overrides: {

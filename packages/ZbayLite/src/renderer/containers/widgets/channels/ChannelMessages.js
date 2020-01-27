@@ -7,7 +7,7 @@ import channelSelectors from '../../../store/selectors/channel'
 import channelsSelectors from '../../../store/selectors/channels'
 import dmQueueMessages from '../../../store/selectors/directMessagesQueue'
 import queueMessages from '../../../store/selectors/messagesQueue'
-import { messageType } from '../../../zbay/messages'
+import { messageType } from '../../../../shared/static'
 
 export const mapStateToProps = (state, { signerPubKey }) => {
   const qMessages = queueMessages.queue(state)

@@ -1,0 +1,68 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChannelSettingsModal renders component 1`] = `
+<Memo(WithStyles(Modal))
+  addBorder={true}
+  handleClose={[Function]}
+  isBold={true}
+  open={true}
+  title="Settings for #undefined"
+>
+  <WithStyles(ForwardRef(Grid))
+    className="root-mock"
+    container={true}
+    direction="row"
+  >
+    <WithStyles(ForwardRef(Grid))
+      className="tabsDiv-mock"
+      item={true}
+    >
+      <WithStyles(ForwardRef(AppBar))
+        className="appbar-mock"
+        position="static"
+      >
+        <WithStyles(ForwardRef(Tabs))
+          className="tabs-mock"
+          classes={
+            Object {
+              "indicator": "indicator-mock",
+            }
+          }
+          onChange={[Function]}
+          orientation="vertical"
+          textColor="inherit"
+          value="blockedUsers"
+        >
+          <WithStyles(Tab)
+            classes={
+              Object {
+                "selected": "selected-mock",
+                "tabRoot": "tab-mock",
+              }
+            }
+            label="Blocked users"
+            value="blockedUsers"
+          />
+          <WithStyles(Tab)
+            classes={
+              Object {
+                "selected": "selected-mock",
+                "tabRoot": "tab-mock",
+              }
+            }
+            label="Moderators"
+            value="moderators"
+          />
+        </WithStyles(ForwardRef(Tabs))>
+      </WithStyles(ForwardRef(AppBar))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      className="content-mock"
+      item={true}
+      xs={true}
+    >
+      <TabContent />
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+</Memo(WithStyles(Modal))>
+`;

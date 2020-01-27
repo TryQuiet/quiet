@@ -303,6 +303,7 @@ exports[`ChannelMenuAction renders component 1`] = `
     onClick={[MockFunction]}
     title="Remove"
   />
+  <span />
   <Memo(WithStyles(MenuActionItem))
     onClick={[Function]}
     title="Publish channel"

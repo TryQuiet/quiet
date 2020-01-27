@@ -3,7 +3,6 @@ import BigNumber from 'bignumber.js'
 import identitySelectors from '../selectors/identity'
 import channelSelectors from '../selectors/channel'
 import offersHandlers from '../../store/handlers/offers'
-import { messageType } from '../../zbay/messages'
 import { messages } from '../../zbay'
 import { getClient } from '../../zcash'
 import notificationsHandlers from './notifications'
@@ -11,6 +10,7 @@ import directMessagesQueueHandlers from './directMessagesQueue'
 import { errorNotification, successNotification } from './utils'
 import operationsHandlers, { operationTypes } from './operations'
 import contactsHandlers from './contacts'
+import { messageType } from '../../../shared/static'
 
 const handleSend = ({ values }) => async (dispatch, getState) => {
   const data = {

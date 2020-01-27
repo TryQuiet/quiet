@@ -2,8 +2,8 @@ import secp256k1 from 'secp256k1'
 
 import { packMemo, unpackMemo, MEMO_SIZE, ADDRESS_TYPE } from './transit'
 import { now } from '../testUtils'
-import { messageType, hash } from './messages'
-import { moderationActionsType } from '../store/handlers/moderationActions'
+import { hash } from './messages'
+import { moderationActionsType, messageType } from '../../shared/static'
 
 const sigObj = secp256k1.sign(
   hash(JSON.stringify('test DATA')),
@@ -39,7 +39,8 @@ const messageUserMainnet = {
     firstName: 'testname',
     lastName: 'testlastname',
     nickname: 'nickname',
-    address: 'zs1ecsq8thnu84ejvfx2jcfsa6zas2k057n3hrhuy0pahmlvqfwterjaz3h772ldlsgp5r2xwvml9g'
+    address:
+      'zs1ecsq8thnu84ejvfx2jcfsa6zas2k057n3hrhuy0pahmlvqfwterjaz3h772ldlsgp5r2xwvml9g'
   }
 }
 const advert = {
@@ -104,12 +105,14 @@ const publishChannelMainnetMessage = {
   createdAt: now.toSeconds(),
   message: {
     channelName: 'test channel name',
-    channelOwner: '027101da0887f14b447cf4d7d6ea776d7cd2cb96c534a8205a330ab5a75732c3db',
+    channelOwner:
+      '027101da0887f14b447cf4d7d6ea776d7cd2cb96c534a8205a330ab5a75732c3db',
     channelMinFee: '12',
     channelonlyRegistered: '1',
     channelAddress:
       'zs1ecsq8thnu84ejvfx2jcfsa6zas2k057n3hrhuy0pahmlvqfwterjaz3h772ldlsgp5r2xwvml9g',
-    channelIvk: 'zivks1mm9azwml2k3m4428sy7adwruwvcwd7r3vc5fpfathm4mfd95yczsnrspx5',
+    channelIvk:
+      'zivks1mm9azwml2k3m4428sy7adwruwvcwd7r3vc5fpfathm4mfd95yczsnrspx5',
     channelDescription: ' random channel test ',
     networkType: ADDRESS_TYPE.SHIELDED_MAINNET.toString()
   }
@@ -121,12 +124,14 @@ const publishChannelTestnetMessage = {
   createdAt: now.toSeconds(),
   message: {
     channelName: 'test channel name',
-    channelOwner: '027101da0887f14b447cf4d7d6ea776d7cd2cb96c534a8205a330ab5a75732c3db',
+    channelOwner:
+      '027101da0887f14b447cf4d7d6ea776d7cd2cb96c534a8205a330ab5a75732c3db',
     channelMinFee: '12',
     channelonlyRegistered: '1',
     channelAddress:
       '1234567890zs1ecsq8thnu84ejvfx2jcfsa6zas2k057n3hrhuy0pahmlvqfwterjaz3h772ldlsgp5r2xwvml9g',
-    channelIvk: '1234567890zivks1mm9azwml2k3m4428sy7adwruwvcwd7r3vc5fpfathm4mfd95yczsnrspx5',
+    channelIvk:
+      '1234567890zivks1mm9azwml2k3m4428sy7adwruwvcwd7r3vc5fpfathm4mfd95yczsnrspx5',
     channelDescription: ' random channel test ',
     networkType: ADDRESS_TYPE.SHIELDED_TESTNET.toString()
   }

@@ -12,7 +12,8 @@ import { mock as zcashMock } from '../../zcash'
 import { IdentityState, Identity } from './identity'
 import { ChannelState } from '../handlers/channel'
 import { ChannelsState } from '../handlers/channels'
-import moderationActionsHandler, { moderationActionsType } from './moderationActions'
+import moderationActionsHandler from './moderationActions'
+import { moderationActionsType } from '../../../shared/static'
 
 describe('epics', () => {
   const store = create({

@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AddModerator renders component 1`] = `
+<Memo(WithStyles(Modal))
+  fullPage={true}
+  handleClose={[Function]}
+  open={true}
+  title=""
+>
+  <WithStyles(ForwardRef(Grid))
+    className="root-mock"
+  >
+    <WithStyles(ForwardRef(Grid))
+      className="fullContainer-mock"
+      container={true}
+      direction="column"
+      justify="flex-start"
+    >
+      <WithStyles(ForwardRef(Typography))
+        className="title-mock"
+        variant="h3"
+      >
+        Add a moderator
+      </WithStyles(ForwardRef(Typography))>
+      <WithStyles(ForwardRef(TextField))
+        id="outlined-helperText"
+        onChange={[Function]}
+        placeholder="Search for usernames"
+        variant="outlined"
+      />
+      <AutoSizer
+        disableHeight={false}
+        disableWidth={false}
+        onResize={[Function]}
+        style={Object {}}
+      >
+        <Component />
+      </AutoSizer>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+</Memo(WithStyles(Modal))>
+`;

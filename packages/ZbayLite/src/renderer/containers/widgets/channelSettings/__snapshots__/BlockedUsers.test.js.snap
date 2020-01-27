@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Send message popover will receive right actions 1`] = `
+Object {
+  "unblockUser": [Function],
+}
+`;
+
+exports[`Send message popover will receive right props 1`] = `
+Object {
+  "blockedUsers": Immutable.List [
+    "new-blocked-user-public-key-added-by-channel-owner",
+  ],
+  "users": Immutable.Map {},
+}
+`;

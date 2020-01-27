@@ -12,7 +12,7 @@ import operationsSelectors from '../selectors/operations'
 import notificationsSelectors from '../selectors/notifications'
 import { createMessage, createChannel, now } from '../../testUtils'
 import { ChannelsState } from './channels'
-import { messageType } from '../../zbay/messages'
+import { messageType } from '../../../shared/static'
 import { mock as zcashMock } from '../../zcash'
 import { NodeState } from './node'
 

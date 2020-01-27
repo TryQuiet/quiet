@@ -1,0 +1,59 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ConfirmModal renders component 1`] = `
+<WithStyles(ForwardRef(Dialog))
+  onClose={[Function]}
+  open={true}
+>
+  <WithStyles(ForwardRef(DialogContent))
+    classes={
+      Object {
+        "root": "dialogContent-mock",
+      }
+    }
+  >
+    <WithStyles(ForwardRef(Typography))
+      className="info-mock"
+      variant="body2"
+    >
+      testtitle
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(DialogContent))>
+  <WithStyles(ForwardRef(DialogActions))
+    className="dialogActions-mock"
+  >
+    <WithStyles(ForwardRef(Grid))
+      container={true}
+      direction="row"
+      justify="flex-end"
+    >
+      <WithStyles(ForwardRef(Grid))
+        className="buttonNo-mock"
+        item={true}
+        onClick={[Function]}
+        xs={true}
+      >
+        <WithStyles(ForwardRef(Typography))
+          className="typography-mock"
+          variant="body1"
+        >
+          Cancel
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
+        className="buttonYes-mock"
+        item={true}
+        onClick={[Function]}
+        xs={true}
+      >
+        <WithStyles(ForwardRef(Typography))
+          className="textYes-mock"
+          variant="body1"
+        >
+          testactionname
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(DialogActions))>
+</WithStyles(ForwardRef(Dialog))>
+`;

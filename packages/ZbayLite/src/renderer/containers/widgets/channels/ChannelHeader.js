@@ -6,7 +6,8 @@ import channelsHandlers from '../../../store/handlers/channels'
 
 import channelSelectors from '../../../store/selectors/channel'
 
-import { messageType } from '../../../zbay/messages'
+import { messageType } from '../../../../shared/static'
+
 export const mapStateToProps = state => {
   const members = channelSelectors
     .messages()(state)

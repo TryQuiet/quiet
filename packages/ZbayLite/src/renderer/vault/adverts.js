@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js'
 
-import { DisplayableMessage, messageType } from '../zbay/messages'
+import { DisplayableMessage } from '../zbay/messages'
+import { messageType } from '../../shared/static'
 
 const _entryToMessage = advert => {
   const entryObj = advert.toObject()

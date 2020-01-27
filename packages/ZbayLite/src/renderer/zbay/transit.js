@@ -1,6 +1,6 @@
 import { inflate, deflate } from '../compression'
-import { messageType } from './messages'
-import { moderationActionsType } from '../store/handlers/moderationActions'
+import { moderationActionsType, messageType } from '../../shared/static'
+
 export const MEMO_SIZE = 512
 const TYPE_SIZE = 1
 const SIGNATURE_SIZE = 64
@@ -195,7 +195,9 @@ export const packMemo = async message => {
         typeToIvkSize[message.message.networkType]
       )
       channelIvk.write(message.message.channelIvk)
-      const channelDescription = Buffer.alloc(CHANNEL_DESCRIPTION_SIZE(message.message.networkType))
+      const channelDescription = Buffer.alloc(
+        CHANNEL_DESCRIPTION_SIZE(message.message.networkType)
+      )
 
       channelDescription.write(message.message.channelDescription)
       msgData = Buffer.concat(
@@ -388,7 +390,8 @@ export const unpackMemo = async memo => {
       )
       const channelIvkEnds = channelAddressEnds + typeToIvkSize[networkType]
       const channelIvk = memoBuff.slice(channelAddressEnds, channelIvkEnds)
-      const channelDescriptionEnds = channelIvkEnds + CHANNEL_DESCRIPTION_SIZE(networkType)
+      const channelDescriptionEnds =
+        channelIvkEnds + CHANNEL_DESCRIPTION_SIZE(networkType)
       const channelDescription = memoBuff.slice(
         channelIvkEnds,
         channelDescriptionEnds

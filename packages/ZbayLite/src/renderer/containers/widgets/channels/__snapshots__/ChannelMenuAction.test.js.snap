@@ -5,6 +5,7 @@ Object {
   "onDelete": [Function],
   "onInfo": [Function],
   "onMute": [Function],
+  "onSettings": [Function],
   "publishChannel": [Function],
 }
 `;

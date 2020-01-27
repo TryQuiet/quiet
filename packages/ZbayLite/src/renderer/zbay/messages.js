@@ -7,19 +7,7 @@ import secp256k1 from 'secp256k1'
 import createKeccakHash from 'keccak'
 import { packMemo, unpackMemo } from './transit'
 import { getClient } from '../zcash'
-import { networkFee } from '../../shared/static'
-export const messageType = {
-  BASIC: 1,
-  AD: 2,
-  TRANSFER: 4,
-  USER: 5,
-  CHANNEL_SETTINGS: 6,
-  MODERATION: 7,
-  PUBLISH_CHANNEL: 8,
-  ITEM_BASIC: 11,
-  ITEM_TRANSFER: 41,
-  AFFILIATE: 170 // 'aa' in hex
-}
+import { networkFee, messageType } from '../../shared/static'
 
 export const ExchangeParticipant = Immutable.Record(
   {
@@ -58,7 +46,8 @@ export const DisplayableMessage = values => {
   })
 }
 
-const _isOwner = (identityAddress, message) => message.sender.replyTo === identityAddress
+const _isOwner = (identityAddress, message) =>
+  message.sender.replyTo === identityAddress
 
 export const receivedToDisplayableMessage = ({
   message,
@@ -96,7 +85,10 @@ export const operationToDisplayableMessage = ({
     error: operation.error,
     status: operation.status,
     id: operation.opId,
-    sender: ExchangeParticipant({ replyTo: identityAddress, username: identityName }),
+    sender: ExchangeParticipant({
+      replyTo: identityAddress,
+      username: identityName
+    }),
     fromYou: true,
     receiver: ExchangeParticipant(receiver)
   })
@@ -117,7 +109,10 @@ export const queuedToDisplayableMessage = ({
     fromYou: true,
     id: messageKey,
     status: 'pending',
-    sender: ExchangeParticipant({ replyTo: identityAddress, username: identityName }),
+    sender: ExchangeParticipant({
+      replyTo: identityAddress,
+      username: identityName
+    }),
     receiver: ExchangeParticipant(receiver)
   })
 
@@ -178,7 +173,9 @@ export const transferToMessage = async (props, users) => {
         const isUsernameValid = usernameSchema.isValidSync(fromUser)
         sender = ExchangeParticipant({
           replyTo: fromUser.address,
-          username: isUsernameValid ? fromUser.nickname : `anon${publicKey.substring(0, 10)}`
+          username: isUsernameValid
+            ? fromUser.nickname
+            : `anon${publicKey.substring(0, 10)}`
         })
       } else {
         sender = ExchangeParticipant({
@@ -215,7 +212,10 @@ export const hash = data => {
 
 export const signMessage = ({ messageData, privKey }) => {
   // sign the messageData
-  const sigObj = secp256k1.sign(hash(JSON.stringify(messageData.data)), Buffer.from(privKey, 'hex'))
+  const sigObj = secp256k1.sign(
+    hash(JSON.stringify(messageData.data)),
+    Buffer.from(privKey, 'hex')
+  )
   return {
     type: messageData.type,
     spent: messageData.spent,
@@ -226,7 +226,11 @@ export const signMessage = ({ messageData, privKey }) => {
   }
 }
 export const getPublicKeysFromSignature = message => {
-  return secp256k1.recover(hash(JSON.stringify(message.message)), message.signature, message.r)
+  return secp256k1.recover(
+    hash(JSON.stringify(message.message)),
+    message.signature,
+    message.r
+  )
 }
 export const createMessage = ({ messageData, privKey }) => {
   return signMessage({ messageData, privKey })
@@ -235,11 +239,7 @@ export const createMessage = ({ messageData, privKey }) => {
 export const createTransfer = values => {
   let memo = values.memo
   if (values.shippingInfo) {
-    memo += `\n\n Ship to: \n${values.shippingData.firstName} ${
-      values.shippingData.lastName
-    }\n${values.shippingData.country} ${values.shippingData.region} \n ${
-      values.shippingData.city
-    } ${values.shippingData.street} ${values.shippingData.postalCode}`
+    memo += `\n\n Ship to: \n${values.shippingData.firstName} ${values.shippingData.lastName}\n${values.shippingData.country} ${values.shippingData.region} \n ${values.shippingData.city} ${values.shippingData.street} ${values.shippingData.postalCode}`
   }
   return DisplayableMessage({
     type: messageType.TRANSFER,
@@ -260,7 +260,14 @@ export const createTransfer = values => {
   })
 }
 
-const _buildUtxo = ({ transfer, utxos, splitTreshhold, fee, identityAddress, donation }) => {
+const _buildUtxo = ({
+  transfer,
+  utxos,
+  splitTreshhold,
+  fee,
+  identityAddress,
+  donation
+}) => {
   let transfers = [transfer]
   let includedDonation = 0
   // Ignore donations 02.01.2020
@@ -280,14 +287,14 @@ const _buildUtxo = ({ transfer, utxos, splitTreshhold, fee, identityAddress, don
   //   transfers.push(donate)
   // }
   const utxo = utxos.find(
-    utxo => utxo.amount > parseFloat(transfer.amount) + splitTreshhold + fee + includedDonation
+    utxo =>
+      utxo.amount >
+      parseFloat(transfer.amount) + splitTreshhold + fee + includedDonation
   )
   if (utxo) {
     const newUtxo = {
       address: identityAddress,
-      amount: new BigNumber(splitTreshhold)
-        .toFixed(8)
-        .toString()
+      amount: new BigNumber(splitTreshhold).toFixed(8).toString()
     }
     transfers.push(newUtxo)
   }
@@ -303,7 +310,9 @@ export const messageToTransfer = async ({
   fee = networkFee,
   donation = { allow: false }
 }) => {
-  const utxos = await getClient().payment.unspentNotes({ addresses: [identityAddress] })
+  const utxos = await getClient().payment.unspentNotes({
+    addresses: [identityAddress]
+  })
   let transfer
   let memo
   if (address.length === 35) {
@@ -351,7 +360,12 @@ export const transfersToMessages = async (transfers, owner) => {
   return msgs.filter(x => x)
 }
 
-export const calculateDiff = ({ previousMessages, nextMessages, identityAddress, lastSeen }) => {
+export const calculateDiff = ({
+  previousMessages,
+  nextMessages,
+  identityAddress,
+  lastSeen
+}) => {
   return nextMessages.filter(nextMessage => {
     const isNew =
       DateTime.fromSeconds(nextMessage.createdAt) > lastSeen ||

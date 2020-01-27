@@ -26,7 +26,8 @@ export const mapDispatchToProps = (dispatch, { history }) => {
       onInfo: actionCreators.openModal('channelInfo'),
       onMute: () => console.warn('[ChannelMenuAction] onMute not implemented'),
       onDelete: () => importedChannelHandler.epics.removeChannel(history),
-      publishChannel: actionCreators.openModal('publishChannel')
+      publishChannel: actionCreators.openModal('publishChannel'),
+      onSettings: actionCreators.openModal('channelSettingsModal')
     },
     dispatch
   )

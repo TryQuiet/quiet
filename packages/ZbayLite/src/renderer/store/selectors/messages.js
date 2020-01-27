@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect'
 import Immutable from 'immutable'
-import { messageType } from '../../zbay/messages'
+import { messageType } from '../../../shared/static'
 
 const store = s => s
 
