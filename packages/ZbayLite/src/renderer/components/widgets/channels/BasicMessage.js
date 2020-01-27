@@ -155,6 +155,7 @@ export const BasicMessage = ({
       }}
       onMouseLeave={() => {
         setHovered(false)
+        setOpen(false)
       }}
     >
       <ListItemText
