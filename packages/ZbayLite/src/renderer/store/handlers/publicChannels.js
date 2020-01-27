@@ -16,7 +16,7 @@ import txnTimestampsSelector from '../selectors/txnTimestamps'
 import { getVault } from '../../vault'
 import feesHandlers from '../handlers/fees'
 import staticChannels from '../../zcash/channels'
-import { messageType } from '../../../shared/static'
+import { messageType, actionTypes } from '../../../shared/static'
 
 export const _PublicChannelData = Immutable.Record(
   {
@@ -33,7 +33,7 @@ export const _PublicChannelData = Immutable.Record(
 )
 export const initialState = Immutable.Map({})
 
-export const setPublicChannels = createAction('SET_PUBLIC_CHANNELS')
+export const setPublicChannels = createAction(actionTypes.SET_PUBLIC_CHANNELS)
 
 export const actions = {
   setPublicChannels

@@ -9,11 +9,13 @@ import * as R from 'ramda'
 import create from '../create'
 import vault, { mock } from '../../vault'
 import { createArchive } from '../../vault/marshalling'
-import { ChannelsState, actions, epics, actionTypes } from './channels'
+import { ChannelsState, actions, epics } from './channels'
 import channelsSelectors from '../selectors/channels'
 import { IdentityState, Identity } from './identity'
 import testUtils from '../../testUtils'
 import { typePending } from './utils'
+import { actionTypes } from '../../../shared/static'
+
 // import { mock as zcashMock } from '../../zcash'
 import { NodeState } from './node'
 
@@ -86,7 +88,7 @@ describe('channels reducer', () => {
     })
 
     it('when pending', async () => {
-      const action = { type: typePending(actionTypes.LOAD_CHANNELS) }
+      const action = { type: typePending(actionTypes.LOAD_IDENTITY_CHANNELS) }
       await store.dispatch(action)
       assertStoreState()
     })

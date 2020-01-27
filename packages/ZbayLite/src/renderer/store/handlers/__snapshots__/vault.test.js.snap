@@ -131,7 +131,7 @@ Immutable.VaultState {
 exports[`vault reducer handles createVault with loading state 1`] = `
 Immutable.VaultState {
   "exists": null,
-  "creating": true,
+  "creating": false,
   "unlocking": false,
   "creatingIdentity": false,
   "locked": true,
@@ -144,7 +144,7 @@ Immutable.VaultState {
   "exists": null,
   "creating": false,
   "unlocking": false,
-  "creatingIdentity": true,
+  "creatingIdentity": false,
   "locked": true,
   "error": "",
 }
@@ -176,7 +176,7 @@ exports[`vault reducer handles unlockVault with unlocking state 1`] = `
 Immutable.VaultState {
   "exists": true,
   "creating": false,
-  "unlocking": true,
+  "unlocking": false,
   "creatingIdentity": false,
   "locked": true,
   "error": "",

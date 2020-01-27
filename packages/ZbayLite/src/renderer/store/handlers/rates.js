@@ -2,6 +2,8 @@ import Immutable from 'immutable'
 import { handleActions, createAction } from 'redux-actions'
 import Binance from 'binance-api-node'
 
+import { actionTypes } from '../../../shared/static'
+
 export const client = Binance()
 
 export const RatesState = Immutable.Record(
@@ -15,7 +17,7 @@ export const initialState = RatesState({
   usd: '70.45230379033394',
   zec: '1'
 })
-export const setPriceUsd = createAction('SET_PRICE_USD')
+export const setPriceUsd = createAction(actionTypes.SET_PRICE_USD)
 export const actions = {
   setPriceUsd
 }

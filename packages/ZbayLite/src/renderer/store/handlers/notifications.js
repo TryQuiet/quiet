@@ -1,16 +1,17 @@
 import Immutable from 'immutable'
 import { createAction, handleActions } from 'redux-actions'
+import { actionTypes } from '../../../shared/static'
 
 export const initialState = Immutable.List()
 
 const enqueueSnackbar = createAction(
-  'ENQUEUE_SNACKBAR',
+  actionTypes.ENQUEUE_SNACKBAR,
   n => ({
     key: new Date().getTime() + Math.random(),
     ...n
   })
 )
-const removeSnackbar = createAction('REMOVE_SNACKBAR')
+const removeSnackbar = createAction(actionTypes.REMOVE_SNACKBAR)
 
 export const actions = {
   enqueueSnackbar,

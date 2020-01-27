@@ -2,15 +2,11 @@ import Immutable from 'immutable'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { createAction, handleActions } from 'redux-actions'
+import { actionTypes } from '../../../shared/static'
 
 import modalsSelectors from '../selectors/modals'
 
 export const initialState = Immutable.fromJS({ payloads: {} })
-
-const actionTypes = {
-  OPEN_MODAL: 'OPEN_MODAL',
-  CLOSE_MODAL: 'CLOSE_MODAL'
-}
 
 const openModal = (modalName, data) => createAction(actionTypes.OPEN_MODAL, () => ({
   modalName,

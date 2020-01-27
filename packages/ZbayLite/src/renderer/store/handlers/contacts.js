@@ -19,7 +19,7 @@ import { displayDirectMessageNotification } from '../../notifications'
 import operationsHandlers, { operationTypes, PendingDirectMessageOp } from './operations'
 import { ReceivedMessage } from './messages'
 import removedChannelsHandlers from './removedChannels'
-import { messageType } from '../../../shared/static'
+import { messageType, actionTypes } from '../../../shared/static'
 
 import directMessagesQueueHandlers, { checkConfirmationNumber } from './directMessagesQueue'
 import channelHandlers from './channel'
@@ -142,13 +142,13 @@ const resendMessage = messageData => async (dispatch, getState) => {
 
 const initialState = Immutable.Map()
 
-const setMessages = createAction('SET_DIRECT_MESSAGES')
-const setVaultMessages = createAction('SET_VAULT_DIRECT_MESSAGES')
-const cleanNewMessages = createAction('CLEAN_NEW_DIRECT_MESSAGESS')
-const appendNewMessages = createAction('APPEND_NEW_DIRECT_MESSAGES')
-const setLastSeen = createAction('SET_CONTACTS_LAST_SEEN')
-const setUsernames = createAction('SET_CONTACTS_USERNAMES')
-const removeContact = createAction('REMOVE_CONTACT')
+const setMessages = createAction(actionTypes.SET_DIRECT_MESSAGES)
+const setVaultMessages = createAction(actionTypes.SET_VAULT_DIRECT_MESSAGES)
+const cleanNewMessages = createAction(actionTypes.CLEAN_NEW_DIRECT_MESSAGESS)
+const appendNewMessages = createAction(actionTypes.APPEND_NEW_DIRECT_MESSAGES)
+const setLastSeen = createAction(actionTypes.SET_CONTACTS_LAST_SEEN)
+const setUsernames = createAction(actionTypes.SET_CONTACTS_USERNAMES)
+const removeContact = createAction(actionTypes.REMOVE_CONTACT)
 
 export const actions = {
   setMessages,

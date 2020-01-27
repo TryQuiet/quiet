@@ -7,6 +7,7 @@ import torSelectors from '../selectors/tor'
 import { successNotification } from './utils'
 import notificationsHandlers from './notifications'
 import electronStore from '../../../shared/electronStore'
+import { actionTypes } from '../../../shared/static'
 
 export const client = new net.Socket()
 export const defaultTorUrlProxy = 'localhost:9050'
@@ -22,10 +23,10 @@ export const Tor = Immutable.Record(
 )
 export const initialState = Tor()
 
-const setEnabled = createAction('SET_TOR_ENABLED')
-const setUrl = createAction('SET_TOR_URL')
-const setError = createAction('SET_TOR_ERROR')
-const setStatus = createAction('SET_TOR_STATUS')
+const setEnabled = createAction(actionTypes.SET_TOR_ENABLED)
+const setUrl = createAction(actionTypes.SET_TOR_URL)
+const setError = createAction(actionTypes.SET_TOR_ERROR)
+const setStatus = createAction(actionTypes.SET_TOR_STATUS)
 
 export const actions = {
   setUrl,

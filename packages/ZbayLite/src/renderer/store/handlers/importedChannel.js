@@ -14,6 +14,7 @@ import { getClient } from '../../zcash'
 import channels from '../../zcash/channels'
 import nodeSelectors from '../selectors/node'
 import modalsHandlers from './modals'
+import { actionTypes } from '../../../shared/static'
 
 export const ImportedChannelState = Immutable.Record(
   {
@@ -25,14 +26,6 @@ export const ImportedChannelState = Immutable.Record(
 )
 
 const initialState = ImportedChannelState()
-
-export const actionTypes = {
-  DECODE_CHANNEL: 'DECODE_IMPORTED_CHANNEL',
-  SET_DECODED_CHANNEL: 'SET_DECODED_CHANNEL',
-  SET_DECODING_CHANNEL: 'SET_DECODING_CHANNEL',
-  SET_DECODING_ERROR: 'SET_DECODING_ERROR',
-  CLEAR_CHANNEL: 'CLEAR_IMPORTED_CHANNEL'
-}
 
 const setData = createAction(actionTypes.SET_DECODED_CHANNEL)
 const setDecoding = createAction(actionTypes.SET_DECODING_CHANNEL)

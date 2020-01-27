@@ -4,6 +4,7 @@ import { createAction, handleActions } from 'redux-actions'
 import * as R from 'ramda'
 
 import { getClient } from '../../zcash'
+import { actionTypes } from '../../../shared/static'
 
 const oneOf = (...arr) => val => R.includes(val, arr)
 
@@ -51,9 +52,9 @@ export const Operation = Immutable.Record({
   status: 'pending'
 }, 'Operation')
 
-const addOperation = createAction('ADD_PENDING_OPERATION')
-const resolveOperation = createAction('RESOLVE_PENDING_OPERATION')
-const removeOperation = createAction('REMOVE_PENDING_OPERATION')
+const addOperation = createAction(actionTypes.ADD_PENDING_OPERATION)
+const resolveOperation = createAction(actionTypes.RESOLVE_PENDING_OPERATION)
+const removeOperation = createAction(actionTypes.REMOVE_PENDING_OPERATION)
 
 export const actions = {
   addOperation,

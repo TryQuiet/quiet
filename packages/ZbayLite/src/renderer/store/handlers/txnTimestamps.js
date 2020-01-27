@@ -2,9 +2,10 @@ import Immutable from 'immutable'
 import { handleActions, createAction } from 'redux-actions'
 
 import { getVault } from '../../vault'
+import { actionTypes } from '../../../shared/static'
 
 export const initialState = Immutable.Map()
-export const addTxnTimestamp = createAction('ADD_TXN_TIMESTAMP')
+export const addTxnTimestamp = createAction(actionTypes.ADD_TXN_TIMESTAMP)
 export const actions = {
   addTxnTimestamp
 }

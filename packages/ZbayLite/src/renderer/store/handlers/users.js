@@ -16,7 +16,7 @@ import usersSelector from '../selectors/users'
 import identitySelector from '../selectors/identity'
 import { errorNotification } from './utils'
 import { getPublicKeysFromSignature } from '../../zbay/messages'
-import { messageType } from '../../../shared/static'
+import { messageType, actionTypes } from '../../../shared/static'
 import { messages as zbayMessages } from '../../zbay'
 import { getClient } from '../../zcash'
 import { getVault } from '../../vault'
@@ -78,7 +78,7 @@ export const ReceivedUser = values => {
 
 export const initialState = Immutable.Map()
 
-export const setUsers = createAction('SET_USERS')
+export const setUsers = createAction(actionTypes.SET_USERS)
 
 export const actions = {
   setUsers

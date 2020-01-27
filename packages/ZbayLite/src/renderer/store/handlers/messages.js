@@ -15,7 +15,7 @@ import channelsHandlers from './channels'
 import txnTimestampsHandlers from '../handlers/txnTimestamps'
 import txnTimestampsSelector from '../selectors/txnTimestamps'
 import appHandlers from './app'
-import { messageType } from '../../../shared/static'
+import { messageType, actionTypes } from '../../../shared/static'
 import { messages as zbayMessages } from '../../zbay'
 import { getClient } from '../../zcash'
 import { displayMessageNotification } from '../../notifications'
@@ -60,9 +60,9 @@ export const ChannelMessages = Immutable.Record(
 
 export const initialState = Immutable.Map()
 
-const setMessages = createAction('SET_MESSAGES')
-const cleanNewMessages = createAction('CLEAN_NEW_MESSAGESS')
-const appendNewMessages = createAction('APPEND_NEW_MESSAGES')
+const setMessages = createAction(actionTypes.SET_MESSAGES)
+const cleanNewMessages = createAction(actionTypes.CLEAN_NEW_MESSAGESS)
+const appendNewMessages = createAction(actionTypes.APPEND_NEW_MESSAGES)
 
 export const actions = {
   setMessages,

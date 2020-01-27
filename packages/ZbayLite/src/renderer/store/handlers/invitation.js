@@ -13,7 +13,7 @@ import { deflate, inflate } from '../../compression'
 import { messages } from '../../zbay'
 import { donationTarget } from '../../zcash/donation'
 import { actionCreators } from './modals'
-import { DOMAIN, networkFee } from '../../../shared/static'
+import { DOMAIN, networkFee, actionTypes } from '../../../shared/static'
 
 export const getInvitationUrl = invitation =>
   `https://${DOMAIN}/invitation=${encodeURIComponent(invitation)}`
@@ -30,11 +30,11 @@ export const Invitation = Immutable.Record(
 
 export const initialState = Invitation()
 
-const setInvitationAmount = createAction('SET_INVITATION_AMOUNT')
-const setInvitationAmountZec = createAction('SET_INVITATION_AMOUNT_ZEC')
-const setAffiliateCode = createAction('SET_AFFILIATE_CODE')
-const resetInvitation = createAction('RESET_INVITATION')
-const setGeneratedInvitation = createAction('SET_GENERATED_INVITATION')
+const setInvitationAmount = createAction(actionTypes.SET_INVITATION_AMOUNT)
+const setInvitationAmountZec = createAction(actionTypes.SET_INVITATION_AMOUNT_ZEC)
+const setAffiliateCode = createAction(actionTypes.SET_AFFILIATE_CODE)
+const resetInvitation = createAction(actionTypes.RESET_INVITATION)
+const setGeneratedInvitation = createAction(actionTypes.SET_GENERATED_INVITATION)
 
 export const actions = {
   setInvitationAmount,

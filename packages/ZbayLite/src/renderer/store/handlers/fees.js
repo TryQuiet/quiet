@@ -1,5 +1,6 @@
 import Immutable from 'immutable'
 import { createAction, handleActions } from 'redux-actions'
+import { actionTypes } from '../../../shared/static'
 
 export const Fee = Immutable.Record(
   {
@@ -11,8 +12,8 @@ export const Fee = Immutable.Record(
 
 export const initialState = Fee()
 
-const setUserFee = createAction('SET_USER_FEE')
-const setPublicChannelFee = createAction('SET_PYBLIC_CHANNEL_FEE')
+const setUserFee = createAction(actionTypes.SET_USER_FEE)
+const setPublicChannelFee = createAction(actionTypes.SET_PUBLIC_CHANNEL_FEE)
 
 export const actions = {
   setUserFee,

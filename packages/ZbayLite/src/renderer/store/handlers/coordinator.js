@@ -9,6 +9,7 @@ import nodeHandlers from './node'
 import identityHandlers from './identity'
 import usersHandlers from './users'
 import publicChannelsHandlers from './publicChannels'
+import { actionTypes } from '../../../shared/static'
 
 export const Coordinator = Immutable.Record(
   {
@@ -19,8 +20,8 @@ export const Coordinator = Immutable.Record(
 
 export const initialState = Coordinator()
 
-export const stopCoordinator = createAction('STOP_COORDINATOR')
-export const startCoordinator = createAction('START_COORDINATOR')
+export const stopCoordinator = createAction(actionTypes.STOP_COORDINATOR)
+export const startCoordinator = createAction(actionTypes.START_COORDINATOR)
 
 const actions = {
   stopCoordinator,

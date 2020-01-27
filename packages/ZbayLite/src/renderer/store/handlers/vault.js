@@ -10,7 +10,7 @@ import identityHandlers from './identity'
 import vaultHandlers from './vault'
 import notificationsHandlers from './notifications'
 import appHandlers from './app'
-import { REQUEST_MONEY_ENDPOINT } from '../../../shared/static'
+import { REQUEST_MONEY_ENDPOINT, actionTypes } from '../../../shared/static'
 import vault from '../../vault'
 
 export const VaultState = Immutable.Record({
@@ -24,25 +24,16 @@ export const VaultState = Immutable.Record({
 
 export const initialState = VaultState()
 
-export const actionTypes = {
-  CREATE: 'CREATE_VAULT',
-  UPDATE_IDENTITY_SIGNER_KEYS: 'UPDATE_IDENTITY_SIGNER_KEYS',
-  SET_STATUS: 'SET_VAULT_STATUS',
-  UNLOCK: 'UNLOCK_VAULT',
-  CREATE_IDENTITY: 'CREATE_VAULT_IDENTITY',
-  CLEAR_ERROR: 'CLEAR_VAULT_ERROR'
-}
-
-const createVault = createAction(actionTypes.CREATE, vault.create)
+const createVault = createAction(actionTypes.CREATE_VAULT, vault.create)
 const unlockVault = createAction(
-  actionTypes.UNLOCK,
+  actionTypes.UNLOCK_VAULT,
   vault.unlock,
   ({ ignoreError = false }) => ({ ignoreError })
 )
-const createIdentity = createAction(actionTypes.CREATE_IDENTITY, vault.identity.createIdentity)
+const createIdentity = createAction(actionTypes.CREATE_VAULT_IDENTITY, vault.identity.createIdentity)
 const updateIdentitySignerKeys = createAction(actionTypes.UPDATE_IDENTITY_SIGNER_KEYS, vault.identity.updateIdentitySignerKeys)
-const clearError = createAction(actionTypes.CLEAR_ERROR)
-const setVaultStatus = createAction(actionTypes.SET_STATUS)
+const clearError = createAction(actionTypes.CLEAR_VAULT_ERROR)
+const setVaultStatus = createAction(actionTypes.SET_VAULT_STATUS)
 
 export const actions = {
   createIdentity,
@@ -119,30 +110,30 @@ export const epics = {
 }
 
 export const reducer = handleActions({
-  [typePending(actionTypes.CREATE)]: state => state.set('creating', true),
-  [typeFulfilled(actionTypes.CREATE)]: state => state.merge({
+  [typePending(actionTypes.CREATE_VAULT)]: state => state.set('creating', true),
+  [typeFulfilled(actionTypes.CREATE_VAULT)]: state => state.merge({
     creating: false,
     exists: true
   }),
-  [typeRejected(actionTypes.CREATE)]: (state, { payload: error }) => state.merge({
+  [typeRejected(actionTypes.CREATE_VAULT)]: (state, { payload: error }) => state.merge({
     creating: false,
     error: error.message
   }),
 
-  [typePending(actionTypes.UNLOCK)]: state => state.set('unlocking', true),
-  [typeFulfilled(actionTypes.UNLOCK)]: (state, payload) => state.merge({
+  [typePending(actionTypes.UNLOCK_VAULT)]: state => state.set('unlocking', true),
+  [typeFulfilled(actionTypes.UNLOCK_VAULT)]: (state, payload) => state.merge({
     unlocking: false,
     locked: false
   }),
-  [typeRejected(actionTypes.UNLOCK)]: (state, { payload: error }) => state.merge({
+  [typeRejected(actionTypes.UNLOCK_VAULT)]: (state, { payload: error }) => state.merge({
     unlocking: false,
     locked: true,
     error: error.message
   }),
 
-  [typePending(actionTypes.CREATE_IDENTITY)]: state => state.set('creatingIdentity', true),
-  [typeFulfilled(actionTypes.CREATE_IDENTITY)]: state => state.set('creatingIdentity', false),
-  [typeRejected(actionTypes.CREATE_IDENTITY)]: (state, { payload: error }) => state.merge({
+  [typePending(actionTypes.CREATE_VAULT_IDENTITY)]: state => state.set('creatingIdentity', true),
+  [typeFulfilled(actionTypes.CREATE_VAULT_IDENTITY)]: state => state.set('creatingIdentity', false),
+  [typeRejected(actionTypes.CREATE_VAULT_IDENTITY)]: (state, { payload: error }) => state.merge({
     creatingIdentity: false,
     error: error.message
   }),

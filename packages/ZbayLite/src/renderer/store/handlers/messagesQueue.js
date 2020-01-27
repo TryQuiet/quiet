@@ -11,6 +11,7 @@ import operationsHandlers, { PendingMessageOp, operationTypes } from './operatio
 import notificationsHandlers from './notifications'
 import { errorNotification } from './utils'
 import { getClient } from '../../zcash'
+import { actionTypes } from '../../../shared/static'
 
 export const DEFAULT_DEBOUNCE_INTERVAL = 3000
 
@@ -21,7 +22,7 @@ export const PendingMessage = Immutable.Record({
 
 export const initialState = Immutable.Map()
 
-const addMessage = createAction('ADD_PENDING_MESSAGE', ({ message, channelId }) => {
+const addMessage = createAction(actionTypes.ADD_PENDING_MESSAGE, ({ message, channelId }) => {
   const messageDigest = crypto.createHash('sha256')
   const messageEssentials = R.pick(['type', 'sender'])(message)
   return {
@@ -35,7 +36,7 @@ const addMessage = createAction('ADD_PENDING_MESSAGE', ({ message, channelId }) 
     channelId
   }
 })
-const removeMessage = createAction('REMOVE_PENDING_MESSAGE')
+const removeMessage = createAction(actionTypes.REMOVE_PENDING_MESSAGE)
 
 export const actions = {
   addMessage,

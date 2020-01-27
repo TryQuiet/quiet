@@ -20,7 +20,7 @@ import modalsHandlers from './modals'
 import { messages } from '../../zbay'
 import { getVault } from '../../vault'
 import { getClient } from '../../zcash'
-import { networkFee } from '../../../shared/static'
+import { networkFee, actionTypes } from '../../../shared/static'
 
 const toBigNumber = x => new BigNumber(x)
 
@@ -34,19 +34,12 @@ export const ChannelsState = Immutable.Record(
 
 export const initialState = ChannelsState()
 
-export const actionTypes = {
-  LOAD_CHANNELS: 'LOAD_IDENTITY_CHANNELS',
-  SET_LAST_SEEN: 'SET_CHANNELS_LAST_SEEN',
-  SET_UNREAD: 'SET_CHANNEL_UNREAD',
-  SET_SHOW_INFO_MSG: 'SET_SHOW_INFO_MSG'
-}
-
-const loadChannels = createAction(actionTypes.LOAD_CHANNELS, async id => {
+const loadChannels = createAction(actionTypes.LOAD_IDENTITY_CHANNELS, async id => {
   const channels = await getVault().channels.listChannels(id)
 
   return channels
 })
-const loadChannelsToNode = createAction(actionTypes.LOAD_CHANNELS, async id => {
+const loadChannelsToNode = createAction(actionTypes.LOAD_IDENTITY_CHANNELS, async id => {
   const channels = await getVault().channels.listChannels(id)
   await Promise.all(
     channels.map(channel =>
@@ -61,8 +54,8 @@ const loadChannelsToNode = createAction(actionTypes.LOAD_CHANNELS, async id => {
   return channels
 })
 
-const setLastSeen = createAction(actionTypes.SET_LAST_SEEN)
-const setUnread = createAction(actionTypes.SET_UNREAD)
+const setLastSeen = createAction(actionTypes.SET_CHANNELS_LAST_SEEN)
+const setUnread = createAction(actionTypes.SET_CHANNEL_UNREAD)
 const setShowInfoMsg = createAction(actionTypes.SET_SHOW_INFO_MSG)
 
 export const actions = {
@@ -195,11 +188,11 @@ export const epics = {
 
 export const reducer = handleActions(
   {
-    [typePending(actionTypes.LOAD_CHANNELS)]: state =>
+    [typePending(actionTypes.LOAD_IDENTITY_CHANNELS)]: state =>
       state.setIn(['loader', 'loading'], true).setIn(['loader', 'message'], 'Loading channels'),
-    [typeFulfilled(actionTypes.LOAD_CHANNELS)]: (state, { payload: data }) =>
+    [typeFulfilled(actionTypes.LOAD_IDENTITY_CHANNELS)]: (state, { payload: data }) =>
       state.set('data', Immutable.fromJS(data)).setIn(['loader', 'loading'], false),
-    [typeRejected(actionTypes.LOAD_CHANNELS)]: (state, { payload: error }) =>
+    [typeRejected(actionTypes.LOAD_IDENTITY_CHANNELS)]: (state, { payload: error }) =>
       state.setIn(['loader', 'loading'], false),
     [setLastSeen]: (state, { payload: { channelId, lastSeen } }) => {
       const index = state.data.findIndex(channel => channel.get('id') === channelId)

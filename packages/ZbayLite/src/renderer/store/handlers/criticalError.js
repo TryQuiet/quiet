@@ -1,5 +1,6 @@
 import Immutable from 'immutable'
 import { createAction, handleActions } from 'redux-actions'
+import { actionTypes } from '../../../shared/static'
 
 export const CriticalError = Immutable.Record({
   message: '',
@@ -8,7 +9,7 @@ export const CriticalError = Immutable.Record({
 
 export const initialState = CriticalError()
 
-const setCriticalError = createAction('SET_CRITICAL_ERROR')
+const setCriticalError = createAction(actionTypes.SET_CRITICAL_ERROR)
 
 export const actions = {
   setCriticalError

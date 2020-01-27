@@ -4,7 +4,7 @@ exports[`Node reducer handles createAddress 1`] = `
 Object {
   "action": Object {
     "payload": "sapling-zcash-address",
-    "type": "CREATE_ZCASH_ADDRESS_FULFILLED",
+    "type": "CREATE_ADDRESS_FULFILLED",
   },
   "value": "sapling-zcash-address",
 }

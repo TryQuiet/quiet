@@ -20,7 +20,7 @@ import { errorNotification, LoaderState } from './utils'
 import { channelToUri } from '../../zbay/channels'
 import nodeSelectors from '../selectors/node'
 import { getVault } from '../../vault'
-import { messageType } from '../../../shared/static'
+import { messageType, actionTypes } from '../../../shared/static'
 
 export const ChannelState = Immutable.Record(
   {
@@ -38,14 +38,14 @@ export const ChannelState = Immutable.Record(
 
 export const initialState = ChannelState()
 
-const setSpentFilterValue = createAction('SET_SPENT_FILTER_VALUE', (_, value) => value)
-const setMessage = createAction('SET_CHANNEL_MESSAGE', R.path(['target', 'value']))
-const setChannelId = createAction('SET_CHANNEL_ID')
-const setLoading = createAction('SET_CHANNEL_LOADING')
-const setLoadingMessage = createAction('SET_CHANNEL_LOADING_MESSAGE')
-const setShareableUri = createAction('SET_CHANNEL_SHAREABLE_URI')
-const setAddress = createAction('SET_CHANNEL_ADDRESS')
-const resetChannel = createAction('SET_CHANNEL')
+const setSpentFilterValue = createAction(actionTypes.SET_SPENT_FILTER_VALUE, (_, value) => value)
+const setMessage = createAction(actionTypes.SET_CHANNEL_MESSAGE, R.path(['target', 'value']))
+const setChannelId = createAction(actionTypes.SET_CHANNEL_ID)
+const setLoading = createAction(actionTypes.SET_CHANNEL_LOADING)
+const setLoadingMessage = createAction(actionTypes.SET_CHANNEL_LOADING_MESSAGE)
+const setShareableUri = createAction(actionTypes.SET_CHANNEL_SHAREABLE_URI)
+const setAddress = createAction(actionTypes.SET_CHANNEL_ADDRESS)
+const resetChannel = createAction(actionTypes.SET_CHANNEL)
 
 export const actions = {
   setLoading,

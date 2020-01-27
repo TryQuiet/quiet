@@ -4,8 +4,9 @@ jest.mock('../../vault')
 import selectors from './vault'
 import vault from '../../vault'
 import create from '../create'
-import { actions, actionTypes } from '../handlers/vault'
+import { actions } from '../handlers/vault'
 import { typePending } from '../handlers/utils'
+import { actionTypes } from '../../../shared/static'
 
 describe('vault selectors', () => {
   let store = null
@@ -38,13 +39,13 @@ describe('vault selectors', () => {
 
   it('creating', async () => {
     expect(selectors.creating(store.getState())).toEqual(false)
-    await store.dispatch({ type: typePending(actionTypes.CREATE) })
+    await store.dispatch({ type: typePending(actionTypes.CREATE_VAULT) })
     expect(selectors.creating(store.getState())).toEqual(true)
   })
 
   it('unlocking', async () => {
     expect(selectors.unlocking(store.getState())).toEqual(false)
-    await store.dispatch({ type: typePending(actionTypes.UNLOCK) })
+    await store.dispatch({ type: typePending(actionTypes.UNLOCK_VAULT) })
     expect(selectors.unlocking(store.getState())).toEqual(true)
   })
 })

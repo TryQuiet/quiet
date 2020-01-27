@@ -4,6 +4,7 @@ import { createAction, handleActions } from 'redux-actions'
 
 import { typeRejected, LoaderState, FetchingState } from './utils'
 import { getClient } from '../../zcash'
+import { actionTypes } from '../../../shared/static'
 
 const DEFAULT_ADDRESS_TYPE = 'sapling'
 
@@ -20,20 +21,6 @@ export const NodeState = Immutable.Record({
 }, 'NodeState')
 
 export const initialState = NodeState()
-
-export const actionTypes = {
-  GET_STATUS: 'GET_NODE_STATUS',
-  CREATE_ADDRESS: 'CREATE_ZCASH_ADDRESS',
-  GET_BALANCE: 'GET_BALANCE',
-  SET_STATUS: 'SET_NODE_STATUS',
-  SET_BOOTSTRAPPING: 'SET_NODE_BOOTSTRAPPING',
-  SET_BOOTSTRAPPING_MESSAGE: 'SET_NODE_BOOTSTRAPPING_MESSAGE',
-  SET_FETCHING_PART: 'SET_FETCHING_PART',
-  SET_FETCHING_SIZE_LEFT: 'SET_FETCHING_SIZE_LEFT',
-  SET_FETCHING_STATUS: 'SET_FETCHING_STATUS',
-  SET_FETCHING_SPEED: 'SET_FETCHING_SPEED',
-  SET_FETCHING_END_TIME: 'SET_FETCHING_END_TIME'
-}
 
 const setStatus = createAction(actionTypes.SET_STATUS, null, { ignoreError: true })
 

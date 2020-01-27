@@ -200,6 +200,7 @@
     "request-progress": "^3.0.0",
     "reselect": "^4.0.0",
     "typeface-roboto": "0.0.54",
-    "yup": "^0.27.0"
+    "yup": "^0.27.0",
+    "keymirror": "0.1.1"
   }
 }

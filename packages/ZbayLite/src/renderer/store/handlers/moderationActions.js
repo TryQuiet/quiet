@@ -1,20 +1,10 @@
-
 import notificationsHandlers from './notifications'
 import { getClient } from '../../zcash'
 import identitySelectors from '../selectors/identity'
 import { messages as zbayMessages } from '../../zbay'
 import channelSelectors from '../selectors/channel'
 import { errorNotification, successNotification } from './utils'
-import { messageType } from '../../../shared/static'
-
-export const moderationActionsType = {
-  REMOVE_MESSAGE: 'REMOVE_MESSAGE',
-  BLOCK_USER: 'BLOCK_USER',
-  UNBLOCK_USER: 'UNBLOCK_USER',
-  ADD_MOD: 'ADD_MOD',
-  REMOVE_MOD: 'REMOVE_MOD',
-  REMOVE_CHANNEL: 'REMOVE_CHANNEL'
-}
+import { messageType, moderationActionsType } from '../../../shared/static'
 
 const handleModerationAction = ({ moderationType, moderationTarget }) => async (
   dispatch,
@@ -52,7 +42,9 @@ const handleModerationAction = ({ moderationType, moderationTarget }) => async (
     // )
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar(
-        successNotification({ message: 'Successfully sent inctruction to channel' })
+        successNotification({
+          message: 'Successfully sent inctruction to channel'
+        })
       )
     )
   } catch (err) {

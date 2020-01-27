@@ -1,5 +1,6 @@
 import Immutable from 'immutable'
 import { createAction, handleActions } from 'redux-actions'
+import { actionTypes } from '../../../shared/static'
 
 export const DirectMessageChannelState = Immutable.Record(
   {
@@ -11,9 +12,9 @@ export const DirectMessageChannelState = Immutable.Record(
 
 export const initialState = DirectMessageChannelState()
 
-const setDirectMessageRecipientUsername = createAction('SET_DIRECT_MESSAGE_RECIPIENT_USERNAME')
-const setDirectMessageRecipientAddress = createAction('SET_DIRECT_MESSAGE_RECIPIENT_ADDRESS')
-const resetDirectMessageChannel = createAction('RESET_DIRECT_MESSAGE_CHANNEL')
+const setDirectMessageRecipientUsername = createAction(actionTypes.SET_DIRECT_MESSAGE_RECIPIENT_USERNAME)
+const setDirectMessageRecipientAddress = createAction(actionTypes.SET_DIRECT_MESSAGE_RECIPIENT_ADDRESS)
+const resetDirectMessageChannel = createAction(actionTypes.RESET_DIRECT_MESSAGE_CHANNEL)
 
 export const actions = {
   setDirectMessageRecipientAddress,

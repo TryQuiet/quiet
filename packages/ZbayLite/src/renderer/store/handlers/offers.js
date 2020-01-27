@@ -12,7 +12,7 @@ import contactsSelectors from '../selectors/contacts'
 import channelHandlers from './channel'
 import contactsHandlers from './contacts'
 import directMessagesQueueHandlers from './directMessagesQueue'
-import { messageType } from '../../../shared/static'
+import { messageType, actionTypes } from '../../../shared/static'
 
 import * as Here from './offers'
 
@@ -29,12 +29,12 @@ export const Offer = Immutable.Record(
 )
 const initialState = Immutable.Map()
 
-const setMessages = createAction('SET_OFFER_MESSAGES')
-const addOffer = createAction('ADD_OFFER')
-const cleanNewMessages = createAction('CLEAN_OFFER_NEW_MESSAGESS')
-const setLastSeen = createAction('SET_OFFER_LAST_SEEN')
-const appendMessages = createAction('APPEND_OFFER_MESSAGES')
-const appendNewMessages = createAction('APPEND_NEW_OFFER_MESSAGES')
+const setMessages = createAction(actionTypes.SET_OFFER_MESSAGES)
+const addOffer = createAction(actionTypes.ADD_OFFER)
+const cleanNewMessages = createAction(actionTypes.CLEAN_OFFER_NEW_MESSAGESS)
+const setLastSeen = createAction(actionTypes.SET_OFFER_LAST_SEEN)
+const appendMessages = createAction(actionTypes.APPEND_OFFER_MESSAGES)
+const appendNewMessages = createAction(actionTypes.APPEND_NEW_OFFER_MESSAGES)
 
 export const actions = {
   setMessages,

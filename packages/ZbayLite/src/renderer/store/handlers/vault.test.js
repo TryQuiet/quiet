@@ -12,7 +12,7 @@ import crypto from 'crypto'
 import Immutable from 'immutable'
 import { DateTime } from 'luxon'
 
-import { actions, epics, actionTypes } from './vault'
+import { actions, epics } from './vault'
 import identityHandlers from './identity'
 import { typePending } from './utils'
 import create from '../create'
@@ -27,6 +27,7 @@ import { mock as zcashMock } from '../../zcash'
 import { createArchive } from '../../vault/marshalling'
 import { createIdentity, now } from '../../testUtils'
 import electronStore from '../../../shared/electronStore'
+import { actionTypes } from '../../../shared/static'
 
 describe('vault reducer', () => {
   let store = null

@@ -33,7 +33,7 @@ import migrateTo_0_7_0 from '../../../shared/migrations/0_7_0' // eslint-disable
 import { LoaderState, successNotification } from './utils'
 import modalsHandlers from './modals'
 import notificationsHandlers from './notifications'
-import { networkFee } from '../../../shared/static'
+import { networkFee, actionTypes } from '../../../shared/static'
 
 export const ShippingData = Immutable.Record(
   {
@@ -83,17 +83,17 @@ export const IdentityState = Immutable.Record(
 
 export const initialState = IdentityState()
 
-export const setIdentity = createAction('SET_IDENTITY')
-export const setBalance = createAction('SET_IDENTITY_BALANCE')
-export const setLockedBalance = createAction('SET_IDENTITY_LOCKED_BALANCE')
-export const setErrors = createAction('SET_IDENTITY_ERROR')
-export const setFetchingBalance = createAction('SET_FETCHING_BALANCE')
-export const setLoading = createAction('SET_IDENTITY_LOADING')
-export const setLoadingMessage = createAction('SET_IDENTITY_LOADING_MESSAGE')
-export const setShippingData = createAction('SET_IDENTITY_SHIPPING_DATA')
-export const setDonationAllow = createAction('SET_DONATION_ALLOW')
-export const setDonationAddress = createAction('SET_DONATION_ADDRESS')
-export const setShieldingTax = createAction('SET_SHIELDING_TAX')
+export const setIdentity = createAction(actionTypes.SET_IDENTITY)
+export const setBalance = createAction(actionTypes.SET_IDENTITY_BALANCE)
+export const setLockedBalance = createAction(actionTypes.SET_IDENTITY_LOCKED_BALANCE)
+export const setErrors = createAction(actionTypes.SET_IDENTITY_ERROR)
+export const setFetchingBalance = createAction(actionTypes.SET_FETCHING_BALANCE)
+export const setLoading = createAction(actionTypes.SET_IDENTITY_LOADING)
+export const setLoadingMessage = createAction(actionTypes.SET_IDENTITY_LOADING_MESSAGE)
+export const setShippingData = createAction(actionTypes.SET_IDENTITY_SHIPPING_DATA)
+export const setDonationAllow = createAction(actionTypes.SET_DONATION_ALLOW)
+export const setDonationAddress = createAction(actionTypes.SET_DONATION_ADDRESS)
+export const setShieldingTax = createAction(actionTypes.SET_SHIELDING_TAX)
 
 const actions = {
   setIdentity,

@@ -10,7 +10,6 @@ export const mapStateToProps = state => {
   const channelOwner = channelSelectors.channelOwner(state)
   const shareableUri = channelSelectors.shareableUri(state)
   const channelModerators = channelSelectors.channelModerators(state)
-
   return {
     allowModeration: shareableUri
       ? channelOwner === signerPubKey || channelModerators.contains(signerPubKey)
