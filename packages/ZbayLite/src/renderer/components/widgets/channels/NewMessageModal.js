@@ -13,7 +13,7 @@ import { TextField as FormikTextField } from '../../ui/form/TextField'
 import Modal from '../../ui/Modal'
 import { AutocompleteField } from '../../ui/form/Autocomplete'
 import { errorNotification, successNotification } from '../../../store/handlers/utils'
-import { messageType } from '../../../zbay/messages'
+import { messageType } from '../../../../shared/static'
 
 const styles = theme => ({
   root: {
