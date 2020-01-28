@@ -241,34 +241,38 @@ const fetchParams = async (win, torUrl) => {
   if (status === config.PARAMS_STATUSES.ERROR) {
     fs.unlinkSync(`${osPathsParams[process.platform]}${lastDownload}`)
   }
-  for (const target of data.slice(index, data.length)) {
-    const { fileName, targetUrl, index } = target
-    const preparedFilePath =
-      process.platform === 'win32' ? fileName.split('/').join('\\\\') : fileName
-    await downloadManagerForZipped({
-      url: targetUrl,
-      path: `${osPathsParams[process.platform]}${preparedFilePath}`,
-      index,
-      fileName: preparedFilePath,
-      part: 'params',
-      length: indexSize
+  try {
+    for (const target of data.slice(index, data.length)) {
+      const { fileName, targetUrl, index } = target
+      const preparedFilePath =
+          process.platform === 'win32' ? fileName.split('/').join('\\\\') : fileName
+      await downloadManagerForZipped({
+        url: targetUrl,
+        path: `${osPathsParams[process.platform]}${preparedFilePath}`,
+        index,
+        fileName: preparedFilePath,
+        part: 'params',
+        length: indexSize
+      })
+    }
+    electronStore.set('AppStatus.params', {
+      status: config.PARAMS_STATUSES.SUCCESS
     })
+    win.webContents.send('bootstrappingNode', {
+      message: 'Launching zcash node',
+      bootstrapping: true
+    })
+    nodeProc = spawnZcashNode(process.platform, isTestnet, torUrl)
+    mainWindow.webContents.send('bootstrappingNode', {
+      message: '',
+      bootstrapping: false
+    })
+    nodeProc.on('close', () => {
+      nodeProc = null
+    })
+  } catch (e) {
+    await fetchParams(win, torUrl)
   }
-  electronStore.set('AppStatus.params', {
-    status: config.PARAMS_STATUSES.SUCCESS
-  })
-  win.webContents.send('bootstrappingNode', {
-    message: 'Launching zcash node',
-    bootstrapping: true
-  })
-  nodeProc = spawnZcashNode(process.platform, isTestnet, torUrl)
-  mainWindow.webContents.send('bootstrappingNode', {
-    message: '',
-    bootstrapping: false
-  })
-  nodeProc.on('close', () => {
-    nodeProc = null
-  })
 }
 
 const fetchBlockchain = async (win, torUrl) => {
@@ -321,37 +325,40 @@ const fetchBlockchain = async (win, torUrl) => {
     })
   }, 1000)
 
-  for (const target of data.slice(index, data.length)) {
-    const { fileName, targetUrl, index } = target
-    const preparedFilePath =
-      process.platform === 'win32' ? fileName.split('/').join('\\\\') : fileName
-    await downloadManagerForZipped({
-      url: targetUrl,
-      path: `${osPathsBlockchain[process.platform]}${preparedFilePath}`,
-      index,
-      fileName: preparedFilePath,
-      part: 'blockchain',
-      length: data.length
+  try {
+    for (const target of data.slice(index, data.length)) {
+      const { fileName, targetUrl, index } = target
+      const preparedFilePath =
+        process.platform === 'win32' ? fileName.split('/').join('\\\\') : fileName
+      await downloadManagerForZipped({
+        url: targetUrl,
+        path: `${osPathsBlockchain[process.platform]}${preparedFilePath}`,
+        index,
+        fileName: preparedFilePath,
+        part: 'blockchain',
+        length: data.length
+      })
+    }
+    clearInterval(refreshInterval)
+    electronStore.set('AppStatus.blockchain', {
+      status: config.BLOCKCHAIN_STATUSES.SUCCESS
     })
+    win.webContents.send('bootstrappingNode', {
+      message: 'Launching zcash node',
+      bootstrapping: true
+    })
+    nodeProc = spawnZcashNode(process.platform, isTestnet, torUrl)
+    mainWindow.webContents.send('bootstrappingNode', {
+      message: '',
+      bootstrapping: false
+    })
+    nodeProc.on('close', () => {
+      nodeProc = null
+    })
+  } catch (e) {
+    clearInterval(refreshInterval)
+    await fetchBlockchain(win, torUrl)
   }
-
-  clearInterval(refreshInterval)
-
-  electronStore.set('AppStatus.blockchain', {
-    status: config.BLOCKCHAIN_STATUSES.SUCCESS
-  })
-  win.webContents.send('bootstrappingNode', {
-    message: 'Launching zcash node',
-    bootstrapping: true
-  })
-  nodeProc = spawnZcashNode(process.platform, isTestnet, torUrl)
-  mainWindow.webContents.send('bootstrappingNode', {
-    message: '',
-    bootstrapping: false
-  })
-  nodeProc.on('close', () => {
-    nodeProc = null
-  })
 }
 
 const createZcashNode = async (win, torUrl) => {
