@@ -11,8 +11,10 @@ import Modal from '../../ui/Modal'
 import Tab from '../../ui/Tab'
 import BlockedUsers from '../../../containers/widgets/channelSettings/BlockedUsers'
 import Moderators from '../../../containers/widgets/channelSettings/Moderators'
+import ChannelInfo from '../../../containers//widgets/channelSettings/ChannelInfo'
 
 const tabs = {
+  channelInfo: ChannelInfo,
   blockedUsers: BlockedUsers,
   moderators: Moderators
 }
@@ -88,6 +90,11 @@ export const ChannelSettingsModal = ({
               textColor='inherit'
               classes={{ indicator: classes.indicator }}
             >
+              <Tab
+                value='channelInfo'
+                label='Channel info'
+                classes={{ tabRoot: classes.tab, selected: classes.selected }}
+              />
               <Tab
                 value='blockedUsers'
                 label='Blocked users'

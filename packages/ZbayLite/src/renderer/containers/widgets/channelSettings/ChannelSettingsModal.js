@@ -23,7 +23,7 @@ export const mapDispatchToProps = dispatch =>
   )
 
 const ChannelSettingsModal = props => {
-  const [currentTab, setCurrentTab] = useState('blockedUsers')
+  const [currentTab, setCurrentTab] = useState('channelInfo')
   return (
     <ChannelSettingsModalComponent
       {...props}

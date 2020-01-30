@@ -56,6 +56,7 @@ export const createChannel = id => ({
   address: `zs1testaddress${id}`,
   unread: id,
   description: id % 2 === 0 ? '' : `Channel about ${id}`,
+  advertFee: 0.15,
   keys: {
     ivk: `incoming-viewing-key-${id}`,
     sk: 'test-secret-key'

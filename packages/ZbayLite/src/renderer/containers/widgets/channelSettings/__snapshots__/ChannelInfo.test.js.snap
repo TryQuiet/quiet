@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChannelInfo  will receive right actions 1`] = `
+Object {
+  "updateChannelSettings": [Function],
+}
+`;
+
+exports[`ChannelInfo  will receive right props 1`] = `
+Object {
+  "initialValues": Object {
+    "amountUsd": "10.57",
+    "amountZec": 0.15,
+    "updateChannelDescription": "Channel about channel-id",
+    "updateMinFee": true,
+  },
+  "rateUsd": 70.45230379033394,
+  "rateZec": 0.014194,
+}
+`;

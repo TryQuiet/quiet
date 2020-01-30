@@ -1,6 +1,8 @@
 import { inflate, deflate } from '../compression'
 import { moderationActionsType, messageType } from '../../shared/static'
 
+const currentNetwork = parseInt(process.env.ZBAY_IS_TESTNET) ? 2 : 1
+
 export const MEMO_SIZE = 512
 const TYPE_SIZE = 1
 const SIGNATURE_SIZE = 64
@@ -88,6 +90,12 @@ export const CHANNEL_DESCRIPTION_SIZE = networkType =>
     typeToAddressSize[networkType] +
     typeToIvkSize[networkType])
 
+export const UPDATE_DESCRIPTION_SIZE =
+  MESSAGE_SIZE -
+  MIN_FEE_SIZE +
+  ONLY_FOR_REGISTERED_SIZE +
+  typeToAddressSize[currentNetwork]
+
 const moderationTypeToSize = {
   [moderationActionsType.ADD_MOD]: PUBLIC_KEY_SIZE,
   [moderationActionsType.BLOCK_USER]: PUBLIC_KEY_SIZE,
@@ -157,6 +165,27 @@ export const packMemo = async message => {
       const onlyRegistered = Buffer.alloc(ONLY_FOR_REGISTERED_SIZE)
       onlyRegistered.writeUInt8(message.message.onlyRegistered)
       msgData = Buffer.concat([owner, minFee, onlyRegistered], MESSAGE_SIZE)
+      break
+    case messageType.CHANNEL_SETTINGS_UPDATE:
+      const updateChannelAddress = Buffer.alloc(
+        typeToAddressSize[currentNetwork]
+      )
+      updateChannelAddress.write(message.message.updateChannelAddress)
+      const updateMinFee = Buffer.alloc(MIN_FEE_SIZE)
+      updateMinFee.writeUInt32BE(message.message.updateMinFee * 100000000)
+      const updateOnlyRegistered = Buffer.alloc(ONLY_FOR_REGISTERED_SIZE)
+      updateOnlyRegistered.writeUInt8(message.message.updateOnlyRegistered)
+      const updateChannelDescription = Buffer.alloc(UPDATE_DESCRIPTION_SIZE)
+      updateChannelDescription.write(message.message.updateChannelDescription)
+      msgData = Buffer.concat(
+        [
+          updateChannelAddress,
+          updateMinFee,
+          updateOnlyRegistered,
+          updateChannelDescription
+        ],
+        MESSAGE_SIZE
+      )
       break
     case messageType.MODERATION:
       const moderationType = Buffer.alloc(MODERATION_TYPE_SIZE)
@@ -341,6 +370,42 @@ export const unpackMemo = async memo => {
         },
         createdAt
       }
+    case messageType.CHANNEL_SETTINGS_UPDATE:
+      const updateChannelAddressEnds =
+        timestampEnds + typeToAddressSize[currentNetwork]
+      const updateChannelAddress = memoBuff.slice(
+        timestampEnds,
+        updateChannelAddressEnds
+      )
+      const updateMinFeeEnds = updateChannelAddressEnds + MIN_FEE_SIZE
+      const updateMinFee = memoBuff
+        .slice(updateChannelAddressEnds, updateMinFeeEnds)
+        .readUInt32BE()
+      const updateOnlyRegisteredEnds =
+        updateMinFeeEnds + ONLY_FOR_REGISTERED_SIZE
+      const updateOnlyRegistered = memoBuff
+        .slice(updateMinFeeEnds, updateOnlyRegisteredEnds)
+        .readUInt8()
+      const updateChannelDescriptionEnds =
+        updateOnlyRegisteredEnds + UPDATE_DESCRIPTION_SIZE
+      const updateChannelDescription = memoBuff.slice(
+        updateOnlyRegisteredEnds,
+        updateChannelDescriptionEnds
+      )
+      return {
+        type,
+        signature,
+        r,
+        message: {
+          updateChannelDescription: trimNull(
+            updateChannelDescription.toString()
+          ),
+          updateChannelAddress: trimNull(updateChannelAddress.toString()),
+          updateMinFee: trimNull((updateMinFee / 100000000).toString()),
+          updateOnlyRegistered: trimNull(updateOnlyRegistered.toString())
+        },
+        createdAt
+      }
     case messageType.MODERATION:
       const moderationTypeEnds = timestampEnds + MODERATION_TYPE_SIZE
       const moderationType = memoBuff.slice(timestampEnds, moderationTypeEnds)
@@ -408,7 +473,7 @@ export const unpackMemo = async memo => {
           channelAddress: trimNull(channelAddress.toString()),
           channelIvk: trimNull(channelIvk.toString()),
           channelDescription: trimNull(channelDescription.toString()),
-          networkType: trimNull(networkType.toString())
+          networkType: parseInt(trimNull(networkType.toString()))
         },
         createdAt
       }

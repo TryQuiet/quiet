@@ -105,7 +105,10 @@ export const actionTypes = mirrorKey({
   SET_VAULT_STATUS: undefined,
   UNLOCK_VAULT: undefined,
   CREATE_VAULT_IDENTITY: undefined,
-  CLEAR_VAULT_ERROR: undefined
+  CLEAR_VAULT_ERROR: undefined,
+  SET_CHANNEL_DESCRIPTION: undefined,
+  SET_CHANNEL_AD_FEE: undefined,
+  SET_ADVERT_FEE: undefined
 })
 
 export const messageType = {
@@ -118,6 +121,7 @@ export const messageType = {
   PUBLISH_CHANNEL: 8,
   ITEM_BASIC: 11,
   ITEM_TRANSFER: 41,
+  CHANNEL_SETTINGS_UPDATE: 61,
   AFFILIATE: 170 // 'aa' in hex
 }
 

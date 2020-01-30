@@ -40,6 +40,16 @@ exports[`ChannelSettingsModal renders component 1`] = `
                 "tabRoot": "tab-mock",
               }
             }
+            label="Channel info"
+            value="channelInfo"
+          />
+          <WithStyles(Tab)
+            classes={
+              Object {
+                "selected": "selected-mock",
+                "tabRoot": "tab-mock",
+              }
+            }
             label="Blocked users"
             value="blockedUsers"
           />

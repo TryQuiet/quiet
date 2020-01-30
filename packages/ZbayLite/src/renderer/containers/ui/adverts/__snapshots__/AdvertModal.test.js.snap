@@ -9,6 +9,7 @@ Object {
 exports[`AdvertModal will receive right props 1`] = `
 Object {
   "balanceZec": "2",
+  "minFee": 0,
   "rateUsd": "10",
   "rateZec": 0.1,
 }

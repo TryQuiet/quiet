@@ -535,6 +535,7 @@ Immutable.List [
     "name": "Channel 2",
     "unread": 2,
     "lastSeen": "2019-03-07T13:03:48.000Z",
+    "advertFee": 0,
     "keys": Immutable.Map {
       "ivk": "incoming-viewing-key-2",
       "sk": "test-secret-key",
@@ -548,6 +549,7 @@ Immutable.List [
     "name": "Channel 1",
     "unread": 1,
     "lastSeen": "2019-03-07T13:03:48.000Z",
+    "advertFee": 0,
     "keys": Immutable.Map {
       "ivk": "incoming-viewing-key-1",
       "sk": "test-secret-key",
@@ -561,6 +563,7 @@ Immutable.List [
     "name": "Channel 0",
     "unread": 0,
     "lastSeen": "2019-03-07T13:03:48.000Z",
+    "advertFee": 0,
     "keys": Immutable.Map {
       "ivk": "incoming-viewing-key-0",
       "sk": "test-secret-key",

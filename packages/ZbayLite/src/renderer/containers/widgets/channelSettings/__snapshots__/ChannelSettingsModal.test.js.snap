@@ -15,6 +15,7 @@ Object {
     "address": "zs1testaddressrandomid",
     "unread": "randomid",
     "description": "Channel about randomid",
+    "advertFee": 0.15,
     "keys": Immutable.Map {
       "ivk": "incoming-viewing-key-randomid",
       "sk": "test-secret-key",

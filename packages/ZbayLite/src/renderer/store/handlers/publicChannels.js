@@ -1,5 +1,6 @@
 import Immutable from 'immutable'
 import { createAction, handleActions } from 'redux-actions'
+import * as R from 'ramda'
 import appSelectors from '../selectors/app'
 import appHandlers from './app'
 import channelsSelectors from '../selectors/channels'
@@ -99,12 +100,26 @@ export const fetchPublicChannels = () => async (dispatch, getState) => {
       if (!msg.spent.gte(minfee) || msg.type !== messageType.PUBLISH_CHANNEL) {
         continue
       }
+      const updateChannelSettings = R.findLast(
+        settingsMsg =>
+          settingsMsg.type === messageType.CHANNEL_SETTINGS_UPDATE &&
+          settingsMsg.publicKey === msg.publicKey &&
+          settingsMsg.message.updateChannelAddress ===
+            msg.message.channelAddress
+      )(sortedMessages)
+
       const channel = _PublicChannelData({
         address: msg.message.channelAddress,
-        minFee: msg.message.channelMinFee,
+        minFee: updateChannelSettings
+          ? updateChannelSettings.message.updateMinFee
+          : msg.message.channelMinFee,
         name: msg.message.channelName,
-        description: msg.message.channelDescription,
-        onlyForRegistered: msg.message.channelonlyRegistered,
+        description: updateChannelSettings
+          ? updateChannelSettings.message.updateChannelDescription
+          : msg.message.channelDescription,
+        onlyForRegistered: updateChannelSettings
+          ? updateChannelSettings.message.updateOnlyRegistered
+          : msg.message.channelonlyRegistered,
         owner: msg.message.channelOwner,
         keys: { ivk: msg.message.channelIvk },
         timestamp: txnTimestamps.get(msg.id)

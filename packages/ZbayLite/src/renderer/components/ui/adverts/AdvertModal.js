@@ -22,7 +22,8 @@ import Modal from '../Modal'
 import Icon from '../Icon'
 import { Badge } from '@material-ui/core'
 
-const reqSvgs = require && require.context('../assets/backgrounds', true, /\.svg$/)
+const reqSvgs =
+  require && require.context('../assets/backgrounds', true, /\.svg$/)
 
 const styles = theme => {
   return {
@@ -187,11 +188,12 @@ export const AdvertModal = ({
   touched,
   errors,
   submitForm,
-  sending
+  sending,
+  minFee
 }) => {
   const [inputWidth, setInputWidth] = React.useState(80)
   const [colapse, setColapse] = React.useState(false)
-  const funds = balanceZec.gt(rateZec * 5)
+  const funds = balanceZec.gt(minFee)
   const valid = isValid && funds
   const ErrorText = ({ name }) => {
     return errors[name] && touched[name] ? (
@@ -213,7 +215,10 @@ export const AdvertModal = ({
     >
       <AutoSizer>
         {({ width, height }) => (
-          <Scrollbars autoHideTimeout={500} style={{ width: width, height: height }}>
+          <Scrollbars
+            autoHideTimeout={500}
+            style={{ width: width, height: height }}
+          >
             <Grid container direction='column' className={classes.root}>
               <Grid
                 item
@@ -221,13 +226,20 @@ export const AdvertModal = ({
                 justify='center'
                 alignItems='center'
                 className={classes.backgroundDiv}
-                style={{ background: `url(${reqSvgs(reqSvgs.keys()[values.background])})` }}
+                style={{
+                  background: `url(${reqSvgs(
+                    reqSvgs.keys()[values.background]
+                  )})`
+                }}
               >
                 <Badge
                   color='primary'
                   badgeContent={9 - values.tag.length}
                   invisible={values.tag.length === 0}
-                  classes={{ root: classes.badge, colorPrimary: classes.primaryBadge }}
+                  classes={{
+                    root: classes.badge,
+                    colorPrimary: classes.primaryBadge
+                  }}
                   anchorOrigin={{
                     horizontal: 'right',
                     vertical: 'bottom'
@@ -272,7 +284,9 @@ export const AdvertModal = ({
                 >
                   <Grid container direction='row' alignItems='center'>
                     <Grid item xs container justify='flex-start'>
-                      <Typography variant='body2'>Choose a background</Typography>
+                      <Typography variant='body2'>
+                        Choose a background
+                      </Typography>
                     </Grid>
                     <Grid item xs container justify='flex-end'>
                       <Grid item className={classes.selectIconBackgroundDiv}>
@@ -294,12 +308,18 @@ export const AdvertModal = ({
                         item
                         key={key}
                         onClick={() => {
-                          setFieldValue('background', reqSvgs.keys().indexOf(key))
+                          setFieldValue(
+                            'background',
+                            reqSvgs.keys().indexOf(key)
+                          )
                           setColapse(!colapse)
                         }}
                         className={classes.backgroundElement}
                       >
-                        <Icon className={classes.selectIconBackground} src={reqSvgs(key)} />
+                        <Icon
+                          className={classes.selectIconBackground}
+                          src={reqSvgs(key)}
+                        />
                       </Grid>
                     ))}
                   </Grid>
@@ -396,7 +416,9 @@ export const AdvertModal = ({
                   text={
                     <>
                       <span className={classes.postLabel}>Post </span>
-                      <span className={classes.postLabelGray}>($5 USD)</span>
+                      <span className={classes.postLabelGray}>{`($${(
+                        rateUsd * minFee
+                      ).toFixed(2)} USD)`}</span>
                     </>
                   }
                   disabled={!valid || sending}
@@ -410,7 +432,9 @@ export const AdvertModal = ({
               )}
               <Grid item xs className={classes.error}>
                 <Typography variant='caption' className={classes.costInfo}>
-                  {`The price of posting an ad is $5 USD (${(rateZec * 5).toFixed(4)} ZEC).`}
+                  {`The price of posting an ad is $${(rateUsd * minFee).toFixed(
+                    2
+                  )} USD (${minFee.toFixed(4)} ZEC).`}
                 </Typography>
               </Grid>
             </Grid>
@@ -433,9 +457,7 @@ AdvertModal.propTypes = {
   balanceZec: PropTypes.object.isRequired,
   touched: PropTypes.object.isRequired,
   errors: PropTypes.object.isRequired,
-  sending: PropTypes.bool.isRequired
+  sending: PropTypes.bool.isRequired,
+  minFee: PropTypes.number.isRequired
 }
-export default R.compose(
-  React.memo,
-  withStyles(styles)
-)(AdvertModal)
+export default R.compose(React.memo, withStyles(styles))(AdvertModal)

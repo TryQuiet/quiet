@@ -28,7 +28,7 @@ const handleSend = ({ values }) => async (dispatch, getState) => {
     messageData: {
       type: messageType.AD,
       data: data,
-      spent: '0'
+      spent: channel.advertFee.toString()
     },
     privKey
   })

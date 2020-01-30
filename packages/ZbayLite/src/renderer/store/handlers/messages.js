@@ -147,6 +147,18 @@ export const fetchMessages = channel => async (dispatch, getState) => {
         await getVault().adverts.addAdvert(msg)
       }
     })
+    const updateChannelSettings = R.findLast(
+      msg => msg.type === messageType.CHANNEL_SETTINGS_UPDATE
+    )(messages)
+    if (updateChannelSettings) {
+      dispatch(
+        channelsHandlers.epics.updateSettings({
+          channelId,
+          time: updateChannelSettings.createdAt,
+          data: updateChannelSettings.message
+        })
+      )
+    }
     await dispatch(setMessages({ messages, channelId }))
     if (currentChannel.address === channel.get('address')) {
       return

@@ -13,6 +13,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "address": "zs1testaddress0",
         "unread": 0,
         "description": "",
+        "advertFee": 0.15,
         "keys": Immutable.Map {
           "ivk": "incoming-viewing-key-0",
           "sk": "test-secret-key",
@@ -32,6 +33,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "address": "zs1testaddress1",
         "unread": 1,
         "description": "Channel about 1",
+        "advertFee": 0.15,
         "keys": Immutable.Map {
           "ivk": "incoming-viewing-key-1",
           "sk": "test-secret-key",
@@ -51,6 +53,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "address": "zs1testaddress2",
         "unread": 2,
         "description": "",
+        "advertFee": 0.15,
         "keys": Immutable.Map {
           "ivk": "incoming-viewing-key-2",
           "sk": "test-secret-key",
@@ -70,6 +73,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "address": "zs1testaddress3",
         "unread": 3,
         "description": "Channel about 3",
+        "advertFee": 0.15,
         "keys": Immutable.Map {
           "ivk": "incoming-viewing-key-3",
           "sk": "test-secret-key",
@@ -89,6 +93,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "address": "zs1testaddress4",
         "unread": 4,
         "description": "",
+        "advertFee": 0.15,
         "keys": Immutable.Map {
           "ivk": "incoming-viewing-key-4",
           "sk": "test-secret-key",
@@ -108,6 +113,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "address": "zs1testaddress5",
         "unread": 5,
         "description": "Channel about 5",
+        "advertFee": 0.15,
         "keys": Immutable.Map {
           "ivk": "incoming-viewing-key-5",
           "sk": "test-secret-key",
@@ -127,6 +133,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "address": "zs1testaddress6",
         "unread": 6,
         "description": "",
+        "advertFee": 0.15,
         "keys": Immutable.Map {
           "ivk": "incoming-viewing-key-6",
           "sk": "test-secret-key",
@@ -146,6 +153,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "address": "zs1testaddress7",
         "unread": 7,
         "description": "Channel about 7",
+        "advertFee": 0.15,
         "keys": Immutable.Map {
           "ivk": "incoming-viewing-key-7",
           "sk": "test-secret-key",
@@ -165,6 +173,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "address": "zs1testaddress8",
         "unread": 8,
         "description": "",
+        "advertFee": 0.15,
         "keys": Immutable.Map {
           "ivk": "incoming-viewing-key-8",
           "sk": "test-secret-key",
@@ -184,6 +193,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "address": "zs1testaddress9",
         "unread": 9,
         "description": "Channel about 9",
+        "advertFee": 0.15,
         "keys": Immutable.Map {
           "ivk": "incoming-viewing-key-9",
           "sk": "test-secret-key",
@@ -203,6 +213,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "address": "zs1testaddress10",
         "unread": 10,
         "description": "",
+        "advertFee": 0.15,
         "keys": Immutable.Map {
           "ivk": "incoming-viewing-key-10",
           "sk": "test-secret-key",
@@ -222,6 +233,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "address": "zs1testaddress11",
         "unread": 11,
         "description": "Channel about 11",
+        "advertFee": 0.15,
         "keys": Immutable.Map {
           "ivk": "incoming-viewing-key-11",
           "sk": "test-secret-key",

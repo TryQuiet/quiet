@@ -26,6 +26,7 @@ Immutable.Map {
   "address": "zs1testaddressthis-is-a-test-id",
   "unread": "this-is-a-test-id",
   "description": "Channel about this-is-a-test-id",
+  "advertFee": 0.15,
   "keys": Immutable.Map {
     "ivk": "incoming-viewing-key-this-is-a-test-id",
     "sk": "test-secret-key",

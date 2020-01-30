@@ -66,6 +66,7 @@ Immutable.List [
     "name": "General",
     "unread": 0,
     "lastSeen": "2019-03-07T13:03:48.000Z",
+    "advertFee": 0,
     "keys": Immutable.Map {
       "ivk": "zivktestsapling1p5rp2czztl8amalqm5ghzvhr35n08h26vhphnw2x6k83trft7sqsn9qkd6",
     },

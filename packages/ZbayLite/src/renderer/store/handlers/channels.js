@@ -34,35 +34,50 @@ export const ChannelsState = Immutable.Record(
 
 export const initialState = ChannelsState()
 
-const loadChannels = createAction(actionTypes.LOAD_IDENTITY_CHANNELS, async id => {
-  const channels = await getVault().channels.listChannels(id)
+const loadChannels = createAction(
+  actionTypes.LOAD_IDENTITY_CHANNELS,
+  async id => {
+    const channels = await getVault().channels.listChannels(id)
+    return channels.map(channel => ({ ...channel, advertFee: 0 }))
+  }
+)
+const loadChannelsToNode = createAction(
+  actionTypes.LOAD_IDENTITY_CHANNELS,
+  async id => {
+    const channels = await getVault().channels.listChannels(id)
+    await Promise.all(
+      channels.map(channel =>
+        getClient().keys.importIVK({
+          ivk: channel.keys.ivk,
+          address: channel.address
+        })
+      )
+    )
+    await Promise.all(
+      channels
+        .filter(ch => ch.keys.sk)
+        .map(channel =>
+          getClient().keys.importSK({ sk: channel.keys.sk, rescan: 'no' })
+        )
+    )
 
-  return channels
-})
-const loadChannelsToNode = createAction(actionTypes.LOAD_IDENTITY_CHANNELS, async id => {
-  const channels = await getVault().channels.listChannels(id)
-  await Promise.all(
-    channels.map(channel =>
-      getClient().keys.importIVK({ ivk: channel.keys.ivk, address: channel.address })
-    )
-  )
-  await Promise.all(
-    channels.filter(ch => ch.keys.sk).map(channel =>
-      getClient().keys.importSK({ sk: channel.keys.sk, rescan: 'no' })
-    )
-  )
-  return channels
-})
+    return channels.map(channel => ({ ...channel, advertFee: 0 }))
+  }
+)
 
 const setLastSeen = createAction(actionTypes.SET_CHANNELS_LAST_SEEN)
+const setDescription = createAction(actionTypes.SET_CHANNEL_DESCRIPTION)
 const setUnread = createAction(actionTypes.SET_CHANNEL_UNREAD)
 const setShowInfoMsg = createAction(actionTypes.SET_SHOW_INFO_MSG)
+const setAdvertFee = createAction(actionTypes.SET_ADVERT_FEE)
 
 export const actions = {
   loadChannels,
   setLastSeen,
   setUnread,
-  loadChannelsToNode
+  loadChannelsToNode,
+  setDescription,
+  setAdvertFee
 }
 
 const _createChannel = async (identityId, { name, description }) => {
@@ -92,7 +107,9 @@ const createChannel = (values, formActions) => async (dispatch, getState) => {
     if (balance.lt(0.0002)) {
       dispatch(
         notificationsHandlers.actions.enqueueSnackbar(
-          errorNotification({ message: `You need minimum 0.0002 ZEC to create a channel. ` })
+          errorNotification({
+            message: `You need minimum 0.0002 ZEC to create a channel. `
+          })
         )
       )
       formActions.setSubmitting(false)
@@ -100,10 +117,14 @@ const createChannel = (values, formActions) => async (dispatch, getState) => {
     }
     const identityId = identitySelectors.id(getState())
     const address = await _createChannel(identityId, values)
-    await dispatch(channelHandlers.epics.sendChannelSettingsMessage({ address: address }))
+    await dispatch(
+      channelHandlers.epics.sendChannelSettingsMessage({ address: address })
+    )
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar(
-        successNotification({ message: `Successfully created ${values.name} channel.` })
+        successNotification({
+          message: `Successfully created ${values.name} channel.`
+        })
       )
     )
     formActions.setSubmitting(false)
@@ -112,7 +133,9 @@ const createChannel = (values, formActions) => async (dispatch, getState) => {
   } catch (error) {
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar(
-        errorNotification({ message: `Failed to create channel: ${error.message}` })
+        errorNotification({
+          message: `Failed to create channel: ${error.message}`
+        })
       )
     )
     formActions.setSubmitting(false)
@@ -166,8 +189,22 @@ const updateLastSeen = ({ channelId }) => async (dispatch, getState) => {
   dispatch(setLastSeen({ channelId, lastSeen }))
   dispatch(setUnread({ channelId, unread: 0 }))
 }
+const updateSettings = ({ channelId, time, data }) => async (
+  dispatch,
+  getState
+) => {
+  const lastSeen = channelsSelectors.lastSeen(channelId)(getState())
+  const timeOfTransaction = DateTime.fromSeconds(time)
+  if (timeOfTransaction.plus({ minutes: 2 }) > lastSeen) {
+    dispatch(updateShowInfoMsg(true))
+  }
+  dispatch(
+    setDescription({ channelId, description: data.updateChannelDescription })
+  )
+  dispatch(setAdvertFee({ channelId, advertFee: data.updateMinFee }))
+}
 
-const updateShowInfoMsg = (showInfoMsg) => async (dispatch, getState) => {
+const updateShowInfoMsg = showInfoMsg => async (dispatch, getState) => {
   const channelId = channelSelectors.channelId(getState())
   const identity = identitySelectors.data(getState())
   await getVault().channels.updateShowInfoMsg({
@@ -183,27 +220,61 @@ export const epics = {
   updateLastSeen,
   getMoneyFromChannel,
   withdrawMoneyFromChannels,
-  updateShowInfoMsg
+  updateShowInfoMsg,
+  updateSettings
 }
 
 export const reducer = handleActions(
   {
     [typePending(actionTypes.LOAD_IDENTITY_CHANNELS)]: state =>
-      state.setIn(['loader', 'loading'], true).setIn(['loader', 'message'], 'Loading channels'),
-    [typeFulfilled(actionTypes.LOAD_IDENTITY_CHANNELS)]: (state, { payload: data }) =>
-      state.set('data', Immutable.fromJS(data)).setIn(['loader', 'loading'], false),
-    [typeRejected(actionTypes.LOAD_IDENTITY_CHANNELS)]: (state, { payload: error }) =>
-      state.setIn(['loader', 'loading'], false),
+      state
+        .setIn(['loader', 'loading'], true)
+        .setIn(['loader', 'message'], 'Loading channels'),
+    [typeFulfilled(actionTypes.LOAD_IDENTITY_CHANNELS)]: (
+      state,
+      { payload: data }
+    ) =>
+      state
+        .set('data', Immutable.fromJS(data))
+        .setIn(['loader', 'loading'], false),
+    [typeRejected(actionTypes.LOAD_IDENTITY_CHANNELS)]: (
+      state,
+      { payload: error }
+    ) => state.setIn(['loader', 'loading'], false),
+    [setDescription]: (state, { payload: { channelId, description } }) => {
+      const index = state.data.findIndex(
+        channel => channel.get('id') === channelId
+      )
+      return state.updateIn(['data', index], ch =>
+        ch.set('description', description)
+      )
+    },
     [setLastSeen]: (state, { payload: { channelId, lastSeen } }) => {
-      const index = state.data.findIndex(channel => channel.get('id') === channelId)
+      const index = state.data.findIndex(
+        channel => channel.get('id') === channelId
+      )
       return state.updateIn(['data', index], ch => ch.set('lastSeen', lastSeen))
     },
+    [setAdvertFee]: (state, { payload: { channelId, advertFee } }) => {
+      const index = state.data.findIndex(
+        channel => channel.get('id') === channelId
+      )
+      return state.updateIn(['data', index], ch =>
+        ch.set('advertFee', parseFloat(advertFee))
+      )
+    },
     [setShowInfoMsg]: (state, { payload: { channelId, showInfoMsg } }) => {
-      const index = state.data.findIndex(channel => channel.get('id') === channelId)
-      return state.updateIn(['data', index], ch => ch.set('showInfoMsg', showInfoMsg))
+      const index = state.data.findIndex(
+        channel => channel.get('id') === channelId
+      )
+      return state.updateIn(['data', index], ch =>
+        ch.set('showInfoMsg', showInfoMsg)
+      )
     },
     [setUnread]: (state, { payload: { channelId, unread } }) => {
-      const index = state.data.findIndex(channel => channel.get('id') === channelId)
+      const index = state.data.findIndex(
+        channel => channel.get('id') === channelId
+      )
       return state.updateIn(['data', index], ch => ch.set('unread', unread))
     }
   },

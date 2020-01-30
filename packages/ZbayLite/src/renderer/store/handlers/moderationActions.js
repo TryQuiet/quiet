@@ -3,8 +3,11 @@ import { getClient } from '../../zcash'
 import identitySelectors from '../selectors/identity'
 import { messages as zbayMessages } from '../../zbay'
 import channelSelectors from '../selectors/channel'
+import channelsSelectors from '../selectors/channels'
+import publicChannelsSelectors from '../selectors/publicChannels'
 import { errorNotification, successNotification } from './utils'
 import { messageType, moderationActionsType } from '../../../shared/static'
+import { packMemo } from '../../zbay/transit'
 
 const handleModerationAction = ({ moderationType, moderationTarget }) => async (
   dispatch,
@@ -57,9 +60,67 @@ const handleModerationAction = ({ moderationType, moderationTarget }) => async (
     )
   }
 }
+const updateChannelSettings = values => async (dispatch, getState) => {
+  const identityAddress = identitySelectors.address(getState())
+  const channel = channelSelectors.data(getState()).toJS()
+  const publicChannelsChannel = channelsSelectors
+    .publicChannels(getState())
+    .toJS()
+  const publicChannels = publicChannelsSelectors.publicChannels(getState())
+
+  const privKey = identitySelectors.signerPrivKey(getState())
+  const message = zbayMessages.createMessage({
+    messageData: {
+      type: messageType.CHANNEL_SETTINGS_UPDATE,
+      data: {
+        updateChannelDescription: values.updateChannelDescription,
+        updateChannelAddress: channel.address,
+        updateMinFee: values.updateMinFee ? values.amountZec.toString() : '0',
+        updateOnlyRegistered: '0'
+      }
+    },
+    privKey
+  })
+  const amounts = []
+  let memo = await packMemo(message)
+  const transferToChannel = {
+    address: channel.address,
+    amount: '0',
+    memo
+  }
+  amounts.push(transferToChannel)
+  if (publicChannels.find(ch => ch.address === channel.address)) {
+    const transferToPublicChannels = {
+      address: publicChannelsChannel.address,
+      amount: '0',
+      memo
+    }
+    amounts.push(transferToPublicChannels)
+  }
+  const transfer = { from: identityAddress, amounts: amounts }
+  try {
+    await getClient().payment.send(transfer)
+    dispatch(
+      notificationsHandlers.actions.enqueueSnackbar(
+        successNotification({
+          message: 'Successfully sent instruction to channel'
+        })
+      )
+    )
+  } catch (err) {
+    notificationsHandlers.actions.enqueueSnackbar(
+      dispatch(
+        errorNotification({
+          message: "Couldn't send the message, please check node connection."
+        })
+      )
+    )
+  }
+}
 
 export const epics = {
-  handleModerationAction
+  handleModerationAction,
+  updateChannelSettings
 }
 
 export default {

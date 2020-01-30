@@ -18,6 +18,7 @@ Object {
       "address": "zs1testaddress1",
       "unread": 1,
       "description": "Channel about 1",
+      "advertFee": 0.15,
       "keys": Immutable.Map {
         "ivk": "incoming-viewing-key-1",
         "sk": "test-secret-key",
@@ -30,6 +31,7 @@ Object {
       "address": "zs1testaddress2",
       "unread": 2,
       "description": "",
+      "advertFee": 0.15,
       "keys": Immutable.Map {
         "ivk": "incoming-viewing-key-2",
         "sk": "test-secret-key",

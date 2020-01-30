@@ -88,6 +88,32 @@ const channelSettings = {
     onlyRegistered: '1'
   }
 }
+const channelSettingsUpdateMainnet = {
+  type: messageType.CHANNEL_SETTINGS_UPDATE,
+  signature: sigObj.signature,
+  r: sigObj.recovery,
+  createdAt: now.toSeconds(),
+  message: {
+    updateChannelDescription: 'new description wow',
+    updateMinFee: '42',
+    updateOnlyRegistered: '1',
+    updateChannelAddress:
+      'zs1ecsq8thnu84ejvfx2jcfsa6zas2k057n3hrhuy0pahmlvqfwterjaz3h772ldlsgp5r2xwvml9g'
+  }
+}
+const channelSettingsUpdateTestnet = {
+  type: messageType.CHANNEL_SETTINGS_UPDATE,
+  signature: sigObj.signature,
+  r: sigObj.recovery,
+  createdAt: now.toSeconds(),
+  message: {
+    updateChannelDescription: 'new description wow',
+    updateMinFee: '42',
+    updateOnlyRegistered: '1',
+    updateChannelAddress:
+      '1234567890zs1ecsq8thnu84ejvfx2jcfsa6zas2k057n3hrhuy0pahmlvqfwterjaz3h772ldlsgp5r2xwvml9g'
+  }
+}
 const moderationMessage = (moderationType, moderationTarget) => ({
   type: messageType.MODERATION,
   signature: sigObj.signature,
@@ -114,7 +140,7 @@ const publishChannelMainnetMessage = {
     channelIvk:
       'zivks1mm9azwml2k3m4428sy7adwruwvcwd7r3vc5fpfathm4mfd95yczsnrspx5',
     channelDescription: ' random channel test ',
-    networkType: ADDRESS_TYPE.SHIELDED_MAINNET.toString()
+    networkType: ADDRESS_TYPE.SHIELDED_MAINNET
   }
 }
 const publishChannelTestnetMessage = {
@@ -133,7 +159,7 @@ const publishChannelTestnetMessage = {
     channelIvk:
       '1234567890zivks1mm9azwml2k3m4428sy7adwruwvcwd7r3vc5fpfathm4mfd95yczsnrspx5',
     channelDescription: ' random channel test ',
-    networkType: ADDRESS_TYPE.SHIELDED_TESTNET.toString()
+    networkType: ADDRESS_TYPE.SHIELDED_TESTNET
   }
 }
 describe('transit', () => {
@@ -190,6 +216,20 @@ describe('transit', () => {
       expect(Buffer.byteLength(data, 'hex')).toEqual(MEMO_SIZE)
       const output = await unpackMemo(data)
       expect(output).toEqual(channelSettings)
+    })
+  })
+  describe('pack/unpack Channel Settings Update memo', () => {
+    it('is symmetrical mainnet', async () => {
+      const data = await packMemo(channelSettingsUpdateMainnet)
+      expect(Buffer.byteLength(data, 'hex')).toEqual(MEMO_SIZE)
+      const output = await unpackMemo(data)
+      expect(output).toEqual(channelSettingsUpdateMainnet)
+    })
+    it('is symmetrical testnet', async () => {
+      const data = await packMemo(channelSettingsUpdateTestnet)
+      expect(Buffer.byteLength(data, 'hex')).toEqual(MEMO_SIZE)
+      const output = await unpackMemo(data)
+      expect(output).toEqual(channelSettingsUpdateTestnet)
     })
   })
   describe('pack/unpack Publish Channel memo', () => {

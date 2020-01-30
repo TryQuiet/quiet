@@ -24,6 +24,11 @@ export const spentFilterValue = createSelector(channel, c => c.get('spentFilterV
 
 export const message = createSelector(channel, c => c.get('message'))
 
+export const advertFee = createSelector(
+  data,
+  (data) => data ? data.get('advertFee') : 0
+)
+
 export const pendingMessages = createSelector(
   operationsSelectors.operations,
   channel,
@@ -205,5 +210,6 @@ export default {
   getChannelFilteredMessages,
   getFilteredContext,
   messages,
-  channelInfo
+  channelInfo,
+  advertFee
 }
