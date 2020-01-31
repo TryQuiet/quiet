@@ -36,6 +36,7 @@ const coordinator = () => async (dispatch, getState) => {
       .push(() => contactsHandlers.epics.fetchMessages())
       .push(() => nodeHandlers.epics.getStatus())
       .push(() => identityHandlers.epics.fetchBalance())
+      .push(() => identityHandlers.epics.fetchFreeUtxos())
       .push(() => usersHandlers.epics.fetchUsers())
       .push(() => publicChannelsHandlers.epics.fetchPublicChannels())
     await dispatch(actions.get(index % actions.size)())

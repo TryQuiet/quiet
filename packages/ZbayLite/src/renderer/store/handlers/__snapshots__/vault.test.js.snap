@@ -41,6 +41,7 @@ Immutable.IdentityState {
     "donationAllow": true,
     "shieldingTax": true,
     "donationAddress": "",
+    "freeUtxos": 0,
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {

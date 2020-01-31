@@ -23,18 +23,26 @@ const styles = theme => ({
   }
 })
 
-export const NodeStatus = ({ classes, status, percentSynced }) => {
+export const NodeStatus = ({ classes, status, percentSynced, freeUtxos }) => {
   return (
     <Grid container direction='row' alignItems='center' justify='flex-end'>
       <Grid item>
         {status === 'healthy' || status === 'down' ? (
-          <PulseDot size={6} color={status} className={classes.icon} />
+          <PulseDot
+            size={6}
+            color={freeUtxos ? status : 'down'}
+            className={classes.icon}
+          />
         ) : (
           <SpinnerLoader size={10} classes={{ spinner: classes.spinner }} />
         )}
       </Grid>
       <Grid item>
-        <Typography display='inline' variant='caption' className={classes.status}>
+        <Typography
+          display='inline'
+          variant='caption'
+          className={classes.status}
+        >
           {percentSynced !== null && `${percentSynced}%`}
         </Typography>
       </Grid>
@@ -43,8 +51,15 @@ export const NodeStatus = ({ classes, status, percentSynced }) => {
 }
 NodeStatus.propTypes = {
   classes: PropTypes.object.isRequired,
-  status: PropTypes.oneOf(['healthy', 'syncing', 'restarting', 'down', 'connecting']).isRequired,
-  percentSynced: PropTypes.string
+  status: PropTypes.oneOf([
+    'healthy',
+    'syncing',
+    'restarting',
+    'down',
+    'connecting'
+  ]).isRequired,
+  percentSynced: PropTypes.string,
+  freeUtxos: PropTypes.number.isRequired
 }
 
 NodeStatus.defaultProps = {

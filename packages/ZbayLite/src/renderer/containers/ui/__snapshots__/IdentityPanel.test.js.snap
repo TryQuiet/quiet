@@ -23,6 +23,7 @@ Object {
     "donationAllow": true,
     "shieldingTax": true,
     "donationAddress": "",
+    "freeUtxos": 0,
   },
   "user": undefined,
 }

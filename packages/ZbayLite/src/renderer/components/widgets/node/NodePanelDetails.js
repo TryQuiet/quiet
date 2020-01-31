@@ -9,6 +9,7 @@ import classNames from 'classnames'
 import NodePanelBlocksField from '../../../containers/widgets/node/NodePanelBlocksField'
 import NodePanelConnectionsField from '../../../containers/widgets/node/NodePanelConnectionsField'
 import NodePanelNetworkField from '../../../containers/widgets/node/NodePanelNetworkField'
+import NodePanelFreeUtxos from '../../../containers/widgets/node/NodePanelFreeUtxos'
 
 const styles = theme => ({
   details: {
@@ -31,6 +32,7 @@ export const NodePanelDetails = ({ classes, expanded }) => (
           <NodePanelNetworkField />
           <NodePanelBlocksField />
           <NodePanelConnectionsField />
+          <NodePanelFreeUtxos />
         </>
       )}
     </Grid>
@@ -42,7 +44,4 @@ NodePanelDetails.propTypes = {
   expanded: PropTypes.bool.isRequired
 }
 
-export default R.compose(
-  React.memo,
-  withStyles(styles)
-)(NodePanelDetails)
+export default R.compose(React.memo, withStyles(styles))(NodePanelDetails)

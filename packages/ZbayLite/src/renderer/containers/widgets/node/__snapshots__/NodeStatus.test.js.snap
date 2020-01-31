@@ -2,6 +2,7 @@
 
 exports[`NodeStatus will receive right props 1`] = `
 Object {
+  "freeUtxos": 0,
   "percentSynced": "18",
   "status": "down",
 }

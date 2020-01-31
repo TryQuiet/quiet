@@ -65,7 +65,13 @@ const styles = theme => ({
   }
 })
 
-export const NodePanel = ({ classes, expanded, status, setExpanded }) => (
+export const NodePanel = ({
+  classes,
+  expanded,
+  status,
+  setExpanded,
+  freeUtxos
+}) => (
   <Grid
     item
     container
@@ -87,7 +93,11 @@ export const NodePanel = ({ classes, expanded, status, setExpanded }) => (
         square
         classes={{ root: classes.expander, expanded: classes.expanded }}
       >
-        <Tooltip title={status} className={classes.tooltip} placement='bottom-end'>
+        <Tooltip
+          title={freeUtxos ? status : `Waiting for UTXO's`}
+          className={classes.tooltip}
+          placement='bottom-end'
+        >
           <ExpansionPanelSummary
             classes={{
               root: classes.panelSummary,
@@ -112,7 +122,4 @@ NodePanel.propTypes = {
   classes: PropTypes.object.isRequired
 }
 
-export default R.compose(
-  React.memo,
-  withStyles(styles)
-)(NodePanel)
+export default R.compose(React.memo, withStyles(styles))(NodePanel)

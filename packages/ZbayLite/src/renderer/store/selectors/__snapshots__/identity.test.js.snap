@@ -100,6 +100,7 @@ Immutable.Identity {
   "donationAllow": "false",
   "shieldingTax": true,
   "donationAddress": "test",
+  "freeUtxos": 0,
 }
 `;
 
@@ -209,6 +210,7 @@ Immutable.IdentityState {
     "donationAllow": "false",
     "shieldingTax": true,
     "donationAddress": "test",
+    "freeUtxos": 0,
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {

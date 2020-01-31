@@ -13,6 +13,7 @@ exports[`NodePanelDetails renders component 1`] = `
     <Connect(NodePanelNetworkField) />
     <Connect(NodePanelBlocksField) />
     <Connect(NodePanelConnectionsField) />
+    <Connect(NodePanelFreeUtxos) />
   </WithStyles(ForwardRef(Grid))>
 </WithStyles(ForwardRef(Grid))>
 `;

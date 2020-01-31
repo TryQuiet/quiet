@@ -61,7 +61,8 @@ const _Identity = Immutable.Record(
     lockedBalance: null,
     donationAllow: true,
     shieldingTax: true,
-    donationAddress: ''
+    donationAddress: '',
+    freeUtxos: 0
   },
   'Identity'
 )
@@ -85,15 +86,22 @@ export const initialState = IdentityState()
 
 export const setIdentity = createAction(actionTypes.SET_IDENTITY)
 export const setBalance = createAction(actionTypes.SET_IDENTITY_BALANCE)
-export const setLockedBalance = createAction(actionTypes.SET_IDENTITY_LOCKED_BALANCE)
+export const setLockedBalance = createAction(
+  actionTypes.SET_IDENTITY_LOCKED_BALANCE
+)
 export const setErrors = createAction(actionTypes.SET_IDENTITY_ERROR)
 export const setFetchingBalance = createAction(actionTypes.SET_FETCHING_BALANCE)
 export const setLoading = createAction(actionTypes.SET_IDENTITY_LOADING)
-export const setLoadingMessage = createAction(actionTypes.SET_IDENTITY_LOADING_MESSAGE)
-export const setShippingData = createAction(actionTypes.SET_IDENTITY_SHIPPING_DATA)
+export const setLoadingMessage = createAction(
+  actionTypes.SET_IDENTITY_LOADING_MESSAGE
+)
+export const setShippingData = createAction(
+  actionTypes.SET_IDENTITY_SHIPPING_DATA
+)
 export const setDonationAllow = createAction(actionTypes.SET_DONATION_ALLOW)
 export const setDonationAddress = createAction(actionTypes.SET_DONATION_ADDRESS)
 export const setShieldingTax = createAction(actionTypes.SET_SHIELDING_TAX)
+export const setFreeUtxos = createAction(actionTypes.SET_FREE_UTXOS)
 
 const actions = {
   setIdentity,
@@ -106,7 +114,8 @@ const actions = {
   setBalance,
   setDonationAllow,
   setDonationAddress,
-  setShieldingTax
+  setShieldingTax,
+  setFreeUtxos
 }
 
 export const shieldBalance = ({ from, to, amount, fee }) => async (
@@ -236,6 +245,18 @@ export const fetchBalance = () => async (dispatch, getState) => {
     dispatch(setFetchingBalance(false))
   }
 }
+export const fetchFreeUtxos = () => async (dispatch, getState) => {
+  const address = identitySelectors.address(getState())
+  try {
+    const utxos = await getClient().accounting.freeUtxos(address)
+    const freeUtxos = utxos.filter(
+      utxo => utxo.spendable === true && utxo.amount > networkFee
+    )
+    dispatch(setFreeUtxos(freeUtxos.length))
+  } catch (err) {
+    console.warn(err)
+  }
+}
 
 export const createSignerKeys = () => {
   let signerPrivKey
@@ -292,7 +313,10 @@ export const createIdentity = ({ name }) => async (dispatch, getState) => {
   }
 }
 
-export const setIdentityEpic = (identityToSet, isNewUser) => async (dispatch, getState) => {
+export const setIdentityEpic = (identityToSet, isNewUser) => async (
+  dispatch,
+  getState
+) => {
   let identity = await migrateTo_0_2_0.ensureIdentityHasKeys(identityToSet)
   dispatch(setLoading(true))
   try {
@@ -325,6 +349,7 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (dispatch, ge
     dispatch(setLoadingMessage('Fetching balance and loading channels'))
     dispatch(ratesHandlers.epics.fetchPrices())
     await dispatch(fetchBalance())
+    await dispatch(fetchFreeUtxos())
     dispatch(setLoadingMessage('Loading users and messages'))
     await dispatch(usersHandlers.epics.fetchUsers())
     await dispatch(contactsHandlers.epics.loadAllSentMessages())
@@ -401,7 +426,8 @@ const epics = {
   createSignerKeys,
   updateDonation,
   updateDonationAddress,
-  updateShieldingTax
+  updateShieldingTax,
+  fetchFreeUtxos
 }
 
 const exportFunctions = {
@@ -430,7 +456,9 @@ export const reducer = handleActions(
     [setDonationAddress]: (state, { payload: address }) =>
       state.setIn(['data', 'donationAddress'], address),
     [setShieldingTax]: (state, { payload: allow }) =>
-      state.setIn(['data', 'shieldingTax'], allow)
+      state.setIn(['data', 'shieldingTax'], allow),
+    [setFreeUtxos]: (state, { payload: freeUtxos }) =>
+      state.setIn(['data', 'freeUtxos'], freeUtxos)
   },
   initialState
 )

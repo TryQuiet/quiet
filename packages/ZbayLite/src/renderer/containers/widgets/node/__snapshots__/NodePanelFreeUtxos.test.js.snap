@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NodePanelFreeUtxos renders the field 1`] = `
+<Memo(WithStyles(NodePanelField))
+  name="FREE UTXO'S"
+  value="5"
+/>
+`;
+
+exports[`NodePanelFreeUtxos will receive right props 1`] = `
+Object {
+  "freeUtxos": 5,
+}
+`;

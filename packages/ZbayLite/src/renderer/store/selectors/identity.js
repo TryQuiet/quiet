@@ -28,6 +28,7 @@ const id = createSelector(data, d => d.id)
 const name = createSelector(data, d => d.name)
 
 const donationAllow = createSelector(data, d => d.donationAllow)
+const freeUtxos = createSelector(data, d => d.freeUtxos)
 const shieldingTax = createSelector(data, d => d.shieldingTax)
 const donationAddress = createSelector(data, d => d.donationAddress)
 
@@ -76,5 +77,6 @@ export default {
   donationAllow,
   donationAddress,
   donation,
-  shieldingTax
+  shieldingTax,
+  freeUtxos
 }
