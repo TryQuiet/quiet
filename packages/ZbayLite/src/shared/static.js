@@ -109,6 +109,7 @@ export const actionTypes = mirrorKey({
   SET_CHANNEL_DESCRIPTION: undefined,
   SET_CHANNEL_AD_FEE: undefined,
   SET_ADVERT_FEE: undefined,
+  SET_ONLY_REGISTERED: undefined,
   SET_FREE_UTXOS: undefined
 })
 

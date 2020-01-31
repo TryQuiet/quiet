@@ -76,7 +76,7 @@ const updateChannelSettings = values => async (dispatch, getState) => {
         updateChannelDescription: values.updateChannelDescription,
         updateChannelAddress: channel.address,
         updateMinFee: values.updateMinFee ? values.amountZec.toString() : '0',
-        updateOnlyRegistered: '0'
+        updateOnlyRegistered: values.updateOnlyRegistered ? '1' : '0'
       }
     },
     privKey

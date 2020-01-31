@@ -15,8 +15,11 @@ export const mapStateToProps = state => ({
   initialValues: {
     updateChannelDescription: channelSelector.data(state).get('description'),
     amountZec: channelSelector.advertFee(state),
-    amountUsd: (rate('usd')(state).toNumber() * channelSelector.advertFee(state)).toFixed(2),
-    updateMinFee: !!channelSelector.advertFee(state)
+    amountUsd: (
+      rate('usd')(state).toNumber() * channelSelector.advertFee(state)
+    ).toFixed(2),
+    updateMinFee: !!channelSelector.advertFee(state),
+    updateOnlyRegistered: channelSelector.onlyRegistered(state)
   }
 })
 export const mapDispatchToProps = dispatch =>

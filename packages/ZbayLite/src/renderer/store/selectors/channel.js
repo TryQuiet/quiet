@@ -28,6 +28,10 @@ export const advertFee = createSelector(
   data,
   (data) => data ? data.get('advertFee') : 0
 )
+export const onlyRegistered = createSelector(
+  data,
+  (data) => data ? data.get('onlyRegistered') : false
+)
 
 export const pendingMessages = createSelector(
   operationsSelectors.operations,
@@ -211,5 +215,6 @@ export default {
   getFilteredContext,
   messages,
   channelInfo,
-  advertFee
+  advertFee,
+  onlyRegistered
 }

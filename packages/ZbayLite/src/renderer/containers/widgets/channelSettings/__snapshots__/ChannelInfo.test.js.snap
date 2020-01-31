@@ -13,6 +13,7 @@ Object {
     "amountZec": 0.15,
     "updateChannelDescription": "Channel about channel-id",
     "updateMinFee": true,
+    "updateOnlyRegistered": undefined,
   },
   "rateUsd": 70.45230379033394,
   "rateZec": 0.014194,

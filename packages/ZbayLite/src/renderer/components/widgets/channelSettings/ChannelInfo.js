@@ -37,7 +37,7 @@ const styles = theme => ({
     width: '100%'
   },
   checkboxDiv: {
-    marginTop: 16
+    marginTop: 10
   },
   checkboxLabel: {
     fontSize: 14
@@ -77,7 +77,8 @@ export const formSchema = Yup.object().shape({
   amountZec: Yup.number()
     .max(1)
     .min(0),
-  updateMinFee: Yup.boolean()
+  updateMinFee: Yup.boolean(),
+  updateOnlyRegistered: Yup.boolean()
 })
 
 export const ChannelInfo = ({
@@ -118,6 +119,15 @@ export const ChannelInfo = ({
                         fullWidth
                         rows={5}
                         value={values.firstName}
+                      />
+                    </Grid>
+                    <Grid item className={classes.checkboxDiv}>
+                      <CheckboxWithLabel
+                        color='primary'
+                        name='updateOnlyRegistered'
+                        label='Allow only registered users to send messages'
+                        labelClass={classes.checkboxLabel}
+                        rootClass={classes.rootClass}
                       />
                     </Grid>
                     <Grid item className={classes.checkboxDiv}>
@@ -211,7 +221,8 @@ ChannelInfo.propTypes = {
     updateChannelDescription: PropTypes.string.isRequired,
     amountZec: PropTypes.number,
     amountUsd: PropTypes.number,
-    updateMinFee: PropTypes.bool.isRequired
+    updateMinFee: PropTypes.bool.isRequired,
+    updateOnlyRegistered: PropTypes.bool.isRequired
   }).isRequired,
   updateChannelSettings: PropTypes.func.isRequired,
   rateZec: PropTypes.number.isRequired,

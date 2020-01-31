@@ -545,6 +545,7 @@ Immutable.List [
   Immutable.Map {
     "private": true,
     "name": "Channel 2",
+    "onlyRegistered": false,
     "unread": 2,
     "lastSeen": "2019-03-07T13:03:48.000Z",
     "advertFee": 0,
@@ -559,6 +560,7 @@ Immutable.List [
   Immutable.Map {
     "private": true,
     "name": "Channel 1",
+    "onlyRegistered": false,
     "unread": 1,
     "lastSeen": "2019-03-07T13:03:48.000Z",
     "advertFee": 0,
@@ -573,6 +575,7 @@ Immutable.List [
   Immutable.Map {
     "private": true,
     "name": "Channel 0",
+    "onlyRegistered": false,
     "unread": 0,
     "lastSeen": "2019-03-07T13:03:48.000Z",
     "advertFee": 0,

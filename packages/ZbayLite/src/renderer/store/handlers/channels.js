@@ -38,7 +38,11 @@ const loadChannels = createAction(
   actionTypes.LOAD_IDENTITY_CHANNELS,
   async id => {
     const channels = await getVault().channels.listChannels(id)
-    return channels.map(channel => ({ ...channel, advertFee: 0 }))
+    return channels.map(channel => ({
+      ...channel,
+      advertFee: 0,
+      onlyRegistered: false
+    }))
   }
 )
 const loadChannelsToNode = createAction(
@@ -61,7 +65,11 @@ const loadChannelsToNode = createAction(
         )
     )
 
-    return channels.map(channel => ({ ...channel, advertFee: 0 }))
+    return channels.map(channel => ({
+      ...channel,
+      advertFee: 0,
+      onlyRegistered: false
+    }))
   }
 )
 
@@ -70,6 +78,7 @@ const setDescription = createAction(actionTypes.SET_CHANNEL_DESCRIPTION)
 const setUnread = createAction(actionTypes.SET_CHANNEL_UNREAD)
 const setShowInfoMsg = createAction(actionTypes.SET_SHOW_INFO_MSG)
 const setAdvertFee = createAction(actionTypes.SET_ADVERT_FEE)
+const setOnlyRegistered = createAction(actionTypes.SET_ONLY_REGISTERED)
 
 export const actions = {
   loadChannels,
@@ -77,7 +86,8 @@ export const actions = {
   setUnread,
   loadChannelsToNode,
   setDescription,
-  setAdvertFee
+  setAdvertFee,
+  setOnlyRegistered
 }
 
 const _createChannel = async (identityId, { name, description }) => {
@@ -201,6 +211,12 @@ const updateSettings = ({ channelId, time, data }) => async (
   dispatch(
     setDescription({ channelId, description: data.updateChannelDescription })
   )
+  dispatch(
+    setOnlyRegistered({
+      channelId,
+      onlyRegistered: !!parseInt(data.updateOnlyRegistered)
+    })
+  )
   dispatch(setAdvertFee({ channelId, advertFee: data.updateMinFee }))
 }
 
@@ -254,6 +270,17 @@ export const reducer = handleActions(
         channel => channel.get('id') === channelId
       )
       return state.updateIn(['data', index], ch => ch.set('lastSeen', lastSeen))
+    },
+    [setOnlyRegistered]: (
+      state,
+      { payload: { channelId, onlyRegistered } }
+    ) => {
+      const index = state.data.findIndex(
+        channel => channel.get('id') === channelId
+      )
+      return state.updateIn(['data', index], ch =>
+        ch.set('onlyRegistered', onlyRegistered)
+      )
     },
     [setAdvertFee]: (state, { payload: { channelId, advertFee } }) => {
       const index = state.data.findIndex(
