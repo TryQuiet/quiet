@@ -126,7 +126,7 @@ exports[`ModeratorActionsPopper renders 1`] = `
             className="action-mock"
             variant="body1"
           >
-            Ban user
+            Silence user
           </WithStyles(ForwardRef(Typography))>
         </WithStyles(ForwardRef(Grid))>
       </WithStyles(ForwardRef(Grid))>

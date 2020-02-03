@@ -153,7 +153,7 @@ export const ModeratorActionsPopper = ({
           </Grid>
           <Grid item xs>
             <Typography variant='body1' className={classes.action}>
-              Ban user
+              Silence user
             </Typography>
           </Grid>
         </Grid>
