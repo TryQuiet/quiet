@@ -182,7 +182,8 @@ const createWindow = () => {
     titleBarStyle: 'hidden',
     webPreferences: {
       nodeIntegration: true
-    }
+    },
+    autoHideMenuBar: true
   })
   mainWindow.setMinimumSize(600, 400)
   mainWindow.loadURL(
@@ -448,9 +449,15 @@ app.on('ready', async () => {
       ]
     }
   ]
-  const menu = Menu.buildFromTemplate(template)
-  Menu.setApplicationMenu(menu)
-
+  // app.on(`browser-window-created`, (e, window) => {
+  //   mainWindow.setMenu(null)
+  // })
+  if (process.platform === 'darwin') {
+    const menu = Menu.buildFromTemplate(template)
+    Menu.setApplicationMenu(menu)
+  } else {
+    Menu.setApplicationMenu(null)
+  }
   globalShortcut.register('F11', () => {
     mainWindow.webContents.send('toggleCoordinator', {})
   })
