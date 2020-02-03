@@ -1,4 +1,4 @@
-import { URI_PREFIX, uriToChannel } from './channels'
+import { uriToChannel } from './channels'
 import { deflate } from '../compression'
 
 describe('channels', () => {
@@ -16,7 +16,7 @@ describe('channels', () => {
 
     it('decodes the channel', async () => {
       const hash = await deflate(channel)
-      const uri = `${URI_PREFIX}${hash}`
+      const uri = `${hash}`
 
       const result = await uriToChannel(uri)
 
@@ -24,7 +24,7 @@ describe('channels', () => {
     })
 
     it('fails on incorrect uri', async () => {
-      const uri = `${URI_PREFIX}randomhash`
+      const uri = `randomhash`
 
       expect.assertions(1)
       try {
@@ -36,7 +36,7 @@ describe('channels', () => {
 
     it('fails on incorrect channel format', async () => {
       const channelHash = await deflate({ key: 'value' })
-      const uri = `${URI_PREFIX}${channelHash}`
+      const uri = `${channelHash}`
 
       expect.assertions(1)
       try {

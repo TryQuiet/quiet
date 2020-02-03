@@ -1,4 +1,3 @@
-import * as R from 'ramda'
 import * as Yup from 'yup'
 
 import { inflate, deflate } from '../compression'
@@ -34,11 +33,7 @@ const _inflateOrThrow = async (hash) => {
 }
 
 export const uriToChannel = async (uri) => {
-  const hash = (
-    R.startsWith(URI_PREFIX)
-      ? uri.substring(URI_PREFIX.length)
-      : uri
-  )
+  const hash = uri
   const channel = await _inflateOrThrow(hash)
   try {
     const validated = await channelSchema.validate(channel)

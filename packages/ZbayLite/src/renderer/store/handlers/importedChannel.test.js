@@ -19,7 +19,6 @@ import { NodeState } from './node'
 import zbayChannels from '../../zcash/channels'
 import { ChannelsState } from './channels'
 import { ChannelState } from './channel'
-import { DOMAIN } from '../../../shared/static'
 
 describe('Imported channel reducer handles', () => {
   let store = null
@@ -55,7 +54,7 @@ describe('Imported channel reducer handles', () => {
     jest.clearAllMocks()
   })
 
-  const channelUri = `https://${DOMAIN}/importchannel=eJxNj0tuhDAQRK9ieR1FE36BXCAXyCq7BtoY3DRg9zBjj+bucZRNpJJKqkXVq4dmWFF/6E9k9ED6RcM4egwhZ0kwSICdZp7eGqxu6I4l3ttLXJZkiipJNCTFUIs0cErFRiZemq7iFut7a1K9+w6XMJbU0RpXU3TOLuzyyIhh8PMu88Z56MvOQWWBmv4w1GCBGUnBCTNBT6hkU0CkrgF9UJtR3z1E1Uc1ooEryWsudRgz9kPPp/ulz/b/wF77vRhSEmphBTrWerLptL6s+dLaojntbvlW3BvXluKNvIcjcHe4sdHP5w8SWGnS`
+  const channelUri = `eJxNj0tuhDAQRK9ieR1FE36BXCAXyCq7BtoY3DRg9zBjj+bucZRNpJJKqkXVq4dmWFF/6E9k9ED6RcM4egwhZ0kwSICdZp7eGqxu6I4l3ttLXJZkiipJNCTFUIs0cErFRiZemq7iFut7a1K9+w6XMJbU0RpXU3TOLuzyyIhh8PMu88Z56MvOQWWBmv4w1GCBGUnBCTNBT6hkU0CkrgF9UJtR3z1E1Uc1ooEryWsudRgz9kPPp/ulz/b/wF77vRhSEmphBTrWerLptL6s+dLaojntbvlW3BvXluKNvIcjcHe4sdHP5w8SWGnS`
 
   describe('actions', () => {
     it('handles setData', async () => {

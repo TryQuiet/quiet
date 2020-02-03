@@ -14,6 +14,7 @@ import { messages } from '../../zbay'
 import { donationTarget } from '../../zcash/donation'
 import { actionCreators } from './modals'
 import { DOMAIN, networkFee, actionTypes } from '../../../shared/static'
+import nodeSelectors from '../selectors/node'
 
 export const getInvitationUrl = invitation =>
   `https://${DOMAIN}/invitation=${encodeURIComponent(invitation)}`
@@ -93,9 +94,13 @@ export const handleInvitation = invitationPacked => async (
   try {
     const identityAddress = identitySelectors.address(getState())
     const invitation = await inflate(invitationPacked)
+    const lastblock = nodeSelectors.latestBlock(getState())
+    const fetchTreshold = lastblock - 2000
     await invitationSchema.validate(invitation)
     if (invitation.sk) {
-      await getClient().keys.importSK({ sk: invitation.sk })
+      await getClient().keys.importSK({
+        sk: invitation.sk,
+        startHeight: fetchTreshold })
       const amount = await getClient().accounting.balance(invitation.address)
       if (amount.gt(networkFee)) {
         const transfer = messages.createEmptyTransfer({

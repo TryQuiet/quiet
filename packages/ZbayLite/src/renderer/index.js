@@ -80,7 +80,7 @@ ipcRenderer.on('newChannel', (event, { channelParams }) => {
   if (nodeSelectors.status(store.getState()) === 'healthy') {
     store.dispatch(
       importChannelHandlers.epics.decodeChannel(
-        `https://zbay.rumblefish.dev/importchannel=${channelParams}`
+        `${channelParams}`
       )
     )
   } else {

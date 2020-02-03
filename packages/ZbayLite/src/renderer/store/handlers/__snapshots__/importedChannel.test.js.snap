@@ -32,7 +32,7 @@ Immutable.List [
       "variant": "error",
       "action": [Function],
     },
-    "message": "Invalid channel URI: Invalid channel hash: ",
+    "message": "Invalid channel URI: Invalid channel hash: incorrect-uri",
   },
 ]
 `;
