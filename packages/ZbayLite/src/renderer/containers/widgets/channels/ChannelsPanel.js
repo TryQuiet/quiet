@@ -53,7 +53,7 @@ export const ChannelsPanel = ({
         <BaseChannelsList {...props} />
       </Grid>
       <Grid item>
-        <MoreButton tooltipText='Find more channels' action={openJoinChannel} />
+        <MoreButton tooltipText='More channels' action={openJoinChannel} />
       </Grid>
       <Grid item>
         <QuickActionButton

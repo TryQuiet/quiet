@@ -40,7 +40,6 @@ exports[`ImportedChannel renders private channel 1`] = `
           }
         }
         content="testaddress"
-        interactive={true}
         tooltipPlacement="bottom-start"
       />
     </WithStyles(ForwardRef(Grid))>
@@ -134,7 +133,6 @@ exports[`ImportedChannel renders public channel 1`] = `
           }
         }
         content="testaddress"
-        interactive={true}
         tooltipPlacement="bottom-start"
       />
     </WithStyles(ForwardRef(Grid))>

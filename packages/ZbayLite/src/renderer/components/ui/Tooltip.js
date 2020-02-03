@@ -161,7 +161,7 @@ Tooltip.propTypes = {
 
 Tooltip.defaultProps = {
   noWrap: true,
-  interactive: true,
+  interactive: false,
   className: '',
   placement: 'bottom',
   onClick: () => {}

@@ -67,7 +67,6 @@ export const ImportedChannel = ({
               ) : null}
             </Grid>
             <Elipsis
-              interactive
               content={channel.get('address')}
               tooltipPlacement='bottom-start'
               classes={{ content: classes.uri }}

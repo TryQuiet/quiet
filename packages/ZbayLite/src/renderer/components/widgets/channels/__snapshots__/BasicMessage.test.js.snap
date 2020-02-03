@@ -261,7 +261,6 @@ exports[`BasicMessage renders component with status failed 1`] = `
                   }
                 }
                 content="Error -2: This is some kind of error message"
-                interactive={true}
                 length={60}
                 tooltipPlacement="top"
               />

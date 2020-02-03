@@ -23,7 +23,7 @@ exports[`Tooltip renders component 1`] = `
         "tooltip": "noWrap-mock tooltip-mock",
       }
     }
-    interactive={true}
+    interactive={false}
     placement="bottom"
     title={
       <React.Fragment>
@@ -66,7 +66,7 @@ exports[`Tooltip renders component with correct arrow placement - bottom 1`] = `
         "tooltip": "noWrap-mock tooltip-mock",
       }
     }
-    interactive={true}
+    interactive={false}
     placement="bottom"
     title={
       <React.Fragment>
@@ -109,7 +109,7 @@ exports[`Tooltip renders component with correct arrow placement - bottom-end 1`]
         "tooltip": "noWrap-mock tooltip-mock",
       }
     }
-    interactive={true}
+    interactive={false}
     placement="bottom-end"
     title={
       <React.Fragment>
@@ -152,7 +152,7 @@ exports[`Tooltip renders component with correct arrow placement - bottom-start 1
         "tooltip": "noWrap-mock tooltip-mock",
       }
     }
-    interactive={true}
+    interactive={false}
     placement="bottom-start"
     title={
       <React.Fragment>
@@ -195,7 +195,7 @@ exports[`Tooltip renders component with correct arrow placement - top 1`] = `
         "tooltip": "noWrap-mock tooltip-mock",
       }
     }
-    interactive={true}
+    interactive={false}
     placement="top"
     title={
       <React.Fragment>
@@ -238,7 +238,7 @@ exports[`Tooltip renders component with correct arrow placement - top-end 1`] = 
         "tooltip": "noWrap-mock tooltip-mock",
       }
     }
-    interactive={true}
+    interactive={false}
     placement="top-end"
     title={
       <React.Fragment>
@@ -281,7 +281,7 @@ exports[`Tooltip renders component with correct arrow placement - top-start 1`] 
         "tooltip": "noWrap-mock tooltip-mock",
       }
     }
-    interactive={true}
+    interactive={false}
     placement="top-start"
     title={
       <React.Fragment>

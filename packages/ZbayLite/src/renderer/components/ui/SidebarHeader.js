@@ -59,7 +59,7 @@ export const SidebarHeader = ({
       <Grid item>
         {actionTitle ? (
           <Tooltip
-            title='Find more channels'
+            title='More channels'
             className={classes.tooltip}
             placement='bottom'
           >

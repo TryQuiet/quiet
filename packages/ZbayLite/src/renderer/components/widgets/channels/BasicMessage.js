@@ -214,7 +214,6 @@ export const BasicMessage = ({
                   )}
                   {status === 'failed' ? (
                     <Elipsis
-                      interactive
                       content={`Error ${error.code}: ${error.message}`}
                       tooltipPlacement='top'
                       length={60}
