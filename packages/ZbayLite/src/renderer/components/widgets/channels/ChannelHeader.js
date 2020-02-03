@@ -20,8 +20,6 @@ import IconButton from '../../ui/IconButton'
 const styles = theme => ({
   root: {
     height: '75px',
-    paddingTop: 16,
-    paddingBottom: 36,
     paddingLeft: 20,
     paddingRight: 24,
     borderBottom: `1px solid ${theme.palette.colors.veryLightGray}`
