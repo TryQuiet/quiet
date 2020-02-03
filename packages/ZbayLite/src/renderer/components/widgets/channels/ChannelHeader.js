@@ -19,11 +19,12 @@ import IconButton from '../../ui/IconButton'
 
 const styles = theme => ({
   root: {
-    minHeight: '100%',
+    height: '75px',
     paddingTop: 16,
     paddingBottom: 36,
     paddingLeft: 20,
-    paddingRight: 24
+    paddingRight: 24,
+    borderBottom: `1px solid ${theme.palette.colors.veryLightGray}`
   },
   title: {
     fontSize: '1rem',
@@ -67,15 +68,12 @@ const styles = theme => ({
     maxHeight: 0
   },
   descriptionDiv: {
-    position: 'absolute',
     top: 75,
     padding: `12px 25px 12px 20px`,
     backgroundColor: theme.palette.colors.white,
     boxShadow: `0px 1px 0px ${theme.palette.colors.veryLightGray}`
   },
-  wrapper: {
-    position: 'relative'
-  },
+  wrapper: {},
   iconDiv: {
     marginLeft: 12
   },

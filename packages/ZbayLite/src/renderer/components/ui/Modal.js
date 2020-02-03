@@ -59,7 +59,7 @@ const styles = theme => ({
   window: {},
   bold: {
     fontSize: 16,
-    lineHeight: 26,
+    lineHeight: '26px',
     fontWeight: 500
   }
 })
@@ -148,7 +148,8 @@ Modal.propTypes = {
 Modal.defaultProps = {
   fullPage: false,
   canGoBack: false,
-  isBold: false
+  isBold: false,
+  alignCloseLeft: false
 }
 
 export default R.compose(
