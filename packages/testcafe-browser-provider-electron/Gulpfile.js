@@ -16,6 +16,7 @@ var APP_DIR             = path.join(__dirname, 'test/data/test-app-regular');
 var ASAR_ARCHIVE_PATH   = path.join(__dirname, 'test/data/test-app.asar');
 var CONFIG_PATH_REGULAR = path.join(__dirname, 'test/data/app-config-regular');
 var CONFIG_PATH_ASAR    = path.join(__dirname, 'test/data/app-config-asar');
+var CONFIG_PATH_JS      = path.join(__dirname, 'test/data/app-config-js');
 
 function clean () {
     return del(['lib', '.screenshots']);
@@ -54,11 +55,24 @@ function testAsarApp () {
     return childProcess.spawn('testcafe', ['electron:' + CONFIG_PATH_ASAR, 'test/fixtures/**/*-test.js', '-s', '.screenshots'], { shell: true, stdio: 'inherit' });
 }
 
+function testJsConfig () {
+    delete process.env.ASAR_MODE;
+
+    return childProcess.spawn('testcafe', ['electron:' + CONFIG_PATH_JS, 'test/fixtures/**/*-test.js', '-s', '.screenshots'], { shell: true, stdio: 'inherit' });
+}
+function testJsConfigSpecifically () {
+    delete process.env.ASAR_MODE;
+
+    return childProcess.spawn('testcafe', ['electron:' + CONFIG_PATH_JS + '/.testcafe-electron-rc.js', 'test/fixtures/**/*-test.js', '-s', '.screenshots'], { shell: true, stdio: 'inherit' });
+}
+
 exports.lint  = lint;
 exports.build = gulp.parallel(lint, gulp.series(clean, build));
 exports.test  = gulp.series(
     exports.build,
     testRegularApp,
+    testJsConfigSpecifically,
+    testJsConfig,
     'pack-to-asar-archive',
     testAsarApp
 );
