@@ -4,6 +4,8 @@ import { moderationActionsType, messageType } from '../../shared/static'
 const currentNetwork = parseInt(process.env.ZBAY_IS_TESTNET) ? 2 : 1
 
 export const MEMO_SIZE = 512
+const MEMO_FORMAT_FLAG_SIZE = 1
+const MEMO_FORMAT_FLAG_VALUE = 255 // 0xFF
 const TYPE_SIZE = 1
 const SIGNATURE_SIZE = 64
 const SIGNATURE_R_SIZE = 1
@@ -13,15 +15,14 @@ const PUBLIC_KEY_SIZE = 66
 const TXID_SIZE = 64
 
 export const MESSAGE_SIZE =
-  MEMO_SIZE - (TIMESTAMP_SIZE + SIGNATURE_SIZE + SIGNATURE_R_SIZE + TYPE_SIZE)
-
-export const MESSAGE_ITEM_SIZE =
   MEMO_SIZE -
   (TIMESTAMP_SIZE +
     SIGNATURE_SIZE +
     SIGNATURE_R_SIZE +
     TYPE_SIZE +
-    LINKED_ITEM_SIZE)
+    MEMO_FORMAT_FLAG_SIZE)
+
+export const MESSAGE_ITEM_SIZE = MESSAGE_SIZE - LINKED_ITEM_SIZE
 
 export const ADDRESS_TYPE = {
   SHIELDED_MAINNET: 1,
@@ -105,6 +106,8 @@ const moderationTypeToSize = {
   [moderationActionsType.REMOVE_MESSAGE]: TXID_SIZE
 }
 export const packMemo = async message => {
+  const formatFlag = Buffer.alloc(MEMO_FORMAT_FLAG_SIZE)
+  formatFlag.writeUInt8(MEMO_FORMAT_FLAG_VALUE)
   const type = Buffer.alloc(TYPE_SIZE)
   type.writeUInt8(message.type)
   const signatureData = message.signature
@@ -250,15 +253,27 @@ export const packMemo = async message => {
       break
   }
 
-  const result = Buffer.concat([type, signatureData, r, ts, msgData])
+  const result = Buffer.concat([
+    formatFlag,
+    type,
+    signatureData,
+    r,
+    ts,
+    msgData
+  ])
   return result.toString('hex')
 }
 
 export const unpackMemo = async memo => {
   const memoBuff = Buffer.from(memo, 'hex')
 
-  const typeEnds = TYPE_SIZE
-  const type = memoBuff.slice(0, typeEnds).readUInt8()
+  const formatFlagEnds = MEMO_FORMAT_FLAG_SIZE
+  const formatFlag = memoBuff.slice(0, formatFlagEnds).readUInt8()
+  if (formatFlag !== MEMO_FORMAT_FLAG_VALUE) {
+    return null
+  }
+  const typeEnds = TYPE_SIZE + MEMO_FORMAT_FLAG_SIZE
+  const type = memoBuff.slice(formatFlagEnds, typeEnds).readUInt8()
 
   const signatureEnds = typeEnds + SIGNATURE_SIZE
   const signature = memoBuff.slice(typeEnds, signatureEnds)
