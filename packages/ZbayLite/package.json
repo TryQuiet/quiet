@@ -45,14 +45,14 @@
     "extraResources": "zcash/**/*"
   },
   "homepage": "https://gitlab.rumblefishdev.com/holmes/zbay",
-  "version": "0.9.96-dev-2",
+  "version": "1.0.5-dev-linux-16-2",
   "description": "Distributed goods and bulletin board",
   "main": "dist/main.js",
   "scripts": {
     "dist": "export SOURCE_PATH=darwin && export TARGET_PATH=darwin && npm run pullBinaries && npm run build:prod && electron-builder --mac",
     "disttest": "export SOURCE_PATH=darwin && export TARGET_PATH=darwin && npm run pullBinaries && npm run build:prod && electron-builder --mac",
-    "distUbuntu16": "export SOURCE_PATH=linux/ubuntu16 && export TARGET_PATH=linux && npm run pullBinaries && npm run build:prod && electron-builder --linux",
-    "distUbuntu18": "export SOURCE_PATH=linux/ubuntu18 && export TARGET_PATH=linux && npm run pullBinaries && npm run build:prod && electron-builder --linux",
+    "distUbuntu16": "export SOURCE_PATH=linux/ubuntu16 && export TARGET_PATH=linux && npm run pullBinaries && npm run build:prod && electron-builder -p always --linux",
+    "distUbuntu18": "export SOURCE_PATH=linux/ubuntu18 && export TARGET_PATH=linux && npm run pullBinaries && npm run build:prod && electron-builder -p always --linux",
     "distwin": "export SOURCE_PATH=win32 && export TARGET_PATH=win32 && npm run pullBinariesWin && npm run build:prod && electron-builder --win",
     "pullResources": "./zcash/win32/zcash-fetch-params",
     "pullBinaries": "wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/zcashd -P ./zcash/$TARGET_PATH/ && wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/zcash-fetch-params -P ./zcash/$TARGET_PATH/",

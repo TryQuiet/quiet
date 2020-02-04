@@ -75,7 +75,7 @@ exports[`SyncLoader renders component 1`] = `
             className="status-mock"
             variant="caption"
           >
-            Syncing,  (NaN MB/s)
+            Syncing,   (NaN MB/s)
           </WithStyles(ForwardRef(Typography))>
         </WithStyles(ForwardRef(Grid))>
       </WithStyles(ForwardRef(Grid))>

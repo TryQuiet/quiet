@@ -52,7 +52,7 @@ export const SyncLoader = ({ setVaultIdentity, hasAddress, node, getStatus, boot
     [nodeConnected, fetchingStatus, fetchingPart, locked]
   )
   const blockchainStatus = electronStore.get('AppStatus.blockchain.status')
-  return (locked || (node.latestBlock.lt(400000) || node.currentBlock.div(node.latestBlock).lt(0.98))) ? (
+  return (locked || (node.latestBlock.lt(400000) || node.latestBlock.minus(node.currentBlock).gt(10))) ? (
     <SyncLoaderComponent fetchingEndTime={fetchingEndTime} fetchingSpeed={fetchingSpeed} hasAddress={hasAddress} node={node} blockchainStatus={blockchainStatus} bootstrapping={bootstrapping} bootstrappingMessage={bootstrappingMessage} openModal={openModal} nodeConnected={nodeConnected} fetchingPart={fetchingPart} fetchingSizeLeft={fetchingSizeLeft} fetchingStatus={fetchingStatus} />
   ) : (
     <Redirect to='/main/channel/general' />

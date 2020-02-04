@@ -87,7 +87,7 @@ export const SyncLoader = ({ classes, hasAddress, blockchainStatus, node, bootst
   let ETA = null
   if (fetchingEndTime) {
     const { hours, minutes } = fetchingEndTime
-    ETA = `${hours ? `${hours}h` : ''} ${minutes ? `${minutes}m` : ''} left`
+    ETA = `${hours ? `${hours}h` : ''} ${minutes ? `${minutes}m left` : ''}`
   }
   return (
     <WindowWrapper className={classes.root}>
@@ -110,7 +110,7 @@ export const SyncLoader = ({ classes, hasAddress, blockchainStatus, node, bootst
         </Grid>
         <Grid item container>
           <Grid item container justify='center' alignItems='center'>
-            <LinearProgress variant={'determinate'} classes={{ root: classes.rootBar, barColorPrimary: classes.progressBar }} value={nodeConnected ? sync : fetching} />
+            <LinearProgress variant={fetchingStatus === 'SUCCESS' || blockchainStatus === 'SUCCESS' ? 'indeterminate' : 'determinate'} classes={{ root: classes.rootBar, barColorPrimary: classes.progressBar }} value={nodeConnected ? sync : fetching} />
           </Grid>
           <Grid item xs={12} className={classes.statusDiv}>
             {bootstrapping ? <Typography variant='caption' className={classes.status}>
@@ -118,11 +118,11 @@ export const SyncLoader = ({ classes, hasAddress, blockchainStatus, node, bootst
             </Typography> : fetchingStatus !== 'SUCCESS' && blockchainStatus !== 'SUCCESS' ? (
               <Grid item container justify='center' alignItems='center' wrap={'wrap'}>
                 <Typography variant='caption' className={classes.status}>
-                  {`Syncing, ${ETA || ''} (${(fetchingSpeed / 1024 ** 2).toFixed(2)} MB/s)`}
+                  {`Syncing,  ${ETA || ''} (${(fetchingSpeed / 1024 ** 2).toFixed(2)} MB/s)`}
                 </Typography>
               </Grid>
             ) : <Typography variant='caption' className={classes.status}>
-              {`${node.connections.toString()} Connections. Fetching block ${node.currentBlock} / ~${lastBlock}`}
+              {`Rescan and final sync...`}
             </Typography>}
           </Grid>
         </Grid>
