@@ -45,6 +45,10 @@ export const VaultCreator = ({
       validationSchema={formSchema}
       initialValues={initialValues}
       validate={validateForm}
+      onSubmit={values => {
+        storePass(values.password)
+        setPasswordPosted(true)
+      }}
     >
       {({ errors, isSubmitting, values, isValid }) => {
         return (
@@ -79,13 +83,15 @@ export const VaultCreator = ({
                   size='large'
                   color='primary'
                   margin='normal'
-                  onClick={() => {
-                    storePass(values.password)
-                    setPasswordPosted(true)
-                  }}
+                  type='submit'
                   fullWidth
-                  inProgress={(finished === false) || (passwordPosted && !isVaultCreationComplete)}
-                  disabled={!isValid || (passwordPosted && !isVaultCreationComplete)}
+                  inProgress={
+                    finished === false ||
+                    (passwordPosted && !isVaultCreationComplete)
+                  }
+                  disabled={
+                    !isValid || (passwordPosted && !isVaultCreationComplete)
+                  }
                 />
               </Grid>
             </Grid>

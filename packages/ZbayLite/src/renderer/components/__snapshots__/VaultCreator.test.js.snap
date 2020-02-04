@@ -11,6 +11,7 @@ exports[`VaultCreator passes initial values 1`] = `
     }
   }
   isInitialValid={false}
+  onSubmit={[Function]}
   validate={[Function]}
   validateOnBlur={true}
   validateOnChange={true}
@@ -127,6 +128,7 @@ exports[`VaultCreator renders component 1`] = `
     }
   }
   isInitialValid={false}
+  onSubmit={[Function]}
   validate={[Function]}
   validateOnBlur={true}
   validateOnChange={true}
