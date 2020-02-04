@@ -88,16 +88,18 @@ export const checkConfirmationNumber = async ({ opId, status, txId, dispatch, ge
     )
     await dispatch(operationsHandlers.actions.removeOperation(opId))
   } else {
-    await getVault().contacts.saveMessage({
-      identityId: id,
-      identityAddress: address,
-      identityName: userData ? userData.nickname : name,
-      message: messageContent,
-      recipientAddress,
-      recipientUsername,
-      status,
-      txId
-    })
+    if (address !== recipientAddress) {
+      await getVault().contacts.saveMessage({
+        identityId: id,
+        identityAddress: address,
+        identityName: userData ? userData.nickname : name,
+        message: messageContent,
+        recipientAddress,
+        recipientUsername,
+        status,
+        txId
+      })
+    }
     const { username } = contactsSelectors.contact(recipientAddress)(getState())
     if (!username) {
       dispatch(

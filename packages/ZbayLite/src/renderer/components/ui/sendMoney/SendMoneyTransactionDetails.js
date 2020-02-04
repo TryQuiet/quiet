@@ -27,7 +27,8 @@ const styles = theme => ({
     marginBottom: 24
   },
   value: {
-    padding: 16
+    padding: 16,
+    wordBreak: 'break-all'
   },
   field: {
     borderBottom: `1px solid ${theme.palette.colors.veryLightGray}`
