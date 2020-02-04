@@ -8,6 +8,7 @@ import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
 import Clear from '@material-ui/icons/Clear'
 import { Tabs, Tab } from '@material-ui/core'
+import classNames from 'classnames'
 
 import ChannelInfoModal from '../../../containers/widgets/channels/ChannelInfoModal'
 import DirectMessagesInfoModal from '../../../containers/widgets/channels/DirectMessagesInfoModal'
@@ -77,6 +78,9 @@ const styles = theme => ({
   },
   iconButton: {
     padding: 0
+  },
+  bold: {
+    fontWeight: 500
   }
 })
 
@@ -84,6 +88,12 @@ export const channelTypeToActions = {
   [CHANNEL_TYPE.OFFER]: OfferMenuActions,
   [CHANNEL_TYPE.DIRECT_MESSAGE]: DirectMessagesMenuActions,
   [CHANNEL_TYPE.NORMAL]: ChannelMenuAction
+}
+
+const prefix = {
+  [CHANNEL_TYPE.OFFER]: '',
+  [CHANNEL_TYPE.DIRECT_MESSAGE]: '@',
+  [CHANNEL_TYPE.NORMAL]: '#'
 }
 
 // TODO: [reafactoring] we should have channel stats for unread and members count
@@ -111,8 +121,14 @@ export const ChannelHeader = ({
         direction='row'
       >
         <Grid item>
-          <Typography variant='subtitle1' className={classes.title}>
-            {channel.get('name')}
+          <Typography
+            variant='subtitle1'
+            className={classNames({
+              [classes.title]: true,
+              [classes.bold]: true
+            })}
+          >
+            {`${prefix[channelType]}${channel.get('name')}`}
           </Typography>
           {!R.isNil(members) ? (
             <Typography variant='caption' className={classes.subtitle}>

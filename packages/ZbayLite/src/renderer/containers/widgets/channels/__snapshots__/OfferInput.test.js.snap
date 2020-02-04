@@ -11,5 +11,6 @@ exports[`ChannelInput will receive right props 1`] = `
 Object {
   "inputState": 0,
   "message": "This is a test message",
+  "offerName": "testname",
 }
 `;

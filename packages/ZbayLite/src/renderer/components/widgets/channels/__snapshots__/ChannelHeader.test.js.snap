@@ -15,10 +15,10 @@ exports[`ChannelHeader renders component 1`] = `
       item={true}
     >
       <WithStyles(ForwardRef(Typography))
-        className="title-mock"
+        className="title-mock bold-mock"
         variant="subtitle1"
       >
-        Channel 1
+        #Channel 1
       </WithStyles(ForwardRef(Typography))>
     </WithStyles(ForwardRef(Grid))>
     <WithStyles(ForwardRef(Grid))
@@ -58,10 +58,10 @@ exports[`ChannelHeader renders members when 0 1`] = `
       item={true}
     >
       <WithStyles(ForwardRef(Typography))
-        className="title-mock"
+        className="title-mock bold-mock"
         variant="subtitle1"
       >
-        Channel 1
+        #Channel 1
       </WithStyles(ForwardRef(Typography))>
       <WithStyles(ForwardRef(Typography))
         className="subtitle-mock"
@@ -108,10 +108,10 @@ exports[`ChannelHeader renders without members count 1`] = `
       item={true}
     >
       <WithStyles(ForwardRef(Typography))
-        className="title-mock"
+        className="title-mock bold-mock"
         variant="subtitle1"
       >
-        Channel 1
+        #Channel 1
       </WithStyles(ForwardRef(Typography))>
       <WithStyles(ForwardRef(Typography))
         className="subtitle-mock"

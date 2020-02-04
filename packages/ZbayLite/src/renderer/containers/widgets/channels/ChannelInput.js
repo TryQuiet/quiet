@@ -6,15 +6,19 @@ import ChannelInputComponent from '../../../components/widgets/channels/ChannelI
 import channelHandlers from '../../../store/handlers/channel'
 import messagesQueueHandlers from '../../../store/handlers/messagesQueue'
 import channelSelectors from '../../../store/selectors/channel'
+import { MESSAGE_SIZE } from '../../../zbay/transit'
 
-export const mapStateToProps = (state, { contactId }) => {
+export const mapStateToProps = state => {
   return {
     message: channelSelectors.message(state),
-    inputState: channelSelectors.inputLocked(state)
+    inputState: channelSelectors.inputLocked(state),
+    channelName: channelSelectors.data(state)
+      ? channelSelectors.data(state).get('name')
+      : ' Unnamed'
   }
 }
 
-export const mapDispatchToProps = (dispatch, { contactId }) => {
+export const mapDispatchToProps = dispatch => {
   return bindActionCreators(
     {
       onChange: channelHandlers.actions.setMessage,
@@ -29,6 +33,7 @@ export const ChannelInput = ({
   sendOnEnter,
   message,
   inputState,
+  channelName,
   resetDebounce
 }) => {
   const [infoClass, setInfoClass] = React.useState(null)
@@ -43,6 +48,8 @@ export const ChannelInput = ({
       onKeyPress={sendOnEnter}
       message={message}
       inputState={inputState}
+      channelName={`#${channelName}`}
+      messageLimit={MESSAGE_SIZE}
     />
   )
 }

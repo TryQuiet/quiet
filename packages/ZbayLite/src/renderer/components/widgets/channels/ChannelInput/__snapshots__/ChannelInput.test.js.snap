@@ -64,6 +64,7 @@ exports[`ChannelInput renders component input Disable  1`] = `
         inputProps={
           Object {
             "className": "input-mock",
+            "maxLength": 200,
           }
         }
         inputRef={
@@ -75,7 +76,7 @@ exports[`ChannelInput renders component input Disable  1`] = `
         multiline={true}
         onChange={[MockFunction]}
         onKeyPress={[Function]}
-        placeholder="Send a message"
+        placeholder="Message test"
         rowsMax={5}
         value="this is just a test message"
         variant="outlined"
@@ -149,6 +150,7 @@ exports[`ChannelInput renders component input Locked  1`] = `
         inputProps={
           Object {
             "className": "input-mock",
+            "maxLength": 200,
           }
         }
         inputRef={
@@ -160,7 +162,7 @@ exports[`ChannelInput renders component input Locked  1`] = `
         multiline={true}
         onChange={[MockFunction]}
         onKeyPress={[Function]}
-        placeholder="Send a message"
+        placeholder="Message test"
         rowsMax={5}
         value="this is just a test message"
         variant="outlined"
@@ -213,6 +215,7 @@ exports[`ChannelInput renders component input available  1`] = `
         inputProps={
           Object {
             "className": "input-mock",
+            "maxLength": 200,
           }
         }
         inputRef={
@@ -224,7 +227,7 @@ exports[`ChannelInput renders component input available  1`] = `
         multiline={true}
         onChange={[MockFunction]}
         onKeyPress={[Function]}
-        placeholder="Send a message"
+        placeholder="Message test"
         rowsMax={5}
         value="this is just a test message"
         variant="outlined"

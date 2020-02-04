@@ -6,10 +6,13 @@ import ChannelInputComponent from '../../../components/widgets/channels/ChannelI
 import channelHandlers from '../../../store/handlers/channel'
 import offersHandlers from '../../../store/handlers/offers'
 import channelSelectors from '../../../store/selectors/channel'
+import offersSelectors from '../../../store/selectors/offers'
+import { MESSAGE_ITEM_SIZE } from '../../../zbay/transit'
 
-export const mapStateToProps = state => ({
+export const mapStateToProps = (state, { offer }) => ({
   message: channelSelectors.message(state),
-  inputState: channelSelectors.inputLocked(state)
+  inputState: channelSelectors.inputLocked(state),
+  offerName: offersSelectors.offer(offer)(state).name
 })
 
 export const mapDispatchToProps = dispatch => {
@@ -21,8 +24,16 @@ export const mapDispatchToProps = dispatch => {
     dispatch
   )
 }
-export const ChannelInput = ({ onChange, sendItemMessageOnEnter, message, inputState }) => {
+export const ChannelInput = ({
+  onChange,
+  sendItemMessageOnEnter,
+  message,
+  inputState,
+  offerName
+}) => {
   const [infoClass, setInfoClass] = React.useState(null)
+  const nameSplit = offerName.split('@')
+  const channelName = `@${nameSplit[nameSplit.length - 1]}`
   return (
     <ChannelInputComponent
       infoClass={infoClass}
@@ -31,6 +42,8 @@ export const ChannelInput = ({ onChange, sendItemMessageOnEnter, message, inputS
       onKeyPress={sendItemMessageOnEnter}
       message={message}
       inputState={inputState}
+      channelName={channelName}
+      messageLimit={MESSAGE_ITEM_SIZE}
     />
   )
 }
@@ -41,7 +54,4 @@ ChannelInput.propTypes = {
   message: PropTypes.string
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ChannelInput)
+export default connect(mapStateToProps, mapDispatchToProps)(ChannelInput)

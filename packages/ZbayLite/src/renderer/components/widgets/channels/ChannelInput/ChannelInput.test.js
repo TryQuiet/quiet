@@ -14,6 +14,8 @@ describe('ChannelInput', () => {
         onKeyPress={jest.fn()}
         message='this is just a test message'
         inputState={INPUT_STATE.AVAILABLE}
+        channelName={'test'}
+        messageLimit={200}
       />
     )
     expect(result).toMatchSnapshot()
@@ -26,6 +28,8 @@ describe('ChannelInput', () => {
         onKeyPress={jest.fn()}
         message='this is just a test message'
         inputState={INPUT_STATE.DISABLE}
+        channelName={'test'}
+        messageLimit={200}
       />
     )
     expect(result).toMatchSnapshot()
@@ -38,6 +42,8 @@ describe('ChannelInput', () => {
         onKeyPress={jest.fn()}
         message='this is just a test message'
         inputState={INPUT_STATE.LOCKED}
+        channelName={'test'}
+        messageLimit={200}
       />
     )
     expect(result).toMatchSnapshot()

@@ -88,7 +88,9 @@ export const ChannelInput = ({
   message,
   inputState,
   infoClass,
-  setInfoClass
+  setInfoClass,
+  channelName,
+  messageLimit
 }) => {
   const inputRef = React.createRef()
   window.onfocus = () => {
@@ -136,7 +138,7 @@ export const ChannelInput = ({
             autoFocus
             margin='none'
             variant='outlined'
-            placeholder='Send a message'
+            placeholder={`Message ${channelName}`}
             multiline
             rowsMax={5}
             value={message}
@@ -155,7 +157,8 @@ export const ChannelInput = ({
             }}
             onChange={onChange}
             inputProps={{
-              className: classes.input
+              className: classes.input,
+              maxLength: messageLimit
             }}
             InputProps={{
               classes: {
@@ -184,7 +187,10 @@ ChannelInput.propTypes = {
   inputState: PropTypes.number.isRequired,
   infoClass: PropTypes.string,
   setInfoClass: PropTypes.func,
-  message: PropTypes.string
+  message: PropTypes.string,
+  channelName: PropTypes.string.isRequired,
+  messageLimit: PropTypes.number.isRequired
+
 }
 
 ChannelInput.defaultProps = {

@@ -7,7 +7,10 @@ import { mapStateToProps, mapDispatchToProps } from './ChannelInput'
 
 import create from '../../../store/create'
 import { ChannelState } from '../../../store/handlers/channel'
+import { ChannelsState } from '../../../store/handlers/channels'
+import { createChannel } from '../../../testUtils'
 
+const channelId = 'channel-id'
 describe('ChannelInput', () => {
   let store = null
   beforeEach(() => {
@@ -19,7 +22,11 @@ describe('ChannelInput', () => {
           name: 'Politics',
           members: new BigNumber(0),
           message: 'This is a test message',
-          messages: []
+          messages: [],
+          id: channelId
+        }),
+        channels: ChannelsState({
+          data: Immutable.fromJS([createChannel(channelId)])
         })
       })
     })
@@ -31,7 +38,7 @@ describe('ChannelInput', () => {
   })
 
   it('will receive right actions', async () => {
-    const actions = mapDispatchToProps(x => x, { contactId: 'address123' })
+    const actions = mapDispatchToProps(x => x)
     expect(actions).toMatchSnapshot()
   })
 })

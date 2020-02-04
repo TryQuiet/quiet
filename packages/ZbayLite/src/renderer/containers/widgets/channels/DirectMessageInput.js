@@ -10,6 +10,8 @@ import contactsHandlers from '../../../store/handlers/contacts'
 import channelSelectors, { INPUT_STATE } from '../../../store/selectors/channel'
 import usersSelectors from '../../../store/selectors/users'
 import identitySelectors from '../../../store/selectors/identity'
+import contactsSelectors from '../../../store/selectors/contacts'
+import { MESSAGE_SIZE } from '../../../zbay/transit'
 
 export const mapStateToProps = (state, { contactId }) => ({
   message: channelSelectors.message(state),
@@ -17,7 +19,8 @@ export const mapStateToProps = (state, { contactId }) => ({
     identitySelectors.signerPubKey(state)
   )(state)
     ? channelSelectors.inputLocked(state)
-    : INPUT_STATE.UNREGISTERED
+    : INPUT_STATE.UNREGISTERED,
+  channelName: contactsSelectors.contact(contactId)(state).username
 })
 
 export const mapDispatchToProps = dispatch => {
@@ -36,6 +39,7 @@ export const ChannelInput = ({
   sendDirectMessageOnEnter,
   message,
   inputState,
+  channelName,
   resetDebounce
 }) => {
   const [infoClass, setInfoClass] = React.useState(null)
@@ -50,6 +54,8 @@ export const ChannelInput = ({
       onKeyPress={sendDirectMessageOnEnter}
       message={message}
       inputState={inputState}
+      channelName={`@${channelName}`}
+      messageLimit={MESSAGE_SIZE}
     />
   )
 }
