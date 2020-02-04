@@ -13,7 +13,7 @@ import { errorNotification } from './utils'
 import { getClient } from '../../zcash'
 import { actionTypes } from '../../../shared/static'
 
-export const DEFAULT_DEBOUNCE_INTERVAL = 3000
+export const DEFAULT_DEBOUNCE_INTERVAL = 6000
 
 export const PendingMessage = Immutable.Record({
   channelId: '',
@@ -81,7 +81,7 @@ const _sendPendingMessages = async (dispatch, getState) => {
   )
 }
 
-const sendPendingMessages = () => {
+export const sendPendingMessages = () => {
   const thunk = _sendPendingMessages
   thunk.meta = {
     debounce: {
@@ -99,7 +99,8 @@ const addMessageEpic = (payload) => async (dispatch) => {
 
 export const epics = {
   sendPendingMessages,
-  addMessage: addMessageEpic
+  addMessage: addMessageEpic,
+  resetMessageDebounce: sendPendingMessages
 }
 
 export const reducer = handleActions({

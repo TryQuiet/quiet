@@ -5,6 +5,7 @@ import PropTypes from 'prop-types'
 
 import ChannelInputComponent from '../../../components/widgets/channels/ChannelInput'
 import channelHandlers from '../../../store/handlers/channel'
+import directMessagesQueueHandlers from '../../../store/handlers/directMessagesQueue'
 import contactsHandlers from '../../../store/handlers/contacts'
 import channelSelectors, { INPUT_STATE } from '../../../store/selectors/channel'
 import usersSelectors from '../../../store/selectors/users'
@@ -12,7 +13,9 @@ import identitySelectors from '../../../store/selectors/identity'
 
 export const mapStateToProps = (state, { contactId }) => ({
   message: channelSelectors.message(state),
-  inputState: usersSelectors.registeredUser(identitySelectors.signerPubKey(state))(state)
+  inputState: usersSelectors.registeredUser(
+    identitySelectors.signerPubKey(state)
+  )(state)
     ? channelSelectors.inputLocked(state)
     : INPUT_STATE.UNREGISTERED
 })
@@ -21,18 +24,29 @@ export const mapDispatchToProps = dispatch => {
   return bindActionCreators(
     {
       onChange: channelHandlers.actions.setMessage,
-      sendDirectMessageOnEnter: contactsHandlers.epics.sendDirectMessageOnEnter
+      sendDirectMessageOnEnter: contactsHandlers.epics.sendDirectMessageOnEnter,
+      resetDebounce:
+        directMessagesQueueHandlers.epics.resetDebounceDirectMessage
     },
     dispatch
   )
 }
-export const ChannelInput = ({ onChange, sendDirectMessageOnEnter, message, inputState }) => {
+export const ChannelInput = ({
+  onChange,
+  sendDirectMessageOnEnter,
+  message,
+  inputState,
+  resetDebounce
+}) => {
   const [infoClass, setInfoClass] = React.useState(null)
   return (
     <ChannelInputComponent
       infoClass={infoClass}
       setInfoClass={setInfoClass}
-      onChange={onChange}
+      onChange={e => {
+        onChange(e)
+        resetDebounce()
+      }}
       onKeyPress={sendDirectMessageOnEnter}
       message={message}
       inputState={inputState}
@@ -47,7 +61,4 @@ ChannelInput.propTypes = {
   message: PropTypes.string
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ChannelInput)
+export default connect(mapStateToProps, mapDispatchToProps)(ChannelInput)

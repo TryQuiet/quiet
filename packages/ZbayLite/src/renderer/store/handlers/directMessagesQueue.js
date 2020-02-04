@@ -19,7 +19,7 @@ import { getVault } from '../../vault'
 import contactsHandlers from './contacts'
 import offersHandlers from './offers'
 
-export const DEFAULT_DEBOUNCE_INTERVAL = 3000
+export const DEFAULT_DEBOUNCE_INTERVAL = 6000
 const POLLING_OFFSET = 60000
 
 export const PendingMessage = Immutable.Record(
@@ -210,7 +210,7 @@ const _sendPendingDirectMessages = async (dispatch, getState) => {
   )
 }
 
-const sendPendingDirectMessages = () => {
+export const sendPendingDirectMessages = () => {
   const thunk = _sendPendingDirectMessages
   thunk.meta = {
     debounce: {
@@ -228,7 +228,8 @@ const addDirectMessageEpic = payload => async dispatch => {
 
 export const epics = {
   sendPendingDirectMessages,
-  addDirectMessage: addDirectMessageEpic
+  addDirectMessage: addDirectMessageEpic,
+  resetDebounceDirectMessage: sendPendingDirectMessages
 }
 
 export const reducer = handleActions(
