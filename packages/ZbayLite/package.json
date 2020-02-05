@@ -2,6 +2,7 @@
   "name": "zbay",
   "productName": "Zbay",
   "build": {
+    "afterSign": "scripts/notarize.js",
     "productName": "Zbay",
     "appId": "Zbay",
     "protocols": {
@@ -11,6 +12,10 @@
       ]
     },
     "mac": {
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
       "category": "public.app-category.social-networking",
       "files": [
         "dist/**/*",
@@ -94,6 +99,7 @@
     "concurrently": "^4.1.0",
     "cross-env": "^5.2.0",
     "css-loader": "^2.1.0",
+    "electron-notarize": "^0.2.1",
     "electron": "^7.1.11",
     "electron-builder": "^22.3.2",
     "react-virtualized": "^9.21.1",
@@ -149,8 +155,6 @@
     "@material-ui/icons": "^4.2.1",
     "@material-ui/lab": "^4.0.0-alpha.34",
     "async": "^3.1.0",
-    "electron-debug": "^3.0.1",
-    "electron-devtools-installer": "^2.2.4",
     "axios": "^0.18.0",
     "bech32": "^1.1.3",
     "bignumber.js": "^8.1.1",
@@ -160,6 +164,9 @@
     "classnames": "^2.2.6",
     "convert-seconds": "^1.0.1",
     "country-region-data": "^1.4.7",
+    "dotenv": "^8.2.0",
+    "electron-debug": "^3.0.1",
+    "electron-devtools-installer": "^2.2.4",
     "electron-store": "^5.1.0",
     "electron-store-webpack-wrapper": "^0.0.2",
     "electron-updater": "^4.0.6",
@@ -173,6 +180,7 @@
     "is-port-reachable": "^3.0.0",
     "isomorphic-fetch": "^2.2.1",
     "jest-each": "^24.0.0",
+    "keymirror": "0.1.1",
     "luxon": "^1.11.4",
     "material-ui-formik-components": "^0.5.2",
     "notistack": "^0.8.2",
@@ -200,7 +208,6 @@
     "request-progress": "^3.0.0",
     "reselect": "^4.0.0",
     "typeface-roboto": "0.0.54",
-    "yup": "^0.27.0",
-    "keymirror": "0.1.1"
+    "yup": "^0.27.0"
   }
 }
