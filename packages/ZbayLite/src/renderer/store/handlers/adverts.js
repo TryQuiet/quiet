@@ -51,7 +51,7 @@ const handleSend = ({ values }) => async (dispatch, getState) => {
     )
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar(
-        successNotification({ message: 'Advert successfully posted' })
+        successNotification({ message: 'Offer successfully posted' })
       )
     )
   } catch (err) {

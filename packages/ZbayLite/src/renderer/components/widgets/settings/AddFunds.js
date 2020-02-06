@@ -161,7 +161,7 @@ const descriptions = {
       once it arrives.)
     </Fragment>
   ),
-  private: 'You can use your private address to exchange ZEC with other people.'
+  private: 'Wallets that support Zcash shielded transactions can send you funds at this address. However, exchanges like Coinbase and Binance cannot.'
 }
 
 export const AddFunds = ({

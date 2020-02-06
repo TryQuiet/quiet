@@ -202,10 +202,7 @@ export const CreateUsernameModal = ({
             </Grid>
             <Grid className={classes.description} item>
               <Typography variant={'body2'}>
-                {`You need a username to send and receive direct messages. Your
-                username will last forever, so choose it well. To support future
-                development, Zbay charges a small fee of ${usernameFee} ZEC, which is
-                approximately $${feeUsd} USD.`}
+                {`Welcome! You will need a username to send and receive direct messages. Zbay may soon charge a fee for this, but it's (almost) free for now, and we've already provided the funds you need. Your username will last forever, so choose it well...`}
               </Typography>
             </Grid>
             <Formik
@@ -236,8 +233,8 @@ export const CreateUsernameModal = ({
                       </Grid>
                       <Grid className={classes.info} item xs={12}>
                         <Typography variant='caption'>
-                          Your username cannot have any spaces or special
-                          characters, must be lowercase letters and numbers only
+                          Lowercase letters and numbers only; no spaces or special
+                          characters allowed.
                         </Typography>
                       </Grid>
                     </Grid>
