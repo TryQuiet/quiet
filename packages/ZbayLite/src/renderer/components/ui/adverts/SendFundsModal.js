@@ -311,9 +311,7 @@ export const SendFundsModal = ({
                         className={classes.description}
                         variant={'body2'}
                       >
-                        Funds may not be recoverable. Never send significant sums of money without
-                        strong reasons to trust the seller. Research the seller’s reputation on the
-                        web, and be cautious!
+                        Always start with a small purchase to test if the seller is legitimate. Funds are not recoverable, so research the seller’s reputation on the web before buying, and be cautious!
                       </Typography>
                     </Grid>
                     <Grid item container wrap={'wrap'} alignItems={'center'}>
