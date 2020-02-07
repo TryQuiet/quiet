@@ -137,7 +137,7 @@ export const VaultUnlockerForm = ({
               <Typography variant='body2'>{loader.loading && loader.message}</Typography>
               {!nodeConnected && !done && (
                 <Grid item>
-                  <Typography variant='body2'>{`Creating a zcash node`}</Typography>
+                  <Typography variant='body2'>{`Connecting to Zcash network`}</Typography>
                 </Grid>
               )}
             </Grid>
