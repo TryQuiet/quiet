@@ -187,10 +187,6 @@ export const CreateUsernameModal = ({
   usernameFee,
   zecRate
 }) => {
-  const feeUsd = zecRate
-    .times(usernameFee)
-    .toFixed(2)
-    .toString()
   const [formSent, setFormSent] = useState(false)
   return (
     <Modal open={open} handleClose={handleClose}>
