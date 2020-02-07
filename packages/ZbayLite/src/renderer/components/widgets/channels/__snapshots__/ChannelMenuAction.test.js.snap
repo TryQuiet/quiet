@@ -306,7 +306,7 @@ exports[`ChannelMenuAction renders component 1`] = `
   <span />
   <Memo(WithStyles(MenuActionItem))
     onClick={[Function]}
-    title="Publish channel"
+    title="Make public"
   />
 </Memo(WithStyles(MenuAction))>
 `;
