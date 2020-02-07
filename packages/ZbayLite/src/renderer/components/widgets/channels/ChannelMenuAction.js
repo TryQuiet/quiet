@@ -50,7 +50,7 @@ export const ChannelMenuAction = ({
         <span />
       )}
       {isOwner && !alreadyRegistered ? (
-        <MenuActionItem onClick={publishChannel} title='Publish channel' />
+        <MenuActionItem onClick={publishChannel} title='Make public' />
       ) : (
         <span />
       )}
