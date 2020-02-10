@@ -57,7 +57,9 @@ export default createMuiTheme({
     },
     h5: {
       fontSize: 16,
-      lineHeight: '26px'
+      lineHeight: '26px',
+      fontWeight: 500
+
     }
   },
   palette: {
@@ -83,6 +85,7 @@ export default createMuiTheme({
       gray03: '#F7F7F7',
       gray40: '#999999',
       lushSky: '#67BFD3',
+      lushSky12: '#EDF7FA',
       lightGray: '#B2B2B2',
       veryLightGray: '#F0F0F0',
       green: '#4CBB17',

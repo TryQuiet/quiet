@@ -23,7 +23,6 @@ import channelSelectors from '../selectors/channel'
 import channelsSelectors from '../selectors/channels'
 import messagesSelectors from '../selectors/messages'
 import operationsSelectors from '../selectors/operations'
-import { mockEvent } from '../../../shared/testing/mocks'
 import { createIdentity, createTransfer, createMessage, now } from '../../testUtils'
 import { mock as zcashMock, getClient } from '../../zcash'
 import { mock as vaultMock, getVault } from '../../vault'
@@ -93,8 +92,7 @@ describe('channel reducer', () => {
 
     it(' - setMessage', () => {
       const msg = 'this is a test message'
-      const event = mockEvent(msg)
-      store.dispatch(actions.setMessage(event))
+      store.dispatch(actions.setMessage(msg))
       const result = channelSelectors.message(store.getState())
       expect(result).toEqual(msg)
     })

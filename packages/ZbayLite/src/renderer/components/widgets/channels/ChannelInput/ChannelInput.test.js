@@ -1,5 +1,6 @@
 import React from 'react'
 import { shallow } from 'enzyme'
+import Immutable from 'immutable'
 
 import { mockClasses } from '../../../../../shared/testing/mocks'
 import { ChannelInput } from './ChannelInput'
@@ -11,11 +12,15 @@ describe('ChannelInput', () => {
       <ChannelInput
         classes={mockClasses}
         onChange={jest.fn()}
+        setAnchorEl={jest.fn()}
+        setMentionsToSelect={jest.fn()}
         onKeyPress={jest.fn()}
         message='this is just a test message'
         inputState={INPUT_STATE.AVAILABLE}
         channelName={'test'}
         messageLimit={200}
+        users={Immutable.Map({})}
+        mentionsToSelect={[]}
       />
     )
     expect(result).toMatchSnapshot()
@@ -25,11 +30,15 @@ describe('ChannelInput', () => {
       <ChannelInput
         classes={mockClasses}
         onChange={jest.fn()}
+        setAnchorEl={jest.fn()}
+        setMentionsToSelect={jest.fn()}
         onKeyPress={jest.fn()}
         message='this is just a test message'
         inputState={INPUT_STATE.DISABLE}
         channelName={'test'}
         messageLimit={200}
+        mentionsToSelect={[]}
+        users={Immutable.Map({})}
       />
     )
     expect(result).toMatchSnapshot()
@@ -39,11 +48,15 @@ describe('ChannelInput', () => {
       <ChannelInput
         classes={mockClasses}
         onChange={jest.fn()}
+        setAnchorEl={jest.fn()}
+        setMentionsToSelect={jest.fn()}
         onKeyPress={jest.fn()}
         message='this is just a test message'
         inputState={INPUT_STATE.LOCKED}
         channelName={'test'}
         messageLimit={200}
+        mentionsToSelect={[]}
+        users={Immutable.Map({})}
       />
     )
     expect(result).toMatchSnapshot()

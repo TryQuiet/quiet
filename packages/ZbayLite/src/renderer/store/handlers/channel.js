@@ -1,6 +1,5 @@
 import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
-import * as R from 'ramda'
 import { createAction, handleActions } from 'redux-actions'
 
 import history from '../../../shared/history'
@@ -39,7 +38,7 @@ export const ChannelState = Immutable.Record(
 export const initialState = ChannelState()
 
 const setSpentFilterValue = createAction(actionTypes.SET_SPENT_FILTER_VALUE, (_, value) => value)
-const setMessage = createAction(actionTypes.SET_CHANNEL_MESSAGE, R.path(['target', 'value']))
+const setMessage = createAction(actionTypes.SET_CHANNEL_MESSAGE)
 const setChannelId = createAction(actionTypes.SET_CHANNEL_ID)
 const setLoading = createAction(actionTypes.SET_CHANNEL_LOADING)
 const setLoadingMessage = createAction(actionTypes.SET_CHANNEL_LOADING_MESSAGE)
@@ -117,21 +116,19 @@ const sendOnEnter = event => async (dispatch, getState) => {
   const enterPressed = event.nativeEvent.keyCode === 13
   const shiftPressed = event.nativeEvent.shiftKey === true
   const channel = channelSelectors.data(getState()).toJS()
+  const messageToSend = channelSelectors.message(getState())
   const currentMessage = messagesQueue
     .queue(getState())
     .find(dm => dm.get('channelId') === channel.id)
   if (enterPressed && !shiftPressed) {
     event.preventDefault()
-    if (!event.target.value.replace(/\s/g, '').length) {
-      return
-    }
     const privKey = identitySelectors.signerPrivKey(getState())
     let message
     if (currentMessage !== undefined) {
       message = messages.createMessage({
         messageData: {
           type: messageType.BASIC,
-          data: currentMessage.get('message').get('message') + '\n' + event.target.value
+          data: currentMessage.get('message').get('message') + '\n' + messageToSend
         },
         privKey: privKey
       })
@@ -139,7 +136,7 @@ const sendOnEnter = event => async (dispatch, getState) => {
       message = messages.createMessage({
         messageData: {
           type: messageType.BASIC,
-          data: event.target.value
+          data: messageToSend
         },
         privKey: privKey
       })

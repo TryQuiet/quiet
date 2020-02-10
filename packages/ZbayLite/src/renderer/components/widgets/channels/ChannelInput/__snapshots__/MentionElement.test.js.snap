@@ -1,0 +1,83 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MentionElement renders component highlight 1`] = `
+<WithStyles(ForwardRef(Grid))
+  className="root-mock highlight-mock"
+  container={true}
+  onClick={[MockFunction]}
+  onMouseEnter={[MockFunction]}
+>
+  <WithStyles(ForwardRef(Grid))
+    className="avatarDiv-mock"
+    item={true}
+  >
+    <div
+      className="alignAvatar-mock"
+    >
+      <Jdenticon
+        size="17"
+        value="test"
+      />
+    </div>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="data-mock"
+    item={true}
+    xs={true}
+  >
+    <WithStyles(ForwardRef(Typography))
+      className="name-mock"
+      variant="h5"
+    >
+      test
+    </WithStyles(ForwardRef(Typography))>
+    <WithStyles(ForwardRef(Typography))
+      className="caption-mock captionHighlight-mock"
+      variant="body2"
+    >
+      Participant in #test
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
+`;
+
+exports[`MentionElement renders component not highlight 1`] = `
+<WithStyles(ForwardRef(Grid))
+  className="root-mock"
+  container={true}
+  onClick={[MockFunction]}
+  onMouseEnter={[MockFunction]}
+>
+  <WithStyles(ForwardRef(Grid))
+    className="avatarDiv-mock"
+    item={true}
+  >
+    <div
+      className="alignAvatar-mock"
+    >
+      <Jdenticon
+        size="17"
+        value="test"
+      />
+    </div>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="data-mock"
+    item={true}
+    xs={true}
+  >
+    <WithStyles(ForwardRef(Typography))
+      className="name-mock"
+      variant="h5"
+    >
+      test
+    </WithStyles(ForwardRef(Typography))>
+    <WithStyles(ForwardRef(Typography))
+      className="caption-mock"
+      variant="body2"
+    >
+      Participant in #test
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
+`;

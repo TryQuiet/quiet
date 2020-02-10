@@ -1,18 +1,20 @@
 import React from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import PropTypes from 'prop-types'
+
 import ChannelInputComponent from '../../../components/widgets/channels/ChannelInput'
 import channelHandlers from '../../../store/handlers/channel'
 import offersHandlers from '../../../store/handlers/offers'
 import channelSelectors from '../../../store/selectors/channel'
 import offersSelectors from '../../../store/selectors/offers'
 import { MESSAGE_ITEM_SIZE } from '../../../zbay/transit'
+import usersSelectors from '../../../store/selectors/users'
 
 export const mapStateToProps = (state, { offer }) => ({
   message: channelSelectors.message(state),
   inputState: channelSelectors.inputLocked(state),
-  offerName: offersSelectors.offer(offer)(state).name
+  offerName: offersSelectors.offer(offer)(state).name,
+  users: usersSelectors.users(state)
 })
 
 export const mapDispatchToProps = dispatch => {
@@ -29,9 +31,13 @@ export const ChannelInput = ({
   sendItemMessageOnEnter,
   message,
   inputState,
-  offerName
+  offerName,
+  users
 }) => {
   const [infoClass, setInfoClass] = React.useState(null)
+  const [anchorEl, setAnchorEl] = React.useState({})
+  const [mentionsToSelect, setMentionsToSelect] = React.useState([])
+
   const nameSplit = offerName.split('@')
   const channelName = `@${nameSplit[nameSplit.length - 1]}`
   return (
@@ -43,15 +49,14 @@ export const ChannelInput = ({
       message={message}
       inputState={inputState}
       channelName={channelName}
+      anchorEl={anchorEl}
+      setAnchorEl={setAnchorEl}
+      mentionsToSelect={mentionsToSelect}
+      setMentionsToSelect={setMentionsToSelect}
       messageLimit={MESSAGE_ITEM_SIZE}
+      users={users}
     />
   )
-}
-
-ChannelInput.propTypes = {
-  onChange: PropTypes.func.isRequired,
-  inputState: PropTypes.number.isRequired,
-  message: PropTypes.string
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ChannelInput)

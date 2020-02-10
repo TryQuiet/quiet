@@ -1,7 +1,6 @@
 import React from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import PropTypes from 'prop-types'
 
 import ChannelInputComponent from '../../../components/widgets/channels/ChannelInput'
 import channelHandlers from '../../../store/handlers/channel'
@@ -20,7 +19,8 @@ export const mapStateToProps = (state, { contactId }) => ({
   )(state)
     ? channelSelectors.inputLocked(state)
     : INPUT_STATE.UNREGISTERED,
-  channelName: contactsSelectors.contact(contactId)(state).username
+  channelName: contactsSelectors.contact(contactId)(state).username,
+  users: usersSelectors.users(state)
 })
 
 export const mapDispatchToProps = dispatch => {
@@ -40,9 +40,12 @@ export const ChannelInput = ({
   message,
   inputState,
   channelName,
-  resetDebounce
+  resetDebounce,
+  users
 }) => {
   const [infoClass, setInfoClass] = React.useState(null)
+  const [anchorEl, setAnchorEl] = React.useState({})
+  const [mentionsToSelect, setMentionsToSelect] = React.useState([])
   return (
     <ChannelInputComponent
       infoClass={infoClass}
@@ -56,15 +59,13 @@ export const ChannelInput = ({
       inputState={inputState}
       channelName={`@${channelName}`}
       messageLimit={MESSAGE_SIZE}
+      anchorEl={anchorEl}
+      setAnchorEl={setAnchorEl}
+      mentionsToSelect={mentionsToSelect}
+      setMentionsToSelect={setMentionsToSelect}
+      users={users}
     />
   )
-}
-
-ChannelInput.propTypes = {
-  onChange: PropTypes.func.isRequired,
-  sendDirectMessageOnEnter: PropTypes.func.isRequired,
-  inputState: PropTypes.number.isRequired,
-  message: PropTypes.string
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ChannelInput)

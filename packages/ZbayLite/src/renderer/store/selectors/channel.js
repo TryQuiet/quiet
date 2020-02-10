@@ -23,7 +23,6 @@ const data = createSelector(
 export const spentFilterValue = createSelector(channel, c => c.get('spentFilterValue', -1))
 
 export const message = createSelector(channel, c => c.get('message'))
-
 export const advertFee = createSelector(
   data,
   (data) => data ? data.get('advertFee') : 0
@@ -171,6 +170,9 @@ export const messages = signerPubKey => createSelector(
     return concatedMessages
   }
 )
+export const members = createSelector(messages(), msgs => msgs.reduce((acc, msg) => {
+  return acc.add(msg.sender.replyTo)
+}, new Set()))
 
 export const shareableUri = createSelector(channel, c => c.shareableUri)
 
@@ -216,5 +218,6 @@ export default {
   messages,
   channelInfo,
   advertFee,
-  onlyRegistered
+  onlyRegistered,
+  members
 }

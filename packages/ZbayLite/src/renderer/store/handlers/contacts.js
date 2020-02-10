@@ -9,6 +9,7 @@ import usersSelectors from '../selectors/users'
 import appSelectors from '../selectors/app'
 import offersSelectors from '../selectors/offers'
 import messagesSelectors from '../selectors/messages'
+import channelSelectors from '../selectors/channel'
 import selectors, { Contact } from '../selectors/contacts'
 import { directMessageChannel } from '../selectors/directMessageChannel'
 import directMessagesQueue from '../selectors/directMessagesQueue'
@@ -34,6 +35,7 @@ const sendDirectMessageOnEnter = event => async (dispatch, getState) => {
   const privKey = identitySelectors.signerPrivKey(getState())
   const dmQueue = directMessagesQueue.queue(getState())
   const channel = directMessageChannel(getState()).toJS()
+  const messageToSend = channelSelectors.message(getState())
   const currentMessage = dmQueue.find(
     dm =>
       dm.get('recipientAddress') === channel.targetRecipientAddress &&
@@ -42,15 +44,13 @@ const sendDirectMessageOnEnter = event => async (dispatch, getState) => {
 
   if (enterPressed && !shiftPressed) {
     event.preventDefault()
-    if (!event.target.value.replace(/\s/g, '').length) {
-      return
-    }
+
     let message
     if (currentMessage !== undefined) {
       message = zbayMessages.createMessage({
         messageData: {
           type: zbayMessages.messageType.BASIC,
-          data: currentMessage.get('message').get('message') + '\n' + event.target.value
+          data: currentMessage.get('message').get('message') + '\n' + messageToSend
         },
         privKey
       })
@@ -58,7 +58,7 @@ const sendDirectMessageOnEnter = event => async (dispatch, getState) => {
       message = zbayMessages.createMessage({
         messageData: {
           type: zbayMessages.messageType.BASIC,
-          data: event.target.value
+          data: messageToSend
         },
         privKey
       })

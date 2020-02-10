@@ -7,6 +7,9 @@ exports[`ChannelInput renders component input Disable  1`] = `
   direction="column"
   justify="center"
 >
+  <Memo(WithStyles(MentionPoper))
+    selected={0}
+  />
   <ForwardRef(Fade)
     in={true}
   >
@@ -36,52 +39,40 @@ exports[`ChannelInput renders component input Disable  1`] = `
     justify="center"
     spacing={0}
   >
-    <WithStyles(ForwardRef(Grid))
-      item={true}
-      xs={true}
+    <ForwardRef(ClickAwayListener)
+      onClickAway={[Function]}
     >
-      <WithStyles(ForwardRef(TextField))
-        InputProps={
-          Object {
-            "classes": Object {
-              "focused": "cssFocused-mock",
-              "multiline": "multiline-mock",
-              "notchedOutline": "notchedOutline-mock",
-              "root": "textfield-mock",
-            },
-            "endAdornment": <ForwardRef(WithStyles)
-              position="end"
-            >
-              <Connect(Component)
-                disabled={true}
-              />
-            </ForwardRef(WithStyles)>,
-          }
-        }
-        autoFocus={true}
-        fullWidth={true}
-        id="channel-input"
-        inputProps={
-          Object {
-            "className": "input-mock",
-            "maxLength": 200,
-          }
-        }
-        inputRef={
-          Object {
-            "current": null,
-          }
-        }
-        margin="none"
-        multiline={true}
-        onChange={[MockFunction]}
-        onKeyPress={[Function]}
-        placeholder="Message test"
-        rowsMax={5}
-        value="this is just a test message"
-        variant="outlined"
-      />
-    </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
+        alignItems="center"
+        className="textfield-mock"
+        container={true}
+        item={true}
+        justify="center"
+        xs={true}
+      >
+        <WithStyles(ForwardRef(Grid))
+          item={true}
+          xs={true}
+        >
+          <ContentEditable
+            className="input-mock"
+            html="this is just a test message"
+            onChange={[Function]}
+            onClick={[Function]}
+            onKeyDown={[Function]}
+            placeholder="Message test"
+          />
+        </WithStyles(ForwardRef(Grid))>
+        <WithStyles(ForwardRef(Grid))
+          className="iconButton-mock"
+          item={true}
+        >
+          <Connect(Component)
+            disabled={true}
+          />
+        </WithStyles(ForwardRef(Grid))>
+      </WithStyles(ForwardRef(Grid))>
+    </ForwardRef(ClickAwayListener)>
   </WithStyles(ForwardRef(Grid))>
 </WithStyles(ForwardRef(Grid))>
 `;
@@ -93,6 +84,9 @@ exports[`ChannelInput renders component input Locked  1`] = `
   direction="column"
   justify="center"
 >
+  <Memo(WithStyles(MentionPoper))
+    selected={0}
+  />
   <ForwardRef(Fade)
     in={true}
   >
@@ -122,52 +116,40 @@ exports[`ChannelInput renders component input Locked  1`] = `
     justify="center"
     spacing={0}
   >
-    <WithStyles(ForwardRef(Grid))
-      item={true}
-      xs={true}
+    <ForwardRef(ClickAwayListener)
+      onClickAway={[Function]}
     >
-      <WithStyles(ForwardRef(TextField))
-        InputProps={
-          Object {
-            "classes": Object {
-              "focused": "cssFocused-mock",
-              "multiline": "multiline-mock",
-              "notchedOutline": "notchedOutline-mock",
-              "root": "textfield-mock",
-            },
-            "endAdornment": <ForwardRef(WithStyles)
-              position="end"
-            >
-              <Connect(Component)
-                disabled={true}
-              />
-            </ForwardRef(WithStyles)>,
-          }
-        }
-        autoFocus={true}
-        fullWidth={true}
-        id="channel-input"
-        inputProps={
-          Object {
-            "className": "input-mock",
-            "maxLength": 200,
-          }
-        }
-        inputRef={
-          Object {
-            "current": null,
-          }
-        }
-        margin="none"
-        multiline={true}
-        onChange={[MockFunction]}
-        onKeyPress={[Function]}
-        placeholder="Message test"
-        rowsMax={5}
-        value="this is just a test message"
-        variant="outlined"
-      />
-    </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
+        alignItems="center"
+        className="textfield-mock"
+        container={true}
+        item={true}
+        justify="center"
+        xs={true}
+      >
+        <WithStyles(ForwardRef(Grid))
+          item={true}
+          xs={true}
+        >
+          <ContentEditable
+            className="input-mock"
+            html="this is just a test message"
+            onChange={[Function]}
+            onClick={[Function]}
+            onKeyDown={[Function]}
+            placeholder="Message test"
+          />
+        </WithStyles(ForwardRef(Grid))>
+        <WithStyles(ForwardRef(Grid))
+          className="iconButton-mock"
+          item={true}
+        >
+          <Connect(Component)
+            disabled={true}
+          />
+        </WithStyles(ForwardRef(Grid))>
+      </WithStyles(ForwardRef(Grid))>
+    </ForwardRef(ClickAwayListener)>
   </WithStyles(ForwardRef(Grid))>
 </WithStyles(ForwardRef(Grid))>
 `;
@@ -179,6 +161,9 @@ exports[`ChannelInput renders component input available  1`] = `
   direction="column"
   justify="center"
 >
+  <Memo(WithStyles(MentionPoper))
+    selected={0}
+  />
   <WithStyles(ForwardRef(Grid))
     alignItems="center"
     className="inputsDiv-mock"
@@ -187,52 +172,40 @@ exports[`ChannelInput renders component input available  1`] = `
     justify="center"
     spacing={0}
   >
-    <WithStyles(ForwardRef(Grid))
-      item={true}
-      xs={true}
+    <ForwardRef(ClickAwayListener)
+      onClickAway={[Function]}
     >
-      <WithStyles(ForwardRef(TextField))
-        InputProps={
-          Object {
-            "classes": Object {
-              "focused": "cssFocused-mock",
-              "multiline": "multiline-mock",
-              "notchedOutline": "notchedOutline-mock",
-              "root": "textfield-mock",
-            },
-            "endAdornment": <ForwardRef(WithStyles)
-              position="end"
-            >
-              <Connect(Component)
-                disabled={false}
-              />
-            </ForwardRef(WithStyles)>,
-          }
-        }
-        autoFocus={true}
-        fullWidth={true}
-        id="channel-input"
-        inputProps={
-          Object {
-            "className": "input-mock",
-            "maxLength": 200,
-          }
-        }
-        inputRef={
-          Object {
-            "current": null,
-          }
-        }
-        margin="none"
-        multiline={true}
-        onChange={[MockFunction]}
-        onKeyPress={[Function]}
-        placeholder="Message test"
-        rowsMax={5}
-        value="this is just a test message"
-        variant="outlined"
-      />
-    </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
+        alignItems="center"
+        className="textfield-mock"
+        container={true}
+        item={true}
+        justify="center"
+        xs={true}
+      >
+        <WithStyles(ForwardRef(Grid))
+          item={true}
+          xs={true}
+        >
+          <ContentEditable
+            className="input-mock"
+            html="this is just a test message"
+            onChange={[Function]}
+            onClick={[Function]}
+            onKeyDown={[Function]}
+            placeholder="Message test"
+          />
+        </WithStyles(ForwardRef(Grid))>
+        <WithStyles(ForwardRef(Grid))
+          className="iconButton-mock"
+          item={true}
+        >
+          <Connect(Component)
+            disabled={false}
+          />
+        </WithStyles(ForwardRef(Grid))>
+      </WithStyles(ForwardRef(Grid))>
+    </ForwardRef(ClickAwayListener)>
   </WithStyles(ForwardRef(Grid))>
 </WithStyles(ForwardRef(Grid))>
 `;

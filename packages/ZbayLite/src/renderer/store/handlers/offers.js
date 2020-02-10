@@ -148,6 +148,7 @@ const sendItemMessageOnEnter = event => async (dispatch, getState) => {
   const privKey = identitySelectors.signerPrivKey(getState())
   const dmQueue = directMessagesQueue.queue(getState())
   const channel = channelSelectors.channel(getState()).toJS()
+  const messageToSend = channelSelectors.message(getState())
   const currentMessage = dmQueue.find(
     dm =>
       dm.get('recipientAddress') === channel.address &&
@@ -155,9 +156,6 @@ const sendItemMessageOnEnter = event => async (dispatch, getState) => {
   )
   if (enterPressed && !shiftPressed) {
     event.preventDefault()
-    if (!event.target.value.replace(/\s/g, '').length) {
-      return
-    }
     let message
     if (currentMessage !== undefined) {
       message = zbayMessages.createMessage({
@@ -165,7 +163,7 @@ const sendItemMessageOnEnter = event => async (dispatch, getState) => {
           type: zbayMessages.messageType.ITEM_BASIC,
           data: {
             itemId: channel.id.substring(0, 64),
-            text: currentMessage.message.getIn(['message', 'text']) + '\n' + event.target.value
+            text: currentMessage.message.getIn(['message', 'text']) + '\n' + messageToSend
           }
         },
         privKey
@@ -176,7 +174,7 @@ const sendItemMessageOnEnter = event => async (dispatch, getState) => {
           type: zbayMessages.messageType.ITEM_BASIC,
           data: {
             itemId: channel.id.substring(0, 64),
-            text: event.target.value
+            text: messageToSend
           }
         },
         privKey

@@ -12,5 +12,6 @@ Object {
   "inputState": 0,
   "message": "This is a test message",
   "offerName": "testname",
+  "users": Immutable.Map {},
 }
 `;

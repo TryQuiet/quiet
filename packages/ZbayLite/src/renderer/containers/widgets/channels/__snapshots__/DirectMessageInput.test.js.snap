@@ -13,5 +13,6 @@ Object {
   "channelName": "",
   "inputState": 3,
   "message": "This is a test message",
+  "users": Immutable.Map {},
 }
 `;

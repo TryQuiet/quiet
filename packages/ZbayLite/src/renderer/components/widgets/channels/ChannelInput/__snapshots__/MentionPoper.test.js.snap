@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MentionPoper renders component highlight 1`] = `
+<ForwardRef(Popper)
+  anchorEl={Object {}}
+  className="root-mock"
+  open={true}
+  placement="top-start"
+>
+  <WithStyles(ForwardRef(Paper))>
+    <Scrollbars
+      autoHeight={false}
+      autoHeightMax={200}
+      autoHeightMin={0}
+      autoHide={false}
+      autoHideDuration={200}
+      autoHideTimeout={500}
+      hideTracksWhenNotNeeded={false}
+      renderThumbHorizontal={[Function]}
+      renderThumbVertical={[Function]}
+      renderTrackHorizontal={[Function]}
+      renderTrackVertical={[Function]}
+      renderView={[Function]}
+      style={
+        Object {
+          "height": 0,
+        }
+      }
+      tagName="div"
+      thumbMinSize={30}
+      universal={false}
+    >
+      <WithStyles(ForwardRef(Grid))>
+        <WithStyles(ForwardRef(Grid))
+          container={true}
+        >
+          <WithStyles(ForwardRef(Grid))
+            item={true}
+            xs={true}
+          />
+          <div
+            className="divider-mock"
+          />
+        </WithStyles(ForwardRef(Grid))>
+      </WithStyles(ForwardRef(Grid))>
+    </Scrollbars>
+  </WithStyles(ForwardRef(Paper))>
+</ForwardRef(Popper)>
+`;
