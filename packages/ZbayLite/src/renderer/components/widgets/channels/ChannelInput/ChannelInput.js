@@ -139,7 +139,6 @@ export const ChannelInput = ({
   React.useEffect(() => {
     refMentionsToSelect.current = mentionsToSelect
   }, [mentionsToSelect])
-
   const findMentions = text => {
     const splitedMsg = text
       .replace(/ /g, String.fromCharCode(160))
@@ -187,6 +186,9 @@ export const ChannelInput = ({
         splitedMsg[key] = renderToString(
           <span className={classes.highlight}>{element}</span>
         )
+        if (key === splitedMsg.length) {
+          setMentionsToSelect([])
+        }
       }
     }
     return splitedMsg.join(String.fromCharCode(160))
@@ -222,7 +224,10 @@ export const ChannelInput = ({
                 .split(String.fromCharCode(160))
               currentMsg[currentMsg.length - 1] =
                 '@' + refMentionsToSelect.current[refSelected.current].nickname
+              currentMsg.push(String.fromCharCode(160))
+
               onChange(currentMsg.join(String.fromCharCode(160)))
+              inputRef.current.el.current.focus()
             }}
           />
         ))}
@@ -325,12 +330,16 @@ export const ChannelInput = ({
                         '@' +
                         refMentionsToSelect.current[refSelected.current]
                           .nickname
+                      currentMsg.push(String.fromCharCode(160))
                       onChange(currentMsg.join(String.fromCharCode(160)))
                       e.preventDefault()
                     }
                     return
                   }
-                  if (inputState === INPUT_STATE.AVAILABLE) {
+                  if (
+                    inputState === INPUT_STATE.AVAILABLE &&
+                    e.nativeEvent.keyCode === 13
+                  ) {
                     onKeyPress(e)
                   } else {
                     if (e.nativeEvent.keyCode === 13) {

@@ -2,10 +2,14 @@
 
 exports[`MentionPoper renders component highlight 1`] = `
 <ForwardRef(Popper)
-  anchorEl={Object {}}
   className="root-mock"
   open={true}
-  placement="top-start"
+  style={
+    Object {
+      "transform": "translate3d(0px,0px,0px",
+      "zIndex": -1,
+    }
+  }
 >
   <WithStyles(ForwardRef(Paper))>
     <Scrollbars

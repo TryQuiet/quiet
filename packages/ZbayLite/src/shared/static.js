@@ -112,6 +112,9 @@ export const actionTypes = mirrorKey({
   SET_ADVERT_FEE: undefined,
   SET_ONLY_REGISTERED: undefined,
   SET_FREE_UTXOS: undefined,
+  ADD_MENTION_MISS: undefined,
+  CLEAR_MENTION_MISS: undefined,
+  REMOVE_MENTION_MISS: undefined,
   SET_RESCANNING_PROGRESS: undefined,
   SET_RESCANNING_MONITOR_STATUS: undefined
 })

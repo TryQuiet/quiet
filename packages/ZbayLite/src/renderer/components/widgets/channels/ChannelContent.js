@@ -8,11 +8,16 @@ import RootRef from '@material-ui/core/RootRef'
 import { withContentRect } from 'react-measure'
 
 import { channelTypeToMessages } from '../../pages/ChannelMapping'
+import InviteMentionInfo from './ChannelInput/InviteMentionInfo'
+import { CHANNEL_TYPE } from '../../pages/ChannelTypes'
 
 const styles = theme => ({
   fullHeight: {
     height: '100%',
     backgroundColor: theme.palette.colors.white
+  },
+  mentionsDiv: {
+    marginBottom: 8
   }
 })
 
@@ -27,23 +32,45 @@ export const ChannelContent = ({
   contentRect,
   channelType,
   offer,
-  tab
+  tab,
+  mentions,
+  removeMention,
+  sendInvitation
 }) => {
   const ChannelMessages = channelTypeToMessages[channelType]
   return (
-    <RootRef rootRef={measureRef}>
-      <Grid item className={classes.fullHeight}>
-        <ChannelMessages
-          tab={tab}
-          channelId={channelId}
-          contactId={contactId}
-          offer={offer}
-          signerPubKey={signerPubKey}
-          inputState={inputState}
-          contentRect={contentRect}
-        />
+    <Grid item container direction='column' className={classes.fullHeight}>
+      <Grid item xs>
+        <RootRef rootRef={measureRef}>
+          <ChannelMessages
+            tab={tab}
+            contactId={contactId}
+            offer={offer}
+            signerPubKey={signerPubKey}
+            inputState={inputState}
+            contentRect={contentRect}
+          />
+        </RootRef>
       </Grid>
-    </RootRef>
+      <Grid item className={classes.mentionsDiv}>
+        {channelType === CHANNEL_TYPE.NORMAL &&
+          mentions.get(channelId) &&
+          mentions.get(channelId).map(mention => (
+            <Grid item>
+              <InviteMentionInfo
+                nickname={mention.nickname}
+                timeStamp={mention.timeStamp}
+                handleClose={() => {
+                  removeMention(mention.nickname)
+                }}
+                handleInvite={() => {
+                  sendInvitation(mention.nickname)
+                }}
+              />
+            </Grid>
+          ))}
+      </Grid>
+    </Grid>
   )
 }
 ChannelContent.propTypes = {
@@ -55,7 +82,10 @@ ChannelContent.propTypes = {
   channelType: PropTypes.number.isRequired,
   signerPubKey: PropTypes.string,
   measureRef: PropTypes.func.isRequired,
-  contentRect: PropTypes.object.isRequired
+  sendInvitation: PropTypes.func.isRequired,
+  removeMention: PropTypes.func.isRequired,
+  contentRect: PropTypes.object.isRequired,
+  mentions: PropTypes.object.isRequired
 }
 
 export default R.compose(

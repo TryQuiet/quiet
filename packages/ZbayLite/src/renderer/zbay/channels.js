@@ -16,7 +16,7 @@ const channelSchema = Yup.object().shape({
   name: Yup.string().required(),
   private: Yup.boolean(),
   address: Yup.string().required(),
-  description: Yup.string().required(),
+  description: Yup.string(),
   keys: Yup.object().shape({
     ivk: Yup.string(),
     sk: Yup.string()

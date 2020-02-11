@@ -1,0 +1,52 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`invitation - mentions selector 1`] = `
+Immutable.Map {
+  " id1": Array [
+    Immutable.ChannelMentions {
+      "nickname": "test1",
+      "timeStamp": 1234567,
+    },
+    Immutable.ChannelMentions {
+      "nickname": "test2",
+      "timeStamp": 1234567,
+    },
+  ],
+  " id2": Array [
+    Immutable.ChannelMentions {
+      "nickname": "test3",
+      "timeStamp": 1234567,
+    },
+    Immutable.ChannelMentions {
+      "nickname": "test4",
+      "timeStamp": 1234567,
+    },
+  ],
+}
+`;
+
+exports[`invitation - mentions selector channel 1 1`] = `
+Array [
+  Immutable.ChannelMentions {
+    "nickname": "test1",
+    "timeStamp": 1234567,
+  },
+  Immutable.ChannelMentions {
+    "nickname": "test2",
+    "timeStamp": 1234567,
+  },
+]
+`;
+
+exports[`invitation - mentions selector channel 2 1`] = `
+Array [
+  Immutable.ChannelMentions {
+    "nickname": "test1",
+    "timeStamp": 1234567,
+  },
+  Immutable.ChannelMentions {
+    "nickname": "test2",
+    "timeStamp": 1234567,
+  },
+]
+`;

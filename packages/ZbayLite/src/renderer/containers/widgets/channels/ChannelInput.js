@@ -5,6 +5,7 @@ import { connect } from 'react-redux'
 import ChannelInputComponent from '../../../components/widgets/channels/ChannelInput'
 import channelHandlers from '../../../store/handlers/channel'
 import messagesQueueHandlers from '../../../store/handlers/messagesQueue'
+import mentionsHandlers from '../../../store/handlers/mentions'
 import channelSelectors from '../../../store/selectors/channel'
 import usersSelectors from '../../../store/selectors/users'
 import { MESSAGE_SIZE } from '../../../zbay/transit'
@@ -26,7 +27,8 @@ export const mapDispatchToProps = dispatch => {
     {
       onChange: channelHandlers.actions.setMessage,
       resetDebounce: messagesQueueHandlers.epics.resetMessageDebounce,
-      sendOnEnter: channelHandlers.epics.sendOnEnter
+      sendOnEnter: channelHandlers.epics.sendOnEnter,
+      checkMentions: mentionsHandlers.epics.checkMentions
     },
     dispatch
   )
@@ -39,7 +41,8 @@ export const ChannelInput = ({
   channelName,
   resetDebounce,
   users,
-  members
+  members,
+  checkMentions
 }) => {
   const [infoClass, setInfoClass] = React.useState(null)
   const [anchorEl, setAnchorEl] = React.useState({})
@@ -53,7 +56,10 @@ export const ChannelInput = ({
         onChange(e)
         resetDebounce()
       }}
-      onKeyPress={sendOnEnter}
+      onKeyPress={e => {
+        checkMentions()
+        sendOnEnter(e)
+      }}
       message={message}
       inputState={inputState}
       channelName={`#${channelName}`}

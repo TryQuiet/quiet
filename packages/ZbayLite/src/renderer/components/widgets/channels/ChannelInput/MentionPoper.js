@@ -1,5 +1,4 @@
 import React from 'react'
-import * as R from 'ramda'
 import PropTypes from 'prop-types'
 import { Scrollbars } from 'react-custom-scrollbars'
 
@@ -34,7 +33,21 @@ const styles = theme => ({
 export const MentionPoper = ({ classes, anchorEl, children, selected }) => {
   const anchor = React.useRef()
   const scrollbarRef = React.useRef()
+  const poperRef = React.useRef()
   const [height, setHeight] = React.useState(0)
+  const [positionY, setPositionY] = React.useState(0)
+  const [positionX, setPositionX] = React.useState(0)
+  React.useEffect(() => {
+    if (anchorEl && poperRef.current) {
+      if (children.length) {
+        setPositionY(anchorEl.offsetTop - poperRef.current.clientHeight)
+        setPositionX(anchorEl.offsetLeft)
+      } else {
+        setPositionY(0)
+        setPositionX(0)
+      }
+    }
+  })
   React.useEffect(() => {
     if (anchor && anchor.current) {
       if (anchor.current.clientHeight > maxHeight) {
@@ -45,7 +58,7 @@ export const MentionPoper = ({ classes, anchorEl, children, selected }) => {
     } else {
       setHeight(0)
     }
-  }, [anchorEl, children, anchor])
+  }, [children])
 
   React.useEffect(() => {
     if (anchor && anchor.current && anchor.current.children[selected]) {
@@ -74,29 +87,30 @@ export const MentionPoper = ({ classes, anchorEl, children, selected }) => {
   return (
     <Popper
       open
-      anchorEl={anchorEl}
-      placement='top-start'
+      ref={poperRef}
       className={classes.root}
+      style={{
+        transform: `translate3d(${positionX}px,${positionY}px,0px`,
+        zIndex: positionX === 0 || positionY === 0 ? -1 : 0
+      }}
     >
-      {anchorEl && (
-        <Paper>
-          <Scrollbars
-            ref={scrollbarRef}
-            autoHideTimeout={500}
-            style={{ height: height }}
-            renderThumbVertical={() => <div className={classes.thumb} />}
-          >
-            <Grid>
-              <Grid container>
-                <Grid item xs ref={anchor}>
-                  {children}
-                </Grid>
-                <div className={classes.divider} />
+      <Paper>
+        <Scrollbars
+          ref={scrollbarRef}
+          autoHideTimeout={500}
+          style={{ height: height }}
+          renderThumbVertical={() => <div className={classes.thumb} />}
+        >
+          <Grid>
+            <Grid container>
+              <Grid item xs ref={anchor}>
+                {children}
               </Grid>
+              <div className={classes.divider} />
             </Grid>
-          </Scrollbars>
-        </Paper>
-      )}
+          </Grid>
+        </Scrollbars>
+      </Paper>
     </Popper>
   )
 }
@@ -107,4 +121,16 @@ MentionPoper.propTypes = {
   selected: PropTypes.number
 }
 
-export default R.compose(React.memo, withStyles(styles))(MentionPoper)
+export default React.memo(withStyles(styles)(MentionPoper), (before, after) => {
+  let isSameHtml
+  if (before.anchorEl === null || after.anchorEl === null) {
+    isSameHtml = before.anchorEl === after.anchorEl
+  } else {
+    isSameHtml = before.anchorEl.id === after.anchorEl.id
+  }
+  return (
+    isSameHtml &&
+    before.children.length === after.children.length &&
+    before.selected === after.selected
+  )
+})

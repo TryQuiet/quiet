@@ -23,6 +23,13 @@ const styles = theme => ({
     marginLeft: 50
   }
 })
+// highlight: {
+//   color: theme.palette.colors.lushSky,
+//   backgroundColor: theme.palette.colors.lushSky12,
+//   padding: 5,
+//   borderRadius: 4
+// }
+// TODO Create separate component for mentions
 const checkLinking = (tags, users, onLinkedChannel, onLinkedUser, message) => {
   let parsedMessage = message
   parsedMessage = reactStringReplace(parsedMessage, /#(\w+)/g, (match, i) => {
@@ -31,7 +38,12 @@ const checkLinking = (tags, users, onLinkedChannel, onLinkedUser, message) => {
     }
     return (
       <a
-        style={{ color: '#2196f3' }}
+        style={{
+          color: '#67BFD3',
+          backgroundColor: '#EDF7FA',
+          padding: 5,
+          borderRadius: 4
+        }}
         key={match + i}
         onClick={e => {
           e.preventDefault()
@@ -49,7 +61,12 @@ const checkLinking = (tags, users, onLinkedChannel, onLinkedUser, message) => {
     }
     return (
       <a
-        style={{ color: '#2196f3' }}
+        style={{
+          color: '#67BFD3',
+          backgroundColor: '#EDF7FA',
+          padding: 5,
+          borderRadius: 4
+        }}
         key={match + i}
         onClick={e => {
           e.preventDefault()
@@ -86,7 +103,11 @@ export const ChannelMessage = ({
   )
   const [actionsOpen, setActionsOpen] = useState(false)
   return (
-    <BasicMessage message={message} actionsOpen={actionsOpen} setActionsOpen={setActionsOpen}>
+    <BasicMessage
+      message={message}
+      actionsOpen={actionsOpen}
+      setActionsOpen={setActionsOpen}
+    >
       <Grid className={classes.messageInput} item>
         <Typography variant='body2' className={classes.message}>
           {parsedMessage}
@@ -113,7 +134,4 @@ ChannelMessage.propTypes = {
   onReply: PropTypes.func
 }
 
-export default R.compose(
-  React.memo,
-  withStyles(styles)
-)(ChannelMessage)
+export default R.compose(React.memo, withStyles(styles))(ChannelMessage)

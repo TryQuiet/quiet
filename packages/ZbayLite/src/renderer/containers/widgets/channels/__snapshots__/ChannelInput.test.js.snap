@@ -2,6 +2,7 @@
 
 exports[`ChannelInput will receive right actions 1`] = `
 Object {
+  "checkMentions": [Function],
   "onChange": [Function],
   "resetDebounce": [Function],
   "sendOnEnter": [Function],

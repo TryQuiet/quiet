@@ -1,0 +1,132 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`InviteMentionInfo renders component 1`] = `
+<WithStyles(ForwardRef(ListItem))
+  className="wrapper-mock"
+>
+  <WithStyles(ForwardRef(ListItemText))
+    className="messageCard-mock"
+    disableTypography={true}
+    primary={
+      <React.Fragment>
+        <ForwardRef(WithStyles)
+          className="visibleInfo-mock"
+          variant="body2"
+        >
+          Only visible to you
+        </ForwardRef(WithStyles)>
+        <ForwardRef(WithStyles)
+          alignItems="flex-start"
+          container={true}
+          direction="row"
+          justify="flex-start"
+          wrap="nowrap"
+        >
+          <ForwardRef(WithStyles)
+            className="avatar-mock"
+            item={true}
+          >
+            <Memo(Icon)
+              className="icon-mock"
+              src="test-file-stub"
+            />
+          </ForwardRef(WithStyles)>
+          <ForwardRef(WithStyles)
+            container={true}
+            direction="row"
+            item={true}
+            justify="space-between"
+          >
+            <ForwardRef(WithStyles)
+              alignItems="flex-start"
+              container={true}
+              item={true}
+              wrap="nowrap"
+              xs={true}
+            >
+              <ForwardRef(WithStyles)
+                item={true}
+              >
+                <ForwardRef(WithStyles)
+                  className="username-mock"
+                  color="textPrimary"
+                >
+                  Zbay
+                </ForwardRef(WithStyles)>
+              </ForwardRef(WithStyles)>
+              <ForwardRef(WithStyles)
+                item={true}
+              >
+                <ForwardRef(WithStyles)
+                  className="time-mock"
+                >
+                  Jan 1, 1970, 12:00 am
+                </ForwardRef(WithStyles)>
+              </ForwardRef(WithStyles)>
+            </ForwardRef(WithStyles)>
+          </ForwardRef(WithStyles)>
+        </ForwardRef(WithStyles)>
+      </React.Fragment>
+    }
+    secondary={
+      <ForwardRef(WithStyles)
+        className="messageInput-mock"
+        container={true}
+        direction="column"
+      >
+        <ForwardRef(WithStyles)
+          item={true}
+        >
+          <ForwardRef(WithStyles)
+            className="message-mock"
+            variant="body2"
+          >
+            You mentioned
+             
+            <span
+              className="highlight-mock"
+            >
+              @
+              test
+            </span>
+            , but they're not a participant in this channel.
+          </ForwardRef(WithStyles)>
+        </ForwardRef(WithStyles)>
+        <ForwardRef(WithStyles)
+          className="buttonsDiv-mock"
+          item={true}
+        >
+          <ForwardRef(WithStyles)
+            container={true}
+            spacing={1}
+          >
+            <ForwardRef(WithStyles)
+              item={true}
+            >
+              <ForwardRef(WithStyles)
+                className="button-mock"
+                onClick={[MockFunction]}
+                variant="outlined"
+              >
+                Invite 
+                test
+              </ForwardRef(WithStyles)>
+            </ForwardRef(WithStyles)>
+            <ForwardRef(WithStyles)
+              item={true}
+            >
+              <ForwardRef(WithStyles)
+                className="button-mock"
+                onClick={[MockFunction]}
+                variant="outlined"
+              >
+                Do Nothing
+              </ForwardRef(WithStyles)>
+            </ForwardRef(WithStyles)>
+          </ForwardRef(WithStyles)>
+        </ForwardRef(WithStyles)>
+      </ForwardRef(WithStyles)>
+    }
+  />
+</WithStyles(ForwardRef(ListItem))>
+`;
