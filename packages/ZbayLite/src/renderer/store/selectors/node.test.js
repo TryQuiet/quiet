@@ -97,4 +97,8 @@ describe('node selectors', () => {
   it('bootstrappingMessage', () => {
     expect(selectors.bootstrappingMessage(store.getState())).toMatchSnapshot()
   })
+
+  it('rescanningProgress', () => {
+    expect(selectors.rescanningProgress(store.getState())).toMatchSnapshot()
+  })
 })

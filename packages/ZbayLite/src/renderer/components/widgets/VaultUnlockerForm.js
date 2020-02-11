@@ -67,6 +67,7 @@ export const VaultUnlockerForm = ({
 }) => {
   const isDev = process.env.NODE_ENV === 'development'
   const blockchainStatus = electronStore.get('AppStatus.blockchain.status')
+  const isRescanned = electronStore.get('AppStatus.blockchain.isRescanned')
   return (
     <Formik
       onSubmit={(values, actions) => {
@@ -142,7 +143,7 @@ export const VaultUnlockerForm = ({
               )}
             </Grid>
           </Grid>
-          {!isDev && !locked && !loader.loading && blockchainStatus !== 'SUCCESS' && (
+          {!isDev && !locked && !loader.loading && (blockchainStatus !== 'SUCCESS' || !isRescanned) && (
             <Redirect to='/zcashNode' />
           )}
           {!locked && !loader.loading && nodeConnected && (newUser ? true : done) && (

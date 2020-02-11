@@ -55,7 +55,6 @@ exports[`SyncLoader renders component 1`] = `
               "root": "rootBar-mock",
             }
           }
-          value="NaN"
           variant="determinate"
         />
       </WithStyles(ForwardRef(Grid))>
@@ -75,7 +74,7 @@ exports[`SyncLoader renders component 1`] = `
             className="status-mock"
             variant="caption"
           >
-            Syncing,   (NaN MB/s)
+            Connecting…   (0.00 MB/s)
           </WithStyles(ForwardRef(Typography))>
         </WithStyles(ForwardRef(Grid))>
       </WithStyles(ForwardRef(Grid))>

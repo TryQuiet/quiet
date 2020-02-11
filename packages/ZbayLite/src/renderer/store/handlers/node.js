@@ -1,5 +1,6 @@
 import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
+import { ipcRenderer } from 'electron'
 import { createAction, handleActions } from 'redux-actions'
 
 import { typeRejected, LoaderState, FetchingState } from './utils'
@@ -39,6 +40,10 @@ const setFetchingSizeLeft = createAction(actionTypes.SET_FETCHING_SIZE_LEFT)
 const setFetchingStatus = createAction(actionTypes.SET_FETCHING_STATUS)
 const setFetchingSpeed = createAction(actionTypes.SET_FETCHING_SPEED)
 const setFetchingEndTime = createAction(actionTypes.SET_FETCHING_END_TIME)
+const setConnectionStatus = createAction(actionTypes.SET_CONNECTION_STATUS)
+
+const setRescanningProgress = createAction(actionTypes.SET_RESCANNING_PROGRESS)
+const setRescanningMonitorStatus = createAction(actionTypes.SET_RESCANNING_MONITOR_STATUS)
 
 const actions = {
   createAddress,
@@ -48,7 +53,19 @@ const actions = {
   setFetchingSizeLeft,
   setFetchingStatus,
   setFetchingEndTime,
-  setFetchingSpeed
+  setFetchingSpeed,
+  setRescanningProgress,
+  setRescanningMonitorStatus,
+  setConnectionStatus
+}
+
+export const startRescanningMonitor = () => async (dispatch, getState) => {
+  ipcRenderer.send('toggle-rescanning-progress-monitor')
+  dispatch(setRescanningMonitorStatus(true))
+}
+
+export const disablePowerSaveMode = () => async (dispatch, getState) => {
+  ipcRenderer.send('disable-sleep-prevention')
 }
 
 const getStatus = () => async (dispatch) => {
@@ -72,7 +89,9 @@ const togglePower = () => (dispatch) => {
 const epics = {
   getStatus,
   restart,
-  togglePower
+  togglePower,
+  startRescanningMonitor,
+  disablePowerSaveMode
 }
 
 export const reducer = handleActions({
@@ -84,7 +103,10 @@ export const reducer = handleActions({
   [setFetchingSizeLeft]: (state, { payload: sizeLeft }) => state.setIn(['fetchingStatus', 'sizeLeft'], sizeLeft),
   [setFetchingStatus]: (state, { payload: fetchingStatus }) => state.setIn(['fetchingStatus', 'fetchingStatus'], fetchingStatus),
   [setFetchingSpeed]: (state, { payload: fetchingSpeed }) => state.setIn(['fetchingStatus', 'fetchingSpeed'], fetchingSpeed),
-  [setFetchingEndTime]: (state, { payload: fetchingEndTime }) => state.setIn(['fetchingStatus', 'fetchingEndTime'], fetchingEndTime)
+  [setFetchingEndTime]: (state, { payload: fetchingEndTime }) => state.setIn(['fetchingStatus', 'fetchingEndTime'], fetchingEndTime),
+  [setConnectionStatus]: (state, { payload: isFetching }) => state.setIn(['fetchingStatus', 'isFetching'], isFetching),
+  [setRescanningProgress]: (state, { payload: rescanningProgress }) => state.setIn(['fetchingStatus', 'rescanningProgress'], rescanningProgress),
+  [setRescanningMonitorStatus]: (state, { payload: isRescanningMonitorStarted }) => state.setIn(['fetchingStatus', 'isRescanningMonitorStarted'], isRescanningMonitorStarted)
 }, initialState)
 
 export default {

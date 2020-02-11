@@ -2,6 +2,7 @@ import path from 'path'
 import { exec, spawn } from 'child_process'
 import fs from 'fs-extra'
 import os from 'os'
+import electronStore from '../../shared/electronStore'
 
 import { credentials } from '../../renderer/zcash'
 
@@ -54,6 +55,7 @@ export const ensureZcashParams = async (platform, callback) => {
   }
 }
 export const spawnZcashNode = (platform, isTestnet, torUrl = false) => {
+  const isRescaned = electronStore.get('AppStatus.blockchain.isRescanned')
   let zcashdPath = getZcashResource('zcashd', platform)
   const configName = isTestnet ? 'testnet.conf' : 'mainnet.conf'
   let options
@@ -78,6 +80,9 @@ export const spawnZcashNode = (platform, isTestnet, torUrl = false) => {
 
   if (torUrl) {
     options.push(`-proxy=${torUrl}`)
+  }
+  if (!isRescaned) {
+    options.push('-rescan')
   }
   const rpcCredentials = credentials()
   options.push(`-rpcuser=${rpcCredentials.username}`)

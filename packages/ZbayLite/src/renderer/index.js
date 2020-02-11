@@ -23,7 +23,7 @@ ipcRenderer.on('bootstrappingNode', (event, { bootstrapping, message }) => {
   store.dispatch(nodeHandlers.actions.setBootstrappingMessage(message))
 })
 
-ipcRenderer.on('fetchingStatus', (event, { sizeLeft, part, status, speed, eta }) => {
+ipcRenderer.on('fetchingStatus', (event, { sizeLeft, part, status, speed, eta, rescannedBlock, isFetching }) => {
   if (sizeLeft) {
     store.dispatch(nodeHandlers.actions.setFetchingSizeLeft(sizeLeft))
   }
@@ -38,6 +38,15 @@ ipcRenderer.on('fetchingStatus', (event, { sizeLeft, part, status, speed, eta })
   }
   if (eta) {
     store.dispatch(nodeHandlers.actions.setFetchingEndTime(eta))
+  }
+  if (rescannedBlock) {
+    store.dispatch(nodeHandlers.actions.setRescanningProgress(rescannedBlock))
+  }
+  if (isFetching === 'IN_PROGRESS') {
+    store.dispatch(nodeHandlers.actions.setConnectionStatus(true))
+  }
+  if (isFetching === 'INTERRUPTED') {
+    store.dispatch(nodeHandlers.actions.setConnectionStatus(false))
   }
 })
 

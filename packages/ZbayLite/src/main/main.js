@@ -19,11 +19,13 @@ import zlib from 'zlib'
 import progress from 'request-progress'
 import util from 'util'
 import convert from 'convert-seconds'
+import R from 'ramda'
+import findInFiles from 'find-in-files'
+
 import { createRpcCredentials } from '../renderer/zcash'
 import config from './config'
 import { spawnZcashNode } from './zcash/bootstrap'
 import electronStore from '../shared/electronStore'
-import R from 'ramda'
 
 const osPathsBlockchain = {
   darwin: `${process.env.HOME ||
@@ -40,18 +42,30 @@ const osPathsParams = {
 }
 
 const BLOCKCHAIN_SIZE = 26602539059
+const isFetchingArr = []
 
 const calculateDownloadSpeed = ({ fetchedSize, prevFetchedSize }) => {
   const diff = fetchedSize - prevFetchedSize
   const speedInSec = diff / 15
   const convertedSpeed = speedInSec ? Math.abs(speedInSec.toFixed()) : null
+  const estimatedTimeForRescanning = 2400
+  let isFetching = false
   const eta = convertedSpeed
-    ? convert(((BLOCKCHAIN_SIZE - fetchedSize) / convertedSpeed).toFixed())
+    ? convert(((parseInt(((BLOCKCHAIN_SIZE - fetchedSize) / convertedSpeed)) + estimatedTimeForRescanning)))
     : null
+  if (isFetchingArr.length < 2) {
+    isFetchingArr.push(convertedSpeed)
+  } else {
+    const [prevSpeedValue, currentSpeedValue] = isFetchingArr
+    isFetching = prevSpeedValue !== currentSpeedValue
+    isFetchingArr.shift()
+    isFetchingArr.push(convertedSpeed)
+  }
   mainWindow.webContents.send('fetchingStatus', {
     sizeLeft: BLOCKCHAIN_SIZE - fetchedSize,
     speed: convertedSpeed,
-    eta
+    eta,
+    isFetching: isFetching ? 'IN_PROGRESS' : 'INTERRUPTED'
   })
 }
 
@@ -59,6 +73,9 @@ const downloadManagerForZippedBlockchain = ({ data, source }) => {
   const dataToFetch = R.clone(data)
   return new Promise(function (resolve, reject) {
     let downloadedSize = 0
+    app.on('will-quit', () => {
+      reject(console.log('app exited'))
+    })
     const checkFetchedSize = () => {
       getSize(source === 'params' ? osPathsParams[process.platform] : osPathsBlockchain[process.platform], (err, size) => {
         if (err) {
@@ -75,7 +92,7 @@ const downloadManagerForZippedBlockchain = ({ data, source }) => {
     }
     const checkSizeInterval = setInterval(() => {
       checkFetchedSize()
-    }, 15000)
+    }, 10000)
     const startFetching = (data) => {
       let item
       const gunzip = zlib.createGunzip()
@@ -260,7 +277,7 @@ const checkForUpdate = win => {
   autoUpdater.on('update-downloaded', info => {
     const blockchainStatus = electronStore.get('AppStatus.blockchain')
     const paramsStatus = electronStore.get('AppStatus.params')
-    if (blockchainStatus !== config.BLOCKCHAIN_STATUSES.SUCCESS || paramsStatus !== config.PARAMS_STATUSES) {
+    if (blockchainStatus !== config.BLOCKCHAIN_STATUSES.SUCCESS || paramsStatus !== config.PARAMS_STATUSES.SUCCESS) {
       autoUpdater.quitAndInstall()
     }
     win.webContents.send('newUpdateAvailable')
@@ -358,6 +375,9 @@ const fetchBlockchain = async (win, torUrl) => {
   nodeProc.on('close', () => {
     nodeProc = null
   })
+  app.on('will-quit', () => {
+    nodeProc.kill('SIGKILL')
+  })
 }
 
 const createZcashNode = async (win, torUrl) => {
@@ -380,14 +400,11 @@ const createZcashNode = async (win, torUrl) => {
     if (!AppStatus && !isFetchedFromExternalSource) {
       electronStore.set('AppStatus', {
         params: {
-          status: config.PARAMS_STATUSES.FETCHING,
-          lastDownload: '',
-          index: 0
+          status: config.PARAMS_STATUSES.FETCHING
         },
         blockchain: {
           status: config.BLOCKCHAIN_STATUSES.TO_FETCH,
-          lastDownload: '',
-          index: 0
+          isRescanned: false
         },
         fetchedSize: 0
       })
@@ -420,6 +437,9 @@ const createZcashNode = async (win, torUrl) => {
           console.log('closing connection')
           nodeProc = null
         })
+        app.on('will-quit', () => {
+          nodeProc.kill('SIGKILL')
+        })
       }
     }
   } else {
@@ -435,8 +455,10 @@ const createZcashNode = async (win, torUrl) => {
   }
 }
 
+let powerSleepId
+
 app.on('ready', async () => {
-  powerSaveBlocker.start('prevent-app-suspension')
+  powerSleepId = powerSaveBlocker.start('prevent-app-suspension')
   const template = [
     {
       label: 'Zbay',
@@ -524,6 +546,46 @@ app.on('ready', async () => {
     autoUpdater.quitAndInstall()
   })
 
+  let rescanningInterval
+  let tick = 0
+  const progressBlocksArr = []
+
+  ipcMain.on('toggle-rescanning-progress-monitor', (event, arg) => {
+    if (!rescanningInterval) {
+      rescanningInterval = setInterval(() => {
+        findInFiles.find('rescanning', `${osPathsBlockchain[process.platform]}`, 'debug.log$')
+          .then(function (results) {
+            if (tick > 1) {
+              const rescannedBlock = results[`${osPathsBlockchain[process.platform]}debug.log`].line.slice(-1)[0].substr(-25, 7).trim().replace('.', '')
+              mainWindow.webContents.send('fetchingStatus', {
+                rescannedBlock
+              })
+              const rescannedBlockInt = parseInt(rescannedBlock)
+              if (progressBlocksArr.length < 2) {
+                progressBlocksArr.push(rescannedBlockInt)
+              } else {
+                const diff = progressBlocksArr[1] - progressBlocksArr[0]
+                const timeInterval = 70
+                const blockToRescan = 722000 - rescannedBlockInt
+                const remainingTime = timeInterval * blockToRescan / diff
+                const eta = convert(remainingTime.toFixed())
+                mainWindow.webContents.send('fetchingStatus', {
+                  rescannedBlock,
+                  eta
+                })
+                progressBlocksArr.shift()
+                progressBlocksArr.push(rescannedBlockInt)
+              }
+            }
+          })
+        tick++
+      }, 70000)
+    } else {
+      console.log('clear interval')
+      clearInterval(rescanningInterval)
+    }
+  })
+
   ipcMain.on('vault-created', (event, arg) => {
     electronStore.set('vaultStatus', config.VAULT_STATUSES.CREATED)
     if (!isDev) {
@@ -537,6 +599,10 @@ app.on('ready', async () => {
         nodeProc.kill()
       }
     }
+  })
+
+  ipcMain.on('disable-sleep-prevention', (event, arg) => {
+    powerSaveBlocker.stop(powerSleepId)
   })
 
   ipcMain.on('create-node', async (event, arg) => {

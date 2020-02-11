@@ -20,13 +20,18 @@ Immutable.NodeState {
     "sizeLeft": 0,
     "part": "",
     "fetchingStatus": "",
-    "fetchingSpeed": "",
+    "fetchingSpeed": null,
     "fetchingEndTime": Object {
       "hours": null,
       "minutes": null,
       "seconds": null,
     },
+    "isFetching": false,
+    "rescanningProgress": 0,
+    "isRescanningMonitorStarted": false,
   },
   "startedAt": "2019-03-05T09:34:48.000Z",
 }
 `;
+
+exports[`node selectors rescanningProgress 1`] = `0`;

@@ -80,15 +80,7 @@ const styles = theme => ({
   }
 })
 
-export const SyncLoader = ({ classes, hasAddress, blockchainStatus, node, bootstrapping, bootstrappingMessage, nodeConnected, openModal, fetchingStatus, fetchingSizeLeft, fetchingPart, fetchingSpeed, fetchingEndTime }) => {
-  const lastBlock = node.latestBlock.isEqualTo(0) ? 999999 : node.latestBlock
-  const sync = parseFloat(node.currentBlock.div(lastBlock) * 100).toFixed(2)
-  const fetching = (((20602539059 - fetchingSizeLeft) * 100) / 20602539059).toFixed()
-  let ETA = null
-  if (fetchingEndTime) {
-    const { hours, minutes } = fetchingEndTime
-    ETA = `${hours ? `${hours}h` : ''} ${minutes ? `${minutes}m left` : ''}`
-  }
+export const SyncLoader = ({ classes, ETA, message, isFetching, progressValue, isBlockchainRescanned, isRescanningMonitorStarted, rescanningProgress, hasAddress, blockchainStatus, node, bootstrapping, bootstrappingMessage, nodeConnected, openModal, fetchingStatus, fetchingSizeLeft, fetchingPart, fetchingSpeed }) => {
   return (
     <WindowWrapper className={classes.root}>
       <Grid container className={classes.box} justify='center' alignItems='center' alignContent='center'>
@@ -110,7 +102,7 @@ export const SyncLoader = ({ classes, hasAddress, blockchainStatus, node, bootst
         </Grid>
         <Grid item container>
           <Grid item container justify='center' alignItems='center'>
-            <LinearProgress variant={fetchingStatus === 'SUCCESS' || blockchainStatus === 'SUCCESS' ? 'indeterminate' : 'determinate'} classes={{ root: classes.rootBar, barColorPrimary: classes.progressBar }} value={nodeConnected ? sync : fetching} />
+            <LinearProgress variant={'determinate'} classes={{ root: classes.rootBar, barColorPrimary: classes.progressBar }} value={progressValue} />
           </Grid>
           <Grid item xs={12} className={classes.statusDiv}>
             {bootstrapping ? <Typography variant='caption' className={classes.status}>
@@ -118,11 +110,11 @@ export const SyncLoader = ({ classes, hasAddress, blockchainStatus, node, bootst
             </Typography> : fetchingStatus !== 'SUCCESS' && blockchainStatus !== 'SUCCESS' ? (
               <Grid item container justify='center' alignItems='center' wrap={'wrap'}>
                 <Typography variant='caption' className={classes.status}>
-                  {`Syncing,  ${ETA || ''} (${(fetchingSpeed / 1024 ** 2).toFixed(2)} MB/s)`}
+                  {`${isFetching ? 'Syncing,' : 'Connecting…'}  ${isFetching ? ETA : ''} (${isFetching ? (fetchingSpeed / 1024 ** 2).toFixed(2) : '0.00'} MB/s)`}
                 </Typography>
               </Grid>
             ) : <Typography variant='caption' className={classes.status}>
-              {`Rescan and final sync...`}
+              {message}
             </Typography>}
           </Grid>
         </Grid>
@@ -139,7 +131,24 @@ export const SyncLoader = ({ classes, hasAddress, blockchainStatus, node, bootst
 
 SyncLoader.propTypes = {
   classes: PropTypes.object.isRequired,
-  node: PropTypes.instanceOf(Immutable.Record).isRequired
+  node: PropTypes.instanceOf(Immutable.Record).isRequired,
+  ETA: PropTypes.object,
+  message: PropTypes.string,
+  progressValue: PropTypes.string,
+  isBlockchainRescanned: PropTypes.bool,
+  isRescanningMonitorStarted: PropTypes.bool,
+  rescanningProgress: PropTypes.number,
+  hasAddress: PropTypes.bool,
+  blockchainStatus: PropTypes.string,
+  bootstrapping: PropTypes.bool,
+  bootstrappingMessage: PropTypes.string,
+  nodeConnected: PropTypes.bool,
+  openModal: PropTypes.func,
+  fetchingStatus: PropTypes.string,
+  fetchingSizeLeft: PropTypes.number,
+  fetchingPart: PropTypes.string,
+  fetchingSpeed: PropTypes.number,
+  isFetching: PropTypes.bool
 }
 
 export default withStyles(styles)(SyncLoader)

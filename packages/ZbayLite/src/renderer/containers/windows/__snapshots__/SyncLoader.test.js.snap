@@ -13,9 +13,11 @@ Object {
   },
   "fetchingPart": "",
   "fetchingSizeLeft": 0,
-  "fetchingSpeed": "",
+  "fetchingSpeed": null,
   "fetchingStatus": "",
   "hasAddress": "",
+  "isFetching": false,
+  "isRescanningMonitorStarted": false,
   "locked": true,
   "node": Immutable.NodeState {
     "latestBlock": 100,
@@ -32,15 +34,19 @@ Object {
       "sizeLeft": 0,
       "part": "",
       "fetchingStatus": "",
-      "fetchingSpeed": "",
+      "fetchingSpeed": null,
       "fetchingEndTime": Object {
         "hours": null,
         "minutes": null,
         "seconds": null,
       },
+      "isFetching": false,
+      "rescanningProgress": 0,
+      "isRescanningMonitorStarted": false,
     },
     "startedAt": null,
   },
   "nodeConnected": false,
+  "rescanningProgress": 0,
 }
 `;

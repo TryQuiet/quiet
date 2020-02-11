@@ -46,6 +46,9 @@ const fetchingSize = createSelector(fetching, n => n.sizeLeft)
 const fetchingStatus = createSelector(fetching, n => n.fetchingStatus)
 const fetchingSpeed = createSelector(fetching, n => n.fetchingSpeed)
 const fetchingEndTime = createSelector(fetching, n => n.fetchingEndTime)
+const rescanningProgress = createSelector(fetching, n => n.rescanningProgress)
+const isFetching = createSelector(fetching, n => n.isFetching)
+const isRescanningMonitorStarted = createSelector(fetching, n => n.isRescanningMonitorStarted)
 
 export default {
   node,
@@ -63,5 +66,8 @@ export default {
   fetchingSize,
   fetchingStatus,
   fetchingSpeed,
-  fetchingEndTime
+  isFetching,
+  fetchingEndTime,
+  rescanningProgress,
+  isRescanningMonitorStarted
 }

@@ -80,6 +80,7 @@ export const actionTypes = mirrorKey({
   SET_FETCHING_STATUS: undefined,
   SET_FETCHING_SPEED: undefined,
   SET_FETCHING_END_TIME: undefined,
+  SET_CONNECTION_STATUS: undefined,
   ENQUEUE_SNACKBAR: undefined,
   REMOVE_SNACKBAR: undefined,
   SET_OFFER_MESSAGES: undefined,
@@ -110,7 +111,9 @@ export const actionTypes = mirrorKey({
   SET_CHANNEL_AD_FEE: undefined,
   SET_ADVERT_FEE: undefined,
   SET_ONLY_REGISTERED: undefined,
-  SET_FREE_UTXOS: undefined
+  SET_FREE_UTXOS: undefined,
+  SET_RESCANNING_PROGRESS: undefined,
+  SET_RESCANNING_MONITOR_STATUS: undefined
 })
 
 export const messageType = {

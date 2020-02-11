@@ -33,12 +33,15 @@ export const FetchingState = Immutable.Record({
   sizeLeft: 0,
   part: '',
   fetchingStatus: '',
-  fetchingSpeed: '',
+  fetchingSpeed: null,
   fetchingEndTime: {
     hours: null,
     minutes: null,
     seconds: null
-  }
+  },
+  isFetching: false,
+  rescanningProgress: 0,
+  isRescanningMonitorStarted: false
 })
 
 export default {
