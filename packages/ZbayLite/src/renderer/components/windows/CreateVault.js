@@ -1,6 +1,7 @@
 import React from 'react'
 import { Redirect } from 'react-router'
 import PropTypes from 'prop-types'
+import { shell } from 'electron'
 
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
@@ -110,7 +111,14 @@ export const CreateVault = ({
                   align='justify'
                   gutterBottom
                 >
-                  To set up the secure Zbay vault, you need to create a password.
+                  You'll need this password to access your account, so write it down! It only works on this computer.{' '}
+                  <a
+                    onClick={e => {
+                      e.preventDefault()
+                      shell.openExternal('https://www.zbay.app/#faq')
+                    }}
+                    href='https://www.zbay.app/#faq'
+                  >[Learn more]</a>
                 </Typography>
               </Grid>
               <Grid item className={classes.form}>

@@ -90,7 +90,7 @@ export const VaultCreator = ({
                     (passwordPosted && !isVaultCreationComplete)
                   }
                   disabled={
-                    !isValid || (passwordPosted && !isVaultCreationComplete)
+                    (passwordPosted && !isVaultCreationComplete)
                   }
                 />
               </Grid>

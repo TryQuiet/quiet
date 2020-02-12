@@ -8,10 +8,11 @@ import identitySelectors from '../../../store/selectors/identity'
 
 export const mapStateToProps = state => ({
   status: nodeSelectors.status(state),
+  connections: nodeSelectors.connections(state).toNumber(),
   freeUtxos: identitySelectors.freeUtxos(state)
 })
 
-export const NodePanel = ({ status, freeUtxos }) => {
+export const NodePanel = ({ status, freeUtxos, connections }) => {
   const [expanded, setExpanded] = React.useState(false)
   return (
     <NodePanelComponent
@@ -19,6 +20,7 @@ export const NodePanel = ({ status, freeUtxos }) => {
       status={status}
       setExpanded={setExpanded}
       freeUtxos={freeUtxos}
+      connections={connections}
     />
   )
 }

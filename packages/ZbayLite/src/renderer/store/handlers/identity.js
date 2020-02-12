@@ -367,15 +367,16 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
   } catch (err) {}
   dispatch(setLoading(false))
 
-  const balance = identitySelectors.balance('zec')(getState())
-  const lockedBalance = identitySelectors.lockedBalance('zec')(getState())
   const newUser = appSelectors.newUser(getState())
-  if (lockedBalance.plus(balance).lt(0.0001) && newUser === false) {
-    setTimeout(
-      () => dispatch(modalsHandlers.actionCreators.openModal('depositMoney')()),
-      500
-    )
-  }
+  // Dont show deposit modal if we use faucet 12.02.2020
+  // const balance = identitySelectors.balance('zec')(getState())
+  // const lockedBalance = identitySelectors.lockedBalance('zec')(getState())
+  // if (lockedBalance.plus(balance).lt(0.0001) && newUser === false) {
+  //   setTimeout(
+  //     () => dispatch(modalsHandlers.actionCreators.openModal('depositMoney')()),
+  //     500
+  //   )
+  // }
   if (newUser === true) {
     dispatch(modalsHandlers.actionCreators.openModal('createUsernameModal')())
   }

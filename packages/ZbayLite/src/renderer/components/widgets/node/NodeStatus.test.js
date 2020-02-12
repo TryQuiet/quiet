@@ -22,6 +22,7 @@ describe('NodeStatus', () => {
         classes={mockClasses}
         percentSynced='78'
         freeUtxos={2}
+        connections={2}
       />
     )
     expect(result).toMatchSnapshot()

@@ -23,14 +23,20 @@ const styles = theme => ({
   }
 })
 
-export const NodeStatus = ({ classes, status, percentSynced, freeUtxos }) => {
+export const NodeStatus = ({
+  classes,
+  status,
+  percentSynced,
+  freeUtxos,
+  connections
+}) => {
   return (
     <Grid container direction='row' alignItems='center' justify='flex-end'>
       <Grid item>
         {status === 'healthy' || status === 'down' ? (
           <PulseDot
             size={6}
-            color={freeUtxos ? status : 'down'}
+            color={freeUtxos && connections ? status : 'down'}
             className={classes.icon}
           />
         ) : (
@@ -43,7 +49,9 @@ export const NodeStatus = ({ classes, status, percentSynced, freeUtxos }) => {
           variant='caption'
           className={classes.status}
         >
-          {percentSynced !== null && `${percentSynced}%`}
+          {connections
+            ? percentSynced !== null && `${percentSynced}%`
+            : `Offline`}
         </Typography>
       </Grid>
     </Grid>
@@ -59,11 +67,13 @@ NodeStatus.propTypes = {
     'connecting'
   ]).isRequired,
   percentSynced: PropTypes.string,
-  freeUtxos: PropTypes.number.isRequired
+  freeUtxos: PropTypes.number.isRequired,
+  connections: PropTypes.number.isRequired
 }
 
 NodeStatus.defaultProps = {
-  percentSynced: null
+  percentSynced: null,
+  connections: 0
 }
 
 export default React.memo(withStyles(styles)(NodeStatus))

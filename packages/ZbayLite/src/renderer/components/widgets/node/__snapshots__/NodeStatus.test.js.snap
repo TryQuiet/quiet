@@ -23,7 +23,9 @@ exports[`NodeStatus renders for status down 1`] = `
       className="status-mock"
       display="inline"
       variant="caption"
-    />
+    >
+      Offline
+    </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>
 </WithStyles(ForwardRef(Grid))>
 `;
@@ -40,7 +42,7 @@ exports[`NodeStatus renders for status healthy 1`] = `
   >
     <Memo(WithStyles(PulseDot))
       className="icon-mock"
-      color="healthy"
+      color="down"
       size={6}
     />
   </WithStyles(ForwardRef(Grid))>
@@ -51,7 +53,9 @@ exports[`NodeStatus renders for status healthy 1`] = `
       className="status-mock"
       display="inline"
       variant="caption"
-    />
+    >
+      Offline
+    </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>
 </WithStyles(ForwardRef(Grid))>
 `;
@@ -82,7 +86,9 @@ exports[`NodeStatus renders for status restarting 1`] = `
       className="status-mock"
       display="inline"
       variant="caption"
-    />
+    >
+      Offline
+    </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>
 </WithStyles(ForwardRef(Grid))>
 `;
@@ -113,7 +119,9 @@ exports[`NodeStatus renders for status syncing 1`] = `
       className="status-mock"
       display="inline"
       variant="caption"
-    />
+    >
+      Offline
+    </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>
 </WithStyles(ForwardRef(Grid))>
 `;
