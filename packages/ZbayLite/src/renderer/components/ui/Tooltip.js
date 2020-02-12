@@ -39,7 +39,7 @@ function arrowGenerator (color, theme) {
       }
     },
     '&[x-placement*="top"] $arrow': {
-      bottom: 0,
+      top: 39,
       left: 0,
       marginBottom: '-0.95em',
       '&::before': {
@@ -76,6 +76,7 @@ const styles = theme => ({
     filter: 'drop-shadow(0 0 0px #aaaaaa)'
   },
   tooltip: {
+    marginBottom: 5,
     background: theme.palette.colors.trueBlack,
     color: theme.typography.body1.color,
     paddingTop: 12,
@@ -106,7 +107,7 @@ const styles = theme => ({
   arrowPopper: arrowGenerator(theme.palette.colors.trueBlack, theme)
 })
 
-export const Tooltip = ({ classes, children, title, noWrap, className, onClick, ...props }) => {
+export const Tooltip = ({ classes, children, title, titleHTML, noWrap, className, onClick, ...props }) => {
   const [arrowRef, setArrowRef] = useState(null)
   return (
     <span onClick={onClick}>
@@ -114,7 +115,7 @@ export const Tooltip = ({ classes, children, title, noWrap, className, onClick, 
         {...props}
         title={
           <React.Fragment>
-            <span className={classes.text}>{title.charAt(0).toUpperCase() + title.slice(1)}</span>
+            {titleHTML || <span className={classes.text}>{title.charAt(0).toUpperCase() + title.slice(1)}</span>}
             <span className={classes.arrow} ref={setArrowRef} />
           </React.Fragment>
         }

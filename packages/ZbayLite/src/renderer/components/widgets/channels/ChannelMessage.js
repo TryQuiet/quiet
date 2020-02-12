@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import * as R from 'ramda'
+import Jdenticon from 'react-jdenticon'
 import reactStringReplace from 'react-string-replace'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
@@ -10,6 +11,7 @@ import { withStyles } from '@material-ui/core/styles'
 import { _DisplayableMessage } from '../../../zbay/messages'
 import ChannelMessageActions from './ChannelMessageActions'
 import BasicMessage from '../../../containers/widgets/channels/BasicMessage'
+import Tooltip from '../../ui/Tooltip'
 
 const styles = theme => ({
   message: {
@@ -60,22 +62,66 @@ const checkLinking = (tags, users, onLinkedChannel, onLinkedUser, message) => {
       return `@${match}`
     }
     return (
-      <a
-        style={{
-          color: '#67BFD3',
-          backgroundColor: '#EDF7FA',
-          padding: 5,
-          borderRadius: 4
-        }}
-        key={match + i}
+      <Tooltip
+        titleHTML={
+          <Grid
+            container
+            alignItems='center'
+            justify='center'
+            style={{ marginBottom: -2, marginTop: -2 }}
+          >
+            <Grid
+              item
+              style={{
+                marginRight: 9,
+                width: 20,
+                height: 20,
+                borderRadius: 4,
+                backgroundColor: '#FFF'
+              }}
+            >
+              <div style={{ marginLeft: 1, marginTop: 1 }}>
+                <Jdenticon size='18' value={match} />
+              </div>
+            </Grid>
+            <Grid item>
+              <span
+                style={{
+                  color: '#FFF',
+                  fontSize: 12,
+                  fontWeight: 500
+                }}
+              >
+                {match}
+              </span>
+            </Grid>
+          </Grid>
+        }
+        style={{ marginBottom: -5 }}
+        placement='top'
+        interactive
         onClick={e => {
           e.preventDefault()
           onLinkedUser(users.find(user => user.nickname === match))
         }}
-        href={``}
       >
-        @{match}
-      </a>
+        <a
+          style={{
+            color: '#67BFD3',
+            backgroundColor: '#EDF7FA',
+            padding: 5,
+            borderRadius: 4
+          }}
+          key={match + i}
+          onClick={e => {
+            e.preventDefault()
+            onLinkedUser(users.find(user => user.nickname === match))
+          }}
+          href={``}
+        >
+          @{match}
+        </a>
+      </Tooltip>
     )
   })
 
