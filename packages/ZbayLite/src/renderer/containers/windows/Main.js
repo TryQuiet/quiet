@@ -7,6 +7,7 @@ import * as R from 'ramda'
 import MainComponent from '../../components/windows/Main'
 import vaultSelectors from '../../store/selectors/vault'
 import coordinator from '../../store/handlers/coordinator'
+import electronStore from '../../../shared/electronStore'
 
 export const mapStateToProps = state => ({
   vaultLocked: vaultSelectors.locked(state)
@@ -23,6 +24,9 @@ export const mapDispatchToProps = dispatch => {
 export const Main = ({ vaultLocked, fetch, ...props }) => {
   useEffect(() => {
     fetch()
+  }, [])
+  useEffect(() => {
+    electronStore.set('isNewUser', false)
   }, [])
   return vaultLocked ? <Redirect to='/vault' /> : <MainComponent {...props} />
 }

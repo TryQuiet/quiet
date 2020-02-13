@@ -18,14 +18,12 @@ const loadVersion = createAction(actionTypes.SET_APP_VERSION, () =>
   remote.app.getVersion()
 )
 const setTransfers = createAction(actionTypes.SET_TRANSFERS)
-const setNewUser = createAction(actionTypes.SET_NEW_USER)
 const setModalTab = createAction(actionTypes.SET_CURRENT_MODAL_TAB)
 const clearModalTab = createAction(actionTypes.CLEAR_CURRENT_MODAL_TAB)
 
 export const actions = {
   loadVersion,
   setTransfers,
-  setNewUser,
   setModalTab,
   clearModalTab
 }
@@ -37,8 +35,6 @@ export const reducer = handleActions(
     [setModalTab]: (state, { payload: tabName }) =>
       state.set('modalTabToOpen', tabName),
     [clearModalTab]: state => state.set('modalTabToOpen', null),
-    [setNewUser]: (state, { payload: newUser }) =>
-      state.set('newUser', newUser),
     [setTransfers]: (state, { payload: { id, value } }) => {
       return state.setIn(['transfers', id], value)
     }

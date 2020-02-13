@@ -2,7 +2,6 @@
 
 exports[`Loading will receive right props 1`] = `
 Object {
-  "newUser": false,
   "openedModal": false,
 }
 `;

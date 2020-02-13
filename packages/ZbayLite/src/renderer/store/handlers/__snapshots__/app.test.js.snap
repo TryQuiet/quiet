@@ -2,8 +2,6 @@
 
 exports[`criticalError reducer handles actions - loadVersion 1`] = `"0.13.37"`;
 
-exports[`criticalError reducer handles actions - set newUser 1`] = `true`;
-
 exports[`criticalError reducer handles actions - set transfers 1`] = `
 Immutable.Map {
   "testid": "testvalue",

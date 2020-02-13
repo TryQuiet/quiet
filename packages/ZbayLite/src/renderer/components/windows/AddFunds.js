@@ -67,7 +67,7 @@ const styles = theme => ({
   }
 })
 
-export const AddFunds = ({ classes, openModal, skip }) => {
+export const AddFunds = ({ classes, openModal }) => {
   return (
     <WindowWrapper>
       <Grid container className={classes.gridRoot}>
@@ -124,7 +124,6 @@ export const AddFunds = ({ classes, openModal, skip }) => {
                 size='large'
                 color='primary'
                 margin='normal'
-                onClick={() => skip(false)}
                 fullWidth
               >
                 I'll do this later
@@ -139,7 +138,6 @@ export const AddFunds = ({ classes, openModal, skip }) => {
 
 AddFunds.propTypes = {
   classes: PropTypes.object.isRequired,
-  skip: PropTypes.func.isRequired,
   openModal: PropTypes.func.isRequired
 }
 export default withStyles(styles)(AddFunds)

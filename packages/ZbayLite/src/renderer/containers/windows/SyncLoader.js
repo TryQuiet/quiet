@@ -7,7 +7,6 @@ import SyncLoaderComponent from '../../components/windows/SyncLoader'
 import nodeSelectors from '../../store/selectors/node'
 import identitySelectors from '../../store/selectors/identity'
 import nodeHandlers from '../../store/handlers/node'
-import appHandlers from '../../store/handlers/app'
 import vaultHandlers from '../../store/handlers/vault'
 import vaultSelectors from '../../store/selectors/vault'
 import { actionCreators } from '../../store/handlers/modals'
@@ -39,7 +38,6 @@ export const mapDispatchToProps = dispatch =>
       getStatus: nodeHandlers.epics.getStatus,
       openModal: actionCreators.openModal('topUp'),
       setVaultIdentity: vaultHandlers.epics.setVaultIdentity,
-      skip: appHandlers.actions.setNewUser,
       startRescanningMonitor: nodeHandlers.epics.startRescanningMonitor,
       disablePowerSaveMode: nodeHandlers.epics.disablePowerSaveMode
     },
@@ -79,13 +77,14 @@ export const SyncLoader = ({ setVaultIdentity, isFetching, disablePowerSaveMode,
   )
   useEffect(
     () => {
-      if (isFetchingComplete && isRescaningComplete) {
+      if (isFetchingComplete && isRescaningComplete && nodeConnected) {
+        console.log('working injection')
         setVaultIdentity()
         startRescanningMonitor()
         disablePowerSaveMode()
       }
     },
-    [isFetchingComplete, isRescaningComplete]
+    [isFetchingComplete, isRescaningComplete, nodeConnected]
   )
   if (!isFetchingComplete) {
     const fetchingProgress = fetching === '100' ? 0 : fetching / 2

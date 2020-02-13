@@ -16,7 +16,6 @@ Object {
     "message": "",
   },
   "locked": true,
-  "newUser": false,
   "nodeConnected": false,
   "tor": Immutable.Tor {
     "url": "",

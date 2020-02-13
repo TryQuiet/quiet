@@ -9,7 +9,6 @@ import channels from '../../zcash/channels'
 
 import identitySelectors from '../selectors/identity'
 import nodeSelectors from '../selectors/node'
-import appSelectors from '../selectors/app'
 import txnTimestampsSelector from '../selectors/txnTimestamps'
 import channelsSelectors from '../selectors/channels'
 import channelsHandlers from './channels'
@@ -34,6 +33,7 @@ import { LoaderState, successNotification } from './utils'
 import modalsHandlers from './modals'
 import notificationsHandlers from './notifications'
 import { networkFee, actionTypes } from '../../../shared/static'
+import electronStore from '../../../shared/electronStore'
 
 export const ShippingData = Immutable.Record(
   {
@@ -366,8 +366,7 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
     await dispatch(channelsHandlers.epics.withdrawMoneyFromChannels())
   } catch (err) {}
   dispatch(setLoading(false))
-
-  const newUser = appSelectors.newUser(getState())
+  const isNewUser = electronStore.get('isNewUser')
   // Dont show deposit modal if we use faucet 12.02.2020
   // const balance = identitySelectors.balance('zec')(getState())
   // const lockedBalance = identitySelectors.lockedBalance('zec')(getState())
@@ -377,7 +376,7 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
   //     500
   //   )
   // }
-  if (newUser === true) {
+  if (isNewUser === true) {
     dispatch(modalsHandlers.actionCreators.openModal('createUsernameModal')())
   }
   dispatch(fetchAffiliateMoney())

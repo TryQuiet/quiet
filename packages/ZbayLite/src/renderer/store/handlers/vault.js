@@ -9,9 +9,9 @@ import nodeSelectors from '../selectors/node'
 import identityHandlers from './identity'
 import vaultHandlers from './vault'
 import notificationsHandlers from './notifications'
-import appHandlers from './app'
 import { REQUEST_MONEY_ENDPOINT, actionTypes } from '../../../shared/static'
 import vault from '../../vault'
+import electronStore from '../../../shared/electronStore'
 
 export const VaultState = Immutable.Record({
   exists: null,
@@ -53,7 +53,7 @@ const createVaultEpic = ({ password }) => async (dispatch, getState) => {
   const network = nodeSelectors.network(getState())
   const randomBytes = crypto.randomBytes(32).toString('hex')
   try {
-    await dispatch(appHandlers.actions.setNewUser(true))
+    electronStore.set('isNewUser', true)
     await dispatch(createVault({ masterPassword: password, network }))
     await dispatch(actions.unlockVault({
       masterPassword: password,

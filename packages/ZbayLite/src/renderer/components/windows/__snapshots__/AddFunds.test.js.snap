@@ -78,7 +78,6 @@ exports[`AddFunds renders component 1`] = `
             color="primary"
             fullWidth={true}
             margin="normal"
-            onClick={[Function]}
             size="large"
             variant="text"
           >

@@ -4,7 +4,6 @@ import { connect } from 'react-redux'
 
 import vaultSelectors from '../../store/selectors/vault'
 import nodeSelectors from '../../store/selectors/node'
-import appSelectors from '../../store/selectors/app'
 import vaultHandlers from '../../store/handlers/vault'
 import CreateVault from './CreateVault'
 import UnlockVault from './UnlockVault'
@@ -13,8 +12,7 @@ import torHandlers from '../../store/handlers/tor'
 
 export const mapStateToProps = state => ({
   exists: vaultSelectors.exists(state),
-  nodeConnected: nodeSelectors.isConnected(state),
-  newUser: appSelectors.newUser(state)
+  nodeConnected: nodeSelectors.isConnected(state)
 })
 
 export const mapDispatchToProps = dispatch =>
@@ -26,7 +24,7 @@ export const mapDispatchToProps = dispatch =>
     dispatch
   )
 
-export const Vault = ({ loadVaultStatus, createZcashNode, exists, nodeConnected, newUser }) => {
+export const Vault = ({ loadVaultStatus, createZcashNode, exists, nodeConnected }) => {
   useEffect(() => {
     loadVaultStatus()
   })

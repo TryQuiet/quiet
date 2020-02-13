@@ -5,18 +5,17 @@ import { connect } from 'react-redux'
 import vaultHandlers from '../../store/handlers/vault'
 import nodeHandlers from '../../store/handlers/node'
 import vaultSelectors from '../../store/selectors/vault'
-import appSelectors from '../../store/selectors/app'
 import nodeSelectors from '../../store/selectors/node'
 import identitySelectors from '../../store/selectors/identity'
 import VaultUnlockerFormComponent from '../../components/widgets/VaultUnlockerForm'
 import { useInterval } from '../hooks'
 import torSelectors from '../../store/selectors/tor'
 import torHandlers from '../../store/handlers/tor'
+import electronStore from '../../../shared/electronStore'
 
 export const mapStateToProps = state => ({
   unlocking: vaultSelectors.unlocking(state),
   locked: vaultSelectors.locked(state),
-  newUser: appSelectors.newUser(state),
   loader: identitySelectors.loader(state),
   nodeConnected: nodeSelectors.isConnected(state),
   tor: torSelectors.tor(state)
@@ -43,10 +42,11 @@ export const VaultUnlockerForm = ({
   createZcashNode,
   ...props
 }) => {
+  const isNewUser = electronStore.get('isNewUser')
   const [done, setDone] = useState(true)
   useEffect(
     () => {
-      if (!newUser && !locked && nodeConnected) {
+      if (!isNewUser && !locked && nodeConnected) {
         setVaultIdentity()
       }
     },
@@ -62,7 +62,7 @@ export const VaultUnlockerForm = ({
   )
   useEffect(
     () => {
-      if (!newUser && !locked && !loader.loading) {
+      if (!isNewUser && !locked && !loader.loading) {
         setDone(true)
       }
     },
@@ -72,7 +72,7 @@ export const VaultUnlockerForm = ({
   useInterval(getStatus, 1000)
   return (
     <VaultUnlockerFormComponent
-      newUser={newUser}
+      newUser={isNewUser}
       locked={locked}
       loader={loader}
       done={done}

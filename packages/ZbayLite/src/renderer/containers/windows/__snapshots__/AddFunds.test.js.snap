@@ -3,6 +3,5 @@
 exports[`CreateVault will receive right actions 1`] = `
 Object {
   "openModal": [Function],
-  "skip": [Function],
 }
 `;

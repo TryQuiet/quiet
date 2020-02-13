@@ -6,10 +6,10 @@ import { useInterval } from '../hooks'
 import CreateVault from '../../components/windows/CreateVault'
 import Loading from '../../containers/windows/Loading'
 import vaultSelectors from '../../store/selectors/vault'
-import appSelectors from '../../store/selectors/app'
 import nodeSelectors from '../../store/selectors/node'
 import vaultHandlers from '../../store/handlers/vault'
 import nodeHandlers from '../../store/handlers/node'
+import electronStore from '../../../shared/electronStore'
 
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
@@ -30,7 +30,6 @@ export const mapStateToProps = state => ({
   nodeConnected: nodeSelectors.isConnected(state),
   bootstrapping: nodeSelectors.bootstrapping(state),
   bootstrappingMessage: nodeSelectors.bootstrappingMessage(state),
-  newUser: appSelectors.newUser(state),
   creating: vaultSelectors.creating(state)
 })
 
@@ -46,9 +45,9 @@ export const CreateVaultWrapper = ({
   nodeConnected,
   getStatus,
   createVault,
-  newUser,
   creating
 }) => {
+  const isNewUser = electronStore.get('isNewUser')
   useInterval(getStatus, 5000)
   const [done, setDone] = useState(null)
   const [password, storePass] = useState(null)
@@ -79,7 +78,7 @@ export const CreateVaultWrapper = ({
   )
   const isVaultCreationComplete = passwordPosted && !bootstrapping && nodeConnected
   const isDev = process.env.NODE_ENV === 'development'
-  return (!isDev && (passwordPosted || newUser)) ? <Loading message={bootstrapping ? bootstrappingMessage : null} /> : (
+  return (!isDev && (passwordPosted || isNewUser)) ? <Loading message={bootstrapping ? bootstrappingMessage : null} /> : (
     <CreateVault
       inProgress={loading || unlocking}
       inProgressMsg={loading ? 'loading' : 'creating'}

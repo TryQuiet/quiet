@@ -30,7 +30,6 @@ Object {
   "exists": true,
   "loading": false,
   "locked": false,
-  "newUser": false,
   "nodeConnected": false,
   "unlocking": false,
 }
