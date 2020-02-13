@@ -73,9 +73,6 @@ const downloadManagerForZippedBlockchain = ({ data, source }) => {
   const dataToFetch = R.clone(data)
   return new Promise(function (resolve, reject) {
     let downloadedSize = 0
-    app.on('will-quit', () => {
-      reject(console.log('app exited'))
-    })
     const checkFetchedSize = () => {
       getSize(source === 'params' ? osPathsParams[process.platform] : osPathsBlockchain[process.platform], (err, size) => {
         if (err) {
@@ -93,6 +90,10 @@ const downloadManagerForZippedBlockchain = ({ data, source }) => {
     const checkSizeInterval = setInterval(() => {
       checkFetchedSize()
     }, 10000)
+    app.on('will-quit', () => {
+      clearInterval(checkSizeInterval)
+      reject(console.log('app exited'))
+    })
     const startFetching = (data) => {
       let item
       const gunzip = zlib.createGunzip()
@@ -275,12 +276,13 @@ const checkForUpdate = win => {
   })
 
   autoUpdater.on('update-downloaded', info => {
-    const blockchainStatus = electronStore.get('AppStatus.blockchain')
-    const paramsStatus = electronStore.get('AppStatus.params')
+    const blockchainStatus = electronStore.get('AppStatus.blockchain.status')
+    const paramsStatus = electronStore.get('AppStatus.params.status')
     if (blockchainStatus !== config.BLOCKCHAIN_STATUSES.SUCCESS || paramsStatus !== config.PARAMS_STATUSES.SUCCESS) {
       autoUpdater.quitAndInstall()
+    } else {
+      win.webContents.send('newUpdateAvailable')
     }
-    win.webContents.send('newUpdateAvailable')
   })
 }
 
