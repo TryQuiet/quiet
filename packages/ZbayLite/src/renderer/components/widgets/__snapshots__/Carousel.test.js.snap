@@ -15,6 +15,7 @@ exports[`Carousel renders component 1`] = `
   items={Array []}
   keysControlDisabled={false}
   mouseDragEnabled={false}
+  onSlideChange={[Function]}
   playButtonEnabled={false}
   preventEventOnTouchMove={false}
   responsive={Object {}}

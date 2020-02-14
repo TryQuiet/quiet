@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
 import AliceCarousel from 'react-alice-carousel'
@@ -24,17 +24,20 @@ const styles = theme => ({
   }
 })
 
-export const Carousel = ({ classes }) => (
-  <AliceCarousel buttonsDisabled dotsDisabled autoPlay autoPlayInterval={8000}>
-    {carouselStrings.map((text, i) => (
-      <div key={i} className={classes.tipContainer}>
-        <Typography className={classes.typography} variant='body1'>
-          {text}
-        </Typography>
-      </div>
-    ))}
-  </AliceCarousel>
-)
+export const Carousel = ({ classes }) => {
+  const [lastSlideSlide, setLastSlide] = useState(0)
+  return (
+    <AliceCarousel buttonsDisabled dotsDisabled autoPlay autoPlayInterval={8000} startIndex={lastSlideSlide} onSlideChange={(e) => setLastSlide(e.item + 1)}>
+      {carouselStrings.map((text, i) => (
+        <div key={i} className={classes.tipContainer}>
+          <Typography className={classes.typography} variant='body1'>
+            {text}
+          </Typography>
+        </div>
+      ))}
+    </AliceCarousel>
+  )
+}
 
 Carousel.propTypes = {
   classes: PropTypes.object.isRequired

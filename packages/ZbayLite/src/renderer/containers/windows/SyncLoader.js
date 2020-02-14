@@ -78,7 +78,6 @@ export const SyncLoader = ({ setVaultIdentity, isFetching, disablePowerSaveMode,
   useEffect(
     () => {
       if (isFetchingComplete && isRescaningComplete && nodeConnected) {
-        console.log('working injection')
         setVaultIdentity()
         startRescanningMonitor()
         disablePowerSaveMode()
