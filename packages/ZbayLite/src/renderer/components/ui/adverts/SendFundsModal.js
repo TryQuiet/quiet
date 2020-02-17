@@ -19,7 +19,8 @@ import CheckboxWithLabel from '../form/CheckboxWithLabel'
 import LinkedTextField from '../form/LinkedTextField'
 import LoadingButton from '../LoadingButton'
 
-const reqSvgs = require && require.context('../../ui/assets/backgrounds', true, /\.svg$/)
+const reqSvgs =
+  require && require.context('../../ui/assets/backgrounds', true, /\.svg$/)
 
 const styles = theme => ({
   root: {},
@@ -211,7 +212,11 @@ const handleAddFunds = (openAddFundsTab, openSettingsModal, handleClose) => {
   openSettingsModal()
 }
 
-const handleFillShipping = (openSettingsModal, openShippingTab, handleClose) => {
+const handleFillShipping = (
+  openSettingsModal,
+  openShippingTab,
+  handleClose
+) => {
   handleClose()
   openShippingTab()
   openSettingsModal()
@@ -258,7 +263,10 @@ export const SendFundsModal = ({
     >
       <AutoSizer>
         {({ width, height }) => (
-          <Scrollbars autoHideTimeout={500} style={{ width: width, height: height }}>
+          <Scrollbars
+            autoHideTimeout={500}
+            style={{ width: width, height: height }}
+          >
             <Grid container direction='column' className={classes.root}>
               <Grid
                 container
@@ -272,11 +280,23 @@ export const SendFundsModal = ({
                 <Grid
                   container
                   className={classes.backgroundImage}
-                  style={{ background: `url(${reqSvgs(reqSvgs.keys()[payload.background])})` }}
+                  style={{
+                    background: `url(${reqSvgs(
+                      reqSvgs.keys()[payload.background]
+                    )})`
+                  }}
                 />
-                <Grid className={classes.offerOwner} container item direction={'column'}>
+                <Grid
+                  className={classes.offerOwner}
+                  container
+                  item
+                  direction={'column'}
+                >
                   <Grid item>
-                    <Typography className={classes.nickname} variant={'subtitle1'}>
+                    <Typography
+                      className={classes.nickname}
+                      variant={'subtitle1'}
+                    >
                       {payload.offerOwner}
                     </Typography>
                   </Grid>
@@ -289,13 +309,21 @@ export const SendFundsModal = ({
                 </Grid>
               </Grid>
               <Grid className={classes.wrapper} container item>
-                <Grid container className={classes.warningBox} item dircetion={'column'}>
+                <Grid
+                  container
+                  className={classes.warningBox}
+                  item
+                  dircetion={'column'}
+                >
                   <Grid container direction={'row'} justify={'space-between'}>
                     <Grid item>
                       <Typography variant={'h4'}>Warning</Typography>
                     </Grid>
                     <Grid item>
-                      <Icon className={classes.exclamationMarkIcon} src={exclamationMark} />
+                      <Icon
+                        className={classes.exclamationMarkIcon}
+                        src={exclamationMark}
+                      />
                     </Grid>
                   </Grid>
                   <Grid
@@ -311,7 +339,10 @@ export const SendFundsModal = ({
                         className={classes.description}
                         variant={'body2'}
                       >
-                        Always start with a small purchase to test if the seller is legitimate. Funds are not recoverable, so research the seller’s reputation on the web before buying, and be cautious!
+                        Always start with a small purchase to test if the seller
+                        is legitimate. Funds are not recoverable, so research
+                        the seller’s reputation on the web before buying, and be
+                        cautious!
                       </Typography>
                     </Grid>
                     <Grid item container wrap={'wrap'} alignItems={'center'}>
@@ -376,7 +407,11 @@ export const SendFundsModal = ({
                     Please{' '}
                     <span
                       onClick={() =>
-                        handleFillShipping(openSettingsModal, openShippingTab, handleClose)
+                        handleFillShipping(
+                          openSettingsModal,
+                          openShippingTab,
+                          handleClose
+                        )
                       }
                       className={classes.link}
                     >
@@ -397,9 +432,10 @@ export const SendFundsModal = ({
                     <Typography variant={'caption'} className={classes.address}>
                       {shippingData.street}
                     </Typography>
-                    <Typography variant={'caption'} className={classes.address}>{`${
-                      shippingData.city
-                    } ${shippingData.postalCode}
+                    <Typography
+                      variant={'caption'}
+                      className={classes.address}
+                    >{`${shippingData.city} ${shippingData.postalCode}
                   ${shippingData.region} ${shippingData.country}`}</Typography>
                   </Grid>
                 )}
@@ -410,6 +446,7 @@ export const SendFundsModal = ({
                 </Grid>
                 <Grid item className={classes.moneyDiv}>
                   <LinkedTextField
+                    disabled
                     name='usd'
                     type='number'
                     placeholder='0.00'
@@ -439,6 +476,7 @@ export const SendFundsModal = ({
                 </Grid>
                 <Grid item className={classes.moneyDiv}>
                   <LinkedTextField
+                    disabled
                     name='zec'
                     type='number'
                     placeholder='0.00'
@@ -460,23 +498,38 @@ export const SendFundsModal = ({
                 <ErrorText name={'usd'} />
               </Grid>
               {hasNoFounds && (
-                <Grid container item className={classes.wrapper} direction={'column'}>
+                <Grid
+                  container
+                  item
+                  className={classes.wrapper}
+                  direction={'column'}
+                >
                   <Grid container item className={classes.errorBox}>
                     <Grid container direction={'row'} justify={'space-between'}>
                       <Grid item>
                         <Typography variant={'h4'}>Not enough funds</Typography>
                       </Grid>
                       <Grid item>
-                        <Icon className={classes.exclamationMarkIcon} src={exclamationMark} />
+                        <Icon
+                          className={classes.exclamationMarkIcon}
+                          src={exclamationMark}
+                        />
                       </Grid>
                     </Grid>
                     <Grid container item>
                       <Grid item>
-                        <Typography variant={'body2'} className={classes.descriptionFunds}>
+                        <Typography
+                          variant={'body2'}
+                          className={classes.descriptionFunds}
+                        >
                           You don’t have enough funds.{' '}
                           <span
                             onClick={() =>
-                              handleAddFunds(openAddFundsTab, openSettingsModal, handleClose)
+                              handleAddFunds(
+                                openAddFundsTab,
+                                openSettingsModal,
+                                handleClose
+                              )
                             }
                             className={classes.addFounds}
                           >
@@ -539,7 +592,4 @@ SendFundsModal.defaultProps = {
   }
 }
 
-export default R.compose(
-  React.memo,
-  withStyles(styles)
-)(SendFundsModal)
+export default R.compose(React.memo, withStyles(styles))(SendFundsModal)
