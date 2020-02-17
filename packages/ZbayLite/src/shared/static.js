@@ -116,7 +116,10 @@ export const actionTypes = mirrorKey({
   CLEAR_MENTION_MISS: undefined,
   REMOVE_MENTION_MISS: undefined,
   SET_RESCANNING_PROGRESS: undefined,
-  SET_RESCANNING_MONITOR_STATUS: undefined
+  SET_RESCANNING_MONITOR_STATUS: undefined,
+  SET_WHITELIST: undefined,
+  SET_WHITELIST_ALL_FLAG: undefined,
+  SET_AUTO_LOAD_LIST: undefined
 })
 
 export const messageType = {

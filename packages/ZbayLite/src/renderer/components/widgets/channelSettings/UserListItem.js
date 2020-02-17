@@ -13,8 +13,6 @@ const styles = theme => ({
   },
   name: {
     color: theme.palette.colors.trueBlack,
-    fontSize: 16,
-    lineHeight: '26px',
     fontWeight: 500
   },
   actionName: {
@@ -34,7 +32,8 @@ export const UserListItem = ({
   name,
   actionName,
   action,
-  disableConfirmation
+  disableConfirmation,
+  prefix
 }) => {
   const [openDialog, setOpenDialog] = useState(false)
   return (
@@ -55,7 +54,8 @@ export const UserListItem = ({
       />
       <Grid item>
         <Typography className={classes.name} variant='subtitle1'>
-          @{name}
+          {prefix}
+          {name}
         </Typography>
       </Grid>
       <Grid
@@ -73,10 +73,13 @@ export const UserListItem = ({
 UserListItem.propTypes = {
   classes: PropTypes.object.isRequired,
   name: PropTypes.string.isRequired,
+  prefix: PropTypes.string.isRequired,
   actionName: PropTypes.string.isRequired,
   action: PropTypes.func.isRequired,
   disableConfirmation: PropTypes.bool
 }
-UserListItem.defaultProps = {}
+UserListItem.defaultProps = {
+  prefix: '@'
+}
 
 export default withStyles(styles)(UserListItem)

@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Security will receive right actions 1`] = `
+Object {
+  "removeImageHost": [Function],
+  "removeSiteHost": [Function],
+  "toggleAllowAll": [Function],
+}
+`;
+
+exports[`Security will receive right props 1`] = `
+Object {
+  "allowAll": false,
+  "autoload": Immutable.List [
+    "test3",
+    "test4",
+  ],
+  "whitelisted": Immutable.List [
+    "test1",
+    "test2",
+  ],
+}
+`;

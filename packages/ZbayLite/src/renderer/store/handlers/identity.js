@@ -18,6 +18,7 @@ import contactsHandlers from './contacts'
 import messagesHandlers from './messages'
 import publicChannelsHandlers from './publicChannels'
 import offersHandlers from './offers'
+import whitelistHandlers from './whitelist'
 import txnTimestampsHandlers from './txnTimestamps'
 import operationHandlers, {
   operationTypes,
@@ -327,7 +328,7 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
     await dispatch(channelsHandlers.actions.loadChannelsToNode(identity.id))
     await getClient().keys.importSK({ sk: identity.keys.sk, rescan: 'no' })
     await getClient().keys.importTPK(identity.keys.tpk)
-
+    await dispatch(whitelistHandlers.epics.initWhitelist())
     dispatch(setLoadingMessage('Setting identity'))
     // Check if identity has signerKeys
     if (!identity.signerPrivKey || !identity.signerPubKey) {

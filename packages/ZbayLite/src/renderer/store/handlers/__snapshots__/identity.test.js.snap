@@ -593,12 +593,12 @@ Immutable.List [
 exports[`Identity reducer handles epics handles set identity - sets identity 1`] = `
 Immutable.IdentityState {
   "data": Immutable.Identity {
-    "id": "test-id",
-    "address": "testaddress",
-    "transparentAddress": "transparent-test-address",
-    "signerPrivKey": "test-hex-key",
-    "signerPubKey": "test-hex-key",
-    "name": "Saturn",
+    "id": null,
+    "address": "",
+    "transparentAddress": "",
+    "signerPrivKey": "",
+    "signerPubKey": "",
+    "name": "",
     "shippingData": Immutable.ShippingData {
       "firstName": "",
       "lastName": "",
@@ -608,8 +608,8 @@ Immutable.IdentityState {
       "city": "",
       "postalCode": "",
     },
-    "balance": "2.2352",
-    "lockedBalance": "0",
+    "balance": null,
+    "lockedBalance": null,
     "donationAllow": true,
     "shieldingTax": true,
     "donationAddress": "",
@@ -618,7 +618,7 @@ Immutable.IdentityState {
   "fetchingBalance": false,
   "loader": Immutable.Record {
     "loading": false,
-    "message": "Loading users and messages",
+    "message": "Ensuring node contains identity keys",
   },
   "errors": "",
 }
@@ -635,12 +635,12 @@ Array [
 exports[`Identity reducer handles epics handles updateShippingData - sets shipping data in store 1`] = `
 Immutable.IdentityState {
   "data": Immutable.Identity {
-    "id": "test-id",
-    "address": "testaddress",
-    "transparentAddress": "transparent-test-address",
-    "signerPrivKey": "test-hex-key",
-    "signerPubKey": "test-hex-key",
-    "name": "Saturn",
+    "id": null,
+    "address": "",
+    "transparentAddress": "",
+    "signerPrivKey": "",
+    "signerPubKey": "",
+    "name": "",
     "shippingData": Immutable.ShippingData {
       "firstName": "Rumble",
       "lastName": "Fish",
@@ -660,16 +660,16 @@ Immutable.IdentityState {
   "fetchingBalance": false,
   "loader": Immutable.Record {
     "loading": false,
-    "message": "Loading users and messages",
+    "message": "Ensuring node contains identity keys",
   },
-  "errors": "node error",
+  "errors": "",
 }
 `;
 
 exports[`Identity reducer handles epics handles updateShippingData - sets shipping data in vault 1`] = `
 Array [
   Array [
-    "test-id",
+    null,
     Object {
       "city": "Fishville",
       "country": "RumbleFish country",

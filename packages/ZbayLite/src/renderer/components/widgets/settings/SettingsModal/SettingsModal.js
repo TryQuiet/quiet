@@ -12,12 +12,14 @@ import AccountSettingsForm from '../../../../containers/widgets/settings/Account
 import ShippingSettingsForm from '../../../../containers/widgets/settings/ShippingSettingsForm'
 import InvitationModal from '../../../../containers/ui/InvitationModal/InvitationModal'
 import AddFundsModal from '../../../../containers/widgets/settings/AddFunds'
+import Security from '../../../../containers/widgets/settings/Security'
 
 const tabs = {
   account: AccountSettingsForm,
   shipping: ShippingSettingsForm,
   invite: InvitationModal,
-  addFunds: AddFundsModal
+  addFunds: AddFundsModal,
+  security: Security
 }
 
 const styles = theme => ({
@@ -82,7 +84,9 @@ export const SettingsModal = ({
           <AppBar position='static' className={classes.appbar}>
             <Tabs
               value={modalTabToOpen || currentTab}
-              onChange={(e, value) => handleChange(clearCurrentOpenTab, setCurrentTab, value)}
+              onChange={(e, value) =>
+                handleChange(clearCurrentOpenTab, setCurrentTab, value)
+              }
               orientation='vertical'
               className={classes.tabs}
               textColor='inherit'
@@ -106,6 +110,11 @@ export const SettingsModal = ({
               <Tab
                 value='invite'
                 label='Invite a Friend'
+                classes={{ tabRoot: classes.tab, selected: classes.selected }}
+              />
+              <Tab
+                value='security'
+                label='Security'
                 classes={{ tabRoot: classes.tab, selected: classes.selected }}
               />
             </Tabs>

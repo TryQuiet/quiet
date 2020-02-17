@@ -22,11 +22,20 @@ describe('ChannelMessage', () => {
         message={DisplayableMessage(message)}
         onResend={jest.fn()}
         onReply={jest.fn()}
+        onLinkedChannel={jest.fn()}
+        onLinkedUser={jest.fn()}
+        openExternalLink={jest.fn()}
+        setWhitelistAll={jest.fn()}
+        addToWhitelist={jest.fn()}
+        publicChannels={Immutable.Map()}
+        users={Immutable.Map()}
+        whitelisted={Immutable.List()}
+        autoload={Immutable.List()}
+        allowAll={false}
       />
     )
     expect(result).toMatchSnapshot()
   })
-
   it('renders component when message is sent by owner', () => {
     const message = Immutable.fromJS(createMessage(1)).set('fromYou', true)
     const result = shallow(
@@ -35,6 +44,16 @@ describe('ChannelMessage', () => {
         message={DisplayableMessage(message)}
         onResend={jest.fn()}
         onReply={jest.fn()}
+        onLinkedChannel={jest.fn()}
+        onLinkedUser={jest.fn()}
+        openExternalLink={jest.fn()}
+        setWhitelistAll={jest.fn()}
+        addToWhitelist={jest.fn()}
+        publicChannels={Immutable.Map()}
+        users={Immutable.Map()}
+        whitelisted={Immutable.List()}
+        autoload={Immutable.List()}
+        allowAll={false}
       />
     )
     expect(result).toMatchSnapshot()

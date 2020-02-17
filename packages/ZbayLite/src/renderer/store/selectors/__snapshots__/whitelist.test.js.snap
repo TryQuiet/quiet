@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`users selectors  - allowAll 1`] = `false`;
+
+exports[`users selectors  - autoload 1`] = `
+Immutable.List [
+  "test3",
+  "test4",
+]
+`;
+
+exports[`users selectors  - whitelisted 1`] = `
+Immutable.List [
+  "test1",
+  "test2",
+]
+`;

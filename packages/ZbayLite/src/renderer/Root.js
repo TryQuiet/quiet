@@ -25,6 +25,7 @@ import AdvertModal from './containers/ui/adverts/AdvertModal'
 import AdvertActionsModal from './containers/ui/adverts/AdvertActionsModal'
 import PublishChannelModal from './containers/ui/PublishChannelModal'
 import SentFundsModal from './containers/ui/SentFundsModal'
+import OpenExternalLinkModal from './containers/ui/OpenExternalLinkModal'
 import SendFundsModal from './containers/ui/adverts/SendFundsModal'
 import AddModerator from './containers/widgets/channelSettings/AddModerator'
 
@@ -52,6 +53,7 @@ export default () => (
           <PublishChannelModal />
           <SentFundsModal />
           <AddModerator />
+          <OpenExternalLinkModal />
           <Route path='/vault' exact component={Vault} />
           <Route path='/main' component={Main} />
           <Route path='/zcashNode' component={Index} />

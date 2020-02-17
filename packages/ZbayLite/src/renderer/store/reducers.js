@@ -27,6 +27,7 @@ import removedChannelsHandlers from './handlers/removedChannels'
 import publicChannelsHandlers from './handlers/publicChannels'
 import feesHandlers from './handlers/fees'
 import mentionsHandlers from './handlers/mentions'
+import whitelistHandlers from './handlers/whitelist'
 
 export default combineReducers({
   messages: messagesHandlers.reducer,
@@ -55,5 +56,6 @@ export default combineReducers({
   removedChannels: removedChannelsHandlers.reducer,
   publicChannels: publicChannelsHandlers.reducer,
   fees: feesHandlers.reducer,
-  mentions: mentionsHandlers.reducer
+  mentions: mentionsHandlers.reducer,
+  whitelist: whitelistHandlers.reducer
 })

@@ -1,0 +1,191 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`OpenlinkModal renders component 1`] = `
+<Memo(WithStyles(Modal))
+  handleClose={[MockFunction]}
+  open={true}
+  title=""
+>
+  <WithStyles(ForwardRef(Grid))
+    className="root-mock"
+    container={true}
+    direction="column"
+    justify="flex-start"
+    spacing={3}
+  >
+    <WithStyles(ForwardRef(Grid))
+      alignItems="center"
+      container={true}
+      direction="column"
+      item={true}
+    >
+      <Memo(Icon)
+        className="icon-mock"
+        src="test-file-stub"
+      />
+      <WithStyles(ForwardRef(Typography))
+        className="title-mock"
+        variant="h2"
+      >
+        Watch out!
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      container={true}
+      direction="column"
+      item={true}
+      spacing={1}
+    >
+      <WithStyles(ForwardRef(Grid))
+        item={true}
+      >
+        <WithStyles(ForwardRef(Typography))
+          variant="body2"
+        >
+          Opening link posted in Zbay reveals data about you to your goverment, your Internet provider, the site you are visiginh and, potentially to whoever posted the link.
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
+        item={true}
+      >
+        <WithStyles(ForwardRef(Typography))
+          variant="body2"
+        >
+          Only open links from people toy trust. If you are using Zbay to protect your anonymity, never open links.
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      className="checkboxes-mock"
+      container={true}
+      direction="column"
+      item={true}
+      spacing={0}
+    >
+       
+      <WithStyles(ForwardRef(Grid))
+        alignItems="center"
+        container={true}
+        item={true}
+        justify="center"
+      >
+        <WithStyles(ForwardRef(Grid))
+          item={true}
+        >
+          <WithStyles(ForwardRef(Checkbox))
+            checked={false}
+            color="primary"
+            onChange={[Function]}
+          />
+        </WithStyles(ForwardRef(Grid))>
+        <WithStyles(ForwardRef(Grid))
+          className="checkboxLabel-mock"
+          item={true}
+          xs={true}
+        >
+          Automatically load images from 
+          <span
+            className="bold-mock"
+          >
+            www.zbay.app
+          </span>
+          - I trust them with my data and I'm not using Zbay for anonymity protection. 
+        </WithStyles(ForwardRef(Grid))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
+        alignItems="center"
+        container={true}
+        item={true}
+        justify="center"
+      >
+        <WithStyles(ForwardRef(Grid))
+          item={true}
+        >
+          <WithStyles(ForwardRef(Checkbox))
+            checked={false}
+            color="primary"
+            onChange={[Function]}
+          />
+        </WithStyles(ForwardRef(Grid))>
+        <WithStyles(ForwardRef(Grid))
+          className="checkboxLabel-mock"
+          item={true}
+          xs={true}
+        >
+          Don't warn me about 
+          <span
+            className="bold-mock"
+          >
+            www.zbay.app
+          </span>
+           
+          again, but don't auto-load images.
+        </WithStyles(ForwardRef(Grid))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
+        alignItems="center"
+        container={true}
+        item={true}
+        justify="center"
+      >
+        <WithStyles(ForwardRef(Grid))
+          item={true}
+        >
+          <WithStyles(ForwardRef(Checkbox))
+            checked={false}
+            color="primary"
+            onChange={[Function]}
+          />
+        </WithStyles(ForwardRef(Grid))>
+        <WithStyles(ForwardRef(Grid))
+          className="checkboxLabel-mock"
+          item={true}
+          xs={true}
+        >
+          Never warn me about outbound links on Zbay.
+        </WithStyles(ForwardRef(Grid))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
+        alignItems="center"
+        className="buttons-mock"
+        container={true}
+        item={true}
+        spacing={2}
+      >
+        <WithStyles(ForwardRef(Grid))
+          item={true}
+        >
+          <WithStyles(ForwardRef(Button))
+            className="buttonBack-mock"
+            color="primary"
+            onClick={[Function]}
+            size="large"
+            variant="contained"
+          >
+            Back to safety
+          </WithStyles(ForwardRef(Button))>
+        </WithStyles(ForwardRef(Grid))>
+        <WithStyles(ForwardRef(Grid))
+          item={true}
+          xs={true}
+        >
+          <a
+            href=""
+            onClick={[Function]}
+            style={
+              Object {
+                "color": "#67BFD3",
+                "textDecoration": "none",
+                "wordBreak": "break-all",
+              }
+            }
+          >
+            Continue to 
+            www.zbay.app
+          </a>
+        </WithStyles(ForwardRef(Grid))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+</Memo(WithStyles(Modal))>
+`;

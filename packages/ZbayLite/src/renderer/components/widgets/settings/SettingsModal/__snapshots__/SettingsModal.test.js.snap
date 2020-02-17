@@ -72,6 +72,16 @@ exports[`SettingsModal renders component 1`] = `
             label="Invite a Friend"
             value="invite"
           />
+          <WithStyles(Tab)
+            classes={
+              Object {
+                "selected": "selected-mock",
+                "tabRoot": "tab-mock",
+              }
+            }
+            label="Security"
+            value="security"
+          />
         </WithStyles(ForwardRef(Tabs))>
       </WithStyles(ForwardRef(AppBar))>
     </WithStyles(ForwardRef(Grid))>

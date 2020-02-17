@@ -127,7 +127,8 @@
     "webpack-node-externals": "^1.7.2",
     "write-file-webpack-plugin": "^4.5.0",
     "babel-plugin-require-context-hook": "^1.0.0",
-    "react-contenteditable": "^3.3.3"
+    "react-contenteditable": "^3.3.3",
+    "is-image-url": "^1.1.8"
   },
   "standard": {
     "parser": "babel-eslint",
