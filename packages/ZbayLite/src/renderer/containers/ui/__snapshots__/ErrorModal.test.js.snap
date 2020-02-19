@@ -4,6 +4,7 @@ exports[`ErrorModal will receive right actions 1`] = `
 Object {
   "errorSnackbar": [Function],
   "handleExit": [Function],
+  "restartApp": [Function],
   "successSnackbar": [Function],
 }
 `;

@@ -9,15 +9,15 @@ import { remote } from 'electron'
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      handleQuit: () => () => remote.app.quit()
+      handleQuit: () => () => {
+        remote.app.relaunch()
+        remote.app.quit()
+      }
     },
     dispatch
   )
 
 export default R.compose(
-  connect(
-    null,
-    mapDispatchToProps
-  ),
+  connect(null, mapDispatchToProps),
   withModal('quitApp')
 )(QuitAppDialog)

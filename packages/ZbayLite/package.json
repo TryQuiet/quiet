@@ -71,11 +71,14 @@
     "build:main:prod": "npm run lint && webpack --config webpack/webpack.config.main.prod.js",
     "build:renderer:prod": "npm run lint && webpack --config webpack/webpack.config.renderer.prod.js",
     "prestart": "npm run build:main",
-    "start": "npm run start:renderer",
+    "start": "ZBAY_IS_TESTNET=0 npm run start:renderer",
+    "start-testnet": "ZBAY_IS_TESTNET=1 npm run start:renderer",
     "start:main": "cross-env NODE_ENV=development electron .",
     "start:renderer": "cross-env NODE_ENV=development webpack-dev-server --config webpack/webpack.config.renderer.dev.js",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "mainnet": "docker-compose up znode-mainnet",
+    "testnet": "docker-compose up znode-testnet"
   },
   "author": {
     "name": "Bartlomiej Lisiecki/Norbert Bodziony",

@@ -67,7 +67,8 @@ export const ErrorModal = ({
   traceback,
   handleExit,
   successSnackbar,
-  errorSnackbar
+  errorSnackbar,
+  restartApp
 }) => {
   const [send, setSend] = React.useState(false)
   return (
@@ -114,12 +115,13 @@ export const ErrorModal = ({
             {!send && (
               <LoadingButton
                 classes={{ button: classes.button }}
-                text='Send to Zbay'
+                text='Send & restart'
                 onClick={async () => {
                   try {
                     await handleSend({ title: message, message: traceback })
                     successSnackbar()
                     setSend(true)
+                    restartApp()
                   } catch (err) {
                     errorSnackbar()
                   }
@@ -140,7 +142,8 @@ ErrorModal.propTypes = {
   traceback: PropTypes.string.isRequired,
   handleExit: PropTypes.func.isRequired,
   successSnackbar: PropTypes.func.isRequired,
-  errorSnackbar: PropTypes.func.isRequired
+  errorSnackbar: PropTypes.func.isRequired,
+  restartApp: PropTypes.func.isRequired
 }
 
 ErrorModal.defaultProps = {

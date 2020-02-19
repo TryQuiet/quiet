@@ -1,26 +1,22 @@
 version: '3.7'
 services:
   znode-mainnet:
-    image: rumblefish1337/zcashnode:v2.1.0-1
+    image: rumblefish1337/zcashblockchain:v2.1.1-1
     tty: true
     ports:
       - 8334:8334
     volumes:
       - ./zcash/dockermainnet.conf:/root/.zcash/zcash.conf
-      - znode:/znode
-      - zcash:/root/.zcash
-    command: bash -c "/znode/src/zcashd -debug -txexpirydelta=18000 -checklevel=0 -checkblocks=10 -dbcache=500"
+    command: bash -c "/znode/zcashd -debug -txexpirydelta=18000 -checklevel=0 -checkblocks=10 -dbcache=500"
 
   znode-testnet:
-    image: rumblefish1337/zcashnode:v2.1.0-1
+    image: rumblefish1337/zcashblockchain:v2.1.1-1
     tty: true
     ports:
       - 8334:8334
     volumes:
       - ./zcash/testnet.conf:/root/.zcash/zcash.conf
-      - znode-testnet:/znode
-      - zcash-testnet:/root/.zcash
-    command: bash -c "/znode/src/zcashd -debug -txexpirydelta=18000 -checklevel=0 -checkblocks=10 -dbcache=500"
+    command: bash -c "/znode/zcashd -debug -txexpirydelta=18000 -checklevel=0 -checkblocks=10 -dbcache=500"
     networks:
       vpcbr:
         ipv4_address: 10.3.0.2
@@ -42,8 +38,3 @@ networks:
     ipam:
       config:
         - subnet: 10.3.0.0/16
-volumes:
-  znode:
-  zcash:
-  znode-testnet:
-  zcash-testnet:

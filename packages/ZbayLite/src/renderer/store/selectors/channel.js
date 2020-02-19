@@ -183,7 +183,7 @@ export const inputLocked = createSelector(
     if (available.gt(networkFee)) {
       return INPUT_STATE.AVAILABLE
     } else {
-      if (locked.gt(networkFee)) {
+      if (locked.gt(0)) {
         return INPUT_STATE.LOCKED
       }
     }

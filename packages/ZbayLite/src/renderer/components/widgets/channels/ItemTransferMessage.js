@@ -77,7 +77,7 @@ export const ItemTransferMessage = ({
           {message.fromYou
             ? `You sent @${message.offerOwner ||
                 message.receiver
-                  .username} $${usdAmount} (${message.spent.toFixed(4)} ZEC) ${
+                  .username} $${usdAmount} (${parseFloat(message.spent.toString()).toFixed(4)} ZEC) ${
               message.tag ? `for #${message.tag}` : ''
             }`
             : `Received from @${message.sender.username} $${usdAmount} (${

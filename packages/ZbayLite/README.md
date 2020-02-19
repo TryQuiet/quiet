@@ -18,17 +18,17 @@ Getting started hacking on Zcash is easy. Be sure to have [Docker](https://docke
 
 ```
 
-make mainnet
+npm run mainnet
 
 npm install
 
-make start-mainnet
+npm run start
 
 ```
 
   
 
-That's it! Or, to start Zbay on the Zcash testnet, use ```make testnet``` and ```make start``` instead.
+That's it! Or, to start Zbay on the Zcash testnet, use ```npm run testnet``` and ```npm run start-testnet``` instead.
 
   
 
@@ -68,7 +68,14 @@ On macOS ```~/Library/Application Support/Zbay/vault-mainnet.bcup```
 
 On Windows ```%HOMEPATH%\\AppData\\Roaming\\Zbay\\vault-mainnet.bcup```
 
-  
+##### Clean data
+Buttercup file stores all of your keys so before deleting file make sure you moved all of your funds from associated Zcash account. 
+```diff
+- Removing Buttercup file does not remove keys from Zcash node. Once imported keys are stored forever.
+```
+##### Moving account
+You can move your file to other machines and Zbay will handle all key imports so you will be able to use application. 
+
 
 ## Tor support
 

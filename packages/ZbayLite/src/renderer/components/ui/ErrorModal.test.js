@@ -15,6 +15,7 @@ describe('ErrorModal', () => {
         traceback='Error: Test error message, error traceback'
         handleExit={jest.fn()}
         handleCopy={jest.fn()}
+        restartApp={jest.fn()}
       />
     )
     expect(result).toMatchSnapshot()

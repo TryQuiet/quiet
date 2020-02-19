@@ -2,6 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import * as R from 'ramda'
+import { remote } from 'electron'
 
 import ErrorModal from '../../components/ui/ErrorModal'
 import criticalErrorSelectors from '../../store/selectors/criticalError'
@@ -32,8 +33,13 @@ export const mapDispatchToProps = dispatch =>
           errorNotification({
             message: 'There were an error'
           })
-        )
+        ),
+      restartApp: () => {
+        remote.app.relaunch()
+        remote.app.quit()
+      }
     },
+
     dispatch
   )
 
