@@ -5,7 +5,9 @@ exports[`VaultCreator renders component 1`] = `
   className="root-mock"
   container={true}
   direction="column"
+  item={true}
   spacing={0}
+  xs={true}
 >
   <WithStyles(ForwardRef(Typography))
     className="text-mock"

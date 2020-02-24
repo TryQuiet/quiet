@@ -16,7 +16,7 @@ import directMessagesQueue from '../selectors/directMessagesQueue'
 import { messages as zbayMessages } from '../../zbay'
 import { getClient } from '../../zcash'
 import { getVault } from '../../vault'
-import { displayDirectMessageNotification } from '../../notifications'
+import { displayDirectMessageNotification, offerNotification } from '../../notifications'
 import operationsHandlers, { operationTypes, PendingDirectMessageOp } from './operations'
 import { ReceivedMessage } from './messages'
 import removedChannelsHandlers from './removedChannels'
@@ -269,6 +269,10 @@ export const fetchMessages = () => async (dispatch, getState) => {
               itemId: offer.itemId
             })
           )
+          offerNotification({
+            message: msg.message.text,
+            username: msg.sender.username
+          })
         }
       }
     })

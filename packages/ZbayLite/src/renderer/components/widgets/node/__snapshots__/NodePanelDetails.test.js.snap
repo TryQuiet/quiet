@@ -10,7 +10,32 @@ exports[`NodePanelDetails renders component 1`] = `
     container={true}
     direction="column"
   >
-    <Connect(NodePanelNetworkField) />
+    <WithStyles(ForwardRef(Grid))
+      container={true}
+      direction={true}
+      item={true}
+    >
+      <Connect(NodePanelNetworkField) />
+      <Memo(WithStyles(Tooltip))
+        className="tooltip-mock"
+        placement="bottom"
+        title="Learn more about node status"
+      >
+        <WithStyles(ForwardRef(IconButton))
+          className="iconButton-mock"
+          edge="end"
+          onClick={[Function]}
+          onMouseOut={[Function]}
+          onMouseOver={[Function]}
+        >
+          <Memo(Icon)
+            className="icon-mock"
+            fontSize="inherit"
+            src="test-file-stub"
+          />
+        </WithStyles(ForwardRef(IconButton))>
+      </Memo(WithStyles(Tooltip))>
+    </WithStyles(ForwardRef(Grid))>
     <Connect(NodePanelBlocksField) />
     <Connect(NodePanelConnectionsField) />
     <Connect(NodePanelFreeUtxos) />

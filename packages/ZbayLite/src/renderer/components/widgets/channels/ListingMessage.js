@@ -5,7 +5,6 @@ import * as R from 'ramda'
 import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
 import { Typography } from '@material-ui/core'
-import Button from '@material-ui/core/Button'
 
 import BasicMessage from '../../../containers/widgets/channels/BasicMessage'
 import { _DisplayableMessage } from '../../../zbay/messages'
@@ -22,7 +21,8 @@ const styles = theme => ({
     width: 256,
     height: 274,
     borderRadius: 4,
-    border: `1px solid ${theme.palette.colors.inputGray}`
+    border: `1px solid ${theme.palette.colors.inputGray}`,
+    cursor: 'pointer'
   },
   contentContainer: {
     position: 'absolute',
@@ -93,7 +93,6 @@ const styles = theme => ({
     top: 230
   },
   priceUsd: {
-    marginLeft: 9,
     color: theme.palette.colors.trueBlack,
     fontSize: 13,
     lineHeight: '24px',
@@ -174,17 +173,6 @@ export const ListingMessage = ({ message, classes, payload, buyActions }) => {
           item
           justify={'flex-start'}
         >
-          <Grid item>
-            <Button
-              onClick={e => {
-                e.stopPropagation()
-                buyActions('advertSendFounds', payload)
-              }}
-              className={classes.button}
-            >
-              <span className={classes.buttonString}>Buy</span>
-            </Button>
-          </Grid>
           <Grid item>
             <Typography variant={'caption'} className={classes.priceUsd}>
               ${priceUSD}

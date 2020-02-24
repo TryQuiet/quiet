@@ -10,7 +10,7 @@ const styles = theme => ({
   textValue: { opacity: 0.7 }
 })
 export const NodePanelField = ({ classes, name, value }) => (
-  <Grid container direction='column' className={classes.root} spacing={0}>
+  <Grid item xs container direction='column' className={classes.root} spacing={0}>
     <Typography variant='overline' className={classes.text}>
       {name}:
     </Typography>

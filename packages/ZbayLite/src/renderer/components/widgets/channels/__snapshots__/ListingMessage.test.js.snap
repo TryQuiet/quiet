@@ -91,20 +91,6 @@ exports[`SendMessagePopover renders popover 1`] = `
       <WithStyles(ForwardRef(Grid))
         item={true}
       >
-        <WithStyles(ForwardRef(Button))
-          className="button-mock"
-          onClick={[Function]}
-        >
-          <span
-            className="buttonString-mock"
-          >
-            Buy
-          </span>
-        </WithStyles(ForwardRef(Button))>
-      </WithStyles(ForwardRef(Grid))>
-      <WithStyles(ForwardRef(Grid))
-        item={true}
-      >
         <WithStyles(ForwardRef(Typography))
           className="priceUsd-mock"
           variant="caption"
