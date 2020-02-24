@@ -89,47 +89,6 @@ exports[`InvitationModalGenerate renders component 1`] = `
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
-    item={true}
-  >
-    <WithStyles(ForwardRef(FormControlLabel))
-      className="checkboxDiv-mock"
-      control={
-        <ForwardRef(WithStyles)
-          checked={true}
-          checkedIcon={
-            <Memo
-              style={
-                Object {
-                  "fontSize": 18,
-                }
-              }
-            />
-          }
-          className="checkbox-mock"
-          color="primary"
-          icon={
-            <Memo
-              style={
-                Object {
-                  "fontSize": 18,
-                }
-              }
-            />
-          }
-          onChange={[Function]}
-        />
-      }
-      label={
-        <ForwardRef(WithStyles)
-          className="checkboxLabel-mock"
-          variant="body2"
-        >
-          Include affiliate code
-        </ForwardRef(WithStyles)>
-      }
-    />
-  </WithStyles(ForwardRef(Grid))>
-  <WithStyles(ForwardRef(Grid))
     className="buttonDiv-mock"
     item={true}
   >

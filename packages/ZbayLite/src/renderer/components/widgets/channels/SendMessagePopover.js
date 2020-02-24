@@ -39,7 +39,6 @@ export const SendMessagePopover = ({
     >
       <QuickActionLayout
         main={username}
-        info={`${address.substring(0, 32)}...`}
         buttonName='Send message'
         handleClose={handleClose}
         warrning={

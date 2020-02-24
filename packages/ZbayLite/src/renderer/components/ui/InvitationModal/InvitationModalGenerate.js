@@ -5,15 +5,8 @@ import BigNumber from 'bignumber.js'
 
 import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
-import {
-  Typography,
-  TextField,
-  FormControlLabel,
-  Checkbox
-} from '@material-ui/core'
+import { Typography, TextField } from '@material-ui/core'
 import InputAdornment from '@material-ui/core/InputAdornment'
-import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank'
-import CheckBoxIcon from '@material-ui/icons/CheckBox'
 import LoadingButton from '../LoadingButton'
 import InvitationModal from './InvitationModal'
 import exchange from '../../../static/images/zcash/exchange.svg'
@@ -173,7 +166,7 @@ export const InvitationModalGenerate = ({
           )}`}</Typography>
         </Grid>
       )}
-      <Grid item>
+      {/* <Grid item>
         <FormControlLabel
           control={
             <Checkbox
@@ -194,7 +187,7 @@ export const InvitationModalGenerate = ({
             </Typography>
           }
         />
-      </Grid>
+      </Grid> */}
       <Grid item className={classes.buttonDiv}>
         <LoadingButton
           variant='contained'

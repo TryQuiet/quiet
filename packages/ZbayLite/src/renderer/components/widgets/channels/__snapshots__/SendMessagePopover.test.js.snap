@@ -23,7 +23,6 @@ exports[`SendMessagePopover renders popover 1`] = `
   <Memo(WithStyles(QuickActionLayout))
     buttonName="Send message"
     handleClose={[MockFunction]}
-    info="ztestsapling1juf4322spfp2nhmqaz5..."
     main="TestUser"
     onClick={[Function]}
     warrning={null}

@@ -40,6 +40,9 @@ const styles = theme => ({
   },
   spacing: {
     marginLeft: 16
+  },
+  info: {
+    marginBottom: 8
   }
 })
 
@@ -80,6 +83,13 @@ export const ShippingSettingsForm = ({
               <Grid container direction='column' alignItems='flex-start'>
                 <Grid item className={classes.title}>
                   <Typography variant='h3'>Shipping Address</Typography>
+                </Grid>
+                <Grid item className={classes.info}>
+                  <Typography variant='body2'>
+                    Your shipping address is saved on your computer, and sent in
+                    private to sellers only when you include it while making a
+                    purchase.{' '}
+                  </Typography>
                 </Grid>
 
                 <Grid item container direction='row' justify='space-between'>
