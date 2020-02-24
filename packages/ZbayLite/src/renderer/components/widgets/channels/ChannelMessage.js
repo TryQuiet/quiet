@@ -37,7 +37,8 @@ const styles = theme => ({
     height: 104,
     width: 112,
     borderRadius: 8,
-    overflow: 'hidden'
+    overflow: 'hidden',
+    cursor: 'pointer'
   },
   button: {
     minWidth: 80,
@@ -309,22 +310,19 @@ export const ChannelMessage = ({
           justify='center'
           alignItems='flex-start'
           spacing={0}
+          onClick={() => {
+            if (whitelisted.contains(new URL(imageUrl).hostname)) {
+              setShowImage(true)
+            } else {
+              setOpenModal(true)
+            }
+          }}
         >
           <Grid item className={classes.imagePlacegolderDiv}>
             <Icon className={classes.imagePlacegolder} src={imagePlacegolder} />
           </Grid>
           <Grid item className={classes.buttonDiv}>
-            <Button
-              className={classes.button}
-              variant='outlined'
-              onClick={() => {
-                if (whitelisted.contains(new URL(imageUrl).hostname)) {
-                  setShowImage(true)
-                } else {
-                  setOpenModal(true)
-                }
-              }}
-            >
+            <Button className={classes.button} variant='outlined'>
               Load image
             </Button>
           </Grid>

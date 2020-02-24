@@ -46,7 +46,9 @@ export const addToWhitelist = (url, dontAutoload) => async (
   ensureStore()
   const whitelistArray = electronStore.get('whitelist.whitelisted')
   const uri = new URL(url)
-  whitelistArray.push(uri.hostname)
+  if (whitelistArray.indexOf(uri.hostname) === -1) {
+    whitelistArray.push(uri.hostname)
+  }
   electronStore.set('whitelist.whitelisted', whitelistArray)
   if (!dontAutoload) {
     dispatch(setAutoLoad(uri.hostname))
@@ -61,7 +63,9 @@ export const setWhitelistAll = allowAll => async (dispatch, getState) => {
 export const setAutoLoad = newLink => async (dispatch, getState) => {
   ensureStore()
   const autoloadArray = electronStore.get('whitelist.autoload')
-  autoloadArray.push(newLink)
+  if (autoloadArray.indexOf(newLink) === -1) {
+    autoloadArray.push(newLink)
+  }
   electronStore.set('whitelist.autoload', autoloadArray)
   dispatch(setAutoLoadList(Immutable.List(autoloadArray)))
 }
