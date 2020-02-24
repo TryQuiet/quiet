@@ -47,6 +47,7 @@ export const ConfirmModal = ({
   handleClose,
   title,
   actionName,
+  cancelName,
   handleAction,
   open
 }) => (
@@ -60,7 +61,7 @@ export const ConfirmModal = ({
       <Grid container direction='row' justify='flex-end'>
         <Grid item xs className={classes.buttonNo} onClick={handleClose}>
           <Typography className={classes.typography} variant='body1'>
-            Cancel
+            {cancelName}
           </Typography>
         </Grid>
         <Grid
@@ -87,6 +88,10 @@ ConfirmModal.propTypes = {
   open: PropTypes.bool.isRequired,
   title: PropTypes.string.isRequired,
   actionName: PropTypes.string.isRequired,
+  cancelName: PropTypes.string.isRequired,
   handleAction: PropTypes.func.isRequired
+}
+ConfirmModal.defaultProps = {
+  cancelName: 'Cancel'
 }
 export default R.compose(React.memo, withStyles(styles))(ConfirmModal)

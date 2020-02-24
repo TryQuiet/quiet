@@ -9,6 +9,7 @@ import dotsIcon from '../../../static/images/zcash/dots-icon.svg'
 import IconButton from '../../ui/IconButton'
 import MenuAction from '../../ui/MenuAction'
 import MenuActionItem from '../../ui/MenuActionItem'
+import ConfirmModal from '../channelSettings/ConfirmModal'
 
 const styles = theme => ({
   menuList: {
@@ -34,6 +35,7 @@ export const ChannelMenuAction = ({
   const alreadyRegistered = publicChannels.find(
     ch => ch.address === channel.get('address')
   )
+  const [openDialog, setOpenDialog] = React.useState(false)
   return (
     <MenuAction
       icon={dotsIcon}
@@ -43,7 +45,18 @@ export const ChannelMenuAction = ({
     >
       <MenuActionItem onClick={onInfo} title='Info' />
       <MenuActionItem onClick={onMute} title='Mute' />
-      <MenuActionItem onClick={onDelete} title='Remove' />
+      <MenuActionItem
+        onClick={
+          alreadyRegistered
+            ? onDelete
+            : e => {
+              e.preventDefault()
+              setOpenDialog(true)
+            }
+        }
+        closeAfterAction={false}
+        title='Remove'
+      />
       {isOwner && alreadyRegistered ? (
         <MenuActionItem onClick={onSettings} title='Settings' />
       ) : (
@@ -54,6 +67,14 @@ export const ChannelMenuAction = ({
       ) : (
         <span />
       )}
+      <ConfirmModal
+        open={openDialog}
+        title={`Are you sure you want to remove this channel?`}
+        actionName='Yes'
+        cancelName='No'
+        handleClose={() => setOpenDialog(false)}
+        handleAction={onDelete}
+      />
     </MenuAction>
   )
 }

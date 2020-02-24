@@ -300,13 +300,22 @@ exports[`ChannelMenuAction renders component 1`] = `
     title="Mute"
   />
   <Memo(WithStyles(MenuActionItem))
-    onClick={[MockFunction]}
+    closeAfterAction={false}
+    onClick={[Function]}
     title="Remove"
   />
   <span />
   <Memo(WithStyles(MenuActionItem))
     onClick={[Function]}
     title="Make public"
+  />
+  <Memo(WithStyles(ConfirmModal))
+    actionName="Yes"
+    cancelName="No"
+    handleAction={[MockFunction]}
+    handleClose={[Function]}
+    open={false}
+    title="Are you sure you want to remove this channel?"
   />
 </Memo(WithStyles(MenuAction))>
 `;

@@ -1,5 +1,6 @@
 import React from 'react'
 import * as R from 'ramda'
+import PropTypes from 'prop-types'
 
 import MuiMenuItem from '@material-ui/core/MenuItem'
 import { withStyles } from '@material-ui/core/styles'
@@ -15,12 +16,18 @@ const styles = theme => ({
   }
 })
 
-export const MenuActionItem = ({ classes, className, onClick, title, close }) => {
+export const MenuActionItem = ({
+  classes,
+  onClick,
+  title,
+  close,
+  closeAfterAction
+}) => {
   return (
     <MuiMenuItem
       onClick={e => {
         onClick(e)
-        close()
+        closeAfterAction && close()
       }}
       className={classes.root}
       key={title}
@@ -29,8 +36,14 @@ export const MenuActionItem = ({ classes, className, onClick, title, close }) =>
     </MuiMenuItem>
   )
 }
-
-export default R.compose(
-  React.memo,
-  withStyles(styles)
-)(MenuActionItem)
+MenuActionItem.propTypes = {
+  classes: PropTypes.object.isRequired,
+  onClick: PropTypes.func.isRequired,
+  close: PropTypes.func.isRequired,
+  title: PropTypes.string.isRequired,
+  closeAfterAction: PropTypes.bool.isRequired
+}
+MenuActionItem.defaultProps = {
+  closeAfterAction: true
+}
+export default R.compose(React.memo, withStyles(styles))(MenuActionItem)
