@@ -19,6 +19,7 @@ import {
 } from '../../zbay/transit'
 import LoadingButton from './LoadingButton'
 
+const currentNetwork = parseInt(process.env.ZBAY_IS_TESTNET) ? 2 : 1
 // import { networkFee } from '../../../../shared/static'
 
 const styles = theme => ({
@@ -100,7 +101,7 @@ export const formSchema = publicChannels =>
         .max(PUBLISH_CHANNEL_NAME_SIZE, 'Channel name is too long')
         .required('Must include a channel name'),
       description: Yup.string().max(
-        CHANNEL_DESCRIPTION_SIZE(2),
+        CHANNEL_DESCRIPTION_SIZE(currentNetwork),
         'Description name is too long'
       )
     },
@@ -205,7 +206,7 @@ export const PublishChannelModal = ({
                         Description (Optional)
                       </Typography>
                       <span className={classes.counter}>
-                        {CHANNEL_DESCRIPTION_SIZE(2) -
+                        {CHANNEL_DESCRIPTION_SIZE(currentNetwork) -
                           values.description.length}
                       </span>
                       <TextField
@@ -218,7 +219,7 @@ export const PublishChannelModal = ({
                         rows={4}
                       />
                       <Typography variant='body2' className={classes.fieldInfo}>
-                        {CHANNEL_DESCRIPTION_SIZE(2)} max characters
+                        {CHANNEL_DESCRIPTION_SIZE(currentNetwork)} max characters
                       </Typography>
                     </Grid>
                     <Grid item className={classes.spacingFields}>

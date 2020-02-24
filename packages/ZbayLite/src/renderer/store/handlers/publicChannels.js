@@ -22,10 +22,8 @@ import { messageType, actionTypes } from '../../../shared/static'
 export const _PublicChannelData = Immutable.Record(
   {
     address: '',
-    minFee: '',
     name: '',
     description: '',
-    onlyForRegistered: '',
     owner: '',
     timestamp: 0,
     keys: {}
@@ -107,20 +105,13 @@ export const fetchPublicChannels = () => async (dispatch, getState) => {
           settingsMsg.message.updateChannelAddress ===
             msg.message.channelAddress
       )(sortedMessages)
-
       const channel = _PublicChannelData({
         address: msg.message.channelAddress,
-        minFee: updateChannelSettings
-          ? updateChannelSettings.message.updateMinFee
-          : msg.message.channelMinFee,
         name: msg.message.channelName,
         description: updateChannelSettings
           ? updateChannelSettings.message.updateChannelDescription
           : msg.message.channelDescription,
-        onlyForRegistered: updateChannelSettings
-          ? updateChannelSettings.message.updateOnlyRegistered
-          : msg.message.channelonlyRegistered,
-        owner: msg.message.channelOwner,
+        owner: msg.publicKey,
         keys: { ivk: msg.message.channelIvk },
         timestamp: txnTimestamps.get(msg.id)
       })
@@ -136,14 +127,11 @@ export const fetchPublicChannels = () => async (dispatch, getState) => {
 }
 export const publishChannel = ({
   channelAddress,
-  channelMinFee = '0',
-  channelonlyRegistered = '0',
   channelName,
   channelDescription,
   channelIvk
 }) => async (dispatch, getState) => {
   const identityAddress = identitySelectors.address(getState())
-  const signerPubKey = identitySelectors.signerPubKey(getState())
   const privKey = identitySelectors.signerPrivKey(getState())
   const network = nodeSelectors.network(getState())
   const publicChannel = channelsSelectors.publicChannels(getState())
@@ -153,9 +141,6 @@ export const publishChannel = ({
       type: messages.messageType.PUBLISH_CHANNEL,
       data: {
         channelName,
-        channelOwner: signerPubKey,
-        channelMinFee,
-        channelonlyRegistered,
         channelAddress,
         channelIvk,
         channelDescription,

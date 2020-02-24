@@ -3,9 +3,8 @@ export default (zcashClient) => {
   const importIVK = async ({
     ivk,
     rescan = 'no',
-    startHeight = 0,
-    address
-  }) => zcashClient.request.z_importviewingkey(ivk, rescan, startHeight, address)
+    startHeight = 0
+  }) => zcashClient.request.z_importviewingkey(ivk, rescan, startHeight)
 
   const exportSK = async (address) => zcashClient.request.z_exportkey(address)
   const importSK = async ({

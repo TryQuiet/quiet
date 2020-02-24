@@ -272,8 +272,7 @@ describe('vault reducer', () => {
         expect(zcashMock.requestManager.z_importviewingkey).toHaveBeenCalledWith(
           'zivktestsapling1algnz2x84pqcnfdxrlntw73wpuqm3v568cepf5tuctyusm9javpqyjyzqy',
           'no',
-          0,
-          'ztestsapling1dfjv308amnk40s89trkvz646ne69553us0g858mmpgsw540efgftn4tf25gts2cttg3jgk9y8lx'
+          0
         )
       })
     })

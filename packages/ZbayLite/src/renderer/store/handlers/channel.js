@@ -3,7 +3,10 @@ import BigNumber from 'bignumber.js'
 import { createAction, handleActions } from 'redux-actions'
 
 import history from '../../../shared/history'
-import operationsHandlers, { operationTypes, PendingMessageOp } from './operations'
+import operationsHandlers, {
+  operationTypes,
+  PendingMessageOp
+} from './operations'
 import notificationsHandlers from './notifications'
 import messagesQueueHandlers from './messagesQueue'
 import messagesQueue from '../selectors/messagesQueue'
@@ -37,7 +40,10 @@ export const ChannelState = Immutable.Record(
 
 export const initialState = ChannelState()
 
-const setSpentFilterValue = createAction(actionTypes.SET_SPENT_FILTER_VALUE, (_, value) => value)
+const setSpentFilterValue = createAction(
+  actionTypes.SET_SPENT_FILTER_VALUE,
+  (_, value) => value
+)
 const setMessage = createAction(actionTypes.SET_CHANNEL_MESSAGE)
 const setChannelId = createAction(actionTypes.SET_CHANNEL_ID)
 const setLoading = createAction(actionTypes.SET_CHANNEL_LOADING)
@@ -80,7 +86,9 @@ const loadOffer = (id, address) => async (dispatch, getState) => {
 }
 const linkChannelRedirect = targetChannel => async (dispatch, getState) => {
   let channels = channelsSelectors.channels(getState())
-  let channel = channels.data.find(channel => channel.get('address') === targetChannel.address)
+  let channel = channels.data.find(
+    channel => channel.get('address') === targetChannel.address
+  )
   const identityId = identitySelectors.id(getState())
   const lastblock = nodeSelectors.latestBlock(getState())
   const fetchTreshold = lastblock - 2000
@@ -89,13 +97,15 @@ const linkChannelRedirect = targetChannel => async (dispatch, getState) => {
     return
   }
   try {
-    await getVault().channels.importChannel(identityId, targetChannel)
-    getClient().keys.importIVK({
-      ivk: targetChannel.keys.ivk,
-      rescan: 'yes',
-      startHeight: fetchTreshold,
-      address: targetChannel.address
-    })
+    try {
+      await getVault().channels.importChannel(identityId, targetChannel)
+      getClient().keys.importIVK({
+        ivk: targetChannel.keys.ivk,
+        rescan: 'yes',
+        startHeight: fetchTreshold
+      })
+    } catch (error) {}
+
     await dispatch(channelsHandlers.actions.loadChannels(identityId))
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar({
@@ -106,7 +116,9 @@ const linkChannelRedirect = targetChannel => async (dispatch, getState) => {
       })
     )
     channels = channelsSelectors.channels(getState())
-    channel = channels.data.find(channel => channel.get('address') === targetChannel.address)
+    channel = channels.data.find(
+      channel => channel.get('address') === targetChannel.address
+    )
     history.push(`/main/channel/${channel.get('id')}`)
   } catch (err) {
     console.log(err)
@@ -128,7 +140,8 @@ const sendOnEnter = event => async (dispatch, getState) => {
       message = messages.createMessage({
         messageData: {
           type: messageType.BASIC,
-          data: currentMessage.get('message').get('message') + '\n' + messageToSend
+          data:
+            currentMessage.get('message').get('message') + '\n' + messageToSend
         },
         privKey: privKey
       })
@@ -141,14 +154,17 @@ const sendOnEnter = event => async (dispatch, getState) => {
         privKey: privKey
       })
     }
-    dispatch(messagesQueueHandlers.epics.addMessage({ message, channelId: channel.id }))
+    dispatch(
+      messagesQueueHandlers.epics.addMessage({ message, channelId: channel.id })
+    )
     dispatch(setMessage(''))
   }
 }
-const sendChannelSettingsMessage = ({ address, minFee = '0', onlyRegistered = '0' }) => async (
-  dispatch,
-  getState
-) => {
+const sendChannelSettingsMessage = ({
+  address,
+  minFee = '0',
+  onlyRegistered = '0'
+}) => async (dispatch, getState) => {
   const identityAddress = identitySelectors.address(getState())
   const owner = identitySelectors.signerPubKey(getState())
   const privKey = identitySelectors.signerPrivKey(getState())
@@ -244,15 +260,18 @@ export const epics = {
 // TODO: we should have a global loader map
 export const reducer = handleActions(
   {
-    [setLoading]: (state, { payload: loading }) => state.setIn(['loader', 'loading'], loading),
+    [setLoading]: (state, { payload: loading }) =>
+      state.setIn(['loader', 'loading'], loading),
     [setLoadingMessage]: (state, { payload: message }) =>
       state.setIn(['loader', 'message'], message),
     [setSpentFilterValue]: (state, { payload: value }) =>
       state.set('spentFilterValue', new BigNumber(value)),
     [setMessage]: (state, { payload: value }) => state.set('message', value),
     [setChannelId]: (state, { payload: id }) => state.set('id', id),
-    [setShareableUri]: (state, { payload: uri }) => state.set('shareableUri', uri),
-    [setAddress]: (state, { payload: address }) => state.set('address', address),
+    [setShareableUri]: (state, { payload: uri }) =>
+      state.set('shareableUri', uri),
+    [setAddress]: (state, { payload: address }) =>
+      state.set('address', address),
     [resetChannel]: () => initialState
   },
   initialState

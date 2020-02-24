@@ -93,15 +93,13 @@ const importChannel = () => async (dispatch, getState) => {
       await getClient().keys.importSK({
         sk: channel.keys.sk,
         rescan: 'yes',
-        startHeight: fetchTreshold,
-        address: channel.address
+        startHeight: fetchTreshold
       })
     } else {
       await getClient().keys.importIVK({
         ivk: channel.keys.ivk,
         rescan: 'yes',
-        startHeight: fetchTreshold,
-        address: channel.address
+        startHeight: fetchTreshold
       })
     }
     await dispatch(channelsHandlers.actions.loadChannels(identityId))

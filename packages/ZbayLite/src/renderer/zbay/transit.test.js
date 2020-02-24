@@ -131,14 +131,10 @@ const publishChannelMainnetMessage = {
   createdAt: now.toSeconds(),
   message: {
     channelName: 'test channel name',
-    channelOwner:
-      '027101da0887f14b447cf4d7d6ea776d7cd2cb96c534a8205a330ab5a75732c3db',
-    channelMinFee: '12',
-    channelonlyRegistered: '1',
     channelAddress:
       'zs1ecsq8thnu84ejvfx2jcfsa6zas2k057n3hrhuy0pahmlvqfwterjaz3h772ldlsgp5r2xwvml9g',
     channelIvk:
-      'zivks1mm9azwml2k3m4428sy7adwruwvcwd7r3vc5fpfathm4mfd95yczsnrspx5',
+      'zxviews1qwk53xxqqgqqpqrdhg8mw8xdprc9gd6lfpddgyaz9x5575cxeyk53efx02n0swpa3rhxms8zxvj62z2and8thzfe3qyl3k7qgpk45glak450zsyn70tq5z367nj972mzkutdxaclwd59jnsq0w8q59aks6rju9s2vgu7y9qcleq76pluemthwknl44c2anzj4zj0fpqufh6fezcfl8lppvxmzee3fg53gfhwyd0y735gxuhwhxn6q5eyvncye9fcldwzpf7twzjrnwgk6eumj',
     channelDescription: ' random channel test ',
     networkType: ADDRESS_TYPE.SHIELDED_MAINNET
   }
@@ -150,14 +146,10 @@ const publishChannelTestnetMessage = {
   createdAt: now.toSeconds(),
   message: {
     channelName: 'test channel name',
-    channelOwner:
-      '027101da0887f14b447cf4d7d6ea776d7cd2cb96c534a8205a330ab5a75732c3db',
-    channelMinFee: '12',
-    channelonlyRegistered: '1',
     channelAddress:
       '1234567890zs1ecsq8thnu84ejvfx2jcfsa6zas2k057n3hrhuy0pahmlvqfwterjaz3h772ldlsgp5r2xwvml9g',
     channelIvk:
-      '1234567890zivks1mm9azwml2k3m4428sy7adwruwvcwd7r3vc5fpfathm4mfd95yczsnrspx5',
+      'zxviews1qwk53xxqqgqqpqrdhg8mw8xdprc9gd6lfpddgyaz9x5575cxeyk53efx02n0swpa3rhxms8zxvj62z2and8thzfe3qyl3k7qgpk45glak450zsyn70tq5z367nj972mzkutdxaclwd59jnsq0w8q59aks6rju9s2vgu7y9qcleq76pluemthwknl44c2anzj4zj0fpqufh6fezcfl8lppvxmzee3fg53gfhwyd0y735gxuhwhxn6q5eyvncye9fcldwzpf7twzjrnwgk6eumj',
     channelDescription: ' random channel test ',
     networkType: ADDRESS_TYPE.SHIELDED_TESTNET
   }

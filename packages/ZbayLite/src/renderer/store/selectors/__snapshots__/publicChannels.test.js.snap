@@ -4,10 +4,8 @@ exports[`operations selectors  - publicChannels 1`] = `
 Immutable.Map {
   "testaddress1": Immutable.PublicChannelData {
     "address": "testAddress1",
-    "minFee": "1",
     "name": "testname1",
     "description": "sadadsdsadsa",
-    "onlyForRegistered": "0",
     "owner": "me",
     "timestamp": 0,
     "keys": Object {
@@ -16,10 +14,8 @@ Immutable.Map {
   },
   "testaddress2": Immutable.PublicChannelData {
     "address": "XXXX2",
-    "minFee": "12",
     "name": "testname2",
     "description": "sadadsdsadsa",
-    "onlyForRegistered": "1",
     "owner": "you",
     "timestamp": 0,
     "keys": Object {
@@ -32,10 +28,8 @@ Immutable.Map {
 exports[`operations selectors  - publicChannelsByAddress 1`] = `
 Immutable.PublicChannelData {
   "address": "testAddress1",
-  "minFee": "1",
   "name": "testname1",
   "description": "sadadsdsadsa",
-  "onlyForRegistered": "0",
   "owner": "me",
   "timestamp": 0,
   "keys": Object {

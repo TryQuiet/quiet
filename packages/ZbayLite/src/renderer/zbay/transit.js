@@ -38,11 +38,8 @@ const SHIELDED_TESTNET_SIZE = 88
 // TYPE PUBLISH_CHANNEL
 const PUBLISH_CHANNEL_NETWORK_TYPE_SIZE = 1
 export const PUBLISH_CHANNEL_NAME_SIZE = 20
-const PUBLISH_CHANNEL_OWNER_SIZE = 66
-const PUBLISH_CHANNEL_MIN_FEE_SIZE = 4
-const PUBLISH_CHANNEL_ONLY_REGISTERED_SIZE = 1
-const PUBLISH_CHANNEL_IVK_MAINNET_SIZE = 64
-const PUBLISH_CHANNEL_IVK_TESTNET_SIZE = 74
+const PUBLISH_CHANNEL_IVK_MAINNET_SIZE = 285
+const PUBLISH_CHANNEL_IVK_TESTNET_SIZE = 295
 
 // TYPE MODERATION
 const MODERATION_TYPE_SIZE = 20
@@ -85,9 +82,6 @@ export const CHANNEL_DESCRIPTION_SIZE = networkType =>
   MESSAGE_SIZE -
   (PUBLISH_CHANNEL_NETWORK_TYPE_SIZE +
     PUBLISH_CHANNEL_NAME_SIZE +
-    PUBLISH_CHANNEL_OWNER_SIZE +
-    PUBLISH_CHANNEL_MIN_FEE_SIZE +
-    PUBLISH_CHANNEL_ONLY_REGISTERED_SIZE +
     typeToAddressSize[networkType] +
     typeToIvkSize[networkType])
 
@@ -211,14 +205,6 @@ export const packMemo = async message => {
       networkType.writeUInt8(message.message.networkType)
       const channelName = Buffer.alloc(PUBLISH_CHANNEL_NAME_SIZE)
       channelName.write(message.message.channelName)
-      const channelOwner = Buffer.alloc(PUBLISH_CHANNEL_OWNER_SIZE)
-      channelOwner.write(message.message.channelOwner)
-      const channelMinFee = Buffer.alloc(PUBLISH_CHANNEL_MIN_FEE_SIZE)
-      channelMinFee.writeUInt32BE(message.message.channelMinFee * 100000000)
-      const channelonlyRegistered = Buffer.alloc(
-        PUBLISH_CHANNEL_ONLY_REGISTERED_SIZE
-      )
-      channelonlyRegistered.writeUInt8(message.message.channelonlyRegistered)
       const channelAddress = Buffer.alloc(
         typeToAddressSize[message.message.networkType]
       )
@@ -236,9 +222,6 @@ export const packMemo = async message => {
         [
           networkType,
           channelName,
-          channelOwner,
-          channelMinFee,
-          channelonlyRegistered,
           channelAddress,
           channelIvk,
           channelDescription
@@ -451,23 +434,9 @@ export const unpackMemo = async memo => {
         .readUInt8()
       const channelNameEnds = networkTypeEnds + PUBLISH_CHANNEL_NAME_SIZE
       const channelName = memoBuff.slice(networkTypeEnds, channelNameEnds)
-      const channelOwnerEnds = channelNameEnds + PUBLISH_CHANNEL_OWNER_SIZE
-      const channelOwner = memoBuff.slice(channelNameEnds, channelOwnerEnds)
-      const channelMinFeeEnds = channelOwnerEnds + PUBLISH_CHANNEL_MIN_FEE_SIZE
-      const channelMinFee = memoBuff
-        .slice(channelOwnerEnds, channelMinFeeEnds)
-        .readUInt32BE()
-      const channelonlyRegisteredEnds =
-        channelMinFeeEnds + PUBLISH_CHANNEL_ONLY_REGISTERED_SIZE
-      const channelonlyRegistered = memoBuff
-        .slice(channelMinFeeEnds, channelonlyRegisteredEnds)
-        .readUInt8()
       const channelAddressEnds =
-        channelonlyRegisteredEnds + typeToAddressSize[networkType]
-      const channelAddress = memoBuff.slice(
-        channelonlyRegisteredEnds,
-        channelAddressEnds
-      )
+        channelNameEnds + typeToAddressSize[networkType]
+      const channelAddress = memoBuff.slice(channelNameEnds, channelAddressEnds)
       const channelIvkEnds = channelAddressEnds + typeToIvkSize[networkType]
       const channelIvk = memoBuff.slice(channelAddressEnds, channelIvkEnds)
       const channelDescriptionEnds =
@@ -482,9 +451,6 @@ export const unpackMemo = async memo => {
         r,
         message: {
           channelName: trimNull(channelName.toString()),
-          channelOwner: trimNull(channelOwner.toString()),
-          channelMinFee: trimNull((channelMinFee / 100000000).toString()),
-          channelonlyRegistered: trimNull(channelonlyRegistered.toString()),
           channelAddress: trimNull(channelAddress.toString()),
           channelIvk: trimNull(channelIvk.toString()),
           channelDescription: trimNull(channelDescription.toString()),

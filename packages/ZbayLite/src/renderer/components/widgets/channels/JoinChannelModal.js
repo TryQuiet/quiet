@@ -150,7 +150,9 @@ export const JoinChannelModal = ({
                   {step !== 0 && (
                     <Typography variant='caption' className={classes.timeInfo}>
                       {`Created by @${
-                        users.get(values.channel.owner).nickname
+                        users.get(values.channel.owner)
+                          ? users.get(values.channel.owner).nickname
+                          : 'Unnamed'
                       } on ${DateTime.fromSeconds(
                         parseInt(values.channel.timestamp)
                       ).toFormat('LLL d, y')} `}
@@ -182,7 +184,9 @@ export const JoinChannelModal = ({
                               className={classes.channelInfo}
                             >
                               {`Created by @${
-                                users.get(option.owner).nickname
+                                users.get(option.owner)
+                                  ? users.get(option.owner).nickname
+                                  : 'Unnamed'
                               } on ${time.toFormat('LLL d, y')} `}
                             </Typography>
                           </Grid>

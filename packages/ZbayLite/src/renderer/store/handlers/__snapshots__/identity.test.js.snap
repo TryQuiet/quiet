@@ -428,10 +428,10 @@ Immutable.IdentityState {
 exports[`Identity reducer handles epics handles createIdentity bootstraps general for mainnet 1`] = `
 Array [
   Object {
-    "address": "zs1lrc8s53ajqy2suwnderegv3ap3psm9shcx0h2j0qtyp3j4dgm7f8fadulxmckrztl83egl2l05r",
+    "address": "zs16tx82nyknwptwcgqdy082446mca0kvt7uk4yrusx66c53uull4nme0hwhx60rkygz2rg6trfqwx",
     "description": "Contains list of public channels",
     "keys": Object {
-      "ivk": "zivks145lmuzdneatnqq737aq0zx8msaamtr8aeksryrrcm8eqgfppzgzsvugld4",
+      "ivk": "zxviews1qwk53xxqqqqqpq98v256ypjt0x0uqhntg3e3za04usl6500kny80ajnt2ncvcqunt88sf9ayw066xn8ktfvw7wy5fd56kj7mdj82geuq2vfjl4tuse9t8njge6sj6xrja22ze84qj232ghu0jn0scyk9kaa47smg0tw8wquwvzau0xjwsnrt4euywnm5wrm7wks67rh03gyy09r97qcakfnwrl02xlgny4ja90k84888qzzrcfjfxpu9es8edjx8gt933al6m428ysq0jj2gv",
     },
     "lastSeen": "2019-03-07T13:03:48.000Z",
     "name": "channelOfChannels",
@@ -440,10 +440,10 @@ Array [
     "unread": 0,
   },
   Object {
-    "address": "zs1e3u6jury8ahlfccudwk9z8dctsnlk32y0wc5l5tsv0e2yud4y5sdyfq69cynlscz02qnxph3uur",
+    "address": "zs1j5udj8n6yquks5pv00aqg86dhhjpr7fq2906zqqpn0jktfg654qmcz9tm4gslutpjnwkzaemgsk",
     "description": "Store data about users.",
     "keys": Object {
-      "ivk": "zivks1gpspx8v7h34k9zptv5vdaeuhqcrkvk6g872eldt49mqzsjdzlcpqezzh95",
+      "ivk": "zxviews1qwk53xxqqyqqpq9p5hc89jednxg8ur0gfp9fa5ktt9mavml9nptve8um69ruzsujsywpul7ug77068ql93y6n5ylg9klcrfh6xhsu4a3dyseyfjqztwq8nn7ngaxcj4hvhfqda2rafmumefkgjrhmtwwwc72qk0svtquxzszj4v44lvwqflyjh55xm5s37zzw2nrs2yu63ecuwq8hrelhenkttm4cgws9uq2afauxyak69lmk0dteungyfavxadf2uwwhmczdegvq2sr3j9cq",
     },
     "lastSeen": "2019-03-07T13:03:48.000Z",
     "name": "RegisteredUsers",
@@ -452,10 +452,10 @@ Array [
     "unread": 0,
   },
   Object {
-    "address": "zs12nwl3q345gumclndp7awk9exmgdm9lehk0zyrjarrmqhg97uh5pw8vkmw6554m3e7rrmqvck9js",
+    "address": "zs13vfsjfw07g3yqse8h742nvhm5csz2qpcz25t77ynk9zlatsq6wtxunmakf7rgn6fjw5q70h4jt7",
     "description": "This is a general channel available to all users of Zbay by default.",
     "keys": Object {
-      "ivk": "zivks1hjwr7pqzp22cku022fjuvxsjdj40t34ht3areat9tr5kq0k7qsrqx9s8yu",
+      "ivk": "zxviews1qwk53xxqqgqqpqrdhg8mw8xdprc9gd6lfpddgyaz9x5575cxeyk53efx02n0swpa3rhxms8zxvj62z2and8thzfe3qyl3k7qgpk45glak450zsyn70tq5z367nj972mzkutdxaclwd59jnsq0w8q59aks6rju9s2vgu7y9qcleq76pluemthwknl44c2anzj4zj0fpqufh6fezcfl8lppvxmzee3fg53gfhwyd0y735gxuhwhxn6q5eyvncye9fcldwzpf7twzjrnwgk6eumj",
     },
     "lastSeen": "2019-03-07T13:03:48.000Z",
     "name": "general",

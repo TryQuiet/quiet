@@ -49,14 +49,16 @@ const loadChannelsToNode = createAction(
   actionTypes.LOAD_IDENTITY_CHANNELS,
   async id => {
     const channels = await getVault().channels.listChannels(id)
-    await Promise.all(
-      channels.map(channel =>
-        getClient().keys.importIVK({
-          ivk: channel.keys.ivk,
-          address: channel.address
-        })
+    try {
+      await Promise.all(
+        channels.map(channel =>
+          getClient().keys.importIVK({
+            ivk: channel.keys.ivk
+          })
+        )
       )
-    )
+    } catch (error) {}
+
     await Promise.all(
       channels
         .filter(ch => ch.keys.sk)

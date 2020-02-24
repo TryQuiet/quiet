@@ -5,10 +5,8 @@ Immutable.Map {
   "publicChannels": Object {
     "testaddress1": Immutable.PublicChannelData {
       "address": "1234",
-      "minFee": "1",
       "name": "121",
       "description": "sadadsdsadsa",
-      "onlyForRegistered": "saddsa",
       "owner": "dsaasdasddsa",
       "timestamp": 0,
       "keys": Object {
