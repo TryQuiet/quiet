@@ -2,7 +2,6 @@ import Immutable from 'immutable'
 import { createAction, handleActions } from 'redux-actions'
 
 import channelsSelectors from '../selectors/channels'
-import coordinatorSelectors from '../selectors/coordinator'
 import messagesHandlers from './messages'
 import contactsHandlers from './contacts'
 import nodeHandlers from './node'
@@ -28,8 +27,7 @@ const actions = {
   startCoordinator
 }
 const coordinator = () => async (dispatch, getState) => {
-  let index = 0
-  while (coordinatorSelectors.running(getState())) {
+  const fetchData = async () => {
     const actions = channelsSelectors
       .data(getState())
       .map(channel => () => messagesHandlers.epics.fetchMessages(channel))
@@ -39,9 +37,12 @@ const coordinator = () => async (dispatch, getState) => {
       .push(() => identityHandlers.epics.fetchFreeUtxos())
       .push(() => usersHandlers.epics.fetchUsers())
       .push(() => publicChannelsHandlers.epics.fetchPublicChannels())
-    await dispatch(actions.get(index % actions.size)())
-    index += 1
+    for (let index = 0; index < actions.size; index++) {
+      await dispatch(actions.get(index % actions.size)())
+    }
+    setTimeout(fetchData, 15000)
   }
+  fetchData()
 }
 const epics = {
   coordinator
