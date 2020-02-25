@@ -78,7 +78,8 @@ export const CreateVaultWrapper = ({
   )
   const isVaultCreationComplete = passwordPosted && !bootstrapping && nodeConnected
   const isDev = process.env.NODE_ENV === 'development'
-  return (!isDev && (passwordPosted || isNewUser)) ? <Loading message={bootstrapping ? bootstrappingMessage : null} /> : (
+  const isBlockchainFromExternalSouce = electronStore.get('isBlockchainFromExternalSource')
+  return ((!isDev && !isBlockchainFromExternalSouce) && (passwordPosted || isNewUser)) ? <Loading message={bootstrapping ? bootstrappingMessage : null} /> : (
     <CreateVault
       inProgress={loading || unlocking}
       inProgressMsg={loading ? 'loading' : 'creating'}

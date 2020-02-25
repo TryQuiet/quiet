@@ -41,17 +41,22 @@ const osPathsParams = {
   win32: `${os.userInfo().homedir}\\AppData\\Roaming\\ZcashParams\\`
 }
 
+const getFolderSizePromise = util.promisify(getSize)
+let isFetchedFromExternalSource = false
+
 const BLOCKCHAIN_SIZE = 26602539059
 const isFetchingArr = []
+let prevFetchedSize = 0
 
-const calculateDownloadSpeed = ({ fetchedSize, prevFetchedSize }) => {
-  const diff = fetchedSize - prevFetchedSize
-  const speedInSec = diff / 15
+const calculateDownloadSpeed = (downloadedSize) => {
+  const diff = downloadedSize - prevFetchedSize
+  prevFetchedSize = downloadedSize
+  const speedInSec = diff / 3
   const convertedSpeed = speedInSec ? Math.abs(speedInSec.toFixed()) : null
   const estimatedTimeForRescanning = 2400
   let isFetching = false
   const eta = convertedSpeed
-    ? convert(((parseInt(((BLOCKCHAIN_SIZE - fetchedSize) / convertedSpeed)) + estimatedTimeForRescanning)))
+    ? convert(((parseInt(((BLOCKCHAIN_SIZE - downloadedSize) / convertedSpeed)) + estimatedTimeForRescanning)))
     : null
   if (isFetchingArr.length < 2) {
     isFetchingArr.push(convertedSpeed)
@@ -62,7 +67,7 @@ const calculateDownloadSpeed = ({ fetchedSize, prevFetchedSize }) => {
     isFetchingArr.push(convertedSpeed)
   }
   mainWindow.webContents.send('fetchingStatus', {
-    sizeLeft: BLOCKCHAIN_SIZE - fetchedSize,
+    sizeLeft: BLOCKCHAIN_SIZE - downloadedSize,
     speed: convertedSpeed,
     eta,
     isFetching: isFetching ? 'IN_PROGRESS' : 'INTERRUPTED'
@@ -81,9 +86,7 @@ const downloadManagerForZippedBlockchain = ({ data, source }) => {
           throw err
         }
         downloadedSize = size
-        const prevFetchedSize = electronStore.get('AppStatus.fetchedSize')
-        calculateDownloadSpeed({ fetchedSize: size, prevFetchedSize })
-        electronStore.set('AppStatus.fetchedSize', downloadedSize)
+        calculateDownloadSpeed(downloadedSize)
         mainWindow.webContents.send('fetchingStatus', {
           sizeLeft: BLOCKCHAIN_SIZE - downloadedSize
         })
@@ -91,7 +94,7 @@ const downloadManagerForZippedBlockchain = ({ data, source }) => {
     }
     checkSizeInterval = setInterval(() => {
       checkFetchedSize()
-    }, 10000)
+    }, 3000)
     app.on('will-quit', () => {
       clearInterval(checkSizeInterval)
       reject(console.log('app exited'))
@@ -99,7 +102,7 @@ const downloadManagerForZippedBlockchain = ({ data, source }) => {
     const startFetching = (data) => {
       let item
       const gunzip = zlib.createGunzip()
-      const { part, fileName, targetUrl } = data[0]
+      const { fileName, targetUrl } = data[0]
       if (!fileName) {
         return
       }
@@ -110,7 +113,7 @@ const downloadManagerForZippedBlockchain = ({ data, source }) => {
         console.log(err)
         data.push(item)
         dataToFetch.push(item)
-        electronStore.set(`AppStatus.${part === 'params' ? 'params' : 'blockchain'}`, {
+        electronStore.set(`AppStatus.${source === 'params' ? 'params' : 'blockchain'}`, {
           status: config.PARAMS_STATUSES.FETCHING,
           filesToFetch: dataToFetch
         })
@@ -125,11 +128,11 @@ const downloadManagerForZippedBlockchain = ({ data, source }) => {
         .on('end', function () {
           const indexToDelete = R.findIndex(R.propEq('fileName', fileName), dataToFetch)
           dataToFetch.splice(indexToDelete, 1)
-          electronStore.set(`AppStatus.${part === 'params' ? 'params' : 'blockchain'}`, {
+          electronStore.set(`AppStatus.${source === 'params' ? 'params' : 'blockchain'}`, {
             status: config.PARAMS_STATUSES.FETCHING,
             filesToFetch: dataToFetch
           })
-          if (data.length === 0 && part !== 'params') {
+          if (data.length === 0 && source !== 'params') {
             mainWindow.webContents.send('fetchingStatus', {
               part: 'blockchain',
               status: config.BLOCKCHAIN_STATUSES.SUCCESS
@@ -398,15 +401,10 @@ const createZcashNode = async (win, torUrl) => {
     return
   }
   checkPath(osPathsBlockchain[process.platform])
-  const getFolderSizePromise = util.promisify(getSize)
-  const blockchainFolderSize = await getFolderSizePromise(
-    `${osPathsBlockchain[process.platform]}`
-  )
-  const isFetchedFromExternalSource = blockchainFolderSize >= 26046042950
   let AppStatus = electronStore.get('AppStatus')
   const vaultStatus = electronStore.get('vaultStatus')
-  if (!isDev) {
-    if (!AppStatus && !isFetchedFromExternalSource) {
+  if (!isDev && !isFetchedFromExternalSource) {
+    if (!AppStatus) {
       electronStore.set('AppStatus', {
         params: {
           status: config.PARAMS_STATUSES.FETCHING
@@ -424,15 +422,13 @@ const createZcashNode = async (win, torUrl) => {
       'AppStatus.blockchain'
     )
     if (
-      paramsStatus !== config.PARAMS_STATUSES.SUCCESS &&
-      !isFetchedFromExternalSource
+      paramsStatus !== config.PARAMS_STATUSES.SUCCESS
     ) {
       await fetchParams(win, torUrl)
     }
     if (
       blockchainStatus !== config.PARAMS_STATUSES.SUCCESS &&
-      vaultStatus === config.VAULT_STATUSES.CREATED &&
-      !isFetchedFromExternalSource
+      vaultStatus === config.VAULT_STATUSES.CREATED
     ) {
       await fetchBlockchain(win, torUrl)
     } else {
@@ -463,13 +459,23 @@ const createZcashNode = async (win, torUrl) => {
       console.log('closing connection')
       nodeProc = null
     })
+    app.on('will-quit', () => {
+      nodeProc.kill('SIGKILL')
+    })
   }
 }
 
 let powerSleepId
 
 app.on('ready', async () => {
+  const blockchainStatus = electronStore.get('AppStatus.blockchain.status')
   powerSleepId = powerSaveBlocker.start('prevent-app-suspension')
+  checkPath(osPathsBlockchain[process.platform])
+  const blockchainFolderSize = await getFolderSizePromise(
+    `${osPathsBlockchain[process.platform]}`
+  )
+  isFetchedFromExternalSource = blockchainFolderSize >= 26046042950 && !blockchainStatus
+  electronStore.set('isBlockchainFromExternalSource', isFetchedFromExternalSource)
   const template = [
     {
       label: 'Zbay',
@@ -599,7 +605,7 @@ app.on('ready', async () => {
 
   ipcMain.on('vault-created', (event, arg) => {
     electronStore.set('vaultStatus', config.VAULT_STATUSES.CREATED)
-    if (!isDev) {
+    if (!isDev && !isFetchedFromExternalSource) {
       const { status } = electronStore.get('AppStatus.blockchain')
       if (status !== config.BLOCKCHAIN_STATUSES.SUCCESS) {
         nodeProc.on('close', code => {

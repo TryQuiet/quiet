@@ -5,6 +5,7 @@ import os from 'os'
 import electronStore from '../../shared/electronStore'
 
 import { credentials } from '../../renderer/zcash'
+import config from '../config'
 
 const ZCASH_RESOURCES = 'zcash'
 const ZCASH_PARAMS = 'ZcashParams'
@@ -56,6 +57,7 @@ export const ensureZcashParams = async (platform, callback) => {
 }
 export const spawnZcashNode = (platform, isTestnet, torUrl = false) => {
   const isRescaned = electronStore.get('AppStatus.blockchain.isRescanned')
+  const blockchainStatus = electronStore.get('AppStatus.blockchain.status')
   let zcashdPath = getZcashResource('zcashd', platform)
   const configName = isTestnet ? 'testnet.conf' : 'mainnet.conf'
   let options
@@ -81,7 +83,7 @@ export const spawnZcashNode = (platform, isTestnet, torUrl = false) => {
   if (torUrl) {
     options.push(`-proxy=${torUrl}`)
   }
-  if (!isRescaned) {
+  if (!isRescaned && blockchainStatus === config.BLOCKCHAIN_STATUSES.SUCCESS) {
     options.push('-rescan')
   }
   const rpcCredentials = credentials()

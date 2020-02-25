@@ -15,6 +15,7 @@ import LoadingButton from '../ui/LoadingButton'
 import icon from '../../static/images/zcash/logo-lockup--circle.svg'
 import Tor from '../../containers/windows/Tor'
 import electronStore from '../../../shared/electronStore'
+import config from '../../../main/config'
 
 const styles = theme => ({
   paper: {
@@ -68,6 +69,7 @@ export const VaultUnlockerForm = ({
   const isDev = process.env.NODE_ENV === 'development'
   const blockchainStatus = electronStore.get('AppStatus.blockchain.status')
   const isRescanned = electronStore.get('AppStatus.blockchain.isRescanned')
+  const isBlockchainFromExternalSouce = electronStore.get('isBlockchainFromExternalSource') && blockchainStatus !== config.BLOCKCHAIN_STATUSES.SUCCESS
   return (
     <Formik
       onSubmit={(values, actions) => {
@@ -143,7 +145,7 @@ export const VaultUnlockerForm = ({
               )}
             </Grid>
           </Grid>
-          {!isDev && !locked && !loader.loading && (blockchainStatus !== 'SUCCESS' || !isRescanned) && (
+          {!isDev && !isBlockchainFromExternalSouce && !locked && !loader.loading && (blockchainStatus !== 'SUCCESS' || !isRescanned) && (
             <Redirect to='/zcashNode' />
           )}
           {!locked && !loader.loading && nodeConnected && (newUser ? true : done) && (
