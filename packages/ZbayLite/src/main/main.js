@@ -69,6 +69,8 @@ const calculateDownloadSpeed = ({ fetchedSize, prevFetchedSize }) => {
   })
 }
 
+let checkSizeInterval
+
 const downloadManagerForZippedBlockchain = ({ data, source }) => {
   const dataToFetch = R.clone(data)
   return new Promise(function (resolve, reject) {
@@ -87,7 +89,7 @@ const downloadManagerForZippedBlockchain = ({ data, source }) => {
         })
       })
     }
-    const checkSizeInterval = setInterval(() => {
+    checkSizeInterval = setInterval(() => {
       checkFetchedSize()
     }, 10000)
     app.on('will-quit', () => {
@@ -254,6 +256,9 @@ const createWindow = () => {
 
   // Emitted when the window is closed.
   mainWindow.on('closed', () => {
+    if (checkSizeInterval) {
+      clearInterval(checkSizeInterval)
+    }
     mainWindow = null
   })
 }
@@ -378,7 +383,9 @@ const fetchBlockchain = async (win, torUrl) => {
     nodeProc = null
   })
   app.on('will-quit', () => {
-    nodeProc.kill('SIGKILL')
+    if (nodeProc) {
+      nodeProc.kill('SIGKILL')
+    }
   })
 }
 
@@ -440,7 +447,9 @@ const createZcashNode = async (win, torUrl) => {
           nodeProc = null
         })
         app.on('will-quit', () => {
-          nodeProc.kill('SIGKILL')
+          if (nodeProc) {
+            nodeProc.kill('SIGKILL')
+          }
         })
       }
     }
