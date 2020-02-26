@@ -32,7 +32,7 @@ const styles = theme => ({
   },
   section: {
     width: '100%',
-    wordBreak: 'break-all'
+    wordBreak: 'break-word'
   },
   copyButton: {
     marginTop: 24,
@@ -50,6 +50,10 @@ const styles = theme => ({
     padding: 24,
     borderRadius: 4,
     backgroundColor: theme.palette.colors.veryLightGray
+  },
+  shareWarrning: {
+    marginTop: 8,
+    wordBreak: 'break-word'
   }
 })
 
@@ -94,14 +98,31 @@ export const ChannelInfoModal = ({
                 direction='column'
                 className={classes.section}
               >
-                <Grid container item direction='row'>
-                  <Typography
-                    variant='subtitle1'
-                    display='inline'
-                    className={classes.infoTitle}
-                  >
-                    {directMessage ? 'Address' : 'Share link'}
-                  </Typography>
+                <Grid container item direction='columns'>
+                  <Grid item>
+                    <Typography
+                      variant='subtitle1'
+                      display='inline'
+                      className={classes.infoTitle}
+                    >
+                      {directMessage ? 'Address' : 'Share link'}
+                    </Typography>
+                  </Grid>
+                  {!directMessage && (
+                    <Grid item>
+                      <Typography
+                        variant='body2'
+                        className={classes.shareWarrning}
+                      >
+                        To invite others to this channel, share this link. If
+                        they don’t already have Zbay they will have a chance to
+                        download it. Once they have Zbay, opening the link in
+                        Zbay will give them access to the channel. Anyone with
+                        this link will be able to see all messages in the
+                        channel, forever, so share it carefully.
+                      </Typography>
+                    </Grid>
+                  )}
                 </Grid>
                 <Grid container item className={classes.addressBox}>
                   <Grid item>
