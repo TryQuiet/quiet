@@ -39,7 +39,7 @@ const initEvents = () => async (dispatch, getState) => {
   client.on('error', data => {
     client.destroy()
     dispatch(setStatus({ status: 'down' }))
-    dispatch(setError({ error: 'Can not establish a connection' }))
+    dispatch(setError({ error: 'Cannot establish a connection' }))
   })
   client.on('data', data => {
     client.destroy()

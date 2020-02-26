@@ -80,7 +80,7 @@ const styles = theme => ({
 Yup.addMethod(Yup.mixed, 'validateMessage', function (checkNickname) {
   return this.test(
     'test',
-    'Sorry username already taken. please choose another',
+    'Sorry, username already taken. Please choose another',
     async function (value) {
       const isUsernameTaken = await checkNickname(value)
       return !isUsernameTaken

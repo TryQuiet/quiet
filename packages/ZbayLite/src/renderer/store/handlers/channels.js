@@ -168,7 +168,7 @@ const withdrawMoneyFromChannels = () => async (dispatch, getState) => {
         successNotification({
           message: `You will shortly receive ${earnedAmount.toFixed(
             4
-          )} zash for commission from your created channels.`
+          )} Zcash for commission from your created channels.`
         })
       )
     )

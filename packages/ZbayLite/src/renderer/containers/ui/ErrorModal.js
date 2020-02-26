@@ -25,13 +25,13 @@ export const mapDispatchToProps = dispatch =>
       successSnackbar: () =>
         notificationsHandlers.actions.enqueueSnackbar(
           successNotification({
-            message: 'Message has been send'
+            message: 'Message has been sent'
           })
         ),
       errorSnackbar: () =>
         notificationsHandlers.actions.enqueueSnackbar(
           errorNotification({
-            message: 'There were an error'
+            message: 'There was an error'
           })
         ),
       restartApp: () => {

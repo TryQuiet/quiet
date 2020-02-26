@@ -20,7 +20,7 @@ export const formSchema = Yup.object().shape(
       .max(9999)
       .required('You must enter an amount'),
     description: Yup.string()
-      .max(MESSAGE_SIZE, 'Your messsage is too long')
+      .max(MESSAGE_SIZE, 'Your message is too long')
       .required('Include a description'),
     shippingInfo: Yup.bool().required('Required'),
     background: Yup.string(),

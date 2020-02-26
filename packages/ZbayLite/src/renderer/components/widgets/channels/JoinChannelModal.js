@@ -238,7 +238,7 @@ export const JoinChannelModal = ({
                     </Button>
                   ) : (
                     <Typography variant='caption' className={classes.info}>
-                      If you have a invite link, open it in a browser
+                      If you have an invite link, open it in a browser
                     </Typography>
                   )}
                 </Grid>

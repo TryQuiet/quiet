@@ -156,7 +156,7 @@ export const shieldBalance = ({ from, to, amount, fee }) => async (
   dispatch(
     notificationsHandlers.actions.enqueueSnackbar(
       successNotification({
-        message: `You will soon recive ${newAmount.toString()} from your transparent address`
+        message: `You will soon receive ${newAmount.toString()} from your transparent address`
       })
     )
   )
@@ -202,7 +202,7 @@ export const fetchAffiliateMoney = () => async (dispatch, getState) => {
       dispatch(
         notificationsHandlers.actions.enqueueSnackbar(
           successNotification({
-            message: `You recived ${amount} ZEC from your affiliates`
+            message: `You received ${amount} ZEC from your affiliates`
           })
         )
       )
@@ -370,7 +370,7 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
   } catch (err) {}
   dispatch(setLoading(false))
   const isNewUser = electronStore.get('isNewUser')
-  // Dont show deposit modal if we use faucet 12.02.2020
+  // Don't show deposit modal if we use faucet 12.02.2020
   // const balance = identitySelectors.balance('zec')(getState())
   // const lockedBalance = identitySelectors.lockedBalance('zec')(getState())
   // if (lockedBalance.plus(balance).lt(0.0001) && newUser === false) {
@@ -406,7 +406,7 @@ export const updateDonation = allow => async (dispatch, getState) => {
   await dispatch(setDonationAllow(identity.donationAllow))
   dispatch(
     notificationsHandlers.actions.enqueueSnackbar(
-      successNotification({ message: 'Donation informations updated' })
+      successNotification({ message: 'Donation information updated' })
     )
   )
 }

@@ -41,7 +41,7 @@ export const formSchema = users => {
         .min(0.0, 'Please insert amount to send')
         .required('Required'),
       amountUsd: Yup.number().required('Required'),
-      memo: Yup.string().max(MESSAGE_SIZE, 'Your messsage is too long'),
+      memo: Yup.string().max(MESSAGE_SIZE, 'Your message is too long'),
       shippingInfo: Yup.bool().required('Required')
     },
     ['recipient', 'amountZec', 'amoundUsd', 'memo']
@@ -57,7 +57,7 @@ export const validateForm = ({ balanceZec, shippingData }) => values => {
     values.shippingInfo === true &&
     values.memo.length > MESSAGE_SIZE - JSON.stringify(shippingData).length - 40 // TODO decide max size of shippingData
   ) {
-    errors['memo'] = `Your messsage and shipping informations are too long`
+    errors['memo'] = `Your message and shipping information are too long`
   }
   return errors
 }
