@@ -341,10 +341,14 @@ export const SendMoneyForm = ({
         </Typography>
         <TextField
           name='memo'
-          placeholder={'Enter message (optional)'}
+          placeholder={
+            values.recipient.length === 35
+              ? `You can't include message to transparent address`
+              : 'Enter an optional message'
+          }
           InputProps={{ className: classes.field }}
+          disabled={values.recipient.length === 35}
         />
-        <Typography variant='body1' />
       </Grid>
       <Grid item xs={12}>
         {!R.isEmpty(shippingData) && (
