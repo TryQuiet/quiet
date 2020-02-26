@@ -92,7 +92,6 @@ const checkLinking = (
   onLinkedUser,
   message,
   setImageUrl,
-  setImageName,
   openExternalLink,
   allowAll,
   whitelisted
@@ -127,9 +126,6 @@ const checkLinking = (
       )
       if (isImageUrl(part)) {
         setImageUrl(part)
-        const typeIndex = part.lastIndexOf('.jpg')
-        const mainPathEnds = part.substring(0, typeIndex).lastIndexOf('/')
-        setImageName(part.substring(mainPathEnds + 1, typeIndex))
       }
     }
   }
@@ -251,7 +247,6 @@ export const ChannelMessage = ({
 }) => {
   const [showImage, setShowImage] = React.useState(false)
   const [imageUrl, setImageUrl] = React.useState(null)
-  const [imageName, setImageName] = React.useState('')
   const [parsedMessage, setParsedMessage] = React.useState('')
   const [openModal, setOpenModal] = React.useState(false)
   const fromYou = message.get('fromYou', false)
@@ -269,7 +264,6 @@ export const ChannelMessage = ({
         onLinkedUser,
         messageData,
         setImageUrl,
-        setImageName,
         openExternalLink,
         allowAll,
         whitelisted
@@ -331,9 +325,6 @@ export const ChannelMessage = ({
       {((showImage && imageUrl) || autoloadImage) && (
         <Grid item container direction='column' className={classes.imageDiv}>
           <img className={classes.img} src={imageUrl} alt='new' />
-          <Grid item>
-            <div className={classes.imgName}>{imageName}</div>
-          </Grid>
         </Grid>
       )}
       {imageUrl && (

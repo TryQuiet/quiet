@@ -212,7 +212,9 @@ export const OpenlinkModal = ({
                 }}
                 href={``}
               >
-                Continue to {uri.hostname}
+                {isImage
+                  ? `Load image from site ${uri.hostname}`
+                  : `Continue to ${uri.hostname}`}
               </a>
             </Grid>
           </Grid>

@@ -60,10 +60,12 @@ const styles = theme => ({
     color: theme.palette.colors.titleGray
   },
   descriptionContainer: {
-    marginTop: 10
+    marginTop: 10,
+    lineHeight: '18px'
   },
   description: {
     letterSpacing: 0.4,
+    lineHeight: '18px',
     color: theme.palette.colors.darkGray
   },
   priceUsd: {

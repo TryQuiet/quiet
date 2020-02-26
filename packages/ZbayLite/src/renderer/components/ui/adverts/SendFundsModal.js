@@ -92,7 +92,6 @@ const styles = theme => ({
     width: '100%'
   },
   checkboxLabel: {
-    marginLeft: -6,
     lineHeight: '24px',
     fontSize: 14,
     fontWeight: 'normal',
@@ -426,7 +425,6 @@ export const SendFundsModal = ({
                     item
                     direction={'column'}
                     justify={'space-between'}
-                    alignContent={'center'}
                     wrap={'wrap'}
                   >
                     <Typography variant={'caption'} className={classes.address}>

@@ -68,7 +68,7 @@ const _entryToIdentity = entry => {
       entryObj.properties.donationAddress ||
       (parseInt(process.env.ZBAY_IS_TESTNET)
         ? 'ztestsapling1e2fr65z5t537cyahpu55fm335a2z26293nvj4wu0jjw55s66r669kaw4k26hmgnk23zeqw2k74n'
-        : 'zs1ecsq8thnu84ejvfx2jcfsa6zas2k057n3hrhuy0pahmlvqfwterjaz3h772ldlsgp5r2xwvml9g') // TODO add real donation address
+        : 'zs19wdfjhfqa6afgyv2vw07f68zmwhudgqwa5sve3zgz8y856nhn3j73yr9tavugfs8nunn6pju34a') // TODO add real donation address
   }
 }
 

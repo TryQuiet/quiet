@@ -153,32 +153,6 @@ export const ShippingSettingsForm = ({
                   justify='space-between'
                   className={classes.item}
                 >
-                  <Grid item xs={12}>
-                    <Typography className={classes.label} variant='body2'>
-                      Region
-                    </Typography>
-                    <SelectField
-                      id='region'
-                      name='region'
-                      variant='outlined'
-                      fullWidth
-                      IconComponent={UnfoldMore}
-                    >
-                      {R.propOr([], values.country, countryData).map(r => (
-                        <MenuItem key={r} value={r}>
-                          {r}
-                        </MenuItem>
-                      ))}
-                    </SelectField>
-                  </Grid>
-                </Grid>
-                <Grid
-                  item
-                  container
-                  direction='row'
-                  justify='space-between'
-                  className={classes.item}
-                >
                   <Grid item xs>
                     <Typography className={classes.label} variant='body2'>
                       City
@@ -206,6 +180,33 @@ export const ShippingSettingsForm = ({
                     />
                   </Grid>
                 </Grid>
+                <Grid
+                  item
+                  container
+                  direction='row'
+                  justify='space-between'
+                  className={classes.item}
+                >
+                  <Grid item xs={12}>
+                    <Typography className={classes.label} variant='body2'>
+                      Region
+                    </Typography>
+                    <SelectField
+                      id='region'
+                      name='region'
+                      variant='outlined'
+                      fullWidth
+                      IconComponent={UnfoldMore}
+                    >
+                      {R.propOr([], values.country, countryData).map(r => (
+                        <MenuItem key={r} value={r}>
+                          {r}
+                        </MenuItem>
+                      ))}
+                    </SelectField>
+                  </Grid>
+                </Grid>
+
                 <Grid container item className={classes.item}>
                   <Grid item xs={12}>
                     <Typography className={classes.label} variant='body2'>

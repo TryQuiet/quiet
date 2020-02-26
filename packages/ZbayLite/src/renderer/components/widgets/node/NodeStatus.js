@@ -17,7 +17,7 @@ const styles = theme => ({
     marginBottom: 1
   },
   spinner: {
-    marginTop: 18,
+    marginTop: 16,
     marginRight: 8,
     color: 'inherit'
   }

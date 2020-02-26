@@ -58,7 +58,7 @@ const styles = theme => ({
     marginTop: 0
   },
   baseNotExpanded: {
-    width: '80px'
+    width: '85px'
   },
   baseExpanded: {
     width: '100%'

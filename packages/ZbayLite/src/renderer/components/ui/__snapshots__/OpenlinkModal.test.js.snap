@@ -180,8 +180,7 @@ exports[`OpenlinkModal renders component 1`] = `
               }
             }
           >
-            Continue to 
-            www.zbay.app
+            Load image from site www.zbay.app
           </a>
         </WithStyles(ForwardRef(Grid))>
       </WithStyles(ForwardRef(Grid))>

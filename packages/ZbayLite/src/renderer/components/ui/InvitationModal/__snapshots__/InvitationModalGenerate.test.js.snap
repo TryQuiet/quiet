@@ -11,7 +11,7 @@ exports[`InvitationModalGenerate renders component 1`] = `
     <WithStyles(ForwardRef(Typography))
       variant="body2"
     >
-      Send a Zbay invite link to a friend with some funds attached. Once they install Zbay, they can open the link to reclaim funds. If you include an affiliate code, their automatic 1% donation will start going to you, not the Zbay team, so you'll earn money!
+      Get a link to invite friends to Zbay. Optionally, attach funds to the link. After installing Zbay, your friend can open the link to claim the funds!
     </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
@@ -42,9 +42,11 @@ exports[`InvitationModalGenerate renders component 1`] = `
             },
           }
         }
+        className="input-mock"
         name="usd"
         onChange={[Function]}
         placeholder="0.00"
+        type="number"
         value="0.00"
         variant="outlined"
       />
@@ -80,9 +82,11 @@ exports[`InvitationModalGenerate renders component 1`] = `
             </ForwardRef(WithStyles)>,
           }
         }
+        className="input-mock"
         name="zec"
         onChange={[Function]}
         placeholder="0.00"
+        type="number"
         value="9.0000"
         variant="outlined"
       />

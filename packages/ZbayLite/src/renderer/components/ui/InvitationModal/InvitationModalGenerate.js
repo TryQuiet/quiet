@@ -75,6 +75,9 @@ const styles = theme => ({
   },
   checkboxLabel: {
     letterSpacing: -0.1
+  },
+  input: {
+    width: 154
   }
 })
 
@@ -101,10 +104,9 @@ export const InvitationModalGenerate = ({
     <InvitationModal title={`Invite a friend`}>
       <Grid item className={classes.warrning}>
         <Typography variant='body2'>
-          Send a Zbay invite link to a friend with some funds attached. Once
-          they install Zbay, they can open the link to reclaim funds. If you
-          include an affiliate code, their automatic 1% donation will start
-          going to you, not the Zbay team, so you'll earn money!
+          Get a link to invite friends to Zbay. Optionally, attach funds to the
+          link. After installing Zbay, your friend can open the link to claim
+          the funds!
         </Typography>
       </Grid>
       <Grid container className={classes.divMoney}>
@@ -114,10 +116,12 @@ export const InvitationModalGenerate = ({
             placeholder='0.00'
             variant='outlined'
             value={amountZec ? (amountZec * zecRate).toFixed(2) : amount}
+            type='number'
             onChange={e => {
               setAmountZec(0)
               setAmount(e.target.value)
             }}
+            className={classes.input}
             InputProps={{
               inputProps: { min: 0, max: 99 },
               endAdornment: (
@@ -144,6 +148,8 @@ export const InvitationModalGenerate = ({
             placeholder='0.00'
             variant='outlined'
             value={amount ? (amount / zecRate).toFixed(4) : amountZec}
+            type='number'
+            className={classes.input}
             onChange={e => {
               setAmountZec(e.target.value)
               setAmount(0)

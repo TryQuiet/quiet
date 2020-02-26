@@ -202,7 +202,6 @@ export const JoinChannelModal = ({
                           {...params}
                           className={classes.input}
                           variant='outlined'
-                          multiline
                           placeholder={`Search`}
                           margin='normal'
                         />
