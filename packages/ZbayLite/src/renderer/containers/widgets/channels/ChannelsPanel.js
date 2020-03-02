@@ -70,7 +70,8 @@ export default R.compose(connect(mapStateToProps, mapDispatchToProps))(
       Immutable.is(before.channels, after.channels) &&
       Immutable.is(before.selected, after.selected) &&
       Object.is(before.contentRect, after.contentRect) &&
-      Immutable.is(before.offers, after.offers)
+      Immutable.is(before.offers, after.offers) &&
+      Object.is(before.fundsLocked, after.fundsLocked)
     )
   })
 )
