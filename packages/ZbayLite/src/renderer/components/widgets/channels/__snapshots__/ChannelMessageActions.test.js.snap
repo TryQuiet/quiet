@@ -1,137 +1,36 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ChannelMessageActions renders component with status=broadcasted and fromYou=false 1`] = `
+exports[`ChannelMessageActions renders component 1`] = `
 <WithStyles(ForwardRef(Grid))
   alignItems="center"
   container={true}
   direction="row"
-  justify="flex-end"
-/>
-`;
-
-exports[`ChannelMessageActions renders component with status=broadcasted and fromYou=true 1`] = `
-<WithStyles(ForwardRef(Grid))
-  alignItems="center"
-  container={true}
-  direction="row"
-  justify="flex-end"
-/>
-`;
-
-exports[`ChannelMessageActions renders component with status=cancelled and fromYou=false 1`] = `
-<WithStyles(ForwardRef(Grid))
-  alignItems="center"
-  container={true}
-  direction="row"
-  justify="flex-end"
-/>
-`;
-
-exports[`ChannelMessageActions renders component with status=cancelled and fromYou=true 1`] = `
-<WithStyles(ForwardRef(Grid))
-  alignItems="center"
-  container={true}
-  direction="row"
-  justify="flex-end"
+  justify="flex-start"
 >
+  <Memo(Icon)
+    src="test-file-stub"
+  />
   <WithStyles(ForwardRef(Grid))
     item={true}
   >
-    <WithStyles(ForwardRef(Button))
-      color="primary"
-      onClick={[MockFunction]}
-      size="small"
+    <WithStyles(ForwardRef(Typography))
+      className="warrning-mock"
+      variant="caption"
     >
-      resend
-    </WithStyles(ForwardRef(Button))>
+      Coudn't send.
+    </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
+    className="pointer-mock"
     item={true}
+    onClick={[MockFunction]}
   >
-    <WithStyles(ForwardRef(Button))
-      color="primary"
-      onClick={[MockFunction]}
-      size="small"
+    <WithStyles(ForwardRef(Typography))
+      className="tryAgain-mock"
+      variant="caption"
     >
-      cancel
-    </WithStyles(ForwardRef(Button))>
+      Try again
+    </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>
 </WithStyles(ForwardRef(Grid))>
-`;
-
-exports[`ChannelMessageActions renders component with status=failed and fromYou=false 1`] = `
-<WithStyles(ForwardRef(Grid))
-  alignItems="center"
-  container={true}
-  direction="row"
-  justify="flex-end"
-/>
-`;
-
-exports[`ChannelMessageActions renders component with status=failed and fromYou=true 1`] = `
-<WithStyles(ForwardRef(Grid))
-  alignItems="center"
-  container={true}
-  direction="row"
-  justify="flex-end"
->
-  <WithStyles(ForwardRef(Grid))
-    item={true}
-  >
-    <WithStyles(ForwardRef(Button))
-      color="primary"
-      onClick={[MockFunction]}
-      size="small"
-    >
-      resend
-    </WithStyles(ForwardRef(Button))>
-  </WithStyles(ForwardRef(Grid))>
-  <WithStyles(ForwardRef(Grid))
-    item={true}
-  >
-    <WithStyles(ForwardRef(Button))
-      color="primary"
-      onClick={[MockFunction]}
-      size="small"
-    >
-      cancel
-    </WithStyles(ForwardRef(Button))>
-  </WithStyles(ForwardRef(Grid))>
-</WithStyles(ForwardRef(Grid))>
-`;
-
-exports[`ChannelMessageActions renders component with status=pending and fromYou=false 1`] = `
-<WithStyles(ForwardRef(Grid))
-  alignItems="center"
-  container={true}
-  direction="row"
-  justify="flex-end"
-/>
-`;
-
-exports[`ChannelMessageActions renders component with status=pending and fromYou=true 1`] = `
-<WithStyles(ForwardRef(Grid))
-  alignItems="center"
-  container={true}
-  direction="row"
-  justify="flex-end"
-/>
-`;
-
-exports[`ChannelMessageActions renders component with status=success and fromYou=false 1`] = `
-<WithStyles(ForwardRef(Grid))
-  alignItems="center"
-  container={true}
-  direction="row"
-  justify="flex-end"
-/>
-`;
-
-exports[`ChannelMessageActions renders component with status=success and fromYou=true 1`] = `
-<WithStyles(ForwardRef(Grid))
-  alignItems="center"
-  container={true}
-  direction="row"
-  justify="flex-end"
-/>
 `;

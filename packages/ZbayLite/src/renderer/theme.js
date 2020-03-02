@@ -59,7 +59,6 @@ export default createMuiTheme({
       fontSize: 16,
       lineHeight: '26px',
       fontWeight: 500
-
     }
   },
   palette: {
@@ -96,7 +95,8 @@ export default createMuiTheme({
       black30: '#4C4C4C',
       gray30: '#FAFAFA',
       grayBackgroud: '#F3F0F6',
-      gray50: '#B3B3B3'
+      gray50: '#B3B3B3',
+      error: '#D13135'
     }
   },
   overrides: {

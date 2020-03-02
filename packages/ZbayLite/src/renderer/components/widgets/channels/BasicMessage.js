@@ -16,7 +16,6 @@ import red from '@material-ui/core/colors/red'
 
 import DoneIcon from '@material-ui/icons/Done'
 import DoneAllIcon from '@material-ui/icons/DoneAll'
-import ErrorIcon from '@material-ui/icons/ErrorOutline'
 import BlockIcon from '@material-ui/icons/Block'
 
 import Icon from '../../ui/Icon'
@@ -24,7 +23,6 @@ import dotsIcon from '../../../static/images/zcash/dots-icon.svg'
 import SendMessagePopover from '../../../containers/widgets/channels/SendMessagePopover'
 import ModeratorActionsPopper from '../../../containers/widgets/channels/ModeratorActionsPopper'
 import { _DisplayableMessage } from '../../../zbay/messages'
-import Elipsis from '../../ui/Elipsis'
 
 const styles = theme => ({
   messageCard: {
@@ -97,7 +95,7 @@ const statusComponent = {
   broadcasted: DoneAllIcon,
   pending: DoneIcon,
   success: DoneIcon,
-  failed: ErrorIcon,
+  failed: React.Fragment,
   cancelled: BlockIcon
 }
 
@@ -141,7 +139,6 @@ export const BasicMessage = ({
   const fromYou = message.fromYou
   const status = message.status || 'broadcasted'
   const StatusIcon = statusComponent[status]
-  const error = message.error
   return (
     <ListItem
       className={classNames({
@@ -198,9 +195,13 @@ export const BasicMessage = ({
                     {username}
                   </Typography>
                 </Grid>
-                <Grid item>
-                  <Typography className={classes.time}>{timeString}</Typography>
-                </Grid>
+                {status === 'failed' && (
+                  <Grid item>
+                    <Typography className={classes.time}>
+                      {timeString}
+                    </Typography>
+                  </Grid>
+                )}
                 <Grid className={classes.iconBox} item>
                   {fromYou && (
                     <StatusIcon
@@ -212,14 +213,6 @@ export const BasicMessage = ({
                       })}
                     />
                   )}
-                  {status === 'failed' ? (
-                    <Elipsis
-                      content={`Error ${error.code}: ${error.message}`}
-                      tooltipPlacement='top'
-                      length={60}
-                      classes={{ content: classes.failed }}
-                    />
-                  ) : null}
                 </Grid>
               </Grid>
               {hovered && allowModeration && (

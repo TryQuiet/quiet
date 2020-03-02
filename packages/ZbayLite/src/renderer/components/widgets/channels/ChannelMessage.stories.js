@@ -48,6 +48,7 @@ storiesOf('Components/Widgets/Channels/ChannelMessage', module)
         onResend={action('Resending')}
         onReply={action('Replying')}
         onCancel={action('Cancelling')}
+        whitelisted={Immutable.List()}
       />
     )
   })
@@ -74,6 +75,7 @@ storiesOf('Components/Widgets/Channels/ChannelMessage', module)
         onResend={action('Resending')}
         onReply={action('Replying')}
         onCancel={action('Cancelling')}
+        whitelisted={Immutable.List()}
       />
     )
   })

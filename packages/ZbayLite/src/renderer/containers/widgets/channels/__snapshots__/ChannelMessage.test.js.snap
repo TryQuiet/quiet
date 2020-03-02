@@ -3,7 +3,6 @@
 exports[`ChannelMessage will receive right actions 1`] = `
 Object {
   "addToWhitelist": [Function],
-  "onCancel": [Function],
   "onLinkedChannel": [Function],
   "onLinkedUser": [Function],
   "onResend": [Function],

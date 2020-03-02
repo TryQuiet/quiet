@@ -8,7 +8,6 @@ import isImageUrl from 'is-image-url'
 import reactStringReplace from 'react-string-replace'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
-import Collapse from '@material-ui/core/Collapse'
 import { withStyles } from '@material-ui/core/styles'
 import { Button } from '@material-ui/core'
 
@@ -23,13 +22,12 @@ import OpenlinkModal from '../../../containers/ui/OpenlinkModal'
 const styles = theme => ({
   message: {
     marginTop: 14,
-    marginLeft: -4,
     whiteSpace: 'pre-line',
     wordBreak: 'break-word'
   },
   messageInput: {
     marginTop: -35,
-    marginLeft: 50
+    marginLeft: 46
   },
   imagePlaceholder: {
     marginLeft: 50,
@@ -232,8 +230,6 @@ export const ChannelMessage = ({
   classes,
   message,
   onResend,
-  onReply,
-  onCancel,
   publicChannels,
   onLinkedChannel,
   onLinkedUser,
@@ -249,7 +245,6 @@ export const ChannelMessage = ({
   const [imageUrl, setImageUrl] = React.useState(null)
   const [parsedMessage, setParsedMessage] = React.useState('')
   const [openModal, setOpenModal] = React.useState(false)
-  const fromYou = message.get('fromYou', false)
   const status = message.get('status', 'broadcasted')
   const messageData = message.get('message')
   const autoloadImage = imageUrl
@@ -286,15 +281,9 @@ export const ChannelMessage = ({
         <Typography variant='body2' className={classes.message}>
           {parsedMessage}
         </Typography>
-        <Collapse in={actionsOpen} timeout='auto'>
-          <ChannelMessageActions
-            onReply={() => onReply(message)}
-            onResend={() => onResend(message)}
-            onCancel={onCancel}
-            fromYou={fromYou}
-            status={status}
-          />
-        </Collapse>
+        {status === 'failed' && (
+          <ChannelMessageActions onResend={() => onResend(message)} />
+        )}
       </Grid>
       {!showImage && imageUrl && !autoloadImage && (
         <Grid
@@ -350,8 +339,6 @@ ChannelMessage.propTypes = {
   whitelisted: PropTypes.instanceOf(Immutable.List).isRequired,
   autoload: PropTypes.instanceOf(Immutable.List).isRequired,
   onResend: PropTypes.func,
-  onCancel: PropTypes.func,
-  onReply: PropTypes.func,
   onLinkedChannel: PropTypes.func.isRequired,
   onLinkedUser: PropTypes.func.isRequired,
   openExternalLink: PropTypes.func.isRequired,
