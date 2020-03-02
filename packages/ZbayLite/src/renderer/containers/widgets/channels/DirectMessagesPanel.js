@@ -8,6 +8,7 @@ import contactsSelectors from '../../../store/selectors/contacts'
 import directMessageSelectors from '../../../store/selectors/directMessageChannel'
 import SidebarHeader from '../../../components/ui/SidebarHeader'
 import { actionCreators } from '../../../store/handlers/modals'
+import offersSelectors from '../../../store/selectors/offers'
 import QuickActionButton from '../../../components/widgets/sidebar/QuickActionButton'
 import BaseChannelsList from '../../../components/widgets/channels/BaseChannelsList'
 import channelSelectors, { INPUT_STATE } from '../../../store/selectors/channel'
@@ -15,6 +16,7 @@ import channelSelectors, { INPUT_STATE } from '../../../store/selectors/channel'
 export const mapStateToProps = state => ({
   channels: contactsSelectors.contacts(state).toList(),
   selected: directMessageSelectors.directMessageChannel(state),
+  offers: offersSelectors.filteredOffers(state),
   fundsLocked:
     channelSelectors.inputLocked(state) === INPUT_STATE.DISABLE ||
     channelSelectors.inputLocked(state) === INPUT_STATE.LOCKED
@@ -37,13 +39,20 @@ export const DirectMessagesPanel = ({
   return (
     <Grid container item xs direction='column'>
       <Grid item>
-        <SidebarHeader title={title} action={fundsLocked ? openDepositMonet : openModal} tooltipText='Create new message' />
+        <SidebarHeader
+          title={title}
+          action={fundsLocked ? openDepositMonet : openModal}
+          tooltipText='Create new message'
+        />
       </Grid>
       <Grid item>
         <BaseChannelsList directMessages {...props} />
       </Grid>
       <Grid item>
-        <QuickActionButton text='New Message' action={fundsLocked ? openDepositMonet : openModal} />
+        <QuickActionButton
+          text='New Message'
+          action={fundsLocked ? openDepositMonet : openModal}
+        />
       </Grid>
     </Grid>
   )
@@ -55,7 +64,9 @@ export default connect(
 )(
   React.memo(DirectMessagesPanel, (before, after) => {
     return (
-      Immutable.is(before.channels, after.channels) && Immutable.is(before.selected, after.selected)
+      Immutable.is(before.channels, after.channels) &&
+      Immutable.is(before.selected, after.selected) &&
+      Immutable.is(before.offers, after.offers)
     )
   })
 )
