@@ -64,7 +64,8 @@ const styles = theme => ({
     maxHeight: 330,
     marginLeft: 50,
     borderRadius: 8,
-    overflow: 'hidden'
+    overflow: 'hidden',
+    cursor: 'pointer'
   },
   imgName: {
     height: 30,
@@ -312,7 +313,15 @@ export const ChannelMessage = ({
         </Grid>
       )}
       {((showImage && imageUrl) || autoloadImage) && (
-        <Grid item container direction='column' className={classes.imageDiv}>
+        <Grid
+          item
+          container
+          direction='column'
+          onClick={() => {
+            shell.openExternal(imageUrl)
+          }}
+          className={classes.imageDiv}
+        >
           <img className={classes.img} src={imageUrl} alt='new' />
         </Grid>
       )}
