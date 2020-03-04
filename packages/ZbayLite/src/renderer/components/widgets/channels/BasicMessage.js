@@ -195,7 +195,7 @@ export const BasicMessage = ({
                     {username}
                   </Typography>
                 </Grid>
-                {status === 'failed' && (
+                {status !== 'failed' && (
                   <Grid item>
                     <Typography className={classes.time}>
                       {timeString}

@@ -66,6 +66,15 @@ exports[`BasicMessage renders component 1`] = `
               </ForwardRef(WithStyles)>
             </ForwardRef(WithStyles)>
             <ForwardRef(WithStyles)
+              item={true}
+            >
+              <ForwardRef(WithStyles)
+                className="time-mock"
+              >
+                12:03 pm
+              </ForwardRef(WithStyles)>
+            </ForwardRef(WithStyles)>
+            <ForwardRef(WithStyles)
               className="iconBox-mock"
               item={true}
             />
@@ -143,6 +152,15 @@ exports[`BasicMessage renders component when message is sent by owner 1`] = `
               </ForwardRef(WithStyles)>
             </ForwardRef(WithStyles)>
             <ForwardRef(WithStyles)
+              item={true}
+            >
+              <ForwardRef(WithStyles)
+                className="time-mock"
+              >
+                12:03 pm
+              </ForwardRef(WithStyles)>
+            </ForwardRef(WithStyles)>
+            <ForwardRef(WithStyles)
               className="iconBox-mock"
               item={true}
             >
@@ -159,6 +177,427 @@ exports[`BasicMessage renders component when message is sent by owner 1`] = `
 `;
 
 exports[`BasicMessage renders component with status failed 1`] = `
+<WithStyles(ForwardRef(ListItem))
+  className="wrapper-mock clickable-mock wrapperPending-mock"
+  onClick={[Function]}
+  onMouseLeave={[Function]}
+  onMouseOver={[Function]}
+>
+  <WithStyles(ForwardRef(ListItemText))
+    className="messageCard-mock"
+    disableTypography={true}
+    primary={
+      <ForwardRef(WithStyles)
+        alignItems="flex-start"
+        container={true}
+        direction="row"
+        justify="flex-start"
+        wrap="nowrap"
+      >
+        <Memo(withRouter(Connect(Component)))
+          address=""
+          anchorEl={null}
+          handleClose={[Function]}
+          isUnregistered={false}
+          publicKey={null}
+          txid={1}
+          username="Unnamed"
+        />
+        <ForwardRef(WithStyles)
+          className="avatar-mock"
+          item={true}
+        >
+          <div
+            className="alignAvatar-mock"
+          >
+            <Jdenticon
+              size="32"
+              value="Unnamed"
+            />
+          </div>
+        </ForwardRef(WithStyles)>
+        <ForwardRef(WithStyles)
+          container={true}
+          direction="row"
+          item={true}
+          justify="space-between"
+        >
+          <ForwardRef(WithStyles)
+            alignItems="flex-start"
+            className="pointer-mock"
+            container={true}
+            item={true}
+            onClick={[Function]}
+            wrap="nowrap"
+            xs={true}
+          >
+            <ForwardRef(WithStyles)
+              item={true}
+            >
+              <ForwardRef(WithStyles)
+                className="username-mock"
+                color="textPrimary"
+              >
+                Unnamed
+              </ForwardRef(WithStyles)>
+            </ForwardRef(WithStyles)>
+            <ForwardRef(WithStyles)
+              className="iconBox-mock"
+              item={true}
+            />
+          </ForwardRef(WithStyles)>
+        </ForwardRef(WithStyles)>
+      </ForwardRef(WithStyles)>
+    }
+  />
+</WithStyles(ForwardRef(ListItem))>
+`;
+
+exports[`BasicMessage renders correct time for different month 1`] = `
+<WithStyles(ForwardRef(ListItem))
+  className="wrapper-mock"
+  onClick={[Function]}
+  onMouseLeave={[Function]}
+  onMouseOver={[Function]}
+>
+  <WithStyles(ForwardRef(ListItemText))
+    className="messageCard-mock"
+    disableTypography={true}
+    primary={
+      <ForwardRef(WithStyles)
+        alignItems="flex-start"
+        container={true}
+        direction="row"
+        justify="flex-start"
+        wrap="nowrap"
+      >
+        <Memo(withRouter(Connect(Component)))
+          address=""
+          anchorEl={null}
+          handleClose={[Function]}
+          isUnregistered={false}
+          publicKey={null}
+          txid={1}
+          username="Unnamed"
+        />
+        <ForwardRef(WithStyles)
+          className="avatar-mock"
+          item={true}
+        >
+          <div
+            className="alignAvatar-mock"
+          >
+            <Jdenticon
+              size="32"
+              value="Unnamed"
+            />
+          </div>
+        </ForwardRef(WithStyles)>
+        <ForwardRef(WithStyles)
+          container={true}
+          direction="row"
+          item={true}
+          justify="space-between"
+        >
+          <ForwardRef(WithStyles)
+            alignItems="flex-start"
+            className="pointer-mock"
+            container={true}
+            item={true}
+            onClick={[Function]}
+            wrap="nowrap"
+            xs={true}
+          >
+            <ForwardRef(WithStyles)
+              item={true}
+            >
+              <ForwardRef(WithStyles)
+                className="username-mock"
+                color="textPrimary"
+              >
+                Unnamed
+              </ForwardRef(WithStyles)>
+            </ForwardRef(WithStyles)>
+            <ForwardRef(WithStyles)
+              item={true}
+            >
+              <ForwardRef(WithStyles)
+                className="time-mock"
+              >
+                Feb 7, 1:03 pm
+              </ForwardRef(WithStyles)>
+            </ForwardRef(WithStyles)>
+            <ForwardRef(WithStyles)
+              className="iconBox-mock"
+              item={true}
+            />
+          </ForwardRef(WithStyles)>
+        </ForwardRef(WithStyles)>
+      </ForwardRef(WithStyles)>
+    }
+  />
+</WithStyles(ForwardRef(ListItem))>
+`;
+
+exports[`BasicMessage renders correct time for different year 1`] = `
+<WithStyles(ForwardRef(ListItem))
+  className="wrapper-mock"
+  onClick={[Function]}
+  onMouseLeave={[Function]}
+  onMouseOver={[Function]}
+>
+  <WithStyles(ForwardRef(ListItemText))
+    className="messageCard-mock"
+    disableTypography={true}
+    primary={
+      <ForwardRef(WithStyles)
+        alignItems="flex-start"
+        container={true}
+        direction="row"
+        justify="flex-start"
+        wrap="nowrap"
+      >
+        <Memo(withRouter(Connect(Component)))
+          address=""
+          anchorEl={null}
+          handleClose={[Function]}
+          isUnregistered={false}
+          publicKey={null}
+          txid={1}
+          username="Unnamed"
+        />
+        <ForwardRef(WithStyles)
+          className="avatar-mock"
+          item={true}
+        >
+          <div
+            className="alignAvatar-mock"
+          >
+            <Jdenticon
+              size="32"
+              value="Unnamed"
+            />
+          </div>
+        </ForwardRef(WithStyles)>
+        <ForwardRef(WithStyles)
+          container={true}
+          direction="row"
+          item={true}
+          justify="space-between"
+        >
+          <ForwardRef(WithStyles)
+            alignItems="flex-start"
+            className="pointer-mock"
+            container={true}
+            item={true}
+            onClick={[Function]}
+            wrap="nowrap"
+            xs={true}
+          >
+            <ForwardRef(WithStyles)
+              item={true}
+            >
+              <ForwardRef(WithStyles)
+                className="username-mock"
+                color="textPrimary"
+              >
+                Unnamed
+              </ForwardRef(WithStyles)>
+            </ForwardRef(WithStyles)>
+            <ForwardRef(WithStyles)
+              item={true}
+            >
+              <ForwardRef(WithStyles)
+                className="time-mock"
+              >
+                Mar 7, 2018, 1:03 pm
+              </ForwardRef(WithStyles)>
+            </ForwardRef(WithStyles)>
+            <ForwardRef(WithStyles)
+              className="iconBox-mock"
+              item={true}
+            />
+          </ForwardRef(WithStyles)>
+        </ForwardRef(WithStyles)>
+      </ForwardRef(WithStyles)>
+    }
+  />
+</WithStyles(ForwardRef(ListItem))>
+`;
+
+exports[`BasicMessage renders correct time for same week 1`] = `
+<WithStyles(ForwardRef(ListItem))
+  className="wrapper-mock"
+  onClick={[Function]}
+  onMouseLeave={[Function]}
+  onMouseOver={[Function]}
+>
+  <WithStyles(ForwardRef(ListItemText))
+    className="messageCard-mock"
+    disableTypography={true}
+    primary={
+      <ForwardRef(WithStyles)
+        alignItems="flex-start"
+        container={true}
+        direction="row"
+        justify="flex-start"
+        wrap="nowrap"
+      >
+        <Memo(withRouter(Connect(Component)))
+          address=""
+          anchorEl={null}
+          handleClose={[Function]}
+          isUnregistered={false}
+          publicKey={null}
+          txid={1}
+          username="Unnamed"
+        />
+        <ForwardRef(WithStyles)
+          className="avatar-mock"
+          item={true}
+        >
+          <div
+            className="alignAvatar-mock"
+          >
+            <Jdenticon
+              size="32"
+              value="Unnamed"
+            />
+          </div>
+        </ForwardRef(WithStyles)>
+        <ForwardRef(WithStyles)
+          container={true}
+          direction="row"
+          item={true}
+          justify="space-between"
+        >
+          <ForwardRef(WithStyles)
+            alignItems="flex-start"
+            className="pointer-mock"
+            container={true}
+            item={true}
+            onClick={[Function]}
+            wrap="nowrap"
+            xs={true}
+          >
+            <ForwardRef(WithStyles)
+              item={true}
+            >
+              <ForwardRef(WithStyles)
+                className="username-mock"
+                color="textPrimary"
+              >
+                Unnamed
+              </ForwardRef(WithStyles)>
+            </ForwardRef(WithStyles)>
+            <ForwardRef(WithStyles)
+              item={true}
+            >
+              <ForwardRef(WithStyles)
+                className="time-mock"
+              >
+                Wed, 1:03 pm
+              </ForwardRef(WithStyles)>
+            </ForwardRef(WithStyles)>
+            <ForwardRef(WithStyles)
+              className="iconBox-mock"
+              item={true}
+            />
+          </ForwardRef(WithStyles)>
+        </ForwardRef(WithStyles)>
+      </ForwardRef(WithStyles)>
+    }
+  />
+</WithStyles(ForwardRef(ListItem))>
+`;
+
+exports[`BasicMessage renders username 1`] = `
+<WithStyles(ForwardRef(ListItem))
+  className="wrapper-mock"
+  onClick={[Function]}
+  onMouseLeave={[Function]}
+  onMouseOver={[Function]}
+>
+  <WithStyles(ForwardRef(ListItemText))
+    className="messageCard-mock"
+    disableTypography={true}
+    primary={
+      <ForwardRef(WithStyles)
+        alignItems="flex-start"
+        container={true}
+        direction="row"
+        justify="flex-start"
+        wrap="nowrap"
+      >
+        <Memo(withRouter(Connect(Component)))
+          address=""
+          anchorEl={null}
+          handleClose={[Function]}
+          isUnregistered={false}
+          publicKey={null}
+          txid={1}
+          username="Unnamed"
+        />
+        <ForwardRef(WithStyles)
+          className="avatar-mock"
+          item={true}
+        >
+          <div
+            className="alignAvatar-mock"
+          >
+            <Jdenticon
+              size="32"
+              value="Unnamed"
+            />
+          </div>
+        </ForwardRef(WithStyles)>
+        <ForwardRef(WithStyles)
+          container={true}
+          direction="row"
+          item={true}
+          justify="space-between"
+        >
+          <ForwardRef(WithStyles)
+            alignItems="flex-start"
+            className="pointer-mock"
+            container={true}
+            item={true}
+            onClick={[Function]}
+            wrap="nowrap"
+            xs={true}
+          >
+            <ForwardRef(WithStyles)
+              item={true}
+            >
+              <ForwardRef(WithStyles)
+                className="username-mock"
+                color="textPrimary"
+              >
+                Unnamed
+              </ForwardRef(WithStyles)>
+            </ForwardRef(WithStyles)>
+            <ForwardRef(WithStyles)
+              item={true}
+            >
+              <ForwardRef(WithStyles)
+                className="time-mock"
+              >
+                11:03 am
+              </ForwardRef(WithStyles)>
+            </ForwardRef(WithStyles)>
+            <ForwardRef(WithStyles)
+              className="iconBox-mock"
+              item={true}
+            />
+          </ForwardRef(WithStyles)>
+        </ForwardRef(WithStyles)>
+      </ForwardRef(WithStyles)>
+    }
+  />
+</WithStyles(ForwardRef(ListItem))>
+`;
+
+exports[`BasicMessage renders with status cancelled 1`] = `
 <WithStyles(ForwardRef(ListItem))
   className="wrapper-mock clickable-mock wrapperPending-mock"
   onClick={[Function]}
@@ -244,391 +683,6 @@ exports[`BasicMessage renders component with status failed 1`] = `
 </WithStyles(ForwardRef(ListItem))>
 `;
 
-exports[`BasicMessage renders correct time for different month 1`] = `
-<WithStyles(ForwardRef(ListItem))
-  className="wrapper-mock"
-  onClick={[Function]}
-  onMouseLeave={[Function]}
-  onMouseOver={[Function]}
->
-  <WithStyles(ForwardRef(ListItemText))
-    className="messageCard-mock"
-    disableTypography={true}
-    primary={
-      <ForwardRef(WithStyles)
-        alignItems="flex-start"
-        container={true}
-        direction="row"
-        justify="flex-start"
-        wrap="nowrap"
-      >
-        <Memo(withRouter(Connect(Component)))
-          address=""
-          anchorEl={null}
-          handleClose={[Function]}
-          isUnregistered={false}
-          publicKey={null}
-          txid={1}
-          username="Unnamed"
-        />
-        <ForwardRef(WithStyles)
-          className="avatar-mock"
-          item={true}
-        >
-          <div
-            className="alignAvatar-mock"
-          >
-            <Jdenticon
-              size="32"
-              value="Unnamed"
-            />
-          </div>
-        </ForwardRef(WithStyles)>
-        <ForwardRef(WithStyles)
-          container={true}
-          direction="row"
-          item={true}
-          justify="space-between"
-        >
-          <ForwardRef(WithStyles)
-            alignItems="flex-start"
-            className="pointer-mock"
-            container={true}
-            item={true}
-            onClick={[Function]}
-            wrap="nowrap"
-            xs={true}
-          >
-            <ForwardRef(WithStyles)
-              item={true}
-            >
-              <ForwardRef(WithStyles)
-                className="username-mock"
-                color="textPrimary"
-              >
-                Unnamed
-              </ForwardRef(WithStyles)>
-            </ForwardRef(WithStyles)>
-            <ForwardRef(WithStyles)
-              className="iconBox-mock"
-              item={true}
-            />
-          </ForwardRef(WithStyles)>
-        </ForwardRef(WithStyles)>
-      </ForwardRef(WithStyles)>
-    }
-  />
-</WithStyles(ForwardRef(ListItem))>
-`;
-
-exports[`BasicMessage renders correct time for different year 1`] = `
-<WithStyles(ForwardRef(ListItem))
-  className="wrapper-mock"
-  onClick={[Function]}
-  onMouseLeave={[Function]}
-  onMouseOver={[Function]}
->
-  <WithStyles(ForwardRef(ListItemText))
-    className="messageCard-mock"
-    disableTypography={true}
-    primary={
-      <ForwardRef(WithStyles)
-        alignItems="flex-start"
-        container={true}
-        direction="row"
-        justify="flex-start"
-        wrap="nowrap"
-      >
-        <Memo(withRouter(Connect(Component)))
-          address=""
-          anchorEl={null}
-          handleClose={[Function]}
-          isUnregistered={false}
-          publicKey={null}
-          txid={1}
-          username="Unnamed"
-        />
-        <ForwardRef(WithStyles)
-          className="avatar-mock"
-          item={true}
-        >
-          <div
-            className="alignAvatar-mock"
-          >
-            <Jdenticon
-              size="32"
-              value="Unnamed"
-            />
-          </div>
-        </ForwardRef(WithStyles)>
-        <ForwardRef(WithStyles)
-          container={true}
-          direction="row"
-          item={true}
-          justify="space-between"
-        >
-          <ForwardRef(WithStyles)
-            alignItems="flex-start"
-            className="pointer-mock"
-            container={true}
-            item={true}
-            onClick={[Function]}
-            wrap="nowrap"
-            xs={true}
-          >
-            <ForwardRef(WithStyles)
-              item={true}
-            >
-              <ForwardRef(WithStyles)
-                className="username-mock"
-                color="textPrimary"
-              >
-                Unnamed
-              </ForwardRef(WithStyles)>
-            </ForwardRef(WithStyles)>
-            <ForwardRef(WithStyles)
-              className="iconBox-mock"
-              item={true}
-            />
-          </ForwardRef(WithStyles)>
-        </ForwardRef(WithStyles)>
-      </ForwardRef(WithStyles)>
-    }
-  />
-</WithStyles(ForwardRef(ListItem))>
-`;
-
-exports[`BasicMessage renders correct time for same week 1`] = `
-<WithStyles(ForwardRef(ListItem))
-  className="wrapper-mock"
-  onClick={[Function]}
-  onMouseLeave={[Function]}
-  onMouseOver={[Function]}
->
-  <WithStyles(ForwardRef(ListItemText))
-    className="messageCard-mock"
-    disableTypography={true}
-    primary={
-      <ForwardRef(WithStyles)
-        alignItems="flex-start"
-        container={true}
-        direction="row"
-        justify="flex-start"
-        wrap="nowrap"
-      >
-        <Memo(withRouter(Connect(Component)))
-          address=""
-          anchorEl={null}
-          handleClose={[Function]}
-          isUnregistered={false}
-          publicKey={null}
-          txid={1}
-          username="Unnamed"
-        />
-        <ForwardRef(WithStyles)
-          className="avatar-mock"
-          item={true}
-        >
-          <div
-            className="alignAvatar-mock"
-          >
-            <Jdenticon
-              size="32"
-              value="Unnamed"
-            />
-          </div>
-        </ForwardRef(WithStyles)>
-        <ForwardRef(WithStyles)
-          container={true}
-          direction="row"
-          item={true}
-          justify="space-between"
-        >
-          <ForwardRef(WithStyles)
-            alignItems="flex-start"
-            className="pointer-mock"
-            container={true}
-            item={true}
-            onClick={[Function]}
-            wrap="nowrap"
-            xs={true}
-          >
-            <ForwardRef(WithStyles)
-              item={true}
-            >
-              <ForwardRef(WithStyles)
-                className="username-mock"
-                color="textPrimary"
-              >
-                Unnamed
-              </ForwardRef(WithStyles)>
-            </ForwardRef(WithStyles)>
-            <ForwardRef(WithStyles)
-              className="iconBox-mock"
-              item={true}
-            />
-          </ForwardRef(WithStyles)>
-        </ForwardRef(WithStyles)>
-      </ForwardRef(WithStyles)>
-    }
-  />
-</WithStyles(ForwardRef(ListItem))>
-`;
-
-exports[`BasicMessage renders username 1`] = `
-<WithStyles(ForwardRef(ListItem))
-  className="wrapper-mock"
-  onClick={[Function]}
-  onMouseLeave={[Function]}
-  onMouseOver={[Function]}
->
-  <WithStyles(ForwardRef(ListItemText))
-    className="messageCard-mock"
-    disableTypography={true}
-    primary={
-      <ForwardRef(WithStyles)
-        alignItems="flex-start"
-        container={true}
-        direction="row"
-        justify="flex-start"
-        wrap="nowrap"
-      >
-        <Memo(withRouter(Connect(Component)))
-          address=""
-          anchorEl={null}
-          handleClose={[Function]}
-          isUnregistered={false}
-          publicKey={null}
-          txid={1}
-          username="Unnamed"
-        />
-        <ForwardRef(WithStyles)
-          className="avatar-mock"
-          item={true}
-        >
-          <div
-            className="alignAvatar-mock"
-          >
-            <Jdenticon
-              size="32"
-              value="Unnamed"
-            />
-          </div>
-        </ForwardRef(WithStyles)>
-        <ForwardRef(WithStyles)
-          container={true}
-          direction="row"
-          item={true}
-          justify="space-between"
-        >
-          <ForwardRef(WithStyles)
-            alignItems="flex-start"
-            className="pointer-mock"
-            container={true}
-            item={true}
-            onClick={[Function]}
-            wrap="nowrap"
-            xs={true}
-          >
-            <ForwardRef(WithStyles)
-              item={true}
-            >
-              <ForwardRef(WithStyles)
-                className="username-mock"
-                color="textPrimary"
-              >
-                Unnamed
-              </ForwardRef(WithStyles)>
-            </ForwardRef(WithStyles)>
-            <ForwardRef(WithStyles)
-              className="iconBox-mock"
-              item={true}
-            />
-          </ForwardRef(WithStyles)>
-        </ForwardRef(WithStyles)>
-      </ForwardRef(WithStyles)>
-    }
-  />
-</WithStyles(ForwardRef(ListItem))>
-`;
-
-exports[`BasicMessage renders with status cancelled 1`] = `
-<WithStyles(ForwardRef(ListItem))
-  className="wrapper-mock clickable-mock wrapperPending-mock"
-  onClick={[Function]}
-  onMouseLeave={[Function]}
-  onMouseOver={[Function]}
->
-  <WithStyles(ForwardRef(ListItemText))
-    className="messageCard-mock"
-    disableTypography={true}
-    primary={
-      <ForwardRef(WithStyles)
-        alignItems="flex-start"
-        container={true}
-        direction="row"
-        justify="flex-start"
-        wrap="nowrap"
-      >
-        <Memo(withRouter(Connect(Component)))
-          address=""
-          anchorEl={null}
-          handleClose={[Function]}
-          isUnregistered={false}
-          publicKey={null}
-          txid={1}
-          username="Unnamed"
-        />
-        <ForwardRef(WithStyles)
-          className="avatar-mock"
-          item={true}
-        >
-          <div
-            className="alignAvatar-mock"
-          >
-            <Jdenticon
-              size="32"
-              value="Unnamed"
-            />
-          </div>
-        </ForwardRef(WithStyles)>
-        <ForwardRef(WithStyles)
-          container={true}
-          direction="row"
-          item={true}
-          justify="space-between"
-        >
-          <ForwardRef(WithStyles)
-            alignItems="flex-start"
-            className="pointer-mock"
-            container={true}
-            item={true}
-            onClick={[Function]}
-            wrap="nowrap"
-            xs={true}
-          >
-            <ForwardRef(WithStyles)
-              item={true}
-            >
-              <ForwardRef(WithStyles)
-                className="username-mock"
-                color="textPrimary"
-              >
-                Unnamed
-              </ForwardRef(WithStyles)>
-            </ForwardRef(WithStyles)>
-            <ForwardRef(WithStyles)
-              className="iconBox-mock"
-              item={true}
-            />
-          </ForwardRef(WithStyles)>
-        </ForwardRef(WithStyles)>
-      </ForwardRef(WithStyles)>
-    }
-  />
-</WithStyles(ForwardRef(ListItem))>
-`;
-
 exports[`BasicMessage renders with status pending 1`] = `
 <WithStyles(ForwardRef(ListItem))
   className="wrapper-mock wrapperPending-mock"
@@ -692,6 +746,15 @@ exports[`BasicMessage renders with status pending 1`] = `
                 color="textPrimary"
               >
                 Unnamed
+              </ForwardRef(WithStyles)>
+            </ForwardRef(WithStyles)>
+            <ForwardRef(WithStyles)
+              item={true}
+            >
+              <ForwardRef(WithStyles)
+                className="time-mock"
+              >
+                12:03 pm
               </ForwardRef(WithStyles)>
             </ForwardRef(WithStyles)>
             <ForwardRef(WithStyles)
@@ -769,6 +832,15 @@ exports[`BasicMessage renders with status success 1`] = `
                 color="textPrimary"
               >
                 Unnamed
+              </ForwardRef(WithStyles)>
+            </ForwardRef(WithStyles)>
+            <ForwardRef(WithStyles)
+              item={true}
+            >
+              <ForwardRef(WithStyles)
+                className="time-mock"
+              >
+                12:03 pm
               </ForwardRef(WithStyles)>
             </ForwardRef(WithStyles)>
             <ForwardRef(WithStyles)
