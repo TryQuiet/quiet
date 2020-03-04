@@ -6,7 +6,7 @@ Immutable.Map {
   "name": "Channel 1",
   "private": true,
   "address": "zs1testaddress1",
-  "unread": 1,
+  "unread": 12,
   "description": "Channel about 1",
   "advertFee": 0.15,
   "keys": Immutable.Map {
@@ -24,7 +24,7 @@ Immutable.ChannelsState {
       "name": "Channel 0",
       "private": false,
       "address": "zs1testaddress0",
-      "unread": 0,
+      "unread": 12,
       "description": "",
       "advertFee": 0.15,
       "keys": Immutable.Map {
@@ -37,7 +37,7 @@ Immutable.ChannelsState {
       "name": "Channel 1",
       "private": true,
       "address": "zs1testaddress1",
-      "unread": 1,
+      "unread": 12,
       "description": "Channel about 1",
       "advertFee": 0.15,
       "keys": Immutable.Map {
@@ -50,7 +50,7 @@ Immutable.ChannelsState {
       "name": "Channel 2",
       "private": false,
       "address": "zs1testaddress2",
-      "unread": 2,
+      "unread": 12,
       "description": "",
       "advertFee": 0.15,
       "keys": Immutable.Map {
@@ -80,7 +80,7 @@ Immutable.List [
     "name": "Channel 0",
     "private": false,
     "address": "zs1testaddress0",
-    "unread": 0,
+    "unread": 12,
     "description": "",
     "advertFee": 0.15,
     "keys": Immutable.Map {
@@ -93,7 +93,7 @@ Immutable.List [
     "name": "Channel 1",
     "private": true,
     "address": "zs1testaddress1",
-    "unread": 1,
+    "unread": 12,
     "description": "Channel about 1",
     "advertFee": 0.15,
     "keys": Immutable.Map {
@@ -106,7 +106,7 @@ Immutable.List [
     "name": "Channel 2",
     "private": false,
     "address": "zs1testaddress2",
-    "unread": 2,
+    "unread": 12,
     "description": "",
     "advertFee": 0.15,
     "keys": Immutable.Map {

@@ -120,6 +120,11 @@ describe('Channels selectors', () => {
       offersSelectors.offerMessages(`${adId}${recipientUsername}`)(store.getState())
     ).toMatchSnapshot()
   })
+  it('- offer newMessages', async () => {
+    expect(
+      offersSelectors.newMessages(`${adId}${recipientUsername}`)(store.getState())
+    ).toMatchSnapshot()
+  })
 
   it('- offer by id', async () => {
     const channel = offersSelectors.offer(`${adId}${recipientUsername}`)(store.getState())

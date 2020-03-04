@@ -2,6 +2,7 @@ import Immutable from 'immutable'
 import { DateTime } from 'luxon'
 import { createAction, handleActions } from 'redux-actions'
 import BigNumber from 'bignumber.js'
+import { remote } from 'electron'
 
 import {
   typeFulfilled,
@@ -193,6 +194,8 @@ const getMoneyFromChannel = address => async (dispatch, getState) => {
 const updateLastSeen = ({ channelId }) => async (dispatch, getState) => {
   const identity = identitySelectors.data(getState())
   const lastSeen = DateTime.utc()
+  const unread = channelSelectors.unread(getState())
+  remote.app.badgeCount = remote.app.badgeCount - unread
   await getVault().channels.updateLastSeen({
     identityId: identity.get('id'),
     channelId,

@@ -7,7 +7,7 @@ Object {
     "name": "Channel 1",
     "private": true,
     "address": "zs1testaddress1",
-    "unread": 1,
+    "unread": 12,
     "description": "Channel about 1",
     "advertFee": 0.15,
     "keys": Immutable.Map {

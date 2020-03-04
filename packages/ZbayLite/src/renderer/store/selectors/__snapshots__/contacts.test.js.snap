@@ -37,7 +37,12 @@ Immutable.Record {
       "publicKey": null,
     },
   ],
-  "newMessages": Immutable.List [],
+  "newMessages": Immutable.List [
+    1,
+    2,
+    3,
+    4,
+  ],
   "vaultMessages": Immutable.List [
     Immutable.ReceivedMessage {
       "id": 0,
@@ -111,7 +116,12 @@ Immutable.Map {
         "publicKey": null,
       },
     ],
-    "newMessages": Immutable.List [],
+    "newMessages": Immutable.List [
+      1,
+      2,
+      3,
+      4,
+    ],
     "vaultMessages": Immutable.List [
       Immutable.ReceivedMessage {
         "id": 0,
@@ -313,6 +323,15 @@ Immutable.List [
     "offerOwner": "",
     "publicKey": null,
   },
+]
+`;
+
+exports[`operations selectors  - newMessages 1`] = `
+Immutable.List [
+  1,
+  2,
+  3,
+  4,
 ]
 `;
 

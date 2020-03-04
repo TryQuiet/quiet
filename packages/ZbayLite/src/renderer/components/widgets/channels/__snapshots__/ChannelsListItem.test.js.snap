@@ -58,7 +58,7 @@ exports[`ChannelsListItem renders component when public 1`] = `
           item={true}
         >
           <ForwardRef(WithStyles)
-            className="title-mock"
+            className="title-mock newMessages-mock"
             variant="body2"
           >
             # Channel 0

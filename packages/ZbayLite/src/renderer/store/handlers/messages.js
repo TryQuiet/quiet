@@ -2,6 +2,7 @@ import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
 import * as R from 'ramda'
 import { createAction, handleActions } from 'redux-actions'
+import { remote } from 'electron'
 
 import selectors from '../selectors/messages'
 import appSelectors from '../selectors/app'
@@ -181,6 +182,7 @@ export const fetchMessages = channel => async (dispatch, getState) => {
         messagesIds: newMessages.map(R.prop('id'))
       })
     )
+    remote.app.badgeCount = remote.app.badgeCount + newMessages.size
     newMessages.map(nm => displayMessageNotification({ message: nm, channel }))
   } catch (err) {
     console.warn(err)

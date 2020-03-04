@@ -13,7 +13,7 @@ Object {
     "name": "Channel randomid",
     "private": false,
     "address": "zs1testaddressrandomid",
-    "unread": "randomid",
+    "unread": 12,
     "description": "Channel about randomid",
     "advertFee": 0.15,
     "keys": Immutable.Map {

@@ -10,7 +10,7 @@ Array [
     "name": "Channel 1",
     "private": "1",
     "title": "zs1testaddress1",
-    "unread": "1",
+    "unread": "12",
   },
   Object {
     "address": "zs1testaddress2",
@@ -20,7 +20,7 @@ Array [
     "name": "Channel 2",
     "private": "0",
     "title": "zs1testaddress2",
-    "unread": "2",
+    "unread": "12",
   },
 ]
 `;
@@ -35,7 +35,7 @@ Array [
     "name": "Channel 1",
     "private": "1",
     "title": "zs1testaddress1",
-    "unread": "1",
+    "unread": "12",
   },
 ]
 `;
@@ -51,6 +51,6 @@ Object {
   "name": "Channel 1",
   "private": "1",
   "title": "zs1testaddress1",
-  "unread": "1",
+  "unread": "12",
 }
 `;

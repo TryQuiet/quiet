@@ -41,7 +41,8 @@ describe('operations selectors', () => {
             address: identity1.address,
             messages,
             vaultMessages,
-            lastSeen: testUtils.now
+            lastSeen: testUtils.now,
+            newMessages: Immutable.List([ 1, 2, 3, 4 ])
           }),
           [identity2.address]: Contact({
             username: identity2.username,
@@ -116,6 +117,9 @@ describe('operations selectors', () => {
 
   it(' - messages', () => {
     expect(selectors.messages(identity1.address)(store.getState())).toMatchSnapshot()
+  })
+  it(' - newMessages', () => {
+    expect(selectors.newMessages(identity1.address)(store.getState())).toMatchSnapshot()
   })
 
   it(' - lastSeen', () => {

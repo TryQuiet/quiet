@@ -130,6 +130,9 @@ describe('Channel selector', () => {
   it('messages selector', async () => {
     expect(channelSelectors.messages()(store.getState())).toMatchSnapshot()
   })
+  it('unread selector', async () => {
+    expect(channelSelectors.unread(store.getState())).toMatchSnapshot()
+  })
 
   it('data selector', async () => {
     expect(channelSelectors.data(store.getState())).toMatchSnapshot()

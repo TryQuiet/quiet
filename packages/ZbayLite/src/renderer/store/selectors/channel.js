@@ -27,6 +27,10 @@ export const advertFee = createSelector(
   data,
   (data) => data ? data.get('advertFee') : 0
 )
+export const unread = createSelector(
+  data,
+  (data) => data ? data.get('unread') : 0
+)
 export const onlyRegistered = createSelector(
   data,
   (data) => data ? data.get('onlyRegistered') : false
@@ -219,5 +223,6 @@ export default {
   channelInfo,
   advertFee,
   onlyRegistered,
-  members
+  members,
+  unread
 }

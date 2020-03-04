@@ -14,7 +14,6 @@ export const mapDispatchToProps = dispatch =>
     {
       loadRecipientAddress: directMessageChannel.actions.setDirectMessageRecipientAddress,
       loadRecipientUsername: directMessageChannel.actions.setDirectMessageRecipientUsername,
-      cleanNewMessages: contactsHandlers.actions.cleanNewMessages,
       loadContact: contactsHandlers.epics.loadContact,
       resetChannel: channelHandlers.actions.resetChannel
     },
@@ -25,7 +24,6 @@ const DirectMessages = ({
   match,
   loadRecipientUsername,
   loadRecipientAddress,
-  cleanNewMessages,
   loadContact,
   resetChannel
 }) => {
@@ -34,7 +32,6 @@ const DirectMessages = ({
       resetChannel()
       loadRecipientAddress(match.params.id)
       loadRecipientUsername(match.params.username)
-      cleanNewMessages({ contactAddress: match.params.id })
       loadContact(match.params.id)
     },
     [match.params.id]

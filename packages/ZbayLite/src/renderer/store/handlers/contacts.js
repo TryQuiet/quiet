@@ -3,6 +3,7 @@ import { DateTime } from 'luxon'
 import { createAction, handleActions } from 'redux-actions'
 import * as R from 'ramda'
 import BigNumber from 'bignumber.js'
+import { remote } from 'electron'
 import history from '../../../shared/history'
 import identitySelectors from '../selectors/identity'
 import usersSelectors from '../selectors/users'
@@ -269,6 +270,7 @@ export const fetchMessages = () => async (dispatch, getState) => {
               itemId: offer.itemId
             })
           )
+          remote.app.badgeCount = remote.app.badgeCount + 1
           offerNotification({
             message: msg.message.text,
             username: msg.sender.username
@@ -315,6 +317,7 @@ export const fetchMessages = () => async (dispatch, getState) => {
           })
         )
         dispatch(setMessages({ messages: contactMessages, contactAddress }))
+        remote.app.badgeCount = remote.app.badgeCount + newMessages.size
         newMessages.map(nm => {
           const notification = displayDirectMessageNotification({
             message: nm,
@@ -334,6 +337,9 @@ export const fetchMessages = () => async (dispatch, getState) => {
 export const updateLastSeen = ({ contact }) => async (dispatch, getState) => {
   const identityId = identitySelectors.id(getState())
   const lastSeen = DateTime.utc()
+  const unread = selectors.newMessages(contact.address)(getState()).size
+  remote.app.badgeCount = remote.app.badgeCount - unread
+  cleanNewMessages({ contactAddress: contact.address })
   await getVault().contacts.updateLastSeen({
     identityId,
     recipientUsername: contact.username,

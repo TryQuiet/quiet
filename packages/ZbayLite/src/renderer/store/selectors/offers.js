@@ -116,11 +116,17 @@ const lastSeen = id =>
     offer(id),
     ch => ch.get('lastSeen')
   )
+const newMessages = id =>
+  createSelector(
+    offer(id),
+    ch => ch.get('newMessages')
+  )
 export default {
   offers,
   offer,
   filteredOffers,
   offerMessages,
   lastSeen,
-  advertMessage
+  advertMessage,
+  newMessages
 }

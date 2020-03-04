@@ -1,7 +1,7 @@
 import Immutable from 'immutable'
 import { createAction, handleActions } from 'redux-actions'
 import { DateTime } from 'luxon'
-
+import { remote } from 'electron'
 import { getVault } from '../../vault'
 import identitySelectors from '../selectors/identity'
 import offersSelectors from '../selectors/offers'
@@ -193,6 +193,8 @@ const sendItemMessageOnEnter = event => async (dispatch, getState) => {
 const updateLastSeen = ({ itemId }) => async (dispatch, getState) => {
   const identity = identitySelectors.data(getState())
   const lastSeen = DateTime.utc()
+  const unread = offersSelectors.newMessages(itemId)(getState()).size
+  remote.app.badgeCount = remote.app.badgeCount - unread
   await getVault().offers.updateLastSeen({
     identityId: identity.get('id'),
     offerId: itemId,

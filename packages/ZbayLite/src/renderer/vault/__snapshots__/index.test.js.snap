@@ -115,7 +115,7 @@ Array [
     "name": "Channel 3",
     "private": true,
     "showInfoMsg": true,
-    "unread": 3,
+    "unread": 12,
   },
   Object {
     "address": "zs1testaddress2",
@@ -128,7 +128,7 @@ Array [
     "name": "Channel 2",
     "private": true,
     "showInfoMsg": true,
-    "unread": 2,
+    "unread": 12,
   },
   Object {
     "address": "zs1testaddress1",
@@ -141,7 +141,7 @@ Array [
     "name": "Channel 1",
     "private": true,
     "showInfoMsg": true,
-    "unread": 1,
+    "unread": 12,
   },
 ]
 `;

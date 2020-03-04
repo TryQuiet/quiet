@@ -11,7 +11,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "name": "Channel 0",
         "private": false,
         "address": "zs1testaddress0",
-        "unread": 0,
+        "unread": 12,
         "description": "",
         "advertFee": 0.15,
         "keys": Immutable.Map {
@@ -31,7 +31,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "name": "Channel 1",
         "private": true,
         "address": "zs1testaddress1",
-        "unread": 1,
+        "unread": 12,
         "description": "Channel about 1",
         "advertFee": 0.15,
         "keys": Immutable.Map {
@@ -51,7 +51,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "name": "Channel 2",
         "private": false,
         "address": "zs1testaddress2",
-        "unread": 2,
+        "unread": 12,
         "description": "",
         "advertFee": 0.15,
         "keys": Immutable.Map {
@@ -71,7 +71,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "name": "Channel 3",
         "private": true,
         "address": "zs1testaddress3",
-        "unread": 3,
+        "unread": 12,
         "description": "Channel about 3",
         "advertFee": 0.15,
         "keys": Immutable.Map {
@@ -91,7 +91,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "name": "Channel 4",
         "private": false,
         "address": "zs1testaddress4",
-        "unread": 4,
+        "unread": 12,
         "description": "",
         "advertFee": 0.15,
         "keys": Immutable.Map {
@@ -111,7 +111,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "name": "Channel 5",
         "private": true,
         "address": "zs1testaddress5",
-        "unread": 5,
+        "unread": 12,
         "description": "Channel about 5",
         "advertFee": 0.15,
         "keys": Immutable.Map {
@@ -131,7 +131,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "name": "Channel 6",
         "private": false,
         "address": "zs1testaddress6",
-        "unread": 6,
+        "unread": 12,
         "description": "",
         "advertFee": 0.15,
         "keys": Immutable.Map {
@@ -151,7 +151,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "name": "Channel 7",
         "private": true,
         "address": "zs1testaddress7",
-        "unread": 7,
+        "unread": 12,
         "description": "Channel about 7",
         "advertFee": 0.15,
         "keys": Immutable.Map {
@@ -171,7 +171,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "name": "Channel 8",
         "private": false,
         "address": "zs1testaddress8",
-        "unread": 8,
+        "unread": 12,
         "description": "",
         "advertFee": 0.15,
         "keys": Immutable.Map {
@@ -191,7 +191,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "name": "Channel 9",
         "private": true,
         "address": "zs1testaddress9",
-        "unread": 9,
+        "unread": 12,
         "description": "Channel about 9",
         "advertFee": 0.15,
         "keys": Immutable.Map {
@@ -211,7 +211,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "name": "Channel 10",
         "private": false,
         "address": "zs1testaddress10",
-        "unread": 10,
+        "unread": 12,
         "description": "",
         "advertFee": 0.15,
         "keys": Immutable.Map {
@@ -231,7 +231,7 @@ exports[`BaseChannelsList renders component 1`] = `
         "name": "Channel 11",
         "private": true,
         "address": "zs1testaddress11",
-        "unread": 11,
+        "unread": 12,
         "description": "Channel about 11",
         "advertFee": 0.15,
         "keys": Immutable.Map {

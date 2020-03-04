@@ -48,6 +48,11 @@ const vaultMessages = address =>
     contact(address),
     c => c.vaultMessages
   )
+const newMessages = address =>
+  createSelector(
+    contact(address),
+    c => c.newMessages
+  )
 
 export const queuedMessages = address =>
   createSelector(
@@ -126,5 +131,6 @@ export default {
   directMessages,
   lastSeen,
   vaultMessages,
-  username
+  username,
+  newMessages
 }
