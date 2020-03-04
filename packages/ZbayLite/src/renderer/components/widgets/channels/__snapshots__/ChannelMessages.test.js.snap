@@ -22,6 +22,11 @@ exports[`ChannelMessages renders component 1`] = `
   <WithStyles(ForwardRef(List))
     className="list-mock"
     disablePadding={true}
+    style={
+      Object {
+        "marginTop": 0,
+      }
+    }
   >
     <Memo(Connect(Component))
       key="0"

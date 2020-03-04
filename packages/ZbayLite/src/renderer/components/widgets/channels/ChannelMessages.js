@@ -32,22 +32,46 @@ export const ChannelMessages = ({
   scrollPosition,
   contactId
 }) => {
-  const scrollbarRef = ref => {
+  const scrollbarRef = React.useRef()
+  const getScrollbarRef = ref => {
     if (ref !== null) {
+      scrollbarRef.current = ref
       if (scrollPosition === -1 || scrollPosition === 1) {
         ref.scrollToBottom()
       }
     }
   }
+  const msgRef = React.useRef()
+  const [offset, setOffset] = React.useState(0)
+  const updateSize = () => {
+    setOffset(0)
+  }
+  React.useEffect(() => {
+    window.addEventListener('resize', updateSize)
+  }, [])
+  React.useEffect(() => {
+    if (msgRef.current && scrollbarRef.current) {
+      const margin =
+        msgRef.current.offsetHeight < scrollbarRef.current.getClientHeight()
+          ? scrollbarRef.current.getClientHeight() - msgRef.current.offsetHeight
+          : 0
+      setOffset(margin)
+    }
+  })
   return (
     <Scrollbars
-      ref={scrollbarRef}
+      ref={getScrollbarRef}
       autoHideTimeout={500}
       onScrollFrame={e => {
         setScrollPosition(e.top)
       }}
     >
-      <List disablePadding className={classes.list}>
+      <List
+        disablePadding
+        ref={msgRef}
+        className={classes.list}
+        style={{ marginTop: offset }}
+      >
         {isOwner && <WelcomeMessage />}
         {messages
           .filter(msg => messagesTypesToDisplay.includes(msg.get('type')))
