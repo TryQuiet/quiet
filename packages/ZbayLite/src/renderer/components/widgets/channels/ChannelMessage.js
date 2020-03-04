@@ -265,7 +265,7 @@ export const ChannelMessage = ({
         whitelisted
       )
     )
-  }, [messageData])
+  }, [messageData, whitelisted, allowAll])
   React.useEffect(() => {
     if (allowAll || whitelisted.contains(imageUrl)) {
       setShowImage(true)
