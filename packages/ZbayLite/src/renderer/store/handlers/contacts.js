@@ -339,7 +339,7 @@ export const updateLastSeen = ({ contact }) => async (dispatch, getState) => {
   const lastSeen = DateTime.utc()
   const unread = selectors.newMessages(contact.address)(getState()).size
   remote.app.badgeCount = remote.app.badgeCount - unread
-  cleanNewMessages({ contactAddress: contact.address })
+  dispatch(cleanNewMessages({ contactAddress: contact.address }))
   await getVault().contacts.updateLastSeen({
     identityId,
     recipientUsername: contact.username,
