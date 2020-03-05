@@ -1,6 +1,8 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import * as R from 'ramda'
+import { AutoSizer } from 'react-virtualized'
+import { Scrollbars } from 'react-custom-scrollbars'
 
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
@@ -25,7 +27,8 @@ const styles = theme => ({
     height: 70
   },
   title: {
-    marginTop: 36
+    marginTop: 36,
+    marginBottom: 24
   },
   message: {
     wordBreak: 'break-word',
@@ -80,146 +83,153 @@ export const OpenlinkModal = ({
   const uri = new URL(url)
   return (
     <Modal open={open} handleClose={handleClose} title=''>
-      <Grid
-        container
-        justify='flex-start'
-        spacing={3}
-        direction='column'
-        className={classes.root}
-      >
-        <Grid item container direction='column' alignItems='center'>
-          <Icon className={classes.icon} src={exclamationMark} />
-          <Typography variant='h2' className={classes.title}>
-            Watch out!
-          </Typography>
-        </Grid>
-        <Grid item container spacing={1} direction='column'>
-          <Grid item>
-            <Typography variant='body2'>
-              Opening link posted in Zbay reveals data about you to your
-              goverment, your Internet provider, the site you are visiginh and,
-              potentially to whoever posted the link.
-            </Typography>
-          </Grid>
-          <Grid item>
-            <Typography variant='body2'>
-              Only open links from people toy trust. If you are using Zbay to
-              protect your anonymity, never open links.
-            </Typography>
-          </Grid>
-        </Grid>
-        <Grid
-          item
-          container
-          spacing={0}
-          direction='column'
-          className={classes.checkboxes}
-        >
-          {' '}
-          {isImage ? (
-            <>
-              <Grid item container justify='center' alignItems='center'>
-                <Grid item>
-                  <Checkbox
-                    checked={allowThisLink}
-                    onChange={e => setAllowThisLink(e.target.checked)}
-                    color='primary'
-                  />
-                </Grid>
-                <Grid item xs className={classes.checkboxLabel}>
-                  {`Automatically load images from `}
-                  <span className={classes.bold}>{uri.hostname}</span>
-                  {`- I trust them with my data and I'm not using Zbay for anonymity protection. `}
-                </Grid>
-              </Grid>
-              <Grid item container justify='center' alignItems='center'>
-                <Grid item>
-                  <Checkbox
-                    checked={dontAutoload}
-                    onChange={e => setDontAutoload(e.target.checked)}
-                    color='primary'
-                  />
-                </Grid>
-                <Grid item xs className={classes.checkboxLabel}>
-                  {`Don't warn me about `}
-                  <span className={classes.bold}>{uri.hostname}</span>{' '}
-                  {`again, but don't auto-load images.`}
-                </Grid>
-              </Grid>
-            </>
-          ) : (
-            <Grid item container justify='center' alignItems='center'>
-              <Grid item>
-                <Checkbox
-                  checked={allowThisLink}
-                  onChange={e => setAllowThisLink(e.target.checked)}
-                  color='primary'
-                />
-              </Grid>
-              <Grid item xs className={classes.checkboxLabel}>
-                {`Don't warn me about `}
-                <span className={classes.bold}>{uri.hostname}</span> {`again`}
-              </Grid>
-            </Grid>
-          )}
-          <Grid item container justify='center' alignItems='center'>
-            <Grid item>
-              <Checkbox
-                checked={allowAllLink}
-                onChange={e => setAllowAllLink(e.target.checked)}
-                color='primary'
-              />
-            </Grid>
-            <Grid item xs className={classes.checkboxLabel}>
-              {`Never warn me about outbound links on Zbay.`}
-            </Grid>
-          </Grid>
-          <Grid
-            item
-            container
-            spacing={2}
-            alignItems='center'
-            className={classes.buttons}
+      <AutoSizer>
+        {({ width, height }) => (
+          <Scrollbars
+            autoHideTimeout={500}
+            style={{ width: width, height: height }}
           >
-            <Grid item>
-              <Button
-                className={classes.buttonBack}
-                variant='contained'
-                color='primary'
-                size='large'
-                onClick={() => {
-                  handleClose()
-                }}
+            <Grid
+              container
+              justify='flex-start'
+              direction='column'
+              className={classes.root}
+            >
+              <Grid item container direction='column' alignItems='center'>
+                <Icon className={classes.icon} src={exclamationMark} />
+                <Typography variant='h2' className={classes.title}>
+                  Watch out!
+                </Typography>
+              </Grid>
+              <Grid item container direction='column'>
+                <Grid item>
+                  <Typography variant='body2'>
+                    Opening link posted in Zbay reveals data about you to your
+                    goverment, your Internet provider, the site you are visiting
+                    and, potentially, to whoever posted the link. Only open
+                    links from people you trust. If you are using Zbay to
+                    protect your anonymity, never open links.
+                  </Typography>
+                </Grid>
+              </Grid>
+              <Grid
+                item
+                container
+                spacing={0}
+                direction='column'
+                className={classes.checkboxes}
               >
-                Back to safety
-              </Button>
+                {' '}
+                {isImage ? (
+                  <>
+                    <Grid item container justify='center' alignItems='center'>
+                      <Grid item>
+                        <Checkbox
+                          checked={allowThisLink}
+                          onChange={e => setAllowThisLink(e.target.checked)}
+                          color='primary'
+                        />
+                      </Grid>
+                      <Grid item xs className={classes.checkboxLabel}>
+                        {`Automatically load images from `}
+                        <span className={classes.bold}>{uri.hostname}</span>
+                        {`- I trust them with my data and I'm not using Zbay for anonymity protection. `}
+                      </Grid>
+                    </Grid>
+                    <Grid item container justify='center' alignItems='center'>
+                      <Grid item>
+                        <Checkbox
+                          checked={dontAutoload}
+                          onChange={e => setDontAutoload(e.target.checked)}
+                          color='primary'
+                        />
+                      </Grid>
+                      <Grid item xs className={classes.checkboxLabel}>
+                        {`Don't warn me about `}
+                        <span className={classes.bold}>
+                          {uri.hostname}
+                        </span>{' '}
+                        {`again, but don't auto-load images.`}
+                      </Grid>
+                    </Grid>
+                  </>
+                ) : (
+                  <Grid item container justify='center' alignItems='center'>
+                    <Grid item>
+                      <Checkbox
+                        checked={allowThisLink}
+                        onChange={e => setAllowThisLink(e.target.checked)}
+                        color='primary'
+                      />
+                    </Grid>
+                    <Grid item xs className={classes.checkboxLabel}>
+                      {`Don't warn me about `}
+                      <span className={classes.bold}>{uri.hostname}</span>{' '}
+                      {`again`}
+                    </Grid>
+                  </Grid>
+                )}
+                <Grid item container justify='center' alignItems='center'>
+                  <Grid item>
+                    <Checkbox
+                      checked={allowAllLink}
+                      onChange={e => setAllowAllLink(e.target.checked)}
+                      color='primary'
+                    />
+                  </Grid>
+                  <Grid item xs className={classes.checkboxLabel}>
+                    {`Never warn me about outbound links on Zbay.`}
+                  </Grid>
+                </Grid>
+                <Grid
+                  item
+                  container
+                  spacing={2}
+                  alignItems='center'
+                  className={classes.buttons}
+                >
+                  <Grid item>
+                    <Button
+                      className={classes.buttonBack}
+                      variant='contained'
+                      color='primary'
+                      size='large'
+                      onClick={() => {
+                        handleClose()
+                      }}
+                    >
+                      Back to safety
+                    </Button>
+                  </Grid>
+                  <Grid item xs>
+                    <a
+                      style={{
+                        color: '#67BFD3',
+                        textDecoration: 'none',
+                        wordBreak: 'break-all'
+                      }}
+                      onClick={e => {
+                        e.preventDefault()
+                        handleConfirm()
+                        if (allowThisLink || dontAutoload) {
+                          addToWhitelist(url, dontAutoload)
+                        }
+                        setWhitelistAll(allowAllLink)
+                        handleClose()
+                      }}
+                      href={``}
+                    >
+                      {isImage
+                        ? `Load image from site ${uri.hostname}`
+                        : `Continue to ${uri.hostname}`}
+                    </a>
+                  </Grid>
+                </Grid>
+              </Grid>
             </Grid>
-            <Grid item xs>
-              <a
-                style={{
-                  color: '#67BFD3',
-                  textDecoration: 'none',
-                  wordBreak: 'break-all'
-                }}
-                onClick={e => {
-                  e.preventDefault()
-                  handleConfirm()
-                  if (allowThisLink || dontAutoload) {
-                    addToWhitelist(url, dontAutoload)
-                  }
-                  setWhitelistAll(allowAllLink)
-                  handleClose()
-                }}
-                href={``}
-              >
-                {isImage
-                  ? `Load image from site ${uri.hostname}`
-                  : `Continue to ${uri.hostname}`}
-              </a>
-            </Grid>
-          </Grid>
-        </Grid>
-      </Grid>
+          </Scrollbars>
+        )}
+      </AutoSizer>
     </Modal>
   )
 }
