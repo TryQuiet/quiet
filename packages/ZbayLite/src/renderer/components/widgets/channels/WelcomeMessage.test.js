@@ -6,7 +6,9 @@ import { mockClasses } from '../../../../shared/testing/mocks'
 
 describe('WelcomeMessage', () => {
   it('renders component', () => {
-    const result = shallow(<WelcomeMessage classes={mockClasses} />)
+    const result = shallow(
+      <WelcomeMessage classes={mockClasses} message={'random message'} />
+    )
     expect(result).toMatchSnapshot()
   })
 })

@@ -46,7 +46,7 @@ const styles = theme => ({
   }
 })
 
-export const WelcomeMessage = ({ classes }) => {
+export const WelcomeMessage = ({ classes, message }) => {
   const username = 'Zbay'
   return (
     <ListItem
@@ -82,10 +82,7 @@ export const WelcomeMessage = ({ classes }) => {
         secondary={
           <Grid className={classes.messageInput} item>
             <Typography variant='body2' className={classes.message}>
-              Congrats! You created a channel. You can make your channel public
-              or share the channel link with others by accessing the “•••” menu
-              at the top. You’ll also find a bunch of other settings. Have a
-              great time!
+              {message}
             </Typography>
           </Grid>
         }
@@ -95,7 +92,8 @@ export const WelcomeMessage = ({ classes }) => {
 }
 
 WelcomeMessage.propTypes = {
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
+  message: PropTypes.string.isRequired
 }
 
 export default R.compose(React.memo, withStyles(styles))(WelcomeMessage)

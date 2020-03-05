@@ -21,7 +21,11 @@ const styles = theme => ({
 })
 
 const messagesTypesToDisplay = [1, 2, 4, 11, 41]
-
+const welcomeMessages = {
+  offer: (item, username) =>
+    `This is a private conversation with @${username} about their #${item} offer. Feel free to ask them a question about the product or provide other details about your purchase!`,
+  main: `Congrats! You created a channel. You can make your channel public or share the channel link with others by accessing the “•••” menu at the top. You’ll also find a bunch of other settings. Have a great time!`
+}
 // TODO: scrollbar smart pagination
 export const ChannelMessages = ({
   classes,
@@ -30,7 +34,8 @@ export const ChannelMessages = ({
   isOwner,
   setScrollPosition,
   scrollPosition,
-  contactId
+  contactId,
+  isOffer
 }) => {
   const scrollbarRef = React.useRef()
   const getScrollbarRef = ref => {
@@ -58,6 +63,13 @@ export const ChannelMessages = ({
       setOffset(margin)
     }
   })
+  let username
+  let tag
+  if (isOffer) {
+    const msg = messages.toJS()[0]
+    tag = msg.message.tag
+    username = msg.sender.username
+  }
   return (
     <Scrollbars
       ref={getScrollbarRef}
@@ -72,7 +84,10 @@ export const ChannelMessages = ({
         className={classes.list}
         style={{ marginTop: offset }}
       >
-        {isOwner && <WelcomeMessage />}
+        {isOwner && <WelcomeMessage message={welcomeMessages['main']} />}
+        {isOffer && (
+          <WelcomeMessage message={welcomeMessages['offer'](tag, username)} />
+        )}
         {messages
           .filter(msg => messagesTypesToDisplay.includes(msg.get('type')))
           .map(msg => {
@@ -102,6 +117,7 @@ ChannelMessages.propTypes = {
   classes: PropTypes.object.isRequired,
   contactId: PropTypes.string,
   isOwner: PropTypes.bool.isRequired,
+  isOffer: PropTypes.bool.isRequired,
   messages: PropTypes.instanceOf(Immutable.List).isRequired,
   contentRect: PropTypes.shape({
     bounds: PropTypes.shape({
@@ -112,7 +128,8 @@ ChannelMessages.propTypes = {
 
 ChannelMessages.defaultProps = {
   messages: [],
-  isOwner: false
+  isOwner: false,
+  isOffer: false
 }
 
 export default React.memo(withStyles(styles)(ChannelMessages))

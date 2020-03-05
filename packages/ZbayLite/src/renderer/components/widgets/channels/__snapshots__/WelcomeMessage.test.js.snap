@@ -60,7 +60,7 @@ exports[`WelcomeMessage renders component 1`] = `
           className="message-mock"
           variant="body2"
         >
-          Congrats! You created a channel. You can make your channel public or share the channel link with others by accessing the “•••” menu at the top. You’ll also find a bunch of other settings. Have a great time!
+          random message
         </ForwardRef(WithStyles)>
       </ForwardRef(WithStyles)>
     }

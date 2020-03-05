@@ -5,6 +5,7 @@ import Immutable from 'immutable'
 import ChannelMessagesComponent from '../../../components/widgets/channels/ChannelMessages'
 import channelSelectors from '../../../store/selectors/channel'
 import offersSelectors from '../../../store/selectors/offers'
+import usersSelectors from '../../../store/selectors/users'
 import dmQueueMessages from '../../../store/selectors/directMessagesQueue'
 import queueMessages from '../../../store/selectors/messagesQueue'
 
@@ -15,26 +16,29 @@ export const mapStateToProps = (state, { offer, signerPubKey }) => {
     triggerScroll: qDmMessages.size + qMessages.size > 0,
     qMessages: qMessages,
     messages: offersSelectors.offerMessages(offer, signerPubKey)(state),
-    channelId: channelSelectors.channelId(state)
+    channelId: channelSelectors.channelId(state),
+    username: usersSelectors.registeredUser(signerPubKey)(state)
   }
 }
 
-export const ChannelMessages = ({ messages, offer, channelId, contentRect, triggerScroll }) => {
+export const ChannelMessages = ({
+  messages,
+  offer,
+  channelId,
+  contentRect,
+  triggerScroll,
+  username
+}) => {
   const [scrollPosition, setScrollPosition] = React.useState(-1)
-  useEffect(
-    () => {
+  useEffect(() => {
+    setScrollPosition(-1)
+  }, [channelId, offer])
+  useEffect(() => {
+    if (triggerScroll) {
       setScrollPosition(-1)
-    },
-    [channelId, offer]
-  )
-  useEffect(
-    () => {
-      if (triggerScroll) {
-        setScrollPosition(-1)
-      }
-    },
-    [triggerScroll]
-  )
+    }
+  }, [triggerScroll])
+  const isOffer = messages.toJS()[0].sender.username !== username.nickname
   return (
     <ChannelMessagesComponent
       scrollPosition={scrollPosition}
@@ -42,6 +46,7 @@ export const ChannelMessages = ({ messages, offer, channelId, contentRect, trigg
       messages={messages}
       contactId={offer}
       contentRect={contentRect}
+      isOffer={isOffer}
     />
   )
 }

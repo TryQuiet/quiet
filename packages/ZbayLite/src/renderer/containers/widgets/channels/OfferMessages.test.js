@@ -48,13 +48,16 @@ describe('ChannelInput', () => {
             ),
             newMessages: Immutable.List(['123', '1234'])
           })
-        })
+        }),
+        users: Immutable.Map({})
       })
     })
   })
 
   it('will receive right props for offers', async () => {
-    const props = mapStateToProps(store.getState(), { offer: `${adId}${recipientUsername}` })
+    const props = mapStateToProps(store.getState(), {
+      offer: `${adId}${recipientUsername}`
+    })
     expect(props).toMatchSnapshot()
   })
 })
