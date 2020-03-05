@@ -64,12 +64,25 @@ exports[`ChannelInput renders component input Disable  1`] = `
           />
         </WithStyles(ForwardRef(Grid))>
         <WithStyles(ForwardRef(Grid))
-          className="iconButton-mock"
+          className="actions-mock"
           item={true}
         >
-          <Connect(Component)
-            disabled={true}
-          />
+          <WithStyles(ForwardRef(Grid))
+            alignItems="center"
+            container={true}
+            justify="center"
+          >
+            <Connect(Component)
+              disabled={true}
+            />
+            <Memo(Icon)
+              className="emoji-mock"
+              onClick={[Function]}
+              onMouseEnter={[Function]}
+              onMouseLeave={[Function]}
+              src="test-file-stub"
+            />
+          </WithStyles(ForwardRef(Grid))>
         </WithStyles(ForwardRef(Grid))>
       </WithStyles(ForwardRef(Grid))>
     </ForwardRef(ClickAwayListener)>
@@ -141,12 +154,25 @@ exports[`ChannelInput renders component input Locked  1`] = `
           />
         </WithStyles(ForwardRef(Grid))>
         <WithStyles(ForwardRef(Grid))
-          className="iconButton-mock"
+          className="actions-mock"
           item={true}
         >
-          <Connect(Component)
-            disabled={true}
-          />
+          <WithStyles(ForwardRef(Grid))
+            alignItems="center"
+            container={true}
+            justify="center"
+          >
+            <Connect(Component)
+              disabled={true}
+            />
+            <Memo(Icon)
+              className="emoji-mock"
+              onClick={[Function]}
+              onMouseEnter={[Function]}
+              onMouseLeave={[Function]}
+              src="test-file-stub"
+            />
+          </WithStyles(ForwardRef(Grid))>
         </WithStyles(ForwardRef(Grid))>
       </WithStyles(ForwardRef(Grid))>
     </ForwardRef(ClickAwayListener)>
@@ -197,12 +223,25 @@ exports[`ChannelInput renders component input available  1`] = `
           />
         </WithStyles(ForwardRef(Grid))>
         <WithStyles(ForwardRef(Grid))
-          className="iconButton-mock"
+          className="actions-mock"
           item={true}
         >
-          <Connect(Component)
-            disabled={false}
-          />
+          <WithStyles(ForwardRef(Grid))
+            alignItems="center"
+            container={true}
+            justify="center"
+          >
+            <Connect(Component)
+              disabled={false}
+            />
+            <Memo(Icon)
+              className="emoji-mock"
+              onClick={[Function]}
+              onMouseEnter={[Function]}
+              onMouseLeave={[Function]}
+              src="test-file-stub"
+            />
+          </WithStyles(ForwardRef(Grid))>
         </WithStyles(ForwardRef(Grid))>
       </WithStyles(ForwardRef(Grid))>
     </ForwardRef(ClickAwayListener)>

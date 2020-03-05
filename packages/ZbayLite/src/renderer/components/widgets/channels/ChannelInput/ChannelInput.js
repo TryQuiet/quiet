@@ -5,7 +5,7 @@ import classNames from 'classnames'
 import { renderToString } from 'react-dom/server'
 import ContentEditable from 'react-contenteditable'
 import Immutable from 'immutable'
-
+import Picker from 'emoji-picker-react'
 import Fade from '@material-ui/core/Fade'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
@@ -18,7 +18,9 @@ import MentionPoper from './MentionPoper'
 import ChannelInputAction from '../../../../containers/widgets/channels/ChannelInputAction'
 import { INPUT_STATE } from '../../../../store/selectors/channel'
 import MentionElement from './MentionElement'
-
+import Icon from '../../../ui/Icon'
+import emojiGray from '../../../../static/images/emojiGray.svg'
+import emojiBlack from '../../../../static/images/emojiBlack.svg'
 const styles = theme => {
   return {
     root: {
@@ -83,13 +85,26 @@ const styles = theme => {
       borderColor: theme.palette.colors.trueBlack
     },
     iconButton: {
-      marginRight: 16
+      marginRight: 0
     },
     highlight: {
       color: theme.palette.colors.lushSky,
       backgroundColor: theme.palette.colors.lushSky12,
       padding: 5,
       borderRadius: 4
+    },
+    emoji: {
+      marginRight: 17,
+      marginLeft: 10,
+      cursor: 'pointer'
+    },
+    actions: {
+      postion: 'relative'
+    },
+    picker: {
+      position: 'absolute',
+      bottom: 60,
+      right: 15
     }
   }
 }
@@ -125,6 +140,9 @@ export const ChannelInput = ({
   const inputRef = React.createRef()
   const [focused, setFocused] = React.useState(false)
   const [selected, setSelected] = React.useState(0)
+  const [emojiHovered, setEmojiHovered] = React.useState(false)
+  const [openEmoji, setOpenEmoji] = React.useState(false)
+
   window.onfocus = () => {
     inputRef.current.el.current.focus()
     setFocused(true)
@@ -361,10 +379,41 @@ export const ChannelInput = ({
                 }}
               />
             </Grid>
-            <Grid item className={classes.iconButton}>
-              <ChannelInputAction
-                disabled={inputState !== INPUT_STATE.AVAILABLE}
-              />
+            <Grid item className={classes.actions}>
+              <Grid container justify='center' alignItems='center'>
+                <ChannelInputAction
+                  disabled={inputState !== INPUT_STATE.AVAILABLE}
+                />
+                <Icon
+                  className={classes.emoji}
+                  src={emojiHovered ? emojiBlack : emojiGray}
+                  onClick={() => {
+                    setOpenEmoji(true)
+                  }}
+                  onMouseEnter={() => {
+                    setEmojiHovered(true)
+                  }}
+                  onMouseLeave={() => {
+                    setEmojiHovered(false)
+                  }}
+                />
+              </Grid>
+              {openEmoji && (
+                <ClickAwayListener
+                  onClickAway={() => {
+                    setOpenEmoji(false)
+                  }}
+                >
+                  <div className={classes.picker}>
+                    <Picker
+                      onEmojiClick={(e, emoji) => {
+                        onChange(message + emoji.emoji)
+                        setOpenEmoji(false)
+                      }}
+                    />
+                  </div>
+                </ClickAwayListener>
+              )}
             </Grid>
           </Grid>
         </ClickAwayListener>
