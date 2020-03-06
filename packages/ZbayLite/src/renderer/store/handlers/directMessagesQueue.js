@@ -220,6 +220,20 @@ const _sendPendingDirectMessages = async (dispatch, getState) => {
           )
           return
         }
+        const { username } = contactsSelectors.contact(recipientAddress)(
+          getState()
+        )
+        if (!username) {
+          dispatch(
+            contactsHandlers.actions.setUsernames({
+              sender: {
+                replyTo: recipientAddress,
+                username:
+                  msg.recipientUsername || msg.recipientAddress.substring(0, 15)
+              }
+            })
+          )
+        }
         dispatch(removeMessage(key))
         if (recipientAddress.length === 35) {
           return
@@ -242,7 +256,7 @@ const _sendPendingDirectMessages = async (dispatch, getState) => {
   )
 }
 
-export const sendPendingDirectMessages = () => {
+export const sendPendingDirectMessages = (debounce = null) => {
   const thunk = _sendPendingDirectMessages
   thunk.meta = {
     debounce: {
@@ -254,9 +268,9 @@ export const sendPendingDirectMessages = () => {
   return thunk
 }
 
-const addDirectMessageEpic = payload => async dispatch => {
-  dispatch(addDirectMessage(payload))
-  await dispatch(sendPendingDirectMessages())
+const addDirectMessageEpic = (payload, debounce) => async dispatch => {
+  await dispatch(addDirectMessage(payload))
+  await dispatch(sendPendingDirectMessages(debounce))
 }
 
 export const epics = {

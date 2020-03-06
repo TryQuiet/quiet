@@ -93,7 +93,8 @@ const sendDirectMessage = payload => async (dispatch, getState) => {
       message,
       recipientAddress,
       recipientUsername
-    })
+    },
+    0)
   )
 }
 
