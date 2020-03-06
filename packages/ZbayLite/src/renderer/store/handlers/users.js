@@ -7,6 +7,7 @@ import feesSelector from '../selectors/fees'
 import nodeSelectors from '../selectors/node'
 import appHandlers from '../handlers/app'
 import feesHandlers from '../handlers/fees'
+import { isFinished } from '../handlers/operations'
 import txnTimestampsHandlers from '../handlers/txnTimestamps'
 import txnTimestampsSelector from '../selectors/txnTimestamps'
 import { actionCreators } from './modals'
@@ -83,7 +84,21 @@ export const setUsers = createAction(actionTypes.SET_USERS)
 export const actions = {
   setUsers
 }
-
+const subscribeUsernameTxn = async ({ opId, callback }) => {
+  const subscribe = async callback => {
+    async function poll () {
+      const { status, error = null } =
+        (await getClient().operations.getStatus(opId)) || {}
+      if (isFinished(status)) {
+        return callback(error, status)
+      } else {
+        setTimeout(poll, 5000)
+      }
+    }
+    return poll()
+  }
+  return subscribe(callback)
+}
 export const createOrUpdateUser = payload => async (dispatch, getState) => {
   const { nickname, firstName = '', lastName = '' } = payload
   const address = identitySelector.address(getState())
@@ -111,12 +126,36 @@ export const createOrUpdateUser = payload => async (dispatch, getState) => {
   })
   dispatch(actionCreators.closeModal('accountSettingsModal')())
   try {
-    await getClient().payment.send(transfer)
+    const id = await getClient().payment.send(transfer)
+    await subscribeUsernameTxn({
+      opId: id,
+      callback: error => {
+        if (error !== null) {
+          dispatch(
+            notificationsHandlers.actions.enqueueSnackbar(
+              errorNotification({
+                message:
+                  'There was a problem registering your username. Please try again.',
+                options: {
+                  persist: true
+                }
+              })
+            )
+          )
+        }
+      }
+    })
   } catch (err) {
-    notificationsHandlers.actions.enqueueSnackbar(
-      errorNotification({
-        message: "Couldn't send the message, please check node connection."
-      })
+    dispatch(
+      notificationsHandlers.actions.enqueueSnackbar(
+        errorNotification({
+          message:
+            'There was a problem registering your username. Please try again.',
+          options: {
+            persist: true
+          }
+        })
+      )
     )
   }
 }

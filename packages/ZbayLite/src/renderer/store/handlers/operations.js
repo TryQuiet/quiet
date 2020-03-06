@@ -8,7 +8,7 @@ import { actionTypes } from '../../../shared/static'
 
 const oneOf = (...arr) => val => R.includes(val, arr)
 
-const isFinished = oneOf('success', 'cancelled', 'failed')
+export const isFinished = oneOf('success', 'cancelled', 'failed')
 
 const POLLING_OFFSET = 15000
 
