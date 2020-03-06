@@ -68,7 +68,7 @@ export const pendingMessages = address =>
         o =>
           o.type === operationTypes.pendingDirectMessage &&
           o.meta.recipientAddress === address &&
-          o.meta.message.get('type') < 10 //  separate offer messages and direct messages
+          o.meta.message.type < 10 //  separate offer messages and direct messages
       )
   )
 
@@ -84,7 +84,6 @@ export const directMessages = (address, signerPubKey) =>
       const userData = registeredUser ? registeredUser.toJS() : null
       const identityAddress = identity.address
       const identityName = userData ? userData.nickname : identity.name
-
       const displayablePending = pendingMessages.map(operation =>
         zbayMessages.operationToDisplayableMessage({
           operation,

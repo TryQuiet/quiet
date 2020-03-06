@@ -11,7 +11,10 @@ import usersSelectors from '../selectors/users'
 import offersSelectors from '../selectors/offers'
 import { messageToTransfer } from '../../zbay/messages'
 import { messageType, actionTypes } from '../../../shared/static'
-import operationsHandlers, { PendingDirectMessageOp, operationTypes } from './operations'
+import operationsHandlers, {
+  PendingDirectMessageOp,
+  operationTypes
+} from './operations'
 import notificationsHandlers from './notifications'
 import { errorNotification } from './utils'
 import { getClient } from '../../zcash'
@@ -63,16 +66,26 @@ export const actions = {
   removeMessage
 }
 
-export const checkConfirmationNumber = async ({ opId, status, txId, dispatch, getState }) => {
+export const checkConfirmationNumber = async ({
+  opId,
+  status,
+  txId,
+  dispatch,
+  getState
+}) => {
   const { meta: message } = operationsSelectors
     .pendingDirectMessages(getState())
     .get(opId)
     .toJS()
-  const { id, address, name, signerPubKey } = identitySelectors.identity(getState()).toJS().data
+  const { id, address, name, signerPubKey } = identitySelectors
+    .identity(getState())
+    .toJS().data
   const userData = usersSelectors.registeredUser(signerPubKey)(getState())
   const messageContent = message.message
   const { recipientAddress, recipientUsername } = message
-  const item = offersSelectors.offer(messageContent.message.itemId + recipientUsername)(getState())
+  const item = offersSelectors.offer(
+    messageContent.message.itemId + recipientUsername
+  )(getState())
   if (item) {
     await getVault().offers.saveMessage({
       identityAddress: address,
@@ -84,7 +97,9 @@ export const checkConfirmationNumber = async ({ opId, status, txId, dispatch, ge
       txId
     })
     await dispatch(
-      offersHandlers.epics.refreshMessages(messageContent.message.itemId + recipientUsername)
+      offersHandlers.epics.refreshMessages(
+        messageContent.message.itemId + recipientUsername
+      )
     )
     await dispatch(operationsHandlers.actions.removeOperation(opId))
   } else {
@@ -99,6 +114,17 @@ export const checkConfirmationNumber = async ({ opId, status, txId, dispatch, ge
         status,
         txId
       })
+    }
+    if (message.saveAdvert) {
+      const payload = {
+        id: txId,
+        sender: {
+          username: userData ? userData.nickname : name,
+          replyTo: address
+        },
+        ...message.message
+      }
+      await getVault().adverts.addAdvert(payload)
     }
     const { username } = contactsSelectors.contact(recipientAddress)(getState())
     if (!username) {
@@ -173,7 +199,10 @@ const _sendPendingDirectMessages = async (dispatch, getState) => {
         const transfer = await messageToTransfer({
           message,
           address: recipientAddress,
-          amount: message.type === messageType.TRANSFER || messageType.ITEM_TRANSFER ? message.spent : '0',
+          amount:
+            message.type === messageType.TRANSFER || messageType.ITEM_TRANSFER
+              ? message.spent
+              : '0',
           identityAddress,
           donation
         })
@@ -184,7 +213,8 @@ const _sendPendingDirectMessages = async (dispatch, getState) => {
           dispatch(
             notificationsHandlers.actions.enqueueSnackbar(
               errorNotification({
-                message: "Couldn't send the message, please check node connection."
+                message:
+                  "Couldn't send the message, please check node connection."
               })
             )
           )
@@ -216,7 +246,8 @@ export const sendPendingDirectMessages = () => {
   const thunk = _sendPendingDirectMessages
   thunk.meta = {
     debounce: {
-      time: process.env.ZBAY_DEBOUNCE_MESSAGE_INTERVAL || DEFAULT_DEBOUNCE_INTERVAL,
+      time:
+        process.env.ZBAY_DEBOUNCE_MESSAGE_INTERVAL || DEFAULT_DEBOUNCE_INTERVAL,
       key: 'SEND_PENDING_DRIRECT_MESSAGES'
     }
   }

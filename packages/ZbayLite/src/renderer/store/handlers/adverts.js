@@ -2,11 +2,14 @@ import BigNumber from 'bignumber.js'
 
 import identitySelectors from '../selectors/identity'
 import channelSelectors from '../selectors/channel'
+import directMessageChannelSelectors from '../selectors/directMessageChannel'
 import offersHandlers from '../../store/handlers/offers'
 import { messages } from '../../zbay'
 import { getClient } from '../../zcash'
 import notificationsHandlers from './notifications'
-import directMessagesQueueHandlers from './directMessagesQueue'
+import directMessagesQueueHandlers, {
+  checkConfirmationNumber
+} from './directMessagesQueue'
 import { errorNotification, successNotification } from './utils'
 import operationsHandlers, { operationTypes } from './operations'
 import contactsHandlers from './contacts'
@@ -22,19 +25,24 @@ const handleSend = ({ values }) => async (dispatch, getState) => {
     description: values.description
   }
   const identityAddress = identitySelectors.address(getState())
-  const channel = channelSelectors.data(getState()).toJS()
+  const channel =
+    channelSelectors.data(getState()) &&
+    channelSelectors.data(getState()).toJS()
+  const directChannelAddress = directMessageChannelSelectors.targetRecipientAddress(
+    getState()
+  )
   const privKey = identitySelectors.signerPrivKey(getState())
   const message = messages.createMessage({
     messageData: {
       type: messageType.AD,
       data: data,
-      spent: channel.advertFee.toString()
+      spent: channel ? channel.advertFee.toString() : '0'
     },
     privKey
   })
   const transfer = await messages.messageToTransfer({
     message,
-    address: channel.address,
+    address: channel ? channel.address : directChannelAddress,
     identityAddress
   })
   try {
@@ -42,11 +50,16 @@ const handleSend = ({ values }) => async (dispatch, getState) => {
     await dispatch(
       operationsHandlers.epics.observeOperation({
         opId,
-        type: operationTypes.pendingMessage,
+        type: channel
+          ? operationTypes.pendingMessage
+          : operationTypes.pendingDirectMessage,
         meta: {
-          channelId: channel.id,
-          message: message
-        }
+          message: message,
+          channelId: channel ? channel.id : 'none',
+          recipientAddress: channel ? 'none' : directChannelAddress,
+          saveAdvert: !channel
+        },
+        checkConfirmationNumber
       })
     )
     dispatch(
@@ -55,8 +68,9 @@ const handleSend = ({ values }) => async (dispatch, getState) => {
       )
     )
   } catch (err) {
-    notificationsHandlers.actions.enqueueSnackbar(
-      dispatch(
+    console.log(err)
+    dispatch(
+      notificationsHandlers.actions.enqueueSnackbar(
         errorNotification({
           message: "Couldn't send the message, please check node connection."
         })
@@ -65,7 +79,10 @@ const handleSend = ({ values }) => async (dispatch, getState) => {
   }
 }
 
-const handleSendTransfer = ({ values, history, payload }) => async (dispatch, getState) => {
+const handleSendTransfer = ({ values, history, payload }) => async (
+  dispatch,
+  getState
+) => {
   const shippingData = identitySelectors.shippingData(getState())
   const privKey = identitySelectors.signerPrivKey(getState())
   const message = messages.createMessage({
@@ -89,7 +106,12 @@ const handleSendTransfer = ({ values, history, payload }) => async (dispatch, ge
       recipientUsername: payload.offerOwner
     })
   )
-  dispatch(contactsHandlers.epics.updateDeletedChannelTimestamp({ address: payload.id + payload.offerOwner, timestamp: 0 }))
+  dispatch(
+    contactsHandlers.epics.updateDeletedChannelTimestamp({
+      address: payload.id + payload.offerOwner,
+      timestamp: 0
+    })
+  )
 }
 
 export const epics = {
