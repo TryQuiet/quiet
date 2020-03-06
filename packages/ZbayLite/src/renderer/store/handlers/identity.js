@@ -356,17 +356,19 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
     dispatch(setLoadingMessage('Loading users and messages'))
     await dispatch(usersHandlers.epics.fetchUsers())
     await dispatch(contactsHandlers.epics.loadAllSentMessages())
-    const channels = channelsSelectors
-      .data(getState())
-      .map(channel => () => messagesHandlers.epics.fetchMessages(channel))
-    for (let i = 0; i < channels.size; i++) {
-      await dispatch(channels.get(i)())
-    }
     await dispatch(offersHandlers.epics.loadVaultContacts())
     await dispatch(offersHandlers.epics.initMessage())
-    await dispatch(contactsHandlers.epics.fetchMessages())
     await dispatch(publicChannelsHandlers.epics.fetchPublicChannels())
     await dispatch(channelsHandlers.epics.withdrawMoneyFromChannels())
+    await dispatch(
+      messagesHandlers.epics.fetchMessages(
+        channelsSelectors
+          .data(getState())
+          .find(
+            channel => channel.get('address') === channels.general[network].address
+          )
+      )
+    )
   } catch (err) {}
   dispatch(setLoading(false))
   const isNewUser = electronStore.get('isNewUser')
