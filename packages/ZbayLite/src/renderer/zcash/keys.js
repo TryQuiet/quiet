@@ -14,7 +14,7 @@ export default (zcashClient) => {
   }) => zcashClient.request.z_importkey(sk, rescan, startHeight)
 
   const exportTPK = zcashClient.request.dumpprivkey
-  const importTPK = zcashClient.request.importprivkey
+  const importTPK = ({ tpk, rescan = false }) => zcashClient.request.importprivkey(tpk, '', rescan)
   return {
     exportIVK,
     importIVK,

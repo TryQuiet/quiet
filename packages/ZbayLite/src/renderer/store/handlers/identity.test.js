@@ -238,10 +238,10 @@ describe('Identity reducer handles', () => {
 
         expect(zcashMock.requestManager.z_importkey).toHaveBeenCalledWith(
           identity.keys.sk,
-          'no',
-          0
+          'yes',
+          700000
         )
-        expect(zcashMock.requestManager.importprivkey).toHaveBeenCalledWith(identity.keys.tpk)
+        expect(zcashMock.requestManager.importprivkey).toHaveBeenCalledWith(identity.keys.tpk, '', false)
       })
     })
 

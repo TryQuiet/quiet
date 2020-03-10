@@ -19,6 +19,7 @@ export const VaultState = Immutable.Record({
   unlocking: false,
   creatingIdentity: false,
   locked: true,
+  isLogIn: false,
   error: ''
 }, 'VaultState')
 
@@ -34,6 +35,7 @@ const createIdentity = createAction(actionTypes.CREATE_VAULT_IDENTITY, vault.ide
 const updateIdentitySignerKeys = createAction(actionTypes.UPDATE_IDENTITY_SIGNER_KEYS, vault.identity.updateIdentitySignerKeys)
 const clearError = createAction(actionTypes.CLEAR_VAULT_ERROR)
 const setVaultStatus = createAction(actionTypes.SET_VAULT_STATUS)
+const setLoginSuccessfull = createAction(actionTypes.SET_LOGIN_SUCCESSFULL)
 
 export const actions = {
   createIdentity,
@@ -41,7 +43,8 @@ export const actions = {
   createVault,
   unlockVault,
   setVaultStatus,
-  clearError
+  clearError,
+  setLoginSuccessfull
 }
 
 const loadVaultStatus = () => async (dispatch, getState) => {
@@ -61,7 +64,11 @@ const createVaultEpic = ({ password }) => async (dispatch, getState) => {
       network
     }))
     const identity = await dispatch(identityHandlers.epics.createIdentity({ name: randomBytes }))
-    await dispatch(identityHandlers.epics.setIdentity(identity))
+    const isDev = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'
+    if (isDev) {
+      await dispatch(identityHandlers.epics.setIdentity(identity))
+    }
+    await dispatch(identityHandlers.epics.loadIdentity(identity))
     await dispatch(setVaultStatus(true))
     ipcRenderer.send('vault-created')
     axios.get(REQUEST_MONEY_ENDPOINT, {
@@ -89,6 +96,7 @@ const unlockVaultEpic = ({ password: masterPassword }, formActions, setDone) => 
   setDone(false)
   try {
     await dispatch(vaultHandlers.actions.unlockVault({ masterPassword, network, ignoreError: true }))
+    await dispatch(setLoginSuccessfull(true))
   } catch (error) {
     if (error.message.includes('Authentication failed')) {
       dispatch(notificationsHandlers.actions.enqueueSnackbar(
@@ -137,6 +145,7 @@ export const reducer = handleActions({
     creatingIdentity: false,
     error: error.message
   }),
+  [setLoginSuccessfull]: (state, { payload: isLogIn }) => state.set('isLogIn', isLogIn),
   [setVaultStatus]: (state, { payload: exists }) => state.set('exists', exists),
   [clearError]: state => state.delete('error')
 }, initialState)

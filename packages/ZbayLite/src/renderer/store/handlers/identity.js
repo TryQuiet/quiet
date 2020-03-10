@@ -316,20 +316,28 @@ export const createIdentity = ({ name }) => async (dispatch, getState) => {
   }
 }
 
+export const loadIdentity = () => async (dispatch, getState) => {
+  const [identity] = await vault.identity.listIdentities()
+  if (identity) {
+    await dispatch(setIdentity(identity))
+  }
+}
+
 export const setIdentityEpic = (identityToSet, isNewUser) => async (
   dispatch,
   getState
 ) => {
   let identity = await migrateTo_0_2_0.ensureIdentityHasKeys(identityToSet)
   dispatch(setLoading(true))
+  const isRescanned = electronStore.get('AppStatus.blockchain.isRescanned')
   try {
     dispatch(setLoadingMessage('Ensuring identity integrity'))
     // Make sure identity is handled by the node
     await dispatch(setLoadingMessage('Ensuring node contains identity keys'))
 
     await dispatch(channelsHandlers.actions.loadChannelsToNode(identity.id))
-    await getClient().keys.importSK({ sk: identity.keys.sk, rescan: 'no' })
-    await getClient().keys.importTPK(identity.keys.tpk)
+    await getClient().keys.importTPK({ tpk: identity.keys.tpk, rescan: false })
+    await getClient().keys.importSK({ sk: identity.keys.sk, rescan: isRescanned ? 'no' : 'yes', startHeight: 700000 })
     await dispatch(whitelistHandlers.epics.initWhitelist())
     dispatch(setLoadingMessage('Setting identity'))
     // Check if identity has signerKeys
@@ -432,7 +440,8 @@ const epics = {
   updateDonation,
   updateDonationAddress,
   updateShieldingTax,
-  fetchFreeUtxos
+  fetchFreeUtxos,
+  loadIdentity
 }
 
 const exportFunctions = {

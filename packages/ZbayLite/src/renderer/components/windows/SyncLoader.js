@@ -80,7 +80,7 @@ const styles = theme => ({
   }
 })
 
-export const SyncLoader = ({ classes, ETA, message, isFetching, progressValue, isBlockchainRescanned, isRescanningMonitorStarted, rescanningProgress, hasAddress, blockchainStatus, node, bootstrapping, bootstrappingMessage, nodeConnected, openModal, fetchingStatus, fetchingSizeLeft, fetchingPart, fetchingSpeed }) => {
+export const SyncLoader = ({ classes, ETA, message, isFetching, progressValue, hasAddress, blockchainStatus, node, bootstrapping, bootstrappingMessage, nodeConnected, openModal, fetchingStatus, fetchingSizeLeft, fetchingPart, fetchingSpeed }) => {
   return (
     <WindowWrapper className={classes.root}>
       <Grid container className={classes.box} justify='center' alignItems='center' alignContent='center'>

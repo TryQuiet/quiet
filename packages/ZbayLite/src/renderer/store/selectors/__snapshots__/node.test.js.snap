@@ -29,6 +29,7 @@ Immutable.NodeState {
     "isFetching": false,
     "rescanningProgress": 0,
     "isRescanningMonitorStarted": false,
+    "isRescanningInitialized": false,
   },
   "startedAt": "2019-03-05T09:34:48.000Z",
 }

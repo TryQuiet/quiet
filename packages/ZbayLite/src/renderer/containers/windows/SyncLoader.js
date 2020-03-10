@@ -2,14 +2,16 @@ import React, { useEffect } from 'react'
 import { Redirect } from 'react-router'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
+import BigNumber from 'bignumber.js'
 
 import SyncLoaderComponent from '../../components/windows/SyncLoader'
 import nodeSelectors from '../../store/selectors/node'
 import identitySelectors from '../../store/selectors/identity'
+import identityHandlers from '../../store/handlers/identity'
 import nodeHandlers from '../../store/handlers/node'
-import vaultHandlers from '../../store/handlers/vault'
 import vaultSelectors from '../../store/selectors/vault'
 import { actionCreators } from '../../store/handlers/modals'
+import vaultHandlers from '../../store/handlers/vault'
 import electronStore from '../../../shared/electronStore'
 
 import { useInterval } from '../hooks'
@@ -30,75 +32,74 @@ export const mapStateToProps = state => ({
   hasAddress: identitySelectors.address(state),
   isRescanningMonitorStarted: nodeSelectors.isRescanningMonitorStarted(state),
   rescanningProgress: nodeSelectors.rescanningProgress(state),
-  isFetching: nodeSelectors.isFetching(state)
+  isFetching: nodeSelectors.isFetching(state),
+  isRescanningInitialized: nodeSelectors.isRescanningInitialized(state)
 })
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
       getStatus: nodeHandlers.epics.getStatus,
       openModal: actionCreators.openModal('topUp'),
-      setVaultIdentity: vaultHandlers.epics.setVaultIdentity,
+      resetNodeStatus: () => nodeHandlers.actions.setStatus({ 'status': 'down' }),
       startRescanningMonitor: nodeHandlers.epics.startRescanningMonitor,
-      disablePowerSaveMode: nodeHandlers.epics.disablePowerSaveMode
+      disablePowerSaveMode: nodeHandlers.epics.disablePowerSaveMode,
+      setRescanningInitialized: nodeHandlers.epics.setRescanningInitialized,
+      setVaultIdentity: vaultHandlers.epics.setVaultIdentity,
+      loadIdentity: identityHandlers.epics.loadIdentity
     },
     dispatch
   )
 
-export const SyncLoader = ({ setVaultIdentity, isFetching, disablePowerSaveMode, isRescanningMonitorStarted, rescanningProgress, startRescanningMonitor, hasAddress, node, getStatus, bootstrapping, bootstrappingMessage, nodeConnected, openModal, creating, locked, exists, fetchingPart, fetchingSizeLeft, fetchingStatus, fetchingEndTime, fetchingSpeed }) => {
+export const SyncLoader = ({ setVaultIdentity, resetNodeStatus, setRescanningInitialized, loadIdentity, isRescanningInitialized, isFetching, disablePowerSaveMode, isRescanningMonitorStarted, rescanningProgress, startRescanningMonitor, hasAddress, node, getStatus, bootstrapping, bootstrappingMessage, nodeConnected, openModal, creating, locked, exists, fetchingPart, fetchingSizeLeft, fetchingStatus, fetchingEndTime, fetchingSpeed }) => {
   const blockchainStatus = electronStore.get('AppStatus.blockchain.status')
-  const isBlockchainRescanned = electronStore.get('AppStatus.blockchain.isRescanned')
+  const vaultStatus = electronStore.get('vaultStatus')
   const lastBlock = node.latestBlock.isEqualTo(0) ? 999999 : node.latestBlock
-  const sync = parseFloat(node.currentBlock.div(lastBlock) * 100).toFixed(2)
+  const isSynced = (!node.latestBlock.isEqualTo(0) && node.latestBlock.minus(node.currentBlock).lt(10)) && new BigNumber(lastBlock).gt(755000)
   const fetching = ((((26202539059 - (fetchingSizeLeft)) * 100) / 26202539059)).toFixed()
+  const syncProgress = parseFloat((node.currentBlock.div(lastBlock).times(100)).toString()).toFixed(2)
   let ETA = null
   if (fetchingEndTime) {
     const { hours, minutes } = fetchingEndTime
     ETA = `${hours ? `${hours}h` : ''} ${minutes ? `${minutes}m left` : ''}`
   }
-  const rescanningProgressInPercents = rescanningProgress / 722000 * 100
   const isFetchingComplete = ((fetchingPart === 'blockchain' && fetchingStatus === 'SUCCESS') || blockchainStatus === 'SUCCESS')
-  const isRescaningComplete = ((isBlockchainRescanned || rescanningProgressInPercents > 80) && !node.latestBlock.isEqualTo(0))
-  const rescanningWithFetchingPartProgress = 50 + (rescanningProgressInPercents / 2)
   let progressValue
   let message
-  useInterval(getStatus, 15000)
+  useInterval(() => {
+    getStatus()
+  }, 10000)
+  useEffect(() => {
+    if (!hasAddress && vaultStatus === 'CREATED') {
+      loadIdentity()
+    }
+  }, [])
   useEffect(
     () => {
       if ((!locked && nodeConnected && fetchingPart === 'blockchain' && fetchingStatus === 'SUCCESS') || blockchainStatus === 'SUCCESS') {
-        if (nodeConnected) {
+        if (nodeConnected && isSynced && !isRescanningInitialized) {
           setVaultIdentity()
-        }
-        if (!isRescanningMonitorStarted) {
-          startRescanningMonitor()
+          resetNodeStatus()
+          setRescanningInitialized()
+          electronStore.set('isSynced', true)
         }
       }
     },
-    [nodeConnected, fetchingStatus, fetchingPart, locked]
-  )
-  useEffect(
-    () => {
-      if (isFetchingComplete && isRescaningComplete && nodeConnected) {
-        setVaultIdentity()
-        startRescanningMonitor()
-        disablePowerSaveMode()
-      }
-    },
-    [isFetchingComplete, isRescaningComplete, nodeConnected]
+    [nodeConnected, fetchingStatus, fetchingPart, locked, isSynced, isRescanningInitialized]
   )
   if (!isFetchingComplete) {
-    const fetchingProgress = fetching === '100' ? 0 : fetching / 2
+    const fetchingProgress = new BigNumber(fetching).isEqualTo(100) ? 0 : new BigNumber(fetching).gt(90) ? 90 : fetching
     progressValue = fetchingProgress
-  } else if (!isRescaningComplete) {
-    progressValue = rescanningWithFetchingPartProgress
-    message = `Rescanning blocks, ${rescanningProgress ? ETA || '~40 minutes left' : '~40 minutes left'} (${rescanningProgress}/722000)`
+  } else if (isRescanningInitialized) {
+    progressValue = 99
+    message = `Rescanning, ~5 minutes left`
   } else {
-    electronStore.set('AppStatus.blockchain.isRescanned', true)
-    progressValue = sync
-    message = `Final sync (${node.currentBlock}/${lastBlock})`
+    progressValue = syncProgress === '0.00' ? 91 : syncProgress - 5
+    message = `Final sync (${node.currentBlock}/${lastBlock}) ~ 10 minutes left`
   }
-  return (locked || (node.latestBlock.lt(400000) || node.latestBlock.minus(node.currentBlock).gt(10))) ? (
+  return (isSynced && isRescanningInitialized && node.status === 'healthy') ? (
+    <Redirect to='/main/channel/general' />
+  ) : (
     <SyncLoaderComponent
-      isBlockchainRescanned={isBlockchainRescanned}
       isRescanningMonitorStarted={isRescanningMonitorStarted}
       rescanningProgress={rescanningProgress}
       fetchingEndTime={fetchingEndTime}
@@ -117,8 +118,6 @@ export const SyncLoader = ({ setVaultIdentity, isFetching, disablePowerSaveMode,
       progressValue={progressValue}
       isFetching={isFetching}
       message={message} />
-  ) : (
-    <Redirect to='/main/channel/general' />
   )
 }
 

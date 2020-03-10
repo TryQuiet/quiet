@@ -17,6 +17,7 @@ Object {
   "fetchingStatus": "",
   "hasAddress": "",
   "isFetching": false,
+  "isRescanningInitialized": false,
   "isRescanningMonitorStarted": false,
   "locked": true,
   "node": Immutable.NodeState {
@@ -43,6 +44,7 @@ Object {
       "isFetching": false,
       "rescanningProgress": 0,
       "isRescanningMonitorStarted": false,
+      "isRescanningInitialized": false,
     },
     "startedAt": null,
   },

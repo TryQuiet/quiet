@@ -48,12 +48,12 @@ const BLOCKCHAIN_SIZE = 26602539059
 const isFetchingArr = []
 let prevFetchedSize = 0
 
-const calculateDownloadSpeed = (downloadedSize) => {
+const calculateDownloadSpeed = (downloadedSize, source) => {
   const diff = downloadedSize - prevFetchedSize
   prevFetchedSize = downloadedSize
   const speedInSec = diff / 3
   const convertedSpeed = speedInSec ? Math.abs(speedInSec.toFixed()) : null
-  const estimatedTimeForRescanning = 2400
+  const estimatedTimeForRescanning = 800
   let isFetching = false
   const eta = convertedSpeed
     ? convert(((parseInt(((BLOCKCHAIN_SIZE - downloadedSize) / convertedSpeed)) + estimatedTimeForRescanning)))
@@ -66,31 +66,44 @@ const calculateDownloadSpeed = (downloadedSize) => {
     isFetchingArr.shift()
     isFetchingArr.push(convertedSpeed)
   }
-  mainWindow.webContents.send('fetchingStatus', {
-    sizeLeft: BLOCKCHAIN_SIZE - downloadedSize,
-    speed: convertedSpeed,
-    eta,
-    isFetching: isFetching ? 'IN_PROGRESS' : 'INTERRUPTED'
-  })
+  if (mainWindow) {
+    mainWindow.webContents.send('fetchingStatus', {
+      sizeLeft: source === 'params' ? BLOCKCHAIN_SIZE : BLOCKCHAIN_SIZE - downloadedSize,
+      speed: convertedSpeed,
+      eta,
+      isFetching: isFetching ? 'IN_PROGRESS' : 'INTERRUPTED'
+    })
+  }
 }
 
 let checkSizeInterval
 
 const downloadManagerForZippedBlockchain = ({ data, source }) => {
   const dataToFetch = R.clone(data)
+  let downloadedFilesCounter = 0
+  const targetCounter = source === 'params' ? 1 : 5
+  const saveFileListToElectronStore = () => {
+    if (downloadedFilesCounter >= targetCounter) {
+      electronStore.set(`AppStatus.${source === 'params' ? 'params' : 'blockchain'}`, {
+        status: config.PARAMS_STATUSES.FETCHING,
+        filesToFetch: dataToFetch
+      })
+      downloadedFilesCounter = 0
+    } else {
+      downloadedFilesCounter++
+    }
+  }
   return new Promise(function (resolve, reject) {
     let downloadedSize = 0
     const checkFetchedSize = () => {
-      getSize(source === 'params' ? osPathsParams[process.platform] : osPathsBlockchain[process.platform], (err, size) => {
-        if (err) {
-          throw err
-        }
-        downloadedSize = size
-        calculateDownloadSpeed(downloadedSize)
-        mainWindow.webContents.send('fetchingStatus', {
-          sizeLeft: BLOCKCHAIN_SIZE - downloadedSize
+      getSize(source === 'params' ? osPathsParams[process.platform] : osPathsBlockchain[process.platform],
+        (err, size) => {
+          if (err) {
+            throw err
+          }
+          downloadedSize = size
+          calculateDownloadSpeed(downloadedSize, source)
         })
-      })
     }
     checkSizeInterval = setInterval(() => {
       checkFetchedSize()
@@ -102,21 +115,14 @@ const downloadManagerForZippedBlockchain = ({ data, source }) => {
     const startFetching = (data) => {
       let item
       const gunzip = zlib.createGunzip()
+      if (!data[0]) return
       const { fileName, targetUrl } = data[0]
-      if (!fileName) {
-        return
-      }
       item = data.shift()
       const preparedFilePath = process.platform === 'win32' ? fileName.split('/').join('\\\\') : fileName
       const path = source === 'params' ? `${osPathsParams[process.platform]}${preparedFilePath}` : `${osPathsBlockchain[process.platform]}${preparedFilePath}`
       const handleErrors = (err) => {
-        console.log(err)
+        console.log(err, item)
         data.push(item)
-        dataToFetch.push(item)
-        electronStore.set(`AppStatus.${source === 'params' ? 'params' : 'blockchain'}`, {
-          status: config.PARAMS_STATUSES.FETCHING,
-          filesToFetch: dataToFetch
-        })
         startFetching(data)
       }
       progress(request(targetUrl), {
@@ -125,29 +131,26 @@ const downloadManagerForZippedBlockchain = ({ data, source }) => {
         .on('error', function (err) {
           handleErrors(err)
         })
-        .on('end', function () {
+        .pipe(gunzip)
+        .on('end', () => {
           const indexToDelete = R.findIndex(R.propEq('fileName', fileName), dataToFetch)
           dataToFetch.splice(indexToDelete, 1)
-          electronStore.set(`AppStatus.${source === 'params' ? 'params' : 'blockchain'}`, {
-            status: config.PARAMS_STATUSES.FETCHING,
-            filesToFetch: dataToFetch
-          })
-          if (data.length === 0 && source !== 'params') {
-            mainWindow.webContents.send('fetchingStatus', {
-              part: 'blockchain',
-              status: config.BLOCKCHAIN_STATUSES.SUCCESS
-            })
-          }
+          saveFileListToElectronStore()
           if (data.length !== 0) {
             setTimeout(() => startFetching(data), 0)
           } else {
             if (dataToFetch.length === 0) {
+              if (source !== 'params') {
+                mainWindow.webContents.send('fetchingStatus', {
+                  part: 'blockchain',
+                  status: config.BLOCKCHAIN_STATUSES.SUCCESS
+                })
+              }
               clearInterval(checkSizeInterval)
               resolve(console.log('Download Completed'))
             }
           }
         })
-        .pipe(gunzip)
         .on('error', (err) => {
           handleErrors(err)
         })
@@ -173,7 +176,7 @@ let nodeProc = null
 export const isDev = process.env.NODE_ENV === 'development'
 const installExtensions = async () => {
   require('electron-debug')({
-    showDevTools: true
+    showDevTools: false
   })
 
   const installer = require('electron-devtools-installer')
@@ -259,9 +262,6 @@ const createWindow = () => {
 
   // Emitted when the window is closed.
   mainWindow.on('closed', () => {
-    if (checkSizeInterval) {
-      clearInterval(checkSizeInterval)
-    }
     mainWindow = null
   })
 }
@@ -320,7 +320,8 @@ const fetchParams = async (win, torUrl) => {
   await downloadManagerForZippedBlockchain({ data: downloadArray, source: 'params' })
 
   electronStore.set('AppStatus.params', {
-    status: config.PARAMS_STATUSES.SUCCESS
+    status: config.PARAMS_STATUSES.SUCCESS,
+    filesToFetch: []
   })
   win.webContents.send('bootstrappingNode', {
     message: 'Launching zcash node',
@@ -371,7 +372,8 @@ const fetchBlockchain = async (win, torUrl) => {
   pathList.forEach(path => checkPath(path))
   await downloadManagerForZippedBlockchain({ data: downloadArray, source: 'blockchain' })
   electronStore.set('AppStatus.blockchain', {
-    status: config.BLOCKCHAIN_STATUSES.SUCCESS
+    status: config.BLOCKCHAIN_STATUSES.SUCCESS,
+    filesToFetch: []
   })
   win.webContents.send('bootstrappingNode', {
     message: 'Launching zcash node',
@@ -386,11 +388,15 @@ const fetchBlockchain = async (win, torUrl) => {
     nodeProc = null
   })
   app.on('will-quit', () => {
-    if (nodeProc) {
+    const isRescanned = electronStore.get('AppStatus.blockchain.isRescanned')
+    console.log(isRescanned)
+    if (nodeProc && !isRescanned) {
       nodeProc.kill('SIGKILL')
     }
   })
 }
+
+let powerSleepId
 
 const createZcashNode = async (win, torUrl) => {
   const updateStatus = electronStore.get('updateStatus')
@@ -404,6 +410,7 @@ const createZcashNode = async (win, torUrl) => {
   let AppStatus = electronStore.get('AppStatus')
   const vaultStatus = electronStore.get('vaultStatus')
   if (!isDev && !isFetchedFromExternalSource) {
+    powerSleepId = powerSaveBlocker.start('prevent-app-suspension')
     if (!AppStatus) {
       electronStore.set('AppStatus', {
         params: {
@@ -443,7 +450,8 @@ const createZcashNode = async (win, torUrl) => {
           nodeProc = null
         })
         app.on('will-quit', () => {
-          if (nodeProc) {
+          const isRescanned = electronStore.get('AppStatus.blockchain.isRescanned')
+          if (nodeProc && !isRescanned) {
             nodeProc.kill('SIGKILL')
           }
         })
@@ -460,16 +468,17 @@ const createZcashNode = async (win, torUrl) => {
       nodeProc = null
     })
     app.on('will-quit', () => {
-      nodeProc.kill('SIGKILL')
+      const isRescanned = electronStore.get('AppStatus.blockchain.isRescanned')
+      console.log(isRescanned)
+      if (nodeProc && !isRescanned) {
+        nodeProc.kill('SIGKILL')
+      }
     })
   }
 }
 
-let powerSleepId
-
 app.on('ready', async () => {
   const blockchainStatus = electronStore.get('AppStatus.blockchain.status')
-  powerSleepId = powerSaveBlocker.start('prevent-app-suspension')
   checkPath(osPathsBlockchain[process.platform])
   const blockchainFolderSize = await getFolderSizePromise(
     `${osPathsBlockchain[process.platform]}`
@@ -537,16 +546,18 @@ app.on('ready', async () => {
           diskspace.free -
           (blockchainSizeLeftToFetch + ZCASH_PARAMS + REQUIRED_FREE_SPACE)
         if (freeSpaceLeft <= 0) {
-          mainWindow.webContents.send(
-            'checkDiskSpace',
-            `Sorry, but Zbay needs ${(
-              blockchainSizeLeftToFetch /
-              1024 ** 3
-            ).toFixed(2)} GB to connect to its network and you only have ${(
-              diskspace.free /
-              1024 ** 3
-            ).toFixed(2)} free.`
-          )
+          if (mainWindow) {
+            mainWindow.webContents.send(
+              'checkDiskSpace',
+              `Sorry, but Zbay needs ${(
+                blockchainSizeLeftToFetch /
+                1024 ** 3
+              ).toFixed(2)} GB to connect to its network and you only have ${(
+                diskspace.free /
+                1024 ** 3
+              ).toFixed(2)} free.`
+            )
+          }
         }
       })
     })
@@ -574,9 +585,11 @@ app.on('ready', async () => {
           .then(function (results) {
             if (tick > 1) {
               const rescannedBlock = results[`${osPathsBlockchain[process.platform]}debug.log`].line.slice(-1)[0].substr(-25, 7).trim().replace('.', '')
-              mainWindow.webContents.send('fetchingStatus', {
-                rescannedBlock
-              })
+              if (mainWindow) {
+                mainWindow.webContents.send('fetchingStatus', {
+                  rescannedBlock
+                })
+              }
               const rescannedBlockInt = parseInt(rescannedBlock)
               if (progressBlocksArr.length < 2) {
                 progressBlocksArr.push(rescannedBlockInt)
@@ -586,10 +599,12 @@ app.on('ready', async () => {
                 const blockToRescan = 722000 - rescannedBlockInt
                 const remainingTime = timeInterval * blockToRescan / diff
                 const eta = convert(remainingTime.toFixed())
-                mainWindow.webContents.send('fetchingStatus', {
-                  rescannedBlock,
-                  eta
-                })
+                if (mainWindow) {
+                  mainWindow.webContents.send('fetchingStatus', {
+                    rescannedBlock,
+                    eta
+                  })
+                }
                 progressBlocksArr.shift()
                 progressBlocksArr.push(rescannedBlockInt)
               }
@@ -651,7 +666,9 @@ process.on('exit', () => {
 app.on('window-all-closed', () => {
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
+  const vaultStatus = electronStore.get('vaultStatus')
+  const shouldFullyClose = isFetchedFromExternalSource || vaultStatus !== config.VAULT_STATUSES.CREATED
+  if (process.platform !== 'darwin' || shouldFullyClose) {
     app.quit()
   }
 })

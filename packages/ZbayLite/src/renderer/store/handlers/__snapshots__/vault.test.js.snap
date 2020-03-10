@@ -83,6 +83,7 @@ Immutable.VaultState {
   "unlocking": false,
   "creatingIdentity": false,
   "locked": true,
+  "isLogIn": false,
   "error": "",
 }
 `;
@@ -94,6 +95,7 @@ Immutable.VaultState {
   "unlocking": false,
   "creatingIdentity": false,
   "locked": true,
+  "isLogIn": false,
   "error": "",
 }
 `;
@@ -105,6 +107,7 @@ Immutable.VaultState {
   "unlocking": false,
   "creatingIdentity": false,
   "locked": true,
+  "isLogIn": false,
   "error": "This is a test error",
 }
 `;
@@ -116,6 +119,7 @@ Immutable.VaultState {
   "unlocking": false,
   "creatingIdentity": false,
   "locked": true,
+  "isLogIn": false,
   "error": "",
 }
 `;
@@ -127,6 +131,7 @@ Immutable.VaultState {
   "unlocking": false,
   "creatingIdentity": false,
   "locked": true,
+  "isLogIn": false,
   "error": "This is a test error",
 }
 `;
@@ -138,6 +143,7 @@ Immutable.VaultState {
   "unlocking": false,
   "creatingIdentity": false,
   "locked": true,
+  "isLogIn": false,
   "error": "",
 }
 `;
@@ -149,6 +155,7 @@ Immutable.VaultState {
   "unlocking": false,
   "creatingIdentity": false,
   "locked": true,
+  "isLogIn": false,
   "error": "",
 }
 `;
@@ -160,6 +167,7 @@ Immutable.VaultState {
   "unlocking": false,
   "creatingIdentity": false,
   "locked": false,
+  "isLogIn": false,
   "error": "",
 }
 `;
@@ -171,6 +179,7 @@ Immutable.VaultState {
   "unlocking": false,
   "creatingIdentity": false,
   "locked": true,
+  "isLogIn": false,
   "error": "This is a test error",
 }
 `;
@@ -182,6 +191,7 @@ Immutable.VaultState {
   "unlocking": false,
   "creatingIdentity": false,
   "locked": true,
+  "isLogIn": false,
   "error": "",
 }
 `;
@@ -208,6 +218,7 @@ Immutable.VaultState {
   "unlocking": false,
   "creatingIdentity": false,
   "locked": true,
+  "isLogIn": false,
   "error": "",
 }
 `;

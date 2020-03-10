@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { Route } from 'react-router-dom'
 import * as R from 'ramda'
@@ -12,6 +12,7 @@ import Channel from '../../containers/pages/Channel'
 import Offer from '../../containers/pages/Offer'
 import DirectMessages from '../../containers/pages/DirectMessages'
 import DepositMoneyModal from '../../containers/ui/DepositMoneyModal'
+import electronStore from '../../../shared/electronStore'
 
 const styles = {
   gridRoot: {
@@ -22,6 +23,10 @@ const styles = {
 }
 
 export const Main = ({ match, classes }) => {
+  useEffect(() => {
+    electronStore.set('isNewUser', false)
+    electronStore.set('AppStatus.blockchain.isRescanned', true)
+  }, [])
   return (
     <>
       <DepositMoneyModal />

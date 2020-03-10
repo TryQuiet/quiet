@@ -44,6 +44,7 @@ const setConnectionStatus = createAction(actionTypes.SET_CONNECTION_STATUS)
 
 const setRescanningProgress = createAction(actionTypes.SET_RESCANNING_PROGRESS)
 const setRescanningMonitorStatus = createAction(actionTypes.SET_RESCANNING_MONITOR_STATUS)
+const setRescanningStatus = createAction(actionTypes.SET_RESCANNING_STATUS)
 
 const actions = {
   createAddress,
@@ -56,12 +57,18 @@ const actions = {
   setFetchingSpeed,
   setRescanningProgress,
   setRescanningMonitorStatus,
-  setConnectionStatus
+  setConnectionStatus,
+  setRescanningStatus,
+  setStatus
 }
 
 export const startRescanningMonitor = () => async (dispatch, getState) => {
   ipcRenderer.send('toggle-rescanning-progress-monitor')
   dispatch(setRescanningMonitorStatus(true))
+}
+
+export const setRescanningInitialized = () => async (dispatch, getState) => {
+  dispatch(setRescanningStatus(true))
 }
 
 export const disablePowerSaveMode = () => async (dispatch, getState) => {
@@ -70,8 +77,9 @@ export const disablePowerSaveMode = () => async (dispatch, getState) => {
 
 const getStatus = () => async (dispatch) => {
   try {
-    const info = await getClient().status.info()
+    const info = await getClient({ timeout: 200 }).status.info()
     dispatch(setStatus(info))
+    return info
   } catch (err) {
     console.log(err)
     dispatch(setStatus({ 'status': 'down', errors: err }))
@@ -91,7 +99,8 @@ const epics = {
   restart,
   togglePower,
   startRescanningMonitor,
-  disablePowerSaveMode
+  disablePowerSaveMode,
+  setRescanningInitialized
 }
 
 export const reducer = handleActions({
@@ -106,7 +115,8 @@ export const reducer = handleActions({
   [setFetchingEndTime]: (state, { payload: fetchingEndTime }) => state.setIn(['fetchingStatus', 'fetchingEndTime'], fetchingEndTime),
   [setConnectionStatus]: (state, { payload: isFetching }) => state.setIn(['fetchingStatus', 'isFetching'], isFetching),
   [setRescanningProgress]: (state, { payload: rescanningProgress }) => state.setIn(['fetchingStatus', 'rescanningProgress'], rescanningProgress),
-  [setRescanningMonitorStatus]: (state, { payload: isRescanningMonitorStarted }) => state.setIn(['fetchingStatus', 'isRescanningMonitorStarted'], isRescanningMonitorStarted)
+  [setRescanningMonitorStatus]: (state, { payload: isRescanningMonitorStarted }) => state.setIn(['fetchingStatus', 'isRescanningMonitorStarted'], isRescanningMonitorStarted),
+  [setRescanningStatus]: (state, { payload: isRescanningInitialized }) => state.setIn(['fetchingStatus', 'isRescanningInitialized'], isRescanningInitialized)
 }, initialState)
 
 export default {

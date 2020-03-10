@@ -119,7 +119,9 @@ export const actionTypes = mirrorKey({
   SET_RESCANNING_MONITOR_STATUS: undefined,
   SET_WHITELIST: undefined,
   SET_WHITELIST_ALL_FLAG: undefined,
-  SET_AUTO_LOAD_LIST: undefined
+  SET_AUTO_LOAD_LIST: undefined,
+  SET_RESCANNING_STATUS: undefined,
+  SET_LOGIN_SUCCESSFULL: undefined
 })
 
 export const messageType = {

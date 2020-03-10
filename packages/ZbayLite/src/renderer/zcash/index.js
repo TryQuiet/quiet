@@ -25,12 +25,13 @@ export const credentials = () => {
     }
   }
 }
-export const createClient = () => {
+export const createClient = (options) => {
   const rpcCredentials = credentials()
   if (R.isNil(_client) || _username !== rpcCredentials.username) {
     _client = new Zcash({
       url: envVarOr('http://localhost:8334', 'ZBAY_NODE_URL'),
-      auth: rpcCredentials
+      auth: rpcCredentials,
+      ...options
     })
     _username = rpcCredentials.username
   }
@@ -48,10 +49,10 @@ export const createRpcCredentials = () =>
     electronStore.set('password', password.digest('hex'))
     resolve()
   })
-export const getClient = () => {
+export const getClient = (options) => {
   const rpcCredentials = credentials()
   if (R.isNil(_client) || _username !== rpcCredentials.username) {
-    createClient()
+    createClient(options)
   }
   return _client
 }

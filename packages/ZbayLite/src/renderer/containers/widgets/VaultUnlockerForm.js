@@ -15,10 +15,12 @@ import electronStore from '../../../shared/electronStore'
 
 export const mapStateToProps = state => ({
   unlocking: vaultSelectors.unlocking(state),
+  isLogIn: vaultSelectors.isLogIn(state),
   locked: vaultSelectors.locked(state),
   loader: identitySelectors.loader(state),
   nodeConnected: nodeSelectors.isConnected(state),
-  tor: torSelectors.tor(state)
+  tor: torSelectors.tor(state),
+  node: nodeSelectors.node(state)
 })
 
 export const mapDispatchToProps = dispatch =>
@@ -40,6 +42,8 @@ export const VaultUnlockerForm = ({
   nodeConnected,
   tor,
   createZcashNode,
+  node,
+  isLogIn,
   ...props
 }) => {
   const isNewUser = electronStore.get('isNewUser')
@@ -79,6 +83,8 @@ export const VaultUnlockerForm = ({
       tor={tor}
       setDone={setDone}
       nodeConnected={nodeConnected}
+      node={node}
+      isLogIn={isLogIn}
       {...props}
     />
   )

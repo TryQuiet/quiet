@@ -1,11 +1,13 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import PropTypes from 'prop-types'
 import * as Yup from 'yup'
 import { Formik, Form } from 'formik'
 import { Redirect } from 'react-router'
+import BigNumber from 'bignumber.js'
 
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
+import LinearProgress from '@material-ui/core/LinearProgress'
 import { withStyles } from '@material-ui/core/styles'
 
 import PasswordField from '../ui/form/PasswordField'
@@ -42,10 +44,24 @@ const styles = theme => ({
     marginBottom: 16
   },
   message: {
-    height: 24
+    height: 24,
+    marginBottom: 50
   },
   torDiv: {
     marginTop: -8
+  },
+  status: {
+    paddingTop: 8,
+    width: '100%',
+    fontSize: '1rem',
+    color: theme.palette.colors.darkGray,
+    textAlign: 'center'
+  },
+  progressBar: {
+    backgroundColor: theme.palette.colors.linkBlue
+  },
+  rootBar: {
+    width: 250
   }
 })
 
@@ -59,17 +75,21 @@ export const VaultUnlockerForm = ({
   unlocking,
   initialValues,
   onSubmit,
-  newUser,
   loader,
   nodeConnected,
   done,
   setDone,
-  tor
+  tor,
+  node,
+  isLogIn
 }) => {
   const isDev = process.env.NODE_ENV === 'development'
   const blockchainStatus = electronStore.get('AppStatus.blockchain.status')
   const isRescanned = electronStore.get('AppStatus.blockchain.isRescanned')
+  const lastBlock = node.latestBlock.isEqualTo(0) ? 999999 : node.latestBlock
   const isBlockchainFromExternalSouce = electronStore.get('isBlockchainFromExternalSource') && blockchainStatus !== config.BLOCKCHAIN_STATUSES.SUCCESS
+  const isSynced = (!node.latestBlock.isEqualTo(0) && node.latestBlock.minus(node.currentBlock).lt(10)) && new BigNumber(node.latestBlock).gt(755000)
+  const sync = parseFloat((node.currentBlock.div(lastBlock).times(100)).toString()).toFixed(2)
   return (
     <Formik
       onSubmit={(values, actions) => {
@@ -126,9 +146,10 @@ export const VaultUnlockerForm = ({
                   unlocking ||
                   (tor.enabled === true && tor.status !== 'stable') ||
                   !done ||
-                  tor.status === 'loading'
+                  tor.status === 'loading' ||
+                  (!isSynced && isLogIn)
                 }
-                inProgress={isSubmitting || unlocking || !done || tor.status === 'loading'}
+                inProgress={isSubmitting || unlocking || !done || tor.status === 'loading' || (!isSynced && isLogIn)}
               />
             </Grid>
             {locked && (
@@ -145,11 +166,23 @@ export const VaultUnlockerForm = ({
               )}
             </Grid>
           </Grid>
+          {(!isSynced && isLogIn) && (
+            <Fragment>
+              <Grid item container justify='center' alignItems='center'>
+                <LinearProgress variant={'determinate'} classes={{ root: classes.rootBar, barColorPrimary: classes.progressBar }} value={sync} />
+              </Grid>
+              <Grid item container justify='center' alignItems='center'>
+                <Typography variant='caption' className={classes.status}>
+                  {`Syncing (${node.currentBlock}/${lastBlock})`}
+                </Typography>
+              </Grid>
+            </Fragment>
+          )}
           {!isDev && !isBlockchainFromExternalSouce && !locked && !loader.loading && (blockchainStatus !== 'SUCCESS' || !isRescanned) && (
             <Redirect to='/zcashNode' />
           )}
-          {!locked && !loader.loading && nodeConnected && (newUser ? true : done) && (
-            <Redirect to='/zcashNode' />
+          {!locked && !loader.loading && nodeConnected && done && isSynced && (
+            <Redirect to='/main/channel/general' />
           )}
         </Form>
       )}
@@ -158,6 +191,7 @@ export const VaultUnlockerForm = ({
 }
 VaultUnlockerForm.propTypes = {
   classes: PropTypes.object.isRequired,
+  isLogIn: PropTypes.bool.isRequired,
   locked: PropTypes.bool.isRequired,
   unlocking: PropTypes.bool.isRequired,
   newUser: PropTypes.bool.isRequired,
