@@ -6,8 +6,7 @@ export const Icon = ({ className, src, ...props }) => (
 )
 
 Icon.propTypes = {
-  className: PropTypes.oneOfType([PropTypes.string, PropTypes.object])
-    .isRequired,
+  className: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   src: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired
 }
 

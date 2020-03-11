@@ -1,0 +1,28 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Send message popover will receive right actions 1`] = `
+Object {
+  "openNotificationsTab": [Function],
+  "openSettingsModal": [Function],
+  "setChannelsNotification": [Function],
+}
+`;
+
+exports[`Send message popover will receive right props 1`] = `
+Object {
+  "channelData": Object {
+    "address": "zs1testaddresschannelid",
+    "advertFee": 0.15,
+    "description": "Channel about channelid",
+    "id": "channelid",
+    "keys": Object {
+      "ivk": "incoming-viewing-key-channelid",
+      "sk": "test-secret-key",
+    },
+    "name": "Channel channelid",
+    "private": false,
+    "unread": 12,
+  },
+  "currentFilter": 1,
+}
+`;

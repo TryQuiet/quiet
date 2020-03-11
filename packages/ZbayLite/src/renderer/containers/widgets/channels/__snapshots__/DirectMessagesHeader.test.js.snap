@@ -6,5 +6,6 @@ Object {
     "name": "testusername",
   },
   "directMessage": true,
+  "mutedFlag": false,
 }
 `;

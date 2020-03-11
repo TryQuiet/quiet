@@ -14,12 +14,38 @@ exports[`ChannelHeader renders component 1`] = `
     <WithStyles(ForwardRef(Grid))
       item={true}
     >
-      <WithStyles(ForwardRef(Typography))
-        className="title-mock bold-mock"
-        variant="subtitle1"
+      <WithStyles(ForwardRef(Grid))
+        alignItems="center"
+        container={true}
+        item={true}
       >
-        #Channel 1
-      </WithStyles(ForwardRef(Typography))>
+        <WithStyles(ForwardRef(Grid))
+          item={true}
+        >
+          <WithStyles(ForwardRef(Typography))
+            className="title-mock bold-mock"
+            variant="subtitle1"
+          >
+            #Channel 1
+          </WithStyles(ForwardRef(Typography))>
+        </WithStyles(ForwardRef(Grid))>
+        <Memo(WithStyles(Tooltip))
+          placement="bottom"
+          title="Unmute"
+        >
+          <WithStyles(ForwardRef(Grid))
+            className="silenceDiv-mock"
+            item={true}
+            onClick={[Function]}
+            onMouseEnter={[Function]}
+            onMouseLeave={[Function]}
+          >
+            <Memo(Icon)
+              src="test-file-stub"
+            />
+          </WithStyles(ForwardRef(Grid))>
+        </Memo(WithStyles(Tooltip))>
+      </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>
     <WithStyles(ForwardRef(Grid))
       alignContent="center"
@@ -57,12 +83,38 @@ exports[`ChannelHeader renders members when 0 1`] = `
     <WithStyles(ForwardRef(Grid))
       item={true}
     >
-      <WithStyles(ForwardRef(Typography))
-        className="title-mock bold-mock"
-        variant="subtitle1"
+      <WithStyles(ForwardRef(Grid))
+        alignItems="center"
+        container={true}
+        item={true}
       >
-        #Channel 1
-      </WithStyles(ForwardRef(Typography))>
+        <WithStyles(ForwardRef(Grid))
+          item={true}
+        >
+          <WithStyles(ForwardRef(Typography))
+            className="title-mock bold-mock"
+            variant="subtitle1"
+          >
+            #Channel 1
+          </WithStyles(ForwardRef(Typography))>
+        </WithStyles(ForwardRef(Grid))>
+        <Memo(WithStyles(Tooltip))
+          placement="bottom"
+          title="Unmute"
+        >
+          <WithStyles(ForwardRef(Grid))
+            className="silenceDiv-mock"
+            item={true}
+            onClick={[Function]}
+            onMouseEnter={[Function]}
+            onMouseLeave={[Function]}
+          >
+            <Memo(Icon)
+              src="test-file-stub"
+            />
+          </WithStyles(ForwardRef(Grid))>
+        </Memo(WithStyles(Tooltip))>
+      </WithStyles(ForwardRef(Grid))>
       <WithStyles(ForwardRef(Typography))
         className="subtitle-mock"
         variant="caption"
@@ -107,12 +159,38 @@ exports[`ChannelHeader renders without members count 1`] = `
     <WithStyles(ForwardRef(Grid))
       item={true}
     >
-      <WithStyles(ForwardRef(Typography))
-        className="title-mock bold-mock"
-        variant="subtitle1"
+      <WithStyles(ForwardRef(Grid))
+        alignItems="center"
+        container={true}
+        item={true}
       >
-        #Channel 1
-      </WithStyles(ForwardRef(Typography))>
+        <WithStyles(ForwardRef(Grid))
+          item={true}
+        >
+          <WithStyles(ForwardRef(Typography))
+            className="title-mock bold-mock"
+            variant="subtitle1"
+          >
+            #Channel 1
+          </WithStyles(ForwardRef(Typography))>
+        </WithStyles(ForwardRef(Grid))>
+        <Memo(WithStyles(Tooltip))
+          placement="bottom"
+          title="Unmute"
+        >
+          <WithStyles(ForwardRef(Grid))
+            className="silenceDiv-mock"
+            item={true}
+            onClick={[Function]}
+            onMouseEnter={[Function]}
+            onMouseLeave={[Function]}
+          >
+            <Memo(Icon)
+              src="test-file-stub"
+            />
+          </WithStyles(ForwardRef(Grid))>
+        </Memo(WithStyles(Tooltip))>
+      </WithStyles(ForwardRef(Grid))>
       <WithStyles(ForwardRef(Typography))
         className="subtitle-mock"
         variant="caption"

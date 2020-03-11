@@ -6,6 +6,8 @@ Object {
   "onInfo": [Function],
   "onMute": [Function],
   "onSettings": [Function],
+  "onUnmute": [Function],
+  "openNotificationsTab": [Function],
   "publishChannel": [Function],
 }
 `;

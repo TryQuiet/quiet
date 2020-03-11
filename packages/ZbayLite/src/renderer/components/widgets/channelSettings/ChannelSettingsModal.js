@@ -12,11 +12,13 @@ import Tab from '../../ui/Tab'
 import BlockedUsers from '../../../containers/widgets/channelSettings/BlockedUsers'
 import Moderators from '../../../containers/widgets/channelSettings/Moderators'
 import ChannelInfo from '../../../containers//widgets/channelSettings/ChannelInfo'
+import Notifications from '../../../containers//widgets/channelSettings/Notifications'
 
 const tabs = {
   channelInfo: ChannelInfo,
   blockedUsers: BlockedUsers,
-  moderators: Moderators
+  moderators: Moderators,
+  notifications: Notifications
 }
 
 const styles = theme => ({
@@ -68,7 +70,8 @@ export const ChannelSettingsModal = ({
   handleClose,
   currentTab,
   setCurrentTab,
-  channel
+  channel,
+  isOwner
 }) => {
   const TabComponent = tabs[currentTab]
   return (
@@ -90,19 +93,40 @@ export const ChannelSettingsModal = ({
               textColor='inherit'
               classes={{ indicator: classes.indicator }}
             >
+              {isOwner && (
+                <Tab
+                  value='channelInfo'
+                  label='Channel info'
+                  classes={{
+                    tabRoot: classes.tab,
+                    selected: classes.selected
+                  }}
+                />
+              )}
+              {isOwner && (
+                <Tab
+                  value='blockedUsers'
+                  label='Blocked users'
+                  classes={{
+                    tabRoot: classes.tab,
+                    selected: classes.selected
+                  }}
+                />
+              )}
+              {isOwner && (
+                <Tab
+                  value='moderators'
+                  label='Moderators'
+                  classes={{
+                    tabRoot: classes.tab,
+                    selected: classes.selected
+                  }}
+                />
+              )}
+
               <Tab
-                value='channelInfo'
-                label='Channel info'
-                classes={{ tabRoot: classes.tab, selected: classes.selected }}
-              />
-              <Tab
-                value='blockedUsers'
-                label='Blocked users'
-                classes={{ tabRoot: classes.tab, selected: classes.selected }}
-              />
-              <Tab
-                value='moderators'
-                label='Moderators'
+                value='notifications'
+                label='Notifications'
                 classes={{ tabRoot: classes.tab, selected: classes.selected }}
               />
             </Tabs>
@@ -119,6 +143,7 @@ export const ChannelSettingsModal = ({
 ChannelSettingsModal.propTypes = {
   classes: PropTypes.object.isRequired,
   open: PropTypes.bool.isRequired,
+  isOwner: PropTypes.bool.isRequired,
   handleClose: PropTypes.func.isRequired,
   currentTab: PropTypes.string,
   setCurrentTab: PropTypes.func.isRequired,

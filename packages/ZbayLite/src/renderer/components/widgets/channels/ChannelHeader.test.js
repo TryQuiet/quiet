@@ -13,6 +13,8 @@ describe('ChannelHeader', () => {
       <ChannelHeader
         tab={0}
         setTab={() => {}}
+        unmute={() => {}}
+        mutedFlag
         classes={mockClasses}
         channel={channel}
         members={null}
@@ -30,6 +32,8 @@ describe('ChannelHeader', () => {
         setTab={() => {}}
         channel={channel}
         members={new Set([1, 2, 3, 4])}
+        unmute={() => {}}
+        mutedFlag
       />
     )
     expect(result).toMatchSnapshot()
@@ -44,6 +48,8 @@ describe('ChannelHeader', () => {
         setTab={() => {}}
         channel={channel}
         members={new Set()}
+        unmute={() => {}}
+        mutedFlag
       />
     )
     expect(result).toMatchSnapshot()

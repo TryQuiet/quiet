@@ -17,18 +17,31 @@ import directMessagesQueue from '../selectors/directMessagesQueue'
 import { messages as zbayMessages } from '../../zbay'
 import { getClient } from '../../zcash'
 import { getVault } from '../../vault'
-import { displayDirectMessageNotification, offerNotification } from '../../notifications'
-import operationsHandlers, { operationTypes, PendingDirectMessageOp } from './operations'
+import {
+  displayDirectMessageNotification,
+  offerNotification
+} from '../../notifications'
+import operationsHandlers, {
+  operationTypes,
+  PendingDirectMessageOp
+} from './operations'
 import { ReceivedMessage } from './messages'
 import removedChannelsHandlers from './removedChannels'
-import { messageType, actionTypes } from '../../../shared/static'
+import {
+  messageType,
+  actionTypes,
+  notificationFilterType
+} from '../../../shared/static'
 
-import directMessagesQueueHandlers, { checkConfirmationNumber } from './directMessagesQueue'
+import directMessagesQueueHandlers, {
+  checkConfirmationNumber
+} from './directMessagesQueue'
 import channelHandlers from './channel'
 import offersHandlers from './offers'
 import appHandlers from './app'
 import notificationsHandlers from './notifications'
 import { errorNotification } from './utils'
+import notificationCenterSelector from '../selectors/notificationCenter'
 
 const sendDirectMessageOnEnter = event => async (dispatch, getState) => {
   const enterPressed = event.nativeEvent.keyCode === 13
@@ -51,7 +64,8 @@ const sendDirectMessageOnEnter = event => async (dispatch, getState) => {
       message = zbayMessages.createMessage({
         messageData: {
           type: zbayMessages.messageType.BASIC,
-          data: currentMessage.get('message').get('message') + '\n' + messageToSend
+          data:
+            currentMessage.get('message').get('message') + '\n' + messageToSend
         },
         privKey
       })
@@ -87,7 +101,10 @@ const sendDirectMessage = payload => async (dispatch, getState) => {
     },
     privKey
   })
-  const { replyTo: recipientAddress, username: recipientUsername } = payload.receiver
+  const {
+    replyTo: recipientAddress,
+    username: recipientUsername
+  } = payload.receiver
   dispatch(
     directMessagesQueueHandlers.epics.addDirectMessage({
       message,
@@ -198,10 +215,18 @@ export const fetchMessages = () => async (dispatch, getState) => {
   try {
     const identityAddress = identitySelectors.address(getState())
     const transfers = await getClient().payment.received(identityAddress)
-    if (transfers.length === appSelectors.transfers(getState()).get(identityAddress)) {
+    if (
+      transfers.length ===
+      appSelectors.transfers(getState()).get(identityAddress)
+    ) {
       return
     } else {
-      dispatch(appHandlers.actions.setTransfers({ id: identityAddress, value: transfers.length }))
+      dispatch(
+        appHandlers.actions.setTransfers({
+          id: identityAddress,
+          value: transfers.length
+        })
+      )
     }
 
     const users = usersSelectors.users(getState())
@@ -217,7 +242,11 @@ export const fetchMessages = () => async (dispatch, getState) => {
     const messages = messagesAll
       .filter(msg => msg !== null)
       .filter(msg => msg.sender.replyTo !== '')
-      .filter(msg => msg.type !== messageType.ITEM_BASIC && msg.type !== messageType.ITEM_TRANSFER)
+      .filter(
+        msg =>
+          msg.type !== messageType.ITEM_BASIC &&
+          msg.type !== messageType.ITEM_TRANSFER
+      )
 
     await messages.forEach(async msg => {
       if (msg.type === messageType.AD) {
@@ -227,12 +256,17 @@ export const fetchMessages = () => async (dispatch, getState) => {
     const messagesOffers = messagesAll
       .filter(msg => msg !== null)
       .filter(msg => msg.sender.replyTo !== '')
-      .filter(msg => msg.type === messageType.ITEM_BASIC || msg.type === messageType.ITEM_TRANSFER)
+      .filter(
+        msg =>
+          msg.type === messageType.ITEM_BASIC ||
+          msg.type === messageType.ITEM_TRANSFER
+      )
 
     await messagesOffers.forEach(async msg => {
       let offer = offersSelectors.offers(getState()).find(
         off =>
-          off.itemId.substring(0, 64) === msg.message.itemId && off.address === msg.sender.replyTo // TODO find better solution when user changes nickname
+          off.itemId.substring(0, 64) === msg.message.itemId &&
+          off.address === msg.sender.replyTo // TODO find better solution when user changes nickname
       )
       if (msg.message.itemId === null || msg.message.itemId === undefined) {
         return
@@ -251,7 +285,8 @@ export const fetchMessages = () => async (dispatch, getState) => {
         .offers(getState())
         .find(
           off =>
-            off.itemId.substring(0, 64) === msg.message.itemId && off.address === msg.sender.replyTo
+            off.itemId.substring(0, 64) === msg.message.itemId &&
+            off.address === msg.sender.replyTo
         )
       if (!offer.messages.find(message => message.id === msg.id)) {
         await dispatch(
@@ -285,50 +320,76 @@ export const fetchMessages = () => async (dispatch, getState) => {
     )(messages)
     const identityId = identitySelectors.id(getState())
     await Promise.all(
-      Object.entries(senderToMessages).map(async ([contactAddress, contactMessages]) => {
-        const contact = contactMessages[0].sender
-        const [newestMsg] = contactMessages.sort((a, b) => b.createdAt - a.createdAt)
-        const { createdAt: contactMsgTimestamp } = newestMsg
-        const removedChannels = await getVault().disabledChannels.listRemovedChannels()
-        const removedTimeStamp = removedChannels[contactAddress]
-        if (removedTimeStamp && parseInt(removedTimeStamp) > contactMsgTimestamp) {
-          return
-        }
-        await dispatch(setUsernames({ sender: newestMsg.sender }))
-        await dispatch(loadVaultMessages({ contact }))
-        const previousMessages = selectors.messages(contactAddress)(getState())
-        let lastSeen = selectors.lastSeen(contactAddress)(getState())
-        if (!lastSeen) {
-          lastSeen = await getVault().contacts.getLastSeen({
-            identityId,
-            recipientAddress: contactAddress,
-            recipientUsername: newestMsg.sender
-          })
-        }
-        const newMessages = zbayMessages.calculateDiff({
-          previousMessages,
-          nextMessages: Immutable.List(contactMessages),
-          lastSeen,
-          identityAddress
-        })
-        dispatch(
-          appendNewMessages({
-            contactAddress,
-            messagesIds: newMessages.map(R.prop('id'))
-          })
-        )
-        dispatch(setMessages({ messages: contactMessages, contactAddress }))
-        remote.app.badgeCount = remote.app.badgeCount + newMessages.size
-        newMessages.map(nm => {
-          const notification = displayDirectMessageNotification({
-            message: nm,
-            username: contact.username
-          })
-          notification.onclick = () => {
-            history.push(`/main/direct-messages/${contact.replyTo}/${contact.username}`)
+      Object.entries(senderToMessages).map(
+        async ([contactAddress, contactMessages]) => {
+          const contact = contactMessages[0].sender
+          const [newestMsg] = contactMessages.sort(
+            (a, b) => b.createdAt - a.createdAt
+          )
+          const { createdAt: contactMsgTimestamp } = newestMsg
+          const removedChannels = await getVault().disabledChannels.listRemovedChannels()
+          const removedTimeStamp = removedChannels[contactAddress]
+          if (
+            removedTimeStamp &&
+            parseInt(removedTimeStamp) > contactMsgTimestamp
+          ) {
+            return
           }
-        })
-      })
+          await dispatch(setUsernames({ sender: newestMsg.sender }))
+          await dispatch(loadVaultMessages({ contact }))
+          const previousMessages = selectors.messages(contactAddress)(
+            getState()
+          )
+          let lastSeen = selectors.lastSeen(contactAddress)(getState())
+          if (!lastSeen) {
+            lastSeen = await getVault().contacts.getLastSeen({
+              identityId,
+              recipientAddress: contactAddress,
+              recipientUsername: newestMsg.sender
+            })
+          }
+          lastSeen = DateTime.fromSeconds(12)
+          const newMessages = zbayMessages.calculateDiff({
+            previousMessages,
+            nextMessages: Immutable.List(contactMessages),
+            lastSeen,
+            identityAddress
+          })
+          dispatch(
+            appendNewMessages({
+              contactAddress,
+              messagesIds: newMessages.map(R.prop('id'))
+            })
+          )
+          dispatch(setMessages({ messages: contactMessages, contactAddress }))
+          remote.app.badgeCount = remote.app.badgeCount + newMessages.size
+
+          const userFilter = notificationCenterSelector.userFilterType(
+            getState()
+          )
+          if (newMessages.size > 0) {
+            if (userFilter !== notificationFilterType.MUTE) {
+              for (const nm of newMessages) {
+                if (
+                  notificationCenterSelector.contactFilterByAddress(
+                    contactAddress
+                  )(getState()) !== notificationFilterType.MUTE
+                ) {
+                  const notification = displayDirectMessageNotification({
+                    message: nm,
+                    username: contact.username
+                  })
+                  notification.onclick = () => {
+                    history.push(
+                      `/main/direct-messages/${contact.replyTo}/${contact.username}`
+                    )
+                  }
+                }
+              }
+            }
+          }
+        }
+      )
     )
   } catch (err) {
     console.warn(err)
@@ -355,7 +416,10 @@ export const updateLastSeen = ({ contact }) => async (dispatch, getState) => {
   )
 }
 
-export const loadVaultMessages = ({ contact }) => async (dispatch, getState) => {
+export const loadVaultMessages = ({ contact }) => async (
+  dispatch,
+  getState
+) => {
   const identityId = identitySelectors.id(getState())
   const identityAddress = identitySelectors.address(getState())
   const { messages: vaultMessages } = await getVault().contacts.listMessages({
@@ -364,7 +428,11 @@ export const loadVaultMessages = ({ contact }) => async (dispatch, getState) => 
     recipientAddress: contact.replyTo
   })
   const vaultMessagesToDisplay = vaultMessages
-    .filter(m => m.type !== messageType.ITEM_BASIC && m.type !== messageType.ITEM_TRANSFER)
+    .filter(
+      m =>
+        m.type !== messageType.ITEM_BASIC &&
+        m.type !== messageType.ITEM_TRANSFER
+    )
     .map(msg =>
       zbayMessages.vaultToDisplayableMessage({
         message: msg,
@@ -380,7 +448,10 @@ export const loadVaultMessages = ({ contact }) => async (dispatch, getState) => 
   )
 }
 
-export const createVaultContact = ({ contact, history }) => async (dispatch, getState) => {
+export const createVaultContact = ({ contact, history }) => async (
+  dispatch,
+  getState
+) => {
   const identityId = identitySelectors.id(getState())
   await getVault().contacts.listMessages({
     identityId,
@@ -398,7 +469,10 @@ export const createVaultContact = ({ contact, history }) => async (dispatch, get
   history.push(`/main/direct-messages/${contact.replyTo}/${contact.username}`)
 }
 
-export const createVaultContactOffer = ({ contact, history }) => async (dispatch, getState) => {
+export const createVaultContactOffer = ({ contact, history }) => async (
+  dispatch,
+  getState
+) => {
   const identityId = identitySelectors.id(getState())
   await getVault().contacts.listMessages({
     identityId,
@@ -419,17 +493,24 @@ export const createVaultContactOffer = ({ contact, history }) => async (dispatch
 export const loadAllSentMessages = () => async (dispatch, getState) => {
   const identityId = identitySelectors.id(getState())
   const identityAddress = identitySelectors.address(getState())
-  const allMessages = await getVault().contacts.loadAllSentMessages({ identityId })
+  const allMessages = await getVault().contacts.loadAllSentMessages({
+    identityId
+  })
   const removedChannels = await getVault().disabledChannels.listRemovedChannels()
   allMessages.forEach(async contact => {
-    const [newestMsg] = contact.messages.sort((a, b) => b.createdAt - a.createdAt)
+    const [newestMsg] = contact.messages.sort(
+      (a, b) => b.createdAt - a.createdAt
+    )
     const removedTimeStamp = removedChannels[contact.address]
     if (!newestMsg && removedTimeStamp) {
       return
     }
     if (newestMsg) {
       const { createdAt: contactMsgTimestamp } = newestMsg
-      if (removedTimeStamp && parseInt(removedTimeStamp) > contactMsgTimestamp) {
+      if (
+        removedTimeStamp &&
+        parseInt(removedTimeStamp) > contactMsgTimestamp
+      ) {
         return
       }
     }
@@ -488,7 +569,9 @@ export const loadAllSentMessages = () => async (dispatch, getState) => {
       setUsernames({
         sender: {
           replyTo: contact.address,
-          username: contact.username ? contact.username : contact.address.substring(0, 10)
+          username: contact.username
+            ? contact.username
+            : contact.address.substring(0, 10)
         }
       })
     )
@@ -503,7 +586,10 @@ export const updateDeletedChannelTimestamp = ({ address, timestamp }) => async (
   await dispatch(removedChannelsHandlers.epics.getRemovedChannelsTimestamp())
 }
 
-export const deleteChannel = ({ address, timestamp, history }) => async (dispatch, getState) => {
+export const deleteChannel = ({ address, timestamp, history }) => async (
+  dispatch,
+  getState
+) => {
   history.push(`/main/channel/general`)
   await getVault().disabledChannels.addToRemoved(address, timestamp)
   await dispatch(removedChannelsHandlers.epics.getRemovedChannelsTimestamp())
@@ -528,8 +614,13 @@ export const epics = {
 export const reducer = handleActions(
   {
     [setMessages]: (state, { payload: { contactAddress, messages } }) =>
-      state.update(contactAddress, Contact(), cm => cm.set('messages', Immutable.fromJS(messages))),
-    [setVaultMessages]: (state, { payload: { contactAddress, vaultMessagesToDisplay } }) =>
+      state.update(contactAddress, Contact(), cm =>
+        cm.set('messages', Immutable.fromJS(messages))
+      ),
+    [setVaultMessages]: (
+      state,
+      { payload: { contactAddress, vaultMessagesToDisplay } }
+    ) =>
       state.update(contactAddress, Contact(), cm =>
         cm.set('vaultMessages', Immutable.fromJS(vaultMessagesToDisplay))
       ),
@@ -539,7 +630,10 @@ export const reducer = handleActions(
       )
       return newState
     },
-    [appendNewMessages]: (state, { payload: { contactAddress, messagesIds } }) =>
+    [appendNewMessages]: (
+      state,
+      { payload: { contactAddress, messagesIds } }
+    ) =>
       state.update(contactAddress, Contact(), cm =>
         cm.update('newMessages', nm => nm.concat(messagesIds))
       ),

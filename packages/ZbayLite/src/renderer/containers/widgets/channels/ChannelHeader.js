@@ -3,10 +3,12 @@ import { bindActionCreators } from 'redux'
 
 import ChannelHeader from '../../../components/widgets/channels/ChannelHeader'
 import channelsHandlers from '../../../store/handlers/channels'
+import notificationCenterHandlers from '../../../store/handlers/notificationCenter'
 
 import channelSelectors from '../../../store/selectors/channel'
+import notificationCenter from '../../../store/selectors/notificationCenter'
 
-import { messageType } from '../../../../shared/static'
+import { messageType, notificationFilterType } from '../../../../shared/static'
 
 export const mapStateToProps = state => {
   return {
@@ -14,13 +16,23 @@ export const mapStateToProps = state => {
     members: channelSelectors.members(state),
     showAdSwitch: !!channelSelectors
       .messages()(state)
-      .find(msg => msg.type === messageType.AD)
+      .find(msg => msg.type === messageType.AD),
+    mutedFlag:
+      notificationCenter.channelFilterById(
+        channelSelectors.data(state)
+          ? channelSelectors.data(state).get('address')
+          : 'none'
+      )(state) === notificationFilterType.MUTE
   }
 }
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      updateShowInfoMsg: channelsHandlers.epics.updateShowInfoMsg
+      updateShowInfoMsg: channelsHandlers.epics.updateShowInfoMsg,
+      unmute: () =>
+        notificationCenterHandlers.epics.setChannelsNotification(
+          notificationFilterType.ALL_MESSAGES
+        )
     },
     dispatch
   )

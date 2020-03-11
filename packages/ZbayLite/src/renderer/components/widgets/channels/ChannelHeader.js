@@ -17,6 +17,10 @@ import ChannelMenuAction from '../../../containers/widgets/channels/ChannelMenuA
 import OfferMenuActions from '../../../containers/widgets/channels/OfferMenuActions'
 import DirectMessagesMenuActions from '../../../containers/widgets/channels/DirectMessagesMenuActions'
 import IconButton from '../../ui/IconButton'
+import Icon from '../../ui/Icon'
+import silenced from '../../../static/images/silenced.svg'
+import silencedBlack from '../../../static/images/silencedBlack.svg'
+import Tooltip from '../../ui/Tooltip'
 
 const styles = theme => ({
   root: {
@@ -81,6 +85,12 @@ const styles = theme => ({
   },
   bold: {
     fontWeight: 500
+  },
+  silenceDiv: {
+    width: 20,
+    height: 20,
+    marginLeft: 11,
+    cursor: 'pointer'
   }
 })
 
@@ -108,9 +118,12 @@ export const ChannelHeader = ({
   members,
   channelType,
   showAdSwitch,
-  updateShowInfoMsg
+  updateShowInfoMsg,
+  mutedFlag,
+  unmute
 }) => {
   const ActionsMenu = channelTypeToActions[channelType]
+  const [silenceHover, setSilenceHover] = React.useState(false)
   return (
     <div className={classes.wrapper}>
       <Grid
@@ -121,15 +134,34 @@ export const ChannelHeader = ({
         direction='row'
       >
         <Grid item>
-          <Typography
-            variant='subtitle1'
-            className={classNames({
-              [classes.title]: true,
-              [classes.bold]: true
-            })}
-          >
-            {`${prefix[channelType]}${channel.get('name')}`}
-          </Typography>
+          <Grid item container alignItems='center'>
+            <Grid item>
+              <Typography
+                variant='subtitle1'
+                className={classNames({
+                  [classes.title]: true,
+                  [classes.bold]: true
+                })}
+              >
+                {`${prefix[channelType]}${channel.get('name')}`}
+              </Typography>
+            </Grid>
+            {mutedFlag && (
+              <Tooltip placement='bottom' title='Unmute'>
+                <Grid
+                  item
+                  className={classes.silenceDiv}
+                  onMouseEnter={() => setSilenceHover(true)}
+                  onMouseLeave={() => setSilenceHover(false)}
+                  onClick={() => {
+                    unmute()
+                  }}
+                >
+                  <Icon src={silenceHover ? silencedBlack : silenced} />
+                </Grid>
+              </Tooltip>
+            )}
+          </Grid>
           {!R.isNil(members) ? (
             <Typography variant='caption' className={classes.subtitle}>
               {members.size} Participants
@@ -198,10 +230,12 @@ export const ChannelHeader = ({
 ChannelHeader.propTypes = {
   classes: PropTypes.object.isRequired,
   directMessage: PropTypes.bool.isRequired,
+  mutedFlag: PropTypes.bool,
   showAdSwitch: PropTypes.bool,
   channelType: PropTypes.number.isRequired,
   tab: PropTypes.number.isRequired,
   setTab: PropTypes.func.isRequired,
+  unmute: PropTypes.func,
   channel: PropTypes.instanceOf(Immutable.Map).isRequired,
   members: PropTypes.instanceOf(Set),
   updateShowInfoMsg: PropTypes.func.isRequired

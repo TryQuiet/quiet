@@ -49,6 +49,7 @@ const ChannelMenuAction = ({ onInfo, rateUsd, advert, onDelete, offer, ...props 
     <ChannelMenuActionComponent
       onInfo={() => onInfo(payload)}
       onDelete={() => onDelete({ address: offer, timestamp: parseInt(DateTime.utc().toSeconds()) })}
+      disableSettings
       {...props}
     />
   )

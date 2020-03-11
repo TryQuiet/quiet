@@ -63,6 +63,16 @@ exports[`ChannelSettingsModal renders component 1`] = `
             label="Moderators"
             value="moderators"
           />
+          <WithStyles(Tab)
+            classes={
+              Object {
+                "selected": "selected-mock",
+                "tabRoot": "tab-mock",
+              }
+            }
+            label="Notifications"
+            value="notifications"
+          />
         </WithStyles(ForwardRef(Tabs))>
       </WithStyles(ForwardRef(AppBar))>
     </WithStyles(ForwardRef(Grid))>

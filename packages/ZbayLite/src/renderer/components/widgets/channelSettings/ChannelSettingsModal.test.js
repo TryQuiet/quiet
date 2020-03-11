@@ -24,6 +24,7 @@ describe('ChannelSettingsModal', () => {
         handleClose={() => {}}
         currentTab='blockedUsers'
         open
+        isOwner
       />
     )
     expect(result).toMatchSnapshot()

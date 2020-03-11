@@ -389,7 +389,6 @@ const fetchBlockchain = async (win, torUrl) => {
   })
   app.on('will-quit', () => {
     const isRescanned = electronStore.get('AppStatus.blockchain.isRescanned')
-    console.log(isRescanned)
     if (nodeProc && !isRescanned) {
       nodeProc.kill('SIGKILL')
     }
@@ -469,7 +468,6 @@ const createZcashNode = async (win, torUrl) => {
     })
     app.on('will-quit', () => {
       const isRescanned = electronStore.get('AppStatus.blockchain.isRescanned')
-      console.log(isRescanned)
       if (nodeProc && !isRescanned) {
         nodeProc.kill('SIGKILL')
       }

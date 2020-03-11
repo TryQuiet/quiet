@@ -120,6 +120,12 @@ export const actionTypes = mirrorKey({
   SET_WHITELIST: undefined,
   SET_WHITELIST_ALL_FLAG: undefined,
   SET_AUTO_LOAD_LIST: undefined,
+  SET_CHANNEL_NOTIFICATION_FILTER: undefined,
+  SET_CHANNELS_NOTIFICATION_SETTINGS: undefined,
+  SET_USER_NOTIFICATION_FILTER: undefined,
+  SET_USER_NOTIFICATION_SETTINGS: undefined,
+  SET_CONTACTS_NOTIFICATION_SETTINGS: undefined,
+  SET_CONTACT_NOTIFICATION_FILTER: undefined,
   SET_RESCANNING_STATUS: undefined,
   SET_LOGIN_SUCCESSFULL: undefined
 })
@@ -145,4 +151,10 @@ export const moderationActionsType = {
   ADD_MOD: 'ADD_MOD',
   REMOVE_MOD: 'REMOVE_MOD',
   REMOVE_CHANNEL: 'REMOVE_CHANNEL'
+}
+export const notificationFilterType = {
+  ALL_MESSAGES: 1,
+  MENTIONS: 2,
+  NONE: 3,
+  MUTE: 4
 }

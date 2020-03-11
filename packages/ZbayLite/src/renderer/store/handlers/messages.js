@@ -15,8 +15,13 @@ import operationsHandlers from './operations'
 import channelsHandlers from './channels'
 import txnTimestampsHandlers from '../handlers/txnTimestamps'
 import txnTimestampsSelector from '../selectors/txnTimestamps'
+import notificationCenterSelector from '../selectors/notificationCenter'
 import appHandlers from './app'
-import { messageType, actionTypes } from '../../../shared/static'
+import {
+  messageType,
+  actionTypes,
+  notificationFilterType
+} from '../../../shared/static'
 import { messages as zbayMessages } from '../../zbay'
 import { getClient } from '../../zcash'
 import { displayMessageNotification } from '../../notifications'
@@ -183,12 +188,47 @@ export const fetchMessages = channel => async (dispatch, getState) => {
       })
     )
     remote.app.badgeCount = remote.app.badgeCount + newMessages.size
-    newMessages.map(nm => displayMessageNotification({ message: nm, channel }))
+    const filterType = notificationCenterSelector.channelFilterById(
+      channel.get('address')
+    )(getState())
+    const userFilter = notificationCenterSelector.userFilterType(getState())
+    const identity = identitySelectors.data(getState())
+    const username = usersSelectors.registeredUser(identity.signerPubKey)(
+      getState()
+    )
+    if (newMessages.size > 0) {
+      if (
+        userFilter === notificationFilterType.ALL_MESSAGES &&
+        filterType === notificationFilterType.ALL_MESSAGES
+      ) {
+        newMessages.map(nm =>
+          displayMessageNotification({ message: nm, channel })
+        )
+      }
+      if (
+        (userFilter === notificationFilterType.ALL_MESSAGES ||
+          userFilter === notificationFilterType.MENTIONS) &&
+        filterType === notificationFilterType.MENTIONS
+      ) {
+        newMessages
+          .filter(msg => containsString(msg.message, `@${username}`))
+          .map(nm => displayMessageNotification({ message: nm, channel }))
+      }
+    }
   } catch (err) {
     console.warn(err)
   }
 }
 
+export const containsString = (message, nickname) => {
+  if (typeof message === 'string') {
+    const splitMessage = message.split(String.fromCharCode(160))
+    if (splitMessage.includes(nickname)) {
+      return true
+    }
+  }
+  return false
+}
 export const epics = {
   fetchMessages
 }

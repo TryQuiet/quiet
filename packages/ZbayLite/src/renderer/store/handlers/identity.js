@@ -27,6 +27,7 @@ import operationHandlers, {
 import vaultHandlers from './vault'
 import ratesHandlers from './rates'
 import nodeHandlers from './node'
+import notificationCenterHandlers from './notificationCenter'
 import vault, { getVault } from '../../vault'
 import migrateTo_0_2_0 from '../../../shared/migrations/0_2_0' // eslint-disable-line camelcase
 import migrateTo_0_7_0 from '../../../shared/migrations/0_7_0' // eslint-disable-line camelcase
@@ -339,6 +340,7 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
     await getClient().keys.importTPK({ tpk: identity.keys.tpk, rescan: false })
     await getClient().keys.importSK({ sk: identity.keys.sk, rescan: isRescanned ? 'no' : 'yes', startHeight: 700000 })
     await dispatch(whitelistHandlers.epics.initWhitelist())
+    await dispatch(notificationCenterHandlers.epics.init())
     dispatch(setLoadingMessage('Setting identity'))
     // Check if identity has signerKeys
     if (!identity.signerPrivKey || !identity.signerPubKey) {

@@ -13,13 +13,15 @@ import ShippingSettingsForm from '../../../../containers/widgets/settings/Shippi
 import InvitationModal from '../../../../containers/ui/InvitationModal/InvitationModal'
 import AddFundsModal from '../../../../containers/widgets/settings/AddFunds'
 import Security from '../../../../containers/widgets/settings/Security'
+import Notifications from '../../../../containers/widgets/settings/Notifications'
 
 const tabs = {
   account: AccountSettingsForm,
   shipping: ShippingSettingsForm,
   invite: InvitationModal,
   addFunds: AddFundsModal,
-  security: Security
+  security: Security,
+  notifications: Notifications
 }
 
 const styles = theme => ({
@@ -95,6 +97,11 @@ export const SettingsModal = ({
               <Tab
                 value='account'
                 label='Account'
+                classes={{ tabRoot: classes.tab, selected: classes.selected }}
+              />
+              <Tab
+                value='notifications'
+                label='Notifications'
                 classes={{ tabRoot: classes.tab, selected: classes.selected }}
               />
               <Tab

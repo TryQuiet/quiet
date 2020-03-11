@@ -21,5 +21,7 @@ Object {
       "sk": "test-secret-key",
     },
   },
+  "isOwner": false,
+  "modalTabToOpen": null,
 }
 `;

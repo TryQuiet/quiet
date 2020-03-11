@@ -60,6 +60,8 @@ export const ChannelMessages = ({
 
 export default connect(mapStateToProps)(
   React.memo(ChannelMessages, (before, after) => {
+    console.log(before, 'before')
+    console.log(after, 'after')
     return (
       Immutable.is(before.messages, after.messages) && before.tab === after.tab
     )
