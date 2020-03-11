@@ -37,8 +37,7 @@ export default function JRPC (opts = {}) {
         const authConfig = getAuth(config)
         const requestConfig = R.mergeAll([
           R.isEmpty(authConfig) ? {} : { auth: authConfig },
-          { 'WWW-Authenticate': 'Basic realm=\'jsonrpc\'' },
-          opts.timeout ? { timeout: opts.timeout } : {}
+          { 'WWW-Authenticate': 'Basic realm=\'jsonrpc\'' }
         ])
         const { data } = await axios.post(config.url, requestData, requestConfig)
 

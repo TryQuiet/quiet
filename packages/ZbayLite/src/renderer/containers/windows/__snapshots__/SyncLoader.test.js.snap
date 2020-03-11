@@ -19,6 +19,10 @@ Object {
   "isFetching": false,
   "isRescanningInitialized": false,
   "isRescanningMonitorStarted": false,
+  "loader": Immutable.Record {
+    "loading": false,
+    "message": "",
+  },
   "locked": true,
   "node": Immutable.NodeState {
     "latestBlock": 100,

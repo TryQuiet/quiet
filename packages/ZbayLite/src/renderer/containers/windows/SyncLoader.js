@@ -33,7 +33,8 @@ export const mapStateToProps = state => ({
   isRescanningMonitorStarted: nodeSelectors.isRescanningMonitorStarted(state),
   rescanningProgress: nodeSelectors.rescanningProgress(state),
   isFetching: nodeSelectors.isFetching(state),
-  isRescanningInitialized: nodeSelectors.isRescanningInitialized(state)
+  isRescanningInitialized: nodeSelectors.isRescanningInitialized(state),
+  loader: identitySelectors.loader(state)
 })
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
@@ -50,7 +51,7 @@ export const mapDispatchToProps = dispatch =>
     dispatch
   )
 
-export const SyncLoader = ({ setVaultIdentity, resetNodeStatus, setRescanningInitialized, loadIdentity, isRescanningInitialized, isFetching, disablePowerSaveMode, isRescanningMonitorStarted, rescanningProgress, startRescanningMonitor, hasAddress, node, getStatus, bootstrapping, bootstrappingMessage, nodeConnected, openModal, creating, locked, exists, fetchingPart, fetchingSizeLeft, fetchingStatus, fetchingEndTime, fetchingSpeed }) => {
+export const SyncLoader = ({ setVaultIdentity, loader, resetNodeStatus, setRescanningInitialized, loadIdentity, isRescanningInitialized, isFetching, disablePowerSaveMode, isRescanningMonitorStarted, rescanningProgress, startRescanningMonitor, hasAddress, node, getStatus, bootstrapping, bootstrappingMessage, nodeConnected, openModal, creating, locked, exists, fetchingPart, fetchingSizeLeft, fetchingStatus, fetchingEndTime, fetchingSpeed }) => {
   const blockchainStatus = electronStore.get('AppStatus.blockchain.status')
   const vaultStatus = electronStore.get('vaultStatus')
   const lastBlock = node.latestBlock.isEqualTo(0) ? 999999 : node.latestBlock
@@ -96,7 +97,7 @@ export const SyncLoader = ({ setVaultIdentity, resetNodeStatus, setRescanningIni
     progressValue = syncProgress === '0.00' ? 91 : syncProgress - 5
     message = `Final sync (${node.currentBlock}/${lastBlock}) ~ 10 minutes left`
   }
-  return (isSynced && isRescanningInitialized && node.status === 'healthy') ? (
+  return (isSynced && isRescanningInitialized && !loader.loading && node.status === 'healthy') ? (
     <Redirect to='/main/channel/general' />
   ) : (
     <SyncLoaderComponent
