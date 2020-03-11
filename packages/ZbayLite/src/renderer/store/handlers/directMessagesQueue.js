@@ -261,7 +261,10 @@ export const sendPendingDirectMessages = (debounce = null) => {
   thunk.meta = {
     debounce: {
       time:
-        process.env.ZBAY_DEBOUNCE_MESSAGE_INTERVAL || DEFAULT_DEBOUNCE_INTERVAL,
+        debounce !== null
+          ? debounce
+          : process.env.ZBAY_DEBOUNCE_MESSAGE_INTERVAL ||
+            DEFAULT_DEBOUNCE_INTERVAL,
       key: 'SEND_PENDING_DRIRECT_MESSAGES'
     }
   }
