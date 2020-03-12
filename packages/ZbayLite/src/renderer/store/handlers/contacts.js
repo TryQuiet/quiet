@@ -348,7 +348,6 @@ export const fetchMessages = () => async (dispatch, getState) => {
               recipientUsername: newestMsg.sender
             })
           }
-          lastSeen = DateTime.fromSeconds(12)
           const newMessages = zbayMessages.calculateDiff({
             previousMessages,
             nextMessages: Immutable.List(contactMessages),
