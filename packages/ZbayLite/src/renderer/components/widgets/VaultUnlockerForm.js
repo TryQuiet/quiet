@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 import * as Yup from 'yup'
 import { Formik, Form } from 'formik'
@@ -45,7 +45,7 @@ const styles = theme => ({
   },
   message: {
     height: 24,
-    marginBottom: 50
+    marginTop: 30
   },
   torDiv: {
     marginTop: -8
@@ -157,26 +157,18 @@ export const VaultUnlockerForm = ({
                 <Tor />
               </Grid>
             )}
-            <Grid item className={classes.message}>
-              <Typography variant='body2'>{loader.loading && loader.message}</Typography>
-              {!nodeConnected && !done && (
-                <Grid item>
-                  <Typography variant='body2'>{`Connecting to Zcash network`}</Typography>
-                </Grid>
-              )}
-            </Grid>
           </Grid>
           {(!isSynced && isLogIn) && (
-            <Fragment>
-              <Grid item container justify='center' alignItems='center'>
+            <Grid item className={classes.message}>
+              {nodeConnected && <Grid item container justify='center' alignItems='center'>
                 <LinearProgress variant={'determinate'} classes={{ root: classes.rootBar, barColorPrimary: classes.progressBar }} value={sync} />
-              </Grid>
+              </Grid>}
               <Grid item container justify='center' alignItems='center'>
                 <Typography variant='caption' className={classes.status}>
-                  {`Syncing (${node.currentBlock}/${lastBlock})`}
+                  {nodeConnected ? `Syncing (${node.currentBlock}/${lastBlock})` : `Connecting to Zcash network`}
                 </Typography>
               </Grid>
-            </Fragment>
+            </Grid>
           )}
           {!isDev && !isBlockchainFromExternalSouce && !locked && !loader.loading && (blockchainStatus !== 'SUCCESS' || !isRescanned) && (
             <Redirect to='/zcashNode' />

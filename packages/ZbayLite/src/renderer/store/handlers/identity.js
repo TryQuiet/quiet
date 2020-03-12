@@ -380,8 +380,12 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
       )
     )
   } catch (err) {}
-  dispatch(setLoading(false))
   const isNewUser = electronStore.get('isNewUser')
+  if (isNewUser === true) {
+    dispatch(modalsHandlers.actionCreators.openModal('createUsernameModal')())
+  }
+  dispatch(fetchAffiliateMoney())
+  dispatch(setLoading(false))
   // Don't show deposit modal if we use faucet 12.02.2020
   // const balance = identitySelectors.balance('zec')(getState())
   // const lockedBalance = identitySelectors.lockedBalance('zec')(getState())
@@ -391,10 +395,6 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
   //     500
   //   )
   // }
-  if (isNewUser === true) {
-    dispatch(modalsHandlers.actionCreators.openModal('createUsernameModal')())
-  }
-  dispatch(fetchAffiliateMoney())
 }
 
 export const updateShippingData = (values, formActions) => async (
