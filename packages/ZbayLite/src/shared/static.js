@@ -127,7 +127,8 @@ export const actionTypes = mirrorKey({
   SET_CONTACTS_NOTIFICATION_SETTINGS: undefined,
   SET_CONTACT_NOTIFICATION_FILTER: undefined,
   SET_RESCANNING_STATUS: undefined,
-  SET_LOGIN_SUCCESSFULL: undefined
+  SET_LOGIN_SUCCESSFULL: undefined,
+  SET_USER_NOTIFICATION_SOUND: undefined
 })
 
 export const messageType = {
@@ -157,4 +158,10 @@ export const notificationFilterType = {
   MENTIONS: 2,
   NONE: 3,
   MUTE: 4
+}
+export const soundType = {
+  NONE: 0,
+  POW: 1,
+  BANG: 2,
+  SPLAT: 3
 }

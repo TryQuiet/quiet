@@ -8,7 +8,9 @@ describe('Notifications', () => {
     const props = {
       classes: mockClasses,
       userFilterType: 1,
-      setUserNotification: jest.fn()
+      userSound: 1,
+      setUserNotification: jest.fn(),
+      setUserNotificationsSound: jest.fn()
     }
     const result = shallow(<Notifications {...props} />)
     expect(result).toMatchSnapshot()

@@ -14,7 +14,7 @@ describe('NotificationsCenter', () => {
       initialState: Immutable.Map({
         notificationCenter: NotificationsCenter({
           channels: Immutable.Map({ key1: 1, key2: 2 }),
-          user: Immutable.Map({ key1: 1, key2: 2, filterType: 1 }),
+          user: Immutable.Map({ key1: 1, key2: 2, filterType: 1, sound: 1 }),
           contacts: Immutable.Map({ key1: 1, key2: 2 })
         })
       })
@@ -38,7 +38,9 @@ describe('NotificationsCenter', () => {
   })
   it('contact by address selector', async () => {
     expect(
-      notificationCenterSelectors.contactFilterByAddress('key1')(store.getState())
+      notificationCenterSelectors.contactFilterByAddress('key1')(
+        store.getState()
+      )
     ).toMatchSnapshot()
   })
   it('user selector', async () => {
@@ -47,6 +49,11 @@ describe('NotificationsCenter', () => {
   it('user filterType selector', async () => {
     expect(
       notificationCenterSelectors.userFilterType(store.getState())
+    ).toMatchSnapshot()
+  })
+  it('user sound selector', async () => {
+    expect(
+      notificationCenterSelectors.userSound(store.getState())
     ).toMatchSnapshot()
   })
 })

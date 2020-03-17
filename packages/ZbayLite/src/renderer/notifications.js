@@ -1,5 +1,12 @@
 /* global Notification */
+import { soundTypeToAudio } from '../shared/sounds'
+import electronStore from '../shared/electronStore'
+
 export const createNotification = ({ title, body }) => {
+  const sound = parseInt(electronStore.get(`notificationCenter.user.sound`))
+  if (sound) {
+    soundTypeToAudio[sound].play()
+  }
   return new Notification(title, { body: body })
 }
 

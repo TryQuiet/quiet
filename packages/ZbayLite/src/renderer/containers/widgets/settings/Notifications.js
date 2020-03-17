@@ -7,13 +7,16 @@ import notificationCenterHandlers from '../../../store/handlers/notificationCent
 import Notifications from '../../../components/widgets/settings/Notifications'
 
 export const mapStateToProps = state => ({
-  userFilterType: notificationCenterSelector.userFilterType(state)
+  userFilterType: notificationCenterSelector.userFilterType(state),
+  userSound: notificationCenterSelector.userSound(state)
 })
 
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      setUserNotification: notificationCenterHandlers.epics.setUserNotification
+      setUserNotification: notificationCenterHandlers.epics.setUserNotification,
+      setUserNotificationsSound:
+        notificationCenterHandlers.epics.setUserNotificationsSound
     },
     dispatch
   )

@@ -1,5 +1,5 @@
 import { createSelector } from 'reselect'
-import { notificationFilterType } from '../../../shared/static'
+import { notificationFilterType, soundType } from '../../../shared/static'
 const store = s => s
 
 export const notificationCenter = createSelector(store, state =>
@@ -13,6 +13,7 @@ const userFilterType = createSelector(
   user,
   a => a.get('filterType') || notificationFilterType.ALL_MESSAGES
 )
+const userSound = createSelector(user, a => a.get('sound') || soundType.NONE)
 const channelFilterById = channelId =>
   createSelector(
     channels,
@@ -30,5 +31,6 @@ export default {
   channelFilterById,
   userFilterType,
   notificationCenter,
-  contactFilterByAddress
+  contactFilterByAddress,
+  userSound
 }

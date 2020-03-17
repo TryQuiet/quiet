@@ -12,7 +12,8 @@ import Checkbox from '@material-ui/core/Checkbox'
 import Icon from '../../ui/Icon'
 import radioChecked from '../../../static/images/radioChecked.svg'
 import radioUnselected from '../../../static/images/radioUnselected.svg'
-import { notificationFilterType } from '../../../../shared/static'
+import { notificationFilterType, soundType } from '../../../../shared/static'
+import { direct, relentless, sharp } from '../../../../shared/sounds'
 
 const styles = theme => ({
   title: {},
@@ -26,6 +27,7 @@ const styles = theme => ({
   radioDiv: {
     marginLeft: 4
   },
+  radioSoundDiv: {},
   radioIcon: {
     alignItems: 'flex-start',
     '& .MuiCheckbox-root': {
@@ -51,13 +53,36 @@ const styles = theme => ({
   },
   spacing: {
     marginTop: 16
+  },
+  radioSound: {
+    '& .MuiCheckbox-root': {
+      backgroundColor: 'transparent',
+      '&:hover': {
+        backgroundColor: 'transparent'
+      },
+      display: 'block'
+    },
+    marginLeft: 23,
+    height: 24
+  },
+  subtitleSoundDiv: {
+    marginTop: 40
+  },
+  label: {
+    marginTop: 1,
+    fontWeight: 500
+  },
+  spacingSound: {
+    marginTop: 8
   }
 })
 
 export const Notifications = ({
   classes,
   userFilterType,
-  setUserNotification
+  setUserNotification,
+  userSound,
+  setUserNotificationsSound
 }) => {
   return (
     <AutoSizer>
@@ -188,6 +213,92 @@ export const Notifications = ({
                   }
                 />
               </Grid>
+              <Grid item className={classes.subtitleSoundDiv}>
+                <Typography variant='h5' className={classes.subtitle}>
+                  Sounds
+                </Typography>
+              </Grid>
+              <Grid
+                item
+                container
+                direction='column'
+                className={classes.radioSoundDiv}
+              >
+                <Grid item className={classes.labelDiv}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={userSound !== soundType.NONE}
+                        onChange={e => {
+                          if (e.target.checked) {
+                            setUserNotificationsSound(soundType.POW)
+                          } else {
+                            setUserNotificationsSound(soundType.NONE)
+                          }
+                        }}
+                        color='default'
+                      />
+                    }
+                    label={
+                      <Typography variant='body2' className={classes.label}>
+                        Play a sound when receiving a notification
+                      </Typography>
+                    }
+                  />
+                </Grid>
+                <Grid item className={classes.spacingSound}>
+                  <FormControlLabel
+                    classes={{ root: classes.radioSound }}
+                    control={
+                      <Checkbox
+                        icon={<Icon src={radioUnselected} />}
+                        checkedIcon={<Icon src={radioChecked} />}
+                        checked={soundType.POW === userSound}
+                      />
+                    }
+                    onChange={() => {
+                      setUserNotificationsSound(soundType.POW)
+
+                      direct.play()
+                    }}
+                    label='Pow'
+                  />
+                </Grid>
+                <Grid item className={classes.spacingSound}>
+                  <FormControlLabel
+                    classes={{ root: classes.radioSound }}
+                    control={
+                      <Checkbox
+                        icon={<Icon src={radioUnselected} />}
+                        checkedIcon={<Icon src={radioChecked} />}
+                        checked={soundType.BANG === userSound}
+                      />
+                    }
+                    onChange={() => {
+                      sharp.play()
+                      setUserNotificationsSound(soundType.BANG)
+                    }}
+                    label='Bang'
+                  />
+                </Grid>
+                <Grid item className={classes.spacingSound}>
+                  <FormControlLabel
+                    classes={{ root: classes.radioSound }}
+                    control={
+                      <Checkbox
+                        icon={<Icon src={radioUnselected} />}
+                        checkedIcon={<Icon src={radioChecked} />}
+                        checked={soundType.SPLAT === userSound}
+                      />
+                    }
+                    onChange={() => {
+                      relentless.play()
+                      setUserNotificationsSound(soundType.SPLAT)
+                    }}
+                    label='Splat'
+                  />
+                </Grid>
+              </Grid>
             </Grid>
           </Grid>
         </Scrollbars>
@@ -198,7 +309,9 @@ export const Notifications = ({
 Notifications.propTypes = {
   classes: PropTypes.object.isRequired,
   userFilterType: PropTypes.number.isRequired,
-  setUserNotification: PropTypes.func.isRequired
+  userSound: PropTypes.number.isRequired,
+  setUserNotification: PropTypes.func.isRequired,
+  setUserNotificationsSound: PropTypes.func.isRequired
 }
 Notifications.defaultProps = {}
 export default withStyles(styles)(Notifications)

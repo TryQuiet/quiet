@@ -33,6 +33,9 @@ const setContactNotificationFilter = createAction(
 const setContactsNotificationSettings = createAction(
   actionTypes.SET_CONTACTS_NOTIFICATION_SETTINGS
 )
+const setUserNotificationSound = createAction(
+  actionTypes.SET_USER_NOTIFICATION_SOUND
+)
 export const init = () => async (dispatch, getState) => {
   if (!electronStore.get('notificationCenter')) {
     electronStore.set(
@@ -96,18 +99,31 @@ export const setUserNotification = filterType => async (dispatch, getState) => {
     })
   )
 }
+export const setUserNotificationsSound = sound => async (
+  dispatch,
+  getState
+) => {
+  electronStore.set(`notificationCenter.user.sound`, sound)
+  dispatch(
+    setUserNotificationSound({
+      sound: sound
+    })
+  )
+}
 export const actions = {
   setChannelNotificationFilter,
   setUserNotificationFilter,
   setContactNotificationFilter,
-  setContactsNotificationSettings
+  setContactsNotificationSettings,
+  setUserNotificationSound
 }
 
 export const epics = {
   init,
   setChannelsNotification,
   setUserNotification,
-  setContactNotification
+  setContactNotification,
+  setUserNotificationsSound
 }
 
 export const reducer = handleActions(
@@ -128,6 +144,8 @@ export const reducer = handleActions(
       ),
     [setUserNotificationFilter]: (state, { payload: { filterType } }) =>
       state.update('user', user => user.merge({ filterType: filterType })),
+    [setUserNotificationSound]: (state, { payload: { sound } }) =>
+      state.update('user', user => user.merge({ sound: sound })),
     [setUserNotificationSettings]: (state, { payload: { userData } }) =>
       state.set('user', userData),
     [setChannelNotificationSettings]: (state, { payload: { channelsData } }) =>
