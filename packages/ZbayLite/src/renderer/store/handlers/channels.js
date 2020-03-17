@@ -51,28 +51,14 @@ const loadChannelsToNode = createAction(
   async id => {
     const channels = await getVault().channels.listChannels(id)
     try {
-      await getClient().keys.importIVK({
-        ivk: channels[0].keys.ivk
-      })
-    } catch (error) {
-      console.log(error)
-    }
-
-    try {
-      await getClient().keys.importIVK({
-        ivk: channels[1].keys.ivk
-      })
-    } catch (error) {
-      console.log(error)
-    }
-
-    try {
-      await getClient().keys.importIVK({
-        ivk: channels[2].keys.ivk
-      })
-    } catch (error) {
-      console.log(error)
-    }
+      await Promise.all(
+        channels.map(channel =>
+          getClient().keys.importIVK({
+            ivk: channel.keys.ivk
+          })
+        )
+      )
+    } catch (error) {}
 
     await Promise.all(
       channels
