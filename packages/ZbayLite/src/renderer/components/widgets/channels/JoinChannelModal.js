@@ -7,12 +7,12 @@ import Immutable from 'immutable'
 import { Typography } from '@material-ui/core'
 import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
-import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 
 import Modal from '../../ui/Modal'
 import { AutocompleteField } from '../../ui/form/Autocomplete'
 import { errorNotification } from '../../../store/handlers/utils'
+import LoadindButton from '../../ui/LoadingButton'
 
 const styles = theme => ({
   root: {
@@ -97,6 +97,7 @@ export const JoinChannelModal = ({
 }) => {
   const channelsArray = publicChannels.toList().toJS()
   const [step, setStep] = React.useState(0)
+  const [loading, setLoading] = React.useState(false)
   return (
     <Modal
       open={open}
@@ -109,7 +110,7 @@ export const JoinChannelModal = ({
     >
       <Grid className={classes.root}>
         <Formik
-          onSubmit={(values, { resetForm }) => {
+          onSubmit={async (values, { resetForm }) => {
             const ch = publicChannels.find(
               channel => channel.name === values.channel.name
             )
@@ -120,7 +121,9 @@ export const JoinChannelModal = ({
                 )
                 return
               }
-              joinChannel(ch)
+              setLoading(true)
+              await joinChannel(ch)
+              setLoading(false)
               setStep(0)
               handleClose()
               resetForm()
@@ -227,15 +230,16 @@ export const JoinChannelModal = ({
                   )}
 
                   {step !== 0 ? (
-                    <Button
+                    <LoadindButton
                       className={classes.button}
                       variant='contained'
                       color='primary'
                       size='large'
                       type='submit'
-                    >
-                      Join Channel
-                    </Button>
+                      text='Join Channel'
+                      inProgress={loading}
+                      disabled={loading}
+                    />
                   ) : (
                     <Typography variant='caption' className={classes.info}>
                       If you have an invite link, open it in a browser

@@ -105,8 +105,12 @@ const linkChannelRedirect = targetChannel => async (dispatch, getState) => {
         startHeight: fetchTreshold
       })
     } catch (error) {}
-
     await dispatch(channelsHandlers.actions.loadChannels(identityId))
+    channels = channelsSelectors.channels(getState())
+    channel = channels.data.find(
+      channel => channel.get('address') === targetChannel.address
+    )
+    await dispatch(messagesHandlers.epics.fetchMessages(channel))
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar({
         message: `Successfully imported channel ${targetChannel.name}`,
@@ -114,10 +118,6 @@ const linkChannelRedirect = targetChannel => async (dispatch, getState) => {
           variant: 'success'
         }
       })
-    )
-    channels = channelsSelectors.channels(getState())
-    channel = channels.data.find(
-      channel => channel.get('address') === targetChannel.address
     )
     history.push(`/main/channel/${channel.get('id')}`)
   } catch (err) {
