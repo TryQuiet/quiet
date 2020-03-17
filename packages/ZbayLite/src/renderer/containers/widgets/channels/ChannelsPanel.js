@@ -11,7 +11,8 @@ import channelsSelectors from '../../../store/selectors/channels'
 import channelSelectors, { INPUT_STATE } from '../../../store/selectors/channel'
 import { actionCreators } from '../../../store/handlers/modals'
 import QuickActionButton from '../../../components/widgets/sidebar/QuickActionButton'
-import MoreButton from '../../../components/widgets/sidebar/MoreButton'
+import { Icon } from '../../../components/ui/Icon'
+import SearchIcon from '../../../static/images/st-search.svg'
 
 export const mapStateToProps = state => ({
   channels: channelsSelectors.data(state),
@@ -52,12 +53,16 @@ export const ChannelsPanel = ({
         <BaseChannelsList {...props} />
       </Grid>
       <Grid item>
-        <MoreButton tooltipText='More channels' action={openJoinChannel} />
+        <QuickActionButton
+          text='Create Channels'
+          action={fundsLocked ? openDepositMonet : openCreateModal}
+        />
       </Grid>
       <Grid item>
         <QuickActionButton
-          text='New Channel'
-          action={fundsLocked ? openDepositMonet : openCreateModal}
+          text='Find Channels'
+          action={openJoinChannel}
+          icon={<Icon src={SearchIcon} />}
         />
       </Grid>
     </Grid>

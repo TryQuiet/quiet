@@ -21,18 +21,29 @@ const styles = theme => ({
     color: theme.palette.colors.white
   },
   icon: {
-    fontSize: 14,
+    fontSize: 12,
+    marginRight: 2,
+    marginLeft: -2,
+    marginBottom: 2
+  },
+  iconDiv: {
     marginRight: 5,
     marginBottom: 2
   }
 })
 
-export const QuickActionButton = ({ classes, text, action }) => (
-  <Button variant='text' className={classes.button} onClick={action}>
-    <AddIcon className={classes.icon} />
-    <Typography variant='body2'>{text}</Typography>
-  </Button>
-)
+export const QuickActionButton = ({ classes, text, action, icon }) => {
+  return (
+    <Button variant='text' className={classes.button} onClick={action}>
+      {icon ? (
+        <div className={classes.iconDiv}>{icon}</div>
+      ) : (
+        <AddIcon className={classes.icon} />
+      )}
+      <Typography variant='body2'>{text}</Typography>
+    </Button>
+  )
+}
 
 QuickActionButton.propTypes = {
   classes: PropTypes.object.isRequired,
@@ -40,7 +51,4 @@ QuickActionButton.propTypes = {
   action: PropTypes.func.isRequired
 }
 
-export default R.compose(
-  withStyles(styles),
-  React.memo
-)(QuickActionButton)
+export default R.compose(withStyles(styles), React.memo)(QuickActionButton)
