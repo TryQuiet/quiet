@@ -30,7 +30,7 @@ const styles = theme => ({
     marginLeft: 46
   },
   imagePlaceholder: {
-    marginLeft: 50,
+    marginLeft: 46,
     backgroundColor: theme.palette.colors.veryLightGray,
     height: 104,
     width: 112,
@@ -53,7 +53,7 @@ const styles = theme => ({
     marginTop: 20
   },
   buttonDiv: {
-    marginBottom: 16
+    marginBottom: 5
   },
   img: {
     maxWidth: 220,
@@ -292,7 +292,6 @@ export const ChannelMessage = ({
           container
           className={classes.imagePlaceholder}
           justify='center'
-          alignItems='flex-start'
           spacing={0}
           onClick={() => {
             if (whitelisted.contains(new URL(imageUrl).hostname)) {
