@@ -19,6 +19,9 @@ const channelFilterById = channelId =>
     channels,
     channels => channels.get(channelId) || notificationFilterType.ALL_MESSAGES
   )
+const blockedUsers = createSelector(contacts, contacts =>
+  contacts.filter(type => type === notificationFilterType.MUTE)
+)
 const contactFilterByAddress = address =>
   createSelector(
     contacts,
@@ -32,5 +35,6 @@ export default {
   userFilterType,
   notificationCenter,
   contactFilterByAddress,
-  userSound
+  userSound,
+  blockedUsers
 }

@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BlockedUsers will receive right actions 1`] = `
+Object {
+  "unblock": [Function],
+}
+`;
+
+exports[`BlockedUsers will receive right props 1`] = `
+Object {
+  "blockedUsers": Immutable.Map {
+    "ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r": 4,
+  },
+  "users": Immutable.Map {
+    "address": Immutable.Map {
+      "firstName": "testname",
+      "lastName": "testlastname",
+      "nickname": "nickname",
+      "address": "ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r",
+    },
+    "address2": Immutable.Map {
+      "firstName": "testname2",
+      "lastName": "testlastname2",
+      "nickname": "nickname2",
+      "address": "ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r",
+    },
+  },
+}
+`;

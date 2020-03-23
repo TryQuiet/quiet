@@ -15,7 +15,7 @@ describe('NotificationsCenter', () => {
         notificationCenter: NotificationsCenter({
           channels: Immutable.Map({ key1: 1, key2: 2 }),
           user: Immutable.Map({ key1: 1, key2: 2, filterType: 1, sound: 1 }),
-          contacts: Immutable.Map({ key1: 1, key2: 2 })
+          contacts: Immutable.Map({ key1: 1, key2: 2, muted1: 4, muted2: 4 })
         })
       })
     })
@@ -34,6 +34,11 @@ describe('NotificationsCenter', () => {
   it('contacts selector', async () => {
     expect(
       notificationCenterSelectors.contacts(store.getState())
+    ).toMatchSnapshot()
+  })
+  it('blockedUsers selector', async () => {
+    expect(
+      notificationCenterSelectors.blockedUsers(store.getState())
     ).toMatchSnapshot()
   })
   it('contact by address selector', async () => {

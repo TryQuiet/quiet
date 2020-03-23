@@ -14,6 +14,7 @@ import InvitationModal from '../../../../containers/ui/InvitationModal/Invitatio
 import AddFundsModal from '../../../../containers/widgets/settings/AddFunds'
 import Security from '../../../../containers/widgets/settings/Security'
 import Notifications from '../../../../containers/widgets/settings/Notifications'
+import BlockedUsers from '../../../../containers/widgets/settings/BlockedUsers'
 
 const tabs = {
   account: AccountSettingsForm,
@@ -21,7 +22,8 @@ const tabs = {
   invite: InvitationModal,
   addFunds: AddFundsModal,
   security: Security,
-  notifications: Notifications
+  notifications: Notifications,
+  blockedusers: BlockedUsers
 }
 
 const styles = theme => ({
@@ -122,6 +124,11 @@ export const SettingsModal = ({
               <Tab
                 value='security'
                 label='Security'
+                classes={{ tabRoot: classes.tab, selected: classes.selected }}
+              />
+              <Tab
+                value='blockedusers'
+                label='Blocked users'
                 classes={{ tabRoot: classes.tab, selected: classes.selected }}
               />
             </Tabs>

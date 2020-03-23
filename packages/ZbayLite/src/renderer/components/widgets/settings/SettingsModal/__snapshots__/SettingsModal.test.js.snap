@@ -92,6 +92,16 @@ exports[`SettingsModal renders component 1`] = `
             label="Security"
             value="security"
           />
+          <WithStyles(Tab)
+            classes={
+              Object {
+                "selected": "selected-mock",
+                "tabRoot": "tab-mock",
+              }
+            }
+            label="Blocked users"
+            value="blockedusers"
+          />
         </WithStyles(ForwardRef(Tabs))>
       </WithStyles(ForwardRef(AppBar))>
     </WithStyles(ForwardRef(Grid))>

@@ -1,6 +1,6 @@
 import Immutable from 'immutable'
 import { createAction, handleActions } from 'redux-actions'
-import { actionTypes } from '../../../shared/static'
+import { actionTypes, notificationFilterType } from '../../../shared/static'
 import electronStore from '../../../shared/electronStore'
 import notificationCenterSelector from '../selectors/notificationCenter'
 import directMessageChannelSelector from '../selectors/directMessageChannel'
@@ -91,6 +91,21 @@ export const setContactNotification = filterType => async (
     })
   )
 }
+export const unblockUserNotification = address => async (
+  dispatch,
+  getState
+) => {
+  electronStore.set(
+    `notificationCenter.contacts.${address}`,
+    notificationFilterType.ALL_MESSAGES
+  )
+  dispatch(
+    setContactNotificationFilter({
+      contact: address,
+      filterType: notificationFilterType.ALL_MESSAGES
+    })
+  )
+}
 export const setUserNotification = filterType => async (dispatch, getState) => {
   electronStore.set(`notificationCenter.user.filterType`, filterType)
   dispatch(
@@ -123,7 +138,8 @@ export const epics = {
   setChannelsNotification,
   setUserNotification,
   setContactNotification,
-  setUserNotificationsSound
+  setUserNotificationsSound,
+  unblockUserNotification
 }
 
 export const reducer = handleActions(
