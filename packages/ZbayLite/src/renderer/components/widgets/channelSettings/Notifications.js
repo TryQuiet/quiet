@@ -61,7 +61,8 @@ const styles = theme => ({
     marginTop: 16
   },
   captions: {
-    color: theme.palette.colors.darkGray
+    color: theme.palette.colors.darkGray,
+    lineHeight: '20px'
   },
   link: {
     cursor: 'pointer',
@@ -186,8 +187,8 @@ export const Notifications = ({
             )}
             <Grid item className={classes.captionDiv}>
               <Typography variant='caption' className={classes.captions}>
-                You can set notifications for all channels and messages in your
-                setttings inside{' '}
+                You can choose how to be alerted or turn off all Zbay
+                notifications in your{' '}
                 <span
                   className={classes.link}
                   onClick={() => {
@@ -195,7 +196,7 @@ export const Notifications = ({
                     openNotificationsTab()
                   }}
                 >
-                  notifications
+                  Notification Settings
                 </span>
                 .
               </Typography>

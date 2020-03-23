@@ -60,7 +60,8 @@ const styles = theme => ({
   }
 })
 
-const handleChange = (setCurrentTab, value) => {
+const handleChange = (setCurrentTab, clearCurrentOpenTab, value) => {
+  clearCurrentOpenTab()
   setCurrentTab(value)
 }
 
@@ -71,9 +72,11 @@ export const ChannelSettingsModal = ({
   currentTab,
   setCurrentTab,
   channel,
-  isOwner
+  isOwner,
+  modalTabToOpen,
+  clearCurrentOpenTab
 }) => {
-  const TabComponent = tabs[currentTab]
+  const TabComponent = tabs[modalTabToOpen || currentTab]
   return (
     <Modal
       open={open}
@@ -86,8 +89,10 @@ export const ChannelSettingsModal = ({
         <Grid item className={classes.tabsDiv}>
           <AppBar position='static' className={classes.appbar}>
             <Tabs
-              value={currentTab}
-              onChange={(e, value) => handleChange(setCurrentTab, value)}
+              value={modalTabToOpen || currentTab}
+              onChange={(e, value) =>
+                handleChange(setCurrentTab, clearCurrentOpenTab, value)
+              }
               orientation='vertical'
               className={classes.tabs}
               textColor='inherit'
@@ -145,7 +150,9 @@ ChannelSettingsModal.propTypes = {
   open: PropTypes.bool.isRequired,
   isOwner: PropTypes.bool.isRequired,
   handleClose: PropTypes.func.isRequired,
+  clearCurrentOpenTab: PropTypes.func,
   currentTab: PropTypes.string,
+  modalTabToOpen: PropTypes.string,
   setCurrentTab: PropTypes.func.isRequired,
   channel: PropTypes.instanceOf(Immutable.Map).isRequired
 }

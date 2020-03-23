@@ -27,18 +27,8 @@ export const mapDispatchToProps = dispatch =>
     dispatch
   )
 
-const ChannelSettingsModal = ({
-  modalTabToOpen,
-  clearCurrentOpenTab,
-  ...props
-}) => {
+const ChannelSettingsModal = ({ ...props }) => {
   const [currentTab, setCurrentTab] = useState('channelInfo')
-  React.useEffect(() => {
-    if (modalTabToOpen === 'notifications') {
-      setCurrentTab('notifications')
-      clearCurrentOpenTab()
-    }
-  }, [modalTabToOpen])
   return (
     <ChannelSettingsModalComponent
       {...props}
