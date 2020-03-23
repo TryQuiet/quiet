@@ -13,7 +13,7 @@ import { errorNotification } from './utils'
 import { getClient } from '../../zcash'
 import { actionTypes } from '../../../shared/static'
 
-export const DEFAULT_DEBOUNCE_INTERVAL = 6000
+export const DEFAULT_DEBOUNCE_INTERVAL = 1000
 
 export const PendingMessage = Immutable.Record({
   channelId: '',

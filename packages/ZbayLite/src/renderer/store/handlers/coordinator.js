@@ -2,6 +2,7 @@ import Immutable from 'immutable'
 import { createAction, handleActions } from 'redux-actions'
 
 import channelsSelectors from '../selectors/channels'
+import channelSelectors from '../selectors/channel'
 import messagesHandlers from './messages'
 import contactsHandlers from './contacts'
 import nodeHandlers from './node'
@@ -22,11 +23,25 @@ export const initialState = Coordinator()
 export const stopCoordinator = createAction(actionTypes.STOP_COORDINATOR)
 export const startCoordinator = createAction(actionTypes.START_COORDINATOR)
 
+export const channelCoordinator = async (dispatch, getState) => {
+  const checkTargetChannelMessages = async () => {
+    const currentChannel = channelSelectors.channel(getState())
+    const { id: channelId } = currentChannel
+    const action = channelId ? () => messagesHandlers.epics.fetchMessages(currentChannel)
+      : () => contactsHandlers.epics.fetchMessages()
+    await dispatch(action())
+    setTimeout(checkTargetChannelMessages, 1000)
+  }
+  checkTargetChannelMessages()
+}
+
 const actions = {
   stopCoordinator,
   startCoordinator
 }
+
 const coordinator = () => async (dispatch, getState) => {
+  channelCoordinator(dispatch, getState)
   const fetchData = async () => {
     const actions = channelsSelectors
       .data(getState())

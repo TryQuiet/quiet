@@ -22,7 +22,7 @@ import { getVault } from '../../vault'
 import contactsHandlers from './contacts'
 import offersHandlers from './offers'
 
-export const DEFAULT_DEBOUNCE_INTERVAL = 6000
+export const DEFAULT_DEBOUNCE_INTERVAL = 1000
 const POLLING_OFFSET = 60000
 
 export const PendingMessage = Immutable.Record(
