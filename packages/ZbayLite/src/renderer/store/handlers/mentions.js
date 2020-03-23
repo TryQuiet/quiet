@@ -48,6 +48,8 @@ const checkMentions = () => async (dispatch, getState) => {
   const splitMessage = message
     .split(String.fromCharCode(160))
     .filter(part => part.startsWith('@'))
+    .filter(part => users.toList().find(user => user.nickname === part.substring(1)))
+
   const foundMentions = []
   for (const mention of splitMessage) {
     if (
