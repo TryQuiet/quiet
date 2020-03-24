@@ -28,13 +28,15 @@ exports[`ChannelMessages renders component 1`] = `
       }
     }
   >
+    <Memo(WithStyles(MessagesDivider))
+      title="Invalid DateTime"
+    />
     <Memo(Connect(Component))
       key="0"
       message={
-        Immutable.Map {
-          "id": 0,
-          "type": 1,
+        Object {
           "createdAt": 1551963828,
+          "id": 0,
           "message": "This is some message 0",
           "signature": Object {
             "data": Array [
@@ -105,16 +107,16 @@ exports[`ChannelMessages renders component 1`] = `
             ],
             "type": "Buffer",
           },
+          "type": 1,
         }
       }
     />
     <Memo(Connect(Component))
       key="1"
       message={
-        Immutable.Map {
-          "id": 1,
-          "type": 1,
+        Object {
           "createdAt": 1551960228,
+          "id": 1,
           "message": "This is some message 1",
           "signature": Object {
             "data": Array [
@@ -185,16 +187,16 @@ exports[`ChannelMessages renders component 1`] = `
             ],
             "type": "Buffer",
           },
+          "type": 1,
         }
       }
     />
     <Memo(Connect(Component))
       key="2"
       message={
-        Immutable.Map {
-          "id": 2,
-          "type": 1,
+        Object {
           "createdAt": 1551956628,
+          "id": 2,
           "message": "This is some message 2",
           "signature": Object {
             "data": Array [
@@ -265,16 +267,16 @@ exports[`ChannelMessages renders component 1`] = `
             ],
             "type": "Buffer",
           },
+          "type": 1,
         }
       }
     />
     <Memo(Connect(Component))
       key="3"
       message={
-        Immutable.Map {
-          "id": 3,
-          "type": 1,
+        Object {
           "createdAt": 1551953028,
+          "id": 3,
           "message": "This is some message 3",
           "signature": Object {
             "data": Array [
@@ -345,6 +347,7 @@ exports[`ChannelMessages renders component 1`] = `
             ],
             "type": "Buffer",
           },
+          "type": 1,
         }
       }
     />

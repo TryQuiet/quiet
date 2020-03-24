@@ -60,7 +60,7 @@ exports[`InviteMentionInfo renders component 1`] = `
                 <ForwardRef(WithStyles)
                   className="time-mock"
                 >
-                  Jan 1, 1970, 12:00 am
+                  12:00 am
                 </ForwardRef(WithStyles)>
               </ForwardRef(WithStyles)>
             </ForwardRef(WithStyles)>

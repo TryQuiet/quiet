@@ -100,15 +100,7 @@ const statusComponent = {
 }
 
 export const getTimeFormat = time => {
-  const today = DateTime.utc()
-  if (time.hasSame(today, 'day')) {
-    return 't'
-  } else if (time.hasSame(today, 'week')) {
-    return 'ccc, t'
-  } else if (time.hasSame(today, 'year')) {
-    return 'LLL d, t'
-  }
-  return 'LLL d, y, t'
+  return 't'
 }
 
 export const transformToLowercase = string => {

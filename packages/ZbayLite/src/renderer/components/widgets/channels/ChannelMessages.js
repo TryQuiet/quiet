@@ -2,6 +2,8 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import Immutable from 'immutable'
 import { Scrollbars } from 'react-custom-scrollbars'
+import { DateTime } from 'luxon'
+import * as R from 'ramda'
 
 import List from '@material-ui/core/List'
 import { withStyles } from '@material-ui/core/styles'
@@ -11,6 +13,7 @@ import ChannelMessage from '../../../containers/widgets/channels/ChannelMessage'
 import WelcomeMessage from './WelcomeMessage'
 import ChannelItemTransferMessage from '../../../containers/widgets/channels/ItemTransferMessage'
 import ChannelAdMessage from '../../../containers/widgets/channels/ListingMessage'
+import MessagesDivider from '../MessagesDivider'
 
 const styles = theme => ({
   list: {
@@ -70,6 +73,13 @@ export const ChannelMessages = ({
     tag = msg.message.tag
     username = msg.sender.username
   }
+  const groupedMessages = R.groupBy(msg => {
+    return DateTime.fromFormat(
+      DateTime.fromSeconds(msg.createdAt).toFormat('cccc, LLL d'),
+      'cccc, LLL d'
+    ).toSeconds()
+  })(messages.filter(msg => messagesTypesToDisplay.includes(msg.type)))
+
   return (
     <Scrollbars
       ref={getScrollbarRef}
@@ -88,18 +98,34 @@ export const ChannelMessages = ({
         {isOffer && (
           <WelcomeMessage message={welcomeMessages['offer'](tag, username)} />
         )}
-        {messages
-          .filter(msg => messagesTypesToDisplay.includes(msg.get('type')))
-          .map(msg => {
-            const MessageComponent = typeToMessageComponent[msg.get('type')]
-            return (
-              <MessageComponent
-                key={msg.get('id')}
-                message={msg}
-                contactId={contactId}
-              />
-            )
-          })}
+        {Array.from(groupedMessages).map(args => {
+          const today = DateTime.utc()
+          const groupName = DateTime.fromSeconds(args[0]).toFormat(
+            'cccc, LLL d'
+          )
+          const displayTitle = DateTime.fromSeconds(args[0]).hasSame(
+            today,
+            'day'
+          )
+            ? 'Today'
+            : groupName
+
+          return (
+            <>
+              <MessagesDivider title={displayTitle} />
+              {args[1].map(msg => {
+                const MessageComponent = typeToMessageComponent[msg.type]
+                return (
+                  <MessageComponent
+                    key={msg.id}
+                    message={msg}
+                    contactId={contactId}
+                  />
+                )
+              })}
+            </>
+          )
+        })}
       </List>
     </Scrollbars>
   )
