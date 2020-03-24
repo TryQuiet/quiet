@@ -68,7 +68,7 @@ export const pendingMessages = address =>
         o =>
           o.type === operationTypes.pendingDirectMessage &&
           o.meta.recipientAddress === address &&
-          o.meta.message.type < 10 //  separate offer messages and direct messages
+          o.meta.message.get('type') < 10 //  separate offer messages and direct messages
       )
   )
 
