@@ -7,7 +7,6 @@ import BigNumber from 'bignumber.js'
 
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
-import LinearProgress from '@material-ui/core/LinearProgress'
 import { withStyles } from '@material-ui/core/styles'
 
 import PasswordField from '../ui/form/PasswordField'
@@ -43,18 +42,13 @@ const styles = theme => ({
     height: 36,
     marginBottom: 16
   },
-  message: {
-    height: 24,
-    marginTop: 30
-  },
   torDiv: {
     marginTop: -8
   },
   status: {
-    paddingTop: 8,
+    marginTop: 9,
+    padding: 8,
     width: '100%',
-    fontSize: '1rem',
-    color: theme.palette.colors.darkGray,
     textAlign: 'center'
   },
   progressBar: {
@@ -89,7 +83,6 @@ export const VaultUnlockerForm = ({
   const lastBlock = node.latestBlock.isEqualTo(0) ? 999999 : node.latestBlock
   const isBlockchainFromExternalSouce = electronStore.get('isBlockchainFromExternalSource') && blockchainStatus !== config.BLOCKCHAIN_STATUSES.SUCCESS
   const isSynced = (!node.latestBlock.isEqualTo(0) && node.latestBlock.minus(node.currentBlock).lt(10)) && new BigNumber(node.latestBlock).gt(755000)
-  const sync = parseFloat((node.currentBlock.div(lastBlock).times(100)).toString()).toFixed(2)
   return (
     <Formik
       onSubmit={(values, actions) => {
@@ -159,15 +152,10 @@ export const VaultUnlockerForm = ({
             )}
           </Grid>
           {(!isSynced && isLogIn) && (
-            <Grid item className={classes.message}>
-              {nodeConnected && <Grid item container justify='center' alignItems='center'>
-                <LinearProgress variant={'determinate'} classes={{ root: classes.rootBar, barColorPrimary: classes.progressBar }} value={sync} />
-              </Grid>}
-              <Grid item container justify='center' alignItems='center'>
-                <Typography variant='caption' className={classes.status}>
-                  {nodeConnected ? `Syncing (${node.currentBlock}/${lastBlock})` : `Connecting to Zcash network`}
-                </Typography>
-              </Grid>
+            <Grid item container justify='center' alignItems='center'>
+              <Typography variant='body2' className={classes.status}>
+                {nodeConnected ? `Syncing (${node.currentBlock}/${lastBlock})` : `Connecting to Zcash network`}
+              </Typography>
             </Grid>
           )}
           {!isDev && !isBlockchainFromExternalSouce && !locked && !loader.loading && (blockchainStatus !== 'SUCCESS' || !isRescanned) && (
