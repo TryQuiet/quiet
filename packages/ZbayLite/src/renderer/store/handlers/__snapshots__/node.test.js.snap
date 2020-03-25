@@ -36,6 +36,7 @@ Immutable.NodeState {
     "rescanningProgress": 0,
     "isRescanningMonitorStarted": false,
     "isRescanningInitialized": false,
+    "guideStatus": false,
   },
   "startedAt": null,
 }
@@ -67,6 +68,7 @@ Immutable.NodeState {
     "rescanningProgress": 0,
     "isRescanningMonitorStarted": false,
     "isRescanningInitialized": false,
+    "guideStatus": false,
   },
   "startedAt": null,
 }
@@ -98,6 +100,7 @@ Immutable.NodeState {
     "rescanningProgress": 0,
     "isRescanningMonitorStarted": false,
     "isRescanningInitialized": false,
+    "guideStatus": false,
   },
   "startedAt": null,
 }

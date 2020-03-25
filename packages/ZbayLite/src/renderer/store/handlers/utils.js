@@ -42,7 +42,8 @@ export const FetchingState = Immutable.Record({
   isFetching: false,
   rescanningProgress: 0,
   isRescanningMonitorStarted: false,
-  isRescanningInitialized: false
+  isRescanningInitialized: false,
+  guideStatus: false
 })
 
 export default {

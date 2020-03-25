@@ -10,6 +10,7 @@ describe('SyncLoader', () => {
     const result = shallow(
       <SyncLoader
         classes={mockClasses}
+        isGuideCompleted
         node={NodeState({ currentBlock: BigNumber(1), latestBlock: BigNumber(100) })}
       />
     )

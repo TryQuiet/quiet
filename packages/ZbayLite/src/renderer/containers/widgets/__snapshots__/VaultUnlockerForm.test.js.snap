@@ -42,6 +42,7 @@ Object {
       "rescanningProgress": 0,
       "isRescanningMonitorStarted": false,
       "isRescanningInitialized": false,
+      "guideStatus": false,
     },
     "startedAt": null,
   },

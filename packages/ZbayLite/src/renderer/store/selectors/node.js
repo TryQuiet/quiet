@@ -50,6 +50,7 @@ const rescanningProgress = createSelector(fetching, n => n.rescanningProgress)
 const isFetching = createSelector(fetching, n => n.isFetching)
 const isRescanningMonitorStarted = createSelector(fetching, n => n.isRescanningMonitorStarted)
 const isRescanningInitialized = createSelector(fetching, n => n.isRescanningInitialized)
+const guideStatus = createSelector(fetching, n => n.guideStatus)
 
 export default {
   node,
@@ -71,5 +72,6 @@ export default {
   fetchingEndTime,
   rescanningProgress,
   isRescanningMonitorStarted,
-  isRescanningInitialized
+  isRescanningInitialized,
+  guideStatus
 }

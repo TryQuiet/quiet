@@ -34,7 +34,8 @@ export const mapStateToProps = state => ({
   rescanningProgress: nodeSelectors.rescanningProgress(state),
   isFetching: nodeSelectors.isFetching(state),
   isRescanningInitialized: nodeSelectors.isRescanningInitialized(state),
-  loader: identitySelectors.loader(state)
+  loader: identitySelectors.loader(state),
+  guideStatus: nodeSelectors.guideStatus(state)
 })
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
@@ -51,7 +52,8 @@ export const mapDispatchToProps = dispatch =>
     dispatch
   )
 
-export const SyncLoader = ({ setVaultIdentity, loader, resetNodeStatus, setRescanningInitialized, loadIdentity, isRescanningInitialized, isFetching, disablePowerSaveMode, isRescanningMonitorStarted, rescanningProgress, startRescanningMonitor, hasAddress, node, getStatus, bootstrapping, bootstrappingMessage, nodeConnected, openModal, creating, locked, exists, fetchingPart, fetchingSizeLeft, fetchingStatus, fetchingEndTime, fetchingSpeed }) => {
+export const SyncLoader = ({ setVaultIdentity, loader, guideStatus, resetNodeStatus, setRescanningInitialized, loadIdentity, isRescanningInitialized, isFetching, disablePowerSaveMode, isRescanningMonitorStarted, rescanningProgress, startRescanningMonitor, hasAddress, node, getStatus, bootstrapping, bootstrappingMessage, nodeConnected, openModal, creating, locked, exists, fetchingPart, fetchingSizeLeft, fetchingStatus, fetchingEndTime, fetchingSpeed }) => {
+  const isGuideCompleted = electronStore.get('storyStatus') || guideStatus
   const blockchainStatus = electronStore.get('AppStatus.blockchain.status')
   const vaultStatus = electronStore.get('vaultStatus')
   const lastBlock = node.latestBlock.isEqualTo(0) ? 999999 : node.latestBlock
@@ -118,6 +120,7 @@ export const SyncLoader = ({ setVaultIdentity, loader, resetNodeStatus, setResca
       ETA={ETA}
       progressValue={progressValue}
       isFetching={isFetching}
+      isGuideCompleted={isGuideCompleted}
       message={message} />
   )
 }

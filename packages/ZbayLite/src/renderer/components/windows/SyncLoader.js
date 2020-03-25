@@ -2,12 +2,12 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
 import { Grid, LinearProgress, Typography } from '@material-ui/core'
-import Immutable from 'immutable'
 
 import WindowWrapper from '../ui/WindowWrapper'
 import ZcashIcon from '../../static/images/zcash/logo-lockup--circle.svg'
 import Carousel from '../widgets/Carousel'
 import Icon from '../ui/Icon'
+import RegistrationGuide from '../../containers/windows/RegistrationGuide'
 
 const styles = theme => ({
   root: {
@@ -80,8 +80,8 @@ const styles = theme => ({
   }
 })
 
-export const SyncLoader = ({ classes, ETA, message, isFetching, progressValue, hasAddress, blockchainStatus, node, bootstrapping, bootstrappingMessage, nodeConnected, openModal, fetchingStatus, fetchingSizeLeft, fetchingPart, fetchingSpeed }) => {
-  return (
+export const SyncLoader = ({ classes, ETA, isGuideCompleted, message, isFetching, progressValue, hasAddress, blockchainStatus, bootstrapping, bootstrappingMessage, openModal, fetchingStatus, fetchingSpeed }) => {
+  return isGuideCompleted ? (
     <WindowWrapper className={classes.root}>
       <Grid container className={classes.box} justify='center' alignItems='center' alignContent='center'>
         <Grid
@@ -126,12 +126,11 @@ export const SyncLoader = ({ classes, ETA, message, isFetching, progressValue, h
         )}
       </Grid>
     </WindowWrapper>
-  )
+  ) : <RegistrationGuide />
 }
 
 SyncLoader.propTypes = {
   classes: PropTypes.object.isRequired,
-  node: PropTypes.instanceOf(Immutable.Record).isRequired,
   ETA: PropTypes.object,
   message: PropTypes.string,
   progressValue: PropTypes.string,
@@ -142,13 +141,11 @@ SyncLoader.propTypes = {
   blockchainStatus: PropTypes.string,
   bootstrapping: PropTypes.bool,
   bootstrappingMessage: PropTypes.string,
-  nodeConnected: PropTypes.bool,
   openModal: PropTypes.func,
   fetchingStatus: PropTypes.string,
-  fetchingSizeLeft: PropTypes.number,
-  fetchingPart: PropTypes.string,
   fetchingSpeed: PropTypes.number,
-  isFetching: PropTypes.bool
+  isFetching: PropTypes.bool,
+  isGuideCompleted: PropTypes.bool.isRequired
 }
 
 export default withStyles(styles)(SyncLoader)

@@ -45,6 +45,7 @@ const setConnectionStatus = createAction(actionTypes.SET_CONNECTION_STATUS)
 const setRescanningProgress = createAction(actionTypes.SET_RESCANNING_PROGRESS)
 const setRescanningMonitorStatus = createAction(actionTypes.SET_RESCANNING_MONITOR_STATUS)
 const setRescanningStatus = createAction(actionTypes.SET_RESCANNING_STATUS)
+const setGuideStatus = createAction(actionTypes.SET_GUIDE_STATUS)
 
 const actions = {
   createAddress,
@@ -59,7 +60,8 @@ const actions = {
   setRescanningMonitorStatus,
   setConnectionStatus,
   setRescanningStatus,
-  setStatus
+  setStatus,
+  setGuideStatus
 }
 
 export const startRescanningMonitor = () => async (dispatch, getState) => {
@@ -116,7 +118,8 @@ export const reducer = handleActions({
   [setConnectionStatus]: (state, { payload: isFetching }) => state.setIn(['fetchingStatus', 'isFetching'], isFetching),
   [setRescanningProgress]: (state, { payload: rescanningProgress }) => state.setIn(['fetchingStatus', 'rescanningProgress'], rescanningProgress),
   [setRescanningMonitorStatus]: (state, { payload: isRescanningMonitorStarted }) => state.setIn(['fetchingStatus', 'isRescanningMonitorStarted'], isRescanningMonitorStarted),
-  [setRescanningStatus]: (state, { payload: isRescanningInitialized }) => state.setIn(['fetchingStatus', 'isRescanningInitialized'], isRescanningInitialized)
+  [setRescanningStatus]: (state, { payload: isRescanningInitialized }) => state.setIn(['fetchingStatus', 'isRescanningInitialized'], isRescanningInitialized),
+  [setGuideStatus]: (state, { payload: guideStatus }) => state.setIn(['fetchingStatus', 'guideStatus'], guideStatus)
 }, initialState)
 
 export default {
