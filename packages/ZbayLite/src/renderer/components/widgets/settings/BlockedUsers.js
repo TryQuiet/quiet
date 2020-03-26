@@ -1,7 +1,5 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { AutoSizer } from 'react-virtualized'
-import { Scrollbars } from 'react-custom-scrollbars'
 import Immutable from 'immutable'
 
 import Grid from '@material-ui/core/Grid'
@@ -35,43 +33,34 @@ export const BlockedUsers = ({ classes, blockedUsers, users, unblock }) => {
     users.find(user => user.address === address)
   )
   return (
-    <AutoSizer>
-      {({ width, height }) => (
-        <Scrollbars
-          autoHideTimeout={500}
-          style={{ width: width, height: height, overflowX: 'hidden' }}
-        >
-          <Grid container direction='column'>
-            <Grid
-              container
-              item
-              justify='space-between'
-              alignItems='center'
-              className={classes.titleDiv}
-            >
-              <Grid item className={classes.title}>
-                <Typography variant='h3'>BlockedUsers</Typography>
-              </Grid>
-            </Grid>
-            {blockedAddresses.map(address => {
-              return (
-                <Grid item>
-                  <UserListItem
-                    name={users.find(user => user.address === address).nickname}
-                    actionName='unblock'
-                    classes={{ name: classes.itemName }}
-                    prefix='@'
-                    action={() => {
-                      unblock(address)
-                    }}
-                  />
-                </Grid>
-              )
-            })}
+    <Grid container direction='column'>
+      <Grid
+        container
+        item
+        justify='space-between'
+        alignItems='center'
+        className={classes.titleDiv}
+      >
+        <Grid item className={classes.title}>
+          <Typography variant='h3'>BlockedUsers</Typography>
+        </Grid>
+      </Grid>
+      {blockedAddresses.map(address => {
+        return (
+          <Grid item>
+            <UserListItem
+              name={users.find(user => user.address === address).nickname}
+              actionName='unblock'
+              classes={{ name: classes.itemName }}
+              prefix='@'
+              action={() => {
+                unblock(address)
+              }}
+            />
           </Grid>
-        </Scrollbars>
-      )}
-    </AutoSizer>
+        )
+      })}
+    </Grid>
   )
 }
 BlockedUsers.propTypes = {

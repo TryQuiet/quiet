@@ -2,8 +2,6 @@ import React, { Fragment } from 'react'
 import QRCode from 'qrcode.react'
 import PropTypes from 'prop-types'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { AutoSizer } from 'react-virtualized'
-import { Scrollbars } from 'react-custom-scrollbars'
 import classNames from 'classnames'
 
 import MenuItem from '@material-ui/core/MenuItem'
@@ -161,7 +159,8 @@ const descriptions = {
       once it arrives.)
     </Fragment>
   ),
-  private: 'Wallets that support Zcash shielded transactions can send you funds at this address. However, exchanges like Coinbase and Binance cannot.'
+  private:
+    'Wallets that support Zcash shielded transactions can send you funds at this address. However, exchanges like Coinbase and Binance cannot.'
 }
 
 export const AddFunds = ({
@@ -181,226 +180,201 @@ export const AddFunds = ({
     user => user.address === donationAddress
   )
   return (
-    <AutoSizer>
-      {({ width, height }) => (
-        <Scrollbars
-          autoHideTimeout={500}
-          style={{ width: variant === 'wide' ? 650 : 380, height: height }}
+    <>
+      <Grid
+        container
+        item
+        justify={variant === 'wide' ? 'center' : 'flex-start'}
+      >
+        <Typography variant={'h3'} className={classes.tabTitle}>
+          Add funds to your wallet
+        </Typography>
+      </Grid>
+      <Grid
+        container
+        item
+        justify={variant === 'wide' ? 'center' : 'flex-start'}
+      >
+        <Grid
+          container
+          justify='center'
+          alignContent='flex-start'
+          className={classNames({
+            [classes.root]: true,
+            [classes.changeSize]: variant === 'wide'
+          })}
         >
           <Grid
-            container
             item
-            justify={variant === 'wide' ? 'center' : 'flex-start'}
+            direction={'column'}
+            className={classes.addressSelectBox}
+            container
+            justify={'center'}
+            alignContent={'center'}
+            wrap='wrap'
           >
-            <Typography variant={'h3'} className={classes.tabTitle}>
-              Add funds to your wallet
-            </Typography>
+            <Grid item xs>
+              <Typography className={classes.fieldTitle} variant='subtitle2'>
+                Address to add funds
+              </Typography>
+            </Grid>
+            <Grid item xs>
+              <Select
+                displayEmpty
+                IconComponent={UnfoldMore}
+                input={
+                  <OutlinedInput
+                    name='address'
+                    id='outlined-address'
+                    className={classes.select}
+                  />
+                }
+                value={type}
+                onChange={handleChange}
+                className={classNames({
+                  [classes.selectWrapper]: true,
+                  [classes.wideSelectWrapper]: variant === 'wide'
+                })}
+              >
+                <MenuItem value={'transparent'}>Transparent</MenuItem>
+                <MenuItem value={'private'}>Private</MenuItem>
+              </Select>
+            </Grid>
+            <Grid className={classes.helperText} item>
+              <Typography variant={'body2'}>{descriptions[type]}</Typography>
+            </Grid>
           </Grid>
           <Grid
             container
+            className={classes.copyInputBox}
             item
-            justify={variant === 'wide' ? 'center' : 'flex-start'}
+            direction={'column'}
+            wrap={'no-wrap'}
+            alignContent={'center'}
+            justify={'center'}
           >
-            <Grid
-              container
-              justify='center'
-              alignContent='flex-start'
-              className={classNames({
-                [classes.root]: true,
-                [classes.changeSize]: variant === 'wide'
-              })}
-            >
-              <Grid
-                item
-                direction={'column'}
-                className={classes.addressSelectBox}
-                container
-                justify={'center'}
-                alignContent={'center'}
-                wrap='wrap'
-              >
-                <Grid item xs>
-                  <Typography
-                    className={classes.fieldTitle}
-                    variant='subtitle2'
-                  >
-                    Address to add funds
-                  </Typography>
-                </Grid>
-                <Grid item xs>
-                  <Select
-                    displayEmpty
-                    IconComponent={UnfoldMore}
-                    input={
-                      <OutlinedInput
-                        name='address'
-                        id='outlined-address'
-                        className={classes.select}
-                      />
-                    }
-                    value={type}
-                    onChange={handleChange}
-                    className={classNames({
-                      [classes.selectWrapper]: true,
-                      [classes.wideSelectWrapper]: variant === 'wide'
-                    })}
-                  >
-                    <MenuItem value={'transparent'}>Transparent</MenuItem>
-                    <MenuItem value={'private'}>Private</MenuItem>
-                  </Select>
-                </Grid>
-                <Grid className={classes.helperText} item>
-                  <Typography variant={'body2'}>
-                    {descriptions[type]}
-                  </Typography>
-                </Grid>
-              </Grid>
-              <Grid
-                container
-                className={classes.copyInputBox}
-                item
-                direction={'column'}
-                wrap={'no-wrap'}
-                alignContent={'center'}
-                justify={'center'}
-              >
-                <Grid className={classes.titleBox} item xs>
-                  <Typography
-                    className={classes.fieldTitle}
-                    variant='subtitle2'
-                  >
-                    {type === 'transparent'
-                      ? 'Transparent Address'
-                      : 'Private Address'}
-                  </Typography>
-                </Grid>
-                <Grid item xs>
-                  <TextField
-                    id='copy-address'
-                    className={classes.copyField}
-                    variant='outlined'
-                    type='text'
-                    value={address}
-                    disabled
-                    InputProps={{
-                      classes: {
-                        input: classes.copyInput,
-                        adornedEnd: classes.adornedEnd
-                      },
-                      endAdornment: (
-                        <Grid
-                          item
-                          container
-                          justify={'center'}
-                          alignItems={'center'}
-                          className={classes.iconBox}
-                        >
-                          <InputAdornment
-                            position='end'
-                            className={classes.iconBackground}
-                          >
-                            <CopyToClipboard text={address} onCopy={handleCopy}>
-                              <IconButton>
-                                <Icon src={CopyIcon} />
-                              </IconButton>
-                            </CopyToClipboard>
-                          </InputAdornment>
-                        </Grid>
-                      )
-                    }}
-                  />
-                </Grid>
-              </Grid>
+            <Grid className={classes.titleBox} item xs>
+              <Typography className={classes.fieldTitle} variant='subtitle2'>
+                {type === 'transparent'
+                  ? 'Transparent Address'
+                  : 'Private Address'}
+              </Typography>
+            </Grid>
+            <Grid item xs>
+              <TextField
+                id='copy-address'
+                className={classes.copyField}
+                variant='outlined'
+                type='text'
+                value={address}
+                disabled
+                InputProps={{
+                  classes: {
+                    input: classes.copyInput,
+                    adornedEnd: classes.adornedEnd
+                  },
+                  endAdornment: (
+                    <Grid
+                      item
+                      container
+                      justify={'center'}
+                      alignItems={'center'}
+                      className={classes.iconBox}
+                    >
+                      <InputAdornment
+                        position='end'
+                        className={classes.iconBackground}
+                      >
+                        <CopyToClipboard text={address} onCopy={handleCopy}>
+                          <IconButton>
+                            <Icon src={CopyIcon} />
+                          </IconButton>
+                        </CopyToClipboard>
+                      </InputAdornment>
+                    </Grid>
+                  )
+                }}
+              />
+            </Grid>
+          </Grid>
+          <Grid container justify={'center'} className={classes.QRCodeBox} item>
+            <Grid container justify={'center'} alignItems={'center'} item>
               <Grid
                 container
                 justify={'center'}
-                className={classes.QRCodeBox}
+                alignItems={'center'}
                 item
+                className={classes.whiteBox}
               >
-                <Grid container justify={'center'} alignItems={'center'} item>
-                  <Grid
-                    container
-                    justify={'center'}
-                    alignItems={'center'}
-                    item
-                    className={classes.whiteBox}
-                  >
-                    <QRCode value={address} size={200} />
-                  </Grid>
-                </Grid>
-              </Grid>
-              <Grid
-                item
-                direction={'column'}
-                className={classes.addressSelectBox}
-                container
-                justify={'center'}
-                alignContent={'center'}
-                wrap='wrap'
-              >
-                <Grid item xs>
-                  <Typography
-                    className={classes.fieldTitle}
-                    variant='subtitle2'
-                  >
-                    Donation recipient address or username
-                  </Typography>
-                </Grid>
-                <Grid item xs>
-                  <Autocomplete
-                    freeSolo
-                    name={'recipient'}
-                    inputValue={
-                      donationTarget ? donationTarget.nickname : donationAddress
-                    }
-                    options={usersArray.map(option => option.nickname)}
-                    filterOptions={(options, state) =>
-                      options.filter(o =>
-                        o
-                          .toLowerCase()
-                          .includes(donationAddress || ''.toLowerCase())
-                      )
-                    }
-                    onInputChange={(e, v) => {
-                      if (!e) {
-                        return
-                      }
-                      const selected = usersArray.find(
-                        user => user.nickname === v
-                      )
-                      if (selected) {
-                        setDonationAddress(selected.address)
-                      } else {
-                        setDonationAddress(v)
-                      }
-                    }}
-                    renderInput={params => (
-                      <TextField
-                        {...params}
-                        className={classes.autoCompleteField}
-                        variant='outlined'
-                        placeholder='Enter address or username'
-                        margin='normal'
-                        fullWidth
-                      />
-                    )}
-                  />
-                </Grid>
-                <Grid className={classes.titleBox} item>
-                  <Typography className={classes.infoText} variant='subtitle2'>
-                    When you add funds from a transparent address—an exchange,
-                    for example—Zbay will donate 1% of these funds to the
-                    address or username above. The default recipient is the Zbay
-                    team, or—if you accepted funds from an invitation—the user
-                    who invited you. You can change the recipient at any time.
-                  </Typography>
-                </Grid>
+                <QRCode value={address} size={200} />
               </Grid>
             </Grid>
           </Grid>
-        </Scrollbars>
-      )}
-    </AutoSizer>
+          <Grid
+            item
+            direction={'column'}
+            className={classes.addressSelectBox}
+            container
+            justify={'center'}
+            alignContent={'center'}
+            wrap='wrap'
+          >
+            <Grid item xs>
+              <Typography className={classes.fieldTitle} variant='subtitle2'>
+                Donation recipient address or username
+              </Typography>
+            </Grid>
+            <Grid item xs>
+              <Autocomplete
+                freeSolo
+                name={'recipient'}
+                inputValue={
+                  donationTarget ? donationTarget.nickname : donationAddress
+                }
+                options={usersArray.map(option => option.nickname)}
+                filterOptions={(options, state) =>
+                  options.filter(o =>
+                    o
+                      .toLowerCase()
+                      .includes(donationAddress || ''.toLowerCase())
+                  )
+                }
+                onInputChange={(e, v) => {
+                  if (!e) {
+                    return
+                  }
+                  const selected = usersArray.find(user => user.nickname === v)
+                  if (selected) {
+                    setDonationAddress(selected.address)
+                  } else {
+                    setDonationAddress(v)
+                  }
+                }}
+                renderInput={params => (
+                  <TextField
+                    {...params}
+                    className={classes.autoCompleteField}
+                    variant='outlined'
+                    placeholder='Enter address or username'
+                    margin='normal'
+                    fullWidth
+                  />
+                )}
+              />
+            </Grid>
+            <Grid className={classes.titleBox} item>
+              <Typography className={classes.infoText} variant='subtitle2'>
+                When you add funds from a transparent address—an exchange, for
+                example—Zbay will donate 1% of these funds to the address or
+                username above. The default recipient is the Zbay team, or—if
+                you accepted funds from an invitation—the user who invited you.
+                You can change the recipient at any time.
+              </Typography>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>
+    </>
   )
 }
 

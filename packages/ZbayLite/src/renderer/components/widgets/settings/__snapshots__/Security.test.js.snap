@@ -1,12 +1,237 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Security renders component 1`] = `
-<AutoSizer
-  disableHeight={false}
-  disableWidth={false}
-  onResize={[Function]}
-  style={Object {}}
+<WithStyles(ForwardRef(Grid))
+  container={true}
+  direction="column"
 >
-  <Component />
-</AutoSizer>
+  <WithStyles(ForwardRef(Grid))
+    alignItems="center"
+    className="titleDiv-mock"
+    container={true}
+    item={true}
+    justify="space-between"
+  >
+    <WithStyles(ForwardRef(Grid))
+      className="title-mock"
+      item={true}
+    >
+      <WithStyles(ForwardRef(Typography))
+        variant="h3"
+      >
+        Security
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="subtitle-mock"
+    item={true}
+  >
+    <WithStyles(ForwardRef(Typography))
+      variant="h5"
+    >
+      Outbound Links
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="labelDiv-mock"
+    item={true}
+  >
+    <WithStyles(ForwardRef(FormControlLabel))
+      control={
+        <ForwardRef(WithStyles)
+          checked={true}
+          color="default"
+          onChange={[Function]}
+        />
+      }
+      label={
+        <ForwardRef(WithStyles)
+          className="alignLabel-mock"
+          variant="body2"
+        >
+          Never warn me about outbound link on Zbay.
+        </ForwardRef(WithStyles)>
+      }
+    />
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="subtitle-mock"
+    item={true}
+  >
+    <WithStyles(ForwardRef(Typography))
+      variant="h5"
+    >
+      Allowed sites
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+  >
+    <WithStyles(ForwardRef(Typography))
+      variant="body2"
+    >
+      Links from these sites will not trigger warrning:
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+  >
+    <WithStyles(UserListItem)
+      action={[Function]}
+      actionName="Remove"
+      classes={
+        Object {
+          "name": "itemName-mock",
+        }
+      }
+      name="t"
+      prefix=""
+    />
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+  >
+    <WithStyles(UserListItem)
+      action={[Function]}
+      actionName="Remove"
+      classes={
+        Object {
+          "name": "itemName-mock",
+        }
+      }
+      name="e"
+      prefix=""
+    />
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+  >
+    <WithStyles(UserListItem)
+      action={[Function]}
+      actionName="Remove"
+      classes={
+        Object {
+          "name": "itemName-mock",
+        }
+      }
+      name="s"
+      prefix=""
+    />
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+  >
+    <WithStyles(UserListItem)
+      action={[Function]}
+      actionName="Remove"
+      classes={
+        Object {
+          "name": "itemName-mock",
+        }
+      }
+      name="t"
+      prefix=""
+    />
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="imageHostsDiv-mock"
+    item={true}
+  >
+    <WithStyles(ForwardRef(Grid))
+      className="subtitle-mock"
+      item={true}
+    >
+      <WithStyles(ForwardRef(Typography))
+        variant="h5"
+      >
+        Allowed image hosts
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      item={true}
+    >
+      <WithStyles(ForwardRef(Typography))
+        variant="body2"
+      >
+        Images from these sites will be auto-loaded:
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      item={true}
+    >
+      <WithStyles(UserListItem)
+        action={[Function]}
+        actionName="Remove"
+        classes={
+          Object {
+            "name": "itemName-mock",
+          }
+        }
+        name="t"
+        prefix=""
+      />
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      item={true}
+    >
+      <WithStyles(UserListItem)
+        action={[Function]}
+        actionName="Remove"
+        classes={
+          Object {
+            "name": "itemName-mock",
+          }
+        }
+        name="e"
+        prefix=""
+      />
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      item={true}
+    >
+      <WithStyles(UserListItem)
+        action={[Function]}
+        actionName="Remove"
+        classes={
+          Object {
+            "name": "itemName-mock",
+          }
+        }
+        name="s"
+        prefix=""
+      />
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      item={true}
+    >
+      <WithStyles(UserListItem)
+        action={[Function]}
+        actionName="Remove"
+        classes={
+          Object {
+            "name": "itemName-mock",
+          }
+        }
+        name="t"
+        prefix=""
+      />
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      item={true}
+    >
+      <WithStyles(UserListItem)
+        action={[Function]}
+        actionName="Remove"
+        classes={
+          Object {
+            "name": "itemName-mock",
+          }
+        }
+        name="3"
+        prefix=""
+      />
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
 `;

@@ -3,6 +3,7 @@
 exports[`SettingsModal renders component 1`] = `
 <Memo(WithStyles(Modal))
   addBorder={true}
+  contentWidth="100%"
   handleClose={[MockFunction]}
   isBold={true}
   open={true}
@@ -15,6 +16,11 @@ exports[`SettingsModal renders component 1`] = `
     <WithStyles(ForwardRef(Grid))
       className="tabsDiv-mock"
       item={true}
+      style={
+        Object {
+          "marginLeft": 0,
+        }
+      }
     >
       <WithStyles(ForwardRef(AppBar))
         className="appbar-mock"
@@ -105,13 +111,14 @@ exports[`SettingsModal renders component 1`] = `
         </WithStyles(ForwardRef(Tabs))>
       </WithStyles(ForwardRef(AppBar))>
     </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      className="content-mock"
-      item={true}
-      xs={true}
+    <AutoSizer
+      disableHeight={false}
+      disableWidth={false}
+      onResize={[Function]}
+      style={Object {}}
     >
       <Component />
-    </WithStyles(ForwardRef(Grid))>
+    </AutoSizer>
   </WithStyles(ForwardRef(Grid))>
 </Memo(WithStyles(Modal))>
 `;

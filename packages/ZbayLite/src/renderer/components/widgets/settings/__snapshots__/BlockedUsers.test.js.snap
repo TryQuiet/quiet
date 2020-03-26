@@ -1,12 +1,27 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`BlockedUsers renders component 1`] = `
-<AutoSizer
-  disableHeight={false}
-  disableWidth={false}
-  onResize={[Function]}
-  style={Object {}}
+<WithStyles(ForwardRef(Grid))
+  container={true}
+  direction="column"
 >
-  <Component />
-</AutoSizer>
+  <WithStyles(ForwardRef(Grid))
+    alignItems="center"
+    className="titleDiv-mock"
+    container={true}
+    item={true}
+    justify="space-between"
+  >
+    <WithStyles(ForwardRef(Grid))
+      className="title-mock"
+      item={true}
+    >
+      <WithStyles(ForwardRef(Typography))
+        variant="h3"
+      >
+        BlockedUsers
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
 `;

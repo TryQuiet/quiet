@@ -5,6 +5,8 @@ import Tabs from '@material-ui/core/Tabs'
 import AppBar from '@material-ui/core/AppBar'
 import { withStyles } from '@material-ui/core/styles'
 import { Grid } from '@material-ui/core'
+import { AutoSizer } from 'react-virtualized'
+import { Scrollbars } from 'react-custom-scrollbars'
 
 import Modal from '../../../ui/Modal'
 import Tab from '../../../ui/Tab'
@@ -80,11 +82,40 @@ export const SettingsModal = ({
   setCurrentTab,
   user
 }) => {
+  const [contentRef, setContentRef] = React.useState(null)
+  const [offset, setOffset] = React.useState(0)
   const TabComponent = tabs[modalTabToOpen || currentTab]
+  const adjustOffset = () => {
+    if (contentRef.clientWidth > 600) {
+      setOffset((contentRef.clientWidth - 600) / 2)
+    }
+  }
+  React.useEffect(() => {
+    if (contentRef) {
+      window.addEventListener('resize', adjustOffset)
+      adjustOffset()
+    }
+  }, [contentRef])
   return (
-    <Modal open={open} handleClose={handleClose} title={user} isBold addBorder>
-      <Grid container direction='row' className={classes.root}>
-        <Grid item className={classes.tabsDiv}>
+    <Modal
+      open={open}
+      handleClose={handleClose}
+      title={user}
+      isBold
+      addBorder
+      contentWidth='100%'
+    >
+      <Grid
+        ref={ref => {
+          if (ref) {
+            setContentRef(ref)
+          }
+        }}
+        container
+        direction='row'
+        className={classes.root}
+      >
+        <Grid item className={classes.tabsDiv} style={{ marginLeft: offset }}>
           <AppBar position='static' className={classes.appbar}>
             <Tabs
               value={modalTabToOpen || currentTab}
@@ -134,9 +165,22 @@ export const SettingsModal = ({
             </Tabs>
           </AppBar>
         </Grid>
-        <Grid item xs className={classes.content}>
-          <TabComponent />
-        </Grid>
+        <AutoSizer>
+          {({ height }) => (
+            <Scrollbars
+              autoHideTimeout={500}
+              style={{ width: 400 + offset, height: height }}
+            >
+              <Grid
+                item
+                className={classes.content}
+                style={{ paddingRight: offset }}
+              >
+                <TabComponent />
+              </Grid>
+            </Scrollbars>
+          )}
+        </AutoSizer>
       </Grid>
     </Modal>
   )

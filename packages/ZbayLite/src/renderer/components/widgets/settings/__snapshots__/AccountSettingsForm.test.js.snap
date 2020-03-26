@@ -1,12 +1,93 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`AccountSettingsForm renders component 1`] = `
-<AutoSizer
-  disableHeight={false}
-  disableWidth={false}
-  onResize={[Function]}
-  style={Object {}}
+<WithStyles(ForwardRef(Grid))
+  container={true}
+  direction="column"
 >
-  <Component />
-</AutoSizer>
+  <WithStyles(ForwardRef(Grid))
+    className="title-mock"
+    item={true}
+  >
+    <WithStyles(ForwardRef(Typography))
+      variant="h3"
+    >
+      Account
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    container={true}
+    justify="center"
+  >
+    <WithStyles(ForwardRef(Grid))
+      className="createUsernameContainer-mock"
+      container={true}
+      item={true}
+      xs={true}
+    >
+      <WithStyles(ForwardRef(Grid))
+        item={true}
+        xs={12}
+      >
+        <WithStyles(ForwardRef(Typography))
+          variant="h4"
+        >
+          Create a username
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
+        alignItems="center"
+        container={true}
+        direction="row"
+        item={true}
+        justify="space-between"
+      >
+        <WithStyles(ForwardRef(Grid))
+          item={true}
+          xs={10}
+        >
+          <WithStyles(ForwardRef(Typography))
+            className="info-mock"
+            variant="body2"
+          >
+            You need this to send and receive direct messages.
+          </WithStyles(ForwardRef(Typography))>
+        </WithStyles(ForwardRef(Grid))>
+        <WithStyles(ForwardRef(Grid))
+          container={true}
+          direction="row"
+          item={true}
+          justify="flex-end"
+          xs={2}
+        >
+          <Memo(Icon)
+            className="usernameIcon-mock"
+            src="test-file-stub"
+          />
+        </WithStyles(ForwardRef(Grid))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
+        item={true}
+        xs={12}
+      >
+        <WithStyles(ForwardRef(Typography))
+          className="link-mock"
+          onClick={[Function]}
+          variant="body2"
+        >
+          Create username
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+  <Formik
+    enableReinitialize={false}
+    isInitialValid={false}
+    onSubmit={[MockFunction]}
+    validateOnBlur={true}
+    validateOnChange={true}
+  >
+    <Component />
+  </Formik>
+</WithStyles(ForwardRef(Grid))>
 `;

@@ -40,8 +40,7 @@ const styles = theme => ({
     paddingRight: 10
   },
   content: {
-    background: theme.palette.colors.white,
-    width: 600
+    background: theme.palette.colors.white
   },
   fullPage: {
     width: '100%',
@@ -76,7 +75,8 @@ export const Modal = ({
   children,
   addBorder,
   isBold,
-  alignCloseLeft
+  alignCloseLeft,
+  contentWidth
 }) => (
   <MaterialModal open={open} onClose={handleClose} className={classes.root}>
     <Grid
@@ -123,7 +123,7 @@ export const Modal = ({
         </Grid>
       </Grid>
       <Grid container item direction={'row'} justify={'center'} className={classes.fullPage}>
-        <Grid container item className={classes.content}>
+        <Grid container item className={classNames({ [classes.content]: true })} style={{ width: contentWidth }}>
           {children}
         </Grid>
       </Grid>
@@ -139,6 +139,7 @@ Modal.propTypes = {
   fullPage: PropTypes.bool.isRequired,
   isBold: PropTypes.bool.isRequired,
   step: PropTypes.number,
+  contentWidth: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   setStep: PropTypes.func,
   canGoBack: PropTypes.bool,
   children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.element), PropTypes.element])
@@ -149,7 +150,8 @@ Modal.defaultProps = {
   fullPage: false,
   canGoBack: false,
   isBold: false,
-  alignCloseLeft: false
+  alignCloseLeft: false,
+  contentWidth: 600
 }
 
 export default R.compose(
