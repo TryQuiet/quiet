@@ -68,14 +68,7 @@ exports[`CreateVault renders component 1`] = `
               gutterBottom={true}
               variant="body1"
             >
-              You'll need this password to access your account, so write it down! It only works on this computer.
-               
-              <a
-                href="https://www.zbay.app/#faq"
-                onClick={[Function]}
-              >
-                [Learn more]
-              </a>
+              To set up the secure Zbay vault, you need to create a password.
             </WithStyles(ForwardRef(Typography))>
           </WithStyles(ForwardRef(Grid))>
           <WithStyles(ForwardRef(Grid))
@@ -164,14 +157,7 @@ exports[`CreateVault renders error 1`] = `
               gutterBottom={true}
               variant="body1"
             >
-              You'll need this password to access your account, so write it down! It only works on this computer.
-               
-              <a
-                href="https://www.zbay.app/#faq"
-                onClick={[Function]}
-              >
-                [Learn more]
-              </a>
+              To set up the secure Zbay vault, you need to create a password.
             </WithStyles(ForwardRef(Typography))>
           </WithStyles(ForwardRef(Grid))>
           <WithStyles(ForwardRef(Grid))
@@ -260,14 +246,7 @@ exports[`CreateVault renders inProgress 1`] = `
               gutterBottom={true}
               variant="body1"
             >
-              You'll need this password to access your account, so write it down! It only works on this computer.
-               
-              <a
-                href="https://www.zbay.app/#faq"
-                onClick={[Function]}
-              >
-                [Learn more]
-              </a>
+              To set up the secure Zbay vault, you need to create a password.
             </WithStyles(ForwardRef(Typography))>
           </WithStyles(ForwardRef(Grid))>
           <WithStyles(ForwardRef(Grid))

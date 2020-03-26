@@ -93,6 +93,12 @@ const styles = theme => ({
   linkBlue: {
     cursor: 'pointer',
     color: theme.palette.colors.linkBlue
+  },
+  disableButton: {
+    display: 'none'
+  },
+  addMargin: {
+    marginLeft: 120
   }
 })
 
@@ -107,7 +113,7 @@ const ContentWithRedirect = ({ classes }) => (
     If you'd like to learn more about the values and vision behind the Zbay project, there's <span onClick={() => shell.openExternal('https://www.zbay.app/#why')} className={classes.linkBlue}>a great (and long) essay on our site.</span>
       </Typography>
       <Typography className={classes.sentence} variant={'body2'}>
-    Or you can learn more about <span onClick={() => shell.openExternal('https://zcash.readthedocs.io/en/latest/')} className={classes.linkBlue}>Zcash</span> the technology that Zbay builds on.
+    Or you can learn more about <span onClick={() => shell.openExternal('https://zcash.readthedocs.io/en/latest/')} className={classes.linkBlue}>Zcash,</span> the technology that Zbay builds on.
       </Typography>
     </Grid>
   </Fragment>
@@ -131,9 +137,13 @@ export const RegistraionGuide = ({ classes, content, currentSlide, prevSlide, ne
               </Fragment> : <ContentWithRedirect classes={classes} />}
           </Grid>
         </Grid>
-        <Grid container item className={classes.navigationContainer} justify={'center'} alignItems={'center'} wrap={'nowrap'}>
+        <Grid container item className={classNames(classes.navigationContainer, {
+          [classes.addMargin]: currentSlide === 0
+        })} justify={'center'} alignItems={'center'} wrap={'nowrap'}>
           <Grid item>
-            <Button onClick={prevSlide} className={classes.buttonBack}>Back</Button>
+            <Button onClick={prevSlide} className={classNames(classes.buttonBack, {
+              [classes.disableButton]: currentSlide === 0
+            })}>Back</Button>
           </Grid>
           <Grid container item justify={currentSlide === 10 ? 'flex-end' : 'center'} className={classNames(null, { [classes.alignDots]: currentSlide === 10 })}>
             {content.map((_, index) => <Grid key={index} item><span className={classNames(classes.dot, {
@@ -141,7 +151,9 @@ export const RegistraionGuide = ({ classes, content, currentSlide, prevSlide, ne
             })} /></Grid>)}
           </Grid>
           <Grid item>
-            <Button onClick={currentSlide !== 10 ? nextSlide : setStoryStatus} className={classNames(classes.buttonNext, { [classes.wideButton]: currentSlide === 10 })}>
+            <Button onClick={currentSlide !== 10 ? nextSlide : setStoryStatus} className={classNames(classes.buttonNext, {
+              [classes.wideButton]: currentSlide === 10
+            })}>
               {currentSlide !== 10 ? 'Next' : 'Show download progress'}
             </Button>
           </Grid>
