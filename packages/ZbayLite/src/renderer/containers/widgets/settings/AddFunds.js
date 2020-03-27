@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { connect } from 'react-redux'
 import * as R from 'ramda'
 import { bindActionCreators } from 'redux'
@@ -29,35 +29,7 @@ export const mapDispatchToProps = (dispatch, props) =>
   )
 
 export const TopUpModal = props => {
-  const [type, setType] = useState('transparent')
-  const address =
-    type === 'transparent' ? props.transparentAddress : props.privateAddress
-  const isAddressValid = /^t1[a-zA-Z0-9]{33}$|^ztestsapling1[a-z0-9]{75}$|^zs1[a-z0-9]{75}$|[A-Za-z0-9]{35}/.test(
-    props.donationAddress
-  )
-  useEffect(() => {
-    if (isAddressValid) {
-      props.updateDonationAddress(props.donationAddress)
-    }
-    if (
-      props.donationAddress &&
-      props.donationAllow === 'false' &&
-      isAddressValid
-    ) {
-      props.updateDonation('true')
-    }
-    if (!props.donationAddress && props.donationAllow === 'true') {
-      props.updateDonation('false')
-    }
-  }, [props.donationAddress])
-  return (
-    <AddFunds
-      type={type}
-      address={address}
-      handleChange={e => setType(e.target.value)}
-      {...props}
-    />
-  )
+  return <AddFunds {...props} />
 }
 
 export default R.compose(connect(mapStateToProps, mapDispatchToProps))(

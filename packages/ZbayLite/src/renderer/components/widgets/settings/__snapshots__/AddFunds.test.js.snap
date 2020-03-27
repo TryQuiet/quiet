@@ -2,6 +2,67 @@
 
 exports[`AddFunds renders component 1`] = `
 <Fragment>
+  <WithStyles(ForwardRef(Dialog))
+    onClose={[Function]}
+    open={false}
+  >
+    <WithStyles(ForwardRef(Grid))
+      container={true}
+      direction="column"
+    >
+      <WithStyles(ForwardRef(Grid))
+        item={true}
+      >
+        <WithStyles(ForwardRef(IconButton))
+          onClick={[Function]}
+        >
+          <CloseIcon />
+        </WithStyles(ForwardRef(IconButton))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
+        alignItems="center"
+        className="dialogContent-mock"
+        container={true}
+        direction="column"
+      >
+        <WithStyles(ForwardRef(Grid))
+          className="spacing24-mock"
+          item={true}
+        >
+          <WithStyles(ForwardRef(Typography))
+            variant="h3"
+          >
+            Add funds with QR code
+          </WithStyles(ForwardRef(Typography))>
+        </WithStyles(ForwardRef(Grid))>
+        <WithStyles(ForwardRef(Grid))
+          className="spacing24-mock"
+          item={true}
+        >
+          <WithStyles(ForwardRef(Typography))
+            className="alignText-mock"
+            variant="body2"
+          >
+            If you have Zcash on your phone or your friend's phone, you can send funds to your Zcash address using this QR code.
+          </WithStyles(ForwardRef(Typography))>
+        </WithStyles(ForwardRef(Grid))>
+        <WithStyles(ForwardRef(Grid))
+          className="qrcodeDiv-mock"
+          item={true}
+        >
+          <QRCode
+            bgColor="#FFFFFF"
+            fgColor="#000000"
+            includeMargin={false}
+            level="L"
+            renderAs="canvas"
+            size={200}
+            value="test-address-transparent"
+          />
+        </WithStyles(ForwardRef(Grid))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Dialog))>
   <WithStyles(ForwardRef(Grid))
     container={true}
     item={true}
@@ -15,231 +76,159 @@ exports[`AddFunds renders component 1`] = `
     </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
-    container={true}
+    className="spacing24-mock"
     item={true}
-    justify="flex-start"
+  >
+    <WithStyles(ForwardRef(Typography))
+      variant="body2"
+    >
+      Zbay runs on
+       
+      <a
+        className="link-mock"
+        href="https://z.cash/"
+        onClick={[Function]}
+      >
+        Zcash
+      </a>
+       
+      (a cryptocurrency). Cryptocurrency addresses are unique, like email addressess or phone numbers, for money (send to the right address and the recipient will get the money).
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="spacing32-mock"
+    item={true}
+  >
+    <WithStyles(ForwardRef(Typography))
+      className="subtitle-mock"
+      variant="body2"
+    >
+      Your Zcash address
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+  >
+    <WithStyles(ForwardRef(Typography))
+      className="caption-mock"
+      variant="caption"
+    >
+      Send Zcash to it, and Zbay will store the funds on your computer.
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="spacing16-mock"
+    item={true}
   >
     <WithStyles(ForwardRef(Grid))
-      alignContent="flex-start"
-      className="root-mock"
+      container={true}
+    >
+      <WithStyles(ForwardRef(Grid))
+        item={true}
+        xs={true}
+      >
+        <WithStyles(ForwardRef(OutlinedInput))
+          classes={
+            Object {
+              "root": "transparentAddress-mock",
+            }
+          }
+          disabled={true}
+          fullWidth={true}
+          id="outlined-address"
+          name="address"
+          value="test-address-transparent"
+        />
+      </WithStyles(ForwardRef(Grid))>
+      <Memo(WithStyles(Tooltip))
+        className="tooltip-mock"
+        placement="top-end"
+        title="Send to Zbay with QR code"
+      >
+        <WithStyles(ForwardRef(Grid))
+          className="qrIcon-mock"
+          item={true}
+          onClick={[Function]}
+        >
+          <Memo(Icon)
+            src="test-file-stub"
+          />
+        </WithStyles(ForwardRef(Grid))>
+      </Memo(WithStyles(Tooltip))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+    xs={true}
+  >
+    <CopyToClipboard
+      onCopy={[Function]}
+      text="test-address-transparent"
+    >
+      <WithStyles(ForwardRef(Button))
+        className="button-mock"
+        color="primary"
+        fullWidth={true}
+        size="large"
+        type="submit"
+        variant="contained"
+      >
+        Copy address to clipboard
+      </WithStyles(ForwardRef(Button))>
+    </CopyToClipboard>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="infoDiv-mock"
+    item={true}
+    onClick={[Function]}
+  >
+    <WithStyles(ForwardRef(Grid))
+      alignItems="center"
       container={true}
       justify="center"
     >
       <WithStyles(ForwardRef(Grid))
-        alignContent="center"
-        className="addressSelectBox-mock"
-        container={true}
-        direction="column"
+        className="iconDiv-mock"
         item={true}
-        justify="center"
-        wrap="wrap"
       >
-        <WithStyles(ForwardRef(Grid))
-          item={true}
-          xs={true}
-        >
-          <WithStyles(ForwardRef(Typography))
-            className="fieldTitle-mock"
-            variant="subtitle2"
-          >
-            Address to add funds
-          </WithStyles(ForwardRef(Typography))>
-        </WithStyles(ForwardRef(Grid))>
-        <WithStyles(ForwardRef(Grid))
-          item={true}
-          xs={true}
-        >
-          <WithStyles(ForwardRef(Select))
-            IconComponent={
-              Object {
-                "$$typeof": Symbol(react.memo),
-                "compare": null,
-                "displayName": "UnfoldMoreIcon",
-                "muiName": "SvgIcon",
-                "type": Object {
-                  "$$typeof": Symbol(react.forward_ref),
-                  "render": [Function],
-                },
-              }
-            }
-            className="selectWrapper-mock"
-            displayEmpty={true}
-            input={
-              <ForwardRef(WithStyles)
-                className="select-mock"
-                id="outlined-address"
-                name="address"
-              />
-            }
-            onChange={[MockFunction]}
-            value="private"
-          >
-            <WithStyles(ForwardRef(MenuItem))
-              value="transparent"
-            >
-              Transparent
-            </WithStyles(ForwardRef(MenuItem))>
-            <WithStyles(ForwardRef(MenuItem))
-              value="private"
-            >
-              Private
-            </WithStyles(ForwardRef(MenuItem))>
-          </WithStyles(ForwardRef(Select))>
-        </WithStyles(ForwardRef(Grid))>
-        <WithStyles(ForwardRef(Grid))
-          className="helperText-mock"
-          item={true}
-        >
-          <WithStyles(ForwardRef(Typography))
-            variant="body2"
-          >
-            Wallets that support Zcash shielded transactions can send you funds at this address. However, exchanges like Coinbase and Binance cannot.
-          </WithStyles(ForwardRef(Typography))>
-        </WithStyles(ForwardRef(Grid))>
+        <Memo(Icon)
+          src="test-file-stub"
+        />
       </WithStyles(ForwardRef(Grid))>
       <WithStyles(ForwardRef(Grid))
-        alignContent="center"
-        className="copyInputBox-mock"
-        container={true}
-        direction="column"
         item={true}
-        justify="center"
-        wrap="no-wrap"
       >
-        <WithStyles(ForwardRef(Grid))
-          className="titleBox-mock"
-          item={true}
-          xs={true}
+        <WithStyles(ForwardRef(Typography))
+          variant="h4"
         >
-          <WithStyles(ForwardRef(Typography))
-            className="fieldTitle-mock"
-            variant="subtitle2"
-          >
-            Private Address
-          </WithStyles(ForwardRef(Typography))>
-        </WithStyles(ForwardRef(Grid))>
-        <WithStyles(ForwardRef(Grid))
-          item={true}
-          xs={true}
-        >
-          <WithStyles(ForwardRef(TextField))
-            InputProps={
-              Object {
-                "classes": Object {
-                  "adornedEnd": "adornedEnd-mock",
-                  "input": "copyInput-mock",
-                },
-                "endAdornment": <ForwardRef(WithStyles)
-                  alignItems="center"
-                  className="iconBox-mock"
-                  container={true}
-                  item={true}
-                  justify="center"
-                >
-                  <ForwardRef(WithStyles)
-                    className="iconBackground-mock"
-                    position="end"
-                  >
-                    <CopyToClipboard
-                      onCopy={[MockFunction]}
-                      text="test-address"
-                    >
-                      <ForwardRef(WithStyles)>
-                        <Memo(Icon)
-                          src="test-file-stub"
-                        />
-                      </ForwardRef(WithStyles)>
-                    </CopyToClipboard>
-                  </ForwardRef(WithStyles)>
-                </ForwardRef(WithStyles)>,
-              }
-            }
-            className="copyField-mock"
-            disabled={true}
-            id="copy-address"
-            type="text"
-            value="test-address"
-            variant="outlined"
-          />
-        </WithStyles(ForwardRef(Grid))>
+          How do i buy Zcash? 
+        </WithStyles(ForwardRef(Typography))>
       </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="privateDiv-mock"
+    item={true}
+    onClick={[Function]}
+  >
+    <WithStyles(ForwardRef(Grid))
+      alignItems="center"
+      container={true}
+      justify="space-between"
+    >
       <WithStyles(ForwardRef(Grid))
-        className="QRCodeBox-mock"
-        container={true}
         item={true}
-        justify="center"
       >
-        <WithStyles(ForwardRef(Grid))
-          alignItems="center"
-          container={true}
-          item={true}
-          justify="center"
+        <WithStyles(ForwardRef(Typography))
+          className="privateTitle-mock"
+          variant="body2"
         >
-          <WithStyles(ForwardRef(Grid))
-            alignItems="center"
-            className="whiteBox-mock"
-            container={true}
-            item={true}
-            justify="center"
-          >
-            <QRCode
-              bgColor="#FFFFFF"
-              fgColor="#000000"
-              includeMargin={false}
-              level="L"
-              renderAs="canvas"
-              size={200}
-              value="test-address"
-            />
-          </WithStyles(ForwardRef(Grid))>
-        </WithStyles(ForwardRef(Grid))>
+          Private address
+        </WithStyles(ForwardRef(Typography))>
       </WithStyles(ForwardRef(Grid))>
-      <WithStyles(ForwardRef(Grid))
-        alignContent="center"
-        className="addressSelectBox-mock"
-        container={true}
-        direction="column"
-        item={true}
-        justify="center"
-        wrap="wrap"
-      >
-        <WithStyles(ForwardRef(Grid))
-          item={true}
-          xs={true}
-        >
-          <WithStyles(ForwardRef(Typography))
-            className="fieldTitle-mock"
-            variant="subtitle2"
-          >
-            Donation recipient address or username
-          </WithStyles(ForwardRef(Typography))>
-        </WithStyles(ForwardRef(Grid))>
-        <WithStyles(ForwardRef(Grid))
-          item={true}
-          xs={true}
-        >
-          <WithStyles(ForwardRef(Autocomplete))
-            filterOptions={[Function]}
-            freeSolo={true}
-            inputValue="test"
-            name="recipient"
-            onInputChange={[Function]}
-            options={Array []}
-            renderInput={[Function]}
-          />
-        </WithStyles(ForwardRef(Grid))>
-        <WithStyles(ForwardRef(Grid))
-          className="titleBox-mock"
-          item={true}
-        >
-          <WithStyles(ForwardRef(Typography))
-            className="infoText-mock"
-            variant="subtitle2"
-          >
-            When you add funds from a transparent address—an exchange, for example—Zbay will donate 1% of these funds to the address or username above. The default recipient is the Zbay team, or—if you accepted funds from an invitation—the user who invited you. You can change the recipient at any time.
-          </WithStyles(ForwardRef(Typography))>
-        </WithStyles(ForwardRef(Grid))>
-      </WithStyles(ForwardRef(Grid))>
+      <ExpandMoreIcon
+        className="icon-mock"
+      />
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
 </Fragment>

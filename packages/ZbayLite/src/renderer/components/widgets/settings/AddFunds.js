@@ -1,186 +1,166 @@
-import React, { Fragment } from 'react'
+import React from 'react'
 import QRCode from 'qrcode.react'
 import PropTypes from 'prop-types'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import classNames from 'classnames'
+// import classNames from 'classnames'
 
-import MenuItem from '@material-ui/core/MenuItem'
 import Grid from '@material-ui/core/Grid'
-import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
-import InputAdornment from '@material-ui/core/InputAdornment'
-import Select from '@material-ui/core/Select'
 import OutlinedInput from '@material-ui/core/OutlinedInput'
 import { withStyles } from '@material-ui/core/styles'
-import UnfoldMore from '@material-ui/icons/UnfoldMore'
-import IconButton from '@material-ui/core/IconButton'
 import { shell } from 'electron'
-import Autocomplete from '@material-ui/lab/Autocomplete'
+import Button from '@material-ui/core/Button'
+import IconButton from '@material-ui/core/IconButton'
+import ExpandLessIcon from '@material-ui/icons/ExpandLess'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import CloseIcon from '@material-ui/icons/Close'
+import Dialog from '@material-ui/core/Dialog'
 
 import Icon from '../../ui/Icon'
-import CopyIcon from '../../../../renderer/static/images/copylink.svg'
+import qrIcon from '../../../../renderer/static/images/qr.svg'
+import buyIcon from '../../../../renderer/static/images/buy-zcash.svg'
+import Tooltip from '../../ui/Tooltip'
 
 const styles = theme => ({
-  root: {
-    backgroundColor: theme.palette.colors.white,
-    width: 348,
-    borderRadius: 4,
-    marginTop: 24,
-    border: `1px solid ${theme.palette.colors.inputGray}`
-  },
-  title: {
-    paddingBottom: theme.spacing(1)
-  },
-  select: {},
-  selectWrapper: {
-    width: 300,
-    borderBottom: 'none'
-  },
-  shield: {
-    marginTop: theme.spacing(2)
-  },
-  dataRoot: {
-    padding: `0 ${theme.spacing(4)}px`
-  },
-  description: {
-    marginBottom: theme.spacing(2)
-  },
-  copyField: {
-    paddingRight: 23,
-    width: '100%',
-    borderRadius: 4,
-    marginBottom: theme.spacing(2)
-  },
-  copyInput: {
-    borderRight: `1px solid ${theme.palette.colors.inputGray}`,
-    paddingTop: 18,
-    paddingBottom: 18
-  },
-  fieldTitle: {
-    marginTop: 25,
-    fontStyle: 'normal',
-    fontWeight: 'normal',
-    fontSize: 12,
-    lineHeight: '14px',
-    color: theme.palette.colors.black30,
-    marginBottom: 6
-  },
-  infoText: {
-    marginTop: 8,
-    fontStyle: 'normal',
-    fontWeight: 'normal',
-    fontSize: 12,
-    lineHeight: '18px',
-    color: theme.palette.colors.darkGray
-  },
-  helperText: {
+  spacing24: {
     marginTop: 24
   },
-  addressSelectBox: {
-    padding: '0  23px 23px',
-    borderBottom: `1px solid ${theme.palette.colors.inputGray}`
+  spacing16: {
+    marginTop: 16
   },
-  QRCodeBox: {
-    width: '100%',
-    height: 268,
-    backgroundColor: theme.palette.colors.veryLightGray,
-    borderBottom: `1px solid ${theme.palette.colors.inputGray}`
+  spacing32: {
+    marginTop: 32
   },
-  whiteBox: {
+  link: {
+    textDecoration: 'none',
+    color: theme.palette.colors.linkBlue
+  },
+  subtitle: {
+    fontWeight: 500,
+    color: theme.palette.colors.black30
+  },
+  caption: {
+    color: theme.palette.colors.darkGray,
+    lineHeight: '18px'
+  },
+  transparentAddress: {
+    color: theme.palette.colors.darkGray,
+    height: 60
+  },
+  qrIcon: {
+    padding: 18,
+    border: `1px solid rgba(0, 0, 0, 0.26)`,
     borderRadius: 4,
-    borderBottom: `1px solid ${theme.palette.colors.inputGray}`,
-    width: 220,
-    height: 220,
-    backgroundColor: theme.palette.colors.white
-  },
-  copyInputBox: {
-    marginTop: 0,
-    paddingLeft: 23
-  },
-  iconBackground: {
-    margin: 0,
-    padding: 0
-  },
-  iconBox: {
-    margin: 0,
-    padding: 5,
     width: 60,
-    height: 56,
-    backgroundColor: theme.palette.colors.gray30
+    height: 60,
+    paddingBottom: 0,
+    marginLeft: 8,
+    cursor: 'pointer'
+  },
+  button: {
+    marginTop: 16,
+    height: 60,
+    fontSize: '0.9rem',
+    backgroundColor: theme.palette.colors.zbayBlue
+  },
+  infoDiv: {
+    border: `1px solid ${theme.palette.colors.veryLightGray}`,
+    borderRadius: 4,
+    cursor: 'pointer',
+    marginTop: 32,
+    paddingTop: 16,
+    paddingBottom: 16,
+    '&:hover': {
+      backgroundColor: theme.palette.colors.veryLightGray
+    }
+  },
+  iconDiv: {
+    marginRight: 16,
+    marginTop: 4
+  },
+  privateTitle: {
+    color: theme.palette.colors.lushSky
+  },
+  privateDiv: {
+    minHeight: 56,
+    border: `1px solid ${theme.palette.colors.veryLightGray}`,
+    borderRadius: 4,
+    cursor: 'pointer',
+    marginTop: 32,
+    padding: 16
   },
   icon: {
-    width: 24,
-    height: 24
+    color: theme.palette.colors.lushSky
   },
-  titleBox: {},
-  adornedEnd: {
-    padding: 0
+  tooltip: {
+    zIndex: 1500
   },
-  tabTitle: {
-    letterSpacing: -0.5
+  qrcodeDiv: {
+    marginTop: 24,
+    marginBottom: 65
   },
-  wideSelectWrapper: {
-    width: '100%'
+  dialogContent: {
+    paddingLeft: 32,
+    paddingRight: 32
   },
-  changeSize: {
-    width: 600
+  alignText: {
+    textAlign: 'center'
   },
-  autoCompleteField: {
-    margin: 0,
-    padding: 0
+  buttonCopied: {
+    color: theme.palette.colors.zbayBlue,
+    backgroundColor: theme.palette.colors.white,
+    marginTop: 16,
+    height: 60,
+    fontSize: '0.9rem',
+    border: `1px solid ${theme.palette.colors.zbayBlue}`,
+    borderRadius: 4,
+    '&:hover': {
+      backgroundColor: theme.palette.colors.buttonGray
+    }
   }
 })
 
-const descriptions = {
-  transparent: (
-    <Fragment>
-      You need{' '}
-      <a
-        onClick={e => {
-          e.preventDefault()
-          shell.openExternal('http://z.cash/')
-        }}
-        href='z.cash'
-      >
-        Zcash
-      </a>{' '}
-      to use Zbay.{' '}
-      <a
-        onClick={e => {
-          e.preventDefault()
-          shell.openExternal('http://coinbase.com')
-        }}
-        href='coinbase.com'
-      >
-        {`Buy Zcash on Coinbase`}
-      </a>{' '}
-      and send it to the address below. (Coinbase won't send to private
-      addresses, but Zbay automatically moves your Zcash to a private address
-      once it arrives.)
-    </Fragment>
-  ),
-  private:
-    'Wallets that support Zcash shielded transactions can send you funds at this address. However, exchanges like Coinbase and Binance cannot.'
-}
-
 export const AddFunds = ({
   classes,
-  type,
-  address,
-  handleChange,
-  handleClose,
-  handleCopy,
   variant,
-  donationAddress,
-  setDonationAddress,
-  users
+  transparentAddress,
+  privateAddress,
+  setCurrentTab
 }) => {
-  const usersArray = users.toList().toJS()
-  const donationTarget = usersArray.find(
-    user => user.address === donationAddress
-  )
+  const [expanded, setExpanded] = React.useState(false)
+  const [dialogOpen, setDialogOpen] = React.useState(false)
+  const [isCopied, setIsCopied] = React.useState(false)
+  console.log(isCopied)
   return (
     <>
+      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
+        <Grid container direction='column'>
+          <Grid item>
+            <IconButton onClick={() => setDialogOpen(false)}>
+              <CloseIcon />
+            </IconButton>
+          </Grid>
+          <Grid
+            container
+            direction='column'
+            alignItems='center'
+            className={classes.dialogContent}
+          >
+            <Grid item className={classes.spacing24}>
+              <Typography variant='h3'>Add funds with QR code</Typography>
+            </Grid>
+            <Grid item className={classes.spacing24}>
+              <Typography variant='body2' className={classes.alignText}>
+                If you have Zcash on your phone or your friend's phone, you can
+                send funds to your Zcash address using this QR code.
+              </Typography>
+            </Grid>
+            <Grid item className={classes.qrcodeDiv}>
+              <QRCode value={transparentAddress} size={200} />
+            </Grid>
+          </Grid>
+        </Grid>
+      </Dialog>
       <Grid
         container
         item
@@ -190,189 +170,149 @@ export const AddFunds = ({
           Add funds to your wallet
         </Typography>
       </Grid>
-      <Grid
-        container
-        item
-        justify={variant === 'wide' ? 'center' : 'flex-start'}
-      >
-        <Grid
-          container
-          justify='center'
-          alignContent='flex-start'
-          className={classNames({
-            [classes.root]: true,
-            [classes.changeSize]: variant === 'wide'
-          })}
+      <Grid item className={classes.spacing24}>
+        <Typography variant='body2'>
+          Zbay runs on{' '}
+          <a
+            className={classes.link}
+            onClick={e => {
+              e.preventDefault()
+              shell.openExternal('https://z.cash/')
+            }}
+            href='https://z.cash/'
+          >
+            Zcash
+          </a>{' '}
+          (a cryptocurrency). Cryptocurrency addresses are unique, like email
+          addressess or phone numbers, for money (send to the right address and
+          the recipient will get the money).
+        </Typography>
+      </Grid>
+      <Grid item className={classes.spacing32}>
+        <Typography variant='body2' className={classes.subtitle}>
+          Your Zcash address
+        </Typography>
+      </Grid>
+      <Grid item>
+        <Typography variant='caption' className={classes.caption}>
+          Send Zcash to it, and Zbay will store the funds on your computer.
+        </Typography>
+      </Grid>
+      <Grid item className={classes.spacing16}>
+        <Grid container>
+          <Grid item xs>
+            <OutlinedInput
+              name='address'
+              id='outlined-address'
+              classes={{ root: classes.transparentAddress }}
+              value={transparentAddress}
+              fullWidth
+              disabled
+            />
+          </Grid>
+          <Tooltip
+            title='Send to Zbay with QR code'
+            className={classes.tooltip}
+            placement='top-end'
+          >
+            <Grid
+              item
+              className={classes.qrIcon}
+              onClick={() => {
+                setDialogOpen(true)
+              }}
+            >
+              <Icon src={qrIcon} />
+            </Grid>
+          </Tooltip>
+        </Grid>
+      </Grid>
+      <Grid item xs>
+        <CopyToClipboard
+          text={transparentAddress}
+          onCopy={() => {
+            setIsCopied(true)
+          }}
         >
-          <Grid
-            item
-            direction={'column'}
-            className={classes.addressSelectBox}
-            container
-            justify={'center'}
-            alignContent={'center'}
-            wrap='wrap'
+          <Button
+            variant='contained'
+            size='large'
+            color='primary'
+            type='submit'
+            fullWidth
+            className={isCopied ? classes.buttonCopied : classes.button}
           >
-            <Grid item xs>
-              <Typography className={classes.fieldTitle} variant='subtitle2'>
-                Address to add funds
-              </Typography>
-            </Grid>
-            <Grid item xs>
-              <Select
-                displayEmpty
-                IconComponent={UnfoldMore}
-                input={
-                  <OutlinedInput
-                    name='address'
-                    id='outlined-address'
-                    className={classes.select}
-                  />
-                }
-                value={type}
-                onChange={handleChange}
-                className={classNames({
-                  [classes.selectWrapper]: true,
-                  [classes.wideSelectWrapper]: variant === 'wide'
-                })}
-              >
-                <MenuItem value={'transparent'}>Transparent</MenuItem>
-                <MenuItem value={'private'}>Private</MenuItem>
-              </Select>
-            </Grid>
-            <Grid className={classes.helperText} item>
-              <Typography variant={'body2'}>{descriptions[type]}</Typography>
-            </Grid>
+            {isCopied
+              ? `Address copied to clipboard`
+              : `Copy address to clipboard`}
+          </Button>
+        </CopyToClipboard>
+      </Grid>
+      <Grid
+        item
+        className={classes.infoDiv}
+        onClick={() => {
+          setCurrentTab('buyZcash')
+        }}
+      >
+        <Grid container alignItems='center' justify='center'>
+          <Grid item className={classes.iconDiv}>
+            <Icon src={buyIcon} />
           </Grid>
-          <Grid
-            container
-            className={classes.copyInputBox}
-            item
-            direction={'column'}
-            wrap={'no-wrap'}
-            alignContent={'center'}
-            justify={'center'}
-          >
-            <Grid className={classes.titleBox} item xs>
-              <Typography className={classes.fieldTitle} variant='subtitle2'>
-                {type === 'transparent'
-                  ? 'Transparent Address'
-                  : 'Private Address'}
-              </Typography>
-            </Grid>
-            <Grid item xs>
-              <TextField
-                id='copy-address'
-                className={classes.copyField}
-                variant='outlined'
-                type='text'
-                value={address}
-                disabled
-                InputProps={{
-                  classes: {
-                    input: classes.copyInput,
-                    adornedEnd: classes.adornedEnd
-                  },
-                  endAdornment: (
-                    <Grid
-                      item
-                      container
-                      justify={'center'}
-                      alignItems={'center'}
-                      className={classes.iconBox}
-                    >
-                      <InputAdornment
-                        position='end'
-                        className={classes.iconBackground}
-                      >
-                        <CopyToClipboard text={address} onCopy={handleCopy}>
-                          <IconButton>
-                            <Icon src={CopyIcon} />
-                          </IconButton>
-                        </CopyToClipboard>
-                      </InputAdornment>
-                    </Grid>
-                  )
-                }}
-              />
-            </Grid>
-          </Grid>
-          <Grid container justify={'center'} className={classes.QRCodeBox} item>
-            <Grid container justify={'center'} alignItems={'center'} item>
-              <Grid
-                container
-                justify={'center'}
-                alignItems={'center'}
-                item
-                className={classes.whiteBox}
-              >
-                <QRCode value={address} size={200} />
-              </Grid>
-            </Grid>
-          </Grid>
-          <Grid
-            item
-            direction={'column'}
-            className={classes.addressSelectBox}
-            container
-            justify={'center'}
-            alignContent={'center'}
-            wrap='wrap'
-          >
-            <Grid item xs>
-              <Typography className={classes.fieldTitle} variant='subtitle2'>
-                Donation recipient address or username
-              </Typography>
-            </Grid>
-            <Grid item xs>
-              <Autocomplete
-                freeSolo
-                name={'recipient'}
-                inputValue={
-                  donationTarget ? donationTarget.nickname : donationAddress
-                }
-                options={usersArray.map(option => option.nickname)}
-                filterOptions={(options, state) =>
-                  options.filter(o =>
-                    o
-                      .toLowerCase()
-                      .includes(donationAddress || ''.toLowerCase())
-                  )
-                }
-                onInputChange={(e, v) => {
-                  if (!e) {
-                    return
-                  }
-                  const selected = usersArray.find(user => user.nickname === v)
-                  if (selected) {
-                    setDonationAddress(selected.address)
-                  } else {
-                    setDonationAddress(v)
-                  }
-                }}
-                renderInput={params => (
-                  <TextField
-                    {...params}
-                    className={classes.autoCompleteField}
-                    variant='outlined'
-                    placeholder='Enter address or username'
-                    margin='normal'
-                    fullWidth
-                  />
-                )}
-              />
-            </Grid>
-            <Grid className={classes.titleBox} item>
-              <Typography className={classes.infoText} variant='subtitle2'>
-                When you add funds from a transparent address—an exchange, for
-                example—Zbay will donate 1% of these funds to the address or
-                username above. The default recipient is the Zbay team, or—if
-                you accepted funds from an invitation—the user who invited you.
-                You can change the recipient at any time.
-              </Typography>
-            </Grid>
+          <Grid item>
+            <Typography variant='h4'>How do i buy Zcash? </Typography>
           </Grid>
         </Grid>
+      </Grid>
+      <Grid
+        item
+        className={classes.privateDiv}
+        onClick={() => {
+          setExpanded(!expanded)
+        }}
+      >
+        <Grid container alignItems='center' justify='space-between'>
+          <Grid item>
+            <Typography variant='body2' className={classes.privateTitle}>
+              Private address
+            </Typography>
+          </Grid>
+          {expanded ? (
+            <ExpandLessIcon className={classes.icon} />
+          ) : (
+            <ExpandMoreIcon className={classes.icon} />
+          )}
+        </Grid>
+        {expanded && (
+          <Grid container className={classes.spacing24}>
+            <Grid item>
+              <Typography variant='body2' className={classes.subtitle}>
+                Your private Zcash address
+              </Typography>
+            </Grid>
+            <Grid item>
+              <Typography variant='caption' className={classes.caption}>
+                You can't send directly to this address from most exchanges.
+                Zbay will move your funds to a private address as soon as it
+                arrives.
+              </Typography>
+            </Grid>
+            <Grid item xs className={classes.spacing24}>
+              <OutlinedInput
+                name='address'
+                id='outlined-address'
+                classes={{ root: classes.transparentAddress }}
+                value={privateAddress}
+                fullWidth
+                disabled
+                onClick={e => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                }}
+              />
+            </Grid>
+          </Grid>
+        )}
       </Grid>
     </>
   )
@@ -380,17 +320,12 @@ export const AddFunds = ({
 
 AddFunds.propTypes = {
   classes: PropTypes.object.isRequired,
-  type: PropTypes.oneOf(['transparent', 'private']),
-  address: PropTypes.string.isRequired,
-  donationAddress: PropTypes.string.isRequired,
-  handleChange: PropTypes.func.isRequired,
-  handleClose: PropTypes.func.isRequired,
-  users: PropTypes.object.isRequired,
-  handleCopy: PropTypes.func,
-  setDonationAddress: PropTypes.func
+  transparentAddress: PropTypes.string.isRequired,
+  privateAddress: PropTypes.string.isRequired,
+  variant: PropTypes.string,
+  setCurrentTab: PropTypes.func.isRequired
 }
-AddFunds.defaultProps = {
-  handleCopy: () => null
-}
+
+AddFunds.defaultProps = {}
 
 export default withStyles(styles)(AddFunds)

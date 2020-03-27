@@ -77,7 +77,7 @@ const styles = theme => ({
     letterSpacing: -0.1
   },
   input: {
-    width: 154
+    width: '100%'
   }
 })
 

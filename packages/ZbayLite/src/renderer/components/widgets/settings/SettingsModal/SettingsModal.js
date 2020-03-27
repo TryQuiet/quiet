@@ -17,6 +17,7 @@ import AddFundsModal from '../../../../containers/widgets/settings/AddFunds'
 import Security from '../../../../containers/widgets/settings/Security'
 import Notifications from '../../../../containers/widgets/settings/Notifications'
 import BlockedUsers from '../../../../containers/widgets/settings/BlockedUsers'
+import BuyZcash from '../BuyZcash'
 
 const tabs = {
   account: AccountSettingsForm,
@@ -25,7 +26,8 @@ const tabs = {
   addFunds: AddFundsModal,
   security: Security,
   notifications: Notifications,
-  blockedusers: BlockedUsers
+  blockedusers: BlockedUsers,
+  buyZcash: BuyZcash
 }
 
 const styles = theme => ({
@@ -86,8 +88,8 @@ export const SettingsModal = ({
   const [offset, setOffset] = React.useState(0)
   const TabComponent = tabs[modalTabToOpen || currentTab]
   const adjustOffset = () => {
-    if (contentRef.clientWidth > 600) {
-      setOffset((contentRef.clientWidth - 600) / 2)
+    if (contentRef.clientWidth > 800) {
+      setOffset((contentRef.clientWidth - 800) / 2)
     }
   }
   React.useEffect(() => {
@@ -148,6 +150,11 @@ export const SettingsModal = ({
                 classes={{ tabRoot: classes.tab, selected: classes.selected }}
               />
               <Tab
+                value='buyZcash'
+                label='Buy Zcash'
+                classes={{ tabRoot: classes.tab, selected: classes.selected }}
+              />
+              <Tab
                 value='invite'
                 label='Invite a Friend'
                 classes={{ tabRoot: classes.tab, selected: classes.selected }}
@@ -165,22 +172,27 @@ export const SettingsModal = ({
             </Tabs>
           </AppBar>
         </Grid>
-        <AutoSizer>
-          {({ height }) => (
-            <Scrollbars
-              autoHideTimeout={500}
-              style={{ width: 400 + offset, height: height }}
-            >
-              <Grid
-                item
-                className={classes.content}
-                style={{ paddingRight: offset }}
-              >
-                <TabComponent />
-              </Grid>
-            </Scrollbars>
-          )}
-        </AutoSizer>
+        <Grid item xs>
+          <AutoSizer>
+            {({ width, height }) => {
+              const maxWidth = width > 632 ? 632 : width
+              return (
+                <Scrollbars
+                  autoHideTimeout={500}
+                  style={{ width: maxWidth + offset, height: height }}
+                >
+                  <Grid
+                    item
+                    className={classes.content}
+                    style={{ paddingRight: offset }}
+                  >
+                    <TabComponent setCurrentTab={setCurrentTab} />
+                  </Grid>
+                </Scrollbars>
+              )
+            }}
+          </AutoSizer>
+        </Grid>
       </Grid>
     </Modal>
   )

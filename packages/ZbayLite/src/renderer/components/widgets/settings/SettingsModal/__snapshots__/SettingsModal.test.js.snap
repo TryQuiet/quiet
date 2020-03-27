@@ -85,6 +85,16 @@ exports[`SettingsModal renders component 1`] = `
                 "tabRoot": "tab-mock",
               }
             }
+            label="Buy Zcash"
+            value="buyZcash"
+          />
+          <WithStyles(Tab)
+            classes={
+              Object {
+                "selected": "selected-mock",
+                "tabRoot": "tab-mock",
+              }
+            }
             label="Invite a Friend"
             value="invite"
           />
@@ -111,14 +121,19 @@ exports[`SettingsModal renders component 1`] = `
         </WithStyles(ForwardRef(Tabs))>
       </WithStyles(ForwardRef(AppBar))>
     </WithStyles(ForwardRef(Grid))>
-    <AutoSizer
-      disableHeight={false}
-      disableWidth={false}
-      onResize={[Function]}
-      style={Object {}}
+    <WithStyles(ForwardRef(Grid))
+      item={true}
+      xs={true}
     >
-      <Component />
-    </AutoSizer>
+      <AutoSizer
+        disableHeight={false}
+        disableWidth={false}
+        onResize={[Function]}
+        style={Object {}}
+      >
+        <Component />
+      </AutoSizer>
+    </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
 </Memo(WithStyles(Modal))>
 `;

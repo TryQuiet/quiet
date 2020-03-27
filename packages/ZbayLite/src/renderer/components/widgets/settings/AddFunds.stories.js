@@ -12,9 +12,9 @@ storiesOf('Components/Widgets/Settings/AddFunds', module)
       <Grid container direction='column' spacing={2}>
         <Grid item>
           <AddFunds
-            type={'transparent'}
-            address={'zs123-test-address'}
-            description={'test-description'}
+            transparentAddress={'address transparent'}
+            privateAddress={'zs123-test-address'}
+            setCurrentTab={() => {}}
           />
         </Grid>
       </Grid>

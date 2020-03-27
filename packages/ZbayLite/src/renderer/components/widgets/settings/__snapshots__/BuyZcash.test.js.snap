@@ -1,0 +1,1616 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BuyZcash renders component 1`] = `
+<WithStyles(ForwardRef(Grid))
+  container={true}
+  direction="column"
+>
+  <WithStyles(ForwardRef(Grid))
+    className="title-mock"
+    item={true}
+  >
+    <WithStyles(ForwardRef(Typography))
+      variant="h3"
+    >
+      Buy Zcash
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+  >
+    <WithStyles(ForwardRef(Typography))
+      className="subtitle-mock"
+      variant="body2"
+    >
+      What country do you live in?
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="selectDiv-mock"
+    item={true}
+  >
+    <WithStyles(ForwardRef(Select))
+      IconComponent={
+        Object {
+          "$$typeof": Symbol(react.memo),
+          "compare": null,
+          "displayName": "UnfoldMoreIcon",
+          "muiName": "SvgIcon",
+          "type": Object {
+            "$$typeof": Symbol(react.forward_ref),
+            "render": [Function],
+          },
+        }
+      }
+      fullWidth={true}
+      id="region"
+      input={<ForwardRef(WithStyles) />}
+      name="region"
+      onChange={[Function]}
+      value="United States"
+    >
+      <WithStyles(ForwardRef(MenuItem))
+        key="Afghanistan"
+        value="Afghanistan"
+      >
+        Afghanistan
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Åland Islands"
+        value="Åland Islands"
+      >
+        Åland Islands
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Albania"
+        value="Albania"
+      >
+        Albania
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Algeria"
+        value="Algeria"
+      >
+        Algeria
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="American Samoa"
+        value="American Samoa"
+      >
+        American Samoa
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Andorra"
+        value="Andorra"
+      >
+        Andorra
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Angola"
+        value="Angola"
+      >
+        Angola
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Anguilla"
+        value="Anguilla"
+      >
+        Anguilla
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Antarctica"
+        value="Antarctica"
+      >
+        Antarctica
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Antigua and Barbuda"
+        value="Antigua and Barbuda"
+      >
+        Antigua and Barbuda
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Argentina"
+        value="Argentina"
+      >
+        Argentina
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Armenia"
+        value="Armenia"
+      >
+        Armenia
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Aruba"
+        value="Aruba"
+      >
+        Aruba
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Australia"
+        value="Australia"
+      >
+        Australia
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Austria"
+        value="Austria"
+      >
+        Austria
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Azerbaijan"
+        value="Azerbaijan"
+      >
+        Azerbaijan
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Bahamas"
+        value="Bahamas"
+      >
+        Bahamas
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Bahrain"
+        value="Bahrain"
+      >
+        Bahrain
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Bangladesh"
+        value="Bangladesh"
+      >
+        Bangladesh
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Barbados"
+        value="Barbados"
+      >
+        Barbados
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Belarus"
+        value="Belarus"
+      >
+        Belarus
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Belgium"
+        value="Belgium"
+      >
+        Belgium
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Belize"
+        value="Belize"
+      >
+        Belize
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Benin"
+        value="Benin"
+      >
+        Benin
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Bermuda"
+        value="Bermuda"
+      >
+        Bermuda
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Bhutan"
+        value="Bhutan"
+      >
+        Bhutan
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Bolivia"
+        value="Bolivia"
+      >
+        Bolivia
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Bonaire, Sint Eustatius and Saba"
+        value="Bonaire, Sint Eustatius and Saba"
+      >
+        Bonaire, Sint Eustatius and Saba
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Bosnia and Herzegovina"
+        value="Bosnia and Herzegovina"
+      >
+        Bosnia and Herzegovina
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Botswana"
+        value="Botswana"
+      >
+        Botswana
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Bouvet Island"
+        value="Bouvet Island"
+      >
+        Bouvet Island
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Brazil"
+        value="Brazil"
+      >
+        Brazil
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="British Indian Ocean Territory"
+        value="British Indian Ocean Territory"
+      >
+        British Indian Ocean Territory
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Brunei Darussalam"
+        value="Brunei Darussalam"
+      >
+        Brunei Darussalam
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Bulgaria"
+        value="Bulgaria"
+      >
+        Bulgaria
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Burkina Faso"
+        value="Burkina Faso"
+      >
+        Burkina Faso
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Burundi"
+        value="Burundi"
+      >
+        Burundi
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Cambodia"
+        value="Cambodia"
+      >
+        Cambodia
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Cameroon"
+        value="Cameroon"
+      >
+        Cameroon
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Canada"
+        value="Canada"
+      >
+        Canada
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Cape Verde"
+        value="Cape Verde"
+      >
+        Cape Verde
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Cayman Islands"
+        value="Cayman Islands"
+      >
+        Cayman Islands
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Central African Republic"
+        value="Central African Republic"
+      >
+        Central African Republic
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Chad"
+        value="Chad"
+      >
+        Chad
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Chile"
+        value="Chile"
+      >
+        Chile
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="China"
+        value="China"
+      >
+        China
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Christmas Island"
+        value="Christmas Island"
+      >
+        Christmas Island
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Cocos (Keeling) Islands"
+        value="Cocos (Keeling) Islands"
+      >
+        Cocos (Keeling) Islands
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Colombia"
+        value="Colombia"
+      >
+        Colombia
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Comoros"
+        value="Comoros"
+      >
+        Comoros
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Congo, Republic of the (Brazzaville)"
+        value="Congo, Republic of the (Brazzaville)"
+      >
+        Congo, Republic of the (Brazzaville)
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Congo, the Democratic Republic of the (Kinshasa)"
+        value="Congo, the Democratic Republic of the (Kinshasa)"
+      >
+        Congo, the Democratic Republic of the (Kinshasa)
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Cook Islands"
+        value="Cook Islands"
+      >
+        Cook Islands
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Costa Rica"
+        value="Costa Rica"
+      >
+        Costa Rica
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Côte d'Ivoire, Republic of"
+        value="Côte d'Ivoire, Republic of"
+      >
+        Côte d'Ivoire, Republic of
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Croatia"
+        value="Croatia"
+      >
+        Croatia
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Cuba"
+        value="Cuba"
+      >
+        Cuba
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Curaçao"
+        value="Curaçao"
+      >
+        Curaçao
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Cyprus"
+        value="Cyprus"
+      >
+        Cyprus
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Czech Republic"
+        value="Czech Republic"
+      >
+        Czech Republic
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Denmark"
+        value="Denmark"
+      >
+        Denmark
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Djibouti"
+        value="Djibouti"
+      >
+        Djibouti
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Dominica"
+        value="Dominica"
+      >
+        Dominica
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Dominican Republic"
+        value="Dominican Republic"
+      >
+        Dominican Republic
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Ecuador"
+        value="Ecuador"
+      >
+        Ecuador
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Egypt"
+        value="Egypt"
+      >
+        Egypt
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="El Salvador"
+        value="El Salvador"
+      >
+        El Salvador
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Equatorial Guinea"
+        value="Equatorial Guinea"
+      >
+        Equatorial Guinea
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Eritrea"
+        value="Eritrea"
+      >
+        Eritrea
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Estonia"
+        value="Estonia"
+      >
+        Estonia
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Ethiopia"
+        value="Ethiopia"
+      >
+        Ethiopia
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Falkland Islands (Islas Malvinas)"
+        value="Falkland Islands (Islas Malvinas)"
+      >
+        Falkland Islands (Islas Malvinas)
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Faroe Islands"
+        value="Faroe Islands"
+      >
+        Faroe Islands
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Fiji"
+        value="Fiji"
+      >
+        Fiji
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Finland"
+        value="Finland"
+      >
+        Finland
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="France"
+        value="France"
+      >
+        France
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="French Guiana"
+        value="French Guiana"
+      >
+        French Guiana
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="French Polynesia"
+        value="French Polynesia"
+      >
+        French Polynesia
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="French Southern and Antarctic Lands"
+        value="French Southern and Antarctic Lands"
+      >
+        French Southern and Antarctic Lands
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Gabon"
+        value="Gabon"
+      >
+        Gabon
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Gambia, The"
+        value="Gambia, The"
+      >
+        Gambia, The
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Georgia"
+        value="Georgia"
+      >
+        Georgia
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Germany"
+        value="Germany"
+      >
+        Germany
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Ghana"
+        value="Ghana"
+      >
+        Ghana
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Gibraltar"
+        value="Gibraltar"
+      >
+        Gibraltar
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Greece"
+        value="Greece"
+      >
+        Greece
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Greenland"
+        value="Greenland"
+      >
+        Greenland
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Grenada"
+        value="Grenada"
+      >
+        Grenada
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Guadeloupe"
+        value="Guadeloupe"
+      >
+        Guadeloupe
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Guam"
+        value="Guam"
+      >
+        Guam
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Guatemala"
+        value="Guatemala"
+      >
+        Guatemala
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Guernsey"
+        value="Guernsey"
+      >
+        Guernsey
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Guinea"
+        value="Guinea"
+      >
+        Guinea
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Guinea-Bissau"
+        value="Guinea-Bissau"
+      >
+        Guinea-Bissau
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Guyana"
+        value="Guyana"
+      >
+        Guyana
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Haiti"
+        value="Haiti"
+      >
+        Haiti
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Heard Island and McDonald Islands"
+        value="Heard Island and McDonald Islands"
+      >
+        Heard Island and McDonald Islands
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Holy See (Vatican City)"
+        value="Holy See (Vatican City)"
+      >
+        Holy See (Vatican City)
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Honduras"
+        value="Honduras"
+      >
+        Honduras
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Hong Kong"
+        value="Hong Kong"
+      >
+        Hong Kong
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Hungary"
+        value="Hungary"
+      >
+        Hungary
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Iceland"
+        value="Iceland"
+      >
+        Iceland
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="India"
+        value="India"
+      >
+        India
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Indonesia"
+        value="Indonesia"
+      >
+        Indonesia
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Iran, Islamic Republic of"
+        value="Iran, Islamic Republic of"
+      >
+        Iran, Islamic Republic of
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Iraq"
+        value="Iraq"
+      >
+        Iraq
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Ireland"
+        value="Ireland"
+      >
+        Ireland
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Isle of Man"
+        value="Isle of Man"
+      >
+        Isle of Man
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Israel"
+        value="Israel"
+      >
+        Israel
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Italy"
+        value="Italy"
+      >
+        Italy
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Jamaica"
+        value="Jamaica"
+      >
+        Jamaica
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Japan"
+        value="Japan"
+      >
+        Japan
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Jersey"
+        value="Jersey"
+      >
+        Jersey
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Jordan"
+        value="Jordan"
+      >
+        Jordan
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Kazakhstan"
+        value="Kazakhstan"
+      >
+        Kazakhstan
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Kenya"
+        value="Kenya"
+      >
+        Kenya
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Kiribati"
+        value="Kiribati"
+      >
+        Kiribati
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Korea, Democratic People's Republic of"
+        value="Korea, Democratic People's Republic of"
+      >
+        Korea, Democratic People's Republic of
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Korea, Republic of"
+        value="Korea, Republic of"
+      >
+        Korea, Republic of
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Kuwait"
+        value="Kuwait"
+      >
+        Kuwait
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Kyrgyzstan"
+        value="Kyrgyzstan"
+      >
+        Kyrgyzstan
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Laos"
+        value="Laos"
+      >
+        Laos
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Latvia"
+        value="Latvia"
+      >
+        Latvia
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Lebanon"
+        value="Lebanon"
+      >
+        Lebanon
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Lesotho"
+        value="Lesotho"
+      >
+        Lesotho
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Liberia"
+        value="Liberia"
+      >
+        Liberia
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Libya"
+        value="Libya"
+      >
+        Libya
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Liechtenstein"
+        value="Liechtenstein"
+      >
+        Liechtenstein
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Lithuania"
+        value="Lithuania"
+      >
+        Lithuania
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Luxembourg"
+        value="Luxembourg"
+      >
+        Luxembourg
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Macao"
+        value="Macao"
+      >
+        Macao
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Macedonia, Republic of"
+        value="Macedonia, Republic of"
+      >
+        Macedonia, Republic of
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Madagascar"
+        value="Madagascar"
+      >
+        Madagascar
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Malawi"
+        value="Malawi"
+      >
+        Malawi
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Malaysia"
+        value="Malaysia"
+      >
+        Malaysia
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Maldives"
+        value="Maldives"
+      >
+        Maldives
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Mali"
+        value="Mali"
+      >
+        Mali
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Malta"
+        value="Malta"
+      >
+        Malta
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Marshall Islands"
+        value="Marshall Islands"
+      >
+        Marshall Islands
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Martinique"
+        value="Martinique"
+      >
+        Martinique
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Mauritania"
+        value="Mauritania"
+      >
+        Mauritania
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Mauritius"
+        value="Mauritius"
+      >
+        Mauritius
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Mayotte"
+        value="Mayotte"
+      >
+        Mayotte
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Mexico"
+        value="Mexico"
+      >
+        Mexico
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Micronesia, Federated States of"
+        value="Micronesia, Federated States of"
+      >
+        Micronesia, Federated States of
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Moldova"
+        value="Moldova"
+      >
+        Moldova
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Monaco"
+        value="Monaco"
+      >
+        Monaco
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Mongolia"
+        value="Mongolia"
+      >
+        Mongolia
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Montenegro"
+        value="Montenegro"
+      >
+        Montenegro
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Montserrat"
+        value="Montserrat"
+      >
+        Montserrat
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Morocco"
+        value="Morocco"
+      >
+        Morocco
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Mozambique"
+        value="Mozambique"
+      >
+        Mozambique
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Myanmar"
+        value="Myanmar"
+      >
+        Myanmar
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Namibia"
+        value="Namibia"
+      >
+        Namibia
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Nauru"
+        value="Nauru"
+      >
+        Nauru
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Nepal"
+        value="Nepal"
+      >
+        Nepal
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Netherlands"
+        value="Netherlands"
+      >
+        Netherlands
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="New Caledonia"
+        value="New Caledonia"
+      >
+        New Caledonia
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="New Zealand"
+        value="New Zealand"
+      >
+        New Zealand
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Nicaragua"
+        value="Nicaragua"
+      >
+        Nicaragua
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Niger"
+        value="Niger"
+      >
+        Niger
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Nigeria"
+        value="Nigeria"
+      >
+        Nigeria
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Niue"
+        value="Niue"
+      >
+        Niue
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Norfolk Island"
+        value="Norfolk Island"
+      >
+        Norfolk Island
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Northern Mariana Islands"
+        value="Northern Mariana Islands"
+      >
+        Northern Mariana Islands
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Norway"
+        value="Norway"
+      >
+        Norway
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Oman"
+        value="Oman"
+      >
+        Oman
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Pakistan"
+        value="Pakistan"
+      >
+        Pakistan
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Palau"
+        value="Palau"
+      >
+        Palau
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Palestine, State of"
+        value="Palestine, State of"
+      >
+        Palestine, State of
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Panama"
+        value="Panama"
+      >
+        Panama
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Papua New Guinea"
+        value="Papua New Guinea"
+      >
+        Papua New Guinea
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Paraguay"
+        value="Paraguay"
+      >
+        Paraguay
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Peru"
+        value="Peru"
+      >
+        Peru
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Philippines"
+        value="Philippines"
+      >
+        Philippines
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Pitcairn"
+        value="Pitcairn"
+      >
+        Pitcairn
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Poland"
+        value="Poland"
+      >
+        Poland
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Portugal"
+        value="Portugal"
+      >
+        Portugal
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Puerto Rico"
+        value="Puerto Rico"
+      >
+        Puerto Rico
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Qatar"
+        value="Qatar"
+      >
+        Qatar
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Réunion"
+        value="Réunion"
+      >
+        Réunion
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Romania"
+        value="Romania"
+      >
+        Romania
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Russian Federation"
+        value="Russian Federation"
+      >
+        Russian Federation
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Rwanda"
+        value="Rwanda"
+      >
+        Rwanda
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Saint Barthélemy"
+        value="Saint Barthélemy"
+      >
+        Saint Barthélemy
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Saint Helena, Ascension and Tristan da Cunha"
+        value="Saint Helena, Ascension and Tristan da Cunha"
+      >
+        Saint Helena, Ascension and Tristan da Cunha
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Saint Kitts and Nevis"
+        value="Saint Kitts and Nevis"
+      >
+        Saint Kitts and Nevis
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Saint Lucia"
+        value="Saint Lucia"
+      >
+        Saint Lucia
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Saint Martin"
+        value="Saint Martin"
+      >
+        Saint Martin
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Saint Pierre and Miquelon"
+        value="Saint Pierre and Miquelon"
+      >
+        Saint Pierre and Miquelon
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Saint Vincent and the Grenadines"
+        value="Saint Vincent and the Grenadines"
+      >
+        Saint Vincent and the Grenadines
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Samoa"
+        value="Samoa"
+      >
+        Samoa
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="San Marino"
+        value="San Marino"
+      >
+        San Marino
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Sao Tome and Principe"
+        value="Sao Tome and Principe"
+      >
+        Sao Tome and Principe
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Saudi Arabia"
+        value="Saudi Arabia"
+      >
+        Saudi Arabia
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Senegal"
+        value="Senegal"
+      >
+        Senegal
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Serbia"
+        value="Serbia"
+      >
+        Serbia
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Seychelles"
+        value="Seychelles"
+      >
+        Seychelles
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Sierra Leone"
+        value="Sierra Leone"
+      >
+        Sierra Leone
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Singapore"
+        value="Singapore"
+      >
+        Singapore
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Sint Maarten (Dutch part)"
+        value="Sint Maarten (Dutch part)"
+      >
+        Sint Maarten (Dutch part)
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Slovakia"
+        value="Slovakia"
+      >
+        Slovakia
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Slovenia"
+        value="Slovenia"
+      >
+        Slovenia
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Solomon Islands"
+        value="Solomon Islands"
+      >
+        Solomon Islands
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Somalia"
+        value="Somalia"
+      >
+        Somalia
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="South Africa"
+        value="South Africa"
+      >
+        South Africa
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="South Georgia and South Sandwich Islands"
+        value="South Georgia and South Sandwich Islands"
+      >
+        South Georgia and South Sandwich Islands
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="South Sudan"
+        value="South Sudan"
+      >
+        South Sudan
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Spain"
+        value="Spain"
+      >
+        Spain
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Sri Lanka"
+        value="Sri Lanka"
+      >
+        Sri Lanka
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Sudan"
+        value="Sudan"
+      >
+        Sudan
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Suriname"
+        value="Suriname"
+      >
+        Suriname
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Swaziland"
+        value="Swaziland"
+      >
+        Swaziland
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Sweden"
+        value="Sweden"
+      >
+        Sweden
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Switzerland"
+        value="Switzerland"
+      >
+        Switzerland
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Syrian Arab Republic"
+        value="Syrian Arab Republic"
+      >
+        Syrian Arab Republic
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Taiwan"
+        value="Taiwan"
+      >
+        Taiwan
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Tajikistan"
+        value="Tajikistan"
+      >
+        Tajikistan
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Tanzania, United Republic of"
+        value="Tanzania, United Republic of"
+      >
+        Tanzania, United Republic of
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Thailand"
+        value="Thailand"
+      >
+        Thailand
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Timor-Leste"
+        value="Timor-Leste"
+      >
+        Timor-Leste
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Togo"
+        value="Togo"
+      >
+        Togo
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Tokelau"
+        value="Tokelau"
+      >
+        Tokelau
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Tonga"
+        value="Tonga"
+      >
+        Tonga
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Trinidad and Tobago"
+        value="Trinidad and Tobago"
+      >
+        Trinidad and Tobago
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Tunisia"
+        value="Tunisia"
+      >
+        Tunisia
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Turkey"
+        value="Turkey"
+      >
+        Turkey
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Turkmenistan"
+        value="Turkmenistan"
+      >
+        Turkmenistan
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Turks and Caicos Islands"
+        value="Turks and Caicos Islands"
+      >
+        Turks and Caicos Islands
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Tuvalu"
+        value="Tuvalu"
+      >
+        Tuvalu
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Uganda"
+        value="Uganda"
+      >
+        Uganda
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Ukraine"
+        value="Ukraine"
+      >
+        Ukraine
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="United Arab Emirates"
+        value="United Arab Emirates"
+      >
+        United Arab Emirates
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="United Kingdom"
+        value="United Kingdom"
+      >
+        United Kingdom
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="United States"
+        value="United States"
+      >
+        United States
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="United States Minor Outlying Islands"
+        value="United States Minor Outlying Islands"
+      >
+        United States Minor Outlying Islands
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Uruguay"
+        value="Uruguay"
+      >
+        Uruguay
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Uzbekistan"
+        value="Uzbekistan"
+      >
+        Uzbekistan
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Vanuatu"
+        value="Vanuatu"
+      >
+        Vanuatu
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Venezuela, Bolivarian Republic of"
+        value="Venezuela, Bolivarian Republic of"
+      >
+        Venezuela, Bolivarian Republic of
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Vietnam"
+        value="Vietnam"
+      >
+        Vietnam
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Virgin Islands, British"
+        value="Virgin Islands, British"
+      >
+        Virgin Islands, British
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Virgin Islands, U.S."
+        value="Virgin Islands, U.S."
+      >
+        Virgin Islands, U.S.
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Wallis and Futuna"
+        value="Wallis and Futuna"
+      >
+        Wallis and Futuna
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Western Sahara"
+        value="Western Sahara"
+      >
+        Western Sahara
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Yemen"
+        value="Yemen"
+      >
+        Yemen
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Zambia"
+        value="Zambia"
+      >
+        Zambia
+      </WithStyles(ForwardRef(MenuItem))>
+      <WithStyles(ForwardRef(MenuItem))
+        key="Zimbabwe"
+        value="Zimbabwe"
+      >
+        Zimbabwe
+      </WithStyles(ForwardRef(MenuItem))>
+    </WithStyles(ForwardRef(Select))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="infoDiv-mock"
+    item={true}
+  >
+    <WithStyles(ForwardRef(Typography))
+      variant="body2"
+    >
+      The easiest way to get Zcash in the United States is Coinbase. Coinbase has a
+       
+      <a
+        className="link-mock"
+        href="coinbase.com"
+        onClick={[Function]}
+      >
+        website
+      </a>
+      , but if you have an iPhone or a reputable Android phone, the app is more secure and easy to use.
+    </WithStyles(ForwardRef(Typography))>
+    <WithStyles(ForwardRef(Typography))
+      className="spacing16-mock"
+      variant="body2"
+    >
+      Due to U.S. laws, you'll have to provide a social security number and a copy of your ID, but they make it easy.
+    </WithStyles(ForwardRef(Typography))>
+    <WithStyles(ForwardRef(Typography))
+      className="spacing16-mock"
+      variant="body2"
+    >
+      Get the Coinbase App on
+       
+      <a
+        className="link-mock"
+        href="https://play.google.com/store/apps/details?id=com.coinbase.android&hl=en"
+        onClick={[Function]}
+      >
+        Google Play
+      </a>
+       
+      or the
+       
+      <a
+        className="link-mock"
+        href="https://apps.apple.com/us/app/coinbase-buy-sell-bitcoin"
+        onClick={[Function]}
+      >
+        App Store
+      </a>
+      .
+    </WithStyles(ForwardRef(Typography))>
+    <WithStyles(ForwardRef(Typography))
+      className="spacing16-mock"
+      variant="body2"
+    >
+      Other things you should know:
+    </WithStyles(ForwardRef(Typography))>
+    <ul>
+      <li
+        className="spacing24-mock"
+      >
+        Zcash is its own currency, like the dollar or euro, so its value can go up or down.
+      </li>
+      <li
+        className="spacing24-mock"
+      >
+        Zbay is experimental, so don't store too much money in it (say, no more than the cost of a nice dinner.)
+      </li>
+      <li
+        className="spacing24-mock"
+      >
+        If your computer is broken, lost, or stolen and you don't have a full backup (like [Backblaze] or [Time Machine] on Mac) you will lose your Zbay account, your direct messages, and your funds. The best way to keep your funds and account safe is to make a secure backup of your computer, either offline (with Time Machine on Mac) or with a key you control (you can do this with Backblaze).
+      </li>
+    </ul>
+  </WithStyles(ForwardRef(Grid))>
+</WithStyles(ForwardRef(Grid))>
+`;
