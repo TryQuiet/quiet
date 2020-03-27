@@ -22,10 +22,11 @@ const styles = {
   }
 }
 
-export const Main = ({ match, classes }) => {
+export const Main = ({ match, classes, disablePowerSleepMode }) => {
   useEffect(() => {
     electronStore.set('isNewUser', false)
     electronStore.set('AppStatus.blockchain.isRescanned', true)
+    disablePowerSleepMode()
   }, [])
   return (
     <>
