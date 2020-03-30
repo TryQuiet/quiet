@@ -8,7 +8,8 @@ import identityHandlers from '../../store/handlers/identity'
 import identitySelectors from '../../store/selectors/identity'
 import userSelectors from '../../store/selectors/users'
 import TopUpModalComponent from '../../components/ui/TopUpModal/TopUpModal'
-import { withModal } from '../../store/handlers/modals'
+import modalsHandlers, { withModal } from '../../store/handlers/modals'
+import { actions } from '../../store/handlers/app'
 
 export const mapStateToProps = state => ({
   privateAddress: identitySelectors.address(state),
@@ -26,7 +27,11 @@ export const mapDispatchToProps = (dispatch, props) =>
       setShieldingTax: identityHandlers.actions.setShieldingTax,
       updateShieldingTax: identityHandlers.epics.updateShieldingTax,
       updateDonationAddress: address =>
-        identityHandlers.epics.updateDonationAddress(address)
+        identityHandlers.epics.updateDonationAddress(address),
+      openSettingsModal: modalsHandlers.actionCreators.openModal(
+        'accountSettingsModal'
+      ),
+      setTabToOpen: () => actions.setModalTab('buyZcash')
     },
     dispatch
   )

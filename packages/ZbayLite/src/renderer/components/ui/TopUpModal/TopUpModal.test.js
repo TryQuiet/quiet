@@ -17,6 +17,8 @@ describe('TopUpModal', () => {
         handleChange={jest.fn()}
         handleClose={jest.fn()}
         handleCopy={jest.fn()}
+        setTabToOpen={jest.fn()}
+        openSettingsModal={jest.fn()}
       />
     )
     expect(result).toMatchSnapshot()
@@ -33,6 +35,8 @@ describe('TopUpModal', () => {
         handleChange={jest.fn()}
         handleClose={jest.fn()}
         handleCopy={jest.fn()}
+        setTabToOpen={jest.fn()}
+        openSettingsModal={jest.fn()}
       />
     )
     expect(result).toMatchSnapshot()

@@ -1,5 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import { AutoSizer } from 'react-virtualized'
+import { Scrollbars } from 'react-custom-scrollbars'
 
 import { Grid } from '@material-ui/core'
 import { withStyles } from '@material-ui/core/styles'
@@ -8,55 +10,63 @@ import AddFunds from '../../../components/widgets/settings/AddFunds'
 import Modal from '../Modal'
 
 const styles = theme => ({
-  root: {
-    padding: theme.spacing(4)
-  },
-  title: {
-    paddingBottom: theme.spacing(1)
-  },
-  select: {
-    ...theme.typography.h5,
-    padding: '0 24px 0 0'
-  },
-  selectWrapper: {
-    margin: '0 8px',
-    borderBottom: 'none'
-  },
-  shield: {
-    marginTop: theme.spacing(2)
-  },
-  dataRoot: {
-    padding: `0 ${theme.spacing(4)}px`
-  },
-  description: {
-    marginBottom: theme.spacing(2)
-  },
-  copyField: {
-    width: 370,
-    borderRadius: 4,
-    marginBottom: theme.spacing(2)
-  },
-  copyInput: {
-    borderRight: `1px solid`,
-    paddingTop: 18,
-    paddingBottom: 18
-  }
+  root: {}
 })
 
 export const TopUpModal = ({
   classes,
   open,
   handleClose,
+  openSettingsModal,
+  setTabToOpen,
   ...rest
-}) => (
-  <Modal open={open} handleClose={handleClose}>
-    <Grid container justify={'center'}>
-      <Grid item xs>
-        <AddFunds {...rest} variant={'wide'} />
-      </Grid>
-    </Grid>
-  </Modal>
-)
+}) => {
+  const [offset, setOffset] = React.useState(0)
+  const adjustOffset = () => {
+    if (window.innerWidth > 600) {
+      setOffset((window.innerWidth - 600) / 2)
+    }
+  }
+  React.useEffect(() => {
+    if (window) {
+      window.addEventListener('resize', adjustOffset)
+      adjustOffset()
+    }
+  }, [])
+  return (
+    <Modal open={open} handleClose={handleClose} contentWidth='100%'>
+      <AutoSizer>
+        {({ width, height }) => {
+          return (
+            <Scrollbars
+              autoHideTimeout={500}
+              style={{ width: window.innerWidth, height: height }}
+            >
+              <Grid container justify={'center'}>
+                <Grid item xs>
+                  <Grid
+                    item
+                    className={classes.content}
+                    style={{ paddingRight: offset, paddingLeft: offset }}
+                  >
+                    <AddFunds
+                      {...rest}
+                      variant={'wide'}
+                      setCurrentTab={() => {
+                        openSettingsModal()
+                        setTabToOpen()
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Scrollbars>
+          )
+        }}
+      </AutoSizer>
+    </Modal>
+  )
+}
 
 TopUpModal.propTypes = {
   classes: PropTypes.object.isRequired,
@@ -65,6 +75,8 @@ TopUpModal.propTypes = {
   address: PropTypes.string.isRequired,
   handleChange: PropTypes.func.isRequired,
   handleClose: PropTypes.func.isRequired,
+  openSettingsModal: PropTypes.func.isRequired,
+  setTabToOpen: PropTypes.func.isRequired,
   handleCopy: PropTypes.func
 }
 

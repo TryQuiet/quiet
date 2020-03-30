@@ -130,7 +130,6 @@ export const AddFunds = ({
   const [expanded, setExpanded] = React.useState(false)
   const [dialogOpen, setDialogOpen] = React.useState(false)
   const [isCopied, setIsCopied] = React.useState(false)
-  console.log(isCopied)
   return (
     <>
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>

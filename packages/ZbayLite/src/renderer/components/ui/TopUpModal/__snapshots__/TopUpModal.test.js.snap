@@ -2,52 +2,34 @@
 
 exports[`TopUpModal renders component with private option 1`] = `
 <Memo(WithStyles(Modal))
+  contentWidth="100%"
   handleClose={[MockFunction]}
   open={false}
 >
-  <WithStyles(ForwardRef(Grid))
-    container={true}
-    justify="center"
+  <AutoSizer
+    disableHeight={false}
+    disableWidth={false}
+    onResize={[Function]}
+    style={Object {}}
   >
-    <WithStyles(ForwardRef(Grid))
-      item={true}
-      xs={true}
-    >
-      <WithStyles(AddFunds)
-        address="zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly"
-        description="Private description"
-        handleChange={[MockFunction]}
-        handleCopy={[MockFunction]}
-        type="private"
-        variant="wide"
-      />
-    </WithStyles(ForwardRef(Grid))>
-  </WithStyles(ForwardRef(Grid))>
+    <Component />
+  </AutoSizer>
 </Memo(WithStyles(Modal))>
 `;
 
 exports[`TopUpModal renders component with transparent option 1`] = `
 <Memo(WithStyles(Modal))
+  contentWidth="100%"
   handleClose={[MockFunction]}
   open={false}
 >
-  <WithStyles(ForwardRef(Grid))
-    container={true}
-    justify="center"
+  <AutoSizer
+    disableHeight={false}
+    disableWidth={false}
+    onResize={[Function]}
+    style={Object {}}
   >
-    <WithStyles(ForwardRef(Grid))
-      item={true}
-      xs={true}
-    >
-      <WithStyles(AddFunds)
-        address="t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1"
-        description="Transparent description"
-        handleChange={[MockFunction]}
-        handleCopy={[MockFunction]}
-        type="transparent"
-        variant="wide"
-      />
-    </WithStyles(ForwardRef(Grid))>
-  </WithStyles(ForwardRef(Grid))>
+    <Component />
+  </AutoSizer>
 </Memo(WithStyles(Modal))>
 `;
