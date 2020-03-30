@@ -43,7 +43,8 @@ export const FetchingState = Immutable.Record({
   rescanningProgress: 0,
   isRescanningMonitorStarted: false,
   isRescanningInitialized: false,
-  guideStatus: false
+  guideStatus: false,
+  currentSlide: 0
 })
 
 export default {

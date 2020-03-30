@@ -31,6 +31,7 @@ Immutable.NodeState {
     "isRescanningMonitorStarted": false,
     "isRescanningInitialized": false,
     "guideStatus": false,
+    "currentSlide": 0,
   },
   "startedAt": "2019-03-05T09:34:48.000Z",
 }

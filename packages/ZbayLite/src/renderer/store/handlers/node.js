@@ -46,6 +46,8 @@ const setRescanningProgress = createAction(actionTypes.SET_RESCANNING_PROGRESS)
 const setRescanningMonitorStatus = createAction(actionTypes.SET_RESCANNING_MONITOR_STATUS)
 const setRescanningStatus = createAction(actionTypes.SET_RESCANNING_STATUS)
 const setGuideStatus = createAction(actionTypes.SET_GUIDE_STATUS)
+const setNextSlide = createAction(actionTypes.SET_NEXT_SLIDE)
+const setPrevSlide = createAction(actionTypes.SET_PREV_SLIDE)
 
 const actions = {
   createAddress,
@@ -61,7 +63,9 @@ const actions = {
   setConnectionStatus,
   setRescanningStatus,
   setStatus,
-  setGuideStatus
+  setGuideStatus,
+  setNextSlide,
+  setPrevSlide
 }
 
 export const startRescanningMonitor = () => async (dispatch, getState) => {
@@ -119,7 +123,15 @@ export const reducer = handleActions({
   [setRescanningProgress]: (state, { payload: rescanningProgress }) => state.setIn(['fetchingStatus', 'rescanningProgress'], rescanningProgress),
   [setRescanningMonitorStatus]: (state, { payload: isRescanningMonitorStarted }) => state.setIn(['fetchingStatus', 'isRescanningMonitorStarted'], isRescanningMonitorStarted),
   [setRescanningStatus]: (state, { payload: isRescanningInitialized }) => state.setIn(['fetchingStatus', 'isRescanningInitialized'], isRescanningInitialized),
-  [setGuideStatus]: (state, { payload: guideStatus }) => state.setIn(['fetchingStatus', 'guideStatus'], guideStatus)
+  [setGuideStatus]: (state, { payload: guideStatus }) => state.setIn(['fetchingStatus', 'guideStatus'], guideStatus),
+  [setNextSlide]: (state) => {
+    const currentSlide = state.getIn(['fetchingStatus', 'currentSlide'])
+    return state.setIn(['fetchingStatus', 'currentSlide'], currentSlide === 10 ? currentSlide : currentSlide + 1)
+  },
+  [setPrevSlide]: (state) => {
+    const currentSlide = state.getIn(['fetchingStatus', 'currentSlide'])
+    return state.setIn(['fetchingStatus', 'currentSlide'], currentSlide === 0 ? currentSlide : currentSlide - 1)
+  }
 }, initialState)
 
 export default {

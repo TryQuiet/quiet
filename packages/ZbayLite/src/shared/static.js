@@ -129,7 +129,9 @@ export const actionTypes = mirrorKey({
   SET_RESCANNING_STATUS: undefined,
   SET_LOGIN_SUCCESSFULL: undefined,
   SET_USER_NOTIFICATION_SOUND: undefined,
-  SET_GUIDE_STATUS: undefined
+  SET_GUIDE_STATUS: undefined,
+  SET_NEXT_SLIDE: undefined,
+  SET_PREV_SLIDE: undefined
 })
 
 export const messageType = {

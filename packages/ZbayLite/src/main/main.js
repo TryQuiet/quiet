@@ -82,7 +82,7 @@ let isWillQuitEventAdded = false
 const downloadManagerForZippedBlockchain = ({ data, source }) => {
   const dataToFetch = R.clone(data)
   let downloadedFilesCounter = 0
-  const targetCounter = source === 'params' ? 1 : 5
+  const targetCounter = source === 'params' ? 1 : process.platform === 'win32' ? 10 : 5
   const saveFileListToElectronStore = () => {
     if (downloadedFilesCounter >= targetCounter) {
       electronStore.set(`AppStatus.${source === 'params' ? 'params' : 'blockchain'}`, {
@@ -95,7 +95,6 @@ const downloadManagerForZippedBlockchain = ({ data, source }) => {
     }
   }
   return new Promise(function (resolve, reject) {
-    let isRejected = false
     let downloadedSize = 0
     const checkFetchedSize = () => {
       getSize(source === 'params' ? osPathsParams[process.platform] : osPathsBlockchain[process.platform],
@@ -118,25 +117,22 @@ const downloadManagerForZippedBlockchain = ({ data, source }) => {
       isWillQuitEventAdded = true
     }
     const startFetching = (data) => {
-      if (isRejected) {
-        return
-      }
+      let item
       const gunzip = zlib.createGunzip()
       if (!data[0]) return
       const { fileName, targetUrl } = data[0]
-      data.shift()
+      item = data.shift()
       const preparedFilePath = process.platform === 'win32' ? fileName.split('/').join('\\\\') : fileName
       const path = source === 'params' ? `${osPathsParams[process.platform]}${preparedFilePath}` : `${osPathsBlockchain[process.platform]}${preparedFilePath}`
       const handleErrors = (err) => {
         console.log(err)
-        isRejected = true
-        clearInterval(checkSizeInterval)
+        data.push(item)
         if (mainWindow) {
           mainWindow.webContents.send('fetchingStatus', {
             isFetching: 'INTERRUPTED'
           })
         }
-        return reject(console.log('connection error'))
+        setTimeout(() => startFetching(data), 10000)
       }
       progress(request(targetUrl, { timeout: 10000 }), {
         throttle: 500
@@ -207,7 +203,7 @@ const installExtensions = async () => {
 
 const windowSize = {
   width: 800,
-  height: 500
+  height: 540
 }
 
 var mainWindow
@@ -323,95 +319,169 @@ const checkPath = pathToCreate => {
 }
 
 const fetchParams = async (win, torUrl) => {
-  try {
-    checkPath(osPathsParams[process.platform])
+  checkPath(osPathsParams[process.platform])
 
-    const { filesToFetch } = electronStore.get(
-      'AppStatus.params'
-    )
+  const { filesToFetch } = electronStore.get(
+    'AppStatus.params'
+  )
 
-    let downloadArray
-    if (!filesToFetch) {
-      const { data } = await axios({
-        url: config.PARAMS_LINK,
-        method: 'get'
-      })
-      downloadArray = data
-    } else {
-      downloadArray = filesToFetch
-    }
-    await downloadManagerForZippedBlockchain({ data: downloadArray, source: 'params' })
-
-    electronStore.set('AppStatus.params', {
-      status: config.PARAMS_STATUSES.SUCCESS,
-      filesToFetch: []
+  let downloadArray
+  if (!filesToFetch) {
+    const { data } = await axios({
+      url: config.PARAMS_LINK,
+      method: 'get'
     })
-    win.webContents.send('bootstrappingNode', {
-      message: 'Launching zcash node',
-      bootstrapping: true
-    })
-    nodeProc = spawnZcashNode(process.platform, isTestnet, torUrl)
-    mainWindow.webContents.send('bootstrappingNode', {
-      message: '',
-      bootstrapping: false
-    })
-    nodeProc.on('close', () => {
-      nodeProc = null
-    })
-  } catch (e) {
-    throw (e)
+    downloadArray = data
+  } else {
+    downloadArray = filesToFetch
   }
+  await downloadManagerForZippedBlockchain({ data: downloadArray, source: 'params' })
+
+  electronStore.set('AppStatus.params', {
+    status: config.PARAMS_STATUSES.SUCCESS,
+    filesToFetch: []
+  })
+  win.webContents.send('bootstrappingNode', {
+    message: 'Launching zcash node',
+    bootstrapping: true
+  })
+  nodeProc = spawnZcashNode(process.platform, isTestnet, torUrl)
+  mainWindow.webContents.send('bootstrappingNode', {
+    message: '',
+    bootstrapping: false
+  })
+  nodeProc.on('close', () => {
+    nodeProc = null
+  })
 }
 
 const fetchBlockchain = async (win, torUrl) => {
-  try {
-    const pathList = [
-      `${osPathsBlockchain[process.platform]}`,
-      `${osPathsBlockchain[process.platform]}${
-        process.platform === 'win32' ? 'blocks\\' : 'blocks/'
-      }`,
-      `${osPathsBlockchain[process.platform]}${
-        process.platform === 'win32' ? 'blocks\\index\\' : 'blocks/index/'
-      }`,
-      `${osPathsBlockchain[process.platform]}${
-        process.platform === 'win32' ? 'chainstate\\' : 'chainstate/'
-      }`
-    ]
+  const pathList = [
+    `${osPathsBlockchain[process.platform]}`,
+    `${osPathsBlockchain[process.platform]}${
+      process.platform === 'win32' ? 'blocks\\' : 'blocks/'
+    }`,
+    `${osPathsBlockchain[process.platform]}${
+      process.platform === 'win32' ? 'blocks\\index\\' : 'blocks/index/'
+    }`,
+    `${osPathsBlockchain[process.platform]}${
+      process.platform === 'win32' ? 'chainstate\\' : 'chainstate/'
+    }`
+  ]
 
-    const { status, filesToFetch } = electronStore.get(
+  const { status, filesToFetch } = electronStore.get(
+    'AppStatus.blockchain'
+  )
+
+  let downloadArray
+  if (!filesToFetch) {
+    const { data } = await axios({
+      url: config.BLOCKCHAIN_LINK,
+      method: 'get'
+    })
+    downloadArray = data
+  } else {
+    downloadArray = filesToFetch
+  }
+  if (status === config.BLOCKCHAIN_STATUSES.TO_FETCH) {
+    fs.emptyDirSync(osPathsBlockchain[process.platform])
+  }
+
+  pathList.forEach(path => checkPath(path))
+  await downloadManagerForZippedBlockchain({ data: downloadArray, source: 'blockchain' })
+  electronStore.set('AppStatus.blockchain', {
+    status: config.BLOCKCHAIN_STATUSES.SUCCESS,
+    filesToFetch: []
+  })
+  win.webContents.send('bootstrappingNode', {
+    message: 'Launching zcash node',
+    bootstrapping: true
+  })
+  nodeProc = spawnZcashNode(process.platform, isTestnet, torUrl)
+  mainWindow.webContents.send('bootstrappingNode', {
+    message: '',
+    bootstrapping: false
+  })
+  nodeProc.on('close', () => {
+    nodeProc = null
+  })
+  app.on('will-quit', () => {
+    const isRescanned = electronStore.get('AppStatus.blockchain.isRescanned')
+    if (nodeProc && !isRescanned) {
+      nodeProc.kill('SIGKILL')
+    }
+  })
+}
+
+let powerSleepId
+
+const createZcashNode = async (win, torUrl) => {
+  const updateStatus = electronStore.get('updateStatus')
+  if (updateStatus !== config.UPDATE_STATUSES.NO_UPDATE) {
+    setTimeout(() => {
+      createZcashNode(win, torUrl)
+    }, 5000)
+    return
+  }
+  checkPath(osPathsBlockchain[process.platform])
+  let AppStatus = electronStore.get('AppStatus')
+  const vaultStatus = electronStore.get('vaultStatus')
+  if (!isDev && !isFetchedFromExternalSource) {
+    powerSleepId = powerSaveBlocker.start('prevent-app-suspension')
+    if (!AppStatus) {
+      electronStore.set('AppStatus', {
+        params: {
+          status: config.PARAMS_STATUSES.FETCHING
+        },
+        blockchain: {
+          status: config.BLOCKCHAIN_STATUSES.TO_FETCH,
+          isRescanned: false
+        },
+        fetchedSize: 0
+      })
+      await fetchParams(win, torUrl)
+    }
+    const { status: paramsStatus } = electronStore.get('AppStatus.params')
+    const { status: blockchainStatus } = electronStore.get(
       'AppStatus.blockchain'
     )
-
-    let downloadArray
-    if (!filesToFetch) {
-      const { data } = await axios({
-        url: config.BLOCKCHAIN_LINK,
-        method: 'get'
-      })
-      downloadArray = data
+    if (
+      paramsStatus !== config.PARAMS_STATUSES.SUCCESS
+    ) {
+      await fetchParams(win, torUrl)
+    }
+    if (
+      blockchainStatus !== config.PARAMS_STATUSES.SUCCESS &&
+      vaultStatus === config.VAULT_STATUSES.CREATED
+    ) {
+      await fetchBlockchain(win, torUrl)
     } else {
-      downloadArray = filesToFetch
+      if (vaultStatus) {
+        nodeProc = spawnZcashNode(process.platform, isTestnet, torUrl)
+        mainWindow.webContents.send('bootstrappingNode', {
+          message: '',
+          bootstrapping: false
+        })
+        nodeProc.on('close', () => {
+          console.log('closing connection')
+          nodeProc = null
+        })
+        app.on('will-quit', () => {
+          const isRescanned = electronStore.get('AppStatus.blockchain.isRescanned')
+          if (nodeProc && !isRescanned) {
+            nodeProc.kill('SIGKILL')
+          }
+        })
+      }
     }
-    if (status === config.BLOCKCHAIN_STATUSES.TO_FETCH) {
-      fs.emptyDirSync(osPathsBlockchain[process.platform])
-    }
-
-    pathList.forEach(path => checkPath(path))
-    await downloadManagerForZippedBlockchain({ data: downloadArray, source: 'blockchain' })
-    electronStore.set('AppStatus.blockchain', {
-      status: config.BLOCKCHAIN_STATUSES.SUCCESS,
-      filesToFetch: []
-    })
-    win.webContents.send('bootstrappingNode', {
-      message: 'Launching zcash node',
-      bootstrapping: true
-    })
+  } else {
     nodeProc = spawnZcashNode(process.platform, isTestnet, torUrl)
     mainWindow.webContents.send('bootstrappingNode', {
       message: '',
       bootstrapping: false
     })
     nodeProc.on('close', () => {
+      console.log('closing connection')
       nodeProc = null
     })
     app.on('will-quit', () => {
@@ -420,94 +490,6 @@ const fetchBlockchain = async (win, torUrl) => {
         nodeProc.kill('SIGKILL')
       }
     })
-  } catch (e) {
-    throw (e)
-  }
-}
-
-let powerSleepId
-
-const createZcashNode = async (win, torUrl) => {
-  try {
-    const updateStatus = electronStore.get('updateStatus')
-    if (updateStatus !== config.UPDATE_STATUSES.NO_UPDATE) {
-      setTimeout(() => {
-        createZcashNode(win, torUrl)
-      }, 5000)
-      return
-    }
-    checkPath(osPathsBlockchain[process.platform])
-    let AppStatus = electronStore.get('AppStatus')
-    const vaultStatus = electronStore.get('vaultStatus')
-    if (!isDev && !isFetchedFromExternalSource) {
-      powerSleepId = powerSaveBlocker.start('prevent-app-suspension')
-      if (!AppStatus) {
-        electronStore.set('AppStatus', {
-          params: {
-            status: config.PARAMS_STATUSES.FETCHING
-          },
-          blockchain: {
-            status: config.BLOCKCHAIN_STATUSES.TO_FETCH,
-            isRescanned: false
-          },
-          fetchedSize: 0
-        })
-        await fetchParams(win, torUrl)
-      }
-      const { status: paramsStatus } = electronStore.get('AppStatus.params')
-      const { status: blockchainStatus } = electronStore.get(
-        'AppStatus.blockchain'
-      )
-      if (
-        paramsStatus !== config.PARAMS_STATUSES.SUCCESS
-      ) {
-        await fetchParams(win, torUrl)
-      }
-      if (
-        blockchainStatus !== config.PARAMS_STATUSES.SUCCESS &&
-      vaultStatus === config.VAULT_STATUSES.CREATED
-      ) {
-        await fetchBlockchain(win, torUrl)
-      } else {
-        if (vaultStatus) {
-          nodeProc = spawnZcashNode(process.platform, isTestnet, torUrl)
-          mainWindow.webContents.send('bootstrappingNode', {
-            message: '',
-            bootstrapping: false
-          })
-          nodeProc.on('close', () => {
-            console.log('closing connection')
-            nodeProc = null
-          })
-          app.on('will-quit', () => {
-            const isRescanned = electronStore.get('AppStatus.blockchain.isRescanned')
-            if (nodeProc && !isRescanned) {
-              nodeProc.kill('SIGKILL')
-            }
-          })
-        }
-      }
-    } else {
-      nodeProc = spawnZcashNode(process.platform, isTestnet, torUrl)
-      mainWindow.webContents.send('bootstrappingNode', {
-        message: '',
-        bootstrapping: false
-      })
-      nodeProc.on('close', () => {
-        console.log('closing connection')
-        nodeProc = null
-      })
-      app.on('will-quit', () => {
-        const isRescanned = electronStore.get('AppStatus.blockchain.isRescanned')
-        if (nodeProc && !isRescanned) {
-          nodeProc.kill('SIGKILL')
-        }
-      })
-    }
-  } catch (e) {
-    setTimeout(() => {
-      createZcashNode(win, torUrl)
-    }, 10000)
   }
 }
 

@@ -51,6 +51,7 @@ const isFetching = createSelector(fetching, n => n.isFetching)
 const isRescanningMonitorStarted = createSelector(fetching, n => n.isRescanningMonitorStarted)
 const isRescanningInitialized = createSelector(fetching, n => n.isRescanningInitialized)
 const guideStatus = createSelector(fetching, n => n.guideStatus)
+const currentSlide = createSelector(fetching, n => n.currentSlide)
 
 export default {
   node,
@@ -73,5 +74,6 @@ export default {
   rescanningProgress,
   isRescanningMonitorStarted,
   isRescanningInitialized,
-  guideStatus
+  guideStatus,
+  currentSlide
 }

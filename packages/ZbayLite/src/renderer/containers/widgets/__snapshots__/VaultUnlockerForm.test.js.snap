@@ -43,6 +43,7 @@ Object {
       "isRescanningMonitorStarted": false,
       "isRescanningInitialized": false,
       "guideStatus": false,
+      "currentSlide": 0,
     },
     "startedAt": null,
   },

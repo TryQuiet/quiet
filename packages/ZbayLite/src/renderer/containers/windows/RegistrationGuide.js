@@ -1,37 +1,37 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 
 import RegistrationGuideComponent from '../../components/windows/RegistrationGuide'
 import text from '../../static/text/registrationGuide'
 import electronStore from '../../../shared/electronStore'
-import nodeHanlders from '../../../renderer/store/handlers/node'
+import nodeHandlers from '../../../renderer/store/handlers/node'
+import nodeSelector from '../../../renderer/store/selectors/node'
+
+export const mapStateToProps = state => ({
+  getCurrentSlide: nodeSelector.currentSlide(state)
+})
 
 export const mapDispatchToProps = dispatch => {
   return bindActionCreators(
     {
-      setGuideStatus: nodeHanlders.actions.setGuideStatus
+      setGuideStatus: nodeHandlers.actions.setGuideStatus,
+      setNextSlide: nodeHandlers.actions.setNextSlide,
+      setPrevSlide: nodeHandlers.actions.setPrevSlide
     },
     dispatch
   )
 }
 
-export const RegistrationGuide = ({ setGuideStatus }) => {
+export const RegistrationGuide = ({ setGuideStatus, getCurrentSlide, setNextSlide, setPrevSlide }) => {
   const setStoryStatus = () => {
     setGuideStatus(true)
     electronStore.set('storyStatus', true)
   }
-  const [currentSlide, setCurrentSlide] = useState(0)
-  const nextSlide = () => {
-    currentSlide !== 10 ? setCurrentSlide(currentSlide + 1) : setCurrentSlide(currentSlide)
-  }
-  const prevSlide = () => {
-    currentSlide !== 0 ? setCurrentSlide(currentSlide - 1) : setCurrentSlide(currentSlide)
-  }
-  return <RegistrationGuideComponent setStoryStatus={setStoryStatus} content={text} currentSlide={currentSlide} prevSlide={prevSlide} nextSlide={nextSlide} />
+  return <RegistrationGuideComponent setStoryStatus={setStoryStatus} content={text} currentSlide={getCurrentSlide} prevSlide={setPrevSlide} nextSlide={setNextSlide} />
 }
 
 export default connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(RegistrationGuide)
