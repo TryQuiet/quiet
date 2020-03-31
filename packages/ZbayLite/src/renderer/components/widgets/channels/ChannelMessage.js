@@ -96,10 +96,8 @@ const checkLinking = (
   whitelisted
 ) => {
   let parsedMessage = message
-    .replace(String.fromCharCode(10), String.fromCharCode(160))
     .replace(/ /g, String.fromCharCode(160))
     .split(String.fromCharCode(160))
-
   for (const index in parsedMessage) {
     const part = parsedMessage[index]
     if (part.startsWith('https://') || part.startsWith('http://')) {

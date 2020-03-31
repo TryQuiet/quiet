@@ -171,7 +171,7 @@ export const AddFunds = ({
       </Grid>
       <Grid item className={classes.spacing24}>
         <Typography variant='body2'>
-          Zbay runs on{' '}
+          Zbay uses the{' '}
           <a
             className={classes.link}
             onClick={e => {
@@ -182,9 +182,11 @@ export const AddFunds = ({
           >
             Zcash
           </a>{' '}
-          (a cryptocurrency). Cryptocurrency addresses are unique, like email
-          addressess or phone numbers, for money (send to the right address and
-          the recipient will get the money).
+          cryptocurrency. Cryptocurrency addresses are like email addressess
+          or phone numbers, but for money. If you send money to the right
+          address, the recipient will receive it. Send to the wrong address and
+          you'll lose your money. Be sure to copy and paste the address
+          correctly!
         </Typography>
       </Grid>
       <Grid item className={classes.spacing32}>
@@ -291,9 +293,11 @@ export const AddFunds = ({
             </Grid>
             <Grid item>
               <Typography variant='caption' className={classes.caption}>
-                You can't send directly to this address from most exchanges.
-                Zbay will move your funds to a private address as soon as it
-                arrives.
+                To receive funds privately from another Zcash user, use this
+                private address. (You can't send directly to a private address
+                from most exchanges, so in most cases you should use the
+                "transparent" address above—Zbay will then move all funds to a
+                private address as soon as they arrive.)
               </Typography>
             </Grid>
             <Grid item xs className={classes.spacing24}>

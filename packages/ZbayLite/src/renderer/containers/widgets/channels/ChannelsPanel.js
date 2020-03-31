@@ -54,13 +54,13 @@ export const ChannelsPanel = ({
       </Grid>
       <Grid item>
         <QuickActionButton
-          text='Create Channels'
+          text='Create Channel'
           action={fundsLocked ? openDepositMonet : openCreateModal}
         />
       </Grid>
       <Grid item>
         <QuickActionButton
-          text='Find Channels'
+          text='Find Channel'
           action={openJoinChannel}
           icon={<Icon src={SearchIcon} />}
         />

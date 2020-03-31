@@ -82,7 +82,7 @@ exports[`AddFunds renders component 1`] = `
     <WithStyles(ForwardRef(Typography))
       variant="body2"
     >
-      Zbay runs on
+      Zbay uses the
        
       <a
         className="link-mock"
@@ -92,7 +92,7 @@ exports[`AddFunds renders component 1`] = `
         Zcash
       </a>
        
-      (a cryptocurrency). Cryptocurrency addresses are unique, like email addressess or phone numbers, for money (send to the right address and the recipient will get the money).
+      cryptocurrency. Cryptocurrency addresses are like email addressess or phone numbers, but for money. If you send money to the right address, the recipient will receive it. Send to the wrong address and you'll lose your money. Be sure to copy and paste the address correctly!
     </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
