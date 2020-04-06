@@ -97,6 +97,7 @@ const getFilteredContexed = channelId => createSelector(
             }
           } else if ((channelOwner === senderPk || channelModerators.includes(senderPk)) && moderationType === 'BLOCK_USER') {
             blockedUsers = blockedUsers.push(moderationTarget)
+            visibleMessages = visibleMessages.filter(msg => !blockedUsers.includes(msg.publicKey))
           } else if ((channelOwner === senderPk || channelModerators.includes(senderPk)) && moderationType === 'UNBLOCK_USER') {
             const indexToRemove = blockedUsers.findIndex(el => el === moderationTarget)
             if (indexToRemove !== -1) {
