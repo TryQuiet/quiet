@@ -5,6 +5,8 @@ import electronStore from '../../../shared/electronStore'
 import notificationCenterSelector from '../selectors/notificationCenter'
 import directMessageChannelSelector from '../selectors/directMessageChannel'
 import channelSelector from '../selectors/channel'
+import logsHandlers from '../handlers/logs'
+
 export const NotificationsCenter = Immutable.Record(
   {
     channels: Immutable.Map(),
@@ -75,6 +77,7 @@ export const setChannelsNotification = filterType => async (
       filterType: filterType
     })
   )
+  dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Setting notification filter type for channel: ${filterType}` }))
 }
 export const setContactNotification = filterType => async (
   dispatch,
@@ -90,6 +93,7 @@ export const setContactNotification = filterType => async (
       filterType: filterType
     })
   )
+  dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Setting notification for contact: ${address}` }))
 }
 export const unblockUserNotification = address => async (
   dispatch,
@@ -105,9 +109,11 @@ export const unblockUserNotification = address => async (
       filterType: notificationFilterType.ALL_MESSAGES
     })
   )
+  dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Unblocking notification for user: ${address}` }))
 }
 export const setUserNotification = filterType => async (dispatch, getState) => {
   electronStore.set(`notificationCenter.user.filterType`, filterType)
+  dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Setting notification filter type: ${filterType}` }))
   dispatch(
     setUserNotificationFilter({
       filterType: filterType
@@ -119,6 +125,7 @@ export const setUserNotificationsSound = sound => async (
   getState
 ) => {
   electronStore.set(`notificationCenter.user.sound`, sound)
+  dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Setting notifiaction sound: ${sound}` }))
   dispatch(
     setUserNotificationSound({
       sound: sound

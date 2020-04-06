@@ -9,6 +9,7 @@ import nodeSelectors from '../selectors/node'
 import identityHandlers from './identity'
 import vaultHandlers from './vault'
 import notificationsHandlers from './notifications'
+import logsHandlers from '../handlers/logs'
 import { REQUEST_MONEY_ENDPOINT, actionTypes } from '../../../shared/static'
 import vault from '../../vault'
 import electronStore from '../../../shared/electronStore'
@@ -57,6 +58,7 @@ const createVaultEpic = ({ password }) => async (dispatch, getState) => {
   const randomBytes = crypto.randomBytes(32).toString('hex')
   try {
     electronStore.set('isNewUser', true)
+    dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Setting user status: 'new'` }))
     await dispatch(createVault({ masterPassword: password, network }))
     await dispatch(actions.unlockVault({
       masterPassword: password,

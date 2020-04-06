@@ -128,7 +128,7 @@ export const RegistraionGuide = ({ classes, content, currentSlide, prevSlide, ne
             ? <Fragment>
               <Grid item>
                 <Typography variant={'h3'}>{content[currentSlide].title}</Typography>
-                {content[currentSlide].sentences.map(sentence => <Typography className={classes.sentence} variant={'body2'}>{sentence}</Typography>)}
+                {content[currentSlide].sentences.map((sentence, i) => <Typography className={classes.sentence} key={i} variant={'body2'}>{sentence}</Typography>)}
               </Grid>
             </Fragment> : <ContentWithRedirect classes={classes} />}
         </Grid>

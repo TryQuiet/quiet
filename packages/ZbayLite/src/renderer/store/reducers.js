@@ -29,6 +29,7 @@ import feesHandlers from './handlers/fees'
 import mentionsHandlers from './handlers/mentions'
 import whitelistHandlers from './handlers/whitelist'
 import notificationCenterHandlers from './handlers/notificationCenter'
+import logsHandlers from './handlers/logs'
 
 export default combineReducers({
   messages: messagesHandlers.reducer,
@@ -59,5 +60,6 @@ export default combineReducers({
   fees: feesHandlers.reducer,
   mentions: mentionsHandlers.reducer,
   whitelist: whitelistHandlers.reducer,
-  notificationCenter: notificationCenterHandlers.reducer
+  notificationCenter: notificationCenterHandlers.reducer,
+  logsData: logsHandlers.reducer
 })

@@ -8,11 +8,13 @@ import SyncLoaderComponent from '../../components/windows/SyncLoader'
 import nodeSelectors from '../../store/selectors/node'
 import identitySelectors from '../../store/selectors/identity'
 import identityHandlers from '../../store/handlers/identity'
+import logsHandlers from '../../store/handlers/logs'
 import nodeHandlers from '../../store/handlers/node'
 import vaultSelectors from '../../store/selectors/vault'
 import { actionCreators } from '../../store/handlers/modals'
 import vaultHandlers from '../../store/handlers/vault'
 import electronStore from '../../../shared/electronStore'
+import store from '../../../renderer/store'
 
 import { useInterval } from '../hooks'
 
@@ -84,6 +86,7 @@ export const SyncLoader = ({ setVaultIdentity, loader, guideStatus, resetNodeSta
           resetNodeStatus()
           setRescanningInitialized()
           electronStore.set('isSynced', true)
+          store.dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Blockchain synced` }))
         }
       }
     },

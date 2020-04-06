@@ -5,6 +5,7 @@ import BigNumber from 'bignumber.js'
 
 import invitationSelector from '../selectors/invitation'
 import identitySelectors from '../selectors/identity'
+import logsHandlers from '../handlers/logs'
 import ratesSelectors from '../selectors/rates'
 import { getClient } from '../../zcash'
 import nodeHandlers from './node'
@@ -46,6 +47,7 @@ export const actions = {
 }
 
 export const generateInvitation = () => async (dispatch, getState) => {
+  dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Creating new invitation` }))
   const amountUsd = invitationSelector.amount(getState())
   const amountZec = invitationSelector.amountZec(getState())
   const includeAffiliate = invitationSelector.affiliateCode(getState())
@@ -92,6 +94,7 @@ export const handleInvitation = invitationPacked => async (
   getState
 ) => {
   try {
+    dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Processing new invitation` }))
     const identityAddress = identitySelectors.address(getState())
     const invitation = await inflate(invitationPacked)
     const lastblock = nodeSelectors.latestBlock(getState())

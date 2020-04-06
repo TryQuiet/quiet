@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`logs selector applicationLogs selector 1`] = `Array []`;
+
+exports[`logs selector isLogWindowOpened selector 1`] = `false`;
+
+exports[`logs selector islogsFileLoaded selector 1`] = `false`;
+
+exports[`logs selector nodeLogs selector 1`] = `Array []`;
+
+exports[`logs selector transactionsLogs selector 1`] = `Array []`;

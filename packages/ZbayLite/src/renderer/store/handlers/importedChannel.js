@@ -6,6 +6,7 @@ import { errorNotification } from './utils'
 import identitySelectors from '../selectors/identity'
 import channelSelectors from '../selectors/channel'
 import channelsSelectors from '../selectors/channels'
+import logsHandlers from '../handlers/logs'
 import importedChannelSelectors from '../selectors/importedChannel'
 import channelsHandlers from './channels'
 import notificationsHandlers from './notifications'
@@ -59,6 +60,7 @@ const removeChannel = history => async (dispatch, getState) => {
           }
         })
       )
+      dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Removing channel ${channel.address}` }))
     } else {
       dispatch(
         notificationsHandlers.actions.enqueueSnackbar({
@@ -111,6 +113,7 @@ const importChannel = () => async (dispatch, getState) => {
         }
       })
     )
+    dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Successfully imported channel ${channel.name}` }))
     dispatch(modalsHandlers.actionCreators.closeModal('importChannelModal')())
     dispatch(clear())
   } catch (err) {
@@ -136,6 +139,7 @@ const decodeChannelEpic = uri => async (dispatch, getState) => {
           errorNotification({ message: `You already imported this channel` })
         )
       )
+      dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Channel already imported ${channel.address}` }))
     } else {
       dispatch(setData(channel))
       const openModal = modalsHandlers.actionCreators.openModal('importChannelModal')
@@ -148,6 +152,7 @@ const decodeChannelEpic = uri => async (dispatch, getState) => {
         errorNotification({ message: `Invalid channel URI: ${err.message}` })
       )
     )
+    dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Invalid channel URI` }))
   }
   dispatch(setDecoding(false))
 }

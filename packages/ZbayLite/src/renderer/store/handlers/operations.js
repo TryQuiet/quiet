@@ -2,6 +2,7 @@ import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
 import { createAction, handleActions } from 'redux-actions'
 import * as R from 'ramda'
+import logsHandlers from '../../store/handlers/logs'
 
 import { getClient } from '../../zcash'
 import { actionTypes } from '../../../shared/static'
@@ -83,6 +84,7 @@ const observeOperation = ({ opId, type, meta, checkConfirmationNumber }) => asyn
 
   return subscribe((error, { status, txId }) => {
     dispatch(resolveOperation({ opId, status, txId, error }))
+    dispatch(logsHandlers.epics.saveLogs({ type: 'TRANSACTION', payload: txId }))
     if (checkConfirmationNumber && !error) {
       checkConfirmationNumber({ opId, status, txId, getState, dispatch })
     }

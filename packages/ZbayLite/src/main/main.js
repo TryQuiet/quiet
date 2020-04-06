@@ -21,6 +21,7 @@ import util from 'util'
 import convert from 'convert-seconds'
 import R from 'ramda'
 import findInFiles from 'find-in-files'
+import readLastLines from 'read-last-lines'
 
 import { createRpcCredentials } from '../renderer/zcash'
 import config from './config'
@@ -39,6 +40,13 @@ const osPathsParams = {
     process.env.USERPROFILE}/Library/Application Support/ZcashParams/`,
   linux: `${process.env.HOME || process.env.USERPROFILE}/.zcash-params/`,
   win32: `${os.userInfo().homedir}\\AppData\\Roaming\\ZcashParams\\`
+}
+
+const osPathLogs = {
+  darwin: `${process.env.HOME ||
+    process.env.USERPROFILE}/Library/Application Support/Zbay/Logs/`,
+  linux: `${process.env.HOME || process.env.USERPROFILE}/.config/Zbay/Logs/`,
+  win32: `${os.userInfo().homedir}\\AppData\\Roaming\\Zbay\\Logs\\`
 }
 
 const getFolderSizePromise = util.promisify(getSize)
@@ -531,6 +539,9 @@ app.on('ready', async () => {
   globalShortcut.register('F11', () => {
     mainWindow.webContents.send('toggleCoordinator', {})
   })
+  globalShortcut.register('CommandOrControl+L', () => {
+    mainWindow.webContents.send('openLogs')
+  })
 
   await installExtensions()
 
@@ -646,6 +657,67 @@ app.on('ready', async () => {
         })
         nodeProc.kill()
       }
+    }
+  })
+
+  let loadLogsInterval
+  const targetPath = {
+    transactions: `${osPathLogs[process.platform]}transactions.json`,
+    debug: `${osPathsBlockchain[process.platform]}debug.log`,
+    rpcCalls: `${osPathLogs[process.platform]}rpcCalls.json`
+  }
+  const checkLogsFiles = () => {
+    const isTransactionFileExists = fs.existsSync(targetPath.transactions)
+    const isRpcCallsFileExists = fs.existsSync(targetPath.rpcCalls)
+    const createJsonFormatFile = (path) => fs.writeFileSync(path, JSON.stringify([]))
+    if (!isTransactionFileExists) {
+      createJsonFormatFile(targetPath.transactions)
+    }
+    if (!isRpcCallsFileExists) {
+      createJsonFormatFile(targetPath.rpcCalls)
+    }
+  }
+
+  const loadLogs = async () => {
+    checkPath(osPathLogs[process.platform])
+    checkLogsFiles()
+    const transactions = JSON.parse(fs.readFileSync(targetPath.transactions))
+    const applicationLogs = JSON.parse(fs.readFileSync(targetPath.rpcCalls))
+    const debugFileLines = await readLastLines.read(targetPath.debug, 100)
+    mainWindow.webContents.send('load-logs-to-store', {
+      debug: debugFileLines.split('\n'),
+      transactions,
+      applicationLogs
+    })
+  }
+
+  ipcMain.on('load-logs', (event, type) => {
+    if (!loadLogsInterval) {
+      loadLogs()
+      loadLogsInterval = setInterval(async () => {
+        loadLogs()
+      }, 15000)
+    }
+  })
+
+  ipcMain.on('disable-load-logs', (event) => {
+    if (loadLogsInterval) {
+      clearInterval(loadLogsInterval)
+      loadLogsInterval = null
+    }
+  })
+
+  ipcMain.on('save-to-log-file', (event, { type, payload }) => {
+    checkPath(osPathLogs[process.platform])
+    checkLogsFiles()
+    if (type === 'TRANSACTION') {
+      const transactions = JSON.parse(fs.readFileSync(targetPath.transactions))
+      transactions.push(payload)
+      fs.writeFileSync(targetPath.transactions, JSON.stringify(transactions))
+    } else {
+      const applicationLogs = JSON.parse(fs.readFileSync(targetPath.rpcCalls))
+      applicationLogs.push(payload)
+      fs.writeFileSync(targetPath.rpcCalls, JSON.stringify(applicationLogs))
     }
   })
 

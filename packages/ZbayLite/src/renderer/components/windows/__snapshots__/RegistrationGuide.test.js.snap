@@ -44,18 +44,21 @@ exports[`RegistraionGuide renders component 1`] = `
         </WithStyles(ForwardRef(Typography))>
         <WithStyles(ForwardRef(Typography))
           className="sentence-mock"
+          key="0"
           variant="body2"
         >
           Our tour has concluded! Now, we just have to wait for some blockchain files to download. Perhaps leave your computer and go have a sandwich.
         </WithStyles(ForwardRef(Typography))>
         <WithStyles(ForwardRef(Typography))
           className="sentence-mock"
+          key="1"
           variant="body2"
         >
           If you'd like to learn more about the values and vision behind the Zbay project, there's a great (and long) essay on our site.
         </WithStyles(ForwardRef(Typography))>
         <WithStyles(ForwardRef(Typography))
           className="sentence-mock"
+          key="2"
           variant="body2"
         >
           Or you can learn more about Zcash the technology that Zbay builds on.

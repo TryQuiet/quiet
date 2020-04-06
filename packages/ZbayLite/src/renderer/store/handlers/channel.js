@@ -16,6 +16,7 @@ import offersHandlers from './offers'
 import channelSelectors from '../selectors/channel'
 import channelsSelectors from '../selectors/channels'
 import identitySelectors from '../selectors/identity'
+import logsHandlers from '../handlers/logs'
 import { getClient } from '../../zcash'
 import { messages } from '../../zbay'
 import { errorNotification, LoaderState } from './utils'
@@ -105,6 +106,7 @@ const linkChannelRedirect = targetChannel => async (dispatch, getState) => {
         startHeight: fetchTreshold
       })
     } catch (error) {}
+    dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Importing channel ${targetChannel}` }))
     await dispatch(channelsHandlers.actions.loadChannels(identityId))
     channels = channelsSelectors.channels(getState())
     channel = channels.data.find(

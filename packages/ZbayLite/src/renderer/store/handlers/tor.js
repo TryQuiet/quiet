@@ -8,6 +8,7 @@ import { successNotification } from './utils'
 import notificationsHandlers from './notifications'
 import electronStore from '../../../shared/electronStore'
 import { actionTypes } from '../../../shared/static'
+import logsHandlers from '../handlers/logs'
 
 export const client = new net.Socket()
 export const defaultTorUrlProxy = 'localhost:9050'
@@ -82,6 +83,9 @@ const checkTor = () => async (dispatch, getState) => {
 }
 export const createZcashNode = torUrl => async (dispatch, getState) => {
   electronStore.set('torEnabled', !!torUrl)
+  if (torUrl) {
+    dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Adding tor url: ${torUrl}` }))
+  }
   let ipAddress
   if (torUrl && torUrl.startsWith('localhost')) {
     ipAddress = torUrl.replace('localhost', '127.0.0.1')

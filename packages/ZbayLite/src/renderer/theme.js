@@ -2,10 +2,11 @@ import '../renderer/fonts/app.scss'
 import { createMuiTheme } from '@material-ui/core/styles'
 
 const font = "'Rubik', sans-serif"
+const fontLogs = 'Menlo Regular'
 
 export default createMuiTheme({
   typography: {
-    fontFamily: [font].join(','),
+    fontFamily: [font, fontLogs].join(','),
     fontStyle: 'normal',
     fontWeight: 'normal',
     useNextVariants: true,
@@ -96,7 +97,14 @@ export default createMuiTheme({
       gray30: '#FAFAFA',
       grayBackgroud: '#F3F0F6',
       gray50: '#B3B3B3',
-      error: '#D13135'
+      error: '#D13135',
+      logsDark: '#252526',
+      logsActiveDark: '#1E1E1E',
+      logsInactiveDark: '#2D2D2D',
+      logsTitleGray: '#D4D4D4',
+      logsTabWhite: '#A9A9A9',
+      logsScrollBar: '#3D3D3D',
+      logsScrollBarThumb: ' #787878'
     }
   },
   overrides: {

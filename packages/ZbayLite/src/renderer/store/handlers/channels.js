@@ -21,6 +21,7 @@ import modalsHandlers from './modals'
 import { messages } from '../../zbay'
 import { getVault } from '../../vault'
 import { getClient } from '../../zcash'
+import logsHandlers from '../../store/handlers/logs'
 import { networkFee, actionTypes } from '../../../shared/static'
 
 const toBigNumber = x => new BigNumber(x)
@@ -130,6 +131,7 @@ const createChannel = (values, formActions) => async (dispatch, getState) => {
     }
     const identityId = identitySelectors.id(getState())
     const address = await _createChannel(identityId, values)
+    dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Creating channel ${address}` }))
     await dispatch(
       channelHandlers.epics.sendChannelSettingsMessage({ address: address })
     )
@@ -173,6 +175,7 @@ const withdrawMoneyFromChannels = () => async (dispatch, getState) => {
         })
       )
     )
+    dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Creating new transfer with received money from channels` }))
   }
 }
 
@@ -203,6 +206,7 @@ const updateLastSeen = ({ channelId }) => async (dispatch, getState) => {
   })
   dispatch(setLastSeen({ channelId, lastSeen }))
   dispatch(setUnread({ channelId, unread: 0 }))
+  dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Updating last seen ${channelId}` }))
 }
 const updateSettings = ({ channelId, time, data }) => async (
   dispatch,
@@ -223,6 +227,7 @@ const updateSettings = ({ channelId, time, data }) => async (
     })
   )
   dispatch(setAdvertFee({ channelId, advertFee: data.updateMinFee }))
+  dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Updating channel settings` }))
 }
 
 const updateShowInfoMsg = showInfoMsg => async (dispatch, getState) => {
