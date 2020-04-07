@@ -684,11 +684,13 @@ app.on('ready', async () => {
     const transactions = JSON.parse(fs.readFileSync(targetPath.transactions))
     const applicationLogs = JSON.parse(fs.readFileSync(targetPath.rpcCalls))
     const debugFileLines = await readLastLines.read(targetPath.debug, 100)
-    mainWindow.webContents.send('load-logs-to-store', {
-      debug: debugFileLines.split('\n'),
-      transactions,
-      applicationLogs
-    })
+    if (mainWindow) {
+      mainWindow.webContents.send('load-logs-to-store', {
+        debug: debugFileLines.split('\n'),
+        transactions,
+        applicationLogs
+      })
+    }
   }
 
   ipcMain.on('load-logs', (event, type) => {

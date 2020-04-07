@@ -123,12 +123,23 @@ export const LogsComponent = ({ classes, debugLogs, closeLogsWindow, application
   }
   const messagesEndRef = React.useRef(null)
   const [currentActiveTab, setActiveTab] = useState(LogsTypes.NODE_DEBUG)
+  const [isScrolling, setUserScrolling] = useState(false)
+  const setUserStartScrolling = () => {
+    setUserScrolling(true)
+  }
+  const setUserStopScrolling = () => {
+    const { top } = messagesEndRef.current.getValues()
+    if (top === 1) {
+      setUserScrolling(false)
+    }
+  }
   const changeTab = (tab) => {
     setActiveTab(tab)
+    setUserScrolling(false)
     messagesEndRef.current.scrollToBottom()
   }
   React.useEffect(() => {
-    if (messagesEndRef.current) {
+    if (messagesEndRef.current && !isScrolling) {
       messagesEndRef.current.scrollToBottom()
     }
   })
@@ -164,7 +175,8 @@ export const LogsComponent = ({ classes, debugLogs, closeLogsWindow, application
       <Grid container className={classes.mainLogsWindow} item>
         <Scrollbars
           ref={messagesEndRef}
-          autoHideTimeout={500}
+          onScroll={setUserStartScrolling}
+          onScrollStop={setUserStopScrolling}
           style={{ width: 315, height: height - 90 }}
           renderTrackVertical={props => <div {...props} style={{ width: '14px' }} className={classes.verticalScrollBar} />}
           renderThumbVertical={props => <div {...props} style={{ width: '8px' }} className={classes.renderThumbVertical} />}
@@ -176,7 +188,6 @@ export const LogsComponent = ({ classes, debugLogs, closeLogsWindow, application
             }
           </div>
         </Scrollbars>
-          )}
       </Grid>
     </Grid>
   )

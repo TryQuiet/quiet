@@ -92,8 +92,10 @@ exports[`LogsComponent renders component 1`] = `
       autoHeightMin={0}
       autoHide={false}
       autoHideDuration={200}
-      autoHideTimeout={500}
+      autoHideTimeout={1000}
       hideTracksWhenNotNeeded={false}
+      onScroll={[Function]}
+      onScrollStop={[Function]}
       renderThumbHorizontal={[Function]}
       renderThumbVertical={[Function]}
       renderTrackHorizontal={[Function]}
@@ -113,7 +115,6 @@ exports[`LogsComponent renders component 1`] = `
         className="innerContent-mock"
       />
     </Scrollbars>
-    )}
   </WithStyles(ForwardRef(Grid))>
 </WithStyles(ForwardRef(Grid))>
 `;
