@@ -88,17 +88,9 @@ const styles = theme => ({
       color: theme.palette.colors.lushSky
     }
   },
-  verticalScrollBar: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    height: '100%',
-    display: 'flex',
-    'justify-content': 'center',
-    backgroundColor: theme.palette.colors.logsScrollBar
-  },
   renderThumbVertical: {
     borderRadius: 25,
+    width: 8,
     backgroundColor: theme.palette.colors.logsScrollBarThumb,
     cursor: 'pointer'
   },
@@ -178,8 +170,7 @@ export const LogsComponent = ({ classes, debugLogs, closeLogsWindow, application
           onScroll={setUserStartScrolling}
           onScrollStop={setUserStopScrolling}
           style={{ width: 315, height: height - 90 }}
-          renderTrackVertical={props => <div {...props} style={{ width: '14px' }} className={classes.verticalScrollBar} />}
-          renderThumbVertical={props => <div {...props} style={{ width: '8px' }} className={classes.renderThumbVertical} />}
+          renderThumbVertical={() => <div className={classes.renderThumbVertical} />}
         >
           <div className={classes.innerContent}>
             {logs[currentActiveTab].map((logLine, i) => currentActiveTab === LogsTypes.TRANSACTIONS
