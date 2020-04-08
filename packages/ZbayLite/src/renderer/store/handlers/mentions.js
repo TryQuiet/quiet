@@ -11,6 +11,7 @@ import { messages as zbayMessages } from '../../zbay'
 import identitySelectors from '../selectors/identity'
 import directMessagesQueueHandlers from './directMessagesQueue'
 import notificationsHandlers from './notifications'
+import modalsHandlers from './modals'
 import { errorNotification, successNotification } from './utils'
 
 export const ChannelMentions = Immutable.Record(
@@ -90,13 +91,7 @@ const sendInvitation = nickname => async (dispatch, getState) => {
       .publicChannels(getState())
       .find(ch => ch.address === channelAddress)
     if (!publicChannel) {
-      dispatch(
-        notificationsHandlers.actions.enqueueSnackbar(
-          errorNotification({
-            message: `You can't invite users to not public channel`
-          })
-        )
-      )
+      dispatch(modalsHandlers.actionCreators.openModal('channelInfo')())
       dispatch(removeMentionMiss({ channelId, nickname }))
 
       return
