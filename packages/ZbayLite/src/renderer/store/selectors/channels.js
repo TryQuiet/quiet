@@ -15,29 +15,24 @@ const channels = createSelector(
     return state
       .get('channels')
       .updateIn(['data'], channel =>
-        channel.filter(channel => !ignoredChannels(network).includes(channel.get('address')))
+        channel.filter(
+          channel => !ignoredChannels(network).includes(channel.get('address'))
+        )
       )
   }
 )
 
-const data = createSelector(
-  channels,
-  ch => ch.data
-)
-const loader = createSelector(
-  channels,
-  ch => ch.loader
-)
-const errors = createSelector(
-  channels,
-  c => c.get('errors')
-)
+const data = createSelector(channels, ch => ch.data)
+const loader = createSelector(channels, ch => ch.loader)
+const errors = createSelector(channels, c => c.get('errors'))
 
 const generalChannelId = createSelector(
   data,
   nodeSelectors.network,
   (ch, network) => {
-    const generalChannel = ch.find(c => c.get('address') === zcashChannels.general[network].address)
+    const generalChannel = ch.find(
+      c => c.get('address') === zcashChannels.general[network].address
+    )
     return generalChannel && generalChannel.get('id')
   }
 )
@@ -49,7 +44,24 @@ const usersChannel = createSelector(
       .get('channels')
       .updateIn(['data'], channel =>
         channel.find(
-          channel => channel.get('address') === zcashChannels.registeredUsers[network].address
+          channel =>
+            channel.get('address') ===
+            zcashChannels.registeredUsers[network].address
+        )
+      ).data
+  }
+)
+const priceOracleChannel = createSelector(
+  store,
+  nodeSelectors.network,
+  (state, network) => {
+    return state
+      .get('channels')
+      .updateIn(['data'], channel =>
+        channel.find(
+          channel =>
+            channel.get('address') ===
+            zcashChannels.priceOracle[network].address
         )
       ).data
   }
@@ -62,30 +74,23 @@ const publicChannels = createSelector(
       .get('channels')
       .updateIn(['data'], channel =>
         channel.find(
-          channel => channel.get('address') === zcashChannels.channelOfChannels[network].address
+          channel =>
+            channel.get('address') ===
+            zcashChannels.channelOfChannels[network].address
         )
       ).data
   }
 )
 
 const channelById = id =>
-  createSelector(
-    data,
-    ch => ch.find(c => c.get('id') === id)
-  )
-const ownedChannels = createSelector(
-  data,
-  ch =>
-    ch.filter(c => {
-      return c.get('keys').get('sk')
-    })
+  createSelector(data, ch => ch.find(c => c.get('id') === id))
+const ownedChannels = createSelector(data, ch =>
+  ch.filter(c => {
+    return c.get('keys').get('sk')
+  })
 )
 
-const lastSeen = id =>
-  createSelector(
-    channelById(id),
-    ch => ch.get('lastSeen')
-  )
+const lastSeen = id => createSelector(channelById(id), ch => ch.get('lastSeen'))
 
 export default {
   channelById,
@@ -97,5 +102,6 @@ export default {
   data,
   errors,
   ownedChannels,
-  publicChannels
+  publicChannels,
+  priceOracleChannel
 }

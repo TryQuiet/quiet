@@ -305,6 +305,8 @@ export const createIdentity = ({ name }) => async (dispatch, getState) => {
     const generalChannel = channels.general[network]
     const usersChannel = channels.registeredUsers[network]
     const channelOfChannels = channels.channelOfChannels[network]
+    const priceOracle = channels.priceOracle[network]
+    await getVault().channels.importChannel(identity.id, priceOracle)
     await getVault().channels.importChannel(identity.id, generalChannel)
     await getVault().channels.importChannel(identity.id, usersChannel)
     await getVault().channels.importChannel(identity.id, channelOfChannels)
@@ -341,7 +343,8 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
     dispatch(setLoadingMessage('Ensuring identity integrity'))
     // Make sure identity is handled by the node
     await dispatch(setLoadingMessage('Ensuring node contains identity keys'))
-
+    const network = nodeSelectors.network(getState())
+    await migrateTo_0_7_0.ensureDefaultChannels(identity, network)
     await dispatch(channelsHandlers.actions.loadChannelsToNode(identity.id))
     await getClient().keys.importTPK({ tpk: identity.keys.tpk, rescan: false })
     await getClient().keys.importSK({ sk: identity.keys.sk, rescan: isRescanned ? 'no' : 'yes', startHeight: 700000 })
@@ -363,8 +366,7 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
     await dispatch(setIdentity(identity))
     await dispatch(txnTimestampsHandlers.epics.getTnxTimestamps())
     dispatch(removedChannelsHandlers.epics.getRemovedChannelsTimestamp())
-    const network = nodeSelectors.network(getState())
-    await migrateTo_0_7_0.ensureDefaultChannels(identity, network)
+
     dispatch(setLoadingMessage('Fetching balance and loading channels'))
     dispatch(ratesHandlers.epics.fetchPrices())
     await dispatch(fetchBalance())

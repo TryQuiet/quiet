@@ -116,3 +116,14 @@ Immutable.List [
   },
 ]
 `;
+
+exports[`Channels selectors - priceOracleChannel 1`] = `
+Immutable.Map {
+  "name": "priceOracle",
+  "address": "ztestsapling1rwqrk7uclurs5dqm70g4zf0rh9dmjf60qqtw2n68pa37ycs2zccglcymjg0nnmus70m3wkdyxx0",
+  "keys": Immutable.Map {
+    "ivk": "zivktestsapling194t7fk8ns0v2u4jysmrmwyh2ymq52t5378ey8jym23d2dpy3d5pssyk97t",
+  },
+  "id": "priceOracleChannel",
+}
+`;

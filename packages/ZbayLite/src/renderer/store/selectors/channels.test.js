@@ -66,6 +66,27 @@ describe('Channels selectors', () => {
     const retrievedId = channelsSelectors.generalChannelId(store.getState())
     expect(retrievedId).toEqual(id)
   })
+  it('- priceOracleChannel', async () => {
+    const id = 'priceOracleChannel'
+    store = create({
+      initialState: Immutable.Map({
+        node: NodeState({
+          isTestnet: true
+        }),
+        channels: ChannelsState({
+          data: [
+            Immutable.fromJS({
+              ...zbayChannels.priceOracle.testnet,
+              id
+            })
+          ]
+        })
+      })
+
+    })
+    const channel = channelsSelectors.priceOracleChannel(store.getState())
+    expect(channel).toMatchSnapshot()
+  })
 
   it('- channelById', async () => {
     const channel = channelsSelectors.channelById(1)(store.getState())

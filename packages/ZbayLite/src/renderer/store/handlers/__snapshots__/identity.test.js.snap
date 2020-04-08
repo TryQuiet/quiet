@@ -463,6 +463,18 @@ Array [
     "showInfoMsg": true,
     "unread": 0,
   },
+  Object {
+    "address": "zs1ufrysrng6sjl7de3hwklwdn4xqv3wfafflzcjzjrz2echfxn5f6tdszjzy2klmvtf5ulzmd3j80",
+    "description": "",
+    "keys": Object {
+      "ivk": "zxviews1q0wnyma6qqqqpqyj6flqkj7czd76rnwlegafqze0t6qevrmuxpza6w57hg8jeyzatf2v0jwm7jcw6n23cxu47zjv7hfpt2mntxn7p59xmwz53hty2m82zjyfv382q8nsjzg5t8c0g0qvsru55w9r8rv24e9cjru87hsltn90gf20fjj22a5us5ast2kh9uankj6tc8q9pe33yj0gjn02mcwwfpeqvp6y8ruzpayny588jzngwuc3s30dx6andqt985k999knl6t9apq4zuwnv",
+    },
+    "lastSeen": "2019-03-07T13:03:48.000Z",
+    "name": "priceOracle",
+    "private": true,
+    "showInfoMsg": true,
+    "unread": 0,
+  },
 ]
 `;
 
@@ -500,6 +512,18 @@ Array [
     },
     "lastSeen": "2019-03-07T13:03:48.000Z",
     "name": "general",
+    "private": true,
+    "showInfoMsg": true,
+    "unread": 0,
+  },
+  Object {
+    "address": "ztestsapling1rwqrk7uclurs5dqm70g4zf0rh9dmjf60qqtw2n68pa37ycs2zccglcymjg0nnmus70m3wkdyxx0",
+    "description": "",
+    "keys": Object {
+      "ivk": "zivktestsapling194t7fk8ns0v2u4jysmrmwyh2ymq52t5378ey8jym23d2dpy3d5pssyk97t",
+    },
+    "lastSeen": "2019-03-07T13:03:48.000Z",
+    "name": "priceOracle",
     "private": true,
     "showInfoMsg": true,
     "unread": 0,
@@ -586,6 +610,20 @@ Immutable.List [
     "address": "zs1testaddress0",
     "showInfoMsg": true,
     "description": "",
+  },
+  Immutable.Map {
+    "private": true,
+    "name": "general",
+    "onlyRegistered": false,
+    "unread": 0,
+    "lastSeen": "2019-03-07T13:03:48.000Z",
+    "advertFee": 0,
+    "keys": Immutable.Map {
+      "ivk": "zivktestsapling1algnz2x84pqcnfdxrlntw73wpuqm3v568cepf5tuctyusm9javpqyjyzqy",
+    },
+    "address": "ztestsapling1dfjv308amnk40s89trkvz646ne69553us0g858mmpgsw540efgftn4tf25gts2cttg3jgk9y8lx",
+    "showInfoMsg": true,
+    "description": "This is a general channel available to all users of Zbay by default.",
   },
 ]
 `;

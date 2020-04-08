@@ -20,7 +20,7 @@ import identitySelectors from '../selectors/identity'
 import channelsSelectors from '../selectors/channels'
 import operationsSelectors from '../selectors/operations'
 import usersHandlers from './users'
-import ratesHandlers, { client } from './rates'
+import ratesHandlers from './rates'
 import { mock as zcashMock } from '../../zcash'
 import vault, { mock } from '../../vault'
 import testUtils from '../../testUtils'
@@ -65,11 +65,6 @@ describe('Identity reducer handles', () => {
     jest.clearAllMocks()
     mock.setArchive(createArchive())
     jest.spyOn(usersHandlers.epics, 'fetchUsers').mockImplementation(() => {})
-    jest.spyOn(client, 'avgPrice').mockImplementation(() => ({
-      zecPrice: {
-        price: 12
-      }
-    }))
   })
 
   const assertStoreState = () =>

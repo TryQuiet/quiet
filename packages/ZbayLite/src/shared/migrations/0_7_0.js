@@ -5,6 +5,7 @@ const ensureDefaultChannels = async (identity, network) => {
   const generalChannel = channels.general[network]
   const usersChannel = channels.registeredUsers[network]
   const channelOfChannels = channels.channelOfChannels[network]
+  const priceOracleChannel = channels.priceOracle[network]
   const vaultChannels = await getVault().channels.listChannels(identity.id)
   if (!vaultChannels.find(channel => channel.address === generalChannel.address)) {
     await getVault().channels.importChannel(identity.id, generalChannel)
@@ -14,6 +15,9 @@ const ensureDefaultChannels = async (identity, network) => {
   }
   if (!vaultChannels.find(channel => channel.address === channelOfChannels.address)) {
     await getVault().channels.importChannel(identity.id, channelOfChannels)
+  }
+  if (!vaultChannels.find(channel => channel.address === priceOracleChannel.address)) {
+    await getVault().channels.importChannel(identity.id, priceOracleChannel)
   }
 }
 export default {

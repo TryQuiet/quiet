@@ -16,7 +16,6 @@ import { actions, epics } from './vault'
 import identityHandlers from './identity'
 import { typePending } from './utils'
 import create from '../create'
-import { client } from './rates'
 import vault, { mock } from '../../vault'
 import vaultSelectors from '../selectors/vault'
 import channelsSelectors from '../selectors/channels'
@@ -40,7 +39,6 @@ describe('vault reducer', () => {
         })
       })
     })
-    jest.spyOn(client, 'avgPrice').mockImplementation(() => {})
   })
 
   const assertStoreState = () => expect(store.getState().get('vault')).toMatchSnapshot()
@@ -265,6 +263,7 @@ describe('vault reducer', () => {
 
       it('bootstraps general channel to new account', async () => {
         jest.spyOn(electronStore, 'get').mockImplementation(() => 'SUCCESS')
+        jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => now)
         await store.dispatch(epics.createVault(formValues, formActions))
 
         const channels = channelsSelectors.channels(store.getState())

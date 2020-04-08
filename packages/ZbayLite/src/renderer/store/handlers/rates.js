@@ -1,10 +1,14 @@
 import Immutable from 'immutable'
 import { handleActions, createAction } from 'redux-actions'
-import Binance from 'binance-api-node'
 
 import { actionTypes } from '../../../shared/static'
-
-export const client = Binance()
+import channelsSelectors from '../selectors/channels'
+import { getClient } from '../../zcash'
+import appSelectors from '../selectors/app'
+import appHandlers from './app'
+import txnTimestampsHandlers from '../handlers/txnTimestamps'
+import txnTimestampsSelector from '../selectors/txnTimestamps'
+import { getVault } from '../../vault'
 
 export const RatesState = Immutable.Record(
   {
@@ -23,8 +27,45 @@ export const actions = {
 }
 export const fetchPrices = () => async (dispatch, getState) => {
   try {
-    const zecPrice = await client.avgPrice({ symbol: 'ZECUSDT' })
-    dispatch(setPriceUsd({ priceUsd: zecPrice.price }))
+    const channel = channelsSelectors.priceOracleChannel(getState())
+    let txnTimestamps = txnTimestampsSelector.tnxTimestamps(getState())
+    const transfers = await getClient().payment.received(channel.get('address'))
+    if (
+      transfers.length ===
+      appSelectors.transfers(getState()).get(channel.get('address'))
+    ) {
+      return
+    } else {
+      dispatch(
+        appHandlers.actions.setTransfers({
+          id: channel.get('address'),
+          value: transfers.length
+        })
+      )
+    }
+    for (const key in transfers) {
+      const transfer = transfers[key]
+      if (!txnTimestamps.get(transfer.txid)) {
+        const result = await getClient().confirmations.getResult(transfer.txid)
+        await getVault().transactionsTimestamps.addTransaction(
+          transfer.txid,
+          result.timereceived
+        )
+        await dispatch(
+          txnTimestampsHandlers.actions.addTxnTimestamp({
+            tnxs: { [transfer.txid]: result.timereceived.toString() }
+          })
+        )
+      }
+    }
+    txnTimestamps = txnTimestampsSelector.tnxTimestamps(getState())
+    const sortedTransfers = transfers.sort(
+      (b, a) => txnTimestamps.get(a.txid) - txnTimestamps.get(b.txid)
+    )
+    const price = parseFloat(
+      Buffer.from(sortedTransfers[0].memo, 'hex').toString()
+    )
+    dispatch(setPriceUsd({ priceUsd: price }))
   } catch (err) {
     console.warn(err)
   }
@@ -35,7 +76,8 @@ export const epics = {
 
 export const reducer = handleActions(
   {
-    [setPriceUsd]: (state, { payload: { priceUsd } }) => state.set('usd', priceUsd)
+    [setPriceUsd]: (state, { payload: { priceUsd } }) =>
+      state.set('usd', priceUsd)
   },
   initialState
 )
