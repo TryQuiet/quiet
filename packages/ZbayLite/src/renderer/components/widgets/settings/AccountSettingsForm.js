@@ -108,7 +108,7 @@ export const AccountSettingsForm = ({
       </Grid>
       <Grid container justify='center'>
         <Grid container xs item className={classes.createUsernameContainer}>
-          {user ? (
+          {user && !user.nickname.startsWith('anon') ? (
             <Grid item xs={12}>
               <Typography variant='h4'>@{user.nickname}</Typography>
             </Grid>

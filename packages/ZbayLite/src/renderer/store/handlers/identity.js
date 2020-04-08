@@ -390,6 +390,7 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
   } catch (err) {}
   const isNewUser = electronStore.get('isNewUser')
   if (isNewUser === true) {
+    await dispatch(usersHandlers.epics.registerAnonUsername())
     dispatch(modalsHandlers.actionCreators.openModal('createUsernameModal')())
   }
   dispatch(fetchAffiliateMoney())

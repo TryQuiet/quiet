@@ -99,6 +99,12 @@ const subscribeUsernameTxn = async ({ opId, callback }) => {
   }
   return subscribe(callback)
 }
+export const registerAnonUsername = () => async (dispatch, getState) => {
+  const publicKey = identitySelector.signerPubKey(getState())
+  await dispatch(
+    createOrUpdateUser({ nickname: `anon${publicKey.substring(0, 10)}` })
+  )
+}
 export const createOrUpdateUser = payload => async (dispatch, getState) => {
   const { nickname, firstName = '', lastName = '' } = payload
   const address = identitySelector.address(getState())
@@ -237,9 +243,11 @@ export const fetchUsers = () => async (dispatch, getState) => {
 
 export const isNicknameTaken = username => (dispatch, getState) => {
   const users = usersSelector.users(getState()).toJS()
-  const userNames = Object.keys(users).map((key, index) => {
-    return users[key].nickname
-  })
+  const userNames = Object.keys(users)
+    .map((key, index) => {
+      return users[key].nickname
+    })
+    .filter(name => !name.startsWith('anon'))
   const uniqUsernames = R.uniq(userNames)
   return R.includes(username, uniqUsernames)
 }
@@ -247,7 +255,8 @@ export const isNicknameTaken = username => (dispatch, getState) => {
 export const epics = {
   fetchUsers,
   isNicknameTaken,
-  createOrUpdateUser
+  createOrUpdateUser,
+  registerAnonUsername
 }
 
 export const reducer = handleActions(
