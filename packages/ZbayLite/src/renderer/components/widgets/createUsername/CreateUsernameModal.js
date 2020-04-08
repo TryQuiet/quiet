@@ -202,7 +202,7 @@ export const CreateUsernameModal = ({
               </Typography>
             </Grid>
             <Formik
-              onSubmit={handleSubmit}
+              onSubmit={values => submitForm(handleSubmit, values, setFormSent)}
               initialValues={initialValues}
               validate={values => validate(values, checkNickname)}
             >
@@ -229,8 +229,8 @@ export const CreateUsernameModal = ({
                       </Grid>
                       <Grid className={classes.info} item xs={12}>
                         <Typography variant='caption'>
-                          Lowercase letters and numbers only; no spaces or special
-                          characters allowed.
+                          Lowercase letters and numbers only; no spaces or
+                          special characters allowed.
                         </Typography>
                       </Grid>
                     </Grid>
@@ -246,9 +246,7 @@ export const CreateUsernameModal = ({
                           variant='contained'
                           size='small'
                           color='primary'
-                          onClick={() =>
-                            submitForm(handleSubmit, values, setFormSent)
-                          }
+                          type='submit'
                           fullWidth
                           disabled={!isValid || isSubmitting || !enoughMoney}
                           className={classes.button}

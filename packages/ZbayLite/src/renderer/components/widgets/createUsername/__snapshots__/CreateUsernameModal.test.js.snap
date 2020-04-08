@@ -38,7 +38,7 @@ exports[`CreateUsernameModal renders component 1`] = `
         }
       }
       isInitialValid={false}
-      onSubmit={[MockFunction]}
+      onSubmit={[Function]}
       validate={[Function]}
       validateOnBlur={true}
       validateOnChange={true}
