@@ -47,22 +47,20 @@ const styles = theme => ({
     backgroundColor: '#fff',
     boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.0)'
   },
-  disabled: {
-    fontSize: 25,
-    lineHeight: '15px',
-    fontStyle: 'normal',
-    fontWeight: 'normal'
-  },
   tabsDiv: {
     width: 168
   },
   selected: {
     backgroundColor: theme.palette.colors.lushSky,
     borderRadius: 5,
-    color: theme.palette.colors.white
+    color: `${theme.palette.colors.white} !important`
   },
   tab: {
-    minHeight: 32
+    minHeight: 32,
+    color: theme.palette.colors.trueBlack,
+    opacity: 1,
+    fontStyle: 'normal',
+    fontWeight: 'normal'
   },
   content: {
     marginLeft: 32
