@@ -12,7 +12,7 @@ Zbay is an experimental app for Windows, Mac, and GNU/Linux that builds an IRC-l
 
   
 
-Getting started hacking on Zcash is easy. Be sure to have [Docker](https://docker.com) installed. Then...
+Getting started hacking on Zcash is easy. Be sure to have [Docker](https://docker.com) installed and running. Then...
 
   
 
@@ -20,17 +20,19 @@ Getting started hacking on Zcash is easy. Be sure to have [Docker](https://docke
 
 npm run mainnet
 
+```
+
+And in a separate terminal window...
+
+```
+
 npm install
 
 npm run start
 
 ```
 
-  
-
-That's it! Or, to start Zbay on the Zcash testnet, use ```npm run testnet``` and ```npm run start-testnet``` instead.
-
-  
+That's it!  
 
 ## Building an installer
 
