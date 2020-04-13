@@ -21,6 +21,7 @@ import { getClient } from '../../zcash'
 import { getVault } from '../../vault'
 import contactsHandlers from './contacts'
 import offersHandlers from './offers'
+import history from '../../../shared/history'
 
 export const DEFAULT_DEBOUNCE_INTERVAL = 1000
 const POLLING_OFFSET = 60000
@@ -220,11 +221,14 @@ const _sendPendingDirectMessages = async (dispatch, getState) => {
           )
           return
         }
+        if (recipientAddress.length === 35) {
+          return
+        }
         const { username } = contactsSelectors.contact(recipientAddress)(
           getState()
         )
         if (!username) {
-          dispatch(
+          await dispatch(
             contactsHandlers.actions.setUsernames({
               sender: {
                 replyTo: recipientAddress,
@@ -234,10 +238,11 @@ const _sendPendingDirectMessages = async (dispatch, getState) => {
             })
           )
         }
+        history.push(
+          `/main/direct-messages/${msg.recipientAddress}/${username ||
+            msg.recipientUsername}`
+        )
         dispatch(removeMessage(key))
-        if (recipientAddress.length === 35) {
-          return
-        }
         await dispatch(
           operationsHandlers.epics.observeOperation({
             opId,
