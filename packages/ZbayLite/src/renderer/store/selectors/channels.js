@@ -5,7 +5,8 @@ import nodeSelectors from './node'
 
 const ignoredChannels = network => [
   zcashChannels.registeredUsers[network].address,
-  zcashChannels.channelOfChannels[network].address
+  zcashChannels.channelOfChannels[network].address,
+  zcashChannels.priceOracle[network].address
 ]
 const store = s => s
 const channels = createSelector(

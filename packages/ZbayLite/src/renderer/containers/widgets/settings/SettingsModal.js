@@ -9,14 +9,18 @@ import { actions } from '../../../store/handlers/app'
 import appSelectors from '../../../store/selectors/app'
 import identitySelectors from '../../../store/selectors/identity'
 import usersSelector from '../../../store/selectors/users'
+import notificationCenterSelector from '../../../store/selectors/notificationCenter'
 
 const mapStateToProps = state => {
-  const user = usersSelector.registeredUser(identitySelectors.signerPubKey(state))(state)
+  const user = usersSelector.registeredUser(
+    identitySelectors.signerPubKey(state)
+  )(state)
   return {
     modalTabToOpen: appSelectors.currentModalTab(state),
     user: user
       ? `@${user.nickname}`
-      : `@anon${identitySelectors.signerPubKey(state).substring(0, 15)}`
+      : `@anon${identitySelectors.signerPubKey(state).substring(0, 15)}`,
+    blockedUsers: notificationCenterSelector.blockedUsers(state)
   }
 }
 
@@ -30,13 +34,16 @@ const mapDispatchToProps = dispatch =>
 
 const SettingsModalContainer = props => {
   const [currentTab, setCurrentTab] = useState('account')
-  return <SettingsModal {...props} setCurrentTab={setCurrentTab} currentTab={currentTab} />
+  return (
+    <SettingsModal
+      {...props}
+      setCurrentTab={setCurrentTab}
+      currentTab={currentTab}
+    />
+  )
 }
 
 export default R.compose(
   withModal('accountSettingsModal'),
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )
+  connect(mapStateToProps, mapDispatchToProps)
 )(SettingsModalContainer)

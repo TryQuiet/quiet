@@ -80,7 +80,8 @@ export const SettingsModal = ({
   clearCurrentOpenTab,
   currentTab,
   setCurrentTab,
-  user
+  user,
+  blockedUsers
 }) => {
   const [contentRef, setContentRef] = React.useState(null)
   const [offset, setOffset] = React.useState(0)
@@ -162,11 +163,13 @@ export const SettingsModal = ({
                 label='Security'
                 classes={{ tabRoot: classes.tab, selected: classes.selected }}
               />
-              <Tab
-                value='blockedusers'
-                label='Blocked users'
-                classes={{ tabRoot: classes.tab, selected: classes.selected }}
-              />
+              {blockedUsers && blockedUsers.size && (
+                <Tab
+                  value='blockedusers'
+                  label='Blocked Users'
+                  classes={{ tabRoot: classes.tab, selected: classes.selected }}
+                />
+              )}
             </Tabs>
           </AppBar>
         </Grid>
@@ -202,7 +205,8 @@ SettingsModal.propTypes = {
   modalTabToOpen: PropTypes.string,
   clearCurrentOpenTab: PropTypes.func.isRequired,
   currentTab: PropTypes.string,
-  setCurrentTab: PropTypes.func.isRequired
+  setCurrentTab: PropTypes.func.isRequired,
+  blockedUsers: PropTypes.object.isRequired
 }
 
 export default withStyles(styles)(SettingsModal)
