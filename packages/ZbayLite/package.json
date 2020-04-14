@@ -220,6 +220,7 @@
     "reselect": "^4.0.0",
     "touch": "^3.1.0",
     "typeface-roboto": "0.0.54",
-    "yup": "^0.27.0"
+    "yup": "^0.27.0",
+    "custom-electron-titlebar": "^3.2.2-hotfix62"
   }
 }

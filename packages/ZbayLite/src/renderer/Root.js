@@ -28,38 +28,45 @@ import SentFundsModal from './containers/ui/SentFundsModal'
 import OpenExternalLinkModal from './containers/ui/OpenExternalLinkModal'
 import SendFundsModal from './containers/ui/adverts/SendFundsModal'
 import AddModerator from './containers/widgets/channelSettings/AddModerator'
-
+import { addTitlebar } from './components/Titlebar'
 import theme from './theme'
 
-export default () => (
-  <MuiThemeProvider theme={theme}>
-    <HashRouter>
-      <Provider store={store}>
-        <SnackbarProvider maxSnack={3}>
-          <Notifier />
-          <ErrorModal />
-          <QuitAppDialog />
-          <UpdateModal />
-          <SendMoneyModal />
-          <TopUpModal />
-          <CssBaseline />
-          <CreateChannelModal />
-          <NewMessageModal />
-          <JoinChannelModal />
-          <AdvertModal />
-          <AdvertActionsModal />
-          <SendFundsModal />
-          <ChannelSettingsModal />
-          <PublishChannelModal />
-          <SentFundsModal />
-          <AddModerator />
-          <OpenExternalLinkModal />
-          <Route path='/vault' exact component={Vault} />
-          <Route path='/main' component={Main} />
-          <Route path='/zcashNode' component={Index} />
-          <Route path='/loading' component={Loading} />
-        </SnackbarProvider>
-      </Provider>
-    </HashRouter>
-  </MuiThemeProvider>
-)
+export default () => {
+  React.useEffect(() => {
+    if (process.platform === 'win32') {
+      addTitlebar()
+    }
+  }, [])
+  return (
+    <MuiThemeProvider theme={theme}>
+      <HashRouter>
+        <Provider store={store}>
+          <SnackbarProvider maxSnack={3}>
+            <Notifier />
+            <ErrorModal />
+            <QuitAppDialog />
+            <UpdateModal />
+            <SendMoneyModal />
+            <TopUpModal />
+            <CssBaseline />
+            <CreateChannelModal />
+            <NewMessageModal />
+            <JoinChannelModal />
+            <AdvertModal />
+            <AdvertActionsModal />
+            <SendFundsModal />
+            <ChannelSettingsModal />
+            <PublishChannelModal />
+            <SentFundsModal />
+            <AddModerator />
+            <OpenExternalLinkModal />
+            <Route path='/vault' exact component={Vault} />
+            <Route path='/main' component={Main} />
+            <Route path='/zcashNode' component={Index} />
+            <Route path='/loading' component={Loading} />
+          </SnackbarProvider>
+        </Provider>
+      </HashRouter>
+    </MuiThemeProvider>
+  )
+}
