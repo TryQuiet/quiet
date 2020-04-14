@@ -11,6 +11,7 @@ Object {
 
 exports[`VaultUnlockerForm will receive right props 1`] = `
 Object {
+  "exists": null,
   "isLogIn": false,
   "loader": Immutable.Record {
     "loading": false,

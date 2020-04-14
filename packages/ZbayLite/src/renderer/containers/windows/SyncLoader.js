@@ -49,12 +49,13 @@ export const mapDispatchToProps = dispatch =>
       disablePowerSaveMode: nodeHandlers.epics.disablePowerSaveMode,
       setRescanningInitialized: nodeHandlers.epics.setRescanningInitialized,
       setVaultIdentity: vaultHandlers.epics.setVaultIdentity,
-      loadIdentity: identityHandlers.epics.loadIdentity
+      loadIdentity: identityHandlers.epics.loadIdentity,
+      createVault: vaultHandlers.epics.createVault
     },
     dispatch
   )
 
-export const SyncLoader = ({ setVaultIdentity, loader, guideStatus, resetNodeStatus, setRescanningInitialized, loadIdentity, isRescanningInitialized, isFetching, disablePowerSaveMode, isRescanningMonitorStarted, rescanningProgress, startRescanningMonitor, hasAddress, node, getStatus, bootstrapping, bootstrappingMessage, nodeConnected, openModal, creating, locked, exists, fetchingPart, fetchingSizeLeft, fetchingStatus, fetchingEndTime, fetchingSpeed }) => {
+export const SyncLoader = ({ setVaultIdentity, createVault, loader, guideStatus, resetNodeStatus, setRescanningInitialized, loadIdentity, isRescanningInitialized, isFetching, disablePowerSaveMode, isRescanningMonitorStarted, rescanningProgress, startRescanningMonitor, hasAddress, node, getStatus, bootstrapping, bootstrappingMessage, nodeConnected, openModal, creating, locked, exists, fetchingPart, fetchingSizeLeft, fetchingStatus, fetchingEndTime, fetchingSpeed }) => {
   const isGuideCompleted = electronStore.get('storyStatus') || guideStatus
   const blockchainStatus = electronStore.get('AppStatus.blockchain.status')
   const vaultStatus = electronStore.get('vaultStatus')
@@ -78,6 +79,14 @@ export const SyncLoader = ({ setVaultIdentity, loader, guideStatus, resetNodeSta
       loadIdentity()
     }
   }, [])
+  useEffect(
+    () => {
+      if (!exists && !bootstrapping && nodeConnected) {
+        createVault()
+      }
+    },
+    [nodeConnected, bootstrapping, exists]
+  )
   useEffect(
     () => {
       if ((!locked && nodeConnected && fetchingPart === 'blockchain' && fetchingStatus === 'SUCCESS') || blockchainStatus === 'SUCCESS') {

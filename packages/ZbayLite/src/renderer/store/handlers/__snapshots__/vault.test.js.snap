@@ -57,7 +57,7 @@ exports[`vault reducer epics - createVault creates the vault 1`] = `
 Array [
   Array [
     Object {
-      "masterPassword": "testPassword",
+      "masterPassword": "74657374",
       "network": "testnet",
     },
   ],
@@ -69,7 +69,7 @@ Array [
   Array [
     Object {
       "createSource": true,
-      "masterPassword": "testPassword",
+      "masterPassword": "74657374",
       "network": "testnet",
     },
   ],

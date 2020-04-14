@@ -19,6 +19,7 @@ export const mapStateToProps = state => ({
   locked: vaultSelectors.locked(state),
   loader: identitySelectors.loader(state),
   nodeConnected: nodeSelectors.isConnected(state),
+  exists: vaultSelectors.exists(state),
   tor: torSelectors.tor(state),
   node: nodeSelectors.node(state)
 })
@@ -34,7 +35,6 @@ export const mapDispatchToProps = dispatch =>
     dispatch
   )
 export const VaultUnlockerForm = ({
-  newUser,
   locked,
   setVaultIdentity,
   getStatus,
@@ -44,12 +44,13 @@ export const VaultUnlockerForm = ({
   createZcashNode,
   node,
   isLogIn,
+  exists,
   ...props
 }) => {
-  const isNewUser = electronStore.get('isNewUser')
   const [done, setDone] = useState(true)
   useEffect(
     () => {
+      const isNewUser = electronStore.get('isNewUser')
       if (!isNewUser && !locked && nodeConnected) {
         setVaultIdentity()
       }
@@ -66,7 +67,7 @@ export const VaultUnlockerForm = ({
   )
   useEffect(
     () => {
-      if (!isNewUser && !locked && !loader.loading) {
+      if (!locked && !loader.loading) {
         setDone(true)
       }
     },
@@ -76,11 +77,11 @@ export const VaultUnlockerForm = ({
   useInterval(getStatus, 1000)
   return (
     <VaultUnlockerFormComponent
-      newUser={isNewUser}
       locked={locked}
       loader={loader}
       done={done}
       tor={tor}
+      exists={exists}
       setDone={setDone}
       nodeConnected={nodeConnected}
       node={node}
