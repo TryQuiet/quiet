@@ -70,8 +70,44 @@ export const fetchPrices = () => async (dispatch, getState) => {
     console.warn(err)
   }
 }
+export const fetchPriceForTime = time => async (dispatch, getState) => {
+  try {
+    const channel = channelsSelectors.priceOracleChannel(getState())
+    let txnTimestamps = txnTimestampsSelector.tnxTimestamps(getState())
+    const transfers = await getClient().payment.received(channel.get('address'))
+    for (const key in transfers) {
+      const transfer = transfers[key]
+      if (!txnTimestamps.get(transfer.txid)) {
+        const result = await getClient().confirmations.getResult(transfer.txid)
+        await getVault().transactionsTimestamps.addTransaction(
+          transfer.txid,
+          result.timereceived
+        )
+        await dispatch(
+          txnTimestampsHandlers.actions.addTxnTimestamp({
+            tnxs: { [transfer.txid]: result.timereceived.toString() }
+          })
+        )
+      }
+    }
+    txnTimestamps = txnTimestampsSelector.tnxTimestamps(getState())
+    const closesTransaction = transfers
+      .map(txn => txn.txid)
+      .reduce((prev, curr) => {
+        return Math.abs(parseInt(txnTimestamps.get(curr)) - time) <
+          Math.abs(parseInt(txnTimestamps.get(prev)) - time)
+          ? curr
+          : prev
+      })
+    const txn = transfers.find(txn => txn.txid === closesTransaction)
+    return parseFloat(Buffer.from(txn.memo, 'hex').toString())
+  } catch (err) {
+    console.warn(err)
+  }
+}
 export const epics = {
-  fetchPrices
+  fetchPrices,
+  fetchPriceForTime
 }
 
 export const reducer = handleActions(

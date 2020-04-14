@@ -7,6 +7,7 @@ import { withStyles } from '@material-ui/core/styles'
 import { AutoSizer } from 'react-virtualized'
 import { Scrollbars } from 'react-custom-scrollbars'
 import { DateTime } from 'luxon'
+import { shell } from 'electron'
 
 import Modal from './Modal'
 
@@ -47,6 +48,10 @@ const styles = theme => ({
   total: {
     padding: 16,
     fontWeight: 500
+  },
+  link: {
+    color: theme.palette.colors.linkBlue,
+    cursor: 'pointer'
   }
 })
 
@@ -135,7 +140,17 @@ export const SentFundsModal = ({
                       Value when sent
                     </Grid>
                     <Grid item className={classes.value} xs>
-                      ${valueWhenSent.toFixed(2)} USD
+                      ${valueWhenSent.toFixed(2)} USD{' '}
+                      <span
+                        className={classes.link}
+                        onClick={() =>
+                          shell.openExternal(
+                            'https://www.tradingview.com/symbols/BTCUSD/'
+                          )
+                        }
+                      >
+                        Show historic price
+                      </span>
                     </Grid>
                   </Grid>
                 )}
@@ -169,9 +184,11 @@ SentFundsModal.propTypes = {
   classes: PropTypes.object.isRequired,
   open: PropTypes.bool.isRequired,
   recipient: PropTypes.string.isRequired,
-  amountZec: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  amountZec: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+    .isRequired,
   handleClose: PropTypes.func.isRequired,
-  amountUsd: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  amountUsd: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+    .isRequired,
   feeZec: PropTypes.number.isRequired,
   feeUsd: PropTypes.number.isRequired,
   memo: PropTypes.string.isRequired,

@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import * as R from 'ramda'
+import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { withRouter } from 'react-router-dom'
-import { DateTime } from 'luxon'
-
 import Binance from 'binance-api-node'
 
 import { withModal } from '../../store/handlers/modals'
 import { rate } from '../../store/selectors/rates'
+import rateHandlers from '../../store/handlers/rates'
 import modalSelectors from '../../store/selectors/modals'
 import SentFundsModalComponent from '../../components/ui/SentFundsModal'
 
@@ -17,28 +17,30 @@ export const mapStateToProps = state => ({
   rateUsd: rate('usd')(state),
   payload: modalSelectors.payload('sentFunds')(state)
 })
+export const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    {
+      fetchPriceForTime: rateHandlers.epics.fetchPriceForTime
+    },
+    dispatch
+  )
 
 export const SentFundsModal = ({
   payload = {},
   open,
   handleClose,
-  rateUsd
+  rateUsd,
+  fetchPriceForTime
 }) => {
   const [historicPrice, setHistoricPrice] = useState(rateUsd.toNumber())
   useEffect(() => {
     if (payload.txid) {
       try {
-        const pulldata = async () => {
-          const date = await client.candles({
-            symbol: 'ZECUSDT',
-            interval: '1m',
-            limit: 1,
-            startTime: payload.timestamp * 1000,
-            endTime: DateTime.utc().toSeconds() * 1000
-          })
-          setHistoricPrice(parseFloat(date[0].open))
+        const pullPrice = async () => {
+          const price = await fetchPriceForTime(parseInt(payload.timestamp))
+          setHistoricPrice(price)
         }
-        pulldata()
+        pullPrice()
       } catch (err) {
         console.warn(err)
       }
@@ -65,7 +67,7 @@ export const SentFundsModal = ({
   }
 }
 export default R.compose(
-  connect(mapStateToProps, null),
+  connect(mapStateToProps, mapDispatchToProps),
   withModal('sentFunds'),
   withRouter,
   React.memo
