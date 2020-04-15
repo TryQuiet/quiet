@@ -11,7 +11,7 @@ const styles = theme => ({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    WebkitAppRegion: 'drag'
+    WebkitAppRegion: process.platform === 'win32' ? 'no-drag' : 'drag'
   }
 })
 

@@ -11,7 +11,7 @@ import RegistrationGuide from '../../containers/windows/RegistrationGuide'
 
 const styles = theme => ({
   root: {
-    WebkitAppRegion: 'drag',
+    WebkitAppRegion: process.platform === 'win32' ? 'no-drag' : 'drag',
     height: '100vh'
   },
   button: {

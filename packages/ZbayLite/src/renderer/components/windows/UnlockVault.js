@@ -9,7 +9,7 @@ import VaultUnlockerForm from '../../containers/widgets/VaultUnlockerForm'
 const styles = theme => ({
   gridRoot: {
     'min-height': '100vh',
-    WebkitAppRegion: process.platform === 'win32' ? 'no-drag' : 'no-drag'
+    WebkitAppRegion: process.platform === 'win32' ? 'no-drag' : 'drag'
   }
 })
 

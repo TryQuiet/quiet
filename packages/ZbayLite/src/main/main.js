@@ -265,7 +265,6 @@ const createWindow = () => {
     width: windowUserSize ? windowUserSize.width : windowSize.width,
     height: windowUserSize ? windowUserSize.height : windowSize.height,
     titleBarStyle: 'hidden',
-    frame: !(process.platform === 'win32'),
     webPreferences: {
       nodeIntegration: true
     },

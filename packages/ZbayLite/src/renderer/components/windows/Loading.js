@@ -15,7 +15,7 @@ const styles = theme => ({
   root: {
     width: '100vw',
     height: '100vh',
-    WebkitAppRegion: 'drag'
+    WebkitAppRegion: process.platform === 'win32' ? 'no-drag' : 'drag'
   },
   icon: {
     width: 285,

@@ -9,7 +9,7 @@ const styles = (theme) => ({
     background: theme.palette.colors.white,
     order: -1,
     zIndex: 10,
-    WebkitAppRegion: 'drag'
+    WebkitAppRegion: process.platform === 'win32' ? 'no-drag' : 'drag'
   }
 })
 

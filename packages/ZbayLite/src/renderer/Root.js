@@ -28,15 +28,9 @@ import SentFundsModal from './containers/ui/SentFundsModal'
 import OpenExternalLinkModal from './containers/ui/OpenExternalLinkModal'
 import SendFundsModal from './containers/ui/adverts/SendFundsModal'
 import AddModerator from './containers/widgets/channelSettings/AddModerator'
-import { addTitlebar } from './components/Titlebar'
 import theme from './theme'
 
 export default () => {
-  React.useEffect(() => {
-    if (process.platform === 'win32') {
-      addTitlebar()
-    }
-  }, [])
   return (
     <MuiThemeProvider theme={theme}>
       <HashRouter>

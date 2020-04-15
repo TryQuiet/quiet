@@ -15,7 +15,7 @@ import ImportChannelModal from '../../containers/widgets/channels/importChannel/
 const styles = theme => ({
   root: {
     marginTop: theme.spacing(1),
-    WebkitAppRegion: 'drag',
+    WebkitAppRegion: process.platform === 'win32' ? 'no-drag' : 'drag',
     paddingLeft: 16,
     paddingRight: 16
   },

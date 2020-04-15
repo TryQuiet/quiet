@@ -17,7 +17,7 @@ const styles = theme => ({
   gridRoot: {
     width: '100vw',
     minHeight: '100vh',
-    WebkitAppRegion: 'drag'
+    WebkitAppRegion: process.platform === 'win32' ? 'no-drag' : 'drag'
   },
   paper: {
     width: '100%',

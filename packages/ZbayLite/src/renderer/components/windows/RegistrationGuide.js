@@ -11,7 +11,7 @@ const reqSvgs = require && require.context('../../static/images/registrationGuid
 
 const styles = theme => ({
   root: {
-    WebkitAppRegion: 'drag',
+    WebkitAppRegion: process.platform === 'win32' ? 'no-drag' : 'drag',
     width: '100%',
     height: '100vh',
     backgroundColor: theme.palette.colors.white
