@@ -506,7 +506,7 @@ app.on('ready', async () => {
   const blockchainFolderSize = await getFolderSizePromise(
     `${osPathsBlockchain[process.platform]}`
   )
-  isFetchedFromExternalSource = blockchainFolderSize >= 26046042950 && !blockchainStatus
+  isFetchedFromExternalSource = blockchainFolderSize >= 0 && !blockchainStatus
   electronStore.set('isBlockchainFromExternalSource', isFetchedFromExternalSource)
   const template = [
     {
