@@ -52,7 +52,7 @@ const osPathLogs = {
 const getFolderSizePromise = util.promisify(getSize)
 let isFetchedFromExternalSource = false
 
-const BLOCKCHAIN_SIZE = 26852539059
+const BLOCKCHAIN_SIZE = 27552539059
 const isFetchingArr = []
 let prevFetchedSize = 0
 
