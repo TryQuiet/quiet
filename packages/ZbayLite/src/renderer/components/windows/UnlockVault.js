@@ -9,14 +9,19 @@ import VaultUnlockerForm from '../../containers/widgets/VaultUnlockerForm'
 const styles = theme => ({
   gridRoot: {
     'min-height': '100vh',
-    WebkitAppRegion: 'drag'
+    WebkitAppRegion: process.platform === 'win32' ? 'no-drag' : 'no-drag'
   }
 })
 
 export const UnlockVault = ({ classes, locked }) => {
   return (
     <WindowWrapper>
-      <Grid container justify='center' alignItems='center' className={classes.gridRoot}>
+      <Grid
+        container
+        justify='center'
+        alignItems='center'
+        className={classes.gridRoot}
+      >
         <VaultUnlockerForm />
       </Grid>
     </WindowWrapper>
