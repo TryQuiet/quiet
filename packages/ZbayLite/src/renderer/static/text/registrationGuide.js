@@ -51,7 +51,7 @@ module.exports = [
   {
     slideId: 6,
     title: 'Everything is money.',
-    sentences: ['Zbay uses the Zcash cryptocurrency to do everything.', 'Reading messages is free, but sending a message costs about 1/50th of a cent.',
+    sentences: ['Zbay uses the Zcash cryptocurrency to do everything.', 'Reading messages is free, but sending a message costs about 1/50th of a cent. These tiny fees let us use the Zcash network instead of a central server, protecting your privacy and freedom.',
       'To get you started, we’re sending you a few cents right now. Eventually you might want to buy Zcash on an exchange like Coinbase, especially if you’re interested in buying things on Zbay. (Don’t worry, it’s easy and we’ll help.)'
     ],
     fileName: './money-bag.svg'
