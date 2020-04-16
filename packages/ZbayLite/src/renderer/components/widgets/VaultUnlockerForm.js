@@ -162,7 +162,7 @@ export const VaultUnlockerForm = ({
               </Typography>
             </Grid>
           )}
-          {!isDev && !isBlockchainFromExternalSouce && !locked && !loader.loading && (blockchainStatus !== 'SUCCESS' || !isRescanned) && (
+          {!isDev && !locked && !loader.loading && ((blockchainStatus !== 'SUCCESS' && !isBlockchainFromExternalSouce) || !isRescanned) && (
             <Redirect to='/zcashNode' />
           )}
           {!locked && !loader.loading && nodeConnected && done && isSynced && (

@@ -80,7 +80,7 @@ const styles = theme => ({
   }
 })
 
-export const SyncLoader = ({ classes, ETA, isGuideCompleted, message, isFetching, progressValue, hasAddress, blockchainStatus, bootstrapping, bootstrappingMessage, openModal, fetchingStatus, fetchingSpeed }) => {
+export const SyncLoader = ({ classes, ETA, isGuideCompleted, message, isFetching, progressValue, hasAddress, blockchainStatus, bootstrapping, bootstrappingMessage, openModal, fetchingStatus, fetchingSpeed, isFetchedFromExternalSource }) => {
   return isGuideCompleted ? (
     <WindowWrapper className={classes.root}>
       <Grid container className={classes.box} justify='center' alignItems='center' alignContent='center'>
@@ -107,7 +107,7 @@ export const SyncLoader = ({ classes, ETA, isGuideCompleted, message, isFetching
           <Grid item xs={12} className={classes.statusDiv}>
             {bootstrapping ? <Typography variant='caption' className={classes.status}>
               {`${bootstrappingMessage}`}
-            </Typography> : fetchingStatus !== 'SUCCESS' && blockchainStatus !== 'SUCCESS' ? (
+            </Typography> : fetchingStatus !== 'SUCCESS' && blockchainStatus !== 'SUCCESS' && !isFetchedFromExternalSource ? (
               <Grid item container justify='center' alignItems='center' wrap={'wrap'}>
                 <Typography variant='caption' className={classes.status}>
                   {`${isFetching ? 'Syncing,' : 'Connecting…'}  ${isFetching ? ETA : ''} (${isFetching ? (fetchingSpeed / 1024 ** 2).toFixed(2) : '0.00'} MB/s)`}
@@ -145,6 +145,7 @@ SyncLoader.propTypes = {
   fetchingStatus: PropTypes.string,
   fetchingSpeed: PropTypes.number,
   isFetching: PropTypes.bool,
+  isFetchedFromExternalSource: PropTypes.bool.isRequired,
   isGuideCompleted: PropTypes.bool.isRequired
 }
 

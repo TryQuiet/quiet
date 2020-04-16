@@ -25,7 +25,7 @@ export const mapDispatchToProps = dispatch =>
     dispatch
   )
 
-export const Vault = ({ loadVaultStatus, createZcashNode, exists, nodeConnected, createVault }) => {
+export const Vault = ({ loadVaultStatus, createZcashNode, exists, nodeConnected }) => {
   const isDev = process.env.NODE_ENV === 'development'
   const userStatus = electronStore.get('isNewUser')
   if (userStatus === undefined) {
