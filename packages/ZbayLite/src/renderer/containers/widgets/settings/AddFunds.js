@@ -7,6 +7,7 @@ import identityHandlers from '../../../store/handlers/identity'
 import AddFunds from '../../../components/widgets/settings/AddFunds'
 import identitySelectors from '../../../store/selectors/identity'
 import userSelectors from '../../../store/selectors/users'
+import { actions } from '../../../store/handlers/app'
 
 export const mapStateToProps = state => ({
   privateAddress: identitySelectors.address(state),
@@ -23,7 +24,8 @@ export const mapDispatchToProps = (dispatch, props) =>
       setDonationAddress: identityHandlers.actions.setDonationAddress,
       setDonationAllow: identityHandlers.actions.setDonationAllow,
       updateDonationAddress: address =>
-        identityHandlers.epics.updateDonationAddress(address)
+        identityHandlers.epics.updateDonationAddress(address),
+      clearCurrentOpenTab: actions.clearModalTab
     },
     dispatch
   )

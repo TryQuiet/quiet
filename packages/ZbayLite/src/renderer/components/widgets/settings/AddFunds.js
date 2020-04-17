@@ -125,7 +125,8 @@ export const AddFunds = ({
   variant,
   transparentAddress,
   privateAddress,
-  setCurrentTab
+  setCurrentTab,
+  clearCurrentOpenTab
 }) => {
   const [expanded, setExpanded] = React.useState(false)
   const [dialogOpen, setDialogOpen] = React.useState(false)
@@ -253,6 +254,7 @@ export const AddFunds = ({
         item
         className={classes.infoDiv}
         onClick={() => {
+          clearCurrentOpenTab()
           setCurrentTab('buyZcash')
         }}
       >
@@ -326,7 +328,8 @@ AddFunds.propTypes = {
   transparentAddress: PropTypes.string.isRequired,
   privateAddress: PropTypes.string.isRequired,
   variant: PropTypes.string,
-  setCurrentTab: PropTypes.func.isRequired
+  setCurrentTab: PropTypes.func.isRequired,
+  clearCurrentOpenTab: PropTypes.func.isRequired
 }
 
 AddFunds.defaultProps = {}

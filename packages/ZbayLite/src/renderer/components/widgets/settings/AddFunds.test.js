@@ -9,7 +9,8 @@ describe('AddFunds', () => {
       classes: mockClasses,
       privateAddress: 'test-address-private',
       transparentAddress: 'test-address-transparent',
-      setCurrentTab: jest.fn()
+      setCurrentTab: jest.fn(),
+      clearCurrentOpenTab: jest.fn()
     }
     const result = shallow(<AddFunds {...props} />)
     expect(result).toMatchSnapshot()
