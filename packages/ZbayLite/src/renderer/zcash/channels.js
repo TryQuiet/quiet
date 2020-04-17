@@ -1,7 +1,7 @@
 export default {
   general: {
     testnet: {
-      name: 'general',
+      name: 'zbay',
       private: true,
       address:
         'ztestsapling1dfjv308amnk40s89trkvz646ne69553us0g858mmpgsw540efgftn4tf25gts2cttg3jgk9y8lx',
@@ -13,15 +13,15 @@ export default {
       }
     },
     mainnet: {
-      name: 'general',
+      name: 'zbay',
       private: true,
       address:
-        'zs13vfsjfw07g3yqse8h742nvhm5csz2qpcz25t77ynk9zlatsq6wtxunmakf7rgn6fjw5q70h4jt7',
+        'zs10zkaj29rcev9qd5xeuzck4ly5q64kzf6m6h9nfajwcvm8m2vnjmvtqgr0mzfjywswwkwke68t00',
       description:
         'This is a general channel available to all users of Zbay by default.',
       keys: {
         ivk:
-          'zxviews1qwk53xxqqgqqpqrdhg8mw8xdprc9gd6lfpddgyaz9x5575cxeyk53efx02n0swpa3rhxms8zxvj62z2and8thzfe3qyl3k7qgpk45glak450zsyn70tq5z367nj972mzkutdxaclwd59jnsq0w8q59aks6rju9s2vgu7y9qcleq76pluemthwknl44c2anzj4zj0fpqufh6fezcfl8lppvxmzee3fg53gfhwyd0y735gxuhwhxn6q5eyvncye9fcldwzpf7twzjrnwgk6eumj'
+          'zxviews1q0wnyma6q5qqpqxrjgcmk9uvu7px6pstfqne5ex074ck4v8x9uzcnrlrz5nwt8vvly09lrf2av58g5jue6twk64ekmlz4583lfd4txxyt0g3zkgpajhpn4t2w0z2l843cx2gqktyp7k3gt4rkxaqd9985paqxfyr9y0h7jmy5agzgzkxammwdhpnw2cllpux5nltfagq45mgxmkhdqu442ejhaygqk3qxsas2vyszur3fuymqv7atydq4qfszvnkcjeu52vf487drucekvxru'
       }
     }
   },
