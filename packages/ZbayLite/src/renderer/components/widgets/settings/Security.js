@@ -73,54 +73,60 @@ export const Security = ({
           }
         />
       </Grid>
-      <Grid item className={classes.subtitle}>
-        <Typography variant='h5'>Allowed sites</Typography>
-      </Grid>
-      <Grid item>
-        <Typography variant='body2'>
-          Links from these sites will not trigger warrning:
-        </Typography>
-      </Grid>
-      {whitelisted.map(hostname => {
-        return (
-          <Grid item>
-            <UserListItem
-              name={hostname}
-              actionName='Remove'
-              classes={{ name: classes.itemName }}
-              prefix=''
-              action={() => {
-                removeSiteHost(hostname)
-              }}
-            />
+      {!!whitelisted.size && (
+        <>
+          <Grid item className={classes.subtitle}>
+            <Typography variant='h5'>Allowed sites</Typography>
           </Grid>
-        )
-      })}
-      <Grid item className={classes.imageHostsDiv}>
-        <Grid item className={classes.subtitle}>
-          <Typography variant='h5'>Allowed image hosts</Typography>
+          <Grid item>
+            <Typography variant='body2'>
+              Links from these sites will not trigger warrning:
+            </Typography>
+          </Grid>
+          {whitelisted.map(hostname => {
+            return (
+              <Grid item>
+                <UserListItem
+                  name={hostname}
+                  actionName='Remove'
+                  classes={{ name: classes.itemName }}
+                  prefix=''
+                  action={() => {
+                    removeSiteHost(hostname)
+                  }}
+                />
+              </Grid>
+            )
+          })}
+        </>
+      )}
+      {!!autoload.size && (
+        <Grid item className={classes.imageHostsDiv}>
+          <Grid item className={classes.subtitle}>
+            <Typography variant='h5'>Allowed image hosts</Typography>
+          </Grid>
+          <Grid item>
+            <Typography variant='body2'>
+              Images from these sites will be auto-loaded:
+            </Typography>
+          </Grid>
+          {autoload.map(hostname => {
+            return (
+              <Grid item>
+                <UserListItem
+                  name={hostname.substring(0, 30)}
+                  classes={{ name: classes.itemName }}
+                  actionName='Remove'
+                  prefix=''
+                  action={() => {
+                    removeImageHost(hostname)
+                  }}
+                />
+              </Grid>
+            )
+          })}
         </Grid>
-        <Grid item>
-          <Typography variant='body2'>
-            Images from these sites will be auto-loaded:
-          </Typography>
-        </Grid>
-        {autoload.map(hostname => {
-          return (
-            <Grid item>
-              <UserListItem
-                name={hostname.substring(0, 30)}
-                classes={{ name: classes.itemName }}
-                actionName='Remove'
-                prefix=''
-                action={() => {
-                  removeImageHost(hostname)
-                }}
-              />
-            </Grid>
-          )
-        })}
-      </Grid>
+      )}
     </Grid>
   )
 }
