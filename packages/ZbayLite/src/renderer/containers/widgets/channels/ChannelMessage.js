@@ -9,6 +9,7 @@ import contactsHandlers from '../../../store/handlers/contacts'
 import publicChannelsSelectors from '../../../store/selectors/publicChannels'
 import usersSelectors from '../../../store/selectors/users'
 import whitelistSelectors from '../../../store/selectors/whitelist'
+import torSelectors from '../../../store/selectors/tor'
 import { actionCreators } from '../../../store/handlers/modals'
 import whitelistHandlers from '../../../store/handlers/whitelist'
 
@@ -17,7 +18,8 @@ export const mapStateToProps = state => ({
   users: usersSelectors.users(state),
   allowAll: whitelistSelectors.allowAll(state),
   whitelisted: whitelistSelectors.whitelisted(state),
-  autoload: whitelistSelectors.autoload(state)
+  autoload: whitelistSelectors.autoload(state),
+  torEnabled: torSelectors.torEnabled(state)
 })
 
 export const mapDispatchToProps = (dispatch, ownProps) =>

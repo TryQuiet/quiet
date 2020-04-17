@@ -8,3 +8,5 @@ Immutable.Tor {
   "status": "",
 }
 `;
+
+exports[`rates selectors selects torEnabled 1`] = `false`;

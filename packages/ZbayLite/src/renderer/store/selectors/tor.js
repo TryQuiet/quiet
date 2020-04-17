@@ -5,7 +5,12 @@ const tor = createSelector(
   store,
   state => state.get('tor')
 )
+const torEnabled = createSelector(
+  tor,
+  tor => tor.enabled
+)
 
 export default {
-  tor
+  tor,
+  torEnabled
 }

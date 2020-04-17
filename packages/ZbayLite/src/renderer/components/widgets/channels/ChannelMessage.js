@@ -238,7 +238,8 @@ export const ChannelMessage = ({
   whitelisted,
   addToWhitelist,
   setWhitelistAll,
-  autoload
+  autoload,
+  torEnabled
 }) => {
   const [showImage, setShowImage] = React.useState(false)
   const [imageUrl, setImageUrl] = React.useState(null)
@@ -246,7 +247,7 @@ export const ChannelMessage = ({
   const [openModal, setOpenModal] = React.useState(false)
   const status = message.get('status', 'broadcasted')
   const messageData = message.get('message')
-  const autoloadImage = imageUrl
+  const autoloadImage = imageUrl && !torEnabled
     ? autoload.contains(new URL(imageUrl).hostname)
     : false
   React.useEffect(() => {

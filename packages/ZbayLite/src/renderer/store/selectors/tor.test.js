@@ -19,4 +19,7 @@ describe('rates selectors', () => {
   it('selects tor data', async () => {
     expect(selectors.tor(store.getState())).toMatchSnapshot()
   })
+  it('selects torEnabled', async () => {
+    expect(selectors.torEnabled(store.getState())).toMatchSnapshot()
+  })
 })
