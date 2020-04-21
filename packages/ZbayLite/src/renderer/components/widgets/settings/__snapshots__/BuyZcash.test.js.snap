@@ -1618,12 +1618,35 @@ exports[`BuyZcash renders component 1`] = `
       <li
         className="spacing24-mock"
       >
-        Zbay is experimental, so don't store too much money in it (say, no more than the cost of a nice dinner.)
+        Zbay is experimental, so don't store any amount of funds you would not want to lose.
       </li>
       <li
         className="spacing24-mock"
       >
-        If your computer is broken, lost, or stolen and you don't have a full backup (like [Backblaze] or [Time Machine] on Mac) you will lose your Zbay account, your direct messages, and your funds. The best way to keep your funds and account safe is to make a secure backup of your computer, either offline (with Time Machine on Mac) or with a key you control (you can do this with Backblaze).
+        If your computer is broken, lost, or stolen and you don't have a full backup, you will lose your Zbay account, your direct messages, and your funds.
+      </li>
+      <li
+        className="spacing24-mock"
+      >
+        The best way to keep your funds and account safe is to make frequent secure backups of your entire computer, either offline using a tool like
+         
+        <a
+          className="link-mock"
+          href="https://support.apple.com/en-us/HT201250"
+          onClick={[Function]}
+        >
+          Time Machine
+        </a>
+         (Mac) or online with a key you control, using a service like
+         
+        <a
+          className="link-mock"
+          href="https://www.backblaze.com/"
+          onClick={[Function]}
+        >
+          Backblaze
+        </a>
+        .
       </li>
     </ul>
   </WithStyles(ForwardRef(Grid))>

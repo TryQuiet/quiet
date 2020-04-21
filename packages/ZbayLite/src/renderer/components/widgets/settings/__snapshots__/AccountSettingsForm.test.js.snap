@@ -32,7 +32,7 @@ exports[`AccountSettingsForm renders component 1`] = `
         <WithStyles(ForwardRef(Typography))
           variant="h4"
         >
-          Create a username
+          Register a username
         </WithStyles(ForwardRef(Typography))>
       </WithStyles(ForwardRef(Grid))>
       <WithStyles(ForwardRef(Grid))
@@ -50,7 +50,7 @@ exports[`AccountSettingsForm renders component 1`] = `
             className="info-mock"
             variant="body2"
           >
-            You need this to send and receive direct messages.
+            Want to register a username? (This is entirely optional.)
           </WithStyles(ForwardRef(Typography))>
         </WithStyles(ForwardRef(Grid))>
         <WithStyles(ForwardRef(Grid))
@@ -75,19 +75,10 @@ exports[`AccountSettingsForm renders component 1`] = `
           onClick={[Function]}
           variant="body2"
         >
-          Create username
+          Register username
         </WithStyles(ForwardRef(Typography))>
       </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
-  <Formik
-    enableReinitialize={false}
-    isInitialValid={false}
-    onSubmit={[MockFunction]}
-    validateOnBlur={true}
-    validateOnChange={true}
-  >
-    <Component />
-  </Formik>
 </WithStyles(ForwardRef(Grid))>
 `;

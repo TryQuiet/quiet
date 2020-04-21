@@ -9,14 +9,14 @@ module.exports = [
   {
     slideId: 1,
     title: 'Why Zbay is magical',
-    sentences: ['On Zbay, your privacy and freedom do not depend on the promises of any company or organization.', 'Unlike Facebook, Twitter, Slack or even Signal, Zbay does not trust or depend on code run by someone else.', 'Zbay is “peer-to-peer” software, so there’s no big business lurking in the background, hoarding your data, and no central server for spy agencies to subpoena or hack.'
+    sentences: ['On Zbay, your privacy and freedom do not depend on the promises of any company or organization.', 'Unlike Facebook, Twitter, Slack or even Signal, Zbay does not trust or depend on code run by someone else.', 'Zbay is “peer-to-peer” software, so there’s no big business lurking in the background, hoarding your data, and no central server for spy agencies to subpoena, seize, or hack.'
     ],
     fileName: './crystal-ball.svg'
   },
   {
     slideId: 2,
     title: 'Zbay can\'t be evil.',
-    sentences: [' Zbay is free and open source software, so independent researchers will be able to verify that Zbay does what it claims.',
+    sentences: ['Zbay is free and open source software, so independent researchers will be able to verify that Zbay does what it claims.',
       'Only you control the cryptographic keys to read your private messages.', 'If Zbay changes in an annoying or unethical way, any developer in the world can change Zbay’s code and publish a better version—and you could easily move your username, data, and messages to that new version.'
     ],
     fileName: './open-source.svg'
@@ -44,7 +44,7 @@ module.exports = [
     title: 'Registering a username',
     sentences: ['As soon as Zbay finishes downloading data, you can register a username.',
       'This username gets engraved in the Zcash blockchain. It is forever yours and nobody can take it away.',
-      'Cryptography ensures that no one can impersonate you or read your private messages. Hosting avatar photos is tricky, so instead we give every user their own mathematically-generated avatar. '
+      'Cryptography ensures that no one can impersonate you or read your private messages. Saving avatar photos to the Zcash network is impractical, so instead we give every user their own mathematically-generated avatar. '
     ],
     fileName: './hello.svg'
   },
@@ -60,8 +60,8 @@ module.exports = [
     slideId: 7,
     title: 'Sending & receiving messages',
     sentences: ['Every direct message you send is encrypted so that only the recipient can read it.',
-      'Unfortunately, messages can\'t be deleted, but deletion is tricky. Some apps with "disappearing" messages don\'t really delete them from servers, and it can be difficult for non-experts to *really* delete something.',
-      'According to Edward Snowden, encryption under your control offers more reliable privacy protection than trusting deletion.'
+      'Unfortunately, messages can\'t be deleted, but deletion is not always what it seems. Some apps with "disappearing" messages don\'t really delete them from servers, and computers often leave traces of deleted files that can be restored later.',
+      'Encryption under your control offers more reliable privacy protection than trusting deletion.'
     ],
     fileName: './messages.svg'
   },

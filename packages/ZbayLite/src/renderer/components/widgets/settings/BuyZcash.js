@@ -285,16 +285,42 @@ export const BuyZcash = ({ classes }) => {
             go up or down.
           </li>
           <li className={classes.spacing24}>
-            Zbay is experimental, so don't store too much money in it (say, no
-            more than the cost of a nice dinner.)
+            Zbay is experimental, so don't store any amount of funds you would not want to lose.
           </li>
           <li className={classes.spacing24}>
             If your computer is broken, lost, or stolen and you don't have a
-            full backup (like [Backblaze] or [Time Machine] on Mac) you will
-            lose your Zbay account, your direct messages, and your funds. The
-            best way to keep your funds and account safe is to make a secure
-            backup of your computer, either offline (with Time Machine on Mac)
-            or with a key you control (you can do this with Backblaze).
+            full backup, you will
+            lose your Zbay account, your direct messages, and your funds.
+          </li>
+          <li className={classes.spacing24}>
+            The
+            best way to keep your funds and account safe is to make frequent secure
+            backups of your entire computer, either offline using a tool like{' '}
+            <a
+              className={classes.link}
+              onClick={e => {
+                e.preventDefault()
+                shell.openExternal(
+                  'https://support.apple.com/en-us/HT201250'
+                )
+              }}
+              href='https://support.apple.com/en-us/HT201250'
+            >
+            Time Machine
+            </a> (Mac)
+            or online with a key you control, using a service like{' '}
+            <a
+              className={classes.link}
+              onClick={e => {
+                e.preventDefault()
+                shell.openExternal(
+                  'https://www.backblaze.com/'
+                )
+              }}
+              href='https://www.backblaze.com/'
+            >
+            Backblaze
+            </a>.
           </li>
         </ul>
       </Grid>

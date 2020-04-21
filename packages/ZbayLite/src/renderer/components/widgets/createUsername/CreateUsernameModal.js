@@ -194,11 +194,11 @@ export const CreateUsernameModal = ({
         {!formSent ? (
           <React.Fragment>
             <Grid className={classes.title} item>
-              <Typography variant={'h3'}>Create username</Typography>
+              <Typography variant={'h3'}>Register a username</Typography>
             </Grid>
             <Grid className={classes.description} item>
               <Typography variant={'body2'}>
-                {`Welcome! You will need a username to send and receive direct messages. Zbay may soon charge a fee for this, but it's (almost) free for now, and we've already provided the funds you need. Your username will last forever, so choose it well...`}
+                {`Zbay may soon charge a fee for this, but it's (almost) free for now, and we've already provided the funds you need. Your username will last forever, so choose it well...`}
               </Typography>
             </Grid>
             <Formik

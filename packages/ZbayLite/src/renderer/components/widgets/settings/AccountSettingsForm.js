@@ -1,15 +1,9 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import * as Yup from 'yup'
-import { Formik, Form } from 'formik'
-import { CopyToClipboard } from 'react-copy-to-clipboard'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
-import InputAdornment from '@material-ui/core/InputAdornment'
-import MuiTextField from '@material-ui/core/TextField'
-import IconButton from '@material-ui/core/IconButton'
 import { withStyles } from '@material-ui/core/styles'
-import CopyIcon from '../../../../renderer/static/images/copylink.svg'
 
 import Icon from '../../ui/Icon'
 import usernameIcon from '../../../static/images/username.svg'
@@ -115,7 +109,7 @@ export const AccountSettingsForm = ({
           ) : (
             <>
               <Grid item xs={12}>
-                <Typography variant={'h4'}>Create a username</Typography>
+                <Typography variant={'h4'}>Register a username</Typography>
               </Grid>
               <Grid
                 container
@@ -126,7 +120,7 @@ export const AccountSettingsForm = ({
               >
                 <Grid item xs={10}>
                   <Typography className={classes.info} variant={'body2'}>
-                    You need this to send and receive direct messages.
+                    Want to register a username? (This is entirely optional.)
                   </Typography>
                 </Grid>
                 <Grid container item xs={2} direction='row' justify='flex-end'>
@@ -139,102 +133,13 @@ export const AccountSettingsForm = ({
                   onClick={() => openCreateUsernameModal(openModal, closeModal)}
                   variant={'body2'}
                 >
-                  Create username
+                  Register username
                 </Typography>
               </Grid>
             </>
           )}
         </Grid>
       </Grid>
-      <Formik onSubmit={handleSubmit}>
-        {({ values, isSubmitting, isValid }) => (
-          <Form className={classes.fullWidth}>
-            <Grid container className={classes.container}>
-              <Grid item xs={12} className={classes.addressDiv}>
-                <Typography variant='body2'>Private address</Typography>
-                <MuiTextField
-                  id='private-address'
-                  className={classes.textField}
-                  variant='outlined'
-                  type='text'
-                  value={privateAddress}
-                  disabled
-                  classes={{ root: classes.textField }}
-                  InputProps={{
-                    classes: {
-                      input: classes.copyInput,
-                      adornedEnd: classes.adornedEnd
-                    },
-                    endAdornment: (
-                      <Grid
-                        item
-                        container
-                        justify={'center'}
-                        alignItems={'center'}
-                        className={classes.iconBox}
-                      >
-                        <InputAdornment
-                          position='end'
-                          className={classes.iconBackground}
-                        >
-                          <CopyToClipboard
-                            text={privateAddress}
-                            onCopy={handleCopy}
-                          >
-                            <IconButton>
-                              <Icon src={CopyIcon} />
-                            </IconButton>
-                          </CopyToClipboard>
-                        </InputAdornment>
-                      </Grid>
-                    )
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} className={classes.addressDiv}>
-                <Typography variant='body2'>Transparent address</Typography>
-                <MuiTextField
-                  id='transparent-address'
-                  className={classes.textField}
-                  variant='outlined'
-                  type='text'
-                  value={transparentAddress}
-                  disabled
-                  InputProps={{
-                    classes: {
-                      input: classes.copyInput,
-                      adornedEnd: classes.adornedEnd
-                    },
-                    endAdornment: (
-                      <Grid
-                        item
-                        container
-                        justify={'center'}
-                        alignItems={'center'}
-                        className={classes.iconBox}
-                      >
-                        <InputAdornment
-                          position='end'
-                          className={classes.iconBackground}
-                        >
-                          <CopyToClipboard
-                            text={transparentAddress}
-                            onCopy={handleCopy}
-                          >
-                            <IconButton>
-                              <Icon src={CopyIcon} />
-                            </IconButton>
-                          </CopyToClipboard>
-                        </InputAdornment>
-                      </Grid>
-                    )
-                  }}
-                />
-              </Grid>
-            </Grid>
-          </Form>
-        )}
-      </Formik>
     </Grid>
   )
 }
