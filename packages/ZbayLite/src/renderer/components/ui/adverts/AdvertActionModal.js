@@ -14,7 +14,8 @@ import Jdenticon from 'react-jdenticon'
 import { getTimeFormat } from '../../widgets/channels/BasicMessage'
 import Modal from '../Modal'
 
-const reqSvgs = require && require.context('../assets/backgrounds', true, /\.svg$/)
+const reqSvgs =
+  require && require.context('../assets/backgrounds', true, /\.svg$/)
 
 const sendFounds = (handleClose, onSendFoundsAction, payload) => {
   handleClose()
@@ -66,7 +67,8 @@ const styles = theme => ({
   description: {
     letterSpacing: 0.4,
     lineHeight: '18px',
-    color: theme.palette.colors.darkGray
+    color: theme.palette.colors.darkGray,
+    wordBreak: 'break-word'
   },
   priceUsd: {
     color: theme.palette.colors.trueBlack,
@@ -211,7 +213,10 @@ export const AdvertActionModal = ({
         <Grid item xs>
           <AutoSizer>
             {({ width, height }) => (
-              <Scrollbars autoHideTimeout={500} style={{ width: width, height: height }}>
+              <Scrollbars
+                autoHideTimeout={500}
+                style={{ width: width, height: height }}
+              >
                 <Grid
                   container
                   dirention={'column'}
@@ -222,7 +227,11 @@ export const AdvertActionModal = ({
                   <Grid
                     container
                     className={classes.backgroundImage}
-                    style={{ background: `url(${reqSvgs(reqSvgs.keys()[payload.background])})` }}
+                    style={{
+                      background: `url(${reqSvgs(
+                        reqSvgs.keys()[payload.background]
+                      )})`
+                    }}
                     item
                     justify={'center'}
                     alignItems={'center'}
@@ -246,14 +255,25 @@ export const AdvertActionModal = ({
                       {payload.title}
                     </Typography>
                   </Grid>
-                  <Grid container direction='column' className={classes.descriptionContainer} item>
+                  <Grid
+                    container
+                    direction='column'
+                    className={classes.descriptionContainer}
+                    item
+                  >
                     <Grid item>
-                      <Typography variant={'caption'} className={classes.description}>
+                      <Typography
+                        variant={'caption'}
+                        className={classes.description}
+                      >
                         {payload.description}
                       </Typography>
                     </Grid>
                     <Grid item>
-                      <Typography variant={'caption'} className={classes.description}>
+                      <Typography
+                        variant={'caption'}
+                        className={classes.description}
+                      >
                         {`Posted: ${timeString}`}
                       </Typography>
                     </Grid>
@@ -283,7 +303,10 @@ export const AdvertActionModal = ({
                   </Typography>
                 </Grid>
                 <Grid item>
-                  <Typography variant={'caption'} className={classes.priceZcash}>
+                  <Typography
+                    variant={'caption'}
+                    className={classes.priceZcash}
+                  >
                     ({`${payload.priceZcash} ZEC`})
                   </Typography>
                 </Grid>
@@ -293,7 +316,9 @@ export const AdvertActionModal = ({
               <Button
                 variant='text'
                 className={classes.buyButton}
-                onClick={() => sendFounds(handleClose, onSendFoundsAction, payload)}
+                onClick={() =>
+                  sendFounds(handleClose, onSendFoundsAction, payload)
+                }
               >
                 Buy
               </Button>
@@ -337,7 +362,4 @@ AdvertActionModal.defaultProps = {
   }
 }
 
-export default R.compose(
-  React.memo,
-  withStyles(styles)
-)(AdvertActionModal)
+export default R.compose(React.memo, withStyles(styles))(AdvertActionModal)
