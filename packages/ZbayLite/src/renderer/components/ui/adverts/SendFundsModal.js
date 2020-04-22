@@ -296,7 +296,7 @@ export const SendFundsModal = ({
                       className={classes.nickname}
                       variant={'subtitle1'}
                     >
-                      {payload.offerOwner}
+                      {payload.offerOwner.substring(0, 20)}
                     </Typography>
                   </Grid>
                   <Grid item>
