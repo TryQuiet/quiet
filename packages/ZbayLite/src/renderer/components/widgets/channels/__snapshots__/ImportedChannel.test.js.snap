@@ -33,30 +33,6 @@ exports[`ImportedChannel renders private channel 1`] = `
           fontSize="inherit"
         />
       </WithStyles(ForwardRef(Grid))>
-      <Memo(Elipsis)
-        classes={
-          Object {
-            "content": "uri-mock",
-          }
-        }
-        content="testaddress"
-        tooltipPlacement="bottom-start"
-      />
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      item={true}
-    >
-      <WithStyles(ForwardRef(Typography))
-        variant="subtitle1"
-      >
-        About
-      </WithStyles(ForwardRef(Typography))>
-      <WithStyles(ForwardRef(Typography))
-        className="about-mock"
-        variant="body2"
-      >
-        This is a description of the test channel
-      </WithStyles(ForwardRef(Typography))>
     </WithStyles(ForwardRef(Grid))>
     <WithStyles(ForwardRef(Grid))
       className="actions-mock"
@@ -126,30 +102,6 @@ exports[`ImportedChannel renders public channel 1`] = `
           Test channel
         </WithStyles(ForwardRef(Typography))>
       </WithStyles(ForwardRef(Grid))>
-      <Memo(Elipsis)
-        classes={
-          Object {
-            "content": "uri-mock",
-          }
-        }
-        content="testaddress"
-        tooltipPlacement="bottom-start"
-      />
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      item={true}
-    >
-      <WithStyles(ForwardRef(Typography))
-        variant="subtitle1"
-      >
-        About
-      </WithStyles(ForwardRef(Typography))>
-      <WithStyles(ForwardRef(Typography))
-        className="about-mock"
-        variant="body2"
-      >
-        This is a description of the test channel
-      </WithStyles(ForwardRef(Typography))>
     </WithStyles(ForwardRef(Grid))>
     <WithStyles(ForwardRef(Grid))
       className="actions-mock"

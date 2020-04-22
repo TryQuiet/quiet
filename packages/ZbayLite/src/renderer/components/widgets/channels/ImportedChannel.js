@@ -10,7 +10,6 @@ import { withStyles } from '@material-ui/core/styles'
 import HttpsIcon from '@material-ui/icons/HttpsOutlined'
 
 import Modal from '../../ui/Modal'
-import Elipsis from '../../ui/Elipsis'
 import Spinner from '../../ui/SpinnerLoader'
 const styles = theme => ({
   root: {
@@ -66,17 +65,6 @@ export const ImportedChannel = ({
                 <HttpsIcon fontSize='inherit' className={classes.privacy} />
               ) : null}
             </Grid>
-            <Elipsis
-              content={channel.get('address')}
-              tooltipPlacement='bottom-start'
-              classes={{ content: classes.uri }}
-            />
-          </Grid>
-          <Grid item>
-            <Typography variant='subtitle1'>About</Typography>
-            <Typography variant='body2' className={classes.about}>
-              {channel.get('description')}
-            </Typography>
           </Grid>
           <Grid item container spacing={2} justify='flex-end' className={classes.actions}>
             <Grid item>

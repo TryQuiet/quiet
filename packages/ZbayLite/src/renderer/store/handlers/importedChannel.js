@@ -132,8 +132,13 @@ const decodeChannelEpic = uri => async (dispatch, getState) => {
   dispatch(setDecoding(true))
   try {
     const channel = await uriToChannel(uri)
+    const imported = await getClient().keys.importIVK({
+      ivk: channel.keys.ivk,
+      rescan: 'no',
+      startHeight: 0
+    })
     const allChannels = channelsSelectors.data(getState())
-    if (allChannels.find(ch => ch.get('address') === channel.address)) {
+    if (allChannels.find(ch => ch.get('address') === imported.address)) {
       dispatch(
         notificationsHandlers.actions.enqueueSnackbar(
           errorNotification({ message: `You already imported this channel` })
@@ -141,11 +146,12 @@ const decodeChannelEpic = uri => async (dispatch, getState) => {
       )
       dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Channel already imported ${channel.address}` }))
     } else {
-      dispatch(setData(channel))
+      dispatch(setData({ ...channel, address: imported.address }))
       const openModal = modalsHandlers.actionCreators.openModal('importChannelModal')
       dispatch(openModal())
     }
   } catch (err) {
+    console.log('Error while decoding channel')
     dispatch(setDecodingError(err))
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar(

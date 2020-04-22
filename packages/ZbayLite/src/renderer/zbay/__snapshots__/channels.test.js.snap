@@ -2,17 +2,13 @@
 
 exports[`channels - uriToChannel decodes the channel 1`] = `
 Object {
-  "address": "zsaplingaddresstest",
-  "description": "A simple description for the channel",
   "keys": Object {
     "ivk": "testivk",
-    "sk": "testsk",
   },
   "name": "Philosophy",
-  "private": true,
 }
 `;
 
-exports[`channels - uriToChannel fails on incorrect channel format 1`] = `[Error: Incorrect export format for eJyrVspOrVSyUipLzClNVaoFAChMBSE=: ValidationError: address is a required field]`;
+exports[`channels - uriToChannel fails on incorrect channel format 1`] = `[Error: Incorrect export format for eJyrVspOrVSyUipLzClNVaoFAChMBSE=: ValidationError: ivk is a required field]`;
 
 exports[`channels - uriToChannel fails on incorrect uri 1`] = `[Error: Invalid channel hash: randomhash]`;

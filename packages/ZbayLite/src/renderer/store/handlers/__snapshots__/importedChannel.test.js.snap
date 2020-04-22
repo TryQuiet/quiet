@@ -2,12 +2,11 @@
 
 exports[`Imported channel reducer handles actions handles setData 1`] = `
 Immutable.Map {
-  "name": "General",
-  "address": "ztestsapling16e4wekqjyx80yjjzf24ztyflt2c5tt6avt4nftgnj694n8e5x8fz5pr9ejsd3l9lmymf29khjnk",
-  "description": "This is a general channel available to all users of Zbay by default.",
+  "name": "general",
   "keys": Immutable.Map {
-    "ivk": "zivktestsapling1p5rp2czztl8amalqm5ghzvhr35n08h26vhphnw2x6k83trft7sqsn9qkd6",
+    "ivk": "zxviews1qwk53xxqqgqqpqrdhg8mw8xdprc9gd6lfpddgyaz9x5575cxeyk53efx02n0swpa3rhxms8zxvj62z2and8thzfe3qyl3k7qgpk45glak450zsyn70tq5z367nj972mzkutdxaclwd59jnsq0w8q59aks6rju9s2vgu7y9qcleq76pluemthwknl44c2anzj4zj0fpqufh6fezcfl8lppvxmzee3fg53gfhwyd0y735gxuhwhxn6q5eyvncye9fcldwzpf7twzjrnwgk6eumj",
   },
+  "address": "address123",
 }
 `;
 
@@ -15,12 +14,11 @@ exports[`Imported channel reducer handles actions handles setDecodingError 1`] =
 
 exports[`Imported channel reducer handles epics decodeChannel decodes uri 1`] = `
 Immutable.Map {
-  "name": "General",
-  "address": "ztestsapling16e4wekqjyx80yjjzf24ztyflt2c5tt6avt4nftgnj694n8e5x8fz5pr9ejsd3l9lmymf29khjnk",
-  "description": "This is a general channel available to all users of Zbay by default.",
+  "name": "general",
   "keys": Immutable.Map {
-    "ivk": "zivktestsapling1p5rp2czztl8amalqm5ghzvhr35n08h26vhphnw2x6k83trft7sqsn9qkd6",
+    "ivk": "zxviews1qwk53xxqqgqqpqrdhg8mw8xdprc9gd6lfpddgyaz9x5575cxeyk53efx02n0swpa3rhxms8zxvj62z2and8thzfe3qyl3k7qgpk45glak450zsyn70tq5z367nj972mzkutdxaclwd59jnsq0w8q59aks6rju9s2vgu7y9qcleq76pluemthwknl44c2anzj4zj0fpqufh6fezcfl8lppvxmzee3fg53gfhwyd0y735gxuhwhxn6q5eyvncye9fcldwzpf7twzjrnwgk6eumj",
   },
+  "address": "testaddress",
 }
 `;
 
@@ -54,7 +52,7 @@ Immutable.List [
     "options": Immutable.Map {
       "variant": "success",
     },
-    "message": "Successfully imported channel General",
+    "message": "Successfully imported channel general",
   },
 ]
 `;
@@ -63,17 +61,17 @@ exports[`Imported channel reducer handles epics importChannel reloads channels 1
 Immutable.List [
   Immutable.Map {
     "private": true,
-    "name": "General",
+    "name": "general",
     "onlyRegistered": false,
     "unread": 0,
     "lastSeen": "2019-03-07T13:03:48.000Z",
     "advertFee": 0,
     "keys": Immutable.Map {
-      "ivk": "zivktestsapling1p5rp2czztl8amalqm5ghzvhr35n08h26vhphnw2x6k83trft7sqsn9qkd6",
+      "ivk": "zxviews1qwk53xxqqgqqpqrdhg8mw8xdprc9gd6lfpddgyaz9x5575cxeyk53efx02n0swpa3rhxms8zxvj62z2and8thzfe3qyl3k7qgpk45glak450zsyn70tq5z367nj972mzkutdxaclwd59jnsq0w8q59aks6rju9s2vgu7y9qcleq76pluemthwknl44c2anzj4zj0fpqufh6fezcfl8lppvxmzee3fg53gfhwyd0y735gxuhwhxn6q5eyvncye9fcldwzpf7twzjrnwgk6eumj",
     },
-    "address": "ztestsapling16e4wekqjyx80yjjzf24ztyflt2c5tt6avt4nftgnj694n8e5x8fz5pr9ejsd3l9lmymf29khjnk",
+    "address": "testaddress",
     "showInfoMsg": true,
-    "description": "This is a general channel available to all users of Zbay by default.",
+    "description": "",
   },
 ]
 `;
@@ -83,12 +81,11 @@ Array [
   Array [
     "this-is-a-test-identity-id",
     Object {
-      "address": "ztestsapling16e4wekqjyx80yjjzf24ztyflt2c5tt6avt4nftgnj694n8e5x8fz5pr9ejsd3l9lmymf29khjnk",
-      "description": "This is a general channel available to all users of Zbay by default.",
+      "address": "testaddress",
       "keys": Object {
-        "ivk": "zivktestsapling1p5rp2czztl8amalqm5ghzvhr35n08h26vhphnw2x6k83trft7sqsn9qkd6",
+        "ivk": "zxviews1qwk53xxqqgqqpqrdhg8mw8xdprc9gd6lfpddgyaz9x5575cxeyk53efx02n0swpa3rhxms8zxvj62z2and8thzfe3qyl3k7qgpk45glak450zsyn70tq5z367nj972mzkutdxaclwd59jnsq0w8q59aks6rju9s2vgu7y9qcleq76pluemthwknl44c2anzj4zj0fpqufh6fezcfl8lppvxmzee3fg53gfhwyd0y735gxuhwhxn6q5eyvncye9fcldwzpf7twzjrnwgk6eumj",
       },
-      "name": "General",
+      "name": "general",
     },
   ],
 ]

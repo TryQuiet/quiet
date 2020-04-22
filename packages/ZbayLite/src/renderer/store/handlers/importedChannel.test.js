@@ -13,6 +13,7 @@ import channelsSelectors from '../selectors/channels'
 import notificationsSelectors from '../selectors/notifications'
 import { IdentityState, Identity } from './identity'
 import { getVault, mock } from '../../vault'
+import { getClient } from '../../zcash'
 import { createArchive } from '../../vault/marshalling'
 import { now } from '../../testUtils'
 import { NodeState } from './node'
@@ -54,12 +55,12 @@ describe('Imported channel reducer handles', () => {
     jest.clearAllMocks()
   })
 
-  const channelUri = `eJxNj0tuhDAQRK9ieR1FE36BXCAXyCq7BtoY3DRg9zBjj+bucZRNpJJKqkXVq4dmWFF/6E9k9ED6RcM4egwhZ0kwSICdZp7eGqxu6I4l3ttLXJZkiipJNCTFUIs0cErFRiZemq7iFut7a1K9+w6XMJbU0RpXU3TOLuzyyIhh8PMu88Z56MvOQWWBmv4w1GCBGUnBCTNBT6hkU0CkrgF9UJtR3z1E1Uc1ooEryWsudRgz9kPPp/ulz/b/wF77vRhSEmphBTrWerLptL6s+dLaojntbvlW3BvXluKNvIcjcHe4sdHP5w8SWGnS`
-
+  const channelUri = `eJwNjV1uhiAUBfficx+oCEh3Q+ACHyDhispP073Xl5NMMpnzu2R1wPKzOMhwqrR8LZ8nvjz784FWv7FFRntHdIgFT+PdfrS9m3Jq6QxPthjjhpqyMyaY7jBeH2wnaya1FUVP34+6v7nA17mqbPbLTwsUR6JRoCtxYy6pd8msIwtyIZuUixykWI8Z78t0pVMzTIZckbQdmVSx8jPcsq6Pu8WQqBOg4CXdcFy+xZy2Tb9nM2wzEFvwtp5bmNqmPZXy9GMCUOsYdda3YcgQlLl+++Z75shgPFkPkFYn02ax4moznLm5yOE+wvL3DzjjcxI=`
+  const address = 'address123'
   describe('actions', () => {
     it('handles setData', async () => {
       const channel = await uriToChannel(channelUri)
-      await store.dispatch(importedChannelHandlers.actions.setData(channel))
+      await store.dispatch(importedChannelHandlers.actions.setData({ ...channel, address: address }))
 
       const data = importedChannelSelectors.data(store.getState())
       expect(data).toMatchSnapshot()
@@ -81,7 +82,7 @@ describe('Imported channel reducer handles', () => {
 
     it('handles clear', async () => {
       const channel = await uriToChannel(channelUri)
-      await store.dispatch(importedChannelHandlers.actions.setData(channel))
+      await store.dispatch(importedChannelHandlers.actions.setData({ ...channel, address: address }))
       store.dispatch(importedChannelHandlers.actions.clear())
 
       const decoding = importedChannelSelectors.decoding(store.getState())
@@ -95,6 +96,11 @@ describe('Imported channel reducer handles', () => {
 
   describe('epics', () => {
     describe('importChannel', () => {
+      getClient.mockImplementation(() => ({
+        keys: {
+          importIVK: jest.fn(() => ({ address: 'testaddress' }))
+        }
+      }))
       it('saves channel in vault', async () => {
         const importChannelMock = jest.fn(() => Promise.resolve())
         getVault.mockImplementationOnce(() => ({

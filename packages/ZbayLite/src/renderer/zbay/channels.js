@@ -9,21 +9,15 @@ export const getChannelUrl = hash =>
 export const URI_PREFIX = `https://${DOMAIN}/importchannel=`
 export const ADDRESS_PREFIX = 'zbay://uri/'
 
-export const getZbayAddress = (zcashAddress) => `${ADDRESS_PREFIX}${zcashAddress}`
-export const getZbayChannelUri = (hash) => `${URI_PREFIX}${hash}`
+export const getZbayAddress = zcashAddress => `${ADDRESS_PREFIX}${zcashAddress}`
+export const getZbayChannelUri = hash => `${URI_PREFIX}${hash}`
 
 const channelSchema = Yup.object().shape({
   name: Yup.string().required(),
-  private: Yup.boolean(),
-  address: Yup.string().required(),
-  description: Yup.string(),
-  keys: Yup.object().shape({
-    ivk: Yup.string(),
-    sk: Yup.string()
-  }).required()
+  ivk: Yup.string().required()
 })
 
-const _inflateOrThrow = async (hash) => {
+const _inflateOrThrow = async hash => {
   try {
     const channel = await inflate(hash)
     return channel
@@ -32,25 +26,21 @@ const _inflateOrThrow = async (hash) => {
   }
 }
 
-export const uriToChannel = async (uri) => {
+export const uriToChannel = async uri => {
   const hash = uri
   const channel = await _inflateOrThrow(hash)
   try {
     const validated = await channelSchema.validate(channel)
-    return validated
+    return { name: validated.name, keys: { ivk: validated.ivk } }
   } catch (err) {
     throw new Error(`Incorrect export format for ${uri}: ${err}`)
   }
 }
 
-export const channelToUri = async (channel) => {
+export const channelToUri = async channel => {
   const exportable = {
     name: channel.name,
-    address: channel.address,
-    description: channel.description,
-    keys: {
-      ivk: channel.keys.ivk
-    }
+    ivk: channel.keys.ivk
   }
   const hash = await deflate(exportable)
   return getChannelUrl(hash)

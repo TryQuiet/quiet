@@ -5,13 +5,7 @@ describe('channels', () => {
   describe('- uriToChannel', () => {
     const channel = {
       name: 'Philosophy',
-      private: true,
-      address: 'zsaplingaddresstest',
-      description: 'A simple description for the channel',
-      keys: {
-        ivk: 'testivk',
-        sk: 'testsk'
-      }
+      ivk: 'testivk'
     }
 
     it('decodes the channel', async () => {
