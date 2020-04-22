@@ -7,7 +7,10 @@ import channelSelectors from '../../../store/selectors/channel'
 import channelsSelectors from '../../../store/selectors/channels'
 import dmQueueMessages from '../../../store/selectors/directMessagesQueue'
 import queueMessages from '../../../store/selectors/messagesQueue'
+import userSelector from '../../../store/selectors/users'
+import nodeSelector from '../../../store/selectors/node'
 import { messageType } from '../../../../shared/static'
+import channels from '../../../zcash/channels'
 
 export const mapStateToProps = (state, { signerPubKey }) => {
   const qMessages = queueMessages.queue(state)
@@ -19,7 +22,9 @@ export const mapStateToProps = (state, { signerPubKey }) => {
       channelsSelectors.channelById(channelSelectors.channelId(state))(state) ||
       Immutable.fromJS({ keys: {} }),
     messages: channelSelectors.messages(signerPubKey)(state),
-    channelId: channelSelectors.channelId(state)
+    channelId: channelSelectors.channelId(state),
+    users: userSelector.users(state),
+    network: nodeSelector.network(state)
   }
 }
 
@@ -30,7 +35,9 @@ export const ChannelMessages = ({
   channelId,
   contentRect,
   triggerScroll,
-  channelData
+  channelData,
+  users,
+  network
 }) => {
   const [scrollPosition, setScrollPosition] = React.useState(-1)
   useEffect(() => {
@@ -42,6 +49,10 @@ export const ChannelMessages = ({
     }
   }, [triggerScroll])
   const isOwner = !!channelData.get('keys').get('sk')
+  let usersRegistration = []
+  if (channelData.get('address') === channels.general[network].address) {
+    usersRegistration = Array.from(users.values())
+  }
   return (
     <ChannelMessagesComponent
       scrollPosition={scrollPosition}
@@ -54,6 +65,7 @@ export const ChannelMessages = ({
       contactId={contactId}
       contentRect={contentRect}
       isOwner={isOwner}
+      usersRegistration={usersRegistration}
     />
   )
 }
@@ -61,7 +73,9 @@ export const ChannelMessages = ({
 export default connect(mapStateToProps)(
   React.memo(ChannelMessages, (before, after) => {
     return (
-      Immutable.is(before.messages, after.messages) && before.tab === after.tab
+      Immutable.is(before.messages, after.messages) &&
+      before.tab === after.tab &&
+      Immutable.is(before.users, after.users)
     )
   })
 )

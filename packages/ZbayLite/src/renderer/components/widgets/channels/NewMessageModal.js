@@ -149,6 +149,7 @@ export const NewMessageModal = ({
                   variant='outlined'
                   placeholder={'Enter message (optional)'}
                   InputProps={{ className: classes.field }}
+                  disabled={false}
                 />
                 <Button
                   className={classes.button}

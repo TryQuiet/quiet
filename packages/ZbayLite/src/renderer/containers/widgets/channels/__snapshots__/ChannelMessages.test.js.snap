@@ -100,7 +100,9 @@ Object {
       "publicKey": null,
     },
   ],
+  "network": "testnet",
   "qMessages": Immutable.Map {},
   "triggerScroll": false,
+  "users": Immutable.Map {},
 }
 `;

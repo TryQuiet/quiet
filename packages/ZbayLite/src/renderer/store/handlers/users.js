@@ -35,7 +35,8 @@ const _UserData = Immutable.Record(
     firstName: '',
     lastName: '',
     nickname: '',
-    address: ''
+    address: '',
+    createdAt: 0
   },
   'UserData'
 )
@@ -65,14 +66,18 @@ export const ReceivedUser = values => {
         publicKey0,
         _UserData({
           ...values.message,
-          nickname: `${values.message.nickname} #${i}`
+          nickname: `${values.message.nickname} #${i}`,
+          createdAt: values.createdAt
         })
       )
     } else {
       usersNicknames.set(values.message.nickname, publicKey0)
     }
 
-    return record0.set(publicKey0, _UserData(values.message))
+    return record0.set(
+      publicKey0,
+      _UserData({ ...values.message, createdAt: values.createdAt })
+    )
   }
   return null
 }

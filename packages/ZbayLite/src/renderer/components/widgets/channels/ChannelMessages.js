@@ -1,10 +1,9 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import PropTypes from 'prop-types'
 import Immutable from 'immutable'
 import { Scrollbars } from 'react-custom-scrollbars'
 import { DateTime } from 'luxon'
 import * as R from 'ramda'
-
 import List from '@material-ui/core/List'
 import { withStyles } from '@material-ui/core/styles'
 
@@ -20,6 +19,9 @@ const styles = theme => ({
     backgroundColor: theme.palette.colors.white,
     padding: '0 4px',
     width: '100%'
+  },
+  bold: {
+    fontWeight: 'bold'
   }
 })
 
@@ -38,7 +40,8 @@ export const ChannelMessages = ({
   setScrollPosition,
   scrollPosition,
   contactId,
-  isOffer
+  isOffer,
+  usersRegistration
 }) => {
   const scrollbarRef = React.useRef()
   const getScrollbarRef = ref => {
@@ -78,8 +81,12 @@ export const ChannelMessages = ({
       DateTime.fromSeconds(msg.createdAt).toFormat('cccc, LLL d'),
       'cccc, LLL d'
     ).toSeconds()
-  })(messages.filter(msg => messagesTypesToDisplay.includes(msg.type)))
-
+  })(
+    messages
+      .filter(msg => messagesTypesToDisplay.includes(msg.type))
+      .concat(usersRegistration)
+      .sortBy(o => o.createdAt)
+  )
   return (
     <Scrollbars
       ref={getScrollbarRef}
@@ -109,12 +116,23 @@ export const ChannelMessages = ({
           )
             ? 'Today'
             : groupName
-
           return (
             <>
               <MessagesDivider title={displayTitle} />
               {args[1].map(msg => {
                 const MessageComponent = typeToMessageComponent[msg.type]
+                if (!msg.type) {
+                  return (
+                    <WelcomeMessage
+                      message={
+                        <Fragment>
+                          <span className={classes.bold}>{msg.nickname}</span>
+                          <span> just registered a username on zbay!</span>
+                        </Fragment>
+                      }
+                    />
+                  )
+                }
                 return (
                   <MessageComponent
                     key={msg.id}
@@ -141,6 +159,7 @@ const typeToMessageComponent = {
 
 ChannelMessages.propTypes = {
   classes: PropTypes.object.isRequired,
+  usersRegistration: PropTypes.array.isRequired,
   contactId: PropTypes.string,
   isOwner: PropTypes.bool.isRequired,
   isOffer: PropTypes.bool.isRequired,
@@ -154,6 +173,7 @@ ChannelMessages.propTypes = {
 
 ChannelMessages.defaultProps = {
   messages: [],
+  usersRegistration: [],
   isOwner: false,
   isOffer: false
 }
