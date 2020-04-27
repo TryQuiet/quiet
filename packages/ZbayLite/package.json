@@ -52,7 +52,7 @@
   },
   "homepage": "https://gitlab.rumblefishdev.com/holmes/zbay",
   "@comment version": "To build new version for specific platform, just replace platform in version tag to one of following linux, mac, windows",
-  "version": "1.0.48-dev-linux-18-2",
+  "version": "1.0.52-dev-linux-18-2",
   "description": "Distributed goods and bulletin board",
   "main": "dist/main.js",
   "scripts": {
@@ -61,7 +61,7 @@
     "distUbuntu16": "export SOURCE_PATH=linux/ubuntu16 && export TARGET_PATH=linux && npm run pullBinaries && npm run build:prod && electron-builder -p always --linux",
     "distUbuntu18": "export SOURCE_PATH=linux/ubuntu18 && export TARGET_PATH=linux && npm run pullBinaries && npm run build:prod && electron-builder --linux",
     "distUbuntu19": "export SOURCE_PATH=linux/ubuntu19 && export TARGET_PATH=linux && npm run pullBinaries && npm run build:prod && electron-builder --linux",
-    "distwin": "export SOURCE_PATH=win32 && export TARGET_PATH=win32 && npm run pullBinariesWin && npm run build:prod && electron-builder -p always --win",
+    "distwin": "export SOURCE_PATH=win32 && export TARGET_PATH=win32 && npm run pullBinariesWin && npm run build:prod && electron-builder --win",
     "pullResources": "./zcash/win32/zcash-fetch-params",
     "pullBinaries": "wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/zcashd -P ./zcash/$TARGET_PATH/ && wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/zcash-fetch-params -P ./zcash/$TARGET_PATH/",
     "pullBinariesWin": "wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/zcashd.exe -P ./zcash/$TARGET_PATH/ && wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/zcash-fetch-params -P ./zcash/$TARGET_PATH/",

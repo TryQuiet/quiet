@@ -1,0 +1,93 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BlockchainLocationModal renders component 1`] = `
+<Memo(WithStyles(Modal))
+  isCloseDisabled={true}
+  open={true}
+>
+  <WithStyles(ForwardRef(Grid))
+    alignContent="center"
+    className="root-mock"
+    container={true}
+    direction="column"
+    justify="center"
+  >
+    <WithStyles(ForwardRef(Grid))
+      container={true}
+      item={true}
+      justify="center"
+    >
+      <WithStyles(ForwardRef(Grid))
+        className="title-mock"
+        item={true}
+      >
+        <WithStyles(ForwardRef(Typography))
+          variant="h3"
+        >
+          Use existing Zcash install?
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      container={true}
+      item={true}
+      justify="center"
+    >
+      <WithStyles(ForwardRef(Grid))
+        item={true}
+      >
+        <WithStyles(ForwardRef(Typography))
+          className="text-mock"
+          variant="body2"
+        >
+          Oh awesome! It looks like you may have already installed Zcash. Zbay includes Zcash but we can use your existing Zcash instead -
+          <span
+            className="bold-mock"
+          >
+             IF it's a full node (not a light wallet) with default settings. 
+          </span>
+          Not sure? Use ours! It should sync quickly.
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      alignItems="flex-start"
+      container={true}
+      justify="center"
+    >
+      <WithStyles(ForwardRef(Grid))
+        container={true}
+        item={true}
+        justify="center"
+        xs={12}
+      >
+        <WithStyles(ForwardRef(Button))
+          className="button-mock"
+          color="primary"
+          fullWidth={true}
+          onClick={[Function]}
+          size="large"
+          type="submit"
+          variant="contained"
+        >
+          Install Zcash again (recommended)
+        </WithStyles(ForwardRef(Button))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
+        container={true}
+        item={true}
+        justify="center"
+        xs={12}
+      >
+        <WithStyles(ForwardRef(Typography))
+          className="link-mock"
+          onClick={[Function]}
+          variant="caption"
+        >
+          Use my existing Zcash install (advanced)
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+</Memo(WithStyles(Modal))>
+`;

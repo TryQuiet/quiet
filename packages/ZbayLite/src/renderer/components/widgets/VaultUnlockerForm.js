@@ -119,7 +119,7 @@ export const VaultUnlockerForm = ({
                 {vaultPassword ? 'Welcome Back' : 'Log In'}
               </Typography>
             </Grid>
-            {(!vaultPassword || (isDev && !exists)) && (
+            {((!vaultPassword && !isDev) || (isDev && exists && !vaultPassword)) && (
               <Grid container item justify='center'>
                 <PasswordField
                   name='password'

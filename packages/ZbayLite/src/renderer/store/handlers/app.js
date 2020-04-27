@@ -1,7 +1,9 @@
+import { ipcRenderer, remote } from 'electron'
 import Immutable from 'immutable'
 import { createAction, handleActions } from 'redux-actions'
-import { remote } from 'electron'
 import { actionTypes } from '../../../shared/static'
+import { actionCreators } from './modals'
+
 export const AppState = Immutable.Record(
   {
     version: null,
@@ -28,6 +30,15 @@ export const actions = {
   clearModalTab
 }
 
+export const askForBlockchainLocation = () => async (dispatch, getState) => {
+  dispatch(actionCreators.openModal('blockchainLocation')())
+}
+
+export const proceedWithSyncing = (payload) => async (dispatch, getState) => {
+  ipcRenderer.send('proceed-with-syncing', payload)
+  dispatch(actionCreators.closeModal('blockchainLocation')())
+}
+
 export const reducer = handleActions(
   {
     [loadVersion]: (state, { payload: version }) =>
@@ -42,7 +53,13 @@ export const reducer = handleActions(
   initialState
 )
 
+export const epics = {
+  askForBlockchainLocation,
+  proceedWithSyncing
+}
+
 export default {
+  epics,
   actions,
   reducer
 }

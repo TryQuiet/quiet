@@ -76,6 +76,7 @@ export const Modal = ({
   addBorder,
   isBold,
   alignCloseLeft,
+  isCloseDisabled,
   contentWidth
 }) => (
   <MaterialModal open={open} onClose={handleClose} className={classes.root}>
@@ -114,11 +115,12 @@ export const Modal = ({
               <IconButton onClick={() => setStep(step - 1)}>
                 <BackIcon />
               </IconButton>
-            ) : (
-              <IconButton onClick={handleClose}>
-                <ClearIcon />
-              </IconButton>
-            )}
+            ) : !isCloseDisabled &&
+              (
+                <IconButton onClick={handleClose}>
+                  <ClearIcon />
+                </IconButton>
+              )}
           </Grid>
         </Grid>
       </Grid>
@@ -142,6 +144,7 @@ Modal.propTypes = {
   contentWidth: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   setStep: PropTypes.func,
   canGoBack: PropTypes.bool,
+  isCloseDisabled: PropTypes.bool,
   children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.element), PropTypes.element])
     .isRequired
 }
@@ -151,7 +154,8 @@ Modal.defaultProps = {
   canGoBack: false,
   isBold: false,
   alignCloseLeft: false,
-  contentWidth: 600
+  contentWidth: 600,
+  isCloseDisabled: false
 }
 
 export default R.compose(

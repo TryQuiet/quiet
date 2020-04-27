@@ -74,7 +74,7 @@ export const VaultUnlockerForm = ({
     [loader.loading]
   )
 
-  useInterval(getStatus, 1000)
+  useInterval(getStatus, 5000)
   return (
     <VaultUnlockerFormComponent
       locked={locked}

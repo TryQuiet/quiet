@@ -6,6 +6,7 @@ import { ipcRenderer } from 'electron'
 import Root from './Root'
 import store from './store'
 import nodeHandlers from './store/handlers/node'
+import appHandlers from './store/handlers/app'
 import updateHandlers from './store/handlers/update'
 import invitationHandlers from './store/handlers/invitation'
 import importChannelHandlers from './store/handlers/importedChannel'
@@ -54,6 +55,10 @@ ipcRenderer.on('fetchingStatus', (event, { sizeLeft, part, status, speed, eta, r
 
 ipcRenderer.on('newUpdateAvailable', event => {
   store.dispatch(updateHandlers.epics.checkForUpdate())
+})
+
+ipcRenderer.on('askForUsingDefaultBlockchainLocation', event => {
+  store.dispatch(appHandlers.epics.askForBlockchainLocation())
 })
 
 ipcRenderer.on('checkDiskSpace', (event, msg) => {
