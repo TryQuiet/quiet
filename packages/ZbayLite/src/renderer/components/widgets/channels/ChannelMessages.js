@@ -76,17 +76,20 @@ export const ChannelMessages = ({
     tag = msg.message.tag
     username = msg.sender.username
   }
-  const groupedMessages = R.groupBy(msg => {
-    return DateTime.fromFormat(
-      DateTime.fromSeconds(msg.createdAt).toFormat('cccc, LLL d'),
-      'cccc, LLL d'
-    ).toSeconds()
-  })(
-    messages
-      .filter(msg => messagesTypesToDisplay.includes(msg.type))
-      .concat(usersRegistration)
-      .sortBy(o => o.createdAt)
-  )
+  let groupedMessages = []
+  if (messages.size !== 0) {
+    groupedMessages = R.groupBy(msg => {
+      return DateTime.fromFormat(
+        DateTime.fromSeconds(msg.createdAt).toFormat('cccc, LLL d'),
+        'cccc, LLL d'
+      ).toSeconds()
+    })(
+      messages
+        .filter(msg => messagesTypesToDisplay.includes(msg.type))
+        .concat(usersRegistration)
+        .sortBy(o => o.createdAt)
+    )
+  }
   return (
     <Scrollbars
       ref={getScrollbarRef}
@@ -172,7 +175,7 @@ ChannelMessages.propTypes = {
 }
 
 ChannelMessages.defaultProps = {
-  messages: [],
+  messages: Immutable.List(),
   usersRegistration: [],
   isOwner: false,
   isOffer: false
