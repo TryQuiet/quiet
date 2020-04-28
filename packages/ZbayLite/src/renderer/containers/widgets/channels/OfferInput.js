@@ -7,6 +7,7 @@ import channelHandlers from '../../../store/handlers/channel'
 import offersHandlers from '../../../store/handlers/offers'
 import channelSelectors from '../../../store/selectors/channel'
 import offersSelectors from '../../../store/selectors/offers'
+import ratesSelector from '../../../store/selectors/rates'
 import { MESSAGE_ITEM_SIZE } from '../../../zbay/transit'
 import usersSelectors from '../../../store/selectors/users'
 
@@ -14,7 +15,8 @@ export const mapStateToProps = (state, { offer }) => ({
   message: channelSelectors.message(state),
   inputState: channelSelectors.inputLocked(state),
   offerName: offersSelectors.offer(offer)(state).name,
-  users: usersSelectors.users(state)
+  users: usersSelectors.users(state),
+  feeUsd: ratesSelector.feeUsd(state)
 })
 
 export const mapDispatchToProps = dispatch => {
@@ -32,14 +34,14 @@ export const ChannelInput = ({
   message,
   inputState,
   offerName,
-  users
+  users,
+  feeUsd
 }) => {
   const [infoClass, setInfoClass] = React.useState(null)
   const [anchorEl, setAnchorEl] = React.useState({})
   const [mentionsToSelect, setMentionsToSelect] = React.useState([])
-
   const nameSplit = offerName.split('@')
-  const channelName = `@${nameSplit[nameSplit.length - 1]}`
+  const channelName = `@${nameSplit[nameSplit.length - 1]} - $${feeUsd}`
   return (
     <ChannelInputComponent
       infoClass={infoClass}

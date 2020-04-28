@@ -11,6 +11,7 @@ import usersSelectors from '../../../store/selectors/users'
 import identitySelectors from '../../../store/selectors/identity'
 import contactsSelectors from '../../../store/selectors/contacts'
 import { MESSAGE_SIZE } from '../../../zbay/transit'
+import ratesSelector from '../../../store/selectors/rates'
 
 export const mapStateToProps = (state, { contactId }) => ({
   message: channelSelectors.message(state),
@@ -20,7 +21,8 @@ export const mapStateToProps = (state, { contactId }) => ({
     ? channelSelectors.inputLocked(state)
     : INPUT_STATE.UNREGISTERED,
   channelName: contactsSelectors.contact(contactId)(state).username,
-  users: usersSelectors.users(state)
+  users: usersSelectors.users(state),
+  feeUsd: ratesSelector.feeUsd(state)
 })
 
 export const mapDispatchToProps = dispatch => {
@@ -41,7 +43,8 @@ export const ChannelInput = ({
   inputState,
   channelName,
   resetDebounce,
-  users
+  users,
+  feeUsd
 }) => {
   const [infoClass, setInfoClass] = React.useState(null)
   const [anchorEl, setAnchorEl] = React.useState({})
@@ -57,7 +60,7 @@ export const ChannelInput = ({
       onKeyPress={sendDirectMessageOnEnter}
       message={message}
       inputState={inputState}
-      channelName={`@${channelName}`}
+      channelName={`@${channelName} - $${feeUsd}`}
       messageLimit={MESSAGE_SIZE}
       anchorEl={anchorEl}
       setAnchorEl={setAnchorEl}

@@ -3,3 +3,5 @@
 exports[`rates selectors fetches rates for usd 1`] = `"232.11"`;
 
 exports[`rates selectors fetches rates for zec 1`] = `"132.343459"`;
+
+exports[`rates selectors selects feeUsd 1`] = `"0.0006"`;

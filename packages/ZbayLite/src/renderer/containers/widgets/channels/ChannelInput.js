@@ -9,6 +9,7 @@ import mentionsHandlers from '../../../store/handlers/mentions'
 import channelSelectors from '../../../store/selectors/channel'
 import usersSelectors from '../../../store/selectors/users'
 import { MESSAGE_SIZE } from '../../../zbay/transit'
+import ratesSelector from '../../../store/selectors/rates'
 
 export const mapStateToProps = state => {
   return {
@@ -18,7 +19,8 @@ export const mapStateToProps = state => {
     channelName: channelSelectors.data(state)
       ? channelSelectors.data(state).get('name')
       : ' Unnamed',
-    users: usersSelectors.users(state)
+    users: usersSelectors.users(state),
+    feeUsd: ratesSelector.feeUsd(state)
   }
 }
 
@@ -42,7 +44,8 @@ export const ChannelInput = ({
   resetDebounce,
   users,
   members,
-  checkMentions
+  checkMentions,
+  feeUsd
 }) => {
   const [infoClass, setInfoClass] = React.useState(null)
   const [anchorEl, setAnchorEl] = React.useState({})
@@ -62,7 +65,7 @@ export const ChannelInput = ({
       }}
       message={message}
       inputState={inputState}
-      channelName={`#${channelName}`}
+      channelName={`#${channelName} - $${feeUsd}`}
       messageLimit={MESSAGE_SIZE}
       anchorEl={anchorEl}
       setAnchorEl={setAnchorEl}

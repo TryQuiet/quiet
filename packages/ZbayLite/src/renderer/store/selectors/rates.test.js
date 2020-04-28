@@ -20,10 +20,10 @@ describe('rates selectors', () => {
     jest.clearAllMocks()
   })
 
-  each(['usd', 'zec']).test(
-    'fetches rates for %s',
-    (currency) => {
-      expect(selectors.rate(currency)(store.getState())).toMatchSnapshot()
-    }
-  )
+  each(['usd', 'zec']).test('fetches rates for %s', currency => {
+    expect(selectors.rate(currency)(store.getState())).toMatchSnapshot()
+  })
+  it('selects feeUsd', async () => {
+    expect(selectors.feeUsd(store.getState())).toMatchSnapshot()
+  })
 })
