@@ -99,33 +99,60 @@ export const Modal = ({
         direction='row'
         alignItems='center'
       >
-        <Grid item xs container direction={alignCloseLeft ? 'row-reverse' : 'row'} justify='center' alignItems='center'>
-          <Grid item xs={4} />
-          <Grid item xs={4}>
+        <Grid
+          item
+          xs
+          container
+          direction={alignCloseLeft ? 'row-reverse' : 'row'}
+          justify='center'
+          alignItems='center'
+        >
+          <Grid item xs>
             <Typography
               variant='subtitle1'
-              className={classNames({ [classes.title]: true, [classes.bold]: isBold })}
+              className={classNames({
+                [classes.title]: true,
+                [classes.bold]: isBold
+              })}
+              style={alignCloseLeft ? { marginRight: 36 } : { marginLeft: 36 }}
               align='center'
             >
               {title}
             </Typography>
           </Grid>
-          <Grid container item xs={4} justify={alignCloseLeft ? 'flex-start' : 'flex-end'} className={classes.actions}>
-            {canGoBack ? (
-              <IconButton onClick={() => setStep(step - 1)}>
-                <BackIcon />
-              </IconButton>
-            ) : !isCloseDisabled &&
-              (
+          <Grid item>
+            <Grid
+              container
+              item
+              justify={alignCloseLeft ? 'flex-start' : 'flex-end'}
+              className={classes.actions}
+            >
+              {canGoBack ? (
+                <IconButton onClick={() => setStep(step - 1)}>
+                  <BackIcon />
+                </IconButton>
+              ) : !isCloseDisabled && (
                 <IconButton onClick={handleClose}>
                   <ClearIcon />
                 </IconButton>
               )}
+            </Grid>
           </Grid>
         </Grid>
       </Grid>
-      <Grid container item direction={'row'} justify={'center'} className={classes.fullPage}>
-        <Grid container item className={classNames({ [classes.content]: true })} style={{ width: contentWidth }}>
+      <Grid
+        container
+        item
+        direction={'row'}
+        justify={'center'}
+        className={classes.fullPage}
+      >
+        <Grid
+          container
+          item
+          className={classNames({ [classes.content]: true })}
+          style={{ width: contentWidth }}
+        >
           {children}
         </Grid>
       </Grid>
@@ -158,7 +185,4 @@ Modal.defaultProps = {
   isCloseDisabled: false
 }
 
-export default R.compose(
-  React.memo,
-  withStyles(styles)
-)(Modal)
+export default R.compose(React.memo, withStyles(styles))(Modal)
