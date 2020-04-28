@@ -117,6 +117,52 @@ exports[`AddFunds renders component 1`] = `
     </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
+    item={true}
+  >
+    <WithStyles(ForwardRef(FormControlLabel))
+      control={
+        <ForwardRef(WithStyles)
+          checked={false}
+          checkedIcon={
+            <Memo
+              style={
+                Object {
+                  "fontSize": 20,
+                }
+              }
+            />
+          }
+          color="default"
+          icon={
+            <Memo
+              style={
+                Object {
+                  "fontSize": 20,
+                }
+              }
+            />
+          }
+          onChange={[Function]}
+          size="small"
+          style={
+            Object {
+              "height": 36,
+              "width": 36,
+            }
+          }
+        />
+      }
+      label={
+        <ForwardRef(WithStyles)
+          className="caption-mock"
+          variant="caption"
+        >
+          Donate 1% of my deposit to support Zbay development.
+        </ForwardRef(WithStyles)>
+      }
+    />
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
     className="spacing16-mock"
     item={true}
   >

@@ -15,6 +15,10 @@ import ExpandLessIcon from '@material-ui/icons/ExpandLess'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import CloseIcon from '@material-ui/icons/Close'
 import Dialog from '@material-ui/core/Dialog'
+import Checkbox from '@material-ui/core/Checkbox'
+import FormControlLabel from '@material-ui/core/FormControlLabel'
+import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank'
+import CheckBoxIcon from '@material-ui/icons/CheckBox'
 
 import Icon from '../../ui/Icon'
 import qrIcon from '../../../../renderer/static/images/qr.svg'
@@ -117,6 +121,9 @@ const styles = theme => ({
     '&:hover': {
       backgroundColor: theme.palette.colors.buttonGray
     }
+  },
+  checkbox: {
+    height: 10
   }
 })
 
@@ -126,7 +133,9 @@ export const AddFunds = ({
   transparentAddress,
   privateAddress,
   setCurrentTab,
-  clearCurrentOpenTab
+  clearCurrentOpenTab,
+  donationAllow,
+  updateDonation
 }) => {
   const [expanded, setExpanded] = React.useState(false)
   const [dialogOpen, setDialogOpen] = React.useState(false)
@@ -183,11 +192,10 @@ export const AddFunds = ({
           >
             Zcash
           </a>{' '}
-          cryptocurrency. Cryptocurrency addresses are like email addressess
-          or phone numbers, but for money. If you send money to the right
-          address, the recipient will receive it. Send to the wrong address and
-          you'll lose your money. Be sure to copy and paste the address
-          correctly!
+          cryptocurrency. Cryptocurrency addresses are like email addressess or
+          phone numbers, but for money. If you send money to the right address,
+          the recipient will receive it. Send to the wrong address and you'll
+          lose your money. Be sure to copy and paste the address correctly!
         </Typography>
       </Grid>
       <Grid item className={classes.spacing32}>
@@ -199,6 +207,28 @@ export const AddFunds = ({
         <Typography variant='caption' className={classes.caption}>
           Send Zcash to it, and Zbay will store the funds on your computer.
         </Typography>
+      </Grid>
+      <Grid item>
+        <FormControlLabel
+          control={
+            <Checkbox
+              style={{ width: 36, height: 36 }}
+              icon={<CheckBoxOutlineBlankIcon style={{ fontSize: 20 }} />}
+              checkedIcon={<CheckBoxIcon style={{ fontSize: 20 }} />}
+              checked={donationAllow === 'true'}
+              onChange={e => {
+                updateDonation(e.target.checked)
+              }}
+              color='default'
+              size='small'
+            />
+          }
+          label={
+            <Typography variant='caption' className={classes.caption}>
+              Donate 1% of my deposit to support Zbay development.
+            </Typography>
+          }
+        />
       </Grid>
       <Grid item className={classes.spacing16}>
         <Grid container>
