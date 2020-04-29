@@ -1,5 +1,5 @@
-import '../renderer/fonts/app.scss'
 import { createMuiTheme } from '@material-ui/core/styles'
+import '../renderer/fonts/app.scss'
 
 const font = "'Rubik', sans-serif"
 const fontLogs = 'Menlo Regular'
