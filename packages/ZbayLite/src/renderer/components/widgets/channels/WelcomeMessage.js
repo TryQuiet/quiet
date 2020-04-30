@@ -2,6 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import * as R from 'ramda'
+import { DateTime } from 'luxon'
 
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
@@ -11,7 +12,7 @@ import { withStyles } from '@material-ui/core/styles'
 
 import zbayLogo from '../../../static/images/zcash/zbay-square-logo.svg'
 import Icon from '../../ui/Icon'
-
+import { transformToLowercase } from './BasicMessage'
 const styles = theme => ({
   messageCard: {
     padding: 0
@@ -43,11 +44,20 @@ const styles = theme => ({
     width: 36,
     height: 36,
     borderRadius: 4
+  },
+  time: {
+    color: theme.palette.colors.lightGray,
+    fontSize: 14,
+    marginTop: -4,
+    marginRight: 5
   }
 })
 
-export const WelcomeMessage = ({ classes, message }) => {
+export const WelcomeMessage = ({ classes, message, timestamp }) => {
   const username = 'Zbay'
+  const time = transformToLowercase(
+    DateTime.fromSeconds(timestamp).toFormat('t')
+  )
   return (
     <ListItem
       className={classNames({
@@ -75,6 +85,11 @@ export const WelcomeMessage = ({ classes, message }) => {
                     {username}
                   </Typography>
                 </Grid>
+                {!!timestamp && (
+                  <Grid item>
+                    <Typography className={classes.time}>{time}</Typography>
+                  </Grid>
+                )}
               </Grid>
             </Grid>
           </Grid>
@@ -93,7 +108,11 @@ export const WelcomeMessage = ({ classes, message }) => {
 
 WelcomeMessage.propTypes = {
   classes: PropTypes.object.isRequired,
-  message: PropTypes.string.isRequired
+  message: PropTypes.string.isRequired,
+  timestamp: PropTypes.number
+}
+WelcomeMessage.defaultProps = {
+  timestamp: 0
 }
 
 export default R.compose(React.memo, withStyles(styles))(WelcomeMessage)
