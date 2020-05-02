@@ -205,7 +205,7 @@ export const AddFunds = ({
       </Grid>
       <Grid item>
         <Typography variant='caption' className={classes.caption}>
-          Send Zcash to it, and Zbay will store the funds on your computer.
+          Send Zcash to it, and Zbay will store the funds on your computer. 1% of each deposit goes to the Zbay team, supporting Zbay development.
         </Typography>
       </Grid>
       <Grid item>

@@ -113,7 +113,7 @@ exports[`AddFunds renders component 1`] = `
       className="caption-mock"
       variant="caption"
     >
-      Send Zcash to it, and Zbay will store the funds on your computer.
+      Send Zcash to it, and Zbay will store the funds on your computer. 1% of each deposit goes to the Zbay team, supporting Zbay development.
     </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))

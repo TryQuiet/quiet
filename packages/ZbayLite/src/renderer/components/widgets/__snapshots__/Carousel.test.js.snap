@@ -34,7 +34,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-       Welcome! Since Zbay is something new and different, an explanation is due...
+      Welcome to Zbay!
     </WithStyles(ForwardRef(Typography))>
   </div>
   <div
@@ -45,7 +45,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      The first question to answer is "What's taking so long?"
+      Downloading blockchain data takes some time.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -57,7 +57,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      It's actually a long and important story, but we have time!
+      Once that's complete, you'll be able to register a Zbay username.
     </WithStyles(ForwardRef(Typography))>
   </div>
   <div
@@ -68,7 +68,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      But first, let’s go over a few basics:
+      You can create private group chats and public, IRC-like channels.
     </WithStyles(ForwardRef(Typography))>
   </div>
   <div
@@ -79,7 +79,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      On Zbay you’ll be able to do things like:
+      You can also buy and sell things on Zbay using Zcash.
     </WithStyles(ForwardRef(Typography))>
   </div>
   <div
@@ -90,7 +90,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      Register a username. (@yourname on Zcash)
+      You can even earn money, by creating a vibrant channel and charging fees to sellers.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -102,7 +102,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      Send messages to others.
+      Zbay seeks to build a patch of online life that's controlled by the people of the Internet.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -114,7 +114,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      Register channel names that you and you alone will control.
+      Zbay is a peer-to-peer application that does not depend on central servers.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -126,7 +126,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      Advertise items for sale in private or public channels.
+      Zbay is also free and open source software.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -138,7 +138,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      Buy stuff from people you don't know (caveat emptor!)
+      Free software was first articulated in 1980 by an engineer at MIT.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -150,7 +150,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      Send money to friends, even friends who haven't joined yet.
+      Its articulation was a warning for humanity about a potential dystopian future. 
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -162,7 +162,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      You can even make money using Zbay…
+      That is, one where sofware companies' control over their users undermined values essential to a free society.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -174,7 +174,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      By promoting Zcash to friends or on the Internet.
+      In the view of free software's first proponents, the only way to prevent this dystopia was free software.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -186,7 +186,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      And earning a share of what they spend.
+      The original articulation of free software is clear, concrete and still relevant. 
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -198,7 +198,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      Okay, now let’s continue our explanation...
+      Free software guarantees the public (both users and developers) four freedoms: 
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -210,7 +210,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      Of why Zbay is so slow to get started. 
+      1. The freedom to run a program as we wish, for any purpose.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -222,7 +222,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      Here goes!
+      2. The freedom to understand how a program works, and change it how we wish.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -234,7 +234,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      When you first run Zbay, it downloads a large amount of data to "catch up" with the network.
+      3. The freedom to redistribute copies of a program, to help others.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -246,7 +246,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      Downloading this data can take days or more, depending on your Internet connection.
+      4. The freedom to redistribute our changes, so the wider community can benefit from our work.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -258,7 +258,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      It might also slow down your computer, or make your laptop heat up. (We're sorry!)
+      These freedoms can be granted in legal contracts, such as the GNU General Public License (GNU GPL).
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -270,7 +270,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      The good news is, it'll be done soon. You should only have to do this once.
+      The GNU GPL is politically ingenious and breathtakingly awesome for the world.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -282,7 +282,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      The next time you run Zbay, it might be slower than most apps, but it shouldn't take forever or slow down your computer.
+      The GNU GPL gives software engineers a legal, contractual way to grant users the four freedoms.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -294,7 +294,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      The next question to answer is, "Why?"
+      Anyone in the world can build on GNU GPL-licensed code.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -306,7 +306,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      Here's a hint. The answer starts with the letter "M"...
+      But developers can only use GNU GPL-licensed code if they also grant everyone the same four freedoms.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -318,7 +318,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      And ends in "Uckerberg."
+      Because Zbay is free software, experts can verify its privacy and security claims.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -330,7 +330,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      Did you guess it? Good!
+      The GNU GPL also means that if others build on Zbay, they must grant the same four freedoms.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -342,7 +342,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      In short, Zbay is slow because we're attempting something that hasn't been done before.
+      Free software like Zbay contains a powerful institutional guarantee:
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -354,7 +354,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      We want to build a patch of online life that's controlled by the people of the Internet.
+      If software makers start being evil, users can revolt, take the code, and build in a new direction.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -366,7 +366,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      Not by one rich man in California, like Facebook is.
+      If this happens (it's called a fork) the new developers will be subject to the same guarantee.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -378,7 +378,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      Or by a reprehensible dictatorship, like WeChat and TikTok are.
+      Because Zbay is peer-to-peer and free software, there is a powerful check on our power as software makers. 
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -390,7 +390,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      Or by a corporation legally bound to squeeze as much money from us as possible, like Google is.
+      Zbay builds on other free software, like Zcash, which in turn builds on Bitcoin.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -402,7 +402,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      Technically and institutionally speaking, this is hard to do. But it's not impossible.
+      Bitcoin was so incredible because it added trust, and money, to peer-to-peer networks.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -414,7 +414,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      To do it, Zbay builds on two technical/institutional building blocks: "free software" and "blockchain".
+      Bitcoin was revolutionary, but it was missing one important thing: privacy.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -426,7 +426,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      These technical/institutional building blocks are "free software" and "blockchain".
+      Unlike Zcash, Bitcoin transactions are visible to the entire world. This is often a problem!
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -438,7 +438,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      Spoiler: the second building block, "blockchain," is the part that's slow.
+      Zcash was born to address Bitcoin's lack of privacy, and Zbay builds on Zcash.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -450,7 +450,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      But the first building block, "free software," depends on it, which we'll explain in a moment.
+      Instead of connecting to a central server, like most apps would, Zbay connects to Zcash.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -462,7 +462,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      Our story starts in Cambridge, Massachusetts in 1980. (Like, back when all computers were this slow.)
+      Zcash itself is a network of people running the Zcash app on their own computers.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -474,7 +474,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      A bearded guy named Richard M. Stallman, annoyed by a broken printer, had a powerful revelation...
+      Every Zcash app (well, every full node) needs a record of every Zcash transaction ever made.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -486,7 +486,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      He realized that software makers had legal and technical power to control software users...
+      If you're reading this, Zbay is still downloading that giant record of Zcash transactions.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -498,7 +498,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      And that they could use this power in nefarious ways, to extort, spy, censor, or worse.
+      After Zbay has downloaded the Zcash blockchain for the first time, connecting will be much faster.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -510,7 +510,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      Stallman defined what he called the "four freedoms" to rally software engineers around a brighter future.
+      Zbay chose Zcash because it's one of the few blockchain networks that let us send messages privately.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -522,7 +522,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      The four freedoms were... (drumroll, please)
+      Zbay also built on Zcash because, in the future, Zcash aims to offer strong anonymity. 
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -534,7 +534,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      1. The freedom to run a program as you wish, for any purpose.
+      Zcash is a leading cryptocurrency too, so you can buy it on popular services like Coinbase.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -546,7 +546,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      2. The freedom to understand how a program works, and change it how you wish.
+      The Zcash founders are pioneers in building technology for online privacy.
 
     </WithStyles(ForwardRef(Typography))>
   </div>
@@ -558,1410 +558,7 @@ exports[`Carousel renders component 1`] = `
       className="typography-mock"
       variant="body1"
     >
-      3. The freedom to redistribute copies of a program, to help others.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="45"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      4. The freedom to redistribute your changes, so the wider community can benefit from your work.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="46"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      In 1989, Stallman wrote the GNU GPL, a software license that encoded the four freedoms into law.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="47"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      The GNU GPL was politically ingenious and breathtakingly awesome for the world.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="48"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      It gave software engineers a legal, contractual way to give their users all four freedoms...
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="49"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      ...Which meant that anyone in the world could build on their work.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="50"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      But only if they granted others the same freedoms...
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="51"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      And released it under a GPL-compatible license!
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="52"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Because of these clever rules, the body of code available under the GNU GPL grew like wildfire.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="53"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Stallman called software that respected your freedoms "Free Software".
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="54"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      And he called licenses like the GNU GPL "copyleft." (As opposed to "copyright." Nerd humor, sigh.)
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="55"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Free software became one of the most successful social movements in human history.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="56"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Right now nearly every company in the world uses free software.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="57"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      And an operating system built on free software (Android) powers 2.5 billion phones and tablets.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="58"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Computing isn't just for rich people anymore, and it's largely thanks to free software.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="59"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Free software also let heroes like Edward Snowden and journalist Laura Poitras communicate privately...
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="60"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      So they could successfully blow the whistle on the world's most powerful spy agencies.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="61"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Most of all, free software contains a powerful institutional guarantee:
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="62"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      If software makers start being evil its users can "fork".
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="63"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      That is, they can band together, take the code, and build in a new direction.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="64"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Zbay is free software. Anyone can fork us. That keeps us honest.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="65"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      And we love it.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="66"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      You might ask, "If free software is so great, why is the Internet run by a new class of robber baron?"
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="67"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Well, the free software movement had an important limitation.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="68"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Because of the freedoms it granted, companies could use GPL-licensed code however they chose...
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="69"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      And if they didn't *distribute* it, they didn't have to give their users the four freedoms...
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="70"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      And while selling an app was "distributing" software...,
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="71"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Using code to run a website (like Facebook.com, or Google.com) wasn't.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="72"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Copyleft licenses didn't have the same power over a website...,
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="73"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Precisely because free software gives so much freedom to its users.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="74"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Remember: the first freedom lets anyone (including you, and Facebook) use the software however they want.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="75"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Moreover, the idea of "having control" over software on a server run by someone else is an illusion.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="76"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Facebook is mostly running on Facebook's computers, not yours.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="77"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      If they were doing something evil with your data, how would you know? It's their computer.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="78"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      If you wanted to change something important, how would you? It's their computer.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="79"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      And if you wanted to change something in Facebook's code, why would others let you?
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="80"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      You could be an awful person. You could make the code do something awful. 
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="81"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Okay, we know *you're* not an awful person.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="82"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      But what about those other 7 billion people? Some of them are total psychos.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="83"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Control over Facebook's code is too much power, so Facebook users trust Zuckerberg. 
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="84"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Which suits him fine.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="85"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Stallman's "four freedoms" only made sense when our apps ran on *our* computers.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="86"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Once we started using websites like Facebook or Google Docs, those companies had freedom. Not us.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="87"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      We can't go back to the 90s and run apps we bought on floppy disks or CD-ROMS.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="88"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Humans are social beings. Our software will be social too.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="89"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      But until you could make a shared, global, social app that ran on *our own* computers...
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="90"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      One that you could trust to not be immediately ruined by psychos...
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="91"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Humanity's best tool for enforcing computing freedom and ethics, free software...
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="92"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      ...was stuck on the sidelines of the battlefield for freedom!
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="93"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      (Yes, that was a mixed metaphor, sorry.)
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="94"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Worse, building a social network that runs on everyone's computer is super hard.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="95"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Think about it. It's kind of a paradox.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="96"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      If everyone runs the app on their own computers, and it's free software...
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="97"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      That means everyone (including the psychos) could change the app to do whatever they want...
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="98"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      And basically ruin it for everyone.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="99"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      This paradox teased a good percentage of computer science grad students throughout the nineties and early 2000s.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="100"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      A) Because it was trippy. B) Because you might get famous if you solved it.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="101"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      And they came up with some cool ideas. But nothing ever really caught on.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="102"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Everything that got made was too wonky. Or it didn't really work.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="103"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Then... 
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="104"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      In 2008…
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="105"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Another drumroll, please...
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="106"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      When most developers were scrambling to learn how to build iPhone apps, or Facebook apps…
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="107"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      And everyone else was about to lose their job, or their house...
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="108"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Something really historic and surprising happened.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="109"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Someone, it seemed, had come out of the woodwork with an answer to the paradox.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="110"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      And the answer wasn't just an academic paper, it was working code.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="111"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Working code you could actually sort of use!
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="112"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      The person was Satoshi Nakamoto.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="113"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Oh, and that's definitely not his real name.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="114"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Oh, and he might not actually have ever existed.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="115"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Oh, and the project was called Bitcoin.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="116"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      You've probably heard of it?
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="117"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      And you probably have tons of ideas about it.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="118"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Maybe you got rich off it, maybe you lost your life savings.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="119"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Maybe it's the answer to the tyranny of big banks.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="120"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Maybe it's a hypercapitalist acid trip from Burning Man.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="121"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      The important thing is that Bitcoin was the first to crack the paradox.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="122"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      It was the first global network that ran on *our* computers but could connect us to others anywhere.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="123"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Bitcoin, of course, was free software.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="124"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Bitcoin was missing one important thing though: privacy.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="125"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Anything you did there would be visible to the entire world, they just might not know it was you.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="126"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      As Bitcoin grew in popularity, newer projects attempted to address Bitcoin's lack of privacy.
-
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="127"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Zcash is one of them.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="128"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Zbay is built on Zcash.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="129"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Where Facebook’s apps connect to Facebook's servers, Zbay connects to Zcash.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="130"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Zcash itself is a network of people running the Zcash app on their own computers.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="131"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Every computer on the Zcash network needs a record of every Zcash transaction ever made.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="132"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      That's what we're downloading now. 
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="133"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      That's why it's taking forever. It’s ginormous. 
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="134"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Zbay chose Zcash for a few reasons.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="135"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      It's one of the few networks that lets us send messages privately.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="136"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      It aims to offer strong anonymity to message recipients (though not to senders, not yet at least.)
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="137"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Beginners can buy it quickly on sites like Coinbase.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="138"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Most of all, its founders are pioneers in building technology for online privacy.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="139"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      They were working on privacy tech decades before the crypto bubble.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="140"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      And now, thanks in part to the crypto bubble, Zcash is a well-funded project.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="141"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      It’s a great base to build on.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="142"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      By building on Zcash, we can trust privacy-tech-pioneer-geniuses to keep everyone safe.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="143"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      While we focus on building an app you can use.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="144"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Free software and protocols are amazing for facilitating this kind of collaboration.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="145"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      So, we did it.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="146"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      We told the story of why this is taking so long.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="147"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Again, just as a reminder, on Zbay you can...
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="148"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Register a username (@yourname on Zcash)
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="149"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Send messages
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="150"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Advertise things for sale
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="151"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Buy stuff
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="152"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Send money to friends, even friends who haven't joined yet.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="153"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Earn money by promoting Zcash to friends or on the Internet.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="154"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Register channel names that you and you alone will control.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="155"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      You could register a channel today.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="156"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      And moderation features for channel owners are coming soon.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="157"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      May your Internet be fast and your peers plentiful.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="158"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      This space belongs to you.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="159"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Be nice!
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="160"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Really, it's important. Because there's nobody here to make you.
-
-    </WithStyles(ForwardRef(Typography))>
-  </div>
-  <div
-    className="tipContainer-mock"
-    key="161"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="typography-mock"
-      variant="body1"
-    >
-      Not anymore.
+      For these reasons and more, Zcash provides a strong base for Zbay to build on. 
 
     </WithStyles(ForwardRef(Typography))>
   </div>
