@@ -135,7 +135,7 @@ export const SyncLoader = ({
         </Grid>
         {hasAddress && (
           <Grid item container direction={'row'} justify={'center'} className={classes.topUpInfo}>
-            <Typography className={classes.info} variant={'caption'} onClick={openModal}>{`Your node is ready to receive funds! Want to save time later?`}</Typography>
+            <Typography className={classes.info} variant={'caption'} onClick={openModal}>{`Shopping with Zbay? Want to save time later?`}</Typography>
             <Typography className={classes.button} variant={'caption'} onClick={openModal}>Add funds now</Typography>
           </Grid>
         )}
