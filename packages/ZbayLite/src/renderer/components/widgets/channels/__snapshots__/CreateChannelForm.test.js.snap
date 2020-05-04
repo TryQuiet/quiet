@@ -4,7 +4,7 @@ exports[`CreateChannelForm renders component 1`] = `
 <Formik
   enableReinitialize={false}
   isInitialValid={false}
-  onSubmit={[MockFunction]}
+  onSubmit={[Function]}
   validateOnBlur={true}
   validateOnChange={true}
 >
