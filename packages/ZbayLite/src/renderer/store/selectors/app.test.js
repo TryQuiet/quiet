@@ -15,7 +15,9 @@ describe('app -', () => {
         app: AppState({
           version: '0.13.37',
           transfers: Immutable.Map(),
-          modalTabToOpen: 'addFunds'
+          modalTabToOpen: 'addFunds',
+          allTransfersCount: 12,
+          newTransfersCounter: 2
         })
       })
     })
@@ -29,5 +31,11 @@ describe('app -', () => {
   })
   it('modal tab to open', async () => {
     expect(selectors.currentModalTab(store.getState())).toMatchSnapshot()
+  })
+  it('allTransfersCount', async () => {
+    expect(selectors.allTransfersCount(store.getState())).toMatchSnapshot()
+  })
+  it('newTransfersCounter', async () => {
+    expect(selectors.newTransfersCounter(store.getState())).toMatchSnapshot()
   })
 })

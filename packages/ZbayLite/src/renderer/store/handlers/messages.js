@@ -100,6 +100,11 @@ export const fetchMessages = channel => async (dispatch, getState) => {
       return
     } else {
       dispatch(
+        appHandlers.actions.reduceNewTransfersCount(
+          transfers.length - appSelectors.transfers(getState()).get(channelId)
+        )
+      )
+      dispatch(
         appHandlers.actions.setTransfers({
           id: channelId,
           value: transfers.length
@@ -215,6 +220,7 @@ export const fetchMessages = channel => async (dispatch, getState) => {
           .map(nm => displayMessageNotification({ message: nm, channel }))
       }
     }
+    return 1
   } catch (err) {
     console.warn(err)
   }

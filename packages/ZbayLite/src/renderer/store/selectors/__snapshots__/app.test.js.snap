@@ -1,6 +1,10 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`app - allTransfersCount 1`] = `12`;
+
 exports[`app - modal tab to open 1`] = `"addFunds"`;
+
+exports[`app - newTransfersCounter 1`] = `2`;
 
 exports[`app - version selector 1`] = `"0.13.37"`;
 

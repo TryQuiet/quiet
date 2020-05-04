@@ -2,14 +2,16 @@ import Immutable from 'immutable'
 import { createAction, handleActions } from 'redux-actions'
 
 import channelsSelectors from '../selectors/channels'
-import channelSelectors from '../selectors/channel'
+import appSelectors from '../selectors/app'
 import messagesHandlers from './messages'
+import appHandlers from './app'
 import contactsHandlers from './contacts'
 import nodeHandlers from './node'
 import identityHandlers from './identity'
 import usersHandlers from './users'
 import publicChannelsHandlers from './publicChannels'
 import { actionTypes } from '../../../shared/static'
+import { getClient } from '../../zcash'
 
 export const Coordinator = Immutable.Record(
   {
@@ -23,39 +25,64 @@ export const initialState = Coordinator()
 export const stopCoordinator = createAction(actionTypes.STOP_COORDINATOR)
 export const startCoordinator = createAction(actionTypes.START_COORDINATOR)
 
-export const channelCoordinator = async (dispatch, getState) => {
-  const checkTargetChannelMessages = async () => {
-    const currentChannel = channelSelectors.channel(getState())
-    const { id: channelId } = currentChannel
-    const action = channelId ? () => messagesHandlers.epics.fetchMessages(currentChannel)
-      : () => contactsHandlers.epics.fetchMessages()
-    await dispatch(action())
-    setTimeout(checkTargetChannelMessages, 1000)
-  }
-  checkTargetChannelMessages()
-}
-
 const actions = {
   stopCoordinator,
   startCoordinator
 }
 
 const coordinator = () => async (dispatch, getState) => {
-  channelCoordinator(dispatch, getState)
+  const channels = channelsSelectors.data(getState())
+  let actions = channelsSelectors
+    .data(getState())
+    .map(channel => () => messagesHandlers.epics.fetchMessages(channel))
+    .push(() => contactsHandlers.epics.fetchMessages())
+    .push(() => publicChannelsHandlers.epics.fetchPublicChannels())
+    .push(() => usersHandlers.epics.fetchUsers())
+    .push(() => nodeHandlers.epics.getStatus())
+    .push(() => identityHandlers.epics.fetchBalance())
+    .push(() => identityHandlers.epics.fetchFreeUtxos())
   const fetchData = async () => {
-    const actions = channelsSelectors
-      .data(getState())
-      .map(channel => () => messagesHandlers.epics.fetchMessages(channel))
-      .push(() => contactsHandlers.epics.fetchMessages())
-      .push(() => nodeHandlers.epics.getStatus())
-      .push(() => identityHandlers.epics.fetchBalance())
-      .push(() => identityHandlers.epics.fetchFreeUtxos())
-      .push(() => usersHandlers.epics.fetchUsers())
-      .push(() => publicChannelsHandlers.epics.fetchPublicChannels())
-    for (let index = 0; index < actions.size; index++) {
-      await dispatch(actions.get(index % actions.size)())
+    const res = await getClient().operations.getTransactionsCount()
+    if (
+      appSelectors.allTransfersCount(getState()) !==
+      res.sprout + res.sapling
+    ) {
+      await dispatch(
+        appHandlers.actions.setNewTransfersCount(
+          res.sprout + res.sapling - appSelectors.allTransfersCount(getState())
+        )
+      )
+      await dispatch(
+        appHandlers.actions.setAllTransfersCount(res.sprout + res.sapling)
+      )
+    } else {
+      setTimeout(fetchData, 5000)
+      return
     }
-    setTimeout(fetchData, 15000)
+    if (!Immutable.is(channels, channelsSelectors.data(getState()))) {
+      actions = channelsSelectors
+        .data(getState())
+        .map(channel => () => messagesHandlers.epics.fetchMessages(channel))
+        .push(() => contactsHandlers.epics.fetchMessages())
+        .push(() => publicChannelsHandlers.epics.fetchPublicChannels())
+        .push(() => usersHandlers.epics.fetchUsers())
+        .push(() => nodeHandlers.epics.getStatus())
+        .push(() => identityHandlers.epics.fetchBalance())
+        .push(() => identityHandlers.epics.fetchFreeUtxos())
+    }
+    for (let index = 0; index < actions.size; index++) {
+      if (appSelectors.newTransfersCounter(getState()) !== 0) {
+        const recivedNew = await dispatch(actions.get(index % actions.size)())
+        if (recivedNew === 1) {
+          actions.unshift(actions[index]).slice(index + 1)
+          index += 1
+        }
+      } else {
+        console.log('skip coorninator')
+        break
+      }
+    }
+    setTimeout(fetchData, 5000)
   }
   fetchData()
 }

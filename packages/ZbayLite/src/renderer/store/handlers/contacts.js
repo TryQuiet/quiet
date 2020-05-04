@@ -222,6 +222,11 @@ export const fetchMessages = () => async (dispatch, getState) => {
       return
     } else {
       dispatch(
+        appHandlers.actions.reduceNewTransfersCount(
+          transfers.length - appSelectors.transfers(getState()).get(identityAddress)
+        )
+      )
+      dispatch(
         appHandlers.actions.setTransfers({
           id: identityAddress,
           value: transfers.length
@@ -390,6 +395,7 @@ export const fetchMessages = () => async (dispatch, getState) => {
         }
       )
     )
+    return 1
   } catch (err) {
     console.warn(err)
   }

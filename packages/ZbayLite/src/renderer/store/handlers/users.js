@@ -186,6 +186,11 @@ export const fetchUsers = () => async (dispatch, getState) => {
       return
     } else {
       dispatch(
+        appHandlers.actions.reduceNewTransfersCount(
+          transfers.length - appSelectors.transfers(getState()).get(usersChannel.get('address'))
+        )
+      )
+      dispatch(
         appHandlers.actions.setTransfers({
           id: usersChannel.get('address'),
           value: transfers.length

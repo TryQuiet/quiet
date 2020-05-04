@@ -51,6 +51,11 @@ export const fetchPublicChannels = () => async (dispatch, getState) => {
       return
     } else {
       dispatch(
+        appHandlers.actions.reduceNewTransfersCount(
+          transfers.length - appSelectors.transfers(getState()).get(publicChannels.get('address'))
+        )
+      )
+      dispatch(
         appHandlers.actions.setTransfers({
           id: publicChannels.get('address'),
           value: transfers.length

@@ -9,7 +9,9 @@ export const AppState = Immutable.Record(
     version: null,
     transfers: Immutable.Map(),
     newUser: false,
-    modalTabToOpen: null
+    modalTabToOpen: null,
+    allTransfersCount: 0,
+    newTransfersCounter: 0
   },
   'AppState'
 )
@@ -22,12 +24,20 @@ const loadVersion = createAction(actionTypes.SET_APP_VERSION, () =>
 const setTransfers = createAction(actionTypes.SET_TRANSFERS)
 const setModalTab = createAction(actionTypes.SET_CURRENT_MODAL_TAB)
 const clearModalTab = createAction(actionTypes.CLEAR_CURRENT_MODAL_TAB)
+const setAllTransfersCount = createAction(actionTypes.SET_ALL_TRANSFERS_COUNT)
+const setNewTransfersCount = createAction(actionTypes.SET_NEW_TRANSFERS_COUNT)
+const reduceNewTransfersCount = createAction(
+  actionTypes.REDUCE_NEW_TRANSFERS_COUNT
+)
 
 export const actions = {
   loadVersion,
   setTransfers,
   setModalTab,
-  clearModalTab
+  clearModalTab,
+  setAllTransfersCount,
+  setNewTransfersCount,
+  reduceNewTransfersCount
 }
 
 export const askForBlockchainLocation = () => async (dispatch, getState) => {
@@ -41,10 +51,16 @@ export const proceedWithSyncing = (payload) => async (dispatch, getState) => {
 
 export const reducer = handleActions(
   {
+    [setNewTransfersCount]: (state, { payload: setNewTransfersCount }) =>
+      state.set('newTransfersCounter', setNewTransfersCount),
+    [reduceNewTransfersCount]: (state, { payload: amount }) =>
+      state.update('newTransfersCounter', count => count - amount),
     [loadVersion]: (state, { payload: version }) =>
       state.set('version', version),
     [setModalTab]: (state, { payload: tabName }) =>
       state.set('modalTabToOpen', tabName),
+    [setAllTransfersCount]: (state, { payload: transfersCount }) =>
+      state.set('allTransfersCount', transfersCount),
     [clearModalTab]: state => state.set('modalTabToOpen', null),
     [setTransfers]: (state, { payload: { id, value } }) => {
       return state.setIn(['transfers', id], value)

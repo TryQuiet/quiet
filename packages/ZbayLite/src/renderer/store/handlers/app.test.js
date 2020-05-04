@@ -34,15 +34,37 @@ describe('criticalError reducer', () => {
       expect(selectors.version(store.getState())).toMatchSnapshot()
     })
 
+    it('set setAllTransfersCount', () => {
+      store.dispatch(handlers.actions.setAllTransfersCount(10))
+      expect(selectors.allTransfersCount(store.getState())).toEqual(10)
+    })
+    it('set setNewTransfersCount', () => {
+      store.dispatch(handlers.actions.setNewTransfersCount(5))
+      expect(selectors.newTransfersCounter(store.getState())).toEqual(5)
+    })
+    it('reduce NewTransfersCount', () => {
+      store.dispatch(handlers.actions.setNewTransfersCount(5))
+      expect(selectors.newTransfersCounter(store.getState())).toEqual(5)
+      store.dispatch(handlers.actions.reduceNewTransfersCount(2))
+      expect(selectors.newTransfersCounter(store.getState())).toEqual(3)
+    })
     it('set transfers', () => {
-      store.dispatch(handlers.actions.setTransfers({ id: 'testid', value: 'testvalue' }))
+      store.dispatch(
+        handlers.actions.setTransfers({ id: 'testid', value: 'testvalue' })
+      )
       expect(selectors.transfers(store.getState())).toMatchSnapshot()
     })
 
     it('overwrite transfers with same id', () => {
-      store.dispatch(handlers.actions.setTransfers({ id: 'testid', value: 'testvalue' }))
-      store.dispatch(handlers.actions.setTransfers({ id: 'testid', value: 'testvalue2' }))
-      expect(selectors.transfers(store.getState()).get('testid')).toEqual('testvalue2')
+      store.dispatch(
+        handlers.actions.setTransfers({ id: 'testid', value: 'testvalue' })
+      )
+      store.dispatch(
+        handlers.actions.setTransfers({ id: 'testid', value: 'testvalue2' })
+      )
+      expect(selectors.transfers(store.getState()).get('testid')).toEqual(
+        'testvalue2'
+      )
     })
   })
 })
