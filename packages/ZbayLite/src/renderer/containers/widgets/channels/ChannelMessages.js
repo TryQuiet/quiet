@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
 import Immutable from 'immutable'
+import { bindActionCreators } from 'redux'
 
 import ChannelMessagesComponent from '../../../components/widgets/channels/ChannelMessages'
 import channelSelectors from '../../../store/selectors/channel'
@@ -9,8 +10,10 @@ import dmQueueMessages from '../../../store/selectors/directMessagesQueue'
 import queueMessages from '../../../store/selectors/messagesQueue'
 import userSelector from '../../../store/selectors/users'
 import nodeSelector from '../../../store/selectors/node'
+import publicChannelsSelector from '../../../store/selectors/publicChannels'
 import { messageType } from '../../../../shared/static'
 import channels from '../../../zcash/channels'
+import channelHandlers from '../../../store/handlers/channel'
 
 export const mapStateToProps = (state, { signerPubKey }) => {
   const qMessages = queueMessages.queue(state)
@@ -24,10 +27,17 @@ export const mapStateToProps = (state, { signerPubKey }) => {
     messages: channelSelectors.messages(signerPubKey)(state),
     channelId: channelSelectors.channelId(state),
     users: userSelector.users(state),
+    publicChannels: publicChannelsSelector.publicChannels(state),
     network: nodeSelector.network(state)
   }
 }
-
+export const mapDispatchToProps = (dispatch, ownProps) =>
+  bindActionCreators(
+    {
+      onLinkedChannel: channelHandlers.epics.linkChannelRedirect
+    },
+    dispatch
+  )
 export const ChannelMessages = ({
   messages,
   tab,
@@ -37,7 +47,9 @@ export const ChannelMessages = ({
   triggerScroll,
   channelData,
   users,
-  network
+  network,
+  publicChannels,
+  onLinkedChannel
 }) => {
   const [scrollPosition, setScrollPosition] = React.useState(-1)
   useEffect(() => {
@@ -50,8 +62,15 @@ export const ChannelMessages = ({
   }, [triggerScroll])
   const isOwner = !!channelData.get('keys').get('sk')
   let usersRegistration = []
+  let publicChannelsRegistration = []
   if (channelData.get('address') === channels.general[network].address) {
     usersRegistration = Array.from(users.values())
+    publicChannelsRegistration = Array.from(
+      Object.values(publicChannels.toJS())
+    )
+    for (const ch of publicChannelsRegistration) {
+      delete Object.assign(ch, { createdAt: parseInt(ch['timestamp']) })['timestamp']
+    }
   }
   return (
     <ChannelMessagesComponent
@@ -65,17 +84,25 @@ export const ChannelMessages = ({
       contactId={contactId}
       contentRect={contentRect}
       isOwner={isOwner}
+      publicChannelsRegistration={publicChannelsRegistration}
       usersRegistration={usersRegistration}
+      users={users}
+      onLinkedChannel={onLinkedChannel}
+      publicChannels={publicChannels}
     />
   )
 }
 
-export default connect(mapStateToProps)(
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(
   React.memo(ChannelMessages, (before, after) => {
     return (
       Immutable.is(before.messages, after.messages) &&
       before.tab === after.tab &&
-      Immutable.is(before.users, after.users)
+      Immutable.is(before.users, after.users) &&
+      Immutable.is(before.publicChannels, after.publicChannels)
     )
   })
 )

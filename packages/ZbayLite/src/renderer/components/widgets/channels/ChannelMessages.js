@@ -22,6 +22,12 @@ const styles = theme => ({
   },
   bold: {
     fontWeight: 'bold'
+  },
+  link: {
+    color: theme.palette.colors.lushSky,
+    backgroundColor: theme.palette.colors.lushSky12,
+    borderRadius: 4,
+    cursor: 'pointer'
   }
 })
 
@@ -41,7 +47,11 @@ export const ChannelMessages = ({
   scrollPosition,
   contactId,
   isOffer,
-  usersRegistration
+  usersRegistration,
+  publicChannelsRegistration,
+  users,
+  onLinkedChannel,
+  publicChannels
 }) => {
   const scrollbarRef = React.useRef()
   const getScrollbarRef = ref => {
@@ -87,6 +97,7 @@ export const ChannelMessages = ({
       messages
         .filter(msg => messagesTypesToDisplay.includes(msg.type))
         .concat(usersRegistration)
+        .concat(publicChannelsRegistration)
         .sortBy(o => o.createdAt)
     )
   }
@@ -125,17 +136,47 @@ export const ChannelMessages = ({
               {args[1].map(msg => {
                 const MessageComponent = typeToMessageComponent[msg.type]
                 if (!msg.type) {
-                  return (
-                    <WelcomeMessage
-                      message={
-                        <Fragment>
-                          <span className={classes.bold}>{msg.nickname}</span>
-                          <span> just registered a username on zbay!</span>
-                        </Fragment>
-                      }
-                      timestamp={msg.createdAt}
-                    />
-                  )
+                  if (msg.keys) {
+                    return (
+                      <WelcomeMessage
+                        message={
+                          <Fragment>
+                            <span className={classes.bold}>
+                              {users.get(msg.owner)
+                                ? users.get(msg.owner).nickname
+                                : 'Anonymous'}
+                            </span>
+                            <span>
+                              {' '}
+                              just published{' '}
+                              <span
+                                className={classes.link}
+                                onClick={() => {
+                                  onLinkedChannel(publicChannels.get(msg.name))
+                                }}
+                              >
+                                #{msg.name}
+                              </span>{' '}
+                              on zbay!
+                            </span>
+                          </Fragment>
+                        }
+                        timestamp={msg.createdAt}
+                      />
+                    )
+                  } else {
+                    return (
+                      <WelcomeMessage
+                        message={
+                          <Fragment>
+                            <span className={classes.bold}>{msg.nickname}</span>
+                            <span> just registered a username on zbay!</span>
+                          </Fragment>
+                        }
+                        timestamp={msg.createdAt}
+                      />
+                    )
+                  }
                 }
                 return (
                   <MessageComponent
@@ -164,6 +205,7 @@ const typeToMessageComponent = {
 ChannelMessages.propTypes = {
   classes: PropTypes.object.isRequired,
   usersRegistration: PropTypes.array.isRequired,
+  publicChannelsRegistration: PropTypes.array.isRequired,
   contactId: PropTypes.string,
   isOwner: PropTypes.bool.isRequired,
   isOffer: PropTypes.bool.isRequired,
@@ -178,6 +220,7 @@ ChannelMessages.propTypes = {
 ChannelMessages.defaultProps = {
   messages: Immutable.List(),
   usersRegistration: [],
+  publicChannelsRegistration: [],
   isOwner: false,
   isOffer: false
 }

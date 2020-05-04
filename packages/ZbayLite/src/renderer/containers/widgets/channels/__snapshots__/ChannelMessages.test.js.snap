@@ -101,6 +101,7 @@ Object {
     },
   ],
   "network": "testnet",
+  "publicChannels": Immutable.Map {},
   "qMessages": Immutable.Map {},
   "triggerScroll": false,
   "users": Immutable.Map {},
