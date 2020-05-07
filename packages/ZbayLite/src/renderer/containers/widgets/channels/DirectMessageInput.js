@@ -22,7 +22,8 @@ export const mapStateToProps = (state, { contactId }) => ({
     : INPUT_STATE.UNREGISTERED,
   channelName: contactsSelectors.contact(contactId)(state).username,
   users: usersSelectors.users(state),
-  feeUsd: ratesSelector.feeUsd(state)
+  feeUsd: ratesSelector.feeUsd(state),
+  myUser: usersSelectors.myUser(state)
 })
 
 export const mapDispatchToProps = dispatch => {
@@ -44,7 +45,8 @@ export const ChannelInput = ({
   channelName,
   resetDebounce,
   users,
-  feeUsd
+  feeUsd,
+  myUser
 }) => {
   const [infoClass, setInfoClass] = React.useState(null)
   const [anchorEl, setAnchorEl] = React.useState({})
@@ -60,7 +62,7 @@ export const ChannelInput = ({
       onKeyPress={sendDirectMessageOnEnter}
       message={message}
       inputState={inputState}
-      channelName={`@${channelName} - $${feeUsd}`}
+      channelName={`@${channelName} as @${myUser.nickname} - $${feeUsd}`}
       messageLimit={MESSAGE_SIZE}
       anchorEl={anchorEl}
       setAnchorEl={setAnchorEl}

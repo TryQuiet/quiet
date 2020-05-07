@@ -16,7 +16,8 @@ export const mapStateToProps = (state, { offer }) => ({
   inputState: channelSelectors.inputLocked(state),
   offerName: offersSelectors.offer(offer)(state).name,
   users: usersSelectors.users(state),
-  feeUsd: ratesSelector.feeUsd(state)
+  feeUsd: ratesSelector.feeUsd(state),
+  myUser: usersSelectors.myUser(state)
 })
 
 export const mapDispatchToProps = dispatch => {
@@ -35,13 +36,16 @@ export const ChannelInput = ({
   inputState,
   offerName,
   users,
-  feeUsd
+  feeUsd,
+  myUser
 }) => {
   const [infoClass, setInfoClass] = React.useState(null)
   const [anchorEl, setAnchorEl] = React.useState({})
   const [mentionsToSelect, setMentionsToSelect] = React.useState([])
   const nameSplit = offerName.split('@')
-  const channelName = `@${nameSplit[nameSplit.length - 1]} - $${feeUsd}`
+  const channelName = `@${nameSplit[nameSplit.length - 1]} as @${
+    myUser.nickname
+  } - $${feeUsd}`
   return (
     <ChannelInputComponent
       infoClass={infoClass}

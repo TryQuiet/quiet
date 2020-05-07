@@ -20,7 +20,8 @@ export const mapStateToProps = state => {
       ? channelSelectors.data(state).get('name')
       : ' Unnamed',
     users: usersSelectors.users(state),
-    feeUsd: ratesSelector.feeUsd(state)
+    feeUsd: ratesSelector.feeUsd(state),
+    myUser: usersSelectors.myUser(state)
   }
 }
 
@@ -45,7 +46,8 @@ export const ChannelInput = ({
   users,
   members,
   checkMentions,
-  feeUsd
+  feeUsd,
+  myUser
 }) => {
   const [infoClass, setInfoClass] = React.useState(null)
   const [anchorEl, setAnchorEl] = React.useState({})
@@ -65,7 +67,7 @@ export const ChannelInput = ({
       }}
       message={message}
       inputState={inputState}
-      channelName={`#${channelName} - $${feeUsd}`}
+      channelName={`#${channelName} as @${myUser.nickname} - $${feeUsd}`}
       messageLimit={MESSAGE_SIZE}
       anchorEl={anchorEl}
       setAnchorEl={setAnchorEl}

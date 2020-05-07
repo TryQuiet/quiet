@@ -3,6 +3,7 @@ import Immutable from 'immutable'
 
 import create from '../create'
 import selectors from './users'
+import { IdentityState, Identity } from '../handlers/identity'
 
 describe('users selectors', () => {
   let store = null
@@ -23,7 +24,19 @@ describe('users selectors', () => {
             nickname: 'nickname2',
             address:
               'ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r'
+          },
+          'myUser': {
+            firstName: 'myUserName',
+            lastName: 'myUserLastName',
+            nickname: 'myUser',
+            address:
+              'myUserAddres'
           }
+        }),
+        identity: IdentityState({
+          data: Identity({
+            signerPubKey: 'myUser'
+          })
         })
       })
     })
@@ -33,8 +46,13 @@ describe('users selectors', () => {
   it(' - users', () => {
     expect(selectors.users(store.getState())).toMatchSnapshot()
   })
+  it(' - myUser', () => {
+    expect(selectors.myUser(store.getState())).toMatchSnapshot()
+  })
 
   it(' - username', () => {
-    expect(selectors.registeredUser('address')(store.getState())).toMatchSnapshot()
+    expect(
+      selectors.registeredUser('address')(store.getState())
+    ).toMatchSnapshot()
   })
 })

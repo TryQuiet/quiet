@@ -16,6 +16,13 @@ Object {
   "inputState": 0,
   "members": Set {},
   "message": "This is a test message",
+  "myUser": Object {
+    "address": "",
+    "createdAt": 0,
+    "firstName": "",
+    "lastName": "",
+    "nickname": "Anon",
+  },
   "users": Immutable.Map {},
 }
 `;

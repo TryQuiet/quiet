@@ -12,6 +12,13 @@ Object {
   "feeUsd": "0.0002",
   "inputState": 0,
   "message": "This is a test message",
+  "myUser": Object {
+    "address": "",
+    "createdAt": 0,
+    "firstName": "",
+    "lastName": "",
+    "nickname": "Anon",
+  },
   "offerName": "testname",
   "users": Immutable.Map {},
 }
