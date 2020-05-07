@@ -76,7 +76,7 @@ export const ChannelSettingsModal = ({
   modalTabToOpen,
   clearCurrentOpenTab
 }) => {
-  const TabComponent = tabs[modalTabToOpen || currentTab]
+  const TabComponent = tabs[isOwner ? modalTabToOpen || currentTab : 'notifications']
   return (
     <Modal
       open={open}
@@ -89,7 +89,7 @@ export const ChannelSettingsModal = ({
         <Grid item className={classes.tabsDiv}>
           <AppBar position='static' className={classes.appbar}>
             <Tabs
-              value={modalTabToOpen || currentTab}
+              value={isOwner ? modalTabToOpen || currentTab : 'notifications'}
               onChange={(e, value) =>
                 handleChange(setCurrentTab, clearCurrentOpenTab, value)
               }
