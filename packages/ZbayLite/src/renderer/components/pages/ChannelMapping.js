@@ -8,6 +8,7 @@ import ChannelMessages from '../../containers/widgets/channels/ChannelMessages'
 import OfferMessages from '../../containers/widgets/channels/OfferMessages'
 import DirectMessagesMessages from '../../containers/widgets/channels/DirectMessagesMessages'
 import { CHANNEL_TYPE } from './ChannelTypes'
+
 export const channelTypeToHeader = {
   [CHANNEL_TYPE.OFFER]: OfferChannelHeader,
   [CHANNEL_TYPE.DIRECT_MESSAGE]: DirectMessagesHeader,

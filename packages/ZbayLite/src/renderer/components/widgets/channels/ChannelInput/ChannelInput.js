@@ -21,6 +21,7 @@ import MentionElement from './MentionElement'
 import Icon from '../../../ui/Icon'
 import emojiGray from '../../../../static/images/emojiGray.svg'
 import emojiBlack from '../../../../static/images/emojiBlack.svg'
+
 const styles = theme => {
   return {
     root: {

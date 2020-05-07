@@ -30,7 +30,7 @@ export const Channel = ({ classes, channelType, ...props }) => {
         <ChannelContent tab={tab} {...props} channelType={channelType} />
       </Grid>
       <Grid item>
-        <Input {...props} />
+        <Input {...props} setTab={setTab} />
       </Grid>
     </Page>
   )

@@ -126,7 +126,10 @@ const linkChannelRedirect = targetChannel => async (dispatch, getState) => {
     console.log(err)
   }
 }
-const sendOnEnter = event => async (dispatch, getState) => {
+const sendOnEnter = (event, resetTab) => async (dispatch, getState) => {
+  if (resetTab) {
+    resetTab(0)
+  }
   const enterPressed = event.nativeEvent.keyCode === 13
   const shiftPressed = event.nativeEvent.shiftKey === true
   const channel = channelSelectors.data(getState()).toJS()

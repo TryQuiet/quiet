@@ -38,6 +38,7 @@ export const mapDispatchToProps = dispatch => {
 }
 export const ChannelInput = ({
   onChange,
+  setTab,
   sendOnEnter,
   message,
   inputState,
@@ -63,7 +64,7 @@ export const ChannelInput = ({
       }}
       onKeyPress={e => {
         checkMentions()
-        sendOnEnter(e)
+        sendOnEnter(e, setTab)
       }}
       message={message}
       inputState={inputState}
