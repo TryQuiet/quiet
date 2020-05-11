@@ -5,9 +5,9 @@ import {
   BrowserWindow,
   Menu,
   ipcMain,
-  globalShortcut,
   powerSaveBlocker
 } from 'electron'
+import electronLocalshortcut from 'electron-localshortcut'
 import os from 'os'
 import path from 'path'
 import url from 'url'
@@ -294,6 +294,15 @@ const createWindow = () => {
     browserHeight = height
     browserWidth = width
   })
+  electronLocalshortcut.register(mainWindow, 'F11', () => {
+    mainWindow.webContents.send('toggleCoordinator', {})
+  })
+  electronLocalshortcut.register(mainWindow, 'CommandOrControl+L', () => {
+    mainWindow.webContents.send('openLogs')
+  })
+  electronLocalshortcut.register(mainWindow, 'F12', () => {
+    mainWindow.toggleDevTools()
+  })
 }
 
 let isUpdatedStatusCheckingStarted = false
@@ -563,12 +572,6 @@ app.on('ready', async () => {
   } else {
     Menu.setApplicationMenu(null)
   }
-  globalShortcut.register('F11', () => {
-    mainWindow.webContents.send('toggleCoordinator', {})
-  })
-  globalShortcut.register('CommandOrControl+L', () => {
-    mainWindow.webContents.send('openLogs')
-  })
 
   await installExtensions()
 
