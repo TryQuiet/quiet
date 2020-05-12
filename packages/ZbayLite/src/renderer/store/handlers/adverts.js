@@ -59,7 +59,7 @@ const handleSend = ({ values }) => async (dispatch, getState) => {
           recipientAddress: channel ? 'none' : directChannelAddress,
           saveAdvert: !channel
         },
-        checkConfirmationNumber
+        checkConfirmationNumber: channel ? null : checkConfirmationNumber
       })
     )
     dispatch(
