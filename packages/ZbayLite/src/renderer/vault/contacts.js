@@ -134,7 +134,14 @@ export default (vault) => {
       const recipientGroup = _getRecipientMessages({ identityGroup, recipientAddress, recipientUsername, workspace })
       lastSeen = recipientGroup.getAttribute('lastSeen')
     })
-    return DateTime.fromSeconds(parseInt(lastSeen))
+    const isDate = (value) => {
+      if (!isNaN(value)) {
+        return DateTime.fromSeconds(value)
+      } else {
+        return null
+      }
+    }
+    return isDate(parseInt(lastSeen))
   }
 
   return {
