@@ -2,6 +2,10 @@ import { Client } from '../ipc';
 import resolveFileUrl from '../utils/resolve-file-url';
 import CONSTANTS from '../constants';
 
+const ELECTRON_VERSION  = process.versions.electron && Number(process.versions.electron.split('.')[0]);
+
+const ELECTRON_VERSION_WITH_ASYNC_LOAD_URL = 5;
+
 const URL_QUERY_RE      = /\?.*$/;
 const NAVIGATION_EVENTS = ['will-navigate', 'did-navigate'];
 
@@ -54,8 +58,8 @@ function handleDialog (type, args) {
 module.exports = function install (config, testPageUrl) {
     ipc = new Client(config, { dialogHandler, contextMenuHandler, windowHandler });
 
-    ipc.connect();
-
+    const ipcConnectionPromise = ipc.connect();
+    
     var { Menu, dialog, app } = require('electron');
 
     var WebContents;
@@ -82,9 +86,7 @@ module.exports = function install (config, testPageUrl) {
         return url.indexOf('file:') === 0;
     }
 
-    WebContents.prototype.loadURL = function (url, options) {
-        startLoadingTimeout(config.mainWindowUrl);
-
+    function loadUrl (webContext, url, options) {
         let testUrl = stripQuery(url);
 
         if (isFileProtocol(url))
@@ -104,10 +106,19 @@ module.exports = function install (config, testPageUrl) {
             windowHandler.window = this;
 
             if (config.openDevTools)
-                this.openDevTools();
+                webContext.openDevTools();
         }
 
-        return origLoadURL.call(this, url, options);
+        return origLoadURL.call(webContext, url, options);
+    }
+
+    WebContents.prototype.loadURL = function (url, options) {
+        startLoadingTimeout(config.mainWindowUrl);
+
+        if (ELECTRON_VERSION >= ELECTRON_VERSION_WITH_ASYNC_LOAD_URL)
+            return ipcConnectionPromise.then(() => loadUrl(this, url, options));
+
+        return loadUrl(this, url, options);
     };
 
     app.getAppPath = function () {
