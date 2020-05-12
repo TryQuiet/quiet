@@ -38,9 +38,19 @@ const coordinator = () => async (dispatch, getState) => {
     .push(() => contactsHandlers.epics.fetchMessages())
     .push(() => publicChannelsHandlers.epics.fetchPublicChannels())
     .push(() => usersHandlers.epics.fetchUsers())
+
+  const statusActions = Immutable.List()
     .push(() => nodeHandlers.epics.getStatus())
     .push(() => identityHandlers.epics.fetchBalance())
     .push(() => identityHandlers.epics.fetchFreeUtxos())
+
+  const fetchStatus = async () => {
+    for (let index = 0; index < statusActions.size; index++) {
+      await dispatch(statusActions.get(index)())
+    }
+    setTimeout(fetchStatus, 25000)
+  }
+
   const fetchData = async () => {
     const res = await getClient().operations.getTransactionsCount()
     if (
@@ -66,9 +76,6 @@ const coordinator = () => async (dispatch, getState) => {
         .push(() => contactsHandlers.epics.fetchMessages())
         .push(() => publicChannelsHandlers.epics.fetchPublicChannels())
         .push(() => usersHandlers.epics.fetchUsers())
-        .push(() => nodeHandlers.epics.getStatus())
-        .push(() => identityHandlers.epics.fetchBalance())
-        .push(() => identityHandlers.epics.fetchFreeUtxos())
     }
     for (let index = 0; index < actions.size; index++) {
       if (appSelectors.newTransfersCounter(getState()) !== 0) {
@@ -83,6 +90,7 @@ const coordinator = () => async (dispatch, getState) => {
       }
     }
     setTimeout(fetchData, 5000)
+    setTimeout(fetchStatus, 25000)
   }
   fetchData()
 }
