@@ -42,6 +42,7 @@ import appHandlers from './app'
 import notificationsHandlers from './notifications'
 import { errorNotification } from './utils'
 import notificationCenterSelector from '../selectors/notificationCenter'
+import nodeSelectors from '../selectors/node'
 
 const sendDirectMessageOnEnter = event => async (dispatch, getState) => {
   const enterPressed = event.nativeEvent.keyCode === 13
@@ -106,12 +107,14 @@ const sendDirectMessage = payload => async (dispatch, getState) => {
     username: recipientUsername
   } = payload.receiver
   dispatch(
-    directMessagesQueueHandlers.epics.addDirectMessage({
-      message,
-      recipientAddress,
-      recipientUsername
-    },
-    0)
+    directMessagesQueueHandlers.epics.addDirectMessage(
+      {
+        message,
+        recipientAddress,
+        recipientUsername
+      },
+      0
+    )
   )
 }
 
@@ -168,6 +171,8 @@ const appendNewMessages = createAction(actionTypes.APPEND_NEW_DIRECT_MESSAGES)
 const setLastSeen = createAction(actionTypes.SET_CONTACTS_LAST_SEEN)
 const setUsernames = createAction(actionTypes.SET_CONTACTS_USERNAMES)
 const removeContact = createAction(actionTypes.REMOVE_CONTACT)
+const setMessageBlockTime = createAction(actionTypes.SET_MESSAGE_BLOCKTIME)
+const setVaultMessageBlockTime = createAction(actionTypes.SET_VAULT_MESSAGE_BLOCKTIME)
 
 export const actions = {
   setMessages,
@@ -223,7 +228,8 @@ export const fetchMessages = () => async (dispatch, getState) => {
     } else {
       dispatch(
         appHandlers.actions.reduceNewTransfersCount(
-          transfers.length - appSelectors.transfers(getState()).get(identityAddress)
+          transfers.length -
+            appSelectors.transfers(getState()).get(identityAddress)
         )
       )
       dispatch(
@@ -600,7 +606,67 @@ export const deleteChannel = ({ address, timestamp, history }) => async (
   await dispatch(removedChannelsHandlers.epics.getRemovedChannelsTimestamp())
   dispatch(removeContact(address))
 }
-
+export const checkConfirmationOfTransfers = async (dispatch, getState) => {
+  try {
+    const latestBlock = parseInt(nodeSelectors.latestBlock(getState()))
+    const contacts = selectors.contacts(getState())
+    const offers = offersSelectors.offers(getState())
+    for (const key of Array.from(contacts.keys())) {
+      for (const msg of contacts.get(key).messages) {
+        if (
+          (msg.type === messageType.ITEM_TRANSFER ||
+            msg.type === messageType.TRANSFER) &&
+          msg.blockTime === Number.MAX_SAFE_INTEGER
+        ) {
+          const tx = await getClient().confirmations.getResult(msg.id)
+          dispatch(
+            setMessageBlockTime({
+              contactAddress: key,
+              messageId: msg.id,
+              blockTime: latestBlock - tx.confirmations
+            })
+          )
+        }
+      }
+      for (const msg of contacts.get(key).vaultMessages) {
+        if (
+          (msg.type === messageType.ITEM_TRANSFER ||
+            msg.type === messageType.TRANSFER) &&
+          msg.blockTime === Number.MAX_SAFE_INTEGER
+        ) {
+          const tx = await getClient().confirmations.getResult(msg.id)
+          dispatch(
+            setVaultMessageBlockTime({
+              contactAddress: key,
+              messageId: msg.id,
+              blockTime: latestBlock - tx.confirmations
+            })
+          )
+        }
+      }
+    }
+    for (const key of Array.from(offers.keys())) {
+      for (const msg of offers.get(key).messages) {
+        if (
+          (msg.type === messageType.ITEM_TRANSFER ||
+            msg.type === messageType.TRANSFER) &&
+          msg.blockTime === Number.MAX_SAFE_INTEGER
+        ) {
+          const tx = await getClient().confirmations.getResult(msg.id)
+          dispatch(
+            offersHandlers.actions.setOfferMessageBlockTime({
+              itemId: key,
+              messageId: msg.id,
+              blockTime: latestBlock - tx.confirmations
+            })
+          )
+        }
+      }
+    }
+  } catch (err) {
+    console.log(err)
+  }
+}
 export const epics = {
   fetchMessages,
   updateLastSeen,
@@ -613,7 +679,8 @@ export const epics = {
   createVaultContact,
   updateDeletedChannelTimestamp,
   deleteChannel,
-  linkUserRedirect
+  linkUserRedirect,
+  checkConfirmationOfTransfers
 }
 
 export const reducer = handleActions(
@@ -621,6 +688,27 @@ export const reducer = handleActions(
     [setMessages]: (state, { payload: { contactAddress, messages } }) =>
       state.update(contactAddress, Contact(), cm =>
         cm.set('messages', Immutable.fromJS(messages))
+      ),
+    [setMessageBlockTime]: (
+      state,
+      { payload: { contactAddress, messageId, blockTime } }
+    ) =>
+      state.update(contactAddress, Contact(), cm =>
+        cm.update('messages', messages => {
+          const index = messages.findIndex(msg => msg.id === messageId)
+          return messages.setIn([index, 'blockTime'], blockTime)
+        })
+      ),
+
+    [setVaultMessageBlockTime]: (
+      state,
+      { payload: { contactAddress, messageId, blockTime } }
+    ) =>
+      state.update(contactAddress, Contact(), cm =>
+        cm.update('vaultMessages', messages => {
+          const index = messages.findIndex(msg => msg.id === messageId)
+          return messages.setIn([index, 'blockTime'], blockTime)
+        })
       ),
     [setVaultMessages]: (
       state,

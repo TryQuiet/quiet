@@ -20,6 +20,7 @@ Immutable.Record {
       "tag": "",
       "offerOwner": "",
       "publicKey": null,
+      "blockTime": 9007199254740991,
     },
     Immutable.ReceivedMessage {
       "id": 1,
@@ -35,6 +36,7 @@ Immutable.Record {
       "tag": "",
       "offerOwner": "",
       "publicKey": null,
+      "blockTime": 9007199254740991,
     },
   ],
   "newMessages": Immutable.List [
@@ -58,6 +60,7 @@ Immutable.Record {
       "tag": "",
       "offerOwner": "",
       "publicKey": null,
+      "blockTime": 9007199254740991,
     },
     Immutable.ReceivedMessage {
       "id": 1,
@@ -73,6 +76,7 @@ Immutable.Record {
       "tag": "",
       "offerOwner": "",
       "publicKey": null,
+      "blockTime": 9007199254740991,
     },
   ],
 }
@@ -99,6 +103,7 @@ Immutable.Map {
         "tag": "",
         "offerOwner": "",
         "publicKey": null,
+        "blockTime": 9007199254740991,
       },
       Immutable.ReceivedMessage {
         "id": 1,
@@ -114,6 +119,7 @@ Immutable.Map {
         "tag": "",
         "offerOwner": "",
         "publicKey": null,
+        "blockTime": 9007199254740991,
       },
     ],
     "newMessages": Immutable.List [
@@ -137,6 +143,7 @@ Immutable.Map {
         "tag": "",
         "offerOwner": "",
         "publicKey": null,
+        "blockTime": 9007199254740991,
       },
       Immutable.ReceivedMessage {
         "id": 1,
@@ -152,6 +159,7 @@ Immutable.Map {
         "tag": "",
         "offerOwner": "",
         "publicKey": null,
+        "blockTime": 9007199254740991,
       },
     ],
   },
@@ -190,6 +198,7 @@ Immutable.List [
     "offerOwner": null,
     "isUnregistered": false,
     "publicKey": null,
+    "blockTime": 9007199254740991,
   },
   Immutable.DisplayableMessage {
     "id": "test-operation-id-2",
@@ -213,6 +222,7 @@ Immutable.List [
     "offerOwner": null,
     "isUnregistered": false,
     "publicKey": null,
+    "blockTime": 9007199254740991,
   },
   Immutable.DisplayableMessage {
     "id": 1,
@@ -238,6 +248,7 @@ This is some message test-pending-message",
     "offerOwner": "",
     "isUnregistered": false,
     "publicKey": null,
+    "blockTime": 9007199254740991,
   },
   Immutable.DisplayableMessage {
     "id": "test-operation-id",
@@ -261,6 +272,7 @@ This is some message test-pending-message",
     "offerOwner": null,
     "isUnregistered": false,
     "publicKey": null,
+    "blockTime": 9007199254740991,
   },
   Immutable.DisplayableMessage {
     "id": 0,
@@ -285,6 +297,7 @@ This is a message with id 0",
     "offerOwner": "",
     "isUnregistered": false,
     "publicKey": null,
+    "blockTime": 9007199254740991,
   },
 ]
 `;
@@ -307,6 +320,7 @@ Immutable.List [
     "tag": "",
     "offerOwner": "",
     "publicKey": null,
+    "blockTime": 9007199254740991,
   },
   Immutable.ReceivedMessage {
     "id": 1,
@@ -322,6 +336,7 @@ Immutable.List [
     "tag": "",
     "offerOwner": "",
     "publicKey": null,
+    "blockTime": 9007199254740991,
   },
 ]
 `;
@@ -702,6 +717,7 @@ Immutable.List [
     "tag": "",
     "offerOwner": "",
     "publicKey": null,
+    "blockTime": 9007199254740991,
   },
   Immutable.ReceivedMessage {
     "id": 1,
@@ -717,6 +733,7 @@ Immutable.List [
     "tag": "",
     "offerOwner": "",
     "publicKey": null,
+    "blockTime": 9007199254740991,
   },
 ]
 `;

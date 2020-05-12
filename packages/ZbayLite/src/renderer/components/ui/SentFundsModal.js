@@ -52,6 +52,14 @@ const styles = theme => ({
   link: {
     color: theme.palette.colors.linkBlue,
     cursor: 'pointer'
+  },
+  pending: {
+    fontWeight: 500,
+    color: theme.palette.colors.yellow
+  },
+  confirmed: {
+    fontWeight: 500,
+    color: theme.palette.colors.greenDark
   }
 })
 
@@ -66,7 +74,9 @@ export const SentFundsModal = ({
   feeZec,
   memo,
   timestamp,
-  valueWhenSent
+  valueWhenSent,
+  currentBlock,
+  blockTime
 }) => {
   const timeTransaction = DateTime.fromSeconds(timestamp).toLocaleString({
     weekday: 'short',
@@ -156,10 +166,32 @@ export const SentFundsModal = ({
                 )}
                 <Grid item container className={classes.field} xs={12}>
                   <Grid item className={classes.label}>
+                    Confirmations
+                  </Grid>
+                  <Grid item className={classes.value} xs>
+                    {currentBlock - blockTime < 0
+                      ? 0
+                      : currentBlock - blockTime}
+                  </Grid>
+                </Grid>
+                <Grid item container className={classes.field} xs={12}>
+                  <Grid item className={classes.label}>
                     Note
                   </Grid>
                   <Grid item className={classes.value} xs>
                     {memo}
+                  </Grid>
+                </Grid>
+                <Grid item container className={classes.field} xs={12}>
+                  <Grid item className={classes.label}>
+                    Status
+                  </Grid>
+                  <Grid item className={classes.value} xs>
+                    {currentBlock - blockTime > 24 ? (
+                      <span className={classes.confirmed}>Confirmed</span>
+                    ) : (
+                      <span className={classes.pending}>Pending</span>
+                    )}
                   </Grid>
                 </Grid>
                 <Grid item container className={classes.field} xs={12}>
@@ -193,6 +225,8 @@ SentFundsModal.propTypes = {
   feeUsd: PropTypes.number.isRequired,
   memo: PropTypes.string.isRequired,
   timestamp: PropTypes.number.isRequired,
+  currentBlock: PropTypes.number.isRequired,
+  blockTime: PropTypes.number.isRequired,
   valueWhenSent: PropTypes.number
 }
 SentFundsModal.defaultProps = {
@@ -202,7 +236,8 @@ SentFundsModal.defaultProps = {
   feeUsd: 0,
   feeZec: 0,
   memo: '',
-  timestamp: 1700000
+  timestamp: 1700000,
+  blockTime: Number.MAX_SAFE_INTEGER
 }
 
 export default R.compose(React.memo, withStyles(styles))(SentFundsModal)

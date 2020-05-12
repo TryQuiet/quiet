@@ -26,6 +26,7 @@ exports[`ItemTransferMessage renders component 1`] = `
       "offerOwner": "tester",
       "isUnregistered": false,
       "publicKey": null,
+      "blockTime": 9007199254740991,
     }
   }
   setActionsOpen={[Function]}
@@ -35,6 +36,11 @@ exports[`ItemTransferMessage renders component 1`] = `
     item={true}
     onClick={[Function]}
   >
+    <div
+      className="successMark-mock"
+    >
+      confirmed
+    </div>
     <WithStyles(ForwardRef(Typography))
       className="amountUsd-mock"
       variant="h3"

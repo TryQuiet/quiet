@@ -46,7 +46,8 @@ const _ReceivedMessage = Immutable.Record(
     isUnregistered: false,
     tag: '',
     offerOwner: '',
-    publicKey: null
+    publicKey: null,
+    blockTime: Number.MAX_SAFE_INTEGER
   },
   'ReceivedMessage'
 )

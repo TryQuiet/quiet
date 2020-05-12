@@ -129,6 +129,7 @@ Immutable.Record {
       "tag": "",
       "offerOwner": "",
       "publicKey": null,
+      "blockTime": 9007199254740991,
     },
     Immutable.ReceivedMessage {
       "id": 1,
@@ -144,6 +145,7 @@ Immutable.Record {
       "tag": "",
       "offerOwner": "",
       "publicKey": null,
+      "blockTime": 9007199254740991,
     },
   ],
   "newMessages": Immutable.List [],
@@ -171,6 +173,7 @@ Immutable.Record {
       "tag": "",
       "offerOwner": "",
       "publicKey": null,
+      "blockTime": 9007199254740991,
     },
     Immutable.ReceivedMessage {
       "id": 1,
@@ -186,6 +189,7 @@ Immutable.Record {
       "tag": "",
       "offerOwner": "",
       "publicKey": null,
+      "blockTime": 9007199254740991,
     },
   ],
   "newMessages": Immutable.List [],
@@ -288,6 +292,7 @@ Immutable.Map {
         "tag": "",
         "offerOwner": "",
         "publicKey": "02236ac79c47093af1d8c7f441c81145f926d333a3abca86cc113df5d1269c3bcf",
+        "blockTime": 9007199254740991,
       },
       Immutable.ReceivedMessage {
         "id": "tx-id-0-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
@@ -303,6 +308,7 @@ Immutable.Map {
         "tag": "",
         "offerOwner": "",
         "publicKey": "02236ac79c47093af1d8c7f441c81145f926d333a3abca86cc113df5d1269c3bcf",
+        "blockTime": 9007199254740991,
       },
       Immutable.ReceivedMessage {
         "id": "tx-id-0-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
@@ -318,6 +324,7 @@ Immutable.Map {
         "tag": "",
         "offerOwner": "",
         "publicKey": "03c876809f5ecb6013e9d056f592d86cd4679d0bf3a4467a594882b34751d9d46d",
+        "blockTime": 9007199254740991,
       },
       Immutable.ReceivedMessage {
         "id": "tx-id-1-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
@@ -333,6 +340,7 @@ Immutable.Map {
         "tag": "",
         "offerOwner": "",
         "publicKey": "03c876809f5ecb6013e9d056f592d86cd4679d0bf3a4467a594882b34751d9d46d",
+        "blockTime": 9007199254740991,
       },
       Immutable.ReceivedMessage {
         "id": "tx-id-1-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
@@ -348,6 +356,7 @@ Immutable.Map {
         "tag": "",
         "offerOwner": "",
         "publicKey": "02995c7c0e38dd11d6290c6905633ea11a70e49fd807a90828daa0084e4a58562d",
+        "blockTime": 9007199254740991,
       },
       Immutable.ReceivedMessage {
         "id": "tx-id-1-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
@@ -363,6 +372,7 @@ Immutable.Map {
         "tag": "",
         "offerOwner": "",
         "publicKey": "02995c7c0e38dd11d6290c6905633ea11a70e49fd807a90828daa0084e4a58562d",
+        "blockTime": 9007199254740991,
       },
     ],
     "newMessages": Immutable.List [
@@ -415,6 +425,7 @@ Immutable.Map {
         "tag": "",
         "offerOwner": "",
         "publicKey": "02236ac79c47093af1d8c7f441c81145f926d333a3abca86cc113df5d1269c3bcf",
+        "blockTime": 9007199254740991,
       },
       Immutable.ReceivedMessage {
         "id": "tx-id-0-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
@@ -430,6 +441,7 @@ Immutable.Map {
         "tag": "",
         "offerOwner": "",
         "publicKey": "02236ac79c47093af1d8c7f441c81145f926d333a3abca86cc113df5d1269c3bcf",
+        "blockTime": 9007199254740991,
       },
       Immutable.ReceivedMessage {
         "id": "tx-id-0-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
@@ -445,6 +457,7 @@ Immutable.Map {
         "tag": "",
         "offerOwner": "",
         "publicKey": "03c876809f5ecb6013e9d056f592d86cd4679d0bf3a4467a594882b34751d9d46d",
+        "blockTime": 9007199254740991,
       },
       Immutable.ReceivedMessage {
         "id": "tx-id-1-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
@@ -460,6 +473,7 @@ Immutable.Map {
         "tag": "",
         "offerOwner": "",
         "publicKey": "03c876809f5ecb6013e9d056f592d86cd4679d0bf3a4467a594882b34751d9d46d",
+        "blockTime": 9007199254740991,
       },
       Immutable.ReceivedMessage {
         "id": "tx-id-1-zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
@@ -475,6 +489,7 @@ Immutable.Map {
         "tag": "",
         "offerOwner": "",
         "publicKey": "02995c7c0e38dd11d6290c6905633ea11a70e49fd807a90828daa0084e4a58562d",
+        "blockTime": 9007199254740991,
       },
       Immutable.ReceivedMessage {
         "id": "tx-id-1-zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
@@ -490,6 +505,7 @@ Immutable.Map {
         "tag": "",
         "offerOwner": "",
         "publicKey": "02995c7c0e38dd11d6290c6905633ea11a70e49fd807a90828daa0084e4a58562d",
+        "blockTime": 9007199254740991,
       },
     ],
     "newMessages": Immutable.List [

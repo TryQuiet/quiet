@@ -9,13 +9,15 @@ import { withModal } from '../../store/handlers/modals'
 import { rate } from '../../store/selectors/rates'
 import rateHandlers from '../../store/handlers/rates'
 import modalSelectors from '../../store/selectors/modals'
+import nodeSelector from '../../store/selectors/node'
 import SentFundsModalComponent from '../../components/ui/SentFundsModal'
 
 export const client = Binance()
 
 export const mapStateToProps = state => ({
   rateUsd: rate('usd')(state),
-  payload: modalSelectors.payload('sentFunds')(state)
+  payload: modalSelectors.payload('sentFunds')(state),
+  currentBlock: parseInt(nodeSelector.currentBlock(state))
 })
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
@@ -30,7 +32,8 @@ export const SentFundsModal = ({
   open,
   handleClose,
   rateUsd,
-  fetchPriceForTime
+  fetchPriceForTime,
+  currentBlock
 }) => {
   const [historicPrice, setHistoricPrice] = useState(rateUsd.toNumber())
   useEffect(() => {
@@ -52,6 +55,7 @@ export const SentFundsModal = ({
         {...payload}
         open={open}
         handleClose={handleClose}
+        currentBlock={currentBlock}
       />
     )
   } else {
@@ -62,6 +66,7 @@ export const SentFundsModal = ({
         amountUsd={payload.amountZec * rateUsd.toNumber()}
         open={open}
         handleClose={handleClose}
+        currentBlock={currentBlock}
       />
     )
   }

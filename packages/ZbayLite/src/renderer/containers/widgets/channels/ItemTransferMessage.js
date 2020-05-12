@@ -6,9 +6,11 @@ import { bindActionCreators } from 'redux'
 import { actionCreators } from '../../../store/handlers/modals'
 import ItemTransferMessageComponent from '../../../components/widgets/channels/ItemTransferMessage'
 import ratesSelectors from '../../../store/selectors/rates'
+import nodeSelector from '../../../store/selectors/node'
 
 const mapStateToProps = state => ({
-  rateUsd: ratesSelectors.rate('usd')(state)
+  rateUsd: ratesSelectors.rate('usd')(state),
+  currentBlock: parseInt(nodeSelector.currentBlock(state))
 })
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(

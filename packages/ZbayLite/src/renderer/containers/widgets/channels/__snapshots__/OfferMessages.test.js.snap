@@ -18,6 +18,7 @@ Object {
       "tag": "",
       "offerOwner": "",
       "publicKey": null,
+      "blockTime": 9007199254740991,
     },
     Immutable.ReceivedMessage {
       "id": 0,
@@ -33,6 +34,7 @@ Object {
       "tag": "",
       "offerOwner": "",
       "publicKey": null,
+      "blockTime": 9007199254740991,
     },
   ],
   "qMessages": Immutable.Map {},

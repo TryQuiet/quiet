@@ -29,6 +29,7 @@ Object {
       "offerOwner": "",
       "isUnregistered": false,
       "publicKey": null,
+      "blockTime": 9007199254740991,
     },
     Immutable.DisplayableMessage {
       "id": 2,
@@ -52,6 +53,7 @@ Object {
       "offerOwner": "",
       "isUnregistered": false,
       "publicKey": null,
+      "blockTime": 9007199254740991,
     },
     Immutable.DisplayableMessage {
       "id": 1,
@@ -75,6 +77,7 @@ Object {
       "offerOwner": "",
       "isUnregistered": false,
       "publicKey": null,
+      "blockTime": 9007199254740991,
     },
     Immutable.DisplayableMessage {
       "id": 0,
@@ -98,6 +101,7 @@ Object {
       "offerOwner": "",
       "isUnregistered": false,
       "publicKey": null,
+      "blockTime": 9007199254740991,
     },
   ],
   "network": "testnet",

@@ -53,6 +53,7 @@ const coordinator = () => async (dispatch, getState) => {
 
   const fetchData = async () => {
     const res = await getClient().operations.getTransactionsCount()
+    dispatch(contactsHandlers.epics.checkConfirmationOfTransfers)
     if (
       appSelectors.allTransfersCount(getState()) !==
       res.sprout + res.sapling

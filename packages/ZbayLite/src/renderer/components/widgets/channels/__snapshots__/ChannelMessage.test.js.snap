@@ -26,6 +26,7 @@ exports[`ChannelMessage renders component 1`] = `
       "offerOwner": null,
       "isUnregistered": false,
       "publicKey": null,
+      "blockTime": 9007199254740991,
     }
   }
   setActionsOpen={[Function]}
@@ -68,6 +69,7 @@ exports[`ChannelMessage renders component when message is sent by owner 1`] = `
       "offerOwner": null,
       "isUnregistered": false,
       "publicKey": null,
+      "blockTime": 9007199254740991,
     }
   }
   setActionsOpen={[Function]}

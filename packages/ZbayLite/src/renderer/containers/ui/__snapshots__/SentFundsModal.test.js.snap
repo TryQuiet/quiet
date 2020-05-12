@@ -2,6 +2,7 @@
 
 exports[`SentFundsModal will receive right props 1`] = `
 Object {
+  "currentBlock": 0,
   "payload": Immutable.Map {
     "recipient": "test",
     "amountZec": 10,

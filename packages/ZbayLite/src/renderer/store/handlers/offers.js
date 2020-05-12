@@ -35,6 +35,7 @@ const cleanNewMessages = createAction(actionTypes.CLEAN_OFFER_NEW_MESSAGESS)
 const setLastSeen = createAction(actionTypes.SET_OFFER_LAST_SEEN)
 const appendMessages = createAction(actionTypes.APPEND_OFFER_MESSAGES)
 const appendNewMessages = createAction(actionTypes.APPEND_NEW_OFFER_MESSAGES)
+const setOfferMessageBlockTime = createAction(actionTypes.SET_OFFER_MESSAGE_BLOCKTIME)
 
 export const actions = {
   setMessages,
@@ -42,9 +43,13 @@ export const actions = {
   cleanNewMessages,
   setLastSeen,
   appendMessages,
-  appendNewMessages
+  appendNewMessages,
+  setOfferMessageBlockTime
 }
-const createOfferAdvert = ({ payload, history }) => async (dispatch, getState) => {
+const createOfferAdvert = ({ payload, history }) => async (
+  dispatch,
+  getState
+) => {
   await dispatch(createOffer({ payload }))
   await dispatch(
     contactsHandlers.epics.updateDeletedChannelTimestamp({
@@ -52,7 +57,9 @@ const createOfferAdvert = ({ payload, history }) => async (dispatch, getState) =
       timestamp: 0
     })
   )
-  history.push(`/main/offers/${payload.id + payload.offerOwner}/${payload.address}`)
+  history.push(
+    `/main/offers/${payload.id + payload.offerOwner}/${payload.address}`
+  )
 }
 const createOffer = ({ payload }) => async (dispatch, getState) => {
   const offers = offersSelectors.offers(getState())
@@ -75,7 +82,9 @@ export const loadVaultContacts = () => async (dispatch, getState) => {
         lastSeen: offer.lastSeen
       })
       await dispatch(addOffer({ newOffer }))
-      const message = await getVault().adverts.getAdvert(offer.offerId.substring(0, 64))
+      const message = await getVault().adverts.getAdvert(
+        offer.offerId.substring(0, 64)
+      )
       await dispatch(appendMessages({ message, itemId: offer.offerId }))
     }
   })
@@ -99,7 +108,10 @@ export const initMessage = () => async (dispatch, getState) => {
           shippingData: JSON.parse(msg.properties['message']).shippingData,
           tag: JSON.parse(msg.properties['message']).tag,
           offerOwner: JSON.parse(msg.properties['message']).offerOwner,
-          sender: { replyTo: msg.properties.sender, username: msg.properties.senderUsername },
+          sender: {
+            replyTo: msg.properties.sender,
+            username: msg.properties.senderUsername
+          },
           createdAt: parseInt(msg.properties.createdAt),
           type: parseInt(msg.properties.type)
         },
@@ -107,7 +119,12 @@ export const initMessage = () => async (dispatch, getState) => {
         receiver: { replyTo: offer.address, username: contact.username }
       })
     })
-    await dispatch(setMessages({ messages: vaultToDisplayableMessages, itemId: offer.itemId }))
+    await dispatch(
+      setMessages({
+        messages: vaultToDisplayableMessages,
+        itemId: offer.itemId
+      })
+    )
   })
 }
 const refreshMessages = id => async (dispatch, getState) => {
@@ -127,7 +144,10 @@ const refreshMessages = id => async (dispatch, getState) => {
         shippingData: JSON.parse(msg.properties['message']).shippingData,
         tag: JSON.parse(msg.properties['message']).tag,
         offerOwner: JSON.parse(msg.properties['message']).offerOwner,
-        sender: { replyTo: msg.properties.sender, username: msg.properties.senderUsername },
+        sender: {
+          replyTo: msg.properties.sender,
+          username: msg.properties.senderUsername
+        },
         createdAt: parseInt(msg.properties.createdAt),
         type: parseInt(msg.properties.type)
       },
@@ -163,7 +183,10 @@ const sendItemMessageOnEnter = event => async (dispatch, getState) => {
           type: zbayMessages.messageType.ITEM_BASIC,
           data: {
             itemId: channel.id.substring(0, 64),
-            text: currentMessage.message.getIn(['message', 'text']) + '\n' + messageToSend
+            text:
+              currentMessage.message.getIn(['message', 'text']) +
+              '\n' +
+              messageToSend
           }
         },
         privKey
@@ -217,18 +240,35 @@ export const epics = {
 export const reducer = handleActions(
   {
     [setMessages]: (state, { payload: { itemId, messages } }) =>
-      state.update(itemId, Offer(), item => item.set('messages', item.messages.concat(messages))),
-    [addOffer]: (state, { payload: { newOffer } }) => state.merge({ [newOffer.itemId]: newOffer }),
+      state.update(itemId, Offer(), item =>
+        item.set('messages', item.messages.concat(messages))
+      ),
+    [addOffer]: (state, { payload: { newOffer } }) =>
+      state.merge({ [newOffer.itemId]: newOffer }),
     [cleanNewMessages]: (state, { payload: { itemId } }) =>
-      state.update(itemId, Offer(), item => item.set('newMessages', Immutable.List())),
+      state.update(itemId, Offer(), item =>
+        item.set('newMessages', Immutable.List())
+      ),
     [appendMessages]: (state, { payload: { itemId, message } }) =>
-      state.update(itemId, Offer(), item => item.set('messages', item.messages.push(message))),
+      state.update(itemId, Offer(), item =>
+        item.set('messages', item.messages.push(message))
+      ),
     [appendNewMessages]: (state, { payload: { itemId, message } }) =>
       state.update(itemId, Offer(), item =>
         item.set('newMessages', item.newMessages.push(message))
       ),
     [setLastSeen]: (state, { payload: { itemId, lastSeen } }) =>
-      state.update(itemId, Offer(), item => item.set('lastSeen', lastSeen))
+      state.update(itemId, Offer(), item => item.set('lastSeen', lastSeen)),
+    [setOfferMessageBlockTime]: (
+      state,
+      { payload: { itemId, messageId, blockTime } }
+    ) =>
+      state.update(itemId, Offer(), cm =>
+        cm.update('messages', messages => {
+          const index = messages.findIndex(msg => msg.id === messageId)
+          return messages.setIn([index, 'blockTime'], blockTime)
+        })
+      )
   },
   initialState
 )

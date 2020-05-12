@@ -33,7 +33,8 @@ export const _DisplayableMessage = Immutable.Record(
     tag: '',
     offerOwner: null,
     isUnregistered: false,
-    publicKey: null
+    publicKey: null,
+    blockTime: Number.MAX_SAFE_INTEGER
   },
   'DisplayableMessage'
 )
