@@ -15,15 +15,25 @@ npm install testcafe-browser-provider-electron
 
 If your JavaScript application runs in Electron, follow these steps to set up testing.
 
-1. Create a `.testcafe-electron-rc` file in the root application directory. Include the following settings to this file.
+1. Create a JSON `.testcafe-electron-rc.json` or JavaScript `.testcafe-electron-rc.js` [configuration file](#configuration) in the root application directory. Include the following settings to this file.
+
+    *JSON*
 
     ```json
     {
-      "mainWindowUrl": "./index.html"
+        "mainWindowUrl": "./index.html"
     }
     ```
 
-    An Electron app has a file that is loaded as a startup page. TestCafe waits until Electron loads this page and then runs tests. Specify the path to this file with `mainWindowUrl` option. If a relative path is specified, it is resolved from the `.testcafe-electron-rc` file location.
+    *JavaScript*
+
+    ```js
+    module.exports = {
+        mainWindowUrl: './index.html'
+    }
+    ```
+
+    An Electron app has a file that is loaded as a startup page. TestCafe waits until Electron loads this page and then runs tests. Specify the path to this file with `mainWindowUrl` option. If a relative path is specified, it is resolved from the configuration file location.
 
     For information about other options, see the [Configuration](#configuration) section.
 
@@ -41,7 +51,7 @@ If your JavaScript application runs in Electron, follow these steps to set up te
     testcafe "electron:/home/user/electron-app" "<tests_directory>/**/*.js"
     ```
 
-4. The `.testcafe-electron-rc` file might be not in the application root directory. In that case specify the path to the configuration file like this:
+4. The configuration file might be not in the application root directory. In that case specify the path to the configuration file like this:
 
     ```json
     {
@@ -49,14 +59,14 @@ If your JavaScript application runs in Electron, follow these steps to set up te
       "appPath":       "/home/user/my_app"  
     }
     ```
-    
+
     In this instance, the `appPath` directory will be used as a working directory of the Electron application.
-    
+
 ### Testing an Executable Electron Application
 
 If your Electron app is built it has `<your_app_name>.exe` or `electron.exe` file. In that case you don't need an Electron module to run tests. Perform the following steps instead.
 
-1. In the application directory, create a `.testcafe-electron-rc` file with the following settings.
+1. In the application directory, create a configuration file with the following settings.
 
     ```json
     {
@@ -64,15 +74,15 @@ If your Electron app is built it has `<your_app_name>.exe` or `electron.exe` fil
         "electronPath":  "/home/user/myElectronApp/electron"
     }
     ```
-    
-    `mainWindowUrl` points to the application startup page; `electronPath` defines the path to your application's executable file. If you specify relative paths, they will be resolved from the `.testcafe-electron-rc` file location.
-    
+
+    `mainWindowUrl` points to the application startup page; `electronPath` defines the path to your application's executable file. If you specify relative paths, they will be resolved from the configuration file location.
+
 2. When you run tests, define the path to the configuration file. To do so, add the browser provider postfix: `electron:<path_to_testcafe-electron-rc_directory>`.
 
     ```sh
     testcafe "electron:/home/user/electron-app" "<tests_directory>/**/*.js"
     ```
-    
+
 ### Launching Tests from API
 
 To launch tests through the API, specify the application path with `electron:` prefix and pass it to the `browsers` method.
@@ -87,7 +97,7 @@ testCafe
 
 ### Specifying Target Webpage in Test Code
 
-In most cases, the target webpage is the main application page specified via the `mainWindowUrl` configuration option. 
+In most cases, the target webpage is the main application page specified via the `mainWindowUrl` configuration option.
 
 ```json
 {
@@ -99,6 +109,7 @@ In most cases, the target webpage is the main application page specified via the
 fixture `Electron test`
     .page('./index.html');
 ```
+
 However, you can specify any application page if your app contains more than one.
 
 ```js
@@ -108,12 +119,38 @@ fixture `Electron test`
 
 ## Configuration
 
-You can specify the following options in the `.testcafe-electron-rc` configuration file.
+You can specify browser provider options in a JSON `.testcafe-electron-rc.json` or JavaScript `.testcafe-electron-rc.js` configuration file.
+
+*JSON*
+
+```json
+{
+    "mainWindowUrl": "./index.html",
+    "appArgs": ["--arg1", "--arg2"],
+    "enableNavigateEvents": true
+}
+```
+
+*JavaScript*
+
+```js
+module.exports = {
+    mainWindowUrl: './index.html',
+    appArgs: ['--arg1', '--arg2'],
+    enableNavigateEvents: true
+}
+```
+
+The `.js` file must export an object with the configuration settings.
+
+Use JavaScript if you need additional flexibility. For instance, you can specify settings that depend on a condition.
+
+The browser provider supports the following options:
 
 ### mainWindowUrl
 
 __Required.__ Specifies the URL of the application's main window page.
- For local application pages, you can also specify a relative (to the application directory) or an absolute path to the file of the page.
+For local application pages, you can also specify a relative (to the application directory) or an absolute path to the file of the page.
 
 ### appPath
 
@@ -127,8 +164,8 @@ __Optional.__ Overrides application command line arguments with the values speci
 ### electronPath
 
 __Optional__. Specifies a path to the electron binary. If `electronPath` is not specified, the [electron package](https://www.npmjs.com/package/electron) should be installed.
- On macOS, it can be either a path to the `electron` binary, or a path to the entire Electron.app (e.g. `/Applications/Electron.app`). It may be necessary to stop all other running 
- instances of the specified Electron binary.
+On macOS, it can be either a path to the `electron` binary, or a path to the entire Electron.app (e.g. `/Applications/Electron.app`). It may be necessary to stop all other running
+instances of the specified Electron binary.
 
 ### enableNavigateEvents
 
@@ -139,6 +176,7 @@ __Optional.__ `testcafe-browser-provider-electron` suppresses `did-navigate` and
 __Optional.__ If `true`, DevTools will be opened just before tests start.
 
 ## Helpers
+
 You can use helper functions from the provider in your test files. Use ES6 import statement to access them.
 
 ```js
@@ -157,22 +195,21 @@ Parameter          | Type   | Description
 ------------------ | ------ | -----
 `menuItemSelector` | String | An array of menu item labels and/or objects with properties "label" and "index".
 
- For example, you can pass the following values in the `menuItemSelector` parameter.
+For example, you can pass the following values in the `menuItemSelector` parameter.
 
- * `['File', 'Open']`
- * `['File', { label: 'Open' }]`
- * `Context Menu > Undo`
+* `['File', 'Open']`
+* `['File', { label: 'Open' }]`
+* `Context Menu > Undo`
 
+If there are several menu items with the same label on the same level, you can specify a one-based "index"
+property:
 
- If there are several menu items with the same label on the same level, you can specify a one-based "index"
- property:
+* `['Window', {label: 'My Window', index: 2}]`
 
- * `['Window', {label: 'My Window', index: 2}]`
+This value corresponds to the second menu item with label `My Window` in the `Window` menu.
 
- This value corresponds to the second menu item with label `My Window` in the `Window` menu.
-
- Check the properties available in the snapshot
- [here](https://github.com/electron/electron/blob/master/docs/api/menu-item.md).
+Check the properties available in the snapshot
+[here](https://github.com/electron/electron/blob/master/docs/api/menu-item.md).
 
 **Example**
 
@@ -184,8 +221,8 @@ fixture `Electron test`
 
 test('Check the menu item role', async t => {
     const menuItem = await getMainMenuItem(['Main Menu', 'Edit', 'Undo']);
-    
-    await t.expect(menuItem.role).eql('undo');    
+
+    await t.expect(menuItem.role).eql('undo');
 });
 ```
 
@@ -201,20 +238,20 @@ Parameter          | Type   | Description
 ------------------ | ------ | -----
 `menuItemSelector` | String | An array of menu item labels and/or objects with properties "label" and "index".
 
- For example, you can pass the following values in the `menuItemSelector` parameter.
+For example, you can pass the following values in the `menuItemSelector` parameter.
 
- * `['Go To', 'Declaration']`
- * `['Go To', { label: 'Declaration' }]`
+* `['Go To', 'Declaration']`
+* `['Go To', { label: 'Declaration' }]`
 
- If there are several menu items with the same label on the same level, you can specify a one-based "index"
- property:
+If there are several menu items with the same label on the same level, you can specify a one-based "index"
+property:
 
- * `['Go To', {label: 'My Function', index: 2}]`
+* `['Go To', {label: 'My Function', index: 2}]`
 
- This value corresponds to the second menu item with label `My Function` in the `Go To` submenu.
+This value corresponds to the second menu item with label `My Function` in the `Go To` submenu.
 
- Check the properties available in the snapshot
- [here](https://github.com/electron/electron/blob/master/docs/api/menu-item.md).
+Check the properties available in the snapshot
+[here](https://github.com/electron/electron/blob/master/docs/api/menu-item.md).
 
 **Example**
 
@@ -226,23 +263,23 @@ fixture `Electron test`
 
 test('Check the menu item role', async t => {
     await t.rightClick('.el');
-    
+
     const menuItem = await getContextMenuItem(['Go To', {label: 'My Function', index: 2}]);
-    
-    await t.expect(menuItem.visible).ok();    
+
+    await t.expect(menuItem.visible).ok();
 });
 ```
 
- ### getMainMenuItems
+### getMainMenuItems
 
 Gets an array of snapshots of the application's main menu items. If an item has a submenu, it will also be represented as an array of snapshots.
 
- ```js
- async function getMainMenuItems ()
- ```
+```js
+async function getMainMenuItems ()
+```
 
- You can check properties available in snapshots
- [here](https://github.com/electron/electron/blob/master/docs/api/menu-item.md).
+You can check properties available in snapshots
+[here](https://github.com/electron/electron/blob/master/docs/api/menu-item.md).
 
 **Example**
 
@@ -254,21 +291,21 @@ fixture `Electron test`
 
 test('Menu should contains the proper list of items', async t => {
     const menuItems = (await getMainMenuItems()).map(item => item.label);
-    
+
     await t.expect(menuItems).eql(['File', 'Edit', 'Help']);
 });
 ```
 
- ### getContextMenuItems
+### getContextMenuItems
 
 Gets an array of item snapshots from the **most recently** opened context menu. If an item has a submenu, it will also be represented as an array of snapshots.
 
- ```js
- async function getContextMenuItems ()
- ```
+```js
+async function getContextMenuItems ()
+```
 
- You can check properties available in snapshots
- [here](https://github.com/electron/electron/blob/master/docs/api/menu.md),
+You can check properties available in snapshots
+[here](https://github.com/electron/electron/blob/master/docs/api/menu.md),
 
 **Example**
 
@@ -280,40 +317,40 @@ fixture `Electron test`
 
 test('Context menu should contains the proper list of items', async t => {
     await t.rightClick('.element-with-context-menu');
-    
+
     const menuItems = (await getContextMenuItems()).map(item => item.label);
-    
+
     await t.expect(menuItems).eql(['Cut', 'Copy', 'Properties']);
 });
 ```
 
- ### clickOnMainMenuItem
+### clickOnMainMenuItem
 
- Performs a click on the specified main menu item (`menuItem`).
+Performs a click on the specified main menu item (`menuItem`).
 
- ```js
- async function clickOnMainMenuItem (menuItem, modifiers)
- ```
+```js
+async function clickOnMainMenuItem (menuItem, modifiers)
+```
 
- Parameter          | Type   | Description
+Parameter          | Type   | Description
 ------------------ | ------ | -----
 `menuItem` | String &#124; Object | The main menu item to click.
 `modifiers` | Object | Control keys held when clicking the menu item.
 
- If you specify a string in the `menuItem` parameter, it will be passed to the [getMainMenuItem](#getmainmenuitem) function and the returned value will be used. Alternatively, you can pass a value returned by the [getMainMenuItem](#getmainmenuitem) or [getMainMenuItems](#getmainmenuitems) function.
+If you specify a string in the `menuItem` parameter, it will be passed to the [getMainMenuItem](#getmainmenuitem) function and the returned value will be used. Alternatively, you can pass a value returned by the [getMainMenuItem](#getmainmenuitem) or [getMainMenuItems](#getmainmenuitems) function.
 
- Use the `modifiers` parameter to specify state of the control keys (`Shift`, `Ctrl`, `Alt`, `Meta`). The default value is
+Use the `modifiers` parameter to specify state of the control keys (`Shift`, `Ctrl`, `Alt`, `Meta`). The default value is
 
- ```json
- {
-     "shift": false,
-     "ctrl":  false,
-     "alt":   false,
-     "meta":  false
- }
-  ```
+```json
+{
+    "shift": false,
+    "ctrl":  false,
+    "alt":   false,
+    "meta":  false
+}
+```
 
- **Examples**
+**Examples**
 
 ```js
 import { clickOnMainMenuItem } from 'testcafe-browser-provider-electron';
@@ -323,9 +360,9 @@ fixture `Test Electron`
 
 test('Should open search panel', async t => {
    await clickOnMainMenuItem(['Main Menu', 'Edit', 'Find...']);
-   
+
    await searchPanel = Selector('.search-panel');
-   
+
    await expect(searchPanel.count).eql(1);
 });
 ```
@@ -340,9 +377,9 @@ test('Should create new file', async t => {
     await clickOnMainMenuItem(['File', 'New']);
     //Or
     await clickOnMainMenuItem((await getMainMenuItems())[0].submenu[0])
-    
+
     await newFile = Selector('.file-item').withText('New File');
-    
+
     await expect(newFile.count).eql(1);
 });
 ```
@@ -351,29 +388,29 @@ test('Should create new file', async t => {
 
 Performs a click on the specified menu item (`menuItem`) of the **most recently** opened context menu.
 
- ```js
- async function clickOnContextMenuItem (menuItem, modifiers)
- ```
+```js
+async function clickOnContextMenuItem (menuItem, modifiers)
+```
 
- Parameter          | Type   | Description
+Parameter          | Type   | Description
 ------------------ | ------ | -----
 `menuItem` | String &#124; Object | The main menu item to click.
 `modifiers` | Object | Control keys held when clicking the menu item.
 
- If you specify a string in the `menuItem` parameter, it will be passed to the [getContextMenuItem](#getcontextmenuitem) function and the returned value will be used. Alternatively, you can pass a value returned by the [getContextMenuItem](#getcontextmenuitem) or [getContextMenuItems](#getcontextmenuitems) function.
+If you specify a string in the `menuItem` parameter, it will be passed to the [getContextMenuItem](#getcontextmenuitem) function and the returned value will be used. Alternatively, you can pass a value returned by the [getContextMenuItem](#getcontextmenuitem) or [getContextMenuItems](#getcontextmenuitems) function.
 
- Use the `modifiers` parameter to specify state of the control keys (`Shift`, `Ctrl`, `Alt`, `Meta`). The default value is
+Use the `modifiers` parameter to specify state of the control keys (`Shift`, `Ctrl`, `Alt`, `Meta`). The default value is
 
- ```json
- {
-     "shift": false,
-     "ctrl":  false,
-     "alt":   false,
-     "meta":  false
- }
-  ```
+```json
+{
+    "shift": false,
+    "ctrl":  false,
+    "alt":   false,
+    "meta":  false
+}
+```
 
- **Examples**
+**Examples**
 
 ```js
 import { clickOnContextMenuItem } from 'testcafe-browser-provider-electron';
@@ -382,57 +419,57 @@ fixture `Test Electron`
     .page('./index.html');
 
 test('Should open properties of element', async t => {
-    await t.rightClick('.el');	   
+    await t.rightClick('.el');
     await clickOnContextMenuItem(['Properties...']);
-    
+
     await elPropsPanel = Selector('.item-properties-panel');
-    
+
     await expect(elPropsPanel.count).eql(1);
 });
 ```
 
- ### setElectronDialogHandler
+### setElectronDialogHandler
 
- Sets a function that will handle native Electron dialogs.
+Sets a function that will handle native Electron dialogs.
 
- ```js
- async function setElectronDialogHandler (handler, dependencies) 
- ```
+```js
+async function setElectronDialogHandler (handler, dependencies) 
+```
 
-  Parameter          | Type   | Description
+Parameter          | Type   | Description
 ------------------ | ------ | -----
 `handler` | Function | A function that will handle Electron dialogs.
 `dependencies` | Object | Variables passed to the `handler` function's scope as global variables.
 
- The `handler` function has the following signature.
+The `handler` function has the following signature.
 
- ```js
- function handler (type, ...args)
- ```
+```js
+function handler (type, ...args)
+```
 
- This function must be synchronous. It will be invoked with the dialog type `type`, and the arguments `args`
- from the original dialog function.
- 
- The `type` parameter takes one of the following values: 
- 
- * `open-dialog`,
- * `save-dialog`,
- * `message-box`,
- * `error-box`,
- * `certificate-trust-dialog`.
- 
- **Example**
- 
- ```js
- import { setElectronDialogHandler } from 'testcafe-browser-provider-electron';
+This function must be synchronous. It will be invoked with the dialog type `type`, and the arguments `args`
+from the original dialog function.
+
+The `type` parameter takes one of the following values: 
+
+* `open-dialog`,
+* `save-dialog`,
+* `message-box`,
+* `error-box`,
+* `certificate-trust-dialog`.
+
+**Example**
+
+```js
+import { setElectronDialogHandler } from 'testcafe-browser-provider-electron';
 
 fixture `Electron test`
     .page('./index.html');
 
 test('Test project opening', async t => {
     await setElectronDialogHandler((type, browserWindow, options) => {
-    	//browserWindow, options are standard arguments of the opening dialog, you can use it for your purposes
-        if(type !== 'open-dialog') 
+        //browserWindow, options are standard arguments of the opening dialog, you can use it for your purposes
+        if(type !== 'open-dialog')
             return;
 
         //it returns the file path from the open dialog
@@ -443,9 +480,10 @@ test('Test project opening', async t => {
         .click('.open-project')
         //Here the open directory dialog opens and returns the path '/home/user/project_name'
         //After this, we check that the project was opened to get its name
-        .expect('.project-name').eql('project_name');        
+        .expect('.project-name').eql('project_name');
 });
 ```
- 
+
 ## Author
+
 Developer Express Inc. (https://devexpress.com)
