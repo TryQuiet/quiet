@@ -470,7 +470,7 @@ export const unpackMemo = async memo => {
   }
 }
 
-const trimNull = a => {
+export const trimNull = a => {
   var c = a.indexOf('\0')
   if (c > -1) {
     return a.substr(0, c)

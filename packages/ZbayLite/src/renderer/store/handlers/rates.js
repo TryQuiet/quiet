@@ -1,13 +1,15 @@
 import Immutable from 'immutable'
 import { handleActions, createAction } from 'redux-actions'
 
-import { actionTypes } from '../../../shared/static'
+import { actionTypes, PRICE_ORACLE_PUB_KEY } from '../../../shared/static'
 import channelsSelectors from '../selectors/channels'
 import { getClient } from '../../zcash'
 import appSelectors from '../selectors/app'
 import appHandlers from './app'
 import txnTimestampsHandlers from '../handlers/txnTimestamps'
 import txnTimestampsSelector from '../selectors/txnTimestamps'
+import { getPublicKeysFromSignature } from '../../zbay/messages'
+import { trimNull } from '../../zbay/transit'
 import { getVault } from '../../vault'
 
 export const RatesState = Immutable.Record(
@@ -62,10 +64,24 @@ export const fetchPrices = () => async (dispatch, getState) => {
     const sortedTransfers = transfers.sort(
       (b, a) => txnTimestamps.get(a.txid) - txnTimestamps.get(b.txid)
     )
-    const price = parseFloat(
-      Buffer.from(sortedTransfers[0].memo, 'hex').toString()
-    )
-    dispatch(setPriceUsd({ priceUsd: price }))
+    for (const msg of sortedTransfers) {
+      try {
+        const memo = trimNull(Buffer.from(msg.memo, 'hex').toString())
+        const price = trimNull(memo.substring(129))
+        const pkey = getPublicKeysFromSignature({
+          message: price,
+          signature: Buffer.from(memo.substring(0, 128), 'hex'),
+          r: parseInt(memo.substring(128, 129))
+        })
+        if (pkey.toString('hex') !== PRICE_ORACLE_PUB_KEY) {
+          continue
+        }
+        dispatch(setPriceUsd({ priceUsd: price }))
+        break
+      } catch (err) {
+        continue
+      }
+    }
   } catch (err) {
     console.warn(err)
   }
