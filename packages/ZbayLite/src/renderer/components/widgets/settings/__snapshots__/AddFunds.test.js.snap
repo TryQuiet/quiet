@@ -57,7 +57,6 @@ exports[`AddFunds renders component 1`] = `
             level="L"
             renderAs="canvas"
             size={200}
-            value="test-address-transparent"
           />
         </WithStyles(ForwardRef(Grid))>
       </WithStyles(ForwardRef(Grid))>
@@ -82,7 +81,7 @@ exports[`AddFunds renders component 1`] = `
     <WithStyles(ForwardRef(Typography))
       variant="body2"
     >
-      Zbay uses the
+      Zbay runs on
        
       <a
         className="link-mock"
@@ -92,7 +91,7 @@ exports[`AddFunds renders component 1`] = `
         Zcash
       </a>
        
-      cryptocurrency. Cryptocurrency addresses are like email addressess or phone numbers, but for money. If you send money to the right address, the recipient will receive it. Send to the wrong address and you'll lose your money. Be sure to copy and paste the address correctly!
+      (a cryptocurrency). Cryptocurrency addresses are unique, like email addressess or phone numbers, for money (send to the right address and the recipient will get the money).
     </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
@@ -113,7 +112,13 @@ exports[`AddFunds renders component 1`] = `
       className="caption-mock"
       variant="caption"
     >
-      Send Zcash to it, and Zbay will store the funds on your computer. 1% of each deposit goes to the Zbay team, supporting Zbay development.
+      Send Zcash to it, and Zbay will store the funds on your computer.
+       
+      <span
+        className="link-mock"
+      >
+        Generate new address
+      </span>
     </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
@@ -183,7 +188,6 @@ exports[`AddFunds renders component 1`] = `
           fullWidth={true}
           id="outlined-address"
           name="address"
-          value="test-address-transparent"
         />
       </WithStyles(ForwardRef(Grid))>
       <Memo(WithStyles(Tooltip))
@@ -209,7 +213,6 @@ exports[`AddFunds renders component 1`] = `
   >
     <CopyToClipboard
       onCopy={[Function]}
-      text="test-address-transparent"
     >
       <WithStyles(ForwardRef(Button))
         className="button-mock"

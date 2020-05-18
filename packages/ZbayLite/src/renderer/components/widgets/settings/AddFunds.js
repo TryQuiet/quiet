@@ -36,6 +36,7 @@ const styles = theme => ({
     marginTop: 32
   },
   link: {
+    cursor: 'pointer',
     textDecoration: 'none',
     color: theme.palette.colors.linkBlue
   },
@@ -130,12 +131,14 @@ const styles = theme => ({
 export const AddFunds = ({
   classes,
   variant,
-  transparentAddress,
-  privateAddress,
   setCurrentTab,
   clearCurrentOpenTab,
   donationAllow,
-  updateDonation
+  updateDonation,
+  generateNewAddress,
+  generateNewShieldedAddress,
+  topAddress,
+  topShieldedAddress
 }) => {
   const [expanded, setExpanded] = React.useState(false)
   const [dialogOpen, setDialogOpen] = React.useState(false)
@@ -165,7 +168,7 @@ export const AddFunds = ({
               </Typography>
             </Grid>
             <Grid item className={classes.qrcodeDiv}>
-              <QRCode value={transparentAddress} size={200} />
+              <QRCode value={topAddress} size={200} />
             </Grid>
           </Grid>
         </Grid>
@@ -181,7 +184,7 @@ export const AddFunds = ({
       </Grid>
       <Grid item className={classes.spacing24}>
         <Typography variant='body2'>
-          Zbay uses the{' '}
+          Zbay runs on{' '}
           <a
             className={classes.link}
             onClick={e => {
@@ -192,10 +195,9 @@ export const AddFunds = ({
           >
             Zcash
           </a>{' '}
-          cryptocurrency. Cryptocurrency addresses are like email addressess or
-          phone numbers, but for money. If you send money to the right address,
-          the recipient will receive it. Send to the wrong address and you'll
-          lose your money. Be sure to copy and paste the address correctly!
+          (a cryptocurrency). Cryptocurrency addresses are unique, like email
+          addressess or phone numbers, for money (send to the right address and
+          the recipient will get the money).
         </Typography>
       </Grid>
       <Grid item className={classes.spacing32}>
@@ -205,7 +207,10 @@ export const AddFunds = ({
       </Grid>
       <Grid item>
         <Typography variant='caption' className={classes.caption}>
-          Send Zcash to it, and Zbay will store the funds on your computer. 1% of each deposit goes to the Zbay team, supporting Zbay development.
+          Send Zcash to it, and Zbay will store the funds on your computer.{' '}
+          <span className={classes.link} onClick={generateNewAddress}>
+            Generate new address
+          </span>
         </Typography>
       </Grid>
       <Grid item>
@@ -237,7 +242,7 @@ export const AddFunds = ({
               name='address'
               id='outlined-address'
               classes={{ root: classes.transparentAddress }}
-              value={transparentAddress}
+              value={topAddress}
               fullWidth
               disabled
             />
@@ -261,7 +266,7 @@ export const AddFunds = ({
       </Grid>
       <Grid item xs>
         <CopyToClipboard
-          text={transparentAddress}
+          text={topAddress}
           onCopy={() => {
             setIsCopied(true)
           }}
@@ -325,11 +330,19 @@ export const AddFunds = ({
             </Grid>
             <Grid item>
               <Typography variant='caption' className={classes.caption}>
-                To receive funds privately from another Zcash user, use this
-                private address. (You can't send directly to a private address
-                from most exchanges, so in most cases you should use the
-                "transparent" address above—Zbay will then move all funds to a
-                private address as soon as they arrive.)
+                You can't send directly to a private address from most
+                exchanges. Zbay will then move all funds to a private address as
+                soon as they arrive.{' '}
+                <span
+                  className={classes.link}
+                  onClick={e => {
+                    generateNewShieldedAddress()
+                    e.stopPropagation()
+                    e.preventDefault()
+                  }}
+                >
+                  Generate new address
+                </span>
               </Typography>
             </Grid>
             <Grid item xs className={classes.spacing24}>
@@ -337,7 +350,7 @@ export const AddFunds = ({
                 name='address'
                 id='outlined-address'
                 classes={{ root: classes.transparentAddress }}
-                value={privateAddress}
+                value={topShieldedAddress}
                 fullWidth
                 disabled
                 onClick={e => {
@@ -355,8 +368,8 @@ export const AddFunds = ({
 
 AddFunds.propTypes = {
   classes: PropTypes.object.isRequired,
-  transparentAddress: PropTypes.string.isRequired,
-  privateAddress: PropTypes.string.isRequired,
+  topAddress: PropTypes.string.isRequired,
+  topShieldedAddress: PropTypes.string.isRequired,
   variant: PropTypes.string,
   setCurrentTab: PropTypes.func.isRequired,
   clearCurrentOpenTab: PropTypes.func.isRequired

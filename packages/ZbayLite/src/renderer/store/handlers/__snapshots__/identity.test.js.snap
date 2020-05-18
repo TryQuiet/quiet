@@ -24,6 +24,8 @@ Immutable.IdentityState {
     "shieldingTax": true,
     "donationAddress": "",
     "freeUtxos": 0,
+    "addresses": Immutable.List [],
+    "shieldedAddresses": Immutable.List [],
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
@@ -58,6 +60,8 @@ Immutable.IdentityState {
     "shieldingTax": true,
     "donationAddress": "",
     "freeUtxos": 0,
+    "addresses": Immutable.List [],
+    "shieldedAddresses": Immutable.List [],
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
@@ -92,6 +96,8 @@ Immutable.IdentityState {
     "shieldingTax": true,
     "donationAddress": "",
     "freeUtxos": 0,
+    "addresses": Immutable.List [],
+    "shieldedAddresses": Immutable.List [],
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
@@ -126,6 +132,8 @@ Immutable.IdentityState {
     "shieldingTax": true,
     "donationAddress": "",
     "freeUtxos": 0,
+    "addresses": Immutable.List [],
+    "shieldedAddresses": Immutable.List [],
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
@@ -160,6 +168,8 @@ Immutable.IdentityState {
     "shieldingTax": true,
     "donationAddress": "",
     "freeUtxos": 0,
+    "addresses": Immutable.List [],
+    "shieldedAddresses": Immutable.List [],
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
@@ -194,6 +204,8 @@ Immutable.IdentityState {
     "shieldingTax": true,
     "donationAddress": "",
     "freeUtxos": 0,
+    "addresses": Immutable.List [],
+    "shieldedAddresses": Immutable.List [],
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
@@ -228,6 +240,8 @@ Immutable.IdentityState {
     "shieldingTax": true,
     "donationAddress": "",
     "freeUtxos": 0,
+    "addresses": Immutable.List [],
+    "shieldedAddresses": Immutable.List [],
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
@@ -262,6 +276,8 @@ Immutable.IdentityState {
     "shieldingTax": true,
     "donationAddress": "",
     "freeUtxos": 0,
+    "addresses": Immutable.List [],
+    "shieldedAddresses": Immutable.List [],
   },
   "fetchingBalance": true,
   "loader": Immutable.Record {
@@ -296,6 +312,8 @@ Immutable.IdentityState {
     "shieldingTax": true,
     "donationAddress": "",
     "freeUtxos": 0,
+    "addresses": Immutable.List [],
+    "shieldedAddresses": Immutable.List [],
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
@@ -330,6 +348,8 @@ Immutable.IdentityState {
     "shieldingTax": true,
     "donationAddress": "",
     "freeUtxos": 0,
+    "addresses": Immutable.List [],
+    "shieldedAddresses": Immutable.List [],
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
@@ -381,6 +401,8 @@ Immutable.IdentityState {
     "shieldingTax": true,
     "donationAddress": "",
     "freeUtxos": 0,
+    "addresses": Immutable.List [],
+    "shieldedAddresses": Immutable.List [],
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
@@ -415,6 +437,8 @@ Immutable.IdentityState {
     "shieldingTax": true,
     "donationAddress": "",
     "freeUtxos": 0,
+    "addresses": Immutable.List [],
+    "shieldedAddresses": Immutable.List [],
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
@@ -652,6 +676,8 @@ Immutable.IdentityState {
     "shieldingTax": true,
     "donationAddress": "",
     "freeUtxos": 0,
+    "addresses": Immutable.List [],
+    "shieldedAddresses": Immutable.List [],
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
@@ -694,6 +720,8 @@ Immutable.IdentityState {
     "shieldingTax": true,
     "donationAddress": "",
     "freeUtxos": 0,
+    "addresses": Immutable.List [],
+    "shieldedAddresses": Immutable.List [],
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {

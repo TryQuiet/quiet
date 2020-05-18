@@ -43,11 +43,13 @@ Immutable.IdentityState {
     "shieldingTax": true,
     "donationAddress": "",
     "freeUtxos": 0,
+    "addresses": Immutable.List [],
+    "shieldedAddresses": Immutable.List [],
   },
   "fetchingBalance": false,
   "loader": Immutable.Record {
     "loading": false,
-    "message": "Loading users and messages",
+    "message": "Fetching balance and loading channels",
   },
   "errors": "",
 }

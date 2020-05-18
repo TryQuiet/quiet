@@ -92,6 +92,12 @@ describe('identity selectors', () => {
   it('address', () => {
     expect(selectors.address(store.getState())).toMatchSnapshot()
   })
+  it('topShieldedAddress', () => {
+    expect(selectors.topShieldedAddress(store.getState())).toMatchSnapshot()
+  })
+  it('topAddress', () => {
+    expect(selectors.topAddress(store.getState())).toMatchSnapshot()
+  })
 
   it('transparentAddress', () => {
     expect(selectors.transparentAddress(store.getState())).toMatchSnapshot()

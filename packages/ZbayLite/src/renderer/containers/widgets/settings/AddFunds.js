@@ -10,11 +10,11 @@ import userSelectors from '../../../store/selectors/users'
 import { actions } from '../../../store/handlers/app'
 
 export const mapStateToProps = state => ({
-  privateAddress: identitySelectors.address(state),
-  transparentAddress: identitySelectors.transparentAddress(state),
   users: userSelectors.users(state),
   donationAddress: identitySelectors.donationAddress(state),
-  donationAllow: identitySelectors.donationAllow(state)
+  donationAllow: identitySelectors.donationAllow(state),
+  topAddress: identitySelectors.topAddress(state),
+  topShieldedAddress: identitySelectors.topShieldedAddress(state)
 })
 
 export const mapDispatchToProps = (dispatch, props) =>
@@ -23,6 +23,9 @@ export const mapDispatchToProps = (dispatch, props) =>
       updateDonation: identityHandlers.epics.updateDonation,
       setDonationAddress: identityHandlers.actions.setDonationAddress,
       setDonationAllow: identityHandlers.actions.setDonationAllow,
+      generateNewAddress: identityHandlers.epics.generateNewAddress,
+      generateNewShieldedAddress:
+        identityHandlers.epics.generateNewShieldedAddress,
       updateDonationAddress: address =>
         identityHandlers.epics.updateDonationAddress(address),
       clearCurrentOpenTab: actions.clearModalTab

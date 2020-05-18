@@ -65,7 +65,9 @@ const _Identity = Immutable.Record(
     donationAllow: true,
     shieldingTax: true,
     donationAddress: '',
-    freeUtxos: 0
+    freeUtxos: 0,
+    addresses: Immutable.List(),
+    shieldedAddresses: Immutable.List()
   },
   'Identity'
 )
@@ -105,6 +107,10 @@ export const setDonationAllow = createAction(actionTypes.SET_DONATION_ALLOW)
 export const setDonationAddress = createAction(actionTypes.SET_DONATION_ADDRESS)
 export const setShieldingTax = createAction(actionTypes.SET_SHIELDING_TAX)
 export const setFreeUtxos = createAction(actionTypes.SET_FREE_UTXOS)
+export const setUserAddreses = createAction(actionTypes.SET_USER_ADDRESSES)
+export const setUserShieldedAddreses = createAction(
+  actionTypes.SET_USER_SHIELDED_ADDRESES
+)
 
 const actions = {
   setIdentity,
@@ -217,10 +223,31 @@ export const fetchBalance = () => async (dispatch, getState) => {
   dispatch(setFetchingBalance(true))
   const address = identitySelectors.address(getState())
   const tAddress = identitySelectors.transparentAddress(getState())
+  const addresses = identitySelectors.addresses(getState()).toJS()
+  const shieldedAddresses = identitySelectors
+    .shieldedAddresses(getState())
+    .toJS()
+  const allAddresses = addresses.concat(shieldedAddresses).concat(tAddress)
+  for (const userAddress of allAddresses) {
+    try {
+      const balance = await getClient().accounting.balance(userAddress)
+      const realTBalance = balance.minus(fee)
+      if (realTBalance.gt(0)) {
+        await dispatch(
+          shieldBalance({
+            from: userAddress,
+            to: address,
+            amount: realTBalance,
+            fee
+          })
+        )
+      }
+    } catch (err) {
+      console.warn(err)
+    }
+  }
   try {
     const balance = await getClient().accounting.balance(address)
-    const transparentBalance = await getClient().accounting.balance(tAddress)
-    const realTBalance = transparentBalance.minus(fee)
     const lockedBalanceNotes = await getClient().payment.unspentNotes({
       addresses: [address],
       minConfirmations: 0,
@@ -230,19 +257,15 @@ export const fetchBalance = () => async (dispatch, getState) => {
       (acc, current) => acc.plus(new BigNumber(current.amount || 0)),
       new BigNumber(0)
     )
-    if (realTBalance.gt(0)) {
-      await dispatch(
-        shieldBalance({
-          from: tAddress,
-          to: address,
-          amount: realTBalance,
-          fee
-        })
-      )
-    }
+
     dispatch(setLockedBalance(lockedBalance))
     dispatch(setBalance(balance))
-    dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Fetching balance: locked balance: ${lockedBalance}, balance: ${balance}` }))
+    dispatch(
+      logsHandlers.epics.saveLogs({
+        type: 'APPLICATION_LOGS',
+        payload: `Fetching balance: locked balance: ${lockedBalance}, balance: ${balance}`
+      })
+    )
   } catch (err) {
     dispatch(setErrors(err.message))
   } finally {
@@ -257,7 +280,12 @@ export const fetchFreeUtxos = () => async (dispatch, getState) => {
       utxo => utxo.spendable === true && utxo.amount > networkFee
     )
     dispatch(setFreeUtxos(freeUtxos.length))
-    dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Setting free UTXOs: ${freeUtxos.length}` }))
+    dispatch(
+      logsHandlers.epics.saveLogs({
+        type: 'APPLICATION_LOGS',
+        payload: `Setting free UTXOs: ${freeUtxos.length}`
+      })
+    )
   } catch (err) {
     console.warn(err)
   }
@@ -310,7 +338,12 @@ export const createIdentity = ({ name }) => async (dispatch, getState) => {
     await getVault().channels.importChannel(identity.id, generalChannel)
     await getVault().channels.importChannel(identity.id, usersChannel)
     await getVault().channels.importChannel(identity.id, channelOfChannels)
-    dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Creating identity / importing default channels` }))
+    dispatch(
+      logsHandlers.epics.saveLogs({
+        type: 'APPLICATION_LOGS',
+        payload: `Creating identity / importing default channels`
+      })
+    )
     try {
       await getClient().keys.importIVK({
         ivk: generalChannel.keys.ivk
@@ -327,7 +360,12 @@ export const loadIdentity = () => async (dispatch, getState) => {
   const [identity] = await vault.identity.listIdentities()
   if (identity) {
     await dispatch(setIdentity(identity))
-    dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Loading identity` }))
+    dispatch(
+      logsHandlers.epics.saveLogs({
+        type: 'APPLICATION_LOGS',
+        payload: `Loading identity`
+      })
+    )
   }
 }
 
@@ -337,7 +375,12 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
 ) => {
   let identity = await migrateTo_0_2_0.ensureIdentityHasKeys(identityToSet)
   dispatch(setLoading(true))
-  dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Start loading identity` }))
+  dispatch(
+    logsHandlers.epics.saveLogs({
+      type: 'APPLICATION_LOGS',
+      payload: `Start loading identity`
+    })
+  )
   const isRescanned = electronStore.get('AppStatus.blockchain.isRescanned')
   try {
     dispatch(setLoadingMessage('Ensuring identity integrity'))
@@ -347,7 +390,11 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
     await migrateTo_0_7_0.ensureDefaultChannels(identity, network)
     await dispatch(channelsHandlers.actions.loadChannelsToNode(identity.id))
     await getClient().keys.importTPK({ tpk: identity.keys.tpk, rescan: false })
-    await getClient().keys.importSK({ sk: identity.keys.sk, rescan: isRescanned ? 'no' : 'yes', startHeight: 700000 })
+    await getClient().keys.importSK({
+      sk: identity.keys.sk,
+      rescan: isRescanned ? 'no' : 'yes',
+      startHeight: 700000
+    })
     await dispatch(whitelistHandlers.epics.initWhitelist())
     await dispatch(notificationCenterHandlers.epics.init())
     dispatch(setLoadingMessage('Setting identity'))
@@ -368,8 +415,9 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
     dispatch(removedChannelsHandlers.epics.getRemovedChannelsTimestamp())
 
     dispatch(setLoadingMessage('Fetching balance and loading channels'))
-    dispatch(ratesHandlers.epics.fetchPrices())
     await dispatch(fetchBalance())
+    await dispatch(initAddreses())
+    dispatch(ratesHandlers.epics.fetchPrices())
     await dispatch(fetchFreeUtxos())
     dispatch(setLoadingMessage('Loading users and messages'))
     await dispatch(usersHandlers.epics.fetchUsers())
@@ -383,7 +431,8 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
         channelsSelectors
           .data(getState())
           .find(
-            channel => channel.get('address') === channels.general[network].address
+            channel =>
+              channel.get('address') === channels.general[network].address
           )
       )
     )
@@ -394,7 +443,12 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
   }
   dispatch(fetchAffiliateMoney())
   dispatch(setLoading(false))
-  dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: ` Loading identity finished` }))
+  dispatch(
+    logsHandlers.epics.saveLogs({
+      type: 'APPLICATION_LOGS',
+      payload: ` Loading identity finished`
+    })
+  )
   // Don't show deposit modal if we use faucet 12.02.2020
   // const balance = identitySelectors.balance('zec')(getState())
   // const lockedBalance = identitySelectors.lockedBalance('zec')(getState())
@@ -418,7 +472,12 @@ export const updateShippingData = (values, formActions) => async (
       successNotification({ message: 'Shipping Address Updated' })
     )
   )
-  dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Updating shipping data` }))
+  dispatch(
+    logsHandlers.epics.saveLogs({
+      type: 'APPLICATION_LOGS',
+      payload: `Updating shipping data`
+    })
+  )
   formActions.setSubmitting(false)
 }
 
@@ -431,7 +490,12 @@ export const updateDonation = allow => async (dispatch, getState) => {
       successNotification({ message: 'Donation information updated' })
     )
   )
-  dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Updating donation status` }))
+  dispatch(
+    logsHandlers.epics.saveLogs({
+      type: 'APPLICATION_LOGS',
+      payload: `Updating donation status`
+    })
+  )
 }
 
 export const updateDonationAddress = address => async (dispatch, getState) => {
@@ -443,7 +507,38 @@ export const updateShieldingTax = allow => async (dispatch, getState) => {
   const identity = await vault.identity.updateShieldingTax(id, allow)
   await dispatch(setShieldingTax(identity.shieldingTax))
 }
-
+export const generateNewAddress = () => async (dispatch, getState) => {
+  if (!electronStore.get('addresses')) {
+    electronStore.set('addresses', JSON.stringify([]))
+  }
+  const addresses = JSON.parse(electronStore.get('addresses'))
+  const address = await getClient().addresses.createTransparent()
+  addresses.unshift(address)
+  dispatch(setUserAddreses(Immutable.List(addresses)))
+  electronStore.set('addresses', JSON.stringify(addresses))
+}
+export const generateNewShieldedAddress = () => async (dispatch, getState) => {
+  if (!electronStore.get('shieldedAddresses')) {
+    electronStore.set('shieldedAddresses', JSON.stringify([]))
+  }
+  const addresses = JSON.parse(electronStore.get('shieldedAddresses'))
+  const address = await getClient().addresses.create('sapling')
+  addresses.unshift(address)
+  dispatch(setUserShieldedAddreses(Immutable.List(addresses)))
+  electronStore.set('shieldedAddresses', JSON.stringify(addresses))
+}
+export const initAddreses = () => async (dispatch, getState) => {
+  if (!electronStore.get('addresses')) {
+    electronStore.set('addresses', JSON.stringify([]))
+  }
+  if (!electronStore.get('shieldedAddresses')) {
+    electronStore.set('shieldedAddresses', JSON.stringify([]))
+  }
+  const addresses = JSON.parse(electronStore.get('addresses'))
+  dispatch(setUserAddreses(Immutable.List(addresses)))
+  const shieldedAddreses = JSON.parse(electronStore.get('shieldedAddresses'))
+  dispatch(setUserShieldedAddreses(Immutable.List(shieldedAddreses)))
+}
 const epics = {
   fetchBalance,
   createIdentity,
@@ -454,7 +549,9 @@ const epics = {
   updateDonationAddress,
   updateShieldingTax,
   fetchFreeUtxos,
-  loadIdentity
+  loadIdentity,
+  generateNewAddress,
+  generateNewShieldedAddress
 }
 
 const exportFunctions = {
@@ -485,7 +582,11 @@ export const reducer = handleActions(
     [setShieldingTax]: (state, { payload: allow }) =>
       state.setIn(['data', 'shieldingTax'], allow),
     [setFreeUtxos]: (state, { payload: freeUtxos }) =>
-      state.setIn(['data', 'freeUtxos'], freeUtxos)
+      state.setIn(['data', 'freeUtxos'], freeUtxos),
+    [setUserAddreses]: (state, { payload: addresses }) =>
+      state.setIn(['data', 'addresses'], addresses),
+    [setUserShieldedAddreses]: (state, { payload: shieldedAddresses }) =>
+      state.setIn(['data', 'shieldedAddresses'], shieldedAddresses)
   },
   initialState
 )

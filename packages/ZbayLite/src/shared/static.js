@@ -144,7 +144,9 @@ export const actionTypes = mirrorKey({
   REDUCE_NEW_TRANSFERS_COUNT: undefined,
   SET_MESSAGE_BLOCKTIME: undefined,
   SET_VAULT_MESSAGE_BLOCKTIME: undefined,
-  SET_OFFER_MESSAGE_BLOCKTIME: undefined
+  SET_OFFER_MESSAGE_BLOCKTIME: undefined,
+  SET_USER_ADDRESSES: undefined,
+  SET_USER_SHIELDED_ADDRESES: undefined
 })
 
 export const messageType = {

@@ -24,6 +24,8 @@ Object {
     "shieldingTax": true,
     "donationAddress": "",
     "freeUtxos": 0,
+    "addresses": Immutable.List [],
+    "shieldedAddresses": Immutable.List [],
   },
   "user": undefined,
 }
