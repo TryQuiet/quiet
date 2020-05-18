@@ -37,7 +37,7 @@ const styles = theme => ({
   },
   main: {
     backgroundColor: theme.palette.colors.white,
-    padding: '0px 24px'
+    padding: '0px 32px'
   },
   title: {
     marginTop: 24
@@ -45,8 +45,10 @@ const styles = theme => ({
   fullWidth: {
     paddingBottom: 25
   },
-  description: {
-    marginTop: 6
+  note: {
+    fontSize: 14,
+    lineHeight: '20px',
+    color: theme.palette.colors.black30
   },
   field: {
     marginTop: 18
@@ -55,10 +57,12 @@ const styles = theme => ({
     marginTop: 24
   },
   info: {
-    marginTop: 2
+    lineHeight: '18px',
+    color: theme.palette.colors.darkGray,
+    letterSpacing: 0.4
   },
   button: {
-    width: 185,
+    width: 139,
     height: 60,
     backgroundColor: theme.palette.colors.purple,
     padding: theme.spacing(2),
@@ -66,7 +70,8 @@ const styles = theme => ({
       backgroundColor: theme.palette.colors.darkPurple
     },
     '&:disabled': {
-      backgroundColor: theme.palette.colors.gray
+      backgroundColor: theme.palette.colors.lightGray,
+      color: 'rgba(255,255,255,0.6)'
     }
   },
   closeModal: {
@@ -85,6 +90,17 @@ const styles = theme => ({
   label: {
     fontSize: 12,
     color: theme.palette.colors.black30
+  },
+  link: {
+    cursor: 'pointer',
+    color: theme.palette.colors.linkBlue
+  },
+  spacing24: {
+    marginTop: 24
+  },
+  infoDiv: {
+    lineHeight: 'initial',
+    marginTop: 8
   }
 })
 
@@ -175,7 +191,11 @@ const submitForm = (handleSubmit, values, setFormSent) => {
   setFormSent(true)
   handleSubmit(values)
 }
-
+const getRandomIntFromRange = (min, max) => {
+  min = Math.ceil(min)
+  max = Math.floor(max)
+  return Math.floor(Math.random() * (max - min + 1)) + min
+}
 export const CreateUsernameModal = ({
   classes,
   open,
@@ -188,18 +208,19 @@ export const CreateUsernameModal = ({
   zecRate
 }) => {
   const [formSent, setFormSent] = useState(false)
+  const [randomUsername, setRandomUsername] = useState(
+    'anon' + getRandomIntFromRange(10000000, 99999999)
+  )
+  React.useEffect(() => {
+    setRandomUsername('anon' + getRandomIntFromRange(10000000, 99999999))
+  }, [])
   return (
-    <Modal open={open} handleClose={handleClose}>
+    <Modal open handleClose={handleClose}>
       <Grid container className={classes.main} direction='column'>
         {!formSent ? (
           <React.Fragment>
             <Grid className={classes.title} item>
               <Typography variant={'h3'}>Register a username</Typography>
-            </Grid>
-            <Grid className={classes.description} item>
-              <Typography variant={'body2'}>
-                {`Zbay may soon charge a fee for this, but it's (almost) free for now, and we've already provided the funds you need. Your username will last forever, so choose it well...`}
-              </Typography>
             </Grid>
             <Formik
               onSubmit={values => submitForm(handleSubmit, values, setFormSent)}
@@ -212,14 +233,26 @@ export const CreateUsernameModal = ({
                 isValid,
                 handleChange,
                 validateForm,
-                validateField
+                validateField,
+                setFieldValue
               }) => {
+                const setUsername = () => {
+                  setFieldValue('nickname', randomUsername, true)
+                }
                 return (
                   <Form className={classes.fullWidth}>
                     <Grid container className={classes.container}>
                       <Grid className={classes.field} item xs={12}>
                         <Typography variant='caption' className={classes.label}>
-                          Username
+                          Choose your favorite username or use this random one:{' '}
+                          {
+                            <span
+                              className={classes.link}
+                              onClick={setUsername}
+                            >
+                              {randomUsername}
+                            </span>
+                          }
                         </Typography>
                         <Field
                           name='nickname'
@@ -227,10 +260,11 @@ export const CreateUsernameModal = ({
                           component={CustomInputComponent}
                         />
                       </Grid>
-                      <Grid className={classes.info} item xs={12}>
-                        <Typography variant='caption'>
-                          Lowercase letters and numbers only; no spaces or
-                          special characters allowed.
+                      <Grid item xs={12} className={classes.infoDiv}>
+                        <Typography variant='caption' className={classes.info}>
+                          Your username cannot have any spaces or special
+                          characters, must be lowercase letters and numbers
+                          only.
                         </Typography>
                       </Grid>
                     </Grid>
@@ -251,9 +285,21 @@ export const CreateUsernameModal = ({
                           disabled={!isValid || isSubmitting || !enoughMoney}
                           className={classes.button}
                         >
-                          Create username
+                          Continue
                         </Button>
                       </Grid>
+                    </Grid>
+                    <Grid item className={classes.spacing24}>
+                      <Typography variant='body2' className={classes.note}>
+                        Note: registering a username will send a transaction to
+                        the blockchain. You will need to register in order to
+                        send and receive direct messages. You can register in
+                        settings at any time. Don’t need direct messages?
+                        (Warning: this will be weird){' '}
+                        <span className={classes.link} onClick={handleClose}>
+                          Skip registration for now
+                        </span>
+                      </Typography>
                     </Grid>
                   </Form>
                 )

@@ -20,16 +20,6 @@ exports[`CreateUsernameModal renders component 1`] = `
         Register a username
       </WithStyles(ForwardRef(Typography))>
     </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      className="description-mock"
-      item={true}
-    >
-      <WithStyles(ForwardRef(Typography))
-        variant="body2"
-      >
-        Zbay may soon charge a fee for this, but it's (almost) free for now, and we've already provided the funds you need. Your username will last forever, so choose it well...
-      </WithStyles(ForwardRef(Typography))>
-    </WithStyles(ForwardRef(Grid))>
     <Formik
       enableReinitialize={false}
       initialValues={
