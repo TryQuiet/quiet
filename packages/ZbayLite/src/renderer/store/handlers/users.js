@@ -11,11 +11,9 @@ import { isFinished } from '../handlers/operations'
 import txnTimestampsHandlers from '../handlers/txnTimestamps'
 import txnTimestampsSelector from '../selectors/txnTimestamps'
 import { actionCreators } from './modals'
-import notificationsHandlers from './notifications'
 import channelsSelectors from '../selectors/channels'
 import usersSelector from '../selectors/users'
 import identitySelector from '../selectors/identity'
-import { errorNotification } from './utils'
 import { getPublicKeysFromSignature } from '../../zbay/messages'
 import { messageType, actionTypes } from '../../../shared/static'
 import { messages as zbayMessages } from '../../zbay'
@@ -142,32 +140,12 @@ export const createOrUpdateUser = payload => async (dispatch, getState) => {
       opId: id,
       callback: error => {
         if (error !== null) {
-          dispatch(
-            notificationsHandlers.actions.enqueueSnackbar(
-              errorNotification({
-                message:
-                  'There was a problem registering your username. Please try again.',
-                options: {
-                  persist: true
-                }
-              })
-            )
-          )
+          dispatch(actionCreators.openModal('failedUsernameRegister')())
         }
       }
     })
   } catch (err) {
-    dispatch(
-      notificationsHandlers.actions.enqueueSnackbar(
-        errorNotification({
-          message:
-            'There was a problem registering your username. Please try again.',
-          options: {
-            persist: true
-          }
-        })
-      )
-    )
+    dispatch(actionCreators.openModal('failedUsernameRegister')())
   }
 }
 
@@ -187,7 +165,8 @@ export const fetchUsers = () => async (dispatch, getState) => {
     } else {
       dispatch(
         appHandlers.actions.reduceNewTransfersCount(
-          transfers.length - appSelectors.transfers(getState()).get(usersChannel.get('address'))
+          transfers.length -
+            appSelectors.transfers(getState()).get(usersChannel.get('address'))
         )
       )
       dispatch(

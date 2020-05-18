@@ -29,6 +29,7 @@ import OpenExternalLinkModal from './containers/ui/OpenExternalLinkModal'
 import SendFundsModal from './containers/ui/adverts/SendFundsModal'
 import AddModerator from './containers/widgets/channelSettings/AddModerator'
 import BlockchainLocationModal from './containers/widgets/blockchainLocation/BlockchainLocation'
+import FailedUsernameRegister from './containers/ui/FailedUsernameRegister'
 import theme from './theme'
 
 export default () => {
@@ -56,6 +57,7 @@ export default () => {
             <AddModerator />
             <OpenExternalLinkModal />
             <BlockchainLocationModal />
+            <FailedUsernameRegister />
             <Route path='/vault' exact component={Vault} />
             <Route path='/main' component={Main} />
             <Route path='/zcashNode' component={Index} />

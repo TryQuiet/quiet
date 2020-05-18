@@ -1,0 +1,68 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FailedUsernameRegister renders component 1`] = `
+<Memo(WithStyles(Modal))
+  handleClose={[MockFunction]}
+  open={true}
+  title=""
+>
+  <WithStyles(ForwardRef(Grid))
+    className="root-mock"
+    container={true}
+    direction="column"
+    justify="flex-start"
+    spacing={3}
+  >
+    <WithStyles(ForwardRef(Grid))
+      alignItems="center"
+      container={true}
+      direction="column"
+      item={true}
+    >
+      <Memo(Icon)
+        className="icon-mock"
+        src="test-file-stub"
+      />
+      <WithStyles(ForwardRef(Typography))
+        className="message-mock"
+        variant="h3"
+      >
+        Oops!
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      container={true}
+      direction="column"
+      item={true}
+    >
+      <WithStyles(ForwardRef(Grid))
+        item={true}
+      >
+        <WithStyles(ForwardRef(Typography))
+          className="info-mock"
+          variant="body2"
+        >
+          Username didn't get registered. You are still anonymous.
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
+        alignItems="center"
+        container={true}
+        item={true}
+        justify="center"
+      >
+        <WithStyles(LoadingButton)
+          classes={
+            Object {
+              "button": "button-mock",
+            }
+          }
+          inProgress={false}
+          onClick={[Function]}
+          text="Create a username"
+        />
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+</Memo(WithStyles(Modal))>
+`;
