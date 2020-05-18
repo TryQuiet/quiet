@@ -1,17 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`WalletPanel sets interval for getBalance 1`] = `
-Array [
-  Array [
-    [MockFunction],
-    15000,
-  ],
-]
-`;
+exports[`WalletPanel sets interval for getBalance 1`] = `Array []`;
 
 exports[`WalletPanel will receive right actions 1`] = `
 Object {
-  "fetchPrices": [Function],
   "openInvitationModal": [Function],
   "setModalTab": [Function],
 }

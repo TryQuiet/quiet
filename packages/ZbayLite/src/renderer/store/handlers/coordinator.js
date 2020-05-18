@@ -8,6 +8,7 @@ import appHandlers from './app'
 import contactsHandlers from './contacts'
 import nodeHandlers from './node'
 import identityHandlers from './identity'
+import ratesHandlers from './rates'
 import usersHandlers from './users'
 import publicChannelsHandlers from './publicChannels'
 import { actionTypes } from '../../../shared/static'
@@ -77,6 +78,7 @@ const coordinator = () => async (dispatch, getState) => {
         .push(() => contactsHandlers.epics.fetchMessages())
         .push(() => publicChannelsHandlers.epics.fetchPublicChannels())
         .push(() => usersHandlers.epics.fetchUsers())
+        .push(() => ratesHandlers.epics.fetchPrices())
     }
     for (let index = 0; index < actions.size; index++) {
       if (appSelectors.newTransfersCounter(getState()) !== 0) {
