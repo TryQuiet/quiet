@@ -215,7 +215,7 @@ export const CreateUsernameModal = ({
     setRandomUsername('anon' + getRandomIntFromRange(10000000, 99999999))
   }, [])
   return (
-    <Modal open handleClose={handleClose}>
+    <Modal open={open} handleClose={handleClose}>
       <Grid container className={classes.main} direction='column'>
         {!formSent ? (
           <React.Fragment>
