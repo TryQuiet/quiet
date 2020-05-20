@@ -39,6 +39,7 @@ const coordinator = () => async (dispatch, getState) => {
     .push(() => contactsHandlers.epics.fetchMessages())
     .push(() => publicChannelsHandlers.epics.fetchPublicChannels())
     .push(() => usersHandlers.epics.fetchUsers())
+    .push(() => ratesHandlers.epics.fetchPrices())
 
   const statusActions = Immutable.List()
     .push(() => nodeHandlers.epics.getStatus())
@@ -49,7 +50,7 @@ const coordinator = () => async (dispatch, getState) => {
     for (let index = 0; index < statusActions.size; index++) {
       await dispatch(statusActions.get(index)())
     }
-    setTimeout(fetchStatus, 25000)
+    setTimeout(fetchStatus, 75000)
   }
 
   const fetchData = async () => {
@@ -93,7 +94,7 @@ const coordinator = () => async (dispatch, getState) => {
       }
     }
     setTimeout(fetchData, 5000)
-    setTimeout(fetchStatus, 25000)
+    setTimeout(fetchStatus, 75000)
   }
   fetchData()
 }
