@@ -16,6 +16,7 @@ import channels from '../../zcash/channels'
 import nodeSelectors from '../selectors/node'
 import modalsHandlers from './modals'
 import { actionTypes } from '../../../shared/static'
+import history from '../../../shared/history'
 
 export const ImportedChannelState = Immutable.Record(
   {
@@ -49,7 +50,10 @@ const removeChannel = history => async (dispatch, getState) => {
 
     const generalChannel = channels.general[network]
     if (generalChannel.address !== channel.address) {
-      await getVault().channels.removeChannel({ identityId, channelId: channel.address })
+      await getVault().channels.removeChannel({
+        identityId,
+        channelId: channel.address
+      })
       dispatch(channelsHandlers.actions.loadChannels(identityId))
       history.push(`/main/channel/${channelsSelectors.generalChannelId(state)}`)
       dispatch(
@@ -60,7 +64,12 @@ const removeChannel = history => async (dispatch, getState) => {
           }
         })
       )
-      dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Removing channel ${channel.address}` }))
+      dispatch(
+        logsHandlers.epics.saveLogs({
+          type: 'APPLICATION_LOGS',
+          payload: `Removing channel ${channel.address}`
+        })
+      )
     } else {
       dispatch(
         notificationsHandlers.actions.enqueueSnackbar({
@@ -113,8 +122,18 @@ const importChannel = () => async (dispatch, getState) => {
         }
       })
     )
-    dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Successfully imported channel ${channel.name}` }))
+    dispatch(
+      logsHandlers.epics.saveLogs({
+        type: 'APPLICATION_LOGS',
+        payload: `Successfully imported channel ${channel.name}`
+      })
+    )
     dispatch(modalsHandlers.actionCreators.closeModal('importChannelModal')())
+    const channelsData = channelsSelectors.data(getState())
+    const id = channelsData
+      .find(ch => ch.get('address') === channel.address)
+      .get('id')
+    history.push(`/main/channel/${id}`)
     dispatch(clear())
   } catch (err) {
     dispatch(
@@ -132,22 +151,33 @@ const decodeChannelEpic = uri => async (dispatch, getState) => {
   dispatch(setDecoding(true))
   try {
     const channel = await uriToChannel(uri)
-    const imported = await getClient().keys.importIVK({
-      ivk: channel.keys.ivk,
-      rescan: 'no',
-      startHeight: 0
-    })
     const allChannels = channelsSelectors.data(getState())
-    if (allChannels.find(ch => ch.get('address') === imported.address)) {
+    const checkImported = allChannels.find(
+      ch => ch.get('keys').get('ivk') === channel.keys.ivk
+    )
+    if (checkImported) {
       dispatch(
         notificationsHandlers.actions.enqueueSnackbar(
           errorNotification({ message: `You already imported this channel` })
         )
       )
-      dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Channel already imported ${channel.address}` }))
+      dispatch(
+        logsHandlers.epics.saveLogs({
+          type: 'APPLICATION_LOGS',
+          payload: `Channel already imported ${channel.address}`
+        })
+      )
+      history.push(`/main/channel/${checkImported.get('id')}`)
     } else {
+      const imported = await getClient().keys.importIVK({
+        ivk: channel.keys.ivk,
+        rescan: 'no',
+        startHeight: 0
+      })
       dispatch(setData({ ...channel, address: imported.address }))
-      const openModal = modalsHandlers.actionCreators.openModal('importChannelModal')
+      const openModal = modalsHandlers.actionCreators.openModal(
+        'importChannelModal'
+      )
       dispatch(openModal())
     }
   } catch (err) {
@@ -158,7 +188,12 @@ const decodeChannelEpic = uri => async (dispatch, getState) => {
         errorNotification({ message: `Invalid channel URI: ${err.message}` })
       )
     )
-    dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Invalid channel URI` }))
+    dispatch(
+      logsHandlers.epics.saveLogs({
+        type: 'APPLICATION_LOGS',
+        payload: `Invalid channel URI`
+      })
+    )
   }
   dispatch(setDecoding(false))
 }
@@ -175,7 +210,8 @@ const reducer = handleActions(
       state.set('data', Immutable.fromJS(channel)),
     [actionTypes.SET_DECODING_CHANNEL]: (state, { payload: decoding }) =>
       state.set('decoding', decoding),
-    [actionTypes.SET_DECODING_ERROR]: (state, { payload: error }) => state.set('errors', error),
+    [actionTypes.SET_DECODING_ERROR]: (state, { payload: error }) =>
+      state.set('errors', error),
     [clear]: () => ImportedChannelState()
   },
   initialState
