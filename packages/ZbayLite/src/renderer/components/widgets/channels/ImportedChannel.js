@@ -7,38 +7,43 @@ import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
-import HttpsIcon from '@material-ui/icons/HttpsOutlined'
 
 import Modal from '../../ui/Modal'
 import Spinner from '../../ui/SpinnerLoader'
+import Icon from '../../ui/Icon'
+import chatImage from '../../../static/images/registrationGuide/group-chat.svg'
+
 const styles = theme => ({
-  root: {
-    padding: theme.spacing(4)
+  root: {},
+  spacing32: {
+    marginTop: 32
   },
-  about: {
-    paddingLeft: theme.spacing(1),
-    paddingRight: theme.spacing(1),
-    color: theme.palette.primary.main
+  spacing16: {
+    marginTop: 16
   },
-  uri: {
-    lineHeight: 1.2
+  buttonAccept: {
+    height: 60,
+    width: 159,
+    backgroundColor: theme.palette.colors.zbayBlue,
+    color: theme.palette.colors.white,
+    '&:hover': {
+      backgroundColor: theme.palette.colors.darkPurple
+    },
+    fontSize: 16,
+    lineHeight: '19px'
   },
-  title: {
-    fontSize: '1.2rem',
-    lineHeight: 1.2
-  },
-  privacy: {
-    fontSize: '0.9rem'
-  },
-  actions: {
-    marginTop: theme.spacing(1)
-  },
-  button: {
-    height: 34,
-    width: 77
+  buttonSkip: {
+    height: 60,
+    width: 159,
+    color: theme.palette.colors.darkGray,
+    fontSize: 16,
+    lineHeight: '19px'
   },
   spinner: {
-    marginTop: 3
+    marginTop: 16
+  },
+  channelName: {
+    fontWeight: 500
   }
 })
 
@@ -53,47 +58,57 @@ export const ImportedChannel = ({
   channel
 }) => {
   return (
-    <Modal open={open} handleClose={handleClose} title='Import Channel'>
+    <Modal open={open} handleClose={handleClose} title=''>
       {channel ? (
-        <Grid container item direction='column' spacing={2} className={classes.root}>
-          <Grid item container>
-            <Grid container item alignItems='flex-end'>
-              <Typography variant='subtitle1' className={classes.title}>
-                {channel.get('name')}
-              </Typography>
-              {channel.get('private', false) ? (
-                <HttpsIcon fontSize='inherit' className={classes.privacy} />
-              ) : null}
-            </Grid>
+        <Grid
+          container
+          item
+          direction='column'
+          alignItems='center'
+          className={classes.root}
+        >
+          <Grid item>
+            <Icon className={classes.icon} src={chatImage} />
           </Grid>
-          <Grid item container spacing={2} justify='flex-end' className={classes.actions}>
-            <Grid item>
-              <Button
-                variant='outlined'
-                size='small'
-                color='primary'
-                onClick={handleClose}
-                className={classes.button}
-              >
-                Cancel
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button
-                variant='contained'
-                size='small'
-                color='primary'
-                onClick={async () => {
-                  setIsLoading(true)
-                  await onAccept()
-                  setIsLoading(false)
-                }}
-                className={classes.button}
-                disabled={isLoading}
-              >
-                {isLoading ? <Spinner size={20} className={classes.spinner} /> : 'Accept'}
-              </Button>
-            </Grid>
+          <Grid item>
+            <Typography variant='h3'>Join channel</Typography>
+          </Grid>
+          <Grid item className={classes.spacing16}>
+            <Typography variant='body2'>
+              You are invited to join the channel{' '}
+              <span className={classes.channelName}>#{channel.get('name')}</span>
+            </Typography>
+          </Grid>
+          <Grid item className={classes.spacing32}>
+            <Button
+              variant='text'
+              size='small'
+              color='primary'
+              onClick={async () => {
+                setIsLoading(true)
+                await onAccept()
+                setIsLoading(false)
+              }}
+              className={classes.buttonAccept}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <Spinner size={20} className={classes.spinner} />
+              ) : (
+                'Accept'
+              )}
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button
+              variant='text'
+              size='small'
+              color='primary'
+              onClick={handleClose}
+              className={classes.buttonSkip}
+            >
+              No thanks
+            </Button>
           </Grid>
         </Grid>
       ) : (
@@ -114,7 +129,4 @@ ImportedChannel.propTypes = {
   handleClose: PropTypes.func.isRequired
 }
 
-export default R.compose(
-  React.memo,
-  withStyles(styles)
-)(ImportedChannel)
+export default R.compose(React.memo, withStyles(styles))(ImportedChannel)

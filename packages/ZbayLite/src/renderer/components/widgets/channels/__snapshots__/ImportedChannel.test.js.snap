@@ -4,70 +4,76 @@ exports[`ImportedChannel renders private channel 1`] = `
 <Memo(WithStyles(Modal))
   handleClose={[MockFunction]}
   open={true}
-  title="Import Channel"
+  title=""
 >
   <WithStyles(ForwardRef(Grid))
+    alignItems="center"
     className="root-mock"
     container={true}
     direction="column"
     item={true}
-    spacing={2}
   >
     <WithStyles(ForwardRef(Grid))
-      container={true}
       item={true}
     >
-      <WithStyles(ForwardRef(Grid))
-        alignItems="flex-end"
-        container={true}
-        item={true}
-      >
-        <WithStyles(ForwardRef(Typography))
-          className="title-mock"
-          variant="subtitle1"
-        >
-          Test channel
-        </WithStyles(ForwardRef(Typography))>
-        <HttpsOutlinedIcon
-          className="privacy-mock"
-          fontSize="inherit"
-        />
-      </WithStyles(ForwardRef(Grid))>
+      <Memo(Icon)
+        className="icon-mock"
+        src="test-file-stub"
+      />
     </WithStyles(ForwardRef(Grid))>
     <WithStyles(ForwardRef(Grid))
-      className="actions-mock"
-      container={true}
       item={true}
-      justify="flex-end"
-      spacing={2}
     >
-      <WithStyles(ForwardRef(Grid))
-        item={true}
+      <WithStyles(ForwardRef(Typography))
+        variant="h3"
       >
-        <WithStyles(ForwardRef(Button))
-          className="button-mock"
-          color="primary"
-          onClick={[MockFunction]}
-          size="small"
-          variant="outlined"
-        >
-          Cancel
-        </WithStyles(ForwardRef(Button))>
-      </WithStyles(ForwardRef(Grid))>
-      <WithStyles(ForwardRef(Grid))
-        item={true}
+        Join channel
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      className="spacing16-mock"
+      item={true}
+    >
+      <WithStyles(ForwardRef(Typography))
+        variant="body2"
       >
-        <WithStyles(ForwardRef(Button))
-          className="button-mock"
-          color="primary"
-          disabled={false}
-          onClick={[Function]}
-          size="small"
-          variant="contained"
+        You are invited to join the channel
+         
+        <span
+          className="channelName-mock"
         >
-          Accept
-        </WithStyles(ForwardRef(Button))>
-      </WithStyles(ForwardRef(Grid))>
+          #
+          Test channel
+        </span>
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      className="spacing32-mock"
+      item={true}
+    >
+      <WithStyles(ForwardRef(Button))
+        className="buttonAccept-mock"
+        color="primary"
+        disabled={false}
+        onClick={[Function]}
+        size="small"
+        variant="text"
+      >
+        Accept
+      </WithStyles(ForwardRef(Button))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      item={true}
+    >
+      <WithStyles(ForwardRef(Button))
+        className="buttonSkip-mock"
+        color="primary"
+        onClick={[MockFunction]}
+        size="small"
+        variant="text"
+      >
+        No thanks
+      </WithStyles(ForwardRef(Button))>
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
 </Memo(WithStyles(Modal))>
@@ -77,66 +83,76 @@ exports[`ImportedChannel renders public channel 1`] = `
 <Memo(WithStyles(Modal))
   handleClose={[MockFunction]}
   open={true}
-  title="Import Channel"
+  title=""
 >
   <WithStyles(ForwardRef(Grid))
+    alignItems="center"
     className="root-mock"
     container={true}
     direction="column"
     item={true}
-    spacing={2}
   >
     <WithStyles(ForwardRef(Grid))
-      container={true}
       item={true}
     >
-      <WithStyles(ForwardRef(Grid))
-        alignItems="flex-end"
-        container={true}
-        item={true}
-      >
-        <WithStyles(ForwardRef(Typography))
-          className="title-mock"
-          variant="subtitle1"
-        >
-          Test channel
-        </WithStyles(ForwardRef(Typography))>
-      </WithStyles(ForwardRef(Grid))>
+      <Memo(Icon)
+        className="icon-mock"
+        src="test-file-stub"
+      />
     </WithStyles(ForwardRef(Grid))>
     <WithStyles(ForwardRef(Grid))
-      className="actions-mock"
-      container={true}
       item={true}
-      justify="flex-end"
-      spacing={2}
     >
-      <WithStyles(ForwardRef(Grid))
-        item={true}
+      <WithStyles(ForwardRef(Typography))
+        variant="h3"
       >
-        <WithStyles(ForwardRef(Button))
-          className="button-mock"
-          color="primary"
-          onClick={[MockFunction]}
-          size="small"
-          variant="outlined"
-        >
-          Cancel
-        </WithStyles(ForwardRef(Button))>
-      </WithStyles(ForwardRef(Grid))>
-      <WithStyles(ForwardRef(Grid))
-        item={true}
+        Join channel
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      className="spacing16-mock"
+      item={true}
+    >
+      <WithStyles(ForwardRef(Typography))
+        variant="body2"
       >
-        <WithStyles(ForwardRef(Button))
-          className="button-mock"
-          color="primary"
-          disabled={false}
-          onClick={[Function]}
-          size="small"
-          variant="contained"
+        You are invited to join the channel
+         
+        <span
+          className="channelName-mock"
         >
-          Accept
-        </WithStyles(ForwardRef(Button))>
-      </WithStyles(ForwardRef(Grid))>
+          #
+          Test channel
+        </span>
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      className="spacing32-mock"
+      item={true}
+    >
+      <WithStyles(ForwardRef(Button))
+        className="buttonAccept-mock"
+        color="primary"
+        disabled={false}
+        onClick={[Function]}
+        size="small"
+        variant="text"
+      >
+        Accept
+      </WithStyles(ForwardRef(Button))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      item={true}
+    >
+      <WithStyles(ForwardRef(Button))
+        className="buttonSkip-mock"
+        color="primary"
+        onClick={[MockFunction]}
+        size="small"
+        variant="text"
+      >
+        No thanks
+      </WithStyles(ForwardRef(Button))>
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
 </Memo(WithStyles(Modal))>
