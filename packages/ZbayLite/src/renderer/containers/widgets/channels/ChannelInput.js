@@ -68,7 +68,8 @@ export const ChannelInput = ({
       }}
       message={message}
       inputState={inputState}
-      channelName={`#${channelName} as @${myUser.nickname} - $${feeUsd}`}
+      inputPlaceholder={`#${channelName} as @${myUser.nickname} - $${feeUsd}`}
+      channelName={channelName}
       messageLimit={MESSAGE_SIZE}
       anchorEl={anchorEl}
       setAnchorEl={setAnchorEl}

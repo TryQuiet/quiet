@@ -43,7 +43,7 @@ export const ChannelInput = ({
   const [anchorEl, setAnchorEl] = React.useState({})
   const [mentionsToSelect, setMentionsToSelect] = React.useState([])
   const nameSplit = offerName.split('@')
-  const channelName = `@${nameSplit[nameSplit.length - 1]} as @${
+  const inputPlaceholder = `@${nameSplit[nameSplit.length - 1]} as @${
     myUser.nickname
   } - $${feeUsd}`
   return (
@@ -54,7 +54,7 @@ export const ChannelInput = ({
       onKeyPress={sendItemMessageOnEnter}
       message={message}
       inputState={inputState}
-      channelName={channelName}
+      inputPlaceholder={inputPlaceholder}
       anchorEl={anchorEl}
       setAnchorEl={setAnchorEl}
       mentionsToSelect={mentionsToSelect}

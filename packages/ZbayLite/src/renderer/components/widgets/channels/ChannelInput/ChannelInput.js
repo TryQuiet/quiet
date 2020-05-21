@@ -134,7 +134,8 @@ export const ChannelInput = ({
   anchorEl,
   mentionsToSelect,
   setMentionsToSelect,
-  members
+  members,
+  inputPlaceholder
 }) => {
   const refSelected = React.useRef()
   const refMentionsToSelect = React.useRef()
@@ -150,7 +151,7 @@ export const ChannelInput = ({
   }
   React.useEffect(() => {
     inputRef.current.updater.enqueueForceUpdate(inputRef.current)
-  }, [channelName])
+  }, [inputPlaceholder])
   // Use reference to bypass memorization
   React.useEffect(() => {
     refSelected.current = selected
@@ -294,7 +295,7 @@ export const ChannelInput = ({
             <Grid item xs>
               <ContentEditable
                 ref={inputRef}
-                placeholder={`Message ${channelName}`}
+                placeholder={`Message ${inputPlaceholder}`}
                 className={classes.input}
                 onClick={() => {
                   if (!focused) {
@@ -432,6 +433,7 @@ ChannelInput.propTypes = {
   setInfoClass: PropTypes.func,
   message: PropTypes.string,
   channelName: PropTypes.string.isRequired,
+  inputPlaceholder: PropTypes.string.isRequired,
   messageLimit: PropTypes.number.isRequired,
   users: PropTypes.instanceOf(Immutable.Map).isRequired,
   setAnchorEl: PropTypes.func.isRequired,
@@ -443,7 +445,8 @@ ChannelInput.propTypes = {
 
 ChannelInput.defaultProps = {
   inputState: INPUT_STATE.AVAILABLE,
-  members: new Set()
+  members: new Set(),
+  channelName: ''
 }
 
 export default R.compose(React.memo, withStyles(styles))(ChannelInput)
