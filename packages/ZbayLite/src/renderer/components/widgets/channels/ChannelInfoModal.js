@@ -5,7 +5,7 @@ import { CopyToClipboard } from 'react-copy-to-clipboard'
 import * as R from 'ramda'
 import { AutoSizer } from 'react-virtualized'
 import { Scrollbars } from 'react-custom-scrollbars'
-
+import classNames from 'classnames'
 import Grid from '@material-ui/core/Grid'
 import { Button } from '@material-ui/core'
 import { withStyles } from '@material-ui/core/styles'
@@ -21,14 +21,19 @@ const styles = theme => ({
     fontWeight: 500
   },
   infoTitle: {
-    fontWeight: 500,
-    marginTop: theme.spacing(2)
+    fontWeight: 500
+  },
+  spacing28: {
+    marginTop: 28
+  },
+  spacing24: {
+    marginTop: 24
   },
   description: {
-    marginTop: 6,
     fontWeight: 'normal',
     fontStyle: 'normal',
-    color: theme.palette.colors.trueBlack
+    color: theme.palette.colors.trueBlack,
+    lineHeight: '20px'
   },
   section: {
     width: '100%',
@@ -48,12 +53,15 @@ const styles = theme => ({
     lineHeight: '19px',
     width: 536,
     padding: 24,
+    border: '1px solid',
+    borderColor: theme.palette.colors.gray50,
     borderRadius: 4,
     backgroundColor: theme.palette.colors.veryLightGray
   },
   shareWarrning: {
     marginTop: 8,
-    wordBreak: 'break-word'
+    wordBreak: 'break-word',
+    lineHeight: '20px'
   }
 })
 
@@ -69,7 +77,13 @@ export const ChannelInfoModal = ({
     ? channel.get('targetRecipientAddress')
     : shareUri
   return (
-    <Modal open={open} handleClose={handleClose} fullPage>
+    <Modal
+      open={open}
+      handleClose={handleClose}
+      title='Channel Information'
+      fullPage
+      isBold
+    >
       <AutoSizer>
         {({ width, height }) => (
           <Scrollbars
@@ -84,9 +98,12 @@ export const ChannelInfoModal = ({
                     : channel.get('name')}
                 </Typography>
               </Grid>
-              <Grid item className={classes.section}>
+              <Grid
+                item
+                className={classNames(classes.section, classes.spacing24)}
+              >
                 <Typography variant='subtitle1' className={classes.infoTitle}>
-                  {!directMessage && 'About'}
+                  {!directMessage && `About #${channel.get('name')}`}
                 </Typography>
                 <Typography variant='body2' className={classes.description}>
                   {channel.get('description')}
@@ -99,13 +116,13 @@ export const ChannelInfoModal = ({
                 className={classes.section}
               >
                 <Grid container item direction='columns'>
-                  <Grid item>
+                  <Grid item className={classes.spacing28}>
                     <Typography
                       variant='subtitle1'
                       display='inline'
                       className={classes.infoTitle}
                     >
-                      {directMessage ? 'Address' : 'Share link'}
+                      {directMessage ? 'Address' : 'Inviting others'}
                     </Typography>
                   </Grid>
                   {!directMessage && (

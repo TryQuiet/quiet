@@ -293,7 +293,7 @@ exports[`ChannelMenuAction renders component 1`] = `
 >
   <Memo(WithStyles(MenuActionItem))
     onClick={[MockFunction]}
-    title="Info"
+    title="Info & Invites"
   />
   <Memo(WithStyles(MenuActionItem))
     closeAfterAction={false}

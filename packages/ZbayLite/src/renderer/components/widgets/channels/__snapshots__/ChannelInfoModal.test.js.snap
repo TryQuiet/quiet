@@ -4,7 +4,9 @@ exports[`ChannelInfoModal renders component 1`] = `
 <Memo(WithStyles(Modal))
   fullPage={true}
   handleClose={[MockFunction]}
+  isBold={true}
   open={true}
+  title="Channel Information"
 >
   <AutoSizer
     disableHeight={false}
@@ -21,7 +23,9 @@ exports[`ChannelInfoModal renders component when closed 1`] = `
 <Memo(WithStyles(Modal))
   fullPage={true}
   handleClose={[MockFunction]}
+  isBold={true}
   open={false}
+  title="Channel Information"
 >
   <AutoSizer
     disableHeight={false}

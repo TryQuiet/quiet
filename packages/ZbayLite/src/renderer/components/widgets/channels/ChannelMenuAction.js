@@ -55,7 +55,7 @@ export const ChannelMenuAction = ({
       IconButton={IconButton}
       offset='0 8'
     >
-      <MenuActionItem onClick={onInfo} title='Info' />
+      <MenuActionItem onClick={onInfo} title='Info & Invites' />
 
       <MenuActionItem
         onClick={
