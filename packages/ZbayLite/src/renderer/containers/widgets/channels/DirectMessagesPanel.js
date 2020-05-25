@@ -17,6 +17,7 @@ export const mapStateToProps = state => ({
   channels: contactsSelectors.contacts(state).toList(),
   selected: directMessageSelectors.directMessageChannel(state),
   offers: offersSelectors.filteredOffers(state),
+  selectedOffer: channelSelectors.channelInfo(state),
   fundsLocked:
     channelSelectors.inputLocked(state) === INPUT_STATE.DISABLE ||
     channelSelectors.inputLocked(state) === INPUT_STATE.LOCKED
@@ -66,7 +67,8 @@ export default connect(
     return (
       Immutable.is(before.channels, after.channels) &&
       Immutable.is(before.selected, after.selected) &&
-      Immutable.is(before.offers, after.offers)
+      Immutable.is(before.offers, after.offers) &&
+      Immutable.is(before.selectedOffer, after.selectedOffer)
     )
   })
 )

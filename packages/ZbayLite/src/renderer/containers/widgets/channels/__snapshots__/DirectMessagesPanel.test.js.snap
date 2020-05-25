@@ -20,5 +20,18 @@ Object {
     "targetRecipientAddress": null,
     "targetRecipientUsername": null,
   },
+  "selectedOffer": Immutable.ChannelState {
+    "spentFilterValue": "0",
+    "id": null,
+    "message": "",
+    "shareableUri": "",
+    "address": "",
+    "loader": Immutable.Record {
+      "loading": false,
+      "message": "",
+    },
+    "members": null,
+    "showInfoMsg": true,
+  },
 }
 `;

@@ -18,7 +18,13 @@ export const propTypes = {
   })
 }
 
-export const BaseChannelsList = ({ channels, directMessages, selected, offers }) => {
+export const BaseChannelsList = ({
+  channels,
+  directMessages,
+  selected,
+  offers,
+  selectedOffer
+}) => {
   const [...keys] = offers.keys()
   return (
     <List disablePadding>
@@ -31,7 +37,11 @@ export const BaseChannelsList = ({ channels, directMessages, selected, offers })
         />
       ))}
       {offers.toList().map((offer, index) => (
-        <OfferListItem key={keys[index]} channel={offer} selected={selected} />
+        <OfferListItem
+          key={keys[index]}
+          channel={offer}
+          selected={selectedOffer}
+        />
       ))}
     </List>
   )
@@ -40,6 +50,7 @@ export const BaseChannelsList = ({ channels, directMessages, selected, offers })
 BaseChannelsList.propTypes = {
   channels: PropTypes.instanceOf(Immutable.List).isRequired,
   selected: PropTypes.instanceOf(Immutable.Record).isRequired,
+  selectedOffer: PropTypes.instanceOf(Immutable.Record).isRequired,
   directMessages: PropTypes.bool
 }
 
