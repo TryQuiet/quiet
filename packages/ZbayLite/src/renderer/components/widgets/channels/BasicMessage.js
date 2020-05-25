@@ -120,7 +120,11 @@ export const BasicMessage = ({
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [hovered, setHovered] = React.useState(false)
   const [anchorModeration, setAnchorModeration] = React.useState(null)
-  const handleClick = event => setAnchorEl(event.currentTarget)
+  const handleClick = (event, isFromZbayUser) => {
+    if (isFromZbayUser) {
+      setAnchorEl(event.currentTarget)
+    }
+  }
   const handleClose = () => setAnchorEl(null)
   const sender = message.sender
   const isUnregistered = message.isUnregistered
@@ -131,6 +135,7 @@ export const BasicMessage = ({
   const fromYou = message.fromYou
   const status = message.status || 'broadcasted'
   const StatusIcon = statusComponent[status]
+  const isFromZbayUser = username !== 'unknown'
   return (
     <ListItem
       className={classNames({
@@ -180,7 +185,7 @@ export const BasicMessage = ({
                 className={classes.pointer}
                 alignItems='flex-start'
                 wrap='nowrap'
-                onClick={handleClick}
+                onClick={(e) => handleClick(e, isFromZbayUser)}
               >
                 <Grid item>
                   <Typography color='textPrimary' className={classes.username}>

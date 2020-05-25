@@ -48,7 +48,8 @@ export const ChannelInput = ({
   members,
   checkMentions,
   feeUsd,
-  myUser
+  myUser,
+  targetRecipientAddress
 }) => {
   const [infoClass, setInfoClass] = React.useState(null)
   const [anchorEl, setAnchorEl] = React.useState({})

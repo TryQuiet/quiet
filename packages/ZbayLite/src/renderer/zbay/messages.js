@@ -5,7 +5,7 @@ import * as R from 'ramda'
 import * as Yup from 'yup'
 import secp256k1 from 'secp256k1'
 import createKeccakHash from 'keccak'
-import { packMemo, unpackMemo } from './transit'
+import { packMemo, unpackMemo, addStandardToMemo } from './transit'
 import { getClient } from '../zcash'
 import { networkFee, messageType } from '../../shared/static'
 
@@ -167,6 +167,15 @@ export const transferToMessage = async (props, users) => {
   let publicKey = null
   try {
     message = await unpackMemo(memo)
+    const { type } = message
+    if (type === 'UNKNOWN') {
+      return {
+        type: 'UNKNOWN',
+        payload: message,
+        id: txid,
+        spent: amount
+      }
+    }
     publicKey = getPublicKeysFromSignature(message).toString('hex')
     if (users !== undefined) {
       const fromUser = users.get(publicKey)
@@ -292,10 +301,12 @@ const _buildUtxo = ({
       utxo.amount >
       parseFloat(transfer.amount) + splitTreshhold + fee + includedDonation
   )
+  const standardMemo = addStandardToMemo('internal utxo creation')
   if (utxo) {
     const newUtxo = {
       address: identityAddress,
-      amount: new BigNumber(splitTreshhold).toFixed(8).toString()
+      amount: new BigNumber(splitTreshhold).toFixed(8).toString(),
+      memo: standardMemo
     }
     transfers.push(newUtxo)
   }

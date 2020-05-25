@@ -12,6 +12,7 @@ import identitySelectors from '../../../store/selectors/identity'
 import contactsSelectors from '../../../store/selectors/contacts'
 import { MESSAGE_SIZE } from '../../../zbay/transit'
 import ratesSelector from '../../../store/selectors/rates'
+import { unknownUserId } from '../../../../shared/static'
 
 export const mapStateToProps = (state, { contactId }) => ({
   message: channelSelectors.message(state),
@@ -51,6 +52,7 @@ export const ChannelInput = ({
   const [infoClass, setInfoClass] = React.useState(null)
   const [anchorEl, setAnchorEl] = React.useState({})
   const [mentionsToSelect, setMentionsToSelect] = React.useState([])
+  const isFromZbayUser = channelName !== unknownUserId
   return (
     <ChannelInputComponent
       infoClass={infoClass}
@@ -61,7 +63,7 @@ export const ChannelInput = ({
       }}
       onKeyPress={sendDirectMessageOnEnter}
       message={message}
-      inputState={inputState}
+      inputState={isFromZbayUser ? inputState : INPUT_STATE.DISABLE}
       inputPlaceholder={`@${channelName} as @${myUser.nickname} - $${feeUsd}`}
       messageLimit={MESSAGE_SIZE}
       anchorEl={anchorEl}

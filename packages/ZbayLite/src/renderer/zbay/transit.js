@@ -100,6 +100,18 @@ const moderationTypeToSize = {
   [moderationActionsType.REMOVE_MESSAGE]: TXID_SIZE
 }
 
+export const addStandardToMemo = message => {
+  const formatFlag = Buffer.alloc(MEMO_FORMAT_FLAG_SIZE)
+  formatFlag.writeUInt8(MEMO_FORMAT_FLAG_VALUE)
+  const allocatedMessage = Buffer.alloc(MEMO_SIZE - MEMO_FORMAT_FLAG_SIZE)
+  allocatedMessage.write(message)
+  const result = Buffer.concat([
+    formatFlag,
+    allocatedMessage
+  ])
+  return result.toString('hex')
+}
+
 export const createStandardMemo = async message => {
   const allocatedMessage = Buffer.alloc(MEMO_SIZE)
   allocatedMessage.write(message)
@@ -259,7 +271,19 @@ export const unpackMemo = async memo => {
   const formatFlagEnds = MEMO_FORMAT_FLAG_SIZE
   const formatFlag = memoBuff.slice(0, formatFlagEnds).readUInt8()
   if (formatFlag !== MEMO_FORMAT_FLAG_VALUE) {
-    return null
+    const messageFromUnknown = memoBuff.toString('utf8').replace(/\0/g, '')
+    const intCharCode0 = messageFromUnknown.charCodeAt(0)
+    if (intCharCode0 !== 65533) {
+      return {
+        type: 'UNKNOWN',
+        specialType: 1,
+        message: messageFromUnknown,
+        sender: {
+          replyTo: '',
+          username: 'unknown'
+        }
+      }
+    }
   }
   const typeEnds = TYPE_SIZE + MEMO_FORMAT_FLAG_SIZE
   const type = memoBuff.slice(formatFlagEnds, typeEnds).readUInt8()

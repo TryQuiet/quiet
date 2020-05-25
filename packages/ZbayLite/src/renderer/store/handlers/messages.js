@@ -52,7 +52,31 @@ const _ReceivedMessage = Immutable.Record(
   'ReceivedMessage'
 )
 
+const _RecivedFromUnknownMessage = Immutable.Record(
+  {
+    id: null,
+    sender: MessageSender(),
+    type: messageType.BASIC,
+    message: '',
+    spent: new BigNumber(0),
+    createdAt: 0,
+    specialType: null,
+    blockTime: Number.MAX_SAFE_INTEGER
+  },
+  'RecivedFromUnknownMessage'
+)
+
 export const ReceivedMessage = values => {
+  if (values.type === 'UNKNOWN') {
+    delete values.payload.type
+    const unknownRecord = _RecivedFromUnknownMessage({
+      ...values.payload,
+      type: new BigNumber(values.spent).gt(new BigNumber(0)) ? messageType.TRANSFER : messageType.BASIC,
+      id: values.id,
+      spent: new BigNumber(values.spent)
+    })
+    return unknownRecord
+  }
   const record = _ReceivedMessage(values)
   return record.set('sender', MessageSender(record.sender))
 }

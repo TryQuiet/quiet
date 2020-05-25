@@ -1,5 +1,6 @@
 import mirrorKey from 'keymirror'
 export const networkFee = 0.0000025
+export const unknownUserId = 'c7e7c14740c3372fffe47c845a2b6720'
 export const DOMAIN = 'handlers.zbay.app'
 export const LOG_ENDPOINT = 'https://handlers.zbay.app/email'
 export const PRICE_ORACLE_PUB_KEY =

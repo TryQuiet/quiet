@@ -30,7 +30,8 @@ import removedChannelsHandlers from './removedChannels'
 import {
   messageType,
   actionTypes,
-  notificationFilterType
+  notificationFilterType,
+  unknownUserId
 } from '../../../shared/static'
 
 import directMessagesQueueHandlers, {
@@ -43,6 +44,8 @@ import notificationsHandlers from './notifications'
 import { errorNotification } from './utils'
 import notificationCenterSelector from '../selectors/notificationCenter'
 import nodeSelectors from '../selectors/node'
+import txnTimestampsSelector from '../selectors/txnTimestamps'
+import txnTimestampsHandlers from '../handlers/txnTimestamps'
 
 const sendDirectMessageOnEnter = event => async (dispatch, getState) => {
   const enterPressed = event.nativeEvent.keyCode === 13
@@ -250,6 +253,10 @@ export const fetchMessages = () => async (dispatch, getState) => {
         })
         .filter(msg => msg !== null)
     )
+    const messagesFromUnknown = messagesAll
+      .filter(msg => msg !== null)
+      .filter(msg => msg.sender.username === 'unknown')
+      .filter(msg => msg.specialType === 1)
     const messages = messagesAll
       .filter(msg => msg !== null)
       .filter(msg => msg.sender.replyTo !== '')
@@ -325,6 +332,86 @@ export const fetchMessages = () => async (dispatch, getState) => {
         }
       }
     })
+    if (messagesFromUnknown.length > 0) {
+      const unknownSender = {
+        username: unknownUserId,
+        replyTo: unknownUserId
+      }
+      await dispatch(setUsernames({ sender: unknownSender }))
+      await dispatch(loadVaultMessages({ contact: unknownSender }))
+      const txnTimestamps = txnTimestampsSelector.tnxTimestamps(getState())
+      const uknownSenderMessagesWithTimestamp = []
+      for (const msg of messagesFromUnknown) {
+        const messageId = msg.get('id')
+        let messageDetails = txnTimestamps.get(messageId)
+        if (!messageDetails) {
+          const result = await getClient().confirmations.getResult(messageId)
+          messageDetails = result.timereceived
+          await getVault().transactionsTimestamps.addTransaction(
+            messageId,
+            result.timereceived
+          )
+          await dispatch(
+            txnTimestampsHandlers.actions.addTxnTimestamp({
+              tnxs: { [messageId]: result.timereceived.toString() }
+            })
+          )
+        }
+        const updatedMessageRecord = msg.set('createdAt', parseInt(messageDetails))
+        uknownSenderMessagesWithTimestamp.push(updatedMessageRecord)
+      }
+      const previousMessages = selectors.messages(unknownSender.replyTo)(
+        getState()
+      )
+      const identityId = identitySelectors.id(getState())
+      let lastSeen = selectors.lastSeen(unknownSender.replyTo)(getState())
+      if (!lastSeen) {
+        lastSeen = await getVault().contacts.getLastSeen({
+          identityId,
+          recipientAddress: unknownSender.replyTo,
+          recipientUsername: unknownSender.username
+        })
+      }
+      const newMessages = zbayMessages.calculateDiff({
+        previousMessages,
+        nextMessages: Immutable.List(uknownSenderMessagesWithTimestamp),
+        lastSeen,
+        identityAddress
+      })
+      dispatch(
+        appendNewMessages({
+          contactAddress: unknownSender.replyTo,
+          messagesIds: newMessages.map(R.prop('id'))
+        })
+      )
+      dispatch(setMessages({ messages: uknownSenderMessagesWithTimestamp, contactAddress: unknownSender.replyTo }))
+      remote.app.badgeCount = remote.app.badgeCount + newMessages.size
+
+      const userFilter = notificationCenterSelector.userFilterType(
+        getState()
+      )
+      if (newMessages.size > 0) {
+        if (userFilter !== notificationFilterType.MUTE) {
+          for (const nm of newMessages) {
+            if (
+              notificationCenterSelector.contactFilterByAddress(
+                unknownSender.replyTo
+              )(getState()) !== notificationFilterType.MUTE
+            ) {
+              const notification = displayDirectMessageNotification({
+                message: nm,
+                username: unknownSender.replyTo
+              })
+              notification.onclick = () => {
+                history.push(
+                  `/main/direct-messages/${unknownSender.replyTo}/${unknownSender.replyTo}`
+                )
+              }
+            }
+          }
+        }
+      }
+    }
     const senderToMessages = R.compose(
       R.groupBy(msg => msg.sender.replyTo),
       R.filter(R.identity)
