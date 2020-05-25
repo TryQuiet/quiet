@@ -9,7 +9,7 @@ import { actionCreators } from '../../../store/handlers/modals'
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      openModal: actionCreators.openModal('sendMoney')
+      openModal: actionCreators.openModal('sendMoneySeparate')
     },
     dispatch
   )

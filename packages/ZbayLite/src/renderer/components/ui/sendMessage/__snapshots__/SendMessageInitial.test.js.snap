@@ -1,0 +1,61 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SendMessageSeparateInitial renders component 1`] = `
+<WithStyles(ForwardRef(Grid))
+  className="contentContainer-mock"
+  container={true}
+  direction="column"
+  justify="flex-start"
+>
+  <WithStyles(ForwardRef(Typography))
+    className="title-mock"
+    variant="h3"
+  >
+    New message
+  </WithStyles(ForwardRef(Typography))>
+  <WithStyles(ForwardRef(Typography))
+    className="fieldName-mock"
+    variant="body2"
+  >
+    Recipient
+  </WithStyles(ForwardRef(Typography))>
+  <AutocompleteField
+    filterOptions={[Function]}
+    freeSolo={true}
+    inputValue="address123"
+    name="recipient"
+    onChange={[Function]}
+    onInputChange={[Function]}
+    options={
+      Array [
+        "test",
+      ]
+    }
+    renderInput={[Function]}
+    value="address123"
+  />
+  <ErrorText
+    name="recipient"
+  />
+  <WithStyles(ForwardRef(Grid))
+    className="labelDiv-mock"
+    item={true}
+  >
+    <FormikConnect(FieldInner)
+      component={[Function]}
+      name="sendAnonymously"
+    />
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Button))
+    className="button-mock"
+    color="primary"
+    disabled={false}
+    onClick={[Function]}
+    size="large"
+    type="submit"
+    variant="contained"
+  >
+    Continue
+  </WithStyles(ForwardRef(Button))>
+</WithStyles(ForwardRef(Grid))>
+`;

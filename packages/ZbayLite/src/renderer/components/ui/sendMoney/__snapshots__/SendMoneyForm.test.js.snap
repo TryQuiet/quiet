@@ -250,7 +250,7 @@ exports[`SendMoneyForm renders component when valid = false 1`] = `
       }
       disabled={false}
       name="memo"
-      placeholder="Enter an optional message"
+      placeholder="Enter a message"
     />
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
@@ -557,7 +557,7 @@ exports[`SendMoneyForm renders component when valid = true 1`] = `
       }
       disabled={false}
       name="memo"
-      placeholder="Enter an optional message"
+      placeholder="Enter a message"
     />
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))

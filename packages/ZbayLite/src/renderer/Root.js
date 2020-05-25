@@ -19,6 +19,7 @@ import SendMoneyModal from './containers/ui/sendMoney/SendMoneyModal'
 import UpdateModal from './containers/widgets/update/UpdateModal'
 import CreateChannelModal from './containers/widgets/channels/CreateChannelModal'
 import NewMessageModal from './containers/widgets/channels/NewMessageModal'
+import SendMessageModal from './containers/ui/sendMessage/SendMessage'
 import JoinChannelModal from './containers/widgets/channels/JoinChannelModal'
 import ChannelSettingsModal from './containers/widgets/channelSettings/ChannelSettingsModal'
 import AdvertModal from './containers/ui/adverts/AdvertModal'
@@ -30,6 +31,7 @@ import SendFundsModal from './containers/ui/adverts/SendFundsModal'
 import AddModerator from './containers/widgets/channelSettings/AddModerator'
 import BlockchainLocationModal from './containers/widgets/blockchainLocation/BlockchainLocation'
 import FailedUsernameRegister from './containers/ui/FailedUsernameRegister'
+import SendMoney from './containers/ui/sendMoneySeparate/sendMoney'
 import theme from './theme'
 
 export default () => {
@@ -47,6 +49,7 @@ export default () => {
             <CssBaseline />
             <CreateChannelModal />
             <NewMessageModal />
+            <SendMessageModal />
             <JoinChannelModal />
             <AdvertModal />
             <AdvertActionsModal />
@@ -57,6 +60,7 @@ export default () => {
             <AddModerator />
             <OpenExternalLinkModal />
             <BlockchainLocationModal />
+            <SendMoney />
             <FailedUsernameRegister />
             <Route path='/vault' exact component={Vault} />
             <Route path='/main' component={Main} />

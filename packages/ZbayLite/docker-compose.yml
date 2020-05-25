@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   znode-mainnet:
-    image: rumblefish1337/zcashblockchain:v2.1.1-1-fork
+    image: rumblefish1337/zcashblockchain:v2.1.2-master
     tty: true
     ports:
       - 8334:8334

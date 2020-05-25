@@ -9,7 +9,8 @@ import identitySelectors from '../selectors/identity'
 import contactsSelectors from '../selectors/contacts'
 import usersSelectors from '../selectors/users'
 import offersSelectors from '../selectors/offers'
-import { messageToTransfer } from '../../zbay/messages'
+import { createStandardMemo } from '../../zbay/transit'
+import { messageToTransfer, createEmptyTransfer } from '../../zbay/messages'
 import { messageType, actionTypes } from '../../../shared/static'
 import operationsHandlers, {
   PendingDirectMessageOp,
@@ -189,6 +190,28 @@ export const checkConfirmationNumber = async ({
   }
 }
 
+const sendPlainTransfer = payload => async (dispatch, getState) => {
+  const identityAddress = identitySelectors.address(getState())
+  const { destination, amount, memo } = payload
+  if (memo) {
+    const hexMemo = await createStandardMemo(memo)
+    const transfer = createEmptyTransfer({
+      address: destination,
+      amount: amount,
+      identityAddress,
+      memo: hexMemo
+    })
+    await getClient().payment.send(transfer)
+  } else {
+    const transfer = createEmptyTransfer({
+      address: destination,
+      amount: amount,
+      identityAddress
+    })
+    await getClient().payment.send(transfer)
+  }
+}
+
 const _sendPendingDirectMessages = async (dispatch, getState) => {
   const messages = selectors.queue(getState())
   const identityAddress = identitySelectors.address(getState())
@@ -284,7 +307,8 @@ const addDirectMessageEpic = (payload, debounce) => async dispatch => {
 export const epics = {
   sendPendingDirectMessages,
   addDirectMessage: addDirectMessageEpic,
-  resetDebounceDirectMessage: sendPendingDirectMessages
+  resetDebounceDirectMessage: sendPendingDirectMessages,
+  sendPlainTransfer
 }
 
 export const reducer = handleActions(

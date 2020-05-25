@@ -344,15 +344,17 @@ export const messageToTransfer = async ({
         })
   }
 }
-export const createEmptyTransfer = ({ identityAddress, address, amount }) => {
+export const createEmptyTransfer = ({ identityAddress, address, amount, memo }) => {
+  const amounts = {
+    address: address,
+    amount: amount ? amount.toString() : '0'
+  }
+  Object.assign(amounts, memo && { memo })
+  const amountsArray = []
+  amountsArray.push(amounts)
   return {
     from: identityAddress,
-    amounts: [
-      {
-        address: address,
-        amount: amount.toString()
-      }
-    ]
+    amounts: amountsArray
   }
 }
 export const transfersToMessages = async (transfers, owner) => {

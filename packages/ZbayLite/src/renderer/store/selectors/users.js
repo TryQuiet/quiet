@@ -13,7 +13,6 @@ const myUser = createSelector(
   users,
   identitySelectors.signerPubKey,
   (users, signerPubKey) => {
-    console.log(signerPubKey)
     return (
       users.get(signerPubKey) || {
         firstName: '',

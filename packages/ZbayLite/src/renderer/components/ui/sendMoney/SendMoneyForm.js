@@ -342,12 +342,13 @@ export const SendMoneyForm = ({
         <TextField
           name='memo'
           placeholder={
-            values.recipient.length === 35
+            values.recipient ? values.recipient.length === 35
               ? `You can't include message to transparent address`
-              : 'Enter an optional message'
+              : 'Enter a message'
+              : 'Enter a message'
           }
           InputProps={{ className: classes.field }}
-          disabled={values.recipient.length === 35}
+          disabled={values.recipient ? values.recipient.length === 35 : false}
         />
       </Grid>
       <Grid item xs={12}>

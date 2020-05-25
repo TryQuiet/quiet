@@ -41,7 +41,8 @@ export const PendingDirectMessageOp = Immutable.Record({
 export const operationTypes = {
   shieldBalance: 'shieldBalance',
   pendingMessage: 'pendingMessage',
-  pendingDirectMessage: 'pendingDirectMessage'
+  pendingDirectMessage: 'pendingDirectMessage',
+  pendingPlainTransfer: 'pendingPlainTransfer'
 }
 
 export const Operation = Immutable.Record({
