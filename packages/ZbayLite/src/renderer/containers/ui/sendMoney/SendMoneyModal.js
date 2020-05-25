@@ -27,7 +27,7 @@ export const SendMoneyModal = props => {
   return <SendMoneyModalComponent {...props} step={step} setStep={setStep} />
 }
 export const mapDispatchToProps = dispatch => bindActionCreators({
-  sendMessageHandler: directMessages.epics.sendDirectMessage(false),
+  sendMessageHandler: (payload) => directMessages.epics.sendDirectMessage(payload, false),
   openShippingTab: () => appHandlers.actions.setModalTab('shipping'),
   openSettingsModal: actionCreators.openModal('accountSettingsModal'),
   openSentFundsModal: (payload) => actionCreators.openModal('sentFunds', payload)()

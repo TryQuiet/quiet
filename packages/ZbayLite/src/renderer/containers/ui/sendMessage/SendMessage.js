@@ -28,7 +28,7 @@ export const SendMessageModal = props => {
   return <SendMessageModalComponent {...props} />
 }
 export const mapDispatchToProps = dispatch => bindActionCreators({
-  sendMessageHandler: directMessages.epics.sendDirectMessage,
+  sendMessageHandler: (payload) => directMessages.epics.sendDirectMessage(payload),
   createNewContact: (contact) => directMessages.epics.createVaultContact(contact),
   sendPlainTransfer: (payload) => transfers.epics.sendPlainTransfer(payload),
   openSentFundsModal: (payload) => actionCreators.openModal('sentFunds', payload)()

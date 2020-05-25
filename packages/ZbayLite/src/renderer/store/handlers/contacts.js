@@ -93,7 +93,7 @@ const sendDirectMessageOnEnter = event => async (dispatch, getState) => {
   }
 }
 
-const sendDirectMessage = (redirect = true) => payload => async (
+const sendDirectMessage = (payload, redirect = true) => async (
   dispatch,
   getState
 ) => {
