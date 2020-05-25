@@ -100,11 +100,15 @@ const handleSendTransfer = ({ values, history, payload }) => async (
   })
   dispatch(offersHandlers.epics.createOfferAdvert({ payload, history }))
   dispatch(
-    directMessagesQueueHandlers.epics.addDirectMessage({
-      message,
-      recipientAddress: payload.address,
-      recipientUsername: payload.offerOwner
-    })
+    directMessagesQueueHandlers.epics.addDirectMessage(
+      {
+        message,
+        recipientAddress: payload.address,
+        recipientUsername: payload.offerOwner
+      },
+      0,
+      false
+    )
   )
   dispatch(
     contactsHandlers.epics.updateDeletedChannelTimestamp({

@@ -212,7 +212,7 @@ const sendPlainTransfer = payload => async (dispatch, getState) => {
   }
 }
 
-const _sendPendingDirectMessages = async (dispatch, getState) => {
+const _sendPendingDirectMessages = redirect => async (dispatch, getState) => {
   const messages = selectors.queue(getState())
   const identityAddress = identitySelectors.address(getState())
   const donation = identitySelectors.donation(getState())
@@ -261,10 +261,12 @@ const _sendPendingDirectMessages = async (dispatch, getState) => {
             })
           )
         }
-        history.push(
-          `/main/direct-messages/${msg.recipientAddress}/${username ||
-            msg.recipientUsername}`
-        )
+        if (redirect) {
+          history.push(
+            `/main/direct-messages/${msg.recipientAddress}/${username ||
+              msg.recipientUsername}`
+          )
+        }
         dispatch(removeMessage(key))
         await dispatch(
           operationsHandlers.epics.observeOperation({
@@ -284,8 +286,8 @@ const _sendPendingDirectMessages = async (dispatch, getState) => {
   )
 }
 
-export const sendPendingDirectMessages = (debounce = null) => {
-  const thunk = _sendPendingDirectMessages
+export const sendPendingDirectMessages = (debounce = null, redirect) => {
+  const thunk = _sendPendingDirectMessages(redirect)
   thunk.meta = {
     debounce: {
       time:
@@ -299,9 +301,13 @@ export const sendPendingDirectMessages = (debounce = null) => {
   return thunk
 }
 
-const addDirectMessageEpic = (payload, debounce) => async dispatch => {
+const addDirectMessageEpic = (
+  payload,
+  debounce,
+  redirect = true
+) => async dispatch => {
   await dispatch(addDirectMessage(payload))
-  await dispatch(sendPendingDirectMessages(debounce))
+  await dispatch(sendPendingDirectMessages(debounce, redirect))
 }
 
 export const epics = {

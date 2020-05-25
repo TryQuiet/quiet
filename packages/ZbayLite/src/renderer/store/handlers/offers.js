@@ -35,7 +35,9 @@ const cleanNewMessages = createAction(actionTypes.CLEAN_OFFER_NEW_MESSAGESS)
 const setLastSeen = createAction(actionTypes.SET_OFFER_LAST_SEEN)
 const appendMessages = createAction(actionTypes.APPEND_OFFER_MESSAGES)
 const appendNewMessages = createAction(actionTypes.APPEND_NEW_OFFER_MESSAGES)
-const setOfferMessageBlockTime = createAction(actionTypes.SET_OFFER_MESSAGE_BLOCKTIME)
+const setOfferMessageBlockTime = createAction(
+  actionTypes.SET_OFFER_MESSAGE_BLOCKTIME
+)
 
 export const actions = {
   setMessages,
@@ -204,11 +206,15 @@ const sendItemMessageOnEnter = event => async (dispatch, getState) => {
       })
     }
     dispatch(
-      directMessagesQueueHandlers.epics.addDirectMessage({
-        message,
-        recipientAddress: channel.address,
-        recipientUsername: channel.id.substring(64)
-      })
+      directMessagesQueueHandlers.epics.addDirectMessage(
+        {
+          message,
+          recipientAddress: channel.address,
+          recipientUsername: channel.id.substring(64)
+        },
+        null,
+        false
+      )
     )
     dispatch(channelHandlers.actions.setMessage(''))
   }
