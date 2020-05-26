@@ -12,7 +12,7 @@ Zbay is an experimental app for Windows, Mac, and GNU/Linux that builds an IRC-l
 
   
 
-Getting started hacking on Zcash is easy. Be sure to have [Docker](https://docker.com) installed and running. Then...
+Getting started hacking on Zcash is easy. Be sure to have [Docker](https://docker.com) installed and running. If you're on Linux, you may want to look at Docker's [post-install instructions](https://docs.docker.com/engine/install/linux-postinstall/). Then...
 
   
 
