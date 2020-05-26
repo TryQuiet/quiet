@@ -57,7 +57,7 @@ const osPathLogs = {
 
 let isFetchedFromExternalSource = false
 
-const BLOCKCHAIN_SIZE = 27552539059
+const BLOCKCHAIN_SIZE = 27952539059
 const isFetchingArr = []
 let prevFetchedSize = 0
 
