@@ -20,6 +20,7 @@ import BlockIcon from '@material-ui/icons/Block'
 
 import Icon from '../../ui/Icon'
 import dotsIcon from '../../../static/images/zcash/dots-icon.svg'
+import maskIcon from '../../../static/images/avatar-13-mask-light.svg'
 import SendMessagePopover from '../../../containers/widgets/channels/SendMessagePopover'
 import ModeratorActionsPopper from '../../../containers/widgets/channels/ModeratorActionsPopper'
 import { _DisplayableMessage } from '../../../zbay/messages'
@@ -174,7 +175,7 @@ export const BasicMessage = ({
             />
             <Grid item className={classes.avatar}>
               <div className={classes.alignAvatar}>
-                <Jdenticon size='32' value={username} />
+                {isFromZbayUser ? <Jdenticon size='32' value={username} /> : <Icon className={{}} src={maskIcon} />}
               </div>
             </Grid>
             <Grid container item direction='row' justify='space-between'>

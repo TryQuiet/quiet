@@ -55,7 +55,8 @@ const styles = theme => ({
   anonIcon: {
     marginLeft: 16,
     width: 11,
-    height: 11
+    height: 11,
+    opacity: 0.7
   },
   itemText: {
     margin: 0
