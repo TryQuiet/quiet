@@ -136,7 +136,7 @@ export const ChannelInfoModal = ({
                         download it. Once they have Zbay, opening the link in
                         Zbay will give them access to the channel. Anyone with
                         this link will be able to see all messages in the
-                        channel, forever, so share it carefully.
+                        channel, forever, so share it carefully. (Clicking the link effectively gives the Zbay website the key, too. This is not ideal and will be fixed in an upcoming release.)
                       </Typography>
                     </Grid>
                   )}
