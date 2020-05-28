@@ -10,6 +10,7 @@ import offersSelectors from '../../../store/selectors/offers'
 import ratesSelector from '../../../store/selectors/rates'
 import { MESSAGE_ITEM_SIZE } from '../../../zbay/transit'
 import usersSelectors from '../../../store/selectors/users'
+import directMessagesQueueHandlers from '../../../store/handlers/directMessagesQueue'
 
 export const mapStateToProps = (state, { offer }) => ({
   message: channelSelectors.message(state),
@@ -24,7 +25,9 @@ export const mapDispatchToProps = dispatch => {
   return bindActionCreators(
     {
       onChange: channelHandlers.actions.setMessage,
-      sendItemMessageOnEnter: offersHandlers.epics.sendItemMessageOnEnter
+      sendItemMessageOnEnter: offersHandlers.epics.sendItemMessageOnEnter,
+      resetDebounce:
+        directMessagesQueueHandlers.epics.resetDebounceDirectMessage
     },
     dispatch
   )
@@ -37,7 +40,8 @@ export const ChannelInput = ({
   offerName,
   users,
   feeUsd,
-  myUser
+  myUser,
+  resetDebounce
 }) => {
   const [infoClass, setInfoClass] = React.useState(null)
   const [anchorEl, setAnchorEl] = React.useState({})
@@ -50,7 +54,10 @@ export const ChannelInput = ({
     <ChannelInputComponent
       infoClass={infoClass}
       setInfoClass={setInfoClass}
-      onChange={onChange}
+      onChange={e => {
+        onChange(e)
+        resetDebounce()
+      }}
       onKeyPress={sendItemMessageOnEnter}
       message={message}
       inputState={inputState}
