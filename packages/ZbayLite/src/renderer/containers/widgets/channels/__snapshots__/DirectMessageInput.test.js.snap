@@ -2,6 +2,7 @@
 
 exports[`ChannelInput will receive right actions 1`] = `
 Object {
+  "checkMessageSizeLimit": [Function],
   "onChange": [Function],
   "resetDebounce": [Function],
   "sendDirectMessageOnEnter": [Function],
@@ -13,6 +14,8 @@ Object {
   "channelName": "",
   "feeUsd": "0.0002",
   "inputState": 3,
+  "isMessageTooLong": null,
+  "isSizeCheckingInProgress": false,
   "message": "This is a test message",
   "myUser": Object {
     "address": "",

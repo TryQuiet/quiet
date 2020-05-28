@@ -13,6 +13,7 @@ import identitySelectors from '../selectors/identity'
 import operationsSelectors from '../selectors/operations'
 import operationsHandlers from './operations'
 import channelsHandlers from './channels'
+import { actions as channelActions } from './channel'
 import txnTimestampsHandlers from '../handlers/txnTimestamps'
 import txnTimestampsSelector from '../selectors/txnTimestamps'
 import notificationCenterSelector from '../selectors/notificationCenter'
@@ -23,6 +24,7 @@ import {
   notificationFilterType
 } from '../../../shared/static'
 import { messages as zbayMessages } from '../../zbay'
+import { checkMessageSizeAfterComporession } from '../../zbay/transit'
 import { getClient } from '../../zcash'
 import { displayMessageNotification } from '../../notifications'
 import { getVault } from '../../vault'
@@ -260,8 +262,40 @@ export const containsString = (message, nickname) => {
   }
   return false
 }
+
+export const _checkMessageSize = (mergedMessage) => async (dispatch, getState) => {
+  if (!channelSelectors.isSizeCheckingInProgress(getState())) {
+    dispatch(channelActions.isSizeCheckingInProgress(true))
+  }
+  const setStatus = (status) => {
+    dispatch(channelActions.isSizeCheckingInProgress(false))
+    dispatch(channelActions.messageSizeStatus(status))
+  }
+  if (mergedMessage) {
+    const isMergedMessageTooLong = await checkMessageSizeAfterComporession(mergedMessage)
+    return isMergedMessageTooLong
+  } else {
+    const message = channelSelectors.message(getState())
+    const isMessageToLong = await checkMessageSizeAfterComporession(message)
+    setStatus(isMessageToLong)
+    return isMessageToLong
+  }
+}
+
+export const checkMessageSize = (redirect) => {
+  const thunk = _checkMessageSize(redirect)
+  thunk.meta = {
+    debounce: {
+      time: 500,
+      key: 'CHECK_MESSAGE_SIZE'
+    }
+  }
+  return thunk
+}
+
 export const epics = {
-  fetchMessages
+  fetchMessages,
+  checkMessageSize
 }
 
 export const reducer = handleActions(

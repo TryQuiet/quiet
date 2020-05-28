@@ -100,6 +100,12 @@ const moderationTypeToSize = {
   [moderationActionsType.REMOVE_MESSAGE]: TXID_SIZE
 }
 
+export const checkMessageSizeAfterComporession = async (message) => {
+  const compressedMessage = await deflate(message)
+  const compressedMessageSize = compressedMessage.length
+  return compressedMessageSize > MESSAGE_SIZE
+}
+
 export const addStandardToMemo = message => {
   const formatFlag = Buffer.alloc(MEMO_FORMAT_FLAG_SIZE)
   formatFlag.writeUInt8(MEMO_FORMAT_FLAG_VALUE)
@@ -254,7 +260,7 @@ export const packMemo = async message => {
       msgData.write(d)
       break
   }
-
+  await checkMessageSizeAfterComporession(message.message)
   const result = Buffer.concat([
     formatFlag,
     type,

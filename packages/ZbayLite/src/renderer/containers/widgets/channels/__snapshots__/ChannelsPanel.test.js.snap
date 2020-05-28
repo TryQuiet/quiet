@@ -51,6 +51,8 @@ Object {
     },
     "members": null,
     "showInfoMsg": true,
+    "isSizeCheckingInProgress": false,
+    "messageSizeStatus": null,
   },
 }
 `;

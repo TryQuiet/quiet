@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 
 import ChannelInputComponent from '../../../components/widgets/channels/ChannelInput'
 import channelHandlers from '../../../store/handlers/channel'
+import messagesHandlers from '../../../store/handlers/messages'
 import messagesQueueHandlers from '../../../store/handlers/messagesQueue'
 import mentionsHandlers from '../../../store/handlers/mentions'
 import channelSelectors from '../../../store/selectors/channel'
@@ -21,7 +22,9 @@ export const mapStateToProps = state => {
       : ' Unnamed',
     users: usersSelectors.users(state),
     feeUsd: ratesSelector.feeUsd(state),
-    myUser: usersSelectors.myUser(state)
+    myUser: usersSelectors.myUser(state),
+    isSizeCheckingInProgress: channelSelectors.isSizeCheckingInProgress(state),
+    isMessageTooLong: channelSelectors.messageSizeStatus(state)
   }
 }
 
@@ -31,7 +34,8 @@ export const mapDispatchToProps = dispatch => {
       onChange: channelHandlers.actions.setMessage,
       resetDebounce: messagesQueueHandlers.epics.resetMessageDebounce,
       sendOnEnter: channelHandlers.epics.sendOnEnter,
-      checkMentions: mentionsHandlers.epics.checkMentions
+      checkMentions: mentionsHandlers.epics.checkMentions,
+      checkMessageSizeLimit: messagesHandlers.epics.checkMessageSize
     },
     dispatch
   )
@@ -49,7 +53,10 @@ export const ChannelInput = ({
   checkMentions,
   feeUsd,
   myUser,
-  targetRecipientAddress
+  checkMessageSizeLimit,
+  targetRecipientAddress,
+  isMessageTooLong,
+  isSizeCheckingInProgress
 }) => {
   const [infoClass, setInfoClass] = React.useState(null)
   const [anchorEl, setAnchorEl] = React.useState({})
@@ -62,9 +69,11 @@ export const ChannelInput = ({
       onChange={e => {
         onChange(e)
         resetDebounce()
+        checkMessageSizeLimit()
       }}
       onKeyPress={e => {
         checkMentions()
+        checkMessageSizeLimit()
         sendOnEnter(e, setTab)
       }}
       message={message}
@@ -77,6 +86,8 @@ export const ChannelInput = ({
       mentionsToSelect={mentionsToSelect}
       setMentionsToSelect={setMentionsToSelect}
       members={members}
+      isMessageTooLong={isMessageTooLong}
+      isSizeCheckingInProgress={isSizeCheckingInProgress}
     />
   )
 }

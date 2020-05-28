@@ -10,7 +10,7 @@ import operationsHandlers, {
 import notificationsHandlers from './notifications'
 import messagesQueueHandlers from './messagesQueue'
 import messagesQueue from '../selectors/messagesQueue'
-import messagesHandlers from './messages'
+import messagesHandlers, { _checkMessageSize } from './messages'
 import channelsHandlers from './channels'
 import offersHandlers from './offers'
 import channelSelectors from '../selectors/channel'
@@ -34,7 +34,9 @@ export const ChannelState = Immutable.Record(
     address: '',
     loader: LoaderState({ loading: false }),
     members: null,
-    showInfoMsg: true
+    showInfoMsg: true,
+    isSizeCheckingInProgress: false,
+    messageSizeStatus: null
   },
   'ChannelState'
 )
@@ -52,6 +54,8 @@ const setLoadingMessage = createAction(actionTypes.SET_CHANNEL_LOADING_MESSAGE)
 const setShareableUri = createAction(actionTypes.SET_CHANNEL_SHAREABLE_URI)
 const setAddress = createAction(actionTypes.SET_CHANNEL_ADDRESS)
 const resetChannel = createAction(actionTypes.SET_CHANNEL)
+const isSizeCheckingInProgress = createAction(actionTypes.IS_SIZE_CHECKING_IN_PROGRESS)
+const messageSizeStatus = createAction(actionTypes.MESSAGE_SIZE_STATUS)
 
 export const actions = {
   setLoading,
@@ -60,7 +64,9 @@ export const actions = {
   setMessage,
   setShareableUri,
   setChannelId,
-  resetChannel
+  resetChannel,
+  isSizeCheckingInProgress,
+  messageSizeStatus
 }
 
 const loadChannel = id => async (dispatch, getState) => {
@@ -159,10 +165,13 @@ const sendOnEnter = (event, resetTab) => async (dispatch, getState) => {
         privKey: privKey
       })
     }
-    dispatch(
-      messagesQueueHandlers.epics.addMessage({ message, channelId: channel.id })
-    )
-    dispatch(setMessage(''))
+    const isMergedMessageTooLong = await dispatch(_checkMessageSize(message.message))
+    if (!isMergedMessageTooLong) {
+      dispatch(
+        messagesQueueHandlers.epics.addMessage({ message, channelId: channel.id })
+      )
+      dispatch(setMessage(''))
+    }
   }
 }
 const sendChannelSettingsMessage = ({
@@ -273,6 +282,8 @@ export const reducer = handleActions(
       state.set('spentFilterValue', new BigNumber(value)),
     [setMessage]: (state, { payload: value }) => state.set('message', value),
     [setChannelId]: (state, { payload: id }) => state.set('id', id),
+    [isSizeCheckingInProgress]: (state, { payload }) => state.set('isSizeCheckingInProgress', payload),
+    [messageSizeStatus]: (state, { payload }) => state.set('messageSizeStatus', payload),
     [setShareableUri]: (state, { payload: uri }) =>
       state.set('shareableUri', uri),
     [setAddress]: (state, { payload: address }) =>

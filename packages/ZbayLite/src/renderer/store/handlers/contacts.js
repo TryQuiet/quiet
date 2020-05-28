@@ -25,7 +25,7 @@ import operationsHandlers, {
   operationTypes,
   PendingDirectMessageOp
 } from './operations'
-import { ReceivedMessage } from './messages'
+import { ReceivedMessage, _checkMessageSize } from './messages'
 import removedChannelsHandlers from './removedChannels'
 import {
   messageType,
@@ -82,14 +82,17 @@ const sendDirectMessageOnEnter = event => async (dispatch, getState) => {
         privKey
       })
     }
-    dispatch(
-      directMessagesQueueHandlers.epics.addDirectMessage({
-        message,
-        recipientAddress: channel.targetRecipientAddress,
-        recipientUsername: channel.targetRecipientUsername
-      })
-    )
-    dispatch(channelHandlers.actions.setMessage(''))
+    const isMessageTooLong = await dispatch(_checkMessageSize(message.message))
+    if (!isMessageTooLong) {
+      dispatch(
+        directMessagesQueueHandlers.epics.addDirectMessage({
+          message,
+          recipientAddress: channel.targetRecipientAddress,
+          recipientUsername: channel.targetRecipientUsername
+        })
+      )
+      dispatch(channelHandlers.actions.setMessage(''))
+    }
   }
 }
 

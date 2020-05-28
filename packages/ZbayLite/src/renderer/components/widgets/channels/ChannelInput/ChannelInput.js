@@ -13,6 +13,7 @@ import { withStyles } from '@material-ui/core/styles'
 import WarningIcon from '@material-ui/icons/Warning'
 import orange from '@material-ui/core/colors/orange'
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
+import { shell } from 'electron'
 
 import MentionPoper from './MentionPoper'
 import ChannelInputAction from '../../../../containers/widgets/channels/ChannelInputAction'
@@ -21,6 +22,7 @@ import MentionElement from './MentionElement'
 import Icon from '../../../ui/Icon'
 import emojiGray from '../../../../static/images/emojiGray.svg'
 import emojiBlack from '../../../../static/images/emojiBlack.svg'
+import errorIcon from '../../../../static/images/t-error.svg'
 
 const styles = theme => {
   return {
@@ -61,6 +63,9 @@ const styles = theme => {
       marginBottom: `20px`,
       width: '100%',
       margin: '0px'
+    },
+    disabledBottomMargin: {
+      marginBottom: 0
     },
     warningIcon: {
       color: orange[500]
@@ -106,6 +111,25 @@ const styles = theme => {
       position: 'absolute',
       bottom: 60,
       right: 15
+    },
+    errorIcon: {
+      display: 'flex',
+      justify: 'center',
+      alignItems: 'center',
+      marginLeft: 20,
+      marginRight: 5
+    },
+    errorText: {
+      color: theme.palette.colors.trueBlack
+    },
+    errorBox: {
+      marginTop: 5
+    },
+    linkBlue: {
+      fontWeight: 'normal',
+      fontStyle: 'normal',
+      cursor: 'pointer',
+      color: theme.palette.colors.linkBlue
     }
   }
 }
@@ -135,7 +159,9 @@ export const ChannelInput = ({
   mentionsToSelect,
   setMentionsToSelect,
   members,
-  inputPlaceholder
+  inputPlaceholder,
+  isMessageTooLong,
+  isSizeCheckingInProgress
 }) => {
   const refSelected = React.useRef()
   const refMentionsToSelect = React.useRef()
@@ -274,7 +300,10 @@ export const ChannelInput = ({
         alignItems='center'
         justify='center'
         spacing={0}
-        className={classes.inputsDiv}
+        className={classNames({
+          [classes.disabledBottomMargin]: isMessageTooLong,
+          [classes.inputsDiv]: true
+        })}
       >
         <ClickAwayListener
           onClickAway={() => {
@@ -305,16 +334,7 @@ export const ChannelInput = ({
                 html={findMentions(message)}
                 onChange={e => {
                   if (inputState === INPUT_STATE.AVAILABLE) {
-                    if (e.nativeEvent.target.innerText.length > messageLimit) {
-                      onChange(
-                        e.nativeEvent.target.innerText.substring(
-                          0,
-                          messageLimit
-                        )
-                      )
-                    } else {
-                      onChange(e.nativeEvent.target.innerText)
-                    }
+                    onChange(e.nativeEvent.target.innerText)
                   }
                   setAnchorEl(e.currentTarget.lastElementChild)
                 }}
@@ -420,6 +440,16 @@ export const ChannelInput = ({
           </Grid>
         </ClickAwayListener>
       </Grid>
+      {isMessageTooLong && (
+        <Grid container item className={classes.errorBox}>
+          <Grid className={classes.errorIcon} item>
+            <Icon src={errorIcon} />
+          </Grid>
+          <Grid item>
+            <Typography className={classes.errorText} variant={'caption'}>{`Your message is over the size limit. `}<span onClick={() => shell.openExternal('https://www.zbay.app/#message-size-info')} className={classes.linkBlue}>Learn More</span></Typography>
+          </Grid>
+        </Grid>
+      )}
     </Grid>
   )
 }
@@ -440,7 +470,8 @@ ChannelInput.propTypes = {
   setMentionsToSelect: PropTypes.func.isRequired,
   anchorEl: PropTypes.object,
   mentionsToSelect: PropTypes.array.isRequired,
-  members: PropTypes.instanceOf(Set)
+  members: PropTypes.instanceOf(Set),
+  isMessageTooLong: PropTypes.bool.isRequired
 }
 
 ChannelInput.defaultProps = {

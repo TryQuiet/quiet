@@ -13,6 +13,8 @@ Immutable.ChannelState {
   },
   "members": "0",
   "showInfoMsg": true,
+  "isSizeCheckingInProgress": false,
+  "messageSizeStatus": null,
 }
 `;
 

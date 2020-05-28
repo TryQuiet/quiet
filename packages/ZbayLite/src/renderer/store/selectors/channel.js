@@ -23,6 +23,8 @@ const data = createSelector(
 export const spentFilterValue = createSelector(channel, c => c.get('spentFilterValue', -1))
 
 export const message = createSelector(channel, c => c.get('message'))
+export const isSizeCheckingInProgress = createSelector(channel, c => c.get('isSizeCheckingInProgress'))
+export const messageSizeStatus = createSelector(channel, c => c.get('messageSizeStatus'))
 export const advertFee = createSelector(
   data,
   (data) => data ? data.get('advertFee') : 0
@@ -224,5 +226,7 @@ export default {
   advertFee,
   onlyRegistered,
   members,
-  unread
+  unread,
+  messageSizeStatus,
+  isSizeCheckingInProgress
 }

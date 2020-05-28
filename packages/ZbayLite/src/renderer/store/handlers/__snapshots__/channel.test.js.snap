@@ -13,6 +13,8 @@ Immutable.ChannelState {
   },
   "members": null,
   "showInfoMsg": true,
+  "isSizeCheckingInProgress": false,
+  "messageSizeStatus": null,
 }
 `;
 
@@ -29,6 +31,8 @@ Immutable.ChannelState {
   },
   "members": null,
   "showInfoMsg": true,
+  "isSizeCheckingInProgress": false,
+  "messageSizeStatus": null,
 }
 `;
 
@@ -45,6 +49,8 @@ Immutable.ChannelState {
   },
   "members": null,
   "showInfoMsg": true,
+  "isSizeCheckingInProgress": false,
+  "messageSizeStatus": null,
 }
 `;
 
@@ -61,6 +67,8 @@ Immutable.ChannelState {
   },
   "members": null,
   "showInfoMsg": true,
+  "isSizeCheckingInProgress": false,
+  "messageSizeStatus": null,
 }
 `;
 

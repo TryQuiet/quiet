@@ -22,6 +22,7 @@ describe('ChannelInput', () => {
         users={Immutable.Map({})}
         mentionsToSelect={[]}
         inputPlaceholder='test'
+        isMessageTooLong={false}
       />
     )
     expect(result).toMatchSnapshot()
@@ -41,6 +42,7 @@ describe('ChannelInput', () => {
         mentionsToSelect={[]}
         users={Immutable.Map({})}
         inputPlaceholder='test'
+        isMessageTooLong={false}
       />
     )
     expect(result).toMatchSnapshot()
@@ -60,6 +62,7 @@ describe('ChannelInput', () => {
         mentionsToSelect={[]}
         users={Immutable.Map({})}
         inputPlaceholder='test'
+        isMessageTooLong={false}
       />
     )
     expect(result).toMatchSnapshot()

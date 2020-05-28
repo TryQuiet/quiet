@@ -13,6 +13,7 @@ import contactsSelectors from '../../../store/selectors/contacts'
 import { MESSAGE_SIZE } from '../../../zbay/transit'
 import ratesSelector from '../../../store/selectors/rates'
 import { unknownUserId } from '../../../../shared/static'
+import messagesHandlers from '../../../store/handlers/messages'
 
 export const mapStateToProps = (state, { contactId }) => ({
   message: channelSelectors.message(state),
@@ -24,7 +25,9 @@ export const mapStateToProps = (state, { contactId }) => ({
   channelName: contactsSelectors.contact(contactId)(state).username,
   users: usersSelectors.users(state),
   feeUsd: ratesSelector.feeUsd(state),
-  myUser: usersSelectors.myUser(state)
+  myUser: usersSelectors.myUser(state),
+  isSizeCheckingInProgress: channelSelectors.isSizeCheckingInProgress(state),
+  isMessageTooLong: channelSelectors.messageSizeStatus(state)
 })
 
 export const mapDispatchToProps = dispatch => {
@@ -32,6 +35,7 @@ export const mapDispatchToProps = dispatch => {
     {
       onChange: channelHandlers.actions.setMessage,
       sendDirectMessageOnEnter: contactsHandlers.epics.sendDirectMessageOnEnter,
+      checkMessageSizeLimit: messagesHandlers.epics.checkMessageSize,
       resetDebounce:
         directMessagesQueueHandlers.epics.resetDebounceDirectMessage
     },
@@ -47,7 +51,10 @@ export const ChannelInput = ({
   resetDebounce,
   users,
   feeUsd,
-  myUser
+  myUser,
+  isMessageTooLong,
+  isSizeCheckingInProgress,
+  checkMessageSizeLimit
 }) => {
   const [infoClass, setInfoClass] = React.useState(null)
   const [anchorEl, setAnchorEl] = React.useState({})
@@ -59,6 +66,7 @@ export const ChannelInput = ({
       setInfoClass={setInfoClass}
       onChange={e => {
         onChange(e)
+        checkMessageSizeLimit()
         resetDebounce()
       }}
       onKeyPress={sendDirectMessageOnEnter}
@@ -71,6 +79,8 @@ export const ChannelInput = ({
       mentionsToSelect={mentionsToSelect}
       setMentionsToSelect={setMentionsToSelect}
       users={users}
+      isMessageTooLong={isMessageTooLong}
+      isSizeCheckingInProgress={isSizeCheckingInProgress}
     />
   )
 }
