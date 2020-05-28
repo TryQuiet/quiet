@@ -23,7 +23,8 @@ const styles = theme => ({
   message: {
     marginTop: 14,
     whiteSpace: 'pre-line',
-    wordBreak: 'break-word'
+    wordBreak: 'break-word',
+    lineHeight: '20px'
   },
   messageInput: {
     marginTop: -35,
@@ -97,6 +98,7 @@ const checkLinking = (
 ) => {
   let parsedMessage = message
     .replace(/ /g, String.fromCharCode(160))
+    .replace(/\n/gi, `${String.fromCharCode(160)}\n${String.fromCharCode(160)}`)
     .split(String.fromCharCode(160))
   for (const index in parsedMessage) {
     const part = parsedMessage[index]
@@ -223,6 +225,7 @@ const checkLinking = (
     messageToDisplay.push(' ')
     messageToDisplay.push(parsedMessage[index])
   }
+
   return messageToDisplay
 }
 export const ChannelMessage = ({
@@ -247,9 +250,10 @@ export const ChannelMessage = ({
   const [openModal, setOpenModal] = React.useState(false)
   const status = message.get('status', 'broadcasted')
   const messageData = message.get('message')
-  const autoloadImage = imageUrl && !torEnabled
-    ? autoload.contains(new URL(imageUrl).hostname)
-    : false
+  const autoloadImage =
+    imageUrl && !torEnabled
+      ? autoload.contains(new URL(imageUrl).hostname)
+      : false
   React.useEffect(() => {
     setParsedMessage(
       checkLinking(
