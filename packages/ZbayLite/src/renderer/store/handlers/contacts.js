@@ -238,10 +238,11 @@ export const fetchMessages = () => async (dispatch, getState) => {
     ) {
       return
     } else {
+      const oldTransfers = appSelectors.transfers(getState()).get(identityAddress) || 0
       dispatch(
         appHandlers.actions.reduceNewTransfersCount(
           transfers.length -
-            appSelectors.transfers(getState()).get(identityAddress)
+          oldTransfers
         )
       )
       dispatch(
@@ -251,7 +252,6 @@ export const fetchMessages = () => async (dispatch, getState) => {
         })
       )
     }
-
     const users = usersSelectors.users(getState())
     const messagesAll = await Promise.all(
       transfers

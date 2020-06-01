@@ -52,7 +52,6 @@ const coordinator = () => async (dispatch, getState) => {
     }
     setTimeout(fetchStatus, 75000)
   }
-
   const fetchData = async () => {
     const res = await getClient().operations.getTransactionsCount()
     dispatch(contactsHandlers.epics.checkConfirmationOfTransfers)
@@ -85,8 +84,7 @@ const coordinator = () => async (dispatch, getState) => {
       if (appSelectors.newTransfersCounter(getState()) !== 0) {
         const recivedNew = await dispatch(actions.get(index % actions.size)())
         if (recivedNew === 1) {
-          actions.unshift(actions[index]).slice(index + 1)
-          index += 1
+          actions = actions.unshift(actions.get(index)).splice(index + 1, 1)
         }
       } else {
         console.log('skip coorninator')
