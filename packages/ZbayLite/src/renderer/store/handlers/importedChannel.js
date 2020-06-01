@@ -58,7 +58,7 @@ const removeChannel = history => async (dispatch, getState) => {
       history.push(`/main/channel/${channelsSelectors.generalChannelId(state)}`)
       dispatch(
         notificationsHandlers.actions.enqueueSnackbar({
-          message: `Successfully deleted channel`,
+          message: `Successfully removed channel`,
           options: {
             variant: 'success'
           }
@@ -73,7 +73,7 @@ const removeChannel = history => async (dispatch, getState) => {
     } else {
       dispatch(
         notificationsHandlers.actions.enqueueSnackbar({
-          message: 'General channel cannot be deleted',
+          message: 'General channel cannot be removed',
           options: {
             variant: 'error'
           }
