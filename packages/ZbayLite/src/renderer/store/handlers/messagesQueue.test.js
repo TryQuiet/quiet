@@ -15,6 +15,7 @@ import { ChannelsState } from './channels'
 import { messageType } from '../../../shared/static'
 import { mock as zcashMock } from '../../zcash'
 import { NodeState } from './node'
+import { initialState as appInitialState } from './app'
 
 describe('Messages queue reducer handles', () => {
   let store = null
@@ -23,6 +24,7 @@ describe('Messages queue reducer handles', () => {
     jest.clearAllMocks()
     store = create({
       initialState: Immutable.Map({
+        app: appInitialState,
         messagesQueue: initialState,
         node: NodeState({
           isTestnet: true

@@ -9,11 +9,18 @@ const transfers = createSelector(app, a => a.transfers)
 const currentModalTab = createSelector(app, a => a.modalTabToOpen)
 const allTransfersCount = createSelector(app, a => a.allTransfersCount)
 const newTransfersCounter = createSelector(app, a => a.newTransfersCounter)
+const directMessageQueueLock = createSelector(
+  app,
+  a => a.directMessageQueueLock
+)
+const messageQueueLock = createSelector(app, a => a.messageQueueLock)
 
 export default {
   version,
   transfers,
   currentModalTab,
   allTransfersCount,
-  newTransfersCounter
+  newTransfersCounter,
+  messageQueueLock,
+  directMessageQueueLock
 }

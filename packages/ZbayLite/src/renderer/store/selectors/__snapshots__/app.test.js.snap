@@ -2,6 +2,10 @@
 
 exports[`app - allTransfersCount 1`] = `12`;
 
+exports[`app - directMessageQueueLock 1`] = `false`;
+
+exports[`app - messageQueueLock 1`] = `false`;
+
 exports[`app - modal tab to open 1`] = `"addFunds"`;
 
 exports[`app - newTransfersCounter 1`] = `2`;

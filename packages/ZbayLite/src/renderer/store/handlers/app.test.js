@@ -66,5 +66,17 @@ describe('criticalError reducer', () => {
         'testvalue2'
       )
     })
+    it('set directMessageQueueLock', () => {
+      store.dispatch(handlers.actions.lockDmQueue())
+      expect(selectors.directMessageQueueLock(store.getState())).toEqual(true)
+      store.dispatch(handlers.actions.unlockDmQueue())
+      expect(selectors.directMessageQueueLock(store.getState())).toEqual(false)
+    })
+    it('set messageQueueLock', () => {
+      store.dispatch(handlers.actions.lockMessageQueue())
+      expect(selectors.messageQueueLock(store.getState())).toEqual(true)
+      store.dispatch(handlers.actions.unlockMessageQueue())
+      expect(selectors.messageQueueLock(store.getState())).toEqual(false)
+    })
   })
 })

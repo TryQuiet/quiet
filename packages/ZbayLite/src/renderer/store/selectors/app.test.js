@@ -38,4 +38,10 @@ describe('app -', () => {
   it('newTransfersCounter', async () => {
     expect(selectors.newTransfersCounter(store.getState())).toMatchSnapshot()
   })
+  it('messageQueueLock', async () => {
+    expect(selectors.messageQueueLock(store.getState())).toMatchSnapshot()
+  })
+  it('directMessageQueueLock', async () => {
+    expect(selectors.directMessageQueueLock(store.getState())).toMatchSnapshot()
+  })
 })

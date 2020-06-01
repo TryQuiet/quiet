@@ -8,6 +8,7 @@ import operationsSelectors from '../selectors/operations'
 import identitySelectors from '../selectors/identity'
 import contactsSelectors from '../selectors/contacts'
 import usersSelectors from '../selectors/users'
+import appSelectors from '../selectors/app'
 import offersSelectors from '../selectors/offers'
 import { createStandardMemo } from '../../zbay/transit'
 import { messageToTransfer, createEmptyTransfer } from '../../zbay/messages'
@@ -17,6 +18,7 @@ import operationsHandlers, {
   operationTypes
 } from './operations'
 import notificationsHandlers from './notifications'
+import appHandlers from './app'
 import { errorNotification } from './utils'
 import { getClient } from '../../zcash'
 import { getVault } from '../../vault'
@@ -24,7 +26,7 @@ import contactsHandlers from './contacts'
 import offersHandlers from './offers'
 import history from '../../../shared/history'
 
-export const DEFAULT_DEBOUNCE_INTERVAL = 1000
+export const DEFAULT_DEBOUNCE_INTERVAL = 2000
 const POLLING_OFFSET = 60000
 
 export const PendingMessage = Immutable.Record(
@@ -213,6 +215,12 @@ const sendPlainTransfer = payload => async (dispatch, getState) => {
 }
 
 const _sendPendingDirectMessages = redirect => async (dispatch, getState) => {
+  const lock = appSelectors.messageQueueLock(getState())
+  if (lock === false) {
+    await dispatch(appHandlers.actions.lockDmQueue())
+  } else {
+    return
+  }
   const messages = selectors.queue(getState())
   const identityAddress = identitySelectors.address(getState())
   const donation = identitySelectors.donation(getState())
@@ -284,6 +292,7 @@ const _sendPendingDirectMessages = redirect => async (dispatch, getState) => {
       })
       .values()
   )
+  await dispatch(appHandlers.actions.unlockDmQueue())
 }
 
 export const sendPendingDirectMessages = (debounce = null, redirect) => {

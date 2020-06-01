@@ -7,7 +7,7 @@ import secp256k1 from 'secp256k1'
 import createKeccakHash from 'keccak'
 import { packMemo, unpackMemo, addStandardToMemo } from './transit'
 import { getClient } from '../zcash'
-import { networkFee, messageType } from '../../shared/static'
+import { networkFee, targetUtxoCount, messageType } from '../../shared/static'
 
 export const ExchangeParticipant = Immutable.Record(
   {
@@ -296,19 +296,21 @@ const _buildUtxo = ({
   //   }
   //   transfers.push(donate)
   // }
-  const utxo = utxos.find(
-    utxo =>
-      utxo.amount >
-      parseFloat(transfer.amount) + splitTreshhold + fee + includedDonation
-  )
-  const standardMemo = addStandardToMemo('internal utxo creation')
-  if (utxo) {
-    const newUtxo = {
-      address: identityAddress,
-      amount: new BigNumber(splitTreshhold).toFixed(8).toString(),
-      memo: standardMemo
+  if (utxos.filter(utxo => utxo.amount >= networkFee).length <= targetUtxoCount) {
+    const utxo = utxos.find(
+      utxo =>
+        utxo.amount >
+        parseFloat(transfer.amount) + splitTreshhold + fee + includedDonation
+    )
+    const standardMemo = addStandardToMemo('internal utxo creation')
+    if (utxo) {
+      const newUtxo = {
+        address: identityAddress,
+        amount: new BigNumber(splitTreshhold).toFixed(8).toString(),
+        memo: standardMemo
+      }
+      transfers.push(newUtxo)
     }
-    transfers.push(newUtxo)
   }
   return transfers
 }
@@ -355,7 +357,12 @@ export const messageToTransfer = async ({
         })
   }
 }
-export const createEmptyTransfer = ({ identityAddress, address, amount, memo }) => {
+export const createEmptyTransfer = ({
+  identityAddress,
+  address,
+  amount,
+  memo
+}) => {
   const amounts = {
     address: address,
     amount: amount ? amount.toString() : '0'

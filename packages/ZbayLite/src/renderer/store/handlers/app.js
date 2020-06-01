@@ -11,7 +11,9 @@ export const AppState = Immutable.Record(
     newUser: false,
     modalTabToOpen: null,
     allTransfersCount: 0,
-    newTransfersCounter: 0
+    newTransfersCounter: 0,
+    directMessageQueueLock: false,
+    messageQueueLock: false
   },
   'AppState'
 )
@@ -26,6 +28,10 @@ const setModalTab = createAction(actionTypes.SET_CURRENT_MODAL_TAB)
 const clearModalTab = createAction(actionTypes.CLEAR_CURRENT_MODAL_TAB)
 const setAllTransfersCount = createAction(actionTypes.SET_ALL_TRANSFERS_COUNT)
 const setNewTransfersCount = createAction(actionTypes.SET_NEW_TRANSFERS_COUNT)
+const lockDmQueue = createAction(actionTypes.LOCK_DM_QUEUE)
+const unlockDmQueue = createAction(actionTypes.UNLOCK_DM_QUEUE)
+const lockMessageQueue = createAction(actionTypes.LOCK_MESSAGE_QUEUE)
+const unlockMessageQueue = createAction(actionTypes.UNLOCK_MESSAGE_QUEUE)
 const reduceNewTransfersCount = createAction(
   actionTypes.REDUCE_NEW_TRANSFERS_COUNT
 )
@@ -37,14 +43,18 @@ export const actions = {
   clearModalTab,
   setAllTransfersCount,
   setNewTransfersCount,
-  reduceNewTransfersCount
+  reduceNewTransfersCount,
+  lockDmQueue,
+  unlockDmQueue,
+  lockMessageQueue,
+  unlockMessageQueue
 }
 
 export const askForBlockchainLocation = () => async (dispatch, getState) => {
   dispatch(actionCreators.openModal('blockchainLocation')())
 }
 
-export const proceedWithSyncing = (payload) => async (dispatch, getState) => {
+export const proceedWithSyncing = payload => async (dispatch, getState) => {
   ipcRenderer.send('proceed-with-syncing', payload)
   dispatch(actionCreators.closeModal('blockchainLocation')())
 }
@@ -62,6 +72,10 @@ export const reducer = handleActions(
     [setAllTransfersCount]: (state, { payload: transfersCount }) =>
       state.set('allTransfersCount', transfersCount),
     [clearModalTab]: state => state.set('modalTabToOpen', null),
+    [lockDmQueue]: state => state.set('directMessageQueueLock', true),
+    [unlockDmQueue]: state => state.set('directMessageQueueLock', false),
+    [lockMessageQueue]: state => state.set('messageQueueLock', true),
+    [unlockMessageQueue]: state => state.set('messageQueueLock', false),
     [setTransfers]: (state, { payload: { id, value } }) => {
       return state.setIn(['transfers', id], value)
     }

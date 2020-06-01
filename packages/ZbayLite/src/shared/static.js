@@ -1,5 +1,7 @@
 import mirrorKey from 'keymirror'
 export const networkFee = 0.0000025
+export const targetUtxoCount = 25
+export const debounceThreshold = 10
 export const unknownUserId = 'c7e7c14740c3372fffe47c845a2b6720'
 export const DOMAIN = 'handlers.zbay.app'
 export const LOG_ENDPOINT = 'https://handlers.zbay.app/email'
@@ -140,6 +142,10 @@ export const actionTypes = mirrorKey({
   SET_TRANSACTIONS_LOGS: undefined,
   SET_LOG_WINDOW_OPENED: undefined,
   SET_ALL_TRANSFERS_COUNT: undefined,
+  LOCK_DM_QUEUE: undefined,
+  UNLOCK_DM_QUEUE: undefined,
+  LOCK_MESSAGE_QUEUE: undefined,
+  UNLOCK_MESSAGE_QUEUE: undefined,
   SET_SKIP_COORDINATOR_FLAG: undefined,
   SET_NEW_TRANSFERS_COUNT: undefined,
   REDUCE_NEW_TRANSFERS_COUNT: undefined,
