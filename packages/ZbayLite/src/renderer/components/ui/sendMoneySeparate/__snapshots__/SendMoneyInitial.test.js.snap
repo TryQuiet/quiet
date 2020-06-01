@@ -246,7 +246,7 @@ exports[`SendMoneyForm renders component 1`] = `
     type="submit"
     variant="contained"
   >
-    Continue
+    Send
   </WithStyles(ForwardRef(Button))>
 </WithStyles(ForwardRef(Grid))>
 `;

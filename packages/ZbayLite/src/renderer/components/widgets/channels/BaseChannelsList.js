@@ -6,6 +6,7 @@ import List from '@material-ui/core/List'
 
 import ChannelsListItem from '../../../containers/widgets/channels/ChannelsListItem'
 import OfferListItem from '../../../containers/widgets/channels/OfferListItem'
+import { unknownUserId } from '../../../../shared/static'
 
 export const propTypes = {
   channel: PropTypes.shape({
@@ -26,16 +27,22 @@ export const BaseChannelsList = ({
   selectedOffer
 }) => {
   const [...keys] = offers.keys()
+  const unknownUserIndex = channels.findIndex(
+    ch => ch.username === unknownUserId
+  )
+
   return (
     <List disablePadding>
-      {channels.map(channel => (
-        <ChannelsListItem
-          key={directMessages ? channel.get('address') : channel.get('id')}
-          channel={channel}
-          directMessages={directMessages}
-          selected={selected}
-        />
-      ))}
+      {channels
+        .filter(ch => ch.username !== unknownUserId)
+        .map(channel => (
+          <ChannelsListItem
+            key={directMessages ? channel.get('address') : channel.get('id')}
+            channel={channel}
+            directMessages={directMessages}
+            selected={selected}
+          />
+        ))}
       {offers.toList().map((offer, index) => (
         <OfferListItem
           key={keys[index]}
@@ -43,6 +50,14 @@ export const BaseChannelsList = ({
           selected={selectedOffer}
         />
       ))}
+      {unknownUserIndex !== -1 && (
+        <ChannelsListItem
+          key={unknownUserId}
+          channel={channels.get(unknownUserIndex)}
+          directMessages={directMessages}
+          selected={selected}
+        />
+      )}
     </List>
   )
 }

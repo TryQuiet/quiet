@@ -439,7 +439,7 @@ export const SendMoneyInitial = ({
         type='submit'
         disabled={!isValid}
       >
-        Continue
+        Send
       </Button>
     </Grid>
   )
