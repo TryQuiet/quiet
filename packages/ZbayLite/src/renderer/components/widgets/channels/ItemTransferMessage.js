@@ -54,7 +54,8 @@ const styles = theme => ({
     paddingTop: 2,
     paddingBottom: 2,
     paddingLeft: 4,
-    paddingRight: 4
+    paddingRight: 4,
+    letterSpacing: 0.4
   },
   successMark: {
     position: 'absolute',
@@ -72,7 +73,8 @@ const styles = theme => ({
     paddingTop: 2,
     paddingBottom: 2,
     paddingLeft: 4,
-    paddingRight: 4
+    paddingRight: 4,
+    letterSpacing: 0.4
   }
 })
 
