@@ -86,11 +86,9 @@ export const SyncLoader = ({
   isGuideCompleted,
   message, isFetching,
   progressValue,
-  hasAddress,
   blockchainStatus,
   bootstrapping,
   bootstrappingMessage,
-  openModal,
   fetchingStatus,
   fetchingSpeed,
   isFetchedFromExternalSource,
@@ -133,12 +131,6 @@ export const SyncLoader = ({
             </Typography>}
           </Grid>
         </Grid>
-        {hasAddress && (
-          <Grid item container direction={'row'} justify={'center'} className={classes.topUpInfo}>
-            <Typography className={classes.info} variant={'caption'} onClick={openModal}>{`Shopping with Zbay? Want to save time later?`}</Typography>
-            <Typography className={classes.button} variant={'caption'} onClick={openModal}>Add funds now</Typography>
-          </Grid>
-        )}
       </Grid>
     </WindowWrapper>
   ) : <RegistrationGuide />

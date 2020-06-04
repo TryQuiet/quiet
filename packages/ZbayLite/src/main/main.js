@@ -66,7 +66,7 @@ const calculateDownloadSpeed = (downloadedSize, source) => {
   prevFetchedSize = downloadedSize
   const speedInSec = diff / 3
   const convertedSpeed = speedInSec ? Math.abs(speedInSec.toFixed()) : null
-  const estimatedTimeForRescanning = 800
+  const estimatedTimeForRescanning = 2000
   let isFetching = false
   const eta = convertedSpeed
     ? convert(((parseInt(((BLOCKCHAIN_SIZE - downloadedSize) / convertedSpeed)) + estimatedTimeForRescanning)))

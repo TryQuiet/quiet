@@ -110,10 +110,10 @@ export const SyncLoader = ({ setVaultIdentity, createVault, loader, guideStatus,
     progressValue = fetchingProgress
   } else if (isRescanningInitialized) {
     progressValue = 99
-    message = `Rescanning, ~5 minutes left`
+    message = `Rescanning, ~25 minutes left`
   } else {
     progressValue = syncProgress === '0.00' ? 91 : syncProgress - 5
-    message = `Final sync (${node.currentBlock}/${lastBlock}) ~ 10 minutes left`
+    message = `Final sync (${node.currentBlock}/${lastBlock}) ~40 minutes left`
   }
   return (isSynced && isRescanningInitialized && !loader.loading && node.status === 'healthy') ? (
     <Redirect to='/main/channel/general' />
