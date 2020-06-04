@@ -58,14 +58,10 @@ export const ChannelMenuAction = ({
       <MenuActionItem onClick={onInfo} title='Info & Invites' />
 
       <MenuActionItem
-        onClick={
-          alreadyRegistered
-            ? onDelete
-            : e => {
-              e.preventDefault()
-              setOpenDialog(true)
-            }
-        }
+        onClick={e => {
+          e.preventDefault()
+          setOpenDialog(true)
+        }}
         closeAfterAction={false}
         title='Remove'
       />
