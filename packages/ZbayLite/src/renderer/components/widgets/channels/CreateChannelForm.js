@@ -4,12 +4,12 @@ import * as R from 'ramda'
 import { Formik, Form } from 'formik'
 
 import Grid from '@material-ui/core/Grid'
-import Button from '@material-ui/core/Button'
 import { withStyles } from '@material-ui/core/styles'
 import WarningIcon from '@material-ui/icons/Warning'
 import { Typography } from '@material-ui/core'
 
 import TextField from '../../ui/form/TextField'
+import LoadingButton from '../../ui/LoadingButton'
 
 const styles = theme => ({
   fullContainer: {
@@ -26,7 +26,10 @@ const styles = theme => ({
     color: theme.palette.colors.white,
     '&:hover': {
       backgroundColor: theme.palette.colors.zbayBlue
-    }
+    },
+    textTransform: 'none',
+    height: 48,
+    fontWeight: 'normal'
   },
   title: {
     marginBottom: 24
@@ -81,16 +84,15 @@ export const CreateChannelForm = ({ classes, onSubmit }) => (
           <Typography variant='body2'>Channel description</Typography>
 
           <TextField multiline name='description' className={classes.gutter} />
-          <Button
+          <LoadingButton
             className={classes.button}
             variant='contained'
             color='primary'
-            size='large'
             disabled={isSubmitting}
+            inProgress={isSubmitting}
             type='submit'
-          >
-            Create Channel
-          </Button>
+            text='Create Channel'
+          />
         </Grid>
       </Form>
     )}

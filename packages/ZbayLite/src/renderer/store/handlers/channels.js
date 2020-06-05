@@ -23,6 +23,7 @@ import { getVault } from '../../vault'
 import { getClient } from '../../zcash'
 import logsHandlers from '../../store/handlers/logs'
 import { networkFee, actionTypes } from '../../../shared/static'
+import history from '../../../shared/history'
 
 const toBigNumber = x => new BigNumber(x)
 
@@ -131,7 +132,12 @@ const createChannel = (values, formActions) => async (dispatch, getState) => {
     }
     const identityId = identitySelectors.id(getState())
     const address = await _createChannel(identityId, values)
-    dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Creating channel ${address}` }))
+    dispatch(
+      logsHandlers.epics.saveLogs({
+        type: 'APPLICATION_LOGS',
+        payload: `Creating channel ${address}`
+      })
+    )
     await dispatch(
       channelHandlers.epics.sendChannelSettingsMessage({ address: address })
     )
@@ -142,9 +148,15 @@ const createChannel = (values, formActions) => async (dispatch, getState) => {
         })
       )
     )
+    await dispatch(loadChannels(identityId))
     formActions.setSubmitting(false)
+    const createdChannel = channelsSelectors
+      .data(getState())
+      .find(ch => ch.get('address') === address)
+    if (createdChannel) {
+      history.push(`/main/channel/${createdChannel.get('id')}`)
+    }
     dispatch(closeModal())
-    dispatch(loadChannels(identityId))
   } catch (error) {
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar(
@@ -175,7 +187,12 @@ const withdrawMoneyFromChannels = () => async (dispatch, getState) => {
         })
       )
     )
-    dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Creating new transfer with received money from channels` }))
+    dispatch(
+      logsHandlers.epics.saveLogs({
+        type: 'APPLICATION_LOGS',
+        payload: `Creating new transfer with received money from channels`
+      })
+    )
   }
 }
 
@@ -206,7 +223,12 @@ const updateLastSeen = ({ channelId }) => async (dispatch, getState) => {
   })
   dispatch(setLastSeen({ channelId, lastSeen }))
   dispatch(setUnread({ channelId, unread: 0 }))
-  dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Updating last seen ${channelId}` }))
+  dispatch(
+    logsHandlers.epics.saveLogs({
+      type: 'APPLICATION_LOGS',
+      payload: `Updating last seen ${channelId}`
+    })
+  )
 }
 const updateSettings = ({ channelId, time, data }) => async (
   dispatch,
@@ -227,7 +249,12 @@ const updateSettings = ({ channelId, time, data }) => async (
     })
   )
   dispatch(setAdvertFee({ channelId, advertFee: data.updateMinFee }))
-  dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Updating channel settings` }))
+  dispatch(
+    logsHandlers.epics.saveLogs({
+      type: 'APPLICATION_LOGS',
+      payload: `Updating channel settings`
+    })
+  )
 }
 
 const updateShowInfoMsg = showInfoMsg => async (dispatch, getState) => {
