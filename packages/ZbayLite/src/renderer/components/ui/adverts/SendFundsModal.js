@@ -243,8 +243,10 @@ export const SendFundsModal = ({
   const hasNoFounds = balanceZec.lt(zecOffer)
   const ErrorText = ({ name }) => {
     return errors[name] && touched[name] ? (
-      <Grid item xs className={classes.error}>
-        <Typography variant='caption'>{errors[name]}</Typography>
+      <Grid item xs>
+        <Typography className={classes.error} variant='caption'>
+          {errors[name]}
+        </Typography>
       </Grid>
     ) : (
       <span />
@@ -437,6 +439,7 @@ export const SendFundsModal = ({
                   ${shippingData.region} ${shippingData.country}`}</Typography>
                   </Grid>
                 )}
+                <ErrorText name={'shippingInfo'} />
               </Grid>
               <Grid item xs container className={classes.divMoney}>
                 <Grid className={classes.titleBox} item xs={12}>

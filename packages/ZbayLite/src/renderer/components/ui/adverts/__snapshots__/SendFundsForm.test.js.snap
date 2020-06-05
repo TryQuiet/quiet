@@ -5,6 +5,7 @@ exports[`SendFundsForm renders component SendFoundsForm 1`] = `
   enableReinitialize={true}
   initialValues={
     Object {
+      "shippingInfo": false,
       "usd": "123.00",
       "zec": "0.1200",
     }
@@ -13,6 +14,7 @@ exports[`SendFundsForm renders component SendFoundsForm 1`] = `
   onSubmit={[Function]}
   validateOnBlur={true}
   validateOnChange={true}
+  validateOnMount={true}
   validationSchema={
     ObjectSchema {
       "_blacklist": RefSet {
@@ -28,6 +30,7 @@ exports[`SendFundsForm renders component SendFoundsForm 1`] = `
       "_exclusive": Object {},
       "_mutate": undefined,
       "_nodes": Array [
+        "shippingInfo",
         "usd",
         "zec",
       ],
@@ -42,6 +45,33 @@ exports[`SendFundsForm renders component SendFoundsForm 1`] = `
         "refs": Map {},
       },
       "fields": Object {
+        "shippingInfo": BooleanSchema {
+          "_blacklist": RefSet {
+            "list": Set {},
+            "refs": Map {},
+          },
+          "_conditions": Array [],
+          "_deps": Array [],
+          "_exclusive": Object {},
+          "_mutate": undefined,
+          "_options": Object {
+            "abortEarly": true,
+            "recursive": true,
+          },
+          "_type": "boolean",
+          "_typeError": [Function],
+          "_whitelist": RefSet {
+            "list": Set {
+              true,
+            },
+            "refs": Map {},
+          },
+          "_whitelistError": [Function],
+          "tests": Array [],
+          "transforms": Array [
+            [Function],
+          ],
+        },
         "usd": NumberSchema {
           "_blacklist": RefSet {
             "list": Set {},

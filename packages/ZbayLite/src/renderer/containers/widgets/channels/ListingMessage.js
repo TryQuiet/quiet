@@ -14,12 +14,14 @@ export const mapStateToProps = state => ({
 export const mapDispatchToProps = (dispatch, ownProps) =>
   bindActionCreators(
     {
-      buyActions: (modalName, payload) => actionCreators.openModal(modalName, payload)()
+      buyActions: (modalName, payload) =>
+        actionCreators.openModal(modalName, payload)()
     },
     dispatch
   )
 const ListingMessage = ({ message, rateUsd, ...props }) => {
   const payload = {
+    provideShipping: message.message.provideShipping === '1',
     tag: message.message.tag,
     description: message.message.description,
     background: message.message.background,
@@ -35,11 +37,12 @@ const ListingMessage = ({ message, rateUsd, ...props }) => {
     address: message.sender.replyTo,
     createdAt: message.createdAt
   }
-  return <ListingMessageComponent payload={payload} message={message} {...props} />
-}
-export default R.compose(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
+  return (
+    <ListingMessageComponent payload={payload} message={message} {...props} />
   )
-)(React.memo(ListingMessage, (before, after) => Immutable.is(after.message, before.message)))
+}
+export default R.compose(connect(mapStateToProps, mapDispatchToProps))(
+  React.memo(ListingMessage, (before, after) =>
+    Immutable.is(after.message, before.message)
+  )
+)

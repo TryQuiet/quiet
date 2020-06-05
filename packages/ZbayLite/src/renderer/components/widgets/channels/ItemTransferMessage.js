@@ -101,6 +101,7 @@ export const ItemTransferMessage = ({
         onClick={() =>
           openSentModal({
             fromYou: true,
+            provideShipping: message.provideShipping,
             amountZec: parseFloat(message.spent.toString()),
             txid: message.id,
             memo: message.message,

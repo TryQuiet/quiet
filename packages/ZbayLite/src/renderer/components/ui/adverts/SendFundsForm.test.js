@@ -13,7 +13,8 @@ describe('SendFundsForm', () => {
       tag: 'dirtbike',
       nickname: 'roks33',
       priceUSD: 123,
-      priceZcash: 0.12
+      priceZcash: 0.12,
+      provideShipping: true
     }
     const result = shallow(
       <SendFundsForm
