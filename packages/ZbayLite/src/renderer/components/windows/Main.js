@@ -31,7 +31,7 @@ const styles = {
   }
 }
 
-export const Main = ({ match, classes, disablePowerSleepMode, isLogWindowOpened }) => {
+export const Main = ({ match, classes, disablePowerSleepMode, isLogWindowOpened, createWalletCopy }) => {
   const debounce = (fn, ms) => {
     let timer
     return _ => {
@@ -63,6 +63,7 @@ export const Main = ({ match, classes, disablePowerSleepMode, isLogWindowOpened 
   useEffect(() => {
     electronStore.set('isNewUser', false)
     electronStore.set('AppStatus.blockchain.isRescanned', true)
+    createWalletCopy()
     disablePowerSleepMode()
   }, [])
   return (

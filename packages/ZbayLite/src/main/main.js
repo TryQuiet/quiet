@@ -26,6 +26,7 @@ import { createRpcCredentials } from '../renderer/zcash'
 import config from './config'
 import { spawnZcashNode } from './zcash/bootstrap'
 import electronStore from '../shared/electronStore'
+import recoveryHandlers from './zcash/recover'
 
 const osPathsBlockchainCustom = {
   darwin: `${process.env.HOME ||
@@ -443,6 +444,19 @@ const fetchBlockchain = async (win, torUrl) => {
 let powerSleepId
 
 const createZcashNode = async (win, torUrl) => {
+  const isBlockchainRescanned = electronStore.get('AppStatus.blockchain.isRescanned')
+  if (isBlockchainRescanned && !isDev) {
+    setTimeout(() => {
+      recoveryHandlers.checkIfProcessIsRunning((status) => {
+        if (!status) {
+          recoveryHandlers.replaceWalletFile()
+          electronStore.set('AppStatus.blockchain.isRescanned', false)
+          app.relaunch()
+          createZcashNode(win, torUrl)
+        }
+      })
+    }, 180000)
+  }
   const updateStatus = electronStore.get('updateStatus')
   const blockchainConfiguration = electronStore.get('blockchainConfiguration')
   if (updateStatus !== config.UPDATE_STATUSES.NO_UPDATE || (blockchainConfiguration === config.BLOCKCHAIN_STATUSES.WAITING_FOR_USER_DECISION && isFetchedFromExternalSource)) {
@@ -635,6 +649,11 @@ app.on('ready', async () => {
     autoUpdater.quitAndInstall()
   })
 
+  ipcMain.on('make-wallet-backup', (event, arg) => {
+    recoveryHandlers.makeWalletCopy()
+    electronStore.set('isWalletCopyCreated', true)
+  })
+
   let rescanningInterval
   let tick = 0
   const progressBlocksArr = []
@@ -734,7 +753,11 @@ app.on('ready', async () => {
     checkPath(osPathLogs[process.platform])
     checkLogsFiles()
     const transactions = JSON.parse(fs.readFileSync(targetPath.transactions))
-    const applicationLogs = JSON.parse(fs.readFileSync(targetPath.rpcCalls))
+    let applicationLogs = JSON.parse(fs.readFileSync(targetPath.rpcCalls))
+    if (applicationLogs.length > 100) {
+      const startHeight = applicationLogs.length - 100
+      applicationLogs = applicationLogs.slice(startHeight, applicationLogs.length)
+    }
     const debugFileLines = await readLastLines.read(targetPath.debug, 100)
     if (mainWindow) {
       mainWindow.webContents.send('load-logs-to-store', {
