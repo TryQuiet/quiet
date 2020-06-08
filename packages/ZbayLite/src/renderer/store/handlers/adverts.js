@@ -92,7 +92,7 @@ const handleSendTransfer = ({ values, history, payload }) => async (
         itemId: payload.id.substring(0, 64),
         tag: payload.tag,
         offerOwner: payload.offerOwner,
-        shippingData
+        shippingData: payload.provideShipping ? shippingData : null
       },
       spent: new BigNumber(values.zec)
     },

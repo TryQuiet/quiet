@@ -104,7 +104,6 @@ const styles = theme => ({
     padding: '0px 20px'
   },
   addressBox: {
-    height: 32,
     margin: 0,
     padding: 0
   },
@@ -115,6 +114,9 @@ const styles = theme => ({
     fontSize: 12,
     letterSpacing: '0.4px',
     lineHeight: '14px'
+  },
+  addressItemContainer: {
+    height: 18
   },
   divMoney: {
     padding: '0px 20px',
@@ -426,17 +428,23 @@ export const SendFundsModal = ({
                     container
                     item
                     direction={'column'}
-                    justify={'space-between'}
-                    wrap={'wrap'}
                   >
-                    <Typography variant={'caption'} className={classes.address}>
-                      {shippingData.street}
-                    </Typography>
-                    <Typography
-                      variant={'caption'}
-                      className={classes.address}
-                    >{`${shippingData.city} ${shippingData.postalCode}
-                  ${shippingData.region} ${shippingData.country}`}</Typography>
+                    <Grid item className={classes.addressItemContainer}>
+                      <Typography variant={'caption'} className={classes.address}>
+                        {`${shippingData.firstName} ${shippingData.lastName}`}
+                      </Typography>
+                    </Grid>
+                    <Grid item className={classes.addressItemContainer}>
+                      <Typography variant={'caption'} className={classes.address}>
+                        {shippingData.street}
+                      </Typography>
+                    </Grid>
+                    <Grid item className={classes.addressItemContainer}>
+                      <Typography variant={'caption'} className={classes.address}>
+                        {`${shippingData.city} ${shippingData.postalCode}
+                  ${shippingData.region} ${shippingData.country}`}
+                      </Typography>
+                    </Grid>
                   </Grid>
                 )}
                 <ErrorText name={'shippingInfo'} />
