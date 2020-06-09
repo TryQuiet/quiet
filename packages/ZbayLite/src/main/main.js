@@ -451,7 +451,6 @@ const createZcashNode = async (win, torUrl) => {
         if (!status) {
           recoveryHandlers.replaceWalletFile()
           electronStore.set('AppStatus.blockchain.isRescanned', false)
-          app.relaunch()
           createZcashNode(win, torUrl)
         }
       })
