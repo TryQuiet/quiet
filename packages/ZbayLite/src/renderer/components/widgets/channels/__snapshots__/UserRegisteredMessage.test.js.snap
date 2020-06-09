@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`UserRegisteredMessage renders component 1`] = `
+<Fragment>
+  <Memo(WithStyles(WelcomeMessage))
+    message={
+      <React.Fragment>
+        <span
+          className="nickname-mock"
+          onClick={[Function]}
+        >
+          testnickname
+        </span>
+        <span>
+           just registered a username on zbay!
+        </span>
+      </React.Fragment>
+    }
+    timestamp={0}
+  />
+  <Memo(withRouter(Connect(Component)))
+    address="testaddress"
+    anchorEl={null}
+    handleClose={[Function]}
+    isUnregistered={false}
+    username="testnickname"
+  />
+</Fragment>
+`;

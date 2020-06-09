@@ -28,7 +28,7 @@ const _ReceivedUser = publicKey =>
     },
     'ReceivedUser'
   )
-const _UserData = Immutable.Record(
+export const _UserData = Immutable.Record(
   {
     firstName: '',
     lastName: '',

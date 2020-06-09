@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChannelRegisteredMessage renders component 1`] = `
+<Fragment>
+  <Memo(WithStyles(WelcomeMessage))
+    message={
+      <React.Fragment>
+        <span
+          className="nickname-mock"
+          onClick={[Function]}
+        >
+          testUsername
+        </span>
+        <span>
+           
+          just published
+           
+          <span
+            className="link-mock"
+            onClick={[Function]}
+          >
+            #
+            testname
+          </span>
+           
+          on zbay!
+        </span>
+      </React.Fragment>
+    }
+  />
+  <Memo(withRouter(Connect(Component)))
+    address="testAddress"
+    anchorEl={null}
+    handleClose={[Function]}
+    isUnregistered={false}
+    username="testUsername"
+  />
+</Fragment>
+`;

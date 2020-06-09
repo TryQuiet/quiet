@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 import Immutable from 'immutable'
 import { Scrollbars } from 'react-custom-scrollbars'
@@ -13,21 +13,13 @@ import WelcomeMessage from './WelcomeMessage'
 import ChannelItemTransferMessage from '../../../containers/widgets/channels/ItemTransferMessage'
 import ChannelAdMessage from '../../../containers/widgets/channels/ListingMessage'
 import MessagesDivider from '../MessagesDivider'
-
+import UserRegisteredMessage from './UserRegisteredMessage'
+import ChannelRegisteredMessage from './ChannelRegisteredMessage'
 const styles = theme => ({
   list: {
     backgroundColor: theme.palette.colors.white,
     padding: '0 4px',
     width: '100%'
-  },
-  bold: {
-    fontWeight: 'bold'
-  },
-  link: {
-    color: theme.palette.colors.lushSky,
-    backgroundColor: theme.palette.colors.lushSky12,
-    borderRadius: 4,
-    cursor: 'pointer'
   }
 })
 
@@ -138,44 +130,25 @@ export const ChannelMessages = ({
                 if (!msg.type) {
                   if (msg.keys) {
                     return (
-                      <WelcomeMessage
-                        message={
-                          <Fragment>
-                            <span className={classes.bold}>
-                              {users.get(msg.owner)
-                                ? users.get(msg.owner).nickname
-                                : 'Anonymous'}
-                            </span>
-                            <span>
-                              {' '}
-                              just published{' '}
-                              <span
-                                className={classes.link}
-                                onClick={() => {
-                                  onLinkedChannel(publicChannels.get(msg.name))
-                                }}
-                              >
-                                #{msg.name}
-                              </span>{' '}
-                              on zbay!
-                            </span>
-                          </Fragment>
+                      <ChannelRegisteredMessage
+                        message={msg}
+                        address={
+                          users.get(msg.owner)
+                            ? users.get(msg.owner).address
+                            : ''
                         }
-                        timestamp={msg.createdAt}
+                        username={
+                          users.get(msg.owner)
+                            ? users.get(msg.owner).nickname
+                            : 'Anonymous'
+                        }
+                        onChannelClick={() => {
+                          onLinkedChannel(publicChannels.get(msg.name))
+                        }}
                       />
                     )
                   } else {
-                    return (
-                      <WelcomeMessage
-                        message={
-                          <Fragment>
-                            <span className={classes.bold}>{msg.nickname}</span>
-                            <span> just registered a username on zbay!</span>
-                          </Fragment>
-                        }
-                        timestamp={msg.createdAt}
-                      />
-                    )
+                    return <UserRegisteredMessage message={msg} />
                   }
                 }
                 return (
