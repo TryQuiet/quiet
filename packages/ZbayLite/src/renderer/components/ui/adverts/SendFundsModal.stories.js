@@ -18,6 +18,7 @@ storiesOf('Components/Widgets/SendFundsModal', module)
         rateUsd={new BigNumber(50)}
         rateZec={1 / new BigNumber(50)}
         balanceZec={new BigNumber(0.7)}
+        lockedBalance={new BigNumber(0.7)}
         open={boolean('Disabled', true)}
         handleClose={() => {}}
         values={{

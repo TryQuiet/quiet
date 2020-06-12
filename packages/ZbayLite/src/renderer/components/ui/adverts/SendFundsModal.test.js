@@ -26,6 +26,7 @@ describe('SendFundsModal', () => {
         touched={{}}
         errors={{}}
         submitForm={jest.fn()}
+        lockedBalance={BigNumber(0.1)}
         shippingData={{
           street: 'test',
           country: 'test',

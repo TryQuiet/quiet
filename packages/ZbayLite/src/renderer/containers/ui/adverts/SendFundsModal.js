@@ -16,6 +16,7 @@ export const mapStateToProps = state => ({
   rateUsd: rate('usd')(state),
   rateZec: 1 / rate('usd')(state),
   balanceZec: identitySelector.balance('zec')(state),
+  lockedBalance: identitySelector.lockedBalance('zec')(state),
   payload: modalSelectors.payload('advertSendFounds')(state),
   shippingData: identitySelector.shippingData(state)
 })

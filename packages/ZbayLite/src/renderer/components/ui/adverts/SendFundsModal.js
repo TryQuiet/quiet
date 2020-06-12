@@ -162,7 +162,6 @@ const styles = theme => ({
   },
   errorBox: {
     width: 400,
-    height: 92,
     borderRadius: 4,
     marginTop: 24,
     padding: '16px 24px',
@@ -239,7 +238,8 @@ export const SendFundsModal = ({
   shippingData,
   openAddFundsTab,
   openSettingsModal,
-  openShippingTab
+  openShippingTab,
+  lockedBalance
 }) => {
   const { zec: zecOffer } = values
   const hasNoFounds = balanceZec.lt(zecOffer)
@@ -430,17 +430,26 @@ export const SendFundsModal = ({
                     direction={'column'}
                   >
                     <Grid item className={classes.addressItemContainer}>
-                      <Typography variant={'caption'} className={classes.address}>
+                      <Typography
+                        variant={'caption'}
+                        className={classes.address}
+                      >
                         {`${shippingData.firstName} ${shippingData.lastName}`}
                       </Typography>
                     </Grid>
                     <Grid item className={classes.addressItemContainer}>
-                      <Typography variant={'caption'} className={classes.address}>
+                      <Typography
+                        variant={'caption'}
+                        className={classes.address}
+                      >
                         {shippingData.street}
                       </Typography>
                     </Grid>
                     <Grid item className={classes.addressItemContainer}>
-                      <Typography variant={'caption'} className={classes.address}>
+                      <Typography
+                        variant={'caption'}
+                        className={classes.address}
+                      >
                         {`${shippingData.city} ${shippingData.postalCode}
                   ${shippingData.region} ${shippingData.country}`}
                       </Typography>
@@ -516,7 +525,11 @@ export const SendFundsModal = ({
                   <Grid container item className={classes.errorBox}>
                     <Grid container direction={'row'} justify={'space-between'}>
                       <Grid item>
-                        <Typography variant={'h4'}>Not enough funds</Typography>
+                        <Typography variant={'h4'}>
+                          {lockedBalance.toNumber() >= zecOffer
+                            ? `Funds pending`
+                            : `Not enough funds`}
+                        </Typography>
                       </Grid>
                       <Grid item>
                         <Icon
@@ -531,19 +544,28 @@ export const SendFundsModal = ({
                           variant={'body2'}
                           className={classes.descriptionFunds}
                         >
-                          You don’t have enough funds.{' '}
-                          <span
-                            onClick={() =>
-                              handleAddFunds(
-                                openAddFundsTab,
-                                openSettingsModal,
-                                handleClose
-                              )
-                            }
-                            className={classes.addFounds}
-                          >
-                            Add funds now.
-                          </span>
+                          {lockedBalance.toNumber() >= zecOffer ? (
+                            <>
+                              A previous transaction is still pending. Your
+                              funds will be available momentarily.
+                            </>
+                          ) : (
+                            <>
+                              You don’t have enough funds.{' '}
+                              <span
+                                onClick={() =>
+                                  handleAddFunds(
+                                    openAddFundsTab,
+                                    openSettingsModal,
+                                    handleClose
+                                  )
+                                }
+                                className={classes.addFounds}
+                              >
+                                Add funds now.
+                              </span>
+                            </>
+                          )}
                         </Typography>
                       </Grid>
                     </Grid>
