@@ -25,7 +25,8 @@ const styles = theme => ({
     borderRadius: 8,
     width: 'fit-content',
     padding: '12px 16px',
-    position: 'relative'
+    position: 'relative',
+    maxWidth: 350
   },
   amountUsd: {
     fontSize: 28,
@@ -83,7 +84,8 @@ export const ItemTransferMessage = ({
   classes,
   rateUsd,
   openSentModal,
-  currentBlock
+  currentBlock,
+  isRegisteredUsername
 }) => {
   const [actionsOpen, setActionsOpen] = React.useState(false)
   const usdAmount = new BigNumber(message.spent)
@@ -122,8 +124,8 @@ export const ItemTransferMessage = ({
         </Typography>
         <Typography variant='body2' className={classes.data}>
           {message.fromYou
-            ? `You sent @${message.offerOwner ||
-                message.receiver.username} $${usdAmount} (${parseFloat(
+            ? `You sent ${message.offerOwner ||
+            isRegisteredUsername ? `@${message.receiver.username}` : message.receiver.replyTo} $${usdAmount} (${parseFloat(
               message.spent.toString()
             ).toFixed(4)} ZEC) ${message.tag ? `for #${message.tag}` : ''}`
             : `Received from @${message.sender.username} $${usdAmount} (${
@@ -143,7 +145,8 @@ ItemTransferMessage.propTypes = {
   rateUsd: PropTypes.object.isRequired,
   currentBlock: PropTypes.number.isRequired,
   openSentModal: PropTypes.func.isRequired,
-  message: PropTypes.instanceOf(_DisplayableMessage).isRequired
+  message: PropTypes.instanceOf(_DisplayableMessage).isRequired,
+  isRegisteredUsername: PropTypes.bool
 }
 
 export default R.compose(React.memo, withStyles(styles))(ItemTransferMessage)

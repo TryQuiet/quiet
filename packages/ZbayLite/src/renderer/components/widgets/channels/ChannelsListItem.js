@@ -41,7 +41,7 @@ const styles = theme => ({
     paddingRight: 16,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    maxWidth: 230,
+    maxWidth: 215,
     whiteSpace: 'nowrap',
     textTransform: 'lowercase'
   },
@@ -69,7 +69,7 @@ const styles = theme => ({
   }
 })
 
-export const ChannelsListItem = ({ classes, channel, history, directMessages, selected }) => {
+export const ChannelsListItem = ({ classes, channel, history, directMessages, selected, isRegisteredUsername }) => {
   const channelObj = channel.toJS()
   const isFromZbay = channelObj.username !== unknownUserId
   const size = 15
@@ -116,7 +116,7 @@ export const ChannelsListItem = ({ classes, channel, history, directMessages, se
                   [classes.anonTile]: !isFromZbay
                 })}
               >
-                {directMessages ? `${isFromZbay ? `@ ${channelObj.username}` : 'unknown'}` : `# ${channelObj.name}`}
+                {directMessages ? `${isFromZbay ? `@ ${isRegisteredUsername ? channelObj.username : channelObj.address}` : 'unknown'}` : `# ${channelObj.name}`}
               </Typography>
             </Grid>
             {recievedMoney && (
@@ -142,7 +142,8 @@ ChannelsListItem.propTypes = {
   ]).isRequired,
   selected: PropTypes.instanceOf(Immutable.Record).isRequired,
   directMessages: PropTypes.bool,
-  history: PropTypes.object.isRequired
+  history: PropTypes.object.isRequired,
+  isRegisteredUsername: PropTypes.bool
 }
 
 ChannelsListItem.defaultProps = {

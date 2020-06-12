@@ -18,6 +18,7 @@ describe('ChannelHeader', () => {
         classes={mockClasses}
         channel={channel}
         members={null}
+        isRegisteredUsername
       />
     )
     expect(result).toMatchSnapshot()
@@ -34,6 +35,7 @@ describe('ChannelHeader', () => {
         members={new Set([1, 2, 3, 4])}
         unmute={() => {}}
         mutedFlag
+        isRegisteredUsername
       />
     )
     expect(result).toMatchSnapshot()
@@ -50,6 +52,7 @@ describe('ChannelHeader', () => {
         members={new Set()}
         unmute={() => {}}
         mutedFlag
+        isRegisteredUsername
       />
     )
     expect(result).toMatchSnapshot()

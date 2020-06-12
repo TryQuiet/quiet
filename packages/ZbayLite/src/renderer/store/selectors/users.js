@@ -6,6 +6,10 @@ const users = createSelector(store, state => {
   return state.get('users')
 })
 
+const isRegisteredUsername = nickname => createSelector(users, (users) => {
+  return users.toList().map(user => user.get('nickname')).includes(nickname)
+})
+
 const registeredUser = signerPubKey =>
   createSelector(users, users => users.get(signerPubKey))
 
@@ -28,5 +32,6 @@ const myUser = createSelector(
 export default {
   users,
   myUser,
-  registeredUser
+  registeredUser,
+  isRegisteredUsername
 }

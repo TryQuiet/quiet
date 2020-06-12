@@ -32,7 +32,10 @@ const styles = theme => ({
   },
   title: {
     fontSize: '1rem',
-    lineHeight: '1.66'
+    lineHeight: '1.66',
+    maxWidth: 200,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis'
   },
   subtitle: {
     fontSize: '0.8rem'
@@ -121,7 +124,8 @@ export const ChannelHeader = ({
   showAdSwitch,
   updateShowInfoMsg,
   mutedFlag,
-  unmute
+  unmute,
+  isRegisteredUsername
 }) => {
   const ActionsMenu = channelTypeToActions[channelType]
   const isFromZbay = channel.get('name') !== unknownUserId
@@ -145,7 +149,7 @@ export const ChannelHeader = ({
                   [classes.bold]: true
                 })}
               >
-                {`${prefix[channelType]}${isFromZbay ? channel.get('name') : 'unknown'}`}
+                {isRegisteredUsername || !isFromZbay ? `${prefix[channelType]}${isFromZbay ? channel.get('name') : 'unknown'}` : channel.get('address')}
               </Typography>
             </Grid>
             {mutedFlag && (
@@ -240,14 +244,19 @@ ChannelHeader.propTypes = {
   unmute: PropTypes.func,
   channel: PropTypes.instanceOf(Immutable.Map).isRequired,
   members: PropTypes.instanceOf(Set),
-  updateShowInfoMsg: PropTypes.func.isRequired
+  updateShowInfoMsg: PropTypes.func.isRequired,
+  users: PropTypes.instanceOf(Immutable.Map).isRequired,
+  isRegisteredUsername: PropTypes.bool
 }
 
 ChannelHeader.defaultProps = {
   channel: Immutable.Map(),
   directMessage: false,
   channelType: 3,
-  showAdSwitch: false
+  showAdSwitch: false,
+  users: Immutable.Map(),
+  shouldCheckNickname: false,
+  isRegisteredUsername: true
 }
 
 export default R.compose(React.memo, withStyles(styles))(ChannelHeader)

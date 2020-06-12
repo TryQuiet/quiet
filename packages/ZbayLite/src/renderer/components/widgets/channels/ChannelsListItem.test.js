@@ -16,6 +16,7 @@ describe('ChannelsListItem', () => {
         classes={mockClasses}
         channel={privateChannel}
         selected={Immutable.Record({})()}
+        isRegisteredUsername
       />
     )
     expect(result).toMatchSnapshot()
@@ -28,6 +29,7 @@ describe('ChannelsListItem', () => {
         channel={privateChannel}
         displayAddress
         selected={Immutable.Record({})()}
+        isRegisteredUsername
       />
     )
     expect(result).toMatchSnapshot()
@@ -39,6 +41,7 @@ describe('ChannelsListItem', () => {
         classes={mockClasses}
         channel={publicChannel}
         selected={Immutable.Record({})()}
+        isRegisteredUsername
       />
     )
     expect(result).toMatchSnapshot()
