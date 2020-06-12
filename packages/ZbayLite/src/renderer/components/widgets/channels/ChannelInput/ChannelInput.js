@@ -172,7 +172,6 @@ export const ChannelInput = ({
   const [selected, setSelected] = React.useState(0)
   const [emojiHovered, setEmojiHovered] = React.useState(false)
   const [openEmoji, setOpenEmoji] = React.useState(false)
-
   window.onfocus = () => {
     inputRef.current.el.current.focus()
     setFocused(true)
@@ -241,7 +240,6 @@ export const ChannelInput = ({
     }
     return splitedMsg.join(String.fromCharCode(160))
   }
-
   return (
     <Grid
       container
@@ -333,7 +331,7 @@ export const ChannelInput = ({
                     setFocused(true)
                   }
                 }}
-                html={findMentions(message)}
+                html={findMentions(renderToString(<>{message}</>))}
                 onChange={e => {
                   if (inputState === INPUT_STATE.AVAILABLE) {
                     onChange(e.nativeEvent.target.innerText)
@@ -448,7 +446,17 @@ export const ChannelInput = ({
             <Icon src={errorIcon} />
           </Grid>
           <Grid item>
-            <Typography className={classes.errorText} variant={'caption'}>{`Your message is over the size limit. `}<span onClick={() => shell.openExternal('https://www.zbay.app/#message-size-info')} className={classes.linkBlue}>Learn More</span></Typography>
+            <Typography className={classes.errorText} variant={'caption'}>
+              {`Your message is over the size limit. `}
+              <span
+                onClick={() =>
+                  shell.openExternal('https://www.zbay.app/#message-size-info')
+                }
+                className={classes.linkBlue}
+              >
+                Learn More
+              </span>
+            </Typography>
           </Grid>
         </Grid>
       )}
@@ -482,4 +490,13 @@ ChannelInput.defaultProps = {
   channelName: ''
 }
 
-export default R.compose(React.memo, withStyles(styles))(ChannelInput)
+export default R.compose(withStyles(styles))(
+  React.memo(ChannelInput, (before, after) => {
+    return (
+      Immutable.is(before.users, after.user) &&
+      before.message === after.message &&
+      before.inputPlaceholder === after.inputPlaceholder &&
+      before.users.equals(after.users)
+    )
+  })
+)
