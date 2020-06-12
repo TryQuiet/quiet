@@ -1544,20 +1544,6 @@ exports[`BuyZcash renders component 1`] = `
     item={true}
   >
     <WithStyles(ForwardRef(Typography))
-      variant="body2"
-    >
-      The easiest way to buy Zcash in your country is Indacoin. Visit their
-       
-      <a
-        className="link-mock"
-        href="https://indacoin.com/"
-        onClick={[Function]}
-      >
-        website
-      </a>
-      , choose to buy ZEC, and paste in your Zcash address. You’ll have to provide a credit card and complete some steps to verify your identity.
-    </WithStyles(ForwardRef(Typography))>
-    <WithStyles(ForwardRef(Typography))
       className="spacing16-mock"
       variant="body2"
     >
