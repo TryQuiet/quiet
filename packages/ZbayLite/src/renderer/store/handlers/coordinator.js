@@ -92,8 +92,8 @@ const coordinator = () => async (dispatch, getState) => {
       }
     }
     setTimeout(fetchData, 5000)
-    setTimeout(fetchStatus, 75000)
   }
+  setTimeout(fetchStatus, 75000)
   fetchData()
 }
 const epics = {
