@@ -44,13 +44,18 @@ const styles = theme => ({
   }
 })
 const parseChannelName = (name = '') => {
-  return name.toLowerCase().replace(/ /g, '-')
+  return name.toLowerCase().replace(/  +/g, '-')
 }
-export const CreateChannelForm = ({ classes, onSubmit }) => (
+export const CreateChannelForm = ({ classes, onSubmit, setStep }) => (
   <Formik
     onSubmit={(values, formActions) => {
-      onSubmit({ ...values, name: parseChannelName(values.name) }, formActions)
+      onSubmit(
+        { ...values, name: parseChannelName(values.name) },
+        formActions,
+        setStep
+      )
     }}
+    initialValues={{ name: '' }}
   >
     {({ isSubmitting, values }) => (
       <Form className={classes.fullContainer}>
@@ -61,18 +66,17 @@ export const CreateChannelForm = ({ classes, onSubmit }) => (
           className={classes.fullContainer}
         >
           <Typography variant='h3' className={classes.title}>
-            Create a new channel
+            Create a private new channel
           </Typography>
           <Typography variant='body2'>Channel name</Typography>
-
-          <TextField name='name' />
+          <TextField name='name' placeholder='my-channel' />
           <div className={classes.gutter}>
-            {values.name && (
-              <Grid container alignItems='center'>
+            {values.name.includes(' ') && (
+              <Grid container alignItems='center' direction='row'>
                 <Grid item className={classes.iconDiv}>
                   <WarningIcon className={classes.warrningIcon} />
                 </Grid>
-                <Grid item className=''>
+                <Grid item xs className=''>
                   <Typography variant='body2'>
                     Your channel will be created as{' '}
                     {parseChannelName(values.name)}
@@ -81,14 +85,11 @@ export const CreateChannelForm = ({ classes, onSubmit }) => (
               </Grid>
             )}
           </div>
-          <Typography variant='body2'>Channel description</Typography>
-
-          <TextField multiline name='description' className={classes.gutter} />
           <LoadingButton
             className={classes.button}
             variant='contained'
             color='primary'
-            disabled={isSubmitting}
+            disabled={isSubmitting || !values.name}
             inProgress={isSubmitting}
             type='submit'
             text='Create Channel'
@@ -101,7 +102,8 @@ export const CreateChannelForm = ({ classes, onSubmit }) => (
 
 CreateChannelForm.propTypes = {
   classes: PropTypes.object.isRequired,
-  onSubmit: PropTypes.func.isRequired
+  onSubmit: PropTypes.func.isRequired,
+  setStep: PropTypes.func.isRequired
 }
 
 export default R.compose(React.memo, withStyles(styles))(CreateChannelForm)

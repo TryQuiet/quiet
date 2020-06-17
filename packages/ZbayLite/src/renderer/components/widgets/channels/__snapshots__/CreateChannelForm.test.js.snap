@@ -3,6 +3,11 @@
 exports[`CreateChannelForm renders component 1`] = `
 <Formik
   enableReinitialize={false}
+  initialValues={
+    Object {
+      "name": "",
+    }
+  }
   isInitialValid={false}
   onSubmit={[Function]}
   validateOnBlur={true}

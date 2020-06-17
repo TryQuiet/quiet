@@ -78,5 +78,11 @@ describe('criticalError reducer', () => {
       store.dispatch(handlers.actions.unlockMessageQueue())
       expect(selectors.messageQueueLock(store.getState())).toEqual(false)
     })
+    it('set isInitialLoadFinished', () => {
+      store.dispatch(handlers.actions.setInitialLoadFlag(true))
+      expect(selectors.isInitialLoadFinished(store.getState())).toEqual(true)
+      store.dispatch(handlers.actions.setInitialLoadFlag(false))
+      expect(selectors.isInitialLoadFinished(store.getState())).toEqual(false)
+    })
   })
 })

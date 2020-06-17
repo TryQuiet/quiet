@@ -8,7 +8,8 @@ import { Scrollbars } from 'react-custom-scrollbars'
 import BigNumber from 'bignumber.js'
 import { withStyles } from '@material-ui/core/styles'
 import { Typography, Grid } from '@material-ui/core'
-
+import Immutable from 'immutable'
+import WarningIcon from '@material-ui/icons/Warning'
 import { TextField } from './form/TextField'
 import exclamationMark from '../../static/images/exclamationMark.svg'
 import Icon from './Icon'
@@ -85,14 +86,26 @@ const styles = theme => ({
     lineHeight: '18px',
     color: theme.palette.colors.darkGray
   },
-  description: { width: '90%' }
+  description: { width: '90%' },
+  warrningIcon: {
+    color: '#FFCC00'
+  },
+  gutter: {
+    marginTop: 8,
+    marginBottom: 24
+  },
+  iconDiv: {
+    width: 24,
+    height: 28,
+    marginRight: 8
+  }
 })
 
 export const formSchema = publicChannels =>
   Yup.object().shape(
     {
       name: Yup.string()
-        .matches(/^[a-z0-9]+$/, {
+        .matches(/^[a-z0-9 \--_]+$/, {
           message:
             'Channel name cannot have any spaces or special characters, must be lowercase letters and numbers only',
           excludeEmptyString: true
@@ -121,12 +134,14 @@ Yup.addMethod(Yup.mixed, 'validateName', function (publicChannels) {
     'test',
     'Sorry channel name already taken. please choose another',
     function (value) {
-      const isNameTaken = publicChannels.get(value)
+      const isNameTaken = publicChannels.get(parseChannelName(value))
       return !isNameTaken
     }
   )
 })
-
+const parseChannelName = (name = '') => {
+  return name.toLowerCase().replace(/  +/g, '-')
+}
 export const PublishChannelModal = ({
   classes,
   balance,
@@ -135,26 +150,36 @@ export const PublishChannelModal = ({
   publicChannelFee,
   zcashRate,
   publicChannels,
-  initialValues,
   channel,
   publishChannel
 }) => {
+  // console.log(channel.toJS())
+  const formikRef = React.useRef()
+  React.useEffect(() => {
+    formikRef.current.runValidations()
+    formikRef.current.getFormikActions().setFieldTouched('name', true)
+  }, [channel.get('address')])
+
   const [sending, setSending] = React.useState(false)
   return (
     <Formik
-      enableReinitialize
+      // enableReinitialize
+      ref={formikRef}
       onSubmit={async (values, { resetForm }) => {
         setSending(true)
         await publishChannel({
           channelAddress: channel.get('address'),
-          channelName: values.name,
+          channelName: parseChannelName(values.name),
           channelDescription: values.description,
           channelIvk: channel.getIn(['keys', 'ivk'])
         })
         setSending(false)
         handleClose()
       }}
-      initialValues={initialValues}
+      isInitialValid={
+        !publicChannels.get(parseChannelName(channel.get('name')))
+      }
+      initialValues={{ name: channel.get('name'), description: '' }}
       validate={values => {
         try {
           formSchema(publicChannels).validateSync(values, {
@@ -198,6 +223,21 @@ export const PublishChannelModal = ({
                         placeholder='Enter a channel name'
                       />
                     </Grid>
+                    <div className={classes.gutter}>
+                      {values.name.includes(' ') && (
+                        <Grid container alignItems='center' direction='row'>
+                          <Grid item className={classes.iconDiv}>
+                            <WarningIcon className={classes.warrningIcon} />
+                          </Grid>
+                          <Grid item xs className=''>
+                            <Typography variant='body2'>
+                              Your channel will be created as{' '}
+                              {parseChannelName(values.name)}
+                            </Typography>
+                          </Grid>
+                        </Grid>
+                      )}
+                    </div>
                     <Grid item className={classes.spacingFields}>
                       <Typography
                         variant='body2'
@@ -219,7 +259,8 @@ export const PublishChannelModal = ({
                         rows={4}
                       />
                       <Typography variant='body2' className={classes.fieldInfo}>
-                        {CHANNEL_DESCRIPTION_SIZE(currentNetwork)} max characters
+                        {CHANNEL_DESCRIPTION_SIZE(currentNetwork)} max
+                        characters
                       </Typography>
                     </Grid>
                     <Grid item className={classes.spacingFields}>
@@ -274,7 +315,7 @@ export const PublishChannelModal = ({
                           <>
                             Make channel public
                             <span className={classes.buttonPrice}>
-                              ({publicChannelFee} ZEC)
+                              (${(publicChannelFee * zcashRate).toFixed(4)})
                             </span>
                           </>
                         }
@@ -289,9 +330,7 @@ export const PublishChannelModal = ({
                         </Typography>
                       )}
                       <Typography variant='body2' className={classes.priceInfo}>
-                        {`The price of public channel is ${publicChannelFee} ZEC (${(
-                          publicChannelFee * zcashRate
-                        ).toFixed(2)} USD).`}
+                        {`Registering a public channel may cost more someday,but now it's (almost) free`}
                       </Typography>
                     </Grid>
                   </Grid>
@@ -307,9 +346,6 @@ export const PublishChannelModal = ({
 
 PublishChannelModal.propTypes = {
   classes: PropTypes.object.isRequired,
-  initialValues: PropTypes.shape({
-    description: PropTypes.string.isRequired
-  }).isRequired,
   balance: PropTypes.instanceOf(BigNumber).isRequired,
   publicChannelFee: PropTypes.number.isRequired,
   zcashRate: PropTypes.object.isRequired,
@@ -321,10 +357,7 @@ PublishChannelModal.propTypes = {
 }
 
 PublishChannelModal.defaultProps = {
-  initialValues: {
-    description: ''
-  },
-  channel: {}
+  channel: Immutable.Map({ name: '', description: '' })
 }
 
 export default R.compose(React.memo, withStyles(styles))(PublishChannelModal)

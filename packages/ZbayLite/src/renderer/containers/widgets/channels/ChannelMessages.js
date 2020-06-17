@@ -10,6 +10,7 @@ import dmQueueMessages from '../../../store/selectors/directMessagesQueue'
 import queueMessages from '../../../store/selectors/messagesQueue'
 import userSelector from '../../../store/selectors/users'
 import nodeSelector from '../../../store/selectors/node'
+import appSelectors from '../../../store/selectors/app'
 import publicChannelsSelector from '../../../store/selectors/publicChannels'
 import { messageType } from '../../../../shared/static'
 import channels from '../../../zcash/channels'
@@ -28,7 +29,8 @@ export const mapStateToProps = (state, { signerPubKey }) => {
     channelId: channelSelectors.channelId(state),
     users: userSelector.users(state),
     publicChannels: publicChannelsSelector.publicChannels(state),
-    network: nodeSelector.network(state)
+    network: nodeSelector.network(state),
+    isInitialLoadFinished: appSelectors.isInitialLoadFinished(state)
   }
 }
 export const mapDispatchToProps = (dispatch, ownProps) =>
@@ -49,7 +51,8 @@ export const ChannelMessages = ({
   users,
   network,
   publicChannels,
-  onLinkedChannel
+  onLinkedChannel,
+  isInitialLoadFinished
 }) => {
   const [scrollPosition, setScrollPosition] = React.useState(-1)
   useEffect(() => {
@@ -89,6 +92,7 @@ export const ChannelMessages = ({
       users={users}
       onLinkedChannel={onLinkedChannel}
       publicChannels={publicChannels}
+      isInitialLoadFinished={isInitialLoadFinished}
     />
   )
 }
@@ -101,6 +105,7 @@ export default connect(
     return (
       Immutable.is(before.messages, after.messages) &&
       before.tab === after.tab &&
+      before.isInitialLoadFinished === after.isInitialLoadFinished &&
       Immutable.is(before.users, after.users) &&
       Immutable.is(before.publicChannels, after.publicChannels)
     )

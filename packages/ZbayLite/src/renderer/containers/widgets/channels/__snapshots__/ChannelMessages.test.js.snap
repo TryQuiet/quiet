@@ -6,6 +6,7 @@ Object {
     "keys": Immutable.Map {},
   },
   "channelId": "this-is-test-channel-id",
+  "isInitialLoadFinished": false,
   "messages": Immutable.List [
     Immutable.DisplayableMessage {
       "id": 3,

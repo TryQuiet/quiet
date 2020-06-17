@@ -13,8 +13,9 @@ const mapStateToProps = (state, { message }) => ({
   rateUsd: ratesSelectors.rate('usd')(state),
   currentBlock: parseInt(nodeSelector.currentBlock(state)),
   users: usersSelectors.users(state),
-  isRegisteredNickname: usersSelectors.isRegisteredUsername(message.receiver.username)(state)
+  isRegisteredNickname: usersSelectors.isRegisteredUsername(message.has('receiver') ? message.receiver.username : null)(state)
 })
+
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {

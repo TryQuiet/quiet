@@ -91,6 +91,7 @@ const coordinator = () => async (dispatch, getState) => {
         break
       }
     }
+    dispatch(appHandlers.actions.setInitialLoadFlag(true))
     setTimeout(fetchData, 5000)
   }
   setTimeout(fetchStatus, 75000)

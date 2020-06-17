@@ -15,6 +15,8 @@ import ChannelAdMessage from '../../../containers/widgets/channels/ListingMessag
 import MessagesDivider from '../MessagesDivider'
 import UserRegisteredMessage from './UserRegisteredMessage'
 import ChannelRegisteredMessage from './ChannelRegisteredMessage'
+import LoadingMessage from './LoadingMessage'
+
 const styles = theme => ({
   list: {
     backgroundColor: theme.palette.colors.white,
@@ -43,7 +45,8 @@ export const ChannelMessages = ({
   publicChannelsRegistration,
   users,
   onLinkedChannel,
-  publicChannels
+  publicChannels,
+  isInitialLoadFinished
 }) => {
   const scrollbarRef = React.useRef()
   const getScrollbarRef = ref => {
@@ -111,6 +114,7 @@ export const ChannelMessages = ({
         {isOffer && (
           <WelcomeMessage message={welcomeMessages['offer'](tag, username)} />
         )}
+        {!isInitialLoadFinished && messages.size === 0 && <LoadingMessage />}
         {Array.from(groupedMessages).map(args => {
           const today = DateTime.utc()
           const groupName = DateTime.fromSeconds(args[0]).toFormat(
@@ -181,6 +185,7 @@ ChannelMessages.propTypes = {
   publicChannelsRegistration: PropTypes.array.isRequired,
   contactId: PropTypes.string,
   isOwner: PropTypes.bool.isRequired,
+  isInitialLoadFinished: PropTypes.bool.isRequired,
   isOffer: PropTypes.bool.isRequired,
   messages: PropTypes.instanceOf(Immutable.List).isRequired,
   contentRect: PropTypes.shape({

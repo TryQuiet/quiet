@@ -3,6 +3,7 @@
 exports[`ChannelInput will receive right props for offers 1`] = `
 Object {
   "channelId": "this-is-test-channel-id",
+  "isInitialLoadFinished": false,
   "messages": Immutable.List [
     Immutable.ReceivedMessage {
       "id": 1,

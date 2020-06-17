@@ -7,6 +7,7 @@ import channelSelectors from '../../../store/selectors/channel'
 import contactsSelectors from '../../../store/selectors/contacts'
 import dmQueueMessages from '../../../store/selectors/directMessagesQueue'
 import queueMessages from '../../../store/selectors/messagesQueue'
+import appSelectors from '../../../store/selectors/app'
 
 export const mapStateToProps = (state, { contactId, signerPubKey }) => {
   const qMessages = queueMessages.queue(state)
@@ -15,7 +16,8 @@ export const mapStateToProps = (state, { contactId, signerPubKey }) => {
     triggerScroll: qDmMessages.size + qMessages.size > 0,
     qMessages: qMessages,
     messages: contactsSelectors.directMessages(contactId, signerPubKey)(state),
-    channelId: channelSelectors.channelId(state)
+    channelId: channelSelectors.channelId(state),
+    isInitialLoadFinished: appSelectors.isInitialLoadFinished(state)
   }
 }
 
@@ -24,23 +26,18 @@ export const ChannelMessages = ({
   contactId,
   channelId,
   contentRect,
-  triggerScroll
+  triggerScroll,
+  isInitialLoadFinished
 }) => {
   const [scrollPosition, setScrollPosition] = React.useState(-1)
-  useEffect(
-    () => {
+  useEffect(() => {
+    setScrollPosition(-1)
+  }, [channelId, contactId])
+  useEffect(() => {
+    if (triggerScroll) {
       setScrollPosition(-1)
-    },
-    [channelId, contactId]
-  )
-  useEffect(
-    () => {
-      if (triggerScroll) {
-        setScrollPosition(-1)
-      }
-    },
-    [triggerScroll]
-  )
+    }
+  }, [triggerScroll])
   return (
     <ChannelMessagesComponent
       scrollPosition={scrollPosition}
@@ -48,12 +45,16 @@ export const ChannelMessages = ({
       messages={messages}
       contactId={contactId}
       contentRect={contentRect}
+      isInitialLoadFinished={isInitialLoadFinished}
     />
   )
 }
 
 export default connect(mapStateToProps)(
   React.memo(ChannelMessages, (before, after) => {
-    return Immutable.is(before.messages, after.messages)
+    return (
+      before.isInitialLoadFinished === after.isInitialLoadFinished &&
+      Immutable.is(before.messages, after.messages)
+    )
   })
 )

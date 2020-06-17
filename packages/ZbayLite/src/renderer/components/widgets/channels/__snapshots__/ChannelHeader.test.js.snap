@@ -24,6 +24,12 @@ exports[`ChannelHeader renders component 1`] = `
         >
           <WithStyles(ForwardRef(Typography))
             className="title-mock bold-mock"
+            noWrap={true}
+            style={
+              Object {
+                "maxWidth": 0,
+              }
+            }
             variant="subtitle1"
           >
             #Channel 1
@@ -93,6 +99,12 @@ exports[`ChannelHeader renders members when 0 1`] = `
         >
           <WithStyles(ForwardRef(Typography))
             className="title-mock bold-mock"
+            noWrap={true}
+            style={
+              Object {
+                "maxWidth": 0,
+              }
+            }
             variant="subtitle1"
           >
             #Channel 1
@@ -169,6 +181,12 @@ exports[`ChannelHeader renders without members count 1`] = `
         >
           <WithStyles(ForwardRef(Typography))
             className="title-mock bold-mock"
+            noWrap={true}
+            style={
+              Object {
+                "maxWidth": 0,
+              }
+            }
             variant="subtitle1"
           >
             #Channel 1

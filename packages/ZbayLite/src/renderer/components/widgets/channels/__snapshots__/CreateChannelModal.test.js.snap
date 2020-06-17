@@ -10,7 +10,7 @@ exports[`CreateChannelModal renders closed component 1`] = `
   <WithStyles(ForwardRef(Grid))
     className="root-mock"
   >
-    <Connect(Component) />
+    <Connect(CreateChannelForm) />
   </WithStyles(ForwardRef(Grid))>
 </Memo(WithStyles(Modal))>
 `;
@@ -25,7 +25,7 @@ exports[`CreateChannelModal renders component 1`] = `
   <WithStyles(ForwardRef(Grid))
     className="root-mock"
   >
-    <Connect(Component) />
+    <Connect(CreateChannelForm) />
   </WithStyles(ForwardRef(Grid))>
 </Memo(WithStyles(Modal))>
 `;

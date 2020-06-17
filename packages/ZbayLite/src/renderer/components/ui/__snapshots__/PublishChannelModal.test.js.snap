@@ -2,13 +2,14 @@
 
 exports[`PubliPublishChannelModal renders component 1`] = `
 <Formik
-  enableReinitialize={true}
+  enableReinitialize={false}
   initialValues={
     Object {
       "description": "",
+      "name": "nametest",
     }
   }
-  isInitialValid={false}
+  isInitialValid={true}
   onSubmit={[Function]}
   validate={[Function]}
   validateOnBlur={true}

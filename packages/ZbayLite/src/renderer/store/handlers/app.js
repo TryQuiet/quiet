@@ -13,7 +13,8 @@ export const AppState = Immutable.Record(
     allTransfersCount: 0,
     newTransfersCounter: 0,
     directMessageQueueLock: false,
-    messageQueueLock: false
+    messageQueueLock: false,
+    isInitialLoadFinished: false
   },
   'AppState'
 )
@@ -32,6 +33,7 @@ const lockDmQueue = createAction(actionTypes.LOCK_DM_QUEUE)
 const unlockDmQueue = createAction(actionTypes.UNLOCK_DM_QUEUE)
 const lockMessageQueue = createAction(actionTypes.LOCK_MESSAGE_QUEUE)
 const unlockMessageQueue = createAction(actionTypes.UNLOCK_MESSAGE_QUEUE)
+const setInitialLoadFlag = createAction(actionTypes.SET_INITIAL_LOAD_FLAG)
 const reduceNewTransfersCount = createAction(
   actionTypes.REDUCE_NEW_TRANSFERS_COUNT
 )
@@ -47,7 +49,8 @@ export const actions = {
   lockDmQueue,
   unlockDmQueue,
   lockMessageQueue,
-  unlockMessageQueue
+  unlockMessageQueue,
+  setInitialLoadFlag
 }
 
 export const askForBlockchainLocation = () => async (dispatch, getState) => {
@@ -63,6 +66,8 @@ export const reducer = handleActions(
   {
     [setNewTransfersCount]: (state, { payload: setNewTransfersCount }) =>
       state.set('newTransfersCounter', setNewTransfersCount),
+    [setInitialLoadFlag]: (state, { payload: flag }) =>
+      state.set('isInitialLoadFinished', flag),
     [reduceNewTransfersCount]: (state, { payload: amount }) =>
       state.update('newTransfersCounter', count => count - amount),
     [loadVersion]: (state, { payload: version }) =>

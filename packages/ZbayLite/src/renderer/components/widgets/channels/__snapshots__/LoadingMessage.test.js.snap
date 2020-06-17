@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LoadingMessage renders component 1`] = `
+<Memo(WithStyles(SpinnerLoader))
+  classes={
+    Object {
+      "spinner": "spinner-mock",
+    }
+  }
+  message="Loading messages"
+  size={50}
+/>
+`;

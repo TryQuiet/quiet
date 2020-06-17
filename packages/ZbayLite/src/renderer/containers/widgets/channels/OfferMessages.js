@@ -6,6 +6,7 @@ import ChannelMessagesComponent from '../../../components/widgets/channels/Chann
 import channelSelectors from '../../../store/selectors/channel'
 import offersSelectors from '../../../store/selectors/offers'
 import usersSelectors from '../../../store/selectors/users'
+import appSelectors from '../../../store/selectors/app'
 import dmQueueMessages from '../../../store/selectors/directMessagesQueue'
 import queueMessages from '../../../store/selectors/messagesQueue'
 
@@ -17,7 +18,8 @@ export const mapStateToProps = (state, { offer, signerPubKey }) => {
     qMessages: qMessages,
     messages: offersSelectors.offerMessages(offer, signerPubKey)(state),
     channelId: channelSelectors.channelId(state),
-    username: usersSelectors.registeredUser(signerPubKey)(state)
+    username: usersSelectors.registeredUser(signerPubKey)(state),
+    isInitialLoadFinished: appSelectors.isInitialLoadFinished(state)
   }
 }
 
@@ -27,7 +29,8 @@ export const ChannelMessages = ({
   channelId,
   contentRect,
   triggerScroll,
-  username
+  username,
+  isInitialLoadFinished
 }) => {
   const [scrollPosition, setScrollPosition] = React.useState(-1)
   useEffect(() => {
@@ -47,12 +50,16 @@ export const ChannelMessages = ({
       contactId={offer}
       contentRect={contentRect}
       isOffer={isOffer}
+      isInitialLoadFinished={isInitialLoadFinished}
     />
   )
 }
 
 export default connect(mapStateToProps)(
   React.memo(ChannelMessages, (before, after) => {
-    return Immutable.is(before.messages, after.messages)
+    return (
+      before.isInitialLoadFinished === after.isInitialLoadFinished &&
+      Immutable.is(before.messages, after.messages)
+    )
   })
 )

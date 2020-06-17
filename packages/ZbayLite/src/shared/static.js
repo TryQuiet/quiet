@@ -155,7 +155,8 @@ export const actionTypes = mirrorKey({
   SET_USER_ADDRESSES: undefined,
   SET_USER_SHIELDED_ADDRESES: undefined,
   IS_SIZE_CHECKING_IN_PROGRESS: undefined,
-  MESSAGE_SIZE_STATUS: undefined
+  MESSAGE_SIZE_STATUS: undefined,
+  SET_INITIAL_LOAD_FLAG: undefined
 })
 
 export const messageType = {

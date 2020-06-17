@@ -59,12 +59,23 @@ const sendDirectMessageOnEnter = event => async (dispatch, getState) => {
       dm.get('recipientAddress') === channel.targetRecipientAddress &&
       dm.message.get('type') === messageType.BASIC
   )
+  const currentMessageKey = dmQueue.findKey(
+    dm =>
+      dm.get('recipientAddress') === channel.targetRecipientAddress &&
+      dm.message.get('type') === messageType.BASIC
+  )
 
   if (enterPressed && !shiftPressed) {
     event.preventDefault()
-
+    const messageQueueLock = appSelectors.directMessageQueueLock(getState())
+    let locked = false
+    if (!messageQueueLock) {
+      await dispatch(appHandlers.actions.lockDmQueue())
+      locked = true
+    }
     let message
-    if (currentMessage !== undefined) {
+    if (currentMessage !== undefined && locked) {
+      await dispatch(directMessagesQueueHandlers.actions.removeMessage(currentMessageKey))
       message = zbayMessages.createMessage({
         messageData: {
           type: zbayMessages.messageType.BASIC,
@@ -92,6 +103,9 @@ const sendDirectMessageOnEnter = event => async (dispatch, getState) => {
         })
       )
       dispatch(channelHandlers.actions.setMessage(''))
+    }
+    if (locked) {
+      dispatch(appHandlers.actions.unlockDmQueue())
     }
   }
 }
@@ -238,11 +252,11 @@ export const fetchMessages = () => async (dispatch, getState) => {
     ) {
       return
     } else {
-      const oldTransfers = appSelectors.transfers(getState()).get(identityAddress) || 0
+      const oldTransfers =
+        appSelectors.transfers(getState()).get(identityAddress) || 0
       dispatch(
         appHandlers.actions.reduceNewTransfersCount(
-          transfers.length -
-          oldTransfers
+          transfers.length - oldTransfers
         )
       )
       dispatch(
@@ -366,7 +380,10 @@ export const fetchMessages = () => async (dispatch, getState) => {
             })
           )
         }
-        const updatedMessageRecord = msg.set('createdAt', parseInt(messageDetails))
+        const updatedMessageRecord = msg.set(
+          'createdAt',
+          parseInt(messageDetails)
+        )
         uknownSenderMessagesWithTimestamp.push(updatedMessageRecord)
       }
       const previousMessages = selectors.messages(unknownSender.replyTo)(
@@ -393,12 +410,15 @@ export const fetchMessages = () => async (dispatch, getState) => {
           messagesIds: newMessages.map(R.prop('id'))
         })
       )
-      dispatch(setMessages({ messages: uknownSenderMessagesWithTimestamp, contactAddress: unknownSender.replyTo }))
+      dispatch(
+        setMessages({
+          messages: uknownSenderMessagesWithTimestamp,
+          contactAddress: unknownSender.replyTo
+        })
+      )
       remote.app.badgeCount = remote.app.badgeCount + newMessages.size
 
-      const userFilter = notificationCenterSelector.userFilterType(
-        getState()
-      )
+      const userFilter = notificationCenterSelector.userFilterType(getState())
       if (newMessages.size > 0) {
         if (userFilter !== notificationFilterType.MUTE) {
           for (const nm of newMessages) {

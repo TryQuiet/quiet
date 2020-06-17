@@ -2,7 +2,7 @@
 
 exports[`Messages queue reducer handles actions - addMessage when different channel 1`] = `
 Immutable.Map {
-  "9fa77ca0b21bbb47950efb6b5c44781682b0346a4c66a2314b4907b8c679479e": Immutable.PendingMessage {
+  "1311412098ad2167eee594eb2c44d9a6b54d422bfaaf9a591d4d6cfc9e15c345": Immutable.PendingMessage {
     "channelId": "test-channel-id",
     "message": Immutable.Map {
       "id": "test-message-id",
@@ -80,7 +80,7 @@ Immutable.Map {
       },
     },
   },
-  "a367201120e164b06eab181e40e6a0d437522bedba4ad3d47e361afe8f37b4b7": Immutable.PendingMessage {
+  "13c0adf3b88192cd16419735dae7a5ea60fd3e184a42c69b1e84233bef375860": Immutable.PendingMessage {
     "channelId": "test-channel-id-2",
     "message": Immutable.Map {
       "id": "test-message-id-2",
@@ -163,7 +163,85 @@ Immutable.Map {
 
 exports[`Messages queue reducer handles actions - addMessage when different sender 1`] = `
 Immutable.Map {
-  "9fa77ca0b21bbb47950efb6b5c44781682b0346a4c66a2314b4907b8c679479e": Immutable.PendingMessage {
+  "1311412098ad2167eee594eb2c44d9a6b54d422bfaaf9a591d4d6cfc9e15c345": Immutable.PendingMessage {
+    "channelId": "test-channel-id",
+    "message": Immutable.Map {
+      "id": "test-message-id",
+      "type": 1,
+      "createdAt": 1551963828,
+      "message": "This is some message test-message-id",
+      "signature": Object {
+        "data": Array [
+          202,
+          15,
+          119,
+          117,
+          178,
+          163,
+          37,
+          253,
+          154,
+          252,
+          231,
+          166,
+          195,
+          137,
+          183,
+          234,
+          71,
+          243,
+          80,
+          122,
+          59,
+          238,
+          222,
+          166,
+          186,
+          69,
+          90,
+          160,
+          160,
+          50,
+          104,
+          190,
+          10,
+          207,
+          36,
+          153,
+          83,
+          108,
+          75,
+          44,
+          43,
+          251,
+          163,
+          248,
+          121,
+          50,
+          116,
+          127,
+          154,
+          101,
+          218,
+          181,
+          222,
+          56,
+          194,
+          169,
+          79,
+          74,
+          219,
+          181,
+          87,
+          23,
+          91,
+          207,
+        ],
+        "type": "Buffer",
+      },
+    },
+  },
+  "50c3aa57411b2c3100ec1906ed59693f802f978b823444ea681a4581c8374b6a": Immutable.PendingMessage {
     "channelId": "test-channel-id",
     "message": Immutable.Map {
       "id": "test-message-id-2",
@@ -246,7 +324,7 @@ Immutable.Map {
 
 exports[`Messages queue reducer handles actions - addMessage when different type 1`] = `
 Immutable.Map {
-  "9fa77ca0b21bbb47950efb6b5c44781682b0346a4c66a2314b4907b8c679479e": Immutable.PendingMessage {
+  "1311412098ad2167eee594eb2c44d9a6b54d422bfaaf9a591d4d6cfc9e15c345": Immutable.PendingMessage {
     "channelId": "test-channel-id",
     "message": Immutable.Map {
       "id": "test-message-id",
@@ -324,7 +402,7 @@ Immutable.Map {
       },
     },
   },
-  "a3e3af3aeb0c72ad570fbe4e0984f40ac78a0b472baf246a9745a417c4137864": Immutable.PendingMessage {
+  "b5232f7eac5a96e72c41f8f96ef930b8388ab66c318e597ac1e1cf042060ed58": Immutable.PendingMessage {
     "channelId": "test-channel-id",
     "message": Immutable.Map {
       "id": "test-message-id-2",
@@ -407,7 +485,7 @@ Immutable.Map {
 
 exports[`Messages queue reducer handles actions - addMessage when empty 1`] = `
 Immutable.Map {
-  "9fa77ca0b21bbb47950efb6b5c44781682b0346a4c66a2314b4907b8c679479e": Immutable.PendingMessage {
+  "1311412098ad2167eee594eb2c44d9a6b54d422bfaaf9a591d4d6cfc9e15c345": Immutable.PendingMessage {
     "channelId": "test-channel-id",
     "message": Immutable.Map {
       "id": "test-message-id",
@@ -490,7 +568,85 @@ Immutable.Map {
 
 exports[`Messages queue reducer handles actions - addMessage when has matching message 1`] = `
 Immutable.Map {
-  "9fa77ca0b21bbb47950efb6b5c44781682b0346a4c66a2314b4907b8c679479e": Immutable.PendingMessage {
+  "1311412098ad2167eee594eb2c44d9a6b54d422bfaaf9a591d4d6cfc9e15c345": Immutable.PendingMessage {
+    "channelId": "test-channel-id",
+    "message": Immutable.Map {
+      "id": "test-message-id",
+      "type": 1,
+      "createdAt": 1551963828,
+      "message": "This is some message test-message-id",
+      "signature": Object {
+        "data": Array [
+          202,
+          15,
+          119,
+          117,
+          178,
+          163,
+          37,
+          253,
+          154,
+          252,
+          231,
+          166,
+          195,
+          137,
+          183,
+          234,
+          71,
+          243,
+          80,
+          122,
+          59,
+          238,
+          222,
+          166,
+          186,
+          69,
+          90,
+          160,
+          160,
+          50,
+          104,
+          190,
+          10,
+          207,
+          36,
+          153,
+          83,
+          108,
+          75,
+          44,
+          43,
+          251,
+          163,
+          248,
+          121,
+          50,
+          116,
+          127,
+          154,
+          101,
+          218,
+          181,
+          222,
+          56,
+          194,
+          169,
+          79,
+          74,
+          219,
+          181,
+          87,
+          23,
+          91,
+          207,
+        ],
+        "type": "Buffer",
+      },
+    },
+  },
+  "50c3aa57411b2c3100ec1906ed59693f802f978b823444ea681a4581c8374b6a": Immutable.PendingMessage {
     "channelId": "test-channel-id",
     "message": Immutable.Map {
       "id": "test-message-id-2",

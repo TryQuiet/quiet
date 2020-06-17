@@ -17,7 +17,7 @@ describe('PubliPublishChannelModal', () => {
         handleClose={() => {}}
         publishChannel={() => {}}
         publicChannels={Immutable.Map({})}
-        channel={{ address: '123' }}
+        channel={Immutable.Map({ address: 'test123', name: 'nametest' })}
         open
         tooltipText='sample text'
       />

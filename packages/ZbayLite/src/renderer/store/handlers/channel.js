@@ -13,9 +13,11 @@ import messagesQueue from '../selectors/messagesQueue'
 import messagesHandlers, { _checkMessageSize } from './messages'
 import channelsHandlers from './channels'
 import offersHandlers from './offers'
+import appHandlers from './app'
 import channelSelectors from '../selectors/channel'
 import channelsSelectors from '../selectors/channels'
 import identitySelectors from '../selectors/identity'
+import appSelectors from '../selectors/app'
 import logsHandlers from '../handlers/logs'
 import { getClient } from '../../zcash'
 import { messages } from '../../zbay'
@@ -54,7 +56,9 @@ const setLoadingMessage = createAction(actionTypes.SET_CHANNEL_LOADING_MESSAGE)
 const setShareableUri = createAction(actionTypes.SET_CHANNEL_SHAREABLE_URI)
 const setAddress = createAction(actionTypes.SET_CHANNEL_ADDRESS)
 const resetChannel = createAction(actionTypes.SET_CHANNEL)
-const isSizeCheckingInProgress = createAction(actionTypes.IS_SIZE_CHECKING_IN_PROGRESS)
+const isSizeCheckingInProgress = createAction(
+  actionTypes.IS_SIZE_CHECKING_IN_PROGRESS
+)
 const messageSizeStatus = createAction(actionTypes.MESSAGE_SIZE_STATUS)
 
 export const actions = {
@@ -112,7 +116,12 @@ const linkChannelRedirect = targetChannel => async (dispatch, getState) => {
         startHeight: fetchTreshold
       })
     } catch (error) {}
-    dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Importing channel ${targetChannel}` }))
+    dispatch(
+      logsHandlers.epics.saveLogs({
+        type: 'APPLICATION_LOGS',
+        payload: `Importing channel ${targetChannel}`
+      })
+    )
     await dispatch(channelsHandlers.actions.loadChannels(identityId))
     channels = channelsSelectors.channels(getState())
     channel = channels.data.find(
@@ -140,14 +149,23 @@ const sendOnEnter = (event, resetTab) => async (dispatch, getState) => {
   const shiftPressed = event.nativeEvent.shiftKey === true
   const channel = channelSelectors.data(getState()).toJS()
   const messageToSend = channelSelectors.message(getState())
-  const currentMessage = messagesQueue
-    .queue(getState())
+  const messageQueueLock = appSelectors.messageQueueLock(getState())
+  let locked = false
+  const msgQueue = messagesQueue.queue(getState())
+  const currentMessage = msgQueue
     .find(dm => dm.get('channelId') === channel.id)
+  const msgKey = msgQueue
+    .findKey(dm => dm.get('channelId') === channel.id)
   if (enterPressed && !shiftPressed) {
+    if (!messageQueueLock) {
+      await dispatch(appHandlers.actions.lockMessageQueue())
+      locked = true
+    }
     event.preventDefault()
     const privKey = identitySelectors.signerPrivKey(getState())
     let message
-    if (currentMessage !== undefined) {
+    if (currentMessage !== undefined && locked) {
+      await dispatch(messagesQueueHandlers.actions.removeMessage(msgKey))
       message = messages.createMessage({
         messageData: {
           type: messageType.BASIC,
@@ -165,12 +183,20 @@ const sendOnEnter = (event, resetTab) => async (dispatch, getState) => {
         privKey: privKey
       })
     }
-    const isMergedMessageTooLong = await dispatch(_checkMessageSize(message.message))
+    const isMergedMessageTooLong = await dispatch(
+      _checkMessageSize(message.message)
+    )
     if (!isMergedMessageTooLong) {
       dispatch(
-        messagesQueueHandlers.epics.addMessage({ message, channelId: channel.id })
+        messagesQueueHandlers.epics.addMessage({
+          message,
+          channelId: channel.id
+        })
       )
       dispatch(setMessage(''))
+    }
+    if (locked) {
+      dispatch(appHandlers.actions.unlockMessageQueue())
     }
   }
 }
@@ -282,8 +308,10 @@ export const reducer = handleActions(
       state.set('spentFilterValue', new BigNumber(value)),
     [setMessage]: (state, { payload: value }) => state.set('message', value),
     [setChannelId]: (state, { payload: id }) => state.set('id', id),
-    [isSizeCheckingInProgress]: (state, { payload }) => state.set('isSizeCheckingInProgress', payload),
-    [messageSizeStatus]: (state, { payload }) => state.set('messageSizeStatus', payload),
+    [isSizeCheckingInProgress]: (state, { payload }) =>
+      state.set('isSizeCheckingInProgress', payload),
+    [messageSizeStatus]: (state, { payload }) =>
+      state.set('messageSizeStatus', payload),
     [setShareableUri]: (state, { payload: uri }) =>
       state.set('shareableUri', uri),
     [setAddress]: (state, { payload: address }) =>

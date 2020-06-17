@@ -44,4 +44,7 @@ describe('app -', () => {
   it('directMessageQueueLock', async () => {
     expect(selectors.directMessageQueueLock(store.getState())).toMatchSnapshot()
   })
+  it('isInitialLoadFinished', async () => {
+    expect(selectors.isInitialLoadFinished(store.getState())).toMatchSnapshot()
+  })
 })

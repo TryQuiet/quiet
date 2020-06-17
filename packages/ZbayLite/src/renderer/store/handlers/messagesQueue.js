@@ -34,7 +34,7 @@ const addMessage = createAction(
   actionTypes.ADD_PENDING_MESSAGE,
   ({ message, channelId }) => {
     const messageDigest = crypto.createHash('sha256')
-    const messageEssentials = R.pick(['type', 'sender'])(message)
+    const messageEssentials = R.pick(['type', 'sender', 'signature'])(message)
     return {
       key: messageDigest
         .update(
@@ -57,12 +57,15 @@ export const actions = {
 }
 const _sendPendingMessages = async (dispatch, getState) => {
   const lock = appSelectors.messageQueueLock(getState())
+  const messages = selectors.queue(getState())
   if (lock === false) {
     await dispatch(appHandlers.actions.lockMessageQueue())
   } else {
+    if (messages.size !== 0) {
+      dispatch(sendPendingMessages())
+    }
     return
   }
-  const messages = selectors.queue(getState())
   const donation = identitySelectors.donation(getState())
   await Promise.all(
     messages

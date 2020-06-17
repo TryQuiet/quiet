@@ -32,10 +32,7 @@ const styles = theme => ({
   },
   title: {
     fontSize: '1rem',
-    lineHeight: '1.66',
-    maxWidth: 200,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis'
+    lineHeight: '1.66'
   },
   subtitle: {
     fontSize: '0.8rem'
@@ -127,9 +124,34 @@ export const ChannelHeader = ({
   unmute,
   isRegisteredUsername
 }) => {
+  const debounce = (fn, ms) => {
+    let timer
+    return _ => {
+      clearTimeout(timer)
+      timer = setTimeout(_ => {
+        timer = null
+        fn.apply(this) // // eslint-disable-line
+      }, ms)
+    }
+  }
   const ActionsMenu = channelTypeToActions[channelType]
   const isFromZbay = channel.get('name') !== unknownUserId
   const [silenceHover, setSilenceHover] = React.useState(false)
+  const [wrapperWidth, setWrapperWidth] = React.useState(0)
+  React.useEffect(() => {
+    setWrapperWidth(window.innerWidth - 300)
+  })
+  React.useEffect(() => {
+    const handleResize = debounce(function handleResize () {
+      setWrapperWidth(window.innerWidth - 300)
+    }, 200)
+
+    window.addEventListener('resize', handleResize)
+
+    return _ => {
+      window.removeEventListener('resize', handleResize)
+    }
+  })
   return (
     <div className={classes.wrapper}>
       <Grid
@@ -143,6 +165,8 @@ export const ChannelHeader = ({
           <Grid item container alignItems='center'>
             <Grid item>
               <Typography
+                noWrap
+                style={{ maxWidth: wrapperWidth }}
                 variant='subtitle1'
                 className={classNames({
                   [classes.title]: true,

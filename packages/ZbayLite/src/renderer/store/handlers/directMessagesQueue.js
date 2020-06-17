@@ -45,7 +45,7 @@ const addDirectMessage = createAction(
   actionTypes.ADD_PENDING_DIRECT_MESSAGE,
   ({ message, recipientAddress, recipientUsername }) => {
     const messageDigest = crypto.createHash('sha256')
-    const messageEssentials = R.pick(['type', 'sender'])(message)
+    const messageEssentials = R.pick(['type', 'sender', 'signature'])(message)
     const response = {
       key: messageDigest
         .update(
@@ -215,13 +215,16 @@ const sendPlainTransfer = payload => async (dispatch, getState) => {
 }
 
 const _sendPendingDirectMessages = redirect => async (dispatch, getState) => {
-  const lock = appSelectors.messageQueueLock(getState())
+  const lock = appSelectors.directMessageQueueLock(getState())
+  const messages = selectors.queue(getState())
   if (lock === false) {
     await dispatch(appHandlers.actions.lockDmQueue())
   } else {
+    if (messages.size !== 0) {
+      dispatch(sendPendingDirectMessages(null, redirect))
+    }
     return
   }
-  const messages = selectors.queue(getState())
   const identityAddress = identitySelectors.address(getState())
   const donation = identitySelectors.donation(getState())
   await Promise.all(
@@ -275,7 +278,7 @@ const _sendPendingDirectMessages = redirect => async (dispatch, getState) => {
               msg.recipientUsername}`
           )
         }
-        dispatch(removeMessage(key))
+        await dispatch(removeMessage(key))
         await dispatch(
           operationsHandlers.epics.observeOperation({
             opId,

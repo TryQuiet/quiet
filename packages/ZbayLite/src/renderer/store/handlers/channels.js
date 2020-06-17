@@ -115,7 +115,10 @@ const _createChannel = async (identityId, { name, description }) => {
   return address
 }
 
-const createChannel = (values, formActions) => async (dispatch, getState) => {
+const createChannel = (values, formActions, setStep) => async (
+  dispatch,
+  getState
+) => {
   const closeModal = modalsHandlers.actionCreators.closeModal('createChannel')
   const balance = identitySelectors.balance('zec')(getState())
   try {
@@ -130,6 +133,7 @@ const createChannel = (values, formActions) => async (dispatch, getState) => {
       formActions.setSubmitting(false)
       return
     }
+    setStep(1)
     const identityId = identitySelectors.id(getState())
     const address = await _createChannel(identityId, values)
     dispatch(
@@ -156,6 +160,7 @@ const createChannel = (values, formActions) => async (dispatch, getState) => {
     if (createdChannel) {
       history.push(`/main/channel/${createdChannel.get('id')}`)
     }
+    setStep(0)
     dispatch(closeModal())
   } catch (error) {
     dispatch(
@@ -165,6 +170,7 @@ const createChannel = (values, formActions) => async (dispatch, getState) => {
         })
       )
     )
+    setStep(0)
     formActions.setSubmitting(false)
   }
 }
