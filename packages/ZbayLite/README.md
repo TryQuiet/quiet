@@ -36,11 +36,8 @@ That's it!
 
 ## Building an installer
 
-  
 
 Zbay supports most popular operating systems. If you want to build a version for these platforms use one of our scripts:
-
-  
 
 macOS ```npm run dist```
 
@@ -50,19 +47,11 @@ Ubuntu16 ```npm run distUbuntu16```
 
 Ubuntu18 ```npm run distUbuntu18```
 
-  
-
 The built installers can then be found in the `dist` folder.
-
-  
 
 ## Managing keys
 
-  
-
-Zbay uses the [Buttercup](https://buttercup.pw/) password manager to safety store Zcash keys and other necessary information. If you want to retrieve key or check information stored there, open the Zbay vault file in Buttercup. Here's where to find it:
-
-  
+Zbay uses the [Buttercup](https://buttercup.pw/) password manager to safety store Zcash keys and other necessary information. If you want to retrieve a key or check what information is stored there, open the Zbay vault file in Buttercup. Here's where to find it:
 
 On Linux ```~/.config/Zbay/vault-mainnet.bcup```
 
@@ -70,18 +59,27 @@ On macOS ```~/Library/Application Support/Zbay/vault-mainnet.bcup```
 
 On Windows ```%HOMEPATH%\\AppData\\Roaming\\Zbay\\vault-mainnet.bcup```
 
-##### Clean data
-Buttercup file stores all of your keys so before deleting file make sure you moved all of your funds from associated Zcash account. 
-```diff
-- Removing Buttercup file does not remove keys from Zcash node. Once imported keys are stored forever.
-```
-##### Moving account
-You can move your file to other machines and Zbay will handle all key imports so you will be able to use application. 
+##### Removing data
 
+Some keys are stored *both* in Buttercup *and* in your Zcash wallet file. To remove all your data from a machine, be sure to delete the Zbay, Zcash, and ZbayData folders. Here's where to find them:
+
+On Linux ```~/.config/```
+
+On macOS ```~/Library/Application Support/```
+
+On Windows ```%HOMEPATH%\\AppData\\Roaming\\```
+
+##### Backing up data
+
+Everything you need to restore your account, messages, and funds lives in the `Zbay` folder. To make a backup, simply copy the `Zbay` folder to a safe location. To restore a backup, install Zbay on a new machine, sync, quit, and then move your existing Zbay folder to its original location. Here's where to find it:
+
+On Linux ```~/.config/Zbay/```
+
+On macOS ```~/Library/Application Support/Zbay/```
+
+On Windows ```%HOMEPATH%\\AppData\\Roaming\\Zbay\\```
 
 ## Tor support
-
-  
 
 To use Zbay over the Tor network you will need to install tor:
 
