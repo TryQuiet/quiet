@@ -83,15 +83,22 @@ On Windows ```%HOMEPATH%\\AppData\\Roaming\\Zbay\\```
 
 To use Zbay over the Tor network you will need to install tor:
 
-  
-
 Linux ```apt-get install tor```
 
 macOS ```brew install tor```
 
-  
-
 Run it in console by typing ```tor```. It should create socks5 proxy on port 9050. Run Zbay, check the "Connect with tor" option on the "enter password" screen, and Zbay will auto-detect the tor proxy and connect to it.
+
+## Not enough disk space?
+
+We're working on light wallet support to remove the disk space requirement, but if you're low on disk space and would like to use an external drive in the meantime, follow these steps:
+
+1. Find and remove (or move) any existing `ZbayData`, `Zbay`, and `Zcash` folders.
+1. Create a "ZbayData" folder on the external drive.
+1. Create a symlink ([Mac/Linux](https://kb.iu.edu/d/abbe), [Windows](https://www.howtogeek.com/howto/16226/complete-guide-to-symbolic-links-symlinks-on-windows-or-linux/)) to that folder from wherever the folder would typically be stored, e.g. ```~/Library/Application Support/``` on Mac.
+1. Run Zbay and ignore the warning about disk space. If you've created the symblink properly, Zbay will put files on the external drive. 
+
+Note: Zbay will still need ~2GB on your default drive for downloading Zcash parameters.
 
 ## Contact
 If you have any questions or issues getting started you can find members of the Zbay team on this [slack channel](https://join.slack.com/t/zbay/shared_invite/enQtOTE5MTI3OTA1NjE3LTViMWQyMzNkNmViMTZhZmEzYmZhMjg1YTYzNDQ5MmQ2NzU1NDc4ZWY1ZDQ1NjkwNjgwN2NiYmIzZTA2YTJiMDA).
