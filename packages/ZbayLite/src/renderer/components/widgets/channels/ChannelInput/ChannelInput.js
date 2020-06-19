@@ -23,7 +23,7 @@ import Icon from '../../../ui/Icon'
 import emojiGray from '../../../../static/images/emojiGray.svg'
 import emojiBlack from '../../../../static/images/emojiBlack.svg'
 import errorIcon from '../../../../static/images/t-error.svg'
-
+import sanitizeHtml from 'sanitize-html'
 const styles = theme => {
   return {
     root: {
@@ -172,6 +172,7 @@ export const ChannelInput = ({
   const [selected, setSelected] = React.useState(0)
   const [emojiHovered, setEmojiHovered] = React.useState(false)
   const [openEmoji, setOpenEmoji] = React.useState(false)
+  const [htmlMessage, setHtmlMessage] = React.useState(message)
   window.onfocus = () => {
     inputRef.current.el.current.focus()
     setFocused(true)
@@ -186,6 +187,11 @@ export const ChannelInput = ({
   React.useEffect(() => {
     refMentionsToSelect.current = mentionsToSelect
   }, [mentionsToSelect])
+  React.useEffect(() => {
+    if (!message) {
+      setHtmlMessage('')
+    }
+  }, [message])
   const findMentions = text => {
     const splitedMsg = text
       .replace(/ /g, String.fromCharCode(160))
@@ -272,7 +278,7 @@ export const ChannelInput = ({
                 '@' + refMentionsToSelect.current[refSelected.current].nickname
               currentMsg.push(String.fromCharCode(160))
 
-              onChange(currentMsg.join(String.fromCharCode(160)))
+              setHtmlMessage(currentMsg.join(String.fromCharCode(160)))
               inputRef.current.el.current.focus()
             }}
           />
@@ -331,10 +337,15 @@ export const ChannelInput = ({
                     setFocused(true)
                   }
                 }}
-                html={findMentions(renderToString(<>{message}</>))}
+                html={findMentions(sanitizeHtml(htmlMessage))}
                 onChange={e => {
                   if (inputState === INPUT_STATE.AVAILABLE) {
                     onChange(e.nativeEvent.target.innerText)
+                    if (!e.nativeEvent.target.innerText) {
+                      setHtmlMessage('')
+                    } else {
+                      setHtmlMessage(e.target.value)
+                    }
                   }
                   setAnchorEl(e.currentTarget.lastElementChild)
                 }}
@@ -371,7 +382,7 @@ export const ChannelInput = ({
                         refMentionsToSelect.current[refSelected.current]
                           .nickname
                       currentMsg.push(String.fromCharCode(160))
-                      onChange(currentMsg.join(String.fromCharCode(160)))
+                      setHtmlMessage(currentMsg.join(String.fromCharCode(160)))
                       e.preventDefault()
                     }
                     return
@@ -429,7 +440,7 @@ export const ChannelInput = ({
                   <div className={classes.picker}>
                     <Picker
                       onEmojiClick={(e, emoji) => {
-                        onChange(message + emoji.emoji)
+                        setHtmlMessage(message + emoji.emoji)
                         setOpenEmoji(false)
                       }}
                     />
