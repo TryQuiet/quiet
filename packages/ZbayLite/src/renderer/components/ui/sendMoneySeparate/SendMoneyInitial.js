@@ -154,7 +154,8 @@ const styles = theme => ({
     lineHeight: '20px',
     color: theme.palette.colors.trueBlack,
     margin: 0,
-    marginLeft: 10
+    marginLeft: 10,
+    cursor: 'pointer'
   },
   radioIcon: {
     width: 16,
@@ -218,7 +219,9 @@ export const SendMoneyInitial = ({
       <Typography variant='h3' className={classes.title}>
         Send funds
       </Typography>
-      <Typography variant='body2' className={classes.fieldName}>Recipient</Typography>
+      <Typography variant='body2' className={classes.fieldName}>
+        Recipient
+      </Typography>
       <AutocompleteField
         freeSolo
         name={'recipient'}
@@ -255,10 +258,13 @@ export const SendMoneyInitial = ({
         )}
       />
       <ErrorText name={'recipient'} />
-      {(isUserSelected) && (
+      {isUserSelected && (
         <Grid container direction={'column'} item>
           <Grid className={classes.recipientInfo} item>
-            <Typography variant='body2'>{`Tell recipient it's from `}<span className={classes.bold}>{nickname}</span>?</Typography>
+            <Typography variant='body2'>
+              {`Tell recipient it's from `}
+              <span className={classes.bold}>{nickname}</span>?
+            </Typography>
           </Grid>
           <Grid item className={classes.radioContainer}>
             <Field
@@ -278,8 +284,20 @@ export const SendMoneyInitial = ({
                             checked={values.shouldIncludeMeta === 'yes'}
                           />
                         }
-                        onChange={() => setFieldValue('shouldIncludeMeta', 'yes')}
-                        label={<label className={classes.radioLabel} htmlFor='yes'>Yes</label>}
+                        onChange={() =>
+                          setFieldValue('shouldIncludeMeta', 'yes')
+                        }
+                        label={
+                          <label
+                            className={classes.radioLabel}
+                            onClick={() =>
+                              setFieldValue('shouldIncludeMeta', 'yes')
+                            }
+                            htmlFor='yes'
+                          >
+                            Yes
+                          </label>
+                        }
                       />{' '}
                     </Grid>
                     <Grid item>
@@ -294,47 +312,88 @@ export const SendMoneyInitial = ({
                             checked={values.shouldIncludeMeta === 'no'}
                           />
                         }
-                        onChange={() => setFieldValue('shouldIncludeMeta', 'no')}
-                        label={<label className={classes.radioLabel} htmlFor='no'>No</label>}
+                        onChange={() =>
+                          setFieldValue('shouldIncludeMeta', 'no')
+                        }
+                        label={
+                          <label
+                            className={classes.radioLabel}
+                            onClick={() =>
+                              setFieldValue('shouldIncludeMeta', 'no')
+                            }
+                            htmlFor='no'
+                          >
+                            No
+                          </label>
+                        }
                       />{' '}
                     </Grid>
                   </Grid>
                 )
-              }
-              }
+              }}
             />
           </Grid>
         </Grid>
-      )
-      }
-      {((values.shouldIncludeMeta && isUserSelected) || (!isUserSelected && !errors.recipient && values.recipient)) && (
+      )}
+      {((values.shouldIncludeMeta && isUserSelected) ||
+        (!isUserSelected && !errors.recipient && values.recipient)) && (
         <Grid container item>
           {isUserSelected && values.shouldIncludeMeta === 'no' && (
             <Grid className={classes.infoBox} item>
-              <Typography className={classes.typo} variant='body2'><span className={classes.bold}>Warning:</span>{` The recipient will not know who it is from, and you may not be able to prove you made the payment`}</Typography>
+              <Typography className={classes.typo} variant='body2'>
+                <span className={classes.bold}>Warning:</span>
+                {` The recipient will not know who it is from, and you may not be able to prove you made the payment`}
+              </Typography>
             </Grid>
           )}
           <Grid item xs={12} container className={classes.divMoney}>
             <Grid className={classes.titleBox} item xs={12}>
               <Typography className={classes.fieldName} variant={'body2'}>
-            Available to send
+                Available to send
               </Typography>
             </Grid>
-            <Grid container item direction={'row'} className={classes.avaiableBox} justify={'space-between'} wrap={'nowrap'}>
-              <Grid container className={classes.innerBox} direction={'row'} alignItems={'center'} item>
+            <Grid
+              container
+              item
+              direction={'row'}
+              className={classes.avaiableBox}
+              justify={'space-between'}
+              wrap={'nowrap'}
+            >
+              <Grid
+                container
+                className={classes.innerBox}
+                direction={'row'}
+                alignItems={'center'}
+                item
+              >
                 <Grid className={classes.zecIcon} item>
                   <Icon src={ZecIcon} />
                 </Grid>
                 <Grid item>
-                  <Typography className={classes.zecTypo} variant='body2'>ZEC</Typography>
+                  <Typography className={classes.zecTypo} variant='body2'>
+                    ZEC
+                  </Typography>
                 </Grid>
               </Grid>
-              <Grid container className={classes.innerBox} direction={'column'} justify={'center'} alignItems={'flex-end'} item>
+              <Grid
+                container
+                className={classes.innerBox}
+                direction={'column'}
+                justify={'center'}
+                alignItems={'flex-end'}
+                item
+              >
                 <Grid item>
-                  <Typography className={classes.valueZec} variant='h3'>{balanceZec.toString()}</Typography>
+                  <Typography className={classes.valueZec} variant='h3'>
+                    {balanceZec.toString()}
+                  </Typography>
                 </Grid>
                 <Grid item>
-                  <Typography className={classes.valueUsd} variant='body2'>{`$${balanceZec.times(rateUsd).toFixed(2)} USD`}</Typography>
+                  <Typography
+                    className={classes.valueUsd}
+                    variant='body2'
+                  >{`$${balanceZec.times(rateUsd).toFixed(2)} USD`}</Typography>
                 </Grid>
               </Grid>
             </Grid>
@@ -342,7 +401,7 @@ export const SendMoneyInitial = ({
           <Grid item xs={12} container className={classes.divMoney}>
             <Grid className={classes.titleBox} item xs={12}>
               <Typography className={classes.fieldName} variant={'body2'}>
-            Amount to send
+                Amount to send
               </Typography>
             </Grid>
             <Grid item className={classes.moneyDiv}>
@@ -404,14 +463,17 @@ export const SendMoneyInitial = ({
               <FormikTextField
                 name='memo'
                 placeholder={
-                  values.recipient ? values.recipient.length === 35
-                    ? `Only shielded Zcash addresses (beginning with a 'z') can receive messages`
-                    : 'Enter a message'
+                  values.recipient
+                    ? values.recipient.length === 35
+                      ? `Only shielded Zcash addresses (beginning with a 'z') can receive messages`
+                      : 'Enter a message'
                     : 'Enter a message'
                 }
                 multiline
                 rows={8}
-                disabled={values.recipient ? values.recipient.length === 35 : false}
+                disabled={
+                  values.recipient ? values.recipient.length === 35 : false
+                }
               />
             </Grid>
           )}
@@ -463,7 +525,4 @@ SendMoneyInitial.propTypes = {
   memo: PropTypes.string,
   openSentFundsModal: PropTypes.func.isRequired
 }
-export default R.compose(
-  React.memo,
-  withStyles(styles)
-)(SendMoneyInitial)
+export default R.compose(React.memo, withStyles(styles))(SendMoneyInitial)
