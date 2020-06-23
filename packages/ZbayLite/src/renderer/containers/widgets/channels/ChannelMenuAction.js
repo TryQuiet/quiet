@@ -7,7 +7,6 @@ import ChannelMenuAction from '../../../components/widgets/channels/ChannelMenuA
 import { actionCreators } from '../../../store/handlers/modals'
 import importedChannelHandler from '../../../store/handlers/importedChannel'
 import dmChannelSelectors from '../../../store/selectors/directMessageChannel'
-import identitySelectors from '../../../store/selectors/identity'
 import channelSelectors from '../../../store/selectors/channel'
 import notificationCenterSelectors from '../../../store/selectors/notificationCenter'
 import publicChannelsSelectors from '../../../store/selectors/publicChannels'
@@ -21,29 +20,35 @@ const filterToText = {
   [notificationFilterType.NONE]: 'Nothing',
   [notificationFilterType.MUTE]: 'Muted'
 }
-export const mapStateToProps = state => ({
-  targetAddress: dmChannelSelectors.targetRecipientAddress(state),
-  isOwner:
-    channelSelectors.channelOwner(state) ===
-    identitySelectors.signerPubKey(state),
-  publicChannels: publicChannelsSelectors.publicChannels(state),
-  channel: channelSelectors.data(state) || Immutable.Map({}),
-  mutedFlag:
-    notificationCenterSelectors.channelFilterById(
-      channelSelectors.data(state)
-        ? channelSelectors.data(state).get('address')
-        : 'none'
-    )(state) === notificationFilterType.MUTE,
-  notificationFilter:
-    // eslint-disable-next-line
-    filterToText[
+export const mapStateToProps = state => {
+  const isOwner = channelSelectors.data(state)
+    ? !!channelSelectors
+      .data(state)
+      .get('keys')
+      .get('sk')
+    : false
+  return {
+    targetAddress: dmChannelSelectors.targetRecipientAddress(state),
+    isOwner: isOwner,
+    publicChannels: publicChannelsSelectors.publicChannels(state),
+    channel: channelSelectors.data(state) || Immutable.Map({}),
+    mutedFlag:
       notificationCenterSelectors.channelFilterById(
         channelSelectors.data(state)
           ? channelSelectors.data(state).get('address')
           : 'none'
-      )(state)
-    ]
-})
+      )(state) === notificationFilterType.MUTE,
+    notificationFilter:
+      // eslint-disable-next-line
+      filterToText[
+        notificationCenterSelectors.channelFilterById(
+          channelSelectors.data(state)
+            ? channelSelectors.data(state).get('address')
+            : 'none'
+        )(state)
+      ]
+  }
+}
 
 export const mapDispatchToProps = (dispatch, { history }) => {
   return bindActionCreators(
@@ -60,8 +65,8 @@ export const mapDispatchToProps = (dispatch, { history }) => {
       onDelete: () => importedChannelHandler.epics.removeChannel(history),
       publishChannel: actionCreators.openModal('publishChannel'),
       onSettings: actionCreators.openModal('channelSettingsModal'),
-      openNotificationsTab: () => appHandlers.actions.setModalTab('notifications')
-
+      openNotificationsTab: () =>
+        appHandlers.actions.setModalTab('notifications')
     },
     dispatch
   )

@@ -122,11 +122,11 @@ const createChannel = (values, formActions, setStep) => async (
   const closeModal = modalsHandlers.actionCreators.closeModal('createChannel')
   const balance = identitySelectors.balance('zec')(getState())
   try {
-    if (balance.lt(0.0002)) {
+    if (balance.lt(networkFee)) {
       dispatch(
         notificationsHandlers.actions.enqueueSnackbar(
           errorNotification({
-            message: `You need minimum 0.0002 ZEC to create a channel. `
+            message: `You need minimum ${networkFee} ZEC to create a channel. `
           })
         )
       )

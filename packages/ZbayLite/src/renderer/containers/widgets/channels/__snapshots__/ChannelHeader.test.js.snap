@@ -18,5 +18,6 @@ Object {
   "members": Set {},
   "mutedFlag": false,
   "showAdSwitch": false,
+  "userAddress": "",
 }
 `;

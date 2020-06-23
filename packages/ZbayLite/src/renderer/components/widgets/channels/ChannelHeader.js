@@ -122,7 +122,8 @@ export const ChannelHeader = ({
   updateShowInfoMsg,
   mutedFlag,
   unmute,
-  isRegisteredUsername
+  isRegisteredUsername,
+  userAddress
 }) => {
   const debounce = (fn, ms) => {
     let timer
@@ -173,7 +174,11 @@ export const ChannelHeader = ({
                   [classes.bold]: true
                 })}
               >
-                {isRegisteredUsername || !isFromZbay ? `${prefix[channelType]}${isFromZbay ? channel.get('name') : 'unknown'}` : channel.get('address')}
+                {isRegisteredUsername || !isFromZbay
+                  ? `${prefix[channelType]}${
+                    isFromZbay ? channel.get('name') : 'unknown'
+                  }`
+                  : channel.get('address')}
               </Typography>
             </Grid>
             {mutedFlag && (
@@ -194,7 +199,8 @@ export const ChannelHeader = ({
           </Grid>
           {!R.isNil(members) ? (
             <Typography variant='caption' className={classes.subtitle}>
-              {members.size} Participants
+              {members.has(userAddress) ? members.size : members.size + 1}{' '}
+              Participants
             </Typography>
           ) : null}
         </Grid>
@@ -265,6 +271,7 @@ ChannelHeader.propTypes = {
   channelType: PropTypes.number.isRequired,
   tab: PropTypes.number.isRequired,
   setTab: PropTypes.func.isRequired,
+  userAddress: PropTypes.string.isRequired,
   unmute: PropTypes.func,
   channel: PropTypes.instanceOf(Immutable.Map).isRequired,
   members: PropTypes.instanceOf(Set),

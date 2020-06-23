@@ -2,6 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import * as R from 'ramda'
 import { Formik, Form } from 'formik'
+import * as Yup from 'yup'
 
 import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
@@ -46,8 +47,12 @@ const styles = theme => ({
 const parseChannelName = (name = '') => {
   return name.toLowerCase().replace(/  +/g, '-')
 }
+export const formSchema = Yup.object().shape({
+  name: Yup.string().required('Your channel must have a name.')
+})
 export const CreateChannelForm = ({ classes, onSubmit, setStep }) => (
   <Formik
+    validationSchema={formSchema}
     onSubmit={(values, formActions) => {
       onSubmit(
         { ...values, name: parseChannelName(values.name) },

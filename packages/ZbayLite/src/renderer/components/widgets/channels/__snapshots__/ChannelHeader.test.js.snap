@@ -131,8 +131,9 @@ exports[`ChannelHeader renders members when 0 1`] = `
         className="subtitle-mock"
         variant="caption"
       >
-        0
-         Participants
+        1
+         
+        Participants
       </WithStyles(ForwardRef(Typography))>
     </WithStyles(ForwardRef(Grid))>
     <WithStyles(ForwardRef(Grid))
@@ -213,8 +214,9 @@ exports[`ChannelHeader renders without members count 1`] = `
         className="subtitle-mock"
         variant="caption"
       >
-        4
-         Participants
+        5
+         
+        Participants
       </WithStyles(ForwardRef(Typography))>
     </WithStyles(ForwardRef(Grid))>
     <WithStyles(ForwardRef(Grid))

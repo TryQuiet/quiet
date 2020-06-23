@@ -19,6 +19,7 @@ describe('ChannelHeader', () => {
         channel={channel}
         members={null}
         isRegisteredUsername
+        userAddress='test'
       />
     )
     expect(result).toMatchSnapshot()
@@ -35,6 +36,7 @@ describe('ChannelHeader', () => {
         members={new Set([1, 2, 3, 4])}
         unmute={() => {}}
         mutedFlag
+        userAddress='test'
         isRegisteredUsername
       />
     )
@@ -52,6 +54,7 @@ describe('ChannelHeader', () => {
         members={new Set()}
         unmute={() => {}}
         mutedFlag
+        userAddress='test'
         isRegisteredUsername
       />
     )

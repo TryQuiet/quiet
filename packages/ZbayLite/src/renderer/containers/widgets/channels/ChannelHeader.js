@@ -6,6 +6,7 @@ import channelsHandlers from '../../../store/handlers/channels'
 import notificationCenterHandlers from '../../../store/handlers/notificationCenter'
 
 import channelSelectors from '../../../store/selectors/channel'
+import identitySelectors from '../../../store/selectors/identity'
 import notificationCenter from '../../../store/selectors/notificationCenter'
 
 import { messageType, notificationFilterType } from '../../../../shared/static'
@@ -13,6 +14,7 @@ import { messageType, notificationFilterType } from '../../../../shared/static'
 export const mapStateToProps = state => {
   return {
     channel: channelSelectors.data(state),
+    userAddress: identitySelectors.address(state),
     members: channelSelectors.members(state),
     showAdSwitch: !!channelSelectors
       .messages()(state)
