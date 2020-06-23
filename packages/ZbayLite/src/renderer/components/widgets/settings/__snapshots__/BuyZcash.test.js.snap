@@ -1623,7 +1623,8 @@ exports[`BuyZcash renders component 1`] = `
         >
           Time Machine
         </a>
-         (Mac) or online with a key you control, using a service like
+         
+        (Mac) or online with a key you control, using a service like
          
         <a
           className="link-mock"

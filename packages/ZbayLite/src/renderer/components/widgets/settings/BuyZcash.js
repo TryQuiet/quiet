@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { shell } from 'electron'
+import { shell, remote } from 'electron'
 
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
@@ -11,6 +11,11 @@ import UnfoldMore from '@material-ui/icons/UnfoldMore'
 import Select from '@material-ui/core/Select'
 
 import countryData from './countryData'
+import {
+  types,
+  countryToType,
+  getCountryName
+} from '../../../../shared/countryCodes'
 
 const styles = theme => ({
   title: {},
@@ -36,134 +41,14 @@ const styles = theme => ({
     marginTop: 24
   }
 })
-const types = {
-  MAIN: 1,
-  MINOR: 2,
-  OTHER: 3
-}
-const contriesType = {
-  [types.MAIN]: [
-    `Australia`,
-    `Canada`,
-    `Singapore`,
-    `United States`,
-    `United Kingdom`,
-    `Andorra`,
-    `Austria`,
-    `Belgium`,
-    `Bulgaria`,
-    `Croatia`,
-    `Cyprus`,
-    `Czech Republic`,
-    `Denmark`,
-    `Estonia`,
-    `Finland`,
-    `France`,
-    `Gibraltar`,
-    `Greece`,
-    `Guernsey`,
-    `Hungary`,
-    `Iceland`,
-    `Ireland`,
-    `Isle of Man`,
-    `Italy`,
-    `Jersey`,
-    `Latvia`,
-    `Liechtenstein`,
-    `Lithuania`,
-    `Luxembourg`,
-    `Malta`,
-    `Monaco`,
-    `Netherlands`,
-    `Norway`,
-    `Poland`,
-    `Portugal`,
-    `Romania`,
-    `San Marino`,
-    `Slovakia`,
-    `Slovenia`,
-    `Spain`,
-    `Sweden`,
-    `Switzerland`
-  ],
-  [types.MINOR]: [
-    `Afghanistan`,
-    `Algeria`,
-    `Angola`,
-    `Antigua and Barbuda`,
-    `Bangladesh`,
-    `Bolivia`,
-    `Bosnia and Herzegovina`,
-    `Botswana`,
-    `Cambodia`,
-    `China`,
-    `Cuba`,
-    `Democratic Republic of the Congo`,
-    `Ecuador`,
-    `Egypt`,
-    `Eritrea`,
-    `Ethiopia`,
-    `Gambia`,
-    `Ghana`,
-    `Guinea-Bissau`,
-    `Guyana`,
-    `Indonesia`,
-    `Iran`,
-    `Iraq`,
-    `ivory coast`,
-    `Japan`,
-    `Kyrgyzstan`,
-    `Laos`,
-    `Lebanon`,
-    `Lesotho`,
-    `Liberia`,
-    `Libya`,
-    `Macedonia`,
-    `Malaysia`,
-    `Mali`,
-    `Morocco`,
-    `Myanmar`,
-    `Namibia`,
-    `Nepal`,
-    `Niger`,
-    `Nigeria`,
-    `North Korea`,
-    `Pakistan`,
-    `Papua New Guinea`,
-    `Qatar`,
-    `Democratic Republic Of The Congo`,
-    `Senegal`,
-    `Sierra Leone`,
-    `Somalia`,
-    `South Sudan`,
-    `Sri Lanka`,
-    `Sudan`,
-    `Syria`,
-    `Tanzania`,
-    `Togo`,
-    `Trinidad and Tobago`,
-    `Uganda`,
-    `Vanuatu`,
-    `Vietnam`,
-    `Yemen`,
-    `Zambia`,
-    `Zimbabwe`
-  ],
-  [types.OTHER]: []
-}
-const countryToType = country => {
-  if (contriesType[types.MAIN].includes(country)) {
-    return types.MAIN
-  }
-  if (contriesType[types.MINOR].includes(country)) {
-    return types.MINOR
-  }
-  return types.OTHER
-}
 
 export const BuyZcash = ({ classes }) => {
-  const [country, setCountry] = React.useState('United States')
-  const [type, setType] = React.useState(types.MAIN)
+  const [country, setCountry] = React.useState(
+    getCountryName(remote.app.getLocaleCountryCode())
+  )
+  const [type, setType] = React.useState(
+    countryToType(getCountryName(remote.app.getLocaleCountryCode()))
+  )
   React.useEffect(() => {
     setType(countryToType(country))
   }, [country])
@@ -204,10 +89,11 @@ export const BuyZcash = ({ classes }) => {
             around! If you find a service that makes it easy, let us know!
           </Typography>
         )}
-        {(type === types.MAIN || type === types.OTHER) && country !== `United States` && (
+        {(type === types.MAIN || type === types.OTHER) &&
+          country !== `United States` && (
           <Typography variant='body2'>
-            The easiest way to buy Zcash in your country is Indacoin. Visit
-            their{' '}
+              The easiest way to buy Zcash in your country is Indacoin. Visit
+              their{' '}
             <a
               className={classes.link}
               onClick={e => {
@@ -216,11 +102,11 @@ export const BuyZcash = ({ classes }) => {
               }}
               href='https://indacoin.com/'
             >
-              website
+                website
             </a>
-            , choose to buy ZEC, and paste in your Zcash address. You’ll have to
-            provide a credit card and complete some steps to verify your
-            identity.
+              , choose to buy ZEC, and paste in your Zcash address. You’ll have
+              to provide a credit card and complete some steps to verify your
+              identity.
           </Typography>
         )}
         {type === types.MAIN && (
@@ -285,42 +171,40 @@ export const BuyZcash = ({ classes }) => {
             go up or down.
           </li>
           <li className={classes.spacing24}>
-            Zbay is experimental, so don't store any amount of funds you would not want to lose.
+            Zbay is experimental, so don't store any amount of funds you would
+            not want to lose.
           </li>
           <li className={classes.spacing24}>
             If your computer is broken, lost, or stolen and you don't have a
-            full backup, you will
-            lose your Zbay account, your direct messages, and your funds.
+            full backup, you will lose your Zbay account, your direct messages,
+            and your funds.
           </li>
           <li className={classes.spacing24}>
-            The
-            best way to keep your funds and account safe is to make frequent secure
-            backups of your entire computer, either offline using a tool like{' '}
+            The best way to keep your funds and account safe is to make frequent
+            secure backups of your entire computer, either offline using a tool
+            like{' '}
             <a
               className={classes.link}
               onClick={e => {
                 e.preventDefault()
-                shell.openExternal(
-                  'https://support.apple.com/en-us/HT201250'
-                )
+                shell.openExternal('https://support.apple.com/en-us/HT201250')
               }}
               href='https://support.apple.com/en-us/HT201250'
             >
-            Time Machine
-            </a> (Mac)
-            or online with a key you control, using a service like{' '}
+              Time Machine
+            </a>{' '}
+            (Mac) or online with a key you control, using a service like{' '}
             <a
               className={classes.link}
               onClick={e => {
                 e.preventDefault()
-                shell.openExternal(
-                  'https://www.backblaze.com/'
-                )
+                shell.openExternal('https://www.backblaze.com/')
               }}
               href='https://www.backblaze.com/'
             >
-            Backblaze
-            </a>.
+              Backblaze
+            </a>
+            .
           </li>
         </ul>
       </Grid>
