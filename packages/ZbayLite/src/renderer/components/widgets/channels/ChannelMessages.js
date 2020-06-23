@@ -96,6 +96,7 @@ export const ChannelMessages = ({
         .sortBy(o => o.createdAt)
     )
   }
+  const showLoader = !isInitialLoadFinished && messages.size === 0
   return (
     <Scrollbars
       ref={getScrollbarRef}
@@ -110,11 +111,14 @@ export const ChannelMessages = ({
         className={classes.list}
         style={{ marginTop: offset }}
       >
-        {isOwner && <WelcomeMessage message={welcomeMessages['main']} />}
-        {isOffer && (
-          <WelcomeMessage message={welcomeMessages['offer'](tag, username)} />
+        {isOwner && !showLoader && (
+          <WelcomeMessage message={welcomeMessages['main']} />
         )}
-        {!isInitialLoadFinished && messages.size === 0 && <LoadingMessage />}
+        {isOffer &&
+          !showLoader(
+            <WelcomeMessage message={welcomeMessages['offer'](tag, username)} />
+          )}
+        {showLoader && <LoadingMessage />}
         {Array.from(groupedMessages).map(args => {
           const today = DateTime.utc()
           const groupName = DateTime.fromSeconds(args[0]).toFormat(
