@@ -138,7 +138,8 @@ export const AddFunds = ({
   generateNewAddress,
   generateNewShieldedAddress,
   topAddress,
-  topShieldedAddress
+  topShieldedAddress,
+  scrollbarRef
 }) => {
   const [expanded, setExpanded] = React.useState(false)
   const [dialogOpen, setDialogOpen] = React.useState(false)
@@ -307,6 +308,9 @@ export const AddFunds = ({
         className={classes.privateDiv}
         onClick={() => {
           setExpanded(!expanded)
+          setTimeout(() => {
+            scrollbarRef.current.scrollToBottom()
+          }, 0)
         }}
       >
         <Grid container alignItems='center' justify='space-between'>
@@ -368,6 +372,7 @@ export const AddFunds = ({
 
 AddFunds.propTypes = {
   classes: PropTypes.object.isRequired,
+  scrollbarRef: PropTypes.object.isRequired,
   topAddress: PropTypes.string.isRequired,
   topShieldedAddress: PropTypes.string.isRequired,
   variant: PropTypes.string,

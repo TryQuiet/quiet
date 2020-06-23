@@ -84,6 +84,7 @@ export const SettingsModal = ({
   blockedUsers
 }) => {
   const [contentRef, setContentRef] = React.useState(null)
+  const scrollbarRef = React.useRef()
   const [offset, setOffset] = React.useState(0)
   const TabComponent = tabs[modalTabToOpen || currentTab]
   const adjustOffset = () => {
@@ -179,6 +180,7 @@ export const SettingsModal = ({
               const maxWidth = width > 632 ? 632 : width
               return (
                 <Scrollbars
+                  ref={scrollbarRef}
                   autoHideTimeout={500}
                   style={{ width: maxWidth + offset, height: height }}
                 >
@@ -187,7 +189,10 @@ export const SettingsModal = ({
                     className={classes.content}
                     style={{ paddingRight: offset }}
                   >
-                    <TabComponent setCurrentTab={setCurrentTab} />
+                    <TabComponent
+                      setCurrentTab={setCurrentTab}
+                      scrollbarRef={scrollbarRef}
+                    />
                   </Grid>
                 </Scrollbars>
               )

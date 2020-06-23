@@ -10,7 +10,8 @@ describe('AddFunds', () => {
       privateAddress: 'test-address-private',
       transparentAddress: 'test-address-transparent',
       setCurrentTab: jest.fn(),
-      clearCurrentOpenTab: jest.fn()
+      clearCurrentOpenTab: jest.fn(),
+      scrollbarRef: {}
     }
     const result = shallow(<AddFunds {...props} />)
     expect(result).toMatchSnapshot()

@@ -15,6 +15,7 @@ storiesOf('Components/Widgets/Settings/AddFunds', module)
             transparentAddress={'address transparent'}
             privateAddress={'zs123-test-address'}
             setCurrentTab={() => {}}
+            scrollbarRef={{}}
           />
         </Grid>
       </Grid>
