@@ -6,6 +6,7 @@ import { createAction, handleActions } from 'redux-actions'
 import { typeRejected, LoaderState, FetchingState } from './utils'
 import { getClient } from '../../zcash'
 import { actionTypes } from '../../../shared/static'
+import nodeSelectors from '../selectors/node'
 
 const DEFAULT_ADDRESS_TYPE = 'sapling'
 
@@ -81,6 +82,13 @@ export const disablePowerSaveMode = () => async (dispatch, getState) => {
   ipcRenderer.send('disable-sleep-prevention')
 }
 
+export const checkNodeStatus = (nodeProcessStatus) => async (dispatch, getState) => {
+  const nodeResponseStatus = nodeSelectors.status(getState())
+  if (nodeProcessStatus === 'up' && nodeResponseStatus === 'down') {
+    ipcRenderer.send('restart-node-proc')
+  }
+}
+
 const getStatus = () => async (dispatch) => {
   try {
     const info = await getClient({ timeout: 200 }).status.info()
@@ -106,7 +114,8 @@ const epics = {
   togglePower,
   startRescanningMonitor,
   disablePowerSaveMode,
-  setRescanningInitialized
+  setRescanningInitialized,
+  checkNodeStatus
 }
 
 export const reducer = handleActions({

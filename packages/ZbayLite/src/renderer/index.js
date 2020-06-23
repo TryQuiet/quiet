@@ -108,6 +108,10 @@ ipcRenderer.on('load-logs-to-store', (event, { transactions, debug, applicationL
   store.dispatch(logsHandlers.actions.setApplicationLogs(applicationLogs))
 })
 
+ipcRenderer.on('checkNodeStatus', (event, { status }) => {
+  store.dispatch(nodeHandlers.epics.checkNodeStatus(status))
+})
+
 ipcRenderer.on('newChannel', (event, { channelParams }) => {
   if (nodeSelectors.status(store.getState()) === 'healthy') {
     store.dispatch(
