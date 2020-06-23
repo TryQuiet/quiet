@@ -11,6 +11,7 @@ import Button from '@material-ui/core/Button'
 import InputAdornment from '@material-ui/core/InputAdornment'
 import { withStyles } from '@material-ui/core/styles'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import { Badge } from '@material-ui/core'
 
 import LoadingButton from '../LoadingButton'
 
@@ -20,7 +21,7 @@ import CheckboxWithLabel from '../form/CheckboxWithLabel'
 import exchange from '../../../static/images/zcash/exchange.svg'
 import Modal from '../Modal'
 import Icon from '../Icon'
-import { Badge } from '@material-ui/core'
+import { getBytesSize } from '../../../../shared/helpers'
 
 const reqSvgs =
   require && require.context('../assets/backgrounds', true, /\.svg$/)
@@ -234,7 +235,7 @@ export const AdvertModal = ({
               >
                 <Badge
                   color='primary'
-                  badgeContent={9 - values.tag.length}
+                  badgeContent={9 - getBytesSize(values.tag)}
                   invisible={values.tag.length === 0}
                   classes={{
                     root: classes.badge,
@@ -257,8 +258,8 @@ export const AdvertModal = ({
                         root: classes.field
                       },
                       onChange: e => {
-                        if (e.target.value.length < 10) {
-                          setInputWidth(80 + e.target.value.length * 15)
+                        if (getBytesSize(e.target.value) < 10) {
+                          setInputWidth(80 + getBytesSize(e.target.value) * 15)
                           setFieldValue('tag', e.target.value)
                         }
                       },

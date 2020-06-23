@@ -115,7 +115,7 @@ exports[`SendMoneyModal renders component step 1 1`] = `
           "_conditions": Array [],
           "_deps": Array [],
           "_exclusive": Object {
-            "max": true,
+            "testSize": false,
           },
           "_mutate": undefined,
           "_options": Object {
@@ -318,7 +318,7 @@ exports[`SendMoneyModal renders component step 2 1`] = `
           "_conditions": Array [],
           "_deps": Array [],
           "_exclusive": Object {
-            "max": true,
+            "testSize": false,
           },
           "_mutate": undefined,
           "_options": Object {
@@ -521,7 +521,7 @@ exports[`SendMoneyModal renders component step 3 1`] = `
           "_conditions": Array [],
           "_deps": Array [],
           "_exclusive": Object {
-            "max": true,
+            "testSize": false,
           },
           "_mutate": undefined,
           "_options": Object {
@@ -724,7 +724,7 @@ exports[`SendMoneyModal renders component step 4 1`] = `
           "_conditions": Array [],
           "_deps": Array [],
           "_exclusive": Object {
-            "max": true,
+            "testSize": false,
           },
           "_mutate": undefined,
           "_options": Object {

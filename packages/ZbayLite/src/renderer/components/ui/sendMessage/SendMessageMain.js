@@ -11,6 +11,7 @@ import BigNumber from 'bignumber.js'
 import { MESSAGE_SIZE } from '../../../zbay/transit'
 import { networkFee } from '../../../../shared/static'
 import SendMessageInitial from './SendMessageInitial'
+import { getBytesSize } from '../../../../shared/helpers'
 
 import Modal from '../Modal'
 
@@ -35,7 +36,9 @@ export const formSchema = users => {
           }
         )
         .required('Required'),
-      memo: Yup.string().max(MESSAGE_SIZE, 'Your message is too long')
+      memo: Yup.string().test('testSize', 'Your message is too long', function (value) {
+        return getBytesSize(value) <= MESSAGE_SIZE
+      })
     },
     ['recipient']
   )

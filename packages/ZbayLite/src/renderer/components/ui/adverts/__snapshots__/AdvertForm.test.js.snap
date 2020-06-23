@@ -84,7 +84,7 @@ exports[`AdvertForm renders component AdvertForm 1`] = `
           "_conditions": Array [],
           "_deps": Array [],
           "_exclusive": Object {
-            "max": true,
+            "testSize": false,
           },
           "_mutate": undefined,
           "_options": Object {
@@ -140,9 +140,9 @@ exports[`AdvertForm renders component AdvertForm 1`] = `
           "_conditions": Array [],
           "_deps": Array [],
           "_exclusive": Object {
-            "max": true,
             "min": true,
             "required": true,
+            "testSize": false,
           },
           "_mutate": undefined,
           "_options": Object {
@@ -172,8 +172,8 @@ exports[`AdvertForm renders component AdvertForm 1`] = `
           "_conditions": Array [],
           "_deps": Array [],
           "_exclusive": Object {
-            "max": true,
             "required": true,
+            "testSize": false,
           },
           "_mutate": undefined,
           "_options": Object {

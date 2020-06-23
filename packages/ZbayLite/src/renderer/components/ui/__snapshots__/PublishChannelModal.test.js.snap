@@ -2,7 +2,7 @@
 
 exports[`PubliPublishChannelModal renders component 1`] = `
 <Formik
-  enableReinitialize={false}
+  enableReinitialize={true}
   initialValues={
     Object {
       "description": "",

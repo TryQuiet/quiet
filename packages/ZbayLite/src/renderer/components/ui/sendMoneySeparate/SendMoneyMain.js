@@ -13,6 +13,7 @@ import SendMoneyInitial from './SendMoneyInitial'
 import { networkFee } from '../../../../shared/static'
 import { MESSAGE_SIZE } from '../../../zbay/transit'
 import { createTransfer } from '../../../zbay/messages'
+import { getBytesSize } from '../../../../shared/helpers'
 
 const styles = theme => ({})
 
@@ -39,7 +40,11 @@ export const formSchema = users => {
         .min(0.0, 'Please insert amount to send')
         .required('Required'),
       amountUsd: Yup.number().required('Required'),
-      memo: Yup.string().max(MESSAGE_SIZE, 'Your message is too long')
+      memo: Yup.string().test('testSize', 'Your message is too long', function (
+        value
+      ) {
+        return getBytesSize(value) <= MESSAGE_SIZE
+      })
     },
     ['recipient', 'amountZec', 'amoundUsd', 'memo']
   )
@@ -50,10 +55,7 @@ export const validateForm = ({ balanceZec, shippingData }) => values => {
   if (balanceZec.isLessThan(values.amountZec)) {
     errors['amountZec'] = `You can't send more than ${balanceZec} ZEC`
   }
-  if (
-    values.shippingInfo === true &&
-    values.memo.length > MESSAGE_SIZE
-  ) {
+  if (values.shippingInfo === true && getBytesSize(values.memo) > MESSAGE_SIZE) {
     errors['memo'] = `Your message and shipping information are too long`
   }
   return errors
@@ -104,7 +106,9 @@ export const SendMoneyMain = ({
         } else {
           const transferData = {
             amount: values.amountZec,
-            destination: includesNickname ? includesNickname.get('address') : values.recipient,
+            destination: includesNickname
+              ? includesNickname.get('address')
+              : values.recipient,
             memo: values.recipient.length !== 35 ? values.memo : null
           }
           sendPlainTransfer(transferData)
@@ -127,10 +131,7 @@ export const SendMoneyMain = ({
         setFieldValue
       }) => {
         return (
-          <Modal
-            open={open}
-            handleClose={handleClose}
-          >
+          <Modal open={open} handleClose={handleClose}>
             <AutoSizer>
               {({ width, height }) => (
                 <Scrollbars

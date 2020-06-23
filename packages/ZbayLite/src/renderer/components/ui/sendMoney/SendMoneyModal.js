@@ -15,6 +15,7 @@ import SendMoneySending from './SendMoneySending'
 import { createTransfer } from '../../../zbay/messages'
 import { MESSAGE_SIZE } from '../../../zbay/transit'
 import { networkFee } from '../../../../shared/static'
+import { getBytesSize } from '../../../../shared/helpers'
 
 const styles = theme => ({})
 
@@ -41,7 +42,11 @@ export const formSchema = users => {
         .min(0.0, 'Please insert amount to send')
         .required('Required'),
       amountUsd: Yup.number().required('Required'),
-      memo: Yup.string().max(MESSAGE_SIZE, 'Your message is too long'),
+      memo: Yup.string().test('testSize', 'Your message is too long', function (
+        value
+      ) {
+        return getBytesSize(value) <= MESSAGE_SIZE
+      }),
       shippingInfo: Yup.bool().required('Required')
     },
     ['recipient', 'amountZec', 'amoundUsd', 'memo']

@@ -113,7 +113,7 @@ exports[`SendMoneyForm renders component 1`] = `
           "_conditions": Array [],
           "_deps": Array [],
           "_exclusive": Object {
-            "max": true,
+            "testSize": false,
           },
           "_mutate": undefined,
           "_options": Object {

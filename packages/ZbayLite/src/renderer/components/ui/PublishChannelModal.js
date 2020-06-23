@@ -19,6 +19,7 @@ import {
   PUBLISH_CHANNEL_NAME_SIZE
 } from '../../zbay/transit'
 import LoadingButton from './LoadingButton'
+import { getBytesSize } from '../../../shared/helpers'
 
 const currentNetwork = parseInt(process.env.ZBAY_IS_TESTNET) ? 2 : 1
 // import { networkFee } from '../../../../shared/static'
@@ -111,9 +112,9 @@ export const formSchema = publicChannels =>
           excludeEmptyString: true
         })
         .validateName(publicChannels)
-        .max(PUBLISH_CHANNEL_NAME_SIZE, 'Channel name is too long')
+        .validateSize(PUBLISH_CHANNEL_NAME_SIZE, 'Channel name is too long')
         .required('Must include a channel name'),
-      description: Yup.string().max(
+      description: Yup.string().validateSize(
         CHANNEL_DESCRIPTION_SIZE(currentNetwork),
         'Description name is too long'
       )
@@ -139,6 +140,11 @@ Yup.addMethod(Yup.mixed, 'validateName', function (publicChannels) {
     }
   )
 })
+Yup.addMethod(Yup.mixed, 'validateSize', function (maxSize, errorMessage) {
+  return this.test('testSize', errorMessage, function (value) {
+    return getBytesSize(value) <= maxSize
+  })
+})
 const parseChannelName = (name = '') => {
   return name.toLowerCase().replace(/  +/g, '-')
 }
@@ -153,17 +159,16 @@ export const PublishChannelModal = ({
   channel,
   publishChannel
 }) => {
-  // console.log(channel.toJS())
   const formikRef = React.useRef()
   React.useEffect(() => {
     formikRef.current.runValidations()
     formikRef.current.getFormikActions().setFieldTouched('name', true)
-  }, [channel.get('address')])
+  }, [channel.get('id')])
 
   const [sending, setSending] = React.useState(false)
   return (
     <Formik
-      // enableReinitialize
+      enableReinitialize
       ref={formikRef}
       onSubmit={async (values, { resetForm }) => {
         setSending(true)
@@ -247,7 +252,7 @@ export const PublishChannelModal = ({
                       </Typography>
                       <span className={classes.counter}>
                         {CHANNEL_DESCRIPTION_SIZE(currentNetwork) -
-                          values.description.length}
+                          getBytesSize(values.description)}
                       </span>
                       <TextField
                         multiline

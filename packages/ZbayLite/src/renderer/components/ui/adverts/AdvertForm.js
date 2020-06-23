@@ -7,31 +7,52 @@ import { withStyles } from '@material-ui/core/styles'
 
 import { MESSAGE_SIZE, TAG_SIZE, TITLE_SIZE } from '../../../zbay/transit'
 import AdvertModal from './AdvertModal'
+import { getBytesSize } from '../../../../shared/helpers'
 
 const styles = theme => ({})
 
 export const formSchema = Yup.object().shape(
   {
     title: Yup.string()
-      .max(TITLE_SIZE)
+      .test('testSize', 'Title is too long', function (value) {
+        return getBytesSize(value) <= TITLE_SIZE
+      })
       .required('Include a title'),
     zec: Yup.number().required('You must enter an amount'),
     usd: Yup.number()
       .max(9999)
       .required('You must enter an amount'),
-    description: Yup.string()
-      .max(MESSAGE_SIZE, 'Your message is too long'),
+    description: Yup.string().test(
+      'testSize',
+      'Your message is too long',
+      function (value) {
+        return getBytesSize(value) <= MESSAGE_SIZE
+      }
+    ),
     shippingInfo: Yup.bool().required('Required'),
     background: Yup.string(),
     tag: Yup.string()
-      .max(TAG_SIZE)
+      .test('testSize', 'Tag is too long', function (value) {
+        return getBytesSize(value) <= TAG_SIZE
+      })
       .min(1)
       .required('Include a tag')
   },
   ['title', 'zec', 'usd', 'description', 'shippingInfo', 'tag']
 )
-
-export const AdvertForm = ({ classes, initialValues, handleSend, handleClose, ...props }) => {
+// TODO use addMethod instead of .test Yup seems to not add newMethod
+// Yup.addMethod(Yup.mixed, 'validateSize', function (maxSize, errorMessage) {
+//   return this.test('testSize', errorMessage, function (value) {
+//     return getBytesSize(value) <= maxSize
+//   })
+// })
+export const AdvertForm = ({
+  classes,
+  initialValues,
+  handleSend,
+  handleClose,
+  ...props
+}) => {
   const [sending, setSending] = React.useState(false)
   return (
     <Formik
@@ -48,7 +69,15 @@ export const AdvertForm = ({ classes, initialValues, handleSend, handleClose, ..
         setSending(false)
       }}
     >
-      {({ values, isValid, submitForm, resetForm, setFieldValue, errors, touched }) => {
+      {({
+        values,
+        isValid,
+        submitForm,
+        resetForm,
+        setFieldValue,
+        errors,
+        touched
+      }) => {
         return (
           <AdvertModal
             {...props}
@@ -94,7 +123,4 @@ AdvertForm.defaultProps = {
   }
 }
 
-export default R.compose(
-  React.memo,
-  withStyles(styles)
-)(AdvertForm)
+export default R.compose(React.memo, withStyles(styles))(AdvertForm)
