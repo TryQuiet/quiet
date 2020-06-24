@@ -30,7 +30,7 @@ const ListingMessage = ({ message, rateUsd, ...props }) => {
     priceZcash: rateUsd
       .div(rateUsd.times(rateUsd))
       .times(message.message.amount)
-      .toFixed(2)
+      .toFixed(4)
       .toString(),
     offerOwner: message.sender.username,
     id: message.id,
