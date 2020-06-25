@@ -238,7 +238,7 @@ if (!gotTheLock) {
       if (mainWindow.isMinimized()) mainWindow.restore()
       mainWindow.focus()
     }
-    const url = new URL(commandLine[1])
+    const url = new URL(commandLine[process.platform === 'win32' ? 3 : 1])
     if (url.searchParams.has('invitation')) {
       mainWindow.webContents.send('newInvitation', {
         invitation: url.searchParams.get('invitation')
