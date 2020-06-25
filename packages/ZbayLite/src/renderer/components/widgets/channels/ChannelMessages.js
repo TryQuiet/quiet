@@ -114,10 +114,9 @@ export const ChannelMessages = ({
         {isOwner && !showLoader && (
           <WelcomeMessage message={welcomeMessages['main']} />
         )}
-        {isOffer &&
-          !showLoader(
-            <WelcomeMessage message={welcomeMessages['offer'](tag, username)} />
-          )}
+        {isOffer && !showLoader && (
+          <WelcomeMessage message={welcomeMessages['offer'](tag, username)} />
+        )}
         {showLoader && <LoadingMessage />}
         {Array.from(groupedMessages).map(args => {
           const today = DateTime.utc()
