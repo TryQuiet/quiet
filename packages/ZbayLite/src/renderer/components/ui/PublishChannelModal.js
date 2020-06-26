@@ -99,6 +99,9 @@ const styles = theme => ({
     width: 24,
     height: 28,
     marginRight: 8
+  },
+  warrningMessage: {
+    wordBreak: 'break-word'
   }
 })
 
@@ -106,11 +109,13 @@ export const formSchema = publicChannels =>
   Yup.object().shape(
     {
       name: Yup.string()
-        .matches(/^[a-z0-9 \--_]+$/, {
-          message:
-            'Channel name cannot have any spaces or special characters, must be lowercase letters and numbers only',
-          excludeEmptyString: true
-        })
+        .test(
+          'testFormat',
+          'Channel name can contain only small characters and up to one hyphen.',
+          function (value) {
+            return parseChannelName(value).match(/^[a-z0-9]+(-[a-z0-9]+)?$/)
+          }
+        )
         .validateName(publicChannels)
         .validateSize(PUBLISH_CHANNEL_NAME_SIZE, 'Channel name is too long')
         .required('Must include a channel name'),
@@ -146,7 +151,7 @@ Yup.addMethod(Yup.mixed, 'validateSize', function (maxSize, errorMessage) {
   })
 })
 const parseChannelName = (name = '') => {
-  return name.toLowerCase().replace(/  +/g, '-')
+  return name.toLowerCase().replace(/ +/g, '-')
 }
 export const PublishChannelModal = ({
   classes,
@@ -235,7 +240,10 @@ export const PublishChannelModal = ({
                             <WarningIcon className={classes.warrningIcon} />
                           </Grid>
                           <Grid item xs className=''>
-                            <Typography variant='body2'>
+                            <Typography
+                              variant='body2'
+                              className={classes.warrningMessage}
+                            >
                               Your channel will be created as{' '}
                               {parseChannelName(values.name)}
                             </Typography>

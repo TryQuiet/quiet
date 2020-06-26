@@ -42,13 +42,21 @@ const styles = theme => ({
     width: 24,
     height: 28,
     marginRight: 8
+  },
+  warrningMessage: {
+    wordBreak: 'break-word'
   }
 })
 const parseChannelName = (name = '') => {
-  return name.toLowerCase().replace(/  +/g, '-')
+  return name.toLowerCase().replace(/ +/g, '-')
 }
 export const formSchema = Yup.object().shape({
-  name: Yup.string().required('Your channel must have a name.')
+  name: Yup.string()
+    .max(20, 'Channel name is too long.')
+    .test('testFormat', 'Channel name can contain only small characters and up to one hyphen.', function (value) {
+      return parseChannelName(value).match(/^[a-z0-9]+(-[a-z0-9]+)?$/)
+    })
+    .required('Your channel must have a name.')
 })
 export const CreateChannelForm = ({ classes, onSubmit, setStep }) => (
   <Formik
@@ -62,7 +70,7 @@ export const CreateChannelForm = ({ classes, onSubmit, setStep }) => (
     }}
     initialValues={{ name: '' }}
   >
-    {({ isSubmitting, values }) => (
+    {({ isSubmitting, values, isValid }) => (
       <Form className={classes.fullContainer}>
         <Grid
           container
@@ -82,7 +90,10 @@ export const CreateChannelForm = ({ classes, onSubmit, setStep }) => (
                   <WarningIcon className={classes.warrningIcon} />
                 </Grid>
                 <Grid item xs className=''>
-                  <Typography variant='body2'>
+                  <Typography
+                    variant='body2'
+                    className={classes.warrningMessage}
+                  >
                     Your channel will be created as{' '}
                     {parseChannelName(values.name)}
                   </Typography>
@@ -94,7 +105,7 @@ export const CreateChannelForm = ({ classes, onSubmit, setStep }) => (
             className={classes.button}
             variant='contained'
             color='primary'
-            disabled={isSubmitting || !values.name}
+            disabled={isSubmitting || !isValid}
             inProgress={isSubmitting}
             type='submit'
             text='Create Channel'
