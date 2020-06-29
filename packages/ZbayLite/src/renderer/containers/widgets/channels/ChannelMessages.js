@@ -28,6 +28,7 @@ export const mapStateToProps = (state, { signerPubKey }) => {
     messages: channelSelectors.messages(signerPubKey)(state),
     channelId: channelSelectors.channelId(state),
     users: userSelector.users(state),
+    loader: channelSelectors.loader(state),
     publicChannels: publicChannelsSelector.publicChannels(state),
     network: nodeSelector.network(state),
     isInitialLoadFinished: appSelectors.isInitialLoadFinished(state)
@@ -52,7 +53,8 @@ export const ChannelMessages = ({
   network,
   publicChannels,
   onLinkedChannel,
-  isInitialLoadFinished
+  isInitialLoadFinished,
+  loader
 }) => {
   const [scrollPosition, setScrollPosition] = React.useState(-1)
   useEffect(() => {
@@ -92,7 +94,7 @@ export const ChannelMessages = ({
       users={users}
       onLinkedChannel={onLinkedChannel}
       publicChannels={publicChannels}
-      isInitialLoadFinished={isInitialLoadFinished}
+      isInitialLoadFinished={loader.loading ? false : isInitialLoadFinished}
     />
   )
 }

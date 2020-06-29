@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`SendMessagePopover renders popover 1`] = `
+exports[`SendMessagePopover renders status broadcasted 1`] = `
 <Memo(WithStyles(Modal))
   alignCloseLeft={true}
   classes={
@@ -162,6 +162,152 @@ exports[`SendMessagePopover renders popover 1`] = `
           >
             Buy
           </WithStyles(ForwardRef(Button))>
+        </WithStyles(ForwardRef(Grid))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+</Memo(WithStyles(Modal))>
+`;
+
+exports[`SendMessagePopover renders status pending 1`] = `
+<Memo(WithStyles(Modal))
+  alignCloseLeft={true}
+  classes={
+    Object {
+      "window": "window-mock",
+    }
+  }
+  fullPage={true}
+  handleClose={[MockFunction]}
+  isBold={true}
+  open={true}
+  title="#dirtyBike @roks33"
+>
+  <WithStyles(ForwardRef(Grid))
+    container={true}
+    direction="column"
+  >
+    <WithStyles(ForwardRef(Grid))
+      alignItems="center"
+      className="user-mock"
+      container={true}
+      direction="row"
+      item={true}
+      justify="space-between"
+    >
+      <WithStyles(ForwardRef(Grid))
+        alignItems="center"
+        container={true}
+        direction="row"
+        item={true}
+        xs={true}
+      >
+        <WithStyles(ForwardRef(Grid))
+          className="alignAvatar-mock"
+          item={true}
+        >
+          <Jdenticon
+            size="50"
+            value="roks33"
+          />
+        </WithStyles(ForwardRef(Grid))>
+        <WithStyles(ForwardRef(Grid))
+          className="userInfoDiv-mock"
+          item={true}
+        >
+          <WithStyles(ForwardRef(Grid))
+            container={true}
+            direction="column"
+          >
+            <WithStyles(ForwardRef(Grid))
+              item={true}
+            >
+              <WithStyles(ForwardRef(Typography))
+                className="username-mock"
+                variant="h4"
+              >
+                roks33
+              </WithStyles(ForwardRef(Typography))>
+            </WithStyles(ForwardRef(Grid))>
+            <WithStyles(ForwardRef(Grid))
+              item={true}
+            >
+              <WithStyles(ForwardRef(Typography))
+                className="userInfo-mock"
+                variant="caption"
+              >
+                Seller
+              </WithStyles(ForwardRef(Typography))>
+            </WithStyles(ForwardRef(Grid))>
+          </WithStyles(ForwardRef(Grid))>
+        </WithStyles(ForwardRef(Grid))>
+      </WithStyles(ForwardRef(Grid))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      item={true}
+      xs={true}
+    >
+      <AutoSizer
+        disableHeight={false}
+        disableWidth={false}
+        onResize={[Function]}
+        style={Object {}}
+      >
+        <Component />
+      </AutoSizer>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      className="bottomInfo-mock"
+      item={true}
+    >
+      <WithStyles(ForwardRef(Grid))
+        alignItems="center"
+        container={true}
+        justify="space-between"
+      >
+        <WithStyles(ForwardRef(Grid))
+          item={true}
+          xs={true}
+        >
+          <WithStyles(ForwardRef(Typography))
+            className="bottomHashtag-mock"
+            variant="body1"
+          >
+            #
+            dirtyBike
+          </WithStyles(ForwardRef(Typography))>
+          <WithStyles(ForwardRef(Grid))
+            className="priceContainer-mock"
+            container={true}
+            direction="row"
+            item={true}
+            justify="flex-start"
+            wrap="nowrap"
+          >
+            <WithStyles(ForwardRef(Grid))
+              item={true}
+            >
+              <WithStyles(ForwardRef(Typography))
+                className="priceUsd-mock"
+                variant="caption"
+              >
+                $
+                300
+              </WithStyles(ForwardRef(Typography))>
+            </WithStyles(ForwardRef(Grid))>
+            <WithStyles(ForwardRef(Grid))
+              item={true}
+            >
+              <WithStyles(ForwardRef(Typography))
+                className="priceZcash-mock"
+                variant="caption"
+              >
+                (
+                4000 ZEC
+                )
+              </WithStyles(ForwardRef(Typography))>
+            </WithStyles(ForwardRef(Grid))>
+          </WithStyles(ForwardRef(Grid))>
         </WithStyles(ForwardRef(Grid))>
       </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>

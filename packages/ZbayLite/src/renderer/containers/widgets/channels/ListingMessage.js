@@ -35,7 +35,8 @@ const ListingMessage = ({ message, rateUsd, ...props }) => {
     offerOwner: message.sender.username,
     id: message.id,
     address: message.sender.replyTo,
-    createdAt: message.createdAt
+    createdAt: message.createdAt,
+    status: message.status
   }
   return (
     <ListingMessageComponent payload={payload} message={message} {...props} />

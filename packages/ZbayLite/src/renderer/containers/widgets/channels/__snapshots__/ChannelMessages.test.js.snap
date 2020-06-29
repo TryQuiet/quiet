@@ -7,6 +7,10 @@ Object {
   },
   "channelId": "this-is-test-channel-id",
   "isInitialLoadFinished": false,
+  "loader": Immutable.Record {
+    "loading": false,
+    "message": "",
+  },
   "messages": Immutable.List [
     Immutable.DisplayableMessage {
       "id": 3,

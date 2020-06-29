@@ -108,9 +108,24 @@ const linkChannelRedirect = targetChannel => async (dispatch, getState) => {
     return
   }
   try {
+    await getVault().channels.importChannel(identityId, targetChannel)
+    await dispatch(channelsHandlers.actions.loadChannels(identityId))
+    channels = channelsSelectors.channels(getState())
+    channel = channels.data.find(
+      channel => channel.get('address') === targetChannel.address
+    )
+    await dispatch(setLoading(true))
+    dispatch(
+      notificationsHandlers.actions.enqueueSnackbar({
+        message: `Successfully imported channel ${targetChannel.name}`,
+        options: {
+          variant: 'success'
+        }
+      })
+    )
+    history.push(`/main/channel/${channel.get('id')}`)
     try {
-      await getVault().channels.importChannel(identityId, targetChannel)
-      getClient().keys.importIVK({
+      await getClient().keys.importIVK({
         ivk: targetChannel.keys.ivk,
         rescan: 'yes',
         startHeight: fetchTreshold
@@ -122,23 +137,12 @@ const linkChannelRedirect = targetChannel => async (dispatch, getState) => {
         payload: `Importing channel ${targetChannel}`
       })
     )
-    await dispatch(channelsHandlers.actions.loadChannels(identityId))
-    channels = channelsSelectors.channels(getState())
-    channel = channels.data.find(
-      channel => channel.get('address') === targetChannel.address
-    )
+
     await dispatch(messagesHandlers.epics.fetchMessages(channel))
-    dispatch(
-      notificationsHandlers.actions.enqueueSnackbar({
-        message: `Successfully imported channel ${targetChannel.name}`,
-        options: {
-          variant: 'success'
-        }
-      })
-    )
-    history.push(`/main/channel/${channel.get('id')}`)
+    dispatch(setLoading(false))
   } catch (err) {
     console.log(err)
+    dispatch(setLoading(false))
   }
 }
 const sendOnEnter = (event, resetTab) => async (dispatch, getState) => {
@@ -152,10 +156,8 @@ const sendOnEnter = (event, resetTab) => async (dispatch, getState) => {
   const messageQueueLock = appSelectors.messageQueueLock(getState())
   let locked = false
   const msgQueue = messagesQueue.queue(getState())
-  const currentMessage = msgQueue
-    .find(dm => dm.get('channelId') === channel.id)
-  const msgKey = msgQueue
-    .findKey(dm => dm.get('channelId') === channel.id)
+  const currentMessage = msgQueue.find(dm => dm.get('channelId') === channel.id)
+  const msgKey = msgQueue.findKey(dm => dm.get('channelId') === channel.id)
   if (enterPressed && !shiftPressed) {
     if (!messageQueueLock) {
       await dispatch(appHandlers.actions.lockMessageQueue())

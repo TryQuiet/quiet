@@ -72,16 +72,25 @@ ipcRenderer.on('successMessage', (event, msg) => {
 })
 
 ipcRenderer.on('newInvitation', (event, { invitation }) => {
-  if (nodeSelectors.status(store.getState()) === 'healthy') {
-    store.dispatch(invitationHandlers.epics.handleInvitation(invitation))
-  } else {
+  const handleInvitation = (params) => {
+    if (nodeSelectors.status(store.getState()) === 'healthy') {
+      store.dispatch(invitationHandlers.epics.handleInvitation(params))
+    } else {
+      setTimeout(() => {
+        handleInvitation(params)
+      }, 60000)
+    }
+  }
+  handleInvitation(invitation)
+  if (nodeSelectors.status(store.getState()) !== 'healthy') {
     store.dispatch(
       notificationsHandlers.actions.enqueueSnackbar(
-        errorNotification({ message: `Please wait for full node sync before opening invitation` })
+        successNotification({ message: `Please wait your invitation will be processed soon` })
       )
     )
   }
 })
+
 ipcRenderer.on('toggleCoordinator', () => {
   if (coordinatorSelectors.running(store.getState()) === true) {
     store.dispatch(coordinatorHandlers.actions.stopCoordinator())
@@ -113,16 +122,24 @@ ipcRenderer.on('checkNodeStatus', (event, { status }) => {
 })
 
 ipcRenderer.on('newChannel', (event, { channelParams }) => {
-  if (nodeSelectors.status(store.getState()) === 'healthy') {
-    store.dispatch(
-      importChannelHandlers.epics.decodeChannel(
-        `${channelParams}`
+  const handleImport = (params) => {
+    if (nodeSelectors.status(store.getState()) === 'healthy') {
+      store.dispatch(
+        importChannelHandlers.epics.decodeChannel(
+          `${params}`
+        )
       )
-    )
-  } else {
+    } else {
+      setTimeout(() => {
+        handleImport(params)
+      }, 60000)
+    }
+  }
+  handleImport(channelParams)
+  if (nodeSelectors.status(store.getState()) !== 'healthy') {
     store.dispatch(
       notificationsHandlers.actions.enqueueSnackbar(
-        errorNotification({ message: `Please wait for full node sync before importing channel` })
+        successNotification({ message: `Please wait your channel will be imported soon` })
       )
     )
   }

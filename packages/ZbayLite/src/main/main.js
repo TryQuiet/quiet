@@ -268,6 +268,24 @@ app.on('open-url', (event, url) => {
   }
 })
 
+const checkForPayloadOnStartup = (payload) => {
+  const isInvitation = payload.includes('invitation')
+  const isNewChannel = payload.includes('importchannel')
+  if (mainWindow && (isInvitation || isNewChannel)) {
+    const data = new URL(payload)
+    if (data.searchParams.has('invitation')) {
+      mainWindow.webContents.send('newInvitation', {
+        invitation: data.searchParams.get('invitation')
+      })
+    }
+    if (data.searchParams.has('importchannel')) {
+      mainWindow.webContents.send('newChannel', {
+        channelParams: data.searchParams.get('importchannel')
+      })
+    }
+  }
+}
+
 let browserWidth
 let browserHeight
 const createWindow = () => {
@@ -679,6 +697,13 @@ app.on('ready', async () => {
         }
       })
     })
+
+    if (process.platform === 'win32' && process.argv) {
+      const payload = process.argv[1]
+      if (payload) {
+        checkForPayloadOnStartup(payload)
+      }
+    }
 
     if (!isDev) {
       checkForUpdate(mainWindow)

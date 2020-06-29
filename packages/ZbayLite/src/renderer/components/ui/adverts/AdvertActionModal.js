@@ -197,18 +197,20 @@ export const AdvertActionModal = ({
               </Grid>
             </Grid>
           </Grid>
-          <Grid item>
-            <Button
-              variant='outlined'
-              className={classes.buttonMessage}
-              onClick={() => {
-                handleMessage({ payload, history })
-                handleClose()
-              }}
-            >
-              Message
-            </Button>
-          </Grid>
+          {payload.status === 'broadcasted' && (
+            <Grid item>
+              <Button
+                variant='outlined'
+                className={classes.buttonMessage}
+                onClick={() => {
+                  handleMessage({ payload, history })
+                  handleClose()
+                }}
+              >
+                Message
+              </Button>
+            </Grid>
+          )}
         </Grid>
         <Grid item xs>
           <AutoSizer>
@@ -312,17 +314,19 @@ export const AdvertActionModal = ({
                 </Grid>
               </Grid>
             </Grid>
-            <Grid item className={classes.buyButtonDiv}>
-              <Button
-                variant='text'
-                className={classes.buyButton}
-                onClick={() =>
-                  sendFounds(handleClose, onSendFoundsAction, payload)
-                }
-              >
-                Buy
-              </Button>
-            </Grid>
+            {payload.status === 'broadcasted' && (
+              <Grid item className={classes.buyButtonDiv}>
+                <Button
+                  variant='text'
+                  className={classes.buyButton}
+                  onClick={() =>
+                    sendFounds(handleClose, onSendFoundsAction, payload)
+                  }
+                >
+                  Buy
+                </Button>
+              </Grid>
+            )}
           </Grid>
         </Grid>
       </Grid>
@@ -342,6 +346,7 @@ AdvertActionModal.propTypes = {
     title: PropTypes.string.isRequired,
     background: PropTypes.string.isRequired,
     id: PropTypes.string.isRequired,
+    status: PropTypes.string.isRequired,
     createdAt: PropTypes.number.isRequired
   }),
   handleMessage: PropTypes.func.isRequired,
@@ -358,7 +363,8 @@ AdvertActionModal.defaultProps = {
     title: '',
     background: '1',
     id: '',
-    createdAt: 0
+    createdAt: 0,
+    status: 'pending'
   }
 }
 
