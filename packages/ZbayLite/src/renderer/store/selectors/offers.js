@@ -100,7 +100,11 @@ const offerMessages = (id, signerPubKey) =>
           offerOwner: queuedMessage.getIn(['message', 'message', 'offerOwner']),
           messageKey,
           identityAddress,
-          identityName
+          identityName,
+          receiver: {
+            replyTo: queuedMessage.recipientAddress,
+            username: queuedMessage.recipientUsername
+          }
         })
       })
       const vaultMessages = a.get(id).messages
