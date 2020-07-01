@@ -107,7 +107,7 @@ const ContentWithRedirect = ({ classes }) => (
       Our tour has concluded! Now, we just have to wait for some blockchain files to download. Perhaps leave your computer and go have a sandwich.
       </Typography>
       <Typography className={classes.sentence} variant={'body2'}>
-    If you'd like to learn more about the values and vision behind the Zbay project, there's <span onClick={() => shell.openExternal('https://www.zbay.app/#why')} className={classes.linkBlue}>a great (and long) essay on our site.</span>
+    If you'd like to learn more about the values and vision behind the Zbay project, there's <span onClick={() => shell.openExternal('https://www.zbay.app/why.html')} className={classes.linkBlue}>a great (and long) essay on our site.</span>
       </Typography>
       <Typography className={classes.sentence} variant={'body2'}>
     Or you can learn more about <span onClick={() => shell.openExternal('https://zcash.readthedocs.io/en/latest/')} className={classes.linkBlue}>Zcash,</span> the technology that Zbay builds on.

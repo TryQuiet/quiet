@@ -97,7 +97,7 @@ export const NodePanelDetails = ({ classes, expanded, showLogsPanel }) => {
                   className={classes.iconButton}
                   onClick={e => {
                     e.stopPropagation()
-                    shell.openExternal('https://www.zbay.app/#node-info')
+                    shell.openExternal('https://www.zbay.app/faq.html#node-info')
                   }}
                   onMouseOver={() => {
                     setHover(true)

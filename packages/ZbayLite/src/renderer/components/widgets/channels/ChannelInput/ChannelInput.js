@@ -461,7 +461,7 @@ export const ChannelInput = ({
               {`Your message is over the size limit. `}
               <span
                 onClick={() =>
-                  shell.openExternal('https://www.zbay.app/#message-size-info')
+                  shell.openExternal('https://www.zbay.app/faq.html#message-size-info')
                 }
                 className={classes.linkBlue}
               >
