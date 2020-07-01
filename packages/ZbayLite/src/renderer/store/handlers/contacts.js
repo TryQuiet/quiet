@@ -75,7 +75,9 @@ const sendDirectMessageOnEnter = event => async (dispatch, getState) => {
     }
     let message
     if (currentMessage !== undefined && locked) {
-      await dispatch(directMessagesQueueHandlers.actions.removeMessage(currentMessageKey))
+      await dispatch(
+        directMessagesQueueHandlers.actions.removeMessage(currentMessageKey)
+      )
       message = zbayMessages.createMessage({
         messageData: {
           type: zbayMessages.messageType.BASIC,
@@ -96,11 +98,15 @@ const sendDirectMessageOnEnter = event => async (dispatch, getState) => {
     const isMessageTooLong = await dispatch(_checkMessageSize(message.message))
     if (!isMessageTooLong) {
       dispatch(
-        directMessagesQueueHandlers.epics.addDirectMessage({
-          message,
-          recipientAddress: channel.targetRecipientAddress,
-          recipientUsername: channel.targetRecipientUsername
-        })
+        directMessagesQueueHandlers.epics.addDirectMessage(
+          {
+            message,
+            recipientAddress: channel.targetRecipientAddress,
+            recipientUsername: channel.targetRecipientUsername
+          },
+          null,
+          false
+        )
       )
       dispatch(channelHandlers.actions.setMessage(''))
     }
