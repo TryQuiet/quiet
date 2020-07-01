@@ -12,6 +12,7 @@ export const LinkedTextField = ({ name, label, ...props }) => {
       label={label}
       variant='outlined'
       fullWidth
+      type='number'
       {...props}
     />
   )
