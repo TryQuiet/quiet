@@ -21,7 +21,7 @@ const handleSend = ({ values }) => async (dispatch, getState) => {
     background: values.background.toString(),
     title: values.title,
     provideShipping: values.shippingInfo ? '1' : '0',
-    amount: values.usd,
+    amount: values.usd.toString(),
     description: values.description
   }
   const identityAddress = identitySelectors.address(getState())
