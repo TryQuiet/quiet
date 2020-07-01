@@ -6,7 +6,6 @@ jest.mock('../../zcash')
 import Immutable from 'immutable'
 import * as R from 'ramda'
 import { DateTime } from 'luxon'
-import BigNumber from 'bignumber.js'
 
 import create from '../create'
 import advertHandlers from './adverts'
@@ -25,7 +24,8 @@ describe('Messages queue reducer handles', () => {
     provideShipping: 1,
     amount: 123.1,
     description: 'random description',
-    zec: new BigNumber('0.123')
+    zec: 0.123,
+    usd: 12
   }
 
   beforeEach(() => {
@@ -38,7 +38,8 @@ describe('Messages queue reducer handles', () => {
             address: 'test address',
             name: 'Saturn',
             balance: '33.583004',
-            signerPrivKey: '879aff43df53606d8ae1219d9347360e7a30d1c2f141e14c9bc96bb29bf930cb'
+            signerPrivKey:
+              '879aff43df53606d8ae1219d9347360e7a30d1c2f141e14c9bc96bb29bf930cb'
           })
         }),
         channel: ChannelState({
@@ -61,7 +62,9 @@ describe('Messages queue reducer handles', () => {
   })
   describe('epics', () => {
     it('sends sends advert', async () => {
-      const actionPromise = store.dispatch(advertHandlers.epics.handleSend({ values }))
+      const actionPromise = store.dispatch(
+        advertHandlers.epics.handleSend({ values })
+      )
 
       await actionPromise
       const result = zcashMock.requestManager.z_sendmany.mock.calls
