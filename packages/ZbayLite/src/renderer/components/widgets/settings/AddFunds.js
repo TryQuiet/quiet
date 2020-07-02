@@ -196,8 +196,8 @@ export const AddFunds = ({
             href='https://z.cash/'
           >
             Zcash
-          </a>{' '}
-          Cryptocurrencies let you send funds to unique addresses, like email
+          </a>
+          . Cryptocurrencies let you send funds to unique addresses, like email
           for money: send to the correct address, and the recipient will receive
           it.
         </Typography>

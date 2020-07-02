@@ -90,8 +90,7 @@ exports[`AddFunds renders component 1`] = `
       >
         Zcash
       </a>
-       
-      Cryptocurrencies let you send funds to unique addresses, like email for money: send to the correct address, and the recipient will receive it.
+      . Cryptocurrencies let you send funds to unique addresses, like email for money: send to the correct address, and the recipient will receive it.
     </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
