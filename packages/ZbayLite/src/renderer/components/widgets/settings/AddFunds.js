@@ -73,6 +73,7 @@ const styles = theme => ({
     borderRadius: 4,
     cursor: 'pointer',
     marginTop: 32,
+    marginBottom: 32,
     paddingTop: 16,
     paddingBottom: 16,
     '&:hover': {
@@ -185,7 +186,7 @@ export const AddFunds = ({
       </Grid>
       <Grid item className={classes.spacing24}>
         <Typography variant='body2'>
-          Zbay runs on{' '}
+          Zbay uses the privacy-focused cryptocurrency{' '}
           <a
             className={classes.link}
             onClick={e => {
@@ -196,9 +197,9 @@ export const AddFunds = ({
           >
             Zcash
           </a>{' '}
-          (a cryptocurrency). Cryptocurrency addresses are unique, like email
-          addressess or phone numbers, for money (send to the right address and
-          the recipient will get the money).
+          Cryptocurrencies let you send funds to unique addresses, like email
+          for money: send to the correct address, and the recipient will receive
+          it.
         </Typography>
       </Grid>
       <Grid item className={classes.spacing32}>
@@ -208,9 +209,10 @@ export const AddFunds = ({
       </Grid>
       <Grid item>
         <Typography variant='caption' className={classes.caption}>
-          Send Zcash to it, and Zbay will store the funds on your computer.{' '}
+          Deposits are moved to a private address & stored by Zbay, on your
+          computer.{' '}
           <span className={classes.link} onClick={generateNewAddress}>
-            Generate new address
+            New address
           </span>
         </Typography>
       </Grid>
@@ -288,23 +290,6 @@ export const AddFunds = ({
       </Grid>
       <Grid
         item
-        className={classes.infoDiv}
-        onClick={() => {
-          clearCurrentOpenTab()
-          setCurrentTab('buyZcash')
-        }}
-      >
-        <Grid container alignItems='center' justify='center'>
-          <Grid item className={classes.iconDiv}>
-            <Icon src={buyIcon} />
-          </Grid>
-          <Grid item>
-            <Typography variant='h4'>How do i buy Zcash? </Typography>
-          </Grid>
-        </Grid>
-      </Grid>
-      <Grid
-        item
         className={classes.privateDiv}
         onClick={() => {
           setExpanded(!expanded)
@@ -345,7 +330,7 @@ export const AddFunds = ({
                     e.preventDefault()
                   }}
                 >
-                  Generate new address
+                  New address
                 </span>
               </Typography>
             </Grid>
@@ -365,6 +350,23 @@ export const AddFunds = ({
             </Grid>
           </Grid>
         )}
+      </Grid>
+      <Grid
+        item
+        className={classes.infoDiv}
+        onClick={() => {
+          clearCurrentOpenTab()
+          setCurrentTab('buyZcash')
+        }}
+      >
+        <Grid container alignItems='center' justify='center'>
+          <Grid item className={classes.iconDiv}>
+            <Icon src={buyIcon} />
+          </Grid>
+          <Grid item>
+            <Typography variant='h4'>How do i buy Zcash? </Typography>
+          </Grid>
+        </Grid>
       </Grid>
     </>
   )

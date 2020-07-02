@@ -81,7 +81,7 @@ exports[`AddFunds renders component 1`] = `
     <WithStyles(ForwardRef(Typography))
       variant="body2"
     >
-      Zbay runs on
+      Zbay uses the privacy-focused cryptocurrency
        
       <a
         className="link-mock"
@@ -91,7 +91,7 @@ exports[`AddFunds renders component 1`] = `
         Zcash
       </a>
        
-      (a cryptocurrency). Cryptocurrency addresses are unique, like email addressess or phone numbers, for money (send to the right address and the recipient will get the money).
+      Cryptocurrencies let you send funds to unique addresses, like email for money: send to the correct address, and the recipient will receive it.
     </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
@@ -112,12 +112,12 @@ exports[`AddFunds renders component 1`] = `
       className="caption-mock"
       variant="caption"
     >
-      Send Zcash to it, and Zbay will store the funds on your computer.
+      Deposits are moved to a private address & stored by Zbay, on your computer.
        
       <span
         className="link-mock"
       >
-        Generate new address
+        New address
       </span>
     </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>
@@ -227,6 +227,31 @@ exports[`AddFunds renders component 1`] = `
     </CopyToClipboard>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
+    className="privateDiv-mock"
+    item={true}
+    onClick={[Function]}
+  >
+    <WithStyles(ForwardRef(Grid))
+      alignItems="center"
+      container={true}
+      justify="space-between"
+    >
+      <WithStyles(ForwardRef(Grid))
+        item={true}
+      >
+        <WithStyles(ForwardRef(Typography))
+          className="privateTitle-mock"
+          variant="body2"
+        >
+          Private address
+        </WithStyles(ForwardRef(Typography))>
+      </WithStyles(ForwardRef(Grid))>
+      <ExpandMoreIcon
+        className="icon-mock"
+      />
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
     className="infoDiv-mock"
     item={true}
     onClick={[Function]}
@@ -253,31 +278,6 @@ exports[`AddFunds renders component 1`] = `
           How do i buy Zcash? 
         </WithStyles(ForwardRef(Typography))>
       </WithStyles(ForwardRef(Grid))>
-    </WithStyles(ForwardRef(Grid))>
-  </WithStyles(ForwardRef(Grid))>
-  <WithStyles(ForwardRef(Grid))
-    className="privateDiv-mock"
-    item={true}
-    onClick={[Function]}
-  >
-    <WithStyles(ForwardRef(Grid))
-      alignItems="center"
-      container={true}
-      justify="space-between"
-    >
-      <WithStyles(ForwardRef(Grid))
-        item={true}
-      >
-        <WithStyles(ForwardRef(Typography))
-          className="privateTitle-mock"
-          variant="body2"
-        >
-          Private address
-        </WithStyles(ForwardRef(Typography))>
-      </WithStyles(ForwardRef(Grid))>
-      <ExpandMoreIcon
-        className="icon-mock"
-      />
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
 </Fragment>
