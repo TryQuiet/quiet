@@ -50,25 +50,22 @@ const loadChannels = createAction(
 )
 const loadChannelsToNode = createAction(
   actionTypes.LOAD_IDENTITY_CHANNELS,
-  async id => {
+  async (id, isNewUser) => {
     const channels = await getVault().channels.listChannels(id)
-    try {
-      await Promise.all(
-        channels.map(channel =>
-          getClient().keys.importIVK({
-            ivk: channel.keys.ivk
-          })
-        )
-      )
-    } catch (error) {}
-
-    await Promise.all(
-      channels
-        .filter(ch => ch.keys.sk)
-        .map(channel =>
-          getClient().keys.importSK({ sk: channel.keys.sk, rescan: 'no' })
-        )
-    )
+    for (const channel of channels) {
+      try {
+        await getClient().keys.importIVK({
+          ivk: channel.keys.ivk,
+          rescan: isNewUser ? 'no' : 'whenkeyisnew',
+          startHeight: 880000
+        })
+        if (channel.keys.sk) {
+          await getClient().keys.importSK({ sk: channel.keys.sk, rescan: 'no' })
+        }
+      } catch (error) {
+        console.warn(`Channel ${channel.name} already imported.`)
+      }
+    }
 
     return channels.map(channel => ({
       ...channel,

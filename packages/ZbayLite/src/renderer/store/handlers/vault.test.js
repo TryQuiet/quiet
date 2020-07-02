@@ -263,7 +263,7 @@ describe('vault reducer', () => {
 
       it('bootstraps general channel to new account', async () => {
         jest.spyOn(electronStore, 'get').mockImplementation(() => 'SUCCESS')
-        jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => now)
+        jest.spyOn(DateTime, 'utc').mockImplementation(() => now)
         await store.dispatch(epics.createVault(formValues, formActions))
 
         const channels = channelsSelectors.channels(store.getState())

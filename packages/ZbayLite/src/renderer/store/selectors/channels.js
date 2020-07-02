@@ -23,7 +23,22 @@ const channels = createSelector(
   }
 )
 
-const data = createSelector(channels, ch => ch.data)
+const data = createSelector(channels, nodeSelectors.network, (ch, network) => {
+  let channelsData = ch.data
+  if (channelsData.size) {
+    const storeId = channelsData.findIndex(
+      ch => ch.get('address') === zcashChannels.store[network].address
+    )
+    const storeChannel = channelsData.get(storeId)
+    channelsData = channelsData.delete(storeId).unshift(storeChannel)
+    const zbayId = channelsData.findIndex(
+      ch => ch.get('address') === zcashChannels.general[network].address
+    )
+    const zbayChannel = channelsData.get(zbayId)
+    channelsData = channelsData.delete(zbayId).unshift(zbayChannel)
+  }
+  return channelsData
+})
 const loader = createSelector(channels, ch => ch.loader)
 const errors = createSelector(channels, c => c.get('errors'))
 

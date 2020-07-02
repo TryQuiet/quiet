@@ -335,10 +335,12 @@ export const createIdentity = ({ name }) => async (dispatch, getState) => {
     const usersChannel = channels.registeredUsers[network]
     const channelOfChannels = channels.channelOfChannels[network]
     const priceOracle = channels.priceOracle[network]
+    const store = channels.store[network]
     await getVault().channels.importChannel(identity.id, priceOracle)
     await getVault().channels.importChannel(identity.id, generalChannel)
     await getVault().channels.importChannel(identity.id, usersChannel)
     await getVault().channels.importChannel(identity.id, channelOfChannels)
+    await getVault().channels.importChannel(identity.id, store)
     dispatch(
       logsHandlers.epics.saveLogs({
         type: 'APPLICATION_LOGS',
@@ -391,13 +393,16 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
     })
   )
   const isRescanned = electronStore.get('AppStatus.blockchain.isRescanned')
+  const isNewUser = electronStore.get('isNewUser')
   try {
     dispatch(setLoadingMessage('Ensuring identity integrity'))
     // Make sure identity is handled by the node
     await dispatch(setLoadingMessage('Ensuring node contains identity keys'))
     const network = nodeSelectors.network(getState())
     await migrateTo_0_7_0.ensureDefaultChannels(identity, network)
-    await dispatch(channelsHandlers.actions.loadChannelsToNode(identity.id))
+    await dispatch(
+      channelsHandlers.actions.loadChannelsToNode(identity.id, isNewUser)
+    )
     await getClient().keys.importTPK({ tpk: identity.keys.tpk, rescan: false })
     await getClient().keys.importSK({
       sk: identity.keys.sk,
@@ -446,7 +451,6 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
       )
     )
   } catch (err) {}
-  const isNewUser = electronStore.get('isNewUser')
   if (isNewUser === true) {
     dispatch(modalsHandlers.actionCreators.openModal('createUsernameModal')())
   }

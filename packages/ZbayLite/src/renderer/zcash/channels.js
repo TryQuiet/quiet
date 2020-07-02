@@ -25,6 +25,32 @@ export default {
       }
     }
   },
+  store: {
+    testnet: {
+      name: 'store',
+      private: true,
+      address:
+        'ztestsapling1dfjv308amnk40s89trkvz646ne69553us0g858mmpgsw540efgftn4tf25gts2cttg3jgk9y8lx',
+      description:
+        '"Try out our working demo of e-commerce on Zbay!',
+      keys: {
+        ivk:
+          'zivktestsapling1algnz2x84pqcnfdxrlntw73wpuqm3v568cepf5tuctyusm9javpqyjyzqy'
+      }
+    },
+    mainnet: {
+      name: 'store',
+      private: true,
+      address:
+        'zs1r58tmaur7sgg07tnz0dld2l0ag6ztkx26f70xl2pedhv4m6auw653pyjnhwrphq2jfmmvqghkkd',
+      description:
+        '"Try out our working demo of e-commerce on Zbay!',
+      keys: {
+        ivk:
+          'zxviews1qvn40c2up5qqpqz3mp92jv6vr433quuv7ar7sy3qcc02csydl8cll0vpma6kvxfufhx5wz3h0pfge8ynjjy9a4mtlvg8dggqr7kadyx74u0angw6mq3mvtjkeg3zrw9lkuecwvu3y7xq8nz8yzp0c53vjmea4k6rt9x6yntdvcl2mvzdtv85mlh06jlpdh6fp573q28hz3kr7vxv2703yqsz77jmus7w0fsre2x0x5zzwf725axlt2pdcczrsyld8h5754kvqeeftugs3y2hm'
+      }
+    }
+  },
   registeredUsers: {
     testnet: {
       name: 'RegisteredUsers',

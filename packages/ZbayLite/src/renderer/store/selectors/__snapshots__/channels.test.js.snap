@@ -76,19 +76,6 @@ Immutable.Record {
 exports[`Channels selectors - ownedChannels 1`] = `
 Immutable.List [
   Immutable.Map {
-    "id": 0,
-    "name": "Channel 0",
-    "private": false,
-    "address": "zs1testaddress0",
-    "unread": 12,
-    "description": "",
-    "advertFee": 0.15,
-    "keys": Immutable.Map {
-      "ivk": "incoming-viewing-key-0",
-      "sk": "test-secret-key",
-    },
-  },
-  Immutable.Map {
     "id": 1,
     "name": "Channel 1",
     "private": true,
@@ -111,6 +98,19 @@ Immutable.List [
     "advertFee": 0.15,
     "keys": Immutable.Map {
       "ivk": "incoming-viewing-key-2",
+      "sk": "test-secret-key",
+    },
+  },
+  Immutable.Map {
+    "id": 0,
+    "name": "Channel 0",
+    "private": false,
+    "address": "zs1testaddress0",
+    "unread": 12,
+    "description": "",
+    "advertFee": 0.15,
+    "keys": Immutable.Map {
+      "ivk": "incoming-viewing-key-0",
       "sk": "test-secret-key",
     },
   },

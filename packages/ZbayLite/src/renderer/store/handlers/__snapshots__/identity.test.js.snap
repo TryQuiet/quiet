@@ -452,6 +452,18 @@ Immutable.IdentityState {
 exports[`Identity reducer handles epics handles createIdentity bootstraps general for mainnet 1`] = `
 Array [
   Object {
+    "address": "zs1r58tmaur7sgg07tnz0dld2l0ag6ztkx26f70xl2pedhv4m6auw653pyjnhwrphq2jfmmvqghkkd",
+    "description": "\\"Try out our working demo of e-commerce on Zbay!",
+    "keys": Object {
+      "ivk": "zxviews1qvn40c2up5qqpqz3mp92jv6vr433quuv7ar7sy3qcc02csydl8cll0vpma6kvxfufhx5wz3h0pfge8ynjjy9a4mtlvg8dggqr7kadyx74u0angw6mq3mvtjkeg3zrw9lkuecwvu3y7xq8nz8yzp0c53vjmea4k6rt9x6yntdvcl2mvzdtv85mlh06jlpdh6fp573q28hz3kr7vxv2703yqsz77jmus7w0fsre2x0x5zzwf725axlt2pdcczrsyld8h5754kvqeeftugs3y2hm",
+    },
+    "lastSeen": "2019-03-07T13:03:48.000Z",
+    "name": "store",
+    "private": true,
+    "showInfoMsg": true,
+    "unread": 0,
+  },
+  Object {
     "address": "zs16tx82nyknwptwcgqdy082446mca0kvt7uk4yrusx66c53uull4nme0hwhx60rkygz2rg6trfqwx",
     "description": "Contains list of public channels",
     "keys": Object {
@@ -504,6 +516,18 @@ Array [
 
 exports[`Identity reducer handles epics handles createIdentity bootstraps general for testnet 1`] = `
 Array [
+  Object {
+    "address": "ztestsapling1dfjv308amnk40s89trkvz646ne69553us0g858mmpgsw540efgftn4tf25gts2cttg3jgk9y8lx",
+    "description": "\\"Try out our working demo of e-commerce on Zbay!",
+    "keys": Object {
+      "ivk": "zivktestsapling1algnz2x84pqcnfdxrlntw73wpuqm3v568cepf5tuctyusm9javpqyjyzqy",
+    },
+    "lastSeen": "2019-03-07T13:03:48.000Z",
+    "name": "store",
+    "private": true,
+    "showInfoMsg": true,
+    "unread": 0,
+  },
   Object {
     "address": "ztestsapling1rwqrk7uclurs5dqm70g4zf0rh9dmjf60qqtw2n68pa37ycs2zccglcymjg0nnmus70m3wkdyxx0",
     "description": "Contains list of public channels",
@@ -634,6 +658,20 @@ Immutable.List [
     "address": "zs1testaddress0",
     "showInfoMsg": true,
     "description": "",
+  },
+  Immutable.Map {
+    "private": true,
+    "name": "store",
+    "onlyRegistered": false,
+    "unread": 0,
+    "lastSeen": "2019-03-07T13:03:48.000Z",
+    "advertFee": 0,
+    "keys": Immutable.Map {
+      "ivk": "zivktestsapling1algnz2x84pqcnfdxrlntw73wpuqm3v568cepf5tuctyusm9javpqyjyzqy",
+    },
+    "address": "ztestsapling1dfjv308amnk40s89trkvz646ne69553us0g858mmpgsw540efgftn4tf25gts2cttg3jgk9y8lx",
+    "showInfoMsg": true,
+    "description": "\\"Try out our working demo of e-commerce on Zbay!",
   },
   Immutable.Map {
     "private": true,
