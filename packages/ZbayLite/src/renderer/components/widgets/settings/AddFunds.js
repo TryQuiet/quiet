@@ -320,8 +320,9 @@ export const AddFunds = ({
             <Grid item>
               <Typography variant='caption' className={classes.caption}>
                 You can't send directly to a private address from most
-                exchanges. Zbay will then move all funds to a private address as
-                soon as they arrive.{' '}
+                exchanges. If sending from an exchange, use the address above,
+                and Zbay will move all funds to a private address as soon as
+                they arrive.{' '}
                 <span
                   className={classes.link}
                   onClick={e => {
