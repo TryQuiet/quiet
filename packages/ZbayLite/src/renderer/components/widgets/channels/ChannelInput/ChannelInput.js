@@ -277,7 +277,7 @@ export const ChannelInput = ({
               currentMsg[currentMsg.length - 1] =
                 '@' + refMentionsToSelect.current[refSelected.current].nickname
               currentMsg.push(String.fromCharCode(160))
-
+              onChange(currentMsg.join(String.fromCharCode(160)))
               setHtmlMessage(currentMsg.join(String.fromCharCode(160)))
               inputRef.current.el.current.focus()
             }}
