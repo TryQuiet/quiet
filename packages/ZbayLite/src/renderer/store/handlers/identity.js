@@ -426,7 +426,7 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
     dispatch(setLoadingMessage('Fetching balance and loading channels'))
     await dispatch(fetchBalance())
     await dispatch(initAddreses())
-    dispatch(ratesHandlers.epics.fetchPrices())
+    dispatch(ratesHandlers.epics.setInitialPrice())
     await dispatch(fetchFreeUtxos())
     dispatch(setLoadingMessage('Loading users and messages'))
     await dispatch(usersHandlers.epics.fetchUsers())

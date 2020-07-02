@@ -11,6 +11,7 @@ import txnTimestampsSelector from '../selectors/txnTimestamps'
 import { getPublicKeysFromSignature } from '../../zbay/messages'
 import { trimNull } from '../../zbay/transit'
 import { getVault } from '../../vault'
+import electronStore from '../../../shared/electronStore'
 
 export const RatesState = Immutable.Record(
   {
@@ -26,6 +27,16 @@ export const initialState = RatesState({
 export const setPriceUsd = createAction(actionTypes.SET_PRICE_USD)
 export const actions = {
   setPriceUsd
+}
+export const setInitialPrice = () => async (dispatch, getState) => {
+  try {
+    const price = electronStore.get('rates.usd')
+    if (price) {
+      dispatch(setPriceUsd({ priceUsd: price }))
+    }
+  } catch (err) {
+    console.log(err)
+  }
 }
 export const fetchPrices = () => async (dispatch, getState) => {
   try {
@@ -77,6 +88,7 @@ export const fetchPrices = () => async (dispatch, getState) => {
           continue
         }
         dispatch(setPriceUsd({ priceUsd: price }))
+        electronStore.set('rates.usd', price)
         break
       } catch (err) {
         continue
@@ -123,7 +135,8 @@ export const fetchPriceForTime = time => async (dispatch, getState) => {
 }
 export const epics = {
   fetchPrices,
-  fetchPriceForTime
+  fetchPriceForTime,
+  setInitialPrice
 }
 
 export const reducer = handleActions(

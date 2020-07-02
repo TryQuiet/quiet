@@ -39,13 +39,16 @@ const coordinator = () => async (dispatch, getState) => {
     .push(() => contactsHandlers.epics.fetchMessages())
     .push(() => publicChannelsHandlers.epics.fetchPublicChannels())
     .push(() => usersHandlers.epics.fetchUsers())
-    .push(() => ratesHandlers.epics.fetchPrices())
 
   const statusActions = Immutable.List()
     .push(() => nodeHandlers.epics.getStatus())
     .push(() => identityHandlers.epics.fetchBalance())
     .push(() => identityHandlers.epics.fetchFreeUtxos())
 
+  const fetchZecPrice = async () => {
+    await dispatch(ratesHandlers.epics.fetchPrices())
+    setTimeout(fetchZecPrice, 1800000)
+  }
   const fetchStatus = async () => {
     for (let index = 0; index < statusActions.size; index++) {
       await dispatch(statusActions.get(index)())
@@ -96,6 +99,7 @@ const coordinator = () => async (dispatch, getState) => {
   }
   setTimeout(fetchStatus, 75000)
   fetchData()
+  fetchZecPrice()
 }
 const epics = {
   coordinator
