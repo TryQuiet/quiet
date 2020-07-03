@@ -4,6 +4,8 @@ import * as R from 'ramda'
 import { AutoSizer } from 'react-virtualized'
 import { Scrollbars } from 'react-custom-scrollbars'
 import { DateTime } from 'luxon'
+import { shell } from 'electron'
+import Immutable from 'immutable'
 
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
@@ -153,12 +155,55 @@ export const AdvertActionModal = ({
   handleMessage,
   updateTimestamp,
   history,
-  onSendFoundsAction
+  onSendFoundsAction,
+  allowAll,
+  whitelisted,
+  openExternalLink
 }) => {
   const time = DateTime.fromSeconds(parseInt(payload.createdAt))
   const timeFormat = getTimeFormat(time)
   const timeString = time.toFormat(timeFormat)
+  const findLinks = message => {
+    let parsedMessage = message
+      .replace(/ /g, String.fromCharCode(160))
+      .replace(
+        /\n/gi,
+        `${String.fromCharCode(160)}\n${String.fromCharCode(160)}`
+      )
+      .split(String.fromCharCode(160))
+    for (const index in parsedMessage) {
+      const part = parsedMessage[index]
+      if (part.startsWith('https://') || part.startsWith('http://')) {
+        parsedMessage[index] = (
+          <a
+            style={{
+              color: '#67BFD3',
+              textDecoration: 'none'
+            }}
+            key={index}
+            onClick={e => {
+              e.preventDefault()
+              if (allowAll || whitelisted.contains(new URL(part).hostname)) {
+                shell.openExternal(part)
+                return
+              }
+              openExternalLink(part)
+            }}
+            href={``}
+          >
+            {part}
+          </a>
+        )
+      }
+    }
+    const messageToDisplay = []
+    for (const index in parsedMessage) {
+      messageToDisplay.push(' ')
+      messageToDisplay.push(parsedMessage[index])
+    }
 
+    return messageToDisplay
+  }
   return payload ? (
     <Modal
       open={open}
@@ -268,7 +313,7 @@ export const AdvertActionModal = ({
                         variant={'caption'}
                         className={classes.description}
                       >
-                        {payload.description}
+                        {findLinks(payload.description)}
                       </Typography>
                     </Grid>
                     <Grid item>
@@ -337,6 +382,7 @@ export const AdvertActionModal = ({
 AdvertActionModal.propTypes = {
   classes: PropTypes.object.isRequired,
   open: PropTypes.bool.isRequired,
+  allowAll: PropTypes.bool.isRequired,
   payload: PropTypes.shape({
     tag: PropTypes.string.isRequired,
     priceUSD: PropTypes.string.isRequired,
@@ -350,6 +396,8 @@ AdvertActionModal.propTypes = {
     createdAt: PropTypes.number.isRequired
   }),
   handleMessage: PropTypes.func.isRequired,
+  openExternalLink: PropTypes.func.isRequired,
+  whitelisted: PropTypes.instanceOf(Immutable.List).isRequired,
   handleClose: PropTypes.func.isRequired
 }
 

@@ -1,5 +1,6 @@
 import React from 'react'
 import { shallow } from 'enzyme'
+import Immutable from 'immutable'
 
 import { AdvertActionModal } from './AdvertActionModal'
 import { mockClasses } from '../../../../shared/testing/mocks'
@@ -16,7 +17,8 @@ describe('SendMessagePopover', () => {
       priceZcash: '4000',
       background: '98c9e4113d76a80d654096c9938fb1a3.svg',
       id: 'test-id',
-      status: 'broadcasted'
+      status: 'broadcasted',
+      createdAt: 12345678
     }
     const result = shallow(
       <AdvertActionModal
@@ -26,6 +28,9 @@ describe('SendMessagePopover', () => {
         handleClose={jest.fn()}
         payload={payload}
         classes={mockClasses}
+        allowAll
+        whitelisted={Immutable.List()}
+        openExternalLink={jest.fn()}
       />
     )
     expect(result).toMatchSnapshot()
@@ -41,7 +46,8 @@ describe('SendMessagePopover', () => {
       priceZcash: '4000',
       background: '98c9e4113d76a80d654096c9938fb1a3.svg',
       id: 'test-id',
-      status: 'pending'
+      status: 'pending',
+      createdAt: 12345678
     }
     const result = shallow(
       <AdvertActionModal
@@ -51,6 +57,9 @@ describe('SendMessagePopover', () => {
         handleClose={jest.fn()}
         payload={payload}
         classes={mockClasses}
+        allowAll
+        whitelisted={Immutable.List()}
+        openExternalLink={jest.fn()}
       />
     )
     expect(result).toMatchSnapshot()
