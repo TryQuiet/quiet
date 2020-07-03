@@ -68,6 +68,9 @@ const styles = theme => ({
   },
   inputMark: {
     color: theme.palette.colors.darkGray
+  },
+  wrapper: {
+    padding: '0px 25px'
   }
 })
 
@@ -93,123 +96,127 @@ export const ChannelInfo = ({
       {({ width, height }) => (
         <Scrollbars
           autoHideTimeout={500}
-          style={{ width: width, height: height }}
+          style={{ width: width + 50, height: height }}
         >
-          <Formik
-            onSubmit={updateChannelSettings}
-            validationSchema={formSchema}
-            initialValues={initialValues}
-          >
-            {({ values, isSubmitting, errors, isValid }) => {
-              return (
-                <Form className={classes.fullWidth}>
-                  <Grid container direction='column' alignItems='flex-start'>
-                    <Grid item className={classes.title}>
-                      <Typography variant='h3'>Channel Info</Typography>
-                    </Grid>
-                    <Grid item className={classes.descriptionDiv}>
-                      <Typography className={classes.label} variant='body2'>
-                        Channel Description
-                      </Typography>
-                      <TextField
-                        name='updateChannelDescription'
-                        className={classes.channelDescription}
-                        variant='outlined'
-                        multiline
-                        fullWidth
-                        rows={5}
-                        value={values.firstName}
-                      />
-                    </Grid>
-                    <Grid item className={classes.checkboxDiv}>
-                      <CheckboxWithLabel
-                        color='primary'
-                        name='updateOnlyRegistered'
-                        label='Allow only registered users to send messages'
-                        labelClass={classes.checkboxLabel}
-                        rootClass={classes.rootClass}
-                      />
-                    </Grid>
-                    <Grid item className={classes.checkboxDiv}>
-                      <CheckboxWithLabel
-                        color='primary'
-                        name='updateMinFee'
-                        label='Set the price to post an offer (default is 0.00 ZEC)'
-                        labelClass={classes.checkboxLabel}
-                        rootClass={classes.rootClass}
-                      />
-                    </Grid>
-                    {values.updateMinFee && (
-                      <Grid item container className={classes.divMoney}>
-                        <Grid item className={classes.moneyDiv}>
-                          <LinkedTextField
-                            name='amountUsd'
-                            type='number'
-                            placeholder='0.00'
+          <Grid container className={classes.wrapper}>
+            <Grid item container>
+              <Formik
+                onSubmit={updateChannelSettings}
+                validationSchema={formSchema}
+                initialValues={initialValues}
+              >
+                {({ values, isSubmitting, errors, isValid }) => {
+                  return (
+                    <Form className={classes.fullWidth}>
+                      <Grid container direction='column' alignItems='flex-start'>
+                        <Grid item className={classes.title}>
+                          <Typography variant='h3'>Channel Info</Typography>
+                        </Grid>
+                        <Grid item className={classes.descriptionDiv}>
+                          <Typography className={classes.label} variant='body2'>
+                          Channel Description
+                          </Typography>
+                          <TextField
+                            name='updateChannelDescription'
+                            className={classes.channelDescription}
+                            variant='outlined'
+                            multiline
                             fullWidth
-                            otherField='amountZec'
-                            transformer={rateZec}
-                            precise={4}
-                            InputProps={{
-                              error: !!errors['amountZec'],
-                              endAdornment: (
-                                <InputAdornment position='end'>
-                                  <span className={classes.inputMark}>USD</span>
-                                </InputAdornment>
-                              ),
-                              className: classes.moneyInput
-                            }}
+                            rows={5}
+                            value={values.firstName}
                           />
                         </Grid>
-                        <Grid
-                          item
-                          container
-                          alignItems='center'
-                          justify='center'
-                          className={classes.exchangeDiv}
-                        >
-                          <Icon className={classes.exchnage} src={exchange} />
-                        </Grid>
-                        <Grid item className={classes.moneyDiv}>
-                          <LinkedTextField
-                            name='amountZec'
-                            type='number'
-                            placeholder='0.00'
-                            fullWidth
-                            otherField='amountUsd'
-                            transformer={rateUsd}
-                            precise={2}
-                            InputProps={{
-                              error: !!errors['amountUsd'],
-                              endAdornment: (
-                                <InputAdornment position='end'>
-                                  <span className={classes.inputMark}>ZEC</span>
-                                </InputAdornment>
-                              ),
-                              className: classes.moneyInput
-                            }}
+                        <Grid item className={classes.checkboxDiv}>
+                          <CheckboxWithLabel
+                            color='primary'
+                            name='updateOnlyRegistered'
+                            label='Allow only registered users to send messages'
+                            labelClass={classes.checkboxLabel}
+                            rootClass={classes.rootClass}
                           />
+                        </Grid>
+                        <Grid item className={classes.checkboxDiv}>
+                          <CheckboxWithLabel
+                            color='primary'
+                            name='updateMinFee'
+                            label='Set the price to post an offer (default is 0.00 ZEC)'
+                            labelClass={classes.checkboxLabel}
+                            rootClass={classes.rootClass}
+                          />
+                        </Grid>
+                        {values.updateMinFee && (
+                          <Grid item container className={classes.divMoney}>
+                            <Grid item className={classes.moneyDiv}>
+                              <LinkedTextField
+                                name='amountUsd'
+                                type='number'
+                                placeholder='0.00'
+                                fullWidth
+                                otherField='amountZec'
+                                transformer={rateZec}
+                                precise={4}
+                                InputProps={{
+                                  error: !!errors['amountZec'],
+                                  endAdornment: (
+                                    <InputAdornment position='end'>
+                                      <span className={classes.inputMark}>USD</span>
+                                    </InputAdornment>
+                                  ),
+                                  className: classes.moneyInput
+                                }}
+                              />
+                            </Grid>
+                            <Grid
+                              item
+                              container
+                              alignItems='center'
+                              justify='center'
+                              className={classes.exchangeDiv}
+                            >
+                              <Icon className={classes.exchnage} src={exchange} />
+                            </Grid>
+                            <Grid item className={classes.moneyDiv}>
+                              <LinkedTextField
+                                name='amountZec'
+                                type='number'
+                                placeholder='0.00'
+                                fullWidth
+                                otherField='amountUsd'
+                                transformer={rateUsd}
+                                precise={2}
+                                InputProps={{
+                                  error: !!errors['amountUsd'],
+                                  endAdornment: (
+                                    <InputAdornment position='end'>
+                                      <span className={classes.inputMark}>ZEC</span>
+                                    </InputAdornment>
+                                  ),
+                                  className: classes.moneyInput
+                                }}
+                              />
+                            </Grid>
+                          </Grid>
+                        )}
+                        <Grid item className={classes.submitButton}>
+                          <Button
+                            variant='contained'
+                            size='large'
+                            color='primary'
+                            type='submit'
+                            fullWidth
+                            disabled={!isValid || isSubmitting}
+                            className={classes.button}
+                          >
+                          Save
+                          </Button>
                         </Grid>
                       </Grid>
-                    )}
-                    <Grid item className={classes.submitButton}>
-                      <Button
-                        variant='contained'
-                        size='large'
-                        color='primary'
-                        type='submit'
-                        fullWidth
-                        disabled={!isValid || isSubmitting}
-                        className={classes.button}
-                      >
-                        Save
-                      </Button>
-                    </Grid>
-                  </Grid>
-                </Form>
-              )
-            }}
-          </Formik>
+                    </Form>
+                  )
+                }}
+              </Formik>
+            </Grid>
+          </Grid>
         </Scrollbars>
       )}
     </AutoSizer>
