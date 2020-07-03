@@ -9,113 +9,121 @@ exports[`RegistraionGuide renders component 1`] = `
   justify="center"
 >
   <WithStyles(ForwardRef(Grid))
-    className="contentContainer-mock"
+    alignContent="center"
+    alignItems="center"
+    className="wrapper-mock"
     container={true}
-    item={true}
-    justify="space-between"
+    justify="center"
   >
     <WithStyles(ForwardRef(Grid))
-      alignItems="center"
-      className="graphicBox-mock"
+      className="contentContainer-mock"
       container={true}
       item={true}
-    >
-      <img
-        src={
-          Object {
-            "default": "test-file-stub",
-          }
-        }
-      />
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      alignItems="center"
-      className="textBox-mock"
-      container={true}
-      item={true}
+      justify="space-between"
     >
       <WithStyles(ForwardRef(Grid))
+        alignItems="center"
+        className="graphicBox-mock"
+        container={true}
         item={true}
       >
-        <WithStyles(ForwardRef(Typography))
-          variant="h3"
+        <img
+          src={
+            Object {
+              "default": "test-file-stub",
+            }
+          }
+        />
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
+        alignItems="center"
+        className="textBox-mock"
+        container={true}
+        item={true}
+      >
+        <WithStyles(ForwardRef(Grid))
+          item={true}
         >
-          And now... some waiting!
-        </WithStyles(ForwardRef(Typography))>
-        <WithStyles(ForwardRef(Typography))
-          className="sentence-mock"
-          key="0"
-          variant="body2"
-        >
-          Our tour has concluded! Now, we just have to wait for some blockchain files to download. Perhaps leave your computer and go have a sandwich.
-        </WithStyles(ForwardRef(Typography))>
-        <WithStyles(ForwardRef(Typography))
-          className="sentence-mock"
-          key="1"
-          variant="body2"
-        >
-          If you'd like to learn more about the values and vision behind the Zbay project, there's a great (and long) essay on our site.
-        </WithStyles(ForwardRef(Typography))>
-        <WithStyles(ForwardRef(Typography))
-          className="sentence-mock"
-          key="2"
-          variant="body2"
-        >
-          Or you can learn more about Zcash the technology that Zbay builds on.
-        </WithStyles(ForwardRef(Typography))>
+          <WithStyles(ForwardRef(Typography))
+            variant="h3"
+          >
+            And now... some waiting!
+          </WithStyles(ForwardRef(Typography))>
+          <WithStyles(ForwardRef(Typography))
+            className="sentence-mock"
+            key="0"
+            variant="body2"
+          >
+            Our tour has concluded! Now, we just have to wait for some blockchain files to download. Perhaps leave your computer and go have a sandwich.
+          </WithStyles(ForwardRef(Typography))>
+          <WithStyles(ForwardRef(Typography))
+            className="sentence-mock"
+            key="1"
+            variant="body2"
+          >
+            If you'd like to learn more about the values and vision behind the Zbay project, there's a great (and long) essay on our site.
+          </WithStyles(ForwardRef(Typography))>
+          <WithStyles(ForwardRef(Typography))
+            className="sentence-mock"
+            key="2"
+            variant="body2"
+          >
+            Or you can learn more about Zcash the technology that Zbay builds on.
+          </WithStyles(ForwardRef(Typography))>
+        </WithStyles(ForwardRef(Grid))>
       </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>
-  </WithStyles(ForwardRef(Grid))>
-  <WithStyles(ForwardRef(Grid))
-    alignItems="center"
-    className="navigationContainer-mock"
-    container={true}
-    item={true}
-    justify="center"
-    wrap="nowrap"
-  >
     <WithStyles(ForwardRef(Grid))
-      item={true}
-    >
-      <WithStyles(ForwardRef(Button))
-        className="buttonBack-mock"
-        onClick={[MockFunction]}
-      >
-        Back
-      </WithStyles(ForwardRef(Button))>
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      className=""
+      alignItems="center"
+      className="navigationContainer-mock"
       container={true}
       item={true}
       justify="center"
+      wrap="nowrap"
     >
       <WithStyles(ForwardRef(Grid))
         item={true}
-        key="0"
       >
-        <span
-          className="dot-mock"
-        />
+        <WithStyles(ForwardRef(Button))
+          className="buttonBack-mock"
+          onClick={[MockFunction]}
+        >
+          Back
+        </WithStyles(ForwardRef(Button))>
+      </WithStyles(ForwardRef(Grid))>
+      <WithStyles(ForwardRef(Grid))
+        className=""
+        container={true}
+        item={true}
+        justify="center"
+      >
+        <WithStyles(ForwardRef(Grid))
+          item={true}
+          key="0"
+        >
+          <span
+            className="dot-mock"
+          />
+        </WithStyles(ForwardRef(Grid))>
+        <WithStyles(ForwardRef(Grid))
+          item={true}
+          key="1"
+        >
+          <span
+            className="dot-mock active-mock"
+          />
+        </WithStyles(ForwardRef(Grid))>
       </WithStyles(ForwardRef(Grid))>
       <WithStyles(ForwardRef(Grid))
         item={true}
-        key="1"
       >
-        <span
-          className="dot-mock active-mock"
-        />
+        <WithStyles(ForwardRef(Button))
+          className="buttonNext-mock"
+          onClick={[MockFunction]}
+        >
+          Next
+        </WithStyles(ForwardRef(Button))>
       </WithStyles(ForwardRef(Grid))>
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      item={true}
-    >
-      <WithStyles(ForwardRef(Button))
-        className="buttonNext-mock"
-        onClick={[MockFunction]}
-      >
-        Next
-      </WithStyles(ForwardRef(Button))>
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
 </WithStyles(ForwardRef(Grid))>
