@@ -25,7 +25,7 @@ export const formSchema = users => {
           'match',
           'Wrong address format or username does not exist',
           function (string) {
-            const isAddressValid = /^t1[a-zA-Z0-9]{33}$|^ztestsapling1[a-z0-9]{75}$|^zs1[a-z0-9]{75}$|[A-Za-z0-9]{35}/.test(
+            const isAddressValid = /^t1[a-zA-Z0-9]{33}$|^zs1[a-z0-9]{75}$|ztestsapling1[a-z0-9]{75}$/.test(
               string
             )
             const includesNickname = users
