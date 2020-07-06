@@ -12,7 +12,9 @@ import offersSelectors from '../selectors/offers'
 import messagesSelectors from '../selectors/messages'
 import channelSelectors from '../selectors/channel'
 import selectors, { Contact } from '../selectors/contacts'
-import { directMessageChannel } from '../selectors/directMessageChannel'
+import directMessageChannelSelector, {
+  directMessageChannel
+} from '../selectors/directMessageChannel'
 import directMessagesQueue from '../selectors/directMessagesQueue'
 import { messages as zbayMessages } from '../../zbay'
 import { getClient } from '../../zcash'
@@ -251,6 +253,23 @@ export const linkUserRedirect = contact => async (dispatch, getState) => {
 export const fetchMessages = () => async (dispatch, getState) => {
   try {
     const identityAddress = identitySelectors.address(getState())
+    const currentDmChannel = directMessageChannelSelector.targetRecipientAddress(
+      getState()
+    )
+    const currentOfferId = channelSelectors.id(getState())
+    const currentOffer = offersSelectors.offer(currentOfferId)(getState())
+    if (currentOffer) {
+      await dispatch(
+        offersHandlers.epics.updateLastSeen({ itemId: currentOfferId })
+      )
+    }
+    const contacts = selectors.contacts(getState())
+    const currentContact = contacts.get(currentDmChannel)
+    if (currentContact) {
+      await dispatch(
+        updateLastSeen({ contact: contacts.get(currentDmChannel) })
+      )
+    }
     const transfers = await getClient().payment.received(identityAddress)
     if (
       transfers.length ===

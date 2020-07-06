@@ -118,6 +118,9 @@ describe('Channel selector', () => {
   it('channel selector', async () => {
     expect(channelSelectors.channel(store.getState())).toMatchSnapshot()
   })
+  it('id selector', async () => {
+    expect(channelSelectors.id(store.getState())).toEqual(channelId)
+  })
 
   it('spent filter value selector', async () => {
     expect(channelSelectors.spentFilterValue(store.getState())).toMatchSnapshot()
