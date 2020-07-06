@@ -9,6 +9,9 @@ import SpinnerLoader from '../../ui/SpinnerLoader'
 const styles = theme => ({
   spinner: {
     color: theme.palette.colors.captionPurple
+  },
+  wrapper: {
+    marginBottom: 90
   }
 })
 
@@ -16,6 +19,7 @@ export const LoadingMessage = ({ classes }) => {
   return (
     <SpinnerLoader
       classes={{ spinner: classes.spinner }}
+      className={classes.wrapper}
       size={50}
       message='Loading messages'
     />

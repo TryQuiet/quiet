@@ -2,6 +2,7 @@
 
 exports[`LoadingMessage renders component 1`] = `
 <Memo(WithStyles(SpinnerLoader))
+  className="wrapper-mock"
   classes={
     Object {
       "spinner": "spinner-mock",
