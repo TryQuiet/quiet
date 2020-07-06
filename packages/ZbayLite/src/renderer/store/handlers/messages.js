@@ -73,7 +73,9 @@ export const ReceivedMessage = values => {
     delete values.payload.type
     const unknownRecord = _RecivedFromUnknownMessage({
       ...values.payload,
-      type: new BigNumber(values.spent).gt(new BigNumber(0)) ? messageType.TRANSFER : messageType.BASIC,
+      type: new BigNumber(values.spent).gt(new BigNumber(0))
+        ? messageType.TRANSFER
+        : messageType.BASIC,
       id: values.id,
       spent: new BigNumber(values.spent)
     })
@@ -126,7 +128,8 @@ export const fetchMessages = channel => async (dispatch, getState) => {
     ) {
       return
     } else {
-      const oldTransfers = appSelectors.transfers(getState()).get(channelId) || 0
+      const oldTransfers =
+        appSelectors.transfers(getState()).get(channelId) || 0
       dispatch(
         appHandlers.actions.reduceNewTransfersCount(
           transfers.length - oldTransfers
@@ -239,12 +242,13 @@ export const fetchMessages = channel => async (dispatch, getState) => {
         )
       }
       if (
+        username &&
         (userFilter === notificationFilterType.ALL_MESSAGES ||
           userFilter === notificationFilterType.MENTIONS) &&
         filterType === notificationFilterType.MENTIONS
       ) {
         newMessages
-          .filter(msg => containsString(msg.message, `@${username}`))
+          .filter(msg => containsString(msg.message, `@${username.nickname}`))
           .map(nm => displayMessageNotification({ message: nm, channel }))
       }
     }
@@ -264,16 +268,21 @@ export const containsString = (message, nickname) => {
   return false
 }
 
-export const _checkMessageSize = (mergedMessage) => async (dispatch, getState) => {
+export const _checkMessageSize = mergedMessage => async (
+  dispatch,
+  getState
+) => {
   if (!channelSelectors.isSizeCheckingInProgress(getState())) {
     dispatch(channelActions.isSizeCheckingInProgress(true))
   }
-  const setStatus = (status) => {
+  const setStatus = status => {
     dispatch(channelActions.isSizeCheckingInProgress(false))
     dispatch(channelActions.messageSizeStatus(status))
   }
   if (mergedMessage) {
-    const isMergedMessageTooLong = await checkMessageSizeAfterComporession(mergedMessage)
+    const isMergedMessageTooLong = await checkMessageSizeAfterComporession(
+      mergedMessage
+    )
     return isMergedMessageTooLong
   } else {
     const message = channelSelectors.message(getState())
@@ -283,7 +292,7 @@ export const _checkMessageSize = (mergedMessage) => async (dispatch, getState) =
   }
 }
 
-export const checkMessageSize = (redirect) => {
+export const checkMessageSize = redirect => {
   const thunk = _checkMessageSize(redirect)
   thunk.meta = {
     debounce: {
