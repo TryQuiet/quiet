@@ -20,6 +20,7 @@ describe('SendFundsModal', () => {
         clearCurrentOpenTab={jest.fn()}
         openAddFundsTab={jest.fn()}
         openSettingsModal={jest.fn()}
+        validateForm={jest.fn()}
         open
         isValid
         values={{}}

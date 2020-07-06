@@ -239,12 +239,13 @@ export const SendFundsModal = ({
   openAddFundsTab,
   openSettingsModal,
   openShippingTab,
-  lockedBalance
+  lockedBalance,
+  validateForm
 }) => {
   const { zec: zecOffer } = values
   const hasNoFounds = balanceZec.lt(zecOffer)
   const ErrorText = ({ name }) => {
-    return errors[name] && touched[name] ? (
+    return errors[name] ? (
       <Grid item xs>
         <Typography className={classes.error} variant='caption'>
           {errors[name]}
@@ -254,6 +255,9 @@ export const SendFundsModal = ({
       <span />
     )
   }
+  React.useEffect(() => {
+    validateForm()
+  }, [payload, values])
   return (
     <Modal
       open={open}
@@ -608,7 +612,8 @@ SendFundsModal.propTypes = {
   payload: PropTypes.object.isRequired,
   shippingData: PropTypes.object.isRequired,
   openAddFundsTab: PropTypes.func.isRequired,
-  openSettingsModal: PropTypes.func.isRequired
+  openSettingsModal: PropTypes.func.isRequired,
+  validateForm: PropTypes.func.isRequired
 }
 
 SendFundsModal.defaultProps = {

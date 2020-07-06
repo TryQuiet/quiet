@@ -54,12 +54,14 @@ export const SendFundsForm = ({
         submitForm,
         resetForm,
         setFieldValue,
+        validateForm,
         errors,
         touched
       }) => {
         return (
           <SendFundsModal
             {...props}
+            validateForm={validateForm}
             payload={payload}
             isValid={isValid}
             values={values}
