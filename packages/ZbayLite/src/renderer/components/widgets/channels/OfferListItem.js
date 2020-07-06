@@ -36,7 +36,7 @@ const styles = theme => ({
     paddingRight: 16,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    maxWidth: 230,
+    maxWidth: 215,
     whiteSpace: 'nowrap'
   },
   newMessages: {
