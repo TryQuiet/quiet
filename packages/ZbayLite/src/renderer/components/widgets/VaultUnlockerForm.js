@@ -158,7 +158,7 @@ export const VaultUnlockerForm = ({
           {(!isSynced && isLogIn) && (
             <Grid item container justify='center' alignItems='center'>
               <Typography variant='body2' className={classes.status}>
-                {nodeConnected ? `Syncing (${node.currentBlock}/${lastBlock})` : `Connecting to Zcash network`}
+                {nodeConnected ? `Syncing (${node.currentBlock}/${lastBlock})` : `Starting up. This can take a while...`}
               </Typography>
             </Grid>
           )}
