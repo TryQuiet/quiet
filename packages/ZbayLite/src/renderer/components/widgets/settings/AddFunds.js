@@ -145,6 +145,7 @@ export const AddFunds = ({
   const [expanded, setExpanded] = React.useState(false)
   const [dialogOpen, setDialogOpen] = React.useState(false)
   const [isCopied, setIsCopied] = React.useState(false)
+  const [isCopiedPrivate, setIsCopiedPrivate] = React.useState(false)
   return (
     <>
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
@@ -311,7 +312,7 @@ export const AddFunds = ({
           )}
         </Grid>
         {expanded && (
-          <Grid container className={classes.spacing24}>
+          <Grid container direction='column' className={classes.spacing24}>
             <Grid item>
               <Typography variant='body2' className={classes.subtitle}>
                 Your private Zcash address
@@ -348,6 +349,36 @@ export const AddFunds = ({
                   e.stopPropagation()
                 }}
               />
+            </Grid>
+            <Grid
+              item
+              xs
+              onClick={e => {
+                e.preventDefault()
+                e.stopPropagation()
+              }}
+            >
+              <CopyToClipboard
+                text={topShieldedAddress}
+                onCopy={e => {
+                  setIsCopiedPrivate(true)
+                }}
+              >
+                <Button
+                  variant='contained'
+                  size='large'
+                  color='primary'
+                  type='submit'
+                  fullWidth
+                  className={
+                    isCopiedPrivate ? classes.buttonCopied : classes.button
+                  }
+                >
+                  {isCopiedPrivate
+                    ? `Address copied to clipboard`
+                    : `Copy address to clipboard`}
+                </Button>
+              </CopyToClipboard>
             </Grid>
           </Grid>
         )}
