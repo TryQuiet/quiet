@@ -79,7 +79,7 @@ export const CreateChannelForm = ({ classes, onSubmit, setStep }) => (
           className={classes.fullContainer}
         >
           <Typography variant='h3' className={classes.title}>
-            Create a private new channel
+            Create a new private channel
           </Typography>
           <Typography variant='body2'>Channel name</Typography>
           <TextField name='name' placeholder='my-channel' />
