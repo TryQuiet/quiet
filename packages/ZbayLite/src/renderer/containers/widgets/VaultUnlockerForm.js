@@ -8,7 +8,7 @@ import vaultSelectors from '../../store/selectors/vault'
 import nodeSelectors from '../../store/selectors/node'
 import identitySelectors from '../../store/selectors/identity'
 import VaultUnlockerFormComponent from '../../components/widgets/VaultUnlockerForm'
-import { useInterval } from '../hooks'
+// import { useInterval } from '../hooks'
 import torSelectors from '../../store/selectors/tor'
 import torHandlers from '../../store/handlers/tor'
 import electronStore from '../../../shared/electronStore'
@@ -74,7 +74,7 @@ export const VaultUnlockerForm = ({
     [loader.loading]
   )
 
-  useInterval(getStatus, 5000)
+  // useInterval(getStatus, 5000)
   return (
     <VaultUnlockerFormComponent
       locked={locked}

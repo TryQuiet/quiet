@@ -11,13 +11,13 @@ import channels from '../../zcash/channels'
 import identitySelectors from '../selectors/identity'
 import nodeSelectors from '../selectors/node'
 import txnTimestampsSelector from '../selectors/txnTimestamps'
-import channelsSelectors from '../selectors/channels'
-import channelsHandlers from './channels'
+// import channelsSelectors from '../selectors/channels'
+// import channelsHandlers from './channels'
 import removedChannelsHandlers from './removedChannels'
-import usersHandlers from './users'
+// import usersHandlers from './users'
 import contactsHandlers from './contacts'
-import messagesHandlers from './messages'
-import publicChannelsHandlers from './publicChannels'
+// import messagesHandlers from './messages'
+// import publicChannelsHandlers from './publicChannels'
 import offersHandlers from './offers'
 import whitelistHandlers from './whitelist'
 import txnTimestampsHandlers from './txnTimestamps'
@@ -31,8 +31,8 @@ import ratesHandlers from './rates'
 import nodeHandlers from './node'
 import notificationCenterHandlers from './notificationCenter'
 import vault, { getVault } from '../../vault'
-import migrateTo_0_2_0 from '../../../shared/migrations/0_2_0' // eslint-disable-line camelcase
-import migrateTo_0_7_0 from '../../../shared/migrations/0_7_0' // eslint-disable-line camelcase
+// import migrateTo_0_2_0 from '../../../shared/migrations/0_2_0' // eslint-disable-line camelcase
+// import migrateTo_0_7_0 from '../../../shared/migrations/0_7_0' // eslint-disable-line camelcase
 import { LoaderState, successNotification } from './utils'
 import modalsHandlers from './modals'
 import notificationsHandlers from './notifications'
@@ -384,7 +384,8 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
   dispatch,
   getState
 ) => {
-  let identity = await migrateTo_0_2_0.ensureIdentityHasKeys(identityToSet)
+  // let identity = await migrateTo_0_2_0.ensureIdentityHasKeys(identityToSet)
+  let identity = identityToSet
   dispatch(setLoading(true))
   dispatch(
     logsHandlers.epics.saveLogs({
@@ -392,23 +393,13 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
       payload: `Start loading identity`
     })
   )
-  const isRescanned = electronStore.get('AppStatus.blockchain.isRescanned')
+  // const isRescanned = electronStore.get('AppStatus.blockchain.isRescanned')
   const isNewUser = electronStore.get('isNewUser')
   try {
     dispatch(setLoadingMessage('Ensuring identity integrity'))
     // Make sure identity is handled by the node
     await dispatch(setLoadingMessage('Ensuring node contains identity keys'))
-    const network = nodeSelectors.network(getState())
-    await migrateTo_0_7_0.ensureDefaultChannels(identity, network)
-    await dispatch(
-      channelsHandlers.actions.loadChannelsToNode(identity.id, isNewUser)
-    )
-    await getClient().keys.importTPK({ tpk: identity.keys.tpk, rescan: false })
-    await getClient().keys.importSK({
-      sk: identity.keys.sk,
-      rescan: isRescanned ? 'no' : 'yes',
-      startHeight: 700000
-    })
+    // const network = nodeSelectors.network(getState())
     await dispatch(whitelistHandlers.epics.initWhitelist())
     await dispatch(notificationCenterHandlers.epics.init())
     dispatch(setLoadingMessage('Setting identity'))
@@ -429,33 +420,33 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
     dispatch(removedChannelsHandlers.epics.getRemovedChannelsTimestamp())
 
     dispatch(setLoadingMessage('Fetching balance and loading channels'))
-    await dispatch(fetchBalance())
+    // await dispatch(fetchBalance())
     await dispatch(initAddreses())
     dispatch(ratesHandlers.epics.setInitialPrice())
-    await dispatch(fetchFreeUtxos())
+    // await dispatch(fetchFreeUtxos())
     dispatch(setLoadingMessage('Loading users and messages'))
-    await dispatch(usersHandlers.epics.fetchUsers())
+    // await dispatch(usersHandlers.epics.fetchUsers())
     await dispatch(contactsHandlers.epics.loadAllSentMessages())
     await dispatch(offersHandlers.epics.loadVaultContacts())
     await dispatch(offersHandlers.epics.initMessage())
-    await dispatch(publicChannelsHandlers.epics.fetchPublicChannels())
-    await dispatch(channelsHandlers.epics.withdrawMoneyFromChannels())
-    await dispatch(
-      messagesHandlers.epics.fetchMessages(
-        channelsSelectors
-          .data(getState())
-          .find(
-            channel =>
-              channel.get('address') === channels.general[network].address
-          )
-      )
-    )
+    // await dispatch(publicChannelsHandlers.epics.fetchPublicChannels())
+    // await dispatch(channelsHandlers.epics.withdrawMoneyFromChannels())
+    // await dispatch(
+    //   messagesHandlers.epics.fetchMessages(
+    //     channelsSelectors
+    //       .data(getState())
+    //       .find(
+    //         channel =>
+    //           channel.get('address') === channels.general[network].address
+    //       )
+    //   )
+    // )
   } catch (err) {}
   const zecBalance = identitySelectors.balance('zec')(getState())
   if (isNewUser === true && zecBalance.gt(0)) {
     dispatch(modalsHandlers.actionCreators.openModal('createUsernameModal')())
   }
-  dispatch(fetchAffiliateMoney())
+  // dispatch(fetchAffiliateMoney())
   dispatch(setLoading(false))
   dispatch(
     logsHandlers.epics.saveLogs({

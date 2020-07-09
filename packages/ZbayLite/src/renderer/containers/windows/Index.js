@@ -4,7 +4,7 @@ import { Redirect } from 'react-router'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 
-import nodeHandlers from '../../store/handlers/node'
+// import nodeHandlers from '../../store/handlers/node'
 import appHandlers from '../../store/handlers/app'
 import nodeSelectors from '../../store/selectors/node'
 import { useInterval } from '../hooks'
@@ -13,7 +13,7 @@ import vaultSelectors from '../../store/selectors/vault'
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      getStatus: nodeHandlers.epics.getStatus,
+      getStatus: () => {}, // nodeHandlers.epics.getStatus,
       loadVersion: appHandlers.actions.loadVersion
     },
     dispatch
@@ -47,7 +47,4 @@ Index.propTypes = {
   getStatus: PropTypes.func.isRequired
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Index)
+export default connect(mapStateToProps, mapDispatchToProps)(Index)

@@ -34,8 +34,9 @@ coverage/
 .eslintcache
 *.tgz
 
-
 .env
 .webpack
 dist
 node_modules
+
+src/renderer/zcash/index.node

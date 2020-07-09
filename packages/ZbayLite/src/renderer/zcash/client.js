@@ -1,21 +1,53 @@
-import JRPC from './jrpc'
-
-import status from './status'
-import addresses from './addresses'
-import accounting from './accounting'
-import payment from './payment'
-import keys from './keys'
-import operations from './operations'
-import confirmations from './confirmations'
-
-export default function Zcash (config) {
-  const RequestManager = config.requestManager || JRPC
-  this.request = new RequestManager(config)
-  this.status = status(this)
-  this.addresses = addresses(this)
-  this.accounting = accounting(this)
-  this.payment = payment(this)
-  this.keys = keys(this)
-  this.operations = operations(this)
-  this.confirmations = confirmations(this)
+import native from '../../../native/index.node'
+export default class RPC {
+  constructor (url = 'https://lightwalletd.zecwallet.co:1443') {
+    const result = native.litelib_initialize_existing(url)
+    console.log(`Intialization: ${result}`)
+  }
+  sync = async () => {
+    return native.litelib_execute('sync', '')
+  }
+  rescan = async () => {
+    return native.litelib_execute('rescan', '')
+  }
+  syncStatus = async () => {
+    return JSON.parse(native.litelib_execute('syncstatus', ''))
+  }
+  info = async () => {
+    return JSON.parse(native.litelib_execute('info', ''))
+  }
+  balance = async () => {
+    return JSON.parse(native.litelib_execute('balance', ''))
+  }
+  notes = async () => {
+    return JSON.parse(native.litelib_execute('notes', ''))
+  }
+  sendTransaction = async payload => {
+    // TODO add validation of payload
+    return native.litelib_execute('send', JSON.stringify(payload))
+  }
+  list = async () => {
+    return JSON.parse(native.litelib_execute('list', ''))
+  }
+  height = async () => {
+    return JSON.parse(native.litelib_execute('height', '')).height
+  }
+  quit = async () => {
+    return native.litelib_execute('quit', '')
+  }
+  save = async () => {
+    return JSON.parse(native.litelib_execute('save', ''))
+  }
+  addresses = async () => {
+    return JSON.parse(native.litelib_execute('addresses', ''))
+  }
+  getPrivKey = async address => {
+    return JSON.parse(native.litelib_execute('export', address))[0].private_key
+  }
+  getNewShieldedAdress = async () => {
+    return JSON.parse(native.litelib_execute('new', 'z'))[0]
+  }
+  getNewTransparentAdress = async () => {
+    return JSON.parse(native.litelib_execute('new', 't'))[0]
+  }
 }

@@ -30,7 +30,7 @@ export const mapDispatchToProps = dispatch => {
 
 export const Main = ({ vaultLocked, fetch, ...props }) => {
   useEffect(() => {
-    fetch()
+    // fetch()
   }, [])
   return vaultLocked ? <Redirect to='/vault' /> : <MainComponent {...props} />
 }

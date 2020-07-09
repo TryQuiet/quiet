@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import * as Yup from 'yup'
 import { Formik, Form } from 'formik'
 import { Redirect } from 'react-router'
-import BigNumber from 'bignumber.js'
+// import BigNumber from 'bignumber.js'
 
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
@@ -84,7 +84,7 @@ export const VaultUnlockerForm = ({
   const isRescanned = electronStore.get('AppStatus.blockchain.isRescanned')
   const lastBlock = node.latestBlock.isEqualTo(0) ? 999999 : node.latestBlock
   const isBlockchainFromExternalSouce = electronStore.get('isBlockchainFromExternalSource') && blockchainStatus !== config.BLOCKCHAIN_STATUSES.SUCCESS
-  const isSynced = (!node.latestBlock.isEqualTo(0) && node.latestBlock.minus(node.currentBlock).lt(10)) && new BigNumber(node.latestBlock).gt(755000)
+  const isSynced = true // (!node.latestBlock.isEqualTo(0) && node.latestBlock.minus(node.currentBlock).lt(10)) && new BigNumber(node.latestBlock).gt(755000)
   return (
     <Formik
       onSubmit={(values, actions) => {

@@ -1,12 +1,8 @@
-import { remote } from 'electron'
 import * as R from 'ramda'
 import crypto from 'crypto'
 
 import electronStore from '../../shared/electronStore'
-import Zcash from './client'
-
-const envVarOr = (defaultValue, envVar) =>
-  R.propOr(defaultValue, envVar)(remote.getGlobal('process').env)
+import RPC from './client'
 
 let _client = null
 let _username = null
@@ -28,11 +24,7 @@ export const credentials = () => {
 export const createClient = (options) => {
   const rpcCredentials = credentials()
   if (R.isNil(_client) || _username !== rpcCredentials.username) {
-    _client = new Zcash({
-      url: envVarOr('http://localhost:8334', 'ZBAY_NODE_URL'),
-      auth: rpcCredentials,
-      ...options
-    })
+    _client = new RPC()
     _username = rpcCredentials.username
   }
   return _client

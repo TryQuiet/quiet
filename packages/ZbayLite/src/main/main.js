@@ -1,5 +1,5 @@
 import getSize from 'get-folder-size'
-import checkDiskSpace from 'check-disk-space'
+// import checkDiskSpace from 'check-disk-space'
 import {
   app,
   BrowserWindow,
@@ -660,9 +660,9 @@ app.on('ready', async () => {
       win32: `${os.userInfo().homedir}\\AppData\\Roaming\\ZbayData`
     }
 
-    const BLOCKCHAIN_SIZE = 27843545600
-    const REQUIRED_FREE_SPACE = 1073741824
-    const ZCASH_PARAMS = 1825361100
+    // const BLOCKCHAIN_SIZE = 27843545600
+    // const REQUIRED_FREE_SPACE = 1073741824
+    // const ZCASH_PARAMS = 1825361100
 
     if ((!blockchainConfiguration || blockchainConfiguration === config.BLOCKCHAIN_STATUSES.WAITING_FOR_USER_DECISION) && isFetchedFromExternalSource) {
       if (mainWindow) {
@@ -672,31 +672,31 @@ app.on('ready', async () => {
     if (!fs.existsSync(osPaths[process.platform])) {
       fs.mkdirSync(osPaths[process.platform])
     }
-    getSize(osPaths[process.platform], (err, downloadedSize) => {
-      if (err) {
-        throw err
-      }
-      checkDiskSpace('/').then(diskspace => {
-        const blockchainSizeLeftToFetch = BLOCKCHAIN_SIZE - downloadedSize
-        const freeSpaceLeft =
-              diskspace.free -
-              (blockchainSizeLeftToFetch + ZCASH_PARAMS + REQUIRED_FREE_SPACE)
-        if (freeSpaceLeft <= 0) {
-          if (mainWindow) {
-            mainWindow.webContents.send(
-              'checkDiskSpace',
-              `Sorry, but Zbay needs ${(
-                blockchainSizeLeftToFetch /
-                    1024 ** 3
-              ).toFixed(2)} GB to connect to its network and you only have ${(
-                diskspace.free /
-                    1024 ** 3
-              ).toFixed(2)} free.`
-            )
-          }
-        }
-      })
-    })
+    // getSize(osPaths[process.platform], (err, downloadedSize) => {
+    //   if (err) {
+    //     throw err
+    //   }
+    //   checkDiskSpace('/').then(diskspace => {
+    //     const blockchainSizeLeftToFetch = BLOCKCHAIN_SIZE - downloadedSize
+    //     const freeSpaceLeft =
+    //           diskspace.free -
+    //           (blockchainSizeLeftToFetch + ZCASH_PARAMS + REQUIRED_FREE_SPACE)
+    //     if (freeSpaceLeft <= 0) {
+    //       if (mainWindow) {
+    //         mainWindow.webContents.send(
+    //           'checkDiskSpace',
+    //           `Sorry, but Zbay needs ${(
+    //             blockchainSizeLeftToFetch /
+    //                 1024 ** 3
+    //           ).toFixed(2)} GB to connect to its network and you only have ${(
+    //             diskspace.free /
+    //                 1024 ** 3
+    //           ).toFixed(2)} free.`
+    //         )
+    //       }
+    //     }
+    //   })
+    // })
 
     if (process.platform === 'win32' && process.argv) {
       const payload = process.argv[1]
