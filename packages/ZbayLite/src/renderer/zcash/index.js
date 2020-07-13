@@ -48,7 +48,4 @@ export const getClient = (options) => {
   }
   return _client
 }
-
-export default {
-  getClient
-}
+export default getClient()
