@@ -1,5 +1,7 @@
 import mirrorKey from 'keymirror'
 export const networkFee = 0.0000025
+export const satoshiMultiplier = 100000000
+export const networkFeeSatoshi = networkFee * satoshiMultiplier
 export const targetUtxoCount = 25
 export const debounceThreshold = 10
 export const unknownUserId = 'c7e7c14740c3372fffe47c845a2b6720'
