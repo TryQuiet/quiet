@@ -6,10 +6,10 @@ import { randomBytes } from 'crypto'
 import { ipcRenderer } from 'electron'
 
 import client from '../../zcash'
-import channels from '../../zcash/channels'
+// import channels from '../../zcash/channels'
 
 import identitySelectors from '../selectors/identity'
-import nodeSelectors from '../selectors/node'
+// import nodeSelectors from '../selectors/node'
 import txnTimestampsSelector from '../selectors/txnTimestamps'
 // import channelsSelectors from '../selectors/channels'
 // import channelsHandlers from './channels'
@@ -229,22 +229,21 @@ export const createSignerKeys = () => {
 
 export const createIdentity = ({ name }) => async (dispatch, getState) => {
   try {
-    const [{ value: address }, transparentAddress] = await Promise.all([
-      dispatch(nodeHandlers.actions.createAddress()),
-      client().addresses.createTransparent()
-    ])
-    const [tpk, sk] = await Promise.all([
-      await client().keys.exportTPK(transparentAddress),
-      await client().keys.exportSK(address)
-    ])
+    const accountAddresses = await client.addresses()
+    const { z_addresses: zAddresses } = accountAddresses
+    const { t_addresses: tAddresses } = accountAddresses
+    const [zAddress] = zAddresses
+    const [tAddress] = tAddresses
+    const tpk = await client.getPrivKey(tAddress)
+    const sk = await client.getPrivKey(zAddress)
 
     const { signerPrivKey, signerPubKey } = exportFunctions.createSignerKeys()
 
     const { value: identity } = await dispatch(
       vaultHandlers.actions.createIdentity({
         name,
-        address,
-        transparentAddress,
+        address: zAddress,
+        transparentAddress: tAddress,
         signerPubKey,
         signerPrivKey,
         keys: {
@@ -254,28 +253,28 @@ export const createIdentity = ({ name }) => async (dispatch, getState) => {
       })
     )
 
-    const network = nodeSelectors.network(getState())
-    const generalChannel = channels.general[network]
-    const usersChannel = channels.registeredUsers[network]
-    const channelOfChannels = channels.channelOfChannels[network]
-    const priceOracle = channels.priceOracle[network]
-    const store = channels.store[network]
-    await getVault().channels.importChannel(identity.id, priceOracle)
-    await getVault().channels.importChannel(identity.id, generalChannel)
-    await getVault().channels.importChannel(identity.id, usersChannel)
-    await getVault().channels.importChannel(identity.id, channelOfChannels)
-    await getVault().channels.importChannel(identity.id, store)
-    dispatch(
-      logsHandlers.epics.saveLogs({
-        type: 'APPLICATION_LOGS',
-        payload: `Creating identity / importing default channels`
-      })
-    )
-    try {
-      await client().keys.importIVK({
-        ivk: generalChannel.keys.ivk
-      })
-    } catch (error) {}
+    // const network = nodeSelectors.network(getState())
+    // const generalChannel = channels.general[network]
+    // const usersChannel = channels.registeredUsers[network]
+    // const channelOfChannels = channels.channelOfChannels[network]
+    // const priceOracle = channels.priceOracle[network]
+    // const store = channels.store[network]
+    // await getVault().channels.importChannel(identity.id, priceOracle)
+    // await getVault().channels.importChannel(identity.id, generalChannel)
+    // await getVault().channels.importChannel(identity.id, usersChannel)
+    // await getVault().channels.importChannel(identity.id, channelOfChannels)
+    // await getVault().channels.importChannel(identity.id, store)
+    // dispatch(
+    //   logsHandlers.epics.saveLogs({
+    //     type: 'APPLICATION_LOGS',
+    //     payload: `Creating identity / importing default channels`
+    //   })
+    // )
+    // try {
+    //   await client().keys.importIVK({
+    //     ivk: generalChannel.keys.ivk
+    //   })
+    // } catch (error) {}
 
     return identity
   } catch (err) {

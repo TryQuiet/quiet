@@ -597,29 +597,6 @@ const createZcashNode = async (win, torUrl) => {
 }
 
 app.on('ready', async () => {
-  const blockchainStatus = electronStore.get('AppStatus.blockchain.status')
-  const isBlockchainExists = fs.existsSync(`${osPathsBlockchainDefault[process.platform]}`)
-  const isCustomPathExists = fs.existsSync(`${osPathsBlockchainCustom[process.platform]}`)
-  isFetchedFromExternalSource = isBlockchainExists && !blockchainStatus
-  electronStore.set('isBlockchainFromExternalSource', isFetchedFromExternalSource)
-  const blockchainConfiguration = electronStore.get('blockchainConfiguration')
-  const paramsStatus = electronStore.get('AppStatus.blockchain.status')
-  const isOldUser = paramsStatus === config.PARAMS_STATUSES.SUCCESS && blockchainStatus === config.BLOCKCHAIN_STATUSES.SUCCESS
-  if (!blockchainConfiguration) {
-    if (isOldUser) {
-      electronStore.set('blockchainConfiguration', config.BLOCKCHAIN_STATUSES.DEFAULT_LOCATION_SELECTED)
-    } else if (isFetchedFromExternalSource) {
-      electronStore.set('blockchainConfiguration', config.BLOCKCHAIN_STATUSES.WAITING_FOR_USER_DECISION)
-    } else if (!isCustomPathExists && blockchainStatus === config.BLOCKCHAIN_STATUSES.FETCHING) {
-      electronStore.set('AppStatus.blockchain', {
-        status: config.BLOCKCHAIN_STATUSES.TO_FETCH,
-        isRescanned: false
-      })
-      electronStore.set('blockchainConfiguration', config.BLOCKCHAIN_STATUSES.TO_FETCH)
-    } else {
-      electronStore.set('blockchainConfiguration', config.BLOCKCHAIN_STATUSES.TO_FETCH)
-    }
-  }
   const template = [
     {
       label: 'Zbay',
@@ -653,50 +630,6 @@ app.on('ready', async () => {
   createWindow()
   mainWindow.webContents.on('did-finish-load', () => {
     mainWindow.webContents.send('ping')
-    const osPaths = {
-      darwin: `${process.env.HOME ||
-        process.env.USERPROFILE}/Library/Application Support/ZbayData`,
-      linux: `${process.env.HOME || process.env.USERPROFILE}/ZbayData`,
-      win32: `${os.userInfo().homedir}\\AppData\\Roaming\\ZbayData`
-    }
-
-    // const BLOCKCHAIN_SIZE = 27843545600
-    // const REQUIRED_FREE_SPACE = 1073741824
-    // const ZCASH_PARAMS = 1825361100
-
-    if ((!blockchainConfiguration || blockchainConfiguration === config.BLOCKCHAIN_STATUSES.WAITING_FOR_USER_DECISION) && isFetchedFromExternalSource) {
-      if (mainWindow) {
-        mainWindow.webContents.send('askForUsingDefaultBlockchainLocation')
-      }
-    }
-    if (!fs.existsSync(osPaths[process.platform])) {
-      fs.mkdirSync(osPaths[process.platform])
-    }
-    // getSize(osPaths[process.platform], (err, downloadedSize) => {
-    //   if (err) {
-    //     throw err
-    //   }
-    //   checkDiskSpace('/').then(diskspace => {
-    //     const blockchainSizeLeftToFetch = BLOCKCHAIN_SIZE - downloadedSize
-    //     const freeSpaceLeft =
-    //           diskspace.free -
-    //           (blockchainSizeLeftToFetch + ZCASH_PARAMS + REQUIRED_FREE_SPACE)
-    //     if (freeSpaceLeft <= 0) {
-    //       if (mainWindow) {
-    //         mainWindow.webContents.send(
-    //           'checkDiskSpace',
-    //           `Sorry, but Zbay needs ${(
-    //             blockchainSizeLeftToFetch /
-    //                 1024 ** 3
-    //           ).toFixed(2)} GB to connect to its network and you only have ${(
-    //             diskspace.free /
-    //                 1024 ** 3
-    //           ).toFixed(2)} free.`
-    //         )
-    //       }
-    //     }
-    //   })
-    // })
 
     if (process.platform === 'win32' && process.argv) {
       const payload = process.argv[1]
