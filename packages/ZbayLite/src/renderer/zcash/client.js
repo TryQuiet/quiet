@@ -3,6 +3,9 @@ export default class RPC {
   constructor (url = 'https://lightwalletd.zecwallet.co:1443') {
     const result = native.litelib_initialize_existing(url)
     console.log(`Intialization: ${result}`)
+    if (result !== 'OK') {
+      native.litelib_initialize_new(url)
+    }
   }
   sync = async () => {
     return native.litelib_execute('sync', '')
