@@ -53,7 +53,7 @@ const coordinator = () => async (dispatch, getState) => {
     for (let index = 0; index < statusActions.size; index++) {
       await dispatch(statusActions.get(index)())
     }
-    setTimeout(fetchStatus, 75000)
+    setTimeout(fetchStatus, 15000)
   }
   const fetchData = async () => {
     const res = await getClient().operations.getTransactionsCount()
@@ -97,9 +97,9 @@ const coordinator = () => async (dispatch, getState) => {
     dispatch(appHandlers.actions.setInitialLoadFlag(true))
     setTimeout(fetchData, 5000)
   }
-  setTimeout(fetchStatus, 75000)
-  fetchData()
-  fetchZecPrice()
+  fetchStatus()
+  // fetchData()
+  // fetchZecPrice()
 }
 const epics = {
   coordinator

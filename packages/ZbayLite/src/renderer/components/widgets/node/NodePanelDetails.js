@@ -9,7 +9,7 @@ import IconButton from '@material-ui/core/IconButton'
 import { shell } from 'electron'
 
 import NodePanelBlocksField from '../../../containers/widgets/node/NodePanelBlocksField'
-import NodePanelConnectionsField from '../../../containers/widgets/node/NodePanelConnectionsField'
+// import NodePanelConnectionsField from '../../../containers/widgets/node/NodePanelConnectionsField'
 import NodePanelNetworkField from '../../../containers/widgets/node/NodePanelNetworkField'
 import NodePanelFreeUtxos from '../../../containers/widgets/node/NodePanelFreeUtxos'
 import Icon from '../../ui/Icon'
@@ -115,7 +115,7 @@ export const NodePanelDetails = ({ classes, expanded, showLogsPanel }) => {
               </Tooltip>
             </Grid>
             <NodePanelBlocksField />
-            <NodePanelConnectionsField />
+            {/* <NodePanelConnectionsField /> */}
             <NodePanelFreeUtxos />
           </>
         )}

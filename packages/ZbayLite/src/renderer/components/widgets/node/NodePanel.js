@@ -70,8 +70,7 @@ export const NodePanel = ({
   expanded,
   status,
   setExpanded,
-  freeUtxos,
-  connections
+  freeUtxos
 }) => (
   <Grid
     item
@@ -95,13 +94,7 @@ export const NodePanel = ({
         classes={{ root: classes.expander, expanded: classes.expanded }}
       >
         <Tooltip
-          title={
-            connections
-              ? freeUtxos
-                ? status
-                : `Waiting for UTXO's`
-              : `Offline`
-          }
+          title={freeUtxos ? status : `Waiting for UTXO's`}
           className={classes.tooltip}
           placement='bottom-end'
         >

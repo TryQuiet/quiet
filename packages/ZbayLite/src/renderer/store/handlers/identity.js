@@ -5,7 +5,7 @@ import secp256k1 from 'secp256k1'
 import { randomBytes } from 'crypto'
 import { ipcRenderer } from 'electron'
 
-import { getClient } from '../../zcash'
+import client from '../../zcash'
 import channels from '../../zcash/channels'
 
 import identitySelectors from '../selectors/identity'
@@ -18,14 +18,11 @@ import removedChannelsHandlers from './removedChannels'
 import contactsHandlers from './contacts'
 // import messagesHandlers from './messages'
 // import publicChannelsHandlers from './publicChannels'
+import coordinatorHandlers from './coordinator'
 import offersHandlers from './offers'
 import whitelistHandlers from './whitelist'
 import txnTimestampsHandlers from './txnTimestamps'
 import logsHandlers from '../../store/handlers/logs'
-import operationHandlers, {
-  operationTypes,
-  ShieldBalanceOp
-} from './operations'
 import vaultHandlers from './vault'
 import ratesHandlers from './rates'
 import nodeHandlers from './node'
@@ -36,7 +33,11 @@ import vault, { getVault } from '../../vault'
 import { LoaderState, successNotification } from './utils'
 import modalsHandlers from './modals'
 import notificationsHandlers from './notifications'
-import { networkFee, actionTypes } from '../../../shared/static'
+import {
+  actionTypes,
+  networkFeeSatoshi,
+  satoshiMultiplier
+} from '../../../shared/static'
 import electronStore from '../../../shared/electronStore'
 
 export const ShippingData = Immutable.Record(
@@ -127,64 +128,10 @@ const actions = {
   setShieldingTax,
   setFreeUtxos
 }
-
-export const shieldBalance = ({ from, to, amount, fee }) => async (
-  dispatch,
-  getState
-) => {
-  const donationAllow = identitySelectors.donationAllow(getState())
-  const network = nodeSelectors.network(getState())
-  const zbay = channels.zbay[network]
-  const donationAddress = identitySelectors.donationAddress(getState())
-  const isAddressValid = /^t1[a-zA-Z0-9]{33}$|^ztestsapling1[a-z0-9]{75}$|^zs1[a-z0-9]{75}$|[A-Za-z0-9]{35}/.test(
-    donationAddress
-  )
-  let transactions = []
-  const taxAmount = amount.div(100).toFixed(8) // 1% tax
-  const newAmount = amount.minus(taxAmount).toFixed(8)
-  if (donationAllow === 'true') {
-    transactions.push({
-      address: isAddressValid ? donationAddress : zbay.address,
-      amount: taxAmount.toString()
-    })
-    transactions.push({
-      address: to,
-      amount: newAmount.toString()
-    })
-  } else {
-    transactions.push({
-      address: to,
-      amount: amount.toString()
-    })
-  }
-  const opId = await getClient().payment.send({
-    from,
-    amounts: transactions,
-    fee
-  })
-  dispatch(
-    notificationsHandlers.actions.enqueueSnackbar(
-      successNotification({
-        message: `You will soon receive ${newAmount.toString()} from your transparent address`
-      })
-    )
-  )
-  dispatch(
-    operationHandlers.epics.observeOperation({
-      opId,
-      type: operationTypes.shieldBalance,
-      meta: ShieldBalanceOp({
-        amount,
-        from,
-        to
-      })
-    })
-  )
-}
 export const fetchAffiliateMoney = () => async (dispatch, getState) => {
   try {
     const identityAddress = identitySelectors.address(getState())
-    const transfers = await getClient().payment.received(identityAddress)
+    const transfers = await client().payment.received(identityAddress)
     const identityId = identitySelectors.id(getState())
     const affiliatesTransfers = transfers.filter(msg =>
       msg.memo.startsWith('aa')
@@ -195,7 +142,7 @@ export const fetchAffiliateMoney = () => async (dispatch, getState) => {
       const transfer = transfers[key]
       if (!txnTimestamps.get(transfer.txid)) {
         amount += transfer.amount
-        const result = await getClient().confirmations.getResult(transfer.txid)
+        const result = await client().confirmations.getResult(transfer.txid)
         await getVault().transactionsTimestamps.addTransaction(
           transfer.txid,
           result.timereceived
@@ -220,51 +167,29 @@ export const fetchAffiliateMoney = () => async (dispatch, getState) => {
   } catch (err) {}
 }
 export const fetchBalance = () => async (dispatch, getState) => {
-  const fee = networkFee
-  dispatch(setFetchingBalance(true))
-  const address = identitySelectors.address(getState())
-  const tAddress = identitySelectors.transparentAddress(getState())
-  const addresses = identitySelectors.addresses(getState()).toJS()
-  const shieldedAddresses = identitySelectors
-    .shieldedAddresses(getState())
-    .toJS()
-  const allAddresses = addresses.concat(shieldedAddresses).concat(tAddress)
-  for (const userAddress of allAddresses) {
-    try {
-      const balance = await getClient().accounting.balance(userAddress)
-      const realTBalance = balance.minus(fee)
-      if (realTBalance.gt(0)) {
-        await dispatch(
-          shieldBalance({
-            from: userAddress,
-            to: address,
-            amount: realTBalance,
-            fee
-          })
-        )
-      }
-    } catch (err) {
-      console.warn(err)
-    }
-  }
   try {
-    const balance = await getClient().accounting.balance(address)
-    const lockedBalanceNotes = await getClient().payment.unspentNotes({
-      addresses: [address],
-      minConfirmations: 0,
-      maxConfirmations: 0
-    })
-    const lockedBalance = lockedBalanceNotes.reduce(
-      (acc, current) => acc.plus(new BigNumber(current.amount || 0)),
-      new BigNumber(0)
+    dispatch(setFetchingBalance(true))
+    const balanceObj = await client.balance()
+    dispatch(
+      setLockedBalance(
+        new BigNumber(
+          (balanceObj.zbalance - balanceObj.verified_zbalance) /
+            satoshiMultiplier
+        )
+      )
     )
-
-    dispatch(setLockedBalance(lockedBalance))
-    dispatch(setBalance(balance))
+    dispatch(
+      setBalance(
+        new BigNumber(balanceObj.verified_zbalance / satoshiMultiplier)
+      )
+    )
     dispatch(
       logsHandlers.epics.saveLogs({
         type: 'APPLICATION_LOGS',
-        payload: `Fetching balance: locked balance: ${lockedBalance}, balance: ${balance}`
+        payload: `Fetching balance: locked balance: ${(balanceObj.zbalance -
+          balanceObj.verified_zbalance) /
+          satoshiMultiplier}, balance: ${balanceObj.verified_zbalance /
+          satoshiMultiplier}`
       })
     )
   } catch (err) {
@@ -274,11 +199,10 @@ export const fetchBalance = () => async (dispatch, getState) => {
   }
 }
 export const fetchFreeUtxos = () => async (dispatch, getState) => {
-  const address = identitySelectors.address(getState())
   try {
-    const utxos = await getClient().accounting.freeUtxos(address)
-    const freeUtxos = utxos.filter(
-      utxo => utxo.spendable === true && utxo.amount > networkFee
+    const utxos = await client.notes()
+    const freeUtxos = utxos.unspent_notes.filter(
+      utxo => utxo.value > networkFeeSatoshi
     )
     dispatch(setFreeUtxos(freeUtxos.length))
     dispatch(
@@ -307,11 +231,11 @@ export const createIdentity = ({ name }) => async (dispatch, getState) => {
   try {
     const [{ value: address }, transparentAddress] = await Promise.all([
       dispatch(nodeHandlers.actions.createAddress()),
-      getClient().addresses.createTransparent()
+      client().addresses.createTransparent()
     ])
     const [tpk, sk] = await Promise.all([
-      await getClient().keys.exportTPK(transparentAddress),
-      await getClient().keys.exportSK(address)
+      await client().keys.exportTPK(transparentAddress),
+      await client().keys.exportSK(address)
     ])
 
     const { signerPrivKey, signerPubKey } = exportFunctions.createSignerKeys()
@@ -348,7 +272,7 @@ export const createIdentity = ({ name }) => async (dispatch, getState) => {
       })
     )
     try {
-      await getClient().keys.importIVK({
+      await client().keys.importIVK({
         ivk: generalChannel.keys.ivk
       })
     } catch (error) {}
@@ -423,7 +347,11 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
     // await dispatch(fetchBalance())
     await dispatch(initAddreses())
     dispatch(ratesHandlers.epics.setInitialPrice())
-    // await dispatch(fetchFreeUtxos())
+
+    await dispatch(nodeHandlers.epics.getStatus())
+    await dispatch(fetchFreeUtxos())
+    await dispatch(coordinatorHandlers.epics.coordinator())
+
     dispatch(setLoadingMessage('Loading users and messages'))
     // await dispatch(usersHandlers.epics.fetchUsers())
     await dispatch(contactsHandlers.epics.loadAllSentMessages())
@@ -517,7 +445,7 @@ export const generateNewAddress = () => async (dispatch, getState) => {
     electronStore.set('addresses', JSON.stringify([]))
   }
   const addresses = JSON.parse(electronStore.get('addresses'))
-  const address = await getClient().addresses.createTransparent()
+  const address = await client().addresses.createTransparent()
   addresses.unshift(address)
   dispatch(setUserAddreses(Immutable.List(addresses)))
   electronStore.set('addresses', JSON.stringify(addresses))
@@ -527,7 +455,7 @@ export const generateNewShieldedAddress = () => async (dispatch, getState) => {
     electronStore.set('shieldedAddresses', JSON.stringify([]))
   }
   const addresses = JSON.parse(electronStore.get('shieldedAddresses'))
-  const address = await getClient().addresses.create('sapling')
+  const address = await client().addresses.create('sapling')
   addresses.unshift(address)
   dispatch(setUserShieldedAddreses(Immutable.List(addresses)))
   electronStore.set('shieldedAddresses', JSON.stringify(addresses))
