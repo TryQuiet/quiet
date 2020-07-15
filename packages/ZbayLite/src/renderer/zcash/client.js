@@ -29,9 +29,7 @@ export default class RPC {
     // TODO add validation of payload
     return native.litelib_execute('send', JSON.stringify(payload))
   }
-  list = async (includeMemoHex = 'yes') => {
-    return JSON.parse(native.litelib_execute('list', `${includeMemoHex}`))
-  }
+
   height = async () => {
     return JSON.parse(native.litelib_execute('height', '')).height
   }

@@ -25,7 +25,7 @@ import {
 } from '../../../shared/static'
 import { messages as zbayMessages } from '../../zbay'
 import { checkMessageSizeAfterComporession } from '../../zbay/transit'
-import { getClient } from '../../zcash'
+import client from '../../zcash'
 import { displayMessageNotification } from '../../notifications'
 import { getVault } from '../../vault'
 
@@ -105,6 +105,14 @@ export const actions = {
   appendNewMessages
 }
 
+export const fetchAllMessages = async () => {
+  try {
+    const txns = await client.list()
+    return R.groupBy(txn => txn.address)(txns)
+  } catch (err) {
+    return {}
+  }
+}
 export const fetchMessages = channel => async (dispatch, getState) => {
   try {
     const pendingMessages = operationsSelectors.pendingMessages(getState())
@@ -121,7 +129,7 @@ export const fetchMessages = channel => async (dispatch, getState) => {
       getState()
     )
 
-    const transfers = await getClient().payment.received(channel.get('address'))
+    const transfers = await client().payment.received(channel.get('address'))
 
     if (
       transfers.length === appSelectors.transfers(getState()).get(channelId)
@@ -145,7 +153,7 @@ export const fetchMessages = channel => async (dispatch, getState) => {
     for (const key in transfers) {
       const transfer = transfers[key]
       if (!txnTimestamps.get(transfer.txid)) {
-        const result = await getClient().confirmations.getResult(transfer.txid)
+        const result = await client().confirmations.getResult(transfer.txid)
         await getVault().transactionsTimestamps.addTransaction(
           transfer.txid,
           result.timereceived
