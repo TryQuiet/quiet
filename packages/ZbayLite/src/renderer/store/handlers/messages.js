@@ -110,6 +110,7 @@ export const fetchAllMessages = async () => {
     const txns = await client.list()
     return R.groupBy(txn => txn.address)(txns)
   } catch (err) {
+    console.warn(`Can't pull messages`)
     return {}
   }
 }
