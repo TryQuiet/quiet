@@ -5,7 +5,6 @@ import { bindActionCreators } from 'redux'
 
 import Grid from '@material-ui/core/Grid'
 import contactsSelectors from '../../../store/selectors/contacts'
-import directMessageSelectors from '../../../store/selectors/directMessageChannel'
 import SidebarHeader from '../../../components/ui/SidebarHeader'
 import { actionCreators } from '../../../store/handlers/modals'
 import offersSelectors from '../../../store/selectors/offers'
@@ -15,7 +14,7 @@ import channelSelectors, { INPUT_STATE } from '../../../store/selectors/channel'
 
 export const mapStateToProps = state => ({
   channels: contactsSelectors.contacts(state).toList(),
-  selected: directMessageSelectors.directMessageChannel(state),
+  selected: channelSelectors.channelInfo(state),
   offers: offersSelectors.filteredOffers(state),
   selectedOffer: channelSelectors.channelInfo(state),
   fundsLocked:

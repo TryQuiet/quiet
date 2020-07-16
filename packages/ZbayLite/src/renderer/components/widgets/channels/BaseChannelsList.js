@@ -30,14 +30,13 @@ export const BaseChannelsList = ({
   const unknownUserIndex = channels.findIndex(
     ch => ch.username === unknownUserId
   )
-
   return (
     <List disablePadding>
       {channels
         .filter(ch => ch.username !== unknownUserId)
         .map(channel => (
           <ChannelsListItem
-            key={directMessages ? channel.get('address') : channel.get('id')}
+            key={channel.key}
             channel={channel}
             directMessages={directMessages}
             selected={selected}

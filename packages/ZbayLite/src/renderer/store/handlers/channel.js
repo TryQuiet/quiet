@@ -18,11 +18,11 @@ import channelSelectors from '../selectors/channel'
 import channelsSelectors from '../selectors/channels'
 import identitySelectors from '../selectors/identity'
 import appSelectors from '../selectors/app'
+import contactsSelectors from '../selectors/contacts'
 import logsHandlers from '../handlers/logs'
 import { getClient } from '../../zcash'
 import { messages } from '../../zbay'
 import { errorNotification, LoaderState } from './utils'
-import { channelToUri } from '../../zbay/channels'
 import nodeSelectors from '../selectors/node'
 import { getVault } from '../../vault'
 import { messageType, actionTypes } from '../../../shared/static'
@@ -73,18 +73,18 @@ export const actions = {
   messageSizeStatus
 }
 
-const loadChannel = id => async (dispatch, getState) => {
+const loadChannel = key => async (dispatch, getState) => {
   try {
-    dispatch(setChannelId(id))
+    dispatch(setChannelId(key))
 
     // Calculate URI on load, that way it won't be outdated, even if someone decides
     // to update channel in vault manually
-    const channel = channelSelectors.data(getState()).toJS()
-    const uri = await channelToUri(channel)
-    dispatch(setShareableUri(uri))
-    dispatch(setAddress(channel.address))
-    await dispatch(clearNewMessages())
-    await dispatch(updateLastSeen())
+    const contact = contactsSelectors.contact(key)(getState())
+    // const uri = await channelToUri(channel)
+    // dispatch(setShareableUri(uri))
+    dispatch(setAddress(contact.address))
+    // await dispatch(clearNewMessages())
+    // await dispatch(updateLastSeen())
   } catch (err) {}
 }
 const loadOffer = (id, address) => async (dispatch, getState) => {

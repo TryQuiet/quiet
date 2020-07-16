@@ -73,9 +73,7 @@ export const ChannelsListItem = ({ classes, channel, history, directMessages, se
   const channelObj = channel.toJS()
   const isFromZbay = channelObj.username !== unknownUserId
   // const size = 15
-  const highlight = directMessages
-    ? selected.targetRecipientAddress === channel.key
-    : channelObj.key === selected.key
+  const highlight = selected.id === channel.key
   const newMessages = directMessages ? channelObj.newMessages.length : channelObj.unread
   // const recievedMoney =
   //   directMessages &&

@@ -150,7 +150,6 @@ const setUsersMessages = (address, messages) => async (dispatch, getState) => {
   const filteredZbayMessages = messages.filter(msg =>
     msg.memohex.startsWith('ff')
   )
-  console.log(filteredTextMessages)
   const parsedTextMessages = filteredTextMessages.map(msg =>
     _RecivedFromUnknownMessage({
       id: msg.txid,
@@ -165,7 +164,6 @@ const setUsersMessages = (address, messages) => async (dispatch, getState) => {
       blockTime: msg.block_height
     })
   )
-  console.log(parsedTextMessages)
   const unknownUser = users.get(unknownUserId)
   dispatch(
     contactsHandlers.actions.setMessages({
