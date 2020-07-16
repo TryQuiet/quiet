@@ -80,7 +80,26 @@ export const ReceivedUser = values => {
   return null
 }
 
-export const initialState = Immutable.Map()
+export const initialState = Immutable.Map({
+  '025669600202e2d4f678d800b1cfc7fa5bf7d8a0fa0136e1b7722cbcaa591f042b': _UserData(
+    {
+      nickname: 'norbi',
+      address:
+        'zs1xyk77jcla0r0nv82ck2ukmp45t6gvhkf9etwdmhdp3hdc9tc39fqaunahwr72csgvenjgv5rp65'
+    }
+  ),
+  c7e7c14740c3372fffe47c845a2b6720: _UserData({
+    nickname: 'Unknown',
+    address: 'c7e7c14740c3372fffe47c845a2b6720'
+  }),
+  '02ff9facdc8326c41e6cb191384b4f8d98196739287f2edbf0036e5f6aeec1eba7': _UserData(
+    {
+      nickname: 'janusz',
+      address:
+        'zs1ladffadkyr47aeqtw0t29e4hx7gz9064k9enlvfqsdmn23f9u8mku44geeu2f8n0spkfw5l2qg7'
+    }
+  )
+})
 
 export const setUsers = createAction(actionTypes.SET_USERS)
 

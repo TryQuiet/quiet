@@ -219,6 +219,7 @@ export const actions = {
 }
 export const loadContact = address => async (dispatch, getState) => {
   const contact = selectors.contact(address)(getState())
+  console.log(contact)
   dispatch(updateLastSeen({ contact }))
 }
 export const linkUserRedirect = contact => async (dispatch, getState) => {
@@ -553,11 +554,11 @@ export const updateLastSeen = ({ contact }) => async (dispatch, getState) => {
   const lastSeen = DateTime.utc()
   const unread = selectors.newMessages(contact.address)(getState()).size
   remote.app.badgeCount = remote.app.badgeCount - unread
-  dispatch(cleanNewMessages({ contactAddress: contact.address }))
+  dispatch(cleanNewMessages({ contactAddress: contact.key }))
   await getVault().contacts.updateLastSeen({
     identityId,
     recipientUsername: contact.username,
-    recipientAddress: contact.replyTo || contact.address,
+    recipientAddress: contact.replyTo || contact.key,
     lastSeen
   })
   dispatch(
@@ -826,9 +827,17 @@ export const epics = {
 
 export const reducer = handleActions(
   {
-    [setMessages]: (state, { payload: { contactAddress, messages } }) =>
-      state.update(contactAddress, Contact(), cm =>
-        cm.set('messages', Immutable.fromJS(messages))
+    [setMessages]: (
+      state,
+      { payload: { key, username, contactAddress, messages } }
+    ) =>
+      state.update(
+        key,
+        Contact({ key: key, address: contactAddress, username: username }),
+        cm =>
+          cm.update('messages', msgs => {
+            return msgs.merge(messages)
+          })
       ),
     [setMessageBlockTime]: (
       state,
@@ -872,7 +881,7 @@ export const reducer = handleActions(
         cm.update('newMessages', nm => nm.concat(messagesIds))
       ),
     [setLastSeen]: (state, { payload: { lastSeen, contact } }) =>
-      state.update(contact.replyTo || contact.address, Contact(), cm =>
+      state.update(contact.key || contact.key, Contact(), cm =>
         cm.set('lastSeen', lastSeen)
       ),
     [removeContact]: (state, { payload: address }) => state.delete(address),

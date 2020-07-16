@@ -10,66 +10,45 @@ import { mergeIntoOne } from './channel'
 
 export const Contact = Immutable.Record({
   lastSeen: null,
+  key: '',
   username: '',
   address: '',
-  messages: Immutable.List(),
+  messages: Immutable.Map(),
   newMessages: Immutable.List(),
   vaultMessages: Immutable.List()
 })
 
 const store = s => s
 
-const contacts = createSelector(
-  store,
-  state => state.get('contacts')
-)
+const contacts = createSelector(store, state => state.get('contacts'))
 const contact = address =>
-  createSelector(
-    contacts,
-    c => c.get(address, Contact())
-  )
+  createSelector(contacts, c => c.get(address, Contact()))
 const messages = address =>
-  createSelector(
-    contact(address),
-    c => c.messages
-  )
-const lastSeen = address =>
-  createSelector(
-    contact(address),
-    c => c.lastSeen
-  )
-const username = address =>
-  createSelector(
-    contact(address),
-    c => c.username
-  )
+  createSelector(contact(address), c => c.messages.toList())
+const lastSeen = address => createSelector(contact(address), c => c.lastSeen)
+const username = address => createSelector(contact(address), c => c.username)
 const vaultMessages = address =>
-  createSelector(
-    contact(address),
-    c => c.vaultMessages
-  )
+  createSelector(contact(address), c => c.vaultMessages)
 const newMessages = address =>
-  createSelector(
-    contact(address),
-    c => c.newMessages
-  )
+  createSelector(contact(address), c => c.newMessages)
 
 export const queuedMessages = address =>
   createSelector(
     directMssagesQueueSelectors.queue,
-    queue => queue.filter(m => m.recipientAddress === address && m.message.get('type') < 10) //  separate offer messages and direct messages
+    queue =>
+      queue.filter(
+        m => m.recipientAddress === address && m.message.get('type') < 10
+      ) //  separate offer messages and direct messages
   )
 
 export const pendingMessages = address =>
-  createSelector(
-    operationsSelectors.operations,
-    operations =>
-      operations.filter(
-        o =>
-          o.type === operationTypes.pendingDirectMessage &&
-          o.meta.recipientAddress === address &&
-          o.meta.message.get('type') < 10 //  separate offer messages and direct messages
-      )
+  createSelector(operationsSelectors.operations, operations =>
+    operations.filter(
+      o =>
+        o.type === operationTypes.pendingDirectMessage &&
+        o.meta.recipientAddress === address &&
+        o.meta.message.get('type') < 10 //  separate offer messages and direct messages
+    )
   )
 
 export const directMessages = (address, signerPubKey) =>
@@ -80,7 +59,14 @@ export const directMessages = (address, signerPubKey) =>
     vaultMessages(address),
     pendingMessages(address),
     queuedMessages(address),
-    (identity, registeredUser, messages, vaultMessages, pendingMessages, queuedMessages) => {
+    (
+      identity,
+      registeredUser,
+      messages,
+      vaultMessages,
+      pendingMessages,
+      queuedMessages
+    ) => {
       const userData = registeredUser ? registeredUser.toJS() : null
       const identityAddress = identity.address
       const identityName = userData ? userData.nickname : identity.name
@@ -96,13 +82,14 @@ export const directMessages = (address, signerPubKey) =>
         })
       )
 
-      const displayableQueued = queuedMessages.map((queuedMessage, messageKey) =>
-        zbayMessages.queuedToDisplayableMessage({
-          queuedMessage,
-          messageKey,
-          identityAddress,
-          identityName
-        })
+      const displayableQueued = queuedMessages.map(
+        (queuedMessage, messageKey) =>
+          zbayMessages.queuedToDisplayableMessage({
+            queuedMessage,
+            messageKey,
+            identityAddress,
+            identityName
+          })
       )
 
       const fetchedMessagesToDisplay = messages.map(msg =>
@@ -114,7 +101,11 @@ export const directMessages = (address, signerPubKey) =>
       )
 
       const concatedMessages = fetchedMessagesToDisplay
-        .concat(vaultMessages.values(), displayableQueued.values(), displayablePending.values())
+        .concat(
+          vaultMessages.values(),
+          displayableQueued.values(),
+          displayablePending.values()
+        )
         .sortBy(m => m.get('createdAt'))
       const merged = mergeIntoOne(concatedMessages)
       return merged

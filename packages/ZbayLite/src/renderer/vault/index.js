@@ -9,7 +9,7 @@ import { passwordToSecureStrings } from './marshalling'
 import { formSchema as shippingDataSchema } from '../components/widgets/settings/ShippingSettingsForm'
 import Vault from './vault'
 
-const getVaultPath = network => path.join(remote.app.getPath('userData'), `vault-${network}.bcup`)
+const getVaultPath = network => path.join(remote.app.getPath('userData'), `vault-lite-${network}.bcup`)
 
 let _vault = null
 

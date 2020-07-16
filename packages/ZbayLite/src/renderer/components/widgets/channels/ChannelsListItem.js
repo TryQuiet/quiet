@@ -9,10 +9,10 @@ import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
 import { Typography, Grid } from '@material-ui/core'
 
-import ZcashIcon from '../../ui/ZcashIcon'
+// import ZcashIcon from '../../ui/ZcashIcon'
 import Icon from '../../ui/Icon'
 import anonIcon from '../../../static/images/st-anon.svg'
-import { messageType, unknownUserId } from '../../../../shared/static'
+import { unknownUserId } from '../../../../shared/static'
 
 const styles = theme => ({
   root: {
@@ -72,16 +72,16 @@ const styles = theme => ({
 export const ChannelsListItem = ({ classes, channel, history, directMessages, selected, isRegisteredUsername }) => {
   const channelObj = channel.toJS()
   const isFromZbay = channelObj.username !== unknownUserId
-  const size = 15
+  // const size = 15
   const highlight = directMessages
-    ? selected.targetRecipientAddress === channel.address
-    : channelObj.address === selected.address
+    ? selected.targetRecipientAddress === channel.key
+    : channelObj.key === selected.key
   const newMessages = directMessages ? channelObj.newMessages.length : channelObj.unread
-  const recievedMoney =
-    directMessages &&
-    channelObj.messages.find(
-      msg => msg.type === messageType.TRANSFER && channelObj.newMessages.includes(msg.id)
-    )
+  // const recievedMoney =
+  //   directMessages &&
+  //   channelObj.messages.find(
+  //     msg => msg.type === messageType.TRANSFER && channelObj.newMessages.includes(msg.id)
+  //   )
   return (
     <ListItem
       button
@@ -90,7 +90,7 @@ export const ChannelsListItem = ({ classes, channel, history, directMessages, se
         history.push(
           `/main/${
             directMessages
-              ? `direct-messages/${channelObj.address}/${channelObj.username}`
+              ? `direct-messages/${channelObj.key}/${channelObj.username}`
               : `channel/${channelObj.id}`
           }`
         )
@@ -119,11 +119,11 @@ export const ChannelsListItem = ({ classes, channel, history, directMessages, se
                 {directMessages ? `${isFromZbay ? `@ ${isRegisteredUsername ? channelObj.username : channelObj.address}` : 'unknown'}` : `# ${channelObj.name}`}
               </Typography>
             </Grid>
-            {recievedMoney && (
+            {/* {recievedMoney && (
               <Grid item>
                 <ZcashIcon size={size} className={classes.icon} />
               </Grid>
-            )}
+            )} */}
           </Grid>
         }
         classes={{

@@ -44,6 +44,7 @@ const coordinator = () => async (dispatch, getState) => {
     .push(() => nodeHandlers.epics.getStatus())
     .push(() => identityHandlers.epics.fetchBalance())
     .push(() => identityHandlers.epics.fetchFreeUtxos())
+    .push(() => messagesHandlers.epics.fetchMessages())
 
   const fetchZecPrice = async () => {
     await dispatch(ratesHandlers.epics.fetchPrices())

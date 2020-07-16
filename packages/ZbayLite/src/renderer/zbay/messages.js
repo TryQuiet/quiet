@@ -160,13 +160,13 @@ export const usernameSchema = Yup.object().shape({
 })
 
 export const transferToMessage = async (props, users) => {
-  const { txid, amount, memo } = props
+  const { txid, amount, memohex } = props
   let message = null
   let sender = { replyTo: '', username: 'Unnamed' }
   let isUnregistered = false
   let publicKey = null
   try {
-    message = await unpackMemo(memo)
+    message = await unpackMemo(memohex)
     const { type } = message
     if (type === 'UNKNOWN') {
       return {

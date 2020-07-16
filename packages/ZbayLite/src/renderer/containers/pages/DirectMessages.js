@@ -32,7 +32,7 @@ const DirectMessages = ({
       resetChannel()
       loadRecipientAddress(match.params.id)
       loadRecipientUsername(match.params.username)
-      loadContact(match.params.id)
+      // loadContact(match.params.id)
     },
     [match.params.id]
   )

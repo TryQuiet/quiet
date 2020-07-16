@@ -36,6 +36,9 @@ export default class RPC {
   quit = async () => {
     return native.litelib_execute('quit', '')
   }
+  list = async (includeMemoHex = 'yes') => {
+    return JSON.parse(native.litelib_execute('list', `${includeMemoHex}`))
+  }
   save = async () => {
     return JSON.parse(native.litelib_execute('save', ''))
   }

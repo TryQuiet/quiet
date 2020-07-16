@@ -15,13 +15,15 @@ import operationsHandlers from './operations'
 import channelsHandlers from './channels'
 import { actions as channelActions } from './channel'
 import txnTimestampsHandlers from '../handlers/txnTimestamps'
+import contactsHandlers from '../handlers/contacts'
 import txnTimestampsSelector from '../selectors/txnTimestamps'
 import notificationCenterSelector from '../selectors/notificationCenter'
 import appHandlers from './app'
 import {
   messageType,
   actionTypes,
-  notificationFilterType
+  notificationFilterType,
+  unknownUserId
 } from '../../../shared/static'
 import { messages as zbayMessages } from '../../zbay'
 import { checkMessageSizeAfterComporession } from '../../zbay/transit'
@@ -69,18 +71,6 @@ const _RecivedFromUnknownMessage = Immutable.Record(
 )
 
 export const ReceivedMessage = values => {
-  if (values.type === 'UNKNOWN') {
-    delete values.payload.type
-    const unknownRecord = _RecivedFromUnknownMessage({
-      ...values.payload,
-      type: new BigNumber(values.spent).gt(new BigNumber(0))
-        ? messageType.TRANSFER
-        : messageType.BASIC,
-      id: values.id,
-      spent: new BigNumber(values.spent)
-    })
-    return unknownRecord
-  }
   const record = _ReceivedMessage(values)
   return record.set('sender', MessageSender(record.sender))
 }
@@ -114,7 +104,122 @@ export const fetchAllMessages = async () => {
     return {}
   }
 }
-export const fetchMessages = channel => async (dispatch, getState) => {
+export const fetchMessages = () => async (dispatch, getState) => {
+  try {
+    const txns = await fetchAllMessages()
+    const identityAddress = identitySelectors.address(getState())
+    dispatch(setUsersMessages(identityAddress, txns[identityAddress]))
+    dispatch(setUsersOutgoingMessages(txns['undefined']))
+  } catch (err) {
+    console.warn(`Can't pull messages`)
+    return {}
+  }
+}
+const checkTransferCount = (address, messages) => async (
+  dispatch,
+  getState
+) => {
+  if (messages.length === appSelectors.transfers(getState()).get(address)) {
+    return -1
+  } else {
+    const oldTransfers = appSelectors.transfers(getState()).get(address) || 0
+    dispatch(
+      appHandlers.actions.reduceNewTransfersCount(
+        messages.length - oldTransfers
+      )
+    )
+    dispatch(
+      appHandlers.actions.setTransfers({
+        id: address,
+        value: messages.length
+      })
+    )
+  }
+}
+const setUsersMessages = (address, messages) => async (dispatch, getState) => {
+  const users = usersSelectors.users(getState())
+  const transferCountFlag = await dispatch(
+    checkTransferCount(address, messages)
+  )
+  if (transferCountFlag === -1) {
+    return
+  }
+  const filteredTextMessages = messages.filter(
+    msg => !msg.memohex.startsWith('f6') && !msg.memohex.startsWith('ff')
+  )
+  const filteredZbayMessages = messages.filter(msg =>
+    msg.memohex.startsWith('ff')
+  )
+  console.log(filteredTextMessages)
+  const parsedTextMessages = filteredTextMessages.map(msg =>
+    _RecivedFromUnknownMessage({
+      id: msg.txid,
+      sender: MessageSender(),
+      type: new BigNumber(msg.amount).gt(new BigNumber(0))
+        ? messageType.TRANSFER
+        : messageType.BASIC,
+      message: msg.memo,
+      createdAt: msg.datetime,
+      specialType: null,
+      spent: new BigNumber(msg.amount),
+      blockTime: msg.block_height
+    })
+  )
+  console.log(parsedTextMessages)
+  const unknownUser = users.get(unknownUserId)
+  dispatch(
+    contactsHandlers.actions.setMessages({
+      key: unknownUserId,
+      contactAddress: unknownUser.address,
+      username: unknownUser.nickname,
+      messages: parsedTextMessages.reduce((acc, cur) => {
+        acc[cur.id] = cur
+        return acc
+      }, {})
+    })
+  )
+  const messagesAll = await Promise.all(
+    filteredZbayMessages.map(async transfer => {
+      const message = await zbayMessages.transferToMessage(transfer, users)
+      if (message === null) {
+        return ReceivedMessage(message)
+      }
+      // const pendingMessage = pendingMessages.find(
+      //   pm => pm.txId && pm.txId === message.id
+      // )
+      // if (pendingMessage) {
+      //   dispatch(
+      //     operationsHandlers.actions.removeOperation(pendingMessage.opId)
+      //   )
+      // }
+      return ReceivedMessage(message)
+    })
+  )
+  const groupedMesssages = R.groupBy(msg => msg.publicKey)(messagesAll)
+  for (const key in groupedMesssages) {
+    if (groupedMesssages.hasOwnProperty(key)) {
+      const user = users.get(key)
+      dispatch(
+        contactsHandlers.actions.setMessages({
+          key: key,
+          contactAddress: user.address || key,
+          username: user.nickname || key,
+          messages: groupedMesssages[key].reduce((acc, cur) => {
+            acc[cur.id] = cur
+            return acc
+          }, {})
+        })
+      )
+    }
+  }
+}
+export const setUsersOutgoingMessages = messages => async (
+  dispatch,
+  getState
+) => {
+  // console.log(messages)
+}
+export const fetchMessages1 = channel => async (dispatch, getState) => {
   try {
     const pendingMessages = operationsSelectors.pendingMessages(getState())
     const identityAddress = identitySelectors.address(getState())
