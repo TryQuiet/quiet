@@ -296,7 +296,9 @@ const _buildUtxo = ({
   //   }
   //   transfers.push(donate)
   // }
-  if (utxos.filter(utxo => utxo.amount >= networkFee).length <= targetUtxoCount) {
+  if (
+    utxos.filter(utxo => utxo.amount >= networkFee).length <= targetUtxoCount
+  ) {
     const utxo = utxos.find(
       utxo =>
         utxo.amount >
@@ -357,22 +359,11 @@ export const messageToTransfer = async ({
         })
   }
 }
-export const createEmptyTransfer = ({
-  identityAddress,
-  address,
-  amount,
-  memo
-}) => {
-  const amounts = {
-    address: address,
-    amount: amount ? amount.toString() : '0'
-  }
-  Object.assign(amounts, memo && { memo })
-  const amountsArray = []
-  amountsArray.push(amounts)
+export const createEmptyTransfer = ({ address, amount = 0, memo = '' }) => {
   return {
-    from: identityAddress,
-    amounts: amountsArray
+    address: address,
+    amount: amount,
+    memo: memo
   }
 }
 export const transfersToMessages = async (transfers, owner) => {

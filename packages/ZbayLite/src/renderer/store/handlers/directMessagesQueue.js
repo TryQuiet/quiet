@@ -10,7 +10,6 @@ import contactsSelectors from '../selectors/contacts'
 import usersSelectors from '../selectors/users'
 import appSelectors from '../selectors/app'
 import offersSelectors from '../selectors/offers'
-import { createStandardMemo } from '../../zbay/transit'
 import { messageToTransfer, createEmptyTransfer } from '../../zbay/messages'
 import { messageType, actionTypes } from '../../../shared/static'
 import operationsHandlers, {
@@ -20,7 +19,7 @@ import operationsHandlers, {
 import notificationsHandlers from './notifications'
 import appHandlers from './app'
 import { errorNotification } from './utils'
-import { getClient } from '../../zcash'
+import client from '../../zcash'
 import { getVault } from '../../vault'
 import contactsHandlers from './contacts'
 import offersHandlers from './offers'
@@ -153,7 +152,7 @@ export const checkConfirmationNumber = async ({
     const subscribe = async callback => {
       async function poll () {
         const { confirmations, error = null } =
-          (await getClient().confirmations.getResult(txId)) || {}
+          (await client().confirmations.getResult(txId)) || {}
         if (confirmations >= 1) {
           return callback(error, { confirmations })
         } else {
@@ -193,25 +192,13 @@ export const checkConfirmationNumber = async ({
 }
 
 const sendPlainTransfer = payload => async (dispatch, getState) => {
-  const identityAddress = identitySelectors.address(getState())
   const { destination, amount, memo } = payload
-  if (memo) {
-    const hexMemo = await createStandardMemo(memo)
-    const transfer = createEmptyTransfer({
-      address: destination,
-      amount: amount,
-      identityAddress,
-      memo: hexMemo
-    })
-    await getClient().payment.send(transfer)
-  } else {
-    const transfer = createEmptyTransfer({
-      address: destination,
-      amount: amount,
-      identityAddress
-    })
-    await getClient().payment.send(transfer)
-  }
+  const transfer = createEmptyTransfer({
+    address: destination,
+    amount: amount,
+    memo: memo
+  })
+  console.log(await client.sendTransaction(transfer))
 }
 
 const _sendPendingDirectMessages = redirect => async (dispatch, getState) => {
@@ -243,7 +230,7 @@ const _sendPendingDirectMessages = redirect => async (dispatch, getState) => {
         })
         let opId
         try {
-          opId = await getClient().payment.send(transfer)
+          opId = await client().payment.send(transfer)
         } catch (err) {
           dispatch(
             notificationsHandlers.actions.enqueueSnackbar(

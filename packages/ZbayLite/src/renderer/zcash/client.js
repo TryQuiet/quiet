@@ -27,7 +27,14 @@ export default class RPC {
   }
   sendTransaction = async payload => {
     // TODO add validation of payload
-    return native.litelib_execute('send', JSON.stringify(payload))
+    return JSON.parse(
+      native.litelib_execute(
+        'send',
+        Array.isArray(payload)
+          ? JSON.stringify(payload)
+          : JSON.stringify([payload])
+      )
+    )
   }
 
   height = async () => {

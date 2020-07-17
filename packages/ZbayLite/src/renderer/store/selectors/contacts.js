@@ -57,40 +57,10 @@ export const directMessages = (address, signerPubKey) =>
     usersSelectors.registeredUser(signerPubKey),
     messages(address),
     vaultMessages(address),
-    pendingMessages(address),
-    queuedMessages(address),
-    (
-      identity,
-      registeredUser,
-      messages,
-      vaultMessages,
-      pendingMessages,
-      queuedMessages
-    ) => {
+    (identity, registeredUser, messages, vaultMessages) => {
       const userData = registeredUser ? registeredUser.toJS() : null
       const identityAddress = identity.address
       const identityName = userData ? userData.nickname : identity.name
-      const displayablePending = pendingMessages.map(operation =>
-        zbayMessages.operationToDisplayableMessage({
-          operation,
-          identityAddress,
-          identityName,
-          receiver: {
-            replyTo: operation.meta.recipientAddress,
-            username: operation.meta.recipientUsername
-          }
-        })
-      )
-
-      const displayableQueued = queuedMessages.map(
-        (queuedMessage, messageKey) =>
-          zbayMessages.queuedToDisplayableMessage({
-            queuedMessage,
-            messageKey,
-            identityAddress,
-            identityName
-          })
-      )
 
       const fetchedMessagesToDisplay = messages.map(msg =>
         zbayMessages.receivedToDisplayableMessage({
@@ -101,11 +71,7 @@ export const directMessages = (address, signerPubKey) =>
       )
 
       const concatedMessages = fetchedMessagesToDisplay
-        .concat(
-          vaultMessages.values(),
-          displayableQueued.values(),
-          displayablePending.values()
-        )
+        .concat(vaultMessages.values())
         .sortBy(m => m.get('createdAt'))
       const merged = mergeIntoOne(concatedMessages)
       return merged

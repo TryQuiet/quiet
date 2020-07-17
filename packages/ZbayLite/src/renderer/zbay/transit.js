@@ -121,7 +121,7 @@ export const addStandardToMemo = message => {
 export const createStandardMemo = async message => {
   const allocatedMessage = Buffer.alloc(MEMO_SIZE)
   allocatedMessage.write(message)
-  return allocatedMessage.toString('hex')
+  return allocatedMessage.toString()
 }
 
 export const packMemo = async message => {
