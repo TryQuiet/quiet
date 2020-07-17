@@ -10,7 +10,11 @@ import contactsSelectors from '../selectors/contacts'
 import usersSelectors from '../selectors/users'
 import appSelectors from '../selectors/app'
 import offersSelectors from '../selectors/offers'
-import { messageToTransfer, createEmptyTransfer } from '../../zbay/messages'
+import {
+  messageToTransfer,
+  createEmptyTransfer,
+  DisplayableMessage
+} from '../../zbay/messages'
 import { messageType, actionTypes } from '../../../shared/static'
 import operationsHandlers, {
   PendingDirectMessageOp,
@@ -200,6 +204,44 @@ const sendPlainTransfer = payload => async (dispatch, getState) => {
   })
   console.log(await client.sendTransaction(transfer))
 }
+const sendMessage = (payload, redirect = true) => async (
+  dispatch,
+  getState
+) => {
+  const myUser = usersSelectors.myUser(getState())
+  const messageDigest = crypto.createHash('sha256')
+  const messageEssentials = R.pick(['createdAt', 'message', 'spent'])(payload)
+  const key = messageDigest
+    .update(JSON.stringify(messageEssentials))
+    .digest('hex')
+  const message = DisplayableMessage({
+    ...payload,
+    id: key,
+    sender: {
+      replyTo: myUser.address,
+      username: myUser.nickname
+    },
+    receiver: {
+      replyTo: payload.receiver.address,
+      username: payload.receiver.nickname
+    },
+    message: payload.memo
+  })
+  console.log(payload.receiver)
+  dispatch(
+    contactsHandlers.actions.addMessage({
+      key: payload.receiver.publicKey,
+      message: { key: message }
+    })
+  )
+  console.log(message.toJS())
+  // const transfer = createEmptyTransfer({
+  //   address: destination,
+  //   amount: amount,
+  //   memo: memo
+  // })
+  // console.log(await client.sendTransaction(transfer))
+}
 
 const _sendPendingDirectMessages = redirect => async (dispatch, getState) => {
   const lock = appSelectors.directMessageQueueLock(getState())
@@ -311,6 +353,7 @@ const addDirectMessageEpic = (
 
 export const epics = {
   sendPendingDirectMessages,
+  sendMessage,
   addDirectMessage: addDirectMessageEpic,
   resetDebounceDirectMessage: sendPendingDirectMessages,
   sendPlainTransfer

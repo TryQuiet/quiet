@@ -55,7 +55,10 @@ export const validateForm = ({ balanceZec, shippingData }) => values => {
   if (balanceZec.isLessThan(values.amountZec)) {
     errors['amountZec'] = `You can't send more than ${balanceZec} ZEC`
   }
-  if (values.shippingInfo === true && getBytesSize(values.memo) > MESSAGE_SIZE) {
+  if (
+    values.shippingInfo === true &&
+    getBytesSize(values.memo) > MESSAGE_SIZE
+  ) {
     errors['memo'] = `Your message and shipping information are too long`
   }
   return errors
@@ -94,15 +97,11 @@ export const SendMoneyMain = ({
             .first()
         if (includesNickname && shouldIncludeMeta === 'yes') {
           const messageToTransfer = createTransfer({
-            recipient: includesNickname.get('address'),
-            recipientUsername: includesNickname.get('nickname'),
+            receiver: includesNickname,
             ...rest,
-            sender: {
-              address: userData.address,
-              name: userData.name
-            }
+            sender: userData
           })
-          sendMessageHandler(messageToTransfer.toJS())
+          sendMessageHandler(messageToTransfer)
         } else {
           const transferData = {
             amount: values.amountZec,

@@ -251,23 +251,14 @@ export const createTransfer = values => {
   if (values.shippingInfo) {
     memo += `\n\n Ship to: \n${values.shippingData.firstName} ${values.shippingData.lastName}\n${values.shippingData.country} ${values.shippingData.region} \n ${values.shippingData.city} ${values.shippingData.street} ${values.shippingData.postalCode}`
   }
-  return DisplayableMessage({
+  return {
     type: messageType.TRANSFER,
-    sender: {
-      replyTo: values.sender.address,
-      username: values.sender.name
-    },
-    receiver: {
-      replyTo: values.recipient,
-      username: values.recipientUsername || ''
-    },
+    sender: values.sender,
+    receiver: values.receiver,
     createdAt: DateTime.utc().toSeconds(),
-    message: memo,
-    spent: values.amountZec,
-    fromYou: true,
-    status: 'broadcasted',
-    error: null
-  })
+    memo: memo,
+    spent: values.amountZec
+  }
 }
 
 const _buildUtxo = ({

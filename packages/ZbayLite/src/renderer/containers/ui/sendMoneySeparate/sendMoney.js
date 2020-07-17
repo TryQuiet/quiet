@@ -7,7 +7,7 @@ import { withModal, actionCreators } from '../../../store/handlers/modals'
 import SendMoneyModalComponent from '../../../components/ui/sendMoneySeparate/SendMoneyMain'
 import { rate } from '../../../store/selectors/rates'
 import identitySelector from '../../../store/selectors/identity'
-import directMessages from '../../../store/handlers/contacts'
+// import directMessages from '../../../store/handlers/contacts'
 import transfers from '../../../store/handlers/directMessagesQueue'
 import modalsSelectors from '../../../store/selectors/modals'
 import userSelectors from '../../../store/selectors/users'
@@ -33,7 +33,7 @@ export const SendMoneyModal = props => {
   return <SendMoneyModalComponent {...props} />
 }
 export const mapDispatchToProps = dispatch => bindActionCreators({
-  sendMessageHandler: directMessages.epics.sendDirectMessage,
+  sendMessageHandler: transfers.epics.sendMessage,
   openSentFundsModal: (payload) => actionCreators.openModal('sentFunds', payload)(),
   sendPlainTransfer: (payload) => transfers.epics.sendPlainTransfer(payload)
 }, dispatch)

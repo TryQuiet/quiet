@@ -197,6 +197,7 @@ const resendMessage = messageData => async (dispatch, getState) => {
 const initialState = Immutable.Map()
 
 const setMessages = createAction(actionTypes.SET_DIRECT_MESSAGES)
+const addMessage = createAction(actionTypes.ADD_MESSAGE)
 const setVaultMessages = createAction(actionTypes.SET_VAULT_DIRECT_MESSAGES)
 const cleanNewMessages = createAction(actionTypes.CLEAN_NEW_DIRECT_MESSAGESS)
 const appendNewMessages = createAction(actionTypes.APPEND_NEW_DIRECT_MESSAGES)
@@ -215,7 +216,8 @@ export const actions = {
   appendNewMessages,
   setLastSeen,
   setUsernames,
-  removeContact
+  removeContact,
+  addMessage
 }
 export const loadContact = address => async (dispatch, getState) => {
   const contact = selectors.contact(address)(getState())
@@ -838,6 +840,12 @@ export const reducer = handleActions(
           cm.update('messages', msgs => {
             return msgs.merge(messages)
           })
+      ),
+    [addMessage]: (state, { payload: { key, message } }) =>
+      state.update(key, cm =>
+        cm.update('messages', msgs => {
+          return msgs.merge(message)
+        })
       ),
     [setMessageBlockTime]: (
       state,

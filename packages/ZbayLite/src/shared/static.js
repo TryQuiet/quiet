@@ -37,6 +37,7 @@ export const actionTypes = mirrorKey({
   SET_CHANNEL_UNREAD: undefined,
   SET_SHOW_INFO_MSG: undefined,
   SET_DIRECT_MESSAGES: undefined,
+  ADD_MESSAGE: undefined,
   SET_VAULT_DIRECT_MESSAGES: undefined,
   CLEAN_NEW_DIRECT_MESSAGESS: undefined,
   APPEND_NEW_DIRECT_MESSAGES: undefined,
