@@ -30,6 +30,7 @@ import { checkMessageSizeAfterComporession } from '../../zbay/transit'
 import client from '../../zcash'
 import { displayMessageNotification } from '../../notifications'
 import { getVault } from '../../vault'
+import { DisplayableMessage } from '../../zbay/messages'
 
 export const MessageSender = Immutable.Record(
   {
@@ -180,7 +181,7 @@ const setUsersMessages = (address, messages) => async (dispatch, getState) => {
     filteredZbayMessages.map(async transfer => {
       const message = await zbayMessages.transferToMessage(transfer, users)
       if (message === null) {
-        return ReceivedMessage(message)
+        return DisplayableMessage(message)
       }
       // const pendingMessage = pendingMessages.find(
       //   pm => pm.txId && pm.txId === message.id
@@ -190,7 +191,7 @@ const setUsersMessages = (address, messages) => async (dispatch, getState) => {
       //     operationsHandlers.actions.removeOperation(pendingMessage.opId)
       //   )
       // }
-      return ReceivedMessage(message)
+      return DisplayableMessage(message)
     })
   )
   const groupedMesssages = R.groupBy(msg => msg.publicKey)(messagesAll)
