@@ -25,11 +25,11 @@ import find from 'find-process'
 import ps from 'ps-node'
 import util from 'util'
 
-import { createRpcCredentials } from '../renderer/zcash'
 import config from './config'
 import { spawnZcashNode } from './zcash/bootstrap'
 import electronStore from '../shared/electronStore'
 import recoveryHandlers from './zcash/recover'
+import Client from './cli/client'
 
 const _killProcess = util.promisify(ps.kill)
 
@@ -595,7 +595,7 @@ const createZcashNode = async (win, torUrl) => {
     })
   }
 }
-
+let client
 app.on('ready', async () => {
   const template = [
     {
@@ -615,6 +615,7 @@ app.on('ready', async () => {
       ]
     }
   ]
+
   // app.on(`browser-window-created`, (e, window) => {
   //   mainWindow.setMenu(null)
   // })
@@ -649,7 +650,16 @@ app.on('ready', async () => {
   ipcMain.on('proceed-update', (event, arg) => {
     autoUpdater.quitAndInstall()
   })
-
+  client = new Client()
+  ipcMain.on('rpcQuery', async (event, arg) => {
+    const request = JSON.parse(arg)
+    // console.log(request)
+    const method = client[request.method]
+    const tx = await method(request.args)
+    // console.log(tx)
+    // console.log('###########################')
+    mainWindow.webContents.send('rpcQuery', JSON.stringify({ id: request.id, data: tx }))
+  })
   ipcMain.on('make-wallet-backup', (event, arg) => {
     recoveryHandlers.makeWalletCopy()
     electronStore.set('isWalletCopyCreated', true)
@@ -820,9 +830,6 @@ app.on('ready', async () => {
     if (!running) {
       running = true
       if (!isDev) {
-        if (!electronStore.get('username')) {
-          await createRpcCredentials()
-        }
         createZcashNode(mainWindow, torUrl)
       }
     }

@@ -4,7 +4,6 @@ import fs from 'fs-extra'
 import os from 'os'
 import electronStore from '../../shared/electronStore'
 
-import { credentials } from '../../renderer/zcash'
 import config from '../config'
 
 const ZCASH_RESOURCES = 'zcash'
@@ -94,9 +93,6 @@ export const spawnZcashNode = (platform, isTestnet, torUrl = false) => {
   if (torUrl) {
     options.push(`-proxy=${torUrl}`)
   }
-  const rpcCredentials = credentials()
-  options.push(`-rpcuser=${rpcCredentials.username}`)
-  options.push(`-rpcpassword=${rpcCredentials.password}`)
   return spawn(zcashdPath, options)
 }
 export default {

@@ -29,14 +29,7 @@ module.exports = {
       },
       {
         test: /\.node$/,
-        use: [
-          {
-            loader: path.resolve('./webpack/loaders/NativeLoader.js'),
-            options: {
-              name: '[name]-[hash].[ext]'
-            }
-          }
-        ]
+        loader: 'node-loader'
       }
     ]
   }

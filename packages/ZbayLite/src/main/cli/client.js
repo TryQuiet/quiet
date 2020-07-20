@@ -1,4 +1,5 @@
-import { ipcRenderer } from 'electron'
+import { Worker } from 'worker_threads'
+const worker = new Worker('./src/main/cli/worker.js')
 
 export default class Client {
   sync = async () => {
@@ -50,6 +51,7 @@ export default class Client {
 }
 let counter = 0
 var mapping = new Map()
+// worker.postMessage()
 const postMessage = async (msgType, data = '') => {
   const promise = new Promise((resolve, reject) => {
     mapping.set(counter, {
@@ -57,15 +59,14 @@ const postMessage = async (msgType, data = '') => {
       data: JSON.stringify({ id: counter, method: msgType, args: data })
     })
   })
-  ipcRenderer.send(
-    'rpcQuery',
+  worker.postMessage(
     JSON.stringify({ id: counter, method: msgType, args: data })
   )
   counter++
   return promise
 }
 
-ipcRenderer.on('rpcQuery', (e, d) => {
+worker.on('message', d => {
   const data = JSON.parse(d)
   mapping.get(data.id).resolve(data.data)
   mapping.delete(data.id)
