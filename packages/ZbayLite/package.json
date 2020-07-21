@@ -1,9 +1,9 @@
 {
   "name": "zbay",
-  "productName": "Zbay",
+  "productName": "Zbay-lite",
   "build": {
     "afterSign": "scripts/notarize.js",
-    "productName": "Zbay",
+    "productName": "Zbay-lite",
     "appId": "Zbay",
     "protocols": {
       "name": "electron-deep-linking",
