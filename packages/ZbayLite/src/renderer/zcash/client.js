@@ -50,16 +50,16 @@ export default class Client {
 }
 let counter = 0
 var mapping = new Map()
-const postMessage = async (msgType, data = '') => {
+const postMessage = async (method, args = '') => {
   const promise = new Promise((resolve, reject) => {
     mapping.set(counter, {
       resolve: resolve,
-      data: JSON.stringify({ id: counter, method: msgType, args: data })
+      data: JSON.stringify({ id: counter, method: method, args: args })
     })
   })
   ipcRenderer.send(
     'rpcQuery',
-    JSON.stringify({ id: counter, method: msgType, args: data })
+    JSON.stringify({ id: counter, method: method, args: args })
   )
   counter++
   return promise

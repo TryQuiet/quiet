@@ -3,6 +3,9 @@ class RPC {
   constructor (url = 'https://lightwalletd.zecwallet.co:1443') {
     const result = native.litelib_initialize_existing(url)
     console.log(`Intialization: ${result}`)
+    if (result !== 'OK') {
+      native.litelib_initialize_new(url)
+    }
   }
   sync = async () => {
     return native.litelib_execute('sync', '')
@@ -24,7 +27,8 @@ class RPC {
   }
   sendTransaction = async (txns = []) => {
     // TODO add validation of payload
-    return JSON.stringify(native.litelib_execute('send', JSON.stringify(txns)))
+    const txnsArray = Array.isArray(txns) ? txns : [txns]
+    return JSON.parse(native.litelib_execute('send', JSON.stringify(txnsArray)))
   }
   list = async (includeMemoHex = 'yes') => {
     return JSON.parse(native.litelib_execute('list', `${includeMemoHex}`))

@@ -54,7 +54,7 @@ const coordinator = () => async (dispatch, getState) => {
     for (let index = 0; index < statusActions.size; index++) {
       await dispatch(statusActions.get(index)())
     }
-    setTimeout(fetchStatus, 15000)
+    setTimeout(fetchStatus, 25000)
   }
   const fetchData = async () => {
     const res = await getClient().operations.getTransactionsCount()
