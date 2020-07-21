@@ -56,9 +56,9 @@ const osPathsParams = {
 
 const osPathLogs = {
   darwin: `${process.env.HOME ||
-    process.env.USERPROFILE}/Library/Application Support/Zbay/Logs/`,
-  linux: `${process.env.HOME || process.env.USERPROFILE}/.config/Zbay/Logs/`,
-  win32: `${os.userInfo().homedir}\\AppData\\Roaming\\Zbay\\Logs\\`
+    process.env.USERPROFILE}/Library/Application Support/Zbay-lite/Logs/`,
+  linux: `${process.env.HOME || process.env.USERPROFILE}/.config/Zbay-lite/Logs/`,
+  win32: `${os.userInfo().homedir}\\AppData\\Roaming\\Zbay-lite\\Logs\\`
 }
 
 let isFetchedFromExternalSource = false
