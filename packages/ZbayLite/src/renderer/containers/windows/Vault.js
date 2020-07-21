@@ -8,6 +8,7 @@ import vaultHandlers from '../../store/handlers/vault'
 import UnlockVault from './UnlockVault'
 import torHandlers from '../../store/handlers/tor'
 import electronStore from '../../../shared/electronStore'
+// import nodeHandlers from '../../store/handlers/node'
 
 export const mapStateToProps = state => ({
   exists: vaultSelectors.exists(state),
@@ -23,7 +24,7 @@ export const mapDispatchToProps = dispatch =>
     dispatch
   )
 
-export const Vault = () => {
+export const Vault = ({ getStatus, latestBlock, currentBlock }) => {
   const userStatus = electronStore.get('isNewUser')
   if (userStatus === undefined) {
     electronStore.set('isNewUser', true)

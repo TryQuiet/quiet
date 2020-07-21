@@ -2,12 +2,13 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
 import { Grid, LinearProgress, Typography } from '@material-ui/core'
+import { Redirect } from 'react-router'
 
 import WindowWrapper from '../ui/WindowWrapper'
 import ZcashIcon from '../../static/images/zcash/logo-lockup--circle.svg'
 import Carousel from '../widgets/Carousel'
 import Icon from '../ui/Icon'
-import RegistrationGuide from '../../containers/windows/RegistrationGuide'
+import { useInterval } from '../../containers/hooks'
 
 const styles = theme => ({
   root: {
@@ -82,79 +83,57 @@ const styles = theme => ({
 
 export const SyncLoader = ({
   classes,
-  ETA,
-  isGuideCompleted,
-  message, isFetching,
-  progressValue,
-  blockchainStatus,
-  bootstrapping,
-  bootstrappingMessage,
-  fetchingStatus,
-  fetchingSpeed,
-  isFetchedFromExternalSource,
-  useCustomLocation
+  nodeStatus,
+  latestBlock,
+  currentBlock,
+  getStatus
 }) => {
-  return isGuideCompleted ? (
-    <WindowWrapper className={classes.root}>
-      <Grid container className={classes.box} justify='center' alignItems='center' alignContent='center'>
-        <Grid
-          className={classes.logoContainer}
-          container
-          item
-          xs={12}
-          justify='center'
-          alignItems='center'
-          alignContent='center'
-        >
-          <Grid item className={classes.iconDiv}>
-            <Icon className={classes.icon} src={ZcashIcon}image={ZcashIcon} />
+  useInterval(() => {
+    getStatus()
+  }, 3000)
+  if (nodeStatus === 'healthy') {
+    console.log(nodeStatus)
+    console.log('redirecting')
+    return <Redirect to='/vault' />
+  } else {
+    return (
+      <WindowWrapper className={classes.root}>
+        <Grid container className={classes.box} justify='center' alignItems='center' alignContent='center'>
+          <Grid
+            className={classes.logoContainer}
+            container
+            item
+            xs={12}
+            justify='center'
+            alignItems='center'
+            alignContent='center'
+          >
+            <Grid item className={classes.iconDiv}>
+              <Icon className={classes.icon} src={ZcashIcon}image={ZcashIcon} />
+            </Grid>
           </Grid>
-        </Grid>
-        <Grid className={classes.carouselContainer} container item>
-          <Carousel />
-        </Grid>
-        <Grid item container>
-          <Grid item container justify='center' alignItems='center'>
-            <LinearProgress variant={'determinate'} classes={{ root: classes.rootBar, barColorPrimary: classes.progressBar }} value={progressValue} />
+          <Grid className={classes.carouselContainer} container item>
+            <Carousel />
           </Grid>
-          <Grid item xs={12} className={classes.statusDiv}>
-            {bootstrapping ? <Typography variant='caption' className={classes.status}>
-              {`${bootstrappingMessage}`}
-            </Typography> : fetchingStatus !== 'SUCCESS' && blockchainStatus !== 'SUCCESS' && (!isFetchedFromExternalSource || useCustomLocation) ? (
+          <Grid item container>
+            <Grid item container justify='center' alignItems='center'>
+              <LinearProgress classes={{ root: classes.rootBar, barColorPrimary: classes.progressBar }} />
+            </Grid>
+            <Grid item xs={12} className={classes.statusDiv}>
               <Grid item container justify='center' alignItems='center' wrap={'wrap'}>
                 <Typography variant='caption' className={classes.status}>
-                  {`${isFetching ? 'Syncing,' : 'Connecting…'}  ${isFetching ? ETA : ''} (${isFetching ? (fetchingSpeed / 1024 ** 2).toFixed(2) : '0.00'} MB/s)`}
+                  {`Syncing ${latestBlock} / ${currentBlock}`}
                 </Typography>
               </Grid>
-            ) : <Typography variant='caption' className={classes.status}>
-              {message}
-            </Typography>}
+            </Grid>
           </Grid>
         </Grid>
-      </Grid>
-    </WindowWrapper>
-  ) : <RegistrationGuide />
+      </WindowWrapper>
+    )
+  }
 }
-
 SyncLoader.propTypes = {
-  classes: PropTypes.object.isRequired,
-  ETA: PropTypes.object,
-  message: PropTypes.string,
-  progressValue: PropTypes.string,
-  isBlockchainRescanned: PropTypes.bool,
-  isRescanningMonitorStarted: PropTypes.bool,
-  rescanningProgress: PropTypes.number,
-  hasAddress: PropTypes.bool,
-  blockchainStatus: PropTypes.string,
-  bootstrapping: PropTypes.bool,
-  bootstrappingMessage: PropTypes.string,
-  openModal: PropTypes.func,
-  fetchingStatus: PropTypes.string,
-  fetchingSpeed: PropTypes.number,
-  isFetching: PropTypes.bool,
-  isFetchedFromExternalSource: PropTypes.bool.isRequired,
-  isGuideCompleted: PropTypes.bool.isRequired,
-  useCustomLocation: PropTypes.bool.isRequired
+  classes: PropTypes.object.isRequired
 }
 
 export default withStyles(styles)(SyncLoader)

@@ -13,8 +13,8 @@ const styles = theme => ({
   }
 })
 
-export const UnlockVault = ({ classes, locked }) => {
-  return (
+export const UnlockVault = ({ classes, status }) =>
+  (
     <WindowWrapper>
       <Grid
         container
@@ -26,7 +26,6 @@ export const UnlockVault = ({ classes, locked }) => {
       </Grid>
     </WindowWrapper>
   )
-}
 
 UnlockVault.propTypes = {
   classes: PropTypes.object.isRequired,

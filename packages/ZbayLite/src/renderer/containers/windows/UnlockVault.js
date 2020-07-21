@@ -1,10 +1,20 @@
 import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux'
 
 import UnlockVault from '../../components/windows/UnlockVault'
-import vaultSelectors from '../../store/selectors/vault'
+import nodeHandlers from '../../store/handlers/node'
+import nodeSelectors from '../../store/selectors/node'
 
 export const mapStateToProps = state => ({
-  locked: vaultSelectors.locked(state)
+  nodeStatus: nodeSelectors.status(state)
 })
 
-export default connect(mapStateToProps)(UnlockVault)
+export const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    {
+      getStatus: nodeHandlers.epics.getStatus
+    },
+    dispatch
+  )
+
+export default connect(mapStateToProps, mapDispatchToProps)(UnlockVault)
