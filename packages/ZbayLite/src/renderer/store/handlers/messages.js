@@ -120,21 +120,23 @@ const checkTransferCount = (address, messages) => async (
   dispatch,
   getState
 ) => {
-  if (messages.length === appSelectors.transfers(getState()).get(address)) {
-    return -1
-  } else {
-    const oldTransfers = appSelectors.transfers(getState()).get(address) || 0
-    dispatch(
-      appHandlers.actions.reduceNewTransfersCount(
-        messages.length - oldTransfers
+  if (messages) {
+    if (messages.length === appSelectors.transfers(getState()).get(address)) {
+      return -1
+    } else {
+      const oldTransfers = appSelectors.transfers(getState()).get(address) || 0
+      dispatch(
+        appHandlers.actions.reduceNewTransfersCount(
+          messages.length - oldTransfers
+        )
       )
-    )
-    dispatch(
-      appHandlers.actions.setTransfers({
-        id: address,
-        value: messages.length
-      })
-    )
+      dispatch(
+        appHandlers.actions.setTransfers({
+          id: address,
+          value: messages.length
+        })
+      )
+    }
   }
 }
 const setUsersMessages = (address, messages) => async (dispatch, getState) => {
@@ -142,7 +144,7 @@ const setUsersMessages = (address, messages) => async (dispatch, getState) => {
   const transferCountFlag = await dispatch(
     checkTransferCount(address, messages)
   )
-  if (transferCountFlag === -1) {
+  if (transferCountFlag === -1 || !messages) {
     return
   }
   const filteredTextMessages = messages.filter(

@@ -2,7 +2,7 @@ import Immutable from 'immutable'
 import { createAction, handleActions } from 'redux-actions'
 import crypto from 'crypto'
 import { ipcRenderer } from 'electron'
-// import axios from 'axios'
+import axios from 'axios'
 
 import { typeFulfilled, typeRejected, typePending, errorNotification } from './utils'
 // import nodeSelectors from '../selectors/node'
@@ -10,7 +10,7 @@ import identityHandlers from './identity'
 // import vaultHandlers from './vault'
 import notificationsHandlers from './notifications'
 import logsHandlers from '../handlers/logs'
-import { actionTypes } from '../../../shared/static'
+import { REQUEST_MONEY_ENDPOINT, actionTypes } from '../../../shared/static'
 import vault from '../../vault'
 import electronStore from '../../../shared/electronStore'
 // import passwordMigration from '../../../shared/migrations/1_40_0'
@@ -60,11 +60,11 @@ const createVaultEpic = () => async (dispatch, getState) => {
     dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Setting user status: 'new'` }))
     electronStore.set('vaultPassword', randomBytes)
     const identity = await dispatch(identityHandlers.epics.createIdentity({ name: randomBytes }))
-    // axios.get(REQUEST_MONEY_ENDPOINT, {
-    //   params: {
-    //     address: identity.address
-    //   }
-    // })
+    axios.get(REQUEST_MONEY_ENDPOINT, {
+      params: {
+        address: identity.address
+      }
+    })
     const isDev = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'
     if (isDev) {
       await dispatch(identityHandlers.epics.setIdentity(identity))

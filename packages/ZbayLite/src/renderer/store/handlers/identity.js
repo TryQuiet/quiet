@@ -239,7 +239,7 @@ export const createIdentity = ({ name }) => async (dispatch, getState) => {
 
     const { signerPrivKey, signerPubKey } = exportFunctions.createSignerKeys()
 
-    const identity = electronStore.set('identity',
+    electronStore.set('identity',
       {
         name,
         address: zAddress,
@@ -276,7 +276,7 @@ export const createIdentity = ({ name }) => async (dispatch, getState) => {
     //   })
     // } catch (error) {}
 
-    return identity
+    return electronStore.get('identity')
   } catch (err) {
     dispatch(setErrors(err))
   }

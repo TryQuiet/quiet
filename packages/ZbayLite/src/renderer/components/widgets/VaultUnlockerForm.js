@@ -77,7 +77,6 @@ export const VaultUnlockerForm = ({
 }) => {
   const isDev = process.env.NODE_ENV === 'development'
   const vaultPassword = electronStore.get('vaultPassword')
-  const isSynced = true // (!node.latestBlock.isEqualTo(0) && node.latestBlock.minus(node.currentBlock).lt(10)) && new BigNumber(node.latestBlock).gt(755000)
   const [done, setDone] = useState(true)
   return (
     <Formik
@@ -141,7 +140,7 @@ export const VaultUnlockerForm = ({
               </Grid>
             )}
           </Grid>
-          {nodeConnected && isLogIn && isSynced && (
+          {nodeConnected && isLogIn && (
             <Redirect to='/main/channel/general' />
           )}
         </Form>

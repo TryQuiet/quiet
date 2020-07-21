@@ -83,7 +83,6 @@ const styles = theme => ({
 
 export const SyncLoader = ({
   classes,
-  nodeStatus,
   latestBlock,
   currentBlock,
   getStatus
@@ -91,9 +90,7 @@ export const SyncLoader = ({
   useInterval(() => {
     getStatus()
   }, 3000)
-  if (nodeStatus === 'healthy') {
-    console.log(nodeStatus)
-    console.log('redirecting')
+  if (currentBlock.isEqualTo(latestBlock)) {
     return <Redirect to='/vault' />
   } else {
     return (
@@ -122,7 +119,7 @@ export const SyncLoader = ({
             <Grid item xs={12} className={classes.statusDiv}>
               <Grid item container justify='center' alignItems='center' wrap={'wrap'}>
                 <Typography variant='caption' className={classes.status}>
-                  {`Syncing ${latestBlock} / ${currentBlock}`}
+                  {`Syncing ${currentBlock} / ${latestBlock}`}
                 </Typography>
               </Grid>
             </Grid>
@@ -134,6 +131,10 @@ export const SyncLoader = ({
 }
 SyncLoader.propTypes = {
   classes: PropTypes.object.isRequired
+}
+
+SyncLoader.defaultProps = {
+  nodeStatus: 'syncing'
 }
 
 export default withStyles(styles)(SyncLoader)
