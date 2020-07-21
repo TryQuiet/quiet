@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import * as Yup from 'yup'
 import { Formik, Form } from 'formik'
@@ -16,7 +16,6 @@ import LoadingButton from '../ui/LoadingButton'
 import icon from '../../static/images/zcash/logo-lockup--circle.svg'
 import Tor from '../../containers/windows/Tor'
 import electronStore from '../../../shared/electronStore'
-import config from '../../../main/config'
 
 const styles = theme => ({
   paper: {
@@ -71,20 +70,15 @@ export const VaultUnlockerForm = ({
   onSubmit,
   loader,
   nodeConnected,
-  done,
   exists,
-  setDone,
   tor,
   node,
   isLogIn
 }) => {
   const isDev = process.env.NODE_ENV === 'development'
   const vaultPassword = electronStore.get('vaultPassword')
-  const blockchainStatus = electronStore.get('AppStatus.blockchain.status')
-  const isRescanned = electronStore.get('AppStatus.blockchain.isRescanned')
-  const lastBlock = node.latestBlock.isEqualTo(0) ? 999999 : node.latestBlock
-  const isBlockchainFromExternalSouce = electronStore.get('isBlockchainFromExternalSource') && blockchainStatus !== config.BLOCKCHAIN_STATUSES.SUCCESS
   const isSynced = true // (!node.latestBlock.isEqualTo(0) && node.latestBlock.minus(node.currentBlock).lt(10)) && new BigNumber(node.latestBlock).gt(755000)
+  const [done, setDone] = useState(true)
   return (
     <Formik
       onSubmit={(values, actions) => {
@@ -138,15 +132,7 @@ export const VaultUnlockerForm = ({
                 margin='normal'
                 text={vaultPassword ? 'Sign in' : 'Login'}
                 fullWidth
-                disabled={
-                  isSubmitting ||
-                  unlocking ||
-                  (tor.enabled === true && tor.status !== 'stable') ||
-                  !done ||
-                  tor.status === 'loading' ||
-                  (!isSynced && isLogIn)
-                }
-                inProgress={isSubmitting || unlocking || !done || tor.status === 'loading' || (!isSynced && isLogIn)}
+                inProgress={!done}
               />
             </Grid>
             {locked && (
@@ -155,17 +141,7 @@ export const VaultUnlockerForm = ({
               </Grid>
             )}
           </Grid>
-          {(!isSynced && isLogIn) && (
-            <Grid item container justify='center' alignItems='center'>
-              <Typography variant='body2' className={classes.status}>
-                {nodeConnected ? `Syncing (${node.currentBlock}/${lastBlock})` : `Starting up. This can take a while...`}
-              </Typography>
-            </Grid>
-          )}
-          {!isDev && !locked && !loader.loading && ((blockchainStatus !== 'SUCCESS' && !isBlockchainFromExternalSouce) || !isRescanned) && (
-            <Redirect to='/zcashNode' />
-          )}
-          {!locked && !loader.loading && nodeConnected && done && isSynced && (
+          {nodeConnected && isLogIn && isSynced && (
             <Redirect to='/main/channel/general' />
           )}
         </Form>

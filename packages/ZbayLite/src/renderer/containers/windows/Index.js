@@ -40,7 +40,7 @@ export const Index = ({
   })
 
   useInterval(getStatus, 5000)
-  return locked ? <Redirect to='/vault' /> : <Redirect to='/loading' />
+  return <Redirect to='/vault' />
 }
 
 Index.propTypes = {

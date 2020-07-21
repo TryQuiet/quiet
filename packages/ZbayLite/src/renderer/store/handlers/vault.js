@@ -2,18 +2,18 @@ import Immutable from 'immutable'
 import { createAction, handleActions } from 'redux-actions'
 import crypto from 'crypto'
 import { ipcRenderer } from 'electron'
-import axios from 'axios'
+// import axios from 'axios'
 
 import { typeFulfilled, typeRejected, typePending, errorNotification } from './utils'
-import nodeSelectors from '../selectors/node'
+// import nodeSelectors from '../selectors/node'
 import identityHandlers from './identity'
-import vaultHandlers from './vault'
+// import vaultHandlers from './vault'
 import notificationsHandlers from './notifications'
 import logsHandlers from '../handlers/logs'
-import { REQUEST_MONEY_ENDPOINT, actionTypes } from '../../../shared/static'
+import { actionTypes } from '../../../shared/static'
 import vault from '../../vault'
 import electronStore from '../../../shared/electronStore'
-import passwordMigration from '../../../shared/migrations/1_40_0'
+// import passwordMigration from '../../../shared/migrations/1_40_0'
 
 export const VaultState = Immutable.Record({
   exists: null,
@@ -50,29 +50,21 @@ export const actions = {
 }
 
 const loadVaultStatus = () => async (dispatch, getState) => {
-  const network = nodeSelectors.network(getState())
-  await dispatch(setVaultStatus(vault.exists(network)))
+  await dispatch(setVaultStatus(true))
 }
 
 const createVaultEpic = () => async (dispatch, getState) => {
-  const network = nodeSelectors.network(getState())
   const randomBytes = crypto.randomBytes(32).toString('hex')
   try {
     electronStore.set('isNewUser', true)
     dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Setting user status: 'new'` }))
-    await dispatch(createVault({ masterPassword: randomBytes, network }))
-    await dispatch(actions.unlockVault({
-      masterPassword: randomBytes,
-      createSource: true,
-      network
-    }))
     electronStore.set('vaultPassword', randomBytes)
     const identity = await dispatch(identityHandlers.epics.createIdentity({ name: randomBytes }))
-    axios.get(REQUEST_MONEY_ENDPOINT, {
-      params: {
-        address: identity.address
-      }
-    })
+    // axios.get(REQUEST_MONEY_ENDPOINT, {
+    //   params: {
+    //     address: identity.address
+    //   }
+    // })
     const isDev = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'
     if (isDev) {
       await dispatch(identityHandlers.epics.setIdentity(identity))
@@ -89,40 +81,48 @@ const createVaultEpic = () => async (dispatch, getState) => {
 }
 export const setVaultIdentity = () => async (dispatch, getState) => {
   try {
-    const [identity] = await vault.identity.listIdentities()
+    const identity = electronStore.get('identity')
     await dispatch(identityHandlers.epics.setIdentity(identity))
   } catch (err) {
     console.log(err)
   }
 }
 const unlockVaultEpic = ({ password: masterPassword }, formActions, setDone) => async (dispatch, getState) => {
+  await dispatch(setLoginSuccessfull(false))
   setDone(false)
-  const state = getState()
-  const network = nodeSelectors.network(state)
-  const vaultPassword = electronStore.get('vaultPassword')
-  try {
-    if (!vaultPassword && !masterPassword) {
-      await dispatch(createVaultEpic())
-      await dispatch(setLoginSuccessfull(true))
-      formActions.setSubmitting(false)
-    } else {
-      await dispatch(vaultHandlers.actions.unlockVault({ masterPassword: vaultPassword || masterPassword, network, ignoreError: true }))
-      await dispatch(setLoginSuccessfull(true))
-      if (!vaultPassword) {
-        passwordMigration.storePassword(masterPassword)
-      }
-      formActions.setSubmitting(false)
-    }
-  } catch (error) {
-    if (error.message.includes('Authentication failed')) {
-      dispatch(notificationsHandlers.actions.enqueueSnackbar(
-        errorNotification({ message: 'Incorrect password' }, { persist: false })
-      ))
-      setDone(true)
-    } else {
-      throw error
-    }
+  const identity = electronStore.get('identity')
+  if (!identity) {
+    await dispatch(createVaultEpic())
   }
+  await dispatch(setLoginSuccessfull(true))
+  formActions.setSubmitting(false)
+  setDone(true)
+  // // const state = getState()
+  // // const network = nodeSelectors.network(state)
+  // // const vaultPassword = electronStore.get('vaultPassword')
+  // try {
+  //   if (!vaultPassword && !masterPassword) {
+  //     // await dispatch(createVaultEpic())
+  //     await dispatch(setLoginSuccessfull(true))
+  //     formActions.setSubmitting(false)
+  //   } else {
+  //     // await dispatch(vaultHandlers.actions.unlockVault({ masterPassword: vaultPassword || masterPassword, network, ignoreError: true }))
+  //     await dispatch(setLoginSuccessfull(true))
+  //     // if (!vaultPassword) {
+  //     //   passwordMigration.storePassword(masterPassword)
+  //     // }
+  //     formActions.setSubmitting(false)
+  //   }
+  // } catch (error) {
+  //   if (error.message.includes('Authentication failed')) {
+  //     dispatch(notificationsHandlers.actions.enqueueSnackbar(
+  //       errorNotification({ message: 'Incorrect password' }, { persist: false })
+  //     ))
+  //     setDone(true)
+  //   } else {
+  //     throw error
+  //   }
+  // }
 }
 
 export const epics = {

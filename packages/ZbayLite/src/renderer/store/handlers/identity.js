@@ -13,17 +13,17 @@ import identitySelectors from '../selectors/identity'
 import txnTimestampsSelector from '../selectors/txnTimestamps'
 // import channelsSelectors from '../selectors/channels'
 // import channelsHandlers from './channels'
-import removedChannelsHandlers from './removedChannels'
+// import removedChannelsHandlers from './removedChannels'
 // import usersHandlers from './users'
-import contactsHandlers from './contacts'
+// import contactsHandlers from './contacts'
 // import messagesHandlers from './messages'
 // import publicChannelsHandlers from './publicChannels'
 import coordinatorHandlers from './coordinator'
-import offersHandlers from './offers'
+// import offersHandlers from './offers'
 import whitelistHandlers from './whitelist'
 import txnTimestampsHandlers from './txnTimestamps'
 import logsHandlers from '../../store/handlers/logs'
-import vaultHandlers from './vault'
+// import vaultHandlers from './vault'
 import ratesHandlers from './rates'
 import nodeHandlers from './node'
 import notificationCenterHandlers from './notificationCenter'
@@ -239,8 +239,8 @@ export const createIdentity = ({ name }) => async (dispatch, getState) => {
 
     const { signerPrivKey, signerPubKey } = exportFunctions.createSignerKeys()
 
-    const { value: identity } = await dispatch(
-      vaultHandlers.actions.createIdentity({
+    const identity = electronStore.set('identity',
+      {
         name,
         address: zAddress,
         transparentAddress: tAddress,
@@ -250,7 +250,7 @@ export const createIdentity = ({ name }) => async (dispatch, getState) => {
           tpk,
           sk
         }
-      })
+      }
     )
 
     // const network = nodeSelectors.network(getState())
@@ -283,7 +283,7 @@ export const createIdentity = ({ name }) => async (dispatch, getState) => {
 }
 
 export const loadIdentity = () => async (dispatch, getState) => {
-  const [identity] = await vault.identity.listIdentities()
+  const identity = electronStore.get('identity')
   if (identity) {
     await dispatch(setIdentity(identity))
     dispatch(
@@ -327,20 +327,20 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
     await dispatch(notificationCenterHandlers.epics.init())
     dispatch(setLoadingMessage('Setting identity'))
     // Check if identity has signerKeys
-    if (!identity.signerPrivKey || !identity.signerPubKey) {
-      const { signerPrivKey, signerPubKey } = createSignerKeys()
-      const { value: updatedIdentity } = await dispatch(
-        vaultHandlers.actions.updateIdentitySignerKeys({
-          id: identity.id,
-          signerPubKey,
-          signerPrivKey
-        })
-      )
-      identity = updatedIdentity
-    }
+    // if (!identity.signerPrivKey || !identity.signerPubKey) {
+    //   const { signerPrivKey, signerPubKey } = createSignerKeys()
+    //   const { value: updatedIdentity } = await dispatch(
+    //     vaultHandlers.actions.updateIdentitySignerKeys({
+    //       id: identity.id,
+    //       signerPubKey,
+    //       signerPrivKey
+    //     })
+    //   )
+    //   identity = updatedIdentity
+    // }
     await dispatch(setIdentity(identity))
-    await dispatch(txnTimestampsHandlers.epics.getTnxTimestamps())
-    dispatch(removedChannelsHandlers.epics.getRemovedChannelsTimestamp())
+    // await dispatch(txnTimestampsHandlers.epics.getTnxTimestamps())
+    // dispatch(removedChannelsHandlers.epics.getRemovedChannelsTimestamp())
 
     dispatch(setLoadingMessage('Fetching balance and loading channels'))
     // await dispatch(fetchBalance())
@@ -353,9 +353,9 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
 
     dispatch(setLoadingMessage('Loading users and messages'))
     // await dispatch(usersHandlers.epics.fetchUsers())
-    await dispatch(contactsHandlers.epics.loadAllSentMessages())
-    await dispatch(offersHandlers.epics.loadVaultContacts())
-    await dispatch(offersHandlers.epics.initMessage())
+    // await dispatch(contactsHandlers.epics.loadAllSentMessages())
+    // await dispatch(offersHandlers.epics.loadVaultContacts())
+    // await dispatch(offersHandlers.epics.initMessage())
     // await dispatch(publicChannelsHandlers.epics.fetchPublicChannels())
     // await dispatch(channelsHandlers.epics.withdrawMoneyFromChannels())
     // await dispatch(

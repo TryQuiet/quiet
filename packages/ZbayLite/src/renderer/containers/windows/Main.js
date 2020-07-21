@@ -1,5 +1,4 @@
-import React, { useEffect } from 'react'
-import { Redirect } from 'react-router'
+import React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import * as R from 'ramda'
@@ -28,11 +27,8 @@ export const mapDispatchToProps = dispatch => {
   )
 }
 
-export const Main = ({ vaultLocked, fetch, ...props }) => {
-  useEffect(() => {
-    // fetch()
-  }, [])
-  return vaultLocked ? <Redirect to='/vault' /> : <MainComponent {...props} />
+export const Main = ({ ...props }) => {
+  return <MainComponent {...props} />
 }
 
 export default R.compose(

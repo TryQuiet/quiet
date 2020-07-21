@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
@@ -47,42 +47,21 @@ export const VaultUnlockerForm = ({
   exists,
   ...props
 }) => {
-  const [done, setDone] = useState(true)
   useEffect(
     () => {
       const isNewUser = electronStore.get('isNewUser')
-      if (!isNewUser && !locked && nodeConnected) {
+      if (!isNewUser && nodeConnected) {
         setVaultIdentity()
       }
     },
-    [locked, nodeConnected]
+    [nodeConnected]
   )
-  useEffect(
-    () => {
-      if (!locked) {
-        createZcashNode(tor.url)
-      }
-    },
-    [locked]
-  )
-  useEffect(
-    () => {
-      if (!locked && !loader.loading) {
-        setDone(true)
-      }
-    },
-    [loader.loading]
-  )
-
-  // useInterval(getStatus, 5000)
   return (
     <VaultUnlockerFormComponent
       locked={locked}
       loader={loader}
-      done={done}
       tor={tor}
       exists={exists}
-      setDone={setDone}
       nodeConnected={nodeConnected}
       node={node}
       isLogIn={isLogIn}
