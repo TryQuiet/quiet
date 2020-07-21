@@ -198,6 +198,7 @@ const initialState = Immutable.Map()
 
 const setMessages = createAction(actionTypes.SET_DIRECT_MESSAGES)
 const addMessage = createAction(actionTypes.ADD_MESSAGE)
+const addContact = createAction(actionTypes.ADD_CONTACT)
 const setVaultMessages = createAction(actionTypes.SET_VAULT_DIRECT_MESSAGES)
 const cleanNewMessages = createAction(actionTypes.CLEAN_NEW_DIRECT_MESSAGESS)
 const appendNewMessages = createAction(actionTypes.APPEND_NEW_DIRECT_MESSAGES)
@@ -211,6 +212,7 @@ const setVaultMessageBlockTime = createAction(
 
 export const actions = {
   setMessages,
+  addContact,
   setVaultMessages,
   cleanNewMessages,
   appendNewMessages,
@@ -841,6 +843,15 @@ export const reducer = handleActions(
             return msgs.merge(messages)
           })
       ),
+    [addContact]: (state, { payload: { key, username, contactAddress } }) => {
+      return state.merge({
+        [key]: Contact({
+          key: key,
+          address: contactAddress,
+          username: username
+        })
+      })
+    },
     [addMessage]: (state, { payload: { key, message } }) =>
       state.update(key, cm =>
         cm.update('messages', msgs => {

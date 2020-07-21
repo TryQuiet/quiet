@@ -7,7 +7,7 @@ import secp256k1 from 'secp256k1'
 import createKeccakHash from 'keccak'
 import { packMemo, unpackMemo, addStandardToMemo } from './transit'
 import { getClient } from '../zcash'
-import { networkFee, targetUtxoCount, messageType } from '../../shared/static'
+import { networkFee, targetUtxoCount, messageType, satoshiMultiplier } from '../../shared/static'
 
 export const ExchangeParticipant = Immutable.Record(
   {
@@ -353,7 +353,7 @@ export const messageToTransfer = async ({
 export const createEmptyTransfer = ({ address, amount = 0, memo = '' }) => {
   return {
     address: address,
-    amount: amount,
+    amount: parseFloat(amount) * satoshiMultiplier,
     memo: memo
   }
 }

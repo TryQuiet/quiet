@@ -210,6 +210,7 @@ const sendMessage = (payload, redirect = true) => async (
 ) => {
   const myUser = usersSelectors.myUser(getState())
   const messageDigest = crypto.createHash('sha256')
+  // Generate unique id for txn until we get response from blockchain
   const messageEssentials = R.pick(['createdAt', 'message', 'spent'])(payload)
   const key = messageDigest
     .update(JSON.stringify(messageEssentials))
@@ -227,19 +228,30 @@ const sendMessage = (payload, redirect = true) => async (
     },
     message: payload.memo
   })
-  console.log(payload.receiver)
+  const contacts = contactsSelectors.contacts(getState())
+  // Create user
+  if (!contacts.get(payload.receiver.address)) {
+    await dispatch(
+      contactsHandlers.actions.addContact({
+        key: payload.receiver.publicKey,
+        username: payload.receiver.nickname,
+        contactAddress: payload.receiver.address
+      })
+    )
+  }
   dispatch(
     contactsHandlers.actions.addMessage({
       key: payload.receiver.publicKey,
       message: { key: message }
     })
   )
-  console.log(message.toJS())
-  // const transfer = createEmptyTransfer({
-  //   address: destination,
-  //   amount: amount,
-  //   memo: memo
-  // })
+  const transfer = createEmptyTransfer({
+    address: payload.receiver.address,
+    amount: payload.spent,
+    memo: payload.memo
+  })
+  console.log(transfer)
+  // TODO observe txn and send it
   // console.log(await client.sendTransaction(transfer))
 }
 

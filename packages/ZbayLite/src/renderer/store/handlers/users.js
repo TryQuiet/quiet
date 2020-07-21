@@ -96,6 +96,15 @@ export const initialState = Immutable.Map({
     address: 'c7e7c14740c3372fffe47c845a2b6720',
     publicKey: 'c7e7c14740c3372fffe47c845a2b6720'
   }),
+  '02ff9facdc8326c41e6cb191384b4f8d98196739287f2edbf0036e5f6aeec1eba7': _UserData(
+    {
+      nickname: 'janusz2',
+      address:
+        'zs1ladffadkyr47aeqtw0t29e4hx7gz9064k9enlvfqsdmn23f9u8mku44geeu2f8n0spkfw5l2qg7',
+      publicKey:
+        '02ff9facdc8326c41e6cb191384b4f8d98196739287f2edbf0036e5f6aeec1eba7'
+    }
+  ),
   '032b05d47db0cbfdac283e349830c9d82345652234572359bdd011f1ead602ce28': _UserData(
     {
       nickname: 'janusz',
@@ -105,13 +114,13 @@ export const initialState = Immutable.Map({
         '032b05d47db0cbfdac283e349830c9d82345652234572359bdd011f1ead602ce28'
     }
   ),
-  '02f76fd45e538b41749c2d1f8353f8c7240327a379a255f24055ed324ef127f23c': _UserData(
+  '03722c40d86a80d4e4acb3d7798e3661684d484ec38fedb97f3827734a0d6875fc': _UserData(
     {
       nickname: 'norbert',
       address:
         'zs1ynfef5z7sxw4nvuf082upu8s6eqv5rregwz00qfjqdgaaugfk5ufmrq843luz04vn22jke4vk5c',
       publicKey:
-        '02f76fd45e538b41749c2d1f8353f8c7240327a379a255f24055ed324ef127f23c'
+        '03722c40d86a80d4e4acb3d7798e3661684d484ec38fedb97f3827734a0d6875fc'
     }
   )
 })
