@@ -122,6 +122,15 @@ export const initialState = Immutable.Map({
       publicKey:
         '03722c40d86a80d4e4acb3d7798e3661684d484ec38fedb97f3827734a0d6875fc'
     }
+  ),
+  '029083a5d2ed499b32be4e25f161463b925142a7aae653d8b8337daec9cb5b9ec3': _UserData(
+    {
+      nickname: 'holmes',
+      address:
+        'zs13rvylvg9y7zgvq35gnxdtwgja2skwjnwdljvk3h5qme93js3r4sunqwpx0xvk2cpmxdkkxz8sd3',
+      publicKey:
+        '029083a5d2ed499b32be4e25f161463b925142a7aae653d8b8337daec9cb5b9ec3'
+    }
   )
 })
 
