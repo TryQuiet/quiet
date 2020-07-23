@@ -10,12 +10,10 @@ import usersSelectors from '../selectors/users'
 import identitySelectors from '../selectors/identity'
 import { actions as channelActions } from './channel'
 import contactsHandlers from '../handlers/contacts'
+import usersHandlers from './users'
+import publicChannelsHandlers from './publicChannels'
 import appHandlers from './app'
-import {
-  messageType,
-  actionTypes,
-  unknownUserId
-} from '../../../shared/static'
+import { messageType, actionTypes, unknownUserId } from '../../../shared/static'
 import { messages as zbayMessages } from '../../zbay'
 import { checkMessageSizeAfterComporession } from '../../zbay/transit'
 import client from '../../zcash'
@@ -99,6 +97,18 @@ export const fetchMessages = () => async (dispatch, getState) => {
   try {
     const txns = await fetchAllMessages()
     const identityAddress = identitySelectors.address(getState())
+    await dispatch(
+      usersHandlers.epics.fetchUsers(
+        channels.registeredUsers.mainnet.address,
+        txns[channels.registeredUsers.mainnet.address]
+      )
+    )
+    await dispatch(
+      publicChannelsHandlers.epics.fetchPublicChannels(
+        channels.channelOfChannels.mainnet.address,
+        txns[channels.channelOfChannels.mainnet.address]
+      )
+    )
     dispatch(setUsersMessages(identityAddress, txns[identityAddress]))
     dispatch(
       setChannelMessages(
@@ -106,13 +116,14 @@ export const fetchMessages = () => async (dispatch, getState) => {
         txns[channels.general.mainnet.address]
       )
     )
+
     dispatch(setUsersOutgoingMessages(txns['undefined']))
   } catch (err) {
     console.warn(`Can't pull messages`)
     return {}
   }
 }
-const checkTransferCount = (address, messages) => async (
+export const checkTransferCount = (address, messages) => async (
   dispatch,
   getState
 ) => {
@@ -135,6 +146,7 @@ const checkTransferCount = (address, messages) => async (
     }
   }
 }
+
 const setChannelMessages = (address, messages) => async (
   dispatch,
   getState

@@ -1,8 +1,6 @@
 import Immutable from 'immutable'
 import { createAction, handleActions } from 'redux-actions'
 import * as R from 'ramda'
-import appSelectors from '../selectors/app'
-import appHandlers from './app'
 import channelsSelectors from '../selectors/channels'
 import feesSelectors from '../selectors/fees'
 import nodeSelectors from '../selectors/node'
@@ -10,14 +8,12 @@ import { getClient } from '../../zcash'
 import { errorNotification, successNotification } from './utils'
 import identitySelectors from '../selectors/identity'
 import notificationsHandlers from './notifications'
-import { messages } from '../../zbay'
+import messagesOperators from '../../zbay/messages'
 import { ADDRESS_TYPE } from '../../zbay/transit'
-import txnTimestampsHandlers from '../handlers/txnTimestamps'
-import txnTimestampsSelector from '../selectors/txnTimestamps'
-import { getVault } from '../../vault'
 import feesHandlers from '../handlers/fees'
 import staticChannels from '../../zcash/channels'
 import { messageType, actionTypes } from '../../../shared/static'
+import { checkTransferCount } from '../handlers/messages'
 
 export const _PublicChannelData = Immutable.Record(
   {
@@ -37,59 +33,26 @@ export const setPublicChannels = createAction(actionTypes.SET_PUBLIC_CHANNELS)
 export const actions = {
   setPublicChannels
 }
-export const fetchPublicChannels = () => async (dispatch, getState) => {
+export const fetchPublicChannels = (address, messages) => async (dispatch, getState) => {
   try {
-    const publicChannels = channelsSelectors.publicChannels(getState())
-    let txnTimestamps = txnTimestampsSelector.tnxTimestamps(getState())
-    const transfers = await getClient().payment.received(
-      publicChannels.get('address')
+    const transferCountFlag = await dispatch(
+      checkTransferCount(address, messages)
     )
-    if (
-      transfers.length ===
-      appSelectors.transfers(getState()).get(publicChannels.get('address'))
-    ) {
+    if (transferCountFlag === -1 || !messages) {
       return
-    } else {
-      dispatch(
-        appHandlers.actions.reduceNewTransfersCount(
-          transfers.length - appSelectors.transfers(getState()).get(publicChannels.get('address'))
-        )
-      )
-      dispatch(
-        appHandlers.actions.setTransfers({
-          id: publicChannels.get('address'),
-          value: transfers.length
-        })
-      )
     }
-    for (const key in transfers) {
-      const transfer = transfers[key]
-      if (!txnTimestamps.get(transfer.txid)) {
-        const result = await getClient().confirmations.getResult(transfer.txid)
-        await getVault().transactionsTimestamps.addTransaction(
-          transfer.txid,
-          result.timereceived
-        )
-        await dispatch(
-          txnTimestampsHandlers.actions.addTxnTimestamp({
-            tnxs: { [transfer.txid]: result.timereceived.toString() }
-          })
-        )
-      }
-    }
-    txnTimestamps = txnTimestampsSelector.tnxTimestamps(getState())
-    const sortedTransfers = transfers.sort(
-      (a, b) => txnTimestamps.get(a.txid) - txnTimestamps.get(b.txid)
+    const filteredZbayMessages = messages.filter(msg =>
+      msg.memohex.startsWith('ff')
     )
+
     const registrationMessages = await Promise.all(
-      sortedTransfers.map(transfer => {
-        const message = messages.transferToMessage(transfer)
+      filteredZbayMessages.map(transfer => {
+        const message = messagesOperators.transferToMessage(transfer)
         return message
       })
     )
     const sortedMessages = registrationMessages
       .filter(msg => msg !== null)
-      .sort((a, b) => txnTimestamps.get(a.id) - txnTimestamps.get(b.id))
     let minfee = 0
     let publicChannelsMap = Immutable.Map({})
     const network = nodeSelectors.network(getState())
@@ -118,7 +81,7 @@ export const fetchPublicChannels = () => async (dispatch, getState) => {
           : msg.message.channelDescription,
         owner: msg.publicKey,
         keys: { ivk: msg.message.channelIvk },
-        timestamp: txnTimestamps.get(msg.id)
+        timestamp: msg.createdAt
       })
       if (channel !== null && !publicChannelsMap.get(channel.name)) {
         publicChannelsMap = publicChannelsMap.merge({ [channel.name]: channel })
@@ -141,9 +104,9 @@ export const publishChannel = ({
   const network = nodeSelectors.network(getState())
   const publicChannel = channelsSelectors.publicChannels(getState())
   const fee = feesSelectors.publicChannelfee(getState())
-  const message = messages.createMessage({
+  const message = messagesOperators.createMessage({
     messageData: {
-      type: messages.messageType.PUBLISH_CHANNEL,
+      type: messagesOperators.messageType.PUBLISH_CHANNEL,
       data: {
         channelName,
         channelAddress,
@@ -157,7 +120,7 @@ export const publishChannel = ({
     },
     privKey: privKey
   })
-  const transfer = await messages.messageToTransfer({
+  const transfer = await messagesOperators.messageToTransfer({
     message,
     address: publicChannel.get('address'),
     identityAddress,

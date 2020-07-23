@@ -2,14 +2,11 @@ import Immutable from 'immutable'
 import { createAction, handleActions } from 'redux-actions'
 import * as R from 'ramda'
 
-import appSelectors from '../selectors/app'
 import feesSelector from '../selectors/fees'
 import nodeSelectors from '../selectors/node'
-import appHandlers from '../handlers/app'
 import feesHandlers from '../handlers/fees'
 import { isFinished } from '../handlers/operations'
-import txnTimestampsHandlers from '../handlers/txnTimestamps'
-import txnTimestampsSelector from '../selectors/txnTimestamps'
+import { checkTransferCount } from '../handlers/messages'
 import { actionCreators } from './modals'
 import channelsSelectors from '../selectors/channels'
 import usersSelector from '../selectors/users'
@@ -18,7 +15,6 @@ import { getPublicKeysFromSignature } from '../../zbay/messages'
 import { messageType, actionTypes } from '../../../shared/static'
 import { messages as zbayMessages } from '../../zbay'
 import { getClient } from '../../zcash'
-import { getVault } from '../../vault'
 import staticChannels from '../../zcash/channels'
 
 const _ReceivedUser = publicKey =>
@@ -66,7 +62,8 @@ export const ReceivedUser = values => {
         _UserData({
           ...values.message,
           nickname: `${values.message.nickname} #${i}`,
-          createdAt: values.createdAt
+          createdAt: values.createdAt,
+          publicKey: values.publicKey
         })
       )
     } else {
@@ -75,7 +72,11 @@ export const ReceivedUser = values => {
 
     return record0.set(
       publicKey0,
-      _UserData({ ...values.message, createdAt: values.createdAt })
+      _UserData({
+        ...values.message,
+        createdAt: values.createdAt,
+        publicKey: values.publicKey
+      })
     )
   }
   return null
@@ -201,66 +202,29 @@ export const createOrUpdateUser = payload => async (dispatch, getState) => {
   }
 }
 
-export const fetchUsers = () => async (dispatch, getState) => {
+export const fetchUsers = (address, messages) => async (dispatch, getState) => {
   try {
-    const usersChannel = channelsSelectors.usersChannel(getState())
-    const transfers = await getClient().payment.received(
-      usersChannel.get('address')
+    const transferCountFlag = await dispatch(
+      checkTransferCount(address, messages)
     )
-    let txnTimestamps = txnTimestampsSelector.tnxTimestamps(getState())
-
-    if (
-      transfers.length ===
-      appSelectors.transfers(getState()).get(usersChannel.get('address'))
-    ) {
+    if (transferCountFlag === -1 || !messages) {
       return
-    } else {
-      dispatch(
-        appHandlers.actions.reduceNewTransfersCount(
-          transfers.length -
-            appSelectors.transfers(getState()).get(usersChannel.get('address'))
-        )
-      )
-      dispatch(
-        appHandlers.actions.setTransfers({
-          id: usersChannel.get('address'),
-          value: transfers.length
-        })
-      )
     }
-    for (const key in transfers) {
-      const transfer = transfers[key]
-      if (!txnTimestamps.get(transfer.txid)) {
-        const result = await getClient().confirmations.getResult(transfer.txid)
-        await getVault().transactionsTimestamps.addTransaction(
-          transfer.txid,
-          result.timereceived
-        )
-        await dispatch(
-          txnTimestampsHandlers.actions.addTxnTimestamp({
-            tnxs: { [transfer.txid]: result.timereceived.toString() }
-          })
-        )
-      }
-    }
-    txnTimestamps = txnTimestampsSelector.tnxTimestamps(getState())
-    const sortedTransfers = transfers.sort(
-      (a, b) => txnTimestamps.get(a.txid) - txnTimestamps.get(b.txid)
+    const filteredZbayMessages = messages.filter(msg =>
+      msg.memohex.startsWith('ff')
     )
+
     const registrationMessages = await Promise.all(
-      sortedTransfers.map(transfer => {
+      filteredZbayMessages.map(transfer => {
         const message = zbayMessages.transferToMessage(transfer)
         return message
       })
     )
-    const sortedMessages = registrationMessages
-      .filter(msg => msg !== null)
-      .sort((a, b) => txnTimestamps.get(a.id) - txnTimestamps.get(b.id))
 
     let minfee = 0
     let users = Immutable.Map({})
     const network = nodeSelectors.network(getState())
-    for (const msg of sortedMessages) {
+    for (const msg of registrationMessages) {
       if (
         msg.type === messageType.CHANNEL_SETTINGS &&
         staticChannels.zbay[network].publicKey === msg.publicKey
