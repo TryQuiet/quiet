@@ -278,8 +278,8 @@ export const createIdentity = ({ name }) => async (dispatch, getState) => {
     const channelsToLoad = Object.keys(channelsWithDetails)
     for (const channel of channelsToLoad) {
       await client.importKey(
-        channel,
-        800000)
+        channelsWithDetails[channel]['keys']['ivk'],
+        740000)
     }
     await client.rescan()
     return electronStore.get('identity')
