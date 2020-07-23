@@ -356,7 +356,7 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
     // )
     // console.log(response)
     // console.log(await client.addresses())
-    console.log(await client.rescan())
+    // console.log(await client.rescan())
     dispatch(setLoadingMessage('Loading users and messages'))
     // await dispatch(usersHandlers.epics.fetchUsers())
     // await dispatch(contactsHandlers.epics.loadAllSentMessages())
