@@ -47,6 +47,9 @@ export default class Client {
   getNewTransparentAdress = async () => {
     return postMessage('getNewTransparentAdress', '')
   }
+  importKey = async (key, birthday = 740000, rescan = 'norescan') => {
+    return postMessage('importKey', { key, birthday, rescan })
+  }
 }
 let counter = 0
 var mapping = new Map()

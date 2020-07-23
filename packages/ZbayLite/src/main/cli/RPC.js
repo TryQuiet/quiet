@@ -54,5 +54,8 @@ class RPC {
   getNewTransparentAdress = async () => {
     return JSON.parse(native.litelib_execute('new', 't'))[0]
   }
+  importKey = async ({ key, birthday, rescan }) => {
+    return native.litelib_execute('import', `${key},${birthday},${rescan}`)
+  }
 }
 module.exports = RPC

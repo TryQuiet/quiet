@@ -39,6 +39,7 @@ import {
   satoshiMultiplier
 } from '../../../shared/static'
 import electronStore from '../../../shared/electronStore'
+// import channels from '../../zcash/channels'
 
 export const ShippingData = Immutable.Record(
   {
@@ -239,19 +240,17 @@ export const createIdentity = ({ name }) => async (dispatch, getState) => {
 
     const { signerPrivKey, signerPubKey } = exportFunctions.createSignerKeys()
 
-    electronStore.set('identity',
-      {
-        name,
-        address: zAddress,
-        transparentAddress: tAddress,
-        signerPubKey,
-        signerPrivKey,
-        keys: {
-          tpk,
-          sk
-        }
+    electronStore.set('identity', {
+      name,
+      address: zAddress,
+      transparentAddress: tAddress,
+      signerPubKey,
+      signerPrivKey,
+      keys: {
+        tpk,
+        sk
       }
-    )
+    })
 
     // const network = nodeSelectors.network(getState())
     // const generalChannel = channels.general[network]
@@ -350,7 +349,14 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
     await dispatch(nodeHandlers.epics.getStatus())
     await dispatch(fetchFreeUtxos())
     await dispatch(coordinatorHandlers.epics.coordinator())
-
+    // console.log(await client.addresses())
+    // const response = await client.importKey(
+    //   channels.general.mainnet.keys.ivk,
+    //   800000
+    // )
+    // console.log(response)
+    // console.log(await client.addresses())
+    console.log(await client.rescan())
     dispatch(setLoadingMessage('Loading users and messages'))
     // await dispatch(usersHandlers.epics.fetchUsers())
     // await dispatch(contactsHandlers.epics.loadAllSentMessages())
