@@ -2,35 +2,25 @@ import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
 import * as R from 'ramda'
 import { createAction, handleActions } from 'redux-actions'
-import { remote } from 'electron'
+// import { remote } from 'electron'
 
-import selectors from '../selectors/messages'
 import appSelectors from '../selectors/app'
-import channelsSelectors from '../selectors/channels'
 import channelSelectors from '../selectors/channel'
 import usersSelectors from '../selectors/users'
 import identitySelectors from '../selectors/identity'
-import operationsSelectors from '../selectors/operations'
-import operationsHandlers from './operations'
-import channelsHandlers from './channels'
 import { actions as channelActions } from './channel'
-import txnTimestampsHandlers from '../handlers/txnTimestamps'
 import contactsHandlers from '../handlers/contacts'
-import txnTimestampsSelector from '../selectors/txnTimestamps'
-import notificationCenterSelector from '../selectors/notificationCenter'
 import appHandlers from './app'
 import {
   messageType,
   actionTypes,
-  notificationFilterType,
   unknownUserId
 } from '../../../shared/static'
 import { messages as zbayMessages } from '../../zbay'
 import { checkMessageSizeAfterComporession } from '../../zbay/transit'
 import client from '../../zcash'
-import { displayMessageNotification } from '../../notifications'
-import { getVault } from '../../vault'
 import { DisplayableMessage } from '../../zbay/messages'
+import channels from '../../zcash/channels'
 
 export const MessageSender = Immutable.Record(
   {
@@ -110,6 +100,12 @@ export const fetchMessages = () => async (dispatch, getState) => {
     const txns = await fetchAllMessages()
     const identityAddress = identitySelectors.address(getState())
     dispatch(setUsersMessages(identityAddress, txns[identityAddress]))
+    dispatch(
+      setChannelMessages(
+        channels.general.mainnet.address,
+        txns[channels.general.mainnet.address]
+      )
+    )
     dispatch(setUsersOutgoingMessages(txns['undefined']))
   } catch (err) {
     console.warn(`Can't pull messages`)
@@ -138,6 +134,49 @@ const checkTransferCount = (address, messages) => async (
       )
     }
   }
+}
+const setChannelMessages = (address, messages) => async (
+  dispatch,
+  getState
+) => {
+  const users = usersSelectors.users(getState())
+  const transferCountFlag = await dispatch(
+    checkTransferCount(address, messages)
+  )
+  if (transferCountFlag === -1 || !messages) {
+    return
+  }
+  const filteredZbayMessages = messages.filter(msg =>
+    msg.memohex.startsWith('ff')
+  )
+  const messagesAll = await Promise.all(
+    filteredZbayMessages.map(async transfer => {
+      const message = await zbayMessages.transferToMessage(transfer, users)
+      if (message === null) {
+        return DisplayableMessage(message)
+      }
+      // const pendingMessage = pendingMessages.find(
+      //   pm => pm.txId && pm.txId === message.id
+      // )
+      // if (pendingMessage) {
+      //   dispatch(
+      //     operationsHandlers.actions.removeOperation(pendingMessage.opId)
+      //   )
+      // }
+      return DisplayableMessage(message)
+    })
+  )
+  dispatch(
+    contactsHandlers.actions.setMessages({
+      key: address,
+      contactAddress: address,
+      username: 'zbay',
+      messages: messagesAll.reduce((acc, cur) => {
+        acc[cur.id] = cur
+        return acc
+      }, {})
+    })
+  )
 }
 const setUsersMessages = (address, messages) => async (dispatch, getState) => {
   const users = usersSelectors.users(getState())
@@ -220,159 +259,6 @@ export const setUsersOutgoingMessages = messages => async (
 ) => {
   // console.log(messages)
 }
-export const fetchMessages1 = channel => async (dispatch, getState) => {
-  try {
-    const pendingMessages = operationsSelectors.pendingMessages(getState())
-    const identityAddress = identitySelectors.address(getState())
-    const currentChannel = channelSelectors.channel(getState())
-    const users = usersSelectors.users(getState())
-    let txnTimestamps = txnTimestampsSelector.tnxTimestamps(getState())
-
-    if (pendingMessages.find(msg => msg.status === 'pending')) {
-      return
-    }
-    const channelId = channel.get('id')
-    const previousMessages = selectors.currentChannelMessages(channelId)(
-      getState()
-    )
-
-    const transfers = await client().payment.received(channel.get('address'))
-
-    if (
-      transfers.length === appSelectors.transfers(getState()).get(channelId)
-    ) {
-      return
-    } else {
-      const oldTransfers =
-        appSelectors.transfers(getState()).get(channelId) || 0
-      dispatch(
-        appHandlers.actions.reduceNewTransfersCount(
-          transfers.length - oldTransfers
-        )
-      )
-      dispatch(
-        appHandlers.actions.setTransfers({
-          id: channelId,
-          value: transfers.length
-        })
-      )
-    }
-    for (const key in transfers) {
-      const transfer = transfers[key]
-      if (!txnTimestamps.get(transfer.txid)) {
-        const result = await client().confirmations.getResult(transfer.txid)
-        await getVault().transactionsTimestamps.addTransaction(
-          transfer.txid,
-          result.timereceived
-        )
-        await dispatch(
-          txnTimestampsHandlers.actions.addTxnTimestamp({
-            tnxs: { [transfer.txid]: result.timereceived.toString() }
-          })
-        )
-      }
-    }
-    txnTimestamps = txnTimestampsSelector.tnxTimestamps(getState())
-    const sortedTransfers = transfers.sort(
-      (a, b) => txnTimestamps.get(a.txid) - txnTimestamps.get(b.txid)
-    )
-    const messagesAll = await Promise.all(
-      sortedTransfers.map(async transfer => {
-        const message = await zbayMessages.transferToMessage(transfer, users)
-        if (message === null) {
-          return ReceivedMessage(message)
-        }
-        const pendingMessage = pendingMessages.find(
-          pm => pm.txId && pm.txId === message.id
-        )
-        if (pendingMessage) {
-          dispatch(
-            operationsHandlers.actions.removeOperation(pendingMessage.opId)
-          )
-        }
-        return ReceivedMessage(message)
-      })
-    )
-    const messages = messagesAll.filter(message => message.id !== null)
-    let lastSeen = channelsSelectors.lastSeen(channelId)(getState())
-    if (!lastSeen) {
-      await dispatch(channelsHandlers.epics.updateLastSeen({ channelId }))
-      lastSeen = channelsSelectors.lastSeen(channelId)(getState())
-    }
-    await messages.forEach(async msg => {
-      if (msg.type === messageType.AD) {
-        await getVault().adverts.addAdvert(msg)
-      }
-    })
-    const updateChannelSettings = R.findLast(
-      msg => msg.type === messageType.CHANNEL_SETTINGS_UPDATE
-    )(messages)
-    if (updateChannelSettings) {
-      dispatch(
-        channelsHandlers.epics.updateSettings({
-          channelId,
-          time: updateChannelSettings.createdAt,
-          data: updateChannelSettings.message
-        })
-      )
-    }
-    await dispatch(setMessages({ messages, channelId }))
-    if (currentChannel.address === channel.get('address')) {
-      return
-    }
-    const newMessages = zbayMessages.calculateDiff({
-      previousMessages,
-      nextMessages: Immutable.List(messages),
-      lastSeen,
-      identityAddress
-    })
-    await dispatch(
-      channelsHandlers.actions.setUnread({
-        channelId,
-        unread: newMessages.size
-      })
-    )
-    await dispatch(
-      appendNewMessages({
-        channelId,
-        messagesIds: newMessages.map(R.prop('id'))
-      })
-    )
-    remote.app.badgeCount = remote.app.badgeCount + newMessages.size
-    const filterType = notificationCenterSelector.channelFilterById(
-      channel.get('address')
-    )(getState())
-    const userFilter = notificationCenterSelector.userFilterType(getState())
-    const identity = identitySelectors.data(getState())
-    const username = usersSelectors.registeredUser(identity.signerPubKey)(
-      getState()
-    )
-    if (newMessages.size > 0) {
-      if (
-        userFilter === notificationFilterType.ALL_MESSAGES &&
-        filterType === notificationFilterType.ALL_MESSAGES
-      ) {
-        newMessages.map(nm =>
-          displayMessageNotification({ message: nm, channel })
-        )
-      }
-      if (
-        username &&
-        (userFilter === notificationFilterType.ALL_MESSAGES ||
-          userFilter === notificationFilterType.MENTIONS) &&
-        filterType === notificationFilterType.MENTIONS
-      ) {
-        newMessages
-          .filter(msg => containsString(msg.message, `@${username.nickname}`))
-          .map(nm => displayMessageNotification({ message: nm, channel }))
-      }
-    }
-    return 1
-  } catch (err) {
-    console.warn(err)
-  }
-}
-
 export const containsString = (message, nickname) => {
   if (typeof message === 'string') {
     const splitMessage = message.split(String.fromCharCode(160))

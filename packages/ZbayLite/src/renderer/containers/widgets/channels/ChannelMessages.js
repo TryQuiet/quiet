@@ -9,23 +9,25 @@ import channelsSelectors from '../../../store/selectors/channels'
 import dmQueueMessages from '../../../store/selectors/directMessagesQueue'
 import queueMessages from '../../../store/selectors/messagesQueue'
 import userSelector from '../../../store/selectors/users'
+import contactsSelectors from '../../../store/selectors/contacts'
 import nodeSelector from '../../../store/selectors/node'
 import appSelectors from '../../../store/selectors/app'
 import publicChannelsSelector from '../../../store/selectors/publicChannels'
 import { messageType } from '../../../../shared/static'
-import channels from '../../../zcash/channels'
+// import channels from '../../../zcash/channels'
 import channelHandlers from '../../../store/handlers/channel'
 
 export const mapStateToProps = (state, { signerPubKey }) => {
   const qMessages = queueMessages.queue(state)
   const qDmMessages = dmQueueMessages.queue(state)
+  const contactId = channelSelectors.id(state)
   return {
     triggerScroll: qDmMessages.size + qMessages.size > 0,
     qMessages: qMessages,
     channelData:
       channelsSelectors.channelById(channelSelectors.channelId(state))(state) ||
       Immutable.fromJS({ keys: {} }),
-    messages: channelSelectors.messages(signerPubKey)(state),
+    messages: contactsSelectors.directMessages(contactId, signerPubKey)(state),
     channelId: channelSelectors.channelId(state),
     users: userSelector.users(state),
     loader: channelSelectors.loader(state),
@@ -68,15 +70,17 @@ export const ChannelMessages = ({
   const isOwner = !!channelData.get('keys').get('sk')
   let usersRegistration = []
   let publicChannelsRegistration = []
-  if (channelData.get('address') === channels.general[network].address) {
-    usersRegistration = Array.from(users.values())
-    publicChannelsRegistration = Array.from(
-      Object.values(publicChannels.toJS())
-    )
-    for (const ch of publicChannelsRegistration) {
-      delete Object.assign(ch, { createdAt: parseInt(ch['timestamp']) })['timestamp']
-    }
-  }
+  // if (channelData.get('address') === channels.general[network].address) {
+  //   usersRegistration = Array.from(users.values())
+  //   publicChannelsRegistration = Array.from(
+  //     Object.values(publicChannels.toJS())
+  //   )
+  //   for (const ch of publicChannelsRegistration) {
+  //     delete Object.assign(ch, { createdAt: parseInt(ch['timestamp']) })[
+  //       'timestamp'
+  //     ]
+  //   }
+  // }
   return (
     <ChannelMessagesComponent
       scrollPosition={scrollPosition}

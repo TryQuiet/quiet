@@ -13,7 +13,7 @@ import BaseChannelsList from '../../../components/widgets/channels/BaseChannelsL
 import channelSelectors, { INPUT_STATE } from '../../../store/selectors/channel'
 
 export const mapStateToProps = state => ({
-  channels: contactsSelectors.contacts(state).toList(),
+  channels: contactsSelectors.contactsList(state),
   selected: channelSelectors.channelInfo(state),
   offers: offersSelectors.filteredOffers(state),
   selectedOffer: channelSelectors.channelInfo(state),

@@ -7,7 +7,7 @@ import { bindActionCreators } from 'redux'
 
 import BaseChannelsList from '../../../components/widgets/channels/BaseChannelsList'
 import SidebarHeader from '../../../components/ui/SidebarHeader'
-import channelsSelectors from '../../../store/selectors/channels'
+import contactsSelectors from '../../../store/selectors/contacts'
 import channelSelectors, { INPUT_STATE } from '../../../store/selectors/channel'
 import { actionCreators } from '../../../store/handlers/modals'
 import QuickActionButton from '../../../components/widgets/sidebar/QuickActionButton'
@@ -15,9 +15,8 @@ import { Icon } from '../../../components/ui/Icon'
 import SearchIcon from '../../../static/images/st-search.svg'
 
 export const mapStateToProps = state => ({
-  channels: channelsSelectors.data(state),
+  channels: contactsSelectors.channelsList(state),
   selected: channelSelectors.channelInfo(state),
-
   fundsLocked:
     channelSelectors.inputLocked(state) === INPUT_STATE.DISABLE ||
     channelSelectors.inputLocked(state) === INPUT_STATE.LOCKED

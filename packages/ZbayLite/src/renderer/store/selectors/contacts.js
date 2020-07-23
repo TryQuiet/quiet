@@ -21,6 +21,12 @@ export const Contact = Immutable.Record({
 const store = s => s
 
 const contacts = createSelector(store, state => state.get('contacts'))
+const contactsList = createSelector(contacts, contacts =>
+  contacts.filter(c => c.key.length < 78).toList()
+)
+const channelsList = createSelector(contacts, contacts =>
+  contacts.filter(c => c.key.length === 78).toList()
+)
 const contact = address =>
   createSelector(contacts, c => c.get(address, Contact()))
 const messages = address =>
@@ -88,5 +94,7 @@ export default {
   lastSeen,
   vaultMessages,
   username,
-  newMessages
+  newMessages,
+  contactsList,
+  channelsList
 }
