@@ -4,9 +4,10 @@ import { createAction, handleActions } from 'redux-actions'
 import secp256k1 from 'secp256k1'
 import { randomBytes } from 'crypto'
 import { ipcRenderer } from 'electron'
+import { DateTime } from 'luxon'
 
 import client from '../../zcash'
-// import channels from '../../zcash/channels'
+import channels from '../../zcash/channels'
 
 import identitySelectors from '../selectors/identity'
 // import nodeSelectors from '../selectors/node'
@@ -251,33 +252,39 @@ export const createIdentity = ({ name }) => async (dispatch, getState) => {
         sk
       }
     })
+    const network = 'mainnet'
 
-    // const network = nodeSelectors.network(getState())
-    // const generalChannel = channels.general[network]
-    // const usersChannel = channels.registeredUsers[network]
-    // const channelOfChannels = channels.channelOfChannels[network]
-    // const priceOracle = channels.priceOracle[network]
-    // const store = channels.store[network]
-    // await getVault().channels.importChannel(identity.id, priceOracle)
-    // await getVault().channels.importChannel(identity.id, generalChannel)
-    // await getVault().channels.importChannel(identity.id, usersChannel)
-    // await getVault().channels.importChannel(identity.id, channelOfChannels)
-    // await getVault().channels.importChannel(identity.id, store)
-    // dispatch(
-    //   logsHandlers.epics.saveLogs({
-    //     type: 'APPLICATION_LOGS',
-    //     payload: `Creating identity / importing default channels`
-    //   })
-    // )
-    // try {
-    //   await client().keys.importIVK({
-    //     ivk: generalChannel.keys.ivk
-    //   })
-    // } catch (error) {}
-
+    const channelsToImport = ['general', 'registeredUsers', 'channelOfChannels', 'priceOracle', 'store']
+    const channelsWithDetails = channelsToImport.reduce((o, key) => {
+      const channelDetails = channels[key][network]
+      const preparedChannel = {
+        name: channelDetails.name,
+        private: channelDetails.private,
+        address: channelDetails.address,
+        unread: channelDetails.unread,
+        description: channelDetails.description,
+        keys: channelDetails.keys,
+        lastSeen: DateTime.utc().toSeconds()
+      }
+      return { ...o, [preparedChannel.address]: preparedChannel }
+    }, {})
+    electronStore.set('defaultChannels', channelsWithDetails)
+    dispatch(
+      logsHandlers.epics.saveLogs({
+        type: 'APPLICATION_LOGS',
+        payload: `Creating identity / importing default channels`
+      })
+    )
+    const channelsToLoad = Object.keys(channelsWithDetails)
+    for (const channel of channelsToLoad) {
+      await client.importKey(
+        channel,
+        800000)
+    }
+    await client.rescan()
     return electronStore.get('identity')
   } catch (err) {
-    dispatch(setErrors(err))
+    console.log('error', err)
   }
 }
 

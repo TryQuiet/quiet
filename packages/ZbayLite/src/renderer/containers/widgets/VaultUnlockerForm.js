@@ -51,7 +51,7 @@ export const VaultUnlockerForm = ({
     () => {
       const isNewUser = electronStore.get('isNewUser')
       if (!isNewUser && nodeConnected) {
-        setVaultIdentity()
+        // setVaultIdentity()
       }
     },
     [nodeConnected]

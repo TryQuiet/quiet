@@ -60,6 +60,7 @@ const createVaultEpic = () => async (dispatch, getState) => {
     dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Setting user status: 'new'` }))
     electronStore.set('vaultPassword', randomBytes)
     const identity = await dispatch(identityHandlers.epics.createIdentity({ name: randomBytes }))
+    console.log('identity', identity)
     axios.get(REQUEST_MONEY_ENDPOINT, {
       params: {
         address: identity.address
@@ -93,6 +94,8 @@ const unlockVaultEpic = ({ password: masterPassword }, formActions, setDone) => 
   const identity = electronStore.get('identity')
   if (!identity) {
     await dispatch(createVaultEpic())
+  } else {
+    await dispatch(setVaultIdentity())
   }
   await dispatch(setLoginSuccessfull(true))
   formActions.setSubmitting(false)
