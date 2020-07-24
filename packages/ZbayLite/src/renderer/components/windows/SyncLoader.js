@@ -87,15 +87,22 @@ export const SyncLoader = ({
   currentBlock,
   getStatus
 }) => {
-  useInterval(() => {
+  React.useEffect(() => {
     getStatus()
-  }, 10000)
+  }, [])
+  useInterval(() => {}, 10000)
   if (currentBlock.plus(10).gt(latestBlock)) {
     return <Redirect to='/vault' />
   } else {
     return (
       <WindowWrapper className={classes.root}>
-        <Grid container className={classes.box} justify='center' alignItems='center' alignContent='center'>
+        <Grid
+          container
+          className={classes.box}
+          justify='center'
+          alignItems='center'
+          alignContent='center'
+        >
           <Grid
             className={classes.logoContainer}
             container
@@ -106,7 +113,11 @@ export const SyncLoader = ({
             alignContent='center'
           >
             <Grid item className={classes.iconDiv}>
-              <Icon className={classes.icon} src={ZcashIcon}image={ZcashIcon} />
+              <Icon
+                className={classes.icon}
+                src={ZcashIcon}
+                image={ZcashIcon}
+              />
             </Grid>
           </Grid>
           <Grid className={classes.carouselContainer} container item>
@@ -114,10 +125,21 @@ export const SyncLoader = ({
           </Grid>
           <Grid item container>
             <Grid item container justify='center' alignItems='center'>
-              <LinearProgress classes={{ root: classes.rootBar, barColorPrimary: classes.progressBar }} />
+              <LinearProgress
+                classes={{
+                  root: classes.rootBar,
+                  barColorPrimary: classes.progressBar
+                }}
+              />
             </Grid>
             <Grid item xs={12} className={classes.statusDiv}>
-              <Grid item container justify='center' alignItems='center' wrap={'wrap'}>
+              <Grid
+                item
+                container
+                justify='center'
+                alignItems='center'
+                wrap={'wrap'}
+              >
                 <Typography variant='caption' className={classes.status}>
                   {`Syncing ${currentBlock} / ${latestBlock}`}
                 </Typography>

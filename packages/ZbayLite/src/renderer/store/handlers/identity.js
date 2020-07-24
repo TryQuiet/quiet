@@ -254,7 +254,7 @@ export const createIdentity = ({ name }) => async (dispatch, getState) => {
     })
     const network = 'mainnet'
 
-    const channelsToImport = ['general', 'registeredUsers', 'channelOfChannels', 'priceOracle', 'store']
+    const channelsToImport = ['general', 'registeredUsers', 'channelOfChannels', 'store']
     const channelsWithDetails = channelsToImport.reduce((o, key) => {
       const channelDetails = channels[key][network]
       const preparedChannel = {

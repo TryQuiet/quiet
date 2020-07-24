@@ -6,8 +6,12 @@ import * as Yup from 'yup'
 import secp256k1 from 'secp256k1'
 import createKeccakHash from 'keccak'
 import { packMemo, unpackMemo, addStandardToMemo } from './transit'
-import { getClient } from '../zcash'
-import { networkFee, targetUtxoCount, messageType, satoshiMultiplier } from '../../shared/static'
+import {
+  networkFee,
+  targetUtxoCount,
+  messageType,
+  satoshiMultiplier
+} from '../../shared/static'
 
 export const ExchangeParticipant = Immutable.Record(
   {
@@ -261,7 +265,7 @@ export const createTransfer = values => {
   }
 }
 
-const _buildUtxo = ({
+export const _buildUtxo = ({
   transfer,
   utxos,
   splitTreshhold,
@@ -308,6 +312,9 @@ const _buildUtxo = ({
   return transfers
 }
 
+export const trimMemo = a => {
+  return a.replace(/0+$/g, '')
+}
 export const messageToTransfer = async ({
   message,
   amount = '0',
@@ -317,38 +324,22 @@ export const messageToTransfer = async ({
   fee = networkFee,
   donation = { allow: false }
 }) => {
-  const utxos = await getClient().payment.unspentNotes({
-    addresses: [identityAddress]
-  })
   let transfer
   let memo
   if (address.length === 35) {
     transfer = {
       address: address,
-      amount: amount.toString()
+      amount: (parseFloat(amount) * satoshiMultiplier).toString()
     }
   } else {
     memo = await packMemo(message)
     transfer = {
       address: address,
-      amount: amount.toString(),
-      memo
+      amount: (parseFloat(amount) * satoshiMultiplier).toString(),
+      memo: `0x${trimMemo(memo)}`
     }
   }
-  return {
-    from: identityAddress,
-    amounts:
-      identityAddress === address
-        ? [transfer]
-        : _buildUtxo({
-          transfer,
-          utxos,
-          splitTreshhold,
-          fee,
-          identityAddress,
-          donation
-        })
-  }
+  return transfer
 }
 export const createEmptyTransfer = ({ address, amount = 0, memo = '' }) => {
   return {

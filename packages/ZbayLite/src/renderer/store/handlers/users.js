@@ -5,16 +5,14 @@ import * as R from 'ramda'
 import feesSelector from '../selectors/fees'
 import nodeSelectors from '../selectors/node'
 import feesHandlers from '../handlers/fees'
-import { isFinished } from '../handlers/operations'
 import { checkTransferCount } from '../handlers/messages'
 import { actionCreators } from './modals'
-import channelsSelectors from '../selectors/channels'
 import usersSelector from '../selectors/users'
 import identitySelector from '../selectors/identity'
 import { getPublicKeysFromSignature } from '../../zbay/messages'
 import { messageType, actionTypes } from '../../../shared/static'
 import { messages as zbayMessages } from '../../zbay'
-import { getClient } from '../../zcash'
+import client from '../../zcash'
 import staticChannels from '../../zcash/channels'
 
 const _ReceivedUser = publicKey =>
@@ -140,21 +138,7 @@ export const setUsers = createAction(actionTypes.SET_USERS)
 export const actions = {
   setUsers
 }
-const subscribeUsernameTxn = async ({ opId, callback }) => {
-  const subscribe = async callback => {
-    async function poll () {
-      const { status, error = null } =
-        (await getClient().operations.getStatus(opId)) || {}
-      if (isFinished(status)) {
-        return callback(error, status)
-      } else {
-        setTimeout(poll, 5000)
-      }
-    }
-    return poll()
-  }
-  return subscribe(callback)
-}
+
 export const registerAnonUsername = () => async (dispatch, getState) => {
   const publicKey = identitySelector.signerPubKey(getState())
   await dispatch(
@@ -172,7 +156,7 @@ export const createOrUpdateUser = payload => async (dispatch, getState) => {
     nickname,
     address
   }
-  const usersChannel = channelsSelectors.usersChannel(getState())
+  const usersChannelAddress = staticChannels.registeredUsers.mainnet.address
   const registrationMessage = zbayMessages.createMessage({
     messageData: {
       type: zbayMessages.messageType.USER,
@@ -182,22 +166,22 @@ export const createOrUpdateUser = payload => async (dispatch, getState) => {
   })
   const transfer = await zbayMessages.messageToTransfer({
     message: registrationMessage,
-    address: usersChannel.get('address'),
-    identityAddress: address,
-    amount: fee.toString()
+    address: usersChannelAddress,
+    amount: fee
   })
   dispatch(actionCreators.closeModal('accountSettingsModal')())
   try {
-    const id = await getClient().payment.send(transfer)
-    await subscribeUsernameTxn({
-      opId: id,
-      callback: error => {
-        if (error !== null) {
-          dispatch(actionCreators.openModal('failedUsernameRegister')())
-        }
-      }
-    })
+    await client.sendTransaction(transfer)
+    // await subscribeUsernameTxn({
+    //   opId: id,
+    //   callback: error => {
+    //     if (error !== null) {
+    //       dispatch(actionCreators.openModal('failedUsernameRegister')())
+    //     }
+    //   }
+    // })
   } catch (err) {
+    console.log(err)
     dispatch(actionCreators.openModal('failedUsernameRegister')())
   }
 }
@@ -220,7 +204,7 @@ export const fetchUsers = (address, messages) => async (dispatch, getState) => {
         return message
       })
     )
-
+    console.log(registrationMessages)
     let minfee = 0
     let users = Immutable.Map({})
     const network = nodeSelectors.network(getState())
