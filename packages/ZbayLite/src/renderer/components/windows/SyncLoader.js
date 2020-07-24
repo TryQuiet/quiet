@@ -89,7 +89,7 @@ export const SyncLoader = ({
 }) => {
   useInterval(() => {
     getStatus()
-  }, 3000)
+  }, 10000)
   if (currentBlock.plus(10).gt(latestBlock)) {
     return <Redirect to='/vault' />
   } else {
