@@ -12,8 +12,8 @@ const DEFAULT_ADDRESS_TYPE = 'sapling'
 
 export const NodeState = Immutable.Record(
   {
-    latestBlock: new BigNumber(0),
-    currentBlock: new BigNumber(999999),
+    latestBlock: new BigNumber(999999),
+    currentBlock: new BigNumber(0),
     connections: new BigNumber(0),
     isTestnet: null,
     status: 'healthy',
