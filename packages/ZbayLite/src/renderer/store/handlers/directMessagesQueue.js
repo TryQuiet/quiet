@@ -13,7 +13,8 @@ import offersSelectors from '../selectors/offers'
 import {
   messageToTransfer,
   createEmptyTransfer,
-  DisplayableMessage
+  DisplayableMessage,
+  createMessage
 } from '../../zbay/messages'
 import { messageType, actionTypes } from '../../../shared/static'
 import operationsHandlers, {
@@ -212,6 +213,7 @@ const sendMessage = (payload, redirect = true) => async (
   const messageDigest = crypto.createHash('sha256')
   // Generate unique id for txn until we get response from blockchain
   const messageEssentials = R.pick(['createdAt', 'message', 'spent'])(payload)
+  const privKey = identitySelectors.signerPrivKey(getState())
   const key = messageDigest
     .update(JSON.stringify(messageEssentials))
     .digest('hex')
@@ -245,14 +247,20 @@ const sendMessage = (payload, redirect = true) => async (
       message: { key: message }
     })
   )
-  const transfer = createEmptyTransfer({
+  const transferMessage = createMessage({
+    messageData: {
+      type: messageType.TRANSFER,
+      data: payload.memo,
+      spent: payload.spent
+    },
+    privKey
+  })
+  const transfer = await messageToTransfer({
     address: payload.receiver.address,
     amount: payload.spent,
-    memo: payload.memo
+    message: transferMessage
   })
-  console.log(transfer)
-  // TODO observe txn and send it
-  // console.log(await client.sendTransaction(transfer))
+  console.log(await client.sendTransaction(transfer))
 }
 
 const _sendPendingDirectMessages = redirect => async (dispatch, getState) => {
