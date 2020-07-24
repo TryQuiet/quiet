@@ -90,7 +90,9 @@ export const SyncLoader = ({
   React.useEffect(() => {
     getStatus()
   }, [])
-  useInterval(() => {}, 10000)
+  useInterval(() => {
+    getStatus()
+  }, 10000)
   if (currentBlock.plus(10).gt(latestBlock)) {
     return <Redirect to='/vault' />
   } else {
