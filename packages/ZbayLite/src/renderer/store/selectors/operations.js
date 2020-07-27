@@ -5,18 +5,20 @@ const store = s => s
 
 const operations = createSelector(store, state => state.get('operations'))
 
-const pendingMessages = createSelector(
-  operations,
-  ops => ops.filter(o => o.type === operationTypes.pendingMessage)
+const operationsByChannel = channelId =>
+  createSelector(operations, ops => ops.get(channelId))
+
+const pendingMessages = createSelector(operations, ops =>
+  ops.filter(o => o.type === operationTypes.pendingMessage)
 )
 
-const pendingDirectMessages = createSelector(
-  operations,
-  ops => ops.filter(o => o.type === operationTypes.pendingDirectMessage)
+const pendingDirectMessages = createSelector(operations, ops =>
+  ops.filter(o => o.type === operationTypes.pendingDirectMessage)
 )
 
 export default {
   operations,
   pendingMessages,
-  pendingDirectMessages
+  pendingDirectMessages,
+  operationsByChannel
 }

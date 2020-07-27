@@ -1,6 +1,8 @@
 import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
 import { createAction, handleActions } from 'redux-actions'
+import crypto from 'crypto'
+import * as R from 'ramda'
 
 import history from '../../../shared/history'
 import operationsHandlers, {
@@ -23,6 +25,9 @@ import { errorNotification, LoaderState } from './utils'
 import nodeSelectors from '../selectors/node'
 import { getVault } from '../../vault'
 import { messageType, actionTypes } from '../../../shared/static'
+import { DisplayableMessage } from '../../zbay/messages'
+import usersSelectors from '../selectors/users'
+import contactsHandlers from './contacts'
 
 export const ChannelState = Immutable.Record(
   {
@@ -150,10 +155,10 @@ const sendOnEnter = (event, resetTab) => async (dispatch, getState) => {
   const shiftPressed = event.nativeEvent.shiftKey === true
   const channel = channelSelectors.channel(getState()).toJS()
   const messageToSend = channelSelectors.message(getState())
+  let message
   if (enterPressed && !shiftPressed) {
     event.preventDefault()
     const privKey = identitySelectors.signerPrivKey(getState())
-    let message
     message = messages.createMessage({
       messageData: {
         type: messageType.BASIC,
@@ -165,12 +170,50 @@ const sendOnEnter = (event, resetTab) => async (dispatch, getState) => {
       _checkMessageSize(message.message)
     )
     if (!isMergedMessageTooLong) {
+      dispatch(setMessage(''))
+      const myUser = usersSelectors.myUser(getState())
+      const messageDigest = crypto.createHash('sha256')
+
+      const messageEssentials = R.pick(['createdAt', 'message', 'spent'])(
+        message
+      )
+      const key = messageDigest
+        .update(JSON.stringify(messageEssentials))
+        .digest('hex')
+
+      const messagePlaceholder = DisplayableMessage({
+        ...message,
+        id: key,
+        sender: {
+          replyTo: myUser.address,
+          username: myUser.nickname
+        },
+        message: messageToSend
+      })
+      dispatch(
+        contactsHandlers.actions.addMessage({
+          key: channel.id,
+          message: { [key]: messagePlaceholder }
+        })
+      )
+      dispatch(
+        operationsHandlers.actions.addOperation({
+          channelId: channel.id,
+          id: key
+        })
+      )
       const transfer = await messages.messageToTransfer({
         message: message,
         address: channel.address
       })
-      dispatch(setMessage(''))
-      console.log(await client.sendTransaction(transfer))
+      const transaction = await client.sendTransaction(transfer)
+      dispatch(
+        operationsHandlers.epics.resolvePendingOperation({
+          channelId: channel.id,
+          id: key,
+          txid: transaction.txid
+        })
+      )
     }
   }
 }

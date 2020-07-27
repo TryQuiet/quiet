@@ -23,10 +23,6 @@ import {
   displayDirectMessageNotification,
   offerNotification
 } from '../../notifications'
-import operationsHandlers, {
-  operationTypes,
-  PendingDirectMessageOp
-} from './operations'
 import { ReceivedMessage, _checkMessageSize } from './messages'
 import removedChannelsHandlers from './removedChannels'
 import {
@@ -36,14 +32,10 @@ import {
   unknownUserId
 } from '../../../shared/static'
 
-import directMessagesQueueHandlers, {
-  checkConfirmationNumber
-} from './directMessagesQueue'
+import directMessagesQueueHandlers from './directMessagesQueue'
 import channelHandlers from './channel'
 import offersHandlers from './offers'
 import appHandlers from './app'
-import notificationsHandlers from './notifications'
-import { errorNotification } from './utils'
 import notificationCenterSelector from '../selectors/notificationCenter'
 import nodeSelectors from '../selectors/node'
 import txnTimestampsSelector from '../selectors/txnTimestamps'
@@ -150,53 +142,12 @@ const sendDirectMessage = (payload, redirect = true) => async (
   )
 }
 
-const resendMessage = messageData => async (dispatch, getState) => {
-  dispatch(operationsHandlers.actions.removeOperation(messageData.id))
-  const identityAddress = identitySelectors.address(getState())
-  const privKey = identitySelectors.signerPrivKey(getState())
-  const message = zbayMessages.createMessage({
-    messageData: {
-      type: messageData.type,
-      data: messageData.message,
-      spent:
-        messageData.type === zbayMessages.messageType.TRANSFER
-          ? new BigNumber(messageData.spent)
-          : '0'
-    },
-    privKey
-  })
-  const transfer = await zbayMessages.messageToTransfer({
-    message,
-    address: messageData.receiver.replyTo,
-    amount: message.spent,
-    identityAddress
-  })
-  try {
-    const opId = await getClient().payment.send(transfer)
-    await dispatch(
-      operationsHandlers.epics.observeOperation({
-        opId,
-        type: operationTypes.pendingDirectMessage,
-        meta: PendingDirectMessageOp({
-          recipientAddress: messageData.receiver.replyTo,
-          recipientUsername: messageData.receiver.username,
-          message: Immutable.fromJS(message)
-        }),
-        checkConfirmationNumber
-      })
-    )
-  } catch (err) {
-    notificationsHandlers.actions.enqueueSnackbar(
-      errorNotification({
-        message: "Couldn't send the message, please check node connection."
-      })
-    )
-  }
-}
+const resendMessage = messageData => async (dispatch, getState) => {}
 
 const initialState = Immutable.Map()
 
 const setMessages = createAction(actionTypes.SET_DIRECT_MESSAGES)
+const updateMessage = createAction(actionTypes.UPDATE_MESSAGE)
 const addMessage = createAction(actionTypes.ADD_MESSAGE)
 const addContact = createAction(actionTypes.ADD_CONTACT)
 const setVaultMessages = createAction(actionTypes.SET_VAULT_DIRECT_MESSAGES)
@@ -219,12 +170,19 @@ export const actions = {
   setLastSeen,
   setUsernames,
   removeContact,
-  addMessage
+  addMessage,
+  updateMessage
 }
 export const loadContact = address => async (dispatch, getState) => {
   const contact = selectors.contact(address)(getState())
   console.log(contact)
   dispatch(updateLastSeen({ contact }))
+}
+export const updatePendingMessage = ({ key, id, txid }) => async (
+  dispatch,
+  getState
+) => {
+  dispatch(updateMessage({ key, id, txid }))
 }
 export const linkUserRedirect = contact => async (dispatch, getState) => {
   const contacts = selectors.contacts(getState())
@@ -856,6 +814,13 @@ export const reducer = handleActions(
       state.update(key, cm =>
         cm.update('messages', msgs => {
           return msgs.merge(message)
+        })
+      ),
+    [updateMessage]: (state, { payload: { key, id, txid } }) =>
+      state.update(key, cm =>
+        cm.update('messages', msgs => {
+          const tempMsg = msgs.get(id)
+          return msgs.delete(id).merge({ [txid]: tempMsg })
         })
       ),
     [setMessageBlockTime]: (

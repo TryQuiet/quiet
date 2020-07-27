@@ -204,7 +204,6 @@ export const fetchUsers = (address, messages) => async (dispatch, getState) => {
         return message
       })
     )
-    console.log(registrationMessages)
     let minfee = 0
     let users = Immutable.Map({})
     const network = nodeSelectors.network(getState())

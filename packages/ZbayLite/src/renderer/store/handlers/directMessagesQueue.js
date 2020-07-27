@@ -17,10 +17,6 @@ import {
   createMessage
 } from '../../zbay/messages'
 import { messageType, actionTypes } from '../../../shared/static'
-import operationsHandlers, {
-  PendingDirectMessageOp,
-  operationTypes
-} from './operations'
 import notificationsHandlers from './notifications'
 import appHandlers from './app'
 import { errorNotification } from './utils'
@@ -109,7 +105,6 @@ export const checkConfirmationNumber = async ({
         messageContent.message.itemId + recipientUsername
       )
     )
-    await dispatch(operationsHandlers.actions.removeOperation(opId))
   } else {
     if (address !== recipientAddress) {
       await getVault().contacts.saveMessage({
@@ -145,7 +140,6 @@ export const checkConfirmationNumber = async ({
         })
       )
     }
-    dispatch(operationsHandlers.actions.removeOperation(opId))
     dispatch(
       contactsHandlers.epics.loadVaultMessages({
         contact: {
@@ -290,9 +284,8 @@ const _sendPendingDirectMessages = redirect => async (dispatch, getState) => {
           identityAddress,
           donation
         })
-        let opId
         try {
-          opId = await client().payment.send(transfer)
+          await client().payment.send(transfer)
         } catch (err) {
           dispatch(
             notificationsHandlers.actions.enqueueSnackbar(
@@ -328,19 +321,6 @@ const _sendPendingDirectMessages = redirect => async (dispatch, getState) => {
           )
         }
         await dispatch(removeMessage(key))
-        await dispatch(
-          operationsHandlers.epics.observeOperation({
-            opId,
-            type: operationTypes.pendingDirectMessage,
-            meta: PendingDirectMessageOp({
-              recipientAddress: msg.recipientAddress,
-              recipientUsername: msg.recipientUsername,
-              offerId: msg.offerId,
-              message: msg.message
-            }),
-            checkConfirmationNumber
-          })
-        )
       })
       .values()
   )

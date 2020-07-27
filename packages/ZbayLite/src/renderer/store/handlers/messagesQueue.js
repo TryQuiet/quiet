@@ -8,10 +8,6 @@ import channelsSelectors from '../selectors/channels'
 import identitySelectors from '../selectors/identity'
 import appSelectors from '../selectors/app'
 import { messageToTransfer } from '../../zbay/messages'
-import operationsHandlers, {
-  PendingMessageOp,
-  operationTypes
-} from './operations'
 import notificationsHandlers from './notifications'
 import appHandlers from './app'
 import { errorNotification } from './utils'
@@ -78,9 +74,8 @@ const _sendPendingMessages = async (dispatch, getState) => {
           identityAddress,
           donation
         })
-        let opId
         try {
-          opId = await getClient().payment.send(transfer)
+          await getClient().payment.send(transfer)
         } catch (err) {
           dispatch(
             notificationsHandlers.actions.enqueueSnackbar(
@@ -93,16 +88,6 @@ const _sendPendingMessages = async (dispatch, getState) => {
           return
         }
         dispatch(removeMessage(key))
-        await dispatch(
-          operationsHandlers.epics.observeOperation({
-            opId,
-            type: operationTypes.pendingMessage,
-            meta: PendingMessageOp({
-              channelId: channel.get('id'),
-              message: msg.message
-            })
-          })
-        )
       })
       .values()
   )

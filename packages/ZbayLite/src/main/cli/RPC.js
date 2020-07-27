@@ -30,7 +30,7 @@ class RPC {
       'send',
       `${address},${amount},${memo}`
     )
-    return result
+    return JSON.parse(result)
   }
   list = async (includeMemoHex = 'yes') => {
     return JSON.parse(native.litelib_execute('list', `${includeMemoHex}`))

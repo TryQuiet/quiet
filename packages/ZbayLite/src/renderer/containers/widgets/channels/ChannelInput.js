@@ -60,7 +60,6 @@ export const ChannelInput = ({
   isSizeCheckingInProgress,
   id
 }) => {
-  console.log(message)
   const [infoClass, setInfoClass] = React.useState(null)
   const [anchorEl, setAnchorEl] = React.useState({})
   const [mentionsToSelect, setMentionsToSelect] = React.useState([])

@@ -174,7 +174,6 @@ export const ChannelInput = ({
   const [emojiHovered, setEmojiHovered] = React.useState(false)
   const [openEmoji, setOpenEmoji] = React.useState(false)
   const [htmlMessage, setHtmlMessage] = React.useState(message)
-  console.log(message)
   window.onfocus = () => {
     inputRef.current.el.current.focus()
     setFocused(true)
