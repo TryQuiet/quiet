@@ -15,6 +15,7 @@ import ratesSelector from '../../../store/selectors/rates'
 export const mapStateToProps = state => {
   return {
     message: channelSelectors.message(state),
+    id: channelSelectors.id(state),
     inputState: channelSelectors.inputLocked(state),
     members: channelSelectors.members(state),
     channelName: channelSelectors.data(state)
@@ -56,8 +57,10 @@ export const ChannelInput = ({
   checkMessageSizeLimit,
   targetRecipientAddress,
   isMessageTooLong,
-  isSizeCheckingInProgress
+  isSizeCheckingInProgress,
+  id
 }) => {
+  console.log(message)
   const [infoClass, setInfoClass] = React.useState(null)
   const [anchorEl, setAnchorEl] = React.useState({})
   const [mentionsToSelect, setMentionsToSelect] = React.useState([])
@@ -65,6 +68,7 @@ export const ChannelInput = ({
     <ChannelInputComponent
       infoClass={infoClass}
       setInfoClass={setInfoClass}
+      id={id}
       users={users}
       onChange={e => {
         onChange(e)

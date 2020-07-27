@@ -31,7 +31,7 @@ export const ChannelState = Immutable.Record(
   {
     spentFilterValue: new BigNumber(0),
     id: null,
-    message: '',
+    message: Immutable.Map(),
     shareableUri: '',
     address: '',
     loader: LoaderState({ loading: false }),
@@ -308,7 +308,8 @@ export const reducer = handleActions(
       state.setIn(['loader', 'message'], message),
     [setSpentFilterValue]: (state, { payload: value }) =>
       state.set('spentFilterValue', new BigNumber(value)),
-    [setMessage]: (state, { payload: value }) => state.set('message', value),
+    [setMessage]: (state, { payload: value }) =>
+      state.setIn(['message', state.get('id')], value),
     [setChannelId]: (state, { payload: id }) => state.set('id', id),
     [isSizeCheckingInProgress]: (state, { payload }) =>
       state.set('isSizeCheckingInProgress', payload),

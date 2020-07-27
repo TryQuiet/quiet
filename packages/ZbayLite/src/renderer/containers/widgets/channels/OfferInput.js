@@ -14,6 +14,7 @@ import directMessagesQueueHandlers from '../../../store/handlers/directMessagesQ
 
 export const mapStateToProps = (state, { offer }) => ({
   message: channelSelectors.message(state),
+  id: channelSelectors.id(state),
   inputState: channelSelectors.inputLocked(state),
   offerName: offersSelectors.offer(offer)(state).name,
   users: usersSelectors.users(state),
@@ -41,7 +42,8 @@ export const ChannelInput = ({
   users,
   feeUsd,
   myUser,
-  resetDebounce
+  resetDebounce,
+  id
 }) => {
   const [infoClass, setInfoClass] = React.useState(null)
   const [anchorEl, setAnchorEl] = React.useState({})
@@ -53,6 +55,7 @@ export const ChannelInput = ({
   return (
     <ChannelInputComponent
       infoClass={infoClass}
+      id={id}
       setInfoClass={setInfoClass}
       onChange={e => {
         onChange(e)

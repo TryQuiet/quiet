@@ -11,7 +11,9 @@ import Immutable from 'immutable'
 import { networkFee } from '../../../shared/static'
 const store = s => s
 
-export const channel = createSelector(store, state => state.get('channel'))
+export const channel = createSelector(store, state => {
+  return state.get('channel')
+})
 export const channelInfo = createSelector(store, state => state.get('channel').delete('message')) // TODO refactor
 
 const data = createSelector(
@@ -22,7 +24,7 @@ const data = createSelector(
 
 export const spentFilterValue = createSelector(channel, c => c.get('spentFilterValue', -1))
 
-export const message = createSelector(channel, c => c.get('message'))
+export const message = createSelector(channel, c => c.getIn(['message', c.get('id')]) || '')
 export const id = createSelector(channel, c => c.get('id'))
 export const isSizeCheckingInProgress = createSelector(channel, c => c.get('isSizeCheckingInProgress'))
 export const messageSizeStatus = createSelector(channel, c => c.get('messageSizeStatus'))

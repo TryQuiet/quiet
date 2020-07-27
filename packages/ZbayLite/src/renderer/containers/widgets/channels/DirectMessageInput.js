@@ -17,6 +17,7 @@ import messagesHandlers from '../../../store/handlers/messages'
 
 export const mapStateToProps = (state, { contactId }) => ({
   message: channelSelectors.message(state),
+  id: channelSelectors.id(state),
   inputState: usersSelectors.registeredUser(
     identitySelectors.signerPubKey(state)
   )(state)
@@ -54,7 +55,8 @@ export const ChannelInput = ({
   myUser,
   isMessageTooLong,
   isSizeCheckingInProgress,
-  checkMessageSizeLimit
+  checkMessageSizeLimit,
+  id
 }) => {
   const [infoClass, setInfoClass] = React.useState(null)
   const [anchorEl, setAnchorEl] = React.useState({})
@@ -63,6 +65,7 @@ export const ChannelInput = ({
   return (
     <ChannelInputComponent
       infoClass={infoClass}
+      id={id}
       setInfoClass={setInfoClass}
       onChange={e => {
         onChange(e)

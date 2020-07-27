@@ -163,7 +163,8 @@ export const ChannelInput = ({
   members,
   inputPlaceholder,
   isMessageTooLong,
-  isSizeCheckingInProgress
+  isSizeCheckingInProgress,
+  id
 }) => {
   const refSelected = React.useRef()
   const refMentionsToSelect = React.useRef()
@@ -173,6 +174,7 @@ export const ChannelInput = ({
   const [emojiHovered, setEmojiHovered] = React.useState(false)
   const [openEmoji, setOpenEmoji] = React.useState(false)
   const [htmlMessage, setHtmlMessage] = React.useState(message)
+  console.log(message)
   window.onfocus = () => {
     inputRef.current.el.current.focus()
     setFocused(true)
@@ -192,6 +194,9 @@ export const ChannelInput = ({
       setHtmlMessage('')
     }
   }, [message])
+  React.useEffect(() => {
+    setHtmlMessage(message)
+  }, [id])
   const findMentions = text => {
     const splitedMsg = text
       .replace(/ /g, String.fromCharCode(160))
@@ -235,7 +240,10 @@ export const ChannelInput = ({
     }
     for (const key in splitedMsg) {
       const element = splitedMsg[key]
-      if (element.startsWith('@') && users.find(user => user.nickname === element.substring(1))) {
+      if (
+        element.startsWith('@') &&
+        users.find(user => user.nickname === element.substring(1))
+      ) {
         splitedMsg[key] = renderToString(
           <span className={classes.highlight}>{element}</span>
         )
@@ -461,7 +469,9 @@ export const ChannelInput = ({
               {`Your message is over the size limit. `}
               <span
                 onClick={() =>
-                  shell.openExternal('https://www.zbay.app/faq.html#message-size-info')
+                  shell.openExternal(
+                    'https://www.zbay.app/faq.html#message-size-info'
+                  )
                 }
                 className={classes.linkBlue}
               >
