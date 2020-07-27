@@ -8,19 +8,16 @@ import operationsHandlers, {
   PendingMessageOp
 } from './operations'
 import notificationsHandlers from './notifications'
-import messagesQueueHandlers from './messagesQueue'
-import messagesQueue from '../selectors/messagesQueue'
+// import messagesQueueHandlers from './messagesQueue'
 import messagesHandlers, { _checkMessageSize } from './messages'
 import channelsHandlers from './channels'
 import offersHandlers from './offers'
-import appHandlers from './app'
 import channelSelectors from '../selectors/channel'
 import channelsSelectors from '../selectors/channels'
 import identitySelectors from '../selectors/identity'
-import appSelectors from '../selectors/app'
 import contactsSelectors from '../selectors/contacts'
 import logsHandlers from '../handlers/logs'
-import { getClient } from '../../zcash'
+import client from '../../zcash'
 import { messages } from '../../zbay'
 import { errorNotification, LoaderState } from './utils'
 import nodeSelectors from '../selectors/node'
@@ -125,7 +122,7 @@ const linkChannelRedirect = targetChannel => async (dispatch, getState) => {
     )
     history.push(`/main/channel/${channel.get('id')}`)
     try {
-      await getClient().keys.importIVK({
+      await client.keys.importIVK({
         ivk: targetChannel.keys.ivk,
         rescan: 'yes',
         startHeight: fetchTreshold
@@ -151,54 +148,29 @@ const sendOnEnter = (event, resetTab) => async (dispatch, getState) => {
   }
   const enterPressed = event.nativeEvent.keyCode === 13
   const shiftPressed = event.nativeEvent.shiftKey === true
-  const channel = channelSelectors.data(getState()).toJS()
+  const channel = channelSelectors.channel(getState()).toJS()
   const messageToSend = channelSelectors.message(getState())
-  const messageQueueLock = appSelectors.messageQueueLock(getState())
-  let locked = false
-  const msgQueue = messagesQueue.queue(getState())
-  const currentMessage = msgQueue.find(dm => dm.get('channelId') === channel.id)
-  const msgKey = msgQueue.findKey(dm => dm.get('channelId') === channel.id)
   if (enterPressed && !shiftPressed) {
-    if (!messageQueueLock) {
-      await dispatch(appHandlers.actions.lockMessageQueue())
-      locked = true
-    }
     event.preventDefault()
     const privKey = identitySelectors.signerPrivKey(getState())
     let message
-    if (currentMessage !== undefined && locked) {
-      await dispatch(messagesQueueHandlers.actions.removeMessage(msgKey))
-      message = messages.createMessage({
-        messageData: {
-          type: messageType.BASIC,
-          data:
-            currentMessage.get('message').get('message') + '\n' + messageToSend
-        },
-        privKey: privKey
-      })
-    } else {
-      message = messages.createMessage({
-        messageData: {
-          type: messageType.BASIC,
-          data: messageToSend
-        },
-        privKey: privKey
-      })
-    }
+    message = messages.createMessage({
+      messageData: {
+        type: messageType.BASIC,
+        data: messageToSend
+      },
+      privKey: privKey
+    })
     const isMergedMessageTooLong = await dispatch(
       _checkMessageSize(message.message)
     )
     if (!isMergedMessageTooLong) {
-      dispatch(
-        messagesQueueHandlers.epics.addMessage({
-          message,
-          channelId: channel.id
-        })
-      )
+      const transfer = await messages.messageToTransfer({
+        message: message,
+        address: channel.address
+      })
       dispatch(setMessage(''))
-    }
-    if (locked) {
-      dispatch(appHandlers.actions.unlockMessageQueue())
+      console.log(await client.sendTransaction(transfer))
     }
   }
 }
@@ -227,7 +199,7 @@ const sendChannelSettingsMessage = ({
     identityAddress
   })
   try {
-    await getClient().payment.send(transfer)
+    await client.payment.send(transfer)
   } catch (err) {
     notificationsHandlers.actions.enqueueSnackbar(
       dispatch(
@@ -258,7 +230,7 @@ const resendMessage = messageData => async (dispatch, getState) => {
     identityAddress
   })
   try {
-    const opId = await getClient().payment.send(transfer)
+    const opId = await client.payment.send(transfer)
     await dispatch(
       operationsHandlers.epics.observeOperation({
         opId,
