@@ -16,7 +16,8 @@ import {
 export const ExchangeParticipant = Immutable.Record(
   {
     replyTo: '',
-    username: 'Unnamed'
+    username: 'Unnamed',
+    publicKey: ''
   },
   'ExchangeParticipant'
 )
@@ -217,6 +218,71 @@ export const transferToMessage = async (props, users) => {
     return null
   }
 }
+export const outgoingTransferToMessage = async (props, users) => {
+  const { txid } = props
+  let message = null
+  let sender = { replyTo: '', username: 'Unnamed' }
+  let isUnregistered = false
+  let publicKey = null
+  const transactionData = props.outgoing_metadata[0]
+  try {
+    message = await unpackMemo(
+      transactionData.memo
+        ? transactionData.memo.substring(2)
+        : transactionData.memohex
+    )
+    const { type } = message
+    if (type === 'UNKNOWN') {
+      return {
+        type: 'UNKNOWN',
+        payload: message,
+        id: txid,
+        spent: transactionData.value
+      }
+    }
+    publicKey = getPublicKeysFromSignature(message).toString('hex')
+    if (users !== undefined) {
+      const fromUser = users.get(publicKey)
+      if (fromUser !== undefined) {
+        const isUsernameValid = usernameSchema.isValidSync(fromUser)
+        sender = ExchangeParticipant({
+          replyTo: fromUser.address,
+          username: isUsernameValid
+            ? fromUser.nickname
+            : `anon${publicKey.substring(0, 10)}`
+        })
+      } else {
+        sender = ExchangeParticipant({
+          replyTo: '',
+          username: `anon${publicKey}`
+        })
+        isUnregistered = true
+      }
+    }
+  } catch (err) {
+    console.warn(err)
+    return null
+  }
+  try {
+    const toUser = users.find(u => u.address === transactionData.address)
+    return {
+      ...(await messageSchema.validate(message)),
+      id: txid,
+      receiver: {
+        replyTo: toUser.address,
+        publicKey: toUser.publicKey,
+        username: toUser.nickname
+      },
+      spent: new BigNumber(transactionData.value),
+      sender: sender,
+      isUnregistered,
+      publicKey
+    }
+  } catch (err) {
+    console.warn('Incorrect message format: ', err)
+    return null
+  }
+}
 
 export const hash = data => {
   return createKeccakHash('keccak256')
@@ -381,5 +447,6 @@ export default {
   transferToMessage,
   transfersToMessages,
   vaultToDisplayableMessage,
-  createEmptyTransfer
+  createEmptyTransfer,
+  outgoingTransferToMessage
 }

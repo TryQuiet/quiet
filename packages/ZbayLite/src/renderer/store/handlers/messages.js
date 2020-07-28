@@ -109,7 +109,8 @@ export const fetchMessages = () => async (dispatch, getState) => {
         txns[channels.channelOfChannels.mainnet.address]
       )
     )
-    dispatch(setUsersMessages(identityAddress, txns[identityAddress]))
+    await dispatch(setUsersMessages(identityAddress, txns[identityAddress]))
+    await dispatch(setOutgoingTransactions(identityAddress, txns['undefined']))
     dispatch(
       setChannelMessages(
         channels.general.mainnet.address,
@@ -131,12 +132,12 @@ export const checkTransferCount = (address, messages) => async (
     if (messages.length === appSelectors.transfers(getState()).get(address)) {
       return -1
     } else {
-      const oldTransfers = appSelectors.transfers(getState()).get(address) || 0
-      dispatch(
-        appHandlers.actions.reduceNewTransfersCount(
-          messages.length - oldTransfers
-        )
-      )
+      // const oldTransfers = appSelectors.transfers(getState()).get(address) || 0
+      // dispatch(
+      //   appHandlers.actions.reduceNewTransfersCount(
+      //     messages.length - oldTransfers
+      //   )
+      // )
       dispatch(
         appHandlers.actions.setTransfers({
           id: address,
@@ -147,6 +148,58 @@ export const checkTransferCount = (address, messages) => async (
   }
 }
 
+const setOutgoingTransactions = (address, messages) => async (
+  dispatch,
+  getState
+) => {
+  const users = usersSelectors.users(getState())
+  const transferCountFlag = await dispatch(
+    checkTransferCount('outgoing', messages)
+  )
+  if (transferCountFlag === -1 || !messages) {
+    return
+  }
+  const filteredOutgoingMessages = messages.filter(msg => {
+    if (!msg.outgoing_metadata.length) {
+      return false
+    }
+    if (msg.outgoing_metadata[0].memo) {
+      return msg.outgoing_metadata[0].memo.substring(2).startsWith('ff')
+    }
+    if (msg.outgoing_metadata[0].memohex) {
+      return msg.outgoing_metadata[0].memohex.startsWith('ff')
+    }
+    return false
+  })
+  console.log(filteredOutgoingMessages)
+  const messagesAll = await Promise.all(
+    filteredOutgoingMessages.map(async transfer => {
+      const message = await zbayMessages.outgoingTransferToMessage(
+        transfer,
+        users
+      )
+      if (message === null) {
+        return DisplayableMessage(message)
+      }
+      return DisplayableMessage(message)
+    })
+  )
+  const groupedMesssages = R.groupBy(msg => msg.receiver.publicKey)(messagesAll)
+  console.log(groupedMesssages)
+  for (const key in groupedMesssages) {
+    if (key && groupedMesssages.hasOwnProperty(key)) {
+      dispatch(
+        contactsHandlers.actions.addMessage({
+          key: key,
+          message: groupedMesssages[key].reduce((acc, cur) => {
+            acc[cur.id] = cur
+            return acc
+          }, {})
+        })
+      )
+    }
+  }
+}
 const setChannelMessages = (address, messages) => async (
   dispatch,
   getState
@@ -192,10 +245,20 @@ const setChannelMessages = (address, messages) => async (
 }
 const setUsersMessages = (address, messages) => async (dispatch, getState) => {
   const users = usersSelectors.users(getState())
+  console.log(messages)
+  if (
+    messages[messages.length - 1].memo === null &&
+    messages[messages.length - 1].memohex === ''
+  ) {
+    console.log('skip wrong state')
+    return
+  }
   const transferCountFlag = await dispatch(
     checkTransferCount(address, messages)
   )
   if (transferCountFlag === -1 || !messages) {
+    console.log('skip')
+
     return
   }
   const filteredTextMessages = messages.filter(
@@ -211,13 +274,14 @@ const setUsersMessages = (address, messages) => async (dispatch, getState) => {
       type: new BigNumber(msg.amount).gt(new BigNumber(0))
         ? messageType.TRANSFER
         : messageType.BASIC,
-      message: msg.memo,
+      message: msg.memo || '',
       createdAt: msg.datetime,
       specialType: null,
       spent: new BigNumber(msg.amount),
       blockTime: msg.block_height
     })
   )
+  console.log(parsedTextMessages)
   const unknownUser = users.get(unknownUserId)
   dispatch(
     contactsHandlers.actions.setMessages({
@@ -248,6 +312,7 @@ const setUsersMessages = (address, messages) => async (dispatch, getState) => {
     })
   )
   const groupedMesssages = R.groupBy(msg => msg.publicKey)(messagesAll)
+  console.log(groupedMesssages)
   for (const key in groupedMesssages) {
     if (groupedMesssages.hasOwnProperty(key)) {
       const user = users.get(key)
