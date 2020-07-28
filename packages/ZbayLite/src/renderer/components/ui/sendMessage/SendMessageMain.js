@@ -90,13 +90,8 @@ export const SendMessageMain = ({
             .filter(obj => obj.get('address') === recipient)
             .first()
         if (includesNickname && !sendAnonymously) {
-          const address = includesNickname.get('address')
-          const nickname = includesNickname.get('nickname')
           createNewContact({
-            contact: {
-              replyTo: address,
-              username: nickname
-            },
+            contact: includesNickname,
             history
           })
         } else {

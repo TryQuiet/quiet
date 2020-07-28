@@ -243,7 +243,7 @@ const sendMessage = (payload, redirect = true) => async (
   )
   const transferMessage = createMessage({
     messageData: {
-      type: messageType.TRANSFER,
+      type: payload.spent ? messageType.TRANSFER : messageType.BASIC,
       data: payload.memo,
       spent: payload.spent
     },

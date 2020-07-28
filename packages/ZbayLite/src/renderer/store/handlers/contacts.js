@@ -563,25 +563,27 @@ export const loadVaultMessages = ({ contact }) => async (
   )
 }
 
-export const createVaultContact = ({ contact, history }) => async (
-  dispatch,
-  getState
-) => {
-  const identityId = identitySelectors.id(getState())
-  await getVault().contacts.listMessages({
-    identityId,
-    recipientUsername: contact.username,
-    recipientAddress: contact.replyTo
-  })
-  await dispatch(
-    setUsernames({
-      sender: {
-        replyTo: contact.replyTo,
-        username: contact.username
-      }
-    })
-  )
-  history.push(`/main/direct-messages/${contact.replyTo}/${contact.username}`)
+export const createVaultContact = ({
+  contact,
+  history,
+  redirect = true
+}) => async (dispatch, getState) => {
+  const contacts = selectors.contacts(getState())
+  // Create temp user
+  if (!contacts.get(contact.publicKey)) {
+    await dispatch(
+      addContact({
+        key: contact.publicKey,
+        username: contact.nickname,
+        contactAddress: contact.address
+      })
+    )
+  }
+  if (redirect === true) {
+    history.push(
+      `/main/direct-messages/${contact.publicKey}/${contact.nickname}`
+    )
+  }
 }
 
 export const createVaultContactOffer = ({ contact, history }) => async (
