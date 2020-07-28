@@ -35,7 +35,7 @@ export const mapDispatchToProps = dispatch => {
   return bindActionCreators(
     {
       onChange: channelHandlers.actions.setMessage,
-      sendDirectMessageOnEnter: contactsHandlers.epics.sendDirectMessageOnEnter,
+      sendDirectMessageOnEnter: channelHandlers.epics.sendOnEnter,
       checkMessageSizeLimit: messagesHandlers.epics.checkMessageSize,
       resetDebounce:
         directMessagesQueueHandlers.epics.resetDebounceDirectMessage
