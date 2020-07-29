@@ -7,6 +7,7 @@ import { createAction, handleActions } from 'redux-actions'
 import appSelectors from '../selectors/app'
 import channelSelectors from '../selectors/channel'
 import usersSelectors from '../selectors/users'
+import contactsSelectors from '../selectors/contacts'
 import identitySelectors from '../selectors/identity'
 import { actions as channelActions } from './channel'
 import contactsHandlers from '../handlers/contacts'
@@ -186,8 +187,20 @@ const setOutgoingTransactions = (address, messages) => async (
   )
   const groupedMesssages = R.groupBy(msg => msg.receiver.publicKey)(messagesAll)
   console.log(groupedMesssages)
+  const contacts = contactsSelectors.contacts(getState())
   for (const key in groupedMesssages) {
     if (key && groupedMesssages.hasOwnProperty(key)) {
+      if (!contacts.get(key)) {
+        console.log(users.get(key))
+        const contact = users.get(key)
+        await dispatch(
+          contactsHandlers.actions.addContact({
+            key: contact.publicKey,
+            username: contact.nickname,
+            contactAddress: contact.address
+          })
+        )
+      }
       dispatch(
         contactsHandlers.actions.addMessage({
           key: key,
