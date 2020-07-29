@@ -11,7 +11,6 @@ import identityHandlers from './identity'
 import notificationsHandlers from './notifications'
 import logsHandlers from '../handlers/logs'
 import { REQUEST_MONEY_ENDPOINT, actionTypes } from '../../../shared/static'
-import vault from '../../vault'
 import electronStore from '../../../shared/electronStore'
 // import passwordMigration from '../../../shared/migrations/1_40_0'
 
@@ -27,14 +26,13 @@ export const VaultState = Immutable.Record({
 
 export const initialState = VaultState()
 
-const createVault = createAction(actionTypes.CREATE_VAULT, vault.create)
+const createVault = createAction(actionTypes.CREATE_VAULT)
 const unlockVault = createAction(
   actionTypes.UNLOCK_VAULT,
-  vault.unlock,
   ({ ignoreError = false }) => ({ ignoreError })
 )
-const createIdentity = createAction(actionTypes.CREATE_VAULT_IDENTITY, vault.identity.createIdentity)
-const updateIdentitySignerKeys = createAction(actionTypes.UPDATE_IDENTITY_SIGNER_KEYS, vault.identity.updateIdentitySignerKeys)
+const createIdentity = createAction(actionTypes.CREATE_VAULT_IDENTITY)
+const updateIdentitySignerKeys = createAction(actionTypes.UPDATE_IDENTITY_SIGNER_KEYS)
 const clearError = createAction(actionTypes.CLEAR_VAULT_ERROR)
 const setVaultStatus = createAction(actionTypes.SET_VAULT_STATUS)
 const setLoginSuccessfull = createAction(actionTypes.SET_LOGIN_SUCCESSFULL)

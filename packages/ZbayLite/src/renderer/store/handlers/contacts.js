@@ -18,7 +18,6 @@ import directMessageChannelSelector, {
 import directMessagesQueue from '../selectors/directMessagesQueue'
 import { messages as zbayMessages } from '../../zbay'
 import { getClient } from '../../zcash'
-import { getVault } from '../../vault'
 import {
   displayDirectMessageNotification,
   offerNotification
@@ -189,12 +188,6 @@ export const linkUserRedirect = contact => async (dispatch, getState) => {
   if (contacts.get(contact.address)) {
     history.push(`/main/direct-messages/${contact.address}/${contact.nickname}`)
   }
-  const identityId = identitySelectors.id(getState())
-  await getVault().contacts.listMessages({
-    identityId,
-    recipientUsername: contact.nickname,
-    recipientAddress: contact.address
-  })
   await dispatch(
     setUsernames({
       sender: {
@@ -277,11 +270,6 @@ export const fetchMessages = () => async (dispatch, getState) => {
           msg.type !== messageType.ITEM_TRANSFER
       )
 
-    await messages.forEach(async msg => {
-      if (msg.type === messageType.AD) {
-        await getVault().adverts.addAdvert(msg)
-      }
-    })
     const messagesOffers = messagesAll
       .filter(msg => msg !== null)
       .filter(msg => msg.sender.replyTo !== '')
@@ -358,10 +346,6 @@ export const fetchMessages = () => async (dispatch, getState) => {
         if (!messageDetails) {
           const result = await getClient().confirmations.getResult(messageId)
           messageDetails = result.timereceived
-          await getVault().transactionsTimestamps.addTransaction(
-            messageId,
-            result.timereceived
-          )
           await dispatch(
             txnTimestampsHandlers.actions.addTxnTimestamp({
               tnxs: { [messageId]: result.timereceived.toString() }
@@ -377,15 +361,7 @@ export const fetchMessages = () => async (dispatch, getState) => {
       const previousMessages = selectors.messages(unknownSender.replyTo)(
         getState()
       )
-      const identityId = identitySelectors.id(getState())
       let lastSeen = selectors.lastSeen(unknownSender.replyTo)(getState())
-      if (!lastSeen) {
-        lastSeen = await getVault().contacts.getLastSeen({
-          identityId,
-          recipientAddress: unknownSender.replyTo,
-          recipientUsername: unknownSender.username
-        })
-      }
       const newMessages = zbayMessages.calculateDiff({
         previousMessages,
         nextMessages: Immutable.List(uknownSenderMessagesWithTimestamp),
@@ -433,7 +409,6 @@ export const fetchMessages = () => async (dispatch, getState) => {
       R.groupBy(msg => msg.sender.replyTo),
       R.filter(R.identity)
     )(messages)
-    const identityId = identitySelectors.id(getState())
     await Promise.all(
       Object.entries(senderToMessages).map(
         async ([contactAddress, contactMessages]) => {
@@ -441,28 +416,12 @@ export const fetchMessages = () => async (dispatch, getState) => {
           const [newestMsg] = contactMessages.sort(
             (a, b) => b.createdAt - a.createdAt
           )
-          const { createdAt: contactMsgTimestamp } = newestMsg
-          const removedChannels = await getVault().disabledChannels.listRemovedChannels()
-          const removedTimeStamp = removedChannels[contactAddress]
-          if (
-            removedTimeStamp &&
-            parseInt(removedTimeStamp) > contactMsgTimestamp
-          ) {
-            return
-          }
           await dispatch(setUsernames({ sender: newestMsg.sender }))
           await dispatch(loadVaultMessages({ contact }))
           const previousMessages = selectors.messages(contactAddress)(
             getState()
           )
           let lastSeen = selectors.lastSeen(contactAddress)(getState())
-          if (!lastSeen) {
-            lastSeen = await getVault().contacts.getLastSeen({
-              identityId,
-              recipientAddress: contactAddress,
-              recipientUsername: newestMsg.sender
-            })
-          }
           const newMessages = zbayMessages.calculateDiff({
             previousMessages,
             nextMessages: Immutable.List(contactMessages),
@@ -512,17 +471,10 @@ export const fetchMessages = () => async (dispatch, getState) => {
 }
 
 export const updateLastSeen = ({ contact }) => async (dispatch, getState) => {
-  const identityId = identitySelectors.id(getState())
   const lastSeen = DateTime.utc()
   const unread = selectors.newMessages(contact.address)(getState()).size
   remote.app.badgeCount = remote.app.badgeCount - unread
   dispatch(cleanNewMessages({ contactAddress: contact.key }))
-  await getVault().contacts.updateLastSeen({
-    identityId,
-    recipientUsername: contact.username,
-    recipientAddress: contact.replyTo || contact.key,
-    lastSeen
-  })
   dispatch(
     setLastSeen({
       lastSeen,
@@ -534,34 +486,7 @@ export const updateLastSeen = ({ contact }) => async (dispatch, getState) => {
 export const loadVaultMessages = ({ contact }) => async (
   dispatch,
   getState
-) => {
-  const identityId = identitySelectors.id(getState())
-  const identityAddress = identitySelectors.address(getState())
-  const { messages: vaultMessages } = await getVault().contacts.listMessages({
-    identityId,
-    recipientUsername: contact.username,
-    recipientAddress: contact.replyTo
-  })
-  const vaultMessagesToDisplay = vaultMessages
-    .filter(
-      m =>
-        m.type !== messageType.ITEM_BASIC &&
-        m.type !== messageType.ITEM_TRANSFER
-    )
-    .map(msg =>
-      zbayMessages.vaultToDisplayableMessage({
-        message: msg,
-        identityAddress,
-        receiver: { replyTo: contact.replyTo, username: contact.username }
-      })
-    )
-  dispatch(
-    setVaultMessages({
-      contactAddress: contact.replyTo,
-      vaultMessagesToDisplay
-    })
-  )
-}
+) => {}
 
 export const createVaultContact = ({
   contact,
@@ -589,126 +514,20 @@ export const createVaultContact = ({
 export const createVaultContactOffer = ({ contact, history }) => async (
   dispatch,
   getState
-) => {
-  const identityId = identitySelectors.id(getState())
-  await getVault().contacts.listMessages({
-    identityId,
-    recipientUsername: contact.username,
-    recipientAddress: contact.replyTo
-  })
-  await dispatch(
-    setUsernames({
-      sender: {
-        replyTo: contact.replyTo,
-        username: contact.username
-      }
-    })
-  )
-  history.push(`/main/offers/${contact.replyTo}/${contact.username}`)
-}
+) => {}
 
-export const loadAllSentMessages = () => async (dispatch, getState) => {
-  const identityId = identitySelectors.id(getState())
-  const identityAddress = identitySelectors.address(getState())
-  const allMessages = await getVault().contacts.loadAllSentMessages({
-    identityId
-  })
-  const removedChannels = await getVault().disabledChannels.listRemovedChannels()
-  allMessages.forEach(async contact => {
-    const [newestMsg] = contact.messages.sort(
-      (a, b) => b.createdAt - a.createdAt
-    )
-    const removedTimeStamp = removedChannels[contact.address]
-    if (!newestMsg && removedTimeStamp) {
-      return
-    }
-    if (newestMsg) {
-      const { createdAt: contactMsgTimestamp } = newestMsg
-      if (
-        removedTimeStamp &&
-        parseInt(removedTimeStamp) > contactMsgTimestamp
-      ) {
-        return
-      }
-    }
-    for (const txn of contact.messages) {
-      if (txn.status === 'pending' || txn.status === 'success') {
-        try {
-          const tx = await getClient().confirmations.getResult(txn.id)
-          if (tx.confirmations >= 1) {
-            txn.status = 'broadcasted'
-            await getVault().contacts.updateMessage({
-              identityId: identityId,
-              messageId: txn.id,
-              recipientAddress: contact.address,
-              recipientUsername: contact.username,
-              newMessageStatus: 'broadcasted'
-            })
-          }
-        } catch (error) {
-          await getVault().contacts.updateMessage({
-            identityId: identityId,
-            messageId: txn.id,
-            recipientAddress: contact.address,
-            recipientUsername: contact.username,
-            newMessageStatus: 'failed'
-          })
-        }
-      }
-    }
-    const vaultMessagesToDisplay = contact.messages.map(msg =>
-      zbayMessages.vaultToDisplayableMessage({
-        message: msg,
-        identityAddress,
-        receiver: { replyTo: contact.address, username: contact.username }
-      })
-    )
-    dispatch(
-      setVaultMessages({
-        contactAddress: contact.address,
-        vaultMessagesToDisplay
-      })
-    )
-    const lastSeen = await getVault().contacts.getLastSeen({
-      identityId,
-      recipientAddress: contact.address,
-      recipientUsername: contact.username
-    })
-    await dispatch(
-      setLastSeen({
-        lastSeen,
-        contact: {
-          replyTo: contact.address
-        }
-      })
-    )
-    await dispatch(
-      setUsernames({
-        sender: {
-          replyTo: contact.address,
-          username: contact.username
-            ? contact.username
-            : contact.address.substring(0, 10)
-        }
-      })
-    )
-  })
-}
+export const loadAllSentMessages = () => async (dispatch, getState) => {}
 
 export const updateDeletedChannelTimestamp = ({ address, timestamp }) => async (
   dispatch,
   getState
-) => {
-  await getVault().disabledChannels.addToRemoved(address, timestamp)
-  await dispatch(removedChannelsHandlers.epics.getRemovedChannelsTimestamp())
-}
+) => {}
 
 export const deleteChannel = ({ address, timestamp, history }) => async (
   dispatch,
   getState
 ) => {
   history.push(`/main/channel/general`)
-  await getVault().disabledChannels.addToRemoved(address, timestamp)
   await dispatch(removedChannelsHandlers.epics.getRemovedChannelsTimestamp())
   dispatch(removeContact(address))
 }

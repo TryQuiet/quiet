@@ -1,6 +1,5 @@
 /* eslint import/first: 0 */
 jest.mock('../../zcash')
-jest.mock('../../vault')
 
 import Immutable from 'immutable'
 import { DateTime } from 'luxon'
@@ -12,8 +11,6 @@ import { NodeState } from './node'
 import { epics, actions } from './contacts'
 import create from '../create'
 import { mock as zcashMock } from '../../zcash'
-import { createArchive } from '../../vault/marshalling'
-import vault, { mock as vaultMock } from '../../vault'
 import { getPublicKeysFromSignature } from '../../zbay/messages'
 import { messageType } from '../../../shared/static'
 import testUtils from '../../testUtils'
@@ -21,7 +18,10 @@ import { packMemo, unpackMemo } from '../../zbay/transit'
 import selectors, { Contact } from '../selectors/contacts'
 import { MessageSender, ReceivedMessage } from './messages'
 import operationsSelectors from '../selectors/operations'
-import operationsHandlers, { operationTypes, PendingDirectMessageOp } from './operations'
+import operationsHandlers, {
+  operationTypes,
+  PendingDirectMessageOp
+} from './operations'
 
 describe('contacts reducer', () => {
   let store = null
@@ -77,7 +77,11 @@ describe('contacts reducer', () => {
           })
         })
       )
-      return [...messagesForIdentity1, ...messagesForIdentity2, ...normalTransfers]
+      return [
+        ...messagesForIdentity1,
+        ...messagesForIdentity2,
+        ...normalTransfers
+      ]
     }
     return []
   }
@@ -89,7 +93,8 @@ describe('contacts reducer', () => {
         address: identityAddress,
         transparentAddress: 'test-transparent-identity-address',
         name: 'Saturn',
-        signerPrivKey: '879aff43df53606d8ae1219d9347360e7a30d1c2f141e14c9bc96bb29bf930cb'
+        signerPrivKey:
+          '879aff43df53606d8ae1219d9347360e7a30d1c2f141e14c9bc96bb29bf930cb'
       })
     }),
     users: Immutable.Map(),
@@ -120,7 +125,9 @@ describe('contacts reducer', () => {
         })
       )
     })
-    zcashMock.requestManager.z_listreceivedbyaddress.mockImplementation(receivedMock)
+    zcashMock.requestManager.z_listreceivedbyaddress.mockImplementation(
+      receivedMock
+    )
   })
 
   describe('Direct messages reducer', () => {
@@ -139,7 +146,9 @@ describe('contacts reducer', () => {
         )
 
         it('when no contact', () => {
-          store.dispatch(actions.setMessages({ messages, contactAddress: identity1.address }))
+          store.dispatch(
+            actions.setMessages({ messages, contactAddress: identity1.address })
+          )
 
           const contact = selectors.contact(identity1.address)(store.getState())
           expect(contact).toMatchSnapshot()
@@ -158,7 +167,9 @@ describe('contacts reducer', () => {
             })
           })
 
-          store.dispatch(actions.setMessages({ messages, contactAddress: identity1.address }))
+          store.dispatch(
+            actions.setMessages({ messages, contactAddress: identity1.address })
+          )
 
           const contact = selectors.contact(identity1.address)(store.getState())
           expect(contact).toMatchSnapshot()
@@ -169,7 +180,10 @@ describe('contacts reducer', () => {
 
         it('- when no contact', () => {
           store.dispatch(
-            actions.appendNewMessages({ messagesIds, contactAddress: identity1.address })
+            actions.appendNewMessages({
+              messagesIds,
+              contactAddress: identity1.address
+            })
           )
 
           const contact = selectors.contact(identity1.address)(store.getState())
@@ -190,7 +204,10 @@ describe('contacts reducer', () => {
           })
 
           store.dispatch(
-            actions.appendNewMessages({ messagesIds, contactAddress: identity1.address })
+            actions.appendNewMessages({
+              messagesIds,
+              contactAddress: identity1.address
+            })
           )
 
           const contact = selectors.contact(identity1.address)(store.getState())
@@ -206,7 +223,10 @@ describe('contacts reducer', () => {
           )
 
           store.dispatch(
-            actions.appendNewMessages({ messagesIds, contactAddress: identity1.address })
+            actions.appendNewMessages({
+              messagesIds,
+              contactAddress: identity1.address
+            })
           )
 
           const contact = selectors.contact(identity1.address)(store.getState())
@@ -216,7 +236,9 @@ describe('contacts reducer', () => {
 
       describe('- cleanNewMessages', () => {
         it('- when no contact', () => {
-          store.dispatch(actions.cleanNewMessages({ contactAddress: identity1.address }))
+          store.dispatch(
+            actions.cleanNewMessages({ contactAddress: identity1.address })
+          )
 
           const contact = selectors.contact(identity1.address)(store.getState())
           expect(contact).toMatchSnapshot()
@@ -235,7 +257,9 @@ describe('contacts reducer', () => {
             })
           })
 
-          store.dispatch(actions.cleanNewMessages({ contactAddress: identity1.address }))
+          store.dispatch(
+            actions.cleanNewMessages({ contactAddress: identity1.address })
+          )
 
           const contact = selectors.contact(identity1.address)(store.getState())
           expect(contact).toMatchSnapshot()
@@ -249,7 +273,9 @@ describe('contacts reducer', () => {
             })
           )
 
-          store.dispatch(actions.cleanNewMessages({ contactAddress: identity1.address }))
+          store.dispatch(
+            actions.cleanNewMessages({ contactAddress: identity1.address })
+          )
 
           const contact = selectors.contact(identity1.address)(store.getState())
           expect(contact).toMatchSnapshot()
@@ -365,24 +391,7 @@ describe('contacts reducer', () => {
     })
 
     describe('handles epics', () => {
-      beforeEach(() => {
-        vaultMock.setArchive(createArchive())
-      })
-
       describe('- fetchMessages', () => {
-        const messages = {
-          messages: []
-        }
-        vault.getVault.mockImplementation(() => ({
-          contacts: {
-            getLastSeen: jest.fn(async () => null),
-            updateLastSeen: jest.fn(async () => {}),
-            listMessages: jest.fn(async () => messages)
-          },
-          disabledChannels: {
-            listRemovedChannels: jest.fn(async () => Immutable.Map())
-          }
-        }))
         it('fetches messages', async () => {
           await store.dispatch(epics.fetchMessages())
           expect(selectors.contacts(store.getState())).toMatchSnapshot()
@@ -402,7 +411,9 @@ describe('contacts reducer', () => {
         })
 
         it('displays notifications for vault', async () => {
-          jest.spyOn(DateTime, 'utc').mockImplementation(() => testUtils.now.minus({ hours: 5 }))
+          jest
+            .spyOn(DateTime, 'utc')
+            .mockImplementation(() => testUtils.now.minus({ hours: 5 }))
           await store.dispatch(epics.updateLastSeen({ contact: contact1 }))
           await store.dispatch(epics.updateLastSeen({ contact: contact2 }))
 
@@ -421,7 +432,9 @@ describe('contacts reducer', () => {
 
         it('updates store when contact does exist', async () => {
           await store.dispatch(epics.updateLastSeen({ contact: contact1 }))
-          jest.spyOn(DateTime, 'utc').mockImplementation(() => testUtils.now.plus({ minutes: 30 }))
+          jest
+            .spyOn(DateTime, 'utc')
+            .mockImplementation(() => testUtils.now.plus({ minutes: 30 }))
 
           await store.dispatch(epics.updateLastSeen({ contact: contact1 }))
 
@@ -435,16 +448,18 @@ describe('contacts reducer', () => {
             ...messages[0],
             id: opId
           }
-          zcashMock.requestManager.z_getoperationstatus.mockImplementationOnce(async () => [
-            {
-              id: opId,
-              status: 'failed',
-              result: {
-                txid: 'message-op-id'
-              },
-              error: { code: -1, message: 'no funds' }
-            }
-          ])
+          zcashMock.requestManager.z_getoperationstatus.mockImplementationOnce(
+            async () => [
+              {
+                id: opId,
+                status: 'failed',
+                result: {
+                  txid: 'message-op-id'
+                },
+                error: { code: -1, message: 'no funds' }
+              }
+            ]
+          )
           zcashMock.requestManager.z_sendmany.mockResolvedValue('new-op-id')
 
           await store.dispatch(
@@ -458,13 +473,19 @@ describe('contacts reducer', () => {
               opId
             })
           )
-          const beforeResend = operationsSelectors.pendingDirectMessages(store.getState())
+          const beforeResend = operationsSelectors.pendingDirectMessages(
+            store.getState()
+          )
           expect(beforeResend.getIn([opId, 'status'])).toEqual('failed')
 
           await store.dispatch(epics.resendMessage(message))
 
-          const pendingMessages = operationsSelectors.pendingDirectMessages(store.getState())
-          expect(pendingMessages.map(m => m.removeIn(['meta', 'recipientId']))).toMatchSnapshot()
+          const pendingMessages = operationsSelectors.pendingDirectMessages(
+            store.getState()
+          )
+          expect(
+            pendingMessages.map(m => m.removeIn(['meta', 'recipientId']))
+          ).toMatchSnapshot()
         })
       })
     })

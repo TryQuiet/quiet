@@ -1,5 +1,3 @@
-/* eslint import/first: 0 */
-jest.mock('../../vault')
 import { mapStateToProps } from './UnlockVault'
 
 import create from '../../store/create'

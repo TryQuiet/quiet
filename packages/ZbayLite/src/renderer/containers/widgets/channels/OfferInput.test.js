@@ -1,5 +1,3 @@
-/* eslint import/first: 0 */
-jest.mock('../../../vault')
 import * as R from 'ramda'
 
 import Immutable from 'immutable'

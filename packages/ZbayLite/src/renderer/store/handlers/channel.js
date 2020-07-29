@@ -23,7 +23,6 @@ import client from '../../zcash'
 import { messages } from '../../zbay'
 import { errorNotification, LoaderState } from './utils'
 import nodeSelectors from '../selectors/node'
-import { getVault } from '../../vault'
 import { messageType, actionTypes } from '../../../shared/static'
 import { DisplayableMessage } from '../../zbay/messages'
 import usersSelectors from '../selectors/users'
@@ -110,7 +109,6 @@ const linkChannelRedirect = targetChannel => async (dispatch, getState) => {
     return
   }
   try {
-    await getVault().channels.importChannel(identityId, targetChannel)
     await dispatch(channelsHandlers.actions.loadChannels(identityId))
     channels = channelsSelectors.channels(getState())
     channel = channels.data.find(

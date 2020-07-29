@@ -2,13 +2,11 @@ import Immutable from 'immutable'
 import { createAction, handleActions } from 'redux-actions'
 import { DateTime } from 'luxon'
 import { remote } from 'electron'
-import { getVault } from '../../vault'
 import identitySelectors from '../selectors/identity'
 import offersSelectors from '../selectors/offers'
 import directMessagesQueue from '../selectors/directMessagesQueue'
 import { messages as zbayMessages } from '../../zbay'
 import channelSelectors from '../selectors/channel'
-import contactsSelectors from '../selectors/contacts'
 import channelHandlers from './channel'
 import contactsHandlers from './contacts'
 import directMessagesQueueHandlers from './directMessagesQueue'
@@ -66,102 +64,15 @@ const createOfferAdvert = ({ payload, history }) => async (
 const createOffer = ({ payload }) => async (dispatch, getState) => {
   const offers = offersSelectors.offers(getState())
   if (!offers.find(e => e.itemId === payload.id + payload.offerOwner)) {
-    const identityId = identitySelectors.id(getState())
-    await getVault().offers.importOffer(identityId, payload)
     await dispatch(Here.loadVaultContacts())
   }
 }
 export const loadVaultContacts = () => async (dispatch, getState) => {
-  const identityId = identitySelectors.id(getState())
-  const offersVault = await getVault().offers.listOffers(identityId)
-  const offers = offersSelectors.offers(getState())
-  offersVault.forEach(async offer => {
-    if (!offers.find(e => e.itemId === offer.offerId)) {
-      const newOffer = new Offer({
-        address: offer.address,
-        itemId: offer.offerId,
-        name: offer.name,
-        lastSeen: offer.lastSeen
-      })
-      await dispatch(addOffer({ newOffer }))
-      const message = await getVault().adverts.getAdvert(
-        offer.offerId.substring(0, 64)
-      )
-      await dispatch(appendMessages({ message, itemId: offer.offerId }))
-    }
-  })
 }
 
 export const initMessage = () => async (dispatch, getState) => {
-  const identityId = identitySelectors.id(getState())
-  const offers = offersSelectors.offers(getState())
-  const identityAddress = identitySelectors.address(getState())
-  await offers.forEach(async offer => {
-    const vaultMessages = await getVault().offers.listMessages({
-      identityId,
-      offerId: offer.itemId
-    })
-    const contact = contactsSelectors.contact(offer.address)(getState())
-    const vaultToDisplayableMessages = vaultMessages.map(msg => {
-      return zbayMessages.vaultToDisplayableMessage({
-        message: {
-          ...msg.properties,
-          message: JSON.parse(msg.properties['message']).text,
-          shippingData: JSON.parse(msg.properties['message']).shippingData,
-          tag: JSON.parse(msg.properties['message']).tag,
-          offerOwner: JSON.parse(msg.properties['message']).offerOwner,
-          sender: {
-            replyTo: msg.properties.sender,
-            username: msg.properties.senderUsername
-          },
-          createdAt: parseInt(msg.properties.createdAt),
-          type: parseInt(msg.properties.type)
-        },
-        identityAddress,
-        receiver: { replyTo: offer.address, username: contact.username }
-      })
-    })
-    await dispatch(
-      setMessages({
-        messages: vaultToDisplayableMessages,
-        itemId: offer.itemId
-      })
-    )
-  })
 }
 const refreshMessages = id => async (dispatch, getState) => {
-  const identityId = identitySelectors.id(getState())
-  const offer = offersSelectors.offer(id)(getState())
-  const identityAddress = identitySelectors.address(getState())
-  const vaultMessages = await getVault().offers.listMessages({
-    identityId,
-    offerId: id
-  })
-  const contact = contactsSelectors.contact(offer.address)(getState())
-  const vaultToDisplayableMessages = vaultMessages.map(msg => {
-    return zbayMessages.vaultToDisplayableMessage({
-      message: {
-        ...msg.properties,
-        message: JSON.parse(msg.properties['message']).text,
-        shippingData: JSON.parse(msg.properties['message']).shippingData,
-        tag: JSON.parse(msg.properties['message']).tag,
-        offerOwner: JSON.parse(msg.properties['message']).offerOwner,
-        sender: {
-          replyTo: msg.properties.sender,
-          username: msg.properties.senderUsername
-        },
-        createdAt: parseInt(msg.properties.createdAt),
-        type: parseInt(msg.properties.type)
-      },
-      identityAddress,
-      receiver: { replyTo: offer.address, username: contact.username }
-    })
-  })
-  vaultToDisplayableMessages.forEach(msg => {
-    if (!offer.messages.find(m => m.id === msg.id)) {
-      dispatch(appendMessages({ message: msg, itemId: offer.itemId }))
-    }
-  })
 }
 
 const sendItemMessageOnEnter = event => async (dispatch, getState) => {
@@ -220,15 +131,9 @@ const sendItemMessageOnEnter = event => async (dispatch, getState) => {
   }
 }
 const updateLastSeen = ({ itemId }) => async (dispatch, getState) => {
-  const identity = identitySelectors.data(getState())
   const lastSeen = DateTime.utc()
   const unread = offersSelectors.newMessages(itemId)(getState()).size
   remote.app.badgeCount = remote.app.badgeCount - unread
-  await getVault().offers.updateLastSeen({
-    identityId: identity.get('id'),
-    offerId: itemId,
-    lastSeen
-  })
   dispatch(setLastSeen({ itemId, lastSeen }))
   dispatch(cleanNewMessages({ itemId }))
 }

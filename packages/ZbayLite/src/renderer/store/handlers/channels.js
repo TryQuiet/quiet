@@ -19,7 +19,6 @@ import channelsSelectors from '../selectors/channels'
 import channelSelectors from '../selectors/channel'
 import modalsHandlers from './modals'
 import { messages } from '../../zbay'
-import { getVault } from '../../vault'
 import { getClient } from '../../zcash'
 import logsHandlers from '../../store/handlers/logs'
 import { networkFee, actionTypes } from '../../../shared/static'
@@ -40,38 +39,13 @@ export const initialState = ChannelsState()
 const loadChannels = createAction(
   actionTypes.LOAD_IDENTITY_CHANNELS,
   async id => {
-    const channels = await getVault().channels.listChannels(id)
-    return channels.map(channel => ({
-      ...channel,
-      advertFee: 0,
-      onlyRegistered: false
-    }))
+    return ''
   }
 )
 const loadChannelsToNode = createAction(
   actionTypes.LOAD_IDENTITY_CHANNELS,
   async (id, isNewUser) => {
-    const channels = await getVault().channels.listChannels(id)
-    for (const channel of channels) {
-      try {
-        await getClient().keys.importIVK({
-          ivk: channel.keys.ivk,
-          rescan: isNewUser ? 'no' : 'whenkeyisnew',
-          startHeight: 880000
-        })
-        if (channel.keys.sk) {
-          await getClient().keys.importSK({ sk: channel.keys.sk, rescan: 'no' })
-        }
-      } catch (error) {
-        console.warn(`Channel ${channel.name} already imported.`)
-      }
-    }
-
-    return channels.map(channel => ({
-      ...channel,
-      advertFee: 0,
-      onlyRegistered: false
-    }))
+    return ''
   }
 )
 
@@ -94,21 +68,6 @@ export const actions = {
 
 const _createChannel = async (identityId, { name, description }) => {
   const address = await getClient().addresses.create('sapling')
-  const [ivk, sk] = await Promise.all([
-    getClient().keys.exportIVK(address),
-    getClient().keys.exportSK(address)
-  ])
-  const channel = {
-    address,
-    name: name,
-    description: description,
-    private: true,
-    keys: {
-      ivk,
-      sk
-    }
-  }
-  await getVault().channels.importChannel(identityId, channel)
   return address
 }
 
@@ -215,15 +174,9 @@ const getMoneyFromChannel = address => async (dispatch, getState) => {
 }
 
 const updateLastSeen = ({ channelId }) => async (dispatch, getState) => {
-  const identity = identitySelectors.data(getState())
   const lastSeen = DateTime.utc()
   const unread = channelSelectors.unread(getState())
   remote.app.badgeCount = remote.app.badgeCount - unread
-  await getVault().channels.updateLastSeen({
-    identityId: identity.get('id'),
-    channelId,
-    lastSeen
-  })
   dispatch(setLastSeen({ channelId, lastSeen }))
   dispatch(setUnread({ channelId, unread: 0 }))
   dispatch(
@@ -262,12 +215,6 @@ const updateSettings = ({ channelId, time, data }) => async (
 
 const updateShowInfoMsg = showInfoMsg => async (dispatch, getState) => {
   const channelId = channelSelectors.channelId(getState())
-  const identity = identitySelectors.data(getState())
-  await getVault().channels.updateShowInfoMsg({
-    identityId: identity.get('id'),
-    channelId,
-    showInfoMsg: showInfoMsg === false ? '' : 'true'
-  })
   dispatch(setShowInfoMsg({ channelId, showInfoMsg }))
 }
 

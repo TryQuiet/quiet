@@ -1,5 +1,4 @@
 /* eslint import/first: 0 */
-jest.mock('../../vault')
 jest.mock('../../zcash')
 
 import Immutable from 'immutable'
@@ -12,9 +11,7 @@ import importedChannelSelectors from '../selectors/importedChannel'
 import channelsSelectors from '../selectors/channels'
 import notificationsSelectors from '../selectors/notifications'
 import { IdentityState, Identity } from './identity'
-import { getVault, mock } from '../../vault'
 import { getClient } from '../../zcash'
-import { createArchive } from '../../vault/marshalling'
 import { now } from '../../testUtils'
 import { NodeState } from './node'
 import zbayChannels from '../../zcash/channels'
@@ -103,11 +100,6 @@ describe('Imported channel reducer handles', () => {
       }))
       it('saves channel in vault', async () => {
         const importChannelMock = jest.fn(() => Promise.resolve())
-        getVault.mockImplementationOnce(() => ({
-          channels: {
-            importChannel: importChannelMock
-          }
-        }))
         await store.dispatch(importedChannelHandlers.epics.decodeChannel(channelUri))
 
         await store.dispatch(importedChannelHandlers.epics.importChannel())
@@ -117,7 +109,6 @@ describe('Imported channel reducer handles', () => {
 
       it('reloads channels', async () => {
         jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => now)
-        mock.setArchive(createArchive())
         await store.dispatch(importedChannelHandlers.epics.decodeChannel(channelUri))
 
         await store.dispatch(importedChannelHandlers.epics.importChannel())
@@ -129,7 +120,6 @@ describe('Imported channel reducer handles', () => {
       })
 
       it('dispatches notification on success', async () => {
-        mock.setArchive(createArchive())
         await store.dispatch(importedChannelHandlers.epics.decodeChannel(channelUri))
 
         await store.dispatch(importedChannelHandlers.epics.importChannel())
@@ -141,11 +131,6 @@ describe('Imported channel reducer handles', () => {
       })
 
       it('dispatches notification on failure', async () => {
-        getVault.mockImplementationOnce(() => ({
-          channels: {
-            importChannel: jest.fn(() => Promise.reject(new Error('test error')))
-          }
-        }))
         await store.dispatch(importedChannelHandlers.epics.decodeChannel(channelUri))
 
         await store.dispatch(importedChannelHandlers.epics.importChannel())
@@ -180,11 +165,6 @@ describe('Imported channel reducer handles', () => {
     describe('removeChannel', () => {
       it('calls remove channel', async () => {
         const removeChannelMock = jest.fn(() => Promise.resolve())
-        getVault.mockImplementationOnce(() => ({
-          channels: {
-            removeChannel: removeChannelMock
-          }
-        }))
         await store.dispatch(importedChannelHandlers.epics.removeChannel())
 
         expect(removeChannelMock.mock.calls).toMatchSnapshot()

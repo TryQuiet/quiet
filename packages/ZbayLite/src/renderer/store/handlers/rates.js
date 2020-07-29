@@ -10,7 +10,6 @@ import txnTimestampsHandlers from '../handlers/txnTimestamps'
 import txnTimestampsSelector from '../selectors/txnTimestamps'
 import { getPublicKeysFromSignature } from '../../zbay/messages'
 import { trimNull } from '../../zbay/transit'
-import { getVault } from '../../vault'
 import electronStore from '../../../shared/electronStore'
 
 export const RatesState = Immutable.Record(
@@ -60,10 +59,6 @@ export const fetchPrices = () => async (dispatch, getState) => {
       const transfer = transfers[key]
       if (!txnTimestamps.get(transfer.txid)) {
         const result = await getClient().confirmations.getResult(transfer.txid)
-        await getVault().transactionsTimestamps.addTransaction(
-          transfer.txid,
-          result.timereceived
-        )
         await dispatch(
           txnTimestampsHandlers.actions.addTxnTimestamp({
             tnxs: { [transfer.txid]: result.timereceived.toString() }
@@ -107,10 +102,6 @@ export const fetchPriceForTime = time => async (dispatch, getState) => {
       const transfer = transfers[key]
       if (!txnTimestamps.get(transfer.txid)) {
         const result = await getClient().confirmations.getResult(transfer.txid)
-        await getVault().transactionsTimestamps.addTransaction(
-          transfer.txid,
-          result.timereceived
-        )
         await dispatch(
           txnTimestampsHandlers.actions.addTxnTimestamp({
             tnxs: { [transfer.txid]: result.timereceived.toString() }

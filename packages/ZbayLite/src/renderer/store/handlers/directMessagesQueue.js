@@ -21,7 +21,6 @@ import notificationsHandlers from './notifications'
 import appHandlers from './app'
 import { errorNotification } from './utils'
 import client from '../../zcash'
-import { getVault } from '../../vault'
 import contactsHandlers from './contacts'
 import offersHandlers from './offers'
 import history from '../../../shared/history'
@@ -81,54 +80,18 @@ export const checkConfirmationNumber = async ({
     .pendingDirectMessages(getState())
     .get(opId)
     .toJS()
-  const { id, address, name, signerPubKey } = identitySelectors
-    .identity(getState())
-    .toJS().data
-  const userData = usersSelectors.registeredUser(signerPubKey)(getState())
   const messageContent = message.message
   const { recipientAddress, recipientUsername } = message
   const item = offersSelectors.offer(
     messageContent.message.itemId + recipientUsername
   )(getState())
   if (item) {
-    await getVault().offers.saveMessage({
-      identityAddress: address,
-      identityName: userData ? userData.nickname : name,
-      message: messageContent,
-      recipientAddress,
-      recipientUsername,
-      status,
-      txId
-    })
     await dispatch(
       offersHandlers.epics.refreshMessages(
         messageContent.message.itemId + recipientUsername
       )
     )
   } else {
-    if (address !== recipientAddress) {
-      await getVault().contacts.saveMessage({
-        identityId: id,
-        identityAddress: address,
-        identityName: userData ? userData.nickname : name,
-        message: messageContent,
-        recipientAddress,
-        recipientUsername,
-        status,
-        txId
-      })
-    }
-    if (message.saveAdvert) {
-      const payload = {
-        id: txId,
-        sender: {
-          username: userData ? userData.nickname : name,
-          replyTo: address
-        },
-        ...message.message
-      }
-      await getVault().adverts.addAdvert(payload)
-    }
     const { username } = contactsSelectors.contact(recipientAddress)(getState())
     if (!username) {
       dispatch(
@@ -162,13 +125,6 @@ export const checkConfirmationNumber = async ({
     }
 
     return subscribe(async (error, { confirmations }) => {
-      await getVault().contacts.updateMessage({
-        identityId: id,
-        messageId: txId,
-        recipientAddress,
-        recipientUsername,
-        newMessageStatus: 'broadcasted'
-      })
       dispatch(
         contactsHandlers.epics.loadVaultMessages({
           contact: {
@@ -178,13 +134,6 @@ export const checkConfirmationNumber = async ({
         })
       )
       if (error) {
-        await getVault().contacts.updateMessage({
-          identityId: id,
-          messageId: txId,
-          recipientAddress,
-          recipientUsername,
-          newMessageStatus: error
-        })
       }
     })
   }

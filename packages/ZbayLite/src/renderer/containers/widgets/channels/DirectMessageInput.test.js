@@ -1,5 +1,3 @@
-/* eslint import/first: 0 */
-jest.mock('../../../vault')
 import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
 

@@ -1,5 +1,4 @@
 /* eslint import/first: 0 */
-jest.mock('../../vault')
 jest.mock('../../zcash')
 jest.mock('./messagesQueue', () => ({
   ...jest.requireActual('./messagesQueue'),
@@ -15,7 +14,10 @@ import { DateTime } from 'luxon'
 import create from '../create'
 import { packMemo } from '../../zbay/transit'
 import { ChannelState, actions, epics } from './channel'
-import operationsHandlers, { operationTypes, PendingMessageOp } from './operations'
+import operationsHandlers, {
+  operationTypes,
+  PendingMessageOp
+} from './operations'
 import messagesQueueHandlers from './messagesQueue'
 import { ChannelsState } from './channels'
 import identityHandlers, { IdentityState, Identity } from './identity'
@@ -23,10 +25,13 @@ import channelSelectors from '../selectors/channel'
 import channelsSelectors from '../selectors/channels'
 import messagesSelectors from '../selectors/messages'
 import operationsSelectors from '../selectors/operations'
-import { createIdentity, createTransfer, createMessage, now } from '../../testUtils'
+import {
+  createIdentity,
+  createTransfer,
+  createMessage,
+  now
+} from '../../testUtils'
 import { mock as zcashMock, getClient } from '../../zcash'
-import { mock as vaultMock, getVault } from '../../vault'
-import { createArchive } from '../../vault/marshalling'
 import { NodeState } from './node'
 import { messages as messagesZbay } from '../../zbay'
 
@@ -34,28 +39,13 @@ describe('channel reducer', () => {
   const spent = 0.2
   const identityId = 'test-identity-id'
   const messages = [createMessage('test-1'), createMessage('test-2')]
-  const address = 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya'
+  const address =
+    'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya'
   let channel
 
   let store = null
   beforeEach(async () => {
     window.Notification = jest.fn()
-    vaultMock.workspace.archive = createArchive()
-    vaultMock.workspace.save = jest.fn()
-    const channelMeta = {
-      name: 'Channel 1',
-      private: true,
-      address: 'zs1testaddress$1',
-      unread: 1,
-      description: 'Channel about 1',
-      keys: {
-        ivk: 'incoming-viewing-key-1'
-      }
-    }
-
-    await getVault().channels.importChannel(identityId, channelMeta)
-    const channels = await getVault().channels.listChannels(identityId)
-    channel = channels[0]
 
     store = create({
       initialState: Immutable.Map({
@@ -72,7 +62,8 @@ describe('channel reducer', () => {
             address,
             name: 'Saturn',
             balance: '33.583004',
-            signerPrivKey: '879aff43df53606d8ae1219d9347360e7a30d1c2f141e14c9bc96bb29bf930cb'
+            signerPrivKey:
+              '879aff43df53606d8ae1219d9347360e7a30d1c2f141e14c9bc96bb29bf930cb'
           })
         }),
         operations: Immutable.Map()
@@ -130,16 +121,18 @@ describe('channel reducer', () => {
         ...messages[0],
         id: opId
       }
-      zcashMock.requestManager.z_getoperationstatus.mockImplementationOnce(async () => [
-        {
-          id: opId,
-          status: 'failed',
-          result: {
-            txid: 'message-op-id'
-          },
-          error: { code: -1, message: 'no funds' }
-        }
-      ])
+      zcashMock.requestManager.z_getoperationstatus.mockImplementationOnce(
+        async () => [
+          {
+            id: opId,
+            status: 'failed',
+            result: {
+              txid: 'message-op-id'
+            },
+            error: { code: -1, message: 'no funds' }
+          }
+        ]
+      )
       zcashMock.requestManager.z_sendmany.mockResolvedValue('new-op-id')
 
       await store.dispatch(
@@ -157,8 +150,12 @@ describe('channel reducer', () => {
 
       await store.dispatch(epics.resendMessage(message))
 
-      const pendingMessages = operationsSelectors.pendingMessages(store.getState())
-      expect(pendingMessages.map(m => m.removeIn(['meta', 'channelId']))).toMatchSnapshot()
+      const pendingMessages = operationsSelectors.pendingMessages(
+        store.getState()
+      )
+      expect(
+        pendingMessages.map(m => m.removeIn(['meta', 'channelId']))
+      ).toMatchSnapshot()
     })
     it('- send settings message', async () => {
       const address = 'test address'
@@ -173,7 +170,12 @@ describe('channel reducer', () => {
         .mockImplementation(async () => 'send')
 
       await store.dispatch(
-        epics.sendChannelSettingsMessage({ address, owner, minFee, onlyRegistered })
+        epics.sendChannelSettingsMessage({
+          address,
+          owner,
+          minFee,
+          onlyRegistered
+        })
       )
 
       expect(transferCreationMock).toHaveBeenCalled()
@@ -198,9 +200,6 @@ describe('channel reducer', () => {
         jest.spyOn(DateTime, 'utc').mockImplementation(() => newLastSeen)
 
         await store.dispatch(epics.loadChannel(channel.id))
-
-        const [vaultUpdatedChannel] = await getVault().channels.listChannels(identityId)
-        expect(vaultUpdatedChannel.lastSeen).toEqual(newLastSeen)
       })
 
       it('updates lastSeen in store', async () => {
@@ -221,7 +220,9 @@ describe('channel reducer', () => {
 
         await store.dispatch(epics.loadChannel(channel.id))
 
-        const updatedChannel = channelsSelectors.channelById(channel.id)(store.getState())
+        const updatedChannel = channelsSelectors.channelById(channel.id)(
+          store.getState()
+        )
         expect(updatedChannel.get('lastSeen')).toEqual(newLastSeen)
       })
     })
@@ -272,10 +273,10 @@ describe('channel reducer', () => {
 
         await store.dispatch(epics.loadChannel(channel.id))
 
-        const updatedChannel = channelsSelectors.channelById(channel.id)(store.getState())
-        const [vaultUpdatedChannel] = await getVault().channels.listChannels(identityId)
+        const updatedChannel = channelsSelectors.channelById(channel.id)(
+          store.getState()
+        )
         expect(updatedChannel.get('lastSeen')).toEqual(newLastSeen)
-        expect(vaultUpdatedChannel.lastSeen).toEqual(newLastSeen)
       })
 
       it('fetches messages', async () => {
@@ -318,7 +319,9 @@ describe('channel reducer', () => {
 
         await store.dispatch(epics.loadChannel(channel.id))
 
-        expect(channelSelectors.shareableUri(store.getState())).toMatchSnapshot()
+        expect(
+          channelSelectors.shareableUri(store.getState())
+        ).toMatchSnapshot()
       })
     })
 
@@ -335,16 +338,18 @@ describe('channel reducer', () => {
       }
 
       beforeEach(() => {
-        zcashMock.requestManager.z_getoperationstatus.mockImplementation(async () => [
-          {
-            id: 'operation-id',
-            status: 'success',
-            result: {
-              txid: 'test-tx-id'
-            },
-            error: { code: -1, message: 'no error' }
-          }
-        ])
+        zcashMock.requestManager.z_getoperationstatus.mockImplementation(
+          async () => [
+            {
+              id: 'operation-id',
+              status: 'success',
+              result: {
+                txid: 'test-tx-id'
+              },
+              error: { code: -1, message: 'no error' }
+            }
+          ]
+        )
       })
 
       it('sends message', async () => {
@@ -354,7 +359,9 @@ describe('channel reducer', () => {
 
         await store.dispatch(epics.sendOnEnter(event))
 
-        const [[{ channelId, message }]] = messagesQueueHandlers.epics.addMessage.mock.calls
+        const [
+          [{ channelId, message }]
+        ] = messagesQueueHandlers.epics.addMessage.mock.calls
         expect(channelId).toEqual(channel.id)
         expect(message).toMatchSnapshot()
       })

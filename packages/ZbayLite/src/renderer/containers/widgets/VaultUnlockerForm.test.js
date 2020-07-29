@@ -1,5 +1,4 @@
 /* eslint import/first: 0 */
-jest.mock('../../vault')
 jest.mock('../../../shared/electronStore', () => ({
   set: () => {},
   get: () => {}

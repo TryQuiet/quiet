@@ -1,7 +1,6 @@
 import Immutable from 'immutable'
 import { handleActions, createAction } from 'redux-actions'
 
-import { getVault } from '../../vault'
 import { actionTypes } from '../../../shared/static'
 
 export const initialState = Immutable.Map()
@@ -10,8 +9,6 @@ export const actions = {
   loadRemovedChannelsTimestamps
 }
 export const getRemovedChannelsTimestamp = () => async (dispatch, getState) => {
-  const removedChannelsTimestamps = await getVault().disabledChannels.listRemovedChannels()
-  await dispatch(loadRemovedChannelsTimestamps(removedChannelsTimestamps))
 }
 export const epics = {
   getRemovedChannelsTimestamp

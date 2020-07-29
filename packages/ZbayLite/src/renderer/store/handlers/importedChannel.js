@@ -10,7 +10,6 @@ import logsHandlers from '../handlers/logs'
 import importedChannelSelectors from '../selectors/importedChannel'
 import channelsHandlers from './channels'
 import notificationsHandlers from './notifications'
-import { getVault } from '../../vault'
 import { getClient } from '../../zcash'
 import channels from '../../zcash/channels'
 import nodeSelectors from '../selectors/node'
@@ -50,10 +49,6 @@ const removeChannel = history => async (dispatch, getState) => {
 
     const generalChannel = channels.general[network]
     if (generalChannel.address !== channel.address) {
-      await getVault().channels.removeChannel({
-        identityId,
-        channelId: channel.address
-      })
       dispatch(channelsHandlers.actions.loadChannels(identityId))
       history.push(`/main/channel/${channelsSelectors.generalChannelId(state)}`)
       dispatch(
@@ -99,7 +94,6 @@ const importChannel = () => async (dispatch, getState) => {
   const lastblock = nodeSelectors.latestBlock(getState())
   const fetchTreshold = lastblock - 2000
   try {
-    await getVault().channels.importChannel(identityId, channel)
     if (channel.keys.sk) {
       await getClient().keys.importSK({
         sk: channel.keys.sk,
