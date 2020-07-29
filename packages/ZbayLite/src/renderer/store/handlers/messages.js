@@ -106,16 +106,23 @@ export const fetchMessages = () => async (dispatch, getState) => {
     )
     await dispatch(
       publicChannelsHandlers.epics.fetchPublicChannels(
-        channels.channelOfChannels.mainnet.address,
+        channels.channelOfChannels.mainnet,
         txns[channels.channelOfChannels.mainnet.address]
       )
     )
+
     await dispatch(setUsersMessages(identityAddress, txns[identityAddress]))
     await dispatch(setOutgoingTransactions(identityAddress, txns['undefined']))
     dispatch(
       setChannelMessages(
-        channels.general.mainnet.address,
+        channels.general.mainnet,
         txns[channels.general.mainnet.address]
+      )
+    )
+    dispatch(
+      setChannelMessages(
+        channels.store.mainnet,
+        txns[channels.store.mainnet.address]
       )
     )
 
@@ -213,13 +220,13 @@ const setOutgoingTransactions = (address, messages) => async (
     }
   }
 }
-const setChannelMessages = (address, messages) => async (
+const setChannelMessages = (channel, messages) => async (
   dispatch,
   getState
 ) => {
   const users = usersSelectors.users(getState())
   const transferCountFlag = await dispatch(
-    checkTransferCount(address, messages)
+    checkTransferCount(channel.address, messages)
   )
   if (transferCountFlag === -1 || !messages) {
     return
@@ -246,9 +253,9 @@ const setChannelMessages = (address, messages) => async (
   )
   dispatch(
     contactsHandlers.actions.setMessages({
-      key: address,
-      contactAddress: address,
-      username: 'zbay',
+      key: channel.address,
+      contactAddress: channel.address,
+      username: channel.name,
       messages: messagesAll.reduce((acc, cur) => {
         acc[cur.id] = cur
         return acc
@@ -258,7 +265,6 @@ const setChannelMessages = (address, messages) => async (
 }
 const setUsersMessages = (address, messages) => async (dispatch, getState) => {
   const users = usersSelectors.users(getState())
-  console.log(messages)
   if (
     messages[messages.length - 1].memo === null &&
     messages[messages.length - 1].memohex === ''
@@ -294,7 +300,6 @@ const setUsersMessages = (address, messages) => async (dispatch, getState) => {
       blockTime: msg.block_height
     })
   )
-  console.log(parsedTextMessages)
   const unknownUser = users.get(unknownUserId)
   dispatch(
     contactsHandlers.actions.setMessages({
@@ -325,7 +330,6 @@ const setUsersMessages = (address, messages) => async (dispatch, getState) => {
     })
   )
   const groupedMesssages = R.groupBy(msg => msg.publicKey)(messagesAll)
-  console.log(groupedMesssages)
   for (const key in groupedMesssages) {
     if (groupedMesssages.hasOwnProperty(key)) {
       const user = users.get(key)
