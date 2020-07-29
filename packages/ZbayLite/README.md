@@ -4,38 +4,21 @@
 
 Zbay is an experimental app for Windows, Mac, and GNU/Linux that builds an IRC-like community & marketplace on the [Zcash](https://z.cash) network. For more on the values behind the project, read [this essay](https://zbay.app/#why).
 
-  
-
 ----
 
 ## Getting started
 
-  
-
-Getting started hacking on Zcash is easy. Be sure to have [Docker](https://docker.com) installed and running. If you're on Linux, you may want to look at Docker's [post-install instructions](https://docs.docker.com/engine/install/linux-postinstall/). Then...
-
-  
-
+Getting started hacking on Zcash is easy. Be sure to have [Rust](https://www.rust-lang.org/) installed. Then...
 ```
-
-npm run mainnet
-
-```
-
-And in a separate terminal window...
-
-```
-
 npm install
-
+npm install --global neon-cli
+npm run neon
 npm run start
-
 ```
 
 That's it!  
 
 ## Building an installer
-
 
 Zbay supports most popular operating systems. If you want to build a version for these platforms use one of our scripts:
 
@@ -48,16 +31,6 @@ Ubuntu16 ```npm run distUbuntu16```
 Ubuntu18 ```npm run distUbuntu18```
 
 The built installers can then be found in the `dist` folder.
-
-## Managing keys
-
-Zbay uses the [Buttercup](https://buttercup.pw/) password manager to safety store Zcash keys and other necessary information. If you want to retrieve a key or check what information is stored there, open the Zbay vault file in Buttercup. Here's where to find it:
-
-On Linux ```~/.config/Zbay/vault-mainnet.bcup```
-
-On macOS ```~/Library/Application Support/Zbay/vault-mainnet.bcup```
-
-On Windows ```%HOMEPATH%\\AppData\\Roaming\\Zbay\\vault-mainnet.bcup```
 
 ##### Removing data
 
@@ -73,11 +46,11 @@ On Windows ```%HOMEPATH%\\AppData\\Roaming\\```
 
 Everything you need to restore your account, messages, and funds lives in the `Zbay` folder. To make a backup, simply copy the `Zbay` folder to a safe location. To restore a backup, install Zbay on a new machine, sync, quit, and then move your existing Zbay folder to its original location. Here's where to find it:
 
-On Linux ```~/.config/Zbay/```
+On Linux ```~/.config/Zbay-lite/```
 
-On macOS ```~/Library/Application Support/Zbay/```
+On macOS ```~/Library/Application Support/Zbay-lite/```
 
-On Windows ```%HOMEPATH%\\AppData\\Roaming\\Zbay\\```
+On Windows ```%HOMEPATH%\\AppData\\Roaming\\Zbay-lite\\```
 
 ## Tor support
 
