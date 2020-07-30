@@ -6,7 +6,7 @@ import identitySelectors from '../../../store/selectors/identity'
 import identityHandlers from '../../../store/handlers/identity'
 
 export const mapStateToProps = state => ({
-  initialValues: identitySelectors.shippingData(state)
+  initialValues: identitySelectors.shippingData(state).toJS()
 })
 
 export const mapDispatchToProps = dispatch => bindActionCreators({
