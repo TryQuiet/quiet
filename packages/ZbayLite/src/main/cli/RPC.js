@@ -30,6 +30,7 @@ class RPC {
       'send',
       `${address},${amount},${memo}`
     )
+    console.log(result)
     return JSON.parse(result)
   }
   list = async (includeMemoHex = 'yes') => {

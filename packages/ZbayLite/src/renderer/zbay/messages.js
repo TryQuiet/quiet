@@ -301,7 +301,7 @@ export const signMessage = ({ messageData, privKey }) => {
     spent: messageData.spent,
     signature: sigObj.signature,
     r: sigObj.recovery,
-    createdAt: DateTime.utc().toSeconds(),
+    createdAt: parseInt(DateTime.utc().toSeconds()),
     message: messageData.data
   }
 }

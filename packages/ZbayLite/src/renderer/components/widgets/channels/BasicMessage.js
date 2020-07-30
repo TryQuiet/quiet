@@ -86,9 +86,6 @@ const styles = theme => ({
   },
   iconBox: {
     marginTop: -4
-  },
-  pending: {
-    display: 'none'
   }
 })
 

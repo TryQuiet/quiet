@@ -186,6 +186,8 @@ const sendOnEnter = (event, resetTab) => async (dispatch, getState) => {
           replyTo: myUser.address,
           username: myUser.nickname
         },
+        fromYou: true,
+        status: 'pending',
         message: messageToSend
       })
       dispatch(
