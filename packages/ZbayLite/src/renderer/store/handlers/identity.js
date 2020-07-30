@@ -54,7 +54,7 @@ export const ShippingData = Immutable.Record(
   'ShippingData'
 )
 
-const _Identity = Immutable.Record(
+const Identity = Immutable.Record(
   {
     id: null,
     address: '',
@@ -75,10 +75,10 @@ const _Identity = Immutable.Record(
   'Identity'
 )
 
-export const Identity = values => {
-  const record = _Identity(values)
-  return record.set('shippingData', ShippingData(record.shippingData))
-}
+// export const Identity = values => {
+//   const record = _Identity(values)
+//   return record.set('shippingData', ShippingData(record.shippingData))
+// }
 
 export const IdentityState = Immutable.Record(
   {
@@ -338,6 +338,10 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
     //   identity = updatedIdentity
     // }
     await dispatch(setIdentity(identity))
+    const shippingAddress = electronStore.get('identity.shippingData')
+    if (shippingAddress) {
+      dispatch(setShippingData(ShippingData(shippingAddress)))
+    }
     // await dispatch(txnTimestampsHandlers.epics.getTnxTimestamps())
     // dispatch(removedChannelsHandlers.epics.getRemovedChannelsTimestamp())
 
@@ -402,6 +406,8 @@ export const updateShippingData = (values, formActions) => async (
   dispatch,
   getState
 ) => {
+  electronStore.set('identity.shippingData', values)
+  await dispatch(setShippingData(ShippingData(values)))
   dispatch(
     notificationsHandlers.actions.enqueueSnackbar(
       successNotification({ message: 'Shipping Address Updated' })
