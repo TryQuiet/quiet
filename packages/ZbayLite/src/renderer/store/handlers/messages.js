@@ -55,7 +55,7 @@ const _RecivedFromUnknownMessage = Immutable.Record(
     spent: new BigNumber(0),
     createdAt: 0,
     specialType: null,
-    blockTime: Number.MAX_SAFE_INTEGER
+    blockHeight: Number.MAX_SAFE_INTEGER
   },
   'RecivedFromUnknownMessage'
 )
@@ -286,8 +286,8 @@ const setUsersMessages = (address, messages) => async (dispatch, getState) => {
   const filteredZbayMessages = messages.filter(msg =>
     msg.memohex.startsWith('ff')
   )
-  const parsedTextMessages = filteredTextMessages.map(msg =>
-    _RecivedFromUnknownMessage({
+  const parsedTextMessages = filteredTextMessages.map(msg => {
+    return _RecivedFromUnknownMessage({
       id: msg.txid,
       sender: MessageSender(),
       type: new BigNumber(msg.amount).gt(new BigNumber(0))
@@ -297,8 +297,9 @@ const setUsersMessages = (address, messages) => async (dispatch, getState) => {
       createdAt: msg.datetime,
       specialType: null,
       spent: new BigNumber(msg.amount),
-      blockTime: msg.block_height
+      blockHeight: msg.block_height
     })
+  }
   )
   const unknownUser = users.get(unknownUserId)
   dispatch(

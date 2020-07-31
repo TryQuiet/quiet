@@ -39,7 +39,7 @@ export const _DisplayableMessage = Immutable.Record(
     offerOwner: null,
     isUnregistered: false,
     publicKey: null,
-    blockTime: Number.MAX_SAFE_INTEGER
+    blockHeight: Number.MAX_SAFE_INTEGER
   },
   'DisplayableMessage'
 )
@@ -165,7 +165,7 @@ export const usernameSchema = Yup.object().shape({
 })
 
 export const transferToMessage = async (props, users) => {
-  const { txid, amount, memohex } = props
+  const { txid, amount, memohex, block_height: blockHeight } = props
   let message = null
   let sender = { replyTo: '', username: 'Unnamed' }
   let isUnregistered = false
@@ -178,7 +178,8 @@ export const transferToMessage = async (props, users) => {
         type: 'UNKNOWN',
         payload: message,
         id: txid,
-        spent: amount
+        spent: amount,
+        blockHeight
       }
     }
     publicKey = getPublicKeysFromSignature(message).toString('hex')
@@ -211,7 +212,8 @@ export const transferToMessage = async (props, users) => {
       spent: new BigNumber(amount),
       sender: sender,
       isUnregistered,
-      publicKey
+      publicKey,
+      blockHeight
     }
   } catch (err) {
     console.warn('Incorrect message format: ', err)
@@ -225,6 +227,7 @@ export const outgoingTransferToMessage = async (props, users) => {
   let isUnregistered = false
   let publicKey = null
   const transactionData = props.outgoing_metadata[0]
+  const { block_height: blockHeight } = props
   try {
     message = await unpackMemo(
       transactionData.memo
@@ -237,7 +240,8 @@ export const outgoingTransferToMessage = async (props, users) => {
         type: 'UNKNOWN',
         payload: message,
         id: txid,
-        spent: transactionData.value
+        spent: transactionData.value,
+        blockHeight
       }
     }
     publicKey = getPublicKeysFromSignature(message).toString('hex')
@@ -276,7 +280,8 @@ export const outgoingTransferToMessage = async (props, users) => {
       spent: new BigNumber(transactionData.value),
       sender: sender,
       isUnregistered,
-      publicKey
+      publicKey,
+      blockHeight
     }
   } catch (err) {
     console.warn('Incorrect message format: ', err)

@@ -207,6 +207,7 @@ const sendOnEnter = (event, resetTab) => async (dispatch, getState) => {
         address: channel.address
       })
       const transaction = await client.sendTransaction(transfer)
+      console.log(transaction, 'transaction details')
       dispatch(
         operationsHandlers.epics.resolvePendingOperation({
           channelId: channel.id,

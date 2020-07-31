@@ -109,12 +109,12 @@ export const ItemTransferMessage = ({
             memo: message.message,
             recipient: message.receiver.replyTo,
             timestamp: message.createdAt,
-            blockTime: message.blockTime
+            blockHeight: message.blockHeight
           })
         }
         item
       >
-        {currentBlock - message.blockTime < 24 ? (
+        {currentBlock - message.blockHeight < 24 ? (
           <div className={classes.pendingMark}>pending</div>
         ) : (
           <div className={classes.successMark}>confirmed</div>

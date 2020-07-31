@@ -76,7 +76,7 @@ export const SentFundsModal = ({
   timestamp,
   valueWhenSent,
   currentBlock,
-  blockTime,
+  blockHeight,
   title
 }) => {
   const timeTransaction = DateTime.fromSeconds(timestamp).toLocaleString({
@@ -170,9 +170,9 @@ export const SentFundsModal = ({
                     Confirmations
                   </Grid>
                   <Grid item className={classes.value} xs>
-                    {currentBlock - blockTime < 0
+                    {currentBlock - blockHeight < 0
                       ? 0
-                      : currentBlock - blockTime}
+                      : currentBlock - blockHeight}
                   </Grid>
                 </Grid>
                 <Grid item container className={classes.field} xs={12}>
@@ -188,7 +188,7 @@ export const SentFundsModal = ({
                     Status
                   </Grid>
                   <Grid item className={classes.value} xs>
-                    {currentBlock - blockTime > 24 ? (
+                    {currentBlock - blockHeight > 24 ? (
                       <span className={classes.confirmed}>Confirmed</span>
                     ) : (
                       <span className={classes.pending}>Pending</span>
@@ -227,7 +227,7 @@ SentFundsModal.propTypes = {
   memo: PropTypes.string.isRequired,
   timestamp: PropTypes.number.isRequired,
   currentBlock: PropTypes.number.isRequired,
-  blockTime: PropTypes.number.isRequired,
+  blockHeight: PropTypes.number.isRequired,
   valueWhenSent: PropTypes.number
 }
 SentFundsModal.defaultProps = {
@@ -238,7 +238,7 @@ SentFundsModal.defaultProps = {
   feeZec: 0,
   memo: '',
   timestamp: 1700000,
-  blockTime: Number.MAX_SAFE_INTEGER
+  blockHeight: Number.MAX_SAFE_INTEGER
 }
 
 export default R.compose(React.memo, withStyles(styles))(SentFundsModal)
