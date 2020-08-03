@@ -7,6 +7,16 @@ const rates = createSelector(store, state => state.get('rates'))
 
 export const rate = currency =>
   createSelector(rates, r => new BigNumber(r.get(currency, 0)))
+export const history = createSelector(rates, r => r.history)
+export const priceByTime = time =>
+  createSelector(history, h => {
+    const closesTransaction = h.reduce((prev, curr) => {
+      return Math.abs(curr.datetime - time) < Math.abs(prev.datetime - time)
+        ? curr
+        : prev
+    })
+    return parseFloat(closesTransaction.price)
+  })
 
 export const feeUsd = createSelector(rates, r =>
   parseFloat(r.get('usd', 0) * networkFee).toFixed(4)
@@ -14,5 +24,7 @@ export const feeUsd = createSelector(rates, r =>
 
 export default {
   rate,
-  feeUsd
+  feeUsd,
+  priceByTime,
+  history
 }

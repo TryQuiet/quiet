@@ -247,7 +247,13 @@ export const createIdentity = ({ name }) => async (dispatch, getState) => {
     })
     const network = 'mainnet'
 
-    const channelsToImport = ['general', 'registeredUsers', 'channelOfChannels', 'store']
+    const channelsToImport = [
+      'general',
+      'registeredUsers',
+      'channelOfChannels',
+      'store',
+      'priceOracle'
+    ]
     const channelsWithDetails = channelsToImport.reduce((o, key) => {
       const channelDetails = channels[key][network]
       const preparedChannel = {
@@ -272,7 +278,8 @@ export const createIdentity = ({ name }) => async (dispatch, getState) => {
     for (const channel of channelsToLoad) {
       await client.importKey(
         channelsWithDetails[channel]['keys']['ivk'],
-        740000)
+        740000
+      )
     }
     await client.rescan()
     return electronStore.get('identity')
@@ -436,10 +443,8 @@ export const updateDonation = allow => async (dispatch, getState) => {
   )
 }
 
-export const updateDonationAddress = address => async (dispatch, getState) => {
-}
-export const updateShieldingTax = allow => async (dispatch, getState) => {
-}
+export const updateDonationAddress = address => async (dispatch, getState) => {}
+export const updateShieldingTax = allow => async (dispatch, getState) => {}
 export const generateNewAddress = () => async (dispatch, getState) => {
   if (!electronStore.get('addresses')) {
     electronStore.set('addresses', JSON.stringify([]))

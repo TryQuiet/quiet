@@ -2,12 +2,8 @@ import Immutable from 'immutable'
 import { handleActions, createAction } from 'redux-actions'
 
 import { actionTypes, PRICE_ORACLE_PUB_KEY } from '../../../shared/static'
-import channelsSelectors from '../selectors/channels'
-import { getClient } from '../../zcash'
-import appSelectors from '../selectors/app'
-import appHandlers from './app'
-import txnTimestampsHandlers from '../handlers/txnTimestamps'
-import txnTimestampsSelector from '../selectors/txnTimestamps'
+import { checkTransferCount } from './messages'
+import ratesSelectors from '../selectors/rates'
 import { getPublicKeysFromSignature } from '../../zbay/messages'
 import { trimNull } from '../../zbay/transit'
 import electronStore from '../../../shared/electronStore'
@@ -15,15 +11,18 @@ import electronStore from '../../../shared/electronStore'
 export const RatesState = Immutable.Record(
   {
     usd: '0',
-    zec: '1'
+    zec: '1',
+    history: Immutable.Map({})
   },
   'RatesState'
 )
 export const initialState = RatesState({
   usd: '70.45230379033394',
-  zec: '1'
+  zec: '1',
+  history: Immutable.Map({})
 })
 export const setPriceUsd = createAction(actionTypes.SET_PRICE_USD)
+export const addPriceMessage = createAction(actionTypes.ADD_PRICE_MESSAGE)
 export const actions = {
   setPriceUsd
 }
@@ -37,42 +36,20 @@ export const setInitialPrice = () => async (dispatch, getState) => {
     console.log(err)
   }
 }
-export const fetchPrices = () => async (dispatch, getState) => {
+export const fetchPrices = (address, messages) => async (
+  dispatch,
+  getState
+) => {
   try {
-    const channel = channelsSelectors.priceOracleChannel(getState())
-    let txnTimestamps = txnTimestampsSelector.tnxTimestamps(getState())
-    const transfers = await getClient().payment.received(channel.get('address'))
-    if (
-      transfers.length ===
-      appSelectors.transfers(getState()).get(channel.get('address'))
-    ) {
-      return
-    } else {
-      dispatch(
-        appHandlers.actions.setTransfers({
-          id: channel.get('address'),
-          value: transfers.length
-        })
-      )
-    }
-    for (const key in transfers) {
-      const transfer = transfers[key]
-      if (!txnTimestamps.get(transfer.txid)) {
-        const result = await getClient().confirmations.getResult(transfer.txid)
-        await dispatch(
-          txnTimestampsHandlers.actions.addTxnTimestamp({
-            tnxs: { [transfer.txid]: result.timereceived.toString() }
-          })
-        )
-      }
-    }
-    txnTimestamps = txnTimestampsSelector.tnxTimestamps(getState())
-    const sortedTransfers = transfers.sort(
-      (b, a) => txnTimestamps.get(a.txid) - txnTimestamps.get(b.txid)
+    const transferCountFlag = await dispatch(
+      checkTransferCount(address, messages)
     )
-    for (const msg of sortedTransfers) {
+    if (transferCountFlag === -1 || !messages) {
+      return
+    }
+    for (const msg of messages) {
       try {
-        const memo = trimNull(Buffer.from(msg.memo, 'hex').toString())
+        const memo = trimNull(Buffer.from(msg.memohex, 'hex').toString())
         const price = trimNull(memo.substring(129))
         const pkey = getPublicKeysFromSignature({
           message: price,
@@ -83,6 +60,11 @@ export const fetchPrices = () => async (dispatch, getState) => {
           continue
         }
         dispatch(setPriceUsd({ priceUsd: price }))
+        dispatch(
+          addPriceMessage({
+            messages: { [msg.txid]: { datetime: msg.datetime, price: price } }
+          })
+        )
         electronStore.set('rates.usd', price)
         break
       } catch (err) {
@@ -95,31 +77,7 @@ export const fetchPrices = () => async (dispatch, getState) => {
 }
 export const fetchPriceForTime = time => async (dispatch, getState) => {
   try {
-    const channel = channelsSelectors.priceOracleChannel(getState())
-    let txnTimestamps = txnTimestampsSelector.tnxTimestamps(getState())
-    const transfers = await getClient().payment.received(channel.get('address'))
-    for (const key in transfers) {
-      const transfer = transfers[key]
-      if (!txnTimestamps.get(transfer.txid)) {
-        const result = await getClient().confirmations.getResult(transfer.txid)
-        await dispatch(
-          txnTimestampsHandlers.actions.addTxnTimestamp({
-            tnxs: { [transfer.txid]: result.timereceived.toString() }
-          })
-        )
-      }
-    }
-    txnTimestamps = txnTimestampsSelector.tnxTimestamps(getState())
-    const closesTransaction = transfers
-      .map(txn => txn.txid)
-      .reduce((prev, curr) => {
-        return Math.abs(parseInt(txnTimestamps.get(curr)) - time) <
-          Math.abs(parseInt(txnTimestamps.get(prev)) - time)
-          ? curr
-          : prev
-      })
-    const txn = transfers.find(txn => txn.txid === closesTransaction)
-    return parseFloat(Buffer.from(txn.memo, 'hex').toString())
+    return ratesSelectors.priceByTime(time)(getState())
   } catch (err) {
     console.warn(err)
   }
@@ -133,7 +91,9 @@ export const epics = {
 export const reducer = handleActions(
   {
     [setPriceUsd]: (state, { payload: { priceUsd } }) =>
-      state.set('usd', priceUsd)
+      state.set('usd', priceUsd),
+    [addPriceMessage]: (state, { payload: { messages } }) =>
+      state.update('history', s => s.merge(messages))
   },
   initialState
 )

@@ -120,10 +120,10 @@ export default {
     mainnet: {
       name: 'priceOracle',
       address:
-        'zs1ufrysrng6sjl7de3hwklwdn4xqv3wfafflzcjzjrz2echfxn5f6tdszjzy2klmvtf5ulzmd3j80',
+        'zs17sse22z2qe8fu624s4n2rqp8zhuer3fv6sf2dwhcq8lhg27q7zsde9mwrtla2sxay8cpys2t62f',
       keys: {
         ivk:
-          'zxviews1q0wnyma6qqqqpqyj6flqkj7czd76rnwlegafqze0t6qevrmuxpza6w57hg8jeyzatf2v0jwm7jcw6n23cxu47zjv7hfpt2mntxn7p59xmwz53hty2m82zjyfv382q8nsjzg5t8c0g0qvsru55w9r8rv24e9cjru87hsltn90gf20fjj22a5us5ast2kh9uankj6tc8q9pe33yj0gjn02mcwwfpeqvp6y8ruzpayny588jzngwuc3s30dx6andqt985k999knl6t9apq4zuwnv'
+          'zxviews1qv0f9kp4q5qqpqqchc69wn42afz36wq7lj7gc95yvu9p2z23dtmreq02zlc5wlu33uac4rzejld7y7pzjxdkvgrm6tqxrqm42l0ktk2wt00w8agvednrlu8a05dd9mssdzf50xlysk3djwrwnj2x8cvha2d48495lm0fsn2zn27pmt6skcktmf0dc9cfwvvgcpnw6d3m09uc5quqwg5s407j5y6zqztyn2q4ha4jccsnujq83edesrly3w00jyham7wlhz6wt6a5kdgf3dz25'
       }
     },
     testnet: {

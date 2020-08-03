@@ -12,6 +12,7 @@ import identitySelectors from '../selectors/identity'
 import { actions as channelActions } from './channel'
 import contactsHandlers from '../handlers/contacts'
 import usersHandlers from './users'
+import ratesHandlers from './rates'
 import publicChannelsHandlers from './publicChannels'
 import appHandlers from './app'
 import { messageType, actionTypes, unknownUserId } from '../../../shared/static'
@@ -105,6 +106,12 @@ export const fetchMessages = () => async (dispatch, getState) => {
       )
     )
     await dispatch(
+      ratesHandlers.epics.fetchPrices(
+        channels.priceOracle.mainnet.address,
+        txns[channels.priceOracle.mainnet.address]
+      )
+    )
+    await dispatch(
       publicChannelsHandlers.epics.fetchPublicChannels(
         channels.channelOfChannels.mainnet,
         txns[channels.channelOfChannels.mainnet.address]
@@ -193,11 +200,9 @@ const setOutgoingTransactions = (address, messages) => async (
   const contacts = contactsSelectors.contacts(getState())
 
   const itemMessages = messagesAll.filter(msg => msg.message.itemId)
-  console.log(itemMessages)
   const groupedItemMesssages = R.groupBy(
     msg => msg.message.itemId + msg.receiver.username
   )(itemMessages)
-  console.log(groupedItemMesssages)
   for (const key in groupedItemMesssages) {
     if (key && groupedItemMesssages.hasOwnProperty(key)) {
       const offer = contactsSelectors.getAdvertById(key.substring(0, 64))(
