@@ -151,7 +151,11 @@ export const SentFundsModal = ({
                       Value when sent
                     </Grid>
                     <Grid item className={classes.value} xs>
-                      ${valueWhenSent.toFixed(2)} USD{' '}
+                      // Our oracle works only from some point in time.
+                      {timestamp < 1590000000
+                        ? `?`
+                        : `${valueWhenSent.toFixed(2)}`}{' '}
+                      USD{' '}
                       <span
                         className={classes.link}
                         onClick={() =>
