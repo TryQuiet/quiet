@@ -10,12 +10,12 @@ import ChannelMenuActionComponent from '../../../components/widgets/channels/Cha
 import { actionCreators } from '../../../store/handlers/modals'
 import contactsHandler from '../../../store/handlers/contacts'
 import dmChannelSelectors from '../../../store/selectors/directMessageChannel'
-import offersSelectors from '../../../store/selectors/offers'
+// import offersSelectors from '../../../store/selectors/offers'
 import ratesSelectors from '../../../store/selectors/rates'
 
 export const mapStateToProps = (state, { offer }) => ({
   targetAddress: dmChannelSelectors.targetRecipientAddress(state),
-  advert: offersSelectors.advertMessage(offer)(state),
+  // advert: offersSelectors.advertMessage(offer)(state),
   rateUsd: ratesSelectors.rate('usd')(state)
 })
 
@@ -31,19 +31,19 @@ export const mapDispatchToProps = (dispatch, { history }) => {
 }
 const ChannelMenuAction = ({ onInfo, rateUsd, advert, onDelete, offer, ...props }) => {
   const payload = {
-    tag: advert.message.tag,
-    priceUSD: advert.message.amount,
-    priceZcash: rateUsd
-      .div(rateUsd.times(rateUsd))
-      .times(advert.message.amount)
-      .toFixed(2)
-      .toString(),
-    offerOwner: advert.sender.username,
-    description: advert.message.description,
-    title: advert.message.title,
-    address: advert.sender.replyTo,
-    background: advert.message.background,
-    id: advert.id
+    // tag: advert.message.tag,
+    // priceUSD: advert.message.amount,
+    // priceZcash: rateUsd
+    //   .div(rateUsd.times(rateUsd))
+    //   .times(advert.message.amount)
+    //   .toFixed(2)
+    //   .toString(),
+    // offerOwner: advert.sender.username,
+    // description: advert.message.description,
+    // title: advert.message.title,
+    // address: advert.sender.replyTo,
+    // background: advert.message.background,
+    // id: advert.id
   }
   return (
     <ChannelMenuActionComponent

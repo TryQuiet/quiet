@@ -74,13 +74,14 @@ export const ChannelMessages = ({
       setOffset(margin)
     }
   })
-  let username
-  let tag
-  if (isOffer) {
-    const msg = messages.toJS()[0]
-    tag = msg.message.tag
-    username = msg.sender.username
-  }
+  // let username
+  // let tag
+  // if (isOffer) {
+  //   const msg = messages.toJS()[0]
+  //   tag = msg.message.tag
+  //   username = msg.sender.username
+  //   username = msg.sender.username
+  // }
   let groupedMessages = []
   if (messages.size !== 0) {
     groupedMessages = R.groupBy(msg => {
@@ -114,9 +115,9 @@ export const ChannelMessages = ({
         {isOwner && !showLoader && (
           <WelcomeMessage message={welcomeMessages['main']} />
         )}
-        {isOffer && !showLoader && (
+        {/* {isOffer && !showLoader && (
           <WelcomeMessage message={welcomeMessages['offer'](tag, username)} />
-        )}
+        )} */}
         {showLoader && <LoadingMessage />}
         {Array.from(groupedMessages).map(args => {
           const today = DateTime.utc()

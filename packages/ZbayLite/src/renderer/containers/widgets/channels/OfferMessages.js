@@ -4,7 +4,7 @@ import Immutable from 'immutable'
 
 import ChannelMessagesComponent from '../../../components/widgets/channels/ChannelMessages'
 import channelSelectors from '../../../store/selectors/channel'
-import offersSelectors from '../../../store/selectors/offers'
+import contactsSelectors from '../../../store/selectors/contacts'
 import usersSelectors from '../../../store/selectors/users'
 import appSelectors from '../../../store/selectors/app'
 import dmQueueMessages from '../../../store/selectors/directMessagesQueue'
@@ -16,7 +16,7 @@ export const mapStateToProps = (state, { offer, signerPubKey }) => {
   return {
     triggerScroll: qDmMessages.size + qMessages.size > 0,
     qMessages: qMessages,
-    messages: offersSelectors.offerMessages(offer, signerPubKey)(state),
+    messages: contactsSelectors.messages(offer)(state),
     channelId: channelSelectors.channelId(state),
     username: usersSelectors.registeredUser(signerPubKey)(state),
     isInitialLoadFinished: appSelectors.isInitialLoadFinished(state)
@@ -41,7 +41,7 @@ export const ChannelMessages = ({
       setScrollPosition(-1)
     }
   }, [triggerScroll])
-  const isOffer = messages.toJS()[0].sender.username !== username.nickname
+  const isOffer = true
   return (
     <ChannelMessagesComponent
       scrollPosition={scrollPosition}

@@ -622,12 +622,16 @@ export const reducer = handleActions(
             return msgs.merge(messages)
           })
       ),
-    [addContact]: (state, { payload: { key, username, contactAddress } }) => {
+    [addContact]: (
+      state,
+      { payload: { key, username, contactAddress, offerId = null } }
+    ) => {
       return state.merge({
         [key]: Contact({
           key: key,
           address: contactAddress,
-          username: username
+          username: username,
+          offerId
         })
       })
     },

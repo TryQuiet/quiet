@@ -6,21 +6,23 @@ import ChannelInputComponent from '../../../components/widgets/channels/ChannelI
 import channelHandlers from '../../../store/handlers/channel'
 import offersHandlers from '../../../store/handlers/offers'
 import channelSelectors from '../../../store/selectors/channel'
-import offersSelectors from '../../../store/selectors/offers'
 import ratesSelector from '../../../store/selectors/rates'
 import { MESSAGE_ITEM_SIZE } from '../../../zbay/transit'
 import usersSelectors from '../../../store/selectors/users'
+import contactsSelectors from '../../../store/selectors/contacts'
 import directMessagesQueueHandlers from '../../../store/handlers/directMessagesQueue'
 
-export const mapStateToProps = (state, { offer }) => ({
-  message: channelSelectors.message(state),
-  id: channelSelectors.id(state),
-  inputState: channelSelectors.inputLocked(state),
-  offerName: offersSelectors.offer(offer)(state).name,
-  users: usersSelectors.users(state),
-  feeUsd: ratesSelector.feeUsd(state),
-  myUser: usersSelectors.myUser(state)
-})
+export const mapStateToProps = (state, { offer }) => {
+  return {
+    message: channelSelectors.message(state),
+    id: channelSelectors.id(state),
+    inputState: channelSelectors.inputLocked(state),
+    offerName: contactsSelectors.contact(offer)(state).username,
+    users: usersSelectors.users(state),
+    feeUsd: ratesSelector.feeUsd(state),
+    myUser: usersSelectors.myUser(state)
+  }
+}
 
 export const mapDispatchToProps = dispatch => {
   return bindActionCreators(

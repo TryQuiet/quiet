@@ -34,7 +34,7 @@ export const ZcashBalance = ({ classes, usdBalance, zecBalance, usdLocked, zecLo
     <Grid container align='flex-start' direction='column' spacing={0}>
       <Grid item>
         <Typography display='inline' variant='body2' className={classes.zecBalance}>
-          {zecBalance.toString().substring(0, 5)} ZEC
+          {zecBalance.toString().substring(0, 6)} ZEC
         </Typography>
         {(!usdLocked.isZero() || !zecLocked.isZero()) && (
           <Tooltip

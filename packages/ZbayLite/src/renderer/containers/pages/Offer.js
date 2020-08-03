@@ -8,29 +8,24 @@ import { CHANNEL_TYPE } from '../../components/pages/ChannelTypes'
 
 import channelHandlers from '../../store/handlers/channel'
 import channelsSelectors from '../../store/selectors/channels'
-import messagesSelectors from '../../store/selectors/messages'
-import directMessageHandlers from '../../store/handlers/directMessageChannel'
 
 export const mapStateToProps = (state, { match }) => ({
-  generalChannelId: channelsSelectors.generalChannelId(state),
-  msg: messagesSelectors.messageById(match.params.id.substring(0, 64))(state)
+  generalChannelId: channelsSelectors.generalChannelId(state)
 })
 
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      loadOffer: channelHandlers.epics.loadOffer,
-      resetDirectMessageChannel: directMessageHandlers.actions.resetDirectMessageChannel
+      loadChannel: channelHandlers.epics.loadChannel
     },
     dispatch
   )
 
 // TODO: after enzyme starts supporting hooks write tests
-const Channel = ({ loadOffer, match, resetDirectMessageChannel, msg }) => {
+const Channel = ({ loadChannel, match }) => {
   useEffect(
     () => {
-      resetDirectMessageChannel()
-      loadOffer(match.params.id, match.params.address)
+      loadChannel(match.params.id)
     },
     [match.params.id]
   )

@@ -7,7 +7,6 @@ import Grid from '@material-ui/core/Grid'
 import contactsSelectors from '../../../store/selectors/contacts'
 import SidebarHeader from '../../../components/ui/SidebarHeader'
 import { actionCreators } from '../../../store/handlers/modals'
-import offersSelectors from '../../../store/selectors/offers'
 import QuickActionButton from '../../../components/widgets/sidebar/QuickActionButton'
 import BaseChannelsList from '../../../components/widgets/channels/BaseChannelsList'
 import channelSelectors, { INPUT_STATE } from '../../../store/selectors/channel'
@@ -15,7 +14,7 @@ import channelSelectors, { INPUT_STATE } from '../../../store/selectors/channel'
 export const mapStateToProps = state => ({
   channels: contactsSelectors.contactsList(state),
   selected: channelSelectors.channelInfo(state),
-  offers: offersSelectors.filteredOffers(state),
+  offers: contactsSelectors.offerList(state),
   selectedOffer: channelSelectors.channelInfo(state),
   fundsLocked:
     channelSelectors.inputLocked(state) === INPUT_STATE.DISABLE ||

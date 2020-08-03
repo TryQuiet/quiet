@@ -110,21 +110,20 @@ export const fetchMessages = () => async (dispatch, getState) => {
         txns[channels.channelOfChannels.mainnet.address]
       )
     )
-
-    await dispatch(setUsersMessages(identityAddress, txns[identityAddress]))
-    await dispatch(setOutgoingTransactions(identityAddress, txns['undefined']))
-    dispatch(
+    await dispatch(
       setChannelMessages(
         channels.general.mainnet,
         txns[channels.general.mainnet.address]
       )
     )
-    dispatch(
+    await dispatch(
       setChannelMessages(
         channels.store.mainnet,
         txns[channels.store.mainnet.address]
       )
     )
+    await dispatch(setOutgoingTransactions(identityAddress, txns['undefined']))
+    await dispatch(setUsersMessages(identityAddress, txns[identityAddress]))
 
     dispatch(setUsersOutgoingMessages(txns['undefined']))
   } catch (err) {
@@ -179,7 +178,6 @@ const setOutgoingTransactions = (address, messages) => async (
     }
     return false
   })
-  console.log(filteredOutgoingMessages)
   const messagesAll = await Promise.all(
     filteredOutgoingMessages.map(async transfer => {
       const message = await zbayMessages.outgoingTransferToMessage(
@@ -192,13 +190,50 @@ const setOutgoingTransactions = (address, messages) => async (
       return DisplayableMessage(message)
     })
   )
-  const groupedMesssages = R.groupBy(msg => msg.receiver.publicKey)(messagesAll)
-  console.log(groupedMesssages)
   const contacts = contactsSelectors.contacts(getState())
+
+  const itemMessages = messagesAll.filter(msg => msg.message.itemId)
+  console.log(itemMessages)
+  const groupedItemMesssages = R.groupBy(
+    msg => msg.message.itemId + msg.receiver.username
+  )(itemMessages)
+  console.log(groupedItemMesssages)
+  for (const key in groupedItemMesssages) {
+    if (key && groupedItemMesssages.hasOwnProperty(key)) {
+      const offer = contactsSelectors.getAdvertById(key.substring(0, 64))(
+        getState()
+      )
+      if (!contacts.get(key)) {
+        await dispatch(
+          contactsHandlers.actions.addContact({
+            key: key,
+            username: offer.message.tag + ' @' + offer.sender.username,
+            contactAddress: offer.sender.replyTo,
+            offerId: offer.id
+          })
+        )
+      }
+      dispatch(
+        contactsHandlers.actions.addMessage({
+          key: key,
+          message: groupedItemMesssages[key].reduce(
+            (acc, cur) => {
+              acc[cur.id] = cur
+              return acc
+            },
+            { [offer.id]: offer }
+          )
+        })
+      )
+    }
+  }
+  const normalMessages = messagesAll.filter(msg => !msg.message.itemId)
+  const groupedMesssages = R.groupBy(msg => msg.receiver.publicKey)(
+    normalMessages
+  )
   for (const key in groupedMesssages) {
     if (key && groupedMesssages.hasOwnProperty(key)) {
       if (!contacts.get(key)) {
-        console.log(users.get(key))
         const contact = users.get(key)
         await dispatch(
           contactsHandlers.actions.addContact({
@@ -266,6 +301,7 @@ const setChannelMessages = (channel, messages) => async (
 const setUsersMessages = (address, messages) => async (dispatch, getState) => {
   const users = usersSelectors.users(getState())
   if (
+    messages &&
     messages[messages.length - 1].memo === null &&
     messages[messages.length - 1].memohex === ''
   ) {
@@ -330,7 +366,43 @@ const setUsersMessages = (address, messages) => async (dispatch, getState) => {
       return DisplayableMessage(message)
     })
   )
-  const groupedMesssages = R.groupBy(msg => msg.publicKey)(messagesAll)
+  const itemMessages = messagesAll.filter(msg => msg.message.itemId)
+  const contacts = contactsSelectors.contacts(getState())
+  const groupedItemMesssages = R.groupBy(
+    msg => msg.message.itemId + msg.sender.username
+  )(itemMessages)
+  console.log(groupedItemMesssages)
+  for (const key in groupedItemMesssages) {
+    if (key && groupedItemMesssages.hasOwnProperty(key)) {
+      const offer = contactsSelectors.getAdvertById(key.substring(0, 64))(
+        getState()
+      )
+      if (!contacts.get(key)) {
+        await dispatch(
+          contactsHandlers.actions.addContact({
+            key: key,
+            username: offer.message.tag + ' @' + key.substring(64),
+            contactAddress: groupedItemMesssages[key][0].sender.replyTo,
+            offerId: offer.id
+          })
+        )
+      }
+      dispatch(
+        contactsHandlers.actions.addMessage({
+          key: key,
+          message: groupedItemMesssages[key].reduce(
+            (acc, cur) => {
+              acc[cur.id] = cur
+              return acc
+            },
+            { [offer.id]: offer }
+          )
+        })
+      )
+    }
+  }
+  const normalMessages = messagesAll.filter(msg => !msg.message.itemId)
+  const groupedMesssages = R.groupBy(msg => msg.publicKey)(normalMessages)
   for (const key in groupedMesssages) {
     if (groupedMesssages.hasOwnProperty(key)) {
       const user = users.get(key)

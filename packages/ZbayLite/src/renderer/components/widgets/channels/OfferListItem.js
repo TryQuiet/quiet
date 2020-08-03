@@ -56,14 +56,14 @@ const styles = theme => ({
 
 export const OfferListItem = ({ classes, channel, history, selected }) => {
   const channelObj = channel.toJS()
-  const highlight = channelObj.itemId === selected.id
+  const highlight = channelObj.key === selected.id
   const newMessages = channelObj.newMessages.length
   return (
     <ListItem
       button
       disableGutters
       onClick={() => {
-        history.push(`/main/offers/${channelObj.itemId}/${channelObj.address}`)
+        history.push(`/main/offers/${channelObj.key}/${channelObj.address}`)
       }}
       className={classNames(classes.root, {
         [classes.selected]: highlight
@@ -79,7 +79,7 @@ export const OfferListItem = ({ classes, channel, history, selected }) => {
                   [classes.newMessages]: newMessages
                 })}
               >
-                {`# ${channelObj.name}`}
+                {`# ${channelObj.username}`}
               </Typography>
             </Grid>
           </Grid>

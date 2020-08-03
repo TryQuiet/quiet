@@ -2,12 +2,12 @@ import { connect } from 'react-redux'
 import Immutable from 'immutable'
 
 import ChannelHeader from '../../../components/widgets/channels/ChannelHeader'
-import offersSelectors from '../../../store/selectors/offers'
+import contactsSelectors from '../../../store/selectors/contacts'
 
 export const mapStateToProps = (state, props) => {
-  const offerData = offersSelectors.offer(props.offer)(state)
+  const offerData = contactsSelectors.contact(props.offer)(state)
   const channel = {
-    name: offerData.name
+    name: offerData.username
   }
   return {
     channel: Immutable.fromJS(channel),

@@ -15,22 +15,31 @@ export const Contact = Immutable.Record({
   address: '',
   messages: Immutable.Map(),
   newMessages: Immutable.List(),
-  vaultMessages: Immutable.List()
+  vaultMessages: Immutable.List(),
+  offerId: null
 })
 
 const store = s => s
 
 const contacts = createSelector(store, state => state.get('contacts'))
 const contactsList = createSelector(contacts, contacts =>
-  contacts.filter(c => c.key.length < 78).toList()
+  contacts.filter(c => c.key.length === 66 && c.offerId === null).toList()
+)
+const offerList = createSelector(contacts, contacts =>
+  contacts.filter(c => !!c.offerId).toList()
 )
 const channelsList = createSelector(contacts, contacts =>
-  contacts.filter(c => c.key.length === 78).toList()
+  contacts.filter(c => c.key.length === 78 && c.offerId === null).toList()
 )
 const contact = address =>
   createSelector(contacts, c => c.get(address, Contact()))
 const messages = address =>
   createSelector(contact(address), c => c.messages.toList())
+const allMessages = createSelector(contacts, c =>
+  c.reduce((acc, t) => acc.merge(t.messages), Immutable.Map())
+)
+const getAdvertById = txid =>
+  createSelector(allMessages, msgs => msgs.get(txid))
 const lastSeen = address => createSelector(contact(address), c => c.lastSeen)
 const username = address => createSelector(contact(address), c => c.username)
 const vaultMessages = address =>
@@ -96,5 +105,8 @@ export default {
   username,
   newMessages,
   contactsList,
-  channelsList
+  channelsList,
+  offerList,
+  getAdvertById,
+  allMessages
 }

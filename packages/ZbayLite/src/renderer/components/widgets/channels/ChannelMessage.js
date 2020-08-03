@@ -249,7 +249,9 @@ export const ChannelMessage = ({
   const [parsedMessage, setParsedMessage] = React.useState('')
   const [openModal, setOpenModal] = React.useState(false)
   const status = message.get('status', 'broadcasted')
-  const messageData = message.get('message')
+  const messageData = message.message.itemId
+    ? message.message.text
+    : message.message
   const autoloadImage =
     imageUrl && !torEnabled
       ? autoload.contains(new URL(imageUrl).hostname)

@@ -1,19 +1,20 @@
 import BigNumber from 'bignumber.js'
+import crypto from 'crypto'
+import * as R from 'ramda'
 
+import { DisplayableMessage } from '../../zbay/messages'
+import usersSelectors from '../selectors/users'
 import identitySelectors from '../selectors/identity'
 import channelSelectors from '../selectors/channel'
-import directMessageChannelSelectors from '../selectors/directMessageChannel'
 import offersHandlers from '../../store/handlers/offers'
 import { messages } from '../../zbay'
-import { getClient } from '../../zcash'
+import client from '../../zcash'
 import notificationsHandlers from './notifications'
-import directMessagesQueueHandlers, {
-  checkConfirmationNumber
-} from './directMessagesQueue'
+import directMessagesQueueHandlers from './directMessagesQueue'
 import { errorNotification, successNotification } from './utils'
-import operationsHandlers, { operationTypes } from './operations'
 import contactsHandlers from './contacts'
 import { messageType } from '../../../shared/static'
+import operationsHandlers from './operations'
 
 const handleSend = ({ values }) => async (dispatch, getState) => {
   const data = {
@@ -25,41 +26,59 @@ const handleSend = ({ values }) => async (dispatch, getState) => {
     description: values.description
   }
   const identityAddress = identitySelectors.address(getState())
-  const channel =
-    channelSelectors.data(getState()) &&
-    channelSelectors.data(getState()).toJS()
-  const directChannelAddress = directMessageChannelSelectors.targetRecipientAddress(
-    getState()
-  )
+  const channel = channelSelectors.channel(getState())
   const privKey = identitySelectors.signerPrivKey(getState())
   const message = messages.createMessage({
     messageData: {
       type: messageType.AD,
       data: data,
-      spent: channel ? channel.advertFee.toString() : '0'
+      spent: 0 // channel ? channel.advertFee.toString() : '0' TODO support fee change
     },
     privKey
   })
   const transfer = await messages.messageToTransfer({
     message,
-    address: channel ? channel.address : directChannelAddress,
+    address: channel.address,
     identityAddress
   })
+  const myUser = usersSelectors.myUser(getState())
+  const messageDigest = crypto.createHash('sha256')
+
+  const messageEssentials = R.pick(['createdAt', 'message', 'spent'])(message)
+  const key = messageDigest
+    .update(JSON.stringify(messageEssentials))
+    .digest('hex')
+
+  const messagePlaceholder = DisplayableMessage({
+    ...message,
+    id: key,
+    sender: {
+      replyTo: myUser.address,
+      username: myUser.nickname
+    },
+    fromYou: true,
+    status: 'pending',
+    message: message.message
+  })
+  dispatch(
+    contactsHandlers.actions.addMessage({
+      key: channel.id,
+      message: { [key]: messagePlaceholder }
+    })
+  )
+  dispatch(
+    operationsHandlers.actions.addOperation({
+      channelId: channel.id,
+      id: key
+    })
+  )
   try {
-    const opId = await getClient().payment.send(transfer)
-    await dispatch(
-      operationsHandlers.epics.observeOperation({
-        opId,
-        type: channel
-          ? operationTypes.pendingMessage
-          : operationTypes.pendingDirectMessage,
-        meta: {
-          message: message,
-          channelId: channel ? channel.id : 'none',
-          recipientAddress: channel ? 'none' : directChannelAddress,
-          saveAdvert: !channel
-        },
-        checkConfirmationNumber: channel ? null : checkConfirmationNumber
+    const transaction = await client.sendTransaction(transfer)
+    dispatch(
+      operationsHandlers.epics.resolvePendingOperation({
+        channelId: channel.id,
+        id: key,
+        txid: transaction.txid
       })
     )
     dispatch(
