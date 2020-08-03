@@ -40,7 +40,7 @@ export const uriToChannel = async uri => {
 export const channelToUri = async channel => {
   const exportable = {
     name: channel.name,
-    ivk: channel.keys.ivk
+    ivk: channel.ivk
   }
   const hash = await deflate(exportable)
   return getChannelUrl(hash)

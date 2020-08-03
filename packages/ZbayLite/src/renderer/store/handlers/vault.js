@@ -5,14 +5,11 @@ import { ipcRenderer } from 'electron'
 import axios from 'axios'
 
 import { typeFulfilled, typeRejected, typePending, errorNotification } from './utils'
-// import nodeSelectors from '../selectors/node'
 import identityHandlers from './identity'
-// import vaultHandlers from './vault'
 import notificationsHandlers from './notifications'
 import logsHandlers from '../handlers/logs'
 import { REQUEST_MONEY_ENDPOINT, actionTypes } from '../../../shared/static'
 import electronStore from '../../../shared/electronStore'
-// import passwordMigration from '../../../shared/migrations/1_40_0'
 
 export const VaultState = Immutable.Record({
   exists: null,
@@ -93,37 +90,12 @@ const unlockVaultEpic = ({ password: masterPassword }, formActions, setDone) => 
   if (!identity) {
     await dispatch(createVaultEpic())
   } else {
+    console.log('setid')
     await dispatch(setVaultIdentity())
   }
   await dispatch(setLoginSuccessfull(true))
   formActions.setSubmitting(false)
   setDone(true)
-  // // const state = getState()
-  // // const network = nodeSelectors.network(state)
-  // // const vaultPassword = electronStore.get('vaultPassword')
-  // try {
-  //   if (!vaultPassword && !masterPassword) {
-  //     // await dispatch(createVaultEpic())
-  //     await dispatch(setLoginSuccessfull(true))
-  //     formActions.setSubmitting(false)
-  //   } else {
-  //     // await dispatch(vaultHandlers.actions.unlockVault({ masterPassword: vaultPassword || masterPassword, network, ignoreError: true }))
-  //     await dispatch(setLoginSuccessfull(true))
-  //     // if (!vaultPassword) {
-  //     //   passwordMigration.storePassword(masterPassword)
-  //     // }
-  //     formActions.setSubmitting(false)
-  //   }
-  // } catch (error) {
-  //   if (error.message.includes('Authentication failed')) {
-  //     dispatch(notificationsHandlers.actions.enqueueSnackbar(
-  //       errorNotification({ message: 'Incorrect password' }, { persist: false })
-  //     ))
-  //     setDone(true)
-  //   } else {
-  //     throw error
-  //   }
-  // }
 }
 
 export const epics = {

@@ -74,7 +74,7 @@ export const ChannelInfoModal = ({
   directMessage
 }) => {
   const address = directMessage
-    ? channel.get('targetRecipientAddress')
+    ? channel.get('address')
     : shareUri
   return (
     <Modal
@@ -93,9 +93,7 @@ export const ChannelInfoModal = ({
             <Grid container direction='column' className={classes.root}>
               <Grid item className={classes.section}>
                 <Typography variant='h3' className={classes.title}>
-                  {directMessage
-                    ? channel.get('targetRecipientUsername')
-                    : channel.get('name')}
+                  {channel.get('name')}
                 </Typography>
               </Grid>
               <Grid

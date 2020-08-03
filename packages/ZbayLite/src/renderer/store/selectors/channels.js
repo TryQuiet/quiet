@@ -46,10 +46,7 @@ const generalChannelId = createSelector(
   data,
   nodeSelectors.network,
   (ch, network) => {
-    const generalChannel = ch.find(
-      c => c.get('address') === zcashChannels.general[network].address
-    )
-    return generalChannel && generalChannel.get('id')
+    return zcashChannels.general[network].address
   }
 )
 const usersChannel = createSelector(

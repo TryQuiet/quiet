@@ -33,6 +33,7 @@ import notificationCenterHandlers from './notificationCenter'
 import { LoaderState, successNotification } from './utils'
 import modalsHandlers from './modals'
 import notificationsHandlers from './notifications'
+import messagesHandlers from './messages'
 import {
   actionTypes,
   networkFeeSatoshi,
@@ -326,65 +327,25 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
   const isNewUser = electronStore.get('isNewUser')
   try {
     dispatch(setLoadingMessage('Ensuring identity integrity'))
-    // Make sure identity is handled by the node
     await dispatch(setLoadingMessage('Ensuring node contains identity keys'))
-    // const network = nodeSelectors.network(getState())
     await dispatch(whitelistHandlers.epics.initWhitelist())
     await dispatch(notificationCenterHandlers.epics.init())
     dispatch(setLoadingMessage('Setting identity'))
-    // Check if identity has signerKeys
-    // if (!identity.signerPrivKey || !identity.signerPubKey) {
-    //   const { signerPrivKey, signerPubKey } = createSignerKeys()
-    //   const { value: updatedIdentity } = await dispatch(
-    //     vaultHandlers.actions.updateIdentitySignerKeys({
-    //       id: identity.id,
-    //       signerPubKey,
-    //       signerPrivKey
-    //     })
-    //   )
-    //   identity = updatedIdentity
-    // }
     await dispatch(setIdentity(identity))
     const shippingAddress = electronStore.get('identity.shippingData')
     if (shippingAddress) {
       dispatch(setShippingData(ShippingData(shippingAddress)))
     }
-    // await dispatch(txnTimestampsHandlers.epics.getTnxTimestamps())
-    // dispatch(removedChannelsHandlers.epics.getRemovedChannelsTimestamp())
-
     dispatch(setLoadingMessage('Fetching balance and loading channels'))
-    // await dispatch(fetchBalance())
     await dispatch(initAddreses())
     dispatch(ratesHandlers.epics.setInitialPrice())
-
     await dispatch(nodeHandlers.epics.getStatus())
+    await dispatch(fetchBalance())
     await dispatch(fetchFreeUtxos())
-    await dispatch(coordinatorHandlers.epics.coordinator())
-    // console.log(await client.addresses())
-    // const response = await client.importKey(
-    //   channels.general.mainnet.keys.ivk,
-    //   800000
-    // )
-    // console.log(response)
-    // console.log(await client.addresses())
-    // console.log(await client.rescan())
+    await dispatch(messagesHandlers.epics.fetchMessages())
+    setTimeout(() => dispatch(coordinatorHandlers.epics.coordinator()), 5000)
+
     dispatch(setLoadingMessage('Loading users and messages'))
-    // await dispatch(usersHandlers.epics.fetchUsers())
-    // await dispatch(contactsHandlers.epics.loadAllSentMessages())
-    // await dispatch(offersHandlers.epics.loadVaultContacts())
-    // await dispatch(offersHandlers.epics.initMessage())
-    // await dispatch(publicChannelsHandlers.epics.fetchPublicChannels())
-    // await dispatch(channelsHandlers.epics.withdrawMoneyFromChannels())
-    // await dispatch(
-    //   messagesHandlers.epics.fetchMessages(
-    //     channelsSelectors
-    //       .data(getState())
-    //       .find(
-    //         channel =>
-    //           channel.get('address') === channels.general[network].address
-    //       )
-    //   )
-    // )
   } catch (err) {}
   const zecBalance = identitySelectors.balance('zec')(getState())
   if (isNewUser === true && zecBalance.gt(0)) {

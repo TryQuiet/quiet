@@ -8,7 +8,6 @@ import { CHANNEL_TYPE } from '../../components/pages/ChannelTypes'
 
 import channelHandlers from '../../store/handlers/channel'
 import channelsSelectors from '../../store/selectors/channels'
-import directMessageHandlers from '../../store/handlers/directMessageChannel'
 
 export const mapStateToProps = state => ({
   generalChannelId: channelsSelectors.generalChannelId(state)
@@ -17,17 +16,14 @@ export const mapStateToProps = state => ({
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      loadChannel: channelHandlers.epics.loadChannel,
-      resetDirectMessageChannel: directMessageHandlers.actions.resetDirectMessageChannel
+      loadChannel: channelHandlers.epics.loadChannel
     },
     dispatch
   )
 
-// TODO: after enzyme starts supporting hooks write tests
-const Channel = ({ loadChannel, generalChannelId, match, resetDirectMessageChannel }) => {
+const Channel = ({ loadChannel, generalChannelId, match }) => {
   useEffect(
     () => {
-      resetDirectMessageChannel()
       if (match.params.id === 'general') {
         if (generalChannelId) {
           loadChannel(generalChannelId)
@@ -38,7 +34,7 @@ const Channel = ({ loadChannel, generalChannelId, match, resetDirectMessageChann
     },
     [match.params.id, generalChannelId]
   )
-  return <ChannelComponent channelType={CHANNEL_TYPE.NORMAL} />
+  return <ChannelComponent channelType={CHANNEL_TYPE.NORMAL} contactId={match.params.id} />
 }
 
 export default R.compose(

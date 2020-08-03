@@ -6,6 +6,7 @@ import messagesQueueSelectors from './messagesQueue'
 import operationsSelectors from './operations'
 import messagesSelectors from './messages'
 import zbayMessages from '../../zbay/messages'
+import contacts from './contacts'
 import { operationTypes } from '../handlers/operations'
 import Immutable from 'immutable'
 import { networkFee } from '../../../shared/static'
@@ -179,9 +180,6 @@ export const messages = signerPubKey => createSelector(
     return concatedMessages
   }
 )
-export const members = createSelector(messages(), msgs => msgs.reduce((acc, msg) => {
-  return acc.add(msg.sender.replyTo)
-}, new Set()))
 
 export const shareableUri = createSelector(channel, c => c.shareableUri)
 
@@ -208,6 +206,13 @@ export const INPUT_STATE = {
 }
 
 export const channelId = createSelector(channel, ch => ch.id)
+
+export const members = channelId => createSelector(contacts.messages(channelId), (messages) => {
+  const members = messages.reduce((acc, msg) => {
+    return acc.add(msg.sender.replyTo)
+  }, new Set())
+  return members
+})
 
 export default {
   data,

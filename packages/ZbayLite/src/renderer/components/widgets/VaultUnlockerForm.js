@@ -45,8 +45,6 @@ const styles = theme => ({
     marginTop: -8
   },
   status: {
-    marginTop: 9,
-    padding: 8,
     width: '100%',
     textAlign: 'center'
   },
@@ -65,15 +63,12 @@ const formSchema = Yup.object().shape({
 export const VaultUnlockerForm = ({
   classes,
   locked,
-  unlocking,
   initialValues,
   onSubmit,
-  loader,
   nodeConnected,
   exists,
-  tor,
-  node,
-  isLogIn
+  isLogIn,
+  loader
 }) => {
   const isDev = process.env.NODE_ENV === 'development'
   const vaultPassword = electronStore.get('vaultPassword')
@@ -83,7 +78,7 @@ export const VaultUnlockerForm = ({
       onSubmit={(values, actions) => {
         onSubmit(values, actions, setDone)
       }}
-      validationSchema={(vaultPassword || isDev) ? null : formSchema}
+      validationSchema={vaultPassword || isDev ? null : formSchema}
       initialValues={initialValues}
     >
       {({ isSubmitting }) => (
@@ -108,11 +103,16 @@ export const VaultUnlockerForm = ({
               <Icon className={classes.icon} src={icon} />
             </Grid>
             <Grid container item xs={12} wrap='wrap' justify='center'>
-              <Typography className={classes.title} variant='body1' gutterBottom>
+              <Typography
+                className={classes.title}
+                variant='body1'
+                gutterBottom
+              >
                 {vaultPassword ? 'Welcome Back' : 'Log In'}
               </Typography>
             </Grid>
-            {((!vaultPassword && !isDev) || (isDev && exists && !vaultPassword)) && (
+            {((!vaultPassword && !isDev) ||
+              (isDev && exists && !vaultPassword)) && (
               <Grid container item justify='center'>
                 <PasswordField
                   name='password'
@@ -134,15 +134,20 @@ export const VaultUnlockerForm = ({
                 inProgress={!done}
               />
             </Grid>
-            {locked && (
+            {loader.loading && (
+              <Grid item container justify='center' alignItems='center'>
+                <Typography variant='body2' className={classes.status}>
+                  {`${loader.message}`}
+                </Typography>
+              </Grid>
+            )}
+            {locked && done && (
               <Grid item className={classes.torDiv}>
                 <Tor />
               </Grid>
             )}
           </Grid>
-          {nodeConnected && isLogIn && (
-            <Redirect to='/main/channel/general' />
-          )}
+          {nodeConnected && isLogIn && <Redirect to='/main/channel/general' />}
         </Form>
       )}
     </Formik>

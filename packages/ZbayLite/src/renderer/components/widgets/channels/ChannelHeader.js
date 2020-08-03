@@ -236,7 +236,7 @@ export const ChannelHeader = ({
           )}
           <Grid item>
             <ActionsMenu directMessage={directMessage} offer={offer} />
-            {directMessage ? <DirectMessagesInfoModal /> : <ChannelInfoModal />}
+            {directMessage ? <DirectMessagesInfoModal /> : <ChannelInfoModal channel={channel} />}
           </Grid>
         </Grid>
       </Grid>

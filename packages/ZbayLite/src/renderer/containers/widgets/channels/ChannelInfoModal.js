@@ -6,7 +6,6 @@ import channelSelectors from '../../../store/selectors/channel'
 import ChannelInfoModal from '../../../components/widgets/channels/ChannelInfoModal'
 
 export const mapStateToProps = state => ({
-  channel: channelSelectors.data(state),
   shareUri: channelSelectors.shareableUri(state)
 })
 

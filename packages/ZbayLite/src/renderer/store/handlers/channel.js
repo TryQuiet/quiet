@@ -27,6 +27,8 @@ import { messageType, actionTypes } from '../../../shared/static'
 import { DisplayableMessage } from '../../zbay/messages'
 import usersSelectors from '../selectors/users'
 import contactsHandlers from './contacts'
+import electronStore from '../../../shared/electronStore'
+import { channelToUri } from '../../../renderer/zbay/channels'
 
 export const ChannelState = Immutable.Record(
   {
@@ -81,8 +83,14 @@ const loadChannel = key => async (dispatch, getState) => {
     // Calculate URI on load, that way it won't be outdated, even if someone decides
     // to update channel in vault manually
     const contact = contactsSelectors.contact(key)(getState())
-    // const uri = await channelToUri(channel)
-    // dispatch(setShareableUri(uri))
+    const ivk = electronStore.get(`defaultChannels.${contact.get('address')}.keys.ivk`)
+    if (ivk) {
+      const uri = await channelToUri({
+        name: contact.get('username'),
+        ivk
+      })
+      dispatch(setShareableUri(uri))
+    }
     dispatch(setAddress(contact.address))
     // await dispatch(clearNewMessages())
     // await dispatch(updateLastSeen())
