@@ -3,6 +3,7 @@ import BigNumber from 'bignumber.js'
 import { createAction, handleActions } from 'redux-actions'
 import crypto from 'crypto'
 import * as R from 'ramda'
+import { DateTime } from 'luxon'
 
 import history from '../../../shared/history'
 import operationsHandlers, {
@@ -83,7 +84,9 @@ const loadChannel = key => async (dispatch, getState) => {
     // Calculate URI on load, that way it won't be outdated, even if someone decides
     // to update channel in vault manually
     const contact = contactsSelectors.contact(key)(getState())
-    const ivk = electronStore.get(`defaultChannels.${contact.get('address')}.keys.ivk`)
+    const ivk = electronStore.get(
+      `defaultChannels.${contact.get('address')}.keys.ivk`
+    )
     if (ivk) {
       const uri = await channelToUri({
         name: contact.get('username'),
@@ -91,6 +94,10 @@ const loadChannel = key => async (dispatch, getState) => {
       })
       dispatch(setShareableUri(uri))
     }
+    electronStore.set(
+      `lastSeen.${key}`,
+      parseInt(DateTime.utc().toSeconds()).toString()
+    )
     dispatch(setAddress(contact.address))
     // await dispatch(clearNewMessages())
     // await dispatch(updateLastSeen())
