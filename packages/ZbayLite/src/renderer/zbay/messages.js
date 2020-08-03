@@ -240,7 +240,7 @@ export const outgoingTransferToMessage = async (props, users) => {
         type: 'UNKNOWN',
         payload: message,
         id: txid,
-        spent: transactionData.value,
+        spent: transactionData.value / satoshiMultiplier,
         blockHeight
       }
     }
@@ -277,7 +277,7 @@ export const outgoingTransferToMessage = async (props, users) => {
         publicKey: toUser.publicKey,
         username: toUser.nickname
       },
-      spent: new BigNumber(transactionData.value),
+      spent: new BigNumber(transactionData.value / satoshiMultiplier),
       sender: sender,
       isUnregistered,
       publicKey,

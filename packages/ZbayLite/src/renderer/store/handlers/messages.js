@@ -15,7 +15,12 @@ import usersHandlers from './users'
 import ratesHandlers from './rates'
 import publicChannelsHandlers from './publicChannels'
 import appHandlers from './app'
-import { messageType, actionTypes, unknownUserId } from '../../../shared/static'
+import {
+  messageType,
+  actionTypes,
+  unknownUserId,
+  satoshiMultiplier
+} from '../../../shared/static'
 import { messages as zbayMessages } from '../../zbay'
 import { checkMessageSizeAfterComporession } from '../../zbay/transit'
 import client from '../../zcash'
@@ -89,7 +94,11 @@ export const actions = {
 export const fetchAllMessages = async () => {
   try {
     const txns = await client.list()
-    return R.groupBy(txn => txn.address)(txns)
+    const txnsZec = txns.map(txn => ({
+      ...txn,
+      amount: txn.amount / satoshiMultiplier
+    }))
+    return R.groupBy(txn => txn.address)(txnsZec)
   } catch (err) {
     console.warn(`Can't pull messages`)
     return {}
@@ -340,8 +349,7 @@ const setUsersMessages = (address, messages) => async (dispatch, getState) => {
       spent: new BigNumber(msg.amount),
       blockHeight: msg.block_height
     })
-  }
-  )
+  })
   const unknownUser = users.get(unknownUserId)
   dispatch(
     contactsHandlers.actions.setMessages({
