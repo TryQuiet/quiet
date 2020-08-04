@@ -154,6 +154,14 @@ export const checkTransferCount = (address, messages) => async (
   getState
 ) => {
   if (messages) {
+    if (
+      messages &&
+      messages[messages.length - 1].memo === null &&
+      messages[messages.length - 1].memohex === ''
+    ) {
+      console.log('skip wrong state')
+      return -1
+    }
     if (messages.length === appSelectors.transfers(getState()).get(address)) {
       return -1
     } else {
@@ -376,14 +384,6 @@ const setChannelMessages = (channel, messages) => async (
 }
 const setUsersMessages = (address, messages) => async (dispatch, getState) => {
   const users = usersSelectors.users(getState())
-  if (
-    messages &&
-    messages[messages.length - 1].memo === null &&
-    messages[messages.length - 1].memohex === ''
-  ) {
-    console.log('skip wrong state')
-    return
-  }
   const transferCountFlag = await dispatch(
     checkTransferCount(address, messages)
   )
