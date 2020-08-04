@@ -211,7 +211,12 @@ export const members = createSelector(messages(), msgs => msgs.reduce((acc, msg)
   return acc.add(msg.sender.replyTo)
 }, new Set()))
 
-export const channelParticipiants = channelId => createSelector(contacts.messages(channelId), (messages) => {
+export const channelParticipiants = createSelector(contacts.contacts, id, (c, i) => {
+  const contact = c.get(i)
+  if (!contact) {
+    return new Set()
+  }
+  const messages = contact.messages
   const members = messages.reduce((acc, msg) => {
     return acc.add(msg.sender.replyTo)
   }, new Set())
