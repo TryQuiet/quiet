@@ -207,7 +207,11 @@ export const INPUT_STATE = {
 
 export const channelId = createSelector(channel, ch => ch.id)
 
-export const members = channelId => createSelector(contacts.messages(channelId), (messages) => {
+export const members = createSelector(messages(), msgs => msgs.reduce((acc, msg) => {
+  return acc.add(msg.sender.replyTo)
+}, new Set()))
+
+export const channelParticipiants = channelId => createSelector(contacts.messages(channelId), (messages) => {
   const members = messages.reduce((acc, msg) => {
     return acc.add(msg.sender.replyTo)
   }, new Set())
@@ -234,6 +238,7 @@ export default {
   advertFee,
   onlyRegistered,
   members,
+  channelParticipiants,
   unread,
   messageSizeStatus,
   isSizeCheckingInProgress,

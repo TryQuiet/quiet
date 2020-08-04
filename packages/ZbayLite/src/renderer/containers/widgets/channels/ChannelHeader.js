@@ -21,7 +21,7 @@ export const mapStateToProps = (state, props) => {
       address: props.contactId
     }),
     userAddress: identitySelectors.address(state),
-    members: channelSelectors.members(props.contactId)(state),
+    members: channelSelectors.channelParticipiants(props.contactId)(state),
     showAdSwitch: !!channelSelectors
       .messages()(state)
       .find(msg => msg.type === messageType.AD),
