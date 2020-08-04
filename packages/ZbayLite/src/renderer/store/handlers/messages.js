@@ -19,13 +19,17 @@ import {
   messageType,
   actionTypes,
   unknownUserId,
-  satoshiMultiplier
+  satoshiMultiplier,
+  notificationFilterType
 } from '../../../shared/static'
 import { messages as zbayMessages } from '../../zbay'
 import { checkMessageSizeAfterComporession } from '../../zbay/transit'
 import client from '../../zcash'
 import { DisplayableMessage } from '../../zbay/messages'
 import channels from '../../zcash/channels'
+import { displayMessageNotification } from '../../notifications'
+import electronStore from '../../../shared/electronStore'
+import notificationCenterSelectors from '../selectors/notificationCenter'
 
 export const MessageSender = Immutable.Record(
   {
@@ -139,9 +143,7 @@ export const fetchMessages = () => async (dispatch, getState) => {
       )
     )
     await dispatch(setOutgoingTransactions(identityAddress, txns['undefined']))
-    await dispatch(setUsersMessages(identityAddress, txns[identityAddress]))
-
-    dispatch(setUsersOutgoingMessages(txns['undefined']))
+    dispatch(setUsersMessages(identityAddress, txns[identityAddress]))
   } catch (err) {
     console.warn(`Can't pull messages`)
     return {}
@@ -170,12 +172,56 @@ export const checkTransferCount = (address, messages) => async (
     }
   }
 }
+const msgTypeToNotification = new Set([
+  messageType.BASIC,
+  messageType.ITEM_TRANSFER,
+  messageType.ITEM_BASIC,
+  messageType.TRANSFER
+])
+
+export const findNewMessages = (key, messages, state) => {
+  if (messages) {
+    const lastSeen =
+      parseInt(electronStore.get(`lastSeen.${key}`)) ||
+      Number.MAX_SAFE_INTEGER
+    if (
+      notificationCenterSelectors.userFilterType(state) ===
+      notificationFilterType.NONE
+    ) {
+      return []
+    }
+    const filteredByTimeAndType = messages.filter(
+      msg => msg.createdAt > lastSeen && msgTypeToNotification.has(msg.type)
+    )
+    if (
+      notificationCenterSelectors.userFilterType(state) ===
+      notificationFilterType.MENTIONS
+    ) {
+      const myUser = usersSelectors.myUser(state)
+
+      return filteredByTimeAndType.filter(msg =>
+        msg.message.itemId
+          ? msg.message.text
+            .split(' ')
+            .map(text => text.trim())
+            .includes(`@${myUser.nickname}`)
+          : msg.message
+            .split(' ')
+            .map(text => text.trim())
+            .includes(`@${myUser.nickname}`)
+      )
+    }
+    return filteredByTimeAndType
+  }
+  return []
+}
 
 const setOutgoingTransactions = (address, messages) => async (
   dispatch,
   getState
 ) => {
   const users = usersSelectors.users(getState())
+
   const transferCountFlag = await dispatch(
     checkTransferCount('outgoing', messages)
   )
@@ -274,6 +320,7 @@ const setChannelMessages = (channel, messages) => async (
   getState
 ) => {
   const users = usersSelectors.users(getState())
+
   const transferCountFlag = await dispatch(
     checkTransferCount(channel.address, messages)
   )
@@ -300,6 +347,7 @@ const setChannelMessages = (channel, messages) => async (
       return DisplayableMessage(message)
     })
   )
+
   dispatch(
     contactsHandlers.actions.setMessages({
       key: channel.address,
@@ -309,6 +357,20 @@ const setChannelMessages = (channel, messages) => async (
         acc[cur.id] = cur
         return acc
       }, {})
+    })
+  )
+  const newMsgs = findNewMessages(channel.address, messagesAll, getState())
+  newMsgs.forEach(msg => {
+    displayMessageNotification({
+      senderName: msg.sender.username,
+      message: msg.message,
+      channelName: channel.name
+    })
+  })
+  dispatch(
+    contactsHandlers.actions.appendNewMessages({
+      contactAddress: channel.address,
+      messagesIds: newMsgs
     })
   )
 }
@@ -384,7 +446,6 @@ const setUsersMessages = (address, messages) => async (dispatch, getState) => {
   const groupedItemMesssages = R.groupBy(
     msg => msg.message.itemId + msg.sender.username
   )(itemMessages)
-  console.log(groupedItemMesssages)
   for (const key in groupedItemMesssages) {
     if (key && groupedItemMesssages.hasOwnProperty(key)) {
       const offer = contactsSelectors.getAdvertById(key.substring(0, 64))(
@@ -400,6 +461,25 @@ const setUsersMessages = (address, messages) => async (dispatch, getState) => {
           })
         )
       }
+      const newMsgs = findNewMessages(
+        key,
+        groupedItemMesssages[key],
+        getState()
+      )
+      newMsgs.forEach(msg => {
+        displayMessageNotification({
+          senderName: key.substring(64),
+          message: msg.message.text,
+          channelName: offer.message.tag + ' @' + key.substring(64)
+        })
+      })
+      dispatch(
+        contactsHandlers.actions.appendNewMessages({
+          contactAddress: key,
+          messagesIds: newMsgs
+        })
+      )
+
       dispatch(
         contactsHandlers.actions.addMessage({
           key: key,
@@ -430,15 +510,24 @@ const setUsersMessages = (address, messages) => async (dispatch, getState) => {
           }, {})
         })
       )
+      const newMsgs = findNewMessages(key, groupedMesssages[key], getState())
+      newMsgs.forEach(msg => {
+        displayMessageNotification({
+          senderName: user.nickname || key,
+          message: msg.message,
+          channelName: user.nickname || key
+        })
+      })
+      dispatch(
+        contactsHandlers.actions.appendNewMessages({
+          contactAddress: key,
+          messagesIds: newMsgs
+        })
+      )
     }
   }
 }
-export const setUsersOutgoingMessages = messages => async (
-  dispatch,
-  getState
-) => {
-  // console.log(messages)
-}
+
 export const containsString = (message, nickname) => {
   if (typeof message === 'string') {
     const splitMessage = message.split(String.fromCharCode(160))

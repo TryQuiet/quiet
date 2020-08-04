@@ -10,12 +10,15 @@ export const createNotification = ({ title, body }) => {
   return new Notification(title, { body: body })
 }
 
-export const displayMessageNotification = ({ message, channel }) =>
+export const displayMessageNotification = ({
+  senderName,
+  message,
+  channelName
+}) =>
   createNotification({
-    title: `New message in ${channel.get('name')}`,
-    body: `${message.sender.username.substring(0, 20) ||
-      'Anonymous'}: ${message.message.substring(0, 64)}${
-      message.message.length > 64 ? '...' : ''
+    title: `New message in ${channelName}`,
+    body: `${senderName || 'Anonymous'}: ${message.substring(0, 64)}${
+      message.length > 64 ? '...' : ''
     }`
   })
 

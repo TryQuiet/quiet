@@ -687,7 +687,10 @@ export const reducer = handleActions(
       { payload: { contactAddress, messagesIds } }
     ) =>
       state.update(contactAddress, Contact(), cm =>
-        cm.update('newMessages', nm => nm.concat(messagesIds))
+        cm.update('newMessages', nm => {
+          remote.app.badgeCount = remote.app.badgeCount + messagesIds.length
+          return nm.concat(messagesIds)
+        })
       ),
     [setLastSeen]: (state, { payload: { lastSeen, contact } }) =>
       state.update(contact.key || contact.key, Contact(), cm =>

@@ -99,6 +99,7 @@ const loadChannel = key => async (dispatch, getState) => {
       parseInt(DateTime.utc().toSeconds()).toString()
     )
     dispatch(setAddress(contact.address))
+    dispatch(contactsHandlers.actions.cleanNewMessages({ contactAddress: key }))
     // await dispatch(clearNewMessages())
     // await dispatch(updateLastSeen())
   } catch (err) {}
