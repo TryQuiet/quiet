@@ -98,6 +98,7 @@ export const actions = {
 export const fetchAllMessages = async () => {
   try {
     const txns = await client.list()
+    console.log(txns)
     const txnsZec = txns.map(txn => ({
       ...txn,
       amount: txn.amount / satoshiMultiplier
@@ -307,7 +308,7 @@ const setOutgoingTransactions = (address, messages) => async (
       )
     }
   }
-  const normalMessages = messagesAll.filter(msg => !msg.message.itemId)
+  const normalMessages = messagesAll.filter(msg => !msg.message.itemId && msg.receiver.publicKey)
   const groupedMesssages = R.groupBy(msg => msg.receiver.publicKey)(
     normalMessages
   )
