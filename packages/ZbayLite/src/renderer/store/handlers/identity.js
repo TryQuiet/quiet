@@ -198,7 +198,7 @@ export const fetchFreeUtxos = () => async (dispatch, getState) => {
   try {
     const utxos = await client.notes()
     const freeUtxos = utxos.unspent_notes.filter(
-      utxo => utxo.value > networkFeeSatoshi
+      utxo => utxo.value > networkFeeSatoshi && utxo.spendable === true
     )
     dispatch(setFreeUtxos(freeUtxos.length))
     dispatch(
