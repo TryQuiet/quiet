@@ -98,7 +98,6 @@ export const actions = {
 export const fetchAllMessages = async () => {
   try {
     const txns = await client.list()
-    console.log(txns)
     const txnsZec = txns.map(txn => ({
       ...txn,
       amount: txn.amount / satoshiMultiplier
@@ -113,6 +112,7 @@ export const fetchAllMessages = async () => {
 export const fetchMessages = () => async (dispatch, getState) => {
   try {
     const txns = await fetchAllMessages()
+    console.log(txns)
     const identityAddress = identitySelectors.address(getState())
     await dispatch(
       usersHandlers.epics.fetchUsers(

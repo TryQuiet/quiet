@@ -115,8 +115,10 @@ const linkChannelRedirect = targetChannel => async (dispatch, getState) => {
     history.push(`/main/channel/${targetChannel.address}`)
     return
   }
+
   // We can parse timestamp to blocktime and get accurate birthday block for this channel
   // Skipped since we dont support rescaning also we already got birthday of zbay as main wallet birthday
+  await client.importKey(targetChannel.keys.ivk)
   await dispatch(
     contactsHandlers.actions.addContact({
       key: targetChannel.address,
@@ -124,7 +126,9 @@ const linkChannelRedirect = targetChannel => async (dispatch, getState) => {
       username: targetChannel.name
     })
   )
+  const importedChannels = electronStore.get(`importedChannels`) || {}
   electronStore.set('importedChannels', {
+    ...importedChannels,
     [targetChannel.address]: {
       address: targetChannel.address,
       name: targetChannel.name,
