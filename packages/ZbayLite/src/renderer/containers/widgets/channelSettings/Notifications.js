@@ -6,14 +6,15 @@ import Notifications from '../../../components/widgets/channelSettings/Notificat
 import notificationCenterSelectors from '../../../store/selectors/notificationCenter'
 import channelSelectors from '../../../store/selectors/channel'
 import appHandlers from '../../../store/handlers/app'
+import contactsSelectors from '../../../store/selectors/contacts'
 import { actionCreators } from '../../../store/handlers/modals'
 
 export const mapStateToProps = state => {
   return {
     currentFilter: notificationCenterSelectors.channelFilterById(
-      channelSelectors.data(state).get('address')
+      channelSelectors.channel(state).get('address')
     )(state),
-    channelData: channelSelectors.data(state).toJS()
+    channelData: contactsSelectors.contact(channelSelectors.channel(state).get('address'))(state).toJS()
   }
 }
 

@@ -68,13 +68,14 @@ const styles = theme => ({
 export const ChannelInfoModal = ({
   classes,
   channel,
+  channelData,
   shareUri,
   open,
   handleClose,
   directMessage
 }) => {
   const address = directMessage
-    ? channel.get('address')
+    ? channelData.address
     : shareUri
   return (
     <Modal

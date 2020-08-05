@@ -31,6 +31,10 @@ const offerList = createSelector(contacts, contacts =>
 const channelsList = createSelector(contacts, contacts =>
   contacts.filter(c => c.key.length === 78 && c.offerId === null).toList()
 )
+
+const directMessagesContact = address =>
+  createSelector(contacts, c => c.toList().find(el => el.get('address') === address))
+
 const contact = address =>
   createSelector(contacts, c => c.get(address, Contact()))
 const messages = address =>
@@ -95,6 +99,7 @@ export const directMessages = (address, signerPubKey) =>
 
 export default {
   contacts,
+  directMessagesContact,
   queuedMessages,
   pendingMessages,
   contact,

@@ -98,7 +98,7 @@ export const Notifications = ({
               </Grid>
             </Grid>
             <Grid item className={classes.channelNameDiv}>
-              <Typography variant='body2'>#{channelData.name}</Typography>
+              <Typography variant='body2'>#{channelData.username}</Typography>
             </Grid>
             {currentFilter !== notificationFilterType.MUTE ? (
               <Grid

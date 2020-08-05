@@ -42,8 +42,8 @@ export const mapStateToProps = state => {
       // eslint-disable-next-line
       filterToText[
         notificationCenterSelectors.channelFilterById(
-          channelSelectors.data(state)
-            ? channelSelectors.data(state).get('address')
+          channelSelectors.channel(state)
+            ? channelSelectors.channel(state).get('address')
             : 'none'
         )(state)
       ]
