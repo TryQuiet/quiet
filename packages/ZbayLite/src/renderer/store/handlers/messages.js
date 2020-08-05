@@ -98,6 +98,7 @@ export const actions = {
 export const fetchAllMessages = async () => {
   try {
     const txns = await client.list()
+    console.log(txns)
     const txnsZec = txns.map(txn => ({
       ...txn,
       amount: txn.amount / satoshiMultiplier
@@ -105,6 +106,7 @@ export const fetchAllMessages = async () => {
     return R.groupBy(txn => txn.address)(txnsZec)
   } catch (err) {
     console.warn(`Can't pull messages`)
+    console.warn(err)
     return {}
   }
 }
