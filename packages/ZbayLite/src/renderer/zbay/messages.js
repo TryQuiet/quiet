@@ -268,7 +268,7 @@ export const outgoingTransferToMessage = async (props, users) => {
     return null
   }
   try {
-    const toUser = users.find(u => u.address === transactionData.address)
+    const toUser = users.find(u => u.address === transactionData.address) || ExchangeParticipant()
     return {
       ...(await messageSchema.validate(message)),
       id: txid,
