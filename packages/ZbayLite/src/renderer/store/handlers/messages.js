@@ -98,7 +98,6 @@ export const actions = {
 export const fetchAllMessages = async () => {
   try {
     const txns = await client.list()
-    console.log(txns)
     const txnsZec = txns.map(txn => ({
       ...txn,
       amount: txn.amount / satoshiMultiplier
@@ -133,13 +132,15 @@ export const fetchMessages = () => async (dispatch, getState) => {
       )
     )
     const importedChannels = electronStore.get(`importedChannels`)
-    for (const address of Object.keys(importedChannels)) {
-      await dispatch(
-        setChannelMessages(
-          importedChannels[address],
-          txns[address]
+    if (importedChannels) {
+      for (const address of Object.keys(importedChannels)) {
+        await dispatch(
+          setChannelMessages(
+            importedChannels[address],
+            txns[address]
+          )
         )
-      )
+      }
     }
     await dispatch(
       setChannelMessages(
@@ -157,6 +158,7 @@ export const fetchMessages = () => async (dispatch, getState) => {
     dispatch(setUsersMessages(identityAddress, txns[identityAddress]))
   } catch (err) {
     console.warn(`Can't pull messages`)
+    console.warn(err)
     return {}
   }
 }
