@@ -16,14 +16,11 @@ import messagesHandlers, { _checkMessageSize } from './messages'
 import channelsHandlers from './channels'
 import offersHandlers from './offers'
 import channelSelectors from '../selectors/channel'
-import channelsSelectors from '../selectors/channels'
 import identitySelectors from '../selectors/identity'
 import contactsSelectors from '../selectors/contacts'
-import logsHandlers from '../handlers/logs'
 import client from '../../zcash'
 import { messages } from '../../zbay'
 import { errorNotification, LoaderState } from './utils'
-import nodeSelectors from '../selectors/node'
 import { messageType, actionTypes } from '../../../shared/static'
 import { DisplayableMessage } from '../../zbay/messages'
 import usersSelectors from '../selectors/users'
@@ -113,53 +110,30 @@ const loadOffer = (id, address) => async (dispatch, getState) => {
   } catch (err) {}
 }
 const linkChannelRedirect = targetChannel => async (dispatch, getState) => {
-  let channels = channelsSelectors.channels(getState())
-  let channel = channels.data.find(
-    channel => channel.get('address') === targetChannel.address
-  )
-  const identityId = identitySelectors.id(getState())
-  const lastblock = nodeSelectors.latestBlock(getState())
-  const fetchTreshold = lastblock - 2000
-  if (channel) {
-    history.push(`/main/channel/${channel.get('id')}`)
+  const contact = contactsSelectors.contact(targetChannel.address)(getState())
+  if (contact.address) {
+    history.push(`/main/channel/${targetChannel.address}`)
     return
   }
-  try {
-    await dispatch(channelsHandlers.actions.loadChannels(identityId))
-    channels = channelsSelectors.channels(getState())
-    channel = channels.data.find(
-      channel => channel.get('address') === targetChannel.address
-    )
-    await dispatch(setLoading(true))
-    dispatch(
-      notificationsHandlers.actions.enqueueSnackbar({
-        message: `Successfully imported channel ${targetChannel.name}`,
-        options: {
-          variant: 'success'
-        }
-      })
-    )
-    history.push(`/main/channel/${channel.get('id')}`)
-    try {
-      await client.keys.importIVK({
-        ivk: targetChannel.keys.ivk,
-        rescan: 'yes',
-        startHeight: fetchTreshold
-      })
-    } catch (error) {}
-    dispatch(
-      logsHandlers.epics.saveLogs({
-        type: 'APPLICATION_LOGS',
-        payload: `Importing channel ${targetChannel}`
-      })
-    )
-
-    await dispatch(messagesHandlers.epics.fetchMessages(channel))
-    dispatch(setLoading(false))
-  } catch (err) {
-    console.log(err)
-    dispatch(setLoading(false))
-  }
+  // We can parse timestamp to blocktime and get accurate birthday block for this channel
+  // Skipped since we dont support rescaning also we already got birthday of zbay as main wallet birthday
+  await dispatch(
+    contactsHandlers.actions.addContact({
+      key: targetChannel.address,
+      contactAddress: targetChannel.address,
+      username: targetChannel.name
+    })
+  )
+  electronStore.set('importedChannels', {
+    [targetChannel.address]: {
+      address: targetChannel.address,
+      name: targetChannel.name,
+      description: targetChannel.description,
+      owner: targetChannel.owner,
+      keys: targetChannel.keys
+    }
+  })
+  history.push(`/main/channel/${targetChannel.address}`)
 }
 const sendOnEnter = (event, resetTab) => async (dispatch, getState) => {
   if (resetTab) {

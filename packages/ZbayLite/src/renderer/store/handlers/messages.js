@@ -130,6 +130,15 @@ export const fetchMessages = () => async (dispatch, getState) => {
         txns[channels.channelOfChannels.mainnet.address]
       )
     )
+    const importedChannels = electronStore.get(`importedChannels`)
+    for (const address of Object.keys(importedChannels)) {
+      await dispatch(
+        setChannelMessages(
+          importedChannels[address],
+          txns[address]
+        )
+      )
+    }
     await dispatch(
       setChannelMessages(
         channels.general.mainnet,
@@ -155,7 +164,7 @@ export const checkTransferCount = (address, messages) => async (
 ) => {
   if (messages) {
     if (
-      messages &&
+      messages.length &&
       messages[messages.length - 1].memo === null &&
       messages[messages.length - 1].memohex === ''
     ) {
@@ -190,8 +199,7 @@ const msgTypeToNotification = new Set([
 export const findNewMessages = (key, messages, state) => {
   if (messages) {
     const lastSeen =
-      parseInt(electronStore.get(`lastSeen.${key}`)) ||
-      Number.MAX_SAFE_INTEGER
+      parseInt(electronStore.get(`lastSeen.${key}`)) || Number.MAX_SAFE_INTEGER
     if (
       notificationCenterSelectors.userFilterType(state) ===
       notificationFilterType.NONE
@@ -323,7 +331,7 @@ const setOutgoingTransactions = (address, messages) => async (
     }
   }
 }
-const setChannelMessages = (channel, messages) => async (
+const setChannelMessages = (channel, messages = []) => async (
   dispatch,
   getState
 ) => {
@@ -355,7 +363,16 @@ const setChannelMessages = (channel, messages) => async (
       return DisplayableMessage(message)
     })
   )
-
+  if (messagesAll.length === 0) {
+    dispatch(
+      contactsHandlers.actions.addContact({
+        key: channel.address,
+        contactAddress: channel.address,
+        username: channel.name
+      })
+    )
+    return
+  }
   dispatch(
     contactsHandlers.actions.setMessages({
       key: channel.address,
