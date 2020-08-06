@@ -202,11 +202,8 @@ export const ChannelInput = ({
       .split(String.fromCharCode(160))
     const lastMention = splitedMsg[splitedMsg.length - 1].startsWith('@')
     if (lastMention) {
-      const possibleMentions = users.filter(
-        user =>
-          user.nickname.startsWith(
-            splitedMsg[splitedMsg.length - 1].substring(1)
-          ) && user.nickname !== splitedMsg[splitedMsg.length - 1].substring(1)
+      const possibleMentions = users.filter(user =>
+        user.nickname.startsWith(splitedMsg[splitedMsg.length - 1].substring(1))
       )
       const sortedMentions = Object.values(possibleMentions.toJS()).sort(
         function (a, b) {
