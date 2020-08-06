@@ -1,10 +1,9 @@
 import Immutable from 'immutable'
 import { createAction, handleActions } from 'redux-actions'
 import * as R from 'ramda'
-import channelsSelectors from '../selectors/channels'
 import feesSelectors from '../selectors/fees'
 import nodeSelectors from '../selectors/node'
-import { getClient } from '../../zcash'
+import client from '../../zcash'
 import { errorNotification, successNotification } from './utils'
 import identitySelectors from '../selectors/identity'
 import notificationsHandlers from './notifications'
@@ -102,7 +101,6 @@ export const publishChannel = ({
   const identityAddress = identitySelectors.address(getState())
   const privKey = identitySelectors.signerPrivKey(getState())
   const network = nodeSelectors.network(getState())
-  const publicChannel = channelsSelectors.publicChannels(getState())
   const fee = feesSelectors.publicChannelfee(getState())
   const message = messagesOperators.createMessage({
     messageData: {
@@ -122,12 +120,12 @@ export const publishChannel = ({
   })
   const transfer = await messagesOperators.messageToTransfer({
     message,
-    address: publicChannel.get('address'),
+    address: staticChannels.channelOfChannels[network].address,
     identityAddress,
     amount: fee
   })
   try {
-    await getClient().payment.send(transfer)
+    await client.sendTransaction(transfer)
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar(
         successNotification({

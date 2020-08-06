@@ -1,5 +1,4 @@
 import { createSelector } from 'reselect'
-import channelsSelector from './channels'
 import identitySelectors from './identity'
 import usersSelectors from './users'
 import messagesQueueSelectors from './messagesQueue'
@@ -9,45 +8,72 @@ import zbayMessages from '../../zbay/messages'
 import contacts from './contacts'
 import { operationTypes } from '../handlers/operations'
 import Immutable from 'immutable'
-import { networkFee } from '../../../shared/static'
+import { networkFee, messageType } from '../../../shared/static'
+
 const store = s => s
 
 export const channel = createSelector(store, state => {
   return state.get('channel')
 })
-export const channelInfo = createSelector(store, state => state.get('channel').delete('message')) // TODO refactor
+export const channelInfo = createSelector(store, state =>
+  state.get('channel').delete('message')
+) // TODO refactor
 
-const data = createSelector(
-  channelsSelector.data,
+export const spentFilterValue = createSelector(channel, c =>
+  c.get('spentFilterValue', -1)
+)
+
+export const message = createSelector(
   channel,
-  (channels, channel) => channels.find(ch => ch.get('id') === channel.id)
+  c => c.getIn(['message', c.get('id')]) || ''
 )
-
-export const spentFilterValue = createSelector(channel, c => c.get('spentFilterValue', -1))
-
-export const message = createSelector(channel, c => c.getIn(['message', c.get('id')]) || '')
 export const id = createSelector(channel, c => c.get('id'))
-export const isSizeCheckingInProgress = createSelector(channel, c => c.get('isSizeCheckingInProgress'))
-export const messageSizeStatus = createSelector(channel, c => c.get('messageSizeStatus'))
-export const advertFee = createSelector(
-  data,
-  (data) => data ? data.get('advertFee') : 0
+const data = createSelector(contacts.contacts, id, (channels, id) =>
+  channels.get(id)
 )
-export const unread = createSelector(
-  data,
-  (data) => data ? data.get('unread') : 0
+export const isSizeCheckingInProgress = createSelector(channel, c =>
+  c.get('isSizeCheckingInProgress')
 )
-export const onlyRegistered = createSelector(
-  data,
-  (data) => data ? data.get('onlyRegistered') : false
+export const messageSizeStatus = createSelector(channel, c =>
+  c.get('messageSizeStatus')
+)
+export const isOwner = createSelector(
+  id,
+  contacts.contacts,
+  identitySelectors.signerPubKey,
+  (id, con, myKey) => {
+    const contact = con.get(id)
+    if (!contact) {
+      return false
+    }
+    const settingsMsg = contact.messages.find(
+      msg => msg.type === messageType.CHANNEL_SETTINGS
+    )
+    if (settingsMsg && settingsMsg.message.owner === myKey) {
+      return true
+    }
+    return false
+  }
+)
+export const advertFee = createSelector(data, data =>
+  data ? data.get('advertFee') : 0
+)
+export const unread = createSelector(data, data =>
+  data ? data.get('unread') : 0
+)
+export const onlyRegistered = createSelector(data, data =>
+  data ? data.get('onlyRegistered') : false
 )
 
 export const pendingMessages = createSelector(
   operationsSelectors.operations,
   channel,
-  (operations, channel) => operations.filter(
-    o => o.type === operationTypes.pendingMessage && o.meta.channelId === channel.id
-  )
+  (operations, channel) =>
+    operations.filter(
+      o =>
+        o.type === operationTypes.pendingMessage &&
+        o.meta.channelId === channel.id
+    )
 )
 
 export const queuedMessages = createSelector(
@@ -62,28 +88,20 @@ export const currentChannelMessages = createSelector(
   (ch, store) => messagesSelectors.currentChannelMessages(ch.id)(store)
 )
 
-export const channelOwner = createSelector(
-  channel,
-  store,
-  (ch, store) => messagesSelectors.channelOwner(ch.id)(store)
+export const channelOwner = createSelector(channel, store, (ch, store) =>
+  messagesSelectors.channelOwner(ch.id)(store)
 )
 
-export const channelModerators = createSelector(
-  channel,
-  store,
-  (ch, store) => messagesSelectors.channelModerators(ch.id)(store)
+export const channelModerators = createSelector(channel, store, (ch, store) =>
+  messagesSelectors.channelModerators(ch.id)(store)
 )
 
-export const channelBlockedUsers = createSelector(
-  channel,
-  store,
-  (ch, store) => messagesSelectors.channelBlockedUsers(ch.id)(store)
+export const channelBlockedUsers = createSelector(channel, store, (ch, store) =>
+  messagesSelectors.channelBlockedUsers(ch.id)(store)
 )
 
-export const getFilteredContext = createSelector(
-  channel,
-  store,
-  (ch, store) => messagesSelectors.getFilteredContexed(ch.id)(store)
+export const getFilteredContext = createSelector(channel, store, (ch, store) =>
+  messagesSelectors.getFilteredContexed(ch.id)(store)
 )
 
 export const getChannelFilteredMessages = createSelector(
@@ -94,9 +112,13 @@ export const getChannelFilteredMessages = createSelector(
 
 export const loader = createSelector(channel, meta => meta.loader)
 
-const checkMessageTargetTimeWindow = ({ targetCreatedAt, timeStamp, timeWindow }) => {
+const checkMessageTargetTimeWindow = ({
+  targetCreatedAt,
+  timeStamp,
+  timeWindow
+}) => {
   const inRange = ({ timeStamp, targetCreatedAt, timeWindow }) => {
-    return ((timeStamp - targetCreatedAt) * (timeStamp - timeWindow) <= 0)
+    return (timeStamp - targetCreatedAt) * (timeStamp - timeWindow) <= 0
   }
   return inRange({ timeStamp, targetCreatedAt, timeWindow })
 }
@@ -106,7 +128,10 @@ const concatMessages = (mainMsg, messagesToConcat) => {
     return mainMsg
   } else {
     const messagesArray = messagesToConcat.map(msg => msg.message)
-    const lastMessageStatus = messagesToConcat.getIn([messagesToConcat.size - 1, 'status'])
+    const lastMessageStatus = messagesToConcat.getIn([
+      messagesToConcat.size - 1,
+      'status'
+    ])
     const concatedMessages = messagesArray.join('\n')
     const mergedMessage = mainMsg
       .set('message', concatedMessages)
@@ -120,14 +145,23 @@ export const mergeIntoOne = messages => {
   let result = [[]]
   let last = null
   for (const msg of messages) {
-    const isMessageInTargetZone = last ? checkMessageTargetTimeWindow({ targetCreatedAt: last.createdAt, timeStamp: msg.createdAt, timeWindow: last.createdAt + 300 }) : true
+    const isMessageInTargetZone = last
+      ? checkMessageTargetTimeWindow({
+        targetCreatedAt: last.createdAt,
+        timeStamp: msg.createdAt,
+        timeWindow: last.createdAt + 300
+      })
+      : true
     if (last && msg.status === 'failed') {
       result.push([])
       result[result.length - 1].push(msg)
-    } else if ((last && (msg.type !== 1 || last.type !== 1))) {
+    } else if (last && (msg.type !== 1 || last.type !== 1)) {
       result.push([])
       result[result.length - 1].push(msg)
-    } else if ((last && last.sender.replyTo !== msg.sender.replyTo) || !isMessageInTargetZone) {
+    } else if (
+      (last && last.sender.replyTo !== msg.sender.replyTo) ||
+      !isMessageInTargetZone
+    ) {
       result.push([])
       result[result.length - 1].push(msg)
     } else {
@@ -142,44 +176,57 @@ export const mergeIntoOne = messages => {
   return concatedMessages
 }
 
-export const messages = signerPubKey => createSelector(
-  identitySelectors.data,
-  usersSelectors.registeredUser(signerPubKey),
-  getChannelFilteredMessages,
-  pendingMessages,
-  queuedMessages,
-  (identity, registeredUser, receivedMessages, pendingMessages, queuedMessages) => {
-    const userData = registeredUser ? registeredUser.toJS() : null
-    const identityAddress = identity.address
-    const identityName = userData ? userData.nickname : identity.name
-    const displayableBroadcasted = receivedMessages.map(
-      message => {
-        return zbayMessages.receivedToDisplayableMessage({ message, identityAddress })
-      }
-    )
-
-    const displayablePending = pendingMessages.map(
-      operation => {
-        return zbayMessages.operationToDisplayableMessage({ operation, identityAddress, identityName })
-      }
-    )
-
-    const displayableQueued = queuedMessages.map(
-      (queuedMessage, messageKey) => zbayMessages.queuedToDisplayableMessage({
-        queuedMessage, messageKey, identityAddress, identityName
+export const messages = signerPubKey =>
+  createSelector(
+    identitySelectors.data,
+    usersSelectors.registeredUser(signerPubKey),
+    getChannelFilteredMessages,
+    pendingMessages,
+    queuedMessages,
+    (
+      identity,
+      registeredUser,
+      receivedMessages,
+      pendingMessages,
+      queuedMessages
+    ) => {
+      const userData = registeredUser ? registeredUser.toJS() : null
+      const identityAddress = identity.address
+      const identityName = userData ? userData.nickname : identity.name
+      const displayableBroadcasted = receivedMessages.map(message => {
+        return zbayMessages.receivedToDisplayableMessage({
+          message,
+          identityAddress
+        })
       })
-    )
-    let concatedMessages = displayableBroadcasted.concat(
-      displayablePending.values(),
-      displayableQueued.values()
-    ).sortBy(m => m.get('createdAt'))
-    if (concatedMessages.size > 0) {
-      const merged = mergeIntoOne(concatedMessages)
-      concatedMessages = Immutable.fromJS(merged)
+
+      const displayablePending = pendingMessages.map(operation => {
+        return zbayMessages.operationToDisplayableMessage({
+          operation,
+          identityAddress,
+          identityName
+        })
+      })
+
+      const displayableQueued = queuedMessages.map(
+        (queuedMessage, messageKey) =>
+          zbayMessages.queuedToDisplayableMessage({
+            queuedMessage,
+            messageKey,
+            identityAddress,
+            identityName
+          })
+      )
+      let concatedMessages = displayableBroadcasted
+        .concat(displayablePending.values(), displayableQueued.values())
+        .sortBy(m => m.get('createdAt'))
+      if (concatedMessages.size > 0) {
+        const merged = mergeIntoOne(concatedMessages)
+        concatedMessages = Immutable.fromJS(merged)
+      }
+      return concatedMessages
     }
-    return concatedMessages
-  }
-)
+  )
 
 export const shareableUri = createSelector(channel, c => c.shareableUri)
 
@@ -207,21 +254,27 @@ export const INPUT_STATE = {
 
 export const channelId = createSelector(channel, ch => ch.id)
 
-export const members = createSelector(messages(), msgs => msgs.reduce((acc, msg) => {
-  return acc.add(msg.sender.replyTo)
-}, new Set()))
-
-export const channelParticipiants = createSelector(contacts.contacts, id, (c, i) => {
-  const contact = c.get(i)
-  if (!contact) {
-    return new Set()
-  }
-  const messages = contact.messages
-  const members = messages.reduce((acc, msg) => {
+export const members = createSelector(messages(), msgs =>
+  msgs.reduce((acc, msg) => {
     return acc.add(msg.sender.replyTo)
   }, new Set())
-  return members
-})
+)
+
+export const channelParticipiants = createSelector(
+  contacts.contacts,
+  id,
+  (c, i) => {
+    const contact = c.get(i)
+    if (!contact) {
+      return new Set()
+    }
+    const messages = contact.messages
+    const members = messages.reduce((acc, msg) => {
+      return acc.add(msg.sender.replyTo)
+    }, new Set())
+    return members
+  }
+)
 
 export default {
   data,
@@ -247,5 +300,6 @@ export default {
   unread,
   messageSizeStatus,
   isSizeCheckingInProgress,
-  id
+  id,
+  isOwner
 }

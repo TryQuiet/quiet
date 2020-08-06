@@ -20,6 +20,7 @@ import {
 } from '../../zbay/transit'
 import LoadingButton from './LoadingButton'
 import { getBytesSize } from '../../../shared/helpers'
+import electronStore from '../../../shared/electronStore'
 
 const currentNetwork = parseInt(process.env.ZBAY_IS_TESTNET) ? 2 : 1
 // import { networkFee } from '../../../../shared/static'
@@ -168,7 +169,7 @@ export const PublishChannelModal = ({
   React.useEffect(() => {
     formikRef.current.runValidations()
     formikRef.current.getFormikActions().setFieldTouched('name', true)
-  }, [channel.get('id')])
+  }, [channel.address])
 
   const [sending, setSending] = React.useState(false)
   return (
@@ -178,18 +179,18 @@ export const PublishChannelModal = ({
       onSubmit={async (values, { resetForm }) => {
         setSending(true)
         await publishChannel({
-          channelAddress: channel.get('address'),
+          channelAddress: channel.address,
           channelName: parseChannelName(values.name),
           channelDescription: values.description,
-          channelIvk: channel.getIn(['keys', 'ivk'])
+          channelIvk: electronStore.get(`importedChannels.${channel.address}.keys.ivk`)
         })
         setSending(false)
         handleClose()
       }}
       isInitialValid={
-        !publicChannels.get(parseChannelName(channel.get('name')))
+        !publicChannels.get(parseChannelName(channel.username))
       }
-      initialValues={{ name: channel.get('name'), description: '' }}
+      initialValues={{ name: channel.username, description: '' }}
       validate={values => {
         try {
           formSchema(publicChannels).validateSync(values, {

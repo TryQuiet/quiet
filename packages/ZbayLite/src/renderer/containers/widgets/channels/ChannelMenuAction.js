@@ -21,15 +21,9 @@ const filterToText = {
   [notificationFilterType.MUTE]: 'Muted'
 }
 export const mapStateToProps = state => {
-  const isOwner = channelSelectors.data(state)
-    ? !!channelSelectors
-      .data(state)
-      .get('keys')
-      .get('sk')
-    : false
   return {
     targetAddress: dmChannelSelectors.targetRecipientAddress(state),
-    isOwner: isOwner,
+    isOwner: channelSelectors.isOwner(state),
     publicChannels: publicChannelsSelectors.publicChannels(state),
     channel: channelSelectors.data(state) || Immutable.Map({}),
     mutedFlag:
