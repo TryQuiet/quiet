@@ -41,6 +41,9 @@ export default class Client {
   getPrivKey = async address => {
     return postMessage('getPrivKey', address)
   }
+  getViewingKey = async address => {
+    return postMessage('getViewingKey', address)
+  }
   getNewShieldedAdress = async () => {
     return postMessage('getNewShieldedAdress', '')
   }

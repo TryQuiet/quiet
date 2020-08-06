@@ -240,7 +240,7 @@ const sendChannelSettingsMessage = ({
     identityAddress
   })
   try {
-    await client.payment.send(transfer)
+    await client.sendTransaction(transfer)
   } catch (err) {
     notificationsHandlers.actions.enqueueSnackbar(
       dispatch(

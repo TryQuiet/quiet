@@ -59,6 +59,9 @@ class RPC {
   getPrivKey = async address => {
     return JSON.parse(native.litelib_execute('export', address))[0].private_key
   }
+  getViewingKey = async address => {
+    return JSON.parse(native.litelib_execute('export', address))[0].viewing_key
+  }
   getNewShieldedAdress = async () => {
     return JSON.parse(native.litelib_execute('new', 'z'))[0]
   }

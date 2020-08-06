@@ -368,7 +368,8 @@ const setChannelMessages = (channel, messages = []) => async (
       return DisplayableMessage(message)
     })
   )
-  if (messagesAll.length === 0) {
+  const contacts = contactsSelectors.contacts(getState())
+  if (messagesAll.length === 0 && !contacts.get(channel.address)) {
     dispatch(
       contactsHandlers.actions.addContact({
         key: channel.address,

@@ -19,10 +19,12 @@ import channelsSelectors from '../selectors/channels'
 import channelSelectors from '../selectors/channel'
 import modalsHandlers from './modals'
 import { messages } from '../../zbay'
-import { getClient } from '../../zcash'
+import client from '../../zcash'
 import logsHandlers from '../../store/handlers/logs'
 import { networkFee, actionTypes } from '../../../shared/static'
 import history from '../../../shared/history'
+import electronStore from '../../../shared/electronStore'
+import contactsHandlers from './contacts'
 
 const toBigNumber = x => new BigNumber(x)
 
@@ -66,8 +68,8 @@ export const actions = {
   setOnlyRegistered
 }
 
-const _createChannel = async (identityId, { name, description }) => {
-  const address = await getClient().addresses.create('sapling')
+const _createChannel = async values => {
+  const address = await client.getNewShieldedAdress()
   return address
 }
 
@@ -77,6 +79,7 @@ const createChannel = (values, formActions, setStep) => async (
 ) => {
   const closeModal = modalsHandlers.actionCreators.closeModal('createChannel')
   const balance = identitySelectors.balance('zec')(getState())
+  const signerPubKey = identitySelectors.signerPubKey(getState())
   try {
     if (balance.lt(networkFee)) {
       dispatch(
@@ -90,8 +93,7 @@ const createChannel = (values, formActions, setStep) => async (
       return
     }
     setStep(1)
-    const identityId = identitySelectors.id(getState())
-    const address = await _createChannel(identityId, values)
+    const address = await _createChannel(values)
     dispatch(
       logsHandlers.epics.saveLogs({
         type: 'APPLICATION_LOGS',
@@ -101,6 +103,26 @@ const createChannel = (values, formActions, setStep) => async (
     await dispatch(
       channelHandlers.epics.sendChannelSettingsMessage({ address: address })
     )
+    const importedChannels = electronStore.get(`importedChannels`) || {}
+    const viewingKey = await client.getViewingKey(address)
+    electronStore.set('importedChannels', {
+      ...importedChannels,
+      [address]: {
+        address: address,
+        name: values.name,
+        description: '',
+        owner: signerPubKey,
+        keys: { ivk: viewingKey }
+      }
+    })
+    await dispatch(
+      contactsHandlers.actions.addContact({
+        key: address,
+        contactAddress: address,
+        username: values.name
+      })
+    )
+    history.push(`/main/channel/${address}`)
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar(
         successNotification({
@@ -108,14 +130,6 @@ const createChannel = (values, formActions, setStep) => async (
         })
       )
     )
-    await dispatch(loadChannels(identityId))
-    formActions.setSubmitting(false)
-    const createdChannel = channelsSelectors
-      .data(getState())
-      .find(ch => ch.get('address') === address)
-    if (createdChannel) {
-      history.push(`/main/channel/${createdChannel.get('id')}`)
-    }
     setStep(0)
     dispatch(closeModal())
   } catch (error) {
@@ -159,7 +173,7 @@ const withdrawMoneyFromChannels = () => async (dispatch, getState) => {
 }
 
 const getMoneyFromChannel = address => async (dispatch, getState) => {
-  const amount = await getClient().accounting.balance(address)
+  const amount = await client.accounting.balance(address)
   const identityAddress = identitySelectors.address(getState())
   if (amount.gt(0.0005)) {
     const transfer = messages.createEmptyTransfer({
@@ -167,7 +181,7 @@ const getMoneyFromChannel = address => async (dispatch, getState) => {
       amount: amount.minus(networkFee).toString(),
       identityAddress: address
     })
-    await getClient().payment.send(transfer)
+    await client.payment.send(transfer)
     return amount.minus(networkFee)
   }
   return toBigNumber(0)
