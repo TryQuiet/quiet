@@ -55,6 +55,13 @@ export const ShippingData = Immutable.Record(
   'ShippingData'
 )
 
+const RemovedChannels = Immutable.Record(
+  {
+    removedChannels: Immutable.List()
+  },
+  'RemovedChannels'
+)
+
 const Identity = Immutable.Record(
   {
     id: null,
@@ -86,6 +93,7 @@ export const IdentityState = Immutable.Record(
     data: Identity(),
     fetchingBalance: false,
     loader: LoaderState({ loading: false }),
+    removedChannels: RemovedChannels(),
     errors: ''
   },
   'IdentityState'
@@ -94,6 +102,7 @@ export const IdentityState = Immutable.Record(
 export const initialState = IdentityState()
 
 export const setIdentity = createAction(actionTypes.SET_IDENTITY)
+export const setRemovedChannels = createAction(actionTypes.SET_REMOVED_CHANNELS)
 export const setBalance = createAction(actionTypes.SET_IDENTITY_BALANCE)
 export const setLockedBalance = createAction(
   actionTypes.SET_IDENTITY_LOCKED_BALANCE
@@ -118,6 +127,7 @@ export const setUserShieldedAddreses = createAction(
 
 const actions = {
   setIdentity,
+  setRemovedChannels,
   setFetchingBalance,
   setErrors,
   setLoading,
@@ -327,6 +337,11 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
   // const isRescanned = electronStore.get('AppStatus.blockchain.isRescanned')
   const isNewUser = electronStore.get('isNewUser')
   try {
+    const removedChannels = electronStore.get('removedChannels')
+    if (removedChannels) {
+      const removedChannelsList = Immutable.fromJS(Object.keys(removedChannels))
+      dispatch(setRemovedChannels(removedChannelsList))
+    }
     dispatch(setLoadingMessage('Ensuring identity integrity'))
     await dispatch(setLoadingMessage('Ensuring node contains identity keys'))
     await dispatch(whitelistHandlers.epics.initWhitelist())
@@ -462,6 +477,8 @@ export const reducer = handleActions(
   {
     [setLoading]: (state, { payload: loading }) =>
       state.setIn(['loader', 'loading'], loading),
+    [setRemovedChannels]: (state, { payload: removedChannels }) =>
+      state.set('removedChannels', removedChannels),
     [setLoadingMessage]: (state, { payload: message }) =>
       state.setIn(['loader', 'message'], message),
     [setIdentity]: (state, { payload: identity }) =>

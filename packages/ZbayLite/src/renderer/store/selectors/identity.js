@@ -49,6 +49,8 @@ const shieldedAddresses = createSelector(data, d => d.shieldedAddresses)
 
 const loader = createSelector(identity, i => i.loader)
 
+const removedChannels = createSelector(identity, i => i.removedChannels)
+
 const shippingData = createSelector(data, d => d.shippingData)
 
 export default {
@@ -72,5 +74,6 @@ export default {
   topAddress,
   topShieldedAddress,
   addresses,
-  shieldedAddresses
+  shieldedAddresses,
+  removedChannels
 }

@@ -22,14 +22,27 @@ export const Contact = Immutable.Record({
 const store = s => s
 
 const contacts = createSelector(store, state => state.get('contacts'))
-const contactsList = createSelector(contacts, contacts =>
-  contacts.filter(c => c.key.length === 66 && c.offerId === null).toList()
+const contactsList = createSelector(contacts, identitySelectors.removedChannels, (contacts, removedChannels) => {
+  if (removedChannels.size > 0) {
+    return contacts.filter(c => c.key.length === 66 && c.offerId === null && !removedChannels.includes(c.address)).toList()
+  }
+  return contacts.filter(c => c.key.length === 66 && c.offerId === null).toList()
+}
 )
-const offerList = createSelector(contacts, contacts =>
-  contacts.filter(c => !!c.offerId).toList()
+
+const offerList = createSelector(contacts, identitySelectors.removedChannels, (contacts, removedChannels) => {
+  if (removedChannels.size > 0) {
+    return contacts.filter(c => !!c.offerId && !removedChannels.includes(c.key)).toList()
+  }
+  return contacts.filter(c => !!c.offerId).toList()
+}
 )
-const channelsList = createSelector(contacts, contacts =>
-  contacts.filter(c => c.key.length === 78 && c.offerId === null).toList()
+const channelsList = createSelector(contacts, identitySelectors.removedChannels, (contacts, removedChannels) => {
+  if (removedChannels.size > 0) {
+    return contacts.filter(c => c.key.length === 78 && c.offerId === null && !removedChannels.includes(c.address)).toList()
+  }
+  return contacts.filter(c => c.key.length === 78 && c.offerId === null).toList()
+}
 )
 
 const directMessagesContact = address =>

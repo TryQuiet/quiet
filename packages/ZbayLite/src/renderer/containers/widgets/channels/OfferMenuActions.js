@@ -4,12 +4,11 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import * as R from 'ramda'
 import { withRouter } from 'react-router-dom'
-import { DateTime } from 'luxon'
 
 import ChannelMenuActionComponent from '../../../components/widgets/channels/ChannelMenuAction'
 import { actionCreators } from '../../../store/handlers/modals'
-import contactsHandler from '../../../store/handlers/contacts'
 import dmChannelSelectors from '../../../store/selectors/directMessageChannel'
+import importedChannelHandler from '../../../store/handlers/importedChannel'
 // import offersSelectors from '../../../store/selectors/offers'
 import ratesSelectors from '../../../store/selectors/rates'
 
@@ -24,7 +23,7 @@ export const mapDispatchToProps = (dispatch, { history }) => {
     {
       onInfo: payload => actionCreators.openModal('advertActions', payload)(),
       onMute: () => console.warn('[ChannelMenuAction] onMute not implemented'),
-      onDelete: target => contactsHandler.epics.deleteChannel({ ...target, history })
+      onDelete: () => importedChannelHandler.epics.removeChannel(history, true)
     },
     dispatch
   )
@@ -48,7 +47,7 @@ const ChannelMenuAction = ({ onInfo, rateUsd, advert, onDelete, offer, ...props 
   return (
     <ChannelMenuActionComponent
       onInfo={() => onInfo(payload)}
-      onDelete={() => onDelete({ address: offer, timestamp: parseInt(DateTime.utc().toSeconds()) })}
+      onDelete={onDelete}
       disableSettings
       {...props}
     />

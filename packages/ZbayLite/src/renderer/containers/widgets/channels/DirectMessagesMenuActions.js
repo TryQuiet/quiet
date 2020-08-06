@@ -4,12 +4,11 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import * as R from 'ramda'
 import { withRouter } from 'react-router-dom'
-import { DateTime } from 'luxon'
 
 import ChannelMenuActionComponent from '../../../components/widgets/channels/ChannelMenuAction'
 import { actionCreators } from '../../../store/handlers/modals'
-import contactsHandler from '../../../store/handlers/contacts'
 import dmChannelSelectors from '../../../store/selectors/directMessageChannel'
+import importedChannelHandler from '../../../store/handlers/importedChannel'
 import notificationCenterHandlers from '../../../store/handlers/notificationCenter'
 import { notificationFilterType } from '../../../../shared/static'
 
@@ -28,8 +27,7 @@ export const mapDispatchToProps = (
         notificationCenterHandlers.epics.setContactNotification(
           notificationFilterType.MUTE
         ),
-      onDelete: target =>
-        contactsHandler.epics.deleteChannel({ ...target, history })
+      onDelete: () => importedChannelHandler.epics.removeChannel(history)
     },
     dispatch
   )
@@ -37,12 +35,7 @@ export const mapDispatchToProps = (
 const ChannelMenuAction = ({ onDelete, targetAddress, ...props }) => {
   return (
     <ChannelMenuActionComponent
-      onDelete={() =>
-        onDelete({
-          address: targetAddress,
-          timestamp: parseInt(DateTime.utc().toSeconds())
-        })
-      }
+      onDelete={onDelete}
       disableSettings
       {...props}
     />
