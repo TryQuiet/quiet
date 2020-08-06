@@ -81,7 +81,8 @@
     "build-storybook": "build-storybook",
     "mainnet": "docker-compose up znode-mainnet",
     "testnet": "docker-compose up znode-testnet",
-    "neon": "rm native/index.node && rm -rf native/target && rm -rf native/Cargo.lock && electron-build-env neon build --release"
+    "neon": "electron-build-env neon build --release",
+    "neon-rebuild": "rm native/index.node && rm -rf native/target && rm native/Cargo.lock && electron-build-env neon build --release"
   },
   "author": {
     "name": "Bartlomiej Lisiecki/Norbert Bodziony",

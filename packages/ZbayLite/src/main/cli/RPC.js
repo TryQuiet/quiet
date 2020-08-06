@@ -30,8 +30,16 @@ class RPC {
       'send',
       `${address},${amount},${memo}`
     )
-    console.log(result)
     return JSON.parse(result)
+  }
+  sendTransaction = async (txns = []) => {
+    // TODO add validation of payload
+    const txnsArray = Array.isArray(txns) ? txns : [txns]
+    const result = JSON.parse(
+      await native.litelib_execute('send', JSON.stringify(txnsArray))
+    )
+    console.log(result)
+    return result
   }
   list = async (includeMemoHex = 'yes') => {
     return JSON.parse(native.litelib_execute('list', `${includeMemoHex}`))
@@ -58,7 +66,10 @@ class RPC {
     return JSON.parse(native.litelib_execute('new', 't'))[0]
   }
   importKey = async ({ key, birthday, rescan }) => {
-    return native.litelib_execute('import', `${key},${birthday},${rescan}`)
+    return native.litelib_execute(
+      'import',
+      JSON.stringify({ key, birthday, norescan: rescan })
+    )
   }
 }
 module.exports = RPC

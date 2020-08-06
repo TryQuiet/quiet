@@ -146,7 +146,7 @@ const sendPlainTransfer = payload => async (dispatch, getState) => {
     amount: amount,
     memo: memo
   })
-  console.log(await client.sendTransaction(transfer))
+  await client.sendTransaction([transfer])
 }
 const sendMessage = (payload, redirect = true) => async (
   dispatch,

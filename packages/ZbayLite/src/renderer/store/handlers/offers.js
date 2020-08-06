@@ -144,9 +144,11 @@ const sendItemMessageOnEnter = event => async (dispatch, getState) => {
           id: key
         })
       )
+      const identityAddress = identitySelectors.address(getState())
       const transfer = await messages.messageToTransfer({
         message: message,
-        address: channel.address
+        address: channel.address,
+        identityAddress
       })
       const transaction = await client.sendTransaction(transfer)
       dispatch(

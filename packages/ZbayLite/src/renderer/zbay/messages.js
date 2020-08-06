@@ -5,13 +5,14 @@ import * as R from 'ramda'
 import * as Yup from 'yup'
 import secp256k1 from 'secp256k1'
 import createKeccakHash from 'keccak'
-import { packMemo, unpackMemo, addStandardToMemo } from './transit'
+import { packMemo, unpackMemo } from './transit'
 import {
   networkFee,
   targetUtxoCount,
   messageType,
   satoshiMultiplier
 } from '../../shared/static'
+import client from '../zcash'
 
 export const ExchangeParticipant = Immutable.Record(
   {
@@ -268,7 +269,9 @@ export const outgoingTransferToMessage = async (props, users) => {
     return null
   }
   try {
-    const toUser = users.find(u => u.address === transactionData.address) || ExchangeParticipant()
+    const toUser =
+      users.find(u => u.address === transactionData.address) ||
+      ExchangeParticipant()
     return {
       ...(await messageSchema.validate(message)),
       id: txid,
@@ -341,41 +344,31 @@ export const _buildUtxo = ({
   utxos,
   splitTreshhold,
   fee,
-  identityAddress,
-  donation
+  identityAddress
 }) => {
   let transfers = [transfer]
   let includedDonation = 0
-  // Ignore donations 02.01.2020
-  // const donationAmount = new BigNumber(transfer.amount).div(100).toFixed(8)
-  // const balance = utxos.reduce((acc, utxo) => acc.plus(utxo.amount), new BigNumber(0))
-  // if (
-  //   donation.allow === 'true' &&
-  //   balance.gt(new BigNumber(transfer.amount).plus(donationAmount)) &&
-  //   transfer.address !== donation.address
-  // ) {
-  //   includedDonation = donationAmount
-  //   const donate = {
-  //     address: donation.address,
-  //     amount: donationAmount.toString(),
-  //     memo: Buffer.from('aa', 'hex').toString('hex')
-  //   }
-  //   transfers.push(donate)
-  // }
+
   if (
-    utxos.filter(utxo => utxo.amount >= networkFee).length <= targetUtxoCount
-  ) {
-    const utxo = utxos.find(
+    utxos.unspent_notes.filter(
       utxo =>
-        utxo.amount >
-        parseFloat(transfer.amount) + splitTreshhold + fee + includedDonation
+        utxo.value / satoshiMultiplier >= networkFee && utxo.spendable === true
+    ).length <= targetUtxoCount
+  ) {
+    const utxo = utxos.unspent_notes.find(
+      utxo =>
+        utxo.value / satoshiMultiplier >
+        parseFloat(transfer.amount) +
+          2 * splitTreshhold +
+          fee +
+          includedDonation
     )
-    const standardMemo = addStandardToMemo('internal utxo creation')
+    // const standardMemo = addStandardToMemo('internal utxo creation')
     if (utxo) {
       const newUtxo = {
         address: identityAddress,
-        amount: new BigNumber(splitTreshhold).toFixed(8).toString(),
-        memo: standardMemo
+        amount: splitTreshhold * satoshiMultiplier
+        // memo: standardMemo
       }
       transfers.push(newUtxo)
     }
@@ -388,10 +381,10 @@ export const trimMemo = a => {
 }
 export const messageToTransfer = async ({
   message,
-  amount = '0',
+  amount = 0,
   address,
   identityAddress,
-  splitTreshhold = networkFee * 25,
+  splitTreshhold = networkFee * 20,
   fee = networkFee,
   donation = { allow: false }
 }) => {
@@ -400,17 +393,19 @@ export const messageToTransfer = async ({
   if (address.length === 35) {
     transfer = {
       address: address,
-      amount: (parseFloat(amount) * satoshiMultiplier).toString()
+      amount: parseFloat(amount) * satoshiMultiplier
     }
   } else {
     memo = await packMemo(message)
     transfer = {
       address: address,
-      amount: (parseFloat(amount) * satoshiMultiplier).toString(),
+      amount: parseFloat(amount) * satoshiMultiplier,
       memo: `0x${trimMemo(memo)}`
     }
   }
-  return transfer
+  const utxos = await client.notes()
+
+  return _buildUtxo({ transfer, utxos, fee, identityAddress, splitTreshhold })
 }
 export const createEmptyTransfer = ({ address, amount = 0, memo = '' }) => {
   return {

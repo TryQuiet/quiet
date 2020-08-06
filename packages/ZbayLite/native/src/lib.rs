@@ -130,21 +130,15 @@ export! {
               lightclient = lc.borrow().as_ref().unwrap().clone();
           };
 
-          let args = if args_list.is_empty() {
-            vec![]
-          } else {
-            args_list.split(",").map(|s| s.trim()).map(|s| s.to_owned()).collect()
-          };
-
           if cmd == "sync".to_string() || cmd == "rescan".to_string() || cmd == "import".to_string() {
             thread::spawn(move || {
-              let args = args.iter().map(|s| &s[..]).collect();
+              let args = if args_list.is_empty() { vec![] } else { vec![&args_list[..]] };
               commands::do_user_command(&cmd, &args, lightclient.as_ref());
             });
 
             return format!("OK");
           } else {
-            let args = args.iter().map(|s| &s[..]).collect();
+            let args = if args_list.is_empty() { vec![] } else { vec![&args_list[..]] };
             resp = commands::do_user_command(&cmd, &args, lightclient.as_ref()).clone();
           }
       };
@@ -152,3 +146,4 @@ export! {
       return resp;
   }
 }
+
