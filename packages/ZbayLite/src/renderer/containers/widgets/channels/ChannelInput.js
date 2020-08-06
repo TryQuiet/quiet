@@ -19,7 +19,7 @@ export const mapStateToProps = state => {
     inputState: channelSelectors.inputLocked(state),
     members: channelSelectors.members(state),
     channelName: channelSelectors.data(state)
-      ? channelSelectors.data(state).get('name')
+      ? channelSelectors.data(state).username
       : ' Unnamed',
     users: usersSelectors.users(state),
     feeUsd: ratesSelector.feeUsd(state),
