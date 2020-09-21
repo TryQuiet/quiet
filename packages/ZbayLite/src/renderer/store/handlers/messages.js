@@ -115,8 +115,8 @@ export const fetchAllMessages = async () => {
       )
     return R.mergeDeepWith(
       R.concat,
-      R.groupBy(txn => txn.address)(txnsZec),
-      staticChannelsMessages
+      staticChannelsMessages,
+      R.groupBy(txn => txn.address)(txnsZec)
     )
   } catch (err) {
     console.warn(`Can't pull messages`)
@@ -242,7 +242,7 @@ export const findNewMessages = (key, messages, state, isDM = false) => {
     if (
       isDM ||
       userFilter === notificationFilterType.MENTIONS ||
-        channelFilter === notificationFilterType.MENTIONS
+      channelFilter === notificationFilterType.MENTIONS
     ) {
       const myUser = usersSelectors.myUser(state)
       return filteredByTimeAndType.filter(msg =>
