@@ -172,7 +172,7 @@ export const ChannelMessages = ({
                         username={
                           users.get(msg.owner)
                             ? users.get(msg.owner).nickname
-                            : 'Anonymous'
+                            : `anon${msg.owner.substring(0, 16)}`
                         }
                         onChannelClick={() => {
                           onLinkedChannel(publicChannels.get(msg.name))
