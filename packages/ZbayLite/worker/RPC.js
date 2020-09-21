@@ -25,6 +25,9 @@ class RPC {
   sync = async () => {
     return native.litelib_execute('sync', '')
   }
+  shield = async (address = '') => {
+    return native.litelib_execute('shield', address)
+  }
   rescan = async () => {
     return native.litelib_execute('rescan', '')
   }
@@ -43,20 +46,19 @@ class RPC {
   notes = async () => {
     return JSON.parse(native.litelib_execute('notes', ''))
   }
-  sendTransaction = async ({ address, amount = 0, memo = '' }) => {
-    const result = await native.litelib_execute(
-      'send',
-      `${address},${amount},${memo}`
-    )
-    return JSON.parse(result)
-  }
+  // sendTransaction = async ({ address, amount = 0, memo = '' }) => {
+  //   const result = await native.litelib_execute(
+  //     'send',
+  //     `${address},${amount},${memo}`
+  //   )
+  //   return JSON.parse(result)
+  // }
   sendTransaction = async (txns = []) => {
     // TODO add validation of payload
     const txnsArray = Array.isArray(txns) ? txns : [txns]
     const result = JSON.parse(
       await native.litelib_execute('send', JSON.stringify(txnsArray))
     )
-    console.log(result)
     return result
   }
   list = async (includeMemoHex = 'yes') => {

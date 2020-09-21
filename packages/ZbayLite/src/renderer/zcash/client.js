@@ -7,6 +7,9 @@ export default class Client {
   seed = async () => {
     return postMessage('seed', '')
   }
+  shield = async (address = '') => {
+    return postMessage('shield', address)
+  }
   rescan = async () => {
     return postMessage('rescan', '')
   }

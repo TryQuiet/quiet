@@ -9,7 +9,6 @@ import client from '../../zcash'
 import channels from '../../zcash/channels'
 
 import identitySelectors from '../selectors/identity'
-// import nodeSelectors from '../selectors/node'
 import txnTimestampsSelector from '../selectors/txnTimestamps'
 // import channelsSelectors from '../selectors/channels'
 // import channelsHandlers from './channels'
@@ -19,17 +18,13 @@ import txnTimestampsSelector from '../selectors/txnTimestamps'
 // import messagesHandlers from './messages'
 // import publicChannelsHandlers from './publicChannels'
 import coordinatorHandlers from './coordinator'
-// import offersHandlers from './offers'
 import whitelistHandlers from './whitelist'
 import ownedChannelsHandlers from './ownedChannels'
 import txnTimestampsHandlers from './txnTimestamps'
 import logsHandlers from '../../store/handlers/logs'
-// import vaultHandlers from './vault'
 import ratesHandlers from './rates'
 import nodeHandlers from './node'
 import notificationCenterHandlers from './notificationCenter'
-// import migrateTo_0_2_0 from '../../../shared/migrations/0_2_0' // eslint-disable-line camelcase
-// import migrateTo_0_7_0 from '../../../shared/migrations/0_7_0' // eslint-disable-line camelcase
 import { LoaderState, successNotification } from './utils'
 import modalsHandlers from './modals'
 import notificationsHandlers from './notifications'
@@ -37,7 +32,8 @@ import messagesHandlers from './messages'
 import {
   actionTypes,
   networkFeeSatoshi,
-  satoshiMultiplier
+  satoshiMultiplier,
+  networkFee
 } from '../../../shared/static'
 import electronStore, { migrationStore } from '../../../shared/electronStore'
 // import app from './app'
@@ -177,8 +173,19 @@ export const fetchAffiliateMoney = () => async (dispatch, getState) => {
 export const fetchBalance = () => async (dispatch, getState) => {
   try {
     dispatch(setFetchingBalance(true))
+    const address = identitySelectors.address(getState())
+
     const balanceObj = await client.balance()
     const notes = await client.notes()
+    const balance = balanceObj.tbalance / satoshiMultiplier
+    if (balance > networkFee) {
+      await dispatch(
+        shieldBalance({
+          to: address,
+          amount: balance - networkFee
+        })
+      )
+    }
     const pending = notes.pending_notes.reduce((acc, cur) => acc + cur.value, 0)
     dispatch(
       setLockedBalance(
@@ -234,6 +241,24 @@ export const createSignerKeys = () => {
     signerPrivKey: signerPrivKey.toString('hex'),
     signerPubKey: secp256k1.publicKeyCreate(signerPrivKey, true).toString('hex')
   }
+}
+let shielding = false
+export const shieldBalance = ({ to, amount }) => async (dispatch, getState) => {
+  if (shielding === true) {
+    return
+  }
+  shielding = true
+  await client.shield(to)
+  dispatch(
+    notificationsHandlers.actions.enqueueSnackbar(
+      successNotification({
+        message: `You will soon receive ${amount.toString()} from your transparent address`
+      })
+    )
+  )
+  setTimeout(() => {
+    shielding = false
+  }, 300000)
 }
 
 export const createIdentity = ({ name, fromMigrationFile }) => async (
