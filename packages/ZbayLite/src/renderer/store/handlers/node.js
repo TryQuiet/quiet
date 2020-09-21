@@ -110,7 +110,6 @@ const getStatus = () => async (dispatch, getState) => {
     const info = await client.info()
     const height = await client.height()
     if (info.latest_block_height > height) {
-      dispatch(setStatus({ status: 'syncing' }))
       client.sync()
     } else {
       dispatch(setStatus({ status: 'healthy' }))
