@@ -400,7 +400,7 @@ export const ChannelInput = ({
                   if (
                     inputState === INPUT_STATE.AVAILABLE &&
                     e.nativeEvent.keyCode === 13 &&
-                    htmlMessage !== ''
+                    e.target.innerText !== ''
                   ) {
                     onKeyPress(e)
                     scrollToBottom()
