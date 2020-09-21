@@ -15,7 +15,7 @@ export const mapStateToProps = (state, { contactId, signerPubKey }) => {
   return {
     triggerScroll: qDmMessages.size + qMessages.size > 0,
     qMessages: qMessages,
-    messages: contactsSelectors.directMessages(contactId, signerPubKey)(state),
+    messages: contactsSelectors.directMessages(contactId, signerPubKey)(state).get('visibleMessages'),
     channelId: channelSelectors.channelId(state),
     isInitialLoadFinished: appSelectors.isInitialLoadFinished(state)
   }
@@ -40,6 +40,7 @@ export const ChannelMessages = ({
   }, [triggerScroll])
   return (
     <ChannelMessagesComponent
+      isDM
       scrollPosition={scrollPosition}
       setScrollPosition={setScrollPosition}
       messages={messages}

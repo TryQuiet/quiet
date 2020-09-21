@@ -22,7 +22,15 @@ const styles = theme => ({
   }
 })
 
-export const ChannelInputAction = ({ classes, onPostOffer, onSendMoney, disabled, directMessageChannel, targetRecipientAddress }) => {
+export const ChannelInputAction = ({
+  classes,
+  onPostOffer,
+  onSendMoney,
+  disabled,
+  channelData,
+  directMessageChannel,
+  targetRecipientAddress
+}) => {
   return (
     <MenuAction
       classes={{
@@ -35,8 +43,15 @@ export const ChannelInputAction = ({ classes, onPostOffer, onSendMoney, disabled
       disabled={disabled}
       placement='top-end'
     >
-      <MenuActionItem onClick={onPostOffer} title='Post an offer' />
-      <MenuActionItem onClick={() => onSendMoney('sendMoney', targetRecipientAddress)} title='Send money' />
+      {channelData && !channelData.offerId ? (
+        <MenuActionItem onClick={onPostOffer} title='Post an offer' />
+      ) : (
+        <></>
+      )}
+      <MenuActionItem
+        onClick={() => onSendMoney('sendMoney', targetRecipientAddress)}
+        title='Send money'
+      />
     </MenuAction>
   )
 }
@@ -52,7 +67,4 @@ ChannelInputAction.defaultProps = {
   disabled: false
 }
 
-export default R.compose(
-  React.memo,
-  withStyles(styles)
-)(ChannelInputAction)
+export default R.compose(React.memo, withStyles(styles))(ChannelInputAction)

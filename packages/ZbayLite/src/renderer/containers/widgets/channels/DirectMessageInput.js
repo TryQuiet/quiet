@@ -11,7 +11,7 @@ import identitySelectors from '../../../store/selectors/identity'
 import contactsSelectors from '../../../store/selectors/contacts'
 import { MESSAGE_SIZE } from '../../../zbay/transit'
 import ratesSelector from '../../../store/selectors/rates'
-import { unknownUserId } from '../../../../shared/static'
+// import { unknownUserId } from '../../../../shared/static'
 import messagesHandlers from '../../../store/handlers/messages'
 
 export const mapStateToProps = (state, { contactId }) => ({
@@ -60,7 +60,7 @@ export const ChannelInput = ({
   const [infoClass, setInfoClass] = React.useState(null)
   const [anchorEl, setAnchorEl] = React.useState({})
   const [mentionsToSelect, setMentionsToSelect] = React.useState([])
-  const isFromZbayUser = channelName !== unknownUserId
+  const isFromZbayUser = channelName !== 'Unknown'
   return (
     <ChannelInputComponent
       infoClass={infoClass}

@@ -4,6 +4,9 @@ export default class Client {
   sync = async () => {
     return postMessage('sync', '')
   }
+  seed = async () => {
+    return postMessage('seed', '')
+  }
   rescan = async () => {
     return postMessage('rescan', '')
   }

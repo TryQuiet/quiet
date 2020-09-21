@@ -13,6 +13,7 @@ import channelSelectors, { INPUT_STATE } from '../../../store/selectors/channel'
 
 export const mapStateToProps = state => ({
   channels: contactsSelectors.contactsList(state),
+  unknownMessages: contactsSelectors.unknownMessages(state),
   selected: channelSelectors.channelInfo(state),
   offers: contactsSelectors.offerList(state),
   selectedOffer: channelSelectors.channelInfo(state),

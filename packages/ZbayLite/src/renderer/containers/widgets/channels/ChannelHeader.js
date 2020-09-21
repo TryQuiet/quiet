@@ -17,19 +17,18 @@ export const mapStateToProps = (state, props) => {
   const contact = contactsSelectors.contact(props.contactId)(state)
   return {
     channel: Immutable.fromJS({
-      name: contact.get('username'),
+      name: props.contactId === 'general' ? 'zbay' : contact.get('username'),
       address: props.contactId
     }),
+    name: contact.get('username'),
     userAddress: identitySelectors.address(state),
     members: channelSelectors.channelParticipiants(state),
-    showAdSwitch: !!channelSelectors
-      .messages()(state)
+    showAdSwitch: !!contactsSelectors
+      .messages(props.contactId)(state)
       .find(msg => msg.type === messageType.AD),
     mutedFlag:
       notificationCenter.channelFilterById(
-        channelSelectors.data(state)
-          ? channelSelectors.data(state).get('address')
-          : 'none'
+        channelSelectors.data(state) ? channelSelectors.data(state).key : 'none'
       )(state) === notificationFilterType.MUTE
   }
 }

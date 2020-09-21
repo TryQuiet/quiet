@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux'
 import whitelistSelector from '../../../store/selectors/whitelist'
 import whitelistHandlers from '../../../store/handlers/whitelist'
 import SecurityComponent from '../../../components/widgets/settings/Security'
+import modalsHandlers from '../../../store/handlers/modals'
 
 export const mapStateToProps = state => ({
   allowAll: whitelistSelector.allowAll(state),
@@ -13,12 +14,13 @@ export const mapStateToProps = state => ({
   autoload: whitelistSelector.autoload(state)
 })
 
-export const mapDispatchToProps = (dispatch) =>
+export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
       toggleAllowAll: whitelistHandlers.epics.setWhitelistAll,
       removeImageHost: whitelistHandlers.epics.removeImageHost,
-      removeSiteHost: whitelistHandlers.epics.removeSiteHost
+      removeSiteHost: whitelistHandlers.epics.removeSiteHost,
+      openSeedModal: modalsHandlers.actionCreators.openModal('seedModal')
     },
     dispatch
   )

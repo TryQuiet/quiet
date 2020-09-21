@@ -4,15 +4,14 @@ import { connect } from 'react-redux'
 import moderationActions from '../../../store/handlers/moderationActions'
 import BlockedUsers from '../../../components/widgets/channelSettings/BlockedUsers'
 import channelSelectors from '../../../store/selectors/channel'
-import messagesSelectors from '../../../store/selectors/messages'
+import contactsSelectors from '../../../store/selectors/contacts'
+// import messagesSelectors from '../../../store/selectors/messages'
 import usersSelector from '../../../store/selectors/users'
 import { moderationActionsType } from '../../../../shared/static'
 
 export const mapStateToProps = state => {
   return {
-    blockedUsers: messagesSelectors.channelBlockedUsers(
-      channelSelectors.channelId(state)
-    )(state),
+    blockedUsers: contactsSelectors.directMessages(channelSelectors.id(state))(state).get('blockedUsers'),
     users: usersSelector.users(state)
   }
 }

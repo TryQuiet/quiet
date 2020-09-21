@@ -10,12 +10,12 @@ import { withStyles } from '@material-ui/core/styles'
 import { messageType } from '../../../../shared/static'
 import ChannelMessage from '../../../containers/widgets/channels/ChannelMessage'
 import WelcomeMessage from './WelcomeMessage'
+import RescanMessage from '../../../containers/widgets/channels/RescanMessage'
 import ChannelItemTransferMessage from '../../../containers/widgets/channels/ItemTransferMessage'
 import ChannelAdMessage from '../../../containers/widgets/channels/ListingMessage'
 import MessagesDivider from '../MessagesDivider'
 import UserRegisteredMessage from './UserRegisteredMessage'
 import ChannelRegisteredMessage from './ChannelRegisteredMessage'
-import LoadingMessage from './LoadingMessage'
 
 const styles = theme => ({
   list: {
@@ -46,9 +46,15 @@ export const ChannelMessages = ({
   users,
   onLinkedChannel,
   publicChannels,
-  isInitialLoadFinished
+  isInitialLoadFinished,
+  isRescanned,
+  isDM
 }) => {
   const scrollbarRef = React.useRef()
+  // const [lastScrollHeight, setLastScrollHeight] = React.useState(0)
+  // if (scrollbarRef.current) {
+  //   console.log(scrollbarRef.current.getValues())
+  // }
   const getScrollbarRef = ref => {
     if (ref !== null) {
       scrollbarRef.current = ref
@@ -65,6 +71,26 @@ export const ChannelMessages = ({
   React.useEffect(() => {
     window.addEventListener('resize', updateSize)
   }, [])
+  // TODO work on scroll behavior
+  // React.useEffect(() => {
+  //   setTimeout(() => {
+  //     setLastScrollHeight(scrollbarRef.current.getScrollHeight())
+  //   }, 0)
+  // }, [contactId])
+  // React.useEffect(() => {
+  //   console.log('tick')
+
+  //   if (scrollbarRef.current) {
+  //     console.log(scrollbarRef.current)
+  //     const currentHeight = scrollbarRef.current.getScrollHeight()
+  //     console.log(lastScrollHeight)
+  //     console.log(currentHeight)
+  //     console.log(`######################`)
+
+  //     setLastScrollHeight(currentHeight)
+  //     scrollbarRef.current.scrollTop(currentHeight - lastScrollHeight)
+  //   }
+  // }, [messages.size])
   React.useEffect(() => {
     if (msgRef.current && scrollbarRef.current) {
       const margin =
@@ -97,7 +123,6 @@ export const ChannelMessages = ({
         .sortBy(o => o.createdAt)
     )
   }
-  const showLoader = !isInitialLoadFinished && messages.size === 0
   return (
     <Scrollbars
       ref={getScrollbarRef}
@@ -109,16 +134,15 @@ export const ChannelMessages = ({
       <List
         disablePadding
         ref={msgRef}
+        id='messages-scroll'
         className={classes.list}
         style={{ marginTop: offset }}
       >
-        {isOwner && !showLoader && (
-          <WelcomeMessage message={welcomeMessages['main']} />
-        )}
+        {isOwner && <WelcomeMessage message={welcomeMessages['main']} />}
+        {!isRescanned && !isDM && <RescanMessage />}
         {/* {isOffer && !showLoader && (
           <WelcomeMessage message={welcomeMessages['offer'](tag, username)} />
         )} */}
-        {showLoader && <LoadingMessage />}
         {Array.from(groupedMessages).map(args => {
           const today = DateTime.utc()
           const groupName = DateTime.fromSeconds(args[0]).toFormat(
@@ -189,6 +213,7 @@ ChannelMessages.propTypes = {
   publicChannelsRegistration: PropTypes.array.isRequired,
   contactId: PropTypes.string,
   isOwner: PropTypes.bool.isRequired,
+  isDM: PropTypes.bool,
   isInitialLoadFinished: PropTypes.bool.isRequired,
   isOffer: PropTypes.bool.isRequired,
   messages: PropTypes.instanceOf(Immutable.List).isRequired,
@@ -204,7 +229,8 @@ ChannelMessages.defaultProps = {
   usersRegistration: [],
   publicChannelsRegistration: [],
   isOwner: false,
-  isOffer: false
+  isOffer: false,
+  isDM: false
 }
 
 export default React.memo(withStyles(styles)(ChannelMessages))

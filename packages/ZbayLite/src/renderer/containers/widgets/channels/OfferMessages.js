@@ -44,6 +44,7 @@ export const ChannelMessages = ({
   const isOffer = true
   return (
     <ChannelMessagesComponent
+      isDM
       scrollPosition={scrollPosition}
       setScrollPosition={setScrollPosition}
       messages={messages}

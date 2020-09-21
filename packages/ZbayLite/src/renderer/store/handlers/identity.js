@@ -3,7 +3,6 @@ import BigNumber from 'bignumber.js'
 import { createAction, handleActions } from 'redux-actions'
 import secp256k1 from 'secp256k1'
 import { randomBytes } from 'crypto'
-import { ipcRenderer } from 'electron'
 import { DateTime } from 'luxon'
 
 import client from '../../zcash'
@@ -22,6 +21,7 @@ import txnTimestampsSelector from '../selectors/txnTimestamps'
 import coordinatorHandlers from './coordinator'
 // import offersHandlers from './offers'
 import whitelistHandlers from './whitelist'
+import ownedChannelsHandlers from './ownedChannels'
 import txnTimestampsHandlers from './txnTimestamps'
 import logsHandlers from '../../store/handlers/logs'
 // import vaultHandlers from './vault'
@@ -39,8 +39,10 @@ import {
   networkFeeSatoshi,
   satoshiMultiplier
 } from '../../../shared/static'
-import electronStore from '../../../shared/electronStore'
+import electronStore, { migrationStore } from '../../../shared/electronStore'
+// import app from './app'
 // import channels from '../../zcash/channels'
+import staticChannelsSyncHeight from '../../static/staticChannelsSyncHeight.json'
 
 export const ShippingData = Immutable.Record(
   {
@@ -176,15 +178,15 @@ export const fetchBalance = () => async (dispatch, getState) => {
   try {
     dispatch(setFetchingBalance(true))
     const balanceObj = await client.balance()
-    // Does not work cli need support for pending balance
-    // dispatch(
-    //   setLockedBalance(
-    //     new BigNumber(
-    //       (balanceObj.zbalance - balanceObj.verified_zbalance) /
-    //         satoshiMultiplier
-    //     )
-    //   )
-    // )
+    const notes = await client.notes()
+    const pending = notes.pending_notes.reduce((acc, cur) => acc + cur.value, 0)
+    dispatch(
+      setLockedBalance(
+        new BigNumber(
+          (balanceObj.unverified_zbalance + pending) / satoshiMultiplier
+        )
+      )
+    )
     dispatch(
       setBalance(
         new BigNumber(balanceObj.spendable_zbalance / satoshiMultiplier)
@@ -193,9 +195,9 @@ export const fetchBalance = () => async (dispatch, getState) => {
     dispatch(
       logsHandlers.epics.saveLogs({
         type: 'APPLICATION_LOGS',
-        payload: `Fetching balance: locked balance: ${(balanceObj.zbalance -
-          balanceObj.verified_zbalance) /
-          satoshiMultiplier}, balance: ${balanceObj.verified_zbalance /
+        payload: `Fetching balance: locked balance: ${(balanceObj.unverified_zbalance +
+          pending) /
+          satoshiMultiplier}, balance: ${balanceObj.spendable_zbalance /
           satoshiMultiplier}`
       })
     )
@@ -234,17 +236,41 @@ export const createSignerKeys = () => {
   }
 }
 
-export const createIdentity = ({ name }) => async (dispatch, getState) => {
+export const createIdentity = ({ name, fromMigrationFile }) => async (
+  dispatch,
+  getState
+) => {
+  let zAddress
+  let tAddress
+  let tpk
+  let sk
+  let signerPrivKey
+  let signerPubKey
   try {
     const accountAddresses = await client.addresses()
-    const { z_addresses: zAddresses } = accountAddresses
     const { t_addresses: tAddresses } = accountAddresses
-    const [zAddress] = zAddresses
-    const [tAddress] = tAddresses
-    const tpk = await client.getPrivKey(tAddress)
-    const sk = await client.getPrivKey(zAddress)
 
-    const { signerPrivKey, signerPubKey } = exportFunctions.createSignerKeys()
+    if (fromMigrationFile) {
+      electronStore.set('isMigrating', true)
+      const migrationIdentity = migrationStore.get('identity')
+      zAddress = migrationIdentity.address
+      tAddress = tAddresses[0]
+      tpk = await client.getPrivKey(tAddress)
+      sk = migrationIdentity.keys.sk
+      await client.importKey(sk)
+      signerPrivKey = migrationIdentity.signerPrivKey
+      signerPubKey = migrationIdentity.signerPubKey
+    } else {
+      const { z_addresses: zAddresses } = accountAddresses
+      zAddress = zAddresses[0]
+      tAddress = tAddresses[0]
+      tpk = await client.getPrivKey(tAddress)
+      sk = await client.getPrivKey(zAddress)
+
+      const keys = exportFunctions.createSignerKeys()
+      signerPrivKey = keys.signerPrivKey
+      signerPubKey = keys.signerPubKey
+    }
 
     electronStore.set('identity', {
       name,
@@ -259,6 +285,22 @@ export const createIdentity = ({ name }) => async (dispatch, getState) => {
     })
     const network = 'mainnet'
 
+    if (fromMigrationFile) {
+      const migrationChannels = Object.values(migrationStore.get('channels'))
+      for (const channel of migrationChannels) {
+        electronStore.set(`importedChannels.${channel.address}`, {
+          address: channel.address,
+          name: channel.name,
+          description: '',
+          owner: channel.keys.sk ? signerPubKey : '',
+          keys: channel.keys
+        })
+        await client.importKey(
+          channel.keys.sk ? channel.keys.sk : channel.keys.ivk
+        )
+      }
+      migrationStore.clear()
+    }
     const channelsToImport = [
       'general',
       'registeredUsers',
@@ -290,10 +332,16 @@ export const createIdentity = ({ name }) => async (dispatch, getState) => {
     for (const channel of channelsToLoad) {
       await client.importKey(
         channelsWithDetails[channel]['keys']['ivk'],
-        740000
+        staticChannelsSyncHeight.height
       )
     }
-    await client.rescan()
+
+    setTimeout(async () => {
+      console.log(await client.addresses())
+    }, 0)
+    setTimeout(() => {
+      client.rescan()
+    }, 0)
     return electronStore.get('identity')
   } catch (err) {
     console.log('error', err)
@@ -310,14 +358,6 @@ export const loadIdentity = () => async (dispatch, getState) => {
         payload: `Loading identity`
       })
     )
-  }
-}
-
-export const createWalletBackup = () => async (dispatch, getState) => {
-  const isDev = process.env.NODE_ENV === 'development'
-  const isWalletCopyCreated = electronStore.get('isWalletCopyCreated')
-  if (!isWalletCopyCreated && !isDev) {
-    ipcRenderer.send('make-wallet-backup')
   }
 }
 
@@ -354,6 +394,7 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
     }
     dispatch(setLoadingMessage('Fetching balance and loading channels'))
     await dispatch(initAddreses())
+    dispatch(ownedChannelsHandlers.epics.getOwnedChannels())
     dispatch(ratesHandlers.epics.setInitialPrice())
     await dispatch(nodeHandlers.epics.getStatus())
     await dispatch(fetchBalance())
@@ -363,8 +404,7 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
 
     dispatch(setLoadingMessage('Loading users and messages'))
   } catch (err) {}
-  const zecBalance = identitySelectors.balance('zec')(getState())
-  if (isNewUser === true && zecBalance.gt(0)) {
+  if (isNewUser === true) {
     dispatch(modalsHandlers.actionCreators.openModal('createUsernameModal')())
   }
   // dispatch(fetchAffiliateMoney())
@@ -375,6 +415,10 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
       payload: ` Loading identity finished`
     })
   )
+  if (electronStore.get('isMigrating')) {
+    dispatch(modalsHandlers.actionCreators.openModal('migrationModal')())
+  }
+  // dispatch(app.actions.setInitialLoadFlag(true))
   // Don't show deposit modal if we use faucet 12.02.2020
   // const balance = identitySelectors.balance('zec')(getState())
   // const lockedBalance = identitySelectors.lockedBalance('zec')(getState())

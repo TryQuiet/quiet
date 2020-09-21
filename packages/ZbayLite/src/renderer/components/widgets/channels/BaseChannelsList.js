@@ -21,15 +21,13 @@ export const propTypes = {
 
 export const BaseChannelsList = ({
   channels,
+  unknownMessages,
   directMessages,
   selected,
   offers,
   selectedOffer
 }) => {
   const [...keys] = offers.keys()
-  const unknownUserIndex = channels.findIndex(
-    ch => ch.username === unknownUserId
-  )
   return (
     <List disablePadding>
       {channels
@@ -49,10 +47,10 @@ export const BaseChannelsList = ({
           selected={selectedOffer}
         />
       ))}
-      {unknownUserIndex !== -1 && (
+      {unknownMessages.size > 0 && (
         <ChannelsListItem
           key={unknownUserId}
-          channel={channels.get(unknownUserIndex)}
+          channel={unknownMessages.get(0)}
           directMessages={directMessages}
           selected={selected}
         />
@@ -63,6 +61,7 @@ export const BaseChannelsList = ({
 
 BaseChannelsList.propTypes = {
   channels: PropTypes.instanceOf(Immutable.List).isRequired,
+  unknownMessages: PropTypes.instanceOf(Immutable.List).isRequired,
   selected: PropTypes.instanceOf(Immutable.Record).isRequired,
   selectedOffer: PropTypes.instanceOf(Immutable.Record).isRequired,
   directMessages: PropTypes.bool
@@ -70,6 +69,7 @@ BaseChannelsList.propTypes = {
 
 BaseChannelsList.defaultProps = {
   channels: Immutable.List(),
+  unknownMessages: Immutable.List(),
   offers: Immutable.Map(),
   displayAddress: false,
   directMessages: false

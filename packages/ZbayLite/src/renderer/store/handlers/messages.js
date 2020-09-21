@@ -30,6 +30,7 @@ import channels from '../../zcash/channels'
 import { displayMessageNotification } from '../../notifications'
 import electronStore from '../../../shared/electronStore'
 import notificationCenterSelectors from '../selectors/notificationCenter'
+import staticChannelsMessages from '../../static/staticChannelsMessages.json'
 
 export const MessageSender = Immutable.Record(
   {
@@ -94,15 +95,29 @@ export const actions = {
   cleanNewMessages,
   appendNewMessages
 }
-
+export const brokenMemoToMemohex = memo => {
+  const curPrefix = memo.substring(2)
+  return curPrefix + '0'.repeat(1024 - curPrefix.length)
+}
 export const fetchAllMessages = async () => {
   try {
     const txns = await client.list()
-    const txnsZec = txns.map(txn => ({
-      ...txn,
-      amount: txn.amount / satoshiMultiplier
-    }))
-    return R.groupBy(txn => txn.address)(txnsZec)
+    const txnsZec = txns
+      .map(txn => ({
+        ...txn,
+        amount: txn.amount / satoshiMultiplier
+      }))
+      .sort((a, b) => a.block_height - b.block_height)
+      .map(tx =>
+        tx.memo && tx.memohex
+          ? { ...tx, memohex: brokenMemoToMemohex(tx.memo) }
+          : tx
+      )
+    return R.mergeDeepWith(
+      R.concat,
+      R.groupBy(txn => txn.address)(txnsZec),
+      staticChannelsMessages
+    )
   } catch (err) {
     console.warn(`Can't pull messages`)
     console.warn(err)
@@ -112,7 +127,6 @@ export const fetchAllMessages = async () => {
 export const fetchMessages = () => async (dispatch, getState) => {
   try {
     const txns = await fetchAllMessages()
-    console.log(txns)
     const identityAddress = identitySelectors.address(getState())
     await dispatch(
       usersHandlers.epics.fetchUsers(
@@ -136,10 +150,7 @@ export const fetchMessages = () => async (dispatch, getState) => {
     if (importedChannels) {
       for (const address of Object.keys(importedChannels)) {
         await dispatch(
-          setChannelMessages(
-            importedChannels[address],
-            txns[address]
-          )
+          setChannelMessages(importedChannels[address], txns[address])
         )
       }
     }
@@ -157,6 +168,7 @@ export const fetchMessages = () => async (dispatch, getState) => {
     )
     await dispatch(setOutgoingTransactions(identityAddress, txns['undefined']))
     dispatch(setUsersMessages(identityAddress, txns[identityAddress]))
+    dispatch(appHandlers.actions.setInitialLoadFlag(true))
   } catch (err) {
     console.warn(`Can't pull messages`)
     console.warn(err)
@@ -201,25 +213,38 @@ const msgTypeToNotification = new Set([
   messageType.TRANSFER
 ])
 
-export const findNewMessages = (key, messages, state) => {
+export const findNewMessages = (key, messages, state, isDM = false) => {
   if (messages) {
+    const currentChannel = channelSelectors.channel(state)
+    if (key === currentChannel.address) {
+      return []
+    }
+    const userFilter = notificationCenterSelectors.userFilterType(state)
+    const channelFilter = notificationCenterSelectors.channelFilterById(key)(
+      state
+    )
     const lastSeen =
       parseInt(electronStore.get(`lastSeen.${key}`)) || Number.MAX_SAFE_INTEGER
     if (
-      notificationCenterSelectors.userFilterType(state) ===
-      notificationFilterType.NONE
+      userFilter === notificationFilterType.NONE ||
+      channelFilter === notificationFilterType.NONE
     ) {
       return []
     }
+    const signerPubKey = identitySelectors.signerPubKey(state)
+
     const filteredByTimeAndType = messages.filter(
-      msg => msg.createdAt > lastSeen && msgTypeToNotification.has(msg.type)
+      msg =>
+        msg.publicKey !== signerPubKey &&
+        msg.createdAt > lastSeen &&
+        msgTypeToNotification.has(msg.type)
     )
     if (
-      notificationCenterSelectors.userFilterType(state) ===
-      notificationFilterType.MENTIONS
+      isDM ||
+      userFilter === notificationFilterType.MENTIONS ||
+        channelFilter === notificationFilterType.MENTIONS
     ) {
       const myUser = usersSelectors.myUser(state)
-
       return filteredByTimeAndType.filter(msg =>
         msg.message.itemId
           ? msg.message.text
@@ -284,6 +309,9 @@ const setOutgoingTransactions = (address, messages) => async (
       const offer = contactsSelectors.getAdvertById(key.substring(0, 64))(
         getState()
       )
+      if (!offer) {
+        continue
+      }
       if (!contacts.get(key)) {
         await dispatch(
           contactsHandlers.actions.addContact({
@@ -308,7 +336,9 @@ const setOutgoingTransactions = (address, messages) => async (
       )
     }
   }
-  const normalMessages = messagesAll.filter(msg => !msg.message.itemId && msg.receiver.publicKey)
+  const normalMessages = messagesAll.filter(
+    msg => !msg.message.itemId && msg.receiver.publicKey
+  )
   const groupedMesssages = R.groupBy(msg => msg.receiver.publicKey)(
     normalMessages
   )
@@ -384,10 +414,12 @@ const setChannelMessages = (channel, messages = []) => async (
       key: channel.address,
       contactAddress: channel.address,
       username: channel.name,
-      messages: messagesAll.reduce((acc, cur) => {
-        acc[cur.id] = cur
-        return acc
-      }, {})
+      messages: messagesAll
+        .filter(msg => msg.id !== null)
+        .reduce((acc, cur) => {
+          acc[cur.id] = cur
+          return acc
+        }, {})
     })
   )
   const newMsgs = findNewMessages(channel.address, messagesAll, getState())
@@ -474,6 +506,9 @@ const setUsersMessages = (address, messages) => async (dispatch, getState) => {
       const offer = contactsSelectors.getAdvertById(key.substring(0, 64))(
         getState()
       )
+      if (!offer) {
+        continue
+      }
       if (!contacts.get(key)) {
         await dispatch(
           contactsHandlers.actions.addContact({
@@ -487,7 +522,8 @@ const setUsersMessages = (address, messages) => async (dispatch, getState) => {
       const newMsgs = findNewMessages(
         key,
         groupedItemMesssages[key],
-        getState()
+        getState(),
+        true
       )
       newMsgs.forEach(msg => {
         displayMessageNotification({
@@ -522,6 +558,10 @@ const setUsersMessages = (address, messages) => async (dispatch, getState) => {
   for (const key in groupedMesssages) {
     if (groupedMesssages.hasOwnProperty(key)) {
       const user = users.get(key)
+      // filter unregistered users
+      if (!user) {
+        continue
+      }
       dispatch(
         contactsHandlers.actions.setMessages({
           key: key,

@@ -68,12 +68,12 @@ export const setChannelsNotification = filterType => async (
 ) => {
   const channel = channelSelector.channel(getState()).toJS()
   electronStore.set(
-    `notificationCenter.channels.${channel.address}`,
+    `notificationCenter.channels.${channel.id}`,
     filterType
   )
   dispatch(
     setChannelNotificationFilter({
-      channelId: channel.address,
+      channelId: channel.id,
       filterType: filterType
     })
   )

@@ -3,19 +3,21 @@ import PropTypes from 'prop-types'
 import * as Yup from 'yup'
 import { Formik, Form } from 'formik'
 import { Redirect } from 'react-router'
+import classNames from 'classnames'
 // import BigNumber from 'bignumber.js'
 
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
 
-import PasswordField from '../ui/form/PasswordField'
 import Icon from '../ui/Icon'
 import LoadingButton from '../ui/LoadingButton'
+import Carousel from '../widgets/Carousel'
 
 import icon from '../../static/images/zcash/logo-lockup--circle.svg'
-import Tor from '../../containers/windows/Tor'
-import electronStore from '../../../shared/electronStore'
+// import Tor from '../../containers/windows/Tor'
+// import electronStore from '../../../shared/electronStore'
+// import Tor from '../../containers/windows/Tor'
 
 const styles = theme => ({
   paper: {
@@ -36,10 +38,10 @@ const styles = theme => ({
   },
   title: {
     textAlign: 'center',
-    width: '100%',
-    fontSize: 24,
-    height: 36,
-    marginBottom: 16
+    width: 456,
+    fontSize: 14,
+    color: theme.palette.colors.black30,
+    lineHeight: '20px'
   },
   torDiv: {
     marginTop: -8
@@ -53,6 +55,19 @@ const styles = theme => ({
   },
   rootBar: {
     width: 250
+  },
+  moreOptionsButton: {
+    color: theme.palette.colors.lushSky
+  },
+  carouselContainer: {
+    width: 450,
+    height: 100
+  },
+  existingUser: {
+    fontSize: 24,
+    lineHeight: '36px',
+    color: theme.palette.colors.trueBlack,
+    margin: 0
   }
 })
 
@@ -68,17 +83,34 @@ export const VaultUnlockerForm = ({
   nodeConnected,
   exists,
   isLogIn,
-  loader
+  latestBlock,
+  currentBlock,
+  isRescanning,
+  loader,
+  openModal,
+  isNewUser,
+  guideStatus,
+  isInitialLoadFinished
 }) => {
-  const isDev = process.env.NODE_ENV === 'development'
-  const vaultPassword = electronStore.get('vaultPassword')
+  console.log('isNewUser', isNewUser)
+  const isSynced = currentBlock.plus(10).gt(latestBlock)
+  const isDev =
+    process.env.NODE_ENV === 'development' ||
+    process.env.NODE_ENV === 'production'
   const [done, setDone] = useState(true)
+  const [syncingStart, setSyncingStart] = useState(false)
+  React.useEffect(() => {
+    if (isRescanning === true) {
+      setSyncingStart(true)
+    }
+  }, [isRescanning])
   return (
     <Formik
       onSubmit={(values, actions) => {
+        setSyncingStart(true)
         onSubmit(values, actions, setDone)
       }}
-      validationSchema={vaultPassword || isDev ? null : formSchema}
+      validationSchema={isDev ? null : formSchema}
       initialValues={initialValues}
     >
       {({ isSubmitting }) => (
@@ -86,7 +118,7 @@ export const VaultUnlockerForm = ({
           <Grid
             container
             direction='column'
-            spacing={2}
+            spacing={!isNewUser ? 4 : 6}
             justfy='center'
             alignItems='center'
             alignContent='center'
@@ -102,24 +134,19 @@ export const VaultUnlockerForm = ({
             >
               <Icon className={classes.icon} src={icon} />
             </Grid>
-            <Grid container item xs={12} wrap='wrap' justify='center'>
-              <Typography
-                className={classes.title}
-                variant='body1'
-                gutterBottom
-              >
-                {vaultPassword ? 'Welcome Back' : 'Log In'}
-              </Typography>
-            </Grid>
-            {((!vaultPassword && !isDev) ||
-              (isDev && exists && !vaultPassword)) && (
-              <Grid container item justify='center'>
-                <PasswordField
-                  name='password'
-                  className={classes.passwordField}
-                  label='Enter Password'
-                  fullWidth
-                />
+            {syncingStart && guideStatus ? (
+              <Grid className={classes.carouselContainer} container item>
+                <Carousel />
+              </Grid>
+            ) : (
+              <Grid container item xs={12} wrap='wrap' justify='center'>
+                <Typography
+                  className={classNames({ [classes.title]: true, [classes.existingUser]: !isNewUser })}
+                  variant='body1'
+                  gutterBottom
+                >
+                  {!isNewUser ? `Welcome Back` : `Welcome to Zbay! Connect now to start syncing.`}
+                </Typography>
               </Grid>
             )}
             <Grid container item justify='center'>
@@ -129,25 +156,41 @@ export const VaultUnlockerForm = ({
                 size='large'
                 color='primary'
                 margin='normal'
-                text={vaultPassword ? 'Sign in' : 'Login'}
+                text={!isNewUser ? 'Sign in' : 'Connect Now'}
                 fullWidth
-                inProgress={!done}
+                disabled={!done || isRescanning || syncingStart}
+                inProgress={!done || isRescanning || syncingStart}
               />
             </Grid>
-            {loader.loading && (
+            {/* <Grid container item justify='center'>
+              {!syncingStart && (
+                <Typography
+                  variant='body'
+                  className={classes.moreOptionsButton}
+                  onClick={() => openModal()}
+                >Advanced settings"</Typography>
+              )}
+            </Grid> */}
+            {(loader.loading || isRescanning || !isSynced) && (
               <Grid item container justify='center' alignItems='center'>
                 <Typography variant='body2' className={classes.status}>
-                  {`${loader.message}`}
+                  {syncingStart && (isRescanning || !isSynced)
+                    ? `Syncing ${currentBlock.toString()} / ${latestBlock.toString()}`
+                    : `${loader.message}`}
                 </Typography>
               </Grid>
             )}
-            {locked && done && (
+            {/* {locked && done && !isRescanning && (
               <Grid item className={classes.torDiv}>
                 <Tor />
               </Grid>
-            )}
+            )} */}
           </Grid>
-          {nodeConnected && isLogIn && <Redirect to='/main/channel/general' />}
+          {nodeConnected &&
+            isLogIn &&
+            !isRescanning &&
+            isSynced &&
+            isInitialLoadFinished && <Redirect to='/main/channel/general' />}
         </Form>
       )}
     </Formik>
@@ -163,6 +206,7 @@ VaultUnlockerForm.propTypes = {
   nodeConnected: PropTypes.bool.isRequired,
   onSubmit: PropTypes.func.isRequired,
   loader: PropTypes.object.isRequired,
+  isNewUser: PropTypes.bool.isRequired,
   initialValue: PropTypes.shape({
     password: PropTypes.string.isRequired
   })

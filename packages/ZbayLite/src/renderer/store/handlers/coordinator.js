@@ -4,7 +4,7 @@ import { createAction, handleActions } from 'redux-actions'
 // import channelsSelectors from '../selectors/channels'
 // import appSelectors from '../selectors/app'
 import messagesHandlers from './messages'
-// import appHandlers from './app'
+import appHandlers from './app'
 // import contactsHandlers from './contacts'
 import nodeHandlers from './node'
 import identityHandlers from './identity'
@@ -12,6 +12,7 @@ import identityHandlers from './identity'
 // import usersHandlers from './users'
 // import publicChannelsHandlers from './publicChannels'
 import { actionTypes } from '../../../shared/static'
+import nodeSelectors from '../selectors/node'
 // import { getClient } from '../../zcash'
 
 export const Coordinator = Immutable.Record(
@@ -52,7 +53,15 @@ const coordinator = () => async (dispatch, getState) => {
   // }
   const fetchStatus = async () => {
     for (let index = 0; index < statusActions.size; index++) {
+      console.log('coordinator status')
+
       await dispatch(statusActions.get(index)())
+      const isRescaning = nodeSelectors.isRescanning(getState())
+      console.log(isRescaning)
+      if (isRescaning) {
+        dispatch(appHandlers.actions.setInitialLoadFlag(false))
+        break
+      }
     }
     setTimeout(fetchStatus, 25000)
   }
@@ -95,7 +104,7 @@ const coordinator = () => async (dispatch, getState) => {
   //       break
   //     }
   //   }
-  //   dispatch(appHandlers.actions.setInitialLoadFlag(true))
+
   //   setTimeout(fetchData, 5000)
   // }
   fetchStatus()

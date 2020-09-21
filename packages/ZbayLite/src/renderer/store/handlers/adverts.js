@@ -6,15 +6,15 @@ import { DisplayableMessage } from '../../zbay/messages'
 import usersSelectors from '../selectors/users'
 import identitySelectors from '../selectors/identity'
 import channelSelectors from '../selectors/channel'
-import offersHandlers from '../../store/handlers/offers'
+import contactsSelectors from '../selectors/contacts'
 import { messages } from '../../zbay'
 import client from '../../zcash'
 import notificationsHandlers from './notifications'
-import directMessagesQueueHandlers from './directMessagesQueue'
 import { errorNotification, successNotification } from './utils'
 import contactsHandlers from './contacts'
 import { messageType } from '../../../shared/static'
 import operationsHandlers from './operations'
+import history from '../../../shared/history'
 
 const handleSend = ({ values }) => async (dispatch, getState) => {
   const data = {
@@ -98,12 +98,14 @@ const handleSend = ({ values }) => async (dispatch, getState) => {
   }
 }
 
-const handleSendTransfer = ({ values, history, payload }) => async (
+const handleSendTransfer = ({ values, payload }) => async (
   dispatch,
   getState
 ) => {
+  const myUser = usersSelectors.myUser(getState())
   const shippingData = identitySelectors.shippingData(getState())
   const privKey = identitySelectors.signerPrivKey(getState())
+  const contacts = contactsSelectors.contacts(getState())
   const message = messages.createMessage({
     messageData: {
       type: messageType.ITEM_TRANSFER,
@@ -111,28 +113,77 @@ const handleSendTransfer = ({ values, history, payload }) => async (
         itemId: payload.id.substring(0, 64),
         tag: payload.tag,
         offerOwner: payload.offerOwner,
-        shippingData: payload.provideShipping ? shippingData : null
+        shippingData: values.shippingInfo ? shippingData : null
       },
       spent: new BigNumber(values.zec)
     },
     privKey
   })
-  dispatch(offersHandlers.epics.createOfferAdvert({ payload, history }))
-  dispatch(
-    directMessagesQueueHandlers.epics.addDirectMessage(
-      {
-        message,
-        recipientAddress: payload.address,
-        recipientUsername: payload.offerOwner
-      },
-      0,
-      false
+  const messageDigest = crypto.createHash('sha256')
+
+  const messageEssentials = R.pick(['createdAt', 'message', 'spent'])(message)
+  const key = messageDigest
+    .update(JSON.stringify(messageEssentials))
+    .digest('hex')
+
+  const messagePlaceholder = DisplayableMessage({
+    ...message,
+    id: key,
+    sender: {
+      replyTo: myUser.address,
+      username: myUser.nickname
+    },
+    fromYou: true,
+    status: 'pending',
+    offerOwner: payload.offerOwner,
+    tag: payload.tag,
+    shippingData: values.shippingInfo ? shippingData : null,
+    message: {
+      itemId: payload.id.substring(0, 64),
+      offerOwner: payload.offerOwner,
+      tag: payload.tag,
+      shippingData: values.shippingInfo ? shippingData : null
+    }
+  })
+
+  if (!contacts.get(payload.id + payload.offerOwner)) {
+    await dispatch(
+      contactsHandlers.actions.addContact({
+        key: payload.id + payload.offerOwner,
+        username: payload.tag + ' @' + payload.offerOwner,
+        contactAddress: payload.address,
+        offerId: payload.id
+      })
     )
+  }
+  dispatch(
+    contactsHandlers.actions.addMessage({
+      key: payload.id + payload.offerOwner,
+      message: { [key]: messagePlaceholder }
+    })
+  )
+  history.push(
+    `/main/offers/${payload.id + payload.offerOwner}/${payload.address}`
   )
   dispatch(
-    contactsHandlers.epics.updateDeletedChannelTimestamp({
-      address: payload.id + payload.offerOwner,
-      timestamp: 0
+    operationsHandlers.actions.addOperation({
+      channelId: payload.id + payload.offerOwner,
+      id: key
+    })
+  )
+  const identityAddress = identitySelectors.address(getState())
+  const transfer = await messages.messageToTransfer({
+    message: message,
+    address: payload.address,
+    identityAddress,
+    amount: values.zec
+  })
+  const transaction = await client.sendTransaction(transfer)
+  dispatch(
+    operationsHandlers.epics.resolvePendingOperation({
+      channelId: payload.id + payload.offerOwner,
+      id: key,
+      txid: transaction.txid
     })
   )
 }

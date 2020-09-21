@@ -1,8 +1,13 @@
 import { ipcRenderer, remote } from 'electron'
 import Immutable from 'immutable'
+import BigNumber from 'bignumber.js'
 import { createAction, handleActions } from 'redux-actions'
 import { actionTypes } from '../../../shared/static'
 import { actionCreators } from './modals'
+import nodeHandlers from './node'
+import client from '../../zcash'
+import history from '../../../shared/history'
+import electronStore from '../../../shared/electronStore'
 
 export const AppState = Immutable.Record(
   {
@@ -62,6 +67,20 @@ export const proceedWithSyncing = payload => async (dispatch, getState) => {
   dispatch(actionCreators.closeModal('blockchainLocation')())
 }
 
+export const restartAndRescan = () => async (dispatch, getState) => {
+  client.rescan()
+  await dispatch(
+    nodeHandlers.actions.setStatus({
+      currentBlock: new BigNumber(0)
+    })
+  )
+  await dispatch(nodeHandlers.actions.setIsRescanning(true))
+  setTimeout(() => {
+    history.push(`/vault`)
+    electronStore.set('channelsToRescan', {})
+  }, 500)
+}
+
 export const reducer = handleActions(
   {
     [setNewTransfersCount]: (state, { payload: setNewTransfersCount }) =>
@@ -90,7 +109,8 @@ export const reducer = handleActions(
 
 export const epics = {
   askForBlockchainLocation,
-  proceedWithSyncing
+  proceedWithSyncing,
+  restartAndRescan
 }
 
 export default {

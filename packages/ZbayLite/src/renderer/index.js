@@ -18,6 +18,7 @@ import logsSelctors from './store/selectors/logs'
 import { errorNotification, successNotification } from './store/handlers/utils'
 
 import notificationsHandlers from './store/handlers/notifications'
+import appSelectors from './store/selectors/app'
 
 Web.HashingTools.patchCorePBKDF()
 
@@ -123,26 +124,24 @@ ipcRenderer.on('checkNodeStatus', (event, { status }) => {
 
 ipcRenderer.on('newChannel', (event, { channelParams }) => {
   const handleImport = (params) => {
-    if (nodeSelectors.status(store.getState()) === 'healthy') {
+    if (appSelectors.isInitialLoadFinished(store.getState()) === true) {
       store.dispatch(
         importChannelHandlers.epics.decodeChannel(
           `${params}`
         )
       )
     } else {
+      store.dispatch(
+        notificationsHandlers.actions.enqueueSnackbar(
+          successNotification({ message: `Please wait your channel will be imported soon` })
+        )
+      )
       setTimeout(() => {
         handleImport(params)
       }, 60000)
     }
   }
   handleImport(channelParams)
-  if (nodeSelectors.status(store.getState()) !== 'healthy') {
-    store.dispatch(
-      notificationsHandlers.actions.enqueueSnackbar(
-        successNotification({ message: `Please wait your channel will be imported soon` })
-      )
-    )
-  }
 })
 
 window.jdenticon_config = {

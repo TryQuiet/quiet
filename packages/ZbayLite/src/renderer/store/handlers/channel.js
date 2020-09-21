@@ -3,13 +3,11 @@ import BigNumber from 'bignumber.js'
 import { createAction, handleActions } from 'redux-actions'
 import crypto from 'crypto'
 import * as R from 'ramda'
+import { remote } from 'electron'
 import { DateTime } from 'luxon'
 
 import history from '../../../shared/history'
-import operationsHandlers, {
-  operationTypes,
-  PendingMessageOp
-} from './operations'
+import operationsHandlers from './operations'
 import notificationsHandlers from './notifications'
 // import messagesQueueHandlers from './messagesQueue'
 import messagesHandlers, { _checkMessageSize } from './messages'
@@ -39,7 +37,8 @@ export const ChannelState = Immutable.Record(
     members: null,
     showInfoMsg: true,
     isSizeCheckingInProgress: false,
-    messageSizeStatus: null
+    messageSizeStatus: null,
+    displayableMessageLimit: 50
   },
   'ChannelState'
 )
@@ -51,6 +50,7 @@ const setSpentFilterValue = createAction(
   (_, value) => value
 )
 const setMessage = createAction(actionTypes.SET_CHANNEL_MESSAGE)
+const setDisplayableLimit = createAction(actionTypes.SET_DISPLAYABLE_LIMIT)
 const setChannelId = createAction(actionTypes.SET_CHANNEL_ID)
 const setLoading = createAction(actionTypes.SET_CHANNEL_LOADING)
 const setLoadingMessage = createAction(actionTypes.SET_CHANNEL_LOADING_MESSAGE)
@@ -71,19 +71,22 @@ export const actions = {
   setChannelId,
   resetChannel,
   isSizeCheckingInProgress,
-  messageSizeStatus
+  messageSizeStatus,
+  setDisplayableLimit
 }
 
 const loadChannel = key => async (dispatch, getState) => {
   try {
     dispatch(setChannelId(key))
-
+    dispatch(setDisplayableLimit(30))
     // Calculate URI on load, that way it won't be outdated, even if someone decides
     // to update channel in vault manually
     const contact = contactsSelectors.contact(key)(getState())
-    const ivk = electronStore.get(
-      `defaultChannels.${contact.get('address')}.keys.ivk`
-    )
+    const unread = contact.newMessages.size
+    remote.app.setBadgeCount(remote.app.getBadgeCount() - unread)
+    const ivk =
+      electronStore.get(`defaultChannels.${contact.get('address')}.keys.ivk`) ||
+      electronStore.get(`importedChannels.${contact.get('address')}.keys.ivk`)
     if (ivk) {
       const uri = await channelToUri({
         name: contact.get('username'),
@@ -96,6 +99,7 @@ const loadChannel = key => async (dispatch, getState) => {
       parseInt(DateTime.utc().toSeconds()).toString()
     )
     dispatch(setAddress(contact.address))
+
     dispatch(contactsHandlers.actions.cleanNewMessages({ contactAddress: key }))
     // await dispatch(clearNewMessages())
     // await dispatch(updateLastSeen())
@@ -115,17 +119,7 @@ const linkChannelRedirect = targetChannel => async (dispatch, getState) => {
     history.push(`/main/channel/${targetChannel.address}`)
     return
   }
-
-  // We can parse timestamp to blocktime and get accurate birthday block for this channel
-  // Skipped since we dont support rescaning also we already got birthday of zbay as main wallet birthday
-  await client.importKey(targetChannel.keys.ivk)
-  await dispatch(
-    contactsHandlers.actions.addContact({
-      key: targetChannel.address,
-      contactAddress: targetChannel.address,
-      username: targetChannel.name
-    })
-  )
+  electronStore.set(`channelsToRescan.${targetChannel.address}`, true)
   const importedChannels = electronStore.get(`importedChannels`) || {}
   electronStore.set('importedChannels', {
     ...importedChannels,
@@ -137,6 +131,17 @@ const linkChannelRedirect = targetChannel => async (dispatch, getState) => {
       keys: targetChannel.keys
     }
   })
+  // We can parse timestamp to blocktime and get accurate birthday block for this channel
+  // Skipped since we dont support rescaning also we already got birthday of zbay as main wallet birthday
+  await client.importKey(targetChannel.keys.ivk)
+  await dispatch(
+    contactsHandlers.actions.addContact({
+      key: targetChannel.address,
+      contactAddress: targetChannel.address,
+      username: targetChannel.name
+    })
+  )
+
   history.push(`/main/channel/${targetChannel.address}`)
 }
 const sendOnEnter = (event, resetTab) => async (dispatch, getState) => {
@@ -205,6 +210,23 @@ const sendOnEnter = (event, resetTab) => async (dispatch, getState) => {
       })
       const transaction = await client.sendTransaction(transfer)
       console.log(transaction, 'transaction details')
+      if (!transaction.txid) {
+        dispatch(
+          contactsHandlers.actions.addMessage({
+            key: channel.id,
+            message: { [key]: messagePlaceholder.set('status', 'failed') }
+          })
+        )
+        dispatch(
+          notificationsHandlers.actions.enqueueSnackbar(
+            errorNotification({
+              message:
+                "Couldn't send the message, please check node connection."
+            })
+          )
+        )
+        return
+      }
       dispatch(
         operationsHandlers.epics.resolvePendingOperation({
           channelId: channel.id,
@@ -240,20 +262,24 @@ const sendChannelSettingsMessage = ({
     identityAddress
   })
   try {
-    await client.sendTransaction(transfer)
+    const txid = await client.sendTransaction(transfer)
+    if (txid.error) {
+      throw new Error(txid.error)
+    }
+    return 1
   } catch (err) {
-    notificationsHandlers.actions.enqueueSnackbar(
-      dispatch(
+    dispatch(
+      notificationsHandlers.actions.enqueueSnackbar(
         errorNotification({
           message: "Couldn't create channel, please check node connection."
         })
       )
     )
+    return -1
   }
 }
 
 const resendMessage = messageData => async (dispatch, getState) => {
-  dispatch(operationsHandlers.actions.removeOperation(messageData.id))
   const identityAddress = identitySelectors.address(getState())
   const channel = channelSelectors.data(getState()).toJS()
   const privKey = identitySelectors.signerPrivKey(getState())
@@ -261,34 +287,52 @@ const resendMessage = messageData => async (dispatch, getState) => {
     messageData: {
       type: messageData.type,
       data: messageData.message,
-      spent: '0'
+      spent: parseFloat(messageData.spent.toString())
     },
     privKey
   })
   const transfer = await messages.messageToTransfer({
     message,
     address: channel.address,
+    amount: parseFloat(messageData.spent.toString()),
     identityAddress
   })
-  try {
-    const opId = await client.payment.send(transfer)
-    await dispatch(
-      operationsHandlers.epics.observeOperation({
-        opId,
-        type: operationTypes.pendingMessage,
-        meta: PendingMessageOp({
-          channelId: channel.id,
-          message: Immutable.fromJS(message)
+  const messagePlaceholder = DisplayableMessage({
+    ...messageData,
+    status: 'pending'
+  })
+  dispatch(
+    contactsHandlers.actions.addMessage({
+      key: channel.key,
+      message: { [messageData.id]: messagePlaceholder }
+    })
+  )
+  const transaction = await client.sendTransaction(transfer)
+  if (!transaction.txid) {
+    dispatch(
+      contactsHandlers.actions.addMessage({
+        key: channel.key,
+        message: {
+          [messageData.id]: messagePlaceholder.set('status', 'failed')
+        }
+      })
+    )
+    dispatch(
+      notificationsHandlers.actions.enqueueSnackbar(
+        errorNotification({
+          message: "Couldn't send the message, please check node connection."
         })
-      })
+      )
     )
-  } catch (err) {
-    notificationsHandlers.actions.enqueueSnackbar(
-      errorNotification({
-        message: "Couldn't send the message, please check node connection."
-      })
-    )
+    return
   }
+  dispatch(
+    operationsHandlers.epics.resolvePendingOperation({
+      channelId: channel.key,
+      id: messageData.id,
+      txid: transaction.txid
+    })
+  )
 }
 
 const updateLastSeen = () => async (dispatch, getState) => {
@@ -330,6 +374,8 @@ export const reducer = handleActions(
       state.set('messageSizeStatus', payload),
     [setShareableUri]: (state, { payload: uri }) =>
       state.set('shareableUri', uri),
+    [setDisplayableLimit]: (state, { payload: limit }) =>
+      state.set('displayableMessageLimit', limit),
     [setAddress]: (state, { payload: address }) =>
       state.set('address', address),
     [resetChannel]: () => initialState

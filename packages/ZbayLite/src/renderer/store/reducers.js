@@ -30,6 +30,7 @@ import whitelistHandlers from './handlers/whitelist'
 import notificationCenterHandlers from './handlers/notificationCenter'
 import operationsHandlers from './handlers/operations'
 import logsHandlers from './handlers/logs'
+import ownedChannels from './handlers/ownedChannels'
 
 export default combineReducers({
   messages: messagesHandlers.reducer,
@@ -61,5 +62,6 @@ export default combineReducers({
   mentions: mentionsHandlers.reducer,
   whitelist: whitelistHandlers.reducer,
   notificationCenter: notificationCenterHandlers.reducer,
-  logsData: logsHandlers.reducer
+  logsData: logsHandlers.reducer,
+  ownedChannels: ownedChannels.reducer
 })

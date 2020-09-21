@@ -20,7 +20,8 @@ export const NodeState = Immutable.Record(
     errors: '',
     bootstrapLoader: LoaderState(),
     fetchingStatus: FetchingState(),
-    startedAt: null
+    startedAt: null,
+    isRescanning: false
   },
   'NodeState'
 )
@@ -44,6 +45,7 @@ const setBootstrappingMessage = createAction(
 )
 
 const setFetchingPart = createAction(actionTypes.SET_FETCHING_PART)
+const setIsRescanning = createAction(actionTypes.SET_IS_RESCANNING)
 const setFetchingSizeLeft = createAction(actionTypes.SET_FETCHING_SIZE_LEFT)
 const setFetchingStatus = createAction(actionTypes.SET_FETCHING_STATUS)
 const setFetchingSpeed = createAction(actionTypes.SET_FETCHING_SPEED)
@@ -75,7 +77,8 @@ const actions = {
   setStatus,
   setGuideStatus,
   setNextSlide,
-  setPrevSlide
+  setPrevSlide,
+  setIsRescanning
 }
 
 export const startRescanningMonitor = () => async (dispatch, getState) => {
@@ -103,16 +106,31 @@ export const checkNodeStatus = nodeProcessStatus => async (
 
 const getStatus = () => async (dispatch, getState) => {
   try {
-    const status = nodeSelectors.status(getState())
+    console.log('status')
     const info = await client.info()
     const height = await client.height()
-    if (info.latest_block_height > height && status !== 'syncing') {
+    if (info.latest_block_height > height) {
       dispatch(setStatus({ status: 'syncing' }))
       client.sync()
-      client.save()
     } else {
       dispatch(setStatus({ status: 'healthy' }))
     }
+    // Check if sync give time cli to start rescan
+
+    setTimeout(async () => {
+      const syncStatus = await client.syncStatus()
+      if (syncStatus.syncing === 'false') {
+        client.save()
+
+        if (nodeSelectors.isRescanning(getState())) {
+          setTimeout(async () => {
+            console.log('saving')
+            console.log(await client.syncStatus())
+            await dispatch(setIsRescanning(false))
+          }, 10000)
+        }
+      }
+    }, 3000)
     dispatch(
       setStatus({
         latestBlock: new BigNumber(info.latest_block_height),
@@ -152,6 +170,8 @@ export const reducer = handleActions(
       state.set('errors', errors),
     [setBootstrapping]: (state, { payload: bootstrapping }) =>
       state.setIn(['bootstrapLoader', 'loading'], bootstrapping),
+    [setIsRescanning]: (state, { payload: isRescanning }) =>
+      state.set('isRescanning', isRescanning),
     [setBootstrappingMessage]: (state, { payload: message }) =>
       state.setIn(['bootstrapLoader', 'message'], message),
     [setFetchingPart]: (state, { payload: message }) =>

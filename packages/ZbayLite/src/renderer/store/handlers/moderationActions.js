@@ -1,19 +1,17 @@
 import notificationsHandlers from './notifications'
-import { getClient } from '../../zcash'
+import client from '../../zcash'
 import identitySelectors from '../selectors/identity'
+import nodeSelectors from '../selectors/node'
 import { messages as zbayMessages } from '../../zbay'
 import channelSelectors from '../selectors/channel'
-import channelsSelectors from '../selectors/channels'
-import publicChannelsSelectors from '../selectors/publicChannels'
 import { errorNotification, successNotification } from './utils'
 import { messageType, moderationActionsType } from '../../../shared/static'
-import { packMemo } from '../../zbay/transit'
+import channels from '../../zcash/channels'
 
 const handleModerationAction = ({ moderationType, moderationTarget }) => async (
   dispatch,
   getState
 ) => {
-  const identityAddress = identitySelectors.address(getState())
   const channel = channelSelectors.data(getState()).toJS()
   const privKey = identitySelectors.signerPrivKey(getState())
   const message = zbayMessages.createMessage({
@@ -28,21 +26,13 @@ const handleModerationAction = ({ moderationType, moderationTarget }) => async (
   })
   const transfer = await zbayMessages.messageToTransfer({
     message,
-    address: channel.address,
-    identityAddress
+    address: channel.address
   })
   try {
-    await getClient().payment.send(transfer)
-    // await dispatch(
-    //   operationsHandlers.epics.observeOperation({
-    //     opId,
-    //     type: operationTypes.pendingMessage,
-    //     meta: {
-    //       channelId: channel.id,
-    //       message: message
-    //     }
-    //   })
-    // )
+    const txid = await client.sendTransaction(transfer)
+    if (txid.error) {
+      throw new Error(txid.error)
+    }
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar(
         successNotification({
@@ -51,8 +41,8 @@ const handleModerationAction = ({ moderationType, moderationTarget }) => async (
       )
     )
   } catch (err) {
-    notificationsHandlers.actions.enqueueSnackbar(
-      dispatch(
+    dispatch(
+      notificationsHandlers.actions.enqueueSnackbar(
         errorNotification({
           message: "Couldn't send the message, please check node connection."
         })
@@ -61,13 +51,8 @@ const handleModerationAction = ({ moderationType, moderationTarget }) => async (
   }
 }
 const updateChannelSettings = values => async (dispatch, getState) => {
-  const identityAddress = identitySelectors.address(getState())
   const channel = channelSelectors.data(getState()).toJS()
-  const publicChannelsChannel = channelsSelectors
-    .publicChannels(getState())
-    .toJS()
-  const publicChannels = publicChannelsSelectors.publicChannels(getState())
-
+  const network = nodeSelectors.network(getState())
   const privKey = identitySelectors.signerPrivKey(getState())
   const message = zbayMessages.createMessage({
     messageData: {
@@ -81,25 +66,17 @@ const updateChannelSettings = values => async (dispatch, getState) => {
     },
     privKey
   })
-  const amounts = []
-  let memo = await packMemo(message)
-  const transferToChannel = {
-    address: channel.address,
-    amount: '0',
-    memo
-  }
-  amounts.push(transferToChannel)
-  if (publicChannels.find(ch => ch.address === channel.address)) {
-    const transferToPublicChannels = {
-      address: publicChannelsChannel.address,
-      amount: '0',
-      memo
-    }
-    amounts.push(transferToPublicChannels)
-  }
-  const transfer = { from: identityAddress, amounts: amounts }
+  const transfer = await zbayMessages.messageToTransfer({
+    message,
+    address: channel.address
+  })
+  const transferToPublic = await zbayMessages.messageToTransfer({
+    message,
+    address: channels.channelOfChannels[network].address
+  })
+  const transfers = [transfer, transferToPublic]
   try {
-    await getClient().payment.send(transfer)
+    await client.sendTransaction(transfers)
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar(
         successNotification({

@@ -11,14 +11,14 @@ import { withStyles } from '@material-ui/core/styles'
 import { shell } from 'electron'
 import Button from '@material-ui/core/Button'
 import IconButton from '@material-ui/core/IconButton'
-import ExpandLessIcon from '@material-ui/icons/ExpandLess'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+// import ExpandLessIcon from '@material-ui/icons/ExpandLess'
+// import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import CloseIcon from '@material-ui/icons/Close'
 import Dialog from '@material-ui/core/Dialog'
-import Checkbox from '@material-ui/core/Checkbox'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank'
-import CheckBoxIcon from '@material-ui/icons/CheckBox'
+// import Checkbox from '@material-ui/core/Checkbox'
+// import FormControlLabel from '@material-ui/core/FormControlLabel'
+// import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank'
+// import CheckBoxIcon from '@material-ui/icons/CheckBox'
 
 import Icon from '../../ui/Icon'
 import qrIcon from '../../../../renderer/static/images/qr.svg'
@@ -126,6 +126,9 @@ const styles = theme => ({
   },
   checkbox: {
     height: 10
+  },
+  note: {
+    color: theme.palette.colors.black30
   }
 })
 
@@ -142,10 +145,10 @@ export const AddFunds = ({
   topShieldedAddress,
   scrollbarRef
 }) => {
-  const [expanded, setExpanded] = React.useState(false)
+  // const [expanded, setExpanded] = React.useState(false)
   const [dialogOpen, setDialogOpen] = React.useState(false)
   const [isCopied, setIsCopied] = React.useState(false)
-  const [isCopiedPrivate, setIsCopiedPrivate] = React.useState(false)
+  // const [isCopiedPrivate, setIsCopiedPrivate] = React.useState(false)
   return (
     <>
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
@@ -171,7 +174,7 @@ export const AddFunds = ({
               </Typography>
             </Grid>
             <Grid item className={classes.qrcodeDiv}>
-              <QRCode value={topAddress} size={200} />
+              <QRCode value={topShieldedAddress} size={200} />
             </Grid>
           </Grid>
         </Grid>
@@ -201,43 +204,22 @@ export const AddFunds = ({
           . Cryptocurrencies let you send funds to unique addresses, like email
           for money: send to the correct address, and the recipient will receive
           it.
-        </Typography>
-      </Grid>
-      <Grid item className={classes.spacing32}>
-        <Typography variant='body2' className={classes.subtitle}>
-          Your Zcash address
-        </Typography>
-      </Grid>
-      <Grid item>
-        <Typography variant='caption' className={classes.caption}>
-          Deposits are moved to a private address & stored by Zbay, on your
-          computer.{' '}
-          <span className={classes.link} onClick={generateNewAddress}>
-            New address
+          <span className={classes.note}>
+            {' '}
+            Note: transparent Zcash addresses are disabled until{' '}
+            <a
+              className={classes.link}
+              onClick={e => {
+                e.preventDefault()
+                shell.openExternal('https://github.com/adityapk00/zecwallet-light-cli/issues/50')
+              }}
+              href='https://github.com/adityapk00/zecwallet-light-cli/issues/50'
+            >
+              this issue
+            </a>{' '}
+            is addressed.
           </span>
         </Typography>
-      </Grid>
-      <Grid item>
-        <FormControlLabel
-          control={
-            <Checkbox
-              style={{ width: 36, height: 36 }}
-              icon={<CheckBoxOutlineBlankIcon style={{ fontSize: 20 }} />}
-              checkedIcon={<CheckBoxIcon style={{ fontSize: 20 }} />}
-              checked={donationAllow === 'true'}
-              onChange={e => {
-                updateDonation(e.target.checked)
-              }}
-              color='default'
-              size='small'
-            />
-          }
-          label={
-            <Typography variant='caption' className={classes.caption}>
-              Donate 1% of my deposit to support Zbay development.
-            </Typography>
-          }
-        />
       </Grid>
       <Grid item className={classes.spacing16}>
         <Grid container>
@@ -246,7 +228,7 @@ export const AddFunds = ({
               name='address'
               id='outlined-address'
               classes={{ root: classes.transparentAddress }}
-              value={topAddress}
+              value={topShieldedAddress}
               fullWidth
               disabled
             />
@@ -270,7 +252,7 @@ export const AddFunds = ({
       </Grid>
       <Grid item xs>
         <CopyToClipboard
-          text={topAddress}
+          text={topShieldedAddress}
           onCopy={() => {
             setIsCopied(true)
           }}
@@ -289,100 +271,7 @@ export const AddFunds = ({
           </Button>
         </CopyToClipboard>
       </Grid>
-      <Grid
-        item
-        className={classes.privateDiv}
-        onClick={() => {
-          setExpanded(!expanded)
-          setTimeout(() => {
-            scrollbarRef.current.scrollToBottom()
-          }, 0)
-        }}
-      >
-        <Grid container alignItems='center' justify='space-between'>
-          <Grid item>
-            <Typography variant='body2' className={classes.privateTitle}>
-              Private address
-            </Typography>
-          </Grid>
-          {expanded ? (
-            <ExpandLessIcon className={classes.icon} />
-          ) : (
-            <ExpandMoreIcon className={classes.icon} />
-          )}
-        </Grid>
-        {expanded && (
-          <Grid container direction='column' className={classes.spacing24}>
-            <Grid item>
-              <Typography variant='body2' className={classes.subtitle}>
-                Your private Zcash address
-              </Typography>
-            </Grid>
-            <Grid item>
-              <Typography variant='caption' className={classes.caption}>
-                You can't send directly to a private address from most
-                exchanges. If sending from an exchange, use the address above,
-                and Zbay will move all funds to a private address as soon as
-                they arrive.{' '}
-                <span
-                  className={classes.link}
-                  onClick={e => {
-                    generateNewShieldedAddress()
-                    e.stopPropagation()
-                    e.preventDefault()
-                  }}
-                >
-                  New address
-                </span>
-              </Typography>
-            </Grid>
-            <Grid item xs className={classes.spacing24}>
-              <OutlinedInput
-                name='address'
-                id='outlined-address'
-                classes={{ root: classes.transparentAddress }}
-                value={topShieldedAddress}
-                fullWidth
-                disabled
-                onClick={e => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                }}
-              />
-            </Grid>
-            <Grid
-              item
-              xs
-              onClick={e => {
-                e.preventDefault()
-                e.stopPropagation()
-              }}
-            >
-              <CopyToClipboard
-                text={topShieldedAddress}
-                onCopy={e => {
-                  setIsCopiedPrivate(true)
-                }}
-              >
-                <Button
-                  variant='contained'
-                  size='large'
-                  color='primary'
-                  type='submit'
-                  fullWidth
-                  className={
-                    isCopiedPrivate ? classes.buttonCopied : classes.button
-                  }
-                >
-                  {isCopiedPrivate
-                    ? `Address copied to clipboard`
-                    : `Copy address to clipboard`}
-                </Button>
-              </CopyToClipboard>
-            </Grid>
-          </Grid>
-        )}
-      </Grid>
+
       <Grid
         item
         className={classes.infoDiv}

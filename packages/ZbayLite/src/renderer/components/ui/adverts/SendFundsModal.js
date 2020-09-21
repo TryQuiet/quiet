@@ -396,11 +396,11 @@ export const SendFundsModal = ({
                 direction={'column'}
                 alignContent={'flex-start'}
               >
-                {!R.isEmpty(shippingData) ? (
+                {shippingData.firstName ? (
                   <Grid item>
                     <CheckboxWithLabel
                       color='primary'
-                      disabled={R.isEmpty(shippingData)}
+                      disabled={!shippingData.firstName}
                       name='shippingInfo'
                       label='Include shipping address'
                       labelClass={classes.checkboxLabel}
@@ -408,7 +408,7 @@ export const SendFundsModal = ({
                     />
                   </Grid>
                 ) : null}
-                {R.isEmpty(shippingData) ? (
+                {!shippingData.firstName ? (
                   <Typography className={classes.shippingDataInfo}>
                     {' '}
                     Please{' '}

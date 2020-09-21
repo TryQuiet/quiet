@@ -1,8 +1,10 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
+import * as R from 'ramda'
 
 import RegistrationGuideComponent from '../../components/windows/RegistrationGuide'
+import { withModal } from '../../store/handlers/modals'
 import text from '../../static/text/registrationGuide'
 import electronStore from '../../../shared/electronStore'
 import nodeHandlers from '../../../renderer/store/handlers/node'
@@ -23,15 +25,16 @@ export const mapDispatchToProps = dispatch => {
   )
 }
 
-export const RegistrationGuide = ({ setGuideStatus, getCurrentSlide, setNextSlide, setPrevSlide }) => {
+export const RegistrationGuide = ({ setGuideStatus, getCurrentSlide, setNextSlide, setPrevSlide, open, handleClose }) => {
   const setStoryStatus = () => {
     setGuideStatus(true)
     electronStore.set('storyStatus', true)
+    handleClose()
   }
-  return <RegistrationGuideComponent setStoryStatus={setStoryStatus} content={text} currentSlide={getCurrentSlide} prevSlide={setPrevSlide} nextSlide={setNextSlide} />
+  return <RegistrationGuideComponent setStoryStatus={setStoryStatus} content={text} currentSlide={getCurrentSlide} prevSlide={setPrevSlide} nextSlide={setNextSlide} open={open} handleClose={handleClose} />
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
+export default R.compose(
+  connect(mapStateToProps, mapDispatchToProps),
+  withModal('registrationGuide')
 )(RegistrationGuide)

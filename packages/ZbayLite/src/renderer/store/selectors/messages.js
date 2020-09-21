@@ -1,6 +1,7 @@
 import { createSelector } from 'reselect'
 import Immutable from 'immutable'
 import { messageType } from '../../../shared/static'
+import contactsSelectors from './contacts'
 
 const store = s => s
 
@@ -33,6 +34,11 @@ const messageById = id =>
 const channelSettingsMessages = channelId => createSelector(
   messages,
   msgs => msgs.getIn([channelId, 'messages'], Immutable.List()).filter(msg => msg.get('type') === 6)
+)
+
+const channelTest = (channelId, signerPubKey) => createSelector(
+  contactsSelectors.directMessages(channelId, signerPubKey),
+  msgs => Immutable.List()
 )
 
 const channelOwner = channelId => createSelector(
@@ -131,5 +137,6 @@ export default {
   currentChannelMessages,
   messageById,
   getFilteredContexed,
-  allMessages
+  allMessages,
+  channelTest
 }

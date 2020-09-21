@@ -25,6 +25,7 @@ import { networkFee, actionTypes } from '../../../shared/static'
 import history from '../../../shared/history'
 import electronStore from '../../../shared/electronStore'
 import contactsHandlers from './contacts'
+import ownedChannelsHandlers from './ownedChannels'
 
 const toBigNumber = x => new BigNumber(x)
 
@@ -100,9 +101,14 @@ const createChannel = (values, formActions, setStep) => async (
         payload: `Creating channel ${address}`
       })
     )
-    await dispatch(
+    const result = await dispatch(
       channelHandlers.epics.sendChannelSettingsMessage({ address: address })
     )
+    if (result === -1) {
+      setStep(0)
+      dispatch(closeModal())
+      return
+    }
     const importedChannels = electronStore.get(`importedChannels`) || {}
     const viewingKey = await client.getViewingKey(address)
     electronStore.set('importedChannels', {
@@ -122,6 +128,7 @@ const createChannel = (values, formActions, setStep) => async (
         username: values.name
       })
     )
+    dispatch(ownedChannelsHandlers.epics.getOwnedChannels())
     history.push(`/main/channel/${address}`)
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar(

@@ -54,7 +54,7 @@ exports[`RegistraionGuide renders component 1`] = `
             key="0"
             variant="body2"
           >
-            Our tour has concluded! Now, we just have to wait for some blockchain files to download. Perhaps leave your computer and go have a sandwich.
+            Our tour has concluded! Now, we just have to wait for some blockchain files to download.
           </WithStyles(ForwardRef(Typography))>
           <WithStyles(ForwardRef(Typography))
             className="sentence-mock"

@@ -38,6 +38,7 @@ const network = createSelector(node, n => {
 const isConnected = createSelector(status, s => ['healthy', 'syncing'].includes(s))
 
 const loader = createSelector(node, n => n.bootstrapLoader)
+const isRescanning = createSelector(node, n => n.isRescanning)
 const fetching = createSelector(node, n => n.fetchingStatus)
 const bootstrapping = createSelector(loader, n => n.loading)
 const bootstrappingMessage = createSelector(loader, n => n.message)
@@ -75,5 +76,6 @@ export default {
   isRescanningMonitorStarted,
   isRescanningInitialized,
   guideStatus,
-  currentSlide
+  currentSlide,
+  isRescanning
 }

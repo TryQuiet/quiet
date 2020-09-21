@@ -12,7 +12,7 @@ import { Typography, Grid } from '@material-ui/core'
 // import ZcashIcon from '../../ui/ZcashIcon'
 import Icon from '../../ui/Icon'
 import anonIcon from '../../../static/images/st-anon.svg'
-import { unknownUserId } from '../../../../shared/static'
+// import { unknownUserId } from '../../../../shared/static'
 
 const styles = theme => ({
   root: {
@@ -71,7 +71,7 @@ const styles = theme => ({
 
 export const ChannelsListItem = ({ classes, channel, history, directMessages, selected, isRegisteredUsername }) => {
   const channelObj = channel.toJS()
-  const isFromZbay = channelObj.username !== unknownUserId
+  const isFromZbay = channelObj.username !== 'Unknown'
   // const size = 15
   const highlight = selected.id === channel.key
   const newMessages = channelObj.newMessages.length

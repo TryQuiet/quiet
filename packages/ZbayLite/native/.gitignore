@@ -1,3 +1,4 @@
 target/
 index.node
 artifacts.json
+Cargo.lock

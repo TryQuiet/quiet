@@ -4,13 +4,8 @@ const nodeExternals = require('webpack-node-externals')
 module.exports = {
   mode: 'development',
   target: 'electron-main',
-  entry: [
-    '@babel/polyfill',
-    './src/main/main.js'
-  ],
-  externals: [
-    nodeExternals()
-  ],
+  entry: ['@babel/polyfill', './src/main/main.js'],
+  externals: [nodeExternals()],
   node: {
     __dirname: false,
     __filename: false
@@ -30,6 +25,10 @@ module.exports = {
       {
         test: /\.node$/,
         loader: 'node-loader'
+      },
+      {
+        test: /\.worker\.(c|m)?js$/i,
+        loader: 'worker-loader'
       }
     ]
   }

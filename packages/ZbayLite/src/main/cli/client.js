@@ -1,6 +1,15 @@
+// /* eslint-disable */
 import { Worker } from 'worker_threads'
-const worker = new Worker('./src/main/cli/worker.js')
+import path from 'path'
 
+const isDev = process.env.NODE_ENV === 'development'
+const pathDev = path.join.apply(null, [process.cwd(), 'worker/cli.worker.js'])
+const pathProd = path.join.apply(null, [
+  process.resourcesPath,
+  'worker/cli.worker.js'
+])
+
+const worker = new Worker(isDev ? pathDev : pathProd)
 var mapping = new Map()
 export default class Client {
   constructor () {
@@ -10,6 +19,8 @@ export default class Client {
       mapping.delete(args.id)
     })
   }
+  terminate = async () => worker.terminate()
+
   postMessage = async (id, method, args = '') => {
     const promise = new Promise((resolve, reject) => {
       mapping.set(id, {
@@ -17,9 +28,7 @@ export default class Client {
         args: JSON.stringify({ id: id, method: method, args: args })
       })
     })
-    worker.postMessage(
-      JSON.stringify({ id: id, method: method, args: args })
-    )
+    worker.postMessage(JSON.stringify({ id: id, method: method, args: args }))
     return promise
   }
 }

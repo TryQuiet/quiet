@@ -178,6 +178,12 @@ export const ChannelInput = ({
     inputRef.current.el.current.focus()
     setFocused(true)
   }
+  const scrollToBottom = () => {
+    const scroll = document.getElementById('messages-scroll').parentElement
+    setTimeout(() => {
+      scroll.scrollTop = scroll.scrollHeight
+    }, 100)
+  }
   React.useEffect(() => {
     inputRef.current.updater.enqueueForceUpdate(inputRef.current)
   }, [inputPlaceholder])
@@ -393,9 +399,11 @@ export const ChannelInput = ({
                   }
                   if (
                     inputState === INPUT_STATE.AVAILABLE &&
-                    e.nativeEvent.keyCode === 13
+                    e.nativeEvent.keyCode === 13 &&
+                    htmlMessage !== ''
                   ) {
                     onKeyPress(e)
+                    scrollToBottom()
                   } else {
                     if (e.nativeEvent.keyCode === 13) {
                       e.preventDefault()
@@ -445,6 +453,7 @@ export const ChannelInput = ({
                     <Picker
                       onEmojiClick={(e, emoji) => {
                         setHtmlMessage(message + emoji.emoji)
+                        onChange(message + emoji.emoji)
                         setOpenEmoji(false)
                       }}
                     />

@@ -1,10 +1,25 @@
-const native = require('../../../native/index.node')
+const native = require('./index.node')
+const publicLiteNodes = [
+  'https://lightwalletd.zecwallet.co:1443',
+  'https://lightd-main.zecwallet.co:443',
+  'https://lightd-main.zcashfr.io:443',
+  'https://lightd-main.zecwallet.co:443'
+]
+
 class RPC {
-  constructor (url = 'https://lightwalletd.zecwallet.co:1443') {
-    const result = native.litelib_initialize_existing(url)
-    console.log(`Intialization: ${result}`)
-    if (result !== 'OK') {
-      native.litelib_initialize_new(url)
+  constructor () {
+    for (const nodeUrl of publicLiteNodes) {
+      const result = native.litelib_initialize_existing(nodeUrl)
+      if (result.startsWith('Error: grpc-status')) {
+        console.log(`Unable to connect to ${nodeUrl}`)
+        continue
+      }
+      if (result.startsWith('Error: Cannot read wallet.')) {
+        console.log(`Creating new wallet`)
+        native.litelib_initialize_new(nodeUrl)
+      }
+      console.log(`Intialization: ${result}`)
+      break
     }
   }
   sync = async () => {
@@ -12,6 +27,9 @@ class RPC {
   }
   rescan = async () => {
     return native.litelib_execute('rescan', '')
+  }
+  seed = async () => {
+    return JSON.parse(native.litelib_execute('seed', ''))
   }
   syncStatus = async () => {
     return JSON.parse(native.litelib_execute('syncstatus', ''))

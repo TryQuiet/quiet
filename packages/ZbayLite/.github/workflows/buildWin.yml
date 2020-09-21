@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build_on_windows:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v1.0.0
+      with:
+        ref: refs/heads/master
+    - uses: actions/setup-node@master
+      with:
+        node-version: '12'
+    - name: set architecture
+      run: sudo dpkg --add-architecture i386
+    - name: update
+      run: sudo apt-get update
+    - name: install wine
+      run: sudo apt-get install wine32
+    - name: fetch jsign
+      run: curl https://zbay-binaries.s3.us-east-2.amazonaws.com/jsign/jsign-2.1.jar --output ./jsign-2.1.jar
+    - name: Add Windows certificate
+      id: write_file
+      uses: timheuer/base64-to-file@v1
+      with:
+        fileName: 'win-certificate.pfx'
+        encodedString: ${{ secrets.WIN_CSC_LINK }}
+    - name: fetch index.node
+      run: curl https://zbay-binaries.s3.us-east-2.amazonaws.com/index.node --output ./worker/index.node && chmod 644 ./worker/index.node
+    - name: install dependencies
+      run: npm install
+    - name: build on Windows
+      run: npm run build:prod
+    - name: install electron builder
+      run: npm install -g electron-builder@22.3.2
+    - name: release
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        CERTIFICATE_PATH: ${{ steps.write_file.outputs.filePath }}
+        WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+        WINDOWS_ALIAS: ${{ secrets.WINDOWS_ALIAS }}
+        USE_HARD_LINKS: false
+      run: electron-builder -p always --win

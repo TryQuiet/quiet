@@ -14,6 +14,7 @@ import Offer from '../../containers/pages/Offer'
 import DirectMessages from '../../containers/pages/DirectMessages'
 import DepositMoneyModal from '../../containers/ui/DepositMoneyModal'
 import LogsContainer from '../../containers/widgets/logs/Logs'
+import SeedModal from '../../containers/widgets/channels/SeedModal'
 import electronStore from '../../../shared/electronStore'
 
 const styles = {
@@ -31,7 +32,12 @@ const styles = {
   }
 }
 
-export const Main = ({ match, classes, disablePowerSleepMode, isLogWindowOpened, createWalletCopy }) => {
+export const Main = ({
+  match,
+  classes,
+  disablePowerSleepMode,
+  isLogWindowOpened
+}) => {
   const debounce = (fn, ms) => {
     let timer
     return _ => {
@@ -61,14 +67,13 @@ export const Main = ({ match, classes, disablePowerSleepMode, isLogWindowOpened,
     }
   })
   useEffect(() => {
-    electronStore.set('isNewUser', false)
     electronStore.set('AppStatus.blockchain.isRescanned', true)
-    createWalletCopy()
     disablePowerSleepMode()
   }, [])
   return (
     <>
       <DepositMoneyModal />
+      <SeedModal />
       <WindowWrapper>
         <Grid container direction='row' className={classes.gridRoot}>
           <Grid item>
@@ -76,13 +81,22 @@ export const Main = ({ match, classes, disablePowerSleepMode, isLogWindowOpened,
           </Grid>
           <Grid item xs>
             <Route path={`${match.url}/channel/:id`} component={Channel} />
-            <Route path={`${match.url}/direct-messages/:id/:username`} component={DirectMessages} />
-            <Route path={`${match.url}/offers/:id/:address`} component={Offer} />
+            <Route
+              path={`${match.url}/direct-messages/:id/:username`}
+              component={DirectMessages}
+            />
+            <Route
+              path={`${match.url}/offers/:id/:address`}
+              component={Offer}
+            />
           </Grid>
           {isLogWindowOpened && (
-            <Grid className={classnames({
-              [classes.logsContainer]: dimensions.width <= 900
-            })} item>
+            <Grid
+              className={classnames({
+                [classes.logsContainer]: dimensions.width <= 900
+              })}
+              item
+            >
               <LogsContainer height={dimensions.height} />
             </Grid>
           )}
@@ -99,7 +113,4 @@ Main.propTypes = {
   }).isRequired
 }
 
-export default R.compose(
-  React.memo,
-  withStyles(styles)
-)(Main)
+export default R.compose(React.memo, withStyles(styles))(Main)

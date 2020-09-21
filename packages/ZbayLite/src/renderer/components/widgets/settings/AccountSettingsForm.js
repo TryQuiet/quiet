@@ -6,7 +6,7 @@ import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
 
 import Icon from '../../ui/Icon'
-import usernameIcon from '../../../static/images/username.svg'
+import usernameIcon from '../../../static/images/userIcon.svg'
 
 const styles = theme => ({
   createUsernameContainer: {

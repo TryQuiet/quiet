@@ -85,7 +85,7 @@ export const ItemTransferMessage = ({
   rateUsd,
   openSentModal,
   currentBlock,
-  isRegisteredUsername
+  isRegisteredNickname
 }) => {
   const [actionsOpen, setActionsOpen] = React.useState(false)
   const usdAmount = new BigNumber(message.spent)
@@ -106,7 +106,10 @@ export const ItemTransferMessage = ({
             provideShipping: message.provideShipping,
             amountZec: parseFloat(message.spent.toString()),
             txid: message.id,
-            memo: message.message,
+            memo:
+              typeof message.message === 'object'
+                ? message.message.message
+                : message.message,
             recipient: message.receiver.replyTo,
             timestamp: message.createdAt,
             blockHeight: message.blockHeight
@@ -124,16 +127,23 @@ export const ItemTransferMessage = ({
         </Typography>
         <Typography variant='body2' className={classes.data}>
           {message.fromYou
-            ? `You sent ${message.offerOwner ||
-            isRegisteredUsername ? `@${message.receiver.username}` : message.receiver.replyTo} $${usdAmount} (${parseFloat(
-              message.spent.toString()
-            ).toFixed(4)} ZEC) ${message.tag ? `for #${message.tag}` : ''}`
-            : `Received from @${message.sender.username} $${usdAmount} (${
-              message.spent
-            } ZEC) ${message.tag ? `for #${message.tag}` : ''}`}
+            ? `You sent ${
+              message.offerOwner || isRegisteredNickname
+                ? `@${message.offerOwner || message.receiver.username}`
+                : message.receiver.replyTo
+            } $${usdAmount} (${parseFloat(message.spent.toString()).toFixed(
+              4
+            )} ZEC) ${message.tag ? `for #${message.tag}` : ''}`
+            : `${
+              message.sender.username
+                ? `Received from @${message.sender.username}`
+                : `Received from unknown`
+            } $${usdAmount} (${message.spent} ZEC) ${
+              message.tag ? `for #${message.tag}` : ''
+            }`}
         </Typography>
         <Typography variant='body2' className={classes.message}>
-          {message.message && `${message.message}`}
+          {!(typeof message.message === 'object') && `${message.message}`}
         </Typography>
         {message.shippingData && (
           <Typography variant='body2' className={classes.message}>
@@ -155,7 +165,7 @@ ItemTransferMessage.propTypes = {
   currentBlock: PropTypes.number.isRequired,
   openSentModal: PropTypes.func.isRequired,
   message: PropTypes.instanceOf(_DisplayableMessage).isRequired,
-  isRegisteredUsername: PropTypes.bool
+  isRegisteredNickname: PropTypes.bool
 }
 
 export default R.compose(React.memo, withStyles(styles))(ItemTransferMessage)

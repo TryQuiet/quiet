@@ -7,23 +7,26 @@ import AddModerator from '../../../components/widgets/channelSettings/AddModerat
 import channelSelectors from '../../../store/selectors/channel'
 import usersSelector from '../../../store/selectors/users'
 import { withModal } from '../../../store/handlers/modals'
-import messagesSelectors from '../../../store/selectors/messages'
 import { moderationActionsType } from '../../../../shared/static'
+import contactsSelectors from '../../../store/selectors/contacts'
 
 export const mapStateToProps = state => {
-  const members = channelSelectors
-    .messages()(state)
-    .reduce((acc, msg) => {
+  const messagesState = contactsSelectors.directMessages(channelSelectors.channelId(state))(state)
+  const visibleMessages = messagesState.get('visibleMessages')
+  const moderators = messagesState.get('channelModerators')
+  if (visibleMessages) {
+    const members = visibleMessages.reduce((acc, msg) => {
       return acc.add(msg.publicKey)
     }, new Set())
-  const moderators = new Set(
-    messagesSelectors.channelModerators(channelSelectors.channelId(state))(
-      state
-    )
-  )
-  return {
-    members: new Set([...members].filter(x => !moderators.has(x))),
-    users: usersSelector.users(state)
+    return {
+      members: new Set([...members].filter(x => !moderators.has(x))),
+      users: usersSelector.users(state)
+    }
+  } else {
+    return {
+      members: new Set([]),
+      users: usersSelector.users(state)
+    }
   }
 }
 

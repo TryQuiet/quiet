@@ -5,6 +5,7 @@ import * as R from 'ramda'
 import { actionCreators } from '../../../store/handlers/modals'
 import ChannelInputAction from '../../../components/widgets/channels/ChannelInputAction'
 import directMessageSelectors from '../../../store/selectors/directMessageChannel'
+import channelSelectors from '../../../store/selectors/channel'
 
 export const mapDispatchToProps = dispatch => {
   return bindActionCreators(
@@ -18,7 +19,8 @@ export const mapDispatchToProps = dispatch => {
 }
 
 export const mapStateToProps = state => ({
-  targetRecipientAddress: directMessageSelectors.targetRecipientAddress(state)
+  targetRecipientAddress: directMessageSelectors.targetRecipientAddress(state),
+  channelData: channelSelectors.data(state)
 })
 
 export default R.compose(connect(mapStateToProps, mapDispatchToProps))(

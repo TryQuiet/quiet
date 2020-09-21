@@ -76,7 +76,7 @@ export const AddModerator = ({
                 style={{ width: width, height: height, overflowX: 'hidden' }}
               >
                 {options
-                  .filter(nickname => nickname.startsWith(input || ''))
+                  .filter(nickname => nickname ? nickname.startsWith(input || '') : false)
                   .map(nickname => {
                     return (
                       <UserListItem

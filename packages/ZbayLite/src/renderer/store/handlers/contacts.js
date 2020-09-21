@@ -174,7 +174,6 @@ export const actions = {
 }
 export const loadContact = address => async (dispatch, getState) => {
   const contact = selectors.contact(address)(getState())
-  console.log(contact)
   dispatch(updateLastSeen({ contact }))
 }
 export const updatePendingMessage = ({ key, id, txid }) => async (
@@ -688,8 +687,10 @@ export const reducer = handleActions(
     ) =>
       state.update(contactAddress, Contact(), cm =>
         cm.update('newMessages', nm => {
-          remote.app.badgeCount = remote.app.badgeCount + messagesIds.length
-          return nm.concat(messagesIds)
+          remote.app.setBadgeCount(
+            remote.app.getBadgeCount() - nm.size + messagesIds.length
+          )
+          return Immutable.List(messagesIds)
         })
       ),
     [setLastSeen]: (state, { payload: { lastSeen, contact } }) =>

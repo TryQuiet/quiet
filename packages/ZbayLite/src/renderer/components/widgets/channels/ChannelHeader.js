@@ -21,7 +21,7 @@ import Icon from '../../ui/Icon'
 import silenced from '../../../static/images/silenced.svg'
 import silencedBlack from '../../../static/images/silencedBlack.svg'
 import Tooltip from '../../ui/Tooltip'
-import { unknownUserId } from '../../../../shared/static'
+// import { unknownUserId } from '../../../../shared/static'
 
 const styles = theme => ({
   root: {
@@ -123,7 +123,8 @@ export const ChannelHeader = ({
   mutedFlag,
   unmute,
   isRegisteredUsername,
-  userAddress
+  userAddress,
+  name
 }) => {
   const debounce = (fn, ms) => {
     let timer
@@ -136,12 +137,15 @@ export const ChannelHeader = ({
     }
   }
   const ActionsMenu = channelTypeToActions[channelType]
-  const isFromZbay = channel.get('name') !== unknownUserId
+  const isFromZbay = channel.get('name') !== 'Unknown'
   const [silenceHover, setSilenceHover] = React.useState(false)
   const [wrapperWidth, setWrapperWidth] = React.useState(0)
   React.useEffect(() => {
     setWrapperWidth(window.innerWidth - 300)
   })
+  React.useEffect(() => {
+    setTab(0)
+  }, [name])
   React.useEffect(() => {
     const handleResize = debounce(function handleResize () {
       setWrapperWidth(window.innerWidth - 300)
@@ -277,7 +281,8 @@ ChannelHeader.propTypes = {
   members: PropTypes.instanceOf(Set),
   updateShowInfoMsg: PropTypes.func.isRequired,
   users: PropTypes.instanceOf(Immutable.Map).isRequired,
-  isRegisteredUsername: PropTypes.bool
+  isRegisteredUsername: PropTypes.bool,
+  name: PropTypes.string.isRequired
 }
 
 ChannelHeader.defaultProps = {

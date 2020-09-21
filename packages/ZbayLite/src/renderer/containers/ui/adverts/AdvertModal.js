@@ -14,7 +14,7 @@ export const mapStateToProps = state => ({
   rateUsd: rate('usd')(state),
   rateZec: 1 / rate('usd')(state),
   balanceZec: identitySelector.balance('zec')(state),
-  minFee: channelSelector.advertFee(state)
+  minFee: parseFloat(channelSelector.advertFee(state))
 })
 
 export const SendMoneyModal = props => {

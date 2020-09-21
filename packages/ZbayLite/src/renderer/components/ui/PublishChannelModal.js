@@ -21,6 +21,10 @@ import {
 import LoadingButton from './LoadingButton'
 import { getBytesSize } from '../../../shared/helpers'
 import electronStore from '../../../shared/electronStore'
+import {
+  parseChannelName,
+  showParsedMessage
+} from '../widgets/channels/CreateChannelForm'
 
 const currentNetwork = parseInt(process.env.ZBAY_IS_TESTNET) ? 2 : 1
 // import { networkFee } from '../../../../shared/static'
@@ -114,7 +118,7 @@ export const formSchema = publicChannels =>
           'testFormat',
           'Channel name can contain only small characters and up to one hyphen.',
           function (value) {
-            return parseChannelName(value).match(/^[a-z0-9]+(-[a-z0-9]+)?$/)
+            return parseChannelName(value).match(/^[a-z0-9]+([\s-][a-z0-9]+){0,}$/)
           }
         )
         .validateName(publicChannels)
@@ -151,9 +155,7 @@ Yup.addMethod(Yup.mixed, 'validateSize', function (maxSize, errorMessage) {
     return getBytesSize(value) <= maxSize
   })
 })
-const parseChannelName = (name = '') => {
-  return name.toLowerCase().replace(/ +/g, '-')
-}
+
 export const PublishChannelModal = ({
   classes,
   balance,
@@ -182,14 +184,14 @@ export const PublishChannelModal = ({
           channelAddress: channel.address,
           channelName: parseChannelName(values.name),
           channelDescription: values.description,
-          channelIvk: electronStore.get(`importedChannels.${channel.address}.keys.ivk`)
+          channelIvk: electronStore.get(
+            `importedChannels.${channel.address}.keys.ivk`
+          )
         })
         setSending(false)
         handleClose()
       }}
-      isInitialValid={
-        !publicChannels.get(parseChannelName(channel.username))
-      }
+      isInitialValid={!publicChannels.get(parseChannelName(channel.username))}
       initialValues={{ name: channel.username, description: '' }}
       validate={values => {
         try {
@@ -235,7 +237,7 @@ export const PublishChannelModal = ({
                       />
                     </Grid>
                     <div className={classes.gutter}>
-                      {values.name.includes(' ') && (
+                      {showParsedMessage(values.name) && isValid && (
                         <Grid container alignItems='center' direction='row'>
                           <Grid item className={classes.iconDiv}>
                             <WarningIcon className={classes.warrningIcon} />

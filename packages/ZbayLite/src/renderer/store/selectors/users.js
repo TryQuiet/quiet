@@ -21,7 +21,7 @@ const myUser = createSelector(
       users.get(signerPubKey) || {
         firstName: '',
         lastName: '',
-        nickname: 'Anon' + signerPubKey.substring(0, 15),
+        nickname: 'anon' + signerPubKey.substring(0, 16),
         address: '',
         createdAt: 0
       }

@@ -14,6 +14,8 @@ import { messageType, actionTypes } from '../../../shared/static'
 import { messages as zbayMessages } from '../../zbay'
 import client from '../../zcash'
 import staticChannels from '../../zcash/channels'
+import notificationsHandlers from './notifications'
+import { infoNotification, successNotification } from './utils'
 
 const _ReceivedUser = publicKey =>
   Immutable.Record(
@@ -146,7 +148,13 @@ export const registerAnonUsername = () => async (dispatch, getState) => {
   )
 }
 export const createOrUpdateUser = payload => async (dispatch, getState) => {
-  const { nickname, firstName = '', lastName = '' } = payload
+  const {
+    nickname,
+    firstName = '',
+    lastName = '',
+    debounce = false,
+    retry = 0
+  } = payload
   const address = identitySelector.address(getState())
   const privKey = identitySelector.signerPrivKey(getState())
   const fee = feesSelector.userFee(getState())
@@ -171,17 +179,36 @@ export const createOrUpdateUser = payload => async (dispatch, getState) => {
   })
   dispatch(actionCreators.closeModal('accountSettingsModal')())
   try {
-    await client.sendTransaction(transfer)
-    // await subscribeUsernameTxn({
-    //   opId: id,
-    //   callback: error => {
-    //     if (error !== null) {
-    //       dispatch(actionCreators.openModal('failedUsernameRegister')())
-    //     }
-    //   }
-    // })
+    const txid = await client.sendTransaction(transfer)
+    if (txid.error) {
+      throw new Error(txid.error)
+    }
+    dispatch(
+      notificationsHandlers.actions.enqueueSnackbar(
+        successNotification({
+          message: `Your username will be confirmed in few minutes`
+        })
+      )
+    )
+    dispatch(notificationsHandlers.actions.removeSnackbar('username'))
   } catch (err) {
     console.log(err)
+    if (retry === 0) {
+      dispatch(
+        notificationsHandlers.actions.enqueueSnackbar(
+          infoNotification({
+            message: `Waiting for funds from faucet`,
+            key: 'username'
+          })
+        )
+      )
+    }
+    if (debounce === true && retry < 10) {
+      setTimeout(() => {
+        dispatch(createOrUpdateUser({ ...payload, retry: retry + 1 }))
+      }, 75000)
+      return
+    }
     dispatch(actionCreators.openModal('failedUsernameRegister')())
   }
 }
@@ -214,7 +241,7 @@ export const fetchUsers = (address, messages) => async (dispatch, getState) => {
       ) {
         minfee = parseFloat(msg.message.minFee)
       }
-      if (!msg.spent.gte(minfee) || msg.type !== messageType.USER) {
+      if (msg.type !== messageType.USER || !msg.spent.gte(minfee)) {
         continue
       }
       const user = ReceivedUser(msg)

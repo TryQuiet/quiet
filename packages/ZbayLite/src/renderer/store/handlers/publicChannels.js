@@ -125,7 +125,10 @@ export const publishChannel = ({
     amount: fee
   })
   try {
-    await client.sendTransaction(transfer)
+    const txid = await client.sendTransaction(transfer)
+    if (txid.error) {
+      throw new Error(txid.error)
+    }
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar(
         successNotification({

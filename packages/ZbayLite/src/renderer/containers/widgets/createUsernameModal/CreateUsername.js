@@ -10,7 +10,6 @@ import ratesSelectors from '../../../store/selectors/rates'
 
 import CreateUsernameModal from '../../../components/widgets/createUsername/CreateUsernameModal'
 import { withModal } from '../../../store/handlers/modals'
-import { networkFee } from '../../../../shared/static'
 export const mapStateToProps = state => {
   return {
     initialValues: {
@@ -24,9 +23,7 @@ export const mapStateToProps = state => {
     },
     usernameFee: feesSelectors.userFee(state),
     zecRate: ratesSelectors.rate('usd')(state),
-    enoughMoney: identitySelectors
-      .balance('zec')(state)
-      .gt(feesSelectors.userFee(state) + networkFee)
+    enoughMoney: true
   }
 }
 
@@ -35,7 +32,7 @@ export const mapDispatchToProps = dispatch =>
     {
       checkNickname: usersHandlers.epics.isNicknameTaken,
       handleSubmit: ({ nickname }) =>
-        usersHandlers.epics.createOrUpdateUser({ nickname })
+        usersHandlers.epics.createOrUpdateUser({ nickname, debounce: true })
     },
     dispatch
   )

@@ -26,9 +26,7 @@ macOS ```npm run dist```
 
 Windows ```npm run distwin```
 
-Ubuntu16 ```npm run distUbuntu16```
-
-Ubuntu18 ```npm run distUbuntu18```
+Ubuntu ```npm run distUbuntu```
 
 The built installers can then be found in the `dist` folder.
 
@@ -46,21 +44,15 @@ On Windows ```%HOMEPATH%\\AppData\\Roaming\\```
 
 Everything you need to restore your account, messages, and funds lives in the `Zbay` folder. To make a backup, simply copy the `Zbay` folder to a safe location. To restore a backup, install Zbay on a new machine, sync, quit, and then move your existing Zbay folder to its original location. Here's where to find it:
 
-On Linux ```~/.config/Zbay-lite/```
+On Linux ```~/.config/Zbay/```
 
-On macOS ```~/Library/Application Support/Zbay-lite/```
+On macOS ```~/Library/Application Support/Zbay/```
 
-On Windows ```%HOMEPATH%\\AppData\\Roaming\\Zbay-lite\\```
+On Windows ```%HOMEPATH%\\AppData\\Roaming\\Zbay\\```
 
 ## Tor support
 
-To use Zbay over the Tor network you will need to install tor:
-
-Linux ```apt-get install tor```
-
-macOS ```brew install tor```
-
-Run it in console by typing ```tor```. It should create socks5 proxy on port 9050. Run Zbay, check the "Connect with tor" option on the "enter password" screen, and Zbay will auto-detect the tor proxy and connect to it.
+The full node version of Zbay gave users the option of connecting via Tor. The light client version of Zbay removed the option of connecting via Tor, but we're working on bundling Tor with Zbay and using it by default, in all cases.
 
 ## Not enough disk space?
 

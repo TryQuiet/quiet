@@ -5,12 +5,12 @@ import BigNumber from 'bignumber.js'
 
 import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
-import { Typography, TextField } from '@material-ui/core'
-import InputAdornment from '@material-ui/core/InputAdornment'
+import { Typography } from '@material-ui/core'
+// import InputAdornment from '@material-ui/core/InputAdornment'
 import LoadingButton from '../LoadingButton'
 import InvitationModal from './InvitationModal'
-import exchange from '../../../static/images/zcash/exchange.svg'
-import Icon from '../Icon'
+// import exchange from '../../../static/images/zcash/exchange.svg'
+// import Icon from '../Icon'
 import { networkFee } from '../../../../shared/static'
 const styles = theme => ({
   warrning: {
@@ -104,12 +104,10 @@ export const InvitationModalGenerate = ({
     <InvitationModal title={`Invite a friend`}>
       <Grid item className={classes.warrning}>
         <Typography variant='body2'>
-          Get a link to invite friends to Zbay. Optionally, attach funds to the
-          link. After installing Zbay, your friend can open the link to claim
-          the funds!
+          Get a link to invite friends to Zbay.
         </Typography>
       </Grid>
-      <Grid container className={classes.divMoney}>
+      {/* <Grid container className={classes.divMoney}>
         <Grid xs item className={classes.moneyDiv}>
           <TextField
             name='usd'
@@ -163,15 +161,15 @@ export const InvitationModalGenerate = ({
               className: classes.moneyInput
             }}
           />
-        </Grid>
-      </Grid>
-      {disable && (
+        </Grid> */}
+      {/* </Grid> */}
+      {/* {disable && (
         <Grid item xs className={classes.error}>
           <Typography variant='body2'>{`You can't send more than ${balance.minus(
             networkFee
           )}`}</Typography>
         </Grid>
-      )}
+      )} */}
       {/* <Grid item>
         <FormControlLabel
           control={

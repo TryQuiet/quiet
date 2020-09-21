@@ -32,15 +32,6 @@ module.exports = [
   },
   {
     slideId: 4,
-    title: 'Pardon the wait...',
-    sentences: ['To sync the Zcash blockchain, Zbay requires one big initial download (23GB). This takes about 2 to 3 hours.',
-      'Zbay won\'t run in the background, so it won\'t slow your computer, and you can uninstall it at any time. The next time you run Zbay, connecting should take minutes.',
-      '(Moving to the same room as your router will help, as will switching to a 5Ghz wifi network. In the future, we hope to make this step unnecessary, but for now we’re stuck with it—sorry!)'
-    ],
-    fileName: './hourglass.svg'
-  },
-  {
-    slideId: 5,
     title: 'Registering a username',
     sentences: ['As soon as Zbay finishes downloading data, you can register a username.',
       'This username gets engraved in the Zcash blockchain. It is forever yours and nobody can take it away.',
@@ -49,7 +40,7 @@ module.exports = [
     fileName: './hello.svg'
   },
   {
-    slideId: 6,
+    slideId: 5,
     title: 'Everything is money.',
     sentences: ['Zbay uses the Zcash cryptocurrency to do everything.', 'Reading messages is free, but sending a message costs about 1/50th of a cent. These tiny fees let us use the Zcash network instead of a central server, protecting your privacy and freedom.',
       'To get you started, we’re sending you a few cents right now. Eventually you might want to buy Zcash on an exchange like Coinbase, especially if you’re interested in buying things on Zbay. (Don’t worry, it’s easy and we’ll help.)'
@@ -57,7 +48,7 @@ module.exports = [
     fileName: './money-bag.svg'
   },
   {
-    slideId: 7,
+    slideId: 6,
     title: 'Sending & receiving messages',
     sentences: ['Every direct message you send is encrypted so that only the recipient can read it.',
       'Unfortunately, messages can\'t be deleted, but deletion is not always what it seems. Some apps with "disappearing" messages don\'t really delete them from servers, and computers often leave traces of deleted files that can be restored later.',
@@ -66,14 +57,14 @@ module.exports = [
     fileName: './messages.svg'
   },
   {
-    slideId: 8,
+    slideId: 7,
     title: 'Channels (group chats)',
     sentences: ['Zbay has “channels”, group chats that can be either private or public.', 'Messages to a channel are still encrypted, but everyone who gets the key to the channel can see them.', 'Public channels have owners who can moderate messages. Nobody can delete messages, but channel owners can hide messages, for example to keep trolls from spoiling a functioning online community.'
     ],
     fileName: './group-chat.svg'
   },
   {
-    slideId: 9,
+    slideId: 8,
     title: 'Buying & selling',
     sentences: ['You can buy and sell things on Zbay, privately.', 'Zbay lets you send a seller your order information (quantity, size, etc.) and your shipping address (if necessary) with funds in an encrypted message.',
       'With Bitcoin, third parties can see who paid who, but Zcash makes this much more difficult, if not impossible, protecting your privacy. Someday Zbay will have escrow payments with dispute resolution and seller ratings. Right now, channel owners can use moderation to keep out scam sellers.'
@@ -81,9 +72,9 @@ module.exports = [
     fileName: './buying.svg'
   },
   {
-    slideId: 10,
+    slideId: 9,
     title: 'And now... some waiting!',
-    sentences: ['Our tour has concluded! Now we just have to wait for some blockchain files to download. Perhaps leave your computer and go have a sandwich.',
+    sentences: ['Our tour has concluded! Now we just have to wait for some blockchain files to download.',
       'If you\'d like to learn more about the values and vision behind the Zbay project, there\'s a great (and long) essay on our site.', 'Or you can learn more about Zcash the technology that Zbay builds on.'
     ],
     fileName: './hourglass.svg'

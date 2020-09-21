@@ -1,15 +1,14 @@
-require('dotenv').config()
 const { notarize } = require('electron-notarize')
 
 exports.default = async function notarizing (context) {
   const { electronPlatformName, appOutDir } = context
   if (electronPlatformName !== 'darwin') {
+    console.log('skipping notarization')
     return
   }
 
   const appName = context.packager.appInfo.productFilename
-  console.log(process.env.APPLEID, process.env.APPLEIDPASS)
-
+  console.log('notarization start')
   try {
     const response = await notarize({
       appBundleId: 'com.yourcompany.yourAppId',
@@ -19,7 +18,7 @@ exports.default = async function notarizing (context) {
     })
     return response
   } catch (e) {
-    console.log('some error', e)
+    console.log('error')
   }
   console.log('notarization done')
 }

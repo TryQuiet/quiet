@@ -12,12 +12,14 @@ import userSelector from '../../../store/selectors/users'
 import contactsSelectors from '../../../store/selectors/contacts'
 import nodeSelector from '../../../store/selectors/node'
 import appSelectors from '../../../store/selectors/app'
+import ownedChannelsSelectors from '../../../store/selectors/ownedChannels'
 import publicChannelsSelector from '../../../store/selectors/publicChannels'
 import { messageType } from '../../../../shared/static'
-// import channels from '../../../zcash/channels'
+import zcashChannels from '../../../zcash/channels'
 import channelHandlers from '../../../store/handlers/channel'
+import electronStore from '../../../../shared/electronStore'
 
-export const mapStateToProps = (state, { signerPubKey }) => {
+export const mapStateToProps = (state, { signerPubKey, network }) => {
   const qMessages = queueMessages.queue(state)
   const qDmMessages = dmQueueMessages.queue(state)
   const contactId = channelSelectors.id(state)
@@ -27,8 +29,11 @@ export const mapStateToProps = (state, { signerPubKey }) => {
     channelData:
       channelsSelectors.channelById(channelSelectors.channelId(state))(state) ||
       Immutable.fromJS({ keys: {} }),
-    messages: contactsSelectors.directMessages(contactId, signerPubKey)(state),
+    messages: contactsSelectors.directMessages(contactId, signerPubKey)(state).get('visibleMessages'),
+    messagesLength: contactsSelectors.messagesLength(contactId)(state),
+    displayableMessageLimit: channelSelectors.displayableMessageLimit(state),
     channelId: channelSelectors.channelId(state),
+    isOwner: ownedChannelsSelectors.isOwner(state),
     users: userSelector.users(state),
     loader: channelSelectors.loader(state),
     publicChannels: publicChannelsSelector.publicChannels(state),
@@ -39,52 +44,67 @@ export const mapStateToProps = (state, { signerPubKey }) => {
 export const mapDispatchToProps = (dispatch, ownProps) =>
   bindActionCreators(
     {
-      onLinkedChannel: channelHandlers.epics.linkChannelRedirect
+      onLinkedChannel: channelHandlers.epics.linkChannelRedirect,
+      setDisplayableLimit: channelHandlers.actions.setDisplayableLimit
     },
     dispatch
   )
 export const ChannelMessages = ({
   messages,
   tab,
+  network,
   contactId,
   channelId,
   contentRect,
   triggerScroll,
   channelData,
   users,
-  network,
   publicChannels,
   onLinkedChannel,
   isInitialLoadFinished,
-  loader
+  loader,
+  messagesLength,
+  displayableMessageLimit,
+  setDisplayableLimit,
+  isOwner
 }) => {
   const [scrollPosition, setScrollPosition] = React.useState(-1)
+  const [isRescanned, setIsRescanned] = React.useState(true)
+  // console.log(displayableMessageLimit)
+  // console.log(scrollPosition)
   useEffect(() => {
     setScrollPosition(-1)
+    setIsRescanned(!electronStore.get(`channelsToRescan.${channelId}`))
   }, [channelId, contactId])
   useEffect(() => {
     if (triggerScroll) {
       setScrollPosition(-1)
     }
   }, [triggerScroll])
-  const isOwner = !!channelData.get('keys').get('sk')
+  useEffect(() => {
+    if (scrollPosition === 0 && displayableMessageLimit < messagesLength) {
+      setDisplayableLimit(displayableMessageLimit + 5)
+    }
+  }, [scrollPosition])
+  const oldestMessage = messages ? messages.last() : null
   let usersRegistration = []
   let publicChannelsRegistration = []
-  // if (channelData.get('address') === channels.general[network].address) {
-  //   usersRegistration = Array.from(users.values())
-  //   publicChannelsRegistration = Array.from(
-  //     Object.values(publicChannels.toJS())
-  //   )
-  //   for (const ch of publicChannelsRegistration) {
-  //     delete Object.assign(ch, { createdAt: parseInt(ch['timestamp']) })[
-  //       'timestamp'
-  //     ]
-  //   }
-  // }
+  if (channelId === zcashChannels.general[network].address) {
+    if (oldestMessage) {
+      usersRegistration = Array.from(users.values()).filter(msg => msg.createdAt >= oldestMessage.createdAt)
+      publicChannelsRegistration = Array.from(
+        Object.values(publicChannels.toJS())
+      ).filter(msg => msg.timestamp >= oldestMessage.createdAt)
+      for (const ch of publicChannelsRegistration) {
+        delete Object.assign(ch, { createdAt: parseInt(ch['timestamp']) })['timestamp']
+      }
+    }
+  }
   return (
     <ChannelMessagesComponent
       scrollPosition={scrollPosition}
       setScrollPosition={setScrollPosition}
+      isRescanned={isRescanned}
       messages={
         tab === 0
           ? messages
@@ -112,6 +132,9 @@ export default connect(
       Immutable.is(before.messages, after.messages) &&
       before.tab === after.tab &&
       before.isInitialLoadFinished === after.isInitialLoadFinished &&
+      before.isOwner === after.isOwner &&
+      before.channelId === after.channelId &&
+      before.contactId === after.contactId &&
       Immutable.is(before.users, after.users) &&
       Immutable.is(before.publicChannels, after.publicChannels)
     )

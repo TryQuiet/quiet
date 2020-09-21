@@ -6,17 +6,16 @@ import * as R from 'ramda'
 import ChannelSettingsModalComponent from '../../../components/widgets/channelSettings/ChannelSettingsModal'
 import { withModal } from '../../../store/handlers/modals'
 import { actions } from '../../../store/handlers/app'
-import identitySelectors from '../../../store/selectors/identity'
 import channelSelectors from '../../../store/selectors/channel'
 import appSelectors from '../../../store/selectors/app'
 import contactsSelectors from '../../../store/selectors/contacts'
 
 export const mapStateToProps = state => {
   return {
-    channel: contactsSelectors.contact(channelSelectors.channel(state).get('address'))(state),
-    isOwner:
-      channelSelectors.channelOwner(state) ===
-      identitySelectors.signerPubKey(state),
+    channel: contactsSelectors.contact(
+      channelSelectors.channel(state).get('address')
+    )(state),
+    isOwner: channelSelectors.isOwner(state),
     modalTabToOpen: appSelectors.currentModalTab(state)
   }
 }

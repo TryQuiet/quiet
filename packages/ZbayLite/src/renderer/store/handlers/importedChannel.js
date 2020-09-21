@@ -3,18 +3,17 @@ import { createAction, handleActions } from 'redux-actions'
 
 import { uriToChannel } from '../../zbay/channels'
 import { errorNotification } from './utils'
-import identitySelectors from '../selectors/identity'
 import channelSelectors from '../selectors/channel'
 import channelsSelectors from '../selectors/channels'
 import identityHandlers from '../handlers/identity'
 import logsHandlers from '../handlers/logs'
 import importedChannelSelectors from '../selectors/importedChannel'
-import channelsHandlers from './channels'
 import notificationsHandlers from './notifications'
-import { getClient } from '../../zcash'
+import client from '../../zcash'
 import channels from '../../zcash/channels'
 import nodeSelectors from '../selectors/node'
 import modalsHandlers from './modals'
+import contactsHandlers from './contacts'
 import { actionTypes } from '../../../shared/static'
 import history from '../../../shared/history'
 import electronStore from '../../../shared/electronStore'
@@ -42,7 +41,10 @@ const actions = {
   setDecodingError
 }
 
-const removeChannel = (history, isOffer = false) => async (dispatch, getState) => {
+const removeChannel = (history, isOffer = false) => async (
+  dispatch,
+  getState
+) => {
   const state = getState()
   const channel = channelSelectors.channel(state).toJS()
   try {
@@ -56,7 +58,11 @@ const removeChannel = (history, isOffer = false) => async (dispatch, getState) =
         electronStore.set(`removedChannels.${channel.address}`, channel)
       }
       const removedChannels = electronStore.get('removedChannels')
-      dispatch(identityHandlers.actions.setRemovedChannels(Immutable.fromJS(Object.keys(removedChannels))))
+      dispatch(
+        identityHandlers.actions.setRemovedChannels(
+          Immutable.fromJS(Object.keys(removedChannels))
+        )
+      )
       history.push(`/main/channel/${channelsSelectors.generalChannelId(state)}`)
       dispatch(
         notificationsHandlers.actions.enqueueSnackbar({
@@ -96,25 +102,27 @@ const removeChannel = (history, isOffer = false) => async (dispatch, getState) =
 
 const importChannel = () => async (dispatch, getState) => {
   const state = getState()
-  const identityId = identitySelectors.id(state)
   const channel = importedChannelSelectors.data(state).toJS()
-  const lastblock = nodeSelectors.latestBlock(getState())
-  const fetchTreshold = lastblock - 2000
   try {
-    if (channel.keys.sk) {
-      await getClient().keys.importSK({
-        sk: channel.keys.sk,
-        rescan: 'yes',
-        startHeight: fetchTreshold
+    const importedChannels = electronStore.get(`importedChannels`) || {}
+    electronStore.set(`channelsToRescan.${channel.address}`, true)
+    electronStore.set('importedChannels', {
+      ...importedChannels,
+      [channel.address]: {
+        address: channel.address,
+        name: channel.name,
+        description: channel.description,
+        owner: '',
+        keys: channel.keys
+      }
+    })
+    await dispatch(
+      contactsHandlers.actions.addContact({
+        key: channel.address,
+        contactAddress: channel.address,
+        username: channel.name
       })
-    } else {
-      await getClient().keys.importIVK({
-        ivk: channel.keys.ivk,
-        rescan: 'yes',
-        startHeight: fetchTreshold
-      })
-    }
-    await dispatch(channelsHandlers.actions.loadChannels(identityId))
+    )
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar({
         message: `Successfully imported channel ${channel.name}`,
@@ -130,11 +138,8 @@ const importChannel = () => async (dispatch, getState) => {
       })
     )
     dispatch(modalsHandlers.actionCreators.closeModal('importChannelModal')())
-    const channelsData = channelsSelectors.data(getState())
-    const id = channelsData
-      .find(ch => ch.get('address') === channel.address)
-      .get('id')
-    history.push(`/main/channel/${id}`)
+
+    history.push(`/main/channel/${channel.address}`)
     dispatch(clear())
   } catch (err) {
     dispatch(
@@ -152,10 +157,26 @@ const decodeChannelEpic = uri => async (dispatch, getState) => {
   dispatch(setDecoding(true))
   try {
     const channel = await uriToChannel(uri)
-    const allChannels = channelsSelectors.data(getState())
-    const checkImported = allChannels.find(
-      ch => ch.get('keys').get('ivk') === channel.keys.ivk
+
+    const importedChannels = electronStore.get(`importedChannels`)
+    let importAddress
+    let checkImported = false
+    const checkExisting = Object.values(importedChannels).filter(
+      x => x.keys.ivk === channel.keys.ivk
     )
+    if (checkExisting.length === 0) {
+      const addressBefore = await client.addresses()
+      await client.importKey(channel.keys.ivk)
+      const addressAfter = await client.addresses()
+      const addressesDifference = addressAfter.z_addresses.filter(
+        x => !addressBefore.z_addresses.includes(x)
+      )
+      importAddress = addressesDifference[0]
+      electronStore.set(`channelsToRescan.${importAddress}`, true)
+    } else {
+      importAddress = checkExisting[0].address
+      checkImported = true
+    }
     if (checkImported) {
       dispatch(
         notificationsHandlers.actions.enqueueSnackbar(
@@ -165,17 +186,12 @@ const decodeChannelEpic = uri => async (dispatch, getState) => {
       dispatch(
         logsHandlers.epics.saveLogs({
           type: 'APPLICATION_LOGS',
-          payload: `Channel already imported ${channel.address}`
+          payload: `Channel already imported ${importAddress}`
         })
       )
-      history.push(`/main/channel/${checkImported.get('id')}`)
+      history.push(`/main/channel/${importAddress}`)
     } else {
-      const imported = await getClient().keys.importIVK({
-        ivk: channel.keys.ivk,
-        rescan: 'no',
-        startHeight: 0
-      })
-      dispatch(setData({ ...channel, address: imported.address }))
+      dispatch(setData({ ...channel, address: importAddress }))
       const openModal = modalsHandlers.actionCreators.openModal(
         'importChannelModal'
       )

@@ -9,6 +9,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Checkbox from '@material-ui/core/Checkbox'
 
 import UserListItem from '../channelSettings/UserListItem'
+import LoadingButton from '../../ui/LoadingButton'
 
 const styles = theme => ({
   title: {},
@@ -27,6 +28,13 @@ const styles = theme => ({
   },
   imageHostsDiv: {
     marginTop: 32
+  },
+  button: {
+    height: 60,
+    marginTop: 24,
+    width: 168,
+    fontSize: 16,
+    backgroundColor: theme.palette.colors.zbayBlue
   }
 })
 
@@ -37,7 +45,8 @@ export const Security = ({
   allowAll,
   toggleAllowAll,
   removeImageHost,
-  removeSiteHost
+  removeSiteHost,
+  openSeedModal
 }) => {
   return (
     <Grid container direction='column'>
@@ -127,6 +136,32 @@ export const Security = ({
           })}
         </Grid>
       )}
+      <Grid item>
+        <Grid item className={classes.subtitle}>
+          <Typography variant='h5'>Your private recovery key</Typography>
+        </Grid>
+        <Grid item>
+          <Typography variant='body2'>
+            If something happens to your computer, you’ll need this key to
+            recover your account and your funds.
+          </Typography>
+        </Grid>
+        <Grid item className={classes.buttonDiv}>
+          <LoadingButton
+            variant='contained'
+            size='large'
+            color='primary'
+            type='submit'
+            fullWidth
+            inProgress={false}
+            className={classes.button}
+            onClick={() => {
+              openSeedModal()
+            }}
+            text='View key'
+          />
+        </Grid>
+      </Grid>
     </Grid>
   )
 }
@@ -136,6 +171,7 @@ Security.propTypes = {
   autoload: PropTypes.instanceOf(Immutable.List).isRequired,
   allowAll: PropTypes.bool.isRequired,
   toggleAllowAll: PropTypes.func.isRequired,
+  openSeedModal: PropTypes.func.isRequired,
   removeImageHost: PropTypes.func.isRequired,
   removeSiteHost: PropTypes.func.isRequired
 }

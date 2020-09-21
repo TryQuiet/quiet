@@ -7,7 +7,7 @@ import RPC from './client'
 let _client = null
 let _username = null
 export const credentials = () => {
-  const isDev = process.env.NODE_ENV === 'development'
+  const isDev = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'production'
   const username = electronStore.get('username')
   if (isDev || !username) {
     return {

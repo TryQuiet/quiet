@@ -24,6 +24,17 @@ export const successNotification = ({ message, options }) => ({
   }
 })
 
+export const infoNotification = ({ message, options, key }) => ({
+  message,
+  key,
+  options: {
+    variant: 'info',
+    action: notifierAction,
+    persist: true,
+    ...options
+  }
+})
+
 export const LoaderState = Immutable.Record({
   loading: false,
   message: ''

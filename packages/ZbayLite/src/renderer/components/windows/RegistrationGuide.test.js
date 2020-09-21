@@ -20,7 +20,7 @@ describe('RegistraionGuide', () => {
         {
           slideId: 10,
           title: 'And now... some waiting!',
-          sentences: ['Our tour has concluded! Now, we just have to wait for some blockchain files to download. Perhaps leave your computer and go have a sandwich.',
+          sentences: ['Our tour has concluded! Now, we just have to wait for some blockchain files to download.',
             'If you\'d like to learn more about the values and vision behind the Zbay project, there\'s a great (and long) essay on our site.', 'Or you can learn more about Zcash the technology that Zbay builds on.'
           ],
           fileName: './hourglass.svg'

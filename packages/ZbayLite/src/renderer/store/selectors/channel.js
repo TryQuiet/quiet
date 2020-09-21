@@ -37,6 +37,9 @@ export const isSizeCheckingInProgress = createSelector(channel, c =>
 export const messageSizeStatus = createSelector(channel, c =>
   c.get('messageSizeStatus')
 )
+export const displayableMessageLimit = createSelector(channel, c =>
+  c.get('displayableMessageLimit')
+)
 export const isOwner = createSelector(
   id,
   contacts.contacts,
@@ -55,14 +58,52 @@ export const isOwner = createSelector(
     return false
   }
 )
-export const advertFee = createSelector(data, data =>
-  data ? data.get('advertFee') : 0
+export const channelSettingsMessage = createSelector(
+  data,
+  identitySelectors.signerPubKey,
+  (data, signerPubKey) => {
+    if (!data) {
+      return null
+    }
+    const settingsMsg = data.messages.filter(
+      msg =>
+        msg.type === messageType.CHANNEL_SETTINGS ||
+        msg.type === messageType.CHANNEL_SETTINGS_UPDATE
+    )
+    if (!settingsMsg.size) {
+      return null
+    }
+    return settingsMsg.reduce((prev, curr) =>
+      prev.createdAt > curr.createdAt ? prev : curr
+    )
+  }
+)
+export const advertFee = createSelector(channelSettingsMessage, settingsMsg => {
+  if (settingsMsg === null) {
+    return 0
+  }
+  return settingsMsg.message.minFee || settingsMsg.message.updateMinFee
+})
+export const channelDesription = createSelector(
+  channelSettingsMessage,
+  settingsMsg => {
+    if (settingsMsg === null) {
+      return 0
+    }
+    return settingsMsg.message.updateChannelDescription || ''
+  }
+)
+export const onlyRegistered = createSelector(
+  channelSettingsMessage,
+  settingsMsg => {
+    if (settingsMsg === null) {
+      return 0
+    }
+    return settingsMsg.message.updateOnlyRegistered || '0'
+  }
 )
 export const unread = createSelector(data, data =>
   data ? data.get('unread') : 0
-)
-export const onlyRegistered = createSelector(data, data =>
-  data ? data.get('onlyRegistered') : false
 )
 
 export const pendingMessages = createSelector(
@@ -254,11 +295,15 @@ export const INPUT_STATE = {
 
 export const channelId = createSelector(channel, ch => ch.id)
 
-export const members = createSelector(messages(), msgs =>
-  msgs.reduce((acc, msg) => {
+export const members = createSelector(contacts.contacts, id, (c, channelId) => {
+  const contact = c.get(channelId)
+  if (!contact) {
+    return new Set()
+  }
+  return contact.messages.toList().reduce((acc, msg) => {
     return acc.add(msg.sender.replyTo)
   }, new Set())
-)
+})
 
 export const channelParticipiants = createSelector(
   contacts.contacts,
@@ -301,5 +346,7 @@ export default {
   messageSizeStatus,
   isSizeCheckingInProgress,
   id,
-  isOwner
+  isOwner,
+  channelDesription,
+  displayableMessageLimit
 }

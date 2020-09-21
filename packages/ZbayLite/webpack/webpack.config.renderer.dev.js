@@ -35,17 +35,6 @@ module.exports = {
       {
         test: /\.mp3$/,
         loader: 'file-loader'
-      },
-      {
-        test: /\.node$/,
-        use: [
-          {
-            loader: path.resolve('./webpack/loaders/NativeLoader.js'),
-            options: {
-              name: '[name]-[hash].[ext]'
-            }
-          }
-        ]
       }
     ]
   },

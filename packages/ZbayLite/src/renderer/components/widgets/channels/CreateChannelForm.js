@@ -47,17 +47,26 @@ const styles = theme => ({
     wordBreak: 'break-word'
   }
 })
-const parseChannelName = (name = '') => {
+export const parseChannelName = (name = '') => {
   return name.toLowerCase().replace(/ +/g, '-')
 }
 export const formSchema = Yup.object().shape({
   name: Yup.string()
     .max(20, 'Channel name is too long.')
-    .test('testFormat', 'Channel name can contain only small characters and up to one hyphen.', function (value) {
-      return parseChannelName(value).match(/^[a-z0-9]+(-[a-z0-9]+)?$/)
-    })
+    .test(
+      'testFormat',
+      'Channel name can contain only small characters and up to one hyphen.',
+      function (value) {
+        return parseChannelName(value).match(/^[a-z0-9]+([\s-][a-z0-9]+){0,}$/)
+      }
+    )
     .required('Your channel must have a name.')
 })
+
+export const showParsedMessage = (message = '') => {
+  return message.includes(' ') || message !== message.toLowerCase()
+}
+
 export const CreateChannelForm = ({ classes, onSubmit, setStep }) => (
   <Formik
     validationSchema={formSchema}
@@ -84,7 +93,7 @@ export const CreateChannelForm = ({ classes, onSubmit, setStep }) => (
           <Typography variant='body2'>Channel name</Typography>
           <TextField name='name' placeholder='my-channel' />
           <div className={classes.gutter}>
-            {values.name.includes(' ') && (
+            {showParsedMessage(values.name) && isValid && (
               <Grid container alignItems='center' direction='row'>
                 <Grid item className={classes.iconDiv}>
                   <WarningIcon className={classes.warrningIcon} />
