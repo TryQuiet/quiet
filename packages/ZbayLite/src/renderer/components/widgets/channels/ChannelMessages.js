@@ -29,7 +29,7 @@ const messagesTypesToDisplay = [1, 2, 4, 11, 41]
 const welcomeMessages = {
   offer: (item, username) =>
     `This is a private conversation with @${username} about their #${item} offer. Feel free to ask them a question about the product or provide other details about your purchase!`,
-  main: `Congrats! You created a channel. You can make your channel public or share the channel link with others by accessing the “•••” menu at the top. You’ll also find a bunch of other settings. Have a great time!`
+  main: `Congrats! You created a channel. You can share the channel link with others by accessing the “•••” menu at the top. Once you're registered as the channel owner (this can take a few minutes) you’ll be able to publish your channel and change its settings. Have a great time!`
 }
 // TODO: scrollbar smart pagination
 export const ChannelMessages = ({
