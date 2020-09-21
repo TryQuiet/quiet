@@ -174,8 +174,7 @@ export const Notifications = ({
                 </Grid>
                 <Grid item>
                   <span>
-                    You won’t receive notificaitons from Zbay. You will still
-                    see badges within Zbay.
+                    You won’t receive notificaitons from Zbay.
                   </span>
                 </Grid>
               </Grid>
