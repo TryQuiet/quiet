@@ -53,11 +53,8 @@ const coordinator = () => async (dispatch, getState) => {
   // }
   const fetchStatus = async () => {
     for (let index = 0; index < statusActions.size; index++) {
-      console.log('coordinator status')
-
       await dispatch(statusActions.get(index)())
       const isRescaning = nodeSelectors.isRescanning(getState())
-      console.log(isRescaning)
       if (isRescaning) {
         dispatch(appHandlers.actions.setInitialLoadFlag(false))
         break
