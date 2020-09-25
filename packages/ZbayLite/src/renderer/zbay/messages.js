@@ -397,13 +397,13 @@ export const messageToTransfer = async ({
   if (address.length === 35) {
     transfer = {
       address: address,
-      amount: parseFloat(amount) * satoshiMultiplier
+      amount: new BigNumber(amount).times(satoshiMultiplier).toNumber()
     }
   } else {
     memo = await packMemo(message)
     transfer = {
       address: address,
-      amount: parseFloat(amount) * satoshiMultiplier,
+      amount: new BigNumber(amount).times(satoshiMultiplier).toNumber(),
       memo: `0x${trimMemo(memo)}`
     }
   }
@@ -416,7 +416,7 @@ export const messageToTransfer = async ({
 export const createEmptyTransfer = ({ address, amount = 0, memo = '' }) => {
   return {
     address: address,
-    amount: parseFloat(amount) * satoshiMultiplier,
+    amount: new BigNumber(amount).times(satoshiMultiplier).toNumber(),
     memo: memo
   }
 }
