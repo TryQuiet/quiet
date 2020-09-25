@@ -496,7 +496,7 @@ export const generateNewAddress = () => async (dispatch, getState) => {
     electronStore.set('addresses', JSON.stringify([]))
   }
   const addresses = JSON.parse(electronStore.get('addresses'))
-  const address = await client().addresses.createTransparent()
+  const address = await client.getNewTransparentAdress()
   addresses.unshift(address)
   dispatch(setUserAddreses(Immutable.List(addresses)))
   electronStore.set('addresses', JSON.stringify(addresses))
@@ -506,7 +506,7 @@ export const generateNewShieldedAddress = () => async (dispatch, getState) => {
     electronStore.set('shieldedAddresses', JSON.stringify([]))
   }
   const addresses = JSON.parse(electronStore.get('shieldedAddresses'))
-  const address = await client().addresses.create('sapling')
+  const address = await client.getNewShieldedAdress()
   addresses.unshift(address)
   dispatch(setUserShieldedAddreses(Immutable.List(addresses)))
   electronStore.set('shieldedAddresses', JSON.stringify(addresses))
