@@ -16,11 +16,16 @@ export const SendMessagePopover = ({
   anchorEl,
   handleClose,
   isUnregistered,
-  createContact,
-  history
+  createNewContact,
+  history,
+  users
 }) => {
   const open = Boolean(anchorEl)
   const id = open ? 'simple-popover' : undefined
+  const registeredUsername = users
+    .toList()
+    .filter(obj => obj.get('address') === address)
+    .first()
   return (
     <Popover
       className={classes.popover}
@@ -44,14 +49,16 @@ export const SendMessagePopover = ({
         warrning={
           isUnregistered ? 'Unregistered users cannot receive messages.' : null
         }
-        onClick={() =>
-          createContact({
+        onClick={() => {
+          createNewContact({
             contact: {
-              replyTo: address,
-              username
+              address,
+              nickname: username,
+              publicKey: registeredUsername ? registeredUsername.get('publicKey') : null
             },
             history
           })
+        }
         }
       >
         <Jdenticon size='100' value={username} />

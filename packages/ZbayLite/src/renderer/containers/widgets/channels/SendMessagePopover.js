@@ -6,16 +6,18 @@ import * as R from 'ramda'
 
 import SendMessagePopover from '../../../components/widgets/channels/SendMessagePopover'
 import identitySelectors from '../../../store/selectors/identity'
-import contactsHandlers from '../../../store/handlers/contacts'
+import userSelectors from '../../../store/selectors/users'
+import directMessages from '../../../store/handlers/contacts'
 
 export const mapStateToProps = state => ({
-  identityId: identitySelectors.id(state)
+  identityId: identitySelectors.id(state),
+  users: userSelectors.users(state)
 })
 
 export const mapDispatchToProps = (dispatch) =>
   bindActionCreators(
     {
-      createContact: contactsHandlers.epics.createVaultContact
+      createNewContact: (contact) => directMessages.epics.createVaultContact(contact)
     },
     dispatch
   )
