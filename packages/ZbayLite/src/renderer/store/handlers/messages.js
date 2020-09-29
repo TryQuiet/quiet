@@ -245,17 +245,25 @@ export const findNewMessages = (key, messages, state, isDM = false) => {
       channelFilter === notificationFilterType.MENTIONS
     ) {
       const myUser = usersSelectors.myUser(state)
-      return filteredByTimeAndType.filter(msg =>
-        msg.message.itemId
-          ? msg.message.text
-            .split(' ')
-            .map(text => text.trim())
-            .includes(`@${myUser.nickname}`)
-          : msg.message
-            .split(' ')
-            .map(text => text.trim())
-            .includes(`@${myUser.nickname}`)
-      )
+      return filteredByTimeAndType.filter(msg => {
+        if (msg.message.itemId) {
+          return (
+            msg.message.text &&
+            msg.message.text
+              .split(' ')
+              .map(text => text.trim())
+              .includes(`@${myUser.nickname}`)
+          )
+        } else {
+          return (
+            msg.message &&
+            msg.message
+              .split(' ')
+              .map(text => text.trim())
+              .includes(`@${myUser.nickname}`)
+          )
+        }
+      })
     }
     return filteredByTimeAndType
   }
