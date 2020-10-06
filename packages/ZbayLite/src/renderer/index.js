@@ -11,9 +11,11 @@ import updateHandlers from './store/handlers/update'
 import invitationHandlers from './store/handlers/invitation'
 import importChannelHandlers from './store/handlers/importedChannel'
 import coordinatorHandlers from './store/handlers/coordinator'
+import messagesHandlers from './store/handlers/messages'
 import nodeSelectors from './store/selectors/node'
 import coordinatorSelectors from './store/selectors/coordinator'
 import logsHandlers from './store/handlers/logs'
+import identityHandlers from './store/handlers/identity'
 import logsSelctors from './store/selectors/logs'
 import { errorNotification, successNotification } from './store/handlers/utils'
 
@@ -56,6 +58,14 @@ ipcRenderer.on('fetchingStatus', (event, { sizeLeft, part, status, speed, eta, r
 
 ipcRenderer.on('newUpdateAvailable', event => {
   store.dispatch(updateHandlers.epics.checkForUpdate())
+})
+
+ipcRenderer.on('onionAddress', (_, address) => {
+  store.dispatch(identityHandlers.actions.setOnionAddress(address))
+})
+
+ipcRenderer.on('wsMessage', (_, data) => {
+  store.dispatch(messagesHandlers.epics.handleWebsocketMessage(data))
 })
 
 ipcRenderer.on('askForUsingDefaultBlockchainLocation', event => {

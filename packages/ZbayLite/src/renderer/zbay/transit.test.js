@@ -43,6 +43,30 @@ const messageUserMainnet = {
       'zs1ecsq8thnu84ejvfx2jcfsa6zas2k057n3hrhuy0pahmlvqfwterjaz3h772ldlsgp5r2xwvml9g'
   }
 }
+const messageUserV2Testnet = {
+  type: messageType.USER_V2,
+  signature: sigObj.signature,
+  r: sigObj.recovery,
+  createdAt: now.toSeconds(),
+  message: {
+    onionAddress: '4vgnk45ts72fkqu6em5ldh3w3ka54rsqghe6ptvhslygeowdpirlpeid',
+    nickname: 'nickname',
+    address:
+      'ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r'
+  }
+}
+const messageUserV2Mainnet = {
+  type: messageType.USER_V2,
+  signature: sigObj.signature,
+  r: sigObj.recovery,
+  createdAt: now.toSeconds(),
+  message: {
+    onionAddress: '4vgnk45ts72fkqu6em5ldh3w3ka54rsqghe6ptvhslygeowdpirlpeid',
+    nickname: 'nickname',
+    address:
+      'zs1ecsq8thnu84ejvfx2jcfsa6zas2k057n3hrhuy0pahmlvqfwterjaz3h772ldlsgp5r2xwvml9g'
+  }
+}
 const advert = {
   type: messageType.AD,
   signature: sigObj.signature,
@@ -176,6 +200,21 @@ describe('transit', () => {
       expect(Buffer.byteLength(data, 'hex')).toEqual(MEMO_SIZE)
       const output = await unpackMemo(data)
       expect(output).toEqual(messageUserMainnet)
+    })
+  })
+  describe('pack/unpack User v2 memo', () => {
+    it('is symmetrical testnet', async () => {
+      const data = await packMemo(messageUserV2Testnet)
+      expect(Buffer.byteLength(data, 'hex')).toEqual(MEMO_SIZE)
+      const output = await unpackMemo(data)
+      expect(output).toEqual(messageUserV2Testnet)
+    })
+
+    it('is symmetrical mainnet', async () => {
+      const data = await packMemo(messageUserV2Mainnet)
+      expect(Buffer.byteLength(data, 'hex')).toEqual(MEMO_SIZE)
+      const output = await unpackMemo(data)
+      expect(output).toEqual(messageUserV2Mainnet)
     })
   })
   describe('pack/unpack Advert memo', () => {

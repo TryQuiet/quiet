@@ -48,17 +48,22 @@
       "owner": "ZbayApp",
       "releaseType": "draft"
     },
-    "extraResources": "worker/**/*"
+    "extraResources": [
+      "worker/**/*",
+      "tor/**/*"
+    ]
   },
   "homepage": "https://gitlab.rumblefishdev.com/holmes/zbay",
   "@comment version": "To build new version for specific platform, just replace platform in version tag to one of following linux, mac, windows",
-  "version": "2.0.4-zbay-lite",
+  "version": "2.1.0-zbay-lite",
   "description": "Distributed goods and bulletin board",
   "main": "dist/main.js",
   "scripts": {
-    "dist": "npm run build:prod && electron-builder --mac",
-    "distUbuntu": "npm run build:prod && electron-builder --linux",
-    "distwin": " && npm run build:prod && electron-builder --win",
+    "pullBinaries": "wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/tor -P ./tor/ && chmod 775 ./tor/tor",
+    "pullBinariesWin": "wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/tor.exe -P ./tor/  && chmod 775 ./tor/tor.exe",
+    "dist": "export SOURCE_PATH=darwin && npm run pullBinaries && npm run build:prod && electron-builder --mac",
+    "distUbuntu": "export SOURCE_PATH=linux && npm run pullBinaries && npm run build:prod && electron-builder --linux",
+    "distwin": "export SOURCE_PATH=win32 && npm run pullBinariesWin && npm run build:prod && electron-builder --win",
     "lint": "standard",
     "test": "npm run lint && jest",
     "test:watch": "npm run lint && jest --watchAll",
@@ -190,6 +195,7 @@
     "formik-material-ui": "0.0.22",
     "fs-extra": "^8.1.0",
     "get-folder-size": "^2.0.1",
+    "https-proxy-agent": "^5.0.0",
     "identity-obj-proxy": "^3.0.0",
     "immutable": "^4.0.0-rc.12",
     "is-port-reachable": "^3.0.0",
@@ -227,7 +233,9 @@
     "sanitize-html": "^1.27.0",
     "touch": "^3.1.0",
     "typeface-roboto": "0.0.54",
-    "yup": "^0.27.0",
-    "worker-loader": "^3.0.1"
+    "websocket": "^1.0.32",
+    "worker-loader": "^3.0.1",
+    "ws": "^7.3.1",
+    "yup": "^0.27.0"
   }
 }

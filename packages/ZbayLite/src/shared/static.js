@@ -58,6 +58,7 @@ export const actionTypes = mirrorKey({
   SET_USER_FEE: undefined,
   SET_PUBLIC_CHANNEL_FEE: undefined,
   SET_IDENTITY: undefined,
+  SET_ONION_ADDRESS: undefined,
   SET_IDENTITY_BALANCE: undefined,
   SET_IDENTITY_LOCKED_BALANCE: undefined,
   SET_IDENTITY_ERROR: undefined,
@@ -179,6 +180,7 @@ export const messageType = {
   PUBLISH_CHANNEL: 8,
   ITEM_BASIC: 11,
   ITEM_TRANSFER: 41,
+  USER_V2: 51,
   CHANNEL_SETTINGS_UPDATE: 61,
   AFFILIATE: 170 // 'aa' in hex
 }

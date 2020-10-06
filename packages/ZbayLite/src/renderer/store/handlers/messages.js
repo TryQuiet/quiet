@@ -1,6 +1,8 @@
 import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
 import * as R from 'ramda'
+import crypto from 'crypto'
+
 import { createAction, handleActions } from 'redux-actions'
 // import { remote } from 'electron'
 
@@ -15,6 +17,7 @@ import usersHandlers from './users'
 import ratesHandlers from './rates'
 import publicChannelsHandlers from './publicChannels'
 import appHandlers from './app'
+
 import {
   messageType,
   actionTypes,
@@ -23,9 +26,18 @@ import {
   notificationFilterType
 } from '../../../shared/static'
 import { messages as zbayMessages } from '../../zbay'
-import { checkMessageSizeAfterComporession } from '../../zbay/transit'
+import {
+  checkMessageSizeAfterComporession,
+  unpackMemo
+} from '../../zbay/transit'
 import client from '../../zcash'
-import { DisplayableMessage } from '../../zbay/messages'
+import {
+  DisplayableMessage,
+  getPublicKeysFromSignature,
+  ExchangeParticipant,
+  usernameSchema,
+  messageSchema
+} from '../../zbay/messages'
 import channels from '../../zcash/channels'
 import { displayMessageNotification } from '../../notifications'
 import electronStore from '../../../shared/electronStore'
@@ -643,10 +655,99 @@ export const checkMessageSize = redirect => {
   }
   return thunk
 }
+export const handleWebsocketMessage = data => async (dispatch, getState) => {
+  const users = usersSelectors.users(getState())
+  let publicKey = null
+  let message = null
+  let sender = { replyTo: '', username: 'Unnamed' }
+  let isUnregistered = false
+  try {
+    message = await unpackMemo(data)
+    const { type } = message
+    if (type === 'UNKNOWN') {
+      return {
+        type: 'UNKNOWN',
+        payload: message,
+        id: '1'
+      }
+    }
+    publicKey = getPublicKeysFromSignature(message).toString('hex')
+    if (users !== undefined) {
+      const fromUser = users.get(publicKey)
+      if (fromUser !== undefined) {
+        const isUsernameValid = usernameSchema.isValidSync(fromUser)
+        sender = ExchangeParticipant({
+          replyTo: fromUser.address,
+          username: isUsernameValid
+            ? fromUser.nickname
+            : `anon${publicKey.substring(0, 10)}`
+        })
+      } else {
+        sender = ExchangeParticipant({
+          replyTo: '',
+          username: `anon${publicKey}`
+        })
+        isUnregistered = true
+      }
+    }
+  } catch (err) {
+    console.warn(err)
+    return null
+  }
+  try {
+    const toUser =
+      users.find(u => u.address === sender.replyTo) || ExchangeParticipant()
+    const messageDigest = crypto.createHash('sha256')
 
+    const messageEssentials = R.pick(['createdAt', 'message'])(
+      message
+    )
+    const key = messageDigest
+      .update(JSON.stringify(messageEssentials))
+      .digest('hex')
+    const msg = {
+      ...(await messageSchema.validate(message)),
+      id: key,
+      receiver: {
+        replyTo: toUser.address,
+        publicKey: toUser.publicKey,
+        username: toUser.nickname
+      },
+      spent: new BigNumber(0),
+      sender: sender,
+      fromYou: true,
+      isUnregistered,
+      publicKey,
+      offerOwner: message.message.offerOwner,
+      tag: message.message.tag,
+      shippingData: message.message.shippingData
+    }
+    const parsedMsg = DisplayableMessage(msg)
+    const contacts = contactsSelectors.contacts(getState())
+    if (!contacts.get(publicKey)) {
+      await dispatch(
+        contactsHandlers.actions.addContact({
+          key: publicKey,
+          contactAddress: msg.sender.replyTo,
+          username: msg.sender.username
+        })
+      )
+    }
+    dispatch(
+      contactsHandlers.actions.addMessage({
+        key: publicKey,
+        message: { [key]: parsedMsg }
+      })
+    )
+  } catch (err) {
+    console.warn('Incorrect message format: ', err)
+    return null
+  }
+}
 export const epics = {
   fetchMessages,
-  checkMessageSize
+  checkMessageSize,
+  handleWebsocketMessage
 }
 
 export const reducer = handleActions(

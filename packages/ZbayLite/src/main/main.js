@@ -1,9 +1,4 @@
-import {
-  app,
-  BrowserWindow,
-  Menu,
-  ipcMain
-} from 'electron'
+import { app, BrowserWindow, Menu, ipcMain } from 'electron'
 import electronLocalshortcut from 'electron-localshortcut'
 import path from 'path'
 import url from 'url'
@@ -17,6 +12,9 @@ import config from './config'
 import { spawnZcashNode } from './zcash/bootstrap'
 import electronStore from '../shared/electronStore'
 import Client from './cli/client'
+import websockets from './websockets/client'
+import { createServer } from './websockets/server'
+import { spawnTor, getOnionAddress } from '../../tor'
 
 const _killProcess = util.promisify(ps.kill)
 
@@ -107,7 +105,7 @@ app.on('open-url', (event, url) => {
   }
 })
 
-const checkForPayloadOnStartup = (payload) => {
+const checkForPayloadOnStartup = payload => {
   const isInvitation = payload.includes('invitation')
   const isNewChannel = payload.includes('importchannel')
   if (mainWindow && (isInvitation || isNewChannel)) {
@@ -185,13 +183,19 @@ export const checkForUpdate = win => {
     })
     autoUpdater.on('update-available', info => {
       console.log(info)
-      electronStore.set('updateStatus', config.UPDATE_STATUSES.PROCESSING_UPDATE)
+      electronStore.set(
+        'updateStatus',
+        config.UPDATE_STATUSES.PROCESSING_UPDATE
+      )
     })
 
     autoUpdater.on('update-downloaded', info => {
       const blockchainStatus = electronStore.get('AppStatus.blockchain.status')
       const paramsStatus = electronStore.get('AppStatus.params.status')
-      if (blockchainStatus !== config.BLOCKCHAIN_STATUSES.SUCCESS || paramsStatus !== config.PARAMS_STATUSES.SUCCESS) {
+      if (
+        blockchainStatus !== config.BLOCKCHAIN_STATUSES.SUCCESS ||
+        paramsStatus !== config.PARAMS_STATUSES.SUCCESS
+      ) {
         autoUpdater.quitAndInstall()
       } else {
         win.webContents.send('newUpdateAvailable')
@@ -205,14 +209,16 @@ export const checkForUpdate = win => {
 const killZcashdProcess = async () => {
   const zcashProcess = await find('name', 'zcashd')
   if (zcashProcess.length > 0) {
-    const [ processDetails ] = zcashProcess
+    const [processDetails] = zcashProcess
     const { pid } = processDetails
     await _killProcess(pid)
   }
 }
 
 const checkZcashdStatus = async () => {
-  const isBlockchainRescanned = electronStore.get('AppStatus.blockchain.isRescanned')
+  const isBlockchainRescanned = electronStore.get(
+    'AppStatus.blockchain.isRescanned'
+  )
   if (mainWindow && isBlockchainRescanned && !isDev) {
     const zcashProcess = await find('name', 'zcashd')
     if (zcashProcess.length > 0) {
@@ -229,7 +235,9 @@ const checkZcashdStatus = async () => {
 }
 
 setTimeout(() => {
-  const isBlockchainRescanned = electronStore.get('AppStatus.blockchain.isRescanned')
+  const isBlockchainRescanned = electronStore.get(
+    'AppStatus.blockchain.isRescanned'
+  )
   if (isBlockchainRescanned && !isDev) {
     checkZcashdStatus()
   }
@@ -241,6 +249,7 @@ ipcMain.on('restart-node-proc', async (event, arg) => {
 })
 
 let client
+let torProcess = null
 app.on('ready', async () => {
   const template = [
     {
@@ -274,9 +283,15 @@ app.on('ready', async () => {
   await installExtensions()
 
   createWindow()
-  mainWindow.webContents.on('did-finish-load', () => {
+  mainWindow.webContents.on('did-finish-load', async () => {
     mainWindow.webContents.send('ping')
-
+    try {
+      torProcess = await spawnTor()
+      createServer(mainWindow)
+      mainWindow.webContents.send('onionAddress', getOnionAddress())
+    } catch (error) {
+      console.log(error)
+    }
     if (process.platform === 'win32' && process.argv) {
       const payload = process.argv[1]
       if (payload) {
@@ -297,8 +312,25 @@ app.on('ready', async () => {
   client = new Client()
   ipcMain.on('rpcQuery', async (event, arg) => {
     const request = JSON.parse(arg)
-    const response = await client.postMessage(request.id, request.method, request.args)
-    mainWindow.webContents.send('rpcQuery', JSON.stringify({ id: request.id, data: response }))
+    const response = await client.postMessage(
+      request.id,
+      request.method,
+      request.args
+    )
+    mainWindow.webContents.send(
+      'rpcQuery',
+      JSON.stringify({ id: request.id, data: response })
+    )
+  })
+
+  ipcMain.on('sendWebsocket', async (event, arg) => {
+    const request = JSON.parse(arg)
+    const response = await websockets.handleSend(request)
+    // const response = await client.postMessage(request.id, request.method, request.args)
+    mainWindow.webContents.send(
+      'sendWebsocket',
+      JSON.stringify({ id: request.id, response: response })
+    )
   })
 
   ipcMain.on('vault-created', (event, arg) => {
@@ -319,9 +351,15 @@ app.on('ready', async () => {
 
   ipcMain.on('proceed-with-syncing', (event, userChoice) => {
     if (userChoice === 'EXISTING') {
-      electronStore.set('blockchainConfiguration', config.BLOCKCHAIN_STATUSES.DEFAULT_LOCATION_SELECTED)
+      electronStore.set(
+        'blockchainConfiguration',
+        config.BLOCKCHAIN_STATUSES.DEFAULT_LOCATION_SELECTED
+      )
     } else {
-      electronStore.set('blockchainConfiguration', config.BLOCKCHAIN_STATUSES.TO_FETCH)
+      electronStore.set(
+        'blockchainConfiguration',
+        config.BLOCKCHAIN_STATUSES.TO_FETCH
+      )
     }
   })
 
@@ -424,10 +462,16 @@ process.on('exit', () => {
   }
 })
 
-app.on('before-quit', async (e) => {
+app.on('before-quit', async e => {
+  if (torProcess !== null) {
+    torProcess.kill()
+  }
   await client.terminate()
   if (browserWidth && browserHeight) {
-    electronStore.set('windowSize', { width: browserWidth, height: browserHeight })
+    electronStore.set('windowSize', {
+      width: browserWidth,
+      height: browserHeight
+    })
   }
 })
 
@@ -436,7 +480,8 @@ app.on('window-all-closed', () => {
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   const vaultStatus = electronStore.get('vaultStatus')
-  const shouldFullyClose = isFetchedFromExternalSource || vaultStatus !== config.VAULT_STATUSES.CREATED
+  const shouldFullyClose =
+    isFetchedFromExternalSource || vaultStatus !== config.VAULT_STATUSES.CREATED
   if (process.platform !== 'darwin' || shouldFullyClose) {
     app.quit()
   }

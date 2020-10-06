@@ -7,6 +7,9 @@ jest.mock('./electronStore', () => ({
   get: () => {},
   set: () => {}
 }))
+jest.mock('electron', () => {
+  return { ipcRenderer: { on: () => {} } }
+})
 
 global.fetch = jest.fn(() => Promise.resolve())
 global.each = each

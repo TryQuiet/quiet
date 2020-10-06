@@ -33,6 +33,8 @@ jobs:
       run: curl https://zbay-binaries.s3.us-east-2.amazonaws.com/index.node --output ./worker/index.node && chmod 644 ./worker/index.node
     - name: install dependencies
       run: npm install
+    - name: pull tor binary
+      run: export SOURCE_PATH=win32 && npm run pullBinariesWin
     - name: build on Windows
       run: npm run build:prod
     - name: install electron builder

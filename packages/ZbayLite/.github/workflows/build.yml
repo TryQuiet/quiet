@@ -16,6 +16,8 @@ jobs:
           node-version: "12"
       - name: install dependencies
         run: npm install
+      - name: pull tor binary
+        run: export SOURCE_PATH=linux && npm run pullBinaries
       - name: install neon
         run: npm install --global neon-cli
       - name: build  binary

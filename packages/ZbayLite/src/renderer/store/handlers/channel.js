@@ -25,6 +25,8 @@ import usersSelectors from '../selectors/users'
 import contactsHandlers from './contacts'
 import electronStore from '../../../shared/electronStore'
 import { channelToUri } from '../../../renderer/zbay/channels'
+import { sendMessage } from '../../zcash/websocketClient'
+import { packMemo } from '../../zbay/transit'
 
 export const ChannelState = Immutable.Record(
   {
@@ -152,6 +154,7 @@ const sendOnEnter = (event, resetTab) => async (dispatch, getState) => {
   const shiftPressed = event.nativeEvent.shiftKey === true
   const channel = channelSelectors.channel(getState()).toJS()
   const messageToSend = channelSelectors.message(getState())
+  const users = usersSelectors.users(getState())
   let message
   if (enterPressed && !shiftPressed) {
     event.preventDefault()
@@ -171,9 +174,7 @@ const sendOnEnter = (event, resetTab) => async (dispatch, getState) => {
       const myUser = usersSelectors.myUser(getState())
       const messageDigest = crypto.createHash('sha256')
 
-      const messageEssentials = R.pick(['createdAt', 'message', 'spent'])(
-        message
-      )
+      const messageEssentials = R.pick(['createdAt', 'message'])(message)
       const key = messageDigest
         .update(JSON.stringify(messageEssentials))
         .digest('hex')
@@ -201,7 +202,25 @@ const sendOnEnter = (event, resetTab) => async (dispatch, getState) => {
           id: key
         })
       )
+
       const identityAddress = identitySelectors.address(getState())
+
+      if (users.get(channel.id) && users.get(channel.id).onionAddress) {
+        try {
+          const memo = await packMemo(message)
+          const result = await sendMessage(
+            memo,
+            users.get(channel.id).onionAddress
+          )
+          if (result === -1) {
+            throw new Error('unable to connect')
+          }
+          return
+        } catch (error) {
+          console.log(error)
+          console.log('socket timeout')
+        }
+      }
 
       const transfer = await messages.messageToTransfer({
         message: message,

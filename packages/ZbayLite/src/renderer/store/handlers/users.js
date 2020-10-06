@@ -31,6 +31,7 @@ export const _UserData = Immutable.Record(
     lastName: '',
     nickname: '',
     address: '',
+    onionAddress: '',
     createdAt: 0
   },
   'UserData'
@@ -42,7 +43,7 @@ export const ReceivedUser = values => {
   if (values === null || ![0, 1].includes(values.r)) {
     return null
   }
-  if (values.type === messageType.USER) {
+  if (values.type === messageType.USER || values.type === messageType.USER_V2) {
     const publicKey0 = getPublicKeysFromSignature(values).toString('hex')
     for (let i of usersNicknames.keys()) {
       if (usersNicknames.get(i) === publicKey0) usersNicknames.delete(i)
@@ -148,26 +149,20 @@ export const registerAnonUsername = () => async (dispatch, getState) => {
   )
 }
 export const createOrUpdateUser = payload => async (dispatch, getState) => {
-  const {
-    nickname,
-    firstName = '',
-    lastName = '',
-    debounce = false,
-    retry = 0
-  } = payload
+  const { nickname, debounce = false, retry = 0 } = payload
   const address = identitySelector.address(getState())
   const privKey = identitySelector.signerPrivKey(getState())
+  const onionAddress = identitySelector.onionAddress(getState())
   const fee = feesSelector.userFee(getState())
   const messageData = {
-    firstName,
-    lastName,
     nickname,
-    address
+    address,
+    onionAddress: onionAddress.substring(0, 56)
   }
   const usersChannelAddress = staticChannels.registeredUsers.mainnet.address
   const registrationMessage = zbayMessages.createMessage({
     messageData: {
-      type: zbayMessages.messageType.USER,
+      type: zbayMessages.messageType.USER_V2,
       data: messageData
     },
     privKey
@@ -241,10 +236,14 @@ export const fetchUsers = (address, messages) => async (dispatch, getState) => {
       ) {
         minfee = parseFloat(msg.message.minFee)
       }
-      if (msg.type !== messageType.USER || !msg.spent.gte(minfee)) {
+      if (
+        (msg.type !== messageType.USER && msg.type !== messageType.USER_V2) ||
+        !msg.spent.gte(minfee)
+      ) {
         continue
       }
       const user = ReceivedUser(msg)
+
       if (user !== null) {
         users = users.merge(user)
       }

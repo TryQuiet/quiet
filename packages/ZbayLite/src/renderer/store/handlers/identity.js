@@ -74,6 +74,7 @@ const Identity = Immutable.Record(
     donationAllow: true,
     shieldingTax: true,
     donationAddress: '',
+    onionAddress: '',
     freeUtxos: 0,
     addresses: Immutable.List(),
     shieldedAddresses: Immutable.List()
@@ -100,6 +101,7 @@ export const IdentityState = Immutable.Record(
 export const initialState = IdentityState()
 
 export const setIdentity = createAction(actionTypes.SET_IDENTITY)
+export const setOnionAddress = createAction(actionTypes.SET_ONION_ADDRESS)
 export const setRemovedChannels = createAction(actionTypes.SET_REMOVED_CHANNELS)
 export const setBalance = createAction(actionTypes.SET_IDENTITY_BALANCE)
 export const setLockedBalance = createAction(
@@ -136,7 +138,8 @@ const actions = {
   setDonationAllow,
   setDonationAddress,
   setShieldingTax,
-  setFreeUtxos
+  setFreeUtxos,
+  setOnionAddress
 }
 export const fetchAffiliateMoney = () => async (dispatch, getState) => {
   try {
@@ -554,6 +557,8 @@ export const reducer = handleActions(
       state.update('data', data => data.merge(identity)),
     [setBalance]: (state, { payload: balance }) =>
       state.update('data', data => data.set('balance', balance)),
+    [setOnionAddress]: (state, { payload: address }) =>
+      state.update('data', data => data.set('onionAddress', address)),
     [setLockedBalance]: (state, { payload: balance }) =>
       state.update('data', data => data.set('lockedBalance', balance)),
     [setFetchingBalance]: (state, { payload: fetching }) =>

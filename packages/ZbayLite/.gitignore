@@ -24,6 +24,8 @@ composer.lock
 */node_modules
 *.log
 /lib
+/tor/hidden_service
+/tor/tor
 zcash/darwin
 zcash/linux
 zcash/win32

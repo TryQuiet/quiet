@@ -27,6 +27,8 @@ jobs:
         run: rustup component add rustfmt
       - name: install dependencies
         run: npm install
+      - name: pull tor binary
+        run: export SOURCE_PATH=darwin && npm run pullBinaries
       - name: install neon
         run: npm install --global neon-cli
       - name: build  binary

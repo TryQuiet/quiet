@@ -35,6 +35,7 @@ const signerPrivKey = createSelector(data, d => d.signerPrivKey)
 export const signerPubKey = createSelector(data, d => d.signerPubKey)
 
 const address = createSelector(data, d => d.address)
+const onionAddress = createSelector(data, d => d.onionAddress)
 const transparentAddress = createSelector(data, d => d.transparentAddress)
 const topAddress = createSelector(
   data,
@@ -75,5 +76,6 @@ export default {
   topShieldedAddress,
   addresses,
   shieldedAddresses,
-  removedChannels
+  removedChannels,
+  onionAddress
 }
