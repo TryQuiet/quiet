@@ -48,6 +48,7 @@
       "owner": "ZbayApp",
       "releaseType": "draft"
     },
+    
     "extraResources": [
       "worker/**/*",
       "tor/**/*"
