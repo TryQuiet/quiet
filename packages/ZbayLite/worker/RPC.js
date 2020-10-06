@@ -1,8 +1,8 @@
 const native = require('./index.node')
 const publicLiteNodes = [
+  'https://lightwalletd.zecwallet.co:1443',
   'https://shielded.nighthawkwallet.com:9067',
   'https://lightd-main.zcashfr.io:443',
-  'https://lightwalletd.zecwallet.co:1443',
   'https://lightd-main.zecwallet.co:443',
   'https://lightd-main.zecwallet.co:443'
 ]
@@ -39,6 +39,7 @@ class RPC {
     return JSON.parse(native.litelib_execute('syncstatus', ''))
   }
   info = async () => {
+    console.log(native.litelib_execute('info', ''))
     return JSON.parse(native.litelib_execute('info', ''))
   }
   balance = async () => {
