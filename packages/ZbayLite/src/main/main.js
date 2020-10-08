@@ -12,7 +12,7 @@ import config from './config'
 import { spawnZcashNode } from './zcash/bootstrap'
 import electronStore from '../shared/electronStore'
 import Client from './cli/client'
-import websockets from './websockets/client'
+import websockets, { clearConnections } from './websockets/client'
 import { createServer } from './websockets/server'
 import { spawnTor, getOnionAddress } from '../../tor'
 
@@ -480,6 +480,7 @@ app.on('window-all-closed', () => {
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   const vaultStatus = electronStore.get('vaultStatus')
+  clearConnections()
   const shouldFullyClose =
     isFetchedFromExternalSource || vaultStatus !== config.VAULT_STATUSES.CREATED
   if (process.platform !== 'darwin' || shouldFullyClose) {

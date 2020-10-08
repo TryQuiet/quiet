@@ -39,7 +39,6 @@ class RPC {
     return JSON.parse(native.litelib_execute('syncstatus', ''))
   }
   info = async () => {
-    console.log(native.litelib_execute('info', ''))
     return JSON.parse(native.litelib_execute('info', ''))
   }
   balance = async () => {

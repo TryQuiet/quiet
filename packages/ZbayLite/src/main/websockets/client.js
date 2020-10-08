@@ -20,10 +20,20 @@ export const connect = address =>
       resolve(socket)
     })
     socket.on('close', function () {
+      console.log('disconnected')
+
       connections.delete(address)
     })
   })
-
+export const clearConnections = () => {
+  connections.forEach((_, value) => {
+    try {
+      value.close()
+    } catch (error) {
+      console.error('Failed to close socket')
+    }
+  })
+}
 export const handleSend = async ({ message, endpoint }) => {
   try {
     if (!connections.get(endpoint)) {
@@ -38,4 +48,4 @@ export const handleSend = async ({ message, endpoint }) => {
     return -1
   }
 }
-export default { handleSend, connect }
+export default { handleSend, connect, clearConnections }
