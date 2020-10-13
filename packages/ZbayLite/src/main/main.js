@@ -190,16 +190,7 @@ export const checkForUpdate = win => {
     })
 
     autoUpdater.on('update-downloaded', info => {
-      const blockchainStatus = electronStore.get('AppStatus.blockchain.status')
-      const paramsStatus = electronStore.get('AppStatus.params.status')
-      if (
-        blockchainStatus !== config.BLOCKCHAIN_STATUSES.SUCCESS ||
-        paramsStatus !== config.PARAMS_STATUSES.SUCCESS
-      ) {
-        autoUpdater.quitAndInstall()
-      } else {
-        win.webContents.send('newUpdateAvailable')
-      }
+      win.webContents.send('newUpdateAvailable')
     })
     isUpdatedStatusCheckingStarted = true
   }

@@ -97,7 +97,7 @@ export const SeedModal = ({ classes, open, handleClose }) => {
                         <Typography
                           variant='body2'
                           className={classes.seedWord}
-                        >{`${index + 12}. ${word}`}</Typography>
+                        >{`${index + 13}. ${word}`}</Typography>
                       ))}
                     </Grid>
                   </Grid>

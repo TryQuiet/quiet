@@ -18,6 +18,8 @@ import { _checkMessageSize } from './messages'
 import usersSelectors from '../selectors/users'
 import operationsHandlers from './operations'
 import client from '../../zcash'
+import { packMemo } from '../../zbay/transit'
+import { sendMessage } from '../../zcash/websocketClient'
 
 export const Offer = Immutable.Record(
   {
@@ -144,6 +146,26 @@ const sendItemMessageOnEnter = event => async (dispatch, getState) => {
           id: key
         })
       )
+      const users = usersSelectors.users(getState())
+      const user = [...users.values()].filter(
+        user => user.nickname === channel.id.substring(64)
+      )[0]
+      if (user && user.onionAddress) {
+        try {
+          const memo = await packMemo(message)
+          const result = await sendMessage(
+            memo,
+            user.onionAddress
+          )
+          if (result === -1) {
+            throw new Error('unable to connect')
+          }
+          return
+        } catch (error) {
+          console.log(error)
+          console.log('socket timeout')
+        }
+      }
       const identityAddress = identitySelectors.address(getState())
       const transfer = await messages.messageToTransfer({
         message: message,

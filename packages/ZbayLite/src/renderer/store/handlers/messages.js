@@ -39,7 +39,10 @@ import {
   messageSchema
 } from '../../zbay/messages'
 import channels from '../../zcash/channels'
-import { displayMessageNotification } from '../../notifications'
+import {
+  displayDirectMessageNotification,
+  displayMessageNotification
+} from '../../notifications'
 import electronStore from '../../../shared/electronStore'
 import notificationCenterSelectors from '../selectors/notificationCenter'
 import staticChannelsMessages from '../../static/staticChannelsMessages.json'
@@ -661,6 +664,8 @@ export const handleWebsocketMessage = data => async (dispatch, getState) => {
   let message = null
   let sender = { replyTo: '', username: 'Unnamed' }
   let isUnregistered = false
+  const currentChannel = channelSelectors.channel(getState())
+  const userFilter = notificationCenterSelectors.userFilterType(getState())
   try {
     message = await unpackMemo(data)
     const { type } = message
@@ -698,10 +703,7 @@ export const handleWebsocketMessage = data => async (dispatch, getState) => {
     const toUser =
       users.find(u => u.address === sender.replyTo) || ExchangeParticipant()
     const messageDigest = crypto.createHash('sha256')
-
-    const messageEssentials = R.pick(['createdAt', 'message'])(
-      message
-    )
+    const messageEssentials = R.pick(['createdAt', 'message'])(message)
     const key = messageDigest
       .update(JSON.stringify(messageEssentials))
       .digest('hex')
@@ -724,21 +726,66 @@ export const handleWebsocketMessage = data => async (dispatch, getState) => {
     }
     const parsedMsg = DisplayableMessage(msg)
     const contacts = contactsSelectors.contacts(getState())
-    if (!contacts.get(publicKey)) {
-      await dispatch(
-        contactsHandlers.actions.addContact({
-          key: publicKey,
-          contactAddress: msg.sender.replyTo,
-          username: msg.sender.username
+    if (msg.message.itemId) {
+      const item = msg.message.itemId
+      const contacts = contactsSelectors.contacts(getState())
+      const offer = contactsSelectors.getAdvertById(item)(getState())
+      if (!offer) {
+        return
+      }
+      if (!contacts.get(item + msg.sender.username)) {
+        await dispatch(
+          contactsHandlers.actions.addContact({
+            key: key,
+            username: offer.message.tag + ' @' + msg.sender.username,
+            contactAddress: msg.sender.replyTo,
+            offerId: offer.id
+          })
+        )
+      }
+
+      dispatch(
+        contactsHandlers.actions.addMessage({
+          key: item + msg.sender.username,
+          message: { [key]: parsedMsg }
         })
       )
+      if (
+        currentChannel.id !== item + msg.sender.username &&
+        userFilter !== notificationFilterType.NONE
+      ) {
+        displayMessageNotification({
+          senderName: msg.sender.username,
+          message: msg.message.text,
+          channelName: offer.message.tag + ' @' + msg.sender.username
+        })
+      }
+    } else {
+      if (!contacts.get(publicKey)) {
+        await dispatch(
+          contactsHandlers.actions.addContact({
+            key: publicKey,
+            contactAddress: msg.sender.replyTo,
+            username: msg.sender.username
+          })
+        )
+      }
+      dispatch(
+        contactsHandlers.actions.addMessage({
+          key: publicKey,
+          message: { [key]: parsedMsg }
+        })
+      )
+      if (
+        currentChannel.id !== msg.publicKey &&
+        userFilter !== notificationFilterType.NONE
+      ) {
+        displayDirectMessageNotification({
+          username: msg.sender.username,
+          message: msg
+        })
+      }
     }
-    dispatch(
-      contactsHandlers.actions.addMessage({
-        key: publicKey,
-        message: { [key]: parsedMsg }
-      })
-    )
   } catch (err) {
     console.warn('Incorrect message format: ', err)
     return null
