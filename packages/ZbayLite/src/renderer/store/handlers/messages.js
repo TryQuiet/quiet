@@ -114,6 +114,16 @@ export const brokenMemoToMemohex = memo => {
   const curPrefix = memo.substring(2)
   return curPrefix + '0'.repeat(1024 - curPrefix.length)
 }
+// Generate Json file that contains transactions from default channels
+export const createSnapshot = groupedMesssages => {
+  const fs = require('fs')
+  const defaultChannels = Object.values(channels).map(ch => ch.mainnet.address)
+  let data = {}
+  for (const ch of defaultChannels) {
+    data[ch] = groupedMesssages[ch]
+  }
+  fs.writeFileSync('staticChannelsMessages.json', JSON.stringify(data))
+}
 export const fetchAllMessages = async () => {
   try {
     const txns = await client.list()
@@ -142,6 +152,8 @@ export const fetchAllMessages = async () => {
 export const fetchMessages = () => async (dispatch, getState) => {
   try {
     const txns = await fetchAllMessages()
+    // Uncomment to create snapshot on next run.
+    // createSnapshot(txns)
     const identityAddress = identitySelectors.address(getState())
     await dispatch(
       usersHandlers.epics.fetchUsers(
