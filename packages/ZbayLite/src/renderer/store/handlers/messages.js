@@ -162,6 +162,12 @@ export const fetchMessages = () => async (dispatch, getState) => {
       )
     )
     await dispatch(
+      usersHandlers.epics.fetchOnionAddresses(
+        channels.tor.mainnet.address,
+        txns[channels.tor.mainnet.address]
+      )
+    )
+    await dispatch(
       ratesHandlers.epics.fetchPrices(
         channels.priceOracle.mainnet.address,
         txns[channels.priceOracle.mainnet.address]

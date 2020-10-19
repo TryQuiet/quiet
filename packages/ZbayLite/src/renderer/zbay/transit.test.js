@@ -49,10 +49,7 @@ const messageUserV2Testnet = {
   r: sigObj.recovery,
   createdAt: now.toSeconds(),
   message: {
-    onionAddress: '4vgnk45ts72fkqu6em5ldh3w3ka54rsqghe6ptvhslygeowdpirlpeid',
-    nickname: 'nickname',
-    address:
-      'ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r'
+    onionAddress: '4vgnk45ts72fkqu6em5ldh3w3ka54rsqghe6ptvhslygeowdpirlpeid'
   }
 }
 const messageUserV2Mainnet = {
@@ -61,10 +58,7 @@ const messageUserV2Mainnet = {
   r: sigObj.recovery,
   createdAt: now.toSeconds(),
   message: {
-    onionAddress: '4vgnk45ts72fkqu6em5ldh3w3ka54rsqghe6ptvhslygeowdpirlpeid',
-    nickname: 'nickname',
-    address:
-      'zs1ecsq8thnu84ejvfx2jcfsa6zas2k057n3hrhuy0pahmlvqfwterjaz3h772ldlsgp5r2xwvml9g'
+    onionAddress: '4vgnk45ts72fkqu6em5ldh3w3ka54rsqghe6ptvhslygeowdpirlpeid'
   }
 }
 const advert = {

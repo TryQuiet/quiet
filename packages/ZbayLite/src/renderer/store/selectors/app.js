@@ -5,6 +5,7 @@ const store = s => s
 export const app = createSelector(store, state => state.get('app'))
 
 const version = createSelector(app, a => a.version)
+const useTor = createSelector(app, a => a.useTor)
 const transfers = createSelector(app, a => a.transfers)
 const currentModalTab = createSelector(app, a => a.modalTabToOpen)
 const allTransfersCount = createSelector(app, a => a.allTransfersCount)
@@ -24,5 +25,6 @@ export default {
   newTransfersCounter,
   messageQueueLock,
   directMessageQueueLock,
-  isInitialLoadFinished
+  isInitialLoadFinished,
+  useTor
 }

@@ -4,14 +4,17 @@ import * as R from 'ramda'
 import { bindActionCreators } from 'redux'
 
 import whitelistSelector from '../../../store/selectors/whitelist'
+import appSelectors from '../../../store/selectors/app'
 import whitelistHandlers from '../../../store/handlers/whitelist'
 import SecurityComponent from '../../../components/widgets/settings/Security'
 import modalsHandlers from '../../../store/handlers/modals'
+import usersHandlers from '../../../store/handlers/users'
 
 export const mapStateToProps = state => ({
   allowAll: whitelistSelector.allowAll(state),
   whitelisted: whitelistSelector.whitelisted(state),
-  autoload: whitelistSelector.autoload(state)
+  autoload: whitelistSelector.autoload(state),
+  useTor: appSelectors.useTor(state)
 })
 
 export const mapDispatchToProps = dispatch =>
@@ -20,7 +23,9 @@ export const mapDispatchToProps = dispatch =>
       toggleAllowAll: whitelistHandlers.epics.setWhitelistAll,
       removeImageHost: whitelistHandlers.epics.removeImageHost,
       removeSiteHost: whitelistHandlers.epics.removeSiteHost,
-      openSeedModal: modalsHandlers.actionCreators.openModal('seedModal')
+      openSeedModal: modalsHandlers.actionCreators.openModal('seedModal'),
+      registerOnionAddress: useTor =>
+        usersHandlers.epics.registerOnionAddress(useTor)
     },
     dispatch
   )

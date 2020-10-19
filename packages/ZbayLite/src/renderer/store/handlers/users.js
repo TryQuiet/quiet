@@ -1,14 +1,17 @@
 import Immutable from 'immutable'
 import { createAction, handleActions } from 'redux-actions'
 import * as R from 'ramda'
+import { ipcRenderer } from 'electron'
 
 import feesSelector from '../selectors/fees'
 import nodeSelectors from '../selectors/node'
 import feesHandlers from '../handlers/fees'
+import appHandlers from '../handlers/app'
 import { checkTransferCount } from '../handlers/messages'
 import { actionCreators } from './modals'
 import usersSelector from '../selectors/users'
 import identitySelector from '../selectors/identity'
+import appSelectors from '../selectors/app'
 import { getPublicKeysFromSignature } from '../../zbay/messages'
 import { messageType, actionTypes } from '../../../shared/static'
 import { messages as zbayMessages } from '../../zbay'
@@ -16,6 +19,7 @@ import client from '../../zcash'
 import staticChannels from '../../zcash/channels'
 import notificationsHandlers from './notifications'
 import { infoNotification, successNotification } from './utils'
+import electronStore from '../../../shared/electronStore'
 
 const _ReceivedUser = publicKey =>
   Immutable.Record(
@@ -43,7 +47,7 @@ export const ReceivedUser = values => {
   if (values === null || ![0, 1].includes(values.r)) {
     return null
   }
-  if (values.type === messageType.USER || values.type === messageType.USER_V2) {
+  if (values.type === messageType.USER) {
     const publicKey0 = getPublicKeysFromSignature(values).toString('hex')
     for (let i of usersNicknames.keys()) {
       if (usersNicknames.get(i) === publicKey0) usersNicknames.delete(i)
@@ -149,20 +153,26 @@ export const registerAnonUsername = () => async (dispatch, getState) => {
   )
 }
 export const createOrUpdateUser = payload => async (dispatch, getState) => {
-  const { nickname, debounce = false, retry = 0 } = payload
+  const {
+    nickname,
+    firstName = '',
+    lastName = '',
+    debounce = false,
+    retry = 0
+  } = payload
   const address = identitySelector.address(getState())
   const privKey = identitySelector.signerPrivKey(getState())
-  const onionAddress = identitySelector.onionAddress(getState())
   const fee = feesSelector.userFee(getState())
   const messageData = {
+    firstName,
+    lastName,
     nickname,
-    address,
-    onionAddress: onionAddress.substring(0, 56)
+    address
   }
   const usersChannelAddress = staticChannels.registeredUsers.mainnet.address
   const registrationMessage = zbayMessages.createMessage({
     messageData: {
-      type: zbayMessages.messageType.USER_V2,
+      type: zbayMessages.messageType.USER,
       data: messageData
     },
     privKey
@@ -206,6 +216,56 @@ export const createOrUpdateUser = payload => async (dispatch, getState) => {
     }
     dispatch(actionCreators.openModal('failedUsernameRegister')())
   }
+}
+export const registerOnionAddress = torStatus => async (dispatch, getState) => {
+  const useTor = appSelectors.useTor(getState())
+  if (useTor === torStatus) {
+    return
+  }
+  const savedUseTor = electronStore.get(`useTor`)
+  if (savedUseTor !== undefined) {
+    if (torStatus === true) {
+      ipcRenderer.send('spawnTor')
+    } else {
+      ipcRenderer.send('killTor')
+    }
+    electronStore.set('useTor', torStatus)
+    dispatch(appHandlers.actions.setUseTor(torStatus))
+    return
+  }
+  ipcRenderer.send('spawnTor')
+  dispatch(appHandlers.actions.setUseTor(torStatus))
+  electronStore.set('useTor', true)
+  const privKey = identitySelector.signerPrivKey(getState())
+  const onionAddress = identitySelector.onionAddress(getState())
+  const messageData = {
+    onionAddress: onionAddress.substring(0, 56)
+  }
+  const torChannelAddress = staticChannels.tor.mainnet.address
+  const registrationMessage = zbayMessages.createMessage({
+    messageData: {
+      type: zbayMessages.messageType.USER_V2,
+      data: messageData
+    },
+    privKey
+  })
+  const transfer = await zbayMessages.messageToTransfer({
+    message: registrationMessage,
+    address: torChannelAddress
+  })
+  // dispatch(actionCreators.closeModal('accountSettingsModal')())
+  const txid = await client.sendTransaction(transfer)
+  if (txid.error) {
+    throw new Error(txid.error)
+  }
+  dispatch(
+    notificationsHandlers.actions.enqueueSnackbar(
+      successNotification({
+        message: `Your onion address will be public in few minutes`
+      })
+    )
+  )
+  dispatch(notificationsHandlers.actions.removeSnackbar('username'))
 }
 
 export const fetchUsers = (address, messages) => async (dispatch, getState) => {
@@ -254,6 +314,43 @@ export const fetchUsers = (address, messages) => async (dispatch, getState) => {
     console.warn(err)
   }
 }
+export const fetchOnionAddresses = (address, messages) => async (
+  dispatch,
+  getState
+) => {
+  try {
+    const transferCountFlag = await dispatch(
+      checkTransferCount(address, messages)
+    )
+    if (transferCountFlag === -1 || !messages) {
+      return
+    }
+    const filteredZbayMessages = messages.filter(msg =>
+      msg.memohex.startsWith('ff')
+    )
+    let users = usersSelector.users(getState())
+    const registrationMessages = await Promise.all(
+      filteredZbayMessages.map(transfer => {
+        const message = zbayMessages.transferToMessage(transfer)
+        return message
+      })
+    )
+    const filteredRegistrationMessages = registrationMessages.filter(
+      msg => msg.type === messageType.USER_V2
+    )
+    for (const msg of filteredRegistrationMessages) {
+      if (users.get(msg.publicKey)) {
+        users = users.setIn(
+          [msg.publicKey, 'onionAddress'],
+          msg.message.onionAddress
+        )
+      }
+    }
+    await dispatch(setUsers({ users }))
+  } catch (err) {
+    console.warn(err)
+  }
+}
 
 export const isNicknameTaken = username => (dispatch, getState) => {
   const users = usersSelector.users(getState()).toJS()
@@ -270,7 +367,9 @@ export const epics = {
   fetchUsers,
   isNicknameTaken,
   createOrUpdateUser,
-  registerAnonUsername
+  registerAnonUsername,
+  fetchOnionAddresses,
+  registerOnionAddress
 }
 
 export const reducer = handleActions(

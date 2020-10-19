@@ -154,19 +154,9 @@ export const packMemo = async message => {
       )
       break
     case messageType.USER_V2:
-      const nicknamev2 = Buffer.alloc(NICKNAME_SIZE)
-      nicknamev2.write(message.message.nickname)
       const onionAddress = Buffer.alloc(ONION_ADDRESS_SIZE)
       onionAddress.write(message.message.onionAddress)
-      const addressTypev2 = Buffer.alloc(ADDRESS_TYPE_SIZE)
-      const typev2 = addressSizeToType[message.message.address.length]
-      addressTypev2.writeUInt8(typev2)
-      const addressv2 = Buffer.alloc(typeToAddressSize[typev2])
-      addressv2.write(message.message.address)
-      msgData = Buffer.concat(
-        [nicknamev2, onionAddress, addressTypev2, addressv2],
-        MESSAGE_SIZE
-      )
+      msgData = Buffer.concat([onionAddress], MESSAGE_SIZE)
       break
     case messageType.AD:
       const tag = Buffer.alloc(TAG_SIZE)
@@ -347,27 +337,14 @@ export const unpackMemo = async memo => {
         createdAt
       }
     case messageType.USER_V2:
-      const nicknameEndsv2 = timestampEnds + NICKNAME_SIZE
-      const nicknamev2 = memoBuff.slice(timestampEnds, nicknameEndsv2)
-
-      const onionAddressEnds = nicknameEndsv2 + ONION_ADDRESS_SIZE
-      const onionAddress = memoBuff.slice(nicknameEndsv2, onionAddressEnds)
-
-      const addressTypeEndsv2 = onionAddressEnds + ADDRESS_TYPE_SIZE
-      const addressTypev2 = memoBuff
-        .slice(onionAddressEnds, addressTypeEndsv2)
-        .readUInt8()
-
-      const addressEndsv2 = addressTypeEndsv2 + typeToAddressSize[addressTypev2]
-      const addressv2 = memoBuff.slice(addressTypeEndsv2, addressEndsv2)
+      const onionAddressEnds = timestampEnds + ONION_ADDRESS_SIZE
+      const onionAddress = memoBuff.slice(timestampEnds, onionAddressEnds)
 
       return {
         type,
         signature,
         r,
         message: {
-          nickname: trimNull(nicknamev2.toString()),
-          address: addressv2.toString(),
           onionAddress: trimNull(onionAddress.toString())
         },
         createdAt

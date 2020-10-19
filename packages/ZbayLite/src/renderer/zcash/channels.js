@@ -135,5 +135,25 @@ export default {
           'zivktestsapling194t7fk8ns0v2u4jysmrmwyh2ymq52t5378ey8jym23d2dpy3d5pssyk97t'
       }
     }
+  },
+  tor: {
+    mainnet: {
+      name: 'tor',
+      address:
+        'zs1lhn0jjufr4wjfp7vhghg5kgd4jm9sdgz83gflp9mgj7x04kw45a2keh8l0xuxjlx39k45qse84r',
+      keys: {
+        ivk:
+          'zxviews1qvn22tuapcqqpqxjcdumq73vu0gm37g4juyrq5p39s7putg249tytdfvlpjkn9aw0d7q8p2sgwxn7cjhwdskdpemh7yrrycpldkdw8h4k0vacqalw2avvea4fnpqw2e357ltnglvl9knjfpkv33klvsr5mnl909vega2k5f803046shat9pz2kt5h2er2f94mw7z4r36ftdm8p7canwtwj88y5f8aazzxd4l2wtuxh7amzh968ztq9n235ehzp4d0nzkn7rxqyqyyzcznt27u'
+      }
+    },
+    testnet: {
+      name: 'tor',
+      address:
+        'ztestsapling1rwqrk7uclurs5dqm70g4zf0rh9dmjf60qqtw2n68pa37ycs2zccglcymjg0nnmus70m3wkdyxx0',
+      keys: {
+        ivk:
+          'zivktestsapling194t7fk8ns0v2u4jysmrmwyh2ymq52t5378ey8jym23d2dpy3d5pssyk97t'
+      }
+    }
   }
 }

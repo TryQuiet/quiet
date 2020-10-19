@@ -1,4 +1,5 @@
 import React from 'react'
+import { shell } from 'electron'
 import PropTypes from 'prop-types'
 
 import Grid from '@material-ui/core/Grid'
@@ -35,6 +36,10 @@ const styles = theme => ({
     width: 168,
     fontSize: 16,
     backgroundColor: theme.palette.colors.zbayBlue
+  },
+  link: {
+    textDecoration: 'none',
+    color: theme.palette.colors.linkBlue
   }
 })
 
@@ -46,7 +51,9 @@ export const Security = ({
   toggleAllowAll,
   removeImageHost,
   removeSiteHost,
-  openSeedModal
+  openSeedModal,
+  registerOnionAddress,
+  useTor
 }) => {
   return (
     <Grid container direction='column'>
@@ -60,6 +67,60 @@ export const Security = ({
         <Grid item className={classes.title}>
           <Typography variant='h3'>Security</Typography>
         </Grid>
+      </Grid>
+      <Grid item className={classes.subtitle}>
+        <Typography variant='h5'>P2P messaging over Tor</Typography>
+      </Grid>
+      <Grid item>
+        <Typography variant='body2'>
+          For faster message delivery, Zbay can send and receive messages
+          directly with Tor (instead of the Zcash blockchain) when other users
+          are online.{' '}
+          <a
+            className={classes.link}
+            onClick={e => {
+              e.preventDefault()
+              shell.openExternal('https://www.zbay.app/faq.html')
+            }}
+            href='https://www.zbay.app/faq.html'
+          >
+            Learn more.
+          </a>
+        </Typography>
+      </Grid>
+      <Grid item container direction='column' className={classes.labelDiv}>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={useTor}
+              onChange={e => {
+                registerOnionAddress(true)
+              }}
+              color='default'
+            />
+          }
+          label={
+            <Typography variant='body2' className={classes.alignLabel}>
+              Use Tor for messaging when possible
+            </Typography>
+          }
+        />
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={!useTor}
+              onChange={e => {
+                registerOnionAddress(false)
+              }}
+              color='default'
+            />
+          }
+          label={
+            <Typography variant='body2' className={classes.alignLabel}>
+              Only use Zcash for messaging
+            </Typography>
+          }
+        />
       </Grid>
       <Grid item className={classes.subtitle}>
         <Typography variant='h5'>Outbound Links</Typography>

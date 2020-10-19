@@ -21,6 +21,7 @@ export const actionTypes = mirrorKey({
 
   SET_APP_VERSION: undefined,
   SET_TRANSFERS: undefined,
+  SET_USE_TOR: undefined,
   SET_NEW_USER: undefined,
   SET_CURRENT_MODAL_TAB: undefined,
   CLEAR_CURRENT_MODAL_TAB: undefined,

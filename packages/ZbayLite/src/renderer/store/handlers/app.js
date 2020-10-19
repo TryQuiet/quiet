@@ -19,7 +19,8 @@ export const AppState = Immutable.Record(
     newTransfersCounter: 0,
     directMessageQueueLock: false,
     messageQueueLock: false,
-    isInitialLoadFinished: false
+    isInitialLoadFinished: false,
+    useTor: false
   },
   'AppState'
 )
@@ -30,6 +31,7 @@ const loadVersion = createAction(actionTypes.SET_APP_VERSION, () =>
   remote.app.getVersion()
 )
 const setTransfers = createAction(actionTypes.SET_TRANSFERS)
+const setUseTor = createAction(actionTypes.SET_USE_TOR)
 const setModalTab = createAction(actionTypes.SET_CURRENT_MODAL_TAB)
 const clearModalTab = createAction(actionTypes.CLEAR_CURRENT_MODAL_TAB)
 const setAllTransfersCount = createAction(actionTypes.SET_ALL_TRANSFERS_COUNT)
@@ -55,11 +57,22 @@ export const actions = {
   unlockDmQueue,
   lockMessageQueue,
   unlockMessageQueue,
-  setInitialLoadFlag
+  setInitialLoadFlag,
+  setUseTor
 }
 
 export const askForBlockchainLocation = () => async (dispatch, getState) => {
   dispatch(actionCreators.openModal('blockchainLocation')())
+}
+
+export const initializeUseTor = () => async (dispatch, getState) => {
+  const savedUseTor = electronStore.get(`useTor`)
+  if (savedUseTor !== undefined) {
+    if (savedUseTor === true) {
+      ipcRenderer.send('spawnTor')
+    }
+    dispatch(actions.setUseTor(savedUseTor))
+  }
 }
 
 export const proceedWithSyncing = payload => async (dispatch, getState) => {
@@ -87,6 +100,7 @@ export const reducer = handleActions(
       state.set('newTransfersCounter', setNewTransfersCount),
     [setInitialLoadFlag]: (state, { payload: flag }) =>
       state.set('isInitialLoadFinished', flag),
+    [setUseTor]: (state, { payload: flag }) => state.set('useTor', flag),
     [reduceNewTransfersCount]: (state, { payload: amount }) =>
       state.update('newTransfersCounter', count => count - amount),
     [loadVersion]: (state, { payload: version }) =>
@@ -110,7 +124,8 @@ export const reducer = handleActions(
 export const epics = {
   askForBlockchainLocation,
   proceedWithSyncing,
-  restartAndRescan
+  restartAndRescan,
+  initializeUseTor
 }
 
 export default {

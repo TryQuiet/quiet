@@ -9,6 +9,7 @@ import identitySelectors from '../selectors/identity'
 import offersSelectors from '../selectors/offers'
 import channelSelectors from '../selectors/channel'
 import contactsSelectors from '../selectors/contacts'
+import appSelectors from '../selectors/app'
 import contactsHandlers from './contacts'
 import channelHandlers from './channel'
 import { messageType, actionTypes } from '../../../shared/static'
@@ -94,6 +95,8 @@ const sendItemMessageOnEnter = event => async (dispatch, getState) => {
   const shiftPressed = event.nativeEvent.shiftKey === true
   const channel = channelSelectors.channel(getState()).toJS()
   const messageToSend = channelSelectors.message(getState())
+  const useTor = appSelectors.useTor(getState())
+
   let message
   if (enterPressed && !shiftPressed) {
     event.preventDefault()
@@ -150,13 +153,10 @@ const sendItemMessageOnEnter = event => async (dispatch, getState) => {
       const user = [...users.values()].filter(
         user => user.nickname === channel.id.substring(64)
       )[0]
-      if (user && user.onionAddress) {
+      if (useTor && user && user.onionAddress) {
         try {
           const memo = await packMemo(message)
-          const result = await sendMessage(
-            memo,
-            user.onionAddress
-          )
+          const result = await sendMessage(memo, user.onionAddress)
           if (result === -1) {
             throw new Error('unable to connect')
           }

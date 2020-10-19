@@ -277,9 +277,12 @@ app.on('ready', async () => {
   mainWindow.webContents.on('did-finish-load', async () => {
     mainWindow.webContents.send('ping')
     try {
+      // Spawn and kill tor to generate onionAddress
       torProcess = await spawnTor()
       createServer(mainWindow)
       mainWindow.webContents.send('onionAddress', getOnionAddress())
+      torProcess.kill()
+      torProcess = null
     } catch (error) {
       console.log(error)
     }
@@ -297,6 +300,17 @@ app.on('ready', async () => {
     }
   })
 
+  ipcMain.on('spawnTor', async (event, arg) => {
+    if (torProcess === null) {
+      torProcess = await spawnTor()
+    }
+  })
+  ipcMain.on('killTor', async (event, arg) => {
+    if (torProcess !== null) {
+      torProcess.kill()
+      torProcess = null
+    }
+  })
   ipcMain.on('proceed-update', (event, arg) => {
     autoUpdater.quitAndInstall()
   })

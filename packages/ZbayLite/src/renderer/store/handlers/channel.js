@@ -16,6 +16,7 @@ import offersHandlers from './offers'
 import channelSelectors from '../selectors/channel'
 import identitySelectors from '../selectors/identity'
 import contactsSelectors from '../selectors/contacts'
+import appSelectors from '../selectors/app'
 import client from '../../zcash'
 import { messages } from '../../zbay'
 import { errorNotification, LoaderState } from './utils'
@@ -155,6 +156,7 @@ const sendOnEnter = (event, resetTab) => async (dispatch, getState) => {
   const channel = channelSelectors.channel(getState()).toJS()
   const messageToSend = channelSelectors.message(getState())
   const users = usersSelectors.users(getState())
+  const useTor = appSelectors.useTor(getState())
   let message
   if (enterPressed && !shiftPressed) {
     event.preventDefault()
@@ -205,7 +207,7 @@ const sendOnEnter = (event, resetTab) => async (dispatch, getState) => {
 
       const identityAddress = identitySelectors.address(getState())
 
-      if (users.get(channel.id) && users.get(channel.id).onionAddress) {
+      if (useTor && users.get(channel.id) && users.get(channel.id).onionAddress) {
         try {
           const memo = await packMemo(message)
           const result = await sendMessage(
