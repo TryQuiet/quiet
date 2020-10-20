@@ -15,10 +15,10 @@ import ExpandLessIcon from '@material-ui/icons/ExpandLess'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import CloseIcon from '@material-ui/icons/Close'
 import Dialog from '@material-ui/core/Dialog'
-import Checkbox from '@material-ui/core/Checkbox'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank'
-import CheckBoxIcon from '@material-ui/icons/CheckBox'
+// import Checkbox from '@material-ui/core/Checkbox'
+// import FormControlLabel from '@material-ui/core/FormControlLabel'
+// import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank'
+// import CheckBoxIcon from '@material-ui/icons/CheckBox'
 
 import Icon from '../../ui/Icon'
 import qrIcon from '../../../../renderer/static/images/qr.svg'
@@ -217,7 +217,7 @@ export const AddFunds = ({
           </span>
         </Typography>
       </Grid>
-      <Grid item>
+      {/* <Grid item>
         <FormControlLabel
           control={
             <Checkbox
@@ -238,7 +238,7 @@ export const AddFunds = ({
             </Typography>
           }
         />
-      </Grid>
+      </Grid> */}
       <Grid item className={classes.spacing16}>
         <Grid container>
           <Grid item xs>
