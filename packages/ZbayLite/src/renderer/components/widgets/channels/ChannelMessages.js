@@ -22,6 +22,10 @@ const styles = theme => ({
     backgroundColor: theme.palette.colors.white,
     padding: '0 4px',
     width: '100%'
+  },
+  link: {
+    color: theme.palette.colors.lushSky,
+    cursor: 'pointer'
   }
 })
 
@@ -48,7 +52,9 @@ export const ChannelMessages = ({
   publicChannels,
   isInitialLoadFinished,
   isRescanned,
-  isDM
+  isDM,
+  onRescan,
+  isNewUser
 }) => {
   const scrollbarRef = React.useRef()
   // const [lastScrollHeight, setLastScrollHeight] = React.useState(0)
@@ -194,6 +200,22 @@ export const ChannelMessages = ({
             </>
           )
         })}
+        {isNewUser && (
+          <WelcomeMessage
+            message={
+              <span>
+                Welcome to Zbay! To start quickly, Zbay includes username and
+                channel registration data in the app itself. To verify this
+                data, which takes ~1 hour but may add some security,
+                <span className={classes.link} onClick={onRescan}>
+                  {' '}
+                  restart & re-sync
+                </span>
+                . Otherwise, say hi and introduce yourself!
+              </span>
+            }
+          />
+        )}
       </List>
     </Scrollbars>
   )

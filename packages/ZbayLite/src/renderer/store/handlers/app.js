@@ -91,6 +91,7 @@ export const restartAndRescan = () => async (dispatch, getState) => {
   setTimeout(() => {
     history.push(`/vault`)
     electronStore.set('channelsToRescan', {})
+    electronStore.set('isRescanned', true)
   }, 500)
 }
 

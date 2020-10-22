@@ -17,6 +17,7 @@ import publicChannelsSelector from '../../../store/selectors/publicChannels'
 import { messageType } from '../../../../shared/static'
 import zcashChannels from '../../../zcash/channels'
 import channelHandlers from '../../../store/handlers/channel'
+import appHandlers from '../../../store/handlers/app'
 import electronStore from '../../../../shared/electronStore'
 
 export const mapStateToProps = (state, { signerPubKey, network }) => {
@@ -45,7 +46,8 @@ export const mapDispatchToProps = (dispatch, ownProps) =>
   bindActionCreators(
     {
       onLinkedChannel: channelHandlers.epics.linkChannelRedirect,
-      setDisplayableLimit: channelHandlers.actions.setDisplayableLimit
+      setDisplayableLimit: channelHandlers.actions.setDisplayableLimit,
+      onRescan: appHandlers.epics.restartAndRescan
     },
     dispatch
   )
@@ -66,7 +68,8 @@ export const ChannelMessages = ({
   messagesLength,
   displayableMessageLimit,
   setDisplayableLimit,
-  isOwner
+  isOwner,
+  onRescan
 }) => {
   const [scrollPosition, setScrollPosition] = React.useState(-1)
   const [isRescanned, setIsRescanned] = React.useState(true)
@@ -100,11 +103,15 @@ export const ChannelMessages = ({
       }
     }
   }
+  const isNewUser = electronStore.get('isNewUser')
+
   return (
     <ChannelMessagesComponent
       scrollPosition={scrollPosition}
       setScrollPosition={setScrollPosition}
       isRescanned={isRescanned}
+      isNewUser={isNewUser}
+      onRescan={onRescan}
       messages={
         tab === 0
           ? messages
