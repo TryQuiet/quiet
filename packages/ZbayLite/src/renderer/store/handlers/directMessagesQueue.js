@@ -9,6 +9,7 @@ import identitySelectors from '../selectors/identity'
 import contactsSelectors from '../selectors/contacts'
 import usersSelectors from '../selectors/users'
 import appSelectors from '../selectors/app'
+import operationsHandlers from './operations'
 import offersSelectors from '../selectors/offers'
 import {
   messageToTransfer,
@@ -152,10 +153,11 @@ const sendMessage = (payload, redirect = true) => async (
   dispatch,
   getState
 ) => {
+  console.log(payload)
   const myUser = usersSelectors.myUser(getState())
   const messageDigest = crypto.createHash('sha256')
   // Generate unique id for txn until we get response from blockchain
-  const messageEssentials = R.pick(['createdAt', 'message', 'spent'])(payload)
+  const messageEssentials = R.pick(['createdAt', 'message'])(payload)
   const privKey = identitySelectors.signerPrivKey(getState())
   const key = messageDigest
     .update(JSON.stringify(messageEssentials))
@@ -167,6 +169,7 @@ const sendMessage = (payload, redirect = true) => async (
       replyTo: myUser.address,
       username: myUser.nickname
     },
+    fromYou: true,
     receiver: {
       replyTo: payload.receiver.address,
       username: payload.receiver.nickname
@@ -175,7 +178,7 @@ const sendMessage = (payload, redirect = true) => async (
   })
   const contacts = contactsSelectors.contacts(getState())
   // Create user
-  if (!contacts.get(payload.receiver.address)) {
+  if (!contacts.get(payload.receiver.publicKey)) {
     await dispatch(
       contactsHandlers.actions.addContact({
         key: payload.receiver.publicKey,
@@ -187,7 +190,13 @@ const sendMessage = (payload, redirect = true) => async (
   dispatch(
     contactsHandlers.actions.addMessage({
       key: payload.receiver.publicKey,
-      message: { key: message }
+      message: { [key]: message }
+    })
+  )
+  dispatch(
+    operationsHandlers.actions.addOperation({
+      channelId: payload.receiver.publicKey,
+      id: key
     })
   )
   const transferMessage = createMessage({
@@ -203,7 +212,31 @@ const sendMessage = (payload, redirect = true) => async (
     amount: payload.spent,
     message: transferMessage
   })
-  console.log(await client.sendTransaction(transfer))
+  const transaction = await client.sendTransaction(transfer)
+
+  if (!transaction.txid) {
+    dispatch(
+      contactsHandlers.actions.addMessage({
+        key: payload.receiver.publicKey,
+        message: { [key]: message.set('status', 'failed') }
+      })
+    )
+    dispatch(
+      notificationsHandlers.actions.enqueueSnackbar(
+        errorNotification({
+          message: "Couldn't send the message, please check node connection."
+        })
+      )
+    )
+    return
+  }
+  dispatch(
+    operationsHandlers.epics.resolvePendingOperation({
+      channelId: payload.receiver.publicKey,
+      id: key,
+      txid: transaction.txid
+    })
+  )
 }
 
 const _sendPendingDirectMessages = redirect => async (dispatch, getState) => {
