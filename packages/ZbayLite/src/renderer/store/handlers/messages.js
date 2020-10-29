@@ -218,8 +218,9 @@ export const checkTransferCount = (address, messages) => async (
       messages[messages.length - 1].memo === null &&
       messages[messages.length - 1].memohex === ''
     ) {
+      // It will not save transaction count so next run will trigger refresh.
       console.log('skip wrong state')
-      return -1
+      return 1
     }
     if (messages.length === appSelectors.transfers(getState()).get(address)) {
       return -1
