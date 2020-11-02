@@ -9,6 +9,8 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v1.0.0
+        with:
+          ref: refs/heads/master
       - uses: actions/setup-node@master
         with:
           node-version: "12"
@@ -19,6 +21,7 @@ jobs:
       - name: install neon
         run: npm install --global neon-cli
       - name: build  binary
+
         run: npm run neon
       - name: build on Linux
         run: npm run build:prod
