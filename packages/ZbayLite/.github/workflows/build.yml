@@ -21,7 +21,6 @@ jobs:
       - name: install neon
         run: npm install --global neon-cli
       - name: build  binary
-
         run: npm run neon
       - name: build on Linux
         run: npm run build:prod
