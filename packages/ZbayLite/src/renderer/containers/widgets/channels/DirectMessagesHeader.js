@@ -1,5 +1,4 @@
 import { connect } from 'react-redux'
-import Immutable from 'immutable'
 import { bindActionCreators } from 'redux'
 
 import ChannelHeader from '../../../components/widgets/channels/ChannelHeader'
@@ -12,11 +11,11 @@ import { notificationFilterType } from '../../../../shared/static'
 export const mapStateToProps = (state, props) => {
   const contact = contactsSelectors.contact(props.contactId)(state)
   return {
-    channel: Immutable.fromJS({
-      name: contact.get('username'),
+    channel: {
+      name: contact.username,
       address: props.contactId
-    }),
-    isRegisteredUsername: usersSelectors.isRegisteredUsername(contact.get('username'))(state),
+    },
+    isRegisteredUsername: usersSelectors.isRegisteredUsername(contact.username)(state),
     directMessage: true,
     mutedFlag:
       notificationCenterSlectors.contactFilterByAddress(contact.address)(

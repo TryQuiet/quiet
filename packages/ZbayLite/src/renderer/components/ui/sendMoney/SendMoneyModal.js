@@ -30,10 +30,8 @@ export const formSchema = users => {
             const isAddressValid = /^t1[a-zA-Z0-9]{33}$|^ztestsapling1[a-z0-9]{75}$|^zs1[a-z0-9]{75}$|[A-Za-z0-9]{35}/.test(
               string
             )
-            const includesNickname = users
-              .toList()
-              .filter(obj => obj.get('nickname') === string)
-              .first()
+            const includesNickname = Array.from(Object.values(users))
+              .filter(obj => obj.nickname === string)[0]
             return includesNickname || isAddressValid
           }
         )
@@ -103,18 +101,14 @@ export const SendMoneyModal = ({
       onSubmit={(values, { resetForm }) => {
         const { recipient, ...rest } = values
         const includesNickname =
-          users
-            .toList()
-            .filter(obj => obj.get('nickname') === recipient)
-            .first() ||
-          users
-            .toList()
-            .filter(obj => obj.get('address') === recipient)
-            .first()
+        Array.from(Object.values(users))
+          .filter(obj => obj.nickname === recipient)[0] ||
+        Array.from(Object.values(users))
+          .filter(obj => obj.address === recipient)[0]
         if (includesNickname) {
           const messageToTransfer = createTransfer({
-            recipient: includesNickname.get('address'),
-            recipientUsername: includesNickname.get('nickname'),
+            recipient: includesNickname.address,
+            recipientUsername: includesNickname.nickname,
             ...rest,
             shippingData,
             sender: {

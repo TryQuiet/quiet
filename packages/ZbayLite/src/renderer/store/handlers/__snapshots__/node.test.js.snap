@@ -1,110 +1,65 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Node reducer handles createAddress 1`] = `
-Object {
-  "action": Object {
-    "payload": "sapling-zcash-address",
-    "type": "CREATE_ADDRESS_FULFILLED",
-  },
-  "value": "sapling-zcash-address",
-}
-`;
-
 exports[`Node reducer handles epics - getStatus when node is down 1`] = `
-Immutable.NodeState {
-  "latestBlock": "0",
-  "currentBlock": "0",
+Object {
+  "bootstrappingMessage": "",
   "connections": "0",
-  "isTestnet": null,
-  "status": "down",
-  "errors": [Error: some kind of node error],
-  "bootstrapLoader": Immutable.Record {
-    "loading": false,
-    "message": "",
-  },
-  "fetchingStatus": Immutable.Record {
-    "sizeLeft": 0,
-    "part": "",
-    "fetchingStatus": "",
-    "fetchingSpeed": null,
+  "currentBlock": "0",
+  "errors": [TypeError: _electron.ipcRenderer.send is not a function],
+  "fetchingStatus": Object {
+    "currentSlide": 0,
     "fetchingEndTime": Object {
       "hours": null,
       "minutes": null,
       "seconds": null,
     },
-    "isFetching": false,
-    "rescanningProgress": 0,
-    "isRescanningMonitorStarted": false,
-    "isRescanningInitialized": false,
+    "fetchingSpeed": null,
+    "fetchingStatus": "",
     "guideStatus": false,
-    "currentSlide": 0,
+    "isFetching": false,
+    "isRescanningInitialized": false,
+    "isRescanningMonitorStarted": false,
+    "part": "",
+    "rescanningProgress": 0,
+    "sizeLeft": 0,
   },
+  "isRescanning": false,
+  "isTestnet": null,
+  "latestBlock": "999999",
+  "loading": false,
   "startedAt": null,
+  "status": "down",
 }
 `;
 
 exports[`Node reducer handles epics - getStatus when successfull 1`] = `
-Immutable.NodeState {
-  "latestBlock": "2234",
-  "currentBlock": "12",
-  "connections": "10",
-  "isTestnet": true,
-  "status": "healthy",
-  "errors": "",
-  "bootstrapLoader": Immutable.Record {
-    "loading": false,
-    "message": "",
-  },
-  "fetchingStatus": Immutable.Record {
-    "sizeLeft": 0,
-    "part": "",
-    "fetchingStatus": "",
-    "fetchingSpeed": null,
-    "fetchingEndTime": Object {
-      "hours": null,
-      "minutes": null,
-      "seconds": null,
-    },
-    "isFetching": false,
-    "rescanningProgress": 0,
-    "isRescanningMonitorStarted": false,
-    "isRescanningInitialized": false,
-    "guideStatus": false,
-    "currentSlide": 0,
-  },
-  "startedAt": null,
-}
-`;
-
-exports[`Node reducer handles rejected createAddress 1`] = `
-Immutable.NodeState {
-  "latestBlock": "0",
-  "currentBlock": "0",
+Object {
+  "bootstrappingMessage": "",
   "connections": "0",
-  "isTestnet": null,
-  "status": "connecting",
-  "errors": [Error: createAddress error],
-  "bootstrapLoader": Immutable.Record {
-    "loading": false,
-    "message": "",
-  },
-  "fetchingStatus": Immutable.Record {
-    "sizeLeft": 0,
-    "part": "",
-    "fetchingStatus": "",
-    "fetchingSpeed": null,
+  "currentBlock": "0",
+  "errors": [TypeError: _electron.ipcRenderer.send is not a function],
+  "fetchingStatus": Object {
+    "currentSlide": 0,
     "fetchingEndTime": Object {
       "hours": null,
       "minutes": null,
       "seconds": null,
     },
-    "isFetching": false,
-    "rescanningProgress": 0,
-    "isRescanningMonitorStarted": false,
-    "isRescanningInitialized": false,
+    "fetchingSpeed": null,
+    "fetchingStatus": "",
     "guideStatus": false,
-    "currentSlide": 0,
+    "isFetching": false,
+    "isRescanningInitialized": false,
+    "isRescanningMonitorStarted": false,
+    "part": "",
+    "rescanningProgress": 0,
+    "sizeLeft": 0,
   },
+  "isRescanning": false,
+  "isTestnet": null,
+  "latestBlock": "999999",
+  "loading": false,
   "startedAt": null,
+  "status": "down",
 }
 `;

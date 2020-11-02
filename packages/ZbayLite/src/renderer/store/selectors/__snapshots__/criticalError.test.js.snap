@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`criticalError - criticalError selector 1`] = `
-Immutable.CriticalError {
+Object {
   "message": "Some kind of error",
   "traceback": "Error: Traceback for Some kind of error",
 }

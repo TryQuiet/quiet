@@ -1,5 +1,3 @@
-import Immutable from 'immutable'
-
 import { mapStateToProps } from './OfferChannelHeader'
 
 import create from '../../../store/create'
@@ -9,13 +7,13 @@ describe('OfferChannelHeader', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({
-        offers: Immutable.Map({
+      initialState: {
+        offers: {
           address123: {
             name: 'testname'
           }
-        })
-      })
+        }
+      }
     })
   })
 

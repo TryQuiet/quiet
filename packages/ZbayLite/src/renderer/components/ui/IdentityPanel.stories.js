@@ -1,5 +1,4 @@
 import React from 'react'
-import Immutable from 'immutable'
 import Paper from '@material-ui/core/Paper'
 import Grid from '@material-ui/core/Grid'
 import { storiesOf } from '@storybook/react'
@@ -14,7 +13,7 @@ import { Identity } from '../../store/handlers/identity'
 import IdentityPanel from './IdentityPanel'
 
 const store = create({
-  initialState: Immutable.Map({})
+  initialState: {}
 })
 
 storiesOf('Components/UI/IdentityPanel', module)

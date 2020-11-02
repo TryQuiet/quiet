@@ -1,14 +1,15 @@
 /* eslint import/first: 0 */
 jest.mock('electron', () => {
   const remote = jest.mock()
+  const ipcRenderer = jest.mock()
   remote.app = jest.mock()
   remote.process = jest.mock()
   remote.process.on = jest.fn()
   remote.app.getVersion = jest.fn().mockReturnValue('0.13.37')
-  return { remote }
+  ipcRenderer.on = jest.fn().mockReturnValue('ok')
+  return { remote, ipcRenderer }
 })
 
-import Immutable from 'immutable'
 import { remote } from 'electron'
 
 import handlers, { AppState } from './app'
@@ -19,9 +20,11 @@ describe('criticalError reducer', () => {
   let store = null
   beforeEach(() => {
     store = create({
-      initialState: Immutable.Map({
-        app: AppState()
-      })
+      initialState: {
+        app: {
+          ...AppState
+        }
+      }
     })
     remote.app = jest.mock()
     jest.clearAllMocks()
@@ -62,7 +65,7 @@ describe('criticalError reducer', () => {
       store.dispatch(
         handlers.actions.setTransfers({ id: 'testid', value: 'testvalue2' })
       )
-      expect(selectors.transfers(store.getState()).get('testid')).toEqual(
+      expect(selectors.transfers(store.getState())['testid']).toEqual(
         'testvalue2'
       )
     })

@@ -11,8 +11,8 @@ exports[`Index will receive right props 1`] = `
 Object {
   "bootstrapping": false,
   "bootstrappingMessage": "",
-  "locked": false,
-  "nodeConnected": false,
+  "locked": true,
+  "nodeConnected": true,
 }
 `;
 

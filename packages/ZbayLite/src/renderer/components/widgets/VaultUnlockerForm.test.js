@@ -22,6 +22,8 @@ describe('VaultUnlockerForm', () => {
         nodeConnected={false}
         loader={{}}
         isLogIn={false}
+        latestBlock={new BigNumber(123)}
+        currentBlock={new BigNumber(12)}
         node={{
           latestBlock: new BigNumber(123),
           currentBlock: new BigNumber(12)

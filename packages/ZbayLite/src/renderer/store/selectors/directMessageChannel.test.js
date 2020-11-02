@@ -1,16 +1,15 @@
 /* eslint import/first: 0 */
-jest.mock('../../vault')
-import Immutable from 'immutable'
 
 import { directMessageChannel } from './directMessageChannel'
 import create from '../create'
 import { DirectMessageChannelState } from '../handlers/directMessageChannel'
 
 const storeState = {
-  directMessageChannel: DirectMessageChannelState({
+  directMessageChannel: {
+    ...DirectMessageChannelState,
     targetRecipientAddress: 'test-address',
     targetRecipientUsername: 'test-username'
-  })
+  }
 }
 
 describe('directMessageChannel selector', () => {
@@ -18,7 +17,9 @@ describe('directMessageChannel selector', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map(storeState)
+      initialState: {
+        ...storeState
+      }
     })
   })
 

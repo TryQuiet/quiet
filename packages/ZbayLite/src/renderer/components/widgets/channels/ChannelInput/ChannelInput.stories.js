@@ -1,5 +1,4 @@
 import React from 'react'
-import Immutable from 'immutable'
 import { storiesOf } from '@storybook/react'
 import { withKnobs, number } from '@storybook/addon-knobs'
 import { action } from '@storybook/addon-actions'
@@ -11,7 +10,7 @@ import create from '../../../../store/create'
 import ChannelInput from './ChannelInput'
 
 const store = create({
-  initialState: Immutable.Map()
+  initialState: {}
 })
 
 storiesOf('Components/Widgets/Channels/ChannelInput', module)

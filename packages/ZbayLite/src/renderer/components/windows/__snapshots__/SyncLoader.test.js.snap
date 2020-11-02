@@ -55,7 +55,6 @@ exports[`SyncLoader renders component 1`] = `
               "root": "rootBar-mock",
             }
           }
-          variant="determinate"
         />
       </WithStyles(ForwardRef(Grid))>
       <WithStyles(ForwardRef(Grid))
@@ -74,7 +73,7 @@ exports[`SyncLoader renders component 1`] = `
             className="status-mock"
             variant="caption"
           >
-            Connecting…   (0.00 MB/s)
+            Syncing 1 / 1000
           </WithStyles(ForwardRef(Typography))>
         </WithStyles(ForwardRef(Grid))>
       </WithStyles(ForwardRef(Grid))>

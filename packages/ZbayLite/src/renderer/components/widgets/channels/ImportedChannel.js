@@ -1,5 +1,4 @@
 import React from 'react'
-import Immutable from 'immutable'
 import PropTypes from 'prop-types'
 import * as R from 'ramda'
 
@@ -76,7 +75,7 @@ export const ImportedChannel = ({
           <Grid item className={classes.spacing16}>
             <Typography variant='body2'>
               You are invited to join the channel{' '}
-              <span className={classes.channelName}>#{channel.get('name')}</span>
+              <span className={classes.channelName}>#{channel.name}</span>
             </Typography>
           </Grid>
           <Grid item className={classes.spacing32}>
@@ -120,7 +119,7 @@ export const ImportedChannel = ({
 
 ImportedChannel.propTypes = {
   classes: PropTypes.object.isRequired,
-  channel: PropTypes.instanceOf(Immutable.Map),
+  channel: PropTypes.object,
   onAccept: PropTypes.func.isRequired,
   onCancel: PropTypes.func.isRequired,
   setIsLoading: PropTypes.func.isRequired,

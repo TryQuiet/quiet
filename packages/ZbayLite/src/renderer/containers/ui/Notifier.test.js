@@ -1,5 +1,4 @@
 /* eslint import/first: 0 */
-import Immutable from 'immutable'
 
 import { mapStateToProps, mapDispatchToProps } from './Notifier'
 
@@ -10,9 +9,9 @@ describe('Notifier', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({
+      initialState: {
         // TODO: 07/05 change to Record
-        notifications: Immutable.fromJS([
+        notifications: [
           {
             message: 'Test message',
             key: 'test-key',
@@ -20,8 +19,8 @@ describe('Notifier', () => {
               persist: true
             }
           }
-        ])
-      })
+        ]
+      }
     })
   })
 

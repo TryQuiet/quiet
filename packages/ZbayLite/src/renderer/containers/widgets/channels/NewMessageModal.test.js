@@ -1,6 +1,4 @@
 /* eslint import/first: 0 */
-import Immutable from 'immutable'
-
 import { mapStateToProps, mapDispatchToProps } from './NewMessageModal'
 
 import create from '../../../store/create'
@@ -10,12 +8,12 @@ describe('NewMessageModal', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({
-        users: Immutable.Map({
+      initialState: {
+        users: {
           testuser1: 'user 1 data',
           testuser2: 'user 2 data'
-        })
-      })
+        }
+      }
     })
   })
 

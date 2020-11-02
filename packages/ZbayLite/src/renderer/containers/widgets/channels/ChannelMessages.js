@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
-import Immutable from 'immutable'
 import { bindActionCreators } from 'redux'
+import * as R from 'ramda'
 
 import ChannelMessagesComponent from '../../../components/widgets/channels/ChannelMessages'
 import channelSelectors from '../../../store/selectors/channel'
@@ -29,8 +29,8 @@ export const mapStateToProps = (state, { signerPubKey, network }) => {
     qMessages: qMessages,
     channelData:
       channelsSelectors.channelById(channelSelectors.channelId(state))(state) ||
-      Immutable.fromJS({ keys: {} }),
-    messages: contactsSelectors.directMessages(contactId, signerPubKey)(state).get('visibleMessages'),
+      { keys: {} },
+    messages: contactsSelectors.directMessages(contactId, signerPubKey)(state).visibleMessages,
     messagesLength: contactsSelectors.messagesLength(contactId)(state),
     displayableMessageLimit: channelSelectors.displayableMessageLimit(state),
     channelId: channelSelectors.channelId(state),
@@ -89,15 +89,17 @@ export const ChannelMessages = ({
       setDisplayableLimit(displayableMessageLimit + 5)
     }
   }, [scrollPosition])
-  const oldestMessage = messages ? messages.last() : null
+  const oldestMessage = messages ? messages[messages.length - 1] : null
   let usersRegistration = []
-  let publicChannelsRegistration = []
+  let _publicChannelsRegistration = []
+  let publicChannelsRegistration
   if (channelId === zcashChannels.general[network].address) {
     if (oldestMessage) {
-      usersRegistration = Array.from(users.values()).filter(msg => msg.createdAt >= oldestMessage.createdAt)
-      publicChannelsRegistration = Array.from(
-        Object.values(publicChannels.toJS())
+      usersRegistration = Array.from(Object.values(users)).filter(msg => msg.createdAt >= oldestMessage.createdAt)
+      _publicChannelsRegistration = Array.from(
+        Object.values(publicChannels)
       ).filter(msg => msg.timestamp >= oldestMessage.createdAt)
+      publicChannelsRegistration = R.clone(_publicChannelsRegistration)
       for (const ch of publicChannelsRegistration) {
         delete Object.assign(ch, { createdAt: parseInt(ch['timestamp']) })['timestamp']
       }
@@ -136,14 +138,14 @@ export default connect(
 )(
   React.memo(ChannelMessages, (before, after) => {
     return (
-      Immutable.is(before.messages, after.messages) &&
+      Object.is(before.messages, after.messages) &&
       before.tab === after.tab &&
       before.isInitialLoadFinished === after.isInitialLoadFinished &&
       before.isOwner === after.isOwner &&
       before.channelId === after.channelId &&
       before.contactId === after.contactId &&
-      Immutable.is(before.users, after.users) &&
-      Immutable.is(before.publicChannels, after.publicChannels)
+      Object.is(before.users, after.users) &&
+      Object.is(before.publicChannels, after.publicChannels)
     )
   })
 )

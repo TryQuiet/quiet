@@ -1,6 +1,5 @@
 import React from 'react'
 import { shallow } from 'enzyme'
-import Immutable from 'immutable'
 
 import { mockClasses } from '../../../../shared/testing/mocks'
 import { JoinChannelModal } from './JoinChannelModal'
@@ -13,8 +12,8 @@ describe('JoinChannelModal', () => {
         handleClose={() => {}}
         joinChannel={() => {}}
         showNotification={() => {}}
-        publicChannels={Immutable.Map({})}
-        users={Immutable.Map({})}
+        publicChannels={{}}
+        users={{}}
         classes={mockClasses}
       />
     )

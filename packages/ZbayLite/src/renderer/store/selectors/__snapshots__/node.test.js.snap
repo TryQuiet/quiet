@@ -5,36 +5,15 @@ exports[`node selectors bootstrapping 1`] = `true`;
 exports[`node selectors bootstrappingMessage 1`] = `"Test loader message"`;
 
 exports[`node selectors node 1`] = `
-Immutable.NodeState {
-  "latestBlock": 1000,
-  "currentBlock": 123,
+Object {
+  "bootstrappingMessage": "Test loader message",
   "connections": 15,
+  "currentBlock": 123,
   "isTestnet": true,
-  "status": "healthy",
-  "errors": "",
-  "bootstrapLoader": Immutable.Record {
-    "loading": true,
-    "message": "Test loader message",
-  },
-  "fetchingStatus": Immutable.Record {
-    "sizeLeft": 0,
-    "part": "",
-    "fetchingStatus": "",
-    "fetchingSpeed": null,
-    "fetchingEndTime": Object {
-      "hours": null,
-      "minutes": null,
-      "seconds": null,
-    },
-    "isFetching": false,
-    "rescanningProgress": 0,
-    "isRescanningMonitorStarted": false,
-    "isRescanningInitialized": false,
-    "guideStatus": false,
-    "currentSlide": 0,
-  },
+  "latestBlock": 1000,
+  "loading": true,
+  "payloads": Object {},
   "startedAt": "2019-03-05T09:34:48.000Z",
+  "status": "healthy",
 }
 `;
-
-exports[`node selectors rescanningProgress 1`] = `0`;

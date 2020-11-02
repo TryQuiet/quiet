@@ -2,6 +2,9 @@
 
 exports[`Security will receive right actions 1`] = `
 Object {
+  "onRescan": [Function],
+  "openSeedModal": [Function],
+  "registerOnionAddress": [Function],
   "removeImageHost": [Function],
   "removeSiteHost": [Function],
   "toggleAllowAll": [Function],
@@ -11,11 +14,12 @@ Object {
 exports[`Security will receive right props 1`] = `
 Object {
   "allowAll": false,
-  "autoload": Immutable.List [
+  "autoload": Array [
     "test3",
     "test4",
   ],
-  "whitelisted": Immutable.List [
+  "useTor": false,
+  "whitelisted": Array [
     "test1",
     "test2",
   ],

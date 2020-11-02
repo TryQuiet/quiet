@@ -1,4 +1,4 @@
-import Immutable from 'immutable'
+import { produce } from 'immer'
 import * as R from 'ramda'
 import crypto from 'crypto'
 import { createAction, handleActions } from 'redux-actions'
@@ -29,17 +29,14 @@ import history from '../../../shared/history'
 export const DEFAULT_DEBOUNCE_INTERVAL = 2000
 const POLLING_OFFSET = 60000
 
-export const PendingMessage = Immutable.Record(
-  {
-    recipientAddress: '',
-    recipientUsername: '',
-    offerId: '',
-    message: null
-  },
-  'PendingDirectMessage'
-)
+export const PendingMessage = {
+  recipientAddress: '',
+  recipientUsername: '',
+  offerId: '',
+  message: null
+}
 
-export const initialState = Immutable.Map()
+export const initialState = {}
 
 const addDirectMessage = createAction(
   actionTypes.ADD_PENDING_DIRECT_MESSAGE,
@@ -153,8 +150,8 @@ const sendMessage = (payload, redirect = true) => async (
   dispatch,
   getState
 ) => {
-  console.log(payload)
   const myUser = usersSelectors.myUser(getState())
+  console.log('my user', myUser)
   const messageDigest = crypto.createHash('sha256')
   // Generate unique id for txn until we get response from blockchain
   const messageEssentials = R.pick(['createdAt', 'message'])(payload)
@@ -178,7 +175,7 @@ const sendMessage = (payload, redirect = true) => async (
   })
   const contacts = contactsSelectors.contacts(getState())
   // Create user
-  if (!contacts.get(payload.receiver.publicKey)) {
+  if (!contacts[payload.receiver.publicKey]) {
     await dispatch(
       contactsHandlers.actions.addContact({
         key: payload.receiver.publicKey,
@@ -245,7 +242,7 @@ const _sendPendingDirectMessages = redirect => async (dispatch, getState) => {
   if (lock === false) {
     await dispatch(appHandlers.actions.lockDmQueue())
   } else {
-    if (messages.size !== 0) {
+    if (messages.length !== 0) {
       dispatch(sendPendingDirectMessages(null, redirect))
     }
     return
@@ -253,9 +250,9 @@ const _sendPendingDirectMessages = redirect => async (dispatch, getState) => {
   const identityAddress = identitySelectors.address(getState())
   const donation = identitySelectors.donation(getState())
   await Promise.all(
-    messages
+    Array.from(Object.values(messages))
       .map(async (msg, key) => {
-        const { message, recipientAddress } = msg.toJS()
+        const { message, recipientAddress } = msg
         const transfer = await messageToTransfer({
           message,
           address: recipientAddress,
@@ -346,18 +343,21 @@ export const reducer = handleActions(
     [addDirectMessage]: (
       state,
       { payload: { recipientUsername, recipientAddress, message, key } }
-    ) => {
-      return state.set(
-        key,
-        PendingMessage({
+    ) =>
+      produce(state, (draft) => {
+        draft[key] = {
+          ...PendingMessage,
           recipientAddress,
           recipientUsername,
           offerId: message.message.itemId,
-          message: Immutable.fromJS(message)
-        })
-      )
-    },
-    [removeMessage]: (state, { payload: key }) => state.remove(key)
+          message: {
+            ...message
+          }
+        }
+      }),
+    [removeMessage]: (state, { payload: key }) => produce(state, (draft) => {
+      delete draft[key]
+    })
   },
   initialState
 )

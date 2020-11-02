@@ -1,5 +1,4 @@
 import React from 'react'
-import Immutable from 'immutable'
 import { shallow } from 'enzyme'
 
 import { mapStateToProps, NodePanelNetworkField } from './NodePanelNetworkField'
@@ -12,11 +11,12 @@ describe('NodePanelNetworkField', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({
-        node: NodeState({
+      initialState: {
+        node: {
+          ...NodeState,
           isTestnet: true
-        })
-      })
+        }
+      }
     })
   })
 

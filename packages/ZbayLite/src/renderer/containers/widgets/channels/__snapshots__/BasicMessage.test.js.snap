@@ -4,7 +4,7 @@ exports[`ChannelContent will receive right props 1`] = `
 Object {
   "channelId": "test",
   "inputState": 0,
-  "mentions": Immutable.Map {},
+  "mentions": Object {},
   "signerPubKey": 123,
 }
 `;

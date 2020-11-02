@@ -1,5 +1,4 @@
 import React from 'react'
-import Immutable from 'immutable'
 import { storiesOf } from '@storybook/react'
 import { withKnobs } from '@storybook/addon-knobs'
 import StoryRouter from 'storybook-react-router'
@@ -10,9 +9,9 @@ import { withStore } from '../../../../../.storybook/decorators'
 import JoinChannelModal from './JoinChannelModal'
 
 const store = create({
-  initialState: Immutable.Map({
-    publicChannels: Immutable.Map({})
-  })
+  initialState: {
+    publicChannels: {}
+  }
 })
 
 storiesOf('Components/Widgets/Channels/JoinChannelModal', module)
@@ -23,7 +22,7 @@ storiesOf('Components/Widgets/Channels/JoinChannelModal', module)
     return (
       <JoinChannelModal
         open
-        publicChannels={Immutable.Map({ 1: { name: 'test' } })}
+        publicChannels={{ 1: { name: 'test' } }}
         handleClose={() => {}}
       />
     )

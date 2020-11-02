@@ -1,4 +1,4 @@
-import Immutable from 'immutable'
+import { produce } from 'immer'
 import { DateTime } from 'luxon'
 import { createAction, handleActions } from 'redux-actions'
 import * as R from 'ramda'
@@ -11,7 +11,7 @@ import appSelectors from '../selectors/app'
 import offersSelectors from '../selectors/offers'
 import messagesSelectors from '../selectors/messages'
 import channelSelectors from '../selectors/channel'
-import selectors, { Contact } from '../selectors/contacts'
+import selectors from '../selectors/contacts'
 import directMessageChannelSelector, {
   directMessageChannel
 } from '../selectors/directMessageChannel'
@@ -143,7 +143,7 @@ const sendDirectMessage = (payload, redirect = true) => async (
 
 const resendMessage = messageData => async (dispatch, getState) => {}
 
-const initialState = Immutable.Map()
+const initialState = {}
 
 const setMessages = createAction(actionTypes.SET_DIRECT_MESSAGES)
 const updateMessage = createAction(actionTypes.UPDATE_MESSAGE)
@@ -184,7 +184,7 @@ export const updatePendingMessage = ({ key, id, txid }) => async (
 }
 export const linkUserRedirect = contact => async (dispatch, getState) => {
   const contacts = selectors.contacts(getState())
-  if (contacts.get(contact.address)) {
+  if (contacts[contact.address]) {
     history.push(`/main/direct-messages/${contact.address}/${contact.nickname}`)
   }
   await dispatch(
@@ -219,21 +219,21 @@ export const fetchMessages = () => async (dispatch, getState) => {
       )
     }
     const contacts = selectors.contacts(getState())
-    const currentContact = contacts.get(currentDmChannel)
+    const currentContact = contacts[currentDmChannel]
     if (currentContact) {
       await dispatch(
-        updateLastSeen({ contact: contacts.get(currentDmChannel) })
+        updateLastSeen({ contact: contacts[currentDmChannel] })
       )
     }
     const transfers = await getClient().payment.received(identityAddress)
     if (
       transfers.length ===
-      appSelectors.transfers(getState()).get(identityAddress)
+      appSelectors.transfers(getState()).identityAddress
     ) {
       return
     } else {
       const oldTransfers =
-        appSelectors.transfers(getState()).get(identityAddress) || 0
+        appSelectors.transfers(getState()).identityAddress || 0
       dispatch(
         appHandlers.actions.reduceNewTransfersCount(
           transfers.length - oldTransfers
@@ -260,6 +260,7 @@ export const fetchMessages = () => async (dispatch, getState) => {
       .filter(msg => msg !== null)
       .filter(msg => msg.sender.username === 'unknown')
       .filter(msg => msg.specialType === 1)
+
     const messages = messagesAll
       .filter(msg => msg !== null)
       .filter(msg => msg.sender.replyTo !== '')
@@ -363,7 +364,7 @@ export const fetchMessages = () => async (dispatch, getState) => {
       let lastSeen = selectors.lastSeen(unknownSender.replyTo)(getState())
       const newMessages = zbayMessages.calculateDiff({
         previousMessages,
-        nextMessages: Immutable.List(uknownSenderMessagesWithTimestamp),
+        nextMessages: uknownSenderMessagesWithTimestamp,
         lastSeen,
         identityAddress
       })
@@ -408,6 +409,7 @@ export const fetchMessages = () => async (dispatch, getState) => {
       R.groupBy(msg => msg.sender.replyTo),
       R.filter(R.identity)
     )(messages)
+    console.log('start')
     await Promise.all(
       Object.entries(senderToMessages).map(
         async ([contactAddress, contactMessages]) => {
@@ -423,7 +425,7 @@ export const fetchMessages = () => async (dispatch, getState) => {
           let lastSeen = selectors.lastSeen(contactAddress)(getState())
           const newMessages = zbayMessages.calculateDiff({
             previousMessages,
-            nextMessages: Immutable.List(contactMessages),
+            nextMessages: contactMessages,
             lastSeen,
             identityAddress
           })
@@ -463,6 +465,7 @@ export const fetchMessages = () => async (dispatch, getState) => {
         }
       )
     )
+    console.log('stop')
     return 1
   } catch (err) {
     console.warn(err)
@@ -494,7 +497,7 @@ export const createVaultContact = ({
 }) => async (dispatch, getState) => {
   const contacts = selectors.contacts(getState())
   // Create temp user
-  if (!contacts.get(contact.publicKey)) {
+  if (!contacts[contact.publicKey]) {
     await dispatch(
       addContact({
         key: contact.publicKey,
@@ -536,7 +539,7 @@ export const checkConfirmationOfTransfers = async (dispatch, getState) => {
     const contacts = selectors.contacts(getState())
     const offers = offersSelectors.offers(getState())
     for (const key of Array.from(contacts.keys())) {
-      for (const msg of contacts.get(key).messages) {
+      for (const msg of contacts[key].messages) {
         if (
           (msg.type === messageType.ITEM_TRANSFER ||
             msg.type === messageType.TRANSFER) &&
@@ -552,7 +555,7 @@ export const checkConfirmationOfTransfers = async (dispatch, getState) => {
           )
         }
       }
-      for (const msg of contacts.get(key).vaultMessages) {
+      for (const msg of contacts[key].vaultMessages) {
         if (
           (msg.type === messageType.ITEM_TRANSFER ||
             msg.type === messageType.TRANSFER) &&
@@ -613,95 +616,87 @@ export const reducer = handleActions(
       state,
       { payload: { key, username, contactAddress, messages } }
     ) =>
-      state.update(
-        key,
-        Contact({ key: key, address: contactAddress, username: username }),
-        cm =>
-          cm.update('messages', msgs => {
-            return msgs.merge(messages)
-          })
-      ),
+      produce(state, (draft) => {
+        if (!draft[key]) {
+          draft[key] = {
+            lastSeen: null,
+            messages: {},
+            newMessages: [],
+            vaultMessages: [],
+            offerId: null,
+            key,
+            address: contactAddress,
+            username
+          }
+        }
+        draft[key].messages = {
+          ...draft[key].messages,
+          ...messages
+        }
+      }),
     [addContact]: (
       state,
       { payload: { key, username, contactAddress, offerId = null } }
-    ) => {
-      return state.merge({
-        [key]: Contact({
-          key: key,
+    ) =>
+      produce(state, (draft) => {
+        draft[key] = {
+          lastSeen: null,
+          messages: {},
+          newMessages: [],
+          vaultMessages: [],
+          offerId: offerId,
+          key,
           address: contactAddress,
-          username: username,
-          offerId
-        })
-      })
-    },
+          username
+        }
+      }),
     [addMessage]: (state, { payload: { key, message } }) =>
-      state.update(key, cm =>
-        cm.update('messages', msgs => {
-          return msgs.merge(message)
-        })
-      ),
+      produce(state, (draft) => {
+        draft[key].messages = {
+          ...draft[key].messages,
+          ...message
+        }
+      }),
     [updateMessage]: (state, { payload: { key, id, txid } }) =>
-      state.update(key, cm =>
-        cm.update('messages', msgs => {
-          const tempMsg = msgs.get(id)
-          return msgs.delete(id).merge({ [txid]: tempMsg })
-        })
-      ),
+      produce(state, (draft) => {
+        const tempMsg = draft[key].messages[id]
+        delete draft[key].messages[id]
+        draft[key].messages[txid] = tempMsg
+      }),
     [setMessageBlockTime]: (
       state,
       { payload: { contactAddress, messageId, blockTime } }
     ) =>
-      state.update(contactAddress, Contact(), cm =>
-        cm.update('messages', messages => {
-          const index = messages.findIndex(msg => msg.id === messageId)
-          return messages.setIn([index, 'blockTime'], blockTime)
-        })
-      ),
-
-    [setVaultMessageBlockTime]: (
-      state,
-      { payload: { contactAddress, messageId, blockTime } }
-    ) =>
-      state.update(contactAddress, Contact(), cm =>
-        cm.update('vaultMessages', messages => {
-          const index = messages.findIndex(msg => msg.id === messageId)
-          return messages.setIn([index, 'blockTime'], blockTime)
-        })
-      ),
-    [setVaultMessages]: (
-      state,
-      { payload: { contactAddress, vaultMessagesToDisplay } }
-    ) =>
-      state.update(contactAddress, Contact(), cm =>
-        cm.set('vaultMessages', Immutable.fromJS(vaultMessagesToDisplay))
-      ),
-    [cleanNewMessages]: (state, { payload: { contactAddress } }) => {
-      const newState = state.update(contactAddress, Contact(), cm =>
-        cm.set('newMessages', Immutable.List())
-      )
-      return newState
-    },
+      produce(state, (draft) => {
+        draft[contactAddress].messages[messageId].blockTime = blockTime
+      }),
+    [cleanNewMessages]: (state, { payload: { contactAddress } }) =>
+      produce(state, (draft) => {
+        draft[contactAddress].newMessages = []
+      }),
     [appendNewMessages]: (
       state,
       { payload: { contactAddress, messagesIds } }
     ) =>
-      state.update(contactAddress, Contact(), cm =>
-        cm.update('newMessages', nm => {
-          remote.app.setBadgeCount(
-            remote.app.getBadgeCount() - nm.size + messagesIds.length
-          )
-          return Immutable.List(messagesIds)
-        })
-      ),
+      produce(state, (draft) => {
+        const newMessagesLength = draft[contactAddress].newMessages.length
+        remote.app.setBadgeCount(
+          remote.app.getBadgeCount() - newMessagesLength + messagesIds.length
+        )
+        draft[contactAddress].newMessages = messagesIds
+      }),
     [setLastSeen]: (state, { payload: { lastSeen, contact } }) =>
-      state.update(contact.key || contact.key, Contact(), cm =>
-        cm.set('lastSeen', lastSeen)
-      ),
-    [removeContact]: (state, { payload: address }) => state.delete(address),
+      produce(state, (draft) => {
+        draft[contact.key].lastSeen = lastSeen
+      }),
+    [removeContact]: (state, { payload: address }) => produce(state, (draft) => {
+      delete draft[address]
+    }),
     [setUsernames]: (state, { payload: { sender } }) =>
-      state.update(sender.replyTo, Contact(), cm =>
-        cm.set('username', sender.username).set('address', sender.replyTo)
-      )
+      produce(state, (draft) => {
+        draft[sender.replyTo].username = sender.username
+        draft[sender.replyTo].address = sender.replyTo
+      })
   },
   initialState
 )

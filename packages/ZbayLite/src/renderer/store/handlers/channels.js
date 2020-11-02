@@ -1,4 +1,4 @@
-import Immutable from 'immutable'
+import { produce } from 'immer'
 import { DateTime } from 'luxon'
 import { createAction, handleActions } from 'redux-actions'
 import BigNumber from 'bignumber.js'
@@ -9,8 +9,7 @@ import {
   typeRejected,
   typePending,
   errorNotification,
-  successNotification,
-  LoaderState
+  successNotification
 } from './utils'
 import notificationsHandlers from './notifications'
 import channelHandlers from './channel'
@@ -29,15 +28,17 @@ import ownedChannelsHandlers from './ownedChannels'
 
 const toBigNumber = x => new BigNumber(x)
 
-export const ChannelsState = Immutable.Record(
-  {
-    data: Immutable.List(),
-    loader: LoaderState({ loading: true })
-  },
-  'ChannelsState'
-)
+export const ChannelsState = {
+  data: [],
+  loader: {
+    loading: false,
+    message: ''
+  }
+}
 
-export const initialState = ChannelsState()
+export const initialState = {
+  ...ChannelsState
+}
 
 const loadChannels = createAction(
   actionTypes.LOAD_IDENTITY_CHANNELS,
@@ -251,67 +252,69 @@ export const epics = {
 export const reducer = handleActions(
   {
     [typePending(actionTypes.LOAD_IDENTITY_CHANNELS)]: state =>
-      state
-        .setIn(['loader', 'loading'], true)
-        .setIn(['loader', 'message'], 'Loading channels'),
+      produce(state, (draft) => {
+        draft.loader.loading = true
+        draft.loader.message = 'Loading channel'
+      }),
     [typeFulfilled(actionTypes.LOAD_IDENTITY_CHANNELS)]: (
       state,
       { payload: data }
     ) =>
-      state
-        .set('data', Immutable.fromJS(data))
-        .setIn(['loader', 'loading'], false),
+      produce(state, (draft) => {
+        draft.data = data
+        draft.loader.loading = false
+      }),
     [typeRejected(actionTypes.LOAD_IDENTITY_CHANNELS)]: (
       state,
       { payload: error }
-    ) => state.setIn(['loader', 'loading'], false),
-    [setDescription]: (state, { payload: { channelId, description } }) => {
-      const index = state.data.findIndex(
-        channel => channel.get('id') === channelId
-      )
-      return state.updateIn(['data', index], ch =>
-        ch.set('description', description)
-      )
-    },
-    [setLastSeen]: (state, { payload: { channelId, lastSeen } }) => {
-      const index = state.data.findIndex(
-        channel => channel.get('id') === channelId
-      )
-      return state.updateIn(['data', index], ch => ch.set('lastSeen', lastSeen))
-    },
+    ) => produce(state, (draft) => {
+      draft.loader.loading = false
+    }),
+    [setDescription]: (state, { payload: { channelId, description } }) =>
+      produce(state, (draft) => {
+        const index = state.data.findIndex(
+          channel => channel.id === channelId
+        )
+        draft.data[index].description = description
+      }),
+    [setLastSeen]: (state, { payload: { channelId, lastSeen } }) =>
+      produce(state, (draft) => {
+        const index = state.data.findIndex(
+          channel => channel.id === channelId
+        )
+        draft.data[index].lastSeen = lastSeen
+      }),
     [setOnlyRegistered]: (
       state,
       { payload: { channelId, onlyRegistered } }
-    ) => {
-      const index = state.data.findIndex(
-        channel => channel.get('id') === channelId
-      )
-      return state.updateIn(['data', index], ch =>
-        ch.set('onlyRegistered', onlyRegistered)
-      )
-    },
-    [setAdvertFee]: (state, { payload: { channelId, advertFee } }) => {
-      const index = state.data.findIndex(
-        channel => channel.get('id') === channelId
-      )
-      return state.updateIn(['data', index], ch =>
-        ch.set('advertFee', parseFloat(advertFee))
-      )
-    },
-    [setShowInfoMsg]: (state, { payload: { channelId, showInfoMsg } }) => {
-      const index = state.data.findIndex(
-        channel => channel.get('id') === channelId
-      )
-      return state.updateIn(['data', index], ch =>
-        ch.set('showInfoMsg', showInfoMsg)
-      )
-    },
-    [setUnread]: (state, { payload: { channelId, unread } }) => {
-      const index = state.data.findIndex(
-        channel => channel.get('id') === channelId
-      )
-      return state.updateIn(['data', index], ch => ch.set('unread', unread))
-    }
+    ) =>
+      produce(state, (draft) => {
+        const index = state.data.findIndex(
+          channel => channel.id === channelId
+        )
+        draft.data[index].onlyRegistered = onlyRegistered
+      }),
+    [setAdvertFee]: (state, { payload: { channelId, advertFee } }) =>
+      produce(state, (draft) => {
+        const index = state.data.findIndex(
+          channel => channel.id === channelId
+        )
+        draft.data[index].advertFee = parseFloat(advertFee)
+      }),
+    [setShowInfoMsg]: (state, { payload: { channelId, showInfoMsg } }) =>
+      produce(state, (draft) => {
+        const index = state.data.findIndex(
+          channel => channel.id === channelId
+        )
+        draft.data[index].showInfoMsg = showInfoMsg
+      }),
+    [setUnread]: (state, { payload: { channelId, unread } }) =>
+      produce(state, (draft) => {
+        const index = state.data.findIndex(
+          channel => channel.id === channelId
+        )
+        draft.data[index].unread = unread
+      })
   },
   initialState
 )

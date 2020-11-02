@@ -12,9 +12,9 @@ import { actionCreators } from '../../../store/handlers/modals'
 export const mapStateToProps = state => {
   return {
     currentFilter: notificationCenterSelectors.channelFilterById(
-      channelSelectors.channel(state).get('address')
+      channelSelectors.channel(state).address
     )(state),
-    channelData: contactsSelectors.contact(channelSelectors.channel(state).get('address'))(state).toJS()
+    channelData: contactsSelectors.contact(channelSelectors.channel(state).address)(state)
   }
 }
 

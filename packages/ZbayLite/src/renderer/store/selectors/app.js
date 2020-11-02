@@ -2,7 +2,7 @@ import { createSelector } from 'reselect'
 
 const store = s => s
 
-export const app = createSelector(store, state => state.get('app'))
+export const app = createSelector(store, state => state.app)
 
 const version = createSelector(app, a => a.version)
 const useTor = createSelector(app, a => a.useTor)

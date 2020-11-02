@@ -1,6 +1,4 @@
 /* eslint import/first: 0 */
-import Immutable from 'immutable'
-
 import { mapStateToProps, mapDispatchToProps } from './AdvertModal'
 
 import create from '../../../store/create'
@@ -10,11 +8,11 @@ describe('AdvertModal', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({
-        rates: Immutable.Map({
+      initialState: {
+        rates: {
           usd: '10',
           zec: '1'
-        }),
+        },
         identity: {
           data: {
             id: '1',
@@ -23,7 +21,7 @@ describe('AdvertModal', () => {
             balance: '2'
           }
         }
-      })
+      }
     })
   })
 

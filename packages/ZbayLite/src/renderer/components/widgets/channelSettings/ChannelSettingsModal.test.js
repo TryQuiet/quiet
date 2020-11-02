@@ -9,7 +9,6 @@ jest.mock('../../../containers/widgets/channelSettings/Moderators', () => {
 })
 import React from 'react'
 import { shallow } from 'enzyme'
-import Immutable from 'immutable'
 
 import { ChannelSettingsModal } from './ChannelSettingsModal'
 import { mockClasses } from '../../../../shared/testing/mocks'
@@ -19,7 +18,7 @@ describe('ChannelSettingsModal', () => {
     const result = shallow(
       <ChannelSettingsModal
         classes={mockClasses}
-        channel={Immutable.Map({})}
+        channel={{}}
         setCurrentTab={() => {}}
         handleClose={() => {}}
         currentTab='blockedUsers'

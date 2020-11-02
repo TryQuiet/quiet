@@ -1,5 +1,4 @@
 import React from 'react'
-import Immutable from 'immutable'
 import PropTypes from 'prop-types'
 import * as R from 'ramda'
 import classNames from 'classnames'
@@ -55,7 +54,7 @@ const styles = theme => ({
 })
 
 export const OfferListItem = ({ classes, channel, history, selected }) => {
-  const channelObj = channel.toJS()
+  const channelObj = channel
   const highlight = channelObj.key === selected.id
   const newMessages = channelObj.newMessages.length
   return (
@@ -94,11 +93,8 @@ export const OfferListItem = ({ classes, channel, history, selected }) => {
 }
 OfferListItem.propTypes = {
   classes: PropTypes.object.isRequired,
-  channel: PropTypes.oneOfType([
-    PropTypes.instanceOf(Immutable.Map),
-    PropTypes.instanceOf(Immutable.Record)
-  ]).isRequired,
-  selected: PropTypes.instanceOf(Immutable.Record).isRequired,
+  channel: PropTypes.object.isRequired,
+  selected: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired
 }
 

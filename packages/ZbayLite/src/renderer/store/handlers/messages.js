@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js'
 import * as R from 'ramda'
 import crypto from 'crypto'
 
-import { createAction, handleActions } from 'redux-actions'
+import { createAction } from 'redux-actions'
 // import { remote } from 'electron'
 
 import appSelectors from '../selectors/app'
@@ -34,7 +34,7 @@ import client from '../../zcash'
 import {
   DisplayableMessage,
   getPublicKeysFromSignature,
-  ExchangeParticipant,
+  exchangeParticipant,
   usernameSchema,
   messageSchema
 } from '../../zbay/messages'
@@ -47,57 +47,83 @@ import electronStore from '../../../shared/electronStore'
 import notificationCenterSelectors from '../selectors/notificationCenter'
 import staticChannelsMessages from '../../static/staticChannelsMessages.json'
 
-export const MessageSender = Immutable.Record(
-  {
-    replyTo: '',
-    username: ''
-  },
-  'MessageSender'
-)
-
-const _ReceivedMessage = Immutable.Record(
-  {
-    id: null,
-    type: messageType.BASIC,
-    sender: MessageSender(),
-    createdAt: 0,
-    message: '',
-    spent: new BigNumber(0),
-    isUnregistered: false,
-    tag: '',
-    offerOwner: '',
-    publicKey: null,
-    blockTime: Number.MAX_SAFE_INTEGER
-  },
-  'ReceivedMessage'
-)
-
-const _RecivedFromUnknownMessage = Immutable.Record(
-  {
-    id: null,
-    sender: MessageSender(),
-    type: messageType.BASIC,
-    message: '',
-    spent: new BigNumber(0),
-    createdAt: 0,
-    specialType: null,
-    blockHeight: Number.MAX_SAFE_INTEGER
-  },
-  'RecivedFromUnknownMessage'
-)
-
-export const ReceivedMessage = values => {
-  const record = _ReceivedMessage(values)
-  return record.set('sender', MessageSender(record.sender))
+export const messageSender = {
+  replyTo: '',
+  username: ''
 }
 
-export const ChannelMessages = Immutable.Record(
-  {
-    messages: Immutable.List(),
-    newMessages: Immutable.List()
-  },
-  'ChannelMessages'
-)
+export const _receivedMessage = {
+  id: null,
+  type: messageType.BASIC,
+  sender: messageSender,
+  createdAt: 0,
+  message: '',
+  spent: new BigNumber(0),
+  isUnregistered: false,
+  tag: '',
+  offerOwner: '',
+  publicKey: null,
+  blockTime: Number.MAX_SAFE_INTEGER
+}
+
+// const _ReceivedMessage = Immutable.Record(
+//   {
+//     id: null,
+//     type: messageType.BASIC,
+//     sender: MessageSender(),
+//     createdAt: 0,
+//     message: '',
+//     spent: new BigNumber(0),
+//     isUnregistered: false,
+//     tag: '',
+//     offerOwner: '',
+//     publicKey: null,
+//     blockTime: Number.MAX_SAFE_INTEGER
+//   },
+//   'ReceivedMessage'
+// )
+
+const _receivedFromUnknownMessage = {
+  id: null,
+  sender: messageSender,
+  type: messageType.BASIC,
+  message: '',
+  spent: new BigNumber(0),
+  createdAt: 0,
+  specialType: null,
+  blockHeight: Number.MAX_SAFE_INTEGER
+}
+
+// const _RecivedFromUnknownMessage = Immutable.Record(
+//   {
+//     id: null,
+//     sender: MessageSender(),
+//     type: messageType.BASIC,
+//     message: '',
+//     spent: new BigNumber(0),
+//     createdAt: 0,
+//     specialType: null,
+//     blockHeight: Number.MAX_SAFE_INTEGER
+//   },
+//   'RecivedFromUnknownMessage'
+// )
+
+export const ReceivedMessage = values => {
+  return {
+    ..._receivedMessage,
+    ...values
+  }
+}
+
+export const ChannelMessages = {
+  messages: [],
+  newMessages: []
+}
+
+// const channelMessages = {
+//   messages: [],
+//   newMessages: []
+// }
 
 export const initialState = Immutable.Map()
 
@@ -222,7 +248,7 @@ export const checkTransferCount = (address, messages) => async (
       console.log('skip wrong state')
       return 1
     }
-    if (messages.length === appSelectors.transfers(getState()).get(address)) {
+    if (messages.length === appSelectors.transfers(getState())[address]) {
       return -1
     } else {
       // const oldTransfers = appSelectors.transfers(getState()).get(address) || 0
@@ -354,7 +380,7 @@ const setOutgoingTransactions = (address, messages) => async (
       if (!offer) {
         continue
       }
-      if (!contacts.get(key)) {
+      if (!contacts[key]) {
         await dispatch(
           contactsHandlers.actions.addContact({
             key: key,
@@ -386,8 +412,8 @@ const setOutgoingTransactions = (address, messages) => async (
   )
   for (const key in groupedMesssages) {
     if (key && groupedMesssages.hasOwnProperty(key)) {
-      if (!contacts.get(key)) {
-        const contact = users.get(key)
+      if (!contacts[key]) {
+        const contact = users[key]
         await dispatch(
           contactsHandlers.actions.addContact({
             key: contact.publicKey,
@@ -441,7 +467,7 @@ const setChannelMessages = (channel, messages = []) => async (
     })
   )
   const contacts = contactsSelectors.contacts(getState())
-  if (messagesAll.length === 0 && !contacts.get(channel.address)) {
+  if (messagesAll.length === 0 && !contacts[channel.address]) {
     dispatch(
       contactsHandlers.actions.addContact({
         key: channel.address,
@@ -486,7 +512,6 @@ const setUsersMessages = (address, messages) => async (dispatch, getState) => {
   )
   if (transferCountFlag === -1 || !messages) {
     console.log('skip')
-
     return
   }
   const filteredTextMessages = messages.filter(
@@ -496,9 +521,9 @@ const setUsersMessages = (address, messages) => async (dispatch, getState) => {
     msg.memohex.startsWith('ff')
   )
   const parsedTextMessages = filteredTextMessages.map(msg => {
-    return _RecivedFromUnknownMessage({
+    return {
+      ..._receivedFromUnknownMessage,
       id: msg.txid,
-      sender: MessageSender(),
       type: new BigNumber(msg.amount).gt(new BigNumber(0))
         ? messageType.TRANSFER
         : messageType.BASIC,
@@ -507,9 +532,14 @@ const setUsersMessages = (address, messages) => async (dispatch, getState) => {
       specialType: null,
       spent: new BigNumber(msg.amount),
       blockHeight: msg.block_height
-    })
+    }
   })
-  const unknownUser = users.get(unknownUserId)
+
+  const unknownUser = {
+    address: unknownUserId,
+    nickname: 'unknown'
+  }
+  await dispatch(usersHandlers.actions.addUnknownUser())
   dispatch(
     contactsHandlers.actions.setMessages({
       key: unknownUserId,
@@ -551,7 +581,7 @@ const setUsersMessages = (address, messages) => async (dispatch, getState) => {
       if (!offer) {
         continue
       }
-      if (!contacts.get(key)) {
+      if (!contacts[key]) {
         await dispatch(
           contactsHandlers.actions.addContact({
             key: key,
@@ -599,7 +629,7 @@ const setUsersMessages = (address, messages) => async (dispatch, getState) => {
   const groupedMesssages = R.groupBy(msg => msg.publicKey)(normalMessages)
   for (const key in groupedMesssages) {
     if (groupedMesssages.hasOwnProperty(key)) {
-      const user = users.get(key)
+      const user = users[key]
       // filter unregistered users
       if (!user) {
         continue
@@ -697,20 +727,22 @@ export const handleWebsocketMessage = data => async (dispatch, getState) => {
     }
     publicKey = getPublicKeysFromSignature(message).toString('hex')
     if (users !== undefined) {
-      const fromUser = users.get(publicKey)
+      const fromUser = users[publicKey]
       if (fromUser !== undefined) {
         const isUsernameValid = usernameSchema.isValidSync(fromUser)
-        sender = ExchangeParticipant({
+        sender = {
+          ...exchangeParticipant,
           replyTo: fromUser.address,
           username: isUsernameValid
             ? fromUser.nickname
             : `anon${publicKey.substring(0, 10)}`
-        })
+        }
       } else {
-        sender = ExchangeParticipant({
+        sender = {
+          ...exchangeParticipant,
           replyTo: '',
           username: `anon${publicKey}`
-        })
+        }
         isUnregistered = true
       }
     }
@@ -720,7 +752,9 @@ export const handleWebsocketMessage = data => async (dispatch, getState) => {
   }
   try {
     const toUser =
-      users.find(u => u.address === sender.replyTo) || ExchangeParticipant()
+      Array.from(Object.values(users)).find(u => u.address === sender.replyTo) || {
+        ...exchangeParticipant
+      }
     const messageDigest = crypto.createHash('sha256')
     const messageEssentials = R.pick(['createdAt', 'message'])(message)
     const key = messageDigest
@@ -752,7 +786,7 @@ export const handleWebsocketMessage = data => async (dispatch, getState) => {
       if (!offer) {
         return
       }
-      if (!contacts.get(item + msg.sender.username)) {
+      if (!contacts[item + msg.sender.username]) {
         await dispatch(
           contactsHandlers.actions.addContact({
             key: key,
@@ -780,7 +814,7 @@ export const handleWebsocketMessage = data => async (dispatch, getState) => {
         })
       }
     } else {
-      if (!contacts.get(publicKey)) {
+      if (!contacts[publicKey]) {
         await dispatch(
           contactsHandlers.actions.addContact({
             key: publicKey,
@@ -816,26 +850,7 @@ export const epics = {
   handleWebsocketMessage
 }
 
-export const reducer = handleActions(
-  {
-    [setMessages]: (state, { payload: { channelId, messages } }) =>
-      state.update(channelId, ChannelMessages(), cm =>
-        cm.set('messages', Immutable.fromJS(messages))
-      ),
-    [cleanNewMessages]: (state, { payload: { channelId } }) =>
-      state.update(channelId, ChannelMessages(), cm =>
-        cm.set('newMessages', Immutable.List())
-      ),
-    [appendNewMessages]: (state, { payload: { channelId, messagesIds } }) =>
-      state.update(channelId, ChannelMessages(), cm =>
-        cm.update('newMessages', nm => nm.concat(messagesIds))
-      )
-  },
-  initialState
-)
-
 export default {
-  reducer,
   epics,
   actions
 }

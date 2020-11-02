@@ -1,89 +1,101 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`users reducer handles actions - setUsers sets users when empty 1`] = `
-Immutable.Map {
-  "039ea1be861812ac6e210c96ac54fd2523f6d738a2db460613cc9aa8bd1886607f": Immutable.UserData {
-    "firstName": "testname",
-    "lastName": "testlastname",
-    "nickname": "nickname",
-    "address": "ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r",
-    "createdAt": 1551963828,
+Object {
+  "__altered": false,
+  "__hash": undefined,
+  "__ownerID": undefined,
+  "_root": ArrayMapNode {
+    "entries": Array [
+      Array [
+        "039ea1be861812ac6e210c96ac54fd2523f6d738a2db460613cc9aa8bd1886607f",
+        Object {
+          "address": "ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r",
+          "createdAt": 1551963828,
+          "firstName": "testname",
+          "lastName": "testlastname",
+          "nickname": "nickname",
+          "onionAddress": "",
+          "publicKey": undefined,
+        },
+      ],
+      Array [
+        "0214dc56ab3467e74b3bc1fed80d08e0146b251caceddc2ad6bfe37caca5fcc2e5",
+        Object {
+          "address": "ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r",
+          "createdAt": 1551963828,
+          "firstName": "testname",
+          "lastName": "testlastname",
+          "nickname": "nickname #2",
+          "onionAddress": "",
+          "publicKey": undefined,
+        },
+      ],
+      Array [
+        "026918cbe1c9ace24ff065006c06b3c6344a5d7203ad42a45ddc7c7a41c6edfcc2",
+        Object {
+          "address": "ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r",
+          "createdAt": 1551963828,
+          "firstName": "testname",
+          "lastName": "testlastname",
+          "nickname": "nickname #3",
+          "onionAddress": "",
+          "publicKey": undefined,
+        },
+      ],
+    ],
+    "ownerID": OwnerID {},
   },
-  "0214dc56ab3467e74b3bc1fed80d08e0146b251caceddc2ad6bfe37caca5fcc2e5": Immutable.UserData {
-    "firstName": "testname",
-    "lastName": "testlastname",
-    "nickname": "nickname #2",
-    "address": "ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r",
-    "createdAt": 1551963828,
-  },
-  "026918cbe1c9ace24ff065006c06b3c6344a5d7203ad42a45ddc7c7a41c6edfcc2": Immutable.UserData {
-    "firstName": "testname",
-    "lastName": "testlastname",
-    "nickname": "nickname #3",
-    "address": "ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r",
-    "createdAt": 1551963828,
-  },
+  "size": 3,
 }
 `;
 
 exports[`users reducer handles actions - setUsers sets users with same usernames 1`] = `
-Immutable.Map {
-  "039ea1be861812ac6e210c96ac54fd2523f6d738a2db460613cc9aa8bd1886607f": Immutable.UserData {
-    "firstName": "testname",
-    "lastName": "testlastname",
-    "nickname": "nickname",
-    "address": "ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r",
-    "createdAt": 1551963828,
-  },
-  "0214dc56ab3467e74b3bc1fed80d08e0146b251caceddc2ad6bfe37caca5fcc2e5": Immutable.UserData {
-    "firstName": "testname",
-    "lastName": "testlastname",
-    "nickname": "nickname #2",
-    "address": "ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r",
-    "createdAt": 1551963828,
-  },
-  "026918cbe1c9ace24ff065006c06b3c6344a5d7203ad42a45ddc7c7a41c6edfcc2": Immutable.UserData {
-    "firstName": "testname",
-    "lastName": "testlastname",
-    "nickname": "nickname #3",
-    "address": "ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r",
-    "createdAt": 1551963828,
-  },
-}
-`;
-
-exports[`users reducer handles epics - createOrUpdateUser sends registration message 1`] = `
-Array [
-  Array [
-    "ztestsapling1mwmpvwy2aah7dlt0c9l47gde982xv6snxq2srddfzx8efn2qht6mxnz65rtst0426gtxje0eqlm",
-    Array [
-      Object {
-        "address": "ztestsapling1ggtntm4dgfc0remdxzex0pz722swjtqxc7wxj4eeqksmups04dkhjvcj5vcklmud2y3yvgj302m",
-        "amount": "0.0001",
-        "memo": "ff051778bce918ceca3d656a49c73f316b86e8bab1f3c9f9ee30214ac4c0581b78bc1f5773823720a125dea71e3d71274035769b2e5ff3f74d3dfc5033a2ba58d195005c8116b4746573746e616d65000000000000000000000000746573746c6173746e616d6500000000000000006e69636b6e616d65000000000000000000000000027a746573747361706c696e67316d776d707677793261616837646c743063396c3437676465393832787636736e78713273726464667a783865666e32716874366d786e7a363572747374303432366774786a653065716c6d00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      },
+Object {
+  "__altered": false,
+  "__hash": undefined,
+  "__ownerID": undefined,
+  "_root": ArrayMapNode {
+    "entries": Array [
+      Array [
+        "039ea1be861812ac6e210c96ac54fd2523f6d738a2db460613cc9aa8bd1886607f",
+        Object {
+          "address": "ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r",
+          "createdAt": 1551963828,
+          "firstName": "testname",
+          "lastName": "testlastname",
+          "nickname": "nickname",
+          "onionAddress": "",
+          "publicKey": undefined,
+        },
+      ],
+      Array [
+        "0214dc56ab3467e74b3bc1fed80d08e0146b251caceddc2ad6bfe37caca5fcc2e5",
+        Object {
+          "address": "ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r",
+          "createdAt": 1551963828,
+          "firstName": "testname",
+          "lastName": "testlastname",
+          "nickname": "nickname #2",
+          "onionAddress": "",
+          "publicKey": undefined,
+        },
+      ],
+      Array [
+        "026918cbe1c9ace24ff065006c06b3c6344a5d7203ad42a45ddc7c7a41c6edfcc2",
+        Object {
+          "address": "ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r",
+          "createdAt": 1551963828,
+          "firstName": "testname",
+          "lastName": "testlastname",
+          "nickname": "nickname #3",
+          "onionAddress": "",
+          "publicKey": undefined,
+        },
+      ],
     ],
-    1,
-    0.0000025,
-  ],
-]
-`;
-
-exports[`users reducer handles epics - fetch users when users 1`] = `
-Immutable.Map {
-  "035302fc10b2dc5cbe747779cd1cbcd7fe111161e09282e210d72dee9f6e68b17a": Immutable.UserData {
-    "firstName": "testname",
-    "lastName": "testlastname",
-    "nickname": "nickname #6",
-    "address": "ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r",
-    "createdAt": 1551963828,
+    "ownerID": OwnerID {},
   },
-  "02b7e647acb166a81139b1bcbdde82b8df610f1fb93af5edd0359dd0d7138d9166": Immutable.UserData {
-    "firstName": "testname",
-    "lastName": "testlastname",
-    "nickname": "nickname #7",
-    "address": "ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r",
-    "createdAt": 1551960228,
-  },
+  "size": 3,
 }
 `;

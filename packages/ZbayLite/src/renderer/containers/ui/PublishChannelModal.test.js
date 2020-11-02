@@ -1,5 +1,3 @@
-import Immutable from 'immutable'
-
 import { mapStateToProps, mapDispatchToProps } from './PublishChannelModal'
 
 import create from '../../store/create'
@@ -11,7 +9,7 @@ describe('PublishChannelModal', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({
+      initialState: {
         fees: {
           publicChannel: 0.1
         },
@@ -24,13 +22,15 @@ describe('PublishChannelModal', () => {
           id: 1
         },
         publicChannels: {},
-        rates: RatesState({
+        rates: {
+          ...RatesState,
           usd: '232.11'
-        }),
-        channels: ChannelsState({
-          data: [Immutable.Map({ id: 1, address: 'testAddress' })]
-        })
-      })
+        },
+        channels: {
+          ...ChannelsState,
+          data: [{ id: 1, address: 'testAddress' }]
+        }
+      }
     })
   })
 

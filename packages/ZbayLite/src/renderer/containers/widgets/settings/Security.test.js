@@ -1,6 +1,4 @@
 /* eslint import/first: 0 */
-import Immutable from 'immutable'
-
 import { mapStateToProps, mapDispatchToProps } from './Security'
 
 import create from '../../../store/create'
@@ -10,13 +8,13 @@ describe('Security', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({
+      initialState: {
         whitelist: {
           allowAll: false,
-          whitelisted: Immutable.List(['test1', 'test2']),
-          autoload: Immutable.List(['test3', 'test4'])
+          whitelisted: ['test1', 'test2'],
+          autoload: ['test3', 'test4']
         }
-      })
+      }
     })
   })
 

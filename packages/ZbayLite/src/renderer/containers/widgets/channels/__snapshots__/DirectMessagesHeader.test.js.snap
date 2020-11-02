@@ -2,9 +2,9 @@
 
 exports[`ChannelHeader will receive right props 1`] = `
 Object {
-  "channel": Immutable.Map {
-    "name": "testusername",
+  "channel": Object {
     "address": "address123",
+    "name": "testusername",
   },
   "directMessage": true,
   "isRegisteredUsername": false,

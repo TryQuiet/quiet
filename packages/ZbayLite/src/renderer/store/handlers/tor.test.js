@@ -1,14 +1,10 @@
-import Immutable from 'immutable'
-import { ipcRenderer } from 'electron'
-
 import create from '../create'
 import { actions, initialState, epics, client } from './tor'
 import selectors from '../selectors/tor'
-import electronStore from '../../../shared/electronStore'
 
-jest.mock('../../vault')
 jest.mock('../../../shared/electronStore', () => ({
-  set: () => {}
+  set: () => {},
+  get: () => {}
 }))
 
 describe('Tor reducer handles ', () => {
@@ -16,9 +12,9 @@ describe('Tor reducer handles ', () => {
 
   beforeEach(() => {
     store = create({
-      initialState: Immutable.Map({
-        tor: initialState
-      })
+      initialState: {
+        tor: { ...initialState }
+      }
     })
     jest.clearAllMocks()
   })
@@ -47,15 +43,6 @@ describe('Tor reducer handles ', () => {
 
       await store.dispatch(epics.checkTor())
       expect(connectMock).toHaveBeenCalled()
-    })
-    it('- createZcashNode', async () => {
-      const spawnZcashNodeMock = jest
-        .spyOn(ipcRenderer, 'send')
-        .mockImplementation(() => ({ on: () => {} }))
-      const electronStoreMock = jest.spyOn(electronStore, 'set').mockImplementation(() => {})
-      await store.dispatch(epics.createZcashNode())
-      expect(spawnZcashNodeMock).toHaveBeenCalled()
-      expect(electronStoreMock).toHaveBeenCalled()
     })
   })
 })

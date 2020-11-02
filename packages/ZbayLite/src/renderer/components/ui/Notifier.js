@@ -7,13 +7,12 @@ export const Notifier = ({ notifications, enqueueSnackbar, removeSnackbar }) => 
   useEffect(() => {
     notifications.map(
       n => {
-        const notification = n.toJS()
-        if (displayed.includes(notification.key)) {
+        if (displayed.includes(n.key)) {
           return
         }
-        enqueueSnackbar(notification.message, notification.options)
-        setDisplayed([...displayed, notification.key])
-        removeSnackbar(notification.key)
+        enqueueSnackbar(n.message, n.options)
+        setDisplayed([...displayed, n.key])
+        removeSnackbar(n.key)
       }
     )
   }, [notifications])

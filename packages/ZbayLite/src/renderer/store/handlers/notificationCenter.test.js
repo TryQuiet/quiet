@@ -1,6 +1,4 @@
 /* eslint import/first: 0 */
-import Immutable from 'immutable'
-
 import create from '../create'
 import { initialState, actions } from './notificationCenter'
 import notificationCenterSelector from '../selectors/notificationCenter'
@@ -10,9 +8,11 @@ describe('notifications reducer handles', () => {
   let store = null
   beforeEach(async () => {
     store = create({
-      initialState: Immutable.Map({
-        notificationCenter: initialState
-      })
+      initialState: {
+        notificationCenter: {
+          ...initialState
+        }
+      }
     })
     jest.clearAllMocks()
   })

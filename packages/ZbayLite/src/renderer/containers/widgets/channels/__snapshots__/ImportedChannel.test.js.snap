@@ -9,14 +9,14 @@ Object {
 
 exports[`ImportedChannel will receive right props 1`] = `
 Object {
-  "channel": Immutable.Map {
-    "name": "Politics",
-    "private": true,
+  "channel": Object {
     "address": "zs1testaddress",
     "description": "This is a simple test channel",
-    "keys": Immutable.Map {
+    "keys": Object {
       "ivk": "this-is-an-ivk-key",
     },
+    "name": "Politics",
+    "private": true,
   },
 }
 `;

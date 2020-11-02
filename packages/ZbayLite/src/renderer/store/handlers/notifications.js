@@ -1,8 +1,8 @@
-import Immutable from 'immutable'
+import { produce } from 'immer'
 import { createAction, handleActions } from 'redux-actions'
 import { actionTypes } from '../../../shared/static'
 
-export const initialState = Immutable.List()
+export const initialState = []
 
 const enqueueSnackbar = createAction(
   actionTypes.ENQUEUE_SNACKBAR,
@@ -20,8 +20,13 @@ export const actions = {
 
 // TODO: [refactoring] rewrite rest of the notifications to use Notifier
 export const reducer = handleActions({
-  [enqueueSnackbar]: (state, { payload: notification }) => state.push(Immutable.fromJS(notification)),
-  [removeSnackbar]: (state, { payload: key }) => state.filter(n => n.get('key') !== key)
+  [enqueueSnackbar]: (state, { payload: notification }) => {
+    console.log('test', notification)
+    return produce(state, (draft) => {
+      draft.push(notification)
+    })
+  },
+  [removeSnackbar]: (state, { payload: key }) => produce(state, (draft) => draft.filter(n => n.key !== key))
 }, initialState)
 
 export default {

@@ -3,22 +3,22 @@ import identitySelectors from './identity'
 const store = s => s
 
 const users = createSelector(store, state => {
-  return state.get('users')
+  return state.users
 })
 
 const isRegisteredUsername = nickname => createSelector(users, (users) => {
-  return users.toList().map(user => user.get('nickname')).includes(nickname)
+  return Array.from(Object.values(users)).map(user => user.nickname).includes(nickname)
 })
 
 const registeredUser = signerPubKey =>
-  createSelector(users, users => users.get(signerPubKey))
+  createSelector(users, users => users[signerPubKey])
 
 const myUser = createSelector(
   users,
   identitySelectors.signerPubKey,
   (users, signerPubKey) => {
     return (
-      users.get(signerPubKey) || {
+      users[signerPubKey] || {
         firstName: '',
         lastName: '',
         nickname: 'anon' + signerPubKey.substring(0, 16),

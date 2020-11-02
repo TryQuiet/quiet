@@ -4,13 +4,13 @@ const store = s => s
 
 const publicChannels = createSelector(
   store,
-  state => state.get('publicChannels')
+  state => state.publicChannels
 )
 
 const publicChannelsByAddress = address =>
   createSelector(
     publicChannels,
-    channels => channels.get(address)
+    channels => channels[address]
   )
 
 export default {

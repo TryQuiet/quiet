@@ -1,5 +1,4 @@
 /* eslint import/first: 0 */
-import Immutable from 'immutable'
 
 import handlers, { CriticalError } from './criticalError'
 import selectors from '../selectors/criticalError'
@@ -9,9 +8,9 @@ describe('criticalError reducer', () => {
   let store = null
   beforeEach(() => {
     store = create({
-      initialState: Immutable.Map({
-        criticalError: CriticalError()
-      })
+      initialState: {
+        criticalError: { ...CriticalError }
+      }
     })
     jest.clearAllMocks()
   })

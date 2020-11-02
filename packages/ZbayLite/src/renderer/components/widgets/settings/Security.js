@@ -5,7 +5,6 @@ import PropTypes from 'prop-types'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
-import Immutable from 'immutable'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Checkbox from '@material-ui/core/Checkbox'
 
@@ -217,7 +216,7 @@ export const Security = ({
           }
         />
       </Grid>
-      {!!whitelisted.size && (
+      {!!whitelisted.length && (
         <>
           <Grid item className={classes.subtitle}>
             <Typography variant='h5'>Allowed sites</Typography>
@@ -244,7 +243,7 @@ export const Security = ({
           })}
         </>
       )}
-      {!!autoload.size && (
+      {!!autoload.length && (
         <Grid item className={classes.imageHostsDiv}>
           <Grid item className={classes.subtitle}>
             <Typography variant='h5'>Allowed image hosts</Typography>
@@ -276,8 +275,8 @@ export const Security = ({
 }
 Security.propTypes = {
   classes: PropTypes.object.isRequired,
-  whitelisted: PropTypes.instanceOf(Immutable.List).isRequired,
-  autoload: PropTypes.instanceOf(Immutable.List).isRequired,
+  whitelisted: PropTypes.array.isRequired,
+  autoload: PropTypes.array.isRequired,
   allowAll: PropTypes.bool.isRequired,
   toggleAllowAll: PropTypes.func.isRequired,
   openSeedModal: PropTypes.func.isRequired,

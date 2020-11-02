@@ -1,23 +1,23 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`invitation - mentions selector 1`] = `
-Immutable.Map {
+Object {
   " id1": Array [
-    Immutable.ChannelMentions {
+    Object {
       "nickname": "test1",
       "timeStamp": 1234567,
     },
-    Immutable.ChannelMentions {
+    Object {
       "nickname": "test2",
       "timeStamp": 1234567,
     },
   ],
   " id2": Array [
-    Immutable.ChannelMentions {
+    Object {
       "nickname": "test3",
       "timeStamp": 1234567,
     },
-    Immutable.ChannelMentions {
+    Object {
       "nickname": "test4",
       "timeStamp": 1234567,
     },
@@ -27,11 +27,11 @@ Immutable.Map {
 
 exports[`invitation - mentions selector channel 1 1`] = `
 Array [
-  Immutable.ChannelMentions {
+  Object {
     "nickname": "test1",
     "timeStamp": 1234567,
   },
-  Immutable.ChannelMentions {
+  Object {
     "nickname": "test2",
     "timeStamp": 1234567,
   },
@@ -40,11 +40,11 @@ Array [
 
 exports[`invitation - mentions selector channel 2 1`] = `
 Array [
-  Immutable.ChannelMentions {
+  Object {
     "nickname": "test1",
     "timeStamp": 1234567,
   },
-  Immutable.ChannelMentions {
+  Object {
     "nickname": "test2",
     "timeStamp": 1234567,
   },

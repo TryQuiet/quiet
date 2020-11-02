@@ -1,6 +1,4 @@
 /* eslint import/first: 0 */
-jest.mock('../../vault')
-import Immutable from 'immutable'
 import * as R from 'ramda'
 
 import channelsSelectors from './channels'
@@ -10,27 +8,33 @@ import zbayChannels from '../../zcash/channels'
 import channelsHandlers, { ChannelsState } from '../handlers/channels'
 import { NodeState } from '../handlers/node'
 import { createChannel, now } from '../../testUtils'
-import { LoaderState } from '../handlers/utils'
 
 describe('Channels selectors', () => {
   let store = null
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({
-        node: NodeState({
+      initialState: {
+        node: {
+          ...NodeState,
           isTestnet: true
-        }),
-        channels: ChannelsState({
-          loader: LoaderState({
+        },
+        channels: {
+          ...ChannelsState,
+          loader: {
             loading: true,
             message: 'Loading messages'
-          }),
-          data: Immutable.fromJS(
-            R.range(0, 3).map(createChannel)
-          )
-        })
-      })
+          },
+          data: [{
+            ...zbayChannels.store.testnet
+          },
+          {
+            ...zbayChannels.general.testnet
+          },
+          ...R.range(0, 3).map(createChannel)
+          ]
+        }
+      }
     })
   })
 
@@ -45,44 +49,43 @@ describe('Channels selectors', () => {
     expect(channelsSelectors.loader(store.getState())).toMatchSnapshot()
   })
 
-  it('- generalChannelId', async () => {
-    const id = 'general-channel-id'
+  it('- generalChannelAddress', async () => {
+    const address = zbayChannels.general.testnet.address
     store = create({
-      initialState: Immutable.Map({
-        node: NodeState({
+      initialState: {
+        node: {
+          ...NodeState,
           isTestnet: true
-        }),
-        channels: ChannelsState({
-          data: [
-            Immutable.fromJS({
-              ...zbayChannels.general.testnet,
-              id
-            })
+        },
+        channels: {
+          ...ChannelsState,
+          data: [{
+            ...zbayChannels.general.testnet
+          }
           ]
-        })
-      })
-
+        }
+      }
     })
     const retrievedId = channelsSelectors.generalChannelId(store.getState())
-    expect(retrievedId).toEqual(id)
+    expect(retrievedId).toEqual(address)
   })
   it('- priceOracleChannel', async () => {
     const id = 'priceOracleChannel'
     store = create({
-      initialState: Immutable.Map({
-        node: NodeState({
+      initialState: {
+        node: {
+          ...NodeState,
           isTestnet: true
-        }),
-        channels: ChannelsState({
+        },
+        channels: {
           data: [
-            Immutable.fromJS({
+            {
               ...zbayChannels.priceOracle.testnet,
               id
-            })
+            }
           ]
-        })
-      })
-
+        }
+      }
     })
     const channel = channelsSelectors.priceOracleChannel(store.getState())
     expect(channel).toMatchSnapshot()

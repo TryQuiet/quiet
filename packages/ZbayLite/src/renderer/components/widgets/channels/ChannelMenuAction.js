@@ -1,7 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import * as R from 'ramda'
-import Immutable from 'immutable'
 
 import { withStyles } from '@material-ui/core/styles'
 import { Grid } from '@material-ui/core'
@@ -44,8 +43,8 @@ export const ChannelMenuAction = ({
   notificationFilter,
   openNotificationsTab
 }) => {
-  const alreadyRegistered = publicChannels.find(
-    ch => ch.address === channel.get('address')
+  const alreadyRegistered = Array.from(Object.values(publicChannels)).find(
+    ch => ch.address === channel.address
   )
   const [openDialog, setOpenDialog] = React.useState(false)
   return (
@@ -128,7 +127,7 @@ ChannelMenuAction.propTypes = {
   notificationFilter: PropTypes.number.isRequired
 }
 ChannelMenuAction.defaultProps = {
-  publicChannels: Immutable.Map({}),
+  publicChannels: {},
   disableSettings: false
 }
 

@@ -1,5 +1,3 @@
-import Immutable from 'immutable'
-
 import { mapStateToProps } from './SyncLoader'
 import create from '../../store/create'
 import { NodeState } from '../../store/handlers/node'
@@ -14,12 +12,13 @@ describe('SyncLoader', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({
-        node: NodeState({
+      initialState: {
+        node: {
+          ...NodeState,
           currentBlock: 1,
           latestBlock: 100
-        })
-      })
+        }
+      }
     })
   })
 

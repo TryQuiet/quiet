@@ -13,7 +13,7 @@ import contactsSelectors from '../../../store/selectors/contacts'
 export const mapStateToProps = state => {
   return {
     channel: contactsSelectors.contact(
-      channelSelectors.channel(state).get('address')
+      channelSelectors.channel(state).address
     )(state),
     isOwner: channelSelectors.isOwner(state),
     modalTabToOpen: appSelectors.currentModalTab(state)

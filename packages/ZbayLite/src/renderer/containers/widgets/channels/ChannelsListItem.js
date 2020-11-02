@@ -8,7 +8,7 @@ import ChannelsListItem from '../../../components/widgets/channels/ChannelsListI
 
 export const mapStateToProps = (state, { channel }) => {
   return {
-    isRegisteredUsername: usersSelectors.isRegisteredUsername(channel.get('username'))(state)
+    isRegisteredUsername: usersSelectors.isRegisteredUsername(channel.username)(state)
   }
 }
 

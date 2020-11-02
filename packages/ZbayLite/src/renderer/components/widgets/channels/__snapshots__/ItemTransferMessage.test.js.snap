@@ -4,29 +4,32 @@ exports[`ItemTransferMessage renders component 1`] = `
 <Connect(Component)
   actionsOpen={false}
   message={
-    Immutable.DisplayableMessage {
+    Object {
+      "blockHeight": 9007199254740991,
+      "createdAt": 1313246566,
+      "error": Object {},
+      "fromYou": false,
       "id": null,
-      "type": 1,
-      "sender": Immutable.ExchangeParticipant {
-        "replyTo": "test-address",
-        "username": "test",
-      },
-      "receiver": Immutable.ExchangeParticipant {
+      "isUnregistered": false,
+      "message": "",
+      "offerOwner": "tester",
+      "publicKey": null,
+      "receiver": Object {
+        "publicKey": "",
         "replyTo": "",
         "username": "Unnamed",
       },
-      "createdAt": 1313246566,
-      "message": "",
-      "spent": 120,
-      "fromYou": false,
-      "status": "broadcasted",
-      "error": Immutable.Map {},
+      "replyTo": "test-address",
+      "sender": Object {
+        "replyTo": "test-address",
+        "username": "test",
+      },
       "shippingData": null,
+      "spent": 120,
+      "status": "broadcasted",
       "tag": "test",
-      "offerOwner": "tester",
-      "isUnregistered": false,
-      "publicKey": null,
-      "blockTime": 9007199254740991,
+      "type": 1,
+      "username": "test",
     }
   }
   setActionsOpen={[Function]}

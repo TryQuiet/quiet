@@ -2,7 +2,6 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import * as R from 'ramda'
 import { withRouter } from 'react-router-dom'
-import Immutable from 'immutable'
 import ChannelMenuAction from '../../../components/widgets/channels/ChannelMenuAction'
 import { actionCreators } from '../../../store/handlers/modals'
 import importedChannelHandler from '../../../store/handlers/importedChannel'
@@ -25,11 +24,11 @@ export const mapStateToProps = state => {
     targetAddress: dmChannelSelectors.targetRecipientAddress(state),
     isOwner: channelSelectors.isOwner(state),
     publicChannels: publicChannelsSelectors.publicChannels(state),
-    channel: channelSelectors.data(state) || Immutable.Map({}),
+    channel: channelSelectors.data(state) || {},
     mutedFlag:
       notificationCenterSelectors.channelFilterById(
         channelSelectors.data(state)
-          ? channelSelectors.data(state).get('address')
+          ? channelSelectors.data(state).address
           : 'none'
       )(state) === notificationFilterType.MUTE,
     notificationFilter:
@@ -37,7 +36,7 @@ export const mapStateToProps = state => {
       filterToText[
         notificationCenterSelectors.channelFilterById(
           channelSelectors.channel(state)
-            ? channelSelectors.channel(state).get('address')
+            ? channelSelectors.channel(state).address
             : 'none'
         )(state)
       ]

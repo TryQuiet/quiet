@@ -6,7 +6,7 @@ exports[`PubliPublishChannelModal renders component 1`] = `
   initialValues={
     Object {
       "description": "",
-      "name": "nametest",
+      "name": undefined,
     }
   }
   isInitialValid={true}

@@ -2,7 +2,7 @@ import { createSelector } from 'reselect'
 
 const store = s => s
 
-export const logs = createSelector(store, state => state.get('logsData'))
+export const logs = createSelector(store, state => state.logsData)
 
 const applicationLogs = createSelector(logs, a => a.applicationLogs)
 const transactionsLogs = createSelector(logs, a => a.transactionLogs)

@@ -1,728 +1,386 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Identity reducer handles actions - setDonationAllow 1`] = `
-Immutable.IdentityState {
-  "data": Immutable.Identity {
-    "id": null,
+Object {
+  "data": Object {
     "address": "",
-    "transparentAddress": "",
-    "signerPrivKey": "",
-    "signerPubKey": "",
+    "addresses": Array [],
+    "balance": null,
+    "donationAddress": "",
+    "donationAllow": false,
+    "freeUtxos": 0,
+    "id": null,
+    "lockedBalance": null,
     "name": "",
-    "shippingData": Immutable.ShippingData {
+    "onionAddress": "",
+    "shieldedAddresses": Array [],
+    "shieldingTax": true,
+    "shippingData": Object {
+      "city": "",
+      "country": "",
       "firstName": "",
       "lastName": "",
-      "street": "",
-      "country": "",
-      "region": "",
-      "city": "",
       "postalCode": "",
+      "region": "",
+      "street": "",
     },
-    "balance": null,
-    "lockedBalance": null,
-    "donationAllow": false,
-    "shieldingTax": true,
-    "donationAddress": "",
-    "freeUtxos": 0,
-    "addresses": Immutable.List [],
-    "shieldedAddresses": Immutable.List [],
+    "signerPrivKey": "",
+    "signerPubKey": "",
+    "transparentAddress": "",
   },
+  "errors": "",
   "fetchingBalance": false,
-  "loader": Immutable.Record {
+  "loader": Object {
     "loading": false,
     "message": "",
   },
-  "errors": "",
+  "removedChannels": Array [],
 }
 `;
 
 exports[`Identity reducer handles actions - setLoading 1`] = `
-Immutable.IdentityState {
-  "data": Immutable.Identity {
-    "id": null,
+Object {
+  "data": Object {
     "address": "",
-    "transparentAddress": "",
-    "signerPrivKey": "",
-    "signerPubKey": "",
+    "addresses": Array [],
+    "balance": null,
+    "donationAddress": "",
+    "donationAllow": true,
+    "freeUtxos": 0,
+    "id": null,
+    "lockedBalance": null,
     "name": "",
-    "shippingData": Immutable.ShippingData {
+    "onionAddress": "",
+    "shieldedAddresses": Array [],
+    "shieldingTax": true,
+    "shippingData": Object {
+      "city": "",
+      "country": "",
       "firstName": "",
       "lastName": "",
-      "street": "",
-      "country": "",
-      "region": "",
-      "city": "",
       "postalCode": "",
+      "region": "",
+      "street": "",
     },
-    "balance": null,
-    "lockedBalance": null,
-    "donationAllow": true,
-    "shieldingTax": true,
-    "donationAddress": "",
-    "freeUtxos": 0,
-    "addresses": Immutable.List [],
-    "shieldedAddresses": Immutable.List [],
+    "signerPrivKey": "",
+    "signerPubKey": "",
+    "transparentAddress": "",
   },
+  "errors": "",
   "fetchingBalance": false,
-  "loader": Immutable.Record {
+  "loader": Object {
     "loading": true,
     "message": "",
   },
-  "errors": "",
+  "removedChannels": Array [],
 }
 `;
 
 exports[`Identity reducer handles actions - setLoadingMessage 1`] = `
-Immutable.IdentityState {
-  "data": Immutable.Identity {
-    "id": null,
+Object {
+  "data": Object {
     "address": "",
-    "transparentAddress": "",
-    "signerPrivKey": "",
-    "signerPubKey": "",
+    "addresses": Array [],
+    "balance": null,
+    "donationAddress": "",
+    "donationAllow": true,
+    "freeUtxos": 0,
+    "id": null,
+    "lockedBalance": null,
     "name": "",
-    "shippingData": Immutable.ShippingData {
+    "onionAddress": "",
+    "shieldedAddresses": Array [],
+    "shieldingTax": true,
+    "shippingData": Object {
+      "city": "",
+      "country": "",
       "firstName": "",
       "lastName": "",
-      "street": "",
-      "country": "",
-      "region": "",
-      "city": "",
       "postalCode": "",
+      "region": "",
+      "street": "",
     },
-    "balance": null,
-    "lockedBalance": null,
-    "donationAllow": true,
-    "shieldingTax": true,
-    "donationAddress": "",
-    "freeUtxos": 0,
-    "addresses": Immutable.List [],
-    "shieldedAddresses": Immutable.List [],
+    "signerPrivKey": "",
+    "signerPubKey": "",
+    "transparentAddress": "",
   },
+  "errors": "",
   "fetchingBalance": false,
-  "loader": Immutable.Record {
+  "loader": Object {
     "loading": false,
     "message": "This is a loading message",
   },
-  "errors": "",
+  "removedChannels": Array [],
 }
 `;
 
 exports[`Identity reducer handles actions - setShippingData 1`] = `
-Immutable.IdentityState {
-  "data": Immutable.Identity {
-    "id": null,
+Object {
+  "data": Object {
     "address": "",
-    "transparentAddress": "",
-    "signerPrivKey": "",
-    "signerPubKey": "",
+    "addresses": Array [],
+    "balance": null,
+    "donationAddress": "",
+    "donationAllow": true,
+    "freeUtxos": 0,
+    "id": null,
+    "lockedBalance": null,
     "name": "",
-    "shippingData": Immutable.ShippingData {
+    "onionAddress": "",
+    "shieldedAddresses": Array [],
+    "shieldingTax": true,
+    "shippingData": Object {
+      "city": "Fishville",
+      "country": "RumbleFish country",
       "firstName": "Rumble",
       "lastName": "Fish",
-      "street": "RumbleFish street",
-      "country": "RumbleFish country",
-      "region": "Fish Region",
-      "city": "Fishville",
       "postalCode": "1337-455",
+      "region": "Fish Region",
+      "street": "RumbleFish street",
     },
-    "balance": null,
-    "lockedBalance": null,
-    "donationAllow": true,
-    "shieldingTax": true,
-    "donationAddress": "",
-    "freeUtxos": 0,
-    "addresses": Immutable.List [],
-    "shieldedAddresses": Immutable.List [],
+    "signerPrivKey": "",
+    "signerPubKey": "",
+    "transparentAddress": "",
   },
+  "errors": "",
   "fetchingBalance": false,
-  "loader": Immutable.Record {
+  "loader": Object {
     "loading": false,
     "message": "",
   },
-  "errors": "",
+  "removedChannels": Array [],
 }
 `;
 
 exports[`Identity reducer handles actions handles setBalance 1`] = `
-Immutable.IdentityState {
-  "data": Immutable.Identity {
-    "id": null,
+Object {
+  "data": Object {
     "address": "",
-    "transparentAddress": "",
-    "signerPrivKey": "",
-    "signerPubKey": "",
+    "addresses": Array [],
+    "balance": "2.34",
+    "donationAddress": "",
+    "donationAllow": true,
+    "freeUtxos": 0,
+    "id": null,
+    "lockedBalance": null,
     "name": "",
-    "shippingData": Immutable.ShippingData {
+    "onionAddress": "",
+    "shieldedAddresses": Array [],
+    "shieldingTax": true,
+    "shippingData": Object {
+      "city": "",
+      "country": "",
       "firstName": "",
       "lastName": "",
-      "street": "",
-      "country": "",
-      "region": "",
-      "city": "",
       "postalCode": "",
+      "region": "",
+      "street": "",
     },
-    "balance": "2.34",
-    "lockedBalance": null,
-    "donationAllow": true,
-    "shieldingTax": true,
-    "donationAddress": "",
-    "freeUtxos": 0,
-    "addresses": Immutable.List [],
-    "shieldedAddresses": Immutable.List [],
+    "signerPrivKey": "",
+    "signerPubKey": "",
+    "transparentAddress": "",
   },
+  "errors": "",
   "fetchingBalance": false,
-  "loader": Immutable.Record {
+  "loader": Object {
     "loading": false,
     "message": "",
   },
-  "errors": "",
+  "removedChannels": Array [],
 }
 `;
 
 exports[`Identity reducer handles actions handles setErrors 1`] = `
-Immutable.IdentityState {
-  "data": Immutable.Identity {
-    "id": null,
+Object {
+  "data": Object {
     "address": "",
-    "transparentAddress": "",
-    "signerPrivKey": "",
-    "signerPubKey": "",
+    "addresses": Array [],
+    "balance": null,
+    "donationAddress": "",
+    "donationAllow": true,
+    "freeUtxos": 0,
+    "id": null,
+    "lockedBalance": null,
     "name": "",
-    "shippingData": Immutable.ShippingData {
+    "onionAddress": "",
+    "shieldedAddresses": Array [],
+    "shieldingTax": true,
+    "shippingData": Object {
+      "city": "",
+      "country": "",
       "firstName": "",
       "lastName": "",
-      "street": "",
-      "country": "",
-      "region": "",
-      "city": "",
       "postalCode": "",
+      "region": "",
+      "street": "",
     },
-    "balance": null,
-    "lockedBalance": null,
-    "donationAllow": true,
-    "shieldingTax": true,
-    "donationAddress": "",
-    "freeUtxos": 0,
-    "addresses": Immutable.List [],
-    "shieldedAddresses": Immutable.List [],
+    "signerPrivKey": "",
+    "signerPubKey": "",
+    "transparentAddress": "",
   },
+  "errors": [Error: this is some error],
   "fetchingBalance": false,
-  "loader": Immutable.Record {
+  "loader": Object {
     "loading": false,
     "message": "",
   },
-  "errors": [Error: this is some error],
+  "removedChannels": Array [],
 }
 `;
 
 exports[`Identity reducer handles actions handles setFetchingBalance to false 1`] = `
-Immutable.IdentityState {
-  "data": Immutable.Identity {
-    "id": null,
+Object {
+  "data": Object {
     "address": "",
-    "transparentAddress": "",
-    "signerPrivKey": "",
-    "signerPubKey": "",
+    "addresses": Array [],
+    "balance": null,
+    "donationAddress": "",
+    "donationAllow": true,
+    "freeUtxos": 0,
+    "id": null,
+    "lockedBalance": null,
     "name": "",
-    "shippingData": Immutable.ShippingData {
+    "onionAddress": "",
+    "shieldedAddresses": Array [],
+    "shieldingTax": true,
+    "shippingData": Object {
+      "city": "",
+      "country": "",
       "firstName": "",
       "lastName": "",
-      "street": "",
-      "country": "",
-      "region": "",
-      "city": "",
       "postalCode": "",
+      "region": "",
+      "street": "",
     },
-    "balance": null,
-    "lockedBalance": null,
-    "donationAllow": true,
-    "shieldingTax": true,
-    "donationAddress": "",
-    "freeUtxos": 0,
-    "addresses": Immutable.List [],
-    "shieldedAddresses": Immutable.List [],
+    "signerPrivKey": "",
+    "signerPubKey": "",
+    "transparentAddress": "",
   },
+  "errors": "",
   "fetchingBalance": false,
-  "loader": Immutable.Record {
+  "loader": Object {
     "loading": false,
     "message": "",
   },
-  "errors": "",
+  "removedChannels": Array [],
 }
 `;
 
 exports[`Identity reducer handles actions handles setFetchingBalance to true 1`] = `
-Immutable.IdentityState {
-  "data": Immutable.Identity {
-    "id": null,
+Object {
+  "data": Object {
     "address": "",
-    "transparentAddress": "",
-    "signerPrivKey": "",
-    "signerPubKey": "",
+    "addresses": Array [],
+    "balance": null,
+    "donationAddress": "",
+    "donationAllow": true,
+    "freeUtxos": 0,
+    "id": null,
+    "lockedBalance": null,
     "name": "",
-    "shippingData": Immutable.ShippingData {
+    "onionAddress": "",
+    "shieldedAddresses": Array [],
+    "shieldingTax": true,
+    "shippingData": Object {
+      "city": "",
+      "country": "",
       "firstName": "",
       "lastName": "",
-      "street": "",
-      "country": "",
-      "region": "",
-      "city": "",
       "postalCode": "",
+      "region": "",
+      "street": "",
     },
-    "balance": null,
-    "lockedBalance": null,
-    "donationAllow": true,
-    "shieldingTax": true,
-    "donationAddress": "",
-    "freeUtxos": 0,
-    "addresses": Immutable.List [],
-    "shieldedAddresses": Immutable.List [],
+    "signerPrivKey": "",
+    "signerPubKey": "",
+    "transparentAddress": "",
   },
+  "errors": "",
   "fetchingBalance": true,
-  "loader": Immutable.Record {
+  "loader": Object {
     "loading": false,
     "message": "",
   },
-  "errors": "",
+  "removedChannels": Array [],
 }
 `;
 
 exports[`Identity reducer handles actions handles setIdentity 1`] = `
-Immutable.IdentityState {
-  "data": Immutable.Identity {
-    "id": "test-id",
+Object {
+  "data": Object {
     "address": "testaddress",
-    "transparentAddress": "transparent-test-address",
-    "signerPrivKey": "test-hex-key",
-    "signerPubKey": "test-hex-key",
+    "addresses": Array [],
+    "balance": null,
+    "donationAddress": "",
+    "donationAllow": true,
+    "freeUtxos": 0,
+    "id": "test-id",
+    "keys": Object {
+      "sk": "sapling-private-key",
+      "tpk": "transparent-private-key",
+    },
+    "lockedBalance": null,
     "name": "Saturn",
-    "shippingData": Immutable.ShippingData {
+    "onionAddress": "",
+    "shieldedAddresses": Array [],
+    "shieldingTax": true,
+    "shippingData": Object {
+      "city": "",
+      "country": "",
       "firstName": "",
       "lastName": "",
-      "street": "",
-      "country": "",
-      "region": "",
-      "city": "",
       "postalCode": "",
+      "region": "",
+      "street": "",
     },
-    "balance": null,
-    "lockedBalance": null,
-    "donationAllow": true,
-    "shieldingTax": true,
-    "donationAddress": "",
-    "freeUtxos": 0,
-    "addresses": Immutable.List [],
-    "shieldedAddresses": Immutable.List [],
+    "signerPrivKey": "test-hex-key",
+    "signerPubKey": "test-hex-key",
+    "transparentAddress": "transparent-test-address",
   },
+  "errors": "",
   "fetchingBalance": false,
-  "loader": Immutable.Record {
+  "loader": Object {
     "loading": false,
     "message": "",
   },
-  "errors": "",
+  "removedChannels": Array [],
 }
 `;
 
 exports[`Identity reducer handles actions handles setLockedBalance 1`] = `
-Immutable.IdentityState {
-  "data": Immutable.Identity {
-    "id": null,
-    "address": "",
-    "transparentAddress": "",
-    "signerPrivKey": "",
-    "signerPubKey": "",
-    "name": "",
-    "shippingData": Immutable.ShippingData {
-      "firstName": "",
-      "lastName": "",
-      "street": "",
-      "country": "",
-      "region": "",
-      "city": "",
-      "postalCode": "",
-    },
-    "balance": null,
-    "lockedBalance": "2.34",
-    "donationAllow": true,
-    "shieldingTax": true,
-    "donationAddress": "",
-    "freeUtxos": 0,
-    "addresses": Immutable.List [],
-    "shieldedAddresses": Immutable.List [],
-  },
-  "fetchingBalance": false,
-  "loader": Immutable.Record {
-    "loading": false,
-    "message": "",
-  },
-  "errors": "",
-}
-`;
-
-exports[`Identity reducer handles epics - fetchBalance creates shield balance operation 1`] = `
-Immutable.Map {
-  "test-op-id": Immutable.Operation {
-    "opId": "test-op-id",
-    "type": "shieldBalance",
-    "meta": Immutable.Record {
-      "amount": "0.0023375",
-      "from": "transparent-test-address",
-      "to": "testaddress",
-    },
-    "txId": null,
-    "error": null,
-    "status": "pending",
-  },
-}
-`;
-
-exports[`Identity reducer handles epics - fetchBalance fetches transparent and private balances 1`] = `
-Immutable.IdentityState {
-  "data": Immutable.Identity {
-    "id": "test-id",
-    "address": "testaddress",
-    "transparentAddress": "transparent-test-address",
-    "signerPrivKey": "test-hex-key",
-    "signerPubKey": "test-hex-key",
-    "name": "Saturn",
-    "shippingData": Immutable.ShippingData {
-      "firstName": "",
-      "lastName": "",
-      "street": "",
-      "country": "",
-      "region": "",
-      "city": "",
-      "postalCode": "",
-    },
-    "balance": "2.2352",
-    "lockedBalance": "0",
-    "donationAllow": true,
-    "shieldingTax": true,
-    "donationAddress": "",
-    "freeUtxos": 0,
-    "addresses": Immutable.List [],
-    "shieldedAddresses": Immutable.List [],
-  },
-  "fetchingBalance": false,
-  "loader": Immutable.Record {
-    "loading": false,
-    "message": "",
-  },
-  "errors": "",
-}
-`;
-
-exports[`Identity reducer handles epics - fetchBalance handles errors 1`] = `
-Immutable.IdentityState {
-  "data": Immutable.Identity {
-    "id": "test-id",
-    "address": "testaddress",
-    "transparentAddress": "transparent-test-address",
-    "signerPrivKey": "test-hex-key",
-    "signerPubKey": "test-hex-key",
-    "name": "Saturn",
-    "shippingData": Immutable.ShippingData {
-      "firstName": "",
-      "lastName": "",
-      "street": "",
-      "country": "",
-      "region": "",
-      "city": "",
-      "postalCode": "",
-    },
-    "balance": null,
-    "lockedBalance": null,
-    "donationAllow": true,
-    "shieldingTax": true,
-    "donationAddress": "",
-    "freeUtxos": 0,
-    "addresses": Immutable.List [],
-    "shieldedAddresses": Immutable.List [],
-  },
-  "fetchingBalance": false,
-  "loader": Immutable.Record {
-    "loading": false,
-    "message": "",
-  },
-  "errors": "node error",
-}
-`;
-
-exports[`Identity reducer handles epics handles createIdentity bootstraps general for mainnet 1`] = `
-Array [
-  Object {
-    "address": "zs1r58tmaur7sgg07tnz0dld2l0ag6ztkx26f70xl2pedhv4m6auw653pyjnhwrphq2jfmmvqghkkd",
-    "description": "\\"Try out our working demo of e-commerce on Zbay!",
-    "keys": Object {
-      "ivk": "zxviews1qvn40c2up5qqpqz3mp92jv6vr433quuv7ar7sy3qcc02csydl8cll0vpma6kvxfufhx5wz3h0pfge8ynjjy9a4mtlvg8dggqr7kadyx74u0angw6mq3mvtjkeg3zrw9lkuecwvu3y7xq8nz8yzp0c53vjmea4k6rt9x6yntdvcl2mvzdtv85mlh06jlpdh6fp573q28hz3kr7vxv2703yqsz77jmus7w0fsre2x0x5zzwf725axlt2pdcczrsyld8h5754kvqeeftugs3y2hm",
-    },
-    "lastSeen": "2019-03-07T13:03:48.000Z",
-    "name": "store",
-    "private": true,
-    "showInfoMsg": true,
-    "unread": 0,
-  },
-  Object {
-    "address": "zs16tx82nyknwptwcgqdy082446mca0kvt7uk4yrusx66c53uull4nme0hwhx60rkygz2rg6trfqwx",
-    "description": "Contains list of public channels",
-    "keys": Object {
-      "ivk": "zxviews1qwk53xxqqqqqpq98v256ypjt0x0uqhntg3e3za04usl6500kny80ajnt2ncvcqunt88sf9ayw066xn8ktfvw7wy5fd56kj7mdj82geuq2vfjl4tuse9t8njge6sj6xrja22ze84qj232ghu0jn0scyk9kaa47smg0tw8wquwvzau0xjwsnrt4euywnm5wrm7wks67rh03gyy09r97qcakfnwrl02xlgny4ja90k84888qzzrcfjfxpu9es8edjx8gt933al6m428ysq0jj2gv",
-    },
-    "lastSeen": "2019-03-07T13:03:48.000Z",
-    "name": "channelOfChannels",
-    "private": true,
-    "showInfoMsg": true,
-    "unread": 0,
-  },
-  Object {
-    "address": "zs1j5udj8n6yquks5pv00aqg86dhhjpr7fq2906zqqpn0jktfg654qmcz9tm4gslutpjnwkzaemgsk",
-    "description": "Store data about users.",
-    "keys": Object {
-      "ivk": "zxviews1qwk53xxqqyqqpq9p5hc89jednxg8ur0gfp9fa5ktt9mavml9nptve8um69ruzsujsywpul7ug77068ql93y6n5ylg9klcrfh6xhsu4a3dyseyfjqztwq8nn7ngaxcj4hvhfqda2rafmumefkgjrhmtwwwc72qk0svtquxzszj4v44lvwqflyjh55xm5s37zzw2nrs2yu63ecuwq8hrelhenkttm4cgws9uq2afauxyak69lmk0dteungyfavxadf2uwwhmczdegvq2sr3j9cq",
-    },
-    "lastSeen": "2019-03-07T13:03:48.000Z",
-    "name": "RegisteredUsers",
-    "private": true,
-    "showInfoMsg": true,
-    "unread": 0,
-  },
-  Object {
-    "address": "zs10zkaj29rcev9qd5xeuzck4ly5q64kzf6m6h9nfajwcvm8m2vnjmvtqgr0mzfjywswwkwke68t00",
-    "description": "This is a general channel available to all users of Zbay by default.",
-    "keys": Object {
-      "ivk": "zxviews1q0wnyma6q5qqpqxrjgcmk9uvu7px6pstfqne5ex074ck4v8x9uzcnrlrz5nwt8vvly09lrf2av58g5jue6twk64ekmlz4583lfd4txxyt0g3zkgpajhpn4t2w0z2l843cx2gqktyp7k3gt4rkxaqd9985paqxfyr9y0h7jmy5agzgzkxammwdhpnw2cllpux5nltfagq45mgxmkhdqu442ejhaygqk3qxsas2vyszur3fuymqv7atydq4qfszvnkcjeu52vf487drucekvxru",
-    },
-    "lastSeen": "2019-03-07T13:03:48.000Z",
-    "name": "zbay",
-    "private": true,
-    "showInfoMsg": true,
-    "unread": 0,
-  },
-  Object {
-    "address": "zs1ufrysrng6sjl7de3hwklwdn4xqv3wfafflzcjzjrz2echfxn5f6tdszjzy2klmvtf5ulzmd3j80",
-    "description": "",
-    "keys": Object {
-      "ivk": "zxviews1q0wnyma6qqqqpqyj6flqkj7czd76rnwlegafqze0t6qevrmuxpza6w57hg8jeyzatf2v0jwm7jcw6n23cxu47zjv7hfpt2mntxn7p59xmwz53hty2m82zjyfv382q8nsjzg5t8c0g0qvsru55w9r8rv24e9cjru87hsltn90gf20fjj22a5us5ast2kh9uankj6tc8q9pe33yj0gjn02mcwwfpeqvp6y8ruzpayny588jzngwuc3s30dx6andqt985k999knl6t9apq4zuwnv",
-    },
-    "lastSeen": "2019-03-07T13:03:48.000Z",
-    "name": "priceOracle",
-    "private": true,
-    "showInfoMsg": true,
-    "unread": 0,
-  },
-]
-`;
-
-exports[`Identity reducer handles epics handles createIdentity bootstraps general for testnet 1`] = `
-Array [
-  Object {
-    "address": "ztestsapling1dfjv308amnk40s89trkvz646ne69553us0g858mmpgsw540efgftn4tf25gts2cttg3jgk9y8lx",
-    "description": "\\"Try out our working demo of e-commerce on Zbay!",
-    "keys": Object {
-      "ivk": "zivktestsapling1algnz2x84pqcnfdxrlntw73wpuqm3v568cepf5tuctyusm9javpqyjyzqy",
-    },
-    "lastSeen": "2019-03-07T13:03:48.000Z",
-    "name": "store",
-    "private": true,
-    "showInfoMsg": true,
-    "unread": 0,
-  },
-  Object {
-    "address": "ztestsapling1rwqrk7uclurs5dqm70g4zf0rh9dmjf60qqtw2n68pa37ycs2zccglcymjg0nnmus70m3wkdyxx0",
-    "description": "Contains list of public channels",
-    "keys": Object {
-      "ivk": "zivktestsapling194t7fk8ns0v2u4jysmrmwyh2ymq52t5378ey8jym23d2dpy3d5pssyk97t",
-    },
-    "lastSeen": "2019-03-07T13:03:48.000Z",
-    "name": "channelOfChannels",
-    "private": true,
-    "showInfoMsg": true,
-    "unread": 0,
-  },
-  Object {
-    "address": "ztestsapling1ggtntm4dgfc0remdxzex0pz722swjtqxc7wxj4eeqksmups04dkhjvcj5vcklmud2y3yvgj302m",
-    "description": "Store data about users.",
-    "keys": Object {
-      "ivk": "zivktestsapling1k93jxuecldthr9myy9d0svsy5dz57xvtcw7hyh9wj9xqy4ehfsqszlhdce",
-    },
-    "lastSeen": "2019-03-07T13:03:48.000Z",
-    "name": "RegisteredUsers",
-    "private": true,
-    "showInfoMsg": true,
-    "unread": 0,
-  },
-  Object {
-    "address": "ztestsapling1dfjv308amnk40s89trkvz646ne69553us0g858mmpgsw540efgftn4tf25gts2cttg3jgk9y8lx",
-    "description": "This is a general channel available to all users of Zbay by default.",
-    "keys": Object {
-      "ivk": "zivktestsapling1algnz2x84pqcnfdxrlntw73wpuqm3v568cepf5tuctyusm9javpqyjyzqy",
-    },
-    "lastSeen": "2019-03-07T13:03:48.000Z",
-    "name": "zbay",
-    "private": true,
-    "showInfoMsg": true,
-    "unread": 0,
-  },
-  Object {
-    "address": "ztestsapling1rwqrk7uclurs5dqm70g4zf0rh9dmjf60qqtw2n68pa37ycs2zccglcymjg0nnmus70m3wkdyxx0",
-    "description": "",
-    "keys": Object {
-      "ivk": "zivktestsapling194t7fk8ns0v2u4jysmrmwyh2ymq52t5378ey8jym23d2dpy3d5pssyk97t",
-    },
-    "lastSeen": "2019-03-07T13:03:48.000Z",
-    "name": "priceOracle",
-    "private": true,
-    "showInfoMsg": true,
-    "unread": 0,
-  },
-]
-`;
-
-exports[`Identity reducer handles epics handles createIdentity creates identity in vault 1`] = `
-Array [
-  Array [
-    Object {
-      "address": "sapling-private-address",
-      "keys": Object {
-        "sk": "sapling-private-address-spending-key",
-        "tpk": "transparent-address-private-key",
-      },
-      "name": "Mercury",
-      "signerPrivKey": "test-hex-key",
-      "signerPubKey": "test-hex-key",
-      "transparentAddress": "transparent-address",
-    },
-  ],
-]
-`;
-
-exports[`Identity reducer handles epics handles createIdentity returns created identity 1`] = `
 Object {
-  "address": "sapling-private-address",
-  "id": "thisisatestid",
-  "keys": Object {
-    "sk": "sapling-private-address-spending-key",
-    "tpk": "transparent-address-private-key",
-  },
-  "name": "Mercury",
-  "signerPrivKey": "test-hex-key",
-  "signerPubKey": "test-hex-key",
-  "transparentAddress": "transparent-address",
-}
-`;
-
-exports[`Identity reducer handles epics handles set identity - loads channels 1`] = `
-Immutable.List [
-  Immutable.Map {
-    "private": true,
-    "name": "Channel 2",
-    "onlyRegistered": false,
-    "unread": 12,
-    "lastSeen": "2019-03-07T13:03:48.000Z",
-    "advertFee": 0,
-    "keys": Immutable.Map {
-      "ivk": "incoming-viewing-key-2",
-      "sk": "test-secret-key",
-    },
-    "address": "zs1testaddress2",
-    "showInfoMsg": true,
-    "description": "",
-  },
-  Immutable.Map {
-    "private": true,
-    "name": "Channel 1",
-    "onlyRegistered": false,
-    "unread": 12,
-    "lastSeen": "2019-03-07T13:03:48.000Z",
-    "advertFee": 0,
-    "keys": Immutable.Map {
-      "ivk": "incoming-viewing-key-1",
-      "sk": "test-secret-key",
-    },
-    "address": "zs1testaddress1",
-    "showInfoMsg": true,
-    "description": "Channel about 1",
-  },
-  Immutable.Map {
-    "private": true,
-    "name": "Channel 0",
-    "onlyRegistered": false,
-    "unread": 12,
-    "lastSeen": "2019-03-07T13:03:48.000Z",
-    "advertFee": 0,
-    "keys": Immutable.Map {
-      "ivk": "incoming-viewing-key-0",
-      "sk": "test-secret-key",
-    },
-    "address": "zs1testaddress0",
-    "showInfoMsg": true,
-    "description": "",
-  },
-  Immutable.Map {
-    "private": true,
-    "name": "store",
-    "onlyRegistered": false,
-    "unread": 0,
-    "lastSeen": "2019-03-07T13:03:48.000Z",
-    "advertFee": 0,
-    "keys": Immutable.Map {
-      "ivk": "zivktestsapling1algnz2x84pqcnfdxrlntw73wpuqm3v568cepf5tuctyusm9javpqyjyzqy",
-    },
-    "address": "ztestsapling1dfjv308amnk40s89trkvz646ne69553us0g858mmpgsw540efgftn4tf25gts2cttg3jgk9y8lx",
-    "showInfoMsg": true,
-    "description": "\\"Try out our working demo of e-commerce on Zbay!",
-  },
-  Immutable.Map {
-    "private": true,
-    "name": "zbay",
-    "onlyRegistered": false,
-    "unread": 0,
-    "lastSeen": "2019-03-07T13:03:48.000Z",
-    "advertFee": 0,
-    "keys": Immutable.Map {
-      "ivk": "zivktestsapling1algnz2x84pqcnfdxrlntw73wpuqm3v568cepf5tuctyusm9javpqyjyzqy",
-    },
-    "address": "ztestsapling1dfjv308amnk40s89trkvz646ne69553us0g858mmpgsw540efgftn4tf25gts2cttg3jgk9y8lx",
-    "showInfoMsg": true,
-    "description": "This is a general channel available to all users of Zbay by default.",
-  },
-]
-`;
-
-exports[`Identity reducer handles epics handles set identity - sets identity 1`] = `
-Immutable.IdentityState {
-  "data": Immutable.Identity {
-    "id": null,
+  "data": Object {
     "address": "",
-    "transparentAddress": "",
-    "signerPrivKey": "",
-    "signerPubKey": "",
+    "addresses": Array [],
+    "balance": null,
+    "donationAddress": "",
+    "donationAllow": true,
+    "freeUtxos": 0,
+    "id": null,
+    "lockedBalance": "2.34",
     "name": "",
-    "shippingData": Immutable.ShippingData {
+    "onionAddress": "",
+    "shieldedAddresses": Array [],
+    "shieldingTax": true,
+    "shippingData": Object {
+      "city": "",
+      "country": "",
       "firstName": "",
       "lastName": "",
-      "street": "",
-      "country": "",
-      "region": "",
-      "city": "",
       "postalCode": "",
+      "region": "",
+      "street": "",
     },
-    "balance": null,
-    "lockedBalance": null,
-    "donationAllow": true,
-    "shieldingTax": true,
-    "donationAddress": "",
-    "freeUtxos": 0,
-    "addresses": Immutable.List [],
-    "shieldedAddresses": Immutable.List [],
-  },
-  "fetchingBalance": false,
-  "loader": Immutable.Record {
-    "loading": false,
-    "message": "Ensuring node contains identity keys",
+    "signerPrivKey": "",
+    "signerPubKey": "",
+    "transparentAddress": "",
   },
   "errors": "",
+  "fetchingBalance": false,
+  "loader": Object {
+    "loading": false,
+    "message": "",
+  },
+  "removedChannels": Array [],
 }
 `;
 
@@ -735,54 +393,39 @@ Array [
 `;
 
 exports[`Identity reducer handles epics handles updateShippingData - sets shipping data in store 1`] = `
-Immutable.IdentityState {
-  "data": Immutable.Identity {
-    "id": null,
+Object {
+  "data": Object {
     "address": "",
-    "transparentAddress": "",
-    "signerPrivKey": "",
-    "signerPubKey": "",
+    "addresses": Array [],
+    "balance": null,
+    "donationAddress": "",
+    "donationAllow": true,
+    "freeUtxos": 0,
+    "id": null,
+    "lockedBalance": null,
     "name": "",
-    "shippingData": Immutable.ShippingData {
+    "onionAddress": "",
+    "shieldedAddresses": Array [],
+    "shieldingTax": true,
+    "shippingData": Object {
+      "city": "Fishville",
+      "country": "RumbleFish country",
       "firstName": "Rumble",
       "lastName": "Fish",
-      "street": "RumbleFish street",
-      "country": "RumbleFish country",
-      "region": "Fish Region",
-      "city": "Fishville",
       "postalCode": "1337-455",
+      "region": "Fish Region",
+      "street": "RumbleFish street",
     },
-    "balance": null,
-    "lockedBalance": null,
-    "donationAllow": true,
-    "shieldingTax": true,
-    "donationAddress": "",
-    "freeUtxos": 0,
-    "addresses": Immutable.List [],
-    "shieldedAddresses": Immutable.List [],
+    "signerPrivKey": "",
+    "signerPubKey": "",
+    "transparentAddress": "",
   },
+  "errors": "",
   "fetchingBalance": false,
-  "loader": Immutable.Record {
+  "loader": Object {
     "loading": false,
     "message": "Ensuring node contains identity keys",
   },
-  "errors": "",
+  "removedChannels": Array [],
 }
-`;
-
-exports[`Identity reducer handles epics handles updateShippingData - sets shipping data in vault 1`] = `
-Array [
-  Array [
-    null,
-    Object {
-      "city": "Fishville",
-      "country": "RumbleFish country",
-      "firstName": "Rumble",
-      "lastName": "Fish",
-      "postalCode": "1337-455",
-      "region": "Fish Region",
-      "street": "RumbleFish street",
-    },
-  ],
-]
 `;

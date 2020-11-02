@@ -1,4 +1,4 @@
-import Immutable from 'immutable'
+import { produce } from 'immer'
 import BigNumber from 'bignumber.js'
 import { createAction, handleActions } from 'redux-actions'
 import * as R from 'ramda'
@@ -11,33 +11,30 @@ const oneOf = (...arr) => val => R.includes(val, arr)
 
 export const isFinished = oneOf('success', 'cancelled', 'failed')
 
-export const initialState = Immutable.Map()
+export const initialState = {}
 
-export const ZcashError = Immutable.Record(
-  {
-    code: null,
-    message: ''
-  },
-  'ZcashError'
-)
+export const ZcashError = {
+  code: null,
+  message: ''
+}
 
-export const ShieldBalanceOp = Immutable.Record({
+export const ShieldBalanceOp = {
   amount: new BigNumber(0),
   from: '',
   to: ''
-})
+}
 
-export const PendingMessageOp = Immutable.Record({
-  message: Immutable.Map(),
+export const PendingMessageOp = {
+  message: {},
   channelId: ''
-})
+}
 
-export const PendingDirectMessageOp = Immutable.Record({
-  message: Immutable.Map(),
+export const PendingDirectMessageOp = {
+  message: {},
   recipientAddress: '',
   recipientUsername: '',
   offerId: ''
-})
+}
 
 export const operationTypes = {
   shieldBalance: 'shieldBalance',
@@ -46,14 +43,11 @@ export const operationTypes = {
   pendingPlainTransfer: 'pendingPlainTransfer'
 }
 
-export const Operation = Immutable.Record(
-  {
-    id: '',
-    txid: '',
-    error: null
-  },
-  'Operation'
-)
+export const Operation = {
+  id: '',
+  txid: '',
+  error: null
+}
 
 const addOperation = createAction(actionTypes.ADD_PENDING_OPERATION)
 const resolveOperation = createAction(actionTypes.RESOLVE_PENDING_OPERATION)
@@ -90,27 +84,25 @@ export const epics = {
 export const reducer = handleActions(
   {
     [addOperation]: (state, { payload: { channelId, id } }) =>
-      state.setIn(
-        [channelId, id],
-        Operation({
+      produce(state, (draft) => {
+        draft[channelId] = {}
+        draft[channelId][id] = {
+          ...Operation,
           id
-        })
-      ),
+        }
+      }),
     [resolveOperation]: (
       state,
       { payload: { channelId, id, txid, error = null } }
     ) =>
-      state.update(channelId, m =>
-        m.delete(id).merge({
-          [txid]: Operation({
-            id,
-            txid
-          })
-        })
-      ),
-    [removeOperation]: (state, { payload: { channelId, txid } }) => {
-      return state.update(channelId, ch => ch.filter(m => m.txid !== txid))
-    }
+      produce(state, (draft) => {
+        delete draft[channelId][id]
+        draft[channelId][txid] = {
+          ...Operation,
+          id,
+          txid
+        }
+      })
   },
   initialState
 )

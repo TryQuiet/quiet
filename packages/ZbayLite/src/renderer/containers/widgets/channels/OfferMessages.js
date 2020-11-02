@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
-import Immutable from 'immutable'
 
 import ChannelMessagesComponent from '../../../components/widgets/channels/ChannelMessages'
 import channelSelectors from '../../../store/selectors/channel'
@@ -60,7 +59,7 @@ export default connect(mapStateToProps)(
   React.memo(ChannelMessages, (before, after) => {
     return (
       before.isInitialLoadFinished === after.isInitialLoadFinished &&
-      Immutable.is(before.messages, after.messages)
+      Object.is(before.messages, after.messages)
     )
   })
 )

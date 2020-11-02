@@ -3,13 +3,13 @@ import { operationTypes } from '../handlers/operations'
 
 const store = s => s
 
-const operations = createSelector(store, state => state.get('operations'))
+const operations = createSelector(store, state => state.operations)
 
 const operationsByChannel = channelId =>
-  createSelector(operations, ops => ops.get(channelId))
+  createSelector(operations, ops => ops[channelId])
 
 const pendingMessages = createSelector(operations, ops =>
-  ops.filter(o => o.type === operationTypes.pendingMessage)
+  Array.from(Object.values(ops)).filter(o => o.type === operationTypes.pendingMessage)
 )
 
 const pendingDirectMessages = createSelector(operations, ops =>

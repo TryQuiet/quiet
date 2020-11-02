@@ -1,23 +1,23 @@
-import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
 
 import { mapStateToProps } from './NodeStatus'
 
 import create from '../../../store/create'
-import { NodeState } from '../../../store/handlers/node'
+import { initialState } from '../../../store/handlers/node'
 
 describe('NodeStatus', () => {
   let store = null
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({
-        node: NodeState({
+      initialState: {
+        node: {
+          ...initialState,
           status: 'down',
           latestBlock: new BigNumber(100),
           currentBlock: new BigNumber(18)
-        })
-      })
+        }
+      }
     })
   })
 

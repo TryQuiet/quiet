@@ -1,6 +1,5 @@
 import React from 'react'
 import { shallow } from 'enzyme'
-import Immutable from 'immutable'
 
 import { mockClasses } from '../../../../../shared/testing/mocks'
 import { ChannelInput } from './ChannelInput'
@@ -19,7 +18,7 @@ describe('ChannelInput', () => {
         inputState={INPUT_STATE.AVAILABLE}
         channelName={'test'}
         messageLimit={200}
-        users={Immutable.Map({})}
+        users={{}}
         mentionsToSelect={[]}
         inputPlaceholder='test'
         isMessageTooLong={false}
@@ -40,7 +39,7 @@ describe('ChannelInput', () => {
         channelName={'test'}
         messageLimit={200}
         mentionsToSelect={[]}
-        users={Immutable.Map({})}
+        users={{}}
         inputPlaceholder='test'
         isMessageTooLong={false}
       />
@@ -60,7 +59,7 @@ describe('ChannelInput', () => {
         channelName={'test'}
         messageLimit={200}
         mentionsToSelect={[]}
-        users={Immutable.Map({})}
+        users={{}}
         inputPlaceholder='test'
         isMessageTooLong={false}
       />

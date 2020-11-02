@@ -1,5 +1,4 @@
 import React from 'react'
-import Immutable from 'immutable'
 import PropTypes from 'prop-types'
 import * as R from 'ramda'
 import classNames from 'classnames'
@@ -70,11 +69,10 @@ const styles = theme => ({
 })
 
 export const ChannelsListItem = ({ classes, channel, history, directMessages, selected, isRegisteredUsername }) => {
-  const channelObj = channel.toJS()
-  const isFromZbay = channelObj.username !== 'Unknown'
+  const isFromZbay = channel.username !== 'Unknown'
   // const size = 15
   const highlight = selected.id === channel.key
-  const newMessages = channelObj.newMessages.length
+  const newMessages = channel.newMessages.length
   // const recievedMoney =
   //   directMessages &&
   //   channelObj.messages.find(
@@ -88,8 +86,8 @@ export const ChannelsListItem = ({ classes, channel, history, directMessages, se
         history.push(
           `/main/${
             directMessages
-              ? `direct-messages/${channelObj.key}/${channelObj.username}`
-              : `channel/${channelObj.key}`
+              ? `direct-messages/${channel.key}/${channel.username}`
+              : `channel/${channel.key}`
           }`
         )
       }}
@@ -114,7 +112,7 @@ export const ChannelsListItem = ({ classes, channel, history, directMessages, se
                   [classes.anonTile]: !isFromZbay
                 })}
               >
-                {directMessages ? `${isFromZbay ? `@ ${isRegisteredUsername ? channelObj.username : channelObj.address}` : 'unknown'}` : `# ${channelObj.username}`}
+                {directMessages ? `${isFromZbay ? `@ ${isRegisteredUsername ? channel.username : channel.address}` : 'unknown'}` : `# ${channel.username}`}
               </Typography>
             </Grid>
             {/* {recievedMoney && (
@@ -134,11 +132,8 @@ export const ChannelsListItem = ({ classes, channel, history, directMessages, se
 }
 ChannelsListItem.propTypes = {
   classes: PropTypes.object.isRequired,
-  channel: PropTypes.oneOfType([
-    PropTypes.instanceOf(Immutable.Map),
-    PropTypes.instanceOf(Immutable.Record)
-  ]).isRequired,
-  selected: PropTypes.instanceOf(Immutable.Record).isRequired,
+  channel: PropTypes.object.isRequired,
+  selected: PropTypes.object.isRequired,
   directMessages: PropTypes.bool,
   history: PropTypes.object.isRequired,
   isRegisteredUsername: PropTypes.bool

@@ -1,9 +1,8 @@
 /* eslint import/first: 0 */
-import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
 
 import { mapDispatchToProps, mapStateToProps } from './SendMessagePopover'
-import { IdentityState, Identity } from '../../../store/handlers/identity'
+import { initialState } from '../../../store/handlers/identity'
 
 import create from '../../../store/create'
 
@@ -12,17 +11,18 @@ describe('Send message popover', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({
-        rates: Immutable.Map({
+      initialState: {
+        rates: {
           usd: new BigNumber(1),
           zec: new BigNumber(1)
-        }),
-        identity: IdentityState({
-          data: Identity({
+        },
+        identity: {
+          ...initialState,
+          data: {
             address: '123445'
-          })
-        })
-      })
+          }
+        }
+      }
     })
   })
 

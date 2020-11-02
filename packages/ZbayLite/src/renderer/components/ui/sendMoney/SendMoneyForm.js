@@ -177,7 +177,7 @@ export const SendMoneyForm = ({
   setFieldValue,
   errors
 }) => {
-  const usersArray = users.toList().toJS()
+  const usersArray = Array.from(Object.values(users))
   const ErrorText = ({ name }) => {
     return errors[name] ? (
       <Typography className={classes.error} variant='caption'>

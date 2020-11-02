@@ -1,5 +1,3 @@
-import Immutable from 'immutable'
-
 import { mapStateToProps } from './DirectMessagesHeader'
 
 import create from '../../../store/create'
@@ -9,13 +7,13 @@ describe('ChannelHeader', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.fromJS({
+      initialState: {
         contacts: {
           address123: {
             username: 'testusername'
           }
         }
-      })
+      }
     })
   })
 

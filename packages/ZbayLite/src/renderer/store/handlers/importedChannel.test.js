@@ -1,7 +1,18 @@
 /* eslint import/first: 0 */
 jest.mock('../../zcash')
 
-import Immutable from 'immutable'
+jest.mock('electron', () => {
+  const remote = jest.mock()
+  const ipcRenderer = jest.mock()
+  remote.app = jest.mock()
+  remote.process = jest.mock()
+  remote.process.on = jest.fn()
+  remote.app.getVersion = jest.fn().mockReturnValue('0.13.37')
+  ipcRenderer.on = jest.fn().mockReturnValue('ok')
+  ipcRenderer.send = jest.fn().mockReturnValue('ok')
+  return { remote, ipcRenderer }
+})
+
 import { DateTime } from 'luxon'
 
 import create from '../create'
@@ -10,7 +21,7 @@ import importedChannelHandlers, { ImportedChannelState } from './importedChannel
 import importedChannelSelectors from '../selectors/importedChannel'
 import channelsSelectors from '../selectors/channels'
 import notificationsSelectors from '../selectors/notifications'
-import { IdentityState, Identity } from './identity'
+import { initialState as IdentityState } from './identity'
 import { getClient } from '../../zcash'
 import { now } from '../../testUtils'
 import { NodeState } from './node'
@@ -23,31 +34,37 @@ describe('Imported channel reducer handles', () => {
   const id = 'general-channel-id'
   beforeEach(() => {
     store = create({
-      initialState: Immutable.Map({
-        node: NodeState({
+      initialState: {
+        node: {
+          ...NodeState,
           isTestnet: true
-        }),
-        channel: ChannelState({
+        },
+        channel: {
+          ...ChannelState,
           address: 'test-address'
-        }),
-        channels: ChannelsState({
-          data: [
-            Immutable.fromJS({
-              ...zbayChannels.general.testnet,
-              id
-            })
+        },
+        channels: {
+          ...ChannelsState,
+          data: [{
+            ...zbayChannels.general.testnet,
+            id
+          }
           ]
-        }),
-        importedChannel: ImportedChannelState(),
-        identity: IdentityState({
-          data: Identity({
+        },
+        importedChannel: {
+          ...ImportedChannelState
+        },
+        identity: {
+          ...IdentityState,
+          data: {
+            ...IdentityState.data,
             address: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly',
             name: 'Saturn',
             id: 'this-is-a-test-identity-id',
             balance: '33.583004'
-          })
-        })
-      })
+          }
+        }
+      }
     })
     jest.clearAllMocks()
   })
@@ -98,14 +115,6 @@ describe('Imported channel reducer handles', () => {
           importIVK: jest.fn(() => ({ address: 'testaddress' }))
         }
       }))
-      it('saves channel in vault', async () => {
-        const importChannelMock = jest.fn(() => Promise.resolve())
-        await store.dispatch(importedChannelHandlers.epics.decodeChannel(channelUri))
-
-        await store.dispatch(importedChannelHandlers.epics.importChannel())
-
-        expect(importChannelMock.mock.calls).toMatchSnapshot()
-      })
 
       it('reloads channels', async () => {
         jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => now)
@@ -115,7 +124,12 @@ describe('Imported channel reducer handles', () => {
 
         const channels = channelsSelectors.data(store.getState())
         expect(
-          channels.map(c => c.delete('id'))
+          channels.map(c => {
+            return {
+              ...c,
+              id: ''
+            }
+          })
         ).toMatchSnapshot()
       })
 
@@ -126,7 +140,12 @@ describe('Imported channel reducer handles', () => {
 
         const notifications = notificationsSelectors.data(store.getState())
         expect(
-          notifications.map(n => n.delete('key'))
+          notifications.map(n => {
+            return {
+              ...n,
+              key: ''
+            }
+          })
         ).toMatchSnapshot()
       })
 
@@ -137,7 +156,12 @@ describe('Imported channel reducer handles', () => {
 
         const notifications = notificationsSelectors.data(store.getState())
         expect(
-          notifications.map(n => n.delete('key'))
+          notifications.map(n => {
+            return {
+              ...n,
+              key: ''
+            }
+          })
         ).toMatchSnapshot()
       })
     })
@@ -157,17 +181,13 @@ describe('Imported channel reducer handles', () => {
         const notifications = notificationsSelectors.data(store.getState())
         expect(data).toBeNull()
         expect(
-          notifications.map(n => n.delete('key'))
+          notifications.map(n => {
+            return {
+              ...n,
+              key: ''
+            }
+          })
         ).toMatchSnapshot()
-      })
-    })
-
-    describe('removeChannel', () => {
-      it('calls remove channel', async () => {
-        const removeChannelMock = jest.fn(() => Promise.resolve())
-        await store.dispatch(importedChannelHandlers.epics.removeChannel())
-
-        expect(removeChannelMock.mock.calls).toMatchSnapshot()
       })
     })
   })

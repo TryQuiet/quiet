@@ -1,10 +1,10 @@
-import Immutable from 'immutable'
+import { produce } from 'immer'
 import { createAction, handleActions } from 'redux-actions'
 
 import client from '../../zcash'
 import { actionTypes } from '../../../shared/static'
 
-export const initialState = Immutable.Map()
+export const initialState = {}
 
 const addOwnedChannel = createAction(actionTypes.ADD_OWNED_CHANNEL)
 
@@ -30,9 +30,12 @@ export const epics = {
 
 export const reducer = handleActions(
   {
-    [addOwnedChannel]: (state, { payload: { channels } }) => {
-      return state.merge(channels)
-    }
+    [addOwnedChannel]: (state, { payload: { channels } }) => produce(state, (draft) => {
+      return {
+        ...draft,
+        ...channels
+      }
+    })
   },
   initialState
 )

@@ -1,5 +1,3 @@
-import Immutable from 'immutable'
-
 import { mapStateToProps, mapDispatchToProps } from './SpentFilter'
 
 import create from '../../../store/create'
@@ -10,11 +8,12 @@ describe('NodePanelBlocksField', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({
-        channel: ChannelState({
+      initialState: {
+        channel: {
+          ...ChannelState,
           spentFilterValue: 38
-        })
-      })
+        }
+      }
     })
   })
 

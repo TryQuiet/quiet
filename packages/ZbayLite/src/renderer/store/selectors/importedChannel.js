@@ -2,7 +2,7 @@ import { createSelector } from 'reselect'
 
 const store = s => s
 
-const channel = createSelector(store, state => state.get('importedChannel'))
+const channel = createSelector(store, state => state.importedChannel)
 
 const data = createSelector(channel, c => c.data)
 const decoding = createSelector(channel, c => c.decoding)

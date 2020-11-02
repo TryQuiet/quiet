@@ -26,7 +26,7 @@ export const mapDispatchToProps = (dispatch, ownProps) =>
   bindActionCreators(
     {
       onResend: () =>
-        channelHandlers.epics.resendMessage(ownProps.message.toJS()),
+        channelHandlers.epics.resendMessage(ownProps.message),
       onLinkedChannel: channelHandlers.epics.linkChannelRedirect,
       onLinkedUser: contactsHandlers.epics.linkUserRedirect,
       openExternalLink: payload =>

@@ -5,7 +5,6 @@ import { Scrollbars } from 'react-custom-scrollbars'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
-import Immutable from 'immutable'
 
 import UserListItem from './UserListItem'
 
@@ -57,7 +56,7 @@ export const Moderators = ({
               </Grid>
             </Grid>
             {moderators.map(pubKey => {
-              const userData = users.get(pubKey)
+              const userData = users[pubKey]
               return (
                 <Grid item>
                   <UserListItem
@@ -78,8 +77,8 @@ export const Moderators = ({
 }
 Moderators.propTypes = {
   classes: PropTypes.object.isRequired,
-  moderators: PropTypes.instanceOf(Immutable.List).isRequired,
-  users: PropTypes.instanceOf(Immutable.Map).isRequired,
+  moderators: PropTypes.array.isRequired,
+  users: PropTypes.object.isRequired,
   openAddModerator: PropTypes.func.isRequired,
   removeModerator: PropTypes.func.isRequired
 }

@@ -1,5 +1,4 @@
 import React, { Fragment } from 'react'
-import Immutable from 'immutable'
 import PropTypes from 'prop-types'
 import * as R from 'ramda'
 
@@ -67,7 +66,7 @@ ChannelRegisteredMessage.propTypes = {
   username: PropTypes.string.isRequired,
   address: PropTypes.string.isRequired,
   onChannelClick: PropTypes.func.isRequired,
-  message: PropTypes.instanceOf(Immutable.Record).isRequired
+  message: PropTypes.object.isRequired
 }
 
 ChannelRegisteredMessage.defaultProps = {}

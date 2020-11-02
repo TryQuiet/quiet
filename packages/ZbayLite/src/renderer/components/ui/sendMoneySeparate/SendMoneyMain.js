@@ -28,10 +28,8 @@ export const formSchema = users => {
             const isAddressValid = /^t1[a-zA-Z0-9]{33}$|^zs1[a-z0-9]{75}$|ztestsapling1[a-z0-9]{75}$/.test(
               string
             )
-            const includesNickname = users
-              .toList()
-              .filter(obj => obj.get('nickname') === string)
-              .first()
+            const includesNickname = Array.from(Object.values(users))
+              .filter(obj => obj.nickname === string)[0]
             return includesNickname || isAddressValid
           }
         )
@@ -87,14 +85,10 @@ export const SendMoneyMain = ({
         const { shouldIncludeMeta } = values
         const { recipient, ...rest } = values
         const includesNickname =
-          users
-            .toList()
-            .filter(obj => obj.get('nickname') === recipient)
-            .first() ||
-          users
-            .toList()
-            .filter(obj => obj.get('address') === recipient)
-            .first()
+          Array.from(Object.values(users))
+            .filter(obj => obj.nickname === recipient)[0] ||
+            Array.from(Object.values(users))
+              .filter(obj => obj.address === recipient)[0]
         if (includesNickname && shouldIncludeMeta === 'yes') {
           const messageToTransfer = createTransfer({
             receiver: includesNickname,
@@ -106,7 +100,7 @@ export const SendMoneyMain = ({
           const transferData = {
             amount: values.amountZec,
             destination: includesNickname
-              ? includesNickname.get('address')
+              ? includesNickname.address
               : values.recipient,
             memo: values.recipient.length !== 35 ? values.memo : null
           }

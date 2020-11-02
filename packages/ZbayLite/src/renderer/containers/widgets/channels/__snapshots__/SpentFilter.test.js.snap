@@ -8,6 +8,6 @@ Object {
 
 exports[`NodePanelBlocksField will receive right props 1`] = `
 Object {
-  "value": 38,
+  "value": [Function],
 }
 `;

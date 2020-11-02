@@ -1,20 +1,19 @@
-import Immutable from 'immutable'
+import { produce } from 'immer'
 import { createAction, handleActions } from 'redux-actions'
 import { ipcRenderer } from 'electron'
 import { actionTypes } from '../../../shared/static'
 
-export const Logs = Immutable.Record(
-  {
-    transactionLogs: [],
-    applicationLogs: [],
-    nodeLogs: [],
-    islogsFileLoaded: false,
-    isLogWindowOpened: false
-  },
-  'logs'
-)
+export const Logs = {
+  transactionLogs: [],
+  applicationLogs: [],
+  nodeLogs: [],
+  islogsFileLoaded: false,
+  isLogWindowOpened: false
+}
 
-export const initialState = Logs()
+export const initialState = {
+  ...Logs
+}
 
 const setTransactionLogs = createAction(actionTypes.SET_TRANSACTIONS_LOGS)
 const setApplicationLogs = createAction(actionTypes.SET_APPLICATIONS_LOGS)
@@ -50,10 +49,22 @@ export const epics = {
 
 export const reducer = handleActions(
   {
-    [setTransactionLogs]: (state, { payload: transactionLogs }) => state.setIn(['transactionLogs'], transactionLogs),
-    [setApplicationLogs]: (state, { payload: ApplicationLogs }) => state.setIn(['applicationLogs'], ApplicationLogs),
-    [setNodeLogs]: (state, { payload: setNodeLogs }) => state.setIn(['nodeLogs'], setNodeLogs),
-    [setLogWindowOpened]: (state, { payload: logPanelStatus }) => state.setIn(['isLogWindowOpened'], logPanelStatus)
+    [setTransactionLogs]: (state, { payload: transactionLogs }) =>
+      produce(state, (draft) => {
+        draft.transactionLogs = transactionLogs
+      }),
+    [setApplicationLogs]: (state, { payload: ApplicationLogs }) =>
+      produce(state, (draft) => {
+        draft.ApplicationLogs = ApplicationLogs
+      }),
+    [setNodeLogs]: (state, { payload: setNodeLogs }) =>
+      produce(state, (draft) => {
+        draft.nodeLogs = setNodeLogs
+      }),
+    [setLogWindowOpened]: (state, { payload: logPanelStatus }) =>
+      produce(state, (draft) => {
+        draft.isLogWindowOpened = logPanelStatus
+      })
   },
   initialState
 )

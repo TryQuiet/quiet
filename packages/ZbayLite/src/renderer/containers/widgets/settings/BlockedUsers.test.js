@@ -1,6 +1,4 @@
 /* eslint import/first: 0 */
-import Immutable from 'immutable'
-
 import { mapStateToProps, mapDispatchToProps } from './BlockedUsers'
 
 import create from '../../../store/create'
@@ -10,8 +8,8 @@ describe('BlockedUsers', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({
-        users: Immutable.fromJS({
+      initialState: {
+        users: {
           [Buffer.from('address')]: {
             firstName: 'testname',
             lastName: 'testlastname',
@@ -26,13 +24,13 @@ describe('BlockedUsers', () => {
             address:
               'ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r'
           }
-        }),
+        },
         notificationCenter: {
-          contacts: Immutable.Map({
+          contacts: {
             ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r: 4
-          })
+          }
         }
-      })
+      }
     })
   })
 

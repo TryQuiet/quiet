@@ -1,5 +1,4 @@
 import React, { Fragment } from 'react'
-import Immutable from 'immutable'
 import PropTypes from 'prop-types'
 import * as R from 'ramda'
 
@@ -48,7 +47,7 @@ export const UserRegisteredMessage = ({ classes, message }) => {
 }
 UserRegisteredMessage.propTypes = {
   classes: PropTypes.object.isRequired,
-  message: PropTypes.instanceOf(Immutable.Record).isRequired
+  message: PropTypes.object.isRequired
 }
 
 UserRegisteredMessage.defaultProps = {}

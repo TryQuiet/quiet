@@ -3,7 +3,7 @@
 exports[`ChannelsListItem renders component 1`] = `
 <WithStyles(ForwardRef(ListItem))
   button={true}
-  className="root-mock"
+  className="root-mock selected-mock"
   disableGutters={true}
   onClick={[Function]}
 >
@@ -23,10 +23,10 @@ exports[`ChannelsListItem renders component 1`] = `
           item={true}
         >
           <ForwardRef(WithStyles)
-            className="title-mock newMessages-mock"
+            className="title-mock"
             variant="body2"
           >
-            # Channel 1
+            # undefined
           </ForwardRef(WithStyles)>
         </ForwardRef(WithStyles)>
       </ForwardRef(WithStyles)>
@@ -38,7 +38,7 @@ exports[`ChannelsListItem renders component 1`] = `
 exports[`ChannelsListItem renders component when public 1`] = `
 <WithStyles(ForwardRef(ListItem))
   button={true}
-  className="root-mock"
+  className="root-mock selected-mock"
   disableGutters={true}
   onClick={[Function]}
 >
@@ -58,10 +58,10 @@ exports[`ChannelsListItem renders component when public 1`] = `
           item={true}
         >
           <ForwardRef(WithStyles)
-            className="title-mock newMessages-mock"
+            className="title-mock"
             variant="body2"
           >
-            # Channel 0
+            # undefined
           </ForwardRef(WithStyles)>
         </ForwardRef(WithStyles)>
       </ForwardRef(WithStyles)>
@@ -73,7 +73,7 @@ exports[`ChannelsListItem renders component when public 1`] = `
 exports[`ChannelsListItem renders component with address 1`] = `
 <WithStyles(ForwardRef(ListItem))
   button={true}
-  className="root-mock"
+  className="root-mock selected-mock"
   disableGutters={true}
   onClick={[Function]}
 >
@@ -93,10 +93,10 @@ exports[`ChannelsListItem renders component with address 1`] = `
           item={true}
         >
           <ForwardRef(WithStyles)
-            className="title-mock newMessages-mock"
+            className="title-mock"
             variant="body2"
           >
-            # Channel 1
+            # undefined
           </ForwardRef(WithStyles)>
         </ForwardRef(WithStyles)>
       </ForwardRef(WithStyles)>

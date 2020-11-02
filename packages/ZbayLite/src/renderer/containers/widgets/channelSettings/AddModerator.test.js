@@ -1,11 +1,10 @@
 /* eslint import/first: 0 */
-import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
 
 import { mapDispatchToProps, mapStateToProps } from './AddModerator'
 
 import { ChannelState } from '../../../store/handlers/channel'
-import { ChannelsState } from '../../../store/handlers/channels'
+import { initialState } from '../../../store/handlers/channels'
 import { createChannel } from '../../../testUtils'
 import { ChannelMessages } from '../../../store/handlers/messages'
 
@@ -46,30 +45,33 @@ const messages = [
 ]
 const channelId = 'randomid'
 const baseStore = {
-  channel: ChannelState({
+  channel: {
+    ...ChannelState,
     spentFilterValue: 38,
     id: channelId,
     shareableUri: 'testuri',
     members: new BigNumber(0),
     message: 'Message written in the input'
-  }),
-  channels: ChannelsState({
-    data: Immutable.fromJS([createChannel(channelId)])
-  })
+  },
+  channels: {
+    ...initialState,
+    data: [createChannel(channelId)]
+  }
 }
 describe('Send message popover', () => {
   let store = null
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({
+      initialState: {
         ...baseStore,
-        messages: Immutable.Map({
-          [channelId]: ChannelMessages({
-            messages: Immutable.List(Immutable.fromJS(messages))
-          })
-        })
-      })
+        messages: {
+          [channelId]: {
+            ...ChannelMessages,
+            messages: [...messages]
+          }
+        }
+      }
     })
   })
 

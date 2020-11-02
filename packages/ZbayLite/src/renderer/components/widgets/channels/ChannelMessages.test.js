@@ -1,5 +1,4 @@
 import React from 'react'
-import Immutable from 'immutable'
 import * as R from 'ramda'
 import { DateTime } from 'luxon'
 import { shallow } from 'enzyme'
@@ -11,7 +10,7 @@ import { mockClasses } from '../../../../shared/testing/mocks'
 describe('ChannelMessages', () => {
   it('renders component', () => {
     jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => now)
-    const messages = Immutable.List(R.range(0, 4).map(m => createMessage(m)))
+    const messages = R.range(0, 4).map(m => createMessage(m))
     const ref = React.createRef()
     const contentRect = {
       bounds: {

@@ -1,6 +1,5 @@
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import Immutable from 'immutable'
 
 import ChannelHeader from '../../../components/widgets/channels/ChannelHeader'
 import channelsHandlers from '../../../store/handlers/channels'
@@ -16,11 +15,11 @@ import { messageType, notificationFilterType } from '../../../../shared/static'
 export const mapStateToProps = (state, props) => {
   const contact = contactsSelectors.contact(props.contactId)(state)
   return {
-    channel: Immutable.fromJS({
-      name: props.contactId === 'general' ? 'zbay' : contact.get('username'),
+    channel: {
+      name: props.contactId === 'general' ? 'zbay' : contact.username,
       address: props.contactId
-    }),
-    name: contact.get('username'),
+    },
+    name: contact.username,
     userAddress: identitySelectors.address(state),
     members: channelSelectors.channelParticipiants(state),
     showAdSwitch: !!contactsSelectors

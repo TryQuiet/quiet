@@ -1,7 +1,6 @@
 import React from 'react'
 import BigNumber from 'bignumber.js'
 import { shallow } from 'enzyme'
-import Immutable from 'immutable'
 
 import { SendMoneyMain } from './SendMoneyMain'
 import { mockClasses } from '../../../../shared/testing/mocks'
@@ -31,12 +30,12 @@ describe('SendMoneyForm', () => {
         setFieldValue={jest.fn()}
         nickname={'test-nickname'}
         sendPlainTransfer={jest.fn()}
-        users={Immutable.fromJS([
+        users={[
           {
             nickname: 'test',
             address: 'test-address'
           }
-        ])}
+        ]}
         openSentFundsModal={jest.fn()}
         sendMessageHandler={jest.fn()}
       />

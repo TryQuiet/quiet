@@ -1,5 +1,4 @@
 /* eslint import/first: 0 */
-import Immutable from 'immutable'
 
 import selectors from './invitation'
 import { Invitation } from '../handlers/invitation'
@@ -11,9 +10,11 @@ describe('invitation -', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({
-        invitation: Invitation()
-      })
+      initialState: {
+        invitation: {
+          ...Invitation
+        }
+      }
     })
   })
 

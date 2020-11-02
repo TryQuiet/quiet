@@ -1,6 +1,4 @@
 /* eslint import/first: 0 */
-import Immutable from 'immutable'
-
 import create from '../create'
 import selectors from './whitelist'
 
@@ -8,13 +6,13 @@ describe('users selectors', () => {
   let store = null
   beforeEach(() => {
     store = create({
-      initialState: Immutable.Map({
+      initialState: {
         whitelist: {
           allowAll: false,
-          whitelisted: Immutable.List(['test1', 'test2']),
-          autoload: Immutable.List(['test3', 'test4'])
+          whitelisted: ['test1', 'test2'],
+          autoload: ['test3', 'test4']
         }
-      })
+      }
     })
     jest.clearAllMocks()
   })

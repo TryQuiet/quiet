@@ -1,10 +1,9 @@
-import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
 
 import { mapStateToProps } from './ZcashBalance'
 
 import create from '../../../store/create'
-import { IdentityState, Identity } from '../../../store/handlers/identity'
+import { initialState } from '../../../store/handlers/identity'
 import { RatesState } from '../../../store/handlers/rates'
 
 describe('ZcashBalance', () => {
@@ -12,18 +11,21 @@ describe('ZcashBalance', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({
-        identity: IdentityState({
-          data: Identity({
+      initialState: {
+        identity: {
+          ...initialState,
+          data: {
+            ...initialState.data,
             balance: new BigNumber('33.583004'),
             lockedBalance: new BigNumber('12.583004')
-          })
-        }),
-        rates: RatesState({
+          }
+        },
+        rates: {
+          ...RatesState,
           zec: '1',
           usd: '2'
-        })
-      })
+        }
+      }
     })
   })
 

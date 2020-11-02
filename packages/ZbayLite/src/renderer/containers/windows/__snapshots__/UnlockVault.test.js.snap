@@ -2,6 +2,6 @@
 
 exports[`UnlockVault will receive right props 1`] = `
 Object {
-  "locked": true,
+  "nodeStatus": "healthy",
 }
 `;

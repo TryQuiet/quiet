@@ -1,5 +1,4 @@
 import React from 'react'
-import Immutable from 'immutable'
 import { DateTime } from 'luxon'
 import { shallow } from 'enzyme'
 
@@ -16,7 +15,7 @@ describe('BasicMessage', () => {
   })
 
   it('renders component', () => {
-    const message = Immutable.fromJS(createMessage(1))
+    const message = createMessage(1)
     const result = shallow(
       <BasicMessage
         classes={mockClasses}
@@ -30,7 +29,8 @@ describe('BasicMessage', () => {
   })
 
   it('renders component when message is sent by owner', () => {
-    const message = Immutable.fromJS(createMessage(1)).set('fromYou', true)
+    const message = createMessage(1)
+    message.fromYou = true
 
     const result = shallow(
       <BasicMessage
@@ -45,7 +45,7 @@ describe('BasicMessage', () => {
   })
 
   it('renders correct time for same week', () => {
-    const message = Immutable.fromJS(createMessage(1, now.minus({ days: 1 }).toSeconds()))
+    const message = createMessage(1, now.minus({ days: 1 }).toSeconds())
     const result = shallow(
       <BasicMessage
         classes={mockClasses}
@@ -59,7 +59,7 @@ describe('BasicMessage', () => {
   })
 
   it('renders correct time for different month', () => {
-    const message = Immutable.fromJS(createMessage(1, now.minus({ month: 1 }).toSeconds()))
+    const message = createMessage(1, now.minus({ month: 1 }).toSeconds())
     const result = shallow(
       <BasicMessage
         classes={mockClasses}
@@ -73,45 +73,13 @@ describe('BasicMessage', () => {
   })
 
   it('renders correct time for different year', () => {
-    const message = Immutable.fromJS(createMessage(1, now.minus({ year: 1 }).toSeconds()))
+    const message = createMessage(1, now.minus({ year: 1 }).toSeconds())
     const result = shallow(
       <BasicMessage
         classes={mockClasses}
         message={DisplayableMessage(message)}
         actionsOpen={false}
         setActionsOpen={jest.fn()}
-        allowModeration
-      />
-    )
-    expect(result).toMatchSnapshot()
-  })
-
-  it('renders username', () => {
-    const message = Immutable.fromJS(createMessage(1, now.minus({ hours: 2 }).toSeconds())).update(
-      m => m.set(['sender', 'username'], 'Saturn')
-    )
-    const result = shallow(
-      <BasicMessage
-        classes={mockClasses}
-        message={DisplayableMessage(message)}
-        actionsOpen={false}
-        setActionsOpen={jest.fn()}
-        allowModeration
-      />
-    )
-    expect(result).toMatchSnapshot()
-  })
-
-  each(['pending', 'success', 'cancelled']).test('renders with status %s', status => {
-    const message = Immutable.fromJS(createMessage(1)).update(m => m.set('status', status))
-    const result = shallow(
-      <BasicMessage
-        classes={mockClasses}
-        message={DisplayableMessage(message)}
-        actionsOpen={false}
-        setActionsOpen={jest.fn()}
-        onResend={jest.fn()}
-        onReply={jest.fn()}
         allowModeration
       />
     )
@@ -119,15 +87,16 @@ describe('BasicMessage', () => {
   })
 
   it('renders component with status failed', () => {
-    const message = Immutable.fromJS(createMessage(1))
-      .set('status', 'failed')
-      .set(
-        'error',
-        ZcashError({
-          code: -2,
-          message: 'This is some kind of error message'
-        })
-      )
+    const message = {
+      ...createMessage,
+      status: 'failed',
+      createdAt: 1603231234,
+      error: {
+        ...ZcashError,
+        code: -2,
+        message: 'This is some kind of error message'
+      }
+    }
     const result = shallow(
       <BasicMessage
         classes={mockClasses}

@@ -11,7 +11,9 @@ describe('SyncLoader', () => {
       <SyncLoader
         classes={mockClasses}
         isGuideCompleted
-        node={NodeState({ currentBlock: BigNumber(1), latestBlock: BigNumber(100) })}
+        node={{ ...NodeState, currentBlock: BigNumber(1), latestBlock: BigNumber(100) }}
+        currentBlock={BigNumber(1)}
+        latestBlock={BigNumber(1000)}
       />
     )
     expect(result).toMatchSnapshot()

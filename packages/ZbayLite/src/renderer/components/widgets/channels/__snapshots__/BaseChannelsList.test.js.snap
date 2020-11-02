@@ -6,243 +6,231 @@ exports[`BaseChannelsList renders component 1`] = `
 >
   <Memo(Connect(withRouter(undefined)))
     channel={
-      Immutable.Map {
-        "id": 0,
-        "name": "Channel 0",
-        "private": false,
+      Object {
         "address": "zs1testaddress0",
-        "unread": 12,
-        "description": "",
         "advertFee": 0.15,
-        "keys": Immutable.Map {
+        "description": "",
+        "id": 0,
+        "keys": Object {
           "ivk": "incoming-viewing-key-0",
           "sk": "test-secret-key",
         },
+        "name": "Channel 0",
+        "private": false,
+        "unread": 12,
       }
     }
     directMessages={false}
-    key="0"
-    selected={Immutable.Record {}}
+    selected={Object {}}
   />
   <Memo(Connect(withRouter(undefined)))
     channel={
-      Immutable.Map {
-        "id": 1,
-        "name": "Channel 1",
-        "private": true,
+      Object {
         "address": "zs1testaddress1",
-        "unread": 12,
-        "description": "Channel about 1",
         "advertFee": 0.15,
-        "keys": Immutable.Map {
+        "description": "Channel about 1",
+        "id": 1,
+        "keys": Object {
           "ivk": "incoming-viewing-key-1",
           "sk": "test-secret-key",
         },
+        "name": "Channel 1",
+        "private": true,
+        "unread": 12,
       }
     }
     directMessages={false}
-    key="1"
-    selected={Immutable.Record {}}
+    selected={Object {}}
   />
   <Memo(Connect(withRouter(undefined)))
     channel={
-      Immutable.Map {
-        "id": 2,
-        "name": "Channel 2",
-        "private": false,
+      Object {
         "address": "zs1testaddress2",
-        "unread": 12,
-        "description": "",
         "advertFee": 0.15,
-        "keys": Immutable.Map {
+        "description": "",
+        "id": 2,
+        "keys": Object {
           "ivk": "incoming-viewing-key-2",
           "sk": "test-secret-key",
         },
+        "name": "Channel 2",
+        "private": false,
+        "unread": 12,
       }
     }
     directMessages={false}
-    key="2"
-    selected={Immutable.Record {}}
+    selected={Object {}}
   />
   <Memo(Connect(withRouter(undefined)))
     channel={
-      Immutable.Map {
-        "id": 3,
-        "name": "Channel 3",
-        "private": true,
+      Object {
         "address": "zs1testaddress3",
-        "unread": 12,
-        "description": "Channel about 3",
         "advertFee": 0.15,
-        "keys": Immutable.Map {
+        "description": "Channel about 3",
+        "id": 3,
+        "keys": Object {
           "ivk": "incoming-viewing-key-3",
           "sk": "test-secret-key",
         },
+        "name": "Channel 3",
+        "private": true,
+        "unread": 12,
       }
     }
     directMessages={false}
-    key="3"
-    selected={Immutable.Record {}}
+    selected={Object {}}
   />
   <Memo(Connect(withRouter(undefined)))
     channel={
-      Immutable.Map {
-        "id": 4,
-        "name": "Channel 4",
-        "private": false,
+      Object {
         "address": "zs1testaddress4",
-        "unread": 12,
-        "description": "",
         "advertFee": 0.15,
-        "keys": Immutable.Map {
+        "description": "",
+        "id": 4,
+        "keys": Object {
           "ivk": "incoming-viewing-key-4",
           "sk": "test-secret-key",
         },
+        "name": "Channel 4",
+        "private": false,
+        "unread": 12,
       }
     }
     directMessages={false}
-    key="4"
-    selected={Immutable.Record {}}
+    selected={Object {}}
   />
   <Memo(Connect(withRouter(undefined)))
     channel={
-      Immutable.Map {
-        "id": 5,
-        "name": "Channel 5",
-        "private": true,
+      Object {
         "address": "zs1testaddress5",
-        "unread": 12,
-        "description": "Channel about 5",
         "advertFee": 0.15,
-        "keys": Immutable.Map {
+        "description": "Channel about 5",
+        "id": 5,
+        "keys": Object {
           "ivk": "incoming-viewing-key-5",
           "sk": "test-secret-key",
         },
+        "name": "Channel 5",
+        "private": true,
+        "unread": 12,
       }
     }
     directMessages={false}
-    key="5"
-    selected={Immutable.Record {}}
+    selected={Object {}}
   />
   <Memo(Connect(withRouter(undefined)))
     channel={
-      Immutable.Map {
-        "id": 6,
-        "name": "Channel 6",
-        "private": false,
+      Object {
         "address": "zs1testaddress6",
-        "unread": 12,
-        "description": "",
         "advertFee": 0.15,
-        "keys": Immutable.Map {
+        "description": "",
+        "id": 6,
+        "keys": Object {
           "ivk": "incoming-viewing-key-6",
           "sk": "test-secret-key",
         },
+        "name": "Channel 6",
+        "private": false,
+        "unread": 12,
       }
     }
     directMessages={false}
-    key="6"
-    selected={Immutable.Record {}}
+    selected={Object {}}
   />
   <Memo(Connect(withRouter(undefined)))
     channel={
-      Immutable.Map {
-        "id": 7,
-        "name": "Channel 7",
-        "private": true,
+      Object {
         "address": "zs1testaddress7",
-        "unread": 12,
-        "description": "Channel about 7",
         "advertFee": 0.15,
-        "keys": Immutable.Map {
+        "description": "Channel about 7",
+        "id": 7,
+        "keys": Object {
           "ivk": "incoming-viewing-key-7",
           "sk": "test-secret-key",
         },
+        "name": "Channel 7",
+        "private": true,
+        "unread": 12,
       }
     }
     directMessages={false}
-    key="7"
-    selected={Immutable.Record {}}
+    selected={Object {}}
   />
   <Memo(Connect(withRouter(undefined)))
     channel={
-      Immutable.Map {
-        "id": 8,
-        "name": "Channel 8",
-        "private": false,
+      Object {
         "address": "zs1testaddress8",
-        "unread": 12,
-        "description": "",
         "advertFee": 0.15,
-        "keys": Immutable.Map {
+        "description": "",
+        "id": 8,
+        "keys": Object {
           "ivk": "incoming-viewing-key-8",
           "sk": "test-secret-key",
         },
+        "name": "Channel 8",
+        "private": false,
+        "unread": 12,
       }
     }
     directMessages={false}
-    key="8"
-    selected={Immutable.Record {}}
+    selected={Object {}}
   />
   <Memo(Connect(withRouter(undefined)))
     channel={
-      Immutable.Map {
-        "id": 9,
-        "name": "Channel 9",
-        "private": true,
+      Object {
         "address": "zs1testaddress9",
-        "unread": 12,
-        "description": "Channel about 9",
         "advertFee": 0.15,
-        "keys": Immutable.Map {
+        "description": "Channel about 9",
+        "id": 9,
+        "keys": Object {
           "ivk": "incoming-viewing-key-9",
           "sk": "test-secret-key",
         },
+        "name": "Channel 9",
+        "private": true,
+        "unread": 12,
       }
     }
     directMessages={false}
-    key="9"
-    selected={Immutable.Record {}}
+    selected={Object {}}
   />
   <Memo(Connect(withRouter(undefined)))
     channel={
-      Immutable.Map {
-        "id": 10,
-        "name": "Channel 10",
-        "private": false,
+      Object {
         "address": "zs1testaddress10",
-        "unread": 12,
-        "description": "",
         "advertFee": 0.15,
-        "keys": Immutable.Map {
+        "description": "",
+        "id": 10,
+        "keys": Object {
           "ivk": "incoming-viewing-key-10",
           "sk": "test-secret-key",
         },
+        "name": "Channel 10",
+        "private": false,
+        "unread": 12,
       }
     }
     directMessages={false}
-    key="10"
-    selected={Immutable.Record {}}
+    selected={Object {}}
   />
   <Memo(Connect(withRouter(undefined)))
     channel={
-      Immutable.Map {
-        "id": 11,
-        "name": "Channel 11",
-        "private": true,
+      Object {
         "address": "zs1testaddress11",
-        "unread": 12,
-        "description": "Channel about 11",
         "advertFee": 0.15,
-        "keys": Immutable.Map {
+        "description": "Channel about 11",
+        "id": 11,
+        "keys": Object {
           "ivk": "incoming-viewing-key-11",
           "sk": "test-secret-key",
         },
+        "name": "Channel 11",
+        "private": true,
+        "unread": 12,
       }
     }
     directMessages={false}
-    key="11"
-    selected={Immutable.Record {}}
+    selected={Object {}}
   />
 </WithStyles(ForwardRef(List))>
 `;

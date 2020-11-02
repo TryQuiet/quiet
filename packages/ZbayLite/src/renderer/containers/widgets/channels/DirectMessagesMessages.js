@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
-import Immutable from 'immutable'
 
 import ChannelMessagesComponent from '../../../components/widgets/channels/ChannelMessages'
 import channelSelectors from '../../../store/selectors/channel'
@@ -13,9 +12,9 @@ export const mapStateToProps = (state, { contactId, signerPubKey }) => {
   const qMessages = queueMessages.queue(state)
   const qDmMessages = dmQueueMessages.queue(state)
   return {
-    triggerScroll: qDmMessages.size + qMessages.size > 0,
+    triggerScroll: qDmMessages.length + qMessages.length > 0,
     qMessages: qMessages,
-    messages: contactsSelectors.directMessages(contactId, signerPubKey)(state).get('visibleMessages'),
+    messages: contactsSelectors.directMessages(contactId, signerPubKey)(state).visibleMessages,
     channelId: channelSelectors.channelId(state),
     isInitialLoadFinished: appSelectors.isInitialLoadFinished(state)
   }
@@ -55,7 +54,7 @@ export default connect(mapStateToProps)(
   React.memo(ChannelMessages, (before, after) => {
     return (
       before.isInitialLoadFinished === after.isInitialLoadFinished &&
-      Immutable.is(before.messages, after.messages)
+      Object.is(before.messages, after.messages)
     )
   })
 )

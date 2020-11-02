@@ -2,60 +2,8 @@
 
 exports[`SyncLoader will receive right props 1`] = `
 Object {
-  "bootstrapping": false,
-  "bootstrappingMessage": "",
-  "creating": false,
-  "exists": null,
-  "fetchingEndTime": Object {
-    "hours": null,
-    "minutes": null,
-    "seconds": null,
-  },
-  "fetchingPart": "",
-  "fetchingSizeLeft": 0,
-  "fetchingSpeed": null,
-  "fetchingStatus": "",
-  "guideStatus": false,
-  "hasAddress": "",
-  "isFetching": false,
-  "isRescanningInitialized": false,
-  "isRescanningMonitorStarted": false,
-  "loader": Immutable.Record {
-    "loading": false,
-    "message": "",
-  },
-  "locked": true,
-  "node": Immutable.NodeState {
-    "latestBlock": 100,
-    "currentBlock": 1,
-    "connections": "0",
-    "isTestnet": null,
-    "status": "connecting",
-    "errors": "",
-    "bootstrapLoader": Immutable.Record {
-      "loading": false,
-      "message": "",
-    },
-    "fetchingStatus": Immutable.Record {
-      "sizeLeft": 0,
-      "part": "",
-      "fetchingStatus": "",
-      "fetchingSpeed": null,
-      "fetchingEndTime": Object {
-        "hours": null,
-        "minutes": null,
-        "seconds": null,
-      },
-      "isFetching": false,
-      "rescanningProgress": 0,
-      "isRescanningMonitorStarted": false,
-      "isRescanningInitialized": false,
-      "guideStatus": false,
-      "currentSlide": 0,
-    },
-    "startedAt": null,
-  },
-  "nodeConnected": false,
-  "rescanningProgress": 0,
+  "currentBlock": 1,
+  "latestBlock": 100,
+  "nodeStatus": undefined,
 }
 `;

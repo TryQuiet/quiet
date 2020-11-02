@@ -1,5 +1,3 @@
-import Immutable from 'immutable'
-
 import create from '../create'
 import { actions, initialState } from './rates'
 import selectors from '../selectors/rates'
@@ -9,9 +7,11 @@ describe('Operations reducer handles ', () => {
 
   beforeEach(() => {
     store = create({
-      initialState: Immutable.Map({
-        rates: initialState
-      })
+      initialState: {
+        rates: {
+          ...initialState
+        }
+      }
     })
     jest.clearAllMocks()
   })

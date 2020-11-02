@@ -11,17 +11,14 @@ Object {
 exports[`Send message popover will receive right props 1`] = `
 Object {
   "channelData": Object {
-    "address": "zs1testaddresschannelid",
-    "advertFee": 0.15,
-    "description": "Channel about channelid",
-    "id": "channelid",
-    "keys": Object {
-      "ivk": "incoming-viewing-key-channelid",
-      "sk": "test-secret-key",
-    },
-    "name": "Channel channelid",
-    "private": false,
-    "unread": 12,
+    "address": "",
+    "key": "",
+    "lastSeen": null,
+    "messages": Object {},
+    "newMessages": Array [],
+    "offerId": null,
+    "username": "",
+    "vaultMessages": Array [],
   },
   "currentFilter": 1,
 }

@@ -1,5 +1,4 @@
 /* eslint import/first: 0 */
-import Immutable from 'immutable'
 
 import notificationCenterSelectors from './notificationCenter'
 import { NotificationsCenter } from '../handlers/notificationCenter'
@@ -11,13 +10,14 @@ describe('NotificationsCenter', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({
-        notificationCenter: NotificationsCenter({
-          channels: Immutable.Map({ key1: 1, key2: 2 }),
-          user: Immutable.Map({ key1: 1, key2: 2, filterType: 1, sound: 1 }),
-          contacts: Immutable.Map({ key1: 1, key2: 2, muted1: 4, muted2: 4 })
-        })
-      })
+      initialState: {
+        notificationCenter: {
+          ...NotificationsCenter,
+          channels: { key1: 1, key2: 2 },
+          user: { key1: 1, key2: 2, filterType: 1, sound: 1 },
+          contacts: { key1: 1, key2: 2, muted1: 4, muted2: 4 }
+        }
+      }
     })
   })
 

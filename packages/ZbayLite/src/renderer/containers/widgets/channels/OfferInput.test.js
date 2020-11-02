@@ -1,6 +1,5 @@
 import * as R from 'ramda'
 
-import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
 
 import { mapStateToProps, mapDispatchToProps } from './OfferInput'
@@ -19,23 +18,25 @@ describe('ChannelInput', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({
-        channel: ChannelState({
+      initialState: {
+        channel: {
+          ...ChannelState,
           spentFilterValue: 38,
           name: 'Politics',
           members: new BigNumber(0),
           message: 'This is a test message',
           messages: []
-        }),
-        offers: Immutable.Map({
-          [`${adId}${recipientUsername}`]: Offer({
+        },
+        offers: {
+          [`${adId}${recipientUsername}`]: {
+            ...Offer,
             address: 'testAddress',
             itemId: 'testID',
             name: 'testname',
             lastSeen: '123',
-            messages: Immutable.List(
-              R.range(0, 2).map(id =>
-                ReceivedMessage(
+            messages: R.range(0, 2).map(id => {
+              return {
+                ...ReceivedMessage(
                   testUtils.messages.createReceivedMessage({
                     id,
                     createdAt: testUtils.now
@@ -44,12 +45,13 @@ describe('ChannelInput', () => {
                     sender: identity1
                   })
                 )
-              )
+              }
+            }
             ),
-            newMessages: Immutable.List(['123', '1234'])
-          })
-        })
-      })
+            newMessages: ['123', '1234']
+          }
+        }
+      }
     })
   })
 

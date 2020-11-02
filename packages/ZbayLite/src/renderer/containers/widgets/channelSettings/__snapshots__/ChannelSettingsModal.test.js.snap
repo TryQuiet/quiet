@@ -8,18 +8,15 @@ Object {
 
 exports[`Send message popover will receive right props 1`] = `
 Object {
-  "channel": Immutable.Map {
-    "id": "randomid",
-    "name": "Channel randomid",
-    "private": false,
-    "address": "zs1testaddressrandomid",
-    "unread": 12,
-    "description": "Channel about randomid",
-    "advertFee": 0.15,
-    "keys": Immutable.Map {
-      "ivk": "incoming-viewing-key-randomid",
-      "sk": "test-secret-key",
-    },
+  "channel": Object {
+    "address": "",
+    "key": "",
+    "lastSeen": null,
+    "messages": Object {},
+    "newMessages": Array [],
+    "offerId": null,
+    "username": "",
+    "vaultMessages": Array [],
   },
   "isOwner": false,
   "modalTabToOpen": null,

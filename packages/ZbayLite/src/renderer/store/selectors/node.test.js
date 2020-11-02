@@ -1,31 +1,28 @@
 /* eslint import/first: 0 */
-jest.mock('../../vault')
-import Immutable from 'immutable'
 import { DateTime } from 'luxon'
 
 import create from '../create'
+import { initialState } from '../handlers/modals'
 import { NodeState } from '../handlers/node'
-import { LoaderState } from '../handlers/utils'
 import selectors from './node'
 
 describe('node selectors', () => {
   let store = null
   beforeEach(() => {
     store = create({
-      initialState: Immutable.Map({
-        node: NodeState({
+      initialState: {
+        node: {
+          ...initialState,
           currentBlock: 123,
           latestBlock: 1000,
           isTestnet: true,
           connections: 15,
           status: 'healthy',
           startedAt: DateTime.utc(2019, 3, 5, 9, 34, 48).toISO(),
-          bootstrapLoader: LoaderState({
-            loading: true,
-            message: 'Test loader message'
-          })
-        })
-      })
+          bootstrappingMessage: 'Test loader message',
+          loading: true
+        }
+      }
     })
     jest.clearAllMocks()
   })
@@ -74,18 +71,24 @@ describe('node selectors', () => {
 
   each(['healthy', 'syncing']).test('isConnected when status %s', async status => {
     store = create({
-      initialState: Immutable.Map({
-        node: NodeState({ status })
-      })
+      initialState: {
+        node: {
+          ...NodeState,
+          status
+        }
+      }
     })
     expect(selectors.isConnected(store.getState())).toBeTruthy()
   })
 
   each(['restarting', 'down', 'connecting']).test('isConnected when status %s', async status => {
     store = create({
-      initialState: Immutable.Map({
-        node: NodeState({ status })
-      })
+      initialState: {
+        node: {
+          ...NodeState,
+          status
+        }
+      }
     })
     expect(selectors.isConnected(store.getState())).toBeFalsy()
   })
@@ -96,9 +99,5 @@ describe('node selectors', () => {
 
   it('bootstrappingMessage', () => {
     expect(selectors.bootstrappingMessage(store.getState())).toMatchSnapshot()
-  })
-
-  it('rescanningProgress', () => {
-    expect(selectors.rescanningProgress(store.getState())).toMatchSnapshot()
   })
 })

@@ -1,6 +1,5 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import Immutable from 'immutable'
 import * as R from 'ramda'
 
 import Typography from '@material-ui/core/Typography'
@@ -137,7 +136,7 @@ export const ChannelHeader = ({
     }
   }
   const ActionsMenu = channelTypeToActions[channelType]
-  const isFromZbay = channel.get('name') !== 'Unknown'
+  const isFromZbay = channel.name !== 'Unknown'
   const [silenceHover, setSilenceHover] = React.useState(false)
   const [wrapperWidth, setWrapperWidth] = React.useState(0)
   React.useEffect(() => {
@@ -180,9 +179,9 @@ export const ChannelHeader = ({
               >
                 {isRegisteredUsername || !isFromZbay
                   ? `${prefix[channelType]}${
-                    isFromZbay ? channel.get('name') : 'unknown'
+                    isFromZbay ? channel.name : 'unknown'
                   }`
-                  : channel.get('address')}
+                  : channel.address}
               </Typography>
             </Grid>
             {mutedFlag && (
@@ -244,11 +243,11 @@ export const ChannelHeader = ({
           </Grid>
         </Grid>
       </Grid>
-      {channel.get('showInfoMsg') && channel.get('description') && (
+      {channel.showInfoMsg && channel.description && (
         <Grid container className={classes.descriptionDiv}>
           <Grid item xs>
             <Typography variant='body2'>
-              {channel.get('description')}
+              {channel.description}
             </Typography>
           </Grid>
           <Grid item className={classes.iconDiv}>
@@ -277,20 +276,20 @@ ChannelHeader.propTypes = {
   setTab: PropTypes.func.isRequired,
   userAddress: PropTypes.string.isRequired,
   unmute: PropTypes.func,
-  channel: PropTypes.instanceOf(Immutable.Map).isRequired,
+  channel: PropTypes.object.isRequired,
   members: PropTypes.instanceOf(Set),
   updateShowInfoMsg: PropTypes.func.isRequired,
-  users: PropTypes.instanceOf(Immutable.Map).isRequired,
+  users: PropTypes.object.isRequired,
   isRegisteredUsername: PropTypes.bool,
   name: PropTypes.string.isRequired
 }
 
 ChannelHeader.defaultProps = {
-  channel: Immutable.Map(),
+  channel: {},
   directMessage: false,
   channelType: 3,
   showAdSwitch: false,
-  users: Immutable.Map(),
+  users: {},
   shouldCheckNickname: false,
   isRegisteredUsername: true
 }

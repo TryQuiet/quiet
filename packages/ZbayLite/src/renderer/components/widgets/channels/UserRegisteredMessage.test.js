@@ -5,10 +5,11 @@ import { UserRegisteredMessage } from './UserRegisteredMessage'
 import { mockClasses } from '../../../../shared/testing/mocks'
 import { _UserData } from '../../../store/handlers/users'
 describe('UserRegisteredMessage', () => {
-  const message = _UserData({
+  const message = {
+    ..._UserData,
     address: 'testaddress',
     nickname: 'testnickname'
-  })
+  }
   it('renders component', () => {
     const result = shallow(
       <UserRegisteredMessage classes={mockClasses} message={message} />

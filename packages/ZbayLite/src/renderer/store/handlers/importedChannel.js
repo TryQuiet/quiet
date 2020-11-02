@@ -1,4 +1,4 @@
-import Immutable from 'immutable'
+import { produce } from 'immer'
 import { createAction, handleActions } from 'redux-actions'
 
 import { uriToChannel } from '../../zbay/channels'
@@ -18,16 +18,15 @@ import { actionTypes } from '../../../shared/static'
 import history from '../../../shared/history'
 import electronStore from '../../../shared/electronStore'
 
-export const ImportedChannelState = Immutable.Record(
-  {
-    data: null,
-    decoding: false,
-    errors: ''
-  },
-  'ImportedChannelState'
-)
+export const ImportedChannelState = {
+  data: null,
+  decoding: false,
+  errors: ''
+}
 
-const initialState = ImportedChannelState()
+const initialState = {
+  ...ImportedChannelState
+}
 
 const setData = createAction(actionTypes.SET_DECODED_CHANNEL)
 const setDecoding = createAction(actionTypes.SET_DECODING_CHANNEL)
@@ -46,7 +45,7 @@ const removeChannel = (history, isOffer = false) => async (
   getState
 ) => {
   const state = getState()
-  const channel = channelSelectors.channel(state).toJS()
+  const channel = channelSelectors.channel(state)
   try {
     const network = nodeSelectors.network(getState())
 
@@ -60,7 +59,7 @@ const removeChannel = (history, isOffer = false) => async (
       const removedChannels = electronStore.get('removedChannels')
       dispatch(
         identityHandlers.actions.setRemovedChannels(
-          Immutable.fromJS(Object.keys(removedChannels))
+          Object.keys(removedChannels)
         )
       )
       history.push(`/main/channel/${channelsSelectors.generalChannelId(state)}`)
@@ -102,7 +101,7 @@ const removeChannel = (history, isOffer = false) => async (
 
 const importChannel = () => async (dispatch, getState) => {
   const state = getState()
-  const channel = importedChannelSelectors.data(state).toJS()
+  const channel = importedChannelSelectors.data(state)
   try {
     const importedChannels = electronStore.get(`importedChannels`) || {}
     electronStore.set(`channelsToRescan.${channel.address}`, true)
@@ -224,12 +223,24 @@ const epics = {
 const reducer = handleActions(
   {
     [actionTypes.SET_DECODED_CHANNEL]: (state, { payload: channel }) =>
-      state.set('data', Immutable.fromJS(channel)),
+      produce(state, (draft) => {
+        draft.data = {
+          channel
+        }
+      }),
     [actionTypes.SET_DECODING_CHANNEL]: (state, { payload: decoding }) =>
-      state.set('decoding', decoding),
+      produce(state, (draft) => {
+        draft.decoding = decoding
+      }),
     [actionTypes.SET_DECODING_ERROR]: (state, { payload: error }) =>
-      state.set('errors', error),
-    [clear]: () => ImportedChannelState()
+      produce(state, (draft) => {
+        draft.errors = error
+      }),
+    [clear]: (state) => produce(state, draft => {
+      draft.data = null
+      draft.decoding = false
+      draft.errors = ''
+    })
   },
   initialState
 )

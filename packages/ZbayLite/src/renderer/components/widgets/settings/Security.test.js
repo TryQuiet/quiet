@@ -1,7 +1,6 @@
 /* eslint import/first: 0 */
 import React from 'react'
 import { shallow } from 'enzyme'
-import Immutable from 'immutable'
 import { Security } from './Security'
 import { mockClasses } from '../../../../shared/testing/mocks'
 
@@ -13,8 +12,8 @@ describe('Security', () => {
         removeImageHost={jest.fn()}
         removeSiteHost={jest.fn()}
         toggleAllowAll={jest.fn()}
-        whitelisted={Immutable.List('test', 'test2')}
-        autoload={Immutable.List('test3', 'test4')}
+        whitelisted={['test', 'test2']}
+        autoload={['test3', 'test4']}
         allowAll
       />
     )

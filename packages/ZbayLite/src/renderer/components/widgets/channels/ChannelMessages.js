@@ -1,6 +1,5 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import Immutable from 'immutable'
 import { Scrollbars } from 'react-custom-scrollbars'
 import { DateTime } from 'luxon'
 import * as R from 'ramda'
@@ -126,7 +125,7 @@ export const ChannelMessages = ({
         .filter(msg => messagesTypesToDisplay.includes(msg.type))
         .concat(usersRegistration)
         .concat(publicChannelsRegistration)
-        .sortBy(o => o.createdAt)
+        .sort((a, b) => a.createdAt - b.createdAt)
     )
   }
   return (
@@ -148,13 +147,15 @@ export const ChannelMessages = ({
         {!isRescanned && !isDM && <RescanMessage />}
         {/* {isOffer && !showLoader && (
           <WelcomeMessage message={welcomeMessages['offer'](tag, username)} />
-        )} */}
-        {Array.from(groupedMessages).map(args => {
+        )} */
+        }
+        {Object.keys(groupedMessages).map((key, i) => {
+          const messagesArray = groupedMessages[key]
           const today = DateTime.utc()
-          const groupName = DateTime.fromSeconds(args[0]).toFormat(
+          const groupName = DateTime.fromSeconds(parseInt(key)).toFormat(
             'cccc, LLL d'
           )
-          const displayTitle = DateTime.fromSeconds(args[0]).hasSame(
+          const displayTitle = DateTime.fromSeconds(parseInt(key)).hasSame(
             today,
             'day'
           )
@@ -163,7 +164,7 @@ export const ChannelMessages = ({
           return (
             <>
               <MessagesDivider title={displayTitle} />
-              {args[1].map(msg => {
+              {messagesArray.map(msg => {
                 const MessageComponent = typeToMessageComponent[msg.type]
                 if (!msg.type) {
                   if (msg.keys) {
@@ -171,17 +172,17 @@ export const ChannelMessages = ({
                       <ChannelRegisteredMessage
                         message={msg}
                         address={
-                          users.get(msg.owner)
-                            ? users.get(msg.owner).address
+                          users[msg.owner]
+                            ? users[msg.owner].address
                             : ''
                         }
                         username={
-                          users.get(msg.owner)
-                            ? users.get(msg.owner).nickname
+                          users[msg.owner]
+                            ? users[msg.owner].nickname
                             : `anon${msg.owner.substring(0, 16)}`
                         }
                         onChannelClick={() => {
-                          onLinkedChannel(publicChannels.get(msg.name))
+                          onLinkedChannel(publicChannels[msg.name])
                         }}
                       />
                     )
@@ -238,7 +239,7 @@ ChannelMessages.propTypes = {
   isDM: PropTypes.bool,
   isInitialLoadFinished: PropTypes.bool.isRequired,
   isOffer: PropTypes.bool.isRequired,
-  messages: PropTypes.instanceOf(Immutable.List).isRequired,
+  messages: PropTypes.array.isRequired,
   contentRect: PropTypes.shape({
     bounds: PropTypes.shape({
       height: PropTypes.number
@@ -247,7 +248,7 @@ ChannelMessages.propTypes = {
 }
 
 ChannelMessages.defaultProps = {
-  messages: Immutable.List(),
+  messages: [],
   usersRegistration: [],
   publicChannelsRegistration: [],
   isOwner: false,

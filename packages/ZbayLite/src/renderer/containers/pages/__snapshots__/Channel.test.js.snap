@@ -3,6 +3,5 @@
 exports[`Channel page will receive right actions 1`] = `
 Object {
   "loadChannel": [Function],
-  "resetDirectMessageChannel": [Function],
 }
 `;

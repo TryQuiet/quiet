@@ -23,6 +23,12 @@ export const ExchangeParticipant = Immutable.Record(
   'ExchangeParticipant'
 )
 
+export const exchangeParticipant = {
+  replyTo: '',
+  username: 'Unnamed',
+  publicKey: ''
+}
+
 export const _DisplayableMessage = Immutable.Record(
   {
     id: null,
@@ -45,12 +51,36 @@ export const _DisplayableMessage = Immutable.Record(
   'DisplayableMessage'
 )
 
+export const _displayableMessage = {
+  id: null,
+  type: messageType.BASIC,
+  sender: { ...exchangeParticipant },
+  receiver: { ...exchangeParticipant },
+  createdAt: null,
+  message: '',
+  spent: new BigNumber(0),
+  fromYou: false,
+  status: 'broadcasted',
+  error: null,
+  shippingData: null,
+  tag: '',
+  offerOwner: null,
+  isUnregistered: false,
+  publicKey: null,
+  blockHeight: Number.MAX_SAFE_INTEGER
+}
+
 export const DisplayableMessage = values => {
-  const record = _DisplayableMessage(values)
-  return record.merge({
-    sender: ExchangeParticipant(record.sender),
-    receiver: ExchangeParticipant(record.receiver)
-  })
+  if (values) {
+    const record = {
+      ..._displayableMessage,
+      ...values
+    }
+    return record
+  }
+  return {
+    ..._displayableMessage
+  }
 }
 
 const _isOwner = (identityAddress, message) =>
@@ -61,10 +91,15 @@ export const receivedToDisplayableMessage = ({
   identityAddress,
   receiver = { replyTo: '', username: 'Unnamed' }
 }) => {
-  return DisplayableMessage(message).merge({
+  const record = {
+    ..._displayableMessage,
     fromYou: _isOwner(identityAddress, message),
-    receiver: ExchangeParticipant(receiver)
-  })
+    receiver: {
+      ...exchangeParticipant,
+      ...receiver
+    }
+  }
+  return record
 }
 
 export const vaultToDisplayableMessage = ({
@@ -72,10 +107,15 @@ export const vaultToDisplayableMessage = ({
   identityAddress,
   receiver = { replyTo: '', username: 'Unnamed' }
 }) => {
-  return DisplayableMessage(message).merge({
+  const record = {
+    ..._displayableMessage,
     fromYou: _isOwner(identityAddress, message),
-    receiver: ExchangeParticipant(receiver)
-  })
+    receiver: {
+      ...exchangeParticipant,
+      ...receiver
+    }
+  }
+  return record
 }
 
 export const operationToDisplayableMessage = ({
@@ -86,19 +126,25 @@ export const operationToDisplayableMessage = ({
   identityName,
   receiver = { replyTo: '', username: 'Unnamed' }
 }) => {
-  return DisplayableMessage(operation.meta.message).merge({
+  const record = {
+    ...operation.meta.message,
     tag,
     offerOwner,
     error: operation.error,
     status: operation.status,
     id: operation.opId,
-    sender: ExchangeParticipant({
+    sender: {
+      ...exchangeParticipant,
       replyTo: identityAddress,
       username: identityName
-    }),
+    },
     fromYou: true,
-    receiver: ExchangeParticipant(receiver)
-  })
+    receiver: {
+      ...exchangeParticipant,
+      ...receiver
+    }
+  }
+  return record
 }
 
 export const queuedToDisplayableMessage = ({
@@ -109,19 +155,26 @@ export const queuedToDisplayableMessage = ({
   identityAddress,
   identityName,
   receiver = { replyTo: '', username: 'Unnamed' }
-}) =>
-  DisplayableMessage(queuedMessage.message).merge({
+}) => {
+  const record = {
+    ...queuedMessage.message,
     tag,
     offerOwner,
     fromYou: true,
     id: messageKey,
     status: 'pending',
-    sender: ExchangeParticipant({
+    sender: {
+      ...exchangeParticipant,
       replyTo: identityAddress,
       username: identityName
-    }),
-    receiver: ExchangeParticipant(receiver)
-  })
+    },
+    receiver: {
+      ...exchangeParticipant,
+      ...receiver
+    }
+  }
+  return record
+}
 
 Yup.addMethod(Yup.mixed, 'validateMessage', function (params) {
   return this.test('test', null, async function (value) {
@@ -185,20 +238,22 @@ export const transferToMessage = async (props, users) => {
     }
     publicKey = getPublicKeysFromSignature(message).toString('hex')
     if (users !== undefined) {
-      const fromUser = users.get(publicKey)
+      const fromUser = users[publicKey]
       if (fromUser !== undefined) {
         const isUsernameValid = usernameSchema.isValidSync(fromUser)
-        sender = ExchangeParticipant({
+        sender = {
+          ...exchangeParticipant,
           replyTo: fromUser.address,
           username: isUsernameValid
             ? fromUser.nickname
             : `anon${publicKey.substring(0, 10)}`
-        })
+        }
       } else {
-        sender = ExchangeParticipant({
+        sender = {
+          ...exchangeParticipant,
           replyTo: '',
           username: `anon${publicKey}`
-        })
+        }
         isUnregistered = true
       }
     }
@@ -247,20 +302,22 @@ export const outgoingTransferToMessage = async (props, users) => {
     }
     publicKey = getPublicKeysFromSignature(message).toString('hex')
     if (users !== undefined) {
-      const fromUser = users.get(publicKey)
+      const fromUser = users[publicKey]
       if (fromUser !== undefined) {
         const isUsernameValid = usernameSchema.isValidSync(fromUser)
-        sender = ExchangeParticipant({
+        sender = {
+          ...exchangeParticipant,
           replyTo: fromUser.address,
           username: isUsernameValid
             ? fromUser.nickname
             : `anon${publicKey.substring(0, 10)}`
-        })
+        }
       } else {
-        sender = ExchangeParticipant({
+        sender = {
+          ...exchangeParticipant,
           replyTo: '',
           username: `anon${publicKey}`
-        })
+        }
         isUnregistered = true
       }
     }
@@ -270,8 +327,10 @@ export const outgoingTransferToMessage = async (props, users) => {
   }
   try {
     const toUser =
-      users.find(u => u.address === transactionData.address) ||
-      ExchangeParticipant()
+      Array.from(Object.values(users)).find(u => u.address === transactionData.address) ||
+      {
+        ...exchangeParticipant
+      }
     return {
       ...(await messageSchema.validate(message)),
       id: txid,
@@ -310,7 +369,7 @@ export const signMessage = ({ messageData, privKey }) => {
   )
   return {
     type: messageData.type,
-    spent: messageData.spent,
+    spent: messageData.spent || new BigNumber(0),
     signature: sigObj.signature,
     r: sigObj.recovery,
     createdAt: parseInt(DateTime.utc().toSeconds()),

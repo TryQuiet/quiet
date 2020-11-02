@@ -1,25 +1,25 @@
-import Immutable from 'immutable'
-
 import { mapStateToProps } from './IdentityPanel'
 
 import create from '../../store/create'
-import { IdentityState, Identity } from '../../store/handlers/identity'
+import { initialState } from '../../store/handlers/identity'
 
 describe('IdentityPanel', () => {
   let store = null
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({
-        identity: IdentityState({
-          data: Identity({
+      initialState: {
+        identity: {
+          ...initialState,
+          data: {
+            ...initialState.data,
             address: 'zctestaddress',
             balance: '23.435432',
             lockedBalance: '13.123432',
             name: 'saturn'
-          })
-        })
-      })
+          }
+        }
+      }
     })
   })
 

@@ -1,4 +1,4 @@
-import Immutable from 'immutable'
+import { produce } from 'immer'
 import net from 'net'
 import { ipcRenderer } from 'electron'
 
@@ -13,16 +13,15 @@ import logsHandlers from '../handlers/logs'
 export const client = new net.Socket()
 export const defaultTorUrlProxy = 'localhost:9050'
 
-export const Tor = Immutable.Record(
-  {
-    url: '',
-    enabled: false,
-    error: null,
-    status: ''
-  },
-  'Tor'
-)
-export const initialState = Tor()
+export const Tor = {
+  url: '',
+  enabled: false,
+  error: null,
+  status: ''
+}
+export const initialState = {
+  ...Tor
+}
 
 const setEnabled = createAction(actionTypes.SET_TOR_ENABLED)
 const setUrl = createAction(actionTypes.SET_TOR_URL)
@@ -109,21 +108,27 @@ export const epics = {
 
 export const reducer = handleActions(
   {
-    [setEnabled]: (state, { payload: { enabled } }) => {
+    [setEnabled]: (state, { payload: { enabled } }) => produce(state, (draft) => {
       if (enabled) {
-        return state.set('enabled', enabled).set('status', 'down')
+        draft.enabled = enabled
+        draft.status = 'down'
       } else {
-        return state
-          .set('enabled', enabled)
-          .set('status', 'down')
-          .set('url', '')
-          .set('error', '')
+        draft.enabled = enabled
+        draft.status = 'down'
+        draft.error = ''
+        draft.url = ''
       }
-    },
-    [setUrl]: (state, { payload: { url } }) =>
-      state.set('url', url).set('status', 'down'),
-    [setError]: (state, { payload: { error } }) => state.set('error', error),
-    [setStatus]: (state, { payload: { status } }) => state.set('status', status)
+    }),
+    [setUrl]: (state, { payload: { url } }) => produce(state, (draft) => {
+      draft.url = url
+      draft.status = 'down'
+    }),
+    [setError]: (state, { payload: { error } }) => produce(state, (draft) => {
+      draft.error = error
+    }),
+    [setStatus]: (state, { payload: { status } }) => produce(state, (draft) => {
+      draft.status = status
+    })
   },
   initialState
 )

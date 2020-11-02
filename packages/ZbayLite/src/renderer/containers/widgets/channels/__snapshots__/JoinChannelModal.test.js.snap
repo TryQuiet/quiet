@@ -9,7 +9,7 @@ Object {
 
 exports[`JoinChannelModal will receive right props 1`] = `
 Object {
-  "publicChannels": Immutable.Map {},
-  "users": Immutable.Map {},
+  "publicChannels": Object {},
+  "users": Object {},
 }
 `;

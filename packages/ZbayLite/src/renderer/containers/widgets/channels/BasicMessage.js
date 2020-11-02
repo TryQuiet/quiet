@@ -8,7 +8,7 @@ import identitySelectors from '../../../store/selectors/identity'
 
 export const mapStateToProps = state => {
   const isOwner = channelSelectors.isOwner(state)
-  const channelModerators = contactsSelectors.directMessages(channelSelectors.id(state))(state).get('channelModerators')
+  const channelModerators = contactsSelectors.directMessages(channelSelectors.id(state))(state).channelModerators
   const signerPubKey = identitySelectors.signerPubKey(state)
   const isModerator = channelModerators.includes(signerPubKey)
   return {

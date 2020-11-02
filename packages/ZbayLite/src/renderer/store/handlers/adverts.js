@@ -146,7 +146,7 @@ const handleSendTransfer = ({ values, payload }) => async (
     }
   })
 
-  if (!contacts.get(payload.id + payload.offerOwner)) {
+  if (!contacts[payload.id + payload.offerOwner]) {
     await dispatch(
       contactsHandlers.actions.addContact({
         key: payload.id + payload.offerOwner,

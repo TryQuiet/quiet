@@ -1,17 +1,15 @@
 /* eslint import/first: 0 */
-import Immutable from 'immutable'
-
 import create from '../create'
-import { initialState, actions } from './notifications'
+import { actions } from './notifications'
 import notificationsSelectors from '../selectors/notifications'
 
 describe('notifications reducer handles', () => {
   let store = null
   beforeEach(async () => {
     store = create({
-      initialState: Immutable.Map({
-        notifications: initialState
-      })
+      initialState: {
+        notifications: []
+      }
     })
     jest.clearAllMocks()
   })
@@ -27,13 +25,19 @@ describe('notifications reducer handles', () => {
 
       const notifications = notificationsSelectors.data(store.getState())
 
-      expect.assertions(notifications.size * 2)
+      expect.assertions(notifications.length * 2)
 
       // Test if generates ids and remove them for snapshot
       const withoutKeys = notifications.map(
         n => {
-          expect(typeof n.get('key')).toEqual('number')
-          return n.delete('key')
+          const temp = {
+            ...n
+          }
+          delete temp.key
+          expect(typeof n.key).toEqual('number')
+          return {
+            ...temp
+          }
         }
       )
       expect(withoutKeys).toMatchSnapshot()

@@ -1,4 +1,4 @@
-import Immutable from 'immutable'
+import { produce } from 'immer'
 import * as Yup from 'yup'
 import { createAction, handleActions } from 'redux-actions'
 import BigNumber from 'bignumber.js'
@@ -20,17 +20,16 @@ import nodeSelectors from '../selectors/node'
 export const getInvitationUrl = invitation =>
   `https://${DOMAIN}/invitation=${encodeURIComponent(invitation)}`
 
-export const Invitation = Immutable.Record(
-  {
-    amount: 0,
-    amountZec: 0,
-    affiliateCode: true,
-    generatedInvitation: ''
-  },
-  'Invitation'
-)
+export const Invitation = {
+  amount: 0,
+  amountZec: 0,
+  affiliateCode: true,
+  generatedInvitation: ''
+}
 
-export const initialState = Invitation()
+export const initialState = {
+  ...Invitation
+}
 
 const setInvitationAmount = createAction(actionTypes.SET_INVITATION_AMOUNT)
 const setInvitationAmountZec = createAction(actionTypes.SET_INVITATION_AMOUNT_ZEC)
@@ -133,14 +132,27 @@ export const epics = {
 export const reducer = handleActions(
   {
     [setInvitationAmount]: (state, { payload: amount }) =>
-      state.set('amount', amount),
+      produce(state, (draft) => {
+        draft.amount = amount
+      }),
     [setInvitationAmountZec]: (state, { payload: amount }) =>
-      state.set('amountZec', amount),
+      produce(state, (draft) => {
+        draft.amountZec = amount
+      }),
     [setGeneratedInvitation]: (state, { payload: invitation }) =>
-      state.set('generatedInvitation', invitation),
-    [resetInvitation]: state => initialState,
+      produce(state, (draft) => {
+        draft.generatedInvitation = invitation
+      }),
+    [resetInvitation]: state => produce(state, (draft) => {
+      draft.affiliateCode = true
+      draft.amount = 0
+      draft.amountZec = 0
+      draft.generatedInvitation = ''
+    }),
     [setAffiliateCode]: (state, { payload: affiliateCode }) =>
-      state.set('affiliateCode', affiliateCode)
+      produce(state, (draft) => {
+        draft.affiliateCode = affiliateCode
+      })
   },
   initialState
 )

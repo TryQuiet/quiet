@@ -8,9 +8,7 @@ Object {
 
 exports[`Send message popover will receive right props 1`] = `
 Object {
-  "blockedUsers": Immutable.List [
-    "new-blocked-user-public-key-added-by-channel-owner",
-  ],
-  "users": Immutable.Map {},
+  "blockedUsers": Array [],
+  "users": Object {},
 }
 `;

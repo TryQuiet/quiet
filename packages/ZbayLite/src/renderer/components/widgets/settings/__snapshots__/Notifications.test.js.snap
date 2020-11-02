@@ -189,7 +189,7 @@ exports[`Notifications renders component 1`] = `
               item={true}
             >
               <span>
-                You won’t receive notificaitons from Zbay. You will still see badges within Zbay.
+                You won’t receive notificaitons from Zbay.
               </span>
             </ForwardRef(WithStyles)>
           </ForwardRef(WithStyles)>

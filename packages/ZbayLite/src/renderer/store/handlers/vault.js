@@ -1,4 +1,4 @@
-import Immutable from 'immutable'
+import { produce } from 'immer'
 import { createAction, handleActions } from 'redux-actions'
 import crypto from 'crypto'
 import { ipcRenderer } from 'electron'
@@ -18,20 +18,19 @@ import { actionCreators } from '../handlers/modals'
 import { REQUEST_MONEY_ENDPOINT, actionTypes } from '../../../shared/static'
 import electronStore, { migrationStore } from '../../../shared/electronStore'
 
-export const VaultState = Immutable.Record(
-  {
-    exists: null,
-    creating: false,
-    unlocking: false,
-    creatingIdentity: false,
-    locked: true,
-    isLogIn: false,
-    error: ''
-  },
-  'VaultState'
-)
+export const VaultState = {
+  exists: null,
+  creating: false,
+  unlocking: false,
+  creatingIdentity: false,
+  locked: true,
+  isLogIn: false,
+  error: ''
+}
 
-export const initialState = VaultState()
+export const initialState = {
+  ...VaultState
+}
 
 const createVault = createAction(actionTypes.CREATE_VAULT)
 const unlockVault = createAction(
@@ -80,7 +79,6 @@ const createVaultEpic = (fromMigrationFile = false) => async (
         fromMigrationFile
       })
     )
-    console.log('identity', identity)
     await dispatch(nodeHandlers.actions.setIsRescanning(true))
 
     await dispatch(identityHandlers.epics.setIdentity(identity))
@@ -159,49 +157,61 @@ export const epics = {
 export const reducer = handleActions(
   {
     [typePending(actionTypes.CREATE_VAULT)]: state =>
-      state.set('creating', true),
+      produce(state, (draft) => {
+        draft.creating = true
+      }),
     [typeFulfilled(actionTypes.CREATE_VAULT)]: state =>
-      state.merge({
-        creating: false,
-        exists: true
+      produce(state, (draft) => {
+        draft.creating = false
+        draft.exists = true
       }),
     [typeRejected(actionTypes.CREATE_VAULT)]: (state, { payload: error }) =>
-      state.merge({
-        creating: false,
-        error: error.message
+      produce(state, (draft) => {
+        draft.creating = false
+        draft.error = error.message
       }),
-
     [typePending(actionTypes.UNLOCK_VAULT)]: state =>
-      state.set('unlocking', true),
+      produce(state, (draft) => {
+        draft.unlocking = true
+      }),
     [typeFulfilled(actionTypes.UNLOCK_VAULT)]: (state, payload) =>
-      state.merge({
-        unlocking: false,
-        locked: false
+      produce(state, (draft) => {
+        draft.unlocking = false
+        draft.locked = false
       }),
     [typeRejected(actionTypes.UNLOCK_VAULT)]: (state, { payload: error }) =>
-      state.merge({
-        unlocking: false,
-        locked: true,
-        error: error.message
+      produce(state, (draft) => {
+        draft.unlocking = false
+        draft.locked = true
+        draft.error = error.message
       }),
-
     [typePending(actionTypes.CREATE_VAULT_IDENTITY)]: state =>
-      state.set('creatingIdentity', true),
+      produce(state, (draft) => {
+        draft.creatingIdentity = true
+      }),
     [typeFulfilled(actionTypes.CREATE_VAULT_IDENTITY)]: state =>
-      state.set('creatingIdentity', false),
+      produce(state, (draft) => {
+        draft.createIdentity = false
+      }),
     [typeRejected(actionTypes.CREATE_VAULT_IDENTITY)]: (
       state,
       { payload: error }
     ) =>
-      state.merge({
-        creatingIdentity: false,
-        error: error.message
+      produce(state, (draft) => {
+        draft.creatingIdentity = false
+        draft.error = error.message
       }),
     [setLoginSuccessfull]: (state, { payload: isLogIn }) =>
-      state.set('isLogIn', isLogIn),
+      produce(state, (draft) => {
+        draft.isLogIn = isLogIn
+      }),
     [setVaultStatus]: (state, { payload: exists }) =>
-      state.set('exists', exists),
-    [clearError]: state => state.delete('error')
+      produce(state, (draft) => {
+        draft.exists = exists
+      }),
+    [clearError]: state => produce(state, (draft) => {
+      draft.error = ''
+    })
   },
   initialState
 )

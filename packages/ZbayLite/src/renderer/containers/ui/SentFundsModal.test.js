@@ -1,5 +1,4 @@
 /* eslint import/first: 0 */
-import Immutable from 'immutable'
 import { DateTime } from 'luxon'
 
 import { mapStateToProps } from './SentFundsModal'
@@ -11,7 +10,7 @@ describe('SentFundsModal', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.fromJS({
+      initialState: {
         rates: {
           usd: '10',
           zec: '1'
@@ -29,7 +28,7 @@ describe('SentFundsModal', () => {
             }
           }
         }
-      })
+      }
     })
   })
 

@@ -1,5 +1,3 @@
-import Immutable from 'immutable'
-
 import create from '../../../store/create'
 import { mapDispatchToProps, mapStateToProps } from './Logs'
 import { Logs } from '../../../store/handlers/logs'
@@ -8,17 +6,18 @@ describe('Logs ', () => {
   let store = null
   beforeEach(() => {
     store = create({
-      initialState: Immutable.Map({
-        logsData: Logs({
-          data: Immutable.fromJS({
+      initialState: {
+        logsData: {
+          ...Logs,
+          data: {
             transactionLogs: [],
             rpcCallsLogs: [],
             nodeLogs: [],
             islogsFileLoaded: false,
             isLogWindowOpened: false
-          })
-        })
-      })
+          }
+        }
+      }
     })
     jest.clearAllMocks()
   })

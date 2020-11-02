@@ -2,7 +2,7 @@ import { createSelector } from 'reselect'
 
 const store = s => s
 
-export const fees = createSelector(store, state => state.get('fees'))
+export const fees = createSelector(store, state => state.fees)
 
 const userFee = createSelector(fees, a => a.user)
 const publicChannelfee = createSelector(fees, a => a.publicChannel)

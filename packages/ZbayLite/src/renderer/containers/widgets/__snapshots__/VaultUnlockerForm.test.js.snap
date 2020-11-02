@@ -2,59 +2,26 @@
 
 exports[`VaultUnlockerForm will receive right actions 1`] = `
 Object {
-  "createZcashNode": [Function],
   "getStatus": [Function],
   "onSubmit": [Function],
-  "setVaultIdentity": [Function],
+  "openModal": [Function],
 }
 `;
 
 exports[`VaultUnlockerForm will receive right props 1`] = `
 Object {
+  "currentBlock": "0",
   "exists": null,
+  "guideStatus": false,
+  "isInitialLoadFinished": false,
   "isLogIn": false,
-  "loader": Immutable.Record {
+  "isRescanning": false,
+  "latestBlock": "999999",
+  "loader": Object {
     "loading": false,
     "message": "",
   },
   "locked": true,
-  "node": Immutable.NodeState {
-    "latestBlock": "0",
-    "currentBlock": "0",
-    "connections": "0",
-    "isTestnet": null,
-    "status": "connecting",
-    "errors": "",
-    "bootstrapLoader": Immutable.Record {
-      "loading": false,
-      "message": "",
-    },
-    "fetchingStatus": Immutable.Record {
-      "sizeLeft": 0,
-      "part": "",
-      "fetchingStatus": "",
-      "fetchingSpeed": null,
-      "fetchingEndTime": Object {
-        "hours": null,
-        "minutes": null,
-        "seconds": null,
-      },
-      "isFetching": false,
-      "rescanningProgress": 0,
-      "isRescanningMonitorStarted": false,
-      "isRescanningInitialized": false,
-      "guideStatus": false,
-      "currentSlide": 0,
-    },
-    "startedAt": null,
-  },
-  "nodeConnected": false,
-  "tor": Immutable.Tor {
-    "url": "",
-    "enabled": false,
-    "error": null,
-    "status": "",
-  },
-  "unlocking": false,
+  "nodeConnected": true,
 }
 `;

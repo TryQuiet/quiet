@@ -196,7 +196,7 @@ export const SendMoneyInitial = ({
   openSentFundsModal
 }) => {
   const title = 'Funds sent'
-  const usersArray = users.toList().toJS()
+  const usersArray = Array.from(Object.values(users))
   const { recipient } = values
   const userNamesArray = usersArray.map(user => user.nickname)
   const isUserSelected = userNamesArray.includes(recipient)

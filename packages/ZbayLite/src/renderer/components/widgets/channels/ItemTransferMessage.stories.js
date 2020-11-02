@@ -1,5 +1,4 @@
 import React from 'react'
-import Immutable from 'immutable'
 import Grid from '@material-ui/core/Grid'
 import { storiesOf } from '@storybook/react'
 import { withKnobs } from '@storybook/addon-knobs'
@@ -12,7 +11,7 @@ import { withStore } from '../../../../../.storybook/decorators'
 import ItemTransferMessage from './ItemTransferMessage'
 
 const store = create({
-  initialState: Immutable.Map({})
+  initialState: {}
 })
 
 storiesOf('Components/Widgets/Channels/ItemTransferMessage', module)

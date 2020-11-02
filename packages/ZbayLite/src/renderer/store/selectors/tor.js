@@ -3,7 +3,7 @@ const store = s => s
 
 const tor = createSelector(
   store,
-  state => state.get('tor')
+  state => state.tor
 )
 const torEnabled = createSelector(
   tor,

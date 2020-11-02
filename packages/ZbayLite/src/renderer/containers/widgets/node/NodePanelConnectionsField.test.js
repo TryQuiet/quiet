@@ -1,5 +1,4 @@
 import React from 'react'
-import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
 import { shallow } from 'enzyme'
 
@@ -13,11 +12,12 @@ describe('NodePanelConnectionsField', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({
-        node: NodeState({
+      initialState: {
+        node: {
+          ...NodeState,
           connections: new BigNumber(12)
-        })
-      })
+        }
+      }
     })
   })
 

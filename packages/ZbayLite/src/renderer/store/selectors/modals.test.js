@@ -1,6 +1,4 @@
 /* eslint import/first: 0 */
-import Immutable from 'immutable'
-
 import create from '../create'
 import selectors from './modals'
 
@@ -9,11 +7,11 @@ describe('modals selectors', () => {
   let store = null
   beforeEach(() => {
     store = create({
-      initialState: Immutable.Map({
-        modals: Immutable.Map({
+      initialState: {
+        modals: {
           [modalName]: true
-        })
-      })
+        }
+      }
     })
     jest.clearAllMocks()
   })

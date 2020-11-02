@@ -1,5 +1,5 @@
+import { produce } from 'immer'
 import { ipcRenderer, remote } from 'electron'
-import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
 import { createAction, handleActions } from 'redux-actions'
 import { actionTypes } from '../../../shared/static'
@@ -9,23 +9,22 @@ import client from '../../zcash'
 import history from '../../../shared/history'
 import electronStore from '../../../shared/electronStore'
 
-export const AppState = Immutable.Record(
-  {
-    version: null,
-    transfers: Immutable.Map(),
-    newUser: false,
-    modalTabToOpen: null,
-    allTransfersCount: 0,
-    newTransfersCounter: 0,
-    directMessageQueueLock: false,
-    messageQueueLock: false,
-    isInitialLoadFinished: false,
-    useTor: false
-  },
-  'AppState'
-)
+export const AppState = {
+  version: null,
+  transfers: {},
+  newUser: false,
+  modalTabToOpen: null,
+  allTransfersCount: 0,
+  newTransfersCounter: 0,
+  directMessageQueueLock: false,
+  messageQueueLock: false,
+  isInitialLoadFinished: false,
+  useTor: false
+}
 
-export const initialState = AppState()
+export const initialState = {
+  ...AppState
+}
 
 const loadVersion = createAction(actionTypes.SET_APP_VERSION, () =>
   remote.app.getVersion()
@@ -98,26 +97,51 @@ export const restartAndRescan = () => async (dispatch, getState) => {
 export const reducer = handleActions(
   {
     [setNewTransfersCount]: (state, { payload: setNewTransfersCount }) =>
-      state.set('newTransfersCounter', setNewTransfersCount),
+      produce(state, (draft) => {
+        draft.newTransfersCounter = setNewTransfersCount
+      }),
     [setInitialLoadFlag]: (state, { payload: flag }) =>
-      state.set('isInitialLoadFinished', flag),
-    [setUseTor]: (state, { payload: flag }) => state.set('useTor', flag),
+      produce(state, (draft) => {
+        draft.isInitialLoadFinished = flag
+      }),
+    [setUseTor]: (state, { payload: flag }) => produce(state, (draft) => {
+      draft.useTor = flag
+    }),
     [reduceNewTransfersCount]: (state, { payload: amount }) =>
-      state.update('newTransfersCounter', count => count - amount),
+      produce(state, (draft) => {
+        draft.newTransfersCounter = draft.newTransfersCounter - amount
+      }),
     [loadVersion]: (state, { payload: version }) =>
-      state.set('version', version),
+      produce(state, (draft) => {
+        draft.version = version
+      }),
     [setModalTab]: (state, { payload: tabName }) =>
-      state.set('modalTabToOpen', tabName),
+      produce(state, (draft) => {
+        draft.modalTabToOpen = tabName
+      }),
     [setAllTransfersCount]: (state, { payload: transfersCount }) =>
-      state.set('allTransfersCount', transfersCount),
-    [clearModalTab]: state => state.set('modalTabToOpen', null),
-    [lockDmQueue]: state => state.set('directMessageQueueLock', true),
-    [unlockDmQueue]: state => state.set('directMessageQueueLock', false),
-    [lockMessageQueue]: state => state.set('messageQueueLock', true),
-    [unlockMessageQueue]: state => state.set('messageQueueLock', false),
-    [setTransfers]: (state, { payload: { id, value } }) => {
-      return state.setIn(['transfers', id], value)
-    }
+      produce(state, (draft) => {
+        draft.allTransfersCount = transfersCount
+      }),
+    [clearModalTab]: state => produce(state, (draft) => {
+      draft.modalTabToOpen = null
+    }),
+    [lockDmQueue]: state => produce(state, (draft) => {
+      draft.directMessageQueueLock = true
+    }),
+    [unlockDmQueue]: state => produce(state, (draft) => {
+      draft.directMessageQueueLock = false
+    }),
+    [lockMessageQueue]: state => produce(state, (draft) => {
+      draft.messageQueueLock = true
+    }),
+    [unlockMessageQueue]: state => produce(state, (draft) => {
+      draft.messageQueueLock = false
+    }),
+    [setTransfers]: (state, { payload: { id, value } }) =>
+      produce(state, (draft) => {
+        draft.transfers[id] = value
+      })
   },
   initialState
 )

@@ -1,6 +1,5 @@
 import React from 'react'
 import { shallow } from 'enzyme'
-import Immutable from 'immutable'
 
 import { AdvertActionModal } from './AdvertActionModal'
 import { mockClasses } from '../../../../shared/testing/mocks'
@@ -29,7 +28,7 @@ describe('SendMessagePopover', () => {
         payload={payload}
         classes={mockClasses}
         allowAll
-        whitelisted={Immutable.List()}
+        whitelisted={[]}
         openExternalLink={jest.fn()}
       />
     )
@@ -58,7 +57,7 @@ describe('SendMessagePopover', () => {
         payload={payload}
         classes={mockClasses}
         allowAll
-        whitelisted={Immutable.List()}
+        whitelisted={[]}
         openExternalLink={jest.fn()}
       />
     )

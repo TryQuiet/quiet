@@ -1,4 +1,4 @@
-import Immutable from 'immutable'
+import { produce } from 'immer'
 import { handleActions, createAction } from 'redux-actions'
 
 import { actionTypes, PRICE_ORACLE_PUB_KEY } from '../../../shared/static'
@@ -8,19 +8,19 @@ import { getPublicKeysFromSignature } from '../../zbay/messages'
 import { trimNull } from '../../zbay/transit'
 import electronStore from '../../../shared/electronStore'
 
-export const RatesState = Immutable.Record(
-  {
-    usd: '0',
-    zec: '1',
-    history: Immutable.Map({})
-  },
-  'RatesState'
-)
-export const initialState = RatesState({
+export const RatesState = {
+  usd: '0',
+  zec: '1',
+  history: {}
+}
+
+export const initialState = {
+  ...RatesState,
   usd: '70.45230379033394',
   zec: '1',
-  history: Immutable.Map({})
-})
+  history: {}
+}
+
 export const setPriceUsd = createAction(actionTypes.SET_PRICE_USD)
 export const addPriceMessage = createAction(actionTypes.ADD_PRICE_MESSAGE)
 export const actions = {
@@ -66,8 +66,8 @@ export const fetchPrices = (address, messages) => async (
           })
         )
         electronStore.set('rates.usd', price)
-        break
       } catch (err) {
+        console.log('error', err)
         continue
       }
     }
@@ -91,9 +91,16 @@ export const epics = {
 export const reducer = handleActions(
   {
     [setPriceUsd]: (state, { payload: { priceUsd } }) =>
-      state.set('usd', priceUsd),
+      produce(state, (draft) => {
+        draft.usd = priceUsd
+      }),
     [addPriceMessage]: (state, { payload: { messages } }) =>
-      state.update('history', s => s.merge(messages))
+      produce(state, (draft) => {
+        draft.history = {
+          ...draft.history,
+          ...messages
+        }
+      })
   },
   initialState
 )

@@ -1,6 +1,5 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import Immutable from 'immutable'
 import { bindActionCreators } from 'redux'
 
 import Grid from '@material-ui/core/Grid'
@@ -64,10 +63,10 @@ export default connect(
 )(
   React.memo(DirectMessagesPanel, (before, after) => {
     return (
-      Immutable.is(before.channels, after.channels) &&
-      Immutable.is(before.selected, after.selected) &&
-      Immutable.is(before.offers, after.offers) &&
-      Immutable.is(before.selectedOffer, after.selectedOffer)
+      Object.is(before.channels, after.channels) &&
+      Object.is(before.selected, after.selected) &&
+      Object.is(before.offers, after.offers) &&
+      Object.is(before.selectedOffer, after.selectedOffer)
     )
   })
 )

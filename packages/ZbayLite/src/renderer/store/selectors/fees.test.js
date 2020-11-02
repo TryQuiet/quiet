@@ -1,9 +1,5 @@
 /* eslint import/first: 0 */
-import Immutable from 'immutable'
-
 import selectors from './fees'
-import { Fee } from '../handlers/fees'
-
 import create from '../create'
 
 describe('app -', () => {
@@ -11,15 +7,14 @@ describe('app -', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({
-        fees: Fee({
+      initialState: {
+        fees: {
           user: 0.1,
           publicChannel: 0.01
-        })
-      })
+        }
+      }
     })
   })
-
   it('userFee selector', async () => {
     expect(selectors.userFee(store.getState())).toEqual(0.1)
   })

@@ -1,10 +1,8 @@
 /* eslint import/first: 0 */
 jest.mock('../../zcash')
 
-import Immutable from 'immutable'
-
 import create from '../create'
-import { actions, initialState, _PublicChannelData } from './publicChannels'
+import { actions, _PublicChannelData } from './publicChannels'
 import selectors from '../selectors/publicChannels'
 
 describe('Operations reducer handles ', () => {
@@ -20,9 +18,9 @@ describe('Operations reducer handles ', () => {
   }
   beforeEach(() => {
     store = create({
-      initialState: Immutable.Map({
-        operations: initialState
-      })
+      initialState: {
+        operations: {}
+      }
     })
     jest.clearAllMocks()
   })
@@ -31,7 +29,11 @@ describe('Operations reducer handles ', () => {
     it('- setPublicChannels', () => {
       store.dispatch(
         actions.setPublicChannels({
-          publicChannels: { testaddress1: _PublicChannelData(testPublicChannelData) }
+          publicChannels: {
+            testaddress1: {
+              ..._PublicChannelData,
+              ...testPublicChannelData
+            } }
         })
       )
       expect(selectors.publicChannels(store.getState())).toMatchSnapshot()
@@ -39,22 +41,31 @@ describe('Operations reducer handles ', () => {
     it('- merge Channels', () => {
       store.dispatch(
         actions.setPublicChannels({
-          publicChannels: { name: _PublicChannelData(testPublicChannelData) }
+          publicChannels: { name: {
+            ..._PublicChannelData,
+            ...testPublicChannelData
+          } }
         })
       )
       store.dispatch(
         actions.setPublicChannels({
-          publicChannels: { name: _PublicChannelData(testPublicChannelData) }
+          publicChannels: { name: {
+            ..._PublicChannelData,
+            ...testPublicChannelData
+          } }
         })
       )
-      expect(selectors.publicChannels(store.getState()).size).toEqual(1)
+      expect(Object.keys(selectors.publicChannels(store.getState())).length).toEqual(1)
 
       store.dispatch(
         actions.setPublicChannels({
-          publicChannels: { name: _PublicChannelData(testPublicChannelData) }
+          publicChannels: { name: {
+            ..._PublicChannelData,
+            ...testPublicChannelData
+          } }
         })
       )
-      expect(selectors.publicChannels(store.getState()).size).toEqual(1)
+      expect(Object.keys(selectors.publicChannels(store.getState())).length).toEqual(1)
     })
   })
 })

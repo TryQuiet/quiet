@@ -1,5 +1,4 @@
 import React from 'react'
-import Immutable from 'immutable'
 import { shallow } from 'enzyme'
 
 import { ChannelHeader } from './ChannelHeader'
@@ -8,7 +7,7 @@ import { createChannel } from '../../../testUtils'
 
 describe('ChannelHeader', () => {
   it('renders component', () => {
-    const channel = Immutable.fromJS(createChannel(1))
+    const channel = createChannel(1)
     const result = shallow(
       <ChannelHeader
         tab={0}
@@ -26,7 +25,7 @@ describe('ChannelHeader', () => {
   })
 
   it('renders without members count', () => {
-    const channel = Immutable.fromJS(createChannel(1))
+    const channel = createChannel(1)
     const result = shallow(
       <ChannelHeader
         classes={mockClasses}
@@ -44,7 +43,7 @@ describe('ChannelHeader', () => {
   })
 
   it('renders members when 0', () => {
-    const channel = Immutable.fromJS(createChannel(1))
+    const channel = createChannel(1)
     const result = shallow(
       <ChannelHeader
         classes={mockClasses}

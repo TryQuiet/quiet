@@ -1,26 +1,26 @@
 /* eslint import/first: 0 */
-import Immutable from 'immutable'
-
 import { mapStateToProps, mapDispatchToProps } from './AccountSettingsForm'
 
 import create from '../../../store/create'
-import { Identity, IdentityState } from '../../../store/handlers/identity'
+import { initialState } from '../../../store/handlers/identity'
 
 describe('AccountSettingsForm', () => {
   let store = null
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({
-        identity: IdentityState({
-          data: Identity({
+      initialState: {
+        identity: {
+          ...initialState,
+          data: {
+            ...initialState.data,
             address: 'test-z-address',
             transparentAddress: 'test-t-address',
             name: 'Saturn',
             signerPubKey: 'address'
-          })
-        }),
-        users: Immutable.fromJS({
+          }
+        },
+        users: {
           [Buffer.from('address')]: {
             firstName: 'testname',
             lastName: 'testlastname',
@@ -35,8 +35,8 @@ describe('AccountSettingsForm', () => {
             address:
               'ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r'
           }
-        })
-      })
+        }
+      }
     })
   })
 

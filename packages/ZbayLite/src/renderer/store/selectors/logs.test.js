@@ -1,6 +1,4 @@
 /* eslint import/first: 0 */
-import Immutable from 'immutable'
-
 import selectors from './logs'
 import { Logs } from '../handlers/logs'
 
@@ -11,9 +9,11 @@ describe('logs selector', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({
-        logsData: Logs()
-      })
+      initialState: {
+        logsData: {
+          ...Logs
+        }
+      }
     })
   })
 

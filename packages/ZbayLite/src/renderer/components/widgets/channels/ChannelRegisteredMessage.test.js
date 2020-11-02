@@ -5,10 +5,11 @@ import { ChannelRegisteredMessage } from './ChannelRegisteredMessage'
 import { mockClasses } from '../../../../shared/testing/mocks'
 import { _PublicChannelData } from '../../../store/handlers/publicChannels'
 describe('ChannelRegisteredMessage', () => {
-  const message = _PublicChannelData({
+  const message = {
+    ..._PublicChannelData,
     address: 'testaddress',
     name: 'testname'
-  })
+  }
   it('renders component', () => {
     const result = shallow(
       <ChannelRegisteredMessage

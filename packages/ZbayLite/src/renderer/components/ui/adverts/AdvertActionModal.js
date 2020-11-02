@@ -5,7 +5,6 @@ import { AutoSizer } from 'react-virtualized'
 import { Scrollbars } from 'react-custom-scrollbars'
 import { DateTime } from 'luxon'
 import { shell } from 'electron'
-import Immutable from 'immutable'
 
 import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
@@ -397,7 +396,7 @@ AdvertActionModal.propTypes = {
   }),
   handleMessage: PropTypes.func.isRequired,
   openExternalLink: PropTypes.func.isRequired,
-  whitelisted: PropTypes.instanceOf(Immutable.List).isRequired,
+  whitelisted: PropTypes.array.isRequired,
   handleClose: PropTypes.func.isRequired
 }
 

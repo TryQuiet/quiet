@@ -1,9 +1,7 @@
-import Immutable from 'immutable'
-
 import create from '../../../store/create'
 import { mapDispatchToProps, mapStateToProps } from './ChannelInfo'
 import { ChannelState } from '../../../store/handlers/channel'
-import { ChannelsState } from '../../../store/handlers/channels'
+import { initialState } from '../../../store/handlers/channels'
 import { createChannel } from '../../../testUtils'
 
 describe('ChannelInfo ', () => {
@@ -11,17 +9,19 @@ describe('ChannelInfo ', () => {
   const channelId = 'channel-id'
   beforeEach(() => {
     store = create({
-      initialState: Immutable.Map({
-        rates: Immutable.Map({ usd: '70.45230379033394', zec: '1' }),
-        channel: ChannelState({
+      initialState: {
+        rates: { usd: '70.45230379033394', zec: '1' },
+        channel: {
+          ...ChannelState,
           id: channelId,
           shareableUri: 'uri',
           message: 'Message written in the input'
-        }),
-        channels: ChannelsState({
-          data: Immutable.fromJS([createChannel(channelId)])
-        })
-      })
+        },
+        channels: {
+          ...initialState,
+          data: [createChannel(channelId)]
+        }
+      }
     })
     jest.clearAllMocks()
   })

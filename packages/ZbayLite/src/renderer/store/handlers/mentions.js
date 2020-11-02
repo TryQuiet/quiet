@@ -1,4 +1,4 @@
-import Immutable from 'immutable'
+import { produce } from 'immer'
 import { DateTime } from 'luxon'
 import { createAction, handleActions } from 'redux-actions'
 
@@ -14,15 +14,12 @@ import notificationsHandlers from './notifications'
 import modalsHandlers from './modals'
 import { errorNotification, successNotification } from './utils'
 
-export const ChannelMentions = Immutable.Record(
-  {
-    nickname: '',
-    timeStamp: 0
-  },
-  'ChannelMentions'
-)
+export const ChannelMentions = {
+  nickname: '',
+  timeStamp: 0
+}
 
-export const initialState = Immutable.Map()
+export const initialState = {}
 
 const addMentionMiss = createAction(actionTypes.ADD_MENTION_MISS)
 const clearMentionMiss = createAction(actionTypes.CLEAR_MENTION_MISS)
@@ -42,14 +39,13 @@ const checkMentions = () => async (dispatch, getState) => {
     getState()
   )
 
-  const usersOnChannel = users
-    .toList()
+  const usersOnChannel = Array.from(Object.values(users))
     .filter(user => members.has(user.address))
   const splitMessage = message
     .split(String.fromCharCode(160))
     .filter(part => part.startsWith('@'))
     .filter(part =>
-      users.toList().find(user => user.nickname === part.substring(1))
+      Array.from(Object.values(users)).find(user => user.nickname === part.substring(1))
     )
 
   const foundMentions = []
@@ -73,7 +69,7 @@ const checkMentions = () => async (dispatch, getState) => {
   }
   if (foundMentions.length > 0) {
     dispatch(
-      addMentionMiss({ [channelId]: foundMentions.concat(currentMentions) })
+      addMentionMiss({ mentions: foundMentions.concat(currentMentions), channelId })
     )
   }
 }
@@ -85,7 +81,7 @@ const removeMention = nickname => async (dispatch, getState) => {
 const sendInvitation = nickname => async (dispatch, getState) => {
   try {
     const channelId = channelSelectors.channelId(getState())
-    const channelAddress = channelSelectors.data(getState()).get('address')
+    const channelAddress = channelSelectors.data(getState()).address
     const privKey = identitySelectors.signerPrivKey(getState())
     const users = usersSelectors.users(getState())
     const publicChannel = publicChannelsSelector
@@ -97,7 +93,7 @@ const sendInvitation = nickname => async (dispatch, getState) => {
 
       return
     }
-    const targetUser = users.toList().find(user => user.nickname === nickname)
+    const targetUser = Array.from(Object.values(users)).find(user => user.nickname === nickname)
     const message = zbayMessages.createMessage({
       messageData: {
         type: zbayMessages.messageType.BASIC,
@@ -134,12 +130,22 @@ export const epics = {
 }
 export const reducer = handleActions(
   {
-    [clearMentionMiss]: () => initialState,
+    [clearMentionMiss]: (state) => produce(state, (draft) => {
+      return {
+        ...initialState
+      }
+    }),
     [removeMentionMiss]: (state, { payload: { channelId, nickname } }) =>
-      state.updateIn([channelId], mentions =>
-        mentions.filter(mention => mention.nickname !== nickname)
-      ),
-    [addMentionMiss]: (state, { payload: channel }) => state.merge(channel)
+      produce(state, (draft) => {
+        draft[channelId] = draft[channelId].filter(mention => mention.nickname !== nickname)
+      }),
+    [addMentionMiss]: (state, { payload: { mentions, channelId } }) =>
+      produce(state, (draft) => {
+        draft[channelId] = {
+          ...draft[channelId],
+          ...mentions
+        }
+      })
   },
   initialState
 )

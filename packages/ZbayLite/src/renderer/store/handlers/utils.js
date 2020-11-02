@@ -58,6 +58,29 @@ export const FetchingState = Immutable.Record({
   currentSlide: 0
 })
 
+export const LoaderStateStd = {
+  loading: false,
+  message: ''
+}
+
+export const FetchingStateStd = {
+  sizeLeft: 0,
+  part: '',
+  fetchingStatus: '',
+  fetchingSpeed: null,
+  fetchingEndTime: {
+    hours: null,
+    minutes: null,
+    seconds: null
+  },
+  isFetching: false,
+  rescanningProgress: 0,
+  isRescanningMonitorStarted: false,
+  isRescanningInitialized: false,
+  guideStatus: false,
+  currentSlide: 0
+}
+
 export default {
   typePending,
   typeFulfilled,

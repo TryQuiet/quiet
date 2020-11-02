@@ -1,6 +1,4 @@
 /* eslint import/first: 0 */
-import Immutable from 'immutable'
-
 import handlers, { Coordinator } from './coordinator'
 import selectors from '../selectors/coordinator'
 import create from '../create'
@@ -9,9 +7,9 @@ describe('criticalError reducer', () => {
   let store = null
   beforeEach(() => {
     store = create({
-      initialState: Immutable.Map({
-        coordinator: Coordinator()
-      })
+      initialState: {
+        ...Coordinator
+      }
     })
     jest.clearAllMocks()
   })

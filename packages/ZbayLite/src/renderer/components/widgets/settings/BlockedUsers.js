@@ -1,6 +1,5 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import Immutable from 'immutable'
 
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
@@ -29,7 +28,7 @@ const styles = theme => ({
 })
 
 export const BlockedUsers = ({ classes, blockedUsers, users, unblock }) => {
-  const blockedAddresses = Array.from(blockedUsers.keys()).filter(address =>
+  const blockedAddresses = Array.from(Object.keys(blockedUsers)).filter(address =>
     users.find(user => user.address === address)
   )
   return (
@@ -65,8 +64,8 @@ export const BlockedUsers = ({ classes, blockedUsers, users, unblock }) => {
 }
 BlockedUsers.propTypes = {
   classes: PropTypes.object.isRequired,
-  blockedUsers: PropTypes.instanceOf(Immutable.Map).isRequired,
-  users: PropTypes.instanceOf(Immutable.Map).isRequired,
+  blockedUsers: PropTypes.object.isRequired,
+  users: PropTypes.object.isRequired,
   unblock: PropTypes.func.isRequired
 }
 BlockedUsers.defaultProps = {}

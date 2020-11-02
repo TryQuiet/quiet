@@ -1,16 +1,16 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`NotificationsCenter blockedUsers selector 1`] = `
-Immutable.Map {
-  "muted1": 4,
-  "muted2": 4,
-}
+Array [
+  4,
+  4,
+]
 `;
 
 exports[`NotificationsCenter channel by id selector 1`] = `1`;
 
 exports[`NotificationsCenter channels selector 1`] = `
-Immutable.Map {
+Object {
   "key1": 1,
   "key2": 2,
 }
@@ -19,7 +19,7 @@ Immutable.Map {
 exports[`NotificationsCenter contact by address selector 1`] = `1`;
 
 exports[`NotificationsCenter contacts selector 1`] = `
-Immutable.Map {
+Object {
   "key1": 1,
   "key2": 2,
   "muted1": 4,
@@ -30,10 +30,10 @@ Immutable.Map {
 exports[`NotificationsCenter user filterType selector 1`] = `1`;
 
 exports[`NotificationsCenter user selector 1`] = `
-Immutable.Map {
+Object {
+  "filterType": 1,
   "key1": 1,
   "key2": 2,
-  "filterType": 1,
   "sound": 1,
 }
 `;

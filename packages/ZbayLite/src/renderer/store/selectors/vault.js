@@ -2,7 +2,7 @@ import { createSelector } from 'reselect'
 
 const store = s => s
 
-const vault = createSelector(store, state => state.get('vault'))
+const vault = createSelector(store, state => state.vault)
 
 const exists = createSelector(vault, v => v.exists)
 const isLogIn = createSelector(vault, v => v.isLogIn)

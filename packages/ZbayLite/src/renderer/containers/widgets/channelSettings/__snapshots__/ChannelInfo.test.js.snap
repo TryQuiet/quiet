@@ -9,11 +9,11 @@ Object {
 exports[`ChannelInfo  will receive right props 1`] = `
 Object {
   "initialValues": Object {
-    "amountUsd": "10.57",
-    "amountZec": 0.15,
-    "updateChannelDescription": "Channel about channel-id",
-    "updateMinFee": true,
-    "updateOnlyRegistered": undefined,
+    "amountUsd": "0.00",
+    "amountZec": 0,
+    "updateChannelDescription": 0,
+    "updateMinFee": false,
+    "updateOnlyRegistered": 0,
   },
   "rateUsd": 70.45230379033394,
   "rateZec": 0.014194,

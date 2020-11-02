@@ -1,3 +1,4 @@
+import Immutable from 'immutable'
 import { createSelector } from 'reselect'
 import identitySelectors from './identity'
 import usersSelectors from './users'
@@ -7,51 +8,54 @@ import messagesSelectors from './messages'
 import zbayMessages from '../../zbay/messages'
 import contacts from './contacts'
 import { operationTypes } from '../handlers/operations'
-import Immutable from 'immutable'
 import { networkFee, messageType } from '../../../shared/static'
 
 const store = s => s
 
 export const channel = createSelector(store, state => {
-  return state.get('channel')
+  return state.channel
 })
-export const channelInfo = createSelector(store, state =>
-  state.get('channel').delete('message')
-) // TODO refactor
+export const channelInfo = createSelector(channel, ch => {
+  const channel = {
+    ...ch
+  }
+  delete channel.message
+  return channel
+}) // TODO refactor
 
 export const spentFilterValue = createSelector(channel, c =>
-  c.get('spentFilterValue', -1)
+  c.spentFilterValue ? spentFilterValue : -1
 )
 
 export const message = createSelector(
   channel,
-  c => c.getIn(['message', c.get('id')]) || ''
+  c => c.message[c.id] || ''
 )
-export const id = createSelector(channel, c => c.get('id'))
+export const id = createSelector(channel, c => c.id)
 const data = createSelector(contacts.contacts, id, (channels, id) =>
-  channels.get(id)
+  channels[id]
 )
 export const isSizeCheckingInProgress = createSelector(channel, c =>
-  c.get('isSizeCheckingInProgress')
+  c.isSizeCheckingInProgress
 )
 export const messageSizeStatus = createSelector(channel, c =>
-  c.get('messageSizeStatus')
+  c.messageSizeStatus
 )
 export const displayableMessageLimit = createSelector(channel, c =>
-  c.get('displayableMessageLimit')
+  c.displayableMessageLimit
 )
 export const isOwner = createSelector(
   id,
   contacts.contacts,
   identitySelectors.signerPubKey,
   (id, con, myKey) => {
-    const contact = con.get(id)
+    const contact = con[id]
     if (!contact) {
       return false
     }
-    const settingsMsg = contact.messages.find(
+    const settingsMsg = Array.from(Object.values(contact.messages)).filter(
       msg => msg.type === messageType.CHANNEL_SETTINGS
-    )
+    )[0]
     if (settingsMsg && settingsMsg.message.owner === myKey) {
       return true
     }
@@ -65,7 +69,7 @@ export const channelSettingsMessage = createSelector(
     if (!data) {
       return null
     }
-    const settingsMsg = data.messages.filter(
+    const settingsMsg = Array.from(Object.values(data.messages)).filter(
       msg =>
         msg.type === messageType.CHANNEL_SETTINGS ||
         msg.type === messageType.CHANNEL_SETTINGS_UPDATE
@@ -103,7 +107,7 @@ export const onlyRegistered = createSelector(
   }
 )
 export const unread = createSelector(data, data =>
-  data ? data.get('unread') : 0
+  data ? data.unread : 0
 )
 
 export const pendingMessages = createSelector(
@@ -165,24 +169,23 @@ const checkMessageTargetTimeWindow = ({
 }
 
 const concatMessages = (mainMsg, messagesToConcat) => {
-  if (messagesToConcat.size === 1) {
+  if (messagesToConcat.length === 1) {
     return mainMsg
   } else {
     const messagesArray = messagesToConcat.map(msg => msg.message)
-    const lastMessageStatus = messagesToConcat.getIn([
-      messagesToConcat.size - 1,
-      'status'
-    ])
+    const lastMessageStatus = messagesToConcat[messagesToConcat.length - 1].status
     const concatedMessages = messagesArray.join('\n')
-    const mergedMessage = mainMsg
-      .set('message', concatedMessages)
-      .set('status', lastMessageStatus)
+    const mergedMessage = {
+      ...mainMsg,
+      message: concatedMessages,
+      status: lastMessageStatus
+    }
     return mergedMessage
   }
 }
 
 export const mergeIntoOne = messages => {
-  if (messages.size === 0) return
+  if (messages.length === 0) return
   let result = [[]]
   let last = null
   for (const msg of messages) {
@@ -210,9 +213,8 @@ export const mergeIntoOne = messages => {
     }
     last = msg
   }
-  const list = Immutable.fromJS(result)
-  const concatedMessages = list.map(array => {
-    return concatMessages(array.get(0), array)
+  const concatedMessages = result.map(array => {
+    return concatMessages(array[0], array)
   })
   return concatedMessages
 }
@@ -231,7 +233,7 @@ export const messages = signerPubKey =>
       pendingMessages,
       queuedMessages
     ) => {
-      const userData = registeredUser ? registeredUser.toJS() : null
+      const userData = registeredUser || null
       const identityAddress = identity.address
       const identityName = userData ? userData.nickname : identity.name
       const displayableBroadcasted = receivedMessages.map(message => {
@@ -260,7 +262,7 @@ export const messages = signerPubKey =>
       )
       let concatedMessages = displayableBroadcasted
         .concat(displayablePending.values(), displayableQueued.values())
-        .sortBy(m => m.get('createdAt'))
+        .sortBy(m => m.createdAt)
       if (concatedMessages.size > 0) {
         const merged = mergeIntoOne(concatedMessages)
         concatedMessages = Immutable.fromJS(merged)
@@ -296,25 +298,26 @@ export const INPUT_STATE = {
 export const channelId = createSelector(channel, ch => ch.id)
 
 export const members = createSelector(contacts.contacts, id, (c, channelId) => {
-  const contact = c.get(channelId)
+  const contact = c[channelId]
   if (!contact) {
     return new Set()
   }
-  return contact.messages.toList().reduce((acc, msg) => {
-    return acc.add(msg.sender.replyTo)
-  }, new Set())
+  return Array.from(Object.values(contact.messages))
+    .reduce((acc, msg) => {
+      return acc.add(msg.sender.replyTo)
+    }, new Set())
 })
 
 export const channelParticipiants = createSelector(
   contacts.contacts,
   id,
   (c, i) => {
-    const contact = c.get(i)
+    const contact = c[i]
     if (!contact) {
       return new Set()
     }
     const messages = contact.messages
-    const members = messages.reduce((acc, msg) => {
+    const members = Array.from(Object.values(messages)).reduce((acc, msg) => {
       return acc.add(msg.sender.replyTo)
     }, new Set())
     return members

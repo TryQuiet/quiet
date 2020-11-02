@@ -1,10 +1,8 @@
 /* eslint import/first: 0 */
-import Immutable from 'immutable'
 import * as R from 'ramda'
 
 import { mapDispatchToProps, mapStateToProps } from './Notifications'
 
-import { ChannelsState } from '../../../store/handlers/channels'
 import create from '../../../store/create'
 import { initialState } from '../../../store/handlers/notificationCenter'
 import { createReceivedMessage, now, createChannel } from '../../../testUtils'
@@ -19,34 +17,35 @@ describe('Send message popover', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({
-        notificationCenter: initialState,
-        channel: ChannelState({
+      initialState: {
+        notificationCenter: {
+          ...initialState
+        },
+        channel: {
+          ...ChannelState,
           spentFilterValue: 38,
           id: channelId,
           members: 0,
           message: 'This is a test message'
-        }),
-        messages: Immutable.Map({
-          [channelId]: ChannelMessages({
-            messages: Immutable.List(
-              Immutable.fromJS(
-                R.range(0, 4).map(id =>
-                  ReceivedMessage(
-                    createReceivedMessage({
-                      id,
-                      createdAt: now.minus({ hours: 2 * id }).toSeconds()
-                    })
-                  )
-                )
-              )
-            )
-          })
-        }),
-        channels: ChannelsState({
-          data: Immutable.fromJS([createChannel(channelId)])
-        })
-      })
+        },
+        messages: {
+          [channelId]: {
+            ...ChannelMessages,
+            messages: R.range(0, 4).map(id => {
+              return {
+                ...ReceivedMessage,
+                ...createReceivedMessage({
+                  id,
+                  createdAt: now.minus({ hours: 2 * id }).toSeconds()
+                })
+              }
+            })
+          }
+        },
+        channels: {
+          data: [createChannel(channelId)]
+        }
+      }
     })
   })
   it('will receive right props', () => {

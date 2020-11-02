@@ -54,8 +54,8 @@ export const ChannelContent = ({
       </Grid>
       <Grid item className={classes.mentionsDiv}>
         {channelType === CHANNEL_TYPE.NORMAL &&
-          mentions.get(channelId) &&
-          mentions.get(channelId).map(mention => (
+          mentions.channelId &&
+          mentions.channelId.map(mention => (
             <Grid item>
               <InviteMentionInfo
                 nickname={mention.nickname}

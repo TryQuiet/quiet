@@ -1,6 +1,5 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import Immutable from 'immutable'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import * as R from 'ramda'
 import { AutoSizer } from 'react-virtualized'
@@ -94,7 +93,7 @@ export const ChannelInfoModal = ({
             <Grid container direction='column' className={classes.root}>
               <Grid item className={classes.section}>
                 <Typography variant='h3' className={classes.title}>
-                  {channel.get('name')}
+                  {channel.name}
                 </Typography>
               </Grid>
               <Grid
@@ -102,10 +101,10 @@ export const ChannelInfoModal = ({
                 className={classNames(classes.section, classes.spacing24)}
               >
                 <Typography variant='subtitle1' className={classes.infoTitle}>
-                  {!directMessage && `About #${channel.get('name')}`}
+                  {!directMessage && `About #${channel.name}`}
                 </Typography>
                 <Typography variant='body2' className={classes.description}>
-                  {channel.get('description')}
+                  {channel.name}
                 </Typography>
               </Grid>
               <Grid
@@ -165,10 +164,7 @@ export const ChannelInfoModal = ({
 
 ChannelInfoModal.propTypes = {
   classes: PropTypes.object.isRequired,
-  channel: PropTypes.oneOfType([
-    PropTypes.instanceOf(Immutable.Map),
-    PropTypes.instanceOf(Immutable.Record)
-  ]).isRequired,
+  channel: PropTypes.object.isRequired,
   shareUrl: PropTypes.string.isRequired,
   handleClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
@@ -177,7 +173,7 @@ ChannelInfoModal.propTypes = {
 
 ChannelInfoModal.defaultProps = {
   open: false,
-  channel: Immutable.Map(),
+  channel: {},
   shareUrl: '',
   directMessage: false
 }

@@ -226,11 +226,13 @@ export const messages = {
   createSendableUserMessage
 }
 
-export const createTransfer = ({ txid, amount = '0', memo = '', change = false }) => ({
+export const createTransfer = ({ txid, amount = '0', memo = '', change = false, blockHeight = 100 }) => ({
   txid,
   amount,
   memo,
-  change
+  memohex: memo,
+  change,
+  blockHeight: 100
 })
 
 export const transfers = {

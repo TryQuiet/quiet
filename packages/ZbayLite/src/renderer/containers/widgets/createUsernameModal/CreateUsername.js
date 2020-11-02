@@ -18,7 +18,7 @@ export const mapStateToProps = state => {
       )(state)
         ? usersSelectors
           .registeredUser(identitySelectors.signerPubKey(state))(state)
-          .get('nickname')
+          .nickname
         : ''
     },
     usernameFee: feesSelectors.userFee(state),

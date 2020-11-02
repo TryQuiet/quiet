@@ -1,249 +1,58 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`channel reducer handles actions - setChannelId 1`] = `
-Immutable.ChannelState {
-  "spentFilterValue": "0",
-  "id": "this-is-a-test-id",
-  "message": "",
-  "shareableUri": "",
-  "address": "",
-  "loader": Immutable.Record {
-    "loading": false,
-    "message": "",
-  },
-  "members": null,
-  "showInfoMsg": true,
-  "isSizeCheckingInProgress": false,
-  "messageSizeStatus": null,
-}
-`;
-
 exports[`channel reducer handles actions - setLoading 1`] = `
-Immutable.ChannelState {
-  "spentFilterValue": "0",
-  "id": null,
-  "message": "",
-  "shareableUri": "",
+Object {
   "address": "",
-  "loader": Immutable.Record {
+  "displayableMessageLimit": 50,
+  "id": null,
+  "isSizeCheckingInProgress": false,
+  "loader": Object {
     "loading": false,
     "message": "",
   },
   "members": null,
-  "showInfoMsg": true,
-  "isSizeCheckingInProgress": false,
+  "message": Object {},
   "messageSizeStatus": null,
+  "shareableUri": "",
+  "showInfoMsg": true,
+  "spentFilterValue": "0",
 }
 `;
 
 exports[`channel reducer handles actions - setLoadingMessage 1`] = `
-Immutable.ChannelState {
-  "spentFilterValue": "0",
-  "id": null,
-  "message": "",
-  "shareableUri": "",
+Object {
   "address": "",
-  "loader": Immutable.Record {
+  "displayableMessageLimit": 50,
+  "id": null,
+  "isSizeCheckingInProgress": false,
+  "loader": Object {
     "loading": false,
     "message": "this is a loading message",
   },
   "members": null,
-  "showInfoMsg": true,
-  "isSizeCheckingInProgress": false,
+  "message": Object {},
   "messageSizeStatus": null,
+  "shareableUri": "",
+  "showInfoMsg": true,
+  "spentFilterValue": "0",
 }
 `;
 
 exports[`channel reducer handles actions - setShareableUri 1`] = `
-Immutable.ChannelState {
-  "spentFilterValue": "0",
-  "id": null,
-  "message": "",
-  "shareableUri": "zbay://channel/this-is-a-hash",
+Object {
   "address": "",
-  "loader": Immutable.Record {
+  "displayableMessageLimit": 50,
+  "id": null,
+  "isSizeCheckingInProgress": false,
+  "loader": Object {
     "loading": false,
     "message": "",
   },
   "members": null,
-  "showInfoMsg": true,
-  "isSizeCheckingInProgress": false,
+  "message": Object {},
   "messageSizeStatus": null,
+  "shareableUri": "zbay://channel/this-is-a-hash",
+  "showInfoMsg": true,
+  "spentFilterValue": "0",
 }
 `;
-
-exports[`channel reducer handles epics - loadChannel fetches messages 1`] = `Immutable.List []`;
-
-exports[`channel reducer handles epics - loadChannel sets uri 1`] = `"https://handlers.zbay.app/importchannel=eJyrVspLzE1VslJyzkjMy0vNUTBU0lHKLMsGimTmJefnZual65ZlppaD6OzUSl1DpVoArR0Q7A%3D%3D"`;
-
-exports[`channel reducer handles epics - resendMessage resend selected message 1`] = `
-Immutable.Map {
-  "new-op-id": Immutable.Operation {
-    "opId": "new-op-id",
-    "type": "pendingMessage",
-    "meta": Immutable.Record {
-      "message": Immutable.Map {
-        "type": 1,
-        "spent": "0",
-        "signature": Object {
-          "data": Array [
-            241,
-            42,
-            192,
-            246,
-            156,
-            56,
-            237,
-            27,
-            207,
-            63,
-            7,
-            116,
-            49,
-            245,
-            240,
-            41,
-            205,
-            100,
-            223,
-            216,
-            54,
-            16,
-            209,
-            249,
-            45,
-            255,
-            205,
-            107,
-            29,
-            36,
-            226,
-            188,
-            12,
-            89,
-            152,
-            191,
-            128,
-            214,
-            43,
-            120,
-            99,
-            26,
-            151,
-            56,
-            135,
-            92,
-            147,
-            202,
-            152,
-            198,
-            160,
-            217,
-            161,
-            79,
-            169,
-            17,
-            197,
-            76,
-            86,
-            112,
-            232,
-            7,
-            241,
-            142,
-          ],
-          "type": "Buffer",
-        },
-        "r": 1,
-        "createdAt": 1551963828,
-        "message": "This is some message test-1",
-      },
-      "channelId": "",
-    },
-    "txId": null,
-    "error": null,
-    "status": "pending",
-  },
-}
-`;
-
-exports[`channel reducer handles epics - sendOnEnter sends message 1`] = `
-Object {
-  "createdAt": 1551963828,
-  "message": "",
-  "r": 1,
-  "signature": Object {
-    "data": Array [
-      78,
-      42,
-      135,
-      75,
-      226,
-      185,
-      207,
-      85,
-      52,
-      70,
-      60,
-      121,
-      107,
-      201,
-      31,
-      53,
-      87,
-      42,
-      81,
-      124,
-      182,
-      85,
-      179,
-      139,
-      163,
-      176,
-      228,
-      197,
-      172,
-      109,
-      218,
-      121,
-      105,
-      131,
-      88,
-      201,
-      115,
-      134,
-      227,
-      76,
-      35,
-      108,
-      134,
-      101,
-      133,
-      229,
-      150,
-      72,
-      120,
-      169,
-      200,
-      58,
-      1,
-      47,
-      188,
-      143,
-      22,
-      215,
-      165,
-      62,
-      41,
-      223,
-      35,
-      220,
-    ],
-    "type": "Buffer",
-  },
-  "spent": undefined,
-  "type": 1,
-}
-`;
-
-exports[`channel reducer handles epics -clearNewMessages clears new messages for current channel 1`] = `undefined`;

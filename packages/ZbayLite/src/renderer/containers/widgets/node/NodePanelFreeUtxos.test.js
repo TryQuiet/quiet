@@ -1,5 +1,4 @@
 import React from 'react'
-import Immutable from 'immutable'
 import { shallow } from 'enzyme'
 
 import {
@@ -8,17 +7,18 @@ import {
 } from './NodePanelFreeUtxos'
 
 import create from '../../../store/create'
-import { IdentityState, Identity } from '../../../store/handlers/identity'
+import { initialState } from '../../../store/handlers/identity'
 
 describe('NodePanelFreeUtxos', () => {
   let store = null
   beforeEach(() => {
     store = create({
-      initialState: Immutable.Map({
-        identity: IdentityState({
-          data: Identity({ freeUtxos: 5 })
-        })
-      })
+      initialState: {
+        identity: {
+          ...initialState,
+          data: { freeUtxos: 5 }
+        }
+      }
     })
   })
 

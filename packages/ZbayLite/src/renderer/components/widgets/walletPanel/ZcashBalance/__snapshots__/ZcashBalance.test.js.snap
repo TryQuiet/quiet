@@ -15,7 +15,7 @@ exports[`ZcashBalance renders component 1`] = `
       display="inline"
       variant="body2"
     >
-      12.32
+      12.323
        ZEC
     </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>

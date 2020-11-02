@@ -1,4 +1,4 @@
-import Immutable from 'immutable'
+
 import BigNumber from 'bignumber.js'
 
 import { mapStateToProps, mapDispatchToProps } from './DirectMessageInput'
@@ -11,15 +11,16 @@ describe('ChannelInput', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({
-        channel: ChannelState({
+      initialState: {
+        channel: {
+          ...ChannelState,
           spentFilterValue: 38,
           name: 'Politics',
           members: new BigNumber(0),
           message: 'This is a test message',
           messages: []
-        })
-      })
+        }
+      }
     })
   })
 

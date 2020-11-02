@@ -1,19 +1,19 @@
-import Immutable from 'immutable'
+import { produce } from 'immer'
 import { createAction, handleActions } from 'redux-actions'
 
 import { actionTypes } from '../../../shared/static'
 import electronStore from '../../../shared/electronStore'
 import logsHandlers from '../../../renderer/store/handlers/logs'
 
-export const Whitelist = Immutable.Record(
-  {
-    allowAll: false,
-    whitelisted: Immutable.List(),
-    autoload: Immutable.List()
-  },
-  'Whitelist'
-)
-export const initialState = Whitelist()
+const Whitelist = {
+  allowAll: false,
+  whitelisted: [],
+  autoload: []
+}
+
+export const initialState = {
+  ...Whitelist
+}
 
 const setWhitelist = createAction(actionTypes.SET_WHITELIST)
 const setWhitelistAllFlag = createAction(actionTypes.SET_WHITELIST_ALL_FLAG)
@@ -36,9 +36,9 @@ const ensureStore = () => {
 export const initWhitelist = () => async (dispatch, getState) => {
   ensureStore()
   const whitelist = electronStore.get('whitelist')
-  dispatch(setWhitelist(Immutable.List(whitelist.whitelisted)))
+  dispatch(setWhitelist(whitelist.whitelisted))
   dispatch(setWhitelistAllFlag(whitelist.allowAll))
-  dispatch(setAutoLoadList(Immutable.List(whitelist.autoload)))
+  dispatch(setAutoLoadList(whitelist.autoload))
 }
 export const addToWhitelist = (url, dontAutoload) => async (
   dispatch,
@@ -54,7 +54,7 @@ export const addToWhitelist = (url, dontAutoload) => async (
   if (!dontAutoload) {
     dispatch(setAutoLoad(uri.hostname))
   }
-  dispatch(setWhitelist(Immutable.List(whitelistArray)))
+  dispatch(setWhitelist(whitelistArray))
   dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Setting new privder: ${url}` }))
 }
 export const setWhitelistAll = allowAll => async (dispatch, getState) => {
@@ -71,7 +71,7 @@ export const setAutoLoad = newLink => async (dispatch, getState) => {
   }
   electronStore.set('whitelist.autoload', autoloadArray)
   dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Setting new auto load link  ${newLink}` }))
-  dispatch(setAutoLoadList(Immutable.List(autoloadArray)))
+  dispatch(setAutoLoadList(autoloadArray))
 }
 export const removeImageHost = hostname => async (dispatch, getState) => {
   ensureStore()
@@ -79,7 +79,7 @@ export const removeImageHost = hostname => async (dispatch, getState) => {
   const filteredArray = autoloadArray.filter(name => name !== hostname)
   electronStore.set('whitelist.autoload', filteredArray)
   dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Removing image host host ${hostname}` }))
-  dispatch(setAutoLoadList(Immutable.List(filteredArray)))
+  dispatch(setAutoLoadList(filteredArray))
 }
 export const removeSiteHost = hostname => async (dispatch, getState) => {
   ensureStore()
@@ -87,7 +87,7 @@ export const removeSiteHost = hostname => async (dispatch, getState) => {
   const filteredArray = whitelistedArray.filter(name => name !== hostname)
   electronStore.set('whitelist.whitelisted', filteredArray)
   dispatch(logsHandlers.epics.saveLogs({ type: 'APPLICATION_LOGS', payload: `Removing site host ${hostname}` }))
-  dispatch(setWhitelist(Immutable.List(filteredArray)))
+  dispatch(setWhitelist(filteredArray))
 }
 export const epics = {
   addToWhitelist,
@@ -100,11 +100,17 @@ export const epics = {
 export const reducer = handleActions(
   {
     [setWhitelist]: (state, { payload: list }) =>
-      state.set('whitelisted', list),
+      produce(state, (draft) => {
+        draft.whitelisted = list
+      }),
     [setAutoLoadList]: (state, { payload: list }) =>
-      state.set('autoload', list),
+      produce(state, (draft) => {
+        draft.autoload = list
+      }),
     [setWhitelistAllFlag]: (state, { payload: flag }) =>
-      state.set('allowAll', flag)
+      produce(state, (draft) => {
+        draft.allowAll = flag
+      })
   },
   initialState
 )

@@ -25,7 +25,7 @@ export const mapStateToProps = state => ({
   )(state)
     ? userSelectors
       .registeredUser(identitySelector.signerPubKey(state))(state)
-      .get('nickname')
+      .nickname
     : ''
 })
 

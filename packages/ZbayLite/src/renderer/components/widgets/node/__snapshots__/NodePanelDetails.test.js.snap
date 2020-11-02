@@ -58,7 +58,6 @@ exports[`NodePanelDetails renders component 1`] = `
       </Memo(WithStyles(Tooltip))>
     </WithStyles(ForwardRef(Grid))>
     <Connect(NodePanelBlocksField) />
-    <Connect(NodePanelConnectionsField) />
     <Connect(NodePanelFreeUtxos) />
   </WithStyles(ForwardRef(Grid))>
 </WithStyles(ForwardRef(Grid))>

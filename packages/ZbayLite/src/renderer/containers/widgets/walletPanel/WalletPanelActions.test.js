@@ -1,8 +1,7 @@
-import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
 
 import { mapDispatchToProps, mapStateToProps } from './WalletPanelActions'
-import { IdentityState, Identity } from '../../../store/handlers/identity'
+import { initialState } from '../../../store/handlers/identity'
 import create from '../../../store/create'
 
 describe('WalletPanelActions', () => {
@@ -10,14 +9,16 @@ describe('WalletPanelActions', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({
-        identity: IdentityState({
-          data: Identity({
+      initialState: {
+        identity: {
+          ...initialState,
+          data: {
+            ...initialState.data,
             balance: new BigNumber('33.583004'),
             lockedBalance: new BigNumber('12.583004')
-          })
-        })
-      })
+          }
+        }
+      }
     })
   })
 

@@ -1,4 +1,4 @@
-import Immutable from 'immutable'
+import { produce } from 'immer'
 import { createAction, handleActions } from 'redux-actions'
 import { DateTime } from 'luxon'
 import { remote } from 'electron'
@@ -22,18 +22,18 @@ import client from '../../zcash'
 import { packMemo } from '../../zbay/transit'
 import { sendMessage } from '../../zcash/websocketClient'
 
-export const Offer = Immutable.Record(
-  {
-    address: '',
-    itemId: '',
-    name: '',
-    lastSeen: '',
-    messages: Immutable.List(),
-    newMessages: Immutable.List()
-  },
-  'Offer'
-)
-const initialState = Immutable.Map()
+export const Offer = {
+  address: '',
+  itemId: '',
+  name: '',
+  lastSeen: '',
+  messages: [],
+  newMessages: []
+}
+
+const initialState = {
+  ...Offer
+}
 
 const setMessages = createAction(actionTypes.SET_OFFER_MESSAGES)
 const addOffer = createAction(actionTypes.ADD_OFFER)
@@ -66,7 +66,7 @@ const createOfferAdvert = ({ payload, history }) => async (
 const createOffer = ({ payload }) => async (dispatch, getState) => {
   const contacts = contactsSelectors.contacts(getState())
   const msg = contactsSelectors.getAdvertById(payload.id)(getState())
-  if (!contacts.get(payload.id + payload.offerOwner)) {
+  if (!contacts[payload.id + payload.offerOwner]) {
     await dispatch(
       contactsHandlers.actions.addContact({
         key: payload.id + payload.offerOwner,
@@ -93,7 +93,7 @@ const refreshMessages = id => async (dispatch, getState) => {}
 const sendItemMessageOnEnter = event => async (dispatch, getState) => {
   const enterPressed = event.nativeEvent.keyCode === 13
   const shiftPressed = event.nativeEvent.shiftKey === true
-  const channel = channelSelectors.channel(getState()).toJS()
+  const channel = channelSelectors.channel(getState())
   const messageToSend = channelSelectors.message(getState())
   const useTor = appSelectors.useTor(getState())
 
@@ -150,7 +150,7 @@ const sendItemMessageOnEnter = event => async (dispatch, getState) => {
         })
       )
       const users = usersSelectors.users(getState())
-      const user = [...users.values()].filter(
+      const user = [...Object.values(users)].filter(
         user => user.nickname === channel.id.substring(64)
       )[0]
       if (useTor && user && user.onionAddress) {
@@ -185,7 +185,7 @@ const sendItemMessageOnEnter = event => async (dispatch, getState) => {
 }
 const updateLastSeen = ({ itemId }) => async (dispatch, getState) => {
   const lastSeen = DateTime.utc()
-  const unread = offersSelectors.newMessages(itemId)(getState()).size
+  const unread = offersSelectors.newMessages(itemId)(getState())
   remote.app.badgeCount = remote.app.badgeCount - unread
   dispatch(setLastSeen({ itemId, lastSeen }))
   dispatch(cleanNewMessages({ itemId }))
@@ -204,35 +204,65 @@ export const epics = {
 export const reducer = handleActions(
   {
     [setMessages]: (state, { payload: { itemId, messages } }) =>
-      state.update(itemId, Offer(), item =>
-        item.set('messages', item.messages.concat(messages))
-      ),
+      produce(state, (draft) => {
+        if (!draft[itemId]) {
+          draft[itemId] = {
+            ...Offer,
+            messages
+          }
+        } else {
+          draft[itemId].messages = draft[itemId].messages.concat(messages)
+        }
+      }),
     [addOffer]: (state, { payload: { newOffer } }) =>
-      state.merge({ [newOffer.itemId]: newOffer }),
+      produce(state, (draft) => {
+        draft[newOffer.itemId] = newOffer
+      }),
     [cleanNewMessages]: (state, { payload: { itemId } }) =>
-      state.update(itemId, Offer(), item =>
-        item.set('newMessages', Immutable.List())
-      ),
+      produce(state, (draft) => {
+        draft[itemId].newMessages = []
+      }),
     [appendMessages]: (state, { payload: { itemId, message } }) =>
-      state.update(itemId, Offer(), item =>
-        item.set('messages', item.messages.push(message))
-      ),
+      produce(state, (draft) => {
+        if (!draft[itemId]) {
+          draft[itemId] = {
+            ...Offer,
+            messages: [message]
+          }
+        } else {
+          draft[itemId].messages.push(message)
+        }
+      }),
     [appendNewMessages]: (state, { payload: { itemId, message } }) =>
-      state.update(itemId, Offer(), item =>
-        item.set('newMessages', item.newMessages.push(message))
-      ),
+      produce(state, (draft) => {
+        if (!draft[itemId]) {
+          draft[itemId] = {
+            ...Offer,
+            newMessages: [message]
+          }
+        } else {
+          draft[itemId].newMessages.push(message)
+        }
+      }),
     [setLastSeen]: (state, { payload: { itemId, lastSeen } }) =>
-      state.update(itemId, Offer(), item => item.set('lastSeen', lastSeen)),
+      produce(state, (draft) => {
+        if (!draft[itemId]) {
+          draft[itemId] = {
+            ...Offer,
+            lastSeen: lastSeen
+          }
+        } else {
+          draft[itemId].lastSeen = lastSeen
+        }
+      }),
     [setOfferMessageBlockTime]: (
       state,
       { payload: { itemId, messageId, blockTime } }
     ) =>
-      state.update(itemId, Offer(), cm =>
-        cm.update('messages', messages => {
-          const index = messages.findIndex(msg => msg.id === messageId)
-          return messages.setIn([index, 'blockTime'], blockTime)
-        })
-      )
+      produce(state, (draft) => {
+        const index = messages.findIndex(msg => msg.id === messageId)
+        draft[itemId].messages[index].blockTime = blockTime
+      })
   },
   initialState
 )

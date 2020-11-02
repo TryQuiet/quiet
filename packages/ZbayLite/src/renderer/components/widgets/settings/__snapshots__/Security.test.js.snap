@@ -24,6 +24,147 @@ exports[`Security renders component 1`] = `
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
+    item={true}
+  >
+    <WithStyles(ForwardRef(Grid))
+      className="subtitle-mock"
+      item={true}
+    >
+      <WithStyles(ForwardRef(Typography))
+        variant="h5"
+      >
+        Your private recovery key
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      item={true}
+    >
+      <WithStyles(ForwardRef(Typography))
+        variant="body2"
+      >
+        If something happens to your computer, you’ll need this key to recover your account and your funds.
+      </WithStyles(ForwardRef(Typography))>
+    </WithStyles(ForwardRef(Grid))>
+    <WithStyles(ForwardRef(Grid))
+      className="buttonDiv-mock"
+      item={true}
+    >
+      <WithStyles(LoadingButton)
+        className="button-mock"
+        color="primary"
+        fullWidth={true}
+        inProgress={false}
+        onClick={[Function]}
+        size="large"
+        text="View key"
+        type="submit"
+        variant="contained"
+      />
+    </WithStyles(ForwardRef(Grid))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="subtitle-mock"
+    item={true}
+  >
+    <WithStyles(ForwardRef(Typography))
+      variant="h5"
+    >
+      P2P messaging over Tor
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+  >
+    <WithStyles(ForwardRef(Typography))
+      variant="body2"
+    >
+      For faster message delivery, Zbay can send and receive messages directly with Tor (instead of the Zcash blockchain) when other users are online.
+       
+      <a
+        className="link-mock"
+        href="https://www.zbay.app/faq.html"
+        onClick={[Function]}
+      >
+        Learn more.
+      </a>
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="labelDiv-mock"
+    container={true}
+    direction="column"
+    item={true}
+  >
+    <WithStyles(ForwardRef(FormControlLabel))
+      control={
+        <ForwardRef(WithStyles)
+          color="default"
+          onChange={[Function]}
+        />
+      }
+      label={
+        <ForwardRef(WithStyles)
+          className="alignLabel-mock"
+          variant="body2"
+        >
+          Use Tor for messaging when possible
+        </ForwardRef(WithStyles)>
+      }
+    />
+    <WithStyles(ForwardRef(FormControlLabel))
+      control={
+        <ForwardRef(WithStyles)
+          checked={true}
+          color="default"
+          onChange={[Function]}
+        />
+      }
+      label={
+        <ForwardRef(WithStyles)
+          className="alignLabel-mock"
+          variant="body2"
+        >
+          Only use Zcash for messaging
+        </ForwardRef(WithStyles)>
+      }
+    />
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="subtitle-mock"
+    item={true}
+  >
+    <WithStyles(ForwardRef(Typography))
+      variant="h5"
+    >
+      Verification
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+  >
+    <WithStyles(ForwardRef(Typography))
+      variant="body2"
+    >
+      To start quickly, Zbay includes username and channel registration data in the app itself. If the Zbay team omitted some data, or provided incorrect data, a user or channel could be censored or impersonated. To verify this data, which takes ~1 hour but may add some security, you can restart & re-sync. You only need to do this once.
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="buttonDiv-mock"
+    item={true}
+  >
+    <WithStyles(LoadingButton)
+      className="rescanButton-mock"
+      color="primary"
+      fullWidth={true}
+      inProgress={false}
+      onClick={[Function]}
+      size="large"
+      text="Restart & re-sync"
+      type="submit"
+      variant="contained"
+    />
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
     className="subtitle-mock"
     item={true}
   >
@@ -85,7 +226,7 @@ exports[`Security renders component 1`] = `
           "name": "itemName-mock",
         }
       }
-      name="t"
+      name="test"
       prefix=""
     />
   </WithStyles(ForwardRef(Grid))>
@@ -100,37 +241,7 @@ exports[`Security renders component 1`] = `
           "name": "itemName-mock",
         }
       }
-      name="e"
-      prefix=""
-    />
-  </WithStyles(ForwardRef(Grid))>
-  <WithStyles(ForwardRef(Grid))
-    item={true}
-  >
-    <WithStyles(UserListItem)
-      action={[Function]}
-      actionName="Remove"
-      classes={
-        Object {
-          "name": "itemName-mock",
-        }
-      }
-      name="s"
-      prefix=""
-    />
-  </WithStyles(ForwardRef(Grid))>
-  <WithStyles(ForwardRef(Grid))
-    item={true}
-  >
-    <WithStyles(UserListItem)
-      action={[Function]}
-      actionName="Remove"
-      classes={
-        Object {
-          "name": "itemName-mock",
-        }
-      }
-      name="t"
+      name="test2"
       prefix=""
     />
   </WithStyles(ForwardRef(Grid))>
@@ -168,7 +279,7 @@ exports[`Security renders component 1`] = `
             "name": "itemName-mock",
           }
         }
-        name="t"
+        name="test3"
         prefix=""
       />
     </WithStyles(ForwardRef(Grid))>
@@ -183,52 +294,7 @@ exports[`Security renders component 1`] = `
             "name": "itemName-mock",
           }
         }
-        name="e"
-        prefix=""
-      />
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      item={true}
-    >
-      <WithStyles(UserListItem)
-        action={[Function]}
-        actionName="Remove"
-        classes={
-          Object {
-            "name": "itemName-mock",
-          }
-        }
-        name="s"
-        prefix=""
-      />
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      item={true}
-    >
-      <WithStyles(UserListItem)
-        action={[Function]}
-        actionName="Remove"
-        classes={
-          Object {
-            "name": "itemName-mock",
-          }
-        }
-        name="t"
-        prefix=""
-      />
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      item={true}
-    >
-      <WithStyles(UserListItem)
-        action={[Function]}
-        actionName="Remove"
-        classes={
-          Object {
-            "name": "itemName-mock",
-          }
-        }
-        name="3"
+        name="test4"
         prefix=""
       />
     </WithStyles(ForwardRef(Grid))>

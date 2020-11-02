@@ -1,6 +1,5 @@
 import React from 'react'
 import { shallow } from 'enzyme'
-import Immutable from 'immutable'
 import { NewMessageModal } from './NewMessageModal'
 import { mockClasses } from '../../../../shared/testing/mocks'
 
@@ -13,7 +12,7 @@ describe('NewMessageModal', () => {
         sendMessage={jest.fn()}
         showNotification={jest.fn()}
         open
-        users={Immutable.Map()}
+        users={{}}
       />
     )
     expect(result).toMatchSnapshot()

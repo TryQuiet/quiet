@@ -68,7 +68,23 @@ exports[`ChannelHeader renders component 1`] = `
         <withRouter(Connect(Component))
           directMessage={false}
         />
-        <Connect(withModal(Component)) />
+        <Connect(withModal(Component))
+          channel={
+            Object {
+              "address": "zs1testaddress1",
+              "advertFee": 0.15,
+              "description": "Channel about 1",
+              "id": 1,
+              "keys": Object {
+                "ivk": "incoming-viewing-key-1",
+                "sk": "test-secret-key",
+              },
+              "name": "Channel 1",
+              "private": true,
+              "unread": 12,
+            }
+          }
+        />
       </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
@@ -151,7 +167,23 @@ exports[`ChannelHeader renders members when 0 1`] = `
         <withRouter(Connect(Component))
           directMessage={false}
         />
-        <Connect(withModal(Component)) />
+        <Connect(withModal(Component))
+          channel={
+            Object {
+              "address": "zs1testaddress1",
+              "advertFee": 0.15,
+              "description": "Channel about 1",
+              "id": 1,
+              "keys": Object {
+                "ivk": "incoming-viewing-key-1",
+                "sk": "test-secret-key",
+              },
+              "name": "Channel 1",
+              "private": true,
+              "unread": 12,
+            }
+          }
+        />
       </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
@@ -234,7 +266,23 @@ exports[`ChannelHeader renders without members count 1`] = `
         <withRouter(Connect(Component))
           directMessage={false}
         />
-        <Connect(withModal(Component)) />
+        <Connect(withModal(Component))
+          channel={
+            Object {
+              "address": "zs1testaddress1",
+              "advertFee": 0.15,
+              "description": "Channel about 1",
+              "id": 1,
+              "keys": Object {
+                "ivk": "incoming-viewing-key-1",
+                "sk": "test-secret-key",
+              },
+              "name": "Channel 1",
+              "private": true,
+              "unread": 12,
+            }
+          }
+        />
       </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>

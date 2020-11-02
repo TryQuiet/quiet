@@ -9,10 +9,7 @@ Object {
 exports[`PublishChannelModal will receive right props 1`] = `
 Object {
   "balance": "23.435432",
-  "channel": Immutable.Map {
-    "id": 1,
-    "address": "testAddress",
-  },
+  "channel": undefined,
   "publicChannelFee": 0.1,
   "publicChannels": Object {},
   "zcashRate": "232.11",

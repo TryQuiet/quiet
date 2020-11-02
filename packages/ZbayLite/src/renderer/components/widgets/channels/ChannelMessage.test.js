@@ -1,5 +1,4 @@
 import React from 'react'
-import Immutable from 'immutable'
 import { DateTime } from 'luxon'
 import { shallow } from 'enzyme'
 
@@ -15,7 +14,7 @@ describe('ChannelMessage', () => {
   })
 
   it('renders component', () => {
-    const message = Immutable.fromJS(createMessage(1))
+    const message = createMessage(1)
     const result = shallow(
       <ChannelMessage
         classes={mockClasses}
@@ -27,17 +26,18 @@ describe('ChannelMessage', () => {
         openExternalLink={jest.fn()}
         setWhitelistAll={jest.fn()}
         addToWhitelist={jest.fn()}
-        publicChannels={Immutable.Map()}
-        users={Immutable.Map()}
-        whitelisted={Immutable.List()}
-        autoload={Immutable.List()}
+        publicChannels={{}}
+        users={{}}
+        whitelisted={[]}
+        autoload={[]}
         allowAll={false}
       />
     )
     expect(result).toMatchSnapshot()
   })
   it('renders component when message is sent by owner', () => {
-    const message = Immutable.fromJS(createMessage(1)).set('fromYou', true)
+    let message = createMessage(1)
+    message.fromYou = true
     const result = shallow(
       <ChannelMessage
         classes={mockClasses}
@@ -49,10 +49,10 @@ describe('ChannelMessage', () => {
         openExternalLink={jest.fn()}
         setWhitelistAll={jest.fn()}
         addToWhitelist={jest.fn()}
-        publicChannels={Immutable.Map()}
-        users={Immutable.Map()}
-        whitelisted={Immutable.List()}
-        autoload={Immutable.List()}
+        publicChannels={{}}
+        users={{}}
+        whitelisted={[]}
+        autoload={[]}
         allowAll={false}
       />
     )

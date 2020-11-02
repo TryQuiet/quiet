@@ -1,6 +1,5 @@
 import React from 'react'
 import { shallow } from 'enzyme'
-import Immutable from 'immutable'
 
 import { mockClasses } from '../../../../shared/testing/mocks'
 import { ChannelMenuAction } from './ChannelMenuAction'
@@ -16,8 +15,8 @@ describe('ChannelMenuAction', () => {
         onUnmute={jest.fn()}
         onSettings={jest.fn()}
         openNotificationsTab={jest.fn()}
-        publicChannels={Immutable.Map({})}
-        channel={Immutable.Map({})}
+        publicChannels={{}}
+        channel={{}}
         publishChannel={() => {}}
         isOwner
         mutedFlag

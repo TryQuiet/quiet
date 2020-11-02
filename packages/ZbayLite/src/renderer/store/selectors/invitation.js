@@ -4,23 +4,23 @@ const store = s => s
 
 const invitation = createSelector(
   store,
-  state => state.get('invitation')
+  state => state.invitation
 )
 const amount = createSelector(
   invitation,
-  state => state.get('amount')
+  state => state.amount
 )
 const amountZec = createSelector(
   invitation,
-  state => state.get('amountZec')
+  state => state.amountZec
 )
 const affiliateCode = createSelector(
   invitation,
-  state => state.get('affiliateCode')
+  state => state.affiliateCode
 )
 const generatedInvitation = createSelector(
   invitation,
-  state => state.get('generatedInvitation')
+  state => state.generatedInvitation
 )
 
 export default {

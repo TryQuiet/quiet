@@ -1,4 +1,4 @@
-import Immutable from 'immutable'
+import { produce } from 'immer'
 import { createAction, handleActions } from 'redux-actions'
 import { actionTypes, notificationFilterType } from '../../../shared/static'
 import electronStore from '../../../shared/electronStore'
@@ -7,15 +7,15 @@ import directMessageChannelSelector from '../selectors/directMessageChannel'
 import channelSelector from '../selectors/channel'
 import logsHandlers from '../handlers/logs'
 
-export const NotificationsCenter = Immutable.Record(
-  {
-    channels: Immutable.Map(),
-    user: Immutable.Map(),
-    contacts: Immutable.Map()
-  },
-  'NotificationsCenter'
-)
-export const initialState = NotificationsCenter()
+export const NotificationsCenter = {
+  channels: {},
+  user: {},
+  contacts: {}
+}
+
+export const initialState = {
+  ...NotificationsCenter
+}
 
 const setChannelNotificationFilter = createAction(
   actionTypes.SET_CHANNEL_NOTIFICATION_FILTER
@@ -48,17 +48,17 @@ export const init = () => async (dispatch, getState) => {
   const notificationData = electronStore.get('notificationCenter')
   await dispatch(
     setUserNotificationSettings({
-      userData: Immutable.fromJS(notificationData.user)
+      userData: notificationData.user
     })
   )
   await dispatch(
     setContactsNotificationSettings({
-      contacts: Immutable.fromJS(notificationData.contacts)
+      contacts: notificationData.contacts
     })
   )
   await dispatch(
     setChannelNotificationSettings({
-      channelsData: Immutable.fromJS(notificationData.channels)
+      channelsData: notificationData.channels
     })
   )
 }
@@ -66,7 +66,7 @@ export const setChannelsNotification = filterType => async (
   dispatch,
   getState
 ) => {
-  const channel = channelSelector.channel(getState()).toJS()
+  const channel = channelSelector.channel(getState())
   electronStore.set(
     `notificationCenter.channels.${channel.id}`,
     filterType
@@ -155,26 +155,42 @@ export const reducer = handleActions(
       state,
       { payload: { channelId, filterType } }
     ) =>
-      state.update('channels', channels =>
-        channels.merge({ [channelId]: filterType })
-      ),
+      produce(state, (draft) => {
+        draft.channels[channelId] = filterType
+      }),
     [setContactNotificationFilter]: (
       state,
       { payload: { contact, filterType } }
     ) =>
-      state.update('contacts', channels =>
-        channels.merge({ [contact]: filterType })
-      ),
+      produce(state, (draft) => {
+        draft.contacts[contact] = filterType
+      }),
     [setUserNotificationFilter]: (state, { payload: { filterType } }) =>
-      state.update('user', user => user.merge({ filterType: filterType })),
+      produce(state, (draft) => {
+        draft.user = {
+          ...draft.user,
+          filterType: filterType
+        }
+      }),
     [setUserNotificationSound]: (state, { payload: { sound } }) =>
-      state.update('user', user => user.merge({ sound: sound })),
+      produce(state, (draft) => {
+        draft.user = {
+          ...draft.user,
+          sound: sound
+        }
+      }),
     [setUserNotificationSettings]: (state, { payload: { userData } }) =>
-      state.set('user', userData),
+      produce(state, (draft) => {
+        draft.user = userData
+      }),
     [setChannelNotificationSettings]: (state, { payload: { channelsData } }) =>
-      state.set('channels', channelsData),
+      produce(state, (draft) => {
+        draft.channels = channelsData
+      }),
     [setContactsNotificationSettings]: (state, { payload: { contacts } }) =>
-      state.set('contacts', contacts)
+      produce(state, (draft) => {
+        draft.contacts = contacts
+      })
   },
   initialState
 )

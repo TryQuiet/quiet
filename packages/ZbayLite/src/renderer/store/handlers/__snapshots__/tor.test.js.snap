@@ -1,37 +1,37 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Tor reducer handles  actions - setEnabled 1`] = `
-Immutable.Tor {
-  "url": "",
+Object {
   "enabled": true,
   "error": null,
   "status": "down",
+  "url": "",
 }
 `;
 
 exports[`Tor reducer handles  actions - setError 1`] = `
-Immutable.Tor {
-  "url": "",
+Object {
   "enabled": false,
   "error": "error",
   "status": "",
+  "url": "",
 }
 `;
 
 exports[`Tor reducer handles  actions - setStatus 1`] = `
-Immutable.Tor {
-  "url": "",
+Object {
   "enabled": false,
   "error": null,
   "status": "up",
+  "url": "",
 }
 `;
 
 exports[`Tor reducer handles  actions - setUrl 1`] = `
-Immutable.Tor {
-  "url": "testhost:9999",
+Object {
   "enabled": false,
   "error": null,
   "status": "down",
+  "url": "testhost:9999",
 }
 `;

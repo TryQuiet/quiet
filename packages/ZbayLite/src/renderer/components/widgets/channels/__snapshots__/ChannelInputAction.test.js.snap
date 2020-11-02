@@ -15,10 +15,6 @@ exports[`ChannelInputAction renders component 1`] = `
   placement="top-end"
 >
   <Memo(WithStyles(MenuActionItem))
-    onClick={[MockFunction]}
-    title="Post an offer"
-  />
-  <Memo(WithStyles(MenuActionItem))
     onClick={[Function]}
     title="Send money"
   />

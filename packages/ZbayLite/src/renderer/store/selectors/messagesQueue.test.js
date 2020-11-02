@@ -1,5 +1,4 @@
 /* eslint import/first: 0 */
-import Immutable from 'immutable'
 
 import create from '../create'
 import { PendingMessage } from '../handlers/messagesQueue'
@@ -10,18 +9,20 @@ describe('operations selectors', () => {
   let store = null
   beforeEach(() => {
     store = create({
-      initialState: Immutable.Map({
-        messagesQueue: Immutable.fromJS({
-          'messageHash': PendingMessage({
+      initialState: {
+        messagesQueue: {
+          'messageHash': {
+            ...PendingMessage,
             channelId: 'test-channel-id-1',
-            message: Immutable.fromJS(createMessage(1))
-          }),
-          'messageHash2': PendingMessage({
+            message: createMessage(1)
+          },
+          'messageHash2': {
+            ...PendingMessage,
             channelId: 'test-channel-id-1',
-            message: Immutable.fromJS(createMessage(1))
-          })
-        })
-      })
+            message: createMessage(1)
+          }
+        }
+      }
     })
     jest.clearAllMocks()
   })

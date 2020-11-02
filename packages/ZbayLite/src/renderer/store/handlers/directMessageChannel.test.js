@@ -1,7 +1,4 @@
 /* eslint import/first: 0 */
-
-import Immutable from 'immutable'
-
 import create from '../create'
 import { DirectMessageChannelState, actions } from './directMessageChannel'
 import { directMessageChannel } from '../selectors/directMessageChannel'
@@ -10,9 +7,11 @@ describe('directMessageChannel reducer', () => {
   let store = null
   beforeEach(async () => {
     store = create({
-      initialState: Immutable.Map({
-        directMessageChannel: DirectMessageChannelState()
-      })
+      initialState: {
+        directMessageChannel: {
+          ...DirectMessageChannelState
+        }
+      }
     })
   })
 

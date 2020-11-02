@@ -5,7 +5,6 @@ import { shallow } from 'enzyme'
 import { PublishChannelModal } from './PublishChannelModal'
 import { mockClasses } from '../../../shared/testing/mocks'
 import BigNumber from 'bignumber.js'
-import Immutable from 'immutable'
 describe('PubliPublishChannelModal', () => {
   it('renders component', () => {
     const result = shallow(
@@ -16,8 +15,8 @@ describe('PubliPublishChannelModal', () => {
         publicChannelFee={11}
         handleClose={() => {}}
         publishChannel={() => {}}
-        publicChannels={Immutable.Map({})}
-        channel={Immutable.Map({ address: 'test123', name: 'nametest' })}
+        publicChannels={{}}
+        channel={{ address: 'test123', name: 'nametest' }}
         open
         tooltipText='sample text'
       />

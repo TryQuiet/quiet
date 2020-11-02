@@ -1,4 +1,4 @@
-import Immutable from 'immutable'
+import { produce } from 'immer'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { createAction, handleActions } from 'redux-actions'
@@ -6,7 +6,9 @@ import { actionTypes } from '../../../shared/static'
 
 import modalsSelectors from '../selectors/modals'
 
-export const initialState = Immutable.fromJS({ payloads: {} })
+export const initialState = {
+  payloads: {}
+}
 
 const openModal = (modalName, data) => createAction(actionTypes.OPEN_MODAL, () => ({
   modalName,
@@ -21,20 +23,18 @@ export const actionCreators = {
 }
 
 export const reducer = handleActions({
-  [actionTypes.OPEN_MODAL]: (state, { payload }) => {
-    return (
-      state
-        .set(payload.modalName, true)
-        .set('payloads', state.get('payloads').set(payload.modalName, payload.data))
-    )
-  },
-  [actionTypes.CLOSE_MODAL]: (state, { payload: modalName }) => {
-    return (
-      state
-        .set(modalName, false)
-        .set('payloads', state.get('payloads'))
-    )
-  }
+  [actionTypes.OPEN_MODAL]: (state, { payload }) =>
+    produce(state, (draft) => {
+      draft[payload.modalName] = true
+      draft.payloads = {
+        ...draft.payloads,
+        [payload.modalName]: payload.data
+      }
+    }),
+  [actionTypes.CLOSE_MODAL]: (state, { payload: modalName }) =>
+    produce(state, (draft) => {
+      draft[modalName] = false
+    })
 }, initialState)
 
 export const withModal = (name) => (Component) => {

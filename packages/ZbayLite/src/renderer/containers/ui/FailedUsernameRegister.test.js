@@ -1,5 +1,3 @@
-import Immutable from 'immutable'
-
 import { mapStateToProps, mapDispatchToProps } from './FailedUsernameRegister'
 
 import create from '../../store/create'
@@ -9,7 +7,7 @@ describe('FailedUsernameRegister', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({})
+      initialState: {}
     })
   })
 

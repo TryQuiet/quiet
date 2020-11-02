@@ -1,21 +1,19 @@
 /* eslint import/first: 0 */
-import Immutable from 'immutable'
-
 import { mapStateToProps } from './Loading'
 import create from '../../store/create'
-import { IdentityState } from '../../store/handlers/identity'
-import { LoaderState } from '../../store/handlers/utils'
+import { initialState } from '../../store/handlers/identity'
 
 describe('Loading', () => {
   let store = null
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({
-        identity: IdentityState({
-          loader: LoaderState({ loading: false })
-        })
-      })
+      initialState: {
+        identity: {
+          ...initialState,
+          loader: { loading: false }
+        }
+      }
     })
   })
 

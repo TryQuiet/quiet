@@ -4,7 +4,9 @@ import BigNumber from 'bignumber.js'
 
 const store = s => s
 
-export const node = createSelector(store, state => state.get('node'))
+export const node = createSelector(store, state => {
+  return state.node
+})
 
 const currentBlock = createSelector(node, n => n.currentBlock)
 const latestBlock = createSelector(node, n => n.latestBlock)
@@ -37,11 +39,11 @@ const network = createSelector(node, n => {
 
 const isConnected = createSelector(status, s => ['healthy', 'syncing'].includes(s))
 
-const loader = createSelector(node, n => n.bootstrapLoader)
+// const loader = createSelector(node, n => n.bootstrapLoader)
 const isRescanning = createSelector(node, n => n.isRescanning)
 const fetching = createSelector(node, n => n.fetchingStatus)
-const bootstrapping = createSelector(loader, n => n.loading)
-const bootstrappingMessage = createSelector(loader, n => n.message)
+const bootstrapping = createSelector(node, n => n.loading)
+const bootstrappingMessage = createSelector(node, n => n.bootstrappingMessage)
 const fetchingPart = createSelector(fetching, n => n.part)
 const fetchingSize = createSelector(fetching, n => n.sizeLeft)
 const fetchingStatus = createSelector(fetching, n => n.fetchingStatus)

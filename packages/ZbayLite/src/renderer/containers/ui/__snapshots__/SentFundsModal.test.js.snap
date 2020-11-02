@@ -3,13 +3,13 @@
 exports[`SentFundsModal will receive right props 1`] = `
 Object {
   "currentBlock": 0,
-  "payload": Immutable.Map {
-    "recipient": "test",
-    "amountZec": 10,
+  "payload": Object {
     "amountUsd": 10,
+    "amountZec": 10,
     "feeUsd": 0,
     "feeZec": 0,
     "memo": "test memo",
+    "recipient": "test",
     "timestamp": 1483228800,
   },
   "rateUsd": "10",

@@ -1,27 +1,29 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`operations selectors  - operations 1`] = `
-Immutable.Map {
-  "test-operation-id": Immutable.Operation {
-    "opId": "test-operation-id",
-    "type": "shieldBalance",
-    "meta": Immutable.Record {
+Object {
+  "test-operation-id": Object {
+    "error": null,
+    "id": "",
+    "meta": Object {
       "amount": "234.14324",
       "from": "from-address",
       "to": "to-address",
     },
-    "txId": "transaction-id",
-    "error": null,
-    "status": "success",
-  },
-  "test-operation-id-1": Immutable.Operation {
     "opId": "test-operation-id",
-    "type": "pendingMessage",
-    "meta": Immutable.Record {
-      "message": Immutable.Map {
-        "id": "test-message-id",
-        "type": 1,
+    "status": "success",
+    "txId": "transaction-id",
+    "txid": "",
+    "type": "shieldBalance",
+  },
+  "test-operation-id-1": Object {
+    "error": null,
+    "id": "",
+    "meta": Object {
+      "channelId": "test-channel-id",
+      "message": Object {
         "createdAt": 1551963828,
+        "id": "test-message-id",
         "message": "This is some message test-message-id",
         "signature": Object {
           "data": Array [
@@ -92,26 +94,28 @@ Immutable.Map {
           ],
           "type": "Buffer",
         },
+        "type": 1,
       },
-      "channelId": "test-channel-id",
     },
-    "txId": "transaction-id",
-    "error": null,
+    "opId": "test-operation-id",
     "status": "success",
+    "txId": "transaction-id",
+    "txid": "",
+    "type": "pendingMessage",
   },
 }
 `;
 
 exports[`operations selectors  - pendingMessages 1`] = `
-Immutable.Map {
-  "test-operation-id-1": Immutable.Operation {
-    "opId": "test-operation-id",
-    "type": "pendingMessage",
-    "meta": Immutable.Record {
-      "message": Immutable.Map {
-        "id": "test-message-id",
-        "type": 1,
+Array [
+  Object {
+    "error": null,
+    "id": "",
+    "meta": Object {
+      "channelId": "test-channel-id",
+      "message": Object {
         "createdAt": 1551963828,
+        "id": "test-message-id",
         "message": "This is some message test-message-id",
         "signature": Object {
           "data": Array [
@@ -182,12 +186,14 @@ Immutable.Map {
           ],
           "type": "Buffer",
         },
+        "type": 1,
       },
-      "channelId": "test-channel-id",
     },
-    "txId": "transaction-id",
-    "error": null,
+    "opId": "test-operation-id",
     "status": "success",
+    "txId": "transaction-id",
+    "txid": "",
+    "type": "pendingMessage",
   },
-}
+]
 `;

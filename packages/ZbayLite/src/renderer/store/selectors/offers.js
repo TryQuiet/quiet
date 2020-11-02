@@ -12,7 +12,7 @@ const store = s => s
 
 const offers = createSelector(
   store,
-  s => s.get('offers')
+  s => s.offers
 )
 
 const filteredOffers = createSelector(
@@ -20,12 +20,11 @@ const filteredOffers = createSelector(
   removedChannelsSelectors.removedChannels,
   (s, removedChannels) => {
     const filteredOffers = s
-      .get('offers')
-      .toList()
+    Array.from(Object.values(s.offers))
       .map((offer, i) => {
-        const messages = offer.get('messages')
+        const messages = offer.messages
         const [newestMsg] = messages.sort((a, b) => parseInt(b.createdAt) - parseInt(a.createdAt))
-        const removedChannelTimestamp = removedChannels.get(offer.get('itemId'))
+        const removedChannelTimestamp = removedChannels[offer.itemId]
         if (!newestMsg) {
           return
         }
@@ -44,7 +43,7 @@ const filteredOffers = createSelector(
 const offer = id =>
   createSelector(
     offers,
-    a => a.get(id)
+    a => a.id
   )
 
 export const queuedMessages = id =>
@@ -77,14 +76,19 @@ const offerMessages = (id, signerPubKey) =>
     pendingMessages(id),
     queuedMessages(id),
     (identity, registeredUser, a, pendingMessages, queuedMessages) => {
-      const userData = registeredUser ? registeredUser.toJS() : null
+      const userData = registeredUser || null
       const identityAddress = identity.address
       const identityName = userData ? userData.nickname : identity.name
       const displayablePending = pendingMessages.map(operation => {
+        const textMsg = operation.operation.meta.message.message.text
+        let tempMsg = {
+          ...operation.operation
+        }
+        tempMsg.meta.message.message = textMsg
         return zbayMessages.operationToDisplayableMessage({
-          operation: operation.updateIn(['meta', 'message', 'message'], msg => msg.get('text')),
-          tag: operation.getIn(['meta', 'message', 'message', 'tag']),
-          offerOwner: operation.getIn(['meta', 'message', 'message', 'offerOwner']),
+          operation: tempMsg,
+          tag: operation.meta.message.message.tag,
+          offerOwner: operation.meta.message.message.offerOwner,
           identityAddress,
           identityName,
           receiver: {
@@ -94,10 +98,15 @@ const offerMessages = (id, signerPubKey) =>
         })
       })
       const displayableQueued = queuedMessages.map((queuedMessage, messageKey) => {
+        const textMsg = queuedMessage.message.message.text
+        let tempMsg = {
+          ...queuedMessage
+        }
+        tempMsg.message.message = textMsg
         return zbayMessages.queuedToDisplayableMessage({
-          queuedMessage: queuedMessage.updateIn(['message', 'message'], msg => msg.get('text')),
-          tag: queuedMessage.getIn(['message', 'message', 'tag']),
-          offerOwner: queuedMessage.getIn(['message', 'message', 'offerOwner']),
+          queuedMessage: tempMsg,
+          tag: queuedMessage.message.message.tag,
+          offerOwner: queuedMessage.message.message.offerOwner,
           messageKey,
           identityAddress,
           identityName,
@@ -107,10 +116,10 @@ const offerMessages = (id, signerPubKey) =>
           }
         })
       })
-      const vaultMessages = a.get(id).messages
+      const vaultMessages = a[id].messages
       const concatedMessages = vaultMessages
         .concat(displayableQueued.values(), displayablePending.values())
-        .sortBy(m => m.get('createdAt'))
+        .sortBy(m => m.createdAt)
       const merged = mergeIntoOne(concatedMessages)
       return merged
     }
@@ -118,12 +127,12 @@ const offerMessages = (id, signerPubKey) =>
 const lastSeen = id =>
   createSelector(
     offer(id),
-    ch => ch.get('lastSeen')
+    ch => ch.lastSeen
   )
 const newMessages = id =>
   createSelector(
     offer(id),
-    ch => ch.get('newMessages')
+    ch => ch.newMessages
   )
 export default {
   offers,

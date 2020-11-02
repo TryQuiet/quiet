@@ -11,16 +11,17 @@ Object {
 exports[`ChannelInput will receive right props 1`] = `
 Object {
   "feeUsd": "0.0002",
+  "id": null,
   "inputState": 0,
-  "message": "This is a test message",
+  "message": "",
   "myUser": Object {
     "address": "",
     "createdAt": 0,
     "firstName": "",
     "lastName": "",
-    "nickname": "Anon",
+    "nickname": "anon",
   },
-  "offerName": "testname",
-  "users": Immutable.Map {},
+  "offerName": "",
+  "users": Object {},
 }
 `;

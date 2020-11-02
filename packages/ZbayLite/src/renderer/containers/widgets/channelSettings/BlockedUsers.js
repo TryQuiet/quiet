@@ -11,7 +11,7 @@ import { moderationActionsType } from '../../../../shared/static'
 
 export const mapStateToProps = state => {
   return {
-    blockedUsers: contactsSelectors.directMessages(channelSelectors.id(state))(state).get('blockedUsers'),
+    blockedUsers: contactsSelectors.directMessages(channelSelectors.id(state))(state).blockedUsers,
     users: usersSelector.users(state)
   }
 }

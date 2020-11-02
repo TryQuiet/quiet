@@ -11,86 +11,8 @@ exports[`InvitationModalGenerate renders component 1`] = `
     <WithStyles(ForwardRef(Typography))
       variant="body2"
     >
-      Get a link to invite friends to Zbay. Optionally, attach funds to the link. After installing Zbay, your friend can open the link to claim the funds!
+      Get a link to invite friends to Zbay.
     </WithStyles(ForwardRef(Typography))>
-  </WithStyles(ForwardRef(Grid))>
-  <WithStyles(ForwardRef(Grid))
-    className="divMoney-mock"
-    container={true}
-  >
-    <WithStyles(ForwardRef(Grid))
-      className="moneyDiv-mock"
-      item={true}
-      xs={true}
-    >
-      <WithStyles(ForwardRef(TextField))
-        InputProps={
-          Object {
-            "className": "moneyInput-mock",
-            "endAdornment": <ForwardRef(WithStyles)
-              position="end"
-            >
-              <span
-                className="inputMark-mock"
-              >
-                USD
-              </span>
-            </ForwardRef(WithStyles)>,
-            "inputProps": Object {
-              "max": 99,
-              "min": 0,
-            },
-          }
-        }
-        className="input-mock"
-        name="usd"
-        onChange={[Function]}
-        placeholder="0.00"
-        type="number"
-        value="0.00"
-        variant="outlined"
-      />
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      alignItems="center"
-      className="exchangeDiv-mock"
-      container={true}
-      item={true}
-      justify="center"
-    >
-      <Memo(Icon)
-        src="test-file-stub"
-      />
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      className="moneyDiv-mock"
-      item={true}
-      xs={true}
-    >
-      <WithStyles(ForwardRef(TextField))
-        InputProps={
-          Object {
-            "className": "moneyInput-mock",
-            "endAdornment": <ForwardRef(WithStyles)
-              position="end"
-            >
-              <span
-                className="inputMark-mock"
-              >
-                ZEC
-              </span>
-            </ForwardRef(WithStyles)>,
-          }
-        }
-        className="input-mock"
-        name="zec"
-        onChange={[Function]}
-        placeholder="0.00"
-        type="number"
-        value="9.0000"
-        variant="outlined"
-      />
-    </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
     className="buttonDiv-mock"

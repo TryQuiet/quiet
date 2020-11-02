@@ -1,6 +1,4 @@
 /* eslint import/first: 0 */
-import Immutable from 'immutable'
-
 import { mapStateToProps, mapDispatchToProps } from './InvitationModal'
 
 import create from '../../../store/create'
@@ -11,9 +9,11 @@ describe('InvitationModal', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({
-        criticalError: Invitation()
-      })
+      initialState: {
+        criticalError: {
+          ...Invitation
+        }
+      }
     })
   })
 

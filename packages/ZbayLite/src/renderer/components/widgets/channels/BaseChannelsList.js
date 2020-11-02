@@ -1,5 +1,4 @@
 import React from 'react'
-import Immutable from 'immutable'
 import PropTypes from 'prop-types'
 
 import List from '@material-ui/core/List'
@@ -27,7 +26,7 @@ export const BaseChannelsList = ({
   offers,
   selectedOffer
 }) => {
-  const [...keys] = offers.keys()
+  const [...keys] = Object.keys(offers)
   return (
     <List disablePadding>
       {channels
@@ -40,17 +39,17 @@ export const BaseChannelsList = ({
             selected={selected}
           />
         ))}
-      {offers.toList().map((offer, index) => (
+      {Array.from(Object.values(offers)).map((offer, index) => (
         <OfferListItem
           key={keys[index]}
           channel={offer}
           selected={selectedOffer}
         />
       ))}
-      {unknownMessages.size > 0 && (
+      {unknownMessages.length > 0 && (
         <ChannelsListItem
           key={unknownUserId}
-          channel={unknownMessages.get(0)}
+          channel={unknownMessages[0]}
           directMessages={directMessages}
           selected={selected}
         />
@@ -60,17 +59,17 @@ export const BaseChannelsList = ({
 }
 
 BaseChannelsList.propTypes = {
-  channels: PropTypes.instanceOf(Immutable.List).isRequired,
-  unknownMessages: PropTypes.instanceOf(Immutable.List).isRequired,
-  selected: PropTypes.instanceOf(Immutable.Record).isRequired,
-  selectedOffer: PropTypes.instanceOf(Immutable.Record).isRequired,
+  channels: PropTypes.array.isRequired,
+  unknownMessages: PropTypes.array.isRequired,
+  selected: PropTypes.array.isRequired,
+  selectedOffer: PropTypes.array.isRequired,
   directMessages: PropTypes.bool
 }
 
 BaseChannelsList.defaultProps = {
-  channels: Immutable.List(),
-  unknownMessages: Immutable.List(),
-  offers: Immutable.Map(),
+  channels: [],
+  unknownMessages: [],
+  offers: {},
   displayAddress: false,
   directMessages: false
 }

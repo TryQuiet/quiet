@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import * as R from 'ramda'
 import { shell } from 'electron'
-import Immutable from 'immutable'
 import Jdenticon from 'react-jdenticon'
 import isImageUrl from 'is-image-url'
 import reactStringReplace from 'react-string-replace'
@@ -112,7 +111,7 @@ const checkLinking = (
           key={index}
           onClick={e => {
             e.preventDefault()
-            if (allowAll || whitelisted.contains(new URL(part).hostname)) {
+            if (allowAll || whitelisted.includes(new URL(part).hostname)) {
               shell.openExternal(part)
               return
             }
@@ -129,7 +128,7 @@ const checkLinking = (
     }
   }
   parsedMessage = reactStringReplace(parsedMessage, /#(\w+)/g, (match, i) => {
-    if (!tags.get(match)) {
+    if (!tags[match]) {
       return `#${match}`
     }
     return (
@@ -143,7 +142,7 @@ const checkLinking = (
         key={match + i}
         onClick={e => {
           e.preventDefault()
-          onLinkedChannel(tags.get(match))
+          onLinkedChannel(tags[match])
         }}
         href={``}
       >
@@ -153,7 +152,7 @@ const checkLinking = (
   })
 
   parsedMessage = reactStringReplace(parsedMessage, /@(\w+)/g, (match, i) => {
-    if (!users.find(user => user.nickname === match)) {
+    if (!Array.from(Object.values(users)).find(user => user.nickname === match)) {
       return `@${match}`
     }
     return (
@@ -248,13 +247,13 @@ export const ChannelMessage = ({
   const [imageUrl, setImageUrl] = React.useState(null)
   const [parsedMessage, setParsedMessage] = React.useState('')
   const [openModal, setOpenModal] = React.useState(false)
-  const status = message.get('status', 'broadcasted')
+  const status = message.status || null
   const messageData = message.message.itemId
     ? message.message.text
     : message.message
   const autoloadImage =
     imageUrl && !torEnabled
-      ? autoload.contains(new URL(imageUrl).hostname)
+      ? autoload.includes(new URL(imageUrl).hostname)
       : false
   React.useEffect(() => {
     setParsedMessage(
@@ -272,7 +271,7 @@ export const ChannelMessage = ({
     )
   }, [messageData, whitelisted, allowAll])
   React.useEffect(() => {
-    if (allowAll || whitelisted.contains(imageUrl)) {
+    if (allowAll || whitelisted.includes(imageUrl)) {
       setShowImage(true)
     }
   }, [imageUrl])
@@ -299,7 +298,7 @@ export const ChannelMessage = ({
           justify='center'
           spacing={0}
           onClick={() => {
-            if (whitelisted.contains(new URL(imageUrl).hostname)) {
+            if (whitelisted.includes(new URL(imageUrl).hostname)) {
               setShowImage(true)
             } else {
               setOpenModal(true)
@@ -347,10 +346,10 @@ export const ChannelMessage = ({
 ChannelMessage.propTypes = {
   classes: PropTypes.object.isRequired,
   message: PropTypes.instanceOf(_DisplayableMessage).isRequired,
-  publicChannels: PropTypes.instanceOf(Immutable.Map).isRequired,
-  users: PropTypes.instanceOf(Immutable.Map).isRequired,
-  whitelisted: PropTypes.instanceOf(Immutable.List).isRequired,
-  autoload: PropTypes.instanceOf(Immutable.List).isRequired,
+  publicChannels: PropTypes.object.isRequired,
+  users: PropTypes.object.isRequired,
+  whitelisted: PropTypes.array.isRequired,
+  autoload: PropTypes.array.isRequired,
   onResend: PropTypes.func,
   onLinkedChannel: PropTypes.func.isRequired,
   onLinkedUser: PropTypes.func.isRequired,

@@ -12,14 +12,14 @@ import contactsSelectors from '../../../store/selectors/contacts'
 
 export const mapStateToProps = state => {
   const messagesState = contactsSelectors.directMessages(channelSelectors.channelId(state))(state)
-  const visibleMessages = messagesState.get('visibleMessages')
-  const moderators = messagesState.get('channelModerators')
+  const visibleMessages = messagesState.visibleMessages
+  const moderators = messagesState.channelModerators
   if (visibleMessages) {
     const members = visibleMessages.reduce((acc, msg) => {
       return acc.add(msg.publicKey)
     }, new Set())
     return {
-      members: new Set([...members].filter(x => !moderators.has(x))),
+      members: new Set([...members].filter(x => !moderators.includes(x))),
       users: usersSelector.users(state)
     }
   } else {

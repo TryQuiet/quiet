@@ -7,10 +7,28 @@ exports[`identity selectors balance for usd 1`] = `"67.166008"`;
 exports[`identity selectors balance for zec 1`] = `"33.583004"`;
 
 exports[`identity selectors data 1`] = `
-Immutable.Identity {
-  "id": null,
+Object {
   "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly",
-  "transparentAddress": "t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1",
+  "addresses": Array [],
+  "balance": "33.583004",
+  "donationAddress": "test",
+  "donationAllow": "false",
+  "freeUtxos": 0,
+  "id": null,
+  "lockedBalance": "12.583004",
+  "name": "Saturn",
+  "onionAddress": "",
+  "shieldedAddresses": Array [],
+  "shieldingTax": true,
+  "shippingData": Object {
+    "city": "Krakow",
+    "country": "Poland",
+    "firstName": "Saturn",
+    "lastName": "the Planet",
+    "postalCode": "1337-455",
+    "region": "Malopolska",
+    "street": "Coders Dv",
+  },
   "signerPrivKey": Object {
     "data": Array [
       0,
@@ -85,24 +103,8 @@ Immutable.Identity {
     ],
     "type": "Buffer",
   },
-  "name": "Saturn",
-  "shippingData": Immutable.ShippingData {
-    "firstName": "Saturn",
-    "lastName": "the Planet",
-    "street": "Coders Dv",
-    "country": "Poland",
-    "region": "Malopolska",
-    "city": "Krakow",
-    "postalCode": "1337-455",
-  },
-  "balance": "33.583004",
-  "lockedBalance": "12.583004",
-  "donationAllow": "false",
-  "shieldingTax": true,
-  "donationAddress": "test",
-  "freeUtxos": 0,
-  "addresses": Immutable.List [],
-  "shieldedAddresses": Immutable.List [],
+  "transparentAddress": "t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1",
+  "transparentBalance": "12.123456",
 }
 `;
 
@@ -118,11 +120,29 @@ exports[`identity selectors donationAddress 1`] = `"test"`;
 exports[`identity selectors donationAllow 1`] = `"false"`;
 
 exports[`identity selectors identity 1`] = `
-Immutable.IdentityState {
-  "data": Immutable.Identity {
-    "id": null,
+Object {
+  "data": Object {
     "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly",
-    "transparentAddress": "t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1",
+    "addresses": Array [],
+    "balance": "33.583004",
+    "donationAddress": "test",
+    "donationAllow": "false",
+    "freeUtxos": 0,
+    "id": null,
+    "lockedBalance": "12.583004",
+    "name": "Saturn",
+    "onionAddress": "",
+    "shieldedAddresses": Array [],
+    "shieldingTax": true,
+    "shippingData": Object {
+      "city": "Krakow",
+      "country": "Poland",
+      "firstName": "Saturn",
+      "lastName": "the Planet",
+      "postalCode": "1337-455",
+      "region": "Malopolska",
+      "street": "Coders Dv",
+    },
     "signerPrivKey": Object {
       "data": Array [
         0,
@@ -197,36 +217,21 @@ Immutable.IdentityState {
       ],
       "type": "Buffer",
     },
-    "name": "Saturn",
-    "shippingData": Immutable.ShippingData {
-      "firstName": "Saturn",
-      "lastName": "the Planet",
-      "street": "Coders Dv",
-      "country": "Poland",
-      "region": "Malopolska",
-      "city": "Krakow",
-      "postalCode": "1337-455",
-    },
-    "balance": "33.583004",
-    "lockedBalance": "12.583004",
-    "donationAllow": "false",
-    "shieldingTax": true,
-    "donationAddress": "test",
-    "freeUtxos": 0,
-    "addresses": Immutable.List [],
-    "shieldedAddresses": Immutable.List [],
+    "transparentAddress": "t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1",
+    "transparentBalance": "12.123456",
   },
+  "errors": "",
   "fetchingBalance": false,
-  "loader": Immutable.Record {
+  "loader": Object {
     "loading": true,
     "message": "Test loading message",
   },
-  "errors": "",
+  "removedChannels": Array [],
 }
 `;
 
 exports[`identity selectors loader 1`] = `
-Immutable.Record {
+Object {
   "loading": true,
   "message": "Test loading message",
 }
@@ -237,14 +242,14 @@ exports[`identity selectors lockedBalance for usd 1`] = `"25.166008"`;
 exports[`identity selectors lockedBalance for zec 1`] = `"12.583004"`;
 
 exports[`identity selectors shippingData 1`] = `
-Immutable.ShippingData {
+Object {
+  "city": "Krakow",
+  "country": "Poland",
   "firstName": "Saturn",
   "lastName": "the Planet",
-  "street": "Coders Dv",
-  "country": "Poland",
-  "region": "Malopolska",
-  "city": "Krakow",
   "postalCode": "1337-455",
+  "region": "Malopolska",
+  "street": "Coders Dv",
 }
 `;
 
@@ -333,5 +338,3 @@ exports[`identity selectors topAddress 1`] = `"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2
 exports[`identity selectors topShieldedAddress 1`] = `"zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly"`;
 
 exports[`identity selectors transparentAddress 1`] = `"t14oHp2v54vfmdgQ3v3SNuQga8JKHTNi2a1"`;
-
-exports[`identity selectors transparentBalance 1`] = `"0.3579"`;

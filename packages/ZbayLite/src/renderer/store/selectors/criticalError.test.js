@@ -1,6 +1,4 @@
 /* eslint import/first: 0 */
-import Immutable from 'immutable'
-
 import selectors from './criticalError'
 import { CriticalError } from '../handlers/criticalError'
 
@@ -11,12 +9,13 @@ describe('criticalError -', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({
-        criticalError: CriticalError({
+      initialState: {
+        criticalError: {
+          ...CriticalError,
           message: 'Some kind of error',
           traceback: 'Error: Traceback for Some kind of error'
-        })
-      })
+        }
+      }
     })
   })
 

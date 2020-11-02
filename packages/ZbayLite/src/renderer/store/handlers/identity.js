@@ -1,4 +1,4 @@
-import Immutable from 'immutable'
+import { produce } from 'immer'
 import BigNumber from 'bignumber.js'
 import { createAction, handleActions } from 'redux-actions'
 import secp256k1 from 'secp256k1'
@@ -26,7 +26,7 @@ import ratesHandlers from './rates'
 import nodeHandlers from './node'
 import appHandlers from './app'
 import notificationCenterHandlers from './notificationCenter'
-import { LoaderState, successNotification } from './utils'
+import { successNotification } from './utils'
 import modalsHandlers from './modals'
 import notificationsHandlers from './notifications'
 import messagesHandlers from './messages'
@@ -37,39 +37,25 @@ import {
   networkFee
 } from '../../../shared/static'
 import electronStore, { migrationStore } from '../../../shared/electronStore'
-// import app from './app'
-// import channels from '../../zcash/channels'
 import staticChannelsSyncHeight from '../../static/staticChannelsSyncHeight.json'
 
-export const ShippingData = Immutable.Record(
-  {
-    firstName: '',
-    lastName: '',
-    street: '',
-    country: '',
-    region: '',
-    city: '',
-    postalCode: ''
-  },
-  'ShippingData'
-)
-
-const RemovedChannels = Immutable.Record(
-  {
-    removedChannels: Immutable.List()
-  },
-  'RemovedChannels'
-)
-
-const Identity = Immutable.Record(
-  {
+export const initialState = {
+  data: {
     id: null,
     address: '',
     transparentAddress: '',
     signerPrivKey: '',
     signerPubKey: '',
     name: '',
-    shippingData: ShippingData(),
+    shippingData: {
+      firstName: '',
+      lastName: '',
+      street: '',
+      country: '',
+      region: '',
+      city: '',
+      postalCode: ''
+    },
     balance: null,
     lockedBalance: null,
     donationAllow: true,
@@ -77,29 +63,17 @@ const Identity = Immutable.Record(
     donationAddress: '',
     onionAddress: '',
     freeUtxos: 0,
-    addresses: Immutable.List(),
-    shieldedAddresses: Immutable.List()
+    addresses: [],
+    shieldedAddresses: []
   },
-  'Identity'
-)
-
-// export const Identity = values => {
-//   const record = _Identity(values)
-//   return record.set('shippingData', ShippingData(record.shippingData))
-// }
-
-export const IdentityState = Immutable.Record(
-  {
-    data: Identity(),
-    fetchingBalance: false,
-    loader: LoaderState({ loading: false }),
-    removedChannels: RemovedChannels(),
-    errors: ''
+  fetchingBalance: false,
+  loader: {
+    loading: false,
+    message: ''
   },
-  'IdentityState'
-)
-
-export const initialState = IdentityState()
+  removedChannels: [],
+  errors: ''
+}
 
 export const setIdentity = createAction(actionTypes.SET_IDENTITY)
 export const setOnionAddress = createAction(actionTypes.SET_ONION_ADDRESS)
@@ -409,7 +383,7 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
   try {
     const removedChannels = electronStore.get('removedChannels')
     if (removedChannels) {
-      const removedChannelsList = Immutable.fromJS(Object.keys(removedChannels))
+      const removedChannelsList = Object.keys(removedChannels)
       dispatch(setRemovedChannels(removedChannelsList))
     }
     dispatch(setLoadingMessage('Ensuring identity integrity'))
@@ -420,7 +394,7 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
     await dispatch(setIdentity(identity))
     const shippingAddress = electronStore.get('identity.shippingData')
     if (shippingAddress) {
-      dispatch(setShippingData(ShippingData(shippingAddress)))
+      dispatch(setShippingData(shippingAddress))
     }
     dispatch(setLoadingMessage('Fetching balance and loading channels'))
     await dispatch(initAddreses())
@@ -466,7 +440,7 @@ export const updateShippingData = (values, formActions) => async (
   getState
 ) => {
   electronStore.set('identity.shippingData', values)
-  await dispatch(setShippingData(ShippingData(values)))
+  await dispatch(setShippingData(values))
   dispatch(
     notificationsHandlers.actions.enqueueSnackbar(
       successNotification({ message: 'Shipping Address Updated' })
@@ -504,7 +478,7 @@ export const generateNewAddress = () => async (dispatch, getState) => {
   const addresses = JSON.parse(electronStore.get('addresses'))
   const address = await client.getNewTransparentAdress()
   addresses.unshift(address)
-  dispatch(setUserAddreses(Immutable.List(addresses)))
+  dispatch(setUserAddreses(addresses))
   electronStore.set('addresses', JSON.stringify(addresses))
 }
 export const generateNewShieldedAddress = () => async (dispatch, getState) => {
@@ -514,7 +488,7 @@ export const generateNewShieldedAddress = () => async (dispatch, getState) => {
   const addresses = JSON.parse(electronStore.get('shieldedAddresses'))
   const address = await client.getNewShieldedAdress()
   addresses.unshift(address)
-  dispatch(setUserShieldedAddreses(Immutable.List(addresses)))
+  dispatch(setUserShieldedAddreses(addresses))
   electronStore.set('shieldedAddresses', JSON.stringify(addresses))
 }
 export const initAddreses = () => async (dispatch, getState) => {
@@ -525,9 +499,9 @@ export const initAddreses = () => async (dispatch, getState) => {
     electronStore.set('shieldedAddresses', JSON.stringify([]))
   }
   const addresses = JSON.parse(electronStore.get('addresses'))
-  dispatch(setUserAddreses(Immutable.List(addresses)))
+  dispatch(setUserAddreses(addresses))
   const shieldedAddreses = JSON.parse(electronStore.get('shieldedAddresses'))
-  dispatch(setUserShieldedAddreses(Immutable.List(shieldedAddreses)))
+  dispatch(setUserShieldedAddreses(shieldedAddreses))
 }
 const epics = {
   fetchBalance,
@@ -551,36 +525,68 @@ const exportFunctions = {
 export const reducer = handleActions(
   {
     [setLoading]: (state, { payload: loading }) =>
-      state.setIn(['loader', 'loading'], loading),
+      produce(state, (draft) => {
+        draft.loader.loading = loading
+      }),
     [setRemovedChannels]: (state, { payload: removedChannels }) =>
-      state.set('removedChannels', removedChannels),
+      produce(state, (draft) => {
+        draft.removedChannels = removedChannels
+      }),
     [setLoadingMessage]: (state, { payload: message }) =>
-      state.setIn(['loader', 'message'], message),
+      produce(state, (draft) => {
+        draft.loader.message = message
+      }),
     [setIdentity]: (state, { payload: identity }) =>
-      state.update('data', data => data.merge(identity)),
+      produce(state, (draft) => {
+        draft.data = Object.assign({}, draft.data, identity)
+      }),
     [setBalance]: (state, { payload: balance }) =>
-      state.update('data', data => data.set('balance', balance)),
+      produce(state, (draft) => {
+        draft.data.balance = balance
+      }),
     [setOnionAddress]: (state, { payload: address }) =>
-      state.update('data', data => data.set('onionAddress', address)),
+      produce(state, (draft) => {
+        draft.data.onionAddress = address
+      }),
     [setLockedBalance]: (state, { payload: balance }) =>
-      state.update('data', data => data.set('lockedBalance', balance)),
+      produce(state, (draft) => {
+        draft.data.lockedBalance = balance
+      }),
     [setFetchingBalance]: (state, { payload: fetching }) =>
-      state.set('fetchingBalance', fetching),
-    [setErrors]: (state, { payload: errors }) => state.set('errors', errors),
+      produce(state, (draft) => {
+        draft.fetchingBalance = fetching
+      }),
+    [setErrors]: (state, { payload: errors }) => produce(state, draft => {
+      draft.errors = errors
+    }),
     [setShippingData]: (state, { payload: shippingData }) =>
-      state.setIn(['data', 'shippingData'], ShippingData(shippingData)),
+      produce(state, (draft) => {
+        draft.data.shippingData = shippingData
+      }),
     [setDonationAllow]: (state, { payload: allow }) =>
-      state.setIn(['data', 'donationAllow'], allow),
+      produce(state, (draft) => {
+        draft.data.donationAllow = allow
+      }),
     [setDonationAddress]: (state, { payload: address }) =>
-      state.setIn(['data', 'donationAddress'], address),
+      produce(state, (draft) => {
+        draft.data.donationAddress = address
+      }),
     [setShieldingTax]: (state, { payload: allow }) =>
-      state.setIn(['data', 'shieldingTax'], allow),
+      produce(state, (draft) => {
+        draft.data.shieldingTax = allow
+      }),
     [setFreeUtxos]: (state, { payload: freeUtxos }) =>
-      state.setIn(['data', 'freeUtxos'], freeUtxos),
+      produce(state, (draft) => {
+        draft.data.freeUtxos = freeUtxos
+      }),
     [setUserAddreses]: (state, { payload: addresses }) =>
-      state.setIn(['data', 'addresses'], addresses),
+      produce(state, (draft) => {
+        draft.data.addresses = addresses
+      }),
     [setUserShieldedAddreses]: (state, { payload: shieldedAddresses }) =>
-      state.setIn(['data', 'shieldedAddresses'], shieldedAddresses)
+      produce(state, (draft) => {
+        draft.data.shieldedAddresses = shieldedAddresses
+      })
   },
   initialState
 )

@@ -1,4 +1,4 @@
-import { combineReducers } from 'redux-immutable'
+import { combineReducers } from 'redux'
 
 import identityHandlers from './handlers/identity'
 import notificationsHandlers from './handlers/notifications'
@@ -13,7 +13,6 @@ import messagesQueueHandlers from './handlers/messagesQueue'
 import directMessagesQueueHandlers from './handlers/directMessagesQueue'
 import criticalErrorHandlers from './handlers/criticalError'
 import appHandlers from './handlers/app'
-import messagesHandlers from './handlers/messages'
 import usersHandlers from './handlers/users'
 import contactsHandlers from './handlers/contacts'
 import directMessageChannelHandlers from './handlers/directMessageChannel'
@@ -33,7 +32,6 @@ import logsHandlers from './handlers/logs'
 import ownedChannels from './handlers/ownedChannels'
 
 export default combineReducers({
-  messages: messagesHandlers.reducer,
   users: usersHandlers.reducer,
   app: appHandlers.reducer,
   operations: operationsHandlers.reducer,

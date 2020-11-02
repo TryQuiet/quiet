@@ -4,7 +4,6 @@ import * as R from 'ramda'
 import classNames from 'classnames'
 import { renderToString } from 'react-dom/server'
 import ContentEditable from 'react-contenteditable'
-import Immutable from 'immutable'
 import Picker from 'emoji-picker-react'
 import Fade from '@material-ui/core/Fade'
 import Grid from '@material-ui/core/Grid'
@@ -208,10 +207,10 @@ export const ChannelInput = ({
       .split(String.fromCharCode(160))
     const lastMention = splitedMsg[splitedMsg.length - 1].startsWith('@')
     if (lastMention) {
-      const possibleMentions = users.filter(user =>
+      const possibleMentions = Array.from(Object.values(users)).filter(user =>
         user.nickname.startsWith(splitedMsg[splitedMsg.length - 1].substring(1))
       )
-      const sortedMentions = Object.values(possibleMentions.toJS()).sort(
+      const sortedMentions = Object.values(possibleMentions).sort(
         function (a, b) {
           if (a.nickname > b.nickname) {
             return 1
@@ -244,7 +243,7 @@ export const ChannelInput = ({
       const element = splitedMsg[key]
       if (
         element.startsWith('@') &&
-        users.find(user => user.nickname === element.substring(1))
+        Array.from(Object.values(users)).find(user => user.nickname === element.substring(1))
       ) {
         splitedMsg[key] = renderToString(
           <span className={classes.highlight}>{element}</span>
@@ -501,7 +500,7 @@ ChannelInput.propTypes = {
   channelName: PropTypes.string.isRequired,
   inputPlaceholder: PropTypes.string.isRequired,
   messageLimit: PropTypes.number.isRequired,
-  users: PropTypes.instanceOf(Immutable.Map).isRequired,
+  users: PropTypes.object.isRequired,
   setAnchorEl: PropTypes.func.isRequired,
   setMentionsToSelect: PropTypes.func.isRequired,
   anchorEl: PropTypes.object,
@@ -519,7 +518,7 @@ ChannelInput.defaultProps = {
 export default R.compose(withStyles(styles))(
   React.memo(ChannelInput, (before, after) => {
     return (
-      Immutable.is(before.users, after.user) &&
+      Object.is(before.users, after.user) &&
       before.message === after.message &&
       before.inputPlaceholder === after.inputPlaceholder &&
       before.users.equals(after.users)

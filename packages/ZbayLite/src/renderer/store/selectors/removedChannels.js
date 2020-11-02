@@ -3,7 +3,7 @@ const store = s => s
 
 const removedChannels = createSelector(
   store,
-  state => state.get('removedChannels')
+  state => state.removedChannels
 )
 
 export default {

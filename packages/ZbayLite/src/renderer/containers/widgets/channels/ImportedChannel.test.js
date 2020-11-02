@@ -1,6 +1,4 @@
 /* eslint import/first: 0 */
-import Immutable from 'immutable'
-
 import { mapStateToProps, mapDispatchToProps } from './ImportedChannel'
 
 import create from '../../../store/create'
@@ -11,10 +9,11 @@ describe('ImportedChannel', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({
-        importedChannel: ImportedChannelState({
+      initialState: {
+        importedChannel: {
+          ...ImportedChannelState,
           // TODO: 07/05 change to Record
-          data: Immutable.fromJS({
+          data: {
             name: 'Politics',
             private: true,
             address: 'zs1testaddress',
@@ -22,9 +21,9 @@ describe('ImportedChannel', () => {
             keys: {
               ivk: 'this-is-an-ivk-key'
             }
-          })
-        })
-      })
+          }
+        }
+      }
     })
   })
 

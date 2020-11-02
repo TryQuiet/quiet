@@ -5,7 +5,6 @@ import Tabs from '@material-ui/core/Tabs'
 import AppBar from '@material-ui/core/AppBar'
 import { withStyles } from '@material-ui/core/styles'
 import { Grid } from '@material-ui/core'
-import Immutable from 'immutable'
 
 import Modal from '../../ui/Modal'
 import Tab from '../../ui/Tab'
@@ -81,7 +80,7 @@ export const ChannelSettingsModal = ({
     <Modal
       open={open}
       handleClose={handleClose}
-      title={`Settings for #${channel.get('username')}`}
+      title={`Settings for #${channel.username}`}
       isBold
       addBorder
     >
@@ -154,10 +153,10 @@ ChannelSettingsModal.propTypes = {
   currentTab: PropTypes.string,
   modalTabToOpen: PropTypes.string,
   setCurrentTab: PropTypes.func.isRequired,
-  channel: PropTypes.instanceOf(Immutable.Map).isRequired
+  channel: PropTypes.object.isRequired
 }
 ChannelSettingsModal.defaultProps = {
-  channel: Immutable.Map({})
+  channel: {}
 }
 
 export default withStyles(styles)(ChannelSettingsModal)

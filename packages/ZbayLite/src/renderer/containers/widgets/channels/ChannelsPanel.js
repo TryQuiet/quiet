@@ -2,7 +2,6 @@ import React from 'react'
 import { connect } from 'react-redux'
 import * as R from 'ramda'
 import Grid from '@material-ui/core/Grid'
-import Immutable from 'immutable'
 import { bindActionCreators } from 'redux'
 
 import BaseChannelsList from '../../../components/widgets/channels/BaseChannelsList'
@@ -70,10 +69,10 @@ export const ChannelsPanel = ({
 export default R.compose(connect(mapStateToProps, mapDispatchToProps))(
   React.memo(ChannelsPanel, (before, after) => {
     return (
-      Immutable.is(before.channels, after.channels) &&
-      Immutable.is(before.selected, after.selected) &&
+      Object.is(before.channels, after.channels) &&
+      Object.is(before.selected, after.selected) &&
       Object.is(before.contentRect, after.contentRect) &&
-      Immutable.is(before.offers, after.offers) &&
+      Object.is(before.offers, after.offers) &&
       Object.is(before.fundsLocked, after.fundsLocked)
     )
   })

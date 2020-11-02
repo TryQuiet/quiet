@@ -1,7 +1,6 @@
 /* eslint import/first: 0 */
 import React from 'react'
 import { shallow } from 'enzyme'
-import Immutable from 'immutable'
 
 import { ImportChannelForm, mapStateToProps, mapDispatchToProps } from './ImportChannelForm'
 
@@ -13,10 +12,11 @@ describe('ImportedChannelForm', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: Immutable.Map({
-        importedChannel: ImportedChannelState({
+      initialState: {
+        importedChannel: {
+          ...ImportedChannelState,
           // TODO: 07/05 change to Record
-          data: Immutable.fromJS({
+          data: {
             name: 'Politics',
             private: true,
             address: 'zs1testaddress',
@@ -24,9 +24,9 @@ describe('ImportedChannelForm', () => {
             keys: {
               ivk: 'this-is-an-ivk-key'
             }
-          })
-        })
-      })
+          }
+        }
+      }
     })
   })
 

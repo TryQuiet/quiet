@@ -7,7 +7,7 @@ const store = s => s
 
 const messages = createSelector(
   store,
-  state => state.get('messages')
+  state => state.messages
 )
 const currentChannelMessages = channelId =>
   createSelector(

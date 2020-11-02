@@ -1,7 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import * as R from 'ramda'
-import Immutable from 'immutable'
 import { Typography } from '@material-ui/core'
 import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
@@ -36,8 +35,8 @@ export const AddModerator = ({
 }) => {
   const channelsArray = Array.from(members)
   const options = channelsArray.map(member => {
-    if (users.get(member)) {
-      return users.get(member).nickname
+    if (users.member) {
+      return users.member.nickname
     } else {
       return member
     }
@@ -114,6 +113,6 @@ AddModerator.propTypes = {
   handleClose: PropTypes.func.isRequired,
   addModerator: PropTypes.func.isRequired,
   members: PropTypes.instanceOf(Set).isRequired,
-  users: PropTypes.instanceOf(Immutable.Map).isRequired
+  users: PropTypes.object.isRequired
 }
 export default R.compose(React.memo, withStyles(styles))(AddModerator)

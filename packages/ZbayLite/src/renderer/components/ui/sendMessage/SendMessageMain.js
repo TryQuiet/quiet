@@ -28,10 +28,8 @@ export const formSchema = users => {
             const isAddressValid = /^zs1[a-z0-9]{75}$/.test(
               string
             )
-            const includesNickname = users
-              .toList()
-              .filter(obj => obj.get('nickname') === string)
-              .first()
+            const includesNickname = Array.from(Object.values(users))
+              .filter(obj => obj.nickname === string)[0]
             return includesNickname || isAddressValid
           }
         )
@@ -81,14 +79,10 @@ export const SendMessageMain = ({
       onSubmit={(values, { resetForm }) => {
         const { recipient, sendAnonymously } = values
         const includesNickname =
-          users
-            .toList()
-            .filter(obj => obj.get('nickname') === recipient)
-            .first() ||
-          users
-            .toList()
-            .filter(obj => obj.get('address') === recipient)
-            .first()
+        Array.from(Object.values(users))
+          .filter(obj => obj.nickname === recipient)[0] ||
+          Array.from(Object.values(users))
+            .filter(obj => obj.address === recipient)[0]
         if (includesNickname && !sendAnonymously) {
           createNewContact({
             contact: includesNickname,
@@ -97,7 +91,7 @@ export const SendMessageMain = ({
         } else {
           const transferData = {
             amount: values.amountZec,
-            destination: includesNickname ? includesNickname.get('address') : values.recipient,
+            destination: includesNickname ? includesNickname.address : values.recipient,
             memo: values.memo
           }
           sendPlainTransfer(transferData)

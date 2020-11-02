@@ -1,13 +1,12 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`operations selectors  - queue 1`] = `
-Immutable.Map {
-  "messageHash": Immutable.PendingMessage {
+Object {
+  "messageHash": Object {
     "channelId": "test-channel-id-1",
-    "message": Immutable.Map {
-      "id": 1,
-      "type": 1,
+    "message": Object {
       "createdAt": 1551960228,
+      "id": 1,
       "message": "This is some message 1",
       "signature": Object {
         "data": Array [
@@ -78,14 +77,14 @@ Immutable.Map {
         ],
         "type": "Buffer",
       },
+      "type": 1,
     },
   },
-  "messageHash2": Immutable.PendingMessage {
+  "messageHash2": Object {
     "channelId": "test-channel-id-1",
-    "message": Immutable.Map {
-      "id": 1,
-      "type": 1,
+    "message": Object {
       "createdAt": 1551960228,
+      "id": 1,
       "message": "This is some message 1",
       "signature": Object {
         "data": Array [
@@ -156,6 +155,7 @@ Immutable.Map {
         ],
         "type": "Buffer",
       },
+      "type": 1,
     },
   },
 }
