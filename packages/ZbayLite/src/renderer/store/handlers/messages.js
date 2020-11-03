@@ -557,7 +557,6 @@ const setUsersMessages = (address, messages) => async (dispatch, getState) => {
     filteredZbayMessages.map(async transfer => {
       const message = await zbayMessages.transferToMessage(transfer, users)
       if (message === null) {
-        console.log('null message', DisplayableMessage(message))
         return DisplayableMessage(message)
       }
       // const pendingMessage = pendingMessages.find(
@@ -568,15 +567,10 @@ const setUsersMessages = (address, messages) => async (dispatch, getState) => {
       //     operationsHandlers.actions.removeOperation(pendingMessage.opId)
       //   )
       // }
-      console.log('normal message', message)
       return DisplayableMessage(message)
     })
   )
-  const itemMessages = messagesAll.filter(msg => {
-    console.log('test', msg.message)
-    console.log('test2', msg)
-    return msg.message.itemId
-  })
+  const itemMessages = messagesAll.filter(msg => msg.message ? msg.message.itemId : null)
   const contacts = contactsSelectors.contacts(getState())
   const groupedItemMesssages = R.groupBy(
     msg => msg.message.itemId + msg.sender.username
