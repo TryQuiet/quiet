@@ -627,7 +627,7 @@ const setUsersMessages = (address, messages) => async (dispatch, getState) => {
       )
     }
   }
-  const normalMessages = messagesAll.filter(msg => !msg.message.itemId)
+  const normalMessages = messagesAll.filter(msg => msg.message ? !msg.message.itemId : null)
   const groupedMesssages = R.groupBy(msg => msg.publicKey)(normalMessages)
   for (const key in groupedMesssages) {
     if (groupedMesssages.hasOwnProperty(key)) {
