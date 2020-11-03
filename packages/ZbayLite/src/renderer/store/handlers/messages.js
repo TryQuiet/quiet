@@ -570,7 +570,11 @@ const setUsersMessages = (address, messages) => async (dispatch, getState) => {
       return DisplayableMessage(message)
     })
   )
-  const itemMessages = messagesAll.filter(msg => msg.message.itemId)
+  const itemMessages = messagesAll.filter(msg => {
+    console.log('test', msg.message)
+    console.log('test2', msg)
+    return msg.message.itemId
+  })
   const contacts = contactsSelectors.contacts(getState())
   const groupedItemMesssages = R.groupBy(
     msg => msg.message.itemId + msg.sender.username
