@@ -7,23 +7,30 @@ const connections = new Map()
 
 export const connect = address =>
   new Promise((resolve, reject) => {
-    const options = url.parse(proxy)
-    const agent = new HttpsProxyAgent(options)
-    const socket = new WebSocketClient(address, { agent: agent })
-    const id = setTimeout(() => {
-      // eslint-disable-next-line
-      reject('timeout')
-    }, 9000)
-    socket.on('open', function (a) {
-      console.log('connected')
-      clearTimeout(id)
-      resolve(socket)
-    })
-    socket.on('close', function () {
-      console.log('disconnected')
-
-      connections.delete(address)
-    })
+    try {
+      const options = url.parse(proxy)
+      const agent = new HttpsProxyAgent(options)
+      const socket = new WebSocketClient(address, { agent: agent })
+      const id = setTimeout(() => {
+        // eslint-disable-next-line
+        reject('timeout')
+      }, 9000)
+      socket.on('unexpected-response', err => {
+        console.log(err)
+      })
+      socket.on('open', function (a) {
+        console.log('connected')
+        socket.on('close', function (a) {
+          console.log('disconnected')
+          connections.delete(address)
+        })
+        clearTimeout(id)
+        resolve(socket)
+      })
+    } catch (error) {
+      console.log(error)
+      reject(new Error('error'))
+    }
   })
 export const clearConnections = () => {
   connections.forEach((_, value) => {
