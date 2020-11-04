@@ -1,81 +1,123 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import { Scrollbars } from 'react-custom-scrollbars'
-import { DateTime } from 'luxon'
-import * as R from 'ramda'
-import List from '@material-ui/core/List'
-import { withStyles } from '@material-ui/core/styles'
+import React from "react";
+import { Scrollbars } from "react-custom-scrollbars";
+import { DateTime } from "luxon";
+import * as R from "ramda";
+import List from "@material-ui/core/List";
+import { makeStyles } from "@material-ui/core/styles";
 
-import { messageType } from '../../../../shared/static'
-import ChannelMessage from '../../../containers/widgets/channels/ChannelMessage'
-import WelcomeMessage from './WelcomeMessage'
-import RescanMessage from '../../../containers/widgets/channels/RescanMessage'
-import ChannelItemTransferMessage from '../../../containers/widgets/channels/ItemTransferMessage'
-import ChannelAdMessage from '../../../containers/widgets/channels/ListingMessage'
-import MessagesDivider from '../MessagesDivider'
-import UserRegisteredMessage from './UserRegisteredMessage'
-import ChannelRegisteredMessage from './ChannelRegisteredMessage'
+import { MessageType } from "../../../../shared/static.types";
+import ChannelMessage from "../../../containers/widgets/channels/ChannelMessage";
+import WelcomeMessage from "./WelcomeMessage";
+import RescanMessage from "../../../containers/widgets/channels/RescanMessage";
+import ChannelItemTransferMessage from "../../../containers/widgets/channels/ItemTransferMessage";
+import ChannelAdMessage from "../../../containers/widgets/channels/ListingMessage";
+import MessagesDivider from "../MessagesDivider";
+import UserRegisteredMessage from "./UserRegisteredMessage";
+import ChannelRegisteredMessage from "./ChannelRegisteredMessage";
 
-const styles = theme => ({
+import { DisplayableMessage } from "./../../../zbay/messages.types";
+
+const useStyles = makeStyles((theme) => ({
   list: {
     backgroundColor: theme.palette.colors.white,
-    padding: '0 4px',
-    width: '100%'
+    padding: "0 4px",
+    width: "100%",
   },
   link: {
     color: theme.palette.colors.lushSky,
-    cursor: 'pointer'
-  }
-})
+    cursor: "pointer",
+  },
+}));
 
-const messagesTypesToDisplay = [1, 2, 4, 11, 41]
+const messagesTypesToDisplay = [1, 2, 4, 11, 41];
 const welcomeMessages = {
   offer: (item, username) =>
     `This is a private conversation with @${username} about their #${item} offer. Feel free to ask them a question about the product or provide other details about your purchase!`,
-  main: `Congrats! You created a channel. You can share the channel link with others by accessing the “•••” menu at the top. Once you're registered as the channel owner (this can take a few minutes) you’ll be able to publish your channel and change its settings. Have a great time!`
+  main: `Congrats! You created a channel. You can share the channel link with others by accessing the “•••” menu at the top. Once you're registered as the channel owner (this can take a few minutes) you’ll be able to publish your channel and change its settings. Have a great time!`,
+};
+
+/**
+ * 
+ interface IMessage {
+   nickname: string;
+  createdAt: number;
+  address: string;
+  type: number;
+  keys: object;
+  id: string;
+  owner: string;
+  name: string;
 }
+*/
+interface IUser {
+  nickname: string;
+  address: string;
+}
+
+interface IChannelMessagesProps {
+  messages: Array<DisplayableMessage>;
+  isOwner: boolean;
+  contactId?: string;
+  usersRegistration: Array<any>;
+  publicChannelsRegistration: Array<any>;
+  isDM?: boolean;
+  isRescanned: boolean; //required?;
+  isNewUser: boolean; //required?
+  setScrollPosition: (arg0?: any) => void;
+  scrollPosition: number;
+  users: Array<IUser>;
+  onLinkedChannel: (arg0: any) => void;
+  publicChannels: any;
+  onRescan: () => void;
+  contentRect: string;
+  isInitialLoadFinished: boolean;
+}
+
 // TODO: scrollbar smart pagination
-export const ChannelMessages = ({
-  classes,
+export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
   messages,
-  contentRect,
   isOwner,
   setScrollPosition,
   scrollPosition,
   contactId,
-  isOffer,
   usersRegistration,
   publicChannelsRegistration,
   users,
   onLinkedChannel,
   publicChannels,
-  isInitialLoadFinished,
   isRescanned,
   isDM,
   onRescan,
-  isNewUser
+  isNewUser,
 }) => {
-  const scrollbarRef = React.useRef()
+  const classes = useStyles({});
+  const scrollbarRef = React.useRef<Scrollbars>();
   // const [lastScrollHeight, setLastScrollHeight] = React.useState(0)
   // if (scrollbarRef.current) {
   //   console.log(scrollbarRef.current.getValues())
   // }
-  const getScrollbarRef = ref => {
+  const getScrollbarRef = React.useCallback((ref) => {
     if (ref !== null) {
-      scrollbarRef.current = ref
+      scrollbarRef.current = ref;
       if (scrollPosition === -1 || scrollPosition === 1) {
-        ref.scrollToBottom()
+        ref.scrollToBottom();
       }
     }
-  }
-  const msgRef = React.useRef()
-  const [offset, setOffset] = React.useState(0)
+  }, []);
+  const onScrollFrame = React.useCallback(
+    (e) => {
+      setScrollPosition(e.top);
+    },
+    [setScrollPosition]
+  );
+  const msgRef = React.useRef<HTMLUListElement>();
+  const [offset, setOffset] = React.useState(0);
   const updateSize = () => {
-    setOffset(0)
-  }
+    setOffset(0);
+  };
   React.useEffect(() => {
-    window.addEventListener('resize', updateSize)
-  }, [])
+    window.addEventListener("resize", updateSize);
+  }, []);
   // TODO work on scroll behavior
   // React.useEffect(() => {
   //   setTimeout(() => {
@@ -101,10 +143,10 @@ export const ChannelMessages = ({
       const margin =
         msgRef.current.offsetHeight < scrollbarRef.current.getClientHeight()
           ? scrollbarRef.current.getClientHeight() - msgRef.current.offsetHeight
-          : 0
-      setOffset(margin)
+          : 0;
+      setOffset(margin);
     }
-  })
+  }, [msgRef, scrollbarRef]);
   // let username
   // let tag
   // if (isOffer) {
@@ -113,68 +155,67 @@ export const ChannelMessages = ({
   //   username = msg.sender.username
   //   username = msg.sender.username
   // }
-  let groupedMessages = []
-  if (messages.size !== 0) {
-    groupedMessages = R.groupBy(msg => {
-      return DateTime.fromFormat(
-        DateTime.fromSeconds(msg.createdAt).toFormat('cccc, LLL d'),
-        'cccc, LLL d'
-      ).toSeconds()
-    })(
+  let groupedMessages: { [key: string]: DisplayableMessage[] };
+  if (messages.length !== 0) {
+    groupedMessages = R.groupBy<DisplayableMessage>(
+      (msg) => {
+        return DateTime.fromFormat(
+          DateTime.fromSeconds(msg.createdAt).toFormat("cccc, LLL d"),
+          "cccc, LLL d"
+        )
+          .toSeconds()
+          .toString();
+      }
+    )(
       messages
-        .filter(msg => messagesTypesToDisplay.includes(msg.type))
+        .filter((msg) => messagesTypesToDisplay.includes(msg.type))
         .concat(usersRegistration)
         .concat(publicChannelsRegistration)
         .sort((a, b) => a.createdAt - b.createdAt)
-    )
+    );
   }
   return (
     <Scrollbars
       ref={getScrollbarRef}
       autoHideTimeout={500}
-      onScrollFrame={e => {
-        setScrollPosition(e.top)
-      }}
+      onScrollFrame={onScrollFrame}
     >
       <List
         disablePadding
         ref={msgRef}
-        id='messages-scroll'
+        id="messages-scroll"
         className={classes.list}
         style={{ marginTop: offset }}
       >
-        {isOwner && <WelcomeMessage message={welcomeMessages['main']} />}
+        {isOwner && <WelcomeMessage message={welcomeMessages["main"]} />}
         {!isRescanned && !isDM && <RescanMessage />}
         {/* {isOffer && !showLoader && (
           <WelcomeMessage message={welcomeMessages['offer'](tag, username)} />
-        )} */
-        }
+        )} */}
         {Object.keys(groupedMessages).map((key, i) => {
-          const messagesArray = groupedMessages[key]
-          const today = DateTime.utc()
+          const messagesArray = groupedMessages[key];
+          const today = DateTime.utc();
           const groupName = DateTime.fromSeconds(parseInt(key)).toFormat(
-            'cccc, LLL d'
-          )
+            "cccc, LLL d"
+          );
           const displayTitle = DateTime.fromSeconds(parseInt(key)).hasSame(
             today,
-            'day'
+            "day"
           )
-            ? 'Today'
-            : groupName
+            ? "Today"
+            : groupName;
           return (
             <>
               <MessagesDivider title={displayTitle} />
-              {messagesArray.map(msg => {
-                const MessageComponent = typeToMessageComponent[msg.type]
+              {messagesArray.map((msg) => {
+                const MessageComponent = typeToMessageComponent[msg.type];
                 if (!msg.type) {
                   if (msg.keys) {
                     return (
                       <ChannelRegisteredMessage
                         message={msg}
                         address={
-                          users[msg.owner]
-                            ? users[msg.owner].address
-                            : ''
+                          users[msg.owner] ? users[msg.owner].address : ""
                         }
                         username={
                           users[msg.owner]
@@ -182,12 +223,12 @@ export const ChannelMessages = ({
                             : `anon${msg.owner.substring(0, 16)}`
                         }
                         onChannelClick={() => {
-                          onLinkedChannel(publicChannels[msg.name])
+                          onLinkedChannel(publicChannels[msg.name]);
                         }}
                       />
-                    )
+                    );
                   } else {
-                    return <UserRegisteredMessage message={msg} />
+                    return <UserRegisteredMessage message={msg} />;
                   }
                 }
                 return (
@@ -196,10 +237,10 @@ export const ChannelMessages = ({
                     message={msg}
                     contactId={contactId}
                   />
-                )
+                );
               })}
             </>
-          )
+          );
         })}
         {isNewUser && (
           <WelcomeMessage
@@ -209,7 +250,7 @@ export const ChannelMessages = ({
                 channel registration data in the app itself. To verify this
                 data, which takes ~1 hour but may add some security,
                 <span className={classes.link} onClick={onRescan}>
-                  {' '}
+                  {" "}
                   restart & re-sync
                 </span>
                 . Otherwise, say hi and introduce yourself!
@@ -219,41 +260,23 @@ export const ChannelMessages = ({
         )}
       </List>
     </Scrollbars>
-  )
-}
+  );
+};
 
 const typeToMessageComponent = {
-  [messageType.BASIC]: ChannelMessage,
-  [messageType.ITEM_BASIC]: ChannelMessage,
-  [messageType.ITEM_TRANSFER]: ChannelItemTransferMessage,
-  [messageType.TRANSFER]: ChannelItemTransferMessage,
-  [messageType.AD]: ChannelAdMessage
-}
-
-ChannelMessages.propTypes = {
-  classes: PropTypes.object.isRequired,
-  usersRegistration: PropTypes.array.isRequired,
-  publicChannelsRegistration: PropTypes.array.isRequired,
-  contactId: PropTypes.string,
-  isOwner: PropTypes.bool.isRequired,
-  isDM: PropTypes.bool,
-  isInitialLoadFinished: PropTypes.bool.isRequired,
-  isOffer: PropTypes.bool.isRequired,
-  messages: PropTypes.array.isRequired,
-  contentRect: PropTypes.shape({
-    bounds: PropTypes.shape({
-      height: PropTypes.number
-    }).isRequired
-  })
-}
+  [MessageType.BASIC]: ChannelMessage,
+  [MessageType.ITEM_BASIC]: ChannelMessage,
+  [MessageType.ITEM_TRANSFER]: ChannelItemTransferMessage,
+  [MessageType.TRANSFER]: ChannelItemTransferMessage,
+  [MessageType.AD]: ChannelAdMessage,
+};
 
 ChannelMessages.defaultProps = {
   messages: [],
   usersRegistration: [],
   publicChannelsRegistration: [],
   isOwner: false,
-  isOffer: false,
-  isDM: false
-}
+  isDM: false,
+};
 
-export default React.memo(withStyles(styles)(ChannelMessages))
+export default ChannelMessages;

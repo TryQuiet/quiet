@@ -9,12 +9,20 @@ module.exports = {
     path: path.resolve(__dirname, '../dist'),
     filename: '[name].js'
   },
+  resolve: {
+    extensions: ['.ts', '.tsx', '.js', '.jsx']
+  },
   module: {
     rules: [
       {
-        test: /\.jsx?$/,
-        exclude: /node_modules/,
-        loader: 'babel-loader'
+        test: /\.(t|j)sx?$/,
+        loader: ['awesome-typescript-loader?module=es6'],
+        exclude: [/node_modules/]
+      },
+      {
+        test: /\.js$/,
+        loader: 'source-map-loader',
+        enforce: 'pre'
       },
       {
         test: /\.css?$/,

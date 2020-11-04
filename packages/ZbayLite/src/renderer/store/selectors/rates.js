@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { createSelector } from 'reselect'
 import { networkFee } from '../../../shared/static'
+
 const store = s => s
 
 const rates = createSelector(store, state => state.rates)

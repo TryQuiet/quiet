@@ -26,6 +26,7 @@ composer.lock
 /lib
 /tor/hidden_service
 /tor/tor
+/tor/torrc
 zcash/darwin
 zcash/linux
 zcash/win32

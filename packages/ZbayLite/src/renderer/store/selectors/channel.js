@@ -4,7 +4,6 @@ import identitySelectors from './identity'
 import usersSelectors from './users'
 import messagesQueueSelectors from './messagesQueue'
 import operationsSelectors from './operations'
-import messagesSelectors from './messages'
 import zbayMessages from '../../zbay/messages'
 import contacts from './contacts'
 import { operationTypes } from '../handlers/operations'
@@ -127,34 +126,6 @@ export const queuedMessages = createSelector(
   (queue, channel) => queue.filter(m => m.channelId === channel.id)
 )
 
-export const currentChannelMessages = createSelector(
-  channel,
-  store,
-  (ch, store) => messagesSelectors.currentChannelMessages(ch.id)(store)
-)
-
-export const channelOwner = createSelector(channel, store, (ch, store) =>
-  messagesSelectors.channelOwner(ch.id)(store)
-)
-
-export const channelModerators = createSelector(channel, store, (ch, store) =>
-  messagesSelectors.channelModerators(ch.id)(store)
-)
-
-export const channelBlockedUsers = createSelector(channel, store, (ch, store) =>
-  messagesSelectors.channelBlockedUsers(ch.id)(store)
-)
-
-export const getFilteredContext = createSelector(channel, store, (ch, store) =>
-  messagesSelectors.getFilteredContexed(ch.id)(store)
-)
-
-export const getChannelFilteredMessages = createSelector(
-  channel,
-  store,
-  (ch, store) => messagesSelectors.getChannelFilteredMessages(ch.id)(store)
-)
-
 export const loader = createSelector(channel, meta => meta.loader)
 
 const checkMessageTargetTimeWindow = ({
@@ -219,11 +190,10 @@ export const mergeIntoOne = messages => {
   return concatedMessages
 }
 
-export const messages = signerPubKey =>
+export const messages = (signerPubKey) =>
   createSelector(
     identitySelectors.data,
     usersSelectors.registeredUser(signerPubKey),
-    getChannelFilteredMessages,
     pendingMessages,
     queuedMessages,
     (
@@ -236,14 +206,14 @@ export const messages = signerPubKey =>
       const userData = registeredUser || null
       const identityAddress = identity.address
       const identityName = userData ? userData.nickname : identity.name
-      const displayableBroadcasted = receivedMessages.map(message => {
+      const displayableBroadcasted = receivedMessages.map((message) => {
         return zbayMessages.receivedToDisplayableMessage({
           message,
           identityAddress
         })
       })
 
-      const displayablePending = pendingMessages.map(operation => {
+      const displayablePending = pendingMessages.map((operation) => {
         return zbayMessages.operationToDisplayableMessage({
           operation,
           identityAddress,
@@ -262,7 +232,7 @@ export const messages = signerPubKey =>
       )
       let concatedMessages = displayableBroadcasted
         .concat(displayablePending.values(), displayableQueued.values())
-        .sortBy(m => m.createdAt)
+        .sortBy((m) => m.createdAt)
       if (concatedMessages.size > 0) {
         const merged = mergeIntoOne(concatedMessages)
         concatedMessages = Immutable.fromJS(merged)
@@ -334,11 +304,6 @@ export default {
   pendingMessages,
   shareableUri,
   channelId,
-  channelOwner,
-  channelModerators,
-  channelBlockedUsers,
-  getChannelFilteredMessages,
-  getFilteredContext,
   messages,
   channelInfo,
   advertFee,

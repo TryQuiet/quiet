@@ -11,6 +11,7 @@ export const PRICE_ORACLE_PUB_KEY =
   '0225528107f2b0cd8f0a7bedfa218ee8511b1753f87c76886d0ea7dd0e813270da'
 export const REQUEST_MONEY_ENDPOINT =
   ' https://u1uxu6p870.execute-api.us-east-1.amazonaws.com/Prod/requestMoney'
+export { MessageType as messageType } from './static.types'
 
 export const actionTypes = mirrorKey({
   DECODE_CHANNEL: undefined,
@@ -168,24 +169,8 @@ export const actionTypes = mirrorKey({
   IS_SIZE_CHECKING_IN_PROGRESS: undefined,
   MESSAGE_SIZE_STATUS: undefined,
   SET_INITIAL_LOAD_FLAG: undefined,
-  SET_REMOVED_CHANNELS: undefined,
-  ADD_UNKNOWN_USER: undefined
+  SET_REMOVED_CHANNELS: undefined
 })
-
-export const messageType = {
-  BASIC: 1,
-  AD: 2,
-  TRANSFER: 4,
-  USER: 5,
-  CHANNEL_SETTINGS: 6,
-  MODERATION: 7,
-  PUBLISH_CHANNEL: 8,
-  ITEM_BASIC: 11,
-  ITEM_TRANSFER: 41,
-  USER_V2: 51,
-  CHANNEL_SETTINGS_UPDATE: 61,
-  AFFILIATE: 170 // 'aa' in hex
-}
 
 export const moderationActionsType = {
   REMOVE_MESSAGE: 'REMOVE_MESSAGE',
