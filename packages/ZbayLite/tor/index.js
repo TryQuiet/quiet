@@ -2,6 +2,8 @@ const path = require('path')
 const isDev = process.env.NODE_ENV === 'development'
 
 const pathDev = path.join.apply(null, [process.cwd(), 'tor/tor'])
+const pathDevLib = path.join.apply(null, [process.cwd(), 'tor'])
+const pathProdLib = path.join.apply(null, [process.resourcesPath, 'tor'])
 const pathDevSettings = path.join.apply(null, [process.cwd(), 'tor/torrc'])
 const pathProd = path.join.apply(null, [process.resourcesPath, 'tor/tor'])
 const pathProdSettings = path.join.apply(null, [
@@ -21,12 +23,17 @@ const spawnTor = () =>
       'utf8'
     )
     const result = data.replace(/PATH_TO_CHANGE/g, `${os.homedir()}/zbay_tor`)
-    fs.writeFileSync(isDev ? pathDevSettings : `${os.homedir()}/torrc`, result, 'utf8')
+    fs.writeFileSync(
+      isDev ? pathDevSettings : `${os.homedir()}/torrc`,
+      result,
+      'utf8'
+    )
 
-    const proc = spawn(isDev ? pathDev : pathProd, [
-      '-f',
-      isDev ? pathDevSettings : `${os.homedir()}/torrc`
-    ])
+    const proc = spawn(
+      isDev ? pathDev : pathProd,
+      ['-f', isDev ? pathDevSettings : `${os.homedir()}/torrc`],
+      { env: { LD_LIBRARY_PATH: isDev ? pathDevLib : pathProdLib } }
+    )
     const id = setTimeout(() => {
       resolve(null)
     }, 8000)
