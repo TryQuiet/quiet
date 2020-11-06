@@ -68,7 +68,6 @@ export const ChannelInput = ({
       setInfoClass={setInfoClass}
       onChange={e => {
         onChange(e)
-        checkMessageSizeLimit()
         resetDebounce()
       }}
       onKeyPress={sendDirectMessageOnEnter}

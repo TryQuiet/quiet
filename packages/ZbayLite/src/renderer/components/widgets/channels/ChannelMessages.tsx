@@ -90,6 +90,7 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
   onRescan,
   isNewUser,
 }) => {
+  console.log('usersregistration', usersRegistration)
   const classes = useStyles({});
   const scrollbarRef = React.useRef<Scrollbars>();
   // const [lastScrollHeight, setLastScrollHeight] = React.useState(0)
@@ -192,7 +193,7 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
         {/* {isOffer && !showLoader && (
           <WelcomeMessage message={welcomeMessages['offer'](tag, username)} />
         )} */}
-        {Object.keys(groupedMessages).map((key, i) => {
+        {Object.keys(groupedMessages || []).map((key, i) => {
           const messagesArray = groupedMessages[key];
           const today = DateTime.utc();
           const groupName = DateTime.fromSeconds(parseInt(key)).toFormat(

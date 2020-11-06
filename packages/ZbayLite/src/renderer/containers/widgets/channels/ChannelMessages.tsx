@@ -50,7 +50,7 @@ export const ChannelMessages = ({ tab, contentRect }) => {
     channelSelectors.displayableMessageLimit
   );
   const isOwner = useSelector(ownedChannelsSelectors.isOwner);
-  const channelId = useSelector(channelSelectors.channelI);
+  const channelId = useSelector(channelSelectors.channel);
   const users = useSelector(userSelector.users);
   const loader = useSelector(channelSelectors.loader);
   const publicChannels = useSelector(publicChannelsSelector.publicChannels);

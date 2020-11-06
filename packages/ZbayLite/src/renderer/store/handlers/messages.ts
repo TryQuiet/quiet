@@ -380,7 +380,7 @@ const setOutgoingTransactions = (
   );
   const contacts = contactsSelectors.contacts(getState());
 
-  const itemMessages = messagesAll.filter((msg) => msg.message.itemId);
+  const itemMessages = messagesAll.filter((msg) => msg.message ? msg.message.itemId : null);
   const groupedItemMesssages = R.groupBy<DisplayableMessage>(
     (msg) => msg.message.itemId + msg.receiver.username
   )(itemMessages);
@@ -417,7 +417,7 @@ const setOutgoingTransactions = (
     }
   }
   const normalMessages = messagesAll.filter(
-    (msg) => !msg.message.itemId && msg.receiver.publicKey
+    (msg) => msg.message ? (!msg.message.itemId && msg.receiver.publicKey) : null
   );
   const groupedMesssages = R.groupBy<DisplayableMessage>(
     (msg) => msg.receiver.publicKey

@@ -72,11 +72,9 @@ export const ChannelInput = ({
       onChange={e => {
         onChange(e)
         resetDebounce()
-        checkMessageSizeLimit()
       }}
       onKeyPress={e => {
         checkMentions()
-        checkMessageSizeLimit()
         sendOnEnter(e, setTab)
       }}
       message={message}

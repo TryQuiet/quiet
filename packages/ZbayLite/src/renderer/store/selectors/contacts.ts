@@ -118,7 +118,7 @@ const messagesSorted = (address) =>
   });
 const messagesSortedDesc = (address) =>
   createSelector(contact(address), (c) => {
-    return Array.from<DisplayableMessage>(Object.values(c)).sort(
+    return Array.from<DisplayableMessage>(Object.values(c.messages)).sort(
       (a, b) => a.createdAt - b.createdAt
     );
   });

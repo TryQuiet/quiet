@@ -229,7 +229,7 @@
     "react-dom": "^16.7.0",
     "react-jdenticon": "0.0.8",
     "react-measure": "^2.2.4",
-    "react-redux": "^6.0.0",
+    "react-redux": "^7.2.0",
     "react-router-dom": "^5.1.2",
     "react-string-replace": "^0.4.4",
     "read-last-lines": "^1.7.2",
