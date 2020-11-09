@@ -49,13 +49,14 @@ interface IChannelMessagesProps {
   isRescanned: boolean; //required?;
   isNewUser: boolean; //required?
   scrollPosition: number;
+  setScrollPosition: (arg?: any) => void;
   users: Array<IUser>;
   onLinkedChannel: (arg0: any) => void;
   publicChannels: any;
   onRescan: () => void;
   contentRect: string;
   isInitialLoadFinished: boolean;
-  channelId: string
+  channelId: string;
 }
 
 const renderView = (props) => {
@@ -72,6 +73,7 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
   messages,
   isOwner,
   scrollPosition,
+  setScrollPosition,
   contactId,
   usersRegistration,
   publicChannelsRegistration,
@@ -87,6 +89,7 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
   const classes = useStyles({});
   const msgRef = React.useRef<HTMLUListElement>();
   const scrollbarRef = React.useRef<Scrollbars>();
+  const [offset, setOffset] = React.useState(0);
 
   // TODO work on scroll behavior
   // React.useEffect(() => {
@@ -101,7 +104,14 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
   //     scrollbarRef.current.scrollTop(currentHeight - lastScrollHeight)
   //   }
   // }, [messages.size])
-  
+
+  const onScrollFrame = React.useCallback(
+    (e) => {
+      setScrollPosition(e.top);
+    },
+    [setScrollPosition]
+  );
+
   let groupedMessages: { [key: string]: DisplayableMessage[] };
   if (messages.length !== 0) {
     groupedMessages = R.groupBy<DisplayableMessage>((msg) => {
@@ -121,30 +131,42 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
   }
 
   useEffect(() => {
-    if (scrollbarRef.current && (scrollPosition === -1 || scrollPosition === 1)) {
-      console.log(scrollPosition)
+    if (
+      scrollbarRef.current &&
+      (scrollPosition === -1 || scrollPosition === 1)
+    ) {
       scrollbarRef.current.scrollToBottom();
     }
     const eventListener = () => {
-      if (scrollbarRef.current)
-        scrollbarRef.current.scrollToBottom();
-    }
+      if (scrollbarRef.current) scrollbarRef.current.scrollToBottom();
+    };
     window.addEventListener("resize", eventListener);
-    return () => window.removeEventListener('resize', eventListener);   
-  },[channelId, groupedMessages, scrollbarRef]
-  )
+    return () => window.removeEventListener("resize", eventListener);
+  }, [channelId, groupedMessages, scrollbarRef]);
+
+  React.useEffect(() => {
+    if (msgRef.current && scrollbarRef.current) {
+      const margin =
+        msgRef.current.offsetHeight < scrollbarRef.current.getClientHeight()
+          ? scrollbarRef.current.getClientHeight() - msgRef.current.offsetHeight
+          : 0;
+      setOffset(margin);
+    }
+  }, [msgRef, scrollbarRef]);
 
   return (
     <Scrollbars
       ref={scrollbarRef}
       autoHideTimeout={500}
       renderView={renderView}
+      onScrollFrame={onScrollFrame}
     >
       <List
         disablePadding
         ref={msgRef}
         id="messages-scroll"
         className={classes.list}
+        style={{ marginTop: offset }}
       >
         {isOwner && <WelcomeMessage message={welcomeMessages["main"]} />}
         {!isRescanned && !isDM && <RescanMessage />}

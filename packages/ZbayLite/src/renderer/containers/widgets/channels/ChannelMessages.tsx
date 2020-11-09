@@ -104,6 +104,7 @@ export const ChannelMessages = ({ tab, contentRect }) => {
   return (
     <ChannelMessagesComponent
       scrollPosition={scrollPosition}
+      setScrollPosition={setScrollPosition}
       isRescanned={isRescanned}
       isNewUser={isNewUser}
       onRescan={onRescan}
