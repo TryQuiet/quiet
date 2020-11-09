@@ -32,7 +32,12 @@ const spawnTor = () =>
     const proc = spawn(
       isDev ? pathDev : pathProd,
       ['-f', isDev ? pathDevSettings : `${os.homedir()}/torrc`],
-      { env: { LD_LIBRARY_PATH: isDev ? pathDevLib : pathProdLib } }
+      {
+        env: {
+          LD_LIBRARY_PATH: isDev ? pathDevLib : pathProdLib,
+          HOME: os.homedir()
+        }
+      }
     )
     const id = setTimeout(() => {
       resolve(null)
