@@ -20,6 +20,14 @@ import electronStore from "../../../../shared/electronStore";
 
 // TODO: This will be removed
 interface IMsg {
+  firstName: string;
+  publicKey: string;
+  lastName: string;
+  nickname: string;
+  address: string;
+  createdAt: number;
+}
+interface IMessages {
   createdAt: number;
   timestamp: number;
 }
@@ -35,8 +43,8 @@ export const ChannelMessages = ({ tab, contentRect }) => {
 
   const triggerScroll = qDmMessages.size + qMessages.size > 0;
 
-  const onLinkedChannel = () =>
-    dispatch(channelHandlers.epics.linkChannelRedirect());
+  const onLinkedChannel = (props) =>
+    dispatch(channelHandlers.epics.linkChannelRedirect(props));
   const setDisplayableLimit = (arg0?: number) =>
     dispatch(channelHandlers.actions.setDisplayableLimit(arg0));
   const onRescan = () => dispatch(appHandlers.epics.restartAndRescan());
@@ -50,7 +58,7 @@ export const ChannelMessages = ({ tab, contentRect }) => {
     channelSelectors.displayableMessageLimit
   );
   const isOwner = useSelector(ownedChannelsSelectors.isOwner);
-  const channelId = useSelector(channelSelectors.channel);
+  const channelId = useSelector(channelSelectors.channelId);
   const users = useSelector(userSelector.users);
   const loader = useSelector(channelSelectors.loader);
   const publicChannels = useSelector(publicChannelsSelector.publicChannels);
@@ -82,7 +90,7 @@ export const ChannelMessages = ({ tab, contentRect }) => {
       );
       _publicChannelsRegistration = Array.from(
         Object.values(publicChannels)
-      ).filter((msg: IMsg) => msg.timestamp >= oldestMessage.createdAt);
+      ).filter((msg: IMessages) => msg.timestamp >= oldestMessage.createdAt);
       publicChannelsRegistration = R.clone(_publicChannelsRegistration);
       for (const ch of publicChannelsRegistration) {
         delete Object.assign(ch, { createdAt: parseInt(ch["timestamp"]) })[
@@ -96,10 +104,10 @@ export const ChannelMessages = ({ tab, contentRect }) => {
   return (
     <ChannelMessagesComponent
       scrollPosition={scrollPosition}
-      setScrollPosition={setScrollPosition}
       isRescanned={isRescanned}
       isNewUser={isNewUser}
       onRescan={onRescan}
+      channelId={channelId}
       messages={
         tab === 0
           ? messages

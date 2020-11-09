@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Scrollbars } from "react-custom-scrollbars";
 import { DateTime } from "luxon";
 import * as R from "ramda";
@@ -35,25 +35,10 @@ const welcomeMessages = {
     `This is a private conversation with @${username} about their #${item} offer. Feel free to ask them a question about the product or provide other details about your purchase!`,
   main: `Congrats! You created a channel. You can share the channel link with others by accessing the “•••” menu at the top. Once you're registered as the channel owner (this can take a few minutes) you’ll be able to publish your channel and change its settings. Have a great time!`,
 };
-
-/**
- * 
- interface IMessage {
-   nickname: string;
-  createdAt: number;
-  address: string;
-  type: number;
-  keys: object;
-  id: string;
-  owner: string;
-  name: string;
-}
-*/
 interface IUser {
   nickname: string;
   address: string;
 }
-
 interface IChannelMessagesProps {
   messages: Array<DisplayableMessage>;
   isOwner: boolean;
@@ -63,7 +48,6 @@ interface IChannelMessagesProps {
   isDM?: boolean;
   isRescanned: boolean; //required?;
   isNewUser: boolean; //required?
-  setScrollPosition: (arg0?: any) => void;
   scrollPosition: number;
   users: Array<IUser>;
   onLinkedChannel: (arg0: any) => void;
@@ -71,18 +55,28 @@ interface IChannelMessagesProps {
   onRescan: () => void;
   contentRect: string;
   isInitialLoadFinished: boolean;
+  channelId: string
 }
+
+const renderView = (props) => {
+  const style = {
+    ...props.style,
+    display: "flex",
+    flexDirection: "column-reverse",
+  };
+  return <div {...props} style={style} />;
+};
 
 // TODO: scrollbar smart pagination
 export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
   messages,
   isOwner,
-  setScrollPosition,
   scrollPosition,
   contactId,
   usersRegistration,
   publicChannelsRegistration,
   users,
+  channelId,
   onLinkedChannel,
   publicChannels,
   isRescanned,
@@ -90,35 +84,10 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
   onRescan,
   isNewUser,
 }) => {
-  console.log('usersregistration', usersRegistration)
   const classes = useStyles({});
-  const scrollbarRef = React.useRef<Scrollbars>();
-  // const [lastScrollHeight, setLastScrollHeight] = React.useState(0)
-  // if (scrollbarRef.current) {
-  //   console.log(scrollbarRef.current.getValues())
-  // }
-  const getScrollbarRef = React.useCallback((ref) => {
-    if (ref !== null) {
-      scrollbarRef.current = ref;
-      if (scrollPosition === -1 || scrollPosition === 1) {
-        ref.scrollToBottom();
-      }
-    }
-  }, []);
-  const onScrollFrame = React.useCallback(
-    (e) => {
-      setScrollPosition(e.top);
-    },
-    [setScrollPosition]
-  );
   const msgRef = React.useRef<HTMLUListElement>();
-  const [offset, setOffset] = React.useState(0);
-  const updateSize = () => {
-    setOffset(0);
-  };
-  React.useEffect(() => {
-    window.addEventListener("resize", updateSize);
-  }, []);
+  const scrollbarRef = React.useRef<Scrollbars>();
+
   // TODO work on scroll behavior
   // React.useEffect(() => {
   //   setTimeout(() => {
@@ -126,48 +95,23 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
   //   }, 0)
   // }, [contactId])
   // React.useEffect(() => {
-  //   console.log('tick')
-
   //   if (scrollbarRef.current) {
-  //     console.log(scrollbarRef.current)
   //     const currentHeight = scrollbarRef.current.getScrollHeight()
-  //     console.log(lastScrollHeight)
-  //     console.log(currentHeight)
-  //     console.log(`######################`)
-
   //     setLastScrollHeight(currentHeight)
   //     scrollbarRef.current.scrollTop(currentHeight - lastScrollHeight)
   //   }
   // }, [messages.size])
-  React.useEffect(() => {
-    if (msgRef.current && scrollbarRef.current) {
-      const margin =
-        msgRef.current.offsetHeight < scrollbarRef.current.getClientHeight()
-          ? scrollbarRef.current.getClientHeight() - msgRef.current.offsetHeight
-          : 0;
-      setOffset(margin);
-    }
-  }, [msgRef, scrollbarRef]);
-  // let username
-  // let tag
-  // if (isOffer) {
-  //   const msg = messages.toJS()[0]
-  //   tag = msg.message.tag
-  //   username = msg.sender.username
-  //   username = msg.sender.username
-  // }
+  
   let groupedMessages: { [key: string]: DisplayableMessage[] };
   if (messages.length !== 0) {
-    groupedMessages = R.groupBy<DisplayableMessage>(
-      (msg) => {
-        return DateTime.fromFormat(
-          DateTime.fromSeconds(msg.createdAt).toFormat("cccc, LLL d"),
-          "cccc, LLL d"
-        )
-          .toSeconds()
-          .toString();
-      }
-    )(
+    groupedMessages = R.groupBy<DisplayableMessage>((msg) => {
+      return DateTime.fromFormat(
+        DateTime.fromSeconds(msg.createdAt).toFormat("cccc, LLL d"),
+        "cccc, LLL d"
+      )
+        .toSeconds()
+        .toString();
+    })(
       messages
         .filter((msg) => messagesTypesToDisplay.includes(msg.type))
         .concat(usersRegistration)
@@ -175,18 +119,32 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
         .sort((a, b) => a.createdAt - b.createdAt)
     );
   }
+
+  useEffect(() => {
+    if (scrollbarRef.current && (scrollPosition === -1 || scrollPosition === 1)) {
+      console.log(scrollPosition)
+      scrollbarRef.current.scrollToBottom();
+    }
+    const eventListener = () => {
+      if (scrollbarRef.current)
+        scrollbarRef.current.scrollToBottom();
+    }
+    window.addEventListener("resize", eventListener);
+    return () => window.removeEventListener('resize', eventListener);   
+  },[channelId, groupedMessages, scrollbarRef]
+  )
+
   return (
     <Scrollbars
-      ref={getScrollbarRef}
+      ref={scrollbarRef}
       autoHideTimeout={500}
-      onScrollFrame={onScrollFrame}
+      renderView={renderView}
     >
       <List
         disablePadding
         ref={msgRef}
         id="messages-scroll"
         className={classes.list}
-        style={{ marginTop: offset }}
       >
         {isOwner && <WelcomeMessage message={welcomeMessages["main"]} />}
         {!isRescanned && !isDM && <RescanMessage />}

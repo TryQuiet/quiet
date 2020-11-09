@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import PropTypes from 'prop-types'
 import * as R from 'ramda'
 
@@ -21,6 +21,8 @@ const styles = theme => ({
   button: {}
 })
 
+const RefIconButton = React.forwardRef((props, ref) => <IconButton {...props} ref={ref} />)
+
 export const MenuAction = ({
   classes,
   IconButton,
@@ -35,26 +37,37 @@ export const MenuAction = ({
   const [open, setOpen] = useState(false)
   const [hover, setHover] = useState(false)
   const toggleHover = () => setHover(!hover)
-  const [anchor, setAnchor] = useState(React.createRef())
+  const anchor = useRef()
   const closeMenu = () => setOpen(false)
   const toggleMenu = () => setOpen(!open)
   return (
     <React.Fragment>
-      <IconButton
+      <RefIconButton
         className={classes.button}
-        buttonRef={setAnchor}
+        ref={anchor}
         onClick={onClick || toggleMenu}
         disabled={disabled}
         disableRipple
         onMouseEnter={toggleHover}
         onMouseLeave={toggleHover}
       >
-        <Icon className={classes.icon} fontSize='inherit' src={hover ? iconHover : icon} />
-      </IconButton>
-      <PopupMenu open={open} anchorEl={anchor} offset={offset} placement={placement}>
+        <Icon
+          className={classes.icon}
+          fontSize='inherit'
+          src={hover ? iconHover : icon}
+        />
+      </RefIconButton>
+      <PopupMenu
+        open={open}
+        anchorEl={anchor.current}
+        offset={offset}
+        placement={placement}
+      >
         <ClickAwayListener onClickAway={closeMenu}>
           <MenuList className={classes.menuList}>
-            {React.Children.map(children, child => React.cloneElement(child, { close: closeMenu }))}
+            {React.Children.map(children, (child) =>
+              React.cloneElement(child, { close: closeMenu })
+            )}
           </MenuList>
         </ClickAwayListener>
       </PopupMenu>

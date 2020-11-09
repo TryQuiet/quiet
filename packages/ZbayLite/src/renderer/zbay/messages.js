@@ -29,27 +29,27 @@ export const exchangeParticipant = {
   publicKey: ''
 }
 
-// export const _DisplayableMessage = Immutable.Record(
-//   {
-//     id: null,
-//     type: messageType.BASIC,
-//     sender: ExchangeParticipant(),
-//     receiver: ExchangeParticipant(),
-//     createdAt: null,
-//     message: '',
-//     spent: new BigNumber(0),
-//     fromYou: false,
-//     status: 'broadcasted',
-//     error: null,
-//     shippingData: null,
-//     tag: '',
-//     offerOwner: null,
-//     isUnregistered: false,
-//     publicKey: null,
-//     blockHeight: Number.MAX_SAFE_INTEGER
-//   },
-//   'DisplayableMessage'
-// )
+export const _DisplayableMessage = Immutable.Record(
+  {
+    id: null,
+    type: messageType.BASIC,
+    sender: ExchangeParticipant(),
+    receiver: ExchangeParticipant(),
+    createdAt: null,
+    message: '',
+    spent: new BigNumber(0),
+    fromYou: false,
+    status: 'broadcasted',
+    error: null,
+    shippingData: null,
+    tag: '',
+    offerOwner: null,
+    isUnregistered: false,
+    publicKey: null,
+    blockHeight: Number.MAX_SAFE_INTEGER
+  },
+  'DisplayableMessage'
+)
 
 export const _displayableMessage = {
   id: null,
@@ -70,20 +70,18 @@ export const _displayableMessage = {
   blockHeight: Number.MAX_SAFE_INTEGER
 }
 
-// export const DisplayableMessage = values => {
-//   return new DisplayableMessageClass(values)
-// }
-//   if (values) {
-//     const record = {
-//       ..._displayableMessage,
-//       ...values
-//     }
-//     return record
-//   }
-//   return {
-//     ..._displayableMessage
-//   }
-// }
+export const DisplayableMessage = (values) => {
+  if (values) {
+    const record = {
+      ..._displayableMessage,
+      ...values
+    }
+    return record
+  }
+  return {
+    ..._displayableMessage
+  }
+}
 
 const _isOwner = (identityAddress, message) =>
   message.sender.replyTo === identityAddress
