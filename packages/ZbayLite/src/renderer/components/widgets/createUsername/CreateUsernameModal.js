@@ -13,6 +13,7 @@ import { withStyles } from '@material-ui/core/styles'
 
 import Modal from '../../ui/Modal'
 import UsernameCreated from './UsernameCreated'
+import electronStore from '../../../../shared/electronStore'
 
 const styles = theme => ({
   root: {},
@@ -191,11 +192,7 @@ const submitForm = (handleSubmit, values, setFormSent) => {
   setFormSent(true)
   handleSubmit(values)
 }
-const getRandomIntFromRange = (min, max) => {
-  min = Math.ceil(min)
-  max = Math.floor(max)
-  return Math.floor(Math.random() * (max - min + 1)) + min
-}
+
 export const CreateUsernameModal = ({
   classes,
   open,
@@ -208,14 +205,9 @@ export const CreateUsernameModal = ({
   zecRate
 }) => {
   const [formSent, setFormSent] = useState(false)
-  const [randomUsername, setRandomUsername] = useState(
-    'anon' + getRandomIntFromRange(10000000, 99999999)
-  )
-  React.useEffect(() => {
-    setRandomUsername('anon' + getRandomIntFromRange(10000000, 99999999))
-  }, [])
+  const isNewUser = electronStore.get('isNewUser')
   return (
-    <Modal open={open} handleClose={handleClose}>
+    <Modal open={open} handleClose={handleClose} isCloseDisabled={isNewUser}>
       <Grid container className={classes.main} direction='column'>
         {!formSent ? (
           <React.Fragment>
@@ -236,23 +228,12 @@ export const CreateUsernameModal = ({
                 validateField,
                 setFieldValue
               }) => {
-                const setUsername = () => {
-                  setFieldValue('nickname', randomUsername, true)
-                }
                 return (
                   <Form className={classes.fullWidth}>
                     <Grid container className={classes.container}>
                       <Grid className={classes.field} item xs={12}>
                         <Typography variant='caption' className={classes.label}>
-                          Choose your favorite username or use this random one:{' '}
-                          {
-                            <span
-                              className={classes.link}
-                              onClick={setUsername}
-                            >
-                              {randomUsername}
-                            </span>
-                          }
+                          Choose your favorite username:{' '}
                         </Typography>
                         <Field
                           name='nickname'
@@ -288,18 +269,6 @@ export const CreateUsernameModal = ({
                           Continue
                         </Button>
                       </Grid>
-                    </Grid>
-                    <Grid item className={classes.spacing24}>
-                      <Typography variant='body2' className={classes.note}>
-                        Note: registering a username will send a transaction to
-                        the blockchain. You will need to register in order to
-                        send and receive direct messages. You can register in
-                        settings at any time. Don’t need direct messages?
-                        (Warning: this will be weird){' '}
-                        <span className={classes.link} onClick={handleClose}>
-                          Skip registration for now
-                        </span>
-                      </Typography>
                     </Grid>
                   </Form>
                 )

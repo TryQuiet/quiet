@@ -7,10 +7,11 @@ import feesSelector from '../selectors/fees'
 import nodeSelectors from '../selectors/node'
 import feesHandlers from '../handlers/fees'
 import appHandlers from '../handlers/app'
-import { checkTransferCount } from '../handlers/messages'
+import { checkTransferCount, fetchAllMessages } from '../handlers/messages'
 import { actionCreators } from './modals'
 import usersSelector from '../selectors/users'
 import identitySelector from '../selectors/identity'
+import { actions as identityActions } from '../handlers/identity'
 import appSelectors from '../selectors/app'
 import { getPublicKeysFromSignature } from '../../zbay/messages'
 import { messageType, actionTypes, unknownUserId } from '../../../shared/static'
@@ -90,10 +91,12 @@ export const initialState = {}
 
 export const setUsers = createAction(actionTypes.SET_USERS)
 export const addUnknownUser = createAction(actionTypes.ADD_UNKNOWN_USER)
+export const mockOwnUser = createAction(actionTypes.MOCK_OWN_USER)
 
 export const actions = {
   setUsers,
-  addUnknownUser
+  addUnknownUser,
+  mockOwnUser
 }
 
 export const registerAnonUsername = () => async (dispatch, getState) => {
@@ -102,6 +105,48 @@ export const registerAnonUsername = () => async (dispatch, getState) => {
     createOrUpdateUser({ nickname: `anon${publicKey.substring(0, 10)}` })
   )
 }
+
+export const checkRegistraionConfirmations = ({ firstRun }) => async (dispatch, getState) => {
+  if (firstRun) {
+    const publicKey = identitySelector.signerPubKey(getState())
+    const address = identitySelector.address(getState())
+    const nickname = electronStore.get('registrationStatus.nickname')
+    dispatch(identityActions.setRegistraionStatus({
+      nickname,
+      status: 'IN_PROGRESS'
+    }))
+    dispatch(mockOwnUser({
+      sigPubKey: publicKey,
+      address,
+      nickname
+    }))
+  }
+  setTimeout(async () => {
+    const txid = electronStore.get('registrationStatus.txid')
+    const txns = await fetchAllMessages()
+    const outgoingTransactions = txns['undefined']
+    const registrationTransaction = outgoingTransactions.filter(el => el.txid === txid)[0]
+    if (registrationTransaction) {
+      const { block_height: blockHeight } = registrationTransaction
+      const currentHeight = await client.height()
+      if (currentHeight - blockHeight > 9) {
+        electronStore.set('registrationStatus.status', 'SUCCESS')
+        electronStore.set('registrationStatus.confirmation', 10)
+        dispatch(
+          notificationsHandlers.actions.enqueueSnackbar(
+            successNotification({
+              message: `Username registered.`
+            })
+          )
+        )
+      } else {
+        electronStore.set('registrationStatus.confirmation', currentHeight - blockHeight)
+        dispatch(checkRegistraionConfirmations({ firstRun: false }))
+      }
+    }
+  }, 75000)
+}
+
 export const createOrUpdateUser = payload => async (dispatch, getState) => {
   const {
     nickname,
@@ -110,6 +155,7 @@ export const createOrUpdateUser = payload => async (dispatch, getState) => {
     debounce = false,
     retry = 0
   } = payload
+  const publicKey = identitySelector.signerPubKey(getState())
   const address = identitySelector.address(getState())
   const privKey = identitySelector.signerPrivKey(getState())
   const fee = feesSelector.userFee(getState())
@@ -134,14 +180,32 @@ export const createOrUpdateUser = payload => async (dispatch, getState) => {
   })
   dispatch(actionCreators.closeModal('accountSettingsModal')())
   try {
+    if (retry === 0) {
+      dispatch(identityActions.setRegistraionStatus({
+        nickname,
+        status: 'IN_PROGRESS'
+      }))
+      dispatch(mockOwnUser({
+        sigPubKey: publicKey,
+        address,
+        nickname
+      }))
+      electronStore.set('registrationStatus', {
+        nickname,
+        status: 'IN_PROGRESS'
+      })
+    }
     const txid = await client.sendTransaction(transfer)
     if (txid.error) {
       throw new Error(txid.error)
     }
+    electronStore.set('registrationStatus.txid', txid.txid)
+    electronStore.set('registrationStatus.confirmation', 0)
+    dispatch(checkRegistraionConfirmations({ firstRun: true }))
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar(
         successNotification({
-          message: `Your username will be confirmed in few minutes`
+          message: `Registering username—this can take a few minutes.`
         })
       )
     )
@@ -152,7 +216,7 @@ export const createOrUpdateUser = payload => async (dispatch, getState) => {
       dispatch(
         notificationsHandlers.actions.enqueueSnackbar(
           infoNotification({
-            message: `Waiting for funds from faucet`,
+            message: `Waiting for funds to register username—this can take a few minutes.`,
             key: 'username'
           })
         )
@@ -164,6 +228,10 @@ export const createOrUpdateUser = payload => async (dispatch, getState) => {
       }, 75000)
       return
     }
+    dispatch(identityActions.setRegistraionStatus({
+      nickname,
+      status: 'ERROR'
+    }))
     dispatch(actionCreators.openModal('failedUsernameRegister')())
   }
 }
@@ -238,6 +306,8 @@ export const fetchUsers = (address, messages) => async (dispatch, getState) => {
     let minfee = 0
     let users = {}
     const network = nodeSelectors.network(getState())
+    const { status: registrationStatus } = identitySelector.registrationStatus(getState())
+    const signerPubKey = identitySelector.signerPubKey(getState())
     for (const msg of registrationMessages) {
       if (
         msg.type === messageType.CHANNEL_SETTINGS &&
@@ -261,6 +331,29 @@ export const fetchUsers = (address, messages) => async (dispatch, getState) => {
       }
     }
     dispatch(feesHandlers.actions.setUserFee(minfee))
+    const isRegistrationComplete = users[signerPubKey]
+    if (!isRegistrationComplete && registrationStatus === 'IN_PROGRESS') {
+      const publicKey = identitySelector.signerPubKey(getState())
+      const address = identitySelector.address(getState())
+      const { nickname } = identitySelector.registrationStatus(getState())
+      const mockedUser = {
+        [publicKey]: {
+          ..._UserData,
+          address,
+          nickname,
+          publicKey
+        }
+      }
+      users = {
+        ...users,
+        ...mockedUser
+      }
+    } else {
+      dispatch(identityActions.setRegistraionStatus({
+        nickname: '',
+        status: 'SUCCESS'
+      }))
+    }
     dispatch(setUsers({ users }))
   } catch (err) {
     throw err
@@ -324,7 +417,8 @@ export const epics = {
   createOrUpdateUser,
   registerAnonUsername,
   fetchOnionAddresses,
-  registerOnionAddress
+  registerOnionAddress,
+  checkRegistraionConfirmations
 }
 
 export const reducer = handleActions(
@@ -343,6 +437,13 @@ export const reducer = handleActions(
         key: unknownUserId,
         nickname: 'Unknown',
         address: unknownUserId
+      }
+    }),
+    [mockOwnUser]: (state, { payload: { sigPubKey, nickname, address } }) => produce(state, (draft) => {
+      draft[sigPubKey] = {
+        publicKey: sigPubKey,
+        nickname,
+        address
       }
     })
   },

@@ -45,7 +45,6 @@ export const Main = ({
     if (isNewUser === true && !isMigrating && zecBalance.gt(0)) {
       openSettingsModal()
     }
-    electronStore.set('isNewUser', false)
   }, [])
   return <MainComponent {...props} />
 }

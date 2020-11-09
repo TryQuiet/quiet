@@ -170,7 +170,9 @@ export const actionTypes = mirrorKey({
   MESSAGE_SIZE_STATUS: undefined,
   SET_INITIAL_LOAD_FLAG: undefined,
   SET_REMOVED_CHANNELS: undefined,
-  ADD_UNKNOWN_USER: undefined
+  ADD_UNKNOWN_USER: undefined,
+  MOCK_OWN_USER: undefined,
+  SET_REGISTRAION_STATUS: undefined
 })
 
 export const moderationActionsType = {

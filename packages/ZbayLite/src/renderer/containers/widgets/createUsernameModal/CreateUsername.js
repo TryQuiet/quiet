@@ -10,6 +10,7 @@ import ratesSelectors from '../../../store/selectors/rates'
 
 import CreateUsernameModal from '../../../components/widgets/createUsername/CreateUsernameModal'
 import { withModal } from '../../../store/handlers/modals'
+import electronStore from '../../../../shared/electronStore'
 export const mapStateToProps = state => {
   return {
     initialValues: {
@@ -31,8 +32,10 @@ export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
       checkNickname: usersHandlers.epics.isNicknameTaken,
-      handleSubmit: ({ nickname }) =>
-        usersHandlers.epics.createOrUpdateUser({ nickname, debounce: true })
+      handleSubmit: ({ nickname }) => {
+        electronStore.set('isNewUser', false)
+        return usersHandlers.epics.createOrUpdateUser({ nickname, debounce: true })
+      }
     },
     dispatch
   )

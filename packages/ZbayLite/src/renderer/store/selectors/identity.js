@@ -54,6 +54,8 @@ const removedChannels = createSelector(identity, i => Array.from(Object.values(i
 
 const shippingData = createSelector(data, d => d.shippingData)
 
+const registrationStatus = createSelector(identity, i => i.registrationStatus)
+
 export default {
   id,
   name,
@@ -77,5 +79,6 @@ export default {
   addresses,
   shieldedAddresses,
   removedChannels,
-  onionAddress
+  onionAddress,
+  registrationStatus
 }

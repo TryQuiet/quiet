@@ -13,10 +13,10 @@ import txnTimestampsSelector from '../selectors/txnTimestamps'
 // import channelsSelectors from '../selectors/channels'
 // import channelsHandlers from './channels'
 // import removedChannelsHandlers from './removedChannels'
-// import usersHandlers from './users'
 // import contactsHandlers from './contacts'
 // import messagesHandlers from './messages'
 // import publicChannelsHandlers from './publicChannels'
+import usersHandlers from './users'
 import coordinatorHandlers from './coordinator'
 import whitelistHandlers from './whitelist'
 import ownedChannelsHandlers from './ownedChannels'
@@ -72,6 +72,10 @@ export const initialState = {
     message: ''
   },
   removedChannels: [],
+  registrationStatus: {
+    nickname: '',
+    status: 'UNREGISTERED'
+  },
   errors: ''
 }
 
@@ -96,11 +100,12 @@ export const setDonationAddress = createAction(actionTypes.SET_DONATION_ADDRESS)
 export const setShieldingTax = createAction(actionTypes.SET_SHIELDING_TAX)
 export const setFreeUtxos = createAction(actionTypes.SET_FREE_UTXOS)
 export const setUserAddreses = createAction(actionTypes.SET_USER_ADDRESSES)
+export const setRegistraionStatus = createAction(actionTypes.SET_REGISTRAION_STATUS)
 export const setUserShieldedAddreses = createAction(
   actionTypes.SET_USER_SHIELDED_ADDRESES
 )
 
-const actions = {
+export const actions = {
   setIdentity,
   setRemovedChannels,
   setFetchingBalance,
@@ -114,8 +119,10 @@ const actions = {
   setDonationAddress,
   setShieldingTax,
   setFreeUtxos,
-  setOnionAddress
+  setOnionAddress,
+  setRegistraionStatus
 }
+
 export const fetchAffiliateMoney = () => async (dispatch, getState) => {
   try {
     const identityAddress = identitySelectors.address(getState())
@@ -405,8 +412,17 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
     await dispatch(fetchFreeUtxos())
     await dispatch(messagesHandlers.epics.fetchMessages())
     await dispatch(appHandlers.epics.initializeUseTor())
+    const usernameStatus = electronStore.get('registrationStatus.status')
+    const usernameRegistrationTxid = electronStore.get('registrationStatus.txid')
+    const nickname = electronStore.get('registrationStatus.nickname')
+    if (nickname && usernameStatus !== 'SUCCESS') {
+      if (!usernameRegistrationTxid) {
+        await dispatch(usersHandlers.epics.createOrUpdateUser({ nickname, debounce: true }))
+      } else {
+        dispatch(usersHandlers.epics.checkRegistraionConfirmations({ firstRun: true }))
+      }
+    }
     setTimeout(() => dispatch(coordinatorHandlers.epics.coordinator()), 5000)
-
     dispatch(setLoadingMessage('Loading users and messages'))
   } catch (err) {}
   if (isNewUser === true) {
@@ -583,6 +599,9 @@ export const reducer = handleActions(
       produce(state, (draft) => {
         draft.data.addresses = addresses
       }),
+    [setRegistraionStatus]: (state, { payload }) => produce(state, draft => {
+      draft.registrationStatus = payload
+    }),
     [setUserShieldedAddreses]: (state, { payload: shieldedAddresses }) =>
       produce(state, (draft) => {
         draft.data.shieldedAddresses = shieldedAddresses
