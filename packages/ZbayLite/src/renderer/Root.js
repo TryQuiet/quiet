@@ -5,6 +5,8 @@ import { SnackbarProvider } from 'notistack'
 import { MuiThemeProvider } from '@material-ui/core/styles'
 import { Provider } from 'react-redux'
 import { HashRouter, Route } from 'react-router-dom'
+import { PersistGate } from 'redux-persist/integration/react'
+import { persistStore } from 'redux-persist'
 
 import store from './store'
 import Index from './containers/windows/Index'
@@ -38,41 +40,44 @@ import SendMoney from './containers/ui/sendMoneySeparate/sendMoney'
 import theme from './theme'
 
 export default () => {
+  const persistor = persistStore(store)
   return (
     <MuiThemeProvider theme={theme}>
       <HashRouter>
         <Provider store={store}>
-          <SnackbarProvider maxSnack={3}>
-            <Notifier />
-            <MigrationModal />
-            <ErrorModal />
-            <QuitAppDialog />
-            <UpdateModal />
-            <SendMoneyModal />
-            <SecurityModal />
-            <TopUpModal />
-            <CssBaseline />
-            <CreateChannelModal />
-            <NewMessageModal />
-            <SendMessageModal />
-            <JoinChannelModal />
-            <AdvertModal />
-            <AdvertActionsModal />
-            <SendFundsModal />
-            <ChannelSettingsModal />
-            <PublishChannelModal />
-            <RegistrationGuide />
-            <SentFundsModal />
-            <AddModerator />
-            <OpenExternalLinkModal />
-            <BlockchainLocationModal />
-            <SendMoney />
-            <FailedUsernameRegister />
-            <Route path='/vault' exact component={Vault} />
-            <Route path='/main' component={Main} />
-            <Route path='/zcashNode' component={Index} />
-            <Route path='/loading' component={Loading} />
-          </SnackbarProvider>
+          <PersistGate loading={null} persistor={persistor}>
+            <SnackbarProvider maxSnack={3}>
+              <Notifier />
+              <MigrationModal />
+              <ErrorModal />
+              <QuitAppDialog />
+              <UpdateModal />
+              <SendMoneyModal />
+              <SecurityModal />
+              <TopUpModal />
+              <CssBaseline />
+              <CreateChannelModal />
+              <NewMessageModal />
+              <SendMessageModal />
+              <JoinChannelModal />
+              <AdvertModal />
+              <AdvertActionsModal />
+              <SendFundsModal />
+              <ChannelSettingsModal />
+              <PublishChannelModal />
+              <RegistrationGuide />
+              <SentFundsModal />
+              <AddModerator />
+              <OpenExternalLinkModal />
+              <BlockchainLocationModal />
+              <SendMoney />
+              <FailedUsernameRegister />
+              <Route path='/vault' exact component={Vault} />
+              <Route path='/main' component={Main} />
+              <Route path='/zcashNode' component={Index} />
+              <Route path='/loading' component={Loading} />
+            </SnackbarProvider>
+          </PersistGate>
         </Provider>
       </HashRouter>
     </MuiThemeProvider>
