@@ -585,7 +585,7 @@ const setUsersMessages = (address, messages: DisplayableMessage[]) => async (
       return new DisplayableMessage(message);
     })
   );
-  const itemMessages = messagesAll.filter((msg) => msg.message.itemId);
+  const itemMessages = messagesAll.filter((msg) => msg.message ? msg.message.itemId : null);
   const contacts = contactsSelectors.contacts(getState());
   const groupedItemMesssages = R.groupBy<DisplayableMessage>(
     (msg) => msg.message.itemId + msg.sender.username
@@ -639,7 +639,7 @@ const setUsersMessages = (address, messages: DisplayableMessage[]) => async (
       );
     }
   }
-  const normalMessages = messagesAll.filter((msg) => !msg.message.itemId);
+  const normalMessages = messagesAll.filter((msg) => msg.message ? !msg.message.itemId : null);
   const groupedMesssages = R.groupBy<DisplayableMessage>(
     (msg) => msg.publicKey
   )(normalMessages);
