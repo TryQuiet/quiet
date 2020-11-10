@@ -42,7 +42,7 @@ export const formSchema = users => {
         value
       ) {
         return getBytesSize(value) <= MESSAGE_SIZE
-      }).required('Required')
+      })
     },
     ['recipient', 'amountZec', 'amoundUsd', 'memo']
   )
