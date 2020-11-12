@@ -278,7 +278,7 @@ export const ChannelInput = ({
             }}
             participant={members.has(target.address)}
             channelName={channelName}
-            onClick={e => {
+            onClick={(e) => {
               e.preventDefault()
               const currentMsg = message
                 .replace(/ /g, String.fromCharCode(160))
@@ -347,7 +347,7 @@ export const ChannelInput = ({
                   }
                 }}
                 html={findMentions(sanitizeHtml(htmlMessage))}
-                onChange={e => {
+                onChange={(e) => {
                   if (inputState === INPUT_STATE.AVAILABLE) {
                     onChange(e.nativeEvent.target.innerText)
                     if (!e.nativeEvent.target.innerText) {
@@ -358,7 +358,7 @@ export const ChannelInput = ({
                   }
                   setAnchorEl(e.currentTarget.lastElementChild)
                 }}
-                onKeyDown={e => {
+                onKeyDown={(e) => {
                   if (refMentionsToSelect.current.length) {
                     if (e.nativeEvent.keyCode === 40) {
                       if (
@@ -431,13 +431,13 @@ export const ChannelInput = ({
                 <Icon
                   className={classes.emoji}
                   src={emojiHovered ? emojiBlack : emojiGray}
-                  onClick={() => {
+                  onClickHandler={() => {
                     setOpenEmoji(true)
                   }}
-                  onMouseEnter={() => {
+                  onMouseEnterHandler={() => {
                     setEmojiHovered(true)
                   }}
-                  onMouseLeave={() => {
+                  onMouseLeaveHandler={() => {
                     setEmojiHovered(false)
                   }}
                 />
