@@ -20,7 +20,7 @@ import { _checkMessageSize } from "./messages";
 import directMessagesQueueHandlers from "./directMessagesQueue";
 import removedChannelsHandlers from "./removedChannels";
 import offersHandlers from "./offers";
-import { ActionsType } from "./types";
+import { ActionsType, PayloadType } from "./types";
 
 const sendDirectMessage = (payload, redirect = true) => async (
   dispatch,
@@ -53,27 +53,29 @@ const sendDirectMessage = (payload, redirect = true) => async (
     )
   );
 };
+export class Contacts {
+lastSeen?: DateTime;
+key: string = '';
+username: string = ''
+address: string = ''
+newMessages: string[] = [];
+vaultMessages: DisplayableMessage[] = [];
+messages: DisplayableMessage[] = [];
+offerId?: string;
+unread?: number
 
-export interface IContact {
-  lastSeen?: DateTime;
-  messages: DisplayableMessage[];
-  newMessages: string[];
-  vaultMessages: DisplayableMessage[];
-  offerId?: string;
-  key: string;
-  address: string;
-  username: string;
-  unread?: number;
+  constructor(values?: Partial<Contacts>) {
+    Object.assign(this, values);
+  }
 }
-
 export interface ISender {
   replyTo: string;
   username: string;
 }
 
-export type ContactStore = { [key: string]: IContact };
+export type ContactsStore = { [key: string]: Contacts };
 
-const initialState = {};
+const initialState: ContactsStore = {};
 
 const setMessages = createAction<{
   messages: DisplayableMessage[];
@@ -106,7 +108,7 @@ const appendNewMessages = createAction<{
   contactAddress: string;
   messagesIds: string[];
 }>(actionTypes.APPEND_NEW_DIRECT_MESSAGES);
-const setLastSeen = createAction<{ lastSeen: DateTime; contact: IContact }>(
+const setLastSeen = createAction<{ lastSeen: DateTime; contact: Contacts }>(
   actionTypes.SET_CONTACTS_LAST_SEEN
 );
 const removeContact = createAction<{ address: string }>(
@@ -212,7 +214,7 @@ export const checkConfirmationOfTransfers = async (dispatch, getState) => {
     const latestBlock = parseInt(nodeSelectors.latestBlock(getState()));
     const contacts = selectors.contacts(getState());
     const offers = offersSelectors.offers(getState());
-    const getKeys = (obj: ContactStore) => Object.keys(obj);
+    const getKeys = (obj: ContactsStore) => Object.keys(obj);
     for (const key of getKeys(contacts)) {
       for (const msg of contacts[key].messages) {
         if (
@@ -279,7 +281,7 @@ export const epics = {
   checkConfirmationOfTransfers,
 };
 
-export const reducer = handleActions(
+export const reducer = handleActions<ContactsStore, PayloadType<ContactActions>>(
   {
     [setMessages.toString()]: (
       state,
@@ -291,7 +293,7 @@ export const reducer = handleActions(
         if (!draft[key]) {
           draft[key] = {
             lastSeen: null,
-            messages: {},
+            messages: [],
             newMessages: [],
             vaultMessages: [],
             offerId: null,
@@ -314,7 +316,7 @@ export const reducer = handleActions(
       produce(state, (draft) => {
         draft[key] = {
           lastSeen: null,
-          messages: {},
+          messages: [],
           newMessages: [],
           vaultMessages: [],
           offerId: offerId,

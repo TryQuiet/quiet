@@ -26,7 +26,9 @@ export const ExchangeParticipant = Immutable.Record(
 export const exchangeParticipant = {
   replyTo: '',
   username: 'Unnamed',
-  publicKey: ''
+  publicKey: '',
+  address: '',
+  nickname: ''
 }
 
 export const _DisplayableMessage = Immutable.Record(
@@ -393,9 +395,9 @@ export const createTransfer = (values) => {
     sender: values.sender,
     receiver: values.receiver,
     createdAt: DateTime.utc().toSeconds(),
-    memo: memo || 'TRASNFER',
-    spent: values.amountZec
-  }
+    memo: memo || "TRANSFER",
+    spent: values.amountZec,
+  };
 }
 
 export const _buildUtxo = ({

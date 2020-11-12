@@ -9,6 +9,7 @@
     "moduleResolution": "node",
     "lib": ["es2015", "dom"],
     "esModuleInterop": true,
+    "downlevelIteration": true,
     "typeRoots": [
       "node_modules/@types",
       "src/renderer/expanded-theme.ts"

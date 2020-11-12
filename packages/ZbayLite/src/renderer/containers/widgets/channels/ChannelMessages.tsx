@@ -18,15 +18,7 @@ import channelHandlers from "../../../store/handlers/channel";
 import appHandlers from "../../../store/handlers/app";
 import electronStore from "../../../../shared/electronStore";
 
-// TODO: This will be removed
-interface IMsg {
-  firstName: string;
-  publicKey: string;
-  lastName: string;
-  nickname: string;
-  address: string;
-  createdAt: number;
-}
+// TODO: It will be removed
 interface IMessages {
   createdAt: number;
   timestamp: number;
@@ -86,7 +78,7 @@ export const ChannelMessages = ({ tab, contentRect }) => {
   if (channelId === zcashChannels.general[network].address) {
     if (oldestMessage) {
       usersRegistration = Array.from(Object.values(users)).filter(
-        (msg: IMsg) => msg.createdAt >= oldestMessage.createdAt
+        (msg) => msg.createdAt >= oldestMessage.createdAt
       );
       _publicChannelsRegistration = Array.from(
         Object.values(publicChannels)

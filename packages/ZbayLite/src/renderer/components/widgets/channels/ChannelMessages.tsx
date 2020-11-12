@@ -15,6 +15,8 @@ import MessagesDivider from "../MessagesDivider";
 import UserRegisteredMessage from "./UserRegisteredMessage";
 import ChannelRegisteredMessage from "./ChannelRegisteredMessage";
 
+import { IUser, UsersStore } from "./../../../store/handlers/users";
+
 import { DisplayableMessage } from "./../../../zbay/messages.types";
 
 const useStyles = makeStyles((theme) => ({
@@ -35,10 +37,6 @@ const welcomeMessages = {
     `This is a private conversation with @${username} about their #${item} offer. Feel free to ask them a question about the product or provide other details about your purchase!`,
   main: `Congrats! You created a channel. You can share the channel link with others by accessing the “•••” menu at the top. Once you're registered as the channel owner (this can take a few minutes) you’ll be able to publish your channel and change its settings. Have a great time!`,
 };
-interface IUser {
-  nickname: string;
-  address: string;
-}
 interface IChannelMessagesProps {
   messages: Array<DisplayableMessage>;
   isOwner: boolean;
@@ -50,7 +48,7 @@ interface IChannelMessagesProps {
   isNewUser: boolean; //required?
   scrollPosition: number;
   setScrollPosition: (arg?: any) => void;
-  users: Array<IUser>;
+  users: UsersStore;
   onLinkedChannel: (arg0: any) => void;
   publicChannels: any;
   onRescan: () => void;

@@ -7,15 +7,12 @@ import { updatePendingMessage } from "./contacts";
 
 import { actionTypes } from "../../../shared/static";
 
-import { ActionsType } from "./types";
-
-import { DisplayableMessage } from "../../zbay/messages.types";
+import { ActionsType, PayloadType } from "./types";
 
 const oneOf = (...arr) => (val) => R.includes(val, arr);
 
 export const isFinished = oneOf("success", "cancelled", "failed");
 
-export const initialState = {};
 
 export const ZcashError = {
   code: null,
@@ -40,38 +37,35 @@ export const PendingDirectMessageOp = {
   offerId: "",
 };
 
-export const operationTypes = {
-  shieldBalance: "shieldBalance",
-  pendingMessage: "pendingMessage",
-  pendingDirectMessage: "pendingDirectMessage",
-  pendingPlainTransfer: "pendingPlainTransfer",
+// TODO: Probably unused
+export enum OperationType {
+  shieldBalance = "shieldBalance",
+  pendingMessage = "pendingMessage",
+  pendingDirectMessage = "pendingDirectMessage",
+  pendingPlainTransfer=  "pendingPlainTransfer",
 };
 
-export const Operation = {
-  id: "",
-  txid: "",
-  error: null,
+export class Operation {
+  id: string = "";
+  txid: string = "";
+  error?: Error;
+
+  constructor(values: Partial<Operation>) {
+    Object.assign(this, values);
+  }
+
 };
 
-interface IMeta {
-  recipientAddress: string;
-  message: DisplayableMessage;
-  channelId: string;
-}
+export type OperationsStore = { [channelId: string]: { [operationId: string] : Operation } };
 
-export interface IOperation {
-  type: string;
-  meta: IMeta;
-}
-
-export type OperationStore = { [key: string]: IOperation[] };
+export const initialState: OperationsStore = {};
 
 const addOperation = createAction<{ channelId: string; id: string }>(
   actionTypes.ADD_PENDING_OPERATION
-);
-const resolveOperation = createAction<{
-  channelId: string;
-  id: string;
+  );
+  const resolveOperation = createAction<{
+    channelId: string;
+    id: string;
   txid: string;
 }>(actionTypes.RESOLVE_PENDING_OPERATION);
 const removeOperation = createAction(actionTypes.REMOVE_PENDING_OPERATION);
@@ -82,7 +76,7 @@ export const actions = {
   removeOperation,
 };
 
-export type OperationActions = ActionsType<typeof actions>;
+export type OperationsActions = ActionsType<typeof actions>;
 
 const resolvePendingOperation = ({ channelId, id, txid }) => async (
   dispatch
@@ -94,22 +88,26 @@ export const epics = {
   resolvePendingOperation,
 };
 
-export const reducer = handleActions(
+export const reducer = handleActions<
+  OperationsStore,
+    PayloadType<OperationsActions>
+>(
   {
     [addOperation.toString()]: (
       state,
-      { payload: { channelId, id } }: OperationActions["addOperation"]
+      { payload: { channelId, id } }: OperationsActions["addOperation"]
     ) =>
       produce(state, (draft) => {
-        draft[channelId] = {};
-        draft[channelId][id] = {
-          ...Operation,
-          id,
-        };
+        draft[channelId] = {
+          [id]: {
+          ...new Operation({ id }),          
+          }}
       }),
     [resolveOperation.toString()]: (
       state,
-      { payload: { channelId, id, txid } }: OperationActions["resolveOperation"]
+      {
+        payload: { channelId, id, txid },
+      }: OperationsActions["resolveOperation"]
     ) =>
       produce(state, (draft) => {
         delete draft[channelId][id];

@@ -4,13 +4,11 @@ import crypto from 'crypto'
 import { createAction, handleActions } from 'redux-actions'
 
 import selectors from '../selectors/directMessagesQueue'
-import operationsSelectors from '../selectors/operations'
 import identitySelectors from '../selectors/identity'
 import contactsSelectors from '../selectors/contacts'
 import usersSelectors from '../selectors/users'
 import appSelectors from '../selectors/app'
 import operationsHandlers from './operations'
-import offersSelectors from '../selectors/offers'
 import {
   messageToTransfer,
   createEmptyTransfer,
@@ -23,11 +21,9 @@ import appHandlers from './app'
 import { errorNotification } from './utils'
 import client from '../../zcash'
 import contactsHandlers from './contacts'
-import offersHandlers from './offers'
 import history from '../../../shared/history'
 
 export const DEFAULT_DEBOUNCE_INTERVAL = 2000
-const POLLING_OFFSET = 60000
 
 export const PendingMessage = {
   recipientAddress: '',
@@ -65,76 +61,6 @@ const removeMessage = createAction(actionTypes.REMOVE_PENDING_DIRECT_MESSAGE)
 export const actions = {
   addDirectMessage,
   removeMessage
-}
-
-export const checkConfirmationNumber = async ({
-  opId,
-  status,
-  txId,
-  dispatch,
-  getState
-}) => {
-  const { meta: message } = operationsSelectors
-    .pendingDirectMessages(getState())
-    .get(opId)
-    .toJS()
-  const messageContent = message.message
-  const { recipientAddress, recipientUsername } = message
-  const item = offersSelectors.offer(
-    messageContent.message.itemId + recipientUsername
-  )(getState())
-  if (item) {
-    await dispatch(
-      offersHandlers.epics.refreshMessages(
-        messageContent.message.itemId + recipientUsername
-      )
-    )
-  } else {
-    const { username } = contactsSelectors.contact(recipientAddress)(getState())
-    if (!username) {
-      dispatch(
-        contactsHandlers.actions.setUsernames({
-          sender: {
-            replyTo: recipientAddress,
-            username: recipientUsername || recipientAddress.substring(0, 15)
-          }
-        })
-      )
-    }
-    dispatch(
-      contactsHandlers.epics.loadVaultMessages({
-        contact: {
-          replyTo: recipientAddress,
-          username: recipientUsername
-        }
-      })
-    )
-    const subscribe = async callback => {
-      async function poll () {
-        const { confirmations, error = null } =
-          (await client().confirmations.getResult(txId)) || {}
-        if (confirmations >= 1) {
-          return callback(error, { confirmations })
-        } else {
-          setTimeout(poll, POLLING_OFFSET)
-        }
-      }
-      return poll()
-    }
-
-    return subscribe(async (error, { confirmations }) => {
-      dispatch(
-        contactsHandlers.epics.loadVaultMessages({
-          contact: {
-            replyTo: recipientAddress,
-            username: recipientUsername
-          }
-        })
-      )
-      if (error) {
-      }
-    })
-  }
 }
 
 const sendPlainTransfer = payload => async (dispatch, getState) => {

@@ -1,46 +1,14 @@
 import { createSelector } from "reselect";
-import Immutable from "immutable";
 import identitySelectors from "./identity";
 import directMssagesQueueSelectors from "./directMessagesQueue";
-import operationsSelectors from "./operations";
-import { operationTypes } from "../handlers/operations";
-// import usersSelectors from './users'
 import { mergeIntoOne, displayableMessageLimit } from "./channel";
 import { MessageType } from "../../../shared/static.types";
 import { unknownUserId } from "../../../shared/static";
 
-// import messagesSelectors from './messages'
-
 import { DisplayableMessage } from "../../zbay/messages.types";
-import { ContactStore, IContact } from "../handlers/contacts";
+import { ContactsStore, Contacts } from "../handlers/contacts";
 
-export const Contact = Immutable.Record({
-  lastSeen: null,
-  key: "",
-  username: "",
-  address: "",
-  messages: Immutable.Map(),
-  newMessages: Immutable.List(),
-  vaultMessages: Immutable.List(),
-  offerId: null,
-});
-
-const contactBase: IContact = {
-  lastSeen: null,
-  key: "",
-  username: "",
-  address: "",
-  messages: [],
-  newMessages: [],
-  vaultMessages: [],
-  offerId: null,
-};
-
-interface IEl {
-  address: string;
-}
-
-const contacts = (s): ContactStore => s.contacts as ContactStore;
+const contacts = (s): ContactsStore => s.contacts as ContactsStore;
 
 const contactsList = createSelector(
   contacts,
@@ -98,13 +66,13 @@ const channelsList = createSelector(
 
 const directMessagesContact = (address) =>
   createSelector(contacts, (c) =>
-    Array.from(Object.values(c)).find((el: IEl) => el.address === address)
+    Array.from(Object.values(c)).find((el) => el.address === address)
   );
 
 const contact = (address) =>
   createSelector(contacts, (c) => {
     if (!c[address]) {
-      return contactBase;
+      return new Contacts();
     } else {
       return c[address];
     }
@@ -112,13 +80,13 @@ const contact = (address) =>
 
 const messagesSorted = (address) =>
   createSelector(contact(address), (c) => {
-    return Array.from<DisplayableMessage>(Object.values(c.messages)).sort(
+    return Array.from(Object.values(c.messages)).sort(
       (a, b) => b.createdAt - a.createdAt
     );
   });
 const messagesSortedDesc = (address) =>
   createSelector(contact(address), (c) => {
-    return Array.from<DisplayableMessage>(Object.values(c.messages)).sort(
+    return Array.from(Object.values(c.messages)).sort(
       (a, b) => a.createdAt - b.createdAt
     );
   });
@@ -175,15 +143,15 @@ export const queuedMessages = (address) =>
       queue.filter((m) => m.recipientAddress === address && m.message.type < 10) //  separate offer messages and direct messages
   );
 
-export const pendingMessages = (address) =>
-  createSelector(operationsSelectors.operations, (operations) =>
-    operations.filter(
-      (o) =>
-        o.type === operationTypes.pendingDirectMessage &&
-        o.meta.recipientAddress === address &&
-        o.meta.message.type < 10 //  separate offer messages and direct messages
-    )
-  );
+// export const pendingMessages = (address) =>
+  // createSelector(operationsSelectors.operations, (operations) =>
+    // operations.filter(
+      // (o) =>
+        // o.type === OperationType.pendingDirectMessage &&
+        // o.meta.recipientAddress === address &&
+        // o.meta.message.type < 10 //  separate offer messages and direct messages
+    // )
+  // );
 
 const channelOwner = (channelId) =>
   createSelector(channelSettingsMessages(channelId), (msgs) => {
@@ -196,11 +164,13 @@ const channelOwner = (channelId) =>
     }
     return channelOwner;
   });
+
+ // TODO: TO be removed 
 export interface IDirectMessage {
   visibleMessages: DisplayableMessage[];
   channelModerators: any[];
   messsagesToRemove: DisplayableMessage[];
-  blockedUsers: any[]
+  blockedUsers: any[];
 }
 
 export const directMessages = (address) =>
@@ -303,7 +273,7 @@ export default {
   directMessagesContact,
   queuedMessages,
   channelModerators,
-  pendingMessages,
+  //pendingMessages,
   contact,
   messages,
   directMessages,
