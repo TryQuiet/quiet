@@ -37,7 +37,24 @@ const reduxStorage = createElectronStorage({ name: 'redux-storage' })
 const persistConfig = {
   key: 'root',
   storage: reduxStorage,
-  whitelist: ['contacts']
+  whitelist: [
+    'contacts',
+    'app',
+    'identity',
+    'users',
+    'channels',
+    'vault',
+    'offers',
+    'removedChannels',
+    'publicChannels',
+    'ownedChannels',
+    'whitelist',
+    'txnTimestamps',
+    'notificationCenter',
+    'rates',
+    'importedChannel',
+    'fees'
+  ]
 }
 export default persistReducer(
   persistConfig,

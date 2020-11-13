@@ -118,10 +118,9 @@ export const checkNodeStatus = nodeProcessStatus => async (
     ipcRenderer.send('restart-node-proc')
   }
 }
-
+let lastSavedBlock = 0
 const getStatus = () => async (dispatch, getState) => {
   try {
-    console.log('status')
     const info = await client.info()
     const height = await client.height()
     if (info.latest_block_height > height) {
@@ -133,9 +132,9 @@ const getStatus = () => async (dispatch, getState) => {
 
     setTimeout(async () => {
       const syncStatus = await client.syncStatus()
-      if (syncStatus.syncing === 'false') {
+      if (syncStatus.syncing === 'false' && lastSavedBlock + 25 < height) {
         client.save()
-
+        lastSavedBlock = height
         if (nodeSelectors.isRescanning(getState())) {
           setTimeout(async () => {
             console.log('saving')
@@ -179,38 +178,38 @@ const epics = {
 export const reducer = handleActions(
   {
     [actionTypes.SET_STATUS]: (state, { payload: status }) => {
-      return produce(state, (draft) => {
+      return produce(state, draft => {
         return Object.assign({}, draft, status)
       })
     },
     [typeRejected(actionTypes.CREATE_ADDRESS)]: (state, { payload: errors }) =>
-      produce(state, (draft) => {
+      produce(state, draft => {
         draft.errors = errors
       }),
     [setBootstrapping]: (state, { payload: bootstrapping }) =>
-      produce(state, (draft) => {
+      produce(state, draft => {
         draft.loading = bootstrapping
       }),
     [setIsRescanning]: (state, { payload: isRescanning }) =>
-      produce(state, (draft) => {
+      produce(state, draft => {
         draft.isRescanning = isRescanning
       }),
     [setBootstrappingMessage]: (state, { payload: message }) =>
-      produce(state, (draft) => {
+      produce(state, draft => {
         draft.bootstrapMessage = message
       }),
     [setGuideStatus]: (state, { payload: guideStatus }) =>
-      produce(state, (draft) => {
+      produce(state, draft => {
         draft.fetchingStatus.guideStatus = guideStatus
       }),
     [setNextSlide]: state =>
-      produce(state, (draft) => {
+      produce(state, draft => {
         const currentSlide = draft.fetchingStatus.currentSlide
         const slideToSet = currentSlide === 10 ? currentSlide : currentSlide + 1
         draft.fetchingStatus.currentSlide = slideToSet
       }),
     [setPrevSlide]: state =>
-      produce(state, (draft) => {
+      produce(state, draft => {
         const currentSlide = draft.fetchingStatus.currentSlide
         const slideToSet = currentSlide === 0 ? currentSlide : currentSlide - 1
         draft.fetchingStatus.currentSlide = slideToSet

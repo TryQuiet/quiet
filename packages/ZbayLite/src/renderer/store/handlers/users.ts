@@ -261,12 +261,6 @@ export const fetchUsers = (address, messages: DisplayableMessage[]) => async (
   getState
 ) => {
   try {
-    const transferCountFlag = await dispatch(
-      checkTransferCount(address, messages)
-    );
-    if (transferCountFlag === -1 || !messages) {
-      return;
-    }
     const filteredZbayMessages = messages.filter((msg) =>
       msg.memohex.startsWith("ff")
     );
@@ -312,12 +306,6 @@ export const fetchOnionAddresses = (
   messages: DisplayableMessage[]
 ) => async (dispatch, getState) => {
   try {
-    const transferCountFlag = await dispatch(
-      checkTransferCount(address, messages)
-    );
-    if (transferCountFlag === -1 || !messages) {
-      return;
-    }
     const filteredZbayMessages = messages.filter((msg) =>
       msg.memohex.startsWith("ff")
     );

@@ -166,6 +166,7 @@ export const actionTypes = mirrorKey({
   SET_OFFER_MESSAGE_BLOCKTIME: undefined,
   SET_USER_ADDRESSES: undefined,
   SET_USER_SHIELDED_ADDRESES: undefined,
+  SET_ALL_TRANSACTIONS_IDS: undefined,
   IS_SIZE_CHECKING_IN_PROGRESS: undefined,
   MESSAGE_SIZE_STATUS: undefined,
   SET_INITIAL_LOAD_FLAG: undefined,

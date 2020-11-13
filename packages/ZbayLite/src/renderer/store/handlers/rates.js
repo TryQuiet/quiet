@@ -2,7 +2,6 @@ import { produce } from 'immer'
 import { handleActions, createAction } from 'redux-actions'
 
 import { actionTypes, PRICE_ORACLE_PUB_KEY } from '../../../shared/static'
-import { checkTransferCount } from './messages'
 import ratesSelectors from '../selectors/rates'
 import { getPublicKeysFromSignature } from '../../zbay/messages'
 import { trimNull } from '../../zbay/transit'
@@ -41,12 +40,6 @@ export const fetchPrices = (address, messages) => async (
   getState
 ) => {
   try {
-    const transferCountFlag = await dispatch(
-      checkTransferCount(address, messages)
-    )
-    if (transferCountFlag === -1 || !messages) {
-      return
-    }
     for (const msg of messages) {
       try {
         const memo = trimNull(Buffer.from(msg.memohex, 'hex').toString())

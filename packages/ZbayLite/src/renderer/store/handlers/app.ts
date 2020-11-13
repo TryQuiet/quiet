@@ -22,6 +22,7 @@ export class App {
   messageQueueLock: boolean = false;
   isInitialLoadFinished: boolean = false;
   useTor: boolean = false;
+  allTransactionsId: string[] = [];
 
   constructor(values?: Partial<App>) {
     Object.assign(this, values);
@@ -55,6 +56,7 @@ const lockMessageQueue = createAction<boolean>(actionTypes.LOCK_MESSAGE_QUEUE);
 const unlockMessageQueue = createAction<boolean>(
   actionTypes.UNLOCK_MESSAGE_QUEUE
 );
+const setAllTransactionsId = createAction(actionTypes.SET_ALL_TRANSACTIONS_IDS);
 const setInitialLoadFlag = createAction<boolean>(
   actionTypes.SET_INITIAL_LOAD_FLAG
 );
@@ -76,6 +78,7 @@ export const actions = {
   unlockMessageQueue,
   setInitialLoadFlag,
   reduceNewTransfersCount,
+  setAllTransactionsId,
 };
 
 export type AppActions = ActionsType<typeof actions>;
@@ -143,6 +146,13 @@ export const reducer = handleActions<AppStore, PayloadType<AppActions>>(
     ) =>
       produce(state, (draft) => {
         draft.newTransfersCounter = draft.newTransfersCounter - amount;
+      }),
+    [setAllTransactionsId.toString()]: (
+      state,
+      { payload: allTransactionsId }: AppActions["setAllTransactionsId"]
+    ) =>
+      produce(state, (draft) => {
+        draft.allTransactionsId = Array.from(allTransactionsId.values());
       }),
     [loadVersion.toString()]: (
       state,

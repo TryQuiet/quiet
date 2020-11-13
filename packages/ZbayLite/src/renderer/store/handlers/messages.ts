@@ -48,6 +48,7 @@ import {
 import electronStore from "../../../shared/electronStore";
 import notificationCenterSelectors from "../selectors/notificationCenter";
 import staticChannelsMessages from "../../static/staticChannelsMessages.json";
+import { string } from "prop-types";
 
 export const messageSender = {
   replyTo: "",
@@ -166,7 +167,9 @@ interface ITxn {
   memohex: string;
 }
 
-export const fetchAllMessages = async () => {
+export const fetchAllMessages = async (): Promise<
+  { [key in string]: Array<any> }
+> => {
   try {
     const txns: ITxn[] = await client.list();
     const txnsZec = txns
@@ -196,6 +199,12 @@ export const fetchMessages = () => async (dispatch, getState) => {
     const txns = await fetchAllMessages();
     // Uncomment to create snapshot on next run.
     // createSnapshot(txns)
+    const allMessagesTxnId = appSelectors.allTransactionsId(getState());
+    for (const key in txns) {
+      if (Object.prototype.hasOwnProperty.call(txns, key)) {
+        txns[key] = txns[key].filter((tx) => !allMessagesTxnId.has(tx.txid));
+      }
+    }
     const identityAddress = identitySelectors.address(getState());
     await dispatch(
       usersHandlers.epics.fetchUsers(
@@ -243,6 +252,17 @@ export const fetchMessages = () => async (dispatch, getState) => {
     );
     await dispatch(setOutgoingTransactions(identityAddress, txns["undefined"]));
     dispatch(setUsersMessages(identityAddress, txns[identityAddress]));
+    let allTransactionsId = allMessagesTxnId;
+    for (const key in txns) {
+      if (Object.prototype.hasOwnProperty.call(txns, key)) {
+        const mappedTxnIds = txns[key].map((tx) => tx.txid);
+        allTransactionsId = new Set([
+          ...Array.from(allTransactionsId.values()),
+          ...mappedTxnIds,
+        ]);
+      }
+    }
+    dispatch(appHandlers.actions.setAllTransactionsId(allTransactionsId));
     dispatch(appHandlers.actions.setInitialLoadFlag(true));
   } catch (err) {
     console.warn(`Can't pull messages`);
@@ -352,12 +372,6 @@ const setOutgoingTransactions = (
 ) => async (dispatch, getState) => {
   const users = usersSelectors.users(getState());
 
-  const transferCountFlag = await dispatch(
-    checkTransferCount("outgoing", messages)
-  );
-  if (transferCountFlag === -1 || !messages) {
-    return;
-  }
   const filteredOutgoingMessages = messages.filter((msg) => {
     if (!msg.outgoing_metadata.length) {
       return false;
@@ -384,7 +398,9 @@ const setOutgoingTransactions = (
   );
   const contacts = contactsSelectors.contacts(getState());
 
-  const itemMessages = messagesAll.filter((msg) => msg.message ? msg.message.itemId : null);
+  const itemMessages = messagesAll.filter((msg) =>
+    msg.message ? msg.message.itemId : null
+  );
   const groupedItemMesssages = R.groupBy<DisplayableMessage>(
     (msg) => msg.message.itemId + msg.receiver.username
   )(itemMessages);
@@ -420,8 +436,8 @@ const setOutgoingTransactions = (
       );
     }
   }
-  const normalMessages = messagesAll.filter(
-    (msg) => msg.message ? (!msg.message.itemId && msg.receiver.publicKey) : null
+  const normalMessages = messagesAll.filter((msg) =>
+    msg.message ? !msg.message.itemId && msg.receiver.publicKey : null
   );
   const groupedMesssages = R.groupBy<DisplayableMessage>(
     (msg) => msg.receiver.publicKey
@@ -455,13 +471,6 @@ const setChannelMessages = (channel, messages = []) => async (
   getState
 ) => {
   const users = usersSelectors.users(getState());
-
-  const transferCountFlag = await dispatch(
-    checkTransferCount(channel.address, messages)
-  );
-  if (transferCountFlag === -1 || !messages) {
-    return;
-  }
   const filteredZbayMessages = messages.filter((msg) =>
     msg.memohex.startsWith("ff")
   );
@@ -525,20 +534,14 @@ const setUsersMessages = (address, messages: DisplayableMessage[]) => async (
   dispatch,
   getState
 ) => {
-  const users = usersSelectors.users(getState());
-  const transferCountFlag = await dispatch(
-    checkTransferCount(address, messages)
-  );
-  if (transferCountFlag === -1 || !messages) {
-    console.log("skip");
-    return;
-  }
   const filteredTextMessages = messages.filter(
     (msg) => !msg.memohex.startsWith("f6") && !msg.memohex.startsWith("ff")
   );
   const filteredZbayMessages = messages.filter((msg) =>
     msg.memohex.startsWith("ff")
   );
+  const users = usersSelectors.users(getState());
+
   const parsedTextMessages = filteredTextMessages.map((msg) => {
     return {
       ..._receivedFromUnknownMessage,

@@ -15,7 +15,7 @@ import MessagesDivider from "../MessagesDivider";
 import UserRegisteredMessage from "./UserRegisteredMessage";
 import ChannelRegisteredMessage from "./ChannelRegisteredMessage";
 
-import { IUser, UsersStore } from "./../../../store/handlers/users";
+import { UsersStore } from "./../../../store/handlers/users";
 
 import { DisplayableMessage } from "./../../../zbay/messages.types";
 

@@ -123,6 +123,9 @@ const allMessages = createSelector(contacts, (c) => {
     return temp;
   }, {});
 });
+const allMessagesTxnId = createSelector(allMessages, (c) => {
+  return new Set(Object.keys(c));
+});
 const getAdvertById = (txid: string) =>
   createSelector(allMessages, (msgs) => {
     return msgs[txid];
@@ -289,4 +292,5 @@ export default {
   messagesLength,
   messagesSorted,
   unknownMessages,
+  allMessagesTxnId
 };

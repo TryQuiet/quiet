@@ -18,6 +18,10 @@ const directMessageQueueLock = createSelector(
   (a) => a.directMessageQueueLock
 );
 const messageQueueLock = createSelector(app, (a) => a.messageQueueLock);
+const allTransactionsId = createSelector(
+  app,
+  (a) => new Set(a.allTransactionsId)
+);
 
 export default {
   version,
@@ -29,4 +33,5 @@ export default {
   directMessageQueueLock,
   isInitialLoadFinished,
   useTor,
+  allTransactionsId,
 };
