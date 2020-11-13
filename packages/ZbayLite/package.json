@@ -154,16 +154,18 @@
     "webpack-cli": "^3.2.1",
     "webpack-dev-server": "^3.1.14",
     "webpack-node-externals": "^1.7.2",
-    "write-file-webpack-plugin": "^4.5.0"
-  },
-  "standard": {
-    "parser": "babel-eslint",
-    "env": [
-      "jest"
-    ],
-    "globals": [
-      "each"
-    ]
+    "write-file-webpack-plugin": "^4.5.0",
+    "prettier": "^2.1.0",
+    "prettier-config-standard": "^1.0.1",
+    "eslint": "6.6.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-config-standard-with-typescript": "^18.0.2",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-react-hooks": "^4.1.0",
+    "eslint-plugin-standard": "^4.0.1",
+    "@typescript-eslint/eslint-plugin": "^3.7.1"
   },
   "jest": {
     "setupFiles": [
