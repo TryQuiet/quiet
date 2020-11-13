@@ -14,7 +14,7 @@ const isRegisteredUsername = (nickname) =>
   
 const registeredUser = (signerPubKey) =>
   createSelector(users, (users) => {
-    users[signerPubKey];
+    return users[signerPubKey]
   });
 
 const myUser = createSelector(
