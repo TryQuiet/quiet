@@ -14,6 +14,7 @@ module.exports = {
     '@typescript-eslint/strict-boolean-expressions': 'off',
     '@typescript-eslint/space-before-function-paren': 'off',
     '@typescript-eslint/prefer-nullish-coalescing': 'off',
+    '@typescript-eslint/restrict-template-expressions': 'off',
     'generator-star-spacing': ['error', { before: false, after: true }],
     'yield-star-spacing': ['error', { before: false, after: true }],
     'react-hooks/exhaustive-deps': 'off',
