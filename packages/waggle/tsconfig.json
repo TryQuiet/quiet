@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "declaration": true,
+    "outDir": "./lib"
+  },
+  "typeRoots": [
+    "./@types",
+    "../../node_modules/@types",
+    "./node_modules/@types",
+    "./node_modules/libp2p-interfaces@0.7.1"
+  ],
+  "include": ["src"],
+  "exclude": ["node_modules", "**/__tests__/*"]
+}
