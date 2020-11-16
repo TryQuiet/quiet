@@ -468,9 +468,11 @@ process.on('exit', () => {
 })
 
 app.on('before-quit', async e => {
+  e.preventDefault()
   if (torProcess !== null) {
     torProcess.kill()
   }
+  // Killing worker takes couple of sec
   await client.terminate()
   if (browserWidth && browserHeight) {
     electronStore.set('windowSize', {
@@ -478,6 +480,7 @@ app.on('before-quit', async e => {
       height: browserHeight
     })
   }
+  process.exit()
 })
 
 // Quit when all windows are closed.

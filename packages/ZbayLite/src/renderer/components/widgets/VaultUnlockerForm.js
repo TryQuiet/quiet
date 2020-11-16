@@ -92,7 +92,7 @@ export const VaultUnlockerForm = ({
   guideStatus,
   isInitialLoadFinished
 }) => {
-  const isSynced = currentBlock.plus(10).gt(latestBlock)
+  const isSynced = currentBlock.plus(2000).gt(latestBlock)
   const isDev =
     process.env.NODE_ENV === 'development' ||
     process.env.NODE_ENV === 'production'

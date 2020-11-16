@@ -19,7 +19,12 @@ export default class Client {
       mapping.delete(args.id)
     })
   }
-  terminate = async () => worker.terminate()
+  terminate = () =>
+    new Promise(resolve => {
+      worker.terminate(() => {
+        resolve()
+      })
+    })
 
   postMessage = async (id, method, args = '') => {
     const promise = new Promise((resolve, reject) => {
