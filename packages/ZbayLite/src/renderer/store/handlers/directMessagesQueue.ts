@@ -221,8 +221,8 @@ const _sendPendingDirectMessages = (redirect): ZbayThunkAction<void> => async (d
           address: recipientAddress,
           amount:
             message.type === messageType.TRANSFER || messageType.ITEM_TRANSFER
-              ? message.spent
-              : new BigNumber(0),
+              ? message.spent.toNumber()
+              : 0,
           identityAddress,
           donation,
         });
