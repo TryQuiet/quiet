@@ -4,13 +4,24 @@ import { createAction, handleActions } from 'redux-actions'
 import client from '../../zcash'
 import { actionTypes } from '../../../shared/static'
 
-export const initialState = {}
+import { ActionsType, PayloadType } from './types'
 
-const addOwnedChannel = createAction(actionTypes.ADD_OWNED_CHANNEL)
+
+interface IOwnedChannels {
+  [key: string]: boolean
+}
+
+export const initialState: IOwnedChannels = {}
+
+export type OwnedChannelsStore = IOwnedChannels
+
+const addOwnedChannel = createAction<{ channels: OwnedChannelsStore }>(actionTypes.ADD_OWNED_CHANNEL)
 
 export const actions = {
   addOwnedChannel
 }
+
+export type OwnedChannelsActions = ActionsType<typeof actions>
 
 const getOwnedChannels = () => async (dispatch, getState) => {
   const myChannels = {}
@@ -28,9 +39,9 @@ export const epics = {
   getOwnedChannels
 }
 
-export const reducer = handleActions(
+export const reducer = handleActions<OwnedChannelsStore, PayloadType<OwnedChannelsActions>>(
   {
-    [addOwnedChannel]: (state, { payload: { channels } }) => produce(state, (draft) => {
+    [addOwnedChannel.toString()]: (state, { payload: { channels } }: OwnedChannelsActions['addOwnedChannel']) => produce(state, (draft) => {
       return {
         ...draft,
         ...channels

@@ -395,9 +395,9 @@ export const createTransfer = (values) => {
     sender: values.sender,
     receiver: values.receiver,
     createdAt: DateTime.utc().toSeconds(),
-    memo: memo || "TRANSFER",
-    spent: values.amountZec,
-  };
+    memo: memo || 'TRANSFER',
+    spent: values.amountZec
+  }
 }
 
 export const _buildUtxo = ({

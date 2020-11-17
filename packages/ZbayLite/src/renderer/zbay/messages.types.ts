@@ -58,7 +58,7 @@ export class ExchangeParticipant {
   nickname: string='';
   
   constructor(
-    values: Partial<ExchangeParticipant>
+    values?: Partial<ExchangeParticipant>
   ) {
     Object.assign(this, values);
   }
@@ -77,7 +77,13 @@ export interface IMessage {
   minFee?: string;
   updateMinFee?: string;
   updateChannelDescription?: string;
+  updateChannelAddress?: string;
   updateOnlyRegistered?: number;
+  channelAddress?: string
+  channelName?:string;
+  channelDescription?: string;
+  channelIvk?: string;
+
 }
 export class DisplayableMessage {
   id: string;

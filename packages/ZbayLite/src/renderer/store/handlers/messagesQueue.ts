@@ -13,17 +13,30 @@ import appHandlers from './app'
 import { errorNotification } from './utils'
 import { getClient } from '../../zcash'
 import { actionTypes } from '../../../shared/static'
+import { DisplayableMessage } from '../../zbay/messages.types'
+
+import { ThunkAction } from "redux-thunk";
+import { Action } from "redux";
+
+import { ActionsType, PayloadType } from './types'
 
 export const DEFAULT_DEBOUNCE_INTERVAL = 2000
+export class MessagesQueue {
+  channelId: string = ''
+  message?: DisplayableMessage
 
-export const PendingMessage = {
-  channelId: '',
-  message: null
+  constructor(values?: Partial<MessagesQueue>) {
+    Object.assign(this, values);
+  }
 }
 
-export const initialState = {}
+export type MessagesQueueStore = MessagesQueue[]
 
-const addMessage = createAction(
+export const initialState: MessagesQueue[] = []
+
+export type MessagesQueueActions = ActionsType<typeof actions>;
+
+const addMessage = createAction<{ channelId: string; message: DisplayableMessage; key: string }, { message: DisplayableMessage; channelId: string }>(
   actionTypes.ADD_PENDING_MESSAGE,
   ({ message, channelId }) => {
     const messageDigest = crypto.createHash('sha256')
@@ -42,19 +55,32 @@ const addMessage = createAction(
     }
   }
 )
-const removeMessage = createAction(actionTypes.REMOVE_PENDING_MESSAGE)
+const removeMessage = createAction<number>(actionTypes.REMOVE_PENDING_MESSAGE)
 
 export const actions = {
   addMessage,
   removeMessage
 }
-const _sendPendingMessages = async (dispatch, getState) => {
+
+class Store { }
+interface IThunkActionWithMeta<R, S, E, A extends Action> extends ThunkAction<R, S, E, A> {
+  meta?: {
+    debounce: {
+      time: number,
+      key: string,
+    }
+  }
+}
+
+type ZbayThunkAction<ReturnType> = IThunkActionWithMeta<ReturnType, Store, unknown, Action<string>>
+
+const _sendPendingMessages = (): ZbayThunkAction<void> => async (dispatch, getState) => {
   const lock = appSelectors.messageQueueLock(getState())
   const messages = Array.from(Object.values(selectors.queue(getState())))
   if (lock === false) {
     await dispatch(appHandlers.actions.lockMessageQueue())
   } else {
-    if (messages.size !== 0) {
+    if (messages.length !== 0) {
       dispatch(sendPendingMessages())
     }
     return
@@ -91,15 +117,17 @@ const _sendPendingMessages = async (dispatch, getState) => {
   await dispatch(appHandlers.actions.unlockMessageQueue())
 }
 
+
+
 export const sendPendingMessages = (debounce = null) => {
-  const thunk = _sendPendingMessages
+  const thunk = _sendPendingMessages()
   thunk.meta = {
     debounce: {
       time:
         debounce !== null
           ? debounce
           : process.env.ZBAY_DEBOUNCE_MESSAGE_INTERVAL ||
-            DEFAULT_DEBOUNCE_INTERVAL,
+          DEFAULT_DEBOUNCE_INTERVAL,
       key: 'SEND_PENDING_DRIRECT_MESSAGES'
     }
   }
@@ -112,22 +140,20 @@ const addMessageEpic = payload => async (dispatch, getState) => {
 }
 
 export const epics = {
-  sendPendingMessages,
   addMessage: addMessageEpic,
   resetMessageDebounce: sendPendingMessages
 }
 
-export const reducer = handleActions(
+export const reducer = handleActions<MessagesQueueStore, PayloadType<MessagesQueueActions>>(
   {
-    [addMessage]: (state, { payload: { channelId, message, key } }) =>
+    [addMessage.toString()]: (state, { payload: { channelId, message, key } }: MessagesQueueActions['addMessage']) =>
       produce(state, (draft) => {
-        draft[key] = {
-          ...PendingMessage,
+        draft[key] = new MessagesQueue({
           channelId,
           message
-        }
+        })
       }),
-    [removeMessage]: (state, { payload: key }) => produce(state, (draft) => {
+    [removeMessage.toString()]: (state, { payload: key }: MessagesQueueActions['removeMessage']) => produce(state, (draft) => {
       delete draft[key]
     })
   },

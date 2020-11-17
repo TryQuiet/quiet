@@ -61,24 +61,6 @@ export const LoaderState = Immutable.Record({
   message: "",
 });
 
-export const FetchingState = Immutable.Record({
-  sizeLeft: 0,
-  part: "",
-  fetchingStatus: "",
-  fetchingSpeed: null,
-  fetchingEndTime: {
-    hours: null,
-    minutes: null,
-    seconds: null,
-  },
-  isFetching: false,
-  rescanningProgress: 0,
-  isRescanningMonitorStarted: false,
-  isRescanningInitialized: false,
-  guideStatus: false,
-  currentSlide: 0,
-});
-
 export const LoaderStateStd = {
   loading: false,
   message: "",
@@ -101,6 +83,28 @@ export const FetchingStateStd = {
   guideStatus: false,
   currentSlide: 0,
 };
+
+export class FetchingState {
+  sizeLeft: number = 0
+  part: string = ''
+  fetchingStatus: string = ''
+  fetchingSpeed?: number // TODO: find type
+  fetchingEndTime: {
+    hours?: number
+    minutes?: number
+    seconds?: number
+  }
+  isFetching: boolean = false
+  rescanningProgress: number = 0
+  isRescanningMonitorStarted: boolean = false
+  isRescanningInitialized: boolean = false
+  guideStatus: boolean = false
+  currentSlide: number = 0
+
+  constructor(values?: Partial<FetchingState>) {
+    Object.assign(this, values)
+  }
+}
 
 export default {
   typePending,

@@ -1,11 +1,9 @@
 import { createSelector } from 'reselect'
 import channelsSelectors from './channel'
 
-const store = s => s
+import { OwnedChannelsStore } from '../handlers/ownedChannels'
 
-export const ownedChannels = createSelector(store, state =>
-  state.ownedChannels
-)
+const ownedChannels = (s): OwnedChannelsStore => s.ownedChannels as OwnedChannelsStore
 
 const isOwner = createSelector(
   ownedChannels,

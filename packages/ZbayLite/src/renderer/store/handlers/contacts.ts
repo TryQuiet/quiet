@@ -54,15 +54,15 @@ const sendDirectMessage = (payload, redirect = true) => async (
   );
 };
 export class Contacts {
-lastSeen?: DateTime;
-key: string = '';
-username: string = ''
-address: string = ''
-newMessages: string[] = [];
-vaultMessages: DisplayableMessage[] = [];
-messages: DisplayableMessage[] = [];
-offerId?: string;
-unread?: number
+  lastSeen?: DateTime;
+  key: string = "";
+  username: string = "";
+  address: string = "";
+  newMessages: number[] = [];
+  vaultMessages: DisplayableMessage[] = [];
+  messages: DisplayableMessage[] = [];
+  offerId?: string;
+  unread?: number;
 
   constructor(values?: Partial<Contacts>) {
     Object.assign(this, values);
@@ -106,7 +106,7 @@ const cleanNewMessages = createAction<{ contactAddress: string }>(
 );
 const appendNewMessages = createAction<{
   contactAddress: string;
-  messagesIds: string[];
+  messagesIds: number[];
 }>(actionTypes.APPEND_NEW_DIRECT_MESSAGES);
 const setLastSeen = createAction<{ lastSeen: DateTime; contact: Contacts }>(
   actionTypes.SET_CONTACTS_LAST_SEEN
@@ -211,7 +211,7 @@ export const deleteChannel = ({ address, timestamp, history }) => async (
 };
 export const checkConfirmationOfTransfers = async (dispatch, getState) => {
   try {
-    const latestBlock = parseInt(nodeSelectors.latestBlock(getState()));
+    const latestBlock = parseInt(nodeSelectors.latestBlock(getState()).toString());
     const contacts = selectors.contacts(getState());
     const offers = offersSelectors.offers(getState());
     const getKeys = (obj: ContactsStore) => Object.keys(obj);

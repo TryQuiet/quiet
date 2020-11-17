@@ -2,11 +2,9 @@ import { DateTime, Interval } from 'luxon'
 import { createSelector } from 'reselect'
 import BigNumber from 'bignumber.js'
 
-const store = s => s
+import { NodeStore } from '../handlers/node'
 
-export const node = createSelector(store, state => {
-  return state.node
-})
+const node = (s): NodeStore => s.node as NodeStore
 
 const currentBlock = createSelector(node, n => n.currentBlock)
 const latestBlock = createSelector(node, n => n.latestBlock)

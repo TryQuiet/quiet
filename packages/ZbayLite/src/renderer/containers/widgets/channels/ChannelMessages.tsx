@@ -18,12 +18,6 @@ import channelHandlers from "../../../store/handlers/channel";
 import appHandlers from "../../../store/handlers/app";
 import electronStore from "../../../../shared/electronStore";
 
-// TODO: It will be removed
-interface IMessages {
-  createdAt: number;
-  timestamp: number;
-}
-
 export const ChannelMessages = ({ tab, contentRect }) => {
   const [scrollPosition, setScrollPosition] = React.useState(-1);
   const [isRescanned, setIsRescanned] = React.useState(true);
@@ -33,7 +27,7 @@ export const ChannelMessages = ({ tab, contentRect }) => {
   const qDmMessages = useSelector(dmQueueMessages.queue);
   const contactId = useSelector(channelSelectors.id);
 
-  const triggerScroll = qDmMessages.size + qMessages.size > 0;
+  const triggerScroll = qDmMessages.length + qMessages.length > 0;
 
   const onLinkedChannel = (props) =>
     dispatch(channelHandlers.epics.linkChannelRedirect(props));
@@ -80,9 +74,9 @@ export const ChannelMessages = ({ tab, contentRect }) => {
       usersRegistration = Array.from(Object.values(users)).filter(
         (msg) => msg.createdAt >= oldestMessage.createdAt
       );
-      _publicChannelsRegistration = Array.from(
-        Object.values(publicChannels)
-      ).filter((msg: IMessages) => msg.timestamp >= oldestMessage.createdAt);
+      _publicChannelsRegistration = Array.from(Object.values(publicChannels)).filter(
+        msg => msg.timestamp >= oldestMessage.createdAt
+      )
       publicChannelsRegistration = R.clone(_publicChannelsRegistration);
       for (const ch of publicChannelsRegistration) {
         delete Object.assign(ch, { createdAt: parseInt(ch["timestamp"]) })[
