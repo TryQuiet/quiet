@@ -212,10 +212,27 @@ export const createOrUpdateUser = payload => async (dispatch, getState) => {
   const transfer = await zbayMessages.messageToTransfer({
     message: registrationMessage,
     address: usersChannelAddress,
-    amount: fee
+    amount: fee,
+  });
+  dispatch(actionCreators.closeModal("accountSettingsModal")());
+  const onionAddress = identitySelector.onionAddress(getState())
+  const messageDataTor = {
+    onionAddress: onionAddress.substring(0, 56)
+  }
+  const torChannelAddress = staticChannels.tor.mainnet.address
+  const registrationMessageTor = zbayMessages.createMessage({
+    messageData: {
+      type: zbayMessages.messageType.USER_V2,
+      data: messageDataTor
+    },
+    privKey
   })
-  dispatch(actionCreators.closeModal('accountSettingsModal')())
+  const transferTor = await zbayMessages.messageToTransfer({
+    message: registrationMessageTor,
+    address: torChannelAddress
+  })
   try {
+    const txid = await client.sendTransaction([transferTor, transfer]);
     if (retry === 0) {
       dispatch(identityActions.setRegistraionStatus({
         nickname,
@@ -231,10 +248,12 @@ export const createOrUpdateUser = payload => async (dispatch, getState) => {
         status: 'IN_PROGRESS'
       })
     }
-    const txid = await client.sendTransaction(transfer)
     if (txid.error) {
       throw new Error(txid.error)
     }
+    ipcRenderer.send('spawnTor')
+    electronStore.set('useTor', true)
+    dispatch(appHandlers.actions.setUseTor(true))
     electronStore.set('registrationStatus.txid', txid.txid)
     electronStore.set('registrationStatus.confirmation', 0)
     dispatch(checkRegistraionConfirmations({ firstRun: true }))
