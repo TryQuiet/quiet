@@ -7,10 +7,11 @@ import feesSelector from "../selectors/fees";
 import nodeSelectors from "../selectors/node";
 import feesHandlers from "./fees";
 import appHandlers from "./app";
-import { checkTransferCount } from "./messages";
+import { checkTransferCount, fetchAllMessages } from '../handlers/messages'
 import { actionCreators } from "./modals";
 import usersSelector from "../selectors/users";
 import identitySelector from "../selectors/identity";
+import { actions as identityActions } from '../handlers/identity';
 import appSelectors from "../selectors/app";
 import { getPublicKeysFromSignature } from "../../zbay/messages";
 import {
@@ -123,10 +124,12 @@ export const setUsers = createAction<{ users: { [key: string]: User } }>(
   actionTypes.SET_USERS
 );
 export const addUnknownUser = createAction(actionTypes.ADD_UNKNOWN_USER);
+export const mockOwnUser = createAction<{ sigPubKey: string; nickname: string; address: string }>(actionTypes.MOCK_OWN_USER)
 
 export const actions = {
   setUsers,
   addUnknownUser,
+  mockOwnUser
 };
 
 export type UserActions = ActionsType<typeof actions>;
@@ -137,90 +140,136 @@ export const registerAnonUsername = () => async (dispatch, getState) => {
     createOrUpdateUser({ nickname: `anon${publicKey.substring(0, 10)}` })
   );
 };
-export const createOrUpdateUser = (payload) => async (dispatch, getState) => {
+
+export const checkRegistraionConfirmations = ({ firstRun }) => async (dispatch, getState) => {
+  if (firstRun) {
+    const publicKey = identitySelector.signerPubKey(getState())
+    const address = identitySelector.address(getState())
+    const nickname = electronStore.get('registrationStatus.nickname')
+    dispatch(identityActions.setRegistraionStatus({
+      nickname,
+      status: 'IN_PROGRESS'
+    }))
+    dispatch(mockOwnUser({
+      sigPubKey: publicKey,
+      address,
+      nickname
+    }))
+  }
+  setTimeout(async () => {
+    const txid = electronStore.get('registrationStatus.txid')
+    const txns = await fetchAllMessages()
+    const outgoingTransactions = txns['undefined']
+    const registrationTransaction = outgoingTransactions.filter(el => el.txid === txid)[0]
+    if (registrationTransaction) {
+      const { block_height: blockHeight } = registrationTransaction
+      const currentHeight = await client.height()
+      if (currentHeight - blockHeight > 9) {
+        electronStore.set('registrationStatus.status', 'SUCCESS')
+        electronStore.set('registrationStatus.confirmation', 10)
+        dispatch(
+          notificationsHandlers.actions.enqueueSnackbar(
+            successNotification({
+              message: `Username registered.`
+            })
+          )
+        )
+      } else {
+        electronStore.set('registrationStatus.confirmation', currentHeight - blockHeight)
+        dispatch(checkRegistraionConfirmations({ firstRun: false }))
+      }
+    }
+  }, 75000)
+}
+
+export const createOrUpdateUser = payload => async (dispatch, getState) => {
   const {
     nickname,
-    firstName = "",
-    lastName = "",
+    firstName = '',
+    lastName = '',
     debounce = false,
-    retry = 0,
-  } = payload;
-  const address = identitySelector.address(getState());
-  const privKey = identitySelector.signerPrivKey(getState());
-  const fee = feesSelector.userFee(getState());
+    retry = 0
+  } = payload
+  const publicKey = identitySelector.signerPubKey(getState())
+  const address = identitySelector.address(getState())
+  const privKey = identitySelector.signerPrivKey(getState())
+  const fee = feesSelector.userFee(getState())
   const messageData = {
     firstName,
     lastName,
     nickname,
-    address,
-  };
-  const usersChannelAddress = staticChannels.registeredUsers.mainnet.address;
+    address
+  }
+  const usersChannelAddress = staticChannels.registeredUsers.mainnet.address
   const registrationMessage = zbayMessages.createMessage({
     messageData: {
       type: zbayMessages.messageType.USER,
-      data: messageData,
-    },
-    privKey,
-  });
-  const transfer = await zbayMessages.messageToTransfer({
-    message: registrationMessage,
-    address: usersChannelAddress,
-    amount: fee,
-  });
-  dispatch(actionCreators.closeModal("accountSettingsModal")());
-  const onionAddress = identitySelector.onionAddress(getState())
-  const messageDataTor = {
-    onionAddress: onionAddress.substring(0, 56)
-  }
-  const torChannelAddress = staticChannels.tor.mainnet.address
-  const registrationMessageTor = zbayMessages.createMessage({
-    messageData: {
-      type: zbayMessages.messageType.USER_V2,
-      data: messageDataTor
+      data: messageData
     },
     privKey
   })
-  const transferTor = await zbayMessages.messageToTransfer({
-    message: registrationMessageTor,
-    address: torChannelAddress
+  const transfer = await zbayMessages.messageToTransfer({
+    message: registrationMessage,
+    address: usersChannelAddress,
+    amount: fee
   })
+  dispatch(actionCreators.closeModal('accountSettingsModal')())
   try {
-    const txid = await client.sendTransaction([transferTor, transfer]);
-    if (txid.error) {
-      throw new Error(txid.error);
+    if (retry === 0) {
+      dispatch(identityActions.setRegistraionStatus({
+        nickname,
+        status: 'IN_PROGRESS'
+      }))
+      dispatch(mockOwnUser({
+        sigPubKey: publicKey,
+        address,
+        nickname
+      }))
+      electronStore.set('registrationStatus', {
+        nickname,
+        status: 'IN_PROGRESS'
+      })
     }
-    ipcRenderer.send('spawnTor')
-    electronStore.set('useTor', true)
-    dispatch(appHandlers.actions.setUseTor(true))
+    const txid = await client.sendTransaction(transfer)
+    if (txid.error) {
+      throw new Error(txid.error)
+    }
+    electronStore.set('registrationStatus.txid', txid.txid)
+    electronStore.set('registrationStatus.confirmation', 0)
+    dispatch(checkRegistraionConfirmations({ firstRun: true }))
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar(
         successNotification({
-          message: "Your username will be confirmed in few minutes",
+          message: `Registering username—this can take a few minutes.`
         })
       )
-    );
-    dispatch(notificationsHandlers.actions.removeSnackbar("username"));
+    )
+    dispatch(notificationsHandlers.actions.removeSnackbar('username'))
   } catch (err) {
-    console.log(err);
+    console.log(err)
     if (retry === 0) {
       dispatch(
         notificationsHandlers.actions.enqueueSnackbar(
           infoNotification({
-            message: `Waiting for funds from faucet`,
-            key: "username",
+            message: `Waiting for funds to register username—this can take a few minutes.`,
+            key: 'username'
           })
         )
-      );
+      )
     }
     if (debounce === true && retry < 10) {
       setTimeout(() => {
-        dispatch(createOrUpdateUser({ ...payload, retry: retry + 1 }));
-      }, 75000);
-      return;
+        dispatch(createOrUpdateUser({ ...payload, retry: retry + 1 }))
+      }, 75000)
+      return
     }
-    dispatch(actionCreators.openModal("failedUsernameRegister")());
+    dispatch(identityActions.setRegistraionStatus({
+      nickname,
+      status: 'ERROR'
+    }))
+    dispatch(actionCreators.openModal('failedUsernameRegister')())
   }
-};
+}
 export const registerOnionAddress = (torStatus) => async (
   dispatch,
   getState
@@ -275,51 +324,79 @@ export const registerOnionAddress = (torStatus) => async (
   dispatch(notificationsHandlers.actions.removeSnackbar("username"));
 };
 
-export const fetchUsers = (address, messages: DisplayableMessage[]) => async (
-  dispatch,
-  getState
-) => {
+export const fetchUsers = (address, messages: DisplayableMessage[]) => async (dispatch, getState) => {
   try {
-    const filteredZbayMessages = messages.filter((msg) =>
-      msg.memohex.startsWith("ff")
-    );
+    const transferCountFlag = await dispatch(
+      checkTransferCount(address, messages)
+    )
+    if (transferCountFlag === -1 || !messages) {
+      return
+    }
+    const filteredZbayMessages = messages.filter(msg =>
+      msg.memohex.startsWith('ff')
+    )
     const registrationMessages = await Promise.all(
-      filteredZbayMessages.map((transfer) => {
-        const message = zbayMessages.transferToMessage(transfer);
-        return message;
+      filteredZbayMessages.map(transfer => {
+        const message = zbayMessages.transferToMessage(transfer)
+        return message
       })
-    );
-    let minfee = 0;
-    let users = {};
-    const network = nodeSelectors.network(getState());
+    )
+    let minfee = 0
+    let users = {}
+    const network = nodeSelectors.network(getState())
+    const { status: registrationStatus } = identitySelector.registrationStatus(getState())
+    const signerPubKey = identitySelector.signerPubKey(getState())
     for (const msg of registrationMessages) {
       if (
         msg.type === messageType.CHANNEL_SETTINGS &&
         staticChannels.zbay[network].publicKey === msg.publicKey
       ) {
-        minfee = parseFloat(msg.message.minFee);
+        minfee = parseFloat(msg.message.minFee)
       }
       if (
         (msg.type !== messageType.USER && msg.type !== messageType.USER_V2) ||
         !msg.spent.gte(minfee)
       ) {
-        continue;
+        continue
       }
-      const user = ReceivedUser(msg);
+      const user = ReceivedUser(msg)
 
       if (user !== null) {
         users = {
           ...users,
-          ...user,
-        };
+          ...user
+        }
       }
     }
-    dispatch(feesHandlers.actions.setUserFee(minfee));
-    dispatch(setUsers({ users }));
+    dispatch(feesHandlers.actions.setUserFee(minfee))
+    const isRegistrationComplete = users[signerPubKey]
+    if (!isRegistrationComplete && registrationStatus === 'IN_PROGRESS') {
+      const publicKey = identitySelector.signerPubKey(getState())
+      const address = identitySelector.address(getState())
+      const { nickname } = identitySelector.registrationStatus(getState())
+      const mockedUser = {
+        [publicKey]: {
+          ..._UserData,
+          address,
+          nickname,
+          publicKey
+        }
+      }
+      users = {
+        ...users,
+        ...mockedUser
+      }
+    } else {
+      dispatch(identityActions.setRegistraionStatus({
+        nickname: '',
+        status: 'SUCCESS'
+      }))
+    }
+    dispatch(setUsers({ users }))
   } catch (err) {
-    throw err;
+    throw err
   }
-};
+}
 export const fetchOnionAddresses = (
   address,
   messages: DisplayableMessage[]
@@ -388,6 +465,13 @@ export const reducer = handleActions<UsersStore, PayloadType<UserActions>>(
           address: unknownUserId,
         });
       }),
+    [mockOwnUser.toString()]: (state, { payload: { sigPubKey, nickname, address } }: UserActions['mockOwnUser']) => produce(state, (draft) => {
+      draft[sigPubKey] = new User({
+        publicKey: sigPubKey,
+        nickname,
+        address
+      })
+    })
   },
   initialState
 );
