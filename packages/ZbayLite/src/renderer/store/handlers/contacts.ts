@@ -1,4 +1,4 @@
-import { produce } from "immer";
+import { produce, immerable } from 'immer'
 import { DateTime } from "luxon";
 import { createAction, handleActions } from "redux-actions";
 import BigNumber from "bignumber.js";
@@ -66,6 +66,7 @@ export class Contacts {
 
   constructor(values?: Partial<Contacts>) {
     Object.assign(this, values);
+    this[immerable] = true
   }
 }
 export interface ISender {

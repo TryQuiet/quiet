@@ -1,4 +1,4 @@
-import { produce } from "immer";
+import { produce, immerable } from 'immer'
 import * as R from "ramda";
 import crypto from "crypto";
 import { createAction, handleActions } from "redux-actions";
@@ -46,6 +46,7 @@ export class DirectMessagesQueue {
 
   constructor(values?: Partial<DirectMessagesQueue>) {
     Object.assign(this, values);
+    this[immerable] = true
   }
 }
 

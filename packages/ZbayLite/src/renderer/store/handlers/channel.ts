@@ -1,4 +1,4 @@
-import { produce } from "immer";
+import { produce, immerable } from 'immer'
 import BigNumber from "bignumber.js";
 import { createAction, handleActions } from "redux-actions";
 import crypto from "crypto";
@@ -69,6 +69,7 @@ export class Channel {
 
   constructor(values?: Partial<Channel>) {
     Object.assign(this, values);
+    this[immerable] = true
   }
 }
 

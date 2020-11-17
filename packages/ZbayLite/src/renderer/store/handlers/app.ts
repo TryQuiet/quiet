@@ -1,4 +1,4 @@
-import { produce } from 'immer'
+import { produce, immerable } from 'immer'
 import { ipcRenderer, remote } from 'electron'
 import BigNumber from 'bignumber.js'
 import { createAction, handleActions } from 'redux-actions'
@@ -26,6 +26,7 @@ export class App {
 
   constructor(values?: Partial<App>) {
     Object.assign(this, values)
+    this[immerable] = true
   }
 }
 

@@ -1,4 +1,4 @@
-import { produce } from 'immer'
+import { produce, immerable } from 'immer'
 import { createAction, handleActions } from 'redux-actions'
 import * as R from 'ramda'
 import feesSelectors from '../selectors/fees'
@@ -37,6 +37,7 @@ export class PublicChannel {
 
   constructor(values: Partial<PublicChannel>) {
     Object.assign(this, values)
+    this[immerable] = true
   }
 }
 

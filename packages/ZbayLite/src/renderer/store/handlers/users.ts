@@ -1,4 +1,4 @@
-import { produce } from "immer";
+import { produce, immerable } from 'immer'
 import { createAction, handleActions } from "redux-actions";
 import * as R from "ramda";
 import { ipcRenderer } from "electron";
@@ -113,6 +113,7 @@ export class User {
 
   constructor(values?: Partial<User>) {
     Object.assign(this, values);
+    this[immerable] = true
   }
 }
 
