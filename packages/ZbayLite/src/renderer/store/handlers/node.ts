@@ -171,9 +171,9 @@ const epics = {
 
 export const reducer = handleActions<NodeStore, PayloadType<NodeActions>>(
   {
-    [setStatus.toString()]: (state, { payload: { status } }: NodeActions['setStatus']) =>
+    [setStatus.toString()]: (state, { payload: status }: NodeActions['setStatus']) =>
       produce(state, draft => {
-        draft = Object.assign({}, draft, status)
+        return Object.assign({}, state, status)
       }),
     [typeRejected(actionTypes.CREATE_ADDRESS)]: (state, { payload: errors }) =>
       produce(state, draft => {
