@@ -4,7 +4,7 @@ import { Tor } from './index'
 import { ConnectionsManager } from './connectionsManager'
 
 const main = async () => {
-  const torPath = `${process.cwd()}/tor/mac/tor`
+  const torPath = `${process.cwd()}/tor/tor`
   const settingsPath = `${process.cwd()}/tor/torrc`
   const pathDevLib = path.join.apply(null, [process.cwd(), 'tor'])
   const tor = new Tor({ torPath, settingsPath, options: {
