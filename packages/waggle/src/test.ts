@@ -4,7 +4,7 @@ import { Tor } from './index'
 import { ConnectionsManager } from './connectionsManager'
 
 const main = async () => {
-  const torPath = `${process.cwd()}/tor/tor`
+  const torPath = `${process.cwd()}/tor/mac/tor`
   const settingsPath = `${process.cwd()}/tor/torrc`
   const pathDevLib = path.join.apply(null, [process.cwd(), 'tor'])
   const tor = new Tor({ torPath, settingsPath, options: {
@@ -16,21 +16,23 @@ const main = async () => {
   await tor.init()
   let address = null
   try {
-    address = tor.getServiceAddress(7799)
+    address = tor.getServiceAddress(7755)
     console.log('address', address)
   } catch (e) {
     console.log('no default service')
   }
   const startLibp2p = async (onionAddress) => {
-    const connectionsManager = new ConnectionsManager({ port: 7799, host: onionAddress, agentHost: 'localhost', agentPort: 9050 })
+    const connectionsManager = new ConnectionsManager({ port: 7755, host: onionAddress, agentHost: 'localhost', agentPort: 9050 })
     const node = await connectionsManager.initializeNode()
     await connectionsManager.subscribeForTopic({topic: '/libp2p/example/chat/1.0.0', channelAddress: 'test-address' })
     console.log('nodetest', node.address)
+    await connectionsManager.connectToNetwork('/dns4/v5nvvfcfpceu6z6hao576ecbfvxin5ahmpbf6rovxbks2kevdxusfayd.onion/tcp/7799/ws/p2p/QmYi5ZF7RidnErUnYPfWht5LisVtBt7NryDqVXttRtcDF2')
+    await connectionsManager.listenForInput('test-address')
   }
   if (address) {
     await startLibp2p(address)
   } else {
-    const { address: newOnionAddress } = await tor.addService({ port: 7799, createDefault: true })
+    const { address: newOnionAddress } = await tor.addService({ port: 7755 })
     await startLibp2p(newOnionAddress)
   }
   // const connectionsManager = new ConnectionsManager({ port, host: address, agentHost: 'localhost', agentPort: 9050 })
