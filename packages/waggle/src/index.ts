@@ -22,15 +22,6 @@ export class Tor {
     this.torPath = torPath
     this.options = options
     this.services = new Map()
-    const data = fs.readFileSync(this.settingsPath, 'utf8').split('\n')
-    const services = data.filter(text => text.startsWith('#SERVICE_'))
-    for (const service of services) {
-      const port = parseInt(service.substring(9))
-      this.services.set(port, {
-        port,
-        address: this.getServiceAddress(port)
-      })
-    }
   }
   public init = (timeout = 20000): Promise<void> =>
     new Promise((resolve, reject) => {
@@ -46,6 +37,15 @@ export class Tor {
         console.log(data.toString())
         if (data.includes('100%')) {
           clearTimeout(id)
+          const data = fs.readFileSync(this.settingsPath, 'utf8').split('\n')
+          const services = data.filter(text => text.startsWith('#SERVICE_'))
+          for (const service of services) {
+            const port = parseInt(service.substring(9))
+            this.services.set(port, {
+              port,
+              address: this.getServiceAddress(port)
+            })
+          }
           resolve()
         }
       })
@@ -53,7 +53,8 @@ export class Tor {
   public addService = async ({
     port = 3333,
     timeout = 8000,
-    overwrite = true
+    overwrite = true,
+    createDefault = false
   }): Promise<IService> => {
     if (this.process === null) {
       throw new Error('Process is not initalized.')
@@ -65,6 +66,7 @@ export class Tor {
     if (fs.existsSync(`${os.homedir()}/tor_service_${port}`) && overwrite) {
       fs.rmdirSync(`${os.homedir()}/tor_service_${port}`, { recursive: true })
     }
+
     const data = fs.readFileSync(this.settingsPath, 'utf8').split('\n')
     const index = data.findIndex(text => text === '#Placeholder')
     data[index] = `#SERVICE_${port}
@@ -72,6 +74,14 @@ HiddenServiceDir ${os.homedir()}/tor_service_${port}
 HiddenServicePort ${port} 127.0.0.1:${port}
 #Placeholder`
     fs.writeFileSync(this.settingsPath, data.join('\n'), 'utf8')
+    if (createDefault && process.env.HIDDEN_SERVICE_SECRET) {
+      console.log('env', process.env.HIDDEN_SERVICE_SECRET)
+      const secretString = Buffer.from(process.env.HIDDEN_SERVICE_SECRET, 'base64')
+      console.log('string', secretString)
+      fs.mkdirSync(`${os.homedir()}/tor_service_${port}`, { recursive: true })
+      fs.chmodSync(`${os.homedir()}/tor_service_${port}`, '0700')
+      fs.writeFileSync(`${os.homedir()}/tor_service_${port}/hs_ed25519_secret_key`, secretString, 'utf8')
+    }
     this.process?.kill('SIGHUP')
     await sleep()
     const id = setTimeout(() => {
@@ -107,7 +117,7 @@ HiddenServicePort ${port} 127.0.0.1:${port}
         resolve()
       }
     })
-  private getServiceAddress = (port: number): string => {
+  public getServiceAddress = (port: number): string => {
     try {
       const address = fs.readFileSync(`${os.homedir()}/tor_service_${port}/hostname`, 'utf8').replace( /[\r\n]+/gm, "" )
       return address
