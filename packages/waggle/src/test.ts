@@ -25,7 +25,6 @@ const main = async () => {
     const connectionsManager = new ConnectionsManager({ port: 7799, host: onionAddress, agentHost: 'localhost', agentPort: 9050 })
     const node = await connectionsManager.initializeNode()
     await connectionsManager.subscribeForTopic({topic: '/libp2p/example/chat/1.0.0', channelAddress: 'test-address' })
-    await connectionsManager.listenForInput('test-address')
     console.log('nodetest', node.address)
   }
   if (address) {

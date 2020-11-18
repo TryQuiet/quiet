@@ -28,8 +28,8 @@ Resources:
   HiddenServicePrivateKeySecret:
     Type: AWS::SecretsManager::Secret
     Properties:
-      SecretString: !Ref HiddenServicePrivateKey
-      Name: /zbay/hidden-service-private-key
+      SecretString: !Sub '{"torSecret":"${HiddenServicePrivateKey}"}'
+      Name: torSecret
 
   TaskRole:
     Type: AWS::IAM::Role
@@ -96,8 +96,8 @@ Resources:
               Value: !Join
                 - ''
                 - - '{{resolve:secretsmanager:'
-                  - !Ref HiddenServicePrivateKey
-                  - ':SecretString:secret}}'
+                  - !Ref HiddenServicePrivateKeySecret
+                  - ':SecretString:torSecret}}'
           LogConfiguration:
               LogDriver: awslogs
               Options:
@@ -109,4 +109,4 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Sub ${AWS::StackName}/libp2p-tor-test
-      RetentionInDays: 1
+      RetentionInDays: 5
