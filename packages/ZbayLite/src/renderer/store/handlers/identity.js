@@ -30,6 +30,7 @@ import { successNotification } from './utils'
 import modalsHandlers from './modals'
 import notificationsHandlers from './notifications'
 import messagesHandlers from './messages'
+import contactsHandlers from './contacts'
 import {
   actionTypes,
   networkFeeSatoshi,
@@ -431,6 +432,7 @@ export const setIdentityEpic = (identityToSet, isNewUser) => async (
   // dispatch(fetchAffiliateMoney())
   dispatch(setLoadingMessage(''))
   dispatch(setLoading(false))
+  dispatch(contactsHandlers.epics.connectWsContacts())
   dispatch(
     logsHandlers.epics.saveLogs({
       type: 'APPLICATION_LOGS',

@@ -14,7 +14,7 @@ export const connect = address =>
       const id = setTimeout(() => {
         // eslint-disable-next-line
         reject('timeout')
-      }, 9000)
+      }, 20000)
       socket.on('unexpected-response', err => {
         console.log(err)
       })

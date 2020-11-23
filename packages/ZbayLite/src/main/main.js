@@ -49,9 +49,7 @@ const installExtensions = async () => {
   const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS']
 
   try {
-    await Promise.all(
-      extensions.map(ext => installer.default(installer[ext], forceDownload))
-    )
+    await Promise.all(extensions.map(ext => installer.default(installer[ext], forceDownload)))
   } catch (err) {
     console.error("Couldn't install devtools.")
   }
@@ -183,10 +181,7 @@ export const checkForUpdate = win => {
     })
     autoUpdater.on('update-available', info => {
       console.log(info)
-      electronStore.set(
-        'updateStatus',
-        config.UPDATE_STATUSES.PROCESSING_UPDATE
-      )
+      electronStore.set('updateStatus', config.UPDATE_STATUSES.PROCESSING_UPDATE)
     })
 
     autoUpdater.on('update-downloaded', info => {
@@ -207,9 +202,7 @@ const killZcashdProcess = async () => {
 }
 
 const checkZcashdStatus = async () => {
-  const isBlockchainRescanned = electronStore.get(
-    'AppStatus.blockchain.isRescanned'
-  )
+  const isBlockchainRescanned = electronStore.get('AppStatus.blockchain.isRescanned')
   if (mainWindow && isBlockchainRescanned && !isDev) {
     const zcashProcess = await find('name', 'zcashd')
     if (zcashProcess.length > 0) {
@@ -226,9 +219,7 @@ const checkZcashdStatus = async () => {
 }
 
 setTimeout(() => {
-  const isBlockchainRescanned = electronStore.get(
-    'AppStatus.blockchain.isRescanned'
-  )
+  const isBlockchainRescanned = electronStore.get('AppStatus.blockchain.isRescanned')
   if (isBlockchainRescanned && !isDev) {
     checkZcashdStatus()
   }
@@ -317,15 +308,8 @@ app.on('ready', async () => {
   client = new Client()
   ipcMain.on('rpcQuery', async (event, arg) => {
     const request = JSON.parse(arg)
-    const response = await client.postMessage(
-      request.id,
-      request.method,
-      request.args
-    )
-    mainWindow.webContents.send(
-      'rpcQuery',
-      JSON.stringify({ id: request.id, data: response })
-    )
+    const response = await client.postMessage(request.id, request.method, request.args)
+    mainWindow.webContents.send('rpcQuery', JSON.stringify({ id: request.id, data: response }))
   })
 
   ipcMain.on('sendWebsocket', async (event, arg) => {
@@ -336,6 +320,31 @@ app.on('ready', async () => {
       'sendWebsocket',
       JSON.stringify({ id: request.id, response: response })
     )
+  })
+  ipcMain.on('initWsConnection', async (event, arg) => {
+    const request = JSON.parse(arg)
+    try {
+      const socket = await websockets.connect(request.address)
+
+      mainWindow.webContents.send(
+        'initWsConnection',
+        JSON.stringify({ id: request.id, connected: true })
+      )
+      // socket
+      socket.on('close', function (a) {
+        mainWindow.webContents.send(
+          'initWsConnection',
+          JSON.stringify({ id: request.id, connected: false })
+        )
+      })
+    } catch (error) {
+      console.log(error)
+      mainWindow.webContents.send(
+        'initWsConnection',
+        JSON.stringify({ id: request.id, connected: false })
+      )
+    }
+    // const response = await client.postMessage(request.id, request.method, request.args)
   })
 
   ipcMain.on('vault-created', (event, arg) => {
@@ -361,10 +370,7 @@ app.on('ready', async () => {
         config.BLOCKCHAIN_STATUSES.DEFAULT_LOCATION_SELECTED
       )
     } else {
-      electronStore.set(
-        'blockchainConfiguration',
-        config.BLOCKCHAIN_STATUSES.TO_FETCH
-      )
+      electronStore.set('blockchainConfiguration', config.BLOCKCHAIN_STATUSES.TO_FETCH)
     }
   })
 

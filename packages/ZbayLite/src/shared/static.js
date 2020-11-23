@@ -143,6 +143,7 @@ export const actionTypes = mirrorKey({
   SET_USER_NOTIFICATION_SETTINGS: undefined,
   SET_CONTACTS_NOTIFICATION_SETTINGS: undefined,
   SET_CONTACT_NOTIFICATION_FILTER: undefined,
+  SET_CONTACT_CONNECTED: undefined,
   SET_RESCANNING_STATUS: undefined,
   SET_LOGIN_SUCCESSFULL: undefined,
   SET_USER_NOTIFICATION_SOUND: undefined,

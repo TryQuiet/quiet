@@ -11,6 +11,8 @@ import { Typography, Grid } from '@material-ui/core'
 // import ZcashIcon from '../../ui/ZcashIcon'
 import Icon from '../../ui/Icon'
 import anonIcon from '../../../static/images/st-anon.svg'
+import onlineIcon from '../../../static/images/online.svg'
+import offlineIcon from '../../../static/images/offline.svg'
 // import { unknownUserId } from '../../../../shared/static'
 
 const styles = theme => ({
@@ -57,6 +59,12 @@ const styles = theme => ({
     height: 11,
     opacity: 0.7
   },
+  connectedIcon: {
+    marginLeft: 16,
+    marginRight: -8,
+    width: 11,
+    height: 11
+  },
   itemText: {
     margin: 0
   },
@@ -68,7 +76,14 @@ const styles = theme => ({
   }
 })
 
-export const ChannelsListItem = ({ classes, channel, history, directMessages, selected, isRegisteredUsername }) => {
+export const ChannelsListItem = ({
+  classes,
+  channel,
+  history,
+  directMessages,
+  selected,
+  isRegisteredUsername
+}) => {
   const isFromZbay = channel.username !== 'Unknown'
   // const size = 15
   const highlight = selected.id === channel.key
@@ -93,26 +108,33 @@ export const ChannelsListItem = ({ classes, channel, history, directMessages, se
       }}
       className={classNames(classes.root, {
         [classes.selected]: highlight
-      })}
-    >
+      })}>
       <ListItemText
         primary={
           <Grid container alignItems='center'>
-            {!isFromZbay && (
-              <Icon
-                className={classes.anonIcon}
-                src={anonIcon}
-              />
-            )}
+            <Grid item>
+              {!isFromZbay && <Icon className={classes.anonIcon} src={anonIcon} />}
+              {directMessages && (
+                <Icon
+                  className={classes.connectedIcon}
+                  src={channel?.connected ? onlineIcon : offlineIcon}
+                />
+              )}
+            </Grid>
             <Grid item>
               <Typography
                 variant='body2'
                 className={classNames(classes.title, {
                   [classes.newMessages]: newMessages,
                   [classes.anonTile]: !isFromZbay
-                })}
-              >
-                {directMessages ? `${isFromZbay ? `@ ${isRegisteredUsername ? channel.username : channel.address}` : 'unknown'}` : `# ${channel.username}`}
+                })}>
+                {directMessages
+                  ? `${
+                      isFromZbay
+                        ? `${isRegisteredUsername ? channel.username : channel.address}`
+                        : 'unknown'
+                    }`
+                  : `# ${channel.username}`}
               </Typography>
             </Grid>
             {/* {recievedMoney && (
@@ -143,7 +165,4 @@ ChannelsListItem.defaultProps = {
   directMessages: false
 }
 
-export default R.compose(
-  React.memo,
-  withStyles(styles)
-)(ChannelsListItem)
+export default R.compose(React.memo, withStyles(styles))(ChannelsListItem)
