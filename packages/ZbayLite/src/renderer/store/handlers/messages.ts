@@ -160,6 +160,7 @@ export const fetchAllMessages = async (): Promise<{ [key in string]: any[] }> =>
         ...txn,
         amount: txn.amount / satoshiMultiplier
       }))
+      .filter(tx => tx.memo !== null || tx.memohex !== '')
       .sort((a, b) => a.block_height - b.block_height)
       .map(tx => (tx.memo && tx.memohex ? { ...tx, memohex: brokenMemoToMemohex(tx.memo) } : tx))
     return R.mergeDeepWith(
