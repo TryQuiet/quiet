@@ -10,7 +10,6 @@ import { Typography, Grid } from '@material-ui/core'
 
 // import ZcashIcon from '../../ui/ZcashIcon'
 import Icon from '../../ui/Icon'
-import anonIcon from '../../../static/images/st-anon.svg'
 import onlineIcon from '../../../static/images/online.svg'
 import offlineIcon from '../../../static/images/offline.svg'
 // import { unknownUserId } from '../../../../shared/static'
@@ -53,12 +52,6 @@ const styles = theme => ({
     marginTop: 6,
     fill: theme.palette.colors.green
   },
-  anonIcon: {
-    marginLeft: 16,
-    width: 11,
-    height: 11,
-    opacity: 0.7
-  },
   connectedIcon: {
     marginLeft: 16,
     marginRight: -8,
@@ -70,9 +63,6 @@ const styles = theme => ({
   },
   nameSpacing: {
     marginLeft: 4
-  },
-  anonTile: {
-    paddingLeft: 3
   }
 })
 
@@ -113,7 +103,6 @@ export const ChannelsListItem = ({
         primary={
           <Grid container alignItems='center'>
             <Grid item>
-              {!isFromZbay && <Icon className={classes.anonIcon} src={anonIcon} />}
               {directMessages && (
                 <Icon
                   className={classes.connectedIcon}
@@ -125,8 +114,7 @@ export const ChannelsListItem = ({
               <Typography
                 variant='body2'
                 className={classNames(classes.title, {
-                  [classes.newMessages]: newMessages,
-                  [classes.anonTile]: !isFromZbay
+                  [classes.newMessages]: newMessages
                 })}>
                 {directMessages
                   ? `${
