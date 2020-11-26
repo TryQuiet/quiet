@@ -22,6 +22,7 @@ export const connect = address =>
         console.log('connected')
         socket.on('close', function (a) {
           console.log('disconnected')
+          socket.close()
           connections.delete(address)
         })
         clearTimeout(id)

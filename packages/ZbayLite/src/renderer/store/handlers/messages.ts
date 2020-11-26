@@ -754,6 +754,12 @@ export const handleWebsocketMessage = data => async (dispatch, getState) => {
           message: msg.message.text,
           channelName: `${offer.message.tag} @${msg.sender.username}`
         })
+        dispatch(
+          contactsHandlers.actions.appendNewMessages({
+            contactAddress: `${item}${msg.sender.username}`,
+            messagesIds: [key]
+          })
+        )
       }
     } else {
       if (!contacts[publicKey]) {
@@ -776,6 +782,12 @@ export const handleWebsocketMessage = data => async (dispatch, getState) => {
           username: msg.sender.username,
           message: msg
         })
+        dispatch(
+          contactsHandlers.actions.appendNewMessages({
+            contactAddress: publicKey,
+            messagesIds: [key]
+          })
+        )
       }
     }
   } catch (err) {

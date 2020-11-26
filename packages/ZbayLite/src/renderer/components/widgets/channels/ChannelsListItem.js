@@ -77,7 +77,6 @@ export const ChannelsListItem = ({
   const isFromZbay = channel.username !== 'Unknown'
   // const size = 15
   const highlight = selected.id === channel.key
-  const newMessages = channel.newMessages.length
   // const recievedMoney =
   //   directMessages &&
   //   channelObj.messages.find(
@@ -114,7 +113,7 @@ export const ChannelsListItem = ({
               <Typography
                 variant='body2'
                 className={classNames(classes.title, {
-                  [classes.newMessages]: newMessages
+                  [classes.newMessages]: channel.newMessages.length > 0
                 })}>
                 {directMessages
                   ? `${

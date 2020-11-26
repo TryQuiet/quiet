@@ -52,7 +52,7 @@ export class Contacts {
   key: string = ''
   username: string = ''
   address: string = ''
-  newMessages: number[] = []
+  newMessages: string[] = []
   vaultMessages: DisplayableMessage[] = []
   messages: DisplayableMessage[] = []
   offerId?: string
@@ -101,7 +101,7 @@ const cleanNewMessages = createAction<{ contactAddress: string }>(
 )
 const appendNewMessages = createAction<{
   contactAddress: string
-  messagesIds: number[]
+  messagesIds: string[]
 }>(actionTypes.APPEND_NEW_DIRECT_MESSAGES)
 const setLastSeen = createAction<{ lastSeen: DateTime; contact: Contacts }>(
   actionTypes.SET_CONTACTS_LAST_SEEN
@@ -209,7 +209,6 @@ export const connectWsContacts = () => async (dispatch, getState) => {
 
   ipcRenderer.on('initWsConnection', (e, d) => {
     const data = JSON.parse(d)
-    console.log(data)
     dispatch(setContactConnected({ key: data.id, connected: data.connected }))
     mapping.get(data.id)?.resolve(data.response)
     mapping.delete(data.id)
@@ -376,11 +375,10 @@ export const reducer = handleActions<ContactsStore, PayloadType<ContactActions>>
       { payload: { contactAddress, messagesIds } }: ContactActions['appendNewMessages']
     ) =>
       produce(state, draft => {
-        const newMessagesLength = draft[contactAddress].newMessages.length
+        draft[contactAddress].newMessages = draft[contactAddress].newMessages.concat(messagesIds)
         remote.app.setBadgeCount(
-          remote.app.getBadgeCount() - newMessagesLength + messagesIds.length
+          remote.app.getBadgeCount() + messagesIds.length
         )
-        draft[contactAddress].newMessages = messagesIds
       }),
     [setLastSeen.toString()]: (
       state,
@@ -394,8 +392,6 @@ export const reducer = handleActions<ContactsStore, PayloadType<ContactActions>>
       { payload: { connected, key } }: ContactActions['setContactConnected']
     ) =>
       produce(state, draft => {
-        console.log(connected)
-        console.log(key)
         draft[key].connected = connected
       }),
     [removeContact.toString()]: (

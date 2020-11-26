@@ -18,6 +18,7 @@ export const createServer = mainWindow => {
     })
     socket.on('close', function (message) {
       console.log('disconnected')
+      socket.close()
     })
   })
   console.log('websocket server running')
