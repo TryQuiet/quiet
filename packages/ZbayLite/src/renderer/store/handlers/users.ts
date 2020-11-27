@@ -132,7 +132,7 @@ export const registerAnonUsername = () => async (dispatch, getState) => {
   await dispatch(createOrUpdateUser({ nickname: `anon${publicKey.substring(0, 10)}` }))
 }
 
-export const checkRegistraionConfirmations = ({ firstRun }) => async (dispatch, getState) => {
+export const checkRegistrationConfirmations = ({ firstRun }) => async (dispatch, getState) => {
   if (firstRun) {
     const publicKey = identitySelector.signerPubKey(getState())
     const address = identitySelector.address(getState())
@@ -171,7 +171,7 @@ export const checkRegistraionConfirmations = ({ firstRun }) => async (dispatch, 
         )
       } else {
         electronStore.set('registrationStatus.confirmation', currentHeight - blockHeight)
-        dispatch(checkRegistraionConfirmations({ firstRun: false }))
+        dispatch(checkRegistrationConfirmations({ firstRun: false }))
       }
     }
   }, 75000)
@@ -248,7 +248,7 @@ export const createOrUpdateUser = payload => async (dispatch, getState) => {
     dispatch(appHandlers.actions.setUseTor(true))
     electronStore.set('registrationStatus.txid', txid.txid)
     electronStore.set('registrationStatus.confirmation', 0)
-    dispatch(checkRegistraionConfirmations({ firstRun: true }))
+    dispatch(checkRegistrationConfirmations({ firstRun: true }))
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar(
         successNotification({
@@ -449,6 +449,16 @@ export const isNicknameTaken = username => (dispatch, getState) => {
   return R.includes(username, uniqUsernames)
 }
 
+export const epics = {
+  fetchUsers,
+  isNicknameTaken,
+  createOrUpdateUser,
+  registerAnonUsername,
+  fetchOnionAddresses,
+  registerOnionAddress,
+  checkRegistrationConfirmations
+}
+
 export const reducer = handleActions<UsersStore, PayloadType<UserActions>>(
   {
     [setUsers.toString()]: (state, { payload: { users } }: UserActions['setUsers']) => {
@@ -482,15 +492,6 @@ export const reducer = handleActions<UsersStore, PayloadType<UserActions>>(
   },
   initialState
 )
-
-export const epics = {
-  fetchUsers,
-  isNicknameTaken,
-  createOrUpdateUser,
-  registerAnonUsername,
-  fetchOnionAddresses,
-  registerOnionAddress
-}
 
 export default {
   reducer,

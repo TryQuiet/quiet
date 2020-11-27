@@ -1,7 +1,8 @@
 import { createSelector } from "reselect";
-import { AppStore } from "../handlers/app";
 
-const app = (s): AppStore => s.app as AppStore;
+import { Store } from '../reducers'
+
+const app = (s: Store) => s.app
 
 const version = createSelector(app, (a) => a.version);
 const useTor = createSelector(app, (a) => a.useTor);

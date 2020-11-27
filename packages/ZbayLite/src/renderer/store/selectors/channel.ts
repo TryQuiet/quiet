@@ -4,9 +4,9 @@ import messagesQueueSelectors from "./messagesQueue";
 import contacts from "./contacts";
 import { networkFee, messageType } from "../../../shared/static";
 
-import { ChannelStore } from "../handlers/channel";
+import { Store } from '../reducers'
 
-const channel = (s): ChannelStore => s.channel as ChannelStore;
+const channel = (s: Store) => s.channel
 
 export const channelInfo = createSelector(channel, (ch) => {
   const channel = {

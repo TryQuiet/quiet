@@ -1,8 +1,8 @@
 import { createSelector } from "reselect";
 
-import { DirectMessagesQueueStore } from "../handlers/directMessagesQueue";
+import { Store } from '../reducers'
 
-const store = (s): DirectMessagesQueueStore => s.directMessagesQueue as DirectMessagesQueueStore
+const store = (s: Store) => s.directMessagesQueue
 
 const queue = createSelector(store, (state) => state);
 

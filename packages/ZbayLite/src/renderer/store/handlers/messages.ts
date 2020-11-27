@@ -55,23 +55,6 @@ export const _receivedMessage = {
   blockTime: Number.MAX_SAFE_INTEGER
 }
 
-// const _ReceivedMessage = Immutable.Record(
-//   {
-//     id: null,
-//     type: messageType.BASIC,
-//     sender: MessageSender(),
-//     createdAt: 0,
-//     message: '',
-//     spent: new BigNumber(0),
-//     isUnregistered: false,
-//     tag: '',
-//     offerOwner: '',
-//     publicKey: null,
-//     blockTime: Number.MAX_SAFE_INTEGER
-//   },
-//   'ReceivedMessage'
-// )
-
 const _receivedFromUnknownMessage = {
   id: null,
   sender: messageSender,
@@ -82,20 +65,6 @@ const _receivedFromUnknownMessage = {
   specialType: null,
   blockHeight: Number.MAX_SAFE_INTEGER
 }
-
-// const _RecivedFromUnknownMessage = Immutable.Record(
-//   {
-//     id: null,
-//     sender: MessageSender(),
-//     type: messageType.BASIC,
-//     message: '',
-//     spent: new BigNumber(0),
-//     createdAt: 0,
-//     specialType: null,
-//     blockHeight: Number.MAX_SAFE_INTEGER
-//   },
-//   'RecivedFromUnknownMessage'
-// )
 
 export const ReceivedMessage = values => {
   return {
@@ -108,11 +77,6 @@ export const ChannelMessages = {
   messages: [],
   newMessages: []
 }
-
-// const channelMessages = {
-//   messages: [],
-//   newMessages: []
-// }
 
 export const initialState = Immutable.Map()
 
@@ -255,12 +219,6 @@ export const checkTransferCount = (address, messages) => async (dispatch, getSta
     if (messages.length === appSelectors.transfers(getState())[address]) {
       return -1
     } else {
-      // const oldTransfers = appSelectors.transfers(getState()).get(address) || 0
-      // dispatch(
-      //   appHandlers.actions.reduceNewTransfersCount(
-      //     messages.length - oldTransfers
-      //   )
-      // )
       dispatch(
         appHandlers.actions.setTransfers({
           id: address,
@@ -424,14 +382,6 @@ const setChannelMessages = (channel, messages = []) => async (dispatch, getState
       if (message === null) {
         return new DisplayableMessage(message)
       }
-      // const pendingMessage = pendingMessages.find(
-      //   pm => pm.txId && pm.txId === message.id
-      // )
-      // if (pendingMessage) {
-      //   dispatch(
-      //     operationsHandlers.actions.removeOperation(pendingMessage.opId)
-      //   )
-      // }
       return new DisplayableMessage(message)
     })
   )
@@ -520,14 +470,6 @@ const setUsersMessages = (messages: DisplayableMessage[]) => async (dispatch, ge
       if (message === null) {
         return new DisplayableMessage(message)
       }
-      // const pendingMessage = pendingMessages.find(
-      //   pm => pm.txId && pm.txId === message.id
-      // )
-      // if (pendingMessage) {
-      //   dispatch(
-      //     operationsHandlers.actions.removeOperation(pendingMessage.opId)
-      //   )
-      // }
       return new DisplayableMessage(message)
     })
   )
@@ -644,17 +586,6 @@ export const _checkMessageSize = mergedMessage => async (dispatch, getState) => 
     return isMessageToLong
   }
 }
-
-// export const checkMessageSize = (redirect) => {
-//   const thunk = _checkMessageSize(redirect);
-//   thunk.meta = {
-//     debounce: {
-//       time: 500,
-//       key: "CHECK_MESSAGE_SIZE",
-//     },
-//   };
-//   return thunk;
-// };
 
 export const handleWebsocketMessage = data => async (dispatch, getState) => {
   const users = usersSelectors.users(getState())

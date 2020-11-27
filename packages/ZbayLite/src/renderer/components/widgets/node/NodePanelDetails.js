@@ -9,14 +9,11 @@ import IconButton from '@material-ui/core/IconButton'
 import { shell } from 'electron'
 
 import NodePanelBlocksField from '../../../containers/widgets/node/NodePanelBlocksField'
-// import NodePanelConnectionsField from '../../../containers/widgets/node/NodePanelConnectionsField'
 import NodePanelNetworkField from '../../../containers/widgets/node/NodePanelNetworkField'
 import NodePanelFreeUtxos from '../../../containers/widgets/node/NodePanelFreeUtxos'
 import Icon from '../../ui/Icon'
 import helpIcon from '../../../static/images/help.svg'
 import helpGrayIcon from '../../../static/images/helpGray.svg'
-import expandLogsInactiveIcon from '../../../static/images/logs/inactiveLogPanel.svg'
-import expandLogsHoveredIcon from '../../../static/images/logs/hoveredLogPanel.svg'
 import Tooltip from '../../ui/Tooltip'
 
 const styles = theme => ({
@@ -46,9 +43,8 @@ const styles = theme => ({
   }
 })
 
-export const NodePanelDetails = ({ classes, expanded, showLogsPanel }) => {
+export const NodePanelDetails = ({ classes, expanded }) => {
   const [hover, setHover] = React.useState(false)
-  const [logsHover, setLogsHover] = React.useState(false)
 
   return (
     <Grid container direction='column'>
@@ -57,42 +53,15 @@ export const NodePanelDetails = ({ classes, expanded, showLogsPanel }) => {
         direction='column'
         className={classNames({
           [classes.details]: true
-        })}
-      >
+        })}>
         {expanded && (
           <>
             <Grid item container direction>
               <NodePanelNetworkField />
               <Tooltip
-                title='Logs'
-                className={classes.tooltip}
-                placement='bottom'
-              >
-                <IconButton
-                  classes={{ root: classes.iconButtonLogs }}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    showLogsPanel()
-                  }}
-                  onMouseOver={() => {
-                    setLogsHover(true)
-                  }}
-                  onMouseOut={() => {
-                    setLogsHover(false)
-                  }}
-                >
-                  <Icon
-                    className={classes.icon}
-                    fontSize='inherit'
-                    src={logsHover ? expandLogsHoveredIcon : expandLogsInactiveIcon}
-                  />
-                </IconButton>
-              </Tooltip>
-              <Tooltip
                 title='Learn more about node status'
                 className={classes.tooltip}
-                placement='bottom'
-              >
+                placement='bottom'>
                 <IconButton
                   className={classes.iconButton}
                   onClick={e => {
@@ -104,8 +73,7 @@ export const NodePanelDetails = ({ classes, expanded, showLogsPanel }) => {
                   }}
                   onMouseOut={() => {
                     setHover(false)
-                  }}
-                >
+                  }}>
                   <Icon
                     className={classes.icon}
                     fontSize='inherit'

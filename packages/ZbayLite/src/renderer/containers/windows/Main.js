@@ -8,14 +8,12 @@ import vaultSelectors from '../../store/selectors/vault'
 import coordinator from '../../store/handlers/coordinator'
 import nodeHandlers from '../../store/handlers/node'
 import modalsHandlers from '../../store/handlers/modals'
-import logsSelectors from '../../store/selectors/logs'
 import identitySelectors from '../../store/selectors/identity'
 import { fetchBalance } from '../../store/handlers/identity'
 import electronStore from '../../../shared/electronStore'
 
 export const mapStateToProps = state => ({
   vaultLocked: vaultSelectors.locked(state),
-  isLogWindowOpened: logsSelectors.isLogWindowOpened(state),
   zecBalance: identitySelectors.balance('zec')(state)
 })
 export const mapDispatchToProps = dispatch => {

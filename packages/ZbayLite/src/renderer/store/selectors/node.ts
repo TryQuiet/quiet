@@ -2,9 +2,9 @@ import { DateTime, Interval } from 'luxon'
 import { createSelector } from 'reselect'
 import BigNumber from 'bignumber.js'
 
-import { NodeStore } from '../handlers/node'
+import { Store } from '../reducers'
 
-const node = (s): NodeStore => s.node as NodeStore
+const node = (s: Store) => s.node
 
 const currentBlock = createSelector(node, n => n.currentBlock)
 const latestBlock = createSelector(node, n => n.latestBlock)
@@ -37,7 +37,6 @@ const network = createSelector(node, n => {
 
 const isConnected = createSelector(status, s => ['healthy', 'syncing'].includes(s))
 
-// const loader = createSelector(node, n => n.bootstrapLoader)
 const isRescanning = createSelector(node, n => n.isRescanning)
 const fetching = createSelector(node, n => n.fetchingStatus)
 const bootstrapping = createSelector(node, n => n.loading)

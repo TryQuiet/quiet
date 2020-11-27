@@ -13,9 +13,7 @@ interface IOwnedChannels {
 
 export const initialState: IOwnedChannels = {}
 
-export type OwnedChannelsStore = IOwnedChannels
-
-const addOwnedChannel = createAction<{ channels: OwnedChannelsStore }>(actionTypes.ADD_OWNED_CHANNEL)
+const addOwnedChannel = createAction<{ channels: IOwnedChannels }>(actionTypes.ADD_OWNED_CHANNEL)
 
 export const actions = {
   addOwnedChannel
@@ -39,14 +37,18 @@ export const epics = {
   getOwnedChannels
 }
 
-export const reducer = handleActions<OwnedChannelsStore, PayloadType<OwnedChannelsActions>>(
+export const reducer = handleActions<IOwnedChannels, PayloadType<OwnedChannelsActions>>(
   {
-    [addOwnedChannel.toString()]: (state, { payload: { channels } }: OwnedChannelsActions['addOwnedChannel']) => produce(state, (draft) => {
-      return {
-        ...draft,
-        ...channels
-      }
-    })
+    [addOwnedChannel.toString()]: (
+      state,
+      { payload: { channels } }: OwnedChannelsActions['addOwnedChannel']
+    ) =>
+      produce(state, draft => {
+        return {
+          ...draft,
+          ...channels
+        }
+      })
   },
   initialState
 )

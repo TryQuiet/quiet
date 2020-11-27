@@ -6,9 +6,11 @@ import { MessageType } from "../../../shared/static.types";
 import { unknownUserId } from "../../../shared/static";
 
 import { DisplayableMessage } from "../../zbay/messages.types";
-import { ContactsStore, Contacts } from "../handlers/contacts";
 
-const contacts = (s): ContactsStore => s.contacts as ContactsStore;
+import { Contact } from '../handlers/contacts'
+import { Store } from '../reducers'
+
+const contacts = (s: Store) => s.contacts
 
 const contactsList = createSelector(
   contacts,
@@ -72,7 +74,7 @@ const directMessagesContact = (address) =>
 const contact = (address) =>
   createSelector(contacts, (c) => {
     if (!c[address]) {
-      return new Contacts();
+      return new Contact()
     } else {
       return c[address];
     }
@@ -146,16 +148,6 @@ export const queuedMessages = (address) =>
       queue.filter((m) => m.recipientAddress === address && m.message.type < 10) //  separate offer messages and direct messages
   );
 
-// export const pendingMessages = (address) =>
-  // createSelector(operationsSelectors.operations, (operations) =>
-    // operations.filter(
-      // (o) =>
-        // o.type === OperationType.pendingDirectMessage &&
-        // o.meta.recipientAddress === address &&
-        // o.meta.message.type < 10 //  separate offer messages and direct messages
-    // )
-  // );
-
 const channelOwner = (channelId) =>
   createSelector(channelSettingsMessages(channelId), (msgs) => {
     let channelOwner = null;
@@ -171,9 +163,9 @@ const channelOwner = (channelId) =>
  // TODO: TO be removed 
 export interface IDirectMessage {
   visibleMessages: DisplayableMessage[];
-  channelModerators: any[];
+  channelModerators: string[];
   messsagesToRemove: DisplayableMessage[];
-  blockedUsers: any[];
+  blockedUsers: string[];
 }
 
 export const directMessages = (address) =>
@@ -189,77 +181,57 @@ export const directMessages = (address) =>
         switch (msg.type) {
           case MessageType.AD:
             if (!blockedUsers.includes(msg.publicKey)) {
-              visibleMessages.push(msg);
+              visibleMessages.push(msg)
             }
-            break;
+            break
           case MessageType.BASIC:
             if (!blockedUsers.includes(msg.publicKey)) {
-              visibleMessages.push(msg);
+              visibleMessages.push(msg)
             }
-            break;
+            break
           case MessageType.TRANSFER:
             if (!blockedUsers.includes(msg.publicKey)) {
-              visibleMessages.push(msg);
+              visibleMessages.push(msg)
             }
-            break;
+            break
           case MessageType.MODERATION:
-            const senderPk = msg.publicKey;
-            const moderationType = msg.message.moderationType;
-            const moderationTarget = msg.message.moderationTarget;
-            if (channelOwner === senderPk && moderationType === "ADD_MOD") {
-              channelModerators.push(moderationTarget);
-            } else if (
-              channelOwner === senderPk &&
-              moderationType === "REMOVE_MOD"
-            ) {
-              const indexToRemove = channelModerators.findIndex(
-                (el) => el === moderationTarget
-              );
+            const senderPk = msg.publicKey
+            const moderationType = msg.message.moderationType
+            const moderationTarget = msg.message.moderationTarget
+            if (channelOwner === senderPk && moderationType === 'ADD_MOD') {
+              channelModerators.push(moderationTarget)
+            } else if (channelOwner === senderPk && moderationType === 'REMOVE_MOD') {
+              const indexToRemove = channelModerators.findIndex(el => el === moderationTarget)
               if (indexToRemove !== -1) {
-                channelModerators.splice(indexToRemove, 1);
+                channelModerators.splice(indexToRemove, 1)
               }
             } else if (
-              (channelOwner === senderPk ||
-                channelModerators.includes(senderPk)) &&
-              moderationType === "BLOCK_USER"
+              (channelOwner === senderPk || channelModerators.includes(senderPk)) &&
+              moderationType === 'BLOCK_USER'
             ) {
-              blockedUsers.push(moderationTarget);
-              visibleMessages = visibleMessages.filter(
-                (msg) => !blockedUsers.includes(msg.publicKey)
-              );
+              blockedUsers.push(moderationTarget)
+              visibleMessages = visibleMessages.filter(msg => !blockedUsers.includes(msg.publicKey))
             } else if (
-              (channelOwner === senderPk ||
-                channelModerators.includes(senderPk)) &&
-              moderationType === "UNBLOCK_USER"
+              (channelOwner === senderPk || channelModerators.includes(senderPk)) &&
+              moderationType === 'UNBLOCK_USER'
             ) {
-              const indexToRemove = blockedUsers.findIndex(
-                (el) => el === moderationTarget
-              );
+              const indexToRemove = blockedUsers.findIndex(el => el === moderationTarget)
               if (indexToRemove !== -1) {
-                blockedUsers.splice(indexToRemove, 1);
+                blockedUsers.splice(indexToRemove, 1)
               }
             } else if (
-              (channelOwner === senderPk ||
-                channelModerators.includes(senderPk)) &&
-              moderationType === "REMOVE_MESSAGE"
+              (channelOwner === senderPk || channelModerators.includes(senderPk)) &&
+              moderationType === 'REMOVE_MESSAGE'
             ) {
-              const indexToRemove = visibleMessages.findIndex(
-                (el) => el.id === moderationTarget
-              );
+              const indexToRemove = visibleMessages.findIndex(el => el.id === moderationTarget)
               if (indexToRemove !== -1) {
-                visibleMessages.splice(indexToRemove, 1);
+                visibleMessages.splice(indexToRemove, 1)
               }
             } else {
             }
-            break;
+            break
         }
       }
-      // const test = Immutable.fromJS({
-      //   channelModerators,
-      //   messsagesToRemove,
-      //   blockedUsers,
-      //   visibleMessages: mergeIntoOne(visibleMessages.reverse())
-      // })
       return {
         channelModerators,
         messsagesToRemove,

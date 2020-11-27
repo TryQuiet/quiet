@@ -32,7 +32,7 @@ export class PublicChannel {
   name: string
   description: string
   owner: string
-  keys: { ivk: string }
+  keys: { ivk?: string, sk?: string }
   timestamp: number
 
   constructor(values: Partial<PublicChannel>) {
@@ -108,7 +108,6 @@ export const fetchPublicChannels = (address, messages: DisplayableMessage[]) => 
       }
     }
     await dispatch(feesHandlers.actions.setPublicChannelFee(minfee))
-    console.log('tes public channelst', publicChannelsMap)
     await dispatch(setPublicChannels(publicChannelsMap))
   } catch (err) {
     console.warn(err)

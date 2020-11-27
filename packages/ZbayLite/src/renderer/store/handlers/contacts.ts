@@ -5,21 +5,15 @@ import BigNumber from 'bignumber.js'
 import { remote, ipcRenderer } from 'electron'
 
 import history from '../../../shared/history'
-import { messageType, actionTypes } from '../../../shared/static'
-
+import { actionTypes } from '../../../shared/static'
 import identitySelectors from '../selectors/identity'
-import offersSelectors from '../selectors/offers'
 import selectors from '../selectors/contacts'
-import nodeSelectors from '../selectors/node'
 
 import { DisplayableMessage } from '../../zbay/messages.types'
 import { messages as zbayMessages } from '../../zbay'
-import { getClient } from '../../zcash'
 
 import { _checkMessageSize } from './messages'
 import directMessagesQueueHandlers from './directMessagesQueue'
-import removedChannelsHandlers from './removedChannels'
-import offersHandlers from './offers'
 import { ActionsType, PayloadType } from './types'
 import usersSelector from '../selectors/users'
 
@@ -47,7 +41,7 @@ const sendDirectMessage = (payload, redirect = true) => async (dispatch, getStat
     )
   )
 }
-export class Contacts {
+export class Contact {
   lastSeen?: DateTime
   key: string = ''
   username: string = ''
@@ -58,7 +52,7 @@ export class Contacts {
   offerId?: string
   unread?: number
   connected?: boolean
-  constructor(values?: Partial<Contacts>) {
+  constructor(values?: Partial<Contact>) {
     Object.assign(this, values)
     this[immerable] = true
   }
@@ -68,7 +62,7 @@ export interface ISender {
   username: string
 }
 
-export type ContactsStore = { [key: string]: Contacts }
+export type ContactsStore = { [key: string]: Contact }
 
 const initialState: ContactsStore = {}
 
@@ -103,13 +97,12 @@ const appendNewMessages = createAction<{
   contactAddress: string
   messagesIds: string[]
 }>(actionTypes.APPEND_NEW_DIRECT_MESSAGES)
-const setLastSeen = createAction<{ lastSeen: DateTime; contact: Contacts }>(
+const setLastSeen = createAction<{ lastSeen: DateTime; contact: Contact }>(
   actionTypes.SET_CONTACTS_LAST_SEEN
 )
 const removeContact = createAction<{ address: string }>(actionTypes.REMOVE_CONTACT)
 const setUsernames = createAction<{ sender: ISender }>(actionTypes.SET_CONTACTS_USERNAMES)
 const setVaultMessages = createAction(actionTypes.SET_VAULT_DIRECT_MESSAGES)
-const setVaultMessageBlockTime = createAction(actionTypes.SET_VAULT_MESSAGE_BLOCKTIME)
 const setContactConnected = createAction(actionTypes.SET_CONTACT_CONNECTED)
 
 export const actions = {
@@ -227,68 +220,9 @@ export const connectWsContacts = () => async (dispatch, getState) => {
 
 export const deleteChannel = ({ address, timestamp, history }) => async (dispatch, getState) => {
   history.push(`/main/channel/general`)
-  await dispatch(removedChannelsHandlers.epics.getRemovedChannelsTimestamp())
   dispatch(removeContact(address))
 }
-export const checkConfirmationOfTransfers = async (dispatch, getState) => {
-  try {
-    const latestBlock = parseInt(nodeSelectors.latestBlock(getState()).toString())
-    const contacts = selectors.contacts(getState())
-    const offers = offersSelectors.offers(getState())
-    const getKeys = (obj: ContactsStore) => Object.keys(obj)
-    for (const key of getKeys(contacts)) {
-      for (const msg of contacts[key].messages) {
-        if (
-          (msg.type === messageType.ITEM_TRANSFER || msg.type === messageType.TRANSFER) &&
-          msg.blockTime === Number.MAX_SAFE_INTEGER
-        ) {
-          const tx = await getClient().confirmations.getResult(msg.id)
-          dispatch(
-            setMessageBlockTime({
-              contactAddress: key,
-              messageId: msg[0].messageId,
-              blockTime: latestBlock - tx.confirmations
-            })
-          )
-        }
-      }
-      for (const msg of contacts[key].vaultMessages) {
-        if (
-          (msg.type === messageType.ITEM_TRANSFER || msg.type === messageType.TRANSFER) &&
-          msg.blockTime === Number.MAX_SAFE_INTEGER
-        ) {
-          const tx = await getClient().confirmations.getResult(msg.id)
-          dispatch(
-            setVaultMessageBlockTime({
-              contactAddress: key,
-              messageId: msg.id,
-              blockTime: latestBlock - tx.confirmations
-            })
-          )
-        }
-      }
-    }
-    for (const key of Array.from(offers.keys())) {
-      for (const msg of offers.get(key).messages) {
-        if (
-          (msg.type === messageType.ITEM_TRANSFER || msg.type === messageType.TRANSFER) &&
-          msg.blockTime === Number.MAX_SAFE_INTEGER
-        ) {
-          const tx = await getClient().confirmations.getResult(msg.id)
-          dispatch(
-            offersHandlers.actions.setOfferMessageBlockTime({
-              itemId: key,
-              messageId: msg.id,
-              blockTime: latestBlock - tx.confirmations
-            })
-          )
-        }
-      }
-    }
-  } catch (err) {
-    console.log(err)
-  }
-}
+
 export const epics = {
   updateLastSeen,
   sendDirectMessage,
@@ -296,7 +230,6 @@ export const epics = {
   createVaultContact,
   deleteChannel,
   linkUserRedirect,
-  checkConfirmationOfTransfers,
   connectWsContacts
 }
 

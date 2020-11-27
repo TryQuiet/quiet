@@ -1,8 +1,8 @@
 import { createSelector } from 'reselect'
 
-import { PublicChannelsStore } from '../handlers/publicChannels'
+import { Store } from '../reducers'
 
-const publicChannels = (s): PublicChannelsStore => s.publicChannels as PublicChannelsStore
+const publicChannels = (s: Store) => s.publicChannels
 
 const publicChannelsByAddress = address =>
   createSelector(publicChannels, channels => channels[address])

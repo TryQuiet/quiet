@@ -15,8 +15,7 @@ import { getClient } from '../../zcash'
 import { actionTypes } from '../../../shared/static'
 import { DisplayableMessage } from '../../zbay/messages.types'
 
-import { ThunkAction } from "redux-thunk";
-import { Action } from "redux";
+import { ZbayThunkAction } from './helpers'
 
 import { ActionsType, PayloadType } from './types'
 
@@ -63,17 +62,6 @@ export const actions = {
   removeMessage
 }
 
-class Store { }
-interface IThunkActionWithMeta<R, S, E, A extends Action> extends ThunkAction<R, S, E, A> {
-  meta?: {
-    debounce: {
-      time: number,
-      key: string,
-    }
-  }
-}
-
-type ZbayThunkAction<ReturnType> = IThunkActionWithMeta<ReturnType, Store, unknown, Action<string>>
 
 const _sendPendingMessages = (): ZbayThunkAction<void> => async (dispatch, getState) => {
   const lock = appSelectors.messageQueueLock(getState())

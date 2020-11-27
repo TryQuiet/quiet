@@ -3,7 +3,6 @@ import electronLocalshortcut from 'electron-localshortcut'
 import path from 'path'
 import url from 'url'
 import { autoUpdater } from 'electron-updater'
-// import readLastLines from 'read-last-lines'
 import find from 'find-process'
 import ps from 'ps-node'
 import util from 'util'
@@ -17,20 +16,6 @@ import { createServer } from './websockets/server'
 import { spawnTor, getOnionAddress } from '../../tor'
 
 const _killProcess = util.promisify(ps.kill)
-
-// const osPathsBlockchainDefault = {
-//   darwin: `${process.env.HOME ||
-//     process.env.USERPROFILE}/Library/Application Support/Zcash/`,
-//   linux: `${process.env.HOME || process.env.USERPROFILE}/.zcash/`,
-//   win32: `${os.userInfo().homedir}\\AppData\\Roaming\\Zcash\\`
-// }
-
-// const osPathLogs = {
-//   darwin: `${process.env.HOME ||
-//     process.env.USERPROFILE}/Library/Application Support/Zbay/Logs/`,
-//   linux: `${process.env.HOME || process.env.USERPROFILE}/.config/Zbay/Logs/`,
-//   win32: `${os.userInfo().homedir}\\AppData\\Roaming\\Zbay\\Logs\\`
-// }
 
 let isFetchedFromExternalSource = false
 
@@ -349,18 +334,6 @@ app.on('ready', async () => {
 
   ipcMain.on('vault-created', (event, arg) => {
     electronStore.set('vaultStatus', config.VAULT_STATUSES.CREATED)
-    // const blockchainConfiguration = electronStore.get('blockchainConfiguration')
-    // if (!isDev && (!isFetchedFromExternalSource || blockchainConfiguration === config.BLOCKCHAIN_STATUSES.TO_FETCH)) {
-    //   const { status } = electronStore.get('AppStatus.blockchain')
-    //   if (status !== config.BLOCKCHAIN_STATUSES.SUCCESS) {
-    //     nodeProc.on('close', code => {
-    //       setTimeout(() => {
-    //         createZcashNode(mainWindow)
-    //       }, 1000)
-    //     })
-    //     nodeProc.kill()
-    //   }
-    // }
   })
 
   ipcMain.on('proceed-with-syncing', (event, userChoice) => {
@@ -372,85 +345,6 @@ app.on('ready', async () => {
     } else {
       electronStore.set('blockchainConfiguration', config.BLOCKCHAIN_STATUSES.TO_FETCH)
     }
-  })
-
-  // let loadLogsInterval
-  // const checkLogsFiles = () => {
-  //   const blockchainConfiguration = electronStore.get('blockchainConfiguration')
-  //   const targetPath = {
-  //     transactions: `${osPathLogs[process.platform]}transactions.json`,
-  //     debug: blockchainConfiguration === config.BLOCKCHAIN_STATUSES.TO_FETCH ? `${osPathsBlockchainCustom[process.platform]}debug.log`
-  //       : `${osPathsBlockchainDefault[process.platform]}debug.log`,
-  //     rpcCalls: `${osPathLogs[process.platform]}rpcCalls.json`
-  //   }
-  //   const isTransactionFileExists = fs.existsSync(targetPath.transactions)
-  //   const isRpcCallsFileExists = fs.existsSync(targetPath.rpcCalls)
-  //   const createJsonFormatFile = (path) => fs.writeFileSync(path, JSON.stringify([]))
-  //   if (!isTransactionFileExists) {
-  //     createJsonFormatFile(targetPath.transactions)
-  //   }
-  //   if (!isRpcCallsFileExists) {
-  //     createJsonFormatFile(targetPath.rpcCalls)
-  //   }
-  // }
-
-  // const loadLogs = async () => {
-  //   const blockchainConfiguration = electronStore.get('blockchainConfiguration')
-  //   const targetPath = {
-  //     transactions: `${osPathLogs[process.platform]}transactions.json`,
-  //     debug: blockchainConfiguration === config.BLOCKCHAIN_STATUSES.TO_FETCH ? `${osPathsBlockchainCustom[process.platform]}debug.log`
-  //       : `${osPathsBlockchainDefault[process.platform]}debug.log`,
-  //     rpcCalls: `${osPathLogs[process.platform]}rpcCalls.json`
-  //   }
-  //   checkPath(osPathLogs[process.platform])
-  //   checkLogsFiles()
-  //   const transactions = JSON.parse(fs.readFileSync(targetPath.transactions))
-  //   let applicationLogs = JSON.parse(fs.readFileSync(targetPath.rpcCalls))
-  //   if (applicationLogs.length > 100) {
-  //     const startHeight = applicationLogs.length - 100
-  //     applicationLogs = applicationLogs.slice(startHeight, applicationLogs.length)
-  //   }
-  //   const debugFileLines = await readLastLines.read(targetPath.debug, 100)
-  //   if (mainWindow) {
-  //     mainWindow.webContents.send('load-logs-to-store', {
-  //       debug: debugFileLines.split('\n'),
-  //       transactions,
-  //       applicationLogs
-  //     })
-  //   }
-  // }
-
-  ipcMain.on('load-logs', (event, type) => {
-    return false
-  })
-
-  // ipcMain.on('disable-load-logs', (event) => {
-  //   if (loadLogsInterval) {
-  //     clearInterval(loadLogsInterval)
-  //     loadLogsInterval = null
-  //   }
-  // })
-
-  ipcMain.on('save-to-log-file', (event, { type, payload }) => {
-    return false
-    // checkPath(osPathLogs[process.platform])
-    // checkLogsFiles()
-    // const blockchainConfiguration = electronStore.get('blockchainConfiguration')
-    // const targetPath = {
-    //   transactions: `${osPathLogs[process.platform]}transactions.json`,
-    //   debug: blockchainConfiguration === config.BLOCKCHAIN_STATUSES.TO_FETCH ? `${osPathsBlockchainCustom[process.platform]}debug.log`
-    //     : `${osPathsBlockchainDefault[process.platform]}debug.log`,
-    //   rpcCalls: `${osPathLogs[process.platform]}rpcCalls.json`
-    // }
-    // if (type === 'TRANSACTION') {
-    //   const transactions = JSON.parse(fs.readFileSync(targetPath.transactions))
-    //   transactions.push(payload)
-    //   fs.writeFileSync(targetPath.transactions, JSON.stringify(transactions))
-    // } else {
-    //   const applicationLogs = JSON.parse(fs.readFileSync(targetPath.rpcCalls))
-    //   applicationLogs.push(payload)
-    //   fs.writeFileSync(targetPath.rpcCalls, JSON.stringify(applicationLogs))
-    // }
   })
 
   ipcMain.on('create-node', async (event, arg) => {

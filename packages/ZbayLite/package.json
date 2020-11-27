@@ -55,7 +55,7 @@
   },
   "homepage": "https://gitlab.rumblefishdev.com/holmes/zbay",
   "@comment version": "To build new version for specific platform, just replace platform in version tag to one of following linux, mac, windows",
-  "version": "2.2.4-zbay-lite",
+  "version": "2.2.5-zbay-lite",
   "description": "Distributed goods and bulletin board",
   "main": "dist/main.js",
   "scripts": {
@@ -187,6 +187,8 @@
     "@material-ui/core": "^4.7.1",
     "@material-ui/icons": "^4.2.1",
     "@material-ui/lab": "^4.0.0-alpha.34",
+    "@types/ps-node": "^0.1.0",
+    "@types/redux-debounced": "^0.2.19",
     "async": "^3.1.0",
     "axios": "^0.18.0",
     "bech32": "^1.1.3",

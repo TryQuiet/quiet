@@ -1,8 +1,7 @@
 import { produce } from "immer";
 import BigNumber from "bignumber.js";
 import { createAction, handleActions } from "redux-actions";
-import * as R from "ramda";
-// import contactsSelector from '../../store/selectors/contacts'
+import * as R from 'ramda'
 import { updatePendingMessage } from "./contacts";
 
 import { actionTypes } from "../../../shared/static";
@@ -37,12 +36,12 @@ export const PendingDirectMessageOp = {
   offerId: "",
 };
 
-// TODO: Probably unused
-export enum OperationType {
-  shieldBalance = "shieldBalance",
-  pendingMessage = "pendingMessage",
-  pendingDirectMessage = "pendingDirectMessage",
-  pendingPlainTransfer=  "pendingPlainTransfer",
+// TODO: Used in many tests
+export enum OperationTypes {
+  shieldBalance = 'shieldBalance',
+  pendingMessage = 'pendingMessage',
+  pendingDirectMessage = 'pendingDirectMessage',
+  pendingPlainTransfer = 'pendingPlainTransfer'
 };
 
 export class Operation {
@@ -112,7 +111,7 @@ export const reducer = handleActions<
       produce(state, (draft) => {
         delete draft[channelId][id];
         draft[channelId][txid] = {
-          ...Operation,
+          ...new Operation({}),
           id,
           txid,
         };

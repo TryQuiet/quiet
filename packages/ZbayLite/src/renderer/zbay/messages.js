@@ -444,7 +444,7 @@ export const messageToTransfer = async ({
   message,
   amount = 0,
   address,
-  identityAddress = false,
+  identityAddress = '',
   splitTreshhold = networkFee * 20,
   fee = networkFee,
   donation = { allow: false }
@@ -470,11 +470,12 @@ export const messageToTransfer = async ({
     ? _buildUtxo({ transfer, utxos, fee, identityAddress, splitTreshhold })
     : transfer
 }
-export const createEmptyTransfer = ({ address, amount = 0, memo = '' }) => {
+export const createEmptyTransfer = ({ address, amount = 0, memo = '', identityAddress = '' }) => {
   return {
     address: address,
     amount: new BigNumber(amount).times(satoshiMultiplier).toNumber(),
-    memo: memo
+    memo: memo,
+    identityAddress: identityAddress
   }
 }
 export const transfersToMessages = async (transfers, owner) => {

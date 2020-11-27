@@ -1,8 +1,8 @@
 import { createSelector } from 'reselect'
 
-import { NotificationStore } from "./../handlers/notifications";
+import { Store } from '../reducers'
 
-const notifications = (s): NotificationStore => s.notifications as NotificationStore
+const notifications = (s: Store) => s.notifications
 
 const data = createSelector(notifications, s => s)
 

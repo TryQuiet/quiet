@@ -34,19 +34,12 @@ export class Node {
   }
 }
 
-export type NodeStore = Node
-
-const initialState: Node = new Node()
+const initialState: Node = new Node({})
 
 export const NodeState = initialState
 
 const setStatus = createAction<{ status?: string; errors?: string, latestBlock?: BigNumber; currentBlock?: BigNumber }>(
   actionTypes.SET_STATUS
-  // TODO: REMOVE - probably dead code, because null points to default value and third parameter must be function, either default as well.
-  //null, 
-  //  {
-  //  ignoreError: true
-  //}
 )
 const createAddress = createAction(
   actionTypes.CREATE_ADDRESS,
@@ -56,7 +49,6 @@ const createAddress = createAction(
 )
 const setBootstrapping = createAction<boolean>(actionTypes.SET_BOOTSTRAPPING)
 const setBootstrappingMessage = createAction<string>(actionTypes.SET_BOOTSTRAPPING_MESSAGE)
-
 const setFetchingPart = createAction(actionTypes.SET_FETCHING_PART)
 const setIsRescanning = createAction<boolean>(actionTypes.SET_IS_RESCANNING)
 const setFetchingSizeLeft = createAction(actionTypes.SET_FETCHING_SIZE_LEFT)
@@ -131,7 +123,6 @@ const getStatus = () => async (dispatch, getState) => {
         lastSavedBlock = height
         if (nodeSelectors.isRescanning(getState())) {
           setTimeout(async () => {
-            console.log('saving')
             console.log(await client.syncStatus())
             await dispatch(setIsRescanning(false))
           }, 10000)
@@ -169,7 +160,7 @@ const epics = {
   checkNodeStatus
 }
 
-export const reducer = handleActions<NodeStore, PayloadType<NodeActions>>(
+export const reducer = handleActions<Node, PayloadType<NodeActions>>(
   {
     [setStatus.toString()]: (state, { payload: status }: NodeActions['setStatus']) =>
       produce(state, draft => {

@@ -1,8 +1,7 @@
 import { produce, immerable } from 'immer'
 import * as R from "ramda";
 import crypto from "crypto";
-import { createAction, handleActions } from "redux-actions";
-import BigNumber from 'bignumber.js'
+import { createAction, handleActions } from 'redux-actions'
 
 import selectors from "../selectors/directMessagesQueue";
 import identitySelectors from "../selectors/identity";
@@ -25,8 +24,8 @@ import history from "../../../shared/history";
 import { ActionsType, PayloadType } from "./types";
 
 import { DisplayableMessage } from '../../zbay/messages.types'
-import { ThunkAction } from "redux-thunk";
-import { Action } from "redux";
+
+import { ZbayThunkAction } from './helpers'
 
 export const DEFAULT_DEBOUNCE_INTERVAL = 2000;
 
@@ -38,14 +37,14 @@ export const PendingMessage = {
 };
 
 export class DirectMessagesQueue {
-  recipientAddress: string = "";
-  recipientUsername: string = "";
-  offerId: string = "";
-  message: DisplayableMessage
+  recipientAddress: string = ''
+  recipientUsername: string = ''
+  offerId: string = ''
+  message?: DisplayableMessage
   type: messageType
 
   constructor(values?: Partial<DirectMessagesQueue>) {
-    Object.assign(this, values);
+    Object.assign(this, values)
     this[immerable] = true
   }
 }
@@ -188,17 +187,6 @@ const sendMessage = (payload, redirect = true) => async (
   );
 };
 
-class Store { }
-interface IThunkActionWithMeta<R, S, E, A extends Action> extends ThunkAction<R, S, E, A> {
-  meta?: {
-    debounce: {
-      time: number,
-      key: string,
-    }
-  }
-}
-
-type ZbayThunkAction<ReturnType> = IThunkActionWithMeta<ReturnType, Store, unknown, Action<string>>
 
 const _sendPendingDirectMessages = (redirect): ZbayThunkAction<void> => async (dispatch, getState) => {
   const lock = appSelectors.directMessageQueueLock(getState());
@@ -272,27 +260,24 @@ const _sendPendingDirectMessages = (redirect): ZbayThunkAction<void> => async (d
   await dispatch(appHandlers.actions.unlockDmQueue());
 };
 
-export const sendPendingDirectMessages = (debounce = null, redirect) => {
-  const thunk = _sendPendingDirectMessages(redirect);
+export const sendPendingDirectMessages = (debounce, redirect) => {
+  const thunk = _sendPendingDirectMessages(redirect)
   thunk.meta = {
     debounce: {
       time:
         debounce !== null
           ? debounce
-          : process.env.ZBAY_DEBOUNCE_MESSAGE_INTERVAL ||
-            DEFAULT_DEBOUNCE_INTERVAL,
-      key: "SEND_PENDING_DRIRECT_MESSAGES",
-    },
-  };
-  return thunk;
-};
+          : process.env.ZBAY_DEBOUNCE_MESSAGE_INTERVAL || DEFAULT_DEBOUNCE_INTERVAL,
+      key: 'SEND_PENDING_DRIRECT_MESSAGES'
+    }
+  }
+  return thunk
+}
 
-const addDirectMessageEpic = (payload, debounce, redirect = true) => async (
-  dispatch
-) => {
-  await dispatch(addDirectMessage(payload));
-  await dispatch(sendPendingDirectMessages(debounce, redirect));
-};
+const addDirectMessageEpic = (payload, debounce = null, redirect = true) => async dispatch => {
+  await dispatch(addDirectMessage(payload))
+  await dispatch(sendPendingDirectMessages(debounce, redirect))
+}
 
 export const epics = {
   sendPendingDirectMessages,

@@ -9,7 +9,6 @@ import { DateTime } from 'luxon'
 import history from '../../../shared/history'
 import operationsHandlers from './operations'
 import notificationsHandlers from './notifications'
-// import messagesQueueHandlers from './messagesQueue'
 import messagesHandlers, { _checkMessageSize } from './messages'
 import channelsHandlers from './channels'
 import offersHandlers from './offers'
@@ -55,17 +54,17 @@ interface ILoader {
 
 // TODO: find type of message and members
 export class Channel {
-  spentFilterValue: BigNumber = new BigNumber(0)
+  spentFilterValue: BigNumber
   id?: string
-  message: object = {}
-  shareableUri: string = ''
-  address: string = ''
-  loader: ILoader = { loading: false, message: '' }
-  members?: object = {}
-  showInfoMsg: boolean = true
-  isSizeCheckingInProgress: boolean = false
+  message: object
+  shareableUri: string
+  address: string
+  loader: ILoader
+  members?: object
+  showInfoMsg: boolean
+  isSizeCheckingInProgress: boolean
   messageSizeStatus?: boolean
-  displayableMessageLimit: number = 50
+  displayableMessageLimit: number
 
   constructor(values?: Partial<Channel>) {
     Object.assign(this, values)
@@ -73,14 +72,20 @@ export class Channel {
   }
 }
 
-export type ChannelStore = Channel
+export const initialState: Channel = new Channel({
+  spentFilterValue: new BigNumber(0),
+  message: {},
+  shareableUri: '',
+  address: '',
+  loader: { loading: false, message: '' },
+  members: {},
+  showInfoMsg: true,
+  isSizeCheckingInProgress: false,
+  displayableMessageLimit: 50
+})
 
-export const initialState: ChannelStore = {
-  ...new Channel()
-}
 
 const setLoading = createAction<boolean>(actionTypes.SET_CHANNEL_LOADING)
-//const setLoadingMessage = createAction(actionTypes.SET_CHANNEL_LOADING_MESSAGE);
 const setSpentFilterValue = createAction(actionTypes.SET_SPENT_FILTER_VALUE, (_, value) => value)
 const setMessage = createAction<string>(actionTypes.SET_CHANNEL_MESSAGE)
 const setChannelId = createAction<string>(actionTypes.SET_CHANNEL_ID)
@@ -93,7 +98,6 @@ const resetChannel = createAction(actionTypes.SET_CHANNEL)
 
 export const actions = {
   setLoading,
-  //setLoadingMessage,
   setSpentFilterValue,
   setMessage,
   setShareableUri,
@@ -395,19 +399,12 @@ const clearNewMessages = () => async (dispatch, getState) => {
 }
 
 // TODO: we should have a global loader map
-export const reducer = handleActions<ChannelStore, PayloadType<ChannelActions>>(
+export const reducer = handleActions<Channel, PayloadType<ChannelActions>>(
   {
     [setLoading.toString()]: (state, { payload: loading }: ChannelActions['setLoading']) =>
       produce(state, draft => {
         draft.loader.loading = loading
       }),
-    // [setLoadingMessage.toString()]: (
-    // state,
-    // { payload: message }: ChannelActions["setLoadingMessage"]
-    // ) =>
-    // produce(state, (draft) => {
-    // draft.loader.message = message;
-    // }),
     [setSpentFilterValue.toString()]: (
       state,
       { payload: value }: ChannelActions['setSpentFilterValue']

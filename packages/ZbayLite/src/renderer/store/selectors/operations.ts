@@ -1,6 +1,6 @@
-import { OperationsStore } from "./../handlers/operations";
+import { Store } from '../reducers'
 
-const operations = (s): OperationsStore => s.operations as OperationsStore;
+const operations = (s: Store) => s.operations
 
 export default {
   operations,

@@ -13,7 +13,6 @@ import Channel from '../../containers/pages/Channel'
 import Offer from '../../containers/pages/Offer'
 import DirectMessages from '../../containers/pages/DirectMessages'
 import DepositMoneyModal from '../../containers/ui/DepositMoneyModal'
-import LogsContainer from '../../containers/widgets/logs/Logs'
 import SeedModal from '../../containers/widgets/channels/SeedModal'
 import electronStore from '../../../shared/electronStore'
 
@@ -81,24 +80,15 @@ export const Main = ({
           </Grid>
           <Grid item xs>
             <Route path={`${match.url}/channel/:id`} component={Channel} />
-            <Route
-              path={`${match.url}/direct-messages/:id/:username`}
-              component={DirectMessages}
-            />
-            <Route
-              path={`${match.url}/offers/:id/:address`}
-              component={Offer}
-            />
+            <Route path={`${match.url}/direct-messages/:id/:username`} component={DirectMessages} />
+            <Route path={`${match.url}/offers/:id/:address`} component={Offer} />
           </Grid>
           {isLogWindowOpened && (
             <Grid
               className={classnames({
                 [classes.logsContainer]: dimensions.width <= 900
               })}
-              item
-            >
-              <LogsContainer height={dimensions.height} />
-            </Grid>
+              item></Grid>
           )}
         </Grid>
       </WindowWrapper>
