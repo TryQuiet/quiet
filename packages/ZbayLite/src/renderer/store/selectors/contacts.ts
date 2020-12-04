@@ -1,5 +1,6 @@
 import { createSelector } from "reselect";
 import identitySelectors from "./identity";
+import usersSelectors from "./users";
 import directMssagesQueueSelectors from "./directMessagesQueue";
 import { mergeIntoOne, displayableMessageLimit } from "./channel";
 import { MessageType } from "../../../shared/static.types";
@@ -15,20 +16,27 @@ const contacts = (s: Store) => s.contacts
 const contactsList = createSelector(
   contacts,
   identitySelectors.removedChannels,
-  (contacts, removedChannels) => {
-    if (removedChannels.length > 0) {
-      return Array.from(Object.values(contacts)).filter(
-        (c) =>
-          c.key.length === 66 &&
-          c.offerId === null &&
-          !removedChannels.includes(c.address)
-      );
-    }
-    return Array.from(Object.values(contacts)).filter(
-      (c) => c.key.length === 66 && c.offerId === null
-    );
+  usersSelectors.users,
+  (contacts, removedChannels, users) => {
+    return Array.from(Object.values(contacts))
+      .map(contact => {
+        if (!contact.address) {
+          const user = users[contact.key]
+          return {
+            ...contact,
+            messages: messages,
+            address: user.address || contact.address,
+            username: user.nickname || contact.username
+          }
+        } else {
+          return contact
+        }
+      })
+      .filter(
+        c => c.key.length === 66 && c.offerId === null && !removedChannels.includes(c.address)
+      )
   }
-);
+)
 
 const unknownMessages = createSelector(contacts, (contacts) => {
   return Array.from(Object.values(contacts)).filter(
@@ -51,17 +59,14 @@ const offerList = createSelector(
 const channelsList = createSelector(
   contacts,
   identitySelectors.removedChannels,
-  (contacts, removedChannels) => {
-    if (removedChannels.length > 0) {
-      return Array.from(Object.values(contacts)).filter(
-        (c) =>
-          c.key.length === 78 &&
-          c.offerId === null &&
-          !removedChannels.includes(c.address)
-      );
-    }
-    return Array.from(Object.values(contacts)).filter(
-      (c) => c.key.length === 78 && c.offerId === null
+  usersSelectors.users,  
+  (contacts, removedChannels, users) => {
+    return Array.from(Object.values(contacts))
+    .filter(
+      (c) =>
+        c.key.length === 78 &&
+        c.offerId === null &&
+        !removedChannels.includes(c.address)
     );
   }
 );
@@ -71,21 +76,40 @@ const directMessagesContact = (address) =>
     Array.from(Object.values(c)).find((el) => el.address === address)
   );
 
-const contact = (address) =>
-  createSelector(contacts, (c) => {
+const contact = address =>
+  createSelector(contacts, usersSelectors.users, (c, u) => {
     if (!c[address]) {
       return new Contact()
     } else {
-      return c[address];
+      if (!c[address].address) {
+        return {
+          ...c[address],
+          username: u[address]?.nickname || c[address].username
+        }
+      } else {
+        return c[address]
+      }
     }
-  });
+  })
 
-const messagesSorted = (address) =>
-  createSelector(contact(address), (c) => {
-    return Array.from(Object.values(c.messages)).sort(
-      (a, b) => b.createdAt - a.createdAt
-    );
-  });
+const messagesSorted = address =>
+  createSelector(contact(address), usersSelectors.users, (c, u) => {
+    return Array.from(Object.values(c.messages))
+      .sort((a, b) => b.createdAt - a.createdAt)
+      .map(message => {
+        if (message.isUnregistered) {
+          return {
+            ...message,
+            sender: {
+              ...message.sender,
+              username: u[message.publicKey]?.nickname || message.sender.username
+            }
+          }
+        } else {
+          return message
+        }
+      })
+  })
 const messagesSortedDesc = (address) =>
   createSelector(contact(address), (c) => {
     return Array.from(Object.values(c.messages)).sort(

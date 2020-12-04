@@ -662,7 +662,7 @@ export const handleWebsocketMessage = data => async (dispatch, getState) => {
       if (!contacts[`${item}${msg.sender.username}`]) {
         await dispatch(
           contactsHandlers.actions.addContact({
-            key: key,
+            key: `${item}${msg.sender.username}`,
             username: `${offer.message.tag} @${msg.sender.username}`,
             contactAddress: msg.sender.replyTo,
             offerId: offer.id

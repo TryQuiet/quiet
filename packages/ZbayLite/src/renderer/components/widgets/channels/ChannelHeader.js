@@ -20,7 +20,6 @@ import Icon from '../../ui/Icon'
 import silenced from '../../../static/images/silenced.svg'
 import silencedBlack from '../../../static/images/silencedBlack.svg'
 import Tooltip from '../../ui/Tooltip'
-// import { unknownUserId } from '../../../../shared/static'
 
 const styles = theme => ({
   root: {
@@ -163,8 +162,7 @@ export const ChannelHeader = ({
         alignItems='center'
         justify='space-between'
         className={classes.root}
-        direction='row'
-      >
+        direction='row'>
         <Grid item>
           <Grid item container alignItems='center'>
             <Grid item>
@@ -175,13 +173,12 @@ export const ChannelHeader = ({
                 className={classNames({
                   [classes.title]: true,
                   [classes.bold]: true
-                })}
-              >
+                })}>
                 {isRegisteredUsername || !isFromZbay
-                  ? `${prefix[channelType]}${
-                    isFromZbay ? channel.name : 'unknown'
-                  }`
-                  : channel.address}
+                  ? isFromZbay
+                    ? `${prefix[channelType]}${channel.name}`
+                    : 'unknown'
+                  : `${prefix[channelType]}${channel.address}`}
               </Typography>
             </Grid>
             {mutedFlag && (
@@ -193,8 +190,7 @@ export const ChannelHeader = ({
                   onMouseLeave={() => setSilenceHover(false)}
                   onClick={() => {
                     unmute()
-                  }}
-                >
+                  }}>
                   <Icon src={silenceHover ? silencedBlack : silenced} />
                 </Grid>
               </Tooltip>
@@ -202,8 +198,7 @@ export const ChannelHeader = ({
           </Grid>
           {!R.isNil(members) ? (
             <Typography variant='caption' className={classes.subtitle}>
-              {members.has(userAddress) ? members.size : members.size + 1}{' '}
-              Participants
+              {members.has(userAddress) ? members.size : members.size + 1} Participants
             </Typography>
           ) : null}
         </Grid>
@@ -215,8 +210,7 @@ export const ChannelHeader = ({
           className={classes.actions}
           justify='flex-end'
           alignContent='center'
-          alignItems='center'
-        >
+          alignItems='center'>
           {channelType === CHANNEL_TYPE.NORMAL && showAdSwitch && (
             <Grid item className={classes.switch}>
               <Tabs
@@ -224,16 +218,9 @@ export const ChannelHeader = ({
                 onChange={(e, value) => {
                   setTab(value)
                 }}
-                classes={{ root: classes.tabs, indicator: classes.indicator }}
-              >
-                <Tab
-                  label='All'
-                  classes={{ root: classes.tab, selected: classes.selected }}
-                />
-                <Tab
-                  label='For sale'
-                  classes={{ root: classes.tab, selected: classes.selected }}
-                />
+                classes={{ root: classes.tabs, indicator: classes.indicator }}>
+                <Tab label='All' classes={{ root: classes.tab, selected: classes.selected }} />
+                <Tab label='For sale' classes={{ root: classes.tab, selected: classes.selected }} />
               </Tabs>
             </Grid>
           )}
@@ -246,17 +233,14 @@ export const ChannelHeader = ({
       {channel.showInfoMsg && channel.description && (
         <Grid container className={classes.descriptionDiv}>
           <Grid item xs>
-            <Typography variant='body2'>
-              {channel.description}
-            </Typography>
+            <Typography variant='body2'>{channel.description}</Typography>
           </Grid>
           <Grid item className={classes.iconDiv}>
             <IconButton
               className={classes.iconButton}
               onClick={() => {
                 updateShowInfoMsg(false)
-              }}
-            >
+              }}>
               <Clear />
             </IconButton>
           </Grid>

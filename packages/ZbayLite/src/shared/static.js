@@ -1,5 +1,5 @@
 import mirrorKey from 'keymirror'
-export const networkFee = 0.0000025
+export const networkFee = 0.00001
 export const satoshiMultiplier = 100000000
 export const networkFeeSatoshi = networkFee * satoshiMultiplier
 export const targetUtxoCount = 25
