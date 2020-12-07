@@ -12,7 +12,17 @@ var win = null;
 
 function createWindow () {
     // Create the browser window.
-    win = new BrowserWindow({ width: 1024, height: 768, webPreferences: { nodeIntegration: true } });
+    win = new BrowserWindow({
+        width:          1024,
+        height:         768,
+        webPreferences: {
+            nodeIntegration:    true,
+            // NOTE: Electron 10 breaking changes:
+            // "Changed the default value of `enableRemoteModule` to `false`"
+            // (https://www.electronjs.org/blog/electron-10-0#breaking-changes) (GH-73)
+            enableRemoteModule: true
+        }
+    });
 
     // and load the index.html of the app.
     win.webContents.loadURL('file://' + path.join(__dirname, 'index.html'));
