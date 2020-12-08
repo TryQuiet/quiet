@@ -4,6 +4,8 @@ import { DateTime } from "luxon";
 import * as R from "ramda";
 import List from "@material-ui/core/List";
 import { makeStyles } from "@material-ui/core/styles";
+import Typography from '@material-ui/core/Typography'
+import Grid from '@material-ui/core/Grid'
 
 import { MessageType } from "../../../../shared/static.types";
 import ChannelMessage from "../../../containers/widgets/channels/ChannelMessage";
@@ -29,6 +31,21 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.colors.lushSky,
     cursor: "pointer",
   },
+  info: {
+    color: theme.palette.colors.trueBlack,
+    letterSpacing: '0.4px'
+  },
+  root: {
+    width: '100%',
+    padding: '8px 16px'
+  },
+  item: {
+    backgroundColor: theme.palette.colors.gray03,
+    padding: '9px 16px'
+  },
+  bold: {
+    fontWeight: 'bold',
+  }
 }));
 
 const messagesTypesToDisplay = [1, 2, 4, 11, 41];
@@ -55,6 +72,8 @@ interface IChannelMessagesProps {
   contentRect: string;
   isInitialLoadFinished: boolean;
   channelId: string;
+  name?: string;
+  isConnected?: boolean
 }
 
 const renderView = (props) => {
@@ -83,7 +102,10 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
   isDM,
   onRescan,
   isNewUser,
+  name,
+  isConnected
 }) => {
+
   const classes = useStyles({});
   const msgRef = React.useRef<HTMLUListElement>();
   const scrollbarRef = React.useRef<Scrollbars>();
@@ -167,6 +189,7 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
         style={{ marginTop: offset }}
       >
         {isOwner && <WelcomeMessage message={welcomeMessages["main"]} />}
+        
         {!isRescanned && !isDM && <RescanMessage />}
         {/* {isOffer && !showLoader && (
           <WelcomeMessage message={welcomeMessages['offer'](tag, username)} />
@@ -221,6 +244,15 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
             </>
           );
         })}
+        { isDM && ( <Grid container className={classes.root}>
+          <Grid item xs className={classes.item}>
+          <Typography variant='caption' className={classes.info}>
+            {isConnected ? <span>Connected to <span className={classes.bold}>@{name}</span> via Tor. Your message will be sent directly, not via Zcash memo.</span> : <span>Disconnected from <span className={classes.bold}>@{name}</span>. Your message will be sent via Zcash memo.</span>}
+          </Typography>
+          </Grid>
+      </Grid>
+             )
+          }
         {isNewUser && (
           <WelcomeMessage
             message={

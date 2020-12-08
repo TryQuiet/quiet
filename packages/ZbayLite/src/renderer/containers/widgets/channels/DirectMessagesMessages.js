@@ -11,12 +11,15 @@ import appSelectors from '../../../store/selectors/app'
 export const mapStateToProps = (state, { contactId, signerPubKey }) => {
   const qMessages = queueMessages.queue(state)
   const qDmMessages = dmQueueMessages.queue(state)
+  const contact = contactsSelectors.contact(contactId)(state)
   return {
     triggerScroll: qDmMessages.length + qMessages.length > 0,
     qMessages: qMessages,
     messages: contactsSelectors.directMessages(contactId, signerPubKey)(state).visibleMessages,
+    name: contact.username,
     channelId: channelSelectors.channelId(state),
-    isInitialLoadFinished: appSelectors.isInitialLoadFinished(state)
+    isInitialLoadFinished: appSelectors.isInitialLoadFinished(state),
+    isConnected: contact.connected
   }
 }
 
@@ -26,7 +29,9 @@ export const ChannelMessages = ({
   channelId,
   contentRect,
   triggerScroll,
-  isInitialLoadFinished
+  isInitialLoadFinished,
+  name,
+  isConnected
 }) => {
   const [scrollPosition, setScrollPosition] = React.useState(-1)
   useEffect(() => {
@@ -46,6 +51,8 @@ export const ChannelMessages = ({
       contactId={contactId}
       contentRect={contentRect}
       isInitialLoadFinished={isInitialLoadFinished}
+      name={name}
+      isConnected={isConnected}
     />
   )
 }

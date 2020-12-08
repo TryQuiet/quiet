@@ -2,7 +2,6 @@ import React from 'react'
 import QRCode from 'qrcode.react'
 import PropTypes from 'prop-types'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-// import classNames from 'classnames'
 
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
@@ -11,18 +10,11 @@ import { withStyles } from '@material-ui/core/styles'
 import { shell } from 'electron'
 import Button from '@material-ui/core/Button'
 import IconButton from '@material-ui/core/IconButton'
-import ExpandLessIcon from '@material-ui/icons/ExpandLess'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import CloseIcon from '@material-ui/icons/Close'
 import Dialog from '@material-ui/core/Dialog'
-// import Checkbox from '@material-ui/core/Checkbox'
-// import FormControlLabel from '@material-ui/core/FormControlLabel'
-// import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank'
-// import CheckBoxIcon from '@material-ui/icons/CheckBox'
 
 import Icon from '../../ui/Icon'
 import qrIcon from '../../../../renderer/static/images/qr.svg'
-import buyIcon from '../../../../renderer/static/images/buy-zcash.svg'
 import Tooltip from '../../ui/Tooltip'
 
 const styles = theme => ({
@@ -68,36 +60,6 @@ const styles = theme => ({
     fontSize: '0.9rem',
     backgroundColor: theme.palette.colors.zbayBlue
   },
-  infoDiv: {
-    border: `1px solid ${theme.palette.colors.veryLightGray}`,
-    borderRadius: 4,
-    cursor: 'pointer',
-    marginTop: 32,
-    marginBottom: 32,
-    paddingTop: 16,
-    paddingBottom: 16,
-    '&:hover': {
-      backgroundColor: theme.palette.colors.veryLightGray
-    }
-  },
-  iconDiv: {
-    marginRight: 16,
-    marginTop: 4
-  },
-  privateTitle: {
-    color: theme.palette.colors.lushSky
-  },
-  privateDiv: {
-    minHeight: 56,
-    border: `1px solid ${theme.palette.colors.veryLightGray}`,
-    borderRadius: 4,
-    cursor: 'pointer',
-    marginTop: 32,
-    padding: 16
-  },
-  icon: {
-    color: theme.palette.colors.lushSky
-  },
   tooltip: {
     zIndex: 1500
   },
@@ -123,29 +85,27 @@ const styles = theme => ({
     '&:hover': {
       backgroundColor: theme.palette.colors.buttonGray
     }
-  },
-  checkbox: {
-    height: 10
   }
 })
 
 export const AddFunds = ({
   classes,
   variant,
-  setCurrentTab,
-  clearCurrentOpenTab,
-  donationAllow,
-  updateDonation,
   generateNewAddress,
   generateNewShieldedAddress,
   topAddress,
   topShieldedAddress,
-  scrollbarRef
 }) => {
-  const [expanded, setExpanded] = React.useState(false)
   const [dialogOpen, setDialogOpen] = React.useState(false)
   const [isCopied, setIsCopied] = React.useState(false)
   const [isCopiedPrivate, setIsCopiedPrivate] = React.useState(false)
+  const [currentAddress, setCurrentAddress] = React.useState(null)
+
+  const onClickHandle = (address) => {
+    setCurrentAddress(address)
+    setDialogOpen(true)
+  }
+
   return (
     <>
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
@@ -155,90 +115,55 @@ export const AddFunds = ({
               <CloseIcon />
             </IconButton>
           </Grid>
-          <Grid
-            container
-            direction='column'
-            alignItems='center'
-            className={classes.dialogContent}
-          >
+          <Grid container direction='column' alignItems='center' className={classes.dialogContent}>
             <Grid item className={classes.spacing24}>
               <Typography variant='h3'>Add funds with QR code</Typography>
             </Grid>
             <Grid item className={classes.spacing24}>
               <Typography variant='body2' className={classes.alignText}>
-                If you have Zcash on your phone or your friend's phone, you can
-                send funds to your Zcash address using this QR code.
+                If you have Zcash on your phone or your friend's phone, you can send funds to your
+                Zcash address using this QR code.
               </Typography>
             </Grid>
             <Grid item className={classes.qrcodeDiv}>
-              <QRCode value={topAddress} size={200} />
+              <QRCode value={currentAddress} size={200} />
             </Grid>
           </Grid>
         </Grid>
       </Dialog>
-      <Grid
-        container
-        item
-        justify={variant === 'wide' ? 'center' : 'flex-start'}
-      >
+      <Grid container item justify={variant === 'wide' ? 'center' : 'flex-start'}>
         <Typography variant={'h3'} className={classes.tabTitle}>
           Add funds to your wallet
         </Typography>
       </Grid>
       <Grid item className={classes.spacing24}>
         <Typography variant='body2'>
-          Zbay uses the privacy-focused cryptocurrency{' '}
+        Zbay uses the privacy-focused cryptocurrency{' '}
           <a
             className={classes.link}
             onClick={e => {
               e.preventDefault()
               shell.openExternal('https://z.cash/')
             }}
-            href='https://z.cash/'
-          >
+            href='https://z.cash/'>
             Zcash
           </a>
-          . Cryptocurrencies let you send funds to unique addresses, like email
-          for money: send to the correct address, and the recipient will receive
-          it.
+          . Cryptocurrencies let you send funds to unique addresses, like email for money: send to the correct address, and the recipient will receive it. Send Zcash to either of these addresses, and Zbay will store the funds on your computer.
         </Typography>
       </Grid>
       <Grid item className={classes.spacing32}>
         <Typography variant='body2' className={classes.subtitle}>
-          Your Zcash address
+        Your transparent Zcash address
         </Typography>
       </Grid>
       <Grid item>
         <Typography variant='caption' className={classes.caption}>
-          Deposits are moved to a private address & stored by Zbay, on your
-          computer.{' '}
+        Transactions to this address are not private, but Zbay will move deposits to your private address when they arrive.{' '}
           <span className={classes.link} onClick={generateNewAddress}>
-            New address
+            Generate new address
           </span>
         </Typography>
       </Grid>
-      {/* <Grid item>
-        <FormControlLabel
-          control={
-            <Checkbox
-              style={{ width: 36, height: 36 }}
-              icon={<CheckBoxOutlineBlankIcon style={{ fontSize: 20 }} />}
-              checkedIcon={<CheckBoxIcon style={{ fontSize: 20 }} />}
-              checked={donationAllow === 'true'}
-              onChange={e => {
-                updateDonation(e.target.checked)
-              }}
-              color='default'
-              size='small'
-            />
-          }
-          label={
-            <Typography variant='caption' className={classes.caption}>
-              Donate 1% of my deposit to support Zbay development.
-            </Typography>
-          }
-        />
-      </Grid> */}
       <Grid item className={classes.spacing16}>
         <Grid container>
           <Grid item xs>
@@ -254,15 +179,11 @@ export const AddFunds = ({
           <Tooltip
             title='Send to Zbay with QR code'
             className={classes.tooltip}
-            placement='top-end'
-          >
+            placement='top-end'>
             <Grid
               item
               className={classes.qrIcon}
-              onClick={() => {
-                setDialogOpen(true)
-              }}
-            >
+              onClick={() => {onClickHandle(topAddress)}}>
               <Icon src={qrIcon} />
             </Grid>
           </Tooltip>
@@ -273,132 +194,69 @@ export const AddFunds = ({
           text={topAddress}
           onCopy={() => {
             setIsCopied(true)
-          }}
-        >
+          }}>
           <Button
             variant='contained'
             size='large'
             color='primary'
             type='submit'
-            fullWidth
-            className={isCopied ? classes.buttonCopied : classes.button}
-          >
-            {isCopied
-              ? `Address copied to clipboard`
-              : `Copy address to clipboard`}
+            className={isCopied ? classes.buttonCopied : classes.button}>
+            {isCopied ? `Address copied to clipboard` : `Copy address to clipboard`}
           </Button>
         </CopyToClipboard>
       </Grid>
-      <Grid
-        item
-        className={classes.privateDiv}
-        onClick={() => {
-          setExpanded(!expanded)
-          setTimeout(() => {
-            scrollbarRef.current.scrollToBottom()
-          }, 0)
-        }}
-      >
-        <Grid container alignItems='center' justify='space-between'>
-          <Grid item>
-            <Typography variant='body2' className={classes.privateTitle}>
-              Private address
-            </Typography>
+      <Grid item className={classes.spacing32}>
+        <Typography variant='body2' className={classes.subtitle}>
+        Your private Zcash address
+        </Typography>
+      </Grid>
+      <Grid item>
+        <Typography variant='caption' className={classes.caption}>You can’t send directly to a private address from most exchanges. If sending from an exchange, use the address above, and Zbay will move all funds to a private address as soon as they arrive.{' '}
+          <span className={classes.link} onClick={generateNewShieldedAddress}>
+            Generate new address
+          </span>
+        </Typography>
+      </Grid>
+      <Grid item className={classes.spacing16}>
+        <Grid container>
+          <Grid item xs>
+            <OutlinedInput
+              name='address'
+              id='outlined-address'
+              classes={{ root: classes.transparentAddress }}
+              value={topShieldedAddress}
+              fullWidth
+              disabled
+            />
           </Grid>
-          {expanded ? (
-            <ExpandLessIcon className={classes.icon} />
-          ) : (
-            <ExpandMoreIcon className={classes.icon} />
-          )}
-        </Grid>
-        {expanded && (
-          <Grid container direction='column' className={classes.spacing24}>
-            <Grid item>
-              <Typography variant='body2' className={classes.subtitle}>
-                Your private Zcash address
-              </Typography>
-            </Grid>
-            <Grid item>
-              <Typography variant='caption' className={classes.caption}>
-                You can't send directly to a private address from most
-                exchanges. If sending from an exchange, use the address above,
-                and Zbay will move all funds to a private address as soon as
-                they arrive.{' '}
-                <span
-                  className={classes.link}
-                  onClick={e => {
-                    generateNewShieldedAddress()
-                    e.stopPropagation()
-                    e.preventDefault()
-                  }}
-                >
-                  New address
-                </span>
-              </Typography>
-            </Grid>
-            <Grid item xs className={classes.spacing24}>
-              <OutlinedInput
-                name='address'
-                id='outlined-address'
-                classes={{ root: classes.transparentAddress }}
-                value={topShieldedAddress}
-                fullWidth
-                disabled
-                onClick={e => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                }}
-              />
-            </Grid>
+          <Tooltip
+            title='Send to Zbay with QR code'
+            className={classes.tooltip}
+            placement='top-end'>
             <Grid
               item
-              xs
-              onClick={e => {
-                e.preventDefault()
-                e.stopPropagation()
-              }}
-            >
-              <CopyToClipboard
-                text={topShieldedAddress}
-                onCopy={e => {
-                  setIsCopiedPrivate(true)
-                }}
-              >
-                <Button
-                  variant='contained'
-                  size='large'
-                  color='primary'
-                  type='submit'
-                  fullWidth
-                  className={
-                    isCopiedPrivate ? classes.buttonCopied : classes.button
-                  }
-                >
-                  {isCopiedPrivate
-                    ? `Address copied to clipboard`
-                    : `Copy address to clipboard`}
-                </Button>
-              </CopyToClipboard>
+              className={classes.qrIcon}
+              onClick={() => {onClickHandle(topShieldedAddress)}}>
+              <Icon src={qrIcon} />
             </Grid>
-          </Grid>
-        )}
-      </Grid>
-      <Grid
-        item
-        className={classes.infoDiv}
-        onClick={() => {
-          clearCurrentOpenTab()
-          setCurrentTab('buyZcash')
-        }}
-      >
-        <Grid container alignItems='center' justify='center'>
-          <Grid item className={classes.iconDiv}>
-            <Icon src={buyIcon} />
-          </Grid>
-          <Grid item>
-            <Typography variant='h4'>How do i buy Zcash? </Typography>
-          </Grid>
+          </Tooltip>
         </Grid>
+      </Grid>
+      <Grid item xs>
+        <CopyToClipboard
+          text={topShieldedAddress}
+          onCopy={() => {
+            setIsCopiedPrivate(true)
+          }}>
+          <Button
+            variant='contained'
+            size='large'
+            color='primary'
+            type='submit'
+            className={isCopiedPrivate ? classes.buttonCopied : classes.button}>
+            {isCopiedPrivate ? `Address copied to clipboard` : `Copy address to clipboard`}
+          </Button>
+        </CopyToClipboard>
       </Grid>
     </>
   )

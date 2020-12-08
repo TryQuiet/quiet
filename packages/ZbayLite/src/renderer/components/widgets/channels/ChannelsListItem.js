@@ -58,6 +58,13 @@ const styles = theme => ({
     width: 11,
     height: 11
   },
+  notConnectedIcon: {
+    marginLeft: 16,
+    marginRight: -8,
+    width: 11,
+    height: 11,
+    opacity: 0.5
+  },
   itemText: {
     margin: 0
   },
@@ -104,7 +111,7 @@ export const ChannelsListItem = ({
             <Grid item>
               {directMessages && (
                 <Icon
-                  className={classes.connectedIcon}
+                  className={channel?.connected ? classes.connectedIcon : classes.notConnectedIcon}
                   src={channel?.connected ? onlineIcon : offlineIcon}
                 />
               )}

@@ -73,9 +73,7 @@ export const ChannelInfoModal = ({
   handleClose,
   directMessage
 }) => {
-  const address = directMessage
-    ? channelData.address
-    : shareUri
+  const address = directMessage ? channelData?.address : shareUri
   return (
     <Modal
       open={open}

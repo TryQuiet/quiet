@@ -84,6 +84,7 @@ const contact = address =>
       if (!c[address].address) {
         return {
           ...c[address],
+          address: u[address]?.address,
           username: u[address]?.nickname || c[address].username
         }
       } else {
