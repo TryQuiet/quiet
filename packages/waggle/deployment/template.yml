@@ -7,12 +7,12 @@ Parameters:
   TaskCpu:
     Type: String
     Description: See https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-cpu-memory-error.html
-    Default: '256'
+    Default: '512'
 
   TaskMemory:
     Type: String
     Description: See https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-cpu-memory-error.html
-    Default: '512'
+    Default: '1024'
 
   Libp2pTorImage:
     Type: String
@@ -88,8 +88,7 @@ Resources:
       ContainerDefinitions:
         - Image: !Ref Libp2pTorImage
           Essential: true
-          Memory: 384
-          MemoryReservation: 128
+          Memory: 1024
           Name: libp2p-tor-service
           Environment:
             - Name: HIDDEN_SERVICE_SECRET
@@ -109,4 +108,3 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Sub ${AWS::StackName}/libp2p-tor-test
-      RetentionInDays: 5

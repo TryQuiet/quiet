@@ -18,6 +18,7 @@
     "prettier": "^2.1.1"
   },
   "dependencies": {
+    "abortable-iterator": "^3.0.0",
     "dotenv": "8.2.0",
     "eslint": "6.6.0",
     "eslint-config-standard": "^14.1.1",
@@ -27,8 +28,10 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-react-hooks": "^4.1.0",
     "eslint-plugin-standard": "^4.0.1",
+    "events": "^3.2.0",
+    "http-server": "^0.12.3",
     "it-pipe": "^1.1.0",
-    "libp2p": "^0.29.0",
+    "libp2p": "^0.29.3",
     "libp2p-bootstrap": "^0.12.1",
     "libp2p-gossipsub": "^0.6.1",
     "libp2p-interfaces": "^0.7.1",
@@ -36,17 +39,23 @@
     "libp2p-mdns": "^0.15.0",
     "libp2p-mplex": "^0.10.0",
     "libp2p-noise": "^2.0.0",
+    "libp2p-pubsub-peer-discovery": "^3.0.0",
     "libp2p-tcp": "^0.15.1",
     "libp2p-websockets": "^0.14.0",
+    "mockdate": "^3.0.2",
     "multiaddr": "^8.0.0",
     "peer-id": "^0.14.0",
     "prettier": "^2.1.0",
     "prettier-config-standard": "^1.0.1",
     "protons": "^2.0.0",
+    "random-timestamps": "^1.0.1",
+    "simple-git": "^2.24.0",
     "socks-proxy-agent": "^5.0.0",
     "streaming-iterables": "^5.0.2",
+    "timeshift-js": "^1.1.1",
     "typescript": "^4.0.5",
     "uint8arrays": "^1.1.0",
+    "url": "^0.11.0",
     "wrtc": "^0.4.6"
   }
 }
