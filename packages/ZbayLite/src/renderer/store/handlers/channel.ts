@@ -177,6 +177,40 @@ const linkChannelRedirect = targetChannel => async (dispatch, getState) => {
 
   history.push(`/main/channel/${targetChannel.address}`)
 }
+
+const sendTypingIndicator = value => async (dispatch, getState) => {
+  const channel = channelSelectors.channel(getState())
+  const users = usersSelectors.users(getState())
+  const useTor = appSelectors.useTor(getState())
+
+  const privKey = identitySelectors.signerPrivKey(getState())
+  let message = messages.createMessage({
+    messageData: {
+      type: messageType.BASIC,
+      data: null
+    },
+    privKey: privKey
+  })
+
+  if (useTor && users[channel.id] && users[channel.id].onionAddress) {
+    try {
+      const memo = await packMemo(message, value)
+      const result = await sendMessage(memo, users[channel.id].onionAddress)
+      if (result === -1) {
+        dispatch(
+          contactsHandlers.actions.setContactConnected({ key: channel.id, connected: false })
+        )
+        throw new Error('unable to connect')
+      }
+      dispatch(contactsHandlers.actions.setContactConnected({ key: channel.id, connected: true }))
+      return
+    } catch (error) {
+      console.log(error)
+      console.log('socket timeout')
+    }
+  }
+}
+
 const sendOnEnter = (event, resetTab) => async (dispatch, getState) => {
   if (resetTab) {
     resetTab(0)
@@ -233,7 +267,7 @@ const sendOnEnter = (event, resetTab) => async (dispatch, getState) => {
       const identityAddress = identitySelectors.address(getState())
       if (useTor && users[channel.id] && users[channel.id].onionAddress) {
         try {
-          const memo = await packMemo(message)
+          const memo = await packMemo(message, false)
           const result = await sendMessage(memo, users[channel.id].onionAddress)
           if (result === -1) {
             dispatch(
@@ -459,7 +493,8 @@ export const epics = {
   updateLastSeen,
   loadOffer,
   sendChannelSettingsMessage,
-  linkChannelRedirect
+  linkChannelRedirect,
+  sendTypingIndicator
 }
 
 export default {

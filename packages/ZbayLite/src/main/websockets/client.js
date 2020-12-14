@@ -3,6 +3,16 @@ var url = require('url')
 var HttpsProxyAgent = require('https-proxy-agent')
 var proxy = 'http://localhost:9082'
 
+import { messageType } from '../../shared/static'
+
+import { packMemo } from '../../renderer/zbay/transit'
+
+import electronStore from '../../shared/electronStore'
+
+const identity = electronStore.get('identity')
+
+var messages = require('../../renderer/zbay/index').messages
+
 const connections = new Map()
 
 export const connect = address =>
@@ -10,7 +20,7 @@ export const connect = address =>
     try {
       const options = url.parse(proxy)
       const agent = new HttpsProxyAgent(options)
-      const socket = new WebSocketClient(address, { agent: agent })
+      const socket = new WebSocketClient(address, { agent: agent }, { handshakeTimeout: 30000 })
       const id = setTimeout(() => {
         // eslint-disable-next-line
         reject('timeout')
@@ -18,15 +28,28 @@ export const connect = address =>
       socket.on('unexpected-response', err => {
         console.log(err)
       })
-      socket.on('open', function (a) {
-        console.log('connected')
+      socket.on('open', async function (a) {
+        const privKey = identity.signerPrivKey
+        const message = messages.createMessage({
+          messageData: {
+            type: messageType.CONNECTION_ESTABLISHED,
+            data: null
+          },
+          privKey: privKey
+        })
+        const memo = await packMemo(message, false)
+        socket.send(memo)
         socket.on('close', function (a) {
-          console.log('disconnected')
+          console.log('disconnected client')
           socket.close()
           connections.delete(address)
         })
         clearTimeout(id)
         resolve(socket)
+      })
+      socket.on('error', err => {
+        reject('timeout')
+        console.log(err)
       })
     } catch (error) {
       console.log(error)

@@ -11,13 +11,13 @@ export const createServer = mainWindow => {
     autoAcceptConnections: true
   })
   wsServer.on('connection', function (socket) {
-    console.log('New connection')
+    console.log('New incoming connection')
     socket.on('message', function (message) {
-      // console.log(JSON.stringify(message))
       mainWindow.webContents.send('wsMessage', message)
     })
+    
     socket.on('close', function (message) {
-      console.log('disconnected')
+      console.log('disconnected server')
       socket.close()
     })
   })

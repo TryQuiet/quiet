@@ -149,7 +149,7 @@ const sendItemMessageOnEnter = event => async (dispatch, getState) => {
       )[0]
       if (useTor && user && user.onionAddress) {
         try {
-          const memo = await packMemo(message)
+          const memo = await packMemo(message, false)
           const result = await sendMessage(memo, user.onionAddress)
           if (result === -1) {
             throw new Error('unable to connect')

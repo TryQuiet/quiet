@@ -11,24 +11,28 @@ import identitySelectors from '../../../store/selectors/identity'
 import contactsSelectors from '../../../store/selectors/contacts'
 import { MESSAGE_SIZE } from '../../../zbay/transit'
 import ratesSelector from '../../../store/selectors/rates'
-// import { unknownUserId } from '../../../../shared/static'
 import messagesHandlers from '../../../store/handlers/messages'
 
-export const mapStateToProps = (state, { contactId }) => ({
-  message: channelSelectors.message(state),
-  id: channelSelectors.id(state),
-  inputState: usersSelectors.registeredUser(
-    identitySelectors.signerPubKey(state)
-  )(state)
-    ? channelSelectors.inputLocked(state)
-    : INPUT_STATE.UNREGISTERED,
-  channelName: contactsSelectors.contact(contactId)(state).username,
-  users: usersSelectors.users(state),
-  feeUsd: ratesSelector.feeUsd(state),
-  myUser: usersSelectors.myUser(state),
-  isSizeCheckingInProgress: channelSelectors.isSizeCheckingInProgress(state),
-  isMessageTooLong: channelSelectors.messageSizeStatus(state)
-})
+export const mapStateToProps = (state, { contactId }) => {
+  const contact = contactsSelectors.contact(contactId)(state)
+  return {
+    contactId: contactId,
+    message: channelSelectors.message(state),
+    id: channelSelectors.id(state),
+    inputState: usersSelectors.registeredUser(identitySelectors.signerPubKey(state))(state)
+      ? channelSelectors.inputLocked(state)
+      : INPUT_STATE.UNREGISTERED,
+    channelName: contactsSelectors.contact(contactId)(state).username,
+    users: usersSelectors.users(state),
+    feeUsd: ratesSelector.feeUsd(state),
+    myUser: usersSelectors.myUser(state),
+    isSizeCheckingInProgress: channelSelectors.isSizeCheckingInProgress(state),
+    isMessageTooLong: channelSelectors.messageSizeStatus(state),
+    isContactConnected: contact.connected,
+    isContactTyping: contact.typingIndicator,
+    contactUsername: contact.username
+  }
+}
 
 export const mapDispatchToProps = dispatch => {
   return bindActionCreators(
@@ -36,6 +40,7 @@ export const mapDispatchToProps = dispatch => {
       onChange: channelHandlers.actions.setMessage,
       sendDirectMessageOnEnter: channelHandlers.epics.sendOnEnter,
       checkMessageSizeLimit: messagesHandlers.epics.checkMessageSize,
+      sendTypingIndicator: channelHandlers.epics.sendTypingIndicator,
       resetDebounce:
         directMessagesQueueHandlers.epics.resetDebounceDirectMessage
     },
@@ -54,8 +59,11 @@ export const ChannelInput = ({
   myUser,
   isMessageTooLong,
   isSizeCheckingInProgress,
-  checkMessageSizeLimit,
-  id
+  id,
+  isContactConnected,
+  sendTypingIndicator,
+  isContactTyping,
+  contactUsername
 }) => {
   const [infoClass, setInfoClass] = React.useState(null)
   const [anchorEl, setAnchorEl] = React.useState({})
@@ -63,6 +71,7 @@ export const ChannelInput = ({
   const isFromZbayUser = channelName !== 'Unknown'
   return (
     <ChannelInputComponent
+        isDM
       infoClass={infoClass}
       id={id}
       setInfoClass={setInfoClass}
@@ -82,6 +91,10 @@ export const ChannelInput = ({
       users={users}
       isMessageTooLong={isMessageTooLong}
       isSizeCheckingInProgress={isSizeCheckingInProgress}
+      isContactConnected={isContactConnected}
+      sendTypingIndicator={sendTypingIndicator}
+      isContactTyping={isContactTyping}
+      contactUsername={contactUsername}
     />
   )
 }

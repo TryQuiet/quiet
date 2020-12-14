@@ -16,6 +16,7 @@ import { shell } from 'electron'
 
 import MentionPoper from './MentionPoper'
 import ChannelInputAction from '../../../../containers/widgets/channels/ChannelInputAction'
+import TypingIndicator from './TypingIndicator'
 import { INPUT_STATE } from '../../../../store/selectors/channel'
 import MentionElement from './MentionElement'
 import Icon from '../../../ui/Icon'
@@ -61,7 +62,6 @@ const styles = theme => {
     inputsDiv: {
       paddingLeft: `20px`,
       paddingRight: `20px`,
-      marginBottom: `20px`,
       width: '100%',
       margin: '0px'
     },
@@ -153,7 +153,6 @@ export const ChannelInput = ({
   infoClass,
   setInfoClass,
   channelName,
-  messageLimit,
   users,
   setAnchorEl,
   anchorEl,
@@ -162,8 +161,12 @@ export const ChannelInput = ({
   members,
   inputPlaceholder,
   isMessageTooLong,
-  isSizeCheckingInProgress,
-  id
+  sendTypingIndicator,
+  id,
+  isContactConnected,
+  isContactTyping,
+  contactUsername,
+  isDM
 }) => {
   const refSelected = React.useRef()
   const refMentionsToSelect = React.useRef()
@@ -173,6 +176,10 @@ export const ChannelInput = ({
   const [emojiHovered, setEmojiHovered] = React.useState(false)
   const [openEmoji, setOpenEmoji] = React.useState(false)
   const [htmlMessage, setHtmlMessage] = React.useState(message)
+  const [typingIndicator, setTypingIndicator] = React.useState(false)
+
+  const showTypingIndicator = isDM && isContactTyping && isContactConnected
+
   window.onfocus = () => {
     inputRef.current.el.current.focus()
     setFocused(true)
@@ -200,27 +207,35 @@ export const ChannelInput = ({
   }, [message])
   React.useEffect(() => {
     setHtmlMessage(message)
-  }, [id])
+  }, [id]),
+      React.useEffect(() => {
+          if (htmlMessage) {
+            setTypingIndicator(true)
+          } else {
+            setTypingIndicator(false)
+          }
+      }, [htmlMessage])
+  React.useEffect(() => {
+    if  (!isContactConnected) return
+    sendTypingIndicator(typingIndicator)
+  }, [typingIndicator])
+  
   const findMentions = text => {
-    const splitedMsg = text
-      .replace(/ /g, String.fromCharCode(160))
-      .split(String.fromCharCode(160))
+    const splitedMsg = text.replace(/ /g, String.fromCharCode(160)).split(String.fromCharCode(160))
     const lastMention = splitedMsg[splitedMsg.length - 1].startsWith('@')
     if (lastMention) {
       const possibleMentions = Array.from(Object.values(users)).filter(user =>
         user.nickname.startsWith(splitedMsg[splitedMsg.length - 1].substring(1))
       )
-      const sortedMentions = Object.values(possibleMentions).sort(
-        function (a, b) {
-          if (a.nickname > b.nickname) {
-            return 1
-          }
-          if (b.nickname > a.nickname) {
-            return -1
-          }
-          return 0
+      const sortedMentions = Object.values(possibleMentions).sort(function (a, b) {
+        if (a.nickname > b.nickname) {
+          return 1
         }
-      )
+        if (b.nickname > a.nickname) {
+          return -1
+        }
+        return 0
+      })
       if (JSON.stringify(mentionsToSelect) !== JSON.stringify(sortedMentions)) {
         setMentionsToSelect(sortedMentions)
         setTimeout(() => {
@@ -229,9 +244,7 @@ export const ChannelInput = ({
       }
       if (possibleMentions.size) {
         splitedMsg[splitedMsg.length - 1] = renderToString(
-          <span id={splitedMsg[splitedMsg.length - 1]}>
-            {splitedMsg[splitedMsg.length - 1]}
-          </span>
+          <span id={splitedMsg[splitedMsg.length - 1]}>{splitedMsg[splitedMsg.length - 1]}</span>
         )
       }
     } else {
@@ -245,9 +258,7 @@ export const ChannelInput = ({
         element.startsWith('@') &&
         Array.from(Object.values(users)).find(user => user.nickname === element.substring(1))
       ) {
-        splitedMsg[key] = renderToString(
-          <span className={classes.highlight}>{element}</span>
-        )
+        splitedMsg[key] = renderToString(<span className={classes.highlight}>{element}</span>)
         if (key === splitedMsg.length) {
           setMentionsToSelect([])
         }
@@ -261,12 +272,10 @@ export const ChannelInput = ({
       className={classNames({
         [classes.root]: true,
         [classes.displayNone]:
-          inputState === INPUT_STATE.DISABLE ||
-          inputState === INPUT_STATE.LOCKED
+          inputState === INPUT_STATE.DISABLE || inputState === INPUT_STATE.LOCKED
       })}
       direction='column'
-      justify='center'
-    >
+      justify='center'>
       <MentionPoper anchorEl={anchorEl} selected={selected}>
         {mentionsToSelect.map((target, index) => (
           <MentionElement
@@ -278,7 +287,7 @@ export const ChannelInput = ({
             }}
             participant={members.has(target.address)}
             channelName={channelName}
-            onClick={(e) => {
+            onClick={e => {
               e.preventDefault()
               const currentMsg = message
                 .replace(/ /g, String.fromCharCode(160))
@@ -300,8 +309,7 @@ export const ChannelInput = ({
             direction='column'
             justify='center'
             alignItems='center'
-            className={infoClass || classes.backdrop}
-          >
+            className={infoClass || classes.backdrop}>
             <WarningIcon className={classes.warningIcon} />
             <Typography variant='caption' align='center'>
               {inputStateToMessage[inputState]}
@@ -318,13 +326,11 @@ export const ChannelInput = ({
         className={classNames({
           [classes.disabledBottomMargin]: isMessageTooLong,
           [classes.inputsDiv]: true
-        })}
-      >
+        })}>
         <ClickAwayListener
           onClickAway={() => {
             setFocused(false)
-          }}
-        >
+          }}>
           <Grid
             item
             xs
@@ -334,8 +340,7 @@ export const ChannelInput = ({
               [classes.focused]: focused
             })}
             justify='center'
-            alignItems='center'
-          >
+            alignItems='center'>
             <Grid item xs>
               <ContentEditable
                 ref={inputRef}
@@ -347,7 +352,7 @@ export const ChannelInput = ({
                   }
                 }}
                 html={findMentions(sanitizeHtml(htmlMessage))}
-                onChange={(e) => {
+                onChange={e => {
                   if (inputState === INPUT_STATE.AVAILABLE) {
                     onChange(e.nativeEvent.target.innerText)
                     if (!e.nativeEvent.target.innerText) {
@@ -358,13 +363,10 @@ export const ChannelInput = ({
                   }
                   setAnchorEl(e.currentTarget.lastElementChild)
                 }}
-                onKeyDown={(e) => {
+                onKeyDown={e => {
                   if (refMentionsToSelect.current.length) {
                     if (e.nativeEvent.keyCode === 40) {
-                      if (
-                        parseInt(refSelected.current) + 1 >=
-                        refMentionsToSelect.current.length
-                      ) {
+                      if (parseInt(refSelected.current) + 1 >= refMentionsToSelect.current.length) {
                         setSelected(0)
                       } else {
                         setSelected(parseInt(refSelected.current) + 1)
@@ -379,17 +381,12 @@ export const ChannelInput = ({
                       }
                       e.preventDefault()
                     }
-                    if (
-                      e.nativeEvent.keyCode === 13 ||
-                      e.nativeEvent.keyCode === 9
-                    ) {
+                    if (e.nativeEvent.keyCode === 13 || e.nativeEvent.keyCode === 9) {
                       const currentMsg = message
                         .replace(/ /g, String.fromCharCode(160))
                         .split(String.fromCharCode(160))
                       currentMsg[currentMsg.length - 1] =
-                        '@' +
-                        refMentionsToSelect.current[refSelected.current]
-                          .nickname
+                        '@' + refMentionsToSelect.current[refSelected.current].nickname
                       currentMsg.push(String.fromCharCode(160))
                       setHtmlMessage(currentMsg.join(String.fromCharCode(160)))
                       e.preventDefault()
@@ -406,17 +403,9 @@ export const ChannelInput = ({
                   } else {
                     if (e.nativeEvent.keyCode === 13) {
                       e.preventDefault()
-                      if (
-                        infoClass !==
-                        classNames(classes.backdrop, classes.blinkAnimation)
-                      ) {
-                        setInfoClass(
-                          classNames(classes.backdrop, classes.blinkAnimation)
-                        )
-                        setTimeout(
-                          () => setInfoClass(classNames(classes.backdrop)),
-                          1000
-                        )
+                      if (infoClass !== classNames(classes.backdrop, classes.blinkAnimation)) {
+                        setInfoClass(classNames(classes.backdrop, classes.blinkAnimation))
+                        setTimeout(() => setInfoClass(classNames(classes.backdrop)), 1000)
                       }
                     }
                   }
@@ -425,9 +414,7 @@ export const ChannelInput = ({
             </Grid>
             <Grid item className={classes.actions}>
               <Grid container justify='center' alignItems='center'>
-                <ChannelInputAction
-                  disabled={inputState !== INPUT_STATE.AVAILABLE}
-                />
+                <ChannelInputAction disabled={inputState !== INPUT_STATE.AVAILABLE} />
                 <Icon
                   className={classes.emoji}
                   src={emojiHovered ? emojiBlack : emojiGray}
@@ -446,8 +433,7 @@ export const ChannelInput = ({
                 <ClickAwayListener
                   onClickAway={() => {
                     setOpenEmoji(false)
-                  }}
-                >
+                  }}>
                   <div className={classes.picker}>
                     <Picker
                       onEmojiClick={(e, emoji) => {
@@ -473,18 +459,16 @@ export const ChannelInput = ({
               {`Your message is over the size limit. `}
               <span
                 onClick={() =>
-                  shell.openExternal(
-                    'https://www.zbay.app/faq.html#message-size-info'
-                  )
+                  shell.openExternal('https://www.zbay.app/faq.html#message-size-info')
                 }
-                className={classes.linkBlue}
-              >
+                className={classes.linkBlue}>
                 Learn More
               </span>
             </Typography>
           </Grid>
         </Grid>
       )}
+      <TypingIndicator contactUsername={contactUsername} showTypingIndicator={showTypingIndicator} />
     </Grid>
   )
 }

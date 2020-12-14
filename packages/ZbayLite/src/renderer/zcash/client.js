@@ -62,7 +62,16 @@ export default class Client {
 }
 let counter = 0
 var mapping = new Map()
+var handlerSet = false
 const postMessage = async (method, args = '') => {
+  if (!handlerSet) {
+    ipcRenderer.on('rpcQuery', (e, d) => {
+      const data = JSON.parse(d)
+      mapping.get(data.id).resolve(data.data)
+      mapping.delete(data.id)
+    })
+    handlerSet = true
+  }
   const promise = new Promise((resolve, reject) => {
     mapping.set(counter, {
       resolve: resolve,
@@ -77,8 +86,3 @@ const postMessage = async (method, args = '') => {
   return promise
 }
 
-ipcRenderer.on('rpcQuery', (e, d) => {
-  const data = JSON.parse(d)
-  mapping.get(data.id).resolve(data.data)
-  mapping.delete(data.id)
-})

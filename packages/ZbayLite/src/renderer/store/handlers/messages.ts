@@ -4,7 +4,6 @@ import * as R from 'ramda'
 import crypto from 'crypto'
 import fs from 'fs'
 import { createAction } from 'redux-actions'
-// import { remote } from 'electron'
 
 import appSelectors from '../selectors/app'
 import channelSelectors from '../selectors/channel'
@@ -595,9 +594,11 @@ export const handleWebsocketMessage = data => async (dispatch, getState) => {
   let isUnregistered = false
   const currentChannel = channelSelectors.channel(getState())
   const userFilter = notificationCenterSelectors.userFilterType(getState())
+  const contacts = contactsSelectors.contacts(getState())
   try {
     message = await unpackMemo(data)
     const { type } = message
+    const { typeIndicator } = message
     if (type === 'UNKNOWN') {
       return {
         type: 'UNKNOWN',
@@ -606,6 +607,14 @@ export const handleWebsocketMessage = data => async (dispatch, getState) => {
       }
     }
     publicKey = getPublicKeysFromSignature(message).toString('hex')
+    const contact = contactsSelectors.contact(publicKey)(getState())
+    if (type === messageType.CONNECTION_ESTABLISHED) {
+      if (!contact.connected) {
+        //dispatch(contactsHandlers.actions.setContactConnected({ connected: true, key: publicKey }))
+        dispatch(contactsHandlers.epics.connectWsContacts(publicKey))
+      }
+      return
+    }
     if (users !== undefined) {
       const fromUser = users[publicKey]
       if (fromUser !== undefined) {
@@ -622,108 +631,118 @@ export const handleWebsocketMessage = data => async (dispatch, getState) => {
         isUnregistered = true
       }
     }
+    dispatch(
+      contactsHandlers.actions.setTypingIndicator({
+        typingIndicator: !!typeIndicator,
+        contactAddress: publicKey
+      })
+    )
   } catch (err) {
     console.warn(err)
     return null
   }
-  try {
-    const toUser =
-      Array.from(Object.values(users)).find(u => u.address === sender.replyTo) ||
-      new ExchangeParticipant({})
-    const messageDigest = crypto.createHash('sha256')
-    const messageEssentials = R.pick(['createdAt', 'message'])(message)
-    const key = messageDigest.update(JSON.stringify(messageEssentials)).digest('hex')
-    const msg = {
-      ...(await messageSchema.validate(message)),
-      id: key,
-      receiver: {
-        replyTo: toUser.address,
-        publicKey: toUser.publicKey,
-        username: toUser.nickname
-      },
-      spent: new BigNumber(0),
-      sender: sender,
-      fromYou: true,
-      isUnregistered,
-      publicKey,
-      offerOwner: message.message.offerOwner,
-      tag: message.message.tag,
-      shippingData: message.message.shippingData
-    }
-    const parsedMsg = new DisplayableMessage(msg)
-    const contacts = contactsSelectors.contacts(getState())
-    if (msg.message.itemId) {
-      const item = msg.message.itemId
-      const contacts = contactsSelectors.contacts(getState())
-      const offer = contactsSelectors.getAdvertById(item)(getState())
-      if (!offer) {
-        return
-      }
-      if (!contacts[`${item}${msg.sender.username}`]) {
-        await dispatch(
-          contactsHandlers.actions.addContact({
-            key: `${item}${msg.sender.username}`,
-            username: `${offer.message.tag} @${msg.sender.username}`,
-            contactAddress: msg.sender.replyTo,
-            offerId: offer.id
-          })
-        )
-      }
+  
 
-      dispatch(
-        contactsHandlers.actions.addMessage({
-          key: `${item}${msg.sender.username}`,
-          message: { [key]: parsedMsg }
-        })
-      )
-      if (
-        currentChannel.id !== `${item}${msg.sender.username}` &&
-        userFilter !== notificationFilterType.NONE
-      ) {
-        displayMessageNotification({
-          senderName: msg.sender.username,
-          message: msg.message.text,
-          channelName: `${offer.message.tag} @${msg.sender.username}`
-        })
+  if (message.message) {
+    try {
+      const toUser =
+        Array.from(Object.values(users)).find(u => u.address === sender.replyTo) ||
+        new ExchangeParticipant({})
+      const messageDigest = crypto.createHash('sha256')
+      const messageEssentials = R.pick(['createdAt', 'message'])(message)
+      const key = messageDigest.update(JSON.stringify(messageEssentials)).digest('hex')
+      const msg = {
+        ...(await messageSchema.validate(message)),
+        id: key,
+        receiver: {
+          replyTo: toUser.address,
+          publicKey: toUser.publicKey,
+          username: toUser.nickname
+        },
+        spent: new BigNumber(0),
+        sender: sender,
+        fromYou: true,
+        isUnregistered,
+        publicKey,
+        offerOwner: message.message.offerOwner,
+        tag: message.message.tag,
+        shippingData: message.message.shippingData
+      }
+      const parsedMsg = new DisplayableMessage(msg)
+      //const contacts = contactsSelectors.contacts(getState())
+      if (msg.message.itemId) {
+        const item = msg.message.itemId
+        //const contacts = contactsSelectors.contacts(getState())
+        const offer = contactsSelectors.getAdvertById(item)(getState())
+        if (!offer) {
+          return
+        }
+        if (!contacts[`${item}${msg.sender.username}`]) {
+          await dispatch(
+            contactsHandlers.actions.addContact({
+              key: `${item}${msg.sender.username}`,
+              username: `${offer.message.tag} @${msg.sender.username}`,
+              contactAddress: msg.sender.replyTo,
+              offerId: offer.id
+            })
+          )
+        }
+
         dispatch(
-          contactsHandlers.actions.appendNewMessages({
-            contactAddress: `${item}${msg.sender.username}`,
-            messagesIds: [key]
+          contactsHandlers.actions.addMessage({
+            key: `${item}${msg.sender.username}`,
+            message: { [key]: parsedMsg }
           })
         )
-      }
-    } else {
-      if (!contacts[publicKey]) {
-        await dispatch(
-          contactsHandlers.actions.addContact({
+        if (
+          currentChannel.id !== `${item}${msg.sender.username}` &&
+          userFilter !== notificationFilterType.NONE
+        ) {
+          displayMessageNotification({
+            senderName: msg.sender.username,
+            message: msg.message.text,
+            channelName: `${offer.message.tag} @${msg.sender.username}`
+          })
+          dispatch(
+            contactsHandlers.actions.appendNewMessages({
+              contactAddress: `${item}${msg.sender.username}`,
+              messagesIds: [key]
+            })
+          )
+        }
+      } else {
+        if (!contacts[publicKey]) {
+          await dispatch(
+            contactsHandlers.actions.addContact({
+              key: publicKey,
+              contactAddress: msg.sender.replyTo,
+              username: msg.sender.username
+            })
+          )
+        }
+        dispatch(
+          contactsHandlers.actions.addMessage({
             key: publicKey,
-            contactAddress: msg.sender.replyTo,
-            username: msg.sender.username
+            message: { [key]: parsedMsg }
           })
         )
-      }
-      dispatch(
-        contactsHandlers.actions.addMessage({
-          key: publicKey,
-          message: { [key]: parsedMsg }
-        })
-      )
-      if (currentChannel.id !== msg.publicKey && userFilter !== notificationFilterType.NONE) {
-        displayDirectMessageNotification({
-          username: msg.sender.username,
-          message: msg
-        })
-        dispatch(
-          contactsHandlers.actions.appendNewMessages({
-            contactAddress: publicKey,
-            messagesIds: [key]
+        if (currentChannel.id !== msg.publicKey && userFilter !== notificationFilterType.NONE) {
+          displayDirectMessageNotification({
+            username: msg.sender.username,
+            message: msg
           })
-        )
+          dispatch(
+            contactsHandlers.actions.appendNewMessages({
+              contactAddress: publicKey,
+              messagesIds: [key]
+            })
+          )
+        }
       }
+    } catch (err) {
+      console.warn('Incorrect message format: ', err)
+      return null
     }
-  } catch (err) {
-    console.warn('Incorrect message format: ', err)
-    return null
   }
 }
 export const epics = {

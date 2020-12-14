@@ -11,4 +11,5 @@ export enum MessageType {
   USER_V2 = 51,
   CHANNEL_SETTINGS_UPDATE = 61,
   AFFILIATE = 170, // 'aa' in hex
+  CONNECTION_ESTABLISHED = 200
 }

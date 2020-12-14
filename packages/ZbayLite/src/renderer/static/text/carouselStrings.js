@@ -13,6 +13,8 @@ module.exports = [
 `,
   `Zbay is also free and open source software.
 `,
+  `Zbay uses tor for direct messaging by default to provide fast and secure communication.
+`,
   `Free software was first articulated in 1980 by an engineer at MIT.
 `,
   `Its articulation was a warning for humanity about a potential dystopian future. 
