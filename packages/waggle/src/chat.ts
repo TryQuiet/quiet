@@ -8,7 +8,8 @@ export interface IMessage {
   created: Date,
   parentId: string,
   channelId: string,
-  currentHEAD: string
+  currentHEAD: string,
+  from: string
 }
 export interface IMessageCommit {
   created: Date,
@@ -76,12 +77,13 @@ export class Chat {
           this.messageHandler({
             from: message.from,
             message: {
-              data: request.sendMessage.data,
+              data: uint8arrayToString(request.sendMessage.data),
               created: request.sendMessage.created,
               id: uint8arrayToString(request.sendMessage.id),
               parentId: uint8arrayToString(request.sendMessage.parentId),
               channelId: uint8arrayToString(request.sendMessage.channelId),
               currentHEAD: uint8arrayToString(request.sendMessage.currentHEAD),
+              from: uint8arrayToString(request.sendMessage.from),
               raw: message.data,
               type: Request.Type.SEND_MESSAGE
             }
@@ -121,7 +123,8 @@ export class Chat {
         id: uint8arrayFromString((~~(Math.random() * 1e9)).toString(36) + Date.now()),
         parentId: uint8arrayFromString(message.parentId),
         channelId: uint8arrayFromString(message.channelId),
-        currentHEAD: uint8arrayFromString(message.currentHEAD)
+        currentHEAD: uint8arrayFromString(message.currentHEAD),
+        from: uint8arrayFromString(message.from)
       }
     })
 

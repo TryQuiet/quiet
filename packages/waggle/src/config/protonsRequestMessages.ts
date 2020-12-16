@@ -19,6 +19,7 @@ message SendMessage {
   required bytes parentId = 4;
   required bytes channelId = 5;
   required bytes currentHEAD = 6;
+  required bytes from = 7;
 }
 
 message MergeCommitInfo {

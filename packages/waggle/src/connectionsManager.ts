@@ -18,6 +18,9 @@ import { gitP } from 'simple-git'
 import multihashing from 'multihashing-async'
 import crypto from 'crypto'
 import { Request } from './config/protonsRequestMessages'
+import { message as socketMessage } from './socket/events/message'
+import { loadAllMessages } from './socket/events/allMessages'
+
 interface IConstructor {
   host: string
   port: number
@@ -37,7 +40,8 @@ interface IChatRoom {
 interface IChannelSubscription {
   topic: string,
   channelAddress: string,
-  git: Git
+  git: Git,
+  io: any
 }
 
 export class ConnectionsManager {
@@ -82,7 +86,7 @@ export class ConnectionsManager {
     ]
 
     const bootstrapMultiaddrs = [
-      '/dns4/dn3qb4pjizmrmkrdjy7gbmxajjuosmxyojx6pilalr7c7vfz3ipekayd.onion/tcp/7766/ws/p2p/QmSFn9NnuvxFV9nfANCiCQvpNhZC3bnCcb4sCyAJSoBMF3'
+      '/dns4/4whs6piv3oy7wmhbzstt6oqkyxtqsygwb6ueuerz2voyehneuay3ixqd.onion/tcp/7788/ws/p2p/QmUXEz4fN7oTLFvK6Ee4bRDL3s6dp1VCuHogmrrKxUngWW'
     ]
 
     this.localAddress = `${addrs}/p2p/${peerId.toB58String()}`
@@ -103,7 +107,7 @@ export class ConnectionsManager {
       peerId: peerId.toB58String()
     }
   }
-  public subscribeForTopic = async ({ topic, channelAddress, git }: IChannelSubscription) => {
+  public subscribeForTopic = async ({ topic, channelAddress, git, io }: IChannelSubscription) => {
     const chat = new Chat(
       this.libp2p,
       topic,
@@ -120,10 +124,14 @@ export class ConnectionsManager {
           case Request.Type.SEND_MESSAGE:
             const currentHEAD = await git.getCurrentHEAD(channelAddress)
             if (repoState === State.UNLOCKED && message.currentHEAD === currentHEAD) {
+              console.log('new message', message.data)
+              socketMessage(io, { message: message.data, from: from })
               await git.addCommit(message.channelId, message.id, message.raw, message.created, message.parentId)
             } else {
               git.gitRepos.get(channelAddress).state = State.LOCKED
               const mergeTime = await git.pullChanges(this.onionAddressesBook.get(from), channelAddress)
+              const orderedMessages = await git.loadAllMessages(channelAddress)
+              loadAllMessages(io, orderedMessages)
               if (!mergeTime) {
                 git.gitRepos.get(channelAddress).state = State.UNLOCKED
                 return
@@ -150,6 +158,8 @@ export class ConnectionsManager {
             const head = await git.getCurrentHEAD(message.channelId)
             if (head !== message.currentHEAD && from !== this.libp2p.peerId.toB58String()) {
               await git.pullChanges(this.onionAddressesBook.get(from), message.channelId, message.created)
+              const orderedMessages = await git.loadAllMessages(channelAddress)
+              loadAllMessages(io, orderedMessages)
             }
             git.gitRepos.get(message.channelId).state = State.UNLOCKED
             break
@@ -177,6 +187,21 @@ export class ConnectionsManager {
     return onionAddress.toString()
   }
 
+  public sendMessage = async (channelAddress: string, git: Git, message: string): Promise<void> => {
+    const chat = this.chatRooms.get(`${channelAddress}`)
+    const currentHEAD = await git.getCurrentHEAD(channelAddress)
+    const timestamp = new Date()
+    const messagePayload = {
+      data: Buffer.from(message),
+      created: new Date(timestamp),
+      parentId: (~~(Math.random() * 1e9)).toString(36) + Date.now(),
+      channelId: channelAddress,
+      currentHEAD,
+      from: this.libp2p.peerId.toB58String()
+    }
+    await chat.chatInstance.send(messagePayload)
+  }
+
   public startSendingMessages = async (channelAddress: string, git: Git): Promise<string> => {
     try {
       const chat = this.chatRooms.get(`${channelAddress}`)
@@ -195,7 +220,8 @@ export class ConnectionsManager {
           created: new Date(timestamp),
           parentId: (~~(Math.random() * 1e9)).toString(36) + Date.now(),
           channelId: channelAddress,
-          currentHEAD
+          currentHEAD,
+          from: this.libp2p.peerId.toB58String()
         }
         await chat.chatInstance.send(messagePayload)
         await sleep(2500)
@@ -230,7 +256,7 @@ export class ConnectionsManager {
       },
       modules: {
         transport: [WebsocketsOverTor],
-        // peerDiscovery: [Bootstrap],
+        peerDiscovery: [Bootstrap],
         streamMuxer: [Mplex],
         connEncryption: [NOISE],
         dht: KademliaDHT,

@@ -3,7 +3,6 @@ import * as os from 'os'
 import * as path from 'path'
 import simpleGit, { SimpleGit, SimpleGitOptions } from 'simple-git'
 import * as child_process from 'child_process'
-import uint8arrayFromString from 'uint8arrays/from-string'
 import uint8arrayToString from 'uint8arrays/to-string'
 import { Request } from '../src/config/protonsRequestMessages'
 
@@ -98,6 +97,7 @@ export class Git {
     const pull = async (onionAddress, repoName, git: SimpleGit) => {
         await git.env('SOCKS5_PASSWORD', ` `)
         await git.env('GIT_PROXY_COMMAND', `${process.cwd()}/git/script/socks5proxywrapper`)
+        await git.env('BINARY_PATH', `${process.cwd()}/git/script/connect`)
         await targetRepo.git.env('GIT_COMMITTER_DATE', `"${new Date(mergeTimeFromSource || mergeTime).toUTCString()}"`)
         await targetRepo.git.env('GIT_AUTHOR_DATE', `"${new Date(mergeTimeFromSource || mergeTime).toUTCString()}"`)
         await targetRepo.git.addConfig('user.name', 'zbay')
@@ -112,8 +112,9 @@ export class Git {
       } else {
         await pull(onionAddress, repoName, targetRepo.git)
     }
-    return mergeTimeFromSource || mergeTime
+      return mergeTimeFromSource || mergeTime
     } catch (err) {
+      console.log(err)
       return null
     }
   }
@@ -132,9 +133,36 @@ export class Git {
     return parentId
   }
 
+  public loadAllMessages = async (id: string) => {
+    const targetFilePath = `${os.homedir()}/ZbayChannels/${id}/`
+    const files = fs.readdirSync(targetFilePath).filter(f => !fs.statSync(path.join(targetFilePath, f)).isDirectory())
+    const messages = []
+    for (const file of files) {
+      if(file !== '0') {
+        const data = fs.readFileSync(path.join(targetFilePath, file))
+        const { sendMessage } = Request.decode(data)
+        const timestamp = sendMessage.created
+        const message = sendMessage.data.toString()
+        const from = sendMessage.from.toString()
+        const msg = {
+          timestamp,
+          message, 
+          from
+        }
+        messages.push(msg)
+      }
+    }
+    const orderedMessages = messages.sort((a, b) => a.timestamp - b.timestamp)
+    return orderedMessages
+    // return parentId
+  }
+
   public addCommit = async (repoName: string, messageId: string, messagePayload: Buffer, date: number, parentId: string | null): Promise<void> => {
     try {
-      const targetRepo = this.gitRepos.get(repoName)
+      let targetRepo = this.gitRepos.get(repoName)
+      if (!targetRepo) {
+        targetRepo = await this.createRepository(`${repoName}`)
+      }
       await targetRepo.git.addConfig('user.name', 'zbay')
       await targetRepo.git.addConfig('user.email', 'zbay@unknown.world')
       await targetRepo.git.env('GIT_COMMITTER_DATE', `"${new Date(date).toUTCString()}"`)
@@ -185,101 +213,3 @@ export class Git {
   })
 }
 
-export const sleep = (time = 1000) =>
-  new Promise<void>(resolve => {
-    setTimeout(() => {
-      resolve()
-    }, time)
-  })
-
-
-const main = async () => {
-    const git = new Git()
-    await git.init()
-    await git.createRepository('test-address')
-    await git.spawnGitDaemon()
-    // await git.addCommit('test-address', '123', Buffer.from('ddddd'), 1607079584362, '23133')
-    await sleep(10000)
-    await git.pullChanges('jwfvburxit5aym7syf4wskxthjeakwhjdg6f5tktr446ixg556kohmid.onion', 'test-address')
-  // const test = Buffer.from('adamek4')
-  // const date = new Date()
-  // const parrentId = '21312312'
-  // const msg = Request.encode({
-  //   type: Request.Type.SEND_MESSAGE,
-  //   sendMessage: {
-  //     data: test,
-  //     created: date,
-  //     id: uint8arrayFromString((~~(Math.random() * 1e9)).toString(36) + Date.now()),
-  //     parentId: uint8arrayFromString(parrentId)
-  //   }
-  // })
-
-  // fs.writeFileSync(`${os.homedir()}/ZbayChannels/testing-02.12.2020-standard/myfile6.txt`, msg)
-  // const testing123 = fs.readFileSync(`${os.homedir()}/ZbayChannels/testing-02.12.2020-standard/myfile6.txt`)
-
-  // // console.log('hey', msg)
-  // const request = Request.decode(testing123)
-  // console.log('req', uint8arrayToString(request.sendMessage.data))
-  // const test1 = uint8arrayToString(request.sendMessage.data)
-  // const created1 = request.sendMessage.created
-  // id: uint8arrayToString(request.sendMessage.id),
-  // parentId: uint8arrayFromString(message.parentId)
-  // const content = 'halalala5'
-  // const git = new Git(8521)
-  // const test = Buffer.from('adamek4')
-  //Timeshift.setTime(1607079584362)
-  // const date = Date.now().toString()
-  // console.log(date, 'date')
-  // const commitDate = new Date('1607079584362')
-  // console.log(testing, 'testing')
-  // await git.startHttpServer()
-  // await git.pullChanges('testing-02.12.2020-standard', 'pbl6nhssnih5s6cvpbuv3kibdhj2izmdthdmvwzpydxxw7l4yzsh3kqd.onion', 'testing-02.12.2020', '8521')
-  // await sleep(5000)
-  // await git.init()
-  // await git.createRepository('testing-02.12.2020')
-  // await git.createRepository('testing-02.12.2021')
-
-  // await sleep(20000)
-  // const parentId = await git.getParentMessage('testing-02.12.2020-standard')
-  // const { standardRepo, bareRepo } = await git.createRepository('testing-02.12.2020')
-  // await git.addCommit('testing-02.12.2020-standard', 'adamek4', test, 1607079584362, null)
-  // await sleep(5000)
-  // await git.addCommit('testing-02.12.2021-standard', 'adamek4', test, 1607079584362, null)
-  // console.log('finish')
-  // const content = 'halalala5'
-  // const git = new Git(7766)
-  // await git.init()
-  // await git.startHttpServer()
-  // const test = Buffer.from('alala')
-  // const date = new Date()
-  // await git.startHttpServer()
-  // await git.init()
-  // await git.pullChanges('testing-02.12.2020-standard', '4mje2pdhgvhmefugd5yhaet5eof2mlws6hh5qmn6ph4ns6z7njjv74ad.onion', 'testing-02.12.2020', '8521')
-  // await sleep(5000)
-  // const { standardRepo, bareRepo } = await git.createRepository('testing-02.12.2020')
-  // await git.addCommit('testing-02.12.2020-standard', '1234567890', test, date, null)
-  // date.setHours(date.getHours() + 2)
-  // await sleep(5000)
-  // const date2 = new Date(date.getTime())
-  // await git.addCommit('testing-02.12.2020-standard', '1111111111', test, date2, '1234567890')
-  // await sleep(5000)
-  // date.setHours(date.getHours() + 1)
-  // const date1 = new Date(date.getTime())
-  // await git.addCommit('testing-02.12.2020-standard', '2222222222', test, date1, '1111111111')
-  // git.init()
-  // const parentId = await git.getParentMessage('testing-02.12.2020-standard')
-  // console.log('parenId', parentId)
-  // const test = await git.init()
-  // console.log('tesing here', test)
-  // await git.startHttpServer()
-  // const { standardRepo, bareRepo } = await git.createRepository('testing-02.12.2020', 'channel-address')
-  // fs.writeFileSync(`${os.homedir()}/ZbayChannels/testing-02.12.2020/myfile3.txt`, content)
-  // await standardRepo.add(`${os.homedir()}/ZbayChannels/testing-02.12.2020/*`)
-  // await standardRepo.commit('hey3')
-  // await standardRepo.push('origin', 'master')
-  // await git.pullChanges('papap', '4mje2pdhgvhmefugd5yhaet5eof2mlws6hh5qmn6ph4ns6z7njjv74ad.onion', 'testing-02.12.2020-bare', '8521')
-  // console.log(standardRepo.log())
-  // console.log(bareRepo.log())
-}
-
-// main()

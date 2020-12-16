@@ -4,14 +4,15 @@
     "esModuleInterop": true,
     "module": "commonjs",
     "declaration": true,
-    "outDir": "./lib"
+    "outDir": "./lib",
+    "moduleResolution": "node"
   },
   "typeRoots": [
     "./@types",
     "../../node_modules/@types",
-    "./node_modules/@types",
-    "./node_modules/libp2p-interfaces@0.7.1"
+    "./node_modules/@types"
   ],
   "include": ["src"],
   "exclude": ["node_modules", "**/__tests__/*"]
 }
+
