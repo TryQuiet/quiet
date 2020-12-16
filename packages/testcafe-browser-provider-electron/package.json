@@ -1,6 +1,6 @@
 {
   "name": "testcafe-browser-provider-electron",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "description": "TestCafe browser provider plugin for testing applications built with Electron.",
   "repository": "https://github.com/DevExpress/testcafe-browser-provider-electron",
   "homepage": "https://github.com/DevExpress/testcafe-browser-provider-electron",
@@ -47,6 +47,7 @@
   },
   "devDependencies": {
     "asar": "^2.0.1",
+    "babel-core": "^6.26.3",
     "babel-eslint": "^7.2.3",
     "babel-plugin-add-module-exports": "^0.2.1",
     "babel-plugin-transform-runtime": "^6.23.0",
