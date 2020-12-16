@@ -64,12 +64,14 @@ export class DataServer {
     let address1
     let address3
     try {
-      address1 = this.tor.getServiceAddress(7788)
-      address3 = this.tor.getServiceAddress(9418)
+      address1 = await this.tor.getServiceAddress(7788)
+      address3 = await this.tor.getServiceAddress(9418)
     } catch (e) {
-      address1 = await this.tor.addService({ port: 7788 })
-      address3 = await this.tor.addService({ port: 9418 })
+      await this.tor.addService({ port: 7788 })
+      await this.tor.addService({ port: 9418 })
     }
+    address1 = await this.tor.getServiceAddress(7788)
+    address3 = await this.tor.getServiceAddress(9418)
     this.libp2pAddress = address1
     this.repositoryAddress = address3
   }
