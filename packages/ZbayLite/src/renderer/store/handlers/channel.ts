@@ -87,7 +87,7 @@ export const initialState: Channel = new Channel({
 
 const setLoading = createAction<boolean>(actionTypes.SET_CHANNEL_LOADING)
 const setSpentFilterValue = createAction(actionTypes.SET_SPENT_FILTER_VALUE, (_, value) => value)
-const setMessage = createAction<string>(actionTypes.SET_CHANNEL_MESSAGE)
+const setMessage = createAction<{ value: string; id: string }>(actionTypes.SET_CHANNEL_MESSAGE)
 const setChannelId = createAction<string>(actionTypes.SET_CHANNEL_ID)
 const isSizeCheckingInProgress = createAction<boolean>(actionTypes.IS_SIZE_CHECKING_IN_PROGRESS)
 const messageSizeStatus = createAction<boolean>(actionTypes.MESSAGE_SIZE_STATUS)
@@ -221,6 +221,7 @@ const sendOnEnter = (event, resetTab) => async (dispatch, getState) => {
   const messageToSend = channelSelectors.message(getState())
   const users = usersSelectors.users(getState())
   const useTor = appSelectors.useTor(getState())
+  const id = channelSelectors.id(getState())
   let message
   if (enterPressed && !shiftPressed) {
     event.preventDefault()
@@ -234,7 +235,7 @@ const sendOnEnter = (event, resetTab) => async (dispatch, getState) => {
     })
     const isMergedMessageTooLong = await dispatch(_checkMessageSize(message.message))
     if (!isMergedMessageTooLong) {
-      dispatch(setMessage(''))
+      dispatch(setMessage({ value: '', id: id }))
       const myUser = usersSelectors.myUser(getState())
       const messageDigest = crypto.createHash('sha256')
       const messageEssentials = R.pick(['createdAt', 'message'])(message)
@@ -446,9 +447,9 @@ export const reducer = handleActions<Channel, PayloadType<ChannelActions>>(
       produce(state, draft => {
         draft.spentFilterValue = new BigNumber(value)
       }),
-    [setMessage.toString()]: (state, { payload: value }: ChannelActions['setMessage']) =>
+    [setMessage.toString()]: (state, { payload: { value, id } }: ChannelActions['setMessage']) =>
       produce(state, draft => {
-        draft.message[draft.id] = value
+        draft.message[id] = value
       }),
     [setChannelId.toString()]: (state, { payload: id }: ChannelActions['setChannelId']) =>
       produce(state, draft => {

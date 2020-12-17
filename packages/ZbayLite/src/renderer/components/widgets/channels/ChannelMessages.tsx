@@ -179,89 +179,84 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
       ref={scrollbarRef}
       autoHideTimeout={500}
       renderView={renderView}
-      onScrollFrame={onScrollFrame}
-    >
+      onScrollFrame={onScrollFrame}>
       <List
         disablePadding
         ref={msgRef}
-        id="messages-scroll"
+        id='messages-scroll'
         className={classes.list}
-        style={{ marginTop: offset }}
-      >
-        {isOwner && <WelcomeMessage message={welcomeMessages["main"]} />}
-        
+        style={{ marginTop: offset }}>
+        {isOwner && <WelcomeMessage message={welcomeMessages['main']} />}
+
         {!isRescanned && !isDM && <RescanMessage />}
         {/* {isOffer && !showLoader && (
           <WelcomeMessage message={welcomeMessages['offer'](tag, username)} />
         )} */}
         {Object.keys(groupedMessages || []).map((key, i) => {
-          const messagesArray = groupedMessages[key];
-          const today = DateTime.utc();
-          const groupName = DateTime.fromSeconds(parseInt(key)).toFormat(
-            "cccc, LLL d"
-          );
-          const displayTitle = DateTime.fromSeconds(parseInt(key)).hasSame(
-            today,
-            "day"
-          )
-            ? "Today"
-            : groupName;
+          const messagesArray = groupedMessages[key]
+          const today = DateTime.utc()
+          const groupName = DateTime.fromSeconds(parseInt(key)).toFormat('cccc, LLL d')
+          const displayTitle = DateTime.fromSeconds(parseInt(key)).hasSame(today, 'day')
+            ? 'Today'
+            : groupName
           return (
             <>
               <MessagesDivider title={displayTitle} />
-              {messagesArray.map((msg) => {
-                const MessageComponent = typeToMessageComponent[msg.type];
+              {messagesArray.map(msg => {
+                const MessageComponent = typeToMessageComponent[msg.type]
                 if (!msg.type) {
                   if (msg.keys) {
                     return (
                       <ChannelRegisteredMessage
                         message={msg}
-                        address={
-                          users[msg.owner] ? users[msg.owner].address : ""
-                        }
+                        address={users[msg.owner] ? users[msg.owner].address : ''}
                         username={
                           users[msg.owner]
                             ? users[msg.owner].nickname
                             : `anon${msg.owner.substring(0, 16)}`
                         }
                         onChannelClick={() => {
-                          onLinkedChannel(publicChannels[msg.name]);
+                          onLinkedChannel(publicChannels[msg.name])
                         }}
                       />
-                    );
+                    )
                   } else {
-                    return <UserRegisteredMessage message={msg} />;
+                    return <UserRegisteredMessage message={msg} />
                   }
                 }
-                return (
-                  <MessageComponent
-                    key={msg.id}
-                    message={msg}
-                    contactId={contactId}
-                  />
-                );
+                return <MessageComponent key={msg.id} message={msg} contactId={contactId} />
               })}
             </>
-          );
+          )
         })}
-        { isDM && ( <Grid container className={classes.root}>
-          <Grid item xs className={classes.item}>
-          <Typography variant='caption' className={classes.info}>
-            {isConnected ? <span>Connected to <span className={classes.bold}>@{name}</span> via Tor. Your message will be sent directly, not via Zcash memo.</span> : <span>Disconnected from <span className={classes.bold}>@{name}</span>. Your message will be sent via Zcash memo.</span>}
-          </Typography>
+        {isDM && name && (
+          <Grid container className={classes.root}>
+            <Grid item xs className={classes.item}>
+              <Typography variant='caption' className={classes.info}>
+                {isConnected ? (
+                  <span>
+                    Connected to <span className={classes.bold}>@{name}</span> via Tor. Your message
+                    will be sent directly, not via Zcash memo.
+                  </span>
+                ) : (
+                  <span>
+                    Disconnected from <span className={classes.bold}>@{name}</span>. Your message
+                    will be sent via Zcash memo.
+                  </span>
+                )}
+              </Typography>
+            </Grid>
           </Grid>
-      </Grid>
-             )
-          }
+        )}
         {isNewUser && (
           <WelcomeMessage
             message={
               <span>
-                Welcome to Zbay! To start quickly, Zbay includes username and
-                channel registration data in the app itself. To verify this
-                data, which takes ~1 hour but may add some security,
+                Welcome to Zbay! To start quickly, Zbay includes username and channel registration
+                data in the app itself. To verify this data, which takes ~1 hour but may add some
+                security,
                 <span className={classes.link} onClick={onRescan}>
-                  {" "}
+                  {' '}
                   restart & re-sync
                 </span>
                 . Otherwise, say hi and introduce yourself!
@@ -271,7 +266,7 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
         )}
       </List>
     </Scrollbars>
-  );
+  )
 };
 
 const typeToMessageComponent = {

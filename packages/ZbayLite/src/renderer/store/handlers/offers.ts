@@ -90,6 +90,7 @@ const sendItemMessageOnEnter = event => async (dispatch, getState) => {
   const channel = channelSelectors.channel(getState())
   const messageToSend = channelSelectors.message(getState())
   const useTor = appSelectors.useTor(getState())
+  const id = channelSelectors.id(getState())
 
   let message
   if (enterPressed && !shiftPressed) {
@@ -109,7 +110,7 @@ const sendItemMessageOnEnter = event => async (dispatch, getState) => {
       _checkMessageSize(message.message)
     )
     if (!isMergedMessageTooLong) {
-      dispatch(channelHandlers.actions.setMessage(''))
+      dispatch(channelHandlers.actions.setMessage({ value: '', id: id }))
       const myUser = usersSelectors.myUser(getState())
       const messageDigest = crypto.createHash('sha256')
 

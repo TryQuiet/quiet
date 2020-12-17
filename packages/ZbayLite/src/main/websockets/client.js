@@ -29,6 +29,7 @@ export const connect = address =>
         console.log(err)
       })
       socket.on('open', async function (a) {
+        console.log('opened websocket client connection')
         const privKey = identity.signerPrivKey
         const message = messages.createMessage({
           messageData: {

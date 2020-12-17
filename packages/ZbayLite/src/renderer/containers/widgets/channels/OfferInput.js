@@ -60,7 +60,7 @@ export const ChannelInput = ({
       id={id}
       setInfoClass={setInfoClass}
       onChange={e => {
-        onChange(e)
+        onChange({ value: e, id })
         resetDebounce()
       }}
       onKeyPress={sendItemMessageOnEnter}

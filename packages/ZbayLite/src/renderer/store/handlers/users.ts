@@ -322,7 +322,9 @@ export const registerOnionAddress = torStatus => async (dispatch, getState) => {
   })
   // dispatch(actionCreators.closeModal('accountSettingsModal')())
   const txid = await client.sendTransaction(transfer)
+  console.log('sending transaction with onion address')
   if (txid.error) {
+    console.log('error while sending transaction with onion address')
     throw new Error(txid.error)
   }
   dispatch(

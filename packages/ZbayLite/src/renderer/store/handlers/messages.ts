@@ -608,12 +608,23 @@ export const handleWebsocketMessage = data => async (dispatch, getState) => {
     }
     publicKey = getPublicKeysFromSignature(message).toString('hex')
     const contact = contactsSelectors.contact(publicKey)(getState())
-    if (type === messageType.CONNECTION_ESTABLISHED) {
-      if (!contact.connected) {
-        //dispatch(contactsHandlers.actions.setContactConnected({ connected: true, key: publicKey }))
-        dispatch(contactsHandlers.epics.connectWsContacts(publicKey))
+    if (contact.key === publicKey) {
+      dispatch(
+        contactsHandlers.actions.setTypingIndicator({
+          typingIndicator: !!typeIndicator,
+          contactAddress: publicKey
+        })
+      )
+      console.log('Received connection established message')
+      if (type === messageType.CONNECTION_ESTABLISHED) {
+        console.log('Contact exist')
+        if (!contact.connected) {
+          console.log('Contact is not connected, initializing connection')
+          //dispatch(contactsHandlers.actions.setContactConnected({ connected: true, key: publicKey }))
+          dispatch(contactsHandlers.epics.connectWsContacts(publicKey))
+        }
+        return
       }
-      return
     }
     if (users !== undefined) {
       const fromUser = users[publicKey]
@@ -631,12 +642,6 @@ export const handleWebsocketMessage = data => async (dispatch, getState) => {
         isUnregistered = true
       }
     }
-    dispatch(
-      contactsHandlers.actions.setTypingIndicator({
-        typingIndicator: !!typeIndicator,
-        contactAddress: publicKey
-      })
-    )
   } catch (err) {
     console.warn(err)
     return null
@@ -719,6 +724,7 @@ export const handleWebsocketMessage = data => async (dispatch, getState) => {
               username: msg.sender.username
             })
           )
+          dispatch(contactsHandlers.epics.connectWsContacts(publicKey))
         }
         dispatch(
           contactsHandlers.actions.addMessage({

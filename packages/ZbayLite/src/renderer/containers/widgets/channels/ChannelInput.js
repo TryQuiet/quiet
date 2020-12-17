@@ -70,7 +70,7 @@ export const ChannelInput = ({
       id={id}
       users={users}
       onChange={e => {
-        onChange(e)
+        onChange({ value: e, id })
         resetDebounce()
       }}
       onKeyPress={e => {

@@ -71,12 +71,12 @@ export const ChannelInput = ({
   const isFromZbayUser = channelName !== 'Unknown'
   return (
     <ChannelInputComponent
-        isDM
+      isDM
       infoClass={infoClass}
       id={id}
       setInfoClass={setInfoClass}
       onChange={e => {
-        onChange(e)
+        onChange({ value: e, id })
         resetDebounce()
       }}
       onKeyPress={sendDirectMessageOnEnter}
