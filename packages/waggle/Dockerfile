@@ -10,4 +10,4 @@ RUN npm install -g node-pre-gyp@0.10.0 typescript ts-node
 
 RUN npm install
 
-CMD ["ts-node", "src/test.ts"]
+CMD ["ts-node", "src/socket/test.ts"]
