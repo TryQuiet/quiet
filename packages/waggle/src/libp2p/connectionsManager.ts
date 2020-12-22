@@ -92,11 +92,7 @@ export class ConnectionsManager {
     ]
 
     const bootstrapMultiaddrs = [
-<<<<<<< HEAD:src/libp2p/connectionsManager.ts
-      '/dns4/igbsyx2bhppwc3c3gvntkbrxu3evskllyaf6n74drrhma57qaydnp7ad.onion/tcp/7788/ws/p2p/QmUXEz4fN7oTLFvK6Ee4bRDL3s6dp1VCuHogmrrKxUngWW'
-=======
       '/dns4/lt34smw52qazw4ekhzdpkicb7jnoiyashk7izsom6xavnipdeh3obbqd.onion/tcp/7788/ws/p2p/QmUXEz4fN7oTLFvK6Ee4bRDL3s6dp1VCuHogmrrKxUngWW'
->>>>>>> master:src/connectionsManager.ts
     ]
 
     this.localAddress = `${addrs}/p2p/${peerId.toB58String()}`
