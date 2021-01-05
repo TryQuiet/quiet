@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react'
+import React, { useCallback } from 'react'
 import PropTypes from 'prop-types'
 import * as R from 'ramda'
 import classNames from 'classnames'
@@ -194,7 +194,7 @@ export const ChannelInput = ({
   }
   React.useEffect(() => {
     inputRef.current.updater.enqueueForceUpdate(inputRef.current)
-  }, [inputPlaceholder])
+  }, [inputPlaceholder, id])
   // Use reference to bypass memorization
   React.useEffect(() => {
     refSelected.current = selected
@@ -286,6 +286,70 @@ export const ChannelInput = ({
     },
     [setAnchorEl, onChange, setHtmlMessage]
   )
+  const onKeyDownCb = useCallback(
+    e => {
+      if (refMentionsToSelect.current.length) {
+        if (e.nativeEvent.keyCode === 40) {
+          if (parseInt(refSelected.current) + 1 >= refMentionsToSelect.current.length) {
+            setSelected(0)
+          } else {
+            setSelected(parseInt(refSelected.current) + 1)
+          }
+          e.preventDefault()
+        }
+        if (e.nativeEvent.keyCode === 38) {
+          if (parseInt(refSelected.current) - 1 < 0) {
+            setSelected(refMentionsToSelect.current.length - 1)
+          } else {
+            setSelected(refSelected.current - 1)
+          }
+          e.preventDefault()
+        }
+        if (e.nativeEvent.keyCode === 13 || e.nativeEvent.keyCode === 9) {
+          const currentMsg = message
+            .replace(/ /g, String.fromCharCode(160))
+            .split(String.fromCharCode(160))
+          currentMsg[currentMsg.length - 1] =
+            '@' + refMentionsToSelect.current[refSelected.current].nickname
+          currentMsg.push(String.fromCharCode(160))
+          setHtmlMessage(currentMsg.join(String.fromCharCode(160)))
+          e.preventDefault()
+        }
+        return
+      }
+      if (
+        inputState === INPUT_STATE.AVAILABLE &&
+        e.nativeEvent.keyCode === 13 &&
+        e.target.innerText !== ''
+      ) {
+        onChange(e.target.innerText)
+        onKeyPress(e)
+        setMessage('')
+        setHtmlMessage('')
+        scrollToBottom()
+      } else {
+        if (e.nativeEvent.keyCode === 13) {
+          e.preventDefault()
+          if (infoClass !== classNames(classes.backdrop, classes.blinkAnimation)) {
+            setInfoClass(classNames(classes.backdrop, classes.blinkAnimation))
+            setTimeout(() => setInfoClass(classNames(classes.backdrop)), 1000)
+          }
+        }
+      }
+    },
+    [
+      onChange,
+      refMentionsToSelect,
+      onKeyPress,
+      setMessage,
+      setHtmlMessage,
+      scrollToBottom,
+      infoClass,
+      setInfoClass,
+      message,
+      setSelected
+    ]
+  )
   return (
     <Grid
       container
@@ -373,56 +437,7 @@ export const ChannelInput = ({
                 }}
                 html={sanitizedHtml}
                 onChange={onChangeCb}
-                onKeyDown={e => {
-                  if (refMentionsToSelect.current.length) {
-                    if (e.nativeEvent.keyCode === 40) {
-                      if (parseInt(refSelected.current) + 1 >= refMentionsToSelect.current.length) {
-                        setSelected(0)
-                      } else {
-                        setSelected(parseInt(refSelected.current) + 1)
-                      }
-                      e.preventDefault()
-                    }
-                    if (e.nativeEvent.keyCode === 38) {
-                      if (parseInt(refSelected.current) - 1 < 0) {
-                        setSelected(refMentionsToSelect.current.length - 1)
-                      } else {
-                        setSelected(refSelected.current - 1)
-                      }
-                      e.preventDefault()
-                    }
-                    if (e.nativeEvent.keyCode === 13 || e.nativeEvent.keyCode === 9) {
-                      const currentMsg = message
-                        .replace(/ /g, String.fromCharCode(160))
-                        .split(String.fromCharCode(160))
-                      currentMsg[currentMsg.length - 1] =
-                        '@' + refMentionsToSelect.current[refSelected.current].nickname
-                      currentMsg.push(String.fromCharCode(160))
-                      setHtmlMessage(currentMsg.join(String.fromCharCode(160)))
-                      e.preventDefault()
-                    }
-                    return
-                  }
-                  if (
-                    inputState === INPUT_STATE.AVAILABLE &&
-                    e.nativeEvent.keyCode === 13 &&
-                    e.target.innerText !== ''
-                  ) {
-                    onChange(e.target.innerText)
-                    onKeyPress(e)
-                    setMessage('')
-                    setHtmlMessage('')
-                    scrollToBottom()
-                  } else {
-                    if (e.nativeEvent.keyCode === 13) {
-                      e.preventDefault()
-                      if (infoClass !== classNames(classes.backdrop, classes.blinkAnimation)) {
-                        setInfoClass(classNames(classes.backdrop, classes.blinkAnimation))
-                        setTimeout(() => setInfoClass(classNames(classes.backdrop)), 1000)
-                      }
-                    }
-                  }
-                }}
+                onKeyDown={onKeyDownCb}
               />
             </Grid>
             <Grid item className={classes.actions}>
