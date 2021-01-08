@@ -13,9 +13,10 @@ export const createServer = mainWindow => {
   wsServer.on('connection', function (socket) {
     console.log('New incoming connection')
     socket.on('message', function (message) {
-      mainWindow.webContents.send('wsMessage', message)
+      if (mainWindow) {
+        mainWindow.webContents.send('wsMessage', message)
+      }
     })
-    
     socket.on('close', function (message) {
       console.log('disconnected server')
       socket.close()

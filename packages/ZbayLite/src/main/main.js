@@ -17,10 +17,10 @@ import { spawnTor, getOnionAddress } from '../../tor'
 
 const _killProcess = util.promisify(ps.kill)
 
-let isFetchedFromExternalSource = false
+const isFetchedFromExternalSource = false
 
 const isTestnet = parseInt(process.env.ZBAY_IS_TESTNET)
-let nodeProc = null
+const nodeProc = null
 
 export const isDev = process.env.NODE_ENV === 'development'
 const installExtensions = async () => {
@@ -301,33 +301,40 @@ app.on('ready', async () => {
     const request = JSON.parse(arg)
     const response = await websockets.handleSend(request)
     // const response = await client.postMessage(request.id, request.method, request.args)
-    mainWindow.webContents.send(
-      'sendWebsocket',
-      JSON.stringify({ id: request.id, response: response })
-    )
+    if (mainWindow) {
+      mainWindow.webContents.send(
+        'sendWebsocket',
+        JSON.stringify({ id: request.id, response: response })
+      )
+    }
   })
   ipcMain.on('initWsConnection', async (event, arg) => {
     const request = JSON.parse(arg)
     try {
       const socket = await websockets.connect(request.address)
-
-      mainWindow.webContents.send(
-        'initWsConnection',
-        JSON.stringify({ id: request.id, connected: true })
-      )
+      if (mainWindow) {
+        mainWindow.webContents.send(
+          'initWsConnection',
+          JSON.stringify({ id: request.id, connected: true })
+        )
+      }
       // socket
       socket.on('close', function (a) {
+        if (mainWindow) {
+          mainWindow.webContents.send(
+            'initWsConnection',
+            JSON.stringify({ id: request.id, connected: false })
+          )
+        }
+      })
+    } catch (error) {
+      console.log(error)
+      if (mainWindow) {
         mainWindow.webContents.send(
           'initWsConnection',
           JSON.stringify({ id: request.id, connected: false })
         )
-      })
-    } catch (error) {
-      console.log(error)
-      mainWindow.webContents.send(
-        'initWsConnection',
-        JSON.stringify({ id: request.id, connected: false })
-      )
+      }
     }
     // const response = await client.postMessage(request.id, request.method, request.args)
   })
@@ -367,10 +374,23 @@ process.on('exit', () => {
   }
 })
 
+export const sleep = (time = 1000) =>
+  new Promise(resolve => {
+    setTimeout(() => {
+      resolve()
+    }, time)
+  })
+
 app.on('before-quit', async e => {
   e.preventDefault()
-  if (torProcess !== null) {
-    torProcess.kill()
+  clearConnections()
+  await sleep(2000)
+  if (torProcess) {
+    try {
+      torProcess.kill()
+    } catch (e) {
+      console.error(e)
+    }
   }
   // Killing worker takes couple of sec
   await client.terminate()
@@ -388,13 +408,13 @@ app.on('window-all-closed', () => {
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   const vaultStatus = electronStore.get('vaultStatus')
-  clearConnections()
   const shouldFullyClose =
     isFetchedFromExternalSource || vaultStatus !== config.VAULT_STATUSES.CREATED
   if (process.platform !== 'darwin' || shouldFullyClose) {
     app.quit()
   }
 })
+
 app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.

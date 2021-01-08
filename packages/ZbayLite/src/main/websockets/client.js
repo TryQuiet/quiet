@@ -1,12 +1,12 @@
-var WebSocketClient = require('ws')
-var url = require('url')
-var HttpsProxyAgent = require('https-proxy-agent')
-
 import { messageType } from '../../shared/static'
 
 import { packMemo } from '../../renderer/zbay/transit'
 
 import electronStore from '../../shared/electronStore'
+
+var WebSocketClient = require('ws')
+var url = require('url')
+var HttpsProxyAgent = require('https-proxy-agent')
 
 const identity = electronStore.get('identity')
 
@@ -48,6 +48,7 @@ export const connect = address =>
           connections.delete(address)
         })
         clearTimeout(id)
+        connections.set(address, socket)
         resolve(socket)
       })
       socket.on('error', err => {
@@ -60,21 +61,21 @@ export const connect = address =>
     }
   })
 
-  export const clearConnections = () => {
-    connections.forEach((_, value) => {
-      try {
-        value.close()
-      } catch (error) {
-        console.error('Failed to close socket')
-      }
-    })
-  }
-export const handleSend = async ({ message, endpoint }) => {
+export const clearConnections = () => {
+  for (const socket of connections.values()) {
     try {
-      if (!connections.get(endpoint)) {
-        const connection = await connect(endpoint)
-        connections.set(endpoint, connection)
-        connection.send(message)
+      socket.close()
+    } catch (err) {
+      console.log(err)
+    }
+  }
+}
+export const handleSend = async ({ message, endpoint }) => {
+  try {
+    if (!connections.get(endpoint)) {
+      const connection = await connect(endpoint)
+      connections.set(endpoint, connection)
+      connection.send(message)
     } else {
       connections.get(endpoint).send(message)
     }

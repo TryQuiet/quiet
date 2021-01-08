@@ -134,20 +134,19 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
 
   let groupedMessages: { [key: string]: DisplayableMessage[] };
   if (messages.length !== 0) {
-    groupedMessages = R.groupBy<DisplayableMessage>((msg) => {
-      return DateTime.fromFormat(
-        DateTime.fromSeconds(msg.createdAt).toFormat("cccc, LLL d"),
-        "cccc, LLL d"
-      )
-        .toSeconds()
-        .toString();
+    groupedMessages = R.groupBy<DisplayableMessage>(msg => {
+      const d = new Date(msg.createdAt * 1000)
+      d.setHours(0)
+      d.setMinutes(0)
+      d.setSeconds(0)
+      return (d.getTime() / 1000).toString()
     })(
       messages
-        .filter((msg) => messagesTypesToDisplay.includes(msg.type))
+        .filter(msg => messagesTypesToDisplay.includes(msg.type))
         .concat(usersRegistration)
         .concat(publicChannelsRegistration)
         .sort((a, b) => a.createdAt - b.createdAt)
-    );
+    )
   }
 
   useEffect(() => {
