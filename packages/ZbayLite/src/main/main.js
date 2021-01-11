@@ -13,7 +13,7 @@ import electronStore from '../shared/electronStore'
 import Client from './cli/client'
 import websockets, { clearConnections } from './websockets/client'
 import { createServer } from './websockets/server'
-import { spawnTor, getOnionAddress } from '../../tor'
+import { getOnionAddress, spawnTor, runLibp2p } from '../../tlgManager/'
 
 const _killProcess = util.promisify(ps.kill)
 
@@ -216,7 +216,7 @@ ipcMain.on('restart-node-proc', async (event, arg) => {
 })
 
 let client
-let torProcess = null
+let tor = null
 app.on('ready', async () => {
   const template = [
     {
@@ -254,11 +254,14 @@ app.on('ready', async () => {
     mainWindow.webContents.send('ping')
     try {
       // Spawn and kill tor to generate onionAddress
-      torProcess = await spawnTor()
+      tor = await spawnTor()
       createServer(mainWindow)
       mainWindow.webContents.send('onionAddress', getOnionAddress())
-      torProcess.kill()
-      torProcess = null
+      const ports = electronStore.get('ports')
+      await tor.killService({ port: ports.gitHiddenService })
+      await tor.killService({ port: ports.libp2pHiddenService })
+      tor.kill()
+      tor = null
     } catch (error) {
       console.log(error)
     }
@@ -277,14 +280,19 @@ app.on('ready', async () => {
   })
 
   ipcMain.on('spawnTor', async (event, arg) => {
-    if (torProcess === null) {
-      torProcess = await spawnTor()
+    if (tor === null) {
+      tor = await spawnTor()
+      await runLibp2p()
     }
   })
+
   ipcMain.on('killTor', async (event, arg) => {
-    if (torProcess !== null) {
-      torProcess.kill()
-      torProcess = null
+    if (tor !== null) {
+      const ports = electronStore.get('ports')
+      await tor.killService({ port: ports.gitHiddenService })
+      await tor.killService({ port: ports.libp2pHiddenService })
+      tor.kill()
+      tor = null
     }
   })
   ipcMain.on('proceed-update', (event, arg) => {
@@ -384,13 +392,12 @@ export const sleep = (time = 1000) =>
 app.on('before-quit', async e => {
   e.preventDefault()
   clearConnections()
-  await sleep(2000)
-  if (torProcess) {
-    try {
-      torProcess.kill()
-    } catch (e) {
-      console.error(e)
-    }
+  sleep(2000)
+  if (tor !== null) {
+    const ports = electronStore.get('ports')
+    await tor.killService({ port: ports.gitHiddenService })
+    await tor.killService({ port: ports.libp2pHiddenService })
+    tor.kill()
   }
   // Killing worker takes couple of sec
   await client.terminate()

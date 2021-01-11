@@ -2,6 +2,7 @@ import electronStore from '../src/shared/electronStore'
 
 const path = require('path')
 const fp = require('find-free-port')
+
 const isDev = process.env.NODE_ENV === 'development'
 
 const pathDev = path.join.apply(null, [process.cwd(), 'tor', 'tor'])
@@ -28,7 +29,7 @@ export const getPorts = async (): Promise<{ socksPort: number, httpTunnelPort: n
 }
 
 const spawn = require('child_process').spawn
-export const spawnTor = async () => {
+export const spawnTor = async (): Promise<void> => {
   const ports = await getPorts()
   electronStore.set('ports', ports)
   return await new Promise(resolve => {

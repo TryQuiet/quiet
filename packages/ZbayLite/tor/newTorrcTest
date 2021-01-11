@@ -1,0 +1,12 @@
+SocksPort SOCKS_PORT
+#Default: Bind to localhost:9050 for local connections.
+HTTPTunnelPort HTTP_TUNNEL_PORT
+
+HiddenServiceDir PATH_TO_CHANGE
+HiddenServicePort 80 127.0.0.1:3435
+
+#HiddenServiceDir C:\Users\username\Documents\tor\hidden_service
+#HiddenServicePort 80 127.0.0.1:8080 
+#HiddenServicePort 22 127.0.0.1:22
+
+#Placeholder

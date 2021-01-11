@@ -1,5 +1,6 @@
 const path = require('path')
 const nodeExternals = require('webpack-node-externals')
+const WebpackBuildLinkedPackages = require('webpack-build-linked-packages')
 
 module.exports = {
   mode: 'development',
@@ -7,6 +8,11 @@ module.exports = {
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx']
   },
+  plugins: [
+    new WebpackBuildLinkedPackages({
+      // Options go here
+    })
+  ],
   entry: ['@babel/polyfill', './src/main/main.js'],
   externals: [nodeExternals()],
   node: {
@@ -37,7 +43,7 @@ module.exports = {
         test: /\.(t|j)sx?$/,
         loader: ['awesome-typescript-loader?module=es6'],
         exclude: [/node_modules/]
-      },
+      }
     ]
-  },
+  }
 }
