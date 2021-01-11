@@ -27,6 +27,7 @@ import electronStore from '../../../shared/electronStore'
 import { channelToUri } from '../../zbay/channels'
 import { sendMessage } from '../../zcash/websocketClient'
 import { packMemo } from '../../zbay/transit'
+import { publicChannelsActions } from '../../sagas/publicChannels/publicChannels.reducer'
 
 import { ActionsType, PayloadType } from './types'
 

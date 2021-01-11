@@ -41,7 +41,7 @@ export class PublicChannel {
   }
 }
 
-export type PublicChannelsStore = { [name: string]: PublicChannel }
+export interface PublicChannelsStore { [name: string]: PublicChannel }
 
 export const initialState: PublicChannelsStore = {}
 
@@ -165,6 +165,7 @@ export const publishChannel = ({
     )
   }
 }
+
 export const epics = {
   fetchPublicChannels,
   publishChannel
