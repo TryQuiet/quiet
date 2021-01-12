@@ -2,8 +2,9 @@ import * as io from 'socket.io-client'
 import { PublicChannelsActions, publicChannelsActions } from '../publicChannels/publicChannels.reducer'
 import respones from 'tlg-manager/lib/socket/constantsReponse.d'
 import { eventChannel, Channel } from 'redux-saga'
-import { take, call, fork, put } from 'redux-saga/effects'
-import { ChatMessages } from '../publicChannels/actionsTypes'
+import { fork, put } from 'redux-saga/effects'
+import { call, take } from 'typed-redux-saga'
+import { ActionFromMapping, ChatMessages } from '../publicChannels/actionsTypes'
 import config from '../../config'
 import { AnyAction } from 'redux'
 
@@ -17,7 +18,7 @@ export const connect = async () => {
 }
 
 export function subscribe (socket) {
-  return eventChannel(emit => {
+  return eventChannel<ActionFromMapping<PublicChannelsActions>>(emit => {
     socket.on(respones.EventTypesResponse.RESPONSE_FETCH_ALL_MESSAGES, ({ messages }) => {
       emit(publicChannelsActions.loadAllMessages(messages))
     })
@@ -26,9 +27,9 @@ export function subscribe (socket) {
 }
 
 export function* handleActions(socket): Generator {
-  const socketChannel = yield call(subscribe, socket)
+  const socketChannel = yield* call(subscribe, socket)
   while (true) {
-    const action = yield take(socketChannel)
+    const action = yield* take(socketChannel)
     yield put(action)
   }
 }

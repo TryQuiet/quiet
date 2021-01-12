@@ -9,6 +9,9 @@ export type ActionsType<actions extends ActionsBasicType> = {
   [k in keyof actions]: ReturnType<actions[k]>
 }
 
+export type Keys<Actions> = keyof Actions
+export type ActionFromMapping<Actions> = Actions[Keys<Actions>]
+
 export enum ChatMessages {
   SEND_MESSAGE = 'SEND_MESSAGE',
   RESPONSE_FETCH_ALL_MESSAGES = 'RESPONSE_FETCH_ALL_MESSAGES',
