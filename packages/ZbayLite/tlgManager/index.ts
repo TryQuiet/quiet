@@ -85,7 +85,7 @@ export const getOnionAddress = (): string => {
   return address
 }
 
-export const runLibp2p = async (): Promise<void> => {
+export const runLibp2p = async (webContents): Promise<void> => {
   const git = new TlgManager.Git()
   await git.init()
   await git.spawnGitDaemon()
@@ -99,6 +99,7 @@ export const runLibp2p = async (): Promise<void> => {
   const key = new TextEncoder().encode(serviceAddressGit.address)
   await connectonsManager.publishOnionAddress(peerIdOnionAddress, key)
   await TlgManager.initListeners(dataServer.io, connectonsManager, git)
+  webContents.send('connectToWebsocket')
 }
 
 export default { spawnTor, getOnionAddress, getPorts, runLibp2p }

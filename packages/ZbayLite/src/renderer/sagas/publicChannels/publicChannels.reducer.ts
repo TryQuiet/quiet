@@ -1,15 +1,16 @@
 
 import { createAction } from '@reduxjs/toolkit'
 
-import { ActionsType, ChatMessages } from './actionsTypes'
+import { ActionsType, Socket } from '../const/actionsTypes'
 
 export type PublicChannelsActions = ActionsType<typeof publicChannelsActions>
 export interface Libp2pMessage {
-  id: string | null
   message: string | null
+  channelAddress: string | null
 }
 
 export const publicChannelsActions = {
-  sendMessage: createAction(ChatMessages.SEND_MESSAGE),
-  loadAllMessages: createAction<Map<string, Libp2pMessage>>(ChatMessages.RESPONSE_FETCH_ALL_MESSAGES)
+  sendMessage: createAction(Socket.SEND_MESSAGE),
+  loadAllMessages: createAction<string>(Socket.FETCH_ALL_MESSAGES),
+  subscribeForTopic: createAction<string>(Socket.SUBSCRIBE_FOR_TOPIC)
 }

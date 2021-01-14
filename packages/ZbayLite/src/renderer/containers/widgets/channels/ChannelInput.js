@@ -54,8 +54,7 @@ export const ChannelInput = ({
   checkMentions,
   feeUsd,
   myUser,
-  checkMessageSizeLimit,
-  targetRecipientAddress,
+  isPublicChannel,
   isMessageTooLong,
   isSizeCheckingInProgress,
   id
@@ -73,10 +72,11 @@ export const ChannelInput = ({
         onChange({ value: e, id })
         resetDebounce()
       }}
-      onKeyPress={e => {
+      onKeyPress={(e) => {
         checkMentions()
         sendOnEnter(e, setTab)
       }}
+      isPublicChannel={isPublicChannel}
       message={message}
       inputState={inputState}
       inputPlaceholder={`#${channelName} as @${myUser.nickname} - $${feeUsd}`}

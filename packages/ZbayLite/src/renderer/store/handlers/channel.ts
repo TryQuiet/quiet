@@ -27,9 +27,9 @@ import electronStore from '../../../shared/electronStore'
 import { channelToUri } from '../../zbay/channels'
 import { sendMessage } from '../../zcash/websocketClient'
 import { packMemo } from '../../zbay/transit'
-import { publicChannelsActions } from '../../sagas/publicChannels/publicChannels.reducer'
 
 import { ActionsType, PayloadType } from './types'
+import { publicChannelsActions } from '../../sagas/publicChannels/publicChannels.reducer'
 
 // TODO: to remove, but must be replaced in all the tests
 export const ChannelState = {
@@ -213,8 +213,14 @@ const sendTypingIndicator = value => async (dispatch, getState) => {
 }
 
 const sendOnEnter = (event, resetTab) => async (dispatch, getState) => {
+  console.log('working here')
   if (resetTab) {
     resetTab(0)
+  }
+  const isPublicChannel = channelSelectors.isPublicChannel(getState())
+  if (isPublicChannel) {
+    dispatch(publicChannelsActions.sendMessage())
+    return
   }
   const enterPressed = event.nativeEvent.keyCode === 13
   const shiftPressed = event.nativeEvent.shiftKey === true

@@ -1,15 +1,17 @@
-import { takeLatest, all as effectsAll } from 'redux-saga/effects'
-import { ChatMessages } from './actionsTypes'
+import { all as effectsAll, takeEvery } from 'redux-saga/effects'
+import { publicChannelsActions, PublicChannelsActions } from './publicChannels.reducer'
 // import channelSelectors from '../../store/selectors/channel'
 
 const all: any = effectsAll
 
-export function* sendMessage (): Generator {
-  console.log('test')
+export function* sendMessage (action: PublicChannelsActions['sendMessage']): Generator {
+  console.log('working')
+  const { payload } = action
+  console.log(payload, 'test')
 }
 
 export function* publicChannelsSaga () {
   yield all([
-    takeLatest(ChatMessages.SEND_MESSAGE, sendMessage)
+    takeEvery(`${publicChannelsActions.sendMessage}`, sendMessage)
   ])
 }

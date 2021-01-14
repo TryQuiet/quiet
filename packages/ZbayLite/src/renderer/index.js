@@ -19,6 +19,7 @@ import { errorNotification, successNotification } from './store/handlers/utils'
 
 import notificationsHandlers from './store/handlers/notifications'
 import appSelectors from './store/selectors/app'
+import { socketsActions } from './sagas/socket/socket.saga.reducer'
 
 Web.HashingTools.patchCorePBKDF()
 
@@ -112,6 +113,11 @@ ipcRenderer.on('toggleCoordinator', () => {
 
 ipcRenderer.on('checkNodeStatus', (event, { status }) => {
   store.dispatch(nodeHandlers.epics.checkNodeStatus(status))
+})
+
+ipcRenderer.on('connectToWebsocket', (event) => {
+  console.log('working connecting')
+  store.dispatch(socketsActions.connect())
 })
 
 ipcRenderer.on('newChannel', (event, { channelParams }) => {

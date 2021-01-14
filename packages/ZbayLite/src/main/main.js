@@ -254,7 +254,7 @@ app.on('ready', async () => {
     mainWindow.webContents.send('ping')
     try {
       // Spawn and kill tor to generate onionAddress
-      tor = await spawnTor()
+      tor = await spawnTor(mainWindow.webContents)
       createServer(mainWindow)
       mainWindow.webContents.send('onionAddress', getOnionAddress())
       const ports = electronStore.get('ports')
@@ -282,7 +282,7 @@ app.on('ready', async () => {
   ipcMain.on('spawnTor', async (event, arg) => {
     if (tor === null) {
       tor = await spawnTor()
-      await runLibp2p()
+      await runLibp2p(mainWindow.webContents)
     }
   })
 

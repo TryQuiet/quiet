@@ -10,6 +10,8 @@ import channelSelectors from '../selectors/channel'
 import usersSelectors from '../selectors/users'
 import contactsSelectors from '../selectors/contacts'
 import identitySelectors from '../selectors/identity'
+import publicChannelsSelectors from '../selectors/publicChannels'
+import { publicChannelsActions } from '../../sagas/publicChannels/publicChannels.reducer'
 import { actions as channelActions } from './channel'
 import contactsHandlers from './contacts'
 import usersHandlers from './users'
@@ -175,9 +177,14 @@ export const fetchMessages = () => async (dispatch, getState) => {
       )
     )
     const importedChannels = electronStore.get('importedChannels')
+    const publicChannels = publicChannelsSelectors.publicChannels(getState())
+    const publicChannelAddresses = Object.values(publicChannels).map(el => el.address)
     if (importedChannels) {
       for (const address of Object.keys(importedChannels)) {
         await dispatch(setChannelMessages(importedChannels[address], txns[address]))
+        if (publicChannelAddresses.includes(address)) {
+          await dispatch(publicChannelsActions.subscribeForTopic(address))
+        }
       }
     }
     await dispatch(
