@@ -6,17 +6,14 @@ import {
   publicChannelsActions
 } from '../publicChannels/publicChannels.reducer'
 import { eventChannel } from 'redux-saga'
-import { fork, put } from 'redux-saga/effects'
-import { call, take, select } from 'typed-redux-saga'
+import { fork } from 'redux-saga/effects'
+import { call, take, select, put } from 'typed-redux-saga'
 import { ActionFromMapping, Socket as socketsActions } from '../const/actionsTypes'
 import channelSelectors from '../../store/selectors/channel'
 import identitySelectors from '../../store/selectors/identity'
-import usersSelectors from '../../store/selectors/users'
-import contactsHandlers from '../../store/handlers/contacts'
 import { messages } from '../../zbay'
 import config from '../../config'
 import { messageType } from '../../../shared/static'
-import { DisplayableMessage } from '../../zbay/messages.types'
 
 export const connect = async () => {
   const socket = io(config.socket.address)
@@ -29,12 +26,8 @@ export const connect = async () => {
 
 export function subscribe(socket) {
   return eventChannel<ActionFromMapping<PublicChannelsActions>>(emit => {
-    socket.on(socketsActions.RESPONSE_FETCH_ALL_MESSAGES, payload => {
-      emit(publicChannelsActions.loadAllMessages(payload))
-    })
     socket.on(socketsActions.MESSAGE, payload => {
-      console.log('new message', payload)
-      emit(publicChannelsActions.loadAllMessages(payload))
+      emit(publicChannelsActions.loadMessage(payload))
     })
     return () => {}
   })
@@ -52,8 +45,6 @@ export function* sendMessage(socket): Generator {
   while (true) {
     yield* take(`${publicChannelsActions.sendMessage}`)
     const { address } = yield* select(channelSelectors.channel)
-    console.log('working here2313')
-    const myUser = yield* select(usersSelectors.myUser)
     const messageToSend = yield* select(channelSelectors.message)
     let message = null
     const privKey = yield* select(identitySelectors.signerPrivKey)
@@ -67,27 +58,11 @@ export function* sendMessage(socket): Generator {
     const messageDigest = crypto.createHash('sha256')
     const messageEssentials = R.pick(['createdAt', 'message'])(message)
     const key = messageDigest.update(JSON.stringify(messageEssentials)).digest('hex')
-    const messagePlaceholder = new DisplayableMessage({
-      ...message,
-      id: key,
-      sender: {
-        replyTo: myUser.address,
-        username: myUser.nickname
-      },
-      fromYou: true,
-      status: 'pending',
-      message: messageToSend
-    })
-    yield put(
-      contactsHandlers.actions.addMessage({
-        key: address,
-        message: { [key]: messagePlaceholder }
-      })
-    )
     const preparedMessage = {
       ...message,
       id: key,
-      typeIndicator: false
+      typeIndicator: false,
+      signature: message.signature.toString('base64')
     }
     socket.emit(socketsActions.SEND_MESSAGE, { channelAddress: address, message: preparedMessage })
   }
@@ -101,17 +76,18 @@ export function* subscribeForTopic(socket): Generator {
   }
 }
 
-export function* fetchAllMessages(socket): Generator {
-  while (true) {
-    const { payload } = yield* take(`${publicChannelsActions.loadAllMessages}`)
-    socket.emit(socketsActions.FETCH_ALL_MESSAGES, payload)
-  }
-}
+// export function* fetchAllMessages(socket): Generator {
+//   while (true) {
+//     const { payload } = yield* take(`${publicChannelsActions.loadAllMessages}`)
+//     console.log('working ggegegge', payload, socket)
+//     // socket.emit(socketsActions.FETCH_ALL_MESSAGES, payload)
+//   }
+// }
 
 export function* useIO(socket): Generator {
   yield fork(handleActions, socket)
   yield fork(sendMessage, socket)
-  yield fork(fetchAllMessages, socket)
+  // yield fork(fetchAllMessages, socket)
   yield fork(subscribeForTopic, socket)
 }
 
