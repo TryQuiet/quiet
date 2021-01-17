@@ -79,7 +79,7 @@ export const ChannelsListItem = ({
   history,
   directMessages,
   selected,
-  isRegisteredUsername
+  fetchAllMessages
 }) => {
   const isFromZbay = channel.username !== 'Unknown'
   // const size = 15
@@ -94,6 +94,7 @@ export const ChannelsListItem = ({
       button
       disableGutters
       onClick={() => {
+        fetchAllMessages(channel.address)
         history.push(
           `/main/${
             directMessages

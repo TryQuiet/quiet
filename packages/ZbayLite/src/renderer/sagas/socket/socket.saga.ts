@@ -29,6 +29,9 @@ export function subscribe(socket) {
     socket.on(socketsActions.MESSAGE, payload => {
       emit(publicChannelsActions.loadMessage(payload))
     })
+    socket.on(socketsActions.RESPONSE_FETCH_ALL_MESSAGES, payload => {
+      emit(publicChannelsActions.responseLoadAllMessages(payload))
+    })
     return () => {}
   })
 }
@@ -71,23 +74,21 @@ export function* sendMessage(socket): Generator {
 export function* subscribeForTopic(socket): Generator {
   while (true) {
     const { payload } = yield* take(`${publicChannelsActions.subscribeForTopic}`)
-    console.log(payload)
     socket.emit(socketsActions.SUBSCRIBE_FOR_TOPIC, payload)
   }
 }
 
-// export function* fetchAllMessages(socket): Generator {
-//   while (true) {
-//     const { payload } = yield* take(`${publicChannelsActions.loadAllMessages}`)
-//     console.log('working ggegegge', payload, socket)
-//     // socket.emit(socketsActions.FETCH_ALL_MESSAGES, payload)
-//   }
-// }
+export function* fetchAllMessages(socket): Generator {
+  while (true) {
+    const { payload } = yield* take(`${publicChannelsActions.loadAllMessages}`)
+    socket.emit(socketsActions.FETCH_ALL_MESSAGES, payload)
+  }
+}
 
 export function* useIO(socket): Generator {
   yield fork(handleActions, socket)
   yield fork(sendMessage, socket)
-  // yield fork(fetchAllMessages, socket)
+  yield fork(fetchAllMessages, socket)
   yield fork(subscribeForTopic, socket)
 }
 

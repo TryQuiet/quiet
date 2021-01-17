@@ -10,16 +10,15 @@ import {
 } from '../../zbay/messages'
 import usersSelectors from '../../store/selectors/users'
 import { DisplayableMessage } from '../../zbay/messages.types'
+import electronStore from '../../../shared/electronStore'
 
 const all: any = effectsAll
 
-export function* loadMessage(action: PublicChannelsActions['loadMessage']): Generator {
-  const users = yield* select(usersSelectors.users)
+const transferToMessage = (msg, users) => {
   let publicKey = null
   let sender = { replyTo: '', username: 'Unnamed' }
   let isUnregistered = false
-  const { channelAddress } = action.payload
-  const { r, message, signature, id, type, createdAt } = action.payload.message
+  const { r, message, signature, id, type, createdAt } = msg
   const signatureBuffer = Buffer.from(signature, 'base64')
   publicKey = getPublicKeysFromSignature({
     message,
@@ -57,14 +56,55 @@ export function* loadMessage(action: PublicChannelsActions['loadMessage']): Gene
     blockHeight: null
   }
   const displayableMessage = new DisplayableMessage(parsedMessage)
-  yield put(publicChannelsActions.addMessage(
-    {
-      key: channelAddress,
-      message: { [id]: displayableMessage }
-    }
-  ))
+  return displayableMessage
+}
+
+export function* loadMessage(action: PublicChannelsActions['loadMessage']): Generator {
+  const users = yield* select(usersSelectors.users)
+  const message = transferToMessage(action.payload.message, users)
+  yield put(
+    publicChannelsActions.addMessage({
+      key: action.payload.channelAddress,
+      message: { [message.id]: message }
+    })
+  )
+}
+
+export function* loadAllMessages(
+  action: PublicChannelsActions['responseLoadAllMessages']
+): Generator {
+  const users = yield* select(usersSelectors.users)
+  const importedChannels = electronStore.get('importedChannels')
+  const { name } = importedChannels[action.payload.channelAddress]
+  if (name) {
+    const displayableMessages = action.payload.messages.map(msg => transferToMessage(msg, users))
+    console.log(displayableMessages)
+    yield put(
+      publicChannelsActions.setMessages({
+        key: action.payload.channelAddress,
+        contactAddress: action.payload.channelAddress,
+        username: name,
+        messages: displayableMessages
+      })
+    )
+  }
 }
 
 export function* publicChannelsSaga(): Generator {
-  yield all([takeEvery(`${publicChannelsActions.loadMessage}`, loadMessage)])
+  yield all([
+    takeEvery(`${publicChannelsActions.loadMessage}`, loadMessage),
+    takeEvery(`${publicChannelsActions.responseLoadAllMessages}`, loadAllMessages)
+  ])
 }
+
+// contactsHandlers.actions.setMessages({
+//   key: channel.address,
+//   contactAddress: channel.address,
+//   username: channel.name,
+//   messages: messagesAll
+//     .filter(msg => msg.id !== null)
+//     .reduce((acc, cur) => {
+//       acc[cur.id] = cur
+//       return acc
+//     }, [])
+//
