@@ -316,6 +316,17 @@ app.on('ready', async () => {
       )
     }
   })
+  ipcMain.on('1', async () => {
+    console.log('1')
+    const i = electronStore.get('useTor')
+    console.log(i)
+  })
+  ipcMain.on('2', async () => {
+    console.log('2')
+  })
+  ipcMain.on('3', async () => {
+    console.log('3')
+  })
   ipcMain.on('initWsConnection', async (event, arg) => {
     const request = JSON.parse(arg)
     try {

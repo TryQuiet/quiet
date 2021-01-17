@@ -33,18 +33,22 @@ export const spawnTor = async (): Promise<void> => {
   const ports = await getPorts()
   electronStore.set('ports', ports)
   return await new Promise(resolve => {
-    var fs = require('fs')
-    fs.copyFileSync(
-      isDev ? pathDevSettingsTemplate : pathProdSettingsTemplate,
-      isDev ? pathDevSettings : pathProdSettings
+    const fs = require('fs')
+    let data = fs
+      .readFileSync(isDev ? pathDevSettings : pathProdSettingsTemplate)
+      .toString()
+      .split('\n')
+    data.splice(
+      17,
+      1,
+      `SocksPort ${ports.socksPort} # Default: Bind to localhost:9050 for local connections.`
     )
-    const data = fs.readFileSync(isDev ? pathDevSettings : pathProdSettings, 'utf8')
-    let result = data.replace(/PATH_TO_CHANGE/g, path.join.apply(null, [os.homedir(), 'zbay_tor']))
-    result = result.replace(/SOCKS_PORT/g, ports.socksPort)
-    result = result.replace(/HTTP_TUNNEL_PORT/g, ports.httpTunnelPort)
+    data.splice(18, 1, `HTTPTunnelPort ${ports.httpTunnelPort}`)
+    let text = data.join('\n')
+    text = text.replace(/PATH_TO_CHANGE/g, path.join.apply(null, [os.homedir(), 'zbay_tor']))
     fs.writeFileSync(
       isDev ? pathDevSettings : path.join.apply(null, [os.homedir(), 'torrc']),
-      result,
+      text,
       'utf8'
     )
 

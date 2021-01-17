@@ -85,9 +85,12 @@ export const askForBlockchainLocation = () => async (dispatch, getState) => {
 }
 
 export const initializeUseTor = () => async (dispatch, getState) => {
+  ipcRenderer.send('1')
   const savedUseTor = electronStore.get(`useTor`)
   if (savedUseTor !== undefined) {
+    ipcRenderer.send('2')
     if (savedUseTor === true) {
+      ipcRenderer.send('3')
       ipcRenderer.send('spawnTor')
     }
     dispatch(actions.setUseTor(savedUseTor))

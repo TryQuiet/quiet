@@ -11,35 +11,41 @@ const pathDev = path.join.apply(null, [process.cwd(), 'tor', 'tor'])
 const pathDevLib = path.join.apply(null, [process.cwd(), 'tor'])
 const pathProdLib = path.join.apply(null, [process.resourcesPath, 'tor'])
 const pathDevSettings = path.join.apply(null, [process.cwd(), 'tor', 'torrc'])
-const pathDevSettingsTemplate = path.join.apply(null, [process.cwd(), 'tor', 'newTorrcTest'])
 const pathProd = path.join.apply(null, [process.resourcesPath, 'tor', 'tor'])
-const pathProdSettings = path.join.apply(null, [process.resourcesPath, 'tor', 'newTorrcTest'])
 const pathProdSettingsTemplate = path.join.apply(null, [
   process.resourcesPath,
   'tor',
-  'newTorrcTest'
+  'torrc'
 ])
 const pathDevGit = path.join.apply(null, [process.cwd(), 'tlgManager', 'git'])
 const pathProdGit = path.join.apply(null, [process.resourcesPath, 'tlgManager', 'git'])
 const pathDevConnect = path.join.apply(null, [process.cwd(), 'tlgManager', 'connect'])
 const pathProdConnect = path.join.apply(null, [process.resourcesPath, 'tlgManager', 'connect'])
 const pathDevScript = path.join.apply(null, [process.cwd(), 'tlgManager', 'socks5proxywrapper'])
-const pathProdScript = path.join.apply(null, [process.resourcesPath, 'tlgManager', 'socks5proxywrapper'])
+const pathProdScript = path.join.apply(null, [
+  process.resourcesPath,
+  'tlgManager',
+  'socks5proxywrapper'
+])
 
 export const spawnTor = async () => {
   const ports = await getPorts()
   electronStore.set('ports', ports)
-  fs.copyFileSync(
-    isDev ? pathDevSettingsTemplate : pathProdSettingsTemplate,
-    isDev ? pathDevSettings : pathProdSettings
+  const data = fs
+    .readFileSync(isDev ? pathDevSettings : pathProdSettingsTemplate)
+    .toString()
+    .split('\n')
+  data.splice(
+    17,
+    1,
+    `SocksPort ${ports.socksPort} # Default: Bind to localhost:9050 for local connections.`
   )
-  const data = fs.readFileSync(isDev ? pathDevSettings : pathProdSettings, 'utf8')
-  let result = data.replace(/PATH_TO_CHANGE/g, path.join.apply(null, [os.homedir(), 'zbay_tor']))
-  result = result.replace(/SOCKS_PORT/g, ports.socksPort.toString())
-  result = result.replace(/HTTP_TUNNEL_PORT/g, ports.httpTunnelPort.toString())
+  data.splice(18, 1, `HTTPTunnelPort ${ports.httpTunnelPort}`)
+  let text = data.join('\n')
+  text = text.replace(/PATH_TO_CHANGE/g, path.join.apply(null, [os.homedir(), 'zbay_tor']))
   fs.writeFileSync(
     isDev ? pathDevSettings : path.join.apply(null, [os.homedir(), 'torrc']),
-    result,
+    text,
     'utf8'
   )
   const tor = new TlgManager.Tor({
@@ -70,7 +76,12 @@ export const spawnTor = async () => {
   return tor
 }
 
-export const getPorts = async (): Promise<{ socksPort: number, httpTunnelPort: number, gitHiddenService: number, libp2pHiddenService: number }> => {
+export const getPorts = async (): Promise<{
+  socksPort: number
+  httpTunnelPort: number
+  gitHiddenService: number
+  libp2pHiddenService: number
+}> => {
   const [socksPort] = await fp(9052)
   const [httpTunnelPort] = await fp(9082)
   const [gitHiddenService] = await fp(7900)
@@ -95,18 +106,19 @@ export const runLibp2p = async (webContents): Promise<void> => {
   const ports = electronStore.get('ports')
   const data = fs.readFileSync(isDev ? pathDevScript : pathProdScript, 'utf8')
   const result = data.replace(/SOCKS_PORT/g, ports.socksPort.toString())
-  fs.writeFileSync(
-    isDev ? pathDevScript : null,
-    result,
-    'utf8'
-  )
+  fs.writeFileSync(isDev ? pathDevScript : null, result, 'utf8')
   const git = new TlgManager.Git(pathDevScript, pathDevConnect, pathDevGit)
   await git.init()
   await git.spawnGitDaemon()
   const { serviceAddressGit, serviceAddressLibp2p } = electronStore.get('onionAddresses')
   const dataServer = new TlgManager.DataServer()
   dataServer.listen()
-  const connectonsManager = new TlgManager.ConnectionsManager({ port: ports.libp2pHiddenService, host: serviceAddressLibp2p.address, agentHost: 'localhost', agentPort: ports.socksPort })
+  const connectonsManager = new TlgManager.ConnectionsManager({
+    port: ports.libp2pHiddenService,
+    host: serviceAddressLibp2p.address,
+    agentHost: 'localhost',
+    agentPort: ports.socksPort
+  })
   const node = await connectonsManager.initializeNode()
   console.log(node, 'node')
   const peerIdOnionAddress = await connectonsManager.createOnionPeerId(node.peerId)
