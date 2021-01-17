@@ -19,6 +19,12 @@ const pathProdSettingsTemplate = path.join.apply(null, [
   'tor',
   'newTorrcTest'
 ])
+const pathDevGit = path.join.apply(null, [process.cwd(), 'tlgManager', 'git'])
+const pathProdGit = path.join.apply(null, [process.resourcesPath, 'tlgManager', 'git'])
+const pathDevConnect = path.join.apply(null, [process.cwd(), 'tlgManager', 'connect'])
+const pathProdConnect = path.join.apply(null, [process.resourcesPath, 'tlgManager', 'connect'])
+const pathDevScript = path.join.apply(null, [process.cwd(), 'tlgManager', 'socks5proxywrapper'])
+const pathProdScript = path.join.apply(null, [process.resourcesPath, 'tlgManager', 'socks5proxywrapper'])
 
 export const spawnTor = async () => {
   const ports = await getPorts()
@@ -86,13 +92,21 @@ export const getOnionAddress = (): string => {
 }
 
 export const runLibp2p = async (webContents): Promise<void> => {
-  const git = new TlgManager.Git()
+  const ports = electronStore.get('ports')
+  const data = fs.readFileSync(isDev ? pathDevScript : pathProdScript, 'utf8')
+  const result = data.replace(/SOCKS_PORT/g, ports.socksPort.toString())
+  fs.writeFileSync(
+    isDev ? pathDevScript : null,
+    result,
+    'utf8'
+  )
+  const git = new TlgManager.Git(pathDevScript, pathDevConnect, pathDevGit)
   await git.init()
   await git.spawnGitDaemon()
   const { serviceAddressGit, serviceAddressLibp2p } = electronStore.get('onionAddresses')
   const dataServer = new TlgManager.DataServer()
   dataServer.listen()
-  const connectonsManager = new TlgManager.ConnectionsManager({ port: 7788, host: serviceAddressLibp2p.address, agentHost: 'localhost', agentPort: 9050 })
+  const connectonsManager = new TlgManager.ConnectionsManager({ port: ports.libp2pHiddenService, host: serviceAddressLibp2p.address, agentHost: 'localhost', agentPort: ports.socksPort })
   const node = await connectonsManager.initializeNode()
   console.log(node, 'node')
   const peerIdOnionAddress = await connectonsManager.createOnionPeerId(node.peerId)
