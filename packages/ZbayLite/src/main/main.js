@@ -217,6 +217,7 @@ ipcMain.on('restart-node-proc', async (event, arg) => {
 
 let client
 let tor = null
+let git = null
 app.on('ready', async () => {
   const template = [
     {
@@ -282,7 +283,7 @@ app.on('ready', async () => {
   ipcMain.on('spawnTor', async (event, arg) => {
     if (tor === null) {
       tor = await spawnTor()
-      await runLibp2p(mainWindow.webContents)
+      git = await runLibp2p(mainWindow.webContents)
     }
   })
 
@@ -409,6 +410,9 @@ app.on('before-quit', async e => {
     await tor.killService({ port: 9418 })
     await tor.killService({ port: ports.libp2pHiddenService })
     tor.kill()
+  }
+  if (git !== null) {
+    git.process.kill()
   }
   // Killing worker takes couple of sec
   await client.terminate()

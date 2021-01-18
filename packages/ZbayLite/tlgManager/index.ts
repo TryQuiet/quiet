@@ -4,6 +4,7 @@ import fs from 'fs'
 import path from 'path'
 import os from 'os'
 import electronStore from '../src/shared/electronStore'
+import { Git } from 'tlg-manager/lib/git'
 
 const isDev = process.env.NODE_ENV === 'development'
 
@@ -97,7 +98,7 @@ export const getOnionAddress = (): string => {
   return address
 }
 
-export const runLibp2p = async (webContents): Promise<void> => {
+export const runLibp2p = async (webContents): Promise<Git> => {
   const ports = electronStore.get('ports')
   const data = fs.readFileSync(isDev ? pathSocksProxyTemplate : pathProdScript, 'utf8')
   const result = data.replace(/SOCKS_PORT/g, ports.socksPort.toString())
@@ -122,6 +123,7 @@ export const runLibp2p = async (webContents): Promise<void> => {
   await connectonsManager.publishOnionAddress(peerIdOnionAddress, key)
   await TlgManager.initListeners(dataServer.io, connectonsManager, git)
   webContents.send('connectToWebsocket')
+  return git
 }
 
 export default { spawnTor, getOnionAddress, getPorts, runLibp2p }
