@@ -289,9 +289,12 @@ export const reducer = handleActions<ContactsStore, PayloadType<ContactActions>>
       }),
     [addMessage.toString()]: (state, { payload: { key, message } }: ContactActions['addMessage']) =>
       produce(state, draft => {
-        draft[key].messages = {
-          ...draft[key].messages,
-          ...message
+        const messageId = Object.keys(message)[0]
+        if (!(messageId in draft[key].messages)) {
+          draft[key].messages = {
+            ...draft[key].messages,
+            ...message
+          }
         }
       }),
     [updateMessage.toString()]: (

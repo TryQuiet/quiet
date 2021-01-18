@@ -79,14 +79,14 @@ export function* loadAllMessages(
   if (name) {
     const displayableMessages = action.payload.messages.map(msg => transferToMessage(msg, users))
     console.log(displayableMessages)
-    yield put(
-      publicChannelsActions.setMessages({
-        key: action.payload.channelAddress,
-        contactAddress: action.payload.channelAddress,
-        username: name,
-        messages: displayableMessages
-      })
-    )
+    for (const msg of displayableMessages) {
+      yield put(
+        publicChannelsActions.addMessage({
+          key: action.payload.channelAddress,
+          message: { [msg.id]: msg }
+        })
+      )
+    }
   }
 }
 
