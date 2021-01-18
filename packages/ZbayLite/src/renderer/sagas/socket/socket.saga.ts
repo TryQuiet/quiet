@@ -6,11 +6,13 @@ import {
   publicChannelsActions
 } from '../publicChannels/publicChannels.reducer'
 import { eventChannel } from 'redux-saga'
+import { transferToMessage } from '../publicChannels/publicChannels.saga'
 import { fork } from 'redux-saga/effects'
 import { call, take, select, put } from 'typed-redux-saga'
 import { ActionFromMapping, Socket as socketsActions } from '../const/actionsTypes'
 import channelSelectors from '../../store/selectors/channel'
 import identitySelectors from '../../store/selectors/identity'
+import usersSelectors from '../../store/selectors/users'
 import { messages } from '../../zbay'
 import config from '../../config'
 import { messageType } from '../../../shared/static'
@@ -49,6 +51,7 @@ export function* sendMessage(socket): Generator {
     yield* take(`${publicChannelsActions.sendMessage}`)
     const { address } = yield* select(channelSelectors.channel)
     const messageToSend = yield* select(channelSelectors.message)
+    const users = yield* select(usersSelectors.users)
     let message = null
     const privKey = yield* select(identitySelectors.signerPrivKey)
     message = messages.createMessage({
@@ -67,6 +70,13 @@ export function* sendMessage(socket): Generator {
       typeIndicator: false,
       signature: message.signature.toString('base64')
     }
+    const displayableMessage = transferToMessage(preparedMessage, users)
+    yield put(
+      publicChannelsActions.addMessage({
+        key: address,
+        message: { [preparedMessage.id]: displayableMessage }
+      })
+    )
     socket.emit(socketsActions.SEND_MESSAGE, { channelAddress: address, message: preparedMessage })
   }
 }

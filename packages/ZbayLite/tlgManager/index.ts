@@ -22,7 +22,9 @@ const pathDevGit = path.join.apply(null, [process.cwd(), 'tlgManager', 'git'])
 const pathProdGit = path.join.apply(null, [process.resourcesPath, 'tlgManager', 'git'])
 const pathDevConnect = path.join.apply(null, [process.cwd(), 'tlgManager', 'connect'])
 const pathProdConnect = path.join.apply(null, [process.resourcesPath, 'tlgManager', 'connect'])
-const pathProdScript = path.join.apply(null, [os.homedir(), 'socks5proxywrapper'])
+const pathDevScript = path.join.apply(null, [process.cwd(), 'tlgManager', 'socks5proxywrapper'])
+const pathProdScript = path.join.apply(null, [process.resourcesPath, 'tlgManager', 'socks5proxywrapper'])
+const pathDestinationScript = path.join.apply(null, [os.homedir(), 'socks5proxywrapper'])
 
 export const spawnTor = async () => {
   const ports = await getPorts()
@@ -97,11 +99,11 @@ export const getOnionAddress = (): string => {
 
 export const runLibp2p = async (webContents): Promise<void> => {
   const ports = electronStore.get('ports')
-  const data = fs.readFileSync(pathSocksProxyTemplate, 'utf8')
+  const data = fs.readFileSync(isDev ? pathSocksProxyTemplate : pathProdScript, 'utf8')
   const result = data.replace(/SOCKS_PORT/g, ports.socksPort.toString())
-  fs.writeFileSync(pathProdScript, result, 'utf8')
-  fs.chmodSync(pathProdScript, '755')
-  const git = new TlgManager.Git(pathProdScript, pathDevConnect, pathDevGit)
+  fs.writeFileSync(pathDestinationScript, result, 'utf8')
+  fs.chmodSync(pathDestinationScript, '755')
+  const git = new TlgManager.Git(pathProdScript, isDev ? pathDevConnect : pathProdConnect, isDev ? pathDevGit : pathProdGit)
   await git.init()
   await git.spawnGitDaemon()
   const { serviceAddressGit, serviceAddressLibp2p } = electronStore.get('onionAddresses')

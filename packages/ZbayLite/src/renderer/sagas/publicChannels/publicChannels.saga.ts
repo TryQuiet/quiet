@@ -14,7 +14,7 @@ import electronStore from '../../../shared/electronStore'
 
 const all: any = effectsAll
 
-const transferToMessage = (msg, users) => {
+export const transferToMessage = (msg, users) => {
   let publicKey = null
   let sender = { replyTo: '', username: 'Unnamed' }
   let isUnregistered = false
