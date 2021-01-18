@@ -258,7 +258,7 @@ app.on('ready', async () => {
       createServer(mainWindow)
       mainWindow.webContents.send('onionAddress', getOnionAddress())
       const ports = electronStore.get('ports')
-      await tor.killService({ port: ports.gitHiddenService })
+      await tor.killService({ port: 9418 })
       await tor.killService({ port: ports.libp2pHiddenService })
       tor.kill()
       tor = null
@@ -289,7 +289,7 @@ app.on('ready', async () => {
   ipcMain.on('killTor', async (event, arg) => {
     if (tor !== null) {
       const ports = electronStore.get('ports')
-      await tor.killService({ port: ports.gitHiddenService })
+      await tor.killService({ port: 9418 })
       await tor.killService({ port: ports.libp2pHiddenService })
       tor.kill()
       tor = null
@@ -406,7 +406,7 @@ app.on('before-quit', async e => {
   sleep(2000)
   if (tor !== null) {
     const ports = electronStore.get('ports')
-    await tor.killService({ port: ports.gitHiddenService })
+    await tor.killService({ port: 9418 })
     await tor.killService({ port: ports.libp2pHiddenService })
     tor.kill()
   }

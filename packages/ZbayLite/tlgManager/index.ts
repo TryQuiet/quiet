@@ -55,7 +55,7 @@ export const spawnTor = async () => {
     }
   })
   await tor.init()
-  const serviceAddressGit = await tor.addService({ port: ports.gitHiddenService })
+  const serviceAddressGit = await tor.addService({ port: 9418 })
   const serviceAddressLibp2p = await tor.addService({ port: ports.libp2pHiddenService })
   electronStore.set('onionAddresses', {
     serviceAddressGit,
@@ -75,17 +75,14 @@ export const spawnTor = async () => {
 export const getPorts = async (): Promise<{
   socksPort: number
   httpTunnelPort: number
-  gitHiddenService: number
   libp2pHiddenService: number
 }> => {
   const [socksPort] = await fp(9052)
   const [httpTunnelPort] = await fp(9082)
-  const [gitHiddenService] = await fp(7900)
   const [libp2pHiddenService] = await fp(7950)
   return {
     socksPort,
     httpTunnelPort,
-    gitHiddenService,
     libp2pHiddenService
   }
 }
@@ -103,6 +100,7 @@ export const runLibp2p = async (webContents): Promise<void> => {
   const data = fs.readFileSync(pathSocksProxyTemplate, 'utf8')
   const result = data.replace(/SOCKS_PORT/g, ports.socksPort.toString())
   fs.writeFileSync(pathProdScript, result, 'utf8')
+  fs.chmodSync(pathProdScript, '755')
   const git = new TlgManager.Git(pathProdScript, pathDevConnect, pathDevGit)
   await git.init()
   await git.spawnGitDaemon()
