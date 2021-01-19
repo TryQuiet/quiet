@@ -2,12 +2,15 @@ import { all as effectsAll, takeEvery } from 'redux-saga/effects'
 import { put, select } from 'typed-redux-saga'
 import BigNumber from 'bignumber.js'
 import { publicChannelsActions, PublicChannelsActions } from './publicChannels.reducer'
+import { displayDirectMessageNotification, displayMessageNotification } from '../../notifications'
 // import { socketsActions } from '../socket/socket.saga.reducer'
 import {
   getPublicKeysFromSignature,
   usernameSchema,
   exchangeParticipant
 } from '../../zbay/messages'
+import { findNewMessages } from '../../store/handlers/messages'
+import { actions } from '../../store/handlers/contacts'
 import usersSelectors from '../../store/selectors/users'
 import { DisplayableMessage } from '../../zbay/messages.types'
 import electronStore from '../../../shared/electronStore'
@@ -62,10 +65,20 @@ export const transferToMessage = (msg, users) => {
 export function* loadMessage(action: PublicChannelsActions['loadMessage']): Generator {
   const users = yield* select(usersSelectors.users)
   const message = transferToMessage(action.payload.message, users)
+  displayDirectMessageNotification({
+    username: message.sender.username,
+    message: message
+  })
   yield put(
     publicChannelsActions.addMessage({
       key: action.payload.channelAddress,
       message: { [message.id]: message }
+    })
+  )
+  yield put(
+    actions.appendNewMessages({
+      contactAddress: action.payload.channelAddress,
+      messagesIds: [message.id]
     })
   )
 }
@@ -87,6 +100,22 @@ export function* loadAllMessages(
         })
       )
     }
+    const state = yield* select()
+    const newMsgs = findNewMessages(action.payload.channelAddress, displayableMessages, state)
+    console.log('new messages', newMsgs)
+    newMsgs.forEach(msg => {
+      displayMessageNotification({
+        senderName: msg.sender.username,
+        message: msg.message,
+        channelName: name
+      })
+    })
+    yield put(
+      actions.appendNewMessages({
+        contactAddress: action.payload.channelAddress,
+        messagesIds: newMsgs
+      })
+    )
   }
 }
 
@@ -96,15 +125,3 @@ export function* publicChannelsSaga(): Generator {
     takeEvery(`${publicChannelsActions.responseLoadAllMessages}`, loadAllMessages)
   ])
 }
-
-// contactsHandlers.actions.setMessages({
-//   key: channel.address,
-//   contactAddress: channel.address,
-//   username: channel.name,
-//   messages: messagesAll
-//     .filter(msg => msg.id !== null)
-//     .reduce((acc, cur) => {
-//       acc[cur.id] = cur
-//       return acc
-//     }, [])
-//

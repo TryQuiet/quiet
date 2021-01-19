@@ -402,7 +402,6 @@ const setChannelMessages = (channel, messages = []) => async (dispatch, getState
     )
     return
   }
-  console.log(channel.name, 'loading')
   dispatch(
     contactsHandlers.actions.setMessages({
       key: channel.address,
