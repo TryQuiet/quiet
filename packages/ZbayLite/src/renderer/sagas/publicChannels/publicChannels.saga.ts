@@ -64,21 +64,24 @@ export const transferToMessage = (msg, users) => {
 
 export function* loadMessage(action: PublicChannelsActions['loadMessage']): Generator {
   const users = yield* select(usersSelectors.users)
+  const myUser = yield* select(usersSelectors.myUser)
   const message = transferToMessage(action.payload.message, users)
-  displayDirectMessageNotification({
-    username: message.sender.username,
-    message: message
-  })
+  if (myUser.nickname !== message.sender.username) {
+    displayDirectMessageNotification({
+      username: message.sender.username,
+      message: message
+    })
+    yield put(
+      actions.appendNewMessages({
+        contactAddress: action.payload.channelAddress,
+        messagesIds: [message.id]
+      })
+    )
+  }
   yield put(
     publicChannelsActions.addMessage({
       key: action.payload.channelAddress,
       message: { [message.id]: message }
-    })
-  )
-  yield put(
-    actions.appendNewMessages({
-      contactAddress: action.payload.channelAddress,
-      messagesIds: [message.id]
     })
   )
 }
@@ -87,11 +90,11 @@ export function* loadAllMessages(
   action: PublicChannelsActions['responseLoadAllMessages']
 ): Generator {
   const users = yield* select(usersSelectors.users)
+  const myUser = yield* select(usersSelectors.myUser)
   const importedChannels = electronStore.get('importedChannels')
   const { name } = importedChannels[action.payload.channelAddress]
   if (name) {
     const displayableMessages = action.payload.messages.map(msg => transferToMessage(msg, users))
-    console.log(displayableMessages)
     for (const msg of displayableMessages) {
       yield put(
         publicChannelsActions.addMessage({
@@ -102,13 +105,14 @@ export function* loadAllMessages(
     }
     const state = yield* select()
     const newMsgs = findNewMessages(action.payload.channelAddress, displayableMessages, state)
-    console.log('new messages', newMsgs)
     newMsgs.forEach(msg => {
-      displayMessageNotification({
-        senderName: msg.sender.username,
-        message: msg.message,
-        channelName: name
-      })
+      if (msg.sender.username !== myUser.nickname) {
+        displayMessageNotification({
+          senderName: msg.sender.username,
+          message: msg.message,
+          channelName: name
+        })
+      }
     })
     yield put(
       actions.appendNewMessages({
