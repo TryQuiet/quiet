@@ -5,7 +5,7 @@ export class DataServer {
   public PORT: number = 4677
   private _app: express.Application
   private server: Server
-  private io: SocketIO.Server
+  public io: SocketIO.Server
   constructor() {
     this._app = express()
     this.server = createServer(this._app)
@@ -13,12 +13,7 @@ export class DataServer {
   }
 
   private initSocket = (): void => {
-    this.io = socketio(this.server, {
-      cors: {
-        orgins: ["null"],
-        methods: ["GET", "POST"],
-        credentials: true
-      }})
+    this.io = socketio(this.server)
     }
 
     public listen = (): void => {

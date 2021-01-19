@@ -4,7 +4,7 @@ import * as path from 'path'
 import simpleGit, { SimpleGit, SimpleGitOptions } from 'simple-git'
 import * as child_process from 'child_process'
 import uint8arrayToString from 'uint8arrays/to-string'
-import { Request } from '../config/protonsRequestMessages'
+import { Request } from '../../config/protonsRequestMessages'
 
 export enum Type {
   BARE,
@@ -38,6 +38,7 @@ export class Git {
     this.connectBinaryPath = connectBinaryPath
     this.gitPath = gitPath
   }
+
   public init = async () => {
     const targetPath = `${os.homedir()}/ZbayChannels/`
     this.createPaths([targetPath])
@@ -146,20 +147,18 @@ export class Git {
       if(file !== '0') {
         const data = fs.readFileSync(path.join(targetFilePath, file))
         const { sendMessage } = Request.decode(data)
-        const { channelId, type, signature, r, createdAt, message, id, typeIndicator } = sendMessage
-        messages.push({
-          id,
-          type,
-          signature,
-          channelId,
-          r,
-          createdAt,
-          message,
-          typeIndicator
-        })
+        const timestamp = sendMessage.createdAt
+        const message = sendMessage.message.toString()
+        const signature = sendMessage.signature.toString()
+        const msg = {
+          timestamp,
+          message, 
+          signature
+        }
+        messages.push(msg)
       }
     }
-    const orderedMessages = messages.sort((a, b) => a.createdAt - b.createdAt)
+    const orderedMessages = messages.sort((a, b) => a.timestamp - b.timestamp)
     return orderedMessages
   }
 
@@ -204,7 +203,7 @@ export class Git {
     if (this.process) {
       throw new Error('Already initialized')
     }
-      this.process = child_process.spawn('git', ['daemon', `--base-path=${os.homedir()}/ZbayChannels/`, `--export-all`, `--verbose`])
+      this.process = child_process.spawn(this.gitPath, ['daemon', `--base-path=${os.homedir()}/ZbayChannels/`, `--export-all`, `--verbose`])
     const id = setTimeout(() => {
       this.process?.kill()
       reject('Process timeout ??')

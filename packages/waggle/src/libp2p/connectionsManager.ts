@@ -18,7 +18,7 @@ import { gitP } from 'simple-git'
 import multihashing from 'multihashing-async'
 import crypto from 'crypto'
 import { Request } from '../config/protonsRequestMessages'
-import { message as socketMessage } from '../socket/events/message'
+import { message, message as socketMessage } from '../socket/events/message'
 import { loadAllMessages } from '../socket/events/allMessages'
 import { Mutex } from 'async-mutex'
 
@@ -27,6 +27,17 @@ interface IConstructor {
   port: number
   agentPort: number
   agentHost: string
+}
+interface IBasicMessage {
+  id: string
+  type: number
+  signature: string
+  createdAt: Date
+  r: number
+  message: string
+  typeIndicator: number,
+  currentHEAD: string,
+  parentId: string
 }
 
 interface IChat {
@@ -61,9 +72,9 @@ export class ConnectionsManager {
   localAddress: string | null
   onionAddressesBook: Map<string, string>
   constructor({ host, port, agentHost, agentPort }: IConstructor) {
-    this.host = host,
-    this.port = port,
-    this.agentPort = agentPort,
+    this.host = host
+    this.port = port
+    this.agentPort = agentPort
     this.agentHost = agentHost
     this.chatRooms = new Map()
     this.onionAddressesBook = new Map()
@@ -92,7 +103,7 @@ export class ConnectionsManager {
     ]
 
     const bootstrapMultiaddrs = [
-      '/dns4/lt34smw52qazw4ekhzdpkicb7jnoiyashk7izsom6xavnipdeh3obbqd.onion/tcp/7788/ws/p2p/QmUXEz4fN7oTLFvK6Ee4bRDL3s6dp1VCuHogmrrKxUngWW'
+      '/dns4/v5nvvfcfpceu6z6hao576ecbfvxin5ahmpbf6rovxbks2kevdxusfayd.onion/tcp/7788/ws/p2p/QmUXEz4fN7oTLFvK6Ee4bRDL3s6dp1VCuHogmrrKxUngWW'
     ]
 
     this.localAddress = `${addrs}/p2p/${peerId.toB58String()}`
@@ -114,6 +125,8 @@ export class ConnectionsManager {
     }
   }
   public subscribeForTopic = async ({ channelAddress, git, io }: IChannelSubscription) => {
+    const channelSubscription = this.chatRooms.get(channelAddress)
+    if (channelSubscription) return
     const mutex = new Mutex()
     const chat = new Chat(
       this.libp2p,
@@ -127,16 +140,16 @@ export class ConnectionsManager {
           peerRepositoryOnionAddress = await this.getOnionAddress(onionAddressKey)
           this.onionAddressesBook.set(from, peerRepositoryOnionAddress)
         }
-        switch (message.type) {
-          case Request.Type.SEND_MESSAGE:
+        switch (message.typeLibp2p) {
+          case Request.MessageType.SEND_MESSAGE:
             const currentHEAD = await git.getCurrentHEAD(channelAddress)
-            socketMessage(io, { message: message.data, from: from })
+            socketMessage(io, { message, channelAddress })
             if (message.currentHEAD === currentHEAD) {
-              await git.addCommit(message.channelId, message.id, message.raw, message.created, message.parentId)
+              await git.addCommit(message.channelId, message.id, message.raw, message.createdAt, message.parentId)
             } else {
               const mergeTime = await git.pullChanges(this.onionAddressesBook.get(from), channelAddress)
               const orderedMessages = await git.loadAllMessages(channelAddress)
-              loadAllMessages(io, orderedMessages)
+              loadAllMessages(io, orderedMessages, channelAddress)
               const newHead = await git.getCurrentHEAD(channelAddress)
               const mergeResult = message.currentHEAD === newHead
               if (!mergeResult) {
@@ -151,12 +164,12 @@ export class ConnectionsManager {
               }
             }
             break
-          case Request.Type.MERGE_COMMIT_INFO:
+          case Request.MessageType.MERGE_COMMIT_INFO:
             const head = await git.getCurrentHEAD(message.channelId)
             if (head !== message.currentHEAD && from !== this.libp2p.peerId.toB58String()) {
               await git.pullChanges(this.onionAddressesBook.get(from), message.channelId, message.created)
               const orderedMessages = await git.loadAllMessages(channelAddress)
-              loadAllMessages(io, orderedMessages)
+              loadAllMessages(io, orderedMessages, channelAddress)
             }
             break
       }
@@ -189,26 +202,31 @@ export class ConnectionsManager {
     return onionAddressString
   }
 
-  public sendMessage = async (channelAddress: string, git: Git, message: string): Promise<void> => {
+  public sendMessage = async (channelAddress: string, git: Git, messagePayload: IBasicMessage): Promise<void> => {
+    const { id, type, signature, r, createdAt, message, typeIndicator } = messagePayload
     const chat = this.chatRooms.get(`${channelAddress}`)
-    const release = await chat.mutex.acquire() 
-    try {
-      const currentHEAD = await git.getCurrentHEAD(channelAddress)
-      const timestamp = new Date()
-      console.log('sending message', message, currentHEAD)
-      const messagePayload = {
-        data: Buffer.from(message),
-        created: new Date(timestamp),
-        parentId: (~~(Math.random() * 1e9)).toString(36) + Date.now(),
-        channelId: channelAddress,
-        currentHEAD,
-        signature: this.libp2p.peerId.toB58String()
+    if (chat) {
+      const release = await chat.mutex.acquire()
+      try {
+        const currentHEAD = await git.getCurrentHEAD(channelAddress)
+        const messageToSend = {
+          id,
+          type,
+          signature,
+          createdAt,
+          r,
+          message,
+          typeIndicator,
+          currentHEAD,
+          channelId: channelAddress,
+          parentId: (~~(Math.random() * 1e9)).toString(36) + Date.now()
+        }
+        await chat.chatInstance.send(messageToSend)
+        release()
+      } catch (err) {
+        console.log(err)
+        release()
       }
-      await chat.chatInstance.send(messagePayload)
-      release()
-    } catch (err) {
-      console.log(err)
-      release()
     }
   }
 
@@ -266,7 +284,7 @@ export class ConnectionsManager {
       },
       modules: {
         transport: [WebsocketsOverTor],
-        // peerDiscovery: [Bootstrap],
+        peerDiscovery: [Bootstrap],
         streamMuxer: [Mplex],
         connEncryption: [NOISE],
         dht: KademliaDHT,

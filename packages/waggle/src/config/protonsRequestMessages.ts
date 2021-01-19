@@ -2,24 +2,27 @@ import protons from 'protons'
 
 export const { Request } = protons(`
 message Request {
-  enum Type {
+  enum MessageType {
     SEND_MESSAGE = 0;
     MERGE_COMMIT_INFO = 1;
   }
 
-  required Type type = 1;
+  required MessageType messageType = 1;
   optional SendMessage sendMessage = 2;
   optional MergeCommitInfo mergeCommitInfo = 3;
 }
 
 message SendMessage {
-  required bytes data = 1;
-  required int64 created = 2;
-  required bytes id = 3;
-  required bytes parentId = 4;
-  required bytes channelId = 5;
-  required bytes currentHEAD = 6;
-  required bytes signature = 7;
+  required string id = 1;
+  required int32 type = 2;
+  required string message = 3;
+  required int64 createdAt = 4;
+  required string parentId = 5;
+  required string channelId = 6;
+  required int32 r = 7;
+  required string currentHEAD = 8;
+  required string signature = 9;
+  required int32 typeIndicator = 10;
 }
 
 message MergeCommitInfo {

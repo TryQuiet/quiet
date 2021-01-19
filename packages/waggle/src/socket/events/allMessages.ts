@@ -1,5 +1,8 @@
-import { EventTypesServer } from '../constants'
+import { EventTypesResponse } from '../constantsReponse'
 
-export const loadAllMessages = (socket, messages) => {
-  socket.emit(EventTypesServer.FETCH_ALL_MESSAGES, messages)
+export const loadAllMessages = (socket, messages, channelAddress) => {
+  socket.emit(EventTypesResponse.RESPONSE_FETCH_ALL_MESSAGES, {
+    channelAddress,
+    messages: messages
+  })
 }
