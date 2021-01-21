@@ -1,10 +1,9 @@
-import TlgManager from 'tlg-manager'
+import TlgManager from 'tlg-manager-test'
 import fp from 'find-free-port'
 import fs from 'fs'
 import path from 'path'
 import os from 'os'
 import electronStore from '../src/shared/electronStore'
-import { Git } from 'tlg-manager/lib/git'
 
 const isDev = process.env.NODE_ENV === 'development'
 
@@ -98,7 +97,7 @@ export const getOnionAddress = (): string => {
   return address
 }
 
-export const runLibp2p = async (webContents): Promise<Git> => {
+export const runLibp2p = async (webContents): Promise<any> => {
   const ports = electronStore.get('ports')
   const data = fs.readFileSync(isDev ? pathSocksProxyTemplate : pathProdScript, 'utf8')
   const result = data.replace(/SOCKS_PORT/g, ports.socksPort.toString())
@@ -117,7 +116,7 @@ export const runLibp2p = async (webContents): Promise<Git> => {
     agentPort: ports.socksPort
   })
   const node = await connectonsManager.initializeNode()
-  console.log(node, 'node')
+  console.log('node', node)
   const peerIdOnionAddress = await connectonsManager.createOnionPeerId(node.peerId)
   const key = new TextEncoder().encode(serviceAddressGit.address)
   await connectonsManager.publishOnionAddress(peerIdOnionAddress, key)

@@ -50,12 +50,13 @@
     },
     "extraResources": [
       "worker/**/*",
-      "tor/**/*"
+      "tor/**/*",
+      "tlgManager/**/*"
     ]
   },
   "homepage": "https://gitlab.rumblefishdev.com/holmes/zbay",
   "@comment version": "To build new version for specific platform, just replace platform in version tag to one of following linux, mac, windows",
-  "version": "2.2.8-zbay-lite",
+  "version": "2.2.9-zbay-lite",
   "description": "Distributed goods and bulletin board",
   "main": "dist/main.js",
   "scripts": {
@@ -259,6 +260,7 @@
     "sanitize-html": "^1.27.0",
     "secp256k1": "^3.7.1",
     "socket.io-client": "^3.0.5",
+    "tlg-manager-test": "0.0.4",
     "touch": "^3.1.0",
     "typed-redux-saga": "^1.3.1",
     "typeface-roboto": "0.0.54",
