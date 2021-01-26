@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "author": "jk",
   "description": "tlg-manager",
+  "types": "lib/index.d.ts",
   "main": "lib/index.js",
   "license": "MIT",
   "scripts": {
