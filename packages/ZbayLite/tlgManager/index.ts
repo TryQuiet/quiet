@@ -1,4 +1,4 @@
-import TlgManager from 'tlg-manager-test'
+import TlgManager from 'tlg-manager'
 import fp from 'find-free-port'
 import fs from 'fs'
 import path from 'path'
@@ -12,18 +12,22 @@ const pathDevLib = path.join.apply(null, [process.cwd(), 'tor'])
 const pathProdLib = path.join.apply(null, [process.resourcesPath, 'tor'])
 const pathDevSettings = path.join.apply(null, [process.cwd(), 'tor', 'torrc'])
 const pathProd = path.join.apply(null, [process.resourcesPath, 'tor', 'tor'])
-const pathProdSettingsTemplate = path.join.apply(null, [
-  process.resourcesPath,
-  'tor',
-  'torrc'
+const pathProdSettingsTemplate = path.join.apply(null, [process.resourcesPath, 'tor', 'torrc'])
+const pathSocksProxyTemplate = path.join.apply(null, [
+  process.cwd(),
+  'tlgManager',
+  'socks5proxywrapper'
 ])
-const pathSocksProxyTemplate = path.join.apply(null, [process.cwd(), 'tlgManager', 'socks5proxywrapper'])
 const pathDevGit = path.join.apply(null, [process.cwd(), 'tlgManager', 'git'])
 const pathProdGit = path.join.apply(null, [process.resourcesPath, 'tlgManager', 'git'])
 const pathDevConnect = path.join.apply(null, [process.cwd(), 'tlgManager', 'connect'])
 const pathProdConnect = path.join.apply(null, [process.resourcesPath, 'tlgManager', 'connect'])
 // const pathDevScript = path.join.apply(null, [process.cwd(), 'tlgManager', 'socks5proxywrapper'])
-const pathProdScript = path.join.apply(null, [process.resourcesPath, 'tlgManager', 'socks5proxywrapper'])
+const pathProdScript = path.join.apply(null, [
+  process.resourcesPath,
+  'tlgManager',
+  'socks5proxywrapper'
+])
 const pathDestinationScript = path.join.apply(null, [os.homedir(), 'socks5proxywrapper'])
 
 export const spawnTor = async () => {
@@ -103,10 +107,14 @@ export const runLibp2p = async (webContents): Promise<any> => {
   const result = data.replace(/SOCKS_PORT/g, ports.socksPort.toString())
   fs.writeFileSync(pathDestinationScript, result, 'utf8')
   fs.chmodSync(pathDestinationScript, '755')
-  const git = new TlgManager.Git(pathDestinationScript, isDev ? pathDevConnect : pathProdConnect, isDev ? pathDevGit : pathProdGit)
-  await git.init()
-  await git.spawnGitDaemon()
-  const { serviceAddressGit, serviceAddressLibp2p } = electronStore.get('onionAddresses')
+  // const git = new TlgManager.Git(
+  //   pathDestinationScript,
+  //   isDev ? pathDevConnect : pathProdConnect,
+  //   isDev ? pathDevGit : pathProdGit
+  // )
+  // await git.init()
+  // await git.spawnGitDaemon()
+  const { serviceAddressLibp2p } = electronStore.get('onionAddresses')
   const dataServer = new TlgManager.DataServer()
   dataServer.listen()
   const connectonsManager = new TlgManager.ConnectionsManager({
@@ -117,10 +125,10 @@ export const runLibp2p = async (webContents): Promise<any> => {
   })
   const node = await connectonsManager.initializeNode()
   console.log('node', node)
-  const peerIdOnionAddress = await connectonsManager.createOnionPeerId(node.peerId)
-  const key = new TextEncoder().encode(serviceAddressGit.address)
-  await connectonsManager.publishOnionAddress(peerIdOnionAddress, key)
-  await TlgManager.initListeners(dataServer.io, connectonsManager, git)
+  // const peerIdOnionAddress = await connectonsManager.createOnionPeerId(node.peerId)
+  // const key = new TextEncoder().encode(serviceAddressGit.address)
+  // await connectonsManager.publishOnionAddress(peerIdOnionAddress, key)
+  await TlgManager.initListeners(dataServer.io, connectonsManager)
   webContents.send('connectToWebsocket')
   return git
 }
