@@ -1,4 +1,4 @@
-import TlgManager from 'tlg-manager'
+import TlgManager from 'waggle'
 import fp from 'find-free-port'
 import fs from 'fs'
 import path from 'path'
@@ -18,10 +18,6 @@ const pathSocksProxyTemplate = path.join.apply(null, [
   'tlgManager',
   'socks5proxywrapper'
 ])
-const pathDevGit = path.join.apply(null, [process.cwd(), 'tlgManager', 'git'])
-const pathProdGit = path.join.apply(null, [process.resourcesPath, 'tlgManager', 'git'])
-const pathDevConnect = path.join.apply(null, [process.cwd(), 'tlgManager', 'connect'])
-const pathProdConnect = path.join.apply(null, [process.resourcesPath, 'tlgManager', 'connect'])
 // const pathDevScript = path.join.apply(null, [process.cwd(), 'tlgManager', 'socks5proxywrapper'])
 const pathProdScript = path.join.apply(null, [
   process.resourcesPath,

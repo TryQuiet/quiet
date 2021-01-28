@@ -3,6 +3,7 @@
   "productName": "Zbay",
   "build": {
     "afterSign": "scripts/notarize.js",
+    "afterAllArtifactBuild": "scripts/setEnvs.js",
     "productName": "Zbay",
     "appId": "Zbay",
     "protocols": {
@@ -36,6 +37,12 @@
       "target": [
         "AppImage"
       ],
+      "extraFiles": [
+        {
+          "from": "libssl.so",
+          "to": "usr/lib/libssl.so"
+        }
+      ],
       "files": [
         "dist/**/*",
         "build/icon.*",
@@ -56,14 +63,15 @@
   },
   "homepage": "https://gitlab.rumblefishdev.com/holmes/zbay",
   "@comment version": "To build new version for specific platform, just replace platform in version tag to one of following linux, mac, windows",
-  "version": "2.2.9-zbay-lite",
+  "version": "3.0.1-zbay-lite",
   "description": "Distributed goods and bulletin board",
   "main": "dist/main.js",
   "scripts": {
     "pullBinaries": "wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/tor -P ./tor/ && chmod 775 ./tor/tor",
+    "pullLibs": "wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/libssl.so -P ./ && chmod 775 ./libssl.so",
     "pullBinariesWin": "wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/tor.exe -P ./tor/  && chmod 775 ./tor/tor.exe",
     "dist": "export SOURCE_PATH=darwin && npm run pullBinaries && npm run build:prod && electron-builder --mac",
-    "distUbuntu": "export SOURCE_PATH=linux && npm run pullBinaries && npm run build:prod && electron-builder --linux",
+    "distUbuntu": "export SOURCE_PATH=linux && npm run pullBinaries && npm run pullLibs && npm run build:prod && electron-builder --linux",
     "distwin": "export SOURCE_PATH=win32 && npm run pullBinariesWin && npm run build:prod && electron-builder --win",
     "lint": "standard --fix",
     "test": "npm run lint && jest",
@@ -245,6 +253,7 @@
     "react-router-dom": "^5.1.2",
     "react-string-replace": "^0.4.4",
     "read-last-lines": "^1.7.2",
+    "readable-stream": "^3.6.0",
     "redux": "^4.0.1",
     "redux-actions": "^2.6.4",
     "redux-debounced": "^0.5.0",
@@ -260,11 +269,11 @@
     "sanitize-html": "^1.27.0",
     "secp256k1": "^3.7.1",
     "socket.io-client": "^3.0.5",
-    "tlg-manager": "*",
     "touch": "^3.1.0",
     "typed-redux-saga": "^1.3.1",
     "typeface-roboto": "0.0.54",
     "typescript": "^4.0.5",
+    "waggle": "^1.0.2",
     "websocket": "^1.0.32",
     "worker-loader": "^3.0.1",
     "ws": "^7.3.1",

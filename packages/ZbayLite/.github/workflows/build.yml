@@ -3,21 +3,19 @@ name: CI
 on:
   push:
     branches:
-      - master
+      - feature/integrate-orbit-db
 jobs:
   build_on_linux:
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v1.0.0
-        with:
-          ref: refs/heads/master
       - uses: actions/setup-node@master
         with:
           node-version: "12"
       - name: install dependencies
         run: npm install
       - name: pull tor binary
-        run: export SOURCE_PATH=linux && npm run pullBinaries
+        run: export SOURCE_PATH=linux && npm run pullBinaries && npm run pullLibs
       - name: install neon
         run: npm install --global neon-cli
       - name: build  binary
