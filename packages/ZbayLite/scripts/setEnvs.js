@@ -5,7 +5,12 @@ const streamPipeline = util.promisify(require('stream').pipeline)
 const childProcess = require('child_process')
 
 exports.default = async function (context) {
-  console.log(context)
+  const platform = Array.from(context.platformToTargets.keys())[0].name
+  if (platform !== 'linux') {
+    console.log('skipping changing build envs')
+    return
+  }
+
   const response = await fetch('https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage')
   if (!response.ok) throw new Error(`${response.statusText}`)
   const targetPath = `${context.outDir}/appimagetool-x86_64.AppImage`
