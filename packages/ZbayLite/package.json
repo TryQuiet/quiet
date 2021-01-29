@@ -3,7 +3,6 @@
   "productName": "Zbay",
   "build": {
     "afterSign": "scripts/notarize.js",
-    "afterAllArtifactBuild": "scripts/setEnvs.js",
     "productName": "Zbay",
     "appId": "Zbay",
     "protocols": {

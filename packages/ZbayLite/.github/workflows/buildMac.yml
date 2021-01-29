@@ -1,0 +1,47 @@
+
+name: CI
+
+on:
+  push:
+    branches:
+      - feature/integrate-orbit-db
+
+jobs:
+  build_on_mac:
+    runs-on: macOS-latest
+    steps:
+      - uses: actions/checkout@v1.0.0
+      - uses: actions/setup-node@master
+        with:
+          node-version: "12"
+      - uses: actions-rs/components-nightly@v1
+        with:
+          component: clippy
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly-2020-08-28
+          components: clippy
+          override: true
+      - name: install rustfmt
+        run: rustup component add rustfmt
+      - name: install dependencies
+        run: npm install
+      - name: pull tor binary
+        run: export SOURCE_PATH=darwin && npm run pullBinaries
+      - name: install neon
+        run: npm install --global neon-cli
+      - name: build  binary
+        run: npm run neon
+      - name: build on Mac
+        run: npm run build:prod
+      - name: install electron builder
+        run: npm install -g electron-builder@22.3.2
+      - name: release
+        env:
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          APPLEID: ${{ secrets.APPLEID }}
+          APPLEIDPASS: ${{ secrets.APPLEIDPASS }}
+          USE_HARD_LINKS: false
+        run: electron-builder -p always --mac
