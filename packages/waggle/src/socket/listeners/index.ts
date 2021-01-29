@@ -1,7 +1,7 @@
 import { connections } from './connection'
 
-const initListeners = (io, connectionManager, git) => {
-  connections(io, connectionManager, git)
+const initListeners = (io, connectionManager) => {
+  connections(io, connectionManager)
 }
 
 export default initListeners

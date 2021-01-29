@@ -5,7 +5,9 @@
     "module": "commonjs",
     "declaration": true,
     "outDir": "./lib",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true
   },
   "typeRoots": [
     "./@types",

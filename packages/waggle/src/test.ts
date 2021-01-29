@@ -1,6 +1,5 @@
 import { Tor } from 'tor-manager'
 import { DataServer } from './socket/DataServer'
-import { Git } from './git/index'
 import { ConnectionsManager } from './libp2p/connectionsManager'
 import initListeners from './socket/listeners/'
 import * as path from 'path'
@@ -12,12 +11,16 @@ const main = async () => {
   const torPath = `${process.cwd()}/tor/tor`
   const settingsPath = `${process.cwd()}/tor/torrc`
   const pathDevLib = path.join.apply(null, [process.cwd(), 'tor'])
-  const tor = new Tor({ torPath, settingsPath, options: {
-    env: {
-      LD_LIBRARY_PATH: pathDevLib,
-      HOME: os.homedir()
+  const tor = new Tor({
+    torPath,
+    settingsPath,
+    options: {
+      env: {
+        LD_LIBRARY_PATH: pathDevLib,
+        HOME: os.homedir()
+      }
     }
-  } })
+  })
   await tor.init()
   let service1
   let service2
@@ -32,10 +35,6 @@ const main = async () => {
   console.log('service1', service1)
   console.log('service2', service2)
 
-  const git = new Git('test', 'test', 'test')
-  await git.init()
-  await git.spawnGitDaemon()
-
   const dataServer = new DataServer()
   dataServer.listen()
   const peerId1 = fs.readFileSync('peerId1.json')
@@ -44,13 +43,17 @@ const main = async () => {
   const parsedId2 = JSON.parse(peerId2.toString()) as PeerId.JSONPeerId
   const peerId1Restored = await PeerId.createFromJSON(parsedId1)
   const peerId2Restored = await PeerId.createFromJSON(parsedId2)
-  const connectonsManager = new ConnectionsManager({ port: 7788, host: service1, agentHost: 'localhost', agentPort: 9050 })
+  const connectonsManager = new ConnectionsManager({
+    port: 7788,
+    host: service1,
+    agentHost: 'localhost',
+    agentPort: 9050
+  })
   const node = await connectonsManager.initializeNode()
   console.log(node, 'node')
   const peerIdOnionAddress = await connectonsManager.createOnionPeerId(node.peerId)
   const key = new TextEncoder().encode(service2)
-  await connectonsManager.publishOnionAddress(peerIdOnionAddress, key)
-  initListeners(dataServer.io, connectonsManager, git)
+  initListeners(dataServer.io, connectonsManager)
 }
 
 main()

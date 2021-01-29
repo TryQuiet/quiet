@@ -1,35 +1,15 @@
 import { EventTypesServer } from '../constants'
 import { EventTypesResponse } from '../constantsReponse'
-import { Git } from '../../git/'
 import { ConnectionsManager } from '../../libp2p/connectionsManager'
 import { Tor } from 'tor-manager'
 
-export const connections = (io, connectionsManager: ConnectionsManager, git: Git) => {
-  io.on(EventTypesServer.CONNECTION, (socket) => {
+export const connections = (io, connectionsManager: ConnectionsManager) => {
+  io.on(EventTypesServer.CONNECTION, socket => {
     socket.on(EventTypesServer.SUBSCRIBE_FOR_TOPIC, async (channelAddress: string) => {
-      await git.createRepository(channelAddress)
-      await connectionsManager.subscribeForTopic({ channelAddress, git, io })
+      await connectionsManager.subscribeForTopic(channelAddress, io)
     })
     socket.on(EventTypesServer.SEND_MESSAGE, async ({ channelAddress, message }) => {
-      console.log(channelAddress, message)
-      await git.createRepository(channelAddress)
-      await connectionsManager.sendMessage(channelAddress, git, message)
-    })
-    socket.on(EventTypesServer.FETCH_ALL_MESSAGES, async (channelAddress: string) => {
-      try {
-        await git.createRepository(channelAddress)
-        const orderedMessages = await git.loadAllMessages(channelAddress)
-        socket.emit(EventTypesResponse.RESPONSE_FETCH_ALL_MESSAGES, {
-          channelAddress,
-          messages: orderedMessages
-        })
-      } catch (err) {
-        console.error(err)
-        socket.emit(EventTypesServer.ERROR, {
-          type: EventTypesServer.FETCH_ALL_MESSAGES,
-          err
-        })
-      }
+      await connectionsManager.sendMessage(channelAddress, io, message)
     })
     // socket.on(EventTypesServer.ADD_TOR_SERVICE, async (port: number) => {
     //   try {
