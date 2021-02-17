@@ -44,7 +44,7 @@ export class Storage {
       preload: { enabled: false },
       repo: targetPath
     })
-    this.orbitdb = await OrbitDB.createInstance(this.ipfs)
+    this.orbitdb = await OrbitDB.createInstance(this.ipfs, {directory: `${os.homedir()}/.zbay/OrbitDB`})
     this.channels = await this.orbitdb.keyvalue<IZbayChannel>(channelAddress)
     await this.channels.load()
   }
