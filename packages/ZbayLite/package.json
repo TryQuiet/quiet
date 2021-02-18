@@ -50,10 +50,8 @@
       ]
     },
     "publish": {
-      "provider": "github",
-      "repo": "ZbayLite",
-      "owner": "ZbayApp",
-      "releaseType": "draft"
+      "provider": "s3",
+      "bucket": "release.zbay.lite"
     },
     "extraResources": [
       "worker/**/*",
