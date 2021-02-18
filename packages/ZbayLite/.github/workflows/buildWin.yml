@@ -39,6 +39,8 @@ jobs:
       run: npm install -g electron-builder@22.3.2
     - name: release
       env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
         CERTIFICATE_PATH: ${{ steps.write_file.outputs.filePath }}
         WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
