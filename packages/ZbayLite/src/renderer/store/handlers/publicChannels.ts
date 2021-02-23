@@ -32,7 +32,7 @@ export class PublicChannel {
   name: string
   description: string
   owner: string
-  keys: { ivk?: string, sk?: string }
+  keys: { ivk?: string; sk?: string }
   timestamp: number
 
   constructor(values: Partial<PublicChannel>) {
@@ -41,7 +41,9 @@ export class PublicChannel {
   }
 }
 
-export interface PublicChannelsStore { [name: string]: PublicChannel }
+export interface PublicChannelsStore {
+  [name: string]: PublicChannel
+}
 
 export const initialState: PublicChannelsStore = {}
 
@@ -55,23 +57,20 @@ export const actions = {
 
 export type PublicChannelsActions = ActionsType<typeof actions>
 
-export const fetchPublicChannels = (address, messages: DisplayableMessage[]) => async (
-  dispatch,
-  getState
-) => {
+export const fetchPublicChannels = (messages: DisplayableMessage[]) => async dispatch => {
   try {
     const filteredZbayMessages = messages.filter(msg => msg.memohex.startsWith('ff'))
 
     const registrationMessages: DisplayableMessage[] = await Promise.all(
-      filteredZbayMessages.map(transfer => {
+      filteredZbayMessages.map(async transfer => {
         const message = messagesOperators.transferToMessage(transfer)
-        return message
+        return await message
       })
     )
     const sortedMessages = registrationMessages.filter(msg => msg !== null)
     let minfee = 0
     let publicChannelsMap = {}
-    const network = nodeSelectors.network(getState())
+    const network = nodeSelectors.network()
     for (const msg of sortedMessages) {
       if (
         msg.type === messageType.CHANNEL_SETTINGS &&
@@ -121,7 +120,7 @@ export const publishChannel = ({
 }) => async (dispatch, getState) => {
   const identityAddress = identitySelectors.address(getState())
   const privKey = identitySelectors.signerPrivKey(getState())
-  const network = nodeSelectors.network(getState())
+  const network = nodeSelectors.network()
   const fee = feesSelectors.publicChannelfee(getState())
   const message = messagesOperators.createMessage({
     messageData: {

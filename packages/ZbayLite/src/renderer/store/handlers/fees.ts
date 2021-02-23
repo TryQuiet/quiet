@@ -16,7 +16,6 @@ class Fees {
 
 export const initialState: Fees = new Fees({ user: 0.0001, publicChannel: 0.0001 })
 
-
 const setUserFee = createAction<number>(actionTypes.SET_USER_FEE)
 const setPublicChannelFee = createAction<number>(actionTypes.SET_PUBLIC_CHANNEL_FEE)
 

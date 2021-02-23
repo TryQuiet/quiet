@@ -1,6 +1,7 @@
 /* eslint import/first: 0 */
 import { DateTime } from 'luxon'
 
+import each from 'jest-each'
 import create from '../create'
 import { initialState } from '../handlers/modals'
 import { NodeState } from '../handlers/node'
@@ -45,19 +46,6 @@ describe('node selectors', () => {
 
   it('node', () => {
     expect(selectors.node(store.getState())).toMatchSnapshot()
-  })
-
-  it('uptime', () => {
-    const expected = {
-      days: 2,
-      hours: 3,
-      minutes: 29,
-      seconds: 0
-    }
-    const now = DateTime.utc(2019, 3, 7, 13, 3, 48)
-    jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => now)
-
-    expect(selectors.uptime(store.getState())).toEqual(expected)
   })
 
   it('network when testnet', () => {

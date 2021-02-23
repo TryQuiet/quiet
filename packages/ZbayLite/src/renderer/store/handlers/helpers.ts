@@ -13,8 +13,8 @@ interface IThunkActionWithMeta<R, S, E, A extends Action> extends ThunkAction<R,
 }
 
 export type ZbayThunkAction<ReturnType> = IThunkActionWithMeta<
-  ReturnType,
-  Store,
-  unknown,
-  Action<string>
+ReturnType,
+Store,
+unknown,
+Action<string>
 >

@@ -101,7 +101,7 @@ export const InvitationModalGenerate = ({
     .minus(networkFee)
     .lt(0)
   return (
-    <InvitationModal title={`Invite a friend`}>
+    <InvitationModal title={'Invite a friend'}>
       <Grid item className={classes.warrning}>
         <Typography variant='body2'>
           Get a link to invite friends to Zbay.

@@ -7,7 +7,7 @@ import SendMoneyModal from './SendMoneyModal'
 
 storiesOf('Components/Widgets/SendMoneyModal', module)
   .add('playground', () => {
-    let step = number('Step', 3)
+    const step = number('Step', 3)
     return (
       <SendMoneyModal
         step={step}

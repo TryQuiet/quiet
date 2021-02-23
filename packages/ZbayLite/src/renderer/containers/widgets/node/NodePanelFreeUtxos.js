@@ -11,7 +11,7 @@ export const mapStateToProps = state => ({
 })
 
 export const NodePanelFreeUtxos = ({ freeUtxos }) => (
-  <NodePanelField name={`FREE UTXO'S`} value={freeUtxos.toString()} />
+  <NodePanelField name={'FREE UTXO\'S'} value={freeUtxos.toString()} />
 )
 
 NodePanelFreeUtxos.propTypes = {

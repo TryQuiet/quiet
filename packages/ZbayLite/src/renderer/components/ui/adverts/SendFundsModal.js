@@ -477,7 +477,7 @@ export const SendFundsModal = ({
                     precise={4}
                     transformer={rateZec}
                     InputProps={{
-                      error: errors['zec'] && touched['zec'],
+                      error: errors.zec && touched.zec,
                       endAdornment: (
                         <InputAdornment position='end'>
                           <span className={classes.inputMark}>USD</span>
@@ -507,7 +507,7 @@ export const SendFundsModal = ({
                     otherField='usd'
                     transformer={rateUsd}
                     InputProps={{
-                      error: errors['usd'] && touched['usd'],
+                      error: errors.usd && touched.usd,
                       endAdornment: (
                         <InputAdornment position='end'>
                           <span className={classes.inputMark}>ZEC</span>
@@ -531,8 +531,8 @@ export const SendFundsModal = ({
                       <Grid item>
                         <Typography variant={'h4'}>
                           {lockedBalance.toNumber() >= zecOffer
-                            ? `Funds pending`
-                            : `Not enough funds`}
+                            ? 'Funds pending'
+                            : 'Not enough funds'}
                         </Typography>
                       </Grid>
                       <Grid item>

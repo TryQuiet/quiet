@@ -16,11 +16,10 @@ import { errorNotification, successNotification } from './utils'
 
 import { ActionsType, PayloadType } from './types'
 
-
-//TODO: remove after changing in tests
+// TODO: remove after changing in tests
 export const ChannelMentions = {
- nickname: '',
- timeStamp: 0
+  nickname: '',
+  timeStamp: 0
 }
 
 class Mentions {
@@ -96,7 +95,7 @@ const sendInvitation = nickname => async (dispatch, getState) => {
     if (!publicChannel) {
       dispatch(modalsHandlers.actionCreators.openModal('channelInfo')())
       dispatch(removeMentionMiss({ channelId, nickname }))
-      
+
       return
     }
     const targetUser = Array.from(Object.values(users)).find(user => user.nickname === nickname)
@@ -117,13 +116,13 @@ const sendInvitation = nickname => async (dispatch, getState) => {
     dispatch(removeMentionMiss({ channelId, nickname }))
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar(
-        successNotification({ message: `Invitation sent` })
+        successNotification({ message: 'Invitation sent' })
       )
     )
   } catch (err) {
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar(
-        errorNotification({ message: `Failed to send invitation ` })
+        errorNotification({ message: 'Failed to send invitation ' })
       )
     )
   }
@@ -137,7 +136,7 @@ export const epics = {
 export const reducer = handleActions<Mentions, PayloadType<MentionsActions>>(
   {
     [clearMentionMiss.toString()]: state =>
-      produce(state, draft => {
+      produce(state, () => {
         return {
           ...initialState
         }

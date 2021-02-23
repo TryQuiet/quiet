@@ -77,7 +77,7 @@ export const NewMessageModal = ({
               resetForm()
               showNotification(
                 successNotification({
-                  message: `Message sent! It will appear momentarily.`
+                  message: 'Message sent! It will appear momentarily.'
                 })
               )
               return
@@ -97,13 +97,13 @@ export const NewMessageModal = ({
               resetForm()
               showNotification(
                 successNotification({
-                  message: `Message sent! It will appear momentarily.`
+                  message: 'Message sent! It will appear momentarily.'
                 })
               )
               return
             }
             showNotification(
-              errorNotification({ message: `There was an error. Please check input address.` })
+              errorNotification({ message: 'There was an error. Please check input address.' })
             )
           }}
         >
@@ -136,7 +136,7 @@ export const NewMessageModal = ({
                       variant='outlined'
                       multiline
                       maxRows={7}
-                      placeholder={`Enter Zcash address or Zbay username`}
+                      placeholder={'Enter Zcash address or Zbay username'}
                       margin='normal'
                       fullWidth
                     />

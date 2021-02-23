@@ -1,25 +1,20 @@
 import criticalErrorHandlers from './handlers/criticalError'
 import modalsHandlers from './handlers/modals'
 
-const isPromise = value => value !== null &&
-  typeof value === 'object' &&
-  typeof value.then === 'function'
+const isPromise = value =>
+  value !== null && typeof value === 'object' && typeof value.then === 'function'
 
 const _dispatchError = (store, err) => {
   const criticalError = {
     message: err.message,
     traceback: err.stack
   }
-  store.dispatch(
-    criticalErrorHandlers.actions.setCriticalError(criticalError)
-  )
-  store.dispatch(
-    modalsHandlers.actionCreators.openModal('criticalError')()
-  )
+  store.dispatch(criticalErrorHandlers.actions.setCriticalError(criticalError))
+  store.dispatch(modalsHandlers.actionCreators.openModal('criticalError')())
 }
 
 export const errorsMiddleware = store => next => action => {
-  if (action.meta && action.meta.ignoreError) {
+  if (action.meta?.ignoreError) {
     return next(action)
   }
   // Handle action with Promise payload

@@ -73,7 +73,7 @@ export const BlockchainLocationModal = ({ classes, open, handleSelection }) => {
             </Button>
           </Grid>
           <Grid item container justify={'center'} xs={12}>
-            <Typography className={classes.link} variant={'caption'} onClick={() => handleSelection('EXISTING')}>{`Use my existing Zcash install (advanced)`}</Typography>
+            <Typography className={classes.link} variant={'caption'} onClick={() => handleSelection('EXISTING')}>{'Use my existing Zcash install (advanced)'}</Typography>
           </Grid>
         </Grid>
       </Grid>

@@ -152,27 +152,11 @@ export const fetchMessages = () => async (dispatch, getState) => {
       }
     }
     const identityAddress = identitySelectors.address(getState())
-    await dispatch(
-      usersHandlers.epics.fetchUsers(
-        channels.registeredUsers.mainnet.address,
-        txns[channels.registeredUsers.mainnet.address]
-      )
-    )
-    await dispatch(
-      usersHandlers.epics.fetchOnionAddresses(
-        channels.tor.mainnet.address,
-        txns[channels.tor.mainnet.address]
-      )
-    )
-    await dispatch(
-      ratesHandlers.epics.fetchPrices(
-        channels.priceOracle.mainnet.address,
-        txns[channels.priceOracle.mainnet.address]
-      )
-    )
+    await dispatch(usersHandlers.epics.fetchUsers(txns[channels.registeredUsers.mainnet.address]))
+    await dispatch(usersHandlers.epics.fetchOnionAddresses(txns[channels.tor.mainnet.address]))
+    await dispatch(ratesHandlers.epics.fetchPrices(txns[channels.priceOracle.mainnet.address]))
     await dispatch(
       publicChannelsHandlers.epics.fetchPublicChannels(
-        channels.channelOfChannels.mainnet,
         txns[channels.channelOfChannels.mainnet.address]
       )
     )
@@ -627,7 +611,7 @@ export const handleWebsocketMessage = data => async (dispatch, getState) => {
         console.log('Contact exist')
         if (!contact.connected) {
           console.log('Contact is not connected, initializing connection')
-          //dispatch(contactsHandlers.actions.setContactConnected({ connected: true, key: publicKey }))
+          // dispatch(contactsHandlers.actions.setContactConnected({ connected: true, key: publicKey }))
           dispatch(contactsHandlers.epics.connectWsContacts(publicKey))
         }
         return
@@ -653,7 +637,6 @@ export const handleWebsocketMessage = data => async (dispatch, getState) => {
     console.warn(err)
     return null
   }
-  
 
   if (message.message) {
     try {
@@ -681,10 +664,10 @@ export const handleWebsocketMessage = data => async (dispatch, getState) => {
         shippingData: message.message.shippingData
       }
       const parsedMsg = new DisplayableMessage(msg)
-      //const contacts = contactsSelectors.contacts(getState())
+      // const contacts = contactsSelectors.contacts(getState())
       if (msg.message.itemId) {
         const item = msg.message.itemId
-        //const contacts = contactsSelectors.contacts(getState())
+        // const contacts = contactsSelectors.contacts(getState())
         const offer = contactsSelectors.getAdvertById(item)(getState())
         if (!offer) {
           return

@@ -1,5 +1,5 @@
-import { IconButtonProps } from "@material-ui/core/IconButton";
+import { IconButtonProps } from '@material-ui/core/IconButton'
 
 export interface IIconButtonProps {
-  onClick: IconButtonProps["onClick"];
+  onClick: IconButtonProps['onClick']
 }

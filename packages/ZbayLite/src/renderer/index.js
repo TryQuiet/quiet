@@ -95,7 +95,7 @@ ipcRenderer.on('newInvitation', (event, { invitation }) => {
   if (nodeSelectors.status(store.getState()) !== 'healthy') {
     store.dispatch(
       notificationsHandlers.actions.enqueueSnackbar(
-        successNotification({ message: `Please wait your invitation will be processed soon` })
+        successNotification({ message: 'Please wait your invitation will be processed soon' })
       )
     )
   }
@@ -131,7 +131,7 @@ ipcRenderer.on('newChannel', (event, { channelParams }) => {
     } else {
       store.dispatch(
         notificationsHandlers.actions.enqueueSnackbar(
-          successNotification({ message: `Please wait your channel will be imported soon` })
+          successNotification({ message: 'Please wait your channel will be imported soon' })
         )
       )
       setTimeout(() => {

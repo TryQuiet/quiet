@@ -32,7 +32,7 @@ describe('operations selectors', () => {
             address: identity1.address,
             messages,
             lastSeen: testUtils.now,
-            newMessages: [ 1, 2, 3, 4 ]
+            newMessages: [1, 2, 3, 4]
           },
           [identity2.address]: {
             ...Contact,
@@ -41,7 +41,7 @@ describe('operations selectors', () => {
           }
         },
         directMessagesQueue: {
-          'messageHash': {
+          messageHash: {
             ...PendingMessage,
             recipientAddress: identity1.address,
             recipientUsername,

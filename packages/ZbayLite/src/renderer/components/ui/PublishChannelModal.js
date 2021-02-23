@@ -345,7 +345,7 @@ export const PublishChannelModal = ({
                         </Typography>
                       )}
                       <Typography variant='body2' className={classes.priceInfo}>
-                        {`Registering a public channel may cost more someday,but now it's (almost) free`}
+                        {'Registering a public channel may cost more someday,but now it\'s (almost) free'}
                       </Typography>
                     </Grid>
                   </Grid>

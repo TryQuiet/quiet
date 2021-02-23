@@ -1,91 +1,89 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import * as R from "ramda";
+import React, { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import * as R from 'ramda'
 
-import ChannelMessagesComponent from "../../../components/widgets/channels/ChannelMessages";
-import channelSelectors from "../../../store/selectors/channel";
-import dmQueueMessages from "../../../store/selectors/directMessagesQueue";
-import queueMessages from "../../../store/selectors/messagesQueue";
-import userSelector from "../../../store/selectors/users";
-import contactsSelectors from "../../../store/selectors/contacts";
-import nodeSelector from "../../../store/selectors/node";
-import appSelectors from "../../../store/selectors/app";
-import ownedChannelsSelectors from "../../../store/selectors/ownedChannels";
-import publicChannelsSelector from "../../../store/selectors/publicChannels";
-import { MessageType } from "../../../../shared/static.types";
-import zcashChannels from "../../../zcash/channels";
-import channelHandlers from "../../../store/handlers/channel";
-import appHandlers from "../../../store/handlers/app";
-import electronStore from "../../../../shared/electronStore";
+import ChannelMessagesComponent from '../../../components/widgets/channels/ChannelMessages'
+import channelSelectors from '../../../store/selectors/channel'
+import dmQueueMessages from '../../../store/selectors/directMessagesQueue'
+import queueMessages from '../../../store/selectors/messagesQueue'
+import userSelector from '../../../store/selectors/users'
+import contactsSelectors from '../../../store/selectors/contacts'
+import nodeSelector from '../../../store/selectors/node'
+import appSelectors from '../../../store/selectors/app'
+import ownedChannelsSelectors from '../../../store/selectors/ownedChannels'
+import publicChannelsSelector from '../../../store/selectors/publicChannels'
+import { MessageType } from '../../../../shared/static.types'
+import zcashChannels from '../../../zcash/channels'
+import channelHandlers from '../../../store/handlers/channel'
+import appHandlers from '../../../store/handlers/app'
+import electronStore from '../../../../shared/electronStore'
 
 export const ChannelMessages = ({ tab, contentRect }) => {
-  const [scrollPosition, setScrollPosition] = React.useState(-1);
-  const [isRescanned, setIsRescanned] = React.useState(true);
+  const [scrollPosition, setScrollPosition] = React.useState(-1)
+  const [isRescanned, setIsRescanned] = React.useState(true)
 
-  const dispatch = useDispatch();
-  const qMessages = useSelector(queueMessages.queue);
-  const qDmMessages = useSelector(dmQueueMessages.queue);
-  const contactId = useSelector(channelSelectors.id);
+  const dispatch = useDispatch()
+  const qMessages = useSelector(queueMessages.queue)
+  const qDmMessages = useSelector(dmQueueMessages.queue)
+  const contactId = useSelector(channelSelectors.id)
 
-  const triggerScroll = qDmMessages.length + qMessages.length > 0;
+  const triggerScroll = qDmMessages.length + qMessages.length > 0
 
   const onLinkedChannel = (props) =>
-    dispatch(channelHandlers.epics.linkChannelRedirect(props));
+    dispatch(channelHandlers.epics.linkChannelRedirect(props))
   const setDisplayableLimit = (arg0?: number) =>
-    dispatch(channelHandlers.actions.setDisplayableLimit(arg0));
-  const onRescan = () => dispatch(appHandlers.epics.restartAndRescan());
+    dispatch(channelHandlers.actions.setDisplayableLimit(arg0))
+  const onRescan = () => dispatch(appHandlers.epics.restartAndRescan())
 
   const messages = useSelector(contactsSelectors.directMessages(contactId))
-    .visibleMessages;
+    .visibleMessages
   const messagesLength = useSelector(
     contactsSelectors.messagesLength(contactId)
-  );
+  )
   const displayableMessageLimit = useSelector(
     channelSelectors.displayableMessageLimit
-  );
-  const isOwner = useSelector(ownedChannelsSelectors.isOwner);
-  const channelId = useSelector(channelSelectors.channelId);
-  const users = useSelector(userSelector.users);
-  const loader = useSelector(channelSelectors.loader);
-  const publicChannels = useSelector(publicChannelsSelector.publicChannels);
-  const network = useSelector(nodeSelector.network);
-  const isInitialLoadFinished = useSelector(appSelectors.isInitialLoadFinished);
+  )
+  const isOwner = useSelector(ownedChannelsSelectors.isOwner)
+  const channelId = useSelector(channelSelectors.channelId)
+  const users = useSelector(userSelector.users)
+  const loader = useSelector(channelSelectors.loader)
+  const publicChannels = useSelector(publicChannelsSelector.publicChannels)
+  const network = useSelector(nodeSelector.network)
+  const isInitialLoadFinished = useSelector(appSelectors.isInitialLoadFinished)
 
   useEffect(() => {
-    setScrollPosition(-1);
-    setIsRescanned(!electronStore.get(`channelsToRescan.${channelId}`));
-  }, [channelId, contactId]);
+    setScrollPosition(-1)
+    setIsRescanned(!electronStore.get(`channelsToRescan.${channelId}`))
+  }, [channelId, contactId])
   useEffect(() => {
     if (triggerScroll) {
-      setScrollPosition(-1);
+      setScrollPosition(-1)
     }
-  }, [triggerScroll]);
+  }, [triggerScroll])
   useEffect(() => {
     if (scrollPosition === 0 && displayableMessageLimit < messagesLength) {
-      setDisplayableLimit(displayableMessageLimit + 5);
+      setDisplayableLimit(displayableMessageLimit + 5)
     }
-  }, [scrollPosition]);
-  const oldestMessage = messages ? messages[messages.length - 1] : null;
-  let usersRegistration = [];
-  let _publicChannelsRegistration = [];
-  let publicChannelsRegistration;
+  }, [scrollPosition])
+  const oldestMessage = messages ? messages[messages.length - 1] : null
+  let usersRegistration = []
+  let _publicChannelsRegistration = []
+  let publicChannelsRegistration
   if (channelId === zcashChannels.general[network].address) {
     if (oldestMessage) {
       usersRegistration = Array.from(Object.values(users)).filter(
         (msg) => msg.createdAt >= oldestMessage.createdAt
-      );
+      )
       _publicChannelsRegistration = Array.from(Object.values(publicChannels)).filter(
         msg => msg.timestamp >= oldestMessage.createdAt
       )
-      publicChannelsRegistration = R.clone(_publicChannelsRegistration);
+      publicChannelsRegistration = R.clone(_publicChannelsRegistration)
       for (const ch of publicChannelsRegistration) {
-        delete Object.assign(ch, { createdAt: parseInt(ch["timestamp"]) })[
-          "timestamp"
-        ];
+        delete Object.assign(ch, { createdAt: parseInt(ch.timestamp) }).timestamp
       }
     }
   }
-  const isNewUser = electronStore.get("isNewUser");
+  const isNewUser = electronStore.get('isNewUser')
 
   return (
     <ChannelMessagesComponent
@@ -110,7 +108,7 @@ export const ChannelMessages = ({ tab, contentRect }) => {
       publicChannels={publicChannels}
       isInitialLoadFinished={loader.loading ? false : isInitialLoadFinished}
     />
-  );
-};
+  )
+}
 
-export default ChannelMessages;
+export default ChannelMessages

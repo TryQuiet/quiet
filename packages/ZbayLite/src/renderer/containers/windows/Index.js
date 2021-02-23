@@ -8,7 +8,6 @@ import nodeHandlers from '../../store/handlers/node'
 import appHandlers from '../../store/handlers/app'
 import nodeSelectors from '../../store/selectors/node'
 import { useInterval } from '../hooks'
-import vaultSelectors from '../../store/selectors/vault'
 
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
@@ -22,15 +21,13 @@ export const mapDispatchToProps = dispatch =>
 export const mapStateToProps = state => ({
   nodeConnected: nodeSelectors.isConnected(state),
   bootstrapping: nodeSelectors.bootstrapping(state),
-  bootstrappingMessage: nodeSelectors.bootstrappingMessage(state),
-  locked: vaultSelectors.locked(state)
+  bootstrappingMessage: nodeSelectors.bootstrappingMessage(state)
 })
 
 export const Index = ({
   getStatus,
   nodeConnected,
   loadVersion,
-  locked,
   createZcashNode,
   bootstrapping,
   ...props

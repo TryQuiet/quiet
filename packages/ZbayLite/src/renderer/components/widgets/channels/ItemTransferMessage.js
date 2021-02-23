@@ -137,7 +137,7 @@ export const ItemTransferMessage = ({
             : `${
               message.sender.username
                 ? `Received from @${message.sender.username}`
-                : `Received from unknown`
+                : 'Received from unknown'
             } $${usdAmount} (${message.spent} ZEC) ${
               message.tag ? `for #${message.tag}` : ''
             }`}

@@ -12,7 +12,7 @@ export const vaultTestMessages = [
     properties: {
       title: 'test',
       createdAt: '123456',
-      message: `{"itemId":"6b31f1a5c68902a767eb542fa17daeb338e32d12704ac124ce55994754a5001e","text":"hello"}`,
+      message: '{"itemId":"6b31f1a5c68902a767eb542fa17daeb338e32d12704ac124ce55994754a5001e","text":"hello"}',
       sender: 'testsender',
       senderUsername: 'testusername',
       type: '11',
@@ -24,7 +24,7 @@ export const vaultTestMessages = [
     properties: {
       title: 'test2',
       createdAt: '123456',
-      message: `{"itemId":"6b31f1a5c68902a767eb542fa17daeb338e32d12704ac124ce55994754a5001e","text":"hello"}`,
+      message: '{"itemId":"6b31f1a5c68902a767eb542fa17daeb338e32d12704ac124ce55994754a5001e","text":"hello"}',
       sender: 'testsender',
       senderUsername: 'testusername',
       type: '11',

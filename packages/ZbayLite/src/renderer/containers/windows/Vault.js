@@ -5,10 +5,9 @@ import { connect } from 'react-redux'
 import vaultSelectors from '../../store/selectors/vault'
 import nodeSelectors from '../../store/selectors/node'
 import vaultHandlers from '../../store/handlers/vault'
-import UnlockVault from './UnlockVault'
+import UnlockVault from '../../components/windows/UnlockVault'
 import torHandlers from '../../store/handlers/tor'
 import electronStore from '../../../shared/electronStore'
-// import nodeHandlers from '../../store/handlers/node'
 
 export const mapStateToProps = state => ({
   exists: vaultSelectors.exists(state),

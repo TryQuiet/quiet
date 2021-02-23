@@ -29,7 +29,7 @@ const styles = theme => ({
     marginTop: theme.spacing(2)
   },
   textBetweenInputs: {
-    fontSize: `1.3rem`
+    fontSize: '1.3rem'
   },
   button: {
     width: 140,
@@ -55,7 +55,7 @@ const styles = theme => ({
   },
   value: {
     marginLeft: '5px',
-    fontSize: `1rem`,
+    fontSize: '1rem',
     marginTop: '2px'
   },
   balanceZec: {
@@ -239,7 +239,7 @@ export const SendMoneyForm = ({
             otherField='zec'
             transformer={rateZec}
             InputProps={{
-              error: errors['zec'] && touched['zec'],
+              error: errors.zec && touched.zec,
               endAdornment: (
                 <InputAdornment position='end'>
                   <span className={classes.inputMark}>USD</span>
@@ -267,7 +267,7 @@ export const SendMoneyForm = ({
             otherField='usd'
             transformer={rateUsd}
             InputProps={{
-              error: errors['usd'] && touched['usd'],
+              error: errors.usd && touched.usd,
               endAdornment: (
                 <InputAdornment position='end'>
                   <span className={classes.inputMark}>ZEC</span>
@@ -294,7 +294,7 @@ export const SendMoneyForm = ({
             transformer={rateZec}
             precise={4}
             InputProps={{
-              error: errors['amountZec'] && touched['amountZec'],
+              error: errors.amountZec && touched.amountZec,
               endAdornment: (
                 <InputAdornment position='end'>
                   <span className={classes.inputMark}>USD</span>
@@ -323,7 +323,7 @@ export const SendMoneyForm = ({
             transformer={rateUsd}
             precise={2}
             InputProps={{
-              error: errors['amountUsd'] && touched['amountUsd'],
+              error: errors.amountUsd && touched.amountUsd,
               endAdornment: (
                 <InputAdornment position='end'>
                   <span className={classes.inputMark}>ZEC</span>
@@ -343,7 +343,7 @@ export const SendMoneyForm = ({
           name='memo'
           placeholder={
             values.recipient ? values.recipient.length === 35
-              ? `You can't include message to transparent address`
+              ? 'You can\'t include message to transparent address'
               : 'Enter a message'
               : 'Enter a message'
           }

@@ -407,8 +407,8 @@ export const _buildUtxo = ({
   fee,
   identityAddress
 }) => {
-  let transfers = [transfer]
-  let includedDonation = 0
+  const transfers = [transfer]
+  const includedDonation = 0
 
   if (
     utxos.unspent_notes.filter(

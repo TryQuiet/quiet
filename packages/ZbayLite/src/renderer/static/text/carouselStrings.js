@@ -1,10 +1,10 @@
 module.exports = [
-  `Welcome to Zbay!`,
+  'Welcome to Zbay!',
   `Downloading blockchain data takes some time.
 `,
-  `Once that's complete, you'll be able to register a Zbay username.`,
-  `You can create private group chats and public, IRC-like channels.`,
-  `You can also buy and sell things on Zbay using Zcash.`,
+  'Once that\'s complete, you\'ll be able to register a Zbay username.',
+  'You can create private group chats and public, IRC-like channels.',
+  'You can also buy and sell things on Zbay using Zcash.',
   `You can even earn money, by creating a vibrant channel and charging fees to sellers.
 `,
   `Zbay seeks to build a patch of online life that's controlled by the people of the Internet.

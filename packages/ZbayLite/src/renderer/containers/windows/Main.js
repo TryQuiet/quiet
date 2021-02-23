@@ -4,7 +4,6 @@ import { bindActionCreators } from 'redux'
 import * as R from 'ramda'
 
 import MainComponent from '../../components/windows/Main'
-import vaultSelectors from '../../store/selectors/vault'
 import coordinator from '../../store/handlers/coordinator'
 import nodeHandlers from '../../store/handlers/node'
 import modalsHandlers from '../../store/handlers/modals'
@@ -13,7 +12,6 @@ import { fetchBalance } from '../../store/handlers/identity'
 import electronStore from '../../../shared/electronStore'
 
 export const mapStateToProps = state => ({
-  vaultLocked: vaultSelectors.locked(state),
   zecBalance: identitySelectors.balance('zec')(state)
 })
 export const mapDispatchToProps = dispatch => {

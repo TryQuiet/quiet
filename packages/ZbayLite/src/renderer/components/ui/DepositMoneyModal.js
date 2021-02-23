@@ -14,7 +14,7 @@ export const DepositMoneyModal = ({ classes, handleClose, open, onClick }) => (
   <Dialog onClose={handleClose} className={classes.root} open={open}>
     <QuickActionLayout
       main='Add funds now?'
-      info={`You'll need some funds to send messages.`}
+      info={'You\'ll need some funds to send messages.'}
       handleClose={handleClose}
       buttonName='Add funds'
       onClick={onClick}

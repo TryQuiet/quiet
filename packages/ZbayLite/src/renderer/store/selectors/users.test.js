@@ -23,7 +23,7 @@ describe('users selectors', () => {
             address:
             'ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r'
           },
-          'myUser': {
+          myUser: {
             firstName: 'myUserName',
             lastName: 'myUserLastName',
             nickname: 'myUser',
@@ -38,7 +38,8 @@ describe('users selectors', () => {
             signerPubKey: 'myUser'
           }
         }
-      } })
+      }
+    })
     jest.clearAllMocks()
   })
 

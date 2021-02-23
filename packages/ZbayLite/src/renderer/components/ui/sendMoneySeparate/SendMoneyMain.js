@@ -49,15 +49,15 @@ export const formSchema = users => {
 }
 
 export const validateForm = ({ balanceZec, shippingData }) => values => {
-  let errors = {}
+  const errors = {}
   if (balanceZec.isLessThan(values.amountZec)) {
-    errors['amountZec'] = `You can't send more than ${balanceZec} ZEC`
+    errors.amountZec = `You can't send more than ${balanceZec} ZEC`
   }
   if (
     values.shippingInfo === true &&
     getBytesSize(values.memo) > MESSAGE_SIZE
   ) {
-    errors['memo'] = `Your message and shipping information are too long`
+    errors.memo = 'Your message and shipping information are too long'
   }
   return errors
 }

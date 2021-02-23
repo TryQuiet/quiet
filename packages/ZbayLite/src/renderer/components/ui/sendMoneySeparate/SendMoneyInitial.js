@@ -251,7 +251,7 @@ export const SendMoneyInitial = ({
             className={classes.gutter}
             variant='outlined'
             multiline
-            placeholder={`Enter Zbay username or Zcash address`}
+            placeholder={'Enter Zbay username or Zcash address'}
             margin='normal'
             fullWidth
           />
@@ -262,7 +262,7 @@ export const SendMoneyInitial = ({
         <Grid container direction={'column'} item>
           <Grid className={classes.recipientInfo} item>
             <Typography variant='body2'>
-              {`Tell recipient it's from `}
+              {'Tell recipient it\'s from '}
               <span className={classes.bold}>{nickname}</span>?
             </Typography>
           </Grid>
@@ -342,7 +342,7 @@ export const SendMoneyInitial = ({
             <Grid className={classes.infoBox} item>
               <Typography className={classes.typo} variant='body2'>
                 <span className={classes.bold}>Warning:</span>
-                {` The recipient will not know who it is from, and you may not be able to prove you made the payment`}
+                {' The recipient will not know who it is from, and you may not be able to prove you made the payment'}
               </Typography>
             </Grid>
           )}
@@ -414,7 +414,7 @@ export const SendMoneyInitial = ({
                 transformer={rateZec}
                 precise={4}
                 InputProps={{
-                  error: errors['amountZec'] && touched['amountZec'],
+                  error: errors.amountZec && touched.amountZec,
                   endAdornment: (
                     <InputAdornment position='end'>
                       <span className={classes.inputMark}>USD</span>
@@ -443,7 +443,7 @@ export const SendMoneyInitial = ({
                 transformer={rateUsd}
                 precise={2}
                 InputProps={{
-                  error: errors['amountUsd'] && touched['amountUsd'],
+                  error: errors.amountUsd && touched.amountUsd,
                   endAdornment: (
                     <InputAdornment position='end'>
                       <span className={classes.inputMark}>ZEC</span>
@@ -465,7 +465,7 @@ export const SendMoneyInitial = ({
                 placeholder={
                   values.recipient
                     ? values.recipient.length === 35
-                      ? `Only shielded Zcash addresses (beginning with a 'z') can receive messages`
+                      ? 'Only shielded Zcash addresses (beginning with a \'z\') can receive messages'
                       : 'Enter a message'
                     : 'Enter a message'
                 }

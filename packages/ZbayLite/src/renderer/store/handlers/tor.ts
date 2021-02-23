@@ -15,10 +15,10 @@ export const client = new net.Socket()
 export const defaultTorUrlProxy = 'localhost:9050'
 
 class Tor {
-  url: string;
-  enabled: boolean;
-  error?: string;
-  status: string;
+  url: string
+  enabled: boolean
+  error?: string
+  status: string
 
   constructor(values?: Partial<Tor>) {
     Object.assign(this, values)
@@ -50,8 +50,8 @@ export const actions = {
 export type TorActions = ActionsType<typeof actions>
 
 let init = false
-const initEvents = () => async (dispatch, getState) => {
-  client.on('error', data => {
+const initEvents = () => async dispatch => {
+  client.on('error', () => {
     client.destroy()
     dispatch(setStatus({ status: 'down' }))
     dispatch(setError({ error: 'Cannot establish a connection' }))
@@ -64,14 +64,14 @@ const initEvents = () => async (dispatch, getState) => {
     }
   })
 }
-const checkDeafult = () => async (dispatch, getState) => {
-  if (init === false) {
+const checkDeafult = () => async dispatch => {
+  if (!init) {
     init = true
     await dispatch(initEvents())
   }
   const url = defaultTorUrlProxy.split(':')
 
-  let checkedUrl = defaultTorUrlProxy
+  const checkedUrl = defaultTorUrlProxy
   dispatch(setUrl({ url: checkedUrl }))
   client.connect(Number(url[1]), url[0], () => {
     const msg = Buffer.from('050100', 'hex')
@@ -95,10 +95,10 @@ const checkTor = () => async (dispatch, getState) => {
     client.write(msg)
   })
 }
-export const createZcashNode = torUrl => async (dispatch, getState) => {
+export const createZcashNode = torUrl => async dispatch => {
   electronStore.set('torEnabled', !!torUrl)
   let ipAddress
-  if (torUrl && torUrl.startsWith('localhost')) {
+  if (torUrl?.startsWith('localhost')) {
     ipAddress = torUrl.replace('localhost', '127.0.0.1')
   } else {
     ipAddress = torUrl
@@ -107,7 +107,7 @@ export const createZcashNode = torUrl => async (dispatch, getState) => {
   if (torUrl) {
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar(
-        successNotification({ message: `You are using Tor proxy.` })
+        successNotification({ message: 'You are using Tor proxy.' })
       )
     )
   }

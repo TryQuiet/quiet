@@ -1,5 +1,6 @@
 import React from 'react'
 import { shallow } from 'enzyme'
+import each from 'jest-each'
 
 import { NodeStatus } from './NodeStatus'
 import { mockClasses } from '../../../../shared/testing/mocks'

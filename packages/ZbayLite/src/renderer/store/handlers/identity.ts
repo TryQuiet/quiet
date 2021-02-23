@@ -37,6 +37,7 @@ import staticChannelsSyncHeight from '../../static/staticChannelsSyncHeight.json
 import { PublicChannel } from './publicChannels'
 
 import { ActionsType, PayloadType } from './types'
+import { DisplayableMessage } from '../../zbay/messages.types'
 
 interface IShippingData {
   firstName: string
@@ -66,16 +67,19 @@ export class Identity {
     addresses: string[]
     shieldedAddresses: string[]
   }
+
   fetchingBalance: boolean
   loader: {
     loading: boolean
     message: string
   }
+
   removedChannels: string[]
   registrationStatus: {
     nickname: string
     status: string
   }
+
   errors: string
 
   constructor(values?: Partial<Identity>) {
@@ -169,13 +173,12 @@ export type IdentityActions = ActionsType<typeof actions>
 export const fetchAffiliateMoney = () => async (dispatch, getState) => {
   try {
     const identityAddress = identitySelectors.address(getState())
-    const transfers = await client().payment.received(identityAddress)
+    const transfers = (await client().payment.received(identityAddress)) as DisplayableMessage[]
     const affiliatesTransfers = transfers.filter(msg => msg.memo.startsWith('aa'))
     let amount = 0
-    let txnTimestamps = txnTimestampsSelector.tnxTimestamps(getState())
-    for (const key in affiliatesTransfers) {
-      const transfer = transfers[key]
-      if (!txnTimestamps.hasOwnProperty(transfer.txid)) {
+    const txnTimestamps = txnTimestampsSelector.tnxTimestamps(getState())
+    for (const transfer of affiliatesTransfers) {
+      if (!txnTimestamps[transfer.txid]) {
         amount += transfer.amount
         const result = await client().confirmations.getResult(transfer.txid)
         await dispatch(
@@ -194,7 +197,7 @@ export const fetchAffiliateMoney = () => async (dispatch, getState) => {
         )
       )
     }
-  } catch (err) {}
+  } catch (err) { }
 }
 export const fetchBalance = () => async (dispatch, getState) => {
   try {
@@ -212,9 +215,10 @@ export const fetchBalance = () => async (dispatch, getState) => {
         })
       )
     }
-    const pending = notes.pending_notes.reduce((acc, cur) => acc + cur.value, 0)
+    const pending = notes.pending_notes.reduce((acc: number, cur) => acc + (cur.value as number), 0)
     dispatch(
       setLockedBalance(
+        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
         new BigNumber((balanceObj.unverified_zbalance + pending) / satoshiMultiplier)
       )
     )
@@ -225,7 +229,7 @@ export const fetchBalance = () => async (dispatch, getState) => {
     dispatch(setFetchingBalance(false))
   }
 }
-export const fetchFreeUtxos = () => async (dispatch, getState) => {
+export const fetchFreeUtxos = () => async dispatch => {
   try {
     const utxos = await client.notes()
     const freeUtxos = utxos.unspent_notes.filter(
@@ -248,8 +252,8 @@ export const createSignerKeys = () => {
   }
 }
 let shielding = false
-export const shieldBalance = ({ to, amount }) => async (dispatch, getState) => {
-  if (shielding === true) {
+export const shieldBalance = ({ to, amount }) => async dispatch => {
+  if (shielding) {
     return
   }
   shielding = true
@@ -266,7 +270,7 @@ export const shieldBalance = ({ to, amount }) => async (dispatch, getState) => {
   }, 300000)
 }
 
-export const createIdentity = ({ name, fromMigrationFile }) => async (dispatch, getState) => {
+export const createIdentity = ({ name, fromMigrationFile }) => async () => {
   let zAddress
   let tAddress
   let tpk
@@ -350,15 +354,9 @@ export const createIdentity = ({ name, fromMigrationFile }) => async (dispatch, 
     electronStore.set('defaultChannels', channelsWithDetails)
     const channelsToLoad = Object.keys(channelsWithDetails)
     for (const channel of channelsToLoad) {
-      await client.importKey(
-        channelsWithDetails[channel]['keys']['ivk'],
-        staticChannelsSyncHeight.height
-      )
+      await client.importKey(channelsWithDetails[channel].keys.ivk, staticChannelsSyncHeight.height)
     }
 
-    setTimeout(async () => {
-      console.log(await client.addresses())
-    }, 0)
     setTimeout(() => {
       client.rescan()
     }, 0)
@@ -368,16 +366,16 @@ export const createIdentity = ({ name, fromMigrationFile }) => async (dispatch, 
   }
 }
 
-export const loadIdentity = () => async (dispatch, getState) => {
+export const loadIdentity = () => async dispatch => {
   const identity = electronStore.get('identity')
   if (identity) {
     await dispatch(setIdentity(identity))
   }
 }
 
-export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
+export const setIdentityEpic = identityToSet => async dispatch => {
   // let identity = await migrateTo_0_2_0.ensureIdentityHasKeys(identityToSet)
-  let identity = identityToSet
+  const identity = identityToSet
   dispatch(setLoading(true))
   const isNewUser = electronStore.get('isNewUser')
   try {
@@ -418,7 +416,7 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
     }
     setTimeout(() => dispatch(coordinatorHandlers.epics.coordinator()), 5000)
     dispatch(setLoadingMessage('Loading users and messages'))
-  } catch (err) {}
+  } catch (err) { }
   if (isNewUser === true) {
     dispatch(modalsHandlers.actionCreators.openModal('createUsernameModal')())
   }
@@ -430,7 +428,7 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
   }
 }
 
-export const updateShippingData = (values, formActions) => async (dispatch, getState) => {
+export const updateShippingData = (values, formActions) => async dispatch => {
   electronStore.set('identity.shippingData', values)
   await dispatch(setShippingData(values))
   dispatch(
@@ -441,7 +439,7 @@ export const updateShippingData = (values, formActions) => async (dispatch, getS
   formActions.setSubmitting(false)
 }
 
-export const updateDonation = allow => async (dispatch, getState) => {
+export const updateDonation = () => async dispatch => {
   dispatch(
     notificationsHandlers.actions.enqueueSnackbar(
       successNotification({ message: 'Donation information updated' })
@@ -449,9 +447,9 @@ export const updateDonation = allow => async (dispatch, getState) => {
   )
 }
 
-export const updateDonationAddress = address => async (dispatch, getState) => {}
-export const updateShieldingTax = allow => async (dispatch, getState) => {}
-export const generateNewAddress = () => async (dispatch, getState) => {
+export const updateDonationAddress = () => () => { }
+export const updateShieldingTax = () => () => { }
+export const generateNewAddress = () => async dispatch => {
   if (!electronStore.get('addresses')) {
     electronStore.set('addresses', JSON.stringify([]))
   }
@@ -461,7 +459,7 @@ export const generateNewAddress = () => async (dispatch, getState) => {
   dispatch(setUserAddreses(addresses))
   electronStore.set('addresses', JSON.stringify(addresses))
 }
-export const generateNewShieldedAddress = () => async (dispatch, getState) => {
+export const generateNewShieldedAddress = () => async dispatch => {
   if (!electronStore.get('shieldedAddresses')) {
     electronStore.set('shieldedAddresses', JSON.stringify([]))
   }
@@ -471,7 +469,7 @@ export const generateNewShieldedAddress = () => async (dispatch, getState) => {
   dispatch(setUserShieldedAddreses(addresses))
   electronStore.set('shieldedAddresses', JSON.stringify(addresses))
 }
-export const initAddreses = () => async (dispatch, getState) => {
+export const initAddreses = () => async dispatch => {
   if (!electronStore.get('addresses')) {
     electronStore.set('addresses', JSON.stringify([]))
   }

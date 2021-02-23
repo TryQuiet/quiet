@@ -105,7 +105,7 @@ export const InviteMentionInfo = ({
         primary={
           <>
             <Typography variant='body2' className={classes.visibleInfo}>
-              {`Only visible to you`}
+              {'Only visible to you'}
             </Typography>
             <Grid
               container

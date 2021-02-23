@@ -1,6 +1,6 @@
-import { ISliderProps } from "./../../ui/Slider.d";
+import { ISliderProps } from './../../ui/Slider.d'
 
 export interface ISpentFilterProps {
-  value: number;
-  handleOnChange: ISliderProps["handleOnChange"];
+  value: number
+  handleOnChange: ISliderProps['handleOnChange']
 }

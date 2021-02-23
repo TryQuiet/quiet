@@ -1,67 +1,67 @@
-import React from "react";
-import classNames from "classnames";
+import React from 'react'
+import classNames from 'classnames'
 
-import MaterialModal from "@material-ui/core/Modal";
-import Typography from "@material-ui/core/Typography";
-import Grid from "@material-ui/core/Grid";
-import { makeStyles } from "@material-ui/core/styles";
+import MaterialModal from '@material-ui/core/Modal'
+import Typography from '@material-ui/core/Typography'
+import Grid from '@material-ui/core/Grid'
+import { makeStyles } from '@material-ui/core/styles'
 
-import ClearIcon from "@material-ui/icons/Clear";
-import BackIcon from "@material-ui/icons/ArrowBack";
+import ClearIcon from '@material-ui/icons/Clear'
+import BackIcon from '@material-ui/icons/ArrowBack'
 
-import IconButton from "./IconButton";
+import IconButton from './IconButton'
 
-import { IModalProps } from "./Modal.d";
+import { IModalProps } from './Modal.d'
 
 const constants = {
-  headerHeight: 60,
-};
+  headerHeight: 60
+}
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    padding: "0 15%",
+    padding: '0 15%'
   },
   title: {
     fontSize: 15,
     color: theme.palette.colors.trueBlack,
-    lineHeight: "18px",
-    fontStyle: "normal",
-    fontWeight: "normal",
+    lineHeight: '18px',
+    fontStyle: 'normal',
+    fontWeight: 'normal'
   },
   header: {
     background: theme.palette.colors.white,
-    height: constants.headerHeight,
+    height: constants.headerHeight
   },
   headerBorder: {
-    borderBottom: `1px solid ${theme.palette.colors.contentGray}`,
+    borderBottom: `1px solid ${theme.palette.colors.contentGray}`
   },
   actions: {
     paddingLeft: 10,
-    paddingRight: 10,
+    paddingRight: 10
   },
   content: {
-    background: theme.palette.colors.white,
+    background: theme.palette.colors.white
   },
   fullPage: {
-    width: "100%",
-    height: `calc(100vh - ${constants.headerHeight}px)`,
+    width: '100%',
+    height: `calc(100vh - ${constants.headerHeight}px)`
   },
   centered: {
     background: theme.palette.colors.white,
-    width: "100vw",
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    outline: 0,
+    width: '100vw',
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    outline: 0
   },
   window: {},
   bold: {
     fontSize: 16,
-    lineHeight: "26px",
-    fontWeight: 500,
-  },
-}));
+    lineHeight: '26px',
+    fontWeight: 500
+  }
+}))
 
 export const Modal: React.FC<IModalProps> = ({
   open,
@@ -75,9 +75,9 @@ export const Modal: React.FC<IModalProps> = ({
   isCloseDisabled,
   alignCloseLeft,
   addBorder,
-  children,
+  children
 }) => {
-  const classes = useStyles({});
+  const classes = useStyles({})
   return (
     <MaterialModal open={open} onClose={handleClose} className={classes.root}>
       <Grid
@@ -86,7 +86,7 @@ export const Modal: React.FC<IModalProps> = ({
         justify="center"
         className={classNames({
           [classes.centered]: true,
-          [classes.window]: true,
+          [classes.window]: true
         })}
       >
         <Grid
@@ -94,7 +94,7 @@ export const Modal: React.FC<IModalProps> = ({
           item
           className={classNames({
             [classes.header]: true,
-            [classes.headerBorder]: addBorder,
+            [classes.headerBorder]: addBorder
           })}
           direction="row"
           alignItems="center"
@@ -103,7 +103,7 @@ export const Modal: React.FC<IModalProps> = ({
             item
             xs
             container
-            direction={alignCloseLeft ? "row-reverse" : "row"}
+            direction={alignCloseLeft ? 'row-reverse' : 'row'}
             justify="center"
             alignItems="center"
           >
@@ -112,7 +112,7 @@ export const Modal: React.FC<IModalProps> = ({
                 variant="subtitle1"
                 className={classNames({
                   [classes.title]: true,
-                  [classes.bold]: isBold,
+                  [classes.bold]: isBold
                 })}
                 style={
                   alignCloseLeft ? { marginRight: 36 } : { marginLeft: 36 }
@@ -126,7 +126,7 @@ export const Modal: React.FC<IModalProps> = ({
               <Grid
                 container
                 item
-                justify={alignCloseLeft ? "flex-start" : "flex-end"}
+                justify={alignCloseLeft ? 'flex-start' : 'flex-end'}
                 className={classes.actions}
               >
                 {canGoBack ? (
@@ -136,7 +136,7 @@ export const Modal: React.FC<IModalProps> = ({
                 ) : (
                   !isCloseDisabled && (
                     <IconButton
-                      onClick={() => handleClose({}, "backdropClick")}
+                      onClick={() => handleClose({}, 'backdropClick')}
                     >
                       <ClearIcon />
                     </IconButton>
@@ -149,8 +149,8 @@ export const Modal: React.FC<IModalProps> = ({
         <Grid
           container
           item
-          direction={"row"}
-          justify={"center"}
+          direction={'row'}
+          justify={'center'}
           className={classes.fullPage}
         >
           <Grid
@@ -164,8 +164,8 @@ export const Modal: React.FC<IModalProps> = ({
         </Grid>
       </Grid>
     </MaterialModal>
-  );
-};
+  )
+}
 
 Modal.defaultProps = {
   canGoBack: false,
@@ -173,7 +173,7 @@ Modal.defaultProps = {
   alignCloseLeft: false,
   contentWidth: 600,
   isCloseDisabled: false,
-  addBorder: false,
-};
+  addBorder: false
+}
 
-export default Modal;
+export default Modal

@@ -156,7 +156,7 @@ export const ChannelInfo = ({
                                 transformer={rateZec}
                                 precise={4}
                                 InputProps={{
-                                  error: !!errors['amountZec'],
+                                  error: !!errors.amountZec,
                                   endAdornment: (
                                     <InputAdornment position='end'>
                                       <span className={classes.inputMark}>USD</span>
@@ -185,7 +185,7 @@ export const ChannelInfo = ({
                                 transformer={rateUsd}
                                 precise={2}
                                 InputProps={{
-                                  error: !!errors['amountUsd'],
+                                  error: !!errors.amountUsd,
                                   endAdornment: (
                                     <InputAdornment position='end'>
                                       <span className={classes.inputMark}>ZEC</span>

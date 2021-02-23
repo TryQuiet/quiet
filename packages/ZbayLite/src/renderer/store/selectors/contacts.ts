@@ -1,12 +1,12 @@
-import { createSelector } from "reselect";
-import identitySelectors from "./identity";
-import usersSelectors from "./users";
-import directMssagesQueueSelectors from "./directMessagesQueue";
-import { mergeIntoOne, displayableMessageLimit } from "./channel";
-import { MessageType } from "../../../shared/static.types";
-import { unknownUserId } from "../../../shared/static";
+import { createSelector } from 'reselect'
+import identitySelectors from './identity'
+import usersSelectors from './users'
+import directMssagesQueueSelectors from './directMessagesQueue'
+import { mergeIntoOne, displayableMessageLimit } from './channel'
+import { MessageType } from '../../../shared/static.types'
+import { unknownUserId } from '../../../shared/static'
 
-import { DisplayableMessage } from "../../zbay/messages.types";
+import { DisplayableMessage } from '../../zbay/messages.types'
 
 import { Contact } from '../handlers/contacts'
 import { Store } from '../reducers'
@@ -38,11 +38,9 @@ const contactsList = createSelector(
   }
 )
 
-const unknownMessages = createSelector(contacts, (contacts) => {
-  return Array.from(Object.values(contacts)).filter(
-    (c) => c.key === unknownUserId
-  );
-});
+const unknownMessages = createSelector(contacts, contacts => {
+  return Array.from(Object.values(contacts)).filter(c => c.key === unknownUserId)
+})
 
 const offerList = createSelector(
   contacts,
@@ -50,31 +48,24 @@ const offerList = createSelector(
   (contacts, removedChannels) => {
     if (removedChannels.length > 0) {
       return Array.from(Object.values(contacts)).filter(
-        (c) => !!c.offerId && !removedChannels.includes(c.key)
-      );
+        c => !!c.offerId && !removedChannels.includes(c.key)
+      )
     }
-    return Array.from(Object.values(contacts)).filter((c) => !!c.offerId);
+    return Array.from(Object.values(contacts)).filter(c => !!c.offerId)
   }
-);
+)
 const channelsList = createSelector(
   contacts,
   identitySelectors.removedChannels,
-  usersSelectors.users,  
-  (contacts, removedChannels, users) => {
-    return Array.from(Object.values(contacts))
-    .filter(
-      (c) =>
-        c.key.length === 78 &&
-        c.offerId === null &&
-        !removedChannels.includes(c.address)
-    );
+  (contacts, removedChannels) => {
+    return Array.from(Object.values(contacts)).filter(
+      c => c.key.length === 78 && c.offerId === null && !removedChannels.includes(c.address)
+    )
   }
-);
+)
 
-const directMessagesContact = (address) =>
-  createSelector(contacts, (c) =>
-    Array.from(Object.values(c)).find((el) => el.address === address)
-  );
+const directMessagesContact = address =>
+  createSelector(contacts, c => Array.from(Object.values(c)).find(el => el.address === address))
 
 const contact = address =>
   createSelector(contacts, usersSelectors.users, (c, u) => {
@@ -111,97 +102,86 @@ const messagesSorted = address =>
         }
       })
   })
-const messagesSortedDesc = (address) =>
-  createSelector(contact(address), (c) => {
-    return Array.from(Object.values(c.messages)).sort(
-      (a, b) => a.createdAt - b.createdAt
-    );
-  });
+const messagesSortedDesc = address =>
+  createSelector(contact(address), c => {
+    return Array.from(Object.values(c.messages)).sort((a, b) => a.createdAt - b.createdAt)
+  })
 
-const messagesLength = (address) =>
-  createSelector(contact(address), (c) => {
-    return Array.from(Object.values(c.messages)).length;
-  });
-const messages = (address) =>
-  createSelector(
-    messagesSorted(address),
-    displayableMessageLimit,
-    (msgs, limit) => {
-      return msgs.slice(0, limit);
-    }
-  );
+const messagesLength = address =>
+  createSelector(contact(address), c => {
+    return Array.from(Object.values(c.messages)).length
+  })
+const messages = address =>
+  createSelector(messagesSorted(address), displayableMessageLimit, (msgs, limit) => {
+    return msgs.slice(0, limit)
+  })
 
-const channelSettingsMessages = (address) =>
-  createSelector(messagesSortedDesc(address), (msgs) => {
-    return msgs.filter((msg) => msg.type === 6);
-  });
+const channelSettingsMessages = address =>
+  createSelector(messagesSortedDesc(address), msgs => {
+    return msgs.filter(msg => msg.type === 6)
+  })
 
-const channelModerators = (address) =>
-  createSelector(directMessages(address), (msgs) => {
-    return msgs.channelModerators;
-  });
+const channelModerators = address =>
+  createSelector(directMessages(address), msgs => {
+    return msgs.channelModerators
+  })
 
-const allMessages = createSelector(contacts, (c) => {
+const allMessages = createSelector(contacts, c => {
   return Array.from(Object.keys(c)).reduce((acc, t) => {
     const temp = (acc[t] = {
       ...acc,
-      ...c[t].messages,
-    });
-    return temp;
-  }, {});
-});
-const allMessagesTxnId = createSelector(allMessages, (c) => {
-  return new Set(Object.keys(c));
-});
+      ...c[t].messages
+    })
+    return temp
+  }, {})
+})
+const allMessagesTxnId = createSelector(allMessages, c => {
+  return new Set(Object.keys(c))
+})
 const getAdvertById = (txid: string) =>
-  createSelector(allMessages, (msgs) => {
-    return msgs[txid];
-  });
-const lastSeen = (address) =>
-  createSelector(contact(address), (c) => c.lastSeen);
-const username = (address) =>
-  createSelector(contact(address), (c) => c.username);
-const vaultMessages = (address) =>
-  createSelector(contact(address), (c) => c.vaultMessages);
-const newMessages = (address) =>
-  createSelector(contact(address), (c) => c.newMessages);
+  createSelector(allMessages, msgs => {
+    return msgs[txid]
+  })
+const lastSeen = address => createSelector(contact(address), c => c.lastSeen)
+const username = address => createSelector(contact(address), c => c.username)
+const vaultMessages = address => createSelector(contact(address), c => c.vaultMessages)
+const newMessages = address => createSelector(contact(address), c => c.newMessages)
 
-export const queuedMessages = (address) =>
+export const queuedMessages = address =>
   createSelector(
     directMssagesQueueSelectors.queue,
-    (queue) =>
-      queue.filter((m) => m.recipientAddress === address && m.message.type < 10) //  separate offer messages and direct messages
-  );
+    queue => queue.filter(m => m.recipientAddress === address && m.message.type < 10) //  separate offer messages and direct messages
+  )
 
-const channelOwner = (channelId) =>
-  createSelector(channelSettingsMessages(channelId), (msgs) => {
-    let channelOwner = null;
-    channelOwner = msgs[0] ? msgs[0].publicKey : null;
+const channelOwner = channelId =>
+  createSelector(channelSettingsMessages(channelId), msgs => {
+    let channelOwner = null
+    channelOwner = msgs[0] ? msgs[0].publicKey : null
     for (const msg of msgs) {
       if (channelOwner === msg.publicKey) {
-        channelOwner = msg.message.owner;
+        channelOwner = msg.message.owner
       }
     }
-    return channelOwner;
-  });
+    return channelOwner
+  })
 
- // TODO: TO be removed 
+// TODO: TO be removed
 export interface IDirectMessage {
-  visibleMessages: DisplayableMessage[];
-  channelModerators: string[];
-  messsagesToRemove: DisplayableMessage[];
-  blockedUsers: string[];
+  visibleMessages: DisplayableMessage[]
+  channelModerators: string[]
+  messsagesToRemove: DisplayableMessage[]
+  blockedUsers: string[]
 }
 
-export const directMessages = (address) =>
+export const directMessages = address =>
   createSelector(
     messages(address),
     channelOwner(address),
     (messages, channelOwner: string): IDirectMessage => {
-      let channelModerators = [];
-      let messsagesToRemove: DisplayableMessage[] = [];
-      let blockedUsers = [];
-      let visibleMessages: DisplayableMessage[] = [];
+      const channelModerators = []
+      const messsagesToRemove: DisplayableMessage[] = []
+      const blockedUsers = []
+      let visibleMessages: DisplayableMessage[] = []
       for (const msg of messages.reverse()) {
         switch (msg.type) {
           case MessageType.AD:
@@ -257,16 +237,15 @@ export const directMessages = (address) =>
             break
         }
       }
-      return {
+      const result: IDirectMessage = {
         channelModerators,
         messsagesToRemove,
         blockedUsers,
-        visibleMessages: mergeIntoOne(
-          visibleMessages.reverse() as DisplayableMessage[]
-        ),
-      } as IDirectMessage;
+        visibleMessages: mergeIntoOne(visibleMessages.reverse())
+      }
+      return result
     }
-  );
+  )
 
 export default {
   contacts,
@@ -289,4 +268,4 @@ export default {
   messagesSorted,
   unknownMessages,
   allMessagesTxnId
-};
+}

@@ -27,6 +27,7 @@ import { NodeState } from './node'
 import identitySelectors from '../selectors/identity'
 import usersHandlers from './users'
 import testUtils from '../../testUtils'
+import each from 'jest-each'
 
 describe('Identity reducer handles', () => {
   const identity = {

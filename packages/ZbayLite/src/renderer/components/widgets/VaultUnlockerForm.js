@@ -77,7 +77,6 @@ const formSchema = Yup.object().shape({
 
 export const VaultUnlockerForm = ({
   classes,
-  locked,
   initialValues,
   onSubmit,
   nodeConnected,
@@ -107,7 +106,7 @@ export const VaultUnlockerForm = ({
     <Formik
       onSubmit={(values, actions) => {
         setSyncingStart(true)
-        onSubmit(values, actions, setDone)
+        onSubmit(actions, setDone)
       }}
       validationSchema={isDev ? null : formSchema}
       initialValues={initialValues}
@@ -144,7 +143,7 @@ export const VaultUnlockerForm = ({
                   variant='body1'
                   gutterBottom
                 >
-                  {!isNewUser ? `Welcome Back` : `Welcome to Zbay! Connect now to start syncing.`}
+                  {!isNewUser ? 'Welcome Back' : 'Welcome to Zbay! Connect now to start syncing.'}
                 </Typography>
               </Grid>
             )}
@@ -179,11 +178,6 @@ export const VaultUnlockerForm = ({
                 </Typography>
               </Grid>
             )}
-            {/* {locked && done && !isRescanning && (
-              <Grid item className={classes.torDiv}>
-                <Tor />
-              </Grid>
-            )} */}
           </Grid>
           {nodeConnected &&
             isLogIn &&
@@ -198,7 +192,6 @@ export const VaultUnlockerForm = ({
 VaultUnlockerForm.propTypes = {
   classes: PropTypes.object.isRequired,
   isLogIn: PropTypes.bool.isRequired,
-  locked: PropTypes.bool.isRequired,
   unlocking: PropTypes.bool.isRequired,
   exists: PropTypes.bool.isRequired,
   done: PropTypes.bool.isRequired,

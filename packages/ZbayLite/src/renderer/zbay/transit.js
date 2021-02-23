@@ -387,7 +387,7 @@ export const unpackMemo = async memo => {
       const onlyRegistered = memoBuff
         .slice(minFeeEnds, onlyRegisteredEnds)
         .readUInt8()
-        const typeIndicator = memoBuff.slice(MEMO_SIZE - 1)
+      const typeIndicator = memoBuff.slice(MEMO_SIZE - 1)
       return {
         type,
         signature,

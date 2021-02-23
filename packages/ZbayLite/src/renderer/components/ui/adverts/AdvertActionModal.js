@@ -163,7 +163,7 @@ export const AdvertActionModal = ({
   const timeFormat = getTimeFormat(time)
   const timeString = time.toFormat(timeFormat)
   const findLinks = message => {
-    let parsedMessage = message
+    const parsedMessage = message
       .replace(/ /g, String.fromCharCode(160))
       .replace(
         /\n/gi,
@@ -188,7 +188,7 @@ export const AdvertActionModal = ({
               }
               openExternalLink(part)
             }}
-            href={``}
+            href={''}
           >
             {part}
           </a>

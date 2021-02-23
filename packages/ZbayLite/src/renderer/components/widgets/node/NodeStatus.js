@@ -50,7 +50,7 @@ export const NodeStatus = ({
         >
           {status !== 'down'
             ? percentSynced !== null && `${percentSynced}%`
-            : `Offline`}
+            : 'Offline'}
         </Typography>
       </Grid>
     </Grid>

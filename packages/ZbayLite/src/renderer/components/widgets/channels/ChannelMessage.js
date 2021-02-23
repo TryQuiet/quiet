@@ -117,7 +117,7 @@ const checkLinking = (
             }
             openExternalLink(part)
           }}
-          href={``}
+          href={''}
         >
           {part}
         </a>
@@ -144,7 +144,7 @@ const checkLinking = (
           e.preventDefault()
           onLinkedChannel(tags[match])
         }}
-        href={``}
+        href={''}
       >
         #{match}
       </a>
@@ -212,7 +212,7 @@ const checkLinking = (
             e.preventDefault()
             onLinkedUser(users.find(user => user.nickname === match))
           }}
-          href={``}
+          href={''}
         >
           @{match}
         </a>

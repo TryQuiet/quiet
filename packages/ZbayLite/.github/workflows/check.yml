@@ -1,7 +1,7 @@
 name: check
 
 on: [pull_request]
-  
+
 jobs:
   check:
     runs-on: ubuntu-18.04
@@ -12,5 +12,7 @@ jobs:
           node-version: "12"
       - name: install dependencies
         run: npm install
+      - name: lint
+        run: npm run lint
       - name: build
         run: npm run build:prod

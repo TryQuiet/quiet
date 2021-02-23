@@ -85,7 +85,6 @@ export const initialState: Channel = new Channel({
   displayableMessageLimit: 50
 })
 
-
 const setLoading = createAction<boolean>(actionTypes.SET_CHANNEL_LOADING)
 const setSpentFilterValue = createAction(actionTypes.SET_SPENT_FILTER_VALUE, (_, value) => value)
 const setMessage = createAction<{ value: string; id: string }>(actionTypes.SET_CHANNEL_MESSAGE)
@@ -137,15 +136,15 @@ const loadChannel = key => async (dispatch, getState) => {
     dispatch(contactsHandlers.actions.cleanNewMessages({ contactAddress: key }))
     // await dispatch(clearNewMessages())
     // await dispatch(updateLastSeen())
-  } catch (err) {}
+  } catch (err) { }
 }
-const loadOffer = (id, address) => async (dispatch, getState) => {
+const loadOffer = (id, address) => async dispatch => {
   try {
     await dispatch(offersHandlers.epics.updateLastSeen({ itemId: id }))
     dispatch(setChannelId(id))
     dispatch(setShareableUri(''))
     dispatch(setAddress(address))
-  } catch (err) {}
+  } catch (err) { }
 }
 const linkChannelRedirect = targetChannel => async (dispatch, getState) => {
   const contact = contactsSelectors.contact(targetChannel.address)(getState())
@@ -154,7 +153,7 @@ const linkChannelRedirect = targetChannel => async (dispatch, getState) => {
     return
   }
   electronStore.set(`channelsToRescan.${targetChannel.address}`, true)
-  const importedChannels = electronStore.get(`importedChannels`) || {}
+  const importedChannels = electronStore.get('importedChannels') || {}
   electronStore.set('importedChannels', {
     ...importedChannels,
     [targetChannel.address]: {
@@ -186,7 +185,7 @@ const sendTypingIndicator = value => async (dispatch, getState) => {
   const useTor = appSelectors.useTor(getState())
 
   const privKey = identitySelectors.signerPrivKey(getState())
-  let message = messages.createMessage({
+  const message = messages.createMessage({
     messageData: {
       type: messageType.BASIC,
       data: null

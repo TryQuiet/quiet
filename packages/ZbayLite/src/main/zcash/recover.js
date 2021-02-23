@@ -29,35 +29,27 @@ const makeWalletCopy = () => {
   const blockchainConfiguration = electronStore.get('blockchainConfiguration')
   const targetPath = blockchainConfiguration === config.BLOCKCHAIN_STATUSES.DEFAULT_LOCATION_SELECTED ? walletPathDefault[process.platform] : walletPathCustom[process.platform]
   const destinationPath = walletPathBackup[process.platform]
-  try {
-    fs.copySync(targetPath, destinationPath)
-  } catch (err) {
-    throw err
-  }
+  fs.copySync(targetPath, destinationPath)
 }
 
 const replaceWalletFile = () => {
   const blockchainConfiguration = electronStore.get('blockchainConfiguration')
   const backupPath = walletPathBackup[process.platform]
   const targetToReplacement = blockchainConfiguration === config.BLOCKCHAIN_STATUSES.DEFAULT_LOCATION_SELECTED ? walletPathDefault[process.platform] : walletPathCustom[process.platform]
-  try {
-    if (fs.existsSync(backupPath)) {
-      fs.removeSync(targetToReplacement)
-      fs.copySync(backupPath, targetToReplacement)
-    }
-  } catch (err) {
-    throw err
+  if (fs.existsSync(backupPath)) {
+    fs.removeSync(targetToReplacement)
+    fs.copySync(backupPath, targetToReplacement)
   }
 }
 
 const checkIfProcessIsRunning = (status) => {
   const query = 'zcashd'
-  let platform = process.platform
+  const platform = process.platform
   let cmd = ''
   switch (platform) {
-    case 'win32' : cmd = `tasklist`; break
-    case 'darwin' : cmd = `ps -ax`; break
-    case 'linux' : cmd = `ps -A`; break
+    case 'win32' : cmd = 'tasklist'; break
+    case 'darwin' : cmd = 'ps -ax'; break
+    case 'linux' : cmd = 'ps -A'; break
     default: break
   }
   exec(cmd, (err, stdout, stderr) => {

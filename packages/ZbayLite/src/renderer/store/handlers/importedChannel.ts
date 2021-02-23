@@ -58,7 +58,7 @@ const removeChannel = (history, isOffer = false) => async (dispatch, getState) =
   const state = getState()
   const channel = channelSelectors.channel(state)
   try {
-    const network = nodeSelectors.network(getState())
+    const network = nodeSelectors.network()
 
     const generalChannel = channels.general[network]
     if (generalChannel.address !== channel.address) {
@@ -72,7 +72,7 @@ const removeChannel = (history, isOffer = false) => async (dispatch, getState) =
       history.push(`/main/channel/${channelsSelectors.generalChannelId(state)}`)
       dispatch(
         notificationsHandlers.actions.enqueueSnackbar({
-          message: `Successfully removed channel`,
+          message: 'Successfully removed channel',
           options: {
             variant: 'success'
           }
@@ -104,7 +104,7 @@ const importChannel = () => async (dispatch, getState) => {
   const state = getState()
   const channel = importedChannelSelectors.data(state)
   try {
-    const importedChannels = electronStore.get(`importedChannels`) || {}
+    const importedChannels = electronStore.get('importedChannels') || {}
     electronStore.set(`channelsToRescan.${channel.address}`, true)
     electronStore.set('importedChannels', {
       ...importedChannels,
@@ -147,12 +147,12 @@ const importChannel = () => async (dispatch, getState) => {
   }
 }
 
-const decodeChannelEpic = uri => async (dispatch, getState) => {
+const decodeChannelEpic = uri => async dispatch => {
   dispatch(setDecoding(true))
   try {
     const channel = await uriToChannel(uri)
 
-    const importedChannels = electronStore.get(`importedChannels`)
+    const importedChannels = electronStore.get('importedChannels')
     let importAddress
     let checkImported = false
     const checkExisting = Object.values<PublicChannel>(importedChannels).filter(
@@ -174,7 +174,7 @@ const decodeChannelEpic = uri => async (dispatch, getState) => {
     if (checkImported) {
       dispatch(
         notificationsHandlers.actions.enqueueSnackbar(
-          errorNotification({ message: `You already imported this channel` })
+          errorNotification({ message: 'You already imported this channel' })
         )
       )
       history.push(`/main/channel/${importAddress}`)

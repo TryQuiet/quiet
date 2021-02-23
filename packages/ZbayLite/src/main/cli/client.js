@@ -19,6 +19,7 @@ export default class Client {
       mapping.delete(args.id)
     })
   }
+
   terminate = () =>
     new Promise(resolve => {
       worker.terminate(() => {
@@ -27,7 +28,7 @@ export default class Client {
     })
 
   postMessage = async (id, method, args = '') => {
-    const promise = new Promise((resolve, reject) => {
+    const promise = new Promise((resolve) => {
       mapping.set(id, {
         resolve: resolve,
         args: JSON.stringify({ id: id, method: method, args: args })

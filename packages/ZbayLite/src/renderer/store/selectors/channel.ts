@@ -6,6 +6,7 @@ import { networkFee, messageType } from '../../../shared/static'
 import publicChannels from './publicChannels'
 
 import { Store } from '../reducers'
+import { DisplayableMessage } from '../../zbay/messages.types'
 
 const channel = (s: Store) => s.channel
 
@@ -59,24 +60,19 @@ export const isOwner = createSelector(
     return false
   }
 )
-export const channelSettingsMessage = createSelector(
-  data,
-  identitySelectors.signerPubKey,
-  (data, signerPubKey) => {
-    if (!data) {
-      return null
-    }
-    const settingsMsg = Array.from(Object.values(data.messages)).filter(
-      msg =>
-        msg.type === messageType.CHANNEL_SETTINGS ||
-        msg.type === messageType.CHANNEL_SETTINGS_UPDATE
-    )
-    if (!settingsMsg.length) {
-      return null
-    }
-    return settingsMsg.reduce((prev, curr) => (prev.createdAt > curr.createdAt ? prev : curr))
+export const channelSettingsMessage = createSelector(data, data => {
+  if (!data) {
+    return null
   }
-)
+  const settingsMsg = Array.from(Object.values(data.messages)).filter(
+    msg =>
+      msg.type === messageType.CHANNEL_SETTINGS || msg.type === messageType.CHANNEL_SETTINGS_UPDATE
+  )
+  if (!settingsMsg.length) {
+    return null
+  }
+  return settingsMsg.reduce((prev, curr) => (prev.createdAt > curr.createdAt ? prev : curr))
+})
 export const advertFee = createSelector(channelSettingsMessage, settingsMsg => {
   if (settingsMsg === null) {
     return 0
@@ -128,17 +124,17 @@ const concatMessages = (mainMsg, messagesToConcat) => {
   }
 }
 
-export const mergeIntoOne = messages => {
+export const mergeIntoOne = (messages: DisplayableMessage[]) => {
   if (messages.length === 0) return
-  let result = [[]]
-  let last = null
+  const result = [[]]
+  let last: DisplayableMessage = null
   for (const msg of messages) {
     const isMessageInTargetZone = last
       ? checkMessageTargetTimeWindow({
-          targetCreatedAt: last.createdAt,
-          timeStamp: msg.createdAt,
-          timeWindow: last.createdAt + 300
-        })
+        targetCreatedAt: last.createdAt,
+        timeStamp: msg.createdAt,
+        timeWindow: last.createdAt + 300
+      })
       : true
     if (last && msg.status === 'failed') {
       result.push([])

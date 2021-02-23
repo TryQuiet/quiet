@@ -1,88 +1,88 @@
-import Immutable from "immutable";
+import Immutable from 'immutable'
 
-import { notifierAction } from "../../components/ui/DismissSnackbarAction";
+import { notifierAction } from '../../components/ui/DismissSnackbarAction'
 
-export const typePending = (name) => `${name}_PENDING`;
-export const typeFulfilled = (name) => `${name}_FULFILLED`;
-export const typeRejected = (name) => `${name}_REJECTED`;
+export const typePending = (name) => `${name}_PENDING`
+export const typeFulfilled = (name) => `${name}_FULFILLED`
+export const typeRejected = (name) => `${name}_REJECTED`
 
 export interface IErrorNotification extends ISuccessNotification {}
 
 export const errorNotification = ({
   message,
-  options,
+  options
 }: IErrorNotification): IErrorNotification => ({
   message,
   options: {
     persist: false,
-    variant: "error",
+    variant: 'error',
     action: notifierAction,
-    ...options,
-  },
-});
+    ...options
+  }
+})
 
-export interface ISuccessNotification  {
-  message: string;
-  options?: object;
-} 
+export interface ISuccessNotification {
+  message: string
+  options?: object
+}
 
 export const successNotification = ({
   message,
-  options,
+  options
 }: ISuccessNotification): ISuccessNotification => ({
   message,
   options: {
-    variant: "success",
-    ...options,
-  },
-});
+    variant: 'success',
+    ...options
+  }
+})
 
 export interface IInfoNotification extends ISuccessNotification {
-  key: string;
+  key: string
 }
 
 export const infoNotification = ({
   message,
   options,
-  key,
-} : IInfoNotification): IInfoNotification => ({
+  key
+}: IInfoNotification): IInfoNotification => ({
   message,
   key,
   options: {
-    variant: "info",
+    variant: 'info',
     action: notifierAction,
     persist: true,
-    ...options,
-  },
-});
+    ...options
+  }
+})
 
 export const LoaderState = Immutable.Record({
   loading: false,
-  message: "",
-});
+  message: ''
+})
 
 export const LoaderStateStd = {
   loading: false,
-  message: "",
-};
+  message: ''
+}
 
 export const FetchingStateStd = {
   sizeLeft: 0,
-  part: "",
-  fetchingStatus: "",
+  part: '',
+  fetchingStatus: '',
   fetchingSpeed: null,
   fetchingEndTime: {
     hours: null,
     minutes: null,
-    seconds: null,
+    seconds: null
   },
   isFetching: false,
   rescanningProgress: 0,
   isRescanningMonitorStarted: false,
   isRescanningInitialized: false,
   guideStatus: false,
-  currentSlide: 0,
-};
+  currentSlide: 0
+}
 
 export class FetchingState {
   sizeLeft: number = 0
@@ -94,6 +94,7 @@ export class FetchingState {
     minutes?: number
     seconds?: number
   }
+
   isFetching: boolean = false
   rescanningProgress: number = 0
   isRescanningMonitorStarted: boolean = false
@@ -109,5 +110,5 @@ export class FetchingState {
 export default {
   typePending,
   typeFulfilled,
-  typeRejected,
-};
+  typeRejected
+}

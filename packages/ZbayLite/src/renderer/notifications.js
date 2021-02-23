@@ -3,7 +3,7 @@ import { soundTypeToAudio } from '../shared/sounds'
 import electronStore from '../shared/electronStore'
 
 export const createNotification = ({ title, body }) => {
-  const sound = parseInt(electronStore.get(`notificationCenter.user.sound`))
+  const sound = parseInt(electronStore.get('notificationCenter.user.sound'))
   if (sound) {
     soundTypeToAudio[sound].play()
   }

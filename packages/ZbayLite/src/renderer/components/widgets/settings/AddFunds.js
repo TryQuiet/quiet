@@ -46,7 +46,7 @@ const styles = theme => ({
   },
   qrIcon: {
     padding: 18,
-    border: `1px solid rgba(0, 0, 0, 0.26)`,
+    border: '1px solid rgba(0, 0, 0, 0.26)',
     borderRadius: 4,
     width: 60,
     height: 60,
@@ -94,7 +94,7 @@ export const AddFunds = ({
   generateNewAddress,
   generateNewShieldedAddress,
   topAddress,
-  topShieldedAddress,
+  topShieldedAddress
 }) => {
   const [dialogOpen, setDialogOpen] = React.useState(false)
   const [isCopied, setIsCopied] = React.useState(false)
@@ -183,7 +183,7 @@ export const AddFunds = ({
             <Grid
               item
               className={classes.qrIcon}
-              onClick={() => {onClickHandle(topAddress)}}>
+              onClick={() => { onClickHandle(topAddress) }}>
               <Icon src={qrIcon} />
             </Grid>
           </Tooltip>
@@ -201,7 +201,7 @@ export const AddFunds = ({
             color='primary'
             type='submit'
             className={isCopied ? classes.buttonCopied : classes.button}>
-            {isCopied ? `Address copied to clipboard` : `Copy address to clipboard`}
+            {isCopied ? 'Address copied to clipboard' : 'Copy address to clipboard'}
           </Button>
         </CopyToClipboard>
       </Grid>
@@ -236,7 +236,7 @@ export const AddFunds = ({
             <Grid
               item
               className={classes.qrIcon}
-              onClick={() => {onClickHandle(topShieldedAddress)}}>
+              onClick={() => { onClickHandle(topShieldedAddress) }}>
               <Icon src={qrIcon} />
             </Grid>
           </Tooltip>
@@ -254,7 +254,7 @@ export const AddFunds = ({
             color='primary'
             type='submit'
             className={isCopiedPrivate ? classes.buttonCopied : classes.button}>
-            {isCopiedPrivate ? `Address copied to clipboard` : `Copy address to clipboard`}
+            {isCopiedPrivate ? 'Address copied to clipboard' : 'Copy address to clipboard'}
           </Button>
         </CopyToClipboard>
       </Grid>

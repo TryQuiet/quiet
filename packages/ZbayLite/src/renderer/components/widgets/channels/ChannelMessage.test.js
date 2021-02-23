@@ -36,7 +36,7 @@ describe('ChannelMessage', () => {
     expect(result).toMatchSnapshot()
   })
   it('renders component when message is sent by owner', () => {
-    let message = createMessage(1)
+    const message = createMessage(1)
     message.fromYou = true
     const result = shallow(
       <ChannelMessage

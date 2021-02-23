@@ -1,23 +1,23 @@
-import React from "react";
+import React from 'react'
 
-import Typography from "@material-ui/core/Typography";
-import Grid from "@material-ui/core/Grid";
-import { makeStyles } from "@material-ui/core/styles";
-import { ISpentFilterProps } from "./SpentFilter.d";
+import Typography from '@material-ui/core/Typography'
+import Grid from '@material-ui/core/Grid'
+import { makeStyles } from '@material-ui/core/styles'
+import { ISpentFilterProps } from './SpentFilter.d'
 
-import Slider from "../../ui/Slider";
+import Slider from '../../ui/Slider'
 
 const useStyles = makeStyles({
   title: {
-    fontSize: "0.83rem",
-  },
-});
+    fontSize: '0.83rem'
+  }
+})
 
 export const SpentFilter: React.FC<ISpentFilterProps> = ({
   value,
-  handleOnChange,
+  handleOnChange
 }) => {
-  const classes = useStyles({});
+  const classes = useStyles({})
   return (
     <Grid container direction="column" justify="center" alignItems="center">
       <Grid item>
@@ -37,7 +37,7 @@ export const SpentFilter: React.FC<ISpentFilterProps> = ({
         />
       </Grid>
     </Grid>
-  );
-};
+  )
+}
 
-export default SpentFilter;
+export default SpentFilter

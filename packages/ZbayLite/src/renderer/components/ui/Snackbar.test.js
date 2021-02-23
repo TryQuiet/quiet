@@ -4,6 +4,7 @@ import { shallow } from 'enzyme'
 
 import { mockClasses } from '../../../shared/testing/mocks'
 import { Snackbar } from './Snackbar'
+import each from 'jest-each'
 
 describe('Snackbar', () => {
   each(['success', 'warning', 'error', 'info', 'loading']).test(

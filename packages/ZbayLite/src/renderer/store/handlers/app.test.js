@@ -65,7 +65,7 @@ describe('criticalError reducer', () => {
       store.dispatch(
         handlers.actions.setTransfers({ id: 'testid', value: 'testvalue2' })
       )
-      expect(selectors.transfers(store.getState())['testid']).toEqual(
+      expect(selectors.transfers(store.getState()).testid).toEqual(
         'testvalue2'
       )
     })

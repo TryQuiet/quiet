@@ -11,12 +11,12 @@ describe('operations selectors', () => {
     store = create({
       initialState: {
         messagesQueue: {
-          'messageHash': {
+          messageHash: {
             ...PendingMessage,
             channelId: 'test-channel-id-1',
             message: createMessage(1)
           },
-          'messageHash2': {
+          messageHash2: {
             ...PendingMessage,
             channelId: 'test-channel-id-1',
             message: createMessage(1)

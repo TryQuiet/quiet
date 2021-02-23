@@ -2,10 +2,10 @@ import { produce, immerable } from 'immer'
 import { createAction, handleActions } from 'redux-actions'
 import { actionTypes } from '../../../shared/static'
 
-import {ActionsType, PayloadType} from './types'
+import { ActionsType, PayloadType } from './types'
 
 class CriticalError {
-  message: string;
+  message: string
   traceback: string
 
   constructor(values?: Partial<CriticalError>) {
@@ -20,7 +20,6 @@ export const initialState: CriticalError = {
     traceback: ''
   })
 }
-
 
 const setCriticalError = createAction<{message: string; traceback: string}>(actionTypes.SET_CRITICAL_ERROR)
 

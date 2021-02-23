@@ -6,7 +6,6 @@ import { actionTypes } from '../../../shared/static'
 
 import { ActionsType, PayloadType } from './types'
 
-
 interface IOwnedChannels {
   [key: string]: boolean
 }
@@ -21,7 +20,7 @@ export const actions = {
 
 export type OwnedChannelsActions = ActionsType<typeof actions>
 
-const getOwnedChannels = () => async (dispatch, getState) => {
+const getOwnedChannels = () => async dispatch => {
   const myChannels = {}
   const addresses = await client.addresses()
   for (const address of addresses.z_addresses) {

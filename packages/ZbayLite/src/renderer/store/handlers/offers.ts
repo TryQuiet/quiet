@@ -23,13 +23,14 @@ import { packMemo } from '../../zbay/transit'
 import { sendMessage } from '../../zcash/websocketClient'
 
 import { ActionsType } from './types'
+import { History } from 'history'
 
 class Offer {
-  address: string;
-  itemId: string;
-  name: string;
-  lastSeen: string;
-  messages: DisplayableMessage[];
+  address: string
+  itemId: string
+  name: string
+  lastSeen: string
+  messages: DisplayableMessage[]
   newMessages: DisplayableMessage[]
 
   constructor(values?: Partial<Offer>) {
@@ -38,7 +39,9 @@ class Offer {
   }
 }
 
-export type OffersStore = { [id: string]: Offer }
+export interface OffersStore {
+  [id: string]: Offer
+}
 
 const initialState: OffersStore = {}
 
@@ -47,21 +50,32 @@ const setLastSeen = createAction(actionTypes.SET_OFFER_LAST_SEEN)
 
 export const actions = {
   cleanNewMessages,
-  setLastSeen,
+  setLastSeen
 }
 
 export type OffersActions = ActionsType<typeof actions>
 
-const createOfferAdvert = ({ payload, history }) => async (
+export interface CreateOfferPayload {
+  id: string
+  address: string
+  offerOwner: string
+  tag: string
+}
+
+const createOfferAdvert = ({
+  payload,
+  history
+}: {
+  payload: CreateOfferPayload
+  history: History
+}) => async dispatch => {
+  await dispatch(createOffer({ payload }))
+  history.push(`/main/offers/${payload.id + payload.offerOwner}/${payload.address}`)
+}
+const createOffer = ({ payload }: { payload: CreateOfferPayload }) => async (
   dispatch,
   getState
 ) => {
-  await dispatch(createOffer({ payload }))
-  history.push(
-    `/main/offers/${payload.id + payload.offerOwner}/${payload.address}`
-  )
-}
-const createOffer = ({ payload }) => async (dispatch, getState) => {
   const contacts = contactsSelectors.contacts(getState())
   const msg = contactsSelectors.getAdvertById(payload.id)(getState())
   if (!contacts[payload.id + payload.offerOwner]) {
@@ -106,20 +120,14 @@ const sendItemMessageOnEnter = event => async (dispatch, getState) => {
       },
       privKey: privKey
     })
-    const isMergedMessageTooLong = await dispatch(
-      _checkMessageSize(message.message)
-    )
+    const isMergedMessageTooLong = await dispatch(_checkMessageSize(message.message))
     if (!isMergedMessageTooLong) {
       dispatch(channelHandlers.actions.setMessage({ value: '', id: id }))
       const myUser = usersSelectors.myUser(getState())
       const messageDigest = crypto.createHash('sha256')
 
-      const messageEssentials = R.pick(['createdAt', 'message', 'spent'])(
-        message
-      )
-      const key = messageDigest
-        .update(JSON.stringify(messageEssentials))
-        .digest('hex')
+      const messageEssentials = R.pick(['createdAt', 'message', 'spent'])(message)
+      const key = messageDigest.update(JSON.stringify(messageEssentials)).digest('hex')
 
       const messagePlaceholder = new DisplayableMessage({
         ...message,
@@ -194,12 +202,18 @@ export const epics = {
 
 export const reducer = handleActions(
   {
-    [cleanNewMessages.toString()]: (state, { payload: { itemId } }: OffersActions['cleanNewMessages']) =>
-      produce(state, (draft) => {
+    [cleanNewMessages.toString()]: (
+      state,
+      { payload: { itemId } }: OffersActions['cleanNewMessages']
+    ) =>
+      produce(state, draft => {
         draft[itemId].newMessages = []
       }),
-    [setLastSeen.toString()]: (state, { payload: { itemId, lastSeen } }: OffersActions['setLastSeen']) =>
-      produce(state, (draft) => {
+    [setLastSeen.toString()]: (
+      state,
+      { payload: { itemId, lastSeen } }: OffersActions['setLastSeen']
+    ) =>
+      produce(state, draft => {
         if (!draft[itemId]) {
           draft[itemId] = {
             ...new Offer({
@@ -215,7 +229,7 @@ export const reducer = handleActions(
         } else {
           draft[itemId].lastSeen = lastSeen
         }
-      }),
+      })
   },
   initialState
 )

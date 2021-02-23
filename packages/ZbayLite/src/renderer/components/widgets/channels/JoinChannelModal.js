@@ -116,7 +116,7 @@ export const JoinChannelModal = ({
             if (ch) {
               if (!ch) {
                 showNotification(
-                  errorNotification({ message: `Channel does not exist` })
+                  errorNotification({ message: 'Channel does not exist' })
                 )
                 return
               }
@@ -130,7 +130,7 @@ export const JoinChannelModal = ({
             }
             showNotification(
               errorNotification({
-                message: `There was an error. Please check channel URL`
+                message: 'There was an error. Please check channel URL'
               })
             )
           }}
@@ -204,7 +204,7 @@ export const JoinChannelModal = ({
                           {...params}
                           className={classes.input}
                           variant='outlined'
-                          placeholder={`Search`}
+                          placeholder={'Search'}
                           margin='normal'
                         />
                       )}

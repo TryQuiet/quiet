@@ -90,7 +90,7 @@ export const BuyZcash = ({ classes }) => {
           </Typography>
         )}
         {(type === types.MAIN || type === types.OTHER) &&
-          country !== `United States` && (
+          country !== 'United States' && (
           <Typography variant='body2'>
               The easiest way to buy Zcash in your country is Indacoin. Visit
               their{' '}

@@ -13,7 +13,7 @@ const styles = theme => ({
   }
 })
 
-export const UnlockVault = ({ classes, status }) =>
+export const UnlockVault = ({ classes }) =>
   (
     <WindowWrapper>
       <Grid

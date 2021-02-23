@@ -2,6 +2,7 @@
 import React from 'react'
 import { shallow } from 'enzyme'
 
+import each from 'jest-each'
 import { PulseDot } from './PulseDot'
 import { mockClasses } from '../../../shared/testing/mocks'
 

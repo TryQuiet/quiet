@@ -79,7 +79,7 @@ const styles = theme => ({
     margin: 0,
     color: theme.palette.colors.purple,
     backgroundColor: 'transparent',
-    border: `1px solid `,
+    border: '1px solid ',
     textTransform: 'none'
   },
   buttonString: {

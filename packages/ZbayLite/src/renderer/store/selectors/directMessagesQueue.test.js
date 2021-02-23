@@ -10,13 +10,13 @@ describe('operations selectors', () => {
     store = create({
       initialState: {
         directMessagesQueue: {
-          'messageHash': {
+          messageHash: {
             ...PendingMessage,
             recipientAddress: 'test-address',
             recipientUsername: 'test-username',
             message: createMessage(1)
           },
-          'messageHash2': {
+          messageHash2: {
             ...PendingMessage,
             recipientAddress: 'test-address',
             recipientUsername: 'test-username',

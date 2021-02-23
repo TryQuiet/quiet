@@ -5,10 +5,10 @@ import { actionTypes } from '../../../shared/static'
 import { ActionsType, PayloadType } from './types'
 
 class DirectMessageChannel {
-  targetRecipientAddress?: string;
+  targetRecipientAddress?: string
   targetRecipientUsername?: string
 
-  constructor(values?: Partial<DirectMessageChannel>){
+  constructor(values?: Partial<DirectMessageChannel>) {
     Object.assign(this, values)
     this[immerable] = true
   }
@@ -31,8 +31,8 @@ export const actions = {
 export type DirectMessageChannelActions = ActionsType<typeof actions>
 
 export const reducer = handleActions<
-  DirectMessageChannel,
-  PayloadType<DirectMessageChannelActions>
+DirectMessageChannel,
+PayloadType<DirectMessageChannelActions>
 >(
   {
     [setDirectMessageRecipientAddress.toString()]: (

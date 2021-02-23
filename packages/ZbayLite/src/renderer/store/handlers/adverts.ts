@@ -15,6 +15,7 @@ import contactsHandlers from './contacts'
 import { messageType } from '../../../shared/static'
 import operationsHandlers from './operations'
 import history from '../../../shared/history'
+import { DisplayableMessage as IDisplayableMessage } from '../../zbay/messages.types'
 
 const handleSend = ({ values }) => async (dispatch, getState) => {
   const data = {
@@ -45,9 +46,7 @@ const handleSend = ({ values }) => async (dispatch, getState) => {
   const messageDigest = crypto.createHash('sha256')
 
   const messageEssentials = R.pick(['createdAt', 'message', 'spent'])(message)
-  const key = messageDigest
-    .update(JSON.stringify(messageEssentials))
-    .digest('hex')
+  const key = messageDigest.update(JSON.stringify(messageEssentials)).digest('hex')
 
   const messagePlaceholder = DisplayableMessage({
     ...message,
@@ -98,10 +97,13 @@ const handleSend = ({ values }) => async (dispatch, getState) => {
   }
 }
 
-const handleSendTransfer = ({ values, payload }) => async (
-  dispatch,
-  getState
-) => {
+const handleSendTransfer = ({
+  values,
+  payload
+}: {
+  values: any
+  payload: IDisplayableMessage
+}) => async (dispatch, getState) => {
   const myUser = usersSelectors.myUser(getState())
   const shippingData = identitySelectors.shippingData(getState())
   const privKey = identitySelectors.signerPrivKey(getState())
@@ -122,9 +124,7 @@ const handleSendTransfer = ({ values, payload }) => async (
   const messageDigest = crypto.createHash('sha256')
 
   const messageEssentials = R.pick(['createdAt', 'message', 'spent'])(message)
-  const key = messageDigest
-    .update(JSON.stringify(messageEssentials))
-    .digest('hex')
+  const key = messageDigest.update(JSON.stringify(messageEssentials)).digest('hex')
 
   const messagePlaceholder = DisplayableMessage({
     ...message,
@@ -162,9 +162,7 @@ const handleSendTransfer = ({ values, payload }) => async (
       message: { [key]: messagePlaceholder }
     })
   )
-  history.push(
-    `/main/offers/${payload.id + payload.offerOwner}/${payload.address}`
-  )
+  history.push(`/main/offers/${payload.id + payload.offerOwner}/${payload.address}`)
   dispatch(
     operationsHandlers.actions.addOperation({
       channelId: payload.id + payload.offerOwner,

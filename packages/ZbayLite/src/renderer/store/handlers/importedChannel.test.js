@@ -69,7 +69,7 @@ describe('Imported channel reducer handles', () => {
     jest.clearAllMocks()
   })
 
-  const channelUri = `eJwNjV1uhiAUBfficx+oCEh3Q+ACHyDhispP073Xl5NMMpnzu2R1wPKzOMhwqrR8LZ8nvjz784FWv7FFRntHdIgFT+PdfrS9m3Jq6QxPthjjhpqyMyaY7jBeH2wnaya1FUVP34+6v7nA17mqbPbLTwsUR6JRoCtxYy6pd8msIwtyIZuUixykWI8Z78t0pVMzTIZckbQdmVSx8jPcsq6Pu8WQqBOg4CXdcFy+xZy2Tb9nM2wzEFvwtp5bmNqmPZXy9GMCUOsYdda3YcgQlLl+++Z75shgPFkPkFYn02ax4moznLm5yOE+wvL3DzjjcxI=`
+  const channelUri = 'eJwNjV1uhiAUBfficx+oCEh3Q+ACHyDhispP073Xl5NMMpnzu2R1wPKzOMhwqrR8LZ8nvjz784FWv7FFRntHdIgFT+PdfrS9m3Jq6QxPthjjhpqyMyaY7jBeH2wnaya1FUVP34+6v7nA17mqbPbLTwsUR6JRoCtxYy6pd8msIwtyIZuUixykWI8Z78t0pVMzTIZckbQdmVSx8jPcsq6Pu8WQqBOg4CXdcFy+xZy2Tb9nM2wzEFvwtp5bmNqmPZXy9GMCUOsYdda3YcgQlLl+++Z75shgPFkPkFYn02ax4moznLm5yOE+wvL3DzjjcxI='
   const address = 'address123'
   describe('actions', () => {
     it('handles setData', async () => {

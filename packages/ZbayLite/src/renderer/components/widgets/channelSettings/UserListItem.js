@@ -8,7 +8,7 @@ import ConfirmModal from './ConfirmModal'
 
 const styles = theme => ({
   root: {
-    padding: `12px 16px`,
+    padding: '12px 16px',
     borderBottom: `1px solid ${theme.palette.colors.veryLightGray}`
   },
   name: {

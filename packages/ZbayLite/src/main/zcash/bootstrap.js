@@ -16,7 +16,7 @@ const FSP = fs.promises
 const copyDir = async (src, dest) => {
   const entries = await FSP.readdir(src, { withFileTypes: true })
   await FSP.mkdir(dest)
-  for (let entry of entries) {
+  for (const entry of entries) {
     const srcPath = path.join(src, entry.name)
     const destPath = path.join(dest, entry.name)
     if (entry.isDirectory()) {

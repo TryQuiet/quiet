@@ -119,7 +119,7 @@ export const handleInvitation = invitationPacked => async (dispatch, getState) =
         await getClient().payment.send(transfer)
       }
     }
-    await dispatch(identityHandlers.epics.updateDonationAddress(invitation.donationAddress))
+    await dispatch(identityHandlers.epics.updateDonationAddress())
     dispatch(actionCreators.openModal('receivedInvitationModal')())
   } catch (err) {
     dispatch(

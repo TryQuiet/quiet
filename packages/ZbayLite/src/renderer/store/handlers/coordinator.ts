@@ -44,9 +44,10 @@ const coordinator = () => async (dispatch, getState) => {
         break
       }
     }
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     setTimeout(fetchStatus, 25000)
   }
-  fetchStatus()
+  void fetchStatus()
 }
 const epics = {
   coordinator
@@ -54,12 +55,14 @@ const epics = {
 
 export const reducer = handleActions(
   {
-    [startCoordinator.toString()]: state => produce(state, (draft) => {
-      draft.running = true
-    }),
-    [stopCoordinator.toString()]: state => produce(state, (draft) => {
-      draft.running = false
-    })
+    [startCoordinator.toString()]: state =>
+      produce(state, draft => {
+        draft.running = true
+      }),
+    [stopCoordinator.toString()]: state =>
+      produce(state, draft => {
+        draft.running = false
+      })
   },
   initialState
 )

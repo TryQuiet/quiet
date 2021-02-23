@@ -56,6 +56,7 @@ export class Contact {
     Object.assign(this, values)
     this[immerable] = true
   }
+
   typingIndicator: boolean = false
 }
 export interface ISender {
@@ -63,7 +64,9 @@ export interface ISender {
   username: string
 }
 
-export type ContactsStore = { [key: string]: Contact }
+export interface ContactsStore {
+  [key: string]: Contact
+}
 
 const initialState: ContactsStore = {}
 
@@ -130,7 +133,7 @@ export const loadContact = address => async (dispatch, getState) => {
   const contact = selectors.contact(address)(getState())
   dispatch(updateLastSeen({ contact }))
 }
-export const updatePendingMessage = ({ key, id, txid }) => async (dispatch, getState) => {
+export const updatePendingMessage = ({ key, id, txid }) => async dispatch => {
   dispatch(updateMessage({ key, id, txid }))
 }
 export const linkUserRedirect = contact => async (dispatch, getState) => {
@@ -177,7 +180,7 @@ export const createVaultContact = ({ contact, history, redirect = true }) => asy
       })
     )
   }
-  if (redirect === true) {
+  if (redirect) {
     history.push(`/main/direct-messages/${contact.publicKey}/${contact.nickname}`)
   }
 }
@@ -186,7 +189,7 @@ export const connectWsContacts = (key?: string) => async (dispatch, getState) =>
   const users = usersSelector.users(getState())
   var mapping = new Map()
   const connect = async (key, address) => {
-    const promise = new Promise((resolve, reject) => {
+    const promise = new Promise(resolve => {
       mapping.set(key, {
         resolve: resolve,
         data: JSON.stringify({
@@ -205,7 +208,7 @@ export const connectWsContacts = (key?: string) => async (dispatch, getState) =>
     return promise
   }
 
-  ipcRenderer.on('initWsConnection', (e, d) => {
+  ipcRenderer.on('initWsConnection', (_e, d) => {
     const data = JSON.parse(d)
     dispatch(setContactConnected({ key: data.id, connected: data.connected }))
     mapping.get(data.id)?.resolve(data.response)
@@ -230,8 +233,8 @@ export const connectWsContacts = (key?: string) => async (dispatch, getState) =>
   await Promise.all(contactsToConnect.map(contact => connect(contact.key, contact.onionAddress)))
 }
 
-export const deleteChannel = ({ address, timestamp, history }) => async (dispatch, getState) => {
-  history.push(`/main/channel/general`)
+export const deleteChannel = ({ address, history }) => async dispatch => {
+  history.push('/main/channel/general')
   dispatch(removeContact(address))
 }
 

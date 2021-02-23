@@ -23,7 +23,7 @@ export const formSchema = users => {
       recipient: Yup.mixed()
         .test(
           'match',
-          `Wrong address format (You can't include message to transparent address) or username does not exist`,
+          'Wrong address format (You can\'t include message to transparent address) or username does not exist',
           function (string) {
             const isAddressValid = /^zs1[a-z0-9]{75}$/.test(
               string
@@ -43,17 +43,17 @@ export const formSchema = users => {
 }
 
 export const validateForm = ({ balanceZec }) => values => {
-  let errors = {}
+  const errors = {}
   if (balanceZec.isLessThan(networkFee)) {
-    errors['amountZec'] = `Your ZEC balance is to low for sending a message`
+    errors.amountZec = 'Your ZEC balance is to low for sending a message'
   }
   if (
     values.memo.length > MESSAGE_SIZE
   ) {
-    errors['memo'] = `Your message and shipping information are too long`
+    errors.memo = 'Your message and shipping information are too long'
   }
   if (values.sendAnonymously && values.memo.length === 0) {
-    errors['memo'] = `You need to include message`
+    errors.memo = 'You need to include message'
   }
   return errors
 }

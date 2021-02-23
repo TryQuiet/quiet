@@ -131,9 +131,9 @@ export const OpenlinkModal = ({
                         />
                       </Grid>
                       <Grid item xs className={classes.checkboxLabel}>
-                        {`Automatically load images from `}
+                        {'Automatically load images from '}
                         <span className={classes.bold}>{uri.hostname}</span>
-                        {`- I trust them with my data and I'm not using Zbay for anonymity protection. `}
+                        {'- I trust them with my data and I\'m not using Zbay for anonymity protection. '}
                       </Grid>
                     </Grid>
                     <Grid item container justify='center' alignItems='center'>
@@ -145,11 +145,11 @@ export const OpenlinkModal = ({
                         />
                       </Grid>
                       <Grid item xs className={classes.checkboxLabel}>
-                        {`Don't warn me about `}
+                        {'Don\'t warn me about '}
                         <span className={classes.bold}>
                           {uri.hostname}
                         </span>{' '}
-                        {`again, but don't auto-load images.`}
+                        {'again, but don\'t auto-load images.'}
                       </Grid>
                     </Grid>
                   </>
@@ -163,9 +163,9 @@ export const OpenlinkModal = ({
                       />
                     </Grid>
                     <Grid item xs className={classes.checkboxLabel}>
-                      {`Don't warn me about `}
+                      {'Don\'t warn me about '}
                       <span className={classes.bold}>{uri.hostname}</span>{' '}
-                      {`again`}
+                      {'again'}
                     </Grid>
                   </Grid>
                 )}
@@ -178,7 +178,7 @@ export const OpenlinkModal = ({
                     />
                   </Grid>
                   <Grid item xs className={classes.checkboxLabel}>
-                    {`Never warn me about outbound links on Zbay.`}
+                    {'Never warn me about outbound links on Zbay.'}
                   </Grid>
                 </Grid>
                 <Grid
@@ -217,7 +217,7 @@ export const OpenlinkModal = ({
                         setWhitelistAll(allowAllLink)
                         handleClose()
                       }}
-                      href={``}
+                      href={''}
                     >
                       {isImage
                         ? `Load image from site ${uri.hostname}`

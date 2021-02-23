@@ -25,7 +25,7 @@ export class MessagesQueue {
   message?: DisplayableMessage
 
   constructor(values?: Partial<MessagesQueue>) {
-    Object.assign(this, values);
+    Object.assign(this, values)
     this[immerable] = true
   }
 }
@@ -34,27 +34,27 @@ export type MessagesQueueStore = MessagesQueue[]
 
 export const initialState: MessagesQueue[] = []
 
-export type MessagesQueueActions = ActionsType<typeof actions>;
+export type MessagesQueueActions = ActionsType<typeof actions>
 
-const addMessage = createAction<{ channelId: string; message: DisplayableMessage; key: string }, { message: DisplayableMessage; channelId: string }>(
-  actionTypes.ADD_PENDING_MESSAGE,
-  ({ message, channelId }) => {
-    const messageDigest = crypto.createHash('sha256')
-    const messageEssentials = R.pick(['type', 'sender', 'signature'])(message)
-    return {
-      key: messageDigest
-        .update(
-          JSON.stringify({
-            ...messageEssentials,
-            channelId
-          })
-        )
-        .digest('hex'),
-      message,
-      channelId
-    }
+const addMessage = createAction<
+{ channelId: string; message: DisplayableMessage; key: string },
+{ message: DisplayableMessage; channelId: string }
+>(actionTypes.ADD_PENDING_MESSAGE, ({ message, channelId }) => {
+  const messageDigest = crypto.createHash('sha256')
+  const messageEssentials = R.pick(['type', 'sender', 'signature'])(message)
+  return {
+    key: messageDigest
+      .update(
+        JSON.stringify({
+          ...messageEssentials,
+          channelId
+        })
+      )
+      .digest('hex'),
+    message,
+    channelId
   }
-)
+})
 const removeMessage = createAction<number>(actionTypes.REMOVE_PENDING_MESSAGE)
 
 export const actions = {
@@ -62,11 +62,10 @@ export const actions = {
   removeMessage
 }
 
-
 const _sendPendingMessages = (): ZbayThunkAction<void> => async (dispatch, getState) => {
   const lock = appSelectors.messageQueueLock(getState())
   const messages = Array.from(Object.values(selectors.queue(getState())))
-  if (lock === false) {
+  if (!lock) {
     await dispatch(appHandlers.actions.lockMessageQueue())
   } else {
     if (messages.length !== 0) {
@@ -92,8 +91,7 @@ const _sendPendingMessages = (): ZbayThunkAction<void> => async (dispatch, getSt
           dispatch(
             notificationsHandlers.actions.enqueueSnackbar(
               errorNotification({
-                message:
-                  "Couldn't send the message, please check node connection."
+                message: "Couldn't send the message, please check node connection."
               })
             )
           )
@@ -106,8 +104,6 @@ const _sendPendingMessages = (): ZbayThunkAction<void> => async (dispatch, getSt
   await dispatch(appHandlers.actions.unlockMessageQueue())
 }
 
-
-
 export const sendPendingMessages = (debounce = null) => {
   const thunk = _sendPendingMessages()
   thunk.meta = {
@@ -115,15 +111,14 @@ export const sendPendingMessages = (debounce = null) => {
       time:
         debounce !== null
           ? debounce
-          : process.env.ZBAY_DEBOUNCE_MESSAGE_INTERVAL ||
-          DEFAULT_DEBOUNCE_INTERVAL,
+          : process.env.ZBAY_DEBOUNCE_MESSAGE_INTERVAL || DEFAULT_DEBOUNCE_INTERVAL,
       key: 'SEND_PENDING_DRIRECT_MESSAGES'
     }
   }
   return thunk
 }
 
-const addMessageEpic = payload => async (dispatch, getState) => {
+const addMessageEpic = payload => async dispatch => {
   dispatch(addMessage(payload))
   await dispatch(sendPendingMessages())
 }
@@ -135,16 +130,20 @@ export const epics = {
 
 export const reducer = handleActions<MessagesQueueStore, PayloadType<MessagesQueueActions>>(
   {
-    [addMessage.toString()]: (state, { payload: { channelId, message, key } }: MessagesQueueActions['addMessage']) =>
-      produce(state, (draft) => {
+    [addMessage.toString()]: (
+      state,
+      { payload: { channelId, message, key } }: MessagesQueueActions['addMessage']
+    ) =>
+      produce(state, draft => {
         draft[key] = new MessagesQueue({
           channelId,
           message
         })
       }),
-    [removeMessage.toString()]: (state, { payload: key }: MessagesQueueActions['removeMessage']) => produce(state, (draft) => {
-      delete draft[key]
-    })
+    [removeMessage.toString()]: (state, { payload: key }: MessagesQueueActions['removeMessage']) =>
+      produce(state, draft => {
+        delete draft[key]
+      })
   },
   initialState
 )

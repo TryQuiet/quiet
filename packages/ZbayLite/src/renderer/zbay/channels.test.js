@@ -18,7 +18,7 @@ describe('channels', () => {
     })
 
     it('fails on incorrect uri', async () => {
-      const uri = `randomhash`
+      const uri = 'randomhash'
 
       expect.assertions(1)
       try {

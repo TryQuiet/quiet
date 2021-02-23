@@ -1,5 +1,5 @@
-import { createSelector } from "reselect";
-import identitySelectors from "./identity";
+import { createSelector } from 'reselect'
+import identitySelectors from './identity'
 
 import { Store } from '../reducers'
 
@@ -9,13 +9,13 @@ const isRegisteredUsername = (nickname) =>
   createSelector(users, (users) => {
     return Array.from(Object.values(users))
       .map((user) => user.nickname)
-      .includes(nickname);
-  });
-  
+      .includes(nickname)
+  })
+
 const registeredUser = (signerPubKey) =>
   createSelector(users, (users) => {
     return users[signerPubKey]
-  });
+  })
 
 const myUser = createSelector(
   users,
@@ -23,19 +23,19 @@ const myUser = createSelector(
   (users, signerPubKey) => {
     return (
       users[signerPubKey] || {
-        firstName: "",
-        lastName: "",
-        nickname: "anon" + signerPubKey.substring(0, 16),
-        address: "",
-        createdAt: 0,
+        firstName: '',
+        lastName: '',
+        nickname: 'anon' + signerPubKey.substring(0, 16),
+        address: '',
+        createdAt: 0
       }
-    );
+    )
   }
-);
+)
 
 export default {
   users,
   myUser,
   registeredUser,
-  isRegisteredUsername,
-};
+  isRegisteredUsername
+}

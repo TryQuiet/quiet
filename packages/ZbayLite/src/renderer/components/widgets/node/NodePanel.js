@@ -94,7 +94,7 @@ export const NodePanel = ({
         classes={{ root: classes.expander, expanded: classes.expanded }}
       >
         <Tooltip
-          title={freeUtxos ? status : `Waiting for UTXO's`}
+          title={freeUtxos ? status : 'Waiting for UTXO\'s'}
           className={classes.tooltip}
           placement='bottom-end'
         >

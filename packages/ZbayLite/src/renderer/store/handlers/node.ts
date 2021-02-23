@@ -25,6 +25,7 @@ export class Node {
   fetchingStatus: FetchingState = {
     ...new FetchingState()
   }
+
   startedAt?: string
   isRescanning: boolean = false
 
@@ -38,9 +39,12 @@ const initialState: Node = new Node({})
 
 export const NodeState = initialState
 
-const setStatus = createAction<{ status?: string; errors?: string, latestBlock?: BigNumber; currentBlock?: BigNumber }>(
-  actionTypes.SET_STATUS
-)
+const setStatus = createAction<{
+  status?: string
+  errors?: string
+  latestBlock?: BigNumber
+  currentBlock?: BigNumber
+}>(actionTypes.SET_STATUS)
 const createAddress = createAction(
   actionTypes.CREATE_ADDRESS,
   async (type = DEFAULT_ADDRESS_TYPE) => {
@@ -85,20 +89,20 @@ const actions = {
 
 export type NodeActions = ActionsType<typeof actions>
 
-export const startRescanningMonitor = () => async (dispatch, getState) => {
+export const startRescanningMonitor = () => async dispatch => {
   ipcRenderer.send('toggle-rescanning-progress-monitor')
   dispatch(setRescanningMonitorStatus(true))
 }
 
-export const setRescanningInitialized = () => async (dispatch, getState) => {
+export const setRescanningInitialized = () => async dispatch => {
   dispatch(setRescanningStatus(true))
 }
 
-export const disablePowerSaveMode = () => async (dispatch, getState) => {
+export const disablePowerSaveMode = () => async () => {
   ipcRenderer.send('disable-sleep-prevention')
 }
 
-export const checkNodeStatus = nodeProcessStatus => async (dispatch, getState) => {
+export const checkNodeStatus = nodeProcessStatus => async (_dispatch, getState) => {
   const nodeResponseStatus = nodeSelectors.status(getState())
   if (nodeProcessStatus === 'up' && nodeResponseStatus === 'down') {
     ipcRenderer.send('restart-node-proc')
@@ -116,12 +120,14 @@ const getStatus = () => async (dispatch, getState) => {
     }
     // Check if sync give time cli to start rescan
 
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     setTimeout(async () => {
       const syncStatus = await client.syncStatus()
       if (syncStatus.syncing === 'false' && lastSavedBlock + 25 < height) {
         client.save()
         lastSavedBlock = height
         if (nodeSelectors.isRescanning(getState())) {
+          // eslint-disable-next-line @typescript-eslint/no-misused-promises
           setTimeout(async () => {
             console.log(await client.syncStatus())
             await dispatch(setIsRescanning(false))
@@ -142,18 +148,8 @@ const getStatus = () => async (dispatch, getState) => {
   }
 }
 
-const restart = () => dispatch => {
-  console.log('Restarting node')
-}
-
-const togglePower = () => dispatch => {
-  console.log('toggling power of the node')
-}
-
 const epics = {
   getStatus,
-  restart,
-  togglePower,
   startRescanningMonitor,
   disablePowerSaveMode,
   setRescanningInitialized,
@@ -163,7 +159,7 @@ const epics = {
 export const reducer = handleActions<Node, PayloadType<NodeActions>>(
   {
     [setStatus.toString()]: (state, { payload: status }: NodeActions['setStatus']) =>
-      produce(state, draft => {
+      produce(state, () => {
         return Object.assign({}, state, status)
       }),
     [typeRejected(actionTypes.CREATE_ADDRESS)]: (state, { payload: errors }) =>

@@ -52,7 +52,7 @@ const handleModerationAction = ({ moderationType, moderationTarget }) => async (
 }
 const updateChannelSettings = values => async (dispatch, getState) => {
   const channel = channelSelectors.data(getState())
-  const network = nodeSelectors.network(getState())
+  const network = nodeSelectors.network()
   const privKey = identitySelectors.signerPrivKey(getState())
   const message = zbayMessages.createMessage({
     messageData: {

@@ -356,7 +356,7 @@ export const AdvertModal = ({
                     otherField='zec'
                     transformer={rateZec}
                     InputProps={{
-                      error: errors['zec'] && touched['zec'],
+                      error: errors.zec && touched.zec,
                       endAdornment: (
                         <InputAdornment position='end'>
                           <span className={classes.inputMark}>USD</span>
@@ -383,7 +383,7 @@ export const AdvertModal = ({
                     otherField='usd'
                     transformer={rateUsd}
                     InputProps={{
-                      error: errors['usd'] && touched['usd'],
+                      error: errors.usd && touched.usd,
                       endAdornment: (
                         <InputAdornment position='end'>
                           <span className={classes.inputMark}>ZEC</span>
@@ -428,7 +428,7 @@ export const AdvertModal = ({
               </Grid>
               {!funds && (
                 <Grid item xs className={classes.error}>
-                  <Typography variant='body2'>{`You don't have enough funds`}</Typography>
+                  <Typography variant='body2'>{'You don\'t have enough funds'}</Typography>
                 </Grid>
               )}
               <Grid item xs className={classes.error}>

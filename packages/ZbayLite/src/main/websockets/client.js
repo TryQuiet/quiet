@@ -20,7 +20,7 @@ export const connect = address =>
   new Promise((resolve, reject) => {
     const proxy = `http://localhost:${ports.httpTunnelPort}`
     try {
-      const options = url.parse(proxy)
+      const options = new url.URL(proxy)
       const agent = new HttpsProxyAgent(options)
       const socket = new WebSocketClient(address, { agent: agent }, { handshakeTimeout: 30000 })
       const id = setTimeout(() => {
@@ -52,7 +52,7 @@ export const connect = address =>
         resolve(socket)
       })
       socket.on('error', err => {
-        reject('timeout')
+        reject(new Error('timeout'))
         console.log(err)
       })
     } catch (error) {

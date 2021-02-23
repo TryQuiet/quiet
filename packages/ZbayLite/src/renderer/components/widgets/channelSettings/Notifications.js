@@ -43,8 +43,8 @@ const styles = theme => ({
       color: theme.palette.colors.zbayBlue
     },
     '& .MuiTypography-body1': {
-      fontSize: `14px`,
-      lineHeight: `25px`
+      fontSize: '14px',
+      lineHeight: '25px'
     }
   },
   infoDiv: {

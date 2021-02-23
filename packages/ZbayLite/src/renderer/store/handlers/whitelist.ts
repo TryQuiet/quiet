@@ -37,7 +37,6 @@ export const actions = {
 
 export type WhitelistActions = ActionsType<typeof actions>
 
-
 const ensureStore = () => {
   if (!electronStore.get('whitelist')) {
     electronStore.set('whitelist', {
@@ -47,17 +46,14 @@ const ensureStore = () => {
     })
   }
 }
-export const initWhitelist = () => async (dispatch, getState) => {
+export const initWhitelist = () => async dispatch => {
   ensureStore()
   const whitelist = electronStore.get('whitelist')
   dispatch(setWhitelist(whitelist.whitelisted))
   dispatch(setWhitelistAllFlag(whitelist.allowAll))
   dispatch(setAutoLoadList(whitelist.autoload))
 }
-export const addToWhitelist = (url, dontAutoload) => async (
-  dispatch,
-  getState
-) => {
+export const addToWhitelist = (url, dontAutoload) => async dispatch => {
   ensureStore()
   const whitelistArray = electronStore.get('whitelist.whitelisted')
   const uri = new URL(url)
@@ -70,12 +66,12 @@ export const addToWhitelist = (url, dontAutoload) => async (
   }
   dispatch(setWhitelist(whitelistArray))
 }
-export const setWhitelistAll = allowAll => async (dispatch, getState) => {
+export const setWhitelistAll = allowAll => async dispatch => {
   ensureStore()
   electronStore.set('whitelist.allowAll', allowAll)
   dispatch(setWhitelistAllFlag(allowAll))
 }
-export const setAutoLoad = newLink => async (dispatch, getState) => {
+export const setAutoLoad = newLink => async dispatch => {
   ensureStore()
   const autoloadArray = electronStore.get('whitelist.autoload')
   if (autoloadArray.indexOf(newLink) === -1) {
@@ -84,14 +80,14 @@ export const setAutoLoad = newLink => async (dispatch, getState) => {
   electronStore.set('whitelist.autoload', autoloadArray)
   dispatch(setAutoLoadList(autoloadArray))
 }
-export const removeImageHost = hostname => async (dispatch, getState) => {
+export const removeImageHost = hostname => async dispatch => {
   ensureStore()
   const autoloadArray = electronStore.get('whitelist.autoload')
   const filteredArray = autoloadArray.filter(name => name !== hostname)
   electronStore.set('whitelist.autoload', filteredArray)
   dispatch(setAutoLoadList(filteredArray))
 }
-export const removeSiteHost = hostname => async (dispatch, getState) => {
+export const removeSiteHost = hostname => async dispatch => {
   ensureStore()
   const whitelistedArray = electronStore.get('whitelist.whitelisted')
   const filteredArray = whitelistedArray.filter(name => name !== hostname)

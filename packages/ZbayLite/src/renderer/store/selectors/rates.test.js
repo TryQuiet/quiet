@@ -2,6 +2,7 @@
 import create from '../create'
 import { RatesState } from '../handlers/rates'
 import selectors from './rates'
+import each from 'jest-each'
 
 describe('rates selectors', () => {
   let store = null

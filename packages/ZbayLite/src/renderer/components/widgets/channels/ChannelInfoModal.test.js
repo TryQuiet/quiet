@@ -10,7 +10,7 @@ import { DOMAIN } from '../../../../shared/static'
 describe('ChannelInfoModal', () => {
   const uri = `https://${DOMAIN}/importchannel=channel-hash`
   it('renders component', () => {
-    let channel = createChannel(1)
+    const channel = createChannel(1)
     channel.members = new BigNumber(2345)
     const result = shallow(
       <ChannelInfoModal
@@ -25,7 +25,7 @@ describe('ChannelInfoModal', () => {
   })
 
   it('renders component when closed', () => {
-    let channel = createChannel(1)
+    const channel = createChannel(1)
     channel.members = new BigNumber(2345)
     const result = shallow(
       <ChannelInfoModal

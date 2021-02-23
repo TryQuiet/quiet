@@ -2,6 +2,7 @@
 import BigNumber from 'bignumber.js'
 
 import create from '../create'
+import each from 'jest-each'
 import { initialState } from '../handlers/identity'
 import { Operation, operationTypes, ShieldBalanceOp } from '../handlers/operations'
 import selectors from './identity'

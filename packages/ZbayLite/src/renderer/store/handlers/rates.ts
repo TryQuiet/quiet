@@ -9,19 +9,19 @@ import electronStore from '../../../shared/electronStore'
 
 import { ActionsType, PayloadType } from './types'
 
-//TODO remove after changing in tests
+// TODO remove after changing in tests
 export const RatesState = {
   usd: '0',
   zec: '1',
   history: {}
 }
 class Rates {
-  usd: string;
-  zec: string;
+  usd: string
+  zec: string
   history: {
     [key: string]: {
-      datetime: number;
-      price: string;
+      datetime: number
+      price: string
     }
   }
 
@@ -41,8 +41,8 @@ export const setPriceUsd = createAction<{ priceUsd: string }>(actionTypes.SET_PR
 export const addPriceMessage = createAction<{
   messages: {
     [key: string]: {
-      datetime: number;
-      price: string;
+      datetime: number
+      price: string
     }
   }
 }>(actionTypes.ADD_PRICE_MESSAGE)
@@ -54,7 +54,7 @@ export const actions = {
 
 export type RatesActions = ActionsType<typeof actions>
 
-export const setInitialPrice = () => async (dispatch, getState) => {
+export const setInitialPrice = () => async dispatch => {
   try {
     const price = electronStore.get('rates.usd')
     if (price) {
@@ -65,10 +65,7 @@ export const setInitialPrice = () => async (dispatch, getState) => {
   }
 }
 
-export const fetchPrices = (address, messages) => async (
-  dispatch,
-  getState
-) => {
+export const fetchPrices = messages => async dispatch => {
   try {
     for (const msg of messages) {
       try {
@@ -99,7 +96,7 @@ export const fetchPrices = (address, messages) => async (
   }
 }
 
-export const fetchPriceForTime = time => async (dispatch, getState) => {
+export const fetchPriceForTime = time => async (_dispatch, getState) => {
   try {
     return ratesSelectors.priceByTime(time)(getState())
   } catch (err) {

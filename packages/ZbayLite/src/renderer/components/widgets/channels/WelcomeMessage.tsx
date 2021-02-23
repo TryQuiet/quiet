@@ -1,72 +1,72 @@
-import React from "react";
-import classNames from "classnames";
-import { DateTime } from "luxon";
+import React from 'react'
+import classNames from 'classnames'
+import { DateTime } from 'luxon'
 
-import Grid from "@material-ui/core/Grid";
-import Typography from "@material-ui/core/Typography";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
-import { makeStyles } from "@material-ui/core/styles";
+import Grid from '@material-ui/core/Grid'
+import Typography from '@material-ui/core/Typography'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemText from '@material-ui/core/ListItemText'
+import { makeStyles } from '@material-ui/core/styles'
 
-import zbayLogo from "../../../static/images/zcash/zbay-square-logo.svg";
-import Icon from "../../ui/Icon";
-import { transformToLowercase } from "./BasicMessage";
+import zbayLogo from '../../../static/images/zcash/zbay-square-logo.svg'
+import Icon from '../../ui/Icon'
+import { transformToLowercase } from './BasicMessage'
 
-import { IWelcomeMessageProps } from "./WelcomeMessage.d";
+import { IWelcomeMessageProps } from './WelcomeMessage.d'
 
 const useStyles = makeStyles((theme) => ({
   messageCard: {
-    padding: 0,
+    padding: 0
   },
   wrapper: {
-    backgroundColor: theme.palette.colors.white,
+    backgroundColor: theme.palette.colors.white
   },
 
   username: {
     fontSize: 16,
     fontWeight: 500,
     marginTop: -4,
-    marginRight: 5,
+    marginRight: 5
   },
   avatar: {
-    marginRight: 10,
+    marginRight: 10
   },
   message: {
     marginTop: 14,
     marginLeft: -4,
-    whiteSpace: "pre-line",
-    wordBreak: "break-word",
+    whiteSpace: 'pre-line',
+    wordBreak: 'break-word'
   },
   messageInput: {
     marginTop: -35,
-    marginLeft: 50,
+    marginLeft: 50
   },
   icon: {
     width: 36,
     height: 36,
-    borderRadius: 4,
+    borderRadius: 4
   },
   time: {
     color: theme.palette.colors.lightGray,
     fontSize: 14,
     marginTop: -4,
-    marginRight: 5,
-  },
-}));
+    marginRight: 5
+  }
+}))
 
 export const WelcomeMessage: React.FC<IWelcomeMessageProps> = ({
   message,
-  timestamp,
+  timestamp
 }) => {
-  const classes = useStyles({});
-  const username = "Zbay";
+  const classes = useStyles({})
+  const username = 'Zbay'
   const time = transformToLowercase(
-    DateTime.fromSeconds(timestamp).toFormat("t")
-  );
+    DateTime.fromSeconds(timestamp).toFormat('t')
+  )
   return (
     <ListItem
       className={classNames({
-        [classes.wrapper]: true,
+        [classes.wrapper]: true
       })}
     >
       <ListItemText
@@ -78,7 +78,7 @@ export const WelcomeMessage: React.FC<IWelcomeMessageProps> = ({
             direction="row"
             justify="flex-start"
             alignItems="flex-start"
-            wrap={"nowrap"}
+            wrap={'nowrap'}
           >
             <Grid item className={classes.avatar}>
               <Icon className={classes.icon} src={zbayLogo} />
@@ -108,11 +108,11 @@ export const WelcomeMessage: React.FC<IWelcomeMessageProps> = ({
         }
       />
     </ListItem>
-  );
-};
+  )
+}
 
 WelcomeMessage.defaultProps = {
-  timestamp: 0,
-};
+  timestamp: 0
+}
 
-export default WelcomeMessage;
+export default WelcomeMessage

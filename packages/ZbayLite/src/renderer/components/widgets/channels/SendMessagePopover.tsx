@@ -1,8 +1,8 @@
-import React from "react";
-import Popover from "@material-ui/core/Popover";
-import Jdenticon from "react-jdenticon";
-import { ISendMessagePopoverProps } from "./SendMessagePopover.d";
-import QuickActionLayout from "../../ui/QuickActionLayout";
+import React from 'react'
+import Popover from '@material-ui/core/Popover'
+import Jdenticon from 'react-jdenticon'
+import { ISendMessagePopoverProps } from './SendMessagePopover.d'
+import QuickActionLayout from '../../ui/QuickActionLayout'
 
 export const SendMessagePopover: React.FC<ISendMessagePopoverProps> = ({
   username,
@@ -12,13 +12,13 @@ export const SendMessagePopover: React.FC<ISendMessagePopoverProps> = ({
   isUnregistered,
   createNewContact,
   history,
-  users,
+  users
 }) => {
-  const open = Boolean(anchorEl);
-  const id = open ? "simple-popover" : undefined;
+  const open = Boolean(anchorEl)
+  const id = open ? 'simple-popover' : undefined
   const registeredUsername = Array.from(Object.values(users)).filter(
     (obj) => obj.address === address
-  )[0];
+  )[0]
   return (
     <Popover
       id={id}
@@ -26,12 +26,12 @@ export const SendMessagePopover: React.FC<ISendMessagePopoverProps> = ({
       anchorEl={anchorEl}
       onClose={handleClose}
       anchorOrigin={{
-        vertical: "bottom",
-        horizontal: "center",
+        vertical: 'bottom',
+        horizontal: 'center'
       }}
       transformOrigin={{
-        vertical: "top",
-        horizontal: "center",
+        vertical: 'top',
+        horizontal: 'center'
       }}
     >
       <QuickActionLayout
@@ -39,7 +39,7 @@ export const SendMessagePopover: React.FC<ISendMessagePopoverProps> = ({
         buttonName="Send message"
         handleClose={handleClose}
         warrning={
-          isUnregistered ? "Unregistered users cannot receive messages." : null
+          isUnregistered ? 'Unregistered users cannot receive messages.' : null
         }
         onClick={() => {
           createNewContact({
@@ -48,16 +48,16 @@ export const SendMessagePopover: React.FC<ISendMessagePopoverProps> = ({
               nickname: username,
               publicKey: registeredUsername
                 ? registeredUsername.publicKey
-                : null,
+                : null
             },
-            history,
-          });
+            history
+          })
         }}
       >
         <Jdenticon size="100" value={username} />
       </QuickActionLayout>
     </Popover>
-  );
-};
+  )
+}
 
-export default SendMessagePopover;
+export default SendMessagePopover

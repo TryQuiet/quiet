@@ -12,12 +12,6 @@ describe('Index', () => {
     store = create()
   })
 
-  it('will receive right props', async () => {
-    await store.dispatch(vaultHandlers.actions.unlockVault({ masterPassword: 'test' }))
-    const props = mapStateToProps(store.getState())
-    expect(props).toMatchSnapshot()
-  })
-
   it('will receive right actions', async () => {
     const actions = mapDispatchToProps(x => x)
     expect(actions).toMatchSnapshot()

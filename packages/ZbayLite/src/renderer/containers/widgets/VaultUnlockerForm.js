@@ -15,7 +15,6 @@ import electronStore from '../../../shared/electronStore'
 
 export const mapStateToProps = state => ({
   isLogIn: vaultSelectors.isLogIn(state),
-  locked: vaultSelectors.locked(state),
   loader: identitySelectors.loader(state),
   currentBlock: nodeSelectors.currentBlock(state),
   latestBlock: nodeSelectors.latestBlock(state),
@@ -36,7 +35,6 @@ export const mapDispatchToProps = dispatch =>
     dispatch
   )
 export const VaultUnlockerForm = ({
-  locked,
   getStatus,
   nodeConnected,
   isLogIn,
@@ -53,7 +51,6 @@ export const VaultUnlockerForm = ({
   }, [])
   return (
     <VaultUnlockerFormComponent
-      locked={locked}
       loader={loader}
       exists={exists}
       openModal={openModal}

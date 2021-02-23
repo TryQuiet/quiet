@@ -21,6 +21,7 @@ class NotificationCenter {
     filterType?: number
     sound?: number
   }
+
   contacts: {
     [id: string]: number
   }
@@ -117,7 +118,7 @@ export const setContactNotification = filterType => async (dispatch, getState) =
     })
   )
 }
-export const unblockUserNotification = address => async (dispatch, getState) => {
+export const unblockUserNotification = address => async dispatch => {
   electronStore.set(`notificationCenter.contacts.${address}`, notificationFilterType.ALL_MESSAGES)
   dispatch(
     setContactNotificationFilter({
@@ -126,16 +127,16 @@ export const unblockUserNotification = address => async (dispatch, getState) => 
     })
   )
 }
-export const setUserNotification = filterType => async (dispatch, getState) => {
-  electronStore.set(`notificationCenter.user.filterType`, filterType)
+export const setUserNotification = filterType => async dispatch => {
+  electronStore.set('notificationCenter.user.filterType', filterType)
   dispatch(
     setUserNotificationFilter({
       filterType: filterType
     })
   )
 }
-export const setUserNotificationsSound = sound => async (dispatch, getState) => {
-  electronStore.set(`notificationCenter.user.sound`, sound)
+export const setUserNotificationsSound = sound => async dispatch => {
+  electronStore.set('notificationCenter.user.sound', sound)
   dispatch(
     setUserNotificationSound({
       sound: sound

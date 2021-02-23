@@ -1,48 +1,45 @@
-import { MessageType } from "../../shared/static.types";
-import BigNumber from "bignumber.js";
+import { MessageType } from '../../shared/static.types'
+import BigNumber from 'bignumber.js'
 
-export interface IShippingData { }
 export interface IOutgoingMetadata {
-  memo: string;
-  memohex: string;
+  memo: string
+  memohex: string
 }
 export interface IExchangeParticipant {
-  replyTo: string;
-  username: string;
-  publicKey?: string;
-  address?: string;
-  nickname?: string;
+  replyTo: string
+  username: string
+  publicKey?: string
+  address?: string
+  nickname?: string
 }
 export class ExchangeParticipant {
-  replyTo: string ='';
-  username: string = "Unnamed";
-  publicKey: string='';
-  address: string='';
-  nickname: string='';
-  
-  constructor(
-    values?: Partial<ExchangeParticipant>
-  ) {
-    Object.assign(this, values);
+  replyTo: string = ''
+  username: string = 'Unnamed'
+  publicKey: string = ''
+  address: string = ''
+  nickname: string = ''
+
+  constructor(values?: Partial<ExchangeParticipant>) {
+    Object.assign(this, values)
   }
 }
 export interface IMessage {
-  moderationType: string;
-  moderationTarget: string;
-  owner: string;
-  itemId: string;
-  text: string;
-  tag: string;
-  offerOwner: string;
-  minFee?: string;
-  updateMinFee?: string;
-  updateChannelDescription?: string;
-  updateChannelAddress?: string;
-  updateOnlyRegistered?: number;
+  moderationType: string
+  moderationTarget: string
+  owner: string
+  itemId: string
+  text: string
+  tag: string
+  offerOwner: string
+  minFee?: string
+  updateMinFee?: string
+  updateChannelDescription?: string
+  updateChannelAddress?: string
+  updateOnlyRegistered?: number
   channelAddress?: string
-  channelName?:string;
-  channelDescription?: string;
-  channelIvk?: string;
+  channelName?: string
+  channelDescription?: string
+  channelIvk?: string
 }
 export class DisplayableMessage {
   id: string
@@ -58,7 +55,6 @@ export class DisplayableMessage {
   fromYou: boolean = false
   status: string = 'broadcasted'
   error?: string
-  shippingData?: IShippingData
   tag: string
   offerOwner?: string
   isUnregistered: boolean
@@ -73,37 +69,37 @@ export class DisplayableMessage {
   outgoing_metadata: IOutgoingMetadata[]
   memohex: string
   txid: string
-  amount: string
+  amount: number
   memo: string
   datetime: string
 
   constructor(
     values: Partial<DisplayableMessage> &
-      Pick<
-        DisplayableMessage,
-        | 'id'
-        | 'keys'
-        | 'owner'
-        | 'name'
-        | 'sender'
-        | 'receiver'
-        | 'createdAt'
-        | 'message'
-        | 'tag'
-        | 'isUnregistered'
-        | 'specialType'
-        | 'blockTime'
-        | 'block_height'
-        | 'messageId'
-        | 'nickname'
-        | 'address'
-        | 'outgoing_metadata'
-        | 'memohex'
-        | 'txid'
-        | 'amount'
-        | 'memo'
-        | 'datetime'
-      >
+    Pick<
+    DisplayableMessage,
+    | 'id'
+    | 'keys'
+    | 'owner'
+    | 'name'
+    | 'sender'
+    | 'receiver'
+    | 'createdAt'
+    | 'message'
+    | 'tag'
+    | 'isUnregistered'
+    | 'specialType'
+    | 'blockTime'
+    | 'block_height'
+    | 'messageId'
+    | 'nickname'
+    | 'address'
+    | 'outgoing_metadata'
+    | 'memohex'
+    | 'txid'
+    | 'amount'
+    | 'memo'
+    | 'datetime'
+    >
   ) {
     Object.assign(this, values)
   }

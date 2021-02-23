@@ -38,7 +38,7 @@ const styles = theme => {
     input: {
       fontSize: 14,
       outline: 'none',
-      padding: `12px 16px`,
+      padding: '12px 16px',
       lineHeight: '24px',
       '&:empty': {
         '&:before': {
@@ -60,8 +60,8 @@ const styles = theme => {
     },
 
     inputsDiv: {
-      paddingLeft: `20px`,
-      paddingRight: `20px`,
+      paddingLeft: '20px',
+      paddingRight: '20px',
       width: '100%',
       margin: '0px'
     },
@@ -484,7 +484,7 @@ export const ChannelInput = ({
           </Grid>
           <Grid item>
             <Typography className={classes.errorText} variant={'caption'}>
-              {`Your message is over the size limit. `}
+              {'Your message is over the size limit. '}
               <span
                 onClick={() =>
                   shell.openExternal('https://www.zbay.app/faq.html#message-size-info')

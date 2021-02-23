@@ -71,7 +71,7 @@ const styles = theme => ({
   },
   descriptionDiv: {
     top: 75,
-    padding: `12px 25px 12px 20px`,
+    padding: '12px 25px 12px 20px',
     backgroundColor: theme.palette.colors.white,
     boxShadow: `0px 1px 0px ${theme.palette.colors.veryLightGray}`
   },

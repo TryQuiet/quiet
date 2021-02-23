@@ -90,7 +90,4 @@ const reducers = {
 
 export type Store = StoreType<typeof reducers>
 
-export default persistReducer(
-  persistConfig,
-  combineReducers(reducers)
-)
+export default persistReducer(persistConfig, combineReducers(reducers))

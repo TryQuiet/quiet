@@ -19,16 +19,16 @@ const styles = theme => ({
     borderBottom: `1px solid ${theme.palette.colors.veryLightGray}`,
     width: 300,
     textAlign: 'center',
-    padding: `24px !important`
+    padding: '24px !important'
   },
   buttonNo: {
     borderRight: `1px solid ${theme.palette.colors.veryLightGray}`,
     cursor: 'pointer',
-    padding: `18px 16px`
+    padding: '18px 16px'
   },
   buttonYes: {
     cursor: 'pointer',
-    padding: `18px 16px`,
+    padding: '18px 16px',
     color: theme.palette.colors.lushSky
   },
   dialogActions: {

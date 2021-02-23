@@ -1,6 +1,6 @@
 import { produce, immerable } from 'immer'
 import { DateTime } from 'luxon'
-import { createAction, handleActions } from 'redux-actions'
+import { createAction, handleActions, Action } from 'redux-actions'
 import BigNumber from 'bignumber.js'
 import { remote } from 'electron'
 
@@ -24,8 +24,6 @@ import history from '../../../shared/history'
 import electronStore from '../../../shared/electronStore'
 import contactsHandlers from './contacts'
 import ownedChannelsHandlers from './ownedChannels'
-
-import {Action} from 'redux-actions'
 
 import { ActionsType, PayloadType } from './types'
 
@@ -69,28 +67,34 @@ export const initialState: Channels = new Channels({
   }
 })
 
-
-const loadChannels = createAction(actionTypes.LOAD_IDENTITY_CHANNELS, async id => {
+const loadChannels = createAction(actionTypes.LOAD_IDENTITY_CHANNELS, async () => {
   return ''
 })
 
-const loadChannelsToNode = createAction(
-  actionTypes.LOAD_IDENTITY_CHANNELS,
-  async (id, isNewUser) => {
-    return ''
-  }
-)
+const loadChannelsToNode = createAction(actionTypes.LOAD_IDENTITY_CHANNELS, async () => {
+  return ''
+})
 
 export type ChannelsStore = Channels
 
-const setLastSeen = createAction<{channelId: string; lastSeen: DateTime}>(actionTypes.SET_CHANNELS_LAST_SEEN)
+const setLastSeen = createAction<{ channelId: string; lastSeen: DateTime }>(
+  actionTypes.SET_CHANNELS_LAST_SEEN
+)
 const setDescription = createAction<{ channelId: string; description: string }>(
   actionTypes.SET_CHANNEL_DESCRIPTION
 )
-const setUnread = createAction<{unread: number; channelId: string}>(actionTypes.SET_CHANNEL_UNREAD)
-const setShowInfoMsg = createAction<{channelId: string; showInfoMsg: boolean}>(actionTypes.SET_SHOW_INFO_MSG)
-const setAdvertFee = createAction<{channelId: string; advertFee: string}>(actionTypes.SET_ADVERT_FEE)
-const setOnlyRegistered = createAction<{channelId: string; onlyRegistered: boolean}>(actionTypes.SET_ONLY_REGISTERED)
+const setUnread = createAction<{ unread: number; channelId: string }>(
+  actionTypes.SET_CHANNEL_UNREAD
+)
+const setShowInfoMsg = createAction<{ channelId: string; showInfoMsg: boolean }>(
+  actionTypes.SET_SHOW_INFO_MSG
+)
+const setAdvertFee = createAction<{ channelId: string; advertFee: string }>(
+  actionTypes.SET_ADVERT_FEE
+)
+const setOnlyRegistered = createAction<{ channelId: string; onlyRegistered: boolean }>(
+  actionTypes.SET_ONLY_REGISTERED
+)
 
 export const actions = {
   loadChannels,
@@ -105,7 +109,7 @@ export const actions = {
 
 export type ChannelsActions = ActionsType<typeof actions>
 
-const _createChannel = async values => {
+const _createChannel = async () => {
   const address = await client.getNewShieldedAdress()
   return address
 }
@@ -127,7 +131,7 @@ const createChannel = (values, formActions, setStep) => async (dispatch, getStat
       return
     }
     setStep(1)
-    const address = await _createChannel(values)
+    const address = await _createChannel()
     const result = await dispatch(
       channelHandlers.epics.sendChannelSettingsMessage({ address: address })
     )
@@ -136,7 +140,7 @@ const createChannel = (values, formActions, setStep) => async (dispatch, getStat
       dispatch(closeModal())
       return
     }
-    const importedChannels = electronStore.get(`importedChannels`) || {}
+    const importedChannels = electronStore.get('importedChannels') || {}
     const viewingKey = await client.getViewingKey(address)
     electronStore.set('importedChannels', {
       ...importedChannels,
@@ -200,7 +204,7 @@ const withdrawMoneyFromChannels = () => async (dispatch, getState) => {
   }
 }
 
-const getMoneyFromChannel = address => async (dispatch, getState) => {
+const getMoneyFromChannel = address => async (_dispatch, getState) => {
   const amount = await client.accounting.balance(address)
   const identityAddress = identitySelectors.address(getState())
   if (amount.gt(0.0005)) {
@@ -264,7 +268,7 @@ export const reducer = handleActions<ChannelsStore, PayloadType<ChannelsActions>
         draft.data = data
         draft.loader.loading = false
       }),
-    [typeRejected(actionTypes.LOAD_IDENTITY_CHANNELS)]: (state, { payload: error }) =>
+    [typeRejected(actionTypes.LOAD_IDENTITY_CHANNELS)]: state =>
       produce(state, draft => {
         draft.loader.loading = false
       }),
@@ -276,27 +280,42 @@ export const reducer = handleActions<ChannelsStore, PayloadType<ChannelsActions>
         const index = state.data.findIndex(channel => channel.id === channelId)
         draft.data[index].description = description
       }),
-    [setLastSeen.toString()]: (state, { payload: { channelId, lastSeen } }: ChannelsActions['setLastSeen']) =>
+    [setLastSeen.toString()]: (
+      state,
+      { payload: { channelId, lastSeen } }: ChannelsActions['setLastSeen']
+    ) =>
       produce(state, draft => {
         const index = state.data.findIndex(channel => channel.id === channelId)
         draft.data[index].lastSeen = lastSeen
       }),
-    [setOnlyRegistered.toString()]: (state, { payload: { channelId, onlyRegistered } }: ChannelsActions['setOnlyRegistered']) =>
+    [setOnlyRegistered.toString()]: (
+      state,
+      { payload: { channelId, onlyRegistered } }: ChannelsActions['setOnlyRegistered']
+    ) =>
       produce(state, draft => {
         const index = state.data.findIndex(channel => channel.id === channelId)
         draft.data[index].onlyRegistered = onlyRegistered
       }),
-    [setAdvertFee.toString()]: (state, { payload: { channelId, advertFee } }: ChannelsActions['setAdvertFee']) =>
+    [setAdvertFee.toString()]: (
+      state,
+      { payload: { channelId, advertFee } }: ChannelsActions['setAdvertFee']
+    ) =>
       produce(state, draft => {
         const index = state.data.findIndex(channel => channel.id === channelId)
         draft.data[index].advertFee = parseFloat(advertFee)
       }),
-    [setShowInfoMsg.toString()]: (state, { payload: { channelId, showInfoMsg } }: ChannelsActions['setShowInfoMsg']) =>
+    [setShowInfoMsg.toString()]: (
+      state,
+      { payload: { channelId, showInfoMsg } }: ChannelsActions['setShowInfoMsg']
+    ) =>
       produce(state, draft => {
         const index = state.data.findIndex(channel => channel.id === channelId)
         draft.data[index].showInfoMsg = showInfoMsg
       }),
-    [setUnread.toString()]: (state, { payload: { channelId, unread } }: ChannelsActions['setUnread']) =>
+    [setUnread.toString()]: (
+      state,
+      { payload: { channelId, unread } }: ChannelsActions['setUnread']
+    ) =>
       produce(state, draft => {
         const index = state.data.findIndex(channel => channel.id === channelId)
         draft.data[index].unread = unread

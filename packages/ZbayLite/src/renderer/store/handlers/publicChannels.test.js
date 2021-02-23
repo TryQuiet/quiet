@@ -33,7 +33,8 @@ describe('Operations reducer handles ', () => {
             testaddress1: {
               ..._PublicChannelData,
               ...testPublicChannelData
-            } }
+            }
+          }
         })
       )
       expect(selectors.publicChannels(store.getState())).toMatchSnapshot()
@@ -41,28 +42,34 @@ describe('Operations reducer handles ', () => {
     it('- merge Channels', () => {
       store.dispatch(
         actions.setPublicChannels({
-          publicChannels: { name: {
-            ..._PublicChannelData,
-            ...testPublicChannelData
-          } }
+          publicChannels: {
+            name: {
+              ..._PublicChannelData,
+              ...testPublicChannelData
+            }
+          }
         })
       )
       store.dispatch(
         actions.setPublicChannels({
-          publicChannels: { name: {
-            ..._PublicChannelData,
-            ...testPublicChannelData
-          } }
+          publicChannels: {
+            name: {
+              ..._PublicChannelData,
+              ...testPublicChannelData
+            }
+          }
         })
       )
       expect(Object.keys(selectors.publicChannels(store.getState())).length).toEqual(1)
 
       store.dispatch(
         actions.setPublicChannels({
-          publicChannels: { name: {
-            ..._PublicChannelData,
-            ...testPublicChannelData
-          } }
+          publicChannels: {
+            name: {
+              ..._PublicChannelData,
+              ...testPublicChannelData
+            }
+          }
         })
       )
       expect(Object.keys(selectors.publicChannels(store.getState())).length).toEqual(1)

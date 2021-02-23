@@ -40,5 +40,5 @@ export const reducer = handleActions<ITxnTimestamps, PayloadType<TxnTimestampsAc
 
 export default {
   reducer,
-  actions,
+  actions
 }

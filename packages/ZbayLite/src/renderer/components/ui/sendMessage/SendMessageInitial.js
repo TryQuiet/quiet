@@ -188,7 +188,7 @@ export const SendMessageInitial = ({
             className={classes.gutter}
             variant='outlined'
             multiline
-            placeholder={`Enter Zbay username or z-address`}
+            placeholder={'Enter Zbay username or z-address'}
             margin='normal'
             fullWidth
           />
@@ -235,7 +235,7 @@ export const SendMessageInitial = ({
               name='memo'
               placeholder={
                 values.recipient ? values.recipient.length === 35
-                  ? `You can't include message to transparent address`
+                  ? 'You can\'t include message to transparent address'
                   : 'Enter a message'
                   : 'Enter a message'
               }

@@ -1,38 +1,38 @@
-import React from "react";
+import React from 'react'
 
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from '@material-ui/core/styles'
 
 const useStyles = makeStyles({
   root: {},
   main: {
     padding: 0,
-    margin: 0,
+    margin: 0
   },
   squareTop: {
-    position: "absolute",
+    position: 'absolute',
     left: 4,
-    top: 7,
+    top: 7
   },
   gradient: {
     maxWidth: 50,
     padding: 2,
-    position: "relative",
-    backgroundImage: "linear-gradient(315deg, #521576, #e42656)",
+    position: 'relative',
+    backgroundImage: 'linear-gradient(315deg, #521576, #e42656)'
   },
   squareFill: {
-    background: "white",
-    color: "white",
-    padding: 5,
+    background: 'white',
+    color: 'white',
+    padding: 5
   },
   squareBottom: {
-    position: "absolute",
+    position: 'absolute',
     left: 9,
-    top: 2,
-  },
-});
+    top: 2
+  }
+})
 
 export const IconCopy: React.FC = () => {
-  const classes = useStyles({});
+  const classes = useStyles({})
   return (
     <div>
       <div className={classes.squareTop}>
@@ -46,7 +46,7 @@ export const IconCopy: React.FC = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default IconCopy;
+export default IconCopy

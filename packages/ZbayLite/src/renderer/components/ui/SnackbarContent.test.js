@@ -1,6 +1,7 @@
 /* eslint import/first: 0 */
 import React from 'react'
 import { shallow } from 'enzyme'
+import each from 'jest-each'
 
 import { SnackbarContent } from './SnackbarContent'
 import { mockClasses } from '../../../shared/testing/mocks'

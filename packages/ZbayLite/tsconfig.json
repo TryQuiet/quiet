@@ -12,8 +12,8 @@
     "esModuleInterop": true,
     "downlevelIteration": true,
     "typeRoots": [
-      "node_modules/@types",
-      "src/renderer/expanded-theme.ts"
+      "src/renderer/expanded-theme.ts",
+      "node_modules/@types"
     ],
     "resolveJsonModule": true
   }

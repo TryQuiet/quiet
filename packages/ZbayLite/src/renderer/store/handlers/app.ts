@@ -80,13 +80,13 @@ export const actions = {
 
 export type AppActions = ActionsType<typeof actions>
 
-export const askForBlockchainLocation = () => async (dispatch, getState) => {
+export const askForBlockchainLocation = () => async dispatch => {
   dispatch(actionCreators.openModal('blockchainLocation')())
 }
 
-export const initializeUseTor = () => async (dispatch, getState) => {
+export const initializeUseTor = () => async dispatch => {
   ipcRenderer.send('1')
-  const savedUseTor = electronStore.get(`useTor`)
+  const savedUseTor = electronStore.get('useTor')
   if (savedUseTor !== undefined) {
     ipcRenderer.send('2')
     if (savedUseTor === true) {
@@ -97,12 +97,12 @@ export const initializeUseTor = () => async (dispatch, getState) => {
   }
 }
 
-export const proceedWithSyncing = payload => async (dispatch, getState) => {
+export const proceedWithSyncing = payload => async dispatch => {
   ipcRenderer.send('proceed-with-syncing', payload)
   dispatch(actionCreators.closeModal('blockchainLocation')())
 }
 
-export const restartAndRescan = () => async (dispatch, getState) => {
+export const restartAndRescan = () => async dispatch => {
   client.rescan()
   await dispatch(
     nodeHandlers.actions.setStatus({
@@ -111,7 +111,7 @@ export const restartAndRescan = () => async (dispatch, getState) => {
   )
   await dispatch(nodeHandlers.actions.setIsRescanning(true))
   setTimeout(() => {
-    history.push(`/vault`)
+    history.push('/vault')
     electronStore.set('channelsToRescan', {})
     electronStore.set('isRescanned', true)
   }, 500)
