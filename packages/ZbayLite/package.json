@@ -51,7 +51,7 @@
     },
     "publish": {
       "provider": "s3",
-      "bucket": "release.zbay.lite"
+      "bucket": "release.zbay.lite.waggle"
     },
     "extraResources": [
       "worker/**/*",
