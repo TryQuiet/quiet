@@ -10,7 +10,6 @@ import usersSelectors from '../../../store/selectors/users'
 import identitySelectors from '../../../store/selectors/identity'
 import contactsSelectors from '../../../store/selectors/contacts'
 import { MESSAGE_SIZE } from '../../../zbay/transit'
-import ratesSelector from '../../../store/selectors/rates'
 import messagesHandlers from '../../../store/handlers/messages'
 
 export const mapStateToProps = (state, { contactId }) => {
@@ -24,7 +23,6 @@ export const mapStateToProps = (state, { contactId }) => {
       : INPUT_STATE.UNREGISTERED,
     channelName: contactsSelectors.contact(contactId)(state).username,
     users: usersSelectors.users(state),
-    feeUsd: ratesSelector.feeUsd(state),
     myUser: usersSelectors.myUser(state),
     isSizeCheckingInProgress: channelSelectors.isSizeCheckingInProgress(state),
     isMessageTooLong: channelSelectors.messageSizeStatus(state),
@@ -55,7 +53,6 @@ export const ChannelInput = ({
   channelName,
   resetDebounce,
   users,
-  feeUsd,
   myUser,
   isMessageTooLong,
   isSizeCheckingInProgress,
@@ -82,7 +79,7 @@ export const ChannelInput = ({
       onKeyPress={sendDirectMessageOnEnter}
       message={message}
       inputState={isFromZbayUser ? inputState : INPUT_STATE.DISABLE}
-      inputPlaceholder={`@${channelName} as @${myUser.nickname} - $${feeUsd}`}
+      inputPlaceholder={`@${channelName} as @${myUser.nickname}`}
       messageLimit={MESSAGE_SIZE}
       anchorEl={anchorEl}
       setAnchorEl={setAnchorEl}

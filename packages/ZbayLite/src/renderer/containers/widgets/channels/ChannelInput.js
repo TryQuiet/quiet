@@ -10,7 +10,6 @@ import mentionsHandlers from '../../../store/handlers/mentions'
 import channelSelectors from '../../../store/selectors/channel'
 import usersSelectors from '../../../store/selectors/users'
 import { MESSAGE_SIZE } from '../../../zbay/transit'
-import ratesSelector from '../../../store/selectors/rates'
 
 export const mapStateToProps = state => {
   return {
@@ -22,7 +21,6 @@ export const mapStateToProps = state => {
       ? channelSelectors.data(state).username
       : ' Unnamed',
     users: usersSelectors.users(state),
-    feeUsd: ratesSelector.feeUsd(state),
     myUser: usersSelectors.myUser(state),
     isSizeCheckingInProgress: channelSelectors.isSizeCheckingInProgress(state),
     isMessageTooLong: channelSelectors.messageSizeStatus(state)
@@ -52,7 +50,6 @@ export const ChannelInput = ({
   users,
   members,
   checkMentions,
-  feeUsd,
   myUser,
   isPublicChannel,
   isMessageTooLong,
@@ -79,7 +76,7 @@ export const ChannelInput = ({
       isPublicChannel={isPublicChannel}
       message={message}
       inputState={inputState}
-      inputPlaceholder={`#${channelName} as @${myUser.nickname} - $${feeUsd}`}
+      inputPlaceholder={`#${channelName} as @${myUser.nickname}`}
       channelName={channelName}
       messageLimit={MESSAGE_SIZE}
       anchorEl={anchorEl}
