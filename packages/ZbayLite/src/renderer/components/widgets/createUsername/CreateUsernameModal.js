@@ -160,13 +160,12 @@ const getValidationSchema = (values, checkNickname) => {
 const CustomInputComponent = ({
   classes,
   field,
+  isTouched,
   form: { touched, errors, values },
-
-  ...props
+  ...props,
 }) => {
   const { value, ...rest } = field
   const updatedValue = sanitize(value)
-
   return (
     <TextField
       variant={'outlined'}
@@ -174,12 +173,12 @@ const CustomInputComponent = ({
       className={classNames({
         [classes.focus]: true,
         [classes.margin]: true,
-        [classes.error]: errors['nickname'] || false
+        [classes.error]: isTouched && errors['nickname'] 
       })}
       placeholder={'Enter a username'}
       value={updatedValue}
-      error={errors['nickname'] || false}
-      helperText={errors['nickname']}
+      error={isTouched && errors['nickname'] }
+      helperText={isTouched && errors['nickname']}
       defaultValue={values['nickname'] || ''}
       {...rest}
       {...props}
@@ -204,6 +203,7 @@ export const CreateUsernameModal = ({
   usernameFee,
   zecRate
 }) => {
+  const [isTouched, setTouched] = useState(false)
   const [formSent, setFormSent] = useState(false)
   const isNewUser = electronStore.get('isNewUser')
   return (
@@ -219,15 +219,7 @@ export const CreateUsernameModal = ({
               initialValues={initialValues}
               validate={values => validate(values, checkNickname)}
             >
-              {({
-                values,
-                isSubmitting,
-                isValid,
-                handleChange,
-                validateForm,
-                validateField,
-                setFieldValue
-              }) => {
+              {() => {
                 return (
                   <Form className={classes.fullWidth}>
                     <Grid container className={classes.container}>
@@ -239,6 +231,7 @@ export const CreateUsernameModal = ({
                           name='nickname'
                           classes={classes}
                           component={CustomInputComponent}
+                          isTouched={isTouched}
                         />
                       </Grid>
                       <Grid item xs={12} className={classes.infoDiv}>
@@ -263,8 +256,8 @@ export const CreateUsernameModal = ({
                           color='primary'
                           type='submit'
                           fullWidth
-                          disabled={!isValid || isSubmitting || !enoughMoney}
                           className={classes.button}
+                          onClick={() => {setTouched(true)}}
                         >
                           Continue
                         </Button>
