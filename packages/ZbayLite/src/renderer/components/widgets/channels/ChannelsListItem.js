@@ -12,6 +12,8 @@ import { Typography, Grid } from '@material-ui/core'
 import Icon from '../../ui/Icon'
 import onlineIcon from '../../../static/images/online.svg'
 import offlineIcon from '../../../static/images/offline.svg'
+
+import avatarAnonMask from '../../../static/images/avatarAnonMask.svg'
 // import { unknownUserId } from '../../../../shared/static'
 
 const styles = theme => ({
@@ -110,7 +112,11 @@ export const ChannelsListItem = ({
               {directMessages && (
                 <Icon
                   className={channel?.connected ? classes.connectedIcon : classes.notConnectedIcon}
-                  src={channel?.connected ? onlineIcon : offlineIcon}
+                  src={
+                    isFromZbay
+                      ? (channel?.connected ? onlineIcon : offlineIcon)
+                      : avatarAnonMask
+                  }
                 />
               )}
             </Grid>
