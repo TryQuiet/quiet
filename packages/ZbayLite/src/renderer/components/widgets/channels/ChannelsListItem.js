@@ -94,10 +94,9 @@ export const ChannelsListItem = ({
       disableGutters
       onClick={() => {
         history.push(
-          `/main/${
-            directMessages
-              ? `direct-messages/${channel.key}/${channel.username}`
-              : `channel/${channel.key}`
+          `/main/${directMessages
+            ? `direct-messages/${channel.key}/${channel.username}`
+            : `channel/${channel.key}`
           }`
         )
       }}
@@ -122,11 +121,10 @@ export const ChannelsListItem = ({
                   [classes.newMessages]: channel.newMessages.length > 0
                 })}>
                 {directMessages
-                  ? `${
-                      isFromZbay
-                        ? `${channel.username || channel.address.substring(0, 8)}`
-                        : 'unknown'
-                    }`
+                  ? `${isFromZbay
+                    ? `${channel.username || channel.address.substring(0, 8)}`
+                    : 'unknown'
+                  }`
                   : `# ${channel.username}`}
               </Typography>
             </Grid>
