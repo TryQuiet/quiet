@@ -126,7 +126,7 @@ const getErrorsFromValidationError = validationError => {
   }, {})
 }
 
-const sanitize = x => (x ? x.replace(/[^a-z0-9]+$/g, '') : undefined)
+const sanitize = x => (x ? x.replace(/[^a-zA-Z0-9]+$/g, '').toLowerCase() : undefined)
 
 const validate = ({ nickname }, checkNickname) => {
   const sanitizedValue = sanitize(nickname)
@@ -147,7 +147,7 @@ const getValidationSchema = (values, checkNickname) => {
     nickname: Yup.string()
       .min(3)
       .max(20)
-      .matches(/^[a-z0-9]+$/, {
+      .matches(/^[a-zA-Z0-9]+$/, {
         message:
           'Your username cannot have any spaces or special characters, must be lowercase letters and numbers only',
         excludeEmptyString: true
