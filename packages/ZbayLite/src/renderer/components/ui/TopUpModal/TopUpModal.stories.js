@@ -3,7 +3,7 @@ import { storiesOf } from '@storybook/react'
 import { withKnobs, boolean } from '@storybook/addon-knobs'
 import { action } from '@storybook/addon-actions'
 
-import { withStore } from '../../../../../.storybook/decorators'
+import { withStore } from '../../../storybook/decorators'
 
 import TopUpModal from '../../../containers/ui/TopUpModal'
 import create from '../../../store/create'

@@ -6,7 +6,7 @@ import * as R from 'ramda'
 import BigNumber from 'bignumber.js'
 import { HashRouter } from 'react-router-dom'
 
-import { withStore } from '../../../../.storybook/decorators'
+import { withStore } from '../../storybook/decorators'
 import Channel from './Channel'
 import create from '../../store/create'
 import { IdentityState, Identity } from '../../store/handlers/identity'

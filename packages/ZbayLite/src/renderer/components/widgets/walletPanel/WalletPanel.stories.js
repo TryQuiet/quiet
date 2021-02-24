@@ -6,7 +6,7 @@ import { action } from '@storybook/addon-actions'
 
 import Paper from '@material-ui/core/Paper'
 
-import { withStore } from '../../../../../.storybook/decorators'
+import { withStore } from '../../../storybook/decorators'
 
 import WalletPanel from '../../../containers/widgets/walletPanel/WalletPanel'
 import create from '../../../store/create'

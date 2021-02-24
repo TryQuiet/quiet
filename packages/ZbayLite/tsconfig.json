@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
     "outDir": "./dist",
+    "rootDir": "./src",
     "allowJs": true,
+    "noEmit": true,
     "checkJs": false,
     "module": "commonjs",
     "target": "es5",
@@ -16,5 +18,11 @@
       "node_modules/@types"
     ],
     "resolveJsonModule": true
-  }
+  },
+  "awesomeTypescriptLoaderOptions": {
+    "transpileOnly": true
+  },
+  "exclude": [
+    "__mocks__", "scripts", "webpack", "worker", "dist"
+  ]
 }

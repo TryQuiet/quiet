@@ -4,7 +4,7 @@ import { withKnobs } from '@storybook/addon-knobs'
 import StoryRouter from 'storybook-react-router'
 import create from '../../../store/create'
 
-import { withStore } from '../../../../../.storybook/decorators'
+import { withStore } from '../../../storybook/decorators'
 
 import JoinChannelModal from './JoinChannelModal'
 

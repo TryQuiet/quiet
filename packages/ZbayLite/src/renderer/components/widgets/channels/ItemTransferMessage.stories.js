@@ -6,7 +6,7 @@ import StoryRouter from 'storybook-react-router'
 import create from '../../../store/create'
 import BigNumber from 'bignumber.js'
 
-import { withStore } from '../../../../../.storybook/decorators'
+import { withStore } from '../../../../storybook/decorators'
 
 import ItemTransferMessage from './ItemTransferMessage'
 

@@ -6,7 +6,7 @@ import { action } from '@storybook/addon-actions'
 
 import create from '../../../../store/create'
 import { IdentityState, Identity } from '../../../../store/handlers/identity'
-import { withStore } from '../../../../../../.storybook/decorators'
+import { withStore } from '../../../../storybook/decorators'
 
 import SettingsModal from './SettingsModal'
 

@@ -5,7 +5,7 @@ import { action } from '@storybook/addon-actions'
 
 import Grid from '@material-ui/core/Grid'
 
-import { withStore } from '../../../../../../.storybook/decorators'
+import { withStore } from '../../../../storybook/decorators'
 import create from '../../../../store/create'
 import ChannelInput from './ChannelInput'
 

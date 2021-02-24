@@ -8,7 +8,7 @@ import { action } from '@storybook/addon-actions'
 
 import { DisplayableMessage } from '../../../zbay/messages'
 import ChannelMessage from './ChannelMessage'
-import { withStore } from '../../../../../.storybook/decorators'
+import { withStore } from '../../../storybook/decorators'
 import create from '../../../store/create'
 
 const store = create({

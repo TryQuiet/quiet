@@ -10,7 +10,7 @@ var mainRunning = false
 module.exports = {
   mode: 'development',
   output: {
-    path: path.resolve(__dirname, '../dist'),
+    path: path.resolve(__dirname, '../dist/main'),
     filename: '[name].js'
   },
   resolve: {
@@ -22,11 +22,6 @@ module.exports = {
         test: /\.(t|j)sx?$/,
         loader: ['awesome-typescript-loader?module=es6'],
         exclude: [/node_modules/]
-      },
-      {
-        test: /\.js$/,
-        loader: 'source-map-loader',
-        enforce: 'pre'
       },
       {
         test: /\.css?$/,

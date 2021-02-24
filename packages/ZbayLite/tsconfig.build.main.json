@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+  },
+  "include": [
+    "./src/main/**.js",
+    "./src/main/**.ts",
+    "./src/shared/**.js",
+    "./src/shared/**.ts",
+  ],
+}

@@ -13,7 +13,7 @@ import electronStore from '../shared/electronStore'
 import Client from './cli/client'
 import websockets, { clearConnections } from './websockets/client'
 import { createServer } from './websockets/server'
-import { getOnionAddress, spawnTor, runLibp2p } from '../../tlgManager/'
+import { getOnionAddress, spawnTor, runLibp2p } from './tlgManager'
 
 const _killProcess = util.promisify(ps.kill)
 

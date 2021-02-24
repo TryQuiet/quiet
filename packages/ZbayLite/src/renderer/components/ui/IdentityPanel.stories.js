@@ -7,7 +7,7 @@ import { action } from '@storybook/addon-actions'
 import StoryRouter from 'storybook-react-router'
 import BigNumber from 'bignumber.js'
 
-import { withStore } from '../../../../.storybook/decorators'
+import { withStore } from '../../storybook/decorators'
 import create from '../../store/create'
 import { Identity } from '../../store/handlers/identity'
 import IdentityPanel from './IdentityPanel'
