@@ -160,15 +160,15 @@ export const mergeIntoOne = (messages: DisplayableMessage[]) => {
 export const shareableUri = createSelector(channel, c => c.shareableUri)
 
 export const inputLocked = createSelector(
-  identitySelectors.balance("zec"),
-  identitySelectors.lockedBalance("zec"),
+  identitySelectors.balance('zec'),
+  identitySelectors.lockedBalance('zec'),
   users.users,
   identitySelectors.signerPubKey,
   (available, locked, users, signerPubKey) => {
     if (available.gt(networkFee)) {
       if (users[signerPubKey]) {
         if (users[signerPubKey].createdAt) {
-          return INPUT_STATE.AVAILABLE;
+          return INPUT_STATE.AVAILABLE
         } else {
           return INPUT_STATE.UNREGISTERED
         }

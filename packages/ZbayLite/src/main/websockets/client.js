@@ -5,28 +5,25 @@ import { packMemo } from '../../renderer/zbay/transit'
 import electronStore from '../../shared/electronStore'
 
 var WebSocketClient = require('ws')
-var url = require('url')
 var HttpsProxyAgent = require('https-proxy-agent')
-
 
 const messages = require('../../renderer/zbay/index').messages
 
 const connections = new Map()
 
-
 export const connect = address =>
-new Promise((resolve, reject) => {
-  const ports = electronStore.get('ports')
-  const identity = electronStore.get('identity')
-  console.log('trying to establish connection in websocket client')
+  new Promise((resolve, reject) => {
+    const ports = electronStore.get('ports')
+    const identity = electronStore.get('identity')
+    console.log('trying to establish connection in websocket client')
     let proxy = null
     if (ports !== undefined) {
-     proxy = `http://localhost:${ports.httpTunnelPort}`
+      proxy = `http://localhost:${ports.httpTunnelPort}`
     } else {
       proxy = 'http://localhost:9082'
     }
     try {
-      const options = new url.URL(proxy)
+      const options = new URL(proxy)
       const agent = new HttpsProxyAgent(options)
       const socket = new WebSocketClient(address, { agent: agent }, { handshakeTimeout: 80_000 })
       const id = setTimeout(() => {

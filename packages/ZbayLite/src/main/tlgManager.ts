@@ -45,6 +45,7 @@ export const spawnTor = async () => {
     }
   })
   await tor.init()
+  console.log('before adding git service')
   const serviceAddressGit = await tor.addService({ port: 9418 })
   const serviceAddressLibp2p = await tor.addService({ port: ports.libp2pHiddenService })
   electronStore.set('onionAddresses', {

@@ -92,9 +92,7 @@ export const VaultUnlockerForm = ({
   isInitialLoadFinished
 }) => {
   const isSynced = currentBlock.plus(2000).gt(latestBlock)
-  const isDev =
-    process.env.NODE_ENV === 'development' ||
-    process.env.NODE_ENV === 'production'
+  const isDev = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'production'
   const [done, setDone] = useState(true)
   const [syncingStart, setSyncingStart] = useState(false)
   React.useEffect(() => {
@@ -109,8 +107,7 @@ export const VaultUnlockerForm = ({
         onSubmit(actions, setDone)
       }}
       validationSchema={isDev ? null : formSchema}
-      initialValues={initialValues}
-    >
+      initialValues={initialValues}>
       {({ isSubmitting }) => (
         <Form>
           <Grid
@@ -119,8 +116,7 @@ export const VaultUnlockerForm = ({
             spacing={!isNewUser ? 4 : 6}
             justfy='center'
             alignItems='center'
-            alignContent='center'
-          >
+            alignContent='center'>
             <Grid
               className={classes.logoContainer}
               container
@@ -128,8 +124,7 @@ export const VaultUnlockerForm = ({
               xs={12}
               justify='center'
               alignItems='center'
-              alignContent='center'
-            >
+              alignContent='center'>
               <Icon className={classes.icon} src={icon} />
             </Grid>
             {syncingStart && guideStatus ? (
@@ -139,11 +134,13 @@ export const VaultUnlockerForm = ({
             ) : (
               <Grid container item xs={12} wrap='wrap' justify='center'>
                 <Typography
-                  className={classNames({ [classes.title]: true, [classes.existingUser]: !isNewUser })}
+                  className={classNames({
+                    [classes.title]: true,
+                    [classes.existingUser]: !isNewUser
+                  })}
                   variant='body1'
-                  gutterBottom
-                >
-                  {!isNewUser ? `Welcome Back` : `Welcome to Zbay!`}
+                  gutterBottom>
+                  {!isNewUser ? 'Welcome Back' : 'Welcome to Zbay!'}
                 </Typography>
               </Grid>
             )}
@@ -160,19 +157,16 @@ export const VaultUnlockerForm = ({
                 inProgress={!done || isRescanning || syncingStart}
               />
             </Grid>
-            
-              <Grid item container justify='center' alignItems='center'>
-                <Typography variant='body2' className={classes.status}>
-                  {loader.message}
-                </Typography>
-              </Grid>
-            
+
+            <Grid item container justify='center' alignItems='center'>
+              <Typography variant='body2' className={classes.status}>
+                {loader.message}
+              </Typography>
+            </Grid>
           </Grid>
-          {nodeConnected &&
-            isLogIn &&
-            isSynced &&
-            !isRescanning &&
-            isInitialLoadFinished && <Redirect to='/main/channel/general' />}
+          {nodeConnected && isLogIn && isSynced && !isRescanning && isInitialLoadFinished && (
+            <Redirect to='/main/channel/general' />
+          )}
         </Form>
       )}
     </Formik>

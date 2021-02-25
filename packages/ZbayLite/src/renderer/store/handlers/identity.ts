@@ -12,14 +12,12 @@ import channels from '../../zcash/channels'
 import identitySelectors from '../selectors/identity'
 import appSelectors from '../selectors/app'
 import txnTimestampsSelector from '../selectors/txnTimestamps'
-import usersHandlers from './users'
 import coordinatorHandlers from './coordinator'
 import whitelistHandlers from './whitelist'
 import ownedChannelsHandlers from './ownedChannels'
 import txnTimestampsHandlers from './txnTimestamps'
 import ratesHandlers from './rates'
 import nodeHandlers from './node'
-import appHandlers from './app'
 import notificationCenterHandlers from './notificationCenter'
 import { successNotification } from './utils'
 import modalsHandlers from './modals'
@@ -198,7 +196,7 @@ export const fetchAffiliateMoney = () => async (dispatch, getState) => {
         )
       )
     }
-  } catch (err) { }
+  } catch (err) {}
 }
 export const fetchBalance = () => async (dispatch, getState) => {
   try {
@@ -374,7 +372,7 @@ export const loadIdentity = () => async dispatch => {
   }
 }
 
-export const setIdentityEpic = identityToSet => async dispatch => {
+export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
   // let identity = await migrateTo_0_2_0.ensureIdentityHasKeys(identityToSet)
   const identity = identityToSet
   dispatch(setLoading(true))
@@ -411,14 +409,14 @@ export const setIdentityEpic = identityToSet => async dispatch => {
     }
     setTimeout(() => dispatch(coordinatorHandlers.epics.coordinator()), 5000)
     dispatch(setLoadingMessage('Loading users and messages'))
-  } catch (err) { }
+  } catch (err) {}
   if (isNewUser === true) {
     dispatch(modalsHandlers.actionCreators.openModal('createUsernameModal')())
   }
   dispatch(setLoadingMessage(''))
   dispatch(setLoading(false))
-    dispatch(contactsHandlers.epics.connectWsContacts())
-    if (electronStore.get('isMigrating')) {
+  dispatch(contactsHandlers.epics.connectWsContacts())
+  if (electronStore.get('isMigrating')) {
     dispatch(modalsHandlers.actionCreators.openModal('migrationModal')())
   }
 }
@@ -442,8 +440,8 @@ export const updateDonation = () => async dispatch => {
   )
 }
 
-export const updateDonationAddress = () => () => { }
-export const updateShieldingTax = () => () => { }
+export const updateDonationAddress = () => () => {}
+export const updateShieldingTax = () => () => {}
 export const generateNewAddress = () => async dispatch => {
   if (!electronStore.get('addresses')) {
     electronStore.set('addresses', JSON.stringify([]))

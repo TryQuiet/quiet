@@ -257,7 +257,6 @@ app.on('ready', async () => {
       createServer(mainWindow)
       mainWindow.webContents.send('onionAddress', getOnionAddress())
       await runLibp2p(mainWindow.webContents)
-      
     } catch (error) {
       console.log(error)
     }
@@ -276,23 +275,26 @@ app.on('ready', async () => {
   })
 
   ipcMain.on('spawnTor', async (event, arg) => {
-    console.log(`checking if tor process is not running and it is ${torProcess}`)
+    console.log(`checking if tor process is not running and it is ${tor}`)
     if (tor === null) {
       tor = await spawnTor()
       await runLibp2p(mainWindow.webContents)
       electronStore.set('isTorActive', true)
       mainWindow.webContents.send('connectWsContacts')
-  }})
+    }
+  })
 
   ipcMain.on('killTor', async (event, arg) => {
+    console.log('starting killing tor')
     if (tor !== null) {
       const ports = electronStore.get('ports')
+      console.log(ports)
       await tor.killService({ port: 9418 })
       await tor.killService({ port: ports.libp2pHiddenService })
       tor.kill()
       tor = null
-    console.log('starting killing tor')
-  }})
+    }
+  })
 
   ipcMain.on('proceed-update', (event, arg) => {
     autoUpdater.quitAndInstall()

@@ -84,8 +84,8 @@ export const askForBlockchainLocation = () => async dispatch => {
   dispatch(actionCreators.openModal('blockchainLocation')())
 }
 
-export const initializeUseTor = () => async (dispatch, getState) => {
-  const savedUseTor = electronStore.get(`useTor`)
+export const initializeUseTor = () => async dispatch => {
+  const savedUseTor = electronStore.get('useTor')
   if (savedUseTor !== undefined) {
     if (savedUseTor === true) {
       ipcRenderer.send('spawnTor')

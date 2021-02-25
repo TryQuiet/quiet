@@ -148,7 +148,7 @@ export const createOrUpdateUser = (payload: {
   debounce?: boolean
   retry?: number
 }) => async (dispatch, getState) => {
-  const { nickname, firstName = '', lastName = '', debounce = false, retry = 0 } = payload
+  const { nickname, firstName = '', lastName = '' } = payload
   const publicKey = identitySelector.signerPubKey(getState())
   const address = identitySelector.address(getState())
   const privKey = identitySelector.signerPrivKey(getState())
@@ -188,7 +188,7 @@ export const createOrUpdateUser = (payload: {
         userMemo: userMemo,
         torMemo: torMemo,
         nickname: nickname,
-        publicKey: publicKey,
+        publicKey: publicKey
       }
     })
   } catch (error) {
@@ -196,7 +196,7 @@ export const createOrUpdateUser = (payload: {
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar(
         errorNotification({
-          message: `Registration failed, try again in few minutes`
+          message: 'Registration failed, try again in few minutes'
         })
       )
     )
@@ -234,7 +234,7 @@ export const createOrUpdateUser = (payload: {
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar(
         successNotification({
-          message: `Your onion address will be public in few minutes`
+          message: 'Your onion address will be public in few minutes'
         })
       )
     )
@@ -272,67 +272,60 @@ export const registerOnionAddress = torStatus => async (dispatch, getState) => {
   dispatch(notificationsHandlers.actions.removeSnackbar('username'))
 }
 
-export const fetchUsers = (messages: DisplayableMessage[]) => async (
-  dispatch,
-  getState
-) => {
-  try {
-    const filteredZbayMessages = messages.filter(msg => msg.memohex.startsWith('ff'))
-    const registrationMessages = await Promise.all(
-      filteredZbayMessages.map(transfer => {
-        const message = zbayMessages.transferToMessage(transfer)
-        return message
-      })
-    )
-    let minfee = 0
-    let users = {}
-    const network = nodeSelectors.network()
-    const signerPubKey = identitySelector.signerPubKey(getState())
-    for (const msg of registrationMessages) {
-      if (
-        msg.type === messageType.CHANNEL_SETTINGS &&
-        staticChannels.zbay[network].publicKey === msg.publicKey
-      ) {
-        minfee = parseFloat(msg.message.minFee)
-      }
-      if (
-        (msg.type !== messageType.USER && msg.type !== messageType.USER_V2) ||
-        !msg.spent.gte(minfee)
-      ) {
-        continue
-      }
-      const user = ReceivedUser(msg)
+export const fetchUsers = (messages: DisplayableMessage[]) => async (dispatch, getState) => {
+  const filteredZbayMessages = messages.filter(msg => msg.memohex.startsWith('ff'))
+  const registrationMessages = await Promise.all(
+    filteredZbayMessages.map(async transfer => {
+      const message = await zbayMessages.transferToMessage(transfer)
+      return message
+    })
+  )
+  let minfee = 0
+  let users = {}
+  const network = nodeSelectors.network()
+  const signerPubKey = identitySelector.signerPubKey(getState())
+  for (const msg of registrationMessages) {
+    if (
+      msg.type === messageType.CHANNEL_SETTINGS &&
+      staticChannels.zbay[network].publicKey === msg.publicKey
+    ) {
+      minfee = parseFloat(msg.message.minFee)
+    }
+    if (
+      (msg.type !== messageType.USER && msg.type !== messageType.USER_V2) ||
+      !msg.spent.gte(minfee)
+    ) {
+      continue
+    }
+    const user = ReceivedUser(msg)
 
-      if (user !== null) {
-        users = {
-          ...users,
-          ...user
-        }
+    if (user !== null) {
+      users = {
+        ...users,
+        ...user
       }
     }
-    dispatch(feesHandlers.actions.setUserFee(minfee))
-    const isRegistrationComplete = users[signerPubKey]
-    if (isRegistrationComplete) {
-      if (users[signerPubKey].createdAt !== 0) {
-        dispatch(
-          identityActions.setRegistraionStatus({
-            nickname: '',
-            status: 'SUCCESS'
+  }
+  dispatch(feesHandlers.actions.setUserFee(minfee))
+  const isRegistrationComplete = users[signerPubKey]
+  if (isRegistrationComplete) {
+    if (users[signerPubKey].createdAt !== 0) {
+      dispatch(
+        identityActions.setRegistraionStatus({
+          nickname: '',
+          status: 'SUCCESS'
+        })
+      )
+      dispatch(
+        notificationsHandlers.actions.enqueueSnackbar(
+          successNotification({
+            message: 'Username registered.'
           })
         )
-        dispatch(
-          notificationsHandlers.actions.enqueueSnackbar(
-            successNotification({
-              message: `Username registered.`
-            })
-          )
-        )
-      }
+      )
     }
-    dispatch(setUsers({ users }))
-  } catch (err) {
-    throw err
   }
+  dispatch(setUsers({ users }))
 }
 export const fetchOnionAddresses = (messages: DisplayableMessage[]) => async (
   dispatch,
@@ -343,8 +336,8 @@ export const fetchOnionAddresses = (messages: DisplayableMessage[]) => async (
     let users = usersSelector.users(getState())
     const registrationMessages = await Promise.all(
       filteredZbayMessages.map(async transfer => {
-        const message = zbayMessages.transferToMessage(transfer)
-        return await message
+        const message = await zbayMessages.transferToMessage(transfer)
+        return message
       })
     )
     const filteredRegistrationMessages = registrationMessages.filter(
@@ -367,27 +360,25 @@ export const fetchOnionAddresses = (messages: DisplayableMessage[]) => async (
   }
 }
 
-let usernames = []
+let usernames = [];
 
-if (true) {
-  (function () {
-    try {
-      axios
-        .get(FETCH_USERNAMES_ENDPOINT)
-        .then(res => {
-          usernames = res.data.message
-        })
-        .catch(err => {
-          console.log('cant fetch usernames')
-          console.log(err)
-        })
-    } catch (err) {
-      console.log(err)
-    }
-  })()
-}
+(function () {
+  try {
+    axios
+      .get(FETCH_USERNAMES_ENDPOINT)
+      .then(res => {
+        usernames = res.data.message
+      })
+      .catch(err => {
+        console.log('cant fetch usernames')
+        console.log(err)
+      })
+  } catch (err) {
+    console.log(err)
+  }
+})()
 
-export const isNicknameTaken = username => (dispatch, getState) => {
+export const isNicknameTaken = username => {
   return R.includes(username, usernames)
 }
 
@@ -398,7 +389,6 @@ export const epics = {
   registerAnonUsername,
   fetchOnionAddresses,
   registerOnionAddress
-  // checkRegistrationConfirmations
 }
 
 export const reducer = handleActions<UsersStore, PayloadType<UserActions>>(

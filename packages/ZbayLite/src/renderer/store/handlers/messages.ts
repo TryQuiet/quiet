@@ -143,7 +143,7 @@ export const fetchMessages = () => async (dispatch, getState) => {
   try {
     const txns = await fetchAllMessages()
     // Uncomment to create snapshot on next run.
-     // createSnapshot(txns)
+    // createSnapshot(txns)
 
     const allMessagesTxnId = appSelectors.allTransactionsId(getState())
     for (const key in txns) {
@@ -612,7 +612,6 @@ export const handleWebsocketMessage = data => async (dispatch, getState) => {
         if (!contact.connected) {
           console.log('Contact is not connected, initializing connection')
           console.log(publicKey)
-          //dispatch(contactsHandlers.actions.setContactConnected({ connected: true, key: publicKey }))
           dispatch(contactsHandlers.epics.connectWsContacts(publicKey))
         }
         return
