@@ -4,6 +4,7 @@ import messagesQueueSelectors from './messagesQueue'
 import contacts from './contacts'
 import { networkFee, messageType } from '../../../shared/static'
 import publicChannels from './publicChannels'
+import users from './users'
 
 import { Store } from '../reducers'
 import { DisplayableMessage } from '../../zbay/messages.types'
@@ -159,11 +160,19 @@ export const mergeIntoOne = (messages: DisplayableMessage[]) => {
 export const shareableUri = createSelector(channel, c => c.shareableUri)
 
 export const inputLocked = createSelector(
-  identitySelectors.balance('zec'),
-  identitySelectors.lockedBalance('zec'),
-  (available, locked) => {
+  identitySelectors.balance("zec"),
+  identitySelectors.lockedBalance("zec"),
+  users.users,
+  identitySelectors.signerPubKey,
+  (available, locked, users, signerPubKey) => {
     if (available.gt(networkFee)) {
-      return INPUT_STATE.AVAILABLE
+      if (users[signerPubKey]) {
+        if (users[signerPubKey].createdAt) {
+          return INPUT_STATE.AVAILABLE;
+        } else {
+          return INPUT_STATE.UNREGISTERED
+        }
+      }
     } else {
       if (locked.gt(0)) {
         return INPUT_STATE.LOCKED

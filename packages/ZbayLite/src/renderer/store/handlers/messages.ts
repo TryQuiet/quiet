@@ -143,7 +143,7 @@ export const fetchMessages = () => async (dispatch, getState) => {
   try {
     const txns = await fetchAllMessages()
     // Uncomment to create snapshot on next run.
-    // createSnapshot(txns)
+     // createSnapshot(txns)
 
     const allMessagesTxnId = appSelectors.allTransactionsId(getState())
     for (const key in txns) {
@@ -599,7 +599,7 @@ export const handleWebsocketMessage = data => async (dispatch, getState) => {
     }
     publicKey = getPublicKeysFromSignature(message).toString('hex')
     const contact = contactsSelectors.contact(publicKey)(getState())
-    if (contact.key === publicKey) {
+    if (contact && contact.key === publicKey) {
       dispatch(
         contactsHandlers.actions.setTypingIndicator({
           typingIndicator: !!typeIndicator,
@@ -611,7 +611,8 @@ export const handleWebsocketMessage = data => async (dispatch, getState) => {
         console.log('Contact exist')
         if (!contact.connected) {
           console.log('Contact is not connected, initializing connection')
-          // dispatch(contactsHandlers.actions.setContactConnected({ connected: true, key: publicKey }))
+          console.log(publicKey)
+          //dispatch(contactsHandlers.actions.setContactConnected({ connected: true, key: publicKey }))
           dispatch(contactsHandlers.epics.connectWsContacts(publicKey))
         }
         return
@@ -707,6 +708,7 @@ export const handleWebsocketMessage = data => async (dispatch, getState) => {
         }
       } else {
         if (!contacts[publicKey]) {
+          console.log('adding incomin connection to contacts')
           await dispatch(
             contactsHandlers.actions.addContact({
               key: publicKey,
@@ -714,6 +716,7 @@ export const handleWebsocketMessage = data => async (dispatch, getState) => {
               username: msg.sender.username
             })
           )
+          console.log('trying connection with new contact')
           dispatch(contactsHandlers.epics.connectWsContacts(publicKey))
         }
         dispatch(

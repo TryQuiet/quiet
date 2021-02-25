@@ -15,8 +15,9 @@ import messagesHandlers from './store/handlers/messages'
 import nodeSelectors from './store/selectors/node'
 import coordinatorSelectors from './store/selectors/coordinator'
 import identityHandlers from './store/handlers/identity'
-import { errorNotification, successNotification } from './store/handlers/utils'
+import contactsHandlers from './store/handlers/contacts'
 
+import { errorNotification, successNotification } from './store/handlers/utils'
 import notificationsHandlers from './store/handlers/notifications'
 import appSelectors from './store/selectors/app'
 import { socketsActions } from './sagas/socket/socket.saga.reducer'
@@ -65,6 +66,11 @@ ipcRenderer.on('onionAddress', (_, address) => {
 
 ipcRenderer.on('wsMessage', (_, data) => {
   store.dispatch(messagesHandlers.epics.handleWebsocketMessage(data))
+})
+
+ipcRenderer.on('connectWsContacts', (event, msg) => {
+  console.log('connecting ws contacts')
+  store.dispatch(contactsHandlers.epics.connectWsContacts())
 })
 
 ipcRenderer.on('askForUsingDefaultBlockchainLocation', event => {

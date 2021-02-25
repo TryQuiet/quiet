@@ -4,12 +4,13 @@ import { createAction, handleActions } from 'redux-actions'
 import secp256k1 from 'secp256k1'
 import { randomBytes } from 'crypto'
 import { DateTime } from 'luxon'
-import { remote } from 'electron'
+import { ipcRenderer, remote } from 'electron'
 
 import client from '../../zcash'
 import channels from '../../zcash/channels'
 
 import identitySelectors from '../selectors/identity'
+import appSelectors from '../selectors/app'
 import txnTimestampsSelector from '../selectors/txnTimestamps'
 import usersHandlers from './users'
 import coordinatorHandlers from './coordinator'
@@ -378,6 +379,8 @@ export const setIdentityEpic = identityToSet => async dispatch => {
   const identity = identityToSet
   dispatch(setLoading(true))
   const isNewUser = electronStore.get('isNewUser')
+  const useTor = appSelectors.useTor(getState())
+  electronStore.set('useTor', useTor)
   try {
     const removedChannels = electronStore.get('removedChannels')
     if (removedChannels) {
@@ -403,16 +406,8 @@ export const setIdentityEpic = identityToSet => async dispatch => {
     await dispatch(fetchBalance())
     await dispatch(fetchFreeUtxos())
     await dispatch(messagesHandlers.epics.fetchMessages())
-    await dispatch(appHandlers.epics.initializeUseTor())
-    const usernameStatus = electronStore.get('registrationStatus.status')
-    const usernameRegistrationTxid = electronStore.get('registrationStatus.txid')
-    const nickname = electronStore.get('registrationStatus.nickname')
-    if (nickname && usernameStatus !== 'SUCCESS') {
-      if (!usernameRegistrationTxid) {
-        await dispatch(usersHandlers.epics.createOrUpdateUser({ nickname, debounce: true }))
-      } else {
-        dispatch(usersHandlers.epics.checkRegistrationConfirmations({ firstRun: true }))
-      }
+    if (!useTor) {
+      ipcRenderer.send('killTor')
     }
     setTimeout(() => dispatch(coordinatorHandlers.epics.coordinator()), 5000)
     dispatch(setLoadingMessage('Loading users and messages'))
@@ -422,8 +417,8 @@ export const setIdentityEpic = identityToSet => async dispatch => {
   }
   dispatch(setLoadingMessage(''))
   dispatch(setLoading(false))
-  dispatch(contactsHandlers.epics.connectWsContacts())
-  if (electronStore.get('isMigrating')) {
+    dispatch(contactsHandlers.epics.connectWsContacts())
+    if (electronStore.get('isMigrating')) {
     dispatch(modalsHandlers.actionCreators.openModal('migrationModal')())
   }
 }

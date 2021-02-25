@@ -20,8 +20,8 @@ const contactsList = createSelector(
   (contacts, removedChannels, users) => {
     return Array.from(Object.values(contacts))
       .map(contact => {
-        if (!contact.address) {
-          const user = users[contact.key]
+        const user = users[contact.key]
+        if (!contact.address && user) {
           return {
             ...contact,
             messages: messages,

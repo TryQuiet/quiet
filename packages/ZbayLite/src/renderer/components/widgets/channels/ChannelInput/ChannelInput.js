@@ -141,7 +141,7 @@ const inputStateToMessage = {
   [INPUT_STATE.LOCKED]:
     'All of your funds are locked - please wait for network confirmation or deposit more ZEC to your account',
   [INPUT_STATE.UNREGISTERED]:
-    'You can not reply to this message because you are not registered. Please register your nickname ( button next to your balance )'
+    'You can not reply to this message because you are not registered yet, please wait.'
 }
 
 export const ChannelInput = ({

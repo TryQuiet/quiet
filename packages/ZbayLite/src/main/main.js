@@ -253,15 +253,11 @@ app.on('ready', async () => {
   mainWindow.webContents.on('did-finish-load', async () => {
     mainWindow.webContents.send('ping')
     try {
-      // Spawn and kill tor to generate onionAddress
       tor = await spawnTor(mainWindow.webContents)
       createServer(mainWindow)
       mainWindow.webContents.send('onionAddress', getOnionAddress())
-      const ports = electronStore.get('ports')
-      await tor.killService({ port: 9418 })
-      await tor.killService({ port: ports.libp2pHiddenService })
-      tor.kill()
-      tor = null
+      await runLibp2p(mainWindow.webContents)
+      
     } catch (error) {
       console.log(error)
     }
@@ -280,11 +276,13 @@ app.on('ready', async () => {
   })
 
   ipcMain.on('spawnTor', async (event, arg) => {
+    console.log(`checking if tor process is not running and it is ${torProcess}`)
     if (tor === null) {
       tor = await spawnTor()
       await runLibp2p(mainWindow.webContents)
-    }
-  })
+      electronStore.set('isTorActive', true)
+      mainWindow.webContents.send('connectWsContacts')
+  }})
 
   ipcMain.on('killTor', async (event, arg) => {
     if (tor !== null) {
@@ -293,8 +291,9 @@ app.on('ready', async () => {
       await tor.killService({ port: ports.libp2pHiddenService })
       tor.kill()
       tor = null
-    }
-  })
+    console.log('starting killing tor')
+  }})
+
   ipcMain.on('proceed-update', (event, arg) => {
     autoUpdater.quitAndInstall()
   })
@@ -316,21 +315,13 @@ app.on('ready', async () => {
       )
     }
   })
-  ipcMain.on('1', async () => {
-    console.log('1')
-    const i = electronStore.get('useTor')
-    console.log(i)
-  })
-  ipcMain.on('2', async () => {
-    console.log('2')
-  })
-  ipcMain.on('3', async () => {
-    console.log('3')
-  })
+
   ipcMain.on('initWsConnection', async (event, arg) => {
+    console.log('entered init in main main')
     const request = JSON.parse(arg)
     try {
       const socket = await websockets.connect(request.address)
+      console.log(`socket is ${socket}`)
       if (mainWindow) {
         mainWindow.webContents.send(
           'initWsConnection',

@@ -14,7 +14,12 @@ export const createServer = mainWindow => {
     console.log('New incoming connection')
     socket.on('message', function (message) {
       if (mainWindow) {
-        mainWindow.webContents.send('wsMessage', message)
+        try {
+          mainWindow.webContents.send('wsMessage', message)
+        } catch (err) {
+          console.log('error with websocket server')
+          console.log(err)
+        }
       }
     })
     socket.on('close', function (message) {
