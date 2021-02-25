@@ -16,15 +16,14 @@ export const connect = address =>
     const ports = electronStore.get('ports')
     const identity = electronStore.get('identity')
     console.log('trying to establish connection in websocket client')
-    let proxy = null
-    if (ports !== undefined) {
-      proxy = `http://localhost:${ports.httpTunnelPort}`
-    } else {
-      proxy = 'http://localhost:9082'
-    }
     try {
-      const options = new URL(proxy)
-      const agent = new HttpsProxyAgent(options)
+      
+      console.log(`address ${address}`)
+      
+      const agent = new HttpsProxyAgent({ 
+        host: 'localhost',
+        port: ports.httpTunnelPort
+      })
       const socket = new WebSocketClient(address, { agent: agent }, { handshakeTimeout: 80_000 })
       const id = setTimeout(() => {
         // eslint-disable-next-line
