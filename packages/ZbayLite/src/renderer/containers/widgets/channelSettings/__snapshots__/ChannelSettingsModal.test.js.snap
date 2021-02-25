@@ -8,17 +8,17 @@ Object {
 
 exports[`Send message popover will receive right props 1`] = `
 Object {
-  "channel": Object {
+  "channel": Contact {
     "address": "",
     "key": "",
-    "lastSeen": null,
-    "messages": Object {},
+    "messages": Array [],
     "newMessages": Array [],
-    "offerId": null,
+    "typingIndicator": false,
     "username": "",
     "vaultMessages": Array [],
+    Symbol(immer-draftable): true,
   },
   "isOwner": false,
-  "modalTabToOpen": null,
+  "modalTabToOpen": false,
 }
 `;

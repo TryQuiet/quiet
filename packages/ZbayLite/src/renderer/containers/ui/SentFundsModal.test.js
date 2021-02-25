@@ -10,22 +10,20 @@ describe('SentFundsModal', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: {
-        rates: {
-          usd: '10',
-          zec: '1'
-        },
-        modals: {
-          payloads: {
-            sentFunds: {
-              recipient: 'test',
-              amountZec: 10,
-              amountUsd: 10,
-              feeUsd: 0,
-              feeZec: 0,
-              memo: 'test memo',
-              timestamp: DateTime.utc(2017).toSeconds()
-            }
+      rates: {
+        usd: '10',
+        zec: '1'
+      },
+      modals: {
+        payloads: {
+          sentFunds: {
+            recipient: 'test',
+            amountZec: 10,
+            amountUsd: 10,
+            feeUsd: 0,
+            feeZec: 0,
+            memo: 'test memo',
+            timestamp: DateTime.utc(2017).toSeconds()
           }
         }
       }

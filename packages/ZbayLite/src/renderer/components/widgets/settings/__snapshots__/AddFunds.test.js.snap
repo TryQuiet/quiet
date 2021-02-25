@@ -57,6 +57,7 @@ exports[`AddFunds renders component 1`] = `
             level="L"
             renderAs="canvas"
             size={200}
+            value={null}
           />
         </WithStyles(ForwardRef(Grid))>
       </WithStyles(ForwardRef(Grid))>
@@ -90,7 +91,7 @@ exports[`AddFunds renders component 1`] = `
       >
         Zcash
       </a>
-      . Cryptocurrencies let you send funds to unique addresses, like email for money: send to the correct address, and the recipient will receive it.
+      . Cryptocurrencies let you send funds to unique addresses, like email for money: send to the correct address, and the recipient will receive it. Send Zcash to either of these addresses, and Zbay will store the funds on your computer.
     </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
@@ -101,7 +102,7 @@ exports[`AddFunds renders component 1`] = `
       className="subtitle-mock"
       variant="body2"
     >
-      Your Zcash address
+      Your transparent Zcash address
     </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
@@ -111,12 +112,12 @@ exports[`AddFunds renders component 1`] = `
       className="caption-mock"
       variant="caption"
     >
-      Deposits are moved to a private address & stored by Zbay, on your computer.
+      Transactions to this address are not private, but Zbay will move deposits to your private address when they arrive.
        
       <span
         className="link-mock"
       >
-        New address
+        Generate new address
       </span>
     </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>
@@ -153,7 +154,7 @@ exports[`AddFunds renders component 1`] = `
           item={true}
           onClick={[Function]}
         >
-          <Memo(Icon)
+          <Component
             src="test-file-stub"
           />
         </WithStyles(ForwardRef(Grid))>
@@ -170,7 +171,6 @@ exports[`AddFunds renders component 1`] = `
       <WithStyles(ForwardRef(Button))
         className="button-mock"
         color="primary"
-        fullWidth={true}
         size="large"
         type="submit"
         variant="contained"
@@ -180,58 +180,89 @@ exports[`AddFunds renders component 1`] = `
     </CopyToClipboard>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
-    className="privateDiv-mock"
+    className="spacing32-mock"
     item={true}
-    onClick={[Function]}
+  >
+    <WithStyles(ForwardRef(Typography))
+      className="subtitle-mock"
+      variant="body2"
+    >
+      Your private Zcash address
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    item={true}
+  >
+    <WithStyles(ForwardRef(Typography))
+      className="caption-mock"
+      variant="caption"
+    >
+      You can’t send directly to a private address from most exchanges. If sending from an exchange, use the address above, and Zbay will move all funds to a private address as soon as they arrive.
+       
+      <span
+        className="link-mock"
+      >
+        Generate new address
+      </span>
+    </WithStyles(ForwardRef(Typography))>
+  </WithStyles(ForwardRef(Grid))>
+  <WithStyles(ForwardRef(Grid))
+    className="spacing16-mock"
+    item={true}
   >
     <WithStyles(ForwardRef(Grid))
-      alignItems="center"
       container={true}
-      justify="space-between"
     >
       <WithStyles(ForwardRef(Grid))
         item={true}
+        xs={true}
       >
-        <WithStyles(ForwardRef(Typography))
-          className="privateTitle-mock"
-          variant="body2"
-        >
-          Private address
-        </WithStyles(ForwardRef(Typography))>
+        <WithStyles(ForwardRef(OutlinedInput))
+          classes={
+            Object {
+              "root": "transparentAddress-mock",
+            }
+          }
+          disabled={true}
+          fullWidth={true}
+          id="outlined-address"
+          name="address"
+        />
       </WithStyles(ForwardRef(Grid))>
-      <ExpandMoreIcon
-        className="icon-mock"
-      />
+      <Memo(WithStyles(Tooltip))
+        className="tooltip-mock"
+        placement="top-end"
+        title="Send to Zbay with QR code"
+      >
+        <WithStyles(ForwardRef(Grid))
+          className="qrIcon-mock"
+          item={true}
+          onClick={[Function]}
+        >
+          <Component
+            src="test-file-stub"
+          />
+        </WithStyles(ForwardRef(Grid))>
+      </Memo(WithStyles(Tooltip))>
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
-    className="infoDiv-mock"
     item={true}
-    onClick={[Function]}
+    xs={true}
   >
-    <WithStyles(ForwardRef(Grid))
-      alignItems="center"
-      container={true}
-      justify="center"
+    <CopyToClipboard
+      onCopy={[Function]}
     >
-      <WithStyles(ForwardRef(Grid))
-        className="iconDiv-mock"
-        item={true}
+      <WithStyles(ForwardRef(Button))
+        className="button-mock"
+        color="primary"
+        size="large"
+        type="submit"
+        variant="contained"
       >
-        <Memo(Icon)
-          src="test-file-stub"
-        />
-      </WithStyles(ForwardRef(Grid))>
-      <WithStyles(ForwardRef(Grid))
-        item={true}
-      >
-        <WithStyles(ForwardRef(Typography))
-          variant="h4"
-        >
-          How do i buy Zcash? 
-        </WithStyles(ForwardRef(Typography))>
-      </WithStyles(ForwardRef(Grid))>
-    </WithStyles(ForwardRef(Grid))>
+        Copy address to clipboard
+      </WithStyles(ForwardRef(Button))>
+    </CopyToClipboard>
   </WithStyles(ForwardRef(Grid))>
 </Fragment>
 `;

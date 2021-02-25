@@ -15,21 +15,24 @@ exports[`ChannelsListItem renders component 1`] = `
       }
     }
     primary={
-      <ForwardRef(WithStyles)
+      <WithStyles(ForwardRef(Grid))
         alignItems="center"
         container={true}
       >
-        <ForwardRef(WithStyles)
+        <WithStyles(ForwardRef(Grid))
+          item={true}
+        />
+        <WithStyles(ForwardRef(Grid))
           item={true}
         >
-          <ForwardRef(WithStyles)
+          <WithStyles(ForwardRef(Typography))
             className="title-mock"
             variant="body2"
           >
             # undefined
-          </ForwardRef(WithStyles)>
-        </ForwardRef(WithStyles)>
-      </ForwardRef(WithStyles)>
+          </WithStyles(ForwardRef(Typography))>
+        </WithStyles(ForwardRef(Grid))>
+      </WithStyles(ForwardRef(Grid))>
     }
   />
 </WithStyles(ForwardRef(ListItem))>
@@ -50,21 +53,24 @@ exports[`ChannelsListItem renders component when public 1`] = `
       }
     }
     primary={
-      <ForwardRef(WithStyles)
+      <WithStyles(ForwardRef(Grid))
         alignItems="center"
         container={true}
       >
-        <ForwardRef(WithStyles)
+        <WithStyles(ForwardRef(Grid))
+          item={true}
+        />
+        <WithStyles(ForwardRef(Grid))
           item={true}
         >
-          <ForwardRef(WithStyles)
+          <WithStyles(ForwardRef(Typography))
             className="title-mock"
             variant="body2"
           >
             # undefined
-          </ForwardRef(WithStyles)>
-        </ForwardRef(WithStyles)>
-      </ForwardRef(WithStyles)>
+          </WithStyles(ForwardRef(Typography))>
+        </WithStyles(ForwardRef(Grid))>
+      </WithStyles(ForwardRef(Grid))>
     }
   />
 </WithStyles(ForwardRef(ListItem))>
@@ -85,21 +91,24 @@ exports[`ChannelsListItem renders component with address 1`] = `
       }
     }
     primary={
-      <ForwardRef(WithStyles)
+      <WithStyles(ForwardRef(Grid))
         alignItems="center"
         container={true}
       >
-        <ForwardRef(WithStyles)
+        <WithStyles(ForwardRef(Grid))
+          item={true}
+        />
+        <WithStyles(ForwardRef(Grid))
           item={true}
         >
-          <ForwardRef(WithStyles)
+          <WithStyles(ForwardRef(Typography))
             className="title-mock"
             variant="body2"
           >
             # undefined
-          </ForwardRef(WithStyles)>
-        </ForwardRef(WithStyles)>
-      </ForwardRef(WithStyles)>
+          </WithStyles(ForwardRef(Typography))>
+        </WithStyles(ForwardRef(Grid))>
+      </WithStyles(ForwardRef(Grid))>
     }
   />
 </WithStyles(ForwardRef(ListItem))>

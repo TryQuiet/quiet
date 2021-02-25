@@ -33,7 +33,7 @@ class Invitation {
   }
 }
 
-const initialState: Invitation = {
+export const initialState: Invitation = {
   ...new Invitation({
     amount: 0,
     amountZec: 0,

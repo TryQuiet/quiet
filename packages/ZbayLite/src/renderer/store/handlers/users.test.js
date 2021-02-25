@@ -19,25 +19,23 @@ describe('users reducer', () => {
 
   beforeEach(() => {
     store = create({
-      initialState: {
-        node: { ...NodeState, isTestnet: true },
-        identity: {
-          ...IdentityState,
-          data: {
-            name: 'Saturn',
-            id: 'test-id',
-            address:
-              'ztestsapling1mwmpvwy2aah7dlt0c9l47gde982xv6snxq2srddfzx8efn2qht6mxnz65rtst0426gtxje0eqlm',
-            signerPrivKey: '4e577989a286937f565cea6426bd75fc0c3b166d7bd28d8357ba633b3736a41d',
-            signerPubKey: '033ec8436690fc8313202e16a531b2ec4799dd91a33025357a5386979f3cf081af',
-            transparentAddress: 'transparent-test-address'
-          }
-        },
-        users: initialState,
-        channels: {
-          ...ChannelsState,
-          data: userChannel
+      node: { ...NodeState, isTestnet: true },
+      identity: {
+        ...IdentityState,
+        data: {
+          name: 'Saturn',
+          id: 'test-id',
+          address:
+          'ztestsapling1mwmpvwy2aah7dlt0c9l47gde982xv6snxq2srddfzx8efn2qht6mxnz65rtst0426gtxje0eqlm',
+          signerPrivKey: '4e577989a286937f565cea6426bd75fc0c3b166d7bd28d8357ba633b3736a41d',
+          signerPubKey: '033ec8436690fc8313202e16a531b2ec4799dd91a33025357a5386979f3cf081af',
+          transparentAddress: 'transparent-test-address'
         }
+      },
+      users: initialState,
+      channels: {
+        ...ChannelsState,
+        data: userChannel
       }
     })
     jest.clearAllMocks()
@@ -87,37 +85,35 @@ describe('users reducer', () => {
     describe('isNicknameTaken', () => {
       beforeEach(() => {
         store = create({
-          initialState: {
-            node: { ...NodeState, isTestnet: true },
-            users: {
-              '02c9b30ea203dcd5776d014e0062a3232c00b74273094ebb1f119fb5cee88c2392': {
-                firstName: 'testname',
-                lastName: 'testlastname',
-                nickname: 'test-user-1',
-                address:
-                  'ztestsapling1k059n2xjz5apmu49ud6xa0g4lywetd0zgpz2txe9xs5pu27fjjnp7c9yvtkcqlwz0n7qxrhyb4c'
-              },
-              '02c9b30ea203dcd5776d014e0062a3232c00b74273094ebb1f119fb5cee88c23vb': {
-                firstName: 'testname',
-                lastName: 'testlastname',
-                nickname: 'test-user-1',
-                address:
-                  'ztestsapling1k059n2xjz5apmu49ud6xa0g4lywetd0zgpz2txe9xs5pu27fjjnp7c9yvtkcqlwz0n7qxrhyb4c'
-              },
-              '04c9b30ea203dcd5776d014e0062a3232c00b74273094ebb1f119fb5cee88c2355': {
-                firstName: 'testname',
-                lastName: 'testlastname',
-                nickname: 'test-user-2',
-                address:
-                  'ztestsapling1k059n2xjz5apmu49ud6xa0g4lywetd0zgpz2txe9xs5pu27fjjnp7c9yvtkcqlwz0n7qxrhylnn'
-              },
-              '04c9b30ea203dcd5776d014e0062a3232c00b74273094ebb1f119fb5cee88c2vbf': {
-                firstName: 'testname',
-                lastName: 'testlastname',
-                nickname: 'test-user-2',
-                address:
-                  'ztestsapling1k059n2xjz5apmu49ud6xa0g4lywetd0zgpz2txe9xs5pu27fjjnp7c9yvtkcqlwz0n7qxrhylnn'
-              }
+          node: { ...NodeState, isTestnet: true },
+          users: {
+            '02c9b30ea203dcd5776d014e0062a3232c00b74273094ebb1f119fb5cee88c2392': {
+              firstName: 'testname',
+              lastName: 'testlastname',
+              nickname: 'test-user-1',
+              address:
+              'ztestsapling1k059n2xjz5apmu49ud6xa0g4lywetd0zgpz2txe9xs5pu27fjjnp7c9yvtkcqlwz0n7qxrhyb4c'
+            },
+            '02c9b30ea203dcd5776d014e0062a3232c00b74273094ebb1f119fb5cee88c23vb': {
+              firstName: 'testname',
+              lastName: 'testlastname',
+              nickname: 'test-user-1',
+              address:
+              'ztestsapling1k059n2xjz5apmu49ud6xa0g4lywetd0zgpz2txe9xs5pu27fjjnp7c9yvtkcqlwz0n7qxrhyb4c'
+            },
+            '04c9b30ea203dcd5776d014e0062a3232c00b74273094ebb1f119fb5cee88c2355': {
+              firstName: 'testname',
+              lastName: 'testlastname',
+              nickname: 'test-user-2',
+              address:
+              'ztestsapling1k059n2xjz5apmu49ud6xa0g4lywetd0zgpz2txe9xs5pu27fjjnp7c9yvtkcqlwz0n7qxrhylnn'
+            },
+            '04c9b30ea203dcd5776d014e0062a3232c00b74273094ebb1f119fb5cee88c2vbf': {
+              firstName: 'testname',
+              lastName: 'testlastname',
+              nickname: 'test-user-2',
+              address:
+              'ztestsapling1k059n2xjz5apmu49ud6xa0g4lywetd0zgpz2txe9xs5pu27fjjnp7c9yvtkcqlwz0n7qxrhylnn'
             }
           }
         })
@@ -140,10 +136,8 @@ describe('users reducer', () => {
     describe('isNicknameTaken on empty store', () => {
       beforeEach(() => {
         store = create({
-          initialState: {
-            node: { ...NodeState, isTestnet: true },
-            users: initialState
-          }
+          node: { ...NodeState, isTestnet: true },
+          users: initialState
         })
         jest.clearAllMocks()
       })

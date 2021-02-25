@@ -6,25 +6,24 @@ import selectors from '../selectors/invitation'
 import create from '../create'
 import { initialState as identity } from './identity'
 import { initialState as rates } from './rates'
+import pick from 'lodash/pick'
 
 describe('criticalError reducer', () => {
   let store = null
   beforeEach(() => {
     store = create({
-      initialState: {
-        invitation: {
-          ...Invitation
-        },
-        identity: {
-          ...identity,
-          data: {
-            ...identity.data,
-            address: 'test-address'
-          }
-        },
-        rates: {
-          ...rates
+      invitation: {
+        ...Invitation
+      },
+      identity: {
+        ...identity,
+        data: {
+          ...identity.data,
+          address: 'test-address'
         }
+      },
+      rates: {
+        ...rates
       }
     })
     jest.clearAllMocks()
@@ -52,7 +51,13 @@ describe('criticalError reducer', () => {
       store.dispatch(handlers.actions.setInvitationAmount(2))
       store.dispatch(handlers.actions.resetInvitation())
 
-      expect(selectors.invitation(store.getState())).toEqual(initialState)
+      expect(
+        selectors.invitation(store.getState())
+      ).toEqual(
+        pick(
+          initialState,
+          ['affiliateCode', 'amount', 'amountZec', 'generatedInvitation']
+        ))
     })
   })
 })

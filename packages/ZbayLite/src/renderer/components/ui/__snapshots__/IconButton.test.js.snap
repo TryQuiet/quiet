@@ -4,7 +4,7 @@ exports[`ProgressFab renders component 1`] = `
 <WithStyles(ForwardRef(IconButton))
   classes={
     Object {
-      "root": "root-mock",
+      "root": "makeStyles-root-1",
     }
   }
 >
@@ -14,14 +14,9 @@ exports[`ProgressFab renders component 1`] = `
 
 exports[`ProgressFab renders with passed components 1`] = `
 <WithStyles(ForwardRef(IconButton))
-  buttonRef={
-    Object {
-      "current": null,
-    }
-  }
   classes={
     Object {
-      "root": "root-mock",
+      "root": "makeStyles-root-1",
     }
   }
   onClick={[MockFunction]}

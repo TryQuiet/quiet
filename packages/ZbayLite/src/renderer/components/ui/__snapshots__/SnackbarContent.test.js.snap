@@ -4,15 +4,15 @@ exports[`SnackbarContent renders error 1`] = `
 <WithStyles(ForwardRef(SnackbarContent))
   action={
     Array [
-      <ForwardRef(WithStyles)
+      <WithStyles(ForwardRef(IconButton))
         className="close-mock"
         color="inherit"
         onClick={[MockFunction]}
       >
-        <Memo
+        <Memo(CloseIcon)
           className="icon-mock"
         />
-      </ForwardRef(WithStyles)>,
+      </WithStyles(ForwardRef(IconButton))>,
     ]
   }
   className="error-mock"
@@ -20,7 +20,7 @@ exports[`SnackbarContent renders error 1`] = `
     <span
       className="content-mock"
     >
-      <Memo
+      <Memo(ErrorIcon)
         className="icon-mock errorIcon-mock"
         size={20}
       />
@@ -38,15 +38,15 @@ exports[`SnackbarContent renders fullWidth 1`] = `
 <WithStyles(ForwardRef(SnackbarContent))
   action={
     Array [
-      <ForwardRef(WithStyles)
+      <WithStyles(ForwardRef(IconButton))
         className="close-mock"
         color="inherit"
         onClick={[MockFunction]}
       >
-        <Memo
+        <Memo(CloseIcon)
           className="icon-mock"
         />
-      </ForwardRef(WithStyles)>,
+      </WithStyles(ForwardRef(IconButton))>,
     ]
   }
   className="success-mock fullWidth-mock"
@@ -54,7 +54,7 @@ exports[`SnackbarContent renders fullWidth 1`] = `
     <span
       className="content-mock"
     >
-      <Memo
+      <Memo(CheckCircleIcon)
         className="icon-mock successIcon-mock"
         size={20}
       />
@@ -72,15 +72,15 @@ exports[`SnackbarContent renders info 1`] = `
 <WithStyles(ForwardRef(SnackbarContent))
   action={
     Array [
-      <ForwardRef(WithStyles)
+      <WithStyles(ForwardRef(IconButton))
         className="close-mock"
         color="inherit"
         onClick={[MockFunction]}
       >
-        <Memo
+        <Memo(CloseIcon)
           className="icon-mock"
         />
-      </ForwardRef(WithStyles)>,
+      </WithStyles(ForwardRef(IconButton))>,
     ]
   }
   className="info-mock"
@@ -88,7 +88,7 @@ exports[`SnackbarContent renders info 1`] = `
     <span
       className="content-mock"
     >
-      <Memo
+      <Memo(InfoIcon)
         className="icon-mock infoIcon-mock"
         size={20}
       />
@@ -110,7 +110,7 @@ exports[`SnackbarContent renders loading 1`] = `
     <span
       className="content-mock"
     >
-      <ForwardRef(WithStyles)
+      <WithStyles(ForwardRef(CircularProgress))
         className="icon-mock loadingIcon-mock"
         size={20}
       />
@@ -128,15 +128,15 @@ exports[`SnackbarContent renders success 1`] = `
 <WithStyles(ForwardRef(SnackbarContent))
   action={
     Array [
-      <ForwardRef(WithStyles)
+      <WithStyles(ForwardRef(IconButton))
         className="close-mock"
         color="inherit"
         onClick={[MockFunction]}
       >
-        <Memo
+        <Memo(CloseIcon)
           className="icon-mock"
         />
-      </ForwardRef(WithStyles)>,
+      </WithStyles(ForwardRef(IconButton))>,
     ]
   }
   className="success-mock"
@@ -144,7 +144,7 @@ exports[`SnackbarContent renders success 1`] = `
     <span
       className="content-mock"
     >
-      <Memo
+      <Memo(CheckCircleIcon)
         className="icon-mock successIcon-mock"
         size={20}
       />
@@ -162,15 +162,15 @@ exports[`SnackbarContent renders warning 1`] = `
 <WithStyles(ForwardRef(SnackbarContent))
   action={
     Array [
-      <ForwardRef(WithStyles)
+      <WithStyles(ForwardRef(IconButton))
         className="close-mock"
         color="inherit"
         onClick={[MockFunction]}
       >
-        <Memo
+        <Memo(CloseIcon)
           className="icon-mock"
         />
-      </ForwardRef(WithStyles)>,
+      </WithStyles(ForwardRef(IconButton))>,
     ]
   }
   className="warning-mock"
@@ -178,7 +178,7 @@ exports[`SnackbarContent renders warning 1`] = `
     <span
       className="content-mock"
     >
-      <Memo
+      <Memo(WarningIcon)
         className="icon-mock warningIcon-mock"
         size={20}
       />

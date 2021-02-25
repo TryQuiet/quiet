@@ -1,7 +1,7 @@
 /* eslint import/first: 0 */
 
 import notificationCenterSelectors from './notificationCenter'
-import { NotificationsCenter } from '../handlers/notificationCenter'
+import { initialState as NotificationsCenter } from '../handlers/notificationCenter'
 
 import create from '../create'
 
@@ -10,14 +10,13 @@ describe('NotificationsCenter', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: {
-        notificationCenter: {
-          ...NotificationsCenter,
-          channels: { key1: 1, key2: 2 },
-          user: { key1: 1, key2: 2, filterType: 1, sound: 1 },
-          contacts: { key1: 1, key2: 2, muted1: 4, muted2: 4 }
-        }
+      notificationCenter: {
+        ...NotificationsCenter,
+        channels: { key1: 1, key2: 2 },
+        user: { key1: 1, key2: 2, filterType: 1, sound: 1 },
+        contacts: { key1: 1, key2: 2, muted1: 4, muted2: 4 }
       }
+
     })
   })
 

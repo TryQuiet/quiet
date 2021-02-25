@@ -11,20 +11,18 @@ describe('ZcashBalance', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: {
-        identity: {
-          ...initialState,
-          data: {
-            ...initialState.data,
-            balance: new BigNumber('33.583004'),
-            lockedBalance: new BigNumber('12.583004')
-          }
-        },
-        rates: {
-          ...RatesState,
-          zec: '1',
-          usd: '2'
+      identity: {
+        ...initialState,
+        data: {
+          ...initialState.data,
+          balance: new BigNumber('33.583004'),
+          lockedBalance: new BigNumber('12.583004')
         }
+      },
+      rates: {
+        ...RatesState,
+        zec: '1',
+        usd: '2'
       }
     })
   })

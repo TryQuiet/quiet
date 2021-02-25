@@ -40,14 +40,13 @@ const styles = theme => ({
 export const InvitationModalFinish = ({
   classes,
   amount,
-  generatedInvitation,
-  amountZec
+  generatedInvitation
 }) => {
   return (
     <InvitationModal
       title={'Here’s your invite link'}
       info={
-        parseFloat(amount) !== 0 || parseFloat(amountZec) !== 0
+        parseFloat(amount) !== 0
           ? `It has $${amount} attached, so don't lose it! You can share it however you like,
      but don't share large amounts by email or other insecure means.
      Note: it will take a few minutes for funds to become available.`
@@ -99,7 +98,6 @@ export const InvitationModalFinish = ({
 InvitationModalFinish.propTypes = {
   classes: PropTypes.object.isRequired,
   amount: PropTypes.string.isRequired,
-  amountZec: PropTypes.string.isRequired,
   generatedInvitation: PropTypes.string.isRequired
 }
 

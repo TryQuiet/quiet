@@ -8,16 +8,14 @@ describe('IdentityPanel', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: {
-        identity: {
-          ...initialState,
-          data: {
-            ...initialState.data,
-            address: 'zctestaddress',
-            balance: '23.435432',
-            lockedBalance: '13.123432',
-            name: 'saturn'
-          }
+      identity: {
+        ...initialState,
+        data: {
+          ...initialState.data,
+          address: 'zctestaddress',
+          balance: '23.435432',
+          lockedBalance: '13.123432',
+          name: 'saturn'
         }
       }
     })

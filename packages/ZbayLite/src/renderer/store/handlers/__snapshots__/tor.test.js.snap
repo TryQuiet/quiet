@@ -6,6 +6,7 @@ Object {
   "error": null,
   "status": "down",
   "url": "",
+  Symbol(immer-draftable): true,
 }
 `;
 
@@ -15,6 +16,7 @@ Object {
   "error": "error",
   "status": "",
   "url": "",
+  Symbol(immer-draftable): true,
 }
 `;
 
@@ -24,6 +26,7 @@ Object {
   "error": null,
   "status": "up",
   "url": "",
+  Symbol(immer-draftable): true,
 }
 `;
 
@@ -33,5 +36,6 @@ Object {
   "error": null,
   "status": "down",
   "url": "testhost:9999",
+  Symbol(immer-draftable): true,
 }
 `;

@@ -1,8 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ImportedChannel renders private channel 1`] = `
-<Memo(WithStyles(Modal))
+<Component
+  addBorder={false}
+  alignCloseLeft={false}
+  canGoBack={false}
+  contentWidth={600}
   handleClose={[MockFunction]}
+  isBold={false}
+  isCloseDisabled={false}
   open={true}
   title=""
 >
@@ -16,7 +22,7 @@ exports[`ImportedChannel renders private channel 1`] = `
     <WithStyles(ForwardRef(Grid))
       item={true}
     >
-      <Memo(Icon)
+      <Component
         className="icon-mock"
         src="test-file-stub"
       />
@@ -76,12 +82,18 @@ exports[`ImportedChannel renders private channel 1`] = `
       </WithStyles(ForwardRef(Button))>
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
-</Memo(WithStyles(Modal))>
+</Component>
 `;
 
 exports[`ImportedChannel renders public channel 1`] = `
-<Memo(WithStyles(Modal))
+<Component
+  addBorder={false}
+  alignCloseLeft={false}
+  canGoBack={false}
+  contentWidth={600}
   handleClose={[MockFunction]}
+  isBold={false}
+  isCloseDisabled={false}
   open={true}
   title=""
 >
@@ -95,7 +107,7 @@ exports[`ImportedChannel renders public channel 1`] = `
     <WithStyles(ForwardRef(Grid))
       item={true}
     >
-      <Memo(Icon)
+      <Component
         className="icon-mock"
         src="test-file-stub"
       />
@@ -155,5 +167,5 @@ exports[`ImportedChannel renders public channel 1`] = `
       </WithStyles(ForwardRef(Button))>
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
-</Memo(WithStyles(Modal))>
+</Component>
 `;

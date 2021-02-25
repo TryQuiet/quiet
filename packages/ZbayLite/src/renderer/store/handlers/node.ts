@@ -35,7 +35,7 @@ export class Node {
   }
 }
 
-const initialState: Node = new Node({})
+export const initialState: Node = new Node({})
 
 export const NodeState = initialState
 
@@ -111,7 +111,9 @@ export const checkNodeStatus = nodeProcessStatus => async (_dispatch, getState) 
 let lastSavedBlock = 0
 const getStatus = () => async (dispatch, getState) => {
   try {
+    console.log('info')
     const info = await client.info()
+    console.log('info 2')
     const height = await client.height()
     if (info.latest_block_height > height) {
       client.sync()

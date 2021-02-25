@@ -2,19 +2,22 @@
 
 exports[`ChannelInput will receive right actions 1`] = `
 Object {
-  "checkMessageSizeLimit": [Function],
   "onChange": [Function],
   "resetDebounce": [Function],
   "sendDirectMessageOnEnter": [Function],
+  "sendTypingIndicator": [Function],
 }
 `;
 
 exports[`ChannelInput will receive right props 1`] = `
 Object {
   "channelName": "",
-  "feeUsd": "0.0002",
+  "contactId": undefined,
+  "contactUsername": "",
   "id": null,
   "inputState": 3,
+  "isContactConnected": undefined,
+  "isContactTyping": false,
   "isMessageTooLong": null,
   "isSizeCheckingInProgress": false,
   "message": "",

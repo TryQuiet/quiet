@@ -75,11 +75,11 @@ exports[`ChannelInput renders component input Disable  1`] = `
             <Connect(Component)
               disabled={true}
             />
-            <Memo(Icon)
+            <Component
               className="emoji-mock"
-              onClick={[Function]}
-              onMouseEnter={[Function]}
-              onMouseLeave={[Function]}
+              onClickHandler={[Function]}
+              onMouseEnterHandler={[Function]}
+              onMouseLeaveHandler={[Function]}
               src="test-file-stub"
             />
           </WithStyles(ForwardRef(Grid))>
@@ -87,6 +87,7 @@ exports[`ChannelInput renders component input Disable  1`] = `
       </WithStyles(ForwardRef(Grid))>
     </ForwardRef(ClickAwayListener)>
   </WithStyles(ForwardRef(Grid))>
+  <TypingIndicator />
 </WithStyles(ForwardRef(Grid))>
 `;
 
@@ -165,11 +166,11 @@ exports[`ChannelInput renders component input Locked  1`] = `
             <Connect(Component)
               disabled={true}
             />
-            <Memo(Icon)
+            <Component
               className="emoji-mock"
-              onClick={[Function]}
-              onMouseEnter={[Function]}
-              onMouseLeave={[Function]}
+              onClickHandler={[Function]}
+              onMouseEnterHandler={[Function]}
+              onMouseLeaveHandler={[Function]}
               src="test-file-stub"
             />
           </WithStyles(ForwardRef(Grid))>
@@ -177,6 +178,7 @@ exports[`ChannelInput renders component input Locked  1`] = `
       </WithStyles(ForwardRef(Grid))>
     </ForwardRef(ClickAwayListener)>
   </WithStyles(ForwardRef(Grid))>
+  <TypingIndicator />
 </WithStyles(ForwardRef(Grid))>
 `;
 
@@ -234,11 +236,11 @@ exports[`ChannelInput renders component input available  1`] = `
             <Connect(Component)
               disabled={false}
             />
-            <Memo(Icon)
+            <Component
               className="emoji-mock"
-              onClick={[Function]}
-              onMouseEnter={[Function]}
-              onMouseLeave={[Function]}
+              onClickHandler={[Function]}
+              onMouseEnterHandler={[Function]}
+              onMouseLeaveHandler={[Function]}
               src="test-file-stub"
             />
           </WithStyles(ForwardRef(Grid))>
@@ -246,5 +248,6 @@ exports[`ChannelInput renders component input available  1`] = `
       </WithStyles(ForwardRef(Grid))>
     </ForwardRef(ClickAwayListener)>
   </WithStyles(ForwardRef(Grid))>
+  <TypingIndicator />
 </WithStyles(ForwardRef(Grid))>
 `;

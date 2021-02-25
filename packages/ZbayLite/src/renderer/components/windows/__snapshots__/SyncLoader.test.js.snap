@@ -24,7 +24,7 @@ exports[`SyncLoader renders component 1`] = `
         className="iconDiv-mock"
         item={true}
       >
-        <Memo(Icon)
+        <Component
           className="icon-mock"
           image="test-file-stub"
           src="test-file-stub"

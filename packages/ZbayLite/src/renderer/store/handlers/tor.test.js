@@ -12,9 +12,7 @@ describe('Tor reducer handles ', () => {
 
   beforeEach(() => {
     store = create({
-      initialState: {
-        tor: { ...initialState }
-      }
+      tor: { ...initialState }
     })
     jest.clearAllMocks()
   })

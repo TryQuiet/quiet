@@ -19,28 +19,6 @@ exports[`NodePanelDetails renders component 1`] = `
       <Memo(WithStyles(Tooltip))
         className="tooltip-mock"
         placement="bottom"
-        title="Logs"
-      >
-        <WithStyles(ForwardRef(IconButton))
-          classes={
-            Object {
-              "root": "iconButtonLogs-mock",
-            }
-          }
-          onClick={[Function]}
-          onMouseOut={[Function]}
-          onMouseOver={[Function]}
-        >
-          <Memo(Icon)
-            className="icon-mock"
-            fontSize="inherit"
-            src="test-file-stub"
-          />
-        </WithStyles(ForwardRef(IconButton))>
-      </Memo(WithStyles(Tooltip))>
-      <Memo(WithStyles(Tooltip))
-        className="tooltip-mock"
-        placement="bottom"
         title="Learn more about node status"
       >
         <WithStyles(ForwardRef(IconButton))
@@ -49,7 +27,7 @@ exports[`NodePanelDetails renders component 1`] = `
           onMouseOut={[Function]}
           onMouseOver={[Function]}
         >
-          <Memo(Icon)
+          <Component
             className="icon-mock"
             fontSize="inherit"
             src="test-file-stub"

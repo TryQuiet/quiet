@@ -8,20 +8,18 @@ describe('operations selectors', () => {
   let store = null
   beforeEach(() => {
     store = create({
-      initialState: {
-        directMessagesQueue: {
-          messageHash: {
-            ...PendingMessage,
-            recipientAddress: 'test-address',
-            recipientUsername: 'test-username',
-            message: createMessage(1)
-          },
-          messageHash2: {
-            ...PendingMessage,
-            recipientAddress: 'test-address',
-            recipientUsername: 'test-username',
-            message: createMessage(1)
-          }
+      directMessagesQueue: {
+        messageHash: {
+          ...PendingMessage,
+          recipientAddress: 'test-address',
+          recipientUsername: 'test-username',
+          message: createMessage(1)
+        },
+        messageHash2: {
+          ...PendingMessage,
+          recipientAddress: 'test-address',
+          recipientUsername: 'test-username',
+          message: createMessage(1)
         }
       }
     })

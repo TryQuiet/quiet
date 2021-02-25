@@ -44,7 +44,7 @@ exports[`BuyZcash renders component 1`] = `
       }
       fullWidth={true}
       id="region"
-      input={<ForwardRef(WithStyles) />}
+      input={<WithStyles(ForwardRef(OutlinedInput)) />}
       name="region"
       onChange={[Function]}
       value="United States"

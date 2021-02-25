@@ -55,14 +55,12 @@ describe('Identity reducer handles', () => {
   let store = null
   beforeEach(() => {
     store = create({
-      initialState: {
-        identity: {
-          ...initialState
-        },
-        node: {
-          ...NodeState,
-          isTestnet: true
-        }
+      identity: {
+        ...initialState
+      },
+      node: {
+        ...NodeState,
+        isTestnet: true
       }
     })
     remote.app = jest.mock()

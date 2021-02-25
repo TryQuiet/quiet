@@ -1,11 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`SettingsModal renders component 1`] = `
-<Memo(WithStyles(Modal))
+<Component
   addBorder={true}
+  alignCloseLeft={false}
+  canGoBack={false}
   contentWidth="100%"
   handleClose={[MockFunction]}
   isBold={true}
+  isCloseDisabled={false}
   open={true}
 >
   <WithStyles(ForwardRef(Grid))
@@ -36,7 +39,7 @@ exports[`SettingsModal renders component 1`] = `
           onChange={[Function]}
           orientation="vertical"
           textColor="inherit"
-          value={[MockFunction]}
+          value="account"
         >
           <WithStyles(Tab)
             classes={
@@ -125,5 +128,5 @@ exports[`SettingsModal renders component 1`] = `
       </AutoSizer>
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
-</Memo(WithStyles(Modal))>
+</Component>
 `;

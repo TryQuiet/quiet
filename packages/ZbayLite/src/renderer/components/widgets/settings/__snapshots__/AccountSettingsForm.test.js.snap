@@ -60,7 +60,7 @@ exports[`AccountSettingsForm renders component 1`] = `
           justify="flex-end"
           xs={2}
         >
-          <Memo(Icon)
+          <Component
             className="usernameIcon-mock"
             src="test-file-stub"
           />

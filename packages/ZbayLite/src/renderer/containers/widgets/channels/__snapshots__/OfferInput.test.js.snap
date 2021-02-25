@@ -10,7 +10,6 @@ Object {
 
 exports[`ChannelInput will receive right props 1`] = `
 Object {
-  "feeUsd": "0.0002",
   "id": null,
   "inputState": 0,
   "message": "",

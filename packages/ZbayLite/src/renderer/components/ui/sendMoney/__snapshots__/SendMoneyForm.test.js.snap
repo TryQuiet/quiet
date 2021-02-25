@@ -75,7 +75,7 @@ exports[`SendMoneyForm renders component when valid = false 1`] = `
         InputProps={
           Object {
             "className": "disabledInput-mock",
-            "endAdornment": <ForwardRef(WithStyles)
+            "endAdornment": <WithStyles(ForwardRef(InputAdornment))
               position="end"
             >
               <span
@@ -83,7 +83,7 @@ exports[`SendMoneyForm renders component when valid = false 1`] = `
               >
                 USD
               </span>
-            </ForwardRef(WithStyles)>,
+            </WithStyles(ForwardRef(InputAdornment))>,
             "error": undefined,
           }
         }
@@ -103,7 +103,7 @@ exports[`SendMoneyForm renders component when valid = false 1`] = `
       item={true}
       justify="center"
     >
-      <Memo(Icon)
+      <Component
         className="exchnage-mock"
         src="test-file-stub"
       />
@@ -116,7 +116,7 @@ exports[`SendMoneyForm renders component when valid = false 1`] = `
         InputProps={
           Object {
             "className": "disabledInput-mock",
-            "endAdornment": <ForwardRef(WithStyles)
+            "endAdornment": <WithStyles(ForwardRef(InputAdornment))
               position="end"
             >
               <span
@@ -124,7 +124,7 @@ exports[`SendMoneyForm renders component when valid = false 1`] = `
               >
                 ZEC
               </span>
-            </ForwardRef(WithStyles)>,
+            </WithStyles(ForwardRef(InputAdornment))>,
             "error": undefined,
           }
         }
@@ -164,7 +164,7 @@ exports[`SendMoneyForm renders component when valid = false 1`] = `
         InputProps={
           Object {
             "className": "moneyInput-mock",
-            "endAdornment": <ForwardRef(WithStyles)
+            "endAdornment": <WithStyles(ForwardRef(InputAdornment))
               position="end"
             >
               <span
@@ -172,7 +172,7 @@ exports[`SendMoneyForm renders component when valid = false 1`] = `
               >
                 USD
               </span>
-            </ForwardRef(WithStyles)>,
+            </WithStyles(ForwardRef(InputAdornment))>,
             "error": undefined,
           }
         }
@@ -193,7 +193,7 @@ exports[`SendMoneyForm renders component when valid = false 1`] = `
       item={true}
       justify="center"
     >
-      <Memo(Icon)
+      <Component
         className="exchnage-mock"
         src="test-file-stub"
       />
@@ -206,7 +206,7 @@ exports[`SendMoneyForm renders component when valid = false 1`] = `
         InputProps={
           Object {
             "className": "moneyInput-mock",
-            "endAdornment": <ForwardRef(WithStyles)
+            "endAdornment": <WithStyles(ForwardRef(InputAdornment))
               position="end"
             >
               <span
@@ -214,7 +214,7 @@ exports[`SendMoneyForm renders component when valid = false 1`] = `
               >
                 ZEC
               </span>
-            </ForwardRef(WithStyles)>,
+            </WithStyles(ForwardRef(InputAdornment))>,
             "error": undefined,
           }
         }
@@ -382,7 +382,7 @@ exports[`SendMoneyForm renders component when valid = true 1`] = `
         InputProps={
           Object {
             "className": "disabledInput-mock",
-            "endAdornment": <ForwardRef(WithStyles)
+            "endAdornment": <WithStyles(ForwardRef(InputAdornment))
               position="end"
             >
               <span
@@ -390,7 +390,7 @@ exports[`SendMoneyForm renders component when valid = true 1`] = `
               >
                 USD
               </span>
-            </ForwardRef(WithStyles)>,
+            </WithStyles(ForwardRef(InputAdornment))>,
             "error": undefined,
           }
         }
@@ -410,7 +410,7 @@ exports[`SendMoneyForm renders component when valid = true 1`] = `
       item={true}
       justify="center"
     >
-      <Memo(Icon)
+      <Component
         className="exchnage-mock"
         src="test-file-stub"
       />
@@ -423,7 +423,7 @@ exports[`SendMoneyForm renders component when valid = true 1`] = `
         InputProps={
           Object {
             "className": "disabledInput-mock",
-            "endAdornment": <ForwardRef(WithStyles)
+            "endAdornment": <WithStyles(ForwardRef(InputAdornment))
               position="end"
             >
               <span
@@ -431,7 +431,7 @@ exports[`SendMoneyForm renders component when valid = true 1`] = `
               >
                 ZEC
               </span>
-            </ForwardRef(WithStyles)>,
+            </WithStyles(ForwardRef(InputAdornment))>,
             "error": undefined,
           }
         }
@@ -471,7 +471,7 @@ exports[`SendMoneyForm renders component when valid = true 1`] = `
         InputProps={
           Object {
             "className": "moneyInput-mock",
-            "endAdornment": <ForwardRef(WithStyles)
+            "endAdornment": <WithStyles(ForwardRef(InputAdornment))
               position="end"
             >
               <span
@@ -479,7 +479,7 @@ exports[`SendMoneyForm renders component when valid = true 1`] = `
               >
                 USD
               </span>
-            </ForwardRef(WithStyles)>,
+            </WithStyles(ForwardRef(InputAdornment))>,
             "error": undefined,
           }
         }
@@ -500,7 +500,7 @@ exports[`SendMoneyForm renders component when valid = true 1`] = `
       item={true}
       justify="center"
     >
-      <Memo(Icon)
+      <Component
         className="exchnage-mock"
         src="test-file-stub"
       />
@@ -513,7 +513,7 @@ exports[`SendMoneyForm renders component when valid = true 1`] = `
         InputProps={
           Object {
             "className": "moneyInput-mock",
-            "endAdornment": <ForwardRef(WithStyles)
+            "endAdornment": <WithStyles(ForwardRef(InputAdornment))
               position="end"
             >
               <span
@@ -521,7 +521,7 @@ exports[`SendMoneyForm renders component when valid = true 1`] = `
               >
                 ZEC
               </span>
-            </ForwardRef(WithStyles)>,
+            </WithStyles(ForwardRef(InputAdornment))>,
             "error": undefined,
           }
         }

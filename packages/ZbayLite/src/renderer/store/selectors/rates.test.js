@@ -1,6 +1,6 @@
 /* eslint import/first: 0 */
 import create from '../create'
-import { RatesState } from '../handlers/rates'
+import { initialState as RatesState } from '../handlers/rates'
 import selectors from './rates'
 import each from 'jest-each'
 
@@ -8,12 +8,10 @@ describe('rates selectors', () => {
   let store = null
   beforeEach(() => {
     store = create({
-      initialState: {
-        rates: {
-          ...RatesState,
-          zec: '132.343459',
-          usd: '232.11'
-        }
+      rates: {
+        ...RatesState,
+        zec: '132.343459',
+        usd: '232.11'
       }
     })
     jest.clearAllMocks()

@@ -1,8 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`CreateUsernameModal renders component 1`] = `
-<Memo(WithStyles(Modal))
+<Component
+  addBorder={false}
+  alignCloseLeft={false}
+  canGoBack={false}
+  contentWidth={600}
   handleClose={[MockFunction]}
+  isBold={false}
+  isCloseDisabled={false}
   open={true}
 >
   <WithStyles(ForwardRef(Grid))
@@ -36,5 +42,5 @@ exports[`CreateUsernameModal renders component 1`] = `
       <Component />
     </Formik>
   </WithStyles(ForwardRef(Grid))>
-</Memo(WithStyles(Modal))>
+</Component>
 `;

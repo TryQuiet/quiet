@@ -7,11 +7,9 @@ describe('ChannelHeader', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: {
-        contacts: {
-          address123: {
-            username: 'testusername'
-          }
+      contacts: {
+        address123: {
+          username: 'testusername'
         }
       }
     })

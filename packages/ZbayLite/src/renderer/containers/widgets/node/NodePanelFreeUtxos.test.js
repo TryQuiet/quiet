@@ -13,13 +13,12 @@ describe('NodePanelFreeUtxos', () => {
   let store = null
   beforeEach(() => {
     store = create({
-      initialState: {
-        identity: {
-          ...initialState,
-          data: { freeUtxos: 5 }
-        }
+      identity: {
+        ...initialState,
+        data: { freeUtxos: 5 }
       }
-    })
+    }
+    )
   })
 
   it('will receive right props', async () => {

@@ -9,75 +9,75 @@ exports[`InviteMentionInfo renders component 1`] = `
     disableTypography={true}
     primary={
       <React.Fragment>
-        <ForwardRef(WithStyles)
+        <WithStyles(ForwardRef(Typography))
           className="visibleInfo-mock"
           variant="body2"
         >
           Only visible to you
-        </ForwardRef(WithStyles)>
-        <ForwardRef(WithStyles)
+        </WithStyles(ForwardRef(Typography))>
+        <WithStyles(ForwardRef(Grid))
           alignItems="flex-start"
           container={true}
           direction="row"
           justify="flex-start"
           wrap="nowrap"
         >
-          <ForwardRef(WithStyles)
+          <WithStyles(ForwardRef(Grid))
             className="avatar-mock"
             item={true}
           >
-            <Memo(Icon)
+            <Unknown
               className="icon-mock"
               src="test-file-stub"
             />
-          </ForwardRef(WithStyles)>
-          <ForwardRef(WithStyles)
+          </WithStyles(ForwardRef(Grid))>
+          <WithStyles(ForwardRef(Grid))
             container={true}
             direction="row"
             item={true}
             justify="space-between"
           >
-            <ForwardRef(WithStyles)
+            <WithStyles(ForwardRef(Grid))
               alignItems="flex-start"
               container={true}
               item={true}
               wrap="nowrap"
               xs={true}
             >
-              <ForwardRef(WithStyles)
+              <WithStyles(ForwardRef(Grid))
                 item={true}
               >
-                <ForwardRef(WithStyles)
+                <WithStyles(ForwardRef(Typography))
                   className="username-mock"
                   color="textPrimary"
                 >
                   Zbay
-                </ForwardRef(WithStyles)>
-              </ForwardRef(WithStyles)>
-              <ForwardRef(WithStyles)
+                </WithStyles(ForwardRef(Typography))>
+              </WithStyles(ForwardRef(Grid))>
+              <WithStyles(ForwardRef(Grid))
                 item={true}
               >
-                <ForwardRef(WithStyles)
+                <WithStyles(ForwardRef(Typography))
                   className="time-mock"
                 >
                   12:00 am
-                </ForwardRef(WithStyles)>
-              </ForwardRef(WithStyles)>
-            </ForwardRef(WithStyles)>
-          </ForwardRef(WithStyles)>
-        </ForwardRef(WithStyles)>
+                </WithStyles(ForwardRef(Typography))>
+              </WithStyles(ForwardRef(Grid))>
+            </WithStyles(ForwardRef(Grid))>
+          </WithStyles(ForwardRef(Grid))>
+        </WithStyles(ForwardRef(Grid))>
       </React.Fragment>
     }
     secondary={
-      <ForwardRef(WithStyles)
+      <WithStyles(ForwardRef(Grid))
         className="messageInput-mock"
         container={true}
         direction="column"
       >
-        <ForwardRef(WithStyles)
+        <WithStyles(ForwardRef(Grid))
           item={true}
         >
-          <ForwardRef(WithStyles)
+          <WithStyles(ForwardRef(Typography))
             className="message-mock"
             variant="body2"
           >
@@ -90,42 +90,42 @@ exports[`InviteMentionInfo renders component 1`] = `
               test
             </span>
             , but they're not a participant in this channel.
-          </ForwardRef(WithStyles)>
-        </ForwardRef(WithStyles)>
-        <ForwardRef(WithStyles)
+          </WithStyles(ForwardRef(Typography))>
+        </WithStyles(ForwardRef(Grid))>
+        <WithStyles(ForwardRef(Grid))
           className="buttonsDiv-mock"
           item={true}
         >
-          <ForwardRef(WithStyles)
+          <WithStyles(ForwardRef(Grid))
             container={true}
             spacing={1}
           >
-            <ForwardRef(WithStyles)
+            <WithStyles(ForwardRef(Grid))
               item={true}
             >
-              <ForwardRef(WithStyles)
+              <WithStyles(ForwardRef(Button))
                 className="button-mock"
                 onClick={[MockFunction]}
                 variant="outlined"
               >
                 Invite 
                 test
-              </ForwardRef(WithStyles)>
-            </ForwardRef(WithStyles)>
-            <ForwardRef(WithStyles)
+              </WithStyles(ForwardRef(Button))>
+            </WithStyles(ForwardRef(Grid))>
+            <WithStyles(ForwardRef(Grid))
               item={true}
             >
-              <ForwardRef(WithStyles)
+              <WithStyles(ForwardRef(Button))
                 className="button-mock"
                 onClick={[MockFunction]}
                 variant="outlined"
               >
                 Do Nothing
-              </ForwardRef(WithStyles)>
-            </ForwardRef(WithStyles)>
-          </ForwardRef(WithStyles)>
-        </ForwardRef(WithStyles)>
-      </ForwardRef(WithStyles)>
+              </WithStyles(ForwardRef(Button))>
+            </WithStyles(ForwardRef(Grid))>
+          </WithStyles(ForwardRef(Grid))>
+        </WithStyles(ForwardRef(Grid))>
+      </WithStyles(ForwardRef(Grid))>
     }
   />
 </WithStyles(ForwardRef(ListItem))>

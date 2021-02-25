@@ -7,9 +7,7 @@ describe('notifications reducer handles', () => {
   let store = null
   beforeEach(async () => {
     store = create({
-      initialState: {
-        notifications: []
-      }
+      notifications: []
     })
     jest.clearAllMocks()
   })
@@ -34,7 +32,7 @@ describe('notifications reducer handles', () => {
             ...n
           }
           delete temp.key
-          expect(typeof n.key).toEqual('number')
+          expect(typeof n.key).toEqual('string')
           return {
             ...temp
           }

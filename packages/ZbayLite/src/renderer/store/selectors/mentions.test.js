@@ -10,17 +10,15 @@ describe('invitation -', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: {
-        mentions: {
-          [channelId1]: [
-            { ...ChannelMentions, nickname: 'test1', timeStamp: 1234567 },
-            { ...ChannelMentions, nickname: 'test2', timeStamp: 1234567 }
-          ],
-          [channelId2]: [
-            { ...ChannelMentions, nickname: 'test3', timeStamp: 1234567 },
-            { ...ChannelMentions, nickname: 'test4', timeStamp: 1234567 }
-          ]
-        }
+      mentions: {
+        [channelId1]: [
+          { ...ChannelMentions, nickname: 'test1', timeStamp: 1234567 },
+          { ...ChannelMentions, nickname: 'test2', timeStamp: 1234567 }
+        ],
+        [channelId2]: [
+          { ...ChannelMentions, nickname: 'test3', timeStamp: 1234567 },
+          { ...ChannelMentions, nickname: 'test4', timeStamp: 1234567 }
+        ]
       }
     })
   })

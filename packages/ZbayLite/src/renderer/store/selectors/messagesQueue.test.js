@@ -9,18 +9,16 @@ describe('operations selectors', () => {
   let store = null
   beforeEach(() => {
     store = create({
-      initialState: {
-        messagesQueue: {
-          messageHash: {
-            ...PendingMessage,
-            channelId: 'test-channel-id-1',
-            message: createMessage(1)
-          },
-          messageHash2: {
-            ...PendingMessage,
-            channelId: 'test-channel-id-1',
-            message: createMessage(1)
-          }
+      messagesQueue: {
+        messageHash: {
+          ...PendingMessage,
+          channelId: 'test-channel-id-1',
+          message: createMessage(1)
+        },
+        messageHash2: {
+          ...PendingMessage,
+          channelId: 'test-channel-id-1',
+          message: createMessage(1)
         }
       }
     })

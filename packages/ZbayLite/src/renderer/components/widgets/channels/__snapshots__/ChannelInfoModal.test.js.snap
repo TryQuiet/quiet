@@ -1,10 +1,15 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ChannelInfoModal renders component 1`] = `
-<Memo(WithStyles(Modal))
+<Component
+  addBorder={false}
+  alignCloseLeft={false}
+  canGoBack={false}
+  contentWidth={600}
   fullPage={true}
   handleClose={[MockFunction]}
   isBold={true}
+  isCloseDisabled={false}
   open={true}
   title="Channel Information"
 >
@@ -16,14 +21,19 @@ exports[`ChannelInfoModal renders component 1`] = `
   >
     <Component />
   </AutoSizer>
-</Memo(WithStyles(Modal))>
+</Component>
 `;
 
 exports[`ChannelInfoModal renders component when closed 1`] = `
-<Memo(WithStyles(Modal))
+<Component
+  addBorder={false}
+  alignCloseLeft={false}
+  canGoBack={false}
+  contentWidth={600}
   fullPage={true}
   handleClose={[MockFunction]}
   isBold={true}
+  isCloseDisabled={false}
   open={false}
   title="Channel Information"
 >
@@ -35,5 +45,5 @@ exports[`ChannelInfoModal renders component when closed 1`] = `
   >
     <Component />
   </AutoSizer>
-</Memo(WithStyles(Modal))>
+</Component>
 `;

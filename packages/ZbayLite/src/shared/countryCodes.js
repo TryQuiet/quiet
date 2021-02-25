@@ -370,9 +370,5 @@ export const countryToType = country => {
   return types.OTHER
 }
 export function getCountryName (countryCode) {
-  if (isoCountries.prototype.hasOwnProperty.call(countryCode)) {
-    return isoCountries[countryCode]
-  } else {
-    return 'United States'
-  }
+  return isoCountries[countryCode] || 'United States'
 }

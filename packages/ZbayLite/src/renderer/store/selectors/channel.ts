@@ -1,7 +1,6 @@
 import { createSelector } from 'reselect'
 import identitySelectors from './identity'
 import messagesQueueSelectors from './messagesQueue'
-import contacts from './contacts'
 import { networkFee, messageType } from '../../../shared/static'
 import publicChannels from './publicChannels'
 import users from './users'
@@ -10,6 +9,7 @@ import { Store } from '../reducers'
 import { DisplayableMessage } from '../../zbay/messages.types'
 
 const channel = (s: Store) => s.channel
+const contacts = (s: Store) => s.contacts
 
 export const channelInfo = createSelector(channel, ch => {
   const channel = {
@@ -39,13 +39,13 @@ export const spentFilterValue = createSelector(channel, c =>
 
 export const message = createSelector(channel, c => c.message[c.id] || '')
 export const id = createSelector(channel, c => c.id)
-const data = createSelector(contacts.contacts, id, (channels, id) => channels[id])
+const data = createSelector(contacts, id, (channels, id) => channels[id])
 export const isSizeCheckingInProgress = createSelector(channel, c => c.isSizeCheckingInProgress)
 export const messageSizeStatus = createSelector(channel, c => c.messageSizeStatus)
 export const displayableMessageLimit = createSelector(channel, c => c.displayableMessageLimit)
 export const isOwner = createSelector(
   id,
-  contacts.contacts,
+  contacts,
   identitySelectors.signerPubKey,
   (id, con, myKey) => {
     const contact = con[id]
@@ -191,7 +191,7 @@ export const INPUT_STATE = {
 
 export const channelId = createSelector(channel, ch => ch.id)
 
-export const members = createSelector(contacts.contacts, id, (c, channelId) => {
+export const members = createSelector(contacts, id, (c, channelId) => {
   const contact = c[channelId]
   if (!contact) {
     return new Set()
@@ -201,7 +201,7 @@ export const members = createSelector(contacts.contacts, id, (c, channelId) => {
   }, new Set())
 })
 
-export const channelParticipiants = createSelector(contacts.contacts, id, (c, i) => {
+export const channelParticipiants = createSelector(contacts, id, (c, i) => {
   const contact = c[i]
   if (!contact) {
     return new Set()

@@ -10,5 +10,6 @@ Object {
   "amount": 0,
   "amountZec": 0,
   "generatedInvitation": "",
+  Symbol(immer-draftable): true,
 }
 `;

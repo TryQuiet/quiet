@@ -11,18 +11,16 @@ describe('node selectors', () => {
   let store = null
   beforeEach(() => {
     store = create({
-      initialState: {
-        node: {
-          ...initialState,
-          currentBlock: 123,
-          latestBlock: 1000,
-          isTestnet: true,
-          connections: 15,
-          status: 'healthy',
-          startedAt: DateTime.utc(2019, 3, 5, 9, 34, 48).toISO(),
-          bootstrappingMessage: 'Test loader message',
-          loading: true
-        }
+      node: {
+        ...initialState,
+        currentBlock: 123,
+        latestBlock: 1000,
+        isTestnet: true,
+        connections: 15,
+        status: 'healthy',
+        startedAt: DateTime.utc(2019, 3, 5, 9, 34, 48).toISO(),
+        bootstrappingMessage: 'Test loader message',
+        loading: true
       }
     })
     jest.clearAllMocks()
@@ -59,11 +57,9 @@ describe('node selectors', () => {
 
   each(['healthy', 'syncing']).test('isConnected when status %s', async status => {
     store = create({
-      initialState: {
-        node: {
-          ...NodeState,
-          status
-        }
+      node: {
+        ...NodeState,
+        status
       }
     })
     expect(selectors.isConnected(store.getState())).toBeTruthy()
@@ -71,11 +67,9 @@ describe('node selectors', () => {
 
   each(['restarting', 'down', 'connecting']).test('isConnected when status %s', async status => {
     store = create({
-      initialState: {
-        node: {
-          ...NodeState,
-          status
-        }
+      node: {
+        ...NodeState,
+        status
       }
     })
     expect(selectors.isConnected(store.getState())).toBeFalsy()

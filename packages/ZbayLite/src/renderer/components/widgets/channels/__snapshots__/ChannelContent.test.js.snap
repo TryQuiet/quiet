@@ -14,7 +14,7 @@ exports[`ChannelContent renders component 1`] = `
     <RootRef
       rootRef={[MockFunction]}
     >
-      <Connect(Component)
+      <Component
         contentRect={Object {}}
       />
     </RootRef>

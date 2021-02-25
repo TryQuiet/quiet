@@ -18,40 +18,39 @@ describe('ChannelInput', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: {
-        channel: {
-          ...ChannelState,
-          spentFilterValue: 38,
-          name: 'Politics',
-          members: new BigNumber(0),
-          message: 'This is a test message',
-          messages: []
-        },
-        offers: {
-          [`${adId}${recipientUsername}`]: {
-            ...Offer,
-            address: 'testAddress',
-            itemId: 'testID',
-            name: 'testname',
-            lastSeen: '123',
-            messages: R.range(0, 2).map(id => {
-              return {
-                ...ReceivedMessage(
-                  testUtils.messages.createReceivedMessage({
-                    id,
-                    createdAt: testUtils.now
-                      .minus({ hours: 2 * id })
-                      .toSeconds(),
-                    sender: identity1
-                  })
-                )
-              }
+      channel: {
+        ...ChannelState,
+        spentFilterValue: 38,
+        name: 'Politics',
+        members: new BigNumber(0),
+        message: 'This is a test message',
+        messages: []
+      },
+      offers: {
+        [`${adId}${recipientUsername}`]: {
+          ...Offer,
+          address: 'testAddress',
+          itemId: 'testID',
+          name: 'testname',
+          lastSeen: '123',
+          messages: R.range(0, 2).map(id => {
+            return {
+              ...ReceivedMessage(
+                testUtils.messages.createReceivedMessage({
+                  id,
+                  createdAt: testUtils.now
+                    .minus({ hours: 2 * id })
+                    .toSeconds(),
+                  sender: identity1
+                })
+              )
             }
-            ),
-            newMessages: ['123', '1234']
           }
+          ),
+          newMessages: ['123', '1234']
         }
       }
+
     })
   })
 

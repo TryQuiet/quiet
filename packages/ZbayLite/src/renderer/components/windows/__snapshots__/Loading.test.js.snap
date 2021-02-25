@@ -13,7 +13,7 @@ exports[`Loading renders component 1`] = `
     item={true}
     justify="center"
   >
-    <Memo(Icon)
+    <Component
       className="icon-mock"
       src="test-file-stub"
     />

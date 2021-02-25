@@ -1,9 +1,15 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`AddModerator renders component 1`] = `
-<Memo(WithStyles(Modal))
+<Component
+  addBorder={false}
+  alignCloseLeft={false}
+  canGoBack={false}
+  contentWidth={600}
   fullPage={true}
   handleClose={[Function]}
+  isBold={false}
+  isCloseDisabled={false}
   open={true}
   title=""
 >
@@ -38,5 +44,5 @@ exports[`AddModerator renders component 1`] = `
       </AutoSizer>
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
-</Memo(WithStyles(Modal))>
+</Component>
 `;

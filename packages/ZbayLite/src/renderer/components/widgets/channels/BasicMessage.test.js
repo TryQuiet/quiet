@@ -7,6 +7,9 @@ import { ZcashError } from '../../../store/handlers/operations'
 import { mockClasses } from '../../../../shared/testing/mocks'
 import { now, createMessage } from '../../../testUtils'
 import { DisplayableMessage } from '../../../zbay/messages'
+import { MuiThemeProvider } from '@material-ui/core/styles'
+
+import theme from '../../../theme'
 
 describe('BasicMessage', () => {
   beforeEach(() => {
@@ -14,9 +17,11 @@ describe('BasicMessage', () => {
     jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => now)
   })
 
+  const wrapper = el => <MuiThemeProvider theme={theme}>{el}</MuiThemeProvider>
+
   it('renders component', () => {
     const message = createMessage(1)
-    const result = shallow(
+    const result = shallow(wrapper(
       <BasicMessage
         classes={mockClasses}
         message={DisplayableMessage(message)}
@@ -24,7 +29,7 @@ describe('BasicMessage', () => {
         setActionsOpen={jest.fn()}
         allowModeration
       />
-    )
+    ))
     expect(result).toMatchSnapshot()
   })
 
@@ -32,7 +37,7 @@ describe('BasicMessage', () => {
     const message = createMessage(1)
     message.fromYou = true
 
-    const result = shallow(
+    const result = shallow(wrapper(
       <BasicMessage
         classes={mockClasses}
         message={DisplayableMessage(message)}
@@ -40,13 +45,13 @@ describe('BasicMessage', () => {
         setActionsOpen={jest.fn()}
         allowModeration
       />
-    )
+    ))
     expect(result).toMatchSnapshot()
   })
 
   it('renders correct time for same week', () => {
     const message = createMessage(1, now.minus({ days: 1 }).toSeconds())
-    const result = shallow(
+    const result = shallow(wrapper(
       <BasicMessage
         classes={mockClasses}
         message={DisplayableMessage(message)}
@@ -54,13 +59,13 @@ describe('BasicMessage', () => {
         setActionsOpen={jest.fn()}
         allowModeration
       />
-    )
+    ))
     expect(result).toMatchSnapshot()
   })
 
   it('renders correct time for different month', () => {
     const message = createMessage(1, now.minus({ month: 1 }).toSeconds())
-    const result = shallow(
+    const result = shallow(wrapper(
       <BasicMessage
         classes={mockClasses}
         message={DisplayableMessage(message)}
@@ -68,13 +73,13 @@ describe('BasicMessage', () => {
         setActionsOpen={jest.fn()}
         allowModeration
       />
-    )
+    ))
     expect(result).toMatchSnapshot()
   })
 
   it('renders correct time for different year', () => {
     const message = createMessage(1, now.minus({ year: 1 }).toSeconds())
-    const result = shallow(
+    const result = shallow(wrapper(
       <BasicMessage
         classes={mockClasses}
         message={DisplayableMessage(message)}
@@ -82,7 +87,7 @@ describe('BasicMessage', () => {
         setActionsOpen={jest.fn()}
         allowModeration
       />
-    )
+    ))
     expect(result).toMatchSnapshot()
   })
 
@@ -97,7 +102,7 @@ describe('BasicMessage', () => {
         message: 'This is some kind of error message'
       }
     }
-    const result = shallow(
+    const result = shallow(wrapper(
       <BasicMessage
         classes={mockClasses}
         message={DisplayableMessage(message)}
@@ -105,7 +110,7 @@ describe('BasicMessage', () => {
         setActionsOpen={jest.fn()}
         allowModeration
       />
-    )
+    ))
     expect(result).toMatchSnapshot()
   })
 })

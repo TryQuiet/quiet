@@ -1,9 +1,15 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`NewMessageModal renders NewMessageModal 1`] = `
-<Memo(WithStyles(Modal))
+<Component
+  addBorder={false}
+  alignCloseLeft={false}
+  canGoBack={false}
+  contentWidth={600}
   fullPage={true}
   handleClose={[MockFunction]}
+  isBold={false}
+  isCloseDisabled={false}
   open={true}
   title=""
 >
@@ -20,5 +26,5 @@ exports[`NewMessageModal renders NewMessageModal 1`] = `
       <Component />
     </Formik>
   </WithStyles(ForwardRef(Grid))>
-</Memo(WithStyles(Modal))>
+</Component>
 `;

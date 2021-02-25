@@ -6,6 +6,7 @@ Object {
   "error": null,
   "status": "",
   "url": "",
+  Symbol(immer-draftable): true,
 }
 `;
 

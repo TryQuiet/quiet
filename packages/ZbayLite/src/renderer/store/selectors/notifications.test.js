@@ -8,17 +8,15 @@ describe('Imported channel', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: {
-        notifications: [
-          {
-            message: 'Test message',
-            key: 'test-key',
-            options: {
-              persist: true
-            }
+      notifications: [
+        {
+          message: 'Test message',
+          key: 'test-key',
+          options: {
+            persist: true
           }
-        ]
-      }
+        }
+      ]
     })
   })
 

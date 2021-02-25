@@ -1,15 +1,20 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`AdvertModal renders component AdvertModal 1`] = `
-<Memo(WithStyles(Modal))
+<Component
+  addBorder={false}
   alignCloseLeft={true}
+  canGoBack={false}
   classes={
     Object {
       "window": "window-mock",
     }
   }
+  contentWidth={600}
   fullPage={true}
   handleClose={[MockFunction]}
+  isBold={false}
+  isCloseDisabled={false}
   open={true}
   title="New Listing"
 >
@@ -21,5 +26,5 @@ exports[`AdvertModal renders component AdvertModal 1`] = `
   >
     <Component />
   </AutoSizer>
-</Memo(WithStyles(Modal))>
+</Component>
 `;

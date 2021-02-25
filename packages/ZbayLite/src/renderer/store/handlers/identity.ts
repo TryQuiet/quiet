@@ -87,7 +87,7 @@ export class Identity {
   }
 }
 
-const initialState: Identity = new Identity({
+export const initialState: Identity = new Identity({
   data: {
     id: null,
     address: '',

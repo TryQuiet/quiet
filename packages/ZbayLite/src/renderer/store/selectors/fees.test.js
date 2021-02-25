@@ -7,11 +7,9 @@ describe('app -', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: {
-        fees: {
-          user: 0.1,
-          publicChannel: 0.01
-        }
+      fees: {
+        user: 0.1,
+        publicChannel: 0.01
       }
     })
   })

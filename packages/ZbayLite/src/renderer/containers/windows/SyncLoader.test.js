@@ -1,6 +1,6 @@
 import { mapStateToProps } from './SyncLoader'
 import create from '../../store/create'
-import { NodeState } from '../../store/handlers/node'
+import { initialState as NodeState } from '../../store/handlers/node'
 
 jest.mock('../../../shared/electronStore', () => ({
   set: () => {},
@@ -12,12 +12,10 @@ describe('SyncLoader', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: {
-        node: {
-          ...NodeState,
-          currentBlock: 1,
-          latestBlock: 100
-        }
+      node: {
+        ...NodeState,
+        currentBlock: 1,
+        latestBlock: 100
       }
     })
   })

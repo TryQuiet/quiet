@@ -24,7 +24,13 @@ exports[`Main renders component 1`] = `
             Object {
               "$$typeof": Symbol(react.memo),
               "compare": null,
-              "type": [Function],
+              "type": Object {
+                "$$typeof": Symbol(react.memo),
+                "WrappedComponent": [Function],
+                "compare": null,
+                "displayName": "Connect(Channel)",
+                "type": [Function],
+              },
             }
           }
           path="test/channel/:id"
@@ -34,7 +40,13 @@ exports[`Main renders component 1`] = `
             Object {
               "$$typeof": Symbol(react.memo),
               "compare": null,
-              "type": [Function],
+              "type": Object {
+                "$$typeof": Symbol(react.memo),
+                "WrappedComponent": [Function],
+                "compare": null,
+                "displayName": "Connect(DirectMessages)",
+                "type": [Function],
+              },
             }
           }
           path="test/direct-messages/:id/:username"
@@ -44,7 +56,13 @@ exports[`Main renders component 1`] = `
             Object {
               "$$typeof": Symbol(react.memo),
               "compare": null,
-              "type": [Function],
+              "type": Object {
+                "$$typeof": Symbol(react.memo),
+                "WrappedComponent": [Function],
+                "compare": null,
+                "displayName": "Connect(Channel)",
+                "type": [Function],
+              },
             }
           }
           path="test/offers/:id/:address"

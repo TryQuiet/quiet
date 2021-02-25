@@ -1,8 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ErrorModal renders component 1`] = `
-<Memo(WithStyles(Modal))
+<Component
+  addBorder={false}
+  alignCloseLeft={false}
+  canGoBack={false}
+  contentWidth={600}
   handleClose={[MockFunction]}
+  isBold={false}
+  isCloseDisabled={false}
   open={true}
   title="Error"
 >
@@ -19,7 +25,7 @@ exports[`ErrorModal renders component 1`] = `
       direction="column"
       item={true}
     >
-      <Memo(Icon)
+      <Component
         className="icon-mock"
         src="test-file-stub"
       />
@@ -87,5 +93,5 @@ exports[`ErrorModal renders component 1`] = `
       </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
-</Memo(WithStyles(Modal))>
+</Component>
 `;

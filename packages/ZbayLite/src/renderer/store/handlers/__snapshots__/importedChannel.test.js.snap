@@ -2,19 +2,17 @@
 
 exports[`Imported channel reducer handles actions handles setData 1`] = `
 Object {
-  "channel": Object {
-    "address": "address123",
-    "keys": Object {
-      "ivk": "zxviews1qwk53xxqqgqqpqrdhg8mw8xdprc9gd6lfpddgyaz9x5575cxeyk53efx02n0swpa3rhxms8zxvj62z2and8thzfe3qyl3k7qgpk45glak450zsyn70tq5z367nj972mzkutdxaclwd59jnsq0w8q59aks6rju9s2vgu7y9qcleq76pluemthwknl44c2anzj4zj0fpqufh6fezcfl8lppvxmzee3fg53gfhwyd0y735gxuhwhxn6q5eyvncye9fcldwzpf7twzjrnwgk6eumj",
-    },
-    "name": "general",
+  "address": "address123",
+  "keys": Object {
+    "ivk": "zxviews1qwk53xxqqgqqpqrdhg8mw8xdprc9gd6lfpddgyaz9x5575cxeyk53efx02n0swpa3rhxms8zxvj62z2and8thzfe3qyl3k7qgpk45glak450zsyn70tq5z367nj972mzkutdxaclwd59jnsq0w8q59aks6rju9s2vgu7y9qcleq76pluemthwknl44c2anzj4zj0fpqufh6fezcfl8lppvxmzee3fg53gfhwyd0y735gxuhwhxn6q5eyvncye9fcldwzpf7twzjrnwgk6eumj",
   },
+  "name": "general",
 }
 `;
 
 exports[`Imported channel reducer handles actions handles setDecodingError 1`] = `[Error: this is a test error]`;
 
-exports[`Imported channel reducer handles epics decodeChannel decodes uri 1`] = `null`;
+exports[`Imported channel reducer handles epics decodeChannel decodes uri 1`] = `undefined`;
 
 exports[`Imported channel reducer handles epics decodeChannel sends notification on failure 1`] = `
 Array [
@@ -43,7 +41,7 @@ Array [
   },
   Object {
     "key": "",
-    "message": "Cannot read property 'address' of null",
+    "message": "Cannot read property 'address' of undefined",
     "options": Object {
       "variant": "error",
     },
@@ -64,7 +62,7 @@ Array [
   },
   Object {
     "key": "",
-    "message": "Cannot read property 'address' of null",
+    "message": "Cannot read property 'address' of undefined",
     "options": Object {
       "variant": "error",
     },

@@ -1,8 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`OpenlinkModal renders component 1`] = `
-<Memo(WithStyles(Modal))
+<Component
+  addBorder={false}
+  alignCloseLeft={false}
+  canGoBack={false}
+  contentWidth={600}
   handleClose={[MockFunction]}
+  isBold={false}
+  isCloseDisabled={false}
   open={true}
   title=""
 >
@@ -14,5 +20,5 @@ exports[`OpenlinkModal renders component 1`] = `
   >
     <Component />
   </AutoSizer>
-</Memo(WithStyles(Modal))>
+</Component>
 `;

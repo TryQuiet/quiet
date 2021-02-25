@@ -1,6 +1,6 @@
 /* eslint import/first: 0 */
 import selectors from './app'
-import { AppState } from '../handlers/app'
+import { initialState as AppState } from '../handlers/app'
 
 import create from '../create'
 
@@ -9,15 +9,13 @@ describe('app -', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: {
-        app: {
-          ...AppState,
-          version: '0.13.37',
-          transfers: {},
-          modalTabToOpen: 'addFunds',
-          allTransfersCount: 12,
-          newTransfersCounter: 2
-        }
+      app: {
+        ...AppState,
+        version: '0.13.37',
+        transfers: {},
+        modalTabToOpen: 'addFunds',
+        allTransfersCount: 12,
+        newTransfersCounter: 2
       }
     })
   })

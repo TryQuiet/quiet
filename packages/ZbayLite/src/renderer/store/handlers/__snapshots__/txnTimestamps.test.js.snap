@@ -5,5 +5,3 @@ Object {
   "123": "1234",
 }
 `;
-
-exports[`Operations reducer handles  epics - getTnxTimestamps 1`] = `Object {}`;

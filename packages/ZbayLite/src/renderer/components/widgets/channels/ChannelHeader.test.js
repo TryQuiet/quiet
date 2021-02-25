@@ -17,6 +17,8 @@ describe('ChannelHeader', () => {
         classes={mockClasses}
         channel={channel}
         members={null}
+        name={'channel'}
+        updateShowInfoMsg={jest.fn()}
         isRegisteredUsername
         userAddress='test'
       />
@@ -34,6 +36,8 @@ describe('ChannelHeader', () => {
         channel={channel}
         members={new Set([1, 2, 3, 4])}
         unmute={() => {}}
+        name={'channel'}
+        updateShowInfoMsg={jest.fn()}
         mutedFlag
         userAddress='test'
         isRegisteredUsername
@@ -51,6 +55,8 @@ describe('ChannelHeader', () => {
         setTab={() => {}}
         channel={channel}
         members={new Set()}
+        name={'channel'}
+        updateShowInfoMsg={jest.fn()}
         unmute={() => {}}
         mutedFlag
         userAddress='test'

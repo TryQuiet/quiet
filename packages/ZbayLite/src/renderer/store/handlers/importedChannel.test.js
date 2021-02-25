@@ -34,35 +34,33 @@ describe('Imported channel reducer handles', () => {
   const id = 'general-channel-id'
   beforeEach(() => {
     store = create({
-      initialState: {
-        node: {
-          ...NodeState,
-          isTestnet: true
-        },
-        channel: {
-          ...ChannelState,
-          address: 'test-address'
-        },
-        channels: {
-          ...ChannelsState,
-          data: [{
-            ...zbayChannels.general.testnet,
-            id
-          }
-          ]
-        },
-        importedChannel: {
-          ...ImportedChannelState
-        },
-        identity: {
-          ...IdentityState,
-          data: {
-            ...IdentityState.data,
-            address: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly',
-            name: 'Saturn',
-            id: 'this-is-a-test-identity-id',
-            balance: '33.583004'
-          }
+      node: {
+        ...NodeState,
+        isTestnet: true
+      },
+      channel: {
+        ...ChannelState,
+        address: 'test-address'
+      },
+      channels: {
+        ...ChannelsState,
+        data: [{
+          ...zbayChannels.general.testnet,
+          id
+        }
+        ]
+      },
+      importedChannel: {
+        ...ImportedChannelState
+      },
+      identity: {
+        ...IdentityState,
+        data: {
+          ...IdentityState.data,
+          address: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9sly',
+          name: 'Saturn',
+          id: 'this-is-a-test-identity-id',
+          balance: '33.583004'
         }
       }
     })
@@ -179,7 +177,7 @@ describe('Imported channel reducer handles', () => {
 
         const data = importedChannelSelectors.data(store.getState())
         const notifications = notificationsSelectors.data(store.getState())
-        expect(data).toBeNull()
+        expect(data).toBe(undefined)
         expect(
           notifications.map(n => {
             return {

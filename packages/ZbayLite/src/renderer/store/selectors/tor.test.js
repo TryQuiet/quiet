@@ -6,9 +6,7 @@ describe('rates selectors', () => {
   let store = null
   beforeEach(() => {
     store = create({
-      initialState: {
-        tor: initialState
-      }
+      tor: initialState
     })
     jest.clearAllMocks()
   })

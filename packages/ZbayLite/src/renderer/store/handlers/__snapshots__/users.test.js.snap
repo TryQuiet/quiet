@@ -17,6 +17,7 @@ Object {
           "nickname": "nickname",
           "onionAddress": "",
           "publicKey": undefined,
+          Symbol(immer-draftable): true,
         },
       ],
       Array [
@@ -29,6 +30,7 @@ Object {
           "nickname": "nickname #2",
           "onionAddress": "",
           "publicKey": undefined,
+          Symbol(immer-draftable): true,
         },
       ],
       Array [
@@ -41,6 +43,7 @@ Object {
           "nickname": "nickname #3",
           "onionAddress": "",
           "publicKey": undefined,
+          Symbol(immer-draftable): true,
         },
       ],
     ],
@@ -67,6 +70,7 @@ Object {
           "nickname": "nickname",
           "onionAddress": "",
           "publicKey": undefined,
+          Symbol(immer-draftable): true,
         },
       ],
       Array [
@@ -79,6 +83,7 @@ Object {
           "nickname": "nickname #2",
           "onionAddress": "",
           "publicKey": undefined,
+          Symbol(immer-draftable): true,
         },
       ],
       Array [
@@ -91,6 +96,7 @@ Object {
           "nickname": "nickname #3",
           "onionAddress": "",
           "publicKey": undefined,
+          Symbol(immer-draftable): true,
         },
       ],
     ],

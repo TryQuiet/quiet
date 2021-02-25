@@ -7,7 +7,7 @@ exports[`PopupMenu renders component 1`] = `
       "current": null,
     }
   }
-  className="popper-mock"
+  className="makeStyles-popper-6"
   disablePortal={true}
   modifiers={
     Object {
@@ -35,7 +35,7 @@ exports[`PopupMenu renders when closed 1`] = `
       "current": null,
     }
   }
-  className="popper-mock"
+  className="makeStyles-popper-6"
   disablePortal={true}
   modifiers={
     Object {
@@ -63,7 +63,7 @@ exports[`PopupMenu renders with offset 1`] = `
       "current": null,
     }
   }
-  className="popper-mock"
+  className="makeStyles-popper-6"
   disablePortal={true}
   modifiers={
     Object {

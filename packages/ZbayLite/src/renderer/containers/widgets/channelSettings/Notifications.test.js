@@ -17,34 +17,18 @@ describe('Send message popover', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: {
-        notificationCenter: {
-          ...initialState
-        },
-        channel: {
-          ...ChannelState,
-          spentFilterValue: 38,
-          id: channelId,
-          members: 0,
-          message: 'This is a test message'
-        },
-        messages: {
-          [channelId]: {
-            ...ChannelMessages,
-            messages: R.range(0, 4).map(id => {
-              return {
-                ...ReceivedMessage,
-                ...createReceivedMessage({
-                  id,
-                  createdAt: now.minus({ hours: 2 * id }).toSeconds()
-                })
-              }
-            })
-          }
-        },
-        channels: {
-          data: [createChannel(channelId)]
-        }
+      notificationCenter: {
+        ...initialState
+      },
+      channel: {
+        ...ChannelState,
+        spentFilterValue: 38,
+        id: channelId,
+        members: 0,
+        message: 'This is a test message'
+      },
+      channels: {
+        data: [createChannel(channelId)]
       }
     })
   })

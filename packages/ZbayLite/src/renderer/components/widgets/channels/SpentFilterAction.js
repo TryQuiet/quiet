@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 export const SpentFilterAction = () => {
-  const classes = useStyles({})
+  const classes = useStyles()
   const [open, setOpen] = useState(false)
   const [anchor, setAnchor] = useState(React.createRef())
   const closeMenu = () => setOpen(false)

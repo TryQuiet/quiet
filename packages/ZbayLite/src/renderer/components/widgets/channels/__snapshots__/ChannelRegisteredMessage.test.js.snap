@@ -2,7 +2,7 @@
 
 exports[`ChannelRegisteredMessage renders component 1`] = `
 <Fragment>
-  <Memo(WithStyles(WelcomeMessage))
+  <Component
     message={
       <React.Fragment>
         <span
@@ -27,6 +27,7 @@ exports[`ChannelRegisteredMessage renders component 1`] = `
         </span>
       </React.Fragment>
     }
+    timestamp={0}
   />
   <Memo(withRouter(Connect(Component)))
     address="testAddress"

@@ -4,6 +4,6 @@ exports[`SyncLoader will receive right props 1`] = `
 Object {
   "currentBlock": 1,
   "latestBlock": 100,
-  "nodeStatus": undefined,
+  "nodeStatus": "healthy",
 }
 `;

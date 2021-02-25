@@ -51,27 +51,27 @@ exports[`Notifications renders component 1`] = `
           }
         }
         control={
-          <ForwardRef(WithStyles)
+          <WithStyles(ForwardRef(Checkbox))
             checked={true}
             checkedIcon={
-              <Memo(Icon)
+              <Unknown
                 src="test-file-stub"
               />
             }
             icon={
-              <Memo(Icon)
+              <Unknown
                 src="test-file-stub"
               />
             }
           />
         }
         label={
-          <ForwardRef(WithStyles)
+          <WithStyles(ForwardRef(Grid))
             className="offset-mock"
             containter={true}
             direction="column"
           >
-            <ForwardRef(WithStyles)
+            <WithStyles(ForwardRef(Grid))
               item={true}
             >
               <span
@@ -79,15 +79,15 @@ exports[`Notifications renders component 1`] = `
               >
                 Every new message
               </span>
-            </ForwardRef(WithStyles)>
-            <ForwardRef(WithStyles)
+            </WithStyles(ForwardRef(Grid))>
+            <WithStyles(ForwardRef(Grid))
               item={true}
             >
               <span>
                 You’ll be notified for every new message
               </span>
-            </ForwardRef(WithStyles)>
-          </ForwardRef(WithStyles)>
+            </WithStyles(ForwardRef(Grid))>
+          </WithStyles(ForwardRef(Grid))>
         }
         onChange={[Function]}
       />
@@ -104,27 +104,27 @@ exports[`Notifications renders component 1`] = `
           }
         }
         control={
-          <ForwardRef(WithStyles)
+          <WithStyles(ForwardRef(Checkbox))
             checked={false}
             checkedIcon={
-              <Memo(Icon)
+              <Unknown
                 src="test-file-stub"
               />
             }
             icon={
-              <Memo(Icon)
+              <Unknown
                 src="test-file-stub"
               />
             }
           />
         }
         label={
-          <ForwardRef(WithStyles)
+          <WithStyles(ForwardRef(Grid))
             className="offset-mock"
             containter={true}
             direction="column"
           >
-            <ForwardRef(WithStyles)
+            <WithStyles(ForwardRef(Grid))
               item={true}
             >
               <span
@@ -132,15 +132,15 @@ exports[`Notifications renders component 1`] = `
               >
                 Direct messages, mentions & keywords
               </span>
-            </ForwardRef(WithStyles)>
-            <ForwardRef(WithStyles)
+            </WithStyles(ForwardRef(Grid))>
+            <WithStyles(ForwardRef(Grid))
               item={true}
             >
               <span>
                 You’ll be notified when someone mentions you or sends you a direct message.
               </span>
-            </ForwardRef(WithStyles)>
-          </ForwardRef(WithStyles)>
+            </WithStyles(ForwardRef(Grid))>
+          </WithStyles(ForwardRef(Grid))>
         }
         onChange={[Function]}
       />
@@ -156,27 +156,27 @@ exports[`Notifications renders component 1`] = `
           }
         }
         control={
-          <ForwardRef(WithStyles)
+          <WithStyles(ForwardRef(Checkbox))
             checked={false}
             checkedIcon={
-              <Memo(Icon)
+              <Unknown
                 src="test-file-stub"
               />
             }
             icon={
-              <Memo(Icon)
+              <Unknown
                 src="test-file-stub"
               />
             }
           />
         }
         label={
-          <ForwardRef(WithStyles)
+          <WithStyles(ForwardRef(Grid))
             className="offset-mock"
             containter={true}
             direction="column"
           >
-            <ForwardRef(WithStyles)
+            <WithStyles(ForwardRef(Grid))
               item={true}
             >
               <span
@@ -184,15 +184,15 @@ exports[`Notifications renders component 1`] = `
               >
                 Nothing
               </span>
-            </ForwardRef(WithStyles)>
-            <ForwardRef(WithStyles)
+            </WithStyles(ForwardRef(Grid))>
+            <WithStyles(ForwardRef(Grid))
               item={true}
             >
               <span>
                 You won’t receive notificaitons from Zbay.
               </span>
-            </ForwardRef(WithStyles)>
-          </ForwardRef(WithStyles)>
+            </WithStyles(ForwardRef(Grid))>
+          </WithStyles(ForwardRef(Grid))>
         }
         onChange={[Function]}
       />
@@ -220,19 +220,19 @@ exports[`Notifications renders component 1`] = `
       >
         <WithStyles(ForwardRef(FormControlLabel))
           control={
-            <ForwardRef(WithStyles)
+            <WithStyles(ForwardRef(Checkbox))
               checked={true}
               color="default"
               onChange={[Function]}
             />
           }
           label={
-            <ForwardRef(WithStyles)
+            <WithStyles(ForwardRef(Typography))
               className="label-mock"
               variant="body2"
             >
               Play a sound when receiving a notification
-            </ForwardRef(WithStyles)>
+            </WithStyles(ForwardRef(Typography))>
           }
         />
       </WithStyles(ForwardRef(Grid))>
@@ -247,15 +247,15 @@ exports[`Notifications renders component 1`] = `
             }
           }
           control={
-            <ForwardRef(WithStyles)
+            <WithStyles(ForwardRef(Checkbox))
               checked={true}
               checkedIcon={
-                <Memo(Icon)
+                <Unknown
                   src="test-file-stub"
                 />
               }
               icon={
-                <Memo(Icon)
+                <Unknown
                   src="test-file-stub"
                 />
               }
@@ -276,15 +276,15 @@ exports[`Notifications renders component 1`] = `
             }
           }
           control={
-            <ForwardRef(WithStyles)
+            <WithStyles(ForwardRef(Checkbox))
               checked={false}
               checkedIcon={
-                <Memo(Icon)
+                <Unknown
                   src="test-file-stub"
                 />
               }
               icon={
-                <Memo(Icon)
+                <Unknown
                   src="test-file-stub"
                 />
               }
@@ -305,15 +305,15 @@ exports[`Notifications renders component 1`] = `
             }
           }
           control={
-            <ForwardRef(WithStyles)
+            <WithStyles(ForwardRef(Checkbox))
               checked={false}
               checkedIcon={
-                <Memo(Icon)
+                <Unknown
                   src="test-file-stub"
                 />
               }
               icon={
-                <Memo(Icon)
+                <Unknown
                   src="test-file-stub"
                 />
               }

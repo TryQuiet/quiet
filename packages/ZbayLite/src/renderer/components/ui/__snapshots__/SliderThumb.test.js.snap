@@ -2,6 +2,6 @@
 
 exports[`SliderThumb renders component 1`] = `
 <div
-  className="root-mock"
+  className="makeStyles-root-1"
 />
 `;

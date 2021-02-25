@@ -1,8 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`RegistraionGuide renders component 1`] = `
-<Memo(WithStyles(Modal))
+<Component
+  addBorder={false}
+  alignCloseLeft={false}
+  canGoBack={false}
   contentWidth={800}
+  isBold={false}
+  isCloseDisabled={false}
 >
   <WithStyles(ForwardRef(Grid))
     alignContent="center"
@@ -130,5 +135,5 @@ exports[`RegistraionGuide renders component 1`] = `
       </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
-</Memo(WithStyles(Modal))>
+</Component>
 `;

@@ -9,27 +9,25 @@ describe('PublishChannelModal', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: {
-        fees: {
-          publicChannel: 0.1
-        },
-        identity: {
-          data: {
-            balance: '23.435432'
-          }
-        },
-        channel: {
-          id: 1
-        },
-        publicChannels: {},
-        rates: {
-          ...RatesState,
-          usd: '232.11'
-        },
-        channels: {
-          ...ChannelsState,
-          data: [{ id: 1, address: 'testAddress' }]
+      fees: {
+        publicChannel: 0.1
+      },
+      identity: {
+        data: {
+          balance: '23.435432'
         }
+      },
+      channel: {
+        id: 1
+      },
+      publicChannels: {},
+      rates: {
+        ...RatesState,
+        usd: '232.11'
+      },
+      channels: {
+        ...ChannelsState,
+        data: [{ id: 1, address: 'testAddress' }]
       }
     })
   })

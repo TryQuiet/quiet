@@ -10,6 +10,7 @@ describe('Security', () => {
       <Security
         classes={mockClasses}
         removeImageHost={jest.fn()}
+        openSeedModal={jest.fn()}
         removeSiteHost={jest.fn()}
         toggleAllowAll={jest.fn()}
         whitelisted={['test', 'test2']}

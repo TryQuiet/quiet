@@ -295,7 +295,6 @@ export const unpackMemo = async memo => {
 
       const addressEnds = addressTypeEnds + typeToAddressSize[addressType]
       const address = memoBuff.slice(addressTypeEnds, addressEnds)
-      const typeIndicator = memoBuff.slice(MEMO_SIZE - 1)
       return {
         type,
         signature,
@@ -306,13 +305,11 @@ export const unpackMemo = async memo => {
           nickname: trimNull(nickname.toString()),
           address: address.toString()
         },
-        typeIndicator,
         createdAt
       }
     case messageType.USER_V2:
       const onionAddressEnds = timestampEnds + ONION_ADDRESS_SIZE
       const onionAddress = memoBuff.slice(timestampEnds, onionAddressEnds)
-      const typeIndicator = memoBuff.slice(MEMO_SIZE - 1)
       return {
         type,
         signature,
@@ -320,7 +317,6 @@ export const unpackMemo = async memo => {
         message: {
           onionAddress: trimNull(onionAddress.toString())
         },
-        typeIndicator,
         createdAt
       }
     case messageType.AD:
@@ -345,7 +341,6 @@ export const unpackMemo = async memo => {
 
       const descriptionEnds = amountEnds + DESCRIPTION_SIZE
       const description = memoBuff.slice(amountEnds, descriptionEnds)
-      const typeIndicator = memoBuff.slice(MEMO_SIZE - 1)
       return {
         type,
         signature,
@@ -358,7 +353,6 @@ export const unpackMemo = async memo => {
           amount: trimNull(amount.toString()),
           description: trimNull(description.toString())
         },
-        typeIndicator,
         createdAt
       }
     case messageType.ITEM_BASIC || messageType.ITEM_TRANSFER:
@@ -366,7 +360,6 @@ export const unpackMemo = async memo => {
       const item = memoBuff.slice(timestampEnds, itemEnds)
       const msgEnds = itemEnds + MESSAGE_ITEM_SIZE
       const msg = memoBuff.slice(itemEnds, msgEnds)
-      const typeIndicator = memoBuff.slice(MEMO_SIZE - 1)
       return {
         type,
         signature,
@@ -375,7 +368,6 @@ export const unpackMemo = async memo => {
           itemId: trimNull(item.toString()),
           text: trimNull(msg.toString())
         },
-        typeIndicator,
         createdAt
       }
     case messageType.CHANNEL_SETTINGS:
@@ -387,7 +379,6 @@ export const unpackMemo = async memo => {
       const onlyRegistered = memoBuff
         .slice(minFeeEnds, onlyRegisteredEnds)
         .readUInt8()
-      const typeIndicator = memoBuff.slice(MEMO_SIZE - 1)
       return {
         type,
         signature,
@@ -397,7 +388,6 @@ export const unpackMemo = async memo => {
           minFee: trimNull((minFee / 100000000).toString()),
           onlyRegistered: trimNull(onlyRegistered.toString())
         },
-        typeIndicator,
         createdAt
       }
     case messageType.CHANNEL_SETTINGS_UPDATE:
@@ -422,7 +412,6 @@ export const unpackMemo = async memo => {
         updateOnlyRegisteredEnds,
         updateChannelDescriptionEnds
       )
-      const typeIndicator = memoBuff.slice(MEMO_SIZE - 1)
       return {
         type,
         signature,
@@ -433,7 +422,6 @@ export const unpackMemo = async memo => {
           updateMinFee: trimNull((updateMinFee / 100000000).toString()),
           updateOnlyRegistered: trimNull(updateOnlyRegistered.toString())
         },
-        typeIndicator,
         createdAt
       }
     case messageType.MODERATION:
@@ -448,8 +436,6 @@ export const unpackMemo = async memo => {
         targetSizeFlagEnds,
         moderationTargetEnds
       )
-      const typeIndicator = memoBuff.slice(MEMO_SIZE - 1)
-
       return {
         type,
         signature,
@@ -458,7 +444,6 @@ export const unpackMemo = async memo => {
           moderationType: trimNull(moderationType.toString()),
           moderationTarget: trimNull(moderationTarget.toString())
         },
-        typeIndicator,
         createdAt
       }
     case messageType.PUBLISH_CHANNEL:
@@ -479,7 +464,6 @@ export const unpackMemo = async memo => {
         channelIvkEnds,
         channelDescriptionEnds
       )
-      const typeIndicator = memoBuff.slice(MEMO_SIZE - 1)
       return {
         type,
         signature,
@@ -491,7 +475,6 @@ export const unpackMemo = async memo => {
           channelDescription: trimNull(channelDescription.toString()),
           networkType: parseInt(trimNull(networkType.toString()))
         },
-        typeIndicator,
         createdAt
       }
     default:

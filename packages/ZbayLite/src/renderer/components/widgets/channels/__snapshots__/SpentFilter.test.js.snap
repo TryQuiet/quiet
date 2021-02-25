@@ -11,7 +11,7 @@ exports[`SpentFilter renders component 1`] = `
     item={true}
   >
     <WithStyles(ForwardRef(Typography))
-      className="title-mock"
+      className="makeStyles-title-1"
       variant="body2"
     >
       Ad spend
@@ -20,7 +20,7 @@ exports[`SpentFilter renders component 1`] = `
   <WithStyles(ForwardRef(Grid))
     item={true}
   >
-    <Memo(WithStyles(Slider))
+    <Component
       handleOnChange={[MockFunction]}
       max={100}
       maxLabel="$max"
@@ -44,7 +44,7 @@ exports[`SpentFilter renders component when max/inf 1`] = `
     item={true}
   >
     <WithStyles(ForwardRef(Typography))
-      className="title-mock"
+      className="makeStyles-title-1"
       variant="body2"
     >
       Ad spend
@@ -53,7 +53,7 @@ exports[`SpentFilter renders component when max/inf 1`] = `
   <WithStyles(ForwardRef(Grid))
     item={true}
   >
-    <Memo(WithStyles(Slider))
+    <Component
       handleOnChange={[MockFunction]}
       max={100}
       maxLabel="$max"

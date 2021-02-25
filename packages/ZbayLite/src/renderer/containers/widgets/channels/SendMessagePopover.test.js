@@ -11,16 +11,14 @@ describe('Send message popover', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: {
-        rates: {
-          usd: new BigNumber(1),
-          zec: new BigNumber(1)
-        },
-        identity: {
-          ...initialState,
-          data: {
-            address: '123445'
-          }
+      rates: {
+        usd: new BigNumber(1),
+        zec: new BigNumber(1)
+      },
+      identity: {
+        ...initialState,
+        data: {
+          address: '123445'
         }
       }
     })

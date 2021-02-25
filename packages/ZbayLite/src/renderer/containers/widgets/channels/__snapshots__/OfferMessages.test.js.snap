@@ -5,7 +5,7 @@ Object {
   "channelId": "this-is-test-channel-id",
   "isInitialLoadFinished": false,
   "messages": Array [],
-  "qMessages": Object {},
+  "qMessages": Array [],
   "triggerScroll": false,
   "username": undefined,
 }

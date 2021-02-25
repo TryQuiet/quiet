@@ -12,7 +12,7 @@ describe('InvitationModalFinish', () => {
         classes={mockClasses}
         handleClose={jest.fn()}
         open
-        amount={9}
+        amount={'9'}
         generatedInvitation='test invitation'
         setStep={jest.fn()}
         reset={jest.fn()}

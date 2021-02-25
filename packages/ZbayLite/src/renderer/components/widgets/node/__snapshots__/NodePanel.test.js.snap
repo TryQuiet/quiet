@@ -35,7 +35,7 @@ exports[`NodePanel renders component 1`] = `
             }
           }
           expandIcon={
-            <Memo
+            <Memo(ExpandMoreIcon)
               fontSize="inherit"
             />
           }

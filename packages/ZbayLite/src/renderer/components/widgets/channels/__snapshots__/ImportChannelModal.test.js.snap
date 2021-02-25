@@ -1,23 +1,35 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ImportChannelForm renders component 1`] = `
-<Memo(WithStyles(Modal))
+<Component
+  addBorder={false}
+  alignCloseLeft={false}
+  canGoBack={false}
+  contentWidth={600}
   handleClose={[MockFunction]}
+  isBold={false}
+  isCloseDisabled={false}
   open={true}
   title="Import channel"
 >
   <Connect(ImportChannelForm) />
   <Connect(Component) />
-</Memo(WithStyles(Modal))>
+</Component>
 `;
 
 exports[`ImportChannelForm renders component closed 1`] = `
-<Memo(WithStyles(Modal))
+<Component
+  addBorder={false}
+  alignCloseLeft={false}
+  canGoBack={false}
+  contentWidth={600}
   handleClose={[MockFunction]}
+  isBold={false}
+  isCloseDisabled={false}
   open={false}
   title="Import channel"
 >
   <Connect(ImportChannelForm) />
   <Connect(Component) />
-</Memo(WithStyles(Modal))>
+</Component>
 `;

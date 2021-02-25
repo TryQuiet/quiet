@@ -228,7 +228,7 @@ export const Security = ({
           </Grid>
           {whitelisted.map(hostname => {
             return (
-              <Grid item>
+              <Grid item key={hostname}>
                 <UserListItem
                   name={hostname}
                   actionName='Remove'
@@ -255,7 +255,7 @@ export const Security = ({
           </Grid>
           {autoload.map(hostname => {
             return (
-              <Grid item>
+              <Grid item key={hostname}>
                 <UserListItem
                   name={hostname.substring(0, 30)}
                   classes={{ name: classes.itemName }}

@@ -46,7 +46,7 @@ exports[`ChannelHeader renders component 1`] = `
             onMouseEnter={[Function]}
             onMouseLeave={[Function]}
           >
-            <Memo(Icon)
+            <Component
               src="test-file-stub"
             />
           </WithStyles(ForwardRef(Grid))>
@@ -137,7 +137,7 @@ exports[`ChannelHeader renders members when 0 1`] = `
             onMouseEnter={[Function]}
             onMouseLeave={[Function]}
           >
-            <Memo(Icon)
+            <Component
               src="test-file-stub"
             />
           </WithStyles(ForwardRef(Grid))>
@@ -148,8 +148,7 @@ exports[`ChannelHeader renders members when 0 1`] = `
         variant="caption"
       >
         1
-         
-        Participants
+         Participants
       </WithStyles(ForwardRef(Typography))>
     </WithStyles(ForwardRef(Grid))>
     <WithStyles(ForwardRef(Grid))
@@ -236,7 +235,7 @@ exports[`ChannelHeader renders without members count 1`] = `
             onMouseEnter={[Function]}
             onMouseLeave={[Function]}
           >
-            <Memo(Icon)
+            <Component
               src="test-file-stub"
             />
           </WithStyles(ForwardRef(Grid))>
@@ -247,8 +246,7 @@ exports[`ChannelHeader renders without members count 1`] = `
         variant="caption"
       >
         5
-         
-        Participants
+         Participants
       </WithStyles(ForwardRef(Typography))>
     </WithStyles(ForwardRef(Grid))>
     <WithStyles(ForwardRef(Grid))

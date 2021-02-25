@@ -7,7 +7,7 @@ exports[`ChannelMessageActions renders component 1`] = `
   direction="row"
   justify="flex-start"
 >
-  <Memo(Icon)
+  <Component
     src="test-file-stub"
   />
   <WithStyles(ForwardRef(Grid))

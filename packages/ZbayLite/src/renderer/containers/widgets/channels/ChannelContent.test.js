@@ -9,10 +9,8 @@ describe('ChannelContent', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: {
-        channel: {
-          ...ChannelState
-        }
+      channel: {
+        ...ChannelState
       }
     })
   })

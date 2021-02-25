@@ -78,7 +78,7 @@ exports[`SendMoneyForm renders component 1`] = `
             className="zecIcon-mock"
             item={true}
           >
-            <Memo(Icon)
+            <Component
               src="test-file-stub"
             />
           </WithStyles(ForwardRef(Grid))>
@@ -150,7 +150,7 @@ exports[`SendMoneyForm renders component 1`] = `
           InputProps={
             Object {
               "className": "moneyInput-mock",
-              "endAdornment": <ForwardRef(WithStyles)
+              "endAdornment": <WithStyles(ForwardRef(InputAdornment))
                 position="end"
               >
                 <span
@@ -158,7 +158,7 @@ exports[`SendMoneyForm renders component 1`] = `
                 >
                   USD
                 </span>
-              </ForwardRef(WithStyles)>,
+              </WithStyles(ForwardRef(InputAdornment))>,
               "error": undefined,
             }
           }
@@ -179,7 +179,7 @@ exports[`SendMoneyForm renders component 1`] = `
         item={true}
         justify="center"
       >
-        <Memo(Icon)
+        <Component
           className="exchnage-mock"
           src="test-file-stub"
         />
@@ -192,7 +192,7 @@ exports[`SendMoneyForm renders component 1`] = `
           InputProps={
             Object {
               "className": "moneyInput-mock",
-              "endAdornment": <ForwardRef(WithStyles)
+              "endAdornment": <WithStyles(ForwardRef(InputAdornment))
                 position="end"
               >
                 <span
@@ -200,7 +200,7 @@ exports[`SendMoneyForm renders component 1`] = `
                 >
                   ZEC
                 </span>
-              </ForwardRef(WithStyles)>,
+              </WithStyles(ForwardRef(InputAdornment))>,
               "error": undefined,
             }
           }

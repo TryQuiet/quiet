@@ -226,7 +226,12 @@ Object {
     "loading": true,
     "message": "Test loading message",
   },
+  "registrationStatus": Object {
+    "nickname": "",
+    "status": "UNREGISTERED",
+  },
   "removedChannels": Array [],
+  Symbol(immer-draftable): true,
 }
 `;
 

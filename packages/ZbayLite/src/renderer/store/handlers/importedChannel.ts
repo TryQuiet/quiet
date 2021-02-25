@@ -32,7 +32,7 @@ class ImportedChannel {
   }
 }
 
-const initialState: ImportedChannel = {
+export const initialState: ImportedChannel = {
   ...new ImportedChannel({
     data: null,
     decoding: false,

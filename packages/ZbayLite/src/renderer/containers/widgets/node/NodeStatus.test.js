@@ -10,13 +10,11 @@ describe('NodeStatus', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: {
-        node: {
-          ...initialState,
-          status: 'down',
-          latestBlock: new BigNumber(100),
-          currentBlock: new BigNumber(18)
-        }
+      node: {
+        ...initialState,
+        status: 'down',
+        latestBlock: new BigNumber(100),
+        currentBlock: new BigNumber(18)
       }
     })
   })

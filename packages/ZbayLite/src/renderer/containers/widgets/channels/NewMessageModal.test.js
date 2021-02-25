@@ -8,11 +8,9 @@ describe('NewMessageModal', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: {
-        users: {
-          testuser1: 'user 1 data',
-          testuser2: 'user 2 data'
-        }
+      users: {
+        testuser1: 'user 1 data',
+        testuser2: 'user 2 data'
       }
     })
   })

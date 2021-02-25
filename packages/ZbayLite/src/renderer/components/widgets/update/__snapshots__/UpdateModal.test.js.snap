@@ -1,8 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`UpdateModal renders component 1`] = `
-<Memo(WithStyles(Modal))
+<Component
+  addBorder={false}
+  alignCloseLeft={false}
+  canGoBack={false}
+  contentWidth={600}
   handleClose={[MockFunction]}
+  isBold={false}
+  isCloseDisabled={false}
   open={true}
 >
   <WithStyles(ForwardRef(Grid))
@@ -20,7 +26,7 @@ exports[`UpdateModal renders component 1`] = `
       <WithStyles(ForwardRef(Grid))
         item={true}
       >
-        <Memo(Icon)
+        <Component
           className="exclamationMarkIcon-mock"
           src="test-file-stub"
         />
@@ -81,5 +87,5 @@ exports[`UpdateModal renders component 1`] = `
       </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
-</Memo(WithStyles(Modal))>
+</Component>
 `;

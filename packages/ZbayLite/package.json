@@ -72,8 +72,8 @@
     "distUbuntu": "export SOURCE_PATH=linux && npm run pullBinaries && npm run pullLibs && npm run build:prod && electron-builder --linux",
     "distwin": "export SOURCE_PATH=win32 && npm run pullBinariesWin && npm run build:prod && electron-builder --win",
     "lint": "eslint ./src/**/*.{ts,tsx,js,jsx}",
-    "test": "npm run lint && jest",
-    "test:watch": "npm run lint && jest --watchAll",
+    "test": "jest",
+    "test:watch": "jest --watchAll",
     "build:prod": "concurrently \"npm run build:main:prod\" \"npm run build:renderer:prod\"",
     "build:dev": "concurrently \"npm run build:main\" \"npm run build:renderer\"",
     "build:renderer": "webpack --config webpack/webpack.config.renderer.dev.js",
@@ -101,6 +101,7 @@
   "devDependencies": {
     "@babel/core": "^7.2.2",
     "@babel/plugin-proposal-class-properties": "^7.1.0",
+    "@babel/plugin-proposal-optional-chaining": "^7.13.0",
     "@babel/preset-env": "^7.3.1",
     "@babel/preset-react": "^7.0.0",
     "@storybook/addon-actions": "^5.2.8",
@@ -150,7 +151,7 @@
     "history": "^4.10.1",
     "html-webpack-plugin": "^3.2.0",
     "is-image-url": "^1.1.8",
-    "jest": "^24.8.0",
+    "jest": "^26.6.3",
     "neon": "^2.0.0",
     "neon-cli": "^0.4.0",
     "node-loader": "^1.0.0",
@@ -163,12 +164,14 @@
     "react-test-renderer": "^16.7.0",
     "react-virtualized": "^9.21.1",
     "redux-devtools-extension": "^2.13.8",
+    "redux-persist-memory-storage": "^0.4.0",
     "sass-loader": "^8.0.0",
     "source-map-loader": "^1.1.2",
     "standard": "^12.0.1",
     "storybook-addon-material-ui": "^0.9.0-alpha.19",
     "storybook-react-router": "^1.0.5",
     "style-loader": "^0.23.1",
+    "ts-jest": "^26.5.2",
     "typescript": "^4.0.5",
     "webpack": "^4.29.0",
     "webpack-build-linked-packages": "^0.4.0",
@@ -181,11 +184,15 @@
     "setupFiles": [
       "<rootDir>/src/shared/setupTests.js"
     ],
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest",
+      "^.+\\.jsx?$": "babel-jest"
+    },
     "moduleNameMapper": {
       "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/src/shared/testing/fileMock.js",
-      "\\.(css|less)$": "identity-obj-proxy"
+      "\\.(scss|css|less)$": "identity-obj-proxy"
     },
-    "testRegex": "src/.*\\.test\\.js$",
+    "testRegex": "src/.*\\.test\\.(t|j)s$",
     "snapshotSerializers": [
       "enzyme-to-json/serializer"
     ]

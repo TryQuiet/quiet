@@ -8,27 +8,25 @@ describe('BlockedUsers', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: {
-        users: {
-          [Buffer.from('address')]: {
-            firstName: 'testname',
-            lastName: 'testlastname',
-            nickname: 'nickname',
-            address:
-              'ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r'
-          },
-          [Buffer.from('address2')]: {
-            firstName: 'testname2',
-            lastName: 'testlastname2',
-            nickname: 'nickname2',
-            address:
-              'ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r'
-          }
+      users: {
+        [Buffer.from('address')]: {
+          firstName: 'testname',
+          lastName: 'testlastname',
+          nickname: 'nickname',
+          address:
+          'ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r'
         },
-        notificationCenter: {
-          contacts: {
-            ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r: 4
-          }
+        [Buffer.from('address2')]: {
+          firstName: 'testname2',
+          lastName: 'testlastname2',
+          nickname: 'nickname2',
+          address:
+          'ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r'
+        }
+      },
+      notificationCenter: {
+        contacts: {
+          ztestsapling14dxhlp8ps4qmrslt7pcayv8yuyx78xpkrtfhdhae52rmucgqws2zp0zwf2zu6qxjp96lzapsn4r: 4
         }
       }
     })

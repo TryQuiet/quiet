@@ -8,18 +8,16 @@ describe('AdvertModal', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: {
-        rates: {
-          usd: '10',
-          zec: '1'
-        },
-        identity: {
-          data: {
-            id: '1',
-            address: 'test',
-            name: 'Mars',
-            balance: '2'
-          }
+      rates: {
+        usd: '10',
+        zec: '1'
+      },
+      identity: {
+        data: {
+          id: '1',
+          address: 'test',
+          name: 'Mars',
+          balance: '2'
         }
       }
     })

@@ -14,38 +14,36 @@ describe('ChannelInput', () => {
     jest.clearAllMocks()
     const channelId = 'this-is-test-channel-id'
     store = create({
-      initialState: {
-        channel: {
-          ...ChannelState,
-          spentFilterValue: 38,
-          id: channelId,
-          members: new BigNumber(0),
-          message: 'This is a test message'
-        },
-        contacts: {
-          address123: {
-            messages: R.range(0, 4).map(id => {
-              return {
-                ...ReceivedMessage(
-                  createReceivedMessage({
-                    id,
-                    createdAt: now.minus({ hours: 2 * id }).toSeconds()
-                  })
-                )
-              }
+      channel: {
+        ...ChannelState,
+        spentFilterValue: 38,
+        id: channelId,
+        members: new BigNumber(0),
+        message: 'This is a test message'
+      },
+      contacts: {
+        address123: {
+          messages: R.range(0, 4).map(id => {
+            return {
+              ...ReceivedMessage(
+                createReceivedMessage({
+                  id,
+                  createdAt: now.minus({ hours: 2 * id }).toSeconds()
+                })
+              )
             }
-            ),
-            vaultMessages: R.range(5, 8).map(id => {
-              return {
-                ...ReceivedMessage(
-                  createReceivedMessage({
-                    id,
-                    createdAt: now.minus({ hours: 2 * id }).toSeconds()
-                  })
-                )
-              }
-            })
           }
+          ),
+          vaultMessages: R.range(5, 8).map(id => {
+            return {
+              ...ReceivedMessage(
+                createReceivedMessage({
+                  id,
+                  createdAt: now.minus({ hours: 2 * id }).toSeconds()
+                })
+              )
+            }
+          })
         }
       }
     })

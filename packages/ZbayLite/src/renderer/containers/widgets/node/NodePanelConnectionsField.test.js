@@ -12,11 +12,9 @@ describe('NodePanelConnectionsField', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: {
-        node: {
-          ...NodeState,
-          connections: new BigNumber(12)
-        }
+      node: {
+        ...NodeState,
+        connections: new BigNumber(12)
       }
     })
   })

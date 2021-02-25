@@ -15,5 +15,6 @@ Object {
   "payloads": Object {},
   "startedAt": "2019-03-05T09:34:48.000Z",
   "status": "healthy",
+  Symbol(immer-draftable): true,
 }
 `;

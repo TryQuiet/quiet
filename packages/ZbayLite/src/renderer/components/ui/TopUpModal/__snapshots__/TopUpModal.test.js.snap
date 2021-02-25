@@ -1,9 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`TopUpModal renders component with private option 1`] = `
-<Memo(WithStyles(Modal))
+<Component
+  addBorder={false}
+  alignCloseLeft={false}
+  canGoBack={false}
   contentWidth="100%"
   handleClose={[MockFunction]}
+  isBold={false}
+  isCloseDisabled={false}
   open={false}
 >
   <AutoSizer
@@ -14,13 +19,18 @@ exports[`TopUpModal renders component with private option 1`] = `
   >
     <Component />
   </AutoSizer>
-</Memo(WithStyles(Modal))>
+</Component>
 `;
 
 exports[`TopUpModal renders component with transparent option 1`] = `
-<Memo(WithStyles(Modal))
+<Component
+  addBorder={false}
+  alignCloseLeft={false}
+  canGoBack={false}
   contentWidth="100%"
   handleClose={[MockFunction]}
+  isBold={false}
+  isCloseDisabled={false}
   open={false}
 >
   <AutoSizer
@@ -31,5 +41,5 @@ exports[`TopUpModal renders component with transparent option 1`] = `
   >
     <Component />
   </AutoSizer>
-</Memo(WithStyles(Modal))>
+</Component>
 `;

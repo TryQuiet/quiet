@@ -7,10 +7,8 @@ describe('modals selectors', () => {
   let store = null
   beforeEach(() => {
     store = create({
-      initialState: {
-        modals: {
-          [modalName]: true
-        }
+      modals: {
+        [modalName]: true
       }
     })
     jest.clearAllMocks()

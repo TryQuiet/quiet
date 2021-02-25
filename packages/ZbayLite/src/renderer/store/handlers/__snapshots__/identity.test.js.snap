@@ -34,7 +34,12 @@ Object {
     "loading": false,
     "message": "",
   },
+  "registrationStatus": Object {
+    "nickname": "",
+    "status": "UNREGISTERED",
+  },
   "removedChannels": Array [],
+  Symbol(immer-draftable): true,
 }
 `;
 
@@ -72,7 +77,12 @@ Object {
     "loading": true,
     "message": "",
   },
+  "registrationStatus": Object {
+    "nickname": "",
+    "status": "UNREGISTERED",
+  },
   "removedChannels": Array [],
+  Symbol(immer-draftable): true,
 }
 `;
 
@@ -110,7 +120,12 @@ Object {
     "loading": false,
     "message": "This is a loading message",
   },
+  "registrationStatus": Object {
+    "nickname": "",
+    "status": "UNREGISTERED",
+  },
   "removedChannels": Array [],
+  Symbol(immer-draftable): true,
 }
 `;
 
@@ -148,7 +163,12 @@ Object {
     "loading": false,
     "message": "",
   },
+  "registrationStatus": Object {
+    "nickname": "",
+    "status": "UNREGISTERED",
+  },
   "removedChannels": Array [],
+  Symbol(immer-draftable): true,
 }
 `;
 
@@ -186,7 +206,12 @@ Object {
     "loading": false,
     "message": "",
   },
+  "registrationStatus": Object {
+    "nickname": "",
+    "status": "UNREGISTERED",
+  },
   "removedChannels": Array [],
+  Symbol(immer-draftable): true,
 }
 `;
 
@@ -224,7 +249,12 @@ Object {
     "loading": false,
     "message": "",
   },
+  "registrationStatus": Object {
+    "nickname": "",
+    "status": "UNREGISTERED",
+  },
   "removedChannels": Array [],
+  Symbol(immer-draftable): true,
 }
 `;
 
@@ -262,7 +292,12 @@ Object {
     "loading": false,
     "message": "",
   },
+  "registrationStatus": Object {
+    "nickname": "",
+    "status": "UNREGISTERED",
+  },
   "removedChannels": Array [],
+  Symbol(immer-draftable): true,
 }
 `;
 
@@ -300,7 +335,12 @@ Object {
     "loading": false,
     "message": "",
   },
+  "registrationStatus": Object {
+    "nickname": "",
+    "status": "UNREGISTERED",
+  },
   "removedChannels": Array [],
+  Symbol(immer-draftable): true,
 }
 `;
 
@@ -342,7 +382,12 @@ Object {
     "loading": false,
     "message": "",
   },
+  "registrationStatus": Object {
+    "nickname": "",
+    "status": "UNREGISTERED",
+  },
   "removedChannels": Array [],
+  Symbol(immer-draftable): true,
 }
 `;
 
@@ -380,7 +425,12 @@ Object {
     "loading": false,
     "message": "",
   },
+  "registrationStatus": Object {
+    "nickname": "",
+    "status": "UNREGISTERED",
+  },
   "removedChannels": Array [],
+  Symbol(immer-draftable): true,
 }
 `;
 
@@ -424,8 +474,13 @@ Object {
   "fetchingBalance": false,
   "loader": Object {
     "loading": false,
-    "message": "Ensuring node contains identity keys",
+    "message": "",
+  },
+  "registrationStatus": Object {
+    "nickname": "",
+    "status": "UNREGISTERED",
   },
   "removedChannels": Array [],
+  Symbol(immer-draftable): true,
 }
 `;

@@ -6,12 +6,10 @@ describe('users selectors', () => {
   let store = null
   beforeEach(() => {
     store = create({
-      initialState: {
-        whitelist: {
-          allowAll: false,
-          whitelisted: ['test1', 'test2'],
-          autoload: ['test3', 'test4']
-        }
+      whitelist: {
+        allowAll: false,
+        whitelisted: ['test1', 'test2'],
+        autoload: ['test3', 'test4']
       }
     })
     jest.clearAllMocks()

@@ -11,15 +11,13 @@ describe('ChannelInput', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: {
-        channel: {
-          ...ChannelState,
-          spentFilterValue: 38,
-          name: 'Politics',
-          members: new BigNumber(0),
-          message: 'This is a test message',
-          messages: []
-        }
+      channel: {
+        ...ChannelState,
+        spentFilterValue: 38,
+        name: 'Politics',
+        members: new BigNumber(0),
+        message: 'This is a test message',
+        messages: []
       }
     })
   })

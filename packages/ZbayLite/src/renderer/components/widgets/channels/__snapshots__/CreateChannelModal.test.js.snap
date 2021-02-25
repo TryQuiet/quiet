@@ -1,9 +1,15 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`CreateChannelModal renders closed component 1`] = `
-<Memo(WithStyles(Modal))
+<Component
+  addBorder={false}
+  alignCloseLeft={false}
+  canGoBack={false}
+  contentWidth={600}
   fullPage={true}
   handleClose={[MockFunction]}
+  isBold={false}
+  isCloseDisabled={false}
   open={false}
   title=""
 >
@@ -12,13 +18,19 @@ exports[`CreateChannelModal renders closed component 1`] = `
   >
     <Connect(CreateChannelForm) />
   </WithStyles(ForwardRef(Grid))>
-</Memo(WithStyles(Modal))>
+</Component>
 `;
 
 exports[`CreateChannelModal renders component 1`] = `
-<Memo(WithStyles(Modal))
+<Component
+  addBorder={false}
+  alignCloseLeft={false}
+  canGoBack={false}
+  contentWidth={600}
   fullPage={true}
   handleClose={[MockFunction]}
+  isBold={false}
+  isCloseDisabled={false}
   open={true}
   title=""
 >
@@ -27,5 +39,5 @@ exports[`CreateChannelModal renders component 1`] = `
   >
     <Connect(CreateChannelForm) />
   </WithStyles(ForwardRef(Grid))>
-</Memo(WithStyles(Modal))>
+</Component>
 `;

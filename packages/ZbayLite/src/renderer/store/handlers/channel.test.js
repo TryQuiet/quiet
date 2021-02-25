@@ -31,32 +31,30 @@ describe('channel reducer', () => {
     window.Notification = jest.fn()
 
     store = create({
-      initialState: {
-        channel: {
-          ...ChannelState
-        },
-        channels: {
-          ...ChannelsState,
-          data: [channel]
-        },
-        node: {
-          ...NodeState,
-          isTestnet: true
-        },
-        identity: {
-          ...initialState,
-          data: {
-            ...initialState.data,
-            id: identityId,
-            address,
-            name: 'Saturn',
-            balance: '33.583004',
-            signerPrivKey:
-              '879aff43df53606d8ae1219d9347360e7a30d1c2f141e14c9bc96bb29bf930cb'
-          }
-        },
-        operations: {}
-      }
+      channel: {
+        ...ChannelState
+      },
+      channels: {
+        ...ChannelsState,
+        data: [channel]
+      },
+      node: {
+        ...NodeState,
+        isTestnet: true
+      },
+      identity: {
+        ...initialState,
+        data: {
+          ...initialState.data,
+          id: identityId,
+          address,
+          name: 'Saturn',
+          balance: '33.583004',
+          signerPrivKey:
+          '879aff43df53606d8ae1219d9347360e7a30d1c2f141e14c9bc96bb29bf930cb'
+        }
+      },
+      operations: {}
     })
     jest.spyOn(DateTime, 'utc').mockImplementation(() => now)
     jest.clearAllMocks()
@@ -65,19 +63,21 @@ describe('channel reducer', () => {
   describe('handles actions', () => {
     it(' - setMessage', () => {
       const msg = 'this is a test message'
-      store.dispatch(actions.setMessage(msg))
+      const id = 1
+      store.dispatch(actions.setChannelId(id))
+      store.dispatch(actions.setMessage({ value: msg, id }))
       const result = channelSelectors.message(store.getState())
       expect(result).toEqual(msg)
     })
 
     it('- setLoading', () => {
-      store.dispatch(actions.setLoading(false))
+      store.dispatch(actions.setLoading({ loading: false }))
       const channel = channelSelectors.channel(store.getState())
       expect(channel).toMatchSnapshot()
     })
 
     it('- setLoadingMessage', () => {
-      store.dispatch(actions.setLoadingMessage('this is a loading message'))
+      store.dispatch(actions.setLoading({ message: 'this is a loading message' }))
       const channel = channelSelectors.channel(store.getState())
       expect(channel).toMatchSnapshot()
     })

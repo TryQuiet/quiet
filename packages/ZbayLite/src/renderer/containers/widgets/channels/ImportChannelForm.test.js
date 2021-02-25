@@ -5,25 +5,23 @@ import { shallow } from 'enzyme'
 import { ImportChannelForm, mapStateToProps, mapDispatchToProps } from './ImportChannelForm'
 
 import create from '../../../store/create'
-import { ImportedChannelState } from '../../../store/handlers/importedChannel'
+import { initialState as ImportedChannelState } from '../../../store/handlers/importedChannel'
 
 describe('ImportedChannelForm', () => {
   let store = null
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: {
-        importedChannel: {
-          ...ImportedChannelState,
-          // TODO: 07/05 change to Record
-          data: {
-            name: 'Politics',
-            private: true,
-            address: 'zs1testaddress',
-            description: 'This is a simple test channel',
-            keys: {
-              ivk: 'this-is-an-ivk-key'
-            }
+      importedChannel: {
+        ...ImportedChannelState,
+        // TODO: 07/05 change to Record
+        data: {
+          name: 'Politics',
+          private: true,
+          address: 'zs1testaddress',
+          description: 'This is a simple test channel',
+          keys: {
+            ivk: 'this-is-an-ivk-key'
           }
         }
       }

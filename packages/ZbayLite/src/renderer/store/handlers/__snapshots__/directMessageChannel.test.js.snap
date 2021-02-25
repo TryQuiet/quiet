@@ -3,13 +3,13 @@
 exports[`directMessageChannel reducer handles actions - setTargetRecipientAddress 1`] = `
 Object {
   "targetRecipientAddress": "target-user-address",
-  "targetRecipientUsername": null,
+  Symbol(immer-draftable): true,
 }
 `;
 
 exports[`directMessageChannel reducer handles actions - setTargetRecipientUsername 1`] = `
 Object {
-  "targetRecipientAddress": null,
   "targetRecipientUsername": "target-user-username",
+  Symbol(immer-draftable): true,
 }
 `;

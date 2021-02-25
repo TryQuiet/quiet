@@ -13,7 +13,7 @@ exports[`UsernameCreated renders component 1`] = `
     justify="center"
     xs={12}
   >
-    <Memo(Icon)
+    <Component
       className="usernameIcon-mock"
       src="test-file-stub"
     />

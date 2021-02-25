@@ -8,7 +8,7 @@ exports[`Slider renders component 1`] = `
   justify="center"
 >
   <WithStyles(ForwardRef(Typography))
-    className="title-mock"
+    className="makeStyles-title-4"
     variant="caption"
   >
     this is a title of the slider
@@ -24,7 +24,7 @@ exports[`Slider renders component 1`] = `
         item={true}
       >
         <WithStyles(ForwardRef(Typography))
-          className="label-mock"
+          className="makeStyles-label-3"
           display="inline"
           variant="body2"
         >
@@ -32,26 +32,22 @@ exports[`Slider renders component 1`] = `
         </WithStyles(ForwardRef(Typography))>
       </WithStyles(ForwardRef(Grid))>
       <WithStyles(ForwardRef(Grid))
-        className="sliderContainer-mock"
+        className="makeStyles-sliderContainer-1"
         item={true}
         xs={true}
       >
         <WithStyles(ForwardRef(Slider))
+          ThumbComponent={[Function]}
           classes={
             Object {
-              "activated": "activated-mock",
-              "root": "sliderRoot-mock",
-              "thumb": "thumb-mock",
-              "thumbIconWrapper": "iconWrapper-mock",
-              "track": "track-mock",
-              "trackAfter": "track-mock",
-              "trackBefore": "track-mock",
+              "root": "makeStyles-sliderRoot-2",
+              "thumb": "makeStyles-thumb-7",
+              "track": "makeStyles-track-6",
             }
           }
           max={100}
           min={0}
           onChange={[MockFunction]}
-          thumb={<Memo(WithStyles(SliderThumb)) />}
           value={23}
         />
       </WithStyles(ForwardRef(Grid))>
@@ -59,7 +55,7 @@ exports[`Slider renders component 1`] = `
         item={true}
       >
         <WithStyles(ForwardRef(Typography))
-          className="label-mock"
+          className="makeStyles-label-3"
           display="inline"
           variant="body2"
         >
@@ -79,7 +75,7 @@ exports[`Slider renders custom min/max 1`] = `
   justify="center"
 >
   <WithStyles(ForwardRef(Typography))
-    className="title-mock"
+    className="makeStyles-title-4"
     variant="caption"
   >
     this is a title of the slider
@@ -95,7 +91,7 @@ exports[`Slider renders custom min/max 1`] = `
         item={true}
       >
         <WithStyles(ForwardRef(Typography))
-          className="label-mock"
+          className="makeStyles-label-3"
           display="inline"
           variant="body2"
         >
@@ -103,26 +99,22 @@ exports[`Slider renders custom min/max 1`] = `
         </WithStyles(ForwardRef(Typography))>
       </WithStyles(ForwardRef(Grid))>
       <WithStyles(ForwardRef(Grid))
-        className="sliderContainer-mock"
+        className="makeStyles-sliderContainer-1"
         item={true}
         xs={true}
       >
         <WithStyles(ForwardRef(Slider))
+          ThumbComponent={[Function]}
           classes={
             Object {
-              "activated": "activated-mock",
-              "root": "sliderRoot-mock",
-              "thumb": "thumb-mock",
-              "thumbIconWrapper": "iconWrapper-mock",
-              "track": "track-mock",
-              "trackAfter": "track-mock",
-              "trackBefore": "track-mock",
+              "root": "makeStyles-sliderRoot-2",
+              "thumb": "makeStyles-thumb-7",
+              "track": "makeStyles-track-6",
             }
           }
           max={20}
           min={-20}
           onChange={[MockFunction]}
-          thumb={<Memo(WithStyles(SliderThumb)) />}
           value={8}
         />
       </WithStyles(ForwardRef(Grid))>
@@ -130,7 +122,7 @@ exports[`Slider renders custom min/max 1`] = `
         item={true}
       >
         <WithStyles(ForwardRef(Typography))
-          className="label-mock"
+          className="makeStyles-label-3"
           display="inline"
           variant="body2"
         >
@@ -150,7 +142,7 @@ exports[`Slider renders with labels 1`] = `
   justify="center"
 >
   <WithStyles(ForwardRef(Typography))
-    className="title-mock"
+    className="makeStyles-title-4"
     variant="caption"
   >
     this is a title of the slider
@@ -166,7 +158,7 @@ exports[`Slider renders with labels 1`] = `
         item={true}
       >
         <WithStyles(ForwardRef(Typography))
-          className="label-mock"
+          className="makeStyles-label-3"
           display="inline"
           variant="body2"
         >
@@ -174,26 +166,22 @@ exports[`Slider renders with labels 1`] = `
         </WithStyles(ForwardRef(Typography))>
       </WithStyles(ForwardRef(Grid))>
       <WithStyles(ForwardRef(Grid))
-        className="sliderContainer-mock"
+        className="makeStyles-sliderContainer-1"
         item={true}
         xs={true}
       >
         <WithStyles(ForwardRef(Slider))
+          ThumbComponent={[Function]}
           classes={
             Object {
-              "activated": "activated-mock",
-              "root": "sliderRoot-mock",
-              "thumb": "thumb-mock",
-              "thumbIconWrapper": "iconWrapper-mock",
-              "track": "track-mock",
-              "trackAfter": "track-mock",
-              "trackBefore": "track-mock",
+              "root": "makeStyles-sliderRoot-2",
+              "thumb": "makeStyles-thumb-7",
+              "track": "makeStyles-track-6",
             }
           }
           max={100}
           min={0}
           onChange={[MockFunction]}
-          thumb={<Memo(WithStyles(SliderThumb)) />}
           value={23}
         />
       </WithStyles(ForwardRef(Grid))>
@@ -201,7 +189,7 @@ exports[`Slider renders with labels 1`] = `
         item={true}
       >
         <WithStyles(ForwardRef(Typography))
-          className="label-mock"
+          className="makeStyles-label-3"
           display="inline"
           variant="body2"
         >

@@ -14,26 +14,25 @@ describe('Channels selectors', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: {
-        node: {
-          ...NodeState,
-          isTestnet: true
+      node: {
+        ...NodeState,
+        isTestnet: true
+      },
+      channels: {
+        ...ChannelsState,
+        loader: {
+          loading: true,
+          message: 'Loading messages'
         },
-        channels: {
-          ...ChannelsState,
-          loader: {
-            loading: true,
-            message: 'Loading messages'
-          },
-          data: [{
+        data: [
+          {
             ...zbayChannels.store.testnet
           },
           {
             ...zbayChannels.general.testnet
           },
           ...R.range(0, 3).map(createChannel)
-          ]
-        }
+        ]
       }
     })
   })
@@ -52,18 +51,17 @@ describe('Channels selectors', () => {
   it('- generalChannelAddress', async () => {
     const address = zbayChannels.general.testnet.address
     store = create({
-      initialState: {
-        node: {
-          ...NodeState,
-          isTestnet: true
-        },
-        channels: {
-          ...ChannelsState,
-          data: [{
+      node: {
+        ...NodeState,
+        isTestnet: true
+      },
+      channels: {
+        ...ChannelsState,
+        data: [
+          {
             ...zbayChannels.general.testnet
           }
-          ]
-        }
+        ]
       }
     })
     const retrievedId = channelsSelectors.generalChannelId(store.getState())
@@ -72,19 +70,17 @@ describe('Channels selectors', () => {
   it('- priceOracleChannel', async () => {
     const id = 'priceOracleChannel'
     store = create({
-      initialState: {
-        node: {
-          ...NodeState,
-          isTestnet: true
-        },
-        channels: {
-          data: [
-            {
-              ...zbayChannels.priceOracle.testnet,
-              id
-            }
-          ]
-        }
+      node: {
+        ...NodeState,
+        isTestnet: true
+      },
+      channels: {
+        data: [
+          {
+            ...zbayChannels.priceOracle.testnet,
+            id
+          }
+        ]
       }
     })
     const channel = channelsSelectors.priceOracleChannel(store.getState())

@@ -12,12 +12,10 @@ describe('NodePanelBlocksField', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: {
-        node: {
-          ...NodeState,
-          latestBlock: new BigNumber(12345),
-          currentBlock: new BigNumber(18)
-        }
+      node: {
+        ...NodeState,
+        latestBlock: new BigNumber(12345),
+        currentBlock: new BigNumber(18)
       }
     })
   })
@@ -38,12 +36,10 @@ describe('NodePanelBlocksField', () => {
 
   it('renders the field when no latestBlock', async () => {
     store = create({
-      initialState: {
-        node: {
-          ...NodeState,
-          latestBlock: new BigNumber(0),
-          currentBlock: new BigNumber(0)
-        }
+      node: {
+        ...NodeState,
+        latestBlock: new BigNumber(0),
+        currentBlock: new BigNumber(0)
       }
     })
     const result = shallow(

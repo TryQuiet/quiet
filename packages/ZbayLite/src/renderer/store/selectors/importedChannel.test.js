@@ -2,27 +2,25 @@
 import importedChannelSelectors from './importedChannel'
 
 import create from '../create'
-import { ImportedChannelState } from '../handlers/importedChannel'
+import { initialState as ImportedChannelState } from '../handlers/importedChannel'
 
 describe('Imported channel', () => {
   let store = null
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: {
-        importedChannel: {
-          ...ImportedChannelState,
-          data: {
-            name: 'Politics',
-            private: true,
-            address: 'zs1testaddress',
-            description: 'This is a simple test channel',
-            keys: {
-              ivk: 'this-is-an-ivk-key'
-            }
-          },
-          errors: 'test error'
-        }
+      importedChannel: {
+        ...ImportedChannelState,
+        data: {
+          name: 'Politics',
+          private: true,
+          address: 'zs1testaddress',
+          description: 'This is a simple test channel',
+          keys: {
+            ivk: 'this-is-an-ivk-key'
+          }
+        },
+        errors: 'test error'
       }
     })
   })

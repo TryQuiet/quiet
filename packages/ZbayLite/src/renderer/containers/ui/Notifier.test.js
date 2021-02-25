@@ -9,18 +9,16 @@ describe('Notifier', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: {
-        // TODO: 07/05 change to Record
-        notifications: [
-          {
-            message: 'Test message',
-            key: 'test-key',
-            options: {
-              persist: true
-            }
+      // TODO: 07/05 change to Record
+      notifications: [
+        {
+          message: 'Test message',
+          key: 'test-key',
+          options: {
+            persist: true
           }
-        ]
-      }
+        }
+      ]
     })
   })
 

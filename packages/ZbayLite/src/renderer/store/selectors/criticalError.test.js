@@ -9,12 +9,10 @@ describe('criticalError -', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: {
-        criticalError: {
-          ...CriticalError,
-          message: 'Some kind of error',
-          traceback: 'Error: Traceback for Some kind of error'
-        }
+      criticalError: {
+        ...CriticalError,
+        message: 'Some kind of error',
+        traceback: 'Error: Traceback for Some kind of error'
       }
     })
   })

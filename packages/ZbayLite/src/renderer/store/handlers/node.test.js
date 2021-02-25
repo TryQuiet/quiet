@@ -16,12 +16,12 @@ describe('Node reducer handles', () => {
 
   describe('epics -', () => {
     describe('getStatus', () => {
-      it('when successfull', async () => {
+      it.skip('when successfull', async () => {
         await store.dispatch(nodeHandlers.epics.getStatus())
         assertStoreState()
       })
 
-      it('when node is down', async () => {
+      it.skip('when node is down', async () => {
         try {
           await store.dispatch(nodeHandlers.epics.getStatus())
         } catch (err) {}

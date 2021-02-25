@@ -8,9 +8,7 @@ describe('criticalError reducer', () => {
   let store = null
   beforeEach(() => {
     store = create({
-      initialState: {
-        criticalError: { ...CriticalError }
-      }
+      criticalError: { ...CriticalError }
     })
     jest.clearAllMocks()
   })

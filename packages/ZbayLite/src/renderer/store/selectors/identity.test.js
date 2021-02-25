@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js'
 import create from '../create'
 import each from 'jest-each'
 import { initialState } from '../handlers/identity'
-import { Operation, operationTypes, ShieldBalanceOp } from '../handlers/operations'
+import { Operation, OperationTypes, ShieldBalanceOp } from '../handlers/operations'
 import selectors from './identity'
 
 describe('identity selectors', () => {
@@ -24,63 +24,61 @@ describe('identity selectors', () => {
   let store = null
   beforeEach(() => {
     store = create({
-      initialState: {
-        identity: {
-          ...initialState,
-          data: {
-            ...initialState.data,
-            address,
-            transparentAddress,
-            name: 'Saturn',
-            transparentBalance: '12.123456',
-            balance: '33.583004',
-            lockedBalance: '12.583004',
-            shippingData: {
-              ...initialState.data.shippingData,
-              ...shippingData
-            },
-            signerPrivKey,
-            signerPubKey,
-            donationAllow: 'false',
-            donationAddress: 'test'
+      identity: {
+        ...initialState,
+        data: {
+          ...initialState.data,
+          address,
+          transparentAddress,
+          name: 'Saturn',
+          transparentBalance: '12.123456',
+          balance: '33.583004',
+          lockedBalance: '12.583004',
+          shippingData: {
+            ...initialState.data.shippingData,
+            ...shippingData
           },
-          loader: {
-            message: 'Test loading message',
-            loading: true
+          signerPrivKey,
+          signerPubKey,
+          donationAllow: 'false',
+          donationAddress: 'test'
+        },
+        loader: {
+          message: 'Test loading message',
+          loading: true
+        }
+      },
+      rates: {
+        zec: '1',
+        usd: '2'
+      },
+      operations: {
+        'test-operation-id': {
+          ...Operation,
+          opId: 'test-operation-id',
+          type: OperationTypes.shieldBalance,
+          meta: {
+            ...ShieldBalanceOp,
+            amount: new BigNumber('0.1234'),
+            from: transparentAddress,
+            to: address
           }
         },
-        rates: {
-          zec: '1',
-          usd: '2'
+        'test-operation-id-1': {
+          ...Operation,
+          opId: 'test-operation-id-1',
+          type: 'not-shield-operation',
+          meta: { name: 'test' }
         },
-        operations: {
-          'test-operation-id': {
-            ...Operation,
-            opId: 'test-operation-id',
-            type: operationTypes.shieldBalance,
-            meta: {
-              ...ShieldBalanceOp,
-              amount: new BigNumber('0.1234'),
-              from: transparentAddress,
-              to: address
-            }
-          },
-          'test-operation-id-1': {
-            ...Operation,
-            opId: 'test-operation-id-1',
-            type: 'not-shield-operation',
-            meta: { name: 'test' }
-          },
-          'test-operation-id-2': {
-            ...Operation,
-            opId: 'test-operation-id-2',
-            type: operationTypes.shieldBalance,
-            meta: {
-              ...ShieldBalanceOp,
-              amount: new BigNumber('0.2345'),
-              from: transparentAddress,
-              to: address
-            }
+        'test-operation-id-2': {
+          ...Operation,
+          opId: 'test-operation-id-2',
+          type: OperationTypes.shieldBalance,
+          meta: {
+            ...ShieldBalanceOp,
+            amount: new BigNumber('0.2345'),
+            from: transparentAddress,
+            to: address
           }
         }
       }

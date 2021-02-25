@@ -8,7 +8,7 @@ Object {
 
 exports[`Send message popover will receive right props 1`] = `
 Object {
-  "members": Set {},
+  "members": Array [],
   "users": Object {},
 }
 `;

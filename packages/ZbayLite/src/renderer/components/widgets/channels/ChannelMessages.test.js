@@ -3,9 +3,11 @@ import * as R from 'ramda'
 import { DateTime } from 'luxon'
 import { shallow } from 'enzyme'
 
+import { MuiThemeProvider } from '@material-ui/core/styles'
 import { now, createMessage } from '../../../testUtils'
 import { ChannelMessages } from './ChannelMessages'
 import { mockClasses } from '../../../../shared/testing/mocks'
+import theme from '../../../theme'
 
 describe('ChannelMessages', () => {
   it('renders component', () => {
@@ -18,12 +20,14 @@ describe('ChannelMessages', () => {
       }
     }
     const result = shallow(
-      <ChannelMessages
-        classes={mockClasses}
-        messages={messages}
-        measureRef={ref}
-        contentRect={contentRect}
-      />
+      <MuiThemeProvider theme={theme}>
+        <ChannelMessages
+          classes={mockClasses}
+          messages={messages}
+          measureRef={ref}
+          contentRect={contentRect}
+        />
+      </MuiThemeProvider>
     )
     expect(result).toMatchSnapshot()
   })

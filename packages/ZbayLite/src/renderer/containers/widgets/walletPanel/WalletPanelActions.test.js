@@ -9,14 +9,12 @@ describe('WalletPanelActions', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: {
-        identity: {
-          ...initialState,
-          data: {
-            ...initialState.data,
-            balance: new BigNumber('33.583004'),
-            lockedBalance: new BigNumber('12.583004')
-          }
+      identity: {
+        ...initialState,
+        data: {
+          ...initialState.data,
+          balance: new BigNumber('33.583004'),
+          lockedBalance: new BigNumber('12.583004')
         }
       }
     })

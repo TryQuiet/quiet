@@ -1,10 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ChannelSettingsModal renders component 1`] = `
-<Memo(WithStyles(Modal))
+<Component
   addBorder={true}
+  alignCloseLeft={false}
+  canGoBack={false}
+  contentWidth={600}
   handleClose={[Function]}
   isBold={true}
+  isCloseDisabled={false}
   open={true}
   title="Settings for #undefined"
 >
@@ -84,5 +88,5 @@ exports[`ChannelSettingsModal renders component 1`] = `
       <TabContent />
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
-</Memo(WithStyles(Modal))>
+</Component>
 `;

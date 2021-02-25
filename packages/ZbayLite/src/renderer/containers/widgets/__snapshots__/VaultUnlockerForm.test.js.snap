@@ -21,7 +21,6 @@ Object {
     "loading": false,
     "message": "",
   },
-  "locked": true,
   "nodeConnected": true,
 }
 `;

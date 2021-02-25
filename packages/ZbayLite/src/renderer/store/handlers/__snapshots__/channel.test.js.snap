@@ -7,7 +7,9 @@ Object {
   "id": null,
   "isSizeCheckingInProgress": false,
   "loader": Object {
-    "loading": false,
+    "loading": Object {
+      "loading": false,
+    },
     "message": "",
   },
   "members": null,
@@ -26,8 +28,10 @@ Object {
   "id": null,
   "isSizeCheckingInProgress": false,
   "loader": Object {
-    "loading": false,
-    "message": "this is a loading message",
+    "loading": Object {
+      "message": "this is a loading message",
+    },
+    "message": "",
   },
   "members": null,
   "message": Object {},

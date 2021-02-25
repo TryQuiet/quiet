@@ -1,6 +1,6 @@
 /* eslint import/first: 0 */
 
-import { directMessageChannel } from './directMessageChannel'
+import directMessageChannel from './directMessageChannel'
 import create from '../create'
 import { DirectMessageChannelState } from '../handlers/directMessageChannel'
 
@@ -17,13 +17,11 @@ describe('directMessageChannel selector', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: {
-        ...storeState
-      }
+      ...storeState
     })
   })
 
   it('channel data selector', async () => {
-    expect(directMessageChannel(store.getState())).toMatchSnapshot()
+    expect(directMessageChannel.directMessageChannel(store.getState())).toMatchSnapshot()
   })
 })

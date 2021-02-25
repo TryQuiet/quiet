@@ -9,7 +9,6 @@ exports[`SendMessagePopover renders popover 1`] = `
       "vertical": "bottom",
     }
   }
-  className="popover-mock"
   id="simple-popover"
   onClose={[MockFunction]}
   open={true}

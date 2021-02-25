@@ -9,13 +9,11 @@ describe('ChannelContent', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: {
-        channel: { ...ChannelState, id: 'test', shareableUri: 'testuri' },
-        messages: {},
-        identity: {
-          data: {
-            signerPubKey: 123
-          }
+      channel: { ...ChannelState, id: 'test', shareableUri: 'testuri' },
+      messages: {},
+      identity: {
+        data: {
+          signerPubKey: 123
         }
       }
     })

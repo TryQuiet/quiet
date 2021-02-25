@@ -12,7 +12,7 @@ exports[`SendMoneySending renders component when sent != true 1`] = `
     item={true}
     xs={12}
   >
-    <Memo(Icon)
+    <Component
       className="icon-mock"
       src="test-file-stub"
     />
@@ -71,7 +71,7 @@ exports[`SendMoneySending renders component when sent = true 1`] = `
     item={true}
     xs={12}
   >
-    <Memo(Icon)
+    <Component
       className="icon-mock"
       src="test-file-stub"
     />

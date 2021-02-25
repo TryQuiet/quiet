@@ -63,15 +63,7 @@ describe('Send message popover', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: {
-        ...baseStore,
-        messages: {
-          [channelId]: {
-            ...ChannelMessages,
-            messages: [...messages]
-          }
-        }
-      }
+      ...baseStore
     })
   })
 

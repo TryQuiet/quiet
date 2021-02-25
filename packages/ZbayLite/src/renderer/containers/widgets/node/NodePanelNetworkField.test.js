@@ -11,11 +11,9 @@ describe('NodePanelNetworkField', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
-      initialState: {
-        node: {
-          ...NodeState,
-          isTestnet: true
-        }
+      node: {
+        ...NodeState,
+        isTestnet: true
       }
     })
   })
