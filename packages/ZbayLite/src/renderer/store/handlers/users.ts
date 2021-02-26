@@ -360,23 +360,23 @@ export const fetchOnionAddresses = (messages: DisplayableMessage[]) => async (
   }
 }
 
-let usernames = [];
+let usernames = ['ala'];
 
-(function () {
-  try {
-    axios
-      .get(FETCH_USERNAMES_ENDPOINT)
-      .then(res => {
-        usernames = res.data.message
-      })
-      .catch(err => {
-        console.log('cant fetch usernames')
-        console.log(err)
-      })
-  } catch (err) {
-    console.log(err)
-  }
-})()
+// (function () {
+//   try {
+//     axios
+//       .get(FETCH_USERNAMES_ENDPOINT)
+//       .then(res => {
+//         usernames = res.data.message
+//       })
+//       .catch(err => {
+//         console.log('cant fetch usernames')
+//         console.log(err)
+//       })
+//   } catch (err) {
+//     console.log(err)
+//   }
+// })()
 
 export const isNicknameTaken = username => {
   return R.includes(username, usernames)

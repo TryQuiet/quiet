@@ -128,34 +128,34 @@ const getErrorsFromValidationError = validationError => {
 
 const sanitize = x => (x ? x.replace(/[^a-zA-Z0-9]+$/g, '').toLowerCase() : undefined)
 
-const validate = ({ nickname }, checkNickname) => {
-  const sanitizedValue = sanitize(nickname)
-  const values = {
-    nickname: sanitizedValue
-  }
-  const validationSchema = getValidationSchema(values, checkNickname)
-  try {
-    validationSchema.validateSync(values, { abortEarly: false })
-    return {}
-  } catch (error) {
-    return getErrorsFromValidationError(error)
-  }
-}
+// const validate = ({ nickname }, checkNickname) => {
+//   const sanitizedValue = sanitize(nickname)
+//   const values = {
+//     nickname: sanitizedValue
+//   }
+//   const validationSchema = getValidationSchema(values, checkNickname)
+//   try {
+//     validationSchema.validateSync(values, { abortEarly: false })
+//     return {}
+//   } catch (error) {
+//     return getErrorsFromValidationError(error)
+//   }
+// }
 
-const getValidationSchema = (values, checkNickname) => {
-  return Yup.object().shape({
-    nickname: Yup.string()
-      .min(3)
-      .max(20)
-      .matches(/^[a-zA-Z0-9]+$/, {
-        message:
-          'Your username cannot have any spaces or special characters, must be lowercase letters and numbers only',
-        excludeEmptyString: true
-      })
-      .validateMessage(checkNickname)
-      .required('Required')
-  })
-}
+// const getValidationSchema = (values, checkNickname) => {
+//   return Yup.object().shape({
+//     nickname: Yup.string()
+//       .min(3)
+//       .max(20)
+//       .matches(/^[a-zA-Z0-9]+$/, {
+//         message:
+//           'Your username cannot have any spaces or special characters, must be lowercase letters and numbers only',
+//         excludeEmptyString: true
+//       })
+//       .validateMessage(checkNickname)
+//       .required('Required')
+//   })
+// }
 
 const CustomInputComponent = ({
   classes,
