@@ -19,6 +19,7 @@ import {
   actionTypes,
   unknownUserId,
   REQUEST_USER_REGISTRATION_ENDPOINT,
+  FETCH_USERNAMES_ENDPOINT
 } from '../../../shared/static'
 import { messages as zbayMessages } from '../../zbay'
 import staticChannels from '../../zcash/channels'
@@ -361,23 +362,23 @@ export const fetchOnionAddresses = (messages: DisplayableMessage[]) => async (
 
 let usernames = ['ala'];
 
-// (function () {
-//   try {
-//     axios
-//       .get(FETCH_USERNAMES_ENDPOINT)
-//       .then(res => {
-//         usernames = res.data.message
-//       })
-//       .catch(err => {
-//         console.log('cant fetch usernames')
-//         console.log(err)
-//       })
-//   } catch (err) {
-//     console.log(err)
-//   }
-// })()
+(function () {
+  try {
+    axios
+      .get(FETCH_USERNAMES_ENDPOINT)
+      .then(res => {
+        usernames = res.data.message
+      })
+      .catch(err => {
+        console.log('cant fetch usernames')
+        console.log(err)
+      })
+  } catch (err) {
+    console.log(err)
+  }
+})()
 
-export const isNicknameTaken = username => {
+export const isNicknameTaken = username => (dispatch, getState) => {
   return R.includes(username, usernames)
 }
 
