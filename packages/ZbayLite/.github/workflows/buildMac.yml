@@ -4,7 +4,7 @@ name: CI
 on:
   push:
     branches:
-      - feature/integrate-orbit-db
+      - merge-master-orbitdb
 
 jobs:
   build_on_mac:
