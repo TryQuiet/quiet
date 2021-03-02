@@ -176,7 +176,7 @@ const CustomInputComponent = ({
         [classes.error]: isTouched && errors.nickname
       })}
       placeholder={'Enter a username'}
-      error={isTouched && errors.nickname }
+      error={isTouched && errors.nickname}
       helperText={isTouched && errors.nickname}
       value={updatedValue}
       defaultValue={values.nickname || ''}
@@ -269,11 +269,11 @@ export const CreateUsernameModal = ({
             </Formik>
           </React.Fragment>
         ) : (
-          <UsernameCreated
-            handleClose={handleClose}
-            setFormSent={setFormSent}
-          />
-        )}
+            <UsernameCreated
+              handleClose={handleClose}
+              setFormSent={setFormSent}
+            />
+          )}
       </Grid>
     </Modal>
   )

@@ -17,10 +17,10 @@ export const connect = address =>
     const identity = electronStore.get('identity')
     console.log('trying to establish connection in websocket client')
     try {
-      
+
       console.log(`address ${address}`)
-      
-      const agent = new HttpsProxyAgent({ 
+
+      const agent = new HttpsProxyAgent({
         host: 'localhost',
         port: ports.httpTunnelPort
       })

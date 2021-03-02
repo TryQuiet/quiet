@@ -19,7 +19,6 @@ import {
   actionTypes,
   unknownUserId,
   REQUEST_USER_REGISTRATION_ENDPOINT,
-  FETCH_USERNAMES_ENDPOINT
 } from '../../../shared/static'
 import { messages as zbayMessages } from '../../zbay'
 import staticChannels from '../../zcash/channels'

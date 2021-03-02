@@ -159,12 +159,21 @@ export const mergeIntoOne = (messages: DisplayableMessage[]) => {
 
 export const shareableUri = createSelector(channel, c => c.shareableUri)
 
+export const channelId = createSelector(channel, ch => ch.id)
+
 export const inputLocked = createSelector(
   identitySelectors.balance('zec'),
   identitySelectors.lockedBalance('zec'),
   users.users,
   identitySelectors.signerPubKey,
-  (available, locked, users, signerPubKey) => {
+  channelId,
+  contacts,
+  (available, locked, users, signerPubKey, channelId, contacts) => {
+    const contactsData = Object.values(contacts)
+    const currentContactArray = contactsData.filter((item) => {
+      return item.key == channelId && item.connected
+    })
+
     if (available.gt(networkFee)) {
       if (users[signerPubKey]) {
         if (users[signerPubKey].createdAt) {
@@ -173,10 +182,14 @@ export const inputLocked = createSelector(
           return INPUT_STATE.UNREGISTERED
         }
       }
-    } else {
-      if (locked.gt(0)) {
-        return INPUT_STATE.LOCKED
-      }
+    } 
+    else {
+      if(currentContactArray[0]){
+        return INPUT_STATE.AVAILABLE
+    }
+    if (locked.gt(0)) {
+      return INPUT_STATE.LOCKED
+    }
     }
     return INPUT_STATE.DISABLE
   }
@@ -188,8 +201,6 @@ export const INPUT_STATE = {
   LOCKED: 2,
   UNREGISTERED: 3
 }
-
-export const channelId = createSelector(channel, ch => ch.id)
 
 export const members = createSelector(contacts, id, (c, channelId) => {
   const contact = c[channelId]
