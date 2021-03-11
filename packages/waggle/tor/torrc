@@ -1,11 +1,1 @@
-
-#SocksPort 9052 
-# Default: Bind to localhost:9050 for local connections.
-#HTTPTunnelPort 9082
-
-  
-#HiddenServiceDir C:\Users\username\Documents\tor\hidden_service
-#HiddenServicePort 80 127.0.0.1:8080 
-#HiddenServicePort 22 127.0.0.1:22
-
-#Placeholder
+ControlPort 9051

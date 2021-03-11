@@ -1,6 +1,6 @@
 {
   "name": "waggle",
-  "version": "1.0.3",
+  "version": "1.0.11",
   "author": "jk",
   "description": "tlg-manager",
   "types": "lib/index.d.ts",
@@ -64,7 +64,6 @@
     "socks-proxy-agent": "^5.0.0",
     "streaming-iterables": "^5.0.2",
     "timeshift-js": "^1.1.1",
-    "tor-manager": "0.0.6",
     "typescript": "^4.0.5",
     "uint8arrays": "^1.1.0",
     "url": "^0.11.0",

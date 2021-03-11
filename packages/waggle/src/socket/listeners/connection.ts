@@ -1,7 +1,7 @@
 import { EventTypesServer } from '../constants'
 import { EventTypesResponse } from '../constantsReponse'
 import { ConnectionsManager } from '../../libp2p/connectionsManager'
-import { Tor } from 'tor-manager'
+import { Tor } from '../../torManager'
 
 export const connections = (io, connectionsManager: ConnectionsManager) => {
   io.on(EventTypesServer.CONNECTION, socket => {
