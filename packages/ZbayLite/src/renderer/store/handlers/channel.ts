@@ -148,6 +148,10 @@ const loadOffer = (id, address) => async dispatch => {
 }
 const linkChannelRedirect = targetChannel => async (dispatch, getState) => {
   const contact = contactsSelectors.contact(targetChannel.address)(getState())
+  if (targetChannel.name == 'zbay') {
+    history.push(`/main/channel/zs10zkaj29rcev9qd5xeuzck4ly5q64kzf6m6h9nfajwcvm8m2vnjmvtqgr0mzfjywswwkwke68t00`)
+    return
+  }
   if (contact.address) {
     history.push(`/main/channel/${targetChannel.address}`)
     return

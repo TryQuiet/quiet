@@ -225,7 +225,7 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
             </>
           )
         })}
-        {isDM && name && (
+        {/* {isDM && name && (
           <Grid container className={classes.root}>
             <Grid item xs className={classes.item}>
               <Typography variant='caption' className={classes.info}>
@@ -243,7 +243,7 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
               </Typography>
             </Grid>
           </Grid>
-        )}
+        )} */}
         {isNewUser && (
           <WelcomeMessage
             message={
