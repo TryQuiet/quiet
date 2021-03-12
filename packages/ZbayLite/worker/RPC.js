@@ -1,8 +1,6 @@
 const native = require('./index.node')
 const publicLiteNodes = [
   'https://lightwalletd.zecwallet.co:1443',
-  'https://shielded.nighthawkwallet.com:9067',
-  'https://lightd-main.zcashfr.io:443',
   'https://lightd-main.zecwallet.co:443',
   'https://lightd-main.zecwallet.co:443'
 ]

@@ -69,7 +69,6 @@ ipcRenderer.on('wsMessage', (_, data) => {
 })
 
 ipcRenderer.on('connectWsContacts', (event, msg) => {
-  console.log('connecting ws contacts')
   store.dispatch(contactsHandlers.epics.connectWsContacts())
 })
 

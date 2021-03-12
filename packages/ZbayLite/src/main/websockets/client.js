@@ -15,11 +15,7 @@ export const connect = address =>
   new Promise((resolve, reject) => {
     const ports = electronStore.get('ports')
     const identity = electronStore.get('identity')
-    console.log('trying to establish connection in websocket client')
     try {
-
-      console.log(`address ${address}`)
-
       const agent = new HttpsProxyAgent({
         host: 'localhost',
         port: ports.httpTunnelPort
@@ -29,11 +25,10 @@ export const connect = address =>
         // eslint-disable-next-line
         reject('timeout')
       }, 80_000)
-      socket.on('unexpected-response', err => {
-        console.log(err)
+      socket.on('unexpected-response', () => {
+        console.log('Unexpected response, most likely, the contact youre trying to connect is offline')
       })
       socket.on('open', async function (a) {
-        console.log('opened websocket client connection')
         const privKey = identity.signerPrivKey
         const message = messages.createMessage({
           messageData: {
@@ -45,7 +40,6 @@ export const connect = address =>
         const memo = await packMemo(message, false)
         socket.send(memo)
         socket.on('close', function (a) {
-          console.log('disconnected client')
           socket.close()
           connections.delete(address)
         })

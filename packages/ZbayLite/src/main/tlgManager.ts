@@ -1,6 +1,5 @@
 import TlgManager from 'waggle'
 import fp from 'find-free-port'
-import fs from 'fs'
 import path from 'path'
 import os from 'os'
 import electronStore from '../shared/electronStore'
@@ -12,28 +11,11 @@ const pathDevLib = path.join.apply(null, [process.cwd(), 'tor'])
 const pathProdLib = path.join.apply(null, [process.resourcesPath, 'tor'])
 const pathDevSettings = path.join.apply(null, [process.cwd(), 'tor', 'torrc'])
 const pathProd = path.join.apply(null, [process.resourcesPath, 'tor', 'tor'])
-const pathProdSettingsTemplate = path.join.apply(null, [process.resourcesPath, 'tor', 'torrc'])
 
 export const spawnTor = async () => {
   const ports = await getPorts()
   electronStore.set('ports', ports)
-  const data = fs
-    .readFileSync(isDev ? pathDevSettings : pathProdSettingsTemplate)
-    .toString()
-    .split('\n')
-  data.splice(
-    17,
-    1,
-    `SocksPort ${ports.socksPort} # Default: Bind to localhost:9050 for local connections.`
-  )
-  data.splice(18, 1, `HTTPTunnelPort ${ports.httpTunnelPort}`)
-  let text = data.join('\n')
-  text = text.replace(/PATH_TO_CHANGE/g, path.join.apply(null, [os.homedir(), 'zbay_tor']))
-  fs.writeFileSync(
-    isDev ? pathDevSettings : path.join.apply(null, [os.homedir(), 'torrc']),
-    text,
-    'utf8'
-  )
+
   const tor = new TlgManager.Tor({
     torPath: isDev ? pathDev : pathProd,
     settingsPath: isDev ? pathDevSettings : path.join.apply(null, [os.homedir(), 'torrc']),
@@ -44,14 +26,54 @@ export const spawnTor = async () => {
       }
     }
   })
+
   await tor.init()
-  console.log('before adding git service')
-  const serviceAddressGit = await tor.addService({ port: 9418 })
-  const serviceAddressLibp2p = await tor.addService({ port: ports.libp2pHiddenService })
-  electronStore.set('onionAddresses', {
-    serviceAddressGit,
-    serviceAddressLibp2p
-  })
+  await tor.setSocksPort(ports.socksPort)
+  await tor.setHttpTunnelPort(ports.httpTunnelPort)
+  const hiddenServices = electronStore.get('hiddenServices')
+
+  if (!hiddenServices) {
+    let libp2pHiddenService
+    let directMessagesHiddenService
+
+    try {
+      libp2pHiddenService = await tor.addNewService(
+        ports.libp2pHiddenService,
+        ports.libp2pHiddenService
+      )
+      directMessagesHiddenService = await tor.addNewService(80, ports.directMessagesHiddenService)
+    } catch (e) {
+      console.log(`can't add new onion services ${e}`)
+    }
+
+    const services = {
+      libp2pHiddenService,
+      directMessagesHiddenService
+    }
+    electronStore.set('hiddenServices', services)
+  } else {
+    const services = Array.from(Object.keys(hiddenServices))
+    for (const service of services) {
+      try {
+        if (service === 'directMessagesHiddenService') {
+          await tor.addOnion({
+            virtPort: 80,
+            targetPort: ports[service],
+            privKey: hiddenServices[service].privateKey
+          })
+          continue
+        }
+        await tor.addOnion({
+          virtPort: ports[service],
+          targetPort: ports[service],
+          privKey: hiddenServices[service].privateKey
+        })
+      } catch (e) {
+        console.log(`can't add onion services ${e}`)
+      }
+    }
+  }
+
   tor.process.stderr.on('data', data => {
     console.error(`grep stderr: ${data}`)
   })
@@ -66,33 +88,34 @@ export const spawnTor = async () => {
 export const getPorts = async (): Promise<{
   socksPort: number
   httpTunnelPort: number
+  directMessagesHiddenService: number
   libp2pHiddenService: number
 }> => {
   const [socksPort] = await fp(9052)
   const [httpTunnelPort] = await fp(9082)
+  const [directMessagesHiddenService] = await fp(3435)
   const [libp2pHiddenService] = await fp(7950)
   return {
     socksPort,
     httpTunnelPort,
+    directMessagesHiddenService,
     libp2pHiddenService
   }
 }
 
 export const getOnionAddress = (): string => {
-  const address: string = fs.readFileSync(
-    path.join.apply(null, [os.homedir(), 'zbay_tor/hostname']),
-    'utf8'
-  )
+  const hiddenServices = electronStore.get('hiddenServices')
+  const address = hiddenServices.directMessagesHiddenService.onionAddress
   return address
 }
 
 export const runLibp2p = async (webContents): Promise<any> => {
   const ports = electronStore.get('ports')
+  const { libp2pHiddenService } = electronStore.get('hiddenServices')
 
-  const { serviceAddressLibp2p } = electronStore.get('onionAddresses')
   const connectonsManager = new TlgManager.ConnectionsManager({
     port: ports.libp2pHiddenService,
-    host: serviceAddressLibp2p.address,
+    host: `${libp2pHiddenService.onionAddress}.onion`,
     agentHost: 'localhost',
     agentPort: ports.socksPort
   })

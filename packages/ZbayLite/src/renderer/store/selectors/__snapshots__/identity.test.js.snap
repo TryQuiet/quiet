@@ -229,6 +229,7 @@ Object {
   "registrationStatus": Object {
     "nickname": "",
     "status": "UNREGISTERED",
+    "takenUsernames": Array [],
   },
   "removedChannels": Array [],
   Symbol(immer-draftable): true,

@@ -1,6 +1,5 @@
 import { produce, immerable } from 'immer'
 import { createAction, handleActions } from 'redux-actions'
-import * as R from 'ramda'
 import { ipcRenderer } from 'electron'
 
 import axios from 'axios'
@@ -360,14 +359,18 @@ export const fetchOnionAddresses = (messages: DisplayableMessage[]) => async (
   }
 }
 
-let usernames = ['ala'];
-
-(function () {
+export const fetchTakenUsernames = () => async (dispatch, getState) => {
+  const registrationStatus = identitySelector.registrationStatus(getState())
   try {
-    axios
+    await axios
       .get(FETCH_USERNAMES_ENDPOINT)
       .then(res => {
-        usernames = res.data.message
+        dispatch(
+          identityActions.setRegistraionStatus({
+            ...registrationStatus,
+            takenUsernames: res.data.message
+          })
+        )
       })
       .catch(err => {
         console.log('cant fetch usernames')
@@ -376,19 +379,15 @@ let usernames = ['ala'];
   } catch (err) {
     console.log(err)
   }
-})()
-
-export const isNicknameTaken = username => (dispatch, getState) => {
-  return R.includes(username, usernames)
 }
 
 export const epics = {
   fetchUsers,
-  isNicknameTaken,
   createOrUpdateUser,
   registerAnonUsername,
   fetchOnionAddresses,
-  registerOnionAddress
+  registerOnionAddress,
+  fetchTakenUsernames
 }
 
 export const reducer = handleActions<UsersStore, PayloadType<UserActions>>(

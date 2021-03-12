@@ -18,6 +18,7 @@ import ownedChannelsHandlers from './ownedChannels'
 import txnTimestampsHandlers from './txnTimestamps'
 import ratesHandlers from './rates'
 import nodeHandlers from './node'
+import usersHandlers from './users'
 import notificationCenterHandlers from './notificationCenter'
 import { successNotification } from './utils'
 import modalsHandlers from './modals'
@@ -77,6 +78,7 @@ export class Identity {
   registrationStatus: {
     nickname: string
     status: string
+    takenUsernames?: string[]
   }
 
   errors: string
@@ -122,7 +124,8 @@ export const initialState: Identity = new Identity({
   removedChannels: [],
   registrationStatus: {
     nickname: '',
-    status: 'UNREGISTERED'
+    status: 'UNREGISTERED',
+    takenUsernames: []
   },
   errors: ''
 })
@@ -142,7 +145,7 @@ export const setDonationAddress = createAction<string>(actionTypes.SET_DONATION_
 export const setShieldingTax = createAction<boolean>(actionTypes.SET_SHIELDING_TAX)
 export const setFreeUtxos = createAction<number>(actionTypes.SET_FREE_UTXOS)
 export const setUserAddreses = createAction<string[]>(actionTypes.SET_USER_ADDRESSES)
-export const setRegistraionStatus = createAction<{ nickname: string; status: string }>(
+export const setRegistraionStatus = createAction<{ nickname: string; status: string; takenUsernames?: string[] }>(
   actionTypes.SET_REGISTRAION_STATUS
 )
 export const setUserShieldedAddreses = createAction<any[]>(actionTypes.SET_USER_SHIELDED_ADDRESES)
@@ -373,7 +376,6 @@ export const loadIdentity = () => async dispatch => {
 }
 
 export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
-  // let identity = await migrateTo_0_2_0.ensureIdentityHasKeys(identityToSet)
   const identity = identityToSet
   dispatch(setLoading(true))
   const isNewUser = electronStore.get('isNewUser')
@@ -411,6 +413,7 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
     dispatch(setLoadingMessage('Loading users and messages'))
   } catch (err) {}
   if (isNewUser === true) {
+    await dispatch(usersHandlers.epics.fetchTakenUsernames())
     dispatch(modalsHandlers.actionCreators.openModal('createUsernameModal')())
   }
   dispatch(setLoadingMessage(''))

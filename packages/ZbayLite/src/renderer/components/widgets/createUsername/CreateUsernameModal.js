@@ -105,15 +105,11 @@ const styles = theme => ({
   }
 })
 
-Yup.addMethod(Yup.mixed, 'validateMessage', function (checkNickname) {
-  return this.test(
-    'test',
-    'Sorry username already taken. please choose another',
-    function (value) {
-      const isUsernameTaken = checkNickname(value)
-      return !isUsernameTaken
-    }
-  )
+Yup.addMethod(Yup.mixed, 'validateMessage', function (username, takenUsernames) {
+  return this.test('test', 'Sorry username already taken. please choose another', function (value) {
+    const isUsernameTaken = takenUsernames.includes(username)
+    return !isUsernameTaken
+  })
 })
 
 const getErrorsFromValidationError = validationError => {
@@ -128,12 +124,12 @@ const getErrorsFromValidationError = validationError => {
 
 const sanitize = x => (x ? x.replace(/[^a-zA-Z0-9]+$/g, '').toLowerCase() : undefined)
 
-const validate = ({ nickname }, checkNickname) => {
+const validate = ({ nickname }, takenUsernames) => {
   const sanitizedValue = sanitize(nickname)
   const values = {
     nickname: sanitizedValue
   }
-  const validationSchema = getValidationSchema(values, checkNickname)
+  const validationSchema = getValidationSchema(values, takenUsernames)
   try {
     validationSchema.validateSync(values, { abortEarly: false })
     return {}
@@ -142,7 +138,7 @@ const validate = ({ nickname }, checkNickname) => {
   }
 }
 
-const getValidationSchema = (values, checkNickname) => {
+const getValidationSchema = (values, takenUsernames) => {
   return Yup.object().shape({
     nickname: Yup.string()
       .min(3)
@@ -152,7 +148,7 @@ const getValidationSchema = (values, checkNickname) => {
           'Your username cannot have any spaces or special characters, must be lowercase letters and numbers only',
         excludeEmptyString: true
       })
-      .validateMessage(checkNickname)
+      .validateMessage(values.nickname, takenUsernames)
       .required('Required')
   })
 }
@@ -197,11 +193,7 @@ export const CreateUsernameModal = ({
   open,
   handleClose,
   initialValues,
-  checkNickname,
-  handleSubmit,
-  enoughMoney,
-  usernameFee,
-  zecRate
+  handleSubmit
 }) => {
   const [isTouched, setTouched] = useState(false)
   const [formSent, setFormSent] = useState(false)
@@ -217,8 +209,7 @@ export const CreateUsernameModal = ({
             <Formik
               onSubmit={values => submitForm(handleSubmit, values, setFormSent)}
               initialValues={initialValues}
-              validate={values => validate(values, checkNickname)}
-            >
+              validate={values => validate(values, initialValues.takenUsernames.takenUsernames)}>
               {() => {
                 return (
                   <Form className={classes.fullWidth}>
@@ -236,9 +227,8 @@ export const CreateUsernameModal = ({
                       </Grid>
                       <Grid item xs={12} className={classes.infoDiv}>
                         <Typography variant='caption' className={classes.info}>
-                          Your username cannot have any spaces or special
-                          characters, must be lowercase letters and numbers
-                          only.
+                          Your username cannot have any spaces or special characters, must be
+                          lowercase letters and numbers only.
                         </Typography>
                       </Grid>
                     </Grid>
@@ -247,8 +237,7 @@ export const CreateUsernameModal = ({
                       className={classes.buttonsContainer}
                       direction={'row'}
                       justify={'flex-start'}
-                      spacing={2}
-                    >
+                      spacing={2}>
                       <Grid item xs={'auto'} className={classes.buttonDiv}>
                         <Button
                           variant='contained'
@@ -257,8 +246,9 @@ export const CreateUsernameModal = ({
                           type='submit'
                           fullWidth
                           className={classes.button}
-                          onClick={() => { setTouched(true) }}
-                        >
+                          onClick={() => {
+                            setTouched(true)
+                          }}>
                           Continue
                         </Button>
                       </Grid>
@@ -269,11 +259,8 @@ export const CreateUsernameModal = ({
             </Formik>
           </React.Fragment>
         ) : (
-            <UsernameCreated
-              handleClose={handleClose}
-              setFormSent={setFormSent}
-            />
-          )}
+          <UsernameCreated handleClose={handleClose} setFormSent={setFormSent} />
+        )}
       </Grid>
     </Modal>
   )

@@ -20,7 +20,8 @@ export const mapStateToProps = state => {
         ? usersSelectors
           .registeredUser(identitySelectors.signerPubKey(state))(state)
           .nickname
-        : ''
+        : '',
+      takenUsernames: identitySelectors.registrationStatus(state)
     },
     usernameFee: feesSelectors.userFee(state),
     zecRate: ratesSelectors.rate('usd')(state),
@@ -31,7 +32,6 @@ export const mapStateToProps = state => {
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      checkNickname: usersHandlers.epics.isNicknameTaken,
       handleSubmit: ({ nickname }) => {
         electronStore.set('isNewUser', false)
         return usersHandlers.epics.createOrUpdateUser({ nickname, debounce: true })

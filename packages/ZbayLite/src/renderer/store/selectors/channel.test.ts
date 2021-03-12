@@ -6,7 +6,6 @@ import create from '../create'
 import BigNumber from 'bignumber.js'
 import { Contact } from '../handlers/contacts'
 
-
 describe('Channel selectors', () => {
   let store = null
   beforeEach(() => {

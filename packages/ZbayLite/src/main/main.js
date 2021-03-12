@@ -275,7 +275,6 @@ app.on('ready', async () => {
   })
 
   ipcMain.on('spawnTor', async (event, arg) => {
-    console.log(`checking if tor process is not running and it is ${tor}`)
     if (tor === null) {
       tor = await spawnTor()
       await runLibp2p(mainWindow.webContents)
@@ -285,13 +284,8 @@ app.on('ready', async () => {
   })
 
   ipcMain.on('killTor', async (event, arg) => {
-    console.log('starting killing tor')
     if (tor !== null) {
-      const ports = electronStore.get('ports')
-      console.log(ports)
-      await tor.killService({ port: 9418 })
-      await tor.killService({ port: ports.libp2pHiddenService })
-      tor.kill()
+      await tor.kill()
       tor = null
     }
   })
@@ -319,11 +313,9 @@ app.on('ready', async () => {
   })
 
   ipcMain.on('initWsConnection', async (event, arg) => {
-    console.log('entered init in main main')
     const request = JSON.parse(arg)
     try {
       const socket = await websockets.connect(request.address)
-      console.log(`socket is ${socket}`)
       if (mainWindow) {
         mainWindow.webContents.send(
           'initWsConnection',
@@ -373,7 +365,6 @@ app.on('ready', async () => {
     }
     if (!running) {
       running = true
-      console.log(torUrl)
     }
   })
 })
@@ -398,10 +389,7 @@ app.on('before-quit', async e => {
   clearConnections()
   sleep(2000)
   if (tor !== null) {
-    const ports = electronStore.get('ports')
-    await tor.killService({ port: 9418 })
-    await tor.killService({ port: ports.libp2pHiddenService })
-    tor.kill()
+    await tor.kill()
   }
   // Killing worker takes couple of sec
   await client.terminate()

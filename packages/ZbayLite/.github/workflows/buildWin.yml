@@ -3,23 +3,18 @@ name: CI
 on:
   push:
     branches:
-      - feature/integrate-orbit-db
+      - fix/win-wag
 
 jobs:
   build_on_windows:
-    runs-on: ubuntu-18.04
+    runs-on: windows-latest
     steps:
     - uses: actions/checkout@v1.0.0
     - uses: actions/setup-node@master
       with:
         node-version: '12'
-    - name: set architecture
-      run: sudo dpkg --add-architecture i386
-    - name: update
-      run: sudo apt-get update
-    - name: install wine
-      run: sudo apt-get install wine32
     - name: fetch jsign
+      shell: bash
       run: curl https://zbay-binaries.s3.us-east-2.amazonaws.com/jsign/jsign-2.1.jar --output ./jsign-2.1.jar
     - name: Add Windows certificate
       id: write_file
@@ -28,20 +23,24 @@ jobs:
         fileName: 'win-certificate.pfx'
         encodedString: ${{ secrets.WIN_CSC_LINK }}
     - name: fetch index.node
-      run: curl https://zbay-binaries.s3.us-east-2.amazonaws.com/index.node --output ./worker/index.node && chmod 644 ./worker/index.node
+      shell: bash
+      run: curl https://zbay-binaries.s3.us-east-2.amazonaws.com/index.node --output ./worker/index.node
     - name: install dependencies
+      shell: bash
       run: npm install
     - name: pull tor binary
-      run: export SOURCE_PATH=win32 && npm run pullBinariesWin
+      shell: bash
+      run: curl https://zbay-binaries.s3.us-east-2.amazonaws.com/win32/tor.exe --output ./tor/tor.exe
     - name: build on Windows
+      shell: bash
       run: npm run build:prod
     - name: install electron builder
+      shell: bash
       run: npm install -g electron-builder@22.3.2
     - name: release
+      shell: bash
       env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}export 
         CERTIFICATE_PATH: ${{ steps.write_file.outputs.filePath }}
         WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
         WINDOWS_ALIAS: ${{ secrets.WINDOWS_ALIAS }}

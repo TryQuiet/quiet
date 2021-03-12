@@ -15,15 +15,12 @@ import { ChannelState, actions } from './channel'
 import { ChannelsState } from './channels'
 import { initialState } from './identity'
 import channelSelectors from '../selectors/channel'
-import {
-  now
-} from '../../testUtils'
+import { now } from '../../testUtils'
 import { NodeState } from './node'
 
 describe('channel reducer', () => {
   const identityId = 'test-identity-id'
-  const address =
-    'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya'
+  const address = 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya'
   let channel
 
   let store = null
@@ -50,8 +47,7 @@ describe('channel reducer', () => {
           address,
           name: 'Saturn',
           balance: '33.583004',
-          signerPrivKey:
-          '879aff43df53606d8ae1219d9347360e7a30d1c2f141e14c9bc96bb29bf930cb'
+          signerPrivKey: '879aff43df53606d8ae1219d9347360e7a30d1c2f141e14c9bc96bb29bf930cb'
         }
       },
       operations: {}

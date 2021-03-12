@@ -136,7 +136,7 @@ const loadChannel = key => async (dispatch, getState) => {
     dispatch(contactsHandlers.actions.cleanNewMessages({ contactAddress: key }))
     // await dispatch(clearNewMessages())
     // await dispatch(updateLastSeen())
-  } catch (err) { }
+  } catch (err) {}
 }
 const loadOffer = (id, address) => async dispatch => {
   try {
@@ -144,7 +144,7 @@ const loadOffer = (id, address) => async dispatch => {
     dispatch(setChannelId(id))
     dispatch(setShareableUri(''))
     dispatch(setAddress(address))
-  } catch (err) { }
+  } catch (err) {}
 }
 const linkChannelRedirect = targetChannel => async (dispatch, getState) => {
   const contact = contactsSelectors.contact(targetChannel.address)(getState())
