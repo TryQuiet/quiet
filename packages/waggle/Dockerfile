@@ -4,10 +4,12 @@ RUN apt update && apt install -y
 
 WORKDIR /usr/app
 
-COPY . .
-
 RUN npm install -g node-pre-gyp@0.10.0 typescript ts-node
-ENV HIDDEN_SERVICE_SECRET=PT0gZWQyNTUxOXYxLXNlY3JldDogdHlwZTAgPT0AAADQZeSBmBABj5X+4zo98d+zOfFEygXVYajYaTzthFtLa4muclClSkstifM4SQsaJlFkJN//FZsBfMSLTDPubgCP
-RUN npm install
+# Overwritten on aws for entry node:
+ENV HIDDEN_SERVICE_SECRET=ED25519-V3:gOK0SNEHSRCEd3ld9Z4RpegEN2/IN3a+lxyGvNO9vUaG6QQMgqbiu5kTV5YzLghOoDGffQx7bai0rjVlSs5mAw==
 
-CMD ["ts-node", "src/test.ts"]
+COPY package.json .
+COPY package-lock.json .
+RUN npm install
+COPY . .
+CMD ["ts-node", "src/entryNode.ts"]

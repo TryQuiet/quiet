@@ -38,7 +38,7 @@
     "events": "^3.2.0",
     "express": "^4.17.1",
     "http-server": "^0.12.3",
-    "ipfs": "^0.53.2",
+    "ipfs": "0.52",
     "it-pipe": "^1.1.0",
     "libp2p": "^0.29.3",
     "libp2p-bootstrap": "^0.12.1",

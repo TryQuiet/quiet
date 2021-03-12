@@ -10,6 +10,10 @@ import Multiaddr from 'multiaddr'
 import Bootstrap from 'libp2p-bootstrap'
 import multihashing from 'multihashing-async'
 import { Storage } from '../storage'
+import { createPaths } from '../utils'
+import { ZBAY_DIR_PATH } from '../constants'
+import fs from 'fs'
+import path from 'path'
 
 interface IConstructor {
   host: string
@@ -58,24 +62,45 @@ export class ConnectionsManager {
       process.exit(0)
     })
   }
-  private createAgent = async (): Promise<void> => {
+
+  private createAgent = () => {
     this.socksProxyAgent = new SocksProxyAgent({ port: this.agentPort, host: this.agentHost })
   }
-  public initializeNode = async (staticPeerId?): Promise<ILibp2pStatus> => {
+
+  private getPeerId = async (): Promise<PeerId> => {
+    let peerId
+    const peerIdKeyPath = path.join(ZBAY_DIR_PATH, 'peerIdKey')
+    if (!fs.existsSync(peerIdKeyPath)) {
+      createPaths([ZBAY_DIR_PATH])
+      peerId = await PeerId.create()
+      fs.writeFileSync(peerIdKeyPath, peerId.toJSON().privKey)
+    } else {
+      const peerIdKey = fs.readFileSync(peerIdKeyPath, {encoding: 'utf8'})
+      peerId = PeerId.createFromPrivKey(peerIdKey)
+    }
+    return peerId
+  }
+
+  public initializeNode = async (staticPeerId?: PeerId): Promise<ILibp2pStatus> => {
     let peerId
     if (!staticPeerId) {
-      peerId = await PeerId.create()
+      peerId = await this.getPeerId()
     } else {
       peerId = staticPeerId
     }
     const addrs = [`/dns4/${this.host}/tcp/${this.port}/ws`]
 
     const bootstrapMultiaddrs = [
-      '/dns4/v5nvvfcfpceu6z6hao576ecbfvxin5ahmpbf6rovxbks2kevdxusfayd.onion/tcp/7788/ws/p2p/Qmak8HeMad8X1HGBmz2QmHfiidvGnhu6w6ugMKtx8TFc85',
+      '/dns4/2lmfmbj4ql56d55lmv7cdrhdlhls62xa4p6lzy6kymxuzjlny3vnwyqd.onion/tcp/7788/ws/p2p/Qmak8HeMad8X1HGBmz2QmHfiidvGnhu6w6ugMKtx8TFc85',
     ]
 
     this.localAddress = `${addrs}/p2p/${peerId.toB58String()}`
-    await this.createAgent()
+
+    console.log('bootstrapMultiaddrs:', bootstrapMultiaddrs)
+    console.log('local address:', this.localAddress)
+
+    this.createAgent()
+
     this.libp2p = await this.createBootstrapNode({
       peerId,
       addrs,
@@ -83,8 +108,7 @@ export class ConnectionsManager {
       localAddr: this.localAddress,
       bootstrapMultiaddrsList: bootstrapMultiaddrs
     })
-
-    this.libp2p.connectionManager.on('peer:connect', connection => {
+    this.libp2p.connectionManager.on('peer:connect', async connection => {
       console.log('Connected to', connection.remotePeer.toB58String())
     })
     this.libp2p.connectionManager.on('peer:discovery', peer => {
@@ -93,13 +117,14 @@ export class ConnectionsManager {
     this.libp2p.connectionManager.on('peer:disconnect', connection => {
       console.log('Disconnected from', connection.remotePeer.toB58String())
     })
-    await this.storage.init(this.libp2p)
+    await this.storage.init(this.libp2p, peerId)
 
     return {
-      address: `${addrs}/p2p/${peerId.toB58String()}`,
+      address: this.localAddress,
       peerId: peerId.toB58String()
     }
   }
+
   public subscribeForTopic = async (channelAddress: string, io: any) => {
     await this.storage.subscribeForChannel(channelAddress, io)
   }

@@ -1,7 +1,0 @@
-{
-  "linterOptions": {
-    "exclude": [
-      "src/test.ts"
-    ]
-  }
-}

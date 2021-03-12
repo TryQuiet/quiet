@@ -1,9 +1,11 @@
 import IPFS from 'ipfs'
-import os from 'os'
-import fs from 'fs'
+import path from 'path'
+import { ZBAY_DIR_PATH } from '../constants'
+import { createPaths } from '../utils'
 import OrbitDB from 'orbit-db'
 import KeyValueStore from 'orbit-db-kvstore'
 import EventStore from 'orbit-db-eventstore'
+import PeerId from 'peer-id'
 import { message as socketMessage } from '../socket/events/message'
 import { loadAllMessages } from '../socket/events/allMessages'
 
@@ -27,30 +29,48 @@ interface IZbayChannel {
   name: string
 }
 
-const channelAddress =
-  '/orbitdb/zdpuAmqqhvij9w3wqbSEam9p3V6HaPKDKUHTsfREnYCFiWAm3/zbay-public-channels'
-
 export class Storage {
   private ipfs: IPFS.IPFS
   private orbitdb: OrbitDB
   private channels: KeyValueStore<IZbayChannel>
   public repos: Map<String, IRepo> = new Map()
 
-  public async init(libp2p: any): Promise<void> {
-    const targetPath = `${os.homedir()}/.zbay/ZbayChannels/`
-    this.createPaths([targetPath])
+  public async init(libp2p: any, peerID: PeerId): Promise<void> {
+    const ipfsRepoPath = path.join(ZBAY_DIR_PATH, 'ZbayChannels')
+    const orbitDbDir = path.join(ZBAY_DIR_PATH, 'OrbitDB')
+    createPaths([ipfsRepoPath, orbitDbDir])
     this.ipfs = await IPFS.create({
       libp2p: () => libp2p,
       preload: { enabled: false },
-      repo: targetPath
+      repo: ipfsRepoPath,
+      EXPERIMENTAL: {
+        ipnsPubsub: true
+      },
+      // @ts-ignore
+      privateKey: peerID.toJSON().privKey 
     })
-    this.orbitdb = await OrbitDB.createInstance(this.ipfs, {directory: `${os.homedir()}/.zbay/OrbitDB`})
+
+    this.orbitdb = await OrbitDB.createInstance(this.ipfs, {directory: orbitDbDir})
+    await this.createDbForChannels()
+    await this.subscribeForAllChannels() 
+  }
+
+  private async createDbForChannels() {
     this.channels = await this.orbitdb.keyvalue<IZbayChannel>('zbay-public-channels', {
       accessController: {
         write: ['*']
-      }
+      },
+      replicate: true
     })
     await this.channels.load()
+  }
+
+  async subscribeForAllChannels() {
+    for (const channelData of Object.values(this.channels.all)) {
+      if (!this.repos.has(channelData.name)) {
+        await this.createChannel(channelData.name)
+      }
+    }
   }
 
   public async subscribeForChannel(channelAddress: string, io: any): Promise<void> {
@@ -99,16 +119,9 @@ export class Storage {
         orbitAddress: `/orbitdb/${db.address.root}/${db.address.path}`,
         name: repoName
       })
+      console.log(`Created channel ${repoName}`)
     }
     this.repos.set(repoName, { db })
     return db
-  }
-
-  private createPaths(paths: string[]) {
-    for (const path of paths) {
-      if (!fs.existsSync(path)) {
-        fs.mkdirSync(path, { recursive: true })
-      }
-    }
   }
 }

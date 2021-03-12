@@ -37,7 +37,7 @@ class WebsocketsOverTor extends WebSockets {
   }
   async dial(ma, options: any = {}) {
     log('dialing %s', ma)
-    console.log('dialing')
+    // console.log('dialing')
     let conn
     try {
       const socket = await this._connect(ma, { websocket: this._websocketOpts, ...options, localAddr: this.localAddress  })
