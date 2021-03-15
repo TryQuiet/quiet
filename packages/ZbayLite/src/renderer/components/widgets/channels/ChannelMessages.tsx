@@ -4,8 +4,6 @@ import { DateTime } from 'luxon'
 import * as R from 'ramda'
 import List from '@material-ui/core/List'
 import { makeStyles } from '@material-ui/core/styles'
-import Typography from '@material-ui/core/Typography'
-import Grid from '@material-ui/core/Grid'
 
 import { MessageType } from '../../../../shared/static.types'
 import ChannelMessage from '../../../containers/widgets/channels/ChannelMessage'
@@ -102,9 +100,7 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
   isRescanned,
   isDM,
   onRescan,
-  isNewUser,
-  name,
-  isConnected
+  isNewUser
 }) => {
   const classes = useStyles({})
   const msgRef = React.useRef<HTMLUListElement>()

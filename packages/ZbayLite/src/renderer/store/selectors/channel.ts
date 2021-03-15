@@ -134,12 +134,12 @@ export const mergeIntoOne = (messages: DisplayableMessage[]) => {
       ? checkMessageTargetTimeWindow({
         targetCreatedAt: last.createdAt,
         timeStamp: msg.createdAt,
-        timeWindow: last.createdAt + 300,
+        timeWindow: last.createdAt + 300
       })
-      : true;
-    if (last && msg.status === "failed") {
-      result.push([]);
-      result[result.length - 1].push(msg);
+      : true
+    if (last && msg.status === 'failed') {
+      result.push([])
+      result[result.length - 1].push(msg)
     } else if (last && (msg.type !== 1 || last.type !== 1)) {
       result.push([])
       result[result.length - 1].push(msg)
@@ -182,8 +182,7 @@ export const inputLocked = createSelector(
           return INPUT_STATE.UNREGISTERED
         }
       }
-    }
-    else {
+    } else {
       if (users[signerPubKey]) {
         if (users[signerPubKey].createdAt) {
           if (currentContactArray[0]) {
@@ -195,7 +194,7 @@ export const inputLocked = createSelector(
         return INPUT_STATE.LOCKED
       }
     }
-    return INPUT_STATE.DISABLE;
+    return INPUT_STATE.DISABLE
   }
 )
 

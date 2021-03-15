@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - fix/win-wag
+      - merge-master-orbitdb
 
 jobs:
   build_on_windows:

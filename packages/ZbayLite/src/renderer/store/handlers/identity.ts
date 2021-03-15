@@ -5,11 +5,9 @@ import secp256k1 from 'secp256k1'
 import { randomBytes } from 'crypto'
 import { DateTime } from 'luxon'
 import { ipcRenderer, remote } from 'electron'
-import { Store } from '../reducers'
 
 import history from '../../../shared/history'
 import usersSelector from '../selectors/users'
-import contactsSelector from '../selectors/contacts'
 import client from '../../zcash'
 import channels from '../../zcash/channels'
 import identitySelectors from '../selectors/identity'
@@ -421,12 +419,11 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
   dispatch(setLoadingMessage(''))
   dispatch(setLoading(false))
 
-
-  if (electronStore.get("isNewUser")) {
+  if (electronStore.get('isNewUser')) {
     const users = usersSelector.users(getState())
     const usersValues = Object.values(users)
     const holmesContactArray = usersValues.filter((item) => {
-      return item.publicKey == '02dc8264c555d46b3f6b16f1e751e979ebc69e6df6a02e7d4074a5df981e507da2'
+      return item.publicKey === '02dc8264c555d46b3f6b16f1e751e979ebc69e6df6a02e7d4074a5df981e507da2'
     })
     const holmesContact = holmesContactArray[0]
 
@@ -461,7 +458,7 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
       blockHeight: 9999999999999999,
       createdAt: Math.floor(DateTime.utc().toSeconds() + 1),
       id: 'sklf7894hthur7467sd786fsjh49832095usldf89345jklhj34s98734lkjfdsa',
-      message: "Hi! My name’s Holmes. Previously I co-founded the activist organization https://fightforthefuture.org , which fights for privacy and freedom online."
+      message: 'Hi! My name’s Holmes. Previously I co-founded the activist organization https://fightforthefuture.org , which fights for privacy and freedom online.'
     } as unknown as DisplayableMessage
 
     const messageOurGoal = {
@@ -469,7 +466,7 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
       blockHeight: 9999999999999999,
       createdAt: Math.floor(DateTime.utc().toSeconds() + 2),
       id: 'opcvlkdsjjpe04908589234lnfs0d9f82038lnmpqweri02978234ljhlsdfu821',
-      message: "Now I’m working on Zbay, to build a team chat space like Slack or Discord, but with no central server to leak your team’s entire chat history, and with private digital money (Zcash) built-in."
+      message: 'Now I’m working on Zbay, to build a team chat space like Slack or Discord, but with no central server to leak your team’s entire chat history, and with private digital money (Zcash) built-in.'
     } as unknown as DisplayableMessage
 
     const messageZbay = {
@@ -477,7 +474,7 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
       blockHeight: 9999999999999999,
       createdAt: Math.floor(DateTime.utc().toSeconds() + 3),
       id: 'aoiurhtnlksjdfjs0d99849233lojkkljhsioduyfo09r8t39045uilknfsldfj9',
-      message: "Any questions? Feedback? Annoyances? Burning needs where if Zbay met them you’d use it every day? If so, message me here!"
+      message: 'Any questions? Feedback? Annoyances? Burning needs where if Zbay met them you’d use it every day? If so, message me here!'
     } as unknown as DisplayableMessage
 
     await dispatch(
@@ -514,9 +511,9 @@ export const updateDonation = () => async dispatch => {
   )
 }
 
-export const updateDonationAddress = address => async (dispatch, getState) => { }
-export const updateShieldingTax = allow => async (dispatch, getState) => { }
-export const generateNewAddress = () => async (dispatch, getState) => {
+export const updateDonationAddress = () => async () => { }
+export const updateShieldingTax = () => async () => { }
+export const generateNewAddress = () => async (dispatch) => {
   if (!electronStore.get('addresses')) {
     electronStore.set('addresses', JSON.stringify([]))
   }

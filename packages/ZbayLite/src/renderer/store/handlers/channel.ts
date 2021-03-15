@@ -136,7 +136,7 @@ const loadChannel = key => async (dispatch, getState) => {
     dispatch(contactsHandlers.actions.cleanNewMessages({ contactAddress: key }))
     // await dispatch(clearNewMessages())
     // await dispatch(updateLastSeen())
-  } catch (err) {}
+  } catch (err) { }
 }
 const loadOffer = (id, address) => async dispatch => {
   try {
@@ -144,12 +144,12 @@ const loadOffer = (id, address) => async dispatch => {
     dispatch(setChannelId(id))
     dispatch(setShareableUri(''))
     dispatch(setAddress(address))
-  } catch (err) {}
+  } catch (err) { }
 }
 const linkChannelRedirect = targetChannel => async (dispatch, getState) => {
   const contact = contactsSelectors.contact(targetChannel.address)(getState())
-  if (targetChannel.name == 'zbay') {
-    history.push(`/main/channel/zs10zkaj29rcev9qd5xeuzck4ly5q64kzf6m6h9nfajwcvm8m2vnjmvtqgr0mzfjywswwkwke68t00`)
+  if (targetChannel.name === 'zbay') {
+    history.push('/main/channel/zs10zkaj29rcev9qd5xeuzck4ly5q64kzf6m6h9nfajwcvm8m2vnjmvtqgr0mzfjywswwkwke68t00')
     return
   }
   if (contact.address) {

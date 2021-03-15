@@ -169,15 +169,15 @@ const CustomInputComponent = ({
       className={classNames({
         [classes.focus]: true,
         [classes.margin]: true,
-        [classes.error]: isTouched && errors['nickname'] 
+        [classes.error]: isTouched && errors.nickname
       })}
       placeholder={'Enter a username'}
       error={isTouched && errors.nickname}
       helperText={isTouched && errors.nickname}
       value={updatedValue}
-      error={isTouched && errors['nickname'] }
-      helperText={isTouched && errors['nickname']}
-      defaultValue={values['nickname'] || ''}
+      error={isTouched && errors.nickname }
+      helperText={isTouched && errors.nickname}
+      defaultValue={values.nickname || ''}
       {...rest}
       {...props}
       onPaste={e => e.preventDefault()}
