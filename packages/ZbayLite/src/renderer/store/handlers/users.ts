@@ -77,7 +77,8 @@ export const ReceivedUser = values => {
             ...values.message,
             nickname: `${values.message.nickname} #${i}`,
             createdAt: values.createdAt,
-            publicKey: values.publicKey
+            publicKey: values.publicKey,
+            onionAddress: ''
           })
         }
       }
@@ -146,6 +147,7 @@ export const createOrUpdateUser = (payload: {
   lastName?: string
   debounce?: boolean
   retry?: number
+  updateOnionAddress?: boolean
 }) => async (dispatch, getState) => {
   const { nickname, firstName = '', lastName = '' } = payload
   const publicKey = identitySelector.signerPubKey(getState())
@@ -187,9 +189,14 @@ export const createOrUpdateUser = (payload: {
         userMemo: userMemo,
         torMemo: torMemo,
         nickname: nickname,
-        publicKey: publicKey
+        publicKey: publicKey,
+        updateOnionAddress: payload?.updateOnionAddress || false
       }
     })
+    if (payload.updateOnionAddress) {
+      console.log('updated onion address')
+      return
+    }
   } catch (error) {
     console.log('error')
     dispatch(

@@ -2,6 +2,7 @@ import TlgManager from 'waggle'
 import fp from 'find-free-port'
 import path from 'path'
 import os from 'os'
+import * as fs from 'fs'
 import electronStore from '../shared/electronStore'
 
 const isDev = process.env.NODE_ENV === 'development'
@@ -72,6 +73,12 @@ export const spawnTor = async () => {
         console.log(`can't add onion services ${e}`)
       }
     }
+  }
+
+  if (fs.existsSync(`${path.join.apply(null, [os.homedir(), 'zbay_tor'])}`)) {
+    fs.rmdirSync(`${path.join.apply(null, [os.homedir(), 'zbay_tor'])}`, {
+      recursive: true
+    })
   }
 
   tor.process.stderr.on('data', data => {

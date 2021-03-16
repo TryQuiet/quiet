@@ -24,6 +24,7 @@ Object {
     "firstName": "",
     "lastName": "",
     "nickname": "anon",
+    "onionAddress": "",
   },
   "users": Object {},
 }

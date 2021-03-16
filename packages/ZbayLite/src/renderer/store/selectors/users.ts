@@ -27,6 +27,7 @@ const myUser = createSelector(
         lastName: '',
         nickname: 'anon' + signerPubKey.substring(0, 16),
         address: '',
+        onionAddress: '',
         createdAt: 0
       }
     )

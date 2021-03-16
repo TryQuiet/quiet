@@ -7,12 +7,12 @@ import { DateTime } from 'luxon'
 import { ipcRenderer, remote } from 'electron'
 
 import history from '../../../shared/history'
-import usersSelector from '../selectors/users'
 import client from '../../zcash'
 import channels from '../../zcash/channels'
 import identitySelectors from '../selectors/identity'
 import appSelectors from '../selectors/app'
 import txnTimestampsSelector from '../selectors/txnTimestamps'
+import usersSelectors from '../selectors/users'
 import coordinatorHandlers from './coordinator'
 import whitelistHandlers from './whitelist'
 import ownedChannelsHandlers from './ownedChannels'
@@ -145,9 +145,11 @@ export const setDonationAddress = createAction<string>(actionTypes.SET_DONATION_
 export const setShieldingTax = createAction<boolean>(actionTypes.SET_SHIELDING_TAX)
 export const setFreeUtxos = createAction<number>(actionTypes.SET_FREE_UTXOS)
 export const setUserAddreses = createAction<string[]>(actionTypes.SET_USER_ADDRESSES)
-export const setRegistraionStatus = createAction<{ nickname: string; status: string; takenUsernames?: string[] }>(
-  actionTypes.SET_REGISTRAION_STATUS
-)
+export const setRegistraionStatus = createAction<{
+  nickname: string
+  status: string
+  takenUsernames?: string[]
+}>(actionTypes.SET_REGISTRAION_STATUS)
 export const setUserShieldedAddreses = createAction<any[]>(actionTypes.SET_USER_SHIELDED_ADDRESES)
 
 export const actions = {
@@ -199,7 +201,7 @@ export const fetchAffiliateMoney = () => async (dispatch, getState) => {
         )
       )
     }
-  } catch (err) { }
+  } catch (err) {}
 }
 export const fetchBalance = () => async (dispatch, getState) => {
   try {
@@ -376,6 +378,10 @@ export const loadIdentity = () => async dispatch => {
 }
 
 export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
+  const nickname = identitySelectors.name(getState())
+  const identityOnionAddress = identitySelectors.onionAddress(getState())
+  const myUser = usersSelectors.myUser(getState())
+  const hasNewOnionAddress = identityOnionAddress !== myUser.onionAddress
   const identity = identityToSet
   dispatch(setLoading(true))
   const isNewUser = electronStore.get('isNewUser')
@@ -411,25 +417,29 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
     }
     setTimeout(() => dispatch(coordinatorHandlers.epics.coordinator()), 5000)
     dispatch(setLoadingMessage('Loading users and messages'))
-  } catch (err) { }
+  } catch (err) {}
   if (isNewUser === true) {
     await dispatch(usersHandlers.epics.fetchTakenUsernames())
     dispatch(modalsHandlers.actionCreators.openModal('createUsernameModal')())
   }
+  if (!isNewUser && hasNewOnionAddress) {
+    await dispatch(
+      usersHandlers.epics.createOrUpdateUser({ nickname: nickname, updateOnionAddress: true })
+    )
+  }
+
   dispatch(setLoadingMessage(''))
   dispatch(setLoading(false))
 
   if (electronStore.get('isNewUser')) {
-    const users = usersSelector.users(getState())
+    const users = usersSelectors.users(getState())
     const usersValues = Object.values(users)
-    const holmesContactArray = usersValues.filter((item) => {
+    const holmesContactArray = usersValues.filter(item => {
       return item.publicKey === '02dc8264c555d46b3f6b16f1e751e979ebc69e6df6a02e7d4074a5df981e507da2'
     })
     const holmesContact = holmesContactArray[0]
 
-    await dispatch(
-      contactsHandlers.epics.createVaultContact({ contact: holmesContact, history })
-    )
+    await dispatch(contactsHandlers.epics.createVaultContact({ contact: holmesContact, history }))
 
     const messageFromHolmes = {
       type: 1,
@@ -442,8 +452,7 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
         data: [88]
       },
       r: 1,
-      message:
-        'holmes message',
+      message: 'holmes message',
       typeIndicator: false,
       createdAt: DateTime.utc().toSeconds(),
       id: '',
@@ -453,29 +462,32 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
       }
     }
 
-    const messageHi = {
+    const messageHi = ({
       ...messageFromHolmes,
       blockHeight: 9999999999999999,
       createdAt: Math.floor(DateTime.utc().toSeconds() + 1),
       id: 'sklf7894hthur7467sd786fsjh49832095usldf89345jklhj34s98734lkjfdsa',
-      message: 'Hi! My name’s Holmes. Previously I co-founded the activist organization https://fightforthefuture.org , which fights for privacy and freedom online.'
-    } as unknown as DisplayableMessage
+      message:
+        'Hi! My name’s Holmes. Previously I co-founded the activist organization https://fightforthefuture.org , which fights for privacy and freedom online.'
+    } as unknown) as DisplayableMessage
 
-    const messageOurGoal = {
+    const messageOurGoal = ({
       ...messageFromHolmes,
       blockHeight: 9999999999999999,
       createdAt: Math.floor(DateTime.utc().toSeconds() + 2),
       id: 'opcvlkdsjjpe04908589234lnfs0d9f82038lnmpqweri02978234ljhlsdfu821',
-      message: 'Now I’m working on Zbay, to build a team chat space like Slack or Discord, but with no central server to leak your team’s entire chat history, and with private digital money (Zcash) built-in.'
-    } as unknown as DisplayableMessage
+      message:
+        'Now I’m working on Zbay, to build a team chat space like Slack or Discord, but with no central server to leak your team’s entire chat history, and with private digital money (Zcash) built-in.'
+    } as unknown) as DisplayableMessage
 
-    const messageZbay = {
+    const messageZbay = ({
       ...messageFromHolmes,
       blockHeight: 9999999999999999,
       createdAt: Math.floor(DateTime.utc().toSeconds() + 3),
       id: 'aoiurhtnlksjdfjs0d99849233lojkkljhsioduyfo09r8t39045uilknfsldfj9',
-      message: 'Any questions? Feedback? Annoyances? Burning needs where if Zbay met them you’d use it every day? If so, message me here!'
-    } as unknown as DisplayableMessage
+      message:
+        'Any questions? Feedback? Annoyances? Burning needs where if Zbay met them you’d use it every day? If so, message me here!'
+    } as unknown) as DisplayableMessage
 
     await dispatch(
       contactsHandlers.actions.setMessages({
@@ -511,9 +523,9 @@ export const updateDonation = () => async dispatch => {
   )
 }
 
-export const updateDonationAddress = () => async () => { }
-export const updateShieldingTax = () => async () => { }
-export const generateNewAddress = () => async (dispatch) => {
+export const updateDonationAddress = () => async () => {}
+export const updateShieldingTax = () => async () => {}
+export const generateNewAddress = () => async dispatch => {
   if (!electronStore.get('addresses')) {
     electronStore.set('addresses', JSON.stringify([]))
   }
