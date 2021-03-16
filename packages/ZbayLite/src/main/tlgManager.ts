@@ -11,7 +11,8 @@ const pathDev = path.join.apply(null, [process.cwd(), 'tor', 'tor'])
 const pathDevLib = path.join.apply(null, [process.cwd(), 'tor'])
 const pathProdLib = path.join.apply(null, [process.resourcesPath, 'tor'])
 const pathDevSettings = path.join.apply(null, [process.cwd(), 'tor', 'torrc'])
-const pathProd = path.join.apply(null, [process.resourcesPath, 'tor', 'torrc'])
+const pathProd = path.join.apply(null, [process.resourcesPath, 'tor', 'tor'])
+const pathProdSettings = path.join.apply(null, [process.resourcesPath, 'tor', 'torrc'])
 
 export const spawnTor = async () => {
   const ports = await getPorts()
@@ -19,7 +20,7 @@ export const spawnTor = async () => {
 
   const tor = new TlgManager.Tor({
     torPath: isDev ? pathDev : pathProd,
-    settingsPath: isDev ? pathDevSettings : path.join.apply(null, [os.homedir(), 'torrc']),
+    settingsPath: isDev ? pathDevSettings : pathProdSettings,
     options: {
       env: {
         LD_LIBRARY_PATH: isDev ? pathDevLib : pathProdLib,
