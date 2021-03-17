@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - merge-master-orbitdb
+      - aa
 
 jobs:
   build_on_windows:
