@@ -63,13 +63,25 @@ export const formSchema = Yup.object().shape({
     .required('Your channel must have a name.')
 })
 
+export const formDisabledSchema = Yup.object().shape({
+  name: Yup.string()
+    .test(
+      'testFormat',
+      'Creating new channels has been temporarily disabled while we transition to a faster approach to group messaging. Apologies for the inconvenience!',
+      function (value) {
+        return false
+      }
+    )
+    .required('Creating new channels has been temporarily disabled')
+})
+
 export const showParsedMessage = (message = '') => {
   return message.includes(' ') || message !== message.toLowerCase()
 }
 
 export const CreateChannelForm = ({ classes, onSubmit, setStep }) => (
   <Formik
-    validationSchema={formSchema}
+    validationSchema={formDisabledSchema}
     onSubmit={(values, formActions) => {
       onSubmit(
         { ...values, name: parseChannelName(values.name) },
@@ -88,7 +100,7 @@ export const CreateChannelForm = ({ classes, onSubmit, setStep }) => (
           className={classes.fullContainer}
         >
           <Typography variant='h3' className={classes.title}>
-            Create a new private channel
+            Create a new private channel (temporarily disabled)
           </Typography>
           <Typography variant='body2'>Channel name</Typography>
           <TextField name='name' placeholder='my-channel' />
@@ -114,7 +126,7 @@ export const CreateChannelForm = ({ classes, onSubmit, setStep }) => (
             className={classes.button}
             variant='contained'
             color='primary'
-            disabled={isSubmitting || !isValid}
+            disabled={true} // Temporarily turn off
             inProgress={isSubmitting}
             type='submit'
             text='Create Channel'
