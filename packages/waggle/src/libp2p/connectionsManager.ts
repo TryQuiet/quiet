@@ -15,11 +15,22 @@ import { ZBAY_DIR_PATH } from '../constants'
 import fs from 'fs'
 import path from 'path'
 
+
+interface IOptions {
+  env: {
+    appDataPath: string
+  }
+}
 interface IConstructor {
   host: string
   port: number
   agentPort: number
   agentHost: string
+  options?: {
+    env: {
+      appDataPath: string
+    }
+  }
 }
 interface IBasicMessage {
   id: string
@@ -45,14 +56,18 @@ export class ConnectionsManager {
   libp2p: null | Libp2p
   localAddress: string | null
   storage: Storage
+  options: IOptions
+  zbayDir: string
 
-  constructor({ host, port, agentHost, agentPort }: IConstructor) {
+  constructor({ host, port, agentHost, agentPort, options }: IConstructor) {
     this.host = host
     this.port = port
     this.agentPort = agentPort
     this.agentHost = agentHost
-    this.storage = new Storage()
     this.localAddress = null
+    this.options = options
+    this.zbayDir = options?.env.appDataPath || ZBAY_DIR_PATH
+    this.storage = new Storage(this.zbayDir)
     process.on('unhandledRejection', error => {
       console.error(error)
       throw error
@@ -69,9 +84,9 @@ export class ConnectionsManager {
 
   private getPeerId = async (): Promise<PeerId> => {
     let peerId
-    const peerIdKeyPath = path.join(ZBAY_DIR_PATH, 'peerIdKey')
+    const peerIdKeyPath = path.join(this.zbayDir, 'peerIdKey')
     if (!fs.existsSync(peerIdKeyPath)) {
-      createPaths([ZBAY_DIR_PATH])
+      createPaths([this.zbayDir])
       peerId = await PeerId.create()
       fs.writeFileSync(peerIdKeyPath, peerId.toJSON().privKey)
     } else {

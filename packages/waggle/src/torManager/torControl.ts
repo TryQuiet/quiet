@@ -10,54 +10,6 @@ interface IOpts {
 }
 class TorControl {
   opts: IOpts = {}
-  private connect: (params: any, cb: any) => { any: any }
-  private connection: any
-  private disconnect: any
-  private isPersistent: any
-  private setPersistent: any
-  private eventEmitter: any = new EventEmitter()
-  private sendCommand: any = (
-    command: string,
-    keepConnection: boolean
-  ): Promise<{ code: number; messages: string[] }> => {
-    return new Promise((resolve, reject) => {
-      var self = this,
-        tryDisconnect = function (callback: any) {
-          if (keepConnection || self.isPersistent() || !self.connection) {
-            return callback()
-          }
-          return self.disconnect(callback)
-        }
-      return this.connect(null, function (err: any, connection: any) {
-        if (err) {
-          return reject(err)
-        }
-        connection.once('data', function (data: any) {
-          return tryDisconnect(function () {
-            let messages = []
-            let arr = []
-            data = data.toString()
-            console.log('dataaa', data)
-            if (/250/.test(data)) {
-              arr = data.split(/\r?\n/)
-              for (let i = 0; i < arr.length; i += 1) {
-                if (arr[i] !== '') {
-                  var message = arr[i]
-                  messages.push(message)
-                }
-              }
-              return resolve({
-                code: 250,
-                messages: messages
-              })
-            }
-            reject(new Error(data))
-          })
-        })
-        connection.write(command + '\r\n')
-      })
-    })
-  }
   constructor(opts: IOpts = {}) {
     var self = this
 
@@ -150,6 +102,54 @@ class TorControl {
       opts.persistent = !!value
       return this
     }
+  }
+  private connect: (params: any, cb: any) => { any: any }
+  private connection: any
+  private disconnect: any
+  private isPersistent: any
+  private setPersistent: any
+  private eventEmitter: any = new EventEmitter()
+  private sendCommand: any = (
+    command: string,
+    keepConnection: boolean
+  ): Promise<{ code: number; messages: string[] }> => {
+    return new Promise((resolve, reject) => {
+      var self = this,
+        tryDisconnect = function (callback: any) {
+          if (keepConnection || self.isPersistent() || !self.connection) {
+            return callback()
+          }
+          return self.disconnect(callback)
+        }
+      return this.connect(null, function (err: any, connection: any) {
+        if (err) {
+          return reject(err)
+        }
+        connection.once('data', function (data: any) {
+          return tryDisconnect(function () {
+            let messages = []
+            let arr = []
+            data = data.toString()
+            console.log('dataaa', data)
+            if (/250/.test(data)) {
+              arr = data.split(/\r?\n/)
+              for (let i = 0; i < arr.length; i += 1) {
+                if (arr[i] !== '') {
+                  var message = arr[i]
+                  messages.push(message)
+                }
+              }
+              return resolve({
+                code: 250,
+                messages: messages
+              })
+            }
+            reject(new Error(data))
+          })
+        })
+        connection.write(command + '\r\n')
+      })
+    })
   }
 
   public async addOnion(request: string): Promise<{ code: number; messages: string[] }> {

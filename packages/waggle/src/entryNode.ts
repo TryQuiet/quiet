@@ -2,6 +2,7 @@ import { Tor } from './torManager'
 import { DataServer } from './socket/DataServer'
 import { ConnectionsManager } from './libp2p/connectionsManager'
 import initListeners from './socket/listeners/'
+import {ZBAY_DIR_PATH} from './constants'
 import * as path from 'path'
 import * as os from 'os'
 import fs from 'fs'
@@ -9,16 +10,20 @@ import PeerId from 'peer-id'
 
 const main = async () => {
   const torPath = `${process.cwd()}/tor/tor`
-  const settingsPath = `${process.cwd()}/tor/torrc`
   const pathDevLib = path.join.apply(null, [process.cwd(), 'tor'])
+  if(!fs.existsSync(ZBAY_DIR_PATH)) {
+    fs.mkdirSync(ZBAY_DIR_PATH)
+  }
   const tor = new Tor({
     torPath,
-    settingsPath,
+    appDataPath: ZBAY_DIR_PATH,
+    controlPort: 9051,
     options: {
       env: {
         LD_LIBRARY_PATH: pathDevLib,
         HOME: os.homedir()
-      }
+      },
+      detached: true
     }
   })
   await tor.init()
@@ -37,7 +42,7 @@ const main = async () => {
   const peerIdRestored = await PeerId.createFromJSON(parsedId)
   const connectonsManager = new ConnectionsManager({
     port: 7788,
-    host: service1,
+    host: `${service1.onionAddress}.onion`,
     agentHost: 'localhost',
     agentPort: 9050
   })
