@@ -1,15 +1,18 @@
 import { EventTypesServer } from '../constants'
-import { EventTypesResponse } from '../constantsReponse'
 import { ConnectionsManager } from '../../libp2p/connectionsManager'
-import { Tor } from '../../torManager'
+import { IChannelInfo } from '../../storage/storage'
+
 
 export const connections = (io, connectionsManager: ConnectionsManager) => {
   io.on(EventTypesServer.CONNECTION, socket => {
-    socket.on(EventTypesServer.SUBSCRIBE_FOR_TOPIC, async (channelAddress: string) => {
-      await connectionsManager.subscribeForTopic(channelAddress, io)
+    socket.on(EventTypesServer.SUBSCRIBE_FOR_TOPIC, async (channelData: IChannelInfo) => {
+      await connectionsManager.subscribeForTopic(channelData, io)
     })
     socket.on(EventTypesServer.SEND_MESSAGE, async ({ channelAddress, message }) => {
       await connectionsManager.sendMessage(channelAddress, io, message)
+    })
+    socket.on(EventTypesServer.GET_PUBLIC_CHANNELS, async () => {
+      await connectionsManager.updateChannels(io)
     })
     // socket.on(EventTypesServer.ADD_TOR_SERVICE, async (port: number) => {
     //   try {

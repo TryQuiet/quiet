@@ -27,13 +27,12 @@ const main = async () => {
     }
   })
   await tor.init()
-  let service1
+  let service1: string
   try {
     service1 = await tor.getServiceAddress(7788)
   } catch (e) {
     service1 = await tor.addOnion({ virtPort: 7788, targetPort: 7788, privKey: process.env.HIDDEN_SERVICE_SECRET })
   }
-  console.log('service1', service1)
 
   const dataServer = new DataServer()
   dataServer.listen()
@@ -42,11 +41,12 @@ const main = async () => {
   const peerIdRestored = await PeerId.createFromJSON(parsedId)
   const connectonsManager = new ConnectionsManager({
     port: 7788,
-    host: `${service1.onionAddress}.onion`,
+    host: `${service1}.onion`,
     agentHost: 'localhost',
     agentPort: 9050
   })
   const node = await connectonsManager.initializeNode(peerIdRestored)
+  await connectonsManager.initializeData()
   console.log(node, 'node')
 
   initListeners(dataServer.io, connectonsManager)

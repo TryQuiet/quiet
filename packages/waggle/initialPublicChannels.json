@@ -1,0 +1,92 @@
+{
+    "zcash": {
+        "address": "zs1xefznfdf00uvgyddrwxmwmag04t6nm5vuna8geuanr055ezyqufkmkrs3kcal2thvfmrgjch7ua",
+        "name": "zcash",
+        "description": "zcash",
+        "owner": "030fdc016427a6e41ca8dccaf0c09cfbf002e5916a13ee16f5fe7240d0dfe50ede",
+        "keys": {
+            "ivk": "zxviews1qvzslllpqqqqpqq5aa0ffuz4jdy964kqj5nfsekdfwdrmk5qed3mgnp3x8ngn3yv57nv2vpkuugju3g4k8ewhmwh7lmfukexgy2j27q04ugafuz9jstv8xk56k0xq59m8235udcxzawyfstcs0rp7kzww0mgynw2ytwvptfhsue9x6zlwp4ssla5sv6jg63h5ja5qkdqc9xr0n6lvhvla46r278nrxvyhlewe2xwnkzqgnatw8y6fzmg86r5pcdj856etwmty6072ts35sgqh"
+        },
+        "timestamp": 1586999713
+    },
+    "cryptocurrency": {
+        "address": "zs1hj2ypw43n904lwfmw7jcyfm0656qjk3k0839rwyn56wq238cdd3k86xjl9d6sj0afngust83lzk",
+        "name": "cryptocurrency",
+        "description": "cryptocurrency discussions",
+        "owner": "030fdc016427a6e41ca8dccaf0c09cfbf002e5916a13ee16f5fe7240d0dfe50ede",
+        "keys": {
+            "ivk": "zxviews1qvzslllpqvqqpqrf5lsryvrwgcwr9l8sa9c2g0p985c8yvraaqt0wmefu6czwwuu989s58knkj6awqhyhfxl2qr5nj6hs7gfalrtehald0vgjws6wqnkfqswwz9hd08ajkyjxnjlw8q702736ncgeh4yt6dymnnhauxmq8k7zu2qs9c6lc74799czjtkn33udj06jeyu4qxzwggctu8uptn8ul2l0laqw6ldy0ugy9eyyravq0phw54rekruhat2h3w7cc9hx366dss2wmlfp"
+        },
+        "timestamp": 1587007637
+    },
+    "bitcoin": {
+        "address": "zs1pmy764s78y40qs4jm2vjd8xxlxxw8x7ec0hf7237p53h47ekgjvex0jfqey4ggy9l0luxlt29ah",
+        "name": "bitcoin",
+        "description": "₿itcoin discussions",
+        "owner": "030fdc016427a6e41ca8dccaf0c09cfbf002e5916a13ee16f5fe7240d0dfe50ede",
+        "keys": {
+            "ivk": "zxviews1qvzslllpqsqqpq8l8mlv3gs85gddu3ng3ccxppkvkxjfd083jpk3mqlzh95ztfs9w6pesehjj2z4fqz2jkf5wv34s688tpc97rtgckqane9erumepqz08ahxy78ntwjjen4tzrh2sqtnf3lgqtqdu8jsume85j42hksrjf0ffh3gy7qckunet68caqvkqgmd6uzhk8wlfa44ltj9rtreecfenn463dpcmrr5xnwvfgyn6pxsch03g0fvlwdyhvdj6rnh84mver8yqyq6y684d"
+        },
+        "timestamp": 1587007817
+    },
+    "ethereum": {
+        "address": "zs15tr7xar3c4pvqr39cy7sl3qepgm4hmvlak7kndx83ff6fm3xmvvzlr0t6n9pcwp3nxndkvwgtwp",
+        "name": "ethereum",
+        "description": "ethereum discussions",
+        "owner": "030fdc016427a6e41ca8dccaf0c09cfbf002e5916a13ee16f5fe7240d0dfe50ede",
+        "keys": {
+            "ivk": "zxviews1qvzslllpq5qqpqxf7j85avklw439hkprl5rlylq6nd72w75v9l2yk2dzzxmmgnlxqdzlee3jpxslxz5k53evmk3l9cl8ulutstddatpc0cdu4cvk3lv393yr7d88ymk69ypcvjkyesxe9wchl3z7wfmeahywv57pknpeave5mezk2cdpg8m4zsmjkuzf7y2k4jhzmldrr075p4wqgsh7jvkcfdmdn5vv2qhuykpzxmf7qakfjzmn23shghmkmfwthtphgn70knsct7csnn27g"
+        },
+        "timestamp": 1587008854
+    },
+    "zbay": {
+        "address": "zs10zkaj29rcev9qd5xeuzck4ly5q64kzf6m6h9nfajwcvm8m2vnjmvtqgr0mzfjywswwkwke68t00",
+        "name": "zbay",
+        "description": "zbay marketplace channel",
+        "owner": "030fdc016427a6e41ca8dccaf0c09cfbf002e5916a13ee16f5fe7240d0dfe50ede",
+        "keys": {
+            "ivk": "zxviews1qvzslllpqcqqpq8z3uyzunfm57xqlpysl5es4nm7eve5y4kkm6p7rhh6xdr27kxsql4dkk0qcad6cm7hxzclq4kzd8ukandz9p8edyw75jvqlxenvwa6ydzlqzch4wt3kdf2vma9gg25qjgc7fxn7pth0qf68ljww6qe379p4xun4za7mgk2qgzkpxlj9wu4ukyta8rfk348v78wn4zrhx2889d3mkj9yhmr0ua95jwv4ln8pyjv0ps5mw78kvadwl6ajxyn6dp2ahgvaau3x"
+        },
+        "timestamp": 1587009699
+    },
+    "public": {
+        "address": "zs1ppz4qxctnv85ycex7u4cyxatz2wnduzy7usvyagma6h45lwrx88pdl3mdu25z763uvfy7a0qpfs",
+        "name": "public",
+        "description": "public chat",
+        "owner": "030fdc016427a6e41ca8dccaf0c09cfbf002e5916a13ee16f5fe7240d0dfe50ede",
+        "keys": {
+            "ivk": "zxviews1qvzslllppqqqpqyxyu6jvvfwzqms9hazekuhd75l7puep3stwmq38yh6jtqhkdp6l02eav5rsh6747wphgm6s758dqzmzjc54eeugme89e0t7wzrq275wxl2kqtzueq7hza967y8fqd7aed8ywrclpv5ksnxgv5suguekfaslp5fv9q4wa4eulw2nrkz6azqyt9h2gclcvg2f8r4kqg0sgg75ca3e0fdz4kgkqw9nyz266fa5j5v8teehkgvhqmnak6xz7stmmtkseg3jgqmq"
+        },
+        "timestamp": 1587010998
+    },
+    "cryptography": {
+        "address": "zs18fx34c4uhdhsq4eyappx026jpks3rpdw62qm853djklxepp9ullrfy7mhyw6s3968fsgc5hapk9",
+        "name": "cryptography",
+        "description": "General cryptographic discussion.",
+        "owner": "032e722a0c480d23de97650aa679aa836573794bfcda6bcba88e4d60a24f7807b7",
+        "keys": {
+            "ivk": "zxviews1qva4m89vqyqqpqqg0f96lg9yek6359hfl05hfufyppcdllu8kxnm8dsnd80k3e8vvkumfuazvgfxcfw9xmxnkwr7rdggs7m4z2f6dz0f3pcgnyayyl6x8snn59920y6przxltw0vf58v2cuv8myyu2pxepr8zhcwsc6pahn8c4ttlq0wxta9tvx3aru5ezp5re3c23zuem3kwwrtendxgxrsv9mw55w7l989kmz5wgeqw46269raw02sdvck0pqqg92kfcfk452yk2qsncjkg"
+        },
+        "timestamp": 1591797648
+    },
+    "freeside": {
+        "address": "zs1snhzdc6u27lkhzn5ufx9hr685m5xlad4k23kp3cxmsruhcrpufamy35swuqax6yq608sjhlrq8t",
+        "name": "freeside",
+        "description": "Why wait?",
+        "owner": "02dc8264c555d46b3f6b16f1e751e979ebc69e6df6a02e7d4074a5df981e507da2",
+        "keys": {
+            "ivk": "zxviews1qvn40c2upsqqpqz6lrrfhvlqat2wnpxtf8sv8ne3rlatzagpngk2hdq75shrgvlzjwqak5qumlz5nezl09v0ms4te5g3dul96qmv3894wuk7d80ge7v9um4x245vcynvws3g7hxn3as60kvlpveu274sa5dtcm4gdg0sfht0ntk7cmcsmewpdne2x0hs0j6ye5cs26ryj2hhqgrnt85szsc0wjxp6g40fuh9tz2sxxx49u49l3sfswh5qw09p2f07zsnksgf2achtac7hejtd"
+        },
+        "timestamp": 1591826597
+    },
+    "store": {
+        "address": "zs1r58tmaur7sgg07tnz0dld2l0ag6ztkx26f70xl2pedhv4m6auw653pyjnhwrphq2jfmmvqghkkd",
+        "name": "store",
+        "description": "Try out our working demo of e-commerce on Zbay! ",
+        "owner": "02dc8264c555d46b3f6b16f1e751e979ebc69e6df6a02e7d4074a5df981e507da2",
+        "keys": {
+            "ivk": "zxviews1qvn40c2up5qqpqz3mp92jv6vr433quuv7ar7sy3qcc02csydl8cll0vpma6kvxfufhx5wz3h0pfge8ynjjy9a4mtlvg8dggqr7kadyx74u0angw6mq3mvtjkeg3zrw9lkuecwvu3y7xq8nz8yzp0c53vjmea4k6rt9x6yntdvcl2mvzdtv85mlh06jlpdh6fp573q28hz3kr7vxv2703yqsz77jmus7w0fsre2x0x5zzwf725axlt2pdcczrsyld8h5754kvqeeftugs3y2hm"
+        },
+        "timestamp": 1593500012
+    }
+}
