@@ -13,6 +13,10 @@ import { Store } from '../reducers'
 
 const contacts = (s: Store) => s.contacts
 
+const contactExists = (address: string) => createSelector(contacts, allContacts => {
+  return Object.keys(allContacts).includes(address)
+})
+
 const contactsList = createSelector(
   contacts,
   identitySelectors.removedChannels,
@@ -249,6 +253,7 @@ export const directMessages = address =>
 
 export default {
   contacts,
+  contactExists,
   directMessagesContact,
   queuedMessages,
   channelModerators,

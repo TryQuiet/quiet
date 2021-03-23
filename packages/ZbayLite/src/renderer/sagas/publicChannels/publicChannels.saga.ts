@@ -4,6 +4,7 @@ import BigNumber from 'bignumber.js'
 import { publicChannelsActions, PublicChannelsActions } from './publicChannels.reducer'
 import { displayDirectMessageNotification, displayMessageNotification } from '../../notifications'
 // import { socketsActions } from '../socket/socket.saga.reducer'
+import { setPublicChannels } from '../../store/handlers/publicChannels'
 import {
   getPublicKeysFromSignature,
   usernameSchema,
@@ -86,12 +87,22 @@ export function* loadMessage(action: PublicChannelsActions['loadMessage']): Gene
   )
 }
 
+export function* getPublicChannels(action: PublicChannelsActions['responseGetPublicChannels']): Generator {
+  console.log('loading public channels')
+  if (action.payload) {
+    yield put(setPublicChannels(action.payload))
+  }
+}
+
 export function* loadAllMessages(
   action: PublicChannelsActions['responseLoadAllMessages']
 ): Generator {
   const users = yield* select(usersSelectors.users)
   const myUser = yield* select(usersSelectors.myUser)
   const importedChannels = electronStore.get('importedChannels')
+  if (!importedChannels) {
+    return
+  }
   const { name } = importedChannels[action.payload.channelAddress]
   if (name) {
     const displayableMessages = action.payload.messages.map(msg => transferToMessage(msg, users))
@@ -126,6 +137,7 @@ export function* loadAllMessages(
 export function* publicChannelsSaga(): Generator {
   yield all([
     takeEvery(`${publicChannelsActions.loadMessage}`, loadMessage),
-    takeEvery(`${publicChannelsActions.responseLoadAllMessages}`, loadAllMessages)
+    takeEvery(`${publicChannelsActions.responseLoadAllMessages}`, loadAllMessages),
+    takeEvery(`${publicChannelsActions.responseGetPublicChannels}`, getPublicChannels)
   ])
 }

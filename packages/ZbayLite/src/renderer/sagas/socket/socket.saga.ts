@@ -34,6 +34,9 @@ export function subscribe(socket) {
     socket.on(socketsActions.RESPONSE_FETCH_ALL_MESSAGES, payload => {
       emit(publicChannelsActions.responseLoadAllMessages(payload))
     })
+    socket.on(socketsActions.RESPONSE_GET_PUBLIC_CHANNELS, payload => {
+      emit(publicChannelsActions.responseGetPublicChannels(payload))
+    })
     return () => {}
   })
 }
@@ -95,11 +98,19 @@ export function* fetchAllMessages(socket): Generator {
   }
 }
 
+export function* getPublicChannels(socket): Generator {
+  while (true) {
+    yield* take(`${publicChannelsActions.getPublicChannels}`)
+    socket.emit(socketsActions.GET_PUBLIC_CHANNELS)
+  }
+}
+
 export function* useIO(socket): Generator {
   yield fork(handleActions, socket)
   yield fork(sendMessage, socket)
   yield fork(fetchAllMessages, socket)
   yield fork(subscribeForTopic, socket)
+  yield fork(getPublicChannels, socket)
 }
 
 export function* startConnection(): Generator {

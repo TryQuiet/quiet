@@ -20,6 +20,19 @@ export interface Libp2pMessage {
   message: BasicMessage
 }
 
+interface IChannelInfo {
+  address: string
+  name: string
+  description: string
+  owner: string
+  timestamp: number
+  keys: Record<'ivk', string>
+}
+
+export interface IChannelInfoResponse {
+  [name: string]: IChannelInfo
+}
+
 export const publicChannelsActions = {
   sendMessage: createAction(Socket.SEND_MESSAGE),
   loadMessage: createAction<Libp2pMessage>(Socket.MESSAGE),
@@ -28,7 +41,9 @@ export const publicChannelsActions = {
     channelAddress: string
     messages: any[]
   }>(Socket.RESPONSE_FETCH_ALL_MESSAGES),
-  subscribeForTopic: createAction<string>(Socket.SUBSCRIBE_FOR_TOPIC),
+  subscribeForTopic: createAction<IChannelInfo>(Socket.SUBSCRIBE_FOR_TOPIC),
+  getPublicChannels: createAction(Socket.GET_PUBLIC_CHANNELS),
+  responseGetPublicChannels: createAction<IChannelInfoResponse>(Socket.RESPONSE_GET_PUBLIC_CHANNELS),
   addMessage: createAction<{
     key: string
     message: { [key: string]: DisplayableMessage }

@@ -112,6 +112,11 @@ export const fetchPublicChannels = (messages: DisplayableMessage[]) => async dis
     console.warn(err)
   }
 }
+
+export const updatePublicChannels = (channels) => async dispatch => {
+  await dispatch(setPublicChannels(channels))
+}
+
 export const publishChannel = ({
   channelAddress,
   channelName,
@@ -167,7 +172,8 @@ export const publishChannel = ({
 
 export const epics = {
   fetchPublicChannels,
-  publishChannel
+  publishChannel,
+  updatePublicChannels
 }
 
 export const reducer = handleActions<PublicChannelsStore, PayloadType<PublicChannelsActions>>(

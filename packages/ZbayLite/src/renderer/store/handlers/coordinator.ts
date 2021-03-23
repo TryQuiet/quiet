@@ -34,6 +34,7 @@ const coordinator = () => async (dispatch, getState) => {
     .set(1, () => identityHandlers.epics.fetchBalance())
     .set(2, () => identityHandlers.epics.fetchFreeUtxos())
     .set(3, () => messagesHandlers.epics.fetchMessages())
+    .set(4, () => messagesHandlers.epics.updatePublicChannels()) // This should probably be called once
 
   const fetchStatus = async () => {
     for (let index = 0; index < statusActions.size; index++) {

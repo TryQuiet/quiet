@@ -412,6 +412,7 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
     await dispatch(fetchBalance())
     await dispatch(fetchFreeUtxos())
     await dispatch(messagesHandlers.epics.fetchMessages())
+    await dispatch(messagesHandlers.epics.updatePublicChannels())
     if (!useTor) {
       ipcRenderer.send('killTor')
     }

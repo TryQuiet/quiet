@@ -16,7 +16,7 @@ import { actions as channelActions } from './channel'
 import contactsHandlers from './contacts'
 import usersHandlers from './users'
 import ratesHandlers from './rates'
-import publicChannelsHandlers from './publicChannels'
+// import publicChannelsHandlers from './publicChannels'
 import appHandlers from './app'
 
 import {
@@ -144,7 +144,6 @@ export const fetchMessages = () => async (dispatch, getState) => {
     const txns = await fetchAllMessages()
     // Uncomment to create snapshot on next run.
     // createSnapshot(txns)
-
     const allMessagesTxnId = appSelectors.allTransactionsId(getState())
     for (const key in txns) {
       if (Object.prototype.hasOwnProperty.call(txns, key)) {
@@ -155,26 +154,29 @@ export const fetchMessages = () => async (dispatch, getState) => {
     await dispatch(usersHandlers.epics.fetchUsers(txns[channels.registeredUsers.mainnet.address]))
     await dispatch(usersHandlers.epics.fetchOnionAddresses(txns[channels.tor.mainnet.address]))
     await dispatch(ratesHandlers.epics.fetchPrices(txns[channels.priceOracle.mainnet.address]))
-    await dispatch(
-      publicChannelsHandlers.epics.fetchPublicChannels(
-        txns[channels.channelOfChannels.mainnet.address]
-      )
-    )
+    // await dispatch(
+    //   publicChannelsHandlers.epics.fetchPublicChannels(
+    //     txns[channels.channelOfChannels.mainnet.address]
+    //   )
+    // )
     const importedChannels = electronStore.get('importedChannels')
     const publicChannels = publicChannelsSelectors.publicChannels(getState())
     const publicChannelAddresses = Object.values(publicChannels).map(el => el.address)
+
+    // Ignore public channels from blockchain - they are taken from db now
     if (importedChannels) {
-      for (const address of Object.keys(importedChannels)) {
-        await dispatch(setChannelMessages(importedChannels[address], txns[address]))
-        if (publicChannelAddresses.includes(address)) {
-          await dispatch(publicChannelsActions.subscribeForTopic(address))
+      const privateChannelsAddresses = Object.keys(importedChannels).filter((addr) => !publicChannelAddresses.includes(addr))
+      if (privateChannelsAddresses) {
+        for (const address of privateChannelsAddresses) {
+          await dispatch(setChannelMessages(importedChannels[address], txns[address]))
         }
       }
     }
-    await dispatch(
-      setChannelMessages(channels.general.mainnet, txns[channels.general.mainnet.address])
-    )
-    await dispatch(setChannelMessages(channels.store.mainnet, txns[channels.store.mainnet.address]))
+
+    // await dispatch(
+    //   setChannelMessages(channels.general.mainnet, txns[channels.general.mainnet.address])
+    // )
+    // await dispatch(setChannelMessages(channels.store.mainnet, txns[channels.store.mainnet.address]))
     await dispatch(setOutgoingTransactions(txns.undefined || []))
     dispatch(setUsersMessages(txns[identityAddress] || []))
     let allTransactionsId = allMessagesTxnId
@@ -195,6 +197,23 @@ export const fetchMessages = () => async (dispatch, getState) => {
     return {}
   }
 }
+
+export const updatePublicChannels = () => async (dispatch, getState) => {
+  /** Get public channels from db, set main channel on sidebar if needed */
+  await dispatch(publicChannelsActions.getPublicChannels())
+  const mainChannel = publicChannelsSelectors.publicChannelsByName('zbay')(getState())
+  if (mainChannel && !electronStore.get('generalChannelInitialized')) {
+    await dispatch(
+      contactsHandlers.actions.addContact({
+        key: mainChannel.address,
+        contactAddress: mainChannel.address,
+        username: mainChannel.name
+      })
+    )
+    electronStore.set('generalChannelInitialized', true)
+  }
+}
+
 export const checkTransferCount = (address, messages) => async (dispatch, getState) => {
   if (messages) {
     if (
@@ -745,7 +764,8 @@ export const handleWebsocketMessage = data => async (dispatch, getState) => {
 }
 export const epics = {
   fetchMessages,
-  handleWebsocketMessage
+  handleWebsocketMessage,
+  updatePublicChannels
 }
 
 export default {

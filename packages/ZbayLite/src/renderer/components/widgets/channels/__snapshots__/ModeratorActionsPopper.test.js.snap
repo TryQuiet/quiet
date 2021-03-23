@@ -79,32 +79,6 @@ exports[`ModeratorActionsPopper renders 1`] = `
       justify="space-between"
     >
       <WithStyles(ForwardRef(Grid))
-        className="pointer-mock"
-        container={true}
-        item={true}
-        onClick={[Function]}
-      >
-        <WithStyles(ForwardRef(Grid))
-          item={true}
-        >
-          <Component
-            className="removeIcon-mock"
-            src="test-file-stub"
-          />
-        </WithStyles(ForwardRef(Grid))>
-        <WithStyles(ForwardRef(Grid))
-          item={true}
-          xs={true}
-        >
-          <WithStyles(ForwardRef(Typography))
-            className="action-mock"
-            variant="body1"
-          >
-            Hide message
-          </WithStyles(ForwardRef(Typography))>
-        </WithStyles(ForwardRef(Grid))>
-      </WithStyles(ForwardRef(Grid))>
-      <WithStyles(ForwardRef(Grid))
         className="banDiv-mock"
         container={true}
         item={true}

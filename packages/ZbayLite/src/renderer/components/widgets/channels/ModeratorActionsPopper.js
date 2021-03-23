@@ -123,7 +123,7 @@ export const ModeratorActionsPopper = ({
         alignItems='center'
         className={classes.actions}
       >
-        <Grid
+        {/* <Grid // Temporarily hidden
           item
           container
           onClick={() => {
@@ -139,7 +139,7 @@ export const ModeratorActionsPopper = ({
               Hide message
             </Typography>
           </Grid>
-        </Grid>
+        </Grid> */}
         <Grid
           item
           container

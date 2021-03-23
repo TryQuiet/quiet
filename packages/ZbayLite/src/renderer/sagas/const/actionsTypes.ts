@@ -25,5 +25,7 @@ export enum Socket {
   RESPONSE_FETCH_ALL_MESSAGES = 'responseFetchAllMessages',
   RESPONSE_ADD_TOR_SERVICE = 'responseAddTorService',
   RESPONSE_REMOVE_TOR_SERVICE = 'removeAddTorService',
-  NEW_MESSAGE = 'newMessage'
+  NEW_MESSAGE = 'newMessage',
+  GET_PUBLIC_CHANNELS = 'getPublicChannels',
+  RESPONSE_GET_PUBLIC_CHANNELS = 'responseGetPublicChannels'
 }

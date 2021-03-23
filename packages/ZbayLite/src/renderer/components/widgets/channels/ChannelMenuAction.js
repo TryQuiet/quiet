@@ -89,11 +89,11 @@ export const ChannelMenuAction = ({
         <span />
       )}
 
-      {isOwner && !alreadyRegistered ? (
+      {/* {isOwner && !alreadyRegistered ? (  // Temporarily disabled
         <MenuActionItem onClick={publishChannel} title='Make public' />
       ) : (
         <span />
-      )}
+      )} */}
       <MenuActionItem
         onClick={mutedFlag ? onUnmute : onMute}
         title={mutedFlag ? 'Unmute' : 'Mute'}
