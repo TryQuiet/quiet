@@ -8,24 +8,26 @@ import electronStore from '../shared/electronStore'
 const isDev = process.env.NODE_ENV === 'development'
 
 const pathDev = path.join.apply(null, [process.cwd(), 'tor', 'tor'])
+const pathProd = path.join.apply(null, [process.resourcesPath, 'tor', 'tor'])
 const pathDevLib = path.join.apply(null, [process.cwd(), 'tor'])
 const pathProdLib = path.join.apply(null, [process.resourcesPath, 'tor'])
-const pathDevSettings = path.join.apply(null, [process.cwd(), 'tor', 'torrc'])
-const pathProd = path.join.apply(null, [process.resourcesPath, 'tor', 'tor'])
-const pathProdSettings = path.join.apply(null, [process.resourcesPath, 'tor', 'torrc'])
 
 export const spawnTor = async () => {
+  const appDataPath = path.join.apply(null, [electronStore.get('appDataPath'), 'Zbay'])
+
   const ports = await getPorts()
   electronStore.set('ports', ports)
 
   const tor = new TlgManager.Tor({
     torPath: isDev ? pathDev : pathProd,
-    settingsPath: isDev ? pathDevSettings : pathProdSettings,
+    appDataPath: appDataPath,
+    controlPort: ports.controlPort,
     options: {
       env: {
         LD_LIBRARY_PATH: isDev ? pathDevLib : pathProdLib,
         HOME: os.homedir()
-      }
+      },
+      detached: true
     }
   })
 
@@ -45,7 +47,7 @@ export const spawnTor = async () => {
       )
       directMessagesHiddenService = await tor.addNewService(80, ports.directMessagesHiddenService)
     } catch (e) {
-      console.log(`can't add new onion services ${e}`)
+      console.log(`tlgManager ERROR: can't add new onion service ${e}`)
     }
 
     const services = {
@@ -98,7 +100,9 @@ export const getPorts = async (): Promise<{
   httpTunnelPort: number
   directMessagesHiddenService: number
   libp2pHiddenService: number
+  controlPort: number
 }> => {
+  const [controlPort] = await fp(9151)
   const [socksPort] = await fp(9052)
   const [httpTunnelPort] = await fp(9082)
   const [directMessagesHiddenService] = await fp(3435)
@@ -107,7 +111,8 @@ export const getPorts = async (): Promise<{
     socksPort,
     httpTunnelPort,
     directMessagesHiddenService,
-    libp2pHiddenService
+    libp2pHiddenService,
+    controlPort
   }
 }
 
@@ -119,13 +124,20 @@ export const getOnionAddress = (): string => {
 
 export const runLibp2p = async (webContents): Promise<any> => {
   const ports = electronStore.get('ports')
+  const appDataPath = electronStore.get('appDataPath')
+  console.log(`this is appdata path srah ${appDataPath}`)
   const { libp2pHiddenService } = electronStore.get('hiddenServices')
 
   const connectonsManager = new TlgManager.ConnectionsManager({
     port: ports.libp2pHiddenService,
     host: `${libp2pHiddenService.onionAddress}.onion`,
     agentHost: 'localhost',
-    agentPort: ports.socksPort
+    agentPort: ports.socksPort,
+    options: {
+      env: {
+        appDataPath: `${appDataPath}/Zbay`
+      }
+    }
   })
   await connectonsManager.initializeNode()
   const dataServer = new TlgManager.DataServer()
