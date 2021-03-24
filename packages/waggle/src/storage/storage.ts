@@ -31,7 +31,7 @@ export interface IChannelInfo {
   owner: string
   timestamp: number
   address: string
-  keys: Record<'ivk', string>
+  keys: { ivk?: string; sk?: string }
 }
 
 interface ChannelInfoResponse {
@@ -74,6 +74,7 @@ export class Storage {
   }
 
   public async loadInitChannels() {
+    // Temp, only for entrynode
     const initChannels: ChannelInfoResponse = JSON.parse(fs.readFileSync('initialPublicChannels.json').toString())
     for (const channel of Object.values(initChannels)) {
       await this.createChannel(channel.address, channel)
@@ -105,13 +106,15 @@ export class Storage {
     let channels: ChannelInfoResponse = {}
     console.log(Object.keys(this.channels.all))
     for (const channel of Object.values(this.channels.all)) {
-      channels[channel.name] = {
-        address: channel.address,
-        description: channel.description,
-        owner: channel.owner,
-        timestamp: channel.timestamp,
-        keys: channel.keys,
-        name: channel.name
+      if (channel.keys) { // TODO: create proper validators
+        channels[channel.name] = {
+          address: channel.address,
+          description: channel.description,
+          owner: channel.owner,
+          timestamp: channel.timestamp,
+          keys: channel.keys,
+          name: channel.name
+        }
       }
     }
     return channels
@@ -122,43 +125,41 @@ export class Storage {
     io.emit(EventTypesResponse.RESPONSE_GET_PUBLIC_CHANNELS, this.getChannelsResponse())
   }
 
-  public async subscribeForChannel(channelAddress: string, io: any, channelInfo?: IChannelInfo): Promise<void> {
-    if (this.repos.has(channelAddress)) return
+  private getAllChannelMessages(db: EventStore<IMessage>): IMessage[] { // TODO: move to e.g custom Store
+    return db
+      .iterator({ limit: -1 })
+      .collect()
+      .map(e => e.payload.value)
+  }
 
-    console.log('Subscribing to channel', channelAddress)
-    const db = await this.createChannel(channelAddress, channelInfo)
-    if (!db) {
-      console.log(`Can't subscribe to channel ${channelAddress}`)
-      return
+  public async subscribeForChannel(channelAddress: string, io: any, channelInfo?: IChannelInfo): Promise<void> {
+    let db: EventStore<IMessage>
+    if (this.repos.has(channelAddress)) {
+      db = this.repos.get(channelAddress).db
+    } else {
+      db = await this.createChannel(channelAddress, channelInfo)
+      if (!db) {
+        console.log(`Can't subscribe to channel ${channelAddress}`)
+        return
+      }
     }
 
     db.events.on('write', (_address, entry) => {
       socketMessage(io, { message: entry.payload.value, channelAddress })
     })
     db.events.on('replicated', () => {
-      const all = db
-        .iterator({ limit: -1 })
-        .collect()
-        .map(e => e.payload.value)
-      loadAllMessages(io, all, channelAddress)
+      loadAllMessages(io, this.getAllChannelMessages(db), channelAddress)
     })
-    const all = db
-      .iterator({ limit: -1 })
-      .collect()
-      .map(e => e.payload.value)
-    loadAllMessages(io, all, channelAddress)
-    console.log('Subscribtion to channel ready', channelAddress)
+    loadAllMessages(io, this.getAllChannelMessages(db), channelAddress)
+    console.log('Subscription to channel ready', channelAddress)
   }
 
   public async sendMessage(channelAddress: string, io: any, message: IMessage) {
     await this.subscribeForChannel(channelAddress, io)
     const db = this.repos.get(channelAddress).db
     db.events.on('write', (address, entry, heads) => {
-      console.log('WRITE MESSAGE TO DB', entry)
-      const all = db
-        .iterator({ limit: -1 })
-        .collect()
-        .map(e => e.payload.value)
+      console.log('Writing message')
+      const all = this.getAllChannelMessages(db)
       console.log(`Count messages in ${entry.id}: ${all.length}`)  
     })
     await db.add(message)
@@ -169,17 +170,16 @@ export class Storage {
       console.log(`No channel address, can't create channel`)
       return
     }
+
+    const db: EventStore<IMessage> = await this.orbitdb.log<IMessage>(`zbay.channels.${channelAddress}`, {
+      accessController: {
+        write: ['*']
+      }
+    })
+    await db.load()
+
     const channel = this.channels.get(channelAddress)
-    let db: EventStore<IMessage>
-    if (channel) {
-      db = await this.orbitdb.log<IMessage>(channel.orbitAddress)
-      await db.load()
-    } else {
-      db = await this.orbitdb.log<IMessage>(`zbay.channels.${channelAddress}`, {
-        accessController: {
-          write: ['*']
-        }
-      })
+    if (!channel) {
       await this.channels.put(channelAddress, {
         orbitAddress: `/orbitdb/${db.address.root}/${db.address.path}`,
         address: channelAddress,
@@ -187,9 +187,6 @@ export class Storage {
       })
       console.log(`Created channel ${channelAddress}`)
     }
-    db.events.on('replicated', (address) => {
-      console.log(`replicated message ${address}`)
-    })
     this.repos.set(channelAddress, { db })
     return db
   }

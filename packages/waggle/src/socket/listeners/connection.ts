@@ -5,6 +5,7 @@ import { IChannelInfo } from '../../storage/storage'
 
 export const connections = (io, connectionsManager: ConnectionsManager) => {
   io.on(EventTypesServer.CONNECTION, socket => {
+    console.log('websocket connected')
     socket.on(EventTypesServer.SUBSCRIBE_FOR_TOPIC, async (channelData: IChannelInfo) => {
       await connectionsManager.subscribeForTopic(channelData, io)
     })
