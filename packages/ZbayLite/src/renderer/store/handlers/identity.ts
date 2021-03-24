@@ -381,7 +381,7 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
   const nickname = identitySelectors.name(getState())
   const identityOnionAddress = identitySelectors.onionAddress(getState())
   const myUser = usersSelectors.myUser(getState())
-  const hasNewOnionAddress = identityOnionAddress !== myUser.onionAddress
+  const hasNewOnionAddress = (identityOnionAddress !== myUser.onionAddress) && myUser.onionAddress
   const identity = identityToSet
   dispatch(setLoading(true))
   const isNewUser = electronStore.get('isNewUser')
