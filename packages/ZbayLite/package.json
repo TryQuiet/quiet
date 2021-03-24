@@ -90,7 +90,9 @@
     "mainnet": "docker-compose up znode-mainnet",
     "testnet": "docker-compose up znode-testnet",
     "neon": "electron-build-env neon build --release && npm run copyBinary",
+    "neonWin": "electron-build-env neon build --release && npm run copyBinaryWin",
     "copyBinary": "cp native/index.node worker",
+    "copyBinaryWin": "move native\\index.node worker",
     "neon-rebuild": "rm native/index.node && rm -rf native/target && rm native/Cargo.lock && npm run neon"
   },
   "author": {
@@ -281,7 +283,7 @@
     "typed-redux-saga": "^1.3.1",
     "typeface-roboto": "0.0.54",
     "typescript": "^4.0.5",
-    "waggle": "^1.0.15",
+    "waggle": "^1.0.16",
     "websocket": "^1.0.32",
     "worker-loader": "^3.0.1",
     "ws": "^7.3.1",
