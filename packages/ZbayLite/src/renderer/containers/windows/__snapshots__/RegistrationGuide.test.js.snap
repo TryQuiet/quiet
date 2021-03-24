@@ -1,9 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`SyncLoader will receive right actions 1`] = `
-Object {
-  "setGuideStatus": [Function],
-  "setNextSlide": [Function],
-  "setPrevSlide": [Function],
-}
-`;
