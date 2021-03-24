@@ -36,7 +36,9 @@ export class Tor {
         throw new Error('Already initialized')
       }
 
-     await this.killHangingTorProcess()
+      if (process.platform !== 'win32') {
+        await this.killHangingTorProcess()
+      }
 
       const TorDataDirectory = path.join.apply(null, [this.appDataPath, 'TorDataDirectory'])
       const torrc = `ControlPort ${this.controlPort}\nDataDirectory ${TorDataDirectory}`
