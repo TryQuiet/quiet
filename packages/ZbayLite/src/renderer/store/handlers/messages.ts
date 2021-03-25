@@ -198,9 +198,7 @@ export const fetchMessages = () => async (dispatch, getState) => {
   }
 }
 
-export const updatePublicChannels = () => async (dispatch, getState) => {
-  /** Get public channels from db, set main channel on sidebar if needed */
-  await dispatch(publicChannelsActions.getPublicChannels())
+export const setMainChannel = () => async (dispatch, getState) => {
   const mainChannel = publicChannelsSelectors.publicChannelsByName('zbay')(getState())
   if (mainChannel && !electronStore.get('generalChannelInitialized')) {
     await dispatch(
@@ -210,8 +208,27 @@ export const updatePublicChannels = () => async (dispatch, getState) => {
         username: mainChannel.name
       })
     )
+    const importedChannels = electronStore.get('importedChannels') || {}
+    electronStore.set('importedChannels', {
+      ...importedChannels,
+      [mainChannel.address]: {
+        address: mainChannel.address,
+        name: mainChannel.name,
+        description: mainChannel.description,
+        owner: mainChannel.owner,
+        keys: mainChannel.keys
+      }
+    })
+    dispatch(publicChannelsActions.subscribeForTopic(mainChannel))
+    console.log('set general channel')
     electronStore.set('generalChannelInitialized', true)
   }
+}
+
+export const updatePublicChannels = () => async (dispatch) => {
+  /** Get public channels from db, set main channel on sidebar if needed */
+  await dispatch(publicChannelsActions.getPublicChannels())
+  await dispatch(setMainChannel())
 }
 
 export const checkTransferCount = (address, messages) => async (dispatch, getState) => {

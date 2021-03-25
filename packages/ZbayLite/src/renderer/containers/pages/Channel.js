@@ -8,6 +8,7 @@ import { CHANNEL_TYPE } from '../../components/pages/ChannelTypes'
 
 import channelHandlers from '../../store/handlers/channel'
 import channelsSelectors from '../../store/selectors/channels'
+import electronStore from '../../../shared/electronStore'
 
 export const mapStateToProps = state => ({
   generalChannelId: channelsSelectors.generalChannelId(state)
@@ -25,7 +26,7 @@ const Channel = ({ loadChannel, generalChannelId, match }) => {
   useEffect(
     () => {
       if (match.params.id === 'general') {
-        if (generalChannelId) {
+        if (generalChannelId && electronStore.get('generalChannelInitialized')) {
           loadChannel(generalChannelId)
         }
       } else {

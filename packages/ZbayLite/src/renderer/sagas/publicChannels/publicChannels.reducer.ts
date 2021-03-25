@@ -26,7 +26,7 @@ interface IChannelInfo {
   description: string
   owner: string
   timestamp: number
-  keys: Record<'ivk', string>
+  keys: { ivk?: string; sk?: string }
 }
 
 export interface IChannelInfoResponse {
