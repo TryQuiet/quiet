@@ -258,6 +258,7 @@ app.on('ready', async () => {
       tor = await spawnTor(mainWindow.webContents)
       createServer(mainWindow)
       mainWindow.webContents.send('onionAddress', getOnionAddress())
+      mainWindow.webContents.send('connectWsContacts')
       await runLibp2p(mainWindow.webContents)
     } catch (error) {
       console.log(error)

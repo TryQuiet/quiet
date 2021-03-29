@@ -30,5 +30,6 @@ exports.default = async function (context) {
   if (appName) {
     childProcess.execSync(`mv ./Zbay-x86_64.AppImage ${context.outDir}/${appName}`)
   } else throw new Error('no file name')
-  return console.log('env added')
+  console.log('env added')
+  return `${context.outDir}/${appName}`
 }

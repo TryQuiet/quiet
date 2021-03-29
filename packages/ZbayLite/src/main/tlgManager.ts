@@ -125,7 +125,6 @@ export const getOnionAddress = (): string => {
 export const runLibp2p = async (webContents): Promise<any> => {
   const ports = electronStore.get('ports')
   const appDataPath = electronStore.get('appDataPath')
-  console.log(`this is appdata path srah ${appDataPath}`)
   const { libp2pHiddenService } = electronStore.get('hiddenServices')
 
   const connectonsManager = new TlgManager.ConnectionsManager({
@@ -139,7 +138,9 @@ export const runLibp2p = async (webContents): Promise<any> => {
       }
     }
   })
+
   await connectonsManager.initializeNode()
+
   const dataServer = new TlgManager.DataServer()
   dataServer.listen()
   TlgManager.initListeners(dataServer.io, connectonsManager)
