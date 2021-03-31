@@ -300,7 +300,9 @@ app.on('ready', async () => {
   ipcMain.on('rpcQuery', async (event, arg) => {
     const request = JSON.parse(arg)
     const response = await client.postMessage(request.id, request.method, request.args)
-    mainWindow.webContents.send('rpcQuery', JSON.stringify({ id: request.id, data: response }))
+    if (mainWindow) {
+      mainWindow.webContents.send('rpcQuery', JSON.stringify({ id: request.id, data: response }))
+    }
   })
 
   ipcMain.on('sendWebsocket', async (event, arg) => {
