@@ -161,4 +161,6 @@ window.jdenticon_config = {
 
 render(<Root />, document.getElementById('root'))
 
-module.hot.accept()
+if (module.hot) {
+  module.hot.accept()
+}

@@ -469,7 +469,7 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
       createdAt: Math.floor(DateTime.utc().toSeconds() + 1),
       id: 'sklf7894hthur7467sd786fsjh49832095usldf89345jklhj34s98734lkjfdsa',
       message:
-        'Hi! My name’s Holmes. Previously I co-founded the activist organization https://fightforthefuture.org , which fights for privacy and freedom online.'
+        'Hi! My name’s Holmes. Previously I co-founded the activist organization https://fightforthefuture.org, which fights for privacy and freedom online.'
     } as unknown) as DisplayableMessage
 
     const messageOurGoal = ({
