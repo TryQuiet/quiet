@@ -149,6 +149,10 @@ export class ConnectionsManager {
     await this.storage.updateChannels(io)
   }
 
+  public loadAllMessages = (channelAddress: string, io: any) => {
+    this.storage.loadAllChannelMessages(channelAddress, io)
+  }
+
   public connectToNetwork = async (target: string) => {
     console.log(`Attempting to dial ${target}`)
     await this.libp2p.dial(target, {

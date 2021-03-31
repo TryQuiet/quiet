@@ -132,6 +132,15 @@ export class Storage {
       .map(e => e.payload.value)
   }
 
+  public loadAllChannelMessages(channelAddress: string, io: any) {
+    // Load all channel messages for subscribed channel
+    if (!this.repos.has(channelAddress)) {
+      return
+    }
+    const db: EventStore<IMessage> = this.repos.get(channelAddress).db
+    loadAllMessages(io, this.getAllChannelMessages(db), channelAddress)
+  }
+
   public async subscribeForChannel(channelAddress: string, io: any, channelInfo?: IChannelInfo): Promise<void> {
     let db: EventStore<IMessage>
     if (this.repos.has(channelAddress)) {

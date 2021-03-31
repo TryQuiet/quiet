@@ -15,6 +15,9 @@ export const connections = (io, connectionsManager: ConnectionsManager) => {
     socket.on(EventTypesServer.GET_PUBLIC_CHANNELS, async () => {
       await connectionsManager.updateChannels(io)
     })
+    socket.on(EventTypesServer.FETCH_ALL_MESSAGES, async (channelAddress: string) => {
+      await connectionsManager.loadAllMessages(channelAddress, io)
+    })
     // socket.on(EventTypesServer.ADD_TOR_SERVICE, async (port: number) => {
     //   try {
     //     const service = await tor.addService({ port })
