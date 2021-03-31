@@ -153,9 +153,29 @@ const createWindow = () => {
 
 let isUpdatedStatusCheckingStarted = false
 
+const isNetworkError = errorObject => {
+  return (
+    errorObject.message === 'net::ERR_INTERNET_DISCONNECTED' ||
+    errorObject.message === 'net::ERR_PROXY_CONNECTION_FAILED' ||
+    errorObject.message === 'net::ERR_CONNECTION_RESET' ||
+    errorObject.message === 'net::ERR_CONNECTION_CLOSE' ||
+    errorObject.message === 'net::ERR_NAME_NOT_RESOLVED' ||
+    errorObject.message === 'net::ERR_CONNECTION_TIMED_OUT'
+  )
+}
+
 export const checkForUpdate = win => {
   if (!isUpdatedStatusCheckingStarted) {
-    autoUpdater.checkForUpdates()
+    try {
+      autoUpdater.checkForUpdates()
+    } catch (error) {
+      if (isNetworkError(error)) {
+        console.log('Network Error')
+      } else {
+        console.log('Unknown Error')
+        console.log(error == null ? 'unknown' : (error.stack || error).toString())
+      }
+    }
     autoUpdater.on('checking-for-update', () => {
       console.log('checking for updates...')
     })
@@ -176,7 +196,16 @@ export const checkForUpdate = win => {
     })
     isUpdatedStatusCheckingStarted = true
   }
-  autoUpdater.checkForUpdates()
+  try {
+    autoUpdater.checkForUpdates()
+  } catch (error) {
+    if (isNetworkError(error)) {
+      console.log('Network Error')
+    } else {
+      console.log('Unknown Error')
+      console.log(error == null ? 'unknown' : (error.stack || error).toString())
+    }
+  }
 }
 
 const killZcashdProcess = async () => {
