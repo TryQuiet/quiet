@@ -75,7 +75,7 @@ const checkMentions = () => async (dispatch, getState) => {
     }
   }
   if (foundMentions.length > 0) {
-    dispatch(addMentionMiss({ mentions: foundMentions.concat(currentMentions), channelId }))
+    dispatch(addMentionMiss({ mentions: foundMentions, channelId }))
   }
 }
 const removeMention = nickname => async (dispatch, getState) => {
@@ -147,9 +147,10 @@ export const reducer = handleActions<Mentions, PayloadType<MentionsActions>>(
       }),
     [addMentionMiss.toString()]: (state, { payload: { mentions, channelId } }) =>
       produce(state, draft => {
-        draft[channelId] = {
-          ...draft[channelId],
-          ...mentions
+        if (!draft[channelId]) {
+          draft[channelId] = [...mentions]
+        } else {
+          draft[channelId] = [...draft[channelId], ...mentions]
         }
       })
   },
