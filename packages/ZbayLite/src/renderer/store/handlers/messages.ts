@@ -217,17 +217,6 @@ export const setMainChannel = () => async (dispatch, getState) => {
         username: mainChannel.name
       })
     )
-    const importedChannels = electronStore.get('importedChannels') || {}
-    electronStore.set('importedChannels', {
-      ...importedChannels,
-      [mainChannel.address]: {
-        address: mainChannel.address,
-        name: mainChannel.name,
-        description: mainChannel.description,
-        owner: mainChannel.owner,
-        keys: mainChannel.keys
-      }
-    })
     dispatch(publicChannelsActions.subscribeForTopic(mainChannel))
     console.log('set general channel')
     electronStore.set('generalChannelInitialized', true)

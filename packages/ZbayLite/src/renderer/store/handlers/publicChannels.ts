@@ -51,8 +51,13 @@ export const setPublicChannels = createAction<{ [name: string]: PublicChannel }>
   actionTypes.SET_PUBLIC_CHANNELS
 )
 
+export const clearPublicChannels = createAction(
+  actionTypes.CLEAR_PUBLIC_CHANNELS
+)
+
 export const actions = {
-  setPublicChannels
+  setPublicChannels,
+  clearPublicChannels
 }
 
 export type PublicChannelsActions = ActionsType<typeof actions>
@@ -187,6 +192,12 @@ export const reducer = handleActions<PublicChannelsStore, PayloadType<PublicChan
           ...draft,
           ...publicChannels
         }
+      }),
+    [clearPublicChannels.toString()]: (
+      state
+    ) =>
+      produce(state, () => {
+        return {}
       })
   },
   initialState

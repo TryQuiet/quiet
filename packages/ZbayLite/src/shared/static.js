@@ -111,6 +111,7 @@ export const actionTypes = mirrorKey({
   RESOLVE_PENDING_OPERATION: undefined,
   REMOVE_PENDING_OPERATION: undefined,
   SET_PUBLIC_CHANNELS: undefined,
+  CLEAR_PUBLIC_CHANNELS: undefined,
   SET_PRICE_USD: undefined,
   ADD_PRICE_MESSAGE: undefined,
   LOAD_REMOVED_CHANNELS_TIMESTAMP: undefined,

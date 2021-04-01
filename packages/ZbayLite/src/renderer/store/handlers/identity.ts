@@ -35,7 +35,7 @@ import {
 import electronStore, { migrationStore } from '../../../shared/electronStore'
 import staticChannelsSyncHeight from '../../static/staticChannelsSyncHeight.json'
 
-import { PublicChannel } from './publicChannels'
+import { clearPublicChannels, PublicChannel } from './publicChannels'
 
 import { ActionsType, PayloadType } from './types'
 import { DisplayableMessage } from '../../zbay/messages.types'
@@ -377,6 +377,19 @@ export const loadIdentity = () => async dispatch => {
   }
 }
 
+export const prepareUpgradedVersion = () => async (dispatch, getState) => {
+  // Temporary fix for apps upgraded from versions < 3
+  if (!electronStore.get('isNewUser') && !electronStore.get('appUpgraded')) {
+    const appVersion = appSelectors.version(getState())
+    const appVersionNumber = Number(appVersion.split('-')[0].split('.')[0])
+    if (appVersionNumber >= 3) {
+      dispatch(clearPublicChannels())
+      console.log('Cleared public channels')
+      electronStore.set('appUpgraded', true)
+    }
+  }
+}
+
 export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
   const nickname = identitySelectors.name(getState())
   const identityOnionAddress = identitySelectors.onionAddress(getState())
@@ -412,6 +425,7 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
     await dispatch(fetchBalance())
     await dispatch(fetchFreeUtxos())
     await dispatch(messagesHandlers.epics.fetchMessages())
+    await dispatch(prepareUpgradedVersion())
     await dispatch(messagesHandlers.epics.updatePublicChannels())
     if (!useTor) {
       ipcRenderer.send('killTor')
