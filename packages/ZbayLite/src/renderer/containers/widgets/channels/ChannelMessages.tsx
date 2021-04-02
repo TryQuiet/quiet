@@ -19,6 +19,8 @@ import appHandlers from '../../../store/handlers/app'
 import electronStore from '../../../../shared/electronStore'
 
 export const ChannelMessages = ({ tab, contentRect }) => {
+  const isDev = process.env.NODE_ENV === 'development'
+
   const [scrollPosition, setScrollPosition] = React.useState(-1)
   const [isRescanned, setIsRescanned] = React.useState(true)
 
@@ -107,6 +109,7 @@ export const ChannelMessages = ({ tab, contentRect }) => {
       onLinkedChannel={onLinkedChannel}
       publicChannels={publicChannels}
       isInitialLoadFinished={loader.loading ? false : isInitialLoadFinished}
+      isDev={isDev}
     />
   )
 }

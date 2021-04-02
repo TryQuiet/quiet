@@ -73,6 +73,7 @@ interface IChannelMessagesProps {
   channelId: string
   name?: string
   isConnected?: boolean
+  isDev: boolean
 }
 
 const renderView = props => {
@@ -100,7 +101,8 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
   isRescanned,
   isDM,
   onRescan,
-  isNewUser
+  isNewUser,
+  isDev
 }) => {
   const classes = useStyles({})
   const msgRef = React.useRef<HTMLUListElement>()
@@ -212,6 +214,8 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
                         }}
                       />
                     )
+                  } else if (!isDev && msg.nickname.startsWith('dev-')) {
+                    return
                   } else {
                     return <UserRegisteredMessage message={msg} />
                   }

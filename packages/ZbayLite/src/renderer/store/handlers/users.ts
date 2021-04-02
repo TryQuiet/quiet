@@ -149,10 +149,17 @@ export const createOrUpdateUser = (payload: {
   retry?: number
   updateOnionAddress?: boolean
 }) => async (dispatch, getState) => {
-  const { nickname, firstName = '', lastName = '' } = payload
+  let { nickname } = payload
+  const { firstName = '', lastName = '' } = payload
   const publicKey = identitySelector.signerPubKey(getState())
   const address = identitySelector.address(getState())
   const privKey = identitySelector.signerPrivKey(getState())
+
+  const isDev = process.env.NODE_ENV === 'development'
+
+  if (isDev) {
+    nickname = `dev-${nickname}`.substring(0, 20)
+  }
   const messageData = {
     firstName,
     lastName,
