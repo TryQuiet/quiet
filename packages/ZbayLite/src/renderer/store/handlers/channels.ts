@@ -15,6 +15,7 @@ import notificationsHandlers from './notifications'
 import channelHandlers from './channel'
 import identitySelectors from '../selectors/identity'
 import channelsSelectors from '../selectors/channels'
+import publicChannelsSelectors from '../selectors/publicChannels'
 import channelSelectors from '../selectors/channel'
 import modalsHandlers from './modals'
 import { messages } from '../../zbay'
@@ -24,6 +25,8 @@ import history from '../../../shared/history'
 import electronStore from '../../../shared/electronStore'
 import contactsHandlers from './contacts'
 import ownedChannelsHandlers from './ownedChannels'
+import contactsSelectors from '../selectors/contacts'
+import { publicChannelsActions } from '../../sagas/publicChannels/publicChannels.reducer'
 
 import { ActionsType, PayloadType } from './types'
 
@@ -183,6 +186,18 @@ const createChannel = (values, formActions, setStep) => async (dispatch, getStat
   }
 }
 
+const subscribeForPublicChannels = () => async (dispatch, getState) => {
+  /** Subscribe for public channels from contacts (joined public channels) */
+  const publicChannelsContacts = contactsSelectors.publicChannelsContacts(getState())
+  for (const publicChannel of publicChannelsContacts) {
+    const channel = publicChannelsSelectors.publicChannelsByName(publicChannel.username)(getState())
+    console.log('subscribing for ', channel.name)
+    if (channel) {
+      dispatch(publicChannelsActions.subscribeForTopic(channel))
+    }
+  }
+}
+
 const withdrawMoneyFromChannels = () => async (dispatch, getState) => {
   const ownedChannels = channelsSelectors.ownedChannels(getState())
   let earnedAmount = toBigNumber(0)
@@ -253,7 +268,8 @@ export const epics = {
   getMoneyFromChannel,
   withdrawMoneyFromChannels,
   updateShowInfoMsg,
-  updateSettings
+  updateSettings,
+  subscribeForPublicChannels
 }
 
 export const reducer = handleActions<ChannelsStore, PayloadType<ChannelsActions>>(

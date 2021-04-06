@@ -174,12 +174,10 @@ export const fetchMessages = () => async (dispatch, getState) => {
     }
 
     // Load messages for subscribed public channels
-    const contacts = contactsSelectors.contacts(getState())
-    if (contacts) {
-      const publicChannelContacts = Object.keys(contacts).filter((addr) => publicChannelAddresses.includes(addr))
-      for (const contact of publicChannelContacts) {
-        await dispatch(publicChannelsActions.loadAllMessages(contact))
-      }
+    const publicChannelsContacts = contactsSelectors.publicChannelsContacts(getState())
+    console.log(`Loading all messages for ${publicChannelsContacts.length} channels`)
+    for (const contact of publicChannelsContacts) {
+      await dispatch(publicChannelsActions.loadAllMessages(contact.address))
     }
 
     // await dispatch(

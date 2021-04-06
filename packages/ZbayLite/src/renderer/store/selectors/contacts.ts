@@ -1,6 +1,7 @@
 import { createSelector } from 'reselect'
 import identitySelectors from './identity'
 import usersSelectors from './users'
+import publicChannelsSelectors from './publicChannels'
 import directMssagesQueueSelectors from './directMessagesQueue'
 import { mergeIntoOne, displayableMessageLimit } from './channel'
 import { MessageType } from '../../../shared/static.types'
@@ -15,6 +16,11 @@ const contacts = (s: Store) => s.contacts
 
 const contactExists = (address: string) => createSelector(contacts, allContacts => {
   return Object.keys(allContacts).includes(address)
+})
+
+const publicChannelsContacts = createSelector(contacts, publicChannelsSelectors.publicChannels, (allContacts, publicChannels) => {
+  const pChannels = Object.values(publicChannels).map(pc => pc.address)
+  return Object.values(allContacts).filter(contact => pChannels.includes(contact.address))
 })
 
 const contactsList = createSelector(
@@ -254,6 +260,7 @@ export const directMessages = address =>
 export default {
   contacts,
   contactExists,
+  publicChannelsContacts,
   directMessagesContact,
   queuedMessages,
   channelModerators,
