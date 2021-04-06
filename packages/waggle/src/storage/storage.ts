@@ -23,6 +23,7 @@ export interface IMessage {
 
 interface IRepo {
   db: EventStore<IMessage>
+  eventsAttached: boolean
 }
 
 export interface IChannelInfo {
@@ -104,7 +105,6 @@ export class Storage {
 
   private getChannelsResponse(): ChannelInfoResponse {
     let channels: ChannelInfoResponse = {}
-    console.log(Object.keys(this.channels.all))
     for (const channel of Object.values(this.channels.all)) {
       if (channel.keys) { // TODO: create proper validators
         channels[channel.name] = {
@@ -142,9 +142,12 @@ export class Storage {
   }
 
   public async subscribeForChannel(channelAddress: string, io: any, channelInfo?: IChannelInfo): Promise<void> {
+    console.log('Subscribing to channel ', channelAddress)
     let db: EventStore<IMessage>
-    if (this.repos.has(channelAddress)) {
-      db = this.repos.get(channelAddress).db
+    const repo = this.repos.get(channelAddress)
+
+    if (repo) {
+      db = repo.db
     } else {
       db = await this.createChannel(channelAddress, channelInfo)
       if (!db) {
@@ -152,13 +155,19 @@ export class Storage {
         return
       }
     }
-
-    db.events.on('write', (_address, entry) => {
-      socketMessage(io, { message: entry.payload.value, channelAddress })
-    })
-    db.events.on('replicated', () => {
-      loadAllMessages(io, this.getAllChannelMessages(db), channelAddress)
-    })
+    if (!repo.eventsAttached) {
+      console.log('Connecting to events for', channelAddress)
+      db.events.on('write', (_address, entry) => {
+        console.log('Writing to messages db')
+        socketMessage(io, { message: entry.payload.value, channelAddress })
+      })
+      db.events.on('replicated', () => {
+        console.log('Message replicated')
+        loadAllMessages(io, this.getAllChannelMessages(db), channelAddress)
+      })
+      repo.eventsAttached = true
+    }
+    
     loadAllMessages(io, this.getAllChannelMessages(db), channelAddress)
     console.log('Subscription to channel ready', channelAddress)
   }
@@ -166,11 +175,6 @@ export class Storage {
   public async sendMessage(channelAddress: string, io: any, message: IMessage) {
     await this.subscribeForChannel(channelAddress, io)
     const db = this.repos.get(channelAddress).db
-    db.events.on('write', (address, entry, heads) => {
-      console.log('Writing message')
-      const all = this.getAllChannelMessages(db)
-      console.log(`Count messages in ${entry.id}: ${all.length}`)  
-    })
     await db.add(message)
   }
 
@@ -196,7 +200,7 @@ export class Storage {
       })
       console.log(`Created channel ${channelAddress}`)
     }
-    this.repos.set(channelAddress, { db })
+    this.repos.set(channelAddress, { db, eventsAttached: false })
     return db
   }
 }
