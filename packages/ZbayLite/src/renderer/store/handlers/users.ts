@@ -158,7 +158,7 @@ export const createOrUpdateUser = (payload: {
   const isDev = process.env.NODE_ENV === 'development'
 
   if (isDev) {
-    nickname = `dev-${nickname}`.substring(0, 20)
+    nickname = `dev99${nickname}`.substring(0, 20)
   }
   const messageData = {
     firstName,

@@ -214,7 +214,7 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
                         }}
                       />
                     )
-                  } else if (!isDev && msg.nickname.startsWith('dev-')) {
+                  } else if (!isDev && msg.nickname.startsWith('dev99')) {
                     return
                   } else {
                     return <UserRegisteredMessage message={msg} />
