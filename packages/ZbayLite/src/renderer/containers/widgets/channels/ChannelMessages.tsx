@@ -22,7 +22,7 @@ export const ChannelMessages = ({ tab, contentRect }) => {
   const isDev = process.env.NODE_ENV === 'development'
 
   const [scrollPosition, setScrollPosition] = React.useState(-1)
-  const [isRescanned, setIsRescanned] = React.useState(true)
+  const [_isRescanned, setIsRescanned] = React.useState(true)
 
   const dispatch = useDispatch()
   const qMessages = useSelector(queueMessages.queue)
@@ -91,7 +91,6 @@ export const ChannelMessages = ({ tab, contentRect }) => {
     <ChannelMessagesComponent
       scrollPosition={scrollPosition}
       setScrollPosition={setScrollPosition}
-      isRescanned={isRescanned}
       isNewUser={isNewUser}
       onRescan={onRescan}
       channelId={channelId}
