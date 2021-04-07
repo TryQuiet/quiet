@@ -163,35 +163,37 @@ export const channelId = createSelector(channel, ch => ch.id)
 
 export const inputLocked = createSelector(
   identitySelectors.balance('zec'),
-  identitySelectors.lockedBalance('zec'),
-  users.users,
-  identitySelectors.signerPubKey,
+  // identitySelectors.lockedBalance('zec'),
+  // users.users,
+  // identitySelectors.signerPubKey,
   channelId,
   contacts,
-  (available, locked, users, signerPubKey, channelId, contacts) => {
+  (
+    available,
+    // locked, 
+    // users, 
+    // signerPubKey, 
+    channelId,
+    contacts
+  ) => {
     const contactsData = Object.values(contacts)
     const currentContactArray = contactsData.filter(item => {
-      return item.key === channelId && item.connected
+      return item.key === channelId && (item.connected === (false || true))
     })
 
-    if (available.gt(networkFee)) {
-      if (users[signerPubKey]) {
-        if (users[signerPubKey].createdAt) {
+    if (currentContactArray[0]) {
+      if (currentContactArray[0].connected) {
+        return INPUT_STATE.AVAILABLE
+      } else {
+        if (available.gt(networkFee)) {
           return INPUT_STATE.AVAILABLE
         } else {
-          return INPUT_STATE.UNREGISTERED
+          return INPUT_STATE.DISABLE
         }
       }
     } else {
-      if (currentContactArray[0]) {
-        return INPUT_STATE.AVAILABLE
-      }
-
-      if (locked.gt(0)) {
-        return INPUT_STATE.LOCKED
-      }
+      return INPUT_STATE.AVAILABLE
     }
-    return INPUT_STATE.DISABLE
   }
 )
 

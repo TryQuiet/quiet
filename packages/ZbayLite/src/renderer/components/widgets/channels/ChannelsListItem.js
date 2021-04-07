@@ -128,7 +128,7 @@ export const ChannelsListItem = ({
                 })}>
                 {directMessages
                   ? `${isFromZbay
-                    ? `${channel.username || channel.address.substring(0, 8)}`
+                    ? `${channel.username.substring(0, 20) || channel.address.substring(0, 20)}`
                     : 'unknown'
                   }`
                   : `# ${channel.username}`}
