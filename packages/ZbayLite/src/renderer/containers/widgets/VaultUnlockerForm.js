@@ -22,7 +22,8 @@ export const mapStateToProps = state => ({
   isRescanning: nodeSelectors.isRescanning(state),
   exists: vaultSelectors.exists(state),
   guideStatus: nodeSelectors.guideStatus(state),
-  isInitialLoadFinished: appSelectors.isInitialLoadFinished(state)
+  isInitialLoadFinished: appSelectors.isInitialLoadFinished(state),
+  mainChannelLoaded: electronStore.get('generalChannelInitialized')
 })
 
 export const mapDispatchToProps = dispatch =>

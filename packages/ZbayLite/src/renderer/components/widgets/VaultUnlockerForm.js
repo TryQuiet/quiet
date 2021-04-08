@@ -89,7 +89,8 @@ export const VaultUnlockerForm = ({
   openModal,
   isNewUser,
   guideStatus,
-  isInitialLoadFinished
+  isInitialLoadFinished,
+  mainChannelLoaded
 }) => {
   const isSynced = currentBlock.plus(2000).gt(latestBlock)
   const isDev = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'production'
@@ -164,7 +165,7 @@ export const VaultUnlockerForm = ({
               </Typography>
             </Grid>
           </Grid>
-          {nodeConnected && isLogIn && isSynced && !isRescanning && isInitialLoadFinished && (
+          {nodeConnected && isLogIn && isSynced && !isRescanning && isInitialLoadFinished && mainChannelLoaded && (
             <Redirect to='/main/channel/general' />
           )}
         </Form>
@@ -184,14 +185,16 @@ VaultUnlockerForm.propTypes = {
   isNewUser: PropTypes.bool.isRequired,
   initialValue: PropTypes.shape({
     password: PropTypes.string.isRequired
-  })
+  }),
+  mainChannelLoaded: PropTypes.bool.isRequired
 }
 VaultUnlockerForm.defaultProps = {
   initialValues: {
     password: ''
   },
   unlocking: false,
-  locked: true
+  locked: true,
+  mainChannelLoaded: false
 }
 
 export default withStyles(styles)(VaultUnlockerForm)

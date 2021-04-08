@@ -21,6 +21,7 @@ Object {
     "loading": false,
     "message": "",
   },
+  "mainChannelLoaded": undefined,
   "nodeConnected": true,
 }
 `;
