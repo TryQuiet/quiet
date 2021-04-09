@@ -3,7 +3,6 @@ import identitySelectors from './identity'
 import messagesQueueSelectors from './messagesQueue'
 import { networkFee, messageType } from '../../../shared/static'
 import publicChannels from './publicChannels'
-import users from './users'
 
 import { Store } from '../reducers'
 import { DisplayableMessage } from '../../zbay/messages.types'
@@ -170,9 +169,9 @@ export const inputLocked = createSelector(
   contacts,
   (
     available,
-    // locked, 
-    // users, 
-    // signerPubKey, 
+    // locked,
+    // users,
+    // signerPubKey,
     channelId,
     contacts
   ) => {

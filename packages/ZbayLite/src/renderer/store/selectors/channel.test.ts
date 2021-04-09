@@ -114,44 +114,6 @@ describe('Channel selectors', () => {
     }
   }
 
-  it('- input_disable_without_money', async () => {
-    const store = create({
-      ...initialState
-    })
-    expect(channelSelectors.inputLocked(store.getState())).toEqual(INPUT_STATE.DISABLE)
-  })
-
-  it('- input_disable_with_money_without_signerPubKey', async () => {
-    const store = create({
-      ...initialState,
-      identity: {
-        ...initialState.identity,
-        data: {
-          ...initialState.identity.data,
-          balance: new BigNumber('5'),
-          lockedBalance: new BigNumber('5')
-        }
-      }
-    })
-    expect(channelSelectors.inputLocked(store.getState())).toEqual(INPUT_STATE.DISABLE)
-  })
-
-  it('- input_unregistered_with_money_with_signerPubKey_without_createdAt', async () => {
-    const store = create({
-      ...initialState,
-      identity: {
-        ...initialState.identity,
-        data: {
-          ...initialState.identity.data,
-          balance: new BigNumber('5'),
-          lockedBalance: new BigNumber('5'),
-          signerPubKey: 'kolega'
-        }
-      }
-    })
-    expect(channelSelectors.inputLocked(store.getState())).toEqual(INPUT_STATE.UNREGISTERED)
-  })
-
   it('- input_avilable_with_money', async () => {
     const store = create({
       ...initialState,
@@ -192,20 +154,5 @@ describe('Channel selectors', () => {
       }
     })
     expect(channelSelectors.inputLocked(store.getState())).toEqual(INPUT_STATE.AVAILABLE)
-  })
-
-  it('- input_locked', async () => {
-    const store = create({
-      ...initialState,
-      identity: {
-        ...initialState.identity,
-        data: {
-          ...initialState.identity.data,
-          balance: new BigNumber('0'),
-          lockedBalance: new BigNumber('5')
-        }
-      }
-    })
-    expect(channelSelectors.inputLocked(store.getState())).toEqual(INPUT_STATE.LOCKED)
   })
 })
