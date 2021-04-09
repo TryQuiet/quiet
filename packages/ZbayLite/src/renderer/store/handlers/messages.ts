@@ -154,11 +154,6 @@ export const fetchMessages = () => async (dispatch, getState) => {
     await dispatch(usersHandlers.epics.fetchUsers(txns[channels.registeredUsers.mainnet.address]))
     await dispatch(usersHandlers.epics.fetchOnionAddresses(txns[channels.tor.mainnet.address]))
     await dispatch(ratesHandlers.epics.fetchPrices(txns[channels.priceOracle.mainnet.address]))
-    // await dispatch(
-    //   publicChannelsHandlers.epics.fetchPublicChannels(
-    //     txns[channels.channelOfChannels.mainnet.address]
-    //   )
-    // )
     const importedChannels = electronStore.get('importedChannels')
     const publicChannels = publicChannelsSelectors.publicChannels(getState())
     const publicChannelAddresses = Object.values(publicChannels).map(el => el.address)
@@ -173,17 +168,6 @@ export const fetchMessages = () => async (dispatch, getState) => {
       }
     }
 
-    // Load messages for subscribed public channels
-    const publicChannelsContacts = contactsSelectors.publicChannelsContacts(getState())
-    console.log(`Loading all messages for ${publicChannelsContacts.length} channels`)
-    for (const contact of publicChannelsContacts) {
-      await dispatch(publicChannelsActions.loadAllMessages(contact.address))
-    }
-
-    // await dispatch(
-    //   setChannelMessages(channels.general.mainnet, txns[channels.general.mainnet.address])
-    // )
-    // await dispatch(setChannelMessages(channels.store.mainnet, txns[channels.store.mainnet.address]))
     await dispatch(setOutgoingTransactions(txns.undefined || []))
     dispatch(setUsersMessages(txns[identityAddress] || []))
     let allTransactionsId = allMessagesTxnId
