@@ -12,10 +12,6 @@ import { makeStyles, Theme } from '@material-ui/core/styles'
 
 import red from '@material-ui/core/colors/red'
 
-import DoneIcon from '@material-ui/icons/Done'
-import DoneAllIcon from '@material-ui/icons/DoneAll'
-import BlockIcon from '@material-ui/icons/Block'
-
 import Icon from '../../ui/Icon'
 import dotsIcon from '../../../static/images/zcash/dots-icon.svg'
 import maskIcon from '../../../static/images/avatar-13-mask-light.svg'
@@ -87,14 +83,6 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }))
 
-const statusComponent = {
-  broadcasted: DoneAllIcon,
-  pending: DoneIcon,
-  success: DoneIcon,
-  failed: React.Fragment,
-  cancelled: BlockIcon
-}
-
 export const getTimeFormat = () => {
   return 't'
 }
@@ -128,9 +116,7 @@ export const BasicMessage: React.FC<IBasicMessageProps> = ({
   const time = DateTime.fromSeconds(message.createdAt)
   const timeFormat = getTimeFormat()
   const timeString = transformToLowercase(time.toFormat(timeFormat))
-  const fromYou = message.fromYou
   const status = message.status || 'broadcasted'
-  const StatusIcon = statusComponent[status]
   const isFromZbayUser = username !== 'unknown'
   return (
     <ListItem
@@ -193,17 +179,6 @@ export const BasicMessage: React.FC<IBasicMessageProps> = ({
                     <Typography className={classes.time}>{timeString}</Typography>
                   </Grid>
                 )}
-                <Grid className={classes.iconBox} item>
-                  {fromYou && (
-                    <StatusIcon
-                      className={classNames({
-                        [classes.statusIcon]: true,
-                        [classes.failed]: status === 'failed',
-                        [classes.broadcasted]: status === 'broadcasted'
-                      })}
-                    />
-                  )}
-                </Grid>
               </Grid>
               {hovered && allowModeration && (
                 <ClickAwayListener
