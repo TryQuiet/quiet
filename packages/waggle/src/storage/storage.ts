@@ -53,6 +53,7 @@ export class Storage {
   private orbitdb: OrbitDB
   private channels: KeyValueStore<IZbayChannel>
   public repos: Map<String, IRepo> = new Map()
+  private publicChannelsEventsAttached: boolean = false
 
   public async init(libp2p: any, peerID: PeerId): Promise<void> {
     const ipfsRepoPath = path.join(this.zbayDir, 'ZbayChannels')
@@ -96,11 +97,11 @@ export class Storage {
   }
 
   async subscribeForAllChannels() {
-    for (const channelData of Object.values(this.channels.all)) {
-      if (!this.repos.has(channelData.address)) {
-        await this.createChannel(channelData.address, channelData)
+    await Promise.all(Object.values(this.channels.all).map(async channel => {
+      if (!this.repos.has(channel.address)) {
+        await this.createChannel(channel.address, channel)
       }
-    }
+    }))
   }
 
   private getChannelsResponse(): ChannelInfoResponse {
@@ -122,6 +123,12 @@ export class Storage {
 
   public async updateChannels(io) {
     /** Update list of available public channels */
+    if (!this.publicChannelsEventsAttached) {
+      this.channels.events.on('replicated', () => {
+        io.emit(EventTypesResponse.RESPONSE_GET_PUBLIC_CHANNELS, this.getChannelsResponse())
+      })
+      this.publicChannelsEventsAttached = true
+    }
     io.emit(EventTypesResponse.RESPONSE_GET_PUBLIC_CHANNELS, this.getChannelsResponse())
   }
 
@@ -189,7 +196,6 @@ export class Storage {
         write: ['*']
       }
     })
-    await db.load()
 
     const channel = this.channels.get(channelAddress)
     if (!channel) {
@@ -201,6 +207,7 @@ export class Storage {
       console.log(`Created channel ${channelAddress}`)
     }
     this.repos.set(channelAddress, { db, eventsAttached: false })
+    db.load()
     return db
   }
 }

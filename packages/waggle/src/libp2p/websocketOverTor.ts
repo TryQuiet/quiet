@@ -37,18 +37,29 @@ class WebsocketsOverTor extends WebSockets {
   }
   async dial(ma, options: any = {}) {
     log('dialing %s', ma)
-    // console.log('dialing')
     let conn
+    let socket
+    let maConn
     try {
-      const socket = await this._connect(ma, { websocket: this._websocketOpts, ...options, localAddr: this.localAddress  })
-      const maConn = toConnection(socket, { remoteAddr: ma, signal: options.signal })
+      socket = await this._connect(ma, { websocket: this._websocketOpts, ...options, localAddr: this.localAddress  })
+    } catch (e) {
+      log('error connecting to %s. Details: %s', ma, e.message)
+      return 
+    }
+    try {
+      maConn = toConnection(socket, { remoteAddr: ma, signal: options.signal })
       log('new outbound connection %s', maConn.remoteAddr)
-  
+    } catch (e) {
+      log('error creating new outbound connection %s. Details: %s', ma, e.message)
+      return
+    }
+      
+    try {
       conn = await this._upgrader.upgradeOutbound(maConn)
       log('outbound connection %s upgraded', maConn.remoteAddr)
       return conn
     } catch (e) {
-      console.log('error with peer redialing')
+      log('error upgrading outbound connection %s. Details: %s', maConn.remoteAddr, e.message)
     }
   }
 
