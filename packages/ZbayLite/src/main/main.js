@@ -13,7 +13,7 @@ import electronStore from '../shared/electronStore'
 import Client from './cli/client'
 import websockets, { clearConnections } from './websockets/client'
 import { createServer } from './websockets/server'
-import { getOnionAddress, spawnTor, runLibp2p } from './tlgManager'
+import { getOnionAddress, spawnTor, runWaggle } from './tlgManager'
 
 const _killProcess = util.promisify(ps.kill)
 
@@ -21,6 +21,7 @@ const isTestnet = parseInt(process.env.ZBAY_IS_TESTNET)
 const nodeProc = null
 
 electronStore.set('appDataPath', app.getPath('appData'))
+electronStore.set('waggleInitialized', false)
 
 export const isDev = process.env.NODE_ENV === 'development'
 const installExtensions = async () => {
@@ -286,7 +287,7 @@ app.on('ready', async () => {
       createServer(mainWindow)
       mainWindow.webContents.send('onionAddress', getOnionAddress())
       mainWindow.webContents.send('connectWsContacts')
-      await runLibp2p(mainWindow.webContents)
+      await runWaggle(mainWindow.webContents)
     } catch (error) {
       console.log(error)
     }
@@ -307,7 +308,7 @@ app.on('ready', async () => {
   ipcMain.on('spawnTor', async (event, arg) => {
     if (tor === null) {
       tor = await spawnTor()
-      await runLibp2p(mainWindow.webContents)
+      await runWaggle(mainWindow.webContents)
       electronStore.set('isTorActive', true)
       mainWindow.webContents.send('connectWsContacts')
     }

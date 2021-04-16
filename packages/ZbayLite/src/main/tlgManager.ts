@@ -3,6 +3,7 @@ import fp from 'find-free-port'
 import path from 'path'
 import os from 'os'
 import * as fs from 'fs'
+import { ipcMain } from 'electron'
 import electronStore from '../shared/electronStore'
 
 const isDev = process.env.NODE_ENV === 'development'
@@ -122,7 +123,7 @@ export const getOnionAddress = (): string => {
   return address
 }
 
-export const runLibp2p = async (webContents): Promise<any> => {
+export const runWaggle = async (webContents): Promise<any> => {
   const ports = electronStore.get('ports')
   const appDataPath = electronStore.get('appDataPath')
   const { libp2pHiddenService } = electronStore.get('hiddenServices')
@@ -139,12 +140,20 @@ export const runLibp2p = async (webContents): Promise<any> => {
     }
   })
 
-  await connectonsManager.initializeNode()
-
   const dataServer = new TlgManager.DataServer()
   dataServer.listen()
   TlgManager.initListeners(dataServer.io, connectonsManager)
   webContents.send('connectToWebsocket')
+  ipcMain.on('connectionReady', () => {
+    if (!electronStore.get('waggleInitialized')) {
+      connectonsManager.initializeNode().then(() => {
+        webContents.send('waggleInitialized')
+        electronStore.set('waggleInitialized', true)
+      }).catch(error => {
+        console.error(`Couldn't initialize waggle: ${error.message}`)
+      })
+    }
+  })
 }
 
-export default { spawnTor, getOnionAddress, getPorts, runLibp2p }
+export default { spawnTor, getOnionAddress, getPorts, runWaggle }

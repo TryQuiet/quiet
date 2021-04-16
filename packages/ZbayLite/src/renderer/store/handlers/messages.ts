@@ -11,12 +11,10 @@ import usersSelectors from '../selectors/users'
 import contactsSelectors from '../selectors/contacts'
 import identitySelectors from '../selectors/identity'
 import publicChannelsSelectors from '../selectors/publicChannels'
-import { publicChannelsActions } from '../../sagas/publicChannels/publicChannels.reducer'
 import { actions as channelActions } from './channel'
 import contactsHandlers from './contacts'
 import usersHandlers from './users'
 import ratesHandlers from './rates'
-// import publicChannelsHandlers from './publicChannels'
 import appHandlers from './app'
 
 import {
@@ -187,28 +185,6 @@ export const fetchMessages = () => async (dispatch, getState) => {
     console.warn(err)
     return {}
   }
-}
-
-export const setMainChannel = () => async (dispatch, getState) => {
-  const mainChannel = publicChannelsSelectors.publicChannelsByName('zbay')(getState())
-  if (mainChannel && !electronStore.get('generalChannelInitialized')) {
-    await dispatch(
-      contactsHandlers.actions.addContact({
-        key: mainChannel.address,
-        contactAddress: mainChannel.address,
-        username: mainChannel.name
-      })
-    )
-    dispatch(publicChannelsActions.subscribeForTopic(mainChannel))
-    console.log('set general channel')
-    electronStore.set('generalChannelInitialized', true)
-  }
-}
-
-export const updatePublicChannels = () => async (dispatch) => {
-  /** Get public channels from db, set main channel on sidebar if needed */
-  await dispatch(publicChannelsActions.getPublicChannels())
-  await dispatch(setMainChannel())
 }
 
 export const checkTransferCount = (address, messages) => async (dispatch, getState) => {
@@ -761,8 +737,7 @@ export const handleWebsocketMessage = data => async (dispatch, getState) => {
 }
 export const epics = {
   fetchMessages,
-  handleWebsocketMessage,
-  updatePublicChannels
+  handleWebsocketMessage
 }
 
 export default {

@@ -11,6 +11,7 @@ import updateHandlers from './store/handlers/update'
 import invitationHandlers from './store/handlers/invitation'
 import importChannelHandlers from './store/handlers/importedChannel'
 import coordinatorHandlers from './store/handlers/coordinator'
+import publicChannelsHandlers from './store/handlers/publicChannels'
 import messagesHandlers from './store/handlers/messages'
 import nodeSelectors from './store/selectors/node'
 import coordinatorSelectors from './store/selectors/coordinator'
@@ -121,8 +122,14 @@ ipcRenderer.on('checkNodeStatus', (event, { status }) => {
 })
 
 ipcRenderer.on('connectToWebsocket', (event) => {
-  console.log('working connecting')
+  console.log('connecting to websocket')
   store.dispatch(socketsActions.connect())
+})
+
+ipcRenderer.on('waggleInitialized', (event) => {
+  console.log('Initialized waggle, subscribing to channels')
+  store.dispatch(publicChannelsHandlers.epics.loadPublicChannels())
+  store.dispatch(publicChannelsHandlers.epics.subscribeForPublicChannels())
 })
 
 ipcRenderer.on('newChannel', (event, { channelParams }) => {

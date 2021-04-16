@@ -16,11 +16,13 @@ import usersSelectors from '../../store/selectors/users'
 import { messages } from '../../zbay'
 import config from '../../config'
 import { messageType } from '../../../shared/static'
+import { ipcRenderer } from 'electron'
 
 export const connect = async () => {
   const socket = io(config.socket.address)
   return await new Promise(resolve => {
-    socket.on('connect', () => {
+    socket.on('connect', async () => {
+      ipcRenderer.send('connectionReady')
       resolve(socket)
     })
   })
