@@ -86,6 +86,12 @@ const addMessage = createAction<{
   key: string
   message: { [key: string]: DisplayableMessage }
 }>(actionTypes.ADD_MESSAGE)
+const setAllMessages = createAction<{
+  messages: DisplayableMessage[]
+  contactAddress: string
+  username: string
+  key: string
+}>(actionTypes.SET_ALL_MESSAGES)
 const updateMessage = createAction<{ key: string; id: string; txid: string }>(
   actionTypes.UPDATE_MESSAGE
 )
@@ -114,6 +120,7 @@ const setContactConnected = createAction(actionTypes.SET_CONTACT_CONNECTED)
 
 export const actions = {
   setMessages,
+  setAllMessages,
   updateMessage,
   addMessage,
   addContact,
@@ -270,6 +277,28 @@ export const reducer = handleActions<ContactsStore, PayloadType<ContactActions>>
         }
         draft[key].messages = {
           ...draft[key].messages,
+          ...messages
+        }
+      }),
+    [setAllMessages.toString()]: (
+      state,
+      { payload: { key, username, contactAddress, messages } }: ContactActions['setAllMessages']
+    ) =>
+      produce(state, draft => {
+        if (!draft[key]) {
+          draft[key] = {
+            lastSeen: null,
+            messages: [],
+            newMessages: [],
+            vaultMessages: [],
+            offerId: null,
+            key,
+            address: contactAddress,
+            username,
+            typingIndicator: false
+          }
+        }
+        draft[key].messages = {
           ...messages
         }
       }),
