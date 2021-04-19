@@ -7,8 +7,8 @@ import EventStore from 'orbit-db-eventstore'
 import PeerId from 'peer-id'
 import { message as socketMessage } from '../socket/events/message'
 import { loadAllMessages } from '../socket/events/allMessages'
-import { EventTypesResponse } from '../socket/constantsReponse'
 import fs from 'fs'
+import { loadAllPublicChannels } from '../socket/events/channels'
 
 export interface IMessage {
   id: string
@@ -35,7 +35,7 @@ export interface IChannelInfo {
   keys: { ivk?: string; sk?: string }
 }
 
-interface ChannelInfoResponse {
+export interface ChannelInfoResponse {
   [name: string]: IChannelInfo
 }
 
@@ -72,7 +72,7 @@ export class Storage {
 
     this.orbitdb = await OrbitDB.createInstance(this.ipfs, {directory: orbitDbDir})
     await this.createDbForChannels()
-    await this.subscribeForAllChannels()
+    await this.initAllChannels()
   }
 
   public async loadInitChannels() {
@@ -96,7 +96,7 @@ export class Storage {
     console.log('ALL CHANNELS COUNT:', Object.keys(this.channels.all).length)
   }
 
-  async subscribeForAllChannels() {
+  async initAllChannels() {
     await Promise.all(Object.values(this.channels.all).map(async channel => {
       if (!this.repos.has(channel.address)) {
         await this.createChannel(channel.address, channel)
@@ -125,11 +125,14 @@ export class Storage {
     /** Update list of available public channels */
     if (!this.publicChannelsEventsAttached) {
       this.channels.events.on('replicated', () => {
-        io.emit(EventTypesResponse.RESPONSE_GET_PUBLIC_CHANNELS, this.getChannelsResponse())
+        loadAllPublicChannels(io, this.getChannelsResponse())
+      })
+      this.channels.events.on('ready', () => {
+        loadAllPublicChannels(io, this.getChannelsResponse())
       })
       this.publicChannelsEventsAttached = true
     }
-    io.emit(EventTypesResponse.RESPONSE_GET_PUBLIC_CHANNELS, this.getChannelsResponse())
+    loadAllPublicChannels(io, this.getChannelsResponse())
   }
 
   private getAllChannelMessages(db: EventStore<IMessage>): IMessage[] { // TODO: move to e.g custom Store
@@ -171,6 +174,9 @@ export class Storage {
       })
       db.events.on('replicated', () => {
         console.log('Message replicated')
+        loadAllMessages(io, this.getAllChannelMessages(db), channelAddress)
+      })
+      db.events.on('ready', () => {
         loadAllMessages(io, this.getAllChannelMessages(db), channelAddress)
       })
       repo.eventsAttached = true
