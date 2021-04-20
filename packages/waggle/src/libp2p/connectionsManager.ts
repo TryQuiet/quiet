@@ -32,6 +32,7 @@ interface IConstructor {
       appDataPath: string
     }
   }
+  io: any
 }
 interface IBasicMessage {
   id: string
@@ -59,16 +60,20 @@ export class ConnectionsManager {
   storage: Storage
   options: IOptions
   zbayDir: string
+  io: any
+  peerId: PeerId
 
-  constructor({ host, port, agentHost, agentPort, options }: IConstructor) {
+  constructor({ host, port, agentHost, agentPort, options, io }: IConstructor) {
     this.host = host
     this.port = port
+    this.io = io
     this.agentPort = agentPort
     this.agentHost = agentHost
     this.localAddress = null
     this.options = options
     this.zbayDir = options?.env.appDataPath || ZBAY_DIR_PATH
-    this.storage = new Storage(this.zbayDir)
+    this.storage = new Storage(this.zbayDir, this.io)
+    this.peerId = null
     process.on('unhandledRejection', error => {
       console.error(error)
       throw error
@@ -98,11 +103,10 @@ export class ConnectionsManager {
   }
 
   public initializeNode = async (staticPeerId?: PeerId): Promise<ILibp2pStatus> => {
-    let peerId
     if (!staticPeerId) {
-      peerId = await this.getPeerId()
+      this.peerId = await this.getPeerId()
     } else {
-      peerId = staticPeerId
+      this.peerId = staticPeerId
     }
     const addrs = [`/dns4/${this.host}/tcp/${this.port}/ws`]
 
@@ -110,7 +114,7 @@ export class ConnectionsManager {
       '/dns4/2lmfmbj4ql56d55lmv7cdrhdlhls62xa4p6lzy6kymxuzjlny3vnwyqd.onion/tcp/7788/ws/p2p/Qmak8HeMad8X1HGBmz2QmHfiidvGnhu6w6ugMKtx8TFc85',
     ]
 
-    this.localAddress = `${addrs}/p2p/${peerId.toB58String()}`
+    this.localAddress = `${addrs}/p2p/${this.peerId.toB58String()}`
 
     console.log('bootstrapMultiaddrs:', bootstrapMultiaddrs)
     console.log('local address:', this.localAddress)
@@ -118,7 +122,7 @@ export class ConnectionsManager {
     this.createAgent()
 
     this.libp2p = await this.createBootstrapNode({
-      peerId,
+      peerId: this.peerId,
       addrs,
       agent: this.socksProxyAgent,
       localAddr: this.localAddress,
@@ -133,24 +137,27 @@ export class ConnectionsManager {
     this.libp2p.connectionManager.on('peer:disconnect', connection => {
       console.log('Disconnected from', connection.remotePeer.toB58String())
     })
-    await this.storage.init(this.libp2p, peerId)
-
+    
     return {
       address: this.localAddress,
-      peerId: peerId.toB58String()
+      peerId: this.peerId.toB58String()
     }
   }
-
-  public subscribeForTopic = async (channelData: IChannelInfo, io: any) => {
-    await this.storage.subscribeForChannel(channelData.address, io, channelData)
+  
+  public subscribeForTopic = async (channelData: IChannelInfo) => {
+    await this.storage.subscribeForChannel(channelData.address, channelData)
+  }
+  
+  public initStorage = async () => {
+    await this.storage.init(this.libp2p, this.peerId)
   }
 
-  public updateChannels = async (io) => {
-    await this.storage.updateChannels(io)
+  public updateChannels = async () => {
+    await this.storage.updateChannels()
   }
 
-  public loadAllMessages = (channelAddress: string, io: any) => {
-    this.storage.loadAllChannelMessages(channelAddress, io)
+  public loadAllMessages = (channelAddress: string) => {
+    this.storage.loadAllChannelMessages(channelAddress)
   }
 
   public connectToNetwork = async (target: string) => {
@@ -169,7 +176,6 @@ export class ConnectionsManager {
 
   public sendMessage = async (
     channelAddress: string,
-    io: any,
     messagePayload: IBasicMessage
   ): Promise<void> => {
     const { id, type, signature, r, createdAt, message, typeIndicator } = messagePayload
@@ -183,59 +189,13 @@ export class ConnectionsManager {
       typeIndicator,
       channelId: channelAddress
     }
-    await this.storage.sendMessage(channelAddress, io, messageToSend)
+    await this.storage.sendMessage(channelAddress, messageToSend)
   }
 
   public initializeData = async () => {
     await this.storage.loadInitChannels()
   }
 
-  // public startSendingMessages = async (channelAddress: string, git: Git): Promise<string> => {
-  //   try {
-  //     const chat = this.chatRooms.get(`${channelAddress}`)
-  //     for(let i = 0; i <= 1000; i++) {
-  //       const { state } = git.gitRepos.get(channelAddress)
-  //       if (state === State.LOCKED) {
-  //         await sleep(2500)
-  //         console.log('locked')
-  //         continue
-  //       }
-  //       const currentHEAD = await git.getCurrentHEAD(channelAddress)
-  //       const randomBytes = Crypto.randomBytes(256)
-  //       const timestamp = randomTimestamp()
-  //       const messagePayload = {
-  //         data: randomBytes,
-  //         created: new Date(timestamp),
-  //         parentId: (~~(Math.random() * 1e9)).toString(36) + Date.now(),
-  //         channelId: channelAddress,
-  //         currentHEAD,
-  //         signature: this.libp2p.peerId.toB58String()
-  //       }
-  //       await chat.chatInstance.send(messagePayload)
-  //       await sleep(2500)
-  //     }
-  //     return 'done'
-  //     } catch (e) {
-  //     console.error('ERROR', e)
-  //     throw(e)
-  //   }
-  // }
-
-  // public listenForInput = async (channelAddress: string): Promise<void> => {
-  //   process.stdin.on('data', async (message) => {
-  //     // Remove trailing newline
-  //     message = message.slice(0, -1)
-  //     const chat = this.chatRooms.get(`${channelAddress}`)
-  //     // If there was a command, exit early
-  //     try {
-  //       // Publish the message
-  //       console.log('ok')
-  //       // await chat.chatInstance.send(message)
-  //     } catch (err) {
-  //       console.error('Could not publish chat', err)
-  //     }
-  //   })
-  // }
   private createBootstrapNode = ({
     peerId,
     addrs,
