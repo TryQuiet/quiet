@@ -117,7 +117,7 @@ const createWindow = async () => {
     autoHideMenuBar: true
   })
   mainWindow.setMinimumSize(600, 400)
-  await mainWindow.loadURL(
+  mainWindow.loadURL(
     url.format({
       pathname: path.join(__dirname, './index.html'),
       protocol: 'file:',
