@@ -12,7 +12,6 @@ module.exports = {
     'no-unused-vars': 'off',
     'no-void': 'off',
     '@typescript-eslint/no-unused-vars': 'off',
-    '@typescript-eslint/no-misused-promises': 'off',
     '@typescript-eslint/no-unused-vars-experimental': 'error',
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/prefer-reduce-type-parameter': 'off',

@@ -43,11 +43,14 @@ export const ChannelInputAction = ({
       disabled={disabled}
       placement='top-end'
     >
-      {channelData && !channelData.offerId ? (
+
+      {/* Disable post offer button until it works */}
+      {/* {channelData && !channelData.offerId ? (
         <MenuActionItem onClick={onPostOffer} title='Post an offer' />
       ) : (
         <></>
-      )}
+      )} */}
+
       <MenuActionItem
         onClick={() => onSendMoney('sendMoney', targetRecipientAddress)}
         title='Send money'

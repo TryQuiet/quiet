@@ -237,20 +237,6 @@ export const createOrUpdateUser = (payload: {
         nickname
       })
     )
-    dispatch(
-      notificationsHandlers.actions.enqueueSnackbar(
-        successNotification({
-          message: 'Registering username—this can take a few minutes.'
-        })
-      )
-    )
-    dispatch(
-      notificationsHandlers.actions.enqueueSnackbar(
-        successNotification({
-          message: 'Your onion address will be public in few minutes'
-        })
-      )
-    )
     dispatch(notificationsHandlers.actions.removeSnackbar('username'))
   } catch (err) {
     console.log(err)

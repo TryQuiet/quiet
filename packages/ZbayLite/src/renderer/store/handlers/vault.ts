@@ -125,7 +125,7 @@ export const setVaultIdentity = () => async dispatch => {
   }
 }
 
-const unlockVaultEpic = (formActions, setDone) => async dispatch => {
+const unlockVaultEpic = (setDone) => async dispatch => {
   await dispatch(setLoginSuccessfull(false))
   setDone(false)
   const identity = electronStore.get('identity')
@@ -136,7 +136,6 @@ const unlockVaultEpic = (formActions, setDone) => async dispatch => {
   }
 
   await dispatch(setLoginSuccessfull(true))
-  formActions.setSubmitting(false)
   setDone(true)
 }
 

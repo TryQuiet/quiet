@@ -3,7 +3,7 @@ import fp from 'find-free-port'
 import path from 'path'
 import os from 'os'
 import * as fs from 'fs'
-import { ipcMain, BrowserWindow } from 'electron'
+import { ipcMain } from 'electron'
 import electronStore from '../shared/electronStore'
 
 const isDev = process.env.NODE_ENV === 'development'
@@ -123,20 +123,16 @@ export const getOnionAddress = (): string => {
   return address
 }
 
-export const runWaggle = async (webContents: BrowserWindow['webContents']): Promise<any> => {
+export const runWaggle = async (webContents): Promise<any> => {
   const ports = electronStore.get('ports')
   const appDataPath = electronStore.get('appDataPath')
   const { libp2pHiddenService } = electronStore.get('hiddenServices')
 
-  const dataServer = new TlgManager.DataServer()
-  dataServer.listen()
-
-  const connectionsManager = new TlgManager.ConnectionsManager({
+  const connectonsManager = new TlgManager.ConnectionsManager({
     port: ports.libp2pHiddenService,
     host: `${libp2pHiddenService.onionAddress}.onion`,
     agentHost: 'localhost',
     agentPort: ports.socksPort,
-    io: dataServer.io,
     options: {
       env: {
         appDataPath: `${appDataPath}/Zbay`
@@ -144,21 +140,18 @@ export const runWaggle = async (webContents: BrowserWindow['webContents']): Prom
     }
   })
 
-  TlgManager.initListeners(dataServer.io, connectionsManager)
-
+  const dataServer = new TlgManager.DataServer()
+  dataServer.listen()
+  TlgManager.initListeners(dataServer.io, connectonsManager)
   webContents.send('connectToWebsocket')
   ipcMain.on('connectionReady', () => {
     if (!electronStore.get('waggleInitialized')) {
-      connectionsManager
-        .initializeNode()
-        .then(async () => {
-          await connectionsManager.initStorage()
-          webContents.send('waggleInitialized')
-          electronStore.set('waggleInitialized', true)
-        })
-        .catch(error => {
-          console.error(`Couldn't initialize waggle: ${error.message}`)
-        })
+      connectonsManager.initializeNode().then(() => {
+        webContents.send('waggleInitialized')
+        electronStore.set('waggleInitialized', true)
+      }).catch(error => {
+        console.error(`Couldn't initialize waggle: ${error.message}`)
+      })
     }
   })
 }

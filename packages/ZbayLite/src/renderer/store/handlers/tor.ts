@@ -1,8 +1,12 @@
 import { produce, immerable } from 'immer'
 import net from 'net'
+import { ipcRenderer } from 'electron'
 
 import { createAction, handleActions } from 'redux-actions'
 import torSelectors from '../selectors/tor'
+import { successNotification } from './utils'
+import notificationsHandlers from './notifications'
+import electronStore from '../../../shared/electronStore'
 import { actionTypes } from '../../../shared/static'
 
 import { ActionsType, PayloadType } from './types'
@@ -91,9 +95,26 @@ const checkTor = () => async (dispatch, getState) => {
     client.write(msg)
   })
 }
-
+export const createZcashNode = torUrl => async dispatch => {
+  electronStore.set('torEnabled', !!torUrl)
+  let ipAddress
+  if (torUrl?.startsWith('localhost')) {
+    ipAddress = torUrl.replace('localhost', '127.0.0.1')
+  } else {
+    ipAddress = torUrl
+  }
+  ipcRenderer.send('create-node', ipAddress)
+  if (torUrl) {
+    dispatch(
+      notificationsHandlers.actions.enqueueSnackbar(
+        successNotification({ message: 'You are using Tor proxy.' })
+      )
+    )
+  }
+}
 export const epics = {
   checkTor,
+  createZcashNode,
   checkDeafult
 }
 

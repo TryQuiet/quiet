@@ -124,46 +124,46 @@ export function* loadAllMessages(
   }
 
   const { username } = channel
-  if (!username) {
-    return
-  }
-  const displayableMessages = action.payload.messages.map(msg => transferToMessage(msg, users))
-  yield put(
-    contactsHandlers.actions.setAllMessages({
-      key: action.payload.channelAddress,
-      username: username,
-      contactAddress: action.payload.channelAddress,
-      messages: displayableMessages
-    })
-  )
-  const state = yield* select()
-  const newMsgs = findNewMessages(action.payload.channelAddress, displayableMessages, state)
-  const pubChannelsArray = Object.values(pubChannels)
-  const contact = pubChannelsArray.filter((item) => {
-    return item.name === username
-  })
-  newMsgs.forEach(msg => {
-    if (newMsgs.length > 0 && msg.sender.replyTo && msg.sender.username !== myUser.nickname) {
-      displayMessageNotification({
-        senderName: msg.sender.username,
-        message: msg.message,
-        channelName: username,
-        address: contact[0].address
-      })
-    } else if (msg.sender.username !== myUser.nickname) {
-      displayMessageNotification({
-        senderName: msg.sender.username,
-        message: msg.message,
-        channelName: username
-      })
+  if (username) {
+    const displayableMessages = action.payload.messages.map(msg => transferToMessage(msg, users))
+    for (const msg of displayableMessages) {
+      yield put(
+        publicChannelsActions.addMessage({
+          key: action.payload.channelAddress,
+          message: { [msg.id]: msg }
+        })
+      )
     }
-  })
-  yield put(
-    actions.appendNewMessages({
-      contactAddress: action.payload.channelAddress,
-      messagesIds: newMsgs
+    const state = yield* select()
+    const newMsgs = findNewMessages(action.payload.channelAddress, displayableMessages, state)
+
+    const pubChannelsArray = Object.values(pubChannels)
+    const contact = pubChannelsArray.filter((item) => {
+      return item.name === username
     })
-  )
+    newMsgs.forEach(msg => {
+      if (newMsgs.length > 0 && msg.sender.replyTo && msg.sender.username !== myUser.nickname) {
+        displayMessageNotification({
+          senderName: msg.sender.username,
+          message: msg.message,
+          channelName: username,
+          address: contact[0].address
+        })
+      } else if (msg.sender.username !== myUser.nickname) {
+        displayMessageNotification({
+          senderName: msg.sender.username,
+          message: msg.message,
+          channelName: username
+        })
+      }
+    })
+    yield put(
+      actions.appendNewMessages({
+        contactAddress: action.payload.channelAddress,
+        messagesIds: newMsgs
+      })
+    )
+  }
 }
 
 export function* publicChannelsSaga(): Generator {

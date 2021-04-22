@@ -79,20 +79,16 @@ export const VaultUnlockerForm = ({
   classes,
   initialValues,
   onSubmit,
-  nodeConnected,
-  exists,
-  isLogIn,
+
   latestBlock,
   currentBlock,
   isRescanning,
   loader,
-  openModal,
   isNewUser,
   guideStatus,
-  isInitialLoadFinished,
   mainChannelLoaded
 }) => {
-  const isSynced = currentBlock.plus(2000).gt(latestBlock)
+  // const isSynced = currentBlock.plus(2000).gt(latestBlock)
   const isDev = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'production'
   const [done, setDone] = useState(true)
   const [syncingStart, setSyncingStart] = useState(false)
@@ -101,12 +97,14 @@ export const VaultUnlockerForm = ({
       setSyncingStart(true)
     }
   }, [isRescanning])
+
+  React.useEffect(() => {
+    setSyncingStart(true)
+    onSubmit(setDone)
+  }, [])
   return (
     <Formik
-      onSubmit={(values, actions) => {
-        setSyncingStart(true)
-        onSubmit(actions, setDone)
-      }}
+      onSubmit={() => { }}
       validationSchema={isDev ? null : formSchema}
       initialValues={initialValues}>
       {({ isSubmitting }) => (
@@ -165,7 +163,7 @@ export const VaultUnlockerForm = ({
               </Typography>
             </Grid>
           </Grid>
-          {nodeConnected && isLogIn && isSynced && !isRescanning && isInitialLoadFinished && mainChannelLoaded && (
+          { mainChannelLoaded && (
             <Redirect to='/main/channel/general' />
           )}
         </Form>
