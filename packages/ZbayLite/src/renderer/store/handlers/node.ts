@@ -102,12 +102,6 @@ export const disablePowerSaveMode = () => async () => {
   ipcRenderer.send('disable-sleep-prevention')
 }
 
-export const checkNodeStatus = nodeProcessStatus => async (_dispatch, getState) => {
-  const nodeResponseStatus = nodeSelectors.status(getState())
-  if (nodeProcessStatus === 'up' && nodeResponseStatus === 'down') {
-    ipcRenderer.send('restart-node-proc')
-  }
-}
 let lastSavedBlock = 0
 const getStatus = () => async (dispatch, getState) => {
   try {
@@ -154,8 +148,7 @@ const epics = {
   getStatus,
   startRescanningMonitor,
   disablePowerSaveMode,
-  setRescanningInitialized,
-  checkNodeStatus
+  setRescanningInitialized
 }
 
 export const reducer = handleActions<Node, PayloadType<NodeActions>>(

@@ -20,12 +20,7 @@ export default class Client {
     })
   }
 
-  terminate = () =>
-    new Promise(resolve => {
-      worker.terminate(() => {
-        resolve()
-      })
-    })
+  terminate = async () => await worker.terminate()
 
   postMessage = async (id, method, args = '') => {
     const promise = new Promise((resolve) => {

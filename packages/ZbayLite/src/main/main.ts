@@ -1,57 +1,56 @@
-import { app, BrowserWindow, Menu, ipcMain, session } from 'electron'
+import { app, BrowserWindow, Menu, ipcMain } from 'electron'
 import electronLocalshortcut from 'electron-localshortcut'
 import path from 'path'
 import url from 'url'
 import { autoUpdater } from 'electron-updater'
-import find from 'find-process'
-import ps from 'ps-node'
-import util from 'util'
-import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer'
 
 import config from './config'
-import { spawnZcashNode } from './zcash/bootstrap'
 import electronStore from '../shared/electronStore'
 import Client from './cli/client'
 import websockets, { clearConnections } from './websockets/client'
 import { createServer } from './websockets/server'
-import { getOnionAddress, spawnTor, runWaggle } from './tlgManager'
-
-const _killProcess = util.promisify(ps.kill)
-
-const isTestnet = parseInt(process.env.ZBAY_IS_TESTNET)
-const nodeProc = null
+import { getOnionAddress, spawnTor, runWaggle } from './waggleManager'
 
 electronStore.set('appDataPath', app.getPath('appData'))
 electronStore.set('waggleInitialized', false)
 
 export const isDev = process.env.NODE_ENV === 'development'
+const installExtensions = async () => {
+  if (!isDev) return
+  // eslint-disable-next-line
+  require('electron-debug')({
+    showDevTools: true
+  })
+  // eslint-disable-next-line
+  const installer = require('electron-devtools-installer')
+  const forceDownload = Boolean(process.env.UPGRADE_EXTENSIONS)
+  const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS']
 
-const windowSize = {
+  try {
+    await Promise.all(extensions.map(ext => installer.default(installer[ext], forceDownload)))
+  } catch (err) {
+    console.error("Couldn't install devtools.")
+  }
+}
+
+interface IWindowSize {
+  width: number
+  height: number
+}
+
+const windowSize: IWindowSize = {
   width: 800,
   height: 540
 }
 
-var mainWindow
-let running = false
+let mainWindow: BrowserWindow
 
 const gotTheLock = app.requestSingleInstanceLock()
-
-const extensionsFolderPath = `${app.getPath('userData')}/extensions`
-const extensionsData = [
-  {
-    name: REACT_DEVELOPER_TOOLS,
-    path: `${extensionsFolderPath}/${REACT_DEVELOPER_TOOLS.id}`
-  },
-  {
-    name: REDUX_DEVTOOLS,
-    path: `${extensionsFolderPath}/${REDUX_DEVTOOLS.id}`
-  }
-]
 
 if (!gotTheLock) {
   app.quit()
 } else {
-  app.on('second-instance', (event, commandLine, workingDirectory) => {
+  app.on('second-instance', (commandLine) => {
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore()
       mainWindow.focus()
@@ -104,23 +103,20 @@ const checkForPayloadOnStartup = payload => {
   }
 }
 
-let browserWidth
-let browserHeight
-const createWindow = () => {
+let browserWidth: number
+let browserHeight: number
+const createWindow = async () => {
   const windowUserSize = electronStore.get('windowSize')
   mainWindow = new BrowserWindow({
     width: windowUserSize ? windowUserSize.width : windowSize.width,
     height: windowUserSize ? windowUserSize.height : windowSize.height,
     titleBarStyle: 'hidden',
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-      enableRemoteModule: true
+      nodeIntegration: true
     },
     autoHideMenuBar: true
   })
   mainWindow.setMinimumSize(600, 400)
-
   mainWindow.loadURL(
     url.format({
       pathname: path.join(__dirname, './index.html'),
@@ -145,9 +141,9 @@ const createWindow = () => {
   electronLocalshortcut.register(mainWindow, 'CommandOrControl+L', () => {
     mainWindow.webContents.send('openLogs')
   })
-  electronLocalshortcut.register(mainWindow, 'F12', () => {
-    mainWindow.toggleDevTools()
-  })
+  // electronLocalshortcut.register(mainWindow, 'F12', () => {
+  //   mainWindow.toggleDevTools()
+  // })
 }
 
 let isUpdatedStatusCheckingStarted = false
@@ -163,10 +159,10 @@ const isNetworkError = errorObject => {
   )
 }
 
-export const checkForUpdate = win => {
+export const checkForUpdate = async (win) => {
   if (!isUpdatedStatusCheckingStarted) {
     try {
-      autoUpdater.checkForUpdates()
+      await autoUpdater.checkForUpdates()
     } catch (error) {
       if (isNetworkError(error)) {
         console.log('Network Error')
@@ -190,13 +186,13 @@ export const checkForUpdate = win => {
       electronStore.set('updateStatus', config.UPDATE_STATUSES.PROCESSING_UPDATE)
     })
 
-    autoUpdater.on('update-downloaded', info => {
+    autoUpdater.on('update-downloaded', () => {
       win.webContents.send('newUpdateAvailable')
     })
     isUpdatedStatusCheckingStarted = true
   }
   try {
-    autoUpdater.checkForUpdates()
+    await autoUpdater.checkForUpdates()
   } catch (error) {
     if (isNetworkError(error)) {
       console.log('Network Error')
@@ -207,83 +203,45 @@ export const checkForUpdate = win => {
   }
 }
 
-const killZcashdProcess = async () => {
-  const zcashProcess = await find('name', 'zcashd')
-  if (zcashProcess.length > 0) {
-    const [processDetails] = zcashProcess
-    const { pid } = processDetails
-    await _killProcess(pid)
-  }
-}
-
-const checkZcashdStatus = async () => {
-  const isBlockchainRescanned = electronStore.get('AppStatus.blockchain.isRescanned')
-  if (mainWindow && isBlockchainRescanned && !isDev) {
-    const zcashProcess = await find('name', 'zcashd')
-    if (zcashProcess.length > 0) {
-      mainWindow.webContents.send('checkNodeStatus', {
-        status: 'up'
-      })
-    } else {
-      mainWindow.webContents.send('checkNodeStatus', {
-        status: 'down'
-      })
-    }
-  }
-  setTimeout(checkZcashdStatus, 1200000)
-}
-
-setTimeout(() => {
-  const isBlockchainRescanned = electronStore.get('AppStatus.blockchain.isRescanned')
-  if (isBlockchainRescanned && !isDev) {
-    checkZcashdStatus()
-  }
-}, 1200000)
-
-ipcMain.on('restart-node-proc', async (event, arg) => {
-  await killZcashdProcess()
-  spawnZcashNode(process.platform, isTestnet)
-})
-
-let client
+let client: Client
 let tor = null
 app.on('ready', async () => {
-  const template = [
-    {
-      label: 'Zbay',
-      submenu: [
-        { role: 'undo' },
-        { role: 'redo' },
-        { type: 'separator' },
-        { role: 'cut' },
-        { role: 'copy' },
-        { role: 'paste' },
-        { role: 'pasteandmatchstyle' },
-        { role: 'delete' },
-        { role: 'selectall' },
-        { type: 'separator' },
-        { role: 'quit' }
-      ]
-    }
-  ]
+  // const template = [
+  //   {
+  //     label: 'Zbay',
+  //     submenu: [
+  //       { role: 'undo' },
+  //       { role: 'redo' },
+  //       { type: 'separator' },
+  //       { role: 'cut' },
+  //       { role: 'copy' },
+  //       { role: 'paste' },
+  //       { role: 'pasteandmatchstyle' },
+  //       { role: 'delete' },
+  //       { role: 'selectall' },
+  //       { type: 'separator' },
+  //       { role: 'quit' }
+  //     ]
+  //   }
+  // ]
 
   // app.on(`browser-window-created`, (e, window) => {
   //   mainWindow.setMenu(null)
   // })
   if (process.platform === 'darwin') {
-    const menu = Menu.buildFromTemplate(template)
-    Menu.setApplicationMenu(menu)
+    // const menu = Menu.buildFromTemplate(template)
+    Menu.setApplicationMenu(null)
   } else {
     Menu.setApplicationMenu(null)
   }
 
-  await applyDevTools(extensionsData)
+  await installExtensions()
 
-  createWindow()
+  await createWindow()
   mainWindow.webContents.on('did-finish-load', async () => {
     mainWindow.webContents.send('ping')
     try {
-      tor = await spawnTor(mainWindow.webContents)
+      tor = await spawnTor()
       createServer(mainWindow)
       mainWindow.webContents.send('onionAddress', getOnionAddress())
       mainWindow.webContents.send('connectWsContacts')
@@ -298,14 +256,14 @@ app.on('ready', async () => {
       }
     }
     if (!isDev) {
-      checkForUpdate(mainWindow)
-      setInterval(() => {
-        checkForUpdate(mainWindow)
+      await checkForUpdate(mainWindow)
+      setInterval(async () => {
+        await checkForUpdate(mainWindow)
       }, 15 * 60000)
     }
   })
 
-  ipcMain.on('spawnTor', async (event, arg) => {
+  ipcMain.on('spawnTor', async () => {
     if (tor === null) {
       tor = await spawnTor()
       await runWaggle(mainWindow.webContents)
@@ -314,18 +272,18 @@ app.on('ready', async () => {
     }
   })
 
-  ipcMain.on('killTor', async (event, arg) => {
+  ipcMain.on('killTor', async () => {
     if (tor !== null) {
       await tor.kill()
       tor = null
     }
   })
 
-  ipcMain.on('proceed-update', (event, arg) => {
+  ipcMain.on('proceed-update', () => {
     autoUpdater.quitAndInstall()
   })
   client = new Client()
-  ipcMain.on('rpcQuery', async (event, arg) => {
+  ipcMain.on('rpcQuery', async (_event, arg) => {
     const request = JSON.parse(arg)
     const response = await client.postMessage(request.id, request.method, request.args)
     if (mainWindow) {
@@ -333,7 +291,7 @@ app.on('ready', async () => {
     }
   })
 
-  ipcMain.on('sendWebsocket', async (event, arg) => {
+  ipcMain.on('sendWebsocket', async (_event, arg) => {
     const request = JSON.parse(arg)
     const response = await websockets.handleSend(request)
     // const response = await client.postMessage(request.id, request.method, request.args)
@@ -345,7 +303,7 @@ app.on('ready', async () => {
     }
   })
 
-  ipcMain.on('initWsConnection', async (event, arg) => {
+  ipcMain.on('initWsConnection', async (_event, arg) => {
     const request = JSON.parse(arg)
     try {
       const socket = await websockets.connect(request.address)
@@ -356,7 +314,7 @@ app.on('ready', async () => {
         )
       }
       // socket
-      socket.on('close', function (a) {
+      socket.on('close', function () {
         if (mainWindow) {
           mainWindow.webContents.send(
             'initWsConnection',
@@ -376,11 +334,11 @@ app.on('ready', async () => {
     // const response = await client.postMessage(request.id, request.method, request.args)
   })
 
-  ipcMain.on('vault-created', (event, arg) => {
+  ipcMain.on('vault-created', () => {
     electronStore.set('vaultStatus', config.VAULT_STATUSES.CREATED)
   })
 
-  ipcMain.on('proceed-with-syncing', (event, userChoice) => {
+  ipcMain.on('proceed-with-syncing', (_event, userChoice) => {
     if (userChoice === 'EXISTING') {
       electronStore.set(
         'blockchainConfiguration',
@@ -390,28 +348,12 @@ app.on('ready', async () => {
       electronStore.set('blockchainConfiguration', config.BLOCKCHAIN_STATUSES.TO_FETCH)
     }
   })
-
-  ipcMain.on('create-node', async (event, arg) => {
-    let torUrl
-    if (arg) {
-      torUrl = arg.toString()
-    }
-    if (!running) {
-      running = true
-    }
-  })
 })
 
 app.setAsDefaultProtocolClient('zbay')
 
-process.on('exit', () => {
-  if (nodeProc !== null) {
-    nodeProc.kill()
-  }
-})
-
-export const sleep = (time = 1000) =>
-  new Promise(resolve => {
+export const sleep = async (time = 1000) =>
+  await new Promise(resolve => {
     setTimeout(() => {
       resolve()
     }, time)
@@ -420,7 +362,7 @@ export const sleep = (time = 1000) =>
 app.on('before-quit', async e => {
   e.preventDefault()
   clearConnections()
-  sleep(2000)
+  await sleep(2000)
   if (tor !== null) {
     await tor.kill()
   }
@@ -443,19 +385,10 @@ app.on('window-all-closed', () => {
   app.quit()
 })
 
-app.on('activate', () => {
+app.on('activate', async () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) {
-    createWindow()
+    await createWindow()
   }
 })
-
-const applyDevTools = async extensionsData => {
-  await Promise.all(extensionsData.map(async (extension) => {
-    await installExtension(extension.name)
-  }))
-  await Promise.all(extensionsData.map(async (extension) => {
-    await session.defaultSession.loadExtension(extension.path, { allowFileAccess: true })
-  }))
-}
