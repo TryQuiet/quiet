@@ -3,7 +3,6 @@ import electronLocalshortcut from 'electron-localshortcut'
 import path from 'path'
 import url from 'url'
 import { autoUpdater } from 'electron-updater'
-import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer'
 
 import config from './config'
 import electronStore from '../shared/electronStore'
@@ -32,20 +31,28 @@ let mainWindow: BrowserWindow
 const gotTheLock = app.requestSingleInstanceLock()
 
 const extensionsFolderPath = `${app.getPath('userData')}/extensions`
-const extensionsData = [
-  {
-    name: REACT_DEVELOPER_TOOLS,
-    path: `${extensionsFolderPath}/${REACT_DEVELOPER_TOOLS.id}`
-  },
-  {
-    name: REDUX_DEVTOOLS,
-    path: `${extensionsFolderPath}/${REDUX_DEVTOOLS.id}`
-  }
-]
 
-const applyDevTools = async extensionsData => {
+
+const applyDevTools = async () => {
+  if (!isDev) return
+  require('electron-debug')({
+    showDevTools: true
+  })
+  const installer = require('electron-devtools-installer')
+  const { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } = require('electron-devtools-installer')
+
+  const extensionsData = [
+    {
+      name: REACT_DEVELOPER_TOOLS,
+      path: `${extensionsFolderPath}/${REACT_DEVELOPER_TOOLS.id}`
+    },
+    {
+      name: REDUX_DEVTOOLS,
+      path: `${extensionsFolderPath}/${REDUX_DEVTOOLS.id}`
+    }
+  ]
   await Promise.all(extensionsData.map(async (extension) => {
-    await installExtension(extension.name)
+    await installer.default(extension.name)
   }))
   await Promise.all(extensionsData.map(async (extension) => {
     await session.defaultSession.loadExtension(extension.path, { allowFileAccess: true })
@@ -244,7 +251,7 @@ app.on('ready', async () => {
     Menu.setApplicationMenu(null)
   }
 
-  await applyDevTools(extensionsData)
+  await applyDevTools()
 
   await createWindow()
   mainWindow.webContents.on('did-finish-load', async () => {

@@ -36,6 +36,8 @@ jobs:
         run: npm run build:prod
       - name: install electron builder
         run: npm install -g electron-builder@22.3.2
+      - name: remove crud files
+        run: xattr -cr .
       - name: release
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
