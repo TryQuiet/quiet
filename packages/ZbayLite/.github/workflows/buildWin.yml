@@ -42,7 +42,7 @@ jobs:
       run: npm run build:prod
     - name: install electron builder
       shell: bash
-      run: npm install -g electron-builder@22.3.2
+      run: npm install -g electron-builder@22.10.5
     - name: release
       shell: bash
       env:

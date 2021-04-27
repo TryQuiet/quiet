@@ -35,7 +35,7 @@ jobs:
       - name: build on Mac
         run: npm run build:prod
       - name: install electron builder
-        run: npm install -g electron-builder@22.3.2
+        run: npm install -g electron-builder@22.10.5
       - name: remove crud files
         run: xattr -cr .
       - name: release
