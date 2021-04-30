@@ -12,4 +12,5 @@ COPY package.json .
 COPY package-lock.json .
 RUN npm install
 COPY . .
+# CMD ["ts-node", "src/tracker/service.ts"]  // TODO: Uncomment to use the tracker
 CMD ["ts-node", "src/entryNode.ts"]

@@ -10,11 +10,12 @@ import Multiaddr from 'multiaddr'
 import Bootstrap from 'libp2p-bootstrap'
 import multihashing from 'multihashing-async'
 import { Storage } from '../storage'
-import { createPaths } from '../utils'
+import { createPaths, fetchAbsolute } from '../utils'
 import { ZBAY_DIR_PATH } from '../constants'
 import fs from 'fs'
 import path from 'path'
 import { IChannelInfo } from '../storage/storage'
+import fetch from 'node-fetch';
 
 
 interface IOptions {
@@ -62,6 +63,7 @@ export class ConnectionsManager {
   zbayDir: string
   io: any
   peerId: PeerId
+  trackerApi: any
 
   constructor({ host, port, agentHost, agentPort, options, io }: IConstructor) {
     this.host = host
@@ -74,6 +76,8 @@ export class ConnectionsManager {
     this.zbayDir = options?.env.appDataPath || ZBAY_DIR_PATH
     this.storage = new Storage(this.zbayDir, this.io)
     this.peerId = null
+    this.trackerApi = fetchAbsolute(fetch)('http://okmlac2qjgo2577dkyhpisceua2phwxhdybw4pssortdop6ddycntsyd.onion:7788')
+
     process.on('unhandledRejection', error => {
       console.error(error)
       throw error
@@ -102,28 +106,62 @@ export class ConnectionsManager {
     return peerId
   }
 
+  private getInitialPeers = async (): Promise<Array<string>> => {
+    const options = {
+      method: 'GET',
+      agent: () => {
+        return this.socksProxyAgent;
+      }
+    };
+    const response = await this.trackerApi('/peers', options)
+    return response.json()
+  }
+  
+  private registerPeer = async (address: string): Promise<void> => {
+    const options = {
+      method: 'POST',
+      body: JSON.stringify({'address': address}),
+      headers: {'Content-Type': 'application/json'},
+      agent: () => {
+        return this.socksProxyAgent;
+      }
+    };
+    await this.trackerApi('/register', options)
+  }
+
   public initializeNode = async (staticPeerId?: PeerId): Promise<ILibp2pStatus> => {
     if (!staticPeerId) {
       this.peerId = await this.getPeerId()
     } else {
       this.peerId = staticPeerId
     }
-    const addrs = [`/dns4/${this.host}/tcp/${this.port}/ws`]
+    this.createAgent()
 
+    const listenAddrs = [`/dns4/${this.host}/tcp/${this.port}/ws`]
+    this.localAddress = `${listenAddrs}/p2p/${this.peerId.toB58String()}`
+    console.log('local address:', this.localAddress)
+
+    // TODO: Uncomment when we're ready to use tracker (so e.g when it runs on aws):
+    // try {
+    //   await this.registerPeer(this.localAddress)
+    // } catch (e) {
+    //   console.error('Couldn\'t register peer. Probably tracker is offline. Error:', e)
+    //   throw 'Couldn\'t register peer'
+    // }
+    // try {
+    //   const bootstrapMultiaddrs = await this.getInitialPeers()
+    // } catch (e) {
+    //   console.error('Couldn\'t retrieve initial peers from tracker. Error:', e)
+    //   throw 'Couldn\'t get initial peers'
+    // }
     const bootstrapMultiaddrs = [
       '/dns4/2lmfmbj4ql56d55lmv7cdrhdlhls62xa4p6lzy6kymxuzjlny3vnwyqd.onion/tcp/7788/ws/p2p/Qmak8HeMad8X1HGBmz2QmHfiidvGnhu6w6ugMKtx8TFc85',
     ]
-
-    this.localAddress = `${addrs}/p2p/${this.peerId.toB58String()}`
-
     console.log('bootstrapMultiaddrs:', bootstrapMultiaddrs)
-    console.log('local address:', this.localAddress)
-
-    this.createAgent()
 
     this.libp2p = await this.createBootstrapNode({
       peerId: this.peerId,
-      addrs,
+      listenAddrs,
       agent: this.socksProxyAgent,
       localAddr: this.localAddress,
       bootstrapMultiaddrsList: bootstrapMultiaddrs
@@ -198,7 +236,7 @@ export class ConnectionsManager {
 
   private createBootstrapNode = ({
     peerId,
-    addrs,
+    listenAddrs,
     agent,
     localAddr,
     bootstrapMultiaddrsList
@@ -206,7 +244,7 @@ export class ConnectionsManager {
     return Libp2p.create({
       peerId,
       addresses: {
-        listen: addrs
+        listen: listenAddrs
       },
       modules: {
         transport: [WebsocketsOverTor],
