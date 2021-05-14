@@ -1,7 +1,7 @@
-import {testStoreReducer} from './testStore/testStore.slice';
+import {sessionReducer} from './session/session.slice';
 import {combineReducers} from '@reduxjs/toolkit';
 import {StoreKeys} from './store.keys';
 
 export const rootReducer = combineReducers({
-  [StoreKeys.TestStore]: testStoreReducer,
+  [StoreKeys.Session]: sessionReducer,
 });

@@ -1,5 +1,5 @@
 import {all} from 'typed-redux-saga';
 
-export function* testStoreMasterSaga(): Generator {
+export function* sessionMasterSaga(): Generator {
   yield all([]);
 }

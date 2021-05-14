@@ -1,7 +1,7 @@
 import {all, fork} from 'typed-redux-saga';
 
-import {testStoreMasterSaga} from './testStore/testStore.master.saga';
+import {sessionMasterSaga} from './session/session.master.saga';
 
 export function* rootSaga(): Generator {
-  yield all([fork(testStoreMasterSaga)]);
+  yield all([fork(sessionMasterSaga)]);
 }

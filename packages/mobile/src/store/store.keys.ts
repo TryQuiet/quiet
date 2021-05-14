@@ -1,3 +1,3 @@
 export enum StoreKeys {
-  TestStore = 'TestStore',
+  Session = 'Session',
 }
