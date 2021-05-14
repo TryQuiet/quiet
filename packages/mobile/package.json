@@ -7,7 +7,8 @@
     "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "gen": "plop"
   },
   "dependencies": {
     "react": "17.0.1",
@@ -17,10 +18,12 @@
     "@babel/core": "^7.12.9",
     "@babel/runtime": "^7.12.5",
     "@react-native-community/eslint-config": "^2.0.0",
+    "@types/chalk": "^2.2.0",
     "@types/jest": "^26.0.20",
     "@types/react-native": "^0.64.0",
     "@types/react-test-renderer": "^16.9.2",
     "babel-jest": "^26.6.3",
+    "chalk": "^4.1.1",
     "eslint": "^7.14.0",
     "jest": "^26.6.3",
     "metro-react-native-babel-preset": "^0.64.0",
