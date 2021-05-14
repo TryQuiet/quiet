@@ -1,7 +1,7 @@
 import {button} from '@storybook/addon-knobs';
 import i18next from 'i18next';
 
-import {Languages} from '../src/translations/const/Languages.enum';
+import {Languages} from '../translations/const/Languages.enum';
 
 /**
  * Custom storybook decorator that adds ability to choose languages.

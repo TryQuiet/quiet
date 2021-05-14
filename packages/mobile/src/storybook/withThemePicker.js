@@ -2,7 +2,7 @@ import {button} from '@storybook/addon-knobs';
 import React from 'react';
 import {ThemeProvider} from 'styled-components/native';
 
-import {defaultTheme} from '../src/styles/themes/default.theme';
+import {defaultTheme} from '../styles/themes/default.theme';
 
 /**
  * This is intentionally kept in a value outside `withThemePicker` scope
