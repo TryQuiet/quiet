@@ -10,3 +10,10 @@ export const loadAllMessages = (socket: any, messages: IMessage[], channelAddres
     messages
   })
 }
+
+export const loadAllDirectMessages = (socket, messages, channelAddress) => {
+  socket.emit(EventTypesResponse.RESPONSE_FETCH_ALL_DIRECT_MESSAGES, {
+    channelAddress,
+    messages
+  })
+}

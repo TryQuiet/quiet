@@ -1,6 +1,6 @@
 {
   "name": "waggle",
-  "version": "1.0.23",
+  "version": "1.1.0",
   "author": "jk",
   "description": "tlg-manager",
   "types": "lib/index.d.ts",
@@ -9,7 +9,8 @@
   "scripts": {
     "build": "tsc",
     "version": "git add -A src",
-    "postversion": "git push && git push --tags"
+    "postversion": "git push && git push --tags",
+    "lint": "eslint ./src/**/*.{ts,tsx,js,jsx}"
   },
   "files": [
     "lib/**/*"
@@ -17,6 +18,7 @@
   "devDependencies": {
     "@types/node": "^14.14.7",
     "@types/orbit-db": "git+https://github.com/orbitdb/orbit-db-types.git",
+    "@typescript-eslint/eslint-plugin": "^4.22.0",
     "prettier": "^2.1.1"
   },
   "dependencies": {

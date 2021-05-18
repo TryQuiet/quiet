@@ -1,4 +1,4 @@
-import { Tracker } from "."
+import { Tracker } from '.'
 
 const main = async () => {
   const tracker = new Tracker(process.env.HIDDEN_SERVICE_SECRET)

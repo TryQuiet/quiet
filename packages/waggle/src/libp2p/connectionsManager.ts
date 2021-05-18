@@ -15,8 +15,7 @@ import { ZBAY_DIR_PATH } from '../constants'
 import fs from 'fs'
 import path from 'path'
 import { IChannelInfo } from '../storage/storage'
-import fetch from 'node-fetch';
-
+import fetch from 'node-fetch'
 
 interface IOptions {
   env: {
@@ -88,11 +87,11 @@ export class ConnectionsManager {
     })
   }
 
-  private createAgent = () => {
+  private readonly createAgent = () => {
     this.socksProxyAgent = new SocksProxyAgent({ port: this.agentPort, host: this.agentHost })
   }
 
-  private getPeerId = async (): Promise<PeerId> => {
+  private readonly getPeerId = async (): Promise<PeerId> => {
     let peerId
     const peerIdKeyPath = path.join(this.zbayDir, 'peerIdKey')
     if (!fs.existsSync(peerIdKeyPath)) {
@@ -100,32 +99,32 @@ export class ConnectionsManager {
       peerId = await PeerId.create()
       fs.writeFileSync(peerIdKeyPath, peerId.toJSON().privKey)
     } else {
-      const peerIdKey = fs.readFileSync(peerIdKeyPath, {encoding: 'utf8'})
+      const peerIdKey = fs.readFileSync(peerIdKeyPath, { encoding: 'utf8' })
       peerId = PeerId.createFromPrivKey(peerIdKey)
     }
     return peerId
   }
 
-  private getInitialPeers = async (): Promise<Array<string>> => {
+  private readonly getInitialPeers = async (): Promise<string[]> => {
     const options = {
       method: 'GET',
       agent: () => {
-        return this.socksProxyAgent;
+        return this.socksProxyAgent
       }
-    };
+    }
     const response = await this.trackerApi('/peers', options)
     return response.json()
   }
-  
-  private registerPeer = async (address: string): Promise<void> => {
+
+  private readonly registerPeer = async (address: string): Promise<void> => {
     const options = {
       method: 'POST',
-      body: JSON.stringify({'address': address}),
-      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ address: address }),
+      headers: { 'Content-Type': 'application/json' },
       agent: () => {
-        return this.socksProxyAgent;
+        return this.socksProxyAgent
       }
-    };
+    }
     await this.trackerApi('/register', options)
   }
 
@@ -155,7 +154,7 @@ export class ConnectionsManager {
     //   throw 'Couldn\'t get initial peers'
     // }
     const bootstrapMultiaddrs = [
-      '/dns4/2lmfmbj4ql56d55lmv7cdrhdlhls62xa4p6lzy6kymxuzjlny3vnwyqd.onion/tcp/7788/ws/p2p/Qmak8HeMad8X1HGBmz2QmHfiidvGnhu6w6ugMKtx8TFc85',
+      '/dns4/2lmfmbj4ql56d55lmv7cdrhdlhls62xa4p6lzy6kymxuzjlny3vnwyqd.onion/tcp/7788/ws/p2p/Qmak8HeMad8X1HGBmz2QmHfiidvGnhu6w6ugMKtx8TFc85'
     ]
     console.log('bootstrapMultiaddrs:', bootstrapMultiaddrs)
 
@@ -175,17 +174,17 @@ export class ConnectionsManager {
     this.libp2p.connectionManager.on('peer:disconnect', connection => {
       console.log('Disconnected from', connection.remotePeer.toB58String())
     })
-    
+
     return {
       address: this.localAddress,
       peerId: this.peerId.toB58String()
     }
   }
-  
+
   public subscribeForTopic = async (channelData: IChannelInfo) => {
     await this.storage.subscribeForChannel(channelData.address, channelData)
   }
-  
+
   public initStorage = async () => {
     await this.storage.init(this.libp2p, this.peerId)
   }
@@ -234,7 +233,55 @@ export class ConnectionsManager {
     await this.storage.loadInitChannels()
   }
 
-  private createBootstrapNode = ({
+  // DMs
+
+  public addUser = async (
+    publicKey: string,
+    halfKey: string
+  ): Promise<void> => {
+    console.log(`CONNECTIONS MANAGER: addUser - publicKey ${publicKey} and halfKey ${halfKey}`)
+    await this.storage.addUser(publicKey, halfKey)
+  }
+
+  public initializeConversation = async (
+    address: string,
+    encryptedPhrase: string
+  ): Promise<void> => {
+    console.log(`INSIDE WAGGLE: ${encryptedPhrase}`)
+    await this.storage.initializeConversation(address, encryptedPhrase)
+  }
+
+  public getAvailableUsers = async (): Promise<void> => {
+    await this.storage.getAvailableUsers()
+  }
+
+  public getPrivateConversations = async (): Promise<void> => {
+    await this.storage.getPrivateConversations()
+  }
+
+  public sendDirectMessage = async (
+    channelAddress: string,
+    messagePayload: IBasicMessage
+  ): Promise<void> => {
+    const { id, type, signature, r, createdAt, message, typeIndicator } = messagePayload
+    const messageToSend = {
+      id,
+      type,
+      signature,
+      createdAt,
+      r,
+      message,
+      typeIndicator,
+      channelId: channelAddress
+    }
+    await this.storage.sendDirectMessage(channelAddress, messagePayload)
+  }
+
+  public subscribeForDirectMessageThread = async (address): Promise<void> => {
+    await this.storage.subscribeForDirectMessageThread(address)
+  }
+
+  private readonly createBootstrapNode = async ({
     peerId,
     listenAddrs,
     agent,

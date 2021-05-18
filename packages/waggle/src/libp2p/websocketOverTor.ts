@@ -20,6 +20,7 @@ class Discovery extends EventEmitter {
     super()
     this.tag = 'channel_18'
   }
+
   start() {}
 }
 
@@ -35,16 +36,17 @@ class WebsocketsOverTor extends WebSockets {
     this._upgrader = upgrader
     this.discovery = new Discovery()
   }
+
   async dial(ma, options: any = {}) {
     log('dialing %s', ma)
     let conn
     let socket
     let maConn
     try {
-      socket = await this._connect(ma, { websocket: this._websocketOpts, ...options, localAddr: this.localAddress  })
+      socket = await this._connect(ma, { websocket: this._websocketOpts, ...options, localAddr: this.localAddress })
     } catch (e) {
       log('error connecting to %s. Details: %s', ma, e.message)
-      return 
+      return
     }
     try {
       maConn = toConnection(socket, { remoteAddr: ma, signal: options.signal })
@@ -53,7 +55,7 @@ class WebsocketsOverTor extends WebSockets {
       log('error creating new outbound connection %s. Details: %s', ma, e.message)
       return
     }
-      
+
     try {
       conn = await this._upgrader.upgradeOutbound(maConn)
       log('outbound connection %s upgraded', maConn.remoteAddr)
@@ -108,15 +110,15 @@ class WebsocketsOverTor extends WebSockets {
     }
     const server = createServer(options, async (stream, request) => {
       let maConn, conn
-      let query = url.parse(request.url, true).query
+      const query = url.parse(request.url, true).query
       // console.log('request', request)
       // console.log('query', query)
       console.log('query', query.remoteAddress)
       try {
         maConn = toConnection(stream, { remoteAddr: multiaddr(query.remoteAddress.toString()) })
-        const peer = { 
+        const peer = {
           id: PeerId.createFromB58String(query.remoteAddress.toString().split('/p2p/')[1]),
-          multiaddrs: [maConn.remoteAddr],
+          multiaddrs: [maConn.remoteAddr]
         }
         this.discovery.emit('peer', peer)
         log('new inbound connection %s', maConn.remoteAddr)
@@ -126,11 +128,11 @@ class WebsocketsOverTor extends WebSockets {
         log.error('inbound connection failed to upgrade', err)
         return maConn && maConn.close()
       }
-  
+
       log('inbound connection %s upgraded', maConn.remoteAddr)
-  
+
       trackConn(server, maConn)
-  
+
       if (handler) handler(conn)
       listener.emit('connection', conn)
     })
@@ -144,28 +146,28 @@ class WebsocketsOverTor extends WebSockets {
     server.__connections = []
 
     let listeningMultiaddr
-  
+
     listener.close = () => {
       server.__connections.forEach(maConn => maConn.close())
       return server.close()
     }
-  
+
     listener.listen = (ma) => {
       listeningMultiaddr = ma
-  
+
       return server.listen(ma.toOptions())
     }
-  
+
     listener.getAddrs = () => {
       const multiaddrs = []
       const address = server.address()
-  
+
       if (!address) {
         throw new Error('Listener is not ready yet')
       }
-  
+
       const ipfsId = listeningMultiaddr.getPeerId()
-  
+
       // Because TCP will only return the IPv6 version
       // we need to capture from the passed multiaddr
       if (listeningMultiaddr.toString().indexOf('ip4') !== -1) {
@@ -174,7 +176,7 @@ class WebsocketsOverTor extends WebSockets {
         if (listeningMultiaddr.getPeerId()) {
           m = m.encapsulate('/p2p/' + ipfsId)
         }
-  
+
         if (m.toString().indexOf('0.0.0.0') !== -1) {
           const netInterfaces = os.networkInterfaces()
           Object.keys(netInterfaces).forEach((niKey) => {
@@ -188,7 +190,7 @@ class WebsocketsOverTor extends WebSockets {
           multiaddrs.push(m)
         }
       }
-  
+
       return multiaddrs
     }
     return listener
@@ -206,5 +208,5 @@ class WebsocketsOverTor extends WebSockets {
 
 export default withIs(WebsocketsOverTor, {
   className: 'WebsocketsOverTor',
-  symbolName: '@libp2p/js-libp2p-websockets/websockets',
-});
+  symbolName: '@libp2p/js-libp2p-websockets/websockets'
+})

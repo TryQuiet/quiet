@@ -1,6 +1,6 @@
 import express from 'express'
 import { Tor } from '../torManager'
-import {ZBAY_DIR_PATH} from '../constants'
+import { ZBAY_DIR_PATH } from '../constants'
 import * as path from 'path'
 import * as os from 'os'
 import fs from 'fs'
@@ -11,12 +11,12 @@ interface IPeer {
 }
 
 export class Tracker {
-  private _app: express.Application
+  private readonly _app: express.Application
   private _peers: IPeer
-  private _port: number
-  private _controlPort: number
-  private _privKey: string
-  private _peerExpirationTime: number
+  private readonly _port: number
+  private readonly _controlPort: number
+  private readonly _privKey: string
+  private readonly _peerExpirationTime: number
 
   constructor(hiddenServicePrivKey: string, port?: number, controlPort?: number, peerExpirationTime?: number) {
     this._app = express()
@@ -30,7 +30,7 @@ export class Tracker {
   private async initTor() {
     const torPath = `${process.cwd()}/tor/tor`
     const pathDevLib = path.join.apply(null, [process.cwd(), 'tor'])
-    if(!fs.existsSync(ZBAY_DIR_PATH)) {
+    if (!fs.existsSync(ZBAY_DIR_PATH)) {
       fs.mkdirSync(ZBAY_DIR_PATH)
     }
     const tor = new Tor({
@@ -45,12 +45,12 @@ export class Tracker {
         detached: true
       }
     })
-    
+
     await tor.init()
-    return await tor.addOnion({ 
-      virtPort: this._port, 
-      targetPort: this._port, 
-      privKey: this._privKey 
+    return await tor.addOnion({
+      virtPort: this._port,
+      targetPort: this._port,
+      privKey: this._privKey
     })
   }
 
@@ -62,7 +62,7 @@ export class Tracker {
       console.debug('Wrong address format:', e)
       return false
     }
-    
+
     const expirationTime = (new Date()).getTime() + this._peerExpirationTime
     this._peers[address] = expirationTime
     console.log(`Added peer ${maddr.getPeerId()}`)
@@ -88,13 +88,12 @@ export class Tracker {
       this.clearPeers()
       res.send(this.getAddresses())
     })
-    this._app.post('/register',(req, res) => {
-      const address = req.body['address']
+    this._app.post('/register', (req, res) => {
+      const address = req.body.address
       if (!address) {
         console.debug('No address in request data')
         res.status(400)
-      }
-      else if (!this.addPeer(address)) {
+      } else if (!this.addPeer(address)) {
         res.status(400)
       }
       res.end()
@@ -107,12 +106,11 @@ export class Tracker {
   }
 
   public async listen(): Promise<void> {
-    return new Promise(resolve => {
+    return await new Promise(resolve => {
       this._app.listen(this._port, () => {
         console.debug(`Tracker listening on ${this._port}`)
         resolve()
       })
-    })  
+    })
   }
-
 }

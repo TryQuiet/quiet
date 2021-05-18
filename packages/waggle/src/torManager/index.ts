@@ -4,6 +4,7 @@ import path from 'path'
 import { TorControl } from './torControl'
 import { ZBAY_DIR_PATH } from '../constants'
 import { sleep } from './../sleep'
+import { isConditionalExpression } from 'typescript'
 interface IService {
   virtPort: number
   address: string
@@ -30,8 +31,9 @@ export class Tor {
     this.appDataPath = appDataPath
     this.controlPort = controlPort
   }
-  public init = (timeout = 20000): Promise<void> =>
-    new Promise(async (resolve, reject) => {
+
+  public init = async (timeout = 80000): Promise<void> =>
+    await new Promise(async (resolve, reject) => {
       if (this.process) {
         throw new Error('Already initialized')
       }
@@ -49,21 +51,41 @@ export class Tor {
 
       this.process = child_process.spawn(this.torPath, ['-f', settingsPath], this.options)
 
+      const a = async (retries: number, currentRetry: number, sleepTime: number) => {
+        if (currentRetry < retries) {
+          try {
+            console.log('INITIALIZING TOR')
+            await this.torControl.signal('HEARTBEAT')
+            resolve()
+          } catch (err) {
+            console.log('ERROR CONNECTING TOR')
+            console.log('TRYING AGAIN')
+            await sleep(sleepTime)
+            await a(retries, currentRetry + 1, sleepTime)
+          }
+        } else {
+          console.log('TOO MANY ATTEMPTS, TOR INITIALIZATION FAILED, CHECK IF TOR PROCESS IS NOT RUNNING ALREADY')
+          reject()
+        }
+      }
+
+      await a(20, 0, 1000)
+
       const newProcessPid = {
         pid: this.process.pid
       }
+
       const pidJson = JSON.stringify(newProcessPid)
       fs.writeFileSync(TorPidPath, pidJson)
-
-      const id = setTimeout(() => {
-        this.process?.kill()
-        reject('Process timeout')
-      }, timeout)
       this.process.stdout.on('data', (data: Buffer) => {
-        console.log(data.toString())
-        if (data.toString().includes('100%')) {
-          clearTimeout(id)
-          resolve()
+        if (
+          !data
+            .toString()
+            .includes(
+              'Closed 1 streams for service [scrubbed].onion for reason resolve failed. Fetch status: No more HSDir available to query.'
+            )
+        ) {
+          console.log(data.toString())
         }
       })
     })
@@ -103,7 +125,7 @@ export class Tor {
   public async addNewService(
     virtPort: number,
     targetPort: number
-  ): Promise<{ onionAddress: string; privateKey: string }> {
+  ): Promise<{ onionAddress: string, privateKey: string }> {
     const status = await this.torControl.addOnion(
       `NEW:BEST Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
     )
@@ -127,8 +149,8 @@ export class Tor {
     throw new Error('cannot get service addres')
   }
 
-  private killHangingTorProcess = async (): Promise<void> => {
-    return new Promise(async (resolve, reject) => {
+  private readonly killHangingTorProcess = async (): Promise<void> => {
+    return await new Promise(async (resolve, reject) => {
       const timeout = setTimeout(() => {
         reject('ERROR: Cannot kill hanging tor process, kill it manually and restart app')
       }, 30_000)
@@ -160,8 +182,8 @@ export class Tor {
     })
   }
 
-  public kill = (): Promise<void> =>
-    new Promise((resolve, reject) => {
+  public kill = async (): Promise<void> =>
+    await new Promise((resolve, reject) => {
       if (this.process === null) {
         reject('Process is not initalized.')
       }

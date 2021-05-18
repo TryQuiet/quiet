@@ -1,6 +1,18 @@
 # Changelog
 
-## [1.0.24] - WIP
+## [1.1.0] - WIP
+
+### Added
+
+- Storage - DM related methods and databses
+- Connections Manager - DM related methods
+- Events - DM related events
+- Listeners - DM related listeners
+
+### Changed
+
+- Tor control logic. Use control port and heartbeat to check tor status.
+
 ### Added
 - Tracker - keep track of the peers which connected to the p2p network. Will replace the entry node.
 
