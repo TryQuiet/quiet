@@ -39,6 +39,9 @@ import { clearPublicChannels, PublicChannel } from './publicChannels'
 
 import { ActionsType, PayloadType } from './types'
 import { DisplayableMessage } from '../../zbay/messages.types'
+import directMessagesHandlers from './directMessages'
+import directMessagesSelectors from '../selectors/directMessages'
+
 interface IShippingData {
   firstName: string
   lastName: string
@@ -384,7 +387,6 @@ export const prepareUpgradedVersion = () => async (dispatch, getState) => {
     const appVersionNumber = Number(appVersion.split('-')[0].split('.')[0])
     if (appVersionNumber >= 3) {
       dispatch(clearPublicChannels())
-      console.log('Cleared public channels')
       electronStore.set('appUpgraded', true)
     }
   }
@@ -392,6 +394,7 @@ export const prepareUpgradedVersion = () => async (dispatch, getState) => {
 
 export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
   const nickname = identitySelectors.name(getState())
+  const hasWaggleIdentity = directMessagesSelectors.publicKey(getState())
   const identityOnionAddress = identitySelectors.onionAddress(getState())
   const myUser = usersSelectors.myUser(getState())
   const hasNewOnionAddress = (identityOnionAddress !== myUser.onionAddress) && myUser.onionAddress
@@ -419,6 +422,9 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
     }
     dispatch(setLoadingMessage('Fetching balance and loading channels'))
     await dispatch(initAddreses())
+    if (!hasWaggleIdentity) {
+      await dispatch(directMessagesHandlers.epics.generateDiffieHellman())
+    }
     dispatch(ownedChannelsHandlers.epics.getOwnedChannels())
     dispatch(ratesHandlers.epics.setInitialPrice())
     await dispatch(nodeHandlers.epics.getStatus())

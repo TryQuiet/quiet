@@ -6,7 +6,7 @@ import AppBar from '@material-ui/core/AppBar'
 import { withStyles } from '@material-ui/core/styles'
 import { Grid } from '@material-ui/core'
 import { AutoSizer } from 'react-virtualized'
-import { Scrollbars } from 'react-custom-scrollbars'
+import { Scrollbars } from 'rc-scrollbars'
 
 import Modal from '../../../ui/Modal'
 import Tab from '../../../ui/Tab'
@@ -207,11 +207,11 @@ export const SettingsModal = ({
 SettingsModal.propTypes = {
   open: PropTypes.bool.isRequired,
   handleClose: PropTypes.func.isRequired,
-  modalTabToOpen: PropTypes.string,
+  // modalTabToOpen: PropTypes.boolean,
   clearCurrentOpenTab: PropTypes.func.isRequired,
   currentTab: PropTypes.string,
   setCurrentTab: PropTypes.func.isRequired,
-  blockedUsers: PropTypes.object.isRequired
+  blockedUsers: PropTypes.array.isRequired
 }
 
 export default withStyles(styles)(SettingsModal)

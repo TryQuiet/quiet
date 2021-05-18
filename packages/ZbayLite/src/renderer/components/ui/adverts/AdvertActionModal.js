@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import * as R from 'ramda'
 import { AutoSizer } from 'react-virtualized'
-import { Scrollbars } from 'react-custom-scrollbars'
+import { Scrollbars } from 'rc-scrollbars'
 import { DateTime } from 'luxon'
 import { shell } from 'electron'
 

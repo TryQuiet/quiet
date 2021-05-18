@@ -11,12 +11,12 @@ import updateHandlers from './store/handlers/update'
 import invitationHandlers from './store/handlers/invitation'
 import importChannelHandlers from './store/handlers/importedChannel'
 import coordinatorHandlers from './store/handlers/coordinator'
+import waggleHandlers from './store/handlers/waggle'
 import publicChannelsHandlers from './store/handlers/publicChannels'
-import messagesHandlers from './store/handlers/messages'
+import directMessagesHandlers from './store/handlers/directMessages'
 import nodeSelectors from './store/selectors/node'
 import coordinatorSelectors from './store/selectors/coordinator'
 import identityHandlers from './store/handlers/identity'
-import contactsHandlers from './store/handlers/contacts'
 
 import { errorNotification, successNotification } from './store/handlers/utils'
 import notificationsHandlers from './store/handlers/notifications'
@@ -63,14 +63,6 @@ ipcRenderer.on('newUpdateAvailable', event => {
 
 ipcRenderer.on('onionAddress', (_, address) => {
   store.dispatch(identityHandlers.actions.setOnionAddress(address))
-})
-
-ipcRenderer.on('wsMessage', (_, data) => {
-  store.dispatch(messagesHandlers.epics.handleWebsocketMessage(data))
-})
-
-ipcRenderer.on('connectWsContacts', (event, msg) => {
-  store.dispatch(contactsHandlers.epics.connectWsContacts())
 })
 
 ipcRenderer.on('askForUsingDefaultBlockchainLocation', event => {
@@ -127,9 +119,14 @@ ipcRenderer.on('connectToWebsocket', (event) => {
 })
 
 ipcRenderer.on('waggleInitialized', (event) => {
-  console.log('Initialized waggle, subscribing to channels')
+  console.log('waggle Initialized')
+  store.dispatch(waggleHandlers.actions.setIsWaggleConnected(true))
   store.dispatch(publicChannelsHandlers.epics.loadPublicChannels())
   store.dispatch(publicChannelsHandlers.epics.subscribeForPublicChannels())
+  // store.dispatch(directMessagesHandlers.epics.subscribeForDirectMessageThreads)
+  store.dispatch(directMessagesHandlers.epics.getAvailableUsers())
+  store.dispatch(directMessagesHandlers.epics.getPrivateConversations())
+  // store.dispatch(directMessagesHandlers.epics.generateDiffieHellman(identity.signerPubKey))
 })
 
 ipcRenderer.on('newChannel', (event, { channelParams }) => {

@@ -17,12 +17,14 @@ import zcashChannels from '../../../zcash/channels'
 import channelHandlers from '../../../store/handlers/channel'
 import appHandlers from '../../../store/handlers/app'
 import electronStore from '../../../../shared/electronStore'
+import { loadNextMessagesLimit } from '../../../../shared/static'
 
 export const ChannelMessages = ({ tab, contentRect }) => {
   const isDev = process.env.NODE_ENV === 'development'
 
   const [scrollPosition, setScrollPosition] = React.useState(-1)
   const [_isRescanned, setIsRescanned] = React.useState(true)
+  const [newMessagesLoading, setNewMessagesLoading] = React.useState(false)
 
   const dispatch = useDispatch()
   const qMessages = useSelector(queueMessages.queue)
@@ -64,9 +66,11 @@ export const ChannelMessages = ({ tab, contentRect }) => {
   }, [triggerScroll])
   useEffect(() => {
     if (scrollPosition === 0 && displayableMessageLimit < messagesLength) {
-      setDisplayableLimit(displayableMessageLimit + 5)
+      setDisplayableLimit(displayableMessageLimit + loadNextMessagesLimit)
+      setNewMessagesLoading(true)
     }
   }, [scrollPosition])
+
   const oldestMessage = messages ? messages[messages.length - 1] : null
   let usersRegistration = []
   let _publicChannelsRegistration = []
@@ -91,6 +95,8 @@ export const ChannelMessages = ({ tab, contentRect }) => {
     <ChannelMessagesComponent
       scrollPosition={scrollPosition}
       setScrollPosition={setScrollPosition}
+      newMessagesLoading={newMessagesLoading}
+      setNewMessagesLoading={setNewMessagesLoading}
       isNewUser={isNewUser}
       onRescan={onRescan}
       channelId={channelId}

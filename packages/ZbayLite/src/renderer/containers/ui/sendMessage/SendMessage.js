@@ -10,11 +10,12 @@ import identitySelector from '../../../store/selectors/identity'
 import directMessages from '../../../store/handlers/contacts'
 import transfers from '../../../store/handlers/directMessagesQueue'
 import userSelectors from '../../../store/selectors/users'
+import directMessagesSelector from '../../../store/selectors/directMessages'
 
 export const mapStateToProps = state => ({
   balanceZec: identitySelector.balance('zec')(state),
   userData: identitySelector.data(state),
-  users: userSelectors.users(state),
+  users: directMessagesSelector.users(state),
   nickname: userSelectors.registeredUser(
     identitySelector.signerPubKey(state)
   )(state)

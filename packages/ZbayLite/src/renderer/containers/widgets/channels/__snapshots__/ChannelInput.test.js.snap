@@ -13,7 +13,7 @@ exports[`ChannelInput will receive right props 1`] = `
 Object {
   "channelName": " Unnamed",
   "id": "channel-id",
-  "inputState": 1,
+  "inputState": 0,
   "isMessageTooLong": null,
   "isSizeCheckingInProgress": false,
   "members": Set {},

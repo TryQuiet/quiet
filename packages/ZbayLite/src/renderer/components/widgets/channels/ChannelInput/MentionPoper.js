@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { Scrollbars } from 'react-custom-scrollbars'
+import { Scrollbars } from 'rc-scrollbars'
 
 import { withStyles } from '@material-ui/core/styles'
 import Paper from '@material-ui/core/Paper'
@@ -116,7 +116,7 @@ export const MentionPoper = ({ classes, anchorEl, children, selected }) => {
 }
 MentionPoper.propTypes = {
   classes: PropTypes.object.isRequired,
-  anchorEl: PropTypes.object.isRequired,
+  // anchorEl: PropTypes.object.isRequired,
   children: PropTypes.array,
   selected: PropTypes.number
 }

@@ -1,7 +1,6 @@
 import Immutable from 'immutable'
 import BigNumber from 'bignumber.js'
 import * as R from 'ramda'
-import crypto from 'crypto'
 import fs from 'fs'
 import { createAction } from 'redux-actions'
 
@@ -25,12 +24,11 @@ import {
   notificationFilterType
 } from '../../../shared/static'
 import { messages as zbayMessages } from '../../zbay'
-import { checkMessageSizeAfterComporession, unpackMemo } from '../../zbay/transit'
+import { checkMessageSizeAfterComporession } from '../../zbay/transit'
 import client from '../../zcash'
-import { getPublicKeysFromSignature, usernameSchema, messageSchema } from '../../zbay/messages'
-import { DisplayableMessage, ExchangeParticipant } from '../../zbay/messages.types'
+import { DisplayableMessage } from '../../zbay/messages.types'
 import channels from '../../zcash/channels'
-import { displayDirectMessageNotification, displayMessageNotification } from '../../notifications'
+import { displayMessageNotification } from '../../notifications'
 import electronStore from '../../../shared/electronStore'
 import notificationCenterSelectors from '../selectors/notificationCenter'
 import staticChannelsMessages from '../../static/staticChannelsMessages.json'
@@ -569,175 +567,8 @@ export const _checkMessageSize = mergedMessage => async (dispatch, getState) => 
   }
 }
 
-export const handleWebsocketMessage = data => async (dispatch, getState) => {
-  const users = usersSelectors.users(getState())
-  let publicKey = null
-  let message = null
-  let sender = { replyTo: '', username: 'Unnamed' }
-  let isUnregistered = false
-  const currentChannel = channelSelectors.channel(getState())
-  const userFilter = notificationCenterSelectors.userFilterType(getState())
-  const contacts = contactsSelectors.contacts(getState())
-  try {
-    message = await unpackMemo(data)
-    const { type } = message
-    const { typeIndicator } = message
-    if (type === 'UNKNOWN') {
-      return {
-        type: 'UNKNOWN',
-        payload: message,
-        id: '1'
-      }
-    }
-    publicKey = getPublicKeysFromSignature(message).toString('hex')
-    const contact = contactsSelectors.contact(publicKey)(getState())
-    if (contact && contact.key === publicKey) {
-      dispatch(
-        contactsHandlers.actions.setTypingIndicator({
-          typingIndicator: !!typeIndicator,
-          contactAddress: publicKey
-        })
-      )
-      console.log('Received connection established message')
-      if (type === messageType.CONNECTION_ESTABLISHED) {
-        console.log('Contact exist')
-        if (!contact.connected) {
-          console.log('Contact is not connected, initializing connection')
-          console.log(publicKey)
-          dispatch(contactsHandlers.epics.connectWsContacts(publicKey))
-        }
-        return
-      }
-    }
-    if (users !== undefined) {
-      const fromUser = users[publicKey]
-      if (fromUser !== undefined) {
-        const isUsernameValid = usernameSchema.isValidSync(fromUser)
-        sender = new ExchangeParticipant({
-          replyTo: fromUser.address,
-          username: isUsernameValid ? fromUser.nickname : `anon${publicKey.substring(0, 10)}`
-        })
-      } else {
-        sender = new ExchangeParticipant({
-          replyTo: '',
-          username: `anon${publicKey}`
-        })
-        isUnregistered = true
-      }
-    }
-  } catch (err) {
-    console.warn(err)
-    return null
-  }
-
-  if (message.message) {
-    try {
-      const toUser =
-        Array.from(Object.values(users)).find(u => u.address === sender.replyTo) ||
-        new ExchangeParticipant({})
-      const messageDigest = crypto.createHash('sha256')
-      const messageEssentials = R.pick(['createdAt', 'message'])(message)
-      const key = messageDigest.update(JSON.stringify(messageEssentials)).digest('hex')
-      const msg = {
-        ...(await messageSchema.validate(message)),
-        id: key,
-        receiver: {
-          replyTo: toUser.address,
-          publicKey: toUser.publicKey,
-          username: toUser.nickname
-        },
-        spent: new BigNumber(0),
-        sender: sender,
-        fromYou: true,
-        isUnregistered,
-        publicKey,
-        offerOwner: message.message.offerOwner,
-        tag: message.message.tag,
-        shippingData: message.message.shippingData
-      }
-      const parsedMsg = new DisplayableMessage(msg)
-      // const contacts = contactsSelectors.contacts(getState())
-      if (msg.message.itemId) {
-        const item = msg.message.itemId
-        // const contacts = contactsSelectors.contacts(getState())
-        const offer = contactsSelectors.getAdvertById(item)(getState())
-        if (!offer) {
-          return
-        }
-        if (!contacts[`${item}${msg.sender.username}`]) {
-          await dispatch(
-            contactsHandlers.actions.addContact({
-              key: `${item}${msg.sender.username}`,
-              username: `${offer.message.tag} @${msg.sender.username}`,
-              contactAddress: msg.sender.replyTo,
-              offerId: offer.id
-            })
-          )
-        }
-
-        dispatch(
-          contactsHandlers.actions.addMessage({
-            key: `${item}${msg.sender.username}`,
-            message: { [key]: parsedMsg }
-          })
-        )
-        if (
-          currentChannel.id !== `${item}${msg.sender.username}` &&
-          userFilter !== notificationFilterType.NONE
-        ) {
-          displayMessageNotification({
-            senderName: msg.sender.username,
-            message: msg.message.text,
-            channelName: `${offer.message.tag} @${msg.sender.username}`
-          })
-          dispatch(
-            contactsHandlers.actions.appendNewMessages({
-              contactAddress: `${item}${msg.sender.username}`,
-              messagesIds: [key]
-            })
-          )
-        }
-      } else {
-        if (!contacts[publicKey]) {
-          console.log('adding incomin connection to contacts')
-          await dispatch(
-            contactsHandlers.actions.addContact({
-              key: publicKey,
-              contactAddress: msg.sender.replyTo,
-              username: msg.sender.username
-            })
-          )
-          console.log('trying connection with new contact')
-          dispatch(contactsHandlers.epics.connectWsContacts(publicKey))
-        }
-        dispatch(
-          contactsHandlers.actions.addMessage({
-            key: publicKey,
-            message: { [key]: parsedMsg }
-          })
-        )
-        if (currentChannel.id !== msg.publicKey && userFilter !== notificationFilterType.NONE) {
-          displayDirectMessageNotification({
-            username: msg.sender.username,
-            message: msg
-          })
-          dispatch(
-            contactsHandlers.actions.appendNewMessages({
-              contactAddress: publicKey,
-              messagesIds: [key]
-            })
-          )
-        }
-      }
-    } catch (err) {
-      console.warn('Incorrect message format: ', err)
-      return null
-    }
-  }
-}
 export const epics = {
-  fetchMessages,
-  handleWebsocketMessage
+  fetchMessages
 }
 
 export default {

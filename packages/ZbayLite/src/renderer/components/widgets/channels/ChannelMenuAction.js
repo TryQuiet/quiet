@@ -124,7 +124,7 @@ ChannelMenuAction.propTypes = {
   disableSettings: PropTypes.bool.isRequired,
   publicChannels: PropTypes.object.isRequired,
   channel: PropTypes.object.isRequired,
-  notificationFilter: PropTypes.number.isRequired
+  notificationFilter: PropTypes.string.isRequired
 }
 ChannelMenuAction.defaultProps = {
   publicChannels: {},

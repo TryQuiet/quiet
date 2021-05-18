@@ -272,7 +272,6 @@ CreateUsernameModal.propTypes = {
   open: PropTypes.bool.isRequired,
   handleClose: PropTypes.func.isRequired,
   initialValues: PropTypes.object.isRequired,
-  checkNickname: PropTypes.func.isRequired,
   handleSubmit: PropTypes.func.isRequired,
   enoughMoney: PropTypes.bool.isRequired,
   usernameFee: PropTypes.number.isRequired,

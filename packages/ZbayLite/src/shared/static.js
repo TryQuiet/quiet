@@ -180,7 +180,13 @@ export const actionTypes = mirrorKey({
   ADD_UNKNOWN_USER: undefined,
   MOCK_OWN_USER: undefined,
   SET_REGISTRAION_STATUS: undefined,
-  SET_TYPING_INDICATOR: undefined
+  SET_TYPING_INDICATOR: undefined,
+  FETCH_USERS: undefined,
+  SET_PUBLIC_KEY: undefined,
+  SET_PRIVATE_KEY: undefined,
+  ADD_CONVERSATION: undefined,
+  FETCH_CONVERSATIONS: undefined,
+  SET_IS_WAGGLE_CONNECTED: undefined
 })
 
 export const moderationActionsType = {
@@ -203,3 +209,5 @@ export const soundType = {
   BANG: 2,
   SPLAT: 3
 }
+
+export const loadNextMessagesLimit = 20

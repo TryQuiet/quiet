@@ -345,7 +345,7 @@ export const ChannelMessage = ({
 
 ChannelMessage.propTypes = {
   classes: PropTypes.object.isRequired,
-  message: PropTypes.instanceOf(_DisplayableMessage).isRequired,
+  message: PropTypes.object.isRequired,
   publicChannels: PropTypes.object.isRequired,
   users: PropTypes.object.isRequired,
   whitelisted: PropTypes.array.isRequired,

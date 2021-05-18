@@ -4,7 +4,7 @@ import * as R from 'ramda'
 import { Formik } from 'formik'
 import { withStyles } from '@material-ui/core/styles'
 import { AutoSizer } from 'react-virtualized'
-import { Scrollbars } from 'react-custom-scrollbars'
+import { Scrollbars } from 'rc-scrollbars'
 import * as Yup from 'yup'
 import BigNumber from 'bignumber.js'
 

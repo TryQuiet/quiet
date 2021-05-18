@@ -1,8 +1,6 @@
 import { produce, immerable } from 'immer'
 import BigNumber from 'bignumber.js'
 import { createAction, handleActions } from 'redux-actions'
-import crypto from 'crypto'
-import * as R from 'ramda'
 import { remote } from 'electron'
 import { DateTime } from 'luxon'
 
@@ -15,21 +13,20 @@ import offersHandlers from './offers'
 import channelSelectors from '../selectors/channel'
 import identitySelectors from '../selectors/identity'
 import contactsSelectors from '../selectors/contacts'
-import appSelectors from '../selectors/app'
+import directMessagesSelectors from '../selectors/directMessages'
+import directMessagesHandlers from '../handlers/directMessages'
 import client from '../../zcash'
 import { messages } from '../../zbay'
 import { errorNotification } from './utils'
 import { messageType, actionTypes } from '../../../shared/static'
 import { DisplayableMessage } from '../../zbay/messages.types'
-import usersSelectors from '../selectors/users'
 import contactsHandlers from './contacts'
 import electronStore from '../../../shared/electronStore'
 import { channelToUri } from '../../zbay/channels'
-import { sendMessage } from '../../zcash/websocketClient'
-import { packMemo } from '../../zbay/transit'
 
 import { ActionsType, PayloadType } from './types'
 import { publicChannelsActions } from '../../sagas/publicChannels/publicChannels.reducer'
+import { directMessagesActions } from '../../sagas/directMessages/directMessages.reducer'
 
 // TODO: to remove, but must be replaced in all the tests
 export const ChannelState = {
@@ -183,155 +180,27 @@ const linkChannelRedirect = targetChannel => async (dispatch, getState) => {
   history.push(`/main/channel/${targetChannel.address}`)
 }
 
-const sendTypingIndicator = value => async (dispatch, getState) => {
-  const channel = channelSelectors.channel(getState())
-  const users = usersSelectors.users(getState())
-  const useTor = appSelectors.useTor(getState())
-
-  const privKey = identitySelectors.signerPrivKey(getState())
-  const message = messages.createMessage({
-    messageData: {
-      type: messageType.BASIC,
-      data: null
-    },
-    privKey: privKey
-  })
-
-  if (useTor && users[channel.id] && users[channel.id].onionAddress) {
-    try {
-      const memo = await packMemo(message, value)
-      const result = await sendMessage(memo, users[channel.id].onionAddress)
-      if (result === -1) {
-        dispatch(
-          contactsHandlers.actions.setContactConnected({ key: channel.id, connected: false })
-        )
-        throw new Error('unable to connect')
-      }
-      dispatch(contactsHandlers.actions.setContactConnected({ key: channel.id, connected: true }))
-      return
-    } catch (error) {
-      console.log(error)
-      console.log('socket timeout')
-    }
-  }
-}
-
-const sendOnEnter = (event, resetTab) => async (dispatch, getState) => {
-  console.log('working here')
+const sendOnEnter = (_event, resetTab) => async (dispatch, getState) => {
   if (resetTab) {
     resetTab(0)
   }
   const isPublicChannel = channelSelectors.isPublicChannel(getState())
+  const isDirectMessageChannel = channelSelectors.isDirectMessage(getState())
+
   if (isPublicChannel) {
     dispatch(publicChannelsActions.sendMessage())
     return
   }
-  const enterPressed = event.nativeEvent.keyCode === 13
-  const shiftPressed = event.nativeEvent.shiftKey === true
-  const channel = channelSelectors.channel(getState())
-  const messageToSend = channelSelectors.message(getState())
-  const users = usersSelectors.users(getState())
-  const useTor = appSelectors.useTor(getState())
-  const id = channelSelectors.id(getState())
-  let message
-  if (enterPressed && !shiftPressed) {
-    event.preventDefault()
-    const privKey = identitySelectors.signerPrivKey(getState())
-    message = messages.createMessage({
-      messageData: {
-        type: messageType.BASIC,
-        data: messageToSend
-      },
-      privKey: privKey
-    })
-    const isMergedMessageTooLong = await dispatch(_checkMessageSize(message.message))
-    if (!isMergedMessageTooLong) {
-      dispatch(setMessage({ value: '', id: id }))
-      const myUser = usersSelectors.myUser(getState())
-      const messageDigest = crypto.createHash('sha256')
-      const messageEssentials = R.pick(['createdAt', 'message'])(message)
-      const key = messageDigest.update(JSON.stringify(messageEssentials)).digest('hex')
+  if (isDirectMessageChannel) {
+    console.log('inside direct message')
+    const id = channelSelectors.id(getState())
+    const conversations = directMessagesSelectors.conversations(getState())
+    const conversation = conversations[id]
 
-      const messagePlaceholder = new DisplayableMessage({
-        ...message,
-        id: key,
-        sender: {
-          replyTo: myUser.address,
-          username: myUser.nickname
-        },
-        fromYou: true,
-        status: 'pending',
-        message: messageToSend
-      })
-      dispatch(
-        contactsHandlers.actions.addMessage({
-          key: channel.id,
-          message: { [key]: messagePlaceholder }
-        })
-      )
-      dispatch(
-        operationsHandlers.actions.addOperation({
-          channelId: channel.id,
-          id: key
-        })
-      )
-
-      const identityAddress = identitySelectors.address(getState())
-      if (useTor && users[channel.id] && users[channel.id].onionAddress) {
-        try {
-          const memo = await packMemo(message, false)
-          const result = await sendMessage(memo, users[channel.id].onionAddress)
-          if (result === -1) {
-            dispatch(
-              contactsHandlers.actions.setContactConnected({ key: channel.id, connected: false })
-            )
-            throw new Error('unable to connect')
-          }
-          dispatch(
-            contactsHandlers.actions.setContactConnected({ key: channel.id, connected: true })
-          )
-          return
-        } catch (error) {
-          console.log(error)
-          console.log('socket timeout')
-        }
-      }
-
-      const transfer = await messages.messageToTransfer({
-        message: message,
-        address: channel.address,
-        identityAddress
-      })
-      const transaction = await client.sendTransaction(transfer)
-      if (!transaction.txid) {
-        dispatch(
-          contactsHandlers.actions.addMessage({
-            key: channel.id,
-            message: {
-              [key]: {
-                ...messagePlaceholder,
-                status: 'failed'
-              }
-            }
-          })
-        )
-        dispatch(
-          notificationsHandlers.actions.enqueueSnackbar(
-            errorNotification({
-              message: "Couldn't send the message, please check node connection."
-            })
-          )
-        )
-        return
-      }
-      dispatch(
-        operationsHandlers.epics.resolvePendingOperation({
-          channelId: channel.id,
-          id: key,
-          txid: transaction.txid
-        })
-      )
+    if (!conversation) {
+      await dispatch(directMessagesHandlers.epics.initializeConversation())
     }
+    dispatch(directMessagesActions.sendDirectMessage())
   }
 }
 const sendChannelSettingsMessage = ({ address, minFee = '0', onlyRegistered = '0' }) => async (
@@ -505,8 +374,7 @@ export const epics = {
   updateLastSeen,
   loadOffer,
   sendChannelSettingsMessage,
-  linkChannelRedirect,
-  sendTypingIndicator
+  linkChannelRedirect
 }
 
 export default {

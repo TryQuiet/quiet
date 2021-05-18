@@ -37,19 +37,9 @@ exports[`SendMessageSeparateInitial renders component 1`] = `
   <ErrorText
     name="recipient"
   />
-  <WithStyles(ForwardRef(Grid))
-    className="labelDiv-mock"
-    item={true}
-  >
-    <FormikConnect(FieldInner)
-      component={[Function]}
-      name="sendAnonymously"
-    />
-  </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Button))
     className="button-mock"
     color="primary"
-    disabled={false}
     onClick={[Function]}
     size="large"
     type="submit"

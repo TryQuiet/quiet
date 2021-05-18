@@ -24,7 +24,7 @@ exports[`SendMessagePopover renders popover 1`] = `
     handleClose={[MockFunction]}
     main="TestUser"
     onClick={[Function]}
-    warrning={null}
+    warrning="Unregistered users cannot receive messages."
   >
     <Jdenticon
       size="100"

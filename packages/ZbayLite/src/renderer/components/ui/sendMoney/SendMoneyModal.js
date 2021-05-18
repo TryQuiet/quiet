@@ -6,7 +6,7 @@ import { Formik } from 'formik'
 import BigNumber from 'bignumber.js'
 import { withStyles } from '@material-ui/core/styles'
 import { AutoSizer } from 'react-virtualized'
-import { Scrollbars } from 'react-custom-scrollbars'
+import { Scrollbars } from 'rc-scrollbars'
 
 import Modal from '../Modal'
 import SendMoneyForm from './SendMoneyForm'

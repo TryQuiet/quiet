@@ -4,7 +4,7 @@ import * as R from 'ramda'
 
 import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
-import { Scrollbars } from 'react-custom-scrollbars'
+import { Scrollbars } from 'rc-scrollbars'
 import { AutoSizer } from 'react-virtualized'
 
 import NodePanel from '../../../containers/widgets/node/NodePanel'

@@ -32,12 +32,15 @@ import whitelistHandlers from './handlers/whitelist'
 import notificationCenterHandlers from './handlers/notificationCenter'
 import operationsHandlers from './handlers/operations'
 import ownedChannels from './handlers/ownedChannels'
+import directMessages from './handlers/directMessages'
+import waggleHandlers from './handlers/waggle'
 
 const reduxStorage = createElectronStorage()
 const persistConfig = {
   key: 'root',
   storage: reduxStorage,
   whitelist: [
+    'directMessages',
     'contacts',
     'app',
     'identity',
@@ -59,6 +62,8 @@ const persistConfig = {
 
 const reducers = {
   users: usersHandlers.reducer,
+  waggle: waggleHandlers.reducer,
+  directMessages: directMessages.reducer,
   app: appHandlers.reducer,
   operations: operationsHandlers.reducer,
   messagesQueue: messagesQueueHandlers.reducer,

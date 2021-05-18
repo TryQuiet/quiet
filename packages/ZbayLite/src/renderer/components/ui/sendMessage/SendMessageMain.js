@@ -4,7 +4,7 @@ import * as R from 'ramda'
 import { Formik } from 'formik'
 import { withStyles } from '@material-ui/core/styles'
 import { AutoSizer } from 'react-virtualized'
-import { Scrollbars } from 'react-custom-scrollbars'
+import { Scrollbars } from 'rc-scrollbars'
 import * as Yup from 'yup'
 import BigNumber from 'bignumber.js'
 
@@ -42,11 +42,8 @@ export const formSchema = users => {
   )
 }
 
-export const validateForm = ({ balanceZec }) => values => {
+export const validateForm = () => values => {
   const errors = {}
-  if (balanceZec.isLessThan(networkFee)) {
-    errors.amountZec = 'Your ZEC balance is to low for sending a message'
-  }
   if (
     values.memo.length > MESSAGE_SIZE
   ) {
@@ -78,6 +75,11 @@ export const SendMessageMain = ({
       enableReinitialize
       onSubmit={(values, { resetForm }) => {
         const { recipient, sendAnonymously } = values
+        const contact = {
+          nickname: recipient.nickname,
+          publicKey: recipient.publicKey,
+          address: ''
+        }
         const includesNickname =
         Array.from(Object.values(users))
           .filter(obj => obj.nickname === recipient)[0] ||
@@ -89,6 +91,10 @@ export const SendMessageMain = ({
             history
           })
         } else {
+          createNewContact({
+            contact,
+            history
+          })
           const transferData = {
             amount: values.amountZec,
             destination: includesNickname ? includesNickname.address : values.recipient,

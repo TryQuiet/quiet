@@ -11,7 +11,7 @@ Object {
 exports[`ChannelInput will receive right props 1`] = `
 Object {
   "id": null,
-  "inputState": 1,
+  "inputState": 0,
   "message": "",
   "myUser": Object {
     "address": "",

@@ -19,6 +19,7 @@ exports[`MentionPoper renders component highlight 1`] = `
       autoHide={false}
       autoHideDuration={200}
       autoHideTimeout={500}
+      disableDefaultStyles={false}
       hideTracksWhenNotNeeded={false}
       renderThumbHorizontal={[Function]}
       renderThumbVertical={[Function]}

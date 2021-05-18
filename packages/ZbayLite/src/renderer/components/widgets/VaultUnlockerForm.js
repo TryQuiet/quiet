@@ -176,7 +176,7 @@ VaultUnlockerForm.propTypes = {
   isLogIn: PropTypes.bool.isRequired,
   unlocking: PropTypes.bool.isRequired,
   exists: PropTypes.bool.isRequired,
-  done: PropTypes.bool.isRequired,
+  done: PropTypes.bool,
   nodeConnected: PropTypes.bool.isRequired,
   onSubmit: PropTypes.func.isRequired,
   loader: PropTypes.object.isRequired,

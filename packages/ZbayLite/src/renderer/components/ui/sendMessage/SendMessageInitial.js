@@ -133,7 +133,7 @@ export const SendMessageInitial = ({
   const userNamesArray = usersArray.map(user => user.nickname)
   const isUserSelected = userNamesArray.includes(recipient)
   const isShielded = values.recipient ? values.recipient.length >= 78 : false
-  const shouldSendAnonymously = isShielded && !isUserSelected && !errors.recipient
+  // const shouldSendAnonymously = isShielded && !isUserSelected && !errors.recipient
   const checkField = (v) => {
     return v.length >= 78 && !userNamesArray.includes(v)
   }
@@ -177,10 +177,10 @@ export const SendMessageInitial = ({
         }}
         onInputChange={(e, v) => {
           setFieldValue('recipient', v)
-          const shouldSetCheckbox = checkField(v)
-          if (shouldSetCheckbox) {
-            setFieldValue('sendAnonymously', true)
-          }
+          // const shouldSetCheckbox = checkField(v)
+          // if (shouldSetCheckbox) {
+          //   setFieldValue('sendAnonymously', true)
+          // }
         }}
         renderInput={params => (
           <TextField
@@ -195,14 +195,14 @@ export const SendMessageInitial = ({
         )}
       />
       <ErrorText name={'recipient'} />
-      <Grid item className={classes.labelDiv}>
+      {/* <Grid item className={classes.labelDiv}>
         <Field
           name={'sendAnonymously'}
           component={() => (<FormControlLabel
             classes={{ root: classes.checkboxForm }}
             control={
               <Checkbox
-                checked={shouldSendAnonymously || values.sendAnonymously}
+                //checked={shouldSendAnonymously || values.sendAnonymously}
                 disabled={shouldSendAnonymously}
                 onChange={(e, v) => setFieldValue('sendAnonymously', !values.sendAnonymously)}
                 color='default'
@@ -211,15 +211,15 @@ export const SendMessageInitial = ({
                 className={classes.checkbox}
               />
             }
-            label={
-              <Typography variant='body2' className={classes.label}>
-                    Send anonymously
-              </Typography>
-            }
+            // label={
+            //   <Typography variant='body2' className={classes.label}>
+            //         Send anonymously
+            //   </Typography>
+            // }
           />)}
         />
-      </Grid>
-      {(shouldSendAnonymously || (isUserSelected && values.sendAnonymously)) && (
+      </Grid> */}
+      {/* {(shouldSendAnonymously || (isUserSelected && values.sendAnonymously)) && (
         <Grid container item>
           <Grid className={classes.infoBox} item>
             <Typography className={classes.typo} variant='body2'><span className={classes.bold}>Warning:</span>
@@ -245,7 +245,7 @@ export const SendMessageInitial = ({
             />
           </Grid>
         </Grid>
-      )}
+      )} */}
       <Button
         className={classes.button}
         onClick={() => {
@@ -266,7 +266,6 @@ export const SendMessageInitial = ({
         color='primary'
         size='large'
         type='submit'
-        disabled={!isValid}
       >
         Continue
       </Button>

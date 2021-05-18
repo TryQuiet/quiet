@@ -7,8 +7,6 @@ import { autoUpdater } from 'electron-updater'
 import config from './config'
 import electronStore from '../shared/electronStore'
 import Client from './cli/client'
-import websockets, { clearConnections } from './websockets/client'
-import { createServer } from './websockets/server'
 import { getOnionAddress, spawnTor, runWaggle } from './waggleManager'
 
 electronStore.set('appDataPath', app.getPath('appData'))
@@ -32,13 +30,15 @@ const gotTheLock = app.requestSingleInstanceLock()
 
 const extensionsFolderPath = `${app.getPath('userData')}/extensions`
 
-
 const applyDevTools = async () => {
   if (!isDev) return
+  // eslint-disable-next-line
   require('electron-debug')({
     showDevTools: true
   })
+  // eslint-disable-next-line
   const installer = require('electron-devtools-installer')
+  // eslint-disable-next-line
   const { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } = require('electron-devtools-installer')
 
   const extensionsData = [
@@ -51,19 +51,22 @@ const applyDevTools = async () => {
       path: `${extensionsFolderPath}/${REDUX_DEVTOOLS.id}`
     }
   ]
-  await Promise.all(extensionsData.map(async (extension) => {
-    await installer.default(extension.name)
-  }))
-  await Promise.all(extensionsData.map(async (extension) => {
-    await session.defaultSession.loadExtension(extension.path, { allowFileAccess: true })
-  }))
+  await Promise.all(
+    extensionsData.map(async extension => {
+      await installer.default(extension.name)
+    })
+  )
+  await Promise.all(
+    extensionsData.map(async extension => {
+      await session.defaultSession.loadExtension(extension.path, { allowFileAccess: true })
+    })
+  )
 }
-
 
 if (!gotTheLock) {
   app.quit()
 } else {
-  app.on('second-instance', (commandLine) => {
+  app.on('second-instance', commandLine => {
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore()
       mainWindow.focus()
@@ -132,7 +135,7 @@ const createWindow = async () => {
     autoHideMenuBar: true
   })
   mainWindow.setMinimumSize(600, 400)
-
+  // eslint-disable-next-line
   mainWindow.loadURL(
     url.format({
       pathname: path.join(__dirname, './index.html'),
@@ -175,7 +178,7 @@ const isNetworkError = errorObject => {
   )
 }
 
-export const checkForUpdate = async (win) => {
+export const checkForUpdate = async win => {
   if (!isUpdatedStatusCheckingStarted) {
     try {
       await autoUpdater.checkForUpdates()
@@ -254,13 +257,16 @@ app.on('ready', async () => {
   await applyDevTools()
 
   await createWindow()
+  console.log('creatd windows')
+  mainWindow.webContents.on('did-fail-load', () => {
+    console.log('failed loading')
+  })
   mainWindow.webContents.on('did-finish-load', async () => {
     mainWindow.webContents.send('ping')
     try {
+      console.log('before spawning tor')
       tor = await spawnTor()
-      createServer(mainWindow)
       mainWindow.webContents.send('onionAddress', getOnionAddress())
-      mainWindow.webContents.send('connectWsContacts')
       await runWaggle(mainWindow.webContents)
     } catch (error) {
       console.log(error)
@@ -284,7 +290,6 @@ app.on('ready', async () => {
       tor = await spawnTor()
       await runWaggle(mainWindow.webContents)
       electronStore.set('isTorActive', true)
-      mainWindow.webContents.send('connectWsContacts')
     }
   })
 
@@ -305,49 +310,6 @@ app.on('ready', async () => {
     if (mainWindow) {
       mainWindow.webContents.send('rpcQuery', JSON.stringify({ id: request.id, data: response }))
     }
-  })
-
-  ipcMain.on('sendWebsocket', async (_event, arg) => {
-    const request = JSON.parse(arg)
-    const response = await websockets.handleSend(request)
-    // const response = await client.postMessage(request.id, request.method, request.args)
-    if (mainWindow) {
-      mainWindow.webContents.send(
-        'sendWebsocket',
-        JSON.stringify({ id: request.id, response: response })
-      )
-    }
-  })
-
-  ipcMain.on('initWsConnection', async (_event, arg) => {
-    const request = JSON.parse(arg)
-    try {
-      const socket = await websockets.connect(request.address)
-      if (mainWindow) {
-        mainWindow.webContents.send(
-          'initWsConnection',
-          JSON.stringify({ id: request.id, connected: true })
-        )
-      }
-      // socket
-      socket.on('close', function () {
-        if (mainWindow) {
-          mainWindow.webContents.send(
-            'initWsConnection',
-            JSON.stringify({ id: request.id, connected: false })
-          )
-        }
-      })
-    } catch (error) {
-      console.log(error)
-      if (mainWindow) {
-        mainWindow.webContents.send(
-          'initWsConnection',
-          JSON.stringify({ id: request.id, connected: false })
-        )
-      }
-    }
-    // const response = await client.postMessage(request.id, request.method, request.args)
   })
 
   ipcMain.on('vault-created', () => {
@@ -377,8 +339,6 @@ export const sleep = async (time = 1000) =>
 
 app.on('before-quit', async e => {
   e.preventDefault()
-  clearConnections()
-  await sleep(2000)
   if (tor !== null) {
     await tor.kill()
   }
@@ -408,4 +368,3 @@ app.on('activate', async () => {
     await createWindow()
   }
 })
-

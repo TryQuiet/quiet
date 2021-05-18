@@ -11,5 +11,12 @@ Object {
   "address": "zbay://uri/",
   "identityId": undefined,
   "users": Object {},
+  "waggleUsers": Object {
+    "02dc8264c555d46b3f6b16f1e751e979ebc69e6df6a02e7d4074a5df981e507da2": Object {
+      "halfKey": "279e40e4ad5bc84f6cfcdb90465317e61255ba7ee78600179ea129a77e1bcef4",
+      "nickname": "holmes",
+      "publicKey": "02dc8264c555d46b3f6b16f1e751e979ebc69e6df6a02e7d4074a5df981e507da2",
+    },
+  },
 }
 `;

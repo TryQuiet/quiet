@@ -9,7 +9,7 @@ import Checkbox from '@material-ui/core/Checkbox'
 import Button from '@material-ui/core/Button'
 import { Formik, Field } from 'formik'
 import { AutoSizer } from 'react-virtualized'
-import { Scrollbars } from 'react-custom-scrollbars'
+import { Scrollbars } from 'rc-scrollbars'
 
 import radioChecked from '../../static/images/radioChecked.svg'
 import radioUnselected from '../../static/images/radioUnselected.svg'

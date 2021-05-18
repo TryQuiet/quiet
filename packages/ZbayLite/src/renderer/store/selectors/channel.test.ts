@@ -111,46 +111,63 @@ describe('Channel selectors', () => {
         unread: 0,
         connected: false
       }
+    },
+    waggle: {
+      isWaggleConnected: false
+    },
+    directMessages: {
+      users: {},
+      conversations: {},
+      conversationsList: {},
+      privateKey: '',
+      publicKey: ''
     }
   }
 
-  it('- input_avilable_with_money', async () => {
+  it('- input_when_waggle_disconnected', async () => {
+    const store = create({
+      ...initialState
+    })
+    expect(channelSelectors.inputLocked(store.getState())).toEqual(INPUT_STATE.NOT_CONNECTED)
+  })
+
+  it('- input_when_waggle_connected_but_channel_is_not_DM_or_public_channel', async () => {
     const store = create({
       ...initialState,
-      identity: {
-        ...initialState.identity,
-        data: {
-          ...initialState.identity.data,
-          balance: new BigNumber('5'),
-          lockedBalance: new BigNumber('5'),
-          signerPubKey: 'kolega'
+      waggle: {
+        isWaggleConnected: true
+      }
+    })
+    expect(channelSelectors.inputLocked(store.getState())).toEqual(INPUT_STATE.USER_NOT_REGISTERED)
+  })
+
+  it('- input_when_waggle_is_connected_and_is_dm_channel', async () => {
+    const store = create({
+      ...initialState,
+      waggle: {
+        isWaggleConnected: true
+      },
+      directMessages: {
+        users: {
+          friend: {
+            publicKey: 'friend'
+          }
         }
       },
       users: {
-        ...initialState.users,
-        kolega: {
-          ...initialState.users.kolega,
-          createdAt: 555
+        somebody: {
+          key: '',
+          firstName: '',
+          publicKey: 'friend',
+          lastName: '',
+          nickname: '',
+          address: '',
+          onionAddress: '',
+          createdAt: 0
         }
-      }
-    })
-    expect(channelSelectors.inputLocked(store.getState())).toEqual(INPUT_STATE.AVAILABLE)
-  })
-
-  it('- input_avilable_without_money_with_online_contact', async () => {
-    const store = create({
-      ...initialState,
-      channel: {
-        ...initialState.channel,
-        id: 'klucz'
       },
-      contacts: {
-        ...initialState.contacts,
-        kumpel: {
-          ...initialState.contacts.kumpel,
-          key: 'klucz',
-          connected: true
-        }
+      channel: {
+        id: 'friend'
       }
     })
     expect(channelSelectors.inputLocked(store.getState())).toEqual(INPUT_STATE.AVAILABLE)

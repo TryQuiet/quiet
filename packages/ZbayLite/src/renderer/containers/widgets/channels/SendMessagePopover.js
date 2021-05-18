@@ -8,10 +8,12 @@ import SendMessagePopover from '../../../components/widgets/channels/SendMessage
 import identitySelectors from '../../../store/selectors/identity'
 import userSelectors from '../../../store/selectors/users'
 import directMessages from '../../../store/handlers/contacts'
+import directMessagesSelectors from '../../../store/selectors/directMessages'
 
 export const mapStateToProps = state => ({
   identityId: identitySelectors.id(state),
-  users: userSelectors.users(state)
+  users: userSelectors.users(state),
+  waggleUsers: directMessagesSelectors.users(state)
 })
 
 export const mapDispatchToProps = (dispatch) =>

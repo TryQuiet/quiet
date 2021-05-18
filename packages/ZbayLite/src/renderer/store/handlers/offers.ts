@@ -9,7 +9,6 @@ import identitySelectors from '../selectors/identity'
 import offersSelectors from '../selectors/offers'
 import channelSelectors from '../selectors/channel'
 import contactsSelectors from '../selectors/contacts'
-import appSelectors from '../selectors/app'
 import contactsHandlers from './contacts'
 import channelHandlers from './channel'
 import { messageType, actionTypes } from '../../../shared/static'
@@ -19,8 +18,6 @@ import { _checkMessageSize } from './messages'
 import usersSelectors from '../selectors/users'
 import operationsHandlers from './operations'
 import client from '../../zcash'
-import { packMemo } from '../../zbay/transit'
-import { sendMessage } from '../../zcash/websocketClient'
 
 import { ActionsType } from './types'
 import { History } from 'history'
@@ -103,7 +100,6 @@ const sendItemMessageOnEnter = event => async (dispatch, getState) => {
   const shiftPressed = event.nativeEvent.shiftKey === true
   const channel = channelSelectors.channel(getState())
   const messageToSend = channelSelectors.message(getState())
-  const useTor = appSelectors.useTor(getState())
   const id = channelSelectors.id(getState())
 
   let message
@@ -152,23 +148,6 @@ const sendItemMessageOnEnter = event => async (dispatch, getState) => {
           id: key
         })
       )
-      const users = usersSelectors.users(getState())
-      const user = [...Object.values(users)].filter(
-        user => user.nickname === channel.id.substring(64)
-      )[0]
-      if (useTor && user && user.onionAddress) {
-        try {
-          const memo = await packMemo(message, false)
-          const result = await sendMessage(memo, user.onionAddress)
-          if (result === -1) {
-            throw new Error('unable to connect')
-          }
-          return
-        } catch (error) {
-          console.log(error)
-          console.log('socket timeout')
-        }
-      }
       const identityAddress = identitySelectors.address(getState())
       const transfer = await messages.messageToTransfer({
         message: message,

@@ -5,7 +5,6 @@ Object {
   "onChange": [Function],
   "resetDebounce": [Function],
   "sendDirectMessageOnEnter": [Function],
-  "sendTypingIndicator": [Function],
 }
 `;
 
@@ -15,7 +14,7 @@ Object {
   "contactId": undefined,
   "contactUsername": "",
   "id": null,
-  "inputState": 3,
+  "inputState": undefined,
   "isContactConnected": undefined,
   "isContactTyping": false,
   "isMessageTooLong": null,

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Scrollbars } from 'react-custom-scrollbars'
+import { Scrollbars } from 'rc-scrollbars'
 import { DateTime } from 'luxon'
 import * as R from 'ramda'
 import List from '@material-ui/core/List'
@@ -17,6 +17,7 @@ import ChannelRegisteredMessage from './ChannelRegisteredMessage'
 import { UsersStore } from './../../../store/handlers/users'
 
 import { DisplayableMessage } from './../../../zbay/messages.types'
+import { loadNextMessagesLimit } from '../../../../shared/static'
 
 const useStyles = makeStyles(theme => ({
   list: {
@@ -62,6 +63,8 @@ interface IChannelMessagesProps {
   isNewUser: boolean // required?
   scrollPosition: number
   setScrollPosition: (arg?: any) => void
+  newMessagesLoading: boolean
+  setNewMessagesLoading: (arg: boolean) => void
   users: UsersStore
   onLinkedChannel: (arg0: any) => void
   publicChannels: any
@@ -74,14 +77,15 @@ interface IChannelMessagesProps {
   isDev: boolean
 }
 
-const renderView = props => {
-  const style = {
-    ...props.style,
-    display: 'flex',
-    flexDirection: 'column-reverse'
-  }
-  return <div {...props} style={style} />
-}
+// const renderView = props => {
+// Note: flex breaks scroll handle position
+//   const style = {
+//     ...props.style,
+//     display: 'flex',
+//     flexDirection: 'column-reverse'
+//   }
+// return <div {...props} style={style} />
+// }
 
 // TODO: scrollbar smart pagination
 export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
@@ -89,6 +93,8 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
   isOwner,
   scrollPosition,
   setScrollPosition,
+  newMessagesLoading,
+  setNewMessagesLoading,
   contactId,
   usersRegistration,
   publicChannelsRegistration,
@@ -103,7 +109,7 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
   const classes = useStyles({})
   const msgRef = React.useRef<HTMLUListElement>()
   const scrollbarRef = React.useRef<Scrollbars>()
-  const [offset, setOffset] = React.useState(0)
+  // const [offset, setOffset] = React.useState(0)
 
   // TODO work on scroll behavior
   // React.useEffect(() => {
@@ -144,6 +150,7 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
   }
 
   useEffect(() => {
+    /** Scroll to the bottom on entering the channel or resizing window */
     if (scrollbarRef.current && (scrollPosition === -1 || scrollPosition === 1)) {
       scrollbarRef.current.scrollToBottom()
     }
@@ -154,28 +161,42 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
     return () => window.removeEventListener('resize', eventListener)
   }, [channelId, groupedMessages, scrollbarRef])
 
-  React.useEffect(() => {
-    if (msgRef.current && scrollbarRef.current) {
-      const margin =
-        msgRef.current.offsetHeight < scrollbarRef.current.getClientHeight()
-          ? scrollbarRef.current.getClientHeight() - msgRef.current.offsetHeight
-          : 0
-      setOffset(margin)
+  // useEffect(() => {
+  //   /** Note: This was used before (it pulls messages to the bottom of channel) but currently it enlarges rendering view in scrollbar
+  //    * creating empty space above already loaded messages */
+  //   if (msgRef.current && scrollbarRef.current) {
+  //     const margin =
+  //       msgRef.current.offsetHeight < scrollbarRef.current.getClientHeight()
+  //         ? scrollbarRef.current.getClientHeight() - msgRef.current.offsetHeight
+  //         : 0
+  //     setOffset(margin)
+  //   }
+  // }, [msgRef, scrollbarRef])
+
+  useEffect(() => {
+    /** Set new position of a scrollbar handle */
+    if (scrollbarRef.current && newMessagesLoading) {
+      const oneMessageHeight = scrollbarRef.current.getScrollHeight() / messages.length
+      const newMessagesBlockHeight = oneMessageHeight * loadNextMessagesLimit
+      setTimeout(() => {
+        scrollbarRef.current.scrollTop(newMessagesBlockHeight)
+      })
+      setNewMessagesLoading(false)
     }
-  }, [msgRef, scrollbarRef])
+  }, [newMessagesLoading])
 
   return (
     <Scrollbars
       ref={scrollbarRef}
       autoHideTimeout={500}
-      renderView={renderView}
+      // renderView={renderView}
       onScrollFrame={onScrollFrame}>
       <List
         disablePadding
         ref={msgRef}
         id='messages-scroll'
-        className={classes.list}
-        style={{ marginTop: offset }}>
+        className={classes.list}>
+        {/* // style={{ marginTop: offset }}> */}
         {isOwner && <WelcomeMessage message={welcomeMessages.main} />}
         {/* {isOffer && !showLoader && (
           <WelcomeMessage message={welcomeMessages['offer'](tag, username)} />

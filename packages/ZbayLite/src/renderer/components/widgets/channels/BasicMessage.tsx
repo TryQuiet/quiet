@@ -146,6 +146,7 @@ export const BasicMessage: React.FC<IBasicMessageProps> = ({
             <SendMessagePopover
               username={username}
               address={message.sender.replyTo}
+              message={message}
               publicKey={message.publicKey}
               txid={message.id}
               anchorEl={anchorEl}

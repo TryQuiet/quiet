@@ -3,7 +3,7 @@
 exports[`ChannelContent will receive right props 1`] = `
 Object {
   "channelId": null,
-  "inputState": 1,
+  "inputState": 0,
   "mentions": Object {},
   "signerPubKey": "",
 }

@@ -11,4 +11,6 @@ export interface ISendMessagePopoverProps {
   createNewContact?: (contact: any) => void
   history?: History<LocationState>
   users?: object
+  waggleUsers?: object
+  message?: any
 }

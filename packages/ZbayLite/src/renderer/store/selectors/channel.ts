@@ -1,8 +1,10 @@
 import { createSelector } from 'reselect'
 import identitySelectors from './identity'
 import messagesQueueSelectors from './messagesQueue'
-import { networkFee, messageType } from '../../../shared/static'
+import { messageType } from '../../../shared/static'
 import publicChannels from './publicChannels'
+import directMessagesSelectors from './directMessages'
+import waggleSelectors from './waggle'
 
 import { Store } from '../reducers'
 import { DisplayableMessage } from '../../zbay/messages.types'
@@ -31,6 +33,17 @@ const isPublicChannel = createSelector(
     }
   }
 )
+
+const isDirectMessage = createSelector(directMessagesSelectors.users, channel, (users, channel) => {
+  if (users && channel) {
+    const { id } = channel
+    const usersIds = Array.from(Object.keys(users))
+    console.log(`checking if it is DM ${id}, ${usersIds}`)
+    return usersIds.includes(id)
+  } else {
+    return false
+  }
+})
 
 export const spentFilterValue = createSelector(channel, c =>
   c.spentFilterValue ? spentFilterValue : -1
@@ -161,46 +174,36 @@ export const shareableUri = createSelector(channel, c => c.shareableUri)
 export const channelId = createSelector(channel, ch => ch.id)
 
 export const inputLocked = createSelector(
-  identitySelectors.balance('zec'),
-  // identitySelectors.lockedBalance('zec'),
-  // users.users,
-  // identitySelectors.signerPubKey,
   channelId,
-  contacts,
-  (
-    available,
-    // locked,
-    // users,
-    // signerPubKey,
-    channelId,
-    contacts
-  ) => {
-    const contactsData = Object.values(contacts)
+  directMessagesSelectors.users,
+  waggleSelectors.isConnected,
+  isPublicChannel,
+  (channelId, waggleContacts, waggle, publicChannel) => {
+    const contactsData = Object.values(waggleContacts)
     const currentContactArray = contactsData.filter(item => {
-      return item.key === channelId && (item.connected === (false || true))
+      return item.publicKey === channelId
     })
 
-    if (currentContactArray[0]) {
-      if (currentContactArray[0].connected) {
-        return INPUT_STATE.AVAILABLE
-      } else {
-        if (available.gt(networkFee)) {
-          return INPUT_STATE.AVAILABLE
-        } else {
-          return INPUT_STATE.DISABLE
-        }
-      }
-    } else {
+    if (!waggle) {
+      return INPUT_STATE.NOT_CONNECTED
+    }
+
+    if (publicChannel || currentContactArray[0]) {
       return INPUT_STATE.AVAILABLE
     }
+
+    if (!currentContactArray[0]) {
+      return INPUT_STATE.USER_NOT_REGISTERED
+    }
+
+    return INPUT_STATE.NOT_CONNECTED
   }
 )
 
 export const INPUT_STATE = {
-  DISABLE: 0,
-  AVAILABLE: 1,
-  LOCKED: 2,
-  UNREGISTERED: 3
+  NOT_CONNECTED: 0,
+  USER_NOT_REGISTERED: 1,
+  AVAILABLE: 2
 }
 
 export const members = createSelector(contacts, id, (c, channelId) => {
@@ -246,5 +249,6 @@ export default {
   isOwner,
   channelDesription,
   displayableMessageLimit,
-  isPublicChannel
+  isPublicChannel,
+  isDirectMessage
 }

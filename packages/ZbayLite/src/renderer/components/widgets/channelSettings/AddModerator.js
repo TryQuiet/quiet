@@ -6,7 +6,7 @@ import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import { AutoSizer } from 'react-virtualized'
-import { Scrollbars } from 'react-custom-scrollbars'
+import { Scrollbars } from 'rc-scrollbars'
 
 import Modal from '../../ui/Modal'
 import UserListItem from './UserListItem'
@@ -112,7 +112,7 @@ AddModerator.propTypes = {
   open: PropTypes.bool.isRequired,
   handleClose: PropTypes.func.isRequired,
   addModerator: PropTypes.func.isRequired,
-  members: PropTypes.instanceOf(Set).isRequired,
+  members: PropTypes.instanceOf(Array).isRequired,
   users: PropTypes.object.isRequired
 }
 export default R.compose(React.memo, withStyles(styles))(AddModerator)

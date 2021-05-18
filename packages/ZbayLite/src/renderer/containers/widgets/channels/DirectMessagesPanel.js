@@ -50,7 +50,7 @@ export const DirectMessagesPanel = ({
       <Grid item>
         <QuickActionButton
           text='New Message'
-          action={fundsLocked ? openDepositMonet : openModal}
+          action={openModal}
         />
       </Grid>
     </Grid>

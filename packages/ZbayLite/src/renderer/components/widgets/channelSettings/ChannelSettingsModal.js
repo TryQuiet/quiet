@@ -151,7 +151,7 @@ ChannelSettingsModal.propTypes = {
   handleClose: PropTypes.func.isRequired,
   clearCurrentOpenTab: PropTypes.func,
   currentTab: PropTypes.string,
-  modalTabToOpen: PropTypes.string,
+  // modalTabToOpen: PropTypes.func,
   setCurrentTab: PropTypes.func.isRequired,
   channel: PropTypes.object.isRequired
 }

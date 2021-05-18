@@ -61,8 +61,8 @@ export const BaseChannelsList = ({
 BaseChannelsList.propTypes = {
   channels: PropTypes.array.isRequired,
   unknownMessages: PropTypes.array.isRequired,
-  selected: PropTypes.array.isRequired,
-  selectedOffer: PropTypes.array.isRequired,
+  selected: PropTypes.object.isRequired,
+  selectedOffer: PropTypes.object,
   directMessages: PropTypes.bool
 }
 

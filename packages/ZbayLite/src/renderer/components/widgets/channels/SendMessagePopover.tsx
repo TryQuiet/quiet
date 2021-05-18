@@ -9,16 +9,24 @@ export const SendMessagePopover: React.FC<ISendMessagePopoverProps> = ({
   address,
   anchorEl,
   handleClose,
-  isUnregistered,
+  message,
   createNewContact,
   history,
-  users
+  users,
+  waggleUsers
 }) => {
   const open = Boolean(anchorEl)
   const id = open ? 'simple-popover' : undefined
   const registeredUsername = Array.from(Object.values(users)).filter(
     (obj) => obj.address === address
   )[0]
+  let waggleIdentity = false
+  if (waggleUsers) {
+    const arr = Array.from(Object.keys(waggleUsers))
+    if (arr.includes(message?.publicKey) || arr.includes(registeredUsername?.publicKey)) {
+      waggleIdentity = true
+    }
+  }
   return (
     <Popover
       id={id}
@@ -39,19 +47,19 @@ export const SendMessagePopover: React.FC<ISendMessagePopoverProps> = ({
         buttonName="Send message"
         handleClose={handleClose}
         warrning={
-          isUnregistered ? 'Unregistered users cannot receive messages.' : null
+          !waggleIdentity ? 'Unregistered users cannot receive messages.' : null
         }
         onClick={() => {
-          createNewContact({
-            contact: {
-              address,
-              nickname: username,
-              publicKey: registeredUsername
-                ? registeredUsername.publicKey
-                : null
-            },
-            history
-          })
+          if (message?.publicKey || registeredUsername?.publicKey) {
+            createNewContact({
+              contact: {
+                address,
+                nickname: username,
+                publicKey: message?.publicKey || registeredUsername?.publicKey
+              },
+              history
+            })
+          }
         }}
       >
         <Jdenticon size="100" value={username} />

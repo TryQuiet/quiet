@@ -52,7 +52,7 @@ export const ChannelInputAction = ({
       )} */}
 
       <MenuActionItem
-        onClick={() => onSendMoney('sendMoney', targetRecipientAddress)}
+        onClick={() => onSendMoney('sendMoneySeparate', targetRecipientAddress)}
         title='Send money'
       />
     </MenuAction>
