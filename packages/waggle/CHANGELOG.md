@@ -12,6 +12,7 @@
 ### Changed
 
 - Tor control logic. Use control port and heartbeat to check tor status.
+- Socket data server - allow setting port while creating DataServer
 
 ### Added
 - Tracker - keep track of the peers which connected to the p2p network. Will replace the entry node.
