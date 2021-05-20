@@ -44,7 +44,7 @@ export const initialState: DirectMessagesStore = {
     '02dc8264c555d46b3f6b16f1e751e979ebc69e6df6a02e7d4074a5df981e507da2': {
       nickname: 'holmes',
       publicKey: '02dc8264c555d46b3f6b16f1e751e979ebc69e6df6a02e7d4074a5df981e507da2',
-      halfKey: '27a3c7b25792c885f4db9f45d385fb39895c46d5fc926c083d424dcb3c21b0e9'
+      halfKey: '0bfb475810c0e26c9fab590d47c3d60ec533bb3c451596acc3cd4f21602e9ad9'
     }
   },
   conversations: {},
