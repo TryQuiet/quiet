@@ -114,19 +114,16 @@ ipcRenderer.on('checkNodeStatus', (event, { status }) => {
 })
 
 ipcRenderer.on('connectToWebsocket', (event) => {
-  console.log('connecting to websocket')
   store.dispatch(socketsActions.connect())
 })
 
 ipcRenderer.on('waggleInitialized', (event) => {
-  console.log('waggle Initialized')
   store.dispatch(waggleHandlers.actions.setIsWaggleConnected(true))
   store.dispatch(publicChannelsHandlers.epics.loadPublicChannels())
   store.dispatch(publicChannelsHandlers.epics.subscribeForPublicChannels())
-  // store.dispatch(directMessagesHandlers.epics.subscribeForDirectMessageThreads)
   store.dispatch(directMessagesHandlers.epics.getAvailableUsers())
   store.dispatch(directMessagesHandlers.epics.getPrivateConversations())
-  // store.dispatch(directMessagesHandlers.epics.generateDiffieHellman(identity.signerPubKey))
+  store.dispatch(directMessagesHandlers.epics.subscribeForAllConversations())
 })
 
 ipcRenderer.on('newChannel', (event, { channelParams }) => {

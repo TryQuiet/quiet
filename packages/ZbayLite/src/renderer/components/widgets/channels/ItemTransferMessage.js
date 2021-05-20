@@ -88,16 +88,9 @@ export const ItemTransferMessage = ({
   isRegisteredNickname
 }) => {
   const [actionsOpen, setActionsOpen] = React.useState(false)
-  const usdAmount = new BigNumber(message.spent)
-    .times(rateUsd)
-    .toFixed(2)
-    .toString()
+  const usdAmount = new BigNumber(message.spent).times(rateUsd).toFixed(2).toString()
   return (
-    <BasicMessage
-      message={message}
-      actionsOpen={actionsOpen}
-      setActionsOpen={setActionsOpen}
-    >
+    <BasicMessage message={message} actionsOpen={actionsOpen} setActionsOpen={setActionsOpen}>
       <Grid
         className={classes.messageInput}
         onClick={() =>
@@ -106,17 +99,13 @@ export const ItemTransferMessage = ({
             provideShipping: message.provideShipping,
             amountZec: parseFloat(message.spent.toString()),
             txid: message.id,
-            memo:
-              typeof message.message === 'object'
-                ? message.message.message
-                : message.message,
+            memo: typeof message.message === 'object' ? message.message.message : message.message,
             recipient: message.receiver.replyTo,
             timestamp: message.createdAt,
             blockHeight: message.blockHeight
           })
         }
-        item
-      >
+        item>
         {currentBlock - message.blockHeight < 24 ? (
           <div className={classes.pendingMark}>pending</div>
         ) : (
@@ -128,19 +117,17 @@ export const ItemTransferMessage = ({
         <Typography variant='body2' className={classes.data}>
           {message.fromYou
             ? `You sent ${
-              message.offerOwner || isRegisteredNickname
-                ? `@${message.offerOwner || message.receiver.username}`
-                : message.receiver.replyTo
-            } $${usdAmount} (${parseFloat(message.spent.toString()).toFixed(
-              4
-            )} ZEC) ${message.tag ? `for #${message.tag}` : ''}`
+                message.offerOwner || isRegisteredNickname
+                  ? `@${message.offerOwner || message.receiver.username}`
+                  : message.receiver.replyTo
+              } $${usdAmount} (${parseFloat(message.spent.toString()).toFixed(4)} ZEC) ${
+                message.tag ? `for #${message.tag}` : ''
+              }`
             : `${
-              message.sender.username
-                ? `Received from @${message.sender.username}`
-                : 'Received from unknown'
-            } $${usdAmount} (${message.spent} ZEC) ${
-              message.tag ? `for #${message.tag}` : ''
-            }`}
+                message.sender.username
+                  ? `Received from @${message.sender.username}`
+                  : 'Received from unknown'
+              } $${usdAmount} (${message.spent} ZEC) ${message.tag ? `for #${message.tag}` : ''}`}
         </Typography>
         <Typography variant='body2' className={classes.message}>
           {!(typeof message.message === 'object') && `${message.message}`}
@@ -157,7 +144,7 @@ export const ItemTransferMessage = ({
       </Grid>
     </BasicMessage>
   )
-}
+        }
 
 ItemTransferMessage.propTypes = {
   classes: PropTypes.object.isRequired,

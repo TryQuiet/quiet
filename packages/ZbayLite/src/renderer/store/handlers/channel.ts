@@ -186,18 +186,23 @@ const sendOnEnter = (_event, resetTab) => async (dispatch, getState) => {
   }
   const isPublicChannel = channelSelectors.isPublicChannel(getState())
   const isDirectMessageChannel = channelSelectors.isDirectMessage(getState())
-
+  console.log(`isPublicChannel? ${isPublicChannel}`)
   if (isPublicChannel) {
     dispatch(publicChannelsActions.sendMessage())
     return
   }
+  console.log(`isDM? ${isDirectMessageChannel}`)
   if (isDirectMessageChannel) {
-    console.log('inside direct message')
+    
     const id = channelSelectors.id(getState())
     const conversations = directMessagesSelectors.conversations(getState())
-    const conversation = conversations[id]
 
-    if (!conversation) {
+    const conversation = Array.from(Object.values(conversations)).filter(conv => {
+      return conv.contactPublicKey === id
+    })
+
+    if (!conversation[0]) {
+      console.log('INITIALIZING XONVE')
       await dispatch(directMessagesHandlers.epics.initializeConversation())
     }
     dispatch(directMessagesActions.sendDirectMessage())

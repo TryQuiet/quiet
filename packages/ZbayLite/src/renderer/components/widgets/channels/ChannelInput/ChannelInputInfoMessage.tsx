@@ -20,9 +20,6 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 const ChannelInputInfoMessage = ({ showInfoMessage, inputState }) => {
   const classes = useStyles({})
-
-  console.log(`input state is ${inputState}`)
-
   return (
     <Grid container className={classes.boot}>
       <Grid item xs>

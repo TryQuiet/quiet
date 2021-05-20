@@ -133,7 +133,6 @@ export const subscribeForPublicChannels = () => async (dispatch, getState) => {
   const publicChannelsContacts = contactsSelectors.publicChannelsContacts(getState())
   for (const publicChannel of publicChannelsContacts) {
     const channel = publicChannelsSelectors.publicChannelsByName(publicChannel.username)(getState())
-    console.log('subscribing for ', channel.name)
     if (channel) {
       dispatch(publicChannelsActions.subscribeForTopic(channel))
     }

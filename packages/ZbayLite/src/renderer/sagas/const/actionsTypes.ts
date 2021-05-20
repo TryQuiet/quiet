@@ -39,6 +39,7 @@ export enum Socket {
   DIRECT_MESSAGE = 'directMessage',
   RESPONSE_FETCH_ALL_DIRECT_MESSAGES = 'responseFetchAllDirectMessages',
   SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD = 'subscribeForDirectMessageThread',
+  SUBSCRIBE_FOR_ALL_CONVERSATIONS = 'subscribeForAllConversations',
   RESPONSE_DIRECT_MESSAGE = 'responseDirectMessage'
 
 }

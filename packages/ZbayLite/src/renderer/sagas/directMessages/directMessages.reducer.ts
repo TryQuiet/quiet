@@ -42,6 +42,7 @@ export const directMessagesActions = {
   getPrivateConversations: createAction(Socket.GET_PRIVATE_CONVERSATIONS),
   responseGetPrivateConversations: createAction<{[key: string]: string}, Socket.RESPONSE_GET_PRIVATE_CONVERSATIONS>(Socket.RESPONSE_GET_PRIVATE_CONVERSATIONS),
   subscribeForDirectMessageThread: createAction<string, Socket.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD>(Socket.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD),
+  subscribeForAllConversations: createAction<string[], Socket.SUBSCRIBE_FOR_ALL_CONVERSATIONS>(Socket.SUBSCRIBE_FOR_ALL_CONVERSATIONS), 
   addMessage: createAction<{
     key: string
     message: { [key: string]: DisplayableMessage }

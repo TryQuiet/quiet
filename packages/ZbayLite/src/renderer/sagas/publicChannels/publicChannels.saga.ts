@@ -90,13 +90,11 @@ export function* loadMessage(action: PublicChannelsActions['loadMessage']): Gene
 }
 
 export function* getPublicChannels(action: PublicChannelsActions['responseGetPublicChannels']): Generator {
-  console.log('loading public channels')
   if (action.payload) {
     yield put(setPublicChannels(action.payload))
 
     const mainChannel = yield* select(publicChannelsSelectors.publicChannelsByName('zbay'))
     if (mainChannel && !electronStore.get('generalChannelInitialized')) {
-      console.log('Setting main channel')
       yield put(
         contactsHandlers.actions.addContact({
           key: mainChannel.address,
@@ -142,22 +140,34 @@ export function* loadAllMessages(
   const contact = pubChannelsArray.filter((item) => {
     return item.name === username
   })
-  newMsgs.forEach(msg => {
-    if (newMsgs.length > 0 && msg.sender.replyTo && msg.sender.username !== myUser.nickname) {
+  console.log(`New messages are ${newMsgs}`)
+  const msg = newMsgs[newMsgs.length-1]
+  console.log(`MSG IS ${msg}`)
+  if (msg && msg?.sender?.username !== myUser.nickname) {
       displayMessageNotification({
         senderName: msg.sender.username,
         message: msg.message,
         channelName: username,
         address: contact[0].address
       })
-    } else if (msg.sender.username !== myUser.nickname) {
-      displayMessageNotification({
-        senderName: msg.sender.username,
-        message: msg.message,
-        channelName: username
-      })
-    }
-  })
+  }
+  // newMsgs.forEach(msg => {
+  //   if (newMsgs.length > 0 && msg.sender.replyTo && msg.sender.username !== myUser.nickname) {
+  //     displayMessageNotification({
+  //       senderName: msg.sender.username,
+  //       message: msg.message,
+  //       channelName: username,
+  //       address: contact[0].address
+  //     })
+  //   } else if (msg.sender.username !== myUser.nickname) {
+  //     displayMessageNotification({
+  //       senderName: msg.sender.username,
+  //       message: msg.message,
+  //       channelName: username,
+  //       address: contact[0].address
+  //     })
+  //   }
+  // })
   yield put(
     actions.appendNewMessages({
       contactAddress: action.payload.channelAddress,

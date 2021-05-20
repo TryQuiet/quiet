@@ -78,7 +78,7 @@ export function* loadDirectMessage(action: DirectMessagesActions['loadDirectMess
   const users = yield* select(usersSelectors.users)
   const myUser = yield* select(usersSelectors.myUser)
   const { id } = yield* select(channelSelectors.channel)
-  const sharedSecret = conversations[id].sharedSecret
+  const sharedSecret = conversation[0].sharedSecret
   const msg = JSON.stringify(action.payload.message)
   const decodedMessage = decodeMessage(sharedSecret, msg)
   const message = transferToMessage(JSON.parse(decodedMessage), users)
@@ -107,12 +107,18 @@ export function* loadDirectMessage(action: DirectMessagesActions['loadDirectMess
 export function* loadAllDirectMessages(
   action: DirectMessagesActions['responseLoadAllDirectMessages']
 ): Generator {
+  console.log('SAGA: DirectMessages - loadAllDirectMessages Entered')
+  console.log(`SAGA: DirectMessages - loadAllDirectMessages action.payload.channelAddress is ${action.payload.channelAddress}`)
+  console.log(`SAGA: DirectMessages - loadAllDirectMessages action.payload.messages length is ${action.payload.messages.length}`)
   const conversations = yield* select(directMessagesSelectors.conversations)
+  console.log(`SAGA: DirectMessages - loadAllDirectMessages conversations is ${conversations}`)
   const conversation = Array.from(Object.values(conversations)).filter(conv => {
+    console.log(`convers ${conv.conversationId} and bombers ${action.payload.channelAddress}`)
     return conv.conversationId === action.payload.channelAddress
   })
+  console.log(`SAGA: DirectMessages - loadAllDirectMessages conversations is ${conversations}`)
   const contact = conversation[0]
-
+  console.log(`SAGA: DirectMessages - loadAllDirectMessages conversations is ${conversations}`)
   const contactPublicKey = contact.contactPublicKey
   const sharedSecret = contact.sharedSecret
   const users = yield* select(usersSelectors.users)
@@ -132,10 +138,8 @@ export function* loadAllDirectMessages(
       return JSON.parse(decodeMessage(sharedSecret, message))
     })
     const displayableMessages = decodedMessages.map(msg => transferToMessage(msg, users))
-    console.log(displayableMessages)
     const state = yield* select()
     const newMsgs = findNewMessages(contactPublicKey, displayableMessages, state, true)
-    console.log(newMsgs)
     yield put(
       contactsHandlers.actions.setMessages({
         key: contactPublicKey,
@@ -144,6 +148,8 @@ export function* loadAllDirectMessages(
         messages: displayableMessages
       })
     )
+
+console.log(`nes messages are ${newMsgs}`)
 
     const latestMessage = newMsgs[newMsgs.length - 1]
 
@@ -161,12 +167,12 @@ export function* loadAllDirectMessages(
       })
     )
   }
+  console.log('SAGA: DirectMessages - loadAllDirectMessages Finished')
 }
 
 export function* responseGetAvailableUsers(
   action: DirectMessagesActions['responseGetAvailableUsers']
 ): Generator {
-  console.log('RESPONSE GET AVAILABLE USERS')
   for (const [key, value] of Object.entries(action.payload)) {
     const user = yield* select(usersSelectors.registeredUser(key))
 
@@ -187,23 +193,25 @@ export function* responseGetAvailableUsers(
 export function* responseGetPrivateConversations(
   action: DirectMessagesActions['responseGetPrivateConversations']
 ): Generator {
-  console.log('RESPONSE GET PRIVATE CONVERSATIONS')
   const privKey = yield* select(directMessagesSelectors.privateKey)
-
+  const contacts = yield* select(contactsSelectors.contacts)
   for (const [key, value] of Object.entries(action.payload)) {
     const conversation = checkConversation(key, value, privKey)
 
     if (conversation) {
-      const user = yield* select(usersSelectors.registeredUser(key))
+      console.log('JSUT DECODED CONVERSATION, NOW SUBSCRIBING TO IT')
+      const user = yield* select(usersSelectors.registeredUser(conversation.contactPublicKey))
+        if(!contacts[conversation.contactPublicKey]) {
+          yield put(
+            contactsActions.addContact({
+              key: conversation.contactPublicKey,
+              username: user?.nickname || `anon${conversation.contactPublicKey.substring(0, 8)}`,
+              contactAddress: user?.address || ''
+            })
+            )
+          }
       yield put(directMessagesActions.subscribeForDirectMessageThread(conversation.conversationId))
       yield put(actions.addConversation(conversation))
-      yield put(
-        contactsActions.addContact({
-          key: conversation.contactPublicKey,
-          username: user?.nickname || `anon${conversation.contactPublicKey.substring(0, 8)}`,
-          contactAddress: user?.address || ''
-        })
-      )
     }
 
     yield put(

@@ -47,9 +47,7 @@ export function subscribe(socket) {
     socket.on(socketsActions.RESPONSE_GET_PUBLIC_CHANNELS, payload => {
       emit(publicChannelsActions.responseGetPublicChannels(payload))
     })
-    // Direct messages
     socket.on(socketsActions.DIRECT_MESSAGE, payload => {
-      console.log('respnse direct message')
       emit(directMessagesActions.responseLoadDirectMessage(payload))
     })
     socket.on(socketsActions.RESPONSE_FETCH_ALL_DIRECT_MESSAGES, payload => {
@@ -74,11 +72,16 @@ export function* handleActions(socket: Socket): Generator {
 }
 
 export function* sendMessage(socket: Socket): Generator {
-  yield* take(`${publicChannelsActions.sendMessage}`)
+  console.log('INSIDE SEND MESSAGE 1')
+  console.log('INSIDE SEND MESSAGE 2')
   const { address } = yield* select(channelSelectors.channel)
+  console.log('INSIDE SEND MESSAGE 3')
   const messageToSend = yield* select(channelSelectors.message)
+  console.log('INSIDE SEND MESSAGE 4')
   const users = yield* select(usersSelectors.users)
+  console.log('INSIDE SEND MESSAGE 5')
   let message = null
+  console.log('INSIDE SEND MESSAGE 6')
   const privKey = yield* select(identitySelectors.signerPrivKey)
   message = messages.createMessage({
     messageData: {
@@ -136,11 +139,20 @@ export function* subscribeForDirectMessageThread(
   socket: Socket,
   { payload }: PayloadAction<typeof directMessagesActions.subscribeForDirectMessageThread>
 ): Generator {
+  console.log(`sssOCKET SAGA FOR SUBSCRIBING YESH ${payload}`)
   yield* apply(socket, socket.emit, [socketsActions.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD, payload])
 }
 
 export function* getAvailableUsers(socket: Socket): Generator {
   yield* apply(socket, socket.emit, [socketsActions.GET_AVAILABLE_USERS])
+}
+
+export function* subscribeForAllConversations(
+  socket: Socket,
+): Generator {
+  const conversations = yield* select(directMessagesSelectors.conversations)
+  const payload = Array.from(Object.keys(conversations))
+  yield* apply(socket, socket.emit, [socketsActions.SUBSCRIBE_FOR_ALL_CONVERSATIONS, payload])
 }
 
 export function* initializeConversation(
@@ -155,11 +167,14 @@ export function* getPrivateConversations(socket: Socket): Generator {
 }
 
 export function* sendDirectMessage(socket: Socket): Generator {
-  console.log('inside senddirectmessage saga')
   const { id } = yield* select(channelSelectors.channel)
   const conversations = yield* select(directMessagesSelectors.conversations)
-  const conversationId = conversations[id].conversationId
-  const sharedSecret = conversations[id].sharedSecret
+  const conv = Array.from(Object.values(conversations)).filter(item => {
+    console.log(item.contactPublicKey)
+    return item.contactPublicKey === id
+  })
+  const conversationId = conv[0].conversationId
+  const sharedSecret = conv[0].sharedSecret
   const messageToSend = yield* select(channelSelectors.message)
   let message = null
   const privKey = yield* select(identitySelectors.signerPrivKey)
@@ -232,9 +247,10 @@ export function* useIO(socket: Socket): Generator {
     takeEvery(publicChannelsActions.subscribeForTopic.type, subscribeForTopic, socket),
     takeLeading(publicChannelsActions.getPublicChannels.type, getPublicChannels, socket),
     takeLeading(directMessagesActions.getAvailableUsers.type, getAvailableUsers, socket),
-    takeEvery(
-      directMessagesActions.initializeConversation.type,
-      initializeConversation,
+    takeEvery(directMessagesActions.initializeConversation.type, initializeConversation, socket),
+    takeLeading(
+      directMessagesActions.subscribeForAllConversations.type,
+      subscribeForAllConversations,
       socket
     ),
     takeEvery(directMessagesActions.sendDirectMessage.type, sendDirectMessage, socket),

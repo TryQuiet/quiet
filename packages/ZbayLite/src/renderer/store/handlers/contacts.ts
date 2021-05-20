@@ -8,6 +8,7 @@ import history from '../../../shared/history'
 import { actionTypes } from '../../../shared/static'
 import identitySelectors from '../selectors/identity'
 import selectors from '../selectors/contacts'
+import * as _ from 'lodash'
 
 import { DisplayableMessage } from '../../zbay/messages.types'
 import { messages as zbayMessages } from '../../zbay'
@@ -224,9 +225,11 @@ export const reducer = handleActions<ContactsStore, PayloadType<ContactActions>>
             typingIndicator: false
           }
         }
+        const arr = Array.from(Object.values(draft[key].messages)).concat(Array.from(Object.values(messages)))
+        const uniqArr = _.uniqBy(arr, 'id')
+        console.log()
         draft[key].messages = {
-          ...draft[key].messages,
-          ...messages
+          ...uniqArr
         }
       }),
     [setAllMessages.toString()]: (

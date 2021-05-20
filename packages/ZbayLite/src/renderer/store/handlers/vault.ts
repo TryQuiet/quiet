@@ -101,7 +101,6 @@ const createVaultEpic = (fromMigrationFile = false) => async dispatch => {
 export const setVaultIdentity = () => async dispatch => {
   try {
     const identity = electronStore.get('identity')
-    console.log('setVaultIdentity')
     await dispatch(identityHandlers.epics.setIdentity(identity))
   } catch (err) {
     console.log(err)
