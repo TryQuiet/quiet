@@ -28,6 +28,7 @@
     "abortable-iterator": "^3.0.0",
     "async-mutex": "^0.2.6",
     "cors": "^2.8.5",
+    "debug": "^4.3.1",
     "dotenv": "8.2.0",
     "eslint": "7.26.0",
     "eslint-config-standard": "^16.0.2",

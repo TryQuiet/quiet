@@ -4,7 +4,11 @@ import path from 'path'
 import { TorControl } from './torControl'
 import { ZBAY_DIR_PATH } from '../constants'
 import { sleep } from './../sleep'
-import { isConditionalExpression } from 'typescript'
+import debug from 'debug'
+const log = Object.assign(debug('waggle:tor'), {
+  error: debug('waggle:tor:err')
+})
+
 interface IService {
   virtPort: number
   address: string
@@ -58,8 +62,7 @@ export class Tor {
             await this.torControl.signal('HEARTBEAT')
             resolve()
           } catch (err) {
-            console.log('ERROR CONNECTING TOR')
-            console.log('TRYING AGAIN')
+            log.error('error connecting')
             await sleep(sleepTime)
             await a(retries, currentRetry + 1, sleepTime)
           }
@@ -157,7 +160,7 @@ export class Tor {
       const TorPidPath = path.join.apply(null, [this.appDataPath || ZBAY_DIR_PATH, 'torPid.json'])
       fs.access(TorPidPath, fs.constants.F_OK, async err => {
         if (err) {
-          console.log('INFO: Cannot find old tor pid file, probably it is the first launch of Zbay')
+          log('INFO: Cannot find old tor pid file, probably it is the first launch of Zbay')
           resolve()
         }
         const file: unknown = fs.readFileSync(TorPidPath)
@@ -168,12 +171,12 @@ export class Tor {
         while (isAlive) {
           await sleep()
           try {
-            console.log(`INFO: trying to kill tor on port ${oldProcessPid}`)
-            console.log(process.kill(oldProcessPid, 'SIGTERM'))
+            log(`INFO: trying to kill tor on port ${oldProcessPid}`)
+            log(process.kill(oldProcessPid, 'SIGTERM'))
           } catch (e) {
-            console.log(e)
+            log(e)
             clearTimeout(timeout)
-            console.log(`SUCCESS: Killed old tor process hanging on port ${oldProcessPid}`)
+            log(`SUCCESS: Killed old tor process hanging on port ${oldProcessPid}`)
             isAlive = false
             resolve()
           }

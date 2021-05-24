@@ -5,6 +5,10 @@ import * as path from 'path'
 import * as os from 'os'
 import fs from 'fs'
 import multiaddr from 'multiaddr'
+import debug from 'debug'
+const log = Object.assign(debug('waggle:tracker'), {
+  error: debug('waggle:tracker:err')
+})
 
 interface IPeer {
   [address: string]: number
@@ -59,13 +63,13 @@ export class Tracker {
     try {
       maddr = multiaddr(address)
     } catch (e) {
-      console.debug('Wrong address format:', e)
+      log.error('Wrong address format:', e)
       return false
     }
 
     const expirationTime = (new Date()).getTime() + this._peerExpirationTime
     this._peers[address] = expirationTime
-    console.log(`Added peer ${maddr.getPeerId()}`)
+    log(`Added peer ${maddr.getPeerId()}`)
     return true
   }
 
@@ -91,7 +95,7 @@ export class Tracker {
     this._app.post('/register', (req, res) => {
       const address = req.body.address
       if (!address) {
-        console.debug('No address in request data')
+        log('No address in request data')
         res.status(400)
       } else if (!this.addPeer(address)) {
         res.status(400)
@@ -108,7 +112,7 @@ export class Tracker {
   public async listen(): Promise<void> {
     return await new Promise(resolve => {
       this._app.listen(this._port, () => {
-        console.debug(`Tracker listening on ${this._port}`)
+        log(`Tracker listening on ${this._port}`)
         resolve()
       })
     })

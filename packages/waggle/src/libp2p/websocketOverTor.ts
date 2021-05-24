@@ -11,8 +11,8 @@ import os from 'os'
 import multiaddr from 'multiaddr'
 import debug from 'debug'
 import PeerId from 'peer-id'
-const log: any = debug('libp2p:websockets:listener')
-log.error = debug('libp2p:websockets:listener:error')
+const log: any = debug('libp2p:websockets:listener:waggle')
+log.error = debug('libp2p:websockets:listener:waggle:error')
 
 class Discovery extends EventEmitter {
   tag: string
@@ -111,9 +111,7 @@ class WebsocketsOverTor extends WebSockets {
     const server = createServer(options, async (stream, request) => {
       let maConn, conn
       const query = url.parse(request.url, true).query
-      // console.log('request', request)
-      // console.log('query', query)
-      console.log('query', query.remoteAddress)
+      log('query', query.remoteAddress)
       try {
         maConn = toConnection(stream, { remoteAddr: multiaddr(query.remoteAddress.toString()) })
         const peer = {

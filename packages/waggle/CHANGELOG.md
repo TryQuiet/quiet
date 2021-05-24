@@ -1,21 +1,31 @@
 # Changelog
 
-## [1.1.0] - WIP
+
+## [1.1.1] - WIP
 
 ### Added
+- Use `debug` for logs
 
+
+## [1.1.0] - 2021-05-20
+
+### Added
 - Storage - DM related methods and databses
 - Connections Manager - DM related methods
 - Events - DM related events
 - Listeners - DM related listeners
 
 ### Changed
-
 - Tor control logic. Use control port and heartbeat to check tor status.
 - Socket data server - allow setting port while creating DataServer
+- Bump eslint related libraries 
+
+### Removed
+- http-server dependency - not used and depends on vulnerable version of ecstatic
 
 ### Added
 - Tracker - keep track of the peers which connected to the p2p network. Will replace the entry node.
+
 
 ## [1.0.23] - 2021-04-20
 ### Changed
