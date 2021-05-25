@@ -38,6 +38,9 @@ export const connections = (io, connectionsManager: ConnectionsManager) => {
     })
     socket.on(EventTypesServer.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD, async (channelAddress: string) => {
       await connectionsManager.subscribeForDirectMessageThread(channelAddress)
+    }),
+    socket.on(EventTypesServer.SUBSCRIBE_FOR_ALL_CONVERSATIONS, async (conversations: string[]) => {
+      await connectionsManager.subscribeForAllConversations(conversations)
     })
   })
 }

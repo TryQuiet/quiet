@@ -17,5 +17,6 @@ export enum EventTypesServer {
   SEND_DIRECT_MESSAGE = 'sendDirectMessage',
   FETCH_ALL_DIRECT_MESSAGES = 'fetchAllDirectMessages',
   SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD = 'subscribeForDirectMessageThread',
-  DIRECT_MESSAGE = 'directMessage'
+  DIRECT_MESSAGE = 'directMessage',
+  SUBSCRIBE_FOR_ALL_CONVERSATIONS = 'subscribeForAllConversations',
 }
