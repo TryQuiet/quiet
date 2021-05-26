@@ -1,3 +1,4 @@
+import {MainScreen} from './screens/Main/Main.screen';
 import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {StatusBar} from 'react-native';
@@ -32,6 +33,7 @@ export default function App(): JSX.Element {
                 component={SplashScreen}
                 name={ScreenNames.SplashScreen}
               />
+              <Screen component={MainScreen} name={ScreenNames.MainScreen} />
             </Navigator>
           </ThemeProvider>
         </NavigationContainer>

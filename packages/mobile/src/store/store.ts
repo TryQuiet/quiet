@@ -5,11 +5,13 @@ import createSagaMiddleware from 'redux-saga';
 
 import {NodeEnv} from '../utils/const/NodeEnv.enum';
 import {rootReducer} from './root.reducer';
+import {StoreKeys} from './store.keys';
 
 const persistedReducer = persistReducer(
   {
     key: 'persistedReducer',
     storage: AsyncStorage,
+    blacklist: [StoreKeys.PublicChannels, StoreKeys.Socket],
   },
   rootReducer,
 );

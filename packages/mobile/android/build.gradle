@@ -1,9 +1,10 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
+    ext.kotlin_version = '1.5.0'
     ext {
         buildToolsVersion = "29.0.3"
-        minSdkVersion = 21
+        minSdkVersion = 24
         compileSdkVersion = 29
         targetSdkVersion = 29
         ndkVersion = "20.1.5948944"
@@ -14,6 +15,7 @@ buildscript {
     }
     dependencies {
         classpath("com.android.tools.build:gradle:4.1.0")
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -34,5 +36,8 @@ allprojects {
         google()
         jcenter()
         maven { url 'https://www.jitpack.io' }
+
+        maven { url "https://raw.githubusercontent.com/guardianproject/gpmaven/master" }
+        maven { url "https://mvnrepository.com/artifact/commons-io/commons-io" }
     }
 }

@@ -1,3 +1,3 @@
-export enum ScreenNames {
+export enum ScreenNames {MainScreen = 'MainScreen',
   SplashScreen = 'SplashScreen',
 }
