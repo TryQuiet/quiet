@@ -17,6 +17,10 @@ import { ActionsType, PayloadType } from './types'
 import { DisplayableMessage } from '../../zbay/messages.types'
 import contactsSelectors from '../selectors/contacts'
 import publicChannelsSelectors from '../selectors/publicChannels'
+import debug from 'debug'
+const log = Object.assign(debug('zbay:channels'), {
+  error: debug('zbay:channels:err')
+})
 
 // Used only in some tests
 export const _PublicChannelData = {
@@ -133,6 +137,7 @@ export const subscribeForPublicChannels = () => async (dispatch, getState) => {
   const publicChannelsContacts = contactsSelectors.publicChannelsContacts(getState())
   for (const publicChannel of publicChannelsContacts) {
     const channel = publicChannelsSelectors.publicChannelsByName(publicChannel.username)(getState())
+    log('subscribing for ', channel.name)
     if (channel) {
       dispatch(publicChannelsActions.subscribeForTopic(channel))
     }

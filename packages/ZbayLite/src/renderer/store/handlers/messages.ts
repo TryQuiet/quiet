@@ -218,21 +218,21 @@ const msgTypeToNotification = new Set([
 export const findNewMessages = (key, messages, state, isDM = false) => {
   console.log('entered find messages')
   if (messages) {
-    console.log(`findNewMessagses: 1`)
+    console.log('findNewMessagses: 1')
     const currentChannel = channelSelectors.channel(state)
     if (key === currentChannel.id) {
-      console.log(`findNewMessagses: 2`)
+      console.log('findNewMessagses: 2')
       return []
     }
     const userFilter = notificationCenterSelectors.userFilterType(state)
     const channelFilter = notificationCenterSelectors.channelFilterById(key)(state)
     const lastSeen = parseInt(electronStore.get(`lastSeen.${key}`)) || Number.MAX_SAFE_INTEGER
-    console.log(`findNewMessagses: 3`)
+    console.log('findNewMessagses: 3')
     if (
       userFilter === notificationFilterType.NONE ||
       channelFilter === notificationFilterType.NONE
     ) {
-      console.log(`findNewMessagses: 4`)
+      console.log('findNewMessagses: 4')
       return []
     }
     const signerPubKey = identitySelectors.signerPubKey(state)

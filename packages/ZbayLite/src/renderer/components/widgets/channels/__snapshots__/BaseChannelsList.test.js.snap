@@ -4,7 +4,7 @@ exports[`BaseChannelsList renders component 1`] = `
 <WithStyles(ForwardRef(List))
   disablePadding={true}
 >
-  <Memo(Connect(withRouter(undefined)))
+  <Component
     channel={
       Object {
         "address": "zs1testaddress0",
@@ -23,7 +23,7 @@ exports[`BaseChannelsList renders component 1`] = `
     directMessages={false}
     selected={Object {}}
   />
-  <Memo(Connect(withRouter(undefined)))
+  <Component
     channel={
       Object {
         "address": "zs1testaddress1",
@@ -42,7 +42,7 @@ exports[`BaseChannelsList renders component 1`] = `
     directMessages={false}
     selected={Object {}}
   />
-  <Memo(Connect(withRouter(undefined)))
+  <Component
     channel={
       Object {
         "address": "zs1testaddress2",
@@ -61,7 +61,7 @@ exports[`BaseChannelsList renders component 1`] = `
     directMessages={false}
     selected={Object {}}
   />
-  <Memo(Connect(withRouter(undefined)))
+  <Component
     channel={
       Object {
         "address": "zs1testaddress3",
@@ -80,7 +80,7 @@ exports[`BaseChannelsList renders component 1`] = `
     directMessages={false}
     selected={Object {}}
   />
-  <Memo(Connect(withRouter(undefined)))
+  <Component
     channel={
       Object {
         "address": "zs1testaddress4",
@@ -99,7 +99,7 @@ exports[`BaseChannelsList renders component 1`] = `
     directMessages={false}
     selected={Object {}}
   />
-  <Memo(Connect(withRouter(undefined)))
+  <Component
     channel={
       Object {
         "address": "zs1testaddress5",
@@ -118,7 +118,7 @@ exports[`BaseChannelsList renders component 1`] = `
     directMessages={false}
     selected={Object {}}
   />
-  <Memo(Connect(withRouter(undefined)))
+  <Component
     channel={
       Object {
         "address": "zs1testaddress6",
@@ -137,7 +137,7 @@ exports[`BaseChannelsList renders component 1`] = `
     directMessages={false}
     selected={Object {}}
   />
-  <Memo(Connect(withRouter(undefined)))
+  <Component
     channel={
       Object {
         "address": "zs1testaddress7",
@@ -156,7 +156,7 @@ exports[`BaseChannelsList renders component 1`] = `
     directMessages={false}
     selected={Object {}}
   />
-  <Memo(Connect(withRouter(undefined)))
+  <Component
     channel={
       Object {
         "address": "zs1testaddress8",
@@ -175,7 +175,7 @@ exports[`BaseChannelsList renders component 1`] = `
     directMessages={false}
     selected={Object {}}
   />
-  <Memo(Connect(withRouter(undefined)))
+  <Component
     channel={
       Object {
         "address": "zs1testaddress9",
@@ -194,7 +194,7 @@ exports[`BaseChannelsList renders component 1`] = `
     directMessages={false}
     selected={Object {}}
   />
-  <Memo(Connect(withRouter(undefined)))
+  <Component
     channel={
       Object {
         "address": "zs1testaddress10",
@@ -213,7 +213,7 @@ exports[`BaseChannelsList renders component 1`] = `
     directMessages={false}
     selected={Object {}}
   />
-  <Memo(Connect(withRouter(undefined)))
+  <Component
     channel={
       Object {
         "address": "zs1testaddress11",

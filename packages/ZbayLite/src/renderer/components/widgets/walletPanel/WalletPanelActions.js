@@ -87,11 +87,6 @@ export const WalletPanelActions = ({
           </Typography>
         </Button>
       </Grid>
-      {showDepositInfo && (
-        <div className={classes.deposit} onClick={() => setModalTab(onReceive, setTabToOpen)}>
-          <span className={classes.text}>Add funds now</span>
-        </div>
-      )}
     </Grid>
   )
 }

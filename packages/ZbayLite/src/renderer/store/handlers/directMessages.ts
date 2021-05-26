@@ -11,6 +11,10 @@ import { ActionsType, PayloadType } from './types'
 import { directMessagesActions } from '../../sagas/directMessages/directMessages.reducer'
 
 import { encodeMessage, constants } from '../../cryptography/cryptography'
+import debug from 'debug'
+const _log = Object.assign(debug('zbay:dm'), {
+  error: debug('zbay:dm:err')
+})
 
 interface IUser {
   nickname: string
@@ -117,8 +121,8 @@ const initializeConversation = () => async (dispatch, getState) => {
   )
 }
 
-const subscribeForAllConversations = ()=>async dispatch => {
-await dispatch(directMessagesActions.subscribeForAllConversations())
+const subscribeForAllConversations = () => async dispatch => {
+  await dispatch(directMessagesActions.subscribeForAllConversations())
 }
 
 const getAvailableUsers = () => async dispatch => {

@@ -41,6 +41,11 @@ import { ActionsType, PayloadType } from './types'
 import { DisplayableMessage } from '../../zbay/messages.types'
 import directMessagesHandlers from './directMessages'
 import directMessagesSelectors from '../selectors/directMessages'
+import debug from 'debug'
+const log = Object.assign(debug('zbay:identity'), {
+  error: debug('zbay:identity:err'),
+  warn: debug('zbay:identity:warn')
+})
 
 interface IShippingData {
   firstName: string
@@ -244,7 +249,7 @@ export const fetchFreeUtxos = () => async dispatch => {
     )
     dispatch(setFreeUtxos(freeUtxos.length))
   } catch (err) {
-    console.warn(err)
+    log.warn(err)
   }
 }
 
@@ -369,7 +374,7 @@ export const createIdentity = ({ name, fromMigrationFile }) => async () => {
     }, 0)
     return electronStore.get('identity')
   } catch (err) {
-    console.log('error', err)
+    log.error('error', err)
   }
 }
 

@@ -246,14 +246,14 @@ const _sendPendingDirectMessages = (redirect): ZbayThunkAction<void> => async (
   await dispatch(appHandlers.actions.unlockDmQueue())
 }
 
-export const sendPendingDirectMessages = (debounce, redirect) => {
+export const sendPendingDirectMessages = (debounce?: number, redirect?: boolean) => {
   const thunk = _sendPendingDirectMessages(redirect)
   thunk.meta = {
     debounce: {
       time:
         debounce !== null
           ? debounce
-          : process.env.ZBAY_DEBOUNCE_MESSAGE_INTERVAL || DEFAULT_DEBOUNCE_INTERVAL,
+          : Number(process.env.ZBAY_DEBOUNCE_MESSAGE_INTERVAL) || DEFAULT_DEBOUNCE_INTERVAL,
       key: 'SEND_PENDING_DRIRECT_MESSAGES'
     }
   }

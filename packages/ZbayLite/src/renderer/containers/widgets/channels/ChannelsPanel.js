@@ -50,12 +50,14 @@ export const ChannelsPanel = ({
       <Grid item>
         <BaseChannelsList {...props} />
       </Grid>
+      {/*
       <Grid item>
         <QuickActionButton
           text='Create Channel'
           action={fundsLocked ? openDepositMonet : openCreateModal}
         />
       </Grid>
+      */}
       <Grid item>
         <QuickActionButton
           text='Find Channel'

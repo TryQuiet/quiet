@@ -91,7 +91,7 @@ export const MentionPoper = ({ classes, anchorEl, children, selected }) => {
       className={classes.root}
       style={{
         transform: `translate3d(${positionX}px,${positionY}px,0px`,
-        zIndex: positionX === 0 || positionY === 0 ? -1 : 0
+        zIndex: positionX && positionY ? 0 : -1
       }}
     >
       <Paper>

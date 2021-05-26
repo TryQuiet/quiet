@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
-import * as R from 'ramda'
+import { useRouteMatch } from 'react-router'
+import { useDispatch, useSelector } from 'react-redux'
 
 import ChannelComponent from '../../components/pages/Channel'
 import { CHANNEL_TYPE } from '../../components/pages/ChannelTypes'
@@ -10,21 +9,17 @@ import channelHandlers from '../../store/handlers/channel'
 import channelsSelectors from '../../store/selectors/channels'
 import electronStore from '../../../shared/electronStore'
 
-export const mapStateToProps = state => ({
-  generalChannelId: channelsSelectors.generalChannelId(state)
-})
+const Channel = () => {
+  const generalChannelId = useSelector(channelsSelectors.generalChannelId)
+  const dispatch = useDispatch()
+  const match = useRouteMatch<{ id: string }>()
 
-export const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      loadChannel: channelHandlers.epics.loadChannel
-    },
-    dispatch
-  )
-
-const Channel = ({ loadChannel, generalChannelId, match }) => {
   useEffect(
     () => {
+      const loadChannel = (key: string) => {
+        dispatch(channelHandlers.epics.loadChannel(key))
+      }
+
       if (match.params.id === 'general') {
         if (generalChannelId && electronStore.get('generalChannelInitialized')) {
           loadChannel(generalChannelId)
@@ -35,13 +30,8 @@ const Channel = ({ loadChannel, generalChannelId, match }) => {
     },
     [match.params.id, generalChannelId]
   )
+
   return <ChannelComponent channelType={CHANNEL_TYPE.NORMAL} contactId={match.params.id} />
 }
 
-export default R.compose(
-  React.memo,
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )
-)(Channel)
+export default Channel

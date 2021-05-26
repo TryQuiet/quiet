@@ -1,5 +1,9 @@
 import crypto from 'crypto'
 import { IConversation } from '../store/handlers/directMessages'
+import debug from 'debug'
+const log = Object.assign(debug('zbay:crypto'), {
+  error: debug('zbay:crypto:err')
+})
 
 export const constants = {
   IVO: '5183666c72eec9e45183666c72eec9e4',
@@ -45,10 +49,10 @@ export const checkConversation = (
   try {
     decodedMessage = decodeMessage(sharedSecret, encryptedPhrase)
   } catch (err) {
-    console.log('cannot decode message, its not for me or I am the author')
+    log.error('cannot decode message, its not for me or I am the author')
   }
   if (decodedMessage?.startsWith('no panic')) {
-    console.log('success, message decoded successfully')
+    log('success, message decoded successfully')
 
     return {
       sharedSecret,

@@ -180,7 +180,7 @@ const linkChannelRedirect = targetChannel => async (dispatch, getState) => {
   history.push(`/main/channel/${targetChannel.address}`)
 }
 
-const sendOnEnter = (_event, resetTab) => async (dispatch, getState) => {
+const sendOnEnter = (_event, resetTab?: (arg: number) => void) => async (dispatch, getState) => {
   if (resetTab) {
     resetTab(0)
   }
@@ -193,9 +193,8 @@ const sendOnEnter = (_event, resetTab) => async (dispatch, getState) => {
   }
   console.log(`isDM? ${isDirectMessageChannel}`)
   if (isDirectMessageChannel) {
-    
     const id = channelSelectors.id(getState())
-    const conversations = directMessagesSelectors.conversations(getState())
+    const conversations: Array<{ contactPublicKey: string }> = directMessagesSelectors.conversations(getState())
 
     const conversation = Array.from(Object.values(conversations)).filter(conv => {
       return conv.contactPublicKey === id

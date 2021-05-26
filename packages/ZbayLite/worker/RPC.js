@@ -1,8 +1,11 @@
 const native = require('./index.node')
+const debug = require('debug')
+
+const log = Object.assign(debug('zbay:channels'), {
+  error: debug('zbay:channels:err')
+})
 const publicLiteNodes = [
-  'https://lightwalletd.zecwallet.co:1443',
-  'https://lightd-main.zecwallet.co:443',
-  'https://lightd-main.zecwallet.co:443'
+  'https://lwdv3.zecwallet.co:443'
 ]
 
 class RPC {
@@ -10,14 +13,14 @@ class RPC {
     for (const nodeUrl of publicLiteNodes) {
       const result = native.litelib_initialize_existing(nodeUrl)
       if (result.startsWith('Error: grpc-status')) {
-        console.log(`Unable to connect to ${nodeUrl}`)
+        log.error(`Unable to connect to ${nodeUrl}`)
         continue
       }
       if (result.startsWith('Error: Cannot read wallet.')) {
-        console.log(`Creating new wallet`)
+        log(`Creating new wallet`)
         native.litelib_initialize_new(nodeUrl)
       }
-      console.log(`Intialization: ${result}`)
+      log(`Intialization: ${result}`)
       break
     }
   }

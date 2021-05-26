@@ -51,7 +51,7 @@
     },
     "publish": {
       "provider": "s3",
-      "bucket": "release.zbay.lite"
+      "bucket": "release.zbay.lite.waggle"
     },
     "extraResources": [
       "worker/**/*",
@@ -61,7 +61,7 @@
   },
   "homepage": "https://gitlab.rumblefishdev.com/holmes/zbay",
   "@comment version": "To build new version for specific platform, just replace platform in version tag to one of following linux, mac, windows",
-  "version": "3.2.15-zbay-lite",
+  "version": "3.2.16-zbay-lite",
   "description": "Distributed goods and bulletin board",
   "main": "dist/main/main.js",
   "scripts": {
@@ -81,7 +81,7 @@
     "build:main:prod": "tsc -p tsconfig.build.main.json",
     "build:renderer:prod": "webpack --config webpack/webpack.config.renderer.prod.js",
     "prestart": "npm run build:main",
-    "start": "ZBAY_IS_TESTNET=0 npm run start:renderer",
+    "start": "ZBAY_IS_TESTNET=0 DEBUG='waggle:*,zbay:*' npm run start:renderer",
     "start-testnet": "ZBAY_IS_TESTNET=1 npm run start:renderer",
     "start:main": "cross-env NODE_ENV=development electron .",
     "start:renderer": "cross-env NODE_ENV=development webpack-dev-server --config webpack/webpack.config.renderer.dev.js",
@@ -96,7 +96,7 @@
     "neon-rebuild": "rm native/index.node && rm -rf native/target && rm native/Cargo.lock && npm run neon"
   },
   "author": {
-    "name": "Bartlomiej Lisiecki/Norbert Bodziony",
+    "name": "Zbay LLC",
     "email": "rumblefish@rumblefish.pl"
   },
   "license": "ISC",
@@ -121,6 +121,7 @@
     "@types/react-router-dom": "^5.1.6",
     "@types/redux-actions": "^2.6.1",
     "@typescript-eslint/eslint-plugin": "^3.7.1",
+    "about-window": "^1.14.0",
     "awesome-typescript-loader": "^5.2.1",
     "axios-mock-adapter": "^1.16.0",
     "babel-eslint": "^10.0.1",
@@ -221,7 +222,9 @@
     "convert-seconds": "^1.0.1",
     "country-region-data": "^1.4.7",
     "custom-electron-titlebar": "^3.2.2-hotfix62",
+    "debug": "^4.3.1",
     "dotenv": "^8.2.0",
+    "electron-about-window": "^1.13.2",
     "electron-debug": "^3.0.1",
     "electron-localshortcut": "^3.2.1",
     "electron-store": "^5.2.0",
@@ -284,7 +287,7 @@
     "typed-redux-saga": "^1.3.1",
     "typeface-roboto": "0.0.54",
     "typescript": "^4.0.5",
-    "waggle": "1.1.1",
+    "waggle": "1.1.9",
     "websocket": "^1.0.32",
     "worker-loader": "^3.0.1",
     "ws": "^7.3.1",

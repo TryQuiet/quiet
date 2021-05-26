@@ -1,15 +1,11 @@
-import React, { useCallback } from 'react'
-import PropTypes from 'prop-types'
-import * as R from 'ramda'
+import React, { KeyboardEventHandler, useCallback } from 'react'
 import classNames from 'classnames'
 import { renderToString } from 'react-dom/server'
 import ContentEditable from 'react-contenteditable'
 import Picker from 'emoji-picker-react'
-import Fade from '@material-ui/core/Fade'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
-import { withStyles } from '@material-ui/core/styles'
-import WarningIcon from '@material-ui/icons/Warning'
+import { makeStyles } from '@material-ui/core/styles'
 import orange from '@material-ui/core/colors/orange'
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import { shell } from 'electron'
@@ -24,152 +20,175 @@ import emojiGray from '../../../../static/images/emojiGray.svg'
 import emojiBlack from '../../../../static/images/emojiBlack.svg'
 import errorIcon from '../../../../static/images/t-error.svg'
 import sanitizeHtml from 'sanitize-html'
-const styles = theme => {
-  return {
-    root: {
-      background: '#fff',
-      height: '100%',
-      width: '100%'
-    },
-    '@keyframes blinker': {
-      from: { opacity: 0 },
-      to: { opacity: 1 }
-    },
-    input: {
-      fontSize: 14,
-      outline: 'none',
-      padding: '12px 16px',
-      lineHeight: '24px',
-      '&:empty': {
-        '&:before': {
-          content: 'attr(placeholder)',
-          display: 'block',
-          color: '#aaa'
-        }
-      },
-      wordBreak: 'break-word'
-    },
-    textfield: {
-      border: `1px solid ${theme.palette.colors.veryLightGray}`,
-      maxHeight: 300,
-      'overflow-y': 'auto',
-      borderRadius: 4,
-      '&:hover': {
-        borderColor: theme.palette.colors.trueBlack
+import { User, UsersStore } from '../../../../store/handlers/users'
+
+const useStyles = makeStyles(theme => ({
+  root: {
+    background: '#fff',
+    height: '100%',
+    width: '100%'
+  },
+  '@keyframes blinker': {
+    from: { opacity: 0 },
+    to: { opacity: 1 }
+  },
+  input: {
+    fontSize: 14,
+    outline: 'none',
+    padding: '12px 16px',
+    lineHeight: '24px',
+    '&:empty': {
+      '&:before': {
+        content: 'attr(placeholder)',
+        display: 'block',
+        color: '#aaa'
       }
     },
-
-    inputsDiv: {
-      paddingLeft: '20px',
-      paddingRight: '20px',
-      width: '100%',
-      margin: '0px'
-    },
-    disabledBottomMargin: {
-      marginBottom: 0
-    },
-    warningIcon: {
-      color: orange[500]
-    },
-    blinkAnimation: {
-      animationName: '$blinker',
-      animationDuration: '1s',
-      animationTimingFunction: 'linear',
-      animationIterationCount: 1
-    },
-    backdrop: {
-      height: 'auto',
-      padding: `${theme.spacing(1)}px`,
-      backgroundColor: 'rgba(0, 0, 0, 0.75)',
-      WebkitTapHighlightColor: 'transparent',
-      pointerEvents: 'none',
-      touchAction: 'none'
-    },
-    displayNone: {
-      pointerEvents: 'none'
-    },
-    notAllowed: {
-      cursor: 'not-allowed'
-    },
-    focused: {
+    wordBreak: 'break-word'
+  },
+  textfield: {
+    border: `1px solid ${theme.palette.colors.veryLightGray}`,
+    maxHeight: 300,
+    'overflow-y': 'auto',
+    borderRadius: 4,
+    '&:hover': {
       borderColor: theme.palette.colors.trueBlack
-    },
-    iconButton: {
-      marginRight: 0
-    },
-    highlight: {
-      color: theme.palette.colors.lushSky,
-      backgroundColor: theme.palette.colors.lushSky12,
-      padding: 5,
-      borderRadius: 4
-    },
-    emoji: {
-      marginRight: 17,
-      marginLeft: 10,
-      cursor: 'pointer'
-    },
-    actions: {
-      postion: 'relative'
-    },
-    picker: {
-      position: 'absolute',
-      bottom: 60,
-      right: 15
-    },
-    errorIcon: {
-      display: 'flex',
-      justify: 'center',
-      alignItems: 'center',
-      marginLeft: 20,
-      marginRight: 5
-    },
-    errorText: {
-      color: theme.palette.colors.trueBlack
-    },
-    errorBox: {
-      marginTop: 5
-    },
-    linkBlue: {
-      fontWeight: 'normal',
-      fontStyle: 'normal',
-      cursor: 'pointer',
-      color: theme.palette.colors.linkBlue
     }
+  },
+  inputsDiv: {
+    paddingLeft: '20px',
+    paddingRight: '20px',
+    width: '100%',
+    margin: '0px'
+  },
+  disabledBottomMargin: {
+    marginBottom: 0
+  },
+  warningIcon: {
+    color: orange[500]
+  },
+  blinkAnimation: {
+    animationName: '$blinker',
+    animationDuration: '1s',
+    animationTimingFunction: 'linear',
+    animationIterationCount: 1
+  },
+  backdrop: {
+    height: 'auto',
+    padding: `${theme.spacing(1)}px`,
+    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+    WebkitTapHighlightColor: 'transparent',
+    pointerEvents: 'none',
+    touchAction: 'none'
+  },
+  displayNone: {
+    display: 'none'
+  },
+  focused: {
+    borderColor: theme.palette.colors.trueBlack
+  },
+  iconButton: {
+    marginRight: 0
+  },
+  highlight: {
+    color: theme.palette.colors.lushSky,
+    backgroundColor: theme.palette.colors.lushSky12,
+    padding: 5,
+    borderRadius: 4
+  },
+  emoji: {
+    marginRight: 17,
+    marginLeft: 10,
+    cursor: 'pointer'
+  },
+  actions: {
+    postion: 'relative'
+  },
+  picker: {
+    position: 'absolute',
+    bottom: 60,
+    right: 15
+  },
+  errorIcon: {
+    display: 'flex',
+    justify: 'center',
+    alignItems: 'center',
+    marginLeft: 20,
+    marginRight: 5
+  },
+  errorText: {
+    color: theme.palette.colors.trueBlack
+  },
+  errorBox: {
+    marginTop: 5
+  },
+  linkBlue: {
+    fontWeight: 'normal',
+    fontStyle: 'normal',
+    cursor: 'pointer',
+    color: theme.palette.colors.linkBlue
+  },
+  notAllowed: {
+    cursor: 'not-allowed'
   }
+}))
+
+interface IChannelInput {
+  infoClass: string
+  setInfoClass: (arg: string) => void
+  id: string
+  users: UsersStore
+  onChange: (arg: string) => void
+  onKeyPress: KeyboardEventHandler<HTMLDivElement>
+  message: string
+  inputState: INPUT_STATE
+  inputPlaceholder: string
+  channelName?: string
+  anchorEl: HTMLElement
+  setAnchorEl: (arg: HTMLElement) => void
+  mentionsToSelect: User[]
+  setMentionsToSelect: (arg: User[]) => void
+  members?: Set<string>
+  isMessageTooLong?: boolean
+  isDM?: boolean
+  sendTypingIndicator?: (arg: boolean) => void
+  isContactConnected?: boolean
+  isContactTyping?: boolean
+  contactUsername?: string
 }
 
-export const ChannelInput = ({
-  classes,
+export const ChannelInput: React.FC<IChannelInput> = ({
+  infoClass,
+  setInfoClass,
+  id,
+  users,
   onChange,
   onKeyPress,
   message: initialMessage,
   inputState,
-  infoClass,
-  setInfoClass,
+  inputPlaceholder,
   channelName,
-  users,
-  setAnchorEl,
   anchorEl,
+  setAnchorEl,
   mentionsToSelect,
   setMentionsToSelect,
   members,
-  inputPlaceholder,
-  isMessageTooLong,
-  id,
-  contactUsername
+  isMessageTooLong
 }) => {
-  const messageRef = React.useRef()
-  const refSelected = React.useRef()
+  const classes = useStyles({})
+
+  const messageRef = React.useRef<string>()
+  const refSelected = React.useRef<number>()
   const isFirstRenderRef = React.useRef(true)
-  const refMentionsToSelect = React.useRef()
-  const inputRef = React.createRef()
+  const refMentionsToSelect = React.useRef<User[]>()
+  const inputRef = React.createRef<ContentEditable & HTMLDivElement & any>() // any for updater.enqueueForceUpdate
+
   const [focused, setFocused] = React.useState(false)
   const [selected, setSelected] = React.useState(0)
   const [emojiHovered, setEmojiHovered] = React.useState(false)
   const [openEmoji, setOpenEmoji] = React.useState(false)
-  const [htmlMessage, setHtmlMessage] = React.useState(initialMessage)
+  const [htmlMessage, setHtmlMessage] = React.useState<string>(initialMessage)
   const [message, setMessage] = React.useState(initialMessage)
-  const typingIndicator = !!message
   const showInfoMessage = inputState !== INPUT_STATE.AVAILABLE
 
   window.onfocus = () => {
@@ -233,7 +252,7 @@ export const ChannelInput = ({
           setSelected(0)
         }, 0)
       }
-      if (possibleMentions.size) {
+      if (possibleMentions.length) {
         splitedMsg[splitedMsg.length - 1] = renderToString(
           <span id={splitedMsg[splitedMsg.length - 1]}>{splitedMsg[splitedMsg.length - 1]}</span>
         )
@@ -283,15 +302,15 @@ export const ChannelInput = ({
     e => {
       if (refMentionsToSelect.current.length) {
         if (e.nativeEvent.keyCode === 40) {
-          if (parseInt(refSelected.current) + 1 >= refMentionsToSelect.current.length) {
+          if (refSelected.current + 1 >= refMentionsToSelect.current.length) {
             setSelected(0)
           } else {
-            setSelected(parseInt(refSelected.current) + 1)
+            setSelected(refSelected.current + 1)
           }
           e.preventDefault()
         }
         if (e.nativeEvent.keyCode === 38) {
-          if (parseInt(refSelected.current) - 1 < 0) {
+          if (refSelected.current - 1 < 0) {
             setSelected(refMentionsToSelect.current.length - 1)
           } else {
             setSelected(refSelected.current - 1)
@@ -446,11 +465,13 @@ export const ChannelInput = ({
                     }}>
                     <div className={classes.picker}>
                       <Picker
+                        /* eslint-disable */
                         onEmojiClick={(e, emoji) => {
                           setHtmlMessage(message + emoji.emoji)
                           setMessage(message + emoji.emoji)
                           setOpenEmoji(false)
                         }}
+                      /* eslint-enable */
                       />
                     </div>
                   </ClickAwayListener>
@@ -468,9 +489,11 @@ export const ChannelInput = ({
               <Typography className={classes.errorText} variant={'caption'}>
                 {'Your message is over the size limit. '}
                 <span
+                  /* eslint-disable */
                   onClick={() =>
                     shell.openExternal('https://www.zbay.app/faq.html#message-size-info')
                   }
+                  /* eslint-enable */
                   className={classes.linkBlue}>
                   Learn More
                 </span>
@@ -484,39 +507,10 @@ export const ChannelInput = ({
   )
 }
 
-ChannelInput.propTypes = {
-  classes: PropTypes.object.isRequired,
-  onChange: PropTypes.func.isRequired,
-  onKeyPress: PropTypes.func.isRequired,
-  inputState: PropTypes.number.isRequired,
-  infoClass: PropTypes.string,
-  setInfoClass: PropTypes.func,
-  message: PropTypes.string,
-  channelName: PropTypes.string.isRequired,
-  inputPlaceholder: PropTypes.string.isRequired,
-  messageLimit: PropTypes.number.isRequired,
-  users: PropTypes.object.isRequired,
-  setAnchorEl: PropTypes.func.isRequired,
-  setMentionsToSelect: PropTypes.func.isRequired,
-  anchorEl: PropTypes.object,
-  mentionsToSelect: PropTypes.array.isRequired,
-  members: PropTypes.instanceOf(Set),
-  isMessageTooLong: PropTypes.bool
-}
-
 ChannelInput.defaultProps = {
   inputState: INPUT_STATE.AVAILABLE,
   members: new Set(),
   channelName: ''
 }
 
-export default R.compose(withStyles(styles))(
-  React.memo(ChannelInput, (before, after) => {
-    return (
-      Object.is(before.users, after.user) &&
-      before.message === after.message &&
-      before.inputPlaceholder === after.inputPlaceholder &&
-      before.users.equals(after.users)
-    )
-  })
-)
+export default ChannelInput

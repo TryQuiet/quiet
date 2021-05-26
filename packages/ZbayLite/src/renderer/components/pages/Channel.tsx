@@ -1,26 +1,38 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import * as R from 'ramda'
+import React, { useState } from 'react'
 
-import { withStyles } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/core/styles'
 import { Grid } from '@material-ui/core'
 
 import Page from '../ui/page/Page'
 import PageHeader from '../ui/page/PageHeader'
 import { channelTypeToHeader, channelTypeToInput } from './ChannelMapping'
 import ChannelContent from '../../containers/widgets/channels/ChannelContent'
+import { CHANNEL_TYPE } from './ChannelTypes'
 
-const styles = {
+const useStyles = makeStyles(() => ({
   root: {},
   messages: {
     height: 0 // It seems like flexGrow breaks if we dont set some default height
   }
+}))
+
+interface IChannelComponentProps {
+  channelType: CHANNEL_TYPE
+  contactId?: string
+  offer?: string
 }
 
-export const Channel = ({ classes, channelType, ...props }) => {
+type InputProps = Omit<IChannelComponentProps, 'channelType'> & {
+  setTab: (arg: number) => void // for now
+}
+
+export const Channel: React.FC<IChannelComponentProps> = ({ channelType, ...props }) => {
+  const classes = useStyles({})
+  const [tab, setTab] = useState(0)
+
   const Header = channelTypeToHeader[channelType]
-  const Input = channelTypeToInput[channelType]
-  const [tab, setTab] = React.useState(0)
+  const Input = channelTypeToInput[channelType] as React.FC<InputProps> // for now
+
   return (
     <Page>
       <PageHeader>
@@ -36,12 +48,4 @@ export const Channel = ({ classes, channelType, ...props }) => {
   )
 }
 
-Channel.propTypes = {
-  classes: PropTypes.object.isRequired,
-  contactId: PropTypes.string
-}
-
-export default R.compose(
-  React.memo,
-  withStyles(styles)
-)(Channel)
+export default Channel

@@ -12,6 +12,11 @@ import electronStore from '../../../shared/electronStore'
 
 import { ActionsType, PayloadType } from './types'
 
+import debug from 'debug'
+const _log = Object.assign(debug('zbay:main'), {
+  error: debug('zbay:main:err')
+})
+
 export const VaultState = {
   exists: null,
   creating: false,

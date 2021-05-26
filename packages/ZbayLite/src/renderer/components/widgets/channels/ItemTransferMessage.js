@@ -144,7 +144,7 @@ export const ItemTransferMessage = ({
       </Grid>
     </BasicMessage>
   )
-        }
+}
 
 ItemTransferMessage.propTypes = {
   classes: PropTypes.object.isRequired,

@@ -19,7 +19,7 @@ exports[`NodePanelDetails renders component 1`] = `
       <Memo(WithStyles(Tooltip))
         className="tooltip-mock"
         placement="bottom"
-        title="Learn more about node status"
+        title="About Zbay"
       >
         <WithStyles(ForwardRef(IconButton))
           className="iconButton-mock"

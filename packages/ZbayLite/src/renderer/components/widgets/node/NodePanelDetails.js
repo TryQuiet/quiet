@@ -8,6 +8,7 @@ import classNames from 'classnames'
 import IconButton from '@material-ui/core/IconButton'
 import { shell } from 'electron'
 
+import openAboutWindow from 'about-window'
 import NodePanelBlocksField from '../../../containers/widgets/node/NodePanelBlocksField'
 import NodePanelNetworkField from '../../../containers/widgets/node/NodePanelNetworkField'
 import NodePanelFreeUtxos from '../../../containers/widgets/node/NodePanelFreeUtxos'
@@ -15,6 +16,8 @@ import Icon from '../../ui/Icon'
 import helpIcon from '../../../static/images/help.svg'
 import helpGrayIcon from '../../../static/images/helpGray.svg'
 import Tooltip from '../../ui/Tooltip'
+import electronStore from '../../../../shared/electronStore'
+import { author } from '../../../../../package.json'
 
 const styles = theme => ({
   details: {
@@ -45,7 +48,7 @@ const styles = theme => ({
 
 export const NodePanelDetails = ({ classes, expanded }) => {
   const [hover, setHover] = React.useState(false)
-
+  const waggleVesrion = electronStore.get('waggleVersion')
   return (
     <Grid container direction='column'>
       <Grid
@@ -59,14 +62,20 @@ export const NodePanelDetails = ({ classes, expanded }) => {
             <Grid item container direction>
               <NodePanelNetworkField />
               <Tooltip
-                title='Learn more about node status'
+                title='About Zbay'
                 className={classes.tooltip}
                 placement='bottom'>
                 <IconButton
                   className={classes.iconButton}
                   onClick={e => {
                     e.stopPropagation()
-                    shell.openExternal('https://www.zbay.app/faq.html#node-info')
+                    openAboutWindow({
+                      icon_path: `${process.cwd()}/src/renderer/static/images/zcash/zbay-icon.png`,
+                      about_page_dir: `${process.cwd()}/node_modules/about-window`,
+                      description: `Waggle ${waggleVesrion}`,
+                      use_version_info: true,
+                      copyright: `Copyright (C) 2021 ${author.name}`
+                    })
                   }}
                   onMouseOver={() => {
                     setHover(true)

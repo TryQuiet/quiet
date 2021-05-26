@@ -22,6 +22,15 @@ import { errorNotification, successNotification } from './store/handlers/utils'
 import notificationsHandlers from './store/handlers/notifications'
 import appSelectors from './store/selectors/app'
 import { socketsActions } from './sagas/socket/socket.saga.reducer'
+import debug from 'debug'
+
+const log = Object.assign(debug('zbay:renderer'), {
+  error: debug('zbay:renderer:err')
+})
+
+if (window) {
+  window.localStorage.setItem('debug', process.env.DEBUG)
+}
 
 Web.HashingTools.patchCorePBKDF()
 
@@ -102,10 +111,10 @@ ipcRenderer.on('newInvitation', (event, { invitation }) => {
 ipcRenderer.on('toggleCoordinator', () => {
   if (coordinatorSelectors.running(store.getState()) === true) {
     store.dispatch(coordinatorHandlers.actions.stopCoordinator())
-    console.log('coordinator stopped')
+    log('coordinator stopped')
   } else {
     store.dispatch(coordinatorHandlers.actions.startCoordinator())
-    console.log('coordinator started')
+    log('coordinator started')
   }
 })
 
@@ -114,10 +123,12 @@ ipcRenderer.on('checkNodeStatus', (event, { status }) => {
 })
 
 ipcRenderer.on('connectToWebsocket', (event) => {
+  log('connecting to websocket')
   store.dispatch(socketsActions.connect())
 })
 
 ipcRenderer.on('waggleInitialized', (event) => {
+  log('waggle Initialized')
   store.dispatch(waggleHandlers.actions.setIsWaggleConnected(true))
   store.dispatch(publicChannelsHandlers.epics.loadPublicChannels())
   store.dispatch(publicChannelsHandlers.epics.subscribeForPublicChannels())

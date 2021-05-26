@@ -148,7 +148,7 @@ export function* getAvailableUsers(socket: Socket): Generator {
 }
 
 export function* subscribeForAllConversations(
-  socket: Socket,
+  socket: Socket
 ): Generator {
   const conversations = yield* select(directMessagesSelectors.conversations)
   const payload = Array.from(Object.keys(conversations))
