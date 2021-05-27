@@ -1,26 +1,22 @@
 const native = require('./index.node')
-const debug = require('debug')
-
-const log = Object.assign(debug('zbay:channels'), {
-  error: debug('zbay:channels:err')
-})
 const publicLiteNodes = [
   'https://lwdv3.zecwallet.co:443'
 ]
+// TOOD: How to use 'debug' in this file? Built app has problem with importing it.
 
 class RPC {
   constructor () {
     for (const nodeUrl of publicLiteNodes) {
       const result = native.litelib_initialize_existing(nodeUrl)
       if (result.startsWith('Error: grpc-status')) {
-        log.error(`Unable to connect to ${nodeUrl}`)
+        console.error(`Unable to connect to ${nodeUrl}`)
         continue
       }
       if (result.startsWith('Error: Cannot read wallet.')) {
-        log(`Creating new wallet`)
+        console.log(`Creating new wallet`)
         native.litelib_initialize_new(nodeUrl)
       }
-      log(`Intialization: ${result}`)
+      console.log(`Intialization: ${result}`)
       break
     }
   }

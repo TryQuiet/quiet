@@ -1,4 +1,9 @@
-# [3.2.16] - WIP
+# [3.2.17] - 27 May 2021
+
+### Fixed
+* Built version can't import 'debug' in RPC.js file, remove the import for now
+
+# [3.2.16] - 26 May 2021
 
 ### Added
 * Added logger
