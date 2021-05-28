@@ -1,10 +1,10 @@
 {
   "name": "waggle",
-  "version": "1.1.2",
+  "version": "1.1.9",
   "author": "jk",
   "description": "tlg-manager",
-  "types": "lib/index.d.ts",
-  "main": "lib/index.js",
+  "types": "lib/src/index.d.ts",
+  "main": "lib/src/index.js",
   "license": "MIT",
   "scripts": {
     "build": "tsc",
