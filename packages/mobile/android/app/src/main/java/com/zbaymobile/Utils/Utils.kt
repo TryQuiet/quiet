@@ -23,7 +23,7 @@ object Utils {
         var folder = Build.CPU_ABI
         val javaArch = System.getProperty("os.arch")
         if (javaArch != null && javaArch.contains("686")) {
-            folder = "x86"
+            throw java.lang.Exception("Architecture not supported.")
         }
         // return folder
         return "arm64-v8a"

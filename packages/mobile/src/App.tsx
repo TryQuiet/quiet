@@ -25,7 +25,7 @@ export default function App(): JSX.Element {
           <ThemeProvider theme={defaultTheme}>
             <StatusBar backgroundColor={defaultTheme.palette.statusBar.main} />
             <Navigator
-              initialRouteName={ScreenNames.SplashScreen}
+              initialRouteName={ScreenNames.MainScreen}
               screenOptions={{
                 headerShown: false,
               }}>
