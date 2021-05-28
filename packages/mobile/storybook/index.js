@@ -12,7 +12,10 @@ addDecorator(withLanguagePicker);
 addDecorator(withNavigation);
 addDecorator(withThemePicker);
 
-configure(() => {}, module);
+configure(() => {
+  require('../src/components/Message/Message.stories');
+  require('../src/components/Typography/Typography.stories');
+}, module);
 
 const StorybookUIRoot = getStorybookUI({
   asyncStorage: null,

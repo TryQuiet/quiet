@@ -11,7 +11,7 @@ import {name} from './app.json';
 import {NodeEnv} from './src/utils/const/NodeEnv.enum';
 
 const App = lazy(() => import('./src/App'));
-const Storybook = lazy(() => import('./src/storybook'));
+const Storybook = lazy(() => import('./storybook'));
 
 const Main = Config.NODE_ENV === NodeEnv.Storybook ? Storybook : App;
 
