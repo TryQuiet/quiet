@@ -4,7 +4,7 @@ export type IChannelInfo = {
   owner: string;
   timestamp: number;
   address: string;
-  keys?: {ivk?: string; sk?: string};
+  keys?: { ivk?: string; sk?: string };
 };
 
 export type IMessage = {
@@ -16,4 +16,10 @@ export type IMessage = {
   r: number;
   channelId: string;
   signature: string;
+};
+
+export type DisplayableMessage = {
+  message: IMessage;
+  nickname: string;
+  datetime: string;
 };

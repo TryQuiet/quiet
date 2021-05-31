@@ -1,4 +1,4 @@
-import {Palette} from 'styled-components';
+import { Palette } from 'styled-components';
 
 export const defaultPalette: Palette = {
   statusBar: {
@@ -7,5 +7,8 @@ export const defaultPalette: Palette = {
   typography: {
     main: '#000000',
     subtitle: '#999999',
+  },
+  messageInput: {
+    border: '#B3B3B3',
   },
 };

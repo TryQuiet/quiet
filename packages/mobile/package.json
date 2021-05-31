@@ -72,6 +72,9 @@
       "json",
       "node"
     ],
-    "rootDir": "src"
+    "rootDir": "src",
+    "setupFiles": [
+      "../node_modules/react-native-gesture-handler/jestSetup.js"
+    ]
   }
 }

@@ -1,11 +1,15 @@
 import './rn-addons';
 
-import {withKnobs} from '@storybook/addon-knobs';
-import {addDecorator, configure, getStorybookUI} from '@storybook/react-native';
+import { withKnobs } from '@storybook/addon-knobs';
+import {
+  addDecorator,
+  configure,
+  getStorybookUI,
+} from '@storybook/react-native';
 
-import {withNavigation} from './navigationDecorator';
-import {withLanguagePicker} from './withLanguagePicker';
-import {withThemePicker} from './withThemePicker';
+import { withNavigation } from './navigationDecorator';
+import { withLanguagePicker } from './withLanguagePicker';
+import { withThemePicker } from './withThemePicker';
 
 addDecorator(withKnobs);
 addDecorator(withLanguagePicker);
@@ -14,6 +18,9 @@ addDecorator(withThemePicker);
 
 configure(() => {
   require('../src/components/Message/Message.stories');
+  require('../src/components/MessageSendButton/MessageSendButton.stories');
+  require('../src/components/Chat/Chat.stories');
+  require('../src/components/MessageInput/MessageInput.stories');
   require('../src/components/Typography/Typography.stories');
 }, module);
 

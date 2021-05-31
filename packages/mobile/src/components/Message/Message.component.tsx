@@ -1,49 +1,58 @@
 import React, { FC } from 'react';
+import { KeyboardAvoidingView } from 'react-native';
 import { Image, View } from 'react-native';
 import { appImages } from '../../../assets';
 import { Typography } from '../Typography/Typography.component';
-import { DisplayableMessageProps } from './Message.types';
+import { MessageProps } from './Message.types';
 
-export const Message: FC<DisplayableMessageProps> = ({
-  message,
-  nickname,
-  datetime,
-}) => {
+export const Message: FC<MessageProps> = ({ message }) => {
   return (
-    <View
-      style={{
-        flexDirection: 'row',
-        paddingLeft: 20,
-        paddingRight: 20,
-        paddingBottom: 20,
-      }}>
-      <View style={{ alignItems: 'center', flex: 1, paddingTop: 5 }}>
-        <Image
-          source={appImages.avatar}
+    <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          paddingBottom: 20,
+        }}>
+        <View
           style={{
-            resizeMode: 'cover',
-            width: 32,
-            height: 32,
-            borderRadius: 5,
-          }}
-        />
-      </View>
-      <View style={{ flex: 5 }}>
-        <View style={{ flexDirection: 'row', paddingBottom: 3 }}>
-          <View style={{ alignSelf: 'flex-start' }}>
-            <Typography fontSize={16} fontWeight={'medium'}>
-              {nickname}
-            </Typography>
+            flex: 1,
+            alignItems: 'center',
+            paddingTop: 5,
+            paddingRight: 12,
+          }}>
+          <Image
+            source={appImages.avatar}
+            style={{
+              resizeMode: 'cover',
+              width: 32,
+              height: 32,
+              borderRadius: 5,
+            }}
+          />
+        </View>
+        <View style={{ flex: 10 }}>
+          <View style={{ flexDirection: 'row', paddingBottom: 3 }}>
+            <View style={{ alignSelf: 'flex-start' }}>
+              <Typography fontSize={16} fontWeight={'medium'}>
+                {message.nickname}
+              </Typography>
+            </View>
+            <View
+              style={{
+                alignSelf: 'flex-start',
+                paddingTop: 2,
+                paddingLeft: 8,
+              }}>
+              <Typography fontSize={14} color={'subtitle'}>
+                {message.datetime}
+              </Typography>
+            </View>
           </View>
-          <View
-            style={{ alignSelf: 'flex-start', paddingTop: 2, paddingLeft: 8 }}>
-            <Typography fontSize={14} color={'subtitle'}>
-              {datetime}
-            </Typography>
+          <View style={{ flexShrink: 1 }}>
+            <Typography fontSize={14}>{message.message.message}</Typography>
           </View>
         </View>
-        <Typography fontSize={14}>{message.message}</Typography>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
