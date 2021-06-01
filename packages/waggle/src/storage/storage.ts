@@ -164,7 +164,7 @@ export class Storage {
       log.error(err)
     }
     log('ALL USERS COUNT:', Object.keys(this.directMessagesUsers.all).length)
-    log('ALL USERS COUNT:', Object.keys(this.directMessagesUsers.all))
+    // console.log('ALL USERS COUNT:', Object.keys(this.directMessagesUsers.all))
   }
 
   async initAllChannels() {

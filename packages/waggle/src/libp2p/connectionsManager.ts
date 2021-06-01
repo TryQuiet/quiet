@@ -1,4 +1,3 @@
-import Libp2p from 'libp2p'
 import { SocksProxyAgent } from 'socks-proxy-agent'
 import Mplex from 'libp2p-mplex'
 import { NOISE } from 'libp2p-noise'
@@ -17,25 +16,23 @@ import path from 'path'
 import { IChannelInfo } from '../storage/storage'
 import fetch from 'node-fetch';
 import debug from 'debug'
-const log = Object.assign(debug('waggle:libp2p'), {
-  error: debug('waggle:libp2p:err')
+import CustomLibp2p from './customLibp2p'
+const log = Object.assign(debug('waggle:conn'), {
+  error: debug('waggle:conn:err')
 })
 
 interface IOptions {
-  env: {
+  env?: {
     appDataPath: string
-  }
+  },
+  bootstrapMultiaddrs?: Array<string>
 }
 interface IConstructor {
   host: string
   port: number
   agentPort: number
   agentHost: string
-  options?: {
-    env: {
-      appDataPath: string
-    }
-  }
+  options?: IOptions
   io: any
 }
 interface IBasicMessage {
@@ -59,13 +56,14 @@ export class ConnectionsManager {
   agentHost: string
   agentPort: number
   socksProxyAgent: any
-  libp2p: null | Libp2p
+  libp2p: null | CustomLibp2p
   localAddress: string | null
   storage: Storage
   options: IOptions
   zbayDir: string
   io: any
   peerId: PeerId
+  bootstrapMultiaddrs: Array<string>
   trackerApi: any
 
   constructor({ host, port, agentHost, agentPort, options, io }: IConstructor) {
@@ -76,9 +74,10 @@ export class ConnectionsManager {
     this.agentHost = agentHost
     this.localAddress = null
     this.options = options
-    this.zbayDir = options?.env.appDataPath || ZBAY_DIR_PATH
+    this.zbayDir = options?.env?.appDataPath || ZBAY_DIR_PATH
     this.storage = new Storage(this.zbayDir, this.io)
     this.peerId = null
+    this.bootstrapMultiaddrs = options?.bootstrapMultiaddrs || this.defaultBootstrapMultiaddrs()
     this.trackerApi = fetchAbsolute(fetch)('http://okmlac2qjgo2577dkyhpisceua2phwxhdybw4pssortdop6ddycntsyd.onion:7788')
 
     process.on('unhandledRejection', error => {
@@ -93,6 +92,12 @@ export class ConnectionsManager {
 
   private readonly createAgent = () => {
     this.socksProxyAgent = new SocksProxyAgent({ port: this.agentPort, host: this.agentHost })
+  }
+
+  private readonly defaultBootstrapMultiaddrs = () => {
+    return [
+      '/dns4/2lmfmbj4ql56d55lmv7cdrhdlhls62xa4p6lzy6kymxuzjlny3vnwyqd.onion/tcp/7788/ws/p2p/Qmak8HeMad8X1HGBmz2QmHfiidvGnhu6w6ugMKtx8TFc85',
+    ]
   }
 
   private readonly getPeerId = async (): Promise<PeerId> => {
@@ -142,38 +147,21 @@ export class ConnectionsManager {
 
     const listenAddrs = [`/dns4/${this.host}/tcp/${this.port}/ws`]
     this.localAddress = `${listenAddrs}/p2p/${this.peerId.toB58String()}`
-    log('local address:', this.localAddress)
-
-    // TODO: Uncomment when we're ready to use tracker (so e.g when it runs on aws):
-    // try {
-    //   await this.registerPeer(this.localAddress)
-    // } catch (e) {
-    //   log.error('Couldn\'t register peer. Probably tracker is offline. Error:', e)
-    //   throw 'Couldn\'t register peer'
-    // }
-    // try {
-    //   const bootstrapMultiaddrs = await this.getInitialPeers()
-    // } catch (e) {
-    //   log.error('Couldn\'t retrieve initial peers from tracker. Error:', e)
-    //   throw 'Couldn\'t get initial peers'
-    // }
-    const bootstrapMultiaddrs = [
-      '/dns4/2lmfmbj4ql56d55lmv7cdrhdlhls62xa4p6lzy6kymxuzjlny3vnwyqd.onion/tcp/7788/ws/p2p/Qmak8HeMad8X1HGBmz2QmHfiidvGnhu6w6ugMKtx8TFc85'
-    ]
-    log('bootstrapMultiaddrs:', bootstrapMultiaddrs)
+    console.log('local address:', this.localAddress)
+    console.log('bootstrapMultiaddrs:', this.bootstrapMultiaddrs)
 
     this.libp2p = await this.createBootstrapNode({
       peerId: this.peerId,
       listenAddrs,
       agent: this.socksProxyAgent,
       localAddr: this.localAddress,
-      bootstrapMultiaddrsList: bootstrapMultiaddrs
+      bootstrapMultiaddrsList: this.bootstrapMultiaddrs
     })
     this.libp2p.connectionManager.on('peer:connect', async connection => {
       log('Connected to', connection.remotePeer.toB58String())
     })
-    this.libp2p.connectionManager.on('peer:discovery', peer => {
-      log(peer, 'peer discovery')
+    this.libp2p.on('peer:discovery', (peer: PeerId) => {
+      log(`Discovered ${peer.toB58String()}`)
     })
     this.libp2p.connectionManager.on('peer:disconnect', connection => {
       log('Disconnected from', connection.remotePeer.toB58String())
@@ -295,8 +283,8 @@ export class ConnectionsManager {
     agent,
     localAddr,
     bootstrapMultiaddrsList
-  }): Promise<Libp2p> => {
-    return Libp2p.create({
+  }): Promise<CustomLibp2p> => {
+    return new CustomLibp2p({
       peerId,
       addresses: {
         listen: listenAddrs
@@ -314,7 +302,8 @@ export class ConnectionsManager {
           [Bootstrap.tag]: {
             enabled: true,
             list: bootstrapMultiaddrsList // provide array of multiaddrs
-          }
+          },
+          autoDial: true
         },
         relay: {
           enabled: true,
