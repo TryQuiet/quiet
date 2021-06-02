@@ -1,6 +1,6 @@
 {
   "name": "waggle",
-  "version": "1.1.9",
+  "version": "1.1.10",
   "author": "jk",
   "description": "tlg-manager",
   "types": "lib/src/index.d.ts",

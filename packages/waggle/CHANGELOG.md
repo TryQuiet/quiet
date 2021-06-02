@@ -1,7 +1,18 @@
 # Changelog
 
+## [1.1.10] - 2021-06-01
 
-## [1.1.1] - WIP
+### Added
+- Remove undialable peers from the peer store (use custom Libp2p)
+- docker-compose - run entrynode with a few peers connecting to it (for testing purposes)
+
+### Changed
+- Refactor entrynode
+
+### Fixed
+- WebsocketOverTor - don't swallow errors when dialing
+
+## [1.1.1] - 2021-05-20
 
 ### Added
 - Use `debug` for logs
