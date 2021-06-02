@@ -1,14 +1,18 @@
-import React, {FC, useEffect} from 'react';
-import {Text, ScrollView} from 'react-native';
-import {useSelector, useDispatch} from 'react-redux';
-import {publicChannelsSelectors} from '../../store/publicChannels/publicChannels.selectors';
-import {publicChannelsActions} from '../../store/publicChannels/publicChannels.slice';
+import React, { FC, useEffect } from 'react';
+import { View } from 'react-native';
+import { useSelector, useDispatch } from 'react-redux';
+import { Chat } from '../../components/Chat/Chat.component';
+import { publicChannelsSelectors } from '../../store/publicChannels/publicChannels.selectors';
+import { publicChannelsActions } from '../../store/publicChannels/publicChannels.slice';
 
 export const MainScreen: FC = () => {
-  const messages = useSelector(publicChannelsSelectors.currentChannelMessages);
   const dispatch = useDispatch();
 
   const ZbayChannel = useSelector(publicChannelsSelectors.ZbayChannel);
+
+  const displayableMessages = useSelector(
+    publicChannelsSelectors.formattedChannelMessages,
+  );
 
   useEffect(() => {
     if (ZbayChannel !== undefined) {
@@ -21,10 +25,17 @@ export const MainScreen: FC = () => {
   }, [dispatch, ZbayChannel]);
 
   return (
-    <ScrollView>
-      {messages.map(message => (
-        <Text key={message.id}>{message.message}</Text>
-      ))}
-    </ScrollView>
+    <View style={{ flex: 1 }}>
+      {ZbayChannel !== undefined && (
+        <Chat
+          sendMessageAction={() => {
+            console.log('Message sent');
+          }}
+          channel={ZbayChannel}
+          messages={displayableMessages}
+          user={'holmes'}
+        />
+      )}
+    </View>
   );
 };

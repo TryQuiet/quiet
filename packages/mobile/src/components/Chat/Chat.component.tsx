@@ -51,7 +51,7 @@ export const Chat: FC<ChatProps> = ({
   return (
     <KeyboardAvoidingView
       behavior="height"
-      keyboardVerticalOffset={60}
+      keyboardVerticalOffset={25}
       style={{
         flex: 1,
         flexDirection: 'column',
