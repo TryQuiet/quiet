@@ -7,7 +7,6 @@
     "moduleResolution": "node",
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "resolveJsonModule": true
   },
   "typeRoots": [
     "./@types",

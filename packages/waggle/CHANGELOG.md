@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.0.1] - 2021-06-07
+
+### Changed
+
+- Removed resolveJsonModule from tsconfig and changed a way we import json module, there is trap in 'resolveJsonModule' flag that causes npm publish/pack work in unexpected way.
+
 ## [2.0.0] - 2021-06-07
 
 ### Added
