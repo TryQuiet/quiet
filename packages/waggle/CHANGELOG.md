@@ -1,5 +1,26 @@
 # Changelog
 
+## [2.0.0] - 2021-06-07
+
+### Added
+
+- Test for tor, connections manager, and dataserver
+- Secured tor control port with hashed password
+- Linter
+- method to close 
+
+### Changed
+
+- Refactored tor control port and tor manager.
+- Changed torManager API addNewService -> createNewHiddenService and addOnion -> spawnHiddenService
+- Added stop method for storage
+- Added stop method for libp2p
+- Added stop method for dataServer
+
+### Fixed
+
+- added stop method for PeerDiscovery
+
 ## [1.1.10] - 2021-06-01
 
 ### Added

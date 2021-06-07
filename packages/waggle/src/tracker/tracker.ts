@@ -19,15 +19,17 @@ export class Tracker {
   private _peers: IPeer
   private readonly _port: number
   private readonly _controlPort: number
+  private readonly _socksPort: number
   private readonly _privKey: string
   private readonly _peerExpirationTime: number
 
-  constructor(hiddenServicePrivKey: string, port?: number, controlPort?: number, peerExpirationTime?: number) {
+  constructor(hiddenServicePrivKey: string, port?: number, controlPort?: number, socksPort?: number, peerExpirationTime?: number) {
     this._app = express()
     this._peers = {}
     this._privKey = hiddenServicePrivKey
     this._port = port || 7788
     this._controlPort = controlPort || 9051
+    this._socksPort = socksPort || 9152
     this._peerExpirationTime = peerExpirationTime || 2 * 60 * 60 * 1000
   }
 
@@ -38,8 +40,9 @@ export class Tracker {
       fs.mkdirSync(ZBAY_DIR_PATH)
     }
     const tor = new Tor({
-      torPath,
       appDataPath: ZBAY_DIR_PATH,
+      socksPort: this._socksPort,
+      torPath,
       controlPort: this._controlPort,
       options: {
         env: {
@@ -51,7 +54,7 @@ export class Tracker {
     })
 
     await tor.init()
-    return await tor.addOnion({
+    return await tor.spawnHiddenService({
       virtPort: this._port,
       targetPort: this._port,
       privKey: this._privKey
@@ -59,7 +62,7 @@ export class Tracker {
   }
 
   private addPeer(address: string): boolean {
-    let maddr = null
+    let maddr: multiaddr = null
     try {
       maddr = multiaddr(address)
     } catch (e) {
@@ -77,6 +80,7 @@ export class Tracker {
     const now = (new Date()).getTime()
     for (const address of Object.keys(this._peers)) {
       if (now > this._peers[address]) {
+        // eslint-disable-next-line
         delete this._peers[address]
       }
     }
@@ -88,7 +92,7 @@ export class Tracker {
 
   private setRouting() {
     this._app.use(express.json())
-    this._app.get('/peers', (req, res) => {
+    this._app.get('/peers', (_req, res) => {
       this.clearPeers()
       res.send(this.getAddresses())
     })

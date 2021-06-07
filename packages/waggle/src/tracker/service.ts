@@ -2,8 +2,18 @@ import { Tracker } from '.'
 
 const main = async () => {
   const tracker = new Tracker(process.env.HIDDEN_SERVICE_SECRET)
-  await tracker.init()
-  await tracker.listen()
+  try {
+    await tracker.init()
+  } catch (err) {
+    console.log(`Couldn't initialize tracker: ${err as string}`)
+  }
+  try {
+    await tracker.listen()
+  } catch (err) {
+    console.log(`Tracker couldn't start listening: ${err as string}`)
+  }
 }
 
-main()
+main().catch((err) => {
+  console.log(`Couldn't start Tracker: ${err as string}`)
+})

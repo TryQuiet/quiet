@@ -14,7 +14,7 @@ import { ZBAY_DIR_PATH } from '../constants'
 import fs from 'fs'
 import path from 'path'
 import { IChannelInfo } from '../storage/storage'
-import fetch from 'node-fetch';
+import fetch from 'node-fetch'
 import debug from 'debug'
 import CustomLibp2p from './customLibp2p'
 const log = Object.assign(debug('waggle:conn'), {
@@ -24,8 +24,8 @@ const log = Object.assign(debug('waggle:conn'), {
 interface IOptions {
   env?: {
     appDataPath: string
-  },
-  bootstrapMultiaddrs?: Array<string>
+  }
+  bootstrapMultiaddrs?: string[]
 }
 interface IConstructor {
   host: string
@@ -63,7 +63,7 @@ export class ConnectionsManager {
   zbayDir: string
   io: any
   peerId: PeerId
-  bootstrapMultiaddrs: Array<string>
+  bootstrapMultiaddrs: string[]
   trackerApi: any
 
   constructor({ host, port, agentHost, agentPort, options, io }: IConstructor) {
@@ -82,10 +82,10 @@ export class ConnectionsManager {
 
     process.on('unhandledRejection', error => {
       console.error(error)
-      throw error
+      throw new Error()
     })
-    process.on('SIGINT', function() {
-      console.log('\nGracefully shutting down from SIGINT (Ctrl-C)')
+    process.on('SIGINT', function () {
+      log('\nGracefully shutting down from SIGINT (Ctrl-C)')
       process.exit(0)
     })
   }
@@ -96,7 +96,7 @@ export class ConnectionsManager {
 
   private readonly defaultBootstrapMultiaddrs = () => {
     return [
-      '/dns4/2lmfmbj4ql56d55lmv7cdrhdlhls62xa4p6lzy6kymxuzjlny3vnwyqd.onion/tcp/7788/ws/p2p/Qmak8HeMad8X1HGBmz2QmHfiidvGnhu6w6ugMKtx8TFc85',
+      '/dns4/2lmfmbj4ql56d55lmv7cdrhdlhls62xa4p6lzy6kymxuzjlny3vnwyqd.onion/tcp/7788/ws/p2p/Qmak8HeMad8X1HGBmz2QmHfiidvGnhu6w6ugMKtx8TFc85'
     ]
   }
 
@@ -114,28 +114,28 @@ export class ConnectionsManager {
     return peerId
   }
 
-  private readonly getInitialPeers = async (): Promise<string[]> => {
-    const options = {
-      method: 'GET',
-      agent: () => {
-        return this.socksProxyAgent
-      }
-    }
-    const response = await this.trackerApi('/peers', options)
-    return response.json()
-  }
+  // private readonly getInitialPeers = async (): Promise<string[]> => {
+  //   const options = {
+  //     method: 'GET',
+  //     agent: () => {
+  //       return this.socksProxyAgent
+  //     }
+  //   }
+  //   const response = await this.trackerApi('/peers', options)
+  //   return response.json()
+  // }
 
-  private readonly registerPeer = async (address: string): Promise<void> => {
-    const options = {
-      method: 'POST',
-      body: JSON.stringify({ address: address }),
-      headers: { 'Content-Type': 'application/json' },
-      agent: () => {
-        return this.socksProxyAgent
-      }
-    }
-    await this.trackerApi('/register', options)
-  }
+  // private readonly registerPeer = async (address: string): Promise<void> => {
+  //   const options = {
+  //     method: 'POST',
+  //     body: JSON.stringify({ address: address }),
+  //     headers: { 'Content-Type': 'application/json' },
+  //     agent: () => {
+  //       return this.socksProxyAgent
+  //     }
+  //   }
+  //   await this.trackerApi('/register', options)
+  // }
 
   public initializeNode = async (staticPeerId?: PeerId): Promise<ILibp2pStatus> => {
     if (!staticPeerId) {
@@ -145,14 +145,14 @@ export class ConnectionsManager {
     }
     this.createAgent()
 
-    const listenAddrs = [`/dns4/${this.host}/tcp/${this.port}/ws`]
+    const listenAddrs = `/dns4/${this.host}/tcp/${this.port}/ws`
     this.localAddress = `${listenAddrs}/p2p/${this.peerId.toB58String()}`
-    console.log('local address:', this.localAddress)
-    console.log('bootstrapMultiaddrs:', this.bootstrapMultiaddrs)
+    log('local address:', this.localAddress)
+    log('bootstrapMultiaddrs:', this.bootstrapMultiaddrs)
 
     this.libp2p = await this.createBootstrapNode({
       peerId: this.peerId,
-      listenAddrs,
+      listenAddrs: [listenAddrs],
       agent: this.socksProxyAgent,
       localAddr: this.localAddress,
       bootstrapMultiaddrsList: this.bootstrapMultiaddrs
@@ -173,12 +173,20 @@ export class ConnectionsManager {
     }
   }
 
+  public stopLibp2p = async () => {
+    await this.libp2p.stop()
+  }
+
   public subscribeForTopic = async (channelData: IChannelInfo) => {
     await this.storage.subscribeForChannel(channelData.address, channelData)
   }
 
   public initStorage = async () => {
     await this.storage.init(this.libp2p, this.peerId)
+  }
+
+  public closeStorage = async () => {
+    await this.storage.stopOrbitDb()
   }
 
   public updateChannels = async () => {
@@ -253,19 +261,8 @@ export class ConnectionsManager {
 
   public sendDirectMessage = async (
     channelAddress: string,
-    messagePayload: IBasicMessage
+    messagePayload: string
   ): Promise<void> => {
-    const { id, type, signature, r, createdAt, message, typeIndicator } = messagePayload
-    const messageToSend = {
-      id,
-      type,
-      signature,
-      createdAt,
-      r,
-      message,
-      typeIndicator,
-      channelId: channelAddress
-    }
     await this.storage.sendDirectMessage(channelAddress, messagePayload)
   }
 
@@ -273,7 +270,7 @@ export class ConnectionsManager {
     await this.storage.subscribeForDirectMessageThread(address)
   }
 
-  public subscribeForAllConversations = async (conversations: string[]) :Promise<void> => {
+  public subscribeForAllConversations = async (conversations: string[]): Promise<void> => {
     await this.storage.subscribeForAllConversations(conversations)
   }
 

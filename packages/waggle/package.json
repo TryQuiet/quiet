@@ -1,6 +1,6 @@
 {
   "name": "waggle",
-  "version": "1.1.11",
+  "version": "2.0.0",
   "author": "jk",
   "description": "tlg-manager",
   "types": "lib/src/index.d.ts",
@@ -10,15 +10,34 @@
     "build": "tsc",
     "version": "git add -A src",
     "postversion": "git push && git push --tags",
-    "lint": "eslint ./src/**/*.{ts,tsx,js,jsx}"
+    "lint": "eslint ./src/**/*.{ts,tsx,js,jsx}",
+    "test": "DEBUG=ipfs* jest ./src/**/* --runInBand"
   },
   "files": [
     "lib/**/*"
   ],
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest",
+      "^.+\\.jsx?$": "babel-jest"
+    },
+    "testPathIgnorePatterns": [
+      "/node_modules/"
+    ],
+    "transformIgnorePatterns": [
+      "/node_modules/"
+    ],
+    "testRegex": "src/.*\\.test\\.(t|j)s$",
+    "testEnvironment": "node"
+  },
   "devDependencies": {
     "@types/node": "^14.14.7",
     "@types/orbit-db": "git+https://github.com/orbitdb/orbit-db-types.git",
-    "@typescript-eslint/eslint-plugin": "^4.23.0",
+    "@typescript-eslint/eslint-plugin": "^4.22.0",
+    "@types/jest": "^26.0.23",
+    "ts-jest": "^26.5.6",
+    "jest": "^26.6.3",
+    "babel-jest": "^26.6.3",
     "prettier": "^2.1.1"
   },
   "dependencies": {
@@ -39,6 +58,8 @@
     "eslint-plugin-react-hooks": "^4.2.0",
     "events": "^3.2.0",
     "express": "^4.17.1",
+    "find-free-port": "^2.0.0",
+    "http-server": "^0.12.3",
     "ipfs": "0.52",
     "it-pipe": "^1.1.0",
     "libp2p": "^0.29.3",

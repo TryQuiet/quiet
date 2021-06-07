@@ -12,6 +12,9 @@ export const loadAllMessages = (socket: any, messages: IMessage[], channelAddres
 }
 
 export const loadAllDirectMessages = (socket, messages, channelAddress) => {
+  if (messages.length === 0) {
+    return
+  }
   socket.emit(EventTypesResponse.RESPONSE_FETCH_ALL_DIRECT_MESSAGES, {
     channelAddress,
     messages

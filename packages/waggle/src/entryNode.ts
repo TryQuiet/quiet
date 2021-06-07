@@ -1,5 +1,4 @@
 import { Tor } from './torManager'
-import { Storage } from './storage'
 import { DataServer } from './socket/DataServer'
 import { ConnectionsManager } from './libp2p/connectionsManager'
 import initListeners from './socket/listeners/'
@@ -8,7 +7,6 @@ import * as path from 'path'
 import * as os from 'os'
 import fs from 'fs'
 import PeerId from 'peer-id'
-
 
 class Node {
   tor: Tor
@@ -73,7 +71,7 @@ class Node {
     this.tor = await this.spawnTor()
     const onionAddress = await this.spawnService()
     console.log('onion', onionAddress)
-    const dataServer = this.initDataServer()
+    const dataServer = await this.initDataServer()
     const connectonsManager = await this.initStorage(dataServer, onionAddress)
     await this.initListeners(dataServer, connectonsManager)
   }
@@ -83,6 +81,7 @@ class Node {
       torPath: this.torPath,
       appDataPath: this.torAppDataPath,
       controlPort: this.torControlPort,
+      socksPort: this.socksProxyPort,
       options: {
         env: {
           LD_LIBRARY_PATH: this.pathDevLib,
@@ -102,22 +101,22 @@ class Node {
       service = this.tor.getServiceAddress(this.hiddenServicePort)
     } catch (e) {
       if (this.getHiddenServiceSecret()) {
-        service = await (await this.tor.addOnion({
-          virtPort: this.hiddenServicePort, 
-          targetPort: this.hiddenServicePort, 
+        service = await (await this.tor.spawnHiddenService({
+          virtPort: this.hiddenServicePort,
+          targetPort: this.hiddenServicePort,
           privKey: this.getHiddenServiceSecret()
         }))
       } else {
-        service = await (await this.tor.addNewService(this.hiddenServicePort, this.hiddenServicePort)).onionAddress
+        service = await (await this.tor.createNewHiddenService(this.hiddenServicePort, this.hiddenServicePort)).onionAddress
       }
     }
     return `${service}.onion`
   }
 
-  initDataServer(): DataServer {
+  async initDataServer(): Promise<DataServer> {
     console.log('Init DataServer')
     const dataServer = new DataServer()
-    dataServer.listen()
+    await dataServer.listen()
     return dataServer
   }
 
@@ -142,7 +141,6 @@ class Node {
   async initListeners(dataServer: DataServer, connectonsManager: ConnectionsManager) {
     initListeners(dataServer.io, connectonsManager)
   }
-  
 }
 
 const main = async () => {
@@ -150,4 +148,6 @@ const main = async () => {
   await node.init()
 }
 
-main()
+main().catch(err => {
+  console.log(`Couldn't start entryNode: ${err as string}`)
+})
