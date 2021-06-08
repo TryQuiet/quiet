@@ -4,6 +4,8 @@ import { renderComponent } from '../../utils/functions/renderComponent/renderCom
 import { Chat } from './Chat.component';
 import { Keyboard } from 'react-native';
 
+jest.useFakeTimers();
+
 describe('Chat component', () => {
   jest
     .spyOn(Keyboard, 'addListener')

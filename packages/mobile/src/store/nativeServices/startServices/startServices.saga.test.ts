@@ -1,6 +1,6 @@
-import {TestApi, testSaga} from 'redux-saga-test-plan';
+import { TestApi, testSaga } from 'redux-saga-test-plan';
 
-import {initAndroidServices, startServicesSaga} from './startServices.saga';
+import { initAndroidServices, startServicesSaga } from './startServices.saga';
 
 describe('startServicesSaga', () => {
   const saga: TestApi = testSaga(startServicesSaga);

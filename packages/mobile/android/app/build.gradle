@@ -223,6 +223,7 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0'
 
     implementation project(":torControl")
+    implementation project(':react-native-fs')
 
     implementation group: 'commons-io', name: 'commons-io', version: '2.6'
 

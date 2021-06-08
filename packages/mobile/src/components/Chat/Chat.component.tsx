@@ -61,7 +61,7 @@ export const Chat: FC<ChatProps> = ({
       <FlatList
         inverted
         data={messages}
-        keyExtractor={item => item.message.message.id}
+        keyExtractor={item => item.message.id}
         renderItem={({ item }) => <Message message={item} />}
         style={{ paddingLeft: 20, paddingRight: 20 }}
       />

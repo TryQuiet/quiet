@@ -1,5 +1,5 @@
-import {createEntityAdapter} from '@reduxjs/toolkit';
-import {IMessage, IChannelInfo} from './publicChannels.types';
+import { createEntityAdapter } from '@reduxjs/toolkit';
+import { IMessage, IChannelInfo } from './publicChannels.types';
 
 export const publicChannelMessagesAdapter = createEntityAdapter<IMessage>();
 

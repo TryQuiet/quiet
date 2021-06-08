@@ -18,6 +18,9 @@ addDecorator(withThemePicker);
 
 configure(() => {
   require('../src/components/Message/Message.stories');
+  require('../src/components/Button/Button.stories');
+  require('../src/components/Error/Error.stories');
+  require('../src/components/Loading/Loading.stories');
   require('../src/components/MessageSendButton/MessageSendButton.stories');
   require('../src/components/Chat/Chat.stories');
   require('../src/components/MessageInput/MessageInput.stories');

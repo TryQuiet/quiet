@@ -27,6 +27,8 @@ class NodeJSService: Service() {
         this.client = client
     }
 
+    fun getRunningProcess(): Process? = process
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
 
@@ -40,11 +42,8 @@ class NodeJSService: Service() {
     }
 
     private fun startWaggle(hiddenServiceData: Bundle?) {
-        DynamicLibrariesSetup(this).setupLibs()
-        WaggleSetup(this).setupWaggle()
-
         val directory = File(getNativeLibraryDir(applicationContext)!!)
-        val libraries = File(filesDir, "usr/lib")
+        val libraries = File(filesDir, "libs")
         val files = File(filesDir, "waggle/files")
 
         // Create paths
@@ -62,13 +61,10 @@ class NodeJSService: Service() {
             files = files,
             hiddenServiceData = hiddenServiceData
         )
-
-        client.onWaggleProcessStarted(process)
-
     }
 
     private fun runCommand(directory: File, libraries: File, files: File, hiddenServiceData: Bundle?): Process {
-        val waggle = File(filesDir, "waggle/waggle")
+        val waggle = File(filesDir, "waggle")
         return exec(
             dir = directory,
             command = arrayOf(
@@ -98,9 +94,7 @@ class NodeJSService: Service() {
         super.onDestroy()
     }
 
-    interface Callbacks {
-        fun onWaggleProcessStarted(process: Process?)
-    }
+    interface Callbacks
 
     inner class LocalBinder: Binder() {
         fun getService(): NodeJSService {

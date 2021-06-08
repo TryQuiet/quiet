@@ -1,8 +1,11 @@
-import {all, fork} from 'typed-redux-saga';
-
-import {nativeServicesMasterSaga} from './nativeServices/nativeServices.master.saga';
-import {socketMasterSaga} from './socket/socket.master.saga';
+import { all, takeEvery } from 'typed-redux-saga';
+import { assetsMasterSaga } from './assets/assets.master.saga';
+import { initActions } from './init/init.slice';
+import { socketMasterSaga } from './socket/socket.master.saga';
 
 export function* rootSaga(): Generator {
-  yield all([fork(nativeServicesMasterSaga), fork(socketMasterSaga)]);
+  yield all([
+    takeEvery(initActions.setStoreReady.type, assetsMasterSaga),
+    takeEvery(initActions.setStoreReady.type, socketMasterSaga),
+  ]);
 }

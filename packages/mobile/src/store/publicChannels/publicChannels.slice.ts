@@ -1,12 +1,12 @@
-import {createSlice, EntityState, PayloadAction} from '@reduxjs/toolkit';
+import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit';
 
-import {StoreKeys} from '../store.keys';
+import { StoreKeys } from '../store.keys';
 
 import {
   publicChannelMessagesAdapter,
   publicChannelsAdapter,
 } from './publicChannels.adapter';
-import {IMessage, IChannelInfo} from './publicChannels.types';
+import { IMessage, IChannelInfo } from './publicChannels.types';
 
 export class PublicChannelsState {
   public currentChannelAddress: string = '';
@@ -21,7 +21,7 @@ export interface ChannelInfoResponse {
 }
 
 export const publicChannelsSlice = createSlice({
-  initialState: {...new PublicChannelsState()},
+  initialState: { ...new PublicChannelsState() },
   name: StoreKeys.PublicChannels,
   reducers: {
     fetchAllMessages: (state, _action: PayloadAction<string>) => state,

@@ -12,9 +12,6 @@ import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.zbaymobile.Utils.Utils.getOutput
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 
 class Integrator(private val context: ReactContext): ReactContextBaseJavaModule(), TorService.Callbacks, NodeJSService.Callbacks {
@@ -67,12 +64,6 @@ class Integrator(private val context: ReactContext): ReactContextBaseJavaModule(
         initWaggle(data)
     }
 
-    override fun onWaggleProcessStarted(process: Process?) {
-        if(process != null) {
-            getOutput(process)
-        }
-    }
-
     private fun initWaggle(data: Bundle) {
         val nodeService = Intent(context, NodeJSService::class.java)
 
@@ -84,13 +75,17 @@ class Integrator(private val context: ReactContext): ReactContextBaseJavaModule(
 
         val serviceConnection = object: ServiceConnection {
             override fun onServiceConnected(p0: ComponentName?, binder: IBinder?) {
-
                 val service = (binder as NodeJSService.LocalBinder).getService()
                 service.registerClient(this@Integrator)
+                val process = service.getRunningProcess()
+                if(process != null) {
+                    getOutput(process)
+                }
             }
 
             override fun onServiceDisconnected(p0: ComponentName?) {}
         }
+
         context.bindService(nodeService, serviceConnection, Context.BIND_AUTO_CREATE)
     }
 

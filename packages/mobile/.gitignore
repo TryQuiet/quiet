@@ -29,7 +29,10 @@ build/
 local.properties
 *.iml
 *.hprof
-assets/
+*.aab
+*.apk
+android/app/release/
+android/app/src/main/assets/
 
 # node.js
 #
