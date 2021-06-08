@@ -145,9 +145,7 @@ export function* loadAllMessages(
   const contact = pubChannelsArray.filter((item) => {
     return item.name === username
   })
-  console.log(`New messages are ${newMsgs}`)
   const msg = newMsgs[newMsgs.length - 1]
-  console.log(`MSG IS ${msg}`)
   if (msg && msg?.sender?.username !== myUser.nickname) {
     displayMessageNotification({
       senderName: msg.sender.username,

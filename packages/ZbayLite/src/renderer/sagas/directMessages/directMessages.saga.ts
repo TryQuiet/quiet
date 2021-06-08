@@ -201,8 +201,8 @@ export function* responseGetPrivateConversations(
           })
         )
       }
-      yield put(directMessagesActions.subscribeForDirectMessageThread(conversation.conversationId))
       yield put(actions.addConversation(conversation))
+      yield put(directMessagesActions.subscribeForDirectMessageThread(conversation.conversationId))
     }
 
     yield put(

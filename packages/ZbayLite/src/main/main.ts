@@ -7,7 +7,7 @@ import { autoUpdater } from 'electron-updater'
 import config from './config'
 import electronStore from '../shared/electronStore'
 import Client from './cli/client'
-import { getOnionAddress, spawnTor, runWaggle, waggleVersion } from './waggleManager'
+import { spawnTor, runWaggle, waggleVersion } from './waggleManager'
 import debug from 'debug'
 const log = Object.assign(debug('zbay:main'), {
   error: debug('zbay:main:err')
@@ -270,7 +270,6 @@ app.on('ready', async () => {
     try {
       log('before spawning tor')
       tor = await spawnTor()
-      mainWindow.webContents.send('onionAddress', getOnionAddress())
       await runWaggle(mainWindow.webContents)
     } catch (error) {
       log.error(error)

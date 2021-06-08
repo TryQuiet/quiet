@@ -24,6 +24,7 @@ export const spawnTor = async () => {
   electronStore.set('ports', ports)
 
   const tor = new TlgManager.Tor({
+    socksPort: ports.socksPort,
     torPath: isDev ? pathDev : pathProd,
     appDataPath: appDataPath,
     controlPort: ports.controlPort,
@@ -37,42 +38,29 @@ export const spawnTor = async () => {
   })
 
   await tor.init()
-  await tor.setSocksPort(ports.socksPort)
-  await tor.setHttpTunnelPort(ports.httpTunnelPort)
   const hiddenServices = electronStore.get('hiddenServices')
 
   if (!hiddenServices) {
     let libp2pHiddenService
-    let directMessagesHiddenService
 
     try {
-      libp2pHiddenService = await tor.addNewService(
+      libp2pHiddenService = await tor.createNewHiddenService(
         ports.libp2pHiddenService,
         ports.libp2pHiddenService
       )
-      directMessagesHiddenService = await tor.addNewService(80, ports.directMessagesHiddenService)
     } catch (e) {
       log.error(`tlgManager ERROR: can't add new onion service ${e}`)
     }
 
     const services = {
-      libp2pHiddenService,
-      directMessagesHiddenService
+      libp2pHiddenService
     }
     electronStore.set('hiddenServices', services)
   } else {
     const services = Array.from(Object.keys(hiddenServices))
     for (const service of services) {
       try {
-        if (service === 'directMessagesHiddenService') {
-          await tor.addOnion({
-            virtPort: 80,
-            targetPort: ports[service],
-            privKey: hiddenServices[service].privateKey
-          })
-          continue
-        }
-        await tor.addOnion({
+        await tor.spawnHiddenService({
           virtPort: ports[service],
           targetPort: ports[service],
           privKey: hiddenServices[service].privateKey
@@ -102,29 +90,17 @@ export const spawnTor = async () => {
 
 export const getPorts = async (): Promise<{
   socksPort: number
-  httpTunnelPort: number
-  directMessagesHiddenService: number
   libp2pHiddenService: number
   controlPort: number
 }> => {
   const [controlPort] = await fp(9151)
   const [socksPort] = await fp(9052)
-  const [httpTunnelPort] = await fp(9082)
-  const [directMessagesHiddenService] = await fp(3435)
   const [libp2pHiddenService] = await fp(7950)
   return {
     socksPort,
-    httpTunnelPort,
-    directMessagesHiddenService,
     libp2pHiddenService,
     controlPort
   }
-}
-
-export const getOnionAddress = (): string => {
-  const hiddenServices = electronStore.get('hiddenServices')
-  const address = hiddenServices.directMessagesHiddenService.onionAddress
-  return address
 }
 
 export const runWaggle = async (webContents: BrowserWindow['webContents']): Promise<any> => {
@@ -134,7 +110,7 @@ export const runWaggle = async (webContents: BrowserWindow['webContents']): Prom
 
   const [dataServerPort] = await fp(4677)
   const dataServer = new TlgManager.DataServer(dataServerPort)
-  dataServer.listen()
+  await dataServer.listen()
 
   const connectionsManager = new TlgManager.ConnectionsManager({
     port: ports.libp2pHiddenService,
@@ -170,4 +146,4 @@ export const runWaggle = async (webContents: BrowserWindow['webContents']): Prom
 
 export const waggleVersion = TlgManager.version
 
-export default { spawnTor, getOnionAddress, getPorts, runWaggle, waggleVersion }
+export default { spawnTor, getPorts, runWaggle, waggleVersion }

@@ -72,16 +72,10 @@ export function* handleActions(socket: Socket): Generator {
 }
 
 export function* sendMessage(socket: Socket): Generator {
-  console.log('INSIDE SEND MESSAGE 1')
-  console.log('INSIDE SEND MESSAGE 2')
   const { address } = yield* select(channelSelectors.channel)
-  console.log('INSIDE SEND MESSAGE 3')
   const messageToSend = yield* select(channelSelectors.message)
-  console.log('INSIDE SEND MESSAGE 4')
   const users = yield* select(usersSelectors.users)
-  console.log('INSIDE SEND MESSAGE 5')
   let message = null
-  console.log('INSIDE SEND MESSAGE 6')
   const privKey = yield* select(identitySelectors.signerPrivKey)
   message = messages.createMessage({
     messageData: {
@@ -139,7 +133,6 @@ export function* subscribeForDirectMessageThread(
   socket: Socket,
   { payload }: PayloadAction<typeof directMessagesActions.subscribeForDirectMessageThread>
 ): Generator {
-  console.log(`sssOCKET SAGA FOR SUBSCRIBING YESH ${payload}`)
   yield* apply(socket, socket.emit, [socketsActions.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD, payload])
 }
 
