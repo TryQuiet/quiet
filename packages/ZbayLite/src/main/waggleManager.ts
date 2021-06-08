@@ -59,6 +59,7 @@ export const spawnTor = async () => {
   } else {
     const services = Array.from(Object.keys(hiddenServices))
     for (const service of services) {
+      if (!ports[service]) continue
       try {
         await tor.spawnHiddenService({
           virtPort: ports[service],
