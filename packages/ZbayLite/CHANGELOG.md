@@ -1,3 +1,9 @@
+# [3.2.19] - 8 June 2021
+
+### Changed
+* Bump waggle to 2.0.2, jest to 27.0.4, ts-jest to 27.0.3
+* Use waggle's tor new API
+
 # [3.2.17] - 27 May 2021
 
 ### Fixed
