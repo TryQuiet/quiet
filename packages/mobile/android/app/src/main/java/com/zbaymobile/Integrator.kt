@@ -64,6 +64,12 @@ class Integrator(private val context: ReactContext): ReactContextBaseJavaModule(
         initWaggle(data)
     }
 
+    override fun onWaggleProcessStarted(process: Process?) {
+        if(process != null) {
+            getOutput(process)
+        }
+    }
+
     private fun initWaggle(data: Bundle) {
         val nodeService = Intent(context, NodeJSService::class.java)
 
@@ -77,10 +83,6 @@ class Integrator(private val context: ReactContext): ReactContextBaseJavaModule(
             override fun onServiceConnected(p0: ComponentName?, binder: IBinder?) {
                 val service = (binder as NodeJSService.LocalBinder).getService()
                 service.registerClient(this@Integrator)
-                val process = service.getRunningProcess()
-                if(process != null) {
-                    getOutput(process)
-                }
             }
 
             override fun onServiceDisconnected(p0: ComponentName?) {}

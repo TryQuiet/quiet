@@ -27,8 +27,6 @@ class NodeJSService: Service() {
         this.client = client
     }
 
-    fun getRunningProcess(): Process? = process
-
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
 
@@ -61,6 +59,9 @@ class NodeJSService: Service() {
             files = files,
             hiddenServiceData = hiddenServiceData
         )
+
+        Thread.sleep(2000) // Wait for client to bind process
+        client.onWaggleProcessStarted(process)
     }
 
     private fun runCommand(directory: File, libraries: File, files: File, hiddenServiceData: Bundle?): Process {
@@ -94,7 +95,9 @@ class NodeJSService: Service() {
         super.onDestroy()
     }
 
-    interface Callbacks
+    interface Callbacks {
+        fun onWaggleProcessStarted(process: Process?)
+    }
 
     inner class LocalBinder: Binder() {
         fun getService(): NodeJSService {
