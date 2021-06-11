@@ -11,7 +11,8 @@
     "version": "git add -A src",
     "postversion": "git push && git push --tags",
     "lint": "eslint ./src/**/*.{ts,tsx,js,jsx}",
-    "test": "DEBUG=ipfs:*,waggle:* jest ./src/**/* --runInBand --collectCoverage"
+    "test": "DEBUG=ipfs:*,waggle:* jest ./src/**/* --runInBand",
+    "test-ci": "DEBUG=ipfs:*,waggle:* jest ./src/**/* --runInBand --collectCoverage --colors --ci"
   },
   "files": [
     "lib/**/*"

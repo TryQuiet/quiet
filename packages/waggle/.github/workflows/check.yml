@@ -1,4 +1,4 @@
-name: check
+name: Test and eslint
 
 on:
   pull_request:
@@ -19,4 +19,4 @@ jobs:
       - name: lint
         run: npm run lint
       - name: run tests
-        run: npm run test
+        run: npm run test-ci
