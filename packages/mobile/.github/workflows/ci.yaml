@@ -1,0 +1,28 @@
+name: Continuous integration workflow
+
+on: [push]
+
+jobs:
+  continuous_integration:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+
+      - name: Cache NPM dependencies
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.OS }}-npm-cache-
+
+      - name: Install yarn dependencies
+        run: yarn --frozen-lockfile
+
+      - name: Run tests
+        run: yarn test
