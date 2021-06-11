@@ -3,7 +3,7 @@ name: Deploy Android build Google Play internal testing
 on:
   push:
     branches:
-      - main
+      - master
     paths:
       - android/app/build.gradle
 
