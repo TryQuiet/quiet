@@ -165,6 +165,8 @@ class TorService: Service() {
             }
         }
 
+        client.onTorInit()
+
         return true
     }
 
@@ -268,6 +270,7 @@ class TorService: Service() {
     }
 
     interface Callbacks {
+        fun onTorInit()
         fun onOnionAdded(data: Bundle)
     }
 

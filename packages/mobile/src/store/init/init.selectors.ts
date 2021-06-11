@@ -1,5 +1,13 @@
+import { createSelector } from 'reselect';
 import { StoreKeys } from '../store.keys';
-import { selectorsFactory } from '../store.utils';
-import { InitState } from './init.slice';
+import { StoreState } from '../store.types';
+import { selectReducer } from '../store.utils';
+import { initChecksAdapter } from './init.adapter';
 
-export const initSelectors = selectorsFactory(StoreKeys.Init, InitState);
+export const initChecks = createSelector(
+  selectReducer(StoreKeys.Init),
+  (reducerState: StoreState[StoreKeys.Init]) =>
+    initChecksAdapter.getSelectors().selectAll(reducerState.initChecks),
+);
+
+export const initSelectors = { initChecks };

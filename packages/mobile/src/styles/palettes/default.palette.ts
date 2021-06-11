@@ -12,6 +12,8 @@ export const defaultPalette: Palette = {
     main: '#000000',
     subtitle: '#999999',
     error: '#E42656',
+    greyLight: '#B8B8B8',
+    greyDark: '#999999',
   },
   messageInput: {
     border: '#B3B3B3',

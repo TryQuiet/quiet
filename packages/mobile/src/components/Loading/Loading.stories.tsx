@@ -8,6 +8,28 @@ storiesOf('Loading', module)
     <Loading
       progress={0.3}
       description={'Downloading tools to protect your privacy'}
+      checks={[
+        {
+          event: 'native services started',
+          passed: true,
+        },
+        {
+          event: 'tor initialized',
+          passed: true,
+        },
+        {
+          event: 'onion address added',
+          passed: false,
+        },
+        {
+          event: 'waggle started',
+          passed: false,
+        },
+        {
+          event: 'websocket connected',
+          passed: false,
+        },
+      ]}
     />
   ))
   .add('< 0', () => (

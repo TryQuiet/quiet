@@ -18,6 +18,7 @@ addDecorator(withThemePicker);
 
 configure(() => {
   require('../src/components/Message/Message.stories');
+  require('../src/components/InitCheck/InitCheck.stories');
   require('../src/components/Button/Button.stories');
   require('../src/components/Error/Error.stories');
   require('../src/components/Loading/Loading.stories');
