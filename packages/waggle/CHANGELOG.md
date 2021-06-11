@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.3] - wip
+
+### Added
+
+- Optional `createPaths` to options in both ConnectionManager and Storage. Default = true. When set to false waggle will not try to create any dirs
+  and will just assume they exist.
+
+### Fixed
+
+- Now tests use temporary dir for app data
+
 ## [2.0.1] - 2021-06-07
 
 ### Changed

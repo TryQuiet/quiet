@@ -6,6 +6,8 @@ const log = Object.assign(debug('waggle:libp2p'), {
   error: debug('waggle:libp2p:err')
 })
 
+export interface Libp2pType extends CustomLibp2p, Libp2p {}
+
 export default class CustomLibp2p extends Libp2p {
   [x: string]: any
   constructor (_options) {

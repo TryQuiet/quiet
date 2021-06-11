@@ -71,7 +71,7 @@ export class Tor {
       if (oldTorPid && process.platform !== 'win32') {
         child_process.exec(`ps -p ${oldTorPid as string} -o comm=`, (err, stdout, _stderr) => {
           if (err) {
-            log(err)
+            log.error(err)
           }
           if (stdout.trim() === 'tor') {
             process.kill(oldTorPid, 'SIGTERM')

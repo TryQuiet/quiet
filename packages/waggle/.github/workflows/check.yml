@@ -1,0 +1,22 @@
+name: check
+
+on:
+  pull_request:
+    branches: ['*']
+  push:
+    branches: [ $default-branch ]
+
+jobs:
+  check:
+    runs-on: ubuntu-20.04 # ubuntu 18.04 doesn't have libevent-2.1.so.7 needed by tor
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@master
+        with:
+          node-version: "12"
+      - name: install dependencies
+        run: npm ci
+      - name: lint
+        run: npm run lint
+      - name: run tests
+        run: npm run test

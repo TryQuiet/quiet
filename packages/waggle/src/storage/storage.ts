@@ -12,10 +12,10 @@ import {
 } from '../socket/events/message'
 import { loadAllMessages, loadAllDirectMessages } from '../socket/events/allMessages'
 import { EventTypesResponse } from '../socket/constantsReponse'
-import fs from 'fs'
 import { loadAllPublicChannels } from '../socket/events/channels'
-
 import debug from 'debug'
+import { Libp2p } from 'libp2p-gossipsub/src/interfaces'
+import { Config } from '../constants'
 const log = Object.assign(debug('waggle:db'), {
   error: debug('waggle:db:err')
 })
@@ -49,6 +49,10 @@ export interface ChannelInfoResponse {
   [name: string]: IChannelInfo
 }
 
+class StorageOptions {
+  createPaths: boolean = true
+}
+
 interface IZbayChannel extends IChannelInfo {
   orbitAddress: string
 }
@@ -59,13 +63,9 @@ interface IPublicKey {
 type IMessageThread = string
 
 export class Storage {
-  zbayDir: string
-  io: any
-  constructor(zbayDir: string, io: any) {
-    this.zbayDir = zbayDir
-    this.io = io
-  }
-
+  public zbayDir: string
+  public io: any
+  public peerId: PeerId
   private ipfs: IPFS.IPFS
   private orbitdb: OrbitDB
   private channels: KeyValueStore<IZbayChannel>
@@ -74,23 +74,32 @@ export class Storage {
   public publicChannelsRepos: Map<String, IRepo> = new Map()
   public directMessagesRepos: Map<String, IRepo> = new Map()
   private publicChannelsEventsAttached: boolean = false
+  public options: StorageOptions
+  public orbitDbDir: string
+  public ipfsRepoPath: string
+
+  constructor(zbayDir: string, io: any, options?: Partial<StorageOptions>) {
+    this.zbayDir = zbayDir
+    this.io = io
+    this.options = {
+      ...new StorageOptions(),
+      ...options
+    }
+    this.orbitDbDir = path.join(this.zbayDir, Config.ORBIT_DB_DIR)
+    this.ipfsRepoPath = path.join(this.zbayDir, Config.IPFS_REPO_PATH)
+  }
 
   public async init(libp2p: any, peerID: PeerId): Promise<void> {
-    const ipfsRepoPath = path.join(this.zbayDir, 'ZbayChannels')
-    const orbitDbDir = path.join(this.zbayDir, 'OrbitDB')
-    createPaths([ipfsRepoPath, orbitDbDir])
+    log('STORAGE: Entered init')
+    if (this.options?.createPaths) {
+      createPaths([
+        this.ipfsRepoPath,
+        this.orbitDbDir
+      ])
+    }
+    this.ipfs = await this.initIPFS(libp2p, peerID)
 
-    this.ipfs = await IPFS.create({
-      libp2p: () => libp2p,
-      preload: { enabled: false },
-      repo: ipfsRepoPath,
-      EXPERIMENTAL: {
-        ipnsPubsub: true
-      },
-      privateKey: peerID.toJSON().privKey
-    })
-
-    this.orbitdb = await OrbitDB.createInstance(this.ipfs, { directory: orbitDbDir })
+    this.orbitdb = await OrbitDB.createInstance(this.ipfs, { directory: this.orbitDbDir })
     log('1/6')
     await this.createDbForChannels()
     log('2/6')
@@ -104,19 +113,33 @@ export class Storage {
     log('6/6')
   }
 
-  public async stopOrbitDb() {
-    await this.orbitdb.stop()
-    await this.ipfs.stop()
+  private async __stopOrbitDb() {
+    if (this.orbitdb) {
+      await this.orbitdb.stop()
+    }
   }
 
-  public async loadInitChannels() {
-    // Temp, only for entrynode
-    const initChannels: ChannelInfoResponse = JSON.parse(
-      fs.readFileSync('initialPublicChannels.json').toString()
-    )
-    for (const channel of Object.values(initChannels)) {
-      await this.createChannel(channel.address, channel)
+  private async __stopIPFS() {
+    if (this.ipfs) {
+      await this.ipfs.stop()
     }
+  }
+
+  public async stopOrbitDb() {
+    await this.__stopOrbitDb()
+    await this.__stopIPFS()
+  }
+
+  protected async initIPFS(libp2p: Libp2p, peerID: PeerId): Promise<IPFS.IPFS> {
+    return await IPFS.create({
+      libp2p: () => libp2p,
+      preload: { enabled: false },
+      repo: this.ipfsRepoPath,
+      EXPERIMENTAL: {
+        ipnsPubsub: true
+      },
+      privateKey: peerID.toJSON().privKey
+    })
   }
 
   private async createDbForChannels() {
