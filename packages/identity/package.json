@@ -1,0 +1,25 @@
+{
+  "name": "@zbay/identity",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint ./src/**/*.{ts,tsx,js,jsx}"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/ZbayApp/identity.git"
+  },
+  "keywords": [
+    "zbay",
+    "identity",
+    "certificate"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ZbayApp/identity/issues"
+  },
+  "homepage": "https://github.com/ZbayApp/identity#readme"
+}
