@@ -53,5 +53,9 @@ export const connections = (io, connectionsManager: ConnectionsManager) => {
     socket.on(EventTypesServer.SUBSCRIBE_FOR_ALL_CONVERSATIONS, async (conversations: string[]) => {
       await connectionsManager.subscribeForAllConversations(conversations)
     })
+    socket.on(EventTypesServer.SAVE_CERTIFICATE, async (certificate: string) => {
+      console.log('Received saveCertificate websocket event, processing.')
+      await connectionsManager.saveCertificate(certificate)
+    })
   })
 }

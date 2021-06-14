@@ -13,9 +13,10 @@ import {
 import { loadAllMessages, loadAllDirectMessages } from '../socket/events/allMessages'
 import { EventTypesResponse } from '../socket/constantsReponse'
 import { loadAllPublicChannels } from '../socket/events/channels'
-import debug from 'debug'
 import { Libp2p } from 'libp2p-gossipsub/src/interfaces'
 import { Config } from '../constants'
+import { loadCertificates } from '../socket/events/certificates'
+import debug from 'debug'
 const log = Object.assign(debug('waggle:db'), {
   error: debug('waggle:db:err')
 })
@@ -71,6 +72,7 @@ export class Storage {
   private channels: KeyValueStore<IZbayChannel>
   private directMessagesUsers: KeyValueStore<IPublicKey>
   private messageThreads: KeyValueStore<IMessageThread>
+  private certificates: EventStore<string>
   public publicChannelsRepos: Map<String, IRepo> = new Map()
   public directMessagesRepos: Map<String, IRepo> = new Map()
   private publicChannelsEventsAttached: boolean = false
@@ -103,6 +105,7 @@ export class Storage {
     log('1/6')
     await this.createDbForChannels()
     log('2/6')
+    await this.createDbForCertificates()
     await this.createDbForUsers()
     log('3/6')
     await this.createDbForMessageThreads()
@@ -140,6 +143,31 @@ export class Storage {
       },
       privateKey: peerID.toJSON().privKey
     })
+  }
+
+  public async createDbForCertificates() {
+    log('createDbForCertificates init')
+    this.certificates = await this.orbitdb.log<string>('zbay-certificates', {
+      accessController: {
+        write: ['*']
+      }
+    })
+
+    this.certificates.events.on('replicated', () => {
+      log('REPLICATED: Certificates')
+      loadCertificates(this.io, this.getAllEventLogEntries(this.certificates))
+    })
+    this.certificates.events.on('write', (_address, entry) => {
+      log('Saved cerrificate locally')
+      log(entry.payload.value)
+      loadCertificates(this.io, this.getAllEventLogEntries(this.certificates))
+    })
+
+    await this.certificates.load({ fetchEntryTimeout: 15000 })
+    const allCertificates = this.getAllEventLogEntries(this.certificates)
+    log('ALL Certificates COUNT:', allCertificates.length)
+    log('ALL Certificates:', allCertificates)
+    log('STORAGE: Finished createDbForCertificates')
   }
 
   private async createDbForChannels() {
@@ -261,7 +289,7 @@ export class Storage {
     loadAllPublicChannels(this.io, this.getChannelsResponse())
   }
 
-  private getAllChannelMessages(db: EventStore<IMessage>): IMessage[] {
+  private getAllEventLogEntries(db: EventStore<any>): any[] { // TODO: fix typing
     // TODO: move to e.g custom Store
     return db
       .iterator({ limit: -1 })
@@ -275,7 +303,7 @@ export class Storage {
       return
     }
     const db: EventStore<IMessage> = this.publicChannelsRepos.get(channelAddress).db
-    loadAllMessages(this.io, this.getAllChannelMessages(db), channelAddress)
+    loadAllMessages(this.io, this.getAllEventLogEntries(db), channelAddress)
   }
 
   public async subscribeForChannel(
@@ -305,13 +333,13 @@ export class Storage {
       })
       db.events.on('replicated', () => {
         log('Message replicated')
-        loadAllMessages(this.io, this.getAllChannelMessages(db), channelAddress)
+        loadAllMessages(this.io, this.getAllEventLogEntries(db), channelAddress)
       })
       db.events.on('ready', () => {
-        loadAllMessages(this.io, this.getAllChannelMessages(db), channelAddress)
+        loadAllMessages(this.io, this.getAllEventLogEntries(db), channelAddress)
       })
       repo.eventsAttached = true
-      loadAllMessages(this.io, this.getAllChannelMessages(db), channelAddress)
+      loadAllMessages(this.io, this.getAllEventLogEntries(db), channelAddress)
       log('Subscription to channel ready', channelAddress)
     }
   }
@@ -403,20 +431,20 @@ export class Storage {
 
     if (repo && !repo.eventsAttached) {
       log('Subscribing to direct messages thread ', channelAddress)
-      loadAllDirectMessages(this.io, this.getAllChannelMessages(db), channelAddress)
+      loadAllDirectMessages(this.io, this.getAllEventLogEntries(db), channelAddress)
       db.events.on('write', (_address, entry) => {
         log('Writing')
         socketDirectMessage(this.io, { message: entry.payload.value, channelAddress })
       })
       db.events.on('replicated', () => {
         log('Message replicated')
-        loadAllDirectMessages(this.io, this.getAllChannelMessages(db), channelAddress)
+        loadAllDirectMessages(this.io, this.getAllEventLogEntries(db), channelAddress)
       })
       db.events.on('ready', () => {
         log('DIRECT Messages thread ready')
       })
       repo.eventsAttached = true
-      loadAllMessages(this.io, this.getAllChannelMessages(db), channelAddress)
+      loadAllMessages(this.io, this.getAllEventLogEntries(db), channelAddress)
       log('Subscription to channel ready', channelAddress)
     }
   }
@@ -471,5 +499,11 @@ export class Storage {
     const payload = this.messageThreads.all
     log('STORAGE: getPrivateConversations payload payload')
     this.io.emit(EventTypesResponse.RESPONSE_GET_PRIVATE_CONVERSATIONS, payload)
+  }
+
+  public async saveCertificate(certificate: string) {
+    log('Saving certificate')
+    // TODO: validate before saving
+    await this.certificates.add(certificate)
   }
 }

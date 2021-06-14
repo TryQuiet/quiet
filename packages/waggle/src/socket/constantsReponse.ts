@@ -6,5 +6,6 @@ export enum EventTypesResponse {
   RESPONSE_GET_PUBLIC_CHANNELS = 'responseGetPublicChannels',
   RESPONSE_GET_AVAILABLE_USERS = 'responseGetAvailableUsers',
   RESPONSE_GET_PRIVATE_CONVERSATIONS = 'responseGetPrivateConversations',
-  RESPONSE_FETCH_ALL_DIRECT_MESSAGES = 'responseFetchAllDirectMessages'
+  RESPONSE_FETCH_ALL_DIRECT_MESSAGES = 'responseFetchAllDirectMessages',
+  RESPONSE_GET_CERTIFICATES = 'responseGetCertificates'
 }

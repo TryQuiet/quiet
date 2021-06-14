@@ -208,6 +208,10 @@ export class ConnectionsManager {
     this.storage.loadAllChannelMessages(channelAddress)
   }
 
+  public saveCertificate = async (certificate: string) => {
+    await this.storage.saveCertificate(certificate)
+  }
+
   public connectToNetwork = async (target: string) => {
     log(`Attempting to dial ${target}`)
     await this.libp2p.dial(target, {

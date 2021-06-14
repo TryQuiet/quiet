@@ -1,11 +1,12 @@
 # Changelog
 
-## [2.0.3] - wip
+## [2.0.3] - 2021-06-14
 
 ### Added
 
 - Optional `createPaths` to options in both ConnectionManager and Storage. Default = true. When set to false waggle will not try to create any dirs
   and will just assume they exist.
+- Database for certificates and 'add certificate' websocket event. Send all certificates on write and replication orbitdb events
 
 ### Fixed
 
