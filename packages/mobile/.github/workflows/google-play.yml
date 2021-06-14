@@ -60,7 +60,7 @@ jobs:
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJson: google-play.json
-          packageName: com.zbaymobile.mobileapp
+          packageName: com.zbaymobile
           releaseFiles: ./android/app/build/outputs/bundle/release/app-release.aab
           track: internal
           whatsNewDirectory: distribution/whatsnew
