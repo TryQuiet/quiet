@@ -81,3 +81,12 @@ test('spawn hidden service using private key', async () => {
   expect(hiddenServiceOnionAddress).toBe('u2rg2direy34dj77375h2fbhsc2tvxj752h4tlso64mjnlevcv54oaad')
   await tor.kill()
 })
+
+test('generate hashed password', async () => {
+  const tor = await spawnTorProcess(tmpAppDataPath)
+  tor.generateHashedPassword()
+  console.log(tor.torHashedPassword)
+  console.log(tor.torPassword)
+  expect(tor.torHashedPassword).toHaveLength(62)
+  expect(tor.torPassword).toHaveLength(32)
+})

@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.0.4] - 2021-06-15
+
+### Fixed
+
+- Hashing tor password for windows
+
 ## [2.0.3] - 2021-06-14
 
 ### Added
