@@ -1,7 +1,6 @@
 import { produce, immerable } from 'immer'
 import { createAction, handleActions } from 'redux-actions'
 import crypto from 'crypto'
-import { ipcRenderer } from 'electron'
 
 import { typeFulfilled, typeRejected, typePending, errorNotification } from './utils'
 import identityHandlers from './identity'
@@ -91,7 +90,6 @@ const createVaultEpic = (fromMigrationFile = false) => async dispatch => {
     await dispatch(identityHandlers.epics.setIdentity(identity))
     await dispatch(identityHandlers.epics.loadIdentity())
     await dispatch(setVaultStatus(true))
-    ipcRenderer.send('vault-created')
     return identity
   } catch (error) {
     dispatch(

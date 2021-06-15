@@ -9,27 +9,35 @@ import channelHandlers from '../../store/handlers/channel'
 import channelsSelectors from '../../store/selectors/channels'
 import electronStore from '../../../shared/electronStore'
 
-const Channel = () => {
-  const generalChannelId = useSelector(channelsSelectors.generalChannelId)
+export const useChannelData = () => {
+  const data = {
+    generalChannelId: useSelector(channelsSelectors.generalChannelId)
+  }
+  return data
+}
+
+export const useChannelActions = () => {
   const dispatch = useDispatch()
+  const loadChannel = (key: string) => {
+    dispatch(channelHandlers.epics.loadChannel(key))
+  }
+  return { loadChannel }
+}
+
+const Channel = () => {
+  const { generalChannelId } = useChannelData()
+  const { loadChannel } = useChannelActions()
   const match = useRouteMatch<{ id: string }>()
 
-  useEffect(
-    () => {
-      const loadChannel = (key: string) => {
-        dispatch(channelHandlers.epics.loadChannel(key))
+  useEffect(() => {
+    if (match.params.id === 'general') {
+      if (generalChannelId && electronStore.get('generalChannelInitialized')) {
+        loadChannel(generalChannelId)
       }
-
-      if (match.params.id === 'general') {
-        if (generalChannelId && electronStore.get('generalChannelInitialized')) {
-          loadChannel(generalChannelId)
-        }
-      } else {
-        loadChannel(match.params.id)
-      }
-    },
-    [match.params.id, generalChannelId]
-  )
+    } else {
+      loadChannel(match.params.id)
+    }
+  }, [match.params.id, generalChannelId])
 
   return <ChannelComponent channelType={CHANNEL_TYPE.NORMAL} contactId={match.params.id} />
 }

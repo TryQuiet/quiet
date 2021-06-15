@@ -26,12 +26,13 @@ export const privateKey = createSelector(directMessages, d => d.privateKey)
 
 export const conversations = createSelector(directMessages, d => d.conversations)
 
-// export const conversationList = createSelector(directMessages, d => d.conversationList)
+export const conversationsList = createSelector(directMessages, d => d.conversationsList)
 
 export default {
   users,
   user,
   publicKey,
   privateKey,
-  conversations
+  conversations,
+  conversationsList
 }

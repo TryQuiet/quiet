@@ -10,7 +10,7 @@ export const LOG_ENDPOINT = 'https://handlers.zbay.app/email'
 export const PRICE_ORACLE_PUB_KEY =
   '0225528107f2b0cd8f0a7bedfa218ee8511b1753f87c76886d0ea7dd0e813270da'
 export const REQUEST_MONEY_ENDPOINT =
-   'https://u1uxu6p870.execute-api.us-east-1.amazonaws.com/Prod/requestMoney'
+  'https://u1uxu6p870.execute-api.us-east-1.amazonaws.com/Prod/requestMoney'
 export const REQUEST_USER_REGISTRATION_ENDPOINT = 'https://9fy1bqknya.execute-api.us-east-1.amazonaws.com/Prod/handleRegistrationRequest'
 export const FETCH_USERNAMES_ENDPOINT = 'https://9fy1bqknya.execute-api.us-east-1.amazonaws.com/Prod/fetchusernames'
 
@@ -211,3 +211,8 @@ export const soundType = {
 }
 
 export const loadNextMessagesLimit = 20
+
+export const dataFromRootPems = {
+  certificate: 'MIIBJTCBzAIBATAKBggqhkjOPQQDAjASMRAwDgYDVQQDEwdaYmF5IENBMCYYEzIwMjEwNjAxMTY0MDIzLjIxM1oYDzIwMjIwMTMxMjMwMDAwWjACMQAwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAARrk62Tbbx3Tpjn16lEK0aC19w97VddIKQ5w0+lmBImw3BMNjA0FTlK5iRmVC+w/T6M04Es+yiYL608vOhx2slnoyAwHjAPBgNVHRMECDAGAQH/AgEDMAsGA1UdDwQEAwIABjAKBggqhkjOPQQDAgNIADBFAiEA+0kIz0ny/PLVERTcL0+KCpsztyA6Zuwzj05VW5NMdx0CICgdzf0lg0/2Ksl1AjSPYsy2w+Hn09PGlBnD7TiExBpx',
+  privKey: 'MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgSuT9B8ALaZSZwiTwk1u1h5VLKT4rnkd5IHNxJVsJNE6gCgYIKoZIzj0DAQehRANCAARrk62Tbbx3Tpjn16lEK0aC19w97VddIKQ5w0+lmBImw3BMNjA0FTlK5iRmVC+w/T6M04Es+yiYL608vOhx2sln'
+}

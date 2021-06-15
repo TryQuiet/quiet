@@ -4,7 +4,6 @@ import * as Yup from 'yup'
 import { Formik, Form } from 'formik'
 import { Redirect } from 'react-router'
 import classNames from 'classnames'
-// import BigNumber from 'bignumber.js'
 
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
@@ -15,9 +14,6 @@ import LoadingButton from '../ui/LoadingButton'
 import Carousel from '../widgets/Carousel'
 
 import icon from '../../static/images/zcash/logo-lockup--circle.svg'
-// import Tor from '../../containers/windows/Tor'
-// import electronStore from '../../../shared/electronStore'
-// import Tor from '../../containers/windows/Tor'
 
 const styles = theme => ({
   paper: {
@@ -79,16 +75,12 @@ export const VaultUnlockerForm = ({
   classes,
   initialValues,
   onSubmit,
-
-  latestBlock,
-  currentBlock,
   isRescanning,
   loader,
   isNewUser,
   guideStatus,
   mainChannelLoaded
 }) => {
-  // const isSynced = currentBlock.plus(2000).gt(latestBlock)
   const isDev = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'production'
   const [done, setDone] = useState(true)
   const [syncingStart, setSyncingStart] = useState(false)

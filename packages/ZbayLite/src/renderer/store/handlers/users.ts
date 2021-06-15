@@ -1,17 +1,14 @@
 import { produce, immerable } from 'immer'
 import { createAction, handleActions } from 'redux-actions'
-import { ipcRenderer } from 'electron'
 
 import axios from 'axios'
 
 import nodeSelectors from '../selectors/node'
 import feesHandlers from './fees'
-import appHandlers from './app'
 import { actionCreators } from './modals'
 import usersSelector from '../selectors/users'
 import identitySelector from '../selectors/identity'
 import { actions as identityActions } from '../handlers/identity'
-import appSelectors from '../selectors/app'
 import { getPublicKeysFromSignature } from '../../zbay/messages'
 import {
   messageType,
@@ -24,7 +21,6 @@ import { messages as zbayMessages } from '../../zbay'
 import staticChannels from '../../zcash/channels'
 import notificationsHandlers from './notifications'
 import { successNotification, errorNotification } from './utils'
-import electronStore from '../../../shared/electronStore'
 
 import { DisplayableMessage } from '../../zbay/messages.types'
 
@@ -249,27 +245,6 @@ export const createOrUpdateUser = (payload: {
     dispatch(actionCreators.openModal('failedUsernameRegister')())
   }
 }
-export const registerOnionAddress = torStatus => async (dispatch, getState) => {
-  const useTor = appSelectors.useTor(getState())
-  if (useTor === torStatus) {
-    return
-  }
-  const savedUseTor = electronStore.get('useTor')
-  if (savedUseTor !== undefined) {
-    if (torStatus === true) {
-      ipcRenderer.send('spawnTor')
-    } else {
-      ipcRenderer.send('killTor')
-    }
-    electronStore.set('useTor', torStatus)
-    dispatch(appHandlers.actions.setUseTor(torStatus))
-    return
-  }
-  ipcRenderer.send('spawnTor')
-  dispatch(appHandlers.actions.setUseTor(torStatus))
-  electronStore.set('useTor', true)
-  dispatch(notificationsHandlers.actions.removeSnackbar('username'))
-}
 
 export const fetchUsers = (messages: DisplayableMessage[]) => async (dispatch, getState) => {
   const filteredZbayMessages = messages.filter(msg => msg.memohex.startsWith('ff'))
@@ -386,7 +361,6 @@ export const epics = {
   createOrUpdateUser,
   registerAnonUsername,
   fetchOnionAddresses,
-  registerOnionAddress,
   fetchTakenUsernames
 }
 

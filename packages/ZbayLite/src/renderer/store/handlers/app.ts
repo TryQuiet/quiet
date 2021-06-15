@@ -1,9 +1,8 @@
 import { produce, immerable } from 'immer'
-import { ipcRenderer, remote } from 'electron'
+import { remote } from 'electron'
 import BigNumber from 'bignumber.js'
 import { createAction, handleActions } from 'redux-actions'
 import { actionTypes } from '../../../shared/static'
-import { actionCreators } from './modals'
 import nodeHandlers from './node'
 import client from '../../zcash'
 import history from '../../../shared/history'
@@ -79,25 +78,6 @@ export const actions = {
 }
 
 export type AppActions = ActionsType<typeof actions>
-
-export const askForBlockchainLocation = () => async dispatch => {
-  dispatch(actionCreators.openModal('blockchainLocation')())
-}
-
-export const initializeUseTor = () => async dispatch => {
-  const savedUseTor = electronStore.get('useTor')
-  if (savedUseTor !== undefined) {
-    if (savedUseTor === true) {
-      ipcRenderer.send('spawnTor')
-    }
-    dispatch(actions.setUseTor(savedUseTor))
-  }
-}
-
-export const proceedWithSyncing = payload => async dispatch => {
-  ipcRenderer.send('proceed-with-syncing', payload)
-  dispatch(actionCreators.closeModal('blockchainLocation')())
-}
 
 export const restartAndRescan = () => async dispatch => {
   client.rescan()
@@ -189,10 +169,7 @@ export const reducer = handleActions<App, PayloadType<AppActions>>(
 )
 
 export const epics = {
-  askForBlockchainLocation,
-  proceedWithSyncing,
-  restartAndRescan,
-  initializeUseTor
+  restartAndRescan
 }
 
 export default {

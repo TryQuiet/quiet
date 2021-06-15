@@ -33,7 +33,6 @@ import SentFundsModal from './containers/ui/SentFundsModal'
 import OpenExternalLinkModal from './containers/ui/OpenExternalLinkModal'
 import SendFundsModal from './containers/ui/adverts/SendFundsModal'
 import AddModerator from './containers/widgets/channelSettings/AddModerator'
-import BlockchainLocationModal from './containers/widgets/blockchainLocation/BlockchainLocation'
 import FailedUsernameRegister from './containers/ui/FailedUsernameRegister'
 import SendMoney from './containers/ui/sendMoneySeparate/sendMoney'
 import theme from './theme'
@@ -67,7 +66,6 @@ export default () => {
               <SentFundsModal />
               <AddModerator />
               <OpenExternalLinkModal />
-              <BlockchainLocationModal />
               <SendMoney />
               <FailedUsernameRegister />
               <Route path='/vault' exact component={Vault} />

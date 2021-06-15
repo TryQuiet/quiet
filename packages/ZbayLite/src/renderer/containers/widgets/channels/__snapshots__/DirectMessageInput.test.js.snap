@@ -11,14 +11,23 @@ Object {
 exports[`ChannelInput will receive right props 1`] = `
 Object {
   "channelName": "",
-  "contactId": undefined,
+  "contact": Contact {
+    "address": "",
+    "key": "",
+    "messages": Array [],
+    "newMessages": Array [],
+    "typingIndicator": false,
+    "username": "",
+    "vaultMessages": Array [],
+    Symbol(immer-draftable): true,
+  },
   "contactUsername": "",
   "id": null,
-  "inputState": undefined,
+  "inputLocked": 0,
+  "inputState": 1,
   "isContactConnected": undefined,
   "isContactTyping": false,
   "isMessageTooLong": null,
-  "isSizeCheckingInProgress": false,
   "message": "",
   "myUser": Object {
     "address": "",
@@ -28,6 +37,7 @@ Object {
     "nickname": "anon",
     "onionAddress": "",
   },
+  "signerPubey": "",
   "users": Object {},
 }
 `;

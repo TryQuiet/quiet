@@ -15,7 +15,6 @@ Object {
   "id": "channel-id",
   "inputState": 0,
   "isMessageTooLong": null,
-  "isSizeCheckingInProgress": false,
   "members": Set {},
   "message": "",
   "myUser": Object {

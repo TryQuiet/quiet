@@ -90,46 +90,6 @@ exports[`Security renders component 1`] = `
     </WithStyles(ForwardRef(Typography))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
-    className="labelDiv-mock"
-    container={true}
-    direction="column"
-    item={true}
-  >
-    <WithStyles(ForwardRef(FormControlLabel))
-      control={
-        <WithStyles(ForwardRef(Checkbox))
-          color="default"
-          onChange={[Function]}
-        />
-      }
-      label={
-        <WithStyles(ForwardRef(Typography))
-          className="alignLabel-mock"
-          variant="body2"
-        >
-          Use Tor for messaging when possible
-        </WithStyles(ForwardRef(Typography))>
-      }
-    />
-    <WithStyles(ForwardRef(FormControlLabel))
-      control={
-        <WithStyles(ForwardRef(Checkbox))
-          checked={true}
-          color="default"
-          onChange={[Function]}
-        />
-      }
-      label={
-        <WithStyles(ForwardRef(Typography))
-          className="alignLabel-mock"
-          variant="body2"
-        >
-          Only use Zcash for messaging
-        </WithStyles(ForwardRef(Typography))>
-      }
-    />
-  </WithStyles(ForwardRef(Grid))>
-  <WithStyles(ForwardRef(Grid))
     className="subtitle-mock"
     item={true}
   >

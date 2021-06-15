@@ -1,8 +1,8 @@
 import React from 'react'
 
-import ChannelsListItemComponent, { ChannelsListItemComponentProps } from '../../../components/widgets/channels/ChannelsListItem'
+import ChannelsListItemComponent, { IChannelsListItemComponentProps } from '../../../components/widgets/channels/ChannelsListItem'
 
-type ChannelsListItemContainerProps = ChannelsListItemComponentProps
+type ChannelsListItemContainerProps = IChannelsListItemComponentProps
 
 export const ChannelsListItem: React.FC<ChannelsListItemContainerProps> = ({
   channel,

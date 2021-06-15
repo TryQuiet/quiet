@@ -11,7 +11,6 @@ import identitySelectors from '../../store/selectors/identity'
 import VaultUnlockerFormComponent from '../../components/widgets/VaultUnlockerForm'
 import { actionCreators } from '../../store/handlers/modals'
 import electronStore from '../../../shared/electronStore'
-// import { useInterval } from '../hooks'
 
 export const mapStateToProps = state => ({
   isLogIn: vaultSelectors.isLogIn(state),

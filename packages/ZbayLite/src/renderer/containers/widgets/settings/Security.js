@@ -26,9 +26,7 @@ export const mapDispatchToProps = dispatch =>
       removeImageHost: whitelistHandlers.epics.removeImageHost,
       removeSiteHost: whitelistHandlers.epics.removeSiteHost,
       onRescan: appHandlers.epics.restartAndRescan,
-      openSeedModal: modalsHandlers.actionCreators.openModal('seedModal'),
-      registerOnionAddress: useTor =>
-        usersHandlers.epics.registerOnionAddress(useTor)
+      openSeedModal: modalsHandlers.actionCreators.openModal('seedModal')
     },
     dispatch
   )

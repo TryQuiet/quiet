@@ -27,6 +27,7 @@ import { channelToUri } from '../../zbay/channels'
 import { ActionsType, PayloadType } from './types'
 import { publicChannelsActions } from '../../sagas/publicChannels/publicChannels.reducer'
 import { directMessagesActions } from '../../sagas/directMessages/directMessages.reducer'
+import { IConversation } from './directMessages'
 
 // TODO: to remove, but must be replaced in all the tests
 export const ChannelState = {
@@ -194,7 +195,7 @@ const sendOnEnter = (_event, resetTab?: (arg: number) => void) => async (dispatc
   console.log(`isDM? ${isDirectMessageChannel}`)
   if (isDirectMessageChannel) {
     const id = channelSelectors.id(getState())
-    const conversations: Array<{ contactPublicKey: string }> = directMessagesSelectors.conversations(getState())
+    const conversations: { [key: string]: IConversation } = directMessagesSelectors.conversations(getState())
 
     const conversation = Array.from(Object.values(conversations)).filter(conv => {
       return conv.contactPublicKey === id

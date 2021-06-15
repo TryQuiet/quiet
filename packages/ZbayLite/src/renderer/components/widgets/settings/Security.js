@@ -60,8 +60,6 @@ export const Security = ({
   removeImageHost,
   removeSiteHost,
   openSeedModal,
-  registerOnionAddress,
-  useTor,
   isRescanned,
   onRescan
 }) => {
@@ -123,41 +121,6 @@ export const Security = ({
             Learn more.
           </a>
         </Typography>
-      </Grid>
-
-      <Grid item container direction='column' className={classes.labelDiv}>
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={useTor}
-              onChange={e => {
-                registerOnionAddress(true)
-              }}
-              color='default'
-            />
-          }
-          label={
-            <Typography variant='body2' className={classes.alignLabel}>
-              Use Tor for messaging when possible
-            </Typography>
-          }
-        />
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={!useTor}
-              onChange={e => {
-                registerOnionAddress(false)
-              }}
-              color='default'
-            />
-          }
-          label={
-            <Typography variant='body2' className={classes.alignLabel}>
-              Only use Zcash for messaging
-            </Typography>
-          }
-        />
       </Grid>
       <Grid item className={classes.subtitle}>
         <Typography variant='h5'>Verification</Typography>

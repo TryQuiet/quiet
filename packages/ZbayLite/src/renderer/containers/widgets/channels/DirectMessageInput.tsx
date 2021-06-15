@@ -10,7 +10,7 @@ import identitySelectors from '../../../store/selectors/identity'
 import contactsSelectors from '../../../store/selectors/contacts'
 import { User } from '../../../store/handlers/users'
 
-const useChannelInputData = contactId => {
+export const useDirectMessageInputData = contactId => {
   const contact = useSelector(contactsSelectors.contact(contactId))
   const signerPubey = useSelector(identitySelectors.signerPubKey)
   const inputLocked = useSelector(channelSelectors.inputLocked)
@@ -21,7 +21,7 @@ const useChannelInputData = contactId => {
     id: useSelector(channelSelectors.id),
     signerPubey: signerPubey,
     inputLocked: inputLocked,
-    inputState: useSelector(usersSelectors.registeredUser(signerPubey)) ? inputLocked : INPUT_STATE.UNREGISTERED,
+    inputState: useSelector(usersSelectors.registeredUser(signerPubey)) ? inputLocked : INPUT_STATE.USER_NOT_REGISTERED,
     channelName: contact.username,
     users: useSelector(usersSelectors.users),
     myUser: useSelector(usersSelectors.myUser),
@@ -34,7 +34,7 @@ const useChannelInputData = contactId => {
   return data
 }
 
-const useChannelInputActions = () => {
+export const useDirectMessageInputActions = () => {
   const dispatch = useDispatch()
 
   const onChange = useCallback((arg: { value: string; id: string }) => {
@@ -49,11 +49,7 @@ const useChannelInputActions = () => {
     dispatch(channelHandlers.epics.sendOnEnter(event, resetTab))
   }, [dispatch])
 
-  const sendTypingIndicator = useCallback((value: boolean) => {
-    dispatch(channelHandlers.epics.sendTypingIndicator(value))
-  }, [dispatch])
-
-  return { onChange, resetDebounce, sendDirectMessageOnEnter, sendTypingIndicator }
+  return { onChange, resetDebounce, sendDirectMessageOnEnter }
 }
 
 export const ChannelInput = ({ contactId }) => {
@@ -73,11 +69,10 @@ export const ChannelInput = ({ contactId }) => {
     message,
     myUser,
     users
-  } = useChannelInputData(contactId)
+  } = useDirectMessageInputData(contactId)
 
-  const { onChange, resetDebounce, sendDirectMessageOnEnter, sendTypingIndicator } = useChannelInputActions()
+  const { onChange, resetDebounce, sendDirectMessageOnEnter } = useDirectMessageInputActions()
 
-  const isFromZbayUser = channelName !== 'Unknown'
   return (
     <ChannelInputComponent
       infoClass={infoClass}
@@ -90,15 +85,14 @@ export const ChannelInput = ({ contactId }) => {
       }}
       onKeyPress={sendDirectMessageOnEnter}
       message={message}
-      inputState={isFromZbayUser ? inputState : INPUT_STATE.DISABLE}
+      inputState={inputState}
       inputPlaceholder={`@${channelName.substring(0, 20)} as @${myUser.nickname}`}
       anchorEl={anchorEl}
       setAnchorEl={setAnchorEl}
       mentionsToSelect={mentionsToSelect}
       setMentionsToSelect={setMentionsToSelect}
       isMessageTooLong={isMessageTooLong}
-      isDM//
-      sendTypingIndicator={sendTypingIndicator}
+      isDM
       isContactConnected={isContactConnected}
       isContactTyping={isContactTyping}
       contactUsername={contactUsername}

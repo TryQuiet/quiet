@@ -9,7 +9,7 @@ import channelSelectors from '../../../store/selectors/channel'
 import usersSelectors from '../../../store/selectors/users'
 import { User } from '../../../store/handlers/users'
 
-const useChannelInputData = () => {
+export const useChannelInputData = () => {
   const channelSelectorsData = useSelector(channelSelectors.data)
   const data = {
     message: useSelector(channelSelectors.message),
@@ -27,7 +27,7 @@ const useChannelInputData = () => {
   return data
 }
 
-const useChannelInputActions = () => {
+export const useChannelInputActions = () => {
   const dispatch = useDispatch()
 
   const onChange = useCallback((arg: { value: string; id: string }) => {

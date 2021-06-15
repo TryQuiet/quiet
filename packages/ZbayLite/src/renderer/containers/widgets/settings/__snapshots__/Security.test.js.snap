@@ -4,7 +4,6 @@ exports[`Security will receive right actions 1`] = `
 Object {
   "onRescan": [Function],
   "openSeedModal": [Function],
-  "registerOnionAddress": [Function],
   "removeImageHost": [Function],
   "removeSiteHost": [Function],
   "toggleAllowAll": [Function],

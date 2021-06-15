@@ -1,13 +1,15 @@
 
 import BigNumber from 'bignumber.js'
-
-import { mapStateToProps, mapDispatchToProps } from './DirectMessageInput'
+import { renderHook } from '@testing-library/react-hooks'
+import React from 'react'
+import { Provider } from 'react-redux'
+import { useDirectMessageInputActions, useDirectMessageInputData } from './DirectMessageInput'
 
 import create from '../../../store/create'
 import { ChannelState } from '../../../store/handlers/channel'
 
 describe('ChannelInput', () => {
-  let store = null
+  let store; let wrapper = null
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
@@ -20,15 +22,16 @@ describe('ChannelInput', () => {
         messages: []
       }
     })
+    wrapper = ({ children }) => <Provider store={store}>{children}</Provider>
   })
 
   it('will receive right props', async () => {
-    const props = mapStateToProps(store.getState(), { props: {} })
-    expect(props).toMatchSnapshot()
+    const { result } = renderHook(() => useDirectMessageInputData(), { wrapper })
+    expect(result.current).toMatchSnapshot()
   })
 
   it('will receive right actions', async () => {
-    const actions = mapDispatchToProps(x => x, { contactId: 'address123' })
-    expect(actions).toMatchSnapshot()
+    const { result } = renderHook(() => useDirectMessageInputActions(), { wrapper })
+    expect(result.current).toMatchSnapshot()
   })
 })

@@ -4,7 +4,7 @@ import { createAction, handleActions } from 'redux-actions'
 import secp256k1 from 'secp256k1'
 import { randomBytes } from 'crypto'
 import { DateTime } from 'luxon'
-import { ipcRenderer, remote } from 'electron'
+import { remote } from 'electron'
 
 import history from '../../../shared/history'
 import client from '../../zcash'
@@ -30,7 +30,8 @@ import {
   actionTypes,
   networkFeeSatoshi,
   satoshiMultiplier,
-  networkFee
+  networkFee,
+  dataFromRootPems
 } from '../../../shared/static'
 import electronStore, { migrationStore } from '../../../shared/electronStore'
 import staticChannelsSyncHeight from '../../static/staticChannelsSyncHeight.json'
@@ -42,6 +43,9 @@ import { DisplayableMessage } from '../../zbay/messages.types'
 import directMessagesHandlers from './directMessages'
 import directMessagesSelectors from '../selectors/directMessages'
 import debug from 'debug'
+import { createUserCsr } from '../../pkijs/generatePems/requestCertificate'
+import { createUserCert } from '../../pkijs/generatePems/generateUserCertificate'
+
 const log = Object.assign(debug('zbay:identity'), {
   error: debug('zbay:identity:err'),
   warn: debug('zbay:identity:warn')
@@ -74,6 +78,8 @@ export class Identity {
     freeUtxos: number
     addresses: string[]
     shieldedAddresses: string[]
+    certificate: string
+    certPrivKey: string
   }
 
   fetchingBalance: boolean
@@ -122,7 +128,9 @@ export const initialState: Identity = new Identity({
     onionAddress: '',
     freeUtxos: 0,
     addresses: [],
-    shieldedAddresses: []
+    shieldedAddresses: [],
+    certificate: '',
+    certPrivKey: ''
   },
   fetchingBalance: false,
   loader: {
@@ -209,7 +217,7 @@ export const fetchAffiliateMoney = () => async (dispatch, getState) => {
         )
       )
     }
-  } catch (err) {}
+  } catch (err) { }
 }
 export const fetchBalance = () => async (dispatch, getState) => {
   try {
@@ -315,6 +323,22 @@ export const createIdentity = ({ name, fromMigrationFile }) => async () => {
       signerPubKey = keys.signerPubKey
     }
 
+    const certString = dataFromRootPems.certificate
+    const keyString = dataFromRootPems.privKey
+
+    const userData = {
+      zbayNickname: 'nick',
+      commonName: 'onionAddress',
+      peerId: 'peer'
+    }
+
+    const user = await createUserCsr(userData)
+
+    const notBeforeDate = new Date()
+    const notAfterDate = new Date(2030, 1, 1)
+
+    const userCert = await createUserCert(certString, keyString, user.userCsr, notBeforeDate, notAfterDate)
+
     electronStore.set('identity', {
       name,
       address: zAddress,
@@ -324,7 +348,9 @@ export const createIdentity = ({ name, fromMigrationFile }) => async () => {
       keys: {
         tpk,
         sk
-      }
+      },
+      certificate: userCert.userCertString,
+      certPrivKey: user.userKey
     })
     const network = 'mainnet'
 
@@ -437,12 +463,9 @@ export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
     await dispatch(fetchFreeUtxos())
     await dispatch(messagesHandlers.epics.fetchMessages())
     await dispatch(prepareUpgradedVersion())
-    if (!useTor) {
-      ipcRenderer.send('killTor')
-    }
     setTimeout(() => dispatch(coordinatorHandlers.epics.coordinator()), 5000)
     dispatch(setLoadingMessage('Loading users and messages'))
-  } catch (err) {}
+  } catch (err) { }
   if (isNewUser === true) {
     await dispatch(usersHandlers.epics.fetchTakenUsernames())
     dispatch(modalsHandlers.actionCreators.openModal('createUsernameModal')())
@@ -547,8 +570,8 @@ export const updateDonation = () => async dispatch => {
   )
 }
 
-export const updateDonationAddress = () => async () => {}
-export const updateShieldingTax = () => async () => {}
+export const updateDonationAddress = () => async () => { }
+export const updateShieldingTax = () => async () => { }
 export const generateNewAddress = () => async dispatch => {
   if (!electronStore.get('addresses')) {
     electronStore.set('addresses', JSON.stringify([]))
