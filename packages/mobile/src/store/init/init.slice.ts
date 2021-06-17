@@ -6,6 +6,7 @@ import { InitCheck } from './init.types';
 import { InitCheckKeys } from './initCheck.keys';
 
 export class InitState {
+  public isRestored: boolean = false;
   public initChecks: EntityState<InitCheck> = initChecksAdapter.setAll(
     initChecksAdapter.getInitialState(),
     [
@@ -37,6 +38,10 @@ export const initSlice = createSlice({
   initialState: { ...new InitState() },
   name: StoreKeys.Init,
   reducers: {
+    setIsRestored: (state, action: PayloadAction<boolean>) => {
+      state.isRestored = action.payload;
+    },
+    doOnRestore: state => state,
     setStoreReady: state => state,
     updateInitCheck: (state, action: PayloadAction<InitCheck>) => {
       initChecksAdapter.updateOne(state.initChecks, {

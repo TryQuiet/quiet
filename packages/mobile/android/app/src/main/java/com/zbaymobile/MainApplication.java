@@ -13,6 +13,8 @@ import java.util.List;
 
 public class MainApplication extends Application implements ReactApplication {
 
+  public static String PACKAGE_NAME;
+
   private Prefs prefs = null;
 
   public Prefs getSharedPrefs() {
@@ -52,6 +54,7 @@ public class MainApplication extends Application implements ReactApplication {
     super.onCreate();
     SoLoader.init(this, /* native exopackage */ false);
     initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
+    PACKAGE_NAME = getApplicationContext().getPackageName();
     prefs = new Prefs(this);
   }
 

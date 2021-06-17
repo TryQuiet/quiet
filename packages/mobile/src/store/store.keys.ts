@@ -1,7 +1,7 @@
 export enum StoreKeys {
+  NativeServices = 'NativeServices',
   Init = 'Init',
   Assets = 'Assets',
-  NativeServices = 'NativeServices',
   Socket = 'Socket',
   PublicChannels = 'PublicChannels',
 }

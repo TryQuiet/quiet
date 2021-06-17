@@ -5,8 +5,9 @@ import { getPublicChannelsDelay } from '../const/delays';
 import { publicChannelsSelectors } from '../publicChannels.selectors';
 import { IChannelInfo } from '../publicChannels.types';
 import { publicChannelsActions } from '../publicChannels.slice';
-import { navigateTo } from '../../../utils/functions/navigateTo/navigateTo';
 import { ScreenNames } from '../../../const/ScreenNames.enum';
+import { initActions } from '../../init/init.slice';
+import { replaceScreen } from '../../../utils/functions/replaceScreen/replaceScreen';
 
 export function* getPublicChannelsSaga(socket: Socket): Generator {
   yield* apply(socket, socket.emit, [SocketActionTypes.GET_PUBLIC_CHANNELS]);
@@ -18,7 +19,8 @@ export function* loadPublicChannelsSaga(): Generator {
     yield* put(publicChannelsActions.getPublicChannels());
     channels = yield* select(publicChannelsSelectors.publicChannels);
     if (channels.length > 0) {
-      yield* call(navigateTo, ScreenNames.MainScreen);
+      yield* put(initActions.setIsRestored(true));
+      yield* call(replaceScreen, ScreenNames.MainScreen);
       break;
     }
     yield* delay(getPublicChannelsDelay);

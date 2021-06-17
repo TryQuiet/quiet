@@ -29,7 +29,7 @@ object Utils {
         return "arm64-v8a"
     }
 
-    fun exec(dir: File, command: Array<String>, env: Map<String, String>?): Process {
+    fun exec(dir: File?, command: Array<String?>, env: Map<String, String>?): Process {
         val pb = ProcessBuilder(*command)
         val _env: MutableMap<String, String> = pb.environment()
         env?.map {
