@@ -1,0 +1,38 @@
+name: Lint and tests
+
+on:
+  pull_request:
+    branches: ['*']
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, macos-latest, windows-latest]
+
+    steps:
+      - name: print os name
+        run: echo ${{ matrix.os }}
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@master
+        with:
+          node-version: "12"
+      - name: patch node gyp on windows to support Visual Studio 2019
+        if: ${{ matrix.os == 'windows-latest' }}
+        shell: powershell
+        run: |
+          npm install --global node-gyp@latest
+          npm prefix -g | % {npm config set node_gyp "$_\node_modules\node-gyp\bin\node-gyp.js"}
+          npm config set msvs_version 2019
+      - name: extra dependencies
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: npm install -g windows-build-tools@4.0.0
+      - name: install dependencies
+        run: npm ci
+      - name: lint
+        run: npm run lint
+      - name: run tests
+        run: npm run test-ci
