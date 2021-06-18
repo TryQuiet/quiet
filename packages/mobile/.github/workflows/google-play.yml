@@ -49,8 +49,8 @@ jobs:
       - name: 'Upload Artifact'
         uses: actions/upload-artifact@v2
         with:
-          name: signed-app-release.apk
-          path: ./android/app/build/outputs/apk/release/signed-app-release.apk
+          name: app-release.apk
+          path: ./android/app/build/outputs/apk/release/app-release.apk
           retention-days: 5
 
       - name: Configure Google Pay upload
@@ -64,6 +64,6 @@ jobs:
         with:
           serviceAccountJson: google-play.json
           packageName: com.zbaymobile
-          releaseFiles: ./android/app/build/outputs/apk/release/signed-app-release.apk
+          releaseFiles: ./android/app/build/outputs/apk/release/app-release.apk
           track: internal
           whatsNewDirectory: distribution/whatsnew
