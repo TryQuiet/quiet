@@ -30,7 +30,7 @@ jobs:
       - name: Install yarn dependencies
         run: |
           yarn --frozen-lockfile
-      - name: Prepare singing configuration
+      - name: Prepare signing configuration
         run: |
           mkdir -p $HOME/.gradle
 
@@ -45,11 +45,15 @@ jobs:
 
       - name: Build for Android
         run: cd android && ./gradlew assembleRelease
+      - name: Sign apk
+        run: |
+          zipalign -v -p 4 /android/app/build/outputs/apk/release/app-release.apk /android/app/build/outputs/apk/release/aligned-app-release.apk
+          apksigner sign --ks android/app/zbaymobile.keystore --out /android/app/build/outputs/apk/release/signed-app-release.apk /android/app/build/outputs/apk/release/aligned-app-release.apk
       - name: 'Upload Artifact'
         uses: actions/upload-artifact@v2
         with:
-          name: app-release.aab
-          path: ./android/app/build/outputs/apk/release/app-release.apk
+          name: signed-app-release.apk
+          path: ./android/app/build/outputs/apk/release/signed-app-release.apk
           retention-days: 5
       - name: Configure Google Pay upload
         run: |
@@ -61,6 +65,6 @@ jobs:
         with:
           serviceAccountJson: google-play.json
           packageName: com.zbaymobile
-          releaseFiles: ./android/app/build/outputs/apk/release/app-release.apk
+          releaseFiles: ./android/app/build/outputs/apk/release/signed-app-release.apk
           track: internal
           whatsNewDirectory: distribution/whatsnew
