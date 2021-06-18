@@ -44,12 +44,12 @@ jobs:
           echo ${{ SECRETS.GOOGLE_KEYSTORE }} | base64 --decode > android/app/zbaymobile.keystore
 
       - name: Build for Android
-        run: cd android && ./gradlew bundleRelease
+        run: cd android && ./gradlew assembleRelease
       - name: 'Upload Artifact'
         uses: actions/upload-artifact@v2
         with:
           name: app-release.aab
-          path: ./android/app/build/outputs/bundle/release/app-release.aab
+          path: ./android/app/build/outputs/apk/release/app-release.apk
           retention-days: 5
       - name: Configure Google Pay upload
         run: |
@@ -61,6 +61,6 @@ jobs:
         with:
           serviceAccountJson: google-play.json
           packageName: com.zbaymobile
-          releaseFiles: ./android/app/build/outputs/bundle/release/app-release.aab
+          releaseFiles: ./android/app/build/outputs/apk/release/app-release.apk
           track: internal
           whatsNewDirectory: distribution/whatsnew
