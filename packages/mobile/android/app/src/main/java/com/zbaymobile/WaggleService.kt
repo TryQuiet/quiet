@@ -289,28 +289,30 @@ class WaggleService: Service() {
     @Synchronized
     @Throws(java.lang.Exception::class)
     private fun stopTor() {
-        if (torControlConnection != null) {
-            Log.d(TAG_TOR, "Deleting all existing hidden services")
-            onions.map { onion ->
-                torControlConnection?.delOnion(onion.address)
-                Log.i(TAG_TOR, "${onion.address} deleted")
-            }
-            onions.clear()
+        Thread {
+            if (torControlConnection != null) {
+                Log.d(TAG_TOR, "Deleting all existing hidden services")
+                onions.map { onion ->
+                    torControlConnection?.delOnion(onion.address)
+                    Log.i(TAG_TOR, "${onion.address} deleted")
+                }
+                onions.clear()
 
-            try {
-                Log.d(TAG_TOR, "Using control port to shutdown Tor")
-                torControlConnection?.shutdownTor("HALT")
-            } catch (e: IOException) {
-                Log.d(TAG_TOR, "Error shutting down Tor via control port", e)
-            }
+                try {
+                    Log.d(TAG_TOR, "Using control port to shutdown Tor")
+                    torControlConnection?.shutdownTor("HALT")
+                } catch (e: IOException) {
+                    Log.d(TAG_TOR, "Error shutting down Tor via control port", e)
+                }
 
-            if (shouldUnbindTorService) {
-                unbindService(torServiceConnection!!)
-                shouldUnbindTorService = false
-            }
+                if (shouldUnbindTorService) {
+                    unbindService(torServiceConnection!!)
+                    shouldUnbindTorService = false
+                }
 
-            torControlConnection = null
-        }
+                torControlConnection = null
+            }
+        }.start()
     }
 
     private fun addOnion(port: Int): Onion {
@@ -374,7 +376,9 @@ class WaggleService: Service() {
 
         client?.onWaggleStarted()
 
-        getOutput(nodeProcess!!)
+        try {
+            getOutput(nodeProcess!!)
+        } catch(e: InterruptedIOException) {}
     }
 
     private fun runWaggleCommand(directory: File, libraries: File, files: File, hiddenService: Onion): Process {

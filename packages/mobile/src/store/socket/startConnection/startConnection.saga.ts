@@ -1,6 +1,6 @@
 import { io, Socket } from 'socket.io-client';
 import { fork } from 'redux-saga/effects';
-import { all, call, put, take } from 'typed-redux-saga';
+import { all, call, delay, put, take } from 'typed-redux-saga';
 import config from '../config';
 import { eventChannel } from 'redux-saga';
 import { SocketActionTypes } from '../const/actionTypes';
@@ -23,6 +23,7 @@ export function* startConnectionSaga(): Generator {
       passed: true,
     }),
   );
+  yield* delay(15000); // Wait for storage to be initialized
   yield fork(useIO, socket);
 }
 
