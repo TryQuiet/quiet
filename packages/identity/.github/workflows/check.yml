@@ -32,6 +32,8 @@ jobs:
         run: npm install -g windows-build-tools@4.0.0
       - name: install dependencies
         run: npm ci
+      # - name: check style  # TODO: fix calling prettier (conflicts with eslint)
+      #   run: npm run check-style
       - name: lint
         run: npm run lint
       - name: run tests

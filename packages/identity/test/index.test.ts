@@ -48,7 +48,7 @@ describe('Certificate verification', () => {
     expect(certVerificationResult.result).toBe(false)
   })
 
-  it.skip('returns true if certificate is signed with a proper rootCA', async () => {
+  it('returns true if certificate is signed with a proper rootCA', async () => {
     const rootCA = await createTestRootCA()
     const userCert = await createTestUserCert(rootCA)
     const certVerificationResult = await verifyUserCert(rootCA.rootCertString, userCert.userCertString)

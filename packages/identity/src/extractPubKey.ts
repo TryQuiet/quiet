@@ -11,10 +11,13 @@ const parseCertificate = (pem: string): Certificate => {
 }
 
 const keyFromCertificate = (certificate: Certificate): string => {
-  return Buffer.from(certificate.subjectPublicKeyInfo.subjectPublicKey.valueBlock.valueHex).toString('base64')
+  return Buffer.from(
+    certificate.subjectPublicKeyInfo.subjectPublicKey.valueBlock.valueHex
+  ).toString('base64')
 }
 
-const keyObjectFromString = (pubKeyString: string, crypto: any) => { // todo: why 'string' in var name??
+const keyObjectFromString = (pubKeyString: string, crypto: any) => {
+  // todo: why 'string' in var name??
   let keyArray = new ArrayBuffer(0)
   keyArray = stringToArrayBuffer(fromBase64(pubKeyString))
   const algorithm = getAlgorithmParameters(config.signAlg, 'generatekey')

@@ -1,7 +1,11 @@
 import { PrintableString, OctetString } from 'asn1js'
 import {
-  CertificationRequest, AttributeTypeAndValue, Extension, Extensions,
-  getCrypto, Attribute
+  CertificationRequest,
+  AttributeTypeAndValue,
+  Extension,
+  Extensions,
+  getCrypto,
+  Attribute
 } from 'pkijs'
 
 import config from './config'
@@ -9,14 +13,14 @@ import { generateKeyPair, CertFieldsTypes } from './common'
 import { KeyObject, KeyPairKeyObjectResult } from 'crypto'
 
 interface CertData {
-  publicKey: KeyObject,
-  privateKey: KeyObject,
+  publicKey: KeyObject
+  privateKey: KeyObject
   pkcs10: any
 }
 
 export interface UserCsr {
-  userCsr: string,
-  userKey: string,
+  userCsr: string
+  userKey: string
   pkcs10: CertData
 }
 
@@ -40,7 +44,13 @@ export const createUserCsr = async ({ zbayNickname, commonName, peerId }): Promi
   }
 }
 
-async function requestCertificate ({ zbayNickname, commonName, peerId, signAlg = config.signAlg, hashAlg = config.hashAlg }: {
+async function requestCertificate ({
+  zbayNickname,
+  commonName,
+  peerId,
+  signAlg = config.signAlg,
+  hashAlg = config.hashAlg
+}: {
   zbayNickname: string
   commonName: string
   peerId: string
@@ -76,21 +86,21 @@ async function requestCertificate ({ zbayNickname, commonName, peerId, signAlg =
   await pkcs10.subjectPublicKeyInfo.importKey(keyPair.publicKey)
   const hashedPublicKey = await getCrypto().digest(
     { name: 'SHA-1' },
-    pkcs10.subjectPublicKeyInfo.subjectPublicKey.valueBlock.valueHex)
+    pkcs10.subjectPublicKeyInfo.subjectPublicKey.valueBlock.valueHex
+  )
   pkcs10.attributes.push(
     new Attribute({
       type: '1.2.840.113549.1.9.14', // pkcs-9-at-extensionRequest
       values: [
-        (new Extensions({
+        new Extensions({
           extensions: [
             new Extension({
               extnID: '2.5.29.14',
               critical: false,
-              extnValue: (new OctetString({ valueHex: hashedPublicKey })).toBER(false)
+              extnValue: new OctetString({ valueHex: hashedPublicKey }).toBER(false)
             })
           ]
-        })
-        ).toSchema()
+        }).toSchema()
       ]
     })
   )

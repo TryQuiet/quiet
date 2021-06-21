@@ -1,8 +1,12 @@
 import { fromBER } from 'asn1js'
 import { stringToArrayBuffer, fromBase64 } from 'pvutils'
 import {
-  getAlgorithmParameters, getCrypto, setEngine,
-  CryptoEngine, Certificate, CertificationRequest
+  getAlgorithmParameters,
+  getCrypto,
+  setEngine,
+  CryptoEngine,
+  Certificate,
+  CertificationRequest
 } from 'pkijs'
 
 import { Crypto } from '@peculiar/webcrypto'
@@ -16,14 +20,24 @@ export enum CertFieldsTypes {
 
 const webcrypto = new Crypto()
 
-setEngine('newEngine', webcrypto, new CryptoEngine({
-  name: '',
-  crypto: webcrypto,
-  subtle: webcrypto.subtle
-}))
+setEngine(
+  'newEngine',
+  webcrypto,
+  new CryptoEngine({
+    name: '',
+    crypto: webcrypto,
+    subtle: webcrypto.subtle
+  })
+)
 const crypto = getCrypto()
 
-export const generateKeyPair = async ({ signAlg, hashAlg }: { signAlg: string; hashAlg: string }): Promise<KeyPairKeyObjectResult> => {
+export const generateKeyPair = async ({
+  signAlg,
+  hashAlg
+}: {
+  signAlg: string
+  hashAlg: string
+}): Promise<KeyPairKeyObjectResult> => {
   const algorithm = getAlgorithmParameters(signAlg, 'generatekey')
 
   if ('hash' in algorithm.algorithm) {
@@ -53,7 +67,11 @@ export const loadCertificate = async (rootCert: string): Promise<Certificate> =>
   return new Certificate({ schema: asn1.result })
 }
 
-export const loadPrivateKey = async (rootKey: string, signAlg: string, hashAlg: string): Promise<KeyObject> => {
+export const loadPrivateKey = async (
+  rootKey: string,
+  signAlg: string,
+  hashAlg: string
+): Promise<KeyObject> => {
   const keyBuffer = stringToArrayBuffer(fromBase64(rootKey))
 
   const algorithm = getAlgorithmParameters(signAlg, 'generatekey')

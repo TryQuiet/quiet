@@ -4,13 +4,18 @@ import { Certificate, AttributeTypeAndValue, BasicConstraints, Extension, getCry
 import config from './config'
 import { generateKeyPair, CertFieldsTypes } from './common'
 
-export interface RootCA { // Todo: move types to separate file
-  rootObject: Certificate,
-  rootCertString: string,
+export interface RootCA {
+  // Todo: move types to separate file
+  rootObject: Certificate
+  rootCertString: string
   rootKeyString: string
 }
 
-export const createRootCA = async (notBeforeDate: Date, notAfterDate: Date, rootCAcommonName?: string): Promise<RootCA> => {
+export const createRootCA = async (
+  notBeforeDate: Date,
+  notAfterDate: Date,
+  rootCAcommonName?: string
+): Promise<RootCA> => {
   const commonName = rootCAcommonName || 'Zbay CA'
   const rootCA = await generateRootCA({
     commonName,
@@ -37,7 +42,13 @@ async function generateRootCA ({
   hashAlg = config.hashAlg,
   notBeforeDate,
   notAfterDate
-}: { commonName: string; signAlg: string; hashAlg: string; notBeforeDate: Date; notAfterDate: Date }): Promise<Certificate> {
+}: {
+  commonName: string
+  signAlg: string
+  hashAlg: string
+  notBeforeDate: Date
+  notAfterDate: Date
+}): Promise<Certificate> {
   const basicConstr = new BasicConstraints({ cA: true, pathLenConstraint: 3 })
   const keyUsage = getCAKeyUsage()
   const certificate = new Certificate({
@@ -60,6 +71,12 @@ async function generateRootCA ({
     notAfter: notAfterDate
   })
   certificate.issuer.typesAndValues.push(
+    new AttributeTypeAndValue({
+      type: CertFieldsTypes.commonName,
+      value: new PrintableString({ value: commonName })
+    })
+  )
+  certificate.subject.typesAndValues.push(
     new AttributeTypeAndValue({
       type: CertFieldsTypes.commonName,
       value: new PrintableString({ value: commonName })

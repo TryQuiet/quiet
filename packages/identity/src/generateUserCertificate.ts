@@ -36,11 +36,18 @@ async function generateuserCertificate ({
   hashAlg = config.hashAlg,
   notBeforeDate,
   notAfterDate
-}: { issuerCert: Certificate; issuerKey: KeyObject; pkcs10: Certificate; hashAlg: string; notBeforeDate: Date; notAfterDate: Date }): Promise<Certificate> {
+}: {
+  issuerCert: Certificate
+  issuerKey: KeyObject
+  pkcs10: Certificate
+  hashAlg: string
+  notBeforeDate: Date
+  notAfterDate: Date
+}): Promise<Certificate> {
   const basicConstr = new BasicConstraints({ cA: false, pathLenConstraint: 3 })
   const keyUsage = getKeyUsage()
   const certificate = new Certificate({
-    serialNumber: new Integer({ value: (new Date()).getTime() }),
+    serialNumber: new Integer({ value: new Date().getTime() }),
     extensions: [
       new Extension({
         extnID: '2.5.29.19',
