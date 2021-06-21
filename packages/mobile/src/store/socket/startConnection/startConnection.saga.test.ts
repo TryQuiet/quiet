@@ -34,6 +34,8 @@ describe('startConnectionSaga', () => {
         }),
       )
       .next()
+      .delay(15000)
+      .next()
       .fork(useIO, socket)
       .next()
       .isDone();
