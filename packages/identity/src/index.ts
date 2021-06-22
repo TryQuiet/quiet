@@ -1,10 +1,11 @@
-import { createRootCA } from '../src/generateRootCA'
-import { extractPubKey } from '../src/extractPubKey'
-import { verifyUserCert } from '../src/verifyUserCertificate'
-import { verifySignature } from '../src/verification'
-import { sign } from '../src/sign'
-import { createUserCsr } from '../src/requestCertificate'
-import { loadPrivateKey, loadCSR, loadCertificate, formatPEM, generateKeyPair } from '../src/common'
+import { createRootCA } from './generateRootCA'
+import { extractPubKey } from './extractPubKey'
+import { verifyUserCert } from './verifyUserCertificate'
+import { verifySignature } from './verification'
+import { sign } from './sign'
+import { createUserCsr } from './requestCertificate'
+import { createUserCert } from './generateUserCertificate'
+import { loadPrivateKey, loadCSR, loadCertificate, formatPEM, generateKeyPair } from './common'
 
 export { createRootCA }
 export { extractPubKey }
@@ -12,4 +13,5 @@ export { verifyUserCert }
 export { verifySignature }
 export { sign }
 export { createUserCsr }
+export { createUserCert }
 export { loadPrivateKey, loadCSR, loadCertificate, formatPEM, generateKeyPair }
