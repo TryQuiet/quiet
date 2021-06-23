@@ -5,7 +5,7 @@ import { initActions } from '../../init/init.slice';
 import { InitCheckKeys } from '../../init/initCheck.keys';
 import { DeviceEventKeys } from './deviceEvent.keys';
 
-export function* deviceEventsMasterSaga(): Generator {
+export function* deviceEventsSaga(): Generator {
   const channel = yield* call(deviceEvents);
   while (true) {
     const action = yield* take(channel);

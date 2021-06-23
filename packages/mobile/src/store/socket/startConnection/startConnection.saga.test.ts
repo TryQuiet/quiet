@@ -2,7 +2,7 @@ import { TestApi, testSaga } from 'redux-saga-test-plan';
 import { assetsActions } from '../../assets/assets.slice';
 import { initActions } from '../../init/init.slice';
 import { InitCheckKeys } from '../../init/initCheck.keys';
-import { socketActions } from '../socket.slice';
+import { nativeServicesActions } from '../../nativeServices/nativeServices.slice';
 
 import { connect, startConnectionSaga, useIO } from './startConnection.saga';
 
@@ -19,7 +19,7 @@ describe('startConnectionSaga', () => {
       .next()
       .call(connect)
       .next(socket)
-      .put(socketActions.setConnected(true))
+      .put(nativeServicesActions.initPushNotifications())
       .next()
       .put(
         assetsActions.setDownloadHint(

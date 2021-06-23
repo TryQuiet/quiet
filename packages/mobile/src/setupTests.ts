@@ -29,3 +29,7 @@ jest.mock('react-native-zip-archive', () => ({
 jest.mock('react-native-device-info', () => ({
   supportedAbis: jest.fn(() => Promise.resolve(['arm64-v8a'])),
 }));
+
+jest.mock('react-native-push-notification', () => ({
+  PushNotification: jest.fn(),
+}));

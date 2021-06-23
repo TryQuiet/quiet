@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Build
+import android.os.Bundle
 import android.os.IBinder
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
@@ -45,6 +46,16 @@ class Integrator(private val context: ReactApplicationContext): ReactContextBase
         }
 
         context.bindService(service, serviceConnection, Context.BIND_AUTO_CREATE)
+    }
+
+    @ReactMethod
+    fun initPushNotifications() {
+        val service = Intent(context, PushNotificationsService::class.java)
+        val bundle = Bundle()
+
+        service.putExtras(bundle)
+
+        context.startService(service)
     }
 
     override fun onTorInit() {

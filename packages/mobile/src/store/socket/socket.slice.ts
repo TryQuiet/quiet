@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 
 import { StoreKeys } from '../store.keys';
 
@@ -9,11 +9,7 @@ export class SocketState {
 export const socketSlice = createSlice({
   initialState: { ...new SocketState() },
   name: StoreKeys.Socket,
-  reducers: {
-    setConnected: (state, action: PayloadAction<boolean>) => {
-      state.isConnected = action.payload;
-    },
-  },
+  reducers: {},
 });
 
 export const socketActions = socketSlice.actions;

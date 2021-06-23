@@ -4,16 +4,20 @@ import { all, call, delay, put, take } from 'typed-redux-saga';
 import config from '../config';
 import { eventChannel } from 'redux-saga';
 import { SocketActionTypes } from '../const/actionTypes';
-import { publicChannelsActions } from '../../publicChannels/publicChannels.slice';
+import { nativeServicesActions } from '../../nativeServices/nativeServices.slice';
+import { assetsActions } from '../../assets/assets.slice';
+import {
+  ChannelInfoResponse,
+  publicChannelsActions,
+} from '../../publicChannels/publicChannels.slice';
 import { publicChannelsMasterSaga } from '../../publicChannels/publicChannels.master.saga';
-import { socketActions } from '../socket.slice';
 import { initActions } from '../../init/init.slice';
 import { InitCheckKeys } from '../../init/initCheck.keys';
-import { assetsActions } from '../../assets/assets.slice';
+import { IMessage } from '../../publicChannels/publicChannels.types';
 
 export function* startConnectionSaga(): Generator {
   const socket = yield* call(connect);
-  yield* put(socketActions.setConnected(true));
+  yield* put(nativeServicesActions.initPushNotifications());
   yield* put(
     assetsActions.setDownloadHint('Replicating data from distributed database'),
   );
@@ -56,12 +60,18 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof publicChannelsActions.responseGetPublicChannels>
     | ReturnType<typeof publicChannelsActions.responseFetchAllMessages>
   >(emit => {
-    socket.on(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, payload => {
-      emit(publicChannelsActions.responseGetPublicChannels(payload));
-    });
-    socket.on(SocketActionTypes.RESPONSE_FETCH_ALL_MESSAGES, payload => {
-      emit(publicChannelsActions.responseFetchAllMessages(payload));
-    });
+    socket.on(
+      SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS,
+      (payload: ChannelInfoResponse) => {
+        emit(publicChannelsActions.responseGetPublicChannels(payload));
+      },
+    );
+    socket.on(
+      SocketActionTypes.RESPONSE_FETCH_ALL_MESSAGES,
+      (payload: { channelAddress: string; messages: IMessage[] }) => {
+        emit(publicChannelsActions.responseFetchAllMessages(payload));
+      },
+    );
     return () => {};
   });
 }
