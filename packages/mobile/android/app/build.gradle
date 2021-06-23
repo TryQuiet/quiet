@@ -135,8 +135,8 @@ android {
         applicationId "com.zbaymobile"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 25
-        versionName "1.1.5d"
+        versionCode 26
+        versionName "1.2.0"
     }
     splits {
         abi {
