@@ -26,13 +26,13 @@ jobs:
         uses: actions/cache@v1
         with:
           path: node_modules
-          key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.OS }}-npm-cache-
 
-      - name: Install yarn dependencies
+      - name: Install npm dependencies
         run: |
-          yarn --frozen-lockfile
+          npm ci
 
       - name: Prepare singing configuration
         run: |
