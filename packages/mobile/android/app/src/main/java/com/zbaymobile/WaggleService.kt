@@ -127,7 +127,7 @@ class WaggleService: Service() {
             Log.d(TAG_TOR, "Got null onStartCommand() action")
         }
 
-        return START_STICKY
+        return START_REDELIVER_INTENT
     }
 
     private fun startTor() {
