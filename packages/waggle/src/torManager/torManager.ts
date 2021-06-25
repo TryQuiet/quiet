@@ -152,7 +152,7 @@ export class Tor {
 
   public generateHashedPassword = () => {
     const password = crypto.randomBytes(16).toString('hex')
-    const hashedPassword = child_process.execSync(`${this.torPath} --quiet --hash-password ${password}`)
+    const hashedPassword = child_process.execSync(`${this.torPath} --quiet --hash-password ${password}`, { env: this.options.env })
     this.torPassword = password
     this.torHashedPassword = hashedPassword.toString()
   }

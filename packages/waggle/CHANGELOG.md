@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.0.6] - 2021-06-22
+
+### Fixed
+
+Pass envs to tor's --hash-password command - docker was lacking LD_LIBRARY_PATH env and therefore used default openssl 1.1.0 version (tor needs 1.1.1)
+
 ## [2.0.5] - 2021-06-22
 
 ### Added
