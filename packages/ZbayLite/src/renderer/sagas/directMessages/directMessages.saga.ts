@@ -9,7 +9,6 @@ import {
 import directMessagesSelectors from '../../store/selectors/directMessages'
 import usersSelectors from '../../store/selectors/users'
 import contactsSelectors from '../../store/selectors/contacts'
-import { findNewMessages } from '../../store/handlers/messages'
 import contactsHandlers, { actions as contactsActions } from '../../store/handlers/contacts'
 import { DisplayableMessage } from '../../zbay/messages.types'
 import { displayDirectMessageNotification } from '../../notifications'
@@ -120,21 +119,30 @@ export function* loadAllDirectMessages(
   const myUser = yield* select(usersSelectors.myUser)
   const channel = yield* select(contactsSelectors.contact(contactPublicKey))
   if (!channel) {
-    log.error(
-      `Couldn't load all messages. No channel ${action.payload.channelAddress} in contacts`
-    )
+    log.error(`Couldn't load all messages. No channel ${action.payload.channelAddress} in contacts`)
     return
   }
 
   const { username } = channel
-  if (username) {
-    const decodedMessages = action.payload.messages.map(msg => {
-      const message = JSON.stringify(msg)
-      return JSON.parse(decodeMessage(sharedSecret, message))
+
+  let newMessages = []
+  console.time('sorting')
+  const ids = Array.from(Object.keys(channel.messages))
+  newMessages = action.payload.messages.filter(id => !ids.includes(id))
+  console.timeEnd('sorting')
+
+  const displayableMessages = {}
+  if (username && newMessages) {
+    let latestMessage = null
+    newMessages.map(msg => {
+      const decodedMessage = transferToMessage(
+        JSON.parse(decodeMessage(sharedSecret, JSON.stringify(msg))),
+        users
+      )
+      displayableMessages[msg] = decodedMessage
+      latestMessage = decodedMessage
     })
-    const displayableMessages = decodedMessages.map(msg => transferToMessage(msg, users))
-    const state = yield* select()
-    const newMsgs = findNewMessages(contactPublicKey, displayableMessages, state, true)
+
     yield put(
       contactsHandlers.actions.setMessages({
         key: contactPublicKey,
@@ -143,8 +151,6 @@ export function* loadAllDirectMessages(
         messages: displayableMessages
       })
     )
-
-    const latestMessage = newMsgs[newMsgs.length - 1]
 
     if (latestMessage && latestMessage.sender.username !== myUser.nickname) {
       yield call(displayDirectMessageNotification, {
@@ -156,7 +162,7 @@ export function* loadAllDirectMessages(
     yield put(
       contactsActions.appendNewMessages({
         contactAddress: contactPublicKey,
-        messagesIds: newMsgs
+        messagesIds: Array.from(Object.keys(displayableMessages))
       })
     )
   }

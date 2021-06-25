@@ -63,7 +63,10 @@ export function subscribe(socket) {
     socket.on(socketsActions.RESPONSE_GET_CERTIFICATES, payload => {
       emit(certificatesActions.responseGetCertificates(payload))
     })
-    return () => { }
+    socket.on(socketsActions.SEND_IDS, payload => {
+      emit(publicChannelsActions.sendIds(payload))
+    })
+    return () => {}
   })
 }
 
@@ -202,6 +205,13 @@ export function* sendDirectMessage(socket: Socket): Generator {
   ])
 }
 
+export function* askForMessages(
+  socket: Socket,
+  { payload }: PayloadAction<typeof publicChannelsActions.askForMessages>
+): Generator {
+  yield* apply(socket, socket.emit, [socketsActions.ASK_FOR_MESSAGES, payload])
+}
+
 export function* saveCertificate(socket: Socket): Generator {
   const toSend = yield* select(identitySelectors.certificate)
   yield* apply(socket, socket.emit, [socketsActions.SAVE_CERTIFICATE, toSend])
@@ -213,7 +223,7 @@ export function* responseGetCertificates(socket: Socket): Generator {
 
 export function* addWaggleIdentity(socket: Socket): Generator {
   while (true) {
-    yield take('SET_IS_WAGGLE_CONNECTED')
+    yield* take('SET_IS_WAGGLE_CONNECTED')
 
     let wagglePublicKey = yield select(directMessagesSelectors.publicKey)
     let signerPublicKey = yield select(identitySelectors.signerPubKey)
@@ -228,7 +238,7 @@ export function* addWaggleIdentity(socket: Socket): Generator {
       ])
     }
 
-    yield take('SET_PUBLIC_KEY')
+    yield* take('SET_PUBLIC_KEY')
 
     wagglePublicKey = yield select(directMessagesSelectors.publicKey)
     signerPublicKey = yield select(identitySelectors.signerPubKey)
@@ -253,6 +263,7 @@ export function* useIO(socket: Socket): Generator {
     takeEvery(publicChannelsActions.subscribeForTopic.type, subscribeForTopic, socket),
     takeLeading(publicChannelsActions.getPublicChannels.type, getPublicChannels, socket),
     takeLeading(directMessagesActions.getAvailableUsers.type, getAvailableUsers, socket),
+    takeEvery(publicChannelsActions.askForMessages.type, askForMessages, socket),
     takeEvery(directMessagesActions.initializeConversation.type, initializeConversation, socket),
     takeLeading(
       directMessagesActions.subscribeForAllConversations.type,

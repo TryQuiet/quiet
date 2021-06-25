@@ -26,6 +26,7 @@ const log = Object.assign(debug('zbay:channels'), {
 const all: any = effectsAll
 
 export const transferToMessage = (msg, users) => {
+  console.log(`messages is ${msg}`)
   let publicKey = null
   let sender = { replyTo: '', username: 'Unnamed' }
   let isUnregistered = false
@@ -94,7 +95,9 @@ export function* loadMessage(action: PublicChannelsActions['loadMessage']): Gene
   )
 }
 
-export function* getPublicChannels(action: PublicChannelsActions['responseGetPublicChannels']): Generator {
+export function* getPublicChannels(
+  action: PublicChannelsActions['responseGetPublicChannels']
+): Generator {
   if (action.payload) {
     yield put(setPublicChannels(action.payload))
 
@@ -130,19 +133,25 @@ export function* loadAllMessages(
   if (!username) {
     return
   }
-  const displayableMessages = action.payload.messages.map(msg => transferToMessage(msg, users))
+  const messagesById = {}
+  const displayableMessages = action.payload.messages.map(msg => {
+    const transferedMessage = transferToMessage(msg, users)
+    messagesById[msg.id] = transferedMessage
+    return transferedMessage
+  })
   yield put(
-    contactsHandlers.actions.setAllMessages({
+    contactsHandlers.actions.setMessages({
       key: action.payload.channelAddress,
       username: username,
       contactAddress: action.payload.channelAddress,
-      messages: displayableMessages
+      messages: messagesById
     })
   )
+
   const state = yield* select()
   const newMsgs = findNewMessages(action.payload.channelAddress, displayableMessages, state)
   const pubChannelsArray = Object.values(pubChannels)
-  const contact = pubChannelsArray.filter((item) => {
+  const contact = pubChannelsArray.filter(item => {
     return item.name === username
   })
   const msg = newMsgs[newMsgs.length - 1]
@@ -154,23 +163,7 @@ export function* loadAllMessages(
       address: contact[0].address
     })
   }
-  // newMsgs.forEach(msg => {
-  //   if (newMsgs.length > 0 && msg.sender.replyTo && msg.sender.username !== myUser.nickname) {
-  //     displayMessageNotification({
-  //       senderName: msg.sender.username,
-  //       message: msg.message,
-  //       channelName: username,
-  //       address: contact[0].address
-  //     })
-  //   } else if (msg.sender.username !== myUser.nickname) {
-  //     displayMessageNotification({
-  //       senderName: msg.sender.username,
-  //       message: msg.message,
-  //       channelName: username,
-  //       address: contact[0].address
-  //     })
-  //   }
-  // })
+
   yield put(
     actions.appendNewMessages({
       contactAddress: action.payload.channelAddress,
@@ -179,10 +172,29 @@ export function* loadAllMessages(
   )
 }
 
+export function* sendIds(action: PublicChannelsActions['sendIds']): Generator {
+  const channel = yield* select(contactsSelectors.contact(action.payload.channelAddress))
+  if (!channel) {
+    log(`Couldn't load all messages. No channel ${action.payload.channelAddress} in contacts`)
+    return
+  }
+  console.log(action.payload.ids)
+  let messagesToFetch = []
+  const ids = Array.from(Object.values(channel.messages)).map(msg => msg.id)
+  messagesToFetch = action.payload.ids.filter(id => !ids.includes(id))
+  yield put(
+    publicChannelsActions.askForMessages({
+      channelAddress: action.payload.channelAddress,
+      ids: messagesToFetch
+    })
+  )
+}
+
 export function* publicChannelsSaga(): Generator {
   yield all([
     takeEvery(`${publicChannelsActions.loadMessage}`, loadMessage),
     takeEvery(`${publicChannelsActions.responseLoadAllMessages}`, loadAllMessages),
-    takeEvery(`${publicChannelsActions.responseGetPublicChannels}`, getPublicChannels)
+    takeEvery(`${publicChannelsActions.responseGetPublicChannels}`, getPublicChannels),
+    takeEvery(`${publicChannelsActions.sendIds}`, sendIds)
   ])
 }
