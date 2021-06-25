@@ -28,6 +28,7 @@ class ConnectionsManagerOptions {
 
   bootstrapMultiaddrs: string[] = []
   createPaths: boolean = true
+  isWaggleMobileMode: boolean = true
 }
 
 interface IConstructor {
@@ -204,7 +205,11 @@ export class ConnectionsManager {
     await this.storage.updateChannels()
   }
 
-  public loadAllMessages = (channelAddress: string) => {
+  public askForMessages = async (channelAddress: string, ids: string[]) => {
+    await this.storage.askForMessages(channelAddress, ids)
+  }
+
+  public loadAllMessages = async (channelAddress: string) => {
     this.storage.loadAllChannelMessages(channelAddress)
   }
 

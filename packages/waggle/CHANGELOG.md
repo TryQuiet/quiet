@@ -1,5 +1,27 @@
 # Changelog
 
+## [2.0.5] - 2021-06-22
+
+### Added
+
+Storage:
+  Added new methods:
+    askForMessages
+
+### Changed
+
+Changed databses names.
+
+Events:
+  Merged 'allMessages' and 'message' files into single 'messages' file
+
+API:
+  ConnectionsManager: added optional isWaggleMobileMode
+  Storage: added optional isWaggleMobileMode
+  !IMPORTANT: Those will be removed as soon as mobile version will adopt the new API
+
+### Fixed
+
 ## [2.0.4] - 2021-06-15
 
 ### Fixed
