@@ -2,7 +2,7 @@ import { CertificateChainValidationEngine } from 'pkijs'
 
 import { loadCertificate } from './common'
 
-interface CertVerification {
+export interface CertVerification {
   result: string
   resultCode: number
   resultMessage: string

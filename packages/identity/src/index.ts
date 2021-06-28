@@ -1,5 +1,5 @@
 import { createRootCA } from './generateRootCA'
-import { extractPubKey } from './extractPubKey'
+import { extractPubKey, parseCertificate, keyFromCertificate, keyObjectFromString } from './extractPubKey'
 import { verifyUserCert } from './verifyUserCertificate'
 import { verifySignature } from './verification'
 import { sign } from './sign'
@@ -8,7 +8,7 @@ import { createUserCert } from './generateUserCertificate'
 import { loadPrivateKey, loadCSR, loadCertificate, formatPEM, generateKeyPair } from './common'
 
 export { createRootCA }
-export { extractPubKey }
+export { extractPubKey, parseCertificate, keyFromCertificate, keyObjectFromString }
 export { verifyUserCert }
 export { verifySignature }
 export { sign }

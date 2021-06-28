@@ -1,11 +1,12 @@
 import { setEngine, CryptoEngine, getCrypto } from 'pkijs'
 
 import { sign } from '../src/sign'
-import { extractPubKey } from '../src/extractPubKey'
+import { extractPubKey, parseCertificate } from '../src/extractPubKey'
 import { verifySignature } from '../src/verification'
 import { verifyUserCert } from '../src/verifyUserCertificate'
 import { Crypto } from '@peculiar/webcrypto'
-import { createTestRootCA, createTestUserCert, createTestUserCsr } from './helpers'
+import { createTestRootCA, createTestUserCert, createTestUserCsr, userData } from './helpers'
+import { CertFieldsTypes } from '../src/common'
 
 describe('Message signature verification', () => {
   let crypto
@@ -54,5 +55,21 @@ describe('Certificate verification', () => {
     const certVerificationResult = await verifyUserCert(rootCA.rootCertString, userCert.userCertString)
     expect(certVerificationResult).toHaveProperty('result')
     expect(certVerificationResult.result).toBe(true)
+  })
+})
+
+describe('Certificate', () => {
+  it('can be parsed and contains proper data', async () => {
+    const certTypeData = {
+      [CertFieldsTypes.commonName]: userData.commonName,
+      [CertFieldsTypes.nickName]: userData.zbayNickname,
+      [CertFieldsTypes.peerId]: userData.peerId
+    }
+    const rootCA = await createTestRootCA()
+    const userCert = await createTestUserCert(rootCA)
+    const parsedCert = parseCertificate(userCert.userCertString)
+    for (const tav of parsedCert.subject.typesAndValues) {
+      expect(tav.value.valueBlock.value).toBe(certTypeData[tav.type])
+    }
   })
 })
