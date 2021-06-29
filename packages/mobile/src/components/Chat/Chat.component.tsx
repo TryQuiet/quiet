@@ -59,9 +59,8 @@ export const Chat: FC<ChatProps> = ({
         backgroundColor: 'white',
       }}>
       <FlatList
-        inverted
         data={messages}
-        keyExtractor={item => item.message.id}
+        keyExtractor={item => item.id}
         renderItem={({ item }) => <Message message={item} />}
         style={{ paddingLeft: 20, paddingRight: 20 }}
       />

@@ -19,7 +19,8 @@ export type IMessage = {
 };
 
 export type DisplayableMessage = {
-  message: IMessage;
+  id: string;
+  message: string;
   nickname: string;
   datetime: string;
 };

@@ -1,4 +1,4 @@
-import {ActionCreator, AnyAction} from 'redux';
+import { ActionCreator, AnyAction } from 'redux';
 
 interface ActionsBasicType {
   [k: string]: ActionCreator<AnyAction>;
@@ -16,7 +16,8 @@ export enum SocketActionTypes {
   CONNECT_TO_WEBSOCKET_SERVER = 'connectToWebsocketServer',
   GET_PUBLIC_CHANNELS = 'getPublicChannels',
   RESPONSE_GET_PUBLIC_CHANNELS = 'responseGetPublicChannels',
-  FETCH_ALL_MESSAGES = 'fetchAllMessages',
-  RESPONSE_FETCH_ALL_MESSAGES = 'responseFetchAllMessages',
+  SEND_MESSAGES_IDS = 'sendIds',
+  ASK_FOR_MESSAGES = 'askForMessages',
+  RESPONSE_ASK_FOR_MESSAGES = 'responseFetchAllMessages',
   SUBSCRIBE_FOR_TOPIC = 'subscribeForTopic',
 }

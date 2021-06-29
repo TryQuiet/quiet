@@ -1,56 +1,91 @@
+import Config from 'react-native-config';
 import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit';
 
 import { StoreKeys } from '../store.keys';
 
-import {
-  publicChannelMessagesAdapter,
-  publicChannelsAdapter,
-} from './publicChannels.adapter';
-import { IMessage, IChannelInfo } from './publicChannels.types';
+import { publicChannelsAdapter } from './publicChannels.adapter';
+import { IChannelInfo, IMessage } from './publicChannels.types';
 
 export class PublicChannelsState {
-  public currentChannelAddress: string = '';
   public channels: EntityState<IChannelInfo> =
     publicChannelsAdapter.getInitialState();
-  public messages: EntityState<IMessage> =
-    publicChannelMessagesAdapter.getInitialState();
+
+  public currentChannel: string = Config.PUBLIC_CHANNEL_ADDRESS;
+
+  public channelMessages: ChannelMessages = {};
 }
 
-export interface ChannelInfoResponse {
+export interface ChannelMessages {
+  [channelAddres: string]: {
+    ids: string[];
+    messages: {
+      [id: string]: IMessage;
+    };
+  };
+}
+
+export interface GetPublicChannelsResponse {
   [name: string]: IChannelInfo;
+}
+
+export interface ChannelMessagesIdsResponse {
+  channelAddress: string;
+  ids: string[];
+}
+
+export interface AskForMessagesPayload {
+  channelAddress: string;
+  ids: string[];
+}
+
+export interface AskForMessagesResponse {
+  channelAddress: string;
+  messages: IMessage[];
 }
 
 export const publicChannelsSlice = createSlice({
   initialState: { ...new PublicChannelsState() },
   name: StoreKeys.PublicChannels,
   reducers: {
-    fetchAllMessages: (state, _action: PayloadAction<string>) => state,
-    responseFetchAllMessages: (
-      state,
-      action: PayloadAction<{
-        channelAddress: string;
-        messages: IMessage[];
-      }>,
-    ) => {
-      publicChannelMessagesAdapter.setAll(
-        state.messages,
-        action.payload.messages,
-      );
-    },
     getPublicChannels: state => state,
-    setCurrentChannelAddress: (state, action: PayloadAction<string>) => {
-      state.currentChannelAddress = action.payload;
-    },
     responseGetPublicChannels: (
       state,
-      action: PayloadAction<ChannelInfoResponse>,
+      action: PayloadAction<GetPublicChannelsResponse>,
     ) => {
       publicChannelsAdapter.setAll(
         state.channels,
         Object.values(action.payload),
       );
     },
+    setCurrentChannel: (state, action: PayloadAction<string>) => {
+      state.currentChannel = action.payload;
+    },
     subscribeForTopic: (state, _action: PayloadAction<IChannelInfo>) => state,
+    responseSendMessagesIds: (
+      state,
+      action: PayloadAction<ChannelMessagesIdsResponse>,
+    ) => {
+      const channelAddress = action.payload.channelAddress;
+      if (channelAddress in state.channelMessages) {
+        state.channelMessages[channelAddress].ids = action.payload.ids;
+      } else {
+        state.channelMessages[channelAddress] = {
+          ids: action.payload.ids,
+          messages: {},
+        };
+      }
+    },
+    askForMessages: (state, _action: PayloadAction<AskForMessagesPayload>) =>
+      state,
+    responseAskForMessages: (
+      state,
+      action: PayloadAction<AskForMessagesResponse>,
+    ) => {
+      const channelAddress = action.payload.channelAddress;
+      action.payload.messages.forEach(message => {
+        state.channelMessages[channelAddress].messages[message.id] = message;
+      });
+    },
   },
 });
 

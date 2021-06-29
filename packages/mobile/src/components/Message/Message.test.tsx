@@ -8,17 +8,9 @@ describe('Message component', () => {
     const { toJSON } = renderComponent(
       <Message
         message={{
-          message: {
-            id: '',
-            type: 0,
-            typeIndicator: 0,
-            message:
-              'Brownie powder marshmallow dessert carrot cake marzipan cake caramels. Muffin topping wafer jelly apple pie candy. Fruitcake chocolate pudding fruitcake candy lemon drops chocolate.',
-            createdAt: 0,
-            r: 0,
-            channelId: '',
-            signature: '',
-          },
+          id: 'id',
+          message:
+            'Brownie powder marshmallow dessert carrot cake marzipan cake caramels. Muffin topping wafer jelly apple pie candy. Fruitcake chocolate pudding fruitcake candy lemon drops chocolate.',
           nickname: 'holmes',
           datetime: '1:30pm',
         }}

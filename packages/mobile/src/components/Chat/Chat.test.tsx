@@ -26,61 +26,29 @@ describe('Chat component', () => {
         }}
         messages={[
           {
-            message: {
-              id: '1',
-              type: 0,
-              typeIndicator: 0,
-              message:
-                'Brownie powder marshmallow dessert carrot cake marzipan cake caramels. Muffin topping wafer jelly apple pie candy. Fruitcake chocolate pudding fruitcake candy lemon drops chocolate.',
-              createdAt: 0,
-              r: 0,
-              channelId: '',
-              signature: '',
-            },
+            id: '1',
+            message:
+              'Brownie powder marshmallow dessert carrot cake marzipan cake caramels. Muffin topping wafer jelly apple pie candy. Fruitcake chocolate pudding fruitcake candy lemon drops chocolate.',
             nickname: 'holmes',
             datetime: '1:30pm',
           },
           {
-            message: {
-              id: '2',
-              type: 0,
-              typeIndicator: 0,
-              message:
-                'Bear claw bear claw donut marzipan chocolate cake sugar plum pie. Chocolate cake chocolate bar ice cream. Marzipan powder brownie muffin jelly beans. Sesame snaps tootsie roll macaroon donut.',
-              createdAt: 0,
-              r: 0,
-              channelId: '',
-              signature: '',
-            },
+            id: '2',
+            message:
+              'Bear claw bear claw donut marzipan chocolate cake sugar plum pie. Chocolate cake chocolate bar ice cream. Marzipan powder brownie muffin jelly beans. Sesame snaps tootsie roll macaroon donut.',
             nickname: 'holmes',
             datetime: '1:32pm',
           },
           {
-            message: {
-              id: '3',
-              type: 0,
-              typeIndicator: 0,
-              message: 'Marshmallows!',
-              createdAt: 0,
-              r: 0,
-              channelId: '',
-              signature: '',
-            },
+            id: '3',
+            message: 'Marshmallows!',
             nickname: 'emily',
             datetime: '1:32pm',
           },
           {
-            message: {
-              id: '4',
-              type: 0,
-              typeIndicator: 0,
-              message:
-                'Chupa chups soufflé danish. Cake chocolate brownie cookie bear claw soufflé. Muffin chupa chups sweet caramels jelly beans chocolate bar bonbon liquorice.',
-              createdAt: 0,
-              r: 0,
-              channelId: '',
-              signature: '',
-            },
+            id: '4',
+            message:
+              'Chupa chups soufflé danish. Cake chocolate brownie cookie bear claw soufflé. Muffin chupa chups sweet caramels jelly beans chocolate bar bonbon liquorice.',
             nickname: 'bartek',
             datetime: '1:32pm',
           },
@@ -107,58 +75,26 @@ describe('Chat component', () => {
             Array [
               Object {
                 "datetime": "1:30pm",
-                "message": Object {
-                  "channelId": "",
-                  "createdAt": 0,
-                  "id": "1",
-                  "message": "Brownie powder marshmallow dessert carrot cake marzipan cake caramels. Muffin topping wafer jelly apple pie candy. Fruitcake chocolate pudding fruitcake candy lemon drops chocolate.",
-                  "r": 0,
-                  "signature": "",
-                  "type": 0,
-                  "typeIndicator": 0,
-                },
+                "id": "1",
+                "message": "Brownie powder marshmallow dessert carrot cake marzipan cake caramels. Muffin topping wafer jelly apple pie candy. Fruitcake chocolate pudding fruitcake candy lemon drops chocolate.",
                 "nickname": "holmes",
               },
               Object {
                 "datetime": "1:32pm",
-                "message": Object {
-                  "channelId": "",
-                  "createdAt": 0,
-                  "id": "2",
-                  "message": "Bear claw bear claw donut marzipan chocolate cake sugar plum pie. Chocolate cake chocolate bar ice cream. Marzipan powder brownie muffin jelly beans. Sesame snaps tootsie roll macaroon donut.",
-                  "r": 0,
-                  "signature": "",
-                  "type": 0,
-                  "typeIndicator": 0,
-                },
+                "id": "2",
+                "message": "Bear claw bear claw donut marzipan chocolate cake sugar plum pie. Chocolate cake chocolate bar ice cream. Marzipan powder brownie muffin jelly beans. Sesame snaps tootsie roll macaroon donut.",
                 "nickname": "holmes",
               },
               Object {
                 "datetime": "1:32pm",
-                "message": Object {
-                  "channelId": "",
-                  "createdAt": 0,
-                  "id": "3",
-                  "message": "Marshmallows!",
-                  "r": 0,
-                  "signature": "",
-                  "type": 0,
-                  "typeIndicator": 0,
-                },
+                "id": "3",
+                "message": "Marshmallows!",
                 "nickname": "emily",
               },
               Object {
                 "datetime": "1:32pm",
-                "message": Object {
-                  "channelId": "",
-                  "createdAt": 0,
-                  "id": "4",
-                  "message": "Chupa chups soufflé danish. Cake chocolate brownie cookie bear claw soufflé. Muffin chupa chups sweet caramels jelly beans chocolate bar bonbon liquorice.",
-                  "r": 0,
-                  "signature": "",
-                  "type": 0,
-                  "typeIndicator": 0,
-                },
+                "id": "4",
+                "message": "Chupa chups soufflé danish. Cake chocolate brownie cookie bear claw soufflé. Muffin chupa chups sweet caramels jelly beans chocolate bar bonbon liquorice.",
                 "nickname": "bartek",
               },
             ]
@@ -168,8 +104,6 @@ describe('Chat component', () => {
           getItemCount={[Function]}
           horizontal={false}
           initialNumToRender={10}
-          invertStickyHeaders={true}
-          inverted={true}
           keyExtractor={[Function]}
           maxToRenderPerBatch={10}
           onContentSizeChange={[Function]}
@@ -187,19 +121,10 @@ describe('Chat component', () => {
           scrollEventThrottle={50}
           stickyHeaderIndices={Array []}
           style={
-            Array [
-              Object {
-                "transform": Array [
-                  Object {
-                    "scaleY": -1,
-                  },
-                ],
-              },
-              Object {
-                "paddingLeft": 20,
-                "paddingRight": 20,
-              },
-            ]
+            Object {
+              "paddingLeft": 20,
+              "paddingRight": 20,
+            }
           }
           updateCellsBatchingPeriod={50}
           viewabilityConfigCallbackPairs={Array []}
@@ -208,20 +133,7 @@ describe('Chat component', () => {
           <View>
             <View
               onLayout={[Function]}
-              style={
-                Array [
-                  Object {
-                    "flexDirection": "column-reverse",
-                  },
-                  Object {
-                    "transform": Array [
-                      Object {
-                        "scaleY": -1,
-                      },
-                    ],
-                  },
-                ]
-              }
+              style={null}
             >
               <View
                 onLayout={[Function]}
@@ -376,20 +288,7 @@ describe('Chat component', () => {
             </View>
             <View
               onLayout={[Function]}
-              style={
-                Array [
-                  Object {
-                    "flexDirection": "column-reverse",
-                  },
-                  Object {
-                    "transform": Array [
-                      Object {
-                        "scaleY": -1,
-                      },
-                    ],
-                  },
-                ]
-              }
+              style={null}
             >
               <View
                 onLayout={[Function]}
@@ -544,20 +443,7 @@ describe('Chat component', () => {
             </View>
             <View
               onLayout={[Function]}
-              style={
-                Array [
-                  Object {
-                    "flexDirection": "column-reverse",
-                  },
-                  Object {
-                    "transform": Array [
-                      Object {
-                        "scaleY": -1,
-                      },
-                    ],
-                  },
-                ]
-              }
+              style={null}
             >
               <View
                 onLayout={[Function]}
@@ -712,20 +598,7 @@ describe('Chat component', () => {
             </View>
             <View
               onLayout={[Function]}
-              style={
-                Array [
-                  Object {
-                    "flexDirection": "column-reverse",
-                  },
-                  Object {
-                    "transform": Array [
-                      Object {
-                        "scaleY": -1,
-                      },
-                    ],
-                  },
-                ]
-              }
+              style={null}
             >
               <View
                 onLayout={[Function]}

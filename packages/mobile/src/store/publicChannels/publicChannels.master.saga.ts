@@ -1,12 +1,13 @@
-import {Socket} from 'socket.io-client';
-import {all, fork, takeEvery} from 'typed-redux-saga';
-import {fetchAllMessagesSaga} from './fetchAllMessages/fetchAllMessages.saga';
+import { Socket } from 'socket.io-client';
+import { all, fork, takeEvery } from 'typed-redux-saga';
+import { askForMessagesSaga } from './askForMessages/askForMessages.saga';
+import { checkForMessagesSaga } from './checkForMessages/checkForMessages.saga';
 import {
   getPublicChannelsSaga,
   loadPublicChannelsSaga,
 } from './getPublicChannels/getPublicChannels.saga';
-import {publicChannelsActions} from './publicChannels.slice';
-import {subscribeForTopicSaga} from './subscribeForTopic/subscribeForTopic.saga';
+import { publicChannelsActions } from './publicChannels.slice';
+import { subscribeForTopicSaga } from './subscribeForTopic/subscribeForTopic.saga';
 
 export function* publicChannelsMasterSaga(socket: Socket): Generator {
   yield all([
@@ -17,13 +18,17 @@ export function* publicChannelsMasterSaga(socket: Socket): Generator {
       socket,
     ),
     takeEvery(
-      publicChannelsActions.fetchAllMessages.type,
-      fetchAllMessagesSaga,
+      publicChannelsActions.subscribeForTopic.type,
+      subscribeForTopicSaga,
       socket,
     ),
     takeEvery(
-      publicChannelsActions.subscribeForTopic.type,
-      subscribeForTopicSaga,
+      publicChannelsActions.responseSendMessagesIds.type,
+      checkForMessagesSaga,
+    ),
+    takeEvery(
+      publicChannelsActions.askForMessages.type,
+      askForMessagesSaga,
       socket,
     ),
   ]);

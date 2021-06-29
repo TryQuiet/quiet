@@ -10,17 +10,14 @@ export const MainScreen: FC = () => {
 
   const ZbayChannel = useSelector(publicChannelsSelectors.ZbayChannel);
 
-  const displayableMessages = useSelector(
-    publicChannelsSelectors.formattedChannelMessages,
+  const messages = useSelector(
+    publicChannelsSelectors.currentChannelDisplayableMessages,
   );
 
   useEffect(() => {
     if (ZbayChannel !== undefined) {
+      dispatch(publicChannelsActions.setCurrentChannel(ZbayChannel.address));
       dispatch(publicChannelsActions.subscribeForTopic(ZbayChannel));
-      dispatch(
-        publicChannelsActions.setCurrentChannelAddress(ZbayChannel.address),
-      );
-      dispatch(publicChannelsActions.fetchAllMessages(ZbayChannel.address));
     }
   }, [dispatch, ZbayChannel]);
 
@@ -32,7 +29,7 @@ export const MainScreen: FC = () => {
             console.log('Message sent');
           }}
           channel={ZbayChannel}
-          messages={displayableMessages}
+          messages={messages}
           user={'holmes'}
         />
       )}

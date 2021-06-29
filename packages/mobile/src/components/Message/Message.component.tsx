@@ -49,7 +49,7 @@ export const Message: FC<MessageProps> = ({ message }) => {
             </View>
           </View>
           <View style={{ flexShrink: 1 }}>
-            <Typography fontSize={14}>{message.message.message}</Typography>
+            <Typography fontSize={14}>{message.message}</Typography>
           </View>
         </View>
       </View>

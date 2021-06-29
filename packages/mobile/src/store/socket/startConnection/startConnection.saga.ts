@@ -7,13 +7,14 @@ import { SocketActionTypes } from '../const/actionTypes';
 import { nativeServicesActions } from '../../nativeServices/nativeServices.slice';
 import { assetsActions } from '../../assets/assets.slice';
 import {
-  ChannelInfoResponse,
+  AskForMessagesResponse,
+  ChannelMessagesIdsResponse,
+  GetPublicChannelsResponse,
   publicChannelsActions,
 } from '../../publicChannels/publicChannels.slice';
 import { publicChannelsMasterSaga } from '../../publicChannels/publicChannels.master.saga';
 import { initActions } from '../../init/init.slice';
 import { InitCheckKeys } from '../../init/initCheck.keys';
-import { IMessage } from '../../publicChannels/publicChannels.types';
 
 export function* startConnectionSaga(): Generator {
   const socket = yield* call(connect);
@@ -58,18 +59,25 @@ export function* handleActions(socket: Socket): Generator {
 export function subscribe(socket: Socket) {
   return eventChannel<
     | ReturnType<typeof publicChannelsActions.responseGetPublicChannels>
-    | ReturnType<typeof publicChannelsActions.responseFetchAllMessages>
+    | ReturnType<typeof publicChannelsActions.responseSendMessagesIds>
+    | ReturnType<typeof publicChannelsActions.responseAskForMessages>
   >(emit => {
     socket.on(
       SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS,
-      (payload: ChannelInfoResponse) => {
+      (payload: GetPublicChannelsResponse) => {
         emit(publicChannelsActions.responseGetPublicChannels(payload));
       },
     );
     socket.on(
-      SocketActionTypes.RESPONSE_FETCH_ALL_MESSAGES,
-      (payload: { channelAddress: string; messages: IMessage[] }) => {
-        emit(publicChannelsActions.responseFetchAllMessages(payload));
+      SocketActionTypes.SEND_MESSAGES_IDS,
+      (payload: ChannelMessagesIdsResponse) => {
+        emit(publicChannelsActions.responseSendMessagesIds(payload));
+      },
+    );
+    socket.on(
+      SocketActionTypes.RESPONSE_ASK_FOR_MESSAGES,
+      (payload: AskForMessagesResponse) => {
+        emit(publicChannelsActions.responseAskForMessages(payload));
       },
     );
     return () => {};
