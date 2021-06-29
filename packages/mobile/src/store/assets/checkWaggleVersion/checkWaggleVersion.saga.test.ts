@@ -2,12 +2,12 @@ import Config from 'react-native-config';
 import { DocumentDirectoryPath, exists } from 'react-native-fs';
 import { combineReducers } from 'redux';
 import { expectSaga } from 'redux-saga-test-plan';
-import { call, take } from 'redux-saga-test-plan/matchers';
+import { fork, call, take } from 'redux-saga-test-plan/matchers';
 import {
   downloadAssets,
   md5Check,
 } from '../../../utils/functions/downloadAssets/downloadAssets';
-import { navigateTo } from '../../../utils/functions/navigateTo/navigateTo';
+import { waitForNavigatorSaga } from '../../init/waitForNavigator/waitForNavigator.saga';
 import { StoreKeys } from '../../store.keys';
 import { assetsActions, assetsReducer, AssetsState } from '../assets.slice';
 import { checkWaggleVersionSaga } from './checkWaggleVersion.saga';
@@ -39,7 +39,7 @@ describe('checkWaggleVersionSaga', () => {
         },
       })
       .provide([
-        [call.fn(navigateTo), null],
+        [fork(waitForNavigatorSaga), null],
         [call.fn(downloadAssets), downloadChannel],
         [take(downloadChannel), assetsActions.setDownloadCompleted()],
         [

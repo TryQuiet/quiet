@@ -30,6 +30,7 @@ export default function App(): JSX.Element {
       <NavigationContainer
         ref={navigationContainerRef}
         onReady={() => {
+          dispatch(initActions.setNavigatorReady(true));
           dispatch(initActions.doOnRestore());
         }}>
         <ThemeProvider theme={defaultTheme}>

@@ -1,7 +1,8 @@
 import Config from 'react-native-config';
-import { select, put, call, take } from 'typed-redux-saga';
+import { select, put, fork, call, take } from 'typed-redux-saga';
 import { ScreenNames } from '../../../const/ScreenNames.enum';
 import { navigateTo } from '../../../utils/functions/navigateTo/navigateTo';
+import { waitForNavigatorSaga } from '../../init/waitForNavigator/waitForNavigator.saga';
 import { assetsSelectors } from '../assets.selectors';
 import { assetsActions } from '../assets.slice';
 import { startDownload } from '../manageDownload/manageDownload.saga';
@@ -17,7 +18,7 @@ export function* checkLibsVersionSaga(): Generator {
     );
     while (true) {
       try {
-        yield* call(navigateTo, ScreenNames.SplashScreen);
+        yield* fork(waitForNavigatorSaga);
         yield* startDownload(url, 'libs', Config.LIBS_VERSION, Config.LIBS_MD5);
         yield put(assetsActions.setCurrentLibsVersion(Config.LIBS_VERSION));
         break;

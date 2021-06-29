@@ -4,12 +4,15 @@ import config from '../../store/socket/config';
 import { SocketActionTypes } from '../../store/socket/const/actionTypes';
 import { IMessage } from '../../store/publicChannels/publicChannels.types';
 import PushNotification from 'react-native-push-notification';
-import { AppState } from 'react-native';
+import { AppState, Platform } from 'react-native';
 
 const notificationChannelId = 'zbay-incoming-notifications';
 
 export const useNotifications = (): void => {
   useEffect(() => {
+    if (Platform.OS === 'android') {
+      return;
+    }
     PushNotification.createChannel(
       {
         channelName: 'Incoming messages',

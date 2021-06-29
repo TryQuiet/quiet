@@ -5,7 +5,7 @@
   "scripts": {
     "storybook": "ENVFILE=.env.storybook react-native run-android",
     "android": "ENVFILE=.env.development react-native run-android",
-    "ios": "react-native run-ios",
+    "ios": "ENVFILE=.env.development react-native run-ios",
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
@@ -41,6 +41,7 @@
     "@babel/core": "^7.12.9",
     "@babel/runtime": "^7.12.5",
     "@react-native-community/eslint-config": "^2.0.0",
+    "@react-native-community/push-notification-ios": "^1.8.0",
     "@storybook/addon-actions": "^6.2.9",
     "@storybook/addon-knobs": "^6.2.9",
     "@storybook/addon-ondevice-actions": "^5.3.23",

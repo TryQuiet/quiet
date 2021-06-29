@@ -4,6 +4,11 @@ import { StoreState } from '../store.types';
 import { selectReducer } from '../store.utils';
 import { initChecksAdapter } from './init.adapter';
 
+export const isNavigatorReady = createSelector(
+  selectReducer(StoreKeys.Init),
+  (reducerState: StoreState[StoreKeys.Init]) => reducerState.isNavigatorReady,
+);
+
 export const isRestored = createSelector(
   selectReducer(StoreKeys.Init),
   (reducerState: StoreState[StoreKeys.Init]) => reducerState.isRestored,
@@ -15,4 +20,4 @@ export const initChecks = createSelector(
     initChecksAdapter.getSelectors().selectAll(reducerState.initChecks),
 );
 
-export const initSelectors = { isRestored, initChecks };
+export const initSelectors = { isNavigatorReady, isRestored, initChecks };

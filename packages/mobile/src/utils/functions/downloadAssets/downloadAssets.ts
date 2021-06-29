@@ -11,7 +11,7 @@ export const downloadAssets = (url: string, path: string) => {
   >(emit => {
     (async () => {
       const download = downloadFile({
-        fromUrl: url,
+        fromUrl: encodeURI(url),
         toFile: path,
         background: true,
         progressDivider: 1,
