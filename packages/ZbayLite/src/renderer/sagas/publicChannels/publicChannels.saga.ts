@@ -148,8 +148,10 @@ export function* loadAllMessages(
     })
   )
 
+  const displayableMessagesFiltered = displayableMessages.filter(entry => entry !== undefined)
+
   const state = yield* select()
-  const newMsgs = findNewMessages(action.payload.channelAddress, displayableMessages, state)
+  const newMsgs = findNewMessages(action.payload.channelAddress, displayableMessagesFiltered, state)
   const pubChannelsArray = Object.values(pubChannels)
   const contact = pubChannelsArray.filter(item => {
     return item.name === username
