@@ -135,7 +135,13 @@ export function* loadAllMessages(
   }
   const messagesById = {}
   const displayableMessages = action.payload.messages.map(msg => {
-    const transferedMessage = transferToMessage(msg, users)
+    let transferedMessage: DisplayableMessage
+    try {
+      transferedMessage = transferToMessage(msg, users)
+    } catch (err) {
+      console.log(err)
+      return
+    }
     messagesById[msg.id] = transferedMessage
     return transferedMessage
   })

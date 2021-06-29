@@ -7,6 +7,14 @@
 * Changed a way main process is terminating
 * [Performance] Removed excess decryption from checking conversations -->
 
+# [3.2.21] - 29 June 2021
+
+## Fixed
+
+* closing zbay properly
+* restore input
+* do not proceed invalid messages
+
 # [3.2.20] - 25 June 2021
 
 ### Changed

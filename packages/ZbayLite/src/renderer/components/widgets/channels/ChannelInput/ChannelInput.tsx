@@ -11,7 +11,6 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import { shell } from 'electron'
 
 import MentionPoper from './MentionPoper'
-import ChannelInputAction from '../../../../containers/widgets/channels/ChannelInputAction'
 import ChannelInputInfoMessage from './ChannelInputInfoMessage'
 import { INPUT_STATE } from '../../../../store/selectors/channel'
 import MentionElement from './MentionElement'
@@ -80,9 +79,6 @@ const useStyles = makeStyles(theme => ({
     WebkitTapHighlightColor: 'transparent',
     pointerEvents: 'none',
     touchAction: 'none'
-  },
-  displayNone: {
-    display: 'none'
   },
   focused: {
     borderColor: theme.palette.colors.trueBlack
@@ -371,8 +367,7 @@ export const ChannelInput: React.FC<IChannelInput> = ({
       <Grid
         container
         className={classNames({
-          [classes.root]: true,
-          [classes.displayNone]: showInfoMessage
+          [classes.root]: true
         })}
         direction='column'
         justify='center'>
@@ -443,7 +438,6 @@ export const ChannelInput: React.FC<IChannelInput> = ({
               </Grid>
               <Grid item className={classes.actions}>
                 <Grid container justify='center' alignItems='center'>
-                  <ChannelInputAction disabled={inputState !== INPUT_STATE.AVAILABLE} />
                   <Icon
                     className={classes.emoji}
                     src={emojiHovered ? emojiBlack : emojiGray}

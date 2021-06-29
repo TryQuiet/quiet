@@ -318,6 +318,7 @@ app.on('before-quit', async e => {
       height: browserHeight
     })
   }
+  process.exit()
 })
 
 // Quit when all windows are closed.
