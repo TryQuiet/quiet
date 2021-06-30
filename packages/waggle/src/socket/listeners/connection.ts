@@ -1,6 +1,6 @@
 import { EventTypesServer } from '../constants'
 import { ConnectionsManager } from '../../libp2p/connectionsManager'
-import { IChannelInfo, IMessage } from '../../storage/storage'
+import { IChannelInfo, IMessage } from '../../common/types'
 
 export const connections = (io, connectionsManager: ConnectionsManager) => {
   io.on(EventTypesServer.CONNECTION, socket => {

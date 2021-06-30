@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.0.7] - WIP
+
+### Added
+
+- @zbayapp/identity lib
+- Verify certificate before saving it to database
+- Return all certificates on db.load
+
+### Fixed
+
+- Removed // @ts-nocheck from Storage.ts
+
 ## [2.0.6] - 2021-06-22
 
 ### Fixed

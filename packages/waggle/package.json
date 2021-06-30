@@ -10,9 +10,9 @@
     "build": "tsc",
     "version": "git add -A src",
     "postversion": "git push && git push --tags",
-    "lint": "eslint ./src/**/*.{ts,tsx,js,jsx}",
+    "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
     "test": "DEBUG=ipfs:*,waggle:* jest ./src/**/* --runInBand",
-    "test-ci": "DEBUG=ipfs:*,waggle:* jest ./src/**/* --runInBand --collectCoverage --colors --ci --verbose"
+    "test-ci": "jest ./src/**/* --runInBand --colors --ci --silent --verbose"
   },
   "files": [
     "lib/**/*"
@@ -46,6 +46,7 @@
     "@types/express": "^4.17.9",
     "@types/node": "^14.14.6",
     "@types/socket.io": "^2.1.12",
+    "@zbayapp/identity": "^1.0.3",
     "abortable-iterator": "^3.0.0",
     "async-mutex": "^0.2.6",
     "cors": "^2.8.5",

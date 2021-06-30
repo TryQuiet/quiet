@@ -1,4 +1,3 @@
-// @ts-nocheck
 import IPFS from 'ipfs'
 import path from 'path'
 import { createPaths } from '../utils'
@@ -8,7 +7,6 @@ import EventStore from 'orbit-db-eventstore'
 import PeerId from 'peer-id'
 import {
   message as socketMessage,
-  directMessage as socketDirectMessage,
   loadAllMessages,
   loadAllDirectMessages,
   sendIdsToZbay
@@ -16,61 +14,19 @@ import {
 import { EventTypesResponse } from '../socket/constantsReponse'
 import { loadAllPublicChannels } from '../socket/events/channels'
 import { Libp2p } from 'libp2p-gossipsub/src/interfaces'
-import { Config } from '../constants'
+import { Config, dataFromRootPems } from '../constants'
 import { loadCertificates } from '../socket/events/certificates'
+import { IRepo, StorageOptions, IChannelInfo, IMessage, ChannelInfoResponse, IZbayChannel, IPublicKey, IMessageThread } from '../common/types'
+import { verifyUserCert } from '@zbayapp/identity'
 import debug from 'debug'
 const log = Object.assign(debug('waggle:db'), {
   error: debug('waggle:db:err')
 })
 
-export interface IMessage {
-  id: string
-  type: number
-  typeIndicator: number
-  message: string
-  createdAt: number
-  r: number
-  channelId: string
-  signature: string
-}
-
-interface IRepo {
-  db: EventStore<IMessage>
-  eventsAttached: boolean
-}
-
-export interface IChannelInfo {
-  name: string
-  description: string
-  owner: string
-  timestamp: number
-  address: string
-  keys: { ivk?: string, sk?: string }
-}
-
-export interface ChannelInfoResponse {
-  [name: string]: IChannelInfo
-}
-
-class StorageOptions {
-  loadAllDirectMessages
-  createPaths: boolean = true
-}
-
-interface IZbayChannel extends IChannelInfo {
-  orbitAddress: string
-}
-
-interface IPublicKey {
-  halfKey: string
-}
-type IMessageThread = string
-
 export class Storage {
   public zbayDir: string
   public io: any
   public peerId: PeerId
-  private readonly isWaggleMobileMode: boolean
   private ipfs: IPFS.IPFS
   private orbitdb: OrbitDB
   private channels: KeyValueStore<IZbayChannel>
@@ -119,12 +75,14 @@ export class Storage {
 
   private async __stopOrbitDb() {
     if (this.orbitdb) {
+      log('Stopping OrbitDB')
       await this.orbitdb.stop()
     }
   }
 
   private async __stopIPFS() {
     if (this.ipfs) {
+      log('Stopping IPFS')
       await this.ipfs.stop()
     }
   }
@@ -142,13 +100,14 @@ export class Storage {
       EXPERIMENTAL: {
         ipnsPubsub: true
       },
+      // @ts-expect-error - IPFS does not have privateKey in its Options type
       privateKey: peerID.toJSON().privKey
     })
   }
 
   public async createDbForCertificates() {
     log('createDbForCertificates init')
-    this.certificates = await this.orbitdb.log<string>('zbay-certificates', {
+    this.certificates = await this.orbitdb.log<string>('certificates', {
       accessController: {
         write: ['*']
       }
@@ -159,11 +118,16 @@ export class Storage {
       loadCertificates(this.io, this.getAllEventLogEntries(this.certificates))
     })
     this.certificates.events.on('write', (_address, entry) => {
-      log('Saved cerrificate locally')
+      log('Saved certificate locally')
       log(entry.payload.value)
       loadCertificates(this.io, this.getAllEventLogEntries(this.certificates))
     })
+    this.certificates.events.on('load', () => {
+      log('Loaded certificates to memory')
+      loadCertificates(this.io, this.getAllEventLogEntries(this.certificates))
+    })
 
+    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.certificates.load({ fetchEntryTimeout: 15000 })
     const allCertificates = this.getAllEventLogEntries(this.certificates)
     log('ALL Certificates COUNT:', allCertificates.length)
@@ -182,6 +146,8 @@ export class Storage {
     this.channels.events.on('replicated', () => {
       log('REPLICATED: CHANNELS')
     })
+
+    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.channels.load({ fetchEntryTimeout: 15000 })
     log('ALL CHANNELS COUNT:', Object.keys(this.channels.all).length)
     log('ALL CHANNELS COUNT:', Object.keys(this.channels.all))
@@ -198,12 +164,14 @@ export class Storage {
       'replicated',
       // eslint-disable-next-line
       async () => {
+        // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
         await this.messageThreads.load({ fetchEntryTimeout: 2000 })
         const payload = this.messageThreads.all
         this.io.emit(EventTypesResponse.RESPONSE_GET_PRIVATE_CONVERSATIONS, payload)
         await this.initAllConversations()
       }
     )
+    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.messageThreads.load({ fetchEntryTimeout: 2000 })
     log('ALL MESSAGE THREADS COUNT:', Object.keys(this.messageThreads.all).length)
   }
@@ -219,6 +187,7 @@ export class Storage {
       'replicated',
       // eslint-disable-next-line
       async () => {
+        // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
         await this.directMessagesUsers.load({ fetchEntryTimeout: 2000 })
         // await this.directMessagesUsers.close()
         const payload = this.directMessagesUsers.all
@@ -227,6 +196,7 @@ export class Storage {
       }
     )
     try {
+      // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
       await this.directMessagesUsers.load({ fetchEntryTimeout: 2000 })
     } catch (err) {
       log.error(err)
@@ -375,7 +345,7 @@ export class Storage {
   }
 
   public async sendMessage(channelAddress: string, message: IMessage) {
-    await this.subscribeForChannel(channelAddress, this.io) // Is it necessary?
+    await this.subscribeForChannel(channelAddress) // Is it necessary?
     const db = this.publicChannelsRepos.get(channelAddress).db
     await db.add(message)
   }
@@ -407,12 +377,14 @@ export class Storage {
       log(`Created channel ${channelAddress}`)
     }
     this.publicChannelsRepos.set(channelAddress, { db, eventsAttached: false })
+    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await db.load({ fetchEntryTimeout: 2000 })
     return db
   }
 
   public async addUser(address: string, halfKey: string): Promise<void> {
     await this.directMessagesUsers.put(address, { halfKey })
+    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.directMessagesUsers.load({ fetchEntryTimeout: 2000 })
     const payload = this.directMessagesUsers.all
     this.io.emit(EventTypesResponse.RESPONSE_GET_AVAILABLE_USERS, payload)
@@ -440,7 +412,7 @@ export class Storage {
     console.timeEnd('subscribeForAllConversations')
   }
 
-  public async subscribeForDirectMessageThread(channelAddress) {
+  public async subscribeForDirectMessageThread(channelAddress: string) {
     let db: EventStore<IMessage>
     let repo = this.directMessagesRepos.get(channelAddress)
 
@@ -449,7 +421,7 @@ export class Storage {
     } else {
       db = await this.createDirectMessageThread(channelAddress)
       if (!db) {
-        log(`Can't subscribe to direct messages thread ${channelAddress as string}`)
+        log(`Can't subscribe to direct messages thread ${channelAddress}`)
         return
       }
       repo = this.directMessagesRepos.get(channelAddress)
@@ -458,7 +430,7 @@ export class Storage {
     if (repo && !repo.eventsAttached) {
       log('Subscribing to direct messages thread ', channelAddress)
       loadAllDirectMessages(this.io, this.getAllEventLogEntries(db), channelAddress)
-      db.events.on('write', (_address, entry) => {
+      db.events.on('write', (_address, _entry) => {
         log('Writing')
         loadAllDirectMessages(this.io, this.getAllEventLogEntries(db), channelAddress)
       })
@@ -494,13 +466,14 @@ export class Storage {
     db.events.on('replicated', () => {
       log('replicated some messages')
     })
+    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await db.load({ fetchEntryTimeout: 2000 })
 
     this.directMessagesRepos.set(channelAddress, { db, eventsAttached: false })
     return db
   }
 
-  public async sendDirectMessage(channelAddress: string, message) {
+  public async sendDirectMessage(channelAddress: string, message: string) {
     await this.subscribeForDirectMessageThread(channelAddress) // Is it necessary? Yes it is atm
     log('STORAGE: sendDirectMessage entered')
     log(`STORAGE: sendDirectMessage channelAddress is ${channelAddress}`)
@@ -513,6 +486,7 @@ export class Storage {
 
   public async getAvailableUsers(): Promise<any> {
     log('STORAGE: getAvailableUsers entered')
+    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.directMessagesUsers.load({ fetchEntryTimeout: 2000 })
     const payload = this.directMessagesUsers.all
     this.io.emit(EventTypesResponse.RESPONSE_GET_AVAILABLE_USERS, payload)
@@ -521,15 +495,27 @@ export class Storage {
 
   public async getPrivateConversations(): Promise<void> {
     log('STORAGE: getPrivateConversations enetered')
+    // @ts-expect-error - OrbitDB's type declaration of `load` arguments lacks 'options'
     await this.messageThreads.load({ fetchEntryTimeout: 2000 })
     const payload = this.messageThreads.all
     log('STORAGE: getPrivateConversations payload payload')
     this.io.emit(EventTypesResponse.RESPONSE_GET_PRIVATE_CONVERSATIONS, payload)
   }
 
-  public async saveCertificate(certificate: string) {
-    log('Saving certificate')
-    // TODO: validate before saving
+  public async saveCertificate(certificate: string): Promise<boolean> {
+    log('About to save certificate...')
+    if (!certificate) {
+      log('Certificate is either null or undefined, not saving to db')
+      return false
+    }
+    const verification = await verifyUserCert(dataFromRootPems.certificate, certificate)
+    if (verification.resultCode !== 0) {
+      log.error('Certificate is not valid')
+      log.error(verification.resultMessage)
+      return false
+    }
+    log('Saving certificate...')
     await this.certificates.add(certificate)
+    return true
   }
 }

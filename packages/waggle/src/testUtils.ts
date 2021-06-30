@@ -51,7 +51,7 @@ export const createLibp2p = (peerId: PeerId = null): Libp2pType => {
   return ConnectionsManager.createBootstrapNode({
     peerId,
     listenAddrs: ['/dns4/localhost/tcp/1111/ws'],
-    bootstrapMultiaddrsList: ['/dns4/abcd.onion/tcp/1111/ws/p2p/12345abcdf'],
+    bootstrapMultiaddrsList: ['/dns4/abcd.onion/tcp/1111/ws/p2p/QmfLUJcDSLVYnNqSPSRK4mKG8MGw51m9K2v59k3yq1C8s4'],
     agent: new SocksProxyAgent({ port: 1234, host: 'localhost' }),
     localAddr: `/dns4/localhost/tcp/1111/ws/p2p/${peerId.toB58String()}`
   })

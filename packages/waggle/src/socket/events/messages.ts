@@ -1,5 +1,5 @@
 import { EventTypesServer } from '../constants'
-import { IMessage } from '../../storage/storage'
+import { IMessage } from '../../common/types'
 import { EventTypesResponse } from '../constantsReponse'
 
 export const message = (socket: SocketIO.Server, message) => {

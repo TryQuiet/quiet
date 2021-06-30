@@ -1,4 +1,4 @@
-import { ChannelInfoResponse } from '../../storage/storage'
+import { ChannelInfoResponse } from '../../common/types'
 import { EventTypesResponse } from '../constantsReponse'
 
 export const loadAllPublicChannels = (socket: any, channels: ChannelInfoResponse) => {

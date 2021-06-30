@@ -13,46 +13,13 @@ import { createPaths, fetchAbsolute } from '../utils'
 import { Config, ZBAY_DIR_PATH } from '../constants'
 import fs from 'fs'
 import path from 'path'
-import { IChannelInfo } from '../storage/storage'
+import { ConnectionsManagerOptions, IChannelInfo, IConstructor, ILibp2pStatus, IMessage } from '../common/types'
 import fetch from 'node-fetch'
 import debug from 'debug'
 import CustomLibp2p, { Libp2pType } from './customLibp2p'
 const log = Object.assign(debug('waggle:conn'), {
   error: debug('waggle:conn:err')
 })
-
-class ConnectionsManagerOptions {
-  env: {
-    appDataPath?: string
-  } = {}
-
-  bootstrapMultiaddrs: string[] = []
-  createPaths: boolean = true
-  isWaggleMobileMode: boolean = true
-}
-
-interface IConstructor {
-  host: string
-  port: number
-  agentPort: number
-  agentHost: string
-  options?: Partial<ConnectionsManagerOptions>
-  io: any
-}
-interface IBasicMessage {
-  id: string
-  type: number
-  signature: string
-  createdAt: number
-  r: number
-  message: string
-  typeIndicator: number
-}
-
-interface ILibp2pStatus {
-  address: string
-  peerId: string
-}
 
 export class ConnectionsManager {
   host: string
@@ -233,18 +200,17 @@ export class ConnectionsManager {
 
   public sendMessage = async (
     channelAddress: string,
-    messagePayload: IBasicMessage
+    messagePayload: IMessage
   ): Promise<void> => {
-    const { id, type, signature, r, createdAt, message, typeIndicator } = messagePayload
+    const { id, type, signature, createdAt, message, pubKey } = messagePayload
     const messageToSend = {
       id,
       type,
       signature,
       createdAt,
-      r,
       message,
-      typeIndicator,
-      channelId: channelAddress
+      channelId: channelAddress,
+      pubKey
     }
     await this.storage.sendMessage(channelAddress, messageToSend)
   }
