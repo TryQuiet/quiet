@@ -11,11 +11,12 @@ export const defaultPalette: Palette = {
   typography: {
     main: '#000000',
     subtitle: '#999999',
+    hint: '#999999',
     error: '#E42656',
     greyLight: '#B8B8B8',
     greyDark: '#999999',
   },
-  messageInput: {
+  input: {
     border: '#B3B3B3',
   },
 };

@@ -3,7 +3,7 @@ import { Keyboard, StyleSheet, View } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import { Message } from '../Message/Message.component';
-import { MessageInput } from '../MessageInput/MessageInput.component';
+import { Input } from '../Input/Input.component';
 import { MessageSendButton } from '../MessageSendButton/MessageSendButton.component';
 
 import { ChatProps } from './Chat.types';
@@ -65,7 +65,7 @@ export const Chat: FC<ChatProps> = ({
         style={{ paddingLeft: 20, paddingRight: 20 }}
       />
       <View style={inputWrapperStyle}>
-        <MessageInput
+        <Input
           onChangeText={onInputTextChange}
           placeholder={'Message #' + channel.name + ' as @' + user}
           style={inputStyle}

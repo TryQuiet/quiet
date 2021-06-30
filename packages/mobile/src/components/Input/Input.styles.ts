@@ -13,7 +13,7 @@ export const StyledWrapper = styled(Pressable)<{
   ${({ theme }) => css`
     min-height: 42px;
     max-height: 72px;
-    border-color: ${theme.palette.messageInput.border};
+    border-color: ${theme.palette.input.border};
     border-radius: 4px;
     border-width: 1px;
     padding-left: 15px;

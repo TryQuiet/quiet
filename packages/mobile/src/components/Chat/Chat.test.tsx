@@ -762,52 +762,53 @@ describe('Chat component', () => {
             }
           }
         >
-          <View
-            accessible={true}
-            collapsable={false}
-            focusable={true}
-            onBlur={[Function]}
-            onClick={[Function]}
-            onFocus={[Function]}
-            onResponderGrant={[Function]}
-            onResponderMove={[Function]}
-            onResponderRelease={[Function]}
-            onResponderTerminate={[Function]}
-            onResponderTerminationRequest={[Function]}
-            onStartShouldSetResponder={[Function]}
-            style={
-              Array [
-                Object {
-                  "borderColor": "#B3B3B3",
-                  "borderRadius": 4,
-                  "borderWidth": 1,
-                  "flexGrow": 1,
-                  "maxHeight": 72,
-                  "minHeight": 42,
-                  "paddingLeft": 15,
-                  "paddingRight": 15,
-                },
-                Object {},
-              ]
-            }
-          >
-            <TextInput
-              allowFontScaling={true}
-              multiline={true}
-              onChangeText={[Function]}
-              placeholder="Message #Zbay as @holmes"
-              rejectResponderTermination={true}
+          <View>
+            <View
+              accessible={true}
+              collapsable={false}
+              focusable={true}
+              onBlur={[Function]}
+              onClick={[Function]}
+              onFocus={[Function]}
+              onResponderGrant={[Function]}
+              onResponderMove={[Function]}
+              onResponderRelease={[Function]}
+              onResponderTerminate={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
               style={
                 Array [
                   Object {
-                    "paddingBottom": 8,
-                    "paddingTop": 8,
-                    "textAlignVertical": "center",
+                    "borderColor": "#B3B3B3",
+                    "borderRadius": 4,
+                    "borderWidth": 1,
+                    "flexGrow": 1,
+                    "maxHeight": 72,
+                    "minHeight": 42,
+                    "paddingLeft": 15,
+                    "paddingRight": 15,
                   },
+                  Object {},
                 ]
               }
-              underlineColorAndroid="transparent"
-            />
+            >
+              <TextInput
+                allowFontScaling={true}
+                onChangeText={[Function]}
+                placeholder="Message #Zbay as @holmes"
+                rejectResponderTermination={true}
+                style={
+                  Array [
+                    Object {
+                      "paddingBottom": 8,
+                      "paddingTop": 8,
+                      "textAlignVertical": "center",
+                    },
+                  ]
+                }
+                underlineColorAndroid="transparent"
+              />
+            </View>
           </View>
         </View>
       </View>
