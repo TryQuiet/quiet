@@ -69,7 +69,7 @@ export class Tor {
       }
 
       if (oldTorPid && process.platform !== 'win32') {
-        child_process.exec(`ps -p ${oldTorPid as string} -o comm=`, (err, stdout, _stderr) => {
+        child_process.exec(this.torProcessNameCommand(oldTorPid.toString()), (err, stdout, _stderr) => {
           if (err) {
             log.error(err)
           }
@@ -86,6 +86,14 @@ export class Tor {
     })
   }
 
+  private readonly torProcessNameCommand = (oldTorPid: string): string => {
+    const byPlatform = {
+      linux: `ps -p ${oldTorPid} -o comm=`,
+      darwin: `ps -c -p ${oldTorPid} -o comm=`
+    }
+    return byPlatform[process.platform]
+  }
+
   private readonly spawnTor = resolve => {
     this.process = child_process.spawn(
       this.torPath,
@@ -99,7 +107,7 @@ export class Tor {
         '--DataDirectory',
         this.torDataDirectory,
         '--HashedControlPassword',
-        this.torHashedPassword.trim()
+        this.torHashedPassword
       ],
       this.options
     )
@@ -154,7 +162,7 @@ export class Tor {
     const password = crypto.randomBytes(16).toString('hex')
     const hashedPassword = child_process.execSync(`${this.torPath} --quiet --hash-password ${password}`, { env: this.options.env })
     this.torPassword = password
-    this.torHashedPassword = hashedPassword.toString()
+    this.torHashedPassword = hashedPassword.toString().trim()
   }
 
   public getServiceAddress = (port: number): string => {

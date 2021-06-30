@@ -1,5 +1,6 @@
 import fs from 'fs'
 import fp from 'find-free-port'
+import path from 'path'
 
 export function createPaths(paths: string[]) {
   for (const path of paths) {
@@ -30,4 +31,13 @@ export const getPorts = async (): Promise<{
     controlPort,
     dataServer
   }
+}
+
+export const torBinForPlatform = (): string => {
+  const ext = process.platform === 'win32' ? '.exe' : ''
+  return path.join(torDirForPlatform(), 'tor'.concat(ext))
+}
+
+export const torDirForPlatform = (): string => {
+  return path.join(process.cwd(), 'tor', process.platform)
 }

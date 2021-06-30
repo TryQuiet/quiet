@@ -8,9 +8,8 @@ import path from 'path'
 import os from 'os'
 import fs from 'fs'
 import fp from 'find-free-port'
-import { createMinConnectionManager, createTmpDir, TmpDir, tmpZbayDirPath } from '../testUtils'
+import { createMinConnectionManager, createTmpDir, testBootstrapMultiaddrs, TmpDir, tmpZbayDirPath } from '../testUtils'
 import * as utils from '../utils'
-jest.setTimeout(30_000)
 
 let tmpDir: TmpDir
 let tmpAppDataPath: string
@@ -28,18 +27,17 @@ beforeEach(() => {
 })
 
 afterEach(async () => {
-  tmpDir.removeCallback()
   if (connectionsManager) {
     await connectionsManager.closeStorage()
     await connectionsManager.stopLibp2p()
   }
   dataServer && await dataServer.close()
+  tmpDir.removeCallback()
 })
 
 test('start and close connectionsManager', async () => {
   const ports = await getPorts()
-  const torPath = `${process.cwd()}/tor/tor`
-  const pathDevLib = path.join.apply(null, [process.cwd(), 'tor'])
+  const torPath = utils.torBinForPlatform()
   dataServer = new DataServer(ports.dataServer)
   await dataServer.listen()
   const [controlPort] = await fp(9051)
@@ -50,7 +48,7 @@ test('start and close connectionsManager', async () => {
     controlPort: controlPort,
     options: {
       env: {
-        LD_LIBRARY_PATH: pathDevLib,
+        LD_LIBRARY_PATH: utils.torDirForPlatform(),
         HOME: os.homedir()
       },
       detached: true
@@ -69,7 +67,7 @@ test('start and close connectionsManager', async () => {
       env: {
         appDataPath: tmpAppDataPath
       },
-      bootstrapMultiaddrs: ['/dns4/abcd.onion/tcp/1111/ws/p2p/abcd1234']
+      bootstrapMultiaddrs: testBootstrapMultiaddrs
     }
   })
   await connectionsManager.initializeNode()

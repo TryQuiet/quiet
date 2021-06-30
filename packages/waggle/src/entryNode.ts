@@ -3,10 +3,10 @@ import { DataServer } from './socket/DataServer'
 import { ConnectionsManager } from './libp2p/connectionsManager'
 import initListeners from './socket/listeners/'
 import { ZBAY_DIR_PATH } from './constants'
-import * as path from 'path'
 import * as os from 'os'
 import fs from 'fs'
 import PeerId from 'peer-id'
+import { torBinForPlatform, torDirForPlatform } from './utils'
 
 class Node {
   tor: Tor
@@ -22,9 +22,9 @@ class Node {
   hiddenServicePort: number
 
   constructor(torPath?: string, pathDevLib?: string, peerIdFileName?: string, port = 7788, socksProxyPort = 9050, torControlPort = 9051, hiddenServicePort = 7788, torAppDataPath = ZBAY_DIR_PATH) {
-    this.torPath = torPath || this.getTorPath()
+    this.torPath = torPath || torBinForPlatform()
     this.torAppDataPath = torAppDataPath
-    this.pathDevLib = pathDevLib || this.getPathDevLib()
+    this.pathDevLib = pathDevLib || torDirForPlatform()
     this.peerIdFileName = peerIdFileName || this.getPeerIdFileName()
     this.port = port
     this.socksProxyPort = socksProxyPort
@@ -39,18 +39,6 @@ class Node {
   public getPeerIdFileName (): string {
     console.log('PEERID_FILE', process.env.PEERID_FILE)
     return process.env.PEERID_FILE
-  }
-
-  private getTorPath(): string {
-    return `${process.cwd()}/tor/tor`
-  }
-
-  private getPathDevLib(): string {
-    const pathDevLib = path.join.apply(null, [process.cwd(), 'tor'])
-    if (!fs.existsSync(ZBAY_DIR_PATH)) {
-      fs.mkdirSync(ZBAY_DIR_PATH)
-    }
-    return pathDevLib
   }
 
   async getStaticPeer(): Promise<PeerId> {

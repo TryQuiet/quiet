@@ -25,12 +25,12 @@ beforeEach(() => {
 })
 
 afterEach(async () => {
-  tmpDir.removeCallback()
   try {
     storage && await storage.stopOrbitDb()
   } catch (e) {
     console.error(e)
   }
+  tmpDir.removeCallback()
 })
 
 describe('Storage', () => {

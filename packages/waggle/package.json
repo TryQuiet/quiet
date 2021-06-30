@@ -11,7 +11,7 @@
     "version": "git add -A src",
     "postversion": "git push && git push --tags",
     "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
-    "test": "DEBUG=ipfs:*,waggle:* jest ./src/**/* --runInBand",
+    "test": "DEBUG=ipfs:*,waggle:* jest ./src/**/* --runInBand --verbose",
     "test-ci": "jest ./src/**/* --runInBand --colors --ci --silent --verbose"
   },
   "files": [
@@ -29,7 +29,8 @@
       "/node_modules/"
     ],
     "testRegex": "src/.*\\.test\\.(t|j)s$",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "testTimeout": 30000
   },
   "devDependencies": {
     "@types/node": "^14.14.7",

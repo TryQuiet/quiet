@@ -4,6 +4,8 @@
 
 ### Added
 
+- Tor binaries for 3 platforms (linux, macos, win). Use proper binary depending on current platform.
+- Run tests on linux and macos (CI)
 - @zbayapp/identity lib
 - Verify certificate before saving it to database
 - Return all certificates on db.load
@@ -11,6 +13,7 @@
 ### Fixed
 
 - Removed // @ts-nocheck from Storage.ts
+- Killing existing tor process on macos - command for extracting process name slightly differs for linux and macos
 
 ## [2.0.6] - 2021-06-22
 
