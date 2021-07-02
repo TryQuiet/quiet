@@ -3,13 +3,10 @@ import { stringToArrayBuffer, fromBase64 } from 'pvutils'
 import {
   getAlgorithmParameters,
   getCrypto,
-  setEngine,
-  CryptoEngine,
   Certificate,
   CertificationRequest
 } from 'pkijs'
 
-import { Crypto } from '@peculiar/webcrypto'
 import { KeyObject, KeyPairKeyObjectResult } from 'crypto'
 
 export enum CertFieldsTypes {
@@ -17,19 +14,6 @@ export enum CertFieldsTypes {
   nickName = '1.3.6.1.4.1.50715.2.1',
   peerId = '1.3.6.1.2.1.15.3.1.1'
 }
-
-const webcrypto = new Crypto()
-
-setEngine(
-  'newEngine',
-  webcrypto,
-  new CryptoEngine({
-    name: '',
-    crypto: webcrypto,
-    subtle: webcrypto.subtle
-  })
-)
-const crypto = getCrypto()
 
 export const generateKeyPair = async ({
   signAlg,
@@ -43,6 +27,7 @@ export const generateKeyPair = async ({
   if ('hash' in algorithm.algorithm) {
     algorithm.algorithm.hash.name = hashAlg
   }
+  const crypto = getCrypto()
   const keyPair = await crypto.generateKey(algorithm.algorithm, true, algorithm.usages)
 
   return keyPair
@@ -78,6 +63,7 @@ export const loadPrivateKey = async (
   if ('hash' in algorithm.algorithm) {
     algorithm.algorithm.hash.name = hashAlg
   }
+  const crypto = getCrypto()
   return crypto.importKey('pkcs8', keyBuffer, algorithm.algorithm, true, algorithm.usages)
 }
 
