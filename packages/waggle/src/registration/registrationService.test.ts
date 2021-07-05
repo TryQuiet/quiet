@@ -44,7 +44,7 @@ afterEach(async () => {
 })
 
 async function registerUserTest(csr: string): Promise<Response> {
-  const socksProxyAgent = new SocksProxyAgent({ port: ports.socksPort, host: 'localhost' })
+  const socksProxyAgent = new SocksProxyAgent({ port: ports.socksPort, host: 'localhost', timeout: 60000 })
   const options = {
     method: 'POST',
     body: JSON.stringify({ data: csr }),
