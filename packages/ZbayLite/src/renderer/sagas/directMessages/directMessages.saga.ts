@@ -135,10 +135,16 @@ export function* loadAllDirectMessages(
   if (username && newMessages) {
     let latestMessage = null
     newMessages.map(msg => {
-      const decodedMessage = transferToMessage(
-        JSON.parse(decodeMessage(sharedSecret, JSON.stringify(msg))),
-        users
-      )
+      let decodedMessage
+      try {
+        decodedMessage = transferToMessage(
+          JSON.parse(decodeMessage(sharedSecret, JSON.stringify(msg))),
+          users
+        )
+      } catch (err) {
+        console.log(err)
+        return
+      }
       displayableMessages[msg] = decodedMessage
       latestMessage = decodedMessage
     })
