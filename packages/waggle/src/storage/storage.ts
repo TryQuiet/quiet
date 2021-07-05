@@ -5,6 +5,7 @@ import OrbitDB from 'orbit-db'
 import KeyValueStore from 'orbit-db-kvstore'
 import EventStore from 'orbit-db-eventstore'
 import PeerId from 'peer-id'
+import validate from '../validation/validators'
 import {
   message as socketMessage,
   loadAllMessages,
@@ -16,7 +17,16 @@ import { loadAllPublicChannels } from '../socket/events/channels'
 import { Libp2p } from 'libp2p-gossipsub/src/interfaces'
 import { Config, dataFromRootPems } from '../constants'
 import { loadCertificates } from '../socket/events/certificates'
-import { IRepo, StorageOptions, IChannelInfo, IMessage, ChannelInfoResponse, IZbayChannel, IPublicKey, IMessageThread } from '../common/types'
+import {
+  IRepo,
+  StorageOptions,
+  IChannelInfo,
+  IMessage,
+  ChannelInfoResponse,
+  IZbayChannel,
+  IPublicKey,
+  IMessageThread
+} from '../common/types'
 import { verifyUserCert } from '@zbayapp/identity'
 import debug from 'debug'
 const log = Object.assign(debug('waggle:db'), {
@@ -345,6 +355,10 @@ export class Storage {
   }
 
   public async sendMessage(channelAddress: string, message: IMessage) {
+    if (!validate.isMessage(message)) {
+      log.error('STORAGE: public channel message is invalid')
+      return
+    }
     await this.subscribeForChannel(channelAddress) // Is it necessary?
     const db = this.publicChannelsRepos.get(channelAddress).db
     await db.add(message)
@@ -356,6 +370,10 @@ export class Storage {
   ): Promise<EventStore<IMessage>> {
     if (!channelAddress) {
       log("No channel address, can't create channel")
+      return
+    }
+    if (!validate.isChannel(channelData)) {
+      log.error('STORAGE: Invalid channel format')
       return
     }
     const db: EventStore<IMessage> = await this.orbitdb.log<IMessage>(
@@ -383,6 +401,10 @@ export class Storage {
   }
 
   public async addUser(address: string, halfKey: string): Promise<void> {
+    if (!validate.isUser(address, halfKey)) {
+      log.error('STORAGE: invalid user format')
+      return
+    }
     await this.directMessagesUsers.put(address, { halfKey })
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.directMessagesUsers.load({ fetchEntryTimeout: 2000 })
@@ -391,6 +413,10 @@ export class Storage {
   }
 
   public async initializeConversation(address: string, encryptedPhrase: string): Promise<void> {
+    if (!validate.isConversation(address, encryptedPhrase)) {
+      log.error('STORAGE: Invalid conversation format')
+      return
+    }
     const db: EventStore<IMessage> = await this.orbitdb.log<IMessage>(`dms.${address}`, {
       accessController: {
         write: ['*']
@@ -455,14 +481,11 @@ export class Storage {
 
     log(`creatin direct message thread for ${channelAddress}`)
 
-    const db: EventStore<IMessage> = await this.orbitdb.log<IMessage>(
-      `dms.${channelAddress}`,
-      {
-        accessController: {
-          write: ['*']
-        }
+    const db: EventStore<IMessage> = await this.orbitdb.log<IMessage>(`dms.${channelAddress}`, {
+      accessController: {
+        write: ['*']
       }
-    )
+    })
     db.events.on('replicated', () => {
       log('replicated some messages')
     })
@@ -474,6 +497,10 @@ export class Storage {
   }
 
   public async sendDirectMessage(channelAddress: string, message: string) {
+    if (!validate.isDirectMessage(message)) {
+      log.error('STORAGE: Invalid direct message format')
+      return
+    }
     await this.subscribeForDirectMessageThread(channelAddress) // Is it necessary? Yes it is atm
     log('STORAGE: sendDirectMessage entered')
     log(`STORAGE: sendDirectMessage channelAddress is ${channelAddress}`)
