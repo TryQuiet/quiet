@@ -1,12 +1,13 @@
 import tmp from 'tmp'
 import { SocksProxyAgent } from 'socks-proxy-agent'
 import { Config } from './constants'
-import { getPorts, torBinForPlatform, torDirForPlatform } from './utils'
+import { DummyIOServer, getPorts, Ports, torBinForPlatform, torDirForPlatform } from './utils'
 import { Tor } from './torManager'
 import { ConnectionsManager } from './libp2p/connectionsManager'
 import path from 'path'
 import PeerId from 'peer-id'
 import { Libp2pType } from './libp2p/customLibp2p'
+import { ConnectionsManagerOptions } from './common/types'
 tmp.setGracefulCleanup()
 
 export interface TmpDir {
@@ -16,15 +17,15 @@ export interface TmpDir {
 
 export const testBootstrapMultiaddrs = ['/dns4/abcd.onion/tcp/1111/ws/p2p/QmfLUJcDSLVYnNqSPSRK4mKG8MGw51m9K2v59k3yq1C8s4']
 
-export const spawnTorProcess = async (zbayDirPath: string): Promise<Tor> => {
-  const ports = await getPorts()
+export const spawnTorProcess = async (zbayDirPath: string, ports?: Ports): Promise<Tor> => {
+  const _ports = ports || await getPorts()
   const torPath = torBinForPlatform()
   const libPath = torDirForPlatform()
   const tor = new Tor({
     appDataPath: zbayDirPath,
     torPath: torPath,
-    controlPort: ports.controlPort,
-    socksPort: ports.socksPort,
+    controlPort: _ports.controlPort,
+    socksPort: _ports.socksPort,
     options: {
       env: {
         LD_LIBRARY_PATH: libPath,
@@ -36,13 +37,14 @@ export const spawnTorProcess = async (zbayDirPath: string): Promise<Tor> => {
   return tor
 }
 
-export const createMinConnectionManager = (options = {}): ConnectionsManager => {
+export const createMinConnectionManager = (options: ConnectionsManagerOptions): ConnectionsManager => {
+  if (!options.env?.appDataPath) throw new Error('Test connection manager is lacking appDataPath!')
   return new ConnectionsManager({
     port: 1111,
     host: 'abcd.onion',
     agentHost: 'localhost',
     agentPort: 2222,
-    io: null,
+    io: new DummyIOServer(),
     options: {
       bootstrapMultiaddrs: testBootstrapMultiaddrs,
       ...options

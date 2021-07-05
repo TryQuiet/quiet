@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.0.8] - [WIP]
+
+### Added
+
+- Certificate registration service (http + hidden service) - generate certificate for user and save it to db
+
 ## [2.0.7] - 2021.07.05
 
 ### Added

@@ -14,6 +14,10 @@
     "test": "DEBUG=ipfs:*,waggle:* jest ./src/**/* --runInBand --verbose",
     "test-ci": "jest ./src/**/* --runInBand --colors --ci --silent --verbose"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:ZbayApp/waggle.git"
+  },
   "files": [
     "lib/**/*"
   ],
@@ -48,9 +52,10 @@
     "@types/node": "^14.14.6",
     "@types/socket.io": "^2.1.12",
     "@types/validator": "^13.1.4",
-    "@zbayapp/identity": "^1.0.3",
+    "@zbayapp/identity": "^1.0.6",
     "abortable-iterator": "^3.0.0",
     "async-mutex": "^0.2.6",
+    "class-validator": "^0.13.1",
     "cors": "^2.8.5",
     "debug": "^4.3.1",
     "dotenv": "8.2.0",

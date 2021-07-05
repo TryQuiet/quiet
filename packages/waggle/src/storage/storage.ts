@@ -1,6 +1,6 @@
 import IPFS from 'ipfs'
 import path from 'path'
-import { createPaths } from '../utils'
+import { createPaths, getCertFieldValue } from '../utils'
 import OrbitDB from 'orbit-db'
 import KeyValueStore from 'orbit-db-kvstore'
 import EventStore from 'orbit-db-eventstore'
@@ -17,21 +17,29 @@ import { loadAllPublicChannels } from '../socket/events/channels'
 import { Libp2p } from 'libp2p-gossipsub/src/interfaces'
 import { Config, dataFromRootPems } from '../constants'
 import { loadCertificates } from '../socket/events/certificates'
+import { IRepo, StorageOptions, IChannelInfo, IMessage, ChannelInfoResponse, IZbayChannel, IPublicKey, IMessageThread, DataFromPems } from '../common/types'
+import { verifyUserCert, parseCertificate } from '@zbayapp/identity'
+import { CertFieldsTypes } from '@zbayapp/identity/lib/common'
 import {
-  IRepo,
-  StorageOptions,
-  IChannelInfo,
-  IMessage,
-  ChannelInfoResponse,
-  IZbayChannel,
-  IPublicKey,
-  IMessageThread
-} from '../common/types'
-import { verifyUserCert } from '@zbayapp/identity'
+  setEngine,
+  CryptoEngine
+} from 'pkijs'
+import { Crypto } from '@peculiar/webcrypto'
 import debug from 'debug'
 const log = Object.assign(debug('waggle:db'), {
   error: debug('waggle:db:err')
 })
+
+const webcrypto = new Crypto()
+setEngine(
+  'newEngine',
+  webcrypto,
+  new CryptoEngine({
+    name: '',
+    crypto: webcrypto,
+    subtle: webcrypto.subtle
+  })
+)
 
 export class Storage {
   public zbayDir: string
@@ -132,7 +140,7 @@ export class Storage {
       log(entry.payload.value)
       loadCertificates(this.io, this.getAllEventLogEntries(this.certificates))
     })
-    this.certificates.events.on('load', () => {
+    this.certificates.events.on('ready', () => {
       log('Loaded certificates to memory')
       loadCertificates(this.io, this.getAllEventLogEntries(this.certificates))
     })
@@ -529,13 +537,14 @@ export class Storage {
     this.io.emit(EventTypesResponse.RESPONSE_GET_PRIVATE_CONVERSATIONS, payload)
   }
 
-  public async saveCertificate(certificate: string): Promise<boolean> {
+  public async saveCertificate(certificate: string, fromRootPems?: DataFromPems): Promise<boolean> {
+    const rootPems = fromRootPems || dataFromRootPems // TODO: tmp for backward compatibilty
     log('About to save certificate...')
     if (!certificate) {
       log('Certificate is either null or undefined, not saving to db')
       return false
     }
-    const verification = await verifyUserCert(dataFromRootPems.certificate, certificate)
+    const verification = await verifyUserCert(rootPems.certificate, certificate)
     if (verification.resultCode !== 0) {
       log.error('Certificate is not valid')
       log.error(verification.resultMessage)
@@ -544,5 +553,20 @@ export class Storage {
     log('Saving certificate...')
     await this.certificates.add(certificate)
     return true
+  }
+
+  public usernameExists(username: string): boolean {
+    /**
+     * Check if given username is already in use
+     */
+    const certificates = this.getAllEventLogEntries(this.certificates)
+    for (const cert of certificates) {
+      const parsedCert = parseCertificate(cert)
+      const certUsername = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
+      if (certUsername.localeCompare(username, undefined, { sensitivity: 'base' }) === 0) {
+        return true
+      }
+    }
+    return false
   }
 }

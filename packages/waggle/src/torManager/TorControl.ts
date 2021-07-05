@@ -47,6 +47,7 @@ export class TorControl {
 
   private async disconnect() {
     this.connection.end()
+    this.connection = null
   }
 
   private async _sendCommand(command: string, resolve: Function, reject: Function) {

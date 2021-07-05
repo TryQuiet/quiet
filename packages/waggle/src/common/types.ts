@@ -47,9 +47,9 @@ export class ConnectionsManagerOptions {
     appDataPath?: string
   } = {}
 
-  bootstrapMultiaddrs: string[] = []
-  createPaths: boolean = true
-  isWaggleMobileMode: boolean = true
+  bootstrapMultiaddrs?: string[] = []
+  createPaths?: boolean = true
+  isWaggleMobileMode?: boolean = true
 }
 
 export interface IConstructor {
@@ -64,4 +64,9 @@ export interface IConstructor {
 export interface ILibp2pStatus {
   address: string
   peerId: string
+}
+
+export interface DataFromPems {
+  certificate: string
+  privKey: string
 }

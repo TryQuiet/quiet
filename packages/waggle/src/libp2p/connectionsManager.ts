@@ -13,10 +13,13 @@ import { createPaths, fetchAbsolute } from '../utils'
 import { Config, ZBAY_DIR_PATH } from '../constants'
 import fs from 'fs'
 import path from 'path'
-import { ConnectionsManagerOptions, IChannelInfo, IConstructor, ILibp2pStatus, IMessage } from '../common/types'
+import { ConnectionsManagerOptions, DataFromPems, IChannelInfo, IConstructor, ILibp2pStatus, IMessage } from '../common/types'
 import fetch from 'node-fetch'
 import debug from 'debug'
 import CustomLibp2p, { Libp2pType } from './customLibp2p'
+import { Tor } from '../torManager'
+import { CertificateRegistration } from '../registration'
+// import { createUserCsr } from '@zbayapp/identity'
 const log = Object.assign(debug('waggle:conn'), {
   error: debug('waggle:conn:err')
 })
@@ -49,10 +52,10 @@ export class ConnectionsManager {
       ...new ConnectionsManagerOptions(),
       ...options
     }
-    this.zbayDir = options?.env?.appDataPath || ZBAY_DIR_PATH
+    this.zbayDir = this.options.env?.appDataPath || ZBAY_DIR_PATH
     this.storage = new Storage(this.zbayDir, this.io, { ...options })
     this.peerId = null
-    this.bootstrapMultiaddrs = options.bootstrapMultiaddrs || this.defaultBootstrapMultiaddrs()
+    this.bootstrapMultiaddrs = this.getBootstrapMultiaddrs()
     this.listenAddrs = `/dns4/${this.host}/tcp/${this.port}/ws`
     this.trackerApi = fetchAbsolute(fetch)('http://okmlac2qjgo2577dkyhpisceua2phwxhdybw4pssortdop6ddycntsyd.onion:7788')
 
@@ -70,7 +73,10 @@ export class ConnectionsManager {
     this.socksProxyAgent = new SocksProxyAgent({ port: this.agentPort, host: this.agentHost })
   }
 
-  private readonly defaultBootstrapMultiaddrs = () => {
+  private readonly getBootstrapMultiaddrs = () => {
+    if (this.options.bootstrapMultiaddrs.length > 0) {
+      return this.options.bootstrapMultiaddrs
+    }
     return [
       '/dns4/2lmfmbj4ql56d55lmv7cdrhdlhls62xa4p6lzy6kymxuzjlny3vnwyqd.onion/tcp/7788/ws/p2p/Qmak8HeMad8X1HGBmz2QmHfiidvGnhu6w6ugMKtx8TFc85'
     ]
@@ -103,10 +109,15 @@ export class ConnectionsManager {
   //   return response.json()
   // }
 
-  // private readonly registerPeer = async (address: string): Promise<void> => {
+  // public async registerPeerTest (): Promise<void> {
+  //   const csr = await createUserCsr({
+  //     zbayNickname: 'MYuserName',
+  //     commonName: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
+  //     peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6'
+  //   })
   //   const options = {
   //     method: 'POST',
-  //     body: JSON.stringify({ address: address }),
+  //     body: JSON.stringify({ csr: csr.userCsr }),
   //     headers: { 'Content-Type': 'application/json' },
   //     agent: () => {
   //       return this.socksProxyAgent
@@ -254,6 +265,22 @@ export class ConnectionsManager {
 
   public subscribeForAllConversations = async (conversations: string[]): Promise<void> => {
     await this.storage.subscribeForAllConversations(conversations)
+  }
+
+  public setupRegistrationService = async (tor: Tor, hiddenServicePrivKey: string, dataFromPems: DataFromPems): Promise<CertificateRegistration> => {
+    const certRegister = new CertificateRegistration(hiddenServicePrivKey, tor, this, dataFromPems)
+    try {
+      await certRegister.init()
+    } catch (err) {
+      log.error(`Couldn't initialize certificate registration service: ${err as string}`)
+      return
+    }
+    try {
+      await certRegister.listen()
+    } catch (err) {
+      log.error(`Certificate registration service couldn't start listening: ${err as string}`)
+    }
+    return certRegister
   }
 
   public static readonly createBootstrapNode = ({

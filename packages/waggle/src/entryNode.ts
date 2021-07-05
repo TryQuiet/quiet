@@ -2,7 +2,7 @@ import { Tor } from './torManager'
 import { DataServer } from './socket/DataServer'
 import { ConnectionsManager } from './libp2p/connectionsManager'
 import initListeners from './socket/listeners/'
-import { ZBAY_DIR_PATH } from './constants'
+import { dataFromRootPems, ZBAY_DIR_PATH } from './constants'
 import * as os from 'os'
 import fs from 'fs'
 import PeerId from 'peer-id'
@@ -62,6 +62,7 @@ class Node {
     const dataServer = await this.initDataServer()
     const connectonsManager = await this.initStorage(dataServer, onionAddress)
     await this.initListeners(dataServer, connectonsManager)
+    await connectonsManager.setupRegistrationService(this.tor, process.env.HIDDEN_SERVICE_SECRET_REGISTRATION, dataFromRootPems)
   }
 
   async spawnTor (): Promise<Tor> {
@@ -95,7 +96,7 @@ class Node {
           privKey: this.getHiddenServiceSecret()
         }))
       } else {
-        service = await (await this.tor.createNewHiddenService(this.hiddenServicePort, this.hiddenServicePort)).onionAddress
+        service = (await this.tor.createNewHiddenService(this.hiddenServicePort, this.hiddenServicePort)).onionAddress
       }
     }
     return `${service}.onion`
@@ -117,7 +118,7 @@ class Node {
       agentPort: this.socksProxyPort,
       io: dataServer.io,
       options: {
-        bootstrapMultiaddrs: process.env.BOOTSTRAP_ADDRS ? [process.env.BOOTSTRAP_ADDRS] : null
+        bootstrapMultiaddrs: process.env.BOOTSTRAP_ADDRS ? [process.env.BOOTSTRAP_ADDRS] : []
       }
     })
     const node = await connectonsManager.initializeNode(peer)
