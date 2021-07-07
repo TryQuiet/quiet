@@ -2,6 +2,9 @@
 
 ## [2.0.8] - [WIP]
 
+### Fix
+
+- Root certificate and private key
 ### Added
 
 - Certificate registration service (http + hidden service) - generate certificate for user and save it to db
