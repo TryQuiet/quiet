@@ -20,6 +20,8 @@ import CustomLibp2p, { Libp2pType } from './customLibp2p'
 import { Tor } from '../torManager'
 import { CertificateRegistration } from '../registration'
 // import { createUserCsr } from '@zbayapp/identity'
+import { EventTypesResponse } from '../socket/constantsReponse'
+
 const log = Object.assign(debug('waggle:conn'), {
   error: debug('waggle:conn:err')
 })
@@ -37,7 +39,7 @@ export class ConnectionsManager {
   options: ConnectionsManagerOptions
   zbayDir: string
   io: any
-  peerId: PeerId
+  peerId: PeerId | null
   bootstrapMultiaddrs: string[]
   trackerApi: any
 
@@ -207,6 +209,11 @@ export class ConnectionsManager {
     const key = new TextEncoder().encode(`onion${peerId.substring(0, 10)}`)
     const digest = await multihashing(key, 'sha2-256')
     return digest
+  }
+
+  public sendPeerId = () => {
+    const payload = this.peerId?.toB58String()
+    this.io.emit(EventTypesResponse.SEND_PEER_ID, payload)
   }
 
   public sendMessage = async (

@@ -55,6 +55,7 @@
     "@zbayapp/identity": "^1.0.6",
     "abortable-iterator": "^3.0.0",
     "async-mutex": "^0.2.6",
+    "commander": "^7.2.0",
     "class-validator": "^0.13.1",
     "cors": "^2.8.5",
     "debug": "^4.3.1",
@@ -101,6 +102,6 @@
     "uint8arrays": "^1.1.0",
     "url": "^0.11.0",
     "validator": "^13.6.0",
-    "wrtc": "^0.4.6"
+    "wrtc": "./wrtc-mock"
   }
 }

@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.0.9] - WIP
+
+### Added
+
+  - Added manager for mobile app
+
 ## [2.0.8] - 2021-07-07
 
 ### Fix

@@ -19,6 +19,7 @@ export enum EventTypesServer {
   SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD = 'subscribeForDirectMessageThread',
   DIRECT_MESSAGE = 'directMessage',
   SUBSCRIBE_FOR_ALL_CONVERSATIONS = 'subscribeForAllConversations',
+  REQUEST_PEER_ID = 'requestPeerId',
   ASK_FOR_MESSAGES = 'askForMessages',
   SAVE_CERTIFICATE = 'saveCertificate'
 }
