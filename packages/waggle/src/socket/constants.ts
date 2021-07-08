@@ -21,5 +21,6 @@ export enum EventTypesServer {
   SUBSCRIBE_FOR_ALL_CONVERSATIONS = 'subscribeForAllConversations',
   REQUEST_PEER_ID = 'requestPeerId',
   ASK_FOR_MESSAGES = 'askForMessages',
+  REGISTER_USER_CERTIFICATE = 'registerUserCertificate',
   SAVE_CERTIFICATE = 'saveCertificate'
 }

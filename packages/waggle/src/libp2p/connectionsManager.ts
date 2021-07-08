@@ -19,7 +19,6 @@ import debug from 'debug'
 import CustomLibp2p, { Libp2pType } from './customLibp2p'
 import { Tor } from '../torManager'
 import { CertificateRegistration } from '../registration'
-// import { createUserCsr } from '@zbayapp/identity'
 import { EventTypesResponse } from '../socket/constantsReponse'
 
 const log = Object.assign(debug('waggle:conn'), {
@@ -288,6 +287,43 @@ export class ConnectionsManager {
       log.error(`Certificate registration service couldn't start listening: ${err as string}`)
     }
     return certRegister
+  }
+
+  public registerUserCertificate = async (serviceAddress: string, userCsr: string) => {
+    const response = await this.sendCertificateRegistrationRequest(serviceAddress, userCsr)
+    switch (response.status) {
+      case 200:
+        break
+      case 403:
+        this.emitCertificateRegistrationError('Username already taken.')
+        return
+      default:
+        this.emitCertificateRegistrationError('Registering username failed.')
+        return
+    }
+    const certificate: string = await response.json()
+    this.io.emit(EventTypesResponse.SEND_USER_CERTIFICATE, certificate)
+  }
+
+  public sendCertificateRegistrationRequest = async (serviceAddress: string, userCsr: string): Promise<Response> => {
+    const options = {
+      method: 'POST',
+      body: JSON.stringify({ data: userCsr }),
+      headers: { 'Content-Type': 'application/json' },
+      agent: () => {
+        return new SocksProxyAgent({ port: this.agentPort, host: this.agentHost })
+      }
+    }
+    try {
+      return await fetchAbsolute(fetch)(serviceAddress)('/register', options)
+    } catch (e) {
+      console.error(e)
+      throw e
+    }
+  }
+
+  public emitCertificateRegistrationError(message: string) {
+    this.io.emit(EventTypesResponse.CERTIFICATE_REGISTRATION_ERROR, message)
   }
 
   public static readonly createBootstrapNode = ({

@@ -4,7 +4,8 @@
 
 ### Added
 
-  - Added manager for mobile app
+- Added manager for mobile app
+- Registering user certificate (websocket + http) - fetch data from front-end and send request to the service
 
 ## [2.0.8] - 2021-07-07
 
