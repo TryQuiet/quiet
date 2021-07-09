@@ -9,11 +9,11 @@ export type IChannelInfo = {
 
 export type IMessage = {
   id: string;
-  type: number;
-  typeIndicator: number;
+  type?: number;
+  typeIndicator?: number;
   message: string;
   createdAt: number;
-  r: number;
+  r?: number;
   channelId: string;
   signature: string;
 };

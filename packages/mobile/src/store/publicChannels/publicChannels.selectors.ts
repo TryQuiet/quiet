@@ -41,14 +41,14 @@ export const channelMessages = createSelector(
   },
 );
 
-export const currentChannelMessagesIds = createSelector(
+export const currentChannelMessagesKeys = createSelector(
   currentChannel,
   channelMessages,
   (address, messages) => {
     if (messages && address in messages) {
       return messages[address].ids;
     } else {
-      return [];
+      return <string[]>[];
     }
   },
 );
@@ -60,13 +60,25 @@ export const currentChannelMessages = createSelector(
     if (messages && address in messages) {
       return messages[address].messages;
     } else {
-      return [];
+      return {};
     }
   },
 );
 
+export const orderedChannelMessages = createSelector(
+  currentChannelMessagesKeys,
+  currentChannelMessages,
+  (keys, messages) => {
+    return keys
+      .filter(key => key in messages)
+      .map(key => {
+        return messages[key];
+      });
+  },
+);
+
 export const missingCurrentChannelMessages = createSelector(
-  currentChannelMessagesIds,
+  currentChannelMessagesKeys,
   currentChannelMessages,
   (ids, messages) => {
     return ids.filter(id => !(id in messages));
@@ -74,14 +86,16 @@ export const missingCurrentChannelMessages = createSelector(
 );
 
 export const currentChannelDisplayableMessages = createSelector(
-  currentChannelMessages,
+  orderedChannelMessages,
   messages =>
-    Object.entries(messages).map(([id, message]) => ({
-      id: id,
-      message: message.message,
-      nickname: 'anon',
-      datetime: formatMessageDisplayDate(message.createdAt),
-    })),
+    messages.map(message => {
+      return {
+        id: message.id,
+        message: message.message,
+        nickname: 'anon',
+        datetime: formatMessageDisplayDate(message.createdAt),
+      };
+    }),
 );
 
 export const publicChannelsSelectors = {
@@ -89,8 +103,8 @@ export const publicChannelsSelectors = {
   ZbayChannel,
   currentChannel,
   channelMessages,
-  currentChannelMessagesIds,
   currentChannelMessages,
+  orderedChannelMessages,
   missingCurrentChannelMessages,
   currentChannelDisplayableMessages,
 };

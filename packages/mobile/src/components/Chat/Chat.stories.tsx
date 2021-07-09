@@ -16,61 +16,29 @@ storiesOf('Chat', module).add('Default', () => (
     }}
     messages={[
       {
-        message: {
-          id: '1',
-          type: 0,
-          typeIndicator: 0,
-          message:
-            'Brownie powder marshmallow dessert carrot cake marzipan cake caramels. Muffin topping wafer jelly apple pie candy. Fruitcake chocolate pudding fruitcake candy lemon drops chocolate.',
-          createdAt: 0,
-          r: 0,
-          channelId: '',
-          signature: '',
-        },
+        id: '1',
+        message:
+          'Brownie powder marshmallow dessert carrot cake marzipan cake caramels. Muffin topping wafer jelly apple pie candy. Fruitcake chocolate pudding fruitcake candy lemon drops chocolate.',
         nickname: 'holmes',
         datetime: '1:30pm',
       },
       {
-        message: {
-          id: '2',
-          type: 0,
-          typeIndicator: 0,
-          message:
-            'Bear claw bear claw donut marzipan chocolate cake sugar plum pie. Chocolate cake chocolate bar ice cream. Marzipan powder brownie muffin jelly beans. Sesame snaps tootsie roll macaroon donut.',
-          createdAt: 0,
-          r: 0,
-          channelId: '',
-          signature: '',
-        },
+        id: '2',
+        message:
+          'Bear claw bear claw donut marzipan chocolate cake sugar plum pie. Chocolate cake chocolate bar ice cream. Marzipan powder brownie muffin jelly beans. Sesame snaps tootsie roll macaroon donut.',
         nickname: 'holmes',
         datetime: '1:32pm',
       },
       {
-        message: {
-          id: '3',
-          type: 0,
-          typeIndicator: 0,
-          message: 'Marshmallows!',
-          createdAt: 0,
-          r: 0,
-          channelId: '',
-          signature: '',
-        },
+        id: '3',
+        message: 'Marshmallows!',
         nickname: 'emily',
         datetime: '1:32pm',
       },
       {
-        message: {
-          id: '4',
-          type: 0,
-          typeIndicator: 0,
-          message:
-            'Chupa chups soufflé danish. Cake chocolate brownie cookie bear claw soufflé. Muffin chupa chups sweet caramels jelly beans chocolate bar bonbon liquorice.',
-          createdAt: 0,
-          r: 0,
-          channelId: '',
-          signature: '',
-        },
+        id: '4',
+        message:
+          'Chupa chups soufflé danish. Cake chocolate brownie cookie bear claw soufflé. Muffin chupa chups sweet caramels jelly beans chocolate bar bonbon liquorice.',
         nickname: 'bartek',
         datetime: '1:32pm',
       },

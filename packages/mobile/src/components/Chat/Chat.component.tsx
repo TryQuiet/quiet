@@ -51,7 +51,6 @@ export const Chat: FC<ChatProps> = ({
   return (
     <KeyboardAvoidingView
       behavior="height"
-      keyboardVerticalOffset={25}
       style={{
         flex: 1,
         flexDirection: 'column',
@@ -59,6 +58,7 @@ export const Chat: FC<ChatProps> = ({
         backgroundColor: 'white',
       }}>
       <FlatList
+        inverted
         data={messages}
         keyExtractor={item => item.id}
         renderItem={({ item }) => <Message message={item} />}
@@ -73,7 +73,7 @@ export const Chat: FC<ChatProps> = ({
       </View>
 
       {didKeyboardShow && (
-        <View style={{ paddingLeft: 20, paddingRight: 20, paddingBottom: 10 }}>
+        <View style={{ paddingLeft: 20, paddingRight: 20, paddingBottom: 15 }}>
           <View style={{ alignSelf: 'flex-end' }}>
             <MessageSendButton
               onPress={sendMessageAction}
