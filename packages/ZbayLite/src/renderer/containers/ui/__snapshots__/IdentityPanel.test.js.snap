@@ -6,8 +6,6 @@ Object {
     "address": "zctestaddress",
     "addresses": Array [],
     "balance": "23.435432",
-    "certPrivKey": "",
-    "certificate": "",
     "donationAddress": "",
     "donationAllow": true,
     "freeUtxos": 0,

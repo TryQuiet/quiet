@@ -14,8 +14,9 @@ import ownedChannelsSelectors from '../../../store/selectors/ownedChannels'
 import publicChannelsSelector from '../../../store/selectors/publicChannels'
 import { MessageType } from '../../../../shared/static.types'
 import zcashChannels from '../../../zcash/channels'
-import channelHandlers from '../../../store/handlers/channel'
+import channelHandlers, { actions } from '../../../store/handlers/channel'
 import appHandlers from '../../../store/handlers/app'
+
 import electronStore from '../../../../shared/electronStore'
 import { loadNextMessagesLimit } from '../../../../shared/static'
 
@@ -30,7 +31,7 @@ export const ChannelMessages = ({ tab, contentRect }) => {
   const qMessages = useSelector(queueMessages.queue)
   const qDmMessages = useSelector(dmQueueMessages.queue)
   const contactId = useSelector(channelSelectors.id)
-
+  const setAddress = (contactId) => dispatch(actions.setAddress(contactId))
   const triggerScroll = qDmMessages.length + qMessages.length > 0
 
   const onLinkedChannel = (props) =>
@@ -38,7 +39,6 @@ export const ChannelMessages = ({ tab, contentRect }) => {
   const setDisplayableLimit = (arg0?: number) =>
     dispatch(channelHandlers.actions.setDisplayableLimit(arg0))
   const onRescan = () => dispatch(appHandlers.epics.restartAndRescan())
-
   const messages = useSelector(contactsSelectors.directMessages(contactId))
     .visibleMessages
   const messagesLength = useSelector(
@@ -54,6 +54,10 @@ export const ChannelMessages = ({ tab, contentRect }) => {
   const publicChannels = useSelector(publicChannelsSelector.publicChannels)
   const network = useSelector(nodeSelector.network)
   const isInitialLoadFinished = useSelector(appSelectors.isInitialLoadFinished)
+
+  useEffect(() => {
+    setAddress(contactId)
+  }, [contactId])
 
   useEffect(() => {
     setScrollPosition(-1)

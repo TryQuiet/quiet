@@ -420,9 +420,9 @@ export const _buildUtxo = ({
       (utxo) =>
         utxo.value / satoshiMultiplier >
         parseFloat(transfer.amount) +
-          2 * splitTreshhold +
-          fee +
-          includedDonation
+        2 * splitTreshhold +
+        fee +
+        includedDonation
     )
     // const standardMemo = addStandardToMemo('internal utxo creation')
     if (utxo) {

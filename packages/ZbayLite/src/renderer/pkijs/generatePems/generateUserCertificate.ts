@@ -8,7 +8,7 @@ import { KeyObject } from 'node:crypto'
 export const createUserCert = async (rootCA, rootKey, userCsr, notBeforeDate, notAfterDate) => {
   const { hashAlg, signAlg } = config
   const userCertificate = await generateuserCertificate({
-    issuerCert: await loadCertificate(rootCA),
+    issuerCert: loadCertificate(rootCA),
     issuerKey: await loadPrivateKey(rootKey, signAlg, hashAlg),
     pkcs10: await loadCSR(userCsr),
     hashAlg,

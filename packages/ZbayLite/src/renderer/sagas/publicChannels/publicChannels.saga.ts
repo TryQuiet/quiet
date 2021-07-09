@@ -1,23 +1,18 @@
 import { all as effectsAll, takeEvery } from 'redux-saga/effects'
 import { put, select } from 'typed-redux-saga'
-import BigNumber from 'bignumber.js'
 import { publicChannelsActions, PublicChannelsActions } from './publicChannels.reducer'
-import { displayDirectMessageNotification, displayMessageNotification } from '../../notifications'
 import { setPublicChannels } from '../../store/handlers/publicChannels'
 import contactsHandlers, { actions } from '../../store/handlers/contacts'
-import {
-  getPublicKeysFromSignature,
-  usernameSchema,
-  exchangeParticipant
-} from '../../zbay/messages'
+import { displayDirectMessageNotification, displayMessageNotification } from '../../notifications'
+import usersSelectors from '../../store/selectors/users'
+
 import { findNewMessages } from '../../store/handlers/messages'
 
-import usersSelectors from '../../store/selectors/users'
 import contactsSelectors from '../../store/selectors/contacts'
-import { DisplayableMessage } from '../../zbay/messages.types'
 import publicChannelsSelectors from '../../store/selectors/publicChannels'
 import electronStore from '../../../shared/electronStore'
 import debug from 'debug'
+import { DisplayableMessage } from '../../zbay/messages.types'
 
 const log = Object.assign(debug('zbay:channels'), {
   error: debug('zbay:channels:err')
@@ -25,61 +20,26 @@ const log = Object.assign(debug('zbay:channels'), {
 
 const all: any = effectsAll
 
-export const transferToMessage = (msg, users) => {
-  console.log(`messages is ${msg}`)
-  let publicKey = null
-  let sender = { replyTo: '', username: 'Unnamed' }
-  let isUnregistered = false
-  const { r, message, signature, id, type, createdAt } = msg
-  const signatureBuffer = Buffer.from(signature, 'base64')
-  publicKey = getPublicKeysFromSignature({
-    message,
-    signature: signatureBuffer,
-    r
-  }).toString('hex')
-  if (users !== undefined) {
-    const fromUser = users[publicKey]
-    if (fromUser !== undefined) {
-      const isUsernameValid = usernameSchema.isValidSync(fromUser)
-      sender = {
-        ...exchangeParticipant,
-        replyTo: fromUser.address,
-        username: isUsernameValid ? fromUser.nickname : `anon${publicKey.substring(0, 10)}`
-      }
-    } else {
-      sender = {
-        ...exchangeParticipant,
-        replyTo: '',
-        username: `anon${publicKey}`
-      }
-      isUnregistered = true
-    }
-  }
-  const parsedMessage: any = {
-    id: id,
-    message,
-    r,
-    type,
-    createdAt,
-    spent: new BigNumber(0),
-    sender: sender,
-    isUnregistered,
-    publicKey,
-    blockHeight: null
-  }
-  const displayableMessage = new DisplayableMessage(parsedMessage)
-  return displayableMessage
-}
-
 export function* loadMessage(action: PublicChannelsActions['loadMessage']): Generator {
-  const users = yield* select(usersSelectors.users)
+  const message = action.payload.message
   const myUser = yield* select(usersSelectors.myUser)
-  const message = transferToMessage(action.payload.message, users)
-  if (myUser.nickname !== message.sender.username) {
+
+  const messagesWithInfo = yield* select(contactsSelectors.messagesOfChannelWithUserInfo)
+
+  let foundMessage
+  if (message !== null) {
+    foundMessage = messagesWithInfo.find((item) => {
+      return item.message.id === message.id
+    })
+  }
+
+  if (foundMessage && myUser.nickname !== foundMessage.userInfo.username) { ///
+    console.log('siema', myUser.nickname, foundMessage.userInfo.username)
     displayDirectMessageNotification({
-      username: message.sender.username,
+      username: foundMessage.userInfo.username,
       message: message
     })
+    console.log(' action.payload.channelAddress', action.payload.channelAddress)
     yield put(
       actions.appendNewMessages({
         contactAddress: action.payload.channelAddress,
@@ -87,10 +47,11 @@ export function* loadMessage(action: PublicChannelsActions['loadMessage']): Gene
       })
     )
   }
+
   yield put(
     publicChannelsActions.addMessage({
       key: action.payload.channelAddress,
-      message: { [message.id]: message }
+      message: { [message.id]: message as DisplayableMessage }
     })
   )
 }
@@ -119,10 +80,6 @@ export function* getPublicChannels(
 export function* loadAllMessages(
   action: PublicChannelsActions['responseLoadAllMessages']
 ): Generator {
-  const users = yield* select(usersSelectors.users)
-  const myUser = yield* select(usersSelectors.myUser)
-  const pubChannels = yield* select(publicChannelsSelectors.publicChannels)
-
   const channel = yield* select(contactsSelectors.contact(action.payload.channelAddress))
   if (!channel) {
     log(`Couldn't load all messages. No channel ${action.payload.channelAddress} in contacts`)
@@ -133,18 +90,13 @@ export function* loadAllMessages(
   if (!username) {
     return
   }
+  const displayableMessages = action.payload.messages
+
   const messagesById = {}
-  const displayableMessages = action.payload.messages.map(msg => {
-    let transferedMessage: DisplayableMessage
-    try {
-      transferedMessage = transferToMessage(msg, users)
-    } catch (err) {
-      console.log(err)
-      return
-    }
-    messagesById[msg.id] = transferedMessage
-    return transferedMessage
+  action.payload.messages.map(msg => {
+    messagesById[msg.id] = msg
   })
+
   yield put(
     contactsHandlers.actions.setMessages({
       key: action.payload.channelAddress,
@@ -154,18 +106,30 @@ export function* loadAllMessages(
     })
   )
 
-  const displayableMessagesFiltered = displayableMessages.filter(entry => entry !== undefined)
-
   const state = yield* select()
-  const newMsgs = findNewMessages(action.payload.channelAddress, displayableMessagesFiltered, state)
+  const newMsgs = findNewMessages(action.payload.channelAddress, displayableMessages, state)
+
+  const messagesWithInfo = yield* select(contactsSelectors.allMessagesOfChannelsWithUserInfo)
+  const msg = newMsgs[newMsgs.length - 1]
+
+  let foundMessage
+  if (msg) {
+    foundMessage = messagesWithInfo.flat().find((item) => {
+      return item.message.id === msg.id
+    })
+  }
+
+  const myUser = yield* select(usersSelectors.myUser)
+  const pubChannels = yield* select(publicChannelsSelectors.publicChannels)
+
   const pubChannelsArray = Object.values(pubChannels)
   const contact = pubChannelsArray.filter(item => {
     return item.name === username
   })
-  const msg = newMsgs[newMsgs.length - 1]
-  if (msg && msg?.sender?.username !== myUser.nickname) {
+
+  if (foundMessage && foundMessage.userInfo.username !== myUser.nickname) {
     displayMessageNotification({
-      senderName: msg.sender.username,
+      senderName: foundMessage.userInfo.username,
       message: msg.message,
       channelName: username,
       address: contact[0].address
@@ -186,7 +150,6 @@ export function* sendIds(action: PublicChannelsActions['sendIds']): Generator {
     log(`Couldn't load all messages. No channel ${action.payload.channelAddress} in contacts`)
     return
   }
-  console.log(action.payload.ids)
   let messagesToFetch = []
   const ids = Array.from(Object.values(channel.messages)).map(msg => msg.id)
   messagesToFetch = action.payload.ids.filter(id => !ids.includes(id))

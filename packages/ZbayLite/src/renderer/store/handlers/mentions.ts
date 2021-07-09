@@ -1,11 +1,9 @@
 import { produce, immerable } from 'immer'
-import { DateTime } from 'luxon'
 import { createAction, handleActions } from 'redux-actions'
 
 import channelSelectors from '../selectors/channel'
 import publicChannelsSelector from '../selectors/publicChannels'
 import usersSelectors from '../selectors/users'
-import mentionsSelectors from '../selectors/mentions'
 import { actionTypes } from '../../../shared/static'
 import { messages as zbayMessages } from '../../zbay'
 import identitySelectors from '../selectors/identity'
@@ -48,32 +46,31 @@ export type MentionsActions = ActionsType<typeof actions>
 
 const checkMentions = () => async (dispatch, getState) => {
   const channelId = channelSelectors.channelId(getState())
-  const message = channelSelectors.message(getState())
-  const members = channelSelectors.members(getState())
-  const users = usersSelectors.users(getState())
-  const currentMentions = mentionsSelectors.mentionForChannel(channelId)(getState())
+  // const message = channelSelectors.message(getState())
 
-  const usersOnChannel = Array.from(Object.values(users)).filter(user => members.has(user.address))
-  const splitMessage = message
-    .split(String.fromCharCode(160))
-    .filter(part => part.startsWith('@'))
-    .filter(part =>
-      Array.from(Object.values(users)).find(user => user.nickname === part.substring(1))
-    )
+  // const users = usersSelectors.users(getState())
+  // const currentMentions = mentionsSelectors.mentionForChannel(channelId)(getState())
+
+  // const splitMessage = message
+  //   .split(String.fromCharCode(160))
+  //   .filter(part => part.startsWith('@'))
+  //   .filter(part =>
+  //     Array.from(Object.values(users)).find(user => user.nickname === part.substring(1))
+  //   )
 
   const foundMentions = []
-  for (const mention of splitMessage) {
-    if (!usersOnChannel.find(user => user.nickname === mention.substring(1).trim())) {
-      if (!currentMentions.find(c => c.nickname === mention.substring(1).trim())) {
-        foundMentions.push(
-          new Mentions({
-            nickname: mention.substring(1).trim(),
-            timeStamp: DateTime.utc().toSeconds()
-          })
-        )
-      }
-    }
-  }
+  // for (const mention of splitMessage) {
+  //   if (!usersOnChannel.find(user => user.nickname === mention.substring(1).trim())) {
+  //     if (!currentMentions.find(c => c.nickname === mention.substring(1).trim())) {
+  //       foundMentions.push(
+  //         new Mentions({
+  //           nickname: mention.substring(1).trim(),
+  //           timeStamp: DateTime.utc().toSeconds()
+  //         })
+  //       )
+  //     }
+  //   }
+  // }
   if (foundMentions.length > 0) {
     dispatch(addMentionMiss({ mentions: foundMentions, channelId }))
   }

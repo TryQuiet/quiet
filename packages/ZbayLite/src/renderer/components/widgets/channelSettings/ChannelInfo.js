@@ -114,7 +114,7 @@ export const ChannelInfo = ({
                         </Grid>
                         <Grid item className={classes.descriptionDiv}>
                           <Typography className={classes.label} variant='body2'>
-                          Channel Description
+                            Channel Description
                           </Typography>
                           <TextField
                             name='updateChannelDescription'
@@ -207,7 +207,7 @@ export const ChannelInfo = ({
                             disabled={!isValid || isSubmitting}
                             className={classes.button}
                           >
-                          Save
+                            Save
                           </Button>
                         </Grid>
                       </Grid>

@@ -24,13 +24,13 @@ export class ExchangeParticipant {
   }
 }
 export interface IMessage {
-  moderationType: string
-  moderationTarget: string
-  owner: string
-  itemId: string
-  text: string
-  tag: string
-  offerOwner: string
+  moderationType?: string
+  moderationTarget?: string
+  owner?: string
+  itemId?: string
+  text?: string
+  tag?: string
+  offerOwner?: string
   minFee?: string
   updateMinFee?: string
   updateChannelDescription?: string
@@ -43,35 +43,39 @@ export interface IMessage {
 }
 export class DisplayableMessage {
   id: string
-  keys: string[]
-  owner: string
-  name: string
   type: MessageType = MessageType.BASIC
-  sender: IExchangeParticipant
-  receiver: IExchangeParticipant
+  message?: IMessage
   createdAt: number
-  message: IMessage
-  spent: BigNumber = new BigNumber(0)
-  fromYou: boolean = false
-  status: string = 'broadcasted'
+  signature: string
+  pubKey: string
+  channelId: string
+
+  keys?: string[]
+  owner?: string
+  name?: string
+  sender?: IExchangeParticipant
+  receiver?: IExchangeParticipant
+  spent?: BigNumber = new BigNumber(0)
+  fromYou?: boolean = false
+  status?: string = 'broadcasted'
   error?: string
-  tag: string
+  tag?: string
   offerOwner?: string
-  isUnregistered: boolean
+  isUnregistered?: boolean
   publicKey?: string
-  blockHeight: number = Number.MAX_SAFE_INTEGER
-  block_height: string
-  specialType: number
-  blockTime: number
-  messageId: string
-  nickname: string
-  address: string
-  outgoing_metadata: IOutgoingMetadata[]
-  memohex: string
-  txid: string
-  amount: number
-  memo: string
-  datetime: string
+  blockHeight?: number = Number.MAX_SAFE_INTEGER
+  block_height?: string
+  specialType?: number
+  blockTime?: number
+  messageId?: string
+  nickname?: string
+  address?: string
+  outgoing_metadata?: IOutgoingMetadata[]
+  memohex?: string
+  txid?: string
+  amount?: number
+  memo?: string
+  datetime?: string
 
   constructor(
     values: Partial<DisplayableMessage> &

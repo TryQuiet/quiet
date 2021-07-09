@@ -25,7 +25,6 @@ export const directMessagesActions = {
   responseGetAvailableUsers: createAction<{ [key: string]: { halfKey: string } }, Socket.RESPONSE_GET_AVAILABLE_USERS>(Socket.RESPONSE_GET_AVAILABLE_USERS),
   // Messages
   sendDirectMessage: createAction<string, Socket.SEND_DIRECT_MESSAGE>(Socket.SEND_DIRECT_MESSAGE),
-  saveCertificate: createAction<string, Socket.SAVE_CERTIFICATE>(Socket.SAVE_CERTIFICATE), // for now
   loadDirectMessage: createAction<any, Socket.DIRECT_MESSAGE>(Socket.DIRECT_MESSAGE),
   loadAllDirectMessages: createAction(Socket.LOAD_ALL_DIRECT_MESSAGES),
   responseLoadAllDirectMessages: createAction<{

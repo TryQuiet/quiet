@@ -3,7 +3,7 @@ import { directMessagesSaga } from './directMessages/directMessages.saga'
 
 import { publicChannelsSaga } from './publicChannels/publicChannels.saga'
 import { socketSaga } from './socket/socket.saga'
-import { certificatesSaga } from './certificates/certificates.saga'
+import { certificatesSaga } from '../store/certificates/certificates.saga'
 
 export default function* root(): Generator {
   yield all([

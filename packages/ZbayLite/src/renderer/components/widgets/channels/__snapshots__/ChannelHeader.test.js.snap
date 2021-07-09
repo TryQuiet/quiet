@@ -143,13 +143,6 @@ exports[`ChannelHeader renders members when 0 1`] = `
           </WithStyles(ForwardRef(Grid))>
         </Memo(WithStyles(Tooltip))>
       </WithStyles(ForwardRef(Grid))>
-      <WithStyles(ForwardRef(Typography))
-        className="subtitle-mock"
-        variant="caption"
-      >
-        1
-         Participants
-      </WithStyles(ForwardRef(Typography))>
     </WithStyles(ForwardRef(Grid))>
     <WithStyles(ForwardRef(Grid))
       alignContent="center"
@@ -241,13 +234,6 @@ exports[`ChannelHeader renders without members count 1`] = `
           </WithStyles(ForwardRef(Grid))>
         </Memo(WithStyles(Tooltip))>
       </WithStyles(ForwardRef(Grid))>
-      <WithStyles(ForwardRef(Typography))
-        className="subtitle-mock"
-        variant="caption"
-      >
-        5
-         Participants
-      </WithStyles(ForwardRef(Typography))>
     </WithStyles(ForwardRef(Grid))>
     <WithStyles(ForwardRef(Grid))
       alignContent="center"

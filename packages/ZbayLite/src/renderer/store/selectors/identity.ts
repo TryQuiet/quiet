@@ -18,6 +18,8 @@ const lockedBalance = currency =>
 const id = createSelector(data, d => d.id)
 const name = createSelector(data, d => d.name)
 
+const nickName = createSelector(identity, i => i.registrationStatus.nickname)
+
 const donationAllow = createSelector(data, d => d.donationAllow)
 const freeUtxos = createSelector(data, d => d.freeUtxos)
 const shieldingTax = createSelector(data, d => d.shieldingTax)
@@ -45,7 +47,6 @@ const removedChannels = createSelector(identity, i => Array.from(Object.values(i
 const shippingData = createSelector(data, d => d.shippingData)
 
 const registrationStatus = createSelector(identity, i => i.registrationStatus)
-const certificate = createSelector(data, d => d.certificate)
 
 export default {
   id,
@@ -72,5 +73,5 @@ export default {
   removedChannels,
   onionAddress,
   registrationStatus,
-  certificate
+  nickName
 }

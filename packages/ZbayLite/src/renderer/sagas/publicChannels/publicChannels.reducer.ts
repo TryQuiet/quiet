@@ -8,11 +8,14 @@ export interface BasicMessage {
   channelId: string
   type: number
   signature: string
-  r: number
   createdAt: number
   message: string
   id: string
-  typeIndicator: number
+  pubKey: string
+  sender?: {
+    replyTo: string
+    username: string
+  }
 }
 export interface Libp2pMessage {
   channelAddress: string

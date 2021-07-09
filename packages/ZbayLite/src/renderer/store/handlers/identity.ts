@@ -30,8 +30,7 @@ import {
   actionTypes,
   networkFeeSatoshi,
   satoshiMultiplier,
-  networkFee,
-  dataFromRootPems
+  networkFee
 } from '../../../shared/static'
 import electronStore, { migrationStore } from '../../../shared/electronStore'
 import staticChannelsSyncHeight from '../../static/staticChannelsSyncHeight.json'
@@ -43,8 +42,6 @@ import { DisplayableMessage } from '../../zbay/messages.types'
 import directMessagesHandlers from './directMessages'
 import directMessagesSelectors from '../selectors/directMessages'
 import debug from 'debug'
-import { createUserCsr } from '../../pkijs/generatePems/requestCertificate'
-import { createUserCert } from '../../pkijs/generatePems/generateUserCertificate'
 
 const log = Object.assign(debug('zbay:identity'), {
   error: debug('zbay:identity:err'),
@@ -78,8 +75,6 @@ export class Identity {
     freeUtxos: number
     addresses: string[]
     shieldedAddresses: string[]
-    certificate: string
-    certPrivKey: string
   }
 
   fetchingBalance: boolean
@@ -128,9 +123,7 @@ export const initialState: Identity = new Identity({
     onionAddress: '',
     freeUtxos: 0,
     addresses: [],
-    shieldedAddresses: [],
-    certificate: '',
-    certPrivKey: ''
+    shieldedAddresses: []
   },
   fetchingBalance: false,
   loader: {
@@ -165,7 +158,7 @@ export const setRegistraionStatus = createAction<{
   nickname: string
   status: string
   takenUsernames?: string[]
-}>(actionTypes.SET_REGISTRAION_STATUS)
+}>(actionTypes.SET_REGISTRATION_STATUS)
 export const setUserShieldedAddreses = createAction<any[]>(actionTypes.SET_USER_SHIELDED_ADDRESES)
 
 export const actions = {
@@ -323,22 +316,6 @@ export const createIdentity = ({ name, fromMigrationFile }) => async () => {
       signerPubKey = keys.signerPubKey
     }
 
-    const certString = dataFromRootPems.certificate
-    const keyString = dataFromRootPems.privKey
-
-    const userData = {
-      zbayNickname: 'nick',
-      commonName: 'onionAddress',
-      peerId: 'peer'
-    }
-
-    const user = await createUserCsr(userData)
-
-    const notBeforeDate = new Date()
-    const notAfterDate = new Date(2030, 1, 1)
-
-    const userCert = await createUserCert(certString, keyString, user.userCsr, notBeforeDate, notAfterDate)
-
     electronStore.set('identity', {
       name,
       address: zAddress,
@@ -349,8 +326,8 @@ export const createIdentity = ({ name, fromMigrationFile }) => async () => {
         tpk,
         sk
       },
-      certificate: userCert.userCertString,
-      certPrivKey: user.userKey
+      certificate: '',
+      certPrivKey: ''
     })
     const network = 'mainnet'
 

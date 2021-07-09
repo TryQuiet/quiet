@@ -147,7 +147,7 @@ export const BasicMessage: React.FC<IBasicMessageProps> = ({
               username={username}
               address={message.sender.replyTo}
               message={message}
-              publicKey={message.publicKey}
+              publicKey={message.pubKey}
               txid={message.id}
               anchorEl={anchorEl}
               handleClose={handleClose}
@@ -200,7 +200,7 @@ export const BasicMessage: React.FC<IBasicMessageProps> = ({
                       name={username}
                       open={open}
                       anchorEl={anchorModeration}
-                      publicKey={message.publicKey}
+                      publicKey={message.pubKey}
                       txid={message.id}
                     />
                   </Grid>

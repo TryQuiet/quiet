@@ -163,8 +163,9 @@ export const mergeIntoOne = (messages: DisplayableMessage[]) => {
     } else if (last && (msg.type !== 1 || last.type !== 1)) {
       result.push([])
       result[result.length - 1].push(msg)
-    } else if ((last && last.sender.replyTo !== msg.sender.replyTo) || !isMessageInTargetZone) {
+    } else if ((last && last.sender.nickname !== msg.sender.nickname) || !isMessageInTargetZone) {
       result.push([])
+
       result[result.length - 1].push(msg)
     } else {
       result[result.length - 1].push(msg)
@@ -219,9 +220,6 @@ export const members = createSelector(contacts, id, (c, channelId) => {
   if (!contact) {
     return new Set<string>()
   }
-  return Array.from(Object.values(contact.messages)).reduce((acc, msg) => {
-    return acc.add(msg.sender.replyTo)
-  }, new Set<string>())
 })
 
 export const channelParticipiants = createSelector(contacts, id, (c, i) => {
@@ -229,12 +227,11 @@ export const channelParticipiants = createSelector(contacts, id, (c, i) => {
   if (!contact) {
     return new Set()
   }
-  const messages = contact.messages
-  const members = Array.from(Object.values(messages)).reduce((acc, msg) => {
-    return acc.add(msg.sender.replyTo)
-  }, new Set())
+
   return members
 })
+
+const address = createSelector(channel, (c) => c.address)
 
 export default {
   data,
@@ -258,5 +255,6 @@ export default {
   channelDesription,
   displayableMessageLimit,
   isPublicChannel,
-  isDirectMessage
+  isDirectMessage,
+  address
 }

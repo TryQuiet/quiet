@@ -3,8 +3,8 @@ import { CertificateChainValidationEngine } from 'pkijs'
 import { loadCertificate } from './common'
 
 export const verifyUserCert = async (rootCACert, userCert) => {
-  const trustedCerts = [await loadCertificate(rootCACert)]
-  const certificates = [await loadCertificate(userCert)]
+  const trustedCerts = [loadCertificate(rootCACert)]
+  const certificates = [loadCertificate(userCert)]
   const crls = []
   const certChainVerificationEngine = new CertificateChainValidationEngine({
     trustedCerts,

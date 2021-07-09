@@ -1,6 +1,5 @@
+import { DateTime } from 'luxon'
 import { io, Socket } from 'socket.io-client'
-import crypto from 'crypto'
-import lodash from 'lodash'
 import {
   PublicChannelsActions,
   publicChannelsActions
@@ -10,22 +9,26 @@ import {
   DirectMessagesActions
 } from '../directMessages/directMessages.reducer'
 import { eventChannel } from 'redux-saga'
-import { transferToMessage } from '../publicChannels/publicChannels.saga'
 import { fork, takeEvery } from 'redux-saga/effects'
 import { call, take, select, put, takeLeading, all, apply } from 'typed-redux-saga'
 import { ActionFromMapping, Socket as socketsActions } from '../const/actionsTypes'
 import channelSelectors from '../../store/selectors/channel'
 import identitySelectors from '../../store/selectors/identity'
 import directMessagesSelectors from '../../store/selectors/directMessages'
-import usersSelectors from '../../store/selectors/users'
-import { messages } from '../../zbay'
 import config from '../../config'
-import { messageType } from '../../../shared/static'
+import { messageType, actionTypes } from '../../../shared/static'
 import { ipcRenderer } from 'electron'
 import { PayloadAction } from '@reduxjs/toolkit'
 
 import { encodeMessage } from '../../cryptography/cryptography'
-import { CertificatesActions, certificatesActions } from '../certificates/certificates.reducer'
+import { certificatesActions } from '../../store/certificates/certificates.reducer'
+import certificatesSelectors from '../../store/certificates/certificates.selector'
+import { extractPubKeyString } from '../../pkijs/tests/extractPubKey'
+import { signing } from '../../pkijs/tests/sign'
+import { loadPrivateKey } from '../../pkijs/generatePems/common'
+import configCrypto from '../../pkijs/generatePems/config'
+import { arrayBufferToString } from 'pvutils'
+import { actions as waggleActions } from '../../store/handlers/waggle'
 
 export const connect = async (): Promise<Socket> => {
   const socket = io(config.socket.address)
@@ -38,7 +41,10 @@ export const connect = async (): Promise<Socket> => {
 }
 
 export function subscribe(socket) {
-  return eventChannel<ActionFromMapping<PublicChannelsActions & DirectMessagesActions & CertificatesActions>>(emit => {
+  return eventChannel<
+  | ActionFromMapping<PublicChannelsActions & DirectMessagesActions>
+  | ReturnType<typeof certificatesActions.responseGetCertificates>
+  >(emit => {
     socket.on(socketsActions.MESSAGE, payload => {
       emit(publicChannelsActions.loadMessage(payload))
     })
@@ -66,7 +72,7 @@ export function subscribe(socket) {
     socket.on(socketsActions.SEND_IDS, payload => {
       emit(publicChannelsActions.sendIds(payload))
     })
-    return () => {}
+    return () => { }
   })
 }
 
@@ -81,30 +87,27 @@ export function* handleActions(socket: Socket): Generator {
 export function* sendMessage(socket: Socket): Generator {
   const { address } = yield* select(channelSelectors.channel)
   const messageToSend = yield* select(channelSelectors.message)
-  const users = yield* select(usersSelectors.users)
-  let message = null
-  const privKey = yield* select(identitySelectors.signerPrivKey)
-  message = messages.createMessage({
-    messageData: {
-      type: messageType.BASIC,
-      data: messageToSend
-    },
-    privKey: privKey
-  })
-  const messageDigest = crypto.createHash('sha256')
-  const messageEssentials = lodash.pick(message, ['createdAt', 'message'])
-  const key = messageDigest.update(JSON.stringify(messageEssentials)).digest('hex')
+
+  const ownCertificate = yield* select(certificatesSelectors.ownCertificate)
+  const ownPubKey = yield* call(extractPubKeyString, ownCertificate)
+  const privKey = yield* select(certificatesSelectors.ownPrivKey)
+  const keyObject = yield* call(loadPrivateKey, privKey, configCrypto.signAlg, configCrypto.hashAlg)
+  const sign = yield* call(signing, messageToSend, keyObject)
+
   const preparedMessage = {
-    ...message,
-    id: key,
-    typeIndicator: false,
-    signature: message.signature.toString('base64')
+    id: Math.random().toString(36).substr(2, 9),
+    type: messageType.BASIC,
+    message: messageToSend,
+    createdAt: DateTime.utc().toSeconds(),
+    signature: arrayBufferToString(sign),
+    pubKey: ownPubKey,
+    channelId: address
   }
-  const displayableMessage = transferToMessage(preparedMessage, users)
+
   yield put(
     publicChannelsActions.addMessage({
       key: address,
-      message: { [preparedMessage.id]: displayableMessage }
+      message: { [preparedMessage.id]: preparedMessage }
     })
   )
   yield* apply(socket, socket.emit, [
@@ -147,9 +150,7 @@ export function* getAvailableUsers(socket: Socket): Generator {
   yield* apply(socket, socket.emit, [socketsActions.GET_AVAILABLE_USERS])
 }
 
-export function* subscribeForAllConversations(
-  socket: Socket
-): Generator {
+export function* subscribeForAllConversations(socket: Socket): Generator {
   const conversations = yield* select(directMessagesSelectors.conversations)
   const payload = Array.from(Object.keys(conversations))
   yield* apply(socket, socket.emit, [socketsActions.SUBSCRIBE_FOR_ALL_CONVERSATIONS, payload])
@@ -170,30 +171,28 @@ export function* sendDirectMessage(socket: Socket): Generator {
   const { id } = yield* select(channelSelectors.channel)
   const conversations = yield* select(directMessagesSelectors.conversations)
   const conv = Array.from(Object.values(conversations)).filter(item => {
-    console.log(item.contactPublicKey)
     return item.contactPublicKey === id
   })
   const conversationId = conv[0].conversationId
   const sharedSecret = conv[0].sharedSecret
   const messageToSend = yield* select(channelSelectors.message)
-  let message = null
-  const privKey = yield* select(identitySelectors.signerPrivKey)
-  message = messages.createMessage({
-    messageData: {
-      type: messageType.BASIC,
-      data: messageToSend
-    },
-    privKey: privKey
-  })
-  const messageDigest = crypto.createHash('sha256')
-  const messageEssentials = lodash.pick(message, ['createdAt', 'message'])
-  const key = messageDigest.update(JSON.stringify(messageEssentials)).digest('hex')
+
+  const ownCertificate = yield* select(certificatesSelectors.ownCertificate)
+  const ownPubKey = yield* call(extractPubKeyString, ownCertificate)
+  const privKey = yield* select(certificatesSelectors.ownPrivKey)
+  const keyObject = yield* call(loadPrivateKey, privKey, configCrypto.signAlg, configCrypto.hashAlg)
+  const sign = yield* call(signing, messageToSend, keyObject)
+
   const preparedMessage = {
-    ...message,
-    id: key,
-    typeIndicator: false,
-    signature: message.signature.toString('base64')
+    id: Math.random().toString(36).substr(2, 9),
+    type: messageType.BASIC,
+    message: messageToSend,
+    createdAt: DateTime.utc().toSeconds(),
+    signature: arrayBufferToString(sign),
+    pubKey: ownPubKey,
+    channelId: conversationId
   }
+
   const stringifiedMessage = JSON.stringify(preparedMessage)
   const encryptedMessage = encodeMessage(sharedSecret, stringifiedMessage)
   yield* apply(socket, socket.emit, [
@@ -212,46 +211,37 @@ export function* askForMessages(
   yield* apply(socket, socket.emit, [socketsActions.ASK_FOR_MESSAGES, payload])
 }
 
-export function* saveCertificate(socket: Socket): Generator {
-  const toSend = yield* select(identitySelectors.certificate)
-  yield* apply(socket, socket.emit, [socketsActions.SAVE_CERTIFICATE, toSend])
+export function* saveCertificate(
+  socket: Socket,
+  action: PayloadAction<ReturnType<typeof certificatesActions.saveCertificate>['payload']>
+): Generator {
+  yield* apply(socket, socket.emit, [socketsActions.SAVE_CERTIFICATE, action.payload])
 }
 
 export function* responseGetCertificates(socket: Socket): Generator {
   yield* apply(socket, socket.emit, [socketsActions.RESPONSE_GET_CERTIFICATES])
 }
 
+export function* addCertificate(): Generator {
+  const hasCertyficate = yield* select(certificatesSelectors.ownCertificate)
+  const nickname = yield* select(identitySelectors.nickName)
+  if (!hasCertyficate && nickname) {
+    yield* put(certificatesActions.creactOwnCertificate(nickname))
+  }
+}
+
 export function* addWaggleIdentity(socket: Socket): Generator {
-  while (true) {
-    yield* take('SET_IS_WAGGLE_CONNECTED')
+  const wagglePublicKey = yield select(directMessagesSelectors.publicKey)
+  const signerPublicKey = yield select(identitySelectors.signerPubKey)
 
-    let wagglePublicKey = yield select(directMessagesSelectors.publicKey)
-    let signerPublicKey = yield select(identitySelectors.signerPubKey)
-
-    if (wagglePublicKey && signerPublicKey) {
-      yield* apply(socket, socket.emit, [
-        socketsActions.ADD_USER,
-        {
-          publicKey: signerPublicKey,
-          halfKey: wagglePublicKey
-        }
-      ])
-    }
-
-    yield* take('SET_PUBLIC_KEY')
-
-    wagglePublicKey = yield select(directMessagesSelectors.publicKey)
-    signerPublicKey = yield select(identitySelectors.signerPubKey)
-
-    if (wagglePublicKey && signerPublicKey) {
-      yield* apply(socket, socket.emit, [
-        socketsActions.ADD_USER,
-        {
-          publicKey: signerPublicKey,
-          halfKey: wagglePublicKey
-        }
-      ])
-    }
+  if (wagglePublicKey && signerPublicKey) {
+    yield* apply(socket, socket.emit, [
+      socketsActions.ADD_USER,
+      {
+        publicKey: signerPublicKey,
+        halfKey: wagglePublicKey
+      }
+    ])
   }
 }
 
@@ -271,7 +261,7 @@ export function* useIO(socket: Socket): Generator {
       socket
     ),
     takeEvery(directMessagesActions.sendDirectMessage.type, sendDirectMessage, socket),
-    takeEvery(directMessagesActions.saveCertificate.type, saveCertificate, socket),
+    takeEvery(certificatesActions.saveCertificate.type, saveCertificate, socket),
     takeLeading(
       directMessagesActions.getPrivateConversations.type,
       getPrivateConversations,
@@ -282,7 +272,10 @@ export function* useIO(socket: Socket): Generator {
       subscribeForDirectMessageThread,
       socket
     ),
-    fork(addWaggleIdentity, socket)
+    takeEvery(waggleActions.setIsWaggleConnected.type, addWaggleIdentity, socket),
+    takeEvery(actionTypes.SET_PUBLIC_KEY, addWaggleIdentity, socket),
+    takeEvery(waggleActions.setIsWaggleConnected.type, addCertificate),
+    takeEvery(actionTypes.SET_REGISTRATION_STATUS, addCertificate)
   ])
 }
 

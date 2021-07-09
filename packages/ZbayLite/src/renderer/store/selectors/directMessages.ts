@@ -9,12 +9,12 @@ export const users = createSelector(directMessages, usersSelectors.users, (d, us
   Object.entries(d.users).map((user) => {
     const [publicKey, userData] = user
     usrs[publicKey] =
-      {
-        publicKey,
-        halfKey: userData.halfKey,
-        nickname: users[publicKey]?.nickname || userData.nickname
+    {
+      publicKey,
+      halfKey: userData.halfKey,
+      nickname: users[publicKey]?.nickname || userData.nickname
 
-      }
+    }
   })
   return usrs
 })

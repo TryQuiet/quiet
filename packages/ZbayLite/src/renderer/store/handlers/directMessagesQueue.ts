@@ -289,7 +289,7 @@ PayloadType<DirectMessagesQueueActions>
           ...PendingMessage,
           recipientAddress,
           recipientUsername,
-          offerId: message.message.itemId,
+          offerId: '',
           message: {
             ...message
           }

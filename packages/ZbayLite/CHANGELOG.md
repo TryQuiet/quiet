@@ -1,11 +1,25 @@
-# [WIP]
-<!-- * Added dataServer port to electonStore portsclosing
+<!-- [WIP]
+* Added dataServer port to electonStore portsclosing
 * Added proper closing for dataServer
 * Added proper closing for libp2p and orbitdb -->
 <!-- * [Performance] Fork runWaggle process instead running in main process
 * Extracted waggle handling logic to separate function
 * Changed a way main process is terminating
 * [Performance] Removed excess decryption from checking conversations -->
+# [3.3.0] - 08 July 2021
+
+## Added
+
+* Register user's certificate, sign messages
+* Display only trusted messages
+
+# [3.2.21] - 29 June 2021
+
+## Fixed
+
+* closing zbay properly
+* restore input
+* do not proceed invalid messages
 
 # [3.2.21] - 29 June 2021
 

@@ -54,7 +54,8 @@ const runWaggle = async ({
     if (msg === 'connectionReady') {
       connectionsManager
         .initializeNode()
-        .then(async () => {
+        .then(async (item) => {
+          process.send(item)
           await connectionsManager.initStorage()
           process.send('waggleInitialized')
         })

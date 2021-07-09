@@ -301,7 +301,7 @@ const setOutgoingTransactions = (messages: DisplayableMessage[]) => async (dispa
 
   const itemMessages = messagesAll.filter(msg => (msg.message ? msg.message.itemId : null))
   const groupedItemMesssages = R.groupBy<DisplayableMessage>(
-    msg => msg.message.itemId + msg.receiver.username
+    msg => msg.receiver.username
   )(itemMessages)
   for (const key in groupedItemMesssages) {
     if (key && groupedItemMesssages[key]) {
@@ -466,7 +466,7 @@ const setUsersMessages = (messages: DisplayableMessage[]) => async (dispatch, ge
   const itemMessages = messagesAll.filter(msg => (msg.message ? msg.message.itemId : null))
   const contacts = contactsSelectors.contacts(getState())
   const groupedItemMesssages = R.groupBy<DisplayableMessage>(
-    msg => msg.message.itemId + msg.sender.username
+    msg => msg.sender.username
   )(itemMessages)
   for (const key in groupedItemMesssages) {
     if (key && groupedItemMesssages[key]) {
