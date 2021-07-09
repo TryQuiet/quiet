@@ -1,6 +1,5 @@
 import { io, Socket } from 'socket.io-client';
-import { fork } from 'redux-saga/effects';
-import { all, call, delay, put, take } from 'typed-redux-saga';
+import { all, call, put, delay, take, fork, takeEvery } from 'typed-redux-saga';
 import config from '../config';
 import { eventChannel } from 'redux-saga';
 import { SocketActionTypes } from '../const/actionTypes';
@@ -12,9 +11,13 @@ import {
   GetPublicChannelsResponse,
   publicChannelsActions,
 } from '../../publicChannels/publicChannels.slice';
+import { requestPeerIdSaga } from '../../identity/requestPeerId/requestPeerId.saga';
 import { publicChannelsMasterSaga } from '../../publicChannels/publicChannels.master.saga';
 import { initActions } from '../../init/init.slice';
 import { InitCheckKeys } from '../../init/initCheck.keys';
+import { identityActions } from '../../identity/identity.slice';
+import { waitForConnectionSaga } from '../../init/waitForConnection/waitForConnection.saga';
+import { identityMasterSaga } from '../../identity/identity.master.saga';
 
 export function* startConnectionSaga(): Generator {
   const socket = yield* call(connect);
@@ -29,6 +32,12 @@ export function* startConnectionSaga(): Generator {
     }),
   );
   yield* delay(15000); // Wait for storage to be initialized
+  yield* takeEvery(
+    identityActions.requestPeerId.type,
+    requestPeerIdSaga,
+    socket,
+  );
+  yield* waitForConnectionSaga();
   yield fork(useIO, socket);
 }
 
@@ -45,6 +54,7 @@ export function* useIO(socket: Socket): Generator {
   yield all([
     fork(handleActions, socket),
     fork(publicChannelsMasterSaga, socket),
+    fork(identityMasterSaga, socket),
   ]);
 }
 
@@ -58,10 +68,14 @@ export function* handleActions(socket: Socket): Generator {
 
 export function subscribe(socket: Socket) {
   return eventChannel<
+    | ReturnType<typeof identityActions.storePeerId>
     | ReturnType<typeof publicChannelsActions.responseGetPublicChannels>
     | ReturnType<typeof publicChannelsActions.responseSendMessagesIds>
     | ReturnType<typeof publicChannelsActions.responseAskForMessages>
   >(emit => {
+    socket.on(SocketActionTypes.SEND_PEER_ID, (payload: string) => {
+      emit(identityActions.storePeerId(payload));
+    });
     socket.on(
       SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS,
       (payload: GetPublicChannelsResponse) => {

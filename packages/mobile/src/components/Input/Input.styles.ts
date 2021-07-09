@@ -8,11 +8,14 @@ export const StyledTextInput = styled(TextInput)`
 `;
 
 export const StyledWrapper = styled(Pressable)<{
-  isCommentScreen: boolean;
+  disabled: boolean;
 }>`
-  ${({ theme }) => css`
+  ${({ theme, disabled }) => css`
     min-height: 42px;
     max-height: 72px;
+    background-color: ${disabled
+      ? theme.palette.input.backgroundDisabled
+      : theme.palette.input.backgroundDefault};
     border-color: ${theme.palette.input.border};
     border-radius: 4px;
     border-width: 1px;

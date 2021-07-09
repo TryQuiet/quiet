@@ -30,6 +30,7 @@ describe('MessageInput component', () => {
           style={
             Array [
               Object {
+                "backgroundColor": "#ffffff",
                 "borderColor": "#B3B3B3",
                 "borderRadius": 4,
                 "borderWidth": 1,
@@ -44,6 +45,7 @@ describe('MessageInput component', () => {
         >
           <TextInput
             allowFontScaling={true}
+            editable={true}
             onChangeText={[Function]}
             placeholder="Message #general as @holmes"
             rejectResponderTermination={true}

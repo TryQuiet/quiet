@@ -4,6 +4,14 @@ import { storybookLog } from '../../utils/functions/storybookLog/storybookLog.fu
 
 import { Button } from './Button.component';
 
-storiesOf('Button', module).add('Default', () => (
-  <Button title={'button'} onPress={storybookLog('Button clicked')} />
-));
+storiesOf('Button', module)
+  .add('Default', () => (
+    <Button title={'button'} onPress={storybookLog('Button clicked')} />
+  ))
+  .add('Loading', () => (
+    <Button
+      title={'button'}
+      loading={true}
+      onPress={storybookLog('Button clicked')}
+    />
+  ));

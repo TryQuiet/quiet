@@ -6,7 +6,10 @@ import { StyledTextInput, StyledWrapper } from './Input.styles';
 import { InputProps } from './Input.types';
 
 export const Input = forwardRef<TextInput, InputProps>(
-  ({ onChangeText, label, placeholder, validation, hint, style }, ref) => {
+  (
+    { onChangeText, label, placeholder, validation, hint, disabled, style },
+    ref,
+  ) => {
     const textInputRef = useRef<null | TextInput>(null);
 
     const handleViewPress = useCallback(() => {
@@ -22,7 +25,10 @@ export const Input = forwardRef<TextInput, InputProps>(
             {label}
           </Typography>
         )}
-        <StyledWrapper onPress={handleViewPress} style={style}>
+        <StyledWrapper
+          onPress={handleViewPress}
+          disabled={disabled}
+          style={style}>
           <StyledTextInput
             onChangeText={onChangeText}
             ref={(instance: TextInput | null) => {
@@ -31,6 +37,7 @@ export const Input = forwardRef<TextInput, InputProps>(
                 ref.current = instance;
               }
             }}
+            editable={!disabled}
             placeholder={placeholder}
           />
         </StyledWrapper>

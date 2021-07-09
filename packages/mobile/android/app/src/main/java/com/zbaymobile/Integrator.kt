@@ -64,10 +64,10 @@ class Integrator(private val context: ReactApplicationContext): ReactContextBase
                 .emit("onTorInit", true)
     }
 
-    override fun onOnionAdded() {
+    override fun onOnionAdded(address: String) {
         context
             .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-            .emit("onOnionAdded", true)
+            .emit("onOnionAdded", address)
     }
 
     override fun onWaggleStarted() {

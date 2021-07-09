@@ -6,5 +6,6 @@ export interface InputProps {
   placeholder: string;
   validation?: string;
   hint?: string;
+  disabled?: boolean;
   style?: ViewStyle;
 }

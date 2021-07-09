@@ -5,10 +5,14 @@ import { Input } from './Input.component';
 
 storiesOf('Input', module)
   .add('Default', () => <Input placeholder={'Message #general as @holmes'} />)
+  .add('Disabled', () => (
+    <Input placeholder={'Message #general as @holmes'} disabled={true} />
+  ))
   .add('Label', () => (
     <Input
       label={'Choose your favorite username'}
       placeholder={'Enter a username'}
+      validation={undefined}
     />
   ))
   .add('Validation', () => (

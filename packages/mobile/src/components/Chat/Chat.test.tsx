@@ -842,6 +842,7 @@ describe('Chat component', () => {
               style={
                 Array [
                   Object {
+                    "backgroundColor": "#ffffff",
                     "borderColor": "#B3B3B3",
                     "borderRadius": 4,
                     "borderWidth": 1,
@@ -857,6 +858,7 @@ describe('Chat component', () => {
             >
               <TextInput
                 allowFontScaling={true}
+                editable={true}
                 onChangeText={[Function]}
                 placeholder="Message #Zbay as @holmes"
                 rejectResponderTermination={true}

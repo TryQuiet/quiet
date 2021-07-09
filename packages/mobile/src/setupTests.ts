@@ -33,3 +33,11 @@ jest.mock('react-native-device-info', () => ({
 jest.mock('react-native-push-notification', () => ({
   PushNotification: jest.fn(),
 }));
+
+jest.mock('pkijs/src/CryptoEngine', () => ({
+  CryptoEngine: jest.fn(),
+}));
+
+jest.mock('pkijs/src/common', () => ({
+  setEngine: jest.fn(),
+}));

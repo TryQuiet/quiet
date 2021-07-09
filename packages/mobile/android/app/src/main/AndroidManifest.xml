@@ -1,9 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
   package="com.zbaymobile">
 
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <application
       android:name=".MainApplication"
@@ -26,8 +26,8 @@
         </intent-filter>
       </activity>
       <service
-          android:name=".WaggleService" />
+          android:name=".WaggleService"/>
       <service
-          android:name=".PushNotificationsService" />
+          android:name=".PushNotificationsService"/>
     </application>
 </manifest>

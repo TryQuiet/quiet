@@ -17,7 +17,7 @@ describe('doOnRestoreSaga', () => {
           ...new InitState(),
         },
       })
-      .provide([[select(initSelectors.isRestored), true]])
+      .provide([[select(initSelectors.currentScreen), ScreenNames.MainScreen]])
       .call(replaceScreen, ScreenNames.MainScreen);
   });
 });

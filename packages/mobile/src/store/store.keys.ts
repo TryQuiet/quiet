@@ -3,5 +3,6 @@ export enum StoreKeys {
   Init = 'Init',
   Assets = 'Assets',
   Socket = 'Socket',
+  Identity = 'Identity',
   PublicChannels = 'PublicChannels',
 }

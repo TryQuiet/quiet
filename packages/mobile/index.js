@@ -1,6 +1,7 @@
 /**
  * @format
  */
+import './shim';
 
 import React, { lazy, Suspense } from 'react';
 import { AppRegistry } from 'react-native';

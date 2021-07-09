@@ -5,9 +5,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.os.Binder
-import android.os.Build
-import android.os.IBinder
+import android.os.*
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
@@ -27,11 +25,15 @@ import com.zbaymobile.Utils.Utils.getOutput
 import net.freehaven.tor.control.TorControlConnection
 import org.torproject.android.binary.TorResourceInstaller
 import java.io.*
+import java.lang.NullPointerException
+import java.lang.Process
 import java.net.Socket
 import java.util.concurrent.Executors
 
 
 class WaggleService: Service() {
+
+    private var wakelock: PowerManager.WakeLock? = null
 
     private var notificationManager: NotificationManager? = null
     private var notificationBuilder: NotificationCompat.Builder? = null
@@ -81,6 +83,7 @@ class WaggleService: Service() {
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentIntent(pendingIntent)
                 .setCategory(Notification.CATEGORY_SERVICE)
+                .setPriority(Notification.PRIORITY_HIGH)
                 .setOngoing(true)
         }
 
@@ -99,16 +102,28 @@ class WaggleService: Service() {
 
     override fun onCreate() {
         super.onCreate()
-        prefs = (application as MainApplication).sharedPrefs
-    }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        prefs = (application as MainApplication).sharedPrefs
+
+        Log.d("WAGGLE", "onServiceCreated")
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             createNotificationChannel()
 
         val notification = buildNotification()
         startForeground(NOTIFICATION_FOREGROUND_SERVICE_ID, notification)
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
+        Log.d("WAGGLE", "onStartCommand")
+
+        wakelock =
+            (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
+                newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "WaggleService::lock").apply {
+                    acquire()
+                }
+            }
 
         val action = intent?.action
         if(action != null){
@@ -164,17 +179,16 @@ class WaggleService: Service() {
 
                     val onionPort = checkPort(5555)
                     val onion = addOnion(onionPort)
-                    onions.add(onion)
-                    client?.onOnionAdded()
 
+                    onions.add(onion)
+                    client?.onOnionAdded(onion.address)
                     startWaggle(onion)
 
-                } catch(e: IOException) {
-                    e.printStackTrace()
-                    stopTor()
-                    torServiceConnection = null
-                } catch(e: InterruptedException) {
-                    e.printStackTrace()
+                } catch(t: Throwable) {
+                    /* Stop Tor in case of any exception,
+                       to avoid running unhandled instances
+                       and occupying ports */
+                    Log.e("TOR_ERR", t.message ?: "unknown error")
                     stopTor()
                     torServiceConnection = null
                 }
@@ -316,25 +330,19 @@ class WaggleService: Service() {
     }
 
     private fun addOnion(port: Int): Onion {
-        val res = try {
-            torControlConnection!!.addOnion(
-                prefs.onionPrivKey,
-                mutableMapOf(port to "127.0.0.1:$port"),
-                listOf("Detach")
-            )
-        } catch (e: IllegalArgumentException) {
-            // Invalid priv key
-            torControlConnection!!.addOnion(
-                "NEW:BEST",
-                mutableMapOf(port to "127.0.0.1:$port"),
-                listOf("Detach")
-            )
-        }
+        val key = prefs.onionPrivKey ?: "NEW:BEST"
+
+        val res = torControlConnection!!.addOnion(
+            key,
+            mutableMapOf(port to "127.0.0.1:$port"),
+            listOf("Detach")
+        )
 
         val address = res["onionAddress"].toString()
-        val key = res["onionPrivKey"].toString()
 
-        prefs.onionPrivKey = key
+        if(res["onionPrivKey"] != null) {
+            prefs.onionPrivKey = res["onionPrivKey"]
+        }
 
         Log.d(TAG_TOR, "Hidden service created with address $address.onion")
 
@@ -409,11 +417,17 @@ class WaggleService: Service() {
     private fun stopService() {
         stopTor()
         nodeProcess?.destroy()
+        wakelock?.let {
+            if (it.isHeld) {
+                it.release()
+            }
+        }
         stopForeground(true)
     }
 
     override fun onDestroy() {
-        stopService()
+        Log.d("WAGGLE", "onServiceDestroy")
+        // stopService()
         super.onDestroy()
     }
 
@@ -427,7 +441,7 @@ class WaggleService: Service() {
 
     interface Callbacks {
         fun onTorInit()
-        fun onOnionAdded()
+        fun onOnionAdded(address: String)
         fun onWaggleStarted()
     }
 

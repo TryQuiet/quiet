@@ -1,5 +1,5 @@
 import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit';
-
+import { ScreenNames } from '../../const/ScreenNames.enum';
 import { StoreKeys } from '../store.keys';
 import { initChecksAdapter } from './init.adapter';
 import { InitCheck } from './init.types';
@@ -7,7 +7,7 @@ import { InitCheckKeys } from './initCheck.keys';
 
 export class InitState {
   public isNavigatorReady: boolean = false;
-  public isRestored: boolean = false;
+  public isCryptoEngineInitialized: boolean = false;
   public initChecks: EntityState<InitCheck> = initChecksAdapter.setAll(
     initChecksAdapter.getInitialState(),
     [
@@ -33,6 +33,7 @@ export class InitState {
       },
     ],
   );
+  public currentScreen: ScreenNames = ScreenNames.SplashScreen;
 }
 
 export const initSlice = createSlice({
@@ -42,8 +43,8 @@ export const initSlice = createSlice({
     setNavigatorReady: (state, action: PayloadAction<boolean>) => {
       state.isNavigatorReady = action.payload;
     },
-    setIsRestored: (state, action: PayloadAction<boolean>) => {
-      state.isRestored = action.payload;
+    setCryptoEngineInitialized: (state, action: PayloadAction<boolean>) => {
+      state.isCryptoEngineInitialized = action.payload;
     },
     doOnRestore: state => state,
     setStoreReady: state => state,
@@ -52,6 +53,9 @@ export const initSlice = createSlice({
         changes: action.payload,
         id: action.payload.event,
       });
+    },
+    setCurrentScreen: (state, action: PayloadAction<ScreenNames>) => {
+      state.currentScreen = action.payload;
     },
   },
 });

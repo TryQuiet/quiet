@@ -4,8 +4,8 @@ import { replaceScreen } from '../../../utils/functions/replaceScreen/replaceScr
 import { initSelectors } from '../init.selectors';
 
 export function* doOnRestoreSaga(): Generator {
-  const isRestored = yield* select(initSelectors.isRestored);
-  if (isRestored) {
-    yield* call(replaceScreen, ScreenNames.MainScreen);
+  const currentScreen = yield* select(initSelectors.currentScreen);
+  if (currentScreen !== ScreenNames.SplashScreen) {
+    yield* call(replaceScreen, currentScreen, {});
   }
 }

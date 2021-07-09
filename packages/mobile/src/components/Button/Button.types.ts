@@ -1,7 +1,8 @@
 import { ViewStyle } from 'react-native';
 
 export interface ButtonProps {
-  title: string;
   onPress: () => void;
+  title: string;
+  loading?: boolean;
   style?: ViewStyle;
 }

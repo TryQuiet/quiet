@@ -18,5 +18,7 @@ export const defaultPalette: Palette = {
   },
   input: {
     border: '#B3B3B3',
+    backgroundDefault: '#ffffff',
+    backgroundDisabled: '#EBEBEB',
   },
 };
