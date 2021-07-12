@@ -12,8 +12,8 @@ export const verifyUserCert = async (
   rootCACert: string,
   userCert: string
 ): Promise<CertVerification> => {
-  const trustedCerts = [await loadCertificate(rootCACert)]
-  const certificates = [await loadCertificate(userCert)]
+  const trustedCerts = [loadCertificate(rootCACert)]
+  const certificates = [loadCertificate(userCert)]
   const crls = []
   const certChainVerificationEngine = new CertificateChainValidationEngine({
     trustedCerts,
