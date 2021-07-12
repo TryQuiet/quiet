@@ -1,4 +1,6 @@
 export interface ErrorProps {
   onPress: () => void;
-  message: string;
+  icon: any;
+  title: string;
+  message?: string | undefined;
 }

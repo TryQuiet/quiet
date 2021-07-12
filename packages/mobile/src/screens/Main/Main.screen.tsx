@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Chat } from '../../components/Chat/Chat.component';
 import { ScreenNames } from '../../const/ScreenNames.enum';
 import { initActions } from '../../store/init/init.slice';
+import { messagesActions } from '../../store/messages/messages.slice';
 import { publicChannelsSelectors } from '../../store/publicChannels/publicChannels.selectors';
 import { publicChannelsActions } from '../../store/publicChannels/publicChannels.slice';
 
@@ -27,13 +28,15 @@ export const MainScreen: FC = () => {
     }
   }, [dispatch, ZbayChannel]);
 
+  const sendMessage = (message: string) => {
+    dispatch(messagesActions.sendMessage(message));
+  };
+
   return (
     <View style={{ flex: 1 }}>
       {ZbayChannel !== undefined && (
         <Chat
-          sendMessageAction={() => {
-            console.log('Message sent');
-          }}
+          sendMessageAction={sendMessage}
           channel={ZbayChannel}
           messages={messages}
           user={'holmes'}

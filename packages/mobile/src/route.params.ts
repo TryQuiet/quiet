@@ -1,4 +1,5 @@
 import { RouteProp } from '@react-navigation/core';
+import { Dispatch } from 'react';
 import { ScreenNames } from './const/ScreenNames.enum';
 
 export type RootStackParamList = {
@@ -14,7 +15,10 @@ export type RootStackParamList = {
     message?: string;
   };
   [ScreenNames.ErrorScreen]: {
-    error: string;
+    onPress: (dispatch: Dispatch<any>) => void;
+    icon: any;
+    title: string;
+    message?: string;
   };
 };
 

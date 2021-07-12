@@ -1,3 +1,4 @@
+import { messagesReducer } from './messages/messages.slice';
 import { identityReducer } from './identity/identity.slice';
 import { initReducer } from './init/init.slice';
 import { assetsReducer } from './assets/assets.slice';
@@ -12,4 +13,5 @@ export const rootReducer = combineReducers({
   [StoreKeys.Socket]: socketReducer,
   [StoreKeys.Identity]: identityReducer,
   [StoreKeys.PublicChannels]: publicChannelsReducer,
+  [StoreKeys.Messages]: messagesReducer,
 });

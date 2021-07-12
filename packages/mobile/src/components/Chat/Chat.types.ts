@@ -4,7 +4,7 @@ import {
 } from '../../store/publicChannels/publicChannels.types';
 
 export interface ChatProps {
-  sendMessageAction: () => void;
+  sendMessageAction: (message: string) => void;
   channel: IChannelInfo;
   messages: DisplayableMessage[];
   user: string;

@@ -1,5 +1,7 @@
+import { Dispatch } from 'react';
 import Config from 'react-native-config';
 import { select, put, fork, call, take } from 'typed-redux-saga';
+import { appImages } from '../../../../assets';
 import { ScreenNames } from '../../../const/ScreenNames.enum';
 import { navigateTo } from '../../../utils/functions/navigateTo/navigateTo';
 import { waitForNavigatorSaga } from '../../init/waitForNavigator/waitForNavigator.saga';
@@ -31,7 +33,12 @@ export function* checkWaggleVersionSaga(): Generator {
         break;
       } catch (e) {
         yield* call(navigateTo, ScreenNames.ErrorScreen, {
-          error: (e as Error).message,
+          onPress: (dispatch: Dispatch<any>) => {
+            dispatch(assetsActions.retryDownload());
+          },
+          icon: appImages.zbay_icon,
+          title: 'Download error',
+          message: (e as Error).message,
         });
         yield take(assetsActions.retryDownload.type);
       }

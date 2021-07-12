@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useState, useEffect, useRef } from 'react';
 import { Keyboard, StyleSheet, View } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
@@ -7,6 +7,7 @@ import { Input } from '../Input/Input.component';
 import { MessageSendButton } from '../MessageSendButton/MessageSendButton.component';
 
 import { ChatProps } from './Chat.types';
+import { TextInput } from 'react-native';
 
 export const Chat: FC<ChatProps> = ({
   sendMessageAction,
@@ -15,6 +16,9 @@ export const Chat: FC<ChatProps> = ({
   user,
 }) => {
   const [didKeyboardShow, setKeyboardShow] = useState(false);
+  const [messageInput, setMessageInput] = useState<string | undefined>();
+
+  const messageInputRef = useRef<null | TextInput>(null);
 
   useEffect(() => {
     const onKeyboardDidShow = () => {
@@ -41,6 +45,17 @@ export const Chat: FC<ChatProps> = ({
     } else {
       setInputEmpty(false);
     }
+    setMessageInput(value);
+  };
+
+  const onPress = () => {
+    if (messageInput === undefined || messageInput?.length === 0) {
+      return;
+    }
+    if (messageInputRef.current) {
+      messageInputRef.current.clear();
+    }
+    sendMessageAction(messageInput);
   };
 
   const inputStyle = didKeyboardShow ? customInputStyle.expanded : {};
@@ -51,6 +66,7 @@ export const Chat: FC<ChatProps> = ({
   return (
     <KeyboardAvoidingView
       behavior="height"
+      keyboardVerticalOffset={25}
       style={{
         flex: 1,
         flexDirection: 'column',
@@ -66,6 +82,7 @@ export const Chat: FC<ChatProps> = ({
       />
       <View style={inputWrapperStyle}>
         <Input
+          ref={messageInputRef}
           onChangeText={onInputTextChange}
           placeholder={'Message #' + channel.name + ' as @' + user}
           style={inputStyle}
@@ -75,10 +92,7 @@ export const Chat: FC<ChatProps> = ({
       {didKeyboardShow && (
         <View style={{ paddingLeft: 20, paddingRight: 20, paddingBottom: 15 }}>
           <View style={{ alignSelf: 'flex-end' }}>
-            <MessageSendButton
-              onPress={sendMessageAction}
-              disabled={isInputEmpty}
-            />
+            <MessageSendButton onPress={onPress} disabled={isInputEmpty} />
           </View>
         </View>
       )}

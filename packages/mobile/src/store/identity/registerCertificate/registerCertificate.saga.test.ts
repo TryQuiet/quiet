@@ -11,14 +11,14 @@ import {
 } from '../identity.slice';
 import { registerCertificateSaga } from './registerCertificate.saga';
 describe('registerCertificateSaga', () => {
-  test('send certificate request to waggle', () => {
+  test('send certificate request to waggle', async () => {
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket;
     const userCsr = {
       userCsr: 'userCsr',
       userKey: 'userKey',
       pkcs10: jest.fn(),
     };
-    expectSaga(
+    await expectSaga(
       registerCertificateSaga,
       socket,
       identityActions.storeUserCsr(<UserCsr>(<unknown>{ userCsr })),
@@ -30,8 +30,9 @@ describe('registerCertificateSaga', () => {
       })
       .apply(socket, socket.emit, [
         SocketActionTypes.REGISTER_USER_CERTIFICATE,
-        userCsr.userCsr,
+        'http://wzispgrbrrkt3bari4kljpqz2j6ozzu3vlsoi2wqupgu7ewi4ncibrid.onion:7789',
+        userCsr,
       ])
-      .run();
+      .silentRun();
   });
 });

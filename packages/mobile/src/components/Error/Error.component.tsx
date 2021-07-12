@@ -1,16 +1,15 @@
 import React, { FC } from 'react';
 import { Image, View } from 'react-native';
-import { appImages } from '../../../assets';
 import { Button } from '../Button/Button.component';
 import { Typography } from '../Typography/Typography.component';
 
 import { ErrorProps } from './Error.types';
 
-export const Error: FC<ErrorProps> = ({ onPress, message }) => {
+export const Error: FC<ErrorProps> = ({ onPress, icon, title, message }) => {
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
       <Image
-        source={appImages.zbay_icon}
+        source={icon}
         style={{
           margin: 20,
           resizeMode: 'cover',
@@ -19,7 +18,7 @@ export const Error: FC<ErrorProps> = ({ onPress, message }) => {
         }}
       />
       <Typography fontSize={16} fontWeight={'medium'} color={'error'}>
-        {'Error'}
+        {title}
       </Typography>
       <Typography
         fontSize={14}
@@ -28,7 +27,7 @@ export const Error: FC<ErrorProps> = ({ onPress, message }) => {
         {message}
       </Typography>
       <Button
-        title={'Retry'}
+        title={'Continue'}
         onPress={onPress}
         style={{ width: 100, marginTop: 10 }}
       />
