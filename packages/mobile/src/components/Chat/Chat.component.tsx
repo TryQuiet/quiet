@@ -26,8 +26,11 @@ export const Chat: FC<ChatProps> = ({
     };
 
     const onKeyboardDidHide = () => {
-      setKeyboardShow(false);
+      if (messageInput?.length === 0) {
+        setKeyboardShow(false);
+      }
     };
+
     Keyboard.addListener('keyboardDidShow', onKeyboardDidShow);
     Keyboard.addListener('keyboardDidHide', onKeyboardDidHide);
 
@@ -35,7 +38,7 @@ export const Chat: FC<ChatProps> = ({
       Keyboard.removeListener('keyboardDidShow', onKeyboardDidShow);
       Keyboard.removeListener('keyboardDidHide', onKeyboardDidHide);
     };
-  }, [setKeyboardShow]);
+  }, [messageInput?.length, setKeyboardShow]);
 
   const [isInputEmpty, setInputEmpty] = useState(true);
 
@@ -49,12 +52,16 @@ export const Chat: FC<ChatProps> = ({
   };
 
   const onPress = () => {
-    if (messageInput === undefined || messageInput?.length === 0) {
+    if (
+      !messageInputRef.current ||
+      messageInput === undefined ||
+      messageInput?.length === 0
+    ) {
       return;
     }
-    if (messageInputRef.current) {
-      messageInputRef.current.clear();
-    }
+    Keyboard.dismiss();
+    setKeyboardShow(false);
+    messageInputRef.current.clear();
     sendMessageAction(messageInput);
   };
 
@@ -85,6 +92,7 @@ export const Chat: FC<ChatProps> = ({
           ref={messageInputRef}
           onChangeText={onInputTextChange}
           placeholder={'Message #' + channel.name + ' as @' + user}
+          multiline={true}
           style={inputStyle}
         />
       </View>

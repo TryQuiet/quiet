@@ -3,6 +3,7 @@ import React from 'react';
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent';
 import { Chat } from './Chat.component';
 import { Keyboard } from 'react-native';
+import { MessageTypes } from '../../store/messages/const/messageTypes';
 
 jest.useFakeTimers();
 
@@ -27,30 +28,34 @@ describe('Chat component', () => {
         messages={[
           {
             id: '1',
+            type: MessageTypes.BASIC,
             message:
               'Brownie powder marshmallow dessert carrot cake marzipan cake caramels. Muffin topping wafer jelly apple pie candy. Fruitcake chocolate pudding fruitcake candy lemon drops chocolate.',
+            createdAt: '1:30pm',
             nickname: 'holmes',
-            datetime: '1:30pm',
           },
           {
             id: '2',
+            type: MessageTypes.BASIC,
             message:
               'Bear claw bear claw donut marzipan chocolate cake sugar plum pie. Chocolate cake chocolate bar ice cream. Marzipan powder brownie muffin jelly beans. Sesame snaps tootsie roll macaroon donut.',
+            createdAt: '1:32pm',
             nickname: 'holmes',
-            datetime: '1:32pm',
           },
           {
             id: '3',
+            type: MessageTypes.BASIC,
             message: 'Marshmallows!',
+            createdAt: '1:32pm',
             nickname: 'emily',
-            datetime: '1:32pm',
           },
           {
             id: '4',
+            type: MessageTypes.BASIC,
             message:
               'Chupa chups soufflé danish. Cake chocolate brownie cookie bear claw soufflé. Muffin chupa chups sweet caramels jelly beans chocolate bar bonbon liquorice.',
+            createdAt: '1:32pm',
             nickname: 'bartek',
-            datetime: '1:32pm',
           },
         ]}
         user={'holmes'}
@@ -74,28 +79,32 @@ describe('Chat component', () => {
           data={
             Array [
               Object {
-                "datetime": "1:30pm",
+                "createdAt": "1:30pm",
                 "id": "1",
                 "message": "Brownie powder marshmallow dessert carrot cake marzipan cake caramels. Muffin topping wafer jelly apple pie candy. Fruitcake chocolate pudding fruitcake candy lemon drops chocolate.",
                 "nickname": "holmes",
+                "type": 1,
               },
               Object {
-                "datetime": "1:32pm",
+                "createdAt": "1:32pm",
                 "id": "2",
                 "message": "Bear claw bear claw donut marzipan chocolate cake sugar plum pie. Chocolate cake chocolate bar ice cream. Marzipan powder brownie muffin jelly beans. Sesame snaps tootsie roll macaroon donut.",
                 "nickname": "holmes",
+                "type": 1,
               },
               Object {
-                "datetime": "1:32pm",
+                "createdAt": "1:32pm",
                 "id": "3",
                 "message": "Marshmallows!",
                 "nickname": "emily",
+                "type": 1,
               },
               Object {
-                "datetime": "1:32pm",
+                "createdAt": "1:32pm",
                 "id": "4",
                 "message": "Chupa chups soufflé danish. Cake chocolate brownie cookie bear claw soufflé. Muffin chupa chups sweet caramels jelly beans chocolate bar bonbon liquorice.",
                 "nickname": "bartek",
+                "type": 1,
               },
             ]
           }
@@ -274,9 +283,7 @@ describe('Chat component', () => {
                             ]
                           }
                           verticalTextAlign="center"
-                        >
-                          1:30pm
-                        </Text>
+                        />
                       </View>
                     </View>
                     <View
@@ -442,9 +449,7 @@ describe('Chat component', () => {
                             ]
                           }
                           verticalTextAlign="center"
-                        >
-                          1:32pm
-                        </Text>
+                        />
                       </View>
                     </View>
                     <View
@@ -610,9 +615,7 @@ describe('Chat component', () => {
                             ]
                           }
                           verticalTextAlign="center"
-                        >
-                          1:32pm
-                        </Text>
+                        />
                       </View>
                     </View>
                     <View
@@ -778,9 +781,7 @@ describe('Chat component', () => {
                             ]
                           }
                           verticalTextAlign="center"
-                        >
-                          1:32pm
-                        </Text>
+                        />
                       </View>
                     </View>
                     <View
@@ -859,6 +860,7 @@ describe('Chat component', () => {
               <TextInput
                 allowFontScaling={true}
                 editable={true}
+                multiline={true}
                 onChangeText={[Function]}
                 placeholder="Message #Zbay as @holmes"
                 rejectResponderTermination={true}

@@ -6,6 +6,7 @@ export interface InputProps {
   placeholder: string;
   validation?: string;
   hint?: string;
+  multiline?: boolean;
   disabled?: boolean;
   style?: ViewStyle;
 }

@@ -7,7 +7,16 @@ import { InputProps } from './Input.types';
 
 export const Input = forwardRef<TextInput, InputProps>(
   (
-    { onChangeText, label, placeholder, validation, hint, disabled, style },
+    {
+      onChangeText,
+      label,
+      placeholder,
+      validation,
+      hint,
+      multiline,
+      disabled,
+      style,
+    },
     ref,
   ) => {
     const textInputRef = useRef<null | TextInput>(null);
@@ -37,6 +46,7 @@ export const Input = forwardRef<TextInput, InputProps>(
                 ref.current = instance;
               }
             }}
+            multiline={multiline}
             editable={!disabled}
             placeholder={placeholder}
           />
