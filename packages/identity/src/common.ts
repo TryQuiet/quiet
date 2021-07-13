@@ -4,7 +4,8 @@ import {
   getAlgorithmParameters,
   getCrypto,
   Certificate,
-  CertificationRequest
+  CertificationRequest,
+  AttributeTypeAndValue
 } from 'pkijs'
 
 import { KeyObject, KeyPairKeyObjectResult } from 'crypto'
@@ -71,4 +72,12 @@ export const loadCSR = async (csr: string): Promise<Certificate> => {
   const certBuffer = stringToArrayBuffer(fromBase64(csr))
   const asn1 = fromBER(certBuffer)
   return new CertificationRequest({ schema: asn1.result })
+}
+
+export const getCertFieldValue = (cert: Certificate, fieldType: string): string => {
+  const block = cert.subject.typesAndValues.find((tav: AttributeTypeAndValue) => tav.type === fieldType)
+  if (!block) {
+    throw new Error(`Field type ${fieldType} not found in certificate`)
+  }
+  return block.value.valueBlock.value
 }

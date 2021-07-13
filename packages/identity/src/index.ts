@@ -5,7 +5,7 @@ import { verifySignature } from './verification'
 import { sign } from './sign'
 import { createUserCsr } from './requestCertificate'
 import { createUserCert } from './generateUserCertificate'
-import { loadPrivateKey, loadCSR, loadCertificate, formatPEM, generateKeyPair } from './common'
+import { loadPrivateKey, loadCSR, loadCertificate, formatPEM, generateKeyPair, getCertFieldValue } from './common'
 
 export { createRootCA }
 export { extractPubKey, parseCertificate, keyFromCertificate, keyObjectFromString }
@@ -14,4 +14,4 @@ export { verifySignature }
 export { sign }
 export { createUserCsr }
 export { createUserCert }
-export { loadPrivateKey, loadCSR, loadCertificate, formatPEM, generateKeyPair }
+export { loadPrivateKey, loadCSR, loadCertificate, formatPEM, generateKeyPair, getCertFieldValue }
