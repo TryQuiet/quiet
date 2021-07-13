@@ -28,7 +28,7 @@ export const keyObjectFromString = (pubKeyString: string, crypto: any) => {
   return crypto.importKey('raw', keyArray, algorithm.algorithm, true, algorithm.usages)
 }
 
-export const extractPubKey = async (pem: string, crypto: any) => {
+export const extractPubKey = (pem: string, crypto: any) => {
   const certificate = parseCertificate(pem)
   const pubKeyString = keyFromCertificate(certificate)
   return keyObjectFromString(pubKeyString, crypto)
