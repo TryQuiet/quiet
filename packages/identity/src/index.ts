@@ -20,6 +20,7 @@ import {
   getCertFieldValue,
   CertFieldsTypes
 } from './common'
+import configCrypto from './config'
 
 export { createRootCA }
 export { extractPubKey, parseCertificate, keyFromCertificate, keyObjectFromString, extractPubKeyString }
@@ -37,3 +38,4 @@ export {
   getCertFieldValue,
   CertFieldsTypes
 }
+export { configCrypto }
