@@ -9,18 +9,18 @@ export type IChannelInfo = {
 
 export type IMessage = {
   id: string;
-  type?: number;
-  typeIndicator?: number;
+  type: number;
   message: string;
   createdAt: number;
-  r?: number;
   channelId: string;
   signature: string;
+  pubKey: string;
 };
 
 export type DisplayableMessage = {
   id: string;
+  type: number;
   message: string;
+  createdAt: string;
   nickname: string;
-  datetime: string;
 };

@@ -1,3 +1,4 @@
+import { usersReducer } from './users/users.slice';
 import { messagesReducer } from './messages/messages.slice';
 import { identityReducer } from './identity/identity.slice';
 import { initReducer } from './init/init.slice';
@@ -14,4 +15,5 @@ export const rootReducer = combineReducers({
   [StoreKeys.Identity]: identityReducer,
   [StoreKeys.PublicChannels]: publicChannelsReducer,
   [StoreKeys.Messages]: messagesReducer,
+  [StoreKeys.Users]: usersReducer,
 });

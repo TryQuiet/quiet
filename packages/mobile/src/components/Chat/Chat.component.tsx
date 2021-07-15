@@ -1,7 +1,6 @@
 import React, { FC, useState, useEffect, useRef } from 'react';
 import { Keyboard, StyleSheet, View } from 'react-native';
-import { KeyboardAvoidingView } from 'react-native';
-import { FlatList } from 'react-native-gesture-handler';
+import { KeyboardAvoidingView, FlatList } from 'react-native';
 import { Message } from '../Message/Message.component';
 import { Input } from '../Input/Input.component';
 import { MessageSendButton } from '../MessageSendButton/MessageSendButton.component';

@@ -7,6 +7,13 @@ import { MessageTypes } from '../../store/messages/const/messageTypes';
 
 jest.useFakeTimers();
 
+jest.mock('react-native-jdenticon', () => {
+  const mockJdenticon = () => {
+    return null;
+  };
+  return mockJdenticon;
+});
+
 describe('Chat component', () => {
   jest
     .spyOn(Keyboard, 'addListener')
@@ -75,7 +82,6 @@ describe('Chat component', () => {
         }
       >
         <RCTScrollView
-          collapsable={false}
           data={
             Array [
               Object {
@@ -119,8 +125,6 @@ describe('Chat component', () => {
           maxToRenderPerBatch={10}
           onContentSizeChange={[Function]}
           onEndReachedThreshold={2}
-          onGestureHandlerEvent={[Function]}
-          onGestureHandlerStateChange={[Function]}
           onLayout={[Function]}
           onMomentumScrollEnd={[Function]}
           onScroll={[Function]}
@@ -128,7 +132,6 @@ describe('Chat component', () => {
           onScrollEndDrag={[Function]}
           removeClippedSubviews={false}
           renderItem={[Function]}
-          renderScrollComponent={[Function]}
           scrollEventThrottle={50}
           stickyHeaderIndices={Array []}
           style={
@@ -195,26 +198,9 @@ describe('Chat component', () => {
                         "alignItems": "center",
                         "flex": 1,
                         "paddingRight": 12,
-                        "paddingTop": 5,
                       }
                     }
-                  >
-                    <Image
-                      source={
-                        Object {
-                          "testUri": "../../../assets/icons/avatar.png",
-                        }
-                      }
-                      style={
-                        Object {
-                          "borderRadius": 5,
-                          "height": 32,
-                          "resizeMode": "cover",
-                          "width": 32,
-                        }
-                      }
-                    />
-                  </View>
+                  />
                   <View
                     style={
                       Object {
@@ -283,7 +269,9 @@ describe('Chat component', () => {
                             ]
                           }
                           verticalTextAlign="center"
-                        />
+                        >
+                          1:30pm
+                        </Text>
                       </View>
                     </View>
                     <View
@@ -361,26 +349,9 @@ describe('Chat component', () => {
                         "alignItems": "center",
                         "flex": 1,
                         "paddingRight": 12,
-                        "paddingTop": 5,
                       }
                     }
-                  >
-                    <Image
-                      source={
-                        Object {
-                          "testUri": "../../../assets/icons/avatar.png",
-                        }
-                      }
-                      style={
-                        Object {
-                          "borderRadius": 5,
-                          "height": 32,
-                          "resizeMode": "cover",
-                          "width": 32,
-                        }
-                      }
-                    />
-                  </View>
+                  />
                   <View
                     style={
                       Object {
@@ -449,7 +420,9 @@ describe('Chat component', () => {
                             ]
                           }
                           verticalTextAlign="center"
-                        />
+                        >
+                          1:32pm
+                        </Text>
                       </View>
                     </View>
                     <View
@@ -527,26 +500,9 @@ describe('Chat component', () => {
                         "alignItems": "center",
                         "flex": 1,
                         "paddingRight": 12,
-                        "paddingTop": 5,
                       }
                     }
-                  >
-                    <Image
-                      source={
-                        Object {
-                          "testUri": "../../../assets/icons/avatar.png",
-                        }
-                      }
-                      style={
-                        Object {
-                          "borderRadius": 5,
-                          "height": 32,
-                          "resizeMode": "cover",
-                          "width": 32,
-                        }
-                      }
-                    />
-                  </View>
+                  />
                   <View
                     style={
                       Object {
@@ -615,7 +571,9 @@ describe('Chat component', () => {
                             ]
                           }
                           verticalTextAlign="center"
-                        />
+                        >
+                          1:32pm
+                        </Text>
                       </View>
                     </View>
                     <View
@@ -693,26 +651,9 @@ describe('Chat component', () => {
                         "alignItems": "center",
                         "flex": 1,
                         "paddingRight": 12,
-                        "paddingTop": 5,
                       }
                     }
-                  >
-                    <Image
-                      source={
-                        Object {
-                          "testUri": "../../../assets/icons/avatar.png",
-                        }
-                      }
-                      style={
-                        Object {
-                          "borderRadius": 5,
-                          "height": 32,
-                          "resizeMode": "cover",
-                          "width": 32,
-                        }
-                      }
-                    />
-                  </View>
+                  />
                   <View
                     style={
                       Object {
@@ -781,7 +722,9 @@ describe('Chat component', () => {
                             ]
                           }
                           verticalTextAlign="center"
-                        />
+                        >
+                          1:32pm
+                        </Text>
                       </View>
                     </View>
                     <View

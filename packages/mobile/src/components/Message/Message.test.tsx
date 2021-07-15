@@ -1,7 +1,15 @@
 import React from 'react';
+import { MessageTypes } from '../../store/messages/const/messageTypes';
 
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent';
 import { Message } from './Message.component';
+
+jest.mock('react-native-jdenticon', () => {
+  const mockJdenticon = () => {
+    return null;
+  };
+  return mockJdenticon;
+});
 
 describe('Message component', () => {
   it('should match inline snapshot', () => {
@@ -9,10 +17,11 @@ describe('Message component', () => {
       <Message
         message={{
           id: 'id',
+          type: MessageTypes.BASIC,
           message:
             'Brownie powder marshmallow dessert carrot cake marzipan cake caramels. Muffin topping wafer jelly apple pie candy. Fruitcake chocolate pudding fruitcake candy lemon drops chocolate.',
+          createdAt: '1:30pm',
           nickname: 'holmes',
-          datetime: '1:30pm',
         }}
       />,
     );
@@ -45,26 +54,9 @@ describe('Message component', () => {
                 "alignItems": "center",
                 "flex": 1,
                 "paddingRight": 12,
-                "paddingTop": 5,
               }
             }
-          >
-            <Image
-              source={
-                Object {
-                  "testUri": "../../../assets/icons/avatar.png",
-                }
-              }
-              style={
-                Object {
-                  "borderRadius": 5,
-                  "height": 32,
-                  "resizeMode": "cover",
-                  "width": 32,
-                }
-              }
-            />
-          </View>
+          />
           <View
             style={
               Object {

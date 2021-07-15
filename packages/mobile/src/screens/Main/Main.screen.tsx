@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { Chat } from '../../components/Chat/Chat.component';
 import { ScreenNames } from '../../const/ScreenNames.enum';
+import { identitySelectors } from '../../store/identity/identity.selectors';
 import { initActions } from '../../store/init/init.slice';
 import { messagesActions } from '../../store/messages/messages.slice';
 import { publicChannelsSelectors } from '../../store/publicChannels/publicChannels.selectors';
@@ -16,6 +17,8 @@ export const MainScreen: FC = () => {
   const messages = useSelector(
     publicChannelsSelectors.currentChannelDisplayableMessages,
   );
+
+  const username = useSelector(identitySelectors.zbayNickname);
 
   useEffect(() => {
     dispatch(initActions.setCurrentScreen(ScreenNames.MainScreen));
@@ -39,7 +42,7 @@ export const MainScreen: FC = () => {
           sendMessageAction={sendMessage}
           channel={ZbayChannel}
           messages={messages}
-          user={'holmes'}
+          user={username}
         />
       )}
     </View>

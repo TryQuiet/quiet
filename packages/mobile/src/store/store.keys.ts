@@ -6,4 +6,5 @@ export enum StoreKeys {
   Identity = 'Identity',
   PublicChannels = 'PublicChannels',
   Messages = 'Messages',
+  Users = 'Users',
 }

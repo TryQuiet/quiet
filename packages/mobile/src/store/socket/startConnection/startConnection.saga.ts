@@ -19,6 +19,10 @@ import { identityActions } from '../../identity/identity.slice';
 import { waitForConnectionSaga } from '../../init/waitForConnection/waitForConnection.saga';
 import { identityMasterSaga } from '../../identity/identity.master.saga';
 import { messagesMasterSaga } from '../../messages/messages.master.saga';
+import {
+  SendCertificatesResponse,
+  usersActions,
+} from '../../users/users.slice';
 
 export function* startConnectionSaga(): Generator {
   const socket = yield* call(connect);
@@ -74,6 +78,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof publicChannelsActions.responseGetPublicChannels>
     | ReturnType<typeof publicChannelsActions.responseSendMessagesIds>
     | ReturnType<typeof publicChannelsActions.responseAskForMessages>
+    | ReturnType<typeof usersActions.responseSendCertificates>
   >(emit => {
     socket.on(SocketActionTypes.SEND_PEER_ID, (payload: string) => {
       emit(identityActions.storePeerId(payload));
@@ -94,6 +99,12 @@ export function subscribe(socket: Socket) {
       SocketActionTypes.RESPONSE_ASK_FOR_MESSAGES,
       (payload: AskForMessagesResponse) => {
         emit(publicChannelsActions.responseAskForMessages(payload));
+      },
+    );
+    socket.on(
+      SocketActionTypes.RESPONSE_GET_CERTIFICATES,
+      (payload: SendCertificatesResponse) => {
+        emit(usersActions.responseSendCertificates(payload));
       },
     );
     return () => {};

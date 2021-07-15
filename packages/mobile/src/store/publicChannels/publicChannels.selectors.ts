@@ -4,6 +4,7 @@ import { createSelector } from 'reselect';
 import { selectReducer } from '../store.utils';
 import { publicChannelsAdapter } from './publicChannels.adapter';
 import { formatMessageDisplayDate } from '../../utils/functions/formatMessageDisplayDate/formatMessageDisplayDate';
+import { certificatesMapping } from '../users/users.selectors';
 
 export const publicChannels = createSelector(
   selectReducer(StoreKeys.PublicChannels),
@@ -85,17 +86,33 @@ export const missingCurrentChannelMessages = createSelector(
   },
 );
 
-export const currentChannelDisplayableMessages = createSelector(
+export const validCurrentChannelMessages = createSelector(
   orderedChannelMessages,
-  messages =>
-    messages.map(message => {
+  certificatesMapping,
+  (messages, certificates) => {
+    return messages
+      .filter(message => message.pubKey in certificates)
+      .sort((a, b) => {
+        return b.createdAt - a.createdAt;
+      });
+  },
+);
+
+export const currentChannelDisplayableMessages = createSelector(
+  validCurrentChannelMessages,
+  certificatesMapping,
+  (messages, certificates) => {
+    return messages.map(message => {
+      const user = certificates[message.pubKey];
       return {
         id: message.id,
+        type: message.type,
         message: message.message,
-        nickname: 'anon',
-        datetime: formatMessageDisplayDate(message.createdAt),
+        createdAt: formatMessageDisplayDate(message.createdAt),
+        nickname: user.username,
       };
-    }),
+    });
+  },
 );
 
 export const publicChannelsSelectors = {
@@ -106,5 +123,6 @@ export const publicChannelsSelectors = {
   currentChannelMessages,
   orderedChannelMessages,
   missingCurrentChannelMessages,
+  validCurrentChannelMessages,
   currentChannelDisplayableMessages,
 };

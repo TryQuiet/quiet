@@ -1,9 +1,9 @@
 import React, { FC } from 'react';
 import { KeyboardAvoidingView } from 'react-native';
-import { Image, View } from 'react-native';
-import { appImages } from '../../../assets';
+import { View } from 'react-native';
 import { Typography } from '../Typography/Typography.component';
 import { MessageProps } from './Message.types';
+import Jdenticon from 'react-native-jdenticon';
 
 export const Message: FC<MessageProps> = ({ message }) => {
   return (
@@ -17,17 +17,12 @@ export const Message: FC<MessageProps> = ({ message }) => {
           style={{
             flex: 1,
             alignItems: 'center',
-            paddingTop: 5,
             paddingRight: 12,
           }}>
-          <Image
-            source={appImages.avatar}
-            style={{
-              resizeMode: 'cover',
-              width: 32,
-              height: 32,
-              borderRadius: 5,
-            }}
+          <Jdenticon
+            value={message.nickname}
+            size={38}
+            style={{ padding: 0 }}
           />
         </View>
         <View style={{ flex: 10 }}>
@@ -44,7 +39,7 @@ export const Message: FC<MessageProps> = ({ message }) => {
                 paddingLeft: 8,
               }}>
               <Typography fontSize={14} color={'subtitle'}>
-                {message.datetime}
+                {message.createdAt}
               </Typography>
             </View>
           </View>

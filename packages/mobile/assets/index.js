@@ -1,5 +1,4 @@
 import zbay_icon from './icons/zbay_icon.png';
-import avatar from './icons/avatar.png';
 import icon_send from './icons/icon_send.png';
 import icon_send_disabled from './icons/icon_send_disabled.png';
 import check_circle_green from './icons/check_circle_green.png';
@@ -11,7 +10,6 @@ import username_registered from './icons/username_registered.png';
  */
 export const appImages = {
   zbay_icon,
-  avatar,
   icon_send,
   icon_send_disabled,
   check_circle_green,
@@ -22,4 +20,4 @@ export const appImages = {
 /**
  * @description This assets are for the storybook.
  */
-export const storybookImages = { avatar };
+export const storybookImages = {};

@@ -12,7 +12,12 @@ const persistedReducer = persistReducer(
   {
     key: 'persistedReducer',
     storage: AsyncStorage,
-    whitelist: [StoreKeys.Assets, StoreKeys.Identity, StoreKeys.PublicChannels],
+    whitelist: [
+      StoreKeys.Assets,
+      StoreKeys.Identity,
+      StoreKeys.Users,
+      StoreKeys.PublicChannels,
+    ],
   },
   rootReducer,
 );

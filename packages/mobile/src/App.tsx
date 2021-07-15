@@ -1,3 +1,5 @@
+import './App.dev-menu';
+
 import { SuccessScreen } from './screens/Success/Success.screen';
 import { RegistrationScreen } from './screens/Registration/Registration.screen';
 import WebviewCrypto from 'react-native-webview-crypto';
