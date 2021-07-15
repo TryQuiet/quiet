@@ -44,7 +44,7 @@ describe('Message component', () => {
           style={
             Object {
               "flexDirection": "row",
-              "paddingBottom": 20,
+              "paddingBottom": 30,
             }
           }
         >

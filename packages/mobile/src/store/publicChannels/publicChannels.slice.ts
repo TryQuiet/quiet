@@ -86,6 +86,12 @@ export const publicChannelsSlice = createSlice({
         state.channelMessages[channelAddress].messages[message.id] = message;
       });
     },
+    onMessagePosted: (state, action: PayloadAction<{ message: IMessage }>) => {
+      const channelAddress = state.currentChannel;
+      const message = action.payload.message;
+      state.channelMessages[channelAddress].ids.push(message.id);
+      state.channelMessages[channelAddress].messages[message.id] = message;
+    },
   },
 });
 

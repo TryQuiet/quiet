@@ -27,4 +27,5 @@ export enum SocketActionTypes {
   SAVE_CERTIFICATE = 'saveCertificate',
   RESPONSE_GET_CERTIFICATES = 'responseGetCertificates',
   SEND_MESSAGE = 'sendMessage',
+  MESSAGE = 'message',
 }

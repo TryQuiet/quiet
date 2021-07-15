@@ -25,9 +25,7 @@ export const Chat: FC<ChatProps> = ({
     };
 
     const onKeyboardDidHide = () => {
-      if (messageInput?.length === 0) {
-        setKeyboardShow(false);
-      }
+      setKeyboardShow(false);
     };
 
     Keyboard.addListener('keyboardDidShow', onKeyboardDidShow);
@@ -58,10 +56,9 @@ export const Chat: FC<ChatProps> = ({
     ) {
       return;
     }
-    Keyboard.dismiss();
-    setKeyboardShow(false);
     messageInputRef.current.clear();
     sendMessageAction(messageInput);
+    setMessageInput('');
   };
 
   const inputStyle = didKeyboardShow ? customInputStyle.expanded : {};

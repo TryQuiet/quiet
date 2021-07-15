@@ -188,7 +188,7 @@ describe('Chat component', () => {
                   style={
                     Object {
                       "flexDirection": "row",
-                      "paddingBottom": 20,
+                      "paddingBottom": 30,
                     }
                   }
                 >
@@ -339,7 +339,7 @@ describe('Chat component', () => {
                   style={
                     Object {
                       "flexDirection": "row",
-                      "paddingBottom": 20,
+                      "paddingBottom": 30,
                     }
                   }
                 >
@@ -490,7 +490,7 @@ describe('Chat component', () => {
                   style={
                     Object {
                       "flexDirection": "row",
-                      "paddingBottom": 20,
+                      "paddingBottom": 30,
                     }
                   }
                 >
@@ -641,7 +641,7 @@ describe('Chat component', () => {
                   style={
                     Object {
                       "flexDirection": "row",
-                      "paddingBottom": 20,
+                      "paddingBottom": 30,
                     }
                   }
                 >

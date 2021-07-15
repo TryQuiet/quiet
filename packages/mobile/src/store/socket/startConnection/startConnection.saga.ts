@@ -23,6 +23,7 @@ import {
   SendCertificatesResponse,
   usersActions,
 } from '../../users/users.slice';
+import { IMessage } from '../../publicChannels/publicChannels.types';
 
 export function* startConnectionSaga(): Generator {
   const socket = yield* call(connect);
@@ -78,6 +79,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof publicChannelsActions.responseGetPublicChannels>
     | ReturnType<typeof publicChannelsActions.responseSendMessagesIds>
     | ReturnType<typeof publicChannelsActions.responseAskForMessages>
+    | ReturnType<typeof publicChannelsActions.onMessagePosted>
     | ReturnType<typeof usersActions.responseSendCertificates>
   >(emit => {
     socket.on(SocketActionTypes.SEND_PEER_ID, (payload: string) => {
@@ -101,6 +103,9 @@ export function subscribe(socket: Socket) {
         emit(publicChannelsActions.responseAskForMessages(payload));
       },
     );
+    socket.on(SocketActionTypes.MESSAGE, (payload: { message: IMessage }) => {
+      emit(publicChannelsActions.onMessagePosted(payload));
+    });
     socket.on(
       SocketActionTypes.RESPONSE_GET_CERTIFICATES,
       (payload: SendCertificatesResponse) => {

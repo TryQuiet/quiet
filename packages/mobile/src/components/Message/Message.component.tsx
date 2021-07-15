@@ -11,7 +11,7 @@ export const Message: FC<MessageProps> = ({ message }) => {
       <View
         style={{
           flexDirection: 'row',
-          paddingBottom: 20,
+          paddingBottom: 30,
         }}>
         <View
           style={{
