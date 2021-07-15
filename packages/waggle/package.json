@@ -1,6 +1,6 @@
 {
   "name": "waggle",
-  "version": "2.0.9",
+  "version": "2.0.10",
   "author": "jk",
   "description": "tlg-manager",
   "types": "lib/index.d.ts",
@@ -19,7 +19,8 @@
     "url": "git+ssh://git@github.com:ZbayApp/waggle.git"
   },
   "files": [
-    "lib/**/*"
+    "lib/**/*",
+    "wrtc-mock/**/*"
   ],
   "jest": {
     "transform": {

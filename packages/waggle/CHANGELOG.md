@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.0.10] - 2021-07-15
+
+### Fixed
+
+- Npm package version 2.0.9 lacks wrtc-mock
+
 ## [2.0.9] - 2021-07-08
 
 ### Added
@@ -9,7 +15,7 @@
 
 ## [2.0.8] - 2021-07-07
 
-### Fix
+### Fixed
 
 - Root certificate and private key
 
