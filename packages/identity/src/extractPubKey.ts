@@ -17,7 +17,6 @@ export const keyFromCertificate = (certificate: Certificate): string => {
 }
 
 export const keyObjectFromString = (pubKeyString: string, crypto: any) => {
-  // todo: why 'string' in var name??
   let keyArray = new ArrayBuffer(0)
   keyArray = stringToArrayBuffer(fromBase64(pubKeyString))
   const algorithm = getAlgorithmParameters(config.signAlg, 'generatekey')
@@ -29,7 +28,11 @@ export const keyObjectFromString = (pubKeyString: string, crypto: any) => {
 }
 
 export const extractPubKey = (pem: string, crypto: any) => {
-  const certificate = parseCertificate(pem)
-  const pubKeyString = keyFromCertificate(certificate)
+  const pubKeyString = extractPubKeyString(pem)
   return keyObjectFromString(pubKeyString, crypto)
+}
+
+export const extractPubKeyString = (pem: string): string => {
+  const certificate = parseCertificate(pem)
+  return keyFromCertificate(certificate)
 }
