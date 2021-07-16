@@ -9,13 +9,7 @@ describe('Security', () => {
     const result = shallow(
       <Security
         classes={mockClasses}
-        removeImageHost={jest.fn()}
         openSeedModal={jest.fn()}
-        removeSiteHost={jest.fn()}
-        toggleAllowAll={jest.fn()}
-        whitelisted={['test', 'test2']}
-        autoload={['test3', 'test4']}
-        allowAll
       />
     )
     expect(result).toMatchSnapshot()

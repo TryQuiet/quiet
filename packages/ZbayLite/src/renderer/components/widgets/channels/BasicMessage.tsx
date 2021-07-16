@@ -3,7 +3,6 @@ import { DateTime } from 'luxon'
 import classNames from 'classnames'
 import Jdenticon from 'react-jdenticon'
 
-import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import ListItem from '@material-ui/core/ListItem'
@@ -13,11 +12,9 @@ import { makeStyles, Theme } from '@material-ui/core/styles'
 import red from '@material-ui/core/colors/red'
 
 import Icon from '../../ui/Icon'
-import dotsIcon from '../../../static/images/zcash/dots-icon.svg'
 import maskIcon from '../../../static/images/avatar-13-mask-light.svg'
 import { IBasicMessageProps } from './BasicMessage.d'
 import SendMessagePopover from '../../../containers/widgets/channels/SendMessagePopover'
-import ModeratorActionsPopper from '../../../containers/widgets/channels/ModeratorActionsPopper'
 
 const useStyles = makeStyles((theme: Theme) => ({
   messageCard: {
@@ -96,14 +93,10 @@ export const BasicMessage: React.FC<IBasicMessageProps> = ({
   message,
   children,
   actionsOpen,
-  setActionsOpen,
-  allowModeration
+  setActionsOpen
 }) => {
   const classes = useStyles({})
-  const [open, setOpen] = React.useState(false)
   const [anchorEl, setAnchorEl] = React.useState(null)
-  const [hovered, setHovered] = React.useState(false)
-  const [anchorModeration, setAnchorModeration] = React.useState(null)
   const handleClick = (event, isFromZbayUser) => {
     if (isFromZbayUser) {
       setAnchorEl(event.currentTarget)
@@ -127,11 +120,8 @@ export const BasicMessage: React.FC<IBasicMessageProps> = ({
       })}
       onClick={() => setActionsOpen(!actionsOpen)}
       onMouseOver={() => {
-        setHovered(true)
       }}
       onMouseLeave={() => {
-        setHovered(false)
-        setOpen(false)
       }}>
       <ListItemText
         disableTypography
@@ -181,7 +171,7 @@ export const BasicMessage: React.FC<IBasicMessageProps> = ({
                   </Grid>
                 )}
               </Grid>
-              {hovered && allowModeration && (
+              {/* {hovered && allowModeration && (
                 <ClickAwayListener
                   onClickAway={() => {
                     setOpen(false)
@@ -205,7 +195,7 @@ export const BasicMessage: React.FC<IBasicMessageProps> = ({
                     />
                   </Grid>
                 </ClickAwayListener>
-              )}
+              )} */}
             </Grid>
           </Grid>
         }

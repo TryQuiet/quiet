@@ -141,7 +141,6 @@ exports[`Security renders component 1`] = `
     <WithStyles(ForwardRef(FormControlLabel))
       control={
         <WithStyles(ForwardRef(Checkbox))
-          checked={true}
           color="default"
           onChange={[Function]}
         />
@@ -155,113 +154,6 @@ exports[`Security renders component 1`] = `
         </WithStyles(ForwardRef(Typography))>
       }
     />
-  </WithStyles(ForwardRef(Grid))>
-  <WithStyles(ForwardRef(Grid))
-    className="subtitle-mock"
-    item={true}
-  >
-    <WithStyles(ForwardRef(Typography))
-      variant="h5"
-    >
-      Allowed sites
-    </WithStyles(ForwardRef(Typography))>
-  </WithStyles(ForwardRef(Grid))>
-  <WithStyles(ForwardRef(Grid))
-    item={true}
-  >
-    <WithStyles(ForwardRef(Typography))
-      variant="body2"
-    >
-      Links from these sites will not trigger warrning:
-    </WithStyles(ForwardRef(Typography))>
-  </WithStyles(ForwardRef(Grid))>
-  <WithStyles(ForwardRef(Grid))
-    item={true}
-    key="test"
-  >
-    <WithStyles(UserListItem)
-      action={[Function]}
-      actionName="Remove"
-      classes={
-        Object {
-          "name": "itemName-mock",
-        }
-      }
-      name="test"
-      prefix=""
-    />
-  </WithStyles(ForwardRef(Grid))>
-  <WithStyles(ForwardRef(Grid))
-    item={true}
-    key="test2"
-  >
-    <WithStyles(UserListItem)
-      action={[Function]}
-      actionName="Remove"
-      classes={
-        Object {
-          "name": "itemName-mock",
-        }
-      }
-      name="test2"
-      prefix=""
-    />
-  </WithStyles(ForwardRef(Grid))>
-  <WithStyles(ForwardRef(Grid))
-    className="imageHostsDiv-mock"
-    item={true}
-  >
-    <WithStyles(ForwardRef(Grid))
-      className="subtitle-mock"
-      item={true}
-    >
-      <WithStyles(ForwardRef(Typography))
-        variant="h5"
-      >
-        Allowed image hosts
-      </WithStyles(ForwardRef(Typography))>
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      item={true}
-    >
-      <WithStyles(ForwardRef(Typography))
-        variant="body2"
-      >
-        Images from these sites will be auto-loaded:
-      </WithStyles(ForwardRef(Typography))>
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      item={true}
-      key="test3"
-    >
-      <WithStyles(UserListItem)
-        action={[Function]}
-        actionName="Remove"
-        classes={
-          Object {
-            "name": "itemName-mock",
-          }
-        }
-        name="test3"
-        prefix=""
-      />
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      item={true}
-      key="test4"
-    >
-      <WithStyles(UserListItem)
-        action={[Function]}
-        actionName="Remove"
-        classes={
-          Object {
-            "name": "itemName-mock",
-          }
-        }
-        name="test4"
-        prefix=""
-      />
-    </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
 </WithStyles(ForwardRef(Grid))>
 `;

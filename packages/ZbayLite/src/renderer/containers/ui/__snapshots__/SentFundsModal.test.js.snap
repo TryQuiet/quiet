@@ -2,7 +2,6 @@
 
 exports[`SentFundsModal will receive right props 1`] = `
 Object {
-  "currentBlock": 0,
   "payload": Object {
     "amountUsd": 10,
     "amountZec": 10,
@@ -12,6 +11,5 @@ Object {
     "recipient": "test",
     "timestamp": 1483228800,
   },
-  "rateUsd": "10",
 }
 `;

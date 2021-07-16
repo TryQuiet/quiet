@@ -1,7 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`Operations reducer handles  actions - addTxnTimestamp 1`] = `
-Object {
-  "123": "1234",
-}
-`;

@@ -13,7 +13,6 @@ import ChannelInfoModal from '../../../containers/widgets/channels/ChannelInfoMo
 import DirectMessagesInfoModal from '../../../containers/widgets/channels/DirectMessagesInfoModal'
 import { CHANNEL_TYPE } from '../../../components/pages/ChannelTypes'
 import ChannelMenuAction from '../../../containers/widgets/channels/ChannelMenuAction'
-import OfferMenuActions from '../../../containers/widgets/channels/OfferMenuActions'
 import DirectMessagesMenuActions from '../../../containers/widgets/channels/DirectMessagesMenuActions'
 import IconButton from '../../ui/IconButton'
 import Icon from '../../ui/Icon'
@@ -94,13 +93,11 @@ const styles = theme => ({
 })
 
 export const channelTypeToActions = {
-  [CHANNEL_TYPE.OFFER]: OfferMenuActions,
   [CHANNEL_TYPE.DIRECT_MESSAGE]: DirectMessagesMenuActions,
   [CHANNEL_TYPE.NORMAL]: ChannelMenuAction
 }
 
 const prefix = {
-  [CHANNEL_TYPE.OFFER]: '',
   [CHANNEL_TYPE.DIRECT_MESSAGE]: '@',
   [CHANNEL_TYPE.NORMAL]: '#'
 }

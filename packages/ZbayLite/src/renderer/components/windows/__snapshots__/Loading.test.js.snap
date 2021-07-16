@@ -19,13 +19,6 @@ exports[`Loading renders component 1`] = `
     />
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
-    className="carouselContainer-mock"
-    container={true}
-    item={true}
-  >
-    <WithStyles(undefined) />
-  </WithStyles(ForwardRef(Grid))>
-  <WithStyles(ForwardRef(Grid))
     className="progressBarContainer-mock"
     item={true}
   >

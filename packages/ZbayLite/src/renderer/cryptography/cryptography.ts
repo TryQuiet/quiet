@@ -44,6 +44,7 @@ export const checkConversation = (
 ): IConversation | null => {
   const dh = crypto.createDiffieHellman(constants.prime, 'hex', constants.generator, 'hex')
   dh.setPrivateKey(privKey, 'hex')
+  console.log(id)
   const sharedSecret = dh.computeSecret(id, 'hex').toString('hex')
   let decodedMessage = null
   try {

@@ -1,9 +1,3 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`SyncLoader will receive right props 1`] = `
-Object {
-  "currentBlock": 1,
-  "latestBlock": 100,
-  "nodeStatus": "healthy",
-}
-`;
+exports[`SyncLoader will receive right props 1`] = `Object {}`;

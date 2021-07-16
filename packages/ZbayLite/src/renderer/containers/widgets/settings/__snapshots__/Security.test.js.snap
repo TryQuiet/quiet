@@ -2,25 +2,8 @@
 
 exports[`Security will receive right actions 1`] = `
 Object {
-  "onRescan": [Function],
   "openSeedModal": [Function],
-  "removeImageHost": [Function],
-  "removeSiteHost": [Function],
-  "toggleAllowAll": [Function],
 }
 `;
 
-exports[`Security will receive right props 1`] = `
-Object {
-  "allowAll": false,
-  "autoload": Array [
-    "test3",
-    "test4",
-  ],
-  "useTor": true,
-  "whitelisted": Array [
-    "test1",
-    "test2",
-  ],
-}
-`;
+exports[`Security will receive right props 1`] = `Object {}`;

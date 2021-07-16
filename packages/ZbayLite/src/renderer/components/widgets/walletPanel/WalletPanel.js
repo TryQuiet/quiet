@@ -28,17 +28,17 @@ export const WalletPanel = ({ classes, openInvitationModal, setModalTab }) => {
         className={classes.root}
       >
         <ZcashBalance />
-        <Grid item>
+        {/* <Grid item>
           <WalletPanelActions />
-        </Grid>
+        </Grid> */}
       </Grid>
-      <QuickActionButton
+      {/* <QuickActionButton
         text='Invite friends'
         action={() => {
           openInvitationModal()
           setModalTab()
         }}
-      />
+      /> */}
     </>
   )
 }

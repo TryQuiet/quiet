@@ -7,7 +7,5 @@ Object {
   "isInitialLoadFinished": false,
   "messages": undefined,
   "name": undefined,
-  "qMessages": Array [],
-  "triggerScroll": false,
 }
 `;

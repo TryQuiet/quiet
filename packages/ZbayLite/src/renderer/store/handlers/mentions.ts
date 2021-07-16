@@ -2,15 +2,7 @@ import { produce, immerable } from 'immer'
 import { createAction, handleActions } from 'redux-actions'
 
 import channelSelectors from '../selectors/channel'
-import publicChannelsSelector from '../selectors/publicChannels'
-import usersSelectors from '../selectors/users'
 import { actionTypes } from '../../../shared/static'
-import { messages as zbayMessages } from '../../zbay'
-import identitySelectors from '../selectors/identity'
-import directMessagesQueueHandlers from './directMessagesQueue'
-import notificationsHandlers from './notifications'
-import modalsHandlers from './modals'
-import { errorNotification, successNotification } from './utils'
 
 import { ActionsType, PayloadType } from './types'
 
@@ -80,55 +72,9 @@ const removeMention = nickname => async (dispatch, getState) => {
   dispatch(removeMentionMiss({ channelId, nickname }))
 }
 
-const sendInvitation = nickname => async (dispatch, getState) => {
-  try {
-    const channelId = channelSelectors.channelId(getState())
-    const channelAddress = channelSelectors.data(getState()).address
-    const privKey = identitySelectors.signerPrivKey(getState())
-    const users = usersSelectors.users(getState())
-    const publicChannel = Array.from(
-      Object.values(publicChannelsSelector.publicChannels(getState()))
-    ).find(ch => ch.address === channelAddress)
-    if (!publicChannel) {
-      dispatch(modalsHandlers.actionCreators.openModal('channelInfo')())
-      dispatch(removeMentionMiss({ channelId, nickname }))
-
-      return
-    }
-    const targetUser = Array.from(Object.values(users)).find(user => user.nickname === nickname)
-    const message = zbayMessages.createMessage({
-      messageData: {
-        type: zbayMessages.messageType.BASIC,
-        data: `Please join #${publicChannel.name}`
-      },
-      privKey
-    })
-    dispatch(
-      directMessagesQueueHandlers.epics.addDirectMessage({
-        message,
-        recipientAddress: targetUser.address,
-        recipientUsername: targetUser.nickname
-      })
-    )
-    dispatch(removeMentionMiss({ channelId, nickname }))
-    dispatch(
-      notificationsHandlers.actions.enqueueSnackbar(
-        successNotification({ message: 'Invitation sent' })
-      )
-    )
-  } catch (err) {
-    dispatch(
-      notificationsHandlers.actions.enqueueSnackbar(
-        errorNotification({ message: 'Failed to send invitation ' })
-      )
-    )
-  }
-}
-
 export const epics = {
   checkMentions,
-  removeMention,
-  sendInvitation
+  removeMention
 }
 export const reducer = handleActions<Mentions, PayloadType<MentionsActions>>(
   {

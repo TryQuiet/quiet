@@ -2,9 +2,6 @@
 
 exports[`Main will receive right actions 1`] = `
 Object {
-  "disablePowerSleepMode": [Function],
-  "fetch": [Function],
-  "fetchBalance": [Function],
   "openSettingsModal": [Function],
 }
 `;

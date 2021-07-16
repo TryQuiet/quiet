@@ -1,21 +1,18 @@
+
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import * as R from 'ramda'
-
 import ChannelMessagesComponent from '../../../components/widgets/channels/ChannelMessages'
 import channelSelectors from '../../../store/selectors/channel'
-import dmQueueMessages from '../../../store/selectors/directMessagesQueue'
-import queueMessages from '../../../store/selectors/messagesQueue'
+// import dmQueueMessages from '../../../store/selectors/directMessagesQueue'
+// import queueMessages from '../../../store/selectors/messagesQueue'
 import userSelector from '../../../store/selectors/users'
 import contactsSelectors from '../../../store/selectors/contacts'
-import nodeSelector from '../../../store/selectors/node'
+// import nodeSelector from '../../../store/selectors/node'
 import appSelectors from '../../../store/selectors/app'
-import ownedChannelsSelectors from '../../../store/selectors/ownedChannels'
+// import ownedChannelsSelectors from '../../../store/selectors/ownedChannels'
 import publicChannelsSelector from '../../../store/selectors/publicChannels'
 import { MessageType } from '../../../../shared/static.types'
-import zcashChannels from '../../../zcash/channels'
 import channelHandlers, { actions } from '../../../store/handlers/channel'
-import appHandlers from '../../../store/handlers/app'
 
 import electronStore from '../../../../shared/electronStore'
 import { loadNextMessagesLimit } from '../../../../shared/static'
@@ -28,17 +25,17 @@ export const ChannelMessages = ({ tab, contentRect }) => {
   const [newMessagesLoading, setNewMessagesLoading] = React.useState(false)
 
   const dispatch = useDispatch()
-  const qMessages = useSelector(queueMessages.queue)
-  const qDmMessages = useSelector(dmQueueMessages.queue)
+  // const qMessages = useSelector(queueMessages.queue)
+  // const qDmMessages = useSelector(dmQueueMessages.queue)
   const contactId = useSelector(channelSelectors.id)
   const setAddress = (contactId) => dispatch(actions.setAddress(contactId))
-  const triggerScroll = qDmMessages.length + qMessages.length > 0
+  // const triggerScroll = qDmMessages.length + qMessages.length > 0
 
   const onLinkedChannel = (props) =>
     dispatch(channelHandlers.epics.linkChannelRedirect(props))
   const setDisplayableLimit = (arg0?: number) =>
     dispatch(channelHandlers.actions.setDisplayableLimit(arg0))
-  const onRescan = () => dispatch(appHandlers.epics.restartAndRescan())
+  // const onRescan = () => dispatch(appHandlers.epics.restartAndRescan())
   const messages = useSelector(contactsSelectors.directMessages(contactId))
     .visibleMessages
   const messagesLength = useSelector(
@@ -47,12 +44,12 @@ export const ChannelMessages = ({ tab, contentRect }) => {
   const displayableMessageLimit = useSelector(
     channelSelectors.displayableMessageLimit
   )
-  const isOwner = useSelector(ownedChannelsSelectors.isOwner)
+  // const isOwner = useSelector(ownedChannelsSelectors.isOwner)
   const channelId = useSelector(channelSelectors.channelId)
   const users = useSelector(userSelector.users)
   const loader = useSelector(channelSelectors.loader)
   const publicChannels = useSelector(publicChannelsSelector.publicChannels)
-  const network = useSelector(nodeSelector.network)
+  // const network = useSelector(nodeSelector.network)
   const isInitialLoadFinished = useSelector(appSelectors.isInitialLoadFinished)
 
   useEffect(() => {
@@ -63,11 +60,11 @@ export const ChannelMessages = ({ tab, contentRect }) => {
     setScrollPosition(-1)
     setIsRescanned(!electronStore.get(`channelsToRescan.${channelId}`))
   }, [channelId, contactId])
-  useEffect(() => {
-    if (triggerScroll) {
-      setScrollPosition(-1)
-    }
-  }, [triggerScroll])
+  // useEffect(() => {
+  //   if (triggerScroll) {
+  //     setScrollPosition(-1)
+  //   }
+  // }, [triggerScroll])
   useEffect(() => {
     if (scrollPosition === 0 && displayableMessageLimit < messagesLength) {
       setDisplayableLimit(displayableMessageLimit + loadNextMessagesLimit)
@@ -75,24 +72,24 @@ export const ChannelMessages = ({ tab, contentRect }) => {
     }
   }, [scrollPosition])
 
-  const oldestMessage = messages ? messages[messages.length - 1] : null
-  let usersRegistration = []
-  let _publicChannelsRegistration = []
+  // const oldestMessage = messages ? messages[messages.length - 1] : null
+  const usersRegistration = []
+  // const _publicChannelsRegistration = []
   let publicChannelsRegistration
-  if (channelId === zcashChannels.general[network].address) {
-    if (oldestMessage) {
-      usersRegistration = Array.from(Object.values(users)).filter(
-        (msg) => msg.createdAt >= oldestMessage.createdAt
-      )
-      _publicChannelsRegistration = Array.from(Object.values(publicChannels)).filter(
-        msg => msg.timestamp >= oldestMessage.createdAt
-      )
-      publicChannelsRegistration = R.clone(_publicChannelsRegistration)
-      for (const ch of publicChannelsRegistration) {
-        delete Object.assign(ch, { createdAt: parseInt(ch.timestamp) }).timestamp
-      }
-    }
-  }
+  // if (channelId === zcashChannels.general[network].address) {
+  //   if (oldestMessage) {
+  //     usersRegistration = Array.from(Object.values(users)).filter(
+  //       (msg) => msg.createdAt >= oldestMessage.createdAt
+  //     )
+  //     _publicChannelsRegistration = Array.from(Object.values(publicChannels)).filter(
+  //       msg => msg.timestamp >= oldestMessage.createdAt
+  //     )
+  //     publicChannelsRegistration = R.clone(_publicChannelsRegistration)
+  //     for (const ch of publicChannelsRegistration) {
+  //       delete Object.assign(ch, { createdAt: parseInt(ch.timestamp) }).timestamp
+  //     }
+  //   }
+  // }
   const isNewUser = electronStore.get('isNewUser')
 
   return (
@@ -102,7 +99,7 @@ export const ChannelMessages = ({ tab, contentRect }) => {
       newMessagesLoading={newMessagesLoading}
       setNewMessagesLoading={setNewMessagesLoading}
       isNewUser={isNewUser}
-      onRescan={onRescan}
+      // onRescan={onRescan}
       channelId={channelId}
       messages={
         tab === 0
@@ -111,7 +108,7 @@ export const ChannelMessages = ({ tab, contentRect }) => {
       }
       contactId={contactId}
       contentRect={contentRect}
-      isOwner={isOwner}
+      // isOwner={isOwner}
       publicChannelsRegistration={publicChannelsRegistration}
       usersRegistration={usersRegistration}
       users={users}

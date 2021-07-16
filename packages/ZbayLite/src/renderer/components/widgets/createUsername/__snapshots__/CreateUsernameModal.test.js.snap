@@ -16,31 +16,10 @@ exports[`CreateUsernameModal renders component 1`] = `
     container={true}
     direction="column"
   >
-    <WithStyles(ForwardRef(Grid))
-      className="title-mock"
-      item={true}
-    >
-      <WithStyles(ForwardRef(Typography))
-        variant="h3"
-      >
-        Register a username
-      </WithStyles(ForwardRef(Typography))>
-    </WithStyles(ForwardRef(Grid))>
-    <Formik
-      enableReinitialize={false}
-      initialValues={
-        Object {
-          "nickname": "test",
-        }
-      }
-      isInitialValid={false}
-      onSubmit={[Function]}
-      validate={[Function]}
-      validateOnBlur={true}
-      validateOnChange={true}
-    >
-      <Component />
-    </Formik>
+    <Memo(WithStyles(UsernameCreated))
+      handleClose={[MockFunction]}
+      setFormSent={[Function]}
+    />
   </WithStyles(ForwardRef(Grid))>
 </Component>
 `;

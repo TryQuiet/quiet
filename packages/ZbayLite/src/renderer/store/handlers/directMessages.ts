@@ -2,15 +2,11 @@ import { produce, immerable } from 'immer'
 import crypto from 'crypto'
 import { createAction, handleActions } from 'redux-actions'
 
-import directMessagesSelectors from '../selectors/directMessages'
-import identitySelectors from '../selectors/identity'
-import channelSelectors from '../selectors/channel'
-
 import { actionTypes } from '../../../shared/static'
 import { ActionsType, PayloadType } from './types'
 import { directMessagesActions } from '../../sagas/directMessages/directMessages.reducer'
 
-import { encodeMessage, constants } from '../../cryptography/cryptography'
+import { constants } from '../../cryptography/cryptography'
 import debug from 'debug'
 const _log = Object.assign(debug('zbay:dm'), {
   error: debug('zbay:dm:err')
@@ -89,38 +85,6 @@ export const getPrivateConversations = () => dispatch => {
   dispatch(directMessagesActions.getPrivateConversations())
 }
 
-const initializeConversation = () => async (dispatch, getState) => {
-  const contactPublicKey = channelSelectors.channel(getState()).id
-
-  const myPublicKey = identitySelectors.signerPubKey(getState())
-
-  const halfKey = directMessagesSelectors.user(contactPublicKey)(getState()).halfKey
-
-  const dh = crypto.createDiffieHellman(constants.prime, 'hex', constants.generator, 'hex')
-  dh.generateKeys()
-
-  const pubKey = dh.getPublicKey('hex')
-
-  const sharedSecret = dh.computeSecret(halfKey, 'hex').toString('hex')
-
-  const encryptedPhrase = encodeMessage(sharedSecret, `no panic${myPublicKey}`)
-
-  dispatch(
-    actions.addConversation({
-      sharedSecret,
-      contactPublicKey: contactPublicKey,
-      conversationId: pubKey
-    })
-  )
-
-  await dispatch(
-    directMessagesActions.initializeConversation({
-      address: pubKey,
-      encryptedPhrase
-    })
-  )
-}
-
 const subscribeForAllConversations = () => async dispatch => {
   await dispatch(directMessagesActions.subscribeForAllConversations())
 }
@@ -132,7 +96,6 @@ const getAvailableUsers = () => async dispatch => {
 export const epics = {
   generateDiffieHellman,
   getAvailableUsers,
-  initializeConversation,
   getPrivateConversations,
   subscribeForAllConversations
 }

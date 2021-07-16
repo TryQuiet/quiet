@@ -9,8 +9,4 @@ Object {
 }
 `;
 
-exports[`WalletPanelActions will receive right props 1`] = `
-Object {
-  "showDepositInfo": false,
-}
-`;
+exports[`WalletPanelActions will receive right props 1`] = `Object {}`;

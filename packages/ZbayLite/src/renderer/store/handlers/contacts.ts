@@ -1,46 +1,16 @@
 import { produce, immerable } from 'immer'
 import { DateTime } from 'luxon'
 import { createAction, handleActions } from 'redux-actions'
-import BigNumber from 'bignumber.js'
 import { remote } from 'electron'
 
 import history from '../../../shared/history'
 import { actionTypes } from '../../../shared/static'
-import identitySelectors from '../selectors/identity'
 import selectors from '../selectors/contacts'
 import * as _ from 'lodash'
 
 import { DisplayableMessage } from '../../zbay/messages.types'
-import { messages as zbayMessages } from '../../zbay'
-
-import { _checkMessageSize } from './messages'
-import directMessagesQueueHandlers from './directMessagesQueue'
 import { ActionsType, PayloadType } from './types'
 
-const sendDirectMessage = (payload, redirect = true) => async (dispatch, getState) => {
-  const { spent, type, message: messageData } = payload
-  const privKey = identitySelectors.signerPrivKey(getState())
-  const message = zbayMessages.createMessage({
-    messageData: {
-      type,
-      data: messageData,
-      spent: type === zbayMessages.messageType.TRANSFER ? new BigNumber(spent) : '0'
-    },
-    privKey
-  })
-  const { replyTo: recipientAddress, username: recipientUsername } = payload.receiver
-  dispatch(
-    directMessagesQueueHandlers.epics.addDirectMessage(
-      {
-        message,
-        recipientAddress,
-        recipientUsername
-      },
-      0,
-      redirect
-    )
-  )
-}
 export class Contact {
   lastSeen?: DateTime
   key: string = ''
@@ -200,7 +170,6 @@ export const deleteChannel = ({ address, history }) => async dispatch => {
 
 export const epics = {
   updateLastSeen,
-  sendDirectMessage,
   loadContact,
   createVaultContact,
   deleteChannel,
@@ -290,13 +259,6 @@ export const reducer = handleActions<ContactsStore, PayloadType<ContactActions>>
         delete draft[key].messages[id]
         draft[key].messages[txid] = tempMsg
       }),
-    [setMessageBlockTime.toString()]: (
-      state,
-      { payload: { contactAddress, messageId, blockTime } }: ContactActions['setMessageBlockTime']
-    ) =>
-      produce(state, draft => {
-        draft[contactAddress].messages[messageId].blockTime = blockTime
-      }),
     [cleanNewMessages.toString()]: (
       state,
       { payload: { contactAddress } }: ContactActions['cleanNewMessages']
@@ -318,20 +280,6 @@ export const reducer = handleActions<ContactsStore, PayloadType<ContactActions>>
     ) =>
       produce(state, draft => {
         draft[contact.key].lastSeen = lastSeen
-      }),
-    [setContactConnected.toString()]: (
-      state,
-      { payload: { connected, key } }: ContactActions['setContactConnected']
-    ) =>
-      produce(state, draft => {
-        draft[key].connected = connected
-      }),
-    [setTypingIndicator.toString()]: (
-      state,
-      { payload: { typingIndicator, contactAddress } }: ContactActions['setTypingIndicator']
-    ) =>
-      produce(state, draft => {
-        draft[contactAddress].typingIndicator = typingIndicator
       }),
     [removeContact.toString()]: (
       state,

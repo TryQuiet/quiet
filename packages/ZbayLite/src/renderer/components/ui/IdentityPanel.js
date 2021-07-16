@@ -10,7 +10,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import SettingsModal from '../../containers/widgets/settings/SettingsModal'
 import ReceivedInvitationModal from '../../containers/ui/InvitationModal/ReceivedInvitationModal'
 import CreateUsernameModal from '../../containers/widgets/createUsernameModal/CreateUsername'
-import ImportChannelModal from '../../containers/widgets/channels/importChannel/ImportChannelModal'
+// import ImportChannelModal from '../../containers/widgets/channels/importChannel/ImportChannelModal'
 
 const styles = theme => ({
   root: {
@@ -56,7 +56,7 @@ export const IdentityPanel = ({ classes, identity, handleSettings, user }) => {
       </Button>
       <SettingsModal />
       <ReceivedInvitationModal />
-      <ImportChannelModal />
+      {/* <ImportChannelModal /> */}
       <CreateUsernameModal />
     </div>
   )

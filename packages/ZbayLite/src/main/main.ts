@@ -10,8 +10,15 @@ import { spawnTor, waggleVersion, runWaggle } from './waggleManager'
 import debug from 'debug'
 import { ConnectionsManager } from 'waggle/lib/libp2p/connectionsManager'
 import { DataServer } from 'waggle/lib/socket/DataServer'
+
+import {
+  setEngine,
+  CryptoEngine
+} from 'pkijs'
+import { Crypto } from '@peculiar/webcrypto'
 const log = Object.assign(debug('zbay:main'), {
   error: debug('zbay:main:err')
+
 })
 
 electronStore.set('appDataPath', app.getPath('appData'))
@@ -19,6 +26,7 @@ electronStore.set('waggleInitialized', false)
 electronStore.set('waggleVersion', waggleVersion)
 
 export const isDev = process.env.NODE_ENV === 'development'
+const webcrypto = new Crypto()
 
 interface IWindowSize {
   width: number
@@ -29,6 +37,11 @@ const windowSize: IWindowSize = {
   width: 800,
   height: 540
 }
+setEngine('newEngine', webcrypto, new CryptoEngine({
+  name: '',
+  crypto: webcrypto,
+  subtle: webcrypto.subtle
+}))
 
 let mainWindow: BrowserWindow
 
@@ -159,9 +172,6 @@ const createWindow = async () => {
     browserHeight = height
     browserWidth = width
   })
-  electronLocalshortcut.register(mainWindow, 'F11', () => {
-    mainWindow.webContents.send('toggleCoordinator', {})
-  })
   electronLocalshortcut.register(mainWindow, 'CommandOrControl+L', () => {
     mainWindow.webContents.send('openLogs')
   })
@@ -227,7 +237,7 @@ export const checkForUpdate = async win => {
   }
 }
 
-let client: Client
+// let client: Client
 let tor = null
 let waggleProcess: { connectionsManager: ConnectionsManager; dataServer: DataServer } = null
 app.on('ready', async () => {
@@ -289,14 +299,21 @@ app.on('ready', async () => {
   ipcMain.on('proceed-update', () => {
     autoUpdater.quitAndInstall()
   })
-  client = new Client()
-  ipcMain.on('rpcQuery', async (_event, arg) => {
-    const request = JSON.parse(arg)
-    const response = await client.postMessage(request.id, request.method, request.args)
-    if (mainWindow) {
-      mainWindow.webContents.send('rpcQuery', JSON.stringify({ id: request.id, data: response }))
-    }
-  })
+
+  // Temporary disable ZCASH
+  console.log('starting client')
+  const client = new Client()
+  const response = await client.postMessage('1', 'balance')
+  // @ts-expect-error
+  electronStore.set('balance', response.zbalance)
+  await client.terminate()
+
+  // ipcMain.on('rpcQuery', async (_event, arg) => {
+  //   const request = JSON.parse(arg)
+  //   const response = await client.postMessage(request.id, request.method, request.args)
+  //   if (mainWindow) {  //     mainWindow.webContents.send('rpcQuery', JSON.stringify({ id: request.id, data: response }))
+  //   }
+  // })
 })
 
 app.setAsDefaultProtocolClient('zbay')

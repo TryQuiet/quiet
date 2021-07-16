@@ -1,7 +1,3 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`CreateChannelForm will receive right actions 1`] = `
-Object {
-  "onSubmit": [Function],
-}
-`;
+exports[`CreateChannelForm will receive right actions 1`] = `Object {}`;

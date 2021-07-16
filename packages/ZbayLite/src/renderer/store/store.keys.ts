@@ -1,4 +1,7 @@
 export enum StoreKeys {
   Certificates = 'certificates',
-  Identity = 'identity'
+  Identity = 'identity',
+  Channel = 'channel',
+  DirectMessages = 'directMessages',
+  Users = 'users'
 }

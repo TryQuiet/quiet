@@ -2,10 +2,12 @@ import { call, apply, all, takeEvery, put } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
 
 import { certificatesActions } from './certificates.reducer'
-import { createUserCsr } from '../../pkijs/generatePems/requestCertificate'
-import { createUserCert } from '../../pkijs/generatePems/generateUserCertificate'
-import { dataFromRootPems } from '../../../shared/static'
+import { createUserCsr } from '@zbayapp/identity'
 import electronStore from '../../../shared/electronStore'
+import { actions as identityActions } from '../handlers/identity'
+import { registrationServiceAddress } from '../../../shared/static'
+import notificationsHandlers from '../../store/handlers/notifications'
+import { successNotification } from '../handlers/utils'
 
 export function* responseGetCertificates(
   action: PayloadAction<ReturnType<typeof certificatesActions.responseGetCertificates>['payload']>
@@ -14,16 +16,27 @@ export function* responseGetCertificates(
   yield* put(certificatesActions.setUsersCertificates(certificates.certificates))
 }
 
-export const getDate = (date?: string) => date ? new Date(date) : new Date()
+export function* responseGetCertificate(): Generator {
+  console.log('Response get cert saga, setting registration status')
+  electronStore.set('isNewUser', false)
+  yield* put(
+    identityActions.setRegistraionStatus({
+      nickname: '',
+      status: 'SUCCESS'
+    })
+  )
+  yield* put(
+    notificationsHandlers.actions.enqueueSnackbar(
+      successNotification({
+        message: 'Username registered.'
+      })
+    )
+  )
+}
 
-export function* creactOwnCertificate(
-  action: PayloadAction<ReturnType<typeof certificatesActions.creactOwnCertificate>['payload']>
+export function* createOwnCertificate(
+  action: PayloadAction<ReturnType<typeof certificatesActions.createOwnCertificate>['payload']>
 ): Generator {
-  const certString = dataFromRootPems.certificate
-  const keyString = dataFromRootPems.privKey
-  const notBeforeDate = yield* call(getDate)
-  const notAfterDate = yield* call(getDate, '1/1/2031')
-
   interface HiddenServicesType {
     libp2pHiddenService?: {
       onionAddress: string
@@ -52,16 +65,20 @@ export function* creactOwnCertificate(
 
   const user = yield* call(createUserCsr, userData)
 
-  const userCertData = yield* call(createUserCert, certString, keyString, user.userCsr, notBeforeDate, notAfterDate)
-
-  yield* put(certificatesActions.setOwnCertificate(userCertData.userCertString))
+  yield put(
+    certificatesActions.registerUserCertificate({
+      serviceAddress: registrationServiceAddress,
+      userCsr: user.userCsr
+    })
+  )
   yield* put(certificatesActions.setOwnCertKey(user.userKey))
-  yield* put(certificatesActions.saveCertificate(userCertData.userCertString))
+  console.log('After registering csr')
 }
 
 export function* certificatesSaga(): Generator {
   yield* all([
     takeEvery(certificatesActions.responseGetCertificates.type, responseGetCertificates),
-    takeEvery(certificatesActions.creactOwnCertificate.type, creactOwnCertificate)
+    takeEvery(certificatesActions.createOwnCertificate.type, createOwnCertificate),
+    takeEvery(certificatesActions.setOwnCertificate.type, responseGetCertificate)
   ])
 }

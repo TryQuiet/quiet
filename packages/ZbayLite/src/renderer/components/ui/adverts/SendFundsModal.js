@@ -243,7 +243,7 @@ export const SendFundsModal = ({
   validateForm
 }) => {
   const { zec: zecOffer } = values
-  const hasNoFounds = balanceZec.lt(zecOffer)
+  // const hasNoFounds = balanceZec.lt(zecOffer)
   const ErrorText = ({ name }) => {
     return errors[name] ? (
       <Grid item xs>
@@ -519,7 +519,7 @@ export const SendFundsModal = ({
                 </Grid>
                 <ErrorText name={'usd'} />
               </Grid>
-              {hasNoFounds && (
+              {/* {hasNoFounds && (
                 <Grid
                   container
                   item
@@ -575,7 +575,7 @@ export const SendFundsModal = ({
                     </Grid>
                   </Grid>
                 </Grid>
-              )}
+              )} */}
               <Grid item xs className={classes.divButton}>
                 <LoadingButton
                   color='primary'
@@ -584,7 +584,7 @@ export const SendFundsModal = ({
                   size='large'
                   margin='normal'
                   onClick={submitForm}
-                  disabled={hasNoFounds || !isValid}
+                  // disabled={hasNoFounds || !isValid}
                   text={<>Send Funds</>}
                   classes={{ button: classes.postButton }}
                 />

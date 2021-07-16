@@ -84,7 +84,7 @@ export const SendMoneyModal = ({
   rateUsd,
   rateZec,
   feeZec = networkFee,
-  feeUsd = rateUsd.times(feeZec).toNumber(),
+  // feeUsd = rateUsd.times(feeZec).toNumber(),
   userData,
   sendMessageHandler,
   shippingData,
@@ -172,7 +172,7 @@ export const SendMoneyModal = ({
                     amountUsd={values.amountUsd}
                     amountZec={values.amountZec}
                     feeZec={feeZec}
-                    feeUsd={feeUsd}
+                    // feeUsd={feeUsd}
                     sent={sent}
                     values={values}
                     memo={values.memo}

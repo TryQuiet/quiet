@@ -139,9 +139,10 @@ export const runWaggle = async (webContents: BrowserWindow['webContents']): Prom
     if (!electronStore.get('waggleInitialized')) {
       connectionsManager
         .initializeNode()
-        .then(async () => {
+        .then(async (result) => {
           await connectionsManager.initStorage()
           webContents.send('waggleInitialized')
+          electronStore.set('peerId', result.peerId)
           electronStore.set('waggleInitialized', true)
         })
         .catch(error => {

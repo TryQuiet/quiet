@@ -6,7 +6,6 @@ import { Redirect } from 'react-router'
 
 import WindowWrapper from '../ui/WindowWrapper'
 import ZcashIcon from '../../static/images/zcash/logo-lockup--circle.svg'
-import Carousel from '../widgets/Carousel'
 import Icon from '../ui/Icon'
 import { useInterval } from '../../containers/hooks'
 
@@ -121,9 +120,6 @@ export const SyncLoader = ({
                 image={ZcashIcon}
               />
             </Grid>
-          </Grid>
-          <Grid className={classes.carouselContainer} container item>
-            <Carousel />
           </Grid>
           <Grid item container>
             <Grid item container justify='center' alignItems='center'>

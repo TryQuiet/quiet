@@ -10,9 +10,10 @@ import { mockClasses } from '../../../../shared/testing/mocks'
 import theme from '../../../theme'
 
 describe('ChannelMessages', () => {
-  it('renders component', () => {
+  it('renders component', async () => {
+    const message = await createMessage()
     jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => now)
-    const messages = R.range(0, 4).map(m => createMessage(m))
+    const messages = [message]
     const ref = React.createRef()
     const contentRect = {
       bounds: {

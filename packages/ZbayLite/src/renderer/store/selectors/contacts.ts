@@ -2,18 +2,14 @@ import { createSelector } from 'reselect'
 import identitySelectors from './identity'
 import usersSelectors from './users'
 import publicChannelsSelectors from './publicChannels'
-import directMssagesQueueSelectors from './directMessagesQueue'
 import { mergeIntoOne, displayableMessageLimit } from './channel'
 import { MessageType } from '../../../shared/static.types'
 import { unknownUserId } from '../../../shared/static'
-
 import { DisplayableMessage } from '../../zbay/messages.types'
-
 import { Contact } from '../handlers/contacts'
 import { Store } from '../reducers'
 import certificatesSelector from '../certificates/certificates.selector'
-import { extractPubKeyString } from '../../pkijs/tests/extractPubKey'
-import { loadCertificate } from '../../pkijs/generatePems/common'
+import { extractPubKeyString, loadCertificate } from '@zbayapp/identity'
 import channelSelector from '../selectors/channel'
 
 const contacts = (s: Store) => s.contacts
@@ -160,12 +156,6 @@ const username = address => createSelector(contact(address), c => c.username)
 const vaultMessages = address => createSelector(contact(address), c => c.vaultMessages)
 const newMessages = address => createSelector(contact(address), c => c.newMessages)
 
-export const queuedMessages = address =>
-  createSelector(
-    directMssagesQueueSelectors.queue,
-    queue => queue.filter(m => m.recipientAddress === address && m.message.type < 10) //  separate offer messages and direct messages
-  )
-
 const channelOwner = channelId =>
   createSelector(channelSettingsMessages(channelId), msgs => {
     let channelOwner = null
@@ -270,6 +260,8 @@ export const messagesOfChannelWithUserInfo = createSelector(
           if (userInfo.onionAddress !== null) {
             return ({ message, userInfo: userInfo })
           }
+        } else if (message.pubKey === 'holmesMessagesFromStart') {
+          return ({ message, userInfo: { username: 'holmes', onionAddress: '', peerId: '' } })
         }
       }
     ).filter((item) => item !== undefined)
@@ -372,7 +364,6 @@ export default {
   contactExists,
   publicChannelsContacts,
   directMessagesContact,
-  queuedMessages,
   channelModerators,
   contact,
   messages,

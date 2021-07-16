@@ -87,7 +87,7 @@ export const NodePanel = ({
         [classes.baseNotExpanded]: !expanded
       })}
     >
-      <ExpansionPanel
+      {/* <ExpansionPanel
         expanded={expanded}
         onClick={() => setExpanded(!expanded)}
         square
@@ -113,7 +113,7 @@ export const NodePanel = ({
         <ExpansionPanelDetails className={classes.expansionDetails}>
           <NodePanelDetails expanded={expanded} />
         </ExpansionPanelDetails>
-      </ExpansionPanel>
+      </ExpansionPanel> */}
     </Grid>
   </Grid>
 )

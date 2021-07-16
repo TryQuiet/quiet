@@ -144,7 +144,7 @@ export const SettingsModal = ({
                 label='Shipping'
                 classes={{ tabRoot: classes.tab, selected: classes.selected }}
               />
-              <Tab
+              {/* <Tab
                 value='addFunds'
                 label='Add Funds'
                 classes={{ tabRoot: classes.tab, selected: classes.selected }}
@@ -153,12 +153,12 @@ export const SettingsModal = ({
                 value='buyZcash'
                 label='Buy Zcash'
                 classes={{ tabRoot: classes.tab, selected: classes.selected }}
-              />
-              <Tab
+              /> */}
+              {/* <Tab
                 value='invite'
                 label='Invite a Friend'
                 classes={{ tabRoot: classes.tab, selected: classes.selected }}
-              />
+              /> */}
               <Tab
                 value='security'
                 label='Security'

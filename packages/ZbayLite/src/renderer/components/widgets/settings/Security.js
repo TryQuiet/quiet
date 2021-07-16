@@ -53,12 +53,8 @@ const styles = theme => ({
 
 export const Security = ({
   classes,
-  whitelisted,
-  autoload,
   allowAll,
   toggleAllowAll,
-  removeImageHost,
-  removeSiteHost,
   openSeedModal,
   isRescanned,
   onRescan
@@ -179,7 +175,7 @@ export const Security = ({
           }
         />
       </Grid>
-      {!!whitelisted.length && (
+      {/* {!!whitelisted.length && (
         <>
           <Grid item className={classes.subtitle}>
             <Typography variant='h5'>Allowed sites</Typography>
@@ -205,8 +201,8 @@ export const Security = ({
             )
           })}
         </>
-      )}
-      {!!autoload.length && (
+      )} */}
+      {/* {!!autoload.length && (
         <Grid item className={classes.imageHostsDiv}>
           <Grid item className={classes.subtitle}>
             <Typography variant='h5'>Allowed image hosts</Typography>
@@ -232,7 +228,7 @@ export const Security = ({
             )
           })}
         </Grid>
-      )}
+      )} */}
     </Grid>
   )
 }

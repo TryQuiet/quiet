@@ -13,12 +13,12 @@ describe('ChannelMessage', () => {
     jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => now)
   })
 
-  it('renders component', () => {
-    const message = createMessage(1)
+  it('renders component', async () => {
+    const message = await createMessage()
     const result = shallow(
       <ChannelMessage
         classes={mockClasses}
-        message={DisplayableMessage(message)}
+        message={message}
         onResend={jest.fn()}
         onReply={jest.fn()}
         onLinkedChannel={jest.fn()}
@@ -35,13 +35,13 @@ describe('ChannelMessage', () => {
     )
     expect(result).toMatchSnapshot()
   })
-  it('renders component when message is sent by owner', () => {
-    const message = createMessage(1)
+  it('renders component when message is sent by owner', async () => {
+    const message = await createMessage()
     message.fromYou = true
     const result = shallow(
       <ChannelMessage
         classes={mockClasses}
-        message={DisplayableMessage(message)}
+        message={message}
         onResend={jest.fn()}
         onReply={jest.fn()}
         onLinkedChannel={jest.fn()}

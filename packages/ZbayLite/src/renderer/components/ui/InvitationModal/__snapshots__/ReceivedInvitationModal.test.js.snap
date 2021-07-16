@@ -32,41 +32,6 @@ exports[`ReceivedInvitationModal renders component 1`] = `
     <WithStyles(ForwardRef(Grid))
       item={true}
     >
-      <DoneAllIcon
-        className="icon-mock"
-      />
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      alignItems="center"
-      container={true}
-      direction="column"
-      item={true}
-      justify="center"
-    >
-      <WithStyles(ForwardRef(Grid))
-        item={true}
-      >
-        <WithStyles(ForwardRef(Typography))
-          className="font-mock"
-          variant="body"
-        >
-          Invitation accepted.
-        </WithStyles(ForwardRef(Typography))>
-      </WithStyles(ForwardRef(Grid))>
-      <WithStyles(ForwardRef(Grid))
-        item={true}
-      >
-        <WithStyles(ForwardRef(Typography))
-          className="font-mock"
-          variant="body"
-        >
-          Any attached funds will be available soon.
-        </WithStyles(ForwardRef(Typography))>
-      </WithStyles(ForwardRef(Grid))>
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
-      item={true}
-    >
       <WithStyles(ForwardRef(Grid))
         item={true}
       >

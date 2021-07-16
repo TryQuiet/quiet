@@ -65,10 +65,10 @@ export const Main = ({
       window.removeEventListener('resize', debouncedHandleResize)
     }
   })
-  useEffect(() => {
-    electronStore.set('AppStatus.blockchain.isRescanned', true)
-    disablePowerSleepMode()
-  }, [])
+  // useEffect(() => {
+  //   electronStore.set('AppStatus.blockchain.isRescanned', true)
+  //   disablePowerSleepMode()
+  // }, [])
   return (
     <>
       <DepositMoneyModal />

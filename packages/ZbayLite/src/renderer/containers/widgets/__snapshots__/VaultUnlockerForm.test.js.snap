@@ -2,26 +2,19 @@
 
 exports[`VaultUnlockerForm will receive right actions 1`] = `
 Object {
-  "getStatus": [Function],
   "onSubmit": [Function],
-  "openModal": [Function],
 }
 `;
 
 exports[`VaultUnlockerForm will receive right props 1`] = `
 Object {
-  "currentBlock": "0",
   "exists": null,
-  "guideStatus": false,
   "isInitialLoadFinished": false,
   "isLogIn": false,
-  "isRescanning": false,
-  "latestBlock": "999999",
   "loader": Object {
     "loading": false,
     "message": "",
   },
   "mainChannelLoaded": undefined,
-  "nodeConnected": true,
 }
 `;

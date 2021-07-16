@@ -32,13 +32,6 @@ exports[`SyncLoader renders component 1`] = `
       </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>
     <WithStyles(ForwardRef(Grid))
-      className="carouselContainer-mock"
-      container={true}
-      item={true}
-    >
-      <WithStyles(undefined) />
-    </WithStyles(ForwardRef(Grid))>
-    <WithStyles(ForwardRef(Grid))
       container={true}
       item={true}
     >

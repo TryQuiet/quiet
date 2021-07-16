@@ -3,6 +3,20 @@ import Adapter from 'enzyme-adapter-react-16'
 import registerRequireContextHook from 'babel-plugin-require-context-hook/register'
 import mockStorage from 'redux-persist-memory-storage'
 
+import {
+  setEngine,
+  CryptoEngine
+} from 'pkijs'
+
+import { Crypto } from '@peculiar/webcrypto'
+
+const webcrypto = new Crypto()
+setEngine('newEngine', webcrypto, new CryptoEngine({
+  name: '',
+  crypto: webcrypto,
+  subtle: webcrypto.subtle
+}))
+
 jest.mock('electron-store-webpack-wrapper')
 jest.mock('./electronStore', () => ({
   get: () => {},

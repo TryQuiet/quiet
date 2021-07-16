@@ -1,0 +1,91 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`operations selectors  - contact 1`] = `
+Object {
+  "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+  "lastSeen": "2019-03-07T13:03:48.000Z",
+  "messages": Array [
+    Object {
+      "channelId": "address",
+      "createdAt": 123445789,
+      "id": 1,
+      "message": "example message",
+      "pubKey": "ownPubKey",
+      "signature": "secretsignature",
+      "type": 1,
+    },
+  ],
+  "newMessages": Array [
+    1,
+    2,
+    3,
+    4,
+  ],
+  "username": "Wenus",
+}
+`;
+
+exports[`operations selectors  - contacts 1`] = `
+Object {
+  "zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq": Object {
+    "address": "zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq",
+    "username": "Mars",
+  },
+  "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya": Object {
+    "address": "zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya",
+    "lastSeen": "2019-03-07T13:03:48.000Z",
+    "messages": Array [
+      Object {
+        "channelId": "address",
+        "createdAt": 123445789,
+        "id": 1,
+        "message": "example message",
+        "pubKey": "ownPubKey",
+        "signature": "secretsignature",
+        "type": 1,
+      },
+    ],
+    "newMessages": Array [
+      1,
+      2,
+      3,
+      4,
+    ],
+    "username": "Wenus",
+  },
+}
+`;
+
+exports[`operations selectors  - direct messages 1`] = `
+Object {
+  "blockedUsers": Array [],
+  "channelModerators": Array [],
+  "messsagesToRemove": Array [],
+  "visibleMessages": undefined,
+}
+`;
+
+exports[`operations selectors  - lastSeen 1`] = `"2019-03-07T13:03:48.000Z"`;
+
+exports[`operations selectors  - messages 1`] = `
+Array [
+  Object {
+    "channelId": "address",
+    "createdAt": 123445789,
+    "id": 1,
+    "message": "example message",
+    "pubKey": "ownPubKey",
+    "signature": "secretsignature",
+    "type": 1,
+  },
+]
+`;
+
+exports[`operations selectors  - newMessages 1`] = `
+Array [
+  1,
+  2,
+  3,
+  4,
+]
+`;

@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import * as Yup from 'yup'
 import { Formik, Form, Field } from 'formik'
-import * as R from 'ramda'
+import * as R from 'ramda' // change to lodash
 import classNames from 'classnames'
 
 import Typography from '@material-ui/core/Typography'
@@ -105,40 +105,9 @@ const styles = theme => ({
   }
 })
 
-Yup.addMethod(Yup.mixed, 'validateMessage', function (username, takenUsernames) {
-  return this.test('test', 'Sorry username already taken. please choose another', function (value) {
-    const isUsernameTaken = takenUsernames.includes(username)
-    return !isUsernameTaken
-  })
-})
-
-const getErrorsFromValidationError = validationError => {
-  const FIRST_ERROR = 0
-  return validationError.inner.reduce((errors, error) => {
-    return {
-      ...errors,
-      [error.path]: error.errors[FIRST_ERROR]
-    }
-  }, {})
-}
-
 const sanitize = x => (x ? x.replace(/[^a-zA-Z0-9]+$/g, '').toLowerCase() : undefined)
 
-const validate = ({ nickname }, takenUsernames) => {
-  const sanitizedValue = sanitize(nickname)
-  const values = {
-    nickname: sanitizedValue
-  }
-  const validationSchema = getValidationSchema(values, takenUsernames)
-  try {
-    validationSchema.validateSync(values, { abortEarly: false })
-    return {}
-  } catch (error) {
-    return getErrorsFromValidationError(error)
-  }
-}
-
-const getValidationSchema = (values, takenUsernames) => {
+const getValidationSchema = (values) => {
   return Yup.object().shape({
     nickname: Yup.string()
       .min(3)
@@ -148,7 +117,6 @@ const getValidationSchema = (values, takenUsernames) => {
           'Your username cannot have any spaces or special characters, must be lowercase letters and numbers only',
         excludeEmptyString: true
       })
-      .validateMessage(values.nickname, takenUsernames)
       .required('Required')
   })
 }
@@ -158,10 +126,12 @@ const CustomInputComponent = ({
   field,
   isTouched,
   form: { touched, errors, values },
+  certificateRegistrationError,
   ...props
 }) => {
   const { value, ...rest } = field
   const updatedValue = sanitize(value)
+  const nicknameErrors = errors.nickname || certificateRegistrationError
   return (
     <TextField
       variant={'outlined'}
@@ -169,14 +139,14 @@ const CustomInputComponent = ({
       className={classNames({
         [classes.focus]: true,
         [classes.margin]: true,
-        [classes.error]: isTouched && errors.nickname
+        [classes.error]: isTouched && nicknameErrors
       })}
       placeholder={'Enter a username'}
-      error={isTouched && errors.nickname}
-      helperText={isTouched && errors.nickname}
+      error={isTouched && nicknameErrors}
+      helperText={isTouched && nicknameErrors}
       value={updatedValue}
-      error={isTouched && errors.nickname }
-      helperText={isTouched && errors.nickname}
+      error={isTouched && nicknameErrors }
+      helperText={isTouched && nicknameErrors}
       defaultValue={values.nickname || ''}
       {...rest}
       {...props}
@@ -195,15 +165,18 @@ export const CreateUsernameModal = ({
   open,
   handleClose,
   initialValues,
-  handleSubmit
+  handleSubmit,
+  certificateRegistrationError,
+  certificate
 }) => {
   const [isTouched, setTouched] = useState(false)
   const [formSent, setFormSent] = useState(false)
+  const responseReceived = Boolean(certificateRegistrationError || certificate)
   const isNewUser = electronStore.get('isNewUser')
   return (
     <Modal open={open} handleClose={handleClose} isCloseDisabled={isNewUser}>
       <Grid container className={classes.main} direction='column'>
-        {!formSent ? (
+        {isNewUser ? (
           <React.Fragment>
             <Grid className={classes.title} item>
               <Typography variant={'h3'}>Register a username</Typography>
@@ -211,7 +184,7 @@ export const CreateUsernameModal = ({
             <Formik
               onSubmit={values => submitForm(handleSubmit, values, setFormSent)}
               initialValues={initialValues}
-              validate={values => validate(values, initialValues.takenUsernames.takenUsernames)}>
+              validationSchema={values => getValidationSchema(values, certificateRegistrationError)}>
               {() => {
                 return (
                   <Form className={classes.fullWidth}>
@@ -225,6 +198,7 @@ export const CreateUsernameModal = ({
                           classes={classes}
                           component={CustomInputComponent}
                           isTouched={isTouched}
+                          certificateRegistrationError={certificateRegistrationError}
                         />
                       </Grid>
                       <Grid item xs={12} className={classes.infoDiv}>
@@ -242,6 +216,7 @@ export const CreateUsernameModal = ({
                       spacing={2}>
                       <Grid item xs={'auto'} className={classes.buttonDiv}>
                         <Button
+                          disabled={formSent && !responseReceived}
                           variant='contained'
                           size='small'
                           color='primary'
@@ -275,7 +250,9 @@ CreateUsernameModal.propTypes = {
   handleSubmit: PropTypes.func.isRequired,
   enoughMoney: PropTypes.bool.isRequired,
   usernameFee: PropTypes.number.isRequired,
-  zecRate: PropTypes.object.isRequired
+  zecRate: PropTypes.object.isRequired,
+  certificateRegistrationError: PropTypes.string.isRequired,
+  certificate: PropTypes.string.isRequired
 }
 
 export default R.compose(React.memo, withStyles(styles))(CreateUsernameModal)

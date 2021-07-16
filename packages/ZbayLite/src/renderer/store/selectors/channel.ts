@@ -1,6 +1,5 @@
 import { createSelector } from 'reselect'
 import identitySelectors from './identity'
-import messagesQueueSelectors from './messagesQueue'
 import { messageType } from '../../../shared/static'
 import publicChannels from './publicChannels'
 import directMessagesSelectors from './directMessages'
@@ -113,12 +112,6 @@ export const onlyRegistered = createSelector(channelSettingsMessage, settingsMsg
   return settingsMsg.message.updateOnlyRegistered || '0'
 })
 export const unread = createSelector(data, data => (data ? data.unread : 0))
-
-export const queuedMessages = createSelector(
-  messagesQueueSelectors.queue,
-  channel,
-  (queue, channel) => queue.filter(m => m.channelId === channel.id)
-)
 
 export const loader = createSelector(channel, meta => meta.loader)
 

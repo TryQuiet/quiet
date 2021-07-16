@@ -47,7 +47,7 @@ const styles = theme => ({
   }
 })
 
-export const ReceivedInvitationModal = ({ classes, open, handleClose, modalPayload }) => {
+export const ReceivedInvitationModal = ({ classes, open, handleClose }) => {
   return (
     <Grid container direction='column' justify='flex-start' alignItems='center'>
       <Grid className={classes.icon} container item direction='row' justify='flex-start'>
@@ -63,14 +63,14 @@ export const ReceivedInvitationModal = ({ classes, open, handleClose, modalPaylo
         direction='column'
         className={classes.root}
       >
-        <Grid item>
+        {/* <Grid item>
           {modalPayload ? (
             <Error className={classes.iconError} />
           ) : (
             <DoneAll className={classes.icon} />
           )}
-        </Grid>
-        <Grid item container direction='column' alignItems='center' justify='center'>
+        </Grid> */}
+        {/* <Grid item container direction='column' alignItems='center' justify='center'>
           {modalPayload ? (
             <Typography className={classes.font} variant='body'>
               'Error, please try again'
@@ -89,7 +89,7 @@ export const ReceivedInvitationModal = ({ classes, open, handleClose, modalPaylo
               </Grid>
             </>
           )}
-        </Grid>
+        </Grid> */}
         <Grid item>
           <Grid item>
             <Button variant={'contained'} onClick={handleClose} className={classes.button}>
@@ -103,9 +103,9 @@ export const ReceivedInvitationModal = ({ classes, open, handleClose, modalPaylo
 }
 
 ReceivedInvitationModal.propTypes = {
-  classes: PropTypes.object.isRequired,
-  open: PropTypes.bool.isRequired,
-  handleClose: PropTypes.func.isRequired
+  classes: PropTypes.object,
+  open: PropTypes.bool,
+  handleClose: PropTypes.func
 }
 
 ReceivedInvitationModal.defaultProps = {

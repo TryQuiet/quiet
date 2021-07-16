@@ -69,10 +69,10 @@ export const ChannelSettingsModal = ({
   open,
   handleClose,
   currentTab,
-  setCurrentTab,
   channel,
   isOwner,
   modalTabToOpen,
+  setCurrentTab,
   clearCurrentOpenTab
 }) => {
   const TabComponent = tabs[isOwner ? modalTabToOpen || currentTab : 'notifications']

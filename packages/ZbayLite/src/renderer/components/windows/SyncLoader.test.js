@@ -3,7 +3,6 @@ import { shallow } from 'enzyme'
 import BigNumber from 'bignumber.js'
 import { SyncLoader } from './SyncLoader'
 import { mockClasses } from '../../../shared/testing/mocks'
-import { NodeState } from '../../store/handlers/node'
 
 describe('SyncLoader', () => {
   it('renders component', () => {
@@ -11,7 +10,6 @@ describe('SyncLoader', () => {
       <SyncLoader
         classes={mockClasses}
         isGuideCompleted
-        node={{ ...NodeState, currentBlock: BigNumber(1), latestBlock: BigNumber(100) }}
         currentBlock={BigNumber(1)}
         latestBlock={BigNumber(1000)}
       />

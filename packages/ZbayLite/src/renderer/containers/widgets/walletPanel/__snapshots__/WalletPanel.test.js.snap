@@ -5,6 +5,5 @@ exports[`WalletPanel sets interval for getBalance 1`] = `Array []`;
 exports[`WalletPanel will receive right actions 1`] = `
 Object {
   "openInvitationModal": [Function],
-  "setModalTab": [Function],
 }
 `;

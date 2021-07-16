@@ -140,7 +140,7 @@ interface IChannelInput {
   inputState: INPUT_STATE
   inputPlaceholder: string
   channelName?: string
-  anchorEl: HTMLElement
+  anchorEl: any
   setAnchorEl: (arg: HTMLElement) => void
   mentionsToSelect: User[]
   setMentionsToSelect: (arg: User[]) => void

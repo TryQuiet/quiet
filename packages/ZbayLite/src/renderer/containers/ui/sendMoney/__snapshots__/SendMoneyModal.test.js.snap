@@ -2,9 +2,6 @@
 
 exports[`SendMoneyModal will receive right props 1`] = `
 Object {
-  "balanceZec": "2",
-  "rateUsd": "10",
-  "rateZec": 0.1,
   "shippingData": Object {
     "firstName": "testName",
     "lastName": "testLastName",

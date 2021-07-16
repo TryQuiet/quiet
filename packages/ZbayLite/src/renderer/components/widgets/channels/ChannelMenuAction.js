@@ -33,8 +33,6 @@ export const ChannelMenuAction = ({
   onMute,
   onUnmute,
   onDelete,
-  publishChannel,
-  isOwner,
   publicChannels,
   channel,
   onSettings,

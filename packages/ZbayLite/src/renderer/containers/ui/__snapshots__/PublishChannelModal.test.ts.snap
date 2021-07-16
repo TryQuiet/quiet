@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PublishChannelModal will receive right actions 1`] = `Object {}`;
+
+exports[`PublishChannelModal will receive right props 1`] = `
+Object {
+  "channel": undefined,
+  "publicChannels": Object {},
+}
+`;

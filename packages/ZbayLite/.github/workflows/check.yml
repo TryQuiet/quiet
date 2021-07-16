@@ -1,6 +1,10 @@
 name: check
 
-on: [pull_request]
+on:
+  pull_request:
+    branches: ['*']
+  push:
+    branches: [ master, develop ]
 
 jobs:
   check:
@@ -11,7 +15,7 @@ jobs:
         with:
           node-version: "12"
       - name: install dependencies
-        run: npm install
+        run: npm ci
       - name: lint
         run: npm run lint
       - name: run tests

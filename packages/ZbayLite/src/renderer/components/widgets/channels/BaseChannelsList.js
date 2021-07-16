@@ -4,7 +4,6 @@ import PropTypes from 'prop-types'
 import List from '@material-ui/core/List'
 
 import ChannelsListItem from '../../../containers/widgets/channels/ChannelsListItem'
-import OfferListItem from '../../../containers/widgets/channels/OfferListItem'
 import { unknownUserId } from '../../../../shared/static'
 
 export const propTypes = {
@@ -39,13 +38,6 @@ export const BaseChannelsList = ({
             selected={selected}
           />
         ))}
-      {Array.from(Object.values(offers)).map((offer, index) => (
-        <OfferListItem
-          key={keys[index]}
-          channel={offer}
-          selected={selectedOffer}
-        />
-      ))}
       {unknownMessages.length > 0 && (
         <ChannelsListItem
           key={unknownUserId}

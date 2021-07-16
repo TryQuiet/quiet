@@ -1,0 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`InvitationModal will receive right actions 1`] = `Object {}`;
+
+exports[`InvitationModal will receive right props 1`] = `Object {}`;

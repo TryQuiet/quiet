@@ -1,5 +1,5 @@
 import { all as effectsAll, takeEvery } from 'redux-saga/effects'
-import { put, select } from 'typed-redux-saga'
+import { put, select, call } from 'typed-redux-saga'
 import { publicChannelsActions, PublicChannelsActions } from './publicChannels.reducer'
 import { setPublicChannels } from '../../store/handlers/publicChannels'
 import contactsHandlers, { actions } from '../../store/handlers/contacts'
@@ -35,7 +35,7 @@ export function* loadMessage(action: PublicChannelsActions['loadMessage']): Gene
 
   if (foundMessage && myUser.nickname !== foundMessage.userInfo.username) { ///
     console.log('siema', myUser.nickname, foundMessage.userInfo.username)
-    displayDirectMessageNotification({
+    yield* call(displayDirectMessageNotification, {
       username: foundMessage.userInfo.username,
       message: message
     })
@@ -128,12 +128,13 @@ export function* loadAllMessages(
   })
 
   if (foundMessage && foundMessage.userInfo.username !== myUser.nickname) {
-    displayMessageNotification({
-      senderName: foundMessage.userInfo.username,
-      message: msg.message,
-      channelName: username,
-      address: contact[0].address
-    })
+    yield* call(
+      displayMessageNotification, {
+        senderName: foundMessage.userInfo.username,
+        message: msg.message,
+        channelName: username,
+        address: contact[0].address
+      })
   }
 
   yield put(

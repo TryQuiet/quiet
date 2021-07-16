@@ -6,7 +6,7 @@ import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
 
 import Modal from '../../ui/Modal'
-import CreateChannelForm from '../../../containers/widgets/channels/CreateChannelForm.js'
+import CreateChannelForm from '../../../containers/widgets/channels/CreateChannelForm.tsx'
 
 const styles = theme => ({
   root: {

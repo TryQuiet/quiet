@@ -15,7 +15,7 @@ exports[`NodePanelDetails renders component 1`] = `
       direction={true}
       item={true}
     >
-      <Connect(NodePanelNetworkField) />
+      <Connect(Component) />
       <Memo(WithStyles(Tooltip))
         className="tooltip-mock"
         placement="bottom"
@@ -35,8 +35,8 @@ exports[`NodePanelDetails renders component 1`] = `
         </WithStyles(ForwardRef(IconButton))>
       </Memo(WithStyles(Tooltip))>
     </WithStyles(ForwardRef(Grid))>
-    <Connect(NodePanelBlocksField) />
-    <Connect(NodePanelFreeUtxos) />
+    <Connect(Component) />
+    <Connect(Component) />
   </WithStyles(ForwardRef(Grid))>
 </WithStyles(ForwardRef(Grid))>
 `;

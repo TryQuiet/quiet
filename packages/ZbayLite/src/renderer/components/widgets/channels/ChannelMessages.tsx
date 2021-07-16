@@ -55,26 +55,26 @@ const welcomeMessages = {
 }
 interface IChannelMessagesProps {
   messages: DisplayableMessage[]
-  isOwner: boolean
+  isOwner?: boolean
   contactId?: string
-  usersRegistration: any[]
-  publicChannelsRegistration: any[]
+  usersRegistration?: any[]
+  publicChannelsRegistration?: any[]
   isDM?: boolean
-  isNewUser: boolean // required?
-  scrollPosition: number
-  setScrollPosition: (arg?: any) => void
-  newMessagesLoading: boolean
-  setNewMessagesLoading: (arg: boolean) => void
-  users: UsersStore
-  onLinkedChannel: (arg0: any) => void
-  publicChannels: any
-  onRescan: () => void
-  contentRect: string
-  isInitialLoadFinished: boolean
-  channelId: string
+  isNewUser?: boolean // required?
+  scrollPosition?: number
+  setScrollPosition?: (arg?: any) => void
+  newMessagesLoading?: boolean
+  setNewMessagesLoading?: (arg: boolean) => void
+  users?: UsersStore
+  onLinkedChannel?: (arg0: any) => void
+  publicChannels?: any
+  onRescan?: () => void
+  contentRect?: string
+  isInitialLoadFinished?: boolean
+  channelId?: string
   name?: string
   isConnected?: boolean
-  isDev: boolean
+  isDev?: boolean
 }
 
 // const renderView = props => {
@@ -102,14 +102,12 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
   channelId,
   onLinkedChannel,
   publicChannels,
-  onRescan,
   isNewUser,
   isDev
 }) => {
   const classes = useStyles({})
   const msgRef = React.useRef<HTMLUListElement>()
   const scrollbarRef = React.useRef<Scrollbars>()
-  // const [offset, setOffset] = React.useState(0)
 
   // TODO work on scroll behavior
   // React.useEffect(() => {
@@ -266,7 +264,7 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
                 Welcome to Zbay! To start quickly, Zbay includes username and channel registration
                 data in the app itself. To verify this data, which takes ~1 hour but may add some
                 security,
-                <span className={classes.link} onClick={onRescan}>
+                <span className={classes.link}>
                   {' '}
                   restart & re-sync
                 </span>

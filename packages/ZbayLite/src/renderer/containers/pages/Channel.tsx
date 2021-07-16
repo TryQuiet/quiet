@@ -1,17 +1,16 @@
 import React, { useEffect } from 'react'
 import { useRouteMatch } from 'react-router'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 import ChannelComponent from '../../components/pages/Channel'
 import { CHANNEL_TYPE } from '../../components/pages/ChannelTypes'
 
 import channelHandlers from '../../store/handlers/channel'
-import channelsSelectors from '../../store/selectors/channels'
 import electronStore from '../../../shared/electronStore'
 
 export const useChannelData = () => {
   const data = {
-    generalChannelId: useSelector(channelsSelectors.generalChannelId)
+    generalChannelId: 'zs10zkaj29rcev9qd5xeuzck4ly5q64kzf6m6h9nfajwcvm8m2vnjmvtqgr0mzfjywswwkwke68t00'
   }
   return data
 }

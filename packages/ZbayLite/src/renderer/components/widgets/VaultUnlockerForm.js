@@ -11,7 +11,6 @@ import { withStyles } from '@material-ui/core/styles'
 
 import Icon from '../ui/Icon'
 import LoadingButton from '../ui/LoadingButton'
-import Carousel from '../widgets/Carousel'
 
 import icon from '../../static/images/zcash/logo-lockup--circle.svg'
 
@@ -73,22 +72,14 @@ const formSchema = Yup.object().shape({
 
 export const VaultUnlockerForm = ({
   classes,
-  initialValues,
   onSubmit,
-  isRescanning,
   loader,
   isNewUser,
-  guideStatus,
   mainChannelLoaded
 }) => {
   const isDev = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'production'
   const [done, setDone] = useState(true)
   const [syncingStart, setSyncingStart] = useState(false)
-  React.useEffect(() => {
-    if (isRescanning === true) {
-      setSyncingStart(true)
-    }
-  }, [isRescanning])
 
   React.useEffect(() => {
     setSyncingStart(true)
@@ -98,7 +89,7 @@ export const VaultUnlockerForm = ({
     <Formik
       onSubmit={() => { }}
       validationSchema={isDev ? null : formSchema}
-      initialValues={initialValues}>
+    >
       {({ isSubmitting }) => (
         <Form>
           <Grid
@@ -118,23 +109,18 @@ export const VaultUnlockerForm = ({
               alignContent='center'>
               <Icon className={classes.icon} src={icon} />
             </Grid>
-            {syncingStart && guideStatus ? (
-              <Grid className={classes.carouselContainer} container item>
-                <Carousel />
-              </Grid>
-            ) : (
-              <Grid container item xs={12} wrap='wrap' justify='center'>
-                <Typography
-                  className={classNames({
-                    [classes.title]: true,
-                    [classes.existingUser]: !isNewUser
-                  })}
-                  variant='body1'
-                  gutterBottom>
-                  {!isNewUser ? 'Welcome Back' : 'Welcome to Zbay!'}
-                </Typography>
-              </Grid>
-            )}
+            <Grid container item xs={12} wrap='wrap' justify='center'>
+              <Typography
+                className={classNames({
+                  [classes.title]: true,
+                  [classes.existingUser]: !isNewUser
+                })}
+                variant='body1'
+                gutterBottom>
+                {!isNewUser ? 'Welcome Back' : 'Welcome to Zbay!'}
+              </Typography>
+            </Grid>
+
             <Grid container item justify='center'>
               <LoadingButton
                 type='submit'
@@ -144,8 +130,8 @@ export const VaultUnlockerForm = ({
                 margin='normal'
                 text={!isNewUser ? 'Sign in' : 'Connect Now'}
                 fullWidth
-                disabled={!done || isRescanning || syncingStart}
-                inProgress={!done || isRescanning || syncingStart}
+                disabled={!done || syncingStart}
+                inProgress={!done || syncingStart}
               />
             </Grid>
 

@@ -1,14 +1,3 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`NodePanelConnectionsField renders the field 1`] = `
-<Memo(WithStyles(NodePanelField))
-  name="Connections"
-  value="12"
-/>
-`;
-
-exports[`NodePanelConnectionsField will receive right props 1`] = `
-Object {
-  "connections": "12",
-}
-`;
+exports[`NodePanelConnectionsField will receive right props 1`] = `Object {}`;

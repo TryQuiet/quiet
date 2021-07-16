@@ -135,20 +135,19 @@ export function* responseGetAvailableUsers(
   action: DirectMessagesActions['responseGetAvailableUsers']
 ): Generator {
   for (const [key, value] of Object.entries(action.payload)) {
-    const user = yield* select(usersSelectors.registeredUser(key))
-    if (user) {
-      yield put(
-        actions.fetchUsers({
-          usersList: {
-            [key]: {
-              publicKey: key,
-              halfKey: value.halfKey,
-              nickname: user?.nickname || `anon${key.substring(0, 8)}`
-            }
+    // const user = yield* select(usersSelectors.registeredUser(key))
+
+    yield put(
+      actions.fetchUsers({
+        usersList: {
+          [key]: {
+            publicKey: key,
+            halfKey: value.halfKey,
+            nickname: `anon${key.substring(0, 8)}`
           }
-        })
-      )
-    }
+        }
+      })
+    )
   }
 }
 

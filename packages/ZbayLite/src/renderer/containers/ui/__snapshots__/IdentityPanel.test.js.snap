@@ -6,14 +6,10 @@ Object {
     "address": "zctestaddress",
     "addresses": Array [],
     "balance": "23.435432",
-    "donationAddress": "",
-    "donationAllow": true,
-    "freeUtxos": 0,
     "id": null,
     "lockedBalance": "13.123432",
     "name": "saturn",
     "onionAddress": "",
-    "shieldedAddresses": Array [],
     "shieldingTax": true,
     "shippingData": Object {
       "city": "",
@@ -26,7 +22,6 @@ Object {
     },
     "signerPrivKey": "",
     "signerPubKey": "",
-    "transparentAddress": "",
   },
   "user": undefined,
 }

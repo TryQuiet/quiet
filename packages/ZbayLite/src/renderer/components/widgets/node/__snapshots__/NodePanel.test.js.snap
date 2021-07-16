@@ -10,47 +10,6 @@ exports[`NodePanel renders component 1`] = `
   <WithStyles(ForwardRef(Grid))
     className="baseNotExpanded-mock"
     item={true}
-  >
-    <WithStyles(ForwardRef(ExpansionPanel))
-      classes={
-        Object {
-          "expanded": "expanded-mock",
-          "root": "expander-mock",
-        }
-      }
-      expanded={false}
-      onClick={[Function]}
-      square={true}
-    >
-      <Memo(WithStyles(Tooltip))
-        className="tooltip-mock"
-        placement="bottom-end"
-      >
-        <WithStyles(ForwardRef(ExpansionPanelSummary))
-          classes={
-            Object {
-              "expandIcon": "icon-mock",
-              "expanded": "expandedSummary-mock",
-              "root": "panelSummary-mock",
-            }
-          }
-          expandIcon={
-            <Memo(ExpandMoreIcon)
-              fontSize="inherit"
-            />
-          }
-        >
-          <Connect(Component) />
-        </WithStyles(ForwardRef(ExpansionPanelSummary))>
-      </Memo(WithStyles(Tooltip))>
-      <WithStyles(ForwardRef(ExpansionPanelDetails))
-        className="expansionDetails-mock"
-      >
-        <Connect(Component)
-          expanded={false}
-        />
-      </WithStyles(ForwardRef(ExpansionPanelDetails))>
-    </WithStyles(ForwardRef(ExpansionPanel))>
-  </WithStyles(ForwardRef(Grid))>
+  />
 </WithStyles(ForwardRef(Grid))>
 `;

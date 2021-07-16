@@ -1,0 +1,33 @@
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
+
+// import moderationActions from '../../../store/handlers/moderationActions'
+import Moderators from '../../../components/widgets/channelSettings/Moderators'
+import channelSelectors from '../../../store/selectors/channel'
+import contactsSelectors from '../../../store/selectors/contacts'
+import usersSelector from '../../../store/selectors/users'
+import modalsHandlers from '../../../store/handlers/modals'
+
+export const mapStateToProps = state => {
+  return {
+    moderators: contactsSelectors.channelModerators(
+      channelSelectors.channelId(state)
+    )(state),
+    users: usersSelector.users(state)
+  }
+}
+
+export const mapDispatchToProps = (dispatch) =>
+  bindActionCreators(
+    {
+      // removeModerator: publicKey =>
+      //   moderationActions.epics.handleModerationAction({
+      //     moderationType: moderationActionsType.REMOVE_MOD,
+      //     moderationTarget: publicKey
+      //   }),
+      openAddModerator: modalsHandlers.actionCreators.openModal('addModerator')
+    },
+    dispatch
+  )
+
+export default connect(mapStateToProps, mapDispatchToProps)(Moderators)

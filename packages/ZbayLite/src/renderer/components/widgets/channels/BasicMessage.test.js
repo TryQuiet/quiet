@@ -3,10 +3,8 @@ import { DateTime } from 'luxon'
 import { shallow } from 'enzyme'
 
 import { BasicMessage } from './BasicMessage'
-import { ZcashError } from '../../../store/handlers/operations'
 import { mockClasses } from '../../../../shared/testing/mocks'
 import { now, createMessage } from '../../../testUtils'
-import { DisplayableMessage } from '../../../zbay/messages'
 import { MuiThemeProvider } from '@material-ui/core/styles'
 
 import theme from '../../../theme'
@@ -19,12 +17,12 @@ describe('BasicMessage', () => {
 
   const wrapper = el => <MuiThemeProvider theme={theme}>{el}</MuiThemeProvider>
 
-  it('renders component', () => {
-    const message = createMessage(1)
+  it('renders component', async () => {
+    const message = await createMessage()
     const result = shallow(wrapper(
       <BasicMessage
         classes={mockClasses}
-        message={DisplayableMessage(message)}
+        message={message}
         actionsOpen={false}
         setActionsOpen={jest.fn()}
         allowModeration
@@ -33,79 +31,14 @@ describe('BasicMessage', () => {
     expect(result).toMatchSnapshot()
   })
 
-  it('renders component when message is sent by owner', () => {
-    const message = createMessage(1)
+  it('renders component when message is sent by owner', async () => {
+    const message = await createMessage()
     message.fromYou = true
 
     const result = shallow(wrapper(
       <BasicMessage
         classes={mockClasses}
-        message={DisplayableMessage(message)}
-        actionsOpen={false}
-        setActionsOpen={jest.fn()}
-        allowModeration
-      />
-    ))
-    expect(result).toMatchSnapshot()
-  })
-
-  it('renders correct time for same week', () => {
-    const message = createMessage(1, now.minus({ days: 1 }).toSeconds())
-    const result = shallow(wrapper(
-      <BasicMessage
-        classes={mockClasses}
-        message={DisplayableMessage(message)}
-        actionsOpen={false}
-        setActionsOpen={jest.fn()}
-        allowModeration
-      />
-    ))
-    expect(result).toMatchSnapshot()
-  })
-
-  it('renders correct time for different month', () => {
-    const message = createMessage(1, now.minus({ month: 1 }).toSeconds())
-    const result = shallow(wrapper(
-      <BasicMessage
-        classes={mockClasses}
-        message={DisplayableMessage(message)}
-        actionsOpen={false}
-        setActionsOpen={jest.fn()}
-        allowModeration
-      />
-    ))
-    expect(result).toMatchSnapshot()
-  })
-
-  it('renders correct time for different year', () => {
-    const message = createMessage(1, now.minus({ year: 1 }).toSeconds())
-    const result = shallow(wrapper(
-      <BasicMessage
-        classes={mockClasses}
-        message={DisplayableMessage(message)}
-        actionsOpen={false}
-        setActionsOpen={jest.fn()}
-        allowModeration
-      />
-    ))
-    expect(result).toMatchSnapshot()
-  })
-
-  it('renders component with status failed', () => {
-    const message = {
-      ...createMessage,
-      status: 'failed',
-      createdAt: 1603231234,
-      error: {
-        ...ZcashError,
-        code: -2,
-        message: 'This is some kind of error message'
-      }
-    }
-    const result = shallow(wrapper(
-      <BasicMessage
-        classes={mockClasses}
-        message={DisplayableMessage(message)}
+        message={message}
         actionsOpen={false}
         setActionsOpen={jest.fn()}
         allowModeration

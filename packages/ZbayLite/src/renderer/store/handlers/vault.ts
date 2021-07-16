@@ -5,7 +5,6 @@ import crypto from 'crypto'
 import { typeFulfilled, typeRejected, typePending, errorNotification } from './utils'
 import identityHandlers from './identity'
 import notificationsHandlers from './notifications'
-import nodeHandlers from './node'
 import { actionTypes } from '../../../shared/static'
 import electronStore from '../../../shared/electronStore'
 
@@ -75,18 +74,16 @@ const loadVaultStatus = () => async dispatch => {
   await dispatch(setVaultStatus(true))
 }
 
-const createVaultEpic = (fromMigrationFile = false) => async dispatch => {
+const createVaultEpic = () => async dispatch => {
   const randomBytes = crypto.randomBytes(32).toString('hex')
   try {
     electronStore.set('isNewUser', true)
     electronStore.set('vaultPassword', randomBytes)
     const identity = await dispatch(
       identityHandlers.epics.createIdentity({
-        name: randomBytes,
-        fromMigrationFile
+        name: randomBytes
       })
     )
-    await dispatch(nodeHandlers.actions.setIsRescanning(true))
     await dispatch(identityHandlers.epics.setIdentity(identity))
     await dispatch(identityHandlers.epics.loadIdentity())
     await dispatch(setVaultStatus(true))

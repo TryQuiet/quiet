@@ -194,8 +194,8 @@ export const AdvertModal = ({
 }) => {
   const [inputWidth, setInputWidth] = React.useState(80)
   const [colapse, setColapse] = React.useState(false)
-  const funds = balanceZec.gt(minFee)
-  const valid = isValid && funds
+  // const funds = balanceZec.gt(minFee)
+  const valid = isValid
   const ErrorText = ({ name }) => {
     return errors[name] && touched[name] ? (
       <Grid item xs className={classes.error}>
@@ -426,11 +426,6 @@ export const AdvertModal = ({
                   classes={{ button: classes.postButton }}
                 />
               </Grid>
-              {!funds && (
-                <Grid item xs className={classes.error}>
-                  <Typography variant='body2'>{'You don\'t have enough funds'}</Typography>
-                </Grid>
-              )}
               <Grid item xs className={classes.error}>
                 <Typography variant='caption' className={classes.costInfo}>
                   {`The price of posting an ad is $${(rateUsd * minFee).toFixed(

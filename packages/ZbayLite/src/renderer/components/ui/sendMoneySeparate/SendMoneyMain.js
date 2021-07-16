@@ -10,7 +10,6 @@ import BigNumber from 'bignumber.js'
 
 import Modal from '../Modal'
 import SendMoneyInitial from './SendMoneyInitial'
-import { networkFee } from '../../../../shared/static'
 import { MESSAGE_SIZE } from '../../../zbay/transit'
 import { createTransfer } from '../../../zbay/messages'
 import { getBytesSize } from '../../../../shared/helpers'
@@ -74,8 +73,8 @@ export const SendMoneyMain = ({
   sendMessageHandler,
   sendPlainTransfer,
   handleClose,
-  feeZec = networkFee,
-  feeUsd = rateUsd.times(feeZec).toNumber(),
+  // feeZec = networkFee,
+  // feeUsd = rateUsd.times(feeZec).toNumber(),
   openSentFundsModal
 }) => {
   return (
@@ -145,8 +144,6 @@ export const SendMoneyMain = ({
                     isValid={isValid}
                     submitForm={submitForm}
                     resetForm={resetForm}
-                    feeUsd={feeUsd}
-                    feeZec={feeZec}
                     handleClose={handleClose}
                     amountZec={values.amountZec}
                     amountUsd={values.amountUsd}

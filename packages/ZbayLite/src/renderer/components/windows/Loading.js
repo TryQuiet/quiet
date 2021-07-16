@@ -9,7 +9,6 @@ import 'react-alice-carousel/lib/alice-carousel.css'
 
 import Icon from '../ui/Icon'
 import icon from '../../static/images/zcash/logo-lockup--circle.svg'
-import Carousel from '../widgets/Carousel'
 
 const styles = theme => ({
   root: {
@@ -47,9 +46,6 @@ export const Loading = ({ classes, message }) => (
   <Grid className={classes.root} container direction='column' justify='center' alignItems='center'>
     <Grid container item justify='center'>
       <Icon className={classes.icon} src={icon} />
-    </Grid>
-    <Grid className={classes.carouselContainer} container item>
-      <Carousel />
     </Grid>
     <Grid className={classes.progressBarContainer} item>
       <LinearProgress className={classes.progressBar} />
