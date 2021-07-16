@@ -19,7 +19,8 @@ const channelSchema = joi.object({
   owner: joi.string().required(),
   timestamp: joi.number().required(),
   address: joi.string().required(),
-  keys: joi.object().required()
+  keys: joi.object().required(),
+  orbitAddress: joi.string()
 })
 
 export const isUser = (publicKey: string, halfKey: string): boolean => {
@@ -34,7 +35,6 @@ export const isUser = (publicKey: string, halfKey: string): boolean => {
 export const isConversation = (publicKey: string, encryptedPhrase: string): boolean => {
   return (
     publicKey.length === 64 &&
-    encryptedPhrase.length === 108 &&
     _.isHexadecimal(publicKey) &&
     _.isBase64(encryptedPhrase)
   )

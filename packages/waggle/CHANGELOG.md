@@ -6,7 +6,11 @@
 ### Added
 
 - Publish package to npm using tags
+- Entry node - subscribe for all public channels
 
+### Fix
+
+- Conversation validator - don't assume encryptedPhrase length
 
 ## [2.0.11] - 2021-07-15
 

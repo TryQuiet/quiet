@@ -161,8 +161,18 @@ export class Storage {
       }
     })
 
-    this.channels.events.on('replicated', () => {
+    this.channels.events.on('replicated', async () => {
       log('REPLICATED: CHANNELS')
+      if (this.options.isEntryNode) {
+        log('Entry node. Subscribing for all replicated channels')
+        await Promise.all(
+          Object.values(this.channels.all).map(async channel => {
+            if (!this.publicChannelsRepos.has(channel.address)) {
+              await this.subscribeForChannel(channel.address, channel)
+            }
+          })
+        )
+      }
     })
 
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'

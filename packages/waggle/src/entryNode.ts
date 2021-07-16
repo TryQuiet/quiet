@@ -118,7 +118,8 @@ class Node {
       agentPort: this.socksProxyPort,
       io: dataServer.io,
       options: {
-        bootstrapMultiaddrs: process.env.BOOTSTRAP_ADDRS ? [process.env.BOOTSTRAP_ADDRS] : []
+        bootstrapMultiaddrs: process.env.BOOTSTRAP_ADDRS ? [process.env.BOOTSTRAP_ADDRS] : [],
+        isEntryNode: true
       }
     })
     const node = await connectonsManager.initializeNode(peer)

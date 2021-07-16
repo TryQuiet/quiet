@@ -31,6 +31,7 @@ export interface ChannelInfoResponse {
 export class StorageOptions {
   createPaths: boolean = true
   isWaggleMobileMode: boolean
+  isEntryNode?: boolean = false
 }
 
 export interface IZbayChannel extends IChannelInfo {
@@ -50,6 +51,7 @@ export class ConnectionsManagerOptions {
   bootstrapMultiaddrs?: string[] = []
   createPaths?: boolean = true
   isWaggleMobileMode?: boolean = true
+  isEntryNode?: boolean = false
 }
 
 export interface IConstructor {
