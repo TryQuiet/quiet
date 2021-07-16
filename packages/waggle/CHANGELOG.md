@@ -1,5 +1,13 @@
 # Changelog
 
+
+## [Unreleased]
+
+### Added
+
+- Publish package to npm using tags
+
+
 ## [2.0.11] - 2021-07-15
 
 ### Fixed
