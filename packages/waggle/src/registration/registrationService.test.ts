@@ -3,61 +3,58 @@ import { SocksProxyAgent } from 'socks-proxy-agent'
 import { CertificateRegistration } from '.'
 import { Time } from 'pkijs'
 import { createMinConnectionManager, createTmpDir, spawnTorProcess, TmpDir, tmpZbayDirPath } from '../testUtils'
-import { fetchAbsolute, getPorts, Ports } from '../utils'
-import fetch from 'node-fetch'
+import { getPorts, Ports } from '../utils'
+import fetch, { Response } from 'node-fetch'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 import { Tor } from '../torManager'
 import { RootCA } from '@zbayapp/identity/lib/generateRootCA'
 jest.setTimeout(50_000)
 
-let tmpDir: TmpDir
-let tmpAppDataPath: string
-let tor: Tor
-let manager: ConnectionsManager
-let registrationService: CertificateRegistration
-let certRoot: RootCA
-let testHiddenService: string
-let ports: Ports
-
-beforeAll(() => {
-  testHiddenService = 'ED25519-V3:iEp140DpauUp45TBx/IdjDm3/kinRPjwmsrXaGC9j39zhFsjI3MHdaiuIHJf3GiivF+hAi/5SUzYq4SzvbKzWQ=='
-})
-
-beforeEach(async () => {
-  jest.clearAllMocks()
-  tmpDir = createTmpDir()
-  tmpAppDataPath = tmpZbayDirPath(tmpDir.name)
-  tor = null
-  registrationService = null
-  manager = createMinConnectionManager({ env: { appDataPath: tmpAppDataPath } })
-  certRoot = await createRootCA(new Time({ type: 1, value: new Date() }), new Time({ type: 1, value: new Date(2030, 1, 1) }), 'testRootCA')
-  ports = await getPorts()
-})
-
-afterEach(async () => {
-  tor && await tor.kill()
-  if (manager) {
-    await manager.storage.stopOrbitDb()
-  }
-  registrationService && await registrationService.stop()
-  tmpDir.removeCallback()
-})
-
-async function registerUserTest(csr: string): Promise<Response> {
-  const socksProxyAgent = new SocksProxyAgent({ port: ports.socksPort, host: 'localhost', timeout: 100000 })
+async function registerUserTest(csr: string, socksPort: number): Promise<Response> {
   const options = {
     method: 'POST',
     body: JSON.stringify({ data: csr }),
     headers: { 'Content-Type': 'application/json' },
-    agent: () => {
-      return socksProxyAgent
-    }
+    agent: new SocksProxyAgent({ port: socksPort, host: 'localhost', timeout: 100000 })
   }
-  return await fetchAbsolute(fetch)('http://4avghtoehep5ebjngfqk5b43jolkiyyedfcvvq4ouzdnughodzoglzad.onion:7789')('/register', options)
+  return await fetch('http://4avghtoehep5ebjngfqk5b43jolkiyyedfcvvq4ouzdnughodzoglzad.onion:7789/register', options)
 }
 
 describe('Registration service', () => {
-  it('generates and certificate for a new user', async () => {
+  let tmpDir: TmpDir
+  let tmpAppDataPath: string
+  let tor: Tor
+  let manager: ConnectionsManager
+  let registrationService: CertificateRegistration
+  let certRoot: RootCA
+  let testHiddenService: string
+  let ports: Ports
+
+  beforeAll(() => {
+    testHiddenService = 'ED25519-V3:iEp140DpauUp45TBx/IdjDm3/kinRPjwmsrXaGC9j39zhFsjI3MHdaiuIHJf3GiivF+hAi/5SUzYq4SzvbKzWQ=='
+  })
+
+  beforeEach(async () => {
+    jest.clearAllMocks()
+    tmpDir = createTmpDir()
+    tmpAppDataPath = tmpZbayDirPath(tmpDir.name)
+    tor = null
+    registrationService = null
+    manager = createMinConnectionManager({ env: { appDataPath: tmpAppDataPath } })
+    certRoot = await createRootCA(new Time({ type: 1, value: new Date() }), new Time({ type: 1, value: new Date(2030, 1, 1) }), 'testRootCA')
+    ports = await getPorts()
+  })
+
+  afterEach(async () => {
+    tor && await tor.kill()
+    if (manager) {
+      await manager.storage.stopOrbitDb()
+    }
+    registrationService && await registrationService.stop()
+    tmpDir.removeCallback()
+  })
+
+  it('generates and saves certificate for a new user', async () => {
     const user = await createUserCsr({
       zbayNickname: 'userName',
       commonName: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
@@ -73,7 +70,7 @@ describe('Registration service', () => {
       testHiddenService,
       { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString }
     )
-    const response = await registerUserTest(user.userCsr)
+    const response = await registerUserTest(user.userCsr, ports.socksPort)
     const returnedUserCertificate = await response.json()
     expect(saveCertificate).toBeCalledTimes(1)
     const isProperUserCert = await verifyUserCert(certRoot.rootCertString, returnedUserCertificate)
@@ -103,7 +100,7 @@ describe('Registration service', () => {
       testHiddenService,
       { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString }
     )
-    const response = await registerUserTest(userNew.userCsr)
+    const response = await registerUserTest(userNew.userCsr, ports.socksPort)
     expect(saveCertificate).not.toHaveBeenCalled()
     expect(response.status).toEqual(403)
   })
@@ -120,7 +117,7 @@ describe('Registration service', () => {
       { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString }
     )
     for (const invalidCsr of ['', 'abcd']) {
-      const response = await registerUserTest(invalidCsr)
+      const response = await registerUserTest(invalidCsr, ports.socksPort)
       expect(response.status).toEqual(400)
     }
     expect(saveCertificate).not.toHaveBeenCalled()

@@ -9,12 +9,12 @@ import Multiaddr from 'multiaddr'
 import Bootstrap from 'libp2p-bootstrap'
 import multihashing from 'multihashing-async'
 import { Storage } from '../storage'
-import { createPaths, fetchAbsolute } from '../utils'
+import { createPaths } from '../utils'
 import { Config, ZBAY_DIR_PATH } from '../constants'
 import fs from 'fs'
 import path from 'path'
 import { ConnectionsManagerOptions, DataFromPems, IChannelInfo, IConstructor, ILibp2pStatus, IMessage } from '../common/types'
-import fetch from 'node-fetch'
+import fetch, { Response } from 'node-fetch'
 import debug from 'debug'
 import CustomLibp2p, { Libp2pType } from './customLibp2p'
 import { Tor } from '../torManager'
@@ -58,7 +58,7 @@ export class ConnectionsManager {
     this.peerId = null
     this.bootstrapMultiaddrs = this.getBootstrapMultiaddrs()
     this.listenAddrs = `/dns4/${this.host}/tcp/${this.port}/ws`
-    this.trackerApi = fetchAbsolute(fetch)('http://okmlac2qjgo2577dkyhpisceua2phwxhdybw4pssortdop6ddycntsyd.onion:7788')
+    // this.trackerApi = fetchAbsolute(fetch)('http://okmlac2qjgo2577dkyhpisceua2phwxhdybw4pssortdop6ddycntsyd.onion:7788')
 
     process.on('unhandledRejection', error => {
       console.error(error)
@@ -310,12 +310,10 @@ export class ConnectionsManager {
       method: 'POST',
       body: JSON.stringify({ data: userCsr }),
       headers: { 'Content-Type': 'application/json' },
-      agent: () => {
-        return new SocksProxyAgent({ port: this.agentPort, host: this.agentHost })
-      }
+      agent: new SocksProxyAgent({ port: this.agentPort, host: this.agentHost })
     }
     try {
-      return await fetchAbsolute(fetch)(serviceAddress)('/register', options)
+      return await fetch(serviceAddress + '/register', options)
     } catch (e) {
       console.error(e)
       throw e

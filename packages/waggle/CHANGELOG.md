@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.0.11] - 2021-07-15
+
+### Fixed
+
+- Pass proxy agent as object, not function - "TypeError [ERR_INVALID_ARG_TYPE]: The "options.agent" property must be one of Agent-like Object, undefined, or false. Received function agent"
+
 ## [2.0.10] - 2021-07-15
 
 ### Fixed
