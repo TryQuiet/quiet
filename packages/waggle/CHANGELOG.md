@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.0.14] - 2021-07-17
+
+### Fixed
+
+- Remove wrtc-mock - caused problems when installing waggle
+- npm-publish github workflow
+
+## [2.0.13] - 2021-07-16
+
+- Manually published npm package (previous one lacked files because of incomplete npm-publish github workflow)
 
 ## [2.0.12] - 2021-07-16
 

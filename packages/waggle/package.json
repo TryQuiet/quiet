@@ -19,8 +19,7 @@
     "url": "git+ssh://git@github.com:ZbayApp/waggle.git"
   },
   "files": [
-    "lib/**/*",
-    "wrtc-mock/**/*"
+    "lib/**/*"
   ],
   "jest": {
     "transform": {
@@ -35,7 +34,7 @@
     ],
     "testRegex": "src/.*\\.test\\.(t|j)s$",
     "testEnvironment": "node",
-    "testTimeout": 30000
+    "testTimeout": 40000
   },
   "devDependencies": {
     "@types/node": "^14.14.7",
@@ -104,6 +103,6 @@
     "uint8arrays": "^1.1.0",
     "url": "^0.11.0",
     "validator": "^13.6.0",
-    "wrtc": "./wrtc-mock"
+    "wrtc": "^0.4.6"
   }
 }
