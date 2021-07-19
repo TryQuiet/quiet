@@ -7,13 +7,12 @@ import classNames from 'classnames'
 
 import Typography from '@material-ui/core/Typography'
 import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
 
 import Modal from '../../ui/Modal'
 import UsernameCreated from './UsernameCreated'
-import electronStore from '../../../../shared/electronStore'
+import { LoadingButton } from '../../ui/LoadingButton'
 
 const styles = theme => ({
   root: {},
@@ -166,13 +165,14 @@ export const CreateUsernameModal = ({
   handleClose,
   initialValues,
   handleSubmit,
+  isNewUser,
   certificateRegistrationError,
   certificate
 }) => {
   const [isTouched, setTouched] = useState(false)
   const [formSent, setFormSent] = useState(false)
   const responseReceived = Boolean(certificateRegistrationError || certificate)
-  const isNewUser = electronStore.get('isNewUser')
+  const waitingForResponse = formSent && !responseReceived
   return (
     <Modal open={open} handleClose={handleClose} isCloseDisabled={isNewUser}>
       <Grid container className={classes.main} direction='column'>
@@ -215,19 +215,21 @@ export const CreateUsernameModal = ({
                       justify={'flex-start'}
                       spacing={2}>
                       <Grid item xs={'auto'} className={classes.buttonDiv}>
-                        <Button
-                          disabled={formSent && !responseReceived}
+                        <LoadingButton
+                          classes={classes}
+                          type='submit'
                           variant='contained'
                           size='small'
                           color='primary'
-                          type='submit'
+                          margin='normal'
+                          text={'Continue'}
                           fullWidth
-                          className={classes.button}
+                          disabled={waitingForResponse}
+                          inProgress={waitingForResponse}
                           onClick={() => {
                             setTouched(true)
-                          }}>
-                          Continue
-                        </Button>
+                          }}
+                        />
                       </Grid>
                     </Grid>
                   </Form>
@@ -251,6 +253,7 @@ CreateUsernameModal.propTypes = {
   enoughMoney: PropTypes.bool.isRequired,
   usernameFee: PropTypes.number.isRequired,
   zecRate: PropTypes.object.isRequired,
+  isNewUser: PropTypes.bool.isRequired,
   certificateRegistrationError: PropTypes.string.isRequired,
   certificate: PropTypes.string.isRequired
 }

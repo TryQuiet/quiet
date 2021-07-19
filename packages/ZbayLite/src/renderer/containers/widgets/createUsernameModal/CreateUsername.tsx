@@ -2,6 +2,7 @@ import * as R from 'ramda'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
+import electronStore from '../../../../shared/electronStore'
 import usersHandlers from '../../../store/handlers/users'
 import identitySelectors from '../../../store/selectors/identity'
 import usersSelectors from '../../../store/selectors/users'
@@ -26,6 +27,7 @@ export const mapStateToProps = state => {
     // usernameFee: feesSelectors.userFee(state),
     // zecRate: ratesSelectors.rate('usd')(state),
     enoughMoney: true,
+    isNewUser: electronStore.get('isNewUser'),
     certificateRegistrationError: certificatesSelector.certificateRegistrationError(state),
     certificate: certificatesSelector.ownCertificate(state)
   }

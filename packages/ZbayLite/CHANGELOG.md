@@ -6,6 +6,12 @@
 * Extracted waggle handling logic to separate function
 * Changed a way main process is terminating
 * [Performance] Removed excess decryption from checking conversations -->
+# [Unreleased]
+
+## Fix
+
+* User registration - display spinner while waiting for server response
+
 # [3.4.0] - 16 July 2021
 
 ## Removed
