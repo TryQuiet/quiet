@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.0.15] - WIP
+
+### Added
+
+- Provided script for building project on Android
+
 ## [2.0.14] - 2021-07-17
 
 ### Fixed
