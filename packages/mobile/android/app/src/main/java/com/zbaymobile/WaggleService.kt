@@ -405,7 +405,7 @@ class WaggleService: Service() {
                 "LD_LIBRARY_PATH" to "$libraries",
                 "HOME" to "$files",
                 "TMP_DIR" to "$files",
-                "DEBUG" to "waggle*,-waggle:libp2p:err"
+                "DEBUG" to "waggle*,-waggle:libp2p:err,socks-proxy-agent*"
             )
         )
     }
