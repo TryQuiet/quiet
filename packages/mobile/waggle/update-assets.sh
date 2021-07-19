@@ -8,7 +8,7 @@ adb pull /storage/emulated/0/waggle.zip
 # Update waggle version number in .env files
 for environment in "${ENVS[@]}"
 do
-    sed -i "s/.*WAGGLE_VERSION.*/WAGGLE_VERSION=v${version}/" ../.env.${environment}
+    sed -i "s/.*WAGGLE_VERSION.*/WAGGLE_VERSION=${version}/" ../.env.${environment}
 done
 # Update waggle md5sum in .env files
 md5=`md5sum waggle.zip | awk '{ print $1 }'`
