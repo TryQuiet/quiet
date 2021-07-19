@@ -11,8 +11,10 @@ do
     sed -i "s/.*WAGGLE_VERSION.*/WAGGLE_VERSION=v${version}/" ../.env.${environment}
 done
 # Update waggle md5sum in .env files
-MD5=`md5sum waggle.zip | awk '{ print $1 }'`
+md5=`md5sum waggle.zip | awk '{ print $1 }'`
 for environment in "${ENVS[@]}"
 do
-    sed -i "s/.*WAGGLE_MD5.*/WAGGLE_MD5=${MD5}/" ../.env.${environment}
+    sed -i "s/.*WAGGLE_MD5.*/WAGGLE_MD5=${md5}/" ../.env.${environment}
 done
+# Upload assets to s3
+aws s3 cp ./waggle.zip s3://release.zbay.mobile.waggle/${version}/arm64-v8a/ --acl public-read-write
