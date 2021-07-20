@@ -12,6 +12,10 @@
 
 * User registration - display spinner while waiting for server response
 
+## Changed
+
+* Waggle version to 2.0.15 - fixes connecting to other peers
+
 # [3.4.0] - 16 July 2021
 
 ## Removed
