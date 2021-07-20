@@ -32,7 +32,6 @@ local.properties
 *.aab
 *.apk
 android/app/release/
-android/app/src/main/assets/fonts
 
 # node.js
 #
