@@ -6,7 +6,7 @@
 * Extracted waggle handling logic to separate function
 * Changed a way main process is terminating
 * [Performance] Removed excess decryption from checking conversations -->
-# [Unreleased]
+# [3.4.1] - 20 July 2021
 
 ## Fix
 
