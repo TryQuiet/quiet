@@ -6,6 +6,10 @@
 
 - Provided script for building project on Android
 
+### Fixed
+
+ - WebsocketOverTor - prepareListener was not called at all probably causing issue with peers not connecting to peers other than entry node
+
 ## [2.0.14] - 2021-07-17
 
 ### Fixed
