@@ -20,9 +20,17 @@ describe('MessageSendButton component', () => {
       >
         <View
           accessible={true}
-          style={Object {}}
+          style={
+            Object {
+              "height": 56,
+              "justifyContent": "center",
+              "width": 56,
+            }
+          }
         >
           <Image
+            resizeMethod="resize"
+            resizeMode="cover"
             source={
               Object {
                 "testUri": "../../../assets/icons/icon_send.png",
@@ -30,9 +38,10 @@ describe('MessageSendButton component', () => {
             }
             style={
               Object {
-                "height": 24,
-                "resizeMode": "cover",
-                "width": 24,
+                "alignSelf": "center",
+                "height": 30,
+                "marginBottom": 5,
+                "width": 30,
               }
             }
           />

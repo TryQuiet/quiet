@@ -94,7 +94,14 @@ export const Chat: FC<ChatProps> = ({
       </View>
 
       {didKeyboardShow && (
-        <View style={{ paddingLeft: 20, paddingRight: 20, paddingBottom: 15 }}>
+        <View
+          style={{
+            alignContent: 'center',
+            height: 56,
+            paddingLeft: 20,
+            paddingRight: 20,
+            backgroundColor: '#fbfbfb',
+          }}>
           <View style={{ alignSelf: 'flex-end' }}>
             <MessageSendButton onPress={onPress} disabled={isInputEmpty} />
           </View>

@@ -18,13 +18,22 @@ export const MessageSendButton: FC<MessageSendButtonProps> = ({
   const icon = disabled ? appImages.icon_send_disabled : appImages.icon_send;
 
   return (
-    <TouchableWithoutFeedback onPress={handlePress}>
+    <TouchableWithoutFeedback
+      onPress={handlePress}
+      style={{
+        height: 56,
+        width: 56,
+        justifyContent: 'center',
+      }}>
       <Image
         source={icon}
+        resizeMode="cover"
+        resizeMethod="resize"
         style={{
-          resizeMode: 'cover',
-          width: 24,
-          height: 24,
+          alignSelf: 'center',
+          marginBottom: 5,
+          width: 30,
+          height: 30,
         }}
       />
     </TouchableWithoutFeedback>
