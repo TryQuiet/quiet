@@ -26,7 +26,7 @@ export const createLocalNotification = (message: IMessage) => {
 
 export const useNotifications = (): void => {
   useEffect(() => {
-    if (Platform.OS === 'android') {
+    if (Platform.OS !== 'android') {
       return;
     }
     PushNotification.createChannel(
