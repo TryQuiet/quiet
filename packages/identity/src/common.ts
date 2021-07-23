@@ -16,6 +16,12 @@ export enum CertFieldsTypes {
   peerId = '1.3.6.1.2.1.15.3.1.1'
 }
 
+export enum ExtensionsTypes {
+  basicConstr = '2.5.29.19',
+  keyUsage = '2.5.29.15',
+  extKeyUsage = '2.5.29.37'
+}
+
 export const generateKeyPair = async ({
   signAlg,
   hashAlg

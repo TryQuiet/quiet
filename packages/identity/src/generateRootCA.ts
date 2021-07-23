@@ -1,8 +1,8 @@
 import { Integer, PrintableString, BitString } from 'asn1js'
-import { Certificate, AttributeTypeAndValue, BasicConstraints, Extension, getCrypto } from 'pkijs'
+import { Certificate, AttributeTypeAndValue, BasicConstraints, Extension, getCrypto, ExtKeyUsage } from 'pkijs'
 
 import config from './config'
-import { generateKeyPair, CertFieldsTypes } from './common'
+import { generateKeyPair, CertFieldsTypes, ExtensionsTypes } from './common'
 
 export interface RootCA {
   // Todo: move types to separate file
@@ -51,20 +51,32 @@ async function generateRootCA ({
 }): Promise<Certificate> {
   const basicConstr = new BasicConstraints({ cA: true, pathLenConstraint: 3 })
   const keyUsage = getCAKeyUsage()
+  const extKeyUsage = new ExtKeyUsage({
+    keyPurposes: [
+      '1.3.6.1.5.5.7.3.2', // id-kp-clientAuth
+      '1.3.6.1.5.5.7.3.1' // id-kp-serverAuth
+    ]
+  })
   const certificate = new Certificate({
     serialNumber: new Integer({ value: 1 }),
     extensions: [
       new Extension({
-        extnID: '2.5.29.19',
+        extnID: ExtensionsTypes.basicConstr,
         critical: false,
         extnValue: basicConstr.toSchema().toBER(false),
         parsedValue: basicConstr // Parsed value for well-known extensions
       }),
       new Extension({
-        extnID: '2.5.29.15',
+        extnID: ExtensionsTypes.keyUsage,
         critical: false,
         extnValue: keyUsage.toBER(false),
         parsedValue: keyUsage // Parsed value for well-known extensions
+      }),
+      new Extension({
+        extnID: ExtensionsTypes.extKeyUsage,
+        critical: false,
+        extnValue: extKeyUsage.toSchema().toBER(false),
+        parsedValue: extKeyUsage // Parsed value for well-known extensions
       })
     ],
     notBefore: notBeforeDate,
