@@ -18,7 +18,9 @@ import {
   formatPEM,
   generateKeyPair,
   getCertFieldValue,
-  CertFieldsTypes
+  CertFieldsTypes,
+  hexStringToArrayBuffer,
+  arrayBufferToHexString
 } from './common'
 import configCrypto from './config'
 
@@ -36,6 +38,8 @@ export {
   formatPEM,
   generateKeyPair,
   getCertFieldValue,
-  CertFieldsTypes
+  CertFieldsTypes,
+  hexStringToArrayBuffer,
+  arrayBufferToHexString
 }
 export { configCrypto }
