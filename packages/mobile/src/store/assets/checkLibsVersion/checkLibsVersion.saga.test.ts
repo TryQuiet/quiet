@@ -7,6 +7,7 @@ import {
   downloadAssets,
   md5Check,
 } from '../../../utils/functions/downloadAssets/downloadAssets';
+import { initReducer, InitState } from '../../init/init.slice';
 import { waitForNavigatorSaga } from '../../init/waitForNavigator/waitForNavigator.saga';
 import { StoreKeys } from '../../store.keys';
 import { assetsActions, assetsReducer, AssetsState } from '../assets.slice';
@@ -33,10 +34,13 @@ describe('checkLibsVersionSaga', () => {
   });
   test('update libs', async () => {
     await expectSaga(checkLibsVersionSaga)
-      .withReducer(combineReducers({ [StoreKeys.Assets]: assetsReducer }), {
+      .withReducer(combineReducers({ [StoreKeys.Assets]: assetsReducer, [StoreKeys.Init]: initReducer }), {
         [StoreKeys.Assets]: {
           ...new AssetsState(),
         },
+        [StoreKeys.Init]: {
+          ...new InitState(),
+        }
       })
       .provide([
         [fork(waitForNavigatorSaga), null],
@@ -52,8 +56,11 @@ describe('checkLibsVersionSaga', () => {
         [StoreKeys.Assets]: {
           ...new AssetsState(),
           currentLibsVersion: Config.LIBS_VERSION,
-          downloadHint: 'Downloading libraries with power to keep you safe',
         },
+        [StoreKeys.Init]: {
+          ...new InitState(),
+          initDescription: 'Downloading libraries with power to keep you safe',
+        }
       })
       .run();
   });

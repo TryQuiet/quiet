@@ -5,7 +5,6 @@ import { StoreKeys } from '../store.keys';
 export class AssetsState {
   public currentWaggleVersion: string = '';
   public currentLibsVersion: string = '';
-  public downloadHint: string = '';
   public downloadProgress: number = 0;
 }
 
@@ -18,9 +17,6 @@ export const assetsSlice = createSlice({
     },
     setCurrentLibsVersion: (state, action: PayloadAction<string>) => {
       state.currentLibsVersion = action.payload;
-    },
-    setDownloadHint: (state, action: PayloadAction<string>) => {
-      state.downloadHint = action.payload;
     },
     setDownloadProgress: (state, action: PayloadAction<number>) => {
       state.downloadProgress = action.payload;

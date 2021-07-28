@@ -4,7 +4,6 @@ import config from '../config';
 import { eventChannel } from 'redux-saga';
 import { SocketActionTypes } from '../const/actionTypes';
 import { nativeServicesActions } from '../../nativeServices/nativeServices.slice';
-import { assetsActions } from '../../assets/assets.slice';
 import {
   AskForMessagesResponse,
   ChannelMessagesIdsResponse,
@@ -13,8 +12,6 @@ import {
 } from '../../publicChannels/publicChannels.slice';
 import { requestPeerIdSaga } from '../../identity/requestPeerId/requestPeerId.saga';
 import { publicChannelsMasterSaga } from '../../publicChannels/publicChannels.master.saga';
-import { initActions } from '../../init/init.slice';
-import { InitCheckKeys } from '../../init/initCheck.keys';
 import { identityActions } from '../../identity/identity.slice';
 import { waitForConnectionSaga } from '../../init/waitForConnection/waitForConnection.saga';
 import { identityMasterSaga } from '../../identity/identity.master.saga';
@@ -28,15 +25,6 @@ import { IMessage } from '../../publicChannels/publicChannels.types';
 export function* startConnectionSaga(): Generator {
   const socket = yield* call(connect);
   yield* put(nativeServicesActions.initPushNotifications());
-  yield* put(
-    assetsActions.setDownloadHint('Replicating data from distributed database'),
-  );
-  yield* put(
-    initActions.updateInitCheck({
-      event: InitCheckKeys.Websocket,
-      passed: true,
-    }),
-  );
   yield* delay(15000); // Wait for storage to be initialized
   yield* takeEvery(
     identityActions.requestPeerId.type,

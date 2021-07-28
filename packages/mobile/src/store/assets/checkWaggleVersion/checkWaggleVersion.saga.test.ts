@@ -7,6 +7,7 @@ import {
   downloadAssets,
   md5Check,
 } from '../../../utils/functions/downloadAssets/downloadAssets';
+import { initActions, initReducer, InitState } from '../../init/init.slice';
 import { waitForNavigatorSaga } from '../../init/waitForNavigator/waitForNavigator.saga';
 import { StoreKeys } from '../../store.keys';
 import { assetsActions, assetsReducer, AssetsState } from '../assets.slice';
@@ -33,9 +34,12 @@ describe('checkWaggleVersionSaga', () => {
   });
   test('update waggle', async () => {
     await expectSaga(checkWaggleVersionSaga)
-      .withReducer(combineReducers({ [StoreKeys.Assets]: assetsReducer }), {
+      .withReducer(combineReducers({ [StoreKeys.Assets]: assetsReducer, [StoreKeys.Init]: initReducer }), {
         [StoreKeys.Assets]: {
           ...new AssetsState(),
+        },
+        [StoreKeys.Init]: {
+          ...new InitState(),
         },
       })
       .provide([
@@ -53,7 +57,7 @@ describe('checkWaggleVersionSaga', () => {
         [call.fn(exists), true],
       ])
       .put(
-        assetsActions.setDownloadHint(
+        initActions.updateInitDescription(
           'Downloading tools to protect your privacy',
         ),
       )
@@ -62,8 +66,11 @@ describe('checkWaggleVersionSaga', () => {
         [StoreKeys.Assets]: {
           ...new AssetsState(),
           currentWaggleVersion: Config.LIBS_VERSION,
-          downloadHint: 'Downloading tools to protect your privacy',
         },
+        [StoreKeys.Init]: {
+          ...new InitState(),
+          initDescription: 'Downloading tools to protect your privacy',
+        }
       })
       .run();
   });

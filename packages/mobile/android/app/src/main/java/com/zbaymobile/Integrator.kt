@@ -49,6 +49,13 @@ class Integrator(private val context: ReactApplicationContext): ReactContextBase
     }
 
     @ReactMethod
+    fun startWaggle(onionAddress: String) {
+        Thread {
+            waggleService?.startWaggle(onionAddress)
+        }.start()
+    }
+
+    @ReactMethod
     fun initPushNotifications() {
         val service = Intent(context, PushNotificationsService::class.java)
         val bundle = Bundle()

@@ -15,6 +15,11 @@ export const isCryptoEngineInitialized = createSelector(
     reducerState.isCryptoEngineInitialized,
 );
 
+export const initDescription = createSelector(
+  selectReducer(StoreKeys.Init),
+  (reducerState: StoreState[StoreKeys.Init]) => reducerState.initDescription,
+);
+
 export const initChecks = createSelector(
   selectReducer(StoreKeys.Init),
   (reducerState: StoreState[StoreKeys.Init]) =>
@@ -29,6 +34,7 @@ export const currentScreen = createSelector(
 export const initSelectors = {
   isNavigatorReady,
   isCryptoEngineInitialized,
+  initDescription,
   initChecks,
   currentScreen,
 };

@@ -4,6 +4,7 @@ import { select, put, fork, call, take } from 'typed-redux-saga';
 import { appImages } from '../../../../assets';
 import { ScreenNames } from '../../../const/ScreenNames.enum';
 import { navigateTo } from '../../../utils/functions/navigateTo/navigateTo';
+import { initActions } from '../../init/init.slice';
 import { waitForNavigatorSaga } from '../../init/waitForNavigator/waitForNavigator.saga';
 import { assetsSelectors } from '../assets.selectors';
 import { assetsActions } from '../assets.slice';
@@ -14,7 +15,7 @@ export function* checkLibsVersionSaga(): Generator {
   if (JSON.stringify(currentVersion) !== JSON.stringify(Config.LIBS_VERSION)) {
     const url = Config.S3 + '.libs';
     yield* put(
-      assetsActions.setDownloadHint(
+      initActions.updateInitDescription(
         'Downloading libraries with power to keep you safe',
       ),
     );

@@ -25,7 +25,6 @@ import com.zbaymobile.Utils.Utils.getOutput
 import net.freehaven.tor.control.TorControlConnection
 import org.torproject.android.binary.TorResourceInstaller
 import java.io.*
-import java.lang.NullPointerException
 import java.lang.Process
 import java.net.Socket
 import java.util.concurrent.Executors
@@ -182,7 +181,6 @@ class WaggleService: Service() {
 
                     onions.add(onion)
                     client?.onOnionAdded(onion.address)
-                    startWaggle(onion)
 
                 } catch(t: Throwable) {
                     /* Stop Tor in case of any exception,
@@ -353,7 +351,10 @@ class WaggleService: Service() {
         )
     }
 
-    private fun startWaggle(hiddenService: Onion) {
+    fun startWaggle(onionAddress: String) {
+
+        val hiddenService = onions.firstOrNull { onion -> onion.address == onionAddress } ?: return
+
         val directory = File(Utils.getNativeLibraryDir(applicationContext)!!)
         val libraries = File(filesDir, "libs")
         val files = File(filesDir, "waggle/files")
@@ -405,7 +406,7 @@ class WaggleService: Service() {
                 "LD_LIBRARY_PATH" to "$libraries",
                 "HOME" to "$files",
                 "TMP_DIR" to "$files",
-                "DEBUG" to "waggle*,-waggle:libp2p:err,socks-proxy-agent*"
+                "DEBUG" to "waggle*,-waggle:libp2p:err"
             )
         )
     }

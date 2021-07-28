@@ -4,6 +4,7 @@ import { select, put, fork, call, take } from 'typed-redux-saga';
 import { appImages } from '../../../../assets';
 import { ScreenNames } from '../../../const/ScreenNames.enum';
 import { navigateTo } from '../../../utils/functions/navigateTo/navigateTo';
+import { initActions } from '../../init/init.slice';
 import { waitForNavigatorSaga } from '../../init/waitForNavigator/waitForNavigator.saga';
 import { assetsSelectors } from '../assets.selectors';
 import { assetsActions } from '../assets.slice';
@@ -16,7 +17,7 @@ export function* checkWaggleVersionSaga(): Generator {
   ) {
     const url = Config.S3 + '.waggle';
     yield* put(
-      assetsActions.setDownloadHint(
+      initActions.updateInitDescription(
         'Downloading tools to protect your privacy',
       ),
     );
