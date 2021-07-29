@@ -1,11 +1,11 @@
 import { stringToArrayBuffer } from 'pvutils'
-import { sign } from '../src/sign'
-import { extractPubKey, parseCertificate } from '../src/extractPubKey'
-import { verifySignature } from '../src/verification'
-import { verifyUserCert } from '../src/verifyUserCertificate'
+import { sign } from '../sign'
+import { extractPubKey, parseCertificate } from '../extractPubKey'
+import { verifySignature } from '../verification'
+import { verifyUserCert } from '../verifyUserCertificate'
 import { Crypto } from '@peculiar/webcrypto'
 import { createTestRootCA, createTestUserCert, createTestUserCsr, userData } from './helpers'
-import { CertFieldsTypes, getCertFieldValue } from '../src/common'
+import { CertFieldsTypes, getCertFieldValue } from '../common'
 import { getCrypto, setEngine, CryptoEngine } from 'pkijs'
 
 describe('Message signature verification', () => {

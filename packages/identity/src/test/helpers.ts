@@ -1,7 +1,7 @@
-import { createRootCA, RootCA } from "../src/generateRootCA"
-import { createUserCert } from "../src/generateUserCertificate"
-import { createUserCsr, UserCsr } from "../src/requestCertificate"
-import config from '../src/config'
+import { createRootCA, RootCA } from "../generateRootCA"
+import { createUserCert } from "../generateUserCertificate"
+import { createUserCsr, UserCsr } from "../requestCertificate"
+import config from '../config'
 import { Time } from 'pkijs'
 
 export const userData = {
