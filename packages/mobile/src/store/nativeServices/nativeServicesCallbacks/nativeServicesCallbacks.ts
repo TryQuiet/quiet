@@ -1,8 +1,8 @@
-import { DeviceEventEmitter } from 'react-native';
 import { eventChannel } from 'redux-saga';
 import { call, put, take } from 'typed-redux-saga';
 import { initActions } from '../../init/init.slice';
-import { DeviceEventKeys } from './deviceEvent.keys';
+import { NativeEventKeys } from './nativeEvent.keys';
+import nativeEventEmitter from './nativeEventEmitter';
 
 export function* nativeServicesCallbacksSaga(): Generator {
   const channel = yield* call(deviceEvents);
@@ -19,19 +19,19 @@ export const deviceEvents = () => {
     | ReturnType<typeof initActions.onWaggleStarted>
   >(emit => {
     const subscriptions = [
-      DeviceEventEmitter.addListener(DeviceEventKeys.TorInit, () =>
+      nativeEventEmitter?.addListener(NativeEventKeys.TorInit, () =>
         emit(initActions.onTorInit(true)),
       ),
-      DeviceEventEmitter.addListener(
-        DeviceEventKeys.OnionAdded,
+      nativeEventEmitter?.addListener(
+        NativeEventKeys.OnionAdded,
         (address: string) => emit(initActions.onOnionAdded(address)),
       ),
-      DeviceEventEmitter.addListener(DeviceEventKeys.WaggleStarted, () =>
+      nativeEventEmitter?.addListener(NativeEventKeys.WaggleStarted, () =>
         emit(initActions.onWaggleStarted(true)),
       ),
     ];
     return () => {
-      subscriptions.forEach(subscription => subscription.remove());
+      subscriptions.forEach(subscription => subscription?.remove());
     };
   });
 };

@@ -6,6 +6,8 @@ platform :ios, '10.0'
 target 'ZbayMobile' do
   config = use_native_modules!
 
+  pod 'Tor', podspec: 'https://raw.githubusercontent.com/iCepa/Tor.framework/v405.9.1/Tor.podspec'
+
   use_react_native!(
     :path => config[:reactNativePath],
     # to enable hermes on iOS, change `false` to `true` and then install pods

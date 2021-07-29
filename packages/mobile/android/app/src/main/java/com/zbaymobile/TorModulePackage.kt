@@ -7,10 +7,10 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.uimanager.ReactShadowNode
 import com.facebook.react.uimanager.ViewManager
 
-class IntegratorPackage: ReactPackage {
+class TorModulePackage: ReactPackage {
     override fun createNativeModules(reactContext: ReactApplicationContext): MutableList<NativeModule> {
         val modules: MutableList<NativeModule> = ArrayList()
-        modules.add(Integrator(reactContext))
+        modules.add(TorModule(reactContext))
         return modules
     }
 

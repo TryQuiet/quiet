@@ -22,7 +22,7 @@ export function* startWaggleSaga(
     );
 
     yield* call(() => {
-      NativeModules.Integrator.startWaggle(action.payload);
+      NativeModules.TorModule.startWaggle(action.payload);
     });
   }
 }

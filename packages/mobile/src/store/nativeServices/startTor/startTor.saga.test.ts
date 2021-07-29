@@ -1,20 +1,32 @@
-import { TestApi, testSaga } from 'redux-saga-test-plan';
+import { combineReducers } from '@reduxjs/toolkit';
+import { expectSaga } from 'redux-saga-test-plan';
+import { call } from 'redux-saga-test-plan/matchers';
 import { initActions } from '../../init/init.slice';
+import { NativeModules } from 'react-native';
+import { StoreKeys } from '../../store.keys';
+import {
+  nativeServicesReducer,
+  NativeServicesState,
+} from '../nativeServices.slice';
 
 import { startTorSaga } from './startTor.saga';
 
 describe('startTorSaga', () => {
-  const saga: TestApi = testSaga(startTorSaga);
-
-  beforeEach(() => {
-    saga.restart();
-  });
-
-  test('should be defined', () => {
-    saga
-      .next()
+  test('should start tor with native method', () => {
+    NativeModules.TorModule = {
+      startTor: jest.fn(),
+    };
+    expectSaga(startTorSaga)
+      .withReducer(
+        combineReducers({ [StoreKeys.NativeServices]: nativeServicesReducer }),
+        {
+          [StoreKeys.NativeServices]: {
+            ...new NativeServicesState(),
+          },
+        },
+      )
       .put(initActions.updateInitDescription('Tor initialization in progress'))
-      .next()
-      .isDone();
+      .call(NativeModules.TorModule.startTor)
+      .run();
   });
 });

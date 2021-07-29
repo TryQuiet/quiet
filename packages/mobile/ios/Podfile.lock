@@ -307,6 +307,7 @@ PODS:
     - React-Core
     - SSZipArchive (= 2.2.3)
   - SSZipArchive (2.2.3)
+  - Tor (405.9.1)
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -354,6 +355,7 @@ DEPENDENCIES:
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNZipArchive (from `../node_modules/react-native-zip-archive`)
+  - Tor (from `https://raw.githubusercontent.com/iCepa/Tor.framework/v405.9.1/Tor.podspec`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -446,6 +448,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-svg"
   RNZipArchive:
     :path: "../node_modules/react-native-zip-archive"
+  Tor:
+    :podspec: https://raw.githubusercontent.com/iCepa/Tor.framework/v405.9.1/Tor.podspec
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -494,8 +498,9 @@ SPEC CHECKSUMS:
   RNSVG: 551acb6562324b1d52a4e0758f7ca0ec234e278f
   RNZipArchive: b2d23c3a5db7d33a5862d8526fc79237810cf130
   SSZipArchive: 62d4947b08730e4cda640473b0066d209ff033c9
+  Tor: 39dc71bf048312e202608eb499ca5c74e841b503
   Yoga: 8c8436d4171c87504c648ae23b1d81242bdf3bbf
 
-PODFILE CHECKSUM: 8846d246c740f1e52ce45d82dcf36c84c272a452
+PODFILE CHECKSUM: 1a866fd7d32617225f0d82a591a5609d72561fa4
 
 COCOAPODS: 1.10.1

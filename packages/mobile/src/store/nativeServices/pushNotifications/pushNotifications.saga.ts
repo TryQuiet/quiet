@@ -17,6 +17,6 @@ export const initPushNotifications = (persistentData: ChannelMessages) => {
   AppRegistry.registerHeadlessTask('pushNotifications', () =>
     pushNotifications.bind(persistentData),
   );
-  /* Start service to handle notifications for incoming messages, even when the app is in background */
-  NativeModules.Integrator.initPushNotifications();
+  /* Push notifications will be moved into it's own native module, during next refactorization */
+  NativeModules.TorModule.initPushNotifications();
 };

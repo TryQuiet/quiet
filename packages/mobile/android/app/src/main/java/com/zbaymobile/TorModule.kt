@@ -14,16 +14,16 @@ import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.zbaymobile.Utils.Const.SERVICE_ACTION_EXECUTE
 
 
-class Integrator(private val context: ReactApplicationContext): ReactContextBaseJavaModule(), WaggleService.Callbacks {
+class TorModule(private val context: ReactApplicationContext): ReactContextBaseJavaModule(), WaggleService.Callbacks {
 
     private var waggleService: WaggleService? = null
 
     override fun getName(): String {
-        return "Integrator"
+        return "TorModule"
     }
 
     @ReactMethod
-    fun initAndroidServices() {
+    fun startTor() {
 
         val service = Intent(context, WaggleService::class.java)
             service.action = SERVICE_ACTION_EXECUTE
@@ -37,7 +37,7 @@ class Integrator(private val context: ReactApplicationContext): ReactContextBase
         val serviceConnection = object: ServiceConnection {
             override fun onServiceConnected(p0: ComponentName?, binder: IBinder?) {
                 waggleService = (binder as WaggleService.LocalBinder).getService()
-                waggleService?.bindClient(this@Integrator)
+                waggleService?.bindClient(this@TorModule)
             }
 
             override fun onServiceDisconnected(p0: ComponentName?) {
