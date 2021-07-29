@@ -1,9 +1,18 @@
 import { Integer, BitString } from 'asn1js'
-import { Certificate, BasicConstraints, Extension, ExtKeyUsage } from 'pkijs'
 
 import config from './config'
 import { loadCertificate, loadPrivateKey, loadCSR, ExtensionsTypes } from './common'
-import { KeyObject } from 'crypto'
+import {
+  Certificate, Extension, ExtKeyUsage, BasicConstraints, CertificationRequest
+} from 'pkijs'
+
+export interface UserCert {
+  // Todo: move types to separate file
+  userCertObject: {
+    certificate: Certificate;
+  }
+  userCertString: string
+}
 
 export const createUserCert = async (
   rootCA: string,
@@ -11,11 +20,11 @@ export const createUserCert = async (
   userCsr: string,
   notBeforeDate: Date,
   notAfterDate: Date
-) => {
+): Promise<UserCert> => {
   const { hashAlg, signAlg } = config
   const userCertificate = await generateuserCertificate({
     issuerCert: loadCertificate(rootCA),
-    issuerKey: await loadPrivateKey(rootKey, signAlg, hashAlg),
+    issuerKey: await loadPrivateKey(rootKey, signAlg),
     pkcs10: await loadCSR(userCsr),
     hashAlg,
     notBeforeDate,
@@ -38,12 +47,12 @@ async function generateuserCertificate ({
   notAfterDate
 }: {
   issuerCert: Certificate
-  issuerKey: KeyObject
-  pkcs10: Certificate
+  issuerKey: CryptoKey
+  pkcs10: CertificationRequest
   hashAlg: string
   notBeforeDate: Date
   notAfterDate: Date
-}): Promise<Certificate> {
+}): Promise<{ certificate: Certificate; }> {
   const basicConstr = new BasicConstraints({ cA: false, pathLenConstraint: 3 })
   const keyUsage = getKeyUsage()
   const extKeyUsage = new ExtKeyUsage({

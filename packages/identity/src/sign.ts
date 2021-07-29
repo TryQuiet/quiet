@@ -1,12 +1,11 @@
-import { KeyObject } from 'crypto'
-import { getCrypto, getAlgorithmParameters } from 'pkijs'
+import { getAlgorithmParameters, getCrypto } from 'pkijs'
 
 import config from './config'
 
-export const sign = async (message: string, privKey: KeyObject): Promise<ArrayBuffer> => {
+export const sign = async (message: string, privKey: CryptoKey): Promise<ArrayBuffer> => {
   const crypto = getCrypto()
   const messageBuffer = Buffer.from(message)
   const algorithm = getAlgorithmParameters(config.signAlg, 'sign')
 
-  return crypto.sign(algorithm.algorithm, privKey, messageBuffer)
+  return crypto!.sign(algorithm.algorithm, privKey, messageBuffer)
 }

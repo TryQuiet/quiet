@@ -1,21 +1,13 @@
 import { PrintableString, OctetString } from 'asn1js'
-import {
-  CertificationRequest,
-  AttributeTypeAndValue,
-  Extension,
-  Extensions,
-  getCrypto,
-  Attribute
-} from 'pkijs'
 
 import config from './config'
-import { generateKeyPair, CertFieldsTypes } from './common'
-import { KeyObject, KeyPairKeyObjectResult } from 'crypto'
+import { generateKeyPair, CertFieldsTypes, hexStringToArrayBuffer } from './common'
+import { getCrypto, CertificationRequest, AttributeTypeAndValue, Attribute, Extensions, Extension } from 'pkijs'
 
 interface CertData {
-  publicKey: KeyObject
-  privateKey: KeyObject
-  pkcs10: any
+  publicKey: CryptoKey
+  privateKey: CryptoKey
+  pkcs10: CertificationRequest
 }
 
 export interface UserCsr {
@@ -24,7 +16,15 @@ export interface UserCsr {
   pkcs10: CertData
 }
 
-export const createUserCsr = async ({ zbayNickname, commonName, peerId, dmPublicKey }): Promise<UserCsr> => {
+export const createUserCsr = async ({ zbayNickname, commonName, peerId, dmPublicKey }:
+  {
+    zbayNickname: string
+    commonName: string
+    peerId: string
+    dmPublicKey: string
+    signAlg: string
+    hashAlg: string
+  }): Promise<UserCsr> => {
   const pkcs10 = await requestCertificate({
     zbayNickname: zbayNickname,
     commonName: commonName,
@@ -35,7 +35,7 @@ export const createUserCsr = async ({ zbayNickname, commonName, peerId, dmPublic
 
   const userData = {
     userCsr: pkcs10.pkcs10.toSchema().toBER(false),
-    userKey: await getCrypto().exportKey('pkcs8', pkcs10.privateKey)
+    userKey: await getCrypto()!.exportKey('pkcs8', pkcs10.privateKey)
   }
 
   return {
@@ -56,11 +56,12 @@ async function requestCertificate ({
   zbayNickname: string
   commonName: string
   peerId: string
-  dmPublicKey: Buffer
+  dmPublicKey: string
   signAlg: string
   hashAlg: string
 }): Promise<CertData> {
-  const keyPair: KeyPairKeyObjectResult = await generateKeyPair({ signAlg, hashAlg })
+  const keyPair: CryptoKeyPair = await generateKeyPair({ signAlg })
+  const arrayBufferDmPubKey = hexStringToArrayBuffer(dmPublicKey)
 
   const pkcs10 = new CertificationRequest({
     version: 0,
@@ -88,16 +89,16 @@ async function requestCertificate ({
   pkcs10.subject.typesAndValues.push(
     new AttributeTypeAndValue({
       type: CertFieldsTypes.dmPublicKey,
-      value: new OctetString({ valueHex: dmPublicKey })
+      value: new OctetString({ valueHex: arrayBufferDmPubKey })
     })
   )
 
   await pkcs10.subjectPublicKeyInfo.importKey(keyPair.publicKey)
-  const hashedPublicKey = await getCrypto().digest(
+  const hashedPublicKey = await getCrypto()!.digest(
     { name: 'SHA-1' },
     pkcs10.subjectPublicKeyInfo.subjectPublicKey.valueBlock.valueHex
   )
-  pkcs10.attributes.push(
+  pkcs10.attributes!.push(
     new Attribute({
       type: '1.2.840.113549.1.9.14', // pkcs-9-at-extensionRequest
       values: [

@@ -1,14 +1,6 @@
-import { fromBER } from 'asn1js'
+import { fromBER, ObjectIdentifier } from 'asn1js'
+import { getAlgorithmParameters, getCrypto, CertificationRequest, Certificate } from 'pkijs'
 import { stringToArrayBuffer, fromBase64 } from 'pvutils'
-import {
-  getAlgorithmParameters,
-  getCrypto,
-  Certificate,
-  CertificationRequest,
-  AttributeTypeAndValue
-} from 'pkijs'
-
-import { KeyObject, KeyPairKeyObjectResult } from 'crypto'
 
 export enum CertFieldsTypes {
   commonName = '2.5.4.3',
@@ -23,7 +15,7 @@ export enum ExtensionsTypes {
   extKeyUsage = '2.5.29.37'
 }
 
-export function hexStringToArrayBuffer (str) {
+export function hexStringToArrayBuffer (str: string): ArrayBuffer {
   const stringLength = str.length / 2
 
   const resultBuffer = new ArrayBuffer(stringLength)
@@ -35,7 +27,7 @@ export function hexStringToArrayBuffer (str) {
   return resultBuffer
 }
 
-export function arrayBufferToHexString (buffer) {
+export function arrayBufferToHexString (buffer: Buffer): string {
   let resultString = ''
   const view = new Uint8Array(buffer)
 
@@ -46,21 +38,14 @@ export function arrayBufferToHexString (buffer) {
 }
 
 export const generateKeyPair = async ({
-  signAlg,
-  hashAlg
+  signAlg
 }: {
   signAlg: string
-  hashAlg: string
-}): Promise<KeyPairKeyObjectResult> => {
+}): Promise<CryptoKeyPair> => {
   const algorithm = getAlgorithmParameters(signAlg, 'generatekey')
-
-  if ('hash' in algorithm.algorithm) {
-    algorithm.algorithm.hash.name = hashAlg
-  }
   const crypto = getCrypto()
-  const keyPair = await crypto.generateKey(algorithm.algorithm, true, algorithm.usages)
-
-  return keyPair
+  const keyPair = await crypto!.generateKey(algorithm.algorithm, true, algorithm.usages)
+  return keyPair as CryptoKeyPair
 }
 
 export const formatPEM = (pemString: string): string => {
@@ -84,27 +69,23 @@ export const loadCertificate = (rootCert: string): Certificate => {
 
 export const loadPrivateKey = async (
   rootKey: string,
-  signAlg: string,
-  hashAlg: string
-): Promise<KeyObject> => {
+  signAlg: string
+): Promise<CryptoKey> => {
   const keyBuffer = stringToArrayBuffer(fromBase64(rootKey))
 
   const algorithm = getAlgorithmParameters(signAlg, 'generatekey')
-  if ('hash' in algorithm.algorithm) {
-    algorithm.algorithm.hash.name = hashAlg
-  }
   const crypto = getCrypto()
-  return crypto.importKey('pkcs8', keyBuffer, algorithm.algorithm, true, algorithm.usages)
+  return crypto!.importKey('pkcs8', keyBuffer, algorithm.algorithm, true, algorithm.usages)
 }
 
-export const loadCSR = async (csr: string): Promise<Certificate> => {
+export const loadCSR = async (csr: string): Promise<CertificationRequest> => {
   const certBuffer = stringToArrayBuffer(fromBase64(csr))
   const asn1 = fromBER(certBuffer)
   return new CertificationRequest({ schema: asn1.result })
 }
 
-export const getCertFieldValue = (cert: Certificate, fieldType: string): string => {
-  const block = cert.subject.typesAndValues.find((tav: AttributeTypeAndValue) => tav.type === fieldType)
+export const getCertFieldValue = (cert: Certificate, fieldType: CertFieldsTypes | ObjectIdentifier): string => {
+  const block = cert.subject.typesAndValues.find((tav) => tav.type === fieldType)
   if (!block) {
     throw new Error(`Field type ${fieldType} not found in certificate`)
   }

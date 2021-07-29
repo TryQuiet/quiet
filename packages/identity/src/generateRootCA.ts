@@ -1,19 +1,23 @@
 import { Integer, PrintableString, BitString } from 'asn1js'
-import { Certificate, AttributeTypeAndValue, BasicConstraints, Extension, getCrypto, ExtKeyUsage } from 'pkijs'
 
 import config from './config'
 import { generateKeyPair, CertFieldsTypes, ExtensionsTypes } from './common'
+import { Time, Certificate, BasicConstraints, ExtKeyUsage, Extension, AttributeTypeAndValue, getCrypto } from 'pkijs'
 
 export interface RootCA {
   // Todo: move types to separate file
-  rootObject: Certificate
+  rootObject: {
+    certificate: Certificate
+    privateKey: CryptoKey;
+    publicKey: CryptoKey;
+  }
   rootCertString: string
   rootKeyString: string
 }
 
 export const createRootCA = async (
-  notBeforeDate: Date,
-  notAfterDate: Date,
+  notBeforeDate: Time,
+  notAfterDate: Time,
   rootCAcommonName?: string
 ): Promise<RootCA> => {
   const commonName = rootCAcommonName || 'Zbay CA'
@@ -26,7 +30,7 @@ export const createRootCA = async (
 
   const rootData = {
     rootCert: rootCA.certificate.toSchema(true).toBER(false),
-    rootKey: await getCrypto().exportKey('pkcs8', rootCA.privateKey)
+    rootKey: await getCrypto()!.exportKey('pkcs8', rootCA.privateKey)
   }
 
   return {
@@ -46,9 +50,9 @@ async function generateRootCA ({
   commonName: string
   signAlg: string
   hashAlg: string
-  notBeforeDate: Date
-  notAfterDate: Date
-}): Promise<Certificate> {
+  notBeforeDate: Time
+  notAfterDate: Time
+}): Promise<{ certificate: Certificate, privateKey: CryptoKey, publicKey: CryptoKey }> {
   const basicConstr = new BasicConstraints({ cA: true, pathLenConstraint: 3 })
   const keyUsage = getCAKeyUsage()
   const extKeyUsage = new ExtKeyUsage({
@@ -94,7 +98,7 @@ async function generateRootCA ({
       value: new PrintableString({ value: commonName })
     })
   )
-  const keyPair = await generateKeyPair({ signAlg, hashAlg })
+  const keyPair = await generateKeyPair({ signAlg })
 
   await certificate.subjectPublicKeyInfo.importKey(keyPair.publicKey)
   await certificate.sign(keyPair.privateKey, hashAlg)
@@ -108,6 +112,5 @@ function getCAKeyUsage (): BitString {
 
   bitView[0] |= 0x02 // Key usage 'cRLSign' flag
   bitView[0] |= 0x04 // Key usage 'keyCertSign' flag
-
   return new BitString({ valueHex: bitArray })
 }

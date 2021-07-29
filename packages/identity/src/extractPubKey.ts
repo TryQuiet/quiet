@@ -1,7 +1,7 @@
 import { fromBase64, stringToArrayBuffer } from 'pvutils'
-import { Certificate, getAlgorithmParameters } from 'pkijs'
 import { fromBER } from 'asn1js'
 import config from './config'
+import { getAlgorithmParameters, Certificate } from 'pkijs'
 
 export const parseCertificate = (pem: string): Certificate => {
   let certificateBuffer = new ArrayBuffer(0)
@@ -16,18 +16,14 @@ export const keyFromCertificate = (certificate: Certificate): string => {
   ).toString('base64')
 }
 
-export const keyObjectFromString = (pubKeyString: string, crypto: any) => {
+export const keyObjectFromString = (pubKeyString: string, crypto: SubtleCrypto | undefined): Promise<CryptoKey> => {
   let keyArray = new ArrayBuffer(0)
   keyArray = stringToArrayBuffer(fromBase64(pubKeyString))
   const algorithm = getAlgorithmParameters(config.signAlg, 'generatekey')
-  if ('hash' in algorithm.algorithm) {
-    algorithm.algorithm.hash.name = config.hashAlg
-  }
-
-  return crypto.importKey('raw', keyArray, algorithm.algorithm, true, algorithm.usages)
+  return crypto!.importKey('raw', keyArray, algorithm.algorithm, true, algorithm.usages)
 }
 
-export const extractPubKey = (pem: string, crypto: any) => {
+export const extractPubKey = (pem: string, crypto: SubtleCrypto | undefined): Promise<CryptoKey> => {
   const pubKeyString = extractPubKeyString(pem)
   return keyObjectFromString(pubKeyString, crypto)
 }

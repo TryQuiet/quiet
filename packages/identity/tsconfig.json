@@ -6,15 +6,20 @@
     "outDir": "./lib",
     "moduleResolution": "node",
     "esModuleInterop": true,
+    "strict": true,
     "skipLibCheck": true,
+    "typeRoots": [
+      "./@types",
+      "./node_modules/@types"
+    ],
+    "lib": [
+      "es6",
+      "dom"
+    ]
   },
-  "typeRoots": [
-    "./@types",
-    "../../node_modules/@types",
-    "./node_modules/@types"
-  ],
   "include": [
-    "src"
+    "src",
+    "test"
   ],
   "exclude": [
     "node_modules",
