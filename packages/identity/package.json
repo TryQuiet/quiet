@@ -38,9 +38,6 @@
     "testPathIgnorePatterns": [
       "node_modules/"
     ],
-    "transformIgnorePatterns": [
-      "node_modules/(?!(pkijs)/)"
-    ],
     "testRegex": ".*\\.test\\.(t|j)s$",
     "testEnvironment": "node"
   },
