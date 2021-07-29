@@ -9,7 +9,7 @@ import { DisplayableMessage } from '../../zbay/messages.types'
 import { Contact } from '../handlers/contacts'
 import { Store } from '../reducers'
 import certificatesSelector from '../certificates/certificates.selector'
-import { extractPubKeyString, loadCertificate } from '@zbayapp/identity'
+import { arrayBufferToHexString, extractPubKeyString, loadCertificate } from '@zbayapp/identity'
 import channelSelector from '../selectors/channel'
 
 const contacts = (s: Store) => s.contacts
@@ -198,27 +198,27 @@ const allChannels = createSelector(
 const usersCertificateMapping = createSelector(
   certificatesSelector.usersCertificates,
   (certificates) => {
-    return certificates.reduce<{ [pubKey: string]: { username: string; onionAddress: string; peerId: string } }>((acc, current) => {
+    return certificates.reduce<{ [pubKey: string]: { username: string; onionAddress: string; peerId: string; dmPubKey: string } }>((acc, current) => {
       let parsedCerficated
       let certObject
       let nickname = null
       let onionAddress = null
       let peerId = null
+      let dmPubKey = null
       if (current !== null && current) {
         parsedCerficated = extractPubKeyString(current)
         certObject = loadCertificate(current)
-        if (certObject.subject.typesAndValues.length === 3) {
-          nickname = certObject.subject.typesAndValues[0].value.valueBlock.value
-          onionAddress = certObject.subject.typesAndValues[1].value.valueBlock.value
-          peerId = certObject.subject.typesAndValues[2].value.valueBlock.value
-        } else {
-          return
-        }
+        nickname = certObject.subject.typesAndValues[0].value.valueBlock.value
+        onionAddress = certObject.subject.typesAndValues[1].value.valueBlock.value
+        peerId = certObject.subject.typesAndValues[2].value.valueBlock.value
+        const dmPubKeyArray = certObject.subject.typesAndValues[3]?.value.valueBlock.valueHex
+        dmPubKey = arrayBufferToHexString(dmPubKeyArray)
       }
       acc[parsedCerficated] = {
         username: nickname,
         onionAddress: onionAddress,
-        peerId: peerId
+        peerId: peerId,
+        dmPubKey: dmPubKey
       }
       return acc
     }, {})
@@ -257,7 +257,7 @@ export const messagesOfChannelWithUserInfo = createSelector(
       message => {
         if (usersCertificateMapping[message.pubKey]) {
           const userInfo = usersCertificateMapping[message.pubKey]
-          if (userInfo.onionAddress !== null) {
+          if (userInfo.onionAddress !== null && userInfo.dmPubKey !== null) {
             return ({ message, userInfo: userInfo })
           }
         } else if (message.pubKey === 'holmesMessagesFromStart') {

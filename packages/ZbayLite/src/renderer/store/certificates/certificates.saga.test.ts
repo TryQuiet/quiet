@@ -8,6 +8,7 @@ import { StoreKeys } from '../store.keys'
 import electronStore from '../../../shared/electronStore'
 import { Store } from '../reducers'
 import { registrationServiceAddress } from '../../../shared/static'
+import { DirectMessages } from '../handlers/directMessages'
 
 describe('createOwnCertificate', () => {
   const hiddenServices = {
@@ -31,13 +32,19 @@ describe('createOwnCertificate', () => {
     }
   }
 
+  const initialState: Partial<Store> = {
+    [StoreKeys.Certificates]: {
+      ...new CertificatesState()
+    },
+    [StoreKeys.DirectMessages]: {
+      ...new DirectMessages(),
+      publicKey: 'publicKey'
+    }
+  }
+
   test('creates user csr and sends request to register user certificate', async () => {
     await expectSaga(createOwnCertificate, { payload: 'name', type: certificatesActions.createOwnCertificate.type })
-      .withReducer(combineReducers({ [StoreKeys.Certificates]: certificatesReducer }), {
-        [StoreKeys.Certificates]: {
-          ...new CertificatesState()
-        }
-      })
+      .withReducer(combineReducers({ [StoreKeys.Certificates]: certificatesReducer }), initialState)
       .provide([
         [
           matchers.apply(electronStore, electronStore.get, ['hiddenServices']),
@@ -49,9 +56,12 @@ describe('createOwnCertificate', () => {
         ],
         [
           matchers.call(createUserCsr, {
-            commonName: hiddenServices.libp2pHiddenService.onionAddress,
+            commonName: 'onionAddress',
             peerId: 'peerId',
-            zbayNickname: 'name'
+            zbayNickname: 'name',
+            dmPublicKey: 'publicKey',
+            signAlg: 'ECDSA',
+            hashAlg: 'sha-256'
           }),
           user
         ]

@@ -1,13 +1,14 @@
-import { call, apply, all, takeEvery, put } from 'typed-redux-saga'
+import { call, apply, all, takeEvery, put, select } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
 
 import { certificatesActions } from './certificates.reducer'
-import { createUserCsr } from '@zbayapp/identity'
+import { createUserCsr, configCrypto } from '@zbayapp/identity'
 import electronStore from '../../../shared/electronStore'
 import { actions as identityActions } from '../handlers/identity'
 import { registrationServiceAddress } from '../../../shared/static'
 import notificationsHandlers from '../../store/handlers/notifications'
 import { successNotification } from '../handlers/utils'
+import directMessagesSelectors from '../selectors/directMessages'
 
 export function* responseGetCertificates(
   action: PayloadAction<ReturnType<typeof certificatesActions.responseGetCertificates>['payload']>
@@ -34,6 +35,10 @@ export function* responseGetCertificate(): Generator {
   )
 }
 
+function isString(value: unknown): value is string {
+  return typeof value === 'string'
+}
+
 export function* createOwnCertificate(
   action: PayloadAction<ReturnType<typeof certificatesActions.createOwnCertificate>['payload']>
 ): Generator {
@@ -50,15 +55,22 @@ export function* createOwnCertificate(
     ['hiddenServices']
   )
 
-  let peerIdAddress = yield* apply(electronStore, electronStore.get, ['peerId'])
-  if (!peerIdAddress) {
-    peerIdAddress = 'unknown'
+  const peerIdAddress = yield* apply(electronStore, electronStore.get, ['peerId'])
+
+  if (!isString(peerIdAddress)) {
+    console.log('invalid peer id address or not exist')
+    return
   }
+
+  const dmPublicKey = yield* select(directMessagesSelectors.publicKey)
 
   const userData = {
     zbayNickname: action.payload,
     commonName: hiddenServices.libp2pHiddenService.onionAddress,
-    peerId: peerIdAddress
+    peerId: peerIdAddress,
+    dmPublicKey: dmPublicKey,
+    signAlg: configCrypto.signAlg,
+    hashAlg: configCrypto.hashAlg
   }
 
   console.log('userData', userData)
@@ -71,6 +83,7 @@ export function* createOwnCertificate(
       userCsr: user.userCsr
     })
   )
+
   yield* put(certificatesActions.setOwnCertKey(user.userKey))
   console.log('After registering csr')
 }

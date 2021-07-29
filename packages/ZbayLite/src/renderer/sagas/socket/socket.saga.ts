@@ -22,7 +22,7 @@ import { ipcRenderer } from 'electron'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { encodeMessage, constants } from '../../cryptography/cryptography'
 import certificatesSelectors from '../../store/certificates/certificates.selector'
-import { extractPubKeyString, sign, loadPrivateKey, configCrypto } from '@zbayapp/identity'
+import { extractPubKeyString, sign, loadPrivateKey, configCrypto, CertFieldsTypes, parseCertificate } from '@zbayapp/identity'
 import { arrayBufferToString } from 'pvutils'
 import { actions as waggleActions } from '../../store/handlers/waggle'
 import directMessagesHandlers, { IConversation } from '../../store/handlers/directMessages'
@@ -108,7 +108,7 @@ export function* sendMessage(socket: Socket): Generator {
   const ownCertificate = yield* select(certificatesSelectors.ownCertificate)
   const ownPubKey = yield* call(extractPubKeyString, ownCertificate)
   const privKey = yield* select(certificatesSelectors.ownPrivKey)
-  const keyObject = yield* call(loadPrivateKey, privKey, configCrypto.signAlg, configCrypto.hashAlg)
+  const keyObject = yield* call(loadPrivateKey, privKey, configCrypto.signAlg)
   const signed = yield* call(sign, messageToSend, keyObject)
 
   const randomId = yield* call(createRandomId)
@@ -265,7 +265,7 @@ export function* sendDirectMessage(socket: Socket): Generator {
   const ownCertificate = yield* select(certificatesSelectors.ownCertificate)
   const ownPubKey = yield* call(extractPubKeyString, ownCertificate)
   const privKey = yield* select(certificatesSelectors.ownPrivKey)
-  const keyObject = yield* call(loadPrivateKey, privKey, configCrypto.signAlg, configCrypto.hashAlg)
+  const keyObject = yield* call(loadPrivateKey, privKey, configCrypto.signAlg)
   const signed = yield* call(sign, messageToSend, keyObject)
 
   const preparedMessage = {
@@ -319,7 +319,22 @@ export function* responseGetCertificates(socket: Socket): Generator {
 export function* addCertificate(): Generator {
   const hasCertyficate = yield* select(certificatesSelectors.ownCertificate)
   const nickname = yield* select(identitySelectors.nickName)
-  if (!hasCertyficate && nickname) {
+  let parsedCert
+  let updateCertificate = false
+
+  if (hasCertyficate) {
+    parsedCert = yield* call(parseCertificate, hasCertyficate)
+  }
+
+  const certFieldsArray = Object.keys(CertFieldsTypes)
+
+  for (let i = 0; i < certFieldsArray.length; i++) {
+    if (hasCertyficate && !parsedCert.subject.typesAndValues[i]) {
+      updateCertificate = true
+    }
+  }
+
+  if ((!hasCertyficate && nickname) || updateCertificate) {
     console.log('Calling createOwnCertificate')
     yield* put(certificatesActions.createOwnCertificate(nickname))
   }

@@ -10,7 +10,7 @@ import {
 import identity, { Identity } from '../../store/handlers/identity'
 import { Socket } from 'socket.io-client'
 import * as matchers from 'redux-saga-test-plan/matchers'
-import { extractPubKeyString } from '@zbayapp/identity'
+import { extractPubKeyString, parseCertificate } from '@zbayapp/identity'
 import { publicChannelsActions } from '../publicChannels/publicChannels.reducer'
 import channel, { Channel } from '../../store/handlers/channel'
 import { Socket as socketsActions } from '../const/actionsTypes'
@@ -73,6 +73,12 @@ describe('checkCertificatesSaga', () => {
         }
       }
     }
+
+    const parsedCert = {
+      subject: {
+        typesAndValues: ['commonName', 'zbayNickname', 'peerId', 'dmPublicKey'] // cert fields
+      }
+    }
     const runResult = await expectSaga(addCertificate)
       .withReducer(
         combineReducers({
@@ -81,6 +87,12 @@ describe('checkCertificatesSaga', () => {
         }),
         initialState
       )
+      .provide([
+        [
+          matchers.call(parseCertificate, 'some certificate'),
+          parsedCert
+        ]
+      ])
       .hasFinalState(initialState)
       .run()
 
