@@ -1,6 +1,6 @@
-import { createRootCA, RootCA } from "../generateRootCA"
-import { createUserCert } from "../generateUserCertificate"
-import { createUserCsr, UserCsr } from "../requestCertificate"
+import { createRootCA, RootCA } from '../generateRootCA'
+import { createUserCert, UserCert } from '../generateUserCertificate'
+import { createUserCsr, UserCsr } from '../requestCertificate'
 import config from '../config'
 import { Time } from 'pkijs'
 
@@ -16,15 +16,15 @@ export const userData = {
 const notBeforeDate = new Date()
 const notAfterDate = new Date(2030, 1, 1)
 
-export async function createTestRootCA(commonName?: string): Promise<RootCA> {
+export async function createTestRootCA (commonName?: string): Promise<RootCA> {
   return await createRootCA(new Time({ type: 1, value: notBeforeDate }), new Time({ type: 1, value: notAfterDate }), commonName)
 }
 
-export async function createTestUserCsr(): Promise<UserCsr> {
+export async function createTestUserCsr (): Promise<UserCsr> {
   return await createUserCsr(userData)
 }
 
-export async function createTestUserCert(rootCert?: RootCA, userCsr?: UserCsr) {
+export async function createTestUserCert (rootCert?: RootCA, userCsr?: UserCsr): Promise<UserCert> {
   const rootC = rootCert || await createTestRootCA()
   const user = userCsr || await createTestUserCsr()
   return await createUserCert(rootC.rootCertString, rootC.rootKeyString, user.userCsr, notBeforeDate, notAfterDate)
