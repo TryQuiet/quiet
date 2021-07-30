@@ -216,7 +216,7 @@
     "@types/node": "^14.14.35",
     "@types/ps-node": "^0.1.0",
     "@types/redux-debounced": "^0.2.19",
-    "@zbayapp/identity": "^3.0.3",
+    "@zbayapp/identity": "^3.1.0",
     "asn1js": "^2.1.1",
     "async": "^3.1.0",
     "atob": "^2.1.2",
