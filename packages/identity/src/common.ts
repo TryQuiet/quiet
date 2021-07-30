@@ -84,10 +84,10 @@ export const loadCSR = async (csr: string): Promise<CertificationRequest> => {
   return new CertificationRequest({ schema: asn1.result })
 }
 
-export const getCertFieldValue = (cert: Certificate, fieldType: CertFieldsTypes | ObjectIdentifier): string => {
+export const getCertFieldValue = (cert: Certificate, fieldType: CertFieldsTypes | ObjectIdentifier): string | null => {
   const block = cert.subject.typesAndValues.find((tav) => tav.type === fieldType)
   if (!block) {
-    throw new Error(`Field type ${fieldType} not found in certificate`)
+    return null
   }
   if (fieldType === CertFieldsTypes.dmPublicKey) {
     const arrayBuffer = block.value.valueBlock.valueHex
