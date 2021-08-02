@@ -21,12 +21,12 @@ import { messageType, actionTypes } from '../../../shared/static'
 import { ipcRenderer } from 'electron'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { encodeMessage, constants } from '../../cryptography/cryptography'
-import certificatesSelectors from '../../store/certificates/certificates.selector'
 import { extractPubKeyString, sign, loadPrivateKey, configCrypto, CertFieldsTypes, parseCertificate } from '@zbayapp/identity'
 import { arrayBufferToString } from 'pvutils'
 import { actions as waggleActions } from '../../store/handlers/waggle'
 import directMessagesHandlers, { IConversation } from '../../store/handlers/directMessages'
 import crypto from 'crypto'
+import certificatesSelector from '../../store/certificates/certificates.selector'
 
 export const connect = async (): Promise<Socket> => {
   const socket = io(config.socket.address)
@@ -57,18 +57,13 @@ export function subscribe(socket) {
     socket.on(socketsActions.RESPONSE_FETCH_ALL_DIRECT_MESSAGES, payload => {
       emit(directMessagesActions.responseLoadAllDirectMessages(payload))
     })
-    socket.on(socketsActions.RESPONSE_GET_AVAILABLE_USERS, payload => {
-      emit(directMessagesActions.responseGetAvailableUsers(payload))
-    })
     socket.on(socketsActions.RESPONSE_GET_PRIVATE_CONVERSATIONS, payload => {
       emit(directMessagesActions.responseGetPrivateConversations(payload))
     })
     socket.on(socketsActions.RESPONSE_GET_CERTIFICATE, payload => {
-      console.log('RESPONSE_GET_CERTIFICATE', payload)
       emit(certificatesActions.setOwnCertificate(payload))
     })
     socket.on(socketsActions.CERTIFICATE_REGISTRATION_ERROR, payload => {
-      console.log('CERTIFICATE_REGISTRATION_ERROR', payload)
       emit(certificatesActions.setRegistrationError(payload))
     })
     socket.on(socketsActions.RESPONSE_GET_CERTIFICATES, payload => {
@@ -105,9 +100,9 @@ export function* sendMessage(socket: Socket): Generator {
   const { address } = yield* select(channelSelectors.channel)
   const messageToSend = yield* select(channelSelectors.message)
 
-  const ownCertificate = yield* select(certificatesSelectors.ownCertificate)
+  const ownCertificate = yield* select(certificatesSelector.ownCertificate)
   const ownPubKey = yield* call(extractPubKeyString, ownCertificate)
-  const privKey = yield* select(certificatesSelectors.ownPrivKey)
+  const privKey = yield* select(certificatesSelector.ownPrivKey)
   const keyObject = yield* call(loadPrivateKey, privKey, configCrypto.signAlg)
   const signed = yield* call(sign, messageToSend, keyObject)
 
@@ -224,7 +219,7 @@ export function* sendDirectMessage(socket: Socket): Generator {
     const contactChannel = yield* select(channelSelectors.channel)
     const contactPublicKey = contactChannel.id
 
-    const myPublicKey = yield* select(identitySelectors.signerPubKey)
+    const myPublicKey = yield* select(certificatesSelector.ownPublicKey)
     const contactPubKey = yield* select(directMessagesSelectors.user(contactPublicKey))
     const halfKey = contactPubKey.halfKey
 
@@ -262,9 +257,9 @@ export function* sendDirectMessage(socket: Socket): Generator {
 
   const messageToSend = yield* select(channelSelectors.message)
 
-  const ownCertificate = yield* select(certificatesSelectors.ownCertificate)
+  const ownCertificate = yield* select(certificatesSelector.ownCertificate)
   const ownPubKey = yield* call(extractPubKeyString, ownCertificate)
-  const privKey = yield* select(certificatesSelectors.ownPrivKey)
+  const privKey = yield* select(certificatesSelector.ownPrivKey)
   const keyObject = yield* call(loadPrivateKey, privKey, configCrypto.signAlg)
   const signed = yield* call(sign, messageToSend, keyObject)
 
@@ -317,7 +312,7 @@ export function* responseGetCertificates(socket: Socket): Generator {
 }
 
 export function* addCertificate(): Generator {
-  const hasCertyficate = yield* select(certificatesSelectors.ownCertificate)
+  const hasCertyficate = yield* select(certificatesSelector.ownCertificate)
   const nickname = yield* select(identitySelectors.nickName)
   let parsedCert
   let updateCertificate = false

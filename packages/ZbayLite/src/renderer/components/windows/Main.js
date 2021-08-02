@@ -80,7 +80,7 @@ export const Main = ({
           </Grid>
           <Grid item xs>
             <Route path={`${match.url}/channel/:id`} component={Channel} />
-            <Route path={`${match.url}/direct-messages/:id/:username`} component={DirectMessages} />
+            <Route path={`${match.url}/direct-messages/:username`} component={DirectMessages} />
             <Route path={`${match.url}/offers/:id/:address`} component={Offer} />
           </Grid>
           {isLogWindowOpened && (

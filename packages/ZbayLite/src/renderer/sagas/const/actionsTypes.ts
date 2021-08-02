@@ -34,7 +34,6 @@ export enum Socket {
   RESPONSE_GET_PUBLIC_CHANNELS = 'responseGetPublicChannels',
   GET_AVAILABLE_USERS = 'getAvailableUsers',
   ADD_USER = 'addUser',
-  RESPONSE_GET_AVAILABLE_USERS = 'responseGetAvailableUsers',
   INITIALIZE_CONVERSATION = 'initializeConversation',
   SEND_DIRECT_MESSAGE = 'sendDirectMessage',
   GET_PRIVATE_CONVERSATIONS = 'getPrivateConversations',

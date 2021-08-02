@@ -40,7 +40,7 @@ export const displayDirectMessageNotification = async ({ message, username }) =>
     title: `New message from ${username || 'Unnamed'}`,
     body: `${message.message.substring(0, 64)}${message.message.length > 64 ? '...' : ''
       }`,
-    data: `/main/direct-messages/${message?.pubKey}/${username}`
+    data: `/main/direct-messages/${username}`
   })
 }
 // export const offerNotification = ({ message, username }) => {

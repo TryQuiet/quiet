@@ -87,7 +87,7 @@ describe('Channel selectors', () => {
     },
     channel: {
       spentFilterValue: {},
-      id: '',
+      id: 'anonfriend',
       message: {},
       shareableUri: '',
       address: '',
@@ -136,6 +136,16 @@ describe('Channel selectors', () => {
       ...initialState,
       waggle: {
         isWaggleConnected: true
+      },
+      directMessages: {
+        ...initialState.directMessages,
+        users: {
+          anonfriend: {
+            publicKey: 'friend',
+            nickname: 'anonfriend'
+          }
+
+        }
       }
     })
     expect(channelSelectors.inputLocked(store.getState())).toEqual(INPUT_STATE.USER_NOT_REGISTERED)

@@ -10,18 +10,18 @@ Object {
 
 exports[`ChannelInput will receive right props 1`] = `
 Object {
-  "channelName": "",
+  "channelName": "unknown",
   "contact": Contact {
     "address": "",
     "key": "",
     "messages": Array [],
     "newMessages": Array [],
     "typingIndicator": false,
-    "username": "",
+    "username": "unknown",
     "vaultMessages": Array [],
     Symbol(immer-draftable): true,
   },
-  "contactUsername": "",
+  "contactUsername": "unknown",
   "id": null,
   "inputLocked": 0,
   "inputState": 1,

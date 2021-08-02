@@ -41,7 +41,6 @@ describe('criticalError reducer', () => {
   describe('handles actions -', () => {
     it('loadVersion', () => {
       store.dispatch(handlers.actions.loadVersion())
-      console.log(selectors.version(store.getState()))
       expect(selectors.version(store.getState())).toMatchSnapshot()
     })
   })

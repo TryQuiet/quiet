@@ -41,19 +41,37 @@ export interface ContactsStore {
 const initialState: ContactsStore = {}
 
 const setMessages = createAction<{
-  messages: {
+  messages:
+  | {
     [key: string]: DisplayableMessage
-  } | DisplayableMessage[]
+  }
+  | DisplayableMessage[]
   contactAddress: string
   username: string
   key: string
 }>(actionTypes.SET_DIRECT_MESSAGES)
+const setChannelMessages = createAction<{
+  messages:
+  | {
+    [key: string]: DisplayableMessage
+  }
+  | DisplayableMessage[]
+  contactAddress: string
+  username: string
+  key: string
+}>(actionTypes.SET_CHANNEL_MESSAGES)
 const addContact = createAction<{
   offerId?: string
   contactAddress: string
   username: string
   key: string
 }>(actionTypes.ADD_CONTACT)
+const addDirectContact = createAction<{
+  offerId?: string
+  contactAddress: string
+  username: string
+  key: string
+}>(actionTypes.ADD_DIRECT_CONTACT)
 const addMessage = createAction<{
   key: string
   message: { [key: string]: DisplayableMessage }
@@ -92,10 +110,12 @@ const setContactConnected = createAction(actionTypes.SET_CONTACT_CONNECTED)
 
 export const actions = {
   setMessages,
+  setChannelMessages,
   setAllMessages,
   updateMessage,
   addMessage,
   addContact,
+  addDirectContact,
   setVaultMessages,
   cleanNewMessages,
   appendNewMessages,
@@ -109,6 +129,7 @@ export const actions = {
 export type ContactActions = ActionsType<typeof actions>
 
 export const loadContact = address => async (dispatch, getState) => {
+  console.log('loadContact')
   const contact = selectors.contact(address)(getState())
   dispatch(updateLastSeen({ contact }))
 }
@@ -117,8 +138,8 @@ export const updatePendingMessage = ({ key, id, txid }) => async dispatch => {
 }
 export const linkUserRedirect = contact => async (dispatch, getState) => {
   const contacts = selectors.contacts(getState())
-  if (contacts[contact.address]) {
-    history.push(`/main/direct-messages/${contact.address}/${contact.nickname}`)
+  if (contacts[contact.nickname]) {
+    history.push(`/main/direct-messages/${contact.nickname}`)
   }
   await dispatch(
     setUsernames({
@@ -128,14 +149,16 @@ export const linkUserRedirect = contact => async (dispatch, getState) => {
       }
     })
   )
-  history.push(`/main/direct-messages/${contact.address}/${contact.nickname}`)
+  history.push(`/main/direct-messages/${contact.nickname}`)
 }
 
 export const updateLastSeen = ({ contact }) => async (dispatch, getState) => {
+  console.log('updateLastSeen')
   const lastSeen = DateTime.utc()
   const unread = selectors.newMessages(contact.address)(getState()).length
   remote.app.badgeCount = remote.app.badgeCount - unread
-  dispatch(cleanNewMessages({ contactAddress: contact.key }))
+  dispatch(cleanNewMessages({ contactAddress: contact.username }))
+  dispatch(cleanNewMessages({ contactAddress: contact.address }))
   dispatch(
     setLastSeen({
       lastSeen,
@@ -149,9 +172,9 @@ export const createVaultContact = ({ contact, history, redirect = true }) => asy
   getState
 ) => {
   const contacts = selectors.contacts(getState())
-  if (!contacts[contact.publicKey]) {
+  if (!contacts[contact.nickname]) {
     await dispatch(
-      addContact({
+      addDirectContact({
         key: contact.publicKey,
         username: contact.nickname,
         contactAddress: contact.address
@@ -159,7 +182,7 @@ export const createVaultContact = ({ contact, history, redirect = true }) => asy
     )
   }
   if (redirect) {
-    history.push(`/main/direct-messages/${contact.publicKey}/${contact.nickname}`)
+    history.push(`/main/direct-messages/${contact.nickname}`)
   }
 }
 
@@ -181,6 +204,29 @@ export const reducer = handleActions<ContactsStore, PayloadType<ContactActions>>
     [setMessages.toString()]: (
       state,
       { payload: { key, username, contactAddress, messages } }: ContactActions['setMessages']
+    ) =>
+      produce(state, draft => {
+        if (!draft[username]) {
+          draft[username] = {
+            lastSeen: null,
+            messages: [],
+            newMessages: [],
+            vaultMessages: [],
+            offerId: null,
+            key,
+            address: contactAddress,
+            username,
+            typingIndicator: false
+          }
+        }
+        draft[username].messages = {
+          ...draft[username].messages,
+          ...messages
+        }
+      }),
+    [setChannelMessages.toString()]: (
+      state,
+      { payload: { key, username, contactAddress, messages } }: ContactActions['setChannelMessages']
     ) =>
       produce(state, draft => {
         if (!draft[key]) {
@@ -228,7 +274,28 @@ export const reducer = handleActions<ContactsStore, PayloadType<ContactActions>>
       { payload: { key, username, contactAddress, offerId = null } }: ContactActions['addContact']
     ) =>
       produce(state, draft => {
+        if (key === 'zbay') return
         draft[key] = {
+          lastSeen: null,
+          messages: [],
+          newMessages: [],
+          vaultMessages: [],
+          offerId: offerId,
+          key,
+          address: contactAddress,
+          username,
+          typingIndicator: false
+        }
+      }),
+    [addDirectContact.toString()]: (
+      state,
+      {
+        payload: { key, username, contactAddress, offerId = null }
+      }: ContactActions['addDirectContact']
+    ) =>
+      produce(state, draft => {
+        if (username === 'zbay') return
+        draft[username] = {
           lastSeen: null,
           messages: [],
           newMessages: [],
@@ -264,6 +331,7 @@ export const reducer = handleActions<ContactsStore, PayloadType<ContactActions>>
       { payload: { contactAddress } }: ContactActions['cleanNewMessages']
     ) =>
       produce(state, draft => {
+        if (!draft[contactAddress]) return
         draft[contactAddress].newMessages = []
       }),
     [appendNewMessages.toString()]: (

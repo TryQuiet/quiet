@@ -16,7 +16,7 @@ Object {
     "messages": Array [],
     "newMessages": Array [],
     "typingIndicator": false,
-    "username": "",
+    "username": "unknown",
     "vaultMessages": Array [],
     Symbol(immer-draftable): true,
   },

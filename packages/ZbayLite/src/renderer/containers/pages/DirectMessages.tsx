@@ -21,11 +21,11 @@ const DirectMessages = ({
 }) => {
   useEffect(
     () => {
-      loadChannel(match.params.id)
+      loadChannel(match.params.username)
     },
-    [match.params.id]
+    [match.params.username]
   )
-  return <ChannelComponent channelType={CHANNEL_TYPE.DIRECT_MESSAGE} contactId={match.params.id} />
+  return <ChannelComponent channelType={CHANNEL_TYPE.DIRECT_MESSAGE} contactId={match.params.username} />
 }
 
 export default R.compose(

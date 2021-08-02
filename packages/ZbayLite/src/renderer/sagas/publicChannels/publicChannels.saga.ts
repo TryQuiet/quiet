@@ -34,12 +34,10 @@ export function* loadMessage(action: PublicChannelsActions['loadMessage']): Gene
   }
 
   if (foundMessage && myUser.nickname !== foundMessage.userInfo.username) { ///
-    console.log('siema', myUser.nickname, foundMessage.userInfo.username)
     yield* call(displayDirectMessageNotification, {
       username: foundMessage.userInfo.username,
       message: message
     })
-    console.log(' action.payload.channelAddress', action.payload.channelAddress)
     yield put(
       actions.appendNewMessages({
         contactAddress: action.payload.channelAddress,
@@ -98,7 +96,7 @@ export function* loadAllMessages(
   })
 
   yield put(
-    contactsHandlers.actions.setMessages({
+    contactsHandlers.actions.setChannelMessages({
       key: action.payload.channelAddress,
       username: username,
       contactAddress: action.payload.channelAddress,

@@ -97,6 +97,7 @@ export const actions = {
 export type ChannelActions = ActionsType<typeof actions>
 
 const loadChannel = key => async (dispatch, getState) => {
+  console.log('loadChannel', key)
   try {
     dispatch(setChannelId(key))
     dispatch(setDisplayableLimit(30))
@@ -105,6 +106,7 @@ const loadChannel = key => async (dispatch, getState) => {
     remote.app.setBadgeCount(remote.app.getBadgeCount() - unread)
     electronStore.set(`lastSeen.${key}`, `${Math.floor(DateTime.utc().toSeconds())}`)
     dispatch(setAddress(contact.address))
+    dispatch(contactsHandlers.actions.cleanNewMessages({ contactAddress: contact.key }))
     dispatch(contactsHandlers.actions.cleanNewMessages({ contactAddress: key }))
   } catch (err) { }
 }

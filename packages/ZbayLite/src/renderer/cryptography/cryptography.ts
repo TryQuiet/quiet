@@ -15,6 +15,9 @@ export const encodeMessage = (sharedSecret: string, message: string): string => 
   const ENC_KEY = Buffer.from(sharedSecret.substring(0, 64), 'hex')
   const IV = Buffer.from(constants.IVO, 'hex')
 
+  console.log(ENC_KEY, 'encky')
+  console.log(sharedSecret, 'shared')
+
   const cipher = crypto.createCipheriv('aes-256-cbc', ENC_KEY, IV)
   let encrypted = cipher.update(message, 'utf8', 'base64')
   encrypted += cipher.final('base64')
@@ -44,7 +47,6 @@ export const checkConversation = (
 ): IConversation | null => {
   const dh = crypto.createDiffieHellman(constants.prime, 'hex', constants.generator, 'hex')
   dh.setPrivateKey(privKey, 'hex')
-  console.log(id)
   const sharedSecret = dh.computeSecret(id, 'hex').toString('hex')
   let decodedMessage = null
   try {

@@ -75,19 +75,22 @@ export function* loadAllDirectMessages(
   const contact = conversation[0]
   const contactPublicKey = contact.contactPublicKey
   const sharedSecret = contact.sharedSecret
-  const channel = yield* select(contactsSelectors.contact(contactPublicKey))
+  let user = yield* select(directMessagesSelectors.userByPublicKey(contactPublicKey))
+  if (!user) {
+    user = yield* select(directMessagesSelectors.user(contactPublicKey))
+  }
+  if (!user) return
+  const channel = yield* select(contactsSelectors.contact(user.nickname))
+
   if (!channel) {
     log.error(`Couldn't load all messages. No channel ${action.payload.channelAddress} in contacts`)
     return
   }
 
   const { username } = channel
-
   let newMessages = []
-  console.time('sorting')
   const ids = Array.from(Object.keys(channel.messages))
   newMessages = action.payload.messages.filter(id => !ids.includes(id))
-  console.timeEnd('sorting')
 
   const displayableMessages = {}
   if (username && newMessages) {
@@ -97,7 +100,7 @@ export function* loadAllDirectMessages(
       displayableMessages[msg] = decodedMessage
       latestMessage = decodedMessage
     })
-    yield put(
+    yield* put(
       contactsHandlers.actions.setMessages({
         key: contactPublicKey,
         username: username,
@@ -106,46 +109,23 @@ export function* loadAllDirectMessages(
       })
     )
     const myUser = yield* select(usersSelectors.myUser)
-    const messagesWithInfo = yield* select(contactsSelectors.messagesOfChannelWithUserInfo)
 
-    let foundMessage
-    if (latestMessage !== null) {
-      foundMessage = messagesWithInfo.find((item) => {
-        return item.message.id === latestMessage.id
-      })
+    let messageSender = null
+    if (latestMessage) {
+      messageSender = yield* select(directMessagesSelectors.userByPublicKey(latestMessage.pubKey))
     }
 
-    if (latestMessage && foundMessage.userInfo.username !== myUser.nickname) {
+    if (latestMessage && (messageSender?.nickname !== myUser.nickname) && (messageSender?.nickname !== channel.username)) {
       yield* call(displayDirectMessageNotification, {
-        username: foundMessage.userInfo.username,
+        username: username,
         message: latestMessage
       })
     }
 
     yield put(
       contactsActions.appendNewMessages({
-        contactAddress: contactPublicKey,
+        contactAddress: username,
         messagesIds: Array.from(Object.keys(displayableMessages))
-      })
-    )
-  }
-}
-
-export function* responseGetAvailableUsers(
-  action: DirectMessagesActions['responseGetAvailableUsers']
-): Generator {
-  for (const [key, value] of Object.entries(action.payload)) {
-    // const user = yield* select(usersSelectors.registeredUser(key))
-
-    yield put(
-      actions.fetchUsers({
-        usersList: {
-          [key]: {
-            publicKey: key,
-            halfKey: value.halfKey,
-            nickname: `anon${key.substring(0, 8)}`
-          }
-        }
       })
     )
   }
@@ -164,13 +144,13 @@ export function* responseGetPrivateConversations(
     const conversation = checkConversation(key, value, privKey)
 
     if (conversation) {
-      const user = yield* select(usersSelectors.registeredUser(conversation.contactPublicKey))
-      if (!contacts[conversation.contactPublicKey]) {
+      const user = yield* select(directMessagesSelectors.userByPublicKey(conversation.contactPublicKey))
+      if (!contacts[user.nickname]) {
         yield put(
-          contactsActions.addContact({
+          contactsActions.addDirectContact({
             key: conversation.contactPublicKey,
-            username: user?.nickname || `anon${conversation.contactPublicKey.substring(0, 8)}`,
-            contactAddress: user?.address || ''
+            username: user.nickname,
+            contactAddress: ''
           })
         )
       }
@@ -190,7 +170,6 @@ export function* responseGetPrivateConversations(
 
 export function* directMessagesSaga(): Generator {
   yield all([
-    takeEvery(`${directMessagesActions.responseGetAvailableUsers}`, responseGetAvailableUsers),
     takeEvery(
       `${directMessagesActions.responseGetPrivateConversations}`,
       responseGetPrivateConversations

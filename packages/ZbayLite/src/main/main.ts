@@ -281,7 +281,6 @@ app.on('ready', async () => {
   mainWindow.webContents.on('did-finish-load', async () => {
     tor = await spawnTor()
     waggleProcess = await runWaggle(mainWindow.webContents)
-    console.log(waggleProcess)
     if (process.platform === 'win32' && process.argv) {
       const payload = process.argv[1]
       if (payload) {
@@ -301,7 +300,6 @@ app.on('ready', async () => {
   })
 
   // Temporary disable ZCASH
-  console.log('starting client')
   const client = new Client()
   const response = await client.postMessage('1', 'balance')
   // @ts-expect-error

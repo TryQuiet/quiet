@@ -14,37 +14,26 @@ import channelSelector from '../selectors/channel'
 
 const contacts = (s: Store) => s.contacts
 
-const contactExists = (address: string) => createSelector(contacts, allContacts => {
-  return Object.keys(allContacts).includes(address)
-})
+const contactExists = (address: string) =>
+  createSelector(contacts, allContacts => {
+    return Object.keys(allContacts).includes(address)
+  })
 
-const publicChannelsContacts = createSelector(contacts, publicChannelsSelectors.publicChannels, (allContacts, publicChannels) => {
-  const pChannels = Object.values(publicChannels).map(pc => pc.address)
-  return Object.values(allContacts).filter(contact => pChannels.includes(contact.address))
-})
+const publicChannelsContacts = createSelector(
+  contacts,
+  publicChannelsSelectors.publicChannels,
+  (allContacts, publicChannels) => {
+    const pChannels = Object.values(publicChannels).map(pc => pc.address)
+    return Object.values(allContacts).filter(contact => pChannels.includes(contact.address))
+  }
+)
 
 const contactsList = createSelector(
   contacts,
   identitySelectors.removedChannels,
   usersSelectors.users,
-  (contacts, removedChannels, users) => {
-    return Array.from(Object.values(contacts))
-      .map(contact => {
-        const user = users[contact.key]
-        if (!contact.address && user) {
-          return {
-            ...contact,
-            messages: messages,
-            address: user.address || contact.address,
-            username: user.nickname || contact.username
-          }
-        } else {
-          return contact
-        }
-      })
-      .filter(
-        c => c.key.length === 66 && c.offerId === null && !removedChannels.includes(c.address)
-      )
+  (contacts) => {
+    return Array.from(Object.values(contacts)).filter(c => !c.address)
   }
 )
 
@@ -78,21 +67,14 @@ const directMessagesContact = address =>
   createSelector(contacts, c => Array.from(Object.values(c)).find(el => el.address === address))
 
 const contact = address =>
-  createSelector(contacts, usersSelectors.users, (c, u) => {
+  createSelector(contacts, usersSelectors.users, (c) => {
     if (!c[address]) {
-      return new Contact()
+      return new Contact({ username: 'unknown' })
     } else {
-      if (!c[address].address) {
-        return {
-          ...c[address],
-          address: u[address]?.address,
-          username: u[address]?.nickname || c[address].username
-        }
-      } else {
-        return c[address]
-      }
+      return c[address]
     }
-  })
+  }
+  )
 
 const messagesSorted = address =>
   createSelector(contact(address), usersSelectors.users, (c, u) => {
@@ -188,38 +170,42 @@ const currentChannel = createSelector(
   }
 )
 
-const allChannels = createSelector(
-  contacts,
-  (contacts) => {
-    return contacts
-  }
-)
+const allChannels = createSelector(contacts, contacts => {
+  return contacts
+})
 
 const usersCertificateMapping = createSelector(
   certificatesSelector.usersCertificates,
-  (certificates) => {
-    return certificates.reduce<{ [pubKey: string]: { username: string; onionAddress: string; peerId: string; dmPubKey: string } }>((acc, current) => {
+  certificates => {
+    return certificates.reduce<{
+      [pubKey: string]: {
+        username: string
+        onionAddress: string
+        peerId: string
+        dmPublicKey: string
+      }
+    }>((acc, current) => {
       let parsedCerficated
       let certObject
       let nickname = null
       let onionAddress = null
       let peerId = null
-      let dmPubKey = null
+      let dmPublicKey = null
       if (current !== null && current) {
         parsedCerficated = extractPubKeyString(current)
         certObject = loadCertificate(current)
         nickname = getCertFieldValue(certObject, CertFieldsTypes.nickName)
         onionAddress = getCertFieldValue(certObject, CertFieldsTypes.commonName)
         peerId = getCertFieldValue(certObject, CertFieldsTypes.peerId)
-        dmPubKey = getCertFieldValue(certObject, CertFieldsTypes.dmPublicKey)
+        dmPublicKey = getCertFieldValue(certObject, CertFieldsTypes.dmPublicKey)
       }
       acc[parsedCerficated] = {
         username: nickname,
         onionAddress: onionAddress,
         peerId: peerId,
-        dmPubKey: dmPubKey
+        dmPublicKey
       }
-      if (nickname && onionAddress && peerId && dmPubKey) {
+      if (nickname && onionAddress && peerId && dmPublicKey) {
         return acc
       }
     }, {})
@@ -227,138 +213,140 @@ const usersCertificateMapping = createSelector(
 )
 
 export const allMessagesOfChannelsWithUserInfo = createSelector(
-  allChannels, usersCertificateMapping,
+  allChannels,
+  usersCertificateMapping,
   (allChannels, usersCertificateMapping) => {
     if (!allChannels) return []
 
     const channelsKeysArray = Object.keys(allChannels)
 
-    return channelsKeysArray.map((item) => {
+    return channelsKeysArray.map(item => {
       const messagesArray = Object.values(allChannels[item].messages)
-      return messagesArray.map(
-        message => {
+      return messagesArray
+        .map(message => {
           if (usersCertificateMapping[message.pubKey]) {
             const userInfo = usersCertificateMapping[message.pubKey]
             if (userInfo.onionAddress !== null) {
-              return ({ message, userInfo: userInfo })
+              return { message, userInfo: userInfo }
             }
           }
-        }
-      ).filter((item) => item !== undefined)
+        })
+        .filter(item => item !== undefined)
     })
   }
 )
 
 export const messagesOfChannelWithUserInfo = createSelector(
-  currentChannel, usersCertificateMapping,
+  currentChannel,
+  usersCertificateMapping,
   (currentChannel, usersCertificateMapping) => {
     if (!currentChannel) return []
     const messagesArray = Object.values(currentChannel.messages)
-    return messagesArray.map(
-      message => {
+    return messagesArray
+      .map(message => {
         if (usersCertificateMapping[message.pubKey]) {
           const userInfo = usersCertificateMapping[message.pubKey]
-          if (userInfo.onionAddress !== null && userInfo.dmPubKey !== null) {
+          if (userInfo.onionAddress !== null && userInfo.dmPublicKey !== null) {
             return ({ message, userInfo: userInfo })
           }
-        } else if (message.pubKey === 'holmesMessagesFromStart') {
-          return ({ message, userInfo: { username: 'holmes', onionAddress: '', peerId: '' } })
         }
-      }
-    ).filter((item) => item !== undefined)
+      })
+      .filter(item => item !== undefined)
   }
 )
 
-export const directMessages = address => createSelector(
-  messagesOfChannelWithUserInfo,
-  channelOwner(address),
-  (messagesWithUserInfo, channelOwner): IDirectMessage => {
-    const messagesObjectsArray = messagesWithUserInfo.map((message) => {
-      const newMessage = {
-        ...message.message,
-        createdAt: Math.floor(message.message.createdAt),
-        sender: {
-          username: message.userInfo ? message.userInfo.username : 'unNamed',
-          replyTo: ''
+export const directMessages = address =>
+  createSelector(
+    messagesOfChannelWithUserInfo,
+    channelOwner(address),
+    (messagesWithUserInfo, channelOwner): IDirectMessage => {
+      const messagesObjectsArray = messagesWithUserInfo.map(message => {
+        const newMessage = {
+          ...message.message,
+          createdAt: Math.floor(message.message.createdAt),
+          sender: {
+            username: message.userInfo ? message.userInfo.username : 'unNamed',
+            replyTo: ''
+          }
+        }
+        return newMessage
+      })
+      const sortedMessages = messagesObjectsArray
+        .sort((a, b) => {
+          return b.createdAt - a.createdAt
+        })
+        .map(message => message)
+
+      const messages = sortedMessages
+
+      const channelModerators = []
+      const messsagesToRemove: DisplayableMessage[] = []
+      const blockedUsers = []
+      let visibleMessages: DisplayableMessage[] = []
+      for (const msg of messages.reverse()) {
+        switch (msg.type) {
+          case MessageType.AD:
+            if (!blockedUsers.includes(msg.pubKey)) {
+              visibleMessages.push(msg)
+            }
+            break
+          case MessageType.BASIC:
+            if (!blockedUsers.includes(msg.pubKey)) {
+              visibleMessages.push(msg)
+            }
+            break
+          case MessageType.TRANSFER:
+            if (!blockedUsers.includes(msg.pubKey)) {
+              visibleMessages.push(msg)
+            }
+            break
+          case MessageType.MODERATION:
+            const senderPk = msg.pubKey
+            const moderationType = msg.message.moderationType
+            const moderationTarget = msg.message.moderationTarget
+            if (channelOwner === senderPk && moderationType === 'ADD_MOD') {
+              channelModerators.push(moderationTarget)
+            } else if (channelOwner === senderPk && moderationType === 'REMOVE_MOD') {
+              const indexToRemove = channelModerators.findIndex(el => el === moderationTarget)
+              if (indexToRemove !== -1) {
+                channelModerators.splice(indexToRemove, 1)
+              }
+            } else if (
+              (channelOwner === senderPk || channelModerators.includes(senderPk)) &&
+              moderationType === 'BLOCK_USER'
+            ) {
+              blockedUsers.push(moderationTarget)
+              visibleMessages = visibleMessages.filter(msg => !blockedUsers.includes(msg.pubKey))
+            } else if (
+              (channelOwner === senderPk || channelModerators.includes(senderPk)) &&
+              moderationType === 'UNBLOCK_USER'
+            ) {
+              const indexToRemove = blockedUsers.findIndex(el => el === moderationTarget)
+              if (indexToRemove !== -1) {
+                blockedUsers.splice(indexToRemove, 1)
+              }
+            } else if (
+              (channelOwner === senderPk || channelModerators.includes(senderPk)) &&
+              moderationType === 'REMOVE_MESSAGE'
+            ) {
+              const indexToRemove = visibleMessages.findIndex(el => el.id === moderationTarget)
+              if (indexToRemove !== -1) {
+                visibleMessages.splice(indexToRemove, 1)
+              }
+            } else {
+            }
+            break
         }
       }
-      return newMessage
-    })
-    const sortedMessages = messagesObjectsArray.sort((a, b) => {
-      return b.createdAt - a.createdAt
-    })
-      .map(message => message)
-
-    const messages = sortedMessages
-
-    const channelModerators = []
-    const messsagesToRemove: DisplayableMessage[] = []
-    const blockedUsers = []
-    let visibleMessages: DisplayableMessage[] = []
-    for (const msg of messages.reverse()) {
-      switch (msg.type) {
-        case MessageType.AD:
-          if (!blockedUsers.includes(msg.pubKey)) {
-            visibleMessages.push(msg)
-          }
-          break
-        case MessageType.BASIC:
-          if (!blockedUsers.includes(msg.pubKey)) {
-            visibleMessages.push(msg)
-          }
-          break
-        case MessageType.TRANSFER:
-          if (!blockedUsers.includes(msg.pubKey)) {
-            visibleMessages.push(msg)
-          }
-          break
-        case MessageType.MODERATION:
-          const senderPk = msg.pubKey
-          const moderationType = msg.message.moderationType
-          const moderationTarget = msg.message.moderationTarget
-          if (channelOwner === senderPk && moderationType === 'ADD_MOD') {
-            channelModerators.push(moderationTarget)
-          } else if (channelOwner === senderPk && moderationType === 'REMOVE_MOD') {
-            const indexToRemove = channelModerators.findIndex(el => el === moderationTarget)
-            if (indexToRemove !== -1) {
-              channelModerators.splice(indexToRemove, 1)
-            }
-          } else if (
-            (channelOwner === senderPk || channelModerators.includes(senderPk)) &&
-            moderationType === 'BLOCK_USER'
-          ) {
-            blockedUsers.push(moderationTarget)
-            visibleMessages = visibleMessages.filter(msg => !blockedUsers.includes(msg.pubKey))
-          } else if (
-            (channelOwner === senderPk || channelModerators.includes(senderPk)) &&
-            moderationType === 'UNBLOCK_USER'
-          ) {
-            const indexToRemove = blockedUsers.findIndex(el => el === moderationTarget)
-            if (indexToRemove !== -1) {
-              blockedUsers.splice(indexToRemove, 1)
-            }
-          } else if (
-            (channelOwner === senderPk || channelModerators.includes(senderPk)) &&
-            moderationType === 'REMOVE_MESSAGE'
-          ) {
-            const indexToRemove = visibleMessages.findIndex(el => el.id === moderationTarget)
-            if (indexToRemove !== -1) {
-              visibleMessages.splice(indexToRemove, 1)
-            }
-          } else {
-          }
-          break
+      const result: IDirectMessage = {
+        channelModerators,
+        messsagesToRemove,
+        blockedUsers,
+        visibleMessages: mergeIntoOne(visibleMessages.reverse())
       }
+      return result
     }
-    const result: IDirectMessage = {
-      channelModerators,
-      messsagesToRemove,
-      blockedUsers,
-      visibleMessages: mergeIntoOne(visibleMessages.reverse())
-    }
-    return result
-  }
-)
+  )
 
 export default {
   contacts,
@@ -383,5 +371,6 @@ export default {
   unknownMessages,
   allMessagesTxnId,
   messagesOfChannelWithUserInfo,
-  allMessagesOfChannelsWithUserInfo
+  allMessagesOfChannelsWithUserInfo,
+  usersCertificateMapping
 }

@@ -22,7 +22,7 @@ export const actionTypes = mirrorKey({
   SET_DECODING_CHANNEL: undefined,
   SET_DECODING_ERROR: undefined,
   CLEAR_CHANNEL: undefined,
-
+  SET_CHANNEL_MESSAGES: undefined,
   SET_APP_VERSION: undefined,
   SET_TRANSFERS: undefined,
   SET_USE_TOR: undefined,
@@ -189,7 +189,8 @@ export const actionTypes = mirrorKey({
   SET_IS_WAGGLE_CONNECTED: undefined,
   SET_OWN_CERTIFICATE: undefined,
   SET_OWN_CERT_KEY: undefined,
-  SET_USERS_CERTIFICATES: undefined
+  SET_USERS_CERTIFICATES: undefined,
+  ADD_DIRECT_CONTACT: undefined
 })
 
 export const moderationActionsType = {

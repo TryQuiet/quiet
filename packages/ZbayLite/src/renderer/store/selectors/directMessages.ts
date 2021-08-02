@@ -1,35 +1,22 @@
 import { createSelector } from 'reselect'
-import usersSelectors from './users'
 import { Store } from '../reducers'
 
 const directMessages = (s: Store) => s.directMessages
 
-export const users = createSelector(directMessages, usersSelectors.users, (d, users) => {
-  const usrs: typeof d.users = {}
-  if (d.users) {
-    Object.entries(d.users).map((user) => {
-      const [publicKey, userData] = user
-      usrs[publicKey] =
-      {
-        publicKey,
-        halfKey: userData.halfKey,
-        nickname: users[publicKey]?.nickname || userData.nickname
-
-      }
-    })
-  }
-  return usrs
+export const users = createSelector(directMessages, (d) => {
+  return d.users
 })
 
 export const user = (publicKey) => createSelector(users, (d) => {
   return d[publicKey]
 })
+export const userByPublicKey = (publicKey) => createSelector(users, (d) => {
+  return Array.from(Object.values(d)).find(u => u.publicKey === publicKey)
+})
 
 export const publicKey = createSelector(directMessages, d => d.publicKey)
 export const privateKey = createSelector(directMessages, d => d.privateKey)
-
 export const conversations = createSelector(directMessages, d => d.conversations)
-
 export const conversationsList = createSelector(directMessages, d => d.conversationsList)
 
 export default {
@@ -38,5 +25,6 @@ export default {
   publicKey,
   privateKey,
   conversations,
-  conversationsList
+  conversationsList,
+  userByPublicKey
 }

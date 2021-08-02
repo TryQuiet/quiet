@@ -32,7 +32,7 @@ export const BaseChannelsList = ({
         .filter(ch => ch.username !== unknownUserId)
         .map(channel => (
           <ChannelsListItem
-            key={channel.key}
+            key={channel.username}
             channel={channel}
             directMessages={directMessages}
             selected={selected}
