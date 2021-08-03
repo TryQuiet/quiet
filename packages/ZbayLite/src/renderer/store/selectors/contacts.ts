@@ -199,15 +199,15 @@ const usersCertificateMapping = createSelector(
         peerId = getCertFieldValue(certObject, CertFieldsTypes.peerId)
         dmPublicKey = getCertFieldValue(certObject, CertFieldsTypes.dmPublicKey)
       }
-      acc[parsedCerficated] = {
-        username: nickname,
-        onionAddress: onionAddress,
-        peerId: peerId,
-        dmPublicKey
-      }
       if (nickname && onionAddress && peerId && dmPublicKey) {
-        return acc
+        acc[parsedCerficated] = {
+          username: nickname,
+          onionAddress: onionAddress,
+          peerId: peerId,
+          dmPublicKey
+        }
       }
+      return acc
     }, {})
   }
 )

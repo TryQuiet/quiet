@@ -312,24 +312,24 @@ export function* responseGetCertificates(socket: Socket): Generator {
 }
 
 export function* addCertificate(): Generator {
-  const hasCertyficate = yield* select(certificatesSelector.ownCertificate)
+  const hasCertificate = yield* select(certificatesSelector.ownCertificate)
   const nickname = yield* select(identitySelectors.nickName)
   let parsedCert
   let updateCertificate = false
 
-  if (hasCertyficate) {
-    parsedCert = yield* call(parseCertificate, hasCertyficate)
+  if (hasCertificate) {
+    parsedCert = yield* call(parseCertificate, hasCertificate)
   }
 
   const certFieldsArray = Object.keys(CertFieldsTypes)
 
   for (let i = 0; i < certFieldsArray.length; i++) {
-    if (hasCertyficate && !parsedCert.subject.typesAndValues[i]) {
+    if (hasCertificate && !parsedCert.subject.typesAndValues[i]) {
       updateCertificate = true
     }
   }
 
-  if ((!hasCertyficate && nickname) || updateCertificate) {
+  if ((!hasCertificate && nickname) || updateCertificate) {
     console.log('Calling createOwnCertificate')
     yield* put(certificatesActions.createOwnCertificate(nickname))
   }
