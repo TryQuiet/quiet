@@ -6,6 +6,13 @@
 * Extracted waggle handling logic to separate function
 * Changed a way main process is terminating
 * [Performance] Removed excess decryption from checking conversations -->
+# [3.5.1] 03 August 2021
+
+## Fix
+
+* Restored links functionality.
+* Channels are scrolled to bottom on channel change.
+
 # [3.5.0] - 30 July 2021
 
 ## Fix

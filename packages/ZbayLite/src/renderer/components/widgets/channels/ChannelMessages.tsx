@@ -150,7 +150,9 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
   useEffect(() => {
     /** Scroll to the bottom on entering the channel or resizing window */
     if (scrollbarRef.current && (scrollPosition === -1 || scrollPosition === 1)) {
-      scrollbarRef.current.scrollToBottom()
+      setTimeout(() => {
+        scrollbarRef.current.scrollToBottom()
+      })
     }
     const eventListener = () => {
       if (scrollbarRef.current) scrollbarRef.current.scrollToBottom()
