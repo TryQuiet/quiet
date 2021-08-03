@@ -109,14 +109,14 @@ const checkLinking = (
             textDecoration: 'none'
           }}
           key={index}
-          // onClick={e => {
-          //   e.preventDefault()
-          //   if (allowAll || whitelisted.includes(new URL(part).hostname)) {
-          //     shell.openExternal(part)
-          //     return
-          //   }
-          //   openExternalLink(part)
-          // }}
+          onClick={e => {
+            e.preventDefault()
+            if (allowAll || whitelisted.includes(new URL(part).hostname)) {
+              shell.openExternal(part)
+              return
+            }
+            openExternalLink(part)
+          }}
           href={''}
         >
           {part}
@@ -270,11 +270,11 @@ export const ChannelMessage = ({
       )
     )
   }, [messageData, whitelisted, allowAll])
-  // React.useEffect(() => {
-  //   if (allowAll || whitelisted.includes(imageUrl)) {
-  //     setShowImage(true)
-  //   }
-  // }, [imageUrl])
+  React.useEffect(() => {
+    if (allowAll || whitelisted.includes(imageUrl)) {
+      setShowImage(true)
+    }
+  }, [imageUrl])
   const [actionsOpen, setActionsOpen] = useState(false)
   return (
     <BasicMessage
@@ -297,13 +297,13 @@ export const ChannelMessage = ({
           className={classes.imagePlaceholder}
           justify='center'
           spacing={0}
-          // onClick={() => {
-          //   if (whitelisted.includes(new URL(imageUrl).hostname)) {
-          //     setShowImage(true)
-          //   } else {
-          //     setOpenModal(true)
-          //   }
-          // }}
+          onClick={() => {
+            if (whitelisted.includes(new URL(imageUrl).hostname)) {
+              setShowImage(true)
+            } else {
+              setOpenModal(true)
+            }
+          }}
         >
           <Grid item className={classes.imagePlacegolderDiv}>
             <Icon className={classes.imagePlacegolder} src={imagePlacegolder} />

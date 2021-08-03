@@ -6,20 +6,22 @@ import { bindActionCreators } from 'redux'
 import SecurityComponent from '../../../components/widgets/settings/Security'
 import modalsHandlers from '../../../store/handlers/modals'
 import electronStore from '../../../../shared/electronStore'
+import whitelistSelector from '../../../store/selectors/whitelist'
+import whitelistHandlers from '../../../store/handlers/whitelist'
 
-export const mapStateToProps = _state => ({
-  // allowAll: whitelistSelector.allowAll(state),
-  // whitelisted: whitelistSelector.whitelisted(state),
-  // autoload: whitelistSelector.autoload(state),
+export const mapStateToProps = state => ({
+  allowAll: whitelistSelector.allowAll(state),
+  whitelisted: whitelistSelector.whitelisted(state),
+  autoload: whitelistSelector.autoload(state)
   // useTor: appSelectors.useTor(state)
 })
 
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      // toggleAllowAll: whitelistHandlers.epics.setWhitelistAll,
-      // removeImageHost: whitelistHandlers.epics.removeImageHost,
-      // removeSiteHost: whitelistHandlers.epics.removeSiteHost,
+      toggleAllowAll: whitelistHandlers.epics.setWhitelistAll,
+      removeImageHost: whitelistHandlers.epics.removeImageHost,
+      removeSiteHost: whitelistHandlers.epics.removeSiteHost,
       // onRescan: appHandlers.epics.restartAndRescan,
       openSeedModal: modalsHandlers.actionCreators.openModal('seedModal')
     },

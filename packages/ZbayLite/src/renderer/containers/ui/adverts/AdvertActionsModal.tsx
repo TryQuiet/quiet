@@ -8,12 +8,12 @@ import { withModal, actionCreators } from '../../../store/handlers/modals'
 import AdvertActionsComponent from '../../../components/ui/adverts/AdvertActionModal'
 import modalsSelectors from '../../../store/selectors/modals'
 // import offersHandlers from '../../../store/handlers/offers'
-// import whitelistSelectors from '../../../store/selectors/whitelist'
+import whitelistSelectors from '../../../store/selectors/whitelist'
 
 export const mapStateToProps = state => ({
-  payload: modalsSelectors.payload('advertActions')(state)
-  // allowAll: whitelistSelectors.allowAll(state),
-  // whitelisted: whitelistSelectors.whitelisted(state)
+  payload: modalsSelectors.payload('advertActions')(state),
+  allowAll: whitelistSelectors.allowAll(state),
+  whitelisted: whitelistSelectors.whitelisted(state)
 })
 
 export const mapDispatchToProps = (dispatch) => {

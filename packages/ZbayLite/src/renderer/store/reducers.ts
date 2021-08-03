@@ -28,7 +28,7 @@ import directMessageChannelHandlers from './handlers/directMessageChannel'
 import publicChannelsHandlers from './handlers/publicChannels'
 // import feesHandlers from './handlers/fees'
 import mentionsHandlers from './handlers/mentions'
-// import whitelistHandlers from './handlers/whitelist'
+import whitelistHandlers from './handlers/whitelist'
 import notificationCenterHandlers from './handlers/notificationCenter'
 // import operationsHandlers from './handlers/operations'
 // import ownedChannels from './handlers/ownedChannels'
@@ -91,7 +91,7 @@ export const reducers = {
   publicChannels: publicChannelsHandlers.reducer,
   // fees: feesHandlers.reducer,
   mentions: mentionsHandlers.reducer,
-  // whitelist: whitelistHandlers.reducer,
+  whitelist: whitelistHandlers.reducer,
   notificationCenter: notificationCenterHandlers.reducer,
   // ownedChannels: ownedChannels.reducer,
   [StoreKeys.Certificates]: certificatesReducer

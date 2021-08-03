@@ -57,7 +57,10 @@ export const Security = ({
   toggleAllowAll,
   openSeedModal,
   isRescanned,
-  onRescan
+  onRescan,
+  whitelisted,
+  removeSiteHost,
+  removeImageHost
 }) => {
   return (
     <Grid container direction='column'>
@@ -175,7 +178,7 @@ export const Security = ({
           }
         />
       </Grid>
-      {/* {!!whitelisted.length && (
+      {!!whitelisted?.length && (
         <>
           <Grid item className={classes.subtitle}>
             <Typography variant='h5'>Allowed sites</Typography>
@@ -201,7 +204,7 @@ export const Security = ({
             )
           })}
         </>
-      )} */}
+      )}
       {/* {!!autoload.length && (
         <Grid item className={classes.imageHostsDiv}>
           <Grid item className={classes.subtitle}>

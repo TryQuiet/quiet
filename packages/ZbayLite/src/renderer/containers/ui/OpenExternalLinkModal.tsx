@@ -6,7 +6,7 @@ import { shell } from 'electron'
 import { bindActionCreators } from 'redux'
 
 import OpenlinkModalComponent from '../../components/ui/OpenlinkModal'
-// import whitelistHandlers from '../../store/handlers/whitelist'
+import whitelistHandlers from '../../store/handlers/whitelist'
 
 import { withModal } from '../../store/handlers/modals'
 import modalsSelectors from '../../store/selectors/modals'
@@ -17,8 +17,8 @@ export const mapStateToProps = state => ({
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      // addToWhitelist: whitelistHandlers.epics.addToWhitelist,
-      // setWhitelistAll: whitelistHandlers.epics.setWhitelistAll
+      addToWhitelist: whitelistHandlers.epics.addToWhitelist,
+      setWhitelistAll: whitelistHandlers.epics.setWhitelistAll
     },
     dispatch
   )
