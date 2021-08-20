@@ -1,6 +1,6 @@
 import IPFS from 'ipfs'
 import path from 'path'
-import { createPaths, getCertFieldValue } from '../utils'
+import { createPaths } from '../utils'
 import OrbitDB from 'orbit-db'
 import KeyValueStore from 'orbit-db-kvstore'
 import EventStore from 'orbit-db-eventstore'
@@ -18,7 +18,7 @@ import { Libp2p } from 'libp2p-gossipsub/src/interfaces'
 import { Config, dataFromRootPems } from '../constants'
 import { loadCertificates } from '../socket/events/certificates'
 import { IRepo, StorageOptions, IChannelInfo, IMessage, ChannelInfoResponse, IZbayChannel, IPublicKey, IMessageThread, DataFromPems } from '../common/types'
-import { verifyUserCert, parseCertificate } from '@zbayapp/identity'
+import { verifyUserCert, parseCertificate, getCertFieldValue } from '@zbayapp/identity'
 import { CertFieldsTypes } from '@zbayapp/identity/lib/common'
 import {
   setEngine,

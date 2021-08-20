@@ -54,7 +54,7 @@
     "@types/node-fetch": "^2.5.11",
     "@types/socket.io": "^2.1.12",
     "@types/validator": "^13.1.4",
-    "@zbayapp/identity": "^1.0.6",
+    "@zbayapp/identity": "^3.1.0",
     "abortable-iterator": "^3.0.0",
     "async-mutex": "^0.2.6",
     "class-validator": "^0.13.1",

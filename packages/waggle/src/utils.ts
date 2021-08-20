@@ -2,7 +2,6 @@ import fs from 'fs'
 import fp from 'find-free-port'
 import path from 'path'
 import SocketIO from 'socket.io'
-import { Certificate, AttributeTypeAndValue } from 'pkijs'
 
 export interface Ports {
   socksPort: number
@@ -37,17 +36,9 @@ export const getPorts = async (): Promise<Ports> => {
   }
 }
 
-export const getCertFieldValue = (cert: Certificate, fieldType: string): string => {
-  const block = cert.subject.typesAndValues.find((tav: AttributeTypeAndValue) => tav.type === fieldType)
-  if (!block) {
-    throw new Error(`Field type ${fieldType} not found in certificate`)
-  }
-  return block.value.valueBlock.value
-}
-
 export class DummyIOServer extends SocketIO.Server {
   emit(event: string, ...args: any[]): boolean {
-    console.log(`Emitting ${event} with args: ${args.toString()}`)
+    console.log(`Emitting ${event} with args:`, args)
     return true
   }
 }

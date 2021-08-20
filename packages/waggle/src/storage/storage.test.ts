@@ -5,7 +5,7 @@ import { Config, dataFromRootPems } from '../constants'
 import { createLibp2p, createTmpDir, TmpDir, tmpZbayDirPath } from '../testUtils'
 import { Storage } from './storage'
 import * as utils from '../utils'
-import { createUserCsr, createUserCert } from '@zbayapp/identity'
+import { createUserCsr, createUserCert, configCrypto } from '@zbayapp/identity'
 jest.setTimeout(30_000)
 
 let tmpDir: TmpDir
@@ -64,7 +64,10 @@ describe('Certificate', () => {
     const user = await createUserCsr({
       zbayNickname: 'userName',
       commonName: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
-      peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6'
+      peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
+      dmPublicKey: 'testdmPublicKey',
+      signAlg: configCrypto.signAlg,
+      hashAlg: configCrypto.hashAlg
     })
     const userCert = await createUserCert(dataFromRootPems.certificate, dataFromRootPems.privKey, user.userCsr, new Date(), new Date(2030, 1, 1))
     storage = new Storage(tmpAppDataPath, new utils.DummyIOServer(), { createPaths: false })
@@ -79,7 +82,10 @@ describe('Certificate', () => {
     const user = await createUserCsr({
       zbayNickname: 'userName',
       commonName: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
-      peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6'
+      peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
+      dmPublicKey: 'testdmPublicKey',
+      signAlg: configCrypto.signAlg,
+      hashAlg: configCrypto.hashAlg
     })
     const userCertOld = await createUserCert(dataFromRootPems.certificate, dataFromRootPems.privKey, user.userCsr, new Date(2021, 1, 1), new Date(2021, 1, 2))
     storage = new Storage(tmpAppDataPath, new utils.DummyIOServer(), { createPaths: false })
@@ -105,7 +111,10 @@ describe('Certificate', () => {
     const user = await createUserCsr({
       zbayNickname: 'userName',
       commonName: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
-      peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6'
+      peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
+      dmPublicKey: 'testdmPublicKey',
+      signAlg: configCrypto.signAlg,
+      hashAlg: configCrypto.hashAlg
     })
     const userCert = await createUserCert(dataFromRootPems.certificate, dataFromRootPems.privKey, user.userCsr, new Date(), new Date(2030, 1, 1))
     storage = new Storage(tmpAppDataPath, new utils.DummyIOServer(), { createPaths: false })

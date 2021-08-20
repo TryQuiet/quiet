@@ -1,8 +1,8 @@
-import { createRootCA, createUserCert, createUserCsr, verifyUserCert } from '@zbayapp/identity'
+import { createRootCA, createUserCert, createUserCsr, verifyUserCert, configCrypto } from '@zbayapp/identity'
 import { SocksProxyAgent } from 'socks-proxy-agent'
 import { CertificateRegistration } from '.'
 import { Time } from 'pkijs'
-import { createMinConnectionManager, createTmpDir, spawnTorProcess, TmpDir, tmpZbayDirPath } from '../testUtils'
+import { createMinConnectionManager, createTmpDir, spawnTorProcess, TmpDir, tmpZbayDirPath, TorMock } from '../testUtils'
 import { getPorts, Ports } from '../utils'
 import fetch, { Response } from 'node-fetch'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
@@ -10,14 +10,19 @@ import { Tor } from '../torManager'
 import { RootCA } from '@zbayapp/identity/lib/generateRootCA'
 jest.setTimeout(50_000)
 
-async function registerUserTest(csr: string, socksPort: number): Promise<Response> {
-  const options = {
+async function registerUserTest(csr: string, socksPort: number, localhost: boolean = true): Promise<Response> {
+  // Connect to registration service locally or using tor
+  let address = '127.0.0.1'
+  let options = {
     method: 'POST',
     body: JSON.stringify({ data: csr }),
-    headers: { 'Content-Type': 'application/json' },
-    agent: new SocksProxyAgent({ port: socksPort, host: 'localhost', timeout: 100000 })
+    headers: { 'Content-Type': 'application/json' }
   }
-  return await fetch('http://4avghtoehep5ebjngfqk5b43jolkiyyedfcvvq4ouzdnughodzoglzad.onion:7789/register', options)
+  if (!localhost) {
+    options = Object.assign(options, { agent: new SocksProxyAgent({ port: socksPort, host: 'localhost', timeout: 100000 }) })
+    address = '4avghtoehep5ebjngfqk5b43jolkiyyedfcvvq4ouzdnughodzoglzad.onion'
+  }
+  return await fetch(`http://${address}:7789/register`, options)
 }
 
 describe('Registration service', () => {
@@ -54,11 +59,15 @@ describe('Registration service', () => {
     tmpDir.removeCallback()
   })
 
-  it('generates and saves certificate for a new user', async () => {
+  // This is skipped because test with registration service using Tor fails frequently on CI (Proxy connection timed out)
+  it.skip('generates and saves certificate for a new user using tor', async () => {
     const user = await createUserCsr({
       zbayNickname: 'userName',
       commonName: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
-      peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6'
+      peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
+      dmPublicKey: 'testdmPublicKey',
+      signAlg: configCrypto.signAlg,
+      hashAlg: configCrypto.hashAlg
     })
     const saveCertificate = jest.spyOn(manager.storage, 'saveCertificate')
     tor = await spawnTorProcess(tmpAppDataPath, ports)
@@ -68,6 +77,31 @@ describe('Registration service', () => {
     registrationService = await manager.setupRegistrationService(
       tor,
       testHiddenService,
+      { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString }
+    )
+    const response = await registerUserTest(user.userCsr, ports.socksPort, false)
+    const returnedUserCertificate = await response.json()
+    expect(saveCertificate).toBeCalledTimes(1)
+    const isProperUserCert = await verifyUserCert(certRoot.rootCertString, returnedUserCertificate)
+    expect(isProperUserCert.result).toBe(true)
+  })
+
+  it('generates and saves certificate for a new user', async () => {
+    const user = await createUserCsr({
+      zbayNickname: 'userName',
+      commonName: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
+      peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
+      dmPublicKey: 'testdmPublicKey',
+      signAlg: configCrypto.signAlg,
+      hashAlg: configCrypto.hashAlg
+    })
+    const saveCertificate = jest.spyOn(manager.storage, 'saveCertificate')
+    await manager.initializeNode()
+    await manager.initStorage()
+    registrationService = await manager.setupRegistrationService(
+      // @ts-expect-error
+      new TorMock(),
+      'testHiddenServiceKey',
       { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString }
     )
     const response = await registerUserTest(user.userCsr, ports.socksPort)
@@ -81,23 +115,28 @@ describe('Registration service', () => {
     const user = await createUserCsr({
       zbayNickname: 'userName',
       commonName: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
-      peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6'
+      peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
+      dmPublicKey: 'testdmPublicKey1',
+      signAlg: configCrypto.signAlg,
+      hashAlg: configCrypto.hashAlg
     })
     const userNew = await createUserCsr({
       zbayNickname: 'username',
       commonName: 'abcd.onion',
-      peerId: 'QmS9vJkgbea9EgzHvVPqhj1u4tH7YKq7eteDN7gnG5zUmc'
+      peerId: 'QmS9vJkgbea9EgzHvVPqhj1u4tH7YKq7eteDN7gnG5zUmc',
+      dmPublicKey: 'testdmPublicKey2',
+      signAlg: configCrypto.signAlg,
+      hashAlg: configCrypto.hashAlg
     })
     const userCert = await createUserCert(certRoot.rootCertString, certRoot.rootKeyString, user.userCsr, new Date(), new Date(2030, 1, 1))
-    tor = await spawnTorProcess(tmpAppDataPath, ports)
-    await tor.init()
     await manager.initializeNode()
     await manager.initStorage()
     await manager.storage.saveCertificate(userCert.userCertString, { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString })
     const saveCertificate = jest.spyOn(manager.storage, 'saveCertificate')
     registrationService = await manager.setupRegistrationService(
-      tor,
-      testHiddenService,
+      // @ts-expect-error
+      new TorMock(),
+      'testHiddenServiceKey',
       { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString }
     )
     const response = await registerUserTest(userNew.userCsr, ports.socksPort)
@@ -106,14 +145,13 @@ describe('Registration service', () => {
   })
 
   it('returns 400 if no csr in data or csr has wrong format', async () => {
-    tor = await spawnTorProcess(tmpAppDataPath, ports)
-    await tor.init()
     await manager.initializeNode()
     await manager.initStorage()
     const saveCertificate = jest.spyOn(manager.storage, 'saveCertificate')
     registrationService = await manager.setupRegistrationService(
-      tor,
-      testHiddenService,
+      // @ts-expect-error
+      new TorMock(),
+      'testHiddenServiceKey',
       { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString }
     )
     for (const invalidCsr of ['', 'abcd']) {
@@ -121,5 +159,18 @@ describe('Registration service', () => {
       expect(response.status).toEqual(400)
     }
     expect(saveCertificate).not.toHaveBeenCalled()
+  })
+
+  it('returns 400 if csr is lacking a field', async () => {
+    registrationService = await manager.setupRegistrationService(
+      // @ts-expect-error
+      new TorMock(),
+      'testHiddenServiceKey',
+      { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString }
+    )
+    // Csr with only commonName and nickName
+    const csr = 'MIIBFTCBvAIBADAqMSgwFgYKKwYBBAGDjBsCARMIdGVzdE5hbWUwDgYDVQQDEwdaYmF5IENBMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEGPGHpJzE/CvL7l/OmTSfYQrhhnWQrYw3GgWB1raCTSeFI/MDVztkBOlxwdUWSm10+1OtKVUWeMKaMtyIYFcPPqAwMC4GCSqGSIb3DQEJDjEhMB8wHQYDVR0OBBYEFLjaEh+cnNhsi5qDsiMB/ZTzZFfqMAoGCCqGSM49BAMCA0gAMEUCIFwlob/Igab05EozU0e/lsG7c9BxEy4M4c4Jzru2vasGAiEAqFTQuQr/mVqTHO5vybWm/iNDk8vh88K6aBCCGYqIfdw='
+    const response = await registerUserTest(csr, ports.socksPort)
+    expect(response.status).toEqual(400)
   })
 })

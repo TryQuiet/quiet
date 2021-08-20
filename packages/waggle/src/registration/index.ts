@@ -4,12 +4,11 @@ import { Certificate } from 'pkijs'
 import debug from 'debug'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 import { createUserCert, loadCSR } from '@zbayapp/identity'
-import { getCertFieldValue } from '../utils'
-import { CertFieldsTypes } from '@zbayapp/identity/lib/common'
+import { CertFieldsTypes, getCertFieldValue } from '@zbayapp/identity/lib/common'
 import { Server } from 'http'
 import { validate, IsBase64, IsNotEmpty } from 'class-validator'
 import { DataFromPems } from '../common/types'
-import { IsCsr } from './validators'
+import { CsrContainsFields, IsCsr } from './validators'
 const log = Object.assign(debug('waggle:registration'), {
   error: debug('waggle:registration:err')
 })
@@ -18,6 +17,7 @@ class UserCsrData {
   @IsNotEmpty()
   @IsBase64()
   @IsCsr()
+  @CsrContainsFields()
   csr: string
 }
 
@@ -58,16 +58,8 @@ export class CertificateRegistration {
       return
     }
 
-    let username: string
-    try {
-      const parsedCsr = await loadCSR(userData.csr)
-      username = getCertFieldValue(parsedCsr, CertFieldsTypes.nickName)
-    } catch (e) {
-      log.error(`Could not parse csr: ${e.message as string}`)
-      res.status(400).send()
-      return
-    }
-
+    const parsedCsr = await loadCSR(userData.csr)
+    const username = getCertFieldValue(parsedCsr, CertFieldsTypes.nickName)
     const usernameExists = this._connectionsManager.storage.usernameExists(username)
     if (usernameExists) {
       log(`Username ${username} is taken`)

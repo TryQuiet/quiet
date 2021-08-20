@@ -71,3 +71,34 @@ export const createTmpDir = (): TmpDir => {
 export const tmpZbayDirPath = (name: string): string => {
   return path.join(name, Config.ZBAY_DIR)
 }
+
+export class TorMock { // TODO: extend Tor to be sure that mocked api is correct
+  public async spawnHiddenService({
+    virtPort,
+    targetPort,
+    privKey
+  }: {
+    virtPort: number
+    targetPort: number
+    privKey: string
+  }): Promise<any> {
+    console.log('TorMock.spawnHiddenService', virtPort, targetPort, privKey)
+    return 'mockedOnionAddress.onion'
+  }
+
+  public async createNewHiddenService(
+    virtPort: number,
+    targetPort: number
+  ): Promise<{ onionAddress: string, privateKey: string }> {
+    console.log('TorMock.createNewHiddenService', virtPort, targetPort)
+    return {
+      onionAddress: 'mockedOnionAddress',
+      privateKey: 'mockedPrivateKey'
+    }
+  }
+
+  protected readonly spawnTor = resolve => {
+    console.log('TorMock.spawnTor')
+    resolve()
+  }
+}

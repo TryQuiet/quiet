@@ -94,7 +94,7 @@ export class Tor {
     return byPlatform[process.platform]
   }
 
-  private readonly spawnTor = resolve => {
+  protected readonly spawnTor = resolve => {
     this.process = child_process.spawn(
       this.torPath,
       [
