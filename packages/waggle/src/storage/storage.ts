@@ -45,8 +45,8 @@ export class Storage {
   public zbayDir: string
   public io: any
   public peerId: PeerId
-  private ipfs: IPFS.IPFS
-  private orbitdb: OrbitDB
+  protected ipfs: IPFS.IPFS
+  protected orbitdb: OrbitDB
   private channels: KeyValueStore<IZbayChannel>
   private directMessagesUsers: KeyValueStore<IPublicKey>
   private messageThreads: KeyValueStore<IMessageThread>
@@ -167,7 +167,7 @@ export class Storage {
       async () => {
         log('REPLICATED: CHANNELS')
         if (this.options.isEntryNode) {
-          log('Entry node. Subscribing for all replicated channels')
+          console.log('Entry node. Subscribing for all replicated channels')
           await Promise.all(
             Object.values(this.channels.all).map(async channel => {
               if (!this.publicChannelsRepos.has(channel.address)) {
@@ -291,7 +291,7 @@ export class Storage {
     loadAllPublicChannels(this.io, this.getChannelsResponse())
   }
 
-  private getAllEventLogEntries(db: EventStore<any>): any[] {
+  protected getAllEventLogEntries(db: EventStore<any>): any[] {
     // TODO: fix typing
     // TODO: move to e.g custom Store
     return db

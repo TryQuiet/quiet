@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+* Waggle replication tests
+* Storage which can use orbitdb snapshots mechanism
+* More customizable waggle nodes
+
 ## [2.1.0-0]
 
 ### Changed

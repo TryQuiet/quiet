@@ -7,6 +7,7 @@ import { ConnectionsManager } from './libp2p/connectionsManager'
 import path from 'path'
 import PeerId from 'peer-id'
 import { Libp2pType } from './libp2p/customLibp2p'
+import WebsocketsOverTor from './libp2p/websocketOverTor'
 import { ConnectionsManagerOptions } from './common/types'
 tmp.setGracefulCleanup()
 
@@ -58,7 +59,8 @@ export const createLibp2p = (peerId: PeerId = null): Libp2pType => {
     listenAddrs: ['/dns4/localhost/tcp/1111/ws'],
     bootstrapMultiaddrsList: testBootstrapMultiaddrs,
     agent: new SocksProxyAgent({ port: 1234, host: 'localhost' }),
-    localAddr: `/dns4/localhost/tcp/1111/ws/p2p/${peerId.toB58String()}`
+    localAddr: `/dns4/localhost/tcp/1111/ws/p2p/${peerId.toB58String()}`,
+    transportClass: WebsocketsOverTor
   })
 }
 
