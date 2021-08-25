@@ -12,6 +12,7 @@
 ### Changed
 
 * Mock tor in all registrar tests
+* Moved dev dependencies to devDependencies in package.json, removed unused libraries
 
 ## [2.1.0-0]
 
