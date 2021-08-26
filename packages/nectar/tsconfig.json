@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "es2017",
+    "module": "commonjs",
+    "declaration": true,
+    "outDir": "./lib",
+    "lib": ["es2017"],
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "experimentalDecorators": true,
+    "baseUrl": ".",
+    "paths": {
+      "immer": ["node_modules/immer/"]
+    },
+  },
+  "typeRoots": [
+    "./@types",
+    "../../node_modules/@types",
+    "./node_modules/@types"
+  ],
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules",
+  ]
+}
