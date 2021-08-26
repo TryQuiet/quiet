@@ -5,7 +5,7 @@ import './shim';
 
 import React, { lazy, Suspense } from 'react';
 import { AppRegistry } from 'react-native';
-import { Config } from 'react-native-config';
+import Config from 'react-native-config';
 
 import { Provider as StoreProvider } from 'react-redux';
 import { store } from './src/store/store';

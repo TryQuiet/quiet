@@ -31,6 +31,9 @@ export function* registerUsernameSaga(
     zbayNickname: action.payload,
     commonName: commonName,
     peerId: peerId,
+    dmPublicKey: '',
+    signAlg: 'ECDSA',
+    hashAlg: 'sha-256',
   };
 
   yield* put(identityActions.createUserCsr(payload));

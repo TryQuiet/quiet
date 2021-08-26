@@ -27,7 +27,7 @@
         </intent-filter>
       </activity>
       <service
-          android:name=".WaggleService"/>
+          android:name=".TorService"/>
       <service
           android:name=".PushNotificationsService"/>
     </application>

@@ -20,6 +20,7 @@ import { navigationContainerRef } from './utils/functions/navigateTo/navigateTo'
 import { initActions } from './store/init/init.slice';
 import { useDispatch } from 'react-redux';
 import { useNotifications } from './services/pushNotifications/pushNotifications.service';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { Navigator, Screen } = createStackNavigator();
 
@@ -31,35 +32,40 @@ export default function App(): JSX.Element {
   useNotifications();
 
   return (
-    <PersistGate loading={null} persistor={persistor}>
-      <NavigationContainer
-        ref={navigationContainerRef}
-        onReady={() => {
-          dispatch(initActions.setNavigatorReady(true));
-          dispatch(initActions.doOnRestore());
-        }}>
-        <WebviewCrypto />
-        <ThemeProvider theme={defaultTheme}>
-          <StatusBar backgroundColor={defaultTheme.palette.statusBar.main} />
-          <Navigator
-            initialRouteName={ScreenNames.SplashScreen}
-            screenOptions={{
-              headerShown: false,
-            }}>
-            <Screen component={SplashScreen} name={ScreenNames.SplashScreen} />
-            <Screen
-              component={RegistrationScreen}
-              name={ScreenNames.RegistrationScreen}
-            />
-            <Screen component={MainScreen} name={ScreenNames.MainScreen} />
-            <Screen
-              component={SuccessScreen}
-              name={ScreenNames.SuccessScreen}
-            />
-            <Screen component={ErrorScreen} name={ScreenNames.ErrorScreen} />
-          </Navigator>
-        </ThemeProvider>
-      </NavigationContainer>
-    </PersistGate>
+    <SafeAreaView style={{ flex: 1 }}>
+      <PersistGate loading={null} persistor={persistor}>
+        <NavigationContainer
+          ref={navigationContainerRef}
+          onReady={() => {
+            dispatch(initActions.setNavigatorReady(true));
+            dispatch(initActions.doOnRestore());
+          }}>
+          <WebviewCrypto />
+          <ThemeProvider theme={defaultTheme}>
+            <StatusBar backgroundColor={defaultTheme.palette.statusBar.main} />
+            <Navigator
+              initialRouteName={ScreenNames.SplashScreen}
+              screenOptions={{
+                headerShown: false,
+              }}>
+              <Screen
+                component={SplashScreen}
+                name={ScreenNames.SplashScreen}
+              />
+              <Screen
+                component={RegistrationScreen}
+                name={ScreenNames.RegistrationScreen}
+              />
+              <Screen component={MainScreen} name={ScreenNames.MainScreen} />
+              <Screen
+                component={SuccessScreen}
+                name={ScreenNames.SuccessScreen}
+              />
+              <Screen component={ErrorScreen} name={ScreenNames.ErrorScreen} />
+            </Navigator>
+          </ThemeProvider>
+        </NavigationContainer>
+      </PersistGate>
+    </SafeAreaView>
   );
 }

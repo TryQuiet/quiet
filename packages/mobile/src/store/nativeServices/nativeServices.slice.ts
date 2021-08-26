@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 import { StoreKeys } from '../store.keys';
 
 export class NativeServicesState {}
@@ -7,7 +7,7 @@ export const nativeServicesSlice = createSlice({
   initialState: { ...new NativeServicesState() },
   name: StoreKeys.NativeServices,
   reducers: {
-    startWaggle: (state, _action: PayloadAction<string>) => state,
+    startWaggle: state => state,
     initPushNotifications: state => state,
   },
 });

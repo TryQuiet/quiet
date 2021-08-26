@@ -137,6 +137,9 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 40
         versionName "1.4.10"
+        ndk {
+            abiFilters "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
+        }
     }
     splits {
         abi {
@@ -188,12 +191,6 @@ android {
                         defaultConfig.versionCode * 1000 + versionCodes.get(abi)
             }
 
-        }
-    }
-
-    sourceSets {
-        main {
-            jniLibs.srcDirs = ['libs']
         }
     }
 }

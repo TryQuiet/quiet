@@ -1,5 +1,5 @@
 import React, { FC, useState, useEffect, useRef } from 'react';
-import { Keyboard, StyleSheet, View } from 'react-native';
+import { Keyboard, Platform, StyleSheet, View } from 'react-native';
 import { KeyboardAvoidingView, FlatList } from 'react-native';
 import { Message } from '../Message/Message.component';
 import { Input } from '../Input/Input.component';
@@ -68,7 +68,7 @@ export const Chat: FC<ChatProps> = ({
 
   return (
     <KeyboardAvoidingView
-      behavior="height"
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={25}
       style={{
         flex: 1,

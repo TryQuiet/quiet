@@ -15,12 +15,6 @@ public class MainApplication extends Application implements ReactApplication {
 
   public static String PACKAGE_NAME;
 
-  private Prefs prefs = null;
-
-  public Prefs getSharedPrefs() {
-      return prefs;
-  }
-
   private final ReactNativeHost mReactNativeHost =
       new ReactNativeHost(this) {
         @Override
@@ -55,7 +49,6 @@ public class MainApplication extends Application implements ReactApplication {
     SoLoader.init(this, /* native exopackage */ false);
     initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
     PACKAGE_NAME = getApplicationContext().getPackageName();
-    prefs = new Prefs(this);
   }
 
   /**

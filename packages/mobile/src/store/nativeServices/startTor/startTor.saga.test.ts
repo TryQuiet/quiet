@@ -1,6 +1,5 @@
 import { combineReducers } from '@reduxjs/toolkit';
 import { expectSaga } from 'redux-saga-test-plan';
-import { call } from 'redux-saga-test-plan/matchers';
 import { initActions } from '../../init/init.slice';
 import { NativeModules } from 'react-native';
 import { StoreKeys } from '../../store.keys';

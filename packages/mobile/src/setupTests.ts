@@ -41,3 +41,7 @@ jest.mock('pkijs/src/CryptoEngine', () => ({
 jest.mock('pkijs/src/common', () => ({
   setEngine: jest.fn(),
 }));
+
+jest.mock('zbayapp-nodejs-mobile-react-native', () => ({
+  nodejs: jest.fn(),
+}));

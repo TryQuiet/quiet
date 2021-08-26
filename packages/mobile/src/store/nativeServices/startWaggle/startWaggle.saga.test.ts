@@ -1,28 +1,40 @@
 import { combineReducers } from '@reduxjs/toolkit';
 import { expectSaga } from 'redux-saga-test-plan';
+import { call } from 'redux-saga-test-plan/matchers';
+import { initActions, initReducer, InitState } from '../../init/init.slice';
 import { StoreKeys } from '../../store.keys';
 import {
-  nativeServicesActions,
   nativeServicesReducer,
   NativeServicesState,
 } from '../nativeServices.slice';
-import { startWaggleSaga } from './startWaggle.saga';
+
+import { startNodeProcess, startWaggleSaga } from './startWaggle.saga';
+
 describe('startWaggleSaga', () => {
-  test('should be defined', () => {
-    expectSaga(startWaggleSaga, nativeServicesActions.startWaggle('address'))
+  test('should start nodejs process', () => {
+    expectSaga(startWaggleSaga)
       .withReducer(
-        combineReducers({ [StoreKeys.NativeServices]: nativeServicesReducer }),
+        combineReducers({
+          [StoreKeys.NativeServices]: nativeServicesReducer,
+          [StoreKeys.Init]: initReducer,
+        }),
         {
           [StoreKeys.NativeServices]: {
             ...new NativeServicesState(),
           },
+          [StoreKeys.Init]: {
+            ...new InitState(),
+            dataDirectoryPath: 'dataDirectoryPath',
+            hiddenServiceAddress: 'hiddenServiceAddress',
+          }
         },
       )
-      .hasFinalState({
-        [StoreKeys.NativeServices]: {
-          ...new NativeServicesState(),
-        },
-      })
+      .provide([
+        [call.fn(startNodeProcess), null]
+      ])
+      .put(initActions.updateInitDescription('Data is being retrieved from a distributed database'))
+      .put(initActions.onWaggleStarted(true))
+      .call(startNodeProcess, 'dataDirectoryPath', 'hiddenServiceAddress')
       .run();
   });
 });

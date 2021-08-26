@@ -73,12 +73,17 @@ describe('Chat component', () => {
       <View
         onLayout={[Function]}
         style={
-          Object {
-            "backgroundColor": "white",
-            "flex": 1,
-            "flexDirection": "column",
-            "justifyContent": "flex-end",
-          }
+          Array [
+            Object {
+              "backgroundColor": "white",
+              "flex": 1,
+              "flexDirection": "column",
+              "justifyContent": "flex-end",
+            },
+            Object {
+              "paddingBottom": 0,
+            },
+          ]
         }
       >
         <RCTScrollView

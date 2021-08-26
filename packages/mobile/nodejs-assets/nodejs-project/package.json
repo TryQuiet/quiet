@@ -1,0 +1,14 @@
+{
+  "name": "nodejs-project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "patch": "patch -f -p0 < modules.patch && patch -f -p0 < wrtc.patch && rm -rf node_modules/wrtc"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "waggle": "^2.1.0"
+  }
+}

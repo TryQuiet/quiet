@@ -207,6 +207,8 @@ PODS:
     - react-native-config/App (= 1.4.2)
   - react-native-config/App (1.4.2):
     - React-Core
+  - react-native-find-free-port (1.0.0):
+    - React-Core
   - react-native-randombytes (3.6.1):
     - React-Core
   - react-native-safe-area-context (3.2.0):
@@ -309,6 +311,8 @@ PODS:
   - SSZipArchive (2.2.3)
   - Tor (405.9.1)
   - Yoga (1.14.0)
+  - zbayapp-nodejs-mobile-react-native (1.0.0):
+    - React
 
 DEPENDENCIES:
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
@@ -329,6 +333,7 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - react-native-config (from `../node_modules/react-native-config`)
+  - react-native-find-free-port (from `../node_modules/react-native-find-free-port`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-webview (from `../node_modules/react-native-webview`)
@@ -357,6 +362,7 @@ DEPENDENCIES:
   - RNZipArchive (from `../node_modules/react-native-zip-archive`)
   - Tor (from `https://raw.githubusercontent.com/iCepa/Tor.framework/v405.9.1/Tor.podspec`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
+  - zbayapp-nodejs-mobile-react-native (from `../node_modules/zbayapp-nodejs-mobile-react-native`)
 
 SPEC REPOS:
   trunk:
@@ -396,6 +402,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   react-native-config:
     :path: "../node_modules/react-native-config"
+  react-native-find-free-port:
+    :path: "../node_modules/react-native-find-free-port"
   react-native-randombytes:
     :path: "../node_modules/react-native-randombytes"
   react-native-safe-area-context:
@@ -452,6 +460,8 @@ EXTERNAL SOURCES:
     :podspec: https://raw.githubusercontent.com/iCepa/Tor.framework/v405.9.1/Tor.podspec
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
+  zbayapp-nodejs-mobile-react-native:
+    :path: "../node_modules/zbayapp-nodejs-mobile-react-native"
 
 SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
@@ -471,6 +481,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 06a9c77b56902ae7ffcdd7a4905f664adc5d237b
   React-jsinspector: 0ae35a37b20d5e031eb020a69cc5afdbd6406301
   react-native-config: c98128a72bc2c3a1ca72caec0b021f0fa944aa29
+  react-native-find-free-port: 287224b0f0766f5634ef01edcc3056c43e333075
   react-native-randombytes: 5fc412efe7b5c55b9002c0004d75fe5fabcaa507
   react-native-safe-area-context: e471852c5ed67eea4b10c5d9d43c1cebae3b231d
   react-native-webview: 9fef5edbbf9d03694c5fb513cc2e6d96694430af
@@ -500,7 +511,8 @@ SPEC CHECKSUMS:
   SSZipArchive: 62d4947b08730e4cda640473b0066d209ff033c9
   Tor: 39dc71bf048312e202608eb499ca5c74e841b503
   Yoga: 8c8436d4171c87504c648ae23b1d81242bdf3bbf
+  zbayapp-nodejs-mobile-react-native: c349cd14b76198c4ad9c3bc035a4acfe985b8f63
 
-PODFILE CHECKSUM: 1a866fd7d32617225f0d82a591a5609d72561fa4
+PODFILE CHECKSUM: 00da52e7b35fc3cca0de0f3f64c1a496b8207f2d
 
 COCOAPODS: 1.10.1

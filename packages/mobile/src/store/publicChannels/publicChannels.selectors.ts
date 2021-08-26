@@ -1,4 +1,4 @@
-import { Config } from 'react-native-config';
+import Config from 'react-native-config';
 import { StoreKeys } from '../store.keys';
 import { createSelector } from 'reselect';
 import { selectReducer } from '../store.utils';

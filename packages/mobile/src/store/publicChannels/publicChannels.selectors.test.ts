@@ -1,5 +1,6 @@
 import { combineReducers, createStore, Store } from '@reduxjs/toolkit';
 import { StoreKeys } from '../store.keys';
+import { publicChannelsAdapter } from './publicChannels.adapter';
 import { publicChannelsSelectors } from './publicChannels.selectors';
 import {
   publicChannelsReducer,
@@ -16,6 +17,19 @@ describe('publicChannelsSelectors', () => {
       {
         [StoreKeys.PublicChannels]: {
           ...new PublicChannelsState(),
+          channels: publicChannelsAdapter.setAll(
+            publicChannelsAdapter.getInitialState(),
+            [
+              {
+                name: 'Zbay',
+                description: '',
+                owner: '',
+                timestamp: '',
+                address:
+                  'zs10zkaj29rcev9qd5xeuzck4ly5q64kzf6m6h9nfajwcvm8m2vnjmvtqgr0mzfjywswwkwke68t00',
+              },
+            ],
+          ),
           currentChannel: 'currentChannel',
           channelMessages: {
             currentChannel: {
@@ -100,6 +114,19 @@ describe('publicChannelsSelectors', () => {
           "signature": "",
         },
       ]
+    `);
+  });
+
+  it('get zbay channel', () => {
+    const ZbayChannel = publicChannelsSelectors.ZbayChannel(store.getState());
+    expect(ZbayChannel).toMatchInlineSnapshot(`
+      Object {
+        "address": "zs10zkaj29rcev9qd5xeuzck4ly5q64kzf6m6h9nfajwcvm8m2vnjmvtqgr0mzfjywswwkwke68t00",
+        "description": "",
+        "name": "Zbay",
+        "owner": "",
+        "timestamp": "",
+      }
     `);
   });
 });

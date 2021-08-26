@@ -1,0 +1,11 @@
+--- node_modules/waggle/package.json.backup	2021-08-19 14:52:05.000000000 +0200
++++ node_modules/waggle/package.json	2021-08-19 14:52:47.000000000 +0200
+@@ -87,7 +87,7 @@
+     "uint8arrays": "^1.1.0",
+     "url": "^0.11.0",
+     "validator": "^13.6.0",
+-    "wrtc": "^0.4.6"
++    "wrtc": "../../wrtc-mock"
+   },
+   "deprecated": false,
+   "description": "tlg-manager",
