@@ -1,6 +1,6 @@
 {
   "name": "zbaymobile",
-  "version": "0.0.1",
+  "version": "1.5.0",
   "private": true,
   "scripts": {
     "storybook": "ENVFILE=.env.storybook react-native run-android",
@@ -10,7 +10,8 @@
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "gen": "plop",
-    "postinstall": "node_modules/.bin/rn-nodeify --install crypto,stream,events --hack"
+    "postinstall": "node_modules/.bin/rn-nodeify --install crypto,stream,events --hack",
+    "postversion": "react-native-version"
   },
   "dependencies": {
     "@peculiar/webcrypto": "^1.1.7",
@@ -83,6 +84,7 @@
     "metro-react-native-babel-preset": "^0.64.0",
     "plop": "^2.7.4",
     "react-native-dev-menu": "^4.0.2",
+    "react-native-version": "^4.0.0",
     "react-test-renderer": "17.0.1",
     "redux-saga-test-plan": "^4.0.1",
     "typescript": "^3.8.3"
