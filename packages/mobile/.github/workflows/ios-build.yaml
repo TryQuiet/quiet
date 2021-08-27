@@ -1,0 +1,89 @@
+name: Deploy iOS to App Center
+
+on:
+  release:
+    types: [created]
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: macOS-latest
+    steps:
+      - uses: actions/checkout@v1
+      
+      - name: Install gpg
+        run: brew install gnupg
+        
+      - name: Switch XCode Version
+        run: sudo xcode-select -s /Applications/Xcode_12.4.app
+
+      - name: Cache NPM dependencies
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-npm-cache-
+      - name: Install npm dependencies
+        run: |
+          npm ci
+      - name: Install Waggle
+        run: |
+          cd nodejs-assets/nodejs-project
+          npm ci
+      - name: Remove incompatible dependencies
+        run: |
+          cd nodejs-assets/nodejs-project
+          rm -rf node_modules/wrtc
+      - name: Apply mobile patch
+        run: |
+          cd nodejs-assets/nodejs-project
+          patch -f -p0 < modules.patch
+          patch -f -p0 < wrtc.patch
+      - name: Cache Pods dependencies
+        uses: actions/cache@v1
+        with:
+          path: ios/Pods
+          key: ${{ runner.OS }}-pods-cache-${{ hashFiles('**/ios/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.OS }}-pods-cache-
+      - name: Install pod dependencies
+        run: |
+          cd ios
+          pod install
+        shell: bash
+      - name: Setup provisioning profile
+        run: ./.github/secrets/decrypt_secrets.sh
+        env:
+          IOS_PROFILE_KEY: ${{ secrets.IOS_PROFILE_KEY }}
+      - name: Build app
+        run: |
+          cd ios && xcodebuild archive \
+            -workspace ZbayMobile.xcworkspace \
+            -scheme ZbayMobile \
+            -sdk iphoneos14.5 \
+            -configuration Release \
+            -archivePath $PWD/build/ZbayMobile.xcarchive \
+            IPHONEOS_DEPLOYMENT_TARGET=14.1
+            PROVISIONING_PROFILE="15fa9ce8-0cdd-455c-9b3a-b6415b9da368" \
+            CODE_SIGN_IDENTITY="Apple Distribution: Zbay LLC (CTYKSWN9T4)"
+      - name: Export app
+        run: |
+          cd ios && xcodebuild \
+            -exportArchive \
+            -archivePath $PWD/build/ZbayMobile.xcarchive \
+            -exportOptionsPlist $PWD/ci.plist \
+            -exportPath $PWD/build
+      - name: Upload ipa
+        run: |
+            cd ios && xcrun altool --upload-app \
+            --type ios \
+            --file build/ZbayMobile.ipa \
+            -u $APPSTORE_USER -p $APP_PASSWORD \
+            --verbose
+        env:
+          APPSTORE_USER: ${{ secrets.APPSTORE_USER }}
+          APP_PASSWORD:  ${{ secrets.APP_PASSWORD }}
+          
