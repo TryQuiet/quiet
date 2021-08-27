@@ -58,6 +58,7 @@
 		186B5CD726B16F1A00BF9FFA /* ZbayMobile-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ZbayMobile-Bridging-Header.h"; sourceTree = "<group>"; };
 		186B5CDA26B177B300BF9FFA /* TorModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TorModule.swift; path = ZbayMobile/TorModule.swift; sourceTree = "<group>"; };
 		186B5CDB26B177B300BF9FFA /* TorBridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TorBridge.m; path = ZbayMobile/TorBridge.m; sourceTree = "<group>"; };
+		1891BBFD26D683D100101CC7 /* libzbayapp-nodejs-mobile-react-native.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libzbayapp-nodejs-mobile-react-native.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		18ED84D0299E4E55AB68AA3E /* Rubik-ExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-ExtraBold.ttf"; path = "../assets/fonts/Rubik-ExtraBold.ttf"; sourceTree = "<group>"; };
 		2386DA39D8B240D9A80ECBD9 /* Rubik-Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Italic.ttf"; path = "../assets/fonts/Rubik-Italic.ttf"; sourceTree = "<group>"; };
 		23AE2E9AAC824E76A9C4B3D5 /* Rubik-BlackItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-BlackItalic.ttf"; path = "../assets/fonts/Rubik-BlackItalic.ttf"; sourceTree = "<group>"; };
@@ -146,6 +147,7 @@
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1891BBFD26D683D100101CC7 /* libzbayapp-nodejs-mobile-react-native.a */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				DAB203CF0D6FC9F9586831BF /* libPods-ZbayMobile.a */,
 				9F15F085A06EE5CD12103B4E /* libPods-ZbayMobile-ZbayMobileTests.a */,
@@ -601,16 +603,19 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 0F3DF87DA5512BBAC5B170E5 /* Pods-ZbayMobile.debug.xcconfig */;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 42;
 				DEVELOPMENT_TEAM = CTYKSWN9T4;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = ZbayMobile/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.5.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -629,15 +634,19 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7EC01D6B8878EF071DF3F63F /* Pods-ZbayMobile.release.xcconfig */;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 42;
 				DEVELOPMENT_TEAM = CTYKSWN9T4;
+				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = ZbayMobile/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.5.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",

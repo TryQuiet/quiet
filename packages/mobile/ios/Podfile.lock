@@ -311,7 +311,7 @@ PODS:
   - SSZipArchive (2.2.3)
   - Tor (405.9.1)
   - Yoga (1.14.0)
-  - zbayapp-nodejs-mobile-react-native (1.0.0):
+  - zbayapp-nodejs-mobile-react-native (1.1.0):
     - React
 
 DEPENDENCIES:
@@ -511,7 +511,7 @@ SPEC CHECKSUMS:
   SSZipArchive: 62d4947b08730e4cda640473b0066d209ff033c9
   Tor: 39dc71bf048312e202608eb499ca5c74e841b503
   Yoga: 8c8436d4171c87504c648ae23b1d81242bdf3bbf
-  zbayapp-nodejs-mobile-react-native: c349cd14b76198c4ad9c3bc035a4acfe985b8f63
+  zbayapp-nodejs-mobile-react-native: 23c76e9a0cc71bbf18c94e4d9f5f00c90731d54c
 
 PODFILE CHECKSUM: 00da52e7b35fc3cca0de0f3f64c1a496b8207f2d
 
