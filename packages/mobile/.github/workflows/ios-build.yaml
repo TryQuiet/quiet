@@ -41,8 +41,7 @@ jobs:
         run: |
           cd nodejs-assets/nodejs-project
           patch -f -p0 < modules.patch
-          patch -f -p0 < wrtc.patch
-      - name: Cache Pods dependencies
+          sed -i '' "s/.*wrtc.*/    \"wrtc\": \"..\/..\/wrtc-mock\"/" node_modules/waggle/package.json      - name: Cache Pods dependencies
         uses: actions/cache@v1
         with:
           path: ios/Pods
