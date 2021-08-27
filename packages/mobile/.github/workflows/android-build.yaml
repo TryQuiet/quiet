@@ -1,0 +1,79 @@
+name: Deploy Android build Google Play internal testing
+
+on:
+  release:
+    types: [created]
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+          registry-url: https://registry.npmjs.org/
+      - name: Cache NPM dependencies
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-npm-cache-
+      - name: Install npm dependencies
+        run: |
+          npm ci
+      - name: Install Waggle
+        run: |
+          cd nodejs-assets/nodejs-project
+          npm ci
+      - name: Remove incompatible dependencies
+        run: |
+          cd nodejs-assets/nodejs-project
+          rm -rf node_modules/wrtc
+      - name: Apply mobile patch
+        run: |
+          cd nodejs-assets/nodejs-project
+          patch -f -p0 < modules.patch
+          patch -f -p0 < wrtc.patch
+      - name: Prepare singing configuration
+        run: |
+          mkdir -p $HOME/.gradle
+
+          printf "\
+          ZBAY_UPLOAD_STORE_FILE=zbaymobile.keystore\n\
+          ZBAY_UPLOAD_KEY_ALIAS=${{ SECRETS.GOOGLE_KEYSTORE_ALIAS }}
+          ZBAY_UPLOAD_STORE_PASSWORD=${{ SECRETS.GOOGLE_KEYSTORE_PASSWORD }}\n\
+          ZBAY_UPLOAD_KEY_PASSWORD=${{ SECRETS.GOOGLE_KEYSTORE_PASSWORD }}\
+          " > $HOME/.gradle/gradle.properties
+
+          echo ${{ SECRETS.GOOGLE_KEYSTORE }} | base64 --decode > android/app/zbaymobile.keystore
+
+      - name: Build for Android
+        run: cd android && ./gradlew bundleRelease
+      - name: 'Upload Artifact'
+        uses: actions/upload-artifact@v2
+        with:
+          name: app-release.aab
+          path: ./android/app/build/outputs/bundle/release/app-release.aab
+          retention-days: 5
+      - name: Configure Google Pay upload
+        run: |
+          mkdir -p distribution/whatsnew
+          git log -1 --pretty=format:%s > distribution/whatsnew/whatsnew-pl-PL
+          echo ${{ SECRETS.SERVICE_ACCOUNT_JSON }} | base64 --decode > google-play.json
+      - name: 'Upload to Google Play'
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJson: google-play.json
+          packageName: com.zbaymobile
+          releaseFiles: ./android/app/build/outputs/bundle/release/app-release.aab
+          track: internal
+          whatsNewDirectory: distribution/whatsnew
