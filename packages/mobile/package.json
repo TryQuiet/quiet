@@ -1,6 +1,6 @@
 {
   "name": "zbaymobile",
-  "version": "1.6.11",
+  "version": "1.6.12",
   "private": true,
   "scripts": {
     "storybook": "ENVFILE=.env.storybook react-native run-android",
