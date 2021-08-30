@@ -22,8 +22,9 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - name: set up NDK
         run: |
+          cd android
           ls -al
-          cd Android/Sdk/tools/bin
+          cd android/Sdk/tools/bin
       - name: Cache NPM dependencies
         uses: actions/cache@v1
         with:
