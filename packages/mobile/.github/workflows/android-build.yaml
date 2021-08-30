@@ -22,11 +22,11 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - name: set up NDK
         run: |
-          cd ~/Android/Sdk/tools/bin
+          cd Android/Sdk/tools/bin
           ./sdkmanager --install "cmdline-tools"
           ./sdkmanager --install "ndk;20.1.5948944"
           ./sdkmanager --install "cmake;3.10.2.4988404"
-          cd ~/Android/Sdk/cmdline-tools/latest/bin
+          cd Android/Sdk/cmdline-tools/latest/bin
           yes | ./sdkmanager --licenses
       - name: Cache NPM dependencies
         uses: actions/cache@v1

@@ -12,10 +12,10 @@ jobs:
     runs-on: macOS-latest
     steps:
       - uses: actions/checkout@v1
-      
+
       - name: Install gpg
         run: brew install gnupg
-        
+
       - name: Switch XCode Version
         run: sudo xcode-select -s /Applications/Xcode_12.4.app
 
@@ -41,7 +41,7 @@ jobs:
         run: |
           cd nodejs-assets/nodejs-project
           patch -f -p0 < modules.patch
-          sed -i '' "s/.*wrtc.*/    \"wrtc\": \"..\/..\/wrtc-mock\"/" node_modules/waggle/package.json      
+          sed -i '' "s/.*wrtc.*/    \"wrtc\": \"..\/..\/wrtc-mock\"/" node_modules/waggle/package.json
       - name: Cache Pods dependencies
         uses: actions/cache@v1
         with:
@@ -63,7 +63,7 @@ jobs:
           cd ios && xcodebuild archive \
             -workspace ZbayMobile.xcworkspace \
             -scheme ZbayMobile \
-            -sdk iphoneos14.5 \
+            -sdk iphoneos14.4 \
             -configuration Release \
             -archivePath $PWD/build/ZbayMobile.xcarchive \
             IPHONEOS_DEPLOYMENT_TARGET=14.1
@@ -78,12 +78,11 @@ jobs:
             -exportPath $PWD/build
       - name: Upload ipa
         run: |
-            cd ios && xcrun altool --upload-app \
-            --type ios \
-            --file build/ZbayMobile.ipa \
-            -u $APPSTORE_USER -p $APP_PASSWORD \
-            --verbose
+          cd ios && xcrun altool --upload-app \
+          --type ios \
+          --file build/ZbayMobile.ipa \
+          -u $APPSTORE_USER -p $APP_PASSWORD \
+          --verbose
         env:
           APPSTORE_USER: ${{ secrets.APPSTORE_USER }}
-          APP_PASSWORD:  ${{ secrets.APP_PASSWORD }}
-          
+          APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
