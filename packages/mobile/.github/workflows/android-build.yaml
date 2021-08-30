@@ -22,12 +22,8 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - name: set up NDK
         run: |
+          ls -al
           cd Android/Sdk/tools/bin
-          ./sdkmanager --install "cmdline-tools"
-          ./sdkmanager --install "ndk;20.1.5948944"
-          ./sdkmanager --install "cmake;3.10.2.4988404"
-          cd ../../Sdk/cmdline-tools/latest/bin
-          yes | ./sdkmanager --licenses
       - name: Cache NPM dependencies
         uses: actions/cache@v1
         with:
@@ -51,7 +47,7 @@ jobs:
           cd nodejs-assets/nodejs-project
           patch -f -p0 < modules.patch
           sed -i "s/.*wrtc.*/    \"wrtc\": \"..\/..\/wrtc-mock\"/" node_modules/waggle/package.json
-      - name: Prepare singing configuration
+      - name: Prepare signing configuration
         run: |
           mkdir -p $HOME/.gradle
 
