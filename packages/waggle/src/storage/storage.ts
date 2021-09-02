@@ -65,8 +65,8 @@ export class Storage {
       ...new StorageOptions(),
       ...options
     }
-    this.orbitDbDir = path.join(this.zbayDir, Config.ORBIT_DB_DIR)
-    this.ipfsRepoPath = path.join(this.zbayDir, Config.IPFS_REPO_PATH)
+    this.orbitDbDir = path.join(this.zbayDir, this.options.orbitDbDir || Config.ORBIT_DB_DIR)
+    this.ipfsRepoPath = path.join(this.zbayDir, this.options.ipfsDir || Config.IPFS_REPO_PATH)
   }
 
   public async init(libp2p: any, peerID: PeerId): Promise<void> {
@@ -277,7 +277,7 @@ export class Storage {
     return channels
   }
 
-  public async updateChannels() {
+  public async updateChannels(): Promise<ChannelInfoResponse> {
     /** Update list of available public channels */
     if (!this.publicChannelsEventsAttached) {
       this.channels.events.on('replicated', () => {
@@ -288,7 +288,7 @@ export class Storage {
       })
       this.publicChannelsEventsAttached = true
     }
-    loadAllPublicChannels(this.io, this.getChannelsResponse())
+    return this.getChannelsResponse()
   }
 
   protected getAllEventLogEntries(db: EventStore<any>): any[] {
@@ -329,41 +329,26 @@ export class Storage {
 
     if (repo && !repo.eventsAttached) {
       log('Subscribing to channel ', channelAddress)
-      if (!this.options.isWaggleMobileMode) {
-        db.events.on('write', (_address, entry) => {
-          log(`Writing to public channel db ${channelAddress}`)
-          socketMessage(this.io, { message: entry.payload.value, channelAddress })
-        })
-        db.events.on('replicated', () => {
-          const ids = this.getAllEventLogEntries(db).map(msg => msg.id)
-          console.log('Message replicated')
-          sendIdsToZbay(this.io, ids, channelAddress)
-        })
-        db.events.on('ready', () => {
-          const ids = this.getAllEventLogEntries(db).map(msg => msg.id)
-          sendIdsToZbay(this.io, ids, channelAddress)
-        })
-        repo.eventsAttached = true
+      db.events.on('write', (_address, entry) => {
+        log(`Writing to public channel db ${channelAddress}`)
+        socketMessage(this.io, { message: entry.payload.value, channelAddress })
+      })
+      db.events.on('replicated', () => {
+        const ids = this.getAllEventLogEntries(db).map(msg => msg.id)
+        console.log('Message replicated')
+        sendIdsToZbay(this.io, ids, channelAddress)
+      })
+      db.events.on('ready', () => {
         const ids = this.getAllEventLogEntries(db).map(msg => msg.id)
         sendIdsToZbay(this.io, ids, channelAddress)
-      } else {
-        db.events.on('write', (_address, entry) => {
-          log(`Writing to messages db ${channelAddress}`)
-          log(entry.payload.value)
-          socketMessage(this.io, { message: entry.payload.value, channelAddress })
-        })
-        db.events.on('replicated', () => {
-          log('Message replicated')
-          loadAllMessages(this.io, this.getAllEventLogEntries(db), channelAddress)
-        })
-        repo.eventsAttached = true
-        loadAllMessages(this.io, this.getAllEventLogEntries(db), channelAddress)
-        log('Subscription to channel ready', channelAddress)
-      }
+      })
+      repo.eventsAttached = true
+      const ids = this.getAllEventLogEntries(db).map(msg => msg.id)
+      sendIdsToZbay(this.io, ids, channelAddress)
     }
   }
 
-  public async askForMessages(channelAddress: string, ids: string[]) {
+  public async askForMessages(channelAddress: string, ids: string[]): Promise<{filteredMessages: IMessage[], channelAddress: string}> {
     const repo = this.publicChannelsRepos.get(channelAddress)
     if (!repo) return
     const messages = this.getAllEventLogEntries(repo.db)
@@ -372,7 +357,7 @@ export class Storage {
     for (let id of ids) {
       filteredMessages.push(...messages.filter(i => i.id === id))
     }
-    loadAllMessages(this.io, filteredMessages, channelAddress)
+    return { filteredMessages, channelAddress }
   }
 
   public async sendMessage(channelAddress: string, message: IMessage) {
@@ -418,6 +403,9 @@ export class Storage {
     this.publicChannelsRepos.set(channelAddress, { db, eventsAttached: false })
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await db.load({ fetchEntryTimeout: 2000 })
+    db.events.on('replicate.progress', (address, _hash, _entry, progress, total) => {
+      log(`progress ${progress as string}/${total as string}. Address: ${address as string}`)
+    })
     return db
   }
 
@@ -566,6 +554,18 @@ export class Storage {
     log('Saving certificate...')
     await this.certificates.add(certificate)
     return true
+  }
+
+  public getAllUsers() {
+    const certs = this.getAllEventLogEntries(this.certificates)
+    const allUsers = []
+    for (const cert of certs) {
+      const parsedCert = parseCertificate(cert)
+      const onionAddress = getCertFieldValue(parsedCert, CertFieldsTypes.commonName)
+      const peerId = getCertFieldValue(parsedCert, CertFieldsTypes.peerId)
+      allUsers.push({ onionAddress, peerId })
+    }
+    return allUsers
   }
 
   public usernameExists(username: string): boolean {

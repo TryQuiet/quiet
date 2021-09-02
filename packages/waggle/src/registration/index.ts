@@ -2,13 +2,16 @@ import express, { Request, Response } from 'express'
 import { Tor } from '../torManager'
 import { Certificate } from 'pkijs'
 import debug from 'debug'
-import { ConnectionsManager } from '../libp2p/connectionsManager'
+// import { ConnectionsManager } from '../libp2p/connectionsManager'
 import { createUserCert, loadCSR } from '@zbayapp/identity'
 import { CertFieldsTypes, getCertFieldValue } from '@zbayapp/identity/lib/common'
 import { Server } from 'http'
 import { validate, IsBase64, IsNotEmpty } from 'class-validator'
 import { DataFromPems } from '../common/types'
 import { CsrContainsFields, IsCsr } from './validators'
+import fp from 'find-free-port'
+import { Storage } from '../storage'
+
 const log = Object.assign(debug('waggle:registration'), {
   error: debug('waggle:registration:err')
 })
@@ -24,18 +27,18 @@ class UserCsrData {
 export class CertificateRegistration {
   private readonly _app: express.Application
   private _server: Server
-  private readonly _port: number
-  private readonly _privKey: string
+  private _port: number
+  private _privKey: string
   private readonly tor: Tor
-  private readonly _connectionsManager: ConnectionsManager
+  private readonly _storage: Storage
   private _onionAddress: string
   private readonly _dataFromPems: DataFromPems
 
-  constructor(hiddenServicePrivKey: string, tor: Tor, connectionsManager: ConnectionsManager, dataFromPems: DataFromPems, port?: number) {
+  constructor(tor: Tor, storage: Storage, dataFromPems: DataFromPems, hiddenServicePrivKey?: string, port?: number) {
     this._app = express()
     this._privKey = hiddenServicePrivKey
-    this._port = port || 7789
-    this._connectionsManager = connectionsManager
+    this._port = port
+    this._storage = storage
     this.tor = tor
     this._onionAddress = null
     this._dataFromPems = dataFromPems
@@ -46,6 +49,24 @@ export class CertificateRegistration {
     this._app.use(express.json())
     // eslint-disable-next-line
     this._app.post('/register', async (req, res): Promise<void> => await this.registerUser(req, res))
+  }
+
+  public getHiddenServiceData() {
+    return {
+      privateKey: this._privKey,
+      onionAddress: this._onionAddress,
+      port: this._port
+    }
+  }
+
+  public async getPeers (): Promise<string[]> {
+    const users = this._storage.getAllUsers()
+    const peers = users.map(async (userData: {onionAddress: string, peerId: string}) => {
+      const [port] = await fp(1234) // port probably does not matter - to be checked
+      return `/dns4/${userData.onionAddress}/tcp/${port as string}/ws/p2p/${userData.peerId}`
+    })
+
+    return await Promise.all(peers)
   }
 
   private async registerUser(req: Request, res: Response): Promise<void> {
@@ -60,7 +81,7 @@ export class CertificateRegistration {
 
     const parsedCsr = await loadCSR(userData.csr)
     const username = getCertFieldValue(parsedCsr, CertFieldsTypes.nickName)
-    const usernameExists = this._connectionsManager.storage.usernameExists(username)
+    const usernameExists = this._storage.usernameExists(username)
     if (usernameExists) {
       log(`Username ${username} is taken`)
       res.status(403).send()
@@ -75,12 +96,15 @@ export class CertificateRegistration {
       res.status(400).send()
       return
     }
-    res.send(JSON.stringify(cert.userCertString))
+    res.send({
+      certificate: cert.userCertString,
+      peers: await this.getPeers()
+    })
   }
 
   private async registerCertificate(userCsr: string): Promise<Certificate> {
     const userCert = await createUserCert(this._dataFromPems.certificate, this._dataFromPems.privKey, userCsr, new Date(), new Date(2030, 1, 1))
-    const certSaved = await this._connectionsManager.storage.saveCertificate(userCert.userCertString, this._dataFromPems)
+    const certSaved = await this._storage.saveCertificate(userCert.userCertString, this._dataFromPems)
     if (!certSaved) {
       throw new Error('Could not save certificate')
     }
@@ -89,11 +113,21 @@ export class CertificateRegistration {
   }
 
   public async init() {
-    this._onionAddress = await this.tor.spawnHiddenService({
-      virtPort: this._port,
-      targetPort: this._port,
-      privKey: this._privKey
-    })
+    if (!this._port) {
+      const [port] = await fp(7789)
+      this._port = port
+    }
+    if (this._privKey) {
+      this._onionAddress = await this.tor.spawnHiddenService({
+        virtPort: this._port,
+        targetPort: this._port,
+        privKey: this._privKey
+      })
+    } else {
+      const data = await this.tor.createNewHiddenService(this._port, this._port)
+      this._onionAddress = data.onionAddress
+      this._privKey = data.privateKey
+    }
   }
 
   public async listen(): Promise<void> {

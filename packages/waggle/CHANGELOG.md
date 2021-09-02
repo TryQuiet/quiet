@@ -1,5 +1,22 @@
 # Changelog
 
+## [3.0.0]
+
+### Changed
+
+--- BREAKING CHANGES --- 
+* ConnectionsManager api changed
+* Refactor responsibilities into separate classes
+* Many websocket events need peerId now; Socket responses contain peerId
+
+### Added
+
+* Creating and relaunching community; launching registrar (via websockets)
+
+### Removed
+
+* isWaggleMobileMode option
+
 ## [2.1.0]
 
 ### Added

@@ -1,4 +1,5 @@
 import tmp from 'tmp'
+import fp from 'find-free-port'
 import { SocksProxyAgent } from 'socks-proxy-agent'
 import { Config } from './constants'
 import { DummyIOServer, getPorts, Ports, torBinForPlatform, torDirForPlatform } from './utils'
@@ -41,8 +42,6 @@ export const spawnTorProcess = async (zbayDirPath: string, ports?: Ports): Promi
 export const createMinConnectionManager = (options: ConnectionsManagerOptions): ConnectionsManager => {
   if (!options.env?.appDataPath) throw new Error('Test connection manager is lacking appDataPath!')
   return new ConnectionsManager({
-    port: 1111,
-    host: 'abcd.onion',
     agentHost: 'localhost',
     agentPort: 2222,
     io: new DummyIOServer(),
@@ -53,13 +52,14 @@ export const createMinConnectionManager = (options: ConnectionsManagerOptions): 
   })
 }
 
-export const createLibp2p = (peerId: PeerId = null): Libp2pType => {
+export const createLibp2p = async (peerId: PeerId): Promise<Libp2pType> => {
+  const [port] = await fp(1111)
   return ConnectionsManager.createBootstrapNode({
     peerId,
-    listenAddrs: ['/dns4/localhost/tcp/1111/ws'],
+    listenAddrs: [`/dns4/localhost/tcp/${port as string}/ws`],
     bootstrapMultiaddrsList: testBootstrapMultiaddrs,
     agent: new SocksProxyAgent({ port: 1234, host: 'localhost' }),
-    localAddr: `/dns4/localhost/tcp/1111/ws/p2p/${peerId.toB58String()}`,
+    localAddr: `/dns4/localhost/tcp/${port as string}/ws/p2p/${peerId.toB58String()}`,
     transportClass: WebsocketsOverTor
   })
 }

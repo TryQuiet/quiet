@@ -1,6 +1,5 @@
 import { DataServer } from './socket/DataServer'
 import { ConnectionsManager } from './libp2p/connectionsManager'
-import initListeners from './socket/listeners'
 import { Command } from 'commander'
 
 export const runWaggle = async (): Promise<any> => {
@@ -11,6 +10,8 @@ export const runWaggle = async (): Promise<any> => {
     .requiredOption('-p, --port <port>', 'onion port')
     .requiredOption('-s, --socks <socks>', 'socks port')
     .requiredOption('-d, --directory <directory>', 'app data path')
+    .requiredOption('-t, --torControl <torControl>', 'tor control port')
+    .requiredOption('-tp, --torPassword <torPassword>', 'tor password')
 
   program.parse(process.argv)
 
@@ -19,9 +20,7 @@ export const runWaggle = async (): Promise<any> => {
   const dataServer = new DataServer()
   await dataServer.listen()
 
-  const connectionsManager = new ConnectionsManager({
-    port: options.port,
-    host: options.address,
+  const connectionsManager: ConnectionsManager = new ConnectionsManager({
     agentHost: 'localhost',
     agentPort: options.socks,
     io: dataServer.io,
@@ -30,21 +29,13 @@ export const runWaggle = async (): Promise<any> => {
         appDataPath: options.directory
       },
       createPaths: false,
-      isWaggleMobileMode: false
+      spawnTor: false,
+      torControlPort: options.torControl,
+      torPassword: options.torPassword
     }
   })
 
-  initListeners(dataServer.io, connectionsManager)
-
-  connectionsManager
-    .initializeNode()
-    .then(async () => {
-      await connectionsManager.initStorage()
-    })
-    .catch(error => {
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      console.error(`Couldn't initialize waggle: ${error.message}`)
-    })
+  await connectionsManager.init()
 }
 
 runWaggle().catch(error => {

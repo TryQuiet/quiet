@@ -1,12 +1,12 @@
 import { Tor } from './torManager'
 import { DataServer } from './socket/DataServer'
 import { ConnectionsManager } from './libp2p/connectionsManager'
-import initListeners from './socket/listeners'
 import { dataFromRootPems, ZBAY_DIR_PATH } from './constants'
 import * as os from 'os'
 import fs from 'fs'
 import PeerId from 'peer-id'
 import { getPorts, torBinForPlatform, torDirForPlatform } from './utils'
+import CommunitiesManager from './communities/manager'
 
 export default class Node {
   tor: Tor
@@ -47,21 +47,32 @@ export default class Node {
     return await PeerId.createFromJSON(parsedId)
   }
 
-  async getPeer(): Promise<PeerId | null> {
+  async getPeer(): Promise<PeerId> {
     if (!this.peerIdFileName) {
-      return null
+      return await PeerId.create()
     }
     return await this.getStaticPeer()
   }
 
-  public async init(): Promise<void> {
+  public async init(): Promise<void> { // TODO: Check if this is working
     this.tor = await this.spawnTor()
     const onionAddress = await this.spawnService()
     console.log('onion', onionAddress)
     const dataServer = await this.initDataServer()
-    const connectonsManager = await this.initConnectionsManager(dataServer, onionAddress)
-    await this.initListeners(dataServer, connectonsManager)
-    await connectonsManager.setupRegistrationService(this.tor, process.env.HIDDEN_SERVICE_SECRET_REGISTRATION, dataFromRootPems)
+    const connectonsManager = await this.initConnectionsManager(dataServer)
+    const communities = new CommunitiesManager(connectonsManager)
+    const peerId = await this.getPeer()
+    await communities.initStorage(
+      peerId,
+      onionAddress,
+      this.port,
+      ['/dns4/2lmfmbj4ql56d55lmv7cdrhdlhls62xa4p6lzy6kymxuzjlny3vnwyqd.onion/tcp/7788/ws/p2p/Qmak8HeMad8X1HGBmz2QmHfiidvGnhu6w6ugMKtx8TFc85']
+    )
+    await communities.setupRegistrationService(
+      communities.getStorage(peerId.toB58String()),
+      dataFromRootPems,
+      process.env.HIDDEN_SERVICE_SECRET_REGISTRATION
+    )
   }
 
   async spawnTor (): Promise<Tor> {
@@ -109,29 +120,22 @@ export default class Node {
     return dataServer
   }
 
-  async initConnectionsManager(dataServer: DataServer, host: string, storageClass?: any, options?: any): Promise<ConnectionsManager> {
+  async initConnectionsManager(dataServer: DataServer, storageClass?: any, options?: any): Promise<ConnectionsManager> {
     console.log('initStorage.storageClass:->', storageClass)
-    const peer = await this.getPeer()
     const connectonsManager = new ConnectionsManager({
-      port: this.port,
-      host: host,
       agentHost: 'localhost',
       agentPort: this.socksProxyPort,
       io: dataServer.io,
       storageClass,
       options: {
-        bootstrapMultiaddrs: process.env.BOOTSTRAP_ADDRS ? [process.env.BOOTSTRAP_ADDRS] : [],
         isEntryNode: true,
+        torControlPort: this.torControlPort,
+        torPassword: this.tor.torPassword,
+        spawnTor: false,
         ...options
       }
     })
-    const node = await connectonsManager.initializeNode(peer)
-    console.log(node)
-    await connectonsManager.initStorage()
+    await connectonsManager.init()
     return connectonsManager
-  }
-
-  async initListeners(dataServer: DataServer, connectonsManager: ConnectionsManager) {
-    initListeners(dataServer.io, connectonsManager)
   }
 }

@@ -2,6 +2,11 @@ import fs from 'fs'
 import fp from 'find-free-port'
 import path from 'path'
 import SocketIO from 'socket.io'
+import debug from 'debug'
+
+const log = Object.assign(debug('waggle:test'), {
+  error: debug('waggle:test:err')
+})
 
 export interface Ports {
   socksPort: number
@@ -38,7 +43,7 @@ export const getPorts = async (): Promise<Ports> => {
 
 export class DummyIOServer extends SocketIO.Server {
   emit(event: string, ...args: any[]): boolean {
-    console.log(`Emitting ${event} with args:`, args)
+    log(`Emitting ${event} with args:`, args)
     return true
   }
 }

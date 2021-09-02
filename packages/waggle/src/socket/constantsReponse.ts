@@ -11,5 +11,9 @@ export enum EventTypesResponse {
   SEND_IDS = 'sendIds',
   SEND_USER_CERTIFICATE = 'sendUserCertificate',
   CERTIFICATE_REGISTRATION_ERROR = 'certificateRegistrationError',
-  RESPONSE_GET_CERTIFICATES = 'responseGetCertificates'
+  RESPONSE_GET_CERTIFICATES = 'responseGetCertificates',
+  NEW_COMMUNITY = 'newCommunity',
+  COMMUNITY = 'community',
+  REGISTRAR = 'registrar',
+  REGISTRAR_ERROR = 'registrarError'
 }

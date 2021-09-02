@@ -2,12 +2,14 @@ import { createRootCA, createUserCert, createUserCsr, verifyUserCert, configCryp
 import { SocksProxyAgent } from 'socks-proxy-agent'
 import { CertificateRegistration } from '.'
 import { Time } from 'pkijs'
-import { createMinConnectionManager, createTmpDir, spawnTorProcess, TmpDir, tmpZbayDirPath, TorMock } from '../testUtils'
-import { getPorts, Ports } from '../utils'
+import { createLibp2p, createTmpDir, spawnTorProcess, TmpDir, tmpZbayDirPath, TorMock } from '../testUtils'
+import { DummyIOServer, getPorts, Ports } from '../utils'
 import fetch, { Response } from 'node-fetch'
-import { ConnectionsManager } from '../libp2p/connectionsManager'
 import { Tor } from '../torManager'
 import { RootCA } from '@zbayapp/identity/lib/generateRootCA'
+import { Storage } from '../storage'
+import PeerId from 'peer-id'
+import { DataFromPems } from '../common/types'
 jest.setTimeout(50_000)
 
 async function registerUserTest(csr: string, socksPort: number, localhost: boolean = true): Promise<Response> {
@@ -25,12 +27,49 @@ async function registerUserTest(csr: string, socksPort: number, localhost: boole
   return await fetch(`http://${address}:7789/register`, options)
 }
 
+async function setupRegistrar(tor: Tor, storage: Storage, dataFromPems: DataFromPems, hiddenServiceKey?: string, port?: number) {
+  const certRegister = new CertificateRegistration(
+    tor,
+    storage,
+    dataFromPems,
+    hiddenServiceKey,
+    port
+  )
+  try {
+    await certRegister.init()
+  } catch (err) {
+    console.error(`Couldn't initialize certificate registration service: ${err as string}`)
+    return
+  }
+  try {
+    await certRegister.listen()
+  } catch (err) {
+    console.error(`Certificate registration service couldn't start listening: ${err as string}`)
+  }
+  return certRegister
+}
+
+const getStorage = async (zbayDir: string) => {
+  const peerId = await PeerId.create()
+  const storage = new Storage(
+    zbayDir,
+    new DummyIOServer(),
+    {
+      ...{},
+      orbitDbDir: `OrbitDB${peerId.toB58String()}`,
+      ipfsDir: `Ipfs${peerId.toB58String()}`
+    }
+  )
+  await storage.init(await createLibp2p(peerId), peerId)
+  return storage
+}
+
 describe('Registration service', () => {
   let tmpDir: TmpDir
   let tmpAppDataPath: string
   let tor: Tor
-  let manager: ConnectionsManager
   let registrationService: CertificateRegistration
+  let storage: Storage
   let certRoot: RootCA
   let testHiddenService: string
   let ports: Ports
@@ -45,16 +84,13 @@ describe('Registration service', () => {
     tmpAppDataPath = tmpZbayDirPath(tmpDir.name)
     tor = null
     registrationService = null
-    manager = createMinConnectionManager({ env: { appDataPath: tmpAppDataPath } })
     certRoot = await createRootCA(new Time({ type: 1, value: new Date() }), new Time({ type: 1, value: new Date(2030, 1, 1) }), 'testRootCA')
     ports = await getPorts()
   })
 
   afterEach(async () => {
     tor && await tor.kill()
-    if (manager) {
-      await manager.storage.stopOrbitDb()
-    }
+    storage && await storage.stopOrbitDb()
     registrationService && await registrationService.stop()
     tmpDir.removeCallback()
   })
@@ -69,15 +105,15 @@ describe('Registration service', () => {
       signAlg: configCrypto.signAlg,
       hashAlg: configCrypto.hashAlg
     })
-    const saveCertificate = jest.spyOn(manager.storage, 'saveCertificate')
+    storage = await getStorage(tmpAppDataPath)
+    const saveCertificate = jest.spyOn(storage, 'saveCertificate')
     tor = await spawnTorProcess(tmpAppDataPath, ports)
     await tor.init()
-    await manager.initializeNode()
-    await manager.initStorage()
-    registrationService = await manager.setupRegistrationService(
+    registrationService = await setupRegistrar(
       tor,
-      testHiddenService,
-      { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString }
+      storage,
+      { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString },
+      testHiddenService
     )
     const response = await registerUserTest(user.userCsr, ports.socksPort, false)
     const returnedUserCertificate = await response.json()
@@ -95,20 +131,21 @@ describe('Registration service', () => {
       signAlg: configCrypto.signAlg,
       hashAlg: configCrypto.hashAlg
     })
-    const saveCertificate = jest.spyOn(manager.storage, 'saveCertificate')
-    await manager.initializeNode()
-    await manager.initStorage()
-    registrationService = await manager.setupRegistrationService(
+    storage = await getStorage(tmpAppDataPath)
+    registrationService = await setupRegistrar(
       // @ts-expect-error
       new TorMock(),
-      'testHiddenServiceKey',
+      storage,
       { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString }
     )
+    const saveCertificate = jest.spyOn(storage, 'saveCertificate')
     const response = await registerUserTest(user.userCsr, ports.socksPort)
-    const returnedUserCertificate = await response.json()
+    const responseData = await response.json()
+    console.log(responseData)
     expect(saveCertificate).toBeCalledTimes(1)
-    const isProperUserCert = await verifyUserCert(certRoot.rootCertString, returnedUserCertificate)
+    const isProperUserCert = await verifyUserCert(certRoot.rootCertString, responseData.certificate)
     expect(isProperUserCert.result).toBe(true)
+    expect(responseData.peers.length).toBe(1)
   })
 
   it('returns 403 if username already exists', async () => {
@@ -129,14 +166,13 @@ describe('Registration service', () => {
       hashAlg: configCrypto.hashAlg
     })
     const userCert = await createUserCert(certRoot.rootCertString, certRoot.rootKeyString, user.userCsr, new Date(), new Date(2030, 1, 1))
-    await manager.initializeNode()
-    await manager.initStorage()
-    await manager.storage.saveCertificate(userCert.userCertString, { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString })
-    const saveCertificate = jest.spyOn(manager.storage, 'saveCertificate')
-    registrationService = await manager.setupRegistrationService(
+    storage = await getStorage(tmpAppDataPath)
+    await storage.saveCertificate(userCert.userCertString, { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString })
+    const saveCertificate = jest.spyOn(storage, 'saveCertificate')
+    registrationService = await setupRegistrar(
       // @ts-expect-error
       new TorMock(),
-      'testHiddenServiceKey',
+      storage,
       { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString }
     )
     const response = await registerUserTest(userNew.userCsr, ports.socksPort)
@@ -145,13 +181,12 @@ describe('Registration service', () => {
   })
 
   it('returns 400 if no csr in data or csr has wrong format', async () => {
-    await manager.initializeNode()
-    await manager.initStorage()
-    const saveCertificate = jest.spyOn(manager.storage, 'saveCertificate')
-    registrationService = await manager.setupRegistrationService(
+    storage = await getStorage(tmpAppDataPath)
+    const saveCertificate = jest.spyOn(storage, 'saveCertificate')
+    registrationService = await setupRegistrar(
       // @ts-expect-error
       new TorMock(),
-      'testHiddenServiceKey',
+      storage,
       { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString }
     )
     for (const invalidCsr of ['', 'abcd']) {
@@ -162,10 +197,11 @@ describe('Registration service', () => {
   })
 
   it('returns 400 if csr is lacking a field', async () => {
-    registrationService = await manager.setupRegistrationService(
+    storage = await getStorage(tmpAppDataPath)
+    registrationService = await setupRegistrar(
       // @ts-expect-error
       new TorMock(),
-      'testHiddenServiceKey',
+      storage,
       { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString }
     )
     // Csr with only commonName and nickName

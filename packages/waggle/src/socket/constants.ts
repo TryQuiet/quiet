@@ -22,5 +22,8 @@ export enum EventTypesServer {
   REQUEST_PEER_ID = 'requestPeerId',
   ASK_FOR_MESSAGES = 'askForMessages',
   REGISTER_USER_CERTIFICATE = 'registerUserCertificate',
-  SAVE_CERTIFICATE = 'saveCertificate'
+  SAVE_CERTIFICATE = 'saveCertificate',
+  CREATE_COMMUNITY = 'createCommunity',
+  LAUNCH_COMMUNITY = 'launchCommunity',
+  LAUNCH_REGISTRAR = 'launchRegistrar'
 }

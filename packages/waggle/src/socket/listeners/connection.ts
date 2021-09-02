@@ -1,73 +1,80 @@
 import { EventTypesServer } from '../constants'
-import { ConnectionsManager } from '../../libp2p/connectionsManager'
 import { IChannelInfo, IMessage } from '../../common/types'
+import IOProxy from '../IOProxy'
+import PeerId from 'peer-id'
 
-export const connections = (io, connectionsManager: ConnectionsManager) => {
+export const connections = (io, ioProxy: IOProxy) => {
   io.on(EventTypesServer.CONNECTION, socket => {
     console.log('websocket connected')
-    socket.on(EventTypesServer.SUBSCRIBE_FOR_TOPIC, async (channelData: IChannelInfo) => {
-      await connectionsManager.subscribeForTopic(channelData)
+    socket.on(EventTypesServer.SUBSCRIBE_FOR_TOPIC, async (peerId: string, channelData: IChannelInfo) => {
+      await ioProxy.subscribeForTopic(peerId, channelData)
     })
     socket.on(
       EventTypesServer.SEND_MESSAGE,
-      async ({ channelAddress, message }: { channelAddress: string, message: IMessage }) => {
-        await connectionsManager.sendMessage(channelAddress, message)
+      async (peerId: string, { channelAddress, message }: { channelAddress: string, message: IMessage }) => {
+        await ioProxy.sendMessage(peerId, channelAddress, message)
       }
     )
-    socket.on(EventTypesServer.GET_PUBLIC_CHANNELS, async () => {
-      await connectionsManager.updateChannels()
+    socket.on(EventTypesServer.GET_PUBLIC_CHANNELS, async (peerId: string) => {
+      await ioProxy.updateChannels(peerId)
     })
-    socket.on(EventTypesServer.FETCH_ALL_MESSAGES, async (channelAddress: string) => {
-      await connectionsManager.loadAllMessages(channelAddress)
+    socket.on(EventTypesServer.FETCH_ALL_MESSAGES, async (peerId: string, channelAddress: string) => {
+      await ioProxy.loadAllMessages(peerId, channelAddress)
     })
     socket.on(
       EventTypesServer.ADD_USER,
-      async ({ publicKey, halfKey }: { publicKey: string, halfKey: string }) => {
-        await connectionsManager.addUser(publicKey, halfKey)
+      async (peerId: string, { publicKey, halfKey }: { publicKey: string, halfKey: string }) => {
+        await ioProxy.addUser(peerId, publicKey, halfKey)
       }
     )
-    socket.on(EventTypesServer.GET_AVAILABLE_USERS, async () => {
-      await connectionsManager.getAvailableUsers()
+    socket.on(EventTypesServer.GET_AVAILABLE_USERS, async (peerId: string) => {
+      await ioProxy.getAvailableUsers(peerId)
     })
     socket.on(
       EventTypesServer.INITIALIZE_CONVERSATION,
-      async ({ address, encryptedPhrase }: { address: string, encryptedPhrase: string }) => {
-        await connectionsManager.initializeConversation(address, encryptedPhrase)
+      async (peerId: string, { address, encryptedPhrase }: { address: string, encryptedPhrase: string }) => {
+        await ioProxy.initializeConversation(peerId, address, encryptedPhrase)
       }
     )
-    socket.on(EventTypesServer.GET_PRIVATE_CONVERSATIONS, async () => {
-      await connectionsManager.getPrivateConversations()
+    socket.on(EventTypesServer.GET_PRIVATE_CONVERSATIONS, async (peerId: string) => {
+      await ioProxy.getPrivateConversations(peerId)
     })
     socket.on(
       EventTypesServer.SEND_DIRECT_MESSAGE,
-      async ({ channelAddress, message }: { channelAddress: string, message: string }) => {
-        await connectionsManager.sendDirectMessage(channelAddress, message)
+      async (peerId: string, { channelAddress, message }: { channelAddress: string, message: string }) => {
+        await ioProxy.sendDirectMessage(peerId, channelAddress, message)
       }
     )
     socket.on(
       EventTypesServer.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD,
-      async (channelAddress: string) => {
-        await connectionsManager.subscribeForDirectMessageThread(channelAddress)
+      async (peerId: string, channelAddress: string) => {
+        await ioProxy.subscribeForDirectMessageThread(peerId, channelAddress)
       }
     )
-    socket.on(EventTypesServer.SUBSCRIBE_FOR_ALL_CONVERSATIONS, async (conversations: string[]) => {
-      await connectionsManager.subscribeForAllConversations(conversations)
-    })
-    socket.on(EventTypesServer.REQUEST_PEER_ID, () => {
-      connectionsManager.sendPeerId()
+    socket.on(EventTypesServer.SUBSCRIBE_FOR_ALL_CONVERSATIONS, async (peerId: string, conversations: string[]) => {
+      await ioProxy.subscribeForAllConversations(peerId, conversations)
     })
     socket.on(
       EventTypesServer.ASK_FOR_MESSAGES,
-      async ({ channelAddress, ids }: { channelAddress: string, ids: string[] }) => {
-        await connectionsManager.askForMessages(channelAddress, ids)
+      async (peerId: string, { channelAddress, ids }: { channelAddress: string, ids: string[] }) => {
+        await ioProxy.askForMessages(peerId, channelAddress, ids)
       }
     )
     socket.on(EventTypesServer.REGISTER_USER_CERTIFICATE, async (serviceAddress: string, userCsr: string) => {
-      await connectionsManager.registerUserCertificate(serviceAddress, userCsr)
+      await ioProxy.registerUserCertificate(serviceAddress, userCsr)
     })
-    socket.on(EventTypesServer.SAVE_CERTIFICATE, async (certificate: string) => {
+    socket.on(EventTypesServer.SAVE_CERTIFICATE, async (peerId: string, certificate: string) => {
       console.log('Received saveCertificate websocket event, processing.')
-      await connectionsManager.saveCertificate(certificate)
+      await ioProxy.saveCertificate(peerId, certificate)
+    })
+    socket.on(EventTypesServer.CREATE_COMMUNITY, async (payload) => {
+      await ioProxy.createCommunity(payload.id, payload.rootCertString, payload.rootCertKey)
+    })
+    socket.on(EventTypesServer.LAUNCH_COMMUNITY, async (peerId: PeerId.JSONPeerId, hiddenServiceKey: string, peers: string[]) => {
+      await ioProxy.launchCommunity(peerId, hiddenServiceKey, peers)
+    })
+    socket.on(EventTypesServer.LAUNCH_REGISTRAR, async (id: string, peerId: string, rootCertString: string, rootKeyString: string, hiddenServicePrivKey?: string, port?: number) => {
+      await ioProxy.launchRegistrar(id, peerId, rootCertString, rootKeyString, hiddenServicePrivKey, port)
     })
   })
 }
