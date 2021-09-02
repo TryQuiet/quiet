@@ -9,13 +9,13 @@ import { SocketActionTypes } from '../../socket/const/actionTypes';
 export function* registerCertificateSaga(
   socket: Socket,
   action: PayloadAction<
-    ReturnType<typeof identityActions.storeUserCsr>['payload']
+    ReturnType<any>['payload']
   >
 ): Generator {
   yield* fork(handleCertificateActions, socket);
   yield* apply(socket, socket.emit, [
     SocketActionTypes.REGISTER_USER_CERTIFICATE,
-    'http://wzispgrbrrkt3bari4kljpqz2j6ozzu3vlsoi2wqupgu7ewi4ncibrid.onion:7789',
+    action.payload.registrarAddress,
     action.payload.userCsr,
   ]);
 }
@@ -35,9 +35,9 @@ export function subscribe(socket: Socket) {
   >((emit) => {
     socket.on(
       SocketActionTypes.SEND_USER_CERTIFICATE,
-      (certificate: string) => {
+      (payload: {certificate: string, communityId: string}) => {
         console.log('storeUserCertificate')
-        emit(identityActions.storeUserCertificate(certificate));
+        emit(identityActions.storeUserCertificate({userCertificate: payload.certificate, communityId: payload.communityId}));
       }
     );
     socket.on(

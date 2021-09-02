@@ -28,6 +28,7 @@ import {
   errorsReducer,
   errorsActions,
 } from './sagas/errors/errors.slice';
+import { communitiesActions, communitiesReducer } from './sagas/communities/communities.slice';
 
 export const publicChannels = {
   reducer: publicChannelsReducer,
@@ -63,6 +64,12 @@ export const errors = {
   selectors: errorsSelectors
 }
 
+export const communities = {
+  reducer: communitiesReducer,
+  actions: communitiesActions,
+  //selectors: communitiesSelectors
+}
+
 export const socket = {
   useIO,
 };
@@ -74,4 +81,5 @@ export default {
   users,
   identity,
   messages,
+  communities
 };

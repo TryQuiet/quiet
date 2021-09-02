@@ -28,4 +28,9 @@ export enum SocketActionTypes {
   RESPONSE_GET_CERTIFICATES = 'responseGetCertificates',
   SEND_MESSAGE = 'sendMessage',
   MESSAGE = 'message',
+  CREATE_COMMUNITY = 'createCommunity',
+  NEW_COMMUNITY = 'newCommunity',
+  COMMUNITY = 'community',
+  REGISTRAR = 'registrar',
+  REGISTRAR_ERROR = 'registrarError'
 }

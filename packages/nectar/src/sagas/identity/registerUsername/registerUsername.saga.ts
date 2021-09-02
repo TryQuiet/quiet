@@ -9,7 +9,7 @@ import {config} from '../../users/const/certFieldTypes'
 
 export function* registerUsernameSaga(
   action: PayloadAction<
-    ReturnType<typeof identityActions.registerUsername>['payload']
+    ReturnType<any>['payload']
   >
 ): Generator {
   console.log('registerUsernameSaga');
@@ -31,7 +31,7 @@ export function* registerUsernameSaga(
 
   
 
-  if (!commonName || !peerId || !dmPublicKey) {
+  if (!commonName || !peerId) {
     yield* put(
       errorsActions.certificateRegistration(
         "You're not connected with other peers."

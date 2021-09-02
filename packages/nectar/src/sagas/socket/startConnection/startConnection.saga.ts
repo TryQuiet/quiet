@@ -21,6 +21,8 @@ import {
   usersActions,
 } from '../../users/users.slice';
 import { IMessage } from '../../publicChannels/publicChannels.types';
+import { communitiesMasterSaga } from '../../communities/communities.master.saga';
+import {communitiesActions} from '../../communities/communities.slice'
 
 // TODO
 
@@ -52,6 +54,7 @@ export function* useIO(socket: Socket): Generator {
     fork(publicChannelsMasterSaga, socket),
     fork(messagesMasterSaga, socket),
     fork(identityMasterSaga, socket),
+    fork(communitiesMasterSaga, socket)
   ]);
 }
 
@@ -65,16 +68,17 @@ export function* handleActions(socket: Socket): Generator {
 
 export function subscribe(socket: Socket) {
   return eventChannel<
-    | ReturnType<typeof identityActions.storePeerId>
+    // | ReturnType<typeof identityActions.storePeerId>
     | ReturnType<typeof publicChannelsActions.responseGetPublicChannels>
     | ReturnType<typeof publicChannelsActions.responseSendMessagesIds>
     | ReturnType<typeof publicChannelsActions.responseAskForMessages>
     | ReturnType<typeof publicChannelsActions.onMessagePosted>
     | ReturnType<typeof usersActions.responseSendCertificates>
+    | ReturnType<typeof communitiesActions.responseCreateCommunity>
   >((emit) => {
-    socket.on(SocketActionTypes.SEND_PEER_ID, (payload: string) => {
-      emit(identityActions.storePeerId(payload));
-    });
+    // socket.on(SocketActionTypes.SEND_PEER_ID, (payload: string) => {
+    //   emit(identityActions.storePeerId(payload));
+    // });
     socket.on(
       SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS,
       (payload: GetPublicChannelsResponse) => {
@@ -102,6 +106,31 @@ export function subscribe(socket: Socket) {
         emit(usersActions.responseSendCertificates(payload));
       }
     );
+    socket.on(
+      SocketActionTypes.NEW_COMMUNITY,
+      (payload: {id:string, network: string}) => {
+        console.log('createdCommunity')
+        console.log(payload)
+        emit(communitiesActions.responseCreateCommunity(payload));
+      }
+    );
+    socket.on(
+      SocketActionTypes.REGISTRAR,
+      (payload: {id:string, network: string}) => {
+        console.log('created Registrar')
+        console.log(payload)
+        emit(communitiesActions.responseRegistrar(payload));
+      }
+    );
+    socket.on(
+      SocketActionTypes.REGISTRAR_ERROR,
+      (payload: {id:string, network: string}) => {
+        console.log('createdCommunity')
+        console.log(payload)
+        // emit(communitiesActions.responseCreateCommunity(payload));
+      }
+    );
+  
     return () => {};
   });
 }

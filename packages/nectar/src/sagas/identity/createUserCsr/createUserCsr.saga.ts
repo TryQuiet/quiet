@@ -60,7 +60,12 @@ export function* createUserCsrSaga(
 
   //yield* put(identityActions.storeOwnCertKey(csr.userKey))
 
-  yield* put(identityActions.storeUserCsr(csr));
+  const payload = {
+    communityId: 'JFDFF',
+    userCsr: csr,
+  }
+
+  yield* put(identityActions.storeUserCsr(payload));
 }
 
 // TODO: Move to apps

@@ -15,50 +15,50 @@ import {
 } from '../identity.slice';
 // import { initReducer, InitState } from '../../init/init.slice';
 
-describe('createUserCsrSaga', () => {
-  const userCsr = {
-    userCsr: 'userCsr',
-    userKey: 'userKey',
-    pkcs10: {
-      publicKey: jest.fn() as unknown as KeyObject,
-      privateKey: jest.fn() as unknown as KeyObject,
-      pkcs10: 'pkcs10',
-    },
-  };
-  test('create csr', async () => {
-    const identityState = new IdentityState()
-    await expectSaga(
-      createUserCsrSaga,
-      identityActions.createUserCsr(<CreateUserCsrPayload>{})
-    )
-      .withReducer(
-        combineReducers({
-          // [StoreKeys.Init]: initReducer,
-          [StoreKeys.Identity]: identityReducer,
-        }),
-        {
-          // [StoreKeys.Init]: {
-          //   ...new InitState(),
-          //   isCryptoEngineInitialized: true,
-          // },
-          [StoreKeys.Identity]: {
-            ...identityState,
-          },
-        }
-      )
-      .provide([[call.fn(createUserCsr), userCsr]])
-      .hasFinalState({
-        // [StoreKeys.Init]: {
-        //   ...new InitState(),
-        //   isCryptoEngineInitialized: true,
-        // },
-        [StoreKeys.Identity]: {
-          ...identityState,
-          userCsr,
-        },
-      })
-      .run();
-  });
+// describe('createUserCsrSaga', () => {
+//   const userCsr = {
+//     userCsr: 'userCsr',
+//     userKey: 'userKey',
+//     pkcs10: {
+//       publicKey: jest.fn() as unknown as KeyObject,
+//       privateKey: jest.fn() as unknown as KeyObject,
+//       pkcs10: 'pkcs10',
+//     },
+//   };
+//   test('create csr', async () => {
+//     const identityState = new IdentityState()
+//     await expectSaga(
+//       createUserCsrSaga,
+//       identityActions.createUserCsr(<CreateUserCsrPayload>{})
+//     )
+//       .withReducer(
+//         combineReducers({
+//           // [StoreKeys.Init]: initReducer,
+//           [StoreKeys.Identity]: identityReducer,
+//         }),
+//         {
+//           // [StoreKeys.Init]: {
+//           //   ...new InitState(),
+//           //   isCryptoEngineInitialized: true,
+//           // },
+//           [StoreKeys.Identity]: {
+//             ...identityState,
+//           },
+//         }
+//       )
+//       .provide([[call.fn(createUserCsr), userCsr]])
+//       .hasFinalState({
+//         // [StoreKeys.Init]: {
+//         //   ...new InitState(),
+//         //   isCryptoEngineInitialized: true,
+//         // },
+//         [StoreKeys.Identity]: {
+//           ...identityState,
+//           userCsr,
+//         },
+//       })
+//       .run();
+//   });
   // TODO: Test no more adequate because crypto initialization will happen in app
   // test('set crypto engine and create csr', async () => {
   //   await expectSaga(
@@ -95,4 +95,4 @@ describe('createUserCsrSaga', () => {
   //     })
   //     .run();
   // });
-});
+// });
