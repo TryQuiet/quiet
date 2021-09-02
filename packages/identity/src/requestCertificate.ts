@@ -61,35 +61,17 @@ async function requestCertificate ({
   hashAlg: string
 }): Promise<CertData> {
   const keyPair: CryptoKeyPair = await generateKeyPair({ signAlg })
+
   const arrayBufferDmPubKey = hexStringToArrayBuffer(dmPublicKey)
 
   const pkcs10 = new CertificationRequest({
     version: 0,
     attributes: []
   })
-
-  pkcs10.subject.typesAndValues.push(
-    new AttributeTypeAndValue({
-      type: CertFieldsTypes.nickName,
-      value: new PrintableString({ value: zbayNickname })
-    })
-  )
   pkcs10.subject.typesAndValues.push(
     new AttributeTypeAndValue({
       type: CertFieldsTypes.commonName,
       value: new PrintableString({ value: commonName })
-    })
-  )
-  pkcs10.subject.typesAndValues.push(
-    new AttributeTypeAndValue({
-      type: CertFieldsTypes.peerId,
-      value: new PrintableString({ value: peerId })
-    })
-  )
-  pkcs10.subject.typesAndValues.push(
-    new AttributeTypeAndValue({
-      type: CertFieldsTypes.dmPublicKey,
-      value: new OctetString({ valueHex: arrayBufferDmPubKey })
     })
   )
 
@@ -108,6 +90,21 @@ async function requestCertificate ({
               extnID: '2.5.29.14',
               critical: false,
               extnValue: new OctetString({ valueHex: hashedPublicKey }).toBER(false)
+            }),
+            new Extension({
+              extnID: CertFieldsTypes.dmPublicKey,
+              critical: false,
+              extnValue: new OctetString({ valueHex: arrayBufferDmPubKey }).toBER(false)
+            }),
+            new Extension({
+              extnID: CertFieldsTypes.nickName,
+              critical: false,
+              extnValue: new PrintableString({ value: zbayNickname }).toBER(false)
+            }),
+            new Extension({
+              extnID: CertFieldsTypes.peerId,
+              critical: false,
+              extnValue: new PrintableString({ value: peerId }).toBER(false)
             })
           ]
         }).toSchema()

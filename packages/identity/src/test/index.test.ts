@@ -77,6 +77,7 @@ describe('Certificate', () => {
 
     Object.keys(certTypeData).forEach(key => {
       const keyAsEnum = key as CertFieldsTypes
+
       expect(getCertFieldValue(parsedCert, keyAsEnum))
         .toBe(certTypeData[keyAsEnum])
     })
