@@ -53,7 +53,7 @@ async function generateuserCertificate ({
   notBeforeDate: Date
   notAfterDate: Date
 }): Promise<{ certificate: Certificate; }> {
-  const basicConstr = new BasicConstraints({ cA: false, pathLenConstraint: 3 })
+  const basicConstr = new BasicConstraints({ cA: false })
   const keyUsage = getKeyUsage()
   const extKeyUsage = new ExtKeyUsage({
     keyPurposes: [
