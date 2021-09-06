@@ -6,12 +6,10 @@ export const runWaggle = async (): Promise<any> => {
   const program = new Command()
 
   program
-    .requiredOption('-a, --address <address>', 'onion address')
-    .requiredOption('-p, --port <port>', 'onion port')
-    .requiredOption('-s, --socks <socks>', 'socks port')
-    .requiredOption('-d, --directory <directory>', 'app data path')
-    .requiredOption('-t, --torControl <torControl>', 'tor control port')
-    .requiredOption('-tp, --torPassword <torPassword>', 'tor password')
+    .requiredOption('-d, --appDataPath <appDataPath>', 'app data path')
+    .requiredOption('-s, --socksPort <socksPort>', 'socks port')
+    .requiredOption('-c, --controlPort <controlPort>', 'control port')
+    .requiredOption('-a, --authCookie <authCookie>', 'control port authentication cookie')
 
   program.parse(process.argv)
 
@@ -22,16 +20,16 @@ export const runWaggle = async (): Promise<any> => {
 
   const connectionsManager: ConnectionsManager = new ConnectionsManager({
     agentHost: 'localhost',
-    agentPort: options.socks,
+    agentPort: options.socksPort,
     io: dataServer.io,
     options: {
       env: {
-        appDataPath: options.directory
+        appDataPath: options.appDataPath
       },
       createPaths: false,
       spawnTor: false,
-      torControlPort: options.torControl,
-      torPassword: options.torPassword
+      torControlPort: options.controlPort,
+      torAuthCookie: options.authCookie
     }
   })
 

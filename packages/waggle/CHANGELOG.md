@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.1.0]
+
+### Added
+
+* Authenticating Tor Control Port with cookie
+
 ## [3.0.0]
 
 ### Changed

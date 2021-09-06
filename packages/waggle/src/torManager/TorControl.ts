@@ -4,6 +4,7 @@ interface IOpts {
   port: number
   host: string
   password: string
+  cookie: string
 }
 
 interface IParams {
@@ -14,6 +15,7 @@ interface IParams {
 export class TorControl {
   connection: net.Socket
   password: string
+  cookie: string
   params: IParams
   constructor(opts: IOpts) {
     this.params = {
@@ -21,6 +23,7 @@ export class TorControl {
       host: opts.host
     }
     this.password = opts.password
+    this.cookie = opts.cookie
   }
 
   private async connect(): Promise<void> {
@@ -41,7 +44,12 @@ export class TorControl {
           reject(new Error(`TOR: Control port error: ${data.toString() as string}`))
         }
       })
-      this.connection.write('AUTHENTICATE "' + this.password + '"\r\n')
+      if (this.password) {
+        this.connection.write('AUTHENTICATE "' + this.password + '"\r\n')
+      } else if (this.cookie) {
+        // Cookie authentication must be invoked as a hexadecimal string passed without double quotes
+        this.connection.write('AUTHENTICATE ' + this.cookie + '\r\n')
+      }
     })
   }
 

@@ -58,6 +58,7 @@ export class ConnectionsManagerOptions {
   spawnTor?: boolean = true
   torControlPort: number
   torPassword?: string
+  torAuthCookie?: string
 }
 
 export interface IConstructor {

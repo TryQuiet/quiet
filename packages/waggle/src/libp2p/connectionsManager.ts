@@ -87,6 +87,7 @@ export class ConnectionsManager {
       controlPort: this.options.torControlPort,
       socksPort: this.agentPort,
       torPassword: this.options.torPassword,
+      torAuthCookie: this.options.torAuthCookie,
       options: {
         env: {
           LD_LIBRARY_PATH: torDirForPlatform(),
