@@ -65,11 +65,10 @@ async function generateuserCertificate ({
   let dmPubKey = null
   let zbayNickName = null
   let peerId = null
-
   try {
-    dmPubKey = attr?.[0].values[0].valueBlock.value[1].valueBlock.value[1].valueBlock.value[0].valueBlock.valueHex
-    zbayNickName = attr?.[0].values[0].valueBlock.value[2].valueBlock.value[1].valueBlock.value[0].valueBlock.value
-    peerId = attr?.[0].values[0].valueBlock.value[3].valueBlock.value[1].valueBlock.value[0].valueBlock.value
+    dmPubKey = attr?.[1].values[0].valueBlock.valueHex
+    zbayNickName = attr?.[2].values[0].valueBlock.value
+    peerId = attr?.[3].values[0].valueBlock.value
   } catch (err) {
     throw new Error('Cannot get certificate request extension')
   }

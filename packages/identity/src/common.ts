@@ -87,7 +87,6 @@ export const loadCSR = async (csr: string): Promise<CertificationRequest> => {
 export const getCertFieldValue = (cert: Certificate, fieldType: CertFieldsTypes | ObjectIdentifier): string | null => {
   const block = cert.subject.typesAndValues.find((tav) => tav.type === fieldType)
   const ext = cert.extensions?.find((tav) => tav.extnID === fieldType)
-
   if (!block && !ext) {
     return null
   }
@@ -100,6 +99,25 @@ export const getCertFieldValue = (cert: Certificate, fieldType: CertFieldsTypes 
     } else {
       const extObj = ext?.extnValue.valueBlock.value[0] as any
       return extObj.valueBlock.value
+    }
+  } else {
+    return block?.value.valueBlock.value
+  }
+}
+
+export const getReqFieldValue = (csr: CertificationRequest, fieldType: CertFieldsTypes | ObjectIdentifier): string | null => {
+  const block = csr.subject.typesAndValues.find((tav) => tav.type === fieldType)
+  const ext = csr.attributes?.find((tav) => tav.type === fieldType) as any
+
+  if (!block && !ext) {
+    return null
+  }
+  if (ext) {
+    if (fieldType === CertFieldsTypes.dmPublicKey) {
+      const extObj = ext.values[0].valueBlock.valueHex
+      return arrayBufferToHexString(extObj)
+    } else {
+      return ext.values[0].valueBlock.value
     }
   } else {
     return block?.value.valueBlock.value

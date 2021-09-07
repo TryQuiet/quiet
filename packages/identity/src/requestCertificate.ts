@@ -90,25 +90,22 @@ async function requestCertificate ({
               extnID: '2.5.29.14',
               critical: false,
               extnValue: new OctetString({ valueHex: hashedPublicKey }).toBER(false)
-            }),
-            new Extension({
-              extnID: CertFieldsTypes.dmPublicKey,
-              critical: false,
-              extnValue: new OctetString({ valueHex: arrayBufferDmPubKey }).toBER(false)
-            }),
-            new Extension({
-              extnID: CertFieldsTypes.nickName,
-              critical: false,
-              extnValue: new PrintableString({ value: zbayNickname }).toBER(false)
-            }),
-            new Extension({
-              extnID: CertFieldsTypes.peerId,
-              critical: false,
-              extnValue: new PrintableString({ value: peerId }).toBER(false)
             })
           ]
         }).toSchema()
       ]
+    }),
+    new Attribute({
+      type: CertFieldsTypes.dmPublicKey,
+      values: [new OctetString({ valueHex: arrayBufferDmPubKey })]
+    }),
+    new Attribute({
+      type: CertFieldsTypes.nickName,
+      values: [new PrintableString({ value: zbayNickname })]
+    }),
+    new Attribute({
+      type: CertFieldsTypes.peerId,
+      values: [new PrintableString({ value: peerId })]
     })
   )
   await pkcs10.sign(keyPair.privateKey, hashAlg)

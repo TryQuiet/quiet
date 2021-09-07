@@ -1,13 +1,20 @@
 import { fromBase64, stringToArrayBuffer } from 'pvutils'
 import { fromBER } from 'asn1js'
 import config from './config'
-import { getAlgorithmParameters, Certificate } from 'pkijs'
+import { getAlgorithmParameters, Certificate, CertificationRequest } from 'pkijs'
 
 export const parseCertificate = (pem: string): Certificate => {
   let certificateBuffer = new ArrayBuffer(0)
   certificateBuffer = stringToArrayBuffer(fromBase64(pem))
   const asn1 = fromBER(certificateBuffer)
   return new Certificate({ schema: asn1.result })
+}
+
+export const parseCertificationRequest = (pem: string): CertificationRequest => {
+  let certificateBuffer = new ArrayBuffer(0)
+  certificateBuffer = stringToArrayBuffer(fromBase64(pem))
+  const asn1 = fromBER(certificateBuffer)
+  return new CertificationRequest({ schema: asn1.result })
 }
 
 export const keyFromCertificate = (certificate: Certificate): string => {

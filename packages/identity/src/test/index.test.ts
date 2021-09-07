@@ -1,11 +1,11 @@
 import { stringToArrayBuffer } from 'pvutils'
 import { sign } from '../sign'
-import { extractPubKey, parseCertificate } from '../extractPubKey'
+import { extractPubKey, parseCertificate, parseCertificationRequest } from '../extractPubKey'
 import { verifySignature } from '../verification'
 import { verifyUserCert } from '../verifyUserCertificate'
 import { Crypto } from '@peculiar/webcrypto'
 import { createTestRootCA, createTestUserCert, createTestUserCsr, userData } from './helpers'
-import { CertFieldsTypes, getCertFieldValue } from '../common'
+import { CertFieldsTypes, getCertFieldValue, getReqFieldValue } from '../common'
 import { getCrypto, setEngine, CryptoEngine } from 'pkijs'
 
 describe('Message signature verification', () => {
@@ -63,7 +63,7 @@ describe('Certificate verification', () => {
 })
 
 describe('Certificate', () => {
-  it('can be parsed and contains proper data', async () => {
+  it('certificate can be parsed and contains proper data', async () => {
     const certTypeData = {
       [CertFieldsTypes.commonName]: userData.commonName,
       [CertFieldsTypes.nickName]: userData.zbayNickname,
@@ -79,6 +79,25 @@ describe('Certificate', () => {
       const keyAsEnum = key as CertFieldsTypes
 
       expect(getCertFieldValue(parsedCert, keyAsEnum))
+        .toBe(certTypeData[keyAsEnum])
+    })
+  })
+
+  it('certification request can be parsed and contains proper data', async () => {
+    const certTypeData = {
+      [CertFieldsTypes.commonName]: userData.commonName,
+      [CertFieldsTypes.nickName]: userData.zbayNickname,
+      [CertFieldsTypes.peerId]: userData.peerId,
+      [CertFieldsTypes.dmPublicKey]: userData.dmPublicKey
+    }
+
+    const userReq = await createTestUserCsr()
+    const parsedCert = parseCertificationRequest(userReq.userCsr)
+
+    Object.keys(certTypeData).forEach(key => {
+      const keyAsEnum = key as CertFieldsTypes
+
+      expect(getReqFieldValue(parsedCert, keyAsEnum))
         .toBe(certTypeData[keyAsEnum])
     })
   })
