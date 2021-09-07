@@ -9,5 +9,8 @@
 
 //     const id = action.payload
 //     const selectedCommunity = yield* select(communitiesSelectors.selectById(id))
-//     yield* apply(socket, socket.emit, [SocketActionTypes.LAUNCH_COMMUNITY, payload])
+
+//     selectedCommunity.peerId
+
+//     yield* apply(socket, socket.emit, [SocketActionTypes.LAUNCH_COMMUNITY, selectedCommunity.peerId, selectedCommunity.privateKey, []])
 // }

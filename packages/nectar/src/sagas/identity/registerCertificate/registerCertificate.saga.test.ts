@@ -1,15 +1,15 @@
-import { combineReducers } from '@reduxjs/toolkit';
-import { expectSaga } from 'redux-saga-test-plan';
-import { Socket } from 'socket.io-client';
-import { SocketActionTypes } from '../../socket/const/actionTypes';
-import { StoreKeys } from '../../store.keys';
-import {
-  identityActions,
-  identityReducer,
-  IdentityState,
-  UserCsr,
-} from '../identity.slice';
-import { registerCertificateSaga } from './registerCertificate.saga';
+// import { combineReducers } from '@reduxjs/toolkit';
+// import { expectSaga } from 'redux-saga-test-plan';
+// import { Socket } from 'socket.io-client';
+// import { SocketActionTypes } from '../../socket/const/actionTypes';
+// import { StoreKeys } from '../../store.keys';
+// import {
+//   identityActions,
+//   identityReducer,
+//   IdentityState,
+//   UserCsr,
+// } from '../identity.slice';
+// import { registerCertificateSaga } from './registerCertificate.saga';
 
 // describe('registerCertificateSaga', () => {
 //   test('send certificate request to waggle', async () => {

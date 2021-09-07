@@ -5,9 +5,11 @@ import { createUserCsr } from '@zbayapp/identity';
 
 import CryptoEngine from 'pkijs/src/CryptoEngine';
 import { setEngine } from 'pkijs/src/common';
-import { PayloadAction } from '@reduxjs/toolkit';
+import { current, PayloadAction } from '@reduxjs/toolkit';
 import { identityActions, UserCsr } from '../identity.slice';
 import { identity } from 'src';
+import { identitySelectors } from '../identity.selectors';
+import { communitiesSelectors } from '../../communities/communities.selectors';
 
 // TODO
 // declare global {
@@ -60,10 +62,13 @@ export function* createUserCsrSaga(
 
   //yield* put(identityActions.storeOwnCertKey(csr.userKey))
 
+  const currentCommunity = yield* select(communitiesSelectors.currentCommunity())
+  
+
   const payload = {
-    communityId: 'JFDFF',
+    communityId: currentCommunity.id,
     userCsr: csr,
-  }
+  registrarAddress: 'http://' + currentCommunity.onionAddress + '.onion:7789'  }
 
   yield* put(identityActions.storeUserCsr(payload));
 }

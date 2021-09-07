@@ -32,5 +32,7 @@ export enum SocketActionTypes {
   NEW_COMMUNITY = 'newCommunity',
   COMMUNITY = 'community',
   REGISTRAR = 'registrar',
-  REGISTRAR_ERROR = 'registrarError'
+  REGISTRAR_ERROR = 'registrarError',
+  LAUNCH_COMMUNITY = 'launchCommunity',
+  LAUNCH_REGISTRAR  ='launchRegistrar'
 }

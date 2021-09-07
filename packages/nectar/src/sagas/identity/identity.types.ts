@@ -11,12 +11,23 @@ export interface UserCsr {
 }
 
 export interface IIdentity {
-  community: string;
+  id: string;
   zbayNickname: string;
-  commonName: string;
-  peerId: string;
-  dmPublicKey: string;
-  dmPrivateKey: string;
+  peerId: {
+    id: string,
+    privateKey: string
+
+  };
+  hiddenService: {
+    address: string,
+    privateKey: string
+
+  }
+  dmKeys: {
+    publicKey: string,
+    privateKey: string
+
+  }
   userCsr: UserCsr | null;
   userCertificate: string | null;
 }

@@ -19,34 +19,32 @@ export class IdentityState {
 }
 
 export class Identity {
-  constructor({id, hiddenService, peerId, hiddenServicePrivateKey, peerIdPrivateKey}) {
-    const dmKeyPair = generateDmKeyPair();
-    (this.dmPublicKey = dmKeyPair.dmPublicKey),
-      (this.dmPrivateKey = dmKeyPair.dmPrivateKey),
-      (this.community = id);
-      this.commonName = hiddenService,
+  constructor({id, hiddenService, peerId}) {
+      this.id = id,
+      this.dmKeys = generateDmKeyPair(),
       this.peerId = peerId,
-      this.peerIdPrivateKey = peerIdPrivateKey
-      this.hiddenServicePrivateKey = hiddenServicePrivateKey
+      this.hiddenService = hiddenService
   }
 
-  public community: string = '';
+  public id: string = '';
 
   public zbayNickname: string = '';
 
-  public commonName: string = '';
+  public hiddenService :{
+  address: string,
+  privateKey: string
+  }
+  public dmKeys: {
+    publicKey: string,
+    privateKey: string
+  }
 
-  public peerId: string = '';
-
-  public peerIdPrivateKey: string = ''
-
-  public dmPublicKey: string;
-
-  public dmPrivateKey: string;
+  public peerId: {
+    id: string,
+    privateKey: string
+  }
 
   public userCsr: UserCsr | null = null;
-
-  public hiddenServicePrivateKey: string = ''
 
   public userCertificate: string | null = null;
 }
@@ -81,20 +79,9 @@ export const identitySlice = createSlice({
   initialState: identityAdapter.getInitialState(),
   name: StoreKeys.Identity,
   reducers: {
-    updateCommonName: (
-      state,
-      action: PayloadAction<{ communityId: string; commonName: string }>
-    ) => {
-      identityAdapter.updateOne(state, {
-        id: action.payload.communityId,
-        changes: {
-          commonName: action.payload.commonName,
-        },
-      });
-    },
     addNewIdentity: (
       state,
-      action: PayloadAction<{ id: string, hiddenService: string, hiddenServicePrivateKey: string, peerId: string, peerIdPrivateKey: string}>
+      action: PayloadAction<{ id: string, hiddenService: string, peerId: string}>
     ) => {
       console.log('addNewIdentity');
       identityAdapter.addOne(
@@ -102,36 +89,28 @@ export const identitySlice = createSlice({
         new Identity(action.payload)
       );
     },
-    requestPeerId: (state) => state,
-    updatePeerId: (
-      state,
-      action: PayloadAction<{ communityId: string; peerId: string }>
-    ) => {
-      identityAdapter.updateOne(state, {
-        id: action.payload.communityId,
-        changes: {
-          peerId: action.payload.peerId,
-        }
-      });
-    },
     createUserCsr: (state, _action: PayloadAction<CreateUserCsrPayload>) =>
+      state,
+    registerUsername: (state, _action: PayloadAction<any>) =>
       state,
     storeUserCsr: (
       state,
       action: PayloadAction<{ userCsr: UserCsr; communityId: string }>
     ) => {
-      identityAdapter.updateOne(state[action.payload.communityId], {
-        ...state[action.payload.communityId],
-        userCsr: action.payload.userCsr,
+      identityAdapter.updateOne(state, {
+        id: action.payload.communityId,
+        changes: {
+          userCsr: action.payload.userCsr,
+        }
       });
     },
     storeUserCertificate: (
       state,
       action: PayloadAction<{ userCertificate: string; communityId: string }>
     ) => {
-      identityAdapter.updateOne(state[action.payload.communityId], {
-        ...state[action.payload.communityId],
-        userCertificate: action.payload.userCertificate,
+      identityAdapter.updateOne(state, {
+        id: action.payload.communityId,
+        changes: {userCertificate: action.payload.userCertificate}
       });
     },
     throwIdentityError: (state, _action: PayloadAction<string>) => state,

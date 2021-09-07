@@ -22,7 +22,6 @@ import {
   messagesReducer,
 } from './sagas/messages/messages.slice';
 import { messagesSelectors } from './sagas/messages/messages.selectors';
-import { requestPeerIdSaga } from './sagas/identity/requestPeerId/requestPeerId.saga';
 import { errorsSelectors } from './sagas/errors/errors.selectors';
 import {
   errorsReducer,
@@ -46,10 +45,7 @@ export const users = {
 export const identity = {
   reducer: identityReducer,
   actions: identityActions,
-  selectors: identitySelectors,
-  sagas: {
-    requestPeerIdSaga,
-  },
+  selectors: identitySelectors
 };
 
 export const messages = {

@@ -30,7 +30,8 @@ export function* sendMessageSaga(
     ReturnType<typeof messagesActions.sendMessage>['payload']
   >
 ): Generator {
-  const csr = yield* select(identitySelectors.userCsr);
+  const csr = null
+  // const csr = yield* select(identitySelectors.userCsr);
   if (!csr) {
     // TODO
     // yield* call(navigateTo, ScreenNames.ErrorScreen, {
@@ -48,7 +49,8 @@ export function* sendMessageSaga(
 
   console.log('sendMessageSaga-1')
   
-  const certificate = yield* select(identitySelectors.userCertificate);
+  const certificate = null
+  // const certificate = yield* select(identitySelectors.userCertificate);
   if (!certificate) {
     // TODO
     // yield* call(navigateTo, ScreenNames.ErrorScreen, {

@@ -8,6 +8,23 @@ export const selectById = (id: string) =>
     communitiesAdapter.getSelectors().selectById(reducerState, id)
   );
 
+  export const currentCommunity = () => 
+    createSelector(selectReducer(StoreKeys.Communities), (reducerState) =>{
+
+      const id = reducerState.currentCommunity
+      console.log('communitnies', reducerState.communities)
+     return communitiesAdapter.getSelectors().selectById(reducerState.communities, id)
+     
+    });
+  
+
+export const currentCommunityId = () => {
+  selectReducer(StoreKeys.Communities),
+    (reducerState) => reducerState.currentCommunity;
+};
+
 export const communitiesSelectors = {
   selectById,
+  currentCommunityId,
+  currentCommunity
 };

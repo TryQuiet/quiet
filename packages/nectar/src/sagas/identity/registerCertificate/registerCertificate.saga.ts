@@ -16,7 +16,8 @@ export function* registerCertificateSaga(
   yield* apply(socket, socket.emit, [
     SocketActionTypes.REGISTER_USER_CERTIFICATE,
     action.payload.registrarAddress,
-    action.payload.userCsr,
+    action.payload.userCsr.userCsr,
+    action.payload.communityId,
   ]);
 }
 
@@ -35,9 +36,10 @@ export function subscribe(socket: Socket) {
   >((emit) => {
     socket.on(
       SocketActionTypes.SEND_USER_CERTIFICATE,
-      (payload: {certificate: string, communityId: string}) => {
+      (payload: any) => {
         console.log('storeUserCertificate')
-        emit(identityActions.storeUserCertificate({userCertificate: payload.certificate, communityId: payload.communityId}));
+        console.log(payload)
+        emit(identityActions.storeUserCertificate({userCertificate: payload.payload.certificate, communityId: payload.id}));
       }
     );
     socket.on(

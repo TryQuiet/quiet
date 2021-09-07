@@ -14,22 +14,12 @@ export function* registerUsernameSaga(
 ): Generator {
   console.log('registerUsernameSaga');
 
-  // TODO
+  const identity = yield* select(identitySelectors.selectById())
 
-  // yield* put(errorHapened, {
-  //   type: '',
-  //   message: ''
-  // })
-  // Clear possible remaining errors from previous validation
-  // yield* call(navigateTo, ScreenNames.RegistrationScreen, {
-  //   error: '',
-  // });
-
-  const commonName = yield* select(identitySelectors.commonName);
-  const peerId = yield* select(identitySelectors.peerId);
-  const dmPublicKey = yield* select(identitySelectors.dmPublicKey);
-
-  
+  // @ts-ignore
+  const commonName = identity.hiddenService.onionAddress
+  const peerId = identity.peerId.id
+  const dmPublicKey = identity.dmKeys.publicKey
 
   if (!commonName || !peerId) {
     yield* put(
@@ -45,13 +35,11 @@ export function* registerUsernameSaga(
   const payload = {
     zbayNickname: action.payload,
     commonName,
-    peerId: 'asdfasdfasdfasdfasdf',
+    peerId,
     dmPublicKey,
     signAlg: config.signAlg,
     hashAlg: config.hashAlg,
   };
-
-  console.log(payload, 'paylaod for createusercsr')
 
   yield* put(identityActions.createUserCsr(payload));
 }

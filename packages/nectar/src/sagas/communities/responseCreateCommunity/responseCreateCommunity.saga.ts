@@ -4,16 +4,14 @@ import { identityActions } from "../../identity/identity.slice";
 export function* responseCreateCommunitySaga (action: any): Generator {
 
 const id = action.payload.id
-const hiddenService = action.payload.payload.hiddenService.onionAddress
-const hiddenServicePrivateKey = action.payload.payload.hiddenService.privateKey
-const peerId = action.payload.payload.peerId.id
-const peerIdPrivateKey = action.payload.payload.peerId.privKey
+const hiddenService = action.payload.payload.hiddenService
+
+const peerId = action.payload.payload.peerId
+
 
 yield* put(identityActions.addNewIdentity({
     id,
     hiddenService,
-    hiddenServicePrivateKey,
-    peerId,
-    peerIdPrivateKey
+    peerId
 }))
 }

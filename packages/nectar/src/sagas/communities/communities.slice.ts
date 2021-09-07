@@ -1,52 +1,67 @@
 import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit';
 import { StoreKeys } from '../store.keys';
 import { communitiesAdapter } from './communities.adapter';
+import { createRootCA } from '@zbayapp/identity';
 
 export class CommunitiesState {
-  public identities: EntityState<Community> = communitiesAdapter.getInitialState();
+  public currentCommunity: string = ''
+  public communities: EntityState<Community> =
+    communitiesAdapter.getInitialState();
 }
+
 
 export class Community {
   constructor({ id, CA, name, registrarUrl }) {
     this.id = id;
-    this.CA = CA;
-    this.name = name;
-    this.onionAddress = registrarUrl;
+    if (CA) {
+      this.CA = CA;
+    }
+    if (name) {
+      this.name = name;
+    }
+    if (registrarUrl) {
+      this.onionAddress = registrarUrl;
+    }
   }
-
-  image: string = '';
-  name: string = '';
+  public name: string = '';
   id: string = '';
-  memberType: string = '';
   CA: null | {} = null;
+  public registrar: {
+    privateKey: string
+    address: string
+  }
   privateKey: string = '';
   onionAddress: string = '';
-  peerId: string = '';
 }
 
 export const communitiesSlice = createSlice({
-  initialState: communitiesAdapter.getInitialState(),
+  initialState: {...new CommunitiesState()},
   name: StoreKeys.Communities,
   reducers: {
+    setCurrentCommunity: (state, action: any) => {
+      state.currentCommunity = action.payload
+    },
     addNewCommunity: (state, action: any) => {
-      communitiesAdapter.addOne(state, new Community(action.payload));
+      communitiesAdapter.addOne(state.communities, new Community(action.payload));
     },
     updateCommunity: (state, action: any) => {
-      communitiesAdapter.updateOne(state, {
+      communitiesAdapter.updateOne(state.communities, {
         id: action.payload.id,
         changes: {
           ...action.payload,
         },
       });
     },
-    joinCommunity: (state, _action: PayloadAction<string>) => state,
+    joinCommunity: (state, action: any) => {
+      communitiesAdapter.addOne(state.communities, new Community(action.payload));
+    },
     createNewCommunity: (state, _action: PayloadAction<string>) => state,
     responseCreateCommunity: (
       state,
-      _action: PayloadAction<{ id: string; network: string }>
+      _action: PayloadAction<any>
     ) => state,
     responseRegistrar: (state, action: PayloadAction<any>) => {
-      communitiesAdapter.updateOne(state, {
+      communitiesAdapter.updateOne(state.communities, {
         id: action.payload.id,
         changes: {
           ...action.payload.payload,

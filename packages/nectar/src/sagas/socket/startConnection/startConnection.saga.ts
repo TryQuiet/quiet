@@ -1,7 +1,6 @@
-import { io, Socket } from 'socket.io-client';
+import { Socket } from 'socket.io-client';
 import { all, call, put, delay, take, fork, takeEvery } from 'typed-redux-saga';
 import { eventChannel } from 'redux-saga';
-import config from '../config';
 import { SocketActionTypes } from '../const/actionTypes';
 // import { nativeServicesActions } from '../../nativeServices/nativeServices.slice';
 import {
@@ -10,10 +9,8 @@ import {
   GetPublicChannelsResponse,
   publicChannelsActions,
 } from '../../publicChannels/publicChannels.slice';
-import { requestPeerIdSaga } from '../../identity/requestPeerId/requestPeerId.saga';
 import { publicChannelsMasterSaga } from '../../publicChannels/publicChannels.master.saga';
 import { identityActions } from '../../identity/identity.slice';
-// import { waitForConnectionSaga } from '../../init/waitForConnection/waitForConnection.saga';
 import { identityMasterSaga } from '../../identity/identity.master.saga';
 import { messagesMasterSaga } from '../../messages/messages.master.saga';
 import {
@@ -23,30 +20,6 @@ import {
 import { IMessage } from '../../publicChannels/publicChannels.types';
 import { communitiesMasterSaga } from '../../communities/communities.master.saga';
 import {communitiesActions} from '../../communities/communities.slice'
-
-// TODO
-
-// export function* startConnectionSaga(): Generator {
-//   const socket = yield* call(connect);
-//   yield* put(nativeServicesActions.initPushNotifications());
-//   yield* delay(15000); // Wait for storage to be initialized
-//   yield* takeEvery(
-//     identityActions.requestPeerId.type,
-//     requestPeerIdSaga,
-//     socket,
-//   );
-//   yield* waitForConnectionSaga();
-//   yield fork(useIO, socket);
-// }
-
-// export const connect = async (): Promise<Socket> => {
-//   const socket = io(config.socket.address);
-//   return await new Promise(resolve => {
-//     socket.on('connect', async () => {
-//       resolve(socket);
-//     });
-//   });
-// };
 
 export function* useIO(socket: Socket): Generator {
   yield all([
@@ -68,7 +41,6 @@ export function* handleActions(socket: Socket): Generator {
 
 export function subscribe(socket: Socket) {
   return eventChannel<
-    // | ReturnType<typeof identityActions.storePeerId>
     | ReturnType<typeof publicChannelsActions.responseGetPublicChannels>
     | ReturnType<typeof publicChannelsActions.responseSendMessagesIds>
     | ReturnType<typeof publicChannelsActions.responseAskForMessages>
@@ -76,9 +48,6 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof usersActions.responseSendCertificates>
     | ReturnType<typeof communitiesActions.responseCreateCommunity>
   >((emit) => {
-    // socket.on(SocketActionTypes.SEND_PEER_ID, (payload: string) => {
-    //   emit(identityActions.storePeerId(payload));
-    // });
     socket.on(
       SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS,
       (payload: GetPublicChannelsResponse) => {

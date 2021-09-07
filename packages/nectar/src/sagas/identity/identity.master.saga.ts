@@ -11,7 +11,7 @@ import { registerUsernameSaga } from './registerUsername/registerUsername.saga';
 
 export function* identityMasterSaga(socket: Socket): Generator {
   yield all([
-    // takeEvery(identityActions.registerUsername.type, registerUsernameSaga),
+    takeEvery(identityActions.registerUsername.type, registerUsernameSaga),
     takeEvery(identityActions.createUserCsr.type, createUserCsrSaga),
     takeEvery(
       identityActions.storeUserCsr.type,

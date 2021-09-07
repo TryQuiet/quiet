@@ -1,6 +1,11 @@
 import crypto from 'crypto';
 import { constants } from './constants';
 
+export const generateId = () => {
+  const id = crypto.randomBytes(16).toString('hex').toUpperCase();
+  return id;
+};
+
 export const generateDmKeyPair = () => {
   const dh = crypto.createDiffieHellman(
     constants.prime,
@@ -9,8 +14,8 @@ export const generateDmKeyPair = () => {
     'hex'
   );
   dh.generateKeys();
-  const dmPrivateKey = dh.getPrivateKey('hex');
-  const dmPublicKey = dh.getPublicKey('hex');
+  const privateKey = dh.getPrivateKey('hex');
+  const publicKey = dh.getPublicKey('hex');
 
-  return { dmPublicKey, dmPrivateKey };
+  return { publicKey,privateKey };
 };
