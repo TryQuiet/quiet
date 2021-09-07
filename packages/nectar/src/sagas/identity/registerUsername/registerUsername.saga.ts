@@ -14,7 +14,7 @@ export function* registerUsernameSaga(
 ): Generator {
   console.log('registerUsernameSaga');
 
-  const identity = yield* select(identitySelectors.selectById())
+  const identity = yield* select(identitySelectors.currentIdentity)
 
   // @ts-ignore
   const commonName = identity.hiddenService.onionAddress
