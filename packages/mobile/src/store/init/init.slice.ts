@@ -10,11 +10,7 @@ export class InitState {
   public torData: TorData = {
     socksPort: 0,
     controlPort: 0,
-  };
-  public hiddenServiceData: OnionData = {
-    address: '',
-    key: 'NEW:BEST',
-    port: 0,
+    authCookie: '',
   };
   public isNavigatorReady: boolean = false;
   public isCryptoEngineInitialized: boolean = false;
@@ -38,12 +34,7 @@ export class InitState {
 export interface TorData {
   socksPort: number;
   controlPort: number;
-}
-
-export interface OnionData {
-  address: string;
-  key: string;
-  port: number;
+  authCookie: string;
 }
 
 export const initSlice = createSlice({
@@ -71,9 +62,6 @@ export const initSlice = createSlice({
         id: event,
       });
       state.torData = action.payload;
-    },
-    onOnionAdded: (state, action: PayloadAction<OnionData>) => {
-      state.hiddenServiceData = action.payload;
     },
     onDataDirectoryCreated: (state, action: PayloadAction<string>) => {
       state.dataDirectoryPath = action.payload;

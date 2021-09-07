@@ -4,14 +4,12 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.zbaymobile.Utils.Const.SERVICE_ACTION_EXECUTE
 import java.io.File
-
 
 class TorModule(private val context: ReactApplicationContext): ReactContextBaseJavaModule(), TorService.Callbacks {
 
@@ -29,11 +27,7 @@ class TorModule(private val context: ReactApplicationContext): ReactContextBaseJ
             service.putExtra("socksPort", socksPort)
             service.putExtra("controlPort", controlPort)
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(service)
-        } else {
-            context.startService(service)
-        }
+        context.startService(service)
 
         val serviceConnection = object: ServiceConnection {
             override fun onServiceConnected(p0: ComponentName?, binder: IBinder?) {
@@ -47,11 +41,6 @@ class TorModule(private val context: ReactApplicationContext): ReactContextBaseJ
         }
 
         context.bindService(service, serviceConnection, Context.BIND_AUTO_CREATE)
-    }
-
-    @ReactMethod
-    fun startHiddenService(port: Int, key: String) {
-        torService?.addHiddenService(port, key)
     }
 
     @ReactMethod
@@ -76,23 +65,14 @@ class TorModule(private val context: ReactApplicationContext): ReactContextBaseJ
         context.startService(service)
     }
 
-    override fun onTorInit(socksPort: Int, controlPort: Int) {
+    override fun onTorInit(socksPort: Int, controlPort: Int, authCookie: String) {
         val payload: WritableMap = Arguments.createMap()
         payload.putInt("socksPort", socksPort)
         payload.putInt("controlPort", controlPort)
+        payload.putString("authCookie", authCookie)
         context
             .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
                 .emit("onTorInit", payload)
-    }
-
-    override fun onOnionAdded(address: String, key: String, port: Int) {
-        val payload: WritableMap = Arguments.createMap()
-        payload.putString("address", address)
-        payload.putString("key", key)
-        payload.putInt("port", port)
-        context
-            .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-            .emit("onOnionAdded", payload)
     }
 
 }

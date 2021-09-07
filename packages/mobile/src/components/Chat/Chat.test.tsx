@@ -3,7 +3,6 @@ import React from 'react';
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent';
 import { Chat } from './Chat.component';
 import { Keyboard } from 'react-native';
-import { MessageTypes } from '../../store/messages/const/messageTypes';
 
 jest.useFakeTimers();
 
@@ -35,7 +34,7 @@ describe('Chat component', () => {
         messages={[
           {
             id: '1',
-            type: MessageTypes.BASIC,
+            type: '1',
             message:
               'Brownie powder marshmallow dessert carrot cake marzipan cake caramels. Muffin topping wafer jelly apple pie candy. Fruitcake chocolate pudding fruitcake candy lemon drops chocolate.',
             createdAt: '1:30pm',
@@ -43,7 +42,7 @@ describe('Chat component', () => {
           },
           {
             id: '2',
-            type: MessageTypes.BASIC,
+            type: '1',
             message:
               'Bear claw bear claw donut marzipan chocolate cake sugar plum pie. Chocolate cake chocolate bar ice cream. Marzipan powder brownie muffin jelly beans. Sesame snaps tootsie roll macaroon donut.',
             createdAt: '1:32pm',
@@ -51,14 +50,14 @@ describe('Chat component', () => {
           },
           {
             id: '3',
-            type: MessageTypes.BASIC,
+            type: '1',
             message: 'Marshmallows!',
             createdAt: '1:32pm',
             nickname: 'emily',
           },
           {
             id: '4',
-            type: MessageTypes.BASIC,
+            type: '1',
             message:
               'Chupa chups soufflé danish. Cake chocolate brownie cookie bear claw soufflé. Muffin chupa chups sweet caramels jelly beans chocolate bar bonbon liquorice.',
             createdAt: '1:32pm',
@@ -94,28 +93,28 @@ describe('Chat component', () => {
                 "id": "1",
                 "message": "Brownie powder marshmallow dessert carrot cake marzipan cake caramels. Muffin topping wafer jelly apple pie candy. Fruitcake chocolate pudding fruitcake candy lemon drops chocolate.",
                 "nickname": "holmes",
-                "type": 1,
+                "type": "1",
               },
               Object {
                 "createdAt": "1:32pm",
                 "id": "2",
                 "message": "Bear claw bear claw donut marzipan chocolate cake sugar plum pie. Chocolate cake chocolate bar ice cream. Marzipan powder brownie muffin jelly beans. Sesame snaps tootsie roll macaroon donut.",
                 "nickname": "holmes",
-                "type": 1,
+                "type": "1",
               },
               Object {
                 "createdAt": "1:32pm",
                 "id": "3",
                 "message": "Marshmallows!",
                 "nickname": "emily",
-                "type": 1,
+                "type": "1",
               },
               Object {
                 "createdAt": "1:32pm",
                 "id": "4",
                 "message": "Chupa chups soufflé danish. Cake chocolate brownie cookie bear claw soufflé. Muffin chupa chups sweet caramels jelly beans chocolate bar bonbon liquorice.",
                 "nickname": "bartek",
-                "type": 1,
+                "type": "1",
               },
             ]
           }

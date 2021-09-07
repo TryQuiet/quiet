@@ -1,17 +1,19 @@
-import { usersReducer } from './users/users.slice';
-import { messagesReducer } from './messages/messages.slice';
-import { identityReducer } from './identity/identity.slice';
-import { initReducer } from './init/init.slice';
-import { assetsReducer } from './assets/assets.slice';
-import { StoreKeys } from './store.keys';
-import { publicChannelsReducer } from './publicChannels/publicChannels.slice';
 import { combineReducers } from '@reduxjs/toolkit';
+import { StoreKeys } from './store.keys';
+import { initReducer } from './init/init.slice';
+import {
+  communities,
+  identity,
+  publicChannels,
+  users,
+  messages,
+} from '@zbayapp/nectar';
 
 export const rootReducer = combineReducers({
   [StoreKeys.Init]: initReducer,
-  [StoreKeys.Assets]: assetsReducer,
-  [StoreKeys.Identity]: identityReducer,
-  [StoreKeys.PublicChannels]: publicChannelsReducer,
-  [StoreKeys.Messages]: messagesReducer,
-  [StoreKeys.Users]: usersReducer,
+  [StoreKeys.Communities]: communities.reducer,
+  [StoreKeys.Identity]: identity.reducer,
+  [StoreKeys.PublicChannels]: publicChannels.reducer,
+  [StoreKeys.Users]: users.reducer,
+  [StoreKeys.Messages]: messages.reducer,
 });

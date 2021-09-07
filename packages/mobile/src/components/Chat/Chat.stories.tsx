@@ -1,6 +1,5 @@
-import { storiesOf } from '@storybook/react-native';
 import React from 'react';
-import { MessageTypes } from '../../store/messages/const/messageTypes';
+import { storiesOf } from '@storybook/react-native';
 import { storybookLog } from '../../utils/functions/storybookLog/storybookLog.function';
 
 import { Chat } from './Chat.component';
@@ -18,7 +17,7 @@ storiesOf('Chat', module).add('Default', () => (
     messages={[
       {
         id: '1',
-        type: MessageTypes.BASIC,
+        type: '1',
         message:
           'Brownie powder marshmallow dessert carrot cake marzipan cake caramels. Muffin topping wafer jelly apple pie candy. Fruitcake chocolate pudding fruitcake candy lemon drops chocolate.',
         createdAt: '1:30pm',
@@ -26,7 +25,7 @@ storiesOf('Chat', module).add('Default', () => (
       },
       {
         id: '2',
-        type: MessageTypes.BASIC,
+        type: '1',
         message:
           'Bear claw bear claw donut marzipan chocolate cake sugar plum pie. Chocolate cake chocolate bar ice cream. Marzipan powder brownie muffin jelly beans. Sesame snaps tootsie roll macaroon donut.',
         createdAt: '1:32pm',
@@ -34,14 +33,14 @@ storiesOf('Chat', module).add('Default', () => (
       },
       {
         id: '3',
-        type: MessageTypes.BASIC,
+        type: '1',
         message: 'Marshmallows!',
         createdAt: '1:32pm',
         nickname: 'emily',
       },
       {
         id: '4',
-        type: MessageTypes.BASIC,
+        type: '1',
         message:
           'Chupa chups soufflé danish. Cake chocolate brownie cookie bear claw soufflé. Muffin chupa chups sweet caramels jelly beans chocolate bar bonbon liquorice.',
         createdAt: '1:32pm',

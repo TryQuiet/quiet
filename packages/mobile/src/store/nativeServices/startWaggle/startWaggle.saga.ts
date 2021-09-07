@@ -8,12 +8,10 @@ export function* startWaggleSaga(): Generator {
   while (true) {
     const dataDirectoryPath = yield* select(initSelectors.dataDirectoryPath);
     const torData = yield* select(initSelectors.torData);
-    const hiddenServiceData = yield* select(initSelectors.hiddenServiceData);
     if (
       dataDirectoryPath !== '' &&
       torData.socksPort !== 0 &&
-      hiddenServiceData.address !== '' &&
-      hiddenServiceData.port !== 0
+      torData.controlPort !== 0
     ) {
       yield* put(
         initActions.updateInitDescription(
@@ -25,8 +23,8 @@ export function* startWaggleSaga(): Generator {
         startNodeProcess,
         dataDirectoryPath,
         torData.socksPort,
-        hiddenServiceData.address,
-        hiddenServiceData.port,
+        torData.controlPort,
+        torData.authCookie,
       );
       break;
     }
@@ -37,10 +35,10 @@ export function* startWaggleSaga(): Generator {
 export const startNodeProcess = (
   dataDirectoryPath: string,
   socksPort: number,
-  hiddenServiceAddress: string,
-  hiddenServicePort: number,
+  controlPort: number,
+  authCookie: string,
 ) => {
   nodejs.start(
-    `node_modules/waggle/lib/mobileWaggleManager.js -a ${hiddenServiceAddress}.onion -p ${hiddenServicePort} -s ${socksPort} -d ${dataDirectoryPath}`,
+    `node_modules/waggle/lib/mobileWaggleManager.js -d ${dataDirectoryPath} -s ${socksPort} -c ${controlPort} -a ${authCookie}`,
   );
 };

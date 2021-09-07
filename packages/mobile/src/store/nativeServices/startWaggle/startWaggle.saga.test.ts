@@ -25,16 +25,22 @@ describe('startWaggleSaga', () => {
           [StoreKeys.Init]: {
             ...new InitState(),
             dataDirectoryPath: 'dataDirectoryPath',
-            hiddenServiceAddress: 'hiddenServiceAddress',
-          }
+            torData: {
+              socksPort: 9010,
+              controlPort: 9150,
+              authCookie: 'cookie',
+            },
+          },
         },
       )
-      .provide([
-        [call.fn(startNodeProcess), null]
-      ])
-      .put(initActions.updateInitDescription('Data is being retrieved from a distributed database'))
+      .provide([[call.fn(startNodeProcess), null]])
+      .put(
+        initActions.updateInitDescription(
+          'Data is being retrieved from a distributed database',
+        ),
+      )
       .put(initActions.onWaggleStarted(true))
-      .call(startNodeProcess, 'dataDirectoryPath', 'hiddenServiceAddress')
+      .call(startNodeProcess, 'dataDirectoryPath', 9010, 9150, 'cookie')
       .run();
   });
 });

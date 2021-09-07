@@ -19,7 +19,6 @@ import { defaultTheme } from './styles/themes/default.theme';
 import { navigationContainerRef } from './utils/functions/navigateTo/navigateTo';
 import { initActions } from './store/init/init.slice';
 import { useDispatch } from 'react-redux';
-import { useNotifications } from './services/pushNotifications/pushNotifications.service';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { Navigator, Screen } = createStackNavigator();
@@ -28,9 +27,6 @@ sagaMiddleware.run(rootSaga);
 
 export default function App(): JSX.Element {
   const dispatch = useDispatch();
-
-  useNotifications();
-
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <PersistGate loading={null} persistor={persistor}>

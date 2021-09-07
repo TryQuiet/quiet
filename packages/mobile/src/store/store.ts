@@ -13,10 +13,10 @@ const persistedReducer = persistReducer(
     key: 'persistedReducer',
     storage: AsyncStorage,
     whitelist: [
-      StoreKeys.Assets,
+      StoreKeys.Communities,
       StoreKeys.Identity,
-      StoreKeys.Users,
       StoreKeys.PublicChannels,
+      StoreKeys.Users,
     ],
   },
   rootReducer,

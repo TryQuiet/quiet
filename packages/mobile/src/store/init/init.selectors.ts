@@ -14,11 +14,6 @@ export const torData = createSelector(
   (reducerState: StoreState[StoreKeys.Init]) => reducerState.torData,
 );
 
-export const hiddenServiceData = createSelector(
-  selectReducer(StoreKeys.Init),
-  (reducerState: StoreState[StoreKeys.Init]) => reducerState.hiddenServiceData,
-);
-
 export const isNavigatorReady = createSelector(
   selectReducer(StoreKeys.Init),
   (reducerState: StoreState[StoreKeys.Init]) => reducerState.isNavigatorReady,
@@ -49,7 +44,6 @@ export const currentScreen = createSelector(
 export const initSelectors = {
   dataDirectoryPath,
   torData,
-  hiddenServiceData,
   isNavigatorReady,
   isCryptoEngineInitialized,
   initDescription,

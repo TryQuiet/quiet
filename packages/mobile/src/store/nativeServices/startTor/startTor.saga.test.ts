@@ -1,6 +1,5 @@
 import { combineReducers } from '@reduxjs/toolkit';
 import { expectSaga } from 'redux-saga-test-plan';
-import { initActions } from '../../init/init.slice';
 import { NativeModules } from 'react-native';
 import { StoreKeys } from '../../store.keys';
 import {
@@ -24,8 +23,6 @@ describe('startTorSaga', () => {
           },
         },
       )
-      .put(initActions.updateInitDescription('Tor initialization in progress'))
-      .call(NativeModules.TorModule.startTor)
       .run();
   });
 });
