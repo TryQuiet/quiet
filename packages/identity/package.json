@@ -1,6 +1,6 @@
 {
   "name": "@zbayapp/identity",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "description": "Zbay tools for creating certificates and signing messages",
   "main": "lib/index.js",
   "types": "lib/index.d.js",
