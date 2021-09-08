@@ -85,41 +85,51 @@ export const loadCSR = async (csr: string): Promise<CertificationRequest> => {
 }
 
 export const getCertFieldValue = (cert: Certificate, fieldType: CertFieldsTypes | ObjectIdentifier): string | null => {
-  const block = cert.subject.typesAndValues.find((tav) => tav.type === fieldType)
-  const ext = cert.extensions?.find((tav) => tav.extnID === fieldType)
-  if (!block && !ext) {
-    return null
-  }
-  if (ext) {
-    if (fieldType === CertFieldsTypes.dmPublicKey) {
-      const extObj = ext?.extnValue.valueBlock.value[0] as any
-      const arrayBuffer = extObj.valueBlock.valueHex
-
-      return arrayBufferToHexString(arrayBuffer)
+  if (fieldType === CertFieldsTypes.commonName) {
+    const block = cert.subject.typesAndValues.find((tav: any) => tav.type === fieldType)
+    if (block) {
+      return block?.value.valueBlock.value
     } else {
-      const extObj = ext?.extnValue.valueBlock.value[0] as any
-      return extObj.valueBlock.value
+      return null
     }
   } else {
-    return block?.value.valueBlock.value
+    const ext = cert.extensions?.find((tav) => tav.extnID === fieldType)
+    if (ext) {
+      if (fieldType === CertFieldsTypes.dmPublicKey) {
+        const extObj = ext?.extnValue.valueBlock.value[0] as any
+        const arrayBuffer = extObj.valueBlock.valueHex
+
+        return arrayBufferToHexString(arrayBuffer)
+      } else {
+        const extObj = ext?.extnValue.valueBlock.value[0] as any
+
+        return extObj.valueBlock.value
+      }
+    } else {
+      return null
+    }
   }
 }
 
 export const getReqFieldValue = (csr: CertificationRequest, fieldType: CertFieldsTypes | ObjectIdentifier): string | null => {
-  const block = csr.subject.typesAndValues.find((tav) => tav.type === fieldType)
-  const ext = csr.attributes?.find((tav) => tav.type === fieldType) as any
-
-  if (!block && !ext) {
-    return null
-  }
-  if (ext) {
-    if (fieldType === CertFieldsTypes.dmPublicKey) {
-      const extObj = ext.values[0].valueBlock.valueHex
-      return arrayBufferToHexString(extObj)
+  if (fieldType === CertFieldsTypes.commonName) {
+    const block = csr.subject.typesAndValues.find((tav: any) => tav.type === fieldType)
+    if (block) {
+      return block?.value.valueBlock.value
     } else {
-      return ext.values[0].valueBlock.value
+      return null
     }
   } else {
-    return block?.value.valueBlock.value
+    const ext = csr.attributes?.find((tav) => tav.type === fieldType) as any
+    if (ext) {
+      if (fieldType === CertFieldsTypes.dmPublicKey) {
+        const extObj = ext.values[0].valueBlock.valueHex
+        return arrayBufferToHexString(extObj)
+      } else {
+        return ext.values[0].valueBlock.value
+      }
+    } else {
+      return null
+    }
   }
 }
