@@ -23,6 +23,7 @@ import {
   arrayBufferToHexString
 } from './common'
 import configCrypto from './config'
+import { createTestRootCA, createTestUserCert, createTestUserCsr, userData } from './test/helpers'
 
 export { createRootCA }
 export { extractPubKey, parseCertificate, keyFromCertificate, keyObjectFromString, extractPubKeyString }
@@ -43,3 +44,4 @@ export {
   arrayBufferToHexString
 }
 export { configCrypto }
+export { createTestRootCA, createTestUserCert, createTestUserCsr, userData }
