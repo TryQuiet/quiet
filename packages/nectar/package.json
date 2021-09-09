@@ -1,6 +1,6 @@
 {
   "name": "@zbayapp/nectar",
-  "version": "1.1.0",
+  "version": "1.6.0",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -16,7 +16,7 @@
   "license": "ISC",
   "dependencies": {
     "@reduxjs/toolkit": "^1.6.1",
-    "@zbayapp/identity": "^3.1.0",
+    "@zbayapp/identity": "^3.3.1",
     "luxon": "^2.0.2",
     "pkijs": "^2.1.97",
     "redux-saga": "^1.1.3",
