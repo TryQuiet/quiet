@@ -1,6 +1,6 @@
 import { createEntityAdapter } from '@reduxjs/toolkit';
-import { IIdentity } from './identity.types';
+import {Identity} from './identity.slice'
 
-export const identityAdapter = createEntityAdapter<IIdentity>({
+export const identityAdapter = createEntityAdapter<Identity>({
   selectId: (identity) => identity.id,
 });

@@ -5,21 +5,16 @@ import {
   PayloadAction,
 } from '@reduxjs/toolkit';
 import { generateDmKeyPair } from '../../utils/cryptography/cryptography';
-
 import { identityAdapter } from './identity.adapter';
-
-import { KeyObject } from 'crypto';
 import { StoreKeys } from '../store.keys';
-import { IIdentity } from './identity.types';
-import { identityMasterSaga } from './identity.master.saga';
-import { identity } from 'src';
+
 
 export class IdentityState {
-  public identities: EntityState<IIdentity> = identityAdapter.getInitialState();
+  public identities: EntityState<Identity> = identityAdapter.getInitialState();
 }
 
 export class Identity {
-  constructor({id, hiddenService, peerId}) {
+  constructor({id, hiddenService, peerId}: AddNewIdentityPayload) {
       this.id = id,
       this.dmKeys = generateDmKeyPair(),
       this.peerId = peerId,
@@ -30,19 +25,13 @@ export class Identity {
 
   public zbayNickname: string = '';
 
-  public hiddenService :{
-  address: string,
-  privateKey: string
-  }
+  public hiddenService : HiddenService
   public dmKeys: {
     publicKey: string,
     privateKey: string
   }
 
-  public peerId: {
-    id: string,
-    privateKey: string
-  }
+  public peerId: PeerId
 
   public userCsr: UserCsr | null = null;
 
@@ -66,6 +55,23 @@ export interface CreateDmKeyPairPayload {
   dmPrivateKey: string;
 }
 
+export interface HiddenService {
+onionAddress: string,
+privateKey: string
+}
+
+export interface PeerId {
+id: string,
+pubKey: string,
+privKey: string
+}
+
+export interface AddNewIdentityPayload {
+  id: string,
+  hiddenService: HiddenService,
+  peerId: PeerId
+}
+
 export interface CreateUserCsrPayload {
   zbayNickname: string;
   commonName: string;
@@ -81,7 +87,7 @@ export const identitySlice = createSlice({
   reducers: {
     addNewIdentity: (
       state,
-      action: PayloadAction<{ id: string, hiddenService: string, peerId: string}>
+      action: PayloadAction<AddNewIdentityPayload>
     ) => {
       console.log('addNewIdentity');
       identityAdapter.addOne(
