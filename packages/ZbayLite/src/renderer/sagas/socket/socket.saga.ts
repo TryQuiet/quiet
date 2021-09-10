@@ -21,7 +21,7 @@ import { messageType, actionTypes } from '../../../shared/static'
 import { ipcRenderer } from 'electron'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { encodeMessage, constants } from '../../cryptography/cryptography'
-import { extractPubKeyString, sign, loadPrivateKey, configCrypto, CertFieldsTypes, parseCertificate } from '@zbayapp/identity'
+import { extractPubKeyString, sign, loadPrivateKey, configCrypto, CertFieldsTypes, parseCertificate, getCertFieldValue } from '@zbayapp/identity'
 import { arrayBufferToString } from 'pvutils'
 import { actions as waggleActions } from '../../store/handlers/waggle'
 import directMessagesHandlers, { IConversation } from '../../store/handlers/directMessages'
@@ -316,19 +316,22 @@ export function* addCertificate(): Generator {
   const nickname = yield* select(identitySelectors.nickName)
   let parsedCert
   let updateCertificate = false
+  let certField
 
   if (hasCertificate) {
     parsedCert = yield* call(parseCertificate, hasCertificate)
   }
 
-  const certFieldsArray = Object.keys(CertFieldsTypes)
+  const certFieldsArray = Object.values(CertFieldsTypes)
 
-  for (let i = 0; i < certFieldsArray.length; i++) {
-    if (hasCertificate && !parsedCert.subject.typesAndValues[i]) {
-      updateCertificate = true
+  for (const x of certFieldsArray) {
+    if (hasCertificate) {
+      certField = getCertFieldValue(parsedCert, x)
+      if (!certField) {
+        updateCertificate = true
+      }
     }
   }
-
   if ((!hasCertificate && nickname) || updateCertificate) {
     console.log('Calling createOwnCertificate')
     yield* put(certificatesActions.createOwnCertificate(nickname))
