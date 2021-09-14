@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.0.1]
+
+### Fixed
+
+* Snapshot-replication tests
+
 ## [4.0.0]
 
 ### Added
