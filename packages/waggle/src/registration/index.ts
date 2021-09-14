@@ -2,9 +2,8 @@ import express, { Request, Response } from 'express'
 import { Tor } from '../torManager'
 import { Certificate } from 'pkijs'
 import debug from 'debug'
-// import { ConnectionsManager } from '../libp2p/connectionsManager'
 import { createUserCert, loadCSR } from '@zbayapp/identity'
-import { CertFieldsTypes, getCertFieldValue } from '@zbayapp/identity/lib/common'
+import { CertFieldsTypes, getReqFieldValue } from '@zbayapp/identity/lib/common'
 import { Server } from 'http'
 import { validate, IsBase64, IsNotEmpty } from 'class-validator'
 import { DataFromPems } from '../common/types'
@@ -80,7 +79,7 @@ export class CertificateRegistration {
     }
 
     const parsedCsr = await loadCSR(userData.csr)
-    const username = getCertFieldValue(parsedCsr, CertFieldsTypes.nickName)
+    const username = getReqFieldValue(parsedCsr, CertFieldsTypes.nickName)
     const usernameExists = this._storage.usernameExists(username)
     if (usernameExists) {
       log(`Username ${username} is taken`)

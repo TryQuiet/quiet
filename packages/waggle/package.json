@@ -63,7 +63,7 @@
     "yargs": "^17.1.0"
   },
   "dependencies": {
-    "@zbayapp/identity": "^3.1.0",
+    "@zbayapp/identity": "^3.3.1",
     "abortable-iterator": "^3.0.0",
     "class-validator": "^0.13.1",
     "cli-table": "^0.3.6",

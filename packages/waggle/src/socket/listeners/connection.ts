@@ -60,8 +60,8 @@ export const connections = (io, ioProxy: IOProxy) => {
         await ioProxy.askForMessages(peerId, channelAddress, ids)
       }
     )
-    socket.on(EventTypesServer.REGISTER_USER_CERTIFICATE, async (serviceAddress: string, userCsr: string) => {
-      await ioProxy.registerUserCertificate(serviceAddress, userCsr)
+    socket.on(EventTypesServer.REGISTER_USER_CERTIFICATE, async (serviceAddress: string, userCsr: string, id: string) => {
+      await ioProxy.registerUserCertificate(serviceAddress, userCsr, id)
     })
     socket.on(EventTypesServer.SAVE_CERTIFICATE, async (peerId: string, certificate: string) => {
       console.log('Received saveCertificate websocket event, processing.')
@@ -70,8 +70,8 @@ export const connections = (io, ioProxy: IOProxy) => {
     socket.on(EventTypesServer.CREATE_COMMUNITY, async (payload) => {
       await ioProxy.createCommunity(payload.id, payload.rootCertString, payload.rootCertKey)
     })
-    socket.on(EventTypesServer.LAUNCH_COMMUNITY, async (peerId: PeerId.JSONPeerId, hiddenServiceKey: string, peers: string[]) => {
-      await ioProxy.launchCommunity(peerId, hiddenServiceKey, peers)
+    socket.on(EventTypesServer.LAUNCH_COMMUNITY, async (id: string, peerId: PeerId.JSONPeerId, hiddenServiceKey: {address: string, privateKey: string}, peers: string[]) => {
+      await ioProxy.launchCommunity(id, peerId, hiddenServiceKey, peers)
     })
     socket.on(EventTypesServer.LAUNCH_REGISTRAR, async (id: string, peerId: string, rootCertString: string, rootKeyString: string, hiddenServicePrivKey?: string, port?: number) => {
       await ioProxy.launchRegistrar(id, peerId, rootCertString, rootKeyString, hiddenServicePrivKey, port)

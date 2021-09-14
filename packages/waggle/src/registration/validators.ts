@@ -1,5 +1,5 @@
 import { loadCSR } from '@zbayapp/identity'
-import { CertFieldsTypes, getCertFieldValue } from '@zbayapp/identity/lib/common'
+import { CertFieldsTypes, getReqFieldValue } from '@zbayapp/identity/lib/common'
 import { registerDecorator, ValidationOptions, ValidationArguments } from 'class-validator'
 
 import debug from 'debug'
@@ -42,7 +42,7 @@ export function CsrContainsFields(validationOptions?: ValidationOptions) {
           const prom: Promise<boolean> = new Promise(resolve => {
             loadCSR(value).then((loadedCsr) => {
               for (const certType of [CertFieldsTypes.commonName, CertFieldsTypes.peerId, CertFieldsTypes.nickName]) {
-                if (!getCertFieldValue(loadedCsr, certType)) {
+                if (!getReqFieldValue(loadedCsr, certType)) {
                   log.error(`Certificate is lacking a field '${certType}'`)
                   resolve(false)
                   return

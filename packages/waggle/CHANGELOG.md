@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.2.0]
+
+### Fixed
+
+* CSRContainsField validator
+
+### Changed
+
+* LaunchComunity API
+* Register user certificate API
+
 ## [3.1.0]
 
 ### Added
