@@ -7,6 +7,7 @@ import fs from 'fs'
 import PeerId from 'peer-id'
 import { getPorts, torBinForPlatform, torDirForPlatform } from './utils'
 import CommunitiesManager from './communities/manager'
+import { CertsData } from './common/types'
 
 export default class Node {
   tor: Tor
@@ -18,26 +19,30 @@ export default class Node {
   peerIdFileName: string | null
   port: number
   socksProxyPort: number
+  httpTunnelPort: number
   torControlPort: number
   hiddenServicePort: number
+  certificates: CertsData
 
-  constructor(torPath?: string, pathDevLib?: string, peerIdFileName?: string, port = 7788, socksProxyPort = 9050, torControlPort = 9051, hiddenServicePort = 7788, torAppDataPath = ZBAY_DIR_PATH, hiddenServiceSecret?: string) {
+  constructor(torPath?: string, pathDevLib?: string, peerIdFileName?: string, port = 7788, socksProxyPort = 9050, httpTunnelPort = 9052, torControlPort = 9051, hiddenServicePort = 7788, torAppDataPath = ZBAY_DIR_PATH, hiddenServiceSecret?: string, certificates?: CertsData) {
     this.torPath = torPath || torBinForPlatform()
     this.torAppDataPath = torAppDataPath
     this.pathDevLib = pathDevLib || torDirForPlatform()
     this.peerIdFileName = peerIdFileName || this.getPeerIdFileName()
     this.port = port
     this.socksProxyPort = socksProxyPort
+    this.httpTunnelPort = httpTunnelPort
     this.torControlPort = torControlPort
     this.hiddenServicePort = hiddenServicePort
     this.hiddenServiceSecret = hiddenServiceSecret
+    this.certificates = certificates
   }
 
-  public getHiddenServiceSecret (): string {
+  public getHiddenServiceSecret(): string {
     return this.hiddenServiceSecret || process.env.HIDDEN_SERVICE_SECRET
   }
 
-  public getPeerIdFileName (): string {
+  public getPeerIdFileName(): string {
     return process.env.PEERID_FILE
   }
 
@@ -57,16 +62,17 @@ export default class Node {
   public async init(): Promise<void> { // TODO: Check if this is working
     this.tor = await this.spawnTor()
     const onionAddress = await this.spawnService()
-    console.log('onion', onionAddress)
     const dataServer = await this.initDataServer()
     const connectonsManager = await this.initConnectionsManager(dataServer)
     const communities = new CommunitiesManager(connectonsManager)
     const peerId = await this.getPeer()
+
     await communities.initStorage(
       peerId,
       onionAddress,
       this.port,
-      ['/dns4/2lmfmbj4ql56d55lmv7cdrhdlhls62xa4p6lzy6kymxuzjlny3vnwyqd.onion/tcp/7788/ws/p2p/Qmak8HeMad8X1HGBmz2QmHfiidvGnhu6w6ugMKtx8TFc85']
+      ['/dns4/2lmfmbj4ql56d55lmv7cdrhdlhls62xa4p6lzy6kymxuzjlny3vnwyqd.onion/tcp/7788/ws/p2p/Qmak8HeMad8X1HGBmz2QmHfiidvGnhu6w6ugMKtx8TFc85'],
+      this.certificates
     )
     await communities.setupRegistrationService(
       communities.getStorage(peerId.toB58String()),
@@ -75,12 +81,13 @@ export default class Node {
     )
   }
 
-  async spawnTor (): Promise<Tor> {
+  async spawnTor(): Promise<Tor> {
     const tor = new Tor({
       torPath: this.torPath,
       appDataPath: this.torAppDataPath,
       controlPort: this.torControlPort,
       socksPort: this.socksProxyPort,
+      httpTunnelPort: this.httpTunnelPort,
       options: {
         env: {
           LD_LIBRARY_PATH: this.pathDevLib,
@@ -93,7 +100,7 @@ export default class Node {
     return tor
   }
 
-  async spawnService (): Promise<string> {
+  async spawnService(): Promise<string> {
     console.log('Spawning service')
     let service: any
     try {
@@ -123,6 +130,7 @@ export default class Node {
   async initConnectionsManager(dataServer: DataServer, storageClass?: any, options?: any): Promise<ConnectionsManager> {
     console.log('initStorage.storageClass:->', storageClass)
     const connectonsManager = new ConnectionsManager({
+      httpTunnelPort: this.httpTunnelPort,
       agentHost: 'localhost',
       agentPort: this.socksProxyPort,
       io: dataServer.io,

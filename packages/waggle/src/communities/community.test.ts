@@ -3,6 +3,8 @@ import { ConnectionsManager } from '../libp2p/connectionsManager'
 import { createMinConnectionManager, createTmpDir, tmpZbayDirPath } from '../testUtils'
 import PeerId from 'peer-id'
 import { getPorts } from '../utils'
+import { createCertificatesTestHelper } from '../libp2p/tests/client-server'
+jest.setTimeout(100_000)
 
 describe('Community manager', () => {
   let connectionsManager: ConnectionsManager
@@ -26,7 +28,13 @@ describe('Community manager', () => {
   it('creates new community', async () => {
     manager = new CommunitiesManager(connectionsManager)
     expect(manager.communities.size).toBe(0)
-    const communityData = await manager.create()
+    const pems = await createCertificatesTestHelper('address1.onion', 'address2.onion')
+    const certs = {
+      cert: pems.userCert,
+      key: pems.userKey,
+      ca: [pems.ca]
+    }
+    const communityData = await manager.create(certs)
     expect(manager.communities.size).toBe(1)
     expect(manager.communities.has(communityData.peerId.id)).toBeTruthy()
   })
@@ -35,10 +43,17 @@ describe('Community manager', () => {
     manager = new CommunitiesManager(connectionsManager)
     expect(manager.communities.size).toBe(0)
     const peerId = await PeerId.create()
+    const pems = await createCertificatesTestHelper('address1.onion', 'address2.onion')
+    const certs = {
+      cert: pems.userCert,
+      key: pems.userKey,
+      ca: [pems.ca]
+    }
     const localAddress = await manager.launch(
       peerId.toJSON(),
       'ED25519-V3:YKbZb2pGbMt44qunoxvrxCKenRomAI9b/HkPB5mWgU9wIm7wqS+43t0yLiCmjSu+FW4f9qFW91c4r6BAsXS9Lg==',
-      ['peeraddress']
+      ['peeraddress'],
+      certs
     )
     expect(localAddress).toContain(peerId.toB58String())
     expect(manager.communities.size).toBe(1)

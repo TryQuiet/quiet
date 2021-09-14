@@ -3,7 +3,7 @@ import { ConnectionsManager } from '../libp2p/connectionsManager'
 import { Storage } from '../storage'
 import { getPorts } from '../utils'
 import debug from 'debug'
-import { DataFromPems } from '../common/types'
+import { CertsData, DataFromPems } from '../common/types'
 import { CertificateRegistration } from '../registration'
 
 const log = Object.assign(debug('waggle:communities'), {
@@ -40,11 +40,11 @@ export default class CommunitiesManager {
     }
   }
 
-  public create = async (): Promise<CommunityData> => {
+  public create = async (certs: CertsData): Promise<CommunityData> => {
     const ports = await getPorts()
     const hiddenService = await this.connectionsManager.tor.createNewHiddenService(ports.libp2pHiddenService, ports.libp2pHiddenService)
     const peerId = await PeerId.create()
-    const localAddress = await this.initStorage(peerId, hiddenService.onionAddress, ports.libp2pHiddenService, [peerId.toB58String()])
+    const localAddress = await this.initStorage(peerId, hiddenService.onionAddress, ports.libp2pHiddenService, [peerId.toB58String()], certs)
     log(`Created community, ${peerId.toB58String()}`)
     return {
       hiddenService,
@@ -53,7 +53,7 @@ export default class CommunitiesManager {
     }
   }
 
-  public launch = async (peerId: JSONPeerId, hiddenServiceKey: string, bootstrapMultiaddrs: string[]): Promise<string> => {
+  public launch = async (peerId: JSONPeerId, hiddenServiceKey: string, bootstrapMultiaddrs: string[], certs: CertsData): Promise<string> => {
     // Start existing community (community that user is already a part of)
     const ports = await getPorts()
     const onionAddress = await this.connectionsManager.tor.spawnHiddenService({
@@ -62,13 +62,13 @@ export default class CommunitiesManager {
       privKey: hiddenServiceKey
     })
     log(`Launching community, ${peerId.id}`)
-    return await this.initStorage(await PeerId.createFromJSON(peerId), onionAddress, ports.libp2pHiddenService, bootstrapMultiaddrs)
+    return await this.initStorage(await PeerId.createFromJSON(peerId), onionAddress, ports.libp2pHiddenService, bootstrapMultiaddrs, certs)
   }
 
-  public initStorage = async (peerId: PeerId, onionAddress: string, port: number, bootstrapMultiaddrs: string[]): Promise<string> => {
-    const listenAddrs = `/dns4/${onionAddress}/tcp/${port}/ws`
+  public initStorage = async (peerId: PeerId, onionAddress: string, port: number, bootstrapMultiaddrs: string[], certs: CertsData): Promise<string> => {
+    const listenAddrs = `/dns4/${onionAddress}/tcp/${port}/wss`
     const peerIdB58string = peerId.toB58String()
-    const libp2pObj = await this.connectionsManager.initLibp2p(peerId, listenAddrs, bootstrapMultiaddrs)
+    const libp2pObj = await this.connectionsManager.initLibp2p(peerId, listenAddrs, bootstrapMultiaddrs, certs)
     const storage = new this.connectionsManager.StorageCls(
       this.connectionsManager.zbayDir,
       this.connectionsManager.io,

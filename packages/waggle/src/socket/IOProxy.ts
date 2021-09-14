@@ -1,4 +1,4 @@
-import { IChannelInfo, IMessage } from '../common/types'
+import { CertsData, IChannelInfo, IMessage } from '../common/types'
 import CommunitiesManager from '../communities/manager'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 import { EventTypesResponse } from './constantsReponse'
@@ -132,16 +132,16 @@ export default class IOProxy {
     this.io.emit(EventTypesResponse.CERTIFICATE_REGISTRATION_ERROR, { payload: message })
   }
 
-  public async createCommunity(communityId: string, rootCert?: string, rootKey?: string) {
-    const communityData = await this.communities.create()
+  public async createCommunity(communityId: string, certs: CertsData, rootCert?: string, rootKey?: string) {
+    const communityData = await this.communities.create(certs)
     if (rootCert && rootKey) {
       await this.launchRegistrar(communityId, communityData.peerId.id, rootCert, rootKey)
     }
     this.io.emit(EventTypesResponse.NEW_COMMUNITY, { id: communityId, payload: communityData })
   }
 
-  public async launchCommunity(communityId: string, peerId: PeerId.JSONPeerId, hiddenService: {address: string, privateKey: string}, bootstrapMultiaddress: string[]) {
-    await this.communities.launch(peerId, hiddenService.privateKey, bootstrapMultiaddress)
+  public async launchCommunity(communityId: string, peerId: PeerId.JSONPeerId, hiddenService: {address: string, privateKey: string}, bootstrapMultiaddress: string[], certs: CertsData) {
+    await this.communities.launch(peerId, hiddenService.privateKey, bootstrapMultiaddress, certs)
     this.io.emit(EventTypesResponse.COMMUNITY, { id: communityId })
   }
 

@@ -19,6 +19,7 @@ interface IConstructor {
   appDataPath: string
   controlPort: number
   socksPort: number
+  httpTunnelPort?: number
   torPassword?: string
   torAuthCookie?: string
 }
@@ -33,10 +34,11 @@ export class Tor {
   torDataDirectory: string
   torPidPath: string
   socksPort: string
+  httpTunnelPort: string
   torPassword: string
   torHashedPassword: string
   torAuthCookie: string
-  constructor({ torPath, options, appDataPath, controlPort, socksPort, torPassword, torAuthCookie }: IConstructor) {
+  constructor({ torPath, options, appDataPath, controlPort, socksPort, httpTunnelPort, torPassword, torAuthCookie }: IConstructor) {
     this.torPath = path.normalize(torPath)
     this.options = options
     this.services = new Map()
@@ -45,6 +47,7 @@ export class Tor {
     this.torPassword = torPassword
     this.torAuthCookie = torAuthCookie
     this.socksPort = socksPort.toString()
+    this.httpTunnelPort = httpTunnelPort ? httpTunnelPort.toString() : null
   }
 
   public init = async (): Promise<void> => {
@@ -110,6 +113,7 @@ export class Tor {
       [
         '--SocksPort',
         this.socksPort,
+        ...(this.httpTunnelPort ? ['--HTTPTunnelPort', this.httpTunnelPort] : []),
         '--ControlPort',
         this.controlPort.toString(),
         '--PidFile',

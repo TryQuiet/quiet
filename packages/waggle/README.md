@@ -43,7 +43,7 @@ HIDDEN_SERVICE_SECRET can be retrieved from Tor.createNewHiddenService.
 
 If you don't want to connect to our entry node, set also BOOTSTRAP_ADDRS env variable. It's a multiaddrs of one of your local nodes:
 
-`BOOTSTRAP_ADDRS=/dns4/<yourBootstrapNodeOnionAddress>/tcp/<yourBootstrapNodePort>/ws/p2p/<yourBootstrapNodePeerId>`
+`BOOTSTRAP_ADDRS=/dns4/<yourBootstrapNodeOnionAddress>/tcp/<yourBootstrapNodePort>/wss/p2p/<yourBootstrapNodePeerId>`
 
 
 ### Local separated network of waggle's

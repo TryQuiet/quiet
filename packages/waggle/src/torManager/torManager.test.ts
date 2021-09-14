@@ -1,7 +1,8 @@
 /* eslint import/first: 0 */
 import { Tor } from './torManager'
-import { getPorts, torBinForPlatform, torDirForPlatform } from '../utils'
+import { torBinForPlatform, torDirForPlatform } from '../utils'
 import { createTmpDir, spawnTorProcess, TmpDir, tmpZbayDirPath } from '../testUtils'
+import fp from 'find-free-port'
 
 jest.setTimeout(100_000)
 
@@ -29,13 +30,16 @@ describe('Tor manager', () => {
     // This does not pass on windows (EBUSY: resource busy or locked, unlink '(...)\.zbay\TorDataDirectory\lock')
     // Probably only test config issue
     const torPath = torBinForPlatform()
-    const ports = await getPorts()
+    const [controlPort] = await fp(9051)
+    const httpTunnelPort = (await fp(controlPort as number + 1)).shift()
+    const socksPort = (await fp(httpTunnelPort as number + 1)).shift()
     const libPath = torDirForPlatform()
     const tor = new Tor({
       appDataPath: tmpAppDataPath,
-      socksPort: ports.socksPort,
+      socksPort,
       torPath: torPath,
-      controlPort: ports.controlPort,
+      controlPort,
+      httpTunnelPort,
       options: {
         env: {
           LD_LIBRARY_PATH: libPath,
@@ -49,9 +53,10 @@ describe('Tor manager', () => {
 
     const torSecondInstance = new Tor({
       appDataPath: tmpAppDataPath,
-      socksPort: ports.socksPort,
+      socksPort,
       torPath: torPath,
-      controlPort: ports.controlPort,
+      controlPort,
+      httpTunnelPort,
       options: {
         env: {
           LD_LIBRARY_PATH: libPath,

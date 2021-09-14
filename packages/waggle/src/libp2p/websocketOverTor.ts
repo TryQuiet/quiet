@@ -4,13 +4,15 @@ import { AbortError } from 'abortable-iterator'
 import connect from 'it-ws/client'
 import { EventEmitter } from 'events'
 import toUri from 'multiaddr-to-uri'
-import { createServer } from 'it-ws'
+import createServer from 'it-ws/server'
 import toConnection from 'libp2p-websockets/src/socket-to-conn'
 import url from 'url'
 import os from 'os'
 import multiaddr from 'multiaddr'
 import debug from 'debug'
 import PeerId from 'peer-id'
+import https from 'https'
+
 const log: any = debug('libp2p:websockets:listener:waggle')
 log.error = debug('libp2p:websockets:listener:waggle:error')
 
@@ -21,9 +23,9 @@ class Discovery extends EventEmitter {
     this.tag = 'channel_18'
   }
 
-  stop() {}
-  start() {}
-  end() {}
+  stop() { }
+  start() { }
+  end() { }
 }
 
 class WebsocketsOverTor extends WebSockets {
@@ -79,6 +81,7 @@ class WebsocketsOverTor extends WebSockets {
     const cOpts = ma.toOptions()
     log('dialing %s:%s', cOpts.host, cOpts.port)
     const myUri = `${toUri(ma) as string}/?remoteAddress=${encodeURIComponent(this.localAddress)}`
+
     const rawSocket = connect(myUri, Object.assign({ binary: true }, options))
     if (!options.signal) {
       await rawSocket.connected()
@@ -111,12 +114,41 @@ class WebsocketsOverTor extends WebSockets {
     return rawSocket
   }
 
-  prepareListener = ({ handler, upgrader }, options = {}) => {
+  prepareListener = ({ handler, upgrader }) => {
     const listener: any = new EventEmitter()
     const trackConn = (server, maConn) => {
       server.__connections.push(maConn)
     }
-    const server = createServer(options, async (stream, request) => {
+
+    let caArray
+
+    if (Array.isArray(this._websocketOpts.ca)) {
+      if (this._websocketOpts.ca[0]) {
+        caArray = this._websocketOpts.ca[0]
+      } else {
+        caArray = null
+      }
+    } else {
+      caArray = null
+    }
+
+    const serverHttps = https.createServer({
+      cert: this._websocketOpts.cert,
+      key: this._websocketOpts.key,
+      ca: [caArray],
+      requestCert: true,
+      enableTrace: false
+    })
+
+    const optionsServ = {
+      server: serverHttps,
+      // eslint-disable-next-line
+      verifyClient: function (info, done) {
+        done(true)
+      }
+    }
+
+    const server = createServer(optionsServ, async (stream, request) => {
       let maConn, conn
       // eslint-disable-next-line
       const query = url.parse(request.url, true).query
@@ -160,14 +192,12 @@ class WebsocketsOverTor extends WebSockets {
 
     listener.listen = (ma: multiaddr) => {
       listeningMultiaddr = ma
-
       return server.listen(ma.toOptions())
     }
 
     listener.getAddrs = () => {
       const multiaddrs = []
       const address = server.address()
-
       if (!address) {
         throw new Error('Listener is not ready yet')
       }
@@ -197,20 +227,19 @@ class WebsocketsOverTor extends WebSockets {
           multiaddrs.push(m)
         }
       }
-
       return multiaddrs
     }
     return listener
   }
 
   // eslint-disable-next-line
-  createListener (options = {}, handler) {
+  createListener(options = {}, handler) {
     if (typeof options === 'function') {
       handler = options
       options = {}
     }
 
-    return this.prepareListener({ handler, upgrader: this._upgrader }, options)
+    return this.prepareListener({ handler, upgrader: this._upgrader })
   }
 }
 

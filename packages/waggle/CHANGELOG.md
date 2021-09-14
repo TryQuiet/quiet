@@ -1,15 +1,21 @@
 # Changelog
 
-## [3.2.0]
+## [4.0.0]
+
+### Added
+
+* Certificates vaidation within websocketOverTor
+
+### Changed
+
+* Creating community event's payload must contain certificates
+* Peer network connection is via https
+* LaunchComunity API
+* Register user certificate API
 
 ### Fixed
 
 * CSRContainsField validator
-
-### Changed
-
-* LaunchComunity API
-* Register user certificate API
 
 ## [3.1.0]
 

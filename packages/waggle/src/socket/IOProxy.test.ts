@@ -1,4 +1,5 @@
 import { ConnectionsManager } from '../libp2p/connectionsManager'
+import { createCertificatesTestHelper } from '../libp2p/tests/client-server'
 import { createMinConnectionManager, createTmpDir, tmpZbayDirPath } from '../testUtils'
 import { getPorts } from '../utils'
 import { EventTypesResponse } from './constantsReponse'
@@ -29,7 +30,13 @@ describe('IO proxy', () => {
     const observedLaunchRegistrar = jest.spyOn(ioProxy, 'launchRegistrar')
     const observedIO = jest.spyOn(ioProxy.io, 'emit')
     const observedCommunityCreate = jest.spyOn(ioProxy.communities, 'create')
-    await ioProxy.createCommunity('MyCommunity')
+    const pems = await createCertificatesTestHelper('adres1.onion', 'adres2.onion')
+    const certs = {
+      cert: pems.userCert,
+      key: pems.userKey,
+      ca: [pems.ca]
+    }
+    await ioProxy.createCommunity('MyCommunity', certs)
     expect(observedLaunchRegistrar).not.toBeCalled()
     const communityData = await observedCommunityCreate.mock.results[0].value
     expect(observedIO).lastCalledWith(EventTypesResponse.NEW_COMMUNITY, { id: 'MyCommunity', payload: communityData })

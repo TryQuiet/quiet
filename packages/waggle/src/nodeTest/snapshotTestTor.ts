@@ -12,18 +12,20 @@ const tmpAppDataPath2 = path.join(tmpDir.name, '.zbayTmp2')
 const runTest = async () => {
   const messagesCount = 1000
   const [port1] = await fp(7788)
-  const [socksProxy1] = await fp(1234)
-  const [torControl1] = await fp(9051)
 
+  const [controlPort] = await fp(9051)
+  const httpTunnelPort = (await fp(controlPort as number + 1)).shift()
+  const socksPort = (await fp(httpTunnelPort as number + 1)).shift()
   // Node that generates snapshot
   const node1 = new NodeWithTor(
     undefined,
     undefined,
     undefined,
     port1,
-    socksProxy1,
-    torControl1,
+    socksPort,
+    controlPort,
     port1,
+    httpTunnelPort,
     torDir1,
     undefined,
     {
@@ -38,16 +40,18 @@ const runTest = async () => {
 
   // Node that retrieves snapshot
   const port2 = await fp(7789)
-  const [socksProxy2] = await fp(4321)
-  const [torControl2] = await fp(9052)
+  const [controlPort2] = await fp(9060)
+  const httpTunnelPort2 = (await fp(controlPort as number + 1)).shift()
+  const socksPort2 = (await fp(httpTunnelPort as number + 1)).shift()
   const node2 = new NodeWithTor(
     undefined,
     undefined,
     undefined,
     port2,
-    socksProxy2,
-    torControl2,
+    socksPort2,
+    controlPort2,
     port2,
+    httpTunnelPort2,
     torDir2,
     undefined,
     {

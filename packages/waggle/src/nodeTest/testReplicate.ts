@@ -5,6 +5,10 @@ import fp from 'find-free-port'
 import debug from 'debug'
 import Table from 'cli-table'
 import yargs, { Argv } from 'yargs'
+import { createRootCA } from '@zbayapp/identity'
+import { Time, setEngine, CryptoEngine } from 'pkijs'
+import { Crypto } from '@peculiar/webcrypto'
+
 const log = Object.assign(debug('localTest'), {
   error: debug('localTest:err')
 })
@@ -57,12 +61,21 @@ class NodeData {
   actualReplicationTime?: number
 }
 
-const launchNode = async (i: number, bootstrapAddress?: string, createMessages: boolean = false, useSnapshot: boolean = false) => {
+const launchNode = async (i: number, rootCa, bootstrapAddress?: string, createMessages: boolean = false, useSnapshot: boolean = false) => {
   const torDir = path.join(tmpDir.name, `tor${i}`)
   const tmpAppDataPath = path.join(tmpDir.name, `.zbayTmp${i}`)
   const [port] = await fp(7788 + i)
   const [socksProxyPort] = await fp(1234 + i)
   const [torControlPort] = await fp(9051 + i)
+  const [httpTunnelPort] = await fp(8052 + i)
+
+  const webcrypto = new Crypto()
+  setEngine('newEngine', webcrypto, new CryptoEngine({
+    name: '',
+    crypto: webcrypto,
+    subtle: webcrypto.subtle
+  }))
+
   const node = new NodeType(
     undefined,
     undefined,
@@ -71,6 +84,7 @@ const launchNode = async (i: number, bootstrapAddress?: string, createMessages: 
     socksProxyPort,
     torControlPort,
     port,
+    httpTunnelPort,
     torDir,
     undefined,
     {
@@ -79,7 +93,8 @@ const launchNode = async (i: number, bootstrapAddress?: string, createMessages: 
       messagesCount: argv.entriesCount
     },
     tmpAppDataPath,
-    bootstrapAddress ? [bootstrapAddress] : [bootstrapNode.localAddress]
+    bootstrapAddress ? [bootstrapAddress] : [bootstrapNode.localAddress],
+    rootCa
   )
   await node.init()
   node.storage.setName(`Node${i}`)
@@ -114,7 +129,7 @@ const runTest = async () => {
   // Run second node connecting to entry node
   // Check if the second node replicated all messages within a set time range
 
-  process.on('SIGINT', function() {
+  process.on('SIGINT', function () {
     log('Caught interrupt signal')
     log(`Removing tmp dir: ${tmpDir.name}`)
     tmpDir.removeCallback()
@@ -125,17 +140,21 @@ const runTest = async () => {
   const maxReplicationTimePerNode = Number(argv.timeThreshold)
   const nodes: NodeKeyValue = {}
 
+  const notBeforeDate = new Date(Date.UTC(2010, 11, 28, 10, 10, 10))
+  const notAfterDate = new Date(Date.UTC(2030, 11, 28, 10, 10, 10))
+  const rootCa = await createRootCA(new Time({ type: 0, value: notBeforeDate }), new Time({ type: 0, value: notAfterDate }))
+
   const initNode = async (noNumber: number) => {
     const nodeData = new NodeData()
     nodeData.checked = false
     nodeData.testPassed = false
-    nodeData.node = await launchNode(noNumber)
+    nodeData.node = await launchNode(noNumber, rootCa)
     nodeData.timeLaunched = new Date()
     nodes[noNumber] = nodeData
   }
 
   // Launch entry node
-  bootstrapNode = await launchNode(0, '/mockBootstrapMultiaddress', true, false)
+  bootstrapNode = await launchNode(0, rootCa, '/mockBootstrapMultiaddress', true, false)
 
   // Launch other nodes
   const numbers = [...Array(nodesCount + 1).keys()].splice(1)

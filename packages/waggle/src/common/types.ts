@@ -65,6 +65,7 @@ export interface IConstructor {
   host: string
   port: number
   agentPort?: number
+  httpTunnelPort?: number
   agentHost?: string
   options?: Partial<ConnectionsManagerOptions>
   io: any
@@ -79,4 +80,10 @@ export interface ILibp2pStatus {
 export interface DataFromPems {
   certificate: string
   privKey: string
+}
+
+export interface CertsData {
+  cert: Buffer
+  key: Buffer
+  ca: Buffer[]
 }

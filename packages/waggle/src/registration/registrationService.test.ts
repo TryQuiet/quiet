@@ -176,8 +176,8 @@ describe('Registration service', () => {
       { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString }
     )
     const response = await registerUserTest(userNew.userCsr, ports.socksPort)
-    expect(saveCertificate).not.toHaveBeenCalled()
     expect(response.status).toEqual(403)
+    expect(saveCertificate).not.toHaveBeenCalled()
   })
 
   it('returns 400 if no csr in data or csr has wrong format', async () => {

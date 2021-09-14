@@ -1,3 +1,5 @@
 /node_modules
 /lib
 /coverage
+/testingFixtures/certificates/files
+/testingFixtures/certificates/files2

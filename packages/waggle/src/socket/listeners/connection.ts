@@ -1,5 +1,5 @@
 import { EventTypesServer } from '../constants'
-import { IChannelInfo, IMessage } from '../../common/types'
+import { CertsData, IChannelInfo, IMessage } from '../../common/types'
 import IOProxy from '../IOProxy'
 import PeerId from 'peer-id'
 
@@ -67,11 +67,12 @@ export const connections = (io, ioProxy: IOProxy) => {
       console.log('Received saveCertificate websocket event, processing.')
       await ioProxy.saveCertificate(peerId, certificate)
     })
-    socket.on(EventTypesServer.CREATE_COMMUNITY, async (payload) => {
-      await ioProxy.createCommunity(payload.id, payload.rootCertString, payload.rootCertKey)
+    socket.on(EventTypesServer.CREATE_COMMUNITY, async (payload, certs: CertsData) => {
+      await ioProxy.createCommunity(payload.id, certs, payload.rootCertString, payload.rootCertKey)
     })
-    socket.on(EventTypesServer.LAUNCH_COMMUNITY, async (id: string, peerId: PeerId.JSONPeerId, hiddenServiceKey: {address: string, privateKey: string}, peers: string[]) => {
-      await ioProxy.launchCommunity(id, peerId, hiddenServiceKey, peers)
+
+    socket.on(EventTypesServer.LAUNCH_COMMUNITY, async (id: string, peerId: PeerId.JSONPeerId, hiddenServiceKey: {address: string, privateKey: string}, peers: string[], certs: CertsData) => {
+      await ioProxy.launchCommunity(id, peerId, hiddenServiceKey, peers, certs)
     })
     socket.on(EventTypesServer.LAUNCH_REGISTRAR, async (id: string, peerId: string, rootCertString: string, rootKeyString: string, hiddenServicePrivKey?: string, port?: number) => {
       await ioProxy.launchRegistrar(id, peerId, rootCertString, rootKeyString, hiddenServicePrivKey, port)

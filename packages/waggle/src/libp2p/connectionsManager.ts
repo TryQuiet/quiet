@@ -10,7 +10,7 @@ import Bootstrap from 'libp2p-bootstrap'
 import { Storage } from '../storage'
 import { torBinForPlatform, torDirForPlatform } from '../utils'
 import { ZBAY_DIR_PATH } from '../constants'
-import { ConnectionsManagerOptions } from '../common/types'
+import { CertsData, ConnectionsManagerOptions } from '../common/types'
 import fetch, { Response } from 'node-fetch'
 import debug from 'debug'
 import CustomLibp2p, { Libp2pType } from './customLibp2p'
@@ -18,6 +18,7 @@ import { Tor } from '../torManager'
 import initListeners from '../socket/listeners'
 import IOProxy from '../socket/IOProxy'
 import { Connection } from 'libp2p-gossipsub/src/interfaces'
+import { HttpsProxyAgent } from 'https-proxy-agent'
 
 const log = Object.assign(debug('waggle:conn'), {
   error: debug('waggle:conn:err')
@@ -31,11 +32,13 @@ export interface IConstructor {
   options?: Partial<ConnectionsManagerOptions>
   io: any
   storageClass?: any // TODO: what type?
+  httpTunnelPort?: number
 }
 
 export class ConnectionsManager {
   agentHost: string
   agentPort: number
+  httpTunnelPort: number
   socksProxyAgent: any
   options: ConnectionsManagerOptions
   zbayDir: string
@@ -44,9 +47,10 @@ export class ConnectionsManager {
   StorageCls: any
   tor: Tor
 
-  constructor({ agentHost, agentPort, options, storageClass, io }: IConstructor) {
+  constructor({ agentHost, agentPort, httpTunnelPort, options, storageClass, io }: IConstructor) {
     this.io = io
     this.agentPort = agentPort
+    this.httpTunnelPort = httpTunnelPort
     this.agentHost = agentHost
     this.socksProxyAgent = this.createAgent()
     this.options = {
@@ -71,7 +75,7 @@ export class ConnectionsManager {
     if (this.socksProxyAgent || !this.agentPort || !this.agentHost) return
 
     log('Creating socks proxy agent')
-    return new SocksProxyAgent({ port: this.agentPort, host: this.agentHost })
+    return new HttpsProxyAgent({ port: this.httpTunnelPort, host: this.agentHost })
   }
 
   public initListeners = () => {
@@ -88,6 +92,7 @@ export class ConnectionsManager {
       socksPort: this.agentPort,
       torPassword: this.options.torPassword,
       torAuthCookie: this.options.torAuthCookie,
+
       options: {
         env: {
           LD_LIBRARY_PATH: torDirForPlatform(),
@@ -104,13 +109,14 @@ export class ConnectionsManager {
     }
   }
 
-  public initLibp2p = async (peerId: PeerId, listenAddrs: string, bootstrapMultiaddrs: string[]): Promise<{libp2p: Libp2pType, localAddress: string}> => {
+  public initLibp2p = async (peerId: PeerId, listenAddrs: string, bootstrapMultiaddrs: string[], certs: CertsData): Promise<{ libp2p: Libp2pType, localAddress: string }> => {
     const localAddress = `${listenAddrs}/p2p/${peerId.toB58String()}`
     const libp2p = ConnectionsManager.createBootstrapNode({
       peerId: peerId,
       listenAddrs: [listenAddrs],
       agent: this.socksProxyAgent,
       localAddr: localAddress,
+      ...certs,
       bootstrapMultiaddrsList: bootstrapMultiaddrs,
       transportClass: this.libp2pTransportClass
     })
@@ -148,6 +154,9 @@ export class ConnectionsManager {
     peerId,
     listenAddrs,
     agent,
+    cert,
+    key,
+    ca,
     localAddr,
     bootstrapMultiaddrsList,
     transportClass
@@ -156,6 +165,9 @@ export class ConnectionsManager {
       peerId,
       listenAddrs,
       agent,
+      cert,
+      key,
+      ca,
       localAddr,
       bootstrapMultiaddrsList,
       transportClass
@@ -166,6 +178,9 @@ export class ConnectionsManager {
     peerId,
     listenAddrs,
     agent,
+    cert,
+    key,
+    ca,
     localAddr,
     bootstrapMultiaddrsList,
     transportClass
@@ -207,7 +222,10 @@ export class ConnectionsManager {
         transport: {
           [transportClass.name]: {
             websocket: {
-              agent
+              agent,
+              cert,
+              key,
+              ca
             },
             localAddr
           }
