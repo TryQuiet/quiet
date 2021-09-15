@@ -1,4 +1,4 @@
-import { combineReducers, EntityState } from '@reduxjs/toolkit';
+import { combineReducers } from '@reduxjs/toolkit';
 import { expectSaga } from 'redux-saga-test-plan';
 import { Socket } from 'socket.io-client';
 import { generateId } from '../../../utils/cryptography/cryptography';
@@ -8,38 +8,27 @@ import { StoreKeys } from '../../store.keys';
 import {
   communitiesActions,
   communitiesReducer,
-  CommunitiesState,
   Community,
+  CommunitiesState
 } from '../communities.slice';
 import { createCommunitySaga } from './createCommunity.saga';
 import { createRootCA } from '@zbayapp/identity/lib';
 
 describe('createCommunitySaga', () => {
-  test.skip('create new community', async () => {
+  test('create new community', async () => {
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket;
-    const community = new Community({
-      name: 'communityName',
-      id: 'id',
-      CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
-      registrarUrl: '',
-    });
+    const community = new Community({name: 'communityName', id: 'id', CA: { rootCertString: 'certString', rootKeyString: 'keyString' }, registrarUrl:''})
 
     const communityPayload = {
       id: 'id',
       rootCertString: 'certString',
       rootCertKey: 'keyString',
     };
-    await expectSaga(
-      createCommunitySaga,
-      socket,
-      communitiesActions.createNewCommunity('communityName')
-    )
+    await expectSaga(createCommunitySaga, socket, communitiesActions.createNewCommunity('communityName'))
       .withReducer(
         combineReducers({ [StoreKeys.Communities]: communitiesReducer }),
         {
-          [StoreKeys.Communities]: {
-            ...new CommunitiesState(),
-          },
+          [StoreKeys.Communities]: {...new CommunitiesState()}
         }
       )
       .provide([
@@ -53,11 +42,19 @@ describe('createCommunitySaga', () => {
         SocketActionTypes.CREATE_COMMUNITY,
         communityPayload,
       ])
-      .hasFinalState({
-        [StoreKeys.Communities]: {
-          ... new CommunitiesState(),
-        },
-      })
+      .hasFinalState(
+        {
+          [StoreKeys.Communities]: {
+        ...new CommunitiesState(),
+        currentCommunity: 'id',
+        communities: {
+          ids: ['id'],
+          entities: {
+            id: community
+          }
+        }
+        }}
+      )
       .silentRun();
   });
 });

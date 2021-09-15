@@ -19,7 +19,7 @@ import {
 } from '../../users/users.slice';
 import { IMessage } from '../../publicChannels/publicChannels.types';
 import { communitiesMasterSaga } from '../../communities/communities.master.saga';
-import {communitiesActions} from '../../communities/communities.slice'
+import {communitiesActions, ResponseCreateCommunityPayload, ResponseRegistrarPayload} from '../../communities/communities.slice'
 
 export function* useIO(socket: Socket): Generator {
   yield all([
@@ -41,34 +41,34 @@ export function* handleActions(socket: Socket): Generator {
 
 export function subscribe(socket: Socket) {
   return eventChannel<
-    | ReturnType<typeof publicChannelsActions.responseGetPublicChannels>
-    | ReturnType<typeof publicChannelsActions.responseSendMessagesIds>
-    | ReturnType<typeof publicChannelsActions.responseAskForMessages>
-    | ReturnType<typeof publicChannelsActions.onMessagePosted>
+    // | ReturnType<typeof publicChannelsActions.responseGetPublicChannels>
+    // | ReturnType<typeof publicChannelsActions.responseSendMessagesIds>
+    // | ReturnType<typeof publicChannelsActions.responseAskForMessages>
+    // | ReturnType<typeof publicChannelsActions.onMessagePosted>
     | ReturnType<typeof usersActions.responseSendCertificates>
     | ReturnType<typeof communitiesActions.responseCreateCommunity>
   >((emit) => {
-    socket.on(
-      SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS,
-      (payload: GetPublicChannelsResponse) => {
-        emit(publicChannelsActions.responseGetPublicChannels(payload));
-      }
-    );
-    socket.on(
-      SocketActionTypes.SEND_MESSAGES_IDS,
-      (payload: ChannelMessagesIdsResponse) => {
-        emit(publicChannelsActions.responseSendMessagesIds(payload));
-      }
-    );
-    socket.on(
-      SocketActionTypes.RESPONSE_ASK_FOR_MESSAGES,
-      (payload: AskForMessagesResponse) => {
-        emit(publicChannelsActions.responseAskForMessages(payload));
-      }
-    );
-    socket.on(SocketActionTypes.MESSAGE, (payload: { message: IMessage }) => {
-      emit(publicChannelsActions.onMessagePosted(payload));
-    });
+    // socket.on(
+    //   SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS,
+    //   (payload: GetPublicChannelsResponse) => {
+    //     emit(publicChannelsActions.responseGetPublicChannels(payload));
+    //   }
+    // );
+    // socket.on(
+    //   SocketActionTypes.SEND_MESSAGES_IDS,
+    //   (payload: ChannelMessagesIdsResponse) => {
+    //     emit(publicChannelsActions.responseSendMessagesIds(payload));
+    //   }
+    // );
+    // socket.on(
+    //   SocketActionTypes.RESPONSE_ASK_FOR_MESSAGES,
+    //   (payload: AskForMessagesResponse) => {
+    //     emit(publicChannelsActions.responseAskForMessages(payload));
+    //   }
+    // );
+    // socket.on(SocketActionTypes.MESSAGE, (payload: { message: IMessage }) => {
+    //   emit(publicChannelsActions.onMessagePosted(payload));
+    // });
     socket.on(
       SocketActionTypes.RESPONSE_GET_CERTIFICATES,
       (payload: SendCertificatesResponse) => {
@@ -77,7 +77,7 @@ export function subscribe(socket: Socket) {
     );
     socket.on(
       SocketActionTypes.NEW_COMMUNITY,
-      (payload: {id:string, network: string}) => {
+      (payload: ResponseCreateCommunityPayload) => {
         console.log('createdCommunity')
         console.log(payload)
         emit(communitiesActions.responseCreateCommunity(payload));
@@ -85,7 +85,7 @@ export function subscribe(socket: Socket) {
     );
     socket.on(
       SocketActionTypes.REGISTRAR,
-      (payload: {id:string, network: string}) => {
+      (payload: ResponseRegistrarPayload) => {
         console.log('created Registrar')
         console.log(payload)
         emit(communitiesActions.responseRegistrar(payload));

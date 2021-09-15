@@ -30,9 +30,8 @@ export function* sendMessageSaga(
     ReturnType<typeof messagesActions.sendMessage>['payload']
   >
 ): Generator {
-  const csr = null
-  // const csr = yield* select(identitySelectors.userCsr);
-  if (!csr) {
+  const identity = yield* select(identitySelectors.currentIdentity);
+  if (!identity.userCertificate) {
     // TODO
     // yield* call(navigateTo, ScreenNames.ErrorScreen, {
     //   onPress: (_dispatch: Dispatch<any>) => {
@@ -45,7 +44,7 @@ export function* sendMessageSaga(
     // });
     return;
   }
-  console.log(csr.pkcs10.privateKey, 'KeyObject')
+  console.log(identity.userCsr.pkcs10.privateKey, 'KeyObject')
 
   console.log('sendMessageSaga-1')
   
@@ -67,7 +66,7 @@ export function* sendMessageSaga(
       
       const parsedCertificate = yield* call(parseCertificate, certificate);
       const pubKey = yield* call(keyFromCertificate, parsedCertificate);
-      const keyObject = yield* call(loadPrivateKey, csr.userKey, config.signAlg)
+      const keyObject = yield* call(loadPrivateKey, identity.userCsr.userKey, config.signAlg)
       const signatureArrayBuffer = yield* call(
         sign,
         action.payload,
@@ -93,6 +92,7 @@ export function* sendMessageSaga(
         yield* apply(socket, socket.emit, [
           SocketActionTypes.SEND_MESSAGE,
           {
+            communityId: identity.id,
             channelAddress: channel,
             message,
           },

@@ -26,8 +26,17 @@ import {
 import { SocketActionTypes } from '../../socket/const/actionTypes';
 import { MessageTypes } from '../const/messageTypes';
 import { generateMessageId, getCurrentTime } from '../utils/message.utils';
+import { Identity } from '../../identity/identity.slice';
+import { identityAdapter } from '../../identity/identity.adapter';
 
 describe('sendMessageSaga', () => {
+  const identity = new Identity({
+    id: 'id',
+    hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
+    dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
+    peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
+  });
+
   test.skip('sign and send message', async () => {
     const socket = { emit: jest.fn() } as unknown as Socket;
     const csr = {
@@ -37,7 +46,7 @@ describe('sendMessageSaga', () => {
         publicKey: jest.fn() as unknown as KeyObject,
         privateKey: jest.fn() as unknown as KeyObject,
         pkcs10: {
-          userKey: jest.fn() as unknown
+          userKey: jest.fn() as unknown,
         },
       },
     };
@@ -54,9 +63,12 @@ describe('sendMessageSaga', () => {
         }),
         {
           [StoreKeys.Identity]: {
-            ...new IdentityState(),
-            userCsr: csr,
-            userCertificate: 'certificate',
+            ...identityAdapter.setAll(
+              identityAdapter.getInitialState(),
+              [identity]
+              // userCsr: csr,
+              // userCertificate: 'certificate',
+            ),
           },
           [StoreKeys.PublicChannels]: {
             ...new PublicChannelsState(),

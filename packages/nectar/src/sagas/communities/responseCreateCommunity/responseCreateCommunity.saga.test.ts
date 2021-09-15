@@ -9,13 +9,17 @@ import { identityAdapter } from '../../identity/identity.adapter';
 import { identityReducer } from '../../identity/identity.slice';
 import { Identity } from '../../identity/identity.slice';
 
-describe('joinCommunity', () => {
-  test.skip('join the existing community', async () => {
-    // const identity = new Identity({id: 'id', hiddenService:'HS', hiddenServicePrivateKey:'HSP', peerId:{id:'id'}, peerIdPrivateKey:'peerIdPK'})
-
+describe('responseCreateCommunity', () => {
+  test('response create community', async () => {
     const responseCreateCommunityPayload = {
       id: 'id',
-      payload: { hiddenService: 'HS', peerId: 'HSP' },
+      payload: {
+        hiddenService: {
+          onionAddress: 'onionAddress',
+          privateKey: 'privateKey',
+        },
+        peerId: { id: 'id', pubKey: 'pubKey', privKey: 'privKey' },
+      },
     };
     await expectSaga(
       responseCreateCommunitySaga,
@@ -25,8 +29,8 @@ describe('joinCommunity', () => {
         [StoreKeys.Identity]: identityAdapter.getInitialState(),
       })
       .provide([
-        [call.fn(generateDmKeyPair), 'id'],
-        [call.fn(generateDmKeyPair), 'id'],
+        [call.fn(generateDmKeyPair), { publicKey: 'pub', privateKey: 'priv' }],
+        [call.fn(generateDmKeyPair), { publicKey: 'pub', privateKey: 'priv' }],
       ])
       .hasFinalState({
         [StoreKeys.Identity]: {
@@ -39,6 +43,7 @@ describe('joinCommunity', () => {
                 privateKey: 'privateKey',
               },
               peerId: { id: 'id', pubKey: 'pubKey', privKey: 'privKey' },
+              dmKeys: {publicKey: 'pub', privateKey: 'priv'}
             }),
           },
         },

@@ -1,60 +1,106 @@
 import { combineReducers } from '@reduxjs/toolkit';
 import { expectSaga } from 'redux-saga-test-plan';
-import { Socket } from 'socket.io-client';
 import { StoreKeys } from '../../store.keys';
 import {
   identityActions,
   identityReducer,
-  IdentityState,
+  Identity
 } from '../identity.slice';
+import {identityAdapter} from '../identity.adapter'
 import { registerUsernameSaga } from './registerUsername.saga';
+import {config} from '../../users/const/certFieldTypes'
+import {errorsActions, errorsReducer, ErrorsState} from '../../errors/errors.slice'
+import { communitiesReducer, CommunitiesState, Community } from '../../communities/communities.slice';
+import {communitiesAdapter} from '../../communities/communities.adapter'
 
 describe('registerUsernameSaga', () => {
-  test.skip('create user csr', () => {
-    const socket = { emit: jest.fn() } as unknown as Socket;
+  const identity = new Identity({id: 'id', hiddenService: {onionAddress: 'onionAddress', privateKey: 'privateKey'}, dmKeys: {publicKey: 'publicKey', privateKey: 'privateKey'}, peerId: {id: 'peerId', pubKey: 'pubKey', privKey: 'privKey'}})
+  const identityWithoutPeerId = new Identity({id: 'id', hiddenService: {onionAddress: 'onionAddress', privateKey: 'privateKey'}, dmKeys: {publicKey: 'publicKey', privateKey: 'privateKey'}, peerId: {id: '', pubKey: 'pubKey', privKey: 'privKey'}})
+  const community = new Community({name: '', id: 'id', registrarUrl:'registrarUrl', CA: {}})
+  const username = 'username'
+
+  test('create user csr', () => {
     expectSaga(
       registerUsernameSaga,
-      socket,
-      // @ts-ignore
-      identityActions.registerUsername('username')
+      identityActions.registerUsername(username)
     )
-      .withReducer(combineReducers({ [StoreKeys.Identity]: identityReducer }), {
-        [StoreKeys.Identity]: {
-          ...new IdentityState(),
-          commonName: 'commonName',
-          peerId: 'peerId',
-        },
+      .withReducer(combineReducers({ [StoreKeys.Identity]: identityReducer, [StoreKeys.Communities]: communitiesReducer }), {
+          [StoreKeys.Identity]: {
+            ...identityAdapter.setAll(
+              identityAdapter.getInitialState(),
+              [identity]
+            )
+          },
+          [StoreKeys.Communities]: {
+            ...new CommunitiesState(),
+            currentCommunity: 'id',
+            communities: communitiesAdapter.setAll(
+              communitiesAdapter.getInitialState(),
+              [community]
+            )
+          }
       })
+      .put(identityActions.updateUsername({communityId: identity.id, nickname: username }))
       .put(
         identityActions.createUserCsr({
-          zbayNickname: 'username',
-          commonName: 'commonName',
+          zbayNickname: username,
+          commonName: 'onionAddress',
           peerId: 'peerId',
-          dmPublicKey: 'dmPubKey',
-          signAlg: 'asdf',
-          hashAlg: 'asdf',
+          dmPublicKey: 'publicKey',
+          signAlg: config.signAlg,
+          hashAlg: config.hashAlg,
         })
       )
       .run();
   });
-  test.skip('throw error if missing data', () => {
-    const socket = { emit: jest.fn() } as unknown as Socket;
+  test('throw error if missing data', () => {
     expectSaga(
       registerUsernameSaga,
-      socket,
-      // @ts-ignore
       identityActions.registerUsername('username')
     )
-      .withReducer(combineReducers({ [StoreKeys.Identity]: identityReducer }), {
+      .withReducer(combineReducers({ [StoreKeys.Identity]: identityReducer, [StoreKeys.Communities]: communitiesReducer, [StoreKeys.Errors]: errorsReducer }), {
         [StoreKeys.Identity]: {
-          ...new IdentityState(),
+          ...identityAdapter.setAll(
+            identityAdapter.getInitialState(),
+            [identityWithoutPeerId]
+          )
         },
+        [StoreKeys.Communities]: {
+          ...new CommunitiesState(),
+          currentCommunity: 'id',
+          communities: communitiesAdapter.setAll(
+            communitiesAdapter.getInitialState(),
+            [community]
+          )
+        },
+        [StoreKeys.Errors]: {
+          ...new ErrorsState()
+        }
       })
       .put(
-        identityActions.throwIdentityError(
+        errorsActions.certificateRegistration(
           "You're not connected with other peers."
         )
       )
+      .hasFinalState({[StoreKeys.Identity]: {
+        ...identityAdapter.setAll(
+          identityAdapter.getInitialState(),
+          [identityWithoutPeerId]
+        )
+      },
+      [StoreKeys.Communities]: {
+        ...new CommunitiesState(),
+        currentCommunity: 'id',
+        communities: communitiesAdapter.setAll(
+          communitiesAdapter.getInitialState(),
+          [community]
+        )
+      },
+      [StoreKeys.Errors]: {
+        ...new ErrorsState(),
+        certificateRegistration: "You're not connected with other peers."
+      }
+    })
       .run();
   });
 });

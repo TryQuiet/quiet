@@ -1,17 +1,17 @@
-import { TestApi, testSaga } from 'redux-saga-test-plan';
-import { Socket } from 'socket.io-client';
-import { SocketActionTypes } from '../../actionTypes';
-import { publicChannelsActions } from '../publicChannels.slice';
-import { IChannelInfo } from '../publicChannels.types';
+import {TestApi, testSaga} from 'redux-saga-test-plan';
+import {Socket} from 'socket.io-client';
+import {SocketActionTypes} from '../../socket/const/actionTypes';
+import {publicChannelsActions} from '../publicChannels.slice';
+import {IChannelInfo} from '../publicChannels.types';
 
-import { subscribeForTopicSaga } from './subscribeForTopic.saga';
+import {subscribeForTopicSaga} from './subscribeForTopic.saga';
 
 describe('subscribeForTopicSaga', () => {
-  const socket = { emit: jest.fn() } as unknown as Socket;
+  const socket = {emit: jest.fn()} as unknown as Socket;
   const saga: TestApi = testSaga(
     subscribeForTopicSaga,
     socket,
-    publicChannelsActions.subscribeForTopic(<IChannelInfo>{})
+    publicChannelsActions.subscribeForTopic(<IChannelInfo>{}),
   );
 
   beforeEach(() => {

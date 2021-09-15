@@ -63,7 +63,7 @@ export const errors = {
 export const communities = {
   reducer: communitiesReducer,
   actions: communitiesActions,
-  //selectors: communitiesSelectors
+  // selectors: communitiesSelectors
 }
 
 export const socket = {

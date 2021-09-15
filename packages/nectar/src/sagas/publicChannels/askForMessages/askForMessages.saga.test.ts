@@ -1,6 +1,6 @@
 import { TestApi, testSaga } from 'redux-saga-test-plan';
 import { Socket } from 'socket.io-client';
-import { SocketActionTypes } from '../../actionTypes';
+import { SocketActionTypes } from '../../socket/const/actionTypes';
 import {
   AskForMessagesPayload,
   publicChannelsActions,
@@ -13,7 +13,7 @@ describe('askForMessagesSaga', () => {
   const saga: TestApi = testSaga(
     askForMessagesSaga,
     socket,
-    publicChannelsActions.askForMessages(<AskForMessagesPayload>{})
+    publicChannelsActions.askForMessages(<AskForMessagesPayload>{}),
   );
 
   beforeEach(() => {

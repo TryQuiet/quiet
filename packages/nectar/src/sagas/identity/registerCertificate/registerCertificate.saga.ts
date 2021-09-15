@@ -3,13 +3,14 @@ import { PayloadAction } from '@reduxjs/toolkit';
 import { fork, call, put, take, apply } from 'typed-redux-saga';
 import { eventChannel } from 'redux-saga';
 import { identityActions } from '../identity.slice';
+import {communitiesActions} from '../../communities/communities.slice'
 import {errorsActions} from '../../errors/errors.slice'
 import { SocketActionTypes } from '../../socket/const/actionTypes';
 
 export function* registerCertificateSaga(
   socket: Socket,
   action: PayloadAction<
-    ReturnType<any>['payload']
+    ReturnType<typeof identityActions.storeUserCsr>['payload']
   >
 ): Generator {
   yield* fork(handleCertificateActions, socket);
@@ -33,12 +34,12 @@ export function subscribe(socket: Socket) {
   return eventChannel<
     | ReturnType<typeof identityActions.storeUserCertificate>
     | ReturnType<typeof identityActions.throwIdentityError>
+    | ReturnType<typeof communitiesActions.storePeerList>
   >((emit) => {
     socket.on(
       SocketActionTypes.SEND_USER_CERTIFICATE,
-      (payload: any) => {
-        console.log('storeUserCertificate')
-        console.log(payload)
+      (payload: {id: string, payload: {peers: string[], certificate: string}}) => {
+        emit(communitiesActions.storePeerList({communityId: payload.id, peerList: payload.payload.peers}))
         emit(identityActions.storeUserCertificate({userCertificate: payload.payload.certificate, communityId: payload.id}));
       }
     );
@@ -49,5 +50,4 @@ export function subscribe(socket: Socket) {
       }
     );
     return () => {};
-  });
-}
+  })};

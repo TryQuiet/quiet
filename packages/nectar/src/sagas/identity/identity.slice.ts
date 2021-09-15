@@ -1,40 +1,25 @@
-import {
-  createImmutableStateInvariantMiddleware,
-  createSlice,
-  EntityState,
-  PayloadAction,
-} from '@reduxjs/toolkit';
-import { generateDmKeyPair } from '../../utils/cryptography/cryptography';
+import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit';
 import { identityAdapter } from './identity.adapter';
 import { StoreKeys } from '../store.keys';
-
 
 export class IdentityState {
   public identities: EntityState<Identity> = identityAdapter.getInitialState();
 }
 
 export class Identity {
-  constructor({id, hiddenService, peerId}: AddNewIdentityPayload) {
-      this.id = id,
-      this.dmKeys = generateDmKeyPair(),
-      this.peerId = peerId,
-      this.hiddenService = hiddenService
+  constructor({ id, hiddenService, peerId, dmKeys }: AddNewIdentityPayload) {
+    (this.id = id),
+      (this.peerId = peerId),
+      (this.hiddenService = hiddenService);
+    this.dmKeys = dmKeys;
   }
 
   public id: string = '';
-
   public zbayNickname: string = '';
-
-  public hiddenService : HiddenService
-  public dmKeys: {
-    publicKey: string,
-    privateKey: string
-  }
-
-  public peerId: PeerId
-
+  public hiddenService: HiddenService;
+  public dmKeys: DmKeys;
+  public peerId: PeerId;
   public userCsr: UserCsr | null = null;
-
   public userCertificate: string | null = null;
 }
 
@@ -56,20 +41,26 @@ export interface CreateDmKeyPairPayload {
 }
 
 export interface HiddenService {
-onionAddress: string,
-privateKey: string
+  onionAddress: string;
+  privateKey: string;
 }
 
 export interface PeerId {
-id: string,
-pubKey: string,
-privKey: string
+  id: string;
+  pubKey: string;
+  privKey: string;
+}
+
+export interface DmKeys {
+  publicKey: string;
+  privateKey: string;
 }
 
 export interface AddNewIdentityPayload {
-  id: string,
-  hiddenService: HiddenService,
-  peerId: PeerId
+  id: string;
+  hiddenService: HiddenService;
+  peerId: PeerId;
+  dmKeys: DmKeys;
 }
 
 export interface CreateUserCsrPayload {
@@ -81,42 +72,56 @@ export interface CreateUserCsrPayload {
   hashAlg: string;
 }
 
+export interface UpdateUsernamePayload {
+  communityId: string;
+  nickname: string;
+}
+
+export interface StoreUserCertificatePayload {
+  userCertificate: string;
+  communityId: string;
+}
+
+export interface StoreUserCsrPayload {
+  userCsr: UserCsr;
+  communityId: string;
+  registrarAddress: string;
+}
+
 export const identitySlice = createSlice({
   initialState: identityAdapter.getInitialState(),
   name: StoreKeys.Identity,
   reducers: {
-    addNewIdentity: (
-      state,
-      action: PayloadAction<AddNewIdentityPayload>
-    ) => {
+    addNewIdentity: (state, action: PayloadAction<AddNewIdentityPayload>) => {
       console.log('addNewIdentity');
-      identityAdapter.addOne(
-        state,
-        new Identity(action.payload)
-      );
+      identityAdapter.addOne(state, new Identity(action.payload));
     },
     createUserCsr: (state, _action: PayloadAction<CreateUserCsrPayload>) =>
       state,
-    registerUsername: (state, _action: PayloadAction<any>) =>
-      state,
-    storeUserCsr: (
-      state,
-      action: PayloadAction<{ userCsr: UserCsr; communityId: string }>
-    ) => {
+    registerUsername: (state, _action: PayloadAction<string>) => state,
+    updateUsername: (state, action: PayloadAction<UpdateUsernamePayload>) => {
+      identityAdapter.updateOne(state, {
+        id: action.payload.communityId,
+        changes: {
+          zbayNickname: action.payload.nickname,
+        },
+      });
+    },
+    storeUserCsr: (state, action: PayloadAction<StoreUserCsrPayload>) => {
       identityAdapter.updateOne(state, {
         id: action.payload.communityId,
         changes: {
           userCsr: action.payload.userCsr,
-        }
+        },
       });
     },
     storeUserCertificate: (
       state,
-      action: PayloadAction<{ userCertificate: string; communityId: string }>
+      action: PayloadAction<StoreUserCertificatePayload>
     ) => {
       identityAdapter.updateOne(state, {
         id: action.payload.communityId,
-        changes: {userCertificate: action.payload.userCertificate}
+        changes: { userCertificate: action.payload.userCertificate },
       });
     },
     throwIdentityError: (state, _action: PayloadAction<string>) => state,

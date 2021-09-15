@@ -1,4 +1,5 @@
 import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit';
+import { mainChannelName } from '../config';
 
 import { StoreKeys } from '../store.keys';
 
@@ -9,8 +10,7 @@ export class PublicChannelsState {
   public channels: EntityState<IChannelInfo> =
     publicChannelsAdapter.getInitialState();
 
-  public currentChannel: string =
-    'zs10zkaj29rcev9qd5xeuzck4ly5q64kzf6m6h9nfajwcvm8m2vnjmvtqgr0mzfjywswwkwke68t00';
+  public currentChannel: string = mainChannelName;
 
   public channelMessages: ChannelMessages = {};
 }
@@ -47,15 +47,14 @@ export const publicChannelsSlice = createSlice({
   initialState: { ...new PublicChannelsState() },
   name: StoreKeys.PublicChannels,
   reducers: {
-    getPublicChannels: (state) => state,
+    getPublicChannels: state => state,
     responseGetPublicChannels: (
       state,
-      action: PayloadAction<GetPublicChannelsResponse>
+      action: PayloadAction<GetPublicChannelsResponse>,
     ) => {
-      console.log('GOT RESPONSE');
       publicChannelsAdapter.setAll(
         state.channels,
-        Object.values(action.payload)
+        Object.values(action.payload),
       );
     },
     setCurrentChannel: (state, action: PayloadAction<string>) => {
@@ -64,9 +63,9 @@ export const publicChannelsSlice = createSlice({
     subscribeForTopic: (state, _action: PayloadAction<IChannelInfo>) => state,
     responseSendMessagesIds: (
       state,
-      action: PayloadAction<ChannelMessagesIdsResponse>
+      action: PayloadAction<ChannelMessagesIdsResponse>,
     ) => {
-      const { channelAddress } = action.payload;
+      const channelAddress = action.payload.channelAddress;
       if (channelAddress in state.channelMessages) {
         state.channelMessages[channelAddress].ids = action.payload.ids;
       } else {
@@ -80,27 +79,18 @@ export const publicChannelsSlice = createSlice({
       state,
     responseAskForMessages: (
       state,
-      action: PayloadAction<AskForMessagesResponse>
+      action: PayloadAction<AskForMessagesResponse>,
     ) => {
-      const { channelAddress } = action.payload;
-      action.payload.messages.forEach((message) => {
+      const channelAddress = action.payload.channelAddress;
+      action.payload.messages.forEach(message => {
         state.channelMessages[channelAddress].messages[message.id] = message;
       });
     },
     onMessagePosted: (state, action: PayloadAction<{ message: IMessage }>) => {
       const channelAddress = state.currentChannel;
-      const { message } = action.payload;
-
-      if (channelAddress in state.channelMessages) {
-        state.channelMessages[channelAddress].ids.push(message.id);
-        state.channelMessages[channelAddress].messages[message.id] = message;
-      } else {
-        state.channelMessages[channelAddress] = {
-          ids: [message.id],
-          messages: {[message.id]: message},
-        };
-      }
-
+      const message = action.payload.message;
+      state.channelMessages[channelAddress].ids.push(message.id);
+      state.channelMessages[channelAddress].messages[message.id] = message;
     },
   },
 });
