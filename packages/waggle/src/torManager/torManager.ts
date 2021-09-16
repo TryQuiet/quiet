@@ -38,7 +38,16 @@ export class Tor {
   torPassword: string
   torHashedPassword: string
   torAuthCookie: string
-  constructor({ torPath, options, appDataPath, controlPort, socksPort, httpTunnelPort, torPassword, torAuthCookie }: IConstructor) {
+  constructor({
+    torPath,
+    options,
+    appDataPath,
+    controlPort,
+    socksPort,
+    httpTunnelPort,
+    torPassword,
+    torAuthCookie
+  }: IConstructor) {
     this.torPath = path.normalize(torPath)
     this.options = options
     this.services = new Map()
@@ -73,17 +82,20 @@ export class Tor {
       }
 
       if (oldTorPid && process.platform !== 'win32') {
-        child_process.exec(this.torProcessNameCommand(oldTorPid.toString()), (err, stdout, _stderr) => {
-          if (err) {
-            log.error(err)
+        child_process.exec(
+          this.torProcessNameCommand(oldTorPid.toString()),
+          (err, stdout, _stderr) => {
+            if (err) {
+              log.error(err)
+            }
+            if (stdout.trim() === 'tor') {
+              process.kill(oldTorPid, 'SIGTERM')
+            } else {
+              fs.unlinkSync(this.torPidPath)
+            }
+            this.spawnTor(resolve)
           }
-          if (stdout.trim() === 'tor') {
-            process.kill(oldTorPid, 'SIGTERM')
-          } else {
-            fs.unlinkSync(this.torPidPath)
-          }
-          this.spawnTor(resolve)
-        })
+        )
       } else {
         this.spawnTor(resolve)
       }
@@ -152,6 +164,16 @@ export class Tor {
     return onionAddress
   }
 
+  public async destroyHiddenService(serviceId: string): Promise<boolean> {
+    try {
+      await this.torControl.sendCommand(`DEL_ONION ${serviceId}`)
+      return true
+    } catch (err) {
+      log.error(err)
+      return false
+    }
+  }
+
   public async createNewHiddenService(
     virtPort: number,
     targetPort: number
@@ -174,7 +196,10 @@ export class Tor {
 
   public generateHashedPassword = () => {
     const password = crypto.randomBytes(16).toString('hex')
-    const hashedPassword = child_process.execSync(`${this.torPath} --quiet --hash-password ${password}`, { env: this.options.env })
+    const hashedPassword = child_process.execSync(
+      `${this.torPath} --quiet --hash-password ${password}`,
+      { env: this.options.env }
+    )
     this.torPassword = password
     this.torHashedPassword = hashedPassword.toString().trim()
   }

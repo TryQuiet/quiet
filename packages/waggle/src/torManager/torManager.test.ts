@@ -84,7 +84,7 @@ describe('Tor manager', () => {
       virtPort: 4343,
       targetPort: 4343,
       privKey:
-        'ED25519-V3:uCr5t3EcOCwig4cu7pWY6996whV+evrRlI0iIIsjV3uCz4rx46sB3CPq8lXEWhjGl2jlyreomORirKcz9mmcdQ=='
+      'ED25519-V3:uCr5t3EcOCwig4cu7pWY6996whV+evrRlI0iIIsjV3uCz4rx46sB3CPq8lXEWhjGl2jlyreomORirKcz9mmcdQ=='
     })
     expect(hiddenServiceOnionAddress).toBe('u2rg2direy34dj77375h2fbhsc2tvxj752h4tlso64mjnlevcv54oaad')
     await tor.kill()
@@ -97,5 +97,20 @@ describe('Tor manager', () => {
     console.log(tor.torPassword)
     expect(tor.torHashedPassword).toHaveLength(61)
     expect(tor.torPassword).toHaveLength(32)
+  })
+  it('creates and destroys hidden service', async () => {
+    const tor = await spawnTorProcess(tmpAppDataPath)
+    await tor.init()
+    const hiddenService = await tor.createNewHiddenService(4343, 4343)
+    const status = await tor.destroyHiddenService(hiddenService.onionAddress)
+    expect(status).toBe(true)
+    await tor.kill()
+  })
+  it('attempt destroy nonexistent hidden service', async () => {
+    const tor = await spawnTorProcess(tmpAppDataPath)
+    await tor.init()
+    const status = await tor.destroyHiddenService('u2rg2direy34dj77375h2fbhsc2tvxj752h4tlso64mjnlevcv54oaad')
+    expect(status).toBe(false)
+    await tor.kill()
   })
 })

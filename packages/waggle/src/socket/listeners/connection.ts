@@ -77,5 +77,8 @@ export const connections = (io, ioProxy: IOProxy) => {
     socket.on(EventTypesServer.LAUNCH_REGISTRAR, async (id: string, peerId: string, rootCertString: string, rootKeyString: string, hiddenServicePrivKey?: string, port?: number) => {
       await ioProxy.launchRegistrar(id, peerId, rootCertString, rootKeyString, hiddenServicePrivKey, port)
     })
+    socket.on(EventTypesServer.CREATE_NETWORK, async (communityId: string) => {
+      await ioProxy.createNetwork(communityId)
+    })
   })
 }

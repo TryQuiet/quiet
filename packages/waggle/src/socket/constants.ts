@@ -24,6 +24,7 @@ export enum EventTypesServer {
   REGISTER_USER_CERTIFICATE = 'registerUserCertificate',
   SAVE_CERTIFICATE = 'saveCertificate',
   CREATE_COMMUNITY = 'createCommunity',
+  CREATE_NETWORK = 'createNetwork',
   LAUNCH_COMMUNITY = 'launchCommunity',
   LAUNCH_REGISTRAR = 'launchRegistrar'
 }

@@ -8,7 +8,7 @@ import PeerId from 'peer-id'
 import WebsocketsOverTor from './websocketOverTor'
 import Bootstrap from 'libp2p-bootstrap'
 import { Storage } from '../storage'
-import { torBinForPlatform, torDirForPlatform } from '../utils'
+import { torBinForPlatform, torDirForPlatform, getPorts } from '../utils'
 import { ZBAY_DIR_PATH } from '../constants'
 import { CertsData, ConnectionsManagerOptions } from '../common/types'
 import fetch, { Response } from 'node-fetch'
@@ -80,6 +80,17 @@ export class ConnectionsManager {
 
   public initListeners = () => {
     initListeners(this.io, new IOProxy(this))
+  }
+
+  public createNetwork = async () => {
+    const ports = await getPorts()
+    const hiddenService = await this.tor.createNewHiddenService(ports.libp2pHiddenService, ports.libp2pHiddenService)
+    await this.tor.destroyHiddenService(hiddenService.onionAddress)
+    const peerId = await PeerId.create()
+    return {
+      hiddenService,
+      peerId: peerId.toJSON()
+    }
   }
 
   public init = async () => {

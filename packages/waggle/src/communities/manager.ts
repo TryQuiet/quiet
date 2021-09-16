@@ -44,6 +44,7 @@ export default class CommunitiesManager {
     const ports = await getPorts()
     const hiddenService = await this.connectionsManager.tor.createNewHiddenService(ports.libp2pHiddenService, ports.libp2pHiddenService)
     const peerId = await PeerId.create()
+
     const localAddress = await this.initStorage(peerId, hiddenService.onionAddress, ports.libp2pHiddenService, [peerId.toB58String()], certs)
     log(`Created community, ${peerId.toB58String()}`)
     return {
