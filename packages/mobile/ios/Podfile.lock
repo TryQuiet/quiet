@@ -283,7 +283,7 @@ PODS:
     - React
   - RNCAsyncStorage (1.15.4):
     - React-Core
-  - RNCPushNotificationIOS (1.8.0):
+  - RNCPushNotificationIOS (1.10.1):
     - React-Core
   - RNDeviceInfo (8.1.3):
     - React-Core
@@ -499,7 +499,7 @@ SPEC CHECKSUMS:
   ReactCommon: cfe2b7fd20e0dbd2d1185cd7d8f99633fbc5ff05
   ReactNativeART: f003b07dfa7098aa419ed95b69560923440b1eee
   RNCAsyncStorage: b17c417b356114699a486715adfa5829a5d6d8b9
-  RNCPushNotificationIOS: 5b1cf9ad2aaa107ecb92d5d2d7005ba521b2b97a
+  RNCPushNotificationIOS: 089da3b657e1e3d464f38195fd2e3069608ef5af
   RNDeviceInfo: 49f6d50f861c7810fac2dd9b71cfb56cc1940e14
   RNDevMenu: 9f80d65b80ba1fa84e5361d017b8c854a2f05005
   RNEventEmitter: eb12eb6d494830f1ad08039cba071a8eaf0399d8

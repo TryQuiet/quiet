@@ -63,7 +63,7 @@
     "@babel/core": "^7.12.9",
     "@babel/runtime": "^7.12.5",
     "@react-native-community/eslint-config": "^2.0.0",
-    "@react-native-community/push-notification-ios": "^1.8.0",
+    "@react-native-community/push-notification-ios": "^1.10.1",
     "@storybook/addon-actions": "^6.2.9",
     "@storybook/addon-knobs": "^6.2.9",
     "@storybook/addon-ondevice-actions": "^5.3.23",
