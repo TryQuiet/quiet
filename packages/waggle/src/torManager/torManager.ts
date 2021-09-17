@@ -5,6 +5,7 @@ import { TorControl } from './TorControl'
 import { ZBAY_DIR_PATH } from '../constants'
 import debug from 'debug'
 import crypto from 'crypto'
+import { removeFilesFromDir } from '../utils'
 const log = Object.assign(debug('waggle:tor'), {
   error: debug('waggle:tor:err')
 })
@@ -59,8 +60,8 @@ export class Tor {
     this.httpTunnelPort = httpTunnelPort ? httpTunnelPort.toString() : null
   }
 
-  public init = async (): Promise<void> => {
-    return await new Promise((resolve): void => {
+  public init = async ({ repeat = 3, timeout = 40000 } = {}): Promise<void> => {
+    return await new Promise((resolve, reject) => {
       if (this.process) {
         throw new Error('Tor already initialized')
       }
@@ -80,25 +81,44 @@ export class Tor {
         const file = fs.readFileSync(this.torPidPath)
         oldTorPid = Number(file.toString())
       }
+      let counter = 0
 
-      if (oldTorPid && process.platform !== 'win32') {
-        child_process.exec(
-          this.torProcessNameCommand(oldTorPid.toString()),
-          (err, stdout, _stderr) => {
-            if (err) {
-              log.error(err)
+      const tryToSpawnTor = async () => {
+        if (counter > repeat) {
+          reject(new Error(`Failed to spawn tor ${counter} times`))
+          return
+        }
+        if (oldTorPid && process.platform !== 'win32') {
+          child_process.exec(
+            this.torProcessNameCommand(oldTorPid.toString()),
+            (err: child_process.ExecException, stdout: string, _stderr: string) => {
+              if (err) {
+                log.error(err)
+              }
+              if (stdout.trim() === 'tor') {
+                process.kill(oldTorPid, 'SIGTERM')
+              } else {
+                fs.unlinkSync(this.torPidPath)
+              }
+              oldTorPid = null
             }
-            if (stdout.trim() === 'tor') {
-              process.kill(oldTorPid, 'SIGTERM')
-            } else {
-              fs.unlinkSync(this.torPidPath)
-            }
-            this.spawnTor(resolve)
-          }
-        )
-      } else {
-        this.spawnTor(resolve)
+          )
+        }
+        try {
+          await this.spawnTor(timeout)
+          resolve()
+        } catch {
+          await this.process.kill()
+          await removeFilesFromDir(this.torDataDirectory)
+          counter++
+
+          // eslint-disable-next-line
+          process.nextTick(tryToSpawnTor)
+        }
       }
+      // eslint-disable-next-line
+      tryToSpawnTor()
+
     })
   }
 
@@ -119,28 +139,38 @@ export class Tor {
     return byPlatform[process.platform]
   }
 
-  protected readonly spawnTor = resolve => {
-    this.process = child_process.spawn(
-      this.torPath,
-      [
-        '--SocksPort',
-        this.socksPort,
-        ...(this.httpTunnelPort ? ['--HTTPTunnelPort', this.httpTunnelPort] : []),
-        '--ControlPort',
-        this.controlPort.toString(),
-        '--PidFile',
-        this.torPidPath,
-        '--DataDirectory',
-        this.torDataDirectory,
-        '--HashedControlPassword',
-        this.torHashedPassword
-      ],
-      this.options
-    )
-    this.process.stdout.on('data', data => {
-      log(data.toString())
-      const regexp = /Bootstrapped 100%/
-      if (regexp.test(data.toString())) resolve()
+  protected readonly spawnTor = async (timeoutMs): Promise<void> => {
+    return await new Promise((resolve, reject) => {
+      this.process = child_process.spawn(
+        this.torPath,
+        [
+          '--SocksPort',
+          this.socksPort,
+          ...(this.httpTunnelPort ? ['--HTTPTunnelPort', this.httpTunnelPort] : []),
+          '--ControlPort',
+          this.controlPort.toString(),
+          '--PidFile',
+          this.torPidPath,
+          '--DataDirectory',
+          this.torDataDirectory,
+          '--HashedControlPassword',
+          this.torHashedPassword
+        ],
+        this.options
+      )
+
+      const timeout = setTimeout(() => {
+        reject(new Error(`Timeout of ${timeoutMs / 1000} while waiting for tor to bootstrap`))
+      }, timeoutMs)
+
+      this.process.stdout.on('data', data => {
+        log(data.toString())
+        const regexp = /Bootstrapped 100%/
+        if (regexp.test(data.toString())) {
+          clearTimeout(timeout)
+          resolve()
+        }
+      })
     })
   }
 

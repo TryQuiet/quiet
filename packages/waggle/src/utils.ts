@@ -23,6 +23,12 @@ export function createPaths(paths: string[]) {
   }
 }
 
+export function removeFilesFromDir(dirPath: string) {
+  if (fs.existsSync(dirPath)) {
+    fs.rmdirSync(dirPath, { recursive: true })
+  }
+}
+
 export function fetchAbsolute(fetch: Function): Function {
   return (baseUrl: string) => (url: string, ...otherParams) =>
     url.startsWith('/') ? fetch(baseUrl + url, ...otherParams) : fetch(url, ...otherParams)

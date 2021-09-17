@@ -1,17 +1,25 @@
-import { Time, getCrypto } from 'pkijs'
+import { Time, getCrypto, Certificate } from 'pkijs'
 
 import { createUserCert, createUserCsr, createRootCA, configCrypto } from '@zbayapp/identity'
 import { RootCA } from '@zbayapp/identity/lib/generateRootCA'
 
 // ---------------------------- section with creating pems
 
-export function dumpPEM(tag: string, body) {
-  const result = (
-    `-----BEGIN ${tag}-----\n` +
-    `${formatPEM(Buffer.from(body).toString('base64'))}\n` +
-    `-----END ${tag}-----\n`
-  )
-  // fs.writeFileSync(`testingFixtures/certificates/files2/${path}`, result)
+export function dumpPEM(tag: string, body: string | Certificate | CryptoKey) {
+  let result
+  if (typeof body === 'string') {
+    result = (
+      `-----BEGIN ${tag}-----\n` +
+      `${formatPEM(body)}\n` +
+      `-----END ${tag}-----\n`
+    )
+  } else {
+    result = (
+      `-----BEGIN ${tag}-----\n` +
+      `${formatPEM(Buffer.from(body).toString('base64'))}\n` +
+      `-----END ${tag}-----\n`
+    )
+  }
 
   return Buffer.from(result)
 }
