@@ -62,6 +62,7 @@
 		1889CA4D26E763E1004ECFBD /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		1891BBFD26D683D100101CC7 /* libzbayapp-nodejs-mobile-react-native.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libzbayapp-nodejs-mobile-react-native.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		18ED84D0299E4E55AB68AA3E /* Rubik-ExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-ExtraBold.ttf"; path = "../assets/fonts/Rubik-ExtraBold.ttf"; sourceTree = "<group>"; };
+		18FE5FF326F4C06B0016DAC7 /* ZbayMobile.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = ZbayMobile.entitlements; path = ZbayMobile/ZbayMobile.entitlements; sourceTree = "<group>"; };
 		2386DA39D8B240D9A80ECBD9 /* Rubik-Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Italic.ttf"; path = "../assets/fonts/Rubik-Italic.ttf"; sourceTree = "<group>"; };
 		23AE2E9AAC824E76A9C4B3D5 /* Rubik-BlackItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-BlackItalic.ttf"; path = "../assets/fonts/Rubik-BlackItalic.ttf"; sourceTree = "<group>"; };
 		2BB5F4B8D4F3462CB8AF6312 /* Rubik-SemiBoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-SemiBoldItalic.ttf"; path = "../assets/fonts/Rubik-SemiBoldItalic.ttf"; sourceTree = "<group>"; };
@@ -122,6 +123,7 @@
 		13B07FAE1A68108700A75B9A /* ZbayMobile */ = {
 			isa = PBXGroup;
 			children = (
+				18FE5FF326F4C06B0016DAC7 /* ZbayMobile.entitlements */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
@@ -610,6 +612,7 @@
 				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = ZbayMobile/ZbayMobile.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 42;
@@ -644,6 +647,7 @@
 				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = ZbayMobile/ZbayMobile.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 42;
