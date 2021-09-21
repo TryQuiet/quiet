@@ -109,7 +109,7 @@ export class Tor {
           resolve()
         } catch {
           await this.process.kill()
-          await removeFilesFromDir(this.torDataDirectory)
+          removeFilesFromDir(this.torDataDirectory)
           counter++
 
           // eslint-disable-next-line

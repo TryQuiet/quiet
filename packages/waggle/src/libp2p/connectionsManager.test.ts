@@ -2,6 +2,7 @@ import { ConnectionsManager } from './connectionsManager'
 import { DummyIOServer, getPorts } from '../utils'
 import { createTmpDir, TmpDir, tmpZbayDirPath } from '../testUtils'
 import PeerId from 'peer-id'
+jest.setTimeout(100_000)
 
 let tmpDir: TmpDir
 let tmpAppDataPath: string
@@ -56,7 +57,7 @@ describe('Connections manager', () => {
     expect(torControl.params.port).toEqual(ports.controlPort)
   })
 
-  it('create network', async() => {
+  it('creates network', async() => {
     const ports = await getPorts()
     connectionsManager = new ConnectionsManager({
       agentHost: 'localhost',
@@ -74,7 +75,6 @@ describe('Connections manager', () => {
     expect(network.hiddenService.onionAddress).toHaveLength(56)
     expect(network.hiddenService.privateKey).toHaveLength(99)
     const peerId = await PeerId.createFromJSON(network.peerId)
-    console.log(peerId, 'NETWOK')
     expect(PeerId.isPeerId(peerId)).toBeTruthy()
     await connectionsManager.tor.kill()
   })
