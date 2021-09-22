@@ -5,11 +5,11 @@ export interface IModalProps {
   handleClose: ModalProps['onClose']
   title?: string
   canGoBack?: boolean
-  isBold: boolean
-  step: number
-  setStep: (arg0?: any) => void
+  isBold?: boolean
+  step?: number
+  setStep?: (arg0?: any) => void
   contentWidth?: string | number
   isCloseDisabled?: boolean
-  alignCloseLeft: boolean
-  addBorder: boolean
+  alignCloseLeft?: boolean
+  addBorder?: boolean
 }
