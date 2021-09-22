@@ -6,7 +6,7 @@ import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import TextField from '@material-ui/core/TextField'
 
-import { makeStyles, MuiThemeProvider } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/core/styles'
 
 import red from '@material-ui/core/colors/red'
 
@@ -18,9 +18,7 @@ import { LOG_ENDPOINT } from '../../../shared/static'
 
 import exclamationMark from '../../static/images/exclamationMark.svg'
 
-import theme from '../../theme'
-
-const useStyles = makeStyles(({
+const useStyles = makeStyles(theme => ({
   root: {
     padding: theme.spacing(4)
   },
@@ -86,72 +84,65 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({
   errorSnackbar,
   restartApp
 }) => {
-  const classes = useStyles(theme)
+  const classes = useStyles({})
 
   const [send, setSend] = React.useState(false)
 
   return (
-    <MuiThemeProvider theme={theme}>
-      <Modal open={open} handleClose={handleExit} title='Error'>
-        <Grid
-          container
-          justify='flex-start'
-          spacing={3}
-          direction='column'
-          className={classes.root}>
-          <Grid item container direction='column' alignItems='center'>
-            <Icon className={classes.icon} src={exclamationMark} />
-            <Typography variant='h3' className={classes.message}>
-              {message}
+    <Modal open={open} handleClose={handleExit} title='Error'>
+      <Grid container justify='flex-start' spacing={3} direction='column' className={classes.root}>
+        <Grid item container direction='column' alignItems='center'>
+          <Icon className={classes.icon} src={exclamationMark} />
+          <Typography variant='h3' className={classes.message}>
+            {message}
+          </Typography>
+        </Grid>
+        <Grid item container spacing={2} direction='column'>
+          <Grid item>
+            <Typography variant='body2' className={classes.info}>
+              You can send us this error traceback to help us improve. Before sending make sure it
+              doesn't contain any private data.
             </Typography>
           </Grid>
-          <Grid item container spacing={2} direction='column'>
-            <Grid item>
-              <Typography variant='body2' className={classes.info}>
-                You can send us this error traceback to help us improve. Before sending make sure it
-                doesn't contain any private data.
-              </Typography>
-            </Grid>
-            <Grid item>
-              <TextField
-                id='traceback'
-                disabled
-                variant='outlined'
-                multiline
-                fullWidth
-                rows={10}
-                value={traceback}
-                InputProps={{
-                  classes: {
-                    root: classes.textfield,
-                    multiline: classes.stackTrace,
-                    disabled: classes.cssDisabled
+          <Grid item>
+            <TextField
+              id='traceback'
+              disabled
+              variant='outlined'
+              multiline
+              fullWidth
+              rows={10}
+              value={traceback}
+              InputProps={{
+                classes: {
+                  root: classes.textfield,
+                  multiline: classes.stackTrace,
+                  disabled: classes.cssDisabled
+                }
+              }}
+            />
+          </Grid>
+          <Grid item container justify='center' alignItems='center'>
+            {!send && (
+              <LoadingButton
+                classes={{ button: classes.button }}
+                text='Send & restart'
+                onClick={async () => {
+                  try {
+                    await handleSend({ title: message, message: traceback })
+                    successSnackbar()
+                    setSend(true)
+                    restartApp()
+                  } catch (err) {
+                    errorSnackbar()
                   }
                 }}
               />
-            </Grid>
-            <Grid item container justify='center' alignItems='center'>
-              {!send && (
-                <LoadingButton
-                  classes={{ button: classes.button }}
-                  text='Send & restart'
-                  onClick={async () => {
-                    try {
-                      await handleSend({ title: message, message: traceback })
-                      successSnackbar()
-                      setSend(true)
-                      restartApp()
-                    } catch (err) {
-                      errorSnackbar()
-                    }
-                  }}
-                />
-              )}
-            </Grid>
+            )}
           </Grid>
         </Grid>
-      </Modal>
-    </MuiThemeProvider>
+      </Grid>
+    </Modal>
   )
 }
 

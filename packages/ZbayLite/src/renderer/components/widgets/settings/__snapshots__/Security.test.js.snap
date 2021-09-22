@@ -49,7 +49,7 @@ exports[`Security renders component 1`] = `
       className="buttonDiv-mock"
       item={true}
     >
-      <WithStyles(LoadingButton)
+      <Component
         className="button-mock"
         color="primary"
         fullWidth={true}
@@ -112,7 +112,7 @@ exports[`Security renders component 1`] = `
     className="buttonDiv-mock"
     item={true}
   >
-    <WithStyles(LoadingButton)
+    <Component
       className="rescanButton-mock"
       color="primary"
       fullWidth={true}

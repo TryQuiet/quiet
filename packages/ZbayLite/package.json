@@ -114,6 +114,7 @@
     "@storybook/addons": "^5.2.8",
     "@storybook/react": "^5.2.8",
     "@testing-library/react-hooks": "^7.0.0",
+    "@types/classnames": "^2.2.6",
     "@types/isomorphic-fetch": "0.0.35",
     "@types/jest": "^26.0.23",
     "@types/keymirror": "^0.1.1",

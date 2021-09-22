@@ -6,6 +6,9 @@ import { mockClasses } from '../../../shared/testing/mocks'
 import { initialState } from '../../store/handlers/identity'
 import { IdentityPanel } from './IdentityPanel'
 
+import { MuiThemeProvider } from '@material-ui/core'
+import theme from '../../theme'
+
 describe('IdentityPanel', () => {
   it('renders component with username', () => {
     const identity = {
@@ -14,12 +17,14 @@ describe('IdentityPanel', () => {
       name: 'Saturn'
     }
     const result = shallow(
-      <IdentityPanel
-        classes={mockClasses}
-        identity={identity}
-        handleSettings={jest.fn()}
-        user={{ nickname: 'test' }}
-      />
+      <MuiThemeProvider theme={theme}>
+        <IdentityPanel
+          classes={mockClasses}
+          identity={identity}
+          handleSettings={jest.fn()}
+          user={{ nickname: 'test' }}
+        />
+      </MuiThemeProvider>
     )
     expect(result).toMatchSnapshot()
   })
@@ -30,12 +35,14 @@ describe('IdentityPanel', () => {
       name: 'Saturn'
     }
     const result = shallow(
-      <IdentityPanel
-        classes={mockClasses}
-        identity={identity}
-        handleSettings={jest.fn()}
-        user={{ nickname: 'test' }}
-      />
+      <MuiThemeProvider theme={theme}>
+        <IdentityPanel
+          classes={mockClasses}
+          identity={identity}
+          handleSettings={jest.fn()}
+          user={{ nickname: 'test' }}
+        />
+      </MuiThemeProvider>
     )
     expect(result).toMatchSnapshot()
   })

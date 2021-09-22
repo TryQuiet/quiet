@@ -1,11 +1,11 @@
 import React from 'react'
-import PropTypes from 'prop-types'
-import { withStyles } from '@material-ui/core/styles'
+
+import { makeStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import classNames from 'classnames'
 
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
   button: {
     maxWidth: 286,
     height: 60,
@@ -28,14 +28,25 @@ const styles = theme => ({
   progress: {
     color: theme.palette.colors.white
   }
-})
+}))
 
-export const LoadingButton = ({ classes, inProgress, text, ...other }) => {
+interface LoadingButtonProps {
+  inProgress?: boolean
+  text?: string
+  [index: string]: any
+}
+
+export const LoadingButton: React.FC<LoadingButtonProps> = ({
+  inProgress = false,
+  text,
+  ...other
+}) => {
+  const classes = useStyles({})
+
   return inProgress ? (
     <Button
       className={classNames({ [classes.button]: true, [classes.inProgress]: true })}
-      {...other}
-    >
+      {...other}>
       <CircularProgress className={classes.progress} />
     </Button>
   ) : (
@@ -45,14 +56,4 @@ export const LoadingButton = ({ classes, inProgress, text, ...other }) => {
   )
 }
 
-LoadingButton.defaultProps = {
-  inProgress: false
-}
-
-LoadingButton.propTypes = {
-  classes: PropTypes.object.isRequired,
-  inProgress: PropTypes.bool,
-  finished: PropTypes.bool
-}
-
-export default withStyles(styles)(LoadingButton)
+export default LoadingButton

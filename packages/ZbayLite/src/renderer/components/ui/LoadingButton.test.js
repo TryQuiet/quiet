@@ -2,8 +2,10 @@
 import React from 'react'
 import { shallow } from 'enzyme'
 
-import { mockClasses } from '../../../shared/testing/mocks'
 import { LoadingButton } from './LoadingButton'
+
+import { MuiThemeProvider } from '@material-ui/core'
+import theme from '../../theme'
 
 describe('Loading button', () => {
   it('renders component', () => {
@@ -11,10 +13,12 @@ describe('Loading button', () => {
       inProgress: false
     }
     const result = shallow(
-      <LoadingButton
-        classes={mockClasses}
-        props={props}
-      />
+      <MuiThemeProvider theme={theme}>
+        <LoadingButton
+          props={props}
+        />
+      </MuiThemeProvider>
+
     )
     expect(result).toMatchSnapshot()
   })

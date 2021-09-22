@@ -18,7 +18,7 @@ exports[`InvitationModalGenerate renders component 1`] = `
     className="buttonDiv-mock"
     item={true}
   >
-    <WithStyles(LoadingButton)
+    <Component
       className="button-mock"
       color="primary"
       disabled={[MockFunction]}

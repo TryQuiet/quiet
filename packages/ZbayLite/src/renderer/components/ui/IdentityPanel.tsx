@@ -1,25 +1,22 @@
 import React from 'react'
-import PropTypes from 'prop-types'
-import * as R from 'ramda'
 
 import Typography from '@material-ui/core/Typography'
-import { withStyles } from '@material-ui/core/styles'
 import { Button } from '@material-ui/core'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 
 import SettingsModal from '../../containers/widgets/settings/SettingsModal'
 import ReceivedInvitationModal from '../../containers/ui/InvitationModal/ReceivedInvitationModal'
 import CreateUsernameModal from '../../containers/widgets/createUsernameModal/CreateUsername'
-// import ImportChannelModal from '../../containers/widgets/channels/importChannel/ImportChannelModal'
 
-const styles = theme => ({
+import { makeStyles } from '@material-ui/core/styles'
+
+const useStyles = makeStyles(theme => ({
   root: {
     marginTop: theme.spacing(1),
     WebkitAppRegion: process.platform === 'win32' ? 'no-drag' : 'drag',
     paddingLeft: 16,
     paddingRight: 16
   },
-
   button: {
     color: theme.palette.colors.white,
     padding: 0,
@@ -40,18 +37,38 @@ const styles = theme => ({
     maxWidth: 175,
     whiteSpace: 'nowrap'
   }
-})
+}))
 
-export const IdentityPanel = ({ classes, identity, handleSettings, user }) => {
+interface IdentityPanelProps {
+  user: User
+  identity: Identity
+  handleSettings: () => void
+}
+
+interface Identity {
+  name: string
+  address: string
+  signerPubKey: string
+}
+
+interface User {
+  nickname: string
+}
+
+export const IdentityPanel: React.FC<IdentityPanelProps> = ({ identity, handleSettings, user }) => {
+  const classes = useStyles({})
+
   const nickname = user ? user.nickname : `anon${identity.signerPubKey.substring(0, 10)}`
+
   return (
     <div className={classes.root}>
       <Button
         onClick={handleSettings}
         component='span'
-        classes={{ root: classes.button, label: classes.buttonLabel }}
-      >
-        <Typography variant='h4' className={classes.nickname}>{nickname}</Typography>
+        classes={{ root: classes.button, label: classes.buttonLabel }}>
+        <Typography variant='h4' className={classes.nickname}>
+          {nickname}
+        </Typography>
         <ExpandMoreIcon fontSize='small' />
       </Button>
       <SettingsModal />
@@ -62,20 +79,4 @@ export const IdentityPanel = ({ classes, identity, handleSettings, user }) => {
   )
 }
 
-IdentityPanel.propTypes = {
-  classes: PropTypes.object.isRequired,
-  identity: PropTypes.shape({
-    name: PropTypes.string.isRequired,
-    address: PropTypes.string.isRequired,
-    signerPubKey: PropTypes.string.isRequired
-  }).isRequired,
-  handleSettings: PropTypes.func.isRequired,
-  user: PropTypes.shape({
-    nickname: PropTypes.string.isRequired
-  }).isRequired
-}
-
-export default R.compose(
-  React.memo,
-  withStyles(styles)
-)(IdentityPanel)
+export default IdentityPanel

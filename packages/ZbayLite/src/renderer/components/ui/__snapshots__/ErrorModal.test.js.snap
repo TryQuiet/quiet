@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ErrorModal renders component 1`] = `
-<ThemeProvider
-  theme={
+<ContextProvider
+  value={
     Object {
       "breakpoints": Object {
         "between": [Function],
@@ -340,101 +340,17 @@ exports[`ErrorModal renders component 1`] = `
         "speedDial": 1050,
         "tooltip": 1500,
       },
+      Symbol(mui.nested): false,
     }
   }
 >
   <Component
-    addBorder={false}
-    alignCloseLeft={false}
-    canGoBack={false}
-    contentWidth={600}
-    handleClose={[MockFunction]}
-    isBold={false}
-    isCloseDisabled={false}
+    handleCopy={[MockFunction]}
+    handleExit={[MockFunction]}
+    message="Test error message"
     open={true}
-    title="Error"
-  >
-    <WithStyles(ForwardRef(Grid))
-      className="makeStyles-root-1"
-      container={true}
-      direction="column"
-      justify="flex-start"
-      spacing={3}
-    >
-      <WithStyles(ForwardRef(Grid))
-        alignItems="center"
-        container={true}
-        direction="column"
-        item={true}
-      >
-        <Component
-          className="makeStyles-icon-2"
-          src="test-file-stub"
-        />
-        <WithStyles(ForwardRef(Typography))
-          className="makeStyles-message-4"
-          variant="h3"
-        >
-          Test error message
-        </WithStyles(ForwardRef(Typography))>
-      </WithStyles(ForwardRef(Grid))>
-      <WithStyles(ForwardRef(Grid))
-        container={true}
-        direction="column"
-        item={true}
-        spacing={2}
-      >
-        <WithStyles(ForwardRef(Grid))
-          item={true}
-        >
-          <WithStyles(ForwardRef(Typography))
-            className="makeStyles-info-5"
-            variant="body2"
-          >
-            You can send us this error traceback to help us improve. Before sending make sure it doesn't contain any private data.
-          </WithStyles(ForwardRef(Typography))>
-        </WithStyles(ForwardRef(Grid))>
-        <WithStyles(ForwardRef(Grid))
-          item={true}
-        >
-          <WithStyles(ForwardRef(TextField))
-            InputProps={
-              Object {
-                "classes": Object {
-                  "disabled": "makeStyles-cssDisabled-7",
-                  "multiline": "makeStyles-stackTrace-3",
-                  "root": "makeStyles-textfield-6",
-                },
-              }
-            }
-            disabled={true}
-            fullWidth={true}
-            id="traceback"
-            multiline={true}
-            rows={10}
-            value="Error: Test error message, error traceback"
-            variant="outlined"
-          />
-        </WithStyles(ForwardRef(Grid))>
-        <WithStyles(ForwardRef(Grid))
-          alignItems="center"
-          container={true}
-          item={true}
-          justify="center"
-        >
-          <WithStyles(LoadingButton)
-            classes={
-              Object {
-                "button": "makeStyles-button-8",
-              }
-            }
-            inProgress={false}
-            onClick={[Function]}
-            text="Send & restart"
-          />
-        </WithStyles(ForwardRef(Grid))>
-      </WithStyles(ForwardRef(Grid))>
-    </WithStyles(ForwardRef(Grid))>
-  </Component>
-</ThemeProvider>
+    restartApp={[MockFunction]}
+    traceback="Error: Test error message, error traceback"
+  />
+</ContextProvider>
 `;

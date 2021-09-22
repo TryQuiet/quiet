@@ -1,18 +1,18 @@
 import React from 'react'
-import PropTypes from 'prop-types'
-import * as R from 'ramda'
+
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
-import { withStyles } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/core/styles'
 
 import red from '@material-ui/core/colors/red'
 
 import Icon from './Icon'
-import exclamationMark from '../../static/images/exclamationMark.svg'
 import Modal from './Modal'
 import LoadingButton from './LoadingButton'
 
-const styles = theme => ({
+import exclamationMark from '../../static/images/exclamationMark.svg'
+
+const useStyles = makeStyles((theme) => ({
   root: {
     padding: theme.spacing(4)
   },
@@ -39,23 +39,24 @@ const styles = theme => ({
     fontWeight: 'normal',
     marginTop: 24
   }
-})
+}))
 
-export const FailedUsernameRegister = ({
-  classes,
-  open,
+interface FailedUsernameRegisterProps {
+  open: boolean
+  handleClose: () => void
+  openModalCreateUsername: () => void
+}
+
+export const FailedUsernameRegister: React.FC<FailedUsernameRegisterProps> = ({
+  open = false,
   handleClose,
   openModalCreateUsername
 }) => {
+  const classes = useStyles({})
+
   return (
     <Modal open={open} handleClose={handleClose} title=''>
-      <Grid
-        container
-        justify='flex-start'
-        spacing={3}
-        direction='column'
-        className={classes.root}
-      >
+      <Grid container justify='flex-start' spacing={3} direction='column' className={classes.root}>
         <Grid item container direction='column' alignItems='center'>
           <Icon className={classes.icon} src={exclamationMark} />
           <Typography variant='h3' className={classes.message}>
@@ -84,15 +85,4 @@ export const FailedUsernameRegister = ({
   )
 }
 
-FailedUsernameRegister.propTypes = {
-  classes: PropTypes.object.isRequired,
-  open: PropTypes.bool.isRequired,
-  handleClose: PropTypes.func.isRequired,
-  openModalCreateUsername: PropTypes.func.isRequired
-}
-
-FailedUsernameRegister.defaultProps = {
-  open: false
-}
-
-export default R.compose(React.memo, withStyles(styles))(FailedUsernameRegister)
+export default FailedUsernameRegister
