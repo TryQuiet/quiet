@@ -62,7 +62,7 @@ export class CertificateRegistration {
     const users = this._storage.getAllUsers()
     const peers = users.map(async (userData: { onionAddress: string, peerId: string }) => {
       const [port] = await fp(1234) // port probably does not matter - to be checked
-      return `/dns4/${userData.onionAddress}/tcp/${port as string}/ws/p2p/${userData.peerId}`
+      return `/dns4/${userData.onionAddress}/tcp/${port as string}/wss/p2p/${userData.peerId}`
     })
 
     return await Promise.all(peers)

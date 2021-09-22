@@ -78,9 +78,7 @@ export class NodeWithoutTor extends LocalNode {
     )
     const communities = new CommunitiesManager(connectonsManager)
     const peerId = await this.getPeer()
-
-    // TODO: use this after turning on cert handling again:
-    // const bootstrapAddressArrayWs = this.bootstrapMultiaddrs.map((address) => address.replace('wss', 'ws'))
+    const bootstrapAddressArrayWs = this.bootstrapMultiaddrs.map((address) => address.replace('wss', 'ws'))
     // eslint-disable-next-line
     const certs = {} as CertsData
 
@@ -88,7 +86,7 @@ export class NodeWithoutTor extends LocalNode {
       peerId,
       '0.0.0.0',
       this.port,
-      this.bootstrapMultiaddrs,
+      bootstrapAddressArrayWs,
       certs
     )
     this.storage = communities.getStorage(peerId.toB58String())

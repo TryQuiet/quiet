@@ -2,10 +2,6 @@
 
 ## [Unreleased]
 
-# Removed
-
-* Certificates validation in websocket over tor is temporarly removed - doesn't work with electron
-
 ### Fixed
 
 * Stucking Tor - kill and relaunch the Tor after given timeout

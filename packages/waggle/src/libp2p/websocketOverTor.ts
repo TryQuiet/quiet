@@ -82,11 +82,6 @@ class WebsocketsOverTor extends WebSockets {
     log('dialing %s:%s', cOpts.host, cOpts.port)
     const myUri = `${toUri(ma) as string}/?remoteAddress=${encodeURIComponent(this.localAddress)}`
 
-    // certificates are temporarily disable
-    delete options.websocket.cert
-    delete options.websocket.key
-    delete options.websocket.ca
-
     const rawSocket = connect(myUri, Object.assign({ binary: true }, options))
     if (!options.signal) {
       await rawSocket.connected()
@@ -137,8 +132,6 @@ class WebsocketsOverTor extends WebSockets {
       caArray = null
     }
 
-    // certificates are temporarily disable
-    // eslint-disable-next-line
     const serverHttps = https.createServer({
       cert: this._websocketOpts.cert,
       key: this._websocketOpts.key,
@@ -148,7 +141,7 @@ class WebsocketsOverTor extends WebSockets {
     })
 
     const optionsServ = {
-      // server: serverHttps,
+      server: serverHttps,
       // eslint-disable-next-line
       verifyClient: function (info, done) {
         done(true)
@@ -216,7 +209,7 @@ class WebsocketsOverTor extends WebSockets {
       if (listeningMultiaddr.toString().indexOf('ip4') !== -1) {
         let m = listeningMultiaddr.decapsulate('tcp')
         // eslint-disable-next-line
-        m = m.encapsulate('/tcp/' + address.port + '/ws')
+        m = m.encapsulate('/tcp/' + address.port + '/wss')
         if (listeningMultiaddr.getPeerId()) {
           m = m.encapsulate('/p2p/' + ipfsId)
         }
