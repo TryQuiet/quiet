@@ -127,6 +127,7 @@ function getKeyUsage () {
   bitView[0] |= 0x02 // Key usage 'cRLSign' flag
   bitView[0] |= 0x04 // Key usage 'keyCertSign' flag
   bitView[0] |= 0x08 // Key usage 'keyAgreement' flag
+  bitView[0] |= 0x80 // Key usage 'digitalSignature' flag
 
   return new BitString({ valueHex: bitArray })
 }
