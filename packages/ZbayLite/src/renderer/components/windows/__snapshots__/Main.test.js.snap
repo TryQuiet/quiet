@@ -2,7 +2,6 @@
 
 exports[`Main renders component 1`] = `
 <Fragment>
-  <Memo(Connect(withModal(Component))) />
   <Connect(Component) />
   <Memo(WithStyles(WindowWrapper))>
     <WithStyles(ForwardRef(Grid))

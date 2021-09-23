@@ -13,7 +13,6 @@ import Tab from '../../../ui/Tab'
 import AccountSettingsForm from '../../../../containers/widgets/settings/AccountSettingsForm'
 import ShippingSettingsForm from '../../../../containers/widgets/settings/ShippingSettingsForm'
 import InvitationModal from '../../../../containers/ui/InvitationModal/InvitationModal'
-import AddFundsModal from '../../../../containers/widgets/settings/AddFunds'
 import Security from '../../../../containers/widgets/settings/Security'
 import Notifications from '../../../../containers/widgets/settings/Notifications'
 import BlockedUsers from '../../../../containers/widgets/settings/BlockedUsers'
@@ -23,7 +22,6 @@ const tabs = {
   account: AccountSettingsForm,
   shipping: ShippingSettingsForm,
   invite: InvitationModal,
-  addFunds: AddFundsModal,
   security: Security,
   notifications: Notifications,
   blockedusers: BlockedUsers,
@@ -144,21 +142,6 @@ export const SettingsModal = ({
                 label='Shipping'
                 classes={{ tabRoot: classes.tab, selected: classes.selected }}
               />
-              {/* <Tab
-                value='addFunds'
-                label='Add Funds'
-                classes={{ tabRoot: classes.tab, selected: classes.selected }}
-              />
-              <Tab
-                value='buyZcash'
-                label='Buy Zcash'
-                classes={{ tabRoot: classes.tab, selected: classes.selected }}
-              /> */}
-              {/* <Tab
-                value='invite'
-                label='Invite a Friend'
-                classes={{ tabRoot: classes.tab, selected: classes.selected }}
-              /> */}
               <Tab
                 value='security'
                 label='Security'
@@ -207,7 +190,6 @@ export const SettingsModal = ({
 SettingsModal.propTypes = {
   open: PropTypes.bool.isRequired,
   handleClose: PropTypes.func.isRequired,
-  // modalTabToOpen: PropTypes.boolean,
   clearCurrentOpenTab: PropTypes.func.isRequired,
   currentTab: PropTypes.string,
   setCurrentTab: PropTypes.func.isRequired,

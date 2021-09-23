@@ -1,7 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`DepositMoneyModal will receive right actions 1`] = `
-Object {
-  "onClick": [Function],
-}
-`;

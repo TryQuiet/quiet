@@ -12,9 +12,7 @@ import Sidebar from '../widgets/sidebar/Sidebar'
 import Channel from '../../containers/pages/Channel'
 import Offer from '../../containers/pages/Offer'
 import DirectMessages from '../../containers/pages/DirectMessages'
-import DepositMoneyModal from '../../containers/ui/DepositMoneyModal'
 import SeedModal from '../../containers/widgets/channels/SeedModal'
-import electronStore from '../../../shared/electronStore'
 
 const styles = {
   gridRoot: {
@@ -71,7 +69,6 @@ export const Main = ({
   // }, [])
   return (
     <>
-      <DepositMoneyModal />
       <SeedModal />
       <WindowWrapper>
         <Grid container direction='row' className={classes.gridRoot}>
