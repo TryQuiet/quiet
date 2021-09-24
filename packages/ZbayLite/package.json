@@ -252,7 +252,7 @@
     "get-folder-size": "^2.0.1",
     "https-proxy-agent": "^5.0.0",
     "identity-obj-proxy": "^3.0.0",
-    "immer": "^8.0.1",
+    "immer": "^9.0.6",
     "immutable": "^4.0.0-rc.12",
     "is-port-reachable": "^3.0.0",
     "isomorphic-fetch": "^2.2.1",
