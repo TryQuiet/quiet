@@ -13,9 +13,9 @@ import { Scrollbars } from 'rc-scrollbars'
 
 import radioChecked from '../../static/images/radioChecked.svg'
 import radioUnselected from '../../static/images/radioUnselected.svg'
-import Icon from '../ui/Icon'
-import Modal from '../ui/Modal'
-import TextField from '../ui/form/TextField'
+import Icon from '../ui/Icon/Icon'
+import Modal from '../ui/Modal/Modal'
+import TextField from '../ui/TextField/TextField'
 
 const styles = theme => ({
   title: {

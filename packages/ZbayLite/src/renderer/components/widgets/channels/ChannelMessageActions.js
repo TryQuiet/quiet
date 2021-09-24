@@ -5,7 +5,7 @@ import { withStyles } from '@material-ui/core/styles'
 import { Typography } from '@material-ui/core'
 import Grid from '@material-ui/core/Grid'
 
-import Icon from '../../ui/Icon'
+import Icon from '../../ui/Icon/Icon'
 import ErrorIcon from '../../../static/images/t-error.svg'
 
 const styles = theme => ({

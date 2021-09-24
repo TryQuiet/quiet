@@ -8,9 +8,9 @@ import { withStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 
-import { TextField as FormikTextField } from '../../ui/form/TextField'
-import Modal from '../../ui/Modal'
-import { AutocompleteField } from '../../ui/form/Autocomplete'
+import { TextField as FormikTextField } from '../../ui/TextField/TextField'
+import Modal from '../../ui/Modal/Modal'
+import { AutocompleteField } from '../../ui/Autocomplete/Autocomplete'
 import { errorNotification, successNotification } from '../../../store/handlers/utils'
 import { messageType } from '../../../../shared/static'
 

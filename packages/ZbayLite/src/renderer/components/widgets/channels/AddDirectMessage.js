@@ -4,7 +4,7 @@ import * as R from 'ramda'
 import IconButton from '@material-ui/core/IconButton'
 import { withStyles } from '@material-ui/core/styles'
 
-import MenuAction from '../../ui/MenuAction'
+import MenuAction from '../../ui/MenuAction/MenuAction'
 import addIcon from '../../../static/images/zcash/add-icon.svg'
 
 const styles = theme => ({

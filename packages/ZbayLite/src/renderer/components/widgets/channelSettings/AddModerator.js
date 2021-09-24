@@ -8,7 +8,7 @@ import TextField from '@material-ui/core/TextField'
 import { AutoSizer } from 'react-virtualized'
 import { Scrollbars } from 'rc-scrollbars'
 
-import Modal from '../../ui/Modal'
+import Modal from '../../ui/Modal/Modal'
 import UserListItem from './UserListItem'
 
 const styles = theme => ({

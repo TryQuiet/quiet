@@ -10,10 +10,10 @@ import Button from '@material-ui/core/Button'
 import { withStyles } from '@material-ui/core/styles'
 import InputAdornment from '@material-ui/core/InputAdornment'
 
-import TextField from '../../ui/form/TextField'
-import CheckboxWithLabel from '../../ui/form/CheckboxWithLabel'
-import { LinkedTextField } from '../../ui/form/LinkedTextField'
-import Icon from '../../ui/Icon'
+import TextField from '../../ui/TextField/TextField'
+import CheckboxWithLabel from '../../ui/Checkbox/CheckboxWithLabel'
+import { LinkedTextField } from '../../ui/TextField/LinkedTextField'
+import Icon from '../../ui/Icon/Icon'
 import exchange from '../../../static/images/zcash/exchange.svg'
 
 const styles = theme => ({

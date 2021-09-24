@@ -4,9 +4,9 @@ import { withStyles } from '@material-ui/core/styles'
 import { Grid, LinearProgress, Typography } from '@material-ui/core'
 import { Redirect } from 'react-router'
 
-import WindowWrapper from '../ui/WindowWrapper'
+import WindowWrapper from '../ui/WindowWrapper/WindowWrapper'
 import ZcashIcon from '../../static/images/zcash/logo-lockup--circle.svg'
-import Icon from '../ui/Icon'
+import Icon from '../ui/Icon/Icon'
 import { useInterval } from '../../containers/hooks'
 
 const styles = theme => ({

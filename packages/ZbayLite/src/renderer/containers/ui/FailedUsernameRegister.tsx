@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import * as R from 'ramda'
 
-import FailedUsernameRegister from '../../components/ui/FailedUsernameRegister'
+import FailedUsernameRegister from '../../components/ui/FailedUsernameRegister/FailedUsernameRegister'
 import modalsHandlers, { withModal } from '../../store/handlers/modals'
 
 export const mapStateToProps = _state => ({})

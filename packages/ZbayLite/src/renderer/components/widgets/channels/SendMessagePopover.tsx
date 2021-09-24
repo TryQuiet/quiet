@@ -2,7 +2,7 @@ import React from 'react'
 import Popover from '@material-ui/core/Popover'
 import Jdenticon from 'react-jdenticon'
 import { ISendMessagePopoverProps } from './SendMessagePopover.d'
-import QuickActionLayout from '../../ui/QuickActionLayout'
+import QuickActionLayout from '../../ui/QuickActionLayout/QuickActionLayout'
 
 export const SendMessagePopover: React.FC<ISendMessagePopoverProps> = ({
   username,

@@ -13,7 +13,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 
 import NodeStatus from '../../../containers/widgets/node/NodeStatus'
 import NodePanelDetails from '../../../containers/widgets/node/NodePanelDetails'
-import Tooltip from '../../ui/Tooltip'
+import Tooltip from '../../ui/Tooltip/Tooltip'
 
 const styles = theme => ({
   expansionDetails: {

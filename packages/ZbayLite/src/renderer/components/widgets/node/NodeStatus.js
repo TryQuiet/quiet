@@ -4,8 +4,8 @@ import PropTypes from 'prop-types'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
-import PulseDot from '../../ui/PulseDot'
-import SpinnerLoader from '../../ui/SpinnerLoader'
+import PulseDot from '../../ui/PulseDot/PulseDot'
+import SpinnerLoader from '../../ui/Spinner/SpinnerLoader'
 
 const styles = theme => ({
   root: {},

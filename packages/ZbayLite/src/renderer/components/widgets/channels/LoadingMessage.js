@@ -4,7 +4,7 @@ import * as R from 'ramda'
 
 import { withStyles } from '@material-ui/core/styles'
 
-import SpinnerLoader from '../../ui/SpinnerLoader'
+import SpinnerLoader from '../../ui/Spinner/SpinnerLoader'
 
 const styles = theme => ({
   spinner: {

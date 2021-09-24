@@ -10,7 +10,7 @@ import { Button } from '@material-ui/core'
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 
-import Modal from '../../ui/Modal'
+import Modal from '../../ui/Modal/Modal'
 
 const styles = theme => ({
   root: {

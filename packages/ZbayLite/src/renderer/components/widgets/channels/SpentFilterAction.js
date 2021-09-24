@@ -4,7 +4,7 @@ import Button from '@material-ui/core/Button'
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import { makeStyles } from '@material-ui/core/styles'
 
-import PopupMenu from '../../ui/PopupMenu'
+import PopupMenu from '../../ui/PopupMenu/PopupMenu'
 import SpentFilter from '../../../containers/widgets/channels/SpentFilter'
 
 const useStyles = makeStyles((theme) => ({

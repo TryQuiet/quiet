@@ -1,7 +1,7 @@
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
-import Notifier from '../../components/ui/Notifier'
+import Notifier from '../../components/ui/Notifier/Notifier'
 import notificationsHandlers from '../../store/handlers/notifications'
 import notificationsSelectors from '../../store/selectors/notifications'
 

@@ -13,9 +13,9 @@ import { Button } from '@material-ui/core'
 import { _DisplayableMessage } from '../../../zbay/messages'
 import ChannelMessageActions from './ChannelMessageActions'
 import BasicMessage from '../../../containers/widgets/channels/BasicMessage'
-import Tooltip from '../../ui/Tooltip'
+import Tooltip from '../../ui/Tooltip/Tooltip'
 import imagePlacegolder from '../../../static/images/imagePlacegolder.svg'
-import Icon from '../../ui/Icon'
+import Icon from '../../ui/Icon/Icon'
 import OpenlinkModal from '../../../containers/ui/OpenlinkModal'
 
 const styles = theme => ({

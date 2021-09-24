@@ -9,8 +9,8 @@ import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
 
-import Icon from '../ui/Icon'
-import LoadingButton from '../ui/LoadingButton'
+import Icon from '../ui/Icon/Icon'
+import LoadingButton from '../ui/LoadingButton/LoadingButton'
 
 import icon from '../../static/images/zcash/logo-lockup--circle.svg'
 

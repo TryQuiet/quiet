@@ -22,7 +22,6 @@ import CreateChannelModal from './containers/widgets/channels/CreateChannelModal
 import NewMessageModal from './containers/widgets/channels/NewMessageModal'
 import JoinChannelModal from './containers/widgets/channels/JoinChannelModal'
 import ChannelSettingsModal from './containers/widgets/channelSettings/ChannelSettingsModal'
-import PublishChannelModal from './containers/ui/PublishChannelModal'
 import OpenExternalLinkModal from './containers/ui/OpenExternalLinkModal'
 import AddModerator from './containers/widgets/channelSettings/AddModerator'
 import FailedUsernameRegister from './containers/ui/FailedUsernameRegister'
@@ -47,7 +46,6 @@ export default () => {
               <NewMessageModal />
               <JoinChannelModal />
               <ChannelSettingsModal />
-              <PublishChannelModal />
               <AddModerator />
               <OpenExternalLinkModal />
               <FailedUsernameRegister />

@@ -10,9 +10,9 @@ import TextField from '@material-ui/core/TextField'
 import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
 
-import Modal from '../../ui/Modal'
+import Modal from '../../ui/Modal/Modal'
 import UsernameCreated from './UsernameCreated'
-import { LoadingButton } from '../../ui/LoadingButton'
+import { LoadingButton } from '../../ui/LoadingButton/LoadingButton'
 
 const styles = theme => ({
   root: {},

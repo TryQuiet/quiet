@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux'
 
 import Grid from '@material-ui/core/Grid'
 import contactsSelectors from '../../../store/selectors/contacts'
-import SidebarHeader from '../../../components/ui/SidebarHeader'
+import SidebarHeader from '../../../components/ui/Sidebar/SidebarHeader'
 import { actionCreators } from '../../../store/handlers/modals'
 import QuickActionButton from '../../../components/widgets/sidebar/QuickActionButton'
 import BaseChannelsList from '../../../components/widgets/channels/BaseChannelsList'

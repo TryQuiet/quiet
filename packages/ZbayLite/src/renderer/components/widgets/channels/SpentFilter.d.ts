@@ -1,4 +1,5 @@
-import { ISliderProps } from './../../ui/Slider.d'
+
+import { ISliderProps } from '../../ui/Slider/Slider'
 
 export interface ISpentFilterProps {
   value: number

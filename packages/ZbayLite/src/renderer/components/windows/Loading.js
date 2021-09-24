@@ -7,7 +7,7 @@ import Typography from '@material-ui/core/Typography'
 
 import 'react-alice-carousel/lib/alice-carousel.css'
 
-import Icon from '../ui/Icon'
+import Icon from '../ui/Icon/Icon'
 import icon from '../../static/images/zcash/logo-lockup--circle.svg'
 
 const styles = theme => ({

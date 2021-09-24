@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
 
-import WindowWrapper from '../ui/WindowWrapper'
+import WindowWrapper from '../ui/WindowWrapper/WindowWrapper'
 import VaultUnlockerForm from '../../containers/widgets/VaultUnlockerForm'
 
 const styles = theme => ({

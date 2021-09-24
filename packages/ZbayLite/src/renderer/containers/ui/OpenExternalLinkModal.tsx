@@ -5,7 +5,7 @@ import * as R from 'ramda'
 import { shell } from 'electron'
 import { bindActionCreators } from 'redux'
 
-import OpenlinkModalComponent from '../../components/ui/OpenlinkModal'
+import OpenlinkModalComponent from '../../components/ui/OpenlinkModal/OpenlinkModal'
 import whitelistHandlers from '../../store/handlers/whitelist'
 
 import { withModal } from '../../store/handlers/modals'

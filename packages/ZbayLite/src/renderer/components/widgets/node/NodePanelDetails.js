@@ -1,3 +1,4 @@
+
 import React from 'react'
 import PropTypes from 'prop-types'
 import * as R from 'ramda'
@@ -12,10 +13,10 @@ import openAboutWindow from 'about-window'
 import NodePanelBlocksField from '../../../containers/widgets/node/NodePanelBlocksField'
 import NodePanelNetworkField from '../../../containers/widgets/node/NodePanelNetworkField'
 import NodePanelFreeUtxos from '../../../containers/widgets/node/NodePanelFreeUtxos'
-import Icon from '../../ui/Icon'
+import Icon from '../../ui/Icon/Icon'
 import helpIcon from '../../../static/images/help.svg'
 import helpGrayIcon from '../../../static/images/helpGray.svg'
-import Tooltip from '../../ui/Tooltip'
+import Tooltip from '../../ui/Tooltip/Tooltip'
 import electronStore from '../../../../shared/electronStore'
 import { author } from '../../../../../package.json'
 

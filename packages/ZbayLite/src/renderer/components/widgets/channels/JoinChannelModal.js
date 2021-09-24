@@ -8,10 +8,10 @@ import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 
-import Modal from '../../ui/Modal'
-import { AutocompleteField } from '../../ui/form/Autocomplete'
+import Modal from '../../ui/Modal/Modal'
+import { AutocompleteField } from '../../ui/Autocomplete/Autocomplete'
 import { errorNotification } from '../../../store/handlers/utils'
-import LoadindButton from '../../ui/LoadingButton'
+import LoadindButton from '../../ui/LoadingButton/LoadingButton'
 
 const styles = theme => ({
   root: {

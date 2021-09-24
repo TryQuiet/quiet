@@ -12,7 +12,7 @@ import { withStyles } from '@material-ui/core/styles'
 import { Button } from '@material-ui/core'
 
 import zbayLogo from '../../../../static/images/zcash/zbay-square-logo.svg'
-import Icon from '../../../ui/Icon'
+import Icon from '../../../ui/Icon/Icon'
 import { getTimeFormat, transformToLowercase } from '../BasicMessage'
 
 const styles = theme => ({

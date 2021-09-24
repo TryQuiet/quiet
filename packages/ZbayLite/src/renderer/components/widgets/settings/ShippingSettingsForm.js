@@ -9,8 +9,8 @@ import MenuItem from '@material-ui/core/MenuItem'
 import Button from '@material-ui/core/Button'
 import { withStyles } from '@material-ui/core/styles'
 
-import TextField from '../../ui/form/TextField'
-import SelectField from '../../ui/form/SelectField'
+import TextField from '../../ui/TextField/TextField'
+import SelectField from '../../ui/Select/SelectField'
 import countryData from './countryData'
 import UnfoldMore from '@material-ui/icons/UnfoldMore'
 

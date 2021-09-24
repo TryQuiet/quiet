@@ -3,7 +3,7 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import * as R from 'ramda'
 
-import IdentityPanel from '../../components/ui/IdentityPanel'
+import IdentityPanel from '../../components/ui/IdentityPanel/IdentityPanel'
 import identitySelectors from '../../store/selectors/identity'
 import usersSelectors from '../../store/selectors/users'
 import { actionCreators } from '../../store/handlers/modals'

@@ -1,6 +1,6 @@
 import Immutable from 'immutable'
 
-import { notifierAction } from '../../components/ui/DismissSnackbarAction'
+import { notifierAction } from '../../components/ui/Snackbar/DismissSnackbarAction'
 
 export const typePending = (name) => `${name}_PENDING`
 export const typeFulfilled = (name) => `${name}_FULFILLED`

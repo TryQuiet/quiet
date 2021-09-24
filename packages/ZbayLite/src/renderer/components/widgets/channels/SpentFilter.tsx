@@ -5,7 +5,7 @@ import Grid from '@material-ui/core/Grid'
 import { makeStyles } from '@material-ui/core/styles'
 import { ISpentFilterProps } from './SpentFilter.d'
 
-import Slider from '../../ui/Slider'
+import Slider from '../../ui/Slider/Slider'
 
 const useStyles = makeStyles({
   title: {

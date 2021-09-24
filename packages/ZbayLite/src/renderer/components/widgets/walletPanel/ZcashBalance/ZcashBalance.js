@@ -6,7 +6,7 @@ import * as R from 'ramda'
 import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
-import Tooltip from '../../../ui/Tooltip'
+import Tooltip from '../../../ui/Tooltip/Tooltip'
 
 const styles = theme => ({
   zecBalance: {

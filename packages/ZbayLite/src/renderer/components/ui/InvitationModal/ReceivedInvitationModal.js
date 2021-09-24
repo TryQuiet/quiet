@@ -11,7 +11,7 @@ import Error from '@material-ui/icons/Error'
 import DoneAll from '@material-ui/icons/DoneAll'
 import Button from '@material-ui/core/Button'
 
-import IconButton from '../IconButton'
+import IconButton from '../Icon/IconButton'
 
 const styles = theme => ({
   root: {

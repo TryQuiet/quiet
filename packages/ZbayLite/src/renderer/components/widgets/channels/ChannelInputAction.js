@@ -5,8 +5,8 @@ import * as R from 'ramda'
 import { withStyles } from '@material-ui/core/styles'
 import iconHover from '../../../static/images/zcash/plus-icon.svg'
 import icon from '../../../static/images/zcash/plus-icon-gray.svg'
-import MenuAction from '../../ui/MenuAction'
-import MenuActionItem from '../../ui/MenuActionItem'
+import MenuAction from '../../ui/MenuAction/MenuAction'
+import MenuActionItem from '../../ui/MenuAction/MenuActionItem'
 
 const styles = theme => ({
   button: {

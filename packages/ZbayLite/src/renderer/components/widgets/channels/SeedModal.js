@@ -5,8 +5,8 @@ import { withStyles } from '@material-ui/core/styles'
 import { AutoSizer } from 'react-virtualized'
 import { Scrollbars } from 'rc-scrollbars'
 
-import Modal from '../../ui/Modal'
-import Icon from '../../ui/Icon'
+import Modal from '../../ui/Modal/Modal'
+import Icon from '../../ui/Icon/Icon'
 
 import lock from '../../../static/images/lock.svg'
 import { Grid, Typography } from '@material-ui/core'

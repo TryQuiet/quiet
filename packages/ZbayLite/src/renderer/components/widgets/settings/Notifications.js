@@ -7,7 +7,7 @@ import { withStyles } from '@material-ui/core/styles'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Checkbox from '@material-ui/core/Checkbox'
 
-import Icon from '../../ui/Icon'
+import Icon from '../../ui/Icon/Icon'
 import radioChecked from '../../../static/images/radioChecked.svg'
 import radioUnselected from '../../../static/images/radioUnselected.svg'
 import { notificationFilterType, soundType } from '../../../../shared/static'

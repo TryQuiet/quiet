@@ -9,8 +9,8 @@ import { withStyles } from '@material-ui/core/styles'
 import WarningIcon from '@material-ui/icons/Warning'
 import { Typography } from '@material-ui/core'
 
-import TextField from '../../ui/form/TextField'
-import LoadingButton from '../../ui/LoadingButton'
+import TextField from '../../ui/TextField/TextField'
+import LoadingButton from '../../ui/LoadingButton/LoadingButton'
 
 const styles = theme => ({
   fullContainer: {

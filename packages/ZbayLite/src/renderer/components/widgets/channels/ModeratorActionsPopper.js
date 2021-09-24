@@ -11,7 +11,7 @@ import {
   Typography
 } from '@material-ui/core'
 
-import Icon from '../../ui/Icon'
+import Icon from '../../ui/Icon/Icon'
 import userIcon from '../../../static/images/userIcon.svg'
 import banIcon from '../../../static/images/banIcon.svg'
 import removeMessageIcon from '../../../static/images/removeMessageIcon.svg'

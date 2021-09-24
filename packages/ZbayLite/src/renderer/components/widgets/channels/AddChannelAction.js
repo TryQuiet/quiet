@@ -5,8 +5,8 @@ import IconButton from '@material-ui/core/IconButton'
 import { withStyles } from '@material-ui/core/styles'
 
 import addIcon from '../../../static/images/zcash/add-icon.svg'
-import MenuAction from '../../ui/MenuAction'
-import MenuActionItem from '../../ui/MenuActionItem'
+import MenuAction from '../../ui/MenuAction/MenuAction'
+import MenuActionItem from '../../ui/MenuAction/MenuActionItem'
 import CreateChannelModal from '../../../containers/widgets/channels/CreateChannelModal'
 
 const styles = theme => ({

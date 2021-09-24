@@ -6,7 +6,7 @@ import Button from '@material-ui/core/Button'
 import { withStyles } from '@material-ui/core/styles'
 import { Typography } from '@material-ui/core'
 
-import Tooltip from '../../ui/Tooltip'
+import Tooltip from '../../ui/Tooltip/Tooltip'
 
 const styles = theme => ({
   button: {

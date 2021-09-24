@@ -6,9 +6,9 @@ import { withStyles } from '@material-ui/core/styles'
 import { Grid } from '@material-ui/core'
 
 import dotsIcon from '../../../static/images/zcash/dots-icon.svg'
-import IconButton from '../../ui/IconButton'
-import MenuAction from '../../ui/MenuAction'
-import MenuActionItem from '../../ui/MenuActionItem'
+import IconButton from '../../ui/Icon/IconButton'
+import MenuAction from '../../ui/MenuAction/MenuAction'
+import MenuActionItem from '../../ui/MenuAction/MenuActionItem'
 import ConfirmModal from '../channelSettings/ConfirmModal'
 
 const styles = theme => ({

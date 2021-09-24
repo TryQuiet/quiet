@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import * as R from 'ramda'
 
 import { withModal } from '../../store/handlers/modals'
-import QuitAppDialog from '../../components/ui/QuitAppDialog'
+import QuitAppDialog from '../../components/ui/QuitApp/QuitAppDialog'
 import { remote } from 'electron'
 
 export const mapDispatchToProps = dispatch =>

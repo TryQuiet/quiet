@@ -9,7 +9,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Checkbox from '@material-ui/core/Checkbox'
 
 import UserListItem from '../channelSettings/UserListItem'
-import LoadingButton from '../../ui/LoadingButton'
+import LoadingButton from '../../ui/LoadingButton/LoadingButton'
 
 const styles = theme => ({
   title: {},

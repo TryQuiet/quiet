@@ -7,7 +7,7 @@ import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 import { withStyles } from '@material-ui/core/styles'
 
-import Icon from '../../ui/Icon'
+import Icon from '../../ui/Icon/Icon'
 import usernameIcon from '../../../static/images/username.svg'
 
 const styles = theme => ({

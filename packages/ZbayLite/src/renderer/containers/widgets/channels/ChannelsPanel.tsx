@@ -5,12 +5,12 @@ import Grid from '@material-ui/core/Grid'
 import { bindActionCreators } from 'redux'
 
 import BaseChannelsList from '../../../components/widgets/channels/BaseChannelsList'
-import SidebarHeader from '../../../components/ui/SidebarHeader'
+import SidebarHeader from '../../../components/ui/Sidebar/SidebarHeader'
 import contactsSelectors from '../../../store/selectors/contacts'
 import channelSelectors from '../../../store/selectors/channel'
 import { actionCreators } from '../../../store/handlers/modals'
 import QuickActionButton from '../../../components/widgets/sidebar/QuickActionButton'
-import { Icon } from '../../../components/ui/Icon'
+import { Icon } from '../../../components/ui/Icon/Icon'
 import SearchIcon from '../../../static/images/st-search.svg'
 
 export const mapStateToProps = state => ({

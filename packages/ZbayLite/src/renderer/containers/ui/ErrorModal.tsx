@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux'
 import * as R from 'ramda'
 import { remote } from 'electron'
 
-import ErrorModal from '../../components/ui/ErrorModal'
+import ErrorModal from '../../components/ui/ErrorModal/ErrorModal'
 import criticalErrorSelectors from '../../store/selectors/criticalError'
 import modalsHandlers, { withModal } from '../../store/handlers/modals'
 import notificationsHandlers from '../../store/handlers/notifications'

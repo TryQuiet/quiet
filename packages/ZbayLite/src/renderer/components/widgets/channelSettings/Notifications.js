@@ -9,7 +9,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Checkbox from '@material-ui/core/Checkbox'
 import Button from '@material-ui/core/Button'
 
-import Icon from '../../ui/Icon'
+import Icon from '../../ui/Icon/Icon'
 import radioChecked from '../../../static/images/radioChecked.svg'
 import radioUnselected from '../../../static/images/radioUnselected.svg'
 import { notificationFilterType } from '../../../../shared/static'

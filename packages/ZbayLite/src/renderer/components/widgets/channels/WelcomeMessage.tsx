@@ -9,7 +9,7 @@ import ListItemText from '@material-ui/core/ListItemText'
 import { makeStyles } from '@material-ui/core/styles'
 
 import zbayLogo from '../../../static/images/zcash/zbay-square-logo.svg'
-import Icon from '../../ui/Icon'
+import Icon from '../../ui/Icon/Icon'
 import { transformToLowercase } from './BasicMessage'
 
 import { IWelcomeMessageProps } from './WelcomeMessage.d'

@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import * as R from 'ramda'
 
-import MigrationModalComponent from '../../components/ui/MigrationModal'
+import MigrationModalComponent from '../../components/ui/MigrationModal/MigrationModal'
 import { withModal } from '../../store/handlers/modals'
 
 export const mapStateToProps = _state => ({})
