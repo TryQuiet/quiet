@@ -15,15 +15,23 @@ import {
 import { EventTypesResponse } from '../socket/constantsReponse'
 import { loadAllPublicChannels } from '../socket/events/channels'
 import { Libp2p } from 'libp2p-gossipsub/src/interfaces'
-import { Config, dataFromRootPems } from '../constants'
+import { Config } from '../constants'
+import { dataFromRootPems } from '../testUtils'
 import { loadCertificates } from '../socket/events/certificates'
-import { IRepo, StorageOptions, IChannelInfo, IMessage, ChannelInfoResponse, IZbayChannel, IPublicKey, IMessageThread, DataFromPems } from '../common/types'
+import {
+  IRepo,
+  StorageOptions,
+  IChannelInfo,
+  IMessage,
+  ChannelInfoResponse,
+  IZbayChannel,
+  IPublicKey,
+  IMessageThread,
+  DataFromPems
+} from '../common/types'
 import { verifyUserCert, parseCertificate, getCertFieldValue } from '@zbayapp/identity'
 import { CertFieldsTypes } from '@zbayapp/identity/lib/common'
-import {
-  setEngine,
-  CryptoEngine
-} from 'pkijs'
+import { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
 import debug from 'debug'
 const log = Object.assign(debug('waggle:db'), {
@@ -101,7 +109,11 @@ export class Storage {
   private async __stopIPFS() {
     if (this.ipfs) {
       log('Stopping IPFS')
-      await this.ipfs.stop()
+      try {
+        await this.ipfs.stop()
+      } catch (err) {
+        log.error(`Following error occured during closing ipfs database: ${err as string}`)
+      }
     }
   }
 
@@ -176,7 +188,8 @@ export class Storage {
             })
           )
         }
-      })
+      }
+    )
 
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.channels.load({ fetchEntryTimeout: 15000 })
@@ -348,7 +361,10 @@ export class Storage {
     }
   }
 
-  public async askForMessages(channelAddress: string, ids: string[]): Promise<{filteredMessages: IMessage[], channelAddress: string}> {
+  public async askForMessages(
+    channelAddress: string,
+    ids: string[]
+  ): Promise<{ filteredMessages: IMessage[], channelAddress: string }> {
     const repo = this.publicChannelsRepos.get(channelAddress)
     if (!repo) return
     const messages = this.getAllEventLogEntries(repo.db)

@@ -62,10 +62,25 @@ export const connections = (io, ioProxy: IOProxy) => {
     )
     socket.on(EventTypesServer.REGISTER_USER_CERTIFICATE, async (serviceAddress: string, userCsr: string, id: string) => {
       await ioProxy.registerUserCertificate(serviceAddress, userCsr, id)
+      console.log('registerUserCertificate')
+    })
+    socket.on(EventTypesServer.REGISTER_OWNER_CERTIFICATE, async (communityId: string, userCsr: string, dataFromPerms: {
+      certificate: string
+      privKey: string
+    }) => {
+      console.log('registerOwnerCertificate')
+      await ioProxy.registerOwnerCertificate(communityId, userCsr, dataFromPerms)
     })
     socket.on(EventTypesServer.SAVE_CERTIFICATE, async (peerId: string, certificate: string) => {
       console.log('Received saveCertificate websocket event, processing.')
       await ioProxy.saveCertificate(peerId, certificate)
+    })
+    socket.on(EventTypesServer.SAVE_OWNER_CERTIFICATE, async (communityId: string, peerId: string, certificate: string, dataFromPerms: {
+      certificate: string
+      privKey: string
+    }) => {
+      console.log('Received saveOwnerCertificate websocket event, processing.')
+      await ioProxy.saveOwnerCertificate(communityId, peerId, certificate, dataFromPerms)
     })
     socket.on(EventTypesServer.CREATE_COMMUNITY, async (payload, certs: CertsData) => {
       await ioProxy.createCommunity(payload.id, certs, payload.rootCertString, payload.rootCertKey)

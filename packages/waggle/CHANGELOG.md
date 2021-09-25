@@ -1,16 +1,24 @@
 # Changelog
 
-## [Unreleased]
+## [4.2.0]
 
 ### Fixed
 
 * Stucking Tor - kill and relaunch the Tor after given timeout
+* Passed certs are expected to be strings
+
 ### Added
 
 * DestroyHiddenService method in torManager
 * CreateNetwork in communitiesManager
 * CreateNetwork api in IOPRoxy
 * ConnectionsManager option - allow using tor files (binaries and libs) from waggle
+* Register owner certificate
+
+### Changed
+
+* spawnHiddenService and createNewHiddenService now return onion address with '.onion'
+* Registrar returns also rootCA
 
 ## [4.0.1]
 

@@ -58,6 +58,24 @@ export class CertificateRegistration {
     }
   }
 
+  public async saveOwnerCertToDb(userCert: string) {
+    const certSaved = await this._storage.saveCertificate(userCert, this._dataFromPems)
+    if (!certSaved) {
+      throw new Error('Could not save certificate')
+    }
+    log('Saved certificate')
+    return userCert
+  }
+
+  static async registerOwnerCertificate(userCsr: string, dataFromPems: DataFromPems) {
+    const userData = new UserCsrData()
+    userData.csr = userCsr
+    const validationErrors = await validate(userData)
+    if (validationErrors.length > 0) return
+    const userCert = await createUserCert(dataFromPems.certificate, dataFromPems.privKey, userCsr, new Date(), new Date(2030, 1, 1))
+    return userCert.userCertString
+  }
+
   public async getPeers(): Promise<string[]> {
     const users = this._storage.getAllUsers()
     const peers = users.map(async (userData: { onionAddress: string, peerId: string }) => {
@@ -97,7 +115,8 @@ export class CertificateRegistration {
     }
     res.send({
       certificate: cert.userCertString,
-      peers: await this.getPeers()
+      peers: await this.getPeers(),
+      rootCa: this._dataFromPems.certificate
     })
   }
 
@@ -132,7 +151,7 @@ export class CertificateRegistration {
   public async listen(): Promise<void> {
     return await new Promise(resolve => {
       this._server = this._app.listen(this._port, () => {
-        log(`Certificate registration service listening on ${this._onionAddress}.onion:${this._port}`)
+        log(`Certificate registration service listening on ${this._onionAddress}:${this._port}`)
         resolve()
       })
     })

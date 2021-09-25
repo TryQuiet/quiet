@@ -84,7 +84,7 @@ export interface DataFromPems {
 }
 
 export interface CertsData {
-  cert: Buffer
-  key: Buffer
-  ca: Buffer[]
+  cert: string
+  key: string
+  ca: string[]
 }

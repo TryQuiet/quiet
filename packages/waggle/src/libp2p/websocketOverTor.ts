@@ -1,3 +1,4 @@
+
 import withIs from 'class-is'
 import WebSockets from 'libp2p-websockets'
 import { AbortError } from 'abortable-iterator'
@@ -12,6 +13,7 @@ import multiaddr from 'multiaddr'
 import debug from 'debug'
 import PeerId from 'peer-id'
 import https from 'https'
+import { dumpPEM } from './tests/client-server'
 
 const log: any = debug('libp2p:websockets:listener:waggle')
 log.error = debug('libp2p:websockets:listener:waggle:error')
@@ -46,11 +48,17 @@ class WebsocketsOverTor extends WebSockets {
     let conn
     let socket
     let maConn
+
+    const ca = this._websocketOpts.ca[0]
+
     try {
       socket = await this._connect(ma, {
-        websocket: this._websocketOpts,
-        ...options,
-        localAddr: this.localAddress
+        websocket: {
+          ...this._websocketOpts,
+          cert: dumpPEM('CERTIFICATE', this._websocketOpts.cert),
+          key: dumpPEM('PRIVATE KEY', this._websocketOpts.key),
+          ca: [dumpPEM('CERTIFICATE', ca)]
+        }
       })
     } catch (e) {
       log.error('error connecting to %s. Details: %s', ma, e.message)
@@ -132,10 +140,14 @@ class WebsocketsOverTor extends WebSockets {
       caArray = null
     }
 
+    const certData = {
+      cert: dumpPEM('CERTIFICATE', this._websocketOpts.cert),
+      key: dumpPEM('PRIVATE KEY', this._websocketOpts.key),
+      ca: [dumpPEM('CERTIFICATE', caArray)]
+    }
+
     const serverHttps = https.createServer({
-      cert: this._websocketOpts.cert,
-      key: this._websocketOpts.key,
-      ca: [caArray],
+      ...certData,
       requestCert: true,
       enableTrace: false
     })

@@ -16,5 +16,6 @@ export enum EventTypesResponse {
   COMMUNITY = 'community',
   REGISTRAR = 'registrar',
   REGISTRAR_ERROR = 'registrarError',
-  NETWORK = 'network'
+  NETWORK = 'network',
+  SAVED_OWNER_CERTIFICATE = 'savedOwnerCertificate'
 }

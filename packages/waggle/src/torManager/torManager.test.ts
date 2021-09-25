@@ -73,7 +73,7 @@ describe('Tor manager', () => {
     const tor = await spawnTorProcess(tmpAppDataPath)
     await tor.init()
     const hiddenService = await tor.createNewHiddenService(4343, 4343)
-    expect(hiddenService.onionAddress).toHaveLength(56)
+    expect(hiddenService.onionAddress.split('.')[0]).toHaveLength(56)
     await tor.kill()
   })
 
@@ -86,7 +86,7 @@ describe('Tor manager', () => {
       privKey:
         'ED25519-V3:uCr5t3EcOCwig4cu7pWY6996whV+evrRlI0iIIsjV3uCz4rx46sB3CPq8lXEWhjGl2jlyreomORirKcz9mmcdQ=='
     })
-    expect(hiddenServiceOnionAddress).toBe('u2rg2direy34dj77375h2fbhsc2tvxj752h4tlso64mjnlevcv54oaad')
+    expect(hiddenServiceOnionAddress).toBe('u2rg2direy34dj77375h2fbhsc2tvxj752h4tlso64mjnlevcv54oaad.onion')
     await tor.kill()
   })
 
@@ -156,7 +156,8 @@ describe('Tor manager', () => {
     const tor = await spawnTorProcess(tmpAppDataPath)
     await tor.init()
     const hiddenService = await tor.createNewHiddenService(4343, 4343)
-    const status = await tor.destroyHiddenService(hiddenService.onionAddress)
+    const serviceId = hiddenService.onionAddress.split('.')[0]
+    const status = await tor.destroyHiddenService(serviceId)
     expect(status).toBe(true)
     await tor.kill()
   })

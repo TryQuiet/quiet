@@ -77,7 +77,7 @@ describe('websocketOverTor connection test', () => {
   })
 
   it('websocketOverTor https connection', async () => {
-    const pems = await createCertificatesTestHelper(`${service1.onionAddress}.onion`, `${service2.onionAddress}.onion`)
+    const pems = await createCertificatesTestHelper(`${service1.onionAddress}`, `${service2.onionAddress}`)
 
     const prepareListenerArg = {
       handler: (x) => x,
@@ -108,7 +108,7 @@ describe('websocketOverTor connection test', () => {
         key: pems.servKey,
         ca: [pems.ca]
       },
-      localAddr: `/dns4/${service1.onionAddress}.onion/tcp/${port1}/wss/p2p/${peerId1}`
+      localAddr: `/dns4/${service1.onionAddress}/tcp/${port1}/wss/p2p/${peerId1}`
     }
 
     const websocketsOverTorData2 = {
@@ -122,12 +122,12 @@ describe('websocketOverTor connection test', () => {
         key: pems.userKey,
         ca: [pems.ca]
       },
-      localAddr: `/dns4/${service2.onionAddress}.onion/tcp/${port2}/wss/p2p/${peerId2}`,
+      localAddr: `/dns4/${service2.onionAddress}/tcp/${port2}/wss/p2p/${peerId2}`,
       serverOpts: {}
     }
-    const multiAddress = new Multiaddr(`/dns4/${service1.onionAddress}.onion/tcp/${port1}/wss/p2p/${peerId1}`)
+    const multiAddress = new Multiaddr(`/dns4/${service1.onionAddress}/tcp/${port1}/wss/p2p/${peerId1}`)
 
-    const remoteAddress = new Multiaddr(`/dns4/${service2.onionAddress}.onion/tcp/${port2}/wss/p2p/${peerId2}`)
+    const remoteAddress = new Multiaddr(`/dns4/${service2.onionAddress}/tcp/${port2}/wss/p2p/${peerId2}`)
 
     const ws1 = new WebsocketsOverTor(websocketsOverTorData1)
     const ws2 = new WebsocketsOverTor(websocketsOverTorData2)
@@ -148,8 +148,8 @@ describe('websocketOverTor connection test', () => {
   })
 
   it('websocketOverTor invalid user cert', async () => {
-    const pems = await createCertificatesTestHelper(`${service1.onionAddress}.onion`, `${service2.onionAddress}.onion`)
-    const anotherPems = await createCertificatesTestHelper(`${service1.onionAddress}.onion`, `${service2.onionAddress}.onion`)
+    const pems = await createCertificatesTestHelper(`${service1.onionAddress}`, `${service2.onionAddress}`)
+    const anotherPems = await createCertificatesTestHelper(`${service1.onionAddress}`, `${service2.onionAddress}`)
 
     const prepareListenerArg = {
       handler: (x) => x,
@@ -180,7 +180,7 @@ describe('websocketOverTor connection test', () => {
         key: pems.servKey,
         ca: [pems.ca]
       },
-      localAddr: `/dns4/${service1.onionAddress}.onion/tcp/${port1}/wss/p2p/${peerId1}`
+      localAddr: `/dns4/${service1.onionAddress}/tcp/${port1}/wss/p2p/${peerId1}`
     }
 
     const websocketsOverTorData2 = {
@@ -194,10 +194,10 @@ describe('websocketOverTor connection test', () => {
         key: anotherPems.userKey,
         ca: [pems.ca]
       },
-      localAddr: `/dns4/${service2.onionAddress}.onion/tcp/${port2}/wss/p2p/${peerId2}`,
+      localAddr: `/dns4/${service2.onionAddress}/tcp/${port2}/wss/p2p/${peerId2}`,
       serverOpts: {}
     }
-    const multiAddress = new Multiaddr(`/dns4/${service1.onionAddress}.onion/tcp/${port1}/wss/p2p/${peerId1}`)
+    const multiAddress = new Multiaddr(`/dns4/${service1.onionAddress}/tcp/${port1}/wss/p2p/${peerId1}`)
 
     const ws1 = new WebsocketsOverTor(websocketsOverTorData1)
     const ws2 = new WebsocketsOverTor(websocketsOverTorData2)
@@ -215,8 +215,8 @@ describe('websocketOverTor connection test', () => {
   })
 
   it('websocketOverTor invalid server cert', async () => {
-    const pems = await createCertificatesTestHelper(`${service1.onionAddress}.onion`, `${service2.onionAddress}.onion`)
-    const anotherPems = await createCertificatesTestHelper(`${service1.onionAddress}.onion`, `${service2.onionAddress}.onion`)
+    const pems = await createCertificatesTestHelper(`${service1.onionAddress}`, `${service2.onionAddress}`)
+    const anotherPems = await createCertificatesTestHelper(`${service1.onionAddress}`, `${service2.onionAddress}`)
 
     const prepareListenerArg = {
       handler: (x) => x,
@@ -247,7 +247,7 @@ describe('websocketOverTor connection test', () => {
         key: anotherPems.servKey,
         ca: [pems.ca]
       },
-      localAddr: `/dns4/${service1.onionAddress}.onion/tcp/${port1}/wss/p2p/${peerId1}`
+      localAddr: `/dns4/${service1.onionAddress}/tcp/${port1}/wss/p2p/${peerId1}`
     }
 
     const websocketsOverTorData2 = {
@@ -261,10 +261,10 @@ describe('websocketOverTor connection test', () => {
         key: pems.userKey,
         ca: [pems.ca]
       },
-      localAddr: `/dns4/${service2.onionAddress}.onion/tcp/${port2}/wss/p2p/${peerId2}`,
+      localAddr: `/dns4/${service2.onionAddress}/tcp/${port2}/wss/p2p/${peerId2}`,
       serverOpts: {}
     }
-    const multiAddress = new Multiaddr(`/dns4/${service1.onionAddress}.onion/tcp/${port1}/wss/p2p/${peerId1}`)
+    const multiAddress = new Multiaddr(`/dns4/${service1.onionAddress}/tcp/${port1}/wss/p2p/${peerId1}`)
 
     const ws1 = new WebsocketsOverTor(websocketsOverTorData1)
     const ws2 = new WebsocketsOverTor(websocketsOverTorData2)

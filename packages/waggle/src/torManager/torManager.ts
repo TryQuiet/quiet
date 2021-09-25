@@ -191,7 +191,7 @@ export class Tor {
       virtPort,
       address: onionAddress
     })
-    return onionAddress
+    return `${onionAddress}.onion`
   }
 
   public async destroyHiddenService(serviceId: string): Promise<boolean> {
@@ -219,7 +219,7 @@ export class Tor {
       address: onionAddress
     })
     return {
-      onionAddress,
+      onionAddress: `${onionAddress}.onion`,
       privateKey
     }
   }

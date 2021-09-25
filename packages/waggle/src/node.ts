@@ -1,11 +1,12 @@
 import { Tor } from './torManager'
 import { DataServer } from './socket/DataServer'
 import { ConnectionsManager } from './libp2p/connectionsManager'
-import { dataFromRootPems, ZBAY_DIR_PATH } from './constants'
+import { ZBAY_DIR_PATH } from './constants'
 import * as os from 'os'
 import fs from 'fs'
 import PeerId from 'peer-id'
 import { getPorts, torBinForPlatform, torDirForPlatform } from './utils'
+import { dataFromRootPems } from './testUtils'
 import CommunitiesManager from './communities/manager'
 import { CertsData } from './common/types'
 
@@ -116,7 +117,7 @@ export default class Node {
         service = (await this.tor.createNewHiddenService(this.hiddenServicePort, this.hiddenServicePort)).onionAddress
       }
     }
-    return `${service as string}.onion`
+    return `${service as string}`
   }
 
   async initDataServer(): Promise<DataServer> {

@@ -6,6 +6,7 @@ import { Storage } from '../storage'
 import debug from 'debug'
 import PeerId from 'peer-id'
 import { loadAllMessages } from './events/messages'
+import { CertificateRegistration } from '../registration'
 
 const log = Object.assign(debug('waggle:io'), {
   error: debug('waggle:io:err')
@@ -111,6 +112,18 @@ export default class IOProxy {
     await this.getStorage(peerId).subscribeForAllConversations(conversations)
   }
 
+  public registerOwnerCertificate = async (communityId: string, userCsr: string, dataFromPerms) => {
+    const cert = await CertificateRegistration.registerOwnerCertificate(userCsr, dataFromPerms)
+    console.log(dataFromPerms.certificate)
+    this.io.emit(EventTypesResponse.SEND_USER_CERTIFICATE, { id: communityId, payload: { certificate: cert, peers: [], rootCa: dataFromPerms.certificate } })
+  }
+
+  public saveOwnerCertificate = async (communityId: string, peerId: string, certificate: string, dataFromPerms) => {
+    await this.getStorage(peerId).saveCertificate(certificate, dataFromPerms)
+    console.log('savedOwnerCertificate')
+    this.io.emit(EventTypesResponse.SAVED_OWNER_CERTIFICATE, { id: communityId })
+  }
+
   public registerUserCertificate = async (serviceAddress: string, userCsr: string, communityId: string) => {
     const response = await this.connectionsManager.sendCertificateRegistrationRequest(serviceAddress, userCsr)
     switch (response.status) {
@@ -123,8 +136,7 @@ export default class IOProxy {
         this.emitCertificateRegistrationError('Registering username failed.')
         return
     }
-    const registrarResponse: { certificate: string, peers: string[] } = await response.json()
-    log(`Sending certificate with ${registrarResponse.peers.length} peers`)
+    const registrarResponse: { certificate: string, peers: string[], rootCa: string } = await response.json()
     this.io.emit(EventTypesResponse.SEND_USER_CERTIFICATE, { id: communityId, payload: registrarResponse })
   }
 

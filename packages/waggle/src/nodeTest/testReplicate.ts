@@ -61,7 +61,7 @@ class NodeData {
   actualReplicationTime?: number
 }
 
-const launchNode = async (i: number, rootCa, bootstrapAddress?: string, createMessages: boolean = false, useSnapshot: boolean = false) => {
+const launchNode = async (i: number, rootCa, createMessages: boolean = false, useSnapshot: boolean = false) => {
   const torDir = path.join(tmpDir.name, `tor${i}`)
   const tmpAppDataPath = path.join(tmpDir.name, `.zbayTmp${i}`)
   const [port] = await fp(7788 + i)
@@ -93,7 +93,7 @@ const launchNode = async (i: number, rootCa, bootstrapAddress?: string, createMe
       messagesCount: argv.entriesCount
     },
     tmpAppDataPath,
-    bootstrapAddress ? [bootstrapAddress] : [bootstrapNode.localAddress],
+    bootstrapNode ? [bootstrapNode.localAddress] : [],
     rootCa
   )
   await node.init()
@@ -105,7 +105,7 @@ const launchNode = async (i: number, rootCa, bootstrapAddress?: string, createMe
 const displayResults = (nodes: NodeKeyValue) => {
   const table = new Table({ head: ['Node name', 'Time of replication', 'Test passed'] })
   for (const nodeData of Object.values(nodes)) {
-    table.push([nodeData.node.storage.name, nodeData.actualReplicationTime, nodeData.testPassed])
+    table.push([nodeData.node.storage.name, nodeData.actualReplicationTime || '-', nodeData.testPassed])
   }
   displayTestSetup()
   console.log(table.toString())
@@ -154,7 +154,7 @@ const runTest = async () => {
   }
 
   // Launch entry node
-  bootstrapNode = await launchNode(0, rootCa, '/mockBootstrapMultiaddress', true, false)
+  bootstrapNode = await launchNode(0, rootCa, true, false)
 
   // Launch other nodes
   const numbers = [...Array(nodesCount + 1).keys()].splice(1)
