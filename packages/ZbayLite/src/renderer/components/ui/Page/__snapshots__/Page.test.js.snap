@@ -10,13 +10,13 @@ exports[`Page renders component 1`] = `
     }
   }
 >
-  <Memo(WithStyles(PageHeader))
+  <Component
     classes={null}
   >
     <div>
       Test header
     </div>
-  </Memo(WithStyles(PageHeader))>
+  </Component>
   <div>
     Test header
   </div>

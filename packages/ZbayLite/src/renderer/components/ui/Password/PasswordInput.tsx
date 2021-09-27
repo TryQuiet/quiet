@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 
 import TextField from '@material-ui/core/TextField'
 import InputAdornment from '@material-ui/core/InputAdornment'
@@ -8,9 +7,18 @@ import IconButton from '@material-ui/core/IconButton'
 import Visibility from '@material-ui/icons/Visibility'
 import VisibilityOff from '@material-ui/icons/VisibilityOff'
 
-export const PasswordInput = ({
-  error,
-  label,
+interface PasswordInputProps {
+  error: boolean
+  label: string
+  password: string
+  passwordVisible: boolean
+  handleTogglePassword: () => void
+  handleSetPassword: () => void
+}
+
+export const PasswordInput: React.FC<PasswordInputProps> = ({
+  error = false,
+  label = 'Password',
   password,
   passwordVisible,
   handleTogglePassword,
@@ -41,18 +49,4 @@ export const PasswordInput = ({
   />
 )
 
-PasswordInput.propTypes = {
-  error: PropTypes.bool,
-  label: PropTypes.string.isRequired,
-  password: PropTypes.string.isRequired,
-  passwordVisible: PropTypes.bool.isRequired,
-  handleTogglePassword: PropTypes.func.isRequired,
-  handleSetPassword: PropTypes.func.isRequired
-}
-
-PasswordInput.defaultProps = {
-  error: false,
-  label: 'Password'
-}
-
-export default React.memo(PasswordInput)
+export default PasswordInput
