@@ -199,7 +199,7 @@ export class Tor {
       await this.torControl.sendCommand(`DEL_ONION ${serviceId}`)
       return true
     } catch (err) {
-      log.error(err)
+      log.error(`Couldn't destroy hidden service ${serviceId}`, err)
       return false
     }
   }

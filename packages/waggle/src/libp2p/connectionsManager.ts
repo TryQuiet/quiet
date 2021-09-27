@@ -87,7 +87,7 @@ export class ConnectionsManager {
   public createNetwork = async () => {
     const ports = await getPorts()
     const hiddenService = await this.tor.createNewHiddenService(ports.libp2pHiddenService, ports.libp2pHiddenService)
-    await this.tor.destroyHiddenService(hiddenService.onionAddress)
+    await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
     const peerId = await PeerId.create()
     return {
       hiddenService,

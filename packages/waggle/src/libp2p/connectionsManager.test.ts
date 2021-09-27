@@ -71,11 +71,13 @@ describe('Connections manager', () => {
       }
     })
     await connectionsManager.init()
+    const spyOnDestroyHiddenService = jest.spyOn(connectionsManager.tor, 'destroyHiddenService')
     const network = await connectionsManager.createNetwork()
     expect(network.hiddenService.onionAddress.split('.')[0]).toHaveLength(56)
     expect(network.hiddenService.privateKey).toHaveLength(99)
     const peerId = await PeerId.createFromJSON(network.peerId)
     expect(PeerId.isPeerId(peerId)).toBeTruthy()
+    expect(await spyOnDestroyHiddenService.mock.results[0].value).toBeTruthy()
     await connectionsManager.tor.kill()
   })
 })

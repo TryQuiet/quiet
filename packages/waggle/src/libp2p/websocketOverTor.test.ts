@@ -10,7 +10,7 @@ import { createCertificatesTestHelper } from './tests/client-server'
 
 jest.setTimeout(120000)
 
-describe('websocketOverTor connection test', () => {
+describe('websocketOverTor', () => {
   const upgradeOutbound = jest.fn()
   const upgradeInbound = jest.fn(x => x)
   const removeEventListener = jest.fn()
@@ -76,7 +76,10 @@ describe('websocketOverTor connection test', () => {
     }
   })
 
-  it('websocketOverTor https connection', async () => {
+  it.each([
+    ['string', String],
+    ['array', Array]
+  ])('connects successfully with CA passed as %s', async (_name: string, caType: (ca: string) => any) => {
     const pems = await createCertificatesTestHelper(`${service1.onionAddress}`, `${service2.onionAddress}`)
 
     const prepareListenerArg = {
@@ -106,7 +109,7 @@ describe('websocketOverTor connection test', () => {
         agent,
         cert: pems.servCert,
         key: pems.servKey,
-        ca: [pems.ca]
+        ca: caType(pems.ca)
       },
       localAddr: `/dns4/${service1.onionAddress}/tcp/${port1}/wss/p2p/${peerId1}`
     }
@@ -147,7 +150,7 @@ describe('websocketOverTor connection test', () => {
     expect(onConnection.mock.calls[0][0].remoteAddr).toEqual(remoteAddress)
   })
 
-  it('websocketOverTor invalid user cert', async () => {
+  it('rejects connection if user cert is invalid', async () => {
     const pems = await createCertificatesTestHelper(`${service1.onionAddress}`, `${service2.onionAddress}`)
     const anotherPems = await createCertificatesTestHelper(`${service1.onionAddress}`, `${service2.onionAddress}`)
 
@@ -214,7 +217,7 @@ describe('websocketOverTor connection test', () => {
     })).rejects.toBeTruthy()
   })
 
-  it('websocketOverTor invalid server cert', async () => {
+  it('rejects connection if server cert is invalid', async () => {
     const pems = await createCertificatesTestHelper(`${service1.onionAddress}`, `${service2.onionAddress}`)
     const anotherPems = await createCertificatesTestHelper(`${service1.onionAddress}`, `${service2.onionAddress}`)
 
