@@ -1,4 +1,5 @@
 export enum EventTypesServer {
+  CLOSE = 'close',
   CONNECTION = 'connection',
   DISCONNECTED = 'disconnect',
   MESSAGE = 'message',

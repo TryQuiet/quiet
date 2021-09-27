@@ -1,41 +1,6 @@
-import { Time, Certificate } from 'pkijs'
-
-import { createUserCert, createUserCsr, createRootCA, configCrypto } from '@zbayapp/identity'
+import { configCrypto, createRootCA, createUserCert, createUserCsr } from '@zbayapp/identity'
 import { RootCA } from '@zbayapp/identity/lib/generateRootCA'
-
-// ---------------------------- section with creating pems
-
-export function dumpPEM(tag: string, body: string | Certificate | CryptoKey) {
-  let result
-  if (typeof body === 'string') {
-    result = (
-      `-----BEGIN ${tag}-----\n` +
-      `${formatPEM(body)}\n` +
-      `-----END ${tag}-----\n`
-    )
-  } else {
-    result = (
-      `-----BEGIN ${tag}-----\n` +
-      `${formatPEM(Buffer.from(body).toString('base64'))}\n` +
-      `-----END ${tag}-----\n`
-    )
-  }
-
-  return Buffer.from(result)
-}
-
-function formatPEM(pemString: string) {
-  const stringLength = pemString.length
-  let resultString = ''
-  for (let i = 0, count = 0; i < stringLength; i++, count++) {
-    if (count > 63) {
-      resultString = `${resultString}\n`
-      count = 0
-    }
-    resultString = `${resultString}${pemString[i]}`
-  }
-  return resultString
-}
+import { Time } from 'pkijs'
 
 export const createUsersCerts = async (onion: string, rootCert: RootCA): Promise<{ userCert: string, userKey: string }> => {
   const userData = {
@@ -59,7 +24,7 @@ export const createUsersCerts = async (onion: string, rootCert: RootCA): Promise
   }
 }
 
-export const createCertificatesTestHelper = async (onion1, onion2) => {
+export const createCertificatesTestHelper = async (onion1: string, onion2: string) => {
   const notBeforeDate = new Date(Date.UTC(2010, 11, 28, 10, 10, 10))
   const notAfterDate = new Date(Date.UTC(2030, 11, 28, 10, 10, 10))
   const rootCert = await createRootCA(new Time({ type: 0, value: notBeforeDate }), new Time({ type: 0, value: notAfterDate }))

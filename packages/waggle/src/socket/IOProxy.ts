@@ -1,19 +1,21 @@
+import debug from 'debug'
+import { Response } from 'node-fetch'
+import PeerId from 'peer-id'
 import { CertsData, IChannelInfo, IMessage } from '../common/types'
 import CommunitiesManager from '../communities/manager'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
-import { EventTypesResponse } from './constantsReponse'
-import { Storage } from '../storage'
-import debug from 'debug'
-import PeerId from 'peer-id'
-import { loadAllMessages } from './events/messages'
 import { CertificateRegistration } from '../registration'
+import { Storage } from '../storage'
+import { EventTypesResponse } from './constantsReponse'
+import { emitServerError, emitValidationError } from './errors'
+import { loadAllMessages } from './events/messages'
 
 const log = Object.assign(debug('waggle:io'), {
   error: debug('waggle:io:err')
 })
 
 export default class IOProxy {
-  io: any
+  io: SocketIO.Server
   connectionsManager: ConnectionsManager
   communities: CommunitiesManager
 
@@ -25,6 +27,12 @@ export default class IOProxy {
 
   public getStorage(peerId: string): Storage {
     return this.communities.getStorage(peerId)
+  }
+
+  public async closeAll(): Promise<void> {
+    await this.communities.stopRegistrars()
+    await this.communities.closeStorages()
+    await this.connectionsManager.tor.kill()
   }
 
   public subscribeForTopic = async (peerId: string, channelData: IChannelInfo) => {
@@ -125,27 +133,39 @@ export default class IOProxy {
   }
 
   public registerUserCertificate = async (serviceAddress: string, userCsr: string, communityId: string) => {
-    const response = await this.connectionsManager.sendCertificateRegistrationRequest(serviceAddress, userCsr)
+    let response: Response
+    try {
+      response = await this.connectionsManager.sendCertificateRegistrationRequest(serviceAddress, userCsr)
+    } catch (e) {
+      emitServerError(this.io, { type: EventTypesResponse.REGISTRAR, message: 'Connecting to registrar failed', communityId })
+      return
+    }
+
     switch (response.status) {
       case 200:
         break
       case 403:
-        this.emitCertificateRegistrationError('Username already taken.')
+        emitValidationError(this.io, { type: EventTypesResponse.REGISTRAR, message: 'Username already taken.', communityId })
+        return
+      case 400:
+        emitValidationError(this.io, { type: EventTypesResponse.REGISTRAR, message: 'Username is not valid', communityId })
         return
       default:
-        this.emitCertificateRegistrationError('Registering username failed.')
+        emitServerError(this.io, { type: EventTypesResponse.REGISTRAR, message: 'Registering username failed.', communityId })
         return
     }
     const registrarResponse: { certificate: string, peers: string[], rootCa: string } = await response.json()
     this.io.emit(EventTypesResponse.SEND_USER_CERTIFICATE, { id: communityId, payload: registrarResponse })
   }
 
-  public emitCertificateRegistrationError(message: string) {
-    this.io.emit(EventTypesResponse.CERTIFICATE_REGISTRATION_ERROR, { payload: message })
-  }
-
   public async createNetwork(communityId: string) {
-    const network = await this.connectionsManager.createNetwork()
+    let network
+    try {
+      network = await this.connectionsManager.createNetwork()
+    } catch (e) {
+      emitServerError(this.io, { type: EventTypesResponse.NETWORK, message: 'Creating network failed', communityId })
+      return
+    }
     this.io.emit(EventTypesResponse.NETWORK, { id: communityId, payload: network })
   }
 
@@ -164,6 +184,7 @@ export default class IOProxy {
 
   public async launchRegistrar(communityId: string, peerId: string, rootCertString: string, rootKeyString: string, hiddenServicePrivKey?: string, port?: number) {
     const registrar = await this.communities.setupRegistrationService(
+      peerId,
       this.getStorage(peerId),
       {
         certificate: rootCertString,
@@ -173,7 +194,7 @@ export default class IOProxy {
       port
     )
     if (!registrar) {
-      this.io.emit(EventTypesResponse.REGISTRAR_ERROR, { peerId, payload: 'Could not setup registrar' })
+      emitServerError(this.io, { type: 'registrar', message: 'Could not launch registrar', communityId })
     } else {
       this.io.emit(EventTypesResponse.REGISTRAR, { id: communityId, peerId, payload: registrar.getHiddenServiceData() })
     }

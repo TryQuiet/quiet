@@ -22,9 +22,14 @@ interface CommunityData {
   localAddress: string
 }
 
+interface Community {
+  storage: Storage
+  registrar?: CertificateRegistration
+}
+
 export default class CommunitiesManager {
   connectionsManager: ConnectionsManager
-  communities: Map<string, Storage>
+  communities: Map<string, Community>
 
   constructor(connectionsManager: ConnectionsManager) {
     this.connectionsManager = connectionsManager
@@ -33,11 +38,15 @@ export default class CommunitiesManager {
 
   public getStorage(peerId: string): Storage {
     try {
-      return this.communities.get(peerId)
+      return this.getCommunity(peerId).storage
     } catch (e) {
       log.error(`No available Storage for peer ${peerId}`)
       throw e
     }
+  }
+
+  public getCommunity(peerId: string): Community {
+    return this.communities.get(peerId)
   }
 
   public create = async (certs: CertsData): Promise<CommunityData> => {
@@ -73,28 +82,30 @@ export default class CommunitiesManager {
       bootstrapMultiaddrs = [listenAddrs]
     }
     const libp2pObj = await this.connectionsManager.initLibp2p(peerId, listenAddrs, bootstrapMultiaddrs, certs)
-    const storage = new this.connectionsManager.StorageCls(
-      this.connectionsManager.zbayDir,
-      this.connectionsManager.io,
-      {
-        ...this.connectionsManager.options,
-        orbitDbDir: `OrbitDB${peerIdB58string}`,
-        ipfsDir: `Ipfs${peerIdB58string}`
-      }
-    )
+    const storage = this.connectionsManager.createStorage(peerIdB58string)
     await storage.init(libp2pObj.libp2p, peerId)
-    this.communities.set(peerIdB58string, storage)
+    this.communities.set(peerIdB58string, { storage })
     log(`Initialized storage for peer ${peerIdB58string}`)
     return libp2pObj.localAddress
   }
 
   public closeStorages = async () => {
-    for (const storage of this.communities.values()) {
+    const storages = Array.from(this.communities.values()).map(community => community.storage)
+    log(`Closing ${storages.length} storages`)
+    for (const storage of storages) {
       await storage.stopOrbitDb()
     }
   }
 
-  public setupRegistrationService = async (storage: Storage, dataFromPems: DataFromPems, hiddenServicePrivKey?: string, port?: number): Promise<CertificateRegistration> => {
+  public stopRegistrars = async () => {
+    const registrars = Array.from(this.communities.values()).map(community => community.registrar).filter((r) => r !== null && r !== undefined)
+    log(`Stopping ${registrars.length} registrars`)
+    for (const registrar of registrars) {
+      await registrar.stop()
+    }
+  }
+
+  public setupRegistrationService = async (peerId: string, storage: Storage, dataFromPems: DataFromPems, hiddenServicePrivKey?: string, port?: number): Promise<CertificateRegistration> => {
     const certRegister = new CertificateRegistration(
       this.connectionsManager.tor,
       storage,
@@ -113,6 +124,9 @@ export default class CommunitiesManager {
     } catch (err) {
       log.error(`Certificate registration service couldn't start listening: ${err as string}`)
     }
+    const community = this.communities.get(peerId)
+    community.registrar = certRegister
+    this.communities.set(peerId, community)
     return certRegister
   }
 }

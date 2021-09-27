@@ -1,5 +1,19 @@
 # Changelog
 
+## [4.2.0]
+
+### Added
+
+* Emit general ERROR socket event
+
+### Changed
+
+* Community manager - keep reference not only to storage but also to registrar
+
+### Removed
+
+* REGISTRAR_ERROR and CERTIFICATE_REGISTRATION_ERROR socket events
+
 ## [4.1.1]
 
 ### Fixed

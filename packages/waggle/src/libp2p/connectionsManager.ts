@@ -31,7 +31,7 @@ export interface IConstructor {
   agentPort?: number
   agentHost?: string
   options?: Partial<ConnectionsManagerOptions>
-  io: any
+  io: SocketIO.Server
   storageClass?: any // TODO: what type?
   httpTunnelPort?: number
 }
@@ -158,6 +158,18 @@ export class ConnectionsManager {
     }
   }
 
+  public createStorage = (peerId: string) => {
+    return new this.StorageCls(
+      this.zbayDir,
+      this.io,
+      {
+        ...this.options,
+        orbitDbDir: `OrbitDB${peerId}`,
+        ipfsDir: `Ipfs${peerId}`
+      }
+    )
+  }
+
   public sendCertificateRegistrationRequest = async (serviceAddress: string, userCsr: string): Promise<Response> => {
     const options = {
       method: 'POST',
@@ -168,7 +180,7 @@ export class ConnectionsManager {
     try {
       return await fetch(serviceAddress + '/register', options)
     } catch (e) {
-      console.error(e)
+      log.error(e)
       throw e
     }
   }

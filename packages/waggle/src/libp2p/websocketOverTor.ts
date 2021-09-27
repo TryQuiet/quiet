@@ -13,7 +13,7 @@ import multiaddr from 'multiaddr'
 import debug from 'debug'
 import PeerId from 'peer-id'
 import https from 'https'
-import { dumpPEM } from './tests/client-server'
+import { dumpPEM } from './utils'
 
 const log: any = debug('libp2p:websockets:listener:waggle')
 log.error = debug('libp2p:websockets:listener:waggle:error')

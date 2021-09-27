@@ -6,6 +6,9 @@ import PeerId from 'peer-id'
 export const connections = (io, ioProxy: IOProxy) => {
   io.on(EventTypesServer.CONNECTION, socket => {
     console.log('websocket connected')
+    socket.on(EventTypesServer.CLOSE, async () => {
+      await ioProxy.closeAll()
+    })
     socket.on(EventTypesServer.SUBSCRIBE_FOR_TOPIC, async (peerId: string, channelData: IChannelInfo) => {
       await ioProxy.subscribeForTopic(peerId, channelData)
     })

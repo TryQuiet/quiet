@@ -76,6 +76,7 @@ export default class Node {
       this.certificates
     )
     await communities.setupRegistrationService(
+      peerId.toB58String(),
       communities.getStorage(peerId.toB58String()),
       dataFromRootPems,
       process.env.HIDDEN_SERVICE_SECRET_REGISTRATION

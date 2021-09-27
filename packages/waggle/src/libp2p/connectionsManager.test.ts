@@ -21,6 +21,7 @@ describe('Connections manager', () => {
     connectionsManager = new ConnectionsManager({
       agentHost: 'localhost',
       agentPort: ports.socksPort,
+      // @ts-expect-error
       io: new DummyIOServer(),
       options: {
         env: {
@@ -40,6 +41,7 @@ describe('Connections manager', () => {
     connectionsManager = new ConnectionsManager({
       agentHost: 'localhost',
       agentPort: ports.socksPort,
+      // @ts-expect-error
       io: new DummyIOServer(),
       options: {
         env: {
@@ -62,6 +64,7 @@ describe('Connections manager', () => {
     connectionsManager = new ConnectionsManager({
       agentHost: 'localhost',
       agentPort: ports.socksPort,
+      // @ts-expect-error
       io: new DummyIOServer(),
       options: {
         env: {

@@ -1,6 +1,6 @@
 import CommunitiesManager from './manager'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
-import { createMinConnectionManager, createTmpDir, tmpZbayDirPath } from '../testUtils'
+import { createMinConnectionManager, createTmpDir, tmpZbayDirPath, TorMock } from '../testUtils'
 import PeerId from 'peer-id'
 import { getPorts } from '../utils'
 import { createCertificatesTestHelper } from '../libp2p/tests/client-server'
@@ -17,6 +17,11 @@ describe('Community manager', () => {
       env: { appDataPath: tmpZbayDirPath(appDataPath.name) },
       torControlPort: ports.controlPort
     })
+    const torInitMock = jest.fn(async () => {
+      // @ts-expect-error
+      connectionsManager.tor = new TorMock()
+    })
+    connectionsManager.init = torInitMock
     await connectionsManager.init()
   })
 
@@ -49,6 +54,7 @@ describe('Community manager', () => {
       key: pems.userKey,
       ca: [pems.ca]
     }
+    const spyOnCreateStorage = jest.spyOn(connectionsManager, 'createStorage')
     const localAddress = await manager.launch(
       peerId.toJSON(),
       'ED25519-V3:YKbZb2pGbMt44qunoxvrxCKenRomAI9b/HkPB5mWgU9wIm7wqS+43t0yLiCmjSu+FW4f9qFW91c4r6BAsXS9Lg==',
@@ -57,5 +63,11 @@ describe('Community manager', () => {
     )
     expect(localAddress).toContain(peerId.toB58String())
     expect(manager.communities.size).toBe(1)
+    expect(manager.getStorage(peerId.toB58String())).toEqual(spyOnCreateStorage.mock.results[0].value)
+  })
+
+  it('throws error if storage does not exist for given peer id', () => {
+    manager = new CommunitiesManager(connectionsManager)
+    expect(() => manager.getStorage('peer-nonexisting')).toThrow()
   })
 })

@@ -1,16 +1,21 @@
-import tmp from 'tmp'
+import debug from 'debug'
 import fp from 'find-free-port'
-import { SocksProxyAgent } from 'socks-proxy-agent'
-import { Config } from './constants'
-import { DummyIOServer, getPorts, Ports, torBinForPlatform, torDirForPlatform } from './utils'
-import { Tor } from './torManager'
-import { ConnectionsManager } from './libp2p/connectionsManager'
+import { Response } from 'node-fetch'
 import path from 'path'
 import PeerId from 'peer-id'
-import { Libp2pType } from './libp2p/customLibp2p'
-import WebsocketsOverTor from './libp2p/websocketOverTor'
+import { SocksProxyAgent } from 'socks-proxy-agent'
+import tmp from 'tmp'
 import { ConnectionsManagerOptions, DataFromPems } from './common/types'
+import { Config } from './constants'
+import { ConnectionsManager } from './libp2p/connectionsManager'
+import { Libp2pType } from './libp2p/customLibp2p'
 import { createCertificatesTestHelper } from './libp2p/tests/client-server'
+import WebsocketsOverTor from './libp2p/websocketOverTor'
+import { Tor } from './torManager'
+import { DummyIOServer, getPorts, Ports, torBinForPlatform, torDirForPlatform } from './utils'
+const log = Object.assign(debug('waggle:test'), {
+  error: debug('waggle:test:err')
+})
 
 export const dataFromRootPems: DataFromPems = { // Tmp cert
   certificate: 'MIIBNjCB3AIBATAKBggqhkjOPQQDAjASMRAwDgYDVQQDEwdaYmF5IENBMCYYEzIwMjEwNjIyMDkzMDEwLjAyNVoYDzIwMzAwMTMxMjMwMDAwWjASMRAwDgYDVQQDEwdaYmF5IENBMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEV5a3Czy+L7IfVX0FpJtSF5mi0GWGrtPqv5+CFSDPrHXijsxWdPTobR1wk8uCLP4sAgUbs/bIleCxQy41kSSyOaMgMB4wDwYDVR0TBAgwBgEB/wIBAzALBgNVHQ8EBAMCAAYwCgYIKoZIzj0EAwIDSQAwRgIhAPOzksuipKyBALt/o8O/XwsrVSzfSHXdAR4dOWThQ1lbAiEAmKqjhsmf50kxWX0ekhbAeCTjcRApXhjnslmJkIFGF2o=+lmBImw3BMNjA0FTlK5iRmVC+w/T6M04Es+yiYL608vOhx2slnoyAwHjAPBgNVHRMECDAGAQH/AgEDMAsGA1UdDwQEAwIABjAKBggqhkjOPQQDAgNIADBFAiEA+0kIz0ny/PLVERTcL0+KCpsztyA6Zuwzj05VW5NMdx0CICgdzf0lg0/2Ksl1AjSPYsy2w+Hn09PGlBnD7TiExBpx',
@@ -51,6 +56,7 @@ export const createMinConnectionManager = (options: ConnectionsManagerOptions): 
   return new ConnectionsManager({
     agentHost: 'localhost',
     agentPort: 2222,
+    // @ts-expect-error
     io: new DummyIOServer(),
     options: {
       bootstrapMultiaddrs: testBootstrapMultiaddrs,
@@ -95,7 +101,7 @@ export class TorMock { // TODO: extend Tor to be sure that mocked api is correct
     targetPort: number
     privKey: string
   }): Promise<any> {
-    console.log('TorMock.spawnHiddenService', virtPort, targetPort, privKey)
+    log('TorMock.spawnHiddenService', virtPort, targetPort, privKey)
     return 'mockedOnionAddress.onion'
   }
 
@@ -103,7 +109,7 @@ export class TorMock { // TODO: extend Tor to be sure that mocked api is correct
     virtPort: number,
     targetPort: number
   ): Promise<{ onionAddress: string, privateKey: string }> {
-    console.log('TorMock.createNewHiddenService', virtPort, targetPort)
+    log('TorMock.createNewHiddenService', virtPort, targetPort)
     return {
       onionAddress: 'mockedOnionAddress',
       privateKey: 'mockedPrivateKey'
@@ -111,7 +117,31 @@ export class TorMock { // TODO: extend Tor to be sure that mocked api is correct
   }
 
   protected readonly spawnTor = resolve => {
-    console.log('TorMock.spawnTor')
+    log('TorMock.spawnTor')
     resolve()
+  }
+
+  public kill = async (): Promise<void> => {
+    log('TorMock.kill')
+  }
+}
+
+export class ResponseMock extends Response {
+  _json: {}
+  _status: number
+
+  public init(respStatus: number, respJson?: {}) {
+    this._json = respJson
+    this._status = respStatus
+    return this
+  }
+
+  // @ts-expect-error
+  get status() {
+    return this._status
+  }
+
+  public async json() {
+    return this._json
   }
 }
