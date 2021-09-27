@@ -2,7 +2,7 @@
 
 exports[`AddDirectMessage renders component 1`] = `
 <Fragment>
-  <Memo(WithStyles(MenuAction))
+  <Component
     IconButton={
       Object {
         "$$typeof": Symbol(react.forward_ref),

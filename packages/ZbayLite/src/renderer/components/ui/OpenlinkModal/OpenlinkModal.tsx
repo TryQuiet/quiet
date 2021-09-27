@@ -1,12 +1,11 @@
 import React from 'react'
-import PropTypes from 'prop-types'
-import * as R from 'ramda'
+
 import { AutoSizer } from 'react-virtualized'
 import { Scrollbars } from 'rc-scrollbars'
 
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
-import { withStyles } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/core/styles'
 import Checkbox from '@material-ui/core/Checkbox'
 import red from '@material-ui/core/colors/red'
 import Button from '@material-ui/core/Button'
@@ -16,7 +15,7 @@ import Icon from '../Icon/Icon'
 import exclamationMark from '../../../static/images/exclamationMark.svg'
 import Modal from '../Modal/Modal'
 
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
   root: {
     padding: theme.spacing(4)
   },
@@ -58,43 +57,48 @@ const styles = theme => ({
   buttons: {
     marginTop: 24
   }
-})
+}))
 
-export const OpenlinkModal = ({
-  classes,
-  open,
+interface OpenLinkModalProps {
+  open: boolean
+  handleClose: () => void
+  handleConfirm: () => void
+  url: string
+  addToWhitelist: (url: string, dontAutoload: boolean) => void
+  setWhitelistAll: (allowAllLink: boolean) => void
+  isImage: boolean
+}
+
+export const OpenlinkModal: React.FC<OpenLinkModalProps> = ({
+  open = false,
   handleClose,
   handleConfirm,
-  url,
+  url = 'https://www.zbay.app/',
   addToWhitelist,
   setWhitelistAll,
-  isImage
+  isImage = false
 }) => {
+  const classes = useStyles({})
+
   const whitelist = electronStore.get('whitelist')
+
   const [allowThisLink, setAllowThisLink] = React.useState(false)
   const [allowAllLink, setAllowAllLink] = React.useState(false)
   const [dontAutoload, setDontAutoload] = React.useState(false)
+
   React.useEffect(() => {
-    setAllowThisLink(
-      whitelist ? whitelist.whitelisted.indexOf(url) !== -1 : false
-    )
+    setAllowThisLink(whitelist ? whitelist.whitelisted.indexOf(url) !== -1 : false)
     setAllowAllLink(whitelist ? whitelist.allowAll : false)
   }, [url])
+
   const uri = new URL(url)
+
   return (
     <Modal open={open} handleClose={handleClose} title=''>
       <AutoSizer>
         {({ width, height }) => (
-          <Scrollbars
-            autoHideTimeout={500}
-            style={{ width: width, height: height }}
-          >
-            <Grid
-              container
-              justify='flex-start'
-              direction='column'
-              className={classes.root}
-            >
+          <Scrollbars autoHideTimeout={500} style={{ width: width, height: height }}>
+            <Grid container justify='flex-start' direction='column' className={classes.root}>
               <Grid item container direction='column' alignItems='center'>
                 <Icon className={classes.icon} src={exclamationMark} />
                 <Typography variant='h2' className={classes.title}>
@@ -104,21 +108,14 @@ export const OpenlinkModal = ({
               <Grid item container direction='column'>
                 <Grid item>
                   <Typography variant='body2'>
-                    Opening link posted in Zbay reveals data about you to your
-                    goverment, your Internet provider, the site you are visiting
-                    and, potentially, to whoever posted the link. Only open
-                    links from people you trust. If you are using Zbay to
+                    Opening link posted in Zbay reveals data about you to your goverment, your
+                    Internet provider, the site you are visiting and, potentially, to whoever posted
+                    the link. Only open links from people you trust. If you are using Zbay to
                     protect your anonymity, never open links.
                   </Typography>
                 </Grid>
               </Grid>
-              <Grid
-                item
-                container
-                spacing={0}
-                direction='column'
-                className={classes.checkboxes}
-              >
+              <Grid item container spacing={0} direction='column' className={classes.checkboxes}>
                 {' '}
                 {isImage ? (
                   <>
@@ -133,7 +130,9 @@ export const OpenlinkModal = ({
                       <Grid item xs className={classes.checkboxLabel}>
                         {'Automatically load images from '}
                         <span className={classes.bold}>{uri.hostname}</span>
-                        {'- I trust them with my data and I\'m not using Zbay for anonymity protection. '}
+                        {
+                          "- I trust them with my data and I'm not using Zbay for anonymity protection. "
+                        }
                       </Grid>
                     </Grid>
                     <Grid item container justify='center' alignItems='center'>
@@ -145,11 +144,9 @@ export const OpenlinkModal = ({
                         />
                       </Grid>
                       <Grid item xs className={classes.checkboxLabel}>
-                        {'Don\'t warn me about '}
-                        <span className={classes.bold}>
-                          {uri.hostname}
-                        </span>{' '}
-                        {'again, but don\'t auto-load images.'}
+                        {"Don't warn me about "}
+                        <span className={classes.bold}>{uri.hostname}</span>{' '}
+                        {"again, but don't auto-load images."}
                       </Grid>
                     </Grid>
                   </>
@@ -163,9 +160,8 @@ export const OpenlinkModal = ({
                       />
                     </Grid>
                     <Grid item xs className={classes.checkboxLabel}>
-                      {'Don\'t warn me about '}
-                      <span className={classes.bold}>{uri.hostname}</span>{' '}
-                      {'again'}
+                      {"Don't warn me about "}
+                      <span className={classes.bold}>{uri.hostname}</span> {'again'}
                     </Grid>
                   </Grid>
                 )}
@@ -181,13 +177,7 @@ export const OpenlinkModal = ({
                     {'Never warn me about outbound links on Zbay.'}
                   </Grid>
                 </Grid>
-                <Grid
-                  item
-                  container
-                  spacing={2}
-                  alignItems='center'
-                  className={classes.buttons}
-                >
+                <Grid item container spacing={2} alignItems='center' className={classes.buttons}>
                   <Grid item>
                     <Button
                       className={classes.buttonBack}
@@ -196,8 +186,7 @@ export const OpenlinkModal = ({
                       size='large'
                       onClick={() => {
                         handleClose()
-                      }}
-                    >
+                      }}>
                       Back to safety
                     </Button>
                   </Grid>
@@ -217,8 +206,7 @@ export const OpenlinkModal = ({
                         setWhitelistAll(allowAllLink)
                         handleClose()
                       }}
-                      href={''}
-                    >
+                      href={''}>
                       {isImage
                         ? `Load image from site ${uri.hostname}`
                         : `Continue to ${uri.hostname}`}
@@ -234,20 +222,4 @@ export const OpenlinkModal = ({
   )
 }
 
-OpenlinkModal.propTypes = {
-  classes: PropTypes.object.isRequired,
-  open: PropTypes.bool.isRequired,
-  url: PropTypes.string.isRequired,
-  handleClose: PropTypes.func.isRequired,
-  handleConfirm: PropTypes.func.isRequired,
-  addToWhitelist: PropTypes.func.isRequired,
-  setWhitelistAll: PropTypes.func.isRequired,
-  isImage: PropTypes.bool.isRequired
-}
-OpenlinkModal.defaultProps = {
-  open: false,
-  isImage: false,
-  url: 'https://www.zbay.app/'
-}
-
-export default R.compose(withStyles(styles))(OpenlinkModal)
+export default OpenlinkModal

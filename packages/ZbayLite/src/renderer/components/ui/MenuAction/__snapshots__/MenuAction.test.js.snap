@@ -3,7 +3,7 @@
 exports[`MenuAction renders component 1`] = `
 <Fragment>
   <ForwardRef
-    className="button-mock"
+    className="makeStyles-button-3"
     disableRipple={true}
     disabled={false}
     onClick={[Function]}
@@ -11,8 +11,7 @@ exports[`MenuAction renders component 1`] = `
     onMouseLeave={[Function]}
   >
     <Component
-      className="icon-mock"
-      fontSize="inherit"
+      className="makeStyles-icon-2"
       src="icon"
     />
   </ForwardRef>
@@ -25,15 +24,15 @@ exports[`MenuAction renders component 1`] = `
       onClickAway={[Function]}
     >
       <ForwardRef(MenuList)
-        className="menuList-mock"
+        className="makeStyles-menuList-1"
       >
-        <Memo(WithStyles(MenuActionItem))
+        <Component
           close={[Function]}
           key=".0"
           onClick={[MockFunction]}
           title="test"
         />
-        <Memo(WithStyles(MenuActionItem))
+        <Component
           close={[Function]}
           key=".1"
           onClick={[MockFunction]}
@@ -48,7 +47,7 @@ exports[`MenuAction renders component 1`] = `
 exports[`MenuAction renders with optional props 1`] = `
 <Fragment>
   <ForwardRef
-    className="button-mock"
+    className="makeStyles-button-3"
     disableRipple={true}
     disabled={false}
     onClick={[Function]}
@@ -56,8 +55,7 @@ exports[`MenuAction renders with optional props 1`] = `
     onMouseLeave={[Function]}
   >
     <Component
-      className="icon-mock"
-      fontSize="inherit"
+      className="makeStyles-icon-2"
       src="icon"
     />
   </ForwardRef>
@@ -70,15 +68,15 @@ exports[`MenuAction renders with optional props 1`] = `
       onClickAway={[Function]}
     >
       <ForwardRef(MenuList)
-        className="menuList-mock"
+        className="makeStyles-menuList-1"
       >
-        <Memo(WithStyles(MenuActionItem))
+        <Component
           close={[Function]}
           key=".0"
           onClick={[MockFunction]}
           title="test"
         />
-        <Memo(WithStyles(MenuActionItem))
+        <Component
           close={[Function]}
           key=".1"
           onClick={[MockFunction]}

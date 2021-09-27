@@ -1,24 +1,16 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`OpenlinkModal renders component 1`] = `
-<Component
-  addBorder={false}
-  alignCloseLeft={false}
-  canGoBack={false}
-  contentWidth={600}
-  handleClose={[MockFunction]}
-  isBold={false}
-  isCloseDisabled={false}
-  open={true}
-  title=""
->
-  <AutoSizer
-    disableHeight={false}
-    disableWidth={false}
-    onResize={[Function]}
-    style={Object {}}
-  >
-    <Component />
-  </AutoSizer>
-</Component>
+<ContextProvider>
+  <Component
+    addToWhitelist={[MockFunction]}
+    classes={null}
+    handleClose={[MockFunction]}
+    handleConfirm={[MockFunction]}
+    isImage={true}
+    open={true}
+    setWhitelistAll={[MockFunction]}
+    url="https://www.zbay.app/"
+  />
+</ContextProvider>
 `;

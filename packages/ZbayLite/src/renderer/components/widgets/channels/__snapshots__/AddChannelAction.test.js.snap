@@ -2,7 +2,7 @@
 
 exports[`BaseChannelsList renders component 1`] = `
 <Fragment>
-  <Memo(WithStyles(MenuAction))
+  <Component
     IconButton={
       Object {
         "$$typeof": Symbol(react.forward_ref),
@@ -309,10 +309,10 @@ exports[`BaseChannelsList renders component 1`] = `
     iconHover="test-file-stub"
     offset="0 8"
   >
-    <Memo(WithStyles(MenuActionItem))
+    <Component
       title="Create"
     />
-  </Memo(WithStyles(MenuAction))>
+  </Component>
   <Memo(withModal(Component)) />
 </Fragment>
 `;

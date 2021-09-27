@@ -1,24 +1,24 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ChannelMenuAction renders component 1`] = `
-<Memo(WithStyles(MenuAction))
+<Component
   IconButton={[Function]}
   icon="test-file-stub"
   iconHover="test-file-stub"
   offset="0 8"
 >
-  <Memo(WithStyles(MenuActionItem))
+  <Component
     onClick={[MockFunction]}
     title="Info & Invites"
   />
-  <Memo(WithStyles(MenuActionItem))
+  <Component
     closeAfterAction={false}
     onClick={[Function]}
     title="Remove"
   />
   <span />
   <span />
-  <Memo(WithStyles(MenuActionItem))
+  <Component
     onClick={[MockFunction]}
     title="Unmute"
   />
@@ -30,5 +30,5 @@ exports[`ChannelMenuAction renders component 1`] = `
     open={false}
     title="Are you sure you want to remove this channel?"
   />
-</Memo(WithStyles(MenuAction))>
+</Component>
 `;
