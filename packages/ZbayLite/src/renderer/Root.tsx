@@ -14,7 +14,6 @@ import Vault from './containers/windows/Vault'
 import Loading from './containers/windows/Loading'
 import Notifier from './containers/ui/Notifier'
 import ErrorModal from './containers/ui/ErrorModal'
-import MigrationModal from './containers/ui/MigrationModal'
 import QuitAppDialog from './containers/ui/QuitAppDialog'
 import SecurityModal from './containers/widgets/settings/SecurityModal'
 import UpdateModal from './containers/widgets/update/UpdateModal'
@@ -36,7 +35,6 @@ export default () => {
           <PersistGate loading={null} persistor={persistor}>
             <SnackbarProvider maxSnack={3}>
               <Notifier />
-              <MigrationModal />
               <ErrorModal />
               <QuitAppDialog />
               <UpdateModal />
