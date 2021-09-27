@@ -12,4 +12,5 @@ export interface IModalProps {
   isCloseDisabled?: boolean
   alignCloseLeft?: boolean
   addBorder?: boolean
+  fullPage?: boolean
 }

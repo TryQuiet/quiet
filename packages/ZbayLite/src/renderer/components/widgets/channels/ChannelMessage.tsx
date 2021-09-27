@@ -1,13 +1,12 @@
 import React, { useState } from 'react'
-import PropTypes from 'prop-types'
-import * as R from 'ramda'
+
 import { shell } from 'electron'
 import Jdenticon from 'react-jdenticon'
 import isImageUrl from 'is-image-url'
 import reactStringReplace from 'react-string-replace'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
-import { withStyles } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/core/styles'
 import { Button } from '@material-ui/core'
 
 import { _DisplayableMessage } from '../../../zbay/messages'
@@ -17,8 +16,11 @@ import Tooltip from '../../ui/Tooltip/Tooltip'
 import imagePlacegolder from '../../../static/images/imagePlacegolder.svg'
 import Icon from '../../ui/Icon/Icon'
 import OpenlinkModal from '../../../containers/ui/OpenlinkModal'
+import { User, UsersStore } from '../../../store/handlers/users'
+import { DisplayableMessage } from '../../../zbay/messages.types'
+import { PublicChannelsStore } from '../../../store/handlers/publicChannels'
 
-const styles = theme => ({
+const useStyles = makeStyles((theme) => ({
   message: {
     marginTop: 14,
     whiteSpace: 'pre-line',
@@ -76,14 +78,8 @@ const styles = theme => ({
     color: theme.palette.colors.black30,
     padding: '7px 16px'
   }
-})
-// highlight: {
-//   color: theme.palette.colors.lushSky,
-//   backgroundColor: theme.palette.colors.lushSky12,
-//   padding: 5,
-//   borderRadius: 4
-// }
-// TODO Create separate component for mentions
+}))
+
 const checkLinking = (
   tags,
   users,
@@ -94,7 +90,7 @@ const checkLinking = (
   openExternalLink,
   allowAll,
   whitelisted
-) => {
+): string[] => {
   let parsedMessage = message
     .replace(/ /g, String.fromCharCode(160))
     .replace(/\n/gi, `${String.fromCharCode(160)}\n${String.fromCharCode(160)}`)
@@ -109,10 +105,11 @@ const checkLinking = (
             textDecoration: 'none'
           }}
           key={index}
-          onClick={e => {
+          onClick={async (e) => {
             e.preventDefault()
             if (allowAll || whitelisted.includes(new URL(part).hostname)) {
-              shell.openExternal(part)
+              // eslint-disble-next-line
+              await shell.openExternal(part)
               return
             }
             openExternalLink(part)
@@ -139,7 +136,7 @@ const checkLinking = (
           borderRadius: 4,
           textDecoration: 'none'
         }}
-        key={match + i}
+        key={match + `${i}`}
         onClick={e => {
           e.preventDefault()
           onLinkedChannel(tags[match])
@@ -152,7 +149,7 @@ const checkLinking = (
   })
 
   parsedMessage = reactStringReplace(parsedMessage, /@(\w+)/g, (match, i) => {
-    if (!Array.from(Object.values(users)).find(user => user.nickname === match)) {
+    if (!Array.from(Object.values(users)).find((user: User) => user.nickname === match)) {
       return `@${match}`
     }
     return (
@@ -207,7 +204,7 @@ const checkLinking = (
             borderRadius: 4,
             textDecoration: 'none'
           }}
-          key={match + i}
+          key={match + `${i}`}
           onClick={e => {
             e.preventDefault()
             onLinkedUser(users.find(user => user.nickname === match))
@@ -227,8 +224,24 @@ const checkLinking = (
 
   return messageToDisplay
 }
-export const ChannelMessage = ({
-  classes,
+
+interface ChannelMessageProps {
+  message: DisplayableMessage
+  onResend: (DisplayableMessage: DisplayableMessage) => void
+  publicChannels: PublicChannelsStore
+  onLinkedChannel: string
+  onLinkedUser: string
+  users: UsersStore
+  openExternalLink: string
+  allowAll: boolean
+  whitelisted: string
+  addToWhitelist: (url: string, dontAutoload: boolean) => void
+  setWhitelistAll: string
+  autoload: string
+  torEnabled: boolean
+}
+
+export const ChannelMessage: React.FC<ChannelMessageProps> = ({
   message,
   onResend,
   publicChannels,
@@ -243,9 +256,10 @@ export const ChannelMessage = ({
   autoload,
   torEnabled
 }) => {
+  const classes = useStyles({})
   const [showImage, setShowImage] = React.useState(false)
   const [imageUrl, setImageUrl] = React.useState(null)
-  const [parsedMessage, setParsedMessage] = React.useState('')
+  const [parsedMessage, setParsedMessage] = React.useState([])
   const [openModal, setOpenModal] = React.useState(false)
   const status = message.status || null
   const messageData = message.message.itemId
@@ -306,7 +320,7 @@ export const ChannelMessage = ({
           }}
         >
           <Grid item className={classes.imagePlacegolderDiv}>
-            <Icon className={classes.imagePlacegolder} src={imagePlacegolder} />
+            <Icon src={imagePlacegolder} />
           </Grid>
           <Grid item className={classes.buttonDiv}>
             <Button className={classes.button} variant='outlined'>
@@ -320,8 +334,8 @@ export const ChannelMessage = ({
           item
           container
           direction='column'
-          onClick={() => {
-            shell.openExternal(imageUrl)
+          onClick={async () => {
+            await shell.openExternal(imageUrl)
           }}
           className={classes.imageDiv}
         >
@@ -343,19 +357,4 @@ export const ChannelMessage = ({
   )
 }
 
-ChannelMessage.propTypes = {
-  classes: PropTypes.object.isRequired,
-  message: PropTypes.object.isRequired,
-  publicChannels: PropTypes.object.isRequired,
-  users: PropTypes.object.isRequired,
-  whitelisted: PropTypes.array.isRequired,
-  autoload: PropTypes.array.isRequired,
-  onResend: PropTypes.func,
-  onLinkedChannel: PropTypes.func.isRequired,
-  onLinkedUser: PropTypes.func.isRequired,
-  openExternalLink: PropTypes.func.isRequired,
-  setWhitelistAll: PropTypes.func.isRequired,
-  addToWhitelist: PropTypes.func.isRequired,
-  allowAll: PropTypes.bool.isRequired
-}
-export default R.compose(React.memo, withStyles(styles))(ChannelMessage)
+export default ChannelMessage

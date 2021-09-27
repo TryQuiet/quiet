@@ -1,15 +1,36 @@
-import { connect } from 'react-redux'
-import * as R from 'ramda'
-
-import { withModal } from '../../../store/handlers/modals'
 import channelSelectors from '../../../store/selectors/channel'
-import ChannelInfoModal from '../../../components/widgets/channels/ChannelInfoModal'
+import ChannelInfoModal, { ChannelInfoModalProps } from '../../../components/widgets/channels/ChannelInfoModal'
+import { useSelector } from 'react-redux'
+import React from 'react'
 
-export const mapStateToProps = state => ({
-  shareUri: channelSelectors.shareableUri(state)
-})
+export const useChannelInfoData = () => {
+  const data = {
+    shareUri: useSelector(channelSelectors.shareableUri)
+  }
+  return data
+}
 
-export default R.compose(
-  connect(mapStateToProps),
-  withModal('channelInfo')
-)(ChannelInfoModal)
+export const ChannelInfo: React.FC<ChannelInfoModalProps> = ({
+  channel,
+  channelData,
+  shareUri,
+  open,
+  handleClose,
+  directMessage
+}
+) => {
+  shareUri = useChannelInfoData().shareUri
+
+  return (
+    <ChannelInfoModal
+      channel={channel}
+      channelData={channelData}
+      shareUri={shareUri}
+      open={open}
+      handleClose={handleClose}
+      directMessage={directMessage}
+    />
+  )
+}
+
+export default ChannelInfo

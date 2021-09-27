@@ -4,5 +4,5 @@ export interface IBasicMessageProps {
   message: DisplayableMessage
   setActionsOpen: (open: boolean) => void
   actionsOpen: boolean
-  allowModeration: boolean
+  allowModeration?: boolean
 }

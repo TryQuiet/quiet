@@ -40,18 +40,19 @@ interface ILoader {
 
 // TODO: find type of message and members
 export class Channel {
-  spentFilterValue: BigNumber
+  spentFilterValue?: BigNumber
   id?: string
-  message: object
-  shareableUri: string
-  address: string
-  loader: ILoader
+  message?: object
+  shareableUri?: string
+  address?: string
+  loader?: ILoader
   members?: object
-  showInfoMsg: boolean
-  isSizeCheckingInProgress: boolean
+  showInfoMsg?: boolean
+  isSizeCheckingInProgress?: boolean
   messageSizeStatus?: boolean
-  displayableMessageLimit: number
-
+  displayableMessageLimit?: number
+  name?: string
+  description?: string
   constructor(values?: Partial<Channel>) {
     Object.assign(this, values)
     this[immerable] = true

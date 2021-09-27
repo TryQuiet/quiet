@@ -12,7 +12,7 @@ export const ChannelMentions = {
   timeStamp: 0
 }
 
-class Mentions {
+export class Mentions {
   nickname?: string
   timeStamp?: number
 

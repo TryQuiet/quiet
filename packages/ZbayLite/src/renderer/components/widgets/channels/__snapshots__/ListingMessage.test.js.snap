@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`SendMessagePopover renders popover 1`] = `
-<Connect(Component)
+<Component
   actionsOpen={false}
   setActionsOpen={[Function]}
 >
@@ -113,5 +113,5 @@ exports[`SendMessagePopover renders popover 1`] = `
       </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
-</Connect(Component)>
+</Component>
 `;

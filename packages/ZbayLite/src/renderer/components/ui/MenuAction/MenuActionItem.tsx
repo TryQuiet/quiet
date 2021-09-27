@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { ReactNode } from 'react'
 
 import MuiMenuItem from '@material-ui/core/MenuItem'
 import { makeStyles } from '@material-ui/core/styles'
@@ -16,9 +16,9 @@ const useStyles = makeStyles(() => ({
 
 interface MenuActionItemProps {
   onClick: (e: React.MouseEvent) => void
-  title: string
-  close: () => void
-  closeAfterAction: boolean
+  title: ReactNode
+  close?: () => void
+  closeAfterAction?: boolean
 }
 
 export const MenuActionItem: React.FC<MenuActionItemProps> = ({
@@ -35,7 +35,6 @@ export const MenuActionItem: React.FC<MenuActionItemProps> = ({
         closeAfterAction && close()
       }}
       className={classes.root}
-      key={title}
     >
       {title}
     </MuiMenuItem>

@@ -1,18 +1,18 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import * as R from 'ramda'
 import { AutoSizer } from 'react-virtualized'
 import { Scrollbars } from 'rc-scrollbars'
 import classNames from 'classnames'
 import Grid from '@material-ui/core/Grid'
 import { Button } from '@material-ui/core'
-import { withStyles } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 
 import Modal from '../../ui/Modal/Modal'
+import { Channel } from '../../../store/handlers/channel'
+import { Contact } from '../../../store/handlers/contacts'
 
-const styles = theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     padding: `${theme.spacing(4)}px ${theme.spacing(4)}px`
   },
@@ -62,17 +62,26 @@ const styles = theme => ({
     wordBreak: 'break-word',
     lineHeight: '20px'
   }
-})
+}))
 
-export const ChannelInfoModal = ({
-  classes,
-  channel,
+export interface ChannelInfoModalProps {
+  channel: Channel
+  channelData?: Contact
+  shareUri?: string
+  open?: boolean
+  handleClose?: (event: {}, reason: 'backdropClick' | 'escapeKeyDown') => void
+  directMessage?: boolean
+}
+
+export const ChannelInfoModal: React.FC<ChannelInfoModalProps> = ({
+  channel = {},
   channelData,
   shareUri,
-  open,
+  open = false,
   handleClose,
-  directMessage
+  directMessage = false
 }) => {
+  const classes = useStyles({})
   const address = directMessage ? channelData?.address : shareUri
   return (
     <Modal
@@ -111,7 +120,11 @@ export const ChannelInfoModal = ({
                 direction='column'
                 className={classes.section}
               >
-                <Grid container item direction='columns'>
+                <Grid
+                  item
+                  container
+                  direction='column'
+                >
                   <Grid item className={classes.spacing28}>
                     <Typography
                       variant='subtitle1'
@@ -145,7 +158,7 @@ export const ChannelInfoModal = ({
                   </Grid>
                   <Grid>
                     <CopyToClipboard text={address}>
-                      <Button className={classes.copyButton} variant={'large'}>
+                      <Button className={classes.copyButton}>
                         Copy to clipboard
                       </Button>
                     </CopyToClipboard>
@@ -160,20 +173,4 @@ export const ChannelInfoModal = ({
   )
 }
 
-ChannelInfoModal.propTypes = {
-  classes: PropTypes.object.isRequired,
-  channel: PropTypes.object.isRequired,
-  shareUrl: PropTypes.string.isRequired,
-  handleClose: PropTypes.func.isRequired,
-  open: PropTypes.bool.isRequired,
-  directMessage: PropTypes.bool.isRequired
-}
-
-ChannelInfoModal.defaultProps = {
-  open: false,
-  channel: {},
-  shareUrl: '',
-  directMessage: false
-}
-
-export default R.compose(React.memo, withStyles(styles))(ChannelInfoModal)
+export default ChannelInfoModal

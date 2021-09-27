@@ -1,42 +1,23 @@
 import React from 'react'
-import PropTypes from 'prop-types'
-import * as R from 'ramda'
 
-import { withStyles } from '@material-ui/core/styles'
 import iconHover from '../../../static/images/zcash/plus-icon.svg'
 import icon from '../../../static/images/zcash/plus-icon-gray.svg'
 import MenuAction from '../../ui/MenuAction/MenuAction'
 import MenuActionItem from '../../ui/MenuAction/MenuActionItem'
 
-const styles = theme => ({
-  button: {
-    fontSize: 36,
-    padding: 2,
-    '&:hover': {
-      backgroundColor: theme.palette.colors.white
-    }
-  },
-  icon: {
-    width: 24,
-    height: 24
-  }
-})
+interface ChannelInputActionProps {
+  onSendMoney: (...args: string[]) => void
+  disabled: boolean
+  targetRecipientAddress: string
+}
 
-export const ChannelInputAction = ({
-  classes,
-  onPostOffer,
+export const ChannelInputAction: React.FC<ChannelInputActionProps> = ({
   onSendMoney,
-  disabled,
-  channelData,
-  directMessageChannel,
+  disabled = false,
   targetRecipientAddress
 }) => {
   return (
     <MenuAction
-      classes={{
-        button: classes.button,
-        icon: classes.icon
-      }}
       icon={icon}
       iconHover={iconHover}
       offset='-10 12'
@@ -59,15 +40,4 @@ export const ChannelInputAction = ({
   )
 }
 
-ChannelInputAction.propTypes = {
-  classes: PropTypes.object.isRequired,
-  disabled: PropTypes.bool.isRequired,
-  onPostOffer: PropTypes.func.isRequired,
-  onSendMoney: PropTypes.func.isRequired
-}
-
-ChannelInputAction.defaultProps = {
-  disabled: false
-}
-
-export default R.compose(React.memo, withStyles(styles))(ChannelInputAction)
+export default ChannelInputAction

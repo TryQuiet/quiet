@@ -1,17 +1,15 @@
 import React from 'react'
-import PropTypes from 'prop-types'
-import * as R from 'ramda'
 
 import Grid from '@material-ui/core/Grid'
-import { withStyles } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/core/styles'
 import RootRef from '@material-ui/core/RootRef'
-import { withContentRect } from 'react-measure'
 
 import { channelTypeToMessages } from '../../pages/ChannelMapping'
 import InviteMentionInfo from './ChannelInput/InviteMentionInfo'
 import { CHANNEL_TYPE } from '../../pages/ChannelTypes'
+import { Mentions } from '../../../store/handlers/mentions'
 
-const styles = theme => ({
+const useStyles = makeStyles((theme) => ({
   fullHeight: {
     height: '100%',
     backgroundColor: theme.palette.colors.white
@@ -19,12 +17,23 @@ const styles = theme => ({
   mentionsDiv: {
     marginBottom: 8
   }
-})
+}))
 
-// TODO: filter by spent
-export const ChannelContent = ({
-  classes,
-  channelId,
+interface ChannelMessagesProps {
+  inputState: string
+  contactId: string
+  signerPubKey: string
+  measureRef: () => void
+  contentRect: string
+  channelType: CHANNEL_TYPE
+  offer: string
+  tab: (arg: number) => void
+  mentions: { channelId: Mentions[] }
+  removeMention: (name: string) => void
+  sendInvitation: (name: string) => void
+}
+
+export const ChannelContent: React.FC<ChannelMessagesProps> = ({
   inputState,
   contactId,
   signerPubKey,
@@ -37,6 +46,7 @@ export const ChannelContent = ({
   removeMention,
   sendInvitation
 }) => {
+  const classes = useStyles({})
   const ChannelMessages = channelTypeToMessages[channelType]
   return (
     <Grid item container direction='column' className={classes.fullHeight}>
@@ -73,23 +83,5 @@ export const ChannelContent = ({
     </Grid>
   )
 }
-ChannelContent.propTypes = {
-  classes: PropTypes.object.isRequired,
-  channelId: PropTypes.string,
-  contactId: PropTypes.string,
-  inputState: PropTypes.number,
-  tab: PropTypes.number,
-  channelType: PropTypes.number.isRequired,
-  signerPubKey: PropTypes.string,
-  measureRef: PropTypes.func.isRequired,
-  sendInvitation: PropTypes.func.isRequired,
-  removeMention: PropTypes.func.isRequired,
-  contentRect: PropTypes.object.isRequired,
-  mentions: PropTypes.object.isRequired
-}
 
-export default R.compose(
-  withStyles(styles),
-  withContentRect('bounds'),
-  React.memo
-)(ChannelContent)
+export default ChannelContent

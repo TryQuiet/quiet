@@ -48,7 +48,12 @@ export const ChannelsPanel = ({
         />
       </Grid>
       <Grid item>
-        <BaseChannelsList {...props} />
+        <BaseChannelsList
+          channels={props.channels}
+          unknownMessages={props.unknownMessages}
+          directMessages={props.directMessages}
+          selected={props.selected}
+        />
       </Grid>
       {/*
       <Grid item>

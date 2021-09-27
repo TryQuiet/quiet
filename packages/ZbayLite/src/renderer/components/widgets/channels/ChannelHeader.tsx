@@ -1,17 +1,15 @@
 import React from 'react'
-import PropTypes from 'prop-types'
-import * as R from 'ramda'
 
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
-import { withStyles } from '@material-ui/core/styles'
 import Clear from '@material-ui/icons/Clear'
 import { Tabs, Tab } from '@material-ui/core'
 import classNames from 'classnames'
+import { makeStyles } from '@material-ui/core/styles'
 
 import ChannelInfoModal from '../../../containers/widgets/channels/ChannelInfoModal'
 import DirectMessagesInfoModal from '../../../containers/widgets/channels/DirectMessagesInfoModal'
-import { CHANNEL_TYPE } from '../../../components/pages/ChannelTypes'
+import { CHANNEL_TYPE } from '../../pages/ChannelTypes'
 import ChannelMenuAction from '../../../containers/widgets/channels/ChannelMenuAction'
 import DirectMessagesMenuActions from '../../../containers/widgets/channels/DirectMessagesMenuActions'
 import IconButton from '../../ui/Icon/IconButton'
@@ -19,8 +17,9 @@ import Icon from '../../ui/Icon/Icon'
 import silenced from '../../../static/images/silenced.svg'
 import silencedBlack from '../../../static/images/silencedBlack.svg'
 import Tooltip from '../../ui/Tooltip/Tooltip'
+import { Channel } from '../../../store/handlers/channel'
 
-const styles = theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     height: '75px',
     paddingLeft: 20,
@@ -52,7 +51,6 @@ const styles = theme => ({
     minWidth: 0,
     lineHeight: '18px',
     padding: 0,
-    textAlign: '-webkit-center',
     textTransform: 'none',
     backgroundColor: theme.palette.colors.gray03,
     color: theme.palette.colors.gray40,
@@ -90,7 +88,7 @@ const styles = theme => ({
     marginLeft: 11,
     cursor: 'pointer'
   }
-})
+}))
 
 export const channelTypeToActions = {
   [CHANNEL_TYPE.DIRECT_MESSAGE]: DirectMessagesMenuActions,
@@ -104,23 +102,37 @@ const prefix = {
 
 // TODO: [reafactoring] we should have channel stats for unread and members count
 
-export const ChannelHeader = ({
-  classes,
+export interface ChannelHeaderProps {
+  isRegisteredUsername: boolean
+  updateShowInfoMsg: (arg: boolean) => void
+  directMessage: boolean
+  showAdSwitch: boolean
+  channelType: CHANNEL_TYPE
+  tab: number
+  setTab: (arg: number) => void
+  channel: Channel
+  offer: string
+  mutedFlag: boolean
+  unmute: () => void
+  name: string
+  contactId?: string
+}
+
+export const ChannelHeader: React.FC<ChannelHeaderProps> = ({
   tab,
   setTab,
-  channel,
-  directMessage,
+  channel = {},
+  directMessage = false,
   offer,
-  members,
-  channelType,
-  showAdSwitch,
+  channelType = 3,
+  showAdSwitch = false,
   updateShowInfoMsg,
   mutedFlag,
   unmute,
-  isRegisteredUsername,
-  userAddress,
+  isRegisteredUsername = true,
   name
 }) => {
+  const classes = useStyles({})
   const debounce = (fn, ms) => {
     let timer
     return _ => {
@@ -141,8 +153,9 @@ export const ChannelHeader = ({
   React.useEffect(() => {
     setTab(0)
   }, [name])
-  React.useEffect(() => {
-    const handleResize = debounce(function handleResize () {
+
+  React.useEffect((): any => {
+    const handleResize = debounce(function handleResize() {
       setWrapperWidth(window.innerWidth - 300)
     }, 200)
 
@@ -208,6 +221,7 @@ export const ChannelHeader = ({
             <Grid item className={classes.switch}>
               <Tabs
                 value={tab}
+                /* eslint-disable-next-line */
                 onChange={(e, value) => {
                   setTab(value)
                 }}
@@ -230,7 +244,6 @@ export const ChannelHeader = ({
           </Grid>
           <Grid item className={classes.iconDiv}>
             <IconButton
-              className={classes.iconButton}
               onClick={() => {
                 updateShowInfoMsg(false)
               }}>
@@ -243,32 +256,4 @@ export const ChannelHeader = ({
   )
 }
 
-ChannelHeader.propTypes = {
-  classes: PropTypes.object.isRequired,
-  directMessage: PropTypes.bool.isRequired,
-  mutedFlag: PropTypes.bool,
-  showAdSwitch: PropTypes.bool,
-  channelType: PropTypes.number.isRequired,
-  tab: PropTypes.number.isRequired,
-  setTab: PropTypes.func.isRequired,
-  userAddress: PropTypes.string.isRequired,
-  unmute: PropTypes.func,
-  channel: PropTypes.object.isRequired,
-  members: PropTypes.instanceOf(Set),
-  updateShowInfoMsg: PropTypes.func.isRequired,
-  users: PropTypes.object.isRequired,
-  isRegisteredUsername: PropTypes.bool,
-  name: PropTypes.string.isRequired
-}
-
-ChannelHeader.defaultProps = {
-  channel: {},
-  directMessage: false,
-  channelType: 3,
-  showAdSwitch: false,
-  users: {},
-  shouldCheckNickname: false,
-  isRegisteredUsername: true
-}
-
-export default R.compose(React.memo, withStyles(styles))(ChannelHeader)
+export default ChannelHeader

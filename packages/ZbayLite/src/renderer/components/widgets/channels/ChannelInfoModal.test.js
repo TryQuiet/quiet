@@ -7,19 +7,24 @@ import { mockClasses } from '../../../../shared/testing/mocks'
 import { createChannel } from '../../../testUtils'
 import { DOMAIN } from '../../../../shared/static'
 
+import { MuiThemeProvider } from '@material-ui/core'
+import theme from '../../../theme'
+
 describe('ChannelInfoModal', () => {
   const uri = `https://${DOMAIN}/importchannel=channel-hash`
   it('renders component', () => {
     const channel = createChannel(1)
     channel.members = new BigNumber(2345)
     const result = shallow(
-      <ChannelInfoModal
-        open
-        classes={mockClasses}
-        channel={channel}
-        shareUri={uri}
-        handleClose={jest.fn()}
-      />
+      <MuiThemeProvider theme={theme}>
+        <ChannelInfoModal
+          open
+          classes={mockClasses}
+          channel={channel}
+          shareUri={uri}
+          handleClose={jest.fn()}
+        />
+      </MuiThemeProvider>
     )
     expect(result).toMatchSnapshot()
   })
@@ -28,12 +33,14 @@ describe('ChannelInfoModal', () => {
     const channel = createChannel(1)
     channel.members = new BigNumber(2345)
     const result = shallow(
-      <ChannelInfoModal
-        classes={mockClasses}
-        channel={channel}
-        shareUri={uri}
-        handleClose={jest.fn()}
-      />
+      <MuiThemeProvider theme={theme}>
+        <ChannelInfoModal
+          classes={mockClasses}
+          channel={channel}
+          shareUri={uri}
+          handleClose={jest.fn()}
+        />
+      </MuiThemeProvider>
     )
     expect(result).toMatchSnapshot()
   })

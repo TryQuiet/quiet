@@ -28,7 +28,16 @@ export const mapDispatchToProps = dispatch => {
   )
 }
 const ChannelMenuAction = ({ onDelete, targetAddress, ...props }) => {
-  return <ChannelMenuActionComponent onDelete={onDelete} disableSettings {...props} />
+  return <ChannelMenuActionComponent onDelete={onDelete}
+    disableSettings={props.disableSettings}
+    onInfo={props.onInfo}
+    onMute={props.onMute}
+    onSettings={props.onSettings}
+    onUnmute={props.onUnmute}
+    mutedFlag={props.mutedFlag}
+    notificationFilter={props.notificationFilter}
+    openNotificationsTab={props.openNotificationsTab}
+  />
 }
 export default R.compose(
   withRouter,
