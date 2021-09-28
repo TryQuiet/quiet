@@ -1,8 +1,7 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import classNames from 'classnames'
 
-import { withStyles } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/core/styles'
 import IconButton from '@material-ui/core/IconButton'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import SnackbarContentMaterial from '@material-ui/core/SnackbarContent'
@@ -17,7 +16,7 @@ import green from '@material-ui/core/colors/green'
 import blue from '@material-ui/core/colors/blue'
 import amber from '@material-ui/core/colors/amber'
 
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
   close: {
     padding: theme.spacing(0.5),
     margin: 0
@@ -57,7 +56,7 @@ const styles = theme => ({
   message: {
     paddingLeft: theme.spacing(2)
   }
-})
+}))
 
 const iconVariants = {
   success: CheckCircleIcon,
@@ -67,39 +66,41 @@ const iconVariants = {
   loading: CircularProgress
 }
 
-export const SnackbarContent = ({
-  classes,
-  variant,
+interface SnackbarContentProps {
+  message: string
+  variant: 'success' | 'warning' | 'error' | 'info' | 'loading'
+  onClose?: () => void
+  fullWidth?: boolean
+}
+
+export const SnackbarContent: React.FC<SnackbarContentProps> = ({
   message,
+  variant,
   onClose,
-  fullWidth
+  fullWidth = false
 }) => {
+  const classes = useStyles({})
+
   const Icon = iconVariants[variant]
+
   const closeAction = (
-    <IconButton
-      key='close'
-      color='inherit'
-      className={classes.close}
-      onClick={onClose}
-    >
+    <IconButton key='close' color='inherit' className={classes.close} onClick={onClose}>
       <CloseIcon className={classes.icon} />
     </IconButton>
   )
+
   const action = variant !== 'loading' ? [closeAction] : []
+
   return (
     <SnackbarContentMaterial
-      className={
-        classNames({
-          [classes[variant]]: true,
-          [classes.fullWidth]: fullWidth
-        })
-      }
+      className={classNames({
+        [classes[variant]]: true,
+        [classes.fullWidth]: fullWidth
+      })}
       message={
         <span className={classes.content}>
           <Icon className={classNames(classes.icon, classes[`${variant}Icon`])} size={20} />
-          <span className={classes.message}>
-            {message}
-          </span>
+          <span className={classes.message}>{message}</span>
         </span>
       }
       action={action}
@@ -107,16 +108,4 @@ export const SnackbarContent = ({
   )
 }
 
-SnackbarContent.propTypes = {
-  variant: PropTypes.oneOf(['success', 'warning', 'error', 'info', 'loading']).isRequired,
-  message: PropTypes.string.isRequired,
-  classes: PropTypes.object.isRequired,
-  onClose: PropTypes.func,
-  fullWidth: PropTypes.bool
-}
-
-SnackbarContent.defaultProps = {
-  fullWidth: false
-}
-
-export default React.memo(withStyles(styles)(SnackbarContent))
+export default SnackbarContent

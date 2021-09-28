@@ -3,7 +3,7 @@
 exports[`SidebarHeader renders component 1`] = `
 <WithStyles(ForwardRef(Grid))
   alignItems="center"
-  className="root-mock"
+  className="makeStyles-root-1"
   container={true}
   direction="row"
   justify="space-between"
@@ -11,24 +11,32 @@ exports[`SidebarHeader renders component 1`] = `
   <WithStyles(ForwardRef(Grid))
     item={true}
   >
-    <WithStyles(ForwardRef(Typography))
-      className="title-mock"
-      variant="body2"
+    <Memo(WithStyles(Tooltip))
+      className="makeStyles-tooltip-5"
+      placement="bottom"
+      title="More channels"
     >
-      sample title
-    </WithStyles(ForwardRef(Typography))>
+      <WithStyles(ForwardRef(Typography))
+        className="makeStyles-title-2 makeStyles-clickable-3"
+        onClick={[MockFunction]}
+        variant="body2"
+      >
+        sample title
+      </WithStyles(ForwardRef(Typography))>
+    </Memo(WithStyles(Tooltip))>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
     item={true}
   >
     <Memo(WithStyles(Tooltip))
-      className="tooltip-mock"
+      className="makeStyles-tooltip-5"
       placement="bottom"
       title="sample text"
     >
       <WithStyles(ForwardRef(IconButton))
-        className="iconButton-mock"
+        className="makeStyles-iconButton-4"
         edge="end"
+        onClick={[MockFunction]}
       >
         <PlusIcon
           color="white"

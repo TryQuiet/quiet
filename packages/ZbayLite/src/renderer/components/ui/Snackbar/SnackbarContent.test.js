@@ -1,36 +1,20 @@
-/* eslint import/first: 0 */
 import React from 'react'
 import { shallow } from 'enzyme'
 import each from 'jest-each'
 
 import { SnackbarContent } from './SnackbarContent'
-import { mockClasses } from '../../../../shared/testing/mocks'
 
 describe('SnackbarContent', () => {
-  each(['success', 'warning', 'error', 'info', 'loading']).test(
-    'renders %s',
-    (variant) => {
-      const result = shallow(
-        <SnackbarContent
-          variant={variant}
-          message='test snackbar'
-          onClose={jest.fn()}
-          classes={mockClasses}
-        />
-      )
-      expect(result).toMatchSnapshot()
-    }
-  )
+  each(['success', 'warning', 'error', 'info', 'loading']).test('renders %s', variant => {
+    const result = shallow(
+      <SnackbarContent message='test snackbar' variant={variant} onClose={jest.fn()} />
+    )
+    expect(result).toMatchSnapshot()
+  })
 
   it('renders fullWidth', () => {
     const result = shallow(
-      <SnackbarContent
-        variant='success'
-        message='test snackbar'
-        onClose={jest.fn()}
-        classes={mockClasses}
-        fullWidth
-      />
+      <SnackbarContent message='test snackbar' variant='success' onClose={jest.fn()} fullWidth />
     )
     expect(result).toMatchSnapshot()
   })

@@ -1,17 +1,16 @@
 import React from 'react'
-import PropTypes from 'prop-types'
-import * as R from 'ramda'
+
 import classNames from 'classnames'
 
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
-import { withStyles } from '@material-ui/core/styles'
 import IconButton from '@material-ui/core/IconButton'
 
 import PlusIconWithBorder from '../assets/icons/PlusIconWithBorder'
 import Tooltip from '../Tooltip/Tooltip'
+import { makeStyles } from '@material-ui/styles'
 
-const styles = theme => ({
+const useStyles = makeStyles(() => ({
   root: {
     marginTop: 25,
     height: 32,
@@ -39,35 +38,36 @@ const styles = theme => ({
   tooltip: {
     marginTop: -1
   }
-})
+}))
 
-export const SidebarHeader = ({
-  classes,
+interface SidebarHeaderProps {
+  title: string
+  action: () => void
+  actionTitle?: () => void
+  tooltipText: string
+}
+
+export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
   title,
   action,
   tooltipText,
   actionTitle
 }) => {
+  const classes = useStyles({})
   return (
     <Grid
       container
       direction='row'
       justify='space-between'
       alignItems='center'
-      className={classes.root}
-    >
+      className={classes.root}>
       <Grid item>
         {actionTitle ? (
-          <Tooltip
-            title='More channels'
-            className={classes.tooltip}
-            placement='bottom'
-          >
+          <Tooltip title='More channels' className={classes.tooltip} placement='bottom'>
             <Typography
               variant='body2'
               className={classNames(classes.title, classes.clickable)}
-              onClick={actionTitle}
-            >
+              onClick={actionTitle}>
               {title}
             </Typography>
           </Tooltip>
@@ -78,16 +78,8 @@ export const SidebarHeader = ({
         )}
       </Grid>
       <Grid item>
-        <Tooltip
-          title={tooltipText}
-          className={classes.tooltip}
-          placement='bottom'
-        >
-          <IconButton
-            className={classes.iconButton}
-            edge='end'
-            onClick={action}
-          >
+        <Tooltip title={tooltipText} className={classes.tooltip} placement='bottom'>
+          <IconButton className={classes.iconButton} onClick={action} edge='end'>
             <PlusIconWithBorder color='white' />
           </IconButton>
         </Tooltip>
@@ -95,12 +87,5 @@ export const SidebarHeader = ({
     </Grid>
   )
 }
-SidebarHeader.propTypes = {
-  classes: PropTypes.object.isRequired,
-  title: PropTypes.string.isRequired,
-  tooltipText: PropTypes.string.isRequired,
-  actions: PropTypes.arrayOf(PropTypes.element),
-  actionTitle: PropTypes.func
-}
 
-export default R.compose(React.memo, withStyles(styles))(SidebarHeader)
+export default SidebarHeader

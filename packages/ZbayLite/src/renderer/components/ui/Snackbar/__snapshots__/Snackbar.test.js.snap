@@ -22,7 +22,7 @@ exports[`Snackbar renders closed 1`] = `
   onClose={[MockFunction]}
   open={false}
 >
-  <Memo(WithStyles(SnackbarContent))
+  <Component
     fullWidth={false}
     message="test snackbar"
     onClose={[MockFunction]}
@@ -53,7 +53,7 @@ exports[`Snackbar renders error 1`] = `
   onClose={[MockFunction]}
   open={true}
 >
-  <Memo(WithStyles(SnackbarContent))
+  <Component
     fullWidth={false}
     message="test snackbar"
     onClose={[MockFunction]}
@@ -73,18 +73,18 @@ exports[`Snackbar renders full width for position [bottom, left] 1`] = `
   autoHideDuration={6000}
   classes={
     Object {
-      "anchorOriginBottomCenter": "fullWidthBottom-mock",
-      "anchorOriginBottomLeft": "fullWidthBottom-mock",
-      "anchorOriginBottomRight": "fullWidthBottom-mock",
-      "anchorOriginTopCenter": "fullWidthTop-mock",
-      "anchorOriginTopLeft": "fullWidthTop-mock",
-      "anchorOriginTopRight": "fullWidthTop-mock",
+      "anchorOriginBottomCenter": "makeStyles-fullWidthBottom-1",
+      "anchorOriginBottomLeft": "makeStyles-fullWidthBottom-1",
+      "anchorOriginBottomRight": "makeStyles-fullWidthBottom-1",
+      "anchorOriginTopCenter": "makeStyles-fullWidthTop-2",
+      "anchorOriginTopLeft": "makeStyles-fullWidthTop-2",
+      "anchorOriginTopRight": "makeStyles-fullWidthTop-2",
     }
   }
   onClose={[MockFunction]}
   open={true}
 >
-  <Memo(WithStyles(SnackbarContent))
+  <Component
     fullWidth={true}
     message="test snackbar"
     onClose={[MockFunction]}
@@ -104,18 +104,18 @@ exports[`Snackbar renders full width for position [top, left] 1`] = `
   autoHideDuration={6000}
   classes={
     Object {
-      "anchorOriginBottomCenter": "fullWidthBottom-mock",
-      "anchorOriginBottomLeft": "fullWidthBottom-mock",
-      "anchorOriginBottomRight": "fullWidthBottom-mock",
-      "anchorOriginTopCenter": "fullWidthTop-mock",
-      "anchorOriginTopLeft": "fullWidthTop-mock",
-      "anchorOriginTopRight": "fullWidthTop-mock",
+      "anchorOriginBottomCenter": "makeStyles-fullWidthBottom-1",
+      "anchorOriginBottomLeft": "makeStyles-fullWidthBottom-1",
+      "anchorOriginBottomRight": "makeStyles-fullWidthBottom-1",
+      "anchorOriginTopCenter": "makeStyles-fullWidthTop-2",
+      "anchorOriginTopLeft": "makeStyles-fullWidthTop-2",
+      "anchorOriginTopRight": "makeStyles-fullWidthTop-2",
     }
   }
   onClose={[MockFunction]}
   open={true}
 >
-  <Memo(WithStyles(SnackbarContent))
+  <Component
     fullWidth={true}
     message="test snackbar"
     onClose={[MockFunction]}
@@ -135,18 +135,18 @@ exports[`Snackbar renders full width for position [top, right] 1`] = `
   autoHideDuration={6000}
   classes={
     Object {
-      "anchorOriginBottomCenter": "fullWidthBottom-mock",
-      "anchorOriginBottomLeft": "fullWidthBottom-mock",
-      "anchorOriginBottomRight": "fullWidthBottom-mock",
-      "anchorOriginTopCenter": "fullWidthTop-mock",
-      "anchorOriginTopLeft": "fullWidthTop-mock",
-      "anchorOriginTopRight": "fullWidthTop-mock",
+      "anchorOriginBottomCenter": "makeStyles-fullWidthBottom-1",
+      "anchorOriginBottomLeft": "makeStyles-fullWidthBottom-1",
+      "anchorOriginBottomRight": "makeStyles-fullWidthBottom-1",
+      "anchorOriginTopCenter": "makeStyles-fullWidthTop-2",
+      "anchorOriginTopLeft": "makeStyles-fullWidthTop-2",
+      "anchorOriginTopRight": "makeStyles-fullWidthTop-2",
     }
   }
   onClose={[MockFunction]}
   open={true}
 >
-  <Memo(WithStyles(SnackbarContent))
+  <Component
     fullWidth={true}
     message="test snackbar"
     onClose={[MockFunction]}
@@ -166,18 +166,18 @@ exports[`Snackbar renders full width for position [top, right] 2`] = `
   autoHideDuration={6000}
   classes={
     Object {
-      "anchorOriginBottomCenter": "fullWidthBottom-mock",
-      "anchorOriginBottomLeft": "fullWidthBottom-mock",
-      "anchorOriginBottomRight": "fullWidthBottom-mock",
-      "anchorOriginTopCenter": "fullWidthTop-mock",
-      "anchorOriginTopLeft": "fullWidthTop-mock",
-      "anchorOriginTopRight": "fullWidthTop-mock",
+      "anchorOriginBottomCenter": "makeStyles-fullWidthBottom-1",
+      "anchorOriginBottomLeft": "makeStyles-fullWidthBottom-1",
+      "anchorOriginBottomRight": "makeStyles-fullWidthBottom-1",
+      "anchorOriginTopCenter": "makeStyles-fullWidthTop-2",
+      "anchorOriginTopLeft": "makeStyles-fullWidthTop-2",
+      "anchorOriginTopRight": "makeStyles-fullWidthTop-2",
     }
   }
   onClose={[MockFunction]}
   open={true}
 >
-  <Memo(WithStyles(SnackbarContent))
+  <Component
     fullWidth={true}
     message="test snackbar"
     onClose={[MockFunction]}
@@ -208,7 +208,7 @@ exports[`Snackbar renders info 1`] = `
   onClose={[MockFunction]}
   open={true}
 >
-  <Memo(WithStyles(SnackbarContent))
+  <Component
     fullWidth={false}
     message="test snackbar"
     onClose={[MockFunction]}
@@ -239,7 +239,7 @@ exports[`Snackbar renders loading 1`] = `
   onClose={[MockFunction]}
   open={true}
 >
-  <Memo(WithStyles(SnackbarContent))
+  <Component
     fullWidth={false}
     message="test snackbar"
     onClose={[MockFunction]}
@@ -270,7 +270,7 @@ exports[`Snackbar renders success 1`] = `
   onClose={[MockFunction]}
   open={true}
 >
-  <Memo(WithStyles(SnackbarContent))
+  <Component
     fullWidth={false}
     message="test snackbar"
     onClose={[MockFunction]}
@@ -301,7 +301,7 @@ exports[`Snackbar renders warning 1`] = `
   onClose={[MockFunction]}
   open={true}
 >
-  <Memo(WithStyles(SnackbarContent))
+  <Component
     fullWidth={false}
     message="test snackbar"
     onClose={[MockFunction]}
