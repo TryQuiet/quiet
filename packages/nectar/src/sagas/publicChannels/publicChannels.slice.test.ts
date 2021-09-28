@@ -1,6 +1,6 @@
-import {combineReducers, createStore, Store} from 'redux';
-import {StoreKeys} from '../store.keys';
-import {publicChannelsSelectors} from './publicChannels.selectors';
+import { combineReducers, createStore, Store } from 'redux';
+import { StoreKeys } from '../store.keys';
+import { publicChannelsSelectors } from './publicChannels.selectors';
 import {
   publicChannelsActions,
   publicChannelsReducer,
@@ -31,13 +31,13 @@ describe('publicChannelsReducer', () => {
     store = createStore(
       combineReducers({
         [StoreKeys.PublicChannels]: publicChannelsReducer,
-      }),
+      })
     );
   });
 
   it('responseGetPublicChannels should set channels info', () => {
     store.dispatch(
-      publicChannelsActions.responseGetPublicChannels(mockGetPublicChannels),
+      publicChannelsActions.responseGetPublicChannels(mockGetPublicChannels)
     );
     const channels = publicChannelsSelectors.publicChannels(store.getState());
     expect(channels).toMatchInlineSnapshot(`

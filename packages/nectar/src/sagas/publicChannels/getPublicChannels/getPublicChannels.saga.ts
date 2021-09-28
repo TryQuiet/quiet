@@ -1,9 +1,9 @@
 import { Socket } from 'socket.io-client';
 import { SocketActionTypes } from '../../socket/const/actionTypes';
-import { apply, delay, put, select } from 'typed-redux-saga';
-import { publicChannelsSelectors } from '../publicChannels.selectors';
+import { apply } from 'typed-redux-saga';
+// import { publicChannelsSelectors } from '../publicChannels.selectors';
 import { IChannelInfo } from '../publicChannels.types';
-import { publicChannelsActions } from '../publicChannels.slice';
+// import { publicChannelsActions } from '../publicChannels.slice';
 
 export function* getPublicChannelsSaga(socket: Socket): Generator {
   yield* apply(socket, socket.emit, [SocketActionTypes.GET_PUBLIC_CHANNELS]);

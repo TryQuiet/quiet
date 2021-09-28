@@ -15,11 +15,17 @@ export class Identity {
   }
 
   public id: string = '';
+
   public zbayNickname: string = '';
+
   public hiddenService: HiddenService;
+
   public dmKeys: DmKeys;
+
   public peerId: PeerId;
+
   public userCsr: UserCsr | null = null;
+
   public userCertificate: string | null = null;
 }
 
@@ -98,6 +104,8 @@ export const identitySlice = createSlice({
     },
     createUserCsr: (state, _action: PayloadAction<CreateUserCsrPayload>) =>
       state,
+    saveOwnerCertToDb: (state, _action: PayloadAction<string>) => state,
+    savedOwnerCertificate: (state, _action: PayloadAction<string>) => state,
     registerUsername: (state, _action: PayloadAction<string>) => state,
     updateUsername: (state, action: PayloadAction<UpdateUsernamePayload>) => {
       identityAdapter.updateOne(state, {

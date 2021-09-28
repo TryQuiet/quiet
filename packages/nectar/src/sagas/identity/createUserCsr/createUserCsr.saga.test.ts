@@ -9,11 +9,15 @@ import {
   CreateUserCsrPayload,
   identityActions,
   identityReducer,
-  Identity
+  Identity,
 } from '../identity.slice';
 
-import {identityAdapter} from '../identity.adapter'
-import { communitiesReducer, CommunitiesState, Community } from '../../communities/communities.slice';
+import { identityAdapter } from '../identity.adapter';
+import {
+  communitiesReducer,
+  CommunitiesState,
+  Community,
+} from '../../communities/communities.slice';
 
 describe('createUserCsrSaga', () => {
   const userCsr = {
@@ -26,55 +30,72 @@ describe('createUserCsrSaga', () => {
     },
   };
 
-
   test('create csr', async () => {
-    const community = new Community({name: '', id: 'id', registrarUrl:'registrarUrl', CA: {}})
-    const identity = new Identity({id: 'id', hiddenService: {onionAddress: 'onionAddress', privateKey: 'privateKey'}, dmKeys: {publicKey: 'publicKey', privateKey: 'privateKey'}, peerId: {id: 'peerId', pubKey: 'pubKey', privKey: 'privKey'}})
-    const identityWithCsr: Identity = {id: 'id', hiddenService: {onionAddress: 'onionAddress', privateKey: 'privateKey'}, peerId: {id: 'peerId', pubKey: 'pubKey', privKey: 'privKey'}, zbayNickname: '', userCsr: userCsr, userCertificate: null, dmKeys: {publicKey: 'publicKey', privateKey: 'privateKey'}} as Identity
+    const community = new Community({
+      name: '',
+      id: 'id',
+      registrarUrl: 'registrarUrl',
+      CA: {},
+    });
+    const identity = new Identity({
+      id: 'id',
+      hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
+      dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
+      peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
+    });
+    const identityWithCsr: Identity = {
+      id: 'id',
+      hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
+      peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
+      zbayNickname: '',
+      userCsr: userCsr,
+      userCertificate: null,
+      dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
+    } as Identity;
     await expectSaga(
       createUserCsrSaga,
       identityActions.createUserCsr(<CreateUserCsrPayload>{})
     )
       .withReducer(
         combineReducers({
-          [StoreKeys.Identity]: identityReducer, [StoreKeys.Communities]: communitiesReducer
+          [StoreKeys.Identity]: identityReducer,
+          [StoreKeys.Communities]: communitiesReducer,
         }),
         {
           [StoreKeys.Identity]: {
-            ...identityAdapter.setAll(
-              identityAdapter.getInitialState(),
-              [identity]
-            )
+            ...identityAdapter.setAll(identityAdapter.getInitialState(), [
+              identity,
+            ]),
           },
-          [StoreKeys.Communities]: {...new CommunitiesState(),
-          currentCommunity: 'id',
-          communities: {
-            ids: ['id'],
-            entities: {
-              [community.id]: community
-            }
-          }
-        }
+          [StoreKeys.Communities]: {
+            ...new CommunitiesState(),
+            currentCommunity: 'id',
+            communities: {
+              ids: ['id'],
+              entities: {
+                [community.id]: community,
+              },
+            },
+          },
         }
       )
       .provide([[call.fn(createUserCsr), userCsr]])
       .hasFinalState({
         [StoreKeys.Identity]: {
-          ...identityAdapter.setAll(
-            identityAdapter.getInitialState(),
-            [identityWithCsr]
-          )
+          ...identityAdapter.setAll(identityAdapter.getInitialState(), [
+            identityWithCsr,
+          ]),
         },
-        [StoreKeys.Communities]: {...new CommunitiesState(),
+        [StoreKeys.Communities]: {
+          ...new CommunitiesState(),
           currentCommunity: 'id',
           communities: {
             ids: ['id'],
             entities: {
-              [community.id]: community
-            }
-          }
-        }
-
+              [community.id]: community,
+            },
+          },
+        },
       })
       .run();
   });

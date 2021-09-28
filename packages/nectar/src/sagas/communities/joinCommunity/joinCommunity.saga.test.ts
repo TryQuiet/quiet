@@ -9,32 +9,36 @@ import {
   communitiesActions,
   communitiesReducer,
   Community,
-  CommunitiesState
+  CommunitiesState,
 } from '../communities.slice';
-import {communitiesAdapter} from '../communities.adapter'
+import { communitiesAdapter } from '../communities.adapter';
 import { joinCommunitySaga } from './joinCommunity.saga';
 
 describe('joinCommunity', () => {
   test('join the existing community', async () => {
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket;
-    const community = new Community({name: '', id: 'id', registrarUrl:'registrarUrl', CA: {}})
-
-    const communityPayload = {
+    const community = new Community({
+      name: '',
       id: 'id',
-    };
-    await expectSaga(joinCommunitySaga, socket, communitiesActions.joinCommunity('registrarUrl'))
+      registrarUrl: 'registrarUrl',
+      CA: {},
+    });
+
+    await expectSaga(
+      joinCommunitySaga,
+      socket,
+      communitiesActions.joinCommunity('registrarUrl')
+    )
       .withReducer(
         combineReducers({ [StoreKeys.Communities]: communitiesReducer }),
         {
-        [StoreKeys.Communities]: {...new CommunitiesState()}
+          [StoreKeys.Communities]: { ...new CommunitiesState() },
         }
       )
-      .provide([
-        [call.fn(generateId), 'id'],
-      ])
+      .provide([[call.fn(generateId), 'id']])
       .apply(socket, socket.emit, [
-        SocketActionTypes.CREATE_COMMUNITY,
-        communityPayload,
+        SocketActionTypes.CREATE_NETWORK,
+        community.id,
       ])
       .hasFinalState({
         [StoreKeys.Communities]: {
@@ -46,7 +50,6 @@ describe('joinCommunity', () => {
           ),
         },
       })
-      .silentRun();
-
+      .run();
   });
 });

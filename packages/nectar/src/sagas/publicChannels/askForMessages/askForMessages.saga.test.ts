@@ -13,7 +13,7 @@ describe('askForMessagesSaga', () => {
   const saga: TestApi = testSaga(
     askForMessagesSaga,
     socket,
-    publicChannelsActions.askForMessages(<AskForMessagesPayload>{}),
+    publicChannelsActions.askForMessages(<AskForMessagesPayload>{})
   );
 
   beforeEach(() => {

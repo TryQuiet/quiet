@@ -12,33 +12,24 @@ export const certificates = createSelector(
     certificatesAdapter.getSelectors().selectEntities(reducerState.certificates)
 );
 
-export const certificatesMapping = createSelector(
-  certificates,
-  (certificates) => {
-    const mapping: { [pubKey: string]: User } = {};
-    Object.keys(certificates).map((pubKey) => {
-      const certificate = certificates[pubKey];
+export const certificatesMapping = createSelector(certificates, (certs) => {
+  const mapping: { [pubKey: string]: User } = {};
+  Object.keys(certs).map((pubKey) => {
+    const certificate = certs[pubKey];
 
-      if (!certificate || certificate.subject.typesAndValues.length < 3) {
-        return;
-      }
+    if (!certificate || certificate.subject.typesAndValues.length < 3) {
+      return;
+    }
 
-      return (mapping[pubKey] = {
-        username: getCertFieldValue(certificate, CertFieldsTypes.nickName),
-        onionAddress: getCertFieldValue(
-          certificate,
-          CertFieldsTypes.commonName
-        ),
-        peerId: getCertFieldValue(certificate, CertFieldsTypes.peerId),
-        dmPublicKey: getCertFieldValue(
-          certificate,
-          CertFieldsTypes.dmPublicKey
-        ),
-      });
+    return (mapping[pubKey] = {
+      username: getCertFieldValue(certificate, CertFieldsTypes.nickName),
+      onionAddress: getCertFieldValue(certificate, CertFieldsTypes.commonName),
+      peerId: getCertFieldValue(certificate, CertFieldsTypes.peerId),
+      dmPublicKey: getCertFieldValue(certificate, CertFieldsTypes.dmPublicKey),
     });
-    return mapping;
-  }
-);
+  });
+  return mapping;
+});
 
 export const usersSelectors = {
   certificates,

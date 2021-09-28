@@ -15,21 +15,21 @@ export function* publicChannelsMasterSaga(socket: Socket): Generator {
     takeEvery(
       publicChannelsActions.getPublicChannels.type,
       getPublicChannelsSaga,
-      socket,
+      socket
     ),
     takeEvery(
       publicChannelsActions.subscribeForTopic.type,
       subscribeForTopicSaga,
-      socket,
+      socket
     ),
     takeEvery(
       publicChannelsActions.responseSendMessagesIds.type,
-      checkForMessagesSaga,
+      checkForMessagesSaga
     ),
     takeEvery(
       publicChannelsActions.askForMessages.type,
       askForMessagesSaga,
-      socket,
+      socket
     ),
   ]);
 }

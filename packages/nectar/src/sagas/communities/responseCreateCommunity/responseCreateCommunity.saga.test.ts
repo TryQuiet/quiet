@@ -43,11 +43,11 @@ describe('responseCreateCommunity', () => {
                 privateKey: 'privateKey',
               },
               peerId: { id: 'id', pubKey: 'pubKey', privKey: 'privKey' },
-              dmKeys: {publicKey: 'pub', privateKey: 'priv'}
+              dmKeys: { publicKey: 'pub', privateKey: 'priv' },
             }),
           },
         },
       })
-      .silentRun();
+      .run();
   });
 });

@@ -11,5 +11,5 @@ export const certificateRegistration = createSelector(
 );
 
 export const errorsSelectors = {
-  certificateRegistration
-}
+  certificateRegistration,
+};

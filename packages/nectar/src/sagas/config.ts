@@ -1,1 +1,1 @@
-export const mainChannelName = "general"
+export const mainChannelName = 'general';

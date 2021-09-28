@@ -13,6 +13,7 @@ import { usersSelectors } from './sagas/users/users.selectors';
 import {
   identityReducer,
   identityActions,
+  Identity,
 } from './sagas/identity/identity.slice';
 import { identitySelectors } from './sagas/identity/identity.selectors';
 
@@ -23,11 +24,11 @@ import {
 } from './sagas/messages/messages.slice';
 import { messagesSelectors } from './sagas/messages/messages.selectors';
 import { errorsSelectors } from './sagas/errors/errors.selectors';
+import { errorsReducer, errorsActions } from './sagas/errors/errors.slice';
 import {
-  errorsReducer,
-  errorsActions,
-} from './sagas/errors/errors.slice';
-import { communitiesActions, communitiesReducer } from './sagas/communities/communities.slice';
+  communitiesActions,
+  communitiesReducer,
+} from './sagas/communities/communities.slice';
 
 export const publicChannels = {
   reducer: publicChannelsReducer,
@@ -45,7 +46,8 @@ export const users = {
 export const identity = {
   reducer: identityReducer,
   actions: identityActions,
-  selectors: identitySelectors
+  selectors: identitySelectors,
+  Identity: Identity,
 };
 
 export const messages = {
@@ -57,14 +59,14 @@ export const messages = {
 export const errors = {
   reducer: errorsReducer,
   actions: errorsActions,
-  selectors: errorsSelectors
-}
+  selectors: errorsSelectors,
+};
 
 export const communities = {
   reducer: communitiesReducer,
   actions: communitiesActions,
   // selectors: communitiesSelectors
-}
+};
 
 export const socket = {
   useIO,
@@ -77,5 +79,5 @@ export default {
   users,
   identity,
   messages,
-  communities
+  communities,
 };

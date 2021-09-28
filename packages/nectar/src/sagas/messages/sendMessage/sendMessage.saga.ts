@@ -5,10 +5,10 @@ import {
   parseCertificate,
   sign,
   loadPrivateKey,
-  extractPubKeyString
+  extractPubKeyString,
 } from '@zbayapp/identity/lib';
 
-import {config} from '../../users/const/certFieldTypes'
+import { config } from '../../users/const/certFieldTypes';
 
 import { call, select, apply } from 'typed-redux-saga';
 import { arrayBufferToString } from 'pvutils';
@@ -44,57 +44,58 @@ export function* sendMessageSaga(
     // });
     return;
   }
-  console.log(identity.userCsr.pkcs10.privateKey, 'KeyObject')
+  console.log(identity.userCsr.pkcs10.privateKey, 'KeyObject');
 
-  console.log('sendMessageSaga-1')
-  
-  const certificate = null
+  console.log('sendMessageSaga-1');
+
+  const certificate = null;
   // const certificate = yield* select(identitySelectors.userCertificate);
   if (!certificate) {
     // TODO
     // yield* call(navigateTo, ScreenNames.ErrorScreen, {
-      //   onPress: (_dispatch: Dispatch<any>) => {
-        //     replaceScreen(ScreenNames.MainScreen);
-        //   },
-        //   icon: appImages.zbay_icon,
-        //   title: 'Error',
-        //   message:
-        //     'User certificate is missing. You need it to let the others know which messages was sent by you. Try to register your username again.',
-        // });
-        return;
-      }
-      
-      const parsedCertificate = yield* call(parseCertificate, certificate);
-      const pubKey = yield* call(keyFromCertificate, parsedCertificate);
-      const keyObject = yield* call(loadPrivateKey, identity.userCsr.userKey, config.signAlg)
-      const signatureArrayBuffer = yield* call(
-        sign,
-        action.payload,
-        keyObject       );
-        const signature = yield* call(arrayBufferToString, signatureArrayBuffer);
-        
-        const channel = yield* select(publicChannelsSelectors.currentChannel);
-        
-        const messageId = yield* call(generateMessageId);
-        
-        const currentTime = yield* call(getCurrentTime);
-        
-        const message = {
-          id: messageId,
-          type: MessageTypes.BASIC,
-          message: action.payload,
-          createdAt: currentTime,
-          signature,
-          pubKey,
-          channelId: channel,
-        };
-        
-        yield* apply(socket, socket.emit, [
-          SocketActionTypes.SEND_MESSAGE,
-          {
-            communityId: identity.id,
-            channelAddress: channel,
-            message,
-          },
-        ]);
+    //   onPress: (_dispatch: Dispatch<any>) => {
+    //     replaceScreen(ScreenNames.MainScreen);
+    //   },
+    //   icon: appImages.zbay_icon,
+    //   title: 'Error',
+    //   message:
+    //     'User certificate is missing. You need it to let the others know which messages was sent by you. Try to register your username again.',
+    // });
+    return;
+  }
+
+  const parsedCertificate = yield* call(parseCertificate, certificate);
+  const pubKey = yield* call(keyFromCertificate, parsedCertificate);
+  const keyObject = yield* call(
+    loadPrivateKey,
+    identity.userCsr.userKey,
+    config.signAlg
+  );
+  const signatureArrayBuffer = yield* call(sign, action.payload, keyObject);
+  const signature = yield* call(arrayBufferToString, signatureArrayBuffer);
+
+  const channel = yield* select(publicChannelsSelectors.currentChannel);
+
+  const messageId = yield* call(generateMessageId);
+
+  const currentTime = yield* call(getCurrentTime);
+
+  const message = {
+    id: messageId,
+    type: MessageTypes.BASIC,
+    message: action.payload,
+    createdAt: currentTime,
+    signature,
+    pubKey,
+    channelId: channel,
+  };
+
+  yield* apply(socket, socket.emit, [
+    SocketActionTypes.SEND_MESSAGE,
+    {
+      communityId: identity.id,
+      channelAddress: channel,
+      message,
+    },
+  ]);
 }

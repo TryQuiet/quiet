@@ -17,5 +17,5 @@ export const generateDmKeyPair = () => {
   const privateKey = dh.getPrivateKey('hex');
   const publicKey = dh.getPublicKey('hex');
 
-  return { publicKey,privateKey };
+  return { publicKey, privateKey };
 };

@@ -9,10 +9,26 @@ import { responseCreateCommunitySaga } from './responseCreateCommunity/responseC
 
 export function* communitiesMasterSaga(socket: Socket): Generator {
   yield all([
-    takeEvery(communitiesActions.responseCreateCommunity.type, responseCreateCommunitySaga),
-    takeEvery(communitiesActions.createNewCommunity.type, createCommunitySaga, socket),
+    takeEvery(
+      communitiesActions.responseCreateCommunity.type,
+      responseCreateCommunitySaga
+    ),
+    takeEvery(
+      communitiesActions.createNewCommunity.type,
+      createCommunitySaga,
+      socket
+    ),
     takeEvery(communitiesActions.joinCommunity.type, joinCommunitySaga, socket),
-    takeEvery(communitiesActions.launchRegistrar.type, launchRegistrarSaga, socket),
-    takeEvery(communitiesActions.launchCommunity.type, launchCommunitySaga, socket)
+    takeEvery(
+      communitiesActions.launchRegistrar.type,
+      launchRegistrarSaga,
+      socket
+    ),
+    takeEvery(
+      communitiesActions.launchCommunity.type,
+      launchCommunitySaga,
+      socket
+    ),
+    takeEvery(communitiesActions.community.type, launchRegistrarSaga, socket),
   ]);
 }

@@ -47,14 +47,14 @@ export const publicChannelsSlice = createSlice({
   initialState: { ...new PublicChannelsState() },
   name: StoreKeys.PublicChannels,
   reducers: {
-    getPublicChannels: state => state,
+    getPublicChannels: (state) => state,
     responseGetPublicChannels: (
       state,
-      action: PayloadAction<GetPublicChannelsResponse>,
+      action: PayloadAction<GetPublicChannelsResponse>
     ) => {
       publicChannelsAdapter.setAll(
         state.channels,
-        Object.values(action.payload),
+        Object.values(action.payload)
       );
     },
     setCurrentChannel: (state, action: PayloadAction<string>) => {
@@ -63,7 +63,7 @@ export const publicChannelsSlice = createSlice({
     subscribeForTopic: (state, _action: PayloadAction<IChannelInfo>) => state,
     responseSendMessagesIds: (
       state,
-      action: PayloadAction<ChannelMessagesIdsResponse>,
+      action: PayloadAction<ChannelMessagesIdsResponse>
     ) => {
       const channelAddress = action.payload.channelAddress;
       if (channelAddress in state.channelMessages) {
@@ -79,10 +79,10 @@ export const publicChannelsSlice = createSlice({
       state,
     responseAskForMessages: (
       state,
-      action: PayloadAction<AskForMessagesResponse>,
+      action: PayloadAction<AskForMessagesResponse>
     ) => {
       const channelAddress = action.payload.channelAddress;
-      action.payload.messages.forEach(message => {
+      action.payload.messages.forEach((message) => {
         state.channelMessages[channelAddress].messages[message.id] = message;
       });
     },
