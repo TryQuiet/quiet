@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BaseChannelsList renders component 1`] = `
+<WithStyles(ForwardRef(List))
+  disablePadding={true}
+>
+  <Component
+    channel={
+      Contact {
+        "address": "",
+        "key": "",
+        "messages": Array [],
+        "newMessages": Array [],
+        "typingIndicator": false,
+        "username": "",
+        "vaultMessages": Array [],
+        Symbol(immer-draftable): true,
+      }
+    }
+    directMessages={false}
+    key=""
+    selected={Object {}}
+  />
+  <Component
+    channel={
+      Contact {
+        "address": "",
+        "key": "",
+        "messages": Array [],
+        "newMessages": Array [],
+        "typingIndicator": false,
+        "username": "",
+        "vaultMessages": Array [],
+        Symbol(immer-draftable): true,
+      }
+    }
+    directMessages={false}
+    key="c7e7c14740c3372fffe47c845a2b6720"
+    selected={Object {}}
+  />
+</WithStyles(ForwardRef(List))>
+`;

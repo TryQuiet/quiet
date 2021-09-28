@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BaseChannelsList renders component 1`] = `
+<Fragment>
+  <Component
+    icon="test-file-stub"
+    iconHover="test-file-stub"
+    offset="0 8"
+  >
+    <Component
+      onClick={[MockFunction]}
+      title="Create"
+    />
+  </Component>
+  <Memo(withModal(Component)) />
+</Fragment>
+`;

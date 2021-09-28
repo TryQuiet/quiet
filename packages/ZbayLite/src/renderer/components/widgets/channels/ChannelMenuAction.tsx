@@ -32,7 +32,7 @@ interface ChannelMenuActionProps {
   onSettings: () => void
   mutedFlag: boolean
   disableSettings: boolean
-  notificationFilter: string
+  notificationFilter: number
   openNotificationsTab: () => void
 }
 

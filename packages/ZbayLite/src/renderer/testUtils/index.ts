@@ -54,7 +54,7 @@ export const createVaultMessage = (
 
 export const createMessage = async () => {
   return {
-    id: 1,
+    id: '1',
     type: messageType.BASIC,
     message: 'example message',
     pubKey: 'ownPubKey',

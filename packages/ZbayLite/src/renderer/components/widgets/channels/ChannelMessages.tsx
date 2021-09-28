@@ -69,7 +69,11 @@ interface IChannelMessagesProps {
   onLinkedChannel?: (arg0: any) => void
   publicChannels?: any
   onRescan?: () => void
-  contentRect?: string
+  contentRect?: {
+    bounds: {
+      height: number
+    }
+  }
   isInitialLoadFinished?: boolean
   channelId?: string
   name?: string

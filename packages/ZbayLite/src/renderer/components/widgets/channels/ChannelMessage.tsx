@@ -225,6 +225,7 @@ const checkLinking = (
 
 interface ChannelMessageProps {
   message: DisplayableMessage
+  onResend?: (DisplayableMessage: DisplayableMessage) => void
   publicChannels: any
   onLinkedChannel: (string) => void
   onLinkedUser: () => void
@@ -235,6 +236,7 @@ interface ChannelMessageProps {
   addToWhitelist: (url: string, dontAutoload: boolean) => void
   setWhitelistAll: () => void
   autoload: any[]
+  torEnabled?: boolean
 }
 
 export const ChannelMessage: React.FC<ChannelMessageProps> = ({
