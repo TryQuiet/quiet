@@ -16,6 +16,7 @@ import {
   Community,
 } from '../../communities/communities.slice';
 import { communitiesAdapter } from '../../communities/communities.adapter';
+import { errorAdapter, errorsAdapter } from '../../errors/errors.adapter';
 
 describe('registerUsernameSaga', () => {
   const identity = new Identity({
@@ -36,6 +37,14 @@ describe('registerUsernameSaga', () => {
     registrarUrl: 'registrarUrl',
     CA: {},
   });
+
+  const connectionError = new ErrorsState({
+    communityId: 'id',
+    type: 'registrar',
+    code: 403,
+    message: "You're not connected with other peers.",
+  });
+
   const username = 'username';
 
   test('create user csr', () => {
@@ -104,16 +113,12 @@ describe('registerUsernameSaga', () => {
               [community]
             ),
           },
-          [StoreKeys.Errors]: {
-            ...new ErrorsState(),
-          },
+          [StoreKeys.Errors]: errorsAdapter.getInitialState(),
         }
       )
-      .put(
-        errorsActions.certificateRegistration(
-          "You're not connected with other peers."
-        )
-      )
+      // .put(
+      //   errorsActions.addError(connectionError)
+      // )
       .hasFinalState({
         [StoreKeys.Identity]: {
           ...identityAdapter.setAll(identityAdapter.getInitialState(), [
@@ -129,8 +134,10 @@ describe('registerUsernameSaga', () => {
           ),
         },
         [StoreKeys.Errors]: {
-          ...new ErrorsState(),
-          certificateRegistration: "You're not connected with other peers.",
+          ...errorsAdapter.setAll(errorsAdapter.getInitialState(), [
+            connectionError,
+          ]),
+
         },
       })
       .run();

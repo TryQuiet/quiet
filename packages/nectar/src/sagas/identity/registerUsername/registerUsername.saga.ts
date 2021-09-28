@@ -13,13 +13,14 @@ export function* registerUsernameSaga(
   const peerId = identity.peerId.id;
   const dmPublicKey = identity.dmKeys.publicKey;
 
-  console.log('registerUsernameSaga');
-
   if (!commonName || !peerId) {
     yield* put(
-      errorsActions.certificateRegistration(
-        "You're not connected with other peers."
-      )
+      errorsActions.addError({
+        communityId: identity.id,
+        type: 'registrar', // TODO: what type of error?
+        code: 403,
+        message: "You're not connected with other peers.",
+      })
     );
     return;
   }

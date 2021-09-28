@@ -23,7 +23,6 @@ export enum SocketActionTypes {
   SUBSCRIBE_FOR_TOPIC = 'subscribeForTopic',
   REGISTER_USER_CERTIFICATE = 'registerUserCertificate',
   SEND_USER_CERTIFICATE = 'sendUserCertificate',
-  CERTIFICATE_REGISTRATION_ERROR = 'certificateRegistrationError',
   SAVE_CERTIFICATE = 'saveCertificate',
   RESPONSE_GET_CERTIFICATES = 'responseGetCertificates',
   SEND_MESSAGE = 'sendMessage',
