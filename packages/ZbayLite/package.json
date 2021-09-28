@@ -202,7 +202,7 @@
       "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/src/shared/testing/fileMock.js",
       "\\.(scss|css|less)$": "identity-obj-proxy"
     },
-    "testRegex": "src/.*\\.test\\.(t|j)s$",
+    "testRegex": "src/.*\\.test\\.(t|j)sx?$",
     "snapshotSerializers": [
       "enzyme-to-json/serializer"
     ]

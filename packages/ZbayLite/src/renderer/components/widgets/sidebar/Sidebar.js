@@ -7,7 +7,6 @@ import { withStyles } from '@material-ui/core/styles'
 import { Scrollbars } from 'rc-scrollbars'
 import { AutoSizer } from 'react-virtualized'
 
-import NodePanel from '../../../containers/widgets/node/NodePanel'
 import IdentityPanel from '../../../containers/ui/IdentityPanel'
 import WalletPanel from '../../../containers/widgets/walletPanel/WalletPanel'
 import ChannelsPanel from '../../../containers/widgets/channels/ChannelsPanel'
@@ -40,7 +39,6 @@ const Sidebar = ({ classes }) => {
     <Grid container direction='column' className={classes.root}>
       <Grid item xs container direction='column' className={classes.padding}>
         <Grid item >
-          <NodePanel className={classes.statusBar} />
           <IdentityPanel />
         </Grid>
         <Grid item xs container direction='column'>
