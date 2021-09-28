@@ -90,6 +90,7 @@ export const JoinChannelModal = ({
   open,
   handleClose,
   joinChannel,
+  Channel,
   publicChannels,
   showNotification,
   users

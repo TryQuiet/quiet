@@ -73,9 +73,7 @@ const formSchema = Yup.object().shape({
 export const VaultUnlockerForm = ({
   classes,
   onSubmit,
-  loader,
-  isNewUser,
-  mainChannelLoaded
+  isNewUser
 }) => {
   const isDev = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'production'
   const [done, setDone] = useState(true)
@@ -90,62 +88,51 @@ export const VaultUnlockerForm = ({
       onSubmit={() => { }}
       validationSchema={isDev ? null : formSchema}
     >
-      {({ isSubmitting }) => (
-        <Form>
+      <Form>
+        <Grid
+          container
+          direction='column'
+          spacing={!isNewUser ? 4 : 6}
+          justfy='center'
+          alignItems='center'
+          alignContent='center'>
           <Grid
+            className={classes.logoContainer}
             container
-            direction='column'
-            spacing={!isNewUser ? 4 : 6}
-            justfy='center'
+            item
+            xs={12}
+            justify='center'
             alignItems='center'
             alignContent='center'>
-            <Grid
-              className={classes.logoContainer}
-              container
-              item
-              xs={12}
-              justify='center'
-              alignItems='center'
-              alignContent='center'>
-              <Icon className={classes.icon} src={icon} />
-            </Grid>
-            <Grid container item xs={12} wrap='wrap' justify='center'>
-              <Typography
-                className={classNames({
-                  [classes.title]: true,
-                  [classes.existingUser]: !isNewUser
-                })}
-                variant='body1'
-                gutterBottom>
-                {!isNewUser ? 'Welcome Back' : 'Welcome to Zbay!'}
-              </Typography>
-            </Grid>
-
-            <Grid container item justify='center'>
-              <LoadingButton
-                type='submit'
-                variant='contained'
-                size='large'
-                color='primary'
-                margin='normal'
-                text={!isNewUser ? 'Sign in' : 'Connect Now'}
-                fullWidth
-                disabled={!done || syncingStart}
-                inProgress={!done || syncingStart}
-              />
-            </Grid>
-
-            <Grid item container justify='center' alignItems='center'>
-              <Typography variant='body2' className={classes.status}>
-                {loader.message}
-              </Typography>
-            </Grid>
+            <Icon className={classes.icon} src={icon} />
           </Grid>
-          { mainChannelLoaded && (
-            <Redirect to='/main/channel/general' />
-          )}
-        </Form>
-      )}
+          <Grid container item xs={12} wrap='wrap' justify='center'>
+            <Typography
+              className={classNames({
+                [classes.title]: true,
+                [classes.existingUser]: !isNewUser
+              })}
+              variant='body1'
+              gutterBottom>
+              {!isNewUser ? 'Welcome Back' : 'Welcome to Zbay!'}
+            </Typography>
+          </Grid>
+          <Grid container item justify='center'>
+            <LoadingButton
+              type='submit'
+              variant='contained'
+              size='large'
+              color='primary'
+              margin='normal'
+              text={!isNewUser ? 'Sign in' : 'Connect Now'}
+              fullWidth
+              disabled={!done || syncingStart}
+              inProgress={!done || syncingStart}
+            />
+          </Grid>
+        </Grid>
+        <Redirect to='/main/channel/general' />
+      </Form>
     </Formik>
   )
 }

@@ -1,11 +1,20 @@
-<!-- [WIP]
-* Added dataServer port to electonStore portsclosing
-* Added proper closing for dataServer
-* Added proper closing for libp2p and orbitdb -->
-<!-- * [Performance] Fork runWaggle process instead running in main process
-* Extracted waggle handling logic to separate function
-* Changed a way main process is terminating
-* [Performance] Removed excess decryption from checking conversations -->
+# [3.6.0] 27 August 2021
+
+## Broke
+
+* Direct Messages
+
+## Changed 
+
+* Plugged in @zbayapp/nectar to handle waggle connections.
+* Changed containers test files from js to ts
+* Refactored another chunk of containers to use hooks instead Hoc
+* Simplified components by removing zcash relicts
+
+## Removed
+
+* Old Logic for handling Identity, Users, PublicChannels, Contacts and relevant tests
+
 # [3.5.1] 03 August 2021
 
 ## Fix

@@ -6,6 +6,8 @@ import electronStore from '../../../shared/electronStore'
 
 import { ActionsType, PayloadType } from './types'
 
+// TODO: Move to settings section in store
+
 class Whitelist {
   allowAll: boolean
   whitelisted: any[]

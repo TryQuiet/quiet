@@ -12,9 +12,9 @@ import channelSelectors from '../../../store/selectors/channel'
 
 export const mapStateToProps = state => ({
   channels: contactsSelectors.contactsList(state),
-  unknownMessages: contactsSelectors.unknownMessages(state),
+  // unknownMessages: contactsSelectors.unknownMessages(state),
   selected: channelSelectors.channelInfo(state),
-  offers: contactsSelectors.offerList(state),
+  // offers: contactsSelectors.offerList(state),
   selectedOffer: channelSelectors.channelInfo(state)
   // fundsLocked:
   //   channelSelectors.inputLocked(state) === INPUT_STATE.DISABLE ||

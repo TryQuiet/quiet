@@ -11,10 +11,6 @@ Object {
   "exists": null,
   "isInitialLoadFinished": false,
   "isLogIn": false,
-  "loader": Object {
-    "loading": false,
-    "message": "",
-  },
   "mainChannelLoaded": undefined,
 }
 `;

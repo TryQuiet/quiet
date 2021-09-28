@@ -18,7 +18,6 @@ Object {
     "vaultMessages": Array [],
     Symbol(immer-draftable): true,
   },
-  "isOwner": false,
   "modalTabToOpen": "",
 }
 `;

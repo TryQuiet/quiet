@@ -8,9 +8,6 @@ Object {
 
 exports[`NewMessageModal will receive right props 1`] = `
 Object {
-  "users": Object {
-    "testuser1": "user 1 data",
-    "testuser2": "user 2 data",
-  },
+  "users": Array [],
 }
 `;

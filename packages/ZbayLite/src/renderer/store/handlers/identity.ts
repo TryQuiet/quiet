@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js'
 import { createAction, handleActions } from 'redux-actions'
 import { remote } from 'electron'
 
-import appSelectors from '../selectors/app'
+// import appSelectors from '../selectors/app'
 import notificationCenterHandlers from './notificationCenter'
 import { successNotification } from './utils'
 import modalsHandlers from './modals'
@@ -13,11 +13,11 @@ import {
 } from '../../../shared/static'
 import electronStore from '../../../shared/electronStore'
 
-import { clearPublicChannels } from './publicChannels'
+// import { clearPublicChannels } from './publicChannels'
 
 import { ActionsType, PayloadType } from './types'
-import directMessagesHandlers from './directMessages'
-import directMessagesSelectors from '../selectors/directMessages'
+// import directMessagesHandlers from './directMessages'
+// import directMessagesSelectors from '../selectors/directMessages'
 import debug from 'debug'
 
 const log = Object.assign(debug('zbay:identity'), {
@@ -146,6 +146,7 @@ export const actions = {
 export type IdentityActions = ActionsType<typeof actions>
 
 export const createIdentity = ({ name }) => async () => {
+  console.log('createIdentity')
   let zAddress
   let tAddress
   let tpk
@@ -174,62 +175,65 @@ export const createIdentity = ({ name }) => async () => {
 }
 
 export const loadIdentity = () => async dispatch => {
+  console.log('loadIdentity')
   const identity = electronStore.get('identity')
   if (identity) {
     await dispatch(setIdentity(identity))
   }
 }
 
-export const prepareUpgradedVersion = () => async (dispatch, getState) => {
+export const prepareUpgradedVersion = () => async (_dispatch, _getState) => {
+  console.log('prereUpgradedVersion')
   // Temporary fix for apps upgraded from versions < 3
-  if (!electronStore.get('isNewUser') && !electronStore.get('appUpgraded')) {
-    const appVersion = appSelectors.version(getState())
-    const appVersionNumber = Number(appVersion.split('-')[0].split('.')[0])
-    if (appVersionNumber >= 3) {
-      dispatch(clearPublicChannels())
-      electronStore.set('appUpgraded', true)
-    }
-  }
+  // if (!electronStore.get('isNewUser') && !electronStore.get('appUpgraded')) {
+  //   const appVersion = appSelectors.version(getState())
+  // const appVersionNumber = Number(appVersion.split('-')[0].split('.')[0])
+  // if (appVersionNumber >= 3) {
+  //   dispatch(clearPublicChannels())
+  //   electronStore.set('appUpgraded', true)
+  // }
+  // }
 }
 
-export const setIdentityEpic = identityToSet => async (dispatch, getState) => {
-  const hasWaggleIdentity = directMessagesSelectors.publicKey(getState())
-  const identity = identityToSet
+export const setIdentityEpic = _identityToSet => async (dispatch, _getState) => {
+  // const hasWaggleIdentity = directMessagesSelectors.publicKey(getState())
+  // const identity = identityToSet
+  console.log('setIdentityEpic')
   dispatch(setLoading(true))
   const isNewUser = electronStore.get('isNewUser')
   try {
-    const removedChannels = electronStore.get('removedChannels')
-    if (removedChannels) {
-      const removedChannelsList = Object.keys(removedChannels)
-      dispatch(setRemovedChannels(removedChannelsList))
-    }
+    // const removedChannels = electronStore.get('removedChannels')
+    // if (removedChannels) {
+    //   const removedChannelsList = Object.keys(removedChannels)
+    //   dispatch(setRemovedChannels(removedChannelsList))
+    // }
     remote.app.setBadgeCount(0)
-    dispatch(setLoadingMessage('Ensuring identity integrity'))
-    await dispatch(setLoadingMessage('Ensuring node contains identity keys'))
+    // dispatch(setLoadingMessage('Ensuring identity integrity'))
+    // await dispatch(setLoadingMessage('Ensuring node contains identity keys'))
     await dispatch(notificationCenterHandlers.epics.init())
-    dispatch(setLoadingMessage('Setting identity'))
-    await dispatch(setIdentity(identity))
-    const shippingAddress = electronStore.get('identity.shippingData')
-    if (shippingAddress) {
-      dispatch(setShippingData(shippingAddress))
-    }
-    dispatch(setLoadingMessage('Fetching balance and loading channels'))
-    if (!hasWaggleIdentity) {
-      await dispatch(directMessagesHandlers.epics.generateDiffieHellman())
-    }
-    await dispatch(prepareUpgradedVersion())
-    dispatch(setLoadingMessage('Loading users and messages'))
+    // dispatch(setLoadingMessage('Setting identity'))
+    // await dispatch(setIdentity(identity))
+    // const shippingAddress = electronStore.get('identity.shippingData')
+    // if (shippingAddress) {
+    //   dispatch(setShippingData(shippingAddress))
+    // }
+    // dispatch(setLoadingMessage('Fetching balance and loading channels'))
+    // if (!hasWaggleIdentity) {
+    //   await dispatch(directMessagesHandlers.epics.generateDiffieHellman())
+    // }
+    // await dispatch(prepareUpgradedVersion())
+    // dispatch(setLoadingMessage('Loading users and messages'))
   } catch (err) { }
   if (isNewUser === true) {
     dispatch(modalsHandlers.actionCreators.openModal('createUsernameModal')())
   }
 
-  dispatch(setLoadingMessage(''))
+  // dispatch(setLoadingMessage(''))
   dispatch(setLoading(false))
 
-  if (electronStore.get('isMigrating')) {
-    dispatch(modalsHandlers.actionCreators.openModal('migrationModal')())
-  }
+  // if (electronStore.get('isMigrating')) {
+  //   dispatch(modalsHandlers.actionCreators.openModal('migrationModal')())
+  // }
 }
 
 export const updateShippingData = (values, formActions) => async dispatch => {

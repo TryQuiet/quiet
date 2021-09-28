@@ -7,7 +7,7 @@ Object {
     "name": "testusername",
   },
   "directMessage": true,
-  "isRegisteredUsername": false,
+  "isRegisteredUsername": true,
   "mutedFlag": false,
 }
 `;

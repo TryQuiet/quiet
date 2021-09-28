@@ -1,12 +1,12 @@
+
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
 import ShippingSettingsForm from '../../../components/widgets/settings/ShippingSettingsForm'
-import identitySelectors from '../../../store/selectors/identity'
 import identityHandlers from '../../../store/handlers/identity'
 
-export const mapStateToProps = state => ({
-  initialValues: identitySelectors.shippingData(state)
+export const mapStateToProps = _state => ({
+  initialValues: ''
 })
 
 export const mapDispatchToProps = dispatch => bindActionCreators({

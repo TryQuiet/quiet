@@ -3,13 +3,13 @@ import { connect } from 'react-redux'
 import * as R from 'ramda'
 import { bindActionCreators } from 'redux'
 
-import usersSelector from '../../../store/selectors/users'
+// import usersSelector from '../../../store/selectors/users'
 import notificationCenterHandlers from '../../../store/handlers/notificationCenter'
 import BlockedUsersComponent from '../../../components/widgets/settings/BlockedUsers'
 import notificationCenterSelector from '../../../store/selectors/notificationCenter'
 
 export const mapStateToProps = state => ({
-  users: usersSelector.users(state),
+  users: [],
   blockedUsers: notificationCenterSelector.blockedUsers(state)
 })
 

@@ -6,14 +6,7 @@ import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
 import { Typography, Grid } from '@material-ui/core'
 
-import Icon from '../../ui/Icon/Icon'
-import onlineIcon from '../../../static/images/online.svg'
-import offlineIcon from '../../../static/images/offline.svg'
 import history from '../../../../shared/history'
-
-import avatarAnonMask from '../../../static/images/avatarAnonMask.svg'
-import { Contact } from '../../../store/handlers/contacts'
-import { ChannelInfo } from '../../../store/selectors/channel'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -60,9 +53,9 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export interface IChannelsListItemComponentProps {
-  channel: Contact
+  channel: any
   directMessages: boolean
-  selected: ChannelInfo
+  selected: any
 }
 
 export const ChannelsListItem: React.FC<IChannelsListItemComponentProps> = ({
@@ -71,8 +64,7 @@ export const ChannelsListItem: React.FC<IChannelsListItemComponentProps> = ({
   selected
 }) => {
   const classes = useStyles({})
-  const isFromZbay = channel.username !== 'Unknown'
-  const highlight = selected.id === channel.key || selected.id === channel.username
+  const highlight = selected === channel.address
   return (
     <ListItem
       button
@@ -81,7 +73,7 @@ export const ChannelsListItem: React.FC<IChannelsListItemComponentProps> = ({
         history.push(
           `/main/${directMessages
             ? `direct-messages/${channel.username}`
-            : `channel/${channel.key}`
+            : `channel/${channel.address}`
           }`
         )
       }}
@@ -92,7 +84,7 @@ export const ChannelsListItem: React.FC<IChannelsListItemComponentProps> = ({
         primary={
           <Grid container alignItems='center'>
             <Grid item>
-              {directMessages && (
+              {/* {directMessages && (
                 <Icon
                   className={channel?.connected ? classes.connectedIcon : classes.notConnectedIcon}
                   src={
@@ -101,20 +93,16 @@ export const ChannelsListItem: React.FC<IChannelsListItemComponentProps> = ({
                       : avatarAnonMask
                   }
                 />
-              )}
+              )} */}
             </Grid>
             <Grid item>
               <Typography
                 variant='body2'
                 className={classNames(classes.title, {
-                  [classes.newMessages]: channel.newMessages.length > 0
+                  // TODO
+                  [classes.newMessages]: false
                 })}>
-                {directMessages
-                  ? `${isFromZbay
-                    ? `${channel.username.substring(0, 20) || channel.address.substring(0, 20)}`
-                    : 'unknown'
-                  }`
-                  : `# ${channel.username}`}
+                {`# ${channel.name}`}
               </Typography>
             </Grid>
           </Grid>

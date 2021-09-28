@@ -5,6 +5,5 @@ Object {
   "channelId": "test",
   "inputState": 0,
   "mentions": Object {},
-  "signerPubKey": 123,
 }
 `;

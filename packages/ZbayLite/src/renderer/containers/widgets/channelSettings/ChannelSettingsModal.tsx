@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
@@ -15,7 +16,7 @@ export const mapStateToProps = state => {
     channel: contactsSelectors.contact(
       channelSelectors.channel(state).address
     )(state),
-    isOwner: channelSelectors.isOwner(state),
+    // isOwner: channelSelectors.isOwner(state),
     modalTabToOpen: appSelectors.currentModalTab(state)
   }
 }

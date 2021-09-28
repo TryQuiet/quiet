@@ -6,12 +6,13 @@ import { bindActionCreators } from 'redux'
 
 import { withModal } from '../../../store/handlers/modals'
 import NewMessageModal from '../../../components/widgets/channels/NewMessageModal'
-import usersSelector from '../../../store/selectors/users'
+// import usersSelector from '../../../store/selectors/users'
 // import contactsHandlers from '../../../store/handlers/contacts'
 import notificationsHandlers from '../../../store/handlers/notifications'
 
-export const mapStateToProps = state => ({
-  users: usersSelector.users(state)
+export const mapStateToProps = _state => ({
+  users: []
+  // users: usersSelector.users(state)
 })
 export const mapDispatchToProps = (dispatch) =>
   bindActionCreators(

@@ -7,23 +7,23 @@ import { actionCreators } from '../../../store/handlers/modals'
 import ItemTransferMessageComponent from '../../../components/widgets/channels/ItemTransferMessage'
 // import ratesSelectors from '../../../store/selectors/rates'
 // import nodeSelector from '../../../store/selectors/node'
-import usersSelectors from '../../../store/selectors/users'
+// import usersSelectors from '../../../store/selectors/users'
 
-const mapStateToProps = (state, { message }) => {
+const mapStateToProps = () => {
   return {
     // rateUsd: ratesSelectors.rate('usd')(state),
     // currentBlock: parseInt(nodeSelector.currentBlock(state)),
-    users: usersSelectors.users(state),
-    isRegisteredNickname: usersSelectors.isRegisteredUsername(
-      message.receiver ? message.receiver.username : null)(state)
+    // users: usersSelectors.users(state),
+    // isRegisteredNickname: usersSelectors.isRegisteredUsername(
+    //   message.receiver ? message.receiver.username : null)(state)
   }
 }
 
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      openSentModal: payload =>
-        actionCreators.openModal('sentFunds', payload)()
+      openSentModal: () =>
+        actionCreators.openModal('sentFunds')()
     },
     dispatch
   )

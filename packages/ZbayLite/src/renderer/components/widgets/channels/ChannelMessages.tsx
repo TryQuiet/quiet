@@ -14,7 +14,7 @@ import MessagesDivider from '../MessagesDivider'
 import UserRegisteredMessage from './UserRegisteredMessage'
 import ChannelRegisteredMessage from './ChannelRegisteredMessage'
 
-import { UsersStore } from './../../../store/handlers/users'
+// import { UsersStore } from './../../../store/handlers/users'
 
 import { DisplayableMessage } from './../../../zbay/messages.types'
 import { loadNextMessagesLimit } from '../../../../shared/static'
@@ -54,7 +54,7 @@ const welcomeMessages = {
     "Congrats! You created a channel. You can share the channel link with others by accessing the “•••” menu at the top. Once you're registered as the channel owner (this can take a few minutes) you’ll be able to publish your channel and change its settings. Have a great time!"
 }
 interface IChannelMessagesProps {
-  messages: DisplayableMessage[]
+  messages?: any[]
   isOwner?: boolean
   contactId?: string
   usersRegistration?: any[]
@@ -65,7 +65,7 @@ interface IChannelMessagesProps {
   setScrollPosition?: (arg?: any) => void
   newMessagesLoading?: boolean
   setNewMessagesLoading?: (arg: boolean) => void
-  users?: UsersStore
+  users?: any
   onLinkedChannel?: (arg0: any) => void
   publicChannels?: any
   onRescan?: () => void
@@ -102,7 +102,6 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
   channelId,
   onLinkedChannel,
   publicChannels,
-  isNewUser,
   isDev
 }) => {
   const classes = useStyles({})
@@ -132,18 +131,17 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
 
   let groupedMessages: { [key: string]: DisplayableMessage[] }
   if (messages.length !== 0) {
-    groupedMessages = R.groupBy<DisplayableMessage>(msg => {
-      const d = new Date(msg.createdAt * 1000)
-      d.setHours(0)
-      d.setMinutes(0)
-      d.setSeconds(0)
-      return (d.getTime() / 1000).toString()
+    groupedMessages = R.groupBy<any>(msg => {
+      if (msg.createdAt.split('').indexOf(',') === -1) {
+        return 'Today'
+      }
+      return msg.createdAt.split(',')[0]
     })(
       messages
         .filter(msg => messagesTypesToDisplay.includes(msg.type))
         .concat(usersRegistration)
         .concat(publicChannelsRegistration)
-        .sort((a, b) => Math.floor(a.createdAt) - Math.floor(b.createdAt))
+        .sort((a, b) => Math.floor(a.createdAt) - Math.floor(b.createdAt)).reverse()
     )
   }
 
@@ -204,7 +202,7 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
         {Object.keys(groupedMessages || []).map(key => {
           const messagesArray = groupedMessages[key]
           const today = DateTime.utc()
-          const groupName = DateTime.fromSeconds(parseInt(key)).toFormat('cccc, LLL d')
+          const groupName = key
           const displayTitle = DateTime.fromSeconds(parseInt(key)).hasSame(today, 'day')
             ? 'Today'
             : groupName
@@ -219,10 +217,7 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
                       <ChannelRegisteredMessage
                         message={msg}
                         address={users[msg.owner] ? users[msg.owner].address : ''}
-                        username={
-                          users[msg.owner]
-                            ? users[msg.owner].nickname
-                            : `anon${msg.owner.substring(0, 16)}`
+                        username={msg.nickname
                         }
                         onChannelClick={() => {
                           onLinkedChannel(publicChannels[msg.name])
@@ -259,7 +254,7 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
             </Grid>
           </Grid>
         )} */}
-        {isNewUser && (
+        {/* {isNewUser && (
           <WelcomeMessage
             message={
               <span>
@@ -274,7 +269,7 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
               </span>
             }
           />
-        )}
+        )} */}
       </List>
     </Scrollbars>
   )

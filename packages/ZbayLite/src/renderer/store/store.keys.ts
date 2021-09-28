@@ -3,5 +3,6 @@ export enum StoreKeys {
   Identity = 'identity',
   Channel = 'channel',
   DirectMessages = 'directMessages',
-  Users = 'users'
+  Users = 'users',
+  PubChannels = 'pubChannels'
 }

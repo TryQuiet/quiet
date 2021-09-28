@@ -54,6 +54,7 @@ export const checkConversation = (
   } catch (err) {
     log.error('cannot decode message, its not for me or I am the author')
   }
+  //
   if (decodedMessage?.startsWith('no panic')) {
     log('success, message decoded successfully')
 

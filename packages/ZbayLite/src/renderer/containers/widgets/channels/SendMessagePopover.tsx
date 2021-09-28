@@ -5,14 +5,16 @@ import { withRouter } from 'react-router-dom'
 import * as R from 'ramda'
 
 import SendMessagePopover from '../../../components/widgets/channels/SendMessagePopover'
-import identitySelectors from '../../../store/selectors/identity'
-import userSelectors from '../../../store/selectors/users'
+// import identitySelectors from '../../../store/selectors/identity'
+// import userSelectors from '../../../store/selectors/users'
 import directMessages from '../../../store/handlers/contacts'
 import directMessagesSelectors from '../../../store/selectors/directMessages'
 
 export const mapStateToProps = state => ({
-  identityId: identitySelectors.id(state),
-  users: userSelectors.users(state),
+  // identityId: identitySelectors.id(state),
+  // users: userSelectors.users(state),
+  identityId: 'id',
+  users: [],
   waggleUsers: directMessagesSelectors.users(state)
 })
 

@@ -8,6 +8,7 @@ import SettingsModal from '../../../containers/widgets/settings/SettingsModal'
 import CreateUsernameModal from '../../../containers/widgets/createUsernameModal/CreateUsername'
 
 import { makeStyles } from '@material-ui/core/styles'
+import { Identity } from '@zbayapp/nectar/lib/sagas/identity/identity.slice'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -39,25 +40,12 @@ const useStyles = makeStyles(theme => ({
 }))
 
 interface IdentityPanelProps {
-  user: User
   identity: Identity
   handleSettings: () => void
 }
 
-interface Identity {
-  name: string
-  address: string
-  signerPubKey: string
-}
-
-interface User {
-  nickname: string
-}
-
-export const IdentityPanel: React.FC<IdentityPanelProps> = ({ identity, handleSettings, user }) => {
+export const IdentityPanel: React.FC<IdentityPanelProps> = ({ handleSettings, identity }) => {
   const classes = useStyles({})
-
-  const nickname = user ? user.nickname : `anon${identity.signerPubKey.substring(0, 10)}`
 
   return (
     <div className={classes.root}>
@@ -66,7 +54,7 @@ export const IdentityPanel: React.FC<IdentityPanelProps> = ({ identity, handleSe
         component='span'
         classes={{ root: classes.button, label: classes.buttonLabel }}>
         <Typography variant='h4' className={classes.nickname}>
-          {nickname}
+          {identity?.zbayNickname ? identity.zbayNickname : ''}
         </Typography>
         <ExpandMoreIcon fontSize='small' />
       </Button>

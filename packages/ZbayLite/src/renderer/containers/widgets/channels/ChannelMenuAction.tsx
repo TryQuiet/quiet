@@ -8,9 +8,11 @@ import { actionCreators } from '../../../store/handlers/modals'
 import dmChannelSelectors from '../../../store/selectors/directMessageChannel'
 import channelSelectors from '../../../store/selectors/channel'
 import notificationCenterSelectors from '../../../store/selectors/notificationCenter'
-import publicChannelsSelectors from '../../../store/selectors/publicChannels'
+// import publicChannelsSelectors from '../../../store/selectors/publicChannels'
 import notificationCenterHandlers from '../../../store/handlers/notificationCenter'
 import { notificationFilterType } from '../../../../shared/static'
+
+// import { publicChannels as pubChannels } from '@zbayapp/nectar'
 
 const filterToText = {
   [notificationFilterType.ALL_MESSAGES]: 'Every new message',
@@ -21,8 +23,8 @@ const filterToText = {
 export const mapStateToProps = state => {
   return {
     targetAddress: dmChannelSelectors.targetRecipientAddress(state),
-    isOwner: channelSelectors.isOwner(state),
-    publicChannels: publicChannelsSelectors.publicChannels(state),
+    // isOwner: channelSelectors.isOwner(state),
+    publicChannels: [],
     channel: channelSelectors.data(state) || {},
     mutedFlag:
       notificationCenterSelectors.channelFilterById(

@@ -9,7 +9,7 @@ import create from '../../../store/create'
 import { ChannelState } from '../../../store/handlers/channel'
 import { createChannel } from '../../../testUtils'
 
-const channelId = 'channel-id'
+const channelId = 1234
 describe('ChannelInput', () => {
   let store, wrapper
 

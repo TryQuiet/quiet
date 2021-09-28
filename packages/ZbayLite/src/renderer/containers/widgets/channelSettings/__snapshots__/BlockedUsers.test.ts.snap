@@ -5,6 +5,6 @@ exports[`Send message popover will receive right actions 1`] = `Object {}`;
 exports[`Send message popover will receive right props 1`] = `
 Object {
   "blockedUsers": Array [],
-  "users": Object {},
+  "users": Array [],
 }
 `;

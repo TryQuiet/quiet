@@ -10,9 +10,9 @@ import channelSelectors from '../../../store/selectors/channel'
 export const mapDispatchToProps = dispatch => {
   return bindActionCreators(
     {
-      onPostOffer: payload => actionCreators.openModal('advert', payload)(),
-      onSendMoney: (modalName, payload) =>
-        actionCreators.openModal(modalName, payload)()
+      onPostOffer: () => actionCreators.openModal('advert')(),
+      onSendMoney: (modalName) =>
+        actionCreators.openModal(modalName)()
     },
     dispatch
   )

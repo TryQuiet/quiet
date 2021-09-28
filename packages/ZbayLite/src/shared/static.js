@@ -86,6 +86,7 @@ export const actionTypes = mirrorKey({
   REMOVE_PENDING_MESSAGE: undefined,
   ADD_PENDING_MESSAGE: undefined,
   OPEN_MODAL: undefined,
+  OPEN_MODAL_HANDLER: undefined,
   CLOSE_MODAL: undefined,
   GET_STATUS: undefined,
   CREATE_ADDRESS: undefined,

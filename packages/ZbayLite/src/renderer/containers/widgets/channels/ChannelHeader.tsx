@@ -6,10 +6,8 @@ import notificationCenterHandlers from '../../../store/handlers/notificationCent
 
 import channelSelectors from '../../../store/selectors/channel'
 import contactsSelectors from '../../../store/selectors/contacts'
-import identitySelectors from '../../../store/selectors/identity'
 import notificationCenter from '../../../store/selectors/notificationCenter'
-
-import { messageType, notificationFilterType } from '../../../../shared/static'
+import { notificationFilterType } from '../../../../shared/static'
 
 export const useChannelInputData = (contactId?) => {
   const contact = useSelector(contactsSelectors.contact(contactId))
@@ -20,10 +18,7 @@ export const useChannelInputData = (contactId?) => {
       address: contactId
     },
     name: contact.username,
-    userAddress: useSelector(identitySelectors.address),
     members: useSelector(channelSelectors.channelParticipiants),
-    showAdSwitch: !!useSelector(contactsSelectors.messages(contactId))
-      .find(msg => msg.type === messageType.AD),
     mutedFlag:
       useSelector(notificationCenter.channelFilterById(
         channelData ? channelData.key : 'none'
@@ -49,7 +44,6 @@ export const ChannelHeaderContainer: React.FC<ChannelHeaderProps> = ({
   isRegisteredUsername,
   updateShowInfoMsg,
   directMessage,
-  showAdSwitch,
   channelType,
   tab,
   setTab,
@@ -63,7 +57,6 @@ export const ChannelHeaderContainer: React.FC<ChannelHeaderProps> = ({
 ) => {
   channel = useChannelInputData(contactId).channel
   name = useChannelInputData(contactId).name
-  showAdSwitch = useChannelInputData(contactId).showAdSwitch
   mutedFlag = useChannelInputData(contactId).mutedFlag
 
   unmute = useChannelInputActions().unmute
@@ -73,7 +66,6 @@ export const ChannelHeaderContainer: React.FC<ChannelHeaderProps> = ({
       unmute={unmute}
       channel={channel}
       name={name}
-      showAdSwitch={showAdSwitch}
       mutedFlag={mutedFlag}
       setTab={setTab}
       offer={offer}

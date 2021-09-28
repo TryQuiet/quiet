@@ -4,34 +4,37 @@ import { useSelector, useDispatch } from 'react-redux'
 import ChannelInputComponent from '../../../components/widgets/channels/ChannelInput'
 import channelHandlers from '../../../store/handlers/channel'
 // import directMessagesQueueHandlers from '../../../store/handlers/directMessagesQueue'
-import channelSelectors, { INPUT_STATE } from '../../../store/selectors/channel'
-import usersSelectors from '../../../store/selectors/users'
-import identitySelectors from '../../../store/selectors/identity'
+import channelSelectors from '../../../store/selectors/channel'
+// import usersSelectors from '../../../store/selectors/users'
+// import identitySelectors from '../../../store/selectors/identity'
 import contactsSelectors from '../../../store/selectors/contacts'
-import { User } from '../../../store/handlers/users'
-import { directMessagesActions } from '../../../sagas/directMessages/directMessages.reducer'
+// import { User } from '../../../store/handlers/users'
+// import { directMessagesActions } from '../../../sagas/directMessages/directMessages.reducer'
 
 export const useDirectMessageInputData = contactId => {
   const contact = useSelector(contactsSelectors.contact(contactId))
-  const signerPubey = useSelector(identitySelectors.signerPubKey)
+  // const signerPubey = useSelector(identitySelectors.signerPubKey)
   const inputLocked = useSelector(channelSelectors.inputLocked)
 
   const data = {
     contact: contact,
     message: useSelector(channelSelectors.message),
     id: useSelector(channelSelectors.id),
-    signerPubey: signerPubey,
+    // signerPubey: signerPubey,
+    // inputState: useSelector(usersSelectors.registeredUser(signerPubey)) ? inputLocked : INPUT_STATE.USER_NOT_REGISTERED,
+    // users: useSelector(usersSelectors.users),
+    // myUser: useSelector(usersSelectors.myUser),
+    signerPubey: 'mock',
+    inputState: inputLocked,
+    users: [],
+    myUser: { nickname: '' },
     inputLocked: inputLocked,
-    inputState: useSelector(usersSelectors.registeredUser(signerPubey)) ? inputLocked : INPUT_STATE.USER_NOT_REGISTERED,
     channelName: contact.username,
-    users: useSelector(usersSelectors.users),
-    myUser: useSelector(usersSelectors.myUser),
     isMessageTooLong: useSelector(channelSelectors.messageSizeStatus),
     isContactConnected: contact.connected,
     isContactTyping: contact.typingIndicator,
     contactUsername: contact.username
   }
-
   return data
 }
 
@@ -47,7 +50,7 @@ export const useDirectMessageInputActions = () => {
   }, [dispatch])
 
   const sendDirectMessageOnEnter = useCallback(() => {
-    dispatch(directMessagesActions.sendDirectMessage())
+    // dispatch(directMessagesActions.sendDirectMessage())
   }, [dispatch])
 
   return { onChange, resetDebounce, sendDirectMessageOnEnter }
@@ -57,7 +60,7 @@ export const ChannelInput = ({ contactId }) => {
   const [infoClass, setInfoClass] = React.useState<string>(null)
   // eslint-disable-next-line
   const [anchorEl, setAnchorEl] = React.useState({} as HTMLElement)
-  const [mentionsToSelect, setMentionsToSelect] = React.useState<User[]>([])
+  const [mentionsToSelect, setMentionsToSelect] = React.useState<any[]>([])
 
   const {
     channelName,

@@ -71,14 +71,13 @@ export const actions = {
 export type VaultActions = ActionsType<typeof actions>
 
 const loadVaultStatus = () => async dispatch => {
+  console.log('loadVaultStatus')
   await dispatch(setVaultStatus(true))
 }
 
 const createVaultEpic = () => async dispatch => {
   const randomBytes = crypto.randomBytes(32).toString('hex')
   try {
-    electronStore.set('isNewUser', true)
-    electronStore.set('vaultPassword', randomBytes)
     const identity = await dispatch(
       identityHandlers.epics.createIdentity({
         name: randomBytes
@@ -87,7 +86,7 @@ const createVaultEpic = () => async dispatch => {
     await dispatch(identityHandlers.epics.setIdentity(identity))
     await dispatch(identityHandlers.epics.loadIdentity())
     await dispatch(setVaultStatus(true))
-    return identity
+    return null
   } catch (error) {
     dispatch(
       notificationsHandlers.actions.enqueueSnackbar(
@@ -98,6 +97,7 @@ const createVaultEpic = () => async dispatch => {
     )
   }
 }
+
 export const setVaultIdentity = () => async dispatch => {
   try {
     const identity = electronStore.get('identity')
@@ -111,6 +111,7 @@ const unlockVaultEpic = (setDone) => async dispatch => {
   await dispatch(setLoginSuccessfull(false))
   setDone(false)
   const identity = electronStore.get('identity')
+
   if (!identity) {
     await dispatch(createVaultEpic())
   } else {

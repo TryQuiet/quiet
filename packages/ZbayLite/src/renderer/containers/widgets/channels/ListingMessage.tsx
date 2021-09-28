@@ -13,7 +13,7 @@ export const mapStateToProps = _state => ({
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      buyActions: (modalName, payload) => actionCreators.openModal(modalName, payload)()
+      buyActions: (modalName) => actionCreators.openModal(modalName)()
     },
     dispatch
   )

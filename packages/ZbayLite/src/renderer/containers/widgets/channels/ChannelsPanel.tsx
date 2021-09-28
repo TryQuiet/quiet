@@ -13,13 +13,19 @@ import QuickActionButton from '../../../components/widgets/sidebar/QuickActionBu
 import { Icon } from '../../../components/ui/Icon/Icon'
 import SearchIcon from '../../../static/images/st-search.svg'
 
+// const useData = () => {
+//   const data = {
+//     channels: useSelector(publicChannels.selectors.publicChannels),
+//     selected: useSelector(publicChannels.selectors.currentChannel)
+//   }
+//   return data
+// }
+
 export const mapStateToProps = state => ({
   channels: contactsSelectors.channelsList(state),
   selected: channelSelectors.channelInfo(state)
-  // fundsLocked:
-  //   channelSelectors.inputLocked(state) === INPUT_STATE.DISABLE ||
-  //   channelSelectors.inputLocked(state) === INPUT_STATE.LOCKED
 })
+
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
@@ -29,12 +35,14 @@ export const mapDispatchToProps = dispatch =>
     },
     dispatch
   )
+
 export const ChannelsPanel = ({
   title,
   openCreateModal,
   openJoinChannel,
   fundsLocked,
   openDepositMonet,
+  // eslint-disable-next-line
   ...props
 }) => {
   return (

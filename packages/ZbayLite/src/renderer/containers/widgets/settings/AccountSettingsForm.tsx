@@ -1,31 +1,24 @@
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
+import React from 'react'
+import { useSelector } from 'react-redux'
 
-import usersHandlers from '../../../store/handlers/users'
-import modalsHandlers from '../../../store/handlers/modals'
-import AccountSettingsForm from '../../../components/widgets/settings/AccountSettingsForm'
-import identitySelectors from '../../../store/selectors/identity'
-import usersSelector from '../../../store/selectors/users'
+import AccountSettingsFormComponent from '../../../components/widgets/settings/AccountSettingsForm'
+import { identity } from '@zbayapp/nectar'
 
-export const mapStateToProps = state => {
-  return {
-    // transparentAddress: identitySelectors.transparentAddress(state),
-    privateAddress: identitySelectors.address(state),
-    user: usersSelector.registeredUser(identitySelectors.signerPubKey(state))(state)
+const useData = () => {
+  const data = {
+    user: useSelector(identity.selectors.currentIdentity)
   }
+  return data
 }
 
-export const mapDispatchToProps = (dispatch, _props) =>
-  bindActionCreators(
-    {
-      openModal: modalsHandlers.actionCreators.openModal('createUsernameModal'),
-      closeModal: modalsHandlers.actionCreators.closeModal('accountSettingsModal'),
-      handleSubmit: ({ nickname }) => usersHandlers.epics.createOrUpdateUser({ nickname })
-    },
-    dispatch
-  )
+export const AccountSettingsForm = () => {
+  const { user } = useData()
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(AccountSettingsForm)
+  return (
+    <AccountSettingsFormComponent
+      user={user}
+    />
+  )
+}
+
+export default AccountSettingsForm

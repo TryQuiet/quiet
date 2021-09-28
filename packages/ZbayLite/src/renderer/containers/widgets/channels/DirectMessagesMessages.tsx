@@ -15,7 +15,7 @@ export const mapStateToProps = (state, { contactId }) => {
   return {
     // triggerScroll: qDmMessages.length + qMessages.length > 0,
     // qMessages: qMessages,
-    messages: contactsSelectors.directMessages(contactId)(state).visibleMessages,
+    // messages: contactsSelectors.directMessages(contactId)(state).visibleMessages,
     name: contact.username,
     channelId: channelSelectors.channelId(state),
     isInitialLoadFinished: appSelectors.isInitialLoadFinished(state),

@@ -4,7 +4,7 @@ import { createAction, handleActions } from 'redux-actions'
 
 import { actionTypes } from '../../../shared/static'
 import { ActionsType, PayloadType } from './types'
-import { directMessagesActions } from '../../sagas/directMessages/directMessages.reducer'
+// import { directMessagesActions } from '../../sagas/directMessages/directMessages.reducer'
 
 import { constants } from '../../cryptography/cryptography'
 import debug from 'debug'
@@ -75,16 +75,16 @@ const generateDiffieHellman = () => async dispatch => {
   await dispatch(actions.setPublicKey(publicKey))
 }
 
-export const getPrivateConversations = () => dispatch => {
-  dispatch(directMessagesActions.getPrivateConversations())
+export const getPrivateConversations = () => _dispatch => {
+  // dispatch(directMessagesActions.getPrivateConversations())
 }
 
-const subscribeForAllConversations = () => async dispatch => {
-  await dispatch(directMessagesActions.subscribeForAllConversations())
+const subscribeForAllConversations = () => async _dispatch => {
+  // await dispatch(directMessagesActions.subscribeForAllConversations())
 }
 
-const getAvailableUsers = () => async dispatch => {
-  await dispatch(directMessagesActions.getAvailableUsers())
+const getAvailableUsers = () => async _dispatch => {
+  // await dispatch(directMessagesActions.getAvailableUsers())
 }
 
 export const epics = {

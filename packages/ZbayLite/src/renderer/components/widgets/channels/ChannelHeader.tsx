@@ -106,7 +106,6 @@ export interface ChannelHeaderProps {
   isRegisteredUsername: boolean
   updateShowInfoMsg: (arg: boolean) => void
   directMessage: boolean
-  showAdSwitch: boolean
   channelType: CHANNEL_TYPE
   tab: number
   setTab: (arg: number) => void
@@ -125,7 +124,6 @@ export const ChannelHeader: React.FC<ChannelHeaderProps> = ({
   directMessage = false,
   offer,
   channelType = 3,
-  showAdSwitch = false,
   updateShowInfoMsg,
   mutedFlag,
   unmute,
@@ -186,9 +184,9 @@ export const ChannelHeader: React.FC<ChannelHeaderProps> = ({
                 })}>
                 {isRegisteredUsername || !isFromZbay
                   ? isFromZbay
-                    ? `${prefix[channelType]}${channel.name.substring(0, 20)}`
+                    ? `${prefix[channelType]}${channel?.name?.substring(0, 20)}`
                     : 'unknown'
-                  : `${prefix[channelType]}${channel.name.substring(0, 20)}`}
+                  : `${prefix[channelType]}${channel?.name?.substring(0, 20)}`}
               </Typography>
             </Grid>
             {mutedFlag && (
@@ -217,7 +215,7 @@ export const ChannelHeader: React.FC<ChannelHeaderProps> = ({
           justify='flex-end'
           alignContent='center'
           alignItems='center'>
-          {channelType === CHANNEL_TYPE.NORMAL && showAdSwitch && (
+          {channelType === CHANNEL_TYPE.NORMAL && (
             <Grid item className={classes.switch}>
               <Tabs
                 value={tab}

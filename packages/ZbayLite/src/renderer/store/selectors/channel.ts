@@ -1,7 +1,8 @@
 import { createSelector } from 'reselect'
-import identitySelectors from './identity'
+// import identitySelectors from './identity'
 import { messageType } from '../../../shared/static'
-import publicChannels from './publicChannels'
+import { publicChannels } from '@zbayapp/nectar'
+// import publicChannels from './publicChannels'
 import directMessagesSelectors from './directMessages'
 import waggleSelectors from './waggle'
 
@@ -28,7 +29,7 @@ export const channelInfo = createSelector(channel, (ch): ChannelInfo => {
 }) // TODO refactor
 
 const isPublicChannel = createSelector(
-  publicChannels.publicChannels,
+  publicChannels.selectors.publicChannels,
   channel,
   (pubChannels, channel) => {
     if (pubChannels && channel) {
@@ -62,24 +63,24 @@ const data = createSelector(contacts, id, (channels, id) => channels[id])
 export const isSizeCheckingInProgress = createSelector(channel, c => c.isSizeCheckingInProgress)
 export const messageSizeStatus = createSelector(channel, c => c.messageSizeStatus)
 export const displayableMessageLimit = createSelector(channel, c => c.displayableMessageLimit)
-export const isOwner = createSelector(
-  id,
-  contacts,
-  identitySelectors.signerPubKey,
-  (id, con, myKey) => {
-    const contact = con[id]
-    if (!contact) {
-      return false
-    }
-    const settingsMsg = Array.from(Object.values(contact.messages)).filter(
-      msg => msg.type === messageType.CHANNEL_SETTINGS
-    )[0]
-    if (settingsMsg && settingsMsg.message.owner === myKey) {
-      return true
-    }
-    return false
-  }
-)
+// export const isOwner = createSelector(
+//   id,
+//   contacts,
+//   null,
+//   (id, con, myKey) => {
+//     const contact = con[id]
+//     if (!contact) {
+//       return false
+//     }
+//     const settingsMsg = Array.from(Object.values(contact.messages)).filter(
+//       msg => msg.type === messageType.CHANNEL_SETTINGS
+//     )[0]
+//     if (settingsMsg && settingsMsg.message.owner === myKey) {
+//       return true
+//     }
+//     return false
+//   }
+// )
 export const channelSettingsMessage = createSelector(data, data => {
   if (!data) {
     return null
@@ -244,7 +245,7 @@ export default {
   messageSizeStatus,
   isSizeCheckingInProgress,
   id,
-  isOwner,
+  // isOwner,
   channelDesription,
   displayableMessageLimit,
   isPublicChannel,

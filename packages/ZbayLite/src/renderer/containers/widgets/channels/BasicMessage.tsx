@@ -1,22 +1,14 @@
 import React from 'react'
-import { useSelector } from 'react-redux'
 
 import BasicMessage from '../../../components/widgets/channels/BasicMessage'
 import { IBasicMessageProps } from '../../../components/widgets/channels/BasicMessage.d'
-import channelSelectors from '../../../store/selectors/channel'
-import contactsSelectors from '../../../store/selectors/contacts'
-import identitySelectors from '../../../store/selectors/identity'
 
 export const useBasicMessageData = () => {
-  const isOwner = useSelector(channelSelectors.isOwner)
-  const channelId = useSelector(channelSelectors.id)
-  const directMessages = useSelector(contactsSelectors.directMessages(channelId))
-  const channelModerators = directMessages.channelModerators
-  const signerPubKey = useSelector(identitySelectors.signerPubKey)
-  const isModerator = channelModerators.includes(signerPubKey)
+  // const isOwner = useSelector(publicChannels.selectors.isOwner)
 
   return {
-    allowModeration: isOwner || isModerator
+    allowModeration: false
+    // allowModeration: isOwner
   }
 }
 

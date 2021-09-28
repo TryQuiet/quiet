@@ -7,19 +7,20 @@ import SettingsModal from '../../../components/widgets/settings/SettingsModal'
 import { withModal } from '../../../store/handlers/modals'
 import { actions } from '../../../store/handlers/app'
 import appSelectors from '../../../store/selectors/app'
-import identitySelectors from '../../../store/selectors/identity'
-import usersSelector from '../../../store/selectors/users'
+// import identitySelectors from '../../../store/selectors/identity'
+// import usersSelector from '../../../store/selectors/users'
 import notificationCenterSelector from '../../../store/selectors/notificationCenter'
 
 const mapStateToProps = state => {
-  const user = usersSelector.registeredUser(
-    identitySelectors.signerPubKey(state)
-  )(state)
+  // const user = usersSelector.registeredUser(
+  //   identitySelectors.signerPubKey(state)
+  // )(state)
   return {
     modalTabToOpen: appSelectors.currentModalTab(state),
-    user: user
-      ? `@${user.nickname}`
-      : `@anon${identitySelectors.signerPubKey(state).substring(0, 15)}`,
+    user: 'user',
+    // user: user
+    //   ? `@${user.nickname}`
+    //   : `@anon${identitySelectors.signerPubKey(state).substring(0, 15)}`,
     blockedUsers: notificationCenterSelector.blockedUsers(state)
   }
 }

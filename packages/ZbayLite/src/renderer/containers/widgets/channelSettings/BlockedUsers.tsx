@@ -3,15 +3,16 @@ import { connect } from 'react-redux'
 
 // import moderationActions from '../../../store/handlers/moderationActions'
 import BlockedUsers from '../../../components/widgets/channelSettings/BlockedUsers'
-import channelSelectors from '../../../store/selectors/channel'
-import contactsSelectors from '../../../store/selectors/contacts'
+// import channelSelectors from '../../../store/selectors/channel'
+// import contactsSelectors from '../../../store/selectors/contacts'
 // import messagesSelectors from '../../../store/selectors/messages'
-import usersSelector from '../../../store/selectors/users'
+// import usersSelector from '../../../store/selectors/users'
 
-export const mapStateToProps = state => {
+export const mapStateToProps = _state => {
   return {
-    blockedUsers: contactsSelectors.directMessages(channelSelectors.id(state))(state).blockedUsers,
-    users: usersSelector.users(state)
+    // blockedUsers: contactsSelectors.directMessages(channelSelectors.id(state))(state).blockedUsers,
+    blockedUsers: [],
+    users: []
   }
 }
 
@@ -27,5 +28,4 @@ export const mapDispatchToProps = (dispatch) =>
     dispatch
   )
 
-// @ts-expect-error
 export default connect(mapStateToProps, mapDispatchToProps)(BlockedUsers)

@@ -19,7 +19,6 @@ import emojiGray from '../../../../static/images/emojiGray.svg'
 import emojiBlack from '../../../../static/images/emojiBlack.svg'
 import errorIcon from '../../../../static/images/t-error.svg'
 import sanitizeHtml from 'sanitize-html'
-import { User, UsersStore } from '../../../../store/handlers/users'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -133,7 +132,7 @@ interface IChannelInput {
   infoClass: string
   setInfoClass: (arg: string) => void
   id: string
-  users: UsersStore
+  users: any
   onChange: (arg: string) => void
   onKeyPress: KeyboardEventHandler<HTMLDivElement>
   message: string
@@ -142,8 +141,8 @@ interface IChannelInput {
   channelName?: string
   anchorEl: any
   setAnchorEl: (arg: HTMLElement) => void
-  mentionsToSelect: User[]
-  setMentionsToSelect: (arg: User[]) => void
+  mentionsToSelect: any[]
+  setMentionsToSelect: (arg: any[]) => void
   members?: Set<string>
   isMessageTooLong?: boolean
   isDM?: boolean
@@ -176,7 +175,7 @@ export const ChannelInput: React.FC<IChannelInput> = ({
   const messageRef = React.useRef<string>()
   const refSelected = React.useRef<number>()
   const isFirstRenderRef = React.useRef(true)
-  const refMentionsToSelect = React.useRef<User[]>()
+  const refMentionsToSelect = React.useRef<any[]>()
   const inputRef = React.createRef<ContentEditable & HTMLDivElement & any>() // any for updater.enqueueForceUpdate
 
   const [focused, setFocused] = React.useState(false)
@@ -230,10 +229,10 @@ export const ChannelInput: React.FC<IChannelInput> = ({
     const splitedMsg = text.replace(/ /g, String.fromCharCode(160)).split(String.fromCharCode(160))
     const lastMention = splitedMsg[splitedMsg.length - 1].startsWith('@')
     if (lastMention) {
-      const possibleMentions = Array.from(Object.values(users)).filter(user =>
+      const possibleMentions = Array.from(Object.values(users)).filter((user: any) =>
         user.nickname.startsWith(splitedMsg[splitedMsg.length - 1].substring(1))
       )
-      const sortedMentions = Object.values(possibleMentions).sort(function (a, b) {
+      const sortedMentions = Object.values(possibleMentions).sort(function (a: any, b: any) {
         if (a.nickname > b.nickname) {
           return 1
         }
@@ -262,7 +261,7 @@ export const ChannelInput: React.FC<IChannelInput> = ({
       const element = splitedMsg[key]
       if (
         element.startsWith('@') &&
-        Array.from(Object.values(users)).find(user => user.nickname === element.substring(1))
+        Array.from(Object.values(users)).find((user: any) => user.nickname === element.substring(1))
       ) {
         splitedMsg[key] = renderToString(<span className={classes.highlight}>{element}</span>)
         if (key === splitedMsg.length) {
@@ -318,6 +317,7 @@ export const ChannelInput: React.FC<IChannelInput> = ({
             .replace(/ /g, String.fromCharCode(160))
             .split(String.fromCharCode(160))
           currentMsg[currentMsg.length - 1] =
+          // eslint-disable-next-line
             '@' + refMentionsToSelect.current[refSelected.current].nickname
           currentMsg.push(String.fromCharCode(160))
           setHtmlMessage(currentMsg.join(String.fromCharCode(160)))
@@ -331,7 +331,7 @@ export const ChannelInput: React.FC<IChannelInput> = ({
         e.target.innerText !== ''
       ) {
         onChange(e.target.innerText)
-        onKeyPress(e)
+        onKeyPress(e.target.innerText)
         setMessage('')
         setHtmlMessage('')
         scrollToBottom()
@@ -388,6 +388,7 @@ export const ChannelInput: React.FC<IChannelInput> = ({
                   .replace(/ /g, String.fromCharCode(160))
                   .split(String.fromCharCode(160))
                 currentMsg[currentMsg.length - 1] =
+                // eslint-disable-next-line
                   '@' + refMentionsToSelect.current[refSelected.current].nickname
                 currentMsg.push(String.fromCharCode(160))
                 setMessage(currentMsg.join(String.fromCharCode(160)))

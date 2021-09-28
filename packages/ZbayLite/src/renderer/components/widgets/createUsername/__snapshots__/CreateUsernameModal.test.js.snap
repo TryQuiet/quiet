@@ -8,7 +8,7 @@ exports[`CreateUsernameModal renders component 1`] = `
   contentWidth={600}
   handleClose={[MockFunction]}
   isBold={false}
-  isCloseDisabled={false}
+  isCloseDisabled={true}
   open={true}
 >
   <WithStyles(ForwardRef(Grid))
@@ -16,10 +16,63 @@ exports[`CreateUsernameModal renders component 1`] = `
     container={true}
     direction="column"
   >
-    <Memo(WithStyles(UsernameCreated))
-      handleClose={[MockFunction]}
-      setFormSent={[Function]}
-    />
+    <WithStyles(ForwardRef(Grid))
+      className="title-mock"
+      item={true}
+    >
+      <WithStyles(ForwardRef(Typography))
+        variant="h3"
+      >
+        Register a username
+      </WithStyles(ForwardRef(Typography))>
+      <input
+        name="topicBox"
+        onChange={[Function]}
+        placeholder="Enter topic here..."
+        type="text"
+        value=""
+      />
+      <WithStyles(ForwardRef(Button))
+        onClick={[Function]}
+      >
+        create community
+      </WithStyles(ForwardRef(Button))>
+      <WithStyles(ForwardRef(Button))
+        onClick={[Function]}
+      >
+        trigger selector
+      </WithStyles(ForwardRef(Button))>
+      <WithStyles(ForwardRef(Button))
+        onClick={[Function]}
+      >
+        join community
+      </WithStyles(ForwardRef(Button))>
+      <WithStyles(ForwardRef(Button))
+        onClick={[Function]}
+      >
+        launch community
+      </WithStyles(ForwardRef(Button))>
+      <WithStyles(ForwardRef(Button))
+        onClick={[Function]}
+      >
+        launch registrar
+      </WithStyles(ForwardRef(Button))>
+      <WithStyles(ForwardRef(Button))
+        onClick={[Function]}
+      >
+        register username
+      </WithStyles(ForwardRef(Button))>
+    </WithStyles(ForwardRef(Grid))>
+    <Formik
+      enableReinitialize={false}
+      isInitialValid={false}
+      onSubmit={[Function]}
+      validateOnBlur={true}
+      validateOnChange={true}
+      validationSchema={[Function]}
+    >
+      <Component />
+    </Formik>
   </WithStyles(ForwardRef(Grid))>
 </Component>
 `;

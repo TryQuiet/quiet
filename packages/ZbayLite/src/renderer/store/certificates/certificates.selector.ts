@@ -1,21 +1,22 @@
-import { createSelector } from 'reselect'
-import { extractPubKeyString } from '@zbayapp/identity'
 
-import { Store } from '../reducers'
-import { StoreKeys } from '../store.keys'
+// import { createSelector } from 'reselect'
+// import { extractPubKeyString } from '@zbayapp/identity'
 
-const certificates = (s: Store) => s[StoreKeys.Certificates]
+// import { Store } from '../reducers'
+// import { StoreKeys } from '../store.keys'
 
-const usersCertificates = createSelector(certificates, c => c.usersCertificates)
-const ownCertificate = createSelector(certificates, c => c.ownCertificate.certificate)
-const ownPrivKey = createSelector(certificates, c => c.ownCertificate.privateKey)
-const ownPublicKey = createSelector(ownCertificate, c => extractPubKeyString(c))
-const certificateRegistrationError = createSelector(certificates, c => c.registrationError)
+// const certificates = (s: Store) => s[StoreKeys.Certificates]
 
-export default {
-  usersCertificates,
-  ownCertificate,
-  ownPrivKey,
-  ownPublicKey,
-  certificateRegistrationError
-}
+// //const usersCertificates = createSelector(certificates, c => c.usersCertificates)
+// const ownCertificate = createSelector(certificates, c => c.ownCertificate.certificate)
+// const ownPrivKey = createSelector(certificates, c => c.ownCertificate.privateKey)
+// const ownPublicKey = createSelector(ownCertificate, c => extractPubKeyString(c))
+// const certificateRegistrationError = createSelector(certificates, c => c.registrationError)
+
+// export default {
+//   // usersCertificates,
+//   ownCertificate,
+//   ownPrivKey,
+//   ownPublicKey,
+//   certificateRegistrationError
+// }

@@ -1,52 +1,52 @@
 
-import { createSelector } from 'reselect'
+// import { createSelector } from 'reselect'
 
-import { Store } from '../reducers'
+// import { Store } from '../reducers'
 
-const identity = (s: Store) => s.identity
+// const identity = (s: Store) => s.identity
 
-const data = createSelector(identity, i => i.data)
+// const data = createSelector(identity, i => i.data)
 
-const id = createSelector(data, d => d.id)
-const name = createSelector(data, d => d.name)
+// const id = createSelector(data, d => d.id)
+// const name = createSelector(data, d => d.name)
 
-const nickName = createSelector(identity, i => i.registrationStatus.nickname)
+// const nickName = createSelector(identity, i => i.registrationStatus.nickname)
 
-const shieldingTax = createSelector(data, d => d.shieldingTax)
+// const shieldingTax = createSelector(data, d => d.shieldingTax)
 
-const signerPrivKey = createSelector(data, d => d.signerPrivKey)
-export const signerPubKey = createSelector(data, d => d.signerPubKey)
+// const signerPrivKey = createSelector(data, d => d.signerPrivKey)
+// export const signerPubKey = createSelector(data, d => d.signerPubKey)
 
-const address = createSelector(data, d => d.address)
-const onionAddress = createSelector(data, d => d.onionAddress)
-const addresses = createSelector(data, d => d.addresses)
+// const address = createSelector(data, d => d.address)
+// const onionAddress = createSelector(data, d => d.onionAddress)
+// const addresses = createSelector(data, d => d.addresses)
 
-const loader = createSelector(identity, i => i.loader)
+// const loader = createSelector(identity, i => i.loader)
 
-const removedChannels = createSelector(identity, i => Array.from(Object.values(i.removedChannels)))
+// const removedChannels = createSelector(identity, i => Array.from(Object.values(i.removedChannels)))
 
-const shippingData = createSelector(data, d => d.shippingData)
+// const shippingData = createSelector(data, d => d.shippingData)
 
-const registrationStatus = createSelector(identity, i => i.registrationStatus)
+// const registrationStatus = createSelector(identity, i => i.registrationStatus)
 
-export default {
-  id,
-  name,
-  data,
-  identity,
-  address,
+// export default {
+//   id,
+//   name,
+//   data,
+//   identity,
+//   address,
 
-  loader,
-  shippingData,
-  signerPrivKey,
-  signerPubKey,
+//   loader,
+//   shippingData,
+//   signerPrivKey,
+//   signerPubKey,
 
-  shieldingTax,
+//   shieldingTax,
 
-  addresses,
+//   addresses,
 
-  removedChannels,
-  onionAddress,
-  registrationStatus,
-  nickName
-}
+//   removedChannels,
+//   onionAddress,
+//   registrationStatus,
+//   nickName
+// }

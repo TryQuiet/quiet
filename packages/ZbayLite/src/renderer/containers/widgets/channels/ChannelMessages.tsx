@@ -5,19 +5,19 @@ import ChannelMessagesComponent from '../../../components/widgets/channels/Chann
 import channelSelectors from '../../../store/selectors/channel'
 // import dmQueueMessages from '../../../store/selectors/directMessagesQueue'
 // import queueMessages from '../../../store/selectors/messagesQueue'
-import userSelector from '../../../store/selectors/users'
+// import userSelector from '../../../store/selectors/users'
 import contactsSelectors from '../../../store/selectors/contacts'
 // import nodeSelector from '../../../store/selectors/node'
 import appSelectors from '../../../store/selectors/app'
 // import ownedChannelsSelectors from '../../../store/selectors/ownedChannels'
-import publicChannelsSelector from '../../../store/selectors/publicChannels'
-import { MessageType } from '../../../../shared/static.types'
+// import publicChannelsSelector from '../../../store/selectors/publicChannels'
+// import { MessageType } from '../../../../shared/static.types'
 import channelHandlers, { actions } from '../../../store/handlers/channel'
-
+import { publicChannels as pubChannels } from '@zbayapp/nectar'
 import electronStore from '../../../../shared/electronStore'
 import { loadNextMessagesLimit } from '../../../../shared/static'
 
-export const ChannelMessages = ({ tab, contentRect }) => {
+export const ChannelMessages = ({ contentRect }) => {
   const isDev = process.env.NODE_ENV === 'development'
 
   const [scrollPosition, setScrollPosition] = React.useState(-1)
@@ -36,8 +36,13 @@ export const ChannelMessages = ({ tab, contentRect }) => {
   const setDisplayableLimit = (arg0?: number) =>
     dispatch(channelHandlers.actions.setDisplayableLimit(arg0))
   // const onRescan = () => dispatch(appHandlers.epics.restartAndRescan())
-  const messages = useSelector(contactsSelectors.directMessages(contactId))
-    .visibleMessages
+  // const messages = useSelector(contactsSelectors.directMessages(contactId))
+  //   .visibleMessages
+  const messages = useSelector(
+    pubChannels.selectors.currentChannelDisplayableMessages
+  )
+  console.log(messages, 'messages')
+
   const messagesLength = useSelector(
     contactsSelectors.messagesLength(contactId)
   )
@@ -46,9 +51,11 @@ export const ChannelMessages = ({ tab, contentRect }) => {
   )
   // const isOwner = useSelector(ownedChannelsSelectors.isOwner)
   const channelId = useSelector(channelSelectors.channelId)
-  const users = useSelector(userSelector.users)
+  const users = []
+  const publicChannels = useSelector(pubChannels.selectors.publicChannels)
+  // const users = useSelector(userSelector.users)
+  // const publicChannels = useSelector(publicChannelsSelector.publicChannels)
   const loader = useSelector(channelSelectors.loader)
-  const publicChannels = useSelector(publicChannelsSelector.publicChannels)
   // const network = useSelector(nodeSelector.network)
   const isInitialLoadFinished = useSelector(appSelectors.isInitialLoadFinished)
 
@@ -75,7 +82,7 @@ export const ChannelMessages = ({ tab, contentRect }) => {
   // const oldestMessage = messages ? messages[messages.length - 1] : null
   const usersRegistration = []
   // const _publicChannelsRegistration = []
-  let publicChannelsRegistration
+  const publicChannelsRegistration = []
   // if (channelId === zcashChannels.general[network].address) {
   //   if (oldestMessage) {
   //     usersRegistration = Array.from(Object.values(users)).filter(
@@ -101,11 +108,7 @@ export const ChannelMessages = ({ tab, contentRect }) => {
       isNewUser={isNewUser}
       // onRescan={onRescan}
       channelId={channelId}
-      messages={
-        tab === 0
-          ? messages
-          : messages.filter((msg) => msg.type === MessageType.AD)
-      }
+      messages={messages}
       contactId={contactId}
       contentRect={contentRect}
       // isOwner={isOwner}

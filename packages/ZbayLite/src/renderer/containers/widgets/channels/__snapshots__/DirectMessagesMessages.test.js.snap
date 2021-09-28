@@ -5,7 +5,6 @@ Object {
   "channelId": "this-is-test-channel-id",
   "isConnected": undefined,
   "isInitialLoadFinished": false,
-  "messages": undefined,
   "name": undefined,
 }
 `;

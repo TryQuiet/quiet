@@ -6,6 +6,7 @@ import * as R from 'ramda' // change to lodash
 import classNames from 'classnames'
 
 import Typography from '@material-ui/core/Typography'
+import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import Grid from '@material-ui/core/Grid'
 import { withStyles } from '@material-ui/core/styles'
@@ -163,27 +164,53 @@ export const CreateUsernameModal = ({
   classes,
   open,
   handleClose,
-  initialValues,
+  initialValue,
   handleSubmit,
-  isNewUser,
+  handleCreateCommunity,
+  handleJoinCommunity,
+  handleLaunchCommunity,
+  handleLaunchRegistrar,
+  handleRegisterUsername,
   certificateRegistrationError,
-  certificate
+  triggerSelector,
+  certificate,
+  id
 }) => {
   const [isTouched, setTouched] = useState(false)
   const [formSent, setFormSent] = useState(false)
+  const [val, setVal] = useState('')
   const responseReceived = Boolean(certificateRegistrationError || certificate)
   const waitingForResponse = formSent && !responseReceived
+  const trig = () => {
+    console.log(id)
+  }
   return (
-    <Modal open={open} handleClose={handleClose} isCloseDisabled={isNewUser}>
+    <Modal open={!certificate} handleClose={handleClose} isCloseDisabled={!certificate}>
       <Grid container className={classes.main} direction='column'>
-        {isNewUser ? (
+        {!certificate ? (
           <React.Fragment>
             <Grid className={classes.title} item>
               <Typography variant={'h3'}>Register a username</Typography>
+              <input
+                type="text"
+                name="topicBox"
+                placeholder="Enter topic here..."
+                value={ val }
+                onChange={ (target) => {
+                  console.log(target)
+                  setVal(target.target.value)
+                } }
+              />
+              <Button onClick={() => { handleCreateCommunity(val) }}>create community</Button>
+              <Button onClick={trig}>trigger selector</Button>
+              <Button onClick={() => { handleJoinCommunity(val) }}>join community</Button>
+              <Button onClick={() => { handleLaunchCommunity(val) }}>launch community</Button>
+              <Button onClick={() => { handleLaunchRegistrar(val) }}>launch registrar</Button>
+              <Button onClick={() => { handleRegisterUsername(val) }}>register username</Button>
             </Grid>
             <Formik
-              onSubmit={values => submitForm(handleSubmit, values, setFormSent)}
-              initialValues={initialValues}
+              onSubmit={values => submitForm(handleRegisterUsername, values.nickname, setFormSent)}
+              initialValues={initialValue}
               validationSchema={values => getValidationSchema(values, certificateRegistrationError)}>
               {() => {
                 return (

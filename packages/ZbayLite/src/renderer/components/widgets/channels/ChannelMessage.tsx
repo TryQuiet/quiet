@@ -10,15 +10,13 @@ import { makeStyles } from '@material-ui/core/styles'
 import { Button } from '@material-ui/core'
 
 import { _DisplayableMessage } from '../../../zbay/messages'
-import ChannelMessageActions from './ChannelMessageActions'
 import BasicMessage from '../../../containers/widgets/channels/BasicMessage'
 import Tooltip from '../../ui/Tooltip/Tooltip'
 import imagePlacegolder from '../../../static/images/imagePlacegolder.svg'
 import Icon from '../../ui/Icon/Icon'
 import OpenlinkModal from '../../../containers/ui/OpenlinkModal'
-import { User, UsersStore } from '../../../store/handlers/users'
 import { DisplayableMessage } from '../../../zbay/messages.types'
-import { PublicChannelsStore } from '../../../store/handlers/publicChannels'
+import { User } from '@zbayapp/nectar/lib/sagas/users/users.slice'
 
 const useStyles = makeStyles((theme) => ({
   message: {
@@ -149,7 +147,7 @@ const checkLinking = (
   })
 
   parsedMessage = reactStringReplace(parsedMessage, /@(\w+)/g, (match, i) => {
-    if (!Array.from(Object.values(users)).find((user: User) => user.nickname === match)) {
+    if (!Array.from(Object.values(users)).find((user: User) => user.username === match)) {
       return `@${match}`
     }
     return (
@@ -227,23 +225,20 @@ const checkLinking = (
 
 interface ChannelMessageProps {
   message: DisplayableMessage
-  onResend: (DisplayableMessage: DisplayableMessage) => void
-  publicChannels: PublicChannelsStore
-  onLinkedChannel: string
-  onLinkedUser: string
-  users: UsersStore
-  openExternalLink: string
+  publicChannels: any
+  onLinkedChannel: (string) => void
+  onLinkedUser: () => void
+  users: any
+  openExternalLink: () => void
   allowAll: boolean
-  whitelisted: string
+  whitelisted: any[]
   addToWhitelist: (url: string, dontAutoload: boolean) => void
-  setWhitelistAll: string
-  autoload: string
-  torEnabled: boolean
+  setWhitelistAll: () => void
+  autoload: any[]
 }
 
 export const ChannelMessage: React.FC<ChannelMessageProps> = ({
   message,
-  onResend,
   publicChannels,
   onLinkedChannel,
   onLinkedUser,
@@ -253,20 +248,17 @@ export const ChannelMessage: React.FC<ChannelMessageProps> = ({
   whitelisted,
   addToWhitelist,
   setWhitelistAll,
-  autoload,
-  torEnabled
+  autoload
 }) => {
   const classes = useStyles({})
   const [showImage, setShowImage] = React.useState(false)
   const [imageUrl, setImageUrl] = React.useState(null)
   const [parsedMessage, setParsedMessage] = React.useState([])
   const [openModal, setOpenModal] = React.useState(false)
-  const status = message.status || null
-  const messageData = message.message.itemId
-    ? message.message.text
-    : message.message
+  // const status = message.status || null
+  const messageData = message.message
   const autoloadImage =
-    imageUrl && !torEnabled
+    imageUrl
       ? autoload.includes(new URL(imageUrl).hostname)
       : false
   React.useEffect(() => {
@@ -300,9 +292,9 @@ export const ChannelMessage: React.FC<ChannelMessageProps> = ({
         <Typography variant='body2' className={classes.message}>
           {parsedMessage}
         </Typography>
-        {status === 'failed' && (
+        {/* {status === 'failed' && (
           <ChannelMessageActions onResend={() => onResend(message)} />
-        )}
+        )} */}
       </Grid>
       {!showImage && imageUrl && !autoloadImage && (
         <Grid

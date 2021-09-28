@@ -14,7 +14,8 @@ import contactsHandlers from './contacts'
 import electronStore from '../../../shared/electronStore'
 
 import { ActionsType, PayloadType } from './types'
-import { publicChannelsActions } from '../../sagas/publicChannels/publicChannels.reducer'
+// import { publicChannelsActions } from '../../sagas/publicChannels/publicChannels.reducer'xs
+import { publicChannels } from '@zbayapp/nectar'
 
 // TODO: to remove, but must be replaced in all the tests
 export const ChannelState = {
@@ -100,6 +101,7 @@ export type ChannelActions = ActionsType<typeof actions>
 const loadChannel = key => async (dispatch, getState) => {
   console.log('loadChannel', key)
   try {
+    dispatch(publicChannels.actions.setCurrentChannel(key))
     dispatch(setChannelId(key))
     dispatch(setDisplayableLimit(30))
     const contact = contactsSelectors.contact(key)(getState())
@@ -109,27 +111,29 @@ const loadChannel = key => async (dispatch, getState) => {
     dispatch(setAddress(contact.address))
     dispatch(contactsHandlers.actions.cleanNewMessages({ contactAddress: contact.key }))
     dispatch(contactsHandlers.actions.cleanNewMessages({ contactAddress: key }))
-  } catch (err) { }
+  } catch (err) {
+    console.log(err)
+  }
 }
-const linkChannelRedirect = targetChannel => async (dispatch, getState) => {
-  const contact = contactsSelectors.contact(targetChannel.address)(getState())
-  if (targetChannel.name === 'zbay') {
-    history.push('/main/channel/zs10zkaj29rcev9qd5xeuzck4ly5q64kzf6m6h9nfajwcvm8m2vnjmvtqgr0mzfjywswwkwke68t00')
-    return
-  }
-  if (contact.address) {
-    history.push(`/main/channel/${targetChannel.address}`)
-    return
-  }
+const linkChannelRedirect = targetChannel => async (dispatch, _getState) => {
+  // const contact = contactsSelectors.contact(targetChannel.address)(getState())
+  // if (targetChannel.name === 'zbay') {
+  //   history.push('/main/channel/zs10zkaj29rcev9qd5xeuzck4ly5q64kzf6m6h9nfajwcvm8m2vnjmvtqgr0mzfjywswwkwke68t00')
+  //   return
+  // }
+  // if (contact.address) {
+  //   history.push(`/main/channel/${targetChannel.address}`)
+  //   return
+  // }
 
-  dispatch(publicChannelsActions.subscribeForTopic(targetChannel))
-  await dispatch(
-    contactsHandlers.actions.addContact({
-      key: targetChannel.address,
-      contactAddress: targetChannel.address,
-      username: targetChannel.name
-    })
-  )
+  dispatch(publicChannels.actions.setCurrentChannel(targetChannel.address))
+  // await dispatch(
+  //   contactsHandlers.actions.addContact({
+  //     key: targetChannel.address,
+  //     contactAddress: targetChannel.address,
+  //     username: targetChannel.name
+  //   })
+  // )
 
   history.push(`/main/channel/${targetChannel.address}`)
 }

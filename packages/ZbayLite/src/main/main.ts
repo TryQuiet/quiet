@@ -6,7 +6,7 @@ import { autoUpdater } from 'electron-updater'
 import config from './config'
 import electronStore from '../shared/electronStore'
 import Client from './cli/client'
-import { spawnTor, waggleVersion, runWaggle } from './waggleManager'
+import { waggleVersion, runWaggle } from './waggleManager'
 import debug from 'debug'
 import { ConnectionsManager } from 'waggle/lib/libp2p/connectionsManager'
 import { DataServer } from 'waggle/lib/socket/DataServer'
@@ -237,8 +237,6 @@ export const checkForUpdate = async win => {
   }
 }
 
-// let client: Client
-let tor = null
 let waggleProcess: { connectionsManager: ConnectionsManager; dataServer: DataServer } = null
 app.on('ready', async () => {
   // const template = [
@@ -279,7 +277,6 @@ app.on('ready', async () => {
   })
 
   mainWindow.webContents.on('did-finish-load', async () => {
-    tor = await spawnTor()
     waggleProcess = await runWaggle(mainWindow.webContents)
     if (process.platform === 'win32' && process.argv) {
       const payload = process.argv[1]
@@ -319,11 +316,7 @@ app.setAsDefaultProtocolClient('zbay')
 app.on('before-quit', async e => {
   e.preventDefault()
   if (waggleProcess !== null) {
-    await waggleProcess.connectionsManager.closeStorage()
     await waggleProcess.dataServer.close()
-  }
-  if (tor !== null) {
-    await tor.kill()
   }
   if (browserWidth && browserHeight) {
     electronStore.set('windowSize', {

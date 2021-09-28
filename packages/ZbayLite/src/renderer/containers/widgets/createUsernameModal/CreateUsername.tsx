@@ -1,49 +1,90 @@
-import * as R from 'ramda'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
+import React from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 
-import electronStore from '../../../../shared/electronStore'
-import usersHandlers from '../../../store/handlers/users'
-import identitySelectors from '../../../store/selectors/identity'
-import usersSelectors from '../../../store/selectors/users'
-// import feesSelectors from '../../../store/selectors/fees'
-// import ratesSelectors from '../../../store/selectors/rates'
-import certificatesSelector from '../../../store/certificates/certificates.selector'
+import modalsSelectors from '../../../store/selectors/modals'
+import modalsHandlers from '../../../store/handlers/modals'
 
-import CreateUsernameModal from '../../../components/widgets/createUsername/CreateUsernameModal'
-import { withModal } from '../../../store/handlers/modals'
-export const mapStateToProps = state => {
-  return {
-    initialValues: {
-      nickname: usersSelectors.registeredUser(
-        identitySelectors.signerPubKey(state)
-      )(state)
-        ? usersSelectors
-          .registeredUser(identitySelectors.signerPubKey(state))(state)
-          .nickname
-        : '',
-      takenUsernames: identitySelectors.registrationStatus(state)
-    },
-    // usernameFee: feesSelectors.userFee(state),
-    // zecRate: ratesSelectors.rate('usd')(state),
-    enoughMoney: true,
-    isNewUser: electronStore.get('isNewUser'),
-    certificateRegistrationError: certificatesSelector.certificateRegistrationError(state),
-    certificate: certificatesSelector.ownCertificate(state)
+import CreateUsernameModalComponent from '../../../components/widgets/createUsername/CreateUsernameModal'
+import { identity, errors, communities } from '@zbayapp/nectar'
+
+const useData = () => {
+  const modalName = 'createUsernameModal'
+  const data = {
+    initialValue: '',
+    modalName,
+    open: useSelector(modalsSelectors.open(modalName)),
+    certificateRegistrationError: useSelector(errors.selectors.certificateRegistration),
+    certificate: useSelector(identity.selectors.currentIdentity)?.userCertificate,
+    id: useSelector(identity.selectors.currentIdentity)
   }
+  return data
 }
 
-export const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      handleSubmit: ({ nickname }) => {
-        return usersHandlers.epics.createOrUpdateUser({ nickname, debounce: true })
-      }
-    },
-    dispatch
-  )
+const CreateUsernameModal = () => {
+  const {
+    initialValue,
+    modalName,
+    certificateRegistrationError,
+    certificate,
+    open, id
+  } = useData()
+  const dispatch = useDispatch()
 
-export default R.compose(
-  connect(mapStateToProps, mapDispatchToProps),
-  withModal('createUsernameModal')
-)(CreateUsernameModal)
+  const handleCreateCommunity = (communityName: string) => {
+    console.log('create new community')
+    console.log(communityName)
+    dispatch(communities.actions.createNewCommunity(communityName))
+  }
+  const handleJoinCommunity = (registrarAddress: string) => {
+    console.log('join community')
+    console.log(registrarAddress)
+    dispatch(communities.actions.joinCommunity(registrarAddress))
+  }
+  const handleLaunchCommunity = (id: string) => {
+    console.log('launching Community')
+    console.log(id)
+    // dispatch(communities.actions.launchCommunity(id))
+  }
+  const handleLaunchRegistrar = (id: string) => {
+    console.log('launching registrar')
+    console.log(id)
+    dispatch(communities.actions.launchRegistrar())
+  }
+  const handleRegisterUsername = (username) => {
+    console.log('handle register username')
+    console.log(username)
+    dispatch(identity.actions.registerUsername(username))
+  }
+
+  const triggerSelector = () => {
+
+  }
+
+  const handleOpen = () => {
+    dispatch(modalsHandlers.actionCreators.openModal(modalName))
+  }
+  const handleClose = () => {
+    dispatch(modalsHandlers.closeModalHandler(modalName))
+  }
+
+  return (
+    <CreateUsernameModalComponent
+      // handleSubmit={handleSubmit}
+      handleCreateCommunity={handleCreateCommunity}
+      handleJoinCommunity={handleJoinCommunity}
+      handleLaunchCommunity={handleLaunchCommunity}
+      handleLaunchRegistrar={handleLaunchRegistrar}
+      handleRegisterUsername={handleRegisterUsername}
+      triggerSelector={triggerSelector}
+      initialValue={initialValue}
+      open={open}
+      handleOpen={handleOpen}
+      handleClose={handleClose}
+      certificateRegistrationError={certificateRegistrationError}
+      certificate={certificate}
+      id={id}
+    />
+  )
+}
+
+export default CreateUsernameModal
