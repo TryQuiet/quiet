@@ -1,16 +1,14 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import * as R from 'ramda'
+import React, { ReactElement } from 'react'
 
+import ClearIcon from '@material-ui/icons/Clear'
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
-import { withStyles } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/core/styles'
 
-import ClearIcon from '@material-ui/icons/Clear'
 import IconButton from '../Icon/IconButton'
 
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
   alignAvatarPopover: {
     marginTop: theme.spacing(2)
   },
@@ -34,7 +32,7 @@ const styles = theme => ({
   usernamePopover: {
     marginTop: theme.spacing(1),
     fontSize: '1.2rem',
-    fontWeight: '600'
+    fontWeight: 'bold'
   },
   closeIcon: {
     margin: theme.spacing(2)
@@ -51,28 +49,37 @@ const styles = theme => ({
   avatar: {
     marginTop: theme.spacing(2)
   }
-})
+}))
 
-export const QuickActionLayout = ({
-  classes,
+interface QuickActionLayoutProps {
+  main: string
+  info?: string
+  children?: ReactElement
+  handleClose: (event?: {}, reason?: 'backdropClick' | 'escapeKeyDown') => void
+  buttonName?: string
+  warning?: string
+  onClick?: () => void
+}
+
+export const QuickActionLayout: React.FC<QuickActionLayoutProps> = ({
   main,
-  children,
   info,
+  children,
   handleClose,
   buttonName,
-  onClick,
-  warrning
+  warning,
+  onClick
 }) => {
+  const classes = useStyles({})
   return (
     <Grid
       container
       className={classes.container}
       direction='column'
       justify='flex-start'
-      alignItems='center'
-    >
-      <Grid className={classes.icon} container item direction='row' justify='flex-start'>
-        <IconButton className={classes.closeIcon} onClick={handleClose}>
+      alignItems='center'>
+      <Grid className={classes.closeIcon} container item direction='row' justify='flex-start'>
+        <IconButton onClick={handleClose}>
           <ClearIcon />
         </IconButton>
       </Grid>
@@ -93,33 +100,18 @@ export const QuickActionLayout = ({
         <Button
           variant={'contained'}
           onClick={onClick}
-          disabled={!!warrning}
-          className={classes.button}
-        >
+          disabled={!!warning}
+          className={classes.button}>
           {buttonName}
         </Button>
       </Grid>
-      <Grid item className={classes.infoDiv} >
+      <Grid item className={classes.infoDiv}>
         <Typography className={classes.info} variant='caption'>
-          {warrning}
+          {warning}
         </Typography>
       </Grid>
     </Grid>
   )
 }
 
-QuickActionLayout.propTypes = {
-  classes: PropTypes.object.isRequired,
-  handleClose: PropTypes.func.isRequired,
-  main: PropTypes.string.isRequired,
-  info: PropTypes.string.isRequired,
-  buttonName: PropTypes.string,
-  warrning: PropTypes.string,
-  onClick: PropTypes.func,
-  children: PropTypes.node
-}
-
-export default R.compose(
-  React.memo,
-  withStyles(styles)
-)(QuickActionLayout)
+export default QuickActionLayout

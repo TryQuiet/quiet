@@ -2,7 +2,6 @@
 import React from 'react'
 import { shallow } from 'enzyme'
 
-import { mockClasses } from '../../../../shared/testing/mocks'
 import { ProgressFab } from './ProgressFab'
 
 describe('ProgressFab', () => {
@@ -11,7 +10,6 @@ describe('ProgressFab', () => {
   it('renders component', () => {
     const result = shallow(
       <ProgressFab
-        classes={mockClasses}
         onClick={jest.fn()}
       >
         <Icon />
@@ -23,7 +21,6 @@ describe('ProgressFab', () => {
   it('renders success', () => {
     const result = shallow(
       <ProgressFab
-        classes={mockClasses}
         onClick={jest.fn()}
         success
       >
@@ -36,7 +33,6 @@ describe('ProgressFab', () => {
   it('renders loading', () => {
     const result = shallow(
       <ProgressFab
-        classes={mockClasses}
         onClick={jest.fn()}
         loading
       >
@@ -49,7 +45,6 @@ describe('ProgressFab', () => {
   it('renders disabled', () => {
     const result = shallow(
       <ProgressFab
-        classes={mockClasses}
         onClick={jest.fn()}
         success
         disabled

@@ -46,7 +46,7 @@ export const SendMessagePopover: React.FC<ISendMessagePopoverProps> = ({
         main={username}
         buttonName="Send message"
         handleClose={handleClose}
-        warrning={
+        warning={
           !waggleIdentity ? 'Unregistered users cannot receive messages.' : null
         }
         onClick={() => {

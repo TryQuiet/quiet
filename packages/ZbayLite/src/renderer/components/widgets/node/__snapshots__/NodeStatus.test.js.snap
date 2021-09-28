@@ -10,7 +10,7 @@ exports[`NodeStatus renders for status down 1`] = `
   <WithStyles(ForwardRef(Grid))
     item={true}
   >
-    <Memo(WithStyles(PulseDot))
+    <Component
       className="icon-mock"
       color="down"
       size={6}
@@ -40,7 +40,7 @@ exports[`NodeStatus renders for status healthy 1`] = `
   <WithStyles(ForwardRef(Grid))
     item={true}
   >
-    <Memo(WithStyles(PulseDot))
+    <Component
       className="icon-mock"
       color="healthy"
       size={6}

@@ -1,55 +1,12 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`QuitAppDialog renders component 1`] = `
-<WithStyles(ForwardRef(Dialog))
-  onClose={[MockFunction]}
-  open={true}
->
-  <WithStyles(ForwardRef(DialogContent))
-    className="dialogContent-mock"
-  >
-    <WithStyles(ForwardRef(Typography))
-      className="info-mock"
-      variant="body2"
-    >
-      Do you want to quit Zbay?
-    </WithStyles(ForwardRef(Typography))>
-  </WithStyles(ForwardRef(DialogContent))>
-  <WithStyles(ForwardRef(DialogActions))
-    className="dialogActions-mock"
-  >
-    <WithStyles(ForwardRef(Grid))
-      container={true}
-      direction="row"
-      justify="flex-end"
-    >
-      <WithStyles(ForwardRef(Grid))
-        className="buttonNo-mock"
-        item={true}
-        onClick={[MockFunction]}
-        xs={true}
-      >
-        <WithStyles(ForwardRef(Typography))
-          className="typography-mock"
-          variant="body1"
-        >
-          No
-        </WithStyles(ForwardRef(Typography))>
-      </WithStyles(ForwardRef(Grid))>
-      <WithStyles(ForwardRef(Grid))
-        className="buttonYes-mock"
-        item={true}
-        onClick={[MockFunction]}
-        xs={true}
-      >
-        <WithStyles(ForwardRef(Typography))
-          className="typography-mock"
-          variant="body1"
-        >
-          Yes
-        </WithStyles(ForwardRef(Typography))>
-      </WithStyles(ForwardRef(Grid))>
-    </WithStyles(ForwardRef(Grid))>
-  </WithStyles(ForwardRef(DialogActions))>
-</WithStyles(ForwardRef(Dialog))>
+<ContextProvider>
+  <Component
+    classes={null}
+    handleClose={[MockFunction]}
+    handleQuit={[MockFunction]}
+    open={true}
+  />
+</ContextProvider>
 `;

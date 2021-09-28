@@ -5,15 +5,15 @@ import { shallow } from 'enzyme'
 import { QuitAppDialog } from './QuitAppDialog'
 import { mockClasses } from '../../../../shared/testing/mocks'
 
+import { MuiThemeProvider } from '@material-ui/core/styles'
+import { theme } from '../../../theme'
+
 describe('QuitAppDialog', () => {
   it('renders component', () => {
     const result = shallow(
-      <QuitAppDialog
-        open
-        classes={mockClasses}
-        handleClose={jest.fn()}
-        handleQuit={jest.fn()}
-      />
+      <MuiThemeProvider theme={theme}>
+        <QuitAppDialog open classes={mockClasses} handleClose={jest.fn()} handleQuit={jest.fn()} />
+      </MuiThemeProvider>
     )
     expect(result).toMatchSnapshot()
   })

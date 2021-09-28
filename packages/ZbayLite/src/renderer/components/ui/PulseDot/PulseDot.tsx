@@ -1,14 +1,13 @@
 import React from 'react'
 import classNames from 'classnames'
-import PropTypes from 'prop-types'
 
 import red from '@material-ui/core/colors/red'
 import blue from '@material-ui/core/colors/blue'
 import amber from '@material-ui/core/colors/amber'
 import lightGreen from '@material-ui/core/colors/lightGreen'
-import { withStyles } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/core/styles'
 
-const styles = {
+const useStyles = makeStyles<PulseDotProps>(({ size }) => ({
   '@keyframes pulse': {
     '0%': {
       transform: 'scale(1)',
@@ -26,8 +25,8 @@ const styles = {
   root: {
     display: 'inline-block',
     position: 'relative',
-    width: ({ size }) => `${size}px`,
-    height: ({ size }) => `${size}px`,
+    width: `${size}px`,
+    height: `${size}px`,
     zIndex: 2,
     borderRadius: '50%',
     '&:after': {
@@ -71,32 +70,29 @@ const styles = {
       background: `${red[500]}77`
     }
   }
+}))
+
+interface PulseDotProps {
+  className?: string
+  size?: number
+  color: 'healthy' | 'syncing' | 'down' | 'restarting' | 'connecting'
 }
 
-export const PulseDot = ({ classes, className, size, color }) => (
-  <div
-    className={classNames({
-      [classes.root]: true,
-      [classes[color]]: color,
-      [className]: className
-    })}
-    style={{
-      width: size,
-      height: size
-    }}
-  />
-)
-
-PulseDot.propTypes = {
-  classes: PropTypes.object.isRequired,
-  color: PropTypes.oneOf(['healthy', 'syncing', 'down', 'restarting', 'connecting']).isRequired,
-  className: PropTypes.string,
-  size: PropTypes.number
+export const PulseDot: React.FC<PulseDotProps> = ({ className = '', size = 16, color }) => {
+  const classes = useStyles({ size })
+  return (
+    <div
+      className={classNames({
+        [classes.root]: true,
+        [classes[color]]: color,
+        [className]: className
+      })}
+      style={{
+        width: size,
+        height: size
+      }}
+    />
+  )
 }
 
-PulseDot.defaultProps = {
-  size: 16,
-  className: ''
-}
-
-export default React.memo(withStyles(styles)(PulseDot))
+export default PulseDot

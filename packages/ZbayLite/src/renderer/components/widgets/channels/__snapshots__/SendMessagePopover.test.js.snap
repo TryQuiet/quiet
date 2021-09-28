@@ -19,17 +19,17 @@ exports[`SendMessagePopover renders popover 1`] = `
     }
   }
 >
-  <Memo(WithStyles(QuickActionLayout))
+  <Component
     buttonName="Send message"
     handleClose={[MockFunction]}
     main="TestUser"
     onClick={[Function]}
-    warrning="Unregistered users cannot receive messages."
+    warning="Unregistered users cannot receive messages."
   >
     <Jdenticon
       size="100"
       value="TestUser"
     />
-  </Memo(WithStyles(QuickActionLayout))>
+  </Component>
 </WithStyles(ForwardRef(Popover))>
 `;

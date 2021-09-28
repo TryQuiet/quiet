@@ -10,7 +10,7 @@ import Button from '@material-ui/core/Button'
 import { withStyles } from '@material-ui/core/styles'
 
 import TextField from '../../ui/TextField/TextField'
-import SelectField from '../../ui/Select/SelectField'
+import SelectField from '../../ui/SelectField/SelectField'
 import countryData from './countryData'
 import UnfoldMore from '@material-ui/icons/UnfoldMore'
 

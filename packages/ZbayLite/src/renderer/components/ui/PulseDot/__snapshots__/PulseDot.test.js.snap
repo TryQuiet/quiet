@@ -2,7 +2,7 @@
 
 exports[`PulseDot renders for status down 1`] = `
 <div
-  className="root-mock down-mock"
+  className="makeStyles-root-2 makeStyles-down-7"
   style={
     Object {
       "height": 16,
@@ -14,7 +14,7 @@ exports[`PulseDot renders for status down 1`] = `
 
 exports[`PulseDot renders for status healthy 1`] = `
 <div
-  className="root-mock healthy-mock"
+  className="makeStyles-root-2 makeStyles-healthy-3"
   style={
     Object {
       "height": 16,
@@ -26,7 +26,7 @@ exports[`PulseDot renders for status healthy 1`] = `
 
 exports[`PulseDot renders for status restarting 1`] = `
 <div
-  className="root-mock restarting-mock"
+  className="makeStyles-root-2 makeStyles-restarting-6"
   style={
     Object {
       "height": 16,
@@ -38,7 +38,7 @@ exports[`PulseDot renders for status restarting 1`] = `
 
 exports[`PulseDot renders for status syncing 1`] = `
 <div
-  className="root-mock syncing-mock"
+  className="makeStyles-root-2 makeStyles-syncing-4"
   style={
     Object {
       "height": 16,
@@ -50,7 +50,7 @@ exports[`PulseDot renders for status syncing 1`] = `
 
 exports[`PulseDot renders with custom className 1`] = `
 <div
-  className="root-mock healthy-mock custom-class-name"
+  className="makeStyles-root-2 makeStyles-healthy-3 custom-class-name"
   style={
     Object {
       "height": 16,
@@ -62,7 +62,7 @@ exports[`PulseDot renders with custom className 1`] = `
 
 exports[`PulseDot renders with custom size 1`] = `
 <div
-  className="root-mock healthy-mock"
+  className="makeStyles-root-2 makeStyles-healthy-3"
   style={
     Object {
       "height": 32,
