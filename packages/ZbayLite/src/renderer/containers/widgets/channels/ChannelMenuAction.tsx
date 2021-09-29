@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import * as R from 'ramda'
 import { withRouter } from 'react-router-dom'
 import ChannelMenuAction from '../../../components/widgets/channels/ChannelMenuAction'
-import { actionCreators } from '../../../store/handlers/modals'
+import { actionCreators, ModalName } from '../../../store/handlers/modals'
 // import importedChannelHandler from '../../../store/handlers/importedChannel'
 import dmChannelSelectors from '../../../store/selectors/directMessageChannel'
 import channelSelectors from '../../../store/selectors/channel'
@@ -47,7 +47,7 @@ export const mapStateToProps = state => {
 export const mapDispatchToProps = (dispatch) => {
   bindActionCreators(
     {
-      onInfo: actionCreators.openModal('channelInfo'),
+      onInfo: actionCreators.openModal(ModalName.channelInfo),
       onMute: () =>
         notificationCenterHandlers.epics.setChannelsNotification(
           notificationFilterType.MUTE
@@ -57,8 +57,8 @@ export const mapDispatchToProps = (dispatch) => {
           notificationFilterType.ALL_MESSAGES
         ),
       // onDelete: () => importedChannelHandler.epics.removeChannel(history),
-      publishChannel: actionCreators.openModal('publishChannel'),
-      onSettings: actionCreators.openModal('channelSettingsModal')
+      publishChannel: actionCreators.openModal(ModalName.publishChannel),
+      onSettings: actionCreators.openModal(ModalName.channelSettingsModal)
       // openNotificationsTab: () =>
       //   appHandlers.actions.setModalTab('notifications')
     },

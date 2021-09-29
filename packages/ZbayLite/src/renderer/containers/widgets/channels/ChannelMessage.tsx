@@ -5,7 +5,7 @@ import { publicChannels, users } from '@zbayapp/nectar'
 import ChannelMessageComponent from '../../../components/widgets/channels/ChannelMessage'
 import channelHandlers from '../../../store/handlers/channel'
 import whitelistSelectors from '../../../store/selectors/whitelist'
-import { actionCreators } from '../../../store/handlers/modals'
+import { actionCreators, ModalName } from '../../../store/handlers/modals'
 import whitelistHandlers from '../../../store/handlers/whitelist'
 
 export const useChannelMessageData = () => {
@@ -38,7 +38,7 @@ const ChannelMessage = ({ message }) => {
   )
   const onLinkedUser = useCallback(
     () => {
-      dispatch(actionCreators.openModal('openexternallink'))
+      dispatch(actionCreators.openModal(ModalName.openexternallink))
     },
     [dispatch]
   )
@@ -48,7 +48,7 @@ const ChannelMessage = ({ message }) => {
   }, [dispatch])
   const openExternalLink = useCallback(
     () => {
-      dispatch(actionCreators.openModal('openexternallink'))
+      dispatch(actionCreators.openModal(ModalName.openexternallink))
     },
     [dispatch]
   )

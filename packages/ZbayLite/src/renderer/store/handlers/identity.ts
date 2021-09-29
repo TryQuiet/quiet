@@ -6,7 +6,7 @@ import { remote } from 'electron'
 // import appSelectors from '../selectors/app'
 import notificationCenterHandlers from './notificationCenter'
 import { successNotification } from './utils'
-import modalsHandlers from './modals'
+import modalsHandlers, { ModalName } from './modals'
 import notificationsHandlers from './notifications'
 import {
   actionTypes
@@ -225,7 +225,7 @@ export const setIdentityEpic = _identityToSet => async (dispatch, _getState) => 
     // dispatch(setLoadingMessage('Loading users and messages'))
   } catch (err) { }
   if (isNewUser === true) {
-    dispatch(modalsHandlers.actionCreators.openModal('createUsernameModal')())
+    dispatch(modalsHandlers.actionCreators.openModal(ModalName.createUsernameModal)())
   }
 
   // dispatch(setLoadingMessage(''))

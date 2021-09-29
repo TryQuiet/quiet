@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 
 import { bindActionCreators } from 'redux'
 
-import { withModal } from '../../../store/handlers/modals'
+import { ModalName, withModal } from '../../../store/handlers/modals'
 import SeedModalComponent from '../../../components/widgets/channels/SeedModal'
 export const mapStateToProps = _state => ({})
 export const mapDispatchToProps = (dispatch) =>
@@ -16,5 +16,5 @@ export const SeedModal = ({ ...props }) => {
 export default R.compose(
   connect(mapStateToProps, mapDispatchToProps),
   React.memo,
-  withModal('seedModal')
+  withModal(ModalName.seedModal)
 )(SeedModal)

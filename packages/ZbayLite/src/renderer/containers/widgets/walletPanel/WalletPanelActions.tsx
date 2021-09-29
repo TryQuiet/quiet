@@ -2,7 +2,7 @@
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
-import { actionCreators } from '../../../store/handlers/modals'
+import { actionCreators, ModalName } from '../../../store/handlers/modals'
 import { actions } from '../../../store/handlers/app'
 import WalletPanelActions from '../../../components/widgets/walletPanel/WalletPanelActions'
 // import channelSelectors, { INPUT_STATE } from '../../../store/selectors/channel'
@@ -16,9 +16,9 @@ export const mapStateToProps = (_state) => {
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      onSend: actionCreators.openModal('sendMoneySeparate'),
-      onReceive: actionCreators.openModal('accountSettingsModal'),
-      openDepositMonet: actionCreators.openModal('depositMoney'),
+      onSend: actionCreators.openModal(ModalName.sendMoneySeparate),
+      onReceive: actionCreators.openModal(ModalName.accountSettingsModal),
+      openDepositMonet: actionCreators.openModal(ModalName.depositMoney),
       setTabToOpen: () => actions.setModalTab('addFunds')
     },
     dispatch

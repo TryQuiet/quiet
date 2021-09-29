@@ -12,6 +12,6 @@ exports[`BaseChannelsList renders component 1`] = `
       title="Create"
     />
   </Component>
-  <Memo(withModal(Component)) />
+  <Component />
 </Fragment>
 `;

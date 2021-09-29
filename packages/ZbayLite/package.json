@@ -113,6 +113,7 @@
     "@storybook/addon-links": "^5.2.8",
     "@storybook/addons": "^5.2.8",
     "@storybook/react": "^5.2.8",
+    "@testing-library/react": "^12.1.1",
     "@testing-library/react-hooks": "^7.0.0",
     "@types/classnames": "^2.2.6",
     "@types/isomorphic-fetch": "0.0.35",

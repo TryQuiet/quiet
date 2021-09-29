@@ -6,7 +6,7 @@ import * as R from 'ramda'
 import { withRouter } from 'react-router-dom'
 
 import ChannelMenuActionComponent from '../../../components/widgets/channels/ChannelMenuAction'
-import { actionCreators } from '../../../store/handlers/modals'
+import { actionCreators, ModalName } from '../../../store/handlers/modals'
 import dmChannelSelectors from '../../../store/selectors/directMessageChannel'
 // import importedChannelHandler from '../../../store/handlers/importedChannel'
 import notificationCenterHandlers from '../../../store/handlers/notificationCenter'
@@ -19,7 +19,7 @@ export const mapStateToProps = state => ({
 export const mapDispatchToProps = dispatch => {
   return bindActionCreators(
     {
-      onInfo: actionCreators.openModal('channelInfo'),
+      onInfo: actionCreators.openModal(ModalName.channelInfo),
       onMute: () =>
         notificationCenterHandlers.epics.setContactNotification(notificationFilterType.MUTE)
       // onDelete: () => importedChannelHandler.epics.removeChannel(history)

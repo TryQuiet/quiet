@@ -2,13 +2,13 @@ import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import modalsSelectors from '../../../store/selectors/modals'
-import modalsHandlers from '../../../store/handlers/modals'
+import modalsHandlers, { ModalName } from '../../../store/handlers/modals'
 
 import CreateUsernameModalComponent from '../../../components/widgets/createUsername/CreateUsernameModal'
 import { identity, errors, communities } from '@zbayapp/nectar'
 
 const useData = () => {
-  const modalName = 'createUsernameModal'
+  const modalName = ModalName.createUsernameModal
   const data = {
     initialValue: '',
     modalName,

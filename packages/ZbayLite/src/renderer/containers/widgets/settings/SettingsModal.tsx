@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import * as R from 'ramda'
 
 import SettingsModal from '../../../components/widgets/settings/SettingsModal'
-import { withModal } from '../../../store/handlers/modals'
+import { ModalName, withModal } from '../../../store/handlers/modals'
 import { actions } from '../../../store/handlers/app'
 import appSelectors from '../../../store/selectors/app'
 // import identitySelectors from '../../../store/selectors/identity'
@@ -45,6 +45,6 @@ const SettingsModalContainer = props => {
 }
 
 export default R.compose(
-  withModal('accountSettingsModal'),
+  withModal(ModalName.accountSettingsModal),
   connect(mapStateToProps, mapDispatchToProps)
 )(SettingsModalContainer)

@@ -4,7 +4,7 @@ import * as R from 'ramda'
 import { bindActionCreators } from 'redux'
 
 import SecurityComponent from '../../../components/widgets/settings/Security'
-import modalsHandlers from '../../../store/handlers/modals'
+import modalsHandlers, { ModalName } from '../../../store/handlers/modals'
 import electronStore from '../../../../shared/electronStore'
 import whitelistSelector from '../../../store/selectors/whitelist'
 import whitelistHandlers from '../../../store/handlers/whitelist'
@@ -23,7 +23,7 @@ export const mapDispatchToProps = dispatch =>
       removeImageHost: whitelistHandlers.epics.removeImageHost,
       removeSiteHost: whitelistHandlers.epics.removeSiteHost,
       // onRescan: appHandlers.epics.restartAndRescan,
-      openSeedModal: modalsHandlers.actionCreators.openModal('seedModal')
+      openSeedModal: modalsHandlers.actionCreators.openModal(ModalName.seedModal)
     },
     dispatch
   )

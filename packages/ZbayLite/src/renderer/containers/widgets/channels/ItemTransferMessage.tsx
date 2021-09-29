@@ -3,7 +3,7 @@ import * as R from 'ramda'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 
-import { actionCreators } from '../../../store/handlers/modals'
+import { actionCreators, ModalName } from '../../../store/handlers/modals'
 import ItemTransferMessageComponent from '../../../components/widgets/channels/ItemTransferMessage'
 // import ratesSelectors from '../../../store/selectors/rates'
 // import nodeSelector from '../../../store/selectors/node'
@@ -23,7 +23,7 @@ export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
       openSentModal: () =>
-        actionCreators.openModal('sentFunds')()
+        actionCreators.openModal(ModalName.sentFunds)()
     },
     dispatch
   )

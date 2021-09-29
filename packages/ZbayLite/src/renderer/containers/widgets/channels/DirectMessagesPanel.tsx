@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux'
 import Grid from '@material-ui/core/Grid'
 import contactsSelectors from '../../../store/selectors/contacts'
 import SidebarHeader from '../../../components/ui/Sidebar/SidebarHeader'
-import { actionCreators } from '../../../store/handlers/modals'
+import { actionCreators, ModalName } from '../../../store/handlers/modals'
 import QuickActionButton from '../../../components/widgets/sidebar/QuickActionButton'
 import BaseChannelsList from '../../../components/widgets/channels/BaseChannelsList'
 import channelSelectors from '../../../store/selectors/channel'
@@ -23,8 +23,8 @@ export const mapStateToProps = state => ({
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      openModal: actionCreators.openModal('newMessageSeparate'),
-      openDepositMonet: actionCreators.openModal('depositMoney')
+      openModal: actionCreators.openModal(ModalName.newMessageSeparate),
+      openDepositMonet: actionCreators.openModal(ModalName.depositMoney)
     },
     dispatch
   )

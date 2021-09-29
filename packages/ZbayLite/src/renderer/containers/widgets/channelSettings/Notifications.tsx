@@ -8,7 +8,7 @@ import notificationCenterSelectors from '../../../store/selectors/notificationCe
 import channelSelectors from '../../../store/selectors/channel'
 import appHandlers from '../../../store/handlers/app'
 import contactsSelectors from '../../../store/selectors/contacts'
-import { actionCreators } from '../../../store/handlers/modals'
+import { actionCreators, ModalName } from '../../../store/handlers/modals'
 
 export const mapStateToProps = state => {
   return {
@@ -25,7 +25,7 @@ export const mapDispatchToProps = (dispatch) =>
       setChannelsNotification:
         notificationCenterActions.epics.setChannelsNotification,
       openNotificationsTab: () => appHandlers.actions.setModalTab('notifications'),
-      openSettingsModal: actionCreators.openModal('accountSettingsModal')
+      openSettingsModal: actionCreators.openModal(ModalName.accountSettingsModal)
     },
     dispatch
   )

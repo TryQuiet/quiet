@@ -1,12 +1,30 @@
 import { produce, immerable } from 'immer'
 import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
+import { connect, useDispatch, useSelector } from 'react-redux'
 import { createAction, handleActions } from 'redux-actions'
 import { actionTypes } from '../../../shared/static'
 
 import { ActionsCreatorsTypes, PayloadType } from './types'
 
 import modalsSelectors from '../selectors/modals'
+
+export enum ModalName {
+  createChannel = 'createChannel',
+  accountSettingsModal = 'accountSettingsModal',
+  sendMoneySeparate='sendMoneySeparate',
+  depositMoney='depositMoney',
+  openexternallink = 'openexternallink',
+  seedModal = 'seedModal',
+  criticalError = 'criticalError',
+  createUsernameModal = 'createUsernameModal',
+  channelInfo='channelInfo',
+  channelSettingsModal='channelSettingsModal',
+  publishChannel='publishChannel',
+  joinChannel='joinChannel',
+  sentFunds='sentFunds',
+  newMessageSeparate='newMessageSeparate'
+
+}
 
 class Modals {
   payloads: {}
@@ -21,9 +39,9 @@ export const initialState: Modals = new Modals({
   payloads: {}
 })
 
-const openModal = (modalName: string) => createAction(actionTypes.OPEN_MODAL, () => modalName)
+const openModal = (modalName: ModalName) => createAction(actionTypes.OPEN_MODAL, () => modalName)
 
-const closeModal = (modalName: string) => createAction(actionTypes.CLOSE_MODAL, () => modalName)
+const closeModal = (modalName: ModalName) => createAction(actionTypes.CLOSE_MODAL, () => modalName)
 
 export const closeModalHandler = createAction<string>(actionTypes.CLOSE_MODAL)
 export const openModalHandler = createAction<string>(actionTypes.OPEN_MODAL)
@@ -51,19 +69,40 @@ export const reducer = handleActions<Modals, PayloadType<ModalsActions>>(
   initialState
 )
 
-export const withModal = (name) => (Component) => {
+export const withModal = (name: ModalName) => Component => {
   const mapStateToProps = state => ({
     open: modalsSelectors.open(name)(state)
   })
 
-  const mapDispatchToProps = dispatch => bindActionCreators({
-    handleOpen: openModal(name),
-    handleClose: closeModal(name)
-  }, dispatch)
+  const mapDispatchToProps = dispatch =>
+    bindActionCreators(
+      {
+        handleOpen: openModal(name),
+        handleClose: closeModal(name)
+      },
+      dispatch
+    )
   const wrappedDisplayName = Component.displayName || Component.name || 'Component'
   const C = connect(mapStateToProps, mapDispatchToProps)(Component)
   C.displayName = `withModal(${wrappedDisplayName})`
   return C
+}
+
+export const useModal = (name: ModalName) => {
+  const open = useSelector(modalsSelectors.open(name))
+  const dispatch = useDispatch()
+  const { handleOpen, handleClose } = bindActionCreators(
+    {
+      handleOpen: openModal(name),
+      handleClose: closeModal(name)
+    },
+    dispatch
+  )
+  return {
+    open,
+    handleOpen,
+    handleClose
+  }
 }
 
 export default {

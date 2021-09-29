@@ -1,5 +1,5 @@
 import criticalErrorHandlers from './handlers/criticalError'
-import modalsHandlers from './handlers/modals'
+import modalsHandlers, { ModalName } from './handlers/modals'
 
 const isPromise = value =>
   value !== null && typeof value === 'object' && typeof value.then === 'function'
@@ -10,7 +10,7 @@ const _dispatchError = (store, err) => {
     traceback: err.stack
   }
   store.dispatch(criticalErrorHandlers.actions.setCriticalError(criticalError))
-  store.dispatch(modalsHandlers.actionCreators.openModal('criticalError')())
+  store.dispatch(modalsHandlers.actionCreators.openModal(ModalName.criticalError)())
 }
 
 export const errorsMiddleware = store => next => action => {
