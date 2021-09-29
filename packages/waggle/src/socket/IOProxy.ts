@@ -33,6 +33,7 @@ export default class IOProxy {
     await this.communities.stopRegistrars()
     await this.communities.closeStorages()
     await this.connectionsManager.tor.kill()
+    this.io.close()
   }
 
   public subscribeForTopic = async (peerId: string, channelData: IChannelInfo) => {

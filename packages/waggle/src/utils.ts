@@ -52,6 +52,10 @@ export class DummyIOServer extends SocketIO.Server {
     log(`Emitting ${event} with args:`, args)
     return true
   }
+
+  close() {
+    log('Closing DummyIOServer')
+  }
 }
 
 export const torBinForPlatform = (basePath?: string): string => {

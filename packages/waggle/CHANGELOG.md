@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.2.1]
+
+### Fixed
+
+* Close socket when after closing all waggle services
+
 ## [4.2.0]
 
 ### Added
