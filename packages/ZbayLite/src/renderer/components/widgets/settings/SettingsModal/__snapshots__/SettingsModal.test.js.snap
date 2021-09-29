@@ -41,7 +41,7 @@ exports[`SettingsModal renders component 1`] = `
           textColor="inherit"
           value="account"
         >
-          <WithStyles(Tab)
+          <Component
             classes={
               Object {
                 "selected": "selected-mock",
@@ -51,7 +51,7 @@ exports[`SettingsModal renders component 1`] = `
             label="Account"
             value="account"
           />
-          <WithStyles(Tab)
+          <Component
             classes={
               Object {
                 "selected": "selected-mock",
@@ -61,7 +61,7 @@ exports[`SettingsModal renders component 1`] = `
             label="Notifications"
             value="notifications"
           />
-          <WithStyles(Tab)
+          <Component
             classes={
               Object {
                 "selected": "selected-mock",
@@ -71,7 +71,7 @@ exports[`SettingsModal renders component 1`] = `
             label="Shipping"
             value="shipping"
           />
-          <WithStyles(Tab)
+          <Component
             classes={
               Object {
                 "selected": "selected-mock",

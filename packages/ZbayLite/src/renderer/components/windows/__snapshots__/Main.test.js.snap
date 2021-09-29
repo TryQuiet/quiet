@@ -3,7 +3,7 @@
 exports[`Main renders component 1`] = `
 <Fragment>
   <Connect(Component) />
-  <Memo(WithStyles(WindowWrapper))>
+  <Component>
     <WithStyles(ForwardRef(Grid))
       className="gridRoot-mock"
       container={true}
@@ -56,6 +56,6 @@ exports[`Main renders component 1`] = `
         />
       </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>
-  </Memo(WithStyles(WindowWrapper))>
+  </Component>
 </Fragment>
 `;

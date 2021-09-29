@@ -1,21 +1,21 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Index renders component 1`] = `
-<Memo(WithStyles(WindowWrapper))
+<Component
   className="root-mock"
 >
   <WithStyles(Loading)
     message="Waiting for Zcash node..."
   />
-</Memo(WithStyles(WindowWrapper))>
+</Component>
 `;
 
 exports[`Index renders when bootstrapping 1`] = `
-<Memo(WithStyles(WindowWrapper))
+<Component
   className="root-mock"
 >
   <WithStyles(Loading)
     message="Launching node"
   />
-</Memo(WithStyles(WindowWrapper))>
+</Component>
 `;

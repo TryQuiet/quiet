@@ -1,12 +1,10 @@
-import React, { useState } from 'react'
-import PropTypes from 'prop-types'
+import React, { ReactElement, ReactFragment, useState } from 'react'
 import classNames from 'classnames'
-import * as R from 'ramda'
 
 import MuiTooltip from '@material-ui/core/Tooltip'
-import { withStyles } from '@material-ui/core/styles'
+import { makeStyles, Theme } from '@material-ui/core/styles'
 
-function arrowGenerator (color, theme) {
+function arrowGenerator(color: string, theme: Theme) {
   return {
     zIndex: 10,
     opacity: 1,
@@ -70,7 +68,7 @@ const constants = {
   arrowSize: '3em'
 }
 
-const styles = theme => ({
+const usestyles = makeStyles(theme => ({
   noWrap: {
     maxWidth: 'none',
     filter: 'drop-shadow(0 0 0px #aaaaaa)'
@@ -105,17 +103,42 @@ const styles = theme => ({
     fontWeight: 500
   },
   arrowPopper: arrowGenerator(theme.palette.colors.trueBlack, theme)
-})
+}))
 
-export const Tooltip = ({ classes, children, title, titleHTML, noWrap, className, onClick, ...props }) => {
+interface TooltipProps {
+  children: ReactElement
+  title?: string
+  titleHTML?: ReactFragment
+  noWrap?: boolean
+  interactive?: boolean
+  className?: string
+  placement?: 'bottom' | 'top' | 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end'
+  onClick?: (e: React.MouseEvent) => void
+  [s: string]: any
+}
+
+export const Tooltip: React.FC<TooltipProps> = ({
+  children,
+  title,
+  titleHTML,
+  noWrap = false,
+  interactive = false,
+  className = '',
+  placement = 'bottom',
+  onClick = () => {},
+  ...props
+}) => {
+  const classes = usestyles({})
   const [arrowRef, setArrowRef] = useState(null)
   return (
-    <span onClick={onClick}>
+    <span onClick={e => onClick(e)}>
       <MuiTooltip
         {...props}
         title={
           <React.Fragment>
-            {titleHTML || <span className={classes.text}>{title.charAt(0).toUpperCase() + title.slice(1)}</span>}
+            {titleHTML || (
+              <span className={classes.text}>{title.charAt(0).toUpperCase() + title.slice(1)}</span>
+            )}
             <span className={classes.arrow} ref={setArrowRef} />
           </React.Fragment>
         }
@@ -136,39 +159,11 @@ export const Tooltip = ({ classes, children, title, titleHTML, noWrap, className
               }
             }
           }
-        }}
-      >
+        }}>
         {children}
       </MuiTooltip>
     </span>
   )
 }
 
-const joiningProd = R.compose(
-  R.map(R.join('')),
-  R.xprod
-)
-
-Tooltip.propTypes = {
-  classes: PropTypes.object.isRequired,
-  children: PropTypes.element.isRequired,
-  title: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
-  placement: PropTypes.oneOf(joiningProd(['bottom', 'top'], ['-start', '-end', ''])),
-  interactive: PropTypes.bool,
-  className: PropTypes.string,
-  noWrap: PropTypes.bool,
-  onClick: PropTypes.func
-}
-
-Tooltip.defaultProps = {
-  noWrap: true,
-  interactive: false,
-  className: '',
-  placement: 'bottom',
-  onClick: () => {}
-}
-
-export default R.compose(
-  React.memo,
-  withStyles(styles)
-)(Tooltip)
+export default Tooltip

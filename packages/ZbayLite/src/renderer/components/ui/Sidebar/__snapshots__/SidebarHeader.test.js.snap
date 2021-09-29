@@ -11,7 +11,7 @@ exports[`SidebarHeader renders component 1`] = `
   <WithStyles(ForwardRef(Grid))
     item={true}
   >
-    <Memo(WithStyles(Tooltip))
+    <Component
       className="makeStyles-tooltip-5"
       placement="bottom"
       title="More channels"
@@ -23,12 +23,12 @@ exports[`SidebarHeader renders component 1`] = `
       >
         sample title
       </WithStyles(ForwardRef(Typography))>
-    </Memo(WithStyles(Tooltip))>
+    </Component>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
     item={true}
   >
-    <Memo(WithStyles(Tooltip))
+    <Component
       className="makeStyles-tooltip-5"
       placement="bottom"
       title="sample text"
@@ -42,7 +42,7 @@ exports[`SidebarHeader renders component 1`] = `
           color="white"
         />
       </WithStyles(ForwardRef(IconButton))>
-    </Memo(WithStyles(Tooltip))>
+    </Component>
   </WithStyles(ForwardRef(Grid))>
 </WithStyles(ForwardRef(Grid))>
 `;

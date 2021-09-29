@@ -37,7 +37,7 @@ exports[`ChannelSettingsModal renders component 1`] = `
           textColor="inherit"
           value="blockedUsers"
         >
-          <WithStyles(Tab)
+          <Component
             classes={
               Object {
                 "selected": "selected-mock",
@@ -47,7 +47,7 @@ exports[`ChannelSettingsModal renders component 1`] = `
             label="Channel info"
             value="channelInfo"
           />
-          <WithStyles(Tab)
+          <Component
             classes={
               Object {
                 "selected": "selected-mock",
@@ -57,7 +57,7 @@ exports[`ChannelSettingsModal renders component 1`] = `
             label="Blocked users"
             value="blockedUsers"
           />
-          <WithStyles(Tab)
+          <Component
             classes={
               Object {
                 "selected": "selected-mock",
@@ -67,7 +67,7 @@ exports[`ChannelSettingsModal renders component 1`] = `
             label="Moderators"
             value="moderators"
           />
-          <WithStyles(Tab)
+          <Component
             classes={
               Object {
                 "selected": "selected-mock",

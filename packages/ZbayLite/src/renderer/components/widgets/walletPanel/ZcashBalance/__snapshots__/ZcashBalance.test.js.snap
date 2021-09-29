@@ -53,7 +53,7 @@ exports[`ZcashBalance renders when balanced locked 1`] = `
       0
        ZEC
     </WithStyles(ForwardRef(Typography))>
-    <Memo(WithStyles(Tooltip))
+    <Component
       className="tooltip-mock"
       placement="bottom"
       title="Some funds are unavailable until pending transactions complete."
@@ -65,7 +65,7 @@ exports[`ZcashBalance renders when balanced locked 1`] = `
       >
         Pending...
       </WithStyles(ForwardRef(Typography))>
-    </Memo(WithStyles(Tooltip))>
+    </Component>
   </WithStyles(ForwardRef(Grid))>
   <WithStyles(ForwardRef(Grid))
     item={true}

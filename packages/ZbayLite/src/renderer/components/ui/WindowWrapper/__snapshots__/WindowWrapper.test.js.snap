@@ -2,7 +2,7 @@
 
 exports[`WindowWrapper renders component 1`] = `
 <div
-  className="wrapper-mock"
+  className="makeStyles-wrapper-2"
 >
   <Page />
 </div>
@@ -10,7 +10,7 @@ exports[`WindowWrapper renders component 1`] = `
 
 exports[`WindowWrapper renders with custom className 1`] = `
 <div
-  className="wrapper-mock test-class"
+  className="makeStyles-wrapper-2 test-class"
 >
   <Page />
 </div>

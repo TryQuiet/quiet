@@ -2,9 +2,9 @@ import React from 'react'
 import classNames from 'classnames'
 
 import MuiTab from '@material-ui/core/Tab'
-import { withStyles } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/core/styles'
 
-const styles = theme => ({
+const useStyles = makeStyles((theme) => ({
   tabRoot: {
     textTransform: 'initial',
     color: theme.typography.subtitle1.color
@@ -20,9 +20,14 @@ const styles = theme => ({
   selected: {
     color: theme.palette.colors.purple
   }
-})
+}))
 
-export const Tab = ({ classes, ...props }) => {
+interface TabProps {
+  [s: string]: any
+}
+
+export const Tab: React.FC<TabProps> = ({ ...props }) => {
+  const classes = useStyles({})
   return (
     <MuiTab
       classes={{
@@ -36,4 +41,4 @@ export const Tab = ({ classes, ...props }) => {
   )
 }
 
-export default withStyles(styles)(Tab)
+export default Tab

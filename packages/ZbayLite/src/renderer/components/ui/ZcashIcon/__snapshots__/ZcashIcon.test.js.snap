@@ -2,6 +2,7 @@
 
 exports[`ZcashIcon renders component 1`] = `
 <svg
+  className=""
   data-name="Layer 1"
   id="Layer_1"
   style={
@@ -24,6 +25,7 @@ exports[`ZcashIcon renders component 1`] = `
 
 exports[`ZcashIcon renders component with custom size 1`] = `
 <svg
+  className=""
   data-name="Layer 1"
   id="Layer_1"
   style={
