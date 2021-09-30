@@ -50,7 +50,11 @@ exports[`Security renders component 1`] = `
       item={true}
     >
       <Component
-        className="button-mock"
+        classes={
+          Object {
+            "button": "button-mock",
+          }
+        }
         color="primary"
         fullWidth={true}
         inProgress={false}
@@ -113,7 +117,11 @@ exports[`Security renders component 1`] = `
     item={true}
   >
     <Component
-      className="rescanButton-mock"
+      classes={
+        Object {
+          "button": "rescanButton-mock",
+        }
+      }
       color="primary"
       fullWidth={true}
       inProgress={false}

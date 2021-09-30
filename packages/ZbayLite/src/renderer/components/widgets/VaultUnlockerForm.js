@@ -124,8 +124,8 @@ export const VaultUnlockerForm = ({
               size='large'
               color='primary'
               margin='normal'
-              text={!isNewUser ? 'Sign in' : 'Connect Now'}
               fullWidth
+              text={!isNewUser ? 'Sign in' : 'Connect Now'}
               disabled={!done || syncingStart}
               inProgress={!done || syncingStart}
             />

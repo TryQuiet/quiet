@@ -12,7 +12,7 @@ import LoadingButton from '../LoadingButton/LoadingButton'
 
 import exclamationMark from '../../../static/images/exclamationMark.svg'
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   root: {
     padding: theme.spacing(4)
   },
@@ -71,8 +71,8 @@ export const FailedUsernameRegister: React.FC<FailedUsernameRegisterProps> = ({
           </Grid>
           <Grid item container justify='center' alignItems='center'>
             <LoadingButton
-              classes={{ button: classes.button }}
               text='Create a username'
+              classes={{ button: classes.button }}
               onClick={() => {
                 openModalCreateUsername()
                 handleClose()

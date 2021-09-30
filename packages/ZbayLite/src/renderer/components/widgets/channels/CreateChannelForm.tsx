@@ -129,13 +129,13 @@ export const CreateChannelForm: React.FC<CreateChannelFormProps> = ({ onSubmit, 
               )}
             </div>
             <LoadingButton
-              className={classes.button}
               variant='contained'
               color='primary'
               disabled={true} // Temporarily turn off
               inProgress={isSubmitting}
               type='submit'
               text='Create Channel'
+              classes={{ button: classes.button }}
             />
           </Grid>
         </Form>

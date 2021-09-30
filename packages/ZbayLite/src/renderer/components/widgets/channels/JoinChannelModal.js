@@ -106,19 +106,14 @@ export const JoinChannelModal = ({
         setStep(0)
       }}
       title=''
-      fullPage
-    >
+      fullPage>
       <Grid className={classes.root}>
         <Formik
           onSubmit={async (values, { resetForm }) => {
-            const ch = channelsArray.find(
-              channel => channel.name === values.channel.name
-            )
+            const ch = channelsArray.find(channel => channel.name === values.channel.name)
             if (ch) {
               if (!ch) {
-                showNotification(
-                  errorNotification({ message: 'Channel does not exist' })
-                )
+                showNotification(errorNotification({ message: 'Channel does not exist' }))
                 return
               }
               setLoading(true)
@@ -134,8 +129,7 @@ export const JoinChannelModal = ({
                 message: 'There was an error. Please check channel URL'
               })
             )
-          }}
-        >
+          }}>
           {({ values, setFieldValue }) => {
             return (
               <Form className={classes.fullContainer}>
@@ -143,12 +137,9 @@ export const JoinChannelModal = ({
                   container
                   justify='flex-start'
                   direction='column'
-                  className={classes.fullContainer}
-                >
+                  className={classes.fullContainer}>
                   <Typography variant='h3' className={classes.title}>
-                    {step === 0
-                      ? 'Search for Channels'
-                      : `#${values.channel.name}`}
+                    {step === 0 ? 'Search for Channels' : `#${values.channel.name}`}
                   </Typography>
                   {step !== 0 && (
                     <Typography variant='caption' className={classes.timeInfo}>
@@ -156,9 +147,9 @@ export const JoinChannelModal = ({
                         users[values.channel.owner]
                           ? users[values.channel.owner].nickname
                           : 'Unnamed'
-                      } on ${DateTime.fromSeconds(
-                        parseInt(values.channel.timestamp)
-                      ).toFormat('LLL d, y')} `}
+                      } on ${DateTime.fromSeconds(parseInt(values.channel.timestamp)).toFormat(
+                        'LLL d, y'
+                      )} `}
                     </Typography>
                   )}
                   {step === 0 ? (
@@ -167,29 +158,15 @@ export const JoinChannelModal = ({
                       classes={{ option: classes.materialOption }}
                       options={channelsArray}
                       renderOption={option => {
-                        const time = DateTime.fromSeconds(
-                          parseInt(option.timestamp)
-                        )
+                        const time = DateTime.fromSeconds(parseInt(option.timestamp))
                         return (
-                          <Grid
-                            container
-                            direction='column'
-                            className={classes.option}
-                          >
-                            <Typography
-                              variant='body1'
-                              className={classes.channelTitle}
-                            >
+                          <Grid container direction='column' className={classes.option}>
+                            <Typography variant='body1' className={classes.channelTitle}>
                               {`#${option.name}`}
                             </Typography>
-                            <Typography
-                              variant='caption'
-                              className={classes.channelInfo}
-                            >
+                            <Typography variant='caption' className={classes.channelInfo}>
                               {`Created by @${
-                                users[option.owner]
-                                  ? users[option.owner].nickname
-                                  : 'Unnamed'
+                                users[option.owner] ? users[option.owner].nickname : 'Unnamed'
                               } on ${time.toFormat('LLL d, y')} `}
                             </Typography>
                           </Grid>
@@ -212,31 +189,23 @@ export const JoinChannelModal = ({
                     />
                   ) : (
                     <>
-                      <Typography
-                        variant='body2'
-                        className={classes.description}
-                      >
+                      <Typography variant='body2' className={classes.description}>
                         {`${values.channel.description}`}
                       </Typography>
-                      <Grid
-                        container
-                        alignItems='center'
-                        className={classes.informationBox}
-                      >
-                        After joining, it may take some time for messages to
-                        fully load.
+                      <Grid container alignItems='center' className={classes.informationBox}>
+                        After joining, it may take some time for messages to fully load.
                       </Grid>
                     </>
                   )}
 
                   {step !== 0 ? (
                     <LoadindButton
-                      className={classes.button}
                       variant='contained'
                       color='primary'
                       size='large'
                       type='submit'
                       text='Join Channel'
+                      classes={{ button: classes.button }}
                       inProgress={loading}
                       disabled={loading}
                     />

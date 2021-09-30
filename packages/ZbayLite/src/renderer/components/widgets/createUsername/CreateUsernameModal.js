@@ -107,7 +107,7 @@ const styles = theme => ({
 
 const sanitize = x => (x ? x.replace(/[^a-zA-Z0-9]+$/g, '').toLowerCase() : undefined)
 
-const getValidationSchema = (values) => {
+const getValidationSchema = values => {
   return Yup.object().shape({
     nickname: Yup.string()
       .min(3)
@@ -145,7 +145,7 @@ const CustomInputComponent = ({
       error={isTouched && nicknameErrors}
       helperText={isTouched && nicknameErrors}
       value={updatedValue}
-      error={isTouched && nicknameErrors }
+      error={isTouched && nicknameErrors}
       helperText={isTouched && nicknameErrors}
       defaultValue={values.nickname || ''}
       {...rest}
@@ -192,26 +192,53 @@ export const CreateUsernameModal = ({
             <Grid className={classes.title} item>
               <Typography variant={'h3'}>Register a username</Typography>
               <input
-                type="text"
-                name="topicBox"
-                placeholder="Enter topic here..."
-                value={ val }
-                onChange={ (target) => {
+                type='text'
+                name='topicBox'
+                placeholder='Enter topic here...'
+                value={val}
+                onChange={target => {
                   console.log(target)
                   setVal(target.target.value)
-                } }
+                }}
               />
-              <Button onClick={() => { handleCreateCommunity(val) }}>create community</Button>
+              <Button
+                onClick={() => {
+                  handleCreateCommunity(val)
+                }}>
+                create community
+              </Button>
               <Button onClick={trig}>trigger selector</Button>
-              <Button onClick={() => { handleJoinCommunity(val) }}>join community</Button>
-              <Button onClick={() => { handleLaunchCommunity(val) }}>launch community</Button>
-              <Button onClick={() => { handleLaunchRegistrar(val) }}>launch registrar</Button>
-              <Button onClick={() => { handleRegisterUsername(val) }}>register username</Button>
+              <Button
+                onClick={() => {
+                  handleJoinCommunity(val)
+                }}>
+                join community
+              </Button>
+              <Button
+                onClick={() => {
+                  handleLaunchCommunity(val)
+                }}>
+                launch community
+              </Button>
+              <Button
+                onClick={() => {
+                  handleLaunchRegistrar(val)
+                }}>
+                launch registrar
+              </Button>
+              <Button
+                onClick={() => {
+                  handleRegisterUsername(val)
+                }}>
+                register username
+              </Button>
             </Grid>
             <Formik
               onSubmit={values => submitForm(handleRegisterUsername, values.nickname, setFormSent)}
               initialValues={initialValue}
-              validationSchema={values => getValidationSchema(values, certificateRegistrationError)}>
+              validationSchema={values =>
+                getValidationSchema(values, certificateRegistrationError)
+              }>
               {() => {
                 return (
                   <Form className={classes.fullWidth}>
@@ -243,14 +270,14 @@ export const CreateUsernameModal = ({
                       spacing={2}>
                       <Grid item xs={'auto'} className={classes.buttonDiv}>
                         <LoadingButton
-                          classes={classes}
                           type='submit'
                           variant='contained'
                           size='small'
                           color='primary'
                           margin='normal'
-                          text={'Continue'}
                           fullWidth
+                          text={'Continue'}
+                          classes={{ button: classes.button }}
                           disabled={waitingForResponse}
                           inProgress={waitingForResponse}
                           onClick={() => {

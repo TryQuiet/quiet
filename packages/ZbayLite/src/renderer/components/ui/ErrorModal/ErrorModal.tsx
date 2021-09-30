@@ -125,8 +125,8 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({
           <Grid item container justify='center' alignItems='center'>
             {!send && (
               <LoadingButton
-                classes={{ button: classes.button }}
                 text='Send & restart'
+                classes={{ button: classes.button }}
                 onClick={async () => {
                   try {
                     await handleSend({ title: message, message: traceback })
