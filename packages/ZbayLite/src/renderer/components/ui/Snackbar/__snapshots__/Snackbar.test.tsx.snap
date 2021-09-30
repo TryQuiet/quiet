@@ -1,0 +1,613 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Snackbar renders error 1`] = `
+<body>
+  <div>
+    <div
+      class="MuiSnackbar-root MuiSnackbar-anchorOriginBottomLeft"
+    >
+      <div
+        class="MuiTypography-root MuiPaper-root MuiPaper-elevation6 MuiSnackbarContent-root makeStyles-error-234 MuiTypography-body2"
+        role="alert"
+        style="transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,transform 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+      >
+        <div
+          class="MuiSnackbarContent-message"
+        >
+          <span
+            class="makeStyles-content-241"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root makeStyles-icon-240"
+              focusable="false"
+              role="presentation"
+              size="20"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"
+              />
+            </svg>
+            <span
+              class="makeStyles-message-242"
+            >
+              test snackbar
+            </span>
+          </span>
+        </div>
+        <div
+          class="MuiSnackbarContent-action"
+        >
+          <button
+            class="MuiButtonBase-root MuiIconButton-root makeStyles-close-232 MuiIconButton-colorInherit"
+            tabindex="0"
+            type="button"
+          >
+            <span
+              class="MuiIconButton-label"
+            >
+              <svg
+                aria-hidden="true"
+                class="MuiSvgIcon-root makeStyles-icon-240"
+                focusable="false"
+                role="presentation"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                />
+              </svg>
+            </span>
+            <span
+              class="MuiTouchRipple-root"
+            />
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+`;
+
+exports[`Snackbar renders full width for position [bottom, left] 1`] = `
+<body>
+  <div>
+    <div
+      class="MuiSnackbar-root MuiSnackbar-anchorOriginBottomLeft makeStyles-fullWidthBottom-759"
+    >
+      <div
+        class="MuiTypography-root MuiPaper-root MuiPaper-elevation6 MuiSnackbarContent-root makeStyles-success-769 makeStyles-fullWidth-775 MuiTypography-body2"
+        role="alert"
+        style="transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,transform 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+      >
+        <div
+          class="MuiSnackbarContent-message"
+        >
+          <span
+            class="makeStyles-content-777"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root makeStyles-icon-776"
+              focusable="false"
+              role="presentation"
+              size="20"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+              />
+            </svg>
+            <span
+              class="makeStyles-message-778"
+            >
+              test snackbar
+            </span>
+          </span>
+        </div>
+        <div
+          class="MuiSnackbarContent-action"
+        >
+          <button
+            class="MuiButtonBase-root MuiIconButton-root makeStyles-close-768 MuiIconButton-colorInherit"
+            tabindex="0"
+            type="button"
+          >
+            <span
+              class="MuiIconButton-label"
+            >
+              <svg
+                aria-hidden="true"
+                class="MuiSvgIcon-root makeStyles-icon-776"
+                focusable="false"
+                role="presentation"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                />
+              </svg>
+            </span>
+            <span
+              class="MuiTouchRipple-root"
+            />
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+`;
+
+exports[`Snackbar renders full width for position [top, left] 1`] = `
+<body>
+  <div>
+    <div
+      class="MuiSnackbar-root MuiSnackbar-anchorOriginTopLeft makeStyles-fullWidthTop-538"
+    >
+      <div
+        class="MuiTypography-root MuiPaper-root MuiPaper-elevation6 MuiSnackbarContent-root makeStyles-success-547 makeStyles-fullWidth-553 MuiTypography-body2"
+        role="alert"
+        style="transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,transform 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+      >
+        <div
+          class="MuiSnackbarContent-message"
+        >
+          <span
+            class="makeStyles-content-555"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root makeStyles-icon-554"
+              focusable="false"
+              role="presentation"
+              size="20"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+              />
+            </svg>
+            <span
+              class="makeStyles-message-556"
+            >
+              test snackbar
+            </span>
+          </span>
+        </div>
+        <div
+          class="MuiSnackbarContent-action"
+        >
+          <button
+            class="MuiButtonBase-root MuiIconButton-root makeStyles-close-546 MuiIconButton-colorInherit"
+            tabindex="0"
+            type="button"
+          >
+            <span
+              class="MuiIconButton-label"
+            >
+              <svg
+                aria-hidden="true"
+                class="MuiSvgIcon-root makeStyles-icon-554"
+                focusable="false"
+                role="presentation"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                />
+              </svg>
+            </span>
+            <span
+              class="MuiTouchRipple-root"
+            />
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+`;
+
+exports[`Snackbar renders full width for position [top, right] 1`] = `
+<body>
+  <div>
+    <div
+      class="MuiSnackbar-root MuiSnackbar-anchorOriginTopRight makeStyles-fullWidthTop-649"
+    >
+      <div
+        class="MuiTypography-root MuiPaper-root MuiPaper-elevation6 MuiSnackbarContent-root makeStyles-success-658 makeStyles-fullWidth-664 MuiTypography-body2"
+        role="alert"
+        style="transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,transform 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+      >
+        <div
+          class="MuiSnackbarContent-message"
+        >
+          <span
+            class="makeStyles-content-666"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root makeStyles-icon-665"
+              focusable="false"
+              role="presentation"
+              size="20"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+              />
+            </svg>
+            <span
+              class="makeStyles-message-667"
+            >
+              test snackbar
+            </span>
+          </span>
+        </div>
+        <div
+          class="MuiSnackbarContent-action"
+        >
+          <button
+            class="MuiButtonBase-root MuiIconButton-root makeStyles-close-657 MuiIconButton-colorInherit"
+            tabindex="0"
+            type="button"
+          >
+            <span
+              class="MuiIconButton-label"
+            >
+              <svg
+                aria-hidden="true"
+                class="MuiSvgIcon-root makeStyles-icon-665"
+                focusable="false"
+                role="presentation"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                />
+              </svg>
+            </span>
+            <span
+              class="MuiTouchRipple-root"
+            />
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+`;
+
+exports[`Snackbar renders full width for position [top, right] 2`] = `
+<body>
+  <div>
+    <div
+      class="MuiSnackbar-root MuiSnackbar-anchorOriginTopRight makeStyles-fullWidthTop-871"
+    >
+      <div
+        class="MuiTypography-root MuiPaper-root MuiPaper-elevation6 MuiSnackbarContent-root makeStyles-success-880 makeStyles-fullWidth-886 MuiTypography-body2"
+        role="alert"
+        style="transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,transform 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+      >
+        <div
+          class="MuiSnackbarContent-message"
+        >
+          <span
+            class="makeStyles-content-888"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root makeStyles-icon-887"
+              focusable="false"
+              role="presentation"
+              size="20"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+              />
+            </svg>
+            <span
+              class="makeStyles-message-889"
+            >
+              test snackbar
+            </span>
+          </span>
+        </div>
+        <div
+          class="MuiSnackbarContent-action"
+        >
+          <button
+            class="MuiButtonBase-root MuiIconButton-root makeStyles-close-879 MuiIconButton-colorInherit"
+            tabindex="0"
+            type="button"
+          >
+            <span
+              class="MuiIconButton-label"
+            >
+              <svg
+                aria-hidden="true"
+                class="MuiSvgIcon-root makeStyles-icon-887"
+                focusable="false"
+                role="presentation"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                />
+              </svg>
+            </span>
+            <span
+              class="MuiTouchRipple-root"
+            />
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+`;
+
+exports[`Snackbar renders info 1`] = `
+<body>
+  <div>
+    <div
+      class="MuiSnackbar-root MuiSnackbar-anchorOriginBottomLeft"
+    >
+      <div
+        class="MuiTypography-root MuiPaper-root MuiPaper-elevation6 MuiSnackbarContent-root makeStyles-info-346 MuiTypography-body2"
+        role="alert"
+        style="transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,transform 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+      >
+        <div
+          class="MuiSnackbarContent-message"
+        >
+          <span
+            class="makeStyles-content-352"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root makeStyles-icon-351"
+              focusable="false"
+              role="presentation"
+              size="20"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"
+              />
+            </svg>
+            <span
+              class="makeStyles-message-353"
+            >
+              test snackbar
+            </span>
+          </span>
+        </div>
+        <div
+          class="MuiSnackbarContent-action"
+        >
+          <button
+            class="MuiButtonBase-root MuiIconButton-root makeStyles-close-343 MuiIconButton-colorInherit"
+            tabindex="0"
+            type="button"
+          >
+            <span
+              class="MuiIconButton-label"
+            >
+              <svg
+                aria-hidden="true"
+                class="MuiSvgIcon-root makeStyles-icon-351"
+                focusable="false"
+                role="presentation"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                />
+              </svg>
+            </span>
+            <span
+              class="MuiTouchRipple-root"
+            />
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+`;
+
+exports[`Snackbar renders loading 1`] = `
+<body>
+  <div>
+    <div
+      class="MuiSnackbar-root MuiSnackbar-anchorOriginBottomLeft"
+    >
+      <div
+        class="MuiTypography-root MuiPaper-root MuiPaper-elevation6 MuiSnackbarContent-root makeStyles-loading-458 MuiTypography-body2"
+        role="alert"
+        style="transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,transform 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+      >
+        <div
+          class="MuiSnackbarContent-message"
+        >
+          <span
+            class="makeStyles-content-463"
+          >
+            <div
+              class="MuiCircularProgress-root makeStyles-icon-462 makeStyles-loadingIcon-459 MuiCircularProgress-colorPrimary MuiCircularProgress-indeterminate"
+              role="progressbar"
+              style="width: 20px; height: 20px;"
+            >
+              <svg
+                class="MuiCircularProgress-svg"
+                viewBox="22 22 44 44"
+              >
+                <circle
+                  class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate"
+                  cx="44"
+                  cy="44"
+                  fill="none"
+                  r="20.2"
+                  stroke-width="3.6"
+                />
+              </svg>
+            </div>
+            <span
+              class="makeStyles-message-464"
+            >
+              test snackbar
+            </span>
+          </span>
+        </div>
+        <div
+          class="MuiSnackbarContent-action"
+        />
+      </div>
+    </div>
+  </div>
+</body>
+`;
+
+exports[`Snackbar renders success 1`] = `
+<body>
+  <div>
+    <div
+      class="MuiSnackbar-root MuiSnackbar-anchorOriginBottomLeft"
+    >
+      <div
+        class="MuiTypography-root MuiPaper-root MuiPaper-elevation6 MuiSnackbarContent-root makeStyles-success-11 MuiTypography-body2"
+        role="alert"
+        style="transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,transform 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+      >
+        <div
+          class="MuiSnackbarContent-message"
+        >
+          <span
+            class="makeStyles-content-19"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root makeStyles-icon-18"
+              focusable="false"
+              role="presentation"
+              size="20"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+              />
+            </svg>
+            <span
+              class="makeStyles-message-20"
+            >
+              test snackbar
+            </span>
+          </span>
+        </div>
+        <div
+          class="MuiSnackbarContent-action"
+        >
+          <button
+            class="MuiButtonBase-root MuiIconButton-root makeStyles-close-10 MuiIconButton-colorInherit"
+            tabindex="0"
+            type="button"
+          >
+            <span
+              class="MuiIconButton-label"
+            >
+              <svg
+                aria-hidden="true"
+                class="MuiSvgIcon-root makeStyles-icon-18"
+                focusable="false"
+                role="presentation"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                />
+              </svg>
+            </span>
+            <span
+              class="MuiTouchRipple-root"
+            />
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+`;
+
+exports[`Snackbar renders warning 1`] = `
+<body>
+  <div>
+    <div
+      class="MuiSnackbar-root MuiSnackbar-anchorOriginBottomLeft"
+    >
+      <div
+        class="MuiTypography-root MuiPaper-root MuiPaper-elevation6 MuiSnackbarContent-root makeStyles-warning-127 MuiTypography-body2"
+        role="alert"
+        style="transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,transform 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+      >
+        <div
+          class="MuiSnackbarContent-message"
+        >
+          <span
+            class="makeStyles-content-130"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root makeStyles-icon-129"
+              focusable="false"
+              role="presentation"
+              size="20"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"
+              />
+            </svg>
+            <span
+              class="makeStyles-message-131"
+            >
+              test snackbar
+            </span>
+          </span>
+        </div>
+        <div
+          class="MuiSnackbarContent-action"
+        >
+          <button
+            class="MuiButtonBase-root MuiIconButton-root makeStyles-close-121 MuiIconButton-colorInherit"
+            tabindex="0"
+            type="button"
+          >
+            <span
+              class="MuiIconButton-label"
+            >
+              <svg
+                aria-hidden="true"
+                class="MuiSvgIcon-root makeStyles-icon-129"
+                focusable="false"
+                role="presentation"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                />
+              </svg>
+            </span>
+            <span
+              class="MuiTouchRipple-root"
+            />
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+`;

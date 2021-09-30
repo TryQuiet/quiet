@@ -1,17 +1,16 @@
 import React from 'react'
 
-import { shallow } from 'enzyme'
-
-import { Snackbar } from './Snackbar'
-
 import each from 'jest-each'
+
+import { renderComponent } from '../../../testUtils/renderComponent'
+import { Snackbar } from './Snackbar'
 
 describe('Snackbar', () => {
   each(['success', 'warning', 'error', 'info', 'loading']).test('renders %s', variant => {
-    const result = shallow(
+    const result = renderComponent(
       <Snackbar open message='test snackbar' variant={variant} onClose={jest.fn()} />
     )
-    expect(result).toMatchSnapshot()
+    expect(result.baseElement).toMatchSnapshot()
   })
 
   each([
@@ -20,7 +19,7 @@ describe('Snackbar', () => {
     ['bottom', 'left'],
     ['top', 'right']
   ]).test('renders full width for position [%s, %s]', (vertical, horizontal) => {
-    const result = shallow(
+    const result = renderComponent(
       <Snackbar
         open
         message='test snackbar'
@@ -30,13 +29,17 @@ describe('Snackbar', () => {
         onClose={jest.fn()}
       />
     )
-    expect(result).toMatchSnapshot()
+    expect(result.baseElement).toMatchSnapshot()
   })
 
   it('renders closed', () => {
-    const result = shallow(
+    const result = renderComponent(
       <Snackbar open={false} message='test snackbar' variant='success' onClose={jest.fn()} />
     )
-    expect(result).toMatchSnapshot()
+    expect(result.baseElement).toMatchInlineSnapshot(`
+      <body>
+        <div />
+      </body>
+    `)
   })
 })
