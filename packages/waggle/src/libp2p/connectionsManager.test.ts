@@ -21,6 +21,7 @@ describe('Connections manager', () => {
     connectionsManager = new ConnectionsManager({
       agentHost: 'localhost',
       agentPort: ports.socksPort,
+      httpTunnelPort: ports.httpTunnelPort,
       // @ts-expect-error
       io: new DummyIOServer(),
       options: {
@@ -41,6 +42,7 @@ describe('Connections manager', () => {
     connectionsManager = new ConnectionsManager({
       agentHost: 'localhost',
       agentPort: ports.socksPort,
+      httpTunnelPort: ports.httpTunnelPort,
       // @ts-expect-error
       io: new DummyIOServer(),
       options: {
@@ -64,6 +66,7 @@ describe('Connections manager', () => {
     connectionsManager = new ConnectionsManager({
       agentHost: 'localhost',
       agentPort: ports.socksPort,
+      httpTunnelPort: ports.httpTunnelPort,
       // @ts-expect-error
       io: new DummyIOServer(),
       options: {

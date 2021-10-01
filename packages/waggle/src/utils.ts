@@ -13,6 +13,7 @@ export interface Ports {
   libp2pHiddenService: number
   controlPort: number
   dataServer: number
+  httpTunnelPort: number
 }
 
 export function createPaths(paths: string[]) {
@@ -39,11 +40,13 @@ export const getPorts = async (): Promise<Ports> => {
   const [socksPort] = await fp(9052)
   const [libp2pHiddenService] = await fp(7788)
   const [dataServer] = await fp(4677)
+  const [httpTunnelPort] = await fp(9000)
   return {
     socksPort,
     libp2pHiddenService,
     controlPort,
-    dataServer
+    dataServer,
+    httpTunnelPort
   }
 }
 

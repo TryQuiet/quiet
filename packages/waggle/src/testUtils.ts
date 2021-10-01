@@ -40,6 +40,7 @@ export const spawnTorProcess = async (zbayDirPath: string, ports?: Ports): Promi
     torPath: torPath,
     controlPort: _ports.controlPort,
     socksPort: _ports.socksPort,
+    httpTunnelPort: _ports.httpTunnelPort,
     options: {
       env: {
         LD_LIBRARY_PATH: libPath,
@@ -56,6 +57,7 @@ export const createMinConnectionManager = (options: ConnectionsManagerOptions): 
   return new ConnectionsManager({
     agentHost: 'localhost',
     agentPort: 2222,
+    httpTunnelPort: 3333,
     // @ts-expect-error
     io: new DummyIOServer(),
     options: {

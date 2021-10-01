@@ -57,7 +57,7 @@ export class Tor {
     this.torPassword = torPassword
     this.torAuthCookie = torAuthCookie
     this.socksPort = socksPort.toString()
-    this.httpTunnelPort = httpTunnelPort ? httpTunnelPort.toString() : null
+    this.httpTunnelPort = httpTunnelPort.toString()
   }
 
   public init = async ({ repeat = 3, timeout = 40000 } = {}): Promise<void> => {
@@ -146,7 +146,8 @@ export class Tor {
         [
           '--SocksPort',
           this.socksPort,
-          ...(this.httpTunnelPort ? ['--HTTPTunnelPort', this.httpTunnelPort] : []),
+          '--HTTPTunnelPort',
+          this.httpTunnelPort,
           '--ControlPort',
           this.controlPort.toString(),
           '--PidFile',

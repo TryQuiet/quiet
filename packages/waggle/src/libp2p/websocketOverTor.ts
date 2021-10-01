@@ -97,7 +97,7 @@ class WebsocketsOverTor extends WebSockets {
       throw new AbortError()
     }
     const cOpts = ma.toOptions()
-    log('dialing %s:%s', cOpts.host, cOpts.port)
+    log('dialing %s:%s', cOpts.host, 443)
     const myUri = `${toUri(ma) as string}/?remoteAddress=${encodeURIComponent(this.localAddress)}`
 
     const rawSocket = connect(myUri, Object.assign({ binary: true }, options))

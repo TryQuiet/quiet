@@ -75,7 +75,8 @@ export class ConnectionsManager {
   public readonly createAgent = () => {
     if (this.socksProxyAgent || !this.agentPort || !this.agentHost) return
 
-    log('Creating socks proxy agent')
+    log(`Creating socks proxy agent, ${this.httpTunnelPort}`)
+
     return new HttpsProxyAgent({ port: this.httpTunnelPort, host: this.agentHost })
   }
 
@@ -86,7 +87,7 @@ export class ConnectionsManager {
 
   public createNetwork = async () => {
     const ports = await getPorts()
-    const hiddenService = await this.tor.createNewHiddenService(ports.libp2pHiddenService, ports.libp2pHiddenService)
+    const hiddenService = await this.tor.createNewHiddenService(443, ports.libp2pHiddenService)
     await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
     const peerId = await PeerId.create()
     return {
@@ -113,6 +114,7 @@ export class ConnectionsManager {
       socksPort: this.agentPort,
       torPassword: this.options.torPassword,
       torAuthCookie: this.options.torAuthCookie,
+      httpTunnelPort: this.httpTunnelPort,
 
       options: {
         env: {

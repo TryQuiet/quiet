@@ -1,5 +1,11 @@
 # Changelog
 
+## [UNRELEASED]
+
+### Changed
+
+* Map all registrars hidden services to port 80, and all libp2p hidden services to 443.
+
 ## [4.2.1]
 
 ### Fixed

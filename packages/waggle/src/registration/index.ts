@@ -79,8 +79,7 @@ export class CertificateRegistration {
   public async getPeers(): Promise<string[]> {
     const users = this._storage.getAllUsers()
     const peers = users.map(async (userData: { onionAddress: string, peerId: string }) => {
-      const [port] = await fp(1234) // port probably does not matter - to be checked
-      return `/dns4/${userData.onionAddress}/tcp/${port as string}/wss/p2p/${userData.peerId}`
+      return `/dns4/${userData.onionAddress}/tcp/443/wss/p2p/${userData.peerId}/`
     })
 
     return await Promise.all(peers)
@@ -137,12 +136,12 @@ export class CertificateRegistration {
     }
     if (this._privKey) {
       this._onionAddress = await this.tor.spawnHiddenService({
-        virtPort: this._port,
+        virtPort: 80,
         targetPort: this._port,
         privKey: this._privKey
       })
     } else {
-      const data = await this.tor.createNewHiddenService(this._port, this._port)
+      const data = await this.tor.createNewHiddenService(80, this._port)
       this._onionAddress = data.onionAddress
       this._privKey = data.privateKey
     }
