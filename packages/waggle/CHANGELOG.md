@@ -1,6 +1,6 @@
 # Changelog
 
-## [UNRELEASED]
+## [4.2.2]
 
 ### Changed
 
@@ -10,7 +10,7 @@
 
 ### Fixed
 
-* Close socket when after closing all waggle services
+* Close socket after closing all waggle services
 
 ## [4.2.0]
 
