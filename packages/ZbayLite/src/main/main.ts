@@ -159,7 +159,7 @@ const createWindow = async () => {
       pathname: path.join(__dirname, './index.html'),
       protocol: 'file:',
       slashes: true,
-      hash: '/zcashNode'
+      hash: '/'
     })
   )
   /* eslint-enable */

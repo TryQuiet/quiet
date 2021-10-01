@@ -4,9 +4,6 @@ import Typography from '@material-ui/core/Typography'
 import { Button } from '@material-ui/core'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 
-import SettingsModal from '../../../containers/widgets/settings/SettingsModal'
-import CreateUsernameModal from '../../../containers/widgets/createUsernameModal/CreateUsername'
-
 import { makeStyles } from '@material-ui/core/styles'
 import { Identity } from '@zbayapp/nectar/lib/sagas/identity/identity.slice'
 
@@ -58,9 +55,6 @@ export const IdentityPanel: React.FC<IdentityPanelProps> = ({ handleSettings, id
         </Typography>
         <ExpandMoreIcon fontSize='small' />
       </Button>
-      <SettingsModal />
-      {/* <ImportChannelModal /> */}
-      <CreateUsernameModal />
     </div>
   )
 }
