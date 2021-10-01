@@ -1,33 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Elipsis disables if shorter than limit 1`] = `
-<body>
-  <div>
-    <span>
-      <span
-        class="MuiTypography-root makeStyles-content-189 MuiTypography-caption"
-      >
-        this is a sample text
-      </span>
-    </span>
-  </div>
-</body>
-`;
-
-exports[`Elipsis renders with custom size 1`] = `
-<body>
-  <div>
-    <span>
-      <span
-        class="MuiTypography-root makeStyles-content-142 MuiTypography-caption"
-      >
-        this ...
-      </span>
-    </span>
-  </div>
-</body>
-`;
-
 exports[`Elipsis renders with placement bottom 1`] = `
 <body>
   <div>
