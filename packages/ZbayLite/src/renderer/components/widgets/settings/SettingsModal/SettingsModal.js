@@ -11,19 +11,15 @@ import { Scrollbars } from 'rc-scrollbars'
 import Modal from '../../../ui/Modal/Modal'
 import Tab from '../../../ui/Tab/Tab'
 import AccountSettingsForm from '../../../../containers/widgets/settings/AccountSettingsForm'
-import ShippingSettingsForm from '../../../../containers/widgets/settings/ShippingSettingsForm'
 import Security from '../../../../containers/widgets/settings/Security'
 import Notifications from '../../../../containers/widgets/settings/Notifications'
 import BlockedUsers from '../../../../containers/widgets/settings/BlockedUsers'
-import BuyZcash from '../BuyZcash'
 
 const tabs = {
   account: AccountSettingsForm,
-  shipping: ShippingSettingsForm,
   security: Security,
   notifications: Notifications,
-  blockedusers: BlockedUsers,
-  buyZcash: BuyZcash
+  blockedusers: BlockedUsers
 }
 
 const styles = theme => ({
@@ -133,11 +129,6 @@ export const SettingsModal = ({
               <Tab
                 value='notifications'
                 label='Notifications'
-                classes={{ tabRoot: classes.tab, selected: classes.selected }}
-              />
-              <Tab
-                value='shipping'
-                label='Shipping'
                 classes={{ tabRoot: classes.tab, selected: classes.selected }}
               />
               <Tab

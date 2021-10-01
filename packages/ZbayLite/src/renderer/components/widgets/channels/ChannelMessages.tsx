@@ -8,13 +8,8 @@ import { makeStyles } from '@material-ui/core/styles'
 import { MessageType } from '../../../../shared/static.types'
 import ChannelMessage from '../../../containers/widgets/channels/ChannelMessage'
 import WelcomeMessage from './WelcomeMessage'
-import ChannelItemTransferMessage from '../../../containers/widgets/channels/ItemTransferMessage'
-import ChannelAdMessage from '../../../containers/widgets/channels/ListingMessage'
 import MessagesDivider from '../MessagesDivider'
-import UserRegisteredMessage from './UserRegisteredMessage'
 import ChannelRegisteredMessage from './ChannelRegisteredMessage'
-
-// import { UsersStore } from './../../../store/handlers/users'
 
 import { DisplayableMessage } from './../../../zbay/messages.types'
 import { loadNextMessagesLimit } from '../../../../shared/static'
@@ -105,8 +100,7 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
   users,
   channelId,
   onLinkedChannel,
-  publicChannels,
-  isDev
+  publicChannels
 }) => {
   const classes = useStyles({})
   const msgRef = React.useRef<HTMLUListElement>()
@@ -228,10 +222,6 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
                         }}
                       />
                     )
-                  } else if (!isDev && msg.nickname.startsWith('dev99')) {
-                    return
-                  } else {
-                    return <UserRegisteredMessage message={msg} />
                   }
                 }
                 return <MessageComponent key={msg.id} message={msg} contactId={contactId} />
@@ -280,11 +270,7 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
 }
 
 const typeToMessageComponent = {
-  [MessageType.BASIC]: ChannelMessage,
-  [MessageType.ITEM_BASIC]: ChannelMessage,
-  [MessageType.ITEM_TRANSFER]: ChannelItemTransferMessage,
-  [MessageType.TRANSFER]: ChannelItemTransferMessage,
-  [MessageType.AD]: ChannelAdMessage
+  [MessageType.BASIC]: ChannelMessage
 }
 
 ChannelMessages.defaultProps = {

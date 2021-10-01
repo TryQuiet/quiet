@@ -2,7 +2,6 @@
 
 exports[`Main renders component 1`] = `
 <Fragment>
-  <Connect(Component) />
   <Component>
     <WithStyles(ForwardRef(Grid))
       className="gridRoot-mock"
@@ -37,22 +36,6 @@ exports[`Main renders component 1`] = `
             }
           }
           path="test/direct-messages/:username"
-        />
-        <Route
-          component={
-            Object {
-              "$$typeof": Symbol(react.memo),
-              "compare": null,
-              "type": Object {
-                "$$typeof": Symbol(react.memo),
-                "WrappedComponent": [Function],
-                "compare": null,
-                "displayName": "Connect(Channel)",
-                "type": [Function],
-              },
-            }
-          }
-          path="test/offers/:id/:address"
         />
       </WithStyles(ForwardRef(Grid))>
     </WithStyles(ForwardRef(Grid))>

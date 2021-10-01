@@ -8,14 +8,12 @@ import { Grid } from '@material-ui/core'
 
 import Modal from '../../ui/Modal/Modal'
 import Tab from '../../ui/Tab/Tab'
-import BlockedUsers from '../../../containers/widgets/channelSettings/BlockedUsers'
 import Moderators from '../../../containers/widgets/channelSettings/Moderators'
 import ChannelInfo from '../../../containers//widgets/channelSettings/ChannelInfo'
 import Notifications from '../../../containers//widgets/channelSettings/Notifications'
 
 const tabs = {
   channelInfo: ChannelInfo,
-  blockedUsers: BlockedUsers,
   moderators: Moderators,
   notifications: Notifications
 }
@@ -109,16 +107,6 @@ export const ChannelSettingsModal = ({
               )}
               {isOwner && (
                 <Tab
-                  value='blockedUsers'
-                  label='Blocked users'
-                  classes={{
-                    tabRoot: classes.tab,
-                    selected: classes.selected
-                  }}
-                />
-              )}
-              {isOwner && (
-                <Tab
                   value='moderators'
                   label='Moderators'
                   classes={{
@@ -151,7 +139,6 @@ ChannelSettingsModal.propTypes = {
   handleClose: PropTypes.func.isRequired,
   clearCurrentOpenTab: PropTypes.func,
   currentTab: PropTypes.string,
-  // modalTabToOpen: PropTypes.func,
   setCurrentTab: PropTypes.func.isRequired,
   channel: PropTypes.object.isRequired
 }

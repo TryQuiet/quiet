@@ -23,7 +23,6 @@ import JoinChannelModal from './containers/widgets/channels/JoinChannelModal'
 import ChannelSettingsModal from './containers/widgets/channelSettings/ChannelSettingsModal'
 import OpenExternalLinkModal from './containers/ui/OpenExternalLinkModal'
 import AddModerator from './containers/widgets/channelSettings/AddModerator'
-import FailedUsernameRegister from './containers/ui/FailedUsernameRegister'
 import theme from './theme'
 
 export default () => {
@@ -46,7 +45,6 @@ export default () => {
               <ChannelSettingsModal />
               <AddModerator />
               <OpenExternalLinkModal />
-              <FailedUsernameRegister />
               <Route path='/vault' exact component={Vault} />
               <Route path='/main' component={Main} />
               <Route path='/zcashNode' component={Index} />

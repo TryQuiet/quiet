@@ -54,16 +54,6 @@ exports[`ChannelSettingsModal renders component 1`] = `
                 "tabRoot": "tab-mock",
               }
             }
-            label="Blocked users"
-            value="blockedUsers"
-          />
-          <Component
-            classes={
-              Object {
-                "selected": "selected-mock",
-                "tabRoot": "tab-mock",
-              }
-            }
             label="Moderators"
             value="moderators"
           />
@@ -85,7 +75,7 @@ exports[`ChannelSettingsModal renders component 1`] = `
       item={true}
       xs={true}
     >
-      <TabContent />
+      <Component />
     </WithStyles(ForwardRef(Grid))>
   </WithStyles(ForwardRef(Grid))>
 </Component>
