@@ -11,8 +11,6 @@ import modalsSelectors from '../selectors/modals'
 export enum ModalName {
   createChannel = 'createChannel',
   accountSettingsModal = 'accountSettingsModal',
-  sendMoneySeparate='sendMoneySeparate',
-  depositMoney='depositMoney',
   openexternallink = 'openexternallink',
   seedModal = 'seedModal',
   criticalError = 'criticalError',
@@ -21,9 +19,8 @@ export enum ModalName {
   channelSettingsModal='channelSettingsModal',
   publishChannel='publishChannel',
   joinChannel='joinChannel',
-  sentFunds='sentFunds',
-  newMessageSeparate='newMessageSeparate'
-
+  newMessageSeparate='newMessageSeparate',
+  quitApp='quitApp'
 }
 
 class Modals {

@@ -1,11 +1,11 @@
 import React from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 
 import IdentityPanelComponent from '../../components/ui/IdentityPanel/IdentityPanel'
-import actionCreators from '../../store/handlers/modals'
 import { identity } from '@zbayapp/nectar'
+import { useModal, ModalName } from '../../store/handlers/modals'
 
-export const useData = () => {
+export const useIdentityPanelData = () => {
   const data = {
     identity: useSelector(identity.selectors.currentIdentity)
   }
@@ -13,12 +13,10 @@ export const useData = () => {
 }
 
 const IdentityPanel = () => {
-  const { identity } = useData()
-  const dispatch = useDispatch()
+  const { identity } = useIdentityPanelData()
+  const modal = useModal(ModalName.accountSettingsModal)
 
-  const handleSettings = () => dispatch(actionCreators.openModalHandler('accountSettingsModal'))
-
-  return <IdentityPanelComponent identity={identity} handleSettings={handleSettings} />
+  return <IdentityPanelComponent identity={identity} handleSettings={modal.handleOpen} />
 }
 
 export default IdentityPanel

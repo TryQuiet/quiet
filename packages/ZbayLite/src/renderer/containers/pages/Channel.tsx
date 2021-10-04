@@ -10,7 +10,7 @@ import electronStore from '../../../shared/electronStore'
 
 export const useChannelData = () => {
   const data = {
-    generalChannelId: 'zs10zkaj29rcev9qd5xeuzck4ly5q64kzf6m6h9nfajwcvm8m2vnjmvtqgr0mzfjywswwkwke68t00'
+    generalChannelId: 'general'
   }
   return data
 }

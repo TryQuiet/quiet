@@ -1,50 +1,62 @@
 import React from 'react'
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
-import * as R from 'ramda'
+import { useDispatch, useSelector } from 'react-redux'
 import { remote } from 'electron'
 
 import ErrorModal from '../../components/ui/ErrorModal/ErrorModal'
 import criticalErrorSelectors from '../../store/selectors/criticalError'
-import modalsHandlers, { withModal } from '../../store/handlers/modals'
+import { useModal, ModalName } from '../../store/handlers/modals'
 import notificationsHandlers from '../../store/handlers/notifications'
-import {
-  successNotification,
-  errorNotification
-} from '../../store/handlers/utils'
+import { successNotification, errorNotification } from '../../store/handlers/utils'
 
-export const mapStateToProps = state => ({
-  message: criticalErrorSelectors.message(state),
-  traceback: criticalErrorSelectors.traceback(state)
-})
+export const useErrorModalData = () => {
+  const data = {
+    message: useSelector(criticalErrorSelectors.message),
+    traceback: useSelector(criticalErrorSelectors.traceback)
+  }
+  return data
+}
 
-export const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      handleExit: modalsHandlers.actionCreators.openModal('quitApp'),
-      successSnackbar: () =>
-        notificationsHandlers.actions.enqueueSnackbar(
-          successNotification({
-            message: 'Message has been sent'
-          })
-        ),
-      errorSnackbar: () =>
-        notificationsHandlers.actions.enqueueSnackbar(
-          errorNotification({
-            message: 'There was an error'
-          })
-        ),
-      restartApp: () => {
-        remote.app.relaunch()
-        remote.app.quit()
-      }
-    },
+export const useErrorModalActions = () => {
+  const dispatch = useDispatch()
+  const successSnackbar = () =>
+    dispatch(
+      notificationsHandlers.actions.enqueueSnackbar(
+        successNotification({
+          message: 'Message has been sent'
+        })
+      )
+    )
+  const errorSnackbar = () =>
+    dispatch(
+      notificationsHandlers.actions.enqueueSnackbar(
+        errorNotification({
+          message: 'There was an error'
+        })
+      )
+    )
+  const restartApp = () => {
+    remote.app.relaunch()
+    remote.app.quit()
+  }
+  return { successSnackbar, errorSnackbar, restartApp }
+}
 
-    dispatch
+const ErrorModalContainer = () => {
+  const { message, traceback } = useErrorModalData()
+  const { successSnackbar, errorSnackbar, restartApp } = useErrorModalActions()
+  const modal = useModal(ModalName.quitApp)
+
+  return (
+    <ErrorModal
+      message={message}
+      traceback={traceback}
+      open={modal.open}
+      handleExit={modal.handleClose}
+      successSnackbar={successSnackbar}
+      errorSnackbar={errorSnackbar}
+      restartApp={restartApp}
+    />
   )
+}
 
-export default R.compose(
-  React.memo,
-  connect(mapStateToProps, mapDispatchToProps),
-  withModal('criticalError')
-)(ErrorModal)
+export default ErrorModalContainer

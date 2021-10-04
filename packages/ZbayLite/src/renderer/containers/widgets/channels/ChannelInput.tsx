@@ -31,12 +31,7 @@ export const useChannelInputActions = () => {
     dispatch(channelHandlers.actions.setMessage(arg))
   }, [dispatch])
 
-  const resetDebounce = useCallback(() => {
-    // dispatch(messagesQueueHandlers.epics.resetMessageDebounce())
-  }, [dispatch])
-
   const sendOnEnter = useCallback((message) => {
-    console.log('sendOnEnter channel input')
     dispatch(messages.actions.sendMessage(message))
   }, [dispatch])
 
@@ -44,17 +39,16 @@ export const useChannelInputActions = () => {
     dispatch(mentionsHandlers.epics.checkMentions())
   }, [dispatch])
 
-  return { onChange, resetDebounce, sendOnEnter, checkMentions }
+  return { onChange, sendOnEnter, checkMentions }
 }
 
 export const ChannelInput = () => {
   const [infoClass, setInfoClass] = React.useState<string>(null)
-  // eslint-disable-next-line
-  const [anchorEl, setAnchorEl] = React.useState({} as HTMLElement)
+  const [anchorEl, setAnchorEl] = React.useState<HTMLElement>(null)
   const [mentionsToSelect, setMentionsToSelect] = React.useState<any[]>([])
 
   const { channelName, id, inputState, isMessageTooLong, members, message, myUser, users } = useChannelInputData()
-  const { checkMentions, onChange, resetDebounce, sendOnEnter } = useChannelInputActions()
+  const { checkMentions, onChange, sendOnEnter } = useChannelInputActions()
 
   return (
     <ChannelInputComponent
@@ -64,10 +58,8 @@ export const ChannelInput = () => {
       users={users}
       onChange={e => {
         onChange({ value: e, id })
-        resetDebounce()
       }}
       onKeyPress={(message) => {
-        console.log(message, 'message is')
         checkMentions()
         sendOnEnter(message)
       }}

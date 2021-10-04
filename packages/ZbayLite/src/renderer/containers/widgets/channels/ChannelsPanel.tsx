@@ -30,8 +30,7 @@ export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
       openCreateModal: actionCreators.openModal(ModalName.createChannel),
-      openJoinChannel: actionCreators.openModal(ModalName.joinChannel),
-      openDepositMonet: actionCreators.openModal(ModalName.depositMoney)
+      openJoinChannel: actionCreators.openModal(ModalName.joinChannel)
     },
     dispatch
   )
@@ -63,14 +62,6 @@ export const ChannelsPanel = ({
           selected={props.selected}
         />
       </Grid>
-      {/*
-      <Grid item>
-        <QuickActionButton
-          text='Create Channel'
-          action={fundsLocked ? openDepositMonet : openCreateModal}
-        />
-      </Grid>
-      */}
       <Grid item>
         <QuickActionButton
           text='Find Channel'

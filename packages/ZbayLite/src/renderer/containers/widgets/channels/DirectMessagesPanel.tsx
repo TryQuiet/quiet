@@ -23,8 +23,7 @@ export const mapStateToProps = state => ({
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      openModal: actionCreators.openModal(ModalName.newMessageSeparate),
-      openDepositMonet: actionCreators.openModal(ModalName.depositMoney)
+      openModal: actionCreators.openModal(ModalName.newMessageSeparate)
     },
     dispatch
   )
@@ -32,7 +31,6 @@ export const DirectMessagesPanel = ({
   title,
   openModal,
   fundsLocked,
-  openDepositMonet,
   ...props
 }) => {
   return (
@@ -40,7 +38,7 @@ export const DirectMessagesPanel = ({
       <Grid item>
         <SidebarHeader
           title={title}
-          action={fundsLocked ? openDepositMonet : openModal}
+          action={openModal}
           tooltipText='Create new message'
         />
       </Grid>

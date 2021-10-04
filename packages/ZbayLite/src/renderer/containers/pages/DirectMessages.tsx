@@ -1,37 +1,25 @@
 import React, { useEffect } from 'react'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
-import * as R from 'ramda'
+import { useDispatch } from 'react-redux'
 
 import channelHandlers from '../../store/handlers/channel'
 import ChannelComponent from '../../components/pages/Channel'
 import { CHANNEL_TYPE } from '../../components/pages/ChannelTypes'
 
-export const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      loadChannel: channelHandlers.epics.loadChannel
-    },
-    dispatch
-  )
-
-const DirectMessages = ({
-  match,
-  loadChannel
-}) => {
-  useEffect(
-    () => {
-      loadChannel(match.params.username)
-    },
-    [match.params.username]
-  )
-  return <ChannelComponent channelType={CHANNEL_TYPE.DIRECT_MESSAGE} contactId={match.params.username} />
+const useDirectMessagesActions = () => {
+  const dispatch = useDispatch()
+  const loadChannel = (key: string) => dispatch(channelHandlers.epics.loadChannel(key))
+  return { loadChannel }
 }
 
-export default R.compose(
-  React.memo,
-  connect(
-    null,
-    mapDispatchToProps
+const DirectMessages = ({ match }) => {
+  const { loadChannel } = useDirectMessagesActions()
+
+  useEffect(() => {
+    loadChannel(match.params.username)
+  }, [match.params.username])
+  return (
+    <ChannelComponent channelType={CHANNEL_TYPE.DIRECT_MESSAGE} contactId={match.params.username} />
   )
-)(DirectMessages)
+}
+
+export default DirectMessages
