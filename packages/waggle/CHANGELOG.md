@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.2.3]
+
+### Fixed
+
+* Orbit-db in package.json - use specific commit instead of #main. Projects installing waggle should have the same version of orbit-db.
+* Change orbit-db-store version to match specified orbitdb; Remove multiformats (rely on versions set in orbit-db)
+
 ## [4.2.2]
 
 ### Changed
