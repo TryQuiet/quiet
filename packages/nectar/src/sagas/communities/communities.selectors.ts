@@ -1,15 +1,17 @@
 import { StoreKeys } from '../store.keys';
 import { createSelector } from 'reselect';
-import { selectReducer } from '../store.utils';
 import { communitiesAdapter } from './communities.adapter';
+import { CreatedSelectors, StoreState } from '../store.types';
+
+const communitiesSlice: CreatedSelectors[StoreKeys.Communities] = (state: StoreState) => state[StoreKeys.Communities]
 
 export const selectById = (id: string) =>
-  createSelector(selectReducer(StoreKeys.Communities), (reducerState) =>
+  createSelector(communitiesSlice, (reducerState) =>
     communitiesAdapter.getSelectors().selectById(reducerState.communities, id)
   );
 
 export const currentCommunity = createSelector(
-  selectReducer(StoreKeys.Communities),
+  communitiesSlice,
   (reducerState) => {
     const id = reducerState.currentCommunity;
     console.log('communitnies', reducerState.communities);
@@ -20,7 +22,7 @@ export const currentCommunity = createSelector(
 );
 
 export const currentCommunityId = createSelector(
-  selectReducer(StoreKeys.Communities),
+  communitiesSlice,
   (reducerState) => reducerState.currentCommunity
 );
 

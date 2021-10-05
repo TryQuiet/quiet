@@ -1,15 +1,19 @@
 // import {rootReducer} from './root.reducer';
 // import {store} from './store';
 
-// export type StoreState = any ReturnType<typeof rootReducer>;
-// export type StoreDispatch = typeof store.dispatch;
-export type StoreState = any;
-export type StoreDispatch = any;
+import { configureStore, combineReducers } from "@reduxjs/toolkit"
+import { reducers } from "./reducers";
+import { StoreKeys } from "./store.keys";
+const rootReducer = combineReducers(reducers)
+const store = configureStore({ reducer: rootReducer })
 
-export type CreatedSelectors<SelectedState> = {
-  [Key in keyof SelectedState]: (state: SelectedState) => SelectedState[Key];
+export type StoreState = ReturnType<typeof rootReducer>;
+export type StoreDispatch = typeof store.dispatch;
+
+export type CreatedSelectors = {
+  [Key in keyof StoreState]: (state: StoreState) => StoreState[Key];
 };
 
 export interface StoreModuleStateClass {
-  new (): object;
+  new(): object;
 }

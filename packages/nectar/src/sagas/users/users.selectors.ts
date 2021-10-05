@@ -2,12 +2,14 @@ import { createSelector } from '@reduxjs/toolkit';
 import { getCertFieldValue } from '@zbayapp/identity';
 import { CertFieldsTypes } from './const/certFieldTypes';
 import { StoreKeys } from '../store.keys';
-import { selectReducer } from '../store.utils';
 import { certificatesAdapter } from './users.adapter';
 import { User } from './users.slice';
+import { CreatedSelectors, StoreState } from '../store.types';
+
+const usersSlice: CreatedSelectors[StoreKeys.Users] = (state: StoreState) => state[StoreKeys.Users]
 
 export const certificates = createSelector(
-  selectReducer(StoreKeys.Users),
+  usersSlice,
   (reducerState) =>
     certificatesAdapter.getSelectors().selectEntities(reducerState.certificates)
 );

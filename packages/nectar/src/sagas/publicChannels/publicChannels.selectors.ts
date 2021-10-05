@@ -1,13 +1,16 @@
 import { StoreKeys } from '../store.keys';
 import { createSelector } from 'reselect';
-import { selectReducer } from '../store.utils';
+import { CreatedSelectors } from '../store.types'
 import { publicChannelsAdapter } from './publicChannels.adapter';
 import { formatMessageDisplayDate } from '../../utils/functions/formatMessageDisplayDate/formatMessageDisplayDate';
 import { certificatesMapping } from '../users/users.selectors';
 import { mainChannelName } from '../config';
+import { StoreState } from '../store.types';
+
+const publicChannelSlice: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) => state[StoreKeys.PublicChannels]
 
 export const publicChannels = createSelector(
-  selectReducer(StoreKeys.PublicChannels),
+  publicChannelSlice,
   (reducerState) => {
     return publicChannelsAdapter
       .getSelectors()
@@ -16,7 +19,7 @@ export const publicChannels = createSelector(
 );
 
 export const ZbayChannel = createSelector(
-  selectReducer(StoreKeys.PublicChannels),
+  publicChannelSlice,
   (reducerState) => {
     const publicChannelsList = publicChannelsAdapter
       .getSelectors()
@@ -29,14 +32,14 @@ export const ZbayChannel = createSelector(
 );
 
 export const currentChannel = createSelector(
-  selectReducer(StoreKeys.PublicChannels),
+  publicChannelSlice,
   (reducerState) => {
     return reducerState.currentChannel;
   }
 );
 
 export const channelMessages = createSelector(
-  selectReducer(StoreKeys.PublicChannels),
+  publicChannelSlice,
   (reducerState) => {
     return reducerState.channelMessages;
   }
