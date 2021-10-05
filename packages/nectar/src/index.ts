@@ -72,6 +72,15 @@ export const socket = {
   useIO,
 };
 
+export const reducers = {
+  communitiesReducer,
+  errorsReducer,
+  messagesReducer,
+  identityReducer,
+  usersReducer,
+  publicChannelsReducer
+}
+
 export const storeKeys = StoreKeys;
 
 export default {
@@ -80,4 +89,5 @@ export default {
   identity,
   messages,
   communities,
+  reducers
 };
