@@ -30,6 +30,8 @@ import {
   communitiesReducer,
 } from './sagas/communities/communities.slice';
 
+import { reducers } from './sagas/reducers'
+
 export const publicChannels = {
   reducer: publicChannelsReducer,
   selectors: publicChannelsSelectors,
@@ -71,15 +73,6 @@ export const communities = {
 export const socket = {
   useIO,
 };
-
-export const reducers = {
-  communitiesReducer,
-  errorsReducer,
-  messagesReducer,
-  identityReducer,
-  usersReducer,
-  publicChannelsReducer
-}
 
 export const storeKeys = StoreKeys;
 
