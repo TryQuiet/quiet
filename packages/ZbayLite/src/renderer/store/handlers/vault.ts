@@ -2,9 +2,8 @@ import { produce, immerable } from 'immer'
 import { createAction, handleActions } from 'redux-actions'
 import crypto from 'crypto'
 
-import { typeFulfilled, typeRejected, typePending, errorNotification } from './utils'
+import { typeFulfilled, typeRejected, typePending } from './utils'
 import identityHandlers from './identity'
-import notificationsHandlers from './notifications'
 import { actionTypes } from '../../../shared/static'
 import electronStore from '../../../shared/electronStore'
 
@@ -88,13 +87,6 @@ const createVaultEpic = () => async dispatch => {
     await dispatch(setVaultStatus(true))
     return null
   } catch (error) {
-    dispatch(
-      notificationsHandlers.actions.enqueueSnackbar(
-        errorNotification({
-          message: `Failed to create vault: ${error.message}`
-        })
-      )
-    )
   }
 }
 

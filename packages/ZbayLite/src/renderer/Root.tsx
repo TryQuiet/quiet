@@ -10,8 +10,6 @@ import { persistStore } from 'redux-persist'
 import store from './store'
 import Index from './containers/windows/Index'
 import Main from './containers/windows/Main'
-import Loading from './containers/windows/Loading'
-import Vault from './containers/windows/Vault'
 import AddModerator from './containers/widgets/channelSettings/AddModerator'
 import ChannelSettingsModal from './containers/widgets/channelSettings/ChannelSettingsModal'
 import CreateChannelModal from './containers/widgets/channels/CreateChannelModal'
@@ -19,7 +17,6 @@ import CreateUsernameModal from './containers/widgets/createUsernameModal/Create
 import ErrorModal from './containers/ui/ErrorModal'
 import JoinChannelModal from './containers/widgets/channels/JoinChannelModal'
 import NewMessageModal from './containers/widgets/channels/NewMessageModal'
-import Notifier from './containers/ui/Notifier'
 import OpenExternalLinkModal from './containers/ui/OpenExternalLinkModal'
 import SettingsModal from './containers/widgets/settings/SettingsModal'
 import SecurityModal from './containers/widgets/settings/SecurityModal'
@@ -43,7 +40,6 @@ export default () => {
               <ErrorModal />
               <JoinChannelModal />
               <NewMessageModal />
-              <Notifier />
               <OpenExternalLinkModal />
               <SettingsModal />
               <SecurityModal />
@@ -51,8 +47,6 @@ export default () => {
               <QuitAppDialog />
               <Route path='/' component={Index} />
               <Route path='/main' component={Main} />
-              <Route path='/loading' component={Loading} />
-              <Route path='/vault' exact component={Vault} />
             </SnackbarProvider>
           </PersistGate>
         </Provider>

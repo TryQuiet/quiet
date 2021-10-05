@@ -2,14 +2,14 @@ import { produce } from 'immer'
 import { createAction, handleActions } from 'redux-actions'
 import { actionTypes } from '../../../shared/static'
 import { ActionsType, PayloadType } from './types'
-import { IInfoNotification, ISuccessNotification, IErrorNotification } from './utils'
 
-export type NotificationStore = IInfoNotification[]
+// TODO: The entire file will be removed in next iteration.
+export type NotificationStore = any[]
 export const initialState: NotificationStore = []
 
-const enqueueSnackbar = createAction<IInfoNotification, ISuccessNotification | IErrorNotification>(
+const enqueueSnackbar = createAction(
   actionTypes.ENQUEUE_SNACKBAR,
-  (n: ISuccessNotification) => ({
+  (n) => ({
     key: new Date().getTime().toString() + Math.random().toString(),
     ...n
   })

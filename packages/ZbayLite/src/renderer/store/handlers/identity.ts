@@ -3,21 +3,14 @@ import BigNumber from 'bignumber.js'
 import { createAction, handleActions } from 'redux-actions'
 import { remote } from 'electron'
 
-// import appSelectors from '../selectors/app'
 import notificationCenterHandlers from './notificationCenter'
-import { successNotification } from './utils'
 import modalsHandlers, { ModalName } from './modals'
-import notificationsHandlers from './notifications'
 import {
   actionTypes
 } from '../../../shared/static'
 import electronStore from '../../../shared/electronStore'
 
-// import { clearPublicChannels } from './publicChannels'
-
 import { ActionsType, PayloadType } from './types'
-// import directMessagesHandlers from './directMessages'
-// import directMessagesSelectors from '../selectors/directMessages'
 import debug from 'debug'
 
 const log = Object.assign(debug('zbay:identity'), {
@@ -239,20 +232,10 @@ export const setIdentityEpic = _identityToSet => async (dispatch, _getState) => 
 export const updateShippingData = (values, formActions) => async dispatch => {
   electronStore.set('identity.shippingData', values)
   await dispatch(setShippingData(values))
-  dispatch(
-    notificationsHandlers.actions.enqueueSnackbar(
-      successNotification({ message: 'Shipping Address Updated' })
-    )
-  )
   formActions.setSubmitting(false)
 }
 
-export const updateDonation = () => async dispatch => {
-  dispatch(
-    notificationsHandlers.actions.enqueueSnackbar(
-      successNotification({ message: 'Donation information updated' })
-    )
-  )
+export const updateDonation = () => async _dispatch => {
 }
 
 const epics = {

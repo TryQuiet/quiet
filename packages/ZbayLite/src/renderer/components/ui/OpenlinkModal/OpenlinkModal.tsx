@@ -66,11 +66,11 @@ interface OpenLinkModalProps {
   url: string
   addToWhitelist: (url: string, dontAutoload: boolean) => void
   setWhitelistAll: (allowAllLink: boolean) => void
-  isImage: boolean
+  isImage?: boolean
 }
 
 export const OpenlinkModal: React.FC<OpenLinkModalProps> = ({
-  open = false,
+  open,
   handleClose,
   handleConfirm,
   url = 'https://www.zbay.app/',

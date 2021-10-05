@@ -1,42 +1,26 @@
 import React, { useEffect } from 'react'
-import PropTypes from 'prop-types'
+import { useDispatch } from 'react-redux'
 import { Redirect } from 'react-router'
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
 
-// import nodeHandlers from '../../store/handlers/node'
 import appHandlers from '../../store/handlers/app'
-// import nodeSelectors from '../../store/selectors/node'
-import { useInterval } from '../hooks'
 
-export const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      // getStatus: () => nodeHandlers.epics.getStatus,
-      loadVersion: appHandlers.actions.loadVersion
-    },
-    dispatch
-  )
+export interface useIndexActionsReturnTypes {
+  loadVersion: () => void
+}
 
-export const mapStateToProps = _state => ({
-  // nodeConnected: nodeSelectors.isConnected(state),
-  // bootstrapping: nodeSelectors.bootstrapping(state),
-  // bootstrappingMessage: nodeSelectors.bootstrappingMessage(state)
-})
+const useIndexActions = (): useIndexActionsReturnTypes => {
+  const dispatch = useDispatch()
+  const loadVersion = () => dispatch(appHandlers.actions.loadVersion())
+  return { loadVersion }
+}
 
-export const Index = ({
-  getStatus,
-  loadVersion
-}) => {
+export const Index = () => {
+  const { loadVersion } = useIndexActions()
+
   useEffect(() => {
     loadVersion()
   }, [])
-  useInterval(getStatus, 5000)
-  return <Redirect to='/loading' />
+  return <Redirect to='/main/channel/general' />
 }
 
-Index.propTypes = {
-  getStatus: PropTypes.func.isRequired
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Index)
+export default Index
