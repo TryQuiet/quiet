@@ -18,7 +18,12 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }))
 
-const ChannelInputInfoMessage = ({ showInfoMessage, inputState }) => {
+interface ChannelInputInfoMessageProps {
+  showInfoMessage: boolean
+  inputState: number
+}
+
+const ChannelInputInfoMessage: React.FC<ChannelInputInfoMessageProps> = ({ showInfoMessage, inputState }) => {
   const classes = useStyles({})
   return (
     <Grid container className={classes.boot}>

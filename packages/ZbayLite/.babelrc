@@ -1,5 +1,8 @@
 {
-  "plugins": ["@babel/plugin-proposal-class-properties", "@babel/plugin-proposal-optional-chaining"],
+  "plugins": [
+    ["@babel/plugin-proposal-class-properties", { "loose": true }],
+    "@babel/plugin-proposal-optional-chaining"
+  ],
   "presets": [
     [
       "@babel/preset-env",
@@ -11,7 +14,8 @@
         },
         "useBuiltIns": "usage",
         "modules": false,
-        "loose": true
+        "loose": true,
+        "shippedProposals": true
       }
     ],
     "@babel/preset-react"

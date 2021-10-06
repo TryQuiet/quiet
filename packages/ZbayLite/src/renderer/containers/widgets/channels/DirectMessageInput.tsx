@@ -58,9 +58,6 @@ export const useDirectMessageInputActions = () => {
 
 export const ChannelInput = ({ contactId }) => {
   const [infoClass, setInfoClass] = React.useState<string>(null)
-  // eslint-disable-next-line
-  const [anchorEl, setAnchorEl] = React.useState({} as HTMLElement)
-  const [mentionsToSelect, setMentionsToSelect] = React.useState<any[]>([])
 
   const {
     channelName,
@@ -91,10 +88,7 @@ export const ChannelInput = ({ contactId }) => {
       message={message}
       inputState={inputState}
       inputPlaceholder={`@${channelName.substring(0, 20)} as @${myUser.nickname}`}
-      anchorEl={anchorEl}
-      setAnchorEl={setAnchorEl}
-      mentionsToSelect={mentionsToSelect}
-      setMentionsToSelect={setMentionsToSelect}
+
       isMessageTooLong={isMessageTooLong}
       isDM
       isContactConnected={isContactConnected}

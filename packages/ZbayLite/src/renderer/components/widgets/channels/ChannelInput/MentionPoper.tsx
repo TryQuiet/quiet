@@ -1,14 +1,16 @@
-import React from 'react'
-import PropTypes from 'prop-types'
+import React, { ReactElement } from 'react'
 import { Scrollbars } from 'rc-scrollbars'
-
-import { withStyles } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/core/styles'
 import Paper from '@material-ui/core/Paper'
 import Popper from '@material-ui/core/Popper'
 import Grid from '@material-ui/core/Grid'
 
+function isDivElement(element: Element | undefined): element is HTMLDivElement {
+  return element?.nodeName === 'div'
+}
+
 const maxHeight = 230
-const styles = theme => ({
+const useStyles = makeStyles({
   root: {
     maxHeight: maxHeight,
     width: 307,
@@ -30,26 +32,37 @@ const styles = theme => ({
   }
 })
 
-export const MentionPoper = ({ classes, anchorEl, children, selected }) => {
-  const anchor = React.useRef()
-  const scrollbarRef = React.useRef()
-  const poperRef = React.useRef()
+interface MentionPoperProps {
+  anchorEl: HTMLDivElement
+  children: ReactElement[]
+  selected: number
+}
+
+export const MentionPoper: React.FC<MentionPoperProps> = ({ anchorEl, children, selected }) => {
+  const classes = useStyles({})
+
+  const anchor = React.useRef<HTMLDivElement>()
+  const popperRef = React.useRef<typeof Popper>()
+  const scrollbarRef = React.useRef<Scrollbars>()
+
   const [height, setHeight] = React.useState(0)
   const [positionY, setPositionY] = React.useState(0)
   const [positionX, setPositionX] = React.useState(0)
   React.useEffect(() => {
-    if (anchorEl && poperRef.current) {
+    if (anchorEl && popperRef.current) {
       if (children.length) {
-        setPositionY(anchorEl.offsetTop - poperRef.current.clientHeight)
+        const popperContainer = (popperRef.current as unknown) as HTMLDivElement
+        setPositionY(anchorEl.offsetTop - popperContainer.clientHeight)
         setPositionX(anchorEl.offsetLeft)
       } else {
         setPositionY(0)
         setPositionX(0)
       }
     }
-  })
+  }, [children, anchorEl, popperRef])
+
   React.useEffect(() => {
-    if (anchor && anchor.current) {
+    if (anchor?.current) {
       if (anchor.current.clientHeight > maxHeight) {
         setHeight(maxHeight)
       } else {
@@ -61,46 +74,36 @@ export const MentionPoper = ({ classes, anchorEl, children, selected }) => {
   }, [children])
 
   React.useEffect(() => {
-    if (anchor && anchor.current && anchor.current.children[selected]) {
+    const element = anchor.current?.children[selected]
+    if (isDivElement(element)) {
       if (
-        anchor.current.children[selected].offsetTop >
-        scrollbarRef.current.getScrollTop() +
-          maxHeight -
-          anchor.current.children[selected].clientHeight
+        element.offsetTop >
+        scrollbarRef.current.getScrollTop() + maxHeight - element.clientHeight
       ) {
-        scrollbarRef.current.scrollTop(
-          anchor.current.children[selected].offsetTop +
-            anchor.current.children[selected].clientHeight -
-            maxHeight
-        )
+        scrollbarRef.current.scrollTop(element.offsetTop + element.clientHeight - maxHeight)
       }
-      if (
-        anchor.current.children[selected].offsetTop <
-        scrollbarRef.current.getScrollTop()
-      ) {
-        scrollbarRef.current.scrollTop(
-          anchor.current.children[selected].offsetTop
-        )
+      if (element.offsetTop < scrollbarRef.current.getScrollTop()) {
+        scrollbarRef.current.scrollTop(element.offsetTop)
       }
     }
   }, [selected])
+
   return (
     <Popper
       open
-      ref={poperRef}
       className={classes.root}
       style={{
         transform: `translate3d(${positionX}px,${positionY}px,0px`,
         zIndex: positionX && positionY ? 0 : -1
       }}
-    >
+      // @ts-expect-error
+      ref={popperRef}>
       <Paper>
         <Scrollbars
           ref={scrollbarRef}
           autoHideTimeout={500}
           style={{ height: height }}
-          renderThumbVertical={() => <div className={classes.thumb} />}
-        >
+          renderThumbVertical={() => <div className={classes.thumb} />}>
           <Grid>
             <Grid container>
               <Grid item xs ref={anchor}>
@@ -114,23 +117,5 @@ export const MentionPoper = ({ classes, anchorEl, children, selected }) => {
     </Popper>
   )
 }
-MentionPoper.propTypes = {
-  classes: PropTypes.object.isRequired,
-  // anchorEl: PropTypes.object.isRequired,
-  children: PropTypes.array,
-  selected: PropTypes.number
-}
 
-export default React.memo(withStyles(styles)(MentionPoper), (before, after) => {
-  let isSameHtml
-  if (before.anchorEl === null || after.anchorEl === null) {
-    isSameHtml = before.anchorEl === after.anchorEl
-  } else {
-    isSameHtml = before.anchorEl.id === after.anchorEl.id
-  }
-  return (
-    isSameHtml &&
-    before.children.length === after.children.length &&
-    before.selected === after.selected
-  )
-})
+export default MentionPoper

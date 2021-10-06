@@ -1,7 +1,6 @@
 import React, { KeyboardEventHandler, useCallback } from 'react'
 import classNames from 'classnames'
-import { renderToString } from 'react-dom/server'
-import ContentEditable from 'react-contenteditable'
+import ContentEditable, { ContentEditableEvent } from 'react-contenteditable'
 import Picker from 'emoji-picker-react'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
@@ -11,14 +10,13 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import { shell } from 'electron'
 
 import MentionPoper from './MentionPoper'
+import MentionElement from './MentionElement'
 import ChannelInputInfoMessage from './ChannelInputInfoMessage'
 import { INPUT_STATE } from '../../../../store/selectors/channel'
-import MentionElement from './MentionElement'
 import Icon from '../../../ui/Icon/Icon'
 import emojiGray from '../../../../static/images/emojiGray.svg'
 import emojiBlack from '../../../../static/images/emojiBlack.svg'
 import errorIcon from '../../../../static/images/t-error.svg'
-import sanitizeHtml from 'sanitize-html'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -128,21 +126,17 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-interface IChannelInput {
+export interface IChannelInput {
   infoClass: string
   setInfoClass: (arg: string) => void
   id: string
-  users: any
+  users: Array<{ nickname: string }>
   onChange: (arg: string) => void
   onKeyPress: KeyboardEventHandler<HTMLDivElement>
   message: string
   inputState: INPUT_STATE
   inputPlaceholder: string
   channelName?: string
-  anchorEl: any
-  setAnchorEl: (arg: HTMLElement) => void
-  mentionsToSelect: any[]
-  setMentionsToSelect: (arg: any[]) => void
   members?: Set<string>
   isMessageTooLong?: boolean
   isDM?: boolean
@@ -163,14 +157,14 @@ export const ChannelInput: React.FC<IChannelInput> = ({
   inputState,
   inputPlaceholder,
   channelName,
-  anchorEl,
-  setAnchorEl,
-  mentionsToSelect,
-  setMentionsToSelect,
+
   members,
   isMessageTooLong
 }) => {
   const classes = useStyles({})
+
+  const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement>()
+  const [mentionsToSelect, setMentionsToSelect] = React.useState<any[]>([])
 
   const messageRef = React.useRef<string>()
   const refSelected = React.useRef<number>()
@@ -196,21 +190,26 @@ export const ChannelInput: React.FC<IChannelInput> = ({
       scroll.scrollTop = scroll.scrollHeight
     }, 100)
   }
+
   React.useEffect(() => {
     inputRef.current.updater.enqueueForceUpdate(inputRef.current)
   }, [inputPlaceholder, id])
+
   // Use reference to bypass memorization
   React.useEffect(() => {
     refSelected.current = selected
   }, [selected])
+
   React.useEffect(() => {
     refMentionsToSelect.current = mentionsToSelect
   }, [mentionsToSelect])
+
   React.useEffect(() => {
     if (!message) {
       setHtmlMessage('')
     }
   }, [message])
+
   React.useEffect(() => {
     setMessage(initialMessage)
     setHtmlMessage(initialMessage)
@@ -221,63 +220,53 @@ export const ChannelInput: React.FC<IChannelInput> = ({
     }
     isFirstRenderRef.current = false
   }, [id])
+
   React.useEffect(() => {
     messageRef.current = message
   }, [message])
 
-  const findMentions = text => {
-    const splitedMsg = text.replace(/ /g, String.fromCharCode(160)).split(String.fromCharCode(160))
-    const lastMention = splitedMsg[splitedMsg.length - 1].startsWith('@')
-    if (lastMention) {
-      const possibleMentions = Array.from(Object.values(users)).filter((user: any) =>
-        user.nickname.startsWith(splitedMsg[splitedMsg.length - 1].substring(1))
-      )
-      const sortedMentions = Object.values(possibleMentions).sort(function (a: any, b: any) {
-        if (a.nickname > b.nickname) {
-          return 1
-        }
-        if (b.nickname > a.nickname) {
-          return -1
-        }
-        return 0
-      })
-      if (JSON.stringify(mentionsToSelect) !== JSON.stringify(sortedMentions)) {
-        setMentionsToSelect(sortedMentions)
-        setTimeout(() => {
-          setSelected(0)
-        }, 0)
-      }
-      if (possibleMentions.length) {
-        splitedMsg[splitedMsg.length - 1] = renderToString(
-          <span id={splitedMsg[splitedMsg.length - 1]}>{splitedMsg[splitedMsg.length - 1]}</span>
-        )
-      }
-    } else {
-      if (mentionsToSelect.length !== 0) {
-        setMentionsToSelect([])
-      }
-    }
-    for (const key in splitedMsg) {
-      const element = splitedMsg[key]
-      if (
-        element.startsWith('@') &&
-        Array.from(Object.values(users)).find((user: any) => user.nickname === element.substring(1))
-      ) {
-        splitedMsg[key] = renderToString(<span className={classes.highlight}>{element}</span>)
-        if (key === splitedMsg.length) {
-          setMentionsToSelect([])
-        }
-      }
-    }
-    return splitedMsg.join(String.fromCharCode(160))
-  }
+  const findMentions = React.useCallback(
+    (text: string) => {
+      // Search for any mention in message string
+      const result: string = text.replace(
+        /(<span([^>]*)>)?@([a-z0-9]?\w*)(<\/span>)?/gi,
+        (match, span, _class, nickname) => {
+          // Ignore already established mentions
+          if (span?.includes('class')) {
+            return match
+          }
 
-  const t2 = sanitizeHtml(htmlMessage)
-  const sanitizedHtml = findMentions(t2)
+          nickname = nickname ?? ''
+          const possibleMentions = users.filter(
+            user =>
+              user.nickname.startsWith(nickname) && !users.find(user => user.nickname === nickname)
+          )
+
+          if (JSON.stringify(mentionsToSelect) !== JSON.stringify(possibleMentions)) {
+            setMentionsToSelect(possibleMentions)
+            setTimeout(() => {
+              setSelected(0)
+            }, 0)
+          }
+
+          // Wrap mention in spans to be able to treat it as an anchor for popper
+          return `<span>@${nickname}</span>`
+        }
+      )
+
+      return result
+    },
+    [mentionsToSelect, setMentionsToSelect]
+  )
+
+  const sanitizedHtml = findMentions(htmlMessage)
+
   const onChangeCb = useCallback(
-    e => {
+    (e: ContentEditableEvent) => {
       if (inputState === INPUT_STATE.AVAILABLE) {
+        // @ts-expect-error
         setMessage(e.nativeEvent.target.innerText)
+        // @ts-expect-error
         if (!e.nativeEvent.target.innerText) {
           setHtmlMessage('')
         } else {
@@ -288,10 +277,25 @@ export const ChannelInput: React.FC<IChannelInput> = ({
     },
     [setAnchorEl, onChange, setHtmlMessage]
   )
+
   const inputStateRef = React.useRef(inputState)
   React.useEffect(() => {
     inputStateRef.current = inputState
   })
+
+  const mentionSelectAction = (e: React.MouseEvent | React.KeyboardEvent) => {
+    e.preventDefault()
+    const nickname = refMentionsToSelect.current[refSelected.current].nickname
+    setHtmlMessage(htmlMessage => {
+      const wrapped = `<span class="${classes.highlight}">@${nickname}</span>&nbsp;`
+      return htmlMessage.replace(/<span>[^/]*<\/span>$/g, wrapped)
+    })
+    // Replace mentions characters with full nickname in original message string
+    setMessage(message.replace(/(\b(\w+)$)/, `${nickname} `))
+    // Clear popper items after choosing mention
+    setMentionsToSelect([])
+    inputRef.current?.el.current.focus()
+  }
 
   const onKeyDownCb = useCallback(
     e => {
@@ -313,17 +317,8 @@ export const ChannelInput: React.FC<IChannelInput> = ({
           e.preventDefault()
         }
         if (e.nativeEvent.keyCode === 13 || e.nativeEvent.keyCode === 9) {
-          const currentMsg = message
-            .replace(/ /g, String.fromCharCode(160))
-            .split(String.fromCharCode(160))
-          currentMsg[currentMsg.length - 1] =
-          // eslint-disable-next-line
-            '@' + refMentionsToSelect.current[refSelected.current].nickname
-          currentMsg.push(String.fromCharCode(160))
-          setHtmlMessage(currentMsg.join(String.fromCharCode(160)))
-          e.preventDefault()
+          mentionSelectAction(e)
         }
-        return
       }
       if (
         inputStateRef.current === INPUT_STATE.AVAILABLE &&
@@ -359,11 +354,13 @@ export const ChannelInput: React.FC<IChannelInput> = ({
       inputState
     ]
   )
+
   return (
-    <Grid className={classNames({
-      [classes.root]: true,
-      [classes.notAllowed]: showInfoMessage
-    })}>
+    <Grid
+      className={classNames({
+        [classes.root]: true,
+        [classes.notAllowed]: showInfoMessage
+      })}>
       <Grid
         container
         className={classNames({
@@ -383,17 +380,7 @@ export const ChannelInput: React.FC<IChannelInput> = ({
               participant={members.has(target.address)}
               channelName={channelName}
               onClick={e => {
-                e.preventDefault()
-                const currentMsg = message
-                  .replace(/ /g, String.fromCharCode(160))
-                  .split(String.fromCharCode(160))
-                currentMsg[currentMsg.length - 1] =
-                // eslint-disable-next-line
-                  '@' + refMentionsToSelect.current[refSelected.current].nickname
-                currentMsg.push(String.fromCharCode(160))
-                setMessage(currentMsg.join(String.fromCharCode(160)))
-                setHtmlMessage(currentMsg.join(String.fromCharCode(160)))
-                inputRef.current.el.current.focus()
+                mentionSelectAction(e)
               }}
             />
           ))}
@@ -462,11 +449,11 @@ export const ChannelInput: React.FC<IChannelInput> = ({
                       <Picker
                         /* eslint-disable */
                         onEmojiClick={(e, emoji) => {
-                          setHtmlMessage(message + emoji.emoji)
+                          setHtmlMessage(htmlMessage => htmlMessage + emoji.emoji)
                           setMessage(message + emoji.emoji)
                           setOpenEmoji(false)
                         }}
-                      /* eslint-enable */
+                        /* eslint-enable */
                       />
                     </div>
                   </ClickAwayListener>

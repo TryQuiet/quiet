@@ -1,13 +1,10 @@
-import React from 'react'
-import * as R from 'ramda'
-import Jdenticon from 'react-jdenticon'
+import React, { MouseEvent } from 'react'
 import classNames from 'classnames'
-import PropTypes from 'prop-types'
-
-import { withStyles } from '@material-ui/core/styles'
+import Jdenticon from 'react-jdenticon'
+import { makeStyles } from '@material-ui/core/styles'
 import { Grid, Typography } from '@material-ui/core'
 
-const styles = theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     paddingTop: 10,
     paddingLeft: 16
@@ -43,17 +40,26 @@ const styles = theme => ({
   captionHighlight: {
     color: 'rgba(255,255,255,0.6)'
   }
-})
+}))
 
-export const MentionElement = ({
-  classes,
+interface MentionElementProps {
+  name: string
+  channelName: string
+  participant?: boolean
+  highlight?: boolean
+  onMouseEnter: () => void
+  onClick: (e: MouseEvent) => void
+}
+
+export const MentionElement: React.FC<MentionElementProps> = ({
   name,
-  participant,
-  highlight,
-  onMouseEnter,
   channelName,
+  participant = false,
+  highlight = false,
+  onMouseEnter,
   onClick
 }) => {
+  const classes = useStyles({})
   return (
     <Grid
       container
@@ -62,7 +68,7 @@ export const MentionElement = ({
         [classes.highlight]: highlight
       })}
       onMouseEnter={onMouseEnter}
-      onClick={onClick}
+      onClick={e => onClick(e)}
     >
       <Grid item className={classes.avatarDiv}>
         <div className={classes.alignAvatar}>
@@ -86,17 +92,5 @@ export const MentionElement = ({
     </Grid>
   )
 }
-MentionElement.propTypes = {
-  classes: PropTypes.object.isRequired,
-  onClick: PropTypes.func.isRequired,
-  onMouseEnter: PropTypes.func.isRequired,
-  channelName: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
-  participant: PropTypes.bool,
-  highlight: PropTypes.bool
-}
-MentionElement.defaultProps = {
-  participant: false,
-  highlight: false
-}
-export default R.compose(React.memo, withStyles(styles))(MentionElement)
+
+export default MentionElement

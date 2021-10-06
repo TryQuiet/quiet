@@ -18,15 +18,21 @@ setEngine('newEngine', webcrypto, new CryptoEngine({
 }))
 
 jest.mock('electron-store-webpack-wrapper')
+
 jest.mock('./electronStore', () => ({
   get: () => {},
   set: () => {}
 }))
+
 jest.mock('electron', () => {
   return { ipcRenderer: { on: () => {}, send: jest.fn() } }
 })
+
 // eslint-disable-next-line new-cap
 jest.mock('redux-persist-electron-storage', () => () => new mockStorage())
+
+jest.mock('react-jdenticon', () => () => 'Jdenticon')
+
 global.fetch = jest.fn(() => Promise.resolve())
 registerRequireContextHook()
 process.env.ZBAY_IS_TESTNET = 1

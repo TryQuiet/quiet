@@ -1,28 +1,27 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import classNames from 'classnames'
-import * as R from 'ramda'
+
 import { DateTime } from 'luxon'
 
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
-import { withStyles } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/core/styles'
 import { Button } from '@material-ui/core'
 
 import zbayLogo from '../../../../static/images/zcash/zbay-square-logo.svg'
 import Icon from '../../../ui/Icon/Icon'
+
 import { getTimeFormat, transformToLowercase } from '../BasicMessage'
 
-const styles = theme => ({
+const useStyles = makeStyles((theme) => ({
   messageCard: {
     padding: 0
   },
   wrapper: {
     backgroundColor: theme.palette.colors.gray03
   },
-
   username: {
     fontSize: 16,
     fontWeight: 500,
@@ -80,19 +79,29 @@ const styles = theme => ({
     marginTop: -4,
     marginRight: 5
   }
-})
+}))
 
-export const InviteMentionInfo = ({
-  classes,
+interface InviteMentionInfoProps {
+  nickname: string
+  handleInvite: () => void
+  handleClose: () => void
+  timeStamp: number
+}
+
+export const InviteMentionInfo: React.FC<InviteMentionInfoProps> = ({
   nickname,
   handleInvite,
   handleClose,
   timeStamp
 }) => {
+  const classes = useStyles({})
+
   const username = 'Zbay'
+
   const time = DateTime.fromSeconds(timeStamp)
-  const timeFormat = getTimeFormat(time)
+  const timeFormat = getTimeFormat()
   const timeString = transformToLowercase(time.toFormat(timeFormat))
+
   return (
     <ListItem
       className={classNames({
@@ -175,11 +184,4 @@ export const InviteMentionInfo = ({
   )
 }
 
-InviteMentionInfo.propTypes = {
-  classes: PropTypes.object.isRequired,
-  nickname: PropTypes.string.isRequired,
-  handleInvite: PropTypes.func.isRequired,
-  handleClose: PropTypes.func.isRequired,
-  timeStamp: PropTypes.number.isRequired
-}
-export default R.compose(React.memo, withStyles(styles))(InviteMentionInfo)
+export default InviteMentionInfo
