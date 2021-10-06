@@ -1,6 +1,3 @@
-/* eslint import/first: 0 */
-jest.mock('../../zcash')
-
 import { DateTime } from 'luxon'
 import create from '../create'
 import { ChannelState, actions } from './channel'

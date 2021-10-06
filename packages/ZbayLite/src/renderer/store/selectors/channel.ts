@@ -1,13 +1,9 @@
 import { createSelector } from 'reselect'
-// import identitySelectors from './identity'
-import { messageType } from '../../../shared/static'
 import { publicChannels } from '@zbayapp/nectar'
-// import publicChannels from './publicChannels'
 import directMessagesSelectors from './directMessages'
 import waggleSelectors from './waggle'
 
 import { Store } from '../reducers'
-import { DisplayableMessage } from '../../zbay/messages.types'
 import { Channel } from '../handlers/channel'
 
 import debug from 'debug'
@@ -86,8 +82,7 @@ export const channelSettingsMessage = createSelector(data, data => {
     return null
   }
   const settingsMsg = Array.from(Object.values(data.messages)).filter(
-    msg =>
-      msg.type === messageType.CHANNEL_SETTINGS || msg.type === messageType.CHANNEL_SETTINGS_UPDATE
+    _msg => null
   )
   if (!settingsMsg.length) {
     return null
@@ -139,15 +134,16 @@ const concatMessages = (mainMsg, messagesToConcat) => {
   }
 }
 
-export const mergeIntoOne = (messages: DisplayableMessage[]) => {
+export const mergeIntoOne = (messages: any[]) => {
   if (messages.length === 0) return
   const result = [[]]
-  let last: DisplayableMessage = null
+  let last: any = null
   for (const msg of messages) {
     const isMessageInTargetZone = last
       ? checkMessageTargetTimeWindow({
         targetCreatedAt: last.createdAt,
         timeStamp: msg.createdAt,
+        // eslint-disable-next-line
         timeWindow: last.createdAt + 300
       })
       : true

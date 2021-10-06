@@ -11,8 +11,6 @@ describe('ErrorModal', () => {
         message='Test error message'
         traceback='Error: Test error message, error traceback'
         handleExit={jest.fn()}
-        successSnackbar={jest.fn()}
-        errorSnackbar={jest.fn()}
         restartApp={jest.fn()}
       />
     )

@@ -7,7 +7,6 @@ import { now, createMessage } from '../../../testUtils'
 import { MuiThemeProvider } from '@material-ui/core/styles'
 
 import theme from '../../../theme'
-import { DisplayableMessage } from '../../../zbay/messages.types'
 
 describe('BasicMessage', () => {
   beforeEach(() => {
@@ -19,10 +18,9 @@ describe('BasicMessage', () => {
 
   it('renders component', async () => {
     const message = await createMessage()
-    const displayMessage = new DisplayableMessage(message)
     const result = shallow(wrapper(
       <BasicMessage
-        message={displayMessage}
+        message={message}
         actionsOpen={false}
         setActionsOpen={jest.fn()}
         allowModeration
@@ -33,14 +31,9 @@ describe('BasicMessage', () => {
 
   it('renders component when message is sent by owner', async () => {
     const message = await createMessage()
-    const messageFromYou = {
-      ...message,
-      fromYou: true
-    }
-    const displayMessage = new DisplayableMessage(messageFromYou)
     const result = shallow(wrapper(
       <BasicMessage
-        message={displayMessage}
+        message={message}
         actionsOpen={false}
         setActionsOpen={jest.fn()}
         allowModeration

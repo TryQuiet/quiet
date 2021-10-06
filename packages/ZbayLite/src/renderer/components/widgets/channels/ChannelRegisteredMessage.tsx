@@ -3,7 +3,7 @@ import React, { Fragment } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import SendMessagePopover from '../../../containers/widgets/channels/SendMessagePopover'
 import WelcomeMessage from './WelcomeMessage'
-import { DisplayableMessage } from '../../../zbay/messages.types'
+import { DisplayableMessage } from '@zbayapp/nectar/lib/sagas/publicChannels/publicChannels.types'
 
 const useStyles = makeStyles((theme) => ({
   nickname: {
@@ -21,14 +21,12 @@ const useStyles = makeStyles((theme) => ({
 interface ChannelRegisteredMessageProps {
   message: DisplayableMessage
   username: string
-  address: string
   onChannelClick: () => void
 }
 
 export const ChannelRegisteredMessage: React.FC<ChannelRegisteredMessageProps> = ({
   message,
   username,
-  address,
   onChannelClick
 }) => {
   const classes = useStyles({})
@@ -49,7 +47,7 @@ export const ChannelRegisteredMessage: React.FC<ChannelRegisteredMessageProps> =
               {' '}
               just published{' '}
               <span className={classes.link} onClick={onChannelClick}>
-                #{message.name}
+                #{message.nickname}
               </span>{' '}
               on zbay!
             </span>
@@ -59,7 +57,6 @@ export const ChannelRegisteredMessage: React.FC<ChannelRegisteredMessageProps> =
       />
       <SendMessagePopover
         username={username}
-        address={address}
         anchorEl={anchorEl}
         handleClose={handleClose}
         isUnregistered={false}

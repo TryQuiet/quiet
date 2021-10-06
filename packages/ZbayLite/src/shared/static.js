@@ -1,21 +1,9 @@
 import mirrorKey from 'keymirror'
-export const networkFee = 0.00001
-export const satoshiMultiplier = 100000000
-export const networkFeeSatoshi = networkFee * satoshiMultiplier
-export const targetUtxoCount = 25
-export const debounceThreshold = 10
-export const unknownUserId = 'c7e7c14740c3372fffe47c845a2b6720'
+
 export const DOMAIN = 'handlers.zbay.app'
 export const LOG_ENDPOINT = 'https://handlers.zbay.app/email'
-export const PRICE_ORACLE_PUB_KEY =
-  '0225528107f2b0cd8f0a7bedfa218ee8511b1753f87c76886d0ea7dd0e813270da'
-export const REQUEST_MONEY_ENDPOINT =
-  'https://u1uxu6p870.execute-api.us-east-1.amazonaws.com/Prod/requestMoney'
-export const REQUEST_USER_REGISTRATION_ENDPOINT = 'https://9fy1bqknya.execute-api.us-east-1.amazonaws.com/Prod/handleRegistrationRequest'
-export const FETCH_USERNAMES_ENDPOINT = 'https://9fy1bqknya.execute-api.us-east-1.amazonaws.com/Prod/fetchusernames'
 
-export { MessageType as messageType } from './static.types'
-
+// REMOVE OBSOLETE TYPES IN NEXT ITERATION
 export const actionTypes = mirrorKey({
   DECODE_CHANNEL: undefined,
   SET_DECODED_CHANNEL: undefined,
@@ -194,14 +182,6 @@ export const actionTypes = mirrorKey({
   ADD_DIRECT_CONTACT: undefined
 })
 
-export const moderationActionsType = {
-  REMOVE_MESSAGE: 'REMOVE_MESSAGE',
-  BLOCK_USER: 'BLOCK_USER',
-  UNBLOCK_USER: 'UNBLOCK_USER',
-  ADD_MOD: 'ADD_MOD',
-  REMOVE_MOD: 'REMOVE_MOD',
-  REMOVE_CHANNEL: 'REMOVE_CHANNEL'
-}
 export const notificationFilterType = {
   ALL_MESSAGES: 1,
   MENTIONS: 2,
@@ -221,5 +201,3 @@ export const dataFromRootPems = {
   certificate: 'MIIBNjCB3AIBATAKBggqhkjOPQQDAjASMRAwDgYDVQQDEwdaYmF5IENBMCYYEzIwMjEwNjIyMDkzMDEwLjAyNVoYDzIwMzAwMTMxMjMwMDAwWjASMRAwDgYDVQQDEwdaYmF5IENBMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEV5a3Czy+L7IfVX0FpJtSF5mi0GWGrtPqv5+CFSDPrHXijsxWdPTobR1wk8uCLP4sAgUbs/bIleCxQy41kSSyOaMgMB4wDwYDVR0TBAgwBgEB/wIBAzALBgNVHQ8EBAMCAAYwCgYIKoZIzj0EAwIDSQAwRgIhAPOzksuipKyBALt/o8O/XwsrVSzfSHXdAR4dOWThQ1lbAiEAmKqjhsmf50kxWX0ekhbAeCTjcRApXhjnslmJkIFGF2o=+lmBImw3BMNjA0FTlK5iRmVC+w/T6M04Es+yiYL608vOhx2slnoyAwHjAPBgNVHRMECDAGAQH/AgEDMAsGA1UdDwQEAwIABjAKBggqhkjOPQQDAgNIADBFAiEA+0kIz0ny/PLVERTcL0+KCpsztyA6Zuwzj05VW5NMdx0CICgdzf0lg0/2Ksl1AjSPYsy2w+Hn09PGlBnD7TiExBpx',
   privKey: 'MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgTvNuJL0blaYq6zmFS53WmmOfHshlqn+8wNHDzo4df5WgCgYIKoZIzj0DAQehRANCAARXlrcLPL4vsh9VfQWkm1IXmaLQZYau0+q/n4IVIM+sdeKOzFZ09OhtHXCTy4Is/iwCBRuz9siV4LFDLjWRJLI5+lmBImw3BMNjA0FTlK5iRmVC+w/T6M04Es+yiYL608vOhx2sln'
 }
-
-export const registrationServiceAddress = 'http://wzispgrbrrkt3bari4kljpqz2j6ozzu3vlsoi2wqupgu7ewi4ncibrid.onion:7789'

@@ -348,17 +348,11 @@ exports[`BasicMessage renders component 1`] = `
     actionsOpen={false}
     allowModeration={true}
     message={
-      DisplayableMessage {
-        "blockHeight": 9007199254740991,
-        "channelId": "address",
-        "createdAt": 123445789,
-        "fromYou": false,
+      Object {
+        "createdAt": "Today",
         "id": "1",
         "message": "example message",
-        "pubKey": "ownPubKey",
-        "signature": "secretsignature",
-        "spent": "0",
-        "status": "broadcasted",
+        "nickname": "Edd",
         "type": 1,
       }
     }
@@ -715,17 +709,11 @@ exports[`BasicMessage renders component when message is sent by owner 1`] = `
     actionsOpen={false}
     allowModeration={true}
     message={
-      DisplayableMessage {
-        "blockHeight": 9007199254740991,
-        "channelId": "address",
-        "createdAt": 123445789,
-        "fromYou": true,
+      Object {
+        "createdAt": "Today",
         "id": "1",
         "message": "example message",
-        "pubKey": "ownPubKey",
-        "signature": "secretsignature",
-        "spent": "0",
-        "status": "broadcasted",
+        "nickname": "Edd",
         "type": 1,
       }
     }

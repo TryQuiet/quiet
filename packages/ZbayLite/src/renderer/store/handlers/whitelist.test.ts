@@ -1,6 +1,3 @@
-/* eslint import/first: 0 */
-jest.mock('../../zcash')
-
 import create from '../create'
 import whitelistHandlers, { initialState } from './whitelist'
 import selectors from '../selectors/whitelist'

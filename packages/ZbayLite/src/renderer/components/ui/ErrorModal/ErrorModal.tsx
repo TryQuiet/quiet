@@ -70,8 +70,6 @@ interface ErrorModalProps {
   message: string
   traceback: string
   handleExit: () => void
-  successSnackbar: () => void
-  errorSnackbar: () => void
   restartApp: () => void
 }
 
@@ -80,8 +78,6 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({
   message,
   traceback,
   handleExit,
-  successSnackbar,
-  errorSnackbar,
   restartApp
 }) => {
   const classes = useStyles({})
@@ -130,11 +126,10 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({
                 onClick={async () => {
                   try {
                     await handleSend({ title: message, message: traceback })
-                    successSnackbar()
                     setSend(true)
                     restartApp()
                   } catch (err) {
-                    errorSnackbar()
+                    console.log('ERROR SENDING MESSAGE', err.message)
                   }
                 }}
               />

@@ -7,7 +7,6 @@ import { now, createMessage } from '../../../testUtils'
 
 import { MuiThemeProvider } from '@material-ui/core'
 import theme from '../../../theme'
-import { DisplayableMessage } from '../../../zbay/messages.types'
 
 describe('ChannelMessage', () => {
   beforeEach(() => {
@@ -17,12 +16,11 @@ describe('ChannelMessage', () => {
 
   it('renders component', async () => {
     const message = await createMessage()
-    const displayMessage = new DisplayableMessage(message)
 
     const result = shallow(
       <MuiThemeProvider theme={theme}>
         <ChannelMessage
-          message={displayMessage}
+          message={message}
           onResend={jest.fn()}
           onLinkedChannel={jest.fn()}
           onLinkedUser={jest.fn()}
@@ -42,16 +40,11 @@ describe('ChannelMessage', () => {
   })
   it('renders component when message is sent by owner', async () => {
     const message = await createMessage()
-    const messageFromYou = {
-      ...message,
-      fromYou: true
-    }
-    const displayMessage = new DisplayableMessage(messageFromYou)
 
     const result = shallow(
       <MuiThemeProvider theme={theme}>
         <ChannelMessage
-          message={displayMessage}
+          message={message}
           onResend={jest.fn()}
           onLinkedChannel={jest.fn()}
           onLinkedUser={jest.fn()}

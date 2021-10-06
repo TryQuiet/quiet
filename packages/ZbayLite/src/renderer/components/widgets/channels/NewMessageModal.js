@@ -11,7 +11,6 @@ import TextField from '@material-ui/core/TextField'
 import { TextField as FormikTextField } from '../../ui/TextField/TextField'
 import Modal from '../../ui/Modal/Modal'
 import { AutocompleteField } from '../../ui/Autocomplete/Autocomplete'
-import { errorNotification, successNotification } from '../../../store/handlers/utils'
 import { messageType } from '../../../../shared/static'
 
 const styles = theme => ({
@@ -46,8 +45,7 @@ export const NewMessageModal = ({
   open,
   handleClose,
   sendMessage,
-  users,
-  showNotification
+  users
 }) => {
   const usersArray = Array.from(Object.values(users))
   return (
@@ -75,11 +73,6 @@ export const NewMessageModal = ({
               sendMessage(payload)
               handleClose()
               resetForm()
-              showNotification(
-                successNotification({
-                  message: 'Message sent! It will appear momentarily.'
-                })
-              )
               return
             }
             if (isAddressValid) {
@@ -95,16 +88,7 @@ export const NewMessageModal = ({
               sendMessage(payload)
               handleClose()
               resetForm()
-              showNotification(
-                successNotification({
-                  message: 'Message sent! It will appear momentarily.'
-                })
-              )
-              return
             }
-            showNotification(
-              errorNotification({ message: 'There was an error. Please check input address.' })
-            )
           }}
         >
           {({ values, setFieldValue }) => (

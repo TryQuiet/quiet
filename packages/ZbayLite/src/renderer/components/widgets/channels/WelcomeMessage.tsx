@@ -1,6 +1,5 @@
 import React from 'react'
 import classNames from 'classnames'
-import { DateTime } from 'luxon'
 
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
@@ -10,7 +9,6 @@ import { makeStyles } from '@material-ui/core/styles'
 
 import zbayLogo from '../../../static/images/zcash/zbay-square-logo.svg'
 import Icon from '../../ui/Icon/Icon'
-import { transformToLowercase } from './BasicMessage'
 
 import { IWelcomeMessageProps } from './WelcomeMessage.d'
 
@@ -60,9 +58,6 @@ export const WelcomeMessage: React.FC<IWelcomeMessageProps> = ({
 }) => {
   const classes = useStyles({})
   const username = 'Zbay'
-  const time = transformToLowercase(
-    DateTime.fromSeconds(timestamp).toFormat('t')
-  )
   return (
     <ListItem
       className={classNames({
@@ -92,7 +87,7 @@ export const WelcomeMessage: React.FC<IWelcomeMessageProps> = ({
                 </Grid>
                 {!!timestamp && (
                   <Grid item>
-                    <Typography className={classes.time}>{time}</Typography>
+                    <Typography className={classes.time}>{timestamp}</Typography>
                   </Grid>
                 )}
               </Grid>
@@ -112,7 +107,7 @@ export const WelcomeMessage: React.FC<IWelcomeMessageProps> = ({
 }
 
 WelcomeMessage.defaultProps = {
-  timestamp: 0
+  timestamp: '0'
 }
 
 export default WelcomeMessage

@@ -12,7 +12,7 @@ import channelHandlers from './handlers/channel'
 // import channelsHandlers from './handlers/channels'
 // import nodeHandlers from './handlers/node'
 // import ratesHandlers from './handlers/rates'
-import vaultHandlers from './handlers/vault'
+
 import modalsHandlers from './handlers/modals'
 // import messagesQueueHandlers from './handlers/messagesQueue'
 // import directMessagesQueueHandlers from './handlers/directMessagesQueue'
@@ -87,7 +87,6 @@ export const reducers = {
   [StoreKeys.Channel]: channelHandlers.reducer,
   // channels: channelsHandlers.reducer,
   // node: nodeHandlers.reducer,
-  vault: vaultHandlers.reducer,
   criticalError: criticalErrorHandlers.reducer,
   contacts: contactsHandlers.reducer,
   directMessageChannel: directMessageChannelHandlers.reducer,

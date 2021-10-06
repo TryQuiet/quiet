@@ -10,7 +10,6 @@ import TextField from '@material-ui/core/TextField'
 
 import Modal from '../../ui/Modal/Modal'
 import { AutocompleteField } from '../../ui/Autocomplete/Autocomplete'
-import { errorNotification } from '../../../store/handlers/utils'
 import LoadindButton from '../../ui/LoadingButton/LoadingButton'
 
 const styles = theme => ({
@@ -90,9 +89,7 @@ export const JoinChannelModal = ({
   open,
   handleClose,
   joinChannel,
-  Channel,
   publicChannels,
-  showNotification,
   users
 }) => {
   const channelsArray = Array.from(Object.values(publicChannels))
@@ -112,23 +109,13 @@ export const JoinChannelModal = ({
           onSubmit={async (values, { resetForm }) => {
             const ch = channelsArray.find(channel => channel.name === values.channel.name)
             if (ch) {
-              if (!ch) {
-                showNotification(errorNotification({ message: 'Channel does not exist' }))
-                return
-              }
               setLoading(true)
               await joinChannel(ch)
               setLoading(false)
               setStep(0)
               handleClose()
               resetForm()
-              return
             }
-            showNotification(
-              errorNotification({
-                message: 'There was an error. Please check channel URL'
-              })
-            )
           }}>
           {({ values, setFieldValue }) => {
             return (

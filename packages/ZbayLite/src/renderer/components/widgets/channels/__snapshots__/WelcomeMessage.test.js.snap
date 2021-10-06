@@ -347,7 +347,7 @@ exports[`WelcomeMessage renders component 1`] = `
   <Component
     classes={null}
     message="random message"
-    timestamp={0}
+    timestamp="0"
   />
 </ContextProvider>
 `;

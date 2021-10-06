@@ -1,3 +1,0 @@
-export const donationTarget = parseInt(process.env.ZBAY_IS_TESTNET)
-  ? 'ztestsapling1e2fr65z5t537cyahpu55fm335a2z26293nvj4wu0jjw55s66r669kaw4k26hmgnk23zeqw2k74n'
-  : 'zs19wdfjhfqa6afgyv2vw07f68zmwhudgqwa5sve3zgz8y856nhn3j73yr9tavugfs8nunn6pju34a'

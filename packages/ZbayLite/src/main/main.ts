@@ -5,7 +5,6 @@ import url from 'url'
 import { autoUpdater } from 'electron-updater'
 import config from './config'
 import electronStore from '../shared/electronStore'
-import Client from './cli/client'
 import { waggleVersion, runWaggle } from './waggleManager'
 import debug from 'debug'
 import { ConnectionsManager } from 'waggle/lib/libp2p/connectionsManager'
@@ -295,20 +294,6 @@ app.on('ready', async () => {
   ipcMain.on('proceed-update', () => {
     autoUpdater.quitAndInstall()
   })
-
-  // Temporary disable ZCASH
-  const client = new Client()
-  const response = await client.postMessage('1', 'balance')
-  // @ts-expect-error
-  electronStore.set('balance', response.zbalance)
-  await client.terminate()
-
-  // ipcMain.on('rpcQuery', async (_event, arg) => {
-  //   const request = JSON.parse(arg)
-  //   const response = await client.postMessage(request.id, request.method, request.args)
-  //   if (mainWindow) {  //     mainWindow.webContents.send('rpcQuery', JSON.stringify({ id: request.id, data: response }))
-  //   }
-  // })
 })
 
 app.setAsDefaultProtocolClient('zbay')

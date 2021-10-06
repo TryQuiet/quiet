@@ -8,7 +8,6 @@ import { actionTypes } from '../../../shared/static'
 import selectors from '../selectors/contacts'
 import * as _ from 'lodash'
 
-import { DisplayableMessage } from '../../zbay/messages.types'
 import { ActionsType, PayloadType } from './types'
 
 export class Contact {
@@ -17,8 +16,8 @@ export class Contact {
   username: string = ''
   address: string = ''
   newMessages: string[] = []
-  vaultMessages: DisplayableMessage[] = []
-  messages: DisplayableMessage[] = []
+  vaultMessages: any[] = []
+  messages: any[] = []
   offerId?: string
   unread?: number
   connected?: boolean
@@ -43,9 +42,9 @@ const initialState: ContactsStore = {}
 const setMessages = createAction<{
   messages:
   | {
-    [key: string]: DisplayableMessage
+    [key: string]: any
   }
-  | DisplayableMessage[]
+  | any[]
   contactAddress: string
   username: string
   key: string
@@ -53,9 +52,9 @@ const setMessages = createAction<{
 const setChannelMessages = createAction<{
   messages:
   | {
-    [key: string]: DisplayableMessage
+    [key: string]: any
   }
-  | DisplayableMessage[]
+  | any[]
   contactAddress: string
   username: string
   key: string
@@ -74,10 +73,10 @@ const addDirectContact = createAction<{
 }>(actionTypes.ADD_DIRECT_CONTACT)
 const addMessage = createAction<{
   key: string
-  message: { [key: string]: DisplayableMessage }
+  message: { [key: string]: any }
 }>(actionTypes.ADD_MESSAGE)
 const setAllMessages = createAction<{
-  messages: DisplayableMessage[]
+  messages: any[]
   contactAddress: string
   username: string
   key: string

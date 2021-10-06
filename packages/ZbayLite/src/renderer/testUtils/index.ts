@@ -1,72 +1,28 @@
 import { DateTime, Settings } from 'luxon'
-import BigNumber from 'bignumber.js'
-import { messageType } from '../../shared/static'
+import { DisplayableMessage } from '@zbayapp/nectar/lib/sagas/publicChannels/publicChannels.types'
 
 Settings.defaultZoneName = 'utc'
 
 export const now = DateTime.utc(2019, 3, 7, 13, 3, 48)
 
-export const identities = [
-  {
-    address: 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya',
-    username: 'Wenus'
-  },
-  {
-    address: 'zs1dhqp9dtr4pksnmaynp2k22qduvywejg3neqq4swd4a6gnz6w0m208kefcdm9n2067yn5clcvgsq',
-    username: 'Mars'
-  }
-]
-
-export const createChannel = (id: number) => ({
-  id: id,
-  name: `Channel ${id}`,
-  private: Boolean(id % 2),
-  address: `zs1testaddress${id}`,
-  unread: 12,
-  description: id % 2 === 0 ? '' : `Channel about ${id}`,
-  advertFee: 0.15,
-  keys: {
-    ivk: `incoming-viewing-key-${id}`,
-    sk: 'test-secret-key'
-  }
-})
+export const createChannel = () => ({})
 
 export const channels = {
   createChannel
 }
 
-export const createVaultMessage = (
-  id,
-  createdAt = now.minus({ hours: id }).toSeconds(),
-  replyTo = 'zs1z7rejlpsa98s2rrrfkwmaxu53e4ue0ulcrw0h4x5g8jl04tak0d3mm47vdtahatqrlkngh9slya'
-) => ({
-  id,
-  status: 'broadcasted',
-  spent: new BigNumber('123'),
-  type: messageType.BASIC,
-  createdAt,
-  message: `This is some message ${id}`,
-  sender: {
-    replyTo,
-    username: 'test'
-  }
-})
-
-export const createMessage = async () => {
+export const createMessage = (): DisplayableMessage => {
   return {
     id: '1',
-    type: messageType.BASIC,
+    type: 1,
     message: 'example message',
-    pubKey: 'ownPubKey',
-    channelId: 'address',
-    createdAt: 123445789,
-    signature: 'secretsignature'
+    createdAt: 'Today',
+    nickname: 'Edd'
   }
 }
 
 export const messages = {
-  createMessage,
-  createVaultMessage
+  createMessage
 }
 
 export const createIdentity = ({
@@ -99,7 +55,6 @@ export const createIdentity = ({
 })
 
 export default {
-  identities,
   now,
   channels,
   messages,

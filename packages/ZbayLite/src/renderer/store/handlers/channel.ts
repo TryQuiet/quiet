@@ -5,8 +5,6 @@ import { remote } from 'electron'
 import { DateTime } from 'luxon'
 
 import history from '../../../shared/history'
-import messagesHandlers from './messages'
-import channelSelectors from '../selectors/channel'
 import contactsSelectors from '../selectors/contacts'
 
 import { actionTypes } from '../../../shared/static'
@@ -138,9 +136,8 @@ const linkChannelRedirect = targetChannel => async (dispatch, _getState) => {
   history.push(`/main/channel/${targetChannel.address}`)
 }
 
-const clearNewMessages = () => async (dispatch, getState) => {
-  const channelId = channelSelectors.channelId(getState())
-  dispatch(messagesHandlers.actions.cleanNewMessages({ channelId }))
+const clearNewMessages = () => async (_dispatch, _getState) => {
+
 }
 
 // TODO: we should have a global loader map

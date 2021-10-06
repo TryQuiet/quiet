@@ -43,15 +43,7 @@ export const displayDirectMessageNotification = async ({ message, username }) =>
     data: `/main/direct-messages/${username}`
   })
 }
-// export const offerNotification = ({ message, username }) => {
-//   if (!message) {
-//     return
-//   }
-//   return createNotification({
-//     title: `New message from ${username || 'Unnamed'}`,
-//     body: `${message.substring(0, 64)}${message.length > 64 ? '...' : ''}`
-//   })
-// }
+
 export default {
   createNotification,
   displayMessageNotification

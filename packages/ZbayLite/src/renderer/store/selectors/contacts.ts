@@ -6,7 +6,7 @@ import { publicChannels } from '@zbayapp/nectar'
 // import { mergeIntoOne, displayableMessageLimit } from './channel'
 // import { MessageType } from '../../../shared/static.types'
 // import { unknownUserId } from '../../../shared/static'
-import { DisplayableMessage } from '../../zbay/messages.types'
+// import { DisplayableMessage } from '../../zbay/messages.types'
 import { Contact } from '../handlers/contacts'
 import { Store } from '../reducers'
 // import certificatesSelector from '../certificates/certificates.selector'
@@ -133,9 +133,9 @@ const newMessages = address => createSelector(contact(address), c => c.newMessag
 //   })
 // TODO: TO be removed
 export interface IDirectMessage {
-  visibleMessages: DisplayableMessage[]
+  visibleMessages: any[]
   channelModerators: string[]
-  messsagesToRemove: DisplayableMessage[]
+  messsagesToRemove: any[]
   blockedUsers: string[]
 }
 

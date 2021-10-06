@@ -7,15 +7,11 @@ import Root from './Root'
 import store from './store'
 import updateHandlers from './store/handlers/update'
 import waggleHandlers from './store/handlers/waggle'
-import publicChannelsHandlers from './store/handlers/publicChannels'
-import directMessagesHandlers from './store/handlers/directMessages'
 
-import { successNotification } from './store/handlers/utils'
-import notificationsHandlers from './store/handlers/notifications'
 import { socketsActions } from './sagas/socket/socket.saga.reducer'
 import debug from 'debug'
 
-import { publicChannels, identity } from '@zbayapp/nectar'
+import { publicChannels } from '@zbayapp/nectar'
 
 const log = Object.assign(debug('zbay:renderer'), {
   error: debug('zbay:renderer:err')
@@ -29,12 +25,6 @@ Web.HashingTools.patchCorePBKDF()
 
 ipcRenderer.on('newUpdateAvailable', event => {
   store.dispatch(updateHandlers.epics.checkForUpdate())
-})
-
-ipcRenderer.on('successMessage', (event, msg) => {
-  store.dispatch(
-    notificationsHandlers.actions.enqueueSnackbar(successNotification({ message: msg }))
-  )
 })
 
 ipcRenderer.on('connectToWebsocket', (event) => {
@@ -57,7 +47,6 @@ ipcRenderer.on('waggleInitialized', (event) => {
   store.dispatch(waggleHandlers.actions.setIsWaggleConnected(true))
   // TODO: Refactor when adding communities
   store.dispatch(publicChannels.actions.subscribeForTopic(ZbayChannel))
-  store.dispatch(identity.actions.requestPeerId())
 })
 
 window.jdenticon_config = {

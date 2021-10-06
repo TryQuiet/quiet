@@ -345,19 +345,12 @@ exports[`ChannelRegisteredMessage renders component 1`] = `
   }
 >
   <Component
-    address="testAddress"
     message={
-      DisplayableMessage {
-        "blockHeight": 9007199254740991,
-        "channelId": "address",
-        "createdAt": 123445789,
-        "fromYou": false,
+      Object {
+        "createdAt": "Today",
         "id": "1",
         "message": "example message",
-        "pubKey": "ownPubKey",
-        "signature": "secretsignature",
-        "spent": "0",
-        "status": "broadcasted",
+        "nickname": "Edd",
         "type": 1,
       }
     }

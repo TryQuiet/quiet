@@ -8,14 +8,13 @@ import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import { makeStyles } from '@material-ui/core/styles'
 import { Button } from '@material-ui/core'
+import { DisplayableMessage } from '@zbayapp/nectar/lib/sagas/publicChannels/publicChannels.types'
 
-import { _DisplayableMessage } from '../../../zbay/messages'
 import BasicMessage from '../../../containers/widgets/channels/BasicMessage'
 import Tooltip from '../../ui/Tooltip/Tooltip'
 import imagePlacegolder from '../../../static/images/imagePlacegolder.svg'
 import Icon from '../../ui/Icon/Icon'
 import OpenlinkModal from '../../../containers/ui/OpenlinkModal'
-import { DisplayableMessage } from '../../../zbay/messages.types'
 import { User } from '@zbayapp/nectar/lib/sagas/users/users.slice'
 
 const useStyles = makeStyles((theme) => ({
