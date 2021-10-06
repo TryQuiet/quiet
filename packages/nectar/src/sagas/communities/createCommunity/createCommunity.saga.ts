@@ -5,7 +5,7 @@ import { call, apply, put } from 'typed-redux-saga';
 import { communitiesActions } from '../communities.slice';
 import { SocketActionTypes } from '../../socket/const/actionTypes';
 import { generateId } from '../../../utils/cryptography/cryptography';
-import { publicChannelsActions } from '../../publicChannels/publicChannels.slice';
+// import { publicChannelsActions } from '../../publicChannels/publicChannels.slice';
 import { PayloadAction } from '@reduxjs/toolkit';
 
 export function* createCommunitySaga(

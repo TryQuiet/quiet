@@ -21,13 +21,13 @@ import { errorAdapter, errorsAdapter } from '../../errors/errors.adapter';
 describe('registerUsernameSaga', () => {
   const identity = new Identity({
     id: 'id',
-    hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
+    hiddenService: { onionAddress: 'onionAddress.onion', privateKey: 'privateKey' },
     dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
     peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
   });
   const identityWithoutPeerId = new Identity({
     id: 'id',
-    hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
+    hiddenService: { onionAddress: 'onionAddress.onion', privateKey: 'privateKey' },
     dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
     peerId: { id: '', pubKey: 'pubKey', privKey: 'privKey' },
   });

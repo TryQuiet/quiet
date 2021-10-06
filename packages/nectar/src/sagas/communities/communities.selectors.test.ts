@@ -55,6 +55,7 @@ describe('communitiesSelectors', () => {
         "onionAddress": "",
         "peerList": Array [],
         "privateKey": "",
+        "registrarUrl": "",
         "rootCa": "",
       }
     `);
@@ -79,6 +80,7 @@ describe('communitiesSelectors', () => {
         "onionAddress": "",
         "peerList": Array [],
         "privateKey": "",
+        "registrarUrl": "",
         "rootCa": "",
       }
     `);

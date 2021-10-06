@@ -2,6 +2,9 @@ import { Socket } from 'socket.io-client';
 import { all, call, put, take, fork } from 'typed-redux-saga';
 import { eventChannel } from 'redux-saga';
 import { SocketActionTypes } from '../const/actionTypes';
+import logger from '../../../utils/logger'
+const log = logger('socket')
+
 // import { nativeServicesActions } from '../../nativeServices/nativeServices.slice';
 // import {
 //   AskForMessagesResponse,
@@ -26,6 +29,7 @@ import {
   ResponseCreateCommunityPayload,
   ResponseRegistrarPayload,
 } from '../../communities/communities.slice';
+import { appMasterSaga } from '../../app/app.master.saga'
 
 
 export function* useIO(socket: Socket): Generator {
@@ -35,6 +39,7 @@ export function* useIO(socket: Socket): Generator {
     fork(messagesMasterSaga, socket),
     fork(identityMasterSaga, socket),
     fork(communitiesMasterSaga, socket),
+    fork(appMasterSaga, socket),
     fork(errorsMasterSaga, socket)
   ]);
 }
@@ -91,35 +96,35 @@ export function subscribe(socket: Socket) {
     socket.on(
       SocketActionTypes.NEW_COMMUNITY,
       (payload: ResponseCreateCommunityPayload) => {
-        console.log('createdCommunity');
-        console.log(payload);
+        log('createdCommunity')
+        log(payload)
         emit(communitiesActions.responseCreateCommunity(payload));
       }
     );
     socket.on(
       SocketActionTypes.REGISTRAR,
       (payload: ResponseRegistrarPayload) => {
-        console.log('created Registrar');
-        console.log(payload);
+        log('created Registrar');
+        log(payload);
         emit(communitiesActions.responseRegistrar(payload));
         emit(identityActions.saveOwnerCertToDb());
       }
     );
     socket.on(SocketActionTypes.NETWORK, (payload: any) => {
-      console.log('created NETWORK');
-      console.log(payload);
+      log('created NETWORK');
+      log(payload);
       emit(communitiesActions.responseCreateCommunity(payload));
     });
     socket.on(SocketActionTypes.COMMUNITY, (payload: any) => {
-      console.log('COMMUNITY');
-      console.log(payload);
+      log('COMMUNITY');
+      log(payload);
       emit(communitiesActions.community());
     });
     socket.on(
       SocketActionTypes.ERROR,
       (payload: ErrorPayload) => {
-        console.log('Got Error')
-        console.log(payload)
+        log('Got Error')
+        log(payload)
         emit(errorsActions.addError(payload))
       }
     );
@@ -129,7 +134,7 @@ export function subscribe(socket: Socket) {
         id: string;
         payload: { peers: string[]; certificate: string; rootCa: string };
       }) => {
-        console.log('gor response with cert', payload.payload.rootCa);
+        log('got response with cert', payload.payload.rootCa);
         emit(
           communitiesActions.storePeerList({
             communityId: payload.id,

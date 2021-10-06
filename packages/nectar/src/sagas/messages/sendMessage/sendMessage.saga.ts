@@ -23,6 +23,8 @@ import { MessageTypes } from '../const/messageTypes';
 // import { appImages } from '../../../../assets';
 // import { replaceScreen } from '../../../utils/functions/replaceScreen/replaceScreen';
 import { generateMessageId, getCurrentTime } from '../utils/message.utils';
+import logger from '../../../utils/logger'
+const log = logger('message')
 
 export function* sendMessageSaga(
   socket: Socket,
@@ -44,9 +46,9 @@ export function* sendMessageSaga(
     // });
     return;
   }
-  console.log(identity.userCsr.pkcs10.privateKey, 'KeyObject');
+  log(identity.userCsr.pkcs10.privateKey, 'KeyObject');
 
-  console.log('sendMessageSaga-1');
+  log('sendMessageSaga-1');
 
   const certificate = null;
   // const certificate = yield* select(identitySelectors.userCertificate);

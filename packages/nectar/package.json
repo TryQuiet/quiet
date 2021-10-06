@@ -9,6 +9,9 @@
     "lint": "eslint --ext .ts ./src/",
     "prettier": "prettier"
   },
+  "files": [
+    "lib/**/*"
+  ],
   "publishConfig": {
     "access": "public"
   },
@@ -17,6 +20,8 @@
   "dependencies": {
     "@reduxjs/toolkit": "^1.6.1",
     "@zbayapp/identity": "^3.3.2",
+    "debug": "^4.3.2",
+    "get-port": "^5.1.1",
     "luxon": "^2.0.2",
     "pkijs": "^2.1.97",
     "redux": "^4.1.1",
@@ -47,7 +52,9 @@
     "jest": "^27.0.6",
     "prettier": "^2.3.2",
     "redux-saga-test-plan": "^4.0.3",
-    "typescript": "^4.3.5"
+    "tmp": "^0.2.1",
+    "typescript": "^4.3.5",
+    "waggle": "~4.2.3"
   },
   "jest": {
     "moduleFileExtensions": [

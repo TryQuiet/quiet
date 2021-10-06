@@ -22,7 +22,7 @@ export class Community {
       this.name = name;
     }
     if (registrarUrl) {
-      this.onionAddress = registrarUrl;
+      this.registrarUrl = registrarUrl;
     }
   }
 
@@ -47,6 +47,8 @@ export class Community {
   privateKey: string = '';
 
   onionAddress: string = '';
+  registrarUrl: string = ''
+  port: number
 }
 
 export interface AddNewCommunityPayload {

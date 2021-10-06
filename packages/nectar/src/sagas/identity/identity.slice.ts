@@ -99,7 +99,6 @@ export const identitySlice = createSlice({
   name: StoreKeys.Identity,
   reducers: {
     addNewIdentity: (state, action: PayloadAction<AddNewIdentityPayload>) => {
-      console.log('addNewIdentity');
       identityAdapter.addOne(state, new Identity(action.payload));
     },
     createUserCsr: (state, _action: PayloadAction<CreateUserCsrPayload>) =>

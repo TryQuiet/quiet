@@ -14,7 +14,7 @@ export const currentCommunity = createSelector(
   communitiesSlice,
   (reducerState) => {
     const id = reducerState.currentCommunity;
-    console.log('communitnies', reducerState.communities);
+    // console.log('communitnies', reducerState.communities);
     return communitiesAdapter
       .getSelectors()
       .selectById(reducerState.communities, id);
@@ -26,8 +26,20 @@ export const currentCommunityId = createSelector(
   (reducerState) => reducerState.currentCommunity
 );
 
+export const registrarUrl = createSelector(currentCommunity, (community) => {
+    let registrarAddress: string = ''
+    if (community.onionAddress && community.port) {
+      registrarAddress = `http://${community.onionAddress}:${community.port}`
+    } else if (community.registrarUrl) {
+      registrarAddress = community.registrarUrl
+    }
+    return registrarAddress
+  }
+);
+
 export const communitiesSelectors = {
   selectById,
   currentCommunityId,
   currentCommunity,
+  registrarUrl
 };
