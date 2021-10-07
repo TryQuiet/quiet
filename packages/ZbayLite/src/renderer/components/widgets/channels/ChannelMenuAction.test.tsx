@@ -1,28 +1,42 @@
 import React from 'react'
-import { shallow } from 'enzyme'
 
 import { ChannelMenuAction } from './ChannelMenuAction'
-
-import { MuiThemeProvider } from '@material-ui/core'
-import theme from '../../../theme'
+import { renderComponent } from '../../../testUtils/renderComponent'
 
 describe('ChannelMenuAction', () => {
   it('renders component', () => {
-    const result = shallow(
-      <MuiThemeProvider theme={theme}>
-        <ChannelMenuAction
-          onInfo={jest.fn()}
-          onMute={jest.fn()}
-          onDelete={jest.fn()}
-          onUnmute={jest.fn()}
-          onSettings={jest.fn()}
-          openNotificationsTab={jest.fn()}
-          mutedFlag
-          disableSettings
-          notificationFilter={1}
-        />
-      </MuiThemeProvider>
+    const result = renderComponent(
+      <ChannelMenuAction
+        onInfo={jest.fn()}
+        onMute={jest.fn()}
+        onDelete={jest.fn()}
+        onUnmute={jest.fn()}
+        onSettings={jest.fn()}
+        openNotificationsTab={jest.fn()}
+        mutedFlag
+        disableSettings
+        notificationFilter={1}
+      />
     )
-    expect(result).toMatchSnapshot()
+    expect(result.baseElement).toMatchInlineSnapshot(`
+      <body>
+        <div>
+          <button
+            class="MuiButtonBase-root MuiIconButton-root makeStyles-button-6"
+            tabindex="0"
+            type="button"
+          >
+            <span
+              class="MuiIconButton-label"
+            >
+              <img
+                class="makeStyles-icon-5"
+                src="test-file-stub"
+              />
+            </span>
+          </button>
+        </div>
+      </body>
+    `)
   })
 })

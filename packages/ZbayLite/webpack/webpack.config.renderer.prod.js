@@ -1,6 +1,5 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const WriteFilePlugin = require('write-file-webpack-plugin')
 const webpack = require('webpack')
 
 module.exports = {
@@ -51,7 +50,6 @@ module.exports = {
       title: 'Zbay',
       template: 'src/renderer/index.html'
     }),
-    new WriteFilePlugin(),
     new webpack.EnvironmentPlugin({
       ZBAY_IS_TESTNET: 0
     })

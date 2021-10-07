@@ -4,7 +4,7 @@ import classNames from 'classnames'
 import MuiTab from '@material-ui/core/Tab'
 import { makeStyles } from '@material-ui/core/styles'
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   tabRoot: {
     textTransform: 'initial',
     color: theme.typography.subtitle1.color
@@ -22,11 +22,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-interface TabProps {
-  [s: string]: any
-}
-
-export const Tab: React.FC<TabProps> = ({ ...props }) => {
+export const Tab: React.FC<React.ComponentProps<typeof MuiTab>> = props => {
   const classes = useStyles({})
   return (
     <MuiTab
@@ -37,7 +33,8 @@ export const Tab: React.FC<TabProps> = ({ ...props }) => {
         textColorPrimary: classes.textColorPrimary,
         selected: classes.selected
       }}
-      {...props} />
+      {...props}
+    />
   )
 }
 

@@ -1,7 +1,7 @@
 import { combineReducers } from '@reduxjs/toolkit'
 import createElectronStorage from 'redux-persist-electron-storage'
 import { persistReducer } from 'redux-persist'
-import { publicChannels, users, identity, storeKeys, errors, messages, communities } from '@zbayapp/nectar'
+import nectarReducers from '@zbayapp/nectar'
 
 import { StoreType } from './handlers/types'
 import { modalsReducer } from '../sagas/modals/modals.slice'
@@ -70,12 +70,7 @@ const persistConfig = {
 }
 
 export const reducers = {
-  [storeKeys.PublicChannels]: publicChannels.reducer,
-  [storeKeys.Users]: users.reducer,
-  [storeKeys.Communities]: communities.reducer,
-  [storeKeys.Identity]: identity.reducer,
-  [storeKeys.Errors]: errors.reducer,
-  [storeKeys.Messages]: messages.reducer,
+  ...nectarReducers.reducers,
   Modals: modalsReducer,
   // [StoreKeys.Certificates]: certificatesReducer,
   waggle: waggleHandlers.reducer,

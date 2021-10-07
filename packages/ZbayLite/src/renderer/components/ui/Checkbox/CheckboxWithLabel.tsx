@@ -12,7 +12,6 @@ interface CheckboxProps {
   label: string
   labelClass: string
   rootClass: any
-  [s: string]: any
 }
 
 interface StyledCheckboxProps extends CheckboxProps {}
@@ -29,14 +28,12 @@ export const CheckboxWithLabel: React.FC<CheckboxProps> = ({
   name,
   label,
   labelClass,
-  rootClass,
-  ...props
+  rootClass
 }) => (
   <FormControlLabel
-    control={<Field name={name} component={StyledCheckbox} {...props} />}
     label={label}
     classes={{ root: rootClass, label: labelClass }}
-    {...props}
+    control={<Field name={name} component={StyledCheckbox} color={'primary'} />}
   />
 )
 

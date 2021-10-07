@@ -21,6 +21,7 @@ export class Contact {
   offerId?: string
   unread?: number
   connected?: boolean
+  nickname?: string
   constructor(values?: Partial<Contact>) {
     Object.assign(this, values)
     this[immerable] = true

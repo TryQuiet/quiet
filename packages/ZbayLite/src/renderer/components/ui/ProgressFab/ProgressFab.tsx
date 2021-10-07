@@ -40,10 +40,9 @@ interface ProgressFabProps {
   success?: boolean
   disabled?: boolean
   onClick?: () => void
-  [s: string]: any
 }
 
-export const ProgressFab: React.FC<ProgressFabProps> = ({
+export const ProgressFab: React.FC<React.ComponentProps<typeof Fab> & ProgressFabProps> = ({
   className,
   children,
   loading = false,
@@ -54,12 +53,11 @@ export const ProgressFab: React.FC<ProgressFabProps> = ({
 }) => {
   const classes = useStyles({})
   return (
-    <div className={
-      classNames({
+    <div
+      className={classNames({
         [classes.wrapper]: true,
         [className]: className
-      })
-    }>
+      })}>
       <Fab
         classes={{
           root: classNames({
@@ -69,9 +67,8 @@ export const ProgressFab: React.FC<ProgressFabProps> = ({
         }}
         onClick={onClick}
         disabled={disabled}
-        {...props}
-      >
-        {success ? <CheckIcon /> : children }
+        {...props}>
+        {success ? <CheckIcon /> : children}
       </Fab>
       {loading && <CircularProgress size={68} className={classes.fabProgress} />}
     </div>

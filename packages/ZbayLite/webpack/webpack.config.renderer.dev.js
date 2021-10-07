@@ -2,7 +2,6 @@ const webpack = require('webpack')
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const spawn = require('child_process').spawn
-const WriteFilePlugin = require('write-file-webpack-plugin')
 const WebpackOnBuildPlugin = require('on-build-webpack')
 
 var mainRunning = false
@@ -25,11 +24,11 @@ module.exports = {
       },
       {
         test: /\.css?$/,
-        loaders: [ 'style-loader', 'css-loader' ]
+        loaders: ['style-loader', 'css-loader']
       },
       {
         test: /\.scss?$/,
-        loaders: [ 'style-loader', 'css-loader' ]
+        loaders: ['style-loader', 'css-loader']
       },
       {
         test: /\.(ttf|eot|svg|png|woff(2)?)(\?[a-z0-9=&.]+)?$/,
@@ -51,7 +50,6 @@ module.exports = {
       template: 'src/renderer/index.html'
     }),
     new webpack.HotModuleReplacementPlugin(),
-    new WriteFilePlugin(),
     new WebpackOnBuildPlugin(() => {
       if (!mainRunning) {
         console.log('Starting main process...')
@@ -72,7 +70,10 @@ module.exports = {
     })
   ],
   devServer: {
-    hot: true
+    hot: true,
+    devMiddleware: {
+      writeToDisk: true
+    }
   },
   devtool: 'eval-source-map'
 }

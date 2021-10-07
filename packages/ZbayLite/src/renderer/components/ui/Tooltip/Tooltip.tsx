@@ -114,10 +114,9 @@ interface TooltipProps {
   className?: string
   placement?: 'bottom' | 'top' | 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end'
   onClick?: (e: React.MouseEvent) => void
-  [s: string]: any
 }
 
-export const Tooltip: React.FC<TooltipProps> = ({
+export const Tooltip: React.FC<React.ComponentProps<typeof MuiTooltip> & TooltipProps> = ({
   children,
   title,
   titleHTML,
@@ -125,7 +124,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
   interactive = false,
   className = '',
   placement = 'bottom',
-  onClick = () => {},
+  onClick = () => { },
   ...props
 }) => {
   const classes = usestyles({})
@@ -137,7 +136,10 @@ export const Tooltip: React.FC<TooltipProps> = ({
         title={
           <React.Fragment>
             {titleHTML || (
-              <span className={classes.text}>{title.charAt(0).toUpperCase() + title.slice(1)}</span>
+              <span className={classes.text}>
+                {title.charAt(0).toUpperCase()}
+                {title.slice(1)}
+              </span>
             )}
             <span className={classes.arrow} ref={setArrowRef} />
           </React.Fragment>

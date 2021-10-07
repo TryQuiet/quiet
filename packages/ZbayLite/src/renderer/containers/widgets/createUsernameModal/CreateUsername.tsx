@@ -5,7 +5,7 @@ import modalsSelectors from '../../../store/selectors/modals'
 import modalsHandlers, { ModalName } from '../../../store/handlers/modals'
 
 import CreateUsernameModalComponent from '../../../components/widgets/createUsername/CreateUsernameModal'
-import { identity, errors, communities } from '@zbayapp/nectar'
+import { identity, communities } from '@zbayapp/nectar'
 
 const useData = () => {
   const modalName = ModalName.createUsernameModal
@@ -13,7 +13,8 @@ const useData = () => {
     initialValue: '',
     modalName,
     open: useSelector(modalsSelectors.open(modalName)),
-    certificateRegistrationError: useSelector(errors.selectors.certificateRegistration),
+    // certificateRegistrationError: useSelector(errors.selectors.currentCommunityErrorByType(socketActionTypes.REGISTRAR)),
+    certificateRegistrationError: undefined,
     certificate: useSelector(identity.selectors.currentIdentity)?.userCertificate,
     id: useSelector(identity.selectors.currentIdentity)
   }

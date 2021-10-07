@@ -3,7 +3,6 @@ import React from 'react'
 import addIcon from '../../../static/images/zcash/add-icon.svg'
 import MenuAction from '../../ui/MenuAction/MenuAction'
 import MenuActionItem from '../../ui/MenuAction/MenuActionItem'
-import CreateChannelModal from '../../../containers/widgets/channels/CreateChannelModal'
 import { Action, ActionFunction0 } from 'redux-actions'
 
 interface AddChannelActionProps {
@@ -23,7 +22,6 @@ export const AddChannelAction: React.FC<AddChannelActionProps> = ({ openCreateMo
       >
         <MenuActionItem onClick={openCreateModal} title='Create' />
       </MenuAction>
-      <CreateChannelModal />
     </React.Fragment>
   )
 }

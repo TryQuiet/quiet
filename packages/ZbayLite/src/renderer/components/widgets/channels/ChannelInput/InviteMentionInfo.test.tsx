@@ -1,5 +1,4 @@
 import React from 'react'
-
 import { DateTime } from 'luxon'
 import { now } from '../../../../testUtils'
 
@@ -81,8 +80,7 @@ describe('InviteMentionInfo', () => {
                   <p
                     class="MuiTypography-root makeStyles-message-5 MuiTypography-body2"
                   >
-                    You mentioned
-                     
+                    You mentioned 
                     <span
                       class="makeStyles-highlight-9"
                     >

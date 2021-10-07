@@ -151,6 +151,7 @@ const checkLinking = (
     }
     return (
       <Tooltip
+        title=''
         titleHTML={
           <Grid
             container

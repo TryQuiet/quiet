@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CreateChannelModal renders component 1`] = `
+<Component
+  addBorder={false}
+  alignCloseLeft={false}
+  canGoBack={false}
+  contentWidth={600}
+  fullPage={true}
+  handleClose={[MockFunction]}
+  isBold={false}
+  isCloseDisabled={false}
+  open={true}
+  title=""
+>
+  <WithStyles(ForwardRef(Grid))
+    className="makeStyles-root-1"
+  >
+    <Connect(Component) />
+  </WithStyles(ForwardRef(Grid))>
+</Component>
+`;

@@ -1,21 +1,17 @@
 import React from 'react'
-import { shallow } from 'enzyme'
 
 import { CreateChannelForm } from './CreateChannelForm'
 
-import { MuiThemeProvider } from '@material-ui/core'
-import theme from '../../../theme'
+import { renderComponent } from '../../../testUtils/renderComponent'
 
 describe('CreateChannelForm', () => {
-  it('renders component', () => {
-    const result = shallow(
-      <MuiThemeProvider theme={theme}>
-        <CreateChannelForm
-          onSubmit={jest.fn()}
-          setStep={jest.fn()}
-        />
-      </MuiThemeProvider>
+  it.skip('renders component', () => {
+    const result = renderComponent(
+      <CreateChannelForm
+        // onSubmit={jest.fn()}
+        setStep={jest.fn()}
+      />
     )
-    expect(result).toMatchSnapshot()
+    expect(result.baseElement).toMatchInlineSnapshot()
   })
 })

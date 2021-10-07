@@ -79,22 +79,23 @@ export const showParsedMessage = (message = '') => {
 }
 
 interface CreateChannelFormProps {
-  onSubmit: ({ name }, formActions, setStep) => void
+  // onSubmit: ({ name }: { name: string }, formActions, setStep) => void
   setStep: () => void
 }
 
-export const CreateChannelForm: React.FC<CreateChannelFormProps> = ({ onSubmit, setStep }) => {
+export const CreateChannelForm: React.FC<CreateChannelFormProps> = ({ setStep }) => {
   const classes = useStyles({})
   return (
     <Formik
       validationSchema={formDisabledSchema}
-      onSubmit={(values, formActions) => {
-        onSubmit(
-          { ...values, name: parseChannelName(values.name) },
-          formActions,
-          setStep
-        )
-      }}
+      // onSubmit={(values, formActions) => {
+      //   onSubmit(
+      //     { ...values, name: parseChannelName(values.name) },
+      //     formActions,
+      //     setStep
+      //   )
+      // }}
+      onSubmit={setStep}
       initialValues={{ name: '' }}
     >
       {({ isSubmitting, values, isValid }) => (
