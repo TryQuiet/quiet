@@ -4,5 +4,6 @@ export enum StoreKeys {
   Channel = 'channel',
   DirectMessages = 'directMessages',
   Users = 'users',
-  PubChannels = 'pubChannels'
+  PubChannels = 'pubChannels',
+  Modals = 'Modals'
 }

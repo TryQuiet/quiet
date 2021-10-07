@@ -66,7 +66,7 @@ describe('InviteMentionInfo', () => {
                       <p
                         class="MuiTypography-root makeStyles-time-12 MuiTypography-body1"
                       >
-                        0:00
+                        12:00 am
                       </p>
                     </div>
                   </div>
