@@ -23,7 +23,7 @@ interface ChannelMessagesProps {
   inputState: string
   contactId: string
   signerPubKey: string
-  measureRef: () => void
+  measureRef: React.RefObject<unknown>
   contentRect: string
   channelType: CHANNEL_TYPE
   offer: string

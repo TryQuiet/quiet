@@ -1,9 +1,8 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 
 import Tabs from '@material-ui/core/Tabs'
 import AppBar from '@material-ui/core/AppBar'
-import { withStyles } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/core/styles'
 import { Grid } from '@material-ui/core'
 import { AutoSizer } from 'react-virtualized'
 import { Scrollbars } from 'rc-scrollbars'
@@ -22,7 +21,7 @@ const tabs = {
   blockedusers: BlockedUsers
 }
 
-const styles = theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     zIndex: 1000,
     paddingLeft: 20,
@@ -57,15 +56,25 @@ const styles = theme => ({
   content: {
     marginLeft: 32
   }
-})
+}))
 
 const handleChange = (clearCurrentOpenTab, setCurrentTab, value) => {
   clearCurrentOpenTab()
   setCurrentTab(value)
 }
 
-export const SettingsModal = ({
-  classes,
+interface SettingsModalProps {
+  open: boolean
+  handleClose: () => void
+  modalTabToOpen: string
+  clearCurrentOpenTab: () => void
+  currentTab: string
+  setCurrentTab: (value: string) => void
+  user: string
+  blockedUsers: string[]
+}
+
+export const SettingsModal: React.FC<SettingsModalProps> = ({
   open,
   handleClose,
   modalTabToOpen,
@@ -75,6 +84,7 @@ export const SettingsModal = ({
   user,
   blockedUsers
 }) => {
+  const classes = useStyles({})
   const [contentRef, setContentRef] = React.useState(null)
   const scrollbarRef = React.useRef()
   const [offset, setOffset] = React.useState(0)
@@ -113,7 +123,7 @@ export const SettingsModal = ({
           <AppBar position='static' className={classes.appbar}>
             <Tabs
               value={modalTabToOpen || currentTab}
-              onChange={(e, value) =>
+              onChange={(_e, value) =>
                 handleChange(clearCurrentOpenTab, setCurrentTab, value)
               }
               orientation='vertical'
@@ -124,23 +134,23 @@ export const SettingsModal = ({
               <Tab
                 value='account'
                 label='Account'
-                classes={{ tabRoot: classes.tab, selected: classes.selected }}
+                classes={{ selected: classes.selected }}
               />
               <Tab
                 value='notifications'
                 label='Notifications'
-                classes={{ tabRoot: classes.tab, selected: classes.selected }}
+                classes={{ selected: classes.selected }}
               />
               <Tab
                 value='security'
                 label='Security'
-                classes={{ tabRoot: classes.tab, selected: classes.selected }}
+                classes={{ selected: classes.selected }}
               />
-              {blockedUsers && blockedUsers.size && (
+              {blockedUsers?.length && (
                 <Tab
                   value='blockedusers'
                   label='Blocked Users'
-                  classes={{ tabRoot: classes.tab, selected: classes.selected }}
+                  classes={{ selected: classes.selected }}
                 />
               )}
             </Tabs>
@@ -176,13 +186,4 @@ export const SettingsModal = ({
   )
 }
 
-SettingsModal.propTypes = {
-  open: PropTypes.bool.isRequired,
-  handleClose: PropTypes.func.isRequired,
-  clearCurrentOpenTab: PropTypes.func.isRequired,
-  currentTab: PropTypes.string,
-  setCurrentTab: PropTypes.func.isRequired,
-  blockedUsers: PropTypes.array.isRequired
-}
-
-export default withStyles(styles)(SettingsModal)
+export default SettingsModal

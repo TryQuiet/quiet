@@ -21,7 +21,7 @@ describe('ChannelContent', () => {
       <Provider store={store}>
         <ChannelContent
           channelType={CHANNEL_TYPE.NORMAL}
-          measureRef={jest.fn()}
+          measureRef={React.createRef()}
           contentRect={''}
           mentions={mentions}
           sendInvitation={jest.fn()}

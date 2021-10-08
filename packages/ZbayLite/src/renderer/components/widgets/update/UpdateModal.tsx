@@ -1,16 +1,15 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 import Grid from '@material-ui/core/Grid'
-import { withStyles } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/core/styles'
 
 import Icon from '../../ui/Icon/Icon'
 import updateIcon from '../../../static/images/updateIcon.svg'
 import Modal from '../../ui/Modal/Modal'
 
-const styles = theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: theme.palette.colors.white,
     border: 'none'
@@ -34,15 +33,22 @@ const styles = theme => ({
   subTitle: {
     marginBottom: 32
   }
-})
+}))
 
-export const UpdateModal = ({ classes, open, handleClose, handleUpdate, rejectUpdate }) => {
+interface UpdateModalProps {
+  open: boolean
+  handleClose: () => void
+  handleUpdate: () => void
+}
+
+export const UpdateModal: React.FC<UpdateModalProps> = ({ open, handleClose, handleUpdate }) => {
+  const classes = useStyles({})
   return (
     <Modal open={open} handleClose={handleClose}>
       <Grid container direction='column' className={classes.root} alignItems='center' justify='flex-start'>
         <Grid className={classes.info} container justify='center'>
           <Grid item>
-            <Icon className={classes.exclamationMarkIcon} src={updateIcon} />
+            <Icon src={updateIcon} />
           </Grid>
         </Grid>
         <Grid container item justify='center'>
@@ -66,7 +72,7 @@ export const UpdateModal = ({ classes, open, handleClose, handleUpdate, rejectUp
               fullWidth
               className={classes.button}
             >
-        Update now
+              Update now
             </Button>
           </Grid>
         </Grid>
@@ -75,11 +81,4 @@ export const UpdateModal = ({ classes, open, handleClose, handleUpdate, rejectUp
   )
 }
 
-UpdateModal.propTypes = {
-  open: PropTypes.bool.isRequired,
-  handleClose: PropTypes.func.isRequired,
-  handleUpdate: PropTypes.func.isRequired,
-  rejectUpdate: PropTypes.func.isRequired
-}
-
-export default withStyles(styles)(UpdateModal)
+export default UpdateModal
