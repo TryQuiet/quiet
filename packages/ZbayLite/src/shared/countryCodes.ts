@@ -360,7 +360,7 @@ export const contriesType = {
   ],
   [types.OTHER]: []
 }
-export const countryToType = country => {
+export const countryToType = (country: string): number => {
   if (contriesType[types.MAIN].includes(country)) {
     return types.MAIN
   }
@@ -369,6 +369,6 @@ export const countryToType = country => {
   }
   return types.OTHER
 }
-export function getCountryName (countryCode) {
+export function getCountryName(countryCode: string): string {
   return isoCountries[countryCode] || 'United States'
 }

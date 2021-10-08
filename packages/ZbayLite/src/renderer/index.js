@@ -1,4 +1,3 @@
-import { Web } from './vendor/buttercup'
 import React from 'react'
 import { render } from 'react-dom'
 import { ipcRenderer } from 'electron'
@@ -20,8 +19,6 @@ const log = Object.assign(debug('zbay:renderer'), {
 if (window) {
   window.localStorage.setItem('debug', process.env.DEBUG)
 }
-
-Web.HashingTools.patchCorePBKDF()
 
 ipcRenderer.on('newUpdateAvailable', event => {
   store.dispatch(updateHandlers.epics.checkForUpdate())
