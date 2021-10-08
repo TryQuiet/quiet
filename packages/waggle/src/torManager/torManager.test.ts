@@ -1,7 +1,7 @@
 /* eslint import/first: 0 */
 import { Tor } from './torManager'
-import { torBinForPlatform, torDirForPlatform } from '../utils'
-import { createTmpDir, spawnTorProcess, TmpDir, tmpZbayDirPath } from '../testUtils'
+import { torBinForPlatform, torDirForPlatform } from '../common/utils'
+import { createTmpDir, spawnTorProcess, TmpDir, tmpZbayDirPath } from '../common/testUtils'
 import fp from 'find-free-port'
 
 jest.setTimeout(100_000)

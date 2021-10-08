@@ -1,7 +1,6 @@
-import debug from 'debug'
 import { Response } from 'node-fetch'
 import PeerId from 'peer-id'
-import { CertsData, IChannelInfo, IMessage } from '../common/types'
+import { CertsData, DataFromPems, IChannelInfo, IMessage } from '../common/types'
 import CommunitiesManager from '../communities/manager'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 import { CertificateRegistration } from '../registration'
@@ -9,10 +8,8 @@ import { Storage } from '../storage'
 import { EventTypesResponse } from './constantsReponse'
 import { emitServerError, emitValidationError } from './errors'
 import { loadAllMessages } from './events/messages'
-
-const log = Object.assign(debug('waggle:io'), {
-  error: debug('waggle:io:err')
-})
+import logger from '../logger'
+const log = logger('io')
 
 export default class IOProxy {
   io: SocketIO.Server
@@ -121,15 +118,13 @@ export default class IOProxy {
     await this.getStorage(peerId).subscribeForAllConversations(conversations)
   }
 
-  public registerOwnerCertificate = async (communityId: string, userCsr: string, dataFromPerms) => {
+  public registerOwnerCertificate = async (communityId: string, userCsr: string, dataFromPerms: DataFromPems) => {
     const cert = await CertificateRegistration.registerOwnerCertificate(userCsr, dataFromPerms)
-    console.log(dataFromPerms.certificate)
     this.io.emit(EventTypesResponse.SEND_USER_CERTIFICATE, { id: communityId, payload: { certificate: cert, peers: [], rootCa: dataFromPerms.certificate } })
   }
 
   public saveOwnerCertificate = async (communityId: string, peerId: string, certificate: string, dataFromPerms) => {
     await this.getStorage(peerId).saveCertificate(certificate, dataFromPerms)
-    console.log('savedOwnerCertificate')
     this.io.emit(EventTypesResponse.SAVED_OWNER_CERTIFICATE, { id: communityId })
   }
 

@@ -1,9 +1,10 @@
-import fs from 'fs'
 import fp from 'find-free-port'
+import fs from 'fs'
+import fetch, { Response } from 'node-fetch'
 import path from 'path'
 import SocketIO from 'socket.io'
-import logger from './logger'
-const log = logger('test')
+import logger from '../logger'
+const log = logger('utils')
 
 export interface Ports {
   socksPort: number
@@ -68,4 +69,15 @@ export const torDirForPlatform = (basePath?: string): string => {
     basePath = process.cwd()
   }
   return path.join(basePath, 'tor', process.platform)
+}
+
+export const fetchRetry = async (address: string, options: any, retryCount: number): Promise<Response> => {
+  return await fetch(address, options).catch(async (error) => {
+    if (retryCount === 1) {
+      throw error
+    }
+    const retriesLeft = retryCount - 1
+    log(`Connecting to ${address} failed, trying again... Attempts left: ${retriesLeft}`)
+    return await fetchRetry(address, options, retriesLeft)
+  })
 }

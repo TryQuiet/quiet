@@ -1,5 +1,5 @@
 import { DataServer } from './DataServer'
-import { getPorts } from '../utils'
+import { getPorts } from '../common/utils'
 
 test('start and stop data server', async () => {
   const ports = await getPorts()

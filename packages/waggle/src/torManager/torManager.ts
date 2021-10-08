@@ -1,14 +1,12 @@
 import * as child_process from 'child_process'
+import crypto from 'crypto'
 import * as fs from 'fs'
 import path from 'path'
-import { TorControl } from './TorControl'
 import { ZBAY_DIR_PATH } from '../constants'
-import debug from 'debug'
-import crypto from 'crypto'
-import { removeFilesFromDir } from '../utils'
-const log = Object.assign(debug('waggle:tor'), {
-  error: debug('waggle:tor:err')
-})
+import logger from '../logger'
+import { removeFilesFromDir } from '../common/utils'
+import { TorControl } from './TorControl'
+const log = logger('tor')
 
 interface IService {
   virtPort: number

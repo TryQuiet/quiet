@@ -1,42 +1,30 @@
-import IPFS from 'ipfs'
-import path from 'path'
-import { createPaths } from '../utils'
-import OrbitDB from 'orbit-db'
-import KeyValueStore from 'orbit-db-kvstore'
-import EventStore from 'orbit-db-eventstore'
-import PeerId from 'peer-id'
-import validate from '../validation/validators'
-import {
-  message as socketMessage,
-  loadAllMessages,
-  loadAllDirectMessages,
-  sendIdsToZbay
-} from '../socket/events/messages'
-import { EventTypesResponse } from '../socket/constantsReponse'
-import { loadAllPublicChannels } from '../socket/events/channels'
-import { Libp2p } from 'libp2p-gossipsub/src/interfaces'
-import { Config } from '../constants'
-import { dataFromRootPems } from '../testUtils'
-import { loadCertificates } from '../socket/events/certificates'
-import {
-  IRepo,
-  StorageOptions,
-  IChannelInfo,
-  IMessage,
-  ChannelInfoResponse,
-  IZbayChannel,
-  IPublicKey,
-  IMessageThread,
-  DataFromPems
-} from '../common/types'
-import { verifyUserCert, parseCertificate, getCertFieldValue } from '@zbayapp/identity'
-import { CertFieldsTypes } from '@zbayapp/identity/lib/common'
-import { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
-import debug from 'debug'
-const log = Object.assign(debug('waggle:db'), {
-  error: debug('waggle:db:err')
-})
+import { getCertFieldValue, parseCertificate, verifyUserCert } from '@zbayapp/identity'
+import { CertFieldsTypes } from '@zbayapp/identity/lib/common'
+import IPFS from 'ipfs'
+import { Libp2p } from 'libp2p-gossipsub/src/interfaces'
+import OrbitDB from 'orbit-db'
+import EventStore from 'orbit-db-eventstore'
+import KeyValueStore from 'orbit-db-kvstore'
+import path from 'path'
+import PeerId from 'peer-id'
+import { CryptoEngine, setEngine } from 'pkijs'
+import {
+  ChannelInfoResponse, DataFromPems, IChannelInfo,
+  IMessage, IMessageThread, IPublicKey, IRepo, IZbayChannel, StorageOptions
+} from '../common/types'
+import { Config } from '../constants'
+import logger from '../logger'
+import { EventTypesResponse } from '../socket/constantsReponse'
+import { loadCertificates } from '../socket/events/certificates'
+import { loadAllPublicChannels } from '../socket/events/channels'
+import {
+  loadAllDirectMessages, loadAllMessages, message as socketMessage, sendIdsToZbay
+} from '../socket/events/messages'
+import { dataFromRootPems } from '../common/testUtils'
+import { createPaths } from '../common/utils'
+import validate from '../validation/validators'
+const log = logger('db')
 
 const webcrypto = new Crypto()
 setEngine(
@@ -179,7 +167,7 @@ export class Storage {
       async () => {
         log('REPLICATED: CHANNELS')
         if (this.options.isEntryNode) {
-          console.log('Entry node. Subscribing for all replicated channels')
+          log('Entry node. Subscribing for all replicated channels')
           await Promise.all(
             Object.values(this.channels.all).map(async channel => {
               if (!this.publicChannelsRepos.has(channel.address)) {
@@ -348,7 +336,7 @@ export class Storage {
       })
       db.events.on('replicated', () => {
         const ids = this.getAllEventLogEntries(db).map(msg => msg.id)
-        console.log('Message replicated')
+        log('Message replicated')
         sendIdsToZbay(this.io, ids, channelAddress)
       })
       db.events.on('ready', () => {

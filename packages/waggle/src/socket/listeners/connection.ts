@@ -2,10 +2,12 @@ import { EventTypesServer } from '../constants'
 import { CertsData, IChannelInfo, IMessage } from '../../common/types'
 import IOProxy from '../IOProxy'
 import PeerId from 'peer-id'
+import logger from '../../logger'
+const log = logger('socket')
 
 export const connections = (io, ioProxy: IOProxy) => {
   io.on(EventTypesServer.CONNECTION, socket => {
-    console.log('websocket connected')
+    log('websocket connected')
     socket.on(EventTypesServer.CLOSE, async () => {
       await ioProxy.closeAll()
     })
@@ -64,25 +66,25 @@ export const connections = (io, ioProxy: IOProxy) => {
       }
     )
     socket.on(EventTypesServer.REGISTER_USER_CERTIFICATE, async (serviceAddress: string, userCsr: string, id: string) => {
+      log(`Registering user certificate (${id})`)
       await ioProxy.registerUserCertificate(serviceAddress, userCsr, id)
-      console.log('registerUserCertificate')
     })
     socket.on(EventTypesServer.REGISTER_OWNER_CERTIFICATE, async (communityId: string, userCsr: string, dataFromPerms: {
       certificate: string
       privKey: string
     }) => {
-      console.log('registerOwnerCertificate')
+      log(`Registering user certificate (${communityId})`)
       await ioProxy.registerOwnerCertificate(communityId, userCsr, dataFromPerms)
     })
     socket.on(EventTypesServer.SAVE_CERTIFICATE, async (peerId: string, certificate: string) => {
-      console.log('Received saveCertificate websocket event, processing.')
+      log(`Saving user certificate (${peerId})`)
       await ioProxy.saveCertificate(peerId, certificate)
     })
     socket.on(EventTypesServer.SAVE_OWNER_CERTIFICATE, async (communityId: string, peerId: string, certificate: string, dataFromPerms: {
       certificate: string
       privKey: string
     }) => {
-      console.log('Received saveOwnerCertificate websocket event, processing.')
+      log(`Saving owner certificate (${peerId})`)
       await ioProxy.saveOwnerCertificate(communityId, peerId, certificate, dataFromPerms)
     })
     socket.on(EventTypesServer.CREATE_COMMUNITY, async (payload, certs: CertsData) => {

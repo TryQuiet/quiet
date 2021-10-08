@@ -1,19 +1,16 @@
-import express, { Request, Response } from 'express'
-import { Tor } from '../torManager'
-import { Certificate } from 'pkijs'
-import debug from 'debug'
 import { createUserCert, loadCSR } from '@zbayapp/identity'
 import { CertFieldsTypes, getReqFieldValue } from '@zbayapp/identity/lib/common'
-import { Server } from 'http'
-import { validate, IsBase64, IsNotEmpty } from 'class-validator'
-import { DataFromPems } from '../common/types'
-import { CsrContainsFields, IsCsr } from './validators'
+import { IsBase64, IsNotEmpty, validate } from 'class-validator'
+import express, { Request, Response } from 'express'
 import fp from 'find-free-port'
+import { Server } from 'http'
+import { Certificate } from 'pkijs'
+import { DataFromPems } from '../common/types'
+import logger from '../logger'
 import { Storage } from '../storage'
-
-const log = Object.assign(debug('waggle:registration'), {
-  error: debug('waggle:registration:err')
-})
+import { Tor } from '../torManager'
+import { CsrContainsFields, IsCsr } from './validators'
+const log = logger('registration')
 
 class UserCsrData {
   @IsNotEmpty()

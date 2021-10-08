@@ -1,8 +1,8 @@
 import CommunitiesManager from './manager'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
-import { createMinConnectionManager, createTmpDir, tmpZbayDirPath, TorMock } from '../testUtils'
+import { createMinConnectionManager, createTmpDir, tmpZbayDirPath, TorMock } from '../common/testUtils'
 import PeerId from 'peer-id'
-import { getPorts } from '../utils'
+import { getPorts } from '../common/utils'
 import { createCertificatesTestHelper } from '../libp2p/tests/client-server'
 jest.setTimeout(100_000)
 

@@ -1,17 +1,15 @@
-import path from 'path'
-import { createTmpDir } from '../testUtils'
-import { NodeWithTor, NodeWithoutTor, LocalNode } from './nodes'
-import fp from 'find-free-port'
-import debug from 'debug'
-import Table from 'cli-table'
-import yargs, { Argv } from 'yargs'
-import { createRootCA } from '@zbayapp/identity'
-import { Time, setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
+import { createRootCA } from '@zbayapp/identity'
+import Table from 'cli-table'
+import fp from 'find-free-port'
+import path from 'path'
+import { CryptoEngine, setEngine, Time } from 'pkijs'
+import yargs, { Argv } from 'yargs'
+import logger from '../logger'
+import { createTmpDir } from '../common/testUtils'
+import { LocalNode, NodeWithoutTor, NodeWithTor } from './nodes'
+const log = logger('testReplicate')
 
-const log = Object.assign(debug('localTest'), {
-  error: debug('localTest:err')
-})
 const argv = yargs.command('test', 'Test replication', (yargs: Argv) => {
   return yargs.option('useTor', {
     describe: 'Whether to use Tor or run waggle nodes on localhost',

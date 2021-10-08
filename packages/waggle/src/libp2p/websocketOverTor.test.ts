@@ -3,9 +3,9 @@ import Multiaddr from 'multiaddr'
 import { Tor } from '../torManager/index'
 import os from 'os'
 import fp from 'find-free-port'
-import * as utils from '../utils'
+import * as utils from '../common/utils'
 import HttpsProxyAgent from 'https-proxy-agent'
-import { createTmpDir, TmpDir, tmpZbayDirPath } from '../testUtils'
+import { createTmpDir, TmpDir, tmpZbayDirPath } from '../common/testUtils'
 import { createCertificatesTestHelper } from './tests/client-server'
 
 jest.setTimeout(120000)

@@ -1,7 +1,7 @@
-import { ConnectionsManager } from './connectionsManager'
-import { DummyIOServer, getPorts } from '../utils'
-import { createTmpDir, TmpDir, tmpZbayDirPath } from '../testUtils'
 import PeerId from 'peer-id'
+import { createTmpDir, TmpDir, tmpZbayDirPath } from '../common/testUtils'
+import * as utils from '../common/utils'
+import { ConnectionsManager } from './connectionsManager'
 jest.setTimeout(100_000)
 
 let tmpDir: TmpDir
@@ -17,13 +17,13 @@ beforeEach(() => {
 
 describe('Connections manager', () => {
   it('runs tor by default', async () => {
-    const ports = await getPorts()
+    const ports = await utils.getPorts()
     connectionsManager = new ConnectionsManager({
       agentHost: 'localhost',
       agentPort: ports.socksPort,
       httpTunnelPort: ports.httpTunnelPort,
       // @ts-expect-error
-      io: new DummyIOServer(),
+      io: new utils.DummyIOServer(),
       options: {
         env: {
           appDataPath: tmpAppDataPath
@@ -38,13 +38,13 @@ describe('Connections manager', () => {
 
   it('inits only tor control if spawnTor is set to false', async () => {
     const torPassword = 'testTorPassword'
-    const ports = await getPorts()
+    const ports = await utils.getPorts()
     connectionsManager = new ConnectionsManager({
       agentHost: 'localhost',
       agentPort: ports.socksPort,
       httpTunnelPort: ports.httpTunnelPort,
       // @ts-expect-error
-      io: new DummyIOServer(),
+      io: new utils.DummyIOServer(),
       options: {
         env: {
           appDataPath: tmpAppDataPath
@@ -62,13 +62,13 @@ describe('Connections manager', () => {
   })
 
   it('creates network', async() => {
-    const ports = await getPorts()
+    const ports = await utils.getPorts()
     connectionsManager = new ConnectionsManager({
       agentHost: 'localhost',
       agentPort: ports.socksPort,
       httpTunnelPort: ports.httpTunnelPort,
       // @ts-expect-error
-      io: new DummyIOServer(),
+      io: new utils.DummyIOServer(),
       options: {
         env: {
           appDataPath: tmpAppDataPath
@@ -85,5 +85,26 @@ describe('Connections manager', () => {
     expect(PeerId.isPeerId(peerId)).toBeTruthy()
     expect(await spyOnDestroyHiddenService.mock.results[0].value).toBeTruthy()
     await connectionsManager.tor.kill()
+  })
+
+  it('tries to send certification request multiple times before giving up', async () => {
+    const ports = await utils.getPorts()
+    connectionsManager = new ConnectionsManager({
+      agentHost: 'localhost',
+      agentPort: ports.socksPort,
+      httpTunnelPort: ports.httpTunnelPort,
+      // @ts-expect-error
+      io: new utils.DummyIOServer(),
+      options: {
+        env: {
+          appDataPath: tmpAppDataPath
+        },
+        torControlPort: ports.controlPort
+      }
+    })
+    const spyOnFetchRetry = jest.spyOn(utils, 'fetchRetry')
+    const retryCount = 3
+    await expect(connectionsManager.sendCertificateRegistrationRequest('http://invalid.onion', 'cert', retryCount)).rejects.toThrow()
+    expect(spyOnFetchRetry).toHaveBeenCalledTimes(retryCount)
   })
 })

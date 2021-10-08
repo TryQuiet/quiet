@@ -1,14 +1,11 @@
 import PeerId, { JSONPeerId } from 'peer-id'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 import { Storage } from '../storage'
-import { getPorts } from '../utils'
-import debug from 'debug'
+import { getPorts } from '../common/utils'
 import { CertsData, DataFromPems } from '../common/types'
 import { CertificateRegistration } from '../registration'
-
-const log = Object.assign(debug('waggle:communities'), {
-  error: debug('waggle:communities:err')
-})
+import logger from '../logger'
+const log = logger('communities')
 
 interface HiddenServiceData {
   onionAddress: string
@@ -77,7 +74,6 @@ export default class CommunitiesManager {
 
   public initStorage = async (peerId: PeerId, onionAddress: string, port: number, bootstrapMultiaddrs: string[], certs: CertsData): Promise<string> => {
     const listenAddrs = `/dns4/${onionAddress}/tcp/${port}/wss`
-    console.log('LISTENADDREss', listenAddrs)
     const peerIdB58string = peerId.toB58String()
     if (bootstrapMultiaddrs.length === 0) {
       bootstrapMultiaddrs = [`/dns4/${onionAddress}/tcp/${port}/wss/p2p/${peerIdB58string}`]
@@ -128,6 +124,7 @@ export default class CommunitiesManager {
     const community = this.communities.get(peerId)
     community.registrar = certRegister
     this.communities.set(peerId, community)
+    log(`Initialized registration service for peer ${peerId}`)
     return certRegister
   }
 }

@@ -1,29 +1,26 @@
-import * as os from 'os'
-import { SocksProxyAgent } from 'socks-proxy-agent'
+import { HttpsProxyAgent } from 'https-proxy-agent'
+import Bootstrap from 'libp2p-bootstrap'
+import Gossipsub from 'libp2p-gossipsub'
+import { Connection } from 'libp2p-gossipsub/src/interfaces'
+import KademliaDHT from 'libp2p-kad-dht'
 import Mplex from 'libp2p-mplex'
 import { NOISE } from 'libp2p-noise'
-import KademliaDHT from 'libp2p-kad-dht'
-import Gossipsub from 'libp2p-gossipsub'
-import PeerId from 'peer-id'
-import WebsocketsOverTor from './websocketOverTor'
-import Bootstrap from 'libp2p-bootstrap'
-import { Storage } from '../storage'
-import { torBinForPlatform, torDirForPlatform, getPorts } from '../utils'
-import { ZBAY_DIR_PATH } from '../constants'
-import { CertsData, ConnectionsManagerOptions } from '../common/types'
-import fetch, { Response } from 'node-fetch'
-import debug from 'debug'
-import CustomLibp2p, { Libp2pType } from './customLibp2p'
-import { Tor } from '../torManager'
-import initListeners from '../socket/listeners'
-import IOProxy from '../socket/IOProxy'
-import { Connection } from 'libp2p-gossipsub/src/interfaces'
-import { HttpsProxyAgent } from 'https-proxy-agent'
+import { Response } from 'node-fetch'
+import * as os from 'os'
 import path from 'path'
-
-const log = Object.assign(debug('waggle:conn'), {
-  error: debug('waggle:conn:err')
-})
+import PeerId from 'peer-id'
+import { SocksProxyAgent } from 'socks-proxy-agent'
+import { CertsData, ConnectionsManagerOptions } from '../common/types'
+import { ZBAY_DIR_PATH } from '../constants'
+import logger from '../logger'
+import IOProxy from '../socket/IOProxy'
+import initListeners from '../socket/listeners'
+import { Storage } from '../storage'
+import { Tor } from '../torManager'
+import { fetchRetry, getPorts, torBinForPlatform, torDirForPlatform } from '../common/utils'
+import CustomLibp2p, { Libp2pType } from './customLibp2p'
+import WebsocketsOverTor from './websocketOverTor'
+const log = logger('conn')
 
 export interface IConstructor {
   host?: string
@@ -75,7 +72,7 @@ export class ConnectionsManager {
   public readonly createAgent = () => {
     if (this.socksProxyAgent || !this.agentPort || !this.agentHost) return
 
-    log(`Creating socks proxy agent, ${this.httpTunnelPort}`)
+    log(`Creating https proxy agent: ${this.httpTunnelPort}`)
 
     return new HttpsProxyAgent({ port: this.httpTunnelPort, host: this.agentHost })
   }
@@ -145,7 +142,7 @@ export class ConnectionsManager {
       bootstrapMultiaddrsList: bootstrapMultiaddrs,
       transportClass: this.libp2pTransportClass
     })
-    libp2p.connectionManager.on('peer:connect', async (connection: Connection) => {
+    libp2p.connectionManager.on('peer:connect', (connection: Connection) => {
       log(`${peerId.toB58String()} connected to ${connection.remotePeer.toB58String()}`)
     })
     libp2p.on('peer:discovery', (peer: PeerId) => {
@@ -172,7 +169,7 @@ export class ConnectionsManager {
     )
   }
 
-  public sendCertificateRegistrationRequest = async (serviceAddress: string, userCsr: string): Promise<Response> => {
+  public sendCertificateRegistrationRequest = async (serviceAddress: string, userCsr: string, retryCount: number = 3): Promise<Response> => {
     const options = {
       method: 'POST',
       body: JSON.stringify({ data: userCsr }),
@@ -180,7 +177,7 @@ export class ConnectionsManager {
       agent: new SocksProxyAgent({ port: this.agentPort, host: this.agentHost })
     }
     try {
-      return await fetch(serviceAddress + '/register', options)
+      return await fetchRetry(serviceAddress + '/register', options, retryCount)
     } catch (e) {
       log.error(e)
       throw e

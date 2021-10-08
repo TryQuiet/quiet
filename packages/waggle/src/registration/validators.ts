@@ -1,11 +1,8 @@
 import { loadCSR } from '@zbayapp/identity'
 import { CertFieldsTypes, getReqFieldValue } from '@zbayapp/identity/lib/common'
-import { registerDecorator, ValidationOptions, ValidationArguments } from 'class-validator'
-
-import debug from 'debug'
-const log = Object.assign(debug('waggle:validators'), {
-  error: debug('waggle:validators:err')
-})
+import { registerDecorator, ValidationArguments, ValidationOptions } from 'class-validator'
+import logger from '../logger'
+const log = logger('validators')
 
 export function IsCsr(validationOptions?: ValidationOptions) {
   return function (object: Object, propertyName: string) {

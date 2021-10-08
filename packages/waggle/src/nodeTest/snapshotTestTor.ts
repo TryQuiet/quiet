@@ -2,7 +2,7 @@ import { createRootCA } from '@zbayapp/identity/lib'
 import fp from 'find-free-port'
 import path from 'path'
 import { Time } from 'pkijs'
-import { createTmpDir } from '../testUtils'
+import { createTmpDir } from '../common/testUtils'
 import { NodeWithTor } from './nodes'
 
 const tmpDir = createTmpDir()

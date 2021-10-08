@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+* Retry connecting to registrar few times on fail
+
 ## [4.2.3]
 
 ### Fixed

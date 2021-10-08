@@ -1,17 +1,15 @@
-import { createPaths } from '../utils'
+import fs from 'fs'
+import Log from 'ipfs-log'
+import { CID } from 'multiformats/cid'
 import OrbitDB from 'orbit-db'
 import EventStore from 'orbit-db-eventstore'
 import PeerId from 'peer-id'
 import { StorageOptions } from '../common/types'
+import logger from '../logger'
 import { Storage } from '../storage'
+import { createPaths } from '../common/utils'
 
-import { CID } from 'multiformats/cid'
-import debug from 'debug'
-import fs from 'fs'
-import Log from 'ipfs-log'
-const log = Object.assign(debug('dbSnap'), {
-  error: debug('dbSnap:err')
-})
+const log = logger('dbSnap')
 
 class StorageTestSnapshotOptions extends StorageOptions {
   messagesCount: number
