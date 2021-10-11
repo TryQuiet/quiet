@@ -1,3 +1,4 @@
+import * as os from 'os'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 import Bootstrap from 'libp2p-bootstrap'
 import Gossipsub from 'libp2p-gossipsub'
@@ -6,10 +7,8 @@ import KademliaDHT from 'libp2p-kad-dht'
 import Mplex from 'libp2p-mplex'
 import { NOISE } from 'libp2p-noise'
 import { Response } from 'node-fetch'
-import * as os from 'os'
 import path from 'path'
 import PeerId from 'peer-id'
-import { SocksProxyAgent } from 'socks-proxy-agent'
 import { CertsData, ConnectionsManagerOptions } from '../common/types'
 import { ZBAY_DIR_PATH } from '../constants'
 import logger from '../logger'
@@ -131,7 +130,12 @@ export class ConnectionsManager {
     }
   }
 
-  public initLibp2p = async (peerId: PeerId, listenAddrs: string, bootstrapMultiaddrs: string[], certs: CertsData): Promise<{ libp2p: Libp2pType, localAddress: string }> => {
+  public initLibp2p = async (
+    peerId: PeerId,
+    listenAddrs: string,
+    bootstrapMultiaddrs: string[],
+    certs: CertsData
+  ): Promise<{ libp2p: Libp2pType, localAddress: string }> => {
     const localAddress = `${listenAddrs}/p2p/${peerId.toB58String()}`
     const libp2p = ConnectionsManager.createBootstrapNode({
       peerId: peerId,
@@ -158,23 +162,23 @@ export class ConnectionsManager {
   }
 
   public createStorage = (peerId: string) => {
-    return new this.StorageCls(
-      this.zbayDir,
-      this.io,
-      {
-        ...this.options,
-        orbitDbDir: `OrbitDB${peerId}`,
-        ipfsDir: `Ipfs${peerId}`
-      }
-    )
+    return new this.StorageCls(this.zbayDir, this.io, {
+      ...this.options,
+      orbitDbDir: `OrbitDB${peerId}`,
+      ipfsDir: `Ipfs${peerId}`
+    })
   }
 
-  public sendCertificateRegistrationRequest = async (serviceAddress: string, userCsr: string, retryCount: number = 3): Promise<Response> => {
+  public sendCertificateRegistrationRequest = async (
+    serviceAddress: string,
+    userCsr: string,
+    retryCount: number = 3
+  ): Promise<Response> => {
     const options = {
       method: 'POST',
       body: JSON.stringify({ data: userCsr }),
       headers: { 'Content-Type': 'application/json' },
-      agent: new SocksProxyAgent({ port: this.agentPort, host: this.agentHost })
+      agent: this.socksProxyAgent
     }
     try {
       return await fetchRetry(serviceAddress + '/register', options, retryCount)
