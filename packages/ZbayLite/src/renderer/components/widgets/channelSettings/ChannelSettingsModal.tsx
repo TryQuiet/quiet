@@ -57,7 +57,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-const handleChange = (setCurrentTab, clearCurrentOpenTab, value) => {
+const handleChange = (setCurrentTab: (value: string) => void, clearCurrentOpenTab: () => void, value: string) => {
   clearCurrentOpenTab()
   setCurrentTab(value)
 }
@@ -65,10 +65,10 @@ const handleChange = (setCurrentTab, clearCurrentOpenTab, value) => {
 interface ChannelSettingsModalProps {
   open: boolean
   handleClose: () => void
-  currentTab: string
+  currentTab: keyof typeof tabs
   channel: Contact
   isOwner: boolean
-  modalTabToOpen: () => string
+  modalTabToOpen: () => keyof typeof tabs
   setCurrentTab: () => void
   clearCurrentOpenTab: () => void
 }
@@ -84,7 +84,13 @@ export const ChannelSettingsModal: React.FC<ChannelSettingsModalProps> = ({
   clearCurrentOpenTab
 }) => {
   const classes = useStyles({})
-  const TabComponent = tabs[isOwner ? modalTabToOpen() || currentTab : 'notifications']
+  let TabComponent: typeof tabs['channelInfo' | 'moderators' | 'notifications']
+  if (isOwner) {
+    TabComponent = tabs[modalTabToOpen() || currentTab]
+  } else {
+    TabComponent = tabs.notifications
+  }
+
   return (
     <Modal
       open={open}

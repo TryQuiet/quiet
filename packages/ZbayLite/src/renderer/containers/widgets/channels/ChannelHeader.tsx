@@ -9,13 +9,14 @@ import contactsSelectors from '../../../store/selectors/contacts'
 import notificationCenter from '../../../store/selectors/notificationCenter'
 import { notificationFilterType } from '../../../../shared/static'
 
-export const useChannelInputData = (contactId?) => {
+export const useChannelInputData = (contactId?: string) => {
   const contact = useSelector(contactsSelectors.contact(contactId))
   const channelData = useSelector(channelSelectors.data)
   const data = {
     channel: {
       name: contactId === 'general' ? 'zbay' : contact.username,
-      address: contactId
+      address: contactId,
+      displayableMessageLimit: 50
     },
     name: contact.username,
     members: useSelector(channelSelectors.channelParticipiants),

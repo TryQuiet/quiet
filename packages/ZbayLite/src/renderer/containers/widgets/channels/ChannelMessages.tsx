@@ -49,6 +49,7 @@ export const ChannelMessages = ({ contentRect }) => {
   const displayableMessageLimit = useSelector(
     channelSelectors.displayableMessageLimit
   )
+
   // const isOwner = useSelector(ownedChannelsSelectors.isOwner)
   const channelId = useSelector(channelSelectors.channelId)
   const users = []

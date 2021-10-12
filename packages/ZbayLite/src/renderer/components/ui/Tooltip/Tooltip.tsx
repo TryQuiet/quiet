@@ -137,8 +137,8 @@ export const Tooltip: React.FC<React.ComponentProps<typeof MuiTooltip> & Tooltip
           <React.Fragment>
             {titleHTML || (
               <span className={classes.text}>
-                {title.charAt(0).toUpperCase()}
-                {title.slice(1)}
+                {title ? title.charAt(0).toUpperCase() : ''}
+                {title ? title.slice(1) : ''}
               </span>
             )}
             <span className={classes.arrow} ref={setArrowRef} />

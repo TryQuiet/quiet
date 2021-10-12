@@ -131,13 +131,18 @@ export const Modal: React.FC<IModalProps> = ({
                 className={classes.actions}
               >
                 {canGoBack ? (
-                  <IconButton onClick={() => setStep(step - 1)}>
+                  <IconButton onClick={() => {
+                    if (setStep && step) { return setStep(step - 1) }
+                  }
+                  }>
                     <BackIcon />
                   </IconButton>
                 ) : (
                   !isCloseDisabled && (
                     <IconButton
-                      onClick={() => handleClose({}, 'backdropClick')}
+                      onClick={() => {
+                        if (handleClose) { return handleClose({}, 'backdropClick') }
+                      }}
                     >
                       <ClearIcon />
                     </IconButton>

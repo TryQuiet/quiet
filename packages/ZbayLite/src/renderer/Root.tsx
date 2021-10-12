@@ -10,7 +10,6 @@ import { persistStore } from 'redux-persist'
 import store from './store'
 import Index from './containers/windows/Index'
 import Main from './containers/windows/Main'
-import AddModerator from './containers/widgets/channelSettings/AddModerator'
 import ChannelSettingsModal from './containers/widgets/channelSettings/ChannelSettingsModal'
 import CreateChannelModal from './containers/widgets/channels/CreateChannelModal'
 import CreateUsernameModal from './containers/widgets/createUsernameModal/CreateUsername'
@@ -32,7 +31,6 @@ export default () => {
         <Provider store={store}>
           <PersistGate loading={null} persistor={persistor}>
             <SnackbarProvider maxSnack={3}>
-              <AddModerator />
               <ChannelSettingsModal />
               <CreateChannelModal />
               <CreateUsernameModal />

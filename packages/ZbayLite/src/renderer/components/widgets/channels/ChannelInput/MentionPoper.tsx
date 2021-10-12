@@ -41,9 +41,9 @@ interface MentionPoperProps {
 export const MentionPoper: React.FC<MentionPoperProps> = ({ anchorEl, children, selected }) => {
   const classes = useStyles({})
 
-  const anchor = React.useRef<HTMLDivElement>()
+  const anchor = React.useRef<HTMLDivElement>(null)
   const popperRef = React.useRef<typeof Popper>()
-  const scrollbarRef = React.useRef<Scrollbars>()
+  const scrollbarRef = React.useRef<Scrollbars>(null)
 
   const [height, setHeight] = React.useState(0)
   const [positionY, setPositionY] = React.useState(0)
@@ -75,7 +75,7 @@ export const MentionPoper: React.FC<MentionPoperProps> = ({ anchorEl, children, 
 
   React.useEffect(() => {
     const element = anchor.current?.children[selected]
-    if (isDivElement(element)) {
+    if (isDivElement(element) && scrollbarRef?.current) {
       if (
         element.offsetTop >
         scrollbarRef.current.getScrollTop() + maxHeight - element.clientHeight

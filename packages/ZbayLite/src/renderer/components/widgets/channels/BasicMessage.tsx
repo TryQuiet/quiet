@@ -81,7 +81,7 @@ export const getTimeFormat = () => {
   return 't'
 }
 
-export const transformToLowercase = string => {
+export const transformToLowercase = (string: string) => {
   const hasPM = string.search('PM')
   return hasPM !== -1 ? string.replace('PM', 'pm') : string.replace('AM', 'am')
 }
@@ -93,9 +93,12 @@ export const BasicMessage: React.FC<IBasicMessageProps> = ({
   setActionsOpen
 }) => {
   const classes = useStyles({})
-  const [anchorEl, setAnchorEl] = React.useState(null)
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget)
+  const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null)
+
+  const handleClick: React.ComponentProps<typeof Grid>['onClick'] = (event) => {
+    if (event) {
+      setAnchorEl(event.currentTarget)
+    }
   }
   const handleClose = () => setAnchorEl(null)
   const username = message.nickname

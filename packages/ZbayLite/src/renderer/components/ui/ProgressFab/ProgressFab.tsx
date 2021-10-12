@@ -43,7 +43,7 @@ interface ProgressFabProps {
 }
 
 export const ProgressFab: React.FC<React.ComponentProps<typeof Fab> & ProgressFabProps> = ({
-  className,
+  className = '',
   children,
   loading = false,
   success = false,

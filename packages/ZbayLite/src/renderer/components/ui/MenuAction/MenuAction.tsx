@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, createRef } from 'react'
 
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import MenuList from '@material-ui/core/MenuList'
@@ -49,7 +49,7 @@ export const MenuAction: React.FC<MenuActionProps> = ({
   const [hover, setHover] = useState(false)
   const toggleHover = () => setHover(!hover)
 
-  const anchor = useRef()
+  const anchor = createRef<HTMLButtonElement>()
 
   const closeMenu = () => setOpen(false)
   const toggleMenu = () => setOpen(!open)

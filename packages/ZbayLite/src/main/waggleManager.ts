@@ -23,7 +23,7 @@ export const getPorts = async (): Promise<{
   }
 }
 
-export const runWaggle = async (webContents: BrowserWindow['webContents']): Promise<{connectionsManager: ConnectionsManager; dataServer: DataServer}> => {
+export const runWaggle = async (webContents: BrowserWindow['webContents']): Promise<{ connectionsManager: ConnectionsManager; dataServer: DataServer }> => {
   const ports = await getPorts()
   const appDataPath = electronStore.get('appDataPath')
 

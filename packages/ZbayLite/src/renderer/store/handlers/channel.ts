@@ -49,7 +49,7 @@ export class Channel {
   showInfoMsg?: boolean
   isSizeCheckingInProgress?: boolean
   messageSizeStatus?: boolean
-  displayableMessageLimit?: number
+  displayableMessageLimit: number = 50
   name?: string
   description?: string
   constructor(values?: Partial<Channel>) {

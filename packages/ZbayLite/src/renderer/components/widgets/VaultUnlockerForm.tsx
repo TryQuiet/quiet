@@ -70,7 +70,7 @@ const formSchema = Yup.object().shape({
 })
 
 interface VaultUnlockerFormProps {
-  onSubmit: (arg) => void
+  onSubmit: (arg: React.Dispatch<React.SetStateAction<boolean>>) => void
   isNewUser: boolean
 }
 
@@ -126,7 +126,6 @@ export const VaultUnlockerForm: React.FC<VaultUnlockerFormProps> = ({
               variant='contained'
               size='large'
               color='primary'
-              margin='normal'
               fullWidth
               text={!isNewUser ? 'Sign in' : 'Connect Now'}
               disabled={!done || syncingStart}

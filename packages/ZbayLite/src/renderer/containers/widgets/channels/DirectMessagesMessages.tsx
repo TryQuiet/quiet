@@ -7,6 +7,7 @@ import contactsSelectors from '../../../store/selectors/contacts'
 // import dmQueueMessages from '../../../store/selectors/directMessagesQueue'
 // import queueMessages from '../../../store/selectors/messagesQueue'
 import appSelectors from '../../../store/selectors/app'
+import { DisplayableMessage } from '@zbayapp/nectar'
 
 export const mapStateToProps = (state, { contactId }) => {
   // const qMessages = queueMessages.queue(state)
@@ -23,6 +24,17 @@ export const mapStateToProps = (state, { contactId }) => {
   }
 }
 
+interface ChannelMessagesProps {
+  messages?: DisplayableMessage[]
+  contactId: string
+  channelId: string
+  contentRect?: any
+  triggerScroll?: boolean
+  isInitialLoadFinished?: boolean
+  name?: string
+  isConnected?: boolean
+}
+
 export const ChannelMessages = ({
   messages,
   contactId,
@@ -32,7 +44,7 @@ export const ChannelMessages = ({
   isInitialLoadFinished,
   name,
   isConnected
-}) => {
+}: ChannelMessagesProps) => { // for now
   const [scrollPosition, setScrollPosition] = React.useState(-1)
   useEffect(() => {
     setScrollPosition(-1)

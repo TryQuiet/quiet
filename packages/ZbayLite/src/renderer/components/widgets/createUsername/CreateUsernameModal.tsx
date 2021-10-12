@@ -105,7 +105,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-const sanitize = x => (x ? x.replace(/[^a-zA-Z0-9]+$/g, '').toLowerCase() : undefined)
+const sanitize = (x: string) => (x ? x.replace(/[^a-zA-Z0-9]+$/g, '').toLowerCase() : undefined)
 
 const getValidationSchema = () => {
   return Yup.object().shape({

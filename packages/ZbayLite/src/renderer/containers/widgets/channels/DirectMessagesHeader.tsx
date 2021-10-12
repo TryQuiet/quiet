@@ -13,7 +13,8 @@ export const mapStateToProps = (state, props) => {
   return {
     channel: {
       name: contact.username,
-      address: props.contactId
+      address: props.contactId,
+      displayableMessageLimit: 50
     },
     isRegisteredUsername: true,
     // isRegisteredUsername: usersSelectors.isRegisteredUsername(contact.username)(state),

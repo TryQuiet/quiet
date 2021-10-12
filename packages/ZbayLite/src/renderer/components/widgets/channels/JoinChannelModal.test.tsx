@@ -14,9 +14,9 @@ describe('JoinChannelModal', () => {
     const result = renderComponent(
       <JoinChannelModal
         open
-        handleClose={() => {}}
-        joinChannel={() => {}}
-        publicChannels={{}}
+        handleClose={() => { }}
+        joinChannel={() => { }}
+        publicChannels={{ displayableMessageLimit: 50 }}
         users={users}
       />
     )

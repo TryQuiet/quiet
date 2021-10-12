@@ -4,8 +4,8 @@ import { TextField, TextFieldProps } from 'formik-material-ui'
 interface FormikLinkedTextFieldProps {
   variant: 'standard' | 'filled' | 'outlined'
   transformer: number
-  otherField
-  precise
+  otherField: string
+  precise: number
   [s: string]: any
 }
 

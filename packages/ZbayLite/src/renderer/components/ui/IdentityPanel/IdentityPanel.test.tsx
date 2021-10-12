@@ -13,10 +13,28 @@ describe('IdentityPanel', () => {
     const identity: Identity = {
       id: '',
       zbayNickname: '',
-      hiddenService: undefined,
-      dmKeys: undefined,
-      peerId: undefined,
-      userCsr: undefined,
+      hiddenService: {
+        onionAddress: 'string',
+        privateKey: 'string'
+      },
+      dmKeys: {
+        publicKey: 'string',
+        privateKey: 'string'
+      },
+      peerId: {
+        id: 'string',
+        pubKey: 'string',
+        privKey: 'string'
+      },
+      userCsr: {
+        userCsr: 'string',
+        userKey: 'string',
+        pkcs10: {
+          publicKey: 'any',
+          privateKey: 'any',
+          pkcs10: 'any'
+        }
+      },
       userCertificate: ''
     }
     const result = renderComponent(

@@ -32,7 +32,9 @@ export const MenuActionItem: React.FC<MenuActionItemProps> = ({
     <MuiMenuItem
       onClick={e => {
         onClick(e)
-        closeAfterAction && close()
+        if (close) {
+          closeAfterAction && close()
+        }
       }}
       className={classes.root}
     >

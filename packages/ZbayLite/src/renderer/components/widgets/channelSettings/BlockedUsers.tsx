@@ -6,7 +6,6 @@ import Typography from '@material-ui/core/Typography'
 import { makeStyles } from '@material-ui/core/styles'
 
 import UserListItem from './UserListItem'
-import { User } from '@zbayapp/nectar/lib/sagas/users/users.slice'
 
 const useStyles = makeStyles(() => ({
   title: {
@@ -17,7 +16,7 @@ const useStyles = makeStyles(() => ({
 interface BlockedUsersProps {
   blockedUsers: string[]
   unblockUser: (key: string) => void
-  users: User[]
+  users: { [pubKey: string]: { nickname: string } }
 }
 
 export const BlockedUsers: React.FC<BlockedUsersProps> = ({ blockedUsers, unblockUser, users }) => {

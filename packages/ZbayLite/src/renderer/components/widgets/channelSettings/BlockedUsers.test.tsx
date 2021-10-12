@@ -6,13 +6,12 @@ import { BlockedUsers } from './BlockedUsers'
 describe('BlockedUsers', () => {
   it('renders component', () => {
     const users = {
-      username: '',
-      onionAddress: '',
-      peerId: '',
-      dmPublicKey: ''
+      pubKey: {
+        nickname: 'name'
+      }
     }
     const result = renderComponent(
-      <BlockedUsers users={[users]} blockedUsers={['']} unblockUser={() => {}} />
+      <BlockedUsers users={users} blockedUsers={['']} unblockUser={() => { }} />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>

@@ -26,7 +26,7 @@ interface ModeratorsProps {
   moderators: any[]
   users: User
   openAddModerator: () => void
-  removeModerator: (key: string) => void
+  removeModerator?: (key: string) => void
 }
 
 export const Moderators: React.FC<ModeratorsProps> = ({
@@ -62,7 +62,7 @@ export const Moderators: React.FC<ModeratorsProps> = ({
                 <Typography variant='body2'>+ Add a moderator</Typography>
               </Grid>
             </Grid>
-            {moderators.map(pubKey => {
+            {moderators.map((pubKey) => {
               const userData = users[pubKey]
               return (
                 <Grid item>

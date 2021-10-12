@@ -103,24 +103,24 @@ const prefix = {
 // TODO: [reafactoring] we should have channel stats for unread and members count
 
 export interface ChannelHeaderProps {
-  isRegisteredUsername: boolean
-  updateShowInfoMsg: (arg: boolean) => void
-  directMessage: boolean
+  isRegisteredUsername?: boolean
+  updateShowInfoMsg?: (arg: boolean) => void
+  directMessage?: boolean
   channelType: CHANNEL_TYPE
-  tab: number
-  setTab: (arg: number) => void
-  channel: Channel
-  offer: string
-  mutedFlag: boolean
-  unmute: () => void
-  name: string
+  tab?: number
+  setTab?: (arg: number) => void
+  channel?: Channel
+  offer?: string
+  mutedFlag?: boolean
+  unmute?: () => void
+  name?: string
   contactId?: string
 }
 
 export const ChannelHeader: React.FC<ChannelHeaderProps> = ({
   tab,
   setTab,
-  channel = {},
+  channel = { displayableMessageLimit: 50 },
   directMessage = false,
   offer,
   channelType = 3,
@@ -131,10 +131,12 @@ export const ChannelHeader: React.FC<ChannelHeaderProps> = ({
   name
 }) => {
   const classes = useStyles({})
-  const debounce = (fn, ms) => {
-    let timer
+  const debounce = (fn, ms: number) => {
+    let timer: NodeJS.Timeout | null
     return _ => {
-      clearTimeout(timer)
+      if (timer) {
+        clearTimeout(timer)
+      }
       timer = setTimeout(_ => {
         timer = null
         fn.apply(this) // // eslint-disable-line

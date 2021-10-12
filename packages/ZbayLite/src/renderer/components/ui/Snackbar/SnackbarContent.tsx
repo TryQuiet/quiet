@@ -90,7 +90,7 @@ export const SnackbarContent: React.FC<SnackbarContentProps> = ({
   )
 
   const action = variant !== 'loading' ? [closeAction] : []
-
+  const variantIcon = `${variant}Icon` as 'close' | 'content' | 'icon' | 'success' | 'error' | 'info' | 'loading' | 'loadingIcon' | 'warning' | 'fullWidth' | 'message'
   return (
     <SnackbarContentMaterial
       className={classNames({
@@ -99,7 +99,7 @@ export const SnackbarContent: React.FC<SnackbarContentProps> = ({
       })}
       message={
         <span className={classes.content}>
-          <Icon className={classNames(classes.icon, classes[`${variant}Icon`])} size={20} />
+          <Icon className={classNames(classes.icon, classes[variantIcon])} size={20} />
           <span className={classes.message}>{message}</span>
         </span>
       }

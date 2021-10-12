@@ -70,7 +70,7 @@ Yup.addMethod(Yup.mixed, 'validateMessage', function (checkNickname) {
   return this.test(
     'test',
     'Sorry, username already taken. Please choose another',
-    async function (value) {
+    async function (value: string) {
       const isUsernameTaken = await checkNickname(value)
       return !isUsernameTaken
     }

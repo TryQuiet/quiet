@@ -24,10 +24,10 @@ describe('ChannelSettingsModal', () => {
           channel={contact}
           setCurrentTab={jest.fn()}
           handleClose={jest.fn()}
-          currentTab='blockedUsers'
+          currentTab='notifications'
           open
           isOwner={false}
-          modalTabToOpen={jest.fn(() => 'string')}
+          modalTabToOpen={jest.fn(() => 'notifications')}
           clearCurrentOpenTab={jest.fn()}
         />
       </Provider>

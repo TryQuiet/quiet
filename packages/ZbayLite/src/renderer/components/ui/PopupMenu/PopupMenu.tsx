@@ -1,6 +1,5 @@
-import React, { useState } from 'react'
+import React, { useRef } from 'react'
 import classNames from 'classnames'
-import * as R from 'ramda'
 import Popper from '@material-ui/core/Popper'
 import Grow from '@material-ui/core/Grow'
 import Paper from '@material-ui/core/Paper'
@@ -54,15 +53,15 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 export const PopupMenu: React.FC<IPopupMenuProps> = ({
-  open,
+  open = false,
   anchorEl,
   children,
-  className,
-  offset,
-  placement
+  className = '',
+  offset = 0,
+  placement = 'bottom-end'
 }) => {
   const classes = useStyles({})
-  const [arrowRef, setArrowRef] = useState(null)
+  const arrowRef = useRef<HTMLSpanElement>(null)
   return (
     <Popper
       open={open}
@@ -73,8 +72,8 @@ export const PopupMenu: React.FC<IPopupMenuProps> = ({
       className={classes.popper}
       modifiers={{
         arrow: {
-          enabled: Boolean(arrowRef),
-          element: arrowRef
+          enabled: Boolean(arrowRef.current),
+          element: arrowRef.current
         },
         offset: {
           offset
@@ -82,6 +81,7 @@ export const PopupMenu: React.FC<IPopupMenuProps> = ({
       }}
     >
       {({ TransitionProps, placement }) => {
+        const splitPlacement: keyof typeof classes = placement.split('-')[0] as 'wrapper' | 'paper' | 'bottom' | 'top' | 'arrow' | 'popper'
         return (
           <Grow
             {...TransitionProps}
@@ -101,9 +101,9 @@ export const PopupMenu: React.FC<IPopupMenuProps> = ({
               </Paper>
               <span
                 className={classNames({
-                  [classes[R.split('-', placement)[0]]]: true
+                  [classes[splitPlacement]]: true
                 })}
-                ref={setArrowRef}
+                ref={arrowRef}
               />
             </div>
           </Grow>
@@ -111,12 +111,6 @@ export const PopupMenu: React.FC<IPopupMenuProps> = ({
       }}
     </Popper>
   )
-}
-
-PopupMenu.defaultProps = {
-  offset: 0,
-  open: false,
-  placement: 'bottom-end'
 }
 
 export default PopupMenu

@@ -14,7 +14,7 @@ describe('BaseChannelsList', () => {
         channels={channels}
         unknownMessages={unknownMessages}
         directMessages={directMessages}
-        selected={{}}
+        selected={{ displayableMessageLimit: 50 }}
       />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`

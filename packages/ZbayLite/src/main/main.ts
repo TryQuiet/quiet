@@ -42,7 +42,11 @@ setEngine('newEngine', webcrypto, new CryptoEngine({
   subtle: webcrypto.subtle
 }))
 
-let mainWindow: BrowserWindow
+let mainWindow: BrowserWindow | null
+
+const isBrowserWindow = (window: BrowserWindow | null): window is BrowserWindow => {
+  return window instanceof BrowserWindow
+}
 
 const gotTheLock = app.requestSingleInstanceLock()
 
@@ -118,7 +122,7 @@ app.on('open-url', (event, url) => {
   }
 })
 
-const checkForPayloadOnStartup = payload => {
+const checkForPayloadOnStartup = (payload: string) => {
   const isInvitation = payload.includes('invitation')
   const isNewChannel = payload.includes('importchannel')
   if (mainWindow && (isInvitation || isNewChannel)) {
@@ -167,21 +171,27 @@ const createWindow = async () => {
     mainWindow = null
   })
   mainWindow.on('resize', () => {
-    const [width, height] = mainWindow.getSize()
-    browserHeight = height
-    browserWidth = width
+    if (isBrowserWindow(mainWindow)) {
+      const [width, height] = mainWindow.getSize()
+      browserHeight = height
+      browserWidth = width
+    }
   })
   electronLocalshortcut.register(mainWindow, 'CommandOrControl+L', () => {
-    mainWindow.webContents.send('openLogs')
+    if (isBrowserWindow(mainWindow)) {
+      mainWindow.webContents.send('openLogs')
+    }
   })
   electronLocalshortcut.register(mainWindow, 'F12', () => {
-    mainWindow.webContents.openDevTools()
+    if (isBrowserWindow(mainWindow)) {
+      mainWindow.webContents.openDevTools()
+    }
   })
 }
 
 let isUpdatedStatusCheckingStarted = false
 
-const isNetworkError = errorObject => {
+const isNetworkError = (errorObject: { message: string }) => {
   return (
     errorObject.message === 'net::ERR_INTERNET_DISCONNECTED' ||
     errorObject.message === 'net::ERR_PROXY_CONNECTION_FAILED' ||
@@ -192,7 +202,7 @@ const isNetworkError = errorObject => {
   )
 }
 
-export const checkForUpdate = async win => {
+export const checkForUpdate = async (win: BrowserWindow) => {
   if (!isUpdatedStatusCheckingStarted) {
     try {
       await autoUpdater.checkForUpdates()
@@ -236,7 +246,7 @@ export const checkForUpdate = async win => {
   }
 }
 
-let waggleProcess: { connectionsManager: ConnectionsManager; dataServer: DataServer } = null
+let waggleProcess: { connectionsManager: ConnectionsManager; dataServer: DataServer } | null = null
 app.on('ready', async () => {
   // const template = [
   //   {
@@ -271,11 +281,19 @@ app.on('ready', async () => {
 
   await createWindow()
   log('created windows')
+
+  if (!isBrowserWindow(mainWindow)) {
+    throw new Error('mainWindow is on unexpected type {mainWindow}')
+  }
+
   mainWindow.webContents.on('did-fail-load', () => {
     log('failed loading')
   })
 
   mainWindow.webContents.on('did-finish-load', async () => {
+    if (!isBrowserWindow(mainWindow)) {
+      throw new Error('mainWindow is on unexpected type {mainWindow}')
+    }
     waggleProcess = await runWaggle(mainWindow.webContents)
     if (process.platform === 'win32' && process.argv) {
       const payload = process.argv[1]
@@ -286,6 +304,9 @@ app.on('ready', async () => {
     if (!isDev) {
       await checkForUpdate(mainWindow)
       setInterval(async () => {
+        if (!isBrowserWindow(mainWindow)) {
+          throw new Error('mainWindow is on unexpected type {mainWindow}')
+        }
         await checkForUpdate(mainWindow)
       }, 15 * 60000)
     }

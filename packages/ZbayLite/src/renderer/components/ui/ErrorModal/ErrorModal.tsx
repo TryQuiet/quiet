@@ -52,7 +52,7 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-const handleSend = async ({ title, message }) => {
+const handleSend = async ({ title, message }: { title: string; message: string }) => {
   await fetch(LOG_ENDPOINT, {
     method: 'POST',
     headers: {
