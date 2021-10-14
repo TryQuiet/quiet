@@ -1,6 +1,6 @@
 import fs from 'fs'
 import Log from 'ipfs-log'
-import { CID } from 'multiformats/cid'
+// import { CID } from 'multiformats/cid'
 import OrbitDB from 'orbit-db'
 import EventStore from 'orbit-db-eventstore'
 import PeerId from 'peer-id'
@@ -197,7 +197,7 @@ export class StorageTestSnapshot extends Storage {
   public getSnapshotFromDb() {
     const snapshotInfo: SnapshotInfo = this.getAllEventLogEntries(this.snapshotInfoDb)[0] // Assume that at this point we replicated snapshot info
     log(`${this.name}; snapshot retrieved`, snapshotInfo)
-    const cidObj = CID.parse(snapshotInfo.hash)
+    const cidObj = null
     log('CID', cidObj)
     const snapshot = {
       path: snapshotInfo.hash,

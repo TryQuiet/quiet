@@ -31,16 +31,19 @@ describe('websocketOverTor', () => {
   let port1: number
   let port2: number
   let listener
+  let port1Target: number
+  let port2Target: number
 
   beforeAll(async () => {
     jest.clearAllMocks()
-    const [port1Arr] = await fp(8090)
-    const [port2Arr] = await fp(port1Arr as number + 1)
-    port1 = port1Arr
-    port2 = port2Arr
+    port1 = 443
+    port2 = 443
     tmpDir = createTmpDir()
     tmpAppDataPath = tmpZbayDirPath(tmpDir.name)
-
+    const [port1Arr] = await fp(8090)
+    const [port2Arr] = await fp(port1Arr as number + 1)
+    port1Target = port1Arr
+    port2Target = port2Arr
     const torPath = utils.torBinForPlatform()
     const [controlPort] = await fp(9051)
     httpTunnelPort = (await fp(controlPort as number + 1)).shift()
@@ -61,8 +64,8 @@ describe('websocketOverTor', () => {
     })
     await tor.init()
 
-    service1 = await tor.createNewHiddenService(port1, port1)
-    service2 = await tor.createNewHiddenService(port2, port2)
+    service1 = await tor.createNewHiddenService(port1, port1Target)
+    service2 = await tor.createNewHiddenService(port2, port2Target)
   })
 
   afterAll(async () => {
@@ -90,7 +93,7 @@ describe('websocketOverTor', () => {
       }
     }
 
-    const singal = {
+    const signal = {
       addEventListener,
       removeEventListener
     }
@@ -111,7 +114,8 @@ describe('websocketOverTor', () => {
         key: pems.servKey,
         ca: caType(pems.ca)
       },
-      localAddr: `/dns4/${service1.onionAddress}/tcp/${port1}/wss/p2p/${peerId1}`
+      localAddr: `/dns4/${service1.onionAddress}/tcp/${port1}/wss/p2p/${peerId1}`,
+      targetPort: port1Target
     }
 
     const websocketsOverTorData2 = {
@@ -126,7 +130,8 @@ describe('websocketOverTor', () => {
         ca: [pems.ca]
       },
       localAddr: `/dns4/${service2.onionAddress}/tcp/${port2}/wss/p2p/${peerId2}`,
-      serverOpts: {}
+      serverOpts: {},
+      targetPort: port2Target
     }
     const multiAddress = new Multiaddr(`/dns4/${service1.onionAddress}/tcp/${port1}/wss/p2p/${peerId1}`)
 
@@ -143,7 +148,7 @@ describe('websocketOverTor', () => {
     listener.on('connection', onConnection)
 
     await ws2.dial(multiAddress, {
-      signal: singal
+      signal: signal
     })
 
     expect(onConnection).toBeCalled()
@@ -162,7 +167,7 @@ describe('websocketOverTor', () => {
       }
     }
 
-    const singal = {
+    const signal = {
       addEventListener,
       removeEventListener
     }
@@ -183,7 +188,8 @@ describe('websocketOverTor', () => {
         key: pems.servKey,
         ca: [pems.ca]
       },
-      localAddr: `/dns4/${service1.onionAddress}/tcp/${port1}/wss/p2p/${peerId1}`
+      localAddr: `/dns4/${service1.onionAddress}/tcp/${port1}/wss/p2p/${peerId1}`,
+      targetPort: port1Target
     }
 
     const websocketsOverTorData2 = {
@@ -198,7 +204,8 @@ describe('websocketOverTor', () => {
         ca: [pems.ca]
       },
       localAddr: `/dns4/${service2.onionAddress}/tcp/${port2}/wss/p2p/${peerId2}`,
-      serverOpts: {}
+      serverOpts: {},
+      targetPort: port2Target
     }
     const multiAddress = new Multiaddr(`/dns4/${service1.onionAddress}/tcp/${port1}/wss/p2p/${peerId1}`)
 
@@ -213,7 +220,7 @@ describe('websocketOverTor', () => {
     listener.on('connection', onConnection)
 
     await expect(ws2.dial(multiAddress, {
-      signal: singal
+      signal: signal
     })).rejects.toBeTruthy()
   })
 
@@ -229,7 +236,7 @@ describe('websocketOverTor', () => {
       }
     }
 
-    const singal = {
+    const signal = {
       addEventListener,
       removeEventListener
     }
@@ -250,7 +257,8 @@ describe('websocketOverTor', () => {
         key: anotherPems.servKey,
         ca: [pems.ca]
       },
-      localAddr: `/dns4/${service1.onionAddress}/tcp/${port1}/wss/p2p/${peerId1}`
+      localAddr: `/dns4/${service1.onionAddress}/tcp/${port1}/wss/p2p/${peerId1}`,
+      targetPort: port1Target
     }
 
     const websocketsOverTorData2 = {
@@ -265,7 +273,8 @@ describe('websocketOverTor', () => {
         ca: [pems.ca]
       },
       localAddr: `/dns4/${service2.onionAddress}/tcp/${port2}/wss/p2p/${peerId2}`,
-      serverOpts: {}
+      serverOpts: {},
+      targetPort: port2Target
     }
     const multiAddress = new Multiaddr(`/dns4/${service1.onionAddress}/tcp/${port1}/wss/p2p/${peerId1}`)
 
@@ -280,7 +289,7 @@ describe('websocketOverTor', () => {
     listener.on('connection', onConnection)
 
     await expect(ws2.dial(multiAddress, {
-      signal: singal
+      signal: signal
     })).rejects.toBeTruthy()
   })
 })

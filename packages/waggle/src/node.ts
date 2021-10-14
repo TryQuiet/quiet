@@ -67,12 +67,13 @@ export default class Node {
     const connectonsManager = await this.initConnectionsManager(dataServer)
     const communities = new CommunitiesManager(connectonsManager)
     const peerId = await this.getPeer()
-
+    const virtPort = 443
     await communities.initStorage(
       peerId,
       onionAddress,
+      virtPort,
       this.port,
-      ['/dns4/2lmfmbj4ql56d55lmv7cdrhdlhls62xa4p6lzy6kymxuzjlny3vnwyqd.onion/tcp/7788/wss/p2p/Qmak8HeMad8X1HGBmz2QmHfiidvGnhu6w6ugMKtx8TFc85'],
+      ['/dns4/2lmfmbj4ql56d55lmv7cdrhdlhls62xa4p6lzy6kymxuzjlny3vnwyqd.onion/tcp/443/wss/p2p/Qmak8HeMad8X1HGBmz2QmHfiidvGnhu6w6ugMKtx8TFc85'],
       this.certificates
     )
     await communities.setupRegistrationService(
@@ -110,12 +111,12 @@ export default class Node {
     } catch (e) {
       if (this.getHiddenServiceSecret()) {
         service = await (await this.tor.spawnHiddenService({
-          virtPort: this.hiddenServicePort,
+          virtPort: 443,
           targetPort: this.hiddenServicePort,
           privKey: this.getHiddenServiceSecret()
         }))
       } else {
-        service = (await this.tor.createNewHiddenService(this.hiddenServicePort, this.hiddenServicePort)).onionAddress
+        service = (await this.tor.createNewHiddenService(443, this.hiddenServicePort)).onionAddress
       }
     }
     return `${service as string}`

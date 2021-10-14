@@ -60,7 +60,7 @@ export class CertificateRegistration {
     if (!certSaved) {
       throw new Error('Could not save certificate')
     }
-    log('Saved certificate')
+    log('Saved owner certificate')
     return userCert
   }
 

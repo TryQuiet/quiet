@@ -134,7 +134,8 @@ export class ConnectionsManager {
     peerId: PeerId,
     listenAddrs: string,
     bootstrapMultiaddrs: string[],
-    certs: CertsData
+    certs: CertsData,
+    targetPort: number
   ): Promise<{ libp2p: Libp2pType, localAddress: string }> => {
     const localAddress = `${listenAddrs}/p2p/${peerId.toB58String()}`
     const libp2p = ConnectionsManager.createBootstrapNode({
@@ -144,7 +145,8 @@ export class ConnectionsManager {
       localAddr: localAddress,
       ...certs,
       bootstrapMultiaddrsList: bootstrapMultiaddrs,
-      transportClass: this.libp2pTransportClass
+      transportClass: this.libp2pTransportClass,
+      targetPort
     })
     libp2p.connectionManager.on('peer:connect', (connection: Connection) => {
       log(`${peerId.toB58String()} connected to ${connection.remotePeer.toB58String()}`)
@@ -197,7 +199,8 @@ export class ConnectionsManager {
     ca,
     localAddr,
     bootstrapMultiaddrsList,
-    transportClass
+    transportClass,
+    targetPort
   }): Libp2pType => {
     return ConnectionsManager.defaultLibp2pNode({
       peerId,
@@ -208,7 +211,8 @@ export class ConnectionsManager {
       ca,
       localAddr,
       bootstrapMultiaddrsList,
-      transportClass
+      transportClass,
+      targetPort
     })
   }
 
@@ -221,7 +225,8 @@ export class ConnectionsManager {
     ca,
     localAddr,
     bootstrapMultiaddrsList,
-    transportClass
+    transportClass,
+    targetPort
   }): Libp2pType => {
     return new CustomLibp2p({
       peerId,
@@ -265,7 +270,8 @@ export class ConnectionsManager {
               key,
               ca
             },
-            localAddr
+            localAddr,
+            targetPort
           }
         }
       }

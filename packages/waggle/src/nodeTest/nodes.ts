@@ -81,10 +81,10 @@ export class NodeWithoutTor extends LocalNode {
     const bootstrapAddressArrayWs = this.bootstrapMultiaddrs.map((address) => address.replace('wss', 'ws'))
     // eslint-disable-next-line
     const certs = {} as CertsData
-
     this.localAddress = await communities.initStorage(
       peerId,
       '0.0.0.0',
+      this.port,
       this.port,
       bootstrapAddressArrayWs,
       certs
@@ -127,12 +127,14 @@ export class NodeWithTor extends LocalNode {
       key: userCert.userKey,
       ca: [this.rootCa.rootCertString]
     }
+    const virtPort = 443
 
     const communities = new CommunitiesManager(connectonsManager)
     const peerId = await this.getPeer()
     this.localAddress = await communities.initStorage(
       peerId,
       onionAddress,
+      virtPort,
       this.port,
       this.bootstrapMultiaddrs,
       certs

@@ -67,19 +67,20 @@ export const createMinConnectionManager = (options: ConnectionsManagerOptions): 
 
 export const createLibp2p = async (peerId: PeerId): Promise<Libp2pType> => {
   const [port] = await fp(1111)
-
+  const virtPort = 443
   const pems = await createCertificatesTestHelper('address1.onion', 'address2.onion')
 
   return ConnectionsManager.createBootstrapNode({
     peerId,
-    listenAddrs: [`/dns4/localhost/tcp/${port as string}/wss`],
+    listenAddrs: [`/dns4/localhost/tcp/${virtPort}/wss`],
     bootstrapMultiaddrsList: testBootstrapMultiaddrs,
     agent: new SocksProxyAgent({ port: 1234, host: 'localhost' }),
-    localAddr: `/dns4/localhost/tcp/${port as string}/wss/p2p/${peerId.toB58String()}`,
+    localAddr: `/dns4/localhost/tcp/${virtPort}/wss/p2p/${peerId.toB58String()}`,
     transportClass: WebsocketsOverTor,
     cert: pems.userCert,
     key: pems.userKey,
-    ca: [pems.ca]
+    ca: [pems.ca],
+    targetPort: port
   })
 }
 

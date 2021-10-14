@@ -48,10 +48,11 @@ export default class CommunitiesManager {
 
   public create = async (certs: CertsData): Promise<CommunityData> => {
     const ports = await getPorts()
-    const hiddenService = await this.connectionsManager.tor.createNewHiddenService(443, ports.libp2pHiddenService)
+    const virtPort = 443
+    const hiddenService = await this.connectionsManager.tor.createNewHiddenService(virtPort, ports.libp2pHiddenService)
     const peerId = await PeerId.create()
 
-    const localAddress = await this.initStorage(peerId, hiddenService.onionAddress, ports.libp2pHiddenService, [peerId.toB58String()], certs)
+    const localAddress = await this.initStorage(peerId, hiddenService.onionAddress, virtPort, ports.libp2pHiddenService, [peerId.toB58String()], certs)
     log(`Created community, ${peerId.toB58String()}`)
     return {
       hiddenService,
@@ -63,22 +64,23 @@ export default class CommunitiesManager {
   public launch = async (peerId: JSONPeerId, hiddenServiceKey: string, bootstrapMultiaddrs: string[], certs: CertsData): Promise<string> => {
     // Start existing community (community that user is already a part of)
     const ports = await getPorts()
+    const virtPort = 443
     const onionAddress = await this.connectionsManager.tor.spawnHiddenService({
-      virtPort: 443,
+      virtPort,
       targetPort: ports.libp2pHiddenService,
       privKey: hiddenServiceKey
     })
     log(`Launching community, ${peerId.id}`)
-    return await this.initStorage(await PeerId.createFromJSON(peerId), onionAddress, ports.libp2pHiddenService, bootstrapMultiaddrs, certs)
+    return await this.initStorage(await PeerId.createFromJSON(peerId), onionAddress, virtPort, ports.libp2pHiddenService, bootstrapMultiaddrs, certs)
   }
 
-  public initStorage = async (peerId: PeerId, onionAddress: string, port: number, bootstrapMultiaddrs: string[], certs: CertsData): Promise<string> => {
-    const listenAddrs = `/dns4/${onionAddress}/tcp/${port}/wss`
+  public initStorage = async (peerId: PeerId, onionAddress: string, virtPort: number, targetPort: number, bootstrapMultiaddrs: string[], certs: CertsData): Promise<string> => {
+    const listenAddrs = `/dns4/${onionAddress}/tcp/${virtPort}/wss`
     const peerIdB58string = peerId.toB58String()
     if (bootstrapMultiaddrs.length === 0) {
-      bootstrapMultiaddrs = [`/dns4/${onionAddress}/tcp/${port}/wss/p2p/${peerIdB58string}`]
+      bootstrapMultiaddrs = [`/dns4/${onionAddress}/tcp/${virtPort}/wss/p2p/${peerIdB58string}`]
     }
-    const libp2pObj = await this.connectionsManager.initLibp2p(peerId, listenAddrs, bootstrapMultiaddrs, certs)
+    const libp2pObj = await this.connectionsManager.initLibp2p(peerId, listenAddrs, bootstrapMultiaddrs, certs, targetPort)
     const storage = this.connectionsManager.createStorage(peerIdB58string)
     await storage.init(libp2pObj.libp2p, peerId)
     this.communities.set(peerIdB58string, { storage })
