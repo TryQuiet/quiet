@@ -138,7 +138,7 @@
     "concurrently": "^4.1.0",
     "cross-env": "^5.2.0",
     "css-loader": "^2.1.0",
-    "electron": "12.0.2",
+    "electron": "12.1.0",
     "electron-build-env": "^0.2.0",
     "electron-builder": "^22.10.5",
     "electron-devtools-installer": "^3.1.1",
