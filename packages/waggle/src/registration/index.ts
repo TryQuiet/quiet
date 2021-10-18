@@ -76,7 +76,16 @@ export class CertificateRegistration {
   public async getPeers(): Promise<string[]> {
     const users = this._storage.getAllUsers()
     const peers = users.map(async (userData: { onionAddress: string, peerId: string }) => {
-      return `/dns4/${userData.onionAddress}/tcp/443/wss/p2p/${userData.peerId}/`
+      let port: number
+      let ws: string
+      if (this.tor) {
+        port = 443
+        ws = 'wss'
+      } else {
+        port = 7788 // make sure this port is free
+        ws = 'ws'
+      }
+      return `/dns4/${userData.onionAddress}/tcp/${port}/${ws}/p2p/${userData.peerId}/`
     })
 
     return await Promise.all(peers)
@@ -132,13 +141,25 @@ export class CertificateRegistration {
       this._port = port
     }
     if (this._privKey) {
-      this._onionAddress = await this.tor.spawnHiddenService({
-        virtPort: 80,
-        targetPort: this._port,
-        privKey: this._privKey
-      })
+      if (this.tor) {
+        this._onionAddress = await this.tor.spawnHiddenService({
+          virtPort: 80,
+          targetPort: this._port,
+          privKey: this._privKey
+        })
+      } else {
+        this._onionAddress = '0.0.0.0'
+      }
     } else {
-      const data = await this.tor.createNewHiddenService(80, this._port)
+      let data
+      if (this.tor) {
+        data = await this.tor.createNewHiddenService(80, this._port)
+      } else {
+        data = {
+          onionAddress: '0.0.0.0',
+          privateKey: ''
+        }
+      }
       this._onionAddress = data.onionAddress
       this._privKey = data.privateKey
     }

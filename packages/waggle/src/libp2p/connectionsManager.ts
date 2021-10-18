@@ -83,8 +83,17 @@ export class ConnectionsManager {
 
   public createNetwork = async () => {
     const ports = await getPorts()
-    const hiddenService = await this.tor.createNewHiddenService(443, ports.libp2pHiddenService)
-    await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
+    let hiddenService
+    if (this.tor) {
+      hiddenService = await this.tor.createNewHiddenService(443, ports.libp2pHiddenService)
+      await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
+    } else {
+      hiddenService = {
+        onionAddress: '0.0.0.0',
+        privateKey: ''
+      }
+    }
+
     const peerId = await PeerId.create()
     return {
       hiddenService,
@@ -176,12 +185,22 @@ export class ConnectionsManager {
     userCsr: string,
     retryCount: number = 3
   ): Promise<Response> => {
-    const options = {
-      method: 'POST',
-      body: JSON.stringify({ data: userCsr }),
-      headers: { 'Content-Type': 'application/json' },
-      agent: this.socksProxyAgent
+    let options
+    if (this.tor) {
+      options = {
+        method: 'POST',
+        body: JSON.stringify({ data: userCsr }),
+        headers: { 'Content-Type': 'application/json' },
+        agent: this.socksProxyAgent
+      }
+    } else {
+      options = {
+        method: 'POST',
+        body: JSON.stringify({ data: userCsr }),
+        headers: { 'Content-Type': 'application/json' }
+      }
     }
+
     try {
       return await fetchRetry(serviceAddress + '/register', options, retryCount)
     } catch (e) {
