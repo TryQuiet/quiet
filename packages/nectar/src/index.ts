@@ -33,6 +33,7 @@ import {
 import { reducers } from './sagas/reducers'
 
 import { SocketActionTypes } from './sagas/socket/const/actionTypes'
+import { communitiesSelectors } from './sagas/communities/communities.selectors';
 
 export { DisplayableMessage } from './sagas/publicChannels/publicChannels.types'
 
@@ -71,7 +72,7 @@ export const errors = {
 export const communities = {
   reducer: communitiesReducer,
   actions: communitiesActions,
-  // selectors: communitiesSelectors
+  selectors: communitiesSelectors
 };
 
 export const socket = {
