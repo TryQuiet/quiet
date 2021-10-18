@@ -5,18 +5,13 @@ import { Moderators } from './Moderators'
 
 describe('Moderators', () => {
   it('renders component', () => {
-    const users = {
-      username: '',
-      onionAddress: '',
-      peerId: '',
-      dmPublicKey: ''
-    }
+    const users = {}
     const result = renderComponent(
       <Moderators
         users={users}
         moderators={[]}
-        openAddModerator={() => {}}
-        removeModerator={() => {}}
+        openAddModerator={() => { }}
+        removeModerator={() => { }}
       />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`

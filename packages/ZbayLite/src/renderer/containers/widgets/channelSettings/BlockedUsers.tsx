@@ -12,11 +12,11 @@ export const mapStateToProps = _state => {
   return {
     // blockedUsers: contactsSelectors.directMessages(channelSelectors.id(state))(state).blockedUsers,
     blockedUsers: [],
-    users: []
+    users: {}
   }
 }
 
-export const mapDispatchToProps = (dispatch) =>
+export const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
       // unblockUser: publicKey =>

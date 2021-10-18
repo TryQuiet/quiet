@@ -10,8 +10,9 @@ import { TextField as FormikTextField } from '../../ui/TextField/TextField'
 import Modal from '../../ui/Modal/Modal'
 import { AutocompleteField } from '../../ui/Autocomplete/Autocomplete'
 import { User } from '@zbayapp/nectar/lib/sagas/users/users.slice'
+import { Dictionary } from '@reduxjs/toolkit'
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   root: {
     padding: 32,
     height: '100%',
@@ -43,7 +44,7 @@ interface NewMessageModalProps {
   open: boolean
   handleClose: () => void
   sendMessage: (payload) => void
-  users: User
+  users: Dictionary<User>
 }
 
 export const NewMessageModal: React.FC<NewMessageModalProps> = ({
@@ -61,25 +62,20 @@ export const NewMessageModal: React.FC<NewMessageModalProps> = ({
           initialValues={{
             recipient: '',
             message: '',
-            user: {
-
-            }
+            user: {}
           }}
           onSubmit={(values, { resetForm }) => {
             const isAddressValid = /^t1[a-zA-Z0-9]{33}$|^ztestsapling1[a-z0-9]{75}$|^zs1[a-z0-9]{75}$/.test(
               values.recipient
             )
-            const targetUser = usersArray.find(
-              user => user.nickname === values.recipient || user.address === values.recipient
-            )
+            const targetUser = usersArray.find(user => user.username === values.recipient)
             let payload
             if (targetUser) {
               payload = {
                 message: values.message || '',
                 spent: 0.0,
                 receiver: {
-                  replyTo: targetUser.address,
-                  username: targetUser.nickname
+                  username: targetUser.username
                 }
               }
               sendMessage(payload)
@@ -100,16 +96,14 @@ export const NewMessageModal: React.FC<NewMessageModalProps> = ({
               handleClose()
               resetForm()
             }
-          }}
-        >
+          }}>
           {({ values, setFieldValue }) => (
             <Form className={classes.fullContainer}>
               <Grid
                 container
                 justify='flex-start'
                 direction='column'
-                className={classes.fullContainer}
-              >
+                className={classes.fullContainer}>
                 <Typography variant='h3' className={classes.title}>
                   New message
                 </Typography>
@@ -118,7 +112,7 @@ export const NewMessageModal: React.FC<NewMessageModalProps> = ({
                   freeSolo
                   name={'recipient'}
                   inputValue={values.recipient || ''}
-                  options={usersArray.map(option => option.nickname)}
+                  options={usersArray.map(option => option.username)}
                   value={values.recipient}
                   onChange={(_e: React.ChangeEvent, v: string) => setFieldValue('recipient', v)}
                   onInputChange={(_e: React.ChangeEvent, v: string) => {
@@ -149,8 +143,7 @@ export const NewMessageModal: React.FC<NewMessageModalProps> = ({
                   variant='contained'
                   color='primary'
                   size='large'
-                  type='submit'
-                >
+                  type='submit'>
                   Send message
                 </Button>
               </Grid>

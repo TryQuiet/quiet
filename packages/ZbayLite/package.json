@@ -73,6 +73,7 @@
     "distwin": "export SOURCE_PATH=win32 && npm run pullBinariesWin && npm run build:prod && electron-builder --win",
     "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
     "lint-fix": "eslint --fix --ext .jsx,.js,.ts,.tsx ./src/",
+    "type-check": "tsc --noEmit",
     "test": "jest",
     "test:watch": "jest --watchAll",
     "build:prod": "concurrently \"npm run build:main:prod\" \"npm run build:renderer:prod\"",

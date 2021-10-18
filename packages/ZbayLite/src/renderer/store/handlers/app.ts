@@ -8,7 +8,7 @@ import { ActionsType, PayloadType } from './types'
 export class App {
   version: string
   newUser: boolean
-  modalTabToOpen: string
+  modalTabToOpen: 'channelInfo' | 'moderators' | 'notifications'
   isInitialLoadFinished: boolean
 
   constructor(values?: Partial<App>) {
@@ -21,14 +21,16 @@ export const initialState: App = {
   ...new App({
     version: null,
     newUser: false,
-    modalTabToOpen: '',
+    modalTabToOpen: 'notifications',
     isInitialLoadFinished: false
   })
 }
 
 const loadVersion = createAction(actionTypes.SET_APP_VERSION, () => remote.app.getVersion())
-const setModalTab = createAction<string>(actionTypes.SET_CURRENT_MODAL_TAB)
-const clearModalTab = createAction<null>(actionTypes.CLEAR_CURRENT_MODAL_TAB)
+const setModalTab = createAction<'channelInfo' | 'moderators' | 'notifications'>(
+  actionTypes.SET_CURRENT_MODAL_TAB
+)
+const clearModalTab = createAction(actionTypes.CLEAR_CURRENT_MODAL_TAB)
 
 export const actions = {
   loadVersion,

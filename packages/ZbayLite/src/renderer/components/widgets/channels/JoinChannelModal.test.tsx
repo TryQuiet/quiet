@@ -5,18 +5,13 @@ import { renderComponent } from '../../../testUtils/renderComponent'
 
 describe('JoinChannelModal', () => {
   it.skip('renders component', () => {
-    const users = {
-      username: '',
-      onionAddress: '',
-      peerId: '',
-      dmPublicKey: ''
-    }
+    const users = {}
     const result = renderComponent(
       <JoinChannelModal
         open
         handleClose={() => { }}
         joinChannel={() => { }}
-        publicChannels={{ displayableMessageLimit: 50 }}
+        publicChannels={[]}
         users={users}
       />
     )
@@ -204,7 +199,7 @@ describe('JoinChannelModal', () => {
                                 style="width: 0.01px;"
                               >
                                 <span>
-                                  ​
+
                                 </span>
                               </legend>
                             </fieldset>

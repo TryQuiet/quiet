@@ -3,15 +3,15 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import ModeratorActionsPopperComponent from '../../../components/widgets/channels/ModeratorActionsPopper'
 
-export const mapDispatchToProps = (dispatch) => {
+export const mapDispatchToProps = dispatch => {
   return bindActionCreators(
     {
-      banUser: () => {},
+      banUser: () => { },
       // moderationHandlers.epics.handleModerationAction({
       //   moderationType: moderationActionsType.BLOCK_USER,
       //   moderationTarget: publicKey
       // }
-      removeMessage: () => {}
+      removeMessage: () => { }
       // moderationHandlers.epics.handleModerationAction({
       //   moderationType: moderationActionsType.REMOVE_MESSAGE,
       //   moderationTarget: txid
@@ -20,14 +20,7 @@ export const mapDispatchToProps = (dispatch) => {
     dispatch
   )
 }
-export const ModeratorActionsPopper = ({
-  name,
-  address,
-  open,
-  anchorEl,
-  removeMessage,
-  banUser
-}) => {
+export const ModeratorActionsPopper = ({ name, address, open, anchorEl, banUser }) => {
   return (
     <ModeratorActionsPopperComponent
       name={name}
@@ -35,7 +28,6 @@ export const ModeratorActionsPopper = ({
       open={open}
       anchorEl={anchorEl}
       banUser={banUser}
-      removeMessage={removeMessage}
     />
   )
 }

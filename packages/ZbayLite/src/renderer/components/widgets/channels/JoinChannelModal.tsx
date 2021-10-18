@@ -9,10 +9,12 @@ import TextField from '@material-ui/core/TextField'
 import Modal from '../../ui/Modal/Modal'
 import { AutocompleteField } from '../../ui/Autocomplete/Autocomplete'
 import LoadindButton from '../../ui/LoadingButton/LoadingButton'
-import { Channel } from '../../../store/handlers/channel'
-import { User } from '@zbayapp/nectar/lib/sagas/users/users.slice'
 
-const useStyles = makeStyles((theme) => ({
+import { User } from '@zbayapp/nectar/lib/sagas/users/users.slice'
+import { IChannelInfo } from '@zbayapp/nectar/lib/sagas/publicChannels/publicChannels.types'
+import { Dictionary } from '@reduxjs/toolkit'
+
+const useStyles = makeStyles(theme => ({
   root: {
     padding: 32,
     height: '100%',
@@ -88,9 +90,9 @@ const useStyles = makeStyles((theme) => ({
 interface JoinChannelModalProps {
   open: boolean
   handleClose: () => void
-  joinChannel: () => void
-  publicChannels: Channel
-  users: User
+  joinChannel: (channel: IChannelInfo) => void
+  publicChannels: IChannelInfo[]
+  users: Dictionary<User>
 }
 
 export const JoinChannelModal: React.FC<JoinChannelModalProps> = ({
@@ -127,7 +129,7 @@ export const JoinChannelModal: React.FC<JoinChannelModalProps> = ({
             const ch = channelsArray.find(channel => channel.name === values.channel.name)
             if (ch) {
               setLoading(true)
-              await joinChannel()
+              joinChannel(ch)
               setLoading(false)
               setStep(0)
               handleClose()
@@ -148,14 +150,13 @@ export const JoinChannelModal: React.FC<JoinChannelModalProps> = ({
                   {step !== 0 && (
                     <Typography variant='caption' className={classes.timeInfo}>
                       {`Created by @${users[values.channel.owner]
-                        ? users[values.channel.owner].nickname
-                        : 'Unnamed'
-                        } on ${DateTime.fromSeconds(
-                          parseInt(values.channel.timestamp)
-                        ).toFormat('LLL d, y')} `}
+                          ? users[values.channel.owner].username
+                          : 'Unnamed'
+                        } on ${DateTime.fromSeconds(parseInt(values.channel.timestamp)).toFormat(
+                          'LLL d, y'
+                        )} `}
                     </Typography>
-                  )
-                  }
+                  )}
                   {step === 0 ? (
                     <AutocompleteField
                       name={'channel'}
@@ -169,7 +170,7 @@ export const JoinChannelModal: React.FC<JoinChannelModalProps> = ({
                               {`#${option.name}`}
                             </Typography>
                             <Typography variant='caption' className={classes.channelInfo}>
-                              {`Created by @${users[option.owner] ? users[option.owner].nickname : 'Unnamed'
+                              {`Created by @${users[option.owner] ? users[option.owner].username : 'Unnamed'
                                 } on ${time.toFormat('LLL d, y')} `}
                             </Typography>
                           </Grid>
@@ -196,7 +197,7 @@ export const JoinChannelModal: React.FC<JoinChannelModalProps> = ({
                         {`${values.channel.description}`}
                       </Typography>
                       <Grid container alignItems='center' className={classes.informationBox}>
-                        After joining, it may take some time for messages to fully load.
+                          After joining, it may take some time for messages to fully load.
                       </Grid>
                     </>
                   )}
@@ -214,16 +215,16 @@ export const JoinChannelModal: React.FC<JoinChannelModalProps> = ({
                     />
                   ) : (
                     <Typography variant='caption' className={classes.info}>
-                      If you have an invite link, open it in a browser
+                        If you have an invite link, open it in a browser
                     </Typography>
                   )}
                 </Grid>
               </Form>
             )
           }}
-        </Formik >
-      </Grid >
-    </Modal >
+        </Formik>
+      </Grid>
+    </Modal>
   )
 }
 

@@ -27,7 +27,7 @@ describe('ChannelSettingsModal', () => {
           currentTab='notifications'
           open
           isOwner={false}
-          modalTabToOpen={jest.fn(() => 'notifications')}
+          modalTabToOpen={'notifications'}
           clearCurrentOpenTab={jest.fn()}
         />
       </Provider>

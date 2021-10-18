@@ -18,7 +18,7 @@ const tabs = {
   notifications: Notifications
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   root: {
     zIndex: 1000,
     paddingLeft: 20,
@@ -57,7 +57,11 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-const handleChange = (setCurrentTab: (value: string) => void, clearCurrentOpenTab: () => void, value: string) => {
+const handleChange = (
+  setCurrentTab: (value: string) => void,
+  clearCurrentOpenTab: () => void,
+  value: string
+) => {
   clearCurrentOpenTab()
   setCurrentTab(value)
 }
@@ -68,8 +72,8 @@ interface ChannelSettingsModalProps {
   currentTab: keyof typeof tabs
   channel: Contact
   isOwner: boolean
-  modalTabToOpen: () => keyof typeof tabs
-  setCurrentTab: () => void
+  modalTabToOpen: keyof typeof tabs
+  setCurrentTab: (tab: keyof typeof tabs) => void
   clearCurrentOpenTab: () => void
 }
 
@@ -86,7 +90,7 @@ export const ChannelSettingsModal: React.FC<ChannelSettingsModalProps> = ({
   const classes = useStyles({})
   let TabComponent: typeof tabs['channelInfo' | 'moderators' | 'notifications']
   if (isOwner) {
-    TabComponent = tabs[modalTabToOpen() || currentTab]
+    TabComponent = tabs[modalTabToOpen || currentTab]
   } else {
     TabComponent = tabs.notifications
   }
@@ -97,22 +101,18 @@ export const ChannelSettingsModal: React.FC<ChannelSettingsModalProps> = ({
       handleClose={handleClose}
       title={`Settings for #${channel.username}`}
       isBold
-      addBorder
-    >
+      addBorder>
       <Grid container direction='row' className={classes.root}>
         <Grid item className={classes.tabsDiv}>
           <AppBar position='static' className={classes.appbar}>
             <Tabs
               value={isOwner ? modalTabToOpen || currentTab : 'notifications'}
               // eslint-disable-next-line
-              onChange={(e, value) =>
-                handleChange(setCurrentTab, clearCurrentOpenTab, value)
-              }
+              onChange={(_e, value) => handleChange(setCurrentTab, clearCurrentOpenTab, value)}
               orientation='vertical'
               className={classes.tabs}
               textColor='inherit'
-              classes={{ indicator: classes.indicator }}
-            >
+              classes={{ indicator: classes.indicator }}>
               {isOwner && (
                 <Tab
                   value='channelInfo'

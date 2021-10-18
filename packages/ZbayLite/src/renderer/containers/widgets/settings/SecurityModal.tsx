@@ -1,27 +1,10 @@
-
 import React, { useEffect } from 'react'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
-import * as R from 'ramda'
 
 import SecurityModalComponent from '../../../components/widgets/SecurityModal'
-import { withModal } from '../../../store/handlers/modals'
-import { actions } from '../../../store/handlers/app'
+import { ModalName, useModal } from '../../../store/handlers/modals'
 import electronStore from '../../../../shared/electronStore'
 
-const mapStateToProps = _state => ({
-  test: 'test'
-})
-
-const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      clearCurrentOpenTab: actions.clearModalTab
-    },
-    dispatch
-  )
-
-const SecurityModal = props => {
+const SecurityModal: React.FC = () => {
   let isTorEnabled
   let torAddress
   let defaultLightWalletServer
@@ -36,14 +19,10 @@ const SecurityModal = props => {
     isTorEnabled: isTorEnabled || 'no',
     torServerAddress: torAddress || '',
     defaultLightWalletServer: defaultLightWalletServer || 'yes',
-    customLightWalletServer: customLightWalletServer || ''
+    lightWalletServerUrl: customLightWalletServer || ''
   }
-  return (
-    <SecurityModalComponent {...props} initialValues={initialValues} />
-  )
+  const modal = useModal(ModalName.lightWalletSecurityModal)
+  return <SecurityModalComponent {...modal} initialValues={initialValues} />
 }
 
-export default R.compose(
-  connect(mapStateToProps, mapDispatchToProps),
-  withModal('lightWalletSecurityModal')
-)(SecurityModal)
+export default SecurityModal

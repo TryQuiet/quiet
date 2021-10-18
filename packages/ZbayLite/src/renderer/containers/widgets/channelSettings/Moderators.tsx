@@ -1,35 +1,20 @@
+import React from 'react'
 import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
 
-// import moderationActions from '../../../store/handlers/moderationActions'
 import Moderators from '../../../components/widgets/channelSettings/Moderators'
-// import channelSelectors from '../../../store/selectors/channel'
-// import contactsSelectors from '../../../store/selectors/contacts'
-// import usersSelector from '../../../store/selectors/users'
-import modalsHandlers from '../../../store/handlers/modals'
+import modalsHandlers, { ModalName } from '../../../store/handlers/modals'
 
-export const mapStateToProps = _state => {
-  return {
-    // moderators: contactsSelectors.channelModerators(
-    //   channelSelectors.channelId(state)
-    // )(state),
-    moderators: [],
-    users: []
-    // users: usersSelector.users(state)
-  }
-}
+import { useDispatch } from 'react-redux'
 
-export const mapDispatchToProps = (dispatch) =>
-  bindActionCreators(
+const ModeratorsContainer: React.FC = () => {
+  const dispatch = useDispatch()
+  const { openAddModerator } = bindActionCreators(
     {
-      // removeModerator: publicKey =>
-      //   moderationActions.epics.handleModerationAction({
-      //     moderationType: moderationActionsType.REMOVE_MOD,
-      //     moderationTarget: publicKey
-      //   }),
-      openAddModerator: modalsHandlers.actionCreators.openModal('addModerator')
+      openAddModerator: modalsHandlers.actionCreators.openModal(ModalName.addModerator)
     },
     dispatch
   )
 
-export default connect(mapStateToProps, mapDispatchToProps)(Moderators)
+  return <Moderators openAddModerator={openAddModerator} moderators={[]} users={{}} />
+}
+export default ModeratorsContainer

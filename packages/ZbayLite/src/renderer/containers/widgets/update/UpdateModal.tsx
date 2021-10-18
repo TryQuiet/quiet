@@ -1,17 +1,24 @@
-import * as R from 'ramda'
+import React from 'react'
 import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 import UpdateModal from '../../../components/widgets/update/UpdateModal'
 import updateHandlers from '../../../store/handlers/update'
-import { withModal } from '../../../store/handlers/modals'
+import { ModalName, useModal } from '../../../store/handlers/modals'
 
-export const mapDispatchToProps = dispatch => bindActionCreators({
-  handleUpdate: updateHandlers.epics.startApplicationUpdate,
-  rejectUpdate: updateHandlers.epics.declineUpdate
-}, dispatch)
+export const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    {
+      handleUpdate: updateHandlers.epics.startApplicationUpdate,
+      rejectUpdate: updateHandlers.epics.declineUpdate
+    },
+    dispatch
+  )
 
-export default R.compose(
-  connect(null, mapDispatchToProps),
-  withModal('applicationUpdate')
-)(UpdateModal)
+const ApplicationUpdateModal: React.FC = () => {
+  const dispatch = useDispatch()
+  const actions = mapDispatchToProps(dispatch)
+  const modal = useModal(ModalName.applicationUpdate)
+  return <UpdateModal {...modal} {...actions} />
+}
+export default ApplicationUpdateModal

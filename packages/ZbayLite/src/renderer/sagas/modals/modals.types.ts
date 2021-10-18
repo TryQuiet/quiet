@@ -1,4 +1,5 @@
 export enum ModalName {
+  addModerator = 'addModerator',
   createChannel = 'createChannel',
   accountSettingsModal = 'accountSettingsModal',
   openexternallink = 'openexternallink',
