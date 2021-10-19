@@ -10,8 +10,6 @@ describe('Security', () => {
         openSeedModal={jest.fn()}
         allowAll={true}
         toggleAllowAll={jest.fn()}
-        isRescanned={true}
-        onRescan={jest.fn()}
         whitelisted={[]}
         removeSiteHost={jest.fn()}
       />
@@ -108,15 +106,6 @@ describe('Security', () => {
               >
                 Verification
               </h5>
-            </div>
-            <div
-              class="MuiGrid-root MuiGrid-item"
-            >
-              <p
-                class="MuiTypography-root MuiTypography-body2"
-              >
-                Zbay has been re-synced.
-              </p>
             </div>
             <div
               class="MuiGrid-root MuiGrid-item"

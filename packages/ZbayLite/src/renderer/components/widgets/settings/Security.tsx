@@ -54,8 +54,6 @@ interface SecurityProps {
   allowAll: boolean
   toggleAllowAll: (arg: boolean) => void
   openSeedModal: () => void
-  isRescanned: boolean
-  onRescan: () => void
   whitelisted: any[]
   removeSiteHost: (hostname: string) => void
 }
@@ -64,8 +62,6 @@ export const Security: React.FC<SecurityProps> = ({
   allowAll,
   toggleAllowAll,
   openSeedModal,
-  isRescanned,
-  onRescan,
   whitelisted,
   removeSiteHost
 }) => {
@@ -124,37 +120,6 @@ export const Security: React.FC<SecurityProps> = ({
       <Grid item >
         <Typography variant='h5'>Verification</Typography>
       </Grid>
-      {isRescanned ? (
-        <Grid item>
-          <Typography variant='body2'>Zbay has been re-synced.</Typography>
-        </Grid>
-      ) : (
-        <>
-          <Grid item>
-            <Typography variant='body2'>
-              To start quickly, Zbay includes username and channel registration data in the app
-              itself. If the Zbay team omitted some data, or provided incorrect data, a user or
-              channel could be censored or impersonated. To verify this data, which takes ~1 hour
-              but may add some security, you can restart & re-sync. You only need to do this once.
-            </Typography>
-          </Grid>
-          <Grid item >
-            <LoadingButton
-              variant='contained'
-              size='large'
-              color='primary'
-              type='submit'
-              fullWidth={true}
-              inProgress={false}
-              onClick={() => {
-                onRescan()
-              }}
-              text='Restart & re-sync'
-              classes={{ button: classes.rescanButton }}
-            />
-          </Grid>
-        </>
-      )}
       <Grid item >
         <Typography variant='h5'>Outbound Links</Typography>
       </Grid>
