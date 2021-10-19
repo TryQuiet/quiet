@@ -22,10 +22,8 @@ describe('ChannelHeader', () => {
             channel={channel}
             name={'channel'}
             updateShowInfoMsg={jest.fn()}
-            isRegisteredUsername
             directMessage={false}
             channelType={CHANNEL_TYPE.NORMAL}
-            offer={''}
           />
         </Provider>
       </HashRouter>
@@ -162,10 +160,9 @@ describe('ChannelHeader', () => {
             name={'channel'}
             updateShowInfoMsg={jest.fn()}
             mutedFlag
-            isRegisteredUsername
             directMessage={false}
             channelType={CHANNEL_TYPE.NORMAL}
-            offer={''}
+
           />
         </Provider>
       </HashRouter>
@@ -302,10 +299,8 @@ describe('ChannelHeader', () => {
             updateShowInfoMsg={jest.fn()}
             unmute={() => {}}
             mutedFlag
-            isRegisteredUsername
             directMessage={false}
             channelType={CHANNEL_TYPE.NORMAL}
-            offer={''}
           />
         </Provider>
       </HashRouter>

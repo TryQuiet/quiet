@@ -45,7 +45,6 @@ export const DirectMessagesPanel = ({
       <Grid item>
         <BaseChannelsList
           channels={props.channels}
-          unknownMessages={props.unknownMessages}
           directMessages={props.directMessages}
           selected={props.selected}
         />

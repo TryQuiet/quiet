@@ -103,14 +103,12 @@ const prefix = {
 // TODO: [reafactoring] we should have channel stats for unread and members count
 
 export interface ChannelHeaderProps {
-  isRegisteredUsername?: boolean
   updateShowInfoMsg?: (arg: boolean) => void
   directMessage?: boolean
   channelType: CHANNEL_TYPE
   tab?: number
   setTab?: (arg: number) => void
   channel?: Channel
-  offer?: string
   mutedFlag?: boolean
   unmute?: () => void
   name?: string
@@ -122,12 +120,10 @@ export const ChannelHeader: React.FC<ChannelHeaderProps> = ({
   setTab,
   channel = { displayableMessageLimit: 50 },
   directMessage = false,
-  offer,
   channelType = 3,
   updateShowInfoMsg,
   mutedFlag,
   unmute,
-  isRegisteredUsername = true,
   name
 }) => {
   const classes = useStyles({})
@@ -144,7 +140,6 @@ export const ChannelHeader: React.FC<ChannelHeaderProps> = ({
     }
   }
   const ActionsMenu = channelTypeToActions[channelType]
-  const isFromZbay = channel.name !== 'Unknown'
   const [silenceHover, setSilenceHover] = React.useState(false)
   const [wrapperWidth, setWrapperWidth] = React.useState(0)
   React.useEffect(() => {
@@ -184,11 +179,7 @@ export const ChannelHeader: React.FC<ChannelHeaderProps> = ({
                   [classes.title]: true,
                   [classes.bold]: true
                 })}>
-                {isRegisteredUsername || !isFromZbay
-                  ? isFromZbay
-                    ? `${prefix[channelType]}${channel?.name?.substring(0, 20)}`
-                    : 'unknown'
-                  : `${prefix[channelType]}${channel?.name?.substring(0, 20)}`}
+                {`${prefix[channelType]}${channel?.name?.substring(0, 20)}`}
               </Typography>
             </Grid>
             {mutedFlag && (
@@ -232,7 +223,7 @@ export const ChannelHeader: React.FC<ChannelHeaderProps> = ({
             </Grid>
           )}
           <Grid item>
-            <ActionsMenu directMessage={directMessage} offer={offer} />
+            <ActionsMenu directMessage={directMessage} />
             {directMessage ? <DirectMessagesInfoModal /> : <ChannelInfoModal channel={channel} />}
           </Grid>
         </Grid>

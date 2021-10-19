@@ -1,20 +1,26 @@
 import React from 'react'
 
 import { BaseChannelsList } from './BaseChannelsList'
-import { Contact } from '../../../store/handlers/contacts'
 import { renderComponent } from '../../../testUtils/renderComponent'
 
 describe('BaseChannelsList', () => {
   it('renders component', () => {
-    const channels = [new Contact()]
-    const unknownMessages = [new Contact()]
+    const channels = [
+      {
+        name: 'name',
+        description: 'super channel',
+        owner: 'holmes',
+        timestamp: 1243545,
+        address: 'us'
+      }
+    ]
+
     const directMessages = false
     const result = renderComponent(
       <BaseChannelsList
         channels={channels}
-        unknownMessages={unknownMessages}
         directMessages={directMessages}
-        selected={{ displayableMessageLimit: 50 }}
+        selected={'selectedChannel'}
       />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
@@ -47,7 +53,7 @@ describe('BaseChannelsList', () => {
                       <p
                         class="MuiTypography-root makeStyles-title-8 MuiTypography-body2"
                       >
-                        # undefined
+                        # name
                       </p>
                     </div>
                   </div>

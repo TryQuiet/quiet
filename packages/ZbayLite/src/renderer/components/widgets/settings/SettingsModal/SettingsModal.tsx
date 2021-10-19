@@ -12,13 +12,11 @@ import Tab from '../../../ui/Tab/Tab'
 import AccountSettingsForm from '../../../../containers/widgets/settings/AccountSettingsForm'
 import Security from '../../../../containers/widgets/settings/Security'
 import Notifications from '../../../../containers/widgets/settings/Notifications'
-import BlockedUsers from '../../../../containers/widgets/settings/BlockedUsers'
 
 const tabs = {
   account: AccountSettingsForm,
   security: Security,
-  notifications: Notifications,
-  blockedusers: BlockedUsers
+  notifications: Notifications
 }
 
 const useStyles = makeStyles((theme) => ({

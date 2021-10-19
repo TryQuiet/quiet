@@ -1,85 +1,61 @@
 import React from 'react'
-import { connect } from 'react-redux'
-import * as R from 'ramda'
+import { useSelector } from 'react-redux'
 import Grid from '@material-ui/core/Grid'
-import { bindActionCreators } from 'redux'
+import { publicChannels, IChannelInfo } from '@zbayapp/nectar'
 
 import BaseChannelsList from '../../../components/widgets/channels/BaseChannelsList'
 import SidebarHeader from '../../../components/ui/Sidebar/SidebarHeader'
-import contactsSelectors from '../../../store/selectors/contacts'
-import channelSelectors from '../../../store/selectors/channel'
-import { actionCreators, ModalName } from '../../../store/handlers/modals'
 import QuickActionButton from '../../../components/widgets/sidebar/QuickActionButton'
 import { Icon } from '../../../components/ui/Icon/Icon'
 import SearchIcon from '../../../static/images/st-search.svg'
+import { useModal } from '../../hooks'
+import { ModalName } from '../../../sagas/modals/modals.types'
 
-// const useData = () => {
-//   const data = {
-//     channels: useSelector(publicChannels.selectors.publicChannels),
-//     selected: useSelector(publicChannels.selectors.currentChannel)
-//   }
-//   return data
-// }
+interface useChannelPanelDataReturnTypes {
+  channels: IChannelInfo[]
+  selected: string
+}
 
-export const mapStateToProps = state => ({
-  channels: contactsSelectors.channelsList(state),
-  selected: channelSelectors.channelInfo(state)
-})
-
-export const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      openCreateModal: actionCreators.openModal(ModalName.createChannel),
-      openJoinChannel: actionCreators.openModal(ModalName.joinChannel)
-    },
-    dispatch
-  )
+const useChannelsPanelData = (): useChannelPanelDataReturnTypes => {
+  const data = {
+    channels: useSelector(publicChannels.selectors.publicChannels),
+    selected: useSelector(publicChannels.selectors.currentChannel)
+  }
+  return data
+}
 
 export const ChannelsPanel = ({
-  title,
-  openCreateModal,
-  openJoinChannel,
-  fundsLocked,
-  openDepositMonet,
-  // eslint-disable-next-line
-  ...props
+  title
 }) => {
+  const data = useChannelsPanelData()
+
+  const joinChannelModal = useModal(ModalName.joinChannel)
+  const createChannelModal = useModal(ModalName.createChannel)
+
   return (
     <Grid container item xs direction='column'>
       <Grid item>
         <SidebarHeader
           title={title}
-          action={openCreateModal}
+          action={createChannelModal.handleOpen}
           tooltipText='Create new channel'
-          actionTitle={openJoinChannel}
+          actionTitle={joinChannelModal.handleOpen}
         />
       </Grid>
       <Grid item>
         <BaseChannelsList
-          channels={props.channels}
-          unknownMessages={props.unknownMessages}
-          directMessages={props.directMessages}
-          selected={props.selected}
+          channels={data.channels}
+          selected={data.selected}
         />
       </Grid>
       <Grid item>
         <QuickActionButton
           text='Find Channel'
-          action={openJoinChannel}
+          action={joinChannelModal.handleOpen}
           icon={<Icon src={SearchIcon} />}
         />
       </Grid>
     </Grid>
   )
 }
-export default R.compose(connect(mapStateToProps, mapDispatchToProps))(
-  React.memo(ChannelsPanel, (before, after) => {
-    return (
-      Object.is(before.channels, after.channels) &&
-      Object.is(before.selected, after.selected) &&
-      Object.is(before.contentRect, after.contentRect) &&
-      Object.is(before.offers, after.offers) &&
-      Object.is(before.fundsLocked, after.fundsLocked)
-    )
-  })
-)
+export default ChannelsPanel

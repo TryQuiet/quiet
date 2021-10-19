@@ -1,16 +1,14 @@
 import React from 'react'
+import { IChannelInfo } from '@zbayapp/nectar'
 
 import List from '@material-ui/core/List'
 
 import ChannelsListItem from '../../../containers/widgets/channels/ChannelsListItem'
-import { Contact } from '../../../store/handlers/contacts'
-import { ChannelInfo } from '../../../store/selectors/channel'
 
 interface BaseChannelsListProps {
-  channels: Contact[]
-  unknownMessages: Contact[]
-  directMessages: boolean
-  selected: ChannelInfo
+  channels: IChannelInfo[]
+  directMessages?: boolean
+  selected: string
 }
 
 export const BaseChannelsList: React.FC<BaseChannelsListProps> = ({
@@ -23,7 +21,7 @@ export const BaseChannelsList: React.FC<BaseChannelsListProps> = ({
       {channels
         .map(channel => (
           <ChannelsListItem
-            key={channel.username}
+            key={channel.name}
             channel={channel}
             directMessages={directMessages}
             selected={selected}

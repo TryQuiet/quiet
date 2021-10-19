@@ -1,38 +1,62 @@
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
+import React from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 
 import ChannelHeader from '../../../components/widgets/channels/ChannelHeader'
-import contactsSelectors from '../../../store/selectors/contacts'
-// import usersSelectors from '../../../store/selectors/users'
 import notificationCenterHandlers from '../../../store/handlers/notificationCenter'
 import notificationCenterSlectors from '../../../store/selectors/notificationCenter'
 import { notificationFilterType } from '../../../../shared/static'
 
-export const mapStateToProps = (state, props) => {
-  const contact = contactsSelectors.contact(props.contactId)(state)
-  return {
+interface useChannelHeaderDataReturnTypes {
+  channel: {
+    name: string
+    address: string
+    displayableMessageLimit: number
+  }
+  directMessage: boolean
+  mutedFlag: boolean
+}
+
+export const useChannelHeaderData = (contact): useChannelHeaderDataReturnTypes => {
+  const data = {
     channel: {
       name: contact.username,
-      address: props.contactId,
+      address: contact.id,
       displayableMessageLimit: 50
     },
-    isRegisteredUsername: true,
-    // isRegisteredUsername: usersSelectors.isRegisteredUsername(contact.username)(state),
     directMessage: true,
     mutedFlag:
-      notificationCenterSlectors.contactFilterByAddress(contact.address)(
-        state
-      ) === notificationFilterType.MUTE
+      useSelector(notificationCenterSlectors.contactFilterByAddress(contact.address)) ===
+      notificationFilterType.MUTE
   }
+  return data
 }
-export const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      unmute: () =>
-        notificationCenterHandlers.epics.setContactNotification(
-          notificationFilterType.ALL_MESSAGES
-        )
-    },
-    dispatch
+
+interface useChannelHeaderActionsReturnTypes {
+  unmute: () => {}
+}
+
+export const useChannelHeaderActions = (): useChannelHeaderActionsReturnTypes => {
+  const dispatch = useDispatch()
+  const unmute = () =>
+    dispatch(
+      notificationCenterHandlers.epics.setContactNotification(notificationFilterType.ALL_MESSAGES)
+    )
+
+  return { unmute }
+}
+
+export const ChannelHeaderContainer = contact => {
+  const data = useChannelHeaderData(contact)
+  const { unmute } = useChannelHeaderActions()
+  return (
+    <ChannelHeader
+      channelType={1}
+      channel={data.channel}
+      directMessage={data.directMessage}
+      mutedFlag={data.mutedFlag}
+      unmute={unmute}
+    />
   )
-export default connect(mapStateToProps, mapDispatchToProps)(ChannelHeader)
+}
+
+export default ChannelHeaderContainer

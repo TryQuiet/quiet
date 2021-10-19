@@ -42,14 +42,12 @@ export const useChannelInputActions = () => {
 }
 
 export const ChannelHeaderContainer: React.FC<ChannelHeaderProps> = ({
-  isRegisteredUsername,
   updateShowInfoMsg,
   directMessage,
   channelType,
   tab,
   setTab,
   channel,
-  offer,
   mutedFlag,
   unmute,
   name,
@@ -69,11 +67,9 @@ export const ChannelHeaderContainer: React.FC<ChannelHeaderProps> = ({
       name={name}
       mutedFlag={mutedFlag}
       setTab={setTab}
-      offer={offer}
       tab={tab}
       directMessage={directMessage}
       updateShowInfoMsg={updateShowInfoMsg}
-      isRegisteredUsername={isRegisteredUsername}
       channelType={channelType}
     />
   )
