@@ -38,9 +38,14 @@ export const registrarUrl = createSelector(currentCommunity, (community) => {
   return registrarAddress;
 });
 
+export const isOwner = createSelector(currentCommunity, (community) => {
+  return community && community.CA !== null
+})
+
 export const communitiesSelectors = {
   selectById,
   currentCommunityId,
   currentCommunity,
-  registrarUrl
+  registrarUrl,
+  isOwner
 };
