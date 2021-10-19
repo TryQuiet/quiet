@@ -1,21 +1,35 @@
-import { applyMiddleware, combineReducers, createAction, createStore } from "@reduxjs/toolkit"
-import assert from 'assert'
-import getPort from "get-port"
-import path from 'path'
-import createSagaMiddleware from "redux-saga"
-import thunk from 'redux-thunk'
-import { io, Socket } from 'socket.io-client'
-import tmp from 'tmp'
-import { all, call, fork, put, take, takeEvery } from "typed-redux-saga"
-import waggle from 'waggle'
-import { communities, errors, identity, publicChannels, storeKeys, users } from "../index"
-import { appActions } from '../sagas/app/app.slice'
-import { errorsActions } from "../sagas/errors/errors.slice"
-import { useIO } from '../sagas/socket/startConnection/startConnection.saga'
-import logger from '../utils/logger'
-import resultLogger from './logger'
-const log = logger('tests')
-const logResult = resultLogger()
+import {
+  applyMiddleware,
+  combineReducers,
+  createAction,
+  createStore,
+} from '@reduxjs/toolkit';
+import assert from 'assert';
+import getPort from 'get-port';
+import path from 'path';
+import createSagaMiddleware from 'redux-saga';
+import thunk from 'redux-thunk';
+import { io, Socket } from 'socket.io-client';
+import tmp from 'tmp';
+import { all, call, fork, put, take, takeEvery } from 'typed-redux-saga';
+import waggle from 'waggle';
+import {
+  communities,
+  errors,
+  identity,
+  publicChannels,
+  storeKeys,
+  users,
+} from '../index';
+import { appActions } from '../sagas/app/app.slice';
+import { errorsActions } from '../sagas/errors/errors.slice';
+import { useIO } from '../sagas/socket/startConnection/startConnection.saga';
+import logger from '../utils/logger';
+import resultLogger from './logger';
+import Websockets from 'libp2p-websockets';
+
+const log = logger('tests');
+const logResult = resultLogger();
 
 function testReducer(
   state = {
@@ -24,23 +38,25 @@ function testReducer(
     error: null,
     manager: null,
     rootTask: null,
-    replicatedCertificates: false
-  }, action) {
+    replicatedCertificates: false,
+  },
+  action
+) {
   switch (action.type) {
     case 'setManager':
-      return {...state, manager: action.payload}
+      return { ...state, manager: action.payload };
     case 'setRootTask':
-      return {...state, rootTask: action.payload}
+      return { ...state, rootTask: action.payload };
     case 'testContinue':
-      return {...state, continue: true}
+      return { ...state, continue: true };
     case 'testFinished':
-      return {...state, finished: true}
+      return { ...state, finished: true };
     case 'testFailed':
-      return {...state, error: action.payload}
+      return { ...state, error: action.payload };
     case 'replicatedCertificates':
-      return {...state, replicatedCertificates: true}
+      return { ...state, replicatedCertificates: true };
     default:
-      return state
+      return state;
   }
 }
 
@@ -49,50 +65,50 @@ export function* integrationTest(saga, ...args: any[]): Generator {
    *  Integration test saga wrapper for catching errors
    */
   try {
-    yield* call(saga, ...args)
+    yield* call(saga, ...args);
   } catch (e) {
-    yield* put({type: 'testFailed', payload: e.message})
+    yield* put({ type: 'testFailed', payload: e.message });
   }
 }
 
 export const watchResults = (apps: any[], finalApp: any, testName: string) => {
-  log(`Running "${testName}"`)
+  log(`Running "${testName}"`);
   for (const app of apps) {
-    app.store.dispatch({type: 'setRootTask', payload: app.rootTask})
+    app.store.dispatch({ type: 'setRootTask', payload: app.rootTask });
     const storeUnsub = app.store.subscribe(() => {
       if (app.store.getState().Test.error) {
-        storeUnsub()
-        logResult.failed(`"${testName}": `, app.store.getState().Test.error)
-        process.exit(1)
+        storeUnsub();
+        logResult.failed(`"${testName}": `, app.store.getState().Test.error);
+        process.exit(1);
       }
-    })
+    });
   }
   const finalStoreUnsubscribe = finalApp.store.subscribe(() => {
     if (finalApp.store.getState().Test.finished) {
-      finalStoreUnsubscribe()
-      logResult.passed(testName)
+      finalStoreUnsubscribe();
+      logResult.passed(testName);
       for (const app of apps.filter((a) => a !== finalApp)) {
-        app.store.dispatch(createAction('testFinished'))
+        app.store.dispatch(createAction('testFinished'));
       }
     }
-  })
-}
+  });
+};
 
-export function* finishTestSaga () {
-  yield* put(createAction('testFinished')())
+export function* finishTestSaga() {
+  yield* put(createAction('testFinished')());
 }
 
 export const userIsReady = (userStore: any): boolean => {
-  return userStore.getState().Test.continue
-}
+  return userStore.getState().Test.continue;
+};
 
 export const createTmpDir = (prefix: string) => {
-  return tmp.dirSync({ mode: 0o750, prefix, unsafeCleanup: true })
-}
+  return tmp.dirSync({ mode: 0o750, prefix, unsafeCleanup: true });
+};
 
 export const createPath = (dirName: string) => {
-  return path.join(dirName, '.nectar')
-}
+  return path.join(dirName, '.nectar');
+};
 
 const reducers = {
   [storeKeys.Communities]: communities.reducer,
@@ -101,108 +117,169 @@ const reducers = {
   [storeKeys.Errors]: errors.reducer,
   [storeKeys.Messages]: errors.reducer,
   [storeKeys.PublicChannels]: publicChannels.reducer,
-  'Test': testReducer
-}
+  Test: testReducer,
+};
 
 export const prepareStore = (reducers) => {
-  const combinedReducers = combineReducers(reducers)
-  const sagaMiddleware = createSagaMiddleware()
+  const combinedReducers = combineReducers(reducers);
+  const sagaMiddleware = createSagaMiddleware();
   const store = createStore(
     combinedReducers,
     applyMiddleware(...[sagaMiddleware, thunk])
-  )
+  );
 
   return {
     store,
-    runSaga: sagaMiddleware.run
-  }
-}
+    runSaga: sagaMiddleware.run,
+  };
+};
 
 const connectToDataport = (url: string, name: string): Socket => {
-  const socket = io(url)
+  const socket = io(url);
   socket.on('connect', async () => {
-    log(`websocket connection is ready for app ${name}`)
-  })
+    log(`websocket connection is ready for app ${name}`);
+  });
   socket.on('disconnect', () => {
-    log(`socket disconnected is for app ${name}`)
-    socket.close()
-  })
-  return socket
-}
+    log(`socket disconnected is for app ${name}`);
+    socket.close();
+  });
+  return socket;
+};
 
 export const createApp = async () => {
   /**
    * Configure and initialize ConnectionsManager from waggle,
    * configure redux store
    */
-  const appName = (Math.random() + 1).toString(36).substring(7)
-  log(`Creating test app for ${appName}`)
-  const dataServerPort1 = await getPort({port: 4677})
-  const server1 = new waggle.DataServer(dataServerPort1)
-  await server1.listen()
+  const appName = (Math.random() + 1).toString(36).substring(7);
+  log(`Creating test app for ${appName}`);
+  const dataServerPort1 = await getPort({ port: 4677 });
+  const server1 = new waggle.DataServer(dataServerPort1);
+  await server1.listen();
 
-  const { store, runSaga } = prepareStore(reducers)
+  const { store, runSaga } = prepareStore(reducers);
 
-  const proxyPort = await getPort({port:1234})
-  const controlPort = await getPort({port: 5555})
-  const httpTunnelPort = await getPort({port: 9000})
+  const proxyPort = await getPort({ port: 1234 });
+  const controlPort = await getPort({ port: 5555 });
+  const httpTunnelPort = await getPort({ port: 9000 });
   const manager = new waggle.ConnectionsManager({
     agentHost: 'localhost',
     agentPort: proxyPort,
     httpTunnelPort,
     options: {
       env: {
-        appDataPath: createPath(createTmpDir(`nectarIntegrationTest-${appName}`).name)
+        appDataPath: createPath(
+          createTmpDir(`nectarIntegrationTest-${appName}`).name
+        ),
       },
-      torControlPort: controlPort
+      torControlPort: controlPort,
     },
-    io: server1.io
-  })
-  await manager.init()
+    io: server1.io,
+  });
+  await manager.init();
 
-  const rootTask = runSaga(root)
-  
+  const rootTask = runSaga(root);
+
   function* root(): Generator {
-    const socket = yield* call(connectToDataport, `http://localhost:${dataServerPort1}`, appName)
-    const task = yield* fork(useIO, socket)
-    yield* take(createAction('testFinished'))
-    yield* put(appActions.closeServices())
+    const socket = yield* call(
+      connectToDataport,
+      `http://localhost:${dataServerPort1}`,
+      appName
+    );
+    const task = yield* fork(useIO, socket);
+    yield* take(createAction('testFinished'));
+    yield* put(appActions.closeServices());
   }
-  
-  return {store, runSaga, rootTask}
-}
+
+  return { store, runSaga, rootTask };
+};
+
+export const createAppWithoutTor = async () => {
+  /**
+   * Configure and initialize ConnectionsManager from waggle,
+   * configure redux store
+   */
+  const appName = (Math.random() + 1).toString(36).substring(7);
+  log(`Creating test app for ${appName}`);
+  const dataServerPort1 = await getPort({ port: 4677 });
+  const server1 = new waggle.DataServer(dataServerPort1);
+  await server1.listen();
+
+  const { store, runSaga } = prepareStore(reducers);
+
+  const proxyPort = await getPort({ port: 1234 });
+  const controlPort = await getPort({ port: 5555 });
+  const httpTunnelPort = await getPort({ port: 9000 });
+  const manager = new waggle.ConnectionsManager({
+    agentHost: 'localhost',
+    agentPort: proxyPort,
+    httpTunnelPort,
+    options: {
+      env: {
+        appDataPath: createPath(
+          createTmpDir(`nectarIntegrationTest-${appName}`).name
+        ),
+      },
+      libp2pTransportClass: Websockets,
+      torControlPort: controlPort,
+    },
+    io: server1.io,
+  });
+  manager.initListeners();
+
+  const rootTask = runSaga(root);
+
+  function* root(): Generator {
+    const socket = yield* call(
+      connectToDataport,
+      `http://localhost:${dataServerPort1}`,
+      appName
+    );
+    const task = yield* fork(useIO, socket);
+    yield* take(createAction('testFinished'));
+    yield* put(appActions.closeServices());
+  }
+
+  return { store, runSaga, rootTask };
+};
 
 export const assertListElementMatches = (actual: any[], match: RegExp) => {
-  let counter = 0
+  let counter = 0;
   for (const item of actual) {
     try {
-      assert.match(item, match)
+      assert.match(item, match);
     } catch (e) {
-      counter++
+      counter++;
     }
   }
   if (counter === actual.length) {
-    throw new assert.AssertionError({message: `No element in the ${actual} matches ${match}`})
+    throw new assert.AssertionError({
+      message: `No element in the ${actual} matches ${match}`,
+    });
   }
-}
+};
 
 export const assertNotEmpty = (value: any, valueName: string) => {
   if (
-    (value === null || value === undefined || value === '') || 
-    (Array.isArray(value) && value.length === 0) || 
-    (Object.keys(value).length === 0)
-    ) {
-      throw new assert.AssertionError({message: `${valueName} is empty but shouldn't be`})
+    value === null ||
+    value === undefined ||
+    value === '' ||
+    (Array.isArray(value) && value.length === 0) ||
+    Object.keys(value).length === 0
+  ) {
+    throw new assert.AssertionError({
+      message: `${valueName} is empty but shouldn't be`,
+    });
   }
-}
+};
 
 const throwAssertionError = (payload) => {
-  throw new assert.AssertionError({message: `Nectar received error: ${JSON.stringify(payload.payload)}`})
-}
+  throw new assert.AssertionError({
+    message: `Nectar received error: ${JSON.stringify(payload.payload)}`,
+  });
+};
 
 export function* assertNoErrors(): Generator {
   // Use at the beginning of test saga
-  yield* all([
-    takeEvery(errorsActions.addError, throwAssertionError)
-  ]);
+  yield* all([takeEvery(errorsActions.addError, throwAssertionError)]);
 }

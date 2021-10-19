@@ -31,7 +31,6 @@ import {
 } from '../../communities/communities.slice';
 import { appMasterSaga } from '../../app/app.master.saga'
 
-
 export function* useIO(socket: Socket): Generator {
   yield all([
     fork(handleActions, socket),
@@ -159,6 +158,6 @@ export function subscribe(socket: Socket) {
     socket.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, () => {
       emit(identityActions.savedOwnerCertificate());
     });
-    return () => {};
+    return () => { };
   });
 }

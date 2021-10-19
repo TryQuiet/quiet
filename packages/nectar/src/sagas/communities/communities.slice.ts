@@ -47,8 +47,10 @@ export class Community {
   privateKey: string = '';
 
   onionAddress: string = '';
-  registrarUrl: string = ''
-  port: number
+
+  registrarUrl: string = '';
+
+  port: number;
 }
 
 export interface AddNewCommunityPayload {

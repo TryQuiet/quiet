@@ -3,7 +3,9 @@ import { createSelector } from 'reselect';
 import { communitiesAdapter } from './communities.adapter';
 import { CreatedSelectors, StoreState } from '../store.types';
 
-const communitiesSlice: CreatedSelectors[StoreKeys.Communities] = (state: StoreState) => state[StoreKeys.Communities]
+const communitiesSlice: CreatedSelectors[StoreKeys.Communities] = (
+  state: StoreState
+) => state[StoreKeys.Communities];
 
 export const selectById = (id: string) =>
   createSelector(communitiesSlice, (reducerState) =>
@@ -27,15 +29,14 @@ export const currentCommunityId = createSelector(
 );
 
 export const registrarUrl = createSelector(currentCommunity, (community) => {
-    let registrarAddress: string = ''
-    if (community.onionAddress && community.port) {
-      registrarAddress = `http://${community.onionAddress}:${community.port}`
-    } else if (community.registrarUrl) {
-      registrarAddress = community.registrarUrl
-    }
-    return registrarAddress
+  let registrarAddress: string = '';
+  if (community.onionAddress && community.port) {
+    registrarAddress = `http://${community.onionAddress}:${community.port}`;
+  } else if (community.registrarUrl) {
+    registrarAddress = community.registrarUrl;
   }
-);
+  return registrarAddress;
+});
 
 export const communitiesSelectors = {
   selectById,
