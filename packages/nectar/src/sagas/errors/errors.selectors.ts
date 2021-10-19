@@ -20,9 +20,13 @@ export const generalErrors = createSelector(errorSlice, (reducerState) =>
 );
 
 export const currentCommunityErrorByType = (type: string) =>
-  createSelector(currentCommunityErrors, (reducerState) =>
-    errorAdapter.getSelectors().selectById(reducerState.errors, type)
-  );
+  createSelector(currentCommunityErrors, (reducerState) => {
+    if (reducerState) {
+      errorAdapter.getSelectors().selectById(reducerState.errors, type);
+    } else {
+      return null
+    }
+  });
 
 export const errorsSelectors = {
   currentCommunityErrors,
