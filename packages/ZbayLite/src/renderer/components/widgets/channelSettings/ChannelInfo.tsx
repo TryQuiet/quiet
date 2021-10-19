@@ -7,13 +7,9 @@ import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 import { makeStyles } from '@material-ui/core/styles'
-import InputAdornment from '@material-ui/core/InputAdornment'
 
 import TextField from '../../ui/TextField/TextField'
 import CheckboxWithLabel from '../../ui/Checkbox/CheckboxWithLabel'
-import { LinkedTextField } from '../../ui/TextField/LinkedTextField'
-import Icon from '../../ui/Icon/Icon'
-import exchange from '../../../static/images/zcash/exchange.svg'
 
 const useStyles = makeStyles((theme) => ({
   submitButton: {},
@@ -86,27 +82,17 @@ export const formSchema = Yup.object().shape({
 interface ChannelInfoProps {
   initialValues: {
     updateChannelDescription: string
-    updateMinFee: boolean
     firstName?: string
-    amountUsd?: number
-    amountZec?: number
   }
-  updateChannelSettings: () => void
-  rateZec: number
-  rateUsd: number
+  updateChannelSettings?: () => void
 }
 
 export const ChannelInfo: React.FC<ChannelInfoProps> = ({
   initialValues = {
     updateChannelDescription: '',
-    updateMinFee: false,
-    firstName: '',
-    amountUsd: 0,
-    amountZec: 0
+    firstName: ''
   },
-  updateChannelSettings,
-  rateZec,
-  rateUsd
+  updateChannelSettings
 }) => {
   const classes = useStyles({})
   return (
@@ -123,7 +109,7 @@ export const ChannelInfo: React.FC<ChannelInfoProps> = ({
                 validationSchema={formSchema}
                 initialValues={initialValues}
               >
-                {({ values, isSubmitting, errors, isValid }) => {
+                {({ values, isSubmitting, isValid }) => {
                   return (
                     <Form >
                       <Grid container direction='column' alignItems='flex-start'>
@@ -160,59 +146,6 @@ export const ChannelInfo: React.FC<ChannelInfoProps> = ({
                             rootClass={classes.rootClass}
                           />
                         </Grid>
-                        {values.updateMinFee && (
-                          <Grid item container className={classes.divMoney}>
-                            <Grid item className={classes.moneyDiv}>
-                              <LinkedTextField
-                                name='amountUsd'
-                                type='number'
-                                placeholder='0.00'
-                                fullWidth
-                                otherField='amountZec'
-                                transformer={rateZec}
-                                precise={4}
-                                InputProps={{
-                                  error: !!errors.amountZec,
-                                  endAdornment: (
-                                    <InputAdornment position='end'>
-                                      <span className={classes.inputMark}>USD</span>
-                                    </InputAdornment>
-                                  ),
-                                  className: classes.moneyInput
-                                }}
-                              />
-                            </Grid>
-                            <Grid
-                              item
-                              container
-                              alignItems='center'
-                              justify='center'
-                              className={classes.exchangeDiv}
-                            >
-                              <Icon src={exchange} />
-                            </Grid>
-                            <Grid item className={classes.moneyDiv}>
-                              <LinkedTextField
-                                name='amountZec'
-                                type='number'
-                                placeholder='0.00'
-                                fullWidth
-                                otherField='amountUsd'
-                                transformer={rateUsd}
-                                precise={2}
-                                InputProps={{
-                                  error: !!errors.amountUsd,
-                                  endAdornment: (
-                                    <InputAdornment position='end'>
-                                      <span className={classes.inputMark}>ZEC</span>
-                                    </InputAdornment>
-                                  ),
-                                  className: classes.moneyInput
-                                }}
-                              />
-                            </Grid>
-                          </Grid>
-                        )}
                         <Grid item className={classes.submitButton}>
                           <Button
                             variant='contained'

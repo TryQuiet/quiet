@@ -1,38 +1,32 @@
 import React from 'react'
-import * as R from 'ramda'
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
+import { useSelector } from 'react-redux'
 
-// import { rate } from '../../../store/selectors/rates'
-import ChannelInfo from '../../../components/widgets/channelSettings/ChannelInfo'
-
+import ChannelInfoComponent from '../../../components/widgets/channelSettings/ChannelInfo'
 import channelSelector from '../../../store/selectors/channel'
-// import moderationActions from '../../../store/handlers/moderationActions'
 
-export const mapStateToProps = state => {
-  return {
-    // rateUsd: rate('usd')(state).toNumber(),
-    // rateZec: 1 / rate('usd')(state),
-    initialValues: {
-      updateChannelDescription: channelSelector.channelDesription(state),
-      amountZec: channelSelector.advertFee(state),
-      // amountUsd: (
-      //   rate('usd')(state).toNumber() * channelSelector.advertFee(state)
-      // ).toFixed(2),
-      updateMinFee: !!channelSelector.advertFee(state),
-      updateOnlyRegistered: channelSelector.onlyRegistered(state)
-    }
+interface useChannelInfoDataReturnTypes {
+  initialValues: {
+    updateChannelDescription: string
   }
 }
-export const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      // updateChannelSettings: moderationActions.epics.updateChannelSettings
-    },
-    dispatch
-  )
 
-export default R.compose(
-  connect(mapStateToProps, mapDispatchToProps),
-  React.memo
-)(ChannelInfo)
+export const useChannelInfoData = (): useChannelInfoDataReturnTypes => {
+  const data = {
+    initialValues: {
+      updateChannelDescription: useSelector(channelSelector.channelDesription)
+    }
+  }
+  return data
+}
+
+export const ChannelInfo = () => {
+  const { initialValues } = useChannelInfoData()
+
+  return (
+    <ChannelInfoComponent
+      initialValues={initialValues}
+    />
+  )
+}
+
+export default ChannelInfo
