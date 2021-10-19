@@ -29,7 +29,6 @@ export default class IOProxy {
   public async closeAll(): Promise<void> {
     await this.communities.stopRegistrars()
     await this.communities.closeStorages()
-    console.log('leci tuuuu')
     if (this.connectionsManager.tor) {
       await this.connectionsManager.tor.kill()
     }
