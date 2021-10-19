@@ -1,50 +1,45 @@
 import React, { useState } from 'react'
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
-import * as R from 'ramda'
+import { useDispatch, useSelector } from 'react-redux'
 
 import SettingsModal from '../../../components/widgets/settings/SettingsModal'
-import { ModalName, withModal } from '../../../store/handlers/modals'
+import { ModalName } from '../../../sagas/modals/modals.types'
 import { actions } from '../../../store/handlers/app'
 import appSelectors from '../../../store/selectors/app'
-// import identitySelectors from '../../../store/selectors/identity'
-// import usersSelector from '../../../store/selectors/users'
-import notificationCenterSelector from '../../../store/selectors/notificationCenter'
+import { useModal } from '../../hooks'
 
-const mapStateToProps = state => {
-  // const user = usersSelector.registeredUser(
-  //   identitySelectors.signerPubKey(state)
-  // )(state)
-  return {
-    modalTabToOpen: appSelectors.currentModalTab(state),
-    user: 'user',
-    // user: user
-    //   ? `@${user.nickname}`
-    //   : `@anon${identitySelectors.signerPubKey(state).substring(0, 15)}`,
-    blockedUsers: notificationCenterSelector.blockedUsers(state)
+const useSettingsModalData = () => {
+  const data = {
+    modalTabToOpen: useSelector(appSelectors.currentModalTab),
+    user: 'settingsModalUser',
+    blockedUsers: []
   }
+  return data
+}
+const useSettingsModalActions = () => {
+  const dispatch = useDispatch()
+  const clearCurrentOpenTab = dispatch(actions.clearModalTab)
+  return { clearCurrentOpenTab }
 }
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      clearCurrentOpenTab: actions.clearModalTab
-    },
-    dispatch
-  )
-
-const SettingsModalContainer = props => {
+const SettingsModalContainer = () => {
   const [currentTab, setCurrentTab] = useState('account')
+  const { modalTabToOpen, user, blockedUsers } = useSettingsModalData()
+  const { clearCurrentOpenTab } = useSettingsModalActions()
+
+  const modal = useModal(ModalName.accountSettingsModal)
+
   return (
     <SettingsModal
-      {...props}
       setCurrentTab={setCurrentTab}
       currentTab={currentTab}
+      blockedUsers={blockedUsers}
+      user={user}
+      modalTabToOpen={modalTabToOpen}
+      handleClose={modal.handleClose}
+      open={modal.open}
+      clearCurrentOpenTab={clearCurrentOpenTab}
     />
   )
 }
 
-export default R.compose(
-  withModal(ModalName.accountSettingsModal),
-  connect(mapStateToProps, mapDispatchToProps)
-)(SettingsModalContainer)
+export default SettingsModalContainer

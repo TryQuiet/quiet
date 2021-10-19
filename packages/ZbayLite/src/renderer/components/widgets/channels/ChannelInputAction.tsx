@@ -6,15 +6,11 @@ import MenuAction from '../../ui/MenuAction/MenuAction'
 import MenuActionItem from '../../ui/MenuAction/MenuActionItem'
 
 interface ChannelInputActionProps {
-  onSendMoney: (...args: string[]) => void
-  disabled: boolean
-  targetRecipientAddress: string
+  disabled?: boolean
 }
 
 export const ChannelInputAction: React.FC<ChannelInputActionProps> = ({
-  onSendMoney,
-  disabled = false,
-  targetRecipientAddress
+  disabled = false
 }) => {
   return (
     <MenuAction
@@ -24,16 +20,8 @@ export const ChannelInputAction: React.FC<ChannelInputActionProps> = ({
       disabled={disabled}
       placement='top-end'
     >
-
-      {/* Disable post offer button until it works */}
-      {/* {channelData && !channelData.offerId ? (
-        <MenuActionItem onClick={onPostOffer} title='Post an offer' />
-      ) : (
-        <></>
-      )} */}
-
       <MenuActionItem
-        onClick={() => onSendMoney('sendMoneySeparate', targetRecipientAddress)}
+        onClick={() => {}}
         title='Send money'
       />
     </MenuAction>

@@ -31,8 +31,8 @@ interface ChannelMenuActionProps {
   onDelete: () => void
   onSettings: () => void
   mutedFlag: boolean
-  disableSettings: boolean
-  notificationFilter: number
+  disableSettings?: boolean
+  notificationFilter: string
   openNotificationsTab: () => void
 }
 

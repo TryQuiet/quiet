@@ -7,7 +7,7 @@ import { renderComponent } from '../../../testUtils/renderComponent'
 describe('ChannelInputAction', () => {
   it('renders component', () => {
     const result = renderComponent(
-      <ChannelInputAction onSendMoney={jest.fn()} disabled={false} targetRecipientAddress={''} />
+      <ChannelInputAction disabled={false} />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>

@@ -1,27 +1,22 @@
 import React, { useEffect } from 'react'
-import { connect } from 'react-redux'
+import { useSelector } from 'react-redux'
 
 import ChannelMessagesComponent from '../../../components/widgets/channels/ChannelMessages'
 import channelSelectors from '../../../store/selectors/channel'
 import contactsSelectors from '../../../store/selectors/contacts'
-// import dmQueueMessages from '../../../store/selectors/directMessagesQueue'
-// import queueMessages from '../../../store/selectors/messagesQueue'
 import appSelectors from '../../../store/selectors/app'
-import { DisplayableMessage } from '@zbayapp/nectar'
+import { DisplayableMessage } from '@zbayapp/nectar/'
 
-export const mapStateToProps = (state, { contactId }) => {
-  // const qMessages = queueMessages.queue(state)
-  // const qDmMessages = dmQueueMessages.queue(state)
-  const contact = contactsSelectors.contact(contactId)(state)
-  return {
-    // triggerScroll: qDmMessages.length + qMessages.length > 0,
-    // qMessages: qMessages,
-    // messages: contactsSelectors.directMessages(contactId)(state).visibleMessages,
+const useDirectMessagesMessagesData = (contactId: string) => {
+  const contact = useSelector(contactsSelectors.contact(contactId))
+  const data = {
+    messages: [],
     name: contact.username,
-    channelId: channelSelectors.channelId(state),
-    isInitialLoadFinished: appSelectors.isInitialLoadFinished(state),
+    channelId: useSelector(channelSelectors.channelId),
+    isInitialLoadFinished: useSelector(appSelectors.isInitialLoadFinished),
     isConnected: contact.connected
   }
+  return data
 }
 
 interface ChannelMessagesProps {
@@ -36,24 +31,24 @@ interface ChannelMessagesProps {
 }
 
 export const ChannelMessages = ({
-  messages,
   contactId,
-  channelId,
   contentRect,
-  triggerScroll,
-  isInitialLoadFinished,
-  name,
-  isConnected
+  // triggerScroll,
+  name
 }: ChannelMessagesProps) => { // for now
   const [scrollPosition, setScrollPosition] = React.useState(-1)
+  const { channelId, messages, isConnected, isInitialLoadFinished } = useDirectMessagesMessagesData(
+    contactId
+  )
   useEffect(() => {
     setScrollPosition(-1)
   }, [channelId, contactId])
   useEffect(() => {
-    if (triggerScroll) {
+    if (messages.length) {
       setScrollPosition(-1)
     }
-  }, [triggerScroll])
+  }, [messages.length])
+
   return (
     <ChannelMessagesComponent
       isDM
@@ -69,11 +64,4 @@ export const ChannelMessages = ({
   )
 }
 
-export default connect(mapStateToProps)(
-  React.memo(ChannelMessages, (before, after) => {
-    return (
-      before.isInitialLoadFinished === after.isInitialLoadFinished &&
-      Object.is(before.messages, after.messages)
-    )
-  })
-)
+export default ChannelMessages

@@ -1,21 +1,13 @@
 import React from 'react'
-import { bindActionCreators } from 'redux'
 
 import AddChannelAction from '../../../components/widgets/channels/AddChannelAction'
-import { actionCreators, ModalName } from '../../../store/handlers/modals'
-import { useDispatch } from 'react-redux'
+import { useModal } from '../../hooks'
+import { ModalName } from '../../../sagas/modals/modals.types'
 
-export const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      openCreateModal: actionCreators.openModal(ModalName.createChannel)
-    },
-    dispatch
-  )
+export const AddChannelActionContainer = () => {
+  const modal = useModal(ModalName.createChannel)
 
-const AddChannelContainer: React.FC = () => {
-  const dispatch = useDispatch()
-  const { openCreateModal } = mapDispatchToProps(dispatch)
-  return <AddChannelAction openCreateModal={openCreateModal} />
+  return <AddChannelAction openCreateModal={modal.handleOpen} />
 }
-export default AddChannelContainer
+
+export default AddChannelActionContainer

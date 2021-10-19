@@ -15,7 +15,7 @@ describe('ChannelMenuAction', () => {
         openNotificationsTab={jest.fn()}
         mutedFlag
         disableSettings
-        notificationFilter={1}
+        notificationFilter={'1'}
       />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`

@@ -5,7 +5,6 @@ import { makeStyles } from '@material-ui/core/styles'
 import RootRef from '@material-ui/core/RootRef'
 
 import { channelTypeToMessages } from '../../pages/ChannelMapping'
-import InviteMentionInfo from './ChannelInput/InviteMentionInfo'
 import { CHANNEL_TYPE } from '../../pages/ChannelTypes'
 import { Mentions } from '../../../store/handlers/mentions'
 
@@ -20,27 +19,20 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 interface ChannelMessagesProps {
-  inputState: string
   contactId: string
-  signerPubKey: string
-  measureRef: React.RefObject<unknown>
+  measureRef?: React.RefObject<unknown>
   contentRect: string
-  channelType: CHANNEL_TYPE
-  offer: string
-  tab?: (arg: number) => void
+  channelType?: CHANNEL_TYPE
+  tab?: number
   mentions: { channelId: Mentions[] }
   removeMention: (name: string) => void
-  sendInvitation: (name: string) => void
 }
 
 export const ChannelContent: React.FC<ChannelMessagesProps> = ({
   contactId,
   measureRef,
   contentRect,
-  channelType,
-  mentions,
-  removeMention,
-  sendInvitation
+  channelType
 }) => {
   const classes = useStyles({})
   const ChannelMessages = channelTypeToMessages[channelType]
@@ -49,30 +41,11 @@ export const ChannelContent: React.FC<ChannelMessagesProps> = ({
       <Grid item xs>
         <RootRef rootRef={measureRef}>
           <ChannelMessages
+            channelId={contactId}
             contactId={contactId}
             contentRect={contentRect}
           />
         </RootRef>
-      </Grid>
-      <Grid item className={classes.mentionsDiv}>
-        {channelType === CHANNEL_TYPE.NORMAL &&
-          mentions.channelId &&
-          mentions.channelId.map(mention => (
-            <Grid item>
-              <InviteMentionInfo
-                nickname={mention?.nickname ?? ''}
-                timeStamp={mention?.timeStamp ?? 0}
-                handleClose={() => {
-                  if (mention?.nickname) {
-                    removeMention(mention.nickname)
-                  }
-                }}
-                handleInvite={() => {
-                  if (mention?.nickname) { sendInvitation(mention.nickname) }
-                }}
-              />
-            </Grid>
-          ))}
       </Grid>
     </Grid>
   )
