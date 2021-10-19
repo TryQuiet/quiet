@@ -29,7 +29,10 @@ export default class IOProxy {
   public async closeAll(): Promise<void> {
     await this.communities.stopRegistrars()
     await this.communities.closeStorages()
-    await this.connectionsManager.tor.kill()
+    console.log('leci tuuuu')
+    if (this.connectionsManager.tor) {
+      await this.connectionsManager.tor.kill()
+    }
     this.io.close()
   }
 
@@ -173,7 +176,7 @@ export default class IOProxy {
     this.io.emit(EventTypesResponse.NEW_COMMUNITY, { id: communityId, payload: communityData })
   }
 
-  public async launchCommunity(communityId: string, peerId: PeerId.JSONPeerId, hiddenService: {address: string, privateKey: string}, bootstrapMultiaddress: string[], certs: CertsData) {
+  public async launchCommunity(communityId: string, peerId: PeerId.JSONPeerId, hiddenService: { address: string, privateKey: string }, bootstrapMultiaddress: string[], certs: CertsData) {
     await this.communities.launch(peerId, hiddenService.privateKey, bootstrapMultiaddress, certs)
     this.io.emit(EventTypesResponse.COMMUNITY, { id: communityId })
   }
