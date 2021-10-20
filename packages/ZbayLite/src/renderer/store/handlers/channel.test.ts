@@ -1,7 +1,6 @@
 import { DateTime } from 'luxon'
 import create from '../create'
 import { ChannelState, actions } from './channel'
-import { initialState } from './identity'
 import channelSelectors from '../selectors/channel'
 import { now } from '../../testUtils'
 
@@ -18,9 +17,7 @@ describe('channel reducer', () => {
         ...ChannelState
       },
       identity: {
-        ...initialState,
         data: {
-          ...initialState.data,
           id: identityId,
           address,
           name: 'Saturn',
