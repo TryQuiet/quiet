@@ -65,7 +65,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 export interface ChannelInfoModalProps {
-  channel: Channel
+  channel?: Channel
   channelData?: Contact
   shareUri?: string
   open?: boolean

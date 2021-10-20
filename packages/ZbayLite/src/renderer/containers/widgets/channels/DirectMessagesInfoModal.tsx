@@ -1,19 +1,24 @@
-import { connect } from 'react-redux'
-import * as R from 'ramda'
+import React from 'react'
+import { useSelector } from 'react-redux'
 
-import { ModalName, withModal } from '../../../store/handlers/modals'
 import ChannelInfoModal from '../../../components/widgets/channels/ChannelInfoModal'
 import contactsSelectors from '../../../store/selectors/contacts'
 import channelSelectors from '../../../store/selectors/channel'
 
-export const mapStateToProps = state => {
-  return {
-    channelData: contactsSelectors.directMessagesContact(channelSelectors.channel(state).address)(state),
+const useChannelMessagesInfoData = () => {
+  const channel = useSelector(channelSelectors.channel)
+  const data = {
+    channelData: useSelector(contactsSelectors.directMessagesContact(channel.address)),
     directMessage: true
   }
+
+  return data
 }
 
-export default R.compose(
-  connect(mapStateToProps),
-  withModal(ModalName.channelInfo)
-)(ChannelInfoModal)
+const ChannelInfoModalContainer = () => {
+  const data = useChannelMessagesInfoData()
+
+  return <ChannelInfoModal channelData={data.channelData} directMessage={data.directMessage} />
+}
+
+export default ChannelInfoModalContainer

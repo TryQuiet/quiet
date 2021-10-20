@@ -1,19 +1,13 @@
 import React from 'react'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import { BlockedUsers } from './BlockedUsers'
-import { Contact } from '../../../store/handlers/contacts'
 
 describe('BlockedUsers', () => {
   it('renders component', () => {
     const props = {
       unblock: jest.fn(),
-      users: [new Contact()],
-      blockedUsers: {
-        username: '',
-        onionAddress: '',
-        peerId: '',
-        dmPublicKey: ''
-      }
+      users: [],
+      blockedUsers: []
     }
     const result = renderComponent(<BlockedUsers {...props} />)
     expect(result.baseElement).toMatchInlineSnapshot(`

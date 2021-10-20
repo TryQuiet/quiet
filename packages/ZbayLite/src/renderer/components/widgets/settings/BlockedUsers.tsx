@@ -29,7 +29,7 @@ const useStyles = makeStyles(() => ({
 }))
 
 interface BlockedUsersProps {
-  blockedUsers: User
+  blockedUsers: User[]
   users: Contact[]
   unblock: (address: string) => void
 }

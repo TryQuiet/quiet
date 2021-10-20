@@ -1,31 +1,16 @@
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
 
-// import moderationActions from '../../../store/handlers/moderationActions'
+import React from 'react'
+
 import BlockedUsers from '../../../components/widgets/channelSettings/BlockedUsers'
-// import channelSelectors from '../../../store/selectors/channel'
-// import contactsSelectors from '../../../store/selectors/contacts'
-// import messagesSelectors from '../../../store/selectors/messages'
-// import usersSelector from '../../../store/selectors/users'
 
-export const mapStateToProps = _state => {
-  return {
-    // blockedUsers: contactsSelectors.directMessages(channelSelectors.id(state))(state).blockedUsers,
-    blockedUsers: [],
-    users: {}
-  }
+const BlockedUsersContainer = () => {
+  return (
+    <BlockedUsers
+      blockedUsers={[]}
+      unblockUser={() => {}}
+      users={{}}
+    />
+  )
 }
 
-export const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      // unblockUser: publicKey =>
-      //   moderationActions.epics.handleModerationAction({
-      //     moderationType: moderationActionsType.UNBLOCK_USER,
-      //     moderationTarget: publicKey
-      //   })
-    },
-    dispatch
-  )
-
-export default connect(mapStateToProps, mapDispatchToProps)(BlockedUsers)
+export default BlockedUsersContainer
