@@ -3,9 +3,9 @@ import { PopoverProps } from '@material-ui/core/Popover'
 import { History, LocationState } from 'history'
 
 export interface ISendMessagePopoverProps {
-  username: string
-  handleClose: ModalProps['onClose']
-  address: string
+  username?: string
+  handleClose?: ModalProps['onClose']
+  address?: string
   anchorEl?: PopoverProps['anchorEl']
   isUnregistered?: boolean
   createNewContact?: (contact: any) => void

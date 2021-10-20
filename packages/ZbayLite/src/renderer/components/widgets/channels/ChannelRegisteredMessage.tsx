@@ -59,7 +59,6 @@ export const ChannelRegisteredMessage: React.FC<ChannelRegisteredMessageProps> =
         username={username}
         anchorEl={anchorEl}
         handleClose={handleClose}
-        isUnregistered={false}
       />
     </>
   )

@@ -12,7 +12,7 @@ const _log = Object.assign(debug('zbay:dm'), {
   error: debug('zbay:dm:err')
 })
 
-interface IUser {
+export interface IUser {
   nickname: string
   publicKey: string
   halfKey: string

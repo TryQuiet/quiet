@@ -1,38 +1,56 @@
-import React from 'react'
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
-import { withRouter } from 'react-router-dom'
-import * as R from 'ramda'
+import React, { useCallback } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 
-import SendMessagePopover from '../../../components/widgets/channels/SendMessagePopover'
+import SendMessagePopoverComponent from '../../../components/widgets/channels/SendMessagePopover'
 // import identitySelectors from '../../../store/selectors/identity'
 // import userSelectors from '../../../store/selectors/users'
 import directMessages from '../../../store/handlers/contacts'
+import { IUser } from '../../../store/handlers/directMessages'
 import directMessagesSelectors from '../../../store/selectors/directMessages'
 
-export const mapStateToProps = state => ({
-  // identityId: identitySelectors.id(state),
-  // users: userSelectors.users(state),
-  identityId: 'id',
-  users: [],
-  waggleUsers: directMessagesSelectors.users(state)
-})
+interface useSendMessagePopoverDataReturnType {
+  users: any[]
+  waggleUsers: {
+    [key: string]: IUser
+  }
+}
 
-export const mapDispatchToProps = (dispatch) =>
-  bindActionCreators(
-    {
-      createNewContact: (contact) => directMessages.epics.createVaultContact(contact)
-    },
-    dispatch
-  )
+export const useSendMessagePopoverData = (): useSendMessagePopoverDataReturnType => {
+  const data = {
+    // identityId: identitySelectors.id(state),
+    // identityId: 'id',
+    // users: userSelectors.users(state),
+    users: [],
+    waggleUsers: useSelector(directMessagesSelectors.users)
+  }
+  return data
+}
 
-export default R.compose(
-  React.memo,
-  // @ts-expect-error
-  withRouter,
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
+export const useSendMessagePopoverActions = () => {
+  const dispatch = useDispatch()
+
+  const createNewContact = useCallback((contact) => {
+    dispatch(directMessages.epics.createVaultContact(contact))
+  }, [dispatch])
+
+  return { createNewContact }
+}
+
+export const SendMessagePopover = ({ username, anchorEl, handleClose }) => {
+  const { users, waggleUsers } = useSendMessagePopoverData()
+  const { createNewContact } = useSendMessagePopoverActions()
+
+  return (
+    <SendMessagePopoverComponent
+      username={username}
+      anchorEl={anchorEl}
+      users={users}
+      waggleUsers={waggleUsers}
+      createNewContact={createNewContact}
+      handleClose={handleClose}
+      isUnregistered={false}
+    />
   )
-  // @ts-expect-error
-)(SendMessagePopover)
+}
+
+export default SendMessagePopover

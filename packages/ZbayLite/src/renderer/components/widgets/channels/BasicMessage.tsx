@@ -127,8 +127,6 @@ export const BasicMessage: React.FC<IBasicMessageProps> = ({
             wrap={'nowrap'}>
             <SendMessagePopover
               username={username}
-              message={message}
-              txid={message.id}
               anchorEl={anchorEl}
               handleClose={handleClose}
             />
