@@ -149,7 +149,7 @@ export default class IOProxy {
         emitValidationError(this.io, { type: EventTypesResponse.REGISTRAR, message: 'Username is not valid', communityId })
         return
       default:
-        log.error(`Registrar responded with ${response.status} (${communityId})`)
+        log.error(`Registrar responded with ${response.status} "${response.statusText}" (${communityId})`)
         emitServerError(this.io, { type: EventTypesResponse.REGISTRAR, message: 'Registering username failed.', communityId })
         return
     }
