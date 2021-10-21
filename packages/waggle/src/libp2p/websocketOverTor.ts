@@ -136,7 +136,6 @@ class WebsocketsOverTor extends WebSockets {
   }
 
   prepareListener = ({ handler, upgrader }) => {
-    console.log('prepateListener')
     const listener: any = new EventEmitter()
     const trackConn = (server, maConn) => {
       server.__connections.push(maConn)

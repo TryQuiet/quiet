@@ -95,6 +95,7 @@ export class ConnectionsManager {
     }
 
     const peerId = await PeerId.create()
+    log(`Created network for peer ${peerId.toB58String()}. Address: ${hiddenService.onionAddress as string}`)
     return {
       hiddenService,
       peerId: peerId.toJSON()
@@ -166,6 +167,7 @@ export class ConnectionsManager {
     libp2p.connectionManager.on('peer:disconnect', (connection: Connection) => {
       log(`${peerId.toB58String()} disconnected from ${connection.remotePeer.toB58String()}`)
     })
+    log(`Initialized libp2p for peer ${peerId.toB58String()}`)
     return {
       libp2p,
       localAddress

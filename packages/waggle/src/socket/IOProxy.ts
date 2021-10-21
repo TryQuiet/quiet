@@ -149,6 +149,7 @@ export default class IOProxy {
         emitValidationError(this.io, { type: EventTypesResponse.REGISTRAR, message: 'Username is not valid', communityId })
         return
       default:
+        log.error(`Registrar responded with ${response.status} (${communityId})`)
         emitServerError(this.io, { type: EventTypesResponse.REGISTRAR, message: 'Registering username failed.', communityId })
         return
     }
@@ -161,6 +162,7 @@ export default class IOProxy {
     try {
       network = await this.connectionsManager.createNetwork()
     } catch (e) {
+      log.error(`Creating network for community ${communityId} failed`, e)
       emitServerError(this.io, { type: EventTypesResponse.NETWORK, message: 'Creating network failed', communityId })
       return
     }

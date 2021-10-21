@@ -76,7 +76,7 @@ export default class CommunitiesManager {
     } else {
       onionAddress = '0.0.0.0'
     }
-    log(`Launching community, ${peerId.id}`)
+    log(`Launching community for peer ${peerId.id}`)
     return await this.initStorage(await PeerId.createFromJSON(peerId), onionAddress, ports.libp2pHiddenService, ports.libp2pHiddenService, bootstrapMultiaddrs, certs)
   }
 
@@ -134,6 +134,7 @@ export default class CommunitiesManager {
       await certRegister.listen()
     } catch (err) {
       log.error(`Certificate registration service couldn't start listening: ${err as string}`)
+      return
     }
     const community = this.communities.get(peerId)
     community.registrar = certRegister
