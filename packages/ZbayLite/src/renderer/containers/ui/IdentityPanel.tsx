@@ -3,7 +3,8 @@ import { useSelector } from 'react-redux'
 
 import IdentityPanelComponent from '../../components/ui/IdentityPanel/IdentityPanel'
 import { identity } from '@zbayapp/nectar'
-import { useModal, ModalName } from '../../store/handlers/modals'
+import { useModal } from '../hooks'
+import { ModalName } from '../../sagas/modals/modals.types'
 
 export const useIdentityPanelData = () => {
   const data = {

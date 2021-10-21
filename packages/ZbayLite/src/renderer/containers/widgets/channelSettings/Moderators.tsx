@@ -1,20 +1,12 @@
 import React from 'react'
-import { bindActionCreators } from 'redux'
 
 import Moderators from '../../../components/widgets/channelSettings/Moderators'
-import modalsHandlers, { ModalName } from '../../../store/handlers/modals'
-
-import { useDispatch } from 'react-redux'
+import { ModalName } from '../../../sagas/modals/modals.types'
+import { useModal } from '../../hooks'
 
 const ModeratorsContainer: React.FC = () => {
-  const dispatch = useDispatch()
-  const { openAddModerator } = bindActionCreators(
-    {
-      openAddModerator: modalsHandlers.actionCreators.openModal(ModalName.addModerator)
-    },
-    dispatch
-  )
+  const openAddModerator = useModal(ModalName.addModerator)
 
-  return <Moderators openAddModerator={openAddModerator} moderators={[]} users={{}} />
+  return <Moderators openAddModerator={openAddModerator.handleOpen} moderators={[]} users={{}} />
 }
 export default ModeratorsContainer

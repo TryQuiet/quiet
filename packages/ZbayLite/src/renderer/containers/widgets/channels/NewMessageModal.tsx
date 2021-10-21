@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { useModal } from '../../../store/handlers/modals'
+import { useModal } from '../../hooks'
 import NewMessageModal from '../../../components/widgets/channels/NewMessageModal'
 
 import { ModalName } from '../../../sagas/modals/modals.types'

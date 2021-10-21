@@ -11,5 +11,6 @@ export enum ModalName {
   publishChannel = 'publishChannel',
   joinChannel = 'joinChannel',
   newMessageSeparate = 'newMessageSeparate',
-  quitApp = 'quitApp'
+  quitApp = 'quitApp',
+  applicationUpdate = 'applicationUpdate'
 }

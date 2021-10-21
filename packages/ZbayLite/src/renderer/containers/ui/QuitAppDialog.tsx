@@ -1,6 +1,7 @@
 import React from 'react'
-import { ModalName, useModal } from '../../store/handlers/modals'
 
+import { useModal } from '../hooks'
+import { ModalName } from '../../sagas/modals/modals.types'
 import QuitAppDialog from '../../components/ui/QuitApp/QuitAppDialog'
 import { remote } from 'electron'
 

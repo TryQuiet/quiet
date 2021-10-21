@@ -2,9 +2,10 @@ import React, { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import SecurityComponent from '../../../components/widgets/settings/Security'
-import modalsHandlers, { ModalName } from '../../../store/handlers/modals'
+import { ModalName } from '../../../sagas/modals/modals.types'
 import whitelistSelector from '../../../store/selectors/whitelist'
 import whitelistHandlers from '../../../store/handlers/whitelist'
+import { useModal } from '../../hooks'
 
 interface useSecurityDataReturnType {
   allowAll: boolean
@@ -36,22 +37,20 @@ export const useSecurityActions = (allowAll: boolean) => {
     dispatch(whitelistHandlers.epics.removeSiteHost(hostname))
   }, [dispatch])
 
-  const openSeedModal = useCallback(() => {
-    dispatch(modalsHandlers.actionCreators.openModal(ModalName.seedModal))
-  }, [dispatch])
-
-  return { toggleAllowAll, removeImageHost, removeSiteHost, openSeedModal }
+  return { toggleAllowAll, removeImageHost, removeSiteHost }
 }
 
 export const Security = () => {
   const { allowAll, whitelisted } = useSecurityData()
-  const { openSeedModal, removeSiteHost, toggleAllowAll } = useSecurityActions(allowAll)
+  const { removeSiteHost, toggleAllowAll } = useSecurityActions(allowAll)
+
+  const openSeedModal = useModal(ModalName.seedModal)
 
   return (
     <SecurityComponent
       allowAll={allowAll}
       toggleAllowAll={toggleAllowAll}
-      openSeedModal={openSeedModal}
+      openSeedModal={openSeedModal.handleOpen}
       whitelisted={whitelisted}
       removeSiteHost={removeSiteHost}
     />

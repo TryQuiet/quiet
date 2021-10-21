@@ -5,8 +5,9 @@ import { publicChannels, users } from '@zbayapp/nectar'
 import ChannelMessageComponent from '../../../components/widgets/channels/ChannelMessage'
 import channelHandlers from '../../../store/handlers/channel'
 import whitelistSelectors from '../../../store/selectors/whitelist'
-import { actionCreators, ModalName } from '../../../store/handlers/modals'
+import { ModalName } from '../../../sagas/modals/modals.types'
 import whitelistHandlers from '../../../store/handlers/whitelist'
+import { useModal } from '../../hooks'
 
 export const useChannelMessageData = () => {
   const data = {
@@ -36,22 +37,13 @@ const ChannelMessage = ({ message }) => {
     },
     [dispatch]
   )
-  const onLinkedUser = useCallback(
-    () => {
-      dispatch(actionCreators.openModal(ModalName.openexternallink))
-    },
-    [dispatch]
-  )
 
   const setWhitelistAll = useCallback(() => {
     dispatch(whitelistHandlers.epics.setWhitelistAll)
   }, [dispatch])
-  const openExternalLink = useCallback(
-    () => {
-      dispatch(actionCreators.openModal(ModalName.openexternallink))
-    },
-    [dispatch]
-  )
+
+  const openExternalLink = useModal(ModalName.openexternallink)
+
   return (
     <ChannelMessageComponent
       publicChannels={publicChannels}
@@ -62,9 +54,9 @@ const ChannelMessage = ({ message }) => {
       onLinkedChannel={onLinkedChannel}
       addToWhitelist={addToWhitelist}
       setWhitelistAll={setWhitelistAll}
-      openExternalLink={openExternalLink}
+      openExternalLink={openExternalLink.handleOpen}
       message={message}
-      onLinkedUser={onLinkedUser}
+      onLinkedUser={openExternalLink.handleOpen}
     />
   )
 }

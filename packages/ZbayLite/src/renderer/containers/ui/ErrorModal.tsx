@@ -4,7 +4,8 @@ import { remote } from 'electron'
 
 import ErrorModal from '../../components/ui/ErrorModal/ErrorModal'
 import criticalErrorSelectors from '../../store/selectors/criticalError'
-import { useModal, ModalName } from '../../store/handlers/modals'
+import { useModal } from '../hooks'
+import { ModalName } from '../../sagas/modals/modals.types'
 
 export const useErrorModalData = () => {
   const data = {

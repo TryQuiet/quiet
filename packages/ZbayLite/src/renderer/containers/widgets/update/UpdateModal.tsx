@@ -4,7 +4,8 @@ import { useDispatch } from 'react-redux'
 
 import UpdateModal from '../../../components/widgets/update/UpdateModal'
 import updateHandlers from '../../../store/handlers/update'
-import { ModalName, useModal } from '../../../store/handlers/modals'
+import { useModal } from '../../hooks'
+import { ModalName } from '../../../sagas/modals/modals.types'
 
 export const mapDispatchToProps = dispatch =>
   bindActionCreators(

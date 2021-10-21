@@ -14,7 +14,6 @@ import channelHandlers from './handlers/channel'
 // import nodeHandlers from './handlers/node'
 // import ratesHandlers from './handlers/rates'
 
-import modalsHandlers from './handlers/modals'
 // import messagesQueueHandlers from './handlers/messagesQueue'
 // import directMessagesQueueHandlers from './handlers/directMessagesQueue'
 import criticalErrorHandlers from './handlers/criticalError'
@@ -51,7 +50,6 @@ const persistConfig = {
     'contacts',
     'app',
     'users',
-    'modals',
     'Modals',
     'channels',
     'vault',
@@ -79,7 +77,6 @@ export const reducers = {
   // operations: operationsHandlers.reducer,
   // messagesQueue: messagesQueueHandlers.reducer,
   // directMessagesQueue: directMessagesQueueHandlers.reducer,
-  modals: modalsHandlers.reducer,
   notifications: notificationsHandlers.reducer,
   // importedChannel: importedChannelHandlers.reducer,
   // rates: ratesHandlers.reducer,

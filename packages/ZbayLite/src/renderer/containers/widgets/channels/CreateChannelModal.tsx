@@ -1,6 +1,7 @@
 import React from 'react'
 
-import { ModalName, useModal } from '../../../store/handlers/modals'
+import { useModal } from '../../hooks'
+import { ModalName } from '../../../sagas/modals/modals.types'
 import CreateChannelModal from '../../../components/widgets/channels/CreateChannelModal'
 
 export const CreateChannelModalContainer: React.FC<{}> = () => {

@@ -3,16 +3,15 @@ import { useSelector, useDispatch } from 'react-redux'
 import { publicChannels } from '@zbayapp/nectar'
 import JoinChannelModalComponent from '../../../components/widgets/channels/JoinChannelModal'
 import channelHandlers from '../../../store/handlers/channel'
-import modalsHandlers from '../../../store/handlers/modals'
-import modalsSelectors from '../../../store/selectors/modals'
 import { IChannelInfo } from '@zbayapp/nectar/lib/sagas/publicChannels/publicChannels.types'
+import { ModalName } from '../../../sagas/modals/modals.types'
+import { useModal } from '../../hooks'
 
 const useJoinChannelData = () => {
   const modalName = 'joinChannel'
   const data = {
     publicChannels: useSelector(publicChannels.selectors.publicChannels),
     users: {},
-    open: useSelector(modalsSelectors.open(modalName)),
     modalName
   }
   return data
@@ -20,30 +19,28 @@ const useJoinChannelData = () => {
 
 export const useJoinChannelActions = () => {
   const dispatch = useDispatch()
-  const modalName = 'joinChannel'
   const actions = {
     joinChannel: (channel: IChannelInfo) => {
       dispatch(channelHandlers.epics.linkChannelRedirect(channel))
-    },
-    handleClose: () => {
-      dispatch(modalsHandlers.closeModalHandler(modalName))
     }
   }
   return actions
 }
 
 export const JoinChannelModal = () => {
-  const { publicChannels, open, users } = useJoinChannelData()
-  const { joinChannel, handleClose } = useJoinChannelActions()
+  const { publicChannels, users } = useJoinChannelData()
+  const { joinChannel } = useJoinChannelActions()
+
+  const modal = useModal(ModalName.joinChannel)
 
   return (
     <JoinChannelModalComponent
       publicChannels={publicChannels}
       joinChannel={joinChannel}
       // showNotification={showNotification}
-      open={open}
+      open={modal.open}
       users={users}
-      handleClose={handleClose}
+      handleClose={modal.handleClose}
     />
   )
 }

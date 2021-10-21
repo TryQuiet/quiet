@@ -18,7 +18,6 @@ import JoinChannelModal from './containers/widgets/channels/JoinChannelModal'
 import NewMessageModal from './containers/widgets/channels/NewMessageModal'
 import OpenExternalLinkModal from './containers/ui/OpenExternalLinkModal'
 import SettingsModal from './containers/widgets/settings/SettingsModal'
-import SecurityModal from './containers/widgets/settings/SecurityModal'
 import UpdateModal from './containers/widgets/update/UpdateModal'
 import QuitAppDialog from './containers/ui/QuitAppDialog'
 import theme from './theme'
@@ -40,7 +39,6 @@ export default () => {
               <NewMessageModal />
               <OpenExternalLinkModal />
               <SettingsModal />
-              <SecurityModal />
               <UpdateModal />
               <QuitAppDialog />
               <Route path='/' component={Index} />

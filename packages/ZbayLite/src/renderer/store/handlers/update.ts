@@ -1,17 +1,18 @@
 import { ipcRenderer } from 'electron'
-import { actionCreators, ModalName } from './modals'
+import { ModalName } from '../../sagas/modals/modals.types'
+import { modalsActions } from '../../sagas/modals/modals.slice'
 
 export const checkForUpdate = () => async dispatch => {
-  dispatch(actionCreators.openModal(ModalName.applicationUpdate)())
+  dispatch(modalsActions.openModal(ModalName.applicationUpdate))
 }
 
 export const startApplicationUpdate = () => async dispatch => {
   ipcRenderer.send('proceed-update')
-  dispatch(actionCreators.closeModal(ModalName.applicationUpdate)())
+  dispatch(modalsActions.closeModal(ModalName.applicationUpdate))
 }
 
 export const declineUpdate = () => async dispatch => {
-  dispatch(actionCreators.closeModal(ModalName.applicationUpdate)())
+  dispatch(modalsActions.closeModal(ModalName.applicationUpdate))
 }
 
 export const epics = {

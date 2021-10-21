@@ -3,12 +3,12 @@ import { bindActionCreators } from 'redux'
 import { useDispatch, useSelector } from 'react-redux'
 
 import ChannelSettingsModalComponent from '../../../components/widgets/channelSettings/ChannelSettingsModal'
-import { useModal } from '../../../store/handlers/modals'
+import { useModal } from '../../hooks'
+import { ModalName } from '../../../sagas/modals/modals.types'
 import { actions } from '../../../store/handlers/app'
 import channelSelectors from '../../../store/selectors/channel'
 import appSelectors from '../../../store/selectors/app'
 import contactsSelectors from '../../../store/selectors/contacts'
-import { ModalName } from '../../../sagas/modals/modals.types'
 
 const ChannelSettingsModal = () => {
   const [currentTab, setCurrentTab] = useState<'channelInfo' | 'moderators' | 'notifications'>(

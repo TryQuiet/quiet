@@ -2,30 +2,29 @@ import React, { useCallback } from 'react'
 import { useDispatch } from 'react-redux'
 
 import ChannelMenuActionComponent from '../../../components/widgets/channels/ChannelMenuAction'
-import { actionCreators, ModalName } from '../../../store/handlers/modals'
+import { ModalName } from '../../../sagas/modals/modals.types'
 import notificationCenterHandlers from '../../../store/handlers/notificationCenter'
 import { notificationFilterType } from '../../../../shared/static'
+import { useModal } from '../../hooks'
 
 export const useChannelMenuActionActions = () => {
   const dispatch = useDispatch()
-
-  const onInfo = useCallback(() => {
-    dispatch(actionCreators.openModal(ModalName.channelInfo))
-  }, [dispatch])
 
   const onMute = useCallback(() => {
     dispatch(notificationCenterHandlers.epics.setContactNotification(notificationFilterType.MUTE))
   }, [dispatch])
 
-  return { onMute, onInfo }
+  return { onMute }
 }
 
 export const ChannelMenuAction = ({ onDelete, ...props }) => {
-  const { onInfo, onMute } = useChannelMenuActionActions()
+  const { onMute } = useChannelMenuActionActions()
+
+  const onInfo = useModal(ModalName.channelInfo)
 
   return (
     <ChannelMenuActionComponent
-      onInfo={onInfo}
+      onInfo={onInfo.handleOpen}
       onMute={onMute}
       onDelete={onDelete}
       onSettings={props.onSettings}

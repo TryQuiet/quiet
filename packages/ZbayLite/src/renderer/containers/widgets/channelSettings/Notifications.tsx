@@ -7,8 +7,9 @@ import notificationCenterSelectors from '../../../store/selectors/notificationCe
 import channelSelectors from '../../../store/selectors/channel'
 import appHandlers from '../../../store/handlers/app'
 import contactsSelectors from '../../../store/selectors/contacts'
-import { actionCreators, ModalName } from '../../../store/handlers/modals'
+import { ModalName } from '../../../sagas/modals/modals.types'
 import { Contact } from '../../../store/handlers/contacts'
+import { useModal } from '../../hooks'
 
 interface useNotificationsDataReturnType {
   currentFilter: number
@@ -35,23 +36,21 @@ export const useNotificationsActions = (currentFilter: number) => {
     dispatch(appHandlers.actions.setModalTab('notifications'))
   }, [dispatch])
 
-  const openSettingsModal = useCallback(() => {
-    dispatch(actionCreators.openModal(ModalName.accountSettingsModal))
-  }, [dispatch])
-
-  return { setChannelsNotification, openNotificationsTab, openSettingsModal }
+  return { setChannelsNotification, openNotificationsTab }
 }
 
 export const Notifications = () => {
   const { channelData, currentFilter } = useNotificationsData()
-  const { openNotificationsTab, openSettingsModal, setChannelsNotification } = useNotificationsActions(currentFilter)
+  const { openNotificationsTab, setChannelsNotification } = useNotificationsActions(currentFilter)
+
+  const openSettingsModal = useModal(ModalName.accountSettingsModal)
 
   return (
     <NotificationsComponent
       channelData={channelData}
       currentFilter={currentFilter}
       openNotificationsTab={openNotificationsTab}
-      openSettingsModal={openSettingsModal}
+      openSettingsModal={openSettingsModal.handleOpen}
       setChannelsNotification={setChannelsNotification}
     />
   )
