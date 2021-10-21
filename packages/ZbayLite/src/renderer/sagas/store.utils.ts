@@ -3,16 +3,24 @@ import { createSelector } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store/store.keys'
 import { AnyObject } from '../../utils/types/AnyObject.interface'
 
-import { CreatedSelectors, StoreModuleStateClass, StoreState } from './store.types'
+import {
+  CreatedSelectors,
+  StoreModuleStateClass,
+  StoreState
+} from './store.types'
 
 export const selectorsFactory = <StoreKey extends StoreKeys>(
   storeKey: StoreKey,
   ReducerState: StoreModuleStateClass
 ): CreatedSelectors<StoreState[StoreKey]> => {
-  const reducerSelector: StoreState[StoreKey] = (store: AnyObject): StoreState[StoreKey] =>
+  const reducerSelector = (store: AnyObject): StoreState[StoreKey] =>
     store[storeKey]
-  const reducerKeys = Object.keys(new ReducerState()) as Array<keyof StoreState[StoreKey]>
+  const reducerKeys = Object.keys(
+    new ReducerState()
+  ) as Array<keyof StoreState[StoreKey]>
+  // @ts-expect-error
   const createdSelectors: CreatedSelectors<StoreState[StoreKey]> = {}
+
   return reducerKeys.reduce(
     (
       accumulator: CreatedSelectors<StoreState[StoreKey]>,
@@ -29,7 +37,9 @@ export const selectorsFactory = <StoreKey extends StoreKeys>(
   )
 }
 
-export const selectReducer = <StoreKey extends StoreKeys>(storeKey: StoreKey) => {
+export const selectReducer = <StoreKey extends StoreKeys>(
+  storeKey: StoreKey
+) => {
   return (store: StoreState): StoreState[StoreKey] => {
     return store[storeKey]
   }

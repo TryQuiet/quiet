@@ -3,7 +3,7 @@ import { ModalName } from './modals.types'
 import { CreatedSelectors, StoreState } from '../store.types'
 import { StoreKeys } from '../../store/store.keys'
 
-const ModalsSlice: CreatedSelectors[StoreKeys.Modals] = (state: StoreState) =>
+const ModalsSlice: CreatedSelectors<StoreState>[StoreKeys.Modals] = (state: StoreState) =>
   state[StoreKeys.Modals]
 
 export const open = (modal: ModalName) =>

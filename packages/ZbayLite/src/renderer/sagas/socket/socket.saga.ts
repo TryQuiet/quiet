@@ -1,13 +1,12 @@
 import { io, Socket } from 'socket.io-client'
 import { call, fork, put } from 'typed-redux-saga'
-import { socket } from '@zbayapp/nectar'
+import { socket as nectar } from '@zbayapp/nectar'
 import config from '../../config'
 import { socketActions } from './socket.slice'
 
 export function* startConnectionSaga(): Generator {
-  const _socket = yield* call(connect)
-  // @ts-expect-error
-  yield* fork(socket.useIO, _socket)
+  const socket = yield* call(connect)
+  yield* fork(nectar.useIO, socket)
   yield* put(socketActions.setConnected())
 }
 
