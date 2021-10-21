@@ -4,6 +4,7 @@
 
 ### Added
 
+* Tor mesh test
 * Retry connecting to registrar few times on fail
 
 ## [4.2.3]
