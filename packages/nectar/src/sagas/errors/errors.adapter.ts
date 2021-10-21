@@ -1,10 +1,6 @@
 import { createEntityAdapter } from '@reduxjs/toolkit';
-import { ErrorsState, ErrorState } from './errors.slice';
+import { ErrorPayload } from './errors.slice';
 
-export const errorAdapter = createEntityAdapter<ErrorState>({
+export const errorsAdapter = createEntityAdapter<ErrorPayload>({
   selectId: (error) => error.type,
-});
-
-export const errorsAdapter = createEntityAdapter<ErrorsState>({
-  selectId: (error) => error.id,
 });

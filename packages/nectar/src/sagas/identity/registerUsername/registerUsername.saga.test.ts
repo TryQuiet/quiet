@@ -5,29 +5,31 @@ import { identityActions, identityReducer, Identity } from '../identity.slice';
 import { identityAdapter } from '../identity.adapter';
 import { registerUsernameSaga } from './registerUsername.saga';
 import { config } from '../../users/const/certFieldTypes';
-import {
-  errorsActions,
-  errorsReducer,
-  ErrorsState,
-} from '../../errors/errors.slice';
+import { errorsReducer } from '../../errors/errors.slice';
 import {
   communitiesReducer,
   CommunitiesState,
   Community,
 } from '../../communities/communities.slice';
 import { communitiesAdapter } from '../../communities/communities.adapter';
-import { errorAdapter, errorsAdapter } from '../../errors/errors.adapter';
+import { errorsAdapter } from '../../errors/errors.adapter';
 
 describe('registerUsernameSaga', () => {
   const identity = new Identity({
     id: 'id',
-    hiddenService: { onionAddress: 'onionAddress.onion', privateKey: 'privateKey' },
+    hiddenService: {
+      onionAddress: 'onionAddress.onion',
+      privateKey: 'privateKey',
+    },
     dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
     peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
   });
   const identityWithoutPeerId = new Identity({
     id: 'id',
-    hiddenService: { onionAddress: 'onionAddress.onion', privateKey: 'privateKey' },
+    hiddenService: {
+      onionAddress: 'onionAddress.onion',
+      privateKey: 'privateKey',
+    },
     dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
     peerId: { id: '', pubKey: 'pubKey', privKey: 'privKey' },
   });
@@ -38,16 +40,16 @@ describe('registerUsernameSaga', () => {
     CA: {},
   });
 
-  const connectionError = new ErrorsState({
+  const connectionError = {
     communityId: 'id',
     type: 'registrar',
     code: 403,
     message: "You're not connected with other peers.",
-  });
+  };
 
   const username = 'username';
 
-  test('create user csr', () => {
+  test('create user csr', () =>
     expectSaga(registerUsernameSaga, identityActions.registerUsername(username))
       .withReducer(
         combineReducers({
@@ -86,9 +88,8 @@ describe('registerUsernameSaga', () => {
           hashAlg: config.hashAlg,
         })
       )
-      .run();
-  });
-  test('throw error if missing data', () => {
+      .run());
+  test('throw error if missing data', () =>
     expectSaga(
       registerUsernameSaga,
       identityActions.registerUsername('username')
@@ -113,7 +114,7 @@ describe('registerUsernameSaga', () => {
               [community]
             ),
           },
-          [StoreKeys.Errors]: errorsAdapter.getInitialState(),
+          [StoreKeys.Errors]: {},
         }
       )
       // .put(
@@ -134,12 +135,12 @@ describe('registerUsernameSaga', () => {
           ),
         },
         [StoreKeys.Errors]: {
-          ...errorsAdapter.setAll(errorsAdapter.getInitialState(), [
-            connectionError,
-          ]),
-
+          ['id']: {
+            ...errorsAdapter.setAll(errorsAdapter.getInitialState(), [
+              connectionError,
+            ]),
+          },
         },
       })
-      .run();
-  });
+      .run());
 });

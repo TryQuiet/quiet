@@ -32,7 +32,7 @@ function* assertReceivedCertificates(
   runTestCaseSaga,
   userName: string,
   expectedCount: number,
-  maxTime: number = 60000
+  maxTime: number = 600000
 ) {
   log(`User ${userName} starts waiting ${maxTime}ms for certificates`);
   yield delay(maxTime);
@@ -218,7 +218,11 @@ const testUsersCreateAndJoinCommunitySuccessfullyWithoutTor = async (
   const user1 = await createAppWithoutTor();
   const user2 = await createAppWithoutTor();
   const allUsers = [owner, user1, user2];
-  watchResults(allUsers, user2, 'Users create and join community successfully without tor');
+  watchResults(
+    allUsers,
+    user2,
+    'Users create and join community successfully without tor'
+  );
 
   // Owner creates community and registers
   owner.runSaga(integrationTest, createCommunityTestSaga, {
@@ -287,7 +291,7 @@ const testUsersCreateAndJoinCommunitySuccessfullyWithoutTor = async (
 function* tryToJoinOfflineRegistrarTestSaga(): Generator {
   yield* put(
     communitiesActions.joinCommunity(
-      `http://offlineRegistrarAddress.onion:4040`
+      `http://yjnblkcrvqexxmntrs7hscywgebrizvz2jx4g4m5wq4x7uzi5syv5cid.onion`
     )
   );
   yield* take(communitiesActions.responseCreateCommunity);
@@ -296,13 +300,13 @@ function* tryToJoinOfflineRegistrarTestSaga(): Generator {
   );
   yield* put(identity.actions.registerUsername('IamTheUser'));
   yield* take(errorsActions.addError);
-  const registrarError = yield* select(
-    errorsSelectors.currentCommunityErrorByType(SocketActionTypes.REGISTRAR)
-  );
+  const registrarError = (yield* select(
+    errorsSelectors.currentCommunityErrorsByType
+  ))[SocketActionTypes.REGISTRAR]
   assertNotEmpty(registrarError, 'Registrar error');
   assert.equal(registrarError.communityId, currentCommunityId);
   assert.equal(registrarError.code, 500);
-  assert.equal(registrarError.message, 'Connecting to registrar failed');
+  assert.equal(registrarError.message, 'Registering username failed.');
   yield* put(createAction('testFinished')());
 }
 
@@ -317,6 +321,7 @@ const testUserTriesToJoinOfflineCommunity = async (testCase) => {
 };
 
 export default {
+  communityTestOfflineRegistrar: testUserTriesToJoinOfflineCommunity,
   communityTestWithTor: testUsersCreateAndJoinCommunitySuccessfully,
   communityTestWithoutTor:
     testUsersCreateAndJoinCommunitySuccessfullyWithoutTor,

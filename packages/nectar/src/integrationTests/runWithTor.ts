@@ -5,6 +5,11 @@ const log = Object.assign(debug('tests'), {
   error: debug('tests:err'),
 });
 
+const cases = [
+  communityTestCases.communityTestOfflineRegistrar,
+  communityTestCases.communityTestWithTor,
+]
+
 function testCaseReducer(
   state = {
     usersWithReplicatedCertificates: 0,
@@ -21,9 +26,11 @@ function testCaseReducer(
 }
 
 const run = async () => {
-  const reducers = { Test: testCaseReducer };
-  const { store, runSaga } = prepareStore(reducers);
-  await communityTestCases.communityTestWithTor({ store, runSaga });
+  for (const testCase of cases) {
+    const reducers = { Test: testCaseReducer };
+    const { store, runSaga } = prepareStore(reducers);
+    await testCase({ store, runSaga })
+  }
 };
 
 run().catch((e) => {

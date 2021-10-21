@@ -1,5 +1,9 @@
-import { errorsAdapter } from './errors.adapter';
-import { errorsActions, errorsReducer, GENERAL_ERRORS } from './errors.slice';
+import {
+  errorsActions,
+  errorsReducer,
+  ErrorPayload,
+  GENERAL_ERRORS,
+} from './errors.slice';
 
 test('errors reducer should set errors', () => {
   const errorPayload = {
@@ -25,56 +29,145 @@ test('errors reducer should set errors', () => {
     code: 500,
     message: 'Some error occurred',
   };
-  const state1 = errorsReducer(
-    errorsAdapter.getInitialState(),
-    errorsActions.addError(errorPayload)
-  );
-  const state2 = errorsReducer(state1, errorsActions.addError(errorPayload2));
-  const state3 = errorsReducer(state2, errorsActions.addError(errorPayload3));
-  const state4 = errorsReducer(
-    state3,
-    errorsActions.addError(errorPayloadGeneral)
-  );
-  expect(state4).toEqual({
-    ids: [errorPayload.communityId, errorPayload3.communityId, GENERAL_ERRORS],
-    entities: {
-      [errorPayload.communityId]: {
-        id: errorPayload.communityId,
-        errors: {
-          ids: [errorPayload.type, errorPayload2.type],
-          entities: {
-            [errorPayload.type]: {
-              ...errorPayload,
-            },
-            [errorPayload2.type]: {
-              ...errorPayload2,
-            },
-          },
-        },
-      },
-      [errorPayload3.communityId]: {
-        id: errorPayload3.communityId,
-        errors: {
-          ids: [errorPayload3.type],
-          entities: {
-            [errorPayload3.type]: {
-              ...errorPayload3,
-            },
-          },
-        },
-      },
-      general: {
-        id: GENERAL_ERRORS,
-        errors: {
-          ids: [errorPayloadGeneral.type],
-          entities: {
-            [errorPayloadGeneral.type]: {
-              ...errorPayloadGeneral,
-              communityId: null,
-            },
-          },
-        },
+  const state1 = errorsReducer({}, errorsActions.addError(errorPayload));
+  expect(state1).toMatchInlineSnapshot(`
+Object {
+  "community-id": Object {
+    "entities": Object {
+      "community": Object {
+        "code": 500,
+        "communityId": "community-id",
+        "message": "Error occurred",
+        "type": "community",
       },
     },
-  });
+    "ids": Array [
+      "community",
+    ],
+  },
+}
+`);
+
+  const state2 = errorsReducer(state1, errorsActions.addError(errorPayload2));
+  expect(state2).toMatchInlineSnapshot(`
+Object {
+  "community-id": Object {
+    "entities": Object {
+      "community": Object {
+        "code": 500,
+        "communityId": "community-id",
+        "message": "Error occurred",
+        "type": "community",
+      },
+      "other": Object {
+        "code": 403,
+        "communityId": "community-id",
+        "message": "Validation error occurred",
+        "type": "other",
+      },
+    },
+    "ids": Array [
+      "community",
+      "other",
+    ],
+  },
+}
+`);
+
+  const state3 = errorsReducer(state2, errorsActions.addError(errorPayload3));
+  expect(state3).toMatchInlineSnapshot(`
+Object {
+  "community-id": Object {
+    "entities": Object {
+      "community": Object {
+        "code": 500,
+        "communityId": "community-id",
+        "message": "Error occurred",
+        "type": "community",
+      },
+      "other": Object {
+        "code": 403,
+        "communityId": "community-id",
+        "message": "Validation error occurred",
+        "type": "other",
+      },
+    },
+    "ids": Array [
+      "community",
+      "other",
+    ],
+  },
+  "different-community-id": Object {
+    "entities": Object {
+      "community": Object {
+        "code": 403,
+        "communityId": "different-community-id",
+        "message": "Validation error occurred",
+        "type": "community",
+      },
+    },
+    "ids": Array [
+      "community",
+    ],
+  },
+}
+`);
+  const state4 = errorsReducer(
+    state3,
+    errorsActions.addError({
+      ...errorPayloadGeneral,
+      communityId: GENERAL_ERRORS,
+    })
+  );
+
+  expect(state4).toMatchInlineSnapshot(`
+Object {
+  "community-id": Object {
+    "entities": Object {
+      "community": Object {
+        "code": 500,
+        "communityId": "community-id",
+        "message": "Error occurred",
+        "type": "community",
+      },
+      "other": Object {
+        "code": 403,
+        "communityId": "community-id",
+        "message": "Validation error occurred",
+        "type": "other",
+      },
+    },
+    "ids": Array [
+      "community",
+      "other",
+    ],
+  },
+  "different-community-id": Object {
+    "entities": Object {
+      "community": Object {
+        "code": 403,
+        "communityId": "different-community-id",
+        "message": "Validation error occurred",
+        "type": "community",
+      },
+    },
+    "ids": Array [
+      "community",
+    ],
+  },
+  "general": Object {
+    "entities": Object {
+      "activity": Object {
+        "code": 500,
+        "communityId": "general",
+        "message": "Some error occurred",
+        "type": "activity",
+      },
+    },
+    "ids": Array [
+      "activity",
+    ],
+  },
+}
+`);
 });
