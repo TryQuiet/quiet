@@ -12,6 +12,7 @@ describe('SettingsModal', () => {
       <Provider store={store}>
         <SettingsModal
           open
+          isOwner={false}
           handleClose={jest.fn()}
           modalTabToOpen={'account'}
           clearCurrentOpenTab={jest.fn()}

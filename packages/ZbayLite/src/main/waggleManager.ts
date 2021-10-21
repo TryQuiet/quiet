@@ -9,9 +9,11 @@ export const getPorts = async (): Promise<{
   socksPort: number
   libp2pHiddenService: number
   controlPort: number
+  httpTunnelPort: number
   dataServer: number
 }> => {
   const [controlPort] = await fp(9151)
+  const [httpTunnelPort] = await fp(9251)
   const [socksPort] = await fp(9052)
   const [libp2pHiddenService] = await fp(7950)
   const [dataServer] = await fp(4677)
@@ -19,6 +21,7 @@ export const getPorts = async (): Promise<{
     socksPort,
     libp2pHiddenService,
     controlPort,
+    httpTunnelPort,
     dataServer
   }
 }
@@ -34,6 +37,7 @@ export const runWaggle = async (webContents: BrowserWindow['webContents']): Prom
     port: ports.libp2pHiddenService,
     agentHost: 'localhost',
     agentPort: ports.socksPort,
+    httpTunnelPort: ports.httpTunnelPort,
     io: dataServer.io,
     options: {
       env: {

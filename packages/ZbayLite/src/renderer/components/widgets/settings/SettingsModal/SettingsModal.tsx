@@ -12,11 +12,13 @@ import Tab from '../../../ui/Tab/Tab'
 import AccountSettingsForm from '../../../../containers/widgets/settings/AccountSettingsForm'
 import Security from '../../../../containers/widgets/settings/Security'
 import Notifications from '../../../../containers/widgets/settings/Notifications'
+import InviteToCommunity from '../../../../containers/widgets/settings/InviteToCommunity'
 
 const tabs = {
   account: AccountSettingsForm,
   security: Security,
-  notifications: Notifications
+  notifications: Notifications,
+  invite: InviteToCommunity
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -69,6 +71,7 @@ interface SettingsModalProps {
   currentTab: string
   setCurrentTab: (value: string) => void
   user: string
+  isOwner: boolean
   blockedUsers: string[]
 }
 
@@ -80,6 +83,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   currentTab,
   setCurrentTab,
   user,
+  isOwner,
   blockedUsers
 }) => {
   const classes = useStyles({})
@@ -148,6 +152,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <Tab
                   value='blockedusers'
                   label='Blocked Users'
+                  classes={{ selected: classes.selected }}
+                />
+              )}
+              {isOwner && (
+                <Tab
+                  value='invite'
+                  label='Invite a friend'
                   classes={{ selected: classes.selected }}
                 />
               )}
