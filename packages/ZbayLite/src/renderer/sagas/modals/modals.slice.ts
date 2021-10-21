@@ -13,7 +13,9 @@ export class ModalsInitialState {
   [ModalName.publishChannel]: boolean = false;
   [ModalName.joinChannel]: boolean = false;
   [ModalName.newMessageSeparate]: boolean = false;
-  [ModalName.quitApp]: boolean = false
+  [ModalName.quitApp]: boolean = false;
+  [ModalName.joinCommunityModal]: boolean = false;
+  [ModalName.createCommunityModal]: boolean = false
 }
 
 export const modalsSlice = createSlice({

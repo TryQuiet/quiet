@@ -4,7 +4,6 @@ import { Formik, Form, Field } from 'formik'
 import classNames from 'classnames'
 
 import Typography from '@material-ui/core/Typography'
-import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import Grid from '@material-ui/core/Grid'
 import { makeStyles } from '@material-ui/core/styles'
@@ -12,10 +11,8 @@ import { makeStyles } from '@material-ui/core/styles'
 import Modal from '../../ui/Modal/Modal'
 import UsernameCreated from './UsernameCreated'
 import { LoadingButton } from '../../ui/LoadingButton/LoadingButton'
-import { Identity } from '@zbayapp/nectar/lib/sagas/identity/identity.slice'
-import { ErrorState } from '@zbayapp/nectar/lib/sagas/errors/errors.slice'
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   root: {},
   focus: {
     '& .MuiOutlinedInput-root': {
@@ -159,90 +156,34 @@ const submitForm = (handleSubmit, values, setFormSent) => {
 }
 
 interface CreateUsernameModalProps {
-  handleClose: () => void
+  open: boolean
   initialValue: string
-  handleCreateCommunity?: (val: string) => void
-  handleJoinCommunity?: (val: string) => void
-  handleLaunchCommunity?: (val: string) => void
-  handleLaunchRegistrar?: (val: string) => void
-  handleRegisterUsername?: (val: string) => void
-  certificateRegistrationError?: ErrorState
+  handleRegisterUsername?: (payload: { nickname: string }) => void
+  certificateRegistrationError?: string
   certificate?: string
-  id?: Identity
-  triggerSelector?: () => void
-  open?: boolean
-  handleOpen?: () => void
+  handleClose: () => void
 }
 
 export const CreateUsernameModal: React.FC<CreateUsernameModalProps> = ({
-  handleClose,
+  open,
   initialValue,
-  handleCreateCommunity,
-  handleJoinCommunity,
-  handleLaunchCommunity,
-  handleLaunchRegistrar,
   handleRegisterUsername,
   certificateRegistrationError,
   certificate,
-  id
+  handleClose
 }) => {
   const classes = useStyles({})
   const [isTouched, setTouched] = useState(false)
   const [formSent, setFormSent] = useState(false)
-  const [val, setVal] = useState('')
   const responseReceived = Boolean(certificateRegistrationError || certificate)
   const waitingForResponse = formSent && !responseReceived
-  const trig = () => {
-    console.log(id)
-  }
   return (
-    <Modal open={!certificate} handleClose={handleClose} isCloseDisabled={!certificate}>
+    <Modal open={open} handleClose={handleClose} isCloseDisabled={!certificate}>
       <Grid container className={classes.main} direction='column'>
         {!certificate ? (
           <React.Fragment>
             <Grid className={classes.title} item>
               <Typography variant={'h3'}>Register a username</Typography>
-              <input
-                type='text'
-                name='topicBox'
-                placeholder='Enter topic here...'
-                value={val}
-                onChange={target => {
-                  console.log(target)
-                  setVal(target.target.value)
-                }}
-              />
-              <Button
-                onClick={() => {
-                  handleCreateCommunity(val)
-                }}>
-                create community
-              </Button>
-              <Button onClick={trig}>trigger selector</Button>
-              <Button
-                onClick={() => {
-                  handleJoinCommunity(val)
-                }}>
-                join community
-              </Button>
-              <Button
-                onClick={() => {
-                  handleLaunchCommunity(val)
-                }}>
-                launch community
-              </Button>
-              <Button
-                onClick={() => {
-                  handleLaunchRegistrar(val)
-                }}>
-                launch registrar
-              </Button>
-              <Button
-                onClick={() => {
-                  handleRegisterUsername(val)
-                }}>
-                register username
-              </Button>
             </Grid>
             <Formik
               onSubmit={values => submitForm(handleRegisterUsername, values, setFormSent)}
@@ -271,11 +212,7 @@ export const CreateUsernameModal: React.FC<CreateUsernameModalProps> = ({
                         </Typography>
                       </Grid>
                     </Grid>
-                    <Grid
-                      container
-                      direction={'row'}
-                      justify={'flex-start'}
-                      spacing={2}>
+                    <Grid container direction={'row'} justify={'flex-start'} spacing={2}>
                       <Grid item xs={'auto'} className={classes.buttonDiv}>
                         <LoadingButton
                           type='submit'

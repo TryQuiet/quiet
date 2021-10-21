@@ -37,6 +37,7 @@ import directMessages from './handlers/directMessages'
 import waggleHandlers from './handlers/waggle'
 // import { certificatesReducer } from './certificates/certificates.reducer'
 import { StoreKeys } from './store.keys'
+import { socketReducer } from '../sagas/socket/socket.slice'
 
 const reduxStorage = createElectronStorage()
 const persistConfig = {
@@ -69,6 +70,7 @@ const persistConfig = {
 
 export const reducers = {
   ...nectarReducers.reducers,
+  [StoreKeys.Socket]: socketReducer,
   Modals: modalsReducer,
   // [StoreKeys.Certificates]: certificatesReducer,
   waggle: waggleHandlers.reducer,

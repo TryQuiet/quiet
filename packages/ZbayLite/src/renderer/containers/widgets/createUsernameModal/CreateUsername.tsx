@@ -1,79 +1,36 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-
+import { errors, identity, socketActionTypes } from '@zbayapp/nectar'
 import CreateUsernameModalComponent from '../../../components/widgets/createUsername/CreateUsernameModal'
-import { identity, communities } from '@zbayapp/nectar'
-import { useModal } from '../../hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
-
-const useData = () => {
-  const modalName = ModalName.createUsernameModal
-  const data = {
-    initialValue: '',
-    modalName,
-    // certificateRegistrationError: useSelector(errors.selectors.currentCommunityErrorByType(socketActionTypes.REGISTRAR)),
-    certificateRegistrationError: undefined,
-    certificate: useSelector(identity.selectors.currentIdentity)?.userCertificate,
-    id: useSelector(identity.selectors.currentIdentity)
-  }
-  return data
-}
+import { useModal } from '../../hooks'
 
 const CreateUsernameModal = () => {
-  const {
-    initialValue,
-    certificateRegistrationError,
-    certificate,
-    id
-  } = useData()
   const dispatch = useDispatch()
 
-  const handleCreateCommunity = (communityName: string) => {
-    console.log('create new community')
-    console.log(communityName)
-    dispatch(communities.actions.createNewCommunity(communityName))
-  }
-  const handleJoinCommunity = (registrarAddress: string) => {
-    console.log('join community')
-    console.log(registrarAddress)
-    dispatch(communities.actions.joinCommunity(registrarAddress))
-  }
-  const handleLaunchCommunity = (id: string) => {
-    console.log('launching Community')
-    console.log(id)
-    // dispatch(communities.actions.launchCommunity(id))
-  }
-  const handleLaunchRegistrar = (id: string) => {
-    console.log('launching registrar')
-    console.log(id)
-    dispatch(communities.actions.launchRegistrar())
-  }
-  const handleRegisterUsername = (username) => {
-    console.log('handle register username')
-    console.log(username)
-    dispatch(identity.actions.registerUsername(username))
-  }
+  const certificate = useSelector(identity.selectors.currentIdentity)?.userCertificate
+  const communityErrors = useSelector(errors.selectors.currentCommunityErrorsByType)
+  const error = communityErrors?.[socketActionTypes.REGISTRAR]
 
-  const triggerSelector = () => { }
+  const createUsernameModal = useModal(ModalName.createUsernameModal)
 
-  const modal = useModal(ModalName.createUsernameModal)
+  useEffect(() => {
+    if (certificate) {
+      createUsernameModal.handleClose()
+    }
+  }, [certificate])
+
+  const handleRegisterUsername = (payload: {nickname: string}) => {
+    dispatch(identity.actions.registerUsername(payload.nickname))
+  }
 
   return (
     <CreateUsernameModalComponent
-      // handleSubmit={handleSubmit}
-      handleCreateCommunity={handleCreateCommunity}
-      handleJoinCommunity={handleJoinCommunity}
-      handleLaunchCommunity={handleLaunchCommunity}
-      handleLaunchRegistrar={handleLaunchRegistrar}
+      {...createUsernameModal}
+      initialValue={''}
       handleRegisterUsername={handleRegisterUsername}
-      triggerSelector={triggerSelector}
-      initialValue={initialValue}
-      open={modal.open}
-      handleOpen={modal.handleOpen}
-      handleClose={modal.handleClose}
-      certificateRegistrationError={certificateRegistrationError}
+      certificateRegistrationError={error?.message}
       certificate={certificate}
-      id={id}
     />
   )
 }

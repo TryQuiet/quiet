@@ -1,4 +1,5 @@
 export enum StoreKeys {
+  Socket = 'socket',
   Certificates = 'certificates',
   Identity = 'identity',
   Channel = 'channel',

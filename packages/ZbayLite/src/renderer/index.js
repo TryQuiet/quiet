@@ -7,10 +7,10 @@ import store from './store'
 import updateHandlers from './store/handlers/update'
 import waggleHandlers from './store/handlers/waggle'
 
-import { socketsActions } from './sagas/socket/socket.saga.reducer'
 import debug from 'debug'
 
 import { publicChannels } from '@zbayapp/nectar'
+import { socketActions } from './sagas/socket/socket.slice'
 
 const log = Object.assign(debug('zbay:renderer'), {
   error: debug('zbay:renderer:err')
@@ -25,9 +25,7 @@ ipcRenderer.on('newUpdateAvailable', event => {
 })
 
 ipcRenderer.on('connectToWebsocket', (event) => {
-  log('connecting to websocket')
-  console.log('connectToWebsocket')
-  store.dispatch(socketsActions.connect())
+  store.dispatch(socketActions.startConnection)
 })
 
 const ZbayChannel = {

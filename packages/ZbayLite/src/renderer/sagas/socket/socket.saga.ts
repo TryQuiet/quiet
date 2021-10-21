@@ -1,27 +1,23 @@
 import { io, Socket } from 'socket.io-client'
-import { socket as nectar } from '@zbayapp/nectar'
-import { call, all, fork, takeEvery } from 'typed-redux-saga'
-import { Socket as socketsActions } from '../const/actionsTypes'
+import { call, fork, put } from 'typed-redux-saga'
+import { socket } from '@zbayapp/nectar'
 import config from '../../config'
-import { ipcRenderer } from 'electron'
+import { socketActions } from './socket.slice'
+
+export function* startConnectionSaga(): Generator {
+  const _socket = yield* call(connect)
+  // @ts-expect-error
+  yield* fork(socket.useIO, _socket)
+  yield* put(socketActions.setConnected())
+}
 
 export const connect = async (): Promise<Socket> => {
-  console.log('connect')
+  console.log('starting websocket connection')
   const socket = io(config.socket.address)
   return await new Promise(resolve => {
     socket.on('connect', async () => {
-      ipcRenderer.send('connectionReady')
-      console.log('connections is ready')
+      console.log('websocket connected')
       resolve(socket)
     })
   })
-}
-
-export function* startConnection(): Generator {
-  const socket = yield* call(connect)
-  yield* fork(nectar.useIO, socket)
-}
-
-export function* socketSaga(): Generator {
-  yield all([takeEvery(socketsActions.CONNECT_TO_WEBSOCKET_SERVER, startConnection)])
 }

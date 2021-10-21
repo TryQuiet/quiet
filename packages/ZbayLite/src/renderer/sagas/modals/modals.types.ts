@@ -1,4 +1,5 @@
 export enum ModalName {
+  applicationUpdate = 'applicationUpdate',
   addModerator = 'addModerator',
   createChannel = 'createChannel',
   accountSettingsModal = 'accountSettingsModal',
@@ -12,5 +13,7 @@ export enum ModalName {
   joinChannel = 'joinChannel',
   newMessageSeparate = 'newMessageSeparate',
   quitApp = 'quitApp',
-  applicationUpdate = 'applicationUpdate'
+  lightWalletSecurityModal = 'lightWalletSecurityModal',
+  joinCommunityModal = 'joinCommunityModal',
+  createCommunityModal = 'createCommunityModal'
 }

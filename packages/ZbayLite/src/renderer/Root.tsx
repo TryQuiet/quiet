@@ -21,6 +21,8 @@ import SettingsModal from './containers/widgets/settings/SettingsModal'
 import UpdateModal from './containers/widgets/update/UpdateModal'
 import QuitAppDialog from './containers/ui/QuitAppDialog'
 import theme from './theme'
+import CreateCommunity from './containers/widgets/createCommunity/createCommunity'
+import JoinCommunity from './containers/widgets/joinCommunity/joinCommunity'
 
 export default () => {
   const persistor = persistStore(store)
@@ -32,6 +34,8 @@ export default () => {
             <SnackbarProvider maxSnack={3}>
               <ChannelSettingsModal />
               <CreateChannelModal />
+              <JoinCommunity />
+              <CreateCommunity />
               <CreateUsernameModal />
               <CssBaseline />
               <ErrorModal />
