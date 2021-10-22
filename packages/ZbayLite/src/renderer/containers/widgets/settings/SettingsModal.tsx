@@ -18,7 +18,7 @@ const useSettingsModalData = () => {
 }
 const useSettingsModalActions = () => {
   const dispatch = useDispatch()
-  const clearCurrentOpenTab = () => dispatch(actions.clearModalTab)
+  const clearCurrentOpenTab = () => dispatch(actions.clearModalTab())
   return { clearCurrentOpenTab }
 }
 
