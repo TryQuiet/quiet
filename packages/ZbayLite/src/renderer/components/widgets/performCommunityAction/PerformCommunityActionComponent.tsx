@@ -1,9 +1,7 @@
 import React, { useState } from 'react'
-import { Formik, Form, Field } from 'formik'
 import classNames from 'classnames'
 
 import Typography from '@material-ui/core/Typography'
-import TextField from '@material-ui/core/TextField'
 import Grid from '@material-ui/core/Grid'
 import { makeStyles } from '@material-ui/core/styles'
 
@@ -15,6 +13,9 @@ import {
   CreateCommunityDictionary,
   JoinCommunityDictionary
 } from './PerformCommunityAction.dictionary'
+import { TextInput } from '../../../forms/components/textInput'
+import { Controller, useForm } from 'react-hook-form'
+import { communityNameField } from '../../../forms/fields/createUserFields'
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -106,42 +107,6 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-const CustomInputComponent = ({
-  classes,
-  field,
-  isTouched,
-  form: { errors, values },
-  error,
-  placeholder,
-  ...props
-}) => {
-  const { value, ...rest } = field
-  const formErrors = errors.name || error
-  return (
-    <TextField
-      variant={'outlined'}
-      fullWidth
-      className={classNames({
-        [classes.focus]: true,
-        [classes.margin]: true,
-        [classes.error]: isTouched && formErrors
-      })}
-      placeholder={placeholder}
-      error={isTouched && formErrors}
-      helperText={isTouched && formErrors}
-      defaultValue={values.name || ''}
-      {...rest}
-      {...props}
-      onPaste={e => e.preventDefault()}
-    />
-  )
-}
-
-const submitForm = (handleSubmit, values, setFormSent) => {
-  setFormSent(true)
-  handleSubmit(values)
-}
-
 export interface PerformCommunityActionProps {
   open: boolean
   communityAction: CommunityAction
@@ -153,6 +118,19 @@ export interface PerformCommunityActionProps {
   handleClose: () => void
   isClosedDisabled?: boolean
   isConnectionReady?: boolean
+}
+
+interface CreateCommunityValues {
+  communityName: string
+}
+
+const communityFields = {
+  communityName: communityNameField()
+}
+
+const submitForm = (handleSubmit, values: CreateCommunityValues, setFormSent) => {
+  setFormSent(true)
+  handleSubmit(values.communityName)
 }
 
 export const PerformCommunityActionComponent: React.FC<PerformCommunityActionProps> = ({
@@ -168,7 +146,6 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   isConnectionReady = true
 }) => {
   const classes = useStyles({})
-  const [isTouched, setTouched] = useState(false)
   const [formSent, setFormSent] = useState(false)
   const responseReceived = Boolean(error || registrar)
   const waitingForResponse = formSent && !responseReceived
@@ -176,65 +153,78 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
     communityAction === CommunityAction.Create
       ? CreateCommunityDictionary(handleRedirection)
       : JoinCommunityDictionary(handleRedirection)
+
+  const { handleSubmit, formState: { errors }, control } = useForm<CreateCommunityValues>({
+    mode: 'onTouched'
+  })
+
+  const onSubmit = (values: CreateCommunityValues) => submitForm(handleCommunityAction, values, setFormSent)
+
   return (
     <Modal open={open} handleClose={handleClose} isCloseDisabled={isClosedDisabled}>
       <Grid container className={classes.main} direction='column'>
-        <React.Fragment>
+        <>
           <Grid className={classes.title} item>
             <Typography variant={'h3'}>{dictionary.header}</Typography>
           </Grid>
-          <Formik
-            onSubmit={values => submitForm(handleCommunityAction, values, setFormSent)}
-            initialValues={initialValue}>
-            {() => {
-              return (
-                <Form className={classes.fullWidth}>
-                  <Grid container>
-                    <Grid className={classes.field} item xs={12}>
-                      <Typography variant='caption' className={classes.label}>
-                        {dictionary.label}{' '}
-                      </Typography>
-                      <Field
-                        name='name'
-                        classes={classes}
-                        component={CustomInputComponent}
-                        isTouched={isTouched}
-                        error={error}
-                        placeholder={dictionary.placeholder}
-                      />
-                    </Grid>
-                    <Grid item xs={12} className={classes.infoDiv}>
-                      <Typography variant='caption' className={classes.info}>
-                        {dictionary.hint}
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                  <Grid container direction={'row'} justify={'flex-start'} spacing={2}>
-                    <Grid item xs={'auto'} className={classes.buttonDiv}>
-                      <LoadingButton
-                        type='submit'
-                        variant='contained'
-                        size='small'
-                        color='primary'
-                        fullWidth
-                        text={dictionary.button ?? 'Continue'}
-                        classes={{ button: classes.button }}
-                        disabled={waitingForResponse || !isConnectionReady}
-                        inProgress={waitingForResponse}
-                        onClick={() => {
-                          setTouched(true)
-                        }}
-                      />
-                    </Grid>
-                  </Grid>
-                </Form>
-              )
-            }}
-          </Formik>
+
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <Grid container>
+              <Grid className={classes.field} item xs={12}>
+                <Typography variant='caption' className={classes.label}>
+                  {dictionary.label}{' '}
+                </Typography>
+                <Controller
+                  control={control}
+                  defaultValue={''}
+                  rules={communityFields.communityName.validation}
+                  name={'communityName'}
+                  render={({ field }) => (
+                    <TextInput
+                      {...communityFields.communityName.fieldProps}
+                      fullWidth
+                      classes={classNames({
+                        [classes.focus]: true,
+                        [classes.margin]: true,
+                        [classes.error]: errors.communityName
+                      })}
+                      placeholder={'Enter a username'}
+                      errors={errors}
+                      defaultValue={initialValue || ''}
+                      onPaste={e => e.preventDefault()}
+                      onchange={field.onChange}
+                      onblur={field.onBlur}
+                      value={field.value}
+                    />
+                  )}
+                />
+              </Grid>
+              <Grid item xs={12} className={classes.infoDiv}>
+                <Typography variant='caption' className={classes.info}>
+                  {dictionary.hint}
+                </Typography>
+              </Grid>
+            </Grid>
+            <Grid container direction={'row'} justify={'flex-start'} spacing={2}>
+              <Grid item xs={'auto'} className={classes.buttonDiv}>
+                <LoadingButton
+                  type='submit'
+                  variant='contained'
+                  size='small'
+                  color='primary'
+                  fullWidth
+                  text={dictionary.button ?? 'Continue'}
+                  classes={{ button: classes.button }}
+                  disabled={waitingForResponse || !isConnectionReady}
+                  inProgress={waitingForResponse}
+                />
+              </Grid>
+            </Grid>
+          </form>
           {dictionary.redirection}
-        </React.Fragment>
+        </>
       </Grid>
-    </Modal>
+    </Modal >
   )
 }
 

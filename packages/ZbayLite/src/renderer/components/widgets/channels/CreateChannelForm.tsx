@@ -1,14 +1,13 @@
 import React from 'react'
-import { Formik, Form } from 'formik'
-import * as Yup from 'yup'
 
 import Grid from '@material-ui/core/Grid'
 import { makeStyles } from '@material-ui/core/styles'
-import WarningIcon from '@material-ui/icons/Warning'
 import { Typography } from '@material-ui/core'
 
-import TextField from '../../ui/TextField/TextField'
 import LoadingButton from '../../ui/LoadingButton/LoadingButton'
+import { TextInput } from '../../../forms/components/textInput'
+import { Controller, useForm } from 'react-hook-form'
+import { channelNameField } from '../../../forms/fields/createChannelFields'
 
 const useStyles = makeStyles((theme) => ({
   fullContainer: {
@@ -46,102 +45,105 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-export const parseChannelName = (name = '') => {
-  return name.toLowerCase().replace(/ +/g, '-')
-}
-export const formSchema = Yup.object().shape({
-  name: Yup.string()
-    .max(20, 'Channel name is too long.')
-    .test(
-      'testFormat',
-      'Channel name can contain only small characters and up to one hyphen.',
-      function (value) {
-        return parseChannelName(value).match(/^[a-z0-9]+([\s-][a-z0-9]+){0,}$/)
-      }
-    )
-    .required('Your channel must have a name.')
-})
-
-export const formDisabledSchema = Yup.object().shape({
-  name: Yup.string()
-    .test(
-      'testFormat',
-      'Creating new channels has been temporarily disabled while we transition to a faster approach to group messaging. Apologies for the inconvenience!',
-      function () {
-        return false
-      }
-    )
-    .required('Creating new channels has been temporarily disabled')
-})
-
 export const showParsedMessage = (message = '') => {
   return message.includes(' ') || message !== message.toLowerCase()
 }
 
 interface CreateChannelFormProps {
   // onSubmit: ({ name }: { name: string }, formActions, setStep) => void
-  setStep: () => void
+  setStep: (arg: number) => void
+}
+
+interface CreateChannelValues {
+  channelName: string
+}
+
+const channelFields = {
+  channelName: channelNameField()
 }
 
 export const CreateChannelForm: React.FC<CreateChannelFormProps> = ({ setStep }) => {
   const classes = useStyles({})
+
+  const { handleSubmit, formState: { errors }, control } = useForm<CreateChannelValues>({
+    mode: 'onTouched'
+  })
+
+  const onSubmit = () => {
+    // (values, formActions) => {
+    //   onSubmit(
+    //     { ...values, name: parseChannelName(values.name) },
+    //     formActions,
+    //     setStep
+    //   )
+    // }
+    setStep(1)
+  }
+
   return (
-    <Formik
-      validationSchema={formDisabledSchema}
-      // onSubmit={(values, formActions) => {
-      //   onSubmit(
-      //     { ...values, name: parseChannelName(values.name) },
-      //     formActions,
-      //     setStep
-      //   )
-      // }}
-      onSubmit={setStep}
-      initialValues={{ name: '' }}
+    <form
+      onSubmit={handleSubmit(onSubmit)}
     >
-      {({ isSubmitting, values, isValid }) => (
-        <Form className={classes.fullContainer}>
-          <Grid
-            container
-            justify='flex-start'
-            direction='column'
-            className={classes.fullContainer}
-          >
-            <Typography variant='h3' className={classes.title}>
-              Create a new private channel (temporarily disabled)
-            </Typography>
-            <Typography variant='body2'>Channel name</Typography>
-            <TextField name='name' />
-            <div className={classes.gutter}>
-              {showParsedMessage(values.name) && isValid && (
-                <Grid container alignItems='center' direction='row'>
-                  <Grid item className={classes.iconDiv}>
-                    <WarningIcon className={classes.warrningIcon} />
-                  </Grid>
-                  <Grid item xs className=''>
-                    <Typography
-                      variant='body2'
-                      className={classes.warrningMessage}
-                    >
-                      Your channel will be created as{' '}
-                      {parseChannelName(values.name)}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              )}
-            </div>
-            <LoadingButton
-              variant='contained'
-              color='primary'
-              disabled={true} // Temporarily turn off
-              inProgress={isSubmitting}
-              type='submit'
-              text='Create Channel'
-              classes={{ button: classes.button }}
+      <Grid
+        container
+        justify='flex-start'
+        direction='column'
+        className={classes.fullContainer}
+      >
+        <Typography variant='h3' className={classes.title}>
+          Create a new private channel (temporarily disabled)
+        </Typography>
+        <Typography variant='body2'>Channel name</Typography>
+        <Controller
+          control={control}
+          defaultValue={''}
+          rules={channelFields.channelName.validation}
+          name={'channelName'}
+          render={({ field }) => (
+            <TextInput
+              name='name'
+              defaultValue={''}
+              variant='outlined'
+              errors={errors}
+              classes={''}
+              {...channelFields.channelName.fieldProps}
+              fullWidth
+              onchange={field.onChange}
+              onblur={field.onBlur}
+              value={field.value}
+              placeholder={'Enter a channel name'}
             />
-          </Grid>
-        </Form>
-      )}
-    </Formik>
+          )}
+        />
+        <div className={classes.gutter}>
+          {/* {true && ( // disabled for now
+            <Grid container alignItems='center' direction='row'>
+              <Grid item className={classes.iconDiv}>
+                <WarningIcon className={classes.warrningIcon} />
+              </Grid>
+              <Grid item xs className=''>
+                <Typography
+                  variant='body2'
+                  className={classes.warrningMessage}
+                >
+                  Your channel will be created as{` ${}`}
+
+                </Typography>
+              </Grid>
+            </Grid>
+          )} */}
+        </div>
+        <LoadingButton
+          variant='contained'
+          color='primary'
+          disabled={false} // Temporarily turn off
+          inProgress={false}
+          type='submit'
+          text='Create Channel'
+          classes={{ button: classes.button }}
+        />
+      </Grid>
+    </form>
   )
 }
 

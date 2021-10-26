@@ -19,7 +19,7 @@ module.exports = {
     rules: [
       {
         test: /\.(t|j)sx?$/,
-        loader: ['awesome-typescript-loader?module=es6'],
+        loader: ['ts-loader'],
         exclude: [/node_modules/]
       },
       {
@@ -42,7 +42,7 @@ module.exports = {
   },
   target: 'electron-renderer',
   entry: {
-    index: './src/renderer/index.js'
+    index: './src/renderer/index.tsx'
   },
   plugins: [
     new HtmlWebpackPlugin({
