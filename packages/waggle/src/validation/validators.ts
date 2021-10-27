@@ -18,9 +18,7 @@ const channelSchema = joi.object({
   description: joi.string().required(),
   owner: joi.string().required(),
   timestamp: joi.number().required(),
-  address: joi.string().required(),
-  keys: joi.object().required(),
-  orbitAddress: joi.string()
+  address: joi.string().required()
 })
 
 export const isUser = (publicKey: string, halfKey: string): boolean => {

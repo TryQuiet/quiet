@@ -55,6 +55,7 @@ const getStorage = async (zbayDir: string) => {
   const storage = new Storage(
     zbayDir,
     new DummyIOServer(),
+    'communityid',
     {
       ...{},
       orbitDbDir: `OrbitDB${peerId.toB58String()}`,

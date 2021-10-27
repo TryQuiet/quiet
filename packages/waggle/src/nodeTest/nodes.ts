@@ -87,7 +87,8 @@ export class NodeWithoutTor extends LocalNode {
       this.port,
       this.port,
       bootstrapAddressArrayWs,
-      certs
+      certs,
+      'communityId'
     )
     this.storage = communities.getStorage(peerId.toB58String())
   }
@@ -137,7 +138,8 @@ export class NodeWithTor extends LocalNode {
       virtPort,
       this.port,
       this.bootstrapMultiaddrs,
-      certs
+      certs,
+      'communityId'
     )
     this.storage = communities.getStorage(peerId.toB58String())
   }

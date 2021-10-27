@@ -35,7 +35,7 @@ describe('Storage', () => {
   it('creates paths by default', async () => {
     expect(fs.existsSync(tmpOrbitDbDir)).toBe(false)
     expect(fs.existsSync(tmpIpfsPath)).toBe(false)
-    storage = new Storage(tmpAppDataPath, new utils.DummyIOServer())
+    storage = new Storage(tmpAppDataPath, new utils.DummyIOServer(), 'communityId')
     const peerId = await PeerId.create()
     const libp2p = await createLibp2p(peerId)
     const createPathsSpy = jest.spyOn(utils, 'createPaths')
@@ -49,7 +49,7 @@ describe('Storage', () => {
     // Note: paths are being created by IPFS and OrbitDb
     expect(fs.existsSync(tmpOrbitDbDir)).toBe(false)
     expect(fs.existsSync(tmpIpfsPath)).toBe(false)
-    storage = new Storage(tmpAppDataPath, new utils.DummyIOServer(), { createPaths: false })
+    storage = new Storage(tmpAppDataPath, new utils.DummyIOServer(), 'communityId', { createPaths: false })
     const peerId = await PeerId.create()
     const libp2p = await createLibp2p(peerId)
     const createPathsSpy = jest.spyOn(utils, 'createPaths')
@@ -69,7 +69,7 @@ describe('Certificate', () => {
       hashAlg: configCrypto.hashAlg
     })
     const userCert = await createUserCert(dataFromRootPems.certificate, dataFromRootPems.privKey, user.userCsr, new Date(), new Date(2030, 1, 1))
-    storage = new Storage(tmpAppDataPath, new utils.DummyIOServer(), { createPaths: false })
+    storage = new Storage(tmpAppDataPath, new utils.DummyIOServer(), 'communityId', { createPaths: false })
     const peerId = await PeerId.create()
     const libp2p = await createLibp2p(peerId)
     await storage.init(libp2p, peerId)
@@ -87,7 +87,7 @@ describe('Certificate', () => {
       hashAlg: configCrypto.hashAlg
     })
     const userCertOld = await createUserCert(dataFromRootPems.certificate, dataFromRootPems.privKey, user.userCsr, new Date(2021, 1, 1), new Date(2021, 1, 2))
-    storage = new Storage(tmpAppDataPath, new utils.DummyIOServer(), { createPaths: false })
+    storage = new Storage(tmpAppDataPath, new utils.DummyIOServer(), 'communityId', { createPaths: false })
     const peerId = await PeerId.create()
     const libp2p = await createLibp2p(peerId)
     await storage.init(libp2p, peerId)
@@ -96,7 +96,7 @@ describe('Certificate', () => {
   })
 
   it('is not saved to db if empty', async () => {
-    storage = new Storage(tmpAppDataPath, new utils.DummyIOServer(), { createPaths: false })
+    storage = new Storage(tmpAppDataPath, new utils.DummyIOServer(), 'communityId', { createPaths: false })
     const peerId = await PeerId.create()
     const libp2p = await createLibp2p(peerId)
     await storage.init(libp2p, peerId)
@@ -116,7 +116,7 @@ describe('Certificate', () => {
       hashAlg: configCrypto.hashAlg
     })
     const userCert = await createUserCert(dataFromRootPems.certificate, dataFromRootPems.privKey, user.userCsr, new Date(), new Date(2030, 1, 1))
-    storage = new Storage(tmpAppDataPath, new utils.DummyIOServer(), { createPaths: false })
+    storage = new Storage(tmpAppDataPath, new utils.DummyIOServer(), 'communityId', { createPaths: false })
     const peerId = await PeerId.create()
     const libp2p = await createLibp2p(peerId)
     await storage.init(libp2p, peerId)
@@ -128,7 +128,7 @@ describe('Certificate', () => {
   })
 
   it('username check passes if username is not found in certificates', async () => {
-    storage = new Storage(tmpAppDataPath, new utils.DummyIOServer(), { createPaths: false })
+    storage = new Storage(tmpAppDataPath, new utils.DummyIOServer(), 'communityId', { createPaths: false })
     const peerId = await PeerId.create()
     const libp2p = await createLibp2p(peerId)
     await storage.init(libp2p, peerId)

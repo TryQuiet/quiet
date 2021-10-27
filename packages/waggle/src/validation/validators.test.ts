@@ -107,8 +107,7 @@ describe('Validators - Channels', () => {
       description: 'zbay',
       owner: 'szakalakakaaakaka',
       timestamp: 12341234,
-      address: 'sadfdasfsadfsdfsnfsdjfdsfsdfjsdf',
-      keys: {}
+      address: 'sadfdasfsadfsdfsnfsdjfdsfsdfjsdf'
     }
     expect(isChannel(channel)).toBeTruthy()
   })
@@ -117,8 +116,7 @@ describe('Validators - Channels', () => {
       name: 'zbay',
       description: 'zbay',
       owner: 'szakalakakaaakaka',
-      address: 'sadfdasfsadfsdfsnfsdjfdsfsdfjsdf',
-      keys: {}
+      address: 'sadfdasfsadfsdfsnfsdjfdsfsdfjsdf'
     }
     expect(isChannel(channel as IChannelInfo)).toBeFalsy()
   })
@@ -128,8 +126,7 @@ describe('Validators - Channels', () => {
       description: 'zbay',
       owner: 'szakalakakaaakaka',
       timestamp: 'asfasdf',
-      address: 'sadfdasfsadfsdfsnfsdjfdsfsdfjsdf',
-      keys: {}
+      address: 'sadfdasfsadfsdfsnfsdjfdsfsdfjsdf'
     }
     expect(isChannel((channel as unknown) as IChannelInfo)).toBeFalsy()
   })

@@ -21,7 +21,6 @@ export interface IChannelInfo {
   owner: string
   timestamp: number
   address: string
-  keys: { ivk?: string, sk?: string }
 }
 
 export interface ChannelInfoResponse {
@@ -33,10 +32,6 @@ export class StorageOptions {
   ipfsDir?: string
   createPaths: boolean = true
   isEntryNode?: boolean = false
-}
-
-export interface IZbayChannel extends IChannelInfo {
-  orbitAddress: string
 }
 
 export interface IPublicKey {

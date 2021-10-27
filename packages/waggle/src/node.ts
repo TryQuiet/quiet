@@ -74,7 +74,8 @@ export default class Node {
       virtPort,
       this.port,
       ['/dns4/2lmfmbj4ql56d55lmv7cdrhdlhls62xa4p6lzy6kymxuzjlny3vnwyqd.onion/tcp/443/wss/p2p/Qmak8HeMad8X1HGBmz2QmHfiidvGnhu6w6ugMKtx8TFc85'],
-      this.certificates
+      this.certificates,
+      'communityId'
     )
     await communities.setupRegistrationService(
       peerId.toB58String(),

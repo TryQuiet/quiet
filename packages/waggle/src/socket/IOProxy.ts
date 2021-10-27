@@ -170,15 +170,15 @@ export default class IOProxy {
   }
 
   public async createCommunity(communityId: string, certs: CertsData, rootCert?: string, rootKey?: string) {
-    const communityData = await this.communities.create(certs)
+    const communityData = await this.communities.create(certs, communityId)
     if (rootCert && rootKey) {
       await this.launchRegistrar(communityId, communityData.peerId.id, rootCert, rootKey)
     }
     this.io.emit(EventTypesResponse.NEW_COMMUNITY, { id: communityId, payload: communityData })
   }
 
-  public async launchCommunity(communityId: string, peerId: PeerId.JSONPeerId, hiddenService: { address: string, privateKey: string }, bootstrapMultiaddress: string[], certs: CertsData) {
-    await this.communities.launch(peerId, hiddenService.privateKey, bootstrapMultiaddress, certs)
+  public async launchCommunity(communityId: string, peerId: PeerId.JSONPeerId, hiddenService: {address: string, privateKey: string}, bootstrapMultiaddress: string[], certs: CertsData) {
+    await this.communities.launch(peerId, hiddenService.privateKey, bootstrapMultiaddress, certs, communityId)
     this.io.emit(EventTypesResponse.COMMUNITY, { id: communityId })
   }
 

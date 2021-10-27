@@ -4,6 +4,7 @@
 
 ### Added
 
+* pass CommunityId to storage
 * Tor mesh test
 * Retry connecting to registrar few times on fail
 

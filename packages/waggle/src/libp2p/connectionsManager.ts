@@ -174,8 +174,9 @@ export class ConnectionsManager {
     }
   }
 
-  public createStorage = (peerId: string) => {
-    return new this.StorageCls(this.zbayDir, this.io, {
+  public createStorage = (peerId: string, communityId: string) => {
+    console.log(`createStorage communityID ${communityId}`)
+    return new this.StorageCls(this.zbayDir, this.io, communityId, {
       ...this.options,
       orbitDbDir: `OrbitDB${peerId}`,
       ipfsDir: `Ipfs${peerId}`

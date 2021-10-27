@@ -39,7 +39,7 @@ export class StorageTestSnapshot extends Storage {
   protected msgReplCount: number
 
   constructor(zbayDir: string, io: any, options?: Partial<StorageTestSnapshotOptions>) {
-    super(zbayDir, io, options)
+    super(zbayDir, io, 'communityId', options)
     this.options = {
       ...new StorageTestSnapshotOptions(),
       ...options

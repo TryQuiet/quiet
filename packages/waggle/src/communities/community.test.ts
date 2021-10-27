@@ -39,7 +39,7 @@ describe('Community manager', () => {
       key: pems.userKey,
       ca: [pems.ca]
     }
-    const communityData = await manager.create(certs)
+    const communityData = await manager.create(certs, 'communityId')
     expect(manager.communities.size).toBe(1)
     expect(manager.communities.has(communityData.peerId.id)).toBeTruthy()
   })
@@ -59,7 +59,8 @@ describe('Community manager', () => {
       peerId.toJSON(),
       'ED25519-V3:YKbZb2pGbMt44qunoxvrxCKenRomAI9b/HkPB5mWgU9wIm7wqS+43t0yLiCmjSu+FW4f9qFW91c4r6BAsXS9Lg==',
       ['peeraddress'],
-      certs
+      certs,
+      'communityId'
     )
     expect(localAddress).toContain(peerId.toB58String())
     expect(manager.communities.size).toBe(1)
