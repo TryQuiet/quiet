@@ -63,7 +63,7 @@
   "@comment version": "To build new version for specific platform, just replace platform in version tag to one of following linux, mac, windows",
   "version": "3.6.0-zbay-lite",
   "description": "Distributed goods and bulletin board",
-  "main": "dist/main/main.js",
+  "main": "dist/src/main/main.js",
   "scripts": {
     "pullBinaries": "wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/tor -P ./tor/ && chmod 775 ./tor/tor",
     "pullLibs": "wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/libssl.so -P ./ && chmod 775 ./libssl.so",
