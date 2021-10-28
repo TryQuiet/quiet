@@ -2,10 +2,18 @@
 
 ## [Unreleased]
 
+* Registrar - don't return port if waggle uses tor
+
+## [4.3.4]
+
+* Tor mesh test
+* pass CommunityId to storage
+
+## [4.3.3]
+
 ### Added
 
-* pass CommunityId to storage
-* Tor mesh test
+* Security for not using the tor
 * Retry connecting to registrar few times on fail
 
 ## [4.2.3]
