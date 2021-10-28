@@ -37,9 +37,10 @@ export function* registerCertificateSaga(
     };
     yield* put(publicChannelsActions.addChannel({communityId:action.payload.communityId, channel: channel}))
   } else {
+    const registrarUrl = action.payload.registrarAddress.includes(':') ? `http://${action.payload.registrarAddress}` : `http://${action.payload.registrarAddress}.onion` 
     yield* apply(socket, socket.emit, [
       SocketActionTypes.REGISTER_USER_CERTIFICATE,
-      action.payload.registrarAddress,
+      registrarUrl,
       action.payload.userCsr.userCsr,
       action.payload.communityId,
     ]);

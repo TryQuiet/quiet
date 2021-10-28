@@ -87,34 +87,23 @@ function* createCommunityTestSaga(payload): Generator {
   const { userName } = payload;
   const communityName = 'CommunityName';
   yield* fork(assertNoErrors);
-  console.log('asdf')
   yield* put(communitiesActions.createNewCommunity(communityName));
-  console.log('asdf')
   yield* take(communitiesActions.responseCreateCommunity);
-  console.log('asdf')
   yield* put(identityActions.registerUsername(userName));
-  console.log('registerUsername')
   yield* take(identityActions.storeUserCertificate);
-  console.log('storeUserCsr')
   yield* take(communitiesActions.community);
-  console.log('community')
   yield* take(communitiesActions.responseRegistrar);
   yield* take(identityActions.savedOwnerCertificate);
-  console.log('asdf')
   const currentCommunity = yield* select(communitiesSelectors.currentCommunity);
-  console.log('asdf')
   assert.equal(currentCommunity.name, communityName);
-  console.log('asdf')
-  assert(currentCommunity.onionAddress);
-  assert(currentCommunity.port);
-  assert(currentCommunity.rootCa);
+  assertNotEmpty(currentCommunity.onionAddress, 'Community.onionAddress');
+  assertNotEmpty(currentCommunity.rootCa, 'Community.rootCa');
   const createdIdentity = yield* select(identitySelectors.currentIdentity);
   assert.equal(createdIdentity.zbayNickname, userName);
   assert.equal(createdIdentity.id, currentCommunity.id);
   assertNotEmpty(createdIdentity.peerId, 'Identity.peerId');
   assertNotEmpty(createdIdentity.userCertificate, 'Identity.userCertificate');
   assertNotEmpty(createdIdentity.hiddenService, 'Identity.hiddenService');
-  console.log('afterassertions')
   yield* put(createAction('testContinue')());
 }
 
@@ -129,7 +118,7 @@ function* joinCommunityTestSaga(payload): Generator {
   } = payload;
   yield* fork(assertNoErrors);
   let address;
-  if (payload.registrarAddress === 'http://0.0.0.0') {
+  if (payload.registrarAddress === '0.0.0.0') {
     address = `${registrarAddress}:${registrarPort}`;
   } else {
     address = registrarAddress;
@@ -175,10 +164,8 @@ const getCommunityOwnerData = (ownerStore: any) => {
     ownerStoreState.Communities.communities.entities[
       ownerStoreState.Communities.currentCommunity
     ];
-  const registrarAddress = `http://${community.onionAddress}`;
+  const registrarAddress = community.onionAddress;
   const ownerIdentityState = ownerStore.getState().Identity;
-  console.log(`owner IDenttyState ${{...ownerIdentityState}}`)
-  console.log(ownerIdentityState.identities.ids)
   return {
     registrarAddress,
     communityId: community.id,
@@ -381,7 +368,7 @@ const testUsersCreateAndJoinCommunitySuccessfullyWithoutTor = async (
 function* tryToJoinOfflineRegistrarTestSaga(): Generator {
   yield* put(
     communitiesActions.joinCommunity(
-      `http://yjnblkcrvqexxmntrs7hscywgebrizvz2jx4g4m5wq4x7uzi5syv5cid.onion`
+      `yjnblkcrvqexxmntrs7hscywgebrizvz2jx4g4m5wq4x7uzi5syv5cid`
     )
   );
   yield* take(communitiesActions.responseCreateCommunity);
@@ -433,7 +420,7 @@ const testLaunchCommunitiesOnStartup = async (testCase) => {
     id: 'id',
     hiddenService: {
       onionAddress:
-        'ugmx77q2tnm5fliyfxfeen5hsuzjtbsz44tsldui2ju7vl5xj4d447yd.onion',
+        'ugmx77q2tnm5fliyfxfeen5hsuzjtbsz44tsldui2ju7vl5xj4d447yd',
       privateKey:
         'ED25519-V3:eECPVkKQxx0SADnjaqAxheH797Q79D0DqGu8Pbc83mpfaZSujZdxqJ6r5ZwUDWCYAegWx2xNkMt7zUKXyxKOuQ==',
     },

@@ -40,7 +40,7 @@ describe('registerCertificateSaga', () => {
     };
     const communityId = 'id';
     const registrarAddress =
-      'http://wzispgrbrrkt3bari4kljpqz2j6ozzu3vlsoi2wqupgu7ewi4ncibrid.onion:7789';
+      'wzispgrbrrkt3bari4kljpqz2j6ozzu3vlsoi2wqupgu7ewi4ncibrid';
     await expectSaga(
       registerCertificateSaga,
       socket,
@@ -102,7 +102,7 @@ describe('registerCertificateSaga', () => {
     };
     const communityId = 'id';
     const registrarAddress =
-      'http://wzispgrbrrkt3bari4kljpqz2j6ozzu3vlsoi2wqupgu7ewi4ncibrid.onion:7789';
+      'wzispgrbrrkt3bari4kljpqz2j6ozzu3vlsoi2wqupgu7ewi4ncibrid';
     await expectSaga(
       registerCertificateSaga,
       socket,
@@ -127,7 +127,7 @@ describe('registerCertificateSaga', () => {
       )
       .apply(socket, socket.emit, [
         SocketActionTypes.REGISTER_USER_CERTIFICATE,
-        registrarAddress,
+        `http://${registrarAddress}.onion`,
         userCsr.userCsr,
         communityId,
       ])

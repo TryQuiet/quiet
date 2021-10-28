@@ -84,7 +84,6 @@ export const communitiesSlice = createSlice({
   name: StoreKeys.Communities,
   reducers: {
     setCurrentCommunity: (state, action: PayloadAction<string>) => {
-      console.log('setting current id')
       state.currentCommunity = action.payload;
     },
     addNewCommunity: (state, action: PayloadAction<AddNewCommunityPayload>) => {

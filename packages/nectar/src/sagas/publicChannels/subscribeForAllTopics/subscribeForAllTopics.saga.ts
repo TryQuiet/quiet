@@ -6,13 +6,9 @@ import { identitySelectors } from '../../identity/identity.selectors';
 export function* subscribeForAllTopicsSaga(
   action
 ): Generator {
-
-  console.log('subscribing to all topics after')
-  console.log(`${action.payload} is payload`)
-  const identity = yield* select(identitySelectors.currentIdentity)
+    const identity = yield* select(identitySelectors.currentIdentity)
     const channels = yield* select(publicChannelsSelectors.publicChannelsByCommunityId(action.payload));
     for (const channel of channels) {
-      console.log(`subscribing for ${channel.name}`)
       yield* put(publicChannelsActions.subscribeForTopic({peerId: identity.peerId.id, channelData: channel}));
     }
     

@@ -7,6 +7,8 @@ import {
   channelsByCommunityAdapter,
 } from './publicChannels.adapter';
 import { IChannelInfo, IMessage } from './publicChannels.types';
+import logger from '../../utils/logger'
+const log = logger('publicChannels')
 
 export class PublicChannelsState {
   public channels: EntityState<CommunityChannels> =
@@ -135,10 +137,9 @@ export const publicChannelsSlice = createSlice({
       state,
       action: PayloadAction<GetPublicChannelsResponse>
     ) => {
-      console.log('replicated channel into necatar')
-      console.log(action.payload.communityId)
-      console.log(action.payload.channels)
-      console.log({...state.entities})
+      console.log(`replicated channels [${Object.keys(action.payload.channels)}] for community ${action.payload.communityId}`)
+      log(action.payload.channels)
+      log({...state.entities})
       channelsByCommunityAdapter.updateOne(state, {
         id: action.payload.communityId,
         changes: {

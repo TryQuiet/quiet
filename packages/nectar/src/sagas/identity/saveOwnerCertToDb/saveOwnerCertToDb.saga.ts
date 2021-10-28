@@ -8,9 +8,6 @@ export function* saveOwnerCertToDbSaga(socket: Socket): Generator {
   const currentCommunity = yield* select(communitiesSelectors.currentCommunity);
   const identity = yield* select(identitySelectors.currentIdentity);
 
-  console.log(currentCommunity, 'currenCommunity')
-  console.log(currentIdentity, 'currentIdentity')
-
   yield* apply(socket, socket.emit, [
     SocketActionTypes.SAVE_OWNER_CERTIFICATE,
     currentCommunity.id,
