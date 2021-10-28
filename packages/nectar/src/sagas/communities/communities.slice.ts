@@ -75,11 +75,16 @@ export interface ResponseCreateCommunityPayload {
   payload: Partial<Identity>;
 }
 
+export interface ResponseLaunchCommunityPayload {
+  id: string;
+}
+
 export const communitiesSlice = createSlice({
   initialState: { ...new CommunitiesState() },
   name: StoreKeys.Communities,
   reducers: {
     setCurrentCommunity: (state, action: PayloadAction<string>) => {
+      console.log('setting current id')
       state.currentCommunity = action.payload;
     },
     addNewCommunity: (state, action: PayloadAction<AddNewCommunityPayload>) => {

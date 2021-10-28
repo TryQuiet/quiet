@@ -2,16 +2,19 @@ import { Socket } from 'socket.io-client';
 import { all, fork, takeEvery } from 'typed-redux-saga';
 import { askForMessagesSaga } from './askForMessages/askForMessages.saga';
 import { checkForMessagesSaga } from './checkForMessages/checkForMessages.saga';
+import { createChannelSaga } from './createChannel/createChannel.saga';
 import {
   getPublicChannelsSaga,
   loadPublicChannelsSaga,
 } from './getPublicChannels/getPublicChannels.saga';
 import { publicChannelsActions } from './publicChannels.slice';
+import { communitiesActions } from '../communities/communities.slice';
 import { subscribeForTopicSaga } from './subscribeForTopic/subscribeForTopic.saga';
+import { subscribeForAllTopicsSaga } from './subscribeForAllTopics/subscribeForAllTopics.saga';
 
 export function* publicChannelsMasterSaga(socket: Socket): Generator {
   yield all([
-    fork(loadPublicChannelsSaga),
+    // fork(loadPublicChannelsSaga),
     takeEvery(
       publicChannelsActions.getPublicChannels.type,
       getPublicChannelsSaga,
@@ -31,5 +34,14 @@ export function* publicChannelsMasterSaga(socket: Socket): Generator {
       askForMessagesSaga,
       socket
     ),
+    takeEvery(
+      communitiesActions.community.type,
+      subscribeForAllTopicsSaga,
+    ),
+    // takeEvery(
+    //   publicChannelsActions.createChannel.type,
+    //   createChannelSaga,
+    //   socket
+    // ),
   ]);
 }

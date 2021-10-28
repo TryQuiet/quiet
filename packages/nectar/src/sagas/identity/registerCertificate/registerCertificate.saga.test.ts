@@ -8,11 +8,24 @@ import {
   CommunitiesState,
   Community,
 } from '../../communities/communities.slice';
-import { identityActions, UserCsr } from '../identity.slice';
+import { identityActions, identityReducer, UserCsr, IdentityState, Identity } from '../identity.slice';
+import { identityAdapter } from '../identity.adapter';
 import { registerCertificateSaga } from './registerCertificate.saga';
+import { storeKeys } from 'src';
 
 describe('registerCertificateSaga', () => {
+
   test('request certificate registration when user is community owner', async () => {
+    const identity = new Identity({
+      id: 'id',
+      hiddenService: {
+        onionAddress: 'onionAddress.onion',
+        privateKey: 'privateKey',
+      },
+      dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
+      peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
+    });
+    identity.zbayNickname = 'bartekDev'
     const community = new Community({
       name: 'communityName',
       id: 'id',
@@ -36,7 +49,7 @@ describe('registerCertificateSaga', () => {
       >(<unknown>{ registrarAddress, userCsr, communityId }))
     )
       .withReducer(
-        combineReducers({ [StoreKeys.Communities]: communitiesReducer }),
+        combineReducers({ [StoreKeys.Communities]: communitiesReducer, [StoreKeys.Identity]: identityReducer }),
         {
           [StoreKeys.Communities]: {
             ...new CommunitiesState(),
@@ -47,6 +60,13 @@ describe('registerCertificateSaga', () => {
                 id: community,
               },
             },
+          },
+          [StoreKeys.Identity]: {
+            ...new IdentityState(),
+            identities: identityAdapter.setAll(
+              identityAdapter.getInitialState(),
+              [identity]
+            ),
           },
         }
       )

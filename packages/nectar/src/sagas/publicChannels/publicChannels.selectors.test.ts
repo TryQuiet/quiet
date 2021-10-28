@@ -1,52 +1,91 @@
 import { combineReducers, createStore, Store } from '@reduxjs/toolkit';
-import { mainChannelName } from '../config';
 import { StoreKeys } from '../store.keys';
-import { publicChannelsAdapter } from './publicChannels.adapter';
 import { publicChannelsSelectors } from './publicChannels.selectors';
 import {
+  channelsByCommunityAdapter,
+} from './publicChannels.adapter'
+import {
   publicChannelsReducer,
-  PublicChannelsState,
+  CommunityChannels
 } from './publicChannels.slice';
+
+import { communitiesReducer,CommunitiesState, Community } from '../communities/communities.slice';
+
+import { communitiesAdapter } from '../communities/communities.adapter';
 
 describe('publicChannelsSelectors', () => {
   let store: Store;
+
+  const communityId = new Community({
+    name: 'communityId',
+    id: 'communityId',
+    CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
+    registrarUrl: '',
+  });
+
+  let communityChannels =  new CommunityChannels('communityId')
+
+  communityChannels.currentChannel = 'currentChannel'
+  communityChannels.channelMessages = {
+    currentChannel: {
+      ids: ['1', '0', '2', '4'],
+      messages: {
+        '0': {
+          id: '0',
+          message: 'message0',
+          createdAt: 0,
+          channelId: '',
+          pubKey: '12',
+          signature: '',
+          type: 1
+        },
+        '2': {
+          id: '2',
+          message: 'message2',
+          createdAt: 0,
+          channelId: '',
+          pubKey: '12',
+          signature: '',
+          type: 1
+        },
+        '4': {
+          id: '4',
+          message: 'message4',
+          createdAt: 0,
+          channelId: '',
+          pubKey: '12',
+          signature: '',
+          type: 1
+        },
+        '1': {
+          id: '1',
+          message: 'message1',
+          createdAt: 0,
+          channelId: '',
+          pubKey: '12',
+          signature: '',
+          type: 1
+        },
+      },
+    },
+  },
+
   beforeEach(() => {
     store = createStore(
       combineReducers({
-        [StoreKeys.PublicChannels]: publicChannelsReducer,
+        [StoreKeys.PublicChannels]: publicChannelsReducer,  [StoreKeys.Communities]: communitiesReducer
       }),
       {
         [StoreKeys.PublicChannels]: {
-          ...new PublicChannelsState(),
-          channels: publicChannelsAdapter.setAll(
-            publicChannelsAdapter.getInitialState(),
-            [
-              {
-                name: 'Zbay',
-                description: '',
-                owner: '',
-                timestamp: 123,
-                address: mainChannelName,
-              },
-            ]
+          ...channelsByCommunityAdapter.setAll(channelsByCommunityAdapter.getInitialState(), [communityChannels]),
+        },
+        [StoreKeys.Communities]: {
+          ...new CommunitiesState(),
+          currentCommunity: 'communityId',
+          communities: communitiesAdapter.setAll(
+            communitiesAdapter.getInitialState(),
+            [communityId]
           ),
-          currentChannel: 'currentChannel',
-          channelMessages: {
-            currentChannel: {
-              ids: ['1', '0', '2', '4'],
-              messages: {
-                '0': {
-                  id: '0',
-                  type: 1,
-                  message: 'message0',
-                  createdAt: 0,
-                  channelId: '',
-                  signature: '',
-                  pubKey: 'sdf',
-                },
-              },
-            },
-          },
         },
       }
     );
@@ -61,26 +100,42 @@ describe('publicChannelsSelectors', () => {
         Object {
           "channelId": "",
           "createdAt": 0,
+          "id": "1",
+          "message": "message1",
+          "pubKey": "12",
+          "signature": "",
+          "type": 1,
+        },
+        Object {
+          "channelId": "",
+          "createdAt": 0,
           "id": "0",
           "message": "message0",
-          "pubKey": "sdf",
+          "pubKey": "12",
+          "signature": "",
+          "type": 1,
+        },
+        Object {
+          "channelId": "",
+          "createdAt": 0,
+          "id": "2",
+          "message": "message2",
+          "pubKey": "12",
+          "signature": "",
+          "type": 1,
+        },
+        Object {
+          "channelId": "",
+          "createdAt": 0,
+          "id": "4",
+          "message": "message4",
+          "pubKey": "12",
           "signature": "",
           "type": 1,
         },
       ]
     `);
   });
-
-  it('get zbay channel', () => {
-    const ZbayChannel = publicChannelsSelectors.ZbayChannel(store.getState());
-    expect(ZbayChannel).toMatchInlineSnapshot(`
-      Object {
-        "address": "general",
-        "description": "",
-        "name": "Zbay",
-        "owner": "",
-        "timestamp": 123,
-      }
-    `);
-  });
 });
+
+export {};

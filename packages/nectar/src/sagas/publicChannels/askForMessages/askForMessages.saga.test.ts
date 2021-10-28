@@ -1,6 +1,6 @@
 import { TestApi, testSaga } from 'redux-saga-test-plan';
 import { Socket } from 'socket.io-client';
-import { SocketActionTypes } from '../../socket/const/actionTypes';
+import { SocketActionTypes } from '../../actionTypes';
 import {
   AskForMessagesPayload,
   publicChannelsActions,

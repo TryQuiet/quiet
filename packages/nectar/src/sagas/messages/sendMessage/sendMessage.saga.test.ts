@@ -61,23 +61,23 @@ describe('sendMessageSaga', () => {
           [StoreKeys.PublicChannels]: publicChannelsReducer,
           [StoreKeys.Messages]: messagesReducer,
         }),
-        {
-          [StoreKeys.Identity]: {
-            ...identityAdapter.setAll(
-              identityAdapter.getInitialState(),
-              [identity]
-              // userCsr: csr,
-              // userCertificate: 'certificate',
-            ),
-          },
-          [StoreKeys.PublicChannels]: {
-            ...new PublicChannelsState(),
-            currentChannel: 'currentChannel',
-          },
-          [StoreKeys.Messages]: {
-            ...new MessagesState(),
-          },
-        }
+        // {
+        //   [StoreKeys.Identity]: {
+        //     ...identityAdapter.setAll(
+        //       identityAdapter.getInitialState(),
+        //       [identity]
+        //       // userCsr: csr,
+        //       // userCertificate: 'certificate',
+        //     ),
+        //   },
+        //   // [StoreKeys.PublicChannels]: {
+        //   //   ...new PublicChannelsState(),
+        //   //   // currentChannel: 'currentChannel',
+        //   // },
+        //   [StoreKeys.Messages]: {
+        //     ...new MessagesState(),
+        //   },
+        // }
       )
       .provide([
         [call.fn(parseCertificate), 'certificate'],

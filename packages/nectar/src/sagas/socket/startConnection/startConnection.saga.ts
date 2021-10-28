@@ -6,12 +6,12 @@ import logger from '../../../utils/logger'
 const log = logger('socket')
 
 // import { nativeServicesActions } from '../../nativeServices/nativeServices.slice';
-// import {
-//   AskForMessagesResponse,
-//   ChannelMessagesIdsResponse,
-//   GetPublicChannelsResponse,
-//   publicChannelsActions,
-// } from '../../publicChannels/publicChannels.slice';
+import {
+  AskForMessagesResponse,
+  ChannelMessagesIdsResponse,
+  GetPublicChannelsResponse,
+  publicChannelsActions,
+} from '../../publicChannels/publicChannels.slice';
 import { publicChannelsMasterSaga } from '../../publicChannels/publicChannels.master.saga';
 import { ErrorPayload, errorsActions } from '../../errors/errors.slice';
 import { identityActions } from '../../identity/identity.slice';
@@ -27,6 +27,7 @@ import { errorsMasterSaga } from '../../errors/errors.master.saga';
 import {
   communitiesActions,
   ResponseCreateCommunityPayload,
+  ResponseLaunchCommunityPayload,
   ResponseRegistrarPayload,
 } from '../../communities/communities.slice';
 import { appMasterSaga } from '../../app/app.master.saga'
@@ -65,12 +66,12 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof communitiesActions.storePeerList>
     | ReturnType<typeof communitiesActions.updateCommunity>
   >((emit) => {
-    // socket.on(
-    //   SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS,
-    //   (payload: GetPublicChannelsResponse) => {
-    //     emit(publicChannelsActions.responseGetPublicChannels(payload));
-    //   }
-    // );
+    socket.on(
+      SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS,
+      (payload: GetPublicChannelsResponse) => {
+        emit(publicChannelsActions.responseGetPublicChannels(payload));
+      }
+    );
     // socket.on(
     //   SocketActionTypes.SEND_MESSAGES_IDS,
     //   (payload: ChannelMessagesIdsResponse) => {
@@ -103,7 +104,7 @@ export function subscribe(socket: Socket) {
     socket.on(
       SocketActionTypes.REGISTRAR,
       (payload: ResponseRegistrarPayload) => {
-        log('created Registrar');
+        log('created REGISTRAR');
         log(payload);
         emit(communitiesActions.responseRegistrar(payload));
         emit(identityActions.saveOwnerCertToDb());
@@ -114,10 +115,12 @@ export function subscribe(socket: Socket) {
       log(payload);
       emit(communitiesActions.responseCreateCommunity(payload));
     });
-    socket.on(SocketActionTypes.COMMUNITY, (payload: any) => {
-      log('COMMUNITY');
-      log(payload);
-      emit(communitiesActions.community());
+    socket.on(SocketActionTypes.COMMUNITY, (payload: ResponseLaunchCommunityPayload) => {
+      log('launched COMMUNITY');
+      log(payload.id);
+      emit(publicChannelsActions.subscribeForAllTopics(payload.id));
+      emit(communitiesActions.launchRegistrar(payload.id));
+      emit(communitiesActions.community(payload.id));
     });
     socket.on(
       SocketActionTypes.ERROR,

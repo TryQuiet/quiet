@@ -10,6 +10,7 @@ import {
   identityActions,
   identityReducer,
   Identity,
+  IdentityState
 } from '../identity.slice';
 
 import { identityAdapter } from '../identity.adapter';
@@ -63,9 +64,11 @@ describe('createUserCsrSaga', () => {
         }),
         {
           [StoreKeys.Identity]: {
-            ...identityAdapter.setAll(identityAdapter.getInitialState(), [
-              identity,
-            ]),
+            ...new IdentityState(),
+            identities: identityAdapter.setAll(
+              identityAdapter.getInitialState(),
+              [identity]
+            ),
           },
           [StoreKeys.Communities]: {
             ...new CommunitiesState(),
@@ -82,9 +85,11 @@ describe('createUserCsrSaga', () => {
       .provide([[call.fn(createUserCsr), userCsr]])
       .hasFinalState({
         [StoreKeys.Identity]: {
-          ...identityAdapter.setAll(identityAdapter.getInitialState(), [
-            identityWithCsr,
-          ]),
+          ...new IdentityState(),
+          identities: identityAdapter.setAll(
+            identityAdapter.getInitialState(),
+            [identityWithCsr]
+          ),
         },
         [StoreKeys.Communities]: {
           ...new CommunitiesState(),

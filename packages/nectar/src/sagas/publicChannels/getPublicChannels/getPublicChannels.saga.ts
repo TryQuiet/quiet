@@ -10,13 +10,15 @@ export function* getPublicChannelsSaga(socket: Socket): Generator {
 }
 
 export function* loadPublicChannelsSaga(): Generator {
+  console.log('NECTAR: loadPublicChannelsSaga');
   let channels: IChannelInfo[] = [];
-  // while (true) {
-  //   yield* put(publicChannelsActions.getPublicChannels());
-  //   channels = yield* select(publicChannelsSelectors.publicChannels);
-  //   if (channels.length > 0) {
-  //     break;
-  //   }
-  //   yield* delay(500);
+// while (true) {
+    // console.log('inside nectar while true loop');
+    // yield* put(publicChannelsActions.getPublicChannels());
+    // channels = yield* select(publicChannelsSelectors.publicChannels);
+    // if (channels.length > 0) {
+    //   break;
+    // }
+    // yield* delay(getPublicChannelsDelay);
   // }
 }

@@ -54,9 +54,12 @@
     "redux-saga-test-plan": "^4.0.3",
     "tmp": "^0.2.1",
     "typescript": "^4.3.5",
-    "waggle": "^4.3.3"
+    "waggle": "^4.3.4"
   },
   "jest": {
+    "extensionsToTreatAsEsm": [
+      ".ts"
+    ],
     "moduleFileExtensions": [
       "ts",
       "tsx",

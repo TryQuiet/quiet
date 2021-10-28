@@ -1,7 +1,7 @@
 import { PayloadAction } from '@reduxjs/toolkit';
 import { Socket } from 'socket.io-client';
 import { apply } from 'typed-redux-saga';
-import { SocketActionTypes } from '../../socket/const/actionTypes';
+import { SocketActionTypes } from '../../actionTypes';
 import { publicChannelsActions } from '../publicChannels.slice';
 
 export function* askForMessagesSaga(

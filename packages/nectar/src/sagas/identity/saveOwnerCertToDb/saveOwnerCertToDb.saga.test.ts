@@ -9,7 +9,7 @@ import {
   Community,
 } from '../../communities/communities.slice';
 import { identityAdapter } from '../identity.adapter';
-import { identityReducer, Identity } from '../identity.slice';
+import { identityReducer, Identity, IdentityState } from '../identity.slice';
 import { saveOwnerCertToDbSaga } from './saveOwnerCertToDb.saga';
 
 describe('saveOwnerCertificateToDb', () => {
@@ -46,9 +46,11 @@ describe('saveOwnerCertificateToDb', () => {
             },
           },
           [StoreKeys.Identity]: {
-            ...identityAdapter.setAll(identityAdapter.getInitialState(), [
-              identity,
-            ]),
+            ...new IdentityState(),
+            identities: identityAdapter.setAll(
+              identityAdapter.getInitialState(),
+              [identity]
+            ),
           },
         }
       )

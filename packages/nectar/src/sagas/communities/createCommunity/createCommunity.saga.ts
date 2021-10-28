@@ -5,13 +5,14 @@ import { call, apply, put } from 'typed-redux-saga';
 import { communitiesActions } from '../communities.slice';
 import { SocketActionTypes } from '../../socket/const/actionTypes';
 import { generateId } from '../../../utils/cryptography/cryptography';
-// import { publicChannelsActions } from '../../publicChannels/publicChannels.slice';
 import { PayloadAction } from '@reduxjs/toolkit';
+import { publicChannelsActions } from '../../publicChannels/publicChannels.slice';
 
 export function* createCommunitySaga(
   socket,
   action: PayloadAction<string>
 ): Generator {
+  console.log('createCOmmuity')
   const notBeforeDate = new Date(Date.UTC(2010, 11, 28, 10, 10, 10));
   const notAfterDate = new Date(Date.UTC(2030, 11, 28, 10, 10, 10));
   const rootCa = yield* call(
@@ -27,8 +28,16 @@ export function* createCommunitySaga(
     registrarUrl: '',
   };
   yield* put(communitiesActions.addNewCommunity(payload));
+  yield* put(publicChannelsActions.addPublicChannelsList(id))
+  const channel = {
+    name: 'general',
+    description: 'general',
+    owner: 'general',
+    timestamp: Date.now(),
+    address: 'general',
+  };
+  yield* put(publicChannelsActions.addChannel({communityId:id, channel: channel}))
   yield* put(communitiesActions.setCurrentCommunity(id));
-  // yield* put(publicChannelsActions.addPublicChannelsList({id}))
 
   yield* apply(socket, socket.emit, [SocketActionTypes.CREATE_NETWORK, id]);
 }

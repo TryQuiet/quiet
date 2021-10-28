@@ -4,7 +4,15 @@ import { publicChannelsSelectors } from './publicChannels.selectors';
 import {
   publicChannelsActions,
   publicChannelsReducer,
+  CommunityChannels,
 } from './publicChannels.slice';
+
+import { channelsByCommunityAdapter } from './publicChannels.adapter';
+import { communitiesReducer,CommunitiesState, Community } from '../communities/communities.slice';
+
+import { communitiesAdapter } from '../communities/communities.adapter';
+
+
 
 const mockGetPublicChannels = {
   public: {
@@ -27,17 +35,88 @@ const mockGetPublicChannels = {
 
 describe('publicChannelsReducer', () => {
   let store: Store;
-  beforeEach(() => {
-    store = createStore(
-      combineReducers({
-        [StoreKeys.PublicChannels]: publicChannelsReducer,
-      })
-    );
+
+  const communityId = new Community({
+    name: 'communityId',
+    id: 'communityId',
+    CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
+    registrarUrl: '',
   });
+
+  let communityChannels = new CommunityChannels('communityId');
+
+  communityChannels.currentChannel = 'currentChannel';
+  (communityChannels.channelMessages = {
+    currentChannel: {
+      ids: ['1', '0', '2', '4'],
+      messages: {
+        '0': {
+          id: '0',
+          message: 'message0',
+          createdAt: 0,
+          channelId: '',
+          signature: '',
+          pubKey: '12',
+          type: 1,
+        },
+        '2': {
+          id: '2',
+          message: 'message2',
+          createdAt: 0,
+          channelId: '',
+          signature: '',
+          pubKey: '12',
+          type: 1,
+        },
+        '4': {
+          id: '4',
+          message: 'message4',
+          createdAt: 0,
+          channelId: '',
+          signature: '',
+          pubKey: '12',
+          type: 1,
+        },
+        '1': {
+          id: '1',
+          message: 'message1',
+          createdAt: 0,
+          channelId: '',
+          signature: '',
+          pubKey: '12',
+          type: 1,
+        },
+      },
+    },
+  }),
+    beforeEach(() => {
+      store = createStore(
+        combineReducers({
+          [StoreKeys.PublicChannels]: publicChannelsReducer,
+          [StoreKeys.Communities]: communitiesReducer
+        }),
+        {
+          [StoreKeys.PublicChannels]: {
+            ...channelsByCommunityAdapter.setAll(channelsByCommunityAdapter.getInitialState(), [communityChannels]),
+          },
+          [StoreKeys.Communities]: {
+            ...new CommunitiesState(),
+            currentCommunity: 'communityId',
+            communities: communitiesAdapter.setAll(
+              communitiesAdapter.getInitialState(),
+              [communityId]
+            ),
+          },
+        }
+      );
+    });
 
   it('responseGetPublicChannels should set channels info', () => {
     store.dispatch(
-      publicChannelsActions.responseGetPublicChannels(mockGetPublicChannels)
+      publicChannelsActions.responseGetPublicChannels({
+        communityId: 'communityId',
+        channels: mockGetPublicChannels,
+      })
     );
     const channels = publicChannelsSelectors.publicChannels(store.getState());
     expect(channels).toMatchInlineSnapshot(`

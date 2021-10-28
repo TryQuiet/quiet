@@ -1,32 +1,37 @@
+import { io, Socket } from 'socket.io-client';
+import Websockets from 'libp2p-websockets';
 import {
   applyMiddleware,
   combineReducers,
   createAction,
   createStore,
 } from '@reduxjs/toolkit';
-import assert from 'assert';
-import getPort from 'get-port';
-import path from 'path';
+import { all, call, fork, put, take, takeEvery } from 'typed-redux-saga';
 import createSagaMiddleware from 'redux-saga';
 import thunk from 'redux-thunk';
-import { io, Socket } from 'socket.io-client';
-import tmp from 'tmp';
-import { all, call, fork, put, take, takeEvery } from 'typed-redux-saga';
 import waggle from 'waggle';
-import {
-  communities,
-  errors,
-  identity,
-  publicChannels,
-  storeKeys,
-  users,
-} from '../index';
-import { appActions } from '../sagas/app/app.slice';
-import { errorsActions } from '../sagas/errors/errors.slice';
-import { useIO } from '../sagas/socket/startConnection/startConnection.saga';
+import path from 'path';
+import assert from 'assert';
+import getPort from 'get-port';
+import tmp from 'tmp';
 import logger from '../utils/logger';
 import resultLogger from './logger';
-import Websockets from 'libp2p-websockets';
+
+import { useIO } from '../sagas/socket/startConnection/startConnection.saga';
+
+import { appActions } from '../sagas/app/app.slice';
+import { errorsActions } from '../sagas/errors/errors.slice';
+
+import {
+  communities,
+  identity,
+  publicChannels,
+  messages,
+  users,
+  errors,
+} from '../index';
+
+import { StoreKeys } from '../sagas/store.keys';
 
 const log = logger('tests');
 const logResult = resultLogger();
@@ -60,12 +65,14 @@ function testReducer(
   }
 }
 
-export function* integrationTest(saga, ...args: any[]): Generator {
+
+
+export function* integrationTest(saga: any, ...args: any[]): Generator {
   /**
    *  Integration test saga wrapper for catching errors
    */
   try {
-    yield* call(saga, ...args);
+    yield* saga(...args);
   } catch (e) {
     yield* put({ type: 'testFailed', payload: e.message });
   }
@@ -111,20 +118,24 @@ export const createPath = (dirName: string) => {
 };
 
 const reducers = {
-  [storeKeys.Communities]: communities.reducer,
-  [storeKeys.Identity]: identity.reducer,
-  [storeKeys.Users]: users.reducer,
-  [storeKeys.Errors]: errors.reducer,
-  [storeKeys.Messages]: errors.reducer,
-  [storeKeys.PublicChannels]: publicChannels.reducer,
+  [StoreKeys.Communities]: communities.reducer,
+  [StoreKeys.Identity]: identity.reducer,
+  [StoreKeys.Users]: users.reducer,
+  [StoreKeys.Errors]: errors.reducer,
+  [StoreKeys.Messages]: messages.reducer,
+  [StoreKeys.PublicChannels]: publicChannels.reducer,
   Test: testReducer,
 };
 
-export const prepareStore = (reducers) => {
+export const prepareStore = (
+  reducers,
+  mockedState?: { [key in StoreKeys]?: any }
+) => {
   const combinedReducers = combineReducers(reducers);
   const sagaMiddleware = createSagaMiddleware();
   const store = createStore(
     combinedReducers,
+    mockedState,
     applyMiddleware(...[sagaMiddleware, thunk])
   );
 
@@ -140,13 +151,15 @@ const connectToDataport = (url: string, name: string): Socket => {
     log(`websocket connection is ready for app ${name}`);
   });
   socket.on('disconnect', () => {
-    log(`socket disconnected is for app ${name}`);
+    log(`socket disconnected for app ${name}`);
     socket.close();
   });
   return socket;
 };
 
-export const createApp = async () => {
+export const createApp = async (
+  mockedState?: { [key in StoreKeys]?: any }
+) => {
   /**
    * Configure and initialize ConnectionsManager from waggle,
    * configure redux store
@@ -157,7 +170,7 @@ export const createApp = async () => {
   const server1 = new waggle.DataServer(dataServerPort1);
   await server1.listen();
 
-  const { store, runSaga } = prepareStore(reducers);
+  const { store, runSaga } = prepareStore(reducers, mockedState);
 
   const proxyPort = await getPort({ port: 1234 });
   const controlPort = await getPort({ port: 5555 });
@@ -190,11 +203,14 @@ export const createApp = async () => {
     yield* take(createAction('testFinished'));
     yield* put(appActions.closeServices());
   }
-
-  return { store, runSaga, rootTask };
+  return { store, runSaga, rootTask, manager };
 };
 
-export const createAppWithoutTor = async () => {
+export const createAppWithoutTor = async (
+  mockedState?: {
+    [key in StoreKeys]?: any;
+  }
+) => {
   /**
    * Configure and initialize ConnectionsManager from waggle,
    * configure redux store
@@ -205,7 +221,7 @@ export const createAppWithoutTor = async () => {
   const server1 = new waggle.DataServer(dataServerPort1);
   await server1.listen();
 
-  const { store, runSaga } = prepareStore(reducers);
+  const { store, runSaga } = prepareStore(reducers, mockedState);
 
   const proxyPort = await getPort({ port: 1234 });
   const controlPort = await getPort({ port: 5555 });
@@ -240,7 +256,7 @@ export const createAppWithoutTor = async () => {
     yield* put(appActions.closeServices());
   }
 
-  return { store, runSaga, rootTask };
+  return { store, runSaga, rootTask, manager };
 };
 
 export const assertListElementMatches = (actual: any[], match: RegExp) => {

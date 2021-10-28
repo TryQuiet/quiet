@@ -8,11 +8,15 @@ const log = Object.assign(debug('tests'), {
 function testCaseReducer(
   state = {
     usersWithReplicatedCertificates: 0,
+    usersWithReplicatedChannels: 0
   },
   action
 ) {
   switch (action.type) {
     case 'userReplicatedCertificates':
+      state.usersWithReplicatedCertificates++;
+      return state;
+    case 'userReplicatedChannels':
       state.usersWithReplicatedCertificates++;
       return state;
     default:

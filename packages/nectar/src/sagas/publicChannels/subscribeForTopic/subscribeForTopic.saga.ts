@@ -12,6 +12,7 @@ export function* subscribeForTopicSaga(
 ): Generator {
   yield* apply(socket, socket.emit, [
     SocketActionTypes.SUBSCRIBE_FOR_TOPIC,
-    action.payload,
+    action.payload.peerId,
+    action.payload.channelData,
   ]);
 }

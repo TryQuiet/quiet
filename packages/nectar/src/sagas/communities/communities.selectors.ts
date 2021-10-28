@@ -12,11 +12,25 @@ export const selectById = (id: string) =>
     communitiesAdapter.getSelectors().selectById(reducerState.communities, id)
   );
 
+export const allCommunities = createSelector(
+  communitiesSlice,
+  (reducerState) => {
+    return communitiesAdapter
+      .getSelectors()
+      .selectAll(reducerState.communities);
+  }
+);
+
+export const ownCommunities = createSelector(allCommunities, (communities) => {
+  return communities?.filter((community) => community.CA !== null) || []
+});
+
 export const currentCommunity = createSelector(
   communitiesSlice,
   (reducerState) => {
+    console.log(reducerState, 'reducerstate')
+    console.log(`selecting by current ID ${reducerState.currentCommunity}`)
     const id = reducerState.currentCommunity;
-    // console.log('communitnies', reducerState.communities);
     return communitiesAdapter
       .getSelectors()
       .selectById(reducerState.communities, id);
@@ -25,7 +39,10 @@ export const currentCommunity = createSelector(
 
 export const currentCommunityId = createSelector(
   communitiesSlice,
-  (reducerState) => reducerState.currentCommunity
+  (reducerState) => {
+    console.log(reducerState.currentCommunity, 'currentCOmmunity')
+    return reducerState.currentCommunity
+  }
 );
 
 export const registrarUrl = createSelector(currentCommunity, (community) => {
@@ -39,13 +56,15 @@ export const registrarUrl = createSelector(currentCommunity, (community) => {
 });
 
 export const isOwner = createSelector(currentCommunity, (community) => {
-  return community && community.CA !== null
-})
+  return community && community.CA !== null;
+});
 
 export const communitiesSelectors = {
   selectById,
+  allCommunities,
+  ownCommunities,
   currentCommunityId,
   currentCommunity,
   registrarUrl,
-  isOwner
+  isOwner,
 };

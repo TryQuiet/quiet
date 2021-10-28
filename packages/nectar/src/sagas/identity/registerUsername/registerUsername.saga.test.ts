@@ -1,7 +1,7 @@
 import { combineReducers } from '@reduxjs/toolkit';
 import { expectSaga } from 'redux-saga-test-plan';
 import { StoreKeys } from '../../store.keys';
-import { identityActions, identityReducer, Identity } from '../identity.slice';
+import { identityActions, identityReducer, Identity, IdentityState } from '../identity.slice';
 import { identityAdapter } from '../identity.adapter';
 import { registerUsernameSaga } from './registerUsername.saga';
 import { config } from '../../users/const/certFieldTypes';
@@ -58,9 +58,11 @@ describe('registerUsernameSaga', () => {
         }),
         {
           [StoreKeys.Identity]: {
-            ...identityAdapter.setAll(identityAdapter.getInitialState(), [
-              identity,
-            ]),
+            ...new IdentityState(),
+            identities: identityAdapter.setAll(
+              identityAdapter.getInitialState(),
+              [identity]
+            ),
           },
           [StoreKeys.Communities]: {
             ...new CommunitiesState(),
@@ -102,9 +104,11 @@ describe('registerUsernameSaga', () => {
         }),
         {
           [StoreKeys.Identity]: {
-            ...identityAdapter.setAll(identityAdapter.getInitialState(), [
-              identityWithoutPeerId,
-            ]),
+            ...new IdentityState(),
+            identities: identityAdapter.setAll(
+              identityAdapter.getInitialState(),
+              [identityWithoutPeerId]
+            ),
           },
           [StoreKeys.Communities]: {
             ...new CommunitiesState(),
@@ -122,9 +126,11 @@ describe('registerUsernameSaga', () => {
       // )
       .hasFinalState({
         [StoreKeys.Identity]: {
-          ...identityAdapter.setAll(identityAdapter.getInitialState(), [
-            identityWithoutPeerId,
-          ]),
+          ...new IdentityState(),
+          identities: identityAdapter.setAll(
+            identityAdapter.getInitialState(),
+            [identityWithoutPeerId]
+          ),
         },
         [StoreKeys.Communities]: {
           ...new CommunitiesState(),

@@ -95,11 +95,11 @@ export interface StoreUserCsrPayload {
 }
 
 export const identitySlice = createSlice({
-  initialState: identityAdapter.getInitialState(),
+  initialState: { ...new IdentityState() },
   name: StoreKeys.Identity,
   reducers: {
     addNewIdentity: (state, action: PayloadAction<AddNewIdentityPayload>) => {
-      identityAdapter.addOne(state, new Identity(action.payload));
+      identityAdapter.addOne(state.identities, new Identity(action.payload));
     },
     createUserCsr: (state, _action: PayloadAction<CreateUserCsrPayload>) =>
       state,
@@ -107,7 +107,7 @@ export const identitySlice = createSlice({
     savedOwnerCertificate: (state, _action: PayloadAction<string>) => state,
     registerUsername: (state, _action: PayloadAction<string>) => state,
     updateUsername: (state, action: PayloadAction<UpdateUsernamePayload>) => {
-      identityAdapter.updateOne(state, {
+      identityAdapter.updateOne(state.identities, {
         id: action.payload.communityId,
         changes: {
           zbayNickname: action.payload.nickname,
@@ -115,7 +115,7 @@ export const identitySlice = createSlice({
       });
     },
     storeUserCsr: (state, action: PayloadAction<StoreUserCsrPayload>) => {
-      identityAdapter.updateOne(state, {
+      identityAdapter.updateOne(state.identities, {
         id: action.payload.communityId,
         changes: {
           userCsr: action.payload.userCsr,
@@ -126,7 +126,7 @@ export const identitySlice = createSlice({
       state,
       action: PayloadAction<StoreUserCertificatePayload>
     ) => {
-      identityAdapter.updateOne(state, {
+      identityAdapter.updateOne(state.identities, {
         id: action.payload.communityId,
         changes: { userCertificate: action.payload.userCertificate },
       });

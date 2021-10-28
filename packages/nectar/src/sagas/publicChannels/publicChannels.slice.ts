@@ -1,16 +1,27 @@
 import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit';
-import { mainChannelName } from '../config';
 
 import { StoreKeys } from '../store.keys';
 
-import { publicChannelsAdapter } from './publicChannels.adapter';
+import {
+  publicChannelsAdapter,
+  channelsByCommunityAdapter,
+} from './publicChannels.adapter';
 import { IChannelInfo, IMessage } from './publicChannels.types';
 
 export class PublicChannelsState {
+  public channels: EntityState<CommunityChannels> =
+    channelsByCommunityAdapter.getInitialState();
+}
+
+export class CommunityChannels {
+  constructor(id) {
+    this.id = id;
+  }
+  public id: string;
   public channels: EntityState<IChannelInfo> =
     publicChannelsAdapter.getInitialState();
 
-  public currentChannel: string = mainChannelName;
+  public currentChannel: string = 'general';
 
   public channelMessages: ChannelMessages = {};
 }
@@ -25,10 +36,14 @@ export interface ChannelMessages {
 }
 
 export interface GetPublicChannelsResponse {
-  [name: string]: IChannelInfo;
+  communityId: string;
+  channels: {
+    [name: string]: IChannelInfo;
+  };
 }
 
 export interface ChannelMessagesIdsResponse {
+  communityId: string
   channelAddress: string;
   ids: string[];
 }
@@ -38,42 +53,125 @@ export interface AskForMessagesPayload {
   ids: string[];
 }
 
+export interface subscribeForTopicPayload {
+  peerId: string,
+  channelData: IChannelInfo
+}
+
+export interface SetCurrentChannelPayload {
+  communityId: string
+channel: string
+}
+
+export interface CreateChannelPayload { channel: IChannelInfo; communityId: string }
+
+
 export interface AskForMessagesResponse {
   channelAddress: string;
   messages: IMessage[];
+  communityId: string
+}
+
+export interface onMessagePostedResponse {
+  message: IMessage, 
+  channelAddress: string,
+  communityId: string
 }
 
 export const publicChannelsSlice = createSlice({
-  initialState: { ...new PublicChannelsState() },
+  initialState: channelsByCommunityAdapter.getInitialState(),
   name: StoreKeys.PublicChannels,
   reducers: {
+    createChannel: (
+      state,
+      action: PayloadAction<CreateChannelPayload>
+    ) => {
+
+      const {channel, communityId} = action.payload
+
+      channelsByCommunityAdapter.updateOne(state, {
+        id: communityId,
+        changes: {
+          channels: publicChannelsAdapter.addOne(
+            state.entities[communityId].channels,
+            channel
+          ),
+          channelMessages: {...state.entities[communityId].channelMessages, 
+          [channel.address]: {
+            ids: [],
+            messages: {}
+          }}
+        },
+      });
+    },
+    addChannel: (
+      state,
+      action: PayloadAction<CreateChannelPayload>
+    ) => {
+      const {channel, communityId} = action.payload
+      channelsByCommunityAdapter.updateOne(state, {
+        id: communityId,
+        changes: {
+          channels: publicChannelsAdapter.addOne(
+            state.entities[communityId].channels,
+            channel
+          ),
+          channelMessages: {...state.entities[communityId].channelMessages, 
+          [channel.address]: {
+            ids: [],
+            messages: {}
+          }}
+        },
+      });
+    },
+    addPublicChannelsList: (state, action: PayloadAction<string>) => {
+      channelsByCommunityAdapter.addOne(
+        state,
+        new CommunityChannels(action.payload)
+      );
+    },
     getPublicChannels: (state) => state,
     responseGetPublicChannels: (
       state,
       action: PayloadAction<GetPublicChannelsResponse>
     ) => {
-      publicChannelsAdapter.setAll(
-        state.channels,
-        Object.values(action.payload)
-      );
+      console.log('replicated channel into necatar')
+      console.log(action.payload.communityId)
+      console.log(action.payload.channels)
+      console.log({...state.entities})
+      channelsByCommunityAdapter.updateOne(state, {
+        id: action.payload.communityId,
+        changes: {
+          channels: 
+          publicChannelsAdapter.setAll(
+            state.entities[action.payload.communityId].channels,
+            action.payload.channels
+            )
+        },
+      });
     },
-    setCurrentChannel: (state, action: PayloadAction<string>) => {
-      state.currentChannel = action.payload;
+    setCurrentChannel: (
+      state,
+      action: PayloadAction<SetCurrentChannelPayload>
+    ) => {
+      channelsByCommunityAdapter.updateOne(state, {
+        id: action.payload.communityId,
+        changes: { currentChannel: action.payload.channel },
+      });
     },
-    subscribeForTopic: (state, _action: PayloadAction<IChannelInfo>) => state,
+    subscribeForTopic: (state, _action: PayloadAction<subscribeForTopicPayload>) => state,
+    subscribeForAllTopics: (state, _action: PayloadAction<string>) => state,
     responseSendMessagesIds: (
       state,
       action: PayloadAction<ChannelMessagesIdsResponse>
     ) => {
-      const channelAddress = action.payload.channelAddress;
-      if (channelAddress in state.channelMessages) {
-        state.channelMessages[channelAddress].ids = action.payload.ids;
-      } else {
-        state.channelMessages[channelAddress] = {
-          ids: action.payload.ids,
-          messages: {},
-        };
-      }
+      const { channelAddress } = action.payload;
+      channelsByCommunityAdapter.updateOne(state, {
+        id: action.payload.communityId,
+        changes: { channelMessages: {...state.entities[action.payload.communityId].channelMessages,
+          channelAddress: {...state.entities[action.payload.communityId].channelMessages[channelAddress], ids: action.payload.ids }
+        },
+      }});
     },
     askForMessages: (state, _action: PayloadAction<AskForMessagesPayload>) =>
       state,
@@ -81,16 +179,35 @@ export const publicChannelsSlice = createSlice({
       state,
       action: PayloadAction<AskForMessagesResponse>
     ) => {
-      const channelAddress = action.payload.channelAddress;
+      const { channelAddress, communityId } = action.payload;
+      let messages =  {}
       action.payload.messages.forEach((message) => {
-        state.channelMessages[channelAddress].messages[message.id] = message;
+        messages[message.id] = message;
       });
+      channelsByCommunityAdapter.updateOne(state, {
+        id: communityId,
+        changes: { channelMessages: {...state.entities[communityId].channelMessages,
+          channelAddress: {...state.entities[communityId].channelMessages[channelAddress], messages: {
+            ...state.entities[communityId].channelMessages[channelAddress].messages,
+            ...messages
+          } }
+        },
+      }});
     },
-    onMessagePosted: (state, action: PayloadAction<{ message: IMessage }>) => {
-      const channelAddress = state.currentChannel;
-      const message = action.payload.message;
-      state.channelMessages[channelAddress].ids.push(message.id);
-      state.channelMessages[channelAddress].messages[message.id] = message;
+    onMessagePosted: (state, action: PayloadAction<onMessagePostedResponse>) => {
+      const { message, channelAddress, communityId } = action.payload;
+      const messages = {
+        [message.id]: message
+      }
+      channelsByCommunityAdapter.updateOne(state, {
+        id: communityId,
+        changes: { channelMessages: {...state.entities[communityId].channelMessages,
+          channelAddress: {...state.entities[communityId].channelMessages[channelAddress], messages: {
+            ...state.entities[communityId].channelMessages[channelAddress].messages,
+            ...messages
+          } }
+        },
+      }});
     },
   },
 });
