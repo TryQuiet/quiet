@@ -1,4 +1,4 @@
-name: CI
+name: CI-Windows
 
 on:
   push:
@@ -34,9 +34,6 @@ jobs:
     - name: install rust
       shell: bash
       run: ./rustup-init.exe -y
-    - name: build binary
-      shell: bash
-      run: npm run neonWin
     - name: build on Windows
       shell: bash
       run: npm run build:prod

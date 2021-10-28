@@ -1,4 +1,4 @@
-name: CI
+name: CI-Linux
 
 on:
   push:
@@ -16,10 +16,6 @@ jobs:
         run: npm install
       - name: pull tor binary
         run: export SOURCE_PATH=linux && npm run pullBinaries && npm run pullLibs
-      - name: install neon
-        run: npm install --global neon-cli
-      - name: build  binary
-        run: npm run neon
       - name: build on Linux
         run: npm run build:prod
       - name: install electron builder

@@ -51,7 +51,6 @@
     "scripts",
     "webpack",
     "worker",
-    "dist",
-    "node_modules/pkijs"
+    "dist"
   ]
 }

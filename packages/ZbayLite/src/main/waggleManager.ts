@@ -33,6 +33,9 @@ export const runWaggle = async (webContents: BrowserWindow['webContents']): Prom
   const dataServer = new TlgManager.DataServer(ports.dataServer)
   await dataServer.listen()
 
+  const isDev = process.env.NODE_ENV === 'development'
+  const resourcesPath = isDev ? null : process.resourcesPath
+
   const connectionsManager = new TlgManager.ConnectionsManager({
     port: ports.libp2pHiddenService,
     agentHost: 'localhost',
@@ -41,7 +44,8 @@ export const runWaggle = async (webContents: BrowserWindow['webContents']): Prom
     io: dataServer.io,
     options: {
       env: {
-        appDataPath: `${appDataPath}/Zbay`
+        appDataPath: `${appDataPath}/Zbay`,
+        resourcesPath
       },
       spawnTor: true,
       torControlPort: ports.controlPort

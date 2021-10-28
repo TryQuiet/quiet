@@ -1,5 +1,5 @@
 
-name: CI
+name: CI-MacOS
 
 on:
   push:
@@ -28,10 +28,6 @@ jobs:
         run: npm install
       - name: pull tor binary
         run: export SOURCE_PATH=darwin && npm run pullBinaries
-      - name: install neon
-        run: npm install --global neon-cli
-      - name: build  binary
-        run: npm run neon
       - name: build on Mac
         run: npm run build:prod
       - name: install electron builder
