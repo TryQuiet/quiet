@@ -20,14 +20,13 @@ const useStyles = makeStyles(() => ({
 type IChannelComponentProps = ChannelHeaderProps & {
   channelType: CHANNEL_TYPE
   contactId?: string
-  offer?: string
 }
 
 type InputProps = Omit<IChannelComponentProps, 'channelType'> & {
   setTab: (arg: number) => void // for now
 }
 
-export const Channel: React.FC<ChannelHeaderProps & IChannelComponentProps> = ({ channelType, ...props }) => {
+export const Channel: React.FC<ChannelHeaderProps & IChannelComponentProps> = ({ channelType, contactId, ...props }) => {
   const classes = useStyles({})
   const [tab, setTab] = useState(0)
 
@@ -37,7 +36,7 @@ export const Channel: React.FC<ChannelHeaderProps & IChannelComponentProps> = ({
   return (
     <Page>
       <PageHeader>
-        <Header {...props} tab={tab} setTab={setTab} channelType={channelType} />
+        <Header {...props} tab={tab} setTab={setTab} contactId={contactId} channelType={channelType} />
       </PageHeader>
       <Grid item xs className={classes.messages}>
         <ChannelContent tab={tab} {...props} channelType={channelType} />

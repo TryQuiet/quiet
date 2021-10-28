@@ -3,7 +3,6 @@ import React from 'react'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
 import Clear from '@material-ui/icons/Clear'
-import { Tabs, Tab } from '@material-ui/core'
 import classNames from 'classnames'
 import { makeStyles } from '@material-ui/core/styles'
 
@@ -116,7 +115,6 @@ export interface ChannelHeaderProps {
 }
 
 export const ChannelHeader: React.FC<ChannelHeaderProps> = ({
-  tab,
   setTab,
   channel = { displayableMessageLimit: 50 },
   directMessage = false,
@@ -208,20 +206,6 @@ export const ChannelHeader: React.FC<ChannelHeaderProps> = ({
           justify='flex-end'
           alignContent='center'
           alignItems='center'>
-          {channelType === CHANNEL_TYPE.NORMAL && (
-            <Grid item className={classes.switch}>
-              <Tabs
-                value={tab}
-                /* eslint-disable-next-line */
-                onChange={(e, value) => {
-                  setTab(value)
-                }}
-                classes={{ root: classes.tabs, indicator: classes.indicator }}>
-                <Tab label='All' classes={{ root: classes.tab, selected: classes.selected }} />
-                <Tab label='For sale' classes={{ root: classes.tab, selected: classes.selected }} />
-              </Tabs>
-            </Grid>
-          )}
           <Grid item>
             <ActionsMenu directMessage={directMessage} />
             {directMessage ? <DirectMessagesInfoModal /> : <ChannelInfoModal channel={channel} />}

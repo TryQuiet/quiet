@@ -8,13 +8,14 @@ import channelSelectors from '../../../store/selectors/channel'
 import contactsSelectors from '../../../store/selectors/contacts'
 import notificationCenter from '../../../store/selectors/notificationCenter'
 import { notificationFilterType } from '../../../../shared/static'
+import { publicChannels } from '@zbayapp/nectar'
 
-export const useChannelInputData = (contactId?: string) => {
+export const useChannelHeaderData = (contactId: string) => {
   const contact = useSelector(contactsSelectors.contact(contactId))
   const channelData = useSelector(channelSelectors.data)
   const data = {
     channel: {
-      name: contactId === 'general' ? 'zbay' : contact.username,
+      name: useSelector(publicChannels.selectors.currentChannel),
       address: contactId,
       displayableMessageLimit: 50
     },
@@ -54,9 +55,9 @@ export const ChannelHeaderContainer: React.FC<ChannelHeaderProps> = ({
   contactId
 }
 ) => {
-  channel = useChannelInputData(contactId).channel
-  name = useChannelInputData(contactId).name
-  mutedFlag = useChannelInputData(contactId).mutedFlag
+  channel = useChannelHeaderData(contactId).channel
+  name = useChannelHeaderData(contactId).name
+  mutedFlag = useChannelHeaderData(contactId).mutedFlag
 
   unmute = useChannelInputActions().unmute
 

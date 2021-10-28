@@ -68,64 +68,10 @@ describe('ChannelHeader', () => {
                 class="MuiGrid-root makeStyles-actions-5 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-align-content-xs-center MuiGrid-justify-xs-flex-end MuiGrid-grid-xs-true"
               >
                 <div
-                  class="MuiGrid-root makeStyles-switch-6 MuiGrid-item"
-                >
-                  <div
-                    class="MuiTabs-root makeStyles-tabs-8"
-                  >
-                    <div
-                      class="MuiTabs-scroller MuiTabs-fixed"
-                      style="overflow: hidden;"
-                    >
-                      <div
-                        class="MuiTabs-flexContainer"
-                        role="tablist"
-                      >
-                        <button
-                          aria-selected="true"
-                          class="MuiButtonBase-root MuiTab-root makeStyles-tab-7 MuiTab-textColorInherit Mui-selected makeStyles-selected-9"
-                          role="tab"
-                          tabindex="0"
-                          type="button"
-                        >
-                          <span
-                            class="MuiTab-wrapper"
-                          >
-                            All
-                          </span>
-                          <span
-                            class="MuiTouchRipple-root"
-                          />
-                        </button>
-                        <button
-                          aria-selected="false"
-                          class="MuiButtonBase-root MuiTab-root makeStyles-tab-7 MuiTab-textColorInherit"
-                          role="tab"
-                          tabindex="0"
-                          type="button"
-                        >
-                          <span
-                            class="MuiTab-wrapper"
-                          >
-                            For sale
-                          </span>
-                          <span
-                            class="MuiTouchRipple-root"
-                          />
-                        </button>
-                      </div>
-                      <span
-                        class="PrivateTabIndicator-root-190 PrivateTabIndicator-colorSecondary-192 MuiTabs-indicator makeStyles-indicator-10"
-                        style="left: 0px; width: 0px;"
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div
                   class="MuiGrid-root MuiGrid-item"
                 >
                   <button
-                    class="MuiButtonBase-root MuiIconButton-root makeStyles-button-199"
+                    class="MuiButtonBase-root MuiIconButton-root makeStyles-button-171"
                     tabindex="0"
                     type="button"
                   >
@@ -133,7 +79,7 @@ describe('ChannelHeader', () => {
                       class="MuiIconButton-label"
                     >
                       <img
-                        class="makeStyles-icon-198"
+                        class="makeStyles-icon-170"
                         src="test-file-stub"
                       />
                     </span>
@@ -162,7 +108,6 @@ describe('ChannelHeader', () => {
             mutedFlag
             directMessage={false}
             channelType={CHANNEL_TYPE.NORMAL}
-
           />
         </Provider>
       </HashRouter>
@@ -171,10 +116,10 @@ describe('ChannelHeader', () => {
       <body>
         <div>
           <div
-            class="makeStyles-wrapper-256"
+            class="makeStyles-wrapper-221"
           >
             <div
-              class="MuiGrid-root makeStyles-root-245 MuiGrid-container MuiGrid-align-items-xs-center MuiGrid-justify-xs-space-between"
+              class="MuiGrid-root makeStyles-root-210 MuiGrid-container MuiGrid-align-items-xs-center MuiGrid-justify-xs-space-between"
             >
               <div
                 class="MuiGrid-root MuiGrid-item"
@@ -186,7 +131,7 @@ describe('ChannelHeader', () => {
                     class="MuiGrid-root MuiGrid-item"
                   >
                     <h6
-                      class="MuiTypography-root makeStyles-title-246 makeStyles-bold-259 MuiTypography-subtitle1 MuiTypography-noWrap"
+                      class="MuiTypography-root makeStyles-title-211 makeStyles-bold-224 MuiTypography-subtitle1 MuiTypography-noWrap"
                       style="max-width: 724px;"
                     >
                       #undefined
@@ -194,7 +139,7 @@ describe('ChannelHeader', () => {
                   </div>
                   <span>
                     <div
-                      class="MuiGrid-root makeStyles-silenceDiv-260 MuiGrid-item"
+                      class="MuiGrid-root makeStyles-silenceDiv-225 MuiGrid-item"
                     >
                       <img
                         src="test-file-stub"
@@ -204,67 +149,13 @@ describe('ChannelHeader', () => {
                 </div>
               </div>
               <div
-                class="MuiGrid-root makeStyles-actions-249 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-align-content-xs-center MuiGrid-justify-xs-flex-end MuiGrid-grid-xs-true"
+                class="MuiGrid-root makeStyles-actions-214 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-align-content-xs-center MuiGrid-justify-xs-flex-end MuiGrid-grid-xs-true"
               >
-                <div
-                  class="MuiGrid-root makeStyles-switch-250 MuiGrid-item"
-                >
-                  <div
-                    class="MuiTabs-root makeStyles-tabs-252"
-                  >
-                    <div
-                      class="MuiTabs-scroller MuiTabs-fixed"
-                      style="overflow: hidden;"
-                    >
-                      <div
-                        class="MuiTabs-flexContainer"
-                        role="tablist"
-                      >
-                        <button
-                          aria-selected="true"
-                          class="MuiButtonBase-root MuiTab-root makeStyles-tab-251 MuiTab-textColorInherit Mui-selected makeStyles-selected-253"
-                          role="tab"
-                          tabindex="0"
-                          type="button"
-                        >
-                          <span
-                            class="MuiTab-wrapper"
-                          >
-                            All
-                          </span>
-                          <span
-                            class="MuiTouchRipple-root"
-                          />
-                        </button>
-                        <button
-                          aria-selected="false"
-                          class="MuiButtonBase-root MuiTab-root makeStyles-tab-251 MuiTab-textColorInherit"
-                          role="tab"
-                          tabindex="0"
-                          type="button"
-                        >
-                          <span
-                            class="MuiTab-wrapper"
-                          >
-                            For sale
-                          </span>
-                          <span
-                            class="MuiTouchRipple-root"
-                          />
-                        </button>
-                      </div>
-                      <span
-                        class="PrivateTabIndicator-root-434 PrivateTabIndicator-colorSecondary-436 MuiTabs-indicator makeStyles-indicator-254"
-                        style="left: 0px; width: 0px;"
-                      />
-                    </div>
-                  </div>
-                </div>
                 <div
                   class="MuiGrid-root MuiGrid-item"
                 >
                   <button
-                    class="MuiButtonBase-root MuiIconButton-root makeStyles-button-443"
+                    class="MuiButtonBase-root MuiIconButton-root makeStyles-button-380"
                     tabindex="0"
                     type="button"
                   >
@@ -272,7 +163,7 @@ describe('ChannelHeader', () => {
                       class="MuiIconButton-label"
                     >
                       <img
-                        class="makeStyles-icon-442"
+                        class="makeStyles-icon-379"
                         src="test-file-stub"
                       />
                     </span>
@@ -309,10 +200,10 @@ describe('ChannelHeader', () => {
       <body>
         <div>
           <div
-            class="makeStyles-wrapper-500"
+            class="makeStyles-wrapper-430"
           >
             <div
-              class="MuiGrid-root makeStyles-root-489 MuiGrid-container MuiGrid-align-items-xs-center MuiGrid-justify-xs-space-between"
+              class="MuiGrid-root makeStyles-root-419 MuiGrid-container MuiGrid-align-items-xs-center MuiGrid-justify-xs-space-between"
             >
               <div
                 class="MuiGrid-root MuiGrid-item"
@@ -324,7 +215,7 @@ describe('ChannelHeader', () => {
                     class="MuiGrid-root MuiGrid-item"
                   >
                     <h6
-                      class="MuiTypography-root makeStyles-title-490 makeStyles-bold-503 MuiTypography-subtitle1 MuiTypography-noWrap"
+                      class="MuiTypography-root makeStyles-title-420 makeStyles-bold-433 MuiTypography-subtitle1 MuiTypography-noWrap"
                       style="max-width: 724px;"
                     >
                       #undefined
@@ -332,7 +223,7 @@ describe('ChannelHeader', () => {
                   </div>
                   <span>
                     <div
-                      class="MuiGrid-root makeStyles-silenceDiv-504 MuiGrid-item"
+                      class="MuiGrid-root makeStyles-silenceDiv-434 MuiGrid-item"
                     >
                       <img
                         src="test-file-stub"
@@ -342,67 +233,13 @@ describe('ChannelHeader', () => {
                 </div>
               </div>
               <div
-                class="MuiGrid-root makeStyles-actions-493 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-align-content-xs-center MuiGrid-justify-xs-flex-end MuiGrid-grid-xs-true"
+                class="MuiGrid-root makeStyles-actions-423 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-align-content-xs-center MuiGrid-justify-xs-flex-end MuiGrid-grid-xs-true"
               >
-                <div
-                  class="MuiGrid-root makeStyles-switch-494 MuiGrid-item"
-                >
-                  <div
-                    class="MuiTabs-root makeStyles-tabs-496"
-                  >
-                    <div
-                      class="MuiTabs-scroller MuiTabs-fixed"
-                      style="overflow: hidden;"
-                    >
-                      <div
-                        class="MuiTabs-flexContainer"
-                        role="tablist"
-                      >
-                        <button
-                          aria-selected="true"
-                          class="MuiButtonBase-root MuiTab-root makeStyles-tab-495 MuiTab-textColorInherit Mui-selected makeStyles-selected-497"
-                          role="tab"
-                          tabindex="0"
-                          type="button"
-                        >
-                          <span
-                            class="MuiTab-wrapper"
-                          >
-                            All
-                          </span>
-                          <span
-                            class="MuiTouchRipple-root"
-                          />
-                        </button>
-                        <button
-                          aria-selected="false"
-                          class="MuiButtonBase-root MuiTab-root makeStyles-tab-495 MuiTab-textColorInherit"
-                          role="tab"
-                          tabindex="0"
-                          type="button"
-                        >
-                          <span
-                            class="MuiTab-wrapper"
-                          >
-                            For sale
-                          </span>
-                          <span
-                            class="MuiTouchRipple-root"
-                          />
-                        </button>
-                      </div>
-                      <span
-                        class="PrivateTabIndicator-root-678 PrivateTabIndicator-colorSecondary-680 MuiTabs-indicator makeStyles-indicator-498"
-                        style="left: 0px; width: 0px;"
-                      />
-                    </div>
-                  </div>
-                </div>
                 <div
                   class="MuiGrid-root MuiGrid-item"
                 >
                   <button
-                    class="MuiButtonBase-root MuiIconButton-root makeStyles-button-687"
+                    class="MuiButtonBase-root MuiIconButton-root makeStyles-button-589"
                     tabindex="0"
                     type="button"
                   >
@@ -410,7 +247,7 @@ describe('ChannelHeader', () => {
                       class="MuiIconButton-label"
                     >
                       <img
-                        class="makeStyles-icon-686"
+                        class="makeStyles-icon-588"
                         src="test-file-stub"
                       />
                     </span>
