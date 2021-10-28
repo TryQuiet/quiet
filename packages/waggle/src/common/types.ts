@@ -42,6 +42,7 @@ export type IMessageThread = string
 export class ConnectionsManagerOptions {
   env: {
     appDataPath?: string
+    resourcesPath?: string
   } = {}
 
   bootstrapMultiaddrs?: string[] = []

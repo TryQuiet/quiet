@@ -7,7 +7,6 @@ import KademliaDHT from 'libp2p-kad-dht'
 import Mplex from 'libp2p-mplex'
 import { NOISE } from 'libp2p-noise'
 import { Response } from 'node-fetch'
-import path from 'path'
 import PeerId from 'peer-id'
 import { CertsData, ConnectionsManagerOptions } from '../common/types'
 import { ZBAY_DIR_PATH } from '../constants'
@@ -108,10 +107,7 @@ export class ConnectionsManager {
   }
 
   public spawnTor = async () => {
-    let basePath = ''
-    if (this.options.useLocalTorFiles) {
-      basePath = path.join(__dirname, '../..')
-    }
+    const basePath = this.options.env.resourcesPath || ''
 
     this.tor = new Tor({
       torPath: torBinForPlatform(basePath),
