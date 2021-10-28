@@ -48,6 +48,12 @@ export class CertificateRegistration {
   }
 
   public getHiddenServiceData() {
+    if (this.tor) {
+      return {
+        privateKey: this._privKey,
+        onionAddress: this._onionAddress.split('.')[0]
+      }
+    }
     return {
       privateKey: this._privKey,
       onionAddress: this._onionAddress,
