@@ -1,5 +1,6 @@
 import React, { ReactElement } from 'react'
-
+import { communityNameField, inviteLinkField } from '../../../forms/fields/communityFields'
+import { FieldData } from '../../../forms/types'
 import TextWithLink from '../../ui/TextWithLink/TextWithLink'
 
 export interface PerformCommunityActionDictionary {
@@ -8,6 +9,7 @@ export interface PerformCommunityActionDictionary {
   placeholder: string
   hint?: string
   button?: string
+  field: FieldData
   redirection?: ReactElement
 }
 
@@ -35,6 +37,7 @@ export const CreateCommunityDictionary = (
     placeholder: 'Community name',
     hint: '',
     button: 'Continue',
+    field: communityNameField(),
     redirection: link
   }
 }
@@ -61,6 +64,7 @@ export const JoinCommunityDictionary = (handleRedirection?: () => void): Perform
     placeholder: 'Invite link',
     hint: '',
     button: 'Continue',
+    field: inviteLinkField(),
     redirection: link
   }
 }

@@ -1,10 +1,11 @@
 /* eslint import/first: 0 */
+import '@testing-library/jest-dom'
+import { screen } from '@testing-library/react'
 import React from 'react'
-
-import { SettingsModal } from './SettingsModal'
-import { renderComponent } from '../../../../testUtils/renderComponent'
 import { Provider } from 'react-redux'
 import store from '../../../../store'
+import { renderComponent } from '../../../../testUtils/renderComponent'
+import { SettingsModal } from './SettingsModal'
 
 describe('SettingsModal', () => {
   it('renders component', () => {
@@ -295,5 +296,45 @@ describe('SettingsModal', () => {
         </div>
       </body>
     `)
+  })
+
+  it('displays "Invite a friend" tab for community owner', async () => {
+    renderComponent(
+      <SettingsModal
+        open
+        isOwner={true}
+        handleClose={jest.fn()}
+        modalTabToOpen={'account'}
+        clearCurrentOpenTab={jest.fn()}
+        currentTab={'account'}
+        setCurrentTab={jest.fn()}
+        blockedUsers={['string']}
+        user='string'
+      />
+    )
+    expect(screen.queryByRole('tab', { name: /Account/i })).not.toBeNull()
+    expect(screen.queryByRole('tab', { name: /Notifications/i })).not.toBeNull()
+    expect(screen.queryByRole('tab', { name: /Security/i })).not.toBeNull()
+    expect(screen.queryByRole('tab', { name: /Invite a friend/i })).not.toBeNull()
+  })
+
+  it('does not display "Invite a friend" tab if user is not a community owner', async () => {
+    renderComponent(
+      <SettingsModal
+        open
+        isOwner={false}
+        handleClose={jest.fn()}
+        modalTabToOpen={'account'}
+        clearCurrentOpenTab={jest.fn()}
+        currentTab={'account'}
+        setCurrentTab={jest.fn()}
+        blockedUsers={['string']}
+        user='string'
+      />
+    )
+    expect(screen.queryByRole('tab', { name: /Account/i })).not.toBeNull()
+    expect(screen.queryByRole('tab', { name: /Notifications/i })).not.toBeNull()
+    expect(screen.queryByRole('tab', { name: /Security/i })).not.toBeNull()
+    expect(screen.queryByRole('tab', { name: /Invite a friend/i })).toBeNull()
   })
 })

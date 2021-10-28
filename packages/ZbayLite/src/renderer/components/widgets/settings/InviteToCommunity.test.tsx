@@ -1,6 +1,9 @@
+import '@testing-library/jest-dom'
+import { waitFor, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import React from 'react'
-import { renderComponent } from '../../../testUtils/renderComponent'
 import { InviteToCommunity } from '../../../components/widgets/settings/InviteToCommunity'
+import { renderComponent } from '../../../testUtils/renderComponent'
 
 describe('InviteToCommunity', () => {
   it('renders properly', () => {
@@ -69,5 +72,23 @@ describe('InviteToCommunity', () => {
         </div>
       </body>
     `)
+  })
+
+  it('reveals registrar url when user clicks on the button', async () => {
+    const registrarUrl = 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad'
+    renderComponent(
+      <InviteToCommunity
+        communityName={'My new community'}
+        invitationUrl={registrarUrl}
+      />
+    )
+    expect(screen.queryByText(registrarUrl)).toBeNull()
+    const revealUrlButton = screen.getByRole('button')
+    expect(revealUrlButton).toBeEnabled()
+    userEvent.click(revealUrlButton)
+    await waitFor(() => expect(screen.queryByText(registrarUrl)).not.toBeNull())
+    const copyToClipboardButton = screen.queryByRole('button')
+    expect(copyToClipboardButton).not.toBeNull()
+    expect(copyToClipboardButton).toHaveTextContent('Copy to clipboard')
   })
 })

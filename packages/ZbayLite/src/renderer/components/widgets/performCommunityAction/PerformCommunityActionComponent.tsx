@@ -15,7 +15,6 @@ import {
 } from './PerformCommunityAction.dictionary'
 import { TextInput } from '../../../forms/components/textInput'
 import { Controller, useForm } from 'react-hook-form'
-import { communityNameField } from '../../../forms/fields/createUserFields'
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -120,17 +119,13 @@ export interface PerformCommunityActionProps {
   isConnectionReady?: boolean
 }
 
-interface CreateCommunityValues {
-  communityName: string
+interface PerformCommunityActionFormValues {
+  name: string
 }
 
-const communityFields = {
-  communityName: communityNameField()
-}
-
-const submitForm = (handleSubmit, values: CreateCommunityValues, setFormSent) => {
+const submitForm = (handleSubmit, values: PerformCommunityActionFormValues, setFormSent) => {
   setFormSent(true)
-  handleSubmit(values.communityName)
+  handleSubmit(values.name)
 }
 
 export const PerformCommunityActionComponent: React.FC<PerformCommunityActionProps> = ({
@@ -154,11 +149,11 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
       ? CreateCommunityDictionary(handleRedirection)
       : JoinCommunityDictionary(handleRedirection)
 
-  const { handleSubmit, formState: { errors }, control } = useForm<CreateCommunityValues>({
+  const { handleSubmit, formState: { errors }, control } = useForm<PerformCommunityActionFormValues>({
     mode: 'onTouched'
   })
 
-  const onSubmit = (values: CreateCommunityValues) => submitForm(handleCommunityAction, values, setFormSent)
+  const onSubmit = (values: PerformCommunityActionFormValues) => submitForm(handleCommunityAction, values, setFormSent)
 
   return (
     <Modal open={open} handleClose={handleClose} isCloseDisabled={isClosedDisabled}>
@@ -177,21 +172,20 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
                 <Controller
                   control={control}
                   defaultValue={''}
-                  rules={communityFields.communityName.validation}
-                  name={'communityName'}
+                  rules={dictionary.field.validation}
+                  name={'name'}
                   render={({ field }) => (
                     <TextInput
-                      {...communityFields.communityName.fieldProps}
+                      {...dictionary.field.fieldProps}
                       fullWidth
                       classes={classNames({
                         [classes.focus]: true,
                         [classes.margin]: true,
-                        [classes.error]: errors.communityName
+                        [classes.error]: errors.name
                       })}
-                      placeholder={'Enter a username'}
+                      placeholder={dictionary.placeholder}
                       errors={errors}
                       defaultValue={initialValue || ''}
-                      onPaste={e => e.preventDefault()}
                       onchange={field.onChange}
                       onblur={field.onBlur}
                       value={field.value}

@@ -17,7 +17,7 @@ export const channelNameField = (name = 'channelName'): FieldData => {
       },
       maxLength: {
         value: 20,
-        message: ChannelNameErrors.NameToLong
+        message: ChannelNameErrors.NameTooLong
       },
       pattern: {
         value: /^[a-z0-9]+$/g,

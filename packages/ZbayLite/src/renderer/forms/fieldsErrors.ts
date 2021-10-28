@@ -4,18 +4,22 @@ export enum FieldErrors {
 
 export enum UsernameErrors {
   NameToShort = 'Username must have at least 3 characters',
-  NameToLong = 'Username must have less than 20 characters',
+  NameTooLong = 'Username must have less than 20 characters',
   WrongCharacter = 'Username must be lowercase and cannot contain any special characters'
 }
 
 export enum CommunityNameErrors {
   NameToShort = 'Community name must have at least 3 characters',
-  NameToLong = 'Community name must have less than 20 characters',
+  NameTooLong = 'Community name must have less than 20 characters',
   WrongCharacter = 'Community name must be lowercase and cannot contain any special characters'
+}
+
+export enum InviteLinkErrors {
+  WrongCharacter = 'Invitation link is not valid'
 }
 
 export enum ChannelNameErrors {
   NameToShort = 'Channel name must have at least 3 characters',
-  NameToLong = 'Channel name must have less than 20 characters',
+  NameTooLong = 'Channel name must have less than 20 characters',
   WrongCharacter = 'Channel name must be lowercase and cannot contain any special characters'
 }
