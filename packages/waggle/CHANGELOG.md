@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [4.3.6]
 
 * Registrar - don't return port if waggle uses tor
 
