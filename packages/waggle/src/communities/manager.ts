@@ -53,7 +53,7 @@ export default class CommunitiesManager {
     const peerId = await PeerId.create()
 
     const localAddress = await this.initStorage(peerId, hiddenService.onionAddress, virtPort, ports.libp2pHiddenService, [peerId.toB58String()], certs, communityId)
-    log(`Created community, ${peerId.toB58String()}`)
+    log(`Created community ${communityId}, peer: ${peerId.toB58String()}`)
     return {
       hiddenService,
       peerId: peerId.toJSON(),
@@ -68,6 +68,7 @@ export default class CommunitiesManager {
 
     let onionAddress
     if (this.connectionsManager.tor) {
+      log(`Spawning hidden service for community ${communityId}, peer: ${peerId.id}`)
       onionAddress = await this.connectionsManager.tor.spawnHiddenService({
         virtPort,
         targetPort: ports.libp2pHiddenService,
@@ -76,12 +77,13 @@ export default class CommunitiesManager {
     } else {
       onionAddress = '0.0.0.0'
     }
-    log(`Launching community, ${peerId.id}`)
-    log(`LaunchingCommunity for communityId ${communityId}`)
+    log(`Launching community ${communityId}, peer: ${peerId.id}`)
     return await this.initStorage(await PeerId.createFromJSON(peerId), onionAddress, ports.libp2pHiddenService, ports.libp2pHiddenService, bootstrapMultiaddrs, certs, communityId)
   }
 
   public initStorage = async (peerId: PeerId, onionAddress: string, virtPort: number, targetPort: number, bootstrapMultiaddrs: string[], certs: CertsData, communityId: string): Promise<string> => {
+    const peerIdB58string = peerId.toB58String()
+    log(`Initializing storage for peer ${peerIdB58string}...`)
     let port: number
     if (this.connectionsManager.tor) {
       port = virtPort
@@ -89,7 +91,6 @@ export default class CommunitiesManager {
       port = targetPort
     }
     const listenAddrs = `/dns4/${onionAddress}/tcp/${port}/wss`
-    const peerIdB58string = peerId.toB58String()
     if (bootstrapMultiaddrs.length === 0) {
       bootstrapMultiaddrs = [`/dns4/${onionAddress}/tcp/${port}/wss/p2p/${peerIdB58string}`]
     }
@@ -125,6 +126,7 @@ export default class CommunitiesManager {
       hiddenServicePrivKey,
       port
     )
+    log(`Initializing registration service for peer ${peerId}...`)
     try {
       await certRegister.init()
     } catch (err) {

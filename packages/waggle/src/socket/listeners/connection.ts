@@ -66,7 +66,7 @@ export const connections = (io, ioProxy: IOProxy) => {
       }
     )
     socket.on(EventTypesServer.REGISTER_USER_CERTIFICATE, async (serviceAddress: string, userCsr: string, id: string) => {
-      log(`Registering user certificate (${id})`)
+      log(`Registering user certificate (${id}) on ${serviceAddress}`)
       await ioProxy.registerUserCertificate(serviceAddress, userCsr, id)
     })
     socket.on(EventTypesServer.REGISTER_OWNER_CERTIFICATE, async (communityId: string, userCsr: string, dataFromPerms: {
@@ -84,20 +84,24 @@ export const connections = (io, ioProxy: IOProxy) => {
       certificate: string
       privKey: string
     }) => {
-      log(`Saving owner certificate (${peerId})`)
+      log(`Saving owner certificate (${peerId}), community: ${communityId}`)
       await ioProxy.saveOwnerCertificate(communityId, peerId, certificate, dataFromPerms)
     })
-    socket.on(EventTypesServer.CREATE_COMMUNITY, async (payload, certs: CertsData) => {
+    socket.on(EventTypesServer.CREATE_COMMUNITY, async (payload: {id: string, rootCertString: string, rootCertKey: string}, certs: CertsData) => {
+      log(`Creating community ${payload.id}`)
       await ioProxy.createCommunity(payload.id, certs, payload.rootCertString, payload.rootCertKey)
     })
 
     socket.on(EventTypesServer.LAUNCH_COMMUNITY, async (id: string, peerId: PeerId.JSONPeerId, hiddenServiceKey: {address: string, privateKey: string}, peers: string[], certs: CertsData) => {
+      log(`Launching community ${id} for ${peerId.id}`)
       await ioProxy.launchCommunity(id, peerId, hiddenServiceKey, peers, certs)
     })
     socket.on(EventTypesServer.LAUNCH_REGISTRAR, async (id: string, peerId: string, rootCertString: string, rootKeyString: string, hiddenServicePrivKey?: string, port?: number) => {
+      log(`Launching registrar for community ${id}, user ${peerId}`)
       await ioProxy.launchRegistrar(id, peerId, rootCertString, rootKeyString, hiddenServicePrivKey, port)
     })
     socket.on(EventTypesServer.CREATE_NETWORK, async (communityId: string) => {
+      log(`Creating network for community ${communityId}`)
       await ioProxy.createNetwork(communityId)
     })
   })

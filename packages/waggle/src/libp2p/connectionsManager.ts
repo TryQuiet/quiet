@@ -144,6 +144,7 @@ export class ConnectionsManager {
     targetPort: number
   ): Promise<{ libp2p: Libp2pType, localAddress: string }> => {
     const localAddress = `${listenAddrs}/p2p/${peerId.toB58String()}`
+    log(`Initializing libp2p for ${peerId.toB58String()}`)
     const libp2p = ConnectionsManager.createBootstrapNode({
       peerId: peerId,
       listenAddrs: [listenAddrs],
