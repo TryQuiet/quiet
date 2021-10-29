@@ -1,3 +1,8 @@
+
+# [4.0.0]
+
+* Join and create community
+
 # [3.6.0] 27 August 2021
 
 ## Broke
