@@ -29,6 +29,7 @@ const reduxStorage = createElectronStorage()
 const persistConfig = {
   key: 'root',
   storage: reduxStorage,
+  throttle: 1000,
   whitelist: [
     NectarStoreKeys.Identity,
     NectarStoreKeys.Communities,
