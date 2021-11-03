@@ -30,20 +30,7 @@ ipcRenderer.on('connectToWebsocket', (_event) => {
 ipcRenderer.on('waggleInitialized', (_event) => {
   log('waggle Initialized')
   store.dispatch(waggleHandlers.actions.setIsWaggleConnected(true))
-  // TODO: Refactor when adding communities
 })
-
-// window.jdenticon_config = {
-//   lightness: {
-//     color: [0.31, 0.44],
-//     grayscale: [0.52, 0.57]
-//   },
-//   saturation: {
-//     color: 0.82,
-//     grayscale: 0.84
-//   },
-//   backColor: '#f3f0f6ff'
-// }
 
 render(<Root />, document.getElementById('root'))
 

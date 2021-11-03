@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import classNames from 'classnames'
 
 import Typography from '@material-ui/core/Typography'
@@ -112,8 +112,6 @@ export interface PerformCommunityActionProps {
   handleCommunityAction: (value: string) => void
   handleRedirection: () => void
   initialValue: string
-  registrar?: string
-  error?: string
   handleClose: () => void
   isClosedDisabled?: boolean
   isConnectionReady?: boolean
@@ -123,37 +121,40 @@ interface PerformCommunityActionFormValues {
   name: string
 }
 
-const submitForm = (handleSubmit, values: PerformCommunityActionFormValues, setFormSent) => {
-  setFormSent(true)
-  handleSubmit(values.name)
-}
-
 export const PerformCommunityActionComponent: React.FC<PerformCommunityActionProps> = ({
   open,
   communityAction,
   handleCommunityAction,
   handleRedirection,
   initialValue,
-  registrar,
-  error,
   handleClose,
   isClosedDisabled = true,
   isConnectionReady = true
 }) => {
   const classes = useStyles({})
-  const [formSent, setFormSent] = useState(false)
-  const responseReceived = Boolean(error || registrar)
-  const waitingForResponse = formSent && !responseReceived
+
   const dictionary =
     communityAction === CommunityAction.Create
       ? CreateCommunityDictionary(handleRedirection)
       : JoinCommunityDictionary(handleRedirection)
 
-  const { handleSubmit, formState: { errors }, control } = useForm<PerformCommunityActionFormValues>({
+  const {
+    handleSubmit,
+    formState: { errors },
+    control
+  } = useForm<PerformCommunityActionFormValues>({
     mode: 'onTouched'
   })
 
-  const onSubmit = (values: PerformCommunityActionFormValues) => submitForm(handleCommunityAction, values, setFormSent)
+  const onSubmit = (values: PerformCommunityActionFormValues) =>
+    submitForm(handleCommunityAction, values)
+
+  const submitForm = (
+    handleSubmit: (value: string) => void,
+    values: PerformCommunityActionFormValues
+  ) => {
+    handleSubmit(values.name)
+  }
 
   return (
     <Modal open={open} handleClose={handleClose} isCloseDisabled={isClosedDisabled}>
@@ -209,16 +210,15 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
                   fullWidth
                   text={dictionary.button ?? 'Continue'}
                   classes={{ button: classes.button }}
-                  disabled={waitingForResponse || !isConnectionReady}
-                  inProgress={waitingForResponse}
+                  disabled={!isConnectionReady}
                 />
               </Grid>
             </Grid>
           </form>
-          {dictionary.redirection}
+          <Grid style={{ marginTop: '24px' }}>{dictionary.redirection}</Grid>
         </>
       </Grid>
-    </Modal >
+    </Modal>
   )
 }
 

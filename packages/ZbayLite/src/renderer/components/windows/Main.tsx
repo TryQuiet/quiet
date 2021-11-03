@@ -45,7 +45,7 @@ export const Main: React.FC<MainProps> = ({
       }
       timer = setTimeout(_ => {
         timer = null
-        fn.apply(this) // // eslint-disable-line
+        fn.apply(this) // eslint-disable-line
       }, ms)
     }
   }

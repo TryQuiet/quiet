@@ -52,6 +52,7 @@ describe('UpdateModal', () => {
                 >
                   <div
                     class="MuiGrid-root makeStyles-actions-11 MuiGrid-container MuiGrid-item MuiGrid-justify-xs-flex-end"
+                    data-testid="ModalActions"
                   >
                     <button
                       class="MuiButtonBase-root MuiIconButton-root makeStyles-root-150"

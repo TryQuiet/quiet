@@ -13,4 +13,5 @@ export interface IModalProps {
   alignCloseLeft?: boolean
   addBorder?: boolean
   fullPage?: boolean
+  testIdPrefix?: string
 }

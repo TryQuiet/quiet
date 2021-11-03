@@ -8,9 +8,15 @@ const ModalsSlice: CreatedSelectors<StoreState>[StoreKeys.Modals] = (state: Stor
 
 export const open = (modal: ModalName) =>
   createSelector(ModalsSlice, reducerState => {
-    return reducerState[modal]
+    return reducerState[modal]?.open
+  })
+
+export const props = (modal: ModalName) =>
+  createSelector(ModalsSlice, reducerState => {
+    return reducerState[modal]?.args || {}
   })
 
 export const modalsSelectors = {
-  open
+  open,
+  props
 }

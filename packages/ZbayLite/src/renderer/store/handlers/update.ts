@@ -3,7 +3,7 @@ import { ModalName } from '../../sagas/modals/modals.types'
 import { modalsActions } from '../../sagas/modals/modals.slice'
 
 export const checkForUpdate = () => async dispatch => {
-  dispatch(modalsActions.openModal(ModalName.applicationUpdate))
+  dispatch(modalsActions.openModal({ name: ModalName.applicationUpdate }))
 }
 
 export const startApplicationUpdate = () => async dispatch => {

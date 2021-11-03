@@ -6,11 +6,12 @@ import { render } from '@testing-library/react'
 
 import theme from '../theme'
 import store from '../store'
+import { Store } from 'redux'
 
-export const renderComponent = (ui: ReactElement): ReturnType<typeof render> => {
+export const renderComponent = (ui: ReactElement, storeState: Store = store): ReturnType<typeof render> => {
   const Wrapper: FC = ({ children }) => (
     <MuiThemeProvider theme={theme}>
-      <Provider store={store}>
+      <Provider store={storeState}>
         {children}
       </Provider>
     </MuiThemeProvider>

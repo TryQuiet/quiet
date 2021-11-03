@@ -25,9 +25,9 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 interface ChannelMenuActionProps {
-  onInfo: React.MouseEventHandler<HTMLLIElement>
-  onMute: React.MouseEventHandler<HTMLLIElement>
-  onUnmute: React.MouseEventHandler<HTMLLIElement>
+  onInfo: () => void
+  onMute: () => void
+  onUnmute: () => void
   onDelete: () => void
   onSettings: () => void
   mutedFlag: boolean

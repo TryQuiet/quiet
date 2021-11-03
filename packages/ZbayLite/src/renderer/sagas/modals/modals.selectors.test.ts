@@ -28,7 +28,7 @@ describe('modalsSelectors', () => {
       {
         Modals: {
           ...new ModalsInitialState(),
-          [ModalName.channelInfo]: true
+          [ModalName.channelInfo]: { open: true }
         }
       }
     )

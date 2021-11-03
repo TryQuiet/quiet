@@ -64,6 +64,7 @@ describe('ChannelInfoModal', () => {
                 >
                   <div
                     class="MuiGrid-root makeStyles-actions-15 MuiGrid-container MuiGrid-item MuiGrid-justify-xs-flex-end"
+                    data-testid="ModalActions"
                   >
                     <button
                       class="MuiButtonBase-root MuiIconButton-root makeStyles-root-154"

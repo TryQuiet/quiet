@@ -76,7 +76,8 @@ export const Modal: React.FC<IModalProps> = ({
   isCloseDisabled,
   alignCloseLeft,
   addBorder,
-  children
+  children,
+  testIdPrefix = ''
 }) => {
   const classes = useStyles({})
   return (
@@ -129,6 +130,7 @@ export const Modal: React.FC<IModalProps> = ({
                 item
                 justify={alignCloseLeft ? 'flex-start' : 'flex-end'}
                 className={classes.actions}
+                data-testid={`${testIdPrefix}ModalActions`}
               >
                 {canGoBack ? (
                   <IconButton onClick={() => {

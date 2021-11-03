@@ -1,32 +1,49 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { CreateUsernameModalProps } from '../../containers/widgets/createUsernameModal/CreateUsername'
 import { ModalName } from './modals.types'
 
+export interface OpenModalPayload {
+  name: ModalName
+  args?: CreateUsernameModalProps
+}
+
 export class ModalsInitialState {
-  [ModalName.createChannel]: boolean = false;
-  [ModalName.accountSettingsModal]: boolean = false;
-  [ModalName.openexternallink]: boolean = false;
-  [ModalName.seedModal]: boolean = false;
-  [ModalName.criticalError]: boolean = false;
-  [ModalName.createUsernameModal]: boolean = false;
-  [ModalName.channelInfo]: boolean = false;
-  [ModalName.channelSettingsModal]: boolean = false;
-  [ModalName.publishChannel]: boolean = false;
-  [ModalName.joinChannel]: boolean = false;
-  [ModalName.newMessageSeparate]: boolean = false;
-  [ModalName.quitApp]: boolean = false;
-  [ModalName.joinCommunityModal]: boolean = false;
-  [ModalName.createCommunityModal]: boolean = false
+  [ModalName.createChannel] = { open: false };
+  [ModalName.accountSettingsModal] = { open: false };
+  [ModalName.openexternallink] = { open: false };
+  [ModalName.seedModal] = { open: false };
+  [ModalName.criticalError] = { open: false };
+  [ModalName.createUsernameModal]: {
+    open: boolean
+    args: CreateUsernameModalProps
+  } = {
+    open: false,
+    args: undefined
+  };
+
+  [ModalName.channelInfo] = { open: false };
+  [ModalName.channelSettingsModal] = { open: false };
+  [ModalName.publishChannel] = { open: false };
+  [ModalName.joinChannel] = { open: false };
+  [ModalName.newMessageSeparate] = { open: false };
+  [ModalName.quitApp] = { open: false };
+  [ModalName.joinCommunityModal] = { open: false };
+  [ModalName.createCommunityModal] = { open: false }
 }
 
 export const modalsSlice = createSlice({
   initialState: { ...new ModalsInitialState() },
   name: 'Modals',
   reducers: {
-    openModal: (state, action: PayloadAction<ModalName>) => {
-      state[action.payload] = true
+    openModal: (state, action: PayloadAction<OpenModalPayload>) => {
+      const name = action.payload.name
+      const args = action.payload.args
+      state[name].open = true
+      if (args) state[name].args = args
     },
     closeModal: (state, action: PayloadAction<ModalName>) => {
-      state[action.payload] = false
+      state[action.payload].open = false
+      state[action.payload].args = undefined
     }
   }
 })
