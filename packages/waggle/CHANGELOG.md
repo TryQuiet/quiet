@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [4.3.7]
 
 * Expose ioproxy api through connections manager to be able to close all services directly
 
