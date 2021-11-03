@@ -307,7 +307,7 @@ app.on('ready', async () => {
       await checkForUpdate(mainWindow)
       setInterval(async () => {
         if (!isBrowserWindow(mainWindow)) {
-          throw new Error('mainWindow is on unexpected type {mainWindow}')
+          throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
         }
         await checkForUpdate(mainWindow)
       }, 15 * 60000)
@@ -324,6 +324,7 @@ app.setAsDefaultProtocolClient('zbay')
 app.on('before-quit', async e => {
   e.preventDefault()
   if (waggleProcess !== null) {
+    await waggleProcess.connectionsManager.closeAllServices()
     await waggleProcess.dataServer.close()
   }
   if (browserWidth && browserHeight) {

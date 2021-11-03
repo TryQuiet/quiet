@@ -6,6 +6,10 @@
 * Added possibility to get back to join/create from username registration screen
 * https://github.com/vue-electron/vuex-electron/issues/17 - the app will write to disk once a second, which should prevent windows defender from checking the file and changing the name.
 
+## Added
+
+* Close all waggle services right before closing the app
+
 # [4.0.0]
 
 * Join and create community
