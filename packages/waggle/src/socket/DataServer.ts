@@ -31,6 +31,7 @@ export class DataServer {
   }
 
   public close = async (): Promise<void> => {
+    log(`Closing data server on port ${this.PORT}`)
     return await new Promise((resolve) => {
       this.server.close()
       resolve()

@@ -59,6 +59,7 @@ export class Tor {
   }
 
   public init = async ({ repeat = 3, timeout = 40000 } = {}): Promise<void> => {
+    log('Initializing tor...')
     return await new Promise((resolve, reject) => {
       if (this.process) {
         throw new Error('Tor already initialized')
@@ -242,6 +243,7 @@ export class Tor {
 
   public kill = async (): Promise<void> =>
     await new Promise((resolve, reject) => {
+      log('Killing tor...')
       if (this.process === null) {
         reject(new Error('TOR: Process is not initalized.'))
       }

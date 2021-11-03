@@ -39,6 +39,7 @@ export class ConnectionsManager {
   options: ConnectionsManagerOptions
   zbayDir: string
   io: SocketIO.Server
+  ioProxy: IOProxy
   libp2pTransportClass: any
   StorageCls: any
   tor: Tor
@@ -56,6 +57,7 @@ export class ConnectionsManager {
     this.zbayDir = this.options.env?.appDataPath || ZBAY_DIR_PATH
     this.StorageCls = storageClass || Storage
     this.libp2pTransportClass = options.libp2pTransportClass || WebsocketsOverTor
+    this.ioProxy = new IOProxy(this)
 
     process.on('unhandledRejection', error => {
       console.error(error)
@@ -76,7 +78,7 @@ export class ConnectionsManager {
   }
 
   public initListeners = () => {
-    initListeners(this.io, new IOProxy(this))
+    initListeners(this.io, this.ioProxy)
     log('Initialized socket listeners')
   }
 
@@ -104,6 +106,10 @@ export class ConnectionsManager {
   public init = async () => {
     this.initListeners()
     await this.spawnTor()
+  }
+
+  public closeAllServices = async () => {
+    await this.ioProxy.closeAll()
   }
 
   public spawnTor = async () => {

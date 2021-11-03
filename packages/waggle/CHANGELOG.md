@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+* Expose ioproxy api through connections manager to be able to close all services directly
+
 ## [4.3.6]
 
 * Registrar - don't return port if waggle uses tor
