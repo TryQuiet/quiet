@@ -17,7 +17,7 @@ import { IdentityState } from '@zbayapp/nectar/lib/sagas/identity/identity.slice
 
 describe('join community', () => {
   it('user goes form joning community to username registration, then comes back', async () => {
-    const { store } = prepareStore({
+    const { store } = await prepareStore({
       [StoreKeys.Socket]: {
         ...new SocketState(),
         isConnected: true

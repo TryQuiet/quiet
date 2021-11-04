@@ -15,9 +15,9 @@ import CreateUsernameModal from '../createUsernameModal/CreateUsername'
 import { CommunitiesState } from '@zbayapp/nectar/lib/sagas/communities/communities.slice'
 import { IdentityState } from '@zbayapp/nectar/lib/sagas/identity/identity.slice'
 
-describe('join community', () => {
+describe('Create community', () => {
   it('user goes form creating community to username registration, then comes back', async () => {
-    const { store } = prepareStore({
+    const { store } = await prepareStore({
       [StoreKeys.Socket]: {
         ...new SocketState(),
         isConnected: true

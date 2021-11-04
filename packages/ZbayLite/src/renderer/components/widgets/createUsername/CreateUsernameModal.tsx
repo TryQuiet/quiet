@@ -118,11 +118,6 @@ const userFields = {
   userName: userNameField()
 }
 
-const submitForm = (handleRegisterUsername, values: CreateUserValues, setFormSent) => {
-  setFormSent(true)
-  handleRegisterUsername({ nickname: values.userName })
-}
-
 export const CreateUsernameModal: React.FC<CreateUsernameModalProps> = ({
   open,
   initialValue,
@@ -132,15 +127,33 @@ export const CreateUsernameModal: React.FC<CreateUsernameModalProps> = ({
   handleClose
 }) => {
   const classes = useStyles({})
+
   const [formSent, setFormSent] = useState(false)
+
   const responseReceived = Boolean(certificateRegistrationError || certificate)
   const waitingForResponse = formSent && !responseReceived
 
-  const { handleSubmit, formState: { errors }, setError, control } = useForm<CreateUserValues>({
+  const {
+    handleSubmit,
+    formState: { errors },
+    setError,
+    control
+  } = useForm<CreateUserValues>({
     mode: 'onTouched'
   })
 
-  const onSubmit = (values: CreateUserValues) => submitForm(handleRegisterUsername, values, setFormSent)
+  const onSubmit = (values: CreateUserValues) => {
+    submitForm(handleRegisterUsername, values, setFormSent)
+  }
+
+  const submitForm = (
+    handleSubmit: ({ nickname: string }) => void,
+    values: CreateUserValues,
+    setFormSent
+  ) => {
+    setFormSent(true)
+    handleSubmit({ nickname: values.userName })
+  }
 
   React.useEffect(() => {
     if (certificateRegistrationError) {
@@ -191,8 +204,8 @@ export const CreateUsernameModal: React.FC<CreateUsernameModalProps> = ({
                 </Grid>
                 <Grid item xs={12} className={classes.infoDiv}>
                   <Typography variant='caption' className={classes.info}>
-                    Your username cannot have any spaces or special characters, must be
-                    lowercase letters and numbers only.
+                    Your username cannot have any spaces or special characters, must be lowercase
+                    letters and numbers only.
                   </Typography>
                 </Grid>
               </Grid>
@@ -204,7 +217,7 @@ export const CreateUsernameModal: React.FC<CreateUsernameModalProps> = ({
                     size='small'
                     color='primary'
                     fullWidth
-                    text={'Continue'}
+                    text={'Register'}
                     classes={{ button: classes.button }}
                     disabled={waitingForResponse}
                     inProgress={waitingForResponse}
@@ -212,7 +225,6 @@ export const CreateUsernameModal: React.FC<CreateUsernameModalProps> = ({
                 </Grid>
               </Grid>
             </form>
-
           </>
         ) : (
           <UsernameCreated handleClose={handleClose} setFormSent={setFormSent} />
