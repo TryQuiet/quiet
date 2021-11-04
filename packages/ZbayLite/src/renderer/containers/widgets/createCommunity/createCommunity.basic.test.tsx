@@ -10,12 +10,48 @@ import { SocketState } from '../../../sagas/socket/socket.slice'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { ModalsInitialState } from '../../../sagas/modals/modals.slice'
 import CreateCommunity from './createCommunity'
-import { CreateCommunityDictionary } from '../../../components/widgets/performCommunityAction/PerformCommunityAction.dictionary'
+import JoinCommunity from '../joinCommunity/joinCommunity'
+import { CreateCommunityDictionary, JoinCommunityDictionary } from '../../../components/widgets/performCommunityAction/PerformCommunityAction.dictionary'
 import CreateUsernameModal from '../createUsernameModal/CreateUsername'
 import { CommunitiesState } from '@zbayapp/nectar/lib/sagas/communities/communities.slice'
 import { IdentityState } from '@zbayapp/nectar/lib/sagas/identity/identity.slice'
 
 describe('Create community', () => {
+  it('users switches from create to join', async () => {
+    const { store } = await prepareStore({
+      [StoreKeys.Socket]: {
+        ...new SocketState(),
+        isConnected: true
+      },
+      [StoreKeys.Modals]: {
+        ...new ModalsInitialState(),
+        [ModalName.createCommunityModal]: { open: true }
+      }
+    })
+
+    renderComponent(
+      <>
+        <JoinCommunity />
+        <CreateCommunity />
+      </>,
+      store
+    )
+
+    // Confirm proper modal title is displayed
+    const createCommunityDictionary = CreateCommunityDictionary()
+    const createCommunityTitle = screen.getByText(createCommunityDictionary.header)
+    expect(createCommunityTitle).toBeVisible()
+
+    // Click redirecting link
+    const link = screen.getByTestId('CreateCommunityLink')
+    userEvent.click(link)
+
+    // Confirm user is being redirected to join community
+    const joinCommunityDictionary = JoinCommunityDictionary()
+    const joinCommunityTitle = await screen.findByText(joinCommunityDictionary.header)
+    expect(joinCommunityTitle).toBeVisible()
+  })
+
   it('user goes form creating community to username registration, then comes back', async () => {
     const { store } = await prepareStore({
       [StoreKeys.Socket]: {

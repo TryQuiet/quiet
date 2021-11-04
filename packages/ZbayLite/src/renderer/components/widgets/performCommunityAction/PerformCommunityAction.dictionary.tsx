@@ -28,6 +28,7 @@ export const CreateCommunityDictionary = (
             action: handleRedirection
           }
         ]}
+        testIdPrefix={'CreateCommunity'}
       />
     )
   }
@@ -55,6 +56,7 @@ export const JoinCommunityDictionary = (handleRedirection?: () => void): Perform
             action: handleRedirection
           }
         ]}
+        testIdPrefix={'JoinCommunity'}
       />
     )
   }

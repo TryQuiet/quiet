@@ -4,18 +4,51 @@ import { screen } from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import { prepareStore } from '../../../testUtils/prepareStore'
-import { StoreKeys as NectarStoreKeys } from '@zbayapp/nectar/lib/sagas/store.keys'
 import { StoreKeys } from '../../../store/store.keys'
 import { SocketState } from '../../../sagas/socket/socket.slice'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { ModalsInitialState } from '../../../sagas/modals/modals.slice'
 import JoinCommunity from './joinCommunity'
-import { JoinCommunityDictionary } from '../../../components/widgets/performCommunityAction/PerformCommunityAction.dictionary'
+import CreateCommunity from '../createCommunity/createCommunity'
+import { JoinCommunityDictionary, CreateCommunityDictionary } from '../../../components/widgets/performCommunityAction/PerformCommunityAction.dictionary'
 import CreateUsernameModal from '../createUsernameModal/CreateUsername'
-import { CommunitiesState } from '@zbayapp/nectar/lib/sagas/communities/communities.slice'
-import { IdentityState } from '@zbayapp/nectar/lib/sagas/identity/identity.slice'
 
 describe('join community', () => {
+  it('users switches from join to create', async () => {
+    const { store } = await prepareStore({
+      [StoreKeys.Socket]: {
+        ...new SocketState(),
+        isConnected: true
+      },
+      [StoreKeys.Modals]: {
+        ...new ModalsInitialState(),
+        [ModalName.joinCommunityModal]: { open: true }
+      }
+    })
+
+    renderComponent(
+      <>
+        <JoinCommunity />
+        <CreateCommunity />
+      </>,
+      store
+    )
+
+    // Confirm proper modal title is displayed
+    const joinCommunityDictionary = JoinCommunityDictionary()
+    const joinCommunityTitle = screen.getByText(joinCommunityDictionary.header)
+    expect(joinCommunityTitle).toBeVisible()
+
+    // Click redirecting link
+    const link = screen.getByTestId('JoinCommunityLink')
+    userEvent.click(link)
+
+    // Confirm user is being redirected to create community
+    const createCommunityDictionary = CreateCommunityDictionary()
+    const createCommunityTitle = await screen.findByText(createCommunityDictionary.header)
+    expect(createCommunityTitle).toBeVisible()
+  })
+
   it('user goes form joning community to username registration, then comes back', async () => {
     const { store } = await prepareStore({
       [StoreKeys.Socket]: {
@@ -25,12 +58,6 @@ describe('join community', () => {
       [StoreKeys.Modals]: {
         ...new ModalsInitialState(),
         [ModalName.joinCommunityModal]: { open: true }
-      },
-      [NectarStoreKeys.Communities]: {
-        ...new CommunitiesState()
-      },
-      [NectarStoreKeys.Identity]: {
-        ...new IdentityState()
       }
     })
 

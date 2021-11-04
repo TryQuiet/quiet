@@ -9,10 +9,10 @@ import { StoreKeys } from '../../../store/store.keys'
 import { communities, identity } from '@zbayapp/nectar'
 import { SocketState } from '../../../sagas/socket/socket.slice'
 import { ModalsInitialState } from '../../../sagas/modals/modals.slice'
-import CreateCommunity from './createCommunity'
+import JoinCommunity from './joinCommunity'
 import CreateUsernameModal from '../createUsernameModal/CreateUsername'
 import { ModalName } from '../../../sagas/modals/modals.types'
-import { CreateCommunityDictionary } from '../../../components/widgets/performCommunityAction/PerformCommunityAction.dictionary'
+import { JoinCommunityDictionary } from '../../../components/widgets/performCommunityAction/PerformCommunityAction.dictionary'
 import MockedSocket from 'socket.io-mock'
 import { act } from 'react-dom/test-utils'
 import { ioMock } from '../../../../shared/setupTests'
@@ -43,7 +43,7 @@ describe('User', () => {
     ioMock.mockImplementation(() => socket)
   })
 
-  it('creates community and registers username', async () => {
+  it('joins community and registers username', async () => {
     const { store, runSaga } = await prepareStore(
       {
         [StoreKeys.Socket]: {
@@ -52,7 +52,7 @@ describe('User', () => {
         },
         [StoreKeys.Modals]: {
           ...new ModalsInitialState(),
-          [ModalName.createCommunityModal]: { open: true }
+          [ModalName.joinCommunityModal]: { open: true }
         }
       },
       socket // Fork Nectar's sagas
@@ -60,7 +60,7 @@ describe('User', () => {
 
     renderComponent(
       <>
-        <CreateCommunity />
+        <JoinCommunity />
         <CreateUsernameModal />
       </>,
       store
@@ -71,27 +71,22 @@ describe('User', () => {
     jest.spyOn(socket, 'emit').mockImplementation((action: SocketActionTypes, ...input: any[]) => {
       if (action === SocketActionTypes.CREATE_NETWORK) {
         const data = input as socketEventData<[string]>
-
         const id = data[0]
-
         return socket.socketClient.emit(SocketActionTypes.NEW_COMMUNITY, {
           id: id,
           payload: payload(id)
         })
       }
-      if (action === SocketActionTypes.REGISTER_OWNER_CERTIFICATE) {
+      if (action === SocketActionTypes.REGISTER_USER_CERTIFICATE) {
         const data = input as socketEventData<
-        [string, string, { certificate: string; privKey: string }]
+        [string, string, string]
         >
-
-        const communityId = data[0]
-        const CA = data[2]
-
+        const communityId = data[2]
         return socket.socketClient.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
           id: communityId,
           payload: {
             peers: [''],
-            certificate: CA.certificate,
+            certificate: 'MIIBTDCB8wIBATAKBggqhkjOPQQDAjASMRAwDgYDVQQDEwdaYmF5IENBMB4XDTEwMTIyODEwMTAxMFoXDTMwMTIyODEwMTAxMFowEjEQMA4GA1UEAxMHWmJheSBDQTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABEaV1l/7BOvPh0fFteSubIJ2r66YM4XoMMEfUhHiJE6O0ojfHdNrsItg+pHmpIQyEe+3YGWxIhgjL65+liE8ypqjPzA9MA8GA1UdEwQIMAYBAf8CAQMwCwYDVR0PBAQDAgCGMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDATAKBggqhkjOPQQDAgNIADBFAiARHtkv7GlhfkFbtRGU1r19UJFkhA7Vu+EubBnJPjD9/QIhALje1S3bp8w8jjVf70jGc2/uRmDCo/bNyQRpApBaD5vY',
             rootCa: 'rootCa'
           }
         })
@@ -99,15 +94,15 @@ describe('User', () => {
     })
 
     // Confirm proper modal title is displayed
-    const dictionary = CreateCommunityDictionary()
-    const createCommunityTitle = screen.getByText(dictionary.header)
-    expect(createCommunityTitle).toBeVisible()
+    const dictionary = JoinCommunityDictionary()
+    const joinCommunityTitle = screen.getByText(dictionary.header)
+    expect(joinCommunityTitle).toBeVisible()
 
-    // Enter community name and hit button
-    const createCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
-    const createCommunityButton = screen.getByText(dictionary.button)
-    userEvent.type(createCommunityInput, 'rockets')
-    userEvent.click(createCommunityButton)
+    // Enter community address and hit button
+    const joinCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
+    const joinCommunityButton = screen.getByText(dictionary.button)
+    userEvent.type(joinCommunityInput, '3lyn5yjwwb74he5olv43eej7knt34folvrgrfsw6vzitvkxmc5wpe4yd')
+    userEvent.click(joinCommunityButton)
 
     // Confirm user is being redirected to username registration
     const createUsernameTitle = await screen.findByText('Register a username')
@@ -120,15 +115,15 @@ describe('User', () => {
     userEvent.click(createUsernameButton)
 
     await act(async () => {
-      await runSaga(testCreateCommunitySaga).toPromise()
+      await runSaga(testJoinCommunitySaga).toPromise()
     })
 
     expect(createUsernameTitle).not.toBeVisible()
-    expect(createCommunityTitle).not.toBeVisible()
+    expect(joinCommunityTitle).not.toBeVisible()
   })
 
-  function* testCreateCommunitySaga(): Generator {
-    yield* take(communities.actions.createNewCommunity)
+  function* testJoinCommunitySaga(): Generator {
+    yield* take(communities.actions.joinCommunity)
     yield* take(communities.actions.responseCreateCommunity)
     yield* take(identity.actions.registerUsername)
     yield* take(identity.actions.storeUserCertificate)

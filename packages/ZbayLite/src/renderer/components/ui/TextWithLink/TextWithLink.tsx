@@ -13,6 +13,7 @@ const useStyles = makeStyles(theme => ({
 export interface TextWithLinkProps {
   text: string
   tagPrefix?: string
+  testIdPrefix?: string
   links: [
     {
       tag: string
@@ -26,6 +27,7 @@ export const TextWithLink: React.FC<TextWithLinkProps & TypographyProps> = ({
   text,
   tagPrefix = '%',
   links,
+  testIdPrefix = '',
   ...props
 }) => {
   const classes = useStyles({})
@@ -38,7 +40,8 @@ export const TextWithLink: React.FC<TextWithLinkProps & TypographyProps> = ({
         onClick={e => {
           e.preventDefault()
           action()
-        }}>
+        }}
+        data-testid={`${testIdPrefix}Link`}>
         {label}
       </a>
     )
