@@ -38,8 +38,8 @@ export class StorageTestSnapshot extends Storage {
   protected snapshotSaved: boolean
   protected msgReplCount: number
 
-  constructor(zbayDir: string, io: any, options?: Partial<StorageTestSnapshotOptions>) {
-    super(zbayDir, io, 'communityId', options)
+  constructor(zbayDir: string, io: any, communityId: string, options?: Partial<StorageTestSnapshotOptions>) {
+    super(zbayDir, io, communityId, options)
     this.options = {
       ...new StorageTestSnapshotOptions(),
       ...options
@@ -149,6 +149,7 @@ export class StorageTestSnapshot extends Storage {
   }
 
   private async addMessages() { // Generate and add "messages" to db
+    log(`Adding ${this.messagesCount} messages`)
     const range = n => Array.from(Array(n).keys())
     const messages = range(this.messagesCount).map(nr => `message_${nr.toString()}`)
     await Promise.all(messages.map(async msg => await this.messages.add(msg)))

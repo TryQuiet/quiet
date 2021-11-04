@@ -15,7 +15,7 @@ import IOProxy from '../socket/IOProxy'
 import initListeners from '../socket/listeners'
 import { Storage } from '../storage'
 import { Tor } from '../torManager'
-import { fetchRetry, getPorts, torBinForPlatform, torDirForPlatform } from '../common/utils'
+import { createLibp2pAddress, createLibp2pListenAddress, fetchRetry, getPorts, torBinForPlatform, torDirForPlatform } from '../common/utils'
 import CustomLibp2p, { Libp2pType } from './customLibp2p'
 import WebsocketsOverTor from './websocketOverTor'
 const log = logger('conn')
@@ -77,6 +77,14 @@ export class ConnectionsManager {
     return new HttpsProxyAgent({ port: this.httpTunnelPort, host: this.agentHost })
   }
 
+  public readonly createLibp2pAddress = (address: string, port: number, peerId: string): string => {
+    return createLibp2pAddress(address, port, peerId, this.options.wsType)
+  }
+
+  public readonly createLibp2pListenAddress = (address: string, port: number): string => {
+    return createLibp2pListenAddress(address, port, this.options.wsType)
+  }
+
   public initListeners = () => {
     initListeners(this.io, this.ioProxy)
     log('Initialized socket listeners')
@@ -114,7 +122,6 @@ export class ConnectionsManager {
 
   public spawnTor = async () => {
     const basePath = this.options.env.resourcesPath || ''
-
     this.tor = new Tor({
       torPath: torBinForPlatform(basePath),
       appDataPath: this.zbayDir,
@@ -144,16 +151,17 @@ export class ConnectionsManager {
 
   public initLibp2p = async (
     peerId: PeerId,
-    listenAddrs: string,
+    address: string,
+    addressPort: number,
     bootstrapMultiaddrs: string[],
     certs: CertsData,
     targetPort: number
   ): Promise<{ libp2p: Libp2pType, localAddress: string }> => {
-    const localAddress = `${listenAddrs}/p2p/${peerId.toB58String()}`
+    const localAddress = this.createLibp2pAddress(address, addressPort, peerId.toB58String())
     log(`Initializing libp2p for ${peerId.toB58String()}`)
     const libp2p = ConnectionsManager.createBootstrapNode({
       peerId: peerId,
-      listenAddrs: [listenAddrs],
+      listenAddrs: [this.createLibp2pListenAddress(address, addressPort)],
       agent: this.socksProxyAgent,
       localAddr: localAddress,
       ...certs,
@@ -178,7 +186,7 @@ export class ConnectionsManager {
   }
 
   public createStorage = (peerId: string, communityId: string) => {
-    console.log(`createStorage communityID ${communityId}`)
+    log(`Creating storage for community: ${communityId}`)
     return new this.StorageCls(this.zbayDir, this.io, communityId, {
       ...this.options,
       orbitDbDir: `OrbitDB${peerId}`,

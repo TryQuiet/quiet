@@ -56,6 +56,7 @@ export class ConnectionsManagerOptions {
   torPassword?: string
   torAuthCookie?: string
   useLocalTorFiles?: boolean = false // Use tor binaries and their libs from waggle
+  wsType?: 'wss' | 'ws' = 'wss'
 }
 
 export interface IConstructor {

@@ -8,7 +8,7 @@ import PeerId from 'peer-id'
 import { getPorts, torBinForPlatform, torDirForPlatform } from './common/utils'
 import { dataFromRootPems } from './common/testUtils'
 import CommunitiesManager from './communities/manager'
-import { CertsData } from './common/types'
+import { CertsData, ConnectionsManagerOptions } from './common/types'
 
 export default class Node {
   tor: Tor
@@ -131,7 +131,7 @@ export default class Node {
     return dataServer
   }
 
-  async initConnectionsManager(dataServer: DataServer, storageClass?: any, options?: any): Promise<ConnectionsManager> {
+  async initConnectionsManager(dataServer: DataServer, storageClass?: any, options?: ConnectionsManagerOptions): Promise<ConnectionsManager> {
     console.log('initStorage.storageClass:->', storageClass)
     const connectonsManager = new ConnectionsManager({
       httpTunnelPort: this.httpTunnelPort,

@@ -1,6 +1,5 @@
 import { Crypto } from '@peculiar/webcrypto'
-import { getCertFieldValue, parseCertificate, verifyUserCert } from '@zbayapp/identity'
-import { CertFieldsTypes } from '@zbayapp/identity/lib/common'
+import { getCertFieldValue, parseCertificate, verifyUserCert, CertFieldsTypes } from '@zbayapp/identity'
 import IPFS from 'ipfs'
 import { Libp2p } from 'libp2p-gossipsub/src/interfaces'
 import OrbitDB from 'orbit-db'

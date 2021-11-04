@@ -7,7 +7,8 @@ import { DataServer } from '../socket/DataServer'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 import CommunitiesManager from '../communities/manager'
 import { createUsersCerts } from '../libp2p/tests/client-server'
-import { CertsData } from '../common/types'
+import { CertsData, ConnectionsManagerOptions } from '../common/types'
+import { RootCA } from '@zbayapp/identity/lib/generateRootCA'
 
 /**
  * More customizable version of Node (entry node), mainly for testing purposes
@@ -25,7 +26,7 @@ export class LocalNode extends Node {
   storage: any // Storage | StorageTestSnapshot
   localAddress: string
   bootstrapMultiaddrs: string[]
-  rootCa
+  rootCa: RootCA
 
   constructor(
     torPath?: string,
@@ -41,7 +42,7 @@ export class LocalNode extends Node {
     storageOptions?: TestStorageOptions,
     appDataPath?: string,
     bootstrapMultiaddrs?: string[],
-    rootCa?
+    rootCa?: RootCA
   ) {
     let _port: number = port
     if (process.env.TOR_PORT) {
@@ -70,6 +71,7 @@ export class NodeWithoutTor extends LocalNode {
       StorageTestSnapshot,
       {
         ...this.storageOptions,
+        wsType: 'ws',
         env: {
           appDataPath: this.appDataPath
         },
@@ -93,7 +95,7 @@ export class NodeWithoutTor extends LocalNode {
     this.storage = communities.getStorage(peerId.toB58String())
   }
 
-  async initConnectionsManager(dataServer: DataServer, storageClass?: any, options?: any): Promise<ConnectionsManager> {
+  async initConnectionsManager(dataServer: DataServer, storageClass?: any, options?: ConnectionsManagerOptions): Promise<ConnectionsManager> {
     return new ConnectionsManager({
       io: dataServer.io,
       storageClass,

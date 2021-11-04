@@ -1,16 +1,31 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+* Compose libp2p address in one place
+
 ## [4.3.7]
+
+### Added
 
 * Expose ioproxy api through connections manager to be able to close all services directly
 
 ## [4.3.6]
 
+### Changed
+
 * Registrar - don't return port if waggle uses tor
 
 ## [4.3.4]
 
+### Added
+
 * Tor mesh test
+
+### Changed
+
 * pass CommunityId to storage
 
 ## [4.3.3]

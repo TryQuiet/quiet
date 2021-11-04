@@ -7,10 +7,12 @@ import * as utils from '../common/utils'
 import HttpsProxyAgent from 'https-proxy-agent'
 import { createTmpDir, TmpDir, tmpZbayDirPath } from '../common/testUtils'
 import { createCertificatesTestHelper } from './tests/client-server'
+import { createLibp2pAddress } from '../common/utils'
 
 jest.setTimeout(120000)
 
 describe('websocketOverTor', () => {
+  const wsType = 'wss'
   const upgradeOutbound = jest.fn()
   const upgradeInbound = jest.fn(x => x)
   const removeEventListener = jest.fn()
@@ -114,7 +116,7 @@ describe('websocketOverTor', () => {
         key: pems.servKey,
         ca: caType(pems.ca)
       },
-      localAddr: `/dns4/${service1.onionAddress}/tcp/${port1}/wss/p2p/${peerId1}`,
+      localAddr: createLibp2pAddress(service1.onionAddress, port1, peerId1, wsType),
       targetPort: port1Target
     }
 
@@ -129,13 +131,13 @@ describe('websocketOverTor', () => {
         key: pems.userKey,
         ca: [pems.ca]
       },
-      localAddr: `/dns4/${service2.onionAddress}/tcp/${port2}/wss/p2p/${peerId2}`,
+      localAddr: createLibp2pAddress(service2.onionAddress, port2, peerId2, wsType),
       serverOpts: {},
       targetPort: port2Target
     }
-    const multiAddress = new Multiaddr(`/dns4/${service1.onionAddress}/tcp/${port1}/wss/p2p/${peerId1}`)
+    const multiAddress = new Multiaddr(createLibp2pAddress(service1.onionAddress, port1, peerId1, wsType))
 
-    const remoteAddress = new Multiaddr(`/dns4/${service2.onionAddress}/tcp/${port2}/wss/p2p/${peerId2}`)
+    const remoteAddress = new Multiaddr(createLibp2pAddress(service2.onionAddress, port2, peerId2, wsType))
 
     const ws1 = new WebsocketsOverTor(websocketsOverTorData1)
     const ws2 = new WebsocketsOverTor(websocketsOverTorData2)
@@ -188,7 +190,7 @@ describe('websocketOverTor', () => {
         key: pems.servKey,
         ca: [pems.ca]
       },
-      localAddr: `/dns4/${service1.onionAddress}/tcp/${port1}/wss/p2p/${peerId1}`,
+      localAddr: createLibp2pAddress(service1.onionAddress, port1, peerId1, wsType),
       targetPort: port1Target
     }
 
@@ -203,11 +205,11 @@ describe('websocketOverTor', () => {
         key: anotherPems.userKey,
         ca: [pems.ca]
       },
-      localAddr: `/dns4/${service2.onionAddress}/tcp/${port2}/wss/p2p/${peerId2}`,
+      localAddr: createLibp2pAddress(service2.onionAddress, port2, peerId2, wsType),
       serverOpts: {},
       targetPort: port2Target
     }
-    const multiAddress = new Multiaddr(`/dns4/${service1.onionAddress}/tcp/${port1}/wss/p2p/${peerId1}`)
+    const multiAddress = new Multiaddr(createLibp2pAddress(service1.onionAddress, port1, peerId1, wsType))
 
     const ws1 = new WebsocketsOverTor(websocketsOverTorData1)
     const ws2 = new WebsocketsOverTor(websocketsOverTorData2)
@@ -257,7 +259,7 @@ describe('websocketOverTor', () => {
         key: anotherPems.servKey,
         ca: [pems.ca]
       },
-      localAddr: `/dns4/${service1.onionAddress}/tcp/${port1}/wss/p2p/${peerId1}`,
+      localAddr: createLibp2pAddress(service1.onionAddress, port1, peerId1, wsType),
       targetPort: port1Target
     }
 
@@ -272,11 +274,11 @@ describe('websocketOverTor', () => {
         key: pems.userKey,
         ca: [pems.ca]
       },
-      localAddr: `/dns4/${service2.onionAddress}/tcp/${port2}/wss/p2p/${peerId2}`,
+      localAddr: createLibp2pAddress(service2.onionAddress, port2, peerId2, wsType),
       serverOpts: {},
       targetPort: port2Target
     }
-    const multiAddress = new Multiaddr(`/dns4/${service1.onionAddress}/tcp/${port1}/wss/p2p/${peerId1}`)
+    const multiAddress = new Multiaddr(createLibp2pAddress(service1.onionAddress, port1, peerId1, wsType))
 
     const ws1 = new WebsocketsOverTor(websocketsOverTorData1)
     const ws2 = new WebsocketsOverTor(websocketsOverTorData2)

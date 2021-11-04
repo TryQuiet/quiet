@@ -90,11 +90,10 @@ export default class CommunitiesManager {
     } else {
       port = targetPort
     }
-    const listenAddrs = `/dns4/${onionAddress}/tcp/${port}/wss`
     if (bootstrapMultiaddrs.length === 0) {
-      bootstrapMultiaddrs = [`/dns4/${onionAddress}/tcp/${port}/wss/p2p/${peerIdB58string}`]
+      bootstrapMultiaddrs = [this.connectionsManager.createLibp2pAddress(onionAddress, port, peerIdB58string)]
     }
-    const libp2pObj = await this.connectionsManager.initLibp2p(peerId, listenAddrs, bootstrapMultiaddrs, certs, targetPort)
+    const libp2pObj = await this.connectionsManager.initLibp2p(peerId, onionAddress, port, bootstrapMultiaddrs, certs, targetPort)
     const storage = this.connectionsManager.createStorage(peerIdB58string, communityId)
     await storage.init(libp2pObj.libp2p, peerId)
     this.communities.set(peerIdB58string, { storage })

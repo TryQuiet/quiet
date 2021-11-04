@@ -85,3 +85,11 @@ export const fetchRetry = async (address: string, options: any, retryCount: numb
     return await fetchRetry(address, options, retriesLeft)
   })
 }
+
+export const createLibp2pAddress = (address: string, port: number, peerId: string, wsType: 'ws' | 'wss') => {
+  return `/dns4/${address}/tcp/${port}/${wsType}/p2p/${peerId}`
+}
+
+export const createLibp2pListenAddress = (address: string, port: number, wsType: 'ws' | 'wss') => {
+  return `/dns4/${address}/tcp/${port}/${wsType}`
+}

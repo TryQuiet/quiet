@@ -12,7 +12,7 @@ import { createCertificatesTestHelper } from '../libp2p/tests/client-server'
 import WebsocketsOverTor from '../libp2p/websocketOverTor'
 import logger from '../logger'
 import { Tor } from '../torManager'
-import { DummyIOServer, getPorts, Ports, torBinForPlatform, torDirForPlatform } from './utils'
+import { createLibp2pAddress, createLibp2pListenAddress, DummyIOServer, getPorts, Ports, torBinForPlatform, torDirForPlatform } from './utils'
 const log = logger('test')
 
 export const dataFromRootPems: DataFromPems = { // Tmp cert
@@ -27,7 +27,7 @@ export interface TmpDir {
   removeCallback: () => {}
 }
 
-export const testBootstrapMultiaddrs = ['/dns4/abcd.onion/tcp/1111/wss/p2p/QmfLUJcDSLVYnNqSPSRK4mKG8MGw51m9K2v59k3yq1C8s4']
+export const testBootstrapMultiaddrs = [createLibp2pAddress('abcd.onion', 1111, 'QmfLUJcDSLVYnNqSPSRK4mKG8MGw51m9K2v59k3yq1C8s4', 'wss')]
 
 export const spawnTorProcess = async (zbayDirPath: string, ports?: Ports): Promise<Tor> => {
   const _ports = ports || await getPorts()
@@ -72,10 +72,10 @@ export const createLibp2p = async (peerId: PeerId): Promise<Libp2pType> => {
 
   return ConnectionsManager.createBootstrapNode({
     peerId,
-    listenAddrs: [`/dns4/localhost/tcp/${virtPort}/wss`],
+    listenAddrs: [createLibp2pListenAddress('localhost', virtPort, 'wss')],
     bootstrapMultiaddrsList: testBootstrapMultiaddrs,
     agent: new SocksProxyAgent({ port: 1234, host: 'localhost' }),
-    localAddr: `/dns4/localhost/tcp/${virtPort}/wss/p2p/${peerId.toB58String()}`,
+    localAddr: createLibp2pAddress('localhost', virtPort, peerId.toB58String(), 'wss'),
     transportClass: WebsocketsOverTor,
     cert: pems.userCert,
     key: pems.userKey,

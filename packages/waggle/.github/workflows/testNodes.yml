@@ -25,4 +25,4 @@ jobs:
       - name: run test without tor
         run: DEBUG='waggle:dbSnap*,waggle:localTest*' ts-node src/nodeTest/testReplicate.ts --nodesCount 1 --timeThreshold 200 --entriesCount 1000 --no-useTor
       - name: run test with tor
-        run: DEBUG='waggle:dbSnap*,waggle:localTest*' ts-node src/nodeTest/testReplicate.ts --nodesCount 1 --timeThreshold 300 --entriesCount 1000 --useTor
+        run: DEBUG='waggle:dbSnap*,waggle:localTest*' ts-node src/nodeTest/testReplicate.ts --nodesCount 1 --timeThreshold 200 --entriesCount 20 --useTor
