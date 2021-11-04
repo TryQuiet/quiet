@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+* Old tor process is now shut down on windows.
+
 ### Changed
 
 * Compose libp2p address in one place

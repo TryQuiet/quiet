@@ -87,14 +87,14 @@ export class Tor {
           reject(new Error(`Failed to spawn tor ${counter} times`))
           return
         }
-        if (oldTorPid && process.platform !== 'win32') {
+        if (oldTorPid) {
           child_process.exec(
             this.torProcessNameCommand(oldTorPid.toString()),
             (err: child_process.ExecException, stdout: string, _stderr: string) => {
               if (err) {
                 log.error(err)
               }
-              if (stdout.trim() === 'tor') {
+              if (stdout.trim() === 'tor' || stdout.search('tor.exe') !== -1) {
                 process.kill(oldTorPid, 'SIGTERM')
               } else {
                 fs.unlinkSync(this.torPidPath)
@@ -133,7 +133,8 @@ export class Tor {
   private readonly torProcessNameCommand = (oldTorPid: string): string => {
     const byPlatform = {
       linux: `ps -p ${oldTorPid} -o comm=`,
-      darwin: `ps -c -p ${oldTorPid} -o comm=`
+      darwin: `ps -c -p ${oldTorPid} -o comm=`,
+      win32: `TASKLIST /FI "PID eq ${oldTorPid}"`
     }
     return byPlatform[process.platform]
   }
