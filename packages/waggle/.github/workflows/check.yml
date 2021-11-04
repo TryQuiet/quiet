@@ -11,7 +11,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-20.04, macos-latest]  # TODO: fix test config for windows-latest
+        os: [ubuntu-20.04, macos-latest, windows-latest]
 
     steps:
       - name: print os name

@@ -27,8 +27,6 @@ describe('Tor manager', () => {
   })
 
   it('should detect and kill old tor process before new tor is spawned', async () => {
-    // This does not pass on windows (EBUSY: resource busy or locked, unlink '(...)\.zbay\TorDataDirectory\lock')
-    // Probably only test config issue
     const torPath = torBinForPlatform()
     const [controlPort] = await fp(9051)
     const httpTunnelPort = (await fp(controlPort as number + 1)).shift()
