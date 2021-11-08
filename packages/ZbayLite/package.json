@@ -51,7 +51,7 @@
     },
     "publish": {
       "provider": "s3",
-      "bucket": "release.zbay.lite.waggle"
+      "bucket": "release.zbay.lite.test"
     },
     "extraResources": [
       "worker/**/*",
@@ -61,7 +61,7 @@
   },
   "homepage": "https://gitlab.rumblefishdev.com/holmes/zbay",
   "@comment version": "To build new version for specific platform, just replace platform in version tag to one of following linux, mac, windows",
-  "version": "4.0.0-zbay-lite",
+  "version": "4.0.1-zbay-lite",
   "description": "Distributed goods and bulletin board",
   "main": "dist/src/main/main.js",
   "scripts": {
@@ -224,7 +224,7 @@
     "@types/ps-node": "^0.1.0",
     "@types/redux-debounced": "^0.2.19",
     "@zbayapp/identity": "^3.3.2",
-    "@zbayapp/nectar": "^1.14.2",
+    "@zbayapp/nectar": "^1.14.3",
     "asn1js": "^2.1.1",
     "async": "^3.1.0",
     "atob": "^2.1.2",

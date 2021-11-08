@@ -2,7 +2,7 @@ import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import { screen } from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
-import { take } from 'typed-redux-saga'
+import { apply, take } from 'typed-redux-saga'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import { prepareStore } from '../../../testUtils/prepareStore'
 import { StoreKeys } from '../../../store/store.keys'
@@ -37,6 +37,7 @@ const payload = (id: string): Partial<Identity> => ({
 
 describe('User', () => {
   let socket: MockedSocket
+  let communityId: string
 
   beforeEach(() => {
     socket = new MockedSocket()
@@ -48,7 +49,7 @@ describe('User', () => {
       {
         [StoreKeys.Socket]: {
           ...new SocketState(),
-          isConnected: true
+          isConnected: false
         },
         [StoreKeys.Modals]: {
           ...new ModalsInitialState(),
@@ -71,10 +72,10 @@ describe('User', () => {
     jest.spyOn(socket, 'emit').mockImplementation((action: SocketActionTypes, ...input: any[]) => {
       if (action === SocketActionTypes.CREATE_NETWORK) {
         const data = input as socketEventData<[string]>
-        const id = data[0]
+        communityId = data[0]
         return socket.socketClient.emit(SocketActionTypes.NEW_COMMUNITY, {
-          id: id,
-          payload: payload(id)
+          id: communityId,
+          payload: payload(communityId)
         })
       }
       if (action === SocketActionTypes.REGISTER_USER_CERTIFICATE) {
@@ -116,6 +117,7 @@ describe('User', () => {
 
     await act(async () => {
       await runSaga(testJoinCommunitySaga).toPromise()
+      await runSaga(mockChannelsResponse).toPromise()
     })
 
     expect(createUsernameTitle).not.toBeVisible()
@@ -127,5 +129,20 @@ describe('User', () => {
     yield* take(communities.actions.responseCreateCommunity)
     yield* take(identity.actions.registerUsername)
     yield* take(identity.actions.storeUserCertificate)
+  }
+
+  function* mockChannelsResponse(): Generator {
+    yield* apply(socket.socketClient, socket.socketClient.emit, [SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, {
+      communityId: communityId,
+      channels: {
+        general: {
+          name: 'general',
+          description: 'string',
+          owner: 'string',
+          timestamp: 0,
+          address: 'string'
+        }
+      }
+    }])
   }
 })

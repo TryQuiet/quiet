@@ -2,7 +2,7 @@ import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import { screen } from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
-import { take } from 'typed-redux-saga'
+import { apply, take } from 'typed-redux-saga'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import { prepareStore } from '../../../testUtils/prepareStore'
 import { StoreKeys } from '../../../store/store.keys'
@@ -37,6 +37,8 @@ const payload = (id: string): Partial<Identity> => ({
 
 describe('User', () => {
   let socket: MockedSocket
+  let communityId: string
+  let payloadData: Partial<Identity>
 
   beforeEach(() => {
     socket = new MockedSocket()
@@ -48,7 +50,7 @@ describe('User', () => {
       {
         [StoreKeys.Socket]: {
           ...new SocketState(),
-          isConnected: true
+          isConnected: false
         },
         [StoreKeys.Modals]: {
           ...new ModalsInitialState(),
@@ -73,6 +75,7 @@ describe('User', () => {
         const data = input as socketEventData<[string]>
 
         const id = data[0]
+        payloadData = payload(id)
 
         return socket.socketClient.emit(SocketActionTypes.NEW_COMMUNITY, {
           id: id,
@@ -84,7 +87,7 @@ describe('User', () => {
         [string, string, { certificate: string; privKey: string }]
         >
 
-        const communityId = data[0]
+        communityId = data[0]
         const CA = data[2]
 
         return socket.socketClient.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
@@ -121,6 +124,7 @@ describe('User', () => {
 
     await act(async () => {
       await runSaga(testCreateCommunitySaga).toPromise()
+      await runSaga(mockAddressResponse).toPromise()
     })
 
     expect(createUsernameTitle).not.toBeVisible()
@@ -132,5 +136,20 @@ describe('User', () => {
     yield* take(communities.actions.responseCreateCommunity)
     yield* take(identity.actions.registerUsername)
     yield* take(identity.actions.storeUserCertificate)
+  }
+
+  function* mockAddressResponse(): Generator {
+    yield* apply(socket.socketClient, socket.socketClient.emit, [SocketActionTypes.REGISTRAR,
+      {
+        id: communityId,
+        peerId: payloadData.peerId.id,
+        payload: {
+          privateKey: payloadData.hiddenService.privateKey,
+          onionAddress: payloadData.hiddenService.onionAddress,
+          port: 7909
+        }
+      }
+    ]
+    )
   }
 })

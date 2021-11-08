@@ -205,7 +205,7 @@ export const CreateUsernameModal: React.FC<CreateUsernameModalProps> = ({
                 <Grid item xs={12} className={classes.infoDiv}>
                   <Typography variant='caption' className={classes.info}>
                     Your username cannot have any spaces or special characters, must be lowercase
-                    letters and numbers only.
+                    letters and numbers only. Cannot be less than 3 and more than 20 characters.
                   </Typography>
                 </Grid>
               </Grid>
