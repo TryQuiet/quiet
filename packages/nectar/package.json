@@ -1,6 +1,6 @@
 {
   "name": "@zbayapp/nectar",
-  "version": "1.14.2",
+  "version": "1.14.3",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
