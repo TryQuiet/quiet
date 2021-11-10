@@ -65,7 +65,7 @@
     "pkijs": "^2.1.96"
   },
   "dependencies": {
-    "@zbayapp/identity": "^3.3.2",
+    "@zbayapp/identity": "^3.3.3",
     "abortable-iterator": "^3.0.0",
     "class-validator": "^0.13.1",
     "cli-table": "^0.3.6",
