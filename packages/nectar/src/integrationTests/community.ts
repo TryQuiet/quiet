@@ -34,7 +34,8 @@ import {
   watchResults,
 } from './utils';
 import { identityAdapter } from '../sagas/identity/identity.adapter';
-import { UserCsr } from '@zbayapp/identity/lib/requestCertificate';
+import { createUserCsr, UserCsr } from '@zbayapp/identity/lib/requestCertificate';
+import config from '@zbayapp/identity/lib/config';
 
 const log = logger('tests');
 
@@ -439,68 +440,77 @@ const testLaunchCommunitiesOnStartup = async (testCase) => {
     },
   });
 
-  const userCsr: UserCsr = {
-    userCsr:
-      'MIIBvTCCAWQCAQAwSTFHMEUGA1UEAxM+cDd3aXVhdHlwdHc0bmdncWo3dXAzdXg2enltNGhqanB1bTU1d2VqdGd5bWsybndzcGxic2h0eWQub25pb24wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAS2dbszx01KQW10y9xnwMHUOR5DfxDLekYtS5kxxUlG6W/gN+OtsGAhdhBqrQ9WwOsKgXE6J2gJFCtPUEdVGMnhoIG4MC4GCSqGSIb3DQEJDjEhMB8wHQYDVR0OBBYEFClOosI71OA1gofy9ufJomWeNDmBMC8GCSqGSIb3DQEJDDEiBCAL2TSxZP2/CaJnUjO9nVw5bOOllE+SSFyMmLcuwxSPUTAWBgorBgEEAYOMGwIBMQgTBndpa3RvcjA9BgkrBgECAQ8DAQExMBMuUW1kaThiVTNHUHRodG52MkxBWkhwUTl5bVhHOG1BZjlkcWdtVTVzYzdwZlRoczAKBggqhkjOPQQDAgNHADBEAiBvYm3pcvTfJnX8jY2TU/6qW+yxsW4Y54300NLUbtaTwwIgAMt1DicoacfkGHIIR0GGMzm/TiBy6HQ2RlKG7zr1P60=',
-    userKey:
-      'MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgrW84gHtf8i01krddbjAbhB3AB27xsGV+iUeNqZiKc+CgCgYIKoZIzj0DAQehRANCAAS2dbszx01KQW10y9xnwMHUOR5DfxDLekYtS5kxxUlG6W/gN+OtsGAhdhBqrQ9WwOsKgXE6J2gJFCtPUEdVGMnh',
-    pkcs10: {
-      publicKey: {},
-      privateKey: {},
-      pkcs10: {
-        tbs: '308201640201003049314730450603550403133E7037776975617479707477346E6767716A377570337578367A796D34686A6A70756D353577656A7467796D6B326E7773706C6273687479642E6F6E696F6E3059301306072A8648CE3D020106082A8648CE3D03010703420004B675BB33C74D4A416D74CBDC67C0C1D4391E437F10CB7A462D4B9931C54946E96FE037E3ADB0602176106AAD0F56C0EB0A81713A276809142B4F50475518C9E1A081B8302E06092A864886F70D01090E3121301F301D0603551D0E04160414294EA2C23BD4E0358287F2F6E7C9A2659E343981302F06092A864886F70D01090C312204200BD934B164FDBF09A2675233BD9D5C396CE3A5944F92485C8C98B72EC3148F513016060A2B06010401838C1B02013108130677696B746F72303D06092B060102010F0301013130132E516D64693862553347507468746E76324C415A48705139796D5847386D4166396471676D55357363377066546873',
-        version: 0,
-        subject: {
-          typesAndValues: [
-            {
-              type: '2.5.4.3',
-              value: {
-                blockName: 'PrintableString',
-                blockLength: 0,
-                error: '',
-                warnings: [],
-                valueBeforeDecode: '',
-                idBlock: {
-                  blockName: 'identificationBlock',
-                  blockLength: 0,
-                  error: '',
-                  warnings: [],
-                  valueBeforeDecode: '',
-                  isHexOnly: false,
-                  valueHex: '',
-                  tagClass: 1,
-                  tagNumber: 19,
-                  isConstructed: false,
-                },
-                lenBlock: {
-                  blockName: 'lengthBlock',
-                  blockLength: 0,
-                  error: '',
-                  warnings: [],
-                  valueBeforeDecode: '',
-                  isIndefiniteForm: false,
-                  longFormUsed: false,
-                  length: 62,
-                },
-                valueBlock: {
-                  blockName: 'SimpleStringValueBlock',
-                  blockLength: 0,
-                  error: '',
-                  warnings: [],
-                  valueBeforeDecode: '',
-                  isHexOnly: true,
-                  valueHex:
-                    '7037776975617479707477346E6767716A377570337578367A796D34686A6A70756D353577656A7467796D6B326E7773706C6273687479642E6F6E696F6E',
-                  value:
-                    'p7wiuatyptw4nggqj7up3ux6zym4hjjpum55wejtgymk2nwsplbshtyd.onion',
-                },
-              },
-            },
-          ],
-        },
-      },
-    },
-  };
+  // const userCsr: UserCsr = {
+  //   userCsr:
+  //     'MIIBvTCCAWQCAQAwSTFHMEUGA1UEAxM+cDd3aXVhdHlwdHc0bmdncWo3dXAzdXg2enltNGhqanB1bTU1d2VqdGd5bWsybndzcGxic2h0eWQub25pb24wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAS2dbszx01KQW10y9xnwMHUOR5DfxDLekYtS5kxxUlG6W/gN+OtsGAhdhBqrQ9WwOsKgXE6J2gJFCtPUEdVGMnhoIG4MC4GCSqGSIb3DQEJDjEhMB8wHQYDVR0OBBYEFClOosI71OA1gofy9ufJomWeNDmBMC8GCSqGSIb3DQEJDDEiBCAL2TSxZP2/CaJnUjO9nVw5bOOllE+SSFyMmLcuwxSPUTAWBgorBgEEAYOMGwIBMQgTBndpa3RvcjA9BgkrBgECAQ8DAQExMBMuUW1kaThiVTNHUHRodG52MkxBWkhwUTl5bVhHOG1BZjlkcWdtVTVzYzdwZlRoczAKBggqhkjOPQQDAgNHADBEAiBvYm3pcvTfJnX8jY2TU/6qW+yxsW4Y54300NLUbtaTwwIgAMt1DicoacfkGHIIR0GGMzm/TiBy6HQ2RlKG7zr1P60=',
+  //   userKey:
+  //     'MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgrW84gHtf8i01krddbjAbhB3AB27xsGV+iUeNqZiKc+CgCgYIKoZIzj0DAQehRANCAAS2dbszx01KQW10y9xnwMHUOR5DfxDLekYtS5kxxUlG6W/gN+OtsGAhdhBqrQ9WwOsKgXE6J2gJFCtPUEdVGMnh',
+  //   pkcs10: {
+  //     publicKey: {},
+  //     privateKey: {},
+  //     pkcs10: {
+  //       tbs: '308201640201003049314730450603550403133E7037776975617479707477346E6767716A377570337578367A796D34686A6A70756D353577656A7467796D6B326E7773706C6273687479642E6F6E696F6E3059301306072A8648CE3D020106082A8648CE3D03010703420004B675BB33C74D4A416D74CBDC67C0C1D4391E437F10CB7A462D4B9931C54946E96FE037E3ADB0602176106AAD0F56C0EB0A81713A276809142B4F50475518C9E1A081B8302E06092A864886F70D01090E3121301F301D0603551D0E04160414294EA2C23BD4E0358287F2F6E7C9A2659E343981302F06092A864886F70D01090C312204200BD934B164FDBF09A2675233BD9D5C396CE3A5944F92485C8C98B72EC3148F513016060A2B06010401838C1B02013108130677696B746F72303D06092B060102010F0301013130132E516D64693862553347507468746E76324C415A48705139796D5847386D4166396471676D55357363377066546873',
+  //       version: 0,
+  //       subject: {
+  //         typesAndValues: [
+  //           {
+  //             type: '2.5.4.3',
+  //             value: {
+  //               blockName: 'PrintableString',
+  //               blockLength: 0,
+  //               error: '',
+  //               warnings: [],
+  //               valueBeforeDecode: '',
+  //               idBlock: {
+  //                 blockName: 'identificationBlock',
+  //                 blockLength: 0,
+  //                 error: '',
+  //                 warnings: [],
+  //                 valueBeforeDecode: '',
+  //                 isHexOnly: false,
+  //                 valueHex: '',
+  //                 tagClass: 1,
+  //                 tagNumber: 19,
+  //                 isConstructed: false,
+  //               },
+  //               lenBlock: {
+  //                 blockName: 'lengthBlock',
+  //                 blockLength: 0,
+  //                 error: '',
+  //                 warnings: [],
+  //                 valueBeforeDecode: '',
+  //                 isIndefiniteForm: false,
+  //                 longFormUsed: false,
+  //                 length: 62,
+  //               },
+  //               valueBlock: {
+  //                 blockName: 'SimpleStringValueBlock',
+  //                 blockLength: 0,
+  //                 error: '',
+  //                 warnings: [],
+  //                 valueBeforeDecode: '',
+  //                 isHexOnly: true,
+  //                 valueHex:
+  //                   '7037776975617479707477346E6767716A377570337578367A796D34686A6A70756D353577656A7467796D6B326E7773706C6273687479642E6F6E696F6E',
+  //                 value:
+  //                   'p7wiuatyptw4nggqj7up3ux6zym4hjjpum55wejtgymk2nwsplbshtyd.onion',
+  //               },
+  //             },
+  //           },
+  //         ],
+  //       },
+  //     },
+  //   },
+  // };
+
+  const userCsr: UserCsr = await createUserCsr({
+    zbayNickname: 'holmes',
+    commonName: 'vwikdxgxlsangu3cajkxhltl6goxtll75heg6qcx5wwicg3r5gcunyyd',
+    peerId: 'QmdC8GmN2ZQPquaMsSJScJ3PrfZsG8B4Szw16hmDSCBNb9',
+    dmPublicKey: '9d1832bd9fb8154be6975046a41538a71f3505d508dc8f286850445080e054a6',
+    signAlg: config.signAlg,
+    hashAlg: config.hashAlg,
+  })
 
   identity.userCsr = userCsr;
   identity.userCertificate =
