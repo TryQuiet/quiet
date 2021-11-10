@@ -216,15 +216,13 @@
     "@material-ui/core": "^4.7.1",
     "@material-ui/icons": "^4.2.1",
     "@material-ui/lab": "^4.0.0-alpha.34",
-    "@peculiar/webcrypto": "^1.1.7",
     "@redux-saga/types": "^1.1.0",
     "@reduxjs/toolkit": "^1.5.0",
     "@types/lodash": "^4.14.169",
-    "@types/node": "^14.14.35",
     "@types/ps-node": "^0.1.0",
     "@types/redux-debounced": "^0.2.19",
-    "@zbayapp/identity": "^3.3.2",
-    "@zbayapp/nectar": "^1.14.3",
+    "@zbayapp/identity": "^3.3.3",
+    "@zbayapp/nectar": "^1.14.4",
     "asn1js": "^2.1.1",
     "async": "^3.1.0",
     "atob": "^2.1.2",
@@ -307,13 +305,14 @@
     "ts-loader": "^8.3.0",
     "typed-redux-saga": "^1.3.1",
     "typeface-roboto": "0.0.54",
-    "waggle": "4.3.7",
+    "waggle": "^4.3.10",
     "websocket": "^1.0.32",
     "worker-loader": "^3.0.1",
     "ws": "^7.3.1",
     "yup": "^0.27.0"
   },
   "peerDependencies": {
+    "@peculiar/webcrypto": "*",
     "pkijs": "*"
   }
 }

@@ -38,7 +38,7 @@ export const Main: React.FC<MainProps> = ({
 }) => {
   const classes = useStyles({})
   const debounce = (fn, ms: number) => {
-    let timer: NodeJS.Timeout | null
+    let timer: ReturnType<typeof setTimeout> | null
     return _ => {
       if (timer) {
         clearTimeout(timer)

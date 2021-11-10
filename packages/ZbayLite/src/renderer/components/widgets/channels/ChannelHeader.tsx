@@ -126,7 +126,7 @@ export const ChannelHeader: React.FC<ChannelHeaderProps> = ({
 }) => {
   const classes = useStyles({})
   const debounce = (fn, ms: number) => {
-    let timer: NodeJS.Timeout | null
+    let timer: ReturnType<typeof setTimeout> | null
     return _ => {
       if (timer) {
         clearTimeout(timer)
