@@ -42,8 +42,8 @@
     "testEnvironment": "node"
   },
   "dependencies": {
-    "@peculiar/webcrypto": "^1.1.7",
-    "pkijs": "^2.1.95"
+    "@peculiar/webcrypto": "^1.2.2",
+    "pkijs": "^2.1.97"
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",
