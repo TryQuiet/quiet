@@ -44,6 +44,8 @@ export {
   IMessage,
 } from './sagas/publicChannels/publicChannels.types';
 
+export { channelsByCommunityAdapter } from './sagas/publicChannels/publicChannels.adapter'
+
 export const publicChannels = {
   reducer: publicChannelsReducer,
   selectors: publicChannelsSelectors,
