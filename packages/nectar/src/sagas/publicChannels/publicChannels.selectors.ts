@@ -11,7 +11,6 @@ import { mainChannelName } from '../config';
 import { StoreState } from '../store.types';
 import { currentCommunityId } from '../communities/communities.selectors';
 
-
 const publicChannelSlice: CreatedSelectors[StoreKeys.PublicChannels] = (
   state: StoreState
 ) => state[StoreKeys.PublicChannels];
@@ -22,7 +21,7 @@ export const currentCommunityChannels = createSelector(
   (publicChannelsState, id) => {
     const selected = channelsByCommunityAdapter
       .getSelectors()
-      .selectById(publicChannelsState, id);
+      .selectById(publicChannelsState.channels, id);
     return selected || null;
   }
 );
@@ -37,16 +36,16 @@ export const publicChannels = createSelector(
   }
 );
 
-export const publicChannelsByCommunityId = (id: string) => createSelector(publicChannelSlice,
-  (publicChannelsState) => {
+export const publicChannelsByCommunityId = (id: string) =>
+  createSelector(publicChannelSlice, (publicChannelsState) => {
     const selected = channelsByCommunityAdapter
-    .getSelectors()
-    .selectById(publicChannelsState, id);
-    const channels = publicChannelsAdapter.getSelectors().selectAll(selected.channels)
-    return channels || []
-  }
-)
-
+      .getSelectors()
+      .selectById(publicChannelsState.channels, id);
+    const channels = publicChannelsAdapter
+      .getSelectors()
+      .selectAll(selected.channels);
+    return channels || [];
+  });
 
 export const ZbayChannel = createSelector(
   currentCommunityChannels,

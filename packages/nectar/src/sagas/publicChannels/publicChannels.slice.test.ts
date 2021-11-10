@@ -5,14 +5,17 @@ import {
   publicChannelsActions,
   publicChannelsReducer,
   CommunityChannels,
+  PublicChannelsState,
 } from './publicChannels.slice';
 
 import { channelsByCommunityAdapter } from './publicChannels.adapter';
-import { communitiesReducer,CommunitiesState, Community } from '../communities/communities.slice';
+import {
+  communitiesReducer,
+  CommunitiesState,
+  Community,
+} from '../communities/communities.slice';
 
 import { communitiesAdapter } from '../communities/communities.adapter';
-
-
 
 const mockGetPublicChannels = {
   public: {
@@ -93,11 +96,15 @@ describe('publicChannelsReducer', () => {
       store = createStore(
         combineReducers({
           [StoreKeys.PublicChannels]: publicChannelsReducer,
-          [StoreKeys.Communities]: communitiesReducer
+          [StoreKeys.Communities]: communitiesReducer,
         }),
         {
           [StoreKeys.PublicChannels]: {
-            ...channelsByCommunityAdapter.setAll(channelsByCommunityAdapter.getInitialState(), [communityChannels]),
+            ...new PublicChannelsState(),
+            channels: channelsByCommunityAdapter.setAll(
+              channelsByCommunityAdapter.getInitialState(),
+              [communityChannels]
+            ),
           },
           [StoreKeys.Communities]: {
             ...new CommunitiesState(),
@@ -120,22 +127,22 @@ describe('publicChannelsReducer', () => {
     );
     const channels = publicChannelsSelectors.publicChannels(store.getState());
     expect(channels).toMatchInlineSnapshot(`
-      Array [
-        Object {
-          "address": "zs1ppz4qxctnv85ycex7u4cyxatz2wnduzy7usvyagma6h45lwrx88pdl3mdu25z763uvfy7a0qpfs",
-          "description": "public chat",
-          "name": "public",
-          "owner": "030fdc016427a6e41ca8dccaf0c09cfbf002e5916a13ee16f5fe7240d0dfe50ede",
-          "timestamp": 1587010998,
-        },
-        Object {
-          "address": "zs10zkaj29rcev9qd5xeuzck4ly5q64kzf6m6h9nfajwcvm8m2vnjmvtqgr0mzfjywswwkwke68t00",
-          "description": "zbay marketplace channel",
-          "name": "zbay",
-          "owner": "030fdc016427a6e41ca8dccaf0c09cfbf002e5916a13ee16f5fe7240d0dfe50ede",
-          "timestamp": 1587009699,
-        },
-      ]
-    `);
+Array [
+  Object {
+    "address": "zs1ppz4qxctnv85ycex7u4cyxatz2wnduzy7usvyagma6h45lwrx88pdl3mdu25z763uvfy7a0qpfs",
+    "description": "public chat",
+    "name": "public",
+    "owner": "030fdc016427a6e41ca8dccaf0c09cfbf002e5916a13ee16f5fe7240d0dfe50ede",
+    "timestamp": 1587010998,
+  },
+  Object {
+    "address": "zs10zkaj29rcev9qd5xeuzck4ly5q64kzf6m6h9nfajwcvm8m2vnjmvtqgr0mzfjywswwkwke68t00",
+    "description": "zbay marketplace channel",
+    "name": "zbay",
+    "owner": "030fdc016427a6e41ca8dccaf0c09cfbf002e5916a13ee16f5fe7240d0dfe50ede",
+    "timestamp": 1587009699,
+  },
+]
+`);
   });
 });

@@ -7,6 +7,7 @@ const log = logger('socket')
 
 import {
   GetPublicChannelsResponse,
+  OnMessagePostedResponse,
   publicChannelsActions,
 } from '../../publicChannels/publicChannels.slice';
 import { publicChannelsMasterSaga } from '../../publicChannels/publicChannels.master.saga';
@@ -80,9 +81,9 @@ export function subscribe(socket: Socket) {
     //     emit(publicChannelsActions.responseAskForMessages(payload));
     //   }
     // );
-    // socket.on(SocketActionTypes.MESSAGE, (payload: { message: IMessage }) => {
-    //   emit(publicChannelsActions.onMessagePosted(payload));
-    // });
+    socket.on(SocketActionTypes.MESSAGE, (payload: OnMessagePostedResponse) => {
+      emit(publicChannelsActions.onMessagePosted(payload));
+    });
     socket.on(
       SocketActionTypes.RESPONSE_GET_CERTIFICATES,
       (payload: SendCertificatesResponse) => {

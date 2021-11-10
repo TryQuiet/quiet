@@ -5,6 +5,7 @@ import {
   publicChannelsActions,
   publicChannelsReducer,
   CommunityChannels,
+  PublicChannelsState,
 } from '../publicChannels.slice';
 import { subscribeForAllTopicsSaga } from './subscribeForAllTopics.saga';
 import { channelsByCommunityAdapter } from '../publicChannels.adapter';
@@ -72,7 +73,8 @@ describe('subscribeForAllTopicsSaga', () => {
         }),
         {
           [StoreKeys.PublicChannels]: {
-            ...channelsByCommunityAdapter.setAll(
+            ...new PublicChannelsState(),
+            channels: channelsByCommunityAdapter.setAll(
               channelsByCommunityAdapter.getInitialState(),
               [communityChannels]
             ),

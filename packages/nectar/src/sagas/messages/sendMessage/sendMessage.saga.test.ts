@@ -12,44 +12,80 @@ import { Socket } from 'socket.io-client';
 import { arrayBufferToString } from 'pvutils';
 import { identityReducer, IdentityState } from '../../identity/identity.slice';
 import { StoreKeys } from '../../store.keys';
-import {
-  messagesActions,
-  messagesReducer,
-  MessagesState,
-} from '../messages.slice';
+import { messagesActions } from '../messages.slice';
 import { sendMessageSaga } from './sendMessage.saga';
-
-import {
-  publicChannelsReducer,
-  PublicChannelsState,
-} from '../../publicChannels/publicChannels.slice';
 import { SocketActionTypes } from '../../socket/const/actionTypes';
 import { MessageTypes } from '../const/messageTypes';
 import { generateMessageId, getCurrentTime } from '../utils/message.utils';
 import { Identity } from '../../identity/identity.slice';
 import { identityAdapter } from '../../identity/identity.adapter';
+import {
+  communitiesReducer,
+  CommunitiesState,
+  Community,
+} from '../../communities/communities.slice';
+import { communitiesAdapter } from '../../communities/communities.adapter';
+import {
+  CommunityChannels,
+  publicChannelsReducer,
+  PublicChannelsState,
+} from '../../publicChannels/publicChannels.slice';
+import {
+  channelsByCommunityAdapter,
+  publicChannelsAdapter,
+} from '../../publicChannels/publicChannels.adapter';
+import { IChannelInfo } from 'src';
 
 describe('sendMessageSaga', () => {
-  const identity = new Identity({
-    id: 'id',
-    hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
-    dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
-    peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
+  const communityId = 'id';
+
+  const community = new Community({
+    id: communityId,
+    name: 'community',
+    CA: 'CA',
+    registrarUrl: 'registrarUrl',
   });
 
-  test.skip('sign and send message', async () => {
-    const socket = { emit: jest.fn() } as unknown as Socket;
-    const csr = {
-      userCsr: 'userCsr',
-      userKey: 'userKey',
+  const identity = new Identity({
+    id: communityId,
+    hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
+    dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
+    peerId: { id: 'id', pubKey: 'pubKey', privKey: 'privKey' },
+  });
+
+  const csr = {
+    userCsr: 'userCsr',
+    userKey: 'userKey',
+    pkcs10: {
+      publicKey: jest.fn() as unknown as KeyObject,
+      privateKey: jest.fn() as unknown as KeyObject,
       pkcs10: {
-        publicKey: jest.fn() as unknown as KeyObject,
-        privateKey: jest.fn() as unknown as KeyObject,
-        pkcs10: {
-          userKey: jest.fn() as unknown,
-        },
+        userKey: jest.fn() as unknown,
       },
-    };
+    },
+  };
+
+  identity.userCertificate = 'userCertificate'
+  identity.userCsr = csr
+
+  const publicChannel: IChannelInfo = {
+    name: 'general',
+    description: 'description',
+    owner: 'user',
+    timestamp: 0,
+    address: 'address',
+  };
+
+  const communityChannels = new CommunityChannels(communityId);
+  communityChannels.currentChannel = publicChannel.address
+  communityChannels.channels = publicChannelsAdapter.setAll(
+    publicChannelsAdapter.getInitialState(),
+    [publicChannel]
+  )
+
+  test('sign and send message', async () => {
+    const socket = { emit: jest.fn() } as unknown as Socket;
+
     await expectSaga(
       sendMessageSaga,
       socket,
@@ -57,41 +93,49 @@ describe('sendMessageSaga', () => {
     )
       .withReducer(
         combineReducers({
+          [StoreKeys.Communities]: communitiesReducer,
           [StoreKeys.Identity]: identityReducer,
           [StoreKeys.PublicChannels]: publicChannelsReducer,
-          [StoreKeys.Messages]: messagesReducer,
         }),
-        // {
-        //   [StoreKeys.Identity]: {
-        //     ...identityAdapter.setAll(
-        //       identityAdapter.getInitialState(),
-        //       [identity]
-        //       // userCsr: csr,
-        //       // userCertificate: 'certificate',
-        //     ),
-        //   },
-        //   // [StoreKeys.PublicChannels]: {
-        //   //   ...new PublicChannelsState(),
-        //   //   // currentChannel: 'currentChannel',
-        //   // },
-        //   [StoreKeys.Messages]: {
-        //     ...new MessagesState(),
-        //   },
-        // }
+        {
+          [StoreKeys.Communities]: {
+            ...new CommunitiesState(),
+            currentCommunity: 'id',
+            communities: communitiesAdapter.setAll(
+              communitiesAdapter.getInitialState(),
+              [community]
+            ),
+          },
+          [StoreKeys.Identity]: {
+            ...new IdentityState(),
+            identities: identityAdapter.setAll(
+              identityAdapter.getInitialState(),
+              [identity]
+            ),
+          },
+          [StoreKeys.PublicChannels]: {
+            ...new PublicChannelsState(),
+            channels: channelsByCommunityAdapter.setAll(
+              channelsByCommunityAdapter.getInitialState(),
+              [communityChannels]
+            ),
+          },
+        }
       )
       .provide([
         [call.fn(parseCertificate), 'certificate'],
         [call.fn(keyFromCertificate), 'key'],
+        [call.fn(loadPrivateKey), 'privKey'],
         [call.fn(sign), jest.fn() as unknown as ArrayBuffer],
         [call.fn(arrayBufferToString), 'signature'],
         [call.fn(generateMessageId), 4],
         [call.fn(getCurrentTime), 8],
-        [call.fn(loadPrivateKey), 'privateKey'],
       ])
       .apply(socket, socket.emit, [
         SocketActionTypes.SEND_MESSAGE,
+        identity.peerId.id,
         {
-          channelAddress: 'currentChannel',
+          channelAddress: publicChannel.address,
           message: {
             id: 4,
             type: MessageTypes.BASIC,
@@ -99,7 +143,7 @@ describe('sendMessageSaga', () => {
             createdAt: 8,
             signature: 'signature',
             pubKey: 'key',
-            channelId: 'currentChannel',
+            channelId: publicChannel.address,
           },
         },
       ])
