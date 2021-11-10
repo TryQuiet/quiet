@@ -338,7 +338,7 @@ export class Storage {
       log('Subscribing to channel ', channelAddress)
       db.events.on('write', (_address, entry) => {
         log(`Writing to public channel db ${channelAddress}`)
-        socketMessage(this.io, { message: entry.payload.value, channelAddress })
+        socketMessage(this.io, { message: entry.payload.value, channelAddress: channelAddress, communityId: this.communityId })
       })
       db.events.on('replicated', () => {
         const ids = this.getAllEventLogEntries(db).map(msg => msg.id)
