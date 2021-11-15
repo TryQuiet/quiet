@@ -4,8 +4,8 @@ import registerRequireContextHook from 'babel-plugin-require-context-hook/regist
 import mockStorage from 'redux-persist-memory-storage'
 
 import { setEngine, CryptoEngine } from 'pkijs'
-
 import { Crypto } from '@peculiar/webcrypto'
+
 import { io } from 'socket.io-client'
 
 const webcrypto = new Crypto()

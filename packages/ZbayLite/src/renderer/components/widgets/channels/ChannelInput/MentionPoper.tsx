@@ -42,7 +42,9 @@ export const MentionPoper: React.FC<MentionPoperProps> = ({ anchorEl, children, 
   const classes = useStyles({})
 
   const anchor = React.useRef<HTMLDivElement>(null)
+
   const popperRef = React.useRef<typeof Popper>()
+
   const scrollbarRef = React.useRef<Scrollbars>(null)
 
   const [height, setHeight] = React.useState(0)

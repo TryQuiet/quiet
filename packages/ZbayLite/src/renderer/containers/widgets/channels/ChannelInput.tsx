@@ -1,89 +1,54 @@
-// @ts-nocheck
 import React, { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
+import { publicChannels, messages, identity } from '@zbayapp/nectar'
 import ChannelInputComponent from '../../../components/widgets/channels/ChannelInput'
-import channelHandlers from '../../../store/handlers/channel'
-import mentionsHandlers from '../../../store/handlers/mentions'
-import channelSelectors from '../../../store/selectors/channel'
-import { publicChannels, messages, identity, users } from '@zbayapp/nectar'
-
-export const useChannelInputData = () => {
-  const currentChannel = useSelector(publicChannels.selectors.currentChannel)
-  const channels = useSelector(publicChannels.selectors.publicChannels)
-
-  const data = {
-    message: useSelector(channelSelectors.message),
-    id: useSelector(channelSelectors.id),
-    inputState: useSelector(channelSelectors.inputLocked),
-    members: useSelector(channelSelectors.members),
-    channelName: channels.find(channel => channel.address === currentChannel)?.name,
-    users: useSelector(users.selectors.certificatesMapping),
-    myUser: useSelector(identity.selectors.currentIdentity),
-    isMessageTooLong: useSelector(channelSelectors.messageSizeStatus)
-  }
-  return data
-}
 
 export const useChannelInputActions = () => {
   const dispatch = useDispatch()
 
   const onChange = useCallback(
-    (arg: { value: string; id: string }) => {
-      dispatch(channelHandlers.actions.setMessage(arg))
+    (_value: string) => {
+      // TODO https://github.com/ZbayApp/ZbayLite/issues/442
     },
     [dispatch]
   )
 
-  const sendOnEnter = useCallback(
-    message => {
+  const onEnter = useCallback(
+    (message: string) => {
       dispatch(messages.actions.sendMessage(message))
     },
     [dispatch]
   )
 
-  const checkMentions = useCallback(() => {
-    dispatch(mentionsHandlers.epics.checkMentions())
-  }, [dispatch])
-
-  return { onChange, sendOnEnter, checkMentions }
+  return { onChange, onEnter }
 }
 
 export const ChannelInput = () => {
   const [infoClass, setInfoClass] = React.useState<string>(null)
 
-  const {
-    channelName,
-    id,
-    inputState,
-    isMessageTooLong,
-    members,
-    message,
-    myUser,
-    users
-  } = useChannelInputData()
+  const { onChange, onEnter } = useChannelInputActions()
 
-  const { checkMentions, onChange, sendOnEnter } = useChannelInputActions()
+  const channels = useSelector(publicChannels.selectors.publicChannels)
+  const currentChannelAddress = useSelector(publicChannels.selectors.currentChannel)
+  const currentChannel = channels.find(channel => channel.address === currentChannelAddress)
+
+  const user = useSelector(identity.selectors.currentIdentity)
 
   return (
     <ChannelInputComponent
-      infoClass={infoClass}
-      setInfoClass={setInfoClass}
-      id={id}
-      users={users}
-      onChange={e => {
-        onChange({ value: e, id })
+      channelAddress={currentChannelAddress}
+      channelName={currentChannel?.name}
+      // TODO https://github.com/ZbayApp/ZbayLite/issues/443
+      inputPlaceholder={`#${currentChannel?.name} as @${user?.zbayNickname}`}
+      onChange={value => {
+        onChange(value)
       }}
       onKeyPress={message => {
-        checkMentions()
-        sendOnEnter(message)
+        onEnter(message)
       }}
-      message={message}
-      inputState={inputState}
-      inputPlaceholder={`#${channelName} as @${myUser ? myUser.zbayNickname : ''}`}
-      channelName={channelName}
-      members={members}
-      isMessageTooLong={isMessageTooLong}
+      infoClass={infoClass}
+      setInfoClass={setInfoClass}
     />
   )
 }

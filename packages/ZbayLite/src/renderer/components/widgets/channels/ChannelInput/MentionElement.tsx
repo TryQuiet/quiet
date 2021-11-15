@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-interface MentionElementProps {
+export interface MentionElementProps {
   name: string
   channelName: string
   participant?: boolean

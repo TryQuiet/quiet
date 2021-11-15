@@ -1,22 +1,18 @@
-import React, { KeyboardEventHandler, useCallback } from 'react'
+import React, { useCallback } from 'react'
 import classNames from 'classnames'
 import ContentEditable, { ContentEditableEvent } from 'react-contenteditable'
 import Picker from 'emoji-picker-react'
 import Grid from '@material-ui/core/Grid'
-import Typography from '@material-ui/core/Typography'
 import { makeStyles } from '@material-ui/core/styles'
 import orange from '@material-ui/core/colors/orange'
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
-import { shell } from 'electron'
-
 import MentionPoper from './MentionPoper'
 import MentionElement from './MentionElement'
 import ChannelInputInfoMessage from './ChannelInputInfoMessage'
-import { INPUT_STATE } from '../../../../store/selectors/channel'
+import { INPUT_STATE } from './InputState.enum'
 import Icon from '../../../ui/Icon/Icon'
 import emojiGray from '../../../../static/images/emojiGray.svg'
 import emojiBlack from '../../../../static/images/emojiBlack.svg'
-import errorIcon from '../../../../static/images/t-error.svg'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -127,63 +123,57 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export interface IChannelInput {
+  channelAddress: string
+  channelName?: string
+  channelParticipants?: Array<{ nickname: string }>
+  inputPlaceholder: string
+  inputState?: INPUT_STATE
+  initialMessage?: string
+  onChange: (arg: string) => void
+  onKeyPress: (input: string) => void
   infoClass: string
   setInfoClass: (arg: string) => void
-  id: string
-  users: Array<{ nickname: string }>
-  onChange: (arg: string) => void
-  onKeyPress: KeyboardEventHandler<HTMLDivElement>
-  message: string
-  inputState: INPUT_STATE
-  inputPlaceholder: string
-  channelName?: string
-  members?: Set<string>
-  isMessageTooLong?: boolean
-  isDM?: boolean
-  sendTypingIndicator?: (arg: boolean) => void
-  isContactConnected?: boolean
-  isContactTyping?: boolean
-  contactUsername?: string
 }
 
 export const ChannelInput: React.FC<IChannelInput> = ({
-  infoClass,
-  setInfoClass,
-  id,
-  users,
+  channelAddress,
+  channelName = '',
+  channelParticipants = [],
+  inputPlaceholder,
+  inputState = INPUT_STATE.AVAILABLE,
+  initialMessage = '',
   onChange,
   onKeyPress,
-  message: initialMessage,
-  inputState,
-  inputPlaceholder,
-  channelName,
-
-  members,
-  isMessageTooLong
+  infoClass,
+  setInfoClass
 }) => {
   const classes = useStyles({})
 
   const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement>(null)
-  const [mentionsToSelect, setMentionsToSelect] = React.useState<any[]>([])
+  const [mentionsToSelect, setMentionsToSelect] = React.useState([])
 
   const messageRef = React.useRef<string>()
   const refSelected = React.useRef<number>()
   const isFirstRenderRef = React.useRef(true)
-  const refMentionsToSelect = React.useRef<any[]>()
+
+  const mentionsToSelectRef = React.useRef<any[]>()
+
   const inputRef = React.createRef<ContentEditable & HTMLDivElement & any>() // any for updater.enqueueForceUpdate
 
   const [focused, setFocused] = React.useState(false)
   const [selected, setSelected] = React.useState(0)
+
   const [emojiHovered, setEmojiHovered] = React.useState(false)
   const [openEmoji, setOpenEmoji] = React.useState(false)
+
   const [htmlMessage, setHtmlMessage] = React.useState<string>(initialMessage)
   const [message, setMessage] = React.useState(initialMessage)
-  const showInfoMessage = inputState !== INPUT_STATE.AVAILABLE
 
   window.onfocus = () => {
     inputRef.current.el.current.focus()
     setFocused(true)
   }
+
   const scrollToBottom = () => {
     const scroll = document.getElementById('messages-scroll')?.parentElement
     setTimeout(() => {
@@ -195,7 +185,7 @@ export const ChannelInput: React.FC<IChannelInput> = ({
 
   React.useEffect(() => {
     inputRef.current.updater.enqueueForceUpdate(inputRef.current)
-  }, [inputPlaceholder, id])
+  }, [inputPlaceholder, channelAddress])
 
   // Use reference to bypass memorization
   React.useEffect(() => {
@@ -207,7 +197,7 @@ export const ChannelInput: React.FC<IChannelInput> = ({
   }
 
   React.useEffect(() => {
-    refMentionsToSelect.current = mentionsToSelect
+    mentionsToSelectRef.current = mentionsToSelect
   }, [mentionsToSelect])
 
   React.useEffect(() => {
@@ -227,7 +217,7 @@ export const ChannelInput: React.FC<IChannelInput> = ({
       }
     }
     isFirstRenderRef.current = false
-  }, [id])
+  }, [channelAddress])
 
   React.useEffect(() => {
     messageRef.current = message
@@ -245,9 +235,10 @@ export const ChannelInput: React.FC<IChannelInput> = ({
           }
 
           nickname = nickname ?? ''
-          const possibleMentions = users.filter(
+          const possibleMentions = channelParticipants.filter(
             user =>
-              user.nickname.startsWith(nickname) && !users.find(user => user.nickname === nickname)
+              user.nickname.startsWith(nickname) &&
+              !channelParticipants.find(user => user.nickname === nickname)
           )
 
           if (JSON.stringify(mentionsToSelect) !== JSON.stringify(possibleMentions)) {
@@ -293,7 +284,7 @@ export const ChannelInput: React.FC<IChannelInput> = ({
 
   const mentionSelectAction = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.preventDefault()
-    const nickname = refMentionsToSelect.current[refSelected.current].nickname
+    const nickname = mentionsToSelectRef.current[refSelected.current].nickname
     setHtmlMessage(htmlMessage => {
       const wrapped = `<span class="${classes.highlight}">@${nickname}</span>&nbsp;`
       return htmlMessage.replace(/<span>[^/]*<\/span>$/g, wrapped)
@@ -310,10 +301,12 @@ export const ChannelInput: React.FC<IChannelInput> = ({
       if (!isRefSelected(refSelected.current)) {
         throw new Error('refSelected is on unexpected type')
       }
-      if (!refMentionsToSelect?.current) { return }
-      if (refMentionsToSelect.current.length) {
+      if (!mentionsToSelectRef?.current) {
+        return
+      }
+      if (mentionsToSelectRef.current.length) {
         if (e.nativeEvent.keyCode === 40) {
-          if (refSelected.current + 1 >= refMentionsToSelect.current.length) {
+          if (refSelected.current + 1 >= mentionsToSelectRef.current.length) {
             setSelected(0)
           } else {
             setSelected(refSelected.current + 1)
@@ -322,7 +315,7 @@ export const ChannelInput: React.FC<IChannelInput> = ({
         }
         if (e.nativeEvent.keyCode === 38) {
           if (refSelected.current - 1 < 0) {
-            setSelected(refMentionsToSelect.current.length - 1)
+            setSelected(mentionsToSelectRef.current.length - 1)
           } else {
             setSelected(refSelected.current - 1)
           }
@@ -338,6 +331,7 @@ export const ChannelInput: React.FC<IChannelInput> = ({
         e.nativeEvent.keyCode === 13 &&
         e.target.innerText !== ''
       ) {
+        e.preventDefault()
         onChange(e.target.innerText)
         onKeyPress(e.target.innerText)
         setMessage('')
@@ -354,17 +348,17 @@ export const ChannelInput: React.FC<IChannelInput> = ({
       }
     },
     [
+      inputState,
+      message,
+      mentionsToSelectRef,
       onChange,
-      refMentionsToSelect,
       onKeyPress,
       setMessage,
       setHtmlMessage,
       scrollToBottom,
       infoClass,
       setInfoClass,
-      message,
-      setSelected,
-      inputState
+      setSelected
     ]
   )
 
@@ -372,7 +366,7 @@ export const ChannelInput: React.FC<IChannelInput> = ({
     <Grid
       className={classNames({
         [classes.root]: true,
-        [classes.notAllowed]: showInfoMessage
+        [classes.notAllowed]: inputState !== INPUT_STATE.AVAILABLE
       })}>
       <Grid
         container
@@ -390,9 +384,7 @@ export const ChannelInput: React.FC<IChannelInput> = ({
               onMouseEnter={() => {
                 setSelected(index)
               }}
-              participant={members?.has(target.address)
-              }
-              channelName={channelName ?? ''}
+              channelName={channelName}
               onClick={e => {
                 mentionSelectAction(e)
               }}
@@ -406,7 +398,6 @@ export const ChannelInput: React.FC<IChannelInput> = ({
           justify='center'
           spacing={0}
           className={classNames({
-            [classes.disabledBottomMargin]: isMessageTooLong,
             [classes.inputsDiv]: true
           })}>
           <ClickAwayListener
@@ -467,7 +458,7 @@ export const ChannelInput: React.FC<IChannelInput> = ({
                           setMessage(message + emoji.emoji)
                           setOpenEmoji(false)
                         }}
-                      /* eslint-enable */
+                        /* eslint-enable */
                       />
                     </div>
                   </ClickAwayListener>
@@ -476,37 +467,13 @@ export const ChannelInput: React.FC<IChannelInput> = ({
             </Grid>
           </ClickAwayListener>
         </Grid>
-        {isMessageTooLong && (
-          <Grid container item className={classes.errorBox}>
-            <Grid className={classes.errorIcon} item>
-              <Icon src={errorIcon} />
-            </Grid>
-            <Grid item>
-              <Typography className={classes.errorText} variant={'caption'}>
-                {'Your message is over the size limit. '}
-                <span
-                  /* eslint-disable */
-                  onClick={() =>
-                    shell.openExternal('https://www.zbay.app/faq.html#message-size-info')
-                  }
-                  /* eslint-enable */
-                  className={classes.linkBlue}>
-                  Learn More
-                </span>
-              </Typography>
-            </Grid>
-          </Grid>
-        )}
-        <ChannelInputInfoMessage showInfoMessage={showInfoMessage} inputState={inputState} />
+        <ChannelInputInfoMessage
+          showInfoMessage={inputState !== INPUT_STATE.AVAILABLE}
+          inputState={inputState}
+        />
       </Grid>
     </Grid>
   )
-}
-
-ChannelInput.defaultProps = {
-  inputState: INPUT_STATE.AVAILABLE,
-  members: new Set(),
-  channelName: ''
 }
 
 export default ChannelInput

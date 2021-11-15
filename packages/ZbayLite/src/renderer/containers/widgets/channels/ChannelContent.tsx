@@ -2,17 +2,18 @@ import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import ChannelContent from '../../../components/widgets/channels/ChannelContent'
-import channelSelectors from '../../../store/selectors/channel'
 import mentionsSelectors from '../../../store/selectors/mentions'
 import mentionsHandlers from '../../../store/handlers/mentions'
 
 import { CHANNEL_TYPE } from '../../../components/pages/ChannelTypes'
+import { INPUT_STATE } from '../../../components/widgets/channels/ChannelInput/InputState.enum'
+import { publicChannels } from '@zbayapp/nectar'
 
 export const useChannelContentData = () => {
   const data = {
-    inputState: useSelector(channelSelectors.inputLocked),
+    inputState: INPUT_STATE.AVAILABLE,
     mentions: useSelector(mentionsSelectors.mentions),
-    channelId: useSelector(channelSelectors.channelId)
+    currentChannelAddress: useSelector(publicChannels.selectors.currentChannel)
   }
   return data
 }
@@ -25,14 +26,20 @@ export const useChannelContentActions = () => {
 
   return { removeMention }
 }
-const ChannelContentContainer = ({ channelType, tab }: {channelType: CHANNEL_TYPE; tab: number}) => {
-  const { mentions, channelId } = useChannelContentData()
+const ChannelContentContainer = ({
+  channelType,
+  tab
+}: {
+  channelType: CHANNEL_TYPE
+  tab: number
+}) => {
+  const { mentions, currentChannelAddress } = useChannelContentData()
   const { removeMention } = useChannelContentActions()
 
   return (
     <ChannelContent
       mentions={mentions as any}
-      contactId={channelId}
+      contactId={currentChannelAddress}
       removeMention={removeMention}
       contentRect={''}
       channelType={channelType}
