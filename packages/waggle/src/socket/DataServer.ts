@@ -1,6 +1,7 @@
 import express from 'express'
 import { createServer, Server } from 'http'
 import logger from '../logger'
+import cors from 'cors'
 // eslint-disable-next-line
 const socketio = require('socket.io')
 const log = logger('socket')
@@ -13,12 +14,26 @@ export class DataServer {
   constructor(port?: number) {
     this.PORT = port || 4677
     this._app = express()
+    this._app.use(cors())
     this.server = createServer(this._app)
     this.initSocket()
   }
 
+  private get cors() {
+    if (process.env.NODE_ENV === 'development' && process.env.E2E_TEST === 'true') {
+      log('Development/test env. Getting cors')
+      return {
+        origin: '*',
+        methods: ['GET', 'POST']
+      }
+    }
+    return false
+  }
+
   private readonly initSocket = (): void => {
-    this.io = socketio(this.server)
+    this.io = socketio(this.server, {
+      cors: this.cors
+    })
   }
 
   public listen = async (): Promise<void> => {
