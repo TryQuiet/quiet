@@ -30,6 +30,8 @@ jobs:
         run: export SOURCE_PATH=darwin && npm run pullBinaries
       - name: build on Mac
         run: npm run build:prod
+        env:
+          REACT_APP_ENABLE_SENTRY: "1"
       - name: install electron builder
         run: npm install -g electron-builder@22.10.5
       - name: remove crud files
@@ -44,4 +46,4 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           USE_HARD_LINKS: false
-        run: electron-builder -p always --mac
+        run: electron-builder -p always --mac -c.publish.path=/sentry-build

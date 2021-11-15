@@ -37,6 +37,8 @@ jobs:
     - name: build on Windows
       shell: bash
       run: npm run build:prod
+      env:
+          REACT_APP_ENABLE_SENTRY: "1"
     - name: install electron builder
       shell: bash
       run: npm install -g electron-builder@22.10.5
@@ -50,4 +52,4 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         USE_HARD_LINKS: false
-      run: electron-builder -p always --win
+      run: electron-builder -p always --win -c.publish.path=/sentry-build

@@ -1,4 +1,4 @@
-name: CI-Linux
+name: CI-Linux-Sentry
 
 on:
   push:
@@ -18,6 +18,8 @@ jobs:
         run: export SOURCE_PATH=linux && npm run pullBinaries && npm run pullLibs
       - name: build on Linux
         run: npm run build:prod
+        env:
+          REACT_APP_ENABLE_SENTRY: "1"
       - name: install electron builder
         run: npm install -g electron-builder@22.10.5
       - name: release
@@ -25,4 +27,4 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: electron-builder -p always --linux
+        run: electron-builder -p always --linux -c.publish.path=/sentry-build

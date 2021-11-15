@@ -218,6 +218,8 @@
     "@material-ui/lab": "^4.0.0-alpha.34",
     "@redux-saga/types": "^1.1.0",
     "@reduxjs/toolkit": "^1.5.0",
+    "@sentry/react": "^6.14.0",
+    "@sentry/tracing": "^6.14.0",
     "@types/lodash": "^4.14.169",
     "@types/ps-node": "^0.1.0",
     "@types/redux-debounced": "^0.2.19",

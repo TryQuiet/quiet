@@ -17,6 +17,7 @@ import ErrorModal from './containers/ui/ErrorModal'
 import JoinChannelModal from './containers/widgets/channels/JoinChannelModal'
 import NewMessageModal from './containers/widgets/channels/NewMessageModal'
 import OpenExternalLinkModal from './containers/ui/OpenExternalLinkModal'
+import SentryWarning from './containers/widgets/sentryWarning/sentryWarning'
 import SettingsModal from './containers/widgets/settings/SettingsModal'
 import UpdateModal from './containers/widgets/update/UpdateModal'
 import QuitAppDialog from './containers/ui/QuitAppDialog'
@@ -44,6 +45,7 @@ export default () => {
               <JoinChannelModal />
               <NewMessageModal />
               <OpenExternalLinkModal />
+              <SentryWarning />
               <SettingsModal />
               <UpdateModal />
               <QuitAppDialog />

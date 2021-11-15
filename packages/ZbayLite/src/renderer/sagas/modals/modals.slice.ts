@@ -29,6 +29,7 @@ export class ModalsInitialState {
   [ModalName.quitApp] = { open: false };
   [ModalName.joinCommunityModal] = { open: false };
   [ModalName.createCommunityModal] = { open: false };
+  [ModalName.sentryWarningModal] = { open: false };
   [ModalName.loadingPanel]: {
     open: boolean
     args: { message: string }
