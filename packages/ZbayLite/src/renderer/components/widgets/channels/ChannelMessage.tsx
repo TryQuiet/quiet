@@ -7,7 +7,6 @@ import reactStringReplace from 'react-string-replace'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import { makeStyles } from '@material-ui/core/styles'
-import { Button } from '@material-ui/core'
 import { DisplayableMessage } from '@zbayapp/nectar/lib/sagas/publicChannels/publicChannels.types'
 
 import BasicMessage from '../../../containers/widgets/channels/BasicMessage'
@@ -19,13 +18,13 @@ import { User } from '@zbayapp/nectar/lib/sagas/users/users.slice'
 
 const useStyles = makeStyles((theme) => ({
   message: {
-    marginTop: 14,
+    marginTop: 8,
     whiteSpace: 'pre-line',
     wordBreak: 'break-word',
     lineHeight: '20px'
   },
   messageInput: {
-    marginTop: -35,
+    marginTop: -27,
     marginLeft: 46
   },
   imagePlaceholder: {
@@ -255,7 +254,7 @@ export const ChannelMessage: React.FC<ChannelMessageProps> = ({
   const classes = useStyles({})
   const [showImage, setShowImage] = React.useState(false)
   const [imageUrl, setImageUrl] = React.useState(null)
-  const [parsedMessage, setParsedMessage] = React.useState([])
+  const [allMessages, setAllMessages] = React.useState([])
   const [openModal, setOpenModal] = React.useState(false)
   // const status = message.status || null
   const messageData = message.message
@@ -263,20 +262,30 @@ export const ChannelMessage: React.FC<ChannelMessageProps> = ({
     imageUrl
       ? autoload.includes(new URL(imageUrl).hostname)
       : false
+
+  const arrayOfGroupedMessages = [[]]
+
   React.useEffect(() => {
-    setParsedMessage(
-      checkLinking(
-        publicChannels,
-        users,
-        onLinkedChannel,
-        onLinkedUser,
-        messageData,
-        setImageUrl,
-        openExternalLink,
-        allowAll,
-        whitelisted
-      )
+    const parsedMessages = checkLinking(
+      publicChannels,
+      users,
+      onLinkedChannel,
+      onLinkedUser,
+      messageData,
+      setImageUrl,
+      openExternalLink,
+      allowAll,
+      whitelisted
     )
+
+    for (const el of parsedMessages) {
+      if (el !== '\n') {
+        arrayOfGroupedMessages[arrayOfGroupedMessages.length - 1].push(el)
+      } else {
+        arrayOfGroupedMessages.push([])
+      }
+    }
+    setAllMessages(arrayOfGroupedMessages)
   }, [messageData, whitelisted, allowAll])
   React.useEffect(() => {
     if (allowAll || whitelisted.includes(imageUrl)) {
@@ -284,6 +293,7 @@ export const ChannelMessage: React.FC<ChannelMessageProps> = ({
     }
   }, [imageUrl])
   const [actionsOpen, setActionsOpen] = useState(false)
+
   return (
     <BasicMessage
       message={message}
@@ -291,13 +301,21 @@ export const ChannelMessage: React.FC<ChannelMessageProps> = ({
       setActionsOpen={setActionsOpen}
     >
       <Grid className={classes.messageInput} item>
-        <Typography variant='body2' className={classes.message}>
-          {parsedMessage}
-        </Typography>
-        {/* {status === 'failed' && (
-          <ChannelMessageActions onResend={() => onResend(message)} />
-        )} */}
+        {
+          allMessages.map((item) => {
+            if (item !== ' ') {
+              return < Typography variant='body2' className={classes.message} >
+                {item}
+              </Typography>
+            }
+          })
+        }
+        {status === 'failed' && (
+          // <ChannelMessageActions onResend={() => onResend(message)} />
+          <> </>
+        )}
       </Grid>
+
       {!showImage && imageUrl && !autoloadImage && (
         <Grid
           item
@@ -315,14 +333,11 @@ export const ChannelMessage: React.FC<ChannelMessageProps> = ({
         >
           <Grid item className={classes.imagePlacegolderDiv}>
             <Icon src={imagePlacegolder} />
-          </Grid>
-          <Grid item className={classes.buttonDiv}>
-            <Button className={classes.button} variant='outlined'>
-              Load image
-            </Button>
+
           </Grid>
         </Grid>
       )}
+
       {((showImage && imageUrl) || autoloadImage) && (
         <Grid
           item
@@ -336,6 +351,7 @@ export const ChannelMessage: React.FC<ChannelMessageProps> = ({
           <img className={classes.img} src={imageUrl} alt='new' />
         </Grid>
       )}
+
       {imageUrl && (
         <OpenlinkModal
           open={openModal}
@@ -347,7 +363,7 @@ export const ChannelMessage: React.FC<ChannelMessageProps> = ({
           isImage
         />
       )}
-    </BasicMessage>
+    </BasicMessage >
   )
 }
 

@@ -123,7 +123,7 @@ export const ChannelMessages: React.FC<IChannelMessagesProps> = ({
       messages
         .concat(usersRegistration)
         .concat(publicChannelsRegistration)
-        .sort((a, b) => Math.floor(a.createdAt) - Math.floor(b.createdAt)).reverse()
+        .reverse()
     )
   }
 

@@ -111,17 +111,14 @@ export const unread = createSelector(data, data => (data ? data.unread : 0))
 
 export const loader = createSelector(channel, meta => meta.loader)
 
-const checkMessageTargetTimeWindow = ({ targetCreatedAt, timeStamp, timeWindow }) => {
-  const inRange = ({ timeStamp, targetCreatedAt, timeWindow }) => {
-    return (timeStamp - targetCreatedAt) * (timeStamp - timeWindow) <= 0
-  }
-  return inRange({ timeStamp, targetCreatedAt, timeWindow })
-}
-
 const concatMessages = (mainMsg, messagesToConcat) => {
   if (messagesToConcat.length === 1) {
     return mainMsg
   } else {
+    messagesToConcat.sort((a, b) => {
+      return a.createdAt - b.createdAt
+    })
+
     const messagesArray = messagesToConcat.map(msg => msg.message)
     const lastMessageStatus = messagesToConcat[messagesToConcat.length - 1].status
     const concatedMessages = messagesArray.join('\n')
@@ -136,31 +133,22 @@ const concatMessages = (mainMsg, messagesToConcat) => {
 
 export const mergeIntoOne = (messages: any[]) => {
   if (messages.length === 0) return
-  const result = [[]]
-  let last: any = null
+  const result = []
+  const timeOfStackMessages = 300 // in seconds
+  let lastPubKey = null
+  let lastCteatedAt = null
   for (const msg of messages) {
-    const isMessageInTargetZone = last
-      ? checkMessageTargetTimeWindow({
-        targetCreatedAt: last.createdAt,
-        timeStamp: msg.createdAt,
-        // eslint-disable-next-line
-        timeWindow: last.createdAt + 300
-      })
-      : true
-    if (last && msg.status === 'failed') {
+    if (lastPubKey && lastPubKey !== msg.pubKey) {
       result.push([])
       result[result.length - 1].push(msg)
-    } else if (last && (msg.type !== 1 || last.type !== 1)) {
-      result.push([])
-      result[result.length - 1].push(msg)
-    } else if ((last && last.sender.nickname !== msg.sender.nickname) || !isMessageInTargetZone) {
-      result.push([])
-
+    } else if (lastCteatedAt && ((lastCteatedAt - msg.createdAt) < timeOfStackMessages)) {
       result[result.length - 1].push(msg)
     } else {
+      result.push([])
       result[result.length - 1].push(msg)
     }
-    last = msg
+    lastPubKey = msg.pubKey
+    lastCteatedAt = msg.createdAt
   }
   const concatedMessages = result.map(array => {
     return concatMessages(array[0], array)

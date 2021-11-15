@@ -253,11 +253,15 @@ export interface IDirectMessage {
 //         }
 //         return newMessage
 //       })
-//       const sortedMessages = messagesObjectsArray
-//         .sort((a, b) => {
-//           return b.createdAt - a.createdAt
-//         })
-//         .map(message => message)
+//            const sortedMessages = messagesObjectsArray
+// .sort((a, b) => {
+//   return b.createdAt - a.createdAt
+// }).map(message => {
+//   return {
+//     ...message,
+//     createdAt: Math.floor((message.createdAt / 1000))
+//   }
+// })
 
 //       const messages = sortedMessages
 
