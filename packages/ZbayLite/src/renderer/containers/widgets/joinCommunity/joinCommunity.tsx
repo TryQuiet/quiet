@@ -14,7 +14,6 @@ const JoinCommunity = () => {
 
   const isConnected = useSelector(socketSelectors.isConnected)
   const community = useSelector(communities.selectors.currentCommunity)
-
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
   const createCommunityModal = useModal(ModalName.createCommunityModal)
   const createUsernameModal = useModal<CreateUsernameModalProps>(ModalName.createUsernameModal)
@@ -32,9 +31,14 @@ const JoinCommunity = () => {
   useEffect(() => {
     if (isConnected) {
       loadingStartApp.handleClose()
-      joinCommunityModal.handleOpen()
     }
   }, [isConnected])
+
+  useEffect(() => {
+    if (!community && !joinCommunityModal.open) {
+      joinCommunityModal.handleOpen()
+    }
+  }, [community, joinCommunityModal, dispatch])
 
   const handleCommunityAction = (address: string) => {
     createUsernameModal.handleOpen({
@@ -59,6 +63,7 @@ const JoinCommunity = () => {
       handleCommunityAction={handleCommunityAction}
       handleRedirection={handleRedirection}
       isConnectionReady={isConnected}
+      community={Boolean(community)}
     />
   )
 }

@@ -115,14 +115,12 @@ export interface ChannelHeaderProps {
 }
 
 export const ChannelHeader: React.FC<ChannelHeaderProps> = ({
-  setTab,
   channel = { displayableMessageLimit: 50 },
   directMessage = false,
   channelType = 3,
   updateShowInfoMsg,
   mutedFlag,
-  unmute,
-  name
+  unmute
 }) => {
   const classes = useStyles({})
   const debounce = (fn, ms: number) => {
@@ -143,9 +141,6 @@ export const ChannelHeader: React.FC<ChannelHeaderProps> = ({
   React.useEffect(() => {
     setWrapperWidth(window.innerWidth - 300)
   })
-  React.useEffect(() => {
-    setTab(0)
-  }, [name])
 
   React.useEffect((): any => {
     const handleResize = debounce(function handleResize() {

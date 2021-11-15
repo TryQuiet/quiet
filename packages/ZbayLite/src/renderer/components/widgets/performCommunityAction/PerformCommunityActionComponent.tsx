@@ -113,8 +113,8 @@ export interface PerformCommunityActionProps {
   handleRedirection: () => void
   initialValue: string
   handleClose: () => void
-  isClosedDisabled?: boolean
   isConnectionReady?: boolean
+  community: boolean
 }
 
 interface PerformCommunityActionFormValues {
@@ -128,8 +128,8 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   handleRedirection,
   initialValue,
   handleClose,
-  isClosedDisabled = true,
-  isConnectionReady = true
+  isConnectionReady = true,
+  community
 }) => {
   const classes = useStyles({})
 
@@ -157,7 +157,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   }
 
   return (
-    <Modal open={open} handleClose={handleClose} isCloseDisabled={isClosedDisabled}>
+    <Modal open={open} handleClose={handleClose} isCloseDisabled={!community}>
       <Grid container className={classes.main} direction='column'>
         <>
           <Grid className={classes.title} item>

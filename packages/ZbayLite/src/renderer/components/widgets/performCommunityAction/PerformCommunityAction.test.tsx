@@ -14,12 +14,13 @@ describe('PerformCommunityAction component (create community mode)', () => {
     const handleCommunityAction = jest.fn()
     const component = <PerformCommunityActionComponent
       open={true}
-      handleClose={() => {}}
+      handleClose={() => { }}
       initialValue={''}
       communityAction={action}
       handleCommunityAction={handleCommunityAction}
-      handleRedirection={() => {}}
+      handleRedirection={() => { }}
       isConnectionReady={true}
+      community={false}
     />
     const result = renderComponent(component)
     const communityName = 'communityname'
@@ -41,12 +42,13 @@ describe('PerformCommunityAction component (create community mode)', () => {
     const handleCommunityAction = jest.fn()
     const component = <PerformCommunityActionComponent
       open={true}
-      handleClose={() => {}}
+      handleClose={() => { }}
       initialValue={''}
       communityAction={action}
       handleCommunityAction={handleCommunityAction}
-      handleRedirection={() => {}}
+      handleRedirection={() => { }}
       isConnectionReady={true}
+      community={false}
     />
     const result = renderComponent(component)
     const textInput = result.queryByPlaceholderText('Community name')
@@ -65,12 +67,13 @@ describe('PerformCommunityAction component (create community mode)', () => {
     const handleCommunityAction = jest.fn()
     const component = <PerformCommunityActionComponent
       open={true}
-      handleClose={() => {}}
+      handleClose={() => { }}
       initialValue={''}
       communityAction={action}
       handleCommunityAction={handleCommunityAction}
-      handleRedirection={() => {}}
+      handleRedirection={() => { }}
       isConnectionReady={false}
+      community={false}
     />
     const result = renderComponent(component)
     const submitButton = result.queryByRole('button')
@@ -83,12 +86,13 @@ describe('PerformCommunityAction component (create community mode)', () => {
     const handleCommunityAction = jest.fn()
     const component = <PerformCommunityActionComponent
       open={true}
-      handleClose={() => {}}
+      handleClose={() => { }}
       initialValue={''}
       communityAction={action}
       handleCommunityAction={handleCommunityAction}
       handleRedirection={handleRedirection}
       isConnectionReady={true}
+      community={false}
     />
     const result = renderComponent(component)
     const switchLink = result.queryByText('join a community')
@@ -106,12 +110,13 @@ describe('PerformCommunityAction component (join community mode)', () => {
     const handleCommunityAction = jest.fn()
     const component = <PerformCommunityActionComponent
       open={true}
-      handleClose={() => {}}
+      handleClose={() => { }}
       initialValue={''}
       communityAction={action}
       handleCommunityAction={handleCommunityAction}
-      handleRedirection={() => {}}
+      handleRedirection={() => { }}
       isConnectionReady={true}
+      community={false}
     />
     const result = renderComponent(component)
     const textInput = result.queryByPlaceholderText('Invite link')
@@ -133,12 +138,13 @@ describe('PerformCommunityAction component (join community mode)', () => {
     const handleCommunityAction = jest.fn()
     const component = <PerformCommunityActionComponent
       open={true}
-      handleClose={() => {}}
+      handleClose={() => { }}
       initialValue={''}
       communityAction={action}
       handleCommunityAction={handleCommunityAction}
-      handleRedirection={() => {}}
+      handleRedirection={() => { }}
       isConnectionReady={true}
+      community={false}
     />
     const result = renderComponent(component)
     const textInput = result.queryByPlaceholderText('Invite link')
@@ -157,12 +163,13 @@ describe('PerformCommunityAction component (join community mode)', () => {
     const handleCommunityAction = jest.fn()
     const component = <PerformCommunityActionComponent
       open={true}
-      handleClose={() => {}}
+      handleClose={() => { }}
       initialValue={''}
       communityAction={action}
       handleCommunityAction={handleCommunityAction}
-      handleRedirection={() => {}}
+      handleRedirection={() => { }}
       isConnectionReady={false}
+      community={false}
     />
     const result = renderComponent(component)
     const textInput = result.queryByPlaceholderText('Invite link')
@@ -178,12 +185,13 @@ describe('PerformCommunityAction component (join community mode)', () => {
     const handleRedirection = jest.fn()
     const component = <PerformCommunityActionComponent
       open={true}
-      handleClose={() => {}}
+      handleClose={() => { }}
       initialValue={''}
       communityAction={action}
-      handleCommunityAction={() => {}}
+      handleCommunityAction={() => { }}
       handleRedirection={handleRedirection}
       isConnectionReady={true}
+      community={false}
     />
     const result = renderComponent(component)
     const switchLink = result.queryByText('create a new community')

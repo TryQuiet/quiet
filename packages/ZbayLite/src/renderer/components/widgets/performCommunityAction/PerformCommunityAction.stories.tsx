@@ -22,7 +22,8 @@ const args: PerformCommunityActionProps = {
     console.log('Redirected to join community')
   },
   initialValue: '',
-  handleClose: function (): void { }
+  handleClose: function (): void { },
+  community: true
 }
 
 Component.args = args

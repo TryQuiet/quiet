@@ -26,8 +26,8 @@ const useStyles = makeStyles((theme) => ({
 
 interface ChannelMenuActionProps {
   onInfo: () => void
-  onMute: () => void
-  onUnmute: () => void
+  onMute?: () => void
+  onUnmute?: () => void
   onDelete: () => void
   onSettings: () => void
   mutedFlag: boolean

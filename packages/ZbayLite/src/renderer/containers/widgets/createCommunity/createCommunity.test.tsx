@@ -89,7 +89,6 @@ describe('User', () => {
 
         communityId = data[0]
         const CA = data[2]
-
         return socket.socketClient.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
           id: communityId,
           payload: {

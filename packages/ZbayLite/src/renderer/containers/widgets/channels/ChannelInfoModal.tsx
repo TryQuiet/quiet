@@ -19,8 +19,6 @@ export const ChannelInfo: React.FC<ChannelInfoModalProps> = ({
   directMessage
 }
 ) => {
-  shareUri = useChannelInfoData().shareUri
-
   return (
     <ChannelInfoModal
       channel={channel}
