@@ -78,7 +78,7 @@ export default class CommunitiesManager {
       onionAddress = '0.0.0.0'
     }
     log(`Launching community ${communityId}, peer: ${peerId.id}`)
-    return await this.initStorage(await PeerId.createFromJSON(peerId), onionAddress, ports.libp2pHiddenService, ports.libp2pHiddenService, bootstrapMultiaddrs, certs, communityId)
+    return await this.initStorage(await PeerId.createFromJSON(peerId), onionAddress, virtPort, ports.libp2pHiddenService, bootstrapMultiaddrs, certs, communityId)
   }
 
   public initStorage = async (peerId: PeerId, onionAddress: string, virtPort: number, targetPort: number, bootstrapMultiaddrs: string[], certs: CertsData, communityId: string): Promise<string> => {
