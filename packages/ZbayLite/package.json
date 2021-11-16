@@ -61,7 +61,7 @@
   },
   "homepage": "https://gitlab.rumblefishdev.com/holmes/zbay",
   "@comment version": "To build new version for specific platform, just replace platform in version tag to one of following linux, mac, windows",
-  "version": "4.0.1-zbay-lite",
+  "version": "4.0.2",
   "description": "Distributed goods and bulletin board",
   "main": "dist/src/main/main.js",
   "scripts": {
