@@ -1,5 +1,15 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+* Logs and retry logic in websocketOverTorTest
+
+### Changed
+
+* Moved crypto initialization from storage to connectionsManager
+
 ## [4.3.12]
 
 ### Added

@@ -1,4 +1,3 @@
-import { Crypto } from '@peculiar/webcrypto'
 import { getCertFieldValue, parseCertificate, verifyUserCert, CertFieldsTypes } from '@zbayapp/identity'
 import IPFS from 'ipfs'
 import { Libp2p } from 'libp2p-gossipsub/src/interfaces'
@@ -7,6 +6,7 @@ import EventStore from 'orbit-db-eventstore'
 import KeyValueStore from 'orbit-db-kvstore'
 import path from 'path'
 import PeerId from 'peer-id'
+import { Crypto } from '@peculiar/webcrypto'
 import { CryptoEngine, setEngine } from 'pkijs'
 import {
   ChannelInfoResponse, DataFromPems, IChannelInfo,
@@ -95,7 +95,11 @@ export class Storage {
   private async __stopOrbitDb() {
     if (this.orbitdb) {
       log('Stopping OrbitDB')
-      await this.orbitdb.stop()
+      try {
+        await this.orbitdb.stop()
+      } catch (err) {
+        log.error(`Following error occured during closing orbitdb database: ${err as string}`)
+      }
     }
   }
 

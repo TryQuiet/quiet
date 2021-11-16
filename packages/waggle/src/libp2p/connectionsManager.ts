@@ -1,4 +1,6 @@
 import * as os from 'os'
+import { Crypto } from '@peculiar/webcrypto'
+import { CryptoEngine, setEngine } from 'pkijs'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 import Bootstrap from 'libp2p-bootstrap'
 import Gossipsub from 'libp2p-gossipsub'
@@ -15,7 +17,14 @@ import IOProxy from '../socket/IOProxy'
 import initListeners from '../socket/listeners'
 import { Storage } from '../storage'
 import { Tor } from '../torManager'
-import { createLibp2pAddress, createLibp2pListenAddress, fetchRetry, getPorts, torBinForPlatform, torDirForPlatform } from '../common/utils'
+import {
+  createLibp2pAddress,
+  createLibp2pListenAddress,
+  fetchRetry,
+  getPorts,
+  torBinForPlatform,
+  torDirForPlatform
+} from '../common/utils'
 import CustomLibp2p, { Libp2pType } from './customLibp2p'
 import WebsocketsOverTor from './websocketOverTor'
 const log = logger('conn')
@@ -67,6 +76,17 @@ export class ConnectionsManager {
       log('\nGracefully shutting down from SIGINT (Ctrl-C)')
       process.exit(0)
     })
+
+    const webcrypto = new Crypto()
+    setEngine(
+      'newEngine',
+      webcrypto,
+      new CryptoEngine({
+        name: '',
+        crypto: webcrypto,
+        subtle: webcrypto.subtle
+      })
+    )
   }
 
   public readonly createAgent = () => {
@@ -104,7 +124,11 @@ export class ConnectionsManager {
     }
 
     const peerId = await PeerId.create()
-    log(`Created network for peer ${peerId.toB58String()}. Address: ${hiddenService.onionAddress as string}`)
+    log(
+      `Created network for peer ${peerId.toB58String()}. Address: ${
+        hiddenService.onionAddress as string
+      }`
+    )
     return {
       hiddenService,
       peerId: peerId.toJSON()
