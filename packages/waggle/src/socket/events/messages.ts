@@ -14,25 +14,24 @@ export const directMessage = (socket: SocketIO.Server, message) => {
 export const loadAllMessages = (
   socket: SocketIO.Server,
   messages: IMessage[],
-  channelAddress: string
+  channelAddress: string,
+  communityId: string
 ) => {
   if (messages.length === 0) {
     return
   }
   socket.emit(EventTypesResponse.RESPONSE_FETCH_ALL_MESSAGES, {
+    communityId,
     channelAddress,
     messages
   })
 }
 
-export const sendIdsToZbay = (socket: SocketIO.Server, ids: string[], channelAddress: string) => {
-  if (ids.length === 0) {
+export const sendIdsToZbay = (socket: SocketIO.Server, payload: { ids: string[], channelAddress: string, communityId: string }) => {
+  if (payload.ids.length === 0) {
     return
   }
-  socket.emit(EventTypesResponse.SEND_IDS, {
-    channelAddress,
-    ids
-  })
+  socket.emit(EventTypesResponse.SEND_IDS, payload)
 }
 
 export const loadAllDirectMessages = (socket: SocketIO.Server, messages: string[], channelAddress: string) => {

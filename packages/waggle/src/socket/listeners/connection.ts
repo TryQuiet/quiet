@@ -61,8 +61,8 @@ export const connections = (io, ioProxy: IOProxy) => {
     })
     socket.on(
       EventTypesServer.ASK_FOR_MESSAGES,
-      async (peerId: string, { channelAddress, ids }: { channelAddress: string, ids: string[] }) => {
-        await ioProxy.askForMessages(peerId, channelAddress, ids)
+      async ({ peerId, channelAddress, ids, communityId }: { peerId: string, channelAddress: string, ids: string[], communityId: string }) => {
+        await ioProxy.askForMessages(peerId, channelAddress, ids, communityId)
       }
     )
     socket.on(EventTypesServer.REGISTER_USER_CERTIFICATE, async (serviceAddress: string, userCsr: string, id: string) => {

@@ -317,7 +317,7 @@ export class Storage {
       return
     }
     const db: EventStore<IMessage> = this.publicChannelsRepos.get(channelAddress).db
-    loadAllMessages(this.io, this.getAllEventLogEntries(db), channelAddress)
+    loadAllMessages(this.io, this.getAllEventLogEntries(db), channelAddress, this.communityId)
   }
 
   public async subscribeForChannel(
@@ -344,18 +344,19 @@ export class Storage {
         log(`Writing to public channel db ${channelAddress}`)
         socketMessage(this.io, { message: entry.payload.value, channelAddress: channelAddress, communityId: this.communityId })
       })
+
       db.events.on('replicated', () => {
         const ids = this.getAllEventLogEntries(db).map(msg => msg.id)
         log('Message replicated')
-        sendIdsToZbay(this.io, ids, channelAddress)
+        sendIdsToZbay(this.io, { ids, channelAddress, communityId: this.communityId })
       })
       db.events.on('ready', () => {
         const ids = this.getAllEventLogEntries(db).map(msg => msg.id)
-        sendIdsToZbay(this.io, ids, channelAddress)
+        sendIdsToZbay(this.io, { ids, channelAddress, communityId: this.communityId })
       })
       repo.eventsAttached = true
       const ids = this.getAllEventLogEntries(db).map(msg => msg.id)
-      sendIdsToZbay(this.io, ids, channelAddress)
+      sendIdsToZbay(this.io, { ids, channelAddress, communityId: this.communityId })
     }
   }
 
@@ -490,7 +491,7 @@ export class Storage {
         log('DIRECT Messages thread ready')
       })
       repo.eventsAttached = true
-      loadAllMessages(this.io, this.getAllEventLogEntries(db), channelAddress)
+      loadAllMessages(this.io, this.getAllEventLogEntries(db), channelAddress, this.communityId)
       log('Subscription to channel ready', channelAddress)
     }
   }

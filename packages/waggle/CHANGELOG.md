@@ -5,6 +5,7 @@
 ### Added
 
 * Logs and retry logic in websocketOverTorTest
+* Added communityId param to askForMessages and sendIdsToZbay 
 
 ### Changed
 

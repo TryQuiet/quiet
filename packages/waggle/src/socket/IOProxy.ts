@@ -50,9 +50,9 @@ export default class IOProxy {
     this.io.emit(EventTypesResponse.RESPONSE_GET_PUBLIC_CHANNELS, channels)
   }
 
-  public askForMessages = async (peerId: string, channelAddress: string, ids: string[]) => {
+  public askForMessages = async (peerId: string, channelAddress: string, ids: string[], communityId) => {
     const messages = await this.getStorage(peerId).askForMessages(channelAddress, ids)
-    loadAllMessages(this.io, messages.filteredMessages, messages.channelAddress)
+    loadAllMessages(this.io, messages.filteredMessages, messages.channelAddress, communityId)
   }
 
   public loadAllMessages = async (peerId: string, channelAddress: string) => {
