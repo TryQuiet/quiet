@@ -1,5 +1,5 @@
 
-test('mock, because we keep those for the next iteration', () => {
+test('mock, because we keep those for the next iteration', async () => {
 
 })
 // import { expectSaga } from 'redux-saga-test-plan'

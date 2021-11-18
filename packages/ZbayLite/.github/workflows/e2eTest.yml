@@ -1,0 +1,34 @@
+name: End to end tests
+
+on:
+  pull_request:
+    branches: ['*']
+  push:
+    branches: [ master, develop ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        # "macos-latest" UnableToAccessScreenRecordingAPIError: The find-window process cannot access the Screen Recording API. https://github.com/DevExpress/testcafe/issues/5352
+        os: [ubuntu-20.04, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v1.0.0
+      - uses: actions/setup-node@master
+        with:
+          node-version: "12"
+      - name: Install project dependencies
+        run: npm ci
+      - name: Build project
+        run: npm run build:prod
+      - name: Run tests
+        env:
+          E2E_TEST: true
+          NODE_ENV: development
+          DEBUG: 'waggle*,zbay*,testcafe:*electron*'
+        uses: DevExpress/testcafe-action@latest
+        with:
+          skip-install: true
+          args: "--color --hostname localhost \"electron:.\" \"./**/*.e2e.js\""

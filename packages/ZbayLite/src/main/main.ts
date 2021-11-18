@@ -12,7 +12,6 @@ import { DataServer } from 'waggle/lib/socket/DataServer'
 
 import { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
-
 const log = Object.assign(debug('zbay:main'), {
   error: debug('zbay:main:err')
 })
@@ -22,6 +21,7 @@ electronStore.set('waggleInitialized', false)
 electronStore.set('waggleVersion', waggleVersion)
 
 export const isDev = process.env.NODE_ENV === 'development'
+export const isE2Etest = process.env.E2E_TEST === 'true'
 const webcrypto = new Crypto()
 
 interface IWindowSize {
@@ -56,7 +56,7 @@ const extensionsFolderPath = `${app.getPath('userData')}/extensions`
 
 const applyDevTools = async () => {
   /* eslint-disable */
-  if (!isDev) return
+  if (!isDev || isE2Etest) return
   /* eslint-disable */
   require('electron-debug')({
     showDevTools: true
@@ -141,7 +141,6 @@ const checkForPayloadOnStartup = (payload: string) => {
     }
   }
 }
-
 let browserWidth: number
 let browserHeight: number
 const createWindow = async () => {
@@ -249,6 +248,7 @@ export const checkForUpdate = async (win: BrowserWindow) => {
 }
 
 let waggleProcess: { connectionsManager: ConnectionsManager; dataServer: DataServer } | null = null
+let waggleProcessStarted: boolean = false
 app.on('ready', async () => {
   // const template = [
   //   {
@@ -292,11 +292,14 @@ app.on('ready', async () => {
     log('failed loading')
   })
 
-  mainWindow.webContents.on('did-finish-load', async () => {
+  mainWindow.webContents.once('did-finish-load', async () => {
     if (!isBrowserWindow(mainWindow)) {
       throw new Error('mainWindow is on unexpected type {mainWindow}')
     }
-    waggleProcess = await runWaggle(mainWindow.webContents)
+    if (!waggleProcessStarted) {
+      waggleProcessStarted = true
+      waggleProcess = await runWaggle(mainWindow.webContents)
+    }
     if (process.platform === 'win32' && process.argv) {
       const payload = process.argv[1]
       if (payload) {
