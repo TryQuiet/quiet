@@ -229,7 +229,7 @@ export const publicChannelsSlice = createSlice({
         changes: {
           channelMessages: {
             ...state.channels.entities[communityId].channelMessages,
-              [channelAddress]: {
+            [channelAddress]: {
               ...state.channels.entities[communityId].channelMessages[
                 channelAddress
               ],
@@ -239,6 +239,12 @@ export const publicChannelsSlice = createSlice({
                 ].messages,
                 ...messages,
               },
+              ids: [
+                ...state.channels.entities[communityId].channelMessages[
+                  channelAddress
+                ].ids,
+                message.id,
+              ],
             },
           },
         },

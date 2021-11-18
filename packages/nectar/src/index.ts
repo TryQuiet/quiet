@@ -45,6 +45,9 @@ export {
 } from './sagas/publicChannels/publicChannels.types';
 
 export { channelsByCommunityAdapter } from './sagas/publicChannels/publicChannels.adapter'
+export { communitiesAdapter } from './sagas/communities/communities.adapter'
+
+export { identityAdapter } from './sagas/identity/identity.adapter'
 
 export const publicChannels = {
   reducer: publicChannelsReducer,

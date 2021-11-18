@@ -19,7 +19,7 @@ export const certificatesMapping = createSelector(certificates, (certs) => {
   Object.keys(certs).map((pubKey) => {
     const certificate = certs[pubKey];
 
-    if (!certificate || certificate.subject.typesAndValues.length < 3) {
+    if (!certificate || certificate.subject.typesAndValues.length < 1) {
       return;
     }
 
