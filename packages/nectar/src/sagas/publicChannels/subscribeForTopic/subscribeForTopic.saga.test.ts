@@ -1,10 +1,19 @@
-import { TestApi, testSaga } from 'redux-saga-test-plan';
 import { Socket } from 'socket.io-client';
+import { expectSaga } from 'redux-saga-test-plan';
+import { combineReducers } from '@reduxjs/toolkit';
 import { SocketActionTypes } from '../../socket/const/actionTypes';
+import { StoreKeys } from '../../store.keys';
 import { publicChannelsActions } from '../publicChannels.slice';
-import { IChannelInfo } from '../publicChannels.types';
-
 import { subscribeForTopicSaga } from './subscribeForTopic.saga';
+import { Identity } from '../../identity/identity.slice';
+import { identityAdapter } from '../../identity/identity.adapter';
+import { identityReducer, IdentityState } from '../../identity/identity.slice';
+import {
+  communitiesReducer,
+  CommunitiesState,
+  Community,
+} from '../../communities/communities.slice';
+import { communitiesAdapter } from '../../communities/communities.adapter';
 
 describe('subscribeForTopicSaga', () => {
   const socket = { emit: jest.fn() } as unknown as Socket;
@@ -16,29 +25,61 @@ describe('subscribeForTopicSaga', () => {
     timestamp: 666999666,
     address: 'hell on the shore of the baltic sea',
   };
-
-  const saga: TestApi = testSaga(
-    subscribeForTopicSaga,
-    socket,
-    publicChannelsActions.subscribeForTopic({
-      peerId: 'peerId',
-      channelData: channel,
-    })
-  );
-
-  beforeEach(() => {
-    saga.restart();
+  const community = new Community({
+    name: '',
+    id: 'id',
+    registrarUrl: 'registrarUrl',
+    CA: {},
+  });
+  const identity = new Identity({
+    id: 'id',
+    hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
+    dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
+    peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
   });
 
-  test('should be defined', () => {
-    saga
-      .next()
+  test('subscribe for topic', () => {
+    expectSaga(
+      subscribeForTopicSaga,
+      socket,
+      publicChannelsActions.subscribeForTopic({
+        peerId: 'peerId',
+        channelData: channel,
+      })
+    )
+      .withReducer(
+        combineReducers({
+          [StoreKeys.Identity]: identityReducer, [StoreKeys.Communities]: communitiesReducer
+        }),
+        {
+          [StoreKeys.Identity]: {
+            ...new IdentityState(),
+            identities: identityAdapter.setAll(
+              identityAdapter.getInitialState(),
+              [identity]
+            ),
+          },
+          [StoreKeys.Communities]: {
+            ...new CommunitiesState(),
+            currentCommunity: 'id',
+            communities: communitiesAdapter.setAll(
+              communitiesAdapter.getInitialState(),
+              [community]
+            ),
+          },
+        }
+      )
+      .put(
+        publicChannelsActions.addChannel({
+          communityId: 'id',
+          channel: channel,
+        })
+      )
       .apply(socket, socket.emit, [
         SocketActionTypes.SUBSCRIBE_FOR_TOPIC,
         'peerId',
         channel,
       ])
-      .next()
-      .isDone();
+      .run();
   });
 });

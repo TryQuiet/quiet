@@ -26,6 +26,10 @@ export function* publicChannelsMasterSaga(socket: Socket): Generator {
       socket
     ),
     takeEvery(
+      publicChannelsActions.subscribeForAllTopics.type,
+      subscribeForAllTopicsSaga,
+    ),
+    takeEvery(
       publicChannelsActions.responseSendMessagesIds.type,
       checkForMessagesSaga
     ),

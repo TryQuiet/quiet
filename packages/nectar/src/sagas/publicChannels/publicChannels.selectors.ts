@@ -10,6 +10,7 @@ import { certificatesMapping } from '../users/users.selectors';
 import { mainChannelName } from '../config';
 import { StoreState } from '../store.types';
 import { currentCommunityId } from '../communities/communities.selectors';
+import { MessagesGroupedByDay } from './publicChannels.types';
 
 const publicChannelSlice: CreatedSelectors[StoreKeys.PublicChannels] = (
   state: StoreState
@@ -130,10 +131,89 @@ export const currentChannelDisplayableMessages = createSelector(
         id: message.id,
         type: message.type,
         message: message.message,
-        createdAt: formatMessageDisplayDate(message.createdAt),
+        createdAt: message.createdAt,
         nickname: user.username,
       };
     })
+);
+
+// returns array of messages SORTED and GROUPED by createdAt and user
+export const currentChannelMessagesMergedBySender = createSelector(
+  currentChannelDisplayableMessages,
+  (messages) => {
+    const timeOfGroupingMessages = 300
+    let newMessages = []
+
+    for (let indexOfMessages = 0; indexOfMessages < messages.length; indexOfMessages++) {
+      let currentMessage = messages[indexOfMessages]
+
+      while (messages[indexOfMessages + 1]
+        && (currentMessage.createdAt - messages[indexOfMessages + 1].createdAt) < timeOfGroupingMessages
+        && currentMessage.nickname === messages[indexOfMessages + 1].nickname) {
+        currentMessage = {
+          ...currentMessage,
+          message: messages[indexOfMessages + 1].message + "\n" + currentMessage.message
+        }
+        indexOfMessages++
+      }
+
+      newMessages.push(currentMessage)
+    }
+    return newMessages.reverse()
+  }
+);
+
+// returns array of 'day' object with day and grouped messages
+export const currentChannelMessagesGroupedByDay = createSelector(
+  currentChannelMessagesMergedBySender,
+  (messages) => {
+    let messagesByDay: MessagesGroupedByDay = []
+
+    for (const message of messages) {
+      const split = formatMessageDisplayDate(message.createdAt).split(',')
+
+      if (split.length === 1) {
+        const messageTime = split[0]
+        const isDay = messagesByDay.find((item) => item.day === 'Today')
+        const displayableMessage = {
+          ...message,
+          createdAt: messageTime
+        }
+
+        if (!isDay) {
+          messagesByDay.push({
+            day: 'Today',
+            messages: [displayableMessage]
+          })
+        } else {
+          const dayIndex = messagesByDay.findIndex((item) => item.day === 'Today')
+          console.log(dayIndex)
+          messagesByDay[dayIndex].messages.push(displayableMessage)
+        }
+      }
+
+      else if (split.length === 2) {
+        const messageDay = split[0]
+        const messageTime = split[1]
+        const isDay = messagesByDay.find((item) => item.day === messageDay)
+        const displayableMessage = {
+          ...message,
+          createdAt: messageTime
+        }
+
+        if (!isDay) {
+          messagesByDay.push({
+            day: messageDay,
+            messages: [displayableMessage]
+          })
+        } else {
+          const dayIndex = messagesByDay.findIndex((item) => item.day === messageDay)
+          messagesByDay[dayIndex].messages.push(displayableMessage)
+        }
+      }
+    }
+    return messagesByDay
+  }
 );
 
 export const publicChannelsSelectors = {
@@ -147,4 +227,6 @@ export const publicChannelsSelectors = {
   missingCurrentChannelMessages,
   validCurrentChannelMessages,
   currentChannelDisplayableMessages,
+  currentChannelMessagesMergedBySender,
+  currentChannelMessagesGroupedByDay
 };

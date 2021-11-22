@@ -30,7 +30,6 @@ export const ownCommunities = createSelector(allCommunities, (communities) => {
 export const currentCommunity = createSelector(
   communitiesSlice,
   (reducerState) => {
-    log(`current community ${reducerState.currentCommunity}`)
     const id = reducerState.currentCommunity;
     return communitiesAdapter
       .getSelectors()
@@ -41,7 +40,6 @@ export const currentCommunity = createSelector(
 export const currentCommunityId = createSelector(
   communitiesSlice,
   (reducerState) => {
-    log('current community id', reducerState.currentCommunity)
     return reducerState.currentCommunity
   }
 );

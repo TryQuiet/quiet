@@ -23,3 +23,8 @@ export type DisplayableMessage = {
   createdAt: string;
   nickname: string;
 };
+
+export type MessagesGroupedByDay = Array<{
+  day: string,
+  messages: DisplayableMessage[]
+}>

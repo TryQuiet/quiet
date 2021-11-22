@@ -15,7 +15,6 @@ import assert from 'assert';
 import getPort from 'get-port';
 import tmp from 'tmp';
 import logger from '../utils/logger';
-import resultLogger from './logger';
 
 import { useIO } from '../sagas/socket/startConnection/startConnection.saga';
 
@@ -34,80 +33,6 @@ import {
 import { StoreKeys } from '../sagas/store.keys';
 
 const log = logger('tests');
-const logResult = resultLogger();
-
-function testReducer(
-  state = {
-    continue: false,
-    finished: false,
-    error: null,
-    manager: null,
-    rootTask: null,
-    replicatedCertificates: false,
-  },
-  action
-) {
-  switch (action.type) {
-    case 'setManager':
-      return { ...state, manager: action.payload };
-    case 'setRootTask':
-      return { ...state, rootTask: action.payload };
-    case 'testContinue':
-      return { ...state, continue: true };
-    case 'testFinished':
-      return { ...state, finished: true };
-    case 'testFailed':
-      return { ...state, error: action.payload };
-    case 'replicatedCertificates':
-      return { ...state, replicatedCertificates: true };
-    default:
-      return state;
-  }
-}
-
-
-
-export function* integrationTest(saga: any, ...args: any[]): Generator {
-  /**
-   *  Integration test saga wrapper for catching errors
-   */
-  try {
-    yield* saga(...args);
-  } catch (e) {
-    yield* put({ type: 'testFailed', payload: e.message });
-  }
-}
-
-export const watchResults = (apps: any[], finalApp: any, testName: string) => {
-  log(`Running "${testName}"`);
-  for (const app of apps) {
-    app.store.dispatch({ type: 'setRootTask', payload: app.rootTask });
-    const storeUnsub = app.store.subscribe(() => {
-      if (app.store.getState().Test.error) {
-        storeUnsub();
-        logResult.failed(`"${testName}": `, app.store.getState().Test.error);
-        process.exit(1);
-      }
-    });
-  }
-  const finalStoreUnsubscribe = finalApp.store.subscribe(() => {
-    if (finalApp.store.getState().Test.finished) {
-      finalStoreUnsubscribe();
-      logResult.passed(testName);
-      for (const app of apps.filter((a) => a !== finalApp)) {
-        app.store.dispatch(createAction('testFinished'));
-      }
-    }
-  });
-};
-
-export function* finishTestSaga() {
-  yield* put(createAction('testFinished')());
-}
-
-export const userIsReady = (userStore: any): boolean => {
-  return userStore.getState().Test.continue;
-};
 
 export const createTmpDir = (prefix: string) => {
   return tmp.dirSync({ mode: 0o750, prefix, unsafeCleanup: true });
@@ -124,7 +49,6 @@ const reducers = {
   [StoreKeys.Errors]: errors.reducer,
   [StoreKeys.Messages]: messages.reducer,
   [StoreKeys.PublicChannels]: publicChannels.reducer,
-  Test: testReducer,
 };
 
 export const prepareStore = (
@@ -257,36 +181,6 @@ export const createAppWithoutTor = async (
   }
 
   return { store, runSaga, rootTask, manager };
-};
-
-export const assertListElementMatches = (actual: any[], match: RegExp) => {
-  let counter = 0;
-  for (const item of actual) {
-    try {
-      assert.match(item, match);
-    } catch (e) {
-      counter++;
-    }
-  }
-  if (counter === actual.length) {
-    throw new assert.AssertionError({
-      message: `No element in the ${actual} matches ${match}`,
-    });
-  }
-};
-
-export const assertNotEmpty = (value: any, valueName: string) => {
-  if (
-    value === null ||
-    value === undefined ||
-    value === '' ||
-    (Array.isArray(value) && value.length === 0) ||
-    Object.keys(value).length === 0
-  ) {
-    throw new assert.AssertionError({
-      message: `${valueName} is empty but shouldn't be`,
-    });
-  }
 };
 
 const throwAssertionError = (payload) => {

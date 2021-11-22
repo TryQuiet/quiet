@@ -14,10 +14,21 @@ import {
   CommunitiesState,
   Community,
 } from '../../communities/communities.slice';
+import { identityReducer, IdentityState, Identity } from '../../identity/identity.slice';
+import { identityAdapter } from '../../identity/identity.adapter';
 import { communitiesAdapter } from '../../communities/communities.adapter';
 
 describe('checkForMessagesSaga', () => {
   let communityChannels = new CommunityChannels('id');
+  const identity = new Identity({
+    id: 'id',
+    hiddenService: {
+      onionAddress: 'onionAddress.onion',
+      privateKey: 'privateKey',
+    },
+    dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
+    peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
+  });
   const community = new Community({
     name: '',
     id: 'id',
@@ -32,7 +43,7 @@ describe('checkForMessagesSaga', () => {
       {
         ids: ['1', '2', '3'],
         messages: {
-          id: {
+          1: {
             id: '1',
             type: 0,
             message: 'message',
@@ -52,6 +63,7 @@ describe('checkForMessagesSaga', () => {
         combineReducers({
           [StoreKeys.PublicChannels]: publicChannelsReducer,
           [StoreKeys.Communities]: communitiesReducer,
+          [StoreKeys.Identity]: identityReducer,
         }),
         {
           [StoreKeys.PublicChannels]: {
@@ -69,15 +81,24 @@ describe('checkForMessagesSaga', () => {
               [community]
             ),
           },
+          [StoreKeys.Identity]: {
+            ...new IdentityState(),
+            identities: identityAdapter.setAll(
+              identityAdapter.getInitialState(),
+              [identity]
+            ),
+          },
         }
       )
       .put(
         publicChannelsActions.askForMessages({
+          peerId: 'peerId',
           channelAddress:
             'zs10zkaj29rcev9qd5xeuzck4ly5q64kzf6m6h9nfajwcvm8m2vnjmvtqgr0mzfjywswwkwke68t00',
           ids: ['2', '3'],
+          communityId: 'id'
         })
       )
-      .silentRun();
+      .run();
   });
 });

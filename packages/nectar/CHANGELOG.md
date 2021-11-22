@@ -1,6 +1,12 @@
 
 ## [Unreleased]
 
+### Changed
+
+* Changes integration test to run with jest
+
+## [1.16.0]
+
 ### Added
 
 * Create Network action

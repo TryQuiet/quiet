@@ -23,13 +23,6 @@ jobs:
 
       - name: Install npm dependencies
         run: npm ci
-      - name: install ts-node
-        run: npm install --global ts-node
-      - name: install typescript
-        run: npm install --global typescript
-      - name: Run tests tor
-        timeout-minutes: 60
-        run: DEBUG_COLORS=yes DEBUG='waggle*error,nectar:test:*' ts-node src/integrationTests/runWithTor.ts
-      - name: Run tests no tor
-        timeout-minutes: 5
-        run: DEBUG_COLORS=yes DEBUG='waggle*error,nectar:test:*' ts-node src/integrationTests/runWithoutTor.ts
+
+      - name: Run tests
+        run: npm run test-integration

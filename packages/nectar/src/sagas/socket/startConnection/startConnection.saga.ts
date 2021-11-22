@@ -9,6 +9,8 @@ import {
   GetPublicChannelsResponse,
   OnMessagePostedResponse,
   publicChannelsActions,
+  ChannelMessagesIdsResponse,
+  AskForMessagesResponse
 } from '../../publicChannels/publicChannels.slice';
 import { publicChannelsMasterSaga } from '../../publicChannels/publicChannels.master.saga';
 import { ErrorPayload, errorsActions } from '../../errors/errors.slice';
@@ -69,18 +71,18 @@ export function subscribe(socket: Socket) {
         emit(publicChannelsActions.responseGetPublicChannels(payload));
       }
     );
-    // socket.on(
-    //   SocketActionTypes.SEND_MESSAGES_IDS,
-    //   (payload: ChannelMessagesIdsResponse) => {
-    //     emit(publicChannelsActions.responseSendMessagesIds(payload));
-    //   }
-    // );
-    // socket.on(
-    //   SocketActionTypes.RESPONSE_ASK_FOR_MESSAGES,
-    //   (payload: AskForMessagesResponse) => {
-    //     emit(publicChannelsActions.responseAskForMessages(payload));
-    //   }
-    // );
+    socket.on(
+      SocketActionTypes.SEND_MESSAGES_IDS,
+      (payload: ChannelMessagesIdsResponse) => {
+        emit(publicChannelsActions.responseSendMessagesIds(payload));
+      }
+    );
+    socket.on(
+      SocketActionTypes.RESPONSE_ASK_FOR_MESSAGES,
+      (payload: AskForMessagesResponse) => {
+        emit(publicChannelsActions.responseAskForMessages(payload));
+      }
+    );
     socket.on(SocketActionTypes.MESSAGE, (payload: OnMessagePostedResponse) => {
       emit(publicChannelsActions.onMessagePosted(payload));
     });
