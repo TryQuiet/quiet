@@ -1,5 +1,5 @@
 import { createRootCA, createUserCert, createUserCsr, verifyUserCert, configCrypto } from '@zbayapp/identity'
-import { SocksProxyAgent } from 'socks-proxy-agent'
+import { HttpsProxyAgent } from 'https-proxy-agent'
 import { CertificateRegistration } from '.'
 import { Time } from 'pkijs'
 import { createLibp2p, createTmpDir, spawnTorProcess, TmpDir, tmpZbayDirPath, TorMock, dataFromRootPems } from '../common/testUtils'
@@ -10,11 +10,9 @@ import { RootCA } from '@zbayapp/identity/lib/generateRootCA'
 import { Storage } from '../storage'
 import PeerId from 'peer-id'
 import { DataFromPems } from '../common/types'
-// import {registerOwnerCertificate} from './index'
-jest.setTimeout(50_000)
+jest.setTimeout(140_000)
 
-async function registerUserTest(csr: string, socksPort: number, localhost: boolean = true): Promise<Response> {
-  // Connect to registration service locally or using tor
+async function registerUserTest(csr: string, httpTunnelPort: number, localhost: boolean = true): Promise<Response> {
   let address = '127.0.0.1'
   let options = {
     method: 'POST',
@@ -22,8 +20,9 @@ async function registerUserTest(csr: string, socksPort: number, localhost: boole
     headers: { 'Content-Type': 'application/json' }
   }
   if (!localhost) {
-    options = Object.assign(options, { agent: new SocksProxyAgent({ port: socksPort, host: 'localhost', timeout: 100000 }) })
+    options = Object.assign(options, { agent: new HttpsProxyAgent({ port: httpTunnelPort, host: 'localhost', timeout: 100000 }) })
     address = '4avghtoehep5ebjngfqk5b43jolkiyyedfcvvq4ouzdnughodzoglzad.onion'
+    return await fetch(`http://${address}:80/register`, options)
   }
   return await fetch(`http://${address}:7789/register`, options)
 }
@@ -97,8 +96,7 @@ describe('Registration service', () => {
     tmpDir.removeCallback()
   })
 
-  // This is skipped because test with registration service using Tor fails frequently on CI (Proxy connection timed out)
-  it.skip('generates and saves certificate for a new user using tor', async () => {
+  it('generates and saves certificate for a new user using tor', async () => {
     const user = await createUserCsr({
       zbayNickname: 'userName',
       commonName: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
@@ -117,10 +115,10 @@ describe('Registration service', () => {
       { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString },
       testHiddenService
     )
-    const response = await registerUserTest(user.userCsr, ports.socksPort, false)
-    const returnedUserCertificate = await response.json()
+    const response = await registerUserTest(user.userCsr, ports.httpTunnelPort, false)
+    const responseData = await response.json()
     expect(saveCertificate).toBeCalledTimes(1)
-    const isProperUserCert = await verifyUserCert(certRoot.rootCertString, returnedUserCertificate)
+    const isProperUserCert = await verifyUserCert(certRoot.rootCertString, responseData.certificate)
     expect(isProperUserCert.result).toBe(true)
   })
 

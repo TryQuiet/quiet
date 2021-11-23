@@ -1,8 +1,8 @@
 import fp from 'find-free-port'
+import { HttpsProxyAgent } from 'https-proxy-agent'
 import { Response } from 'node-fetch'
 import path from 'path'
 import PeerId from 'peer-id'
-import { SocksProxyAgent } from 'socks-proxy-agent'
 import tmp from 'tmp'
 import { ConnectionsManagerOptions, DataFromPems } from '../common/types'
 import { Config } from '../constants'
@@ -74,7 +74,7 @@ export const createLibp2p = async (peerId: PeerId): Promise<Libp2pType> => {
     peerId,
     listenAddrs: [createLibp2pListenAddress('localhost', virtPort, 'wss')],
     bootstrapMultiaddrsList: testBootstrapMultiaddrs,
-    agent: new SocksProxyAgent({ port: 1234, host: 'localhost' }),
+    agent: new HttpsProxyAgent({ port: 1234, host: 'localhost' }),
     localAddr: createLibp2pAddress('localhost', virtPort, peerId.toB58String(), 'wss'),
     transportClass: WebsocketsOverTor,
     cert: pems.userCert,
