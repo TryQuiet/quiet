@@ -9,5 +9,5 @@ export enum StoreKeys {
   Users = 'Users',
   Errors = 'Errors',
   Communities = 'Communities',
-  App = 'App'
+  App = 'App',
 }

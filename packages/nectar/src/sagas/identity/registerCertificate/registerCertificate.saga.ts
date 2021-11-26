@@ -26,7 +26,7 @@ export function* registerCertificateSaga(
       },
     ]);
 
-    const identity = yield* select(identitySelectors.currentIdentity)
+    const identity = yield* select(identitySelectors.currentIdentity);
 
     const channel = {
       name: 'general',
@@ -35,9 +35,16 @@ export function* registerCertificateSaga(
       timestamp: Date.now(),
       address: 'general',
     };
-    yield* put(publicChannelsActions.addChannel({communityId:action.payload.communityId, channel: channel}))
+    yield* put(
+      publicChannelsActions.addChannel({
+        communityId: action.payload.communityId,
+        channel: channel,
+      })
+    );
   } else {
-    const registrarUrl = action.payload.registrarAddress.includes(':') ? `http://${action.payload.registrarAddress}` : `http://${action.payload.registrarAddress}.onion` 
+    const registrarUrl = action.payload.registrarAddress.includes(':')
+      ? `http://${action.payload.registrarAddress}`
+      : `http://${action.payload.registrarAddress}.onion`;
     yield* apply(socket, socket.emit, [
       SocketActionTypes.REGISTER_USER_CERTIFICATE,
       registrarUrl,

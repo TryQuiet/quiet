@@ -14,7 +14,11 @@ import {
   CommunitiesState,
   Community,
 } from '../../communities/communities.slice';
-import { identityReducer, IdentityState, Identity } from '../../identity/identity.slice';
+import {
+  identityReducer,
+  IdentityState,
+  Identity,
+} from '../../identity/identity.slice';
 import { identityAdapter } from '../../identity/identity.adapter';
 import { communitiesAdapter } from '../../communities/communities.adapter';
 
@@ -38,7 +42,7 @@ describe('checkForMessagesSaga', () => {
 
   communityChannels.currentChannel =
     'zs10zkaj29rcev9qd5xeuzck4ly5q64kzf6m6h9nfajwcvm8m2vnjmvtqgr0mzfjywswwkwke68t00';
-  (communityChannels.channelMessages = {
+  communityChannels.channelMessages = {
     zs10zkaj29rcev9qd5xeuzck4ly5q64kzf6m6h9nfajwcvm8m2vnjmvtqgr0mzfjywswwkwke68t00:
       {
         ids: ['1', '2', '3'],
@@ -54,8 +58,8 @@ describe('checkForMessagesSaga', () => {
           },
         },
       },
-  }),
-    (communityChannels.id = 'id');
+  };
+  communityChannels.id = 'id';
 
   test('ask for missing messages', () => {
     expectSaga(checkForMessagesSaga)
@@ -96,7 +100,7 @@ describe('checkForMessagesSaga', () => {
           channelAddress:
             'zs10zkaj29rcev9qd5xeuzck4ly5q64kzf6m6h9nfajwcvm8m2vnjmvtqgr0mzfjywswwkwke68t00',
           ids: ['2', '3'],
-          communityId: 'id'
+          communityId: 'id',
         })
       )
       .run();

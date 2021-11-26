@@ -19,7 +19,7 @@ import {
 } from '../../identity/identity.slice';
 
 describe('launchRegistrar', () => {
-  test('launch certain registrar instead of current community\'s registrar', async () => {
+  test("launch certain registrar instead of current community's registrar", async () => {
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket;
     const community = new Community({
       name: '',
@@ -137,7 +137,7 @@ describe('launchRegistrar', () => {
       ])
       .run();
   });
-  test('launch registrar if user is current community\'s owner', async () => {
+  test("launch registrar if user is current community's owner", async () => {
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket;
     const community = new Community({
       name: '',
@@ -196,7 +196,7 @@ describe('launchRegistrar', () => {
       ])
       .run();
   });
-  test('do not attempt to launch registrar if user is not current community\'s owner', async () => {
+  test("do not attempt to launch registrar if user is not current community's owner", async () => {
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket;
     const community = new Community({
       name: '',

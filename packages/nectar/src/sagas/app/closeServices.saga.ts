@@ -1,14 +1,12 @@
-import { PayloadAction } from "@reduxjs/toolkit";
-import { Socket } from "socket.io-client";
-import { apply } from "typed-redux-saga";
-import { appActions } from "./app.slice";
-import { SocketActionTypes } from "../socket/const/actionTypes";
+import { PayloadAction } from '@reduxjs/toolkit';
+import { Socket } from 'socket.io-client';
+import { apply } from 'typed-redux-saga';
+import { appActions } from './app.slice';
+import { SocketActionTypes } from '../socket/const/actionTypes';
 
 export function* closeServicesSaga(
   socket: Socket,
-  action: PayloadAction<
-    ReturnType<typeof appActions.closeServices>["payload"]
-  >
+  _action: PayloadAction<ReturnType<typeof appActions.closeServices>['payload']>
 ): Generator {
   yield* apply(socket, socket.emit, [SocketActionTypes.CLOSE]);
 }

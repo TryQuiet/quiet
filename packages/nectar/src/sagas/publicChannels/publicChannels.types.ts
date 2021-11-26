@@ -25,6 +25,6 @@ export type DisplayableMessage = {
 };
 
 export type MessagesGroupedByDay = Array<{
-  day: string,
-  messages: DisplayableMessage[]
-}>
+  day: string;
+  messages: DisplayableMessage[];
+}>;

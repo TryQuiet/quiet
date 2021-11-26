@@ -2,7 +2,9 @@
   "extends": ["airbnb-typescript", "prettier"],
   "plugins": ["prettier", "react", "import"],
   "rules": {
-    "prettier/prettier": ["error"]
+    "prettier/prettier": ["error"],
+    "@typescript-eslint/no-unused-vars": "off",
+    "import/no-extraneous-dependencies": "off"
   },
   "overrides": [
     {

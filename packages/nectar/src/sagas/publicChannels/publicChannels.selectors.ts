@@ -141,25 +141,35 @@ export const currentChannelDisplayableMessages = createSelector(
 export const currentChannelMessagesMergedBySender = createSelector(
   currentChannelDisplayableMessages,
   (messages) => {
-    const timeOfGroupingMessages = 300
-    let newMessages = []
+    const timeOfGroupingMessages = 300;
+    let newMessages = [];
 
-    for (let indexOfMessages = 0; indexOfMessages < messages.length; indexOfMessages++) {
-      let currentMessage = messages[indexOfMessages]
+    for (
+      let indexOfMessages = 0;
+      indexOfMessages < messages.length;
+      indexOfMessages++
+    ) {
+      let currentMessage = messages[indexOfMessages];
 
-      while (messages[indexOfMessages + 1]
-        && (currentMessage.createdAt - messages[indexOfMessages + 1].createdAt) < timeOfGroupingMessages
-        && currentMessage.nickname === messages[indexOfMessages + 1].nickname) {
+      while (
+        messages[indexOfMessages + 1] &&
+        currentMessage.createdAt - messages[indexOfMessages + 1].createdAt <
+          timeOfGroupingMessages &&
+        currentMessage.nickname === messages[indexOfMessages + 1].nickname
+      ) {
         currentMessage = {
           ...currentMessage,
-          message: messages[indexOfMessages + 1].message + "\n" + currentMessage.message
-        }
-        indexOfMessages++
+          message:
+            messages[indexOfMessages + 1].message +
+            '\n' +
+            currentMessage.message,
+        };
+        indexOfMessages++;
       }
 
-      newMessages.push(currentMessage)
+      newMessages.push(currentMessage);
     }
-    return newMessages.reverse()
+    return newMessages.reverse();
   }
 );
 
@@ -167,52 +177,54 @@ export const currentChannelMessagesMergedBySender = createSelector(
 export const currentChannelMessagesGroupedByDay = createSelector(
   currentChannelMessagesMergedBySender,
   (messages) => {
-    let messagesByDay: MessagesGroupedByDay = []
+    let messagesByDay: MessagesGroupedByDay = [];
 
     for (const message of messages) {
-      const split = formatMessageDisplayDate(message.createdAt).split(',')
+      const split = formatMessageDisplayDate(message.createdAt).split(',');
 
       if (split.length === 1) {
-        const messageTime = split[0]
-        const isDay = messagesByDay.find((item) => item.day === 'Today')
+        const messageTime = split[0];
+        const isDay = messagesByDay.find((item) => item.day === 'Today');
         const displayableMessage = {
           ...message,
-          createdAt: messageTime
-        }
+          createdAt: messageTime,
+        };
 
         if (!isDay) {
           messagesByDay.push({
             day: 'Today',
-            messages: [displayableMessage]
-          })
+            messages: [displayableMessage],
+          });
         } else {
-          const dayIndex = messagesByDay.findIndex((item) => item.day === 'Today')
-          console.log(dayIndex)
-          messagesByDay[dayIndex].messages.push(displayableMessage)
+          const dayIndex = messagesByDay.findIndex(
+            (item) => item.day === 'Today'
+          );
+          console.log(dayIndex);
+          messagesByDay[dayIndex].messages.push(displayableMessage);
         }
-      }
-
-      else if (split.length === 2) {
-        const messageDay = split[0]
-        const messageTime = split[1]
-        const isDay = messagesByDay.find((item) => item.day === messageDay)
+      } else if (split.length === 2) {
+        const messageDay = split[0];
+        const messageTime = split[1];
+        const isDay = messagesByDay.find((item) => item.day === messageDay);
         const displayableMessage = {
           ...message,
-          createdAt: messageTime
-        }
+          createdAt: messageTime,
+        };
 
         if (!isDay) {
           messagesByDay.push({
             day: messageDay,
-            messages: [displayableMessage]
-          })
+            messages: [displayableMessage],
+          });
         } else {
-          const dayIndex = messagesByDay.findIndex((item) => item.day === messageDay)
-          messagesByDay[dayIndex].messages.push(displayableMessage)
+          const dayIndex = messagesByDay.findIndex(
+            (item) => item.day === messageDay
+          );
+          messagesByDay[dayIndex].messages.push(displayableMessage);
         }
       }
     }
-    return messagesByDay
+    return messagesByDay;
   }
 );
 
@@ -228,5 +240,5 @@ export const publicChannelsSelectors = {
   validCurrentChannelMessages,
   currentChannelDisplayableMessages,
   currentChannelMessagesMergedBySender,
-  currentChannelMessagesGroupedByDay
+  currentChannelMessagesGroupedByDay,
 };

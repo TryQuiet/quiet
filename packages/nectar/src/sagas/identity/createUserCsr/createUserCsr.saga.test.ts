@@ -10,7 +10,7 @@ import {
   identityActions,
   identityReducer,
   Identity,
-  IdentityState
+  IdentityState,
 } from '../identity.slice';
 
 import { identityAdapter } from '../identity.adapter';

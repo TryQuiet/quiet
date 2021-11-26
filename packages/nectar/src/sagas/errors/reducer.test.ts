@@ -1,9 +1,4 @@
-import {
-  errorsActions,
-  errorsReducer,
-  ErrorPayload,
-  GENERAL_ERRORS,
-} from './errors.slice';
+import { errorsActions, errorsReducer, GENERAL_ERRORS } from './errors.slice';
 
 test('errors reducer should set errors', () => {
   const errorPayload = {

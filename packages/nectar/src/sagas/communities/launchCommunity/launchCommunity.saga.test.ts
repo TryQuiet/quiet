@@ -12,7 +12,11 @@ import {
   CommunitiesState,
 } from '../communities.slice';
 import { communitiesAdapter } from '../communities.adapter';
-import { Identity, identityReducer, IdentityState } from '../../identity/identity.slice';
+import {
+  Identity,
+  identityReducer,
+  IdentityState,
+} from '../../identity/identity.slice';
 
 describe('launchCommunity', () => {
   test('launch all remembered communities', async () => {

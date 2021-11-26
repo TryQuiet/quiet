@@ -15,10 +15,10 @@ import { publicChannelsSelectors } from '../../publicChannels/publicChannels.sel
 import { messagesActions } from '../messages.slice';
 import { MessageTypes } from '../const/messageTypes';
 import { generateMessageId, getCurrentTime } from '../utils/message.utils';
-import logger from '../../../utils/logger'
+import logger from '../../../utils/logger';
 import { Identity } from 'src/sagas/identity/identity.slice';
 
-const log = logger('message')
+const log = logger('message');
 
 export function* sendMessageSaga(
   socket: Socket,
@@ -27,7 +27,7 @@ export function* sendMessageSaga(
   >
 ): Generator {
   const identity: Identity = yield* select(identitySelectors.currentIdentity);
-  
+
   const certificate = identity.userCertificate;
 
   log('sendMessageSaga-1');

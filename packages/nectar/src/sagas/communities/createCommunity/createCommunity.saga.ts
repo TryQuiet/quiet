@@ -27,7 +27,7 @@ export function* createCommunitySaga(
     registrarUrl: '',
   };
   yield* put(communitiesActions.addNewCommunity(payload));
-  yield* put(publicChannelsActions.addPublicChannelsList(id))
+  yield* put(publicChannelsActions.addPublicChannelsList(id));
   const channel = {
     name: 'general',
     description: 'general',
@@ -35,7 +35,9 @@ export function* createCommunitySaga(
     timestamp: Date.now(),
     address: 'general',
   };
-  yield* put(publicChannelsActions.addChannel({communityId:id, channel: channel}))
+  yield* put(
+    publicChannelsActions.addChannel({ communityId: id, channel: channel })
+  );
   yield* put(communitiesActions.setCurrentCommunity(id));
 
   yield* apply(socket, socket.emit, [SocketActionTypes.CREATE_NETWORK, id]);

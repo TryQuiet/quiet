@@ -2,15 +2,15 @@ import { Socket } from 'socket.io-client';
 import { all, call, put, takeEvery, fork } from 'typed-redux-saga';
 import { eventChannel } from 'redux-saga';
 import { SocketActionTypes } from '../const/actionTypes';
-import logger from '../../../utils/logger'
-const log = logger('socket')
+import logger from '../../../utils/logger';
+const log = logger('socket');
 
 import {
   GetPublicChannelsResponse,
   OnMessagePostedResponse,
   publicChannelsActions,
   ChannelMessagesIdsResponse,
-  AskForMessagesResponse
+  AskForMessagesResponse,
 } from '../../publicChannels/publicChannels.slice';
 import { publicChannelsMasterSaga } from '../../publicChannels/publicChannels.master.saga';
 import { ErrorPayload, errorsActions } from '../../errors/errors.slice';
@@ -29,34 +29,14 @@ import {
   ResponseLaunchCommunityPayload,
   ResponseRegistrarPayload,
 } from '../../communities/communities.slice';
-import { appMasterSaga } from '../../app/app.master.saga'
-
-export function* useIO(socket: Socket): Generator {
-  yield all([
-    fork(handleActions, socket),
-    fork(publicChannelsMasterSaga, socket),
-    fork(messagesMasterSaga, socket),
-    fork(identityMasterSaga, socket),
-    fork(communitiesMasterSaga, socket),
-    fork(appMasterSaga, socket),
-    fork(errorsMasterSaga, socket)
-  ]);
-}
-
-export function* handleActions(socket: Socket): Generator {
-  const socketChannel = yield* call(subscribe, socket);
-  yield takeEvery(socketChannel, function* (action) {
-    yield put(action);
-  });
-}
-
+import { appMasterSaga } from '../../app/app.master.saga';
 
 export function subscribe(socket: Socket) {
   return eventChannel<
-    // | ReturnType<typeof publicChannelsActions.responseGetPublicChannels>
-    // | ReturnType<typeof publicChannelsActions.responseSendMessagesIds>
-    // | ReturnType<typeof publicChannelsActions.responseAskForMessages>
-    // | ReturnType<typeof publicChannelsActions.onMessagePosted>
+    | ReturnType<typeof publicChannelsActions.responseGetPublicChannels>
+    | ReturnType<typeof publicChannelsActions.responseSendMessagesIds>
+    | ReturnType<typeof publicChannelsActions.responseAskForMessages>
+    | ReturnType<typeof publicChannelsActions.onMessagePosted>
     | ReturnType<typeof usersActions.responseSendCertificates>
     | ReturnType<typeof communitiesActions.responseCreateCommunity>
     | ReturnType<typeof errorsActions.addError>
@@ -95,8 +75,8 @@ export function subscribe(socket: Socket) {
     socket.on(
       SocketActionTypes.NEW_COMMUNITY,
       (payload: ResponseCreateCommunityPayload) => {
-        log('createdCommunity')
-        log(payload)
+        log('createdCommunity');
+        log(payload);
         emit(communitiesActions.responseCreateCommunity(payload));
       }
     );
@@ -114,21 +94,21 @@ export function subscribe(socket: Socket) {
       log(payload);
       emit(communitiesActions.responseCreateCommunity(payload));
     });
-    socket.on(SocketActionTypes.COMMUNITY, (payload: ResponseLaunchCommunityPayload) => {
-      log('launched COMMUNITY');
-      log(payload.id);
-      emit(publicChannelsActions.subscribeForAllTopics(payload.id));
-      emit(communitiesActions.launchRegistrar(payload.id));
-      emit(communitiesActions.community(payload.id));
-    });
     socket.on(
-      SocketActionTypes.ERROR,
-      (payload: ErrorPayload) => {
-        log('Got Error')
-        log(payload)
-        emit(errorsActions.addError(payload))
+      SocketActionTypes.COMMUNITY,
+      (payload: ResponseLaunchCommunityPayload) => {
+        log('launched COMMUNITY');
+        log(payload.id);
+        emit(publicChannelsActions.subscribeForAllTopics(payload.id));
+        emit(communitiesActions.launchRegistrar(payload.id));
+        emit(communitiesActions.community(payload.id));
       }
     );
+    socket.on(SocketActionTypes.ERROR, (payload: ErrorPayload) => {
+      log('Got Error');
+      log(payload);
+      emit(errorsActions.addError(payload));
+    });
     socket.on(
       SocketActionTypes.SEND_USER_CERTIFICATE,
       (payload: {
@@ -160,6 +140,25 @@ export function subscribe(socket: Socket) {
     socket.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, () => {
       emit(identityActions.savedOwnerCertificate());
     });
-    return () => { };
+    return () => {};
   });
+}
+
+export function* handleActions(socket: Socket): Generator {
+  const socketChannel = yield* call(subscribe, socket);
+  yield takeEvery(socketChannel, function* (action) {
+    yield put(action);
+  });
+}
+
+export function* useIO(socket: Socket): Generator {
+  yield all([
+    fork(handleActions, socket),
+    fork(publicChannelsMasterSaga, socket),
+    fork(messagesMasterSaga, socket),
+    fork(identityMasterSaga, socket),
+    fork(communitiesMasterSaga, socket),
+    fork(appMasterSaga, socket),
+    fork(errorsMasterSaga),
+  ]);
 }

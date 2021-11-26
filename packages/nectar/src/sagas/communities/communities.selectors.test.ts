@@ -88,14 +88,15 @@ describe('communitiesSelectors', () => {
   });
 
   it('returns registrar url without port if no port in the store', () => {
-    const onionAddress = 'aznu6kiyutsgjhdue4i4xushjzey6boxf4i4isd53admsibvbt6qyiyd'
+    const onionAddress =
+      'aznu6kiyutsgjhdue4i4xushjzey6boxf4i4isd53admsibvbt6qyiyd';
     const community = new Community({
       name: 'new',
       id: 'communityNew',
       CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
       registrarUrl: '',
     });
-    community.onionAddress = onionAddress
+    community.onionAddress = onionAddress;
     store = createStore(
       combineReducers({
         [StoreKeys.Communities]: communitiesReducer,
@@ -112,20 +113,21 @@ describe('communitiesSelectors', () => {
       }
     );
     const registrarUrl = communitiesSelectors.registrarUrl(store.getState());
-    expect(registrarUrl).toBe(onionAddress)
-  })
+    expect(registrarUrl).toBe(onionAddress);
+  });
 
   it('returns registrar url with port if port exists in the store', () => {
-    const onionAddress = 'aznu6kiyutsgjhdue4i4xushjzey6boxf4i4isd53admsibvbt6qyiyd'
-    const port = 7777
+    const onionAddress =
+      'aznu6kiyutsgjhdue4i4xushjzey6boxf4i4isd53admsibvbt6qyiyd';
+    const port = 7777;
     const community = new Community({
       name: 'new',
       id: 'communityNew',
       CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
       registrarUrl: '',
     });
-    community.onionAddress = onionAddress
-    community.port = port
+    community.onionAddress = onionAddress;
+    community.port = port;
     store = createStore(
       combineReducers({
         [StoreKeys.Communities]: communitiesReducer,
@@ -142,11 +144,12 @@ describe('communitiesSelectors', () => {
       }
     );
     const registrarUrl = communitiesSelectors.registrarUrl(store.getState());
-    expect(registrarUrl).toBe(`${onionAddress}:${port}`)
-  })
+    expect(registrarUrl).toBe(`${onionAddress}:${port}`);
+  });
 
   it('returns registrar url if no onion address, no port', () => {
-    const url = 'http://aznu6kiyutsgjhdue4i4xushjzey6boxf4i4isd53admsibvbt6qyiyd'
+    const url =
+      'http://aznu6kiyutsgjhdue4i4xushjzey6boxf4i4isd53admsibvbt6qyiyd';
     const community = new Community({
       name: 'new',
       id: 'communityNew',
@@ -169,7 +172,6 @@ describe('communitiesSelectors', () => {
       }
     );
     const registrarUrl = communitiesSelectors.registrarUrl(store.getState());
-    expect(registrarUrl).toBe(url)
-  })
-  
+    expect(registrarUrl).toBe(url);
+  });
 });

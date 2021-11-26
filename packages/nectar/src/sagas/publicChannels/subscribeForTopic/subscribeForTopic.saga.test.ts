@@ -49,7 +49,8 @@ describe('subscribeForTopicSaga', () => {
     )
       .withReducer(
         combineReducers({
-          [StoreKeys.Identity]: identityReducer, [StoreKeys.Communities]: communitiesReducer
+          [StoreKeys.Identity]: identityReducer,
+          [StoreKeys.Communities]: communitiesReducer,
         }),
         {
           [StoreKeys.Identity]: {

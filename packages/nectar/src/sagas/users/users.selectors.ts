@@ -6,12 +6,11 @@ import { certificatesAdapter } from './users.adapter';
 import { User } from './users.slice';
 import { CreatedSelectors, StoreState } from '../store.types';
 
-const usersSlice: CreatedSelectors[StoreKeys.Users] = (state: StoreState) => state[StoreKeys.Users]
+const usersSlice: CreatedSelectors[StoreKeys.Users] = (state: StoreState) =>
+  state[StoreKeys.Users];
 
-export const certificates = createSelector(
-  usersSlice,
-  (reducerState) =>
-    certificatesAdapter.getSelectors().selectEntities(reducerState.certificates)
+export const certificates = createSelector(usersSlice, (reducerState) =>
+  certificatesAdapter.getSelectors().selectEntities(reducerState.certificates)
 );
 
 export const certificatesMapping = createSelector(certificates, (certs) => {

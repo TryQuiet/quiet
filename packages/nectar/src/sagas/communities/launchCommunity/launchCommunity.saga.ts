@@ -1,4 +1,4 @@
-import { apply, select, all, put } from 'typed-redux-saga';
+import { apply, select, put } from 'typed-redux-saga';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { Socket } from 'socket.io-client';
 import { SocketActionTypes } from '../../socket/const/actionTypes';

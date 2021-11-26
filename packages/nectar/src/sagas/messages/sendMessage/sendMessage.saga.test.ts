@@ -65,8 +65,8 @@ describe('sendMessageSaga', () => {
     },
   };
 
-  identity.userCertificate = 'userCertificate'
-  identity.userCsr = csr
+  identity.userCertificate = 'userCertificate';
+  identity.userCsr = csr;
 
   const publicChannel: IChannelInfo = {
     name: 'general',
@@ -77,11 +77,11 @@ describe('sendMessageSaga', () => {
   };
 
   const communityChannels = new CommunityChannels(communityId);
-  communityChannels.currentChannel = publicChannel.address
+  communityChannels.currentChannel = publicChannel.address;
   communityChannels.channels = publicChannelsAdapter.setAll(
     publicChannelsAdapter.getInitialState(),
     [publicChannel]
-  )
+  );
 
   test('sign and send message', async () => {
     const socket = { emit: jest.fn() } as unknown as Socket;

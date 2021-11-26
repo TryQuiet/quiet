@@ -52,10 +52,10 @@ const reducers = {
 };
 
 export const prepareStore = (
-  reducers,
+  reducersList,
   mockedState?: { [key in StoreKeys]?: any }
 ) => {
-  const combinedReducers = combineReducers(reducers);
+  const combinedReducers = combineReducers(reducersList);
   const sagaMiddleware = createSagaMiddleware();
   const store = createStore(
     combinedReducers,
@@ -81,9 +81,7 @@ const connectToDataport = (url: string, name: string): Socket => {
   return socket;
 };
 
-export const createApp = async (
-  mockedState?: { [key in StoreKeys]?: any }
-) => {
+export const createApp = async (mockedState?: { [key in StoreKeys]?: any }) => {
   /**
    * Configure and initialize ConnectionsManager from waggle,
    * configure redux store
@@ -115,8 +113,6 @@ export const createApp = async (
   });
   await manager.init();
 
-  const rootTask = runSaga(root);
-
   function* root(): Generator {
     const socket = yield* call(
       connectToDataport,
@@ -127,6 +123,9 @@ export const createApp = async (
     yield* take(createAction('testFinished'));
     yield* put(appActions.closeServices());
   }
+
+  const rootTask = runSaga(root);
+
   return { store, runSaga, rootTask, manager };
 };
 
@@ -167,8 +166,6 @@ export const createAppWithoutTor = async (
   });
   manager.initListeners();
 
-  const rootTask = runSaga(root);
-
   function* root(): Generator {
     const socket = yield* call(
       connectToDataport,
@@ -179,6 +176,8 @@ export const createAppWithoutTor = async (
     yield* take(createAction('testFinished'));
     yield* put(appActions.closeServices());
   }
+
+  const rootTask = runSaga(root);
 
   return { store, runSaga, rootTask, manager };
 };

@@ -1,14 +1,11 @@
 import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit';
 
 import { StoreKeys } from '../store.keys';
-
 import {
   publicChannelsAdapter,
   channelsByCommunityAdapter,
 } from './publicChannels.adapter';
 import { IChannelInfo, IMessage } from './publicChannels.types';
-import logger from '../../utils/logger';
-const log = logger('publicChannels');
 
 export class PublicChannelsState {
   public channels: EntityState<CommunityChannels> =
@@ -49,10 +46,10 @@ export interface ChannelMessagesIdsResponse {
 }
 
 export interface AskForMessagesPayload {
-  peerId: string,
+  peerId: string;
   channelAddress: string;
   ids: string[];
-  communityId: string
+  communityId: string;
 }
 
 export interface SubscribeForTopicPayload {

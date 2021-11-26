@@ -4,8 +4,8 @@ interface ActionsBasicType {
   [k: string]: ActionCreator<AnyAction>;
 }
 
-export type ActionsType<actions extends ActionsBasicType> = {
-  [k in keyof actions]: ReturnType<actions[k]>;
+export type ActionsType<Actions extends ActionsBasicType> = {
+  [k in keyof Actions]: ReturnType<Actions[k]>;
 };
 
 export type Keys<Actions> = keyof Actions;
@@ -39,5 +39,5 @@ export enum SocketActionTypes {
   LAUNCH_REGISTRAR = 'launchRegistrar',
   SAVE_OWNER_CERTIFICATE = 'saveOwnerCertificate',
   SAVED_OWNER_CERTIFICATE = 'savedOwnerCertificate',
-  CLOSE = 'close'
+  CLOSE = 'close',
 }

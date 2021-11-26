@@ -1,7 +1,12 @@
 import { combineReducers } from '@reduxjs/toolkit';
 import { expectSaga } from 'redux-saga-test-plan';
 import { StoreKeys } from '../../store.keys';
-import { identityActions, identityReducer, Identity, IdentityState } from '../identity.slice';
+import {
+  identityActions,
+  identityReducer,
+  Identity,
+  IdentityState,
+} from '../identity.slice';
 import { identityAdapter } from '../identity.adapter';
 import { registerUsernameSaga } from './registerUsername.saga';
 import { config } from '../../users/const/certFieldTypes';

@@ -2,8 +2,6 @@ import { StoreKeys } from '../store.keys';
 import { createSelector } from 'reselect';
 import { communitiesAdapter } from './communities.adapter';
 import { CreatedSelectors, StoreState } from '../store.types';
-import logger from '../../utils/logger'
-const log = logger('communities')
 
 const communitiesSlice: CreatedSelectors[StoreKeys.Communities] = (
   state: StoreState
@@ -24,7 +22,7 @@ export const allCommunities = createSelector(
 );
 
 export const ownCommunities = createSelector(allCommunities, (communities) => {
-  return communities?.filter((community) => community.CA !== null) || []
+  return communities?.filter((community) => community.CA !== null) || [];
 });
 
 export const currentCommunity = createSelector(
@@ -40,17 +38,21 @@ export const currentCommunity = createSelector(
 export const currentCommunityId = createSelector(
   communitiesSlice,
   (reducerState) => {
-    return reducerState.currentCommunity
+    return reducerState.currentCommunity;
   }
 );
 
 export const registrarUrl = createSelector(currentCommunity, (community) => {
   let registrarAddress: string = '';
-  if (!community) { return }
+  if (!community) {
+    return;
+  }
   if (community.onionAddress) {
-    registrarAddress = community.port ? `${community.onionAddress}:${community.port}` : `${community.onionAddress}`;
+    registrarAddress = community.port
+      ? `${community.onionAddress}:${community.port}`
+      : `${community.onionAddress}`;
   } else if (community.registrarUrl) {
-    registrarAddress = community.registrarUrl
+    registrarAddress = community.registrarUrl;
   }
   return registrarAddress;
 });

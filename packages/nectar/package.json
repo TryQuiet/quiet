@@ -25,6 +25,8 @@
     "luxon": "^2.0.2",
     "redux": "^4.1.1",
     "redux-saga": "^1.1.3",
+    "redux-thunk": "^2.4.0",
+    "reselect": "^4.1.4",
     "socket.io-client": "^4.1.3",
     "typed-redux-saga": "^1.3.1",
     "wait-for-expect": "^3.0.2"
@@ -58,7 +60,10 @@
   },
   "peerDependencies": {
     "@zbayapp/identity": "*",
-    "pkijs": "*"
+    "pkijs": "*",
+    "@peculiar/webcrypto": "*",
+    "pvutils": "*",
+    "libp2p-websockets": "*"
   },
   "jest": {
     "extensionsToTreatAsEsm": [

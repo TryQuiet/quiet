@@ -237,7 +237,6 @@ describe('communities - without tor', () => {
 });
 
 describe('registrar', () => {
-
   let owner;
 
   beforeAll(async () => {
@@ -342,6 +341,6 @@ describe('registrar', () => {
 
     await app.runSaga(launchCommunitiesOnStartupSaga).toPromise();
 
-    await app.manager.closeAllServices()
+    await app.manager.closeAllServices();
   });
 });

@@ -8,9 +8,9 @@ export class IdentityState {
 
 export class Identity {
   constructor({ id, hiddenService, peerId, dmKeys }: AddNewIdentityPayload) {
-    (this.id = id),
-      (this.peerId = peerId),
-      (this.hiddenService = hiddenService);
+    this.id = id;
+    this.peerId = peerId;
+    this.hiddenService = hiddenService;
     this.dmKeys = dmKeys;
   }
 

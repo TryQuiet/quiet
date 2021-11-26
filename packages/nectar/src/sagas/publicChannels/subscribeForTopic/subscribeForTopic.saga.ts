@@ -11,8 +11,13 @@ export function* subscribeForTopicSaga(
     ReturnType<typeof publicChannelsActions.subscribeForTopic>['payload']
   >
 ): Generator {
-  const id = yield* select(communitiesSelectors.currentCommunityId)
-  yield* put(publicChannelsActions.addChannel({communityId:id, channel: action.payload.channelData}))
+  const id = yield* select(communitiesSelectors.currentCommunityId);
+  yield* put(
+    publicChannelsActions.addChannel({
+      communityId: id,
+      channel: action.payload.channelData,
+    })
+  );
 
   yield* apply(socket, socket.emit, [
     SocketActionTypes.SUBSCRIBE_FOR_TOPIC,

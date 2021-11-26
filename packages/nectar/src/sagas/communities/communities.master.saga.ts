@@ -3,7 +3,10 @@ import { all, fork, takeEvery } from 'typed-redux-saga';
 import { communitiesActions } from './communities.slice';
 import { createCommunitySaga } from './createCommunity/createCommunity.saga';
 import { joinCommunitySaga } from './joinCommunity/joinCommunity.saga';
-import { initCommunities, launchCommunitySaga } from './launchCommunity/launchCommunity.saga';
+import {
+  initCommunities,
+  launchCommunitySaga,
+} from './launchCommunity/launchCommunity.saga';
 import { launchRegistrarSaga } from './launchRegistrar/launchRegistrar.saga';
 import { responseCreateCommunitySaga } from './responseCreateCommunity/responseCreateCommunity.saga';
 
