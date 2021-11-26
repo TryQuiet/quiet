@@ -17,7 +17,7 @@ import { usersSelectors } from './users.selectors';
 describe('users selectors', () => {
   let store: Store;
 
-  const communityId = new Community({
+  const communityId: Community = {
     name: 'communityId',
     id: 'communityId',
     CA: {
@@ -26,8 +26,14 @@ describe('users selectors', () => {
       rootKeyString:
         'MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgWBC3C4ARMT8zD1nqYjfs+bDXflWkVFqHRovqQmLQRAKgCgYIKoZIzj0DAQehRANCAASgrM0/l4plmOUtv5yb5AxH2VSRIotJG3oly86ZHl/h6B7hw4/1dCE26Z/jJW3eyIzly7av/zVXkcgBxuqZtKBT',
     },
+    rootCa: '',
+    peerList: [],
     registrarUrl: '',
-  });
+    registrar: null,
+    onionAddress: '',
+    privateKey: '',
+    port: 0,
+  };
 
   const userCertData = {
     username: 'userName',
@@ -93,4 +99,4 @@ describe('users selectors', () => {
   });
 });
 
-export { };
+export {};

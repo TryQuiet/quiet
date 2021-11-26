@@ -21,18 +21,27 @@ import {
 describe('launchRegistrar', () => {
   test("launch certain registrar instead of current community's registrar", async () => {
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket;
-    const community = new Community({
+    const community: Community = {
       name: '',
       id: 'id',
       registrarUrl: 'registrarUrl',
       CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
-    });
-    const identity = new Identity({
+      rootCa: '',
+      peerList: [],
+      registrar: null,
+      onionAddress: '',
+      privateKey: '',
+      port: 0,
+    };
+    const identity: Identity = {
       id: 'id',
       hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
       dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-    });
+      zbayNickname: '',
+      userCsr: undefined,
+      userCertificate: '',
+    };
     const launchRegistrarPayload = {
       id: 'id',
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
@@ -80,18 +89,27 @@ describe('launchRegistrar', () => {
   });
   test('do not attempt to launch certain registrar if user is not community owner', async () => {
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket;
-    const community = new Community({
+    const community: Community = {
       name: '',
       id: 'id',
       registrarUrl: 'registrarUrl',
-      CA: {},
-    });
-    const identity = new Identity({
+      CA: undefined,
+      rootCa: '',
+      peerList: [],
+      registrar: null,
+      onionAddress: '',
+      privateKey: '',
+      port: 0,
+    };
+    const identity: Identity = {
       id: 'id',
       hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
       dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-    });
+      zbayNickname: '',
+      userCsr: undefined,
+      userCertificate: '',
+    };
     const launchRegistrarPayload = {
       id: 'id',
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
@@ -139,18 +157,27 @@ describe('launchRegistrar', () => {
   });
   test("launch registrar if user is current community's owner", async () => {
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket;
-    const community = new Community({
+    const community: Community = {
       name: '',
       id: 'id',
       registrarUrl: 'registrarUrl',
       CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
-    });
-    const identity = new Identity({
+      rootCa: '',
+      peerList: [],
+      registrar: null,
+      onionAddress: '',
+      privateKey: '',
+      port: 0,
+    };
+    const identity: Identity = {
       id: 'id',
       hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
       dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-    });
+      zbayNickname: '',
+      userCsr: undefined,
+      userCertificate: '',
+    };
     const launchRegistrarPayload = {
       id: 'id',
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
@@ -198,18 +225,27 @@ describe('launchRegistrar', () => {
   });
   test("do not attempt to launch registrar if user is not current community's owner", async () => {
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket;
-    const community = new Community({
+    const community: Community = {
       name: '',
       id: 'id',
       registrarUrl: 'registrarUrl',
-      CA: {},
-    });
-    const identity = new Identity({
+      CA: undefined,
+      rootCa: '',
+      peerList: [],
+      registrar: null,
+      onionAddress: '',
+      privateKey: '',
+      port: 0,
+    };
+    const identity: Identity = {
       id: 'id',
       hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
       dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-    });
+      zbayNickname: '',
+      userCsr: undefined,
+      userCertificate: '',
+    };
     const launchRegistrarPayload = {
       id: 'id',
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },

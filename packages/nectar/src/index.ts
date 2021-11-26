@@ -15,7 +15,6 @@ import { usersSelectors } from './sagas/users/users.selectors';
 import {
   identityReducer,
   identityActions,
-  Identity,
 } from './sagas/identity/identity.slice';
 import { identitySelectors } from './sagas/identity/identity.selectors';
 
@@ -37,6 +36,9 @@ import { SocketActionTypes } from './sagas/socket/const/actionTypes';
 import { communitiesSelectors } from './sagas/communities/communities.selectors';
 
 import { StoreKeys } from './sagas/store.keys';
+
+export { getFactory } from './utils/tests/factories';
+export * from './utils/tests/helpers';
 
 export {
   DisplayableMessage,
@@ -66,7 +68,6 @@ export const identity = {
   reducer: identityReducer,
   actions: identityActions,
   selectors: identitySelectors,
-  Identity: Identity,
 };
 
 export const messages = {

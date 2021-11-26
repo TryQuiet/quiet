@@ -14,19 +14,28 @@ import { saveOwnerCertToDbSaga } from './saveOwnerCertToDb.saga';
 
 describe('saveOwnerCertificateToDb', () => {
   test('save owner certificate to database', async () => {
-    const community = new Community({
+    const community: Community = {
       name: 'communityName',
       id: 'id',
       CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
+      rootCa: '',
+      peerList: [],
       registrarUrl: '',
-    });
+      registrar: null,
+      onionAddress: '',
+      privateKey: '',
+      port: 0,
+    };
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket;
-    const identity = new Identity({
+    const identity: Identity = {
       id: 'id',
       hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
       dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-    });
+      zbayNickname: '',
+      userCsr: undefined,
+      userCertificate: '',
+    };
     const communityId = 'id';
     await expectSaga(saveOwnerCertToDbSaga, socket)
       .withReducer(

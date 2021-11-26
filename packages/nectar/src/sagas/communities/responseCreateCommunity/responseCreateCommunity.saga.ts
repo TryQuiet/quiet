@@ -16,10 +16,13 @@ export function* responseCreateCommunitySaga(
 
   yield* put(
     identityActions.addNewIdentity({
-      id,
-      hiddenService,
-      peerId,
-      dmKeys,
+      id: id,
+      hiddenService: hiddenService,
+      peerId: peerId,
+      dmKeys: dmKeys,
+      zbayNickname: '',
+      userCsr: null,
+      userCertificate: null,
     })
   );
 }

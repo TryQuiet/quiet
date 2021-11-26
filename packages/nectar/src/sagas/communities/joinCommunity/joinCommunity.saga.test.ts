@@ -17,12 +17,18 @@ import { joinCommunitySaga } from './joinCommunity.saga';
 describe('joinCommunity', () => {
   test('join the existing community', async () => {
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket;
-    const community = new Community({
-      name: '',
+    const community: Community = {
       id: 'id',
+      name: '',
       registrarUrl: 'registrarUrl',
-      CA: {},
-    });
+      CA: null,
+      rootCa: '',
+      peerList: [],
+      registrar: null,
+      onionAddress: '',
+      privateKey: '',
+      port: 0,
+    };
 
     await expectSaga(
       joinCommunitySaga,

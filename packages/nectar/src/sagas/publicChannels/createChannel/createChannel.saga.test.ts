@@ -29,18 +29,27 @@ describe('createChannelSaga', () => {
     timestamp: Date.now(),
     address: 'address',
   };
-  const community = new Community({
+  const community: Community = {
     name: '',
     id: 'id',
+    CA: null,
+    rootCa: '',
+    peerList: [],
     registrarUrl: 'registrarUrl',
-    CA: {},
-  });
-  const identity = new Identity({
+    registrar: null,
+    onionAddress: '',
+    privateKey: '',
+    port: 0,
+  };
+  const identity: Identity = {
     id: 'id',
     hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
     dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
     peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-  });
+    zbayNickname: '',
+    userCsr: undefined,
+    userCertificate: '',
+  };
 
   test('ask for missing messages', () => {
     expectSaga(

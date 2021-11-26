@@ -39,12 +39,18 @@ const mockGetPublicChannels = {
 describe('publicChannelsReducer', () => {
   let store: Store;
 
-  const communityId = new Community({
+  const communityId: Community = {
     name: 'communityId',
     id: 'communityId',
     CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
+    rootCa: '',
+    peerList: [],
     registrarUrl: '',
-  });
+    registrar: null,
+    onionAddress: '',
+    privateKey: '',
+    port: 0,
+  };
 
   let communityChannels = new CommunityChannels('communityId');
 

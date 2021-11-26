@@ -17,12 +17,18 @@ import { createRootCA } from '@zbayapp/identity/lib';
 describe('createCommunitySaga', () => {
   test('create new community', async () => {
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket;
-    const community = new Community({
+    const community: Community = {
       name: 'communityName',
       id: 'id',
       CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
       registrarUrl: '',
-    });
+      rootCa: '',
+      peerList: [],
+      registrar: null,
+      onionAddress: '',
+      privateKey: '',
+      port: 0,
+    };
 
     const id = 'id';
 

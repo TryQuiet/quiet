@@ -32,26 +32,35 @@ describe('createUserCsrSaga', () => {
   };
 
   test('create csr', async () => {
-    const community = new Community({
+    const community: Community = {
       name: '',
       id: 'id',
       registrarUrl: 'registrarUrl',
-      CA: {},
-    });
-    const identity = new Identity({
+      CA: null,
+      rootCa: '',
+      peerList: [],
+      registrar: null,
+      onionAddress: '',
+      privateKey: '',
+      port: 0,
+    };
+    const identity: Identity = {
       id: 'id',
+      zbayNickname: '',
       hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
       dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-    });
+      userCsr: undefined,
+      userCertificate: null,
+    };
     const identityWithCsr: Identity = {
       id: 'id',
-      hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
-      peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
       zbayNickname: '',
+      hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
+      dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
+      peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
       userCsr: userCsr,
       userCertificate: null,
-      dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
     } as Identity;
     await expectSaga(
       createUserCsrSaga,

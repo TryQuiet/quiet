@@ -15,14 +15,14 @@ export function* registerCertificateSaga(
 ): Generator {
   const currentCommunity = yield* select(communitiesSelectors.currentCommunity);
 
-  if (currentCommunity.CA.rootCertString) {
+  if (currentCommunity.CA?.rootCertString) {
     yield* apply(socket, socket.emit, [
       SocketActionTypes.REGISTER_OWNER_CERTIFICATE,
       action.payload.communityId,
       action.payload.userCsr.userCsr,
       {
-        certificate: currentCommunity.CA.rootCertString,
-        privKey: currentCommunity.CA.rootKeyString,
+        certificate: currentCommunity.CA?.rootCertString,
+        privKey: currentCommunity.CA?.rootKeyString,
       },
     ]);
 

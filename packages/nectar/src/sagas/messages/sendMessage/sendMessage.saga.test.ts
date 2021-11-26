@@ -39,19 +39,28 @@ import { IChannelInfo } from 'src';
 describe('sendMessageSaga', () => {
   const communityId = 'id';
 
-  const community = new Community({
+  const community: Community = {
     id: communityId,
     name: 'community',
-    CA: 'CA',
+    CA: null,
+    rootCa: '',
+    peerList: [],
     registrarUrl: 'registrarUrl',
-  });
+    registrar: null,
+    onionAddress: '',
+    privateKey: '',
+    port: 0,
+  };
 
-  const identity = new Identity({
+  const identity: Identity = {
     id: communityId,
     hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
     dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
     peerId: { id: 'id', pubKey: 'pubKey', privKey: 'privKey' },
-  });
+    zbayNickname: '',
+    userCsr: undefined,
+    userCertificate: '',
+  };
 
   const csr = {
     userCsr: 'userCsr',

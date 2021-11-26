@@ -20,26 +20,44 @@ import {
 
 describe('launchCommunity', () => {
   test('launch all remembered communities', async () => {
-    const community1 = new Community({
+    const community1: Community = {
       name: '',
       id: 'id-1',
       registrarUrl: 'registrarUrl',
       CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
-    });
+      rootCa: '',
+      peerList: [],
+      registrar: null,
+      onionAddress: '',
+      privateKey: '',
+      port: 0,
+    };
 
-    const community2 = new Community({
+    const community2: Community = {
       name: '',
       id: 'id-2',
       registrarUrl: 'registrarUrl',
       CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
-    });
+      rootCa: '',
+      peerList: [],
+      registrar: null,
+      onionAddress: '',
+      privateKey: '',
+      port: 0,
+    };
 
-    const community3 = new Community({
+    const community3: Community = {
       name: '',
       id: 'id-3',
       registrarUrl: 'registrarUrl',
       CA: undefined,
-    });
+      rootCa: '',
+      peerList: [],
+      registrar: null,
+      onionAddress: '',
+      privateKey: '',
+      port: 0,
+    };
 
     await expectSaga(initCommunities)
       .withReducer(
@@ -73,21 +91,28 @@ describe('launchCommunity', () => {
       certs: { cert: 'userCert', key: 'userKey', ca: 'rootCert' },
     };
 
-    const community = new Community({
+    const community: Community = {
       name: '',
       id: 'id',
       registrarUrl: 'registrarUrl',
-      CA: {},
-    });
+      CA: null,
+      rootCa: 'rootCert',
+      peerList: [],
+      registrar: null,
+      onionAddress: '',
+      privateKey: '',
+      port: 0,
+    };
 
-    community.rootCa = 'rootCert';
-
-    const identity = new Identity({
+    const identity: Identity = {
       id: 'id',
       hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
       dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-    });
+      zbayNickname: '',
+      userCsr: undefined,
+      userCertificate: '',
+    };
 
     const userCsr = {
       userCsr: 'userCsr',
@@ -151,21 +176,30 @@ describe('launchCommunity', () => {
       certs: { cert: 'userCert', key: 'userKey', ca: 'rootCert' },
     };
 
-    const community = new Community({
+    const community: Community = {
       name: '',
       id: 'id',
       registrarUrl: 'registrarUrl',
-      CA: {},
-    });
+      CA: null,
+      rootCa: 'rootCert',
+      peerList: [],
+      registrar: null,
+      onionAddress: '',
+      privateKey: '',
+      port: 0,
+    };
 
     community.rootCa = 'rootCert';
 
-    const identity = new Identity({
+    const identity: Identity = {
       id: 'id',
       hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
       dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-    });
+      zbayNickname: '',
+      userCsr: undefined,
+      userCertificate: '',
+    };
 
     const userCsr = {
       userCsr: 'userCsr',

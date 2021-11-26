@@ -6,7 +6,6 @@ import { StoreKeys } from '../../store.keys';
 import { communitiesActions } from '../communities.slice';
 import { responseCreateCommunitySaga } from './responseCreateCommunity.saga';
 import { identityReducer, IdentityState } from '../../identity/identity.slice';
-import { Identity } from '../../identity/identity.slice';
 
 describe('responseCreateCommunity', () => {
   test('response create community', async () => {
@@ -36,15 +35,18 @@ describe('responseCreateCommunity', () => {
           identities: {
             ids: ['id'],
             entities: {
-              id: new Identity({
+              id: {
                 id: 'id',
+                zbayNickname: '',
                 hiddenService: {
                   onionAddress: 'onionAddress',
                   privateKey: 'privateKey',
                 },
-                peerId: { id: 'id', pubKey: 'pubKey', privKey: 'privKey' },
                 dmKeys: { publicKey: 'pub', privateKey: 'priv' },
-              }),
+                peerId: { id: 'id', pubKey: 'pubKey', privKey: 'privKey' },
+                userCsr: null,
+                userCertificate: null,
+              },
             },
           },
         },

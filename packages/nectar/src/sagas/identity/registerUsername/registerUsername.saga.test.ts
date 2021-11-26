@@ -20,7 +20,7 @@ import { communitiesAdapter } from '../../communities/communities.adapter';
 import { errorsAdapter } from '../../errors/errors.adapter';
 
 describe('registerUsernameSaga', () => {
-  const identity = new Identity({
+  const identity: Identity = {
     id: 'id',
     hiddenService: {
       onionAddress: 'onionAddress.onion',
@@ -28,8 +28,11 @@ describe('registerUsernameSaga', () => {
     },
     dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
     peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-  });
-  const identityWithoutPeerId = new Identity({
+    zbayNickname: '',
+    userCsr: undefined,
+    userCertificate: '',
+  };
+  const identityWithoutPeerId: Identity = {
     id: 'id',
     hiddenService: {
       onionAddress: 'onionAddress.onion',
@@ -37,13 +40,22 @@ describe('registerUsernameSaga', () => {
     },
     dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
     peerId: { id: '', pubKey: 'pubKey', privKey: 'privKey' },
-  });
-  const community = new Community({
+    zbayNickname: '',
+    userCsr: undefined,
+    userCertificate: '',
+  };
+  const community: Community = {
     name: '',
     id: 'id',
     registrarUrl: 'registrarUrl',
-    CA: {},
-  });
+    CA: null,
+    rootCa: '',
+    peerList: [],
+    registrar: null,
+    onionAddress: '',
+    privateKey: '',
+    port: 0,
+  };
 
   const connectionError = {
     communityId: 'id',

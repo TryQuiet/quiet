@@ -6,27 +6,14 @@ export class IdentityState {
   public identities: EntityState<Identity> = identityAdapter.getInitialState();
 }
 
-export class Identity {
-  constructor({ id, hiddenService, peerId, dmKeys }: AddNewIdentityPayload) {
-    this.id = id;
-    this.peerId = peerId;
-    this.hiddenService = hiddenService;
-    this.dmKeys = dmKeys;
-  }
-
-  public id: string = '';
-
-  public zbayNickname: string = '';
-
-  public hiddenService: HiddenService;
-
-  public dmKeys: DmKeys;
-
-  public peerId: PeerId;
-
-  public userCsr: UserCsr | null = null;
-
-  public userCertificate: string | null = null;
+export interface Identity {
+  id: string;
+  zbayNickname: string;
+  hiddenService: HiddenService;
+  dmKeys: DmKeys;
+  peerId: PeerId;
+  userCsr: UserCsr | null;
+  userCertificate: string | null;
 }
 
 interface CertData {
@@ -62,13 +49,6 @@ export interface DmKeys {
   privateKey: string;
 }
 
-export interface AddNewIdentityPayload {
-  id: string;
-  hiddenService: HiddenService;
-  peerId: PeerId;
-  dmKeys: DmKeys;
-}
-
 export interface CreateUserCsrPayload {
   zbayNickname: string;
   commonName: string;
@@ -98,8 +78,8 @@ export const identitySlice = createSlice({
   initialState: { ...new IdentityState() },
   name: StoreKeys.Identity,
   reducers: {
-    addNewIdentity: (state, action: PayloadAction<AddNewIdentityPayload>) => {
-      identityAdapter.addOne(state.identities, new Identity(action.payload));
+    addNewIdentity: (state, action: PayloadAction<Identity>) => {
+      identityAdapter.addOne(state.identities, action.payload);
     },
     createUserCsr: (state, _action: PayloadAction<CreateUserCsrPayload>) =>
       state,

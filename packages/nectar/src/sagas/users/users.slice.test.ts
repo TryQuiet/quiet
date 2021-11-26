@@ -12,16 +12,21 @@ import { certificatesAdapter } from './users.adapter';
 import { keyFromCertificate, parseCertificate } from '@zbayapp/identity/lib';
 import { usersSelectors } from './users.selectors';
 
-
 describe('users reducer', () => {
   let store: Store;
 
-  const communityId = new Community({
+  const communityId: Community = {
     name: 'communityId',
     id: 'communityId',
     CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
+    rootCa: '',
+    peerList: [],
     registrarUrl: '',
-  });
+    registrar: null,
+    onionAddress: '',
+    privateKey: '',
+    port: 0,
+  };
 
   beforeEach(() => {
     store = createStore(

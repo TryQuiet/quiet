@@ -25,18 +25,27 @@ describe('subscribeForTopicSaga', () => {
     timestamp: 666999666,
     address: 'hell on the shore of the baltic sea',
   };
-  const community = new Community({
+  const community: Community = {
     name: '',
     id: 'id',
+    CA: null,
+    rootCa: '',
+    peerList: [],
     registrarUrl: 'registrarUrl',
-    CA: {},
-  });
-  const identity = new Identity({
+    registrar: null,
+    onionAddress: '',
+    privateKey: '',
+    port: 0,
+  };
+  const identity: Identity = {
     id: 'id',
     hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
     dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
     peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-  });
+    zbayNickname: '',
+    userCsr: undefined,
+    userCertificate: '',
+  };
 
   test('subscribe for topic', () => {
     expectSaga(

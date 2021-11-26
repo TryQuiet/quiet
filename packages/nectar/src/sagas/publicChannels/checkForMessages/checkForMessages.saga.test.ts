@@ -24,7 +24,7 @@ import { communitiesAdapter } from '../../communities/communities.adapter';
 
 describe('checkForMessagesSaga', () => {
   let communityChannels = new CommunityChannels('id');
-  const identity = new Identity({
+  const identity: Identity = {
     id: 'id',
     hiddenService: {
       onionAddress: 'onionAddress.onion',
@@ -32,13 +32,22 @@ describe('checkForMessagesSaga', () => {
     },
     dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
     peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-  });
-  const community = new Community({
+    zbayNickname: '',
+    userCsr: undefined,
+    userCertificate: '',
+  };
+  const community: Community = {
     name: '',
     id: 'id',
+    CA: null,
+    rootCa: '',
+    peerList: [],
     registrarUrl: 'registrarUrl',
-    CA: {},
-  });
+    registrar: null,
+    onionAddress: '',
+    privateKey: '',
+    port: 0,
+  };
 
   communityChannels.currentChannel =
     'zs10zkaj29rcev9qd5xeuzck4ly5q64kzf6m6h9nfajwcvm8m2vnjmvtqgr0mzfjywswwkwke68t00';

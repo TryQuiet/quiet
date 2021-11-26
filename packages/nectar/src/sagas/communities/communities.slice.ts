@@ -12,51 +12,29 @@ export class CommunitiesState {
     communitiesAdapter.getInitialState();
 }
 
-export class Community {
-  constructor({ id, CA, name, registrarUrl }) {
-    this.id = id;
-    if (CA) {
-      this.CA = CA;
-    }
-    if (name) {
-      this.name = name;
-    }
-    if (registrarUrl) {
-      this.registrarUrl = registrarUrl;
-    }
-  }
-
-  public name: string = '';
-
-  peerList: string[] = [];
-
-  id: string = '';
-
-  rootCa: string = '';
-
+export interface Community {
+  id: string;
+  name: string;
   CA: null | {
     rootCertString: string;
     rootKeyString: string;
-  } = null;
-
-  public registrar: {
+  };
+  rootCa: string;
+  peerList: string[];
+  registrarUrl: string;
+  registrar: null | {
     privateKey: string;
     address: string;
   };
-
-  privateKey: string = '';
-
-  onionAddress: string = '';
-
-  registrarUrl: string = '';
-
+  onionAddress: string;
+  privateKey: string;
   port: number;
 }
 
 export interface AddNewCommunityPayload {
   id: string;
-  CA: AsyncReturnType<typeof createRootCA> | {};
   name: string;
+  CA: AsyncReturnType<typeof createRootCA> | {};
   registrarUrl: string;
 }
 
@@ -86,11 +64,8 @@ export const communitiesSlice = createSlice({
     setCurrentCommunity: (state, action: PayloadAction<string>) => {
       state.currentCommunity = action.payload;
     },
-    addNewCommunity: (state, action: PayloadAction<AddNewCommunityPayload>) => {
-      communitiesAdapter.addOne(
-        state.communities,
-        new Community(action.payload)
-      );
+    addNewCommunity: (state, action: PayloadAction<Community>) => {
+      communitiesAdapter.addOne(state.communities, action.payload);
     },
     updateCommunity: (state, action: PayloadAction<Partial<Community>>) => {
       communitiesAdapter.updateOne(state.communities, {

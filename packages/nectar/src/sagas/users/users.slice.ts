@@ -24,6 +24,16 @@ export const usersSlice = createSlice({
   initialState: { ...new UsersState() },
   name: StoreKeys.Users,
   reducers: {
+    // Utility action for testing purposes
+    storeUserCertificate: (
+      state,
+      action: PayloadAction<{ certificate: string }>
+    ) => {
+      certificatesAdapter.addOne(
+        state.certificates,
+        parseCertificate(action.payload.certificate)
+      );
+    },
     responseSendCertificates: (
       state,
       action: PayloadAction<SendCertificatesResponse>
