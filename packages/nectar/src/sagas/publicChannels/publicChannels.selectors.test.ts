@@ -272,8 +272,8 @@ describe('publicChannelsSelectors', () => {
               "type": 1,
             },
             Object {
-              "createdAt": " 6:11 AM",
-              "id": "6",
+              "createdAt": " 6:10 AM",
+              "id": "2",
               "message": "message2
       message8
       message6",
