@@ -58,7 +58,6 @@ const JoinCommunity = () => {
   return (
     <PerformCommunityActionComponent
       {...joinCommunityModal}
-      initialValue={''}
       communityAction={CommunityAction.Join}
       handleCommunityAction={handleCommunityAction}
       handleRedirection={handleRedirection}

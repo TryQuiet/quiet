@@ -34,7 +34,6 @@ const CreateCommunity = () => {
   return (
     <PerformCommunityActionComponent
       {...createCommunityModal}
-      initialValue={''}
       communityAction={CommunityAction.Create}
       handleCommunityAction={handleCommunityAction}
       handleRedirection={handleRedirection}

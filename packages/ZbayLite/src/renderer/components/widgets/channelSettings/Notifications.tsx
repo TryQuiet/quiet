@@ -96,6 +96,7 @@ export const Notifications: React.FC<NotificationsProps> = ({
           <Grid container direction='column'>
             <Grid
               container
+              direction='column'
               item
               justify='space-between'
               alignItems='center'

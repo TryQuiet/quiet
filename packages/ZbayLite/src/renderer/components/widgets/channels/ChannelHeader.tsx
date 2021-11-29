@@ -1,24 +1,21 @@
-import React from 'react'
+import React, { useState } from 'react'
+import classNames from 'classnames'
 
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
 import Clear from '@material-ui/icons/Clear'
-import classNames from 'classnames'
 import { makeStyles } from '@material-ui/core/styles'
 
-import ChannelInfoModal from '../../../containers/widgets/channels/ChannelInfoModal'
-import DirectMessagesInfoModal from '../../../containers/widgets/channels/DirectMessagesInfoModal'
-import { CHANNEL_TYPE } from '../../pages/ChannelTypes'
-import ChannelMenuAction from '../../../containers/widgets/channels/ChannelMenuAction'
-import DirectMessagesMenuActions from '../../../containers/widgets/channels/DirectMessagesMenuActions'
 import IconButton from '../../ui/Icon/IconButton'
 import Icon from '../../ui/Icon/Icon'
 import silenced from '../../../static/images/silenced.svg'
 import silencedBlack from '../../../static/images/silencedBlack.svg'
 import Tooltip from '../../ui/Tooltip/Tooltip'
-import { Channel } from '../../../store/handlers/channel'
+import ChannelMenuActionComponent, { ChannelMenuActionProps } from './ChannelMenuAction'
 
-const useStyles = makeStyles((theme) => ({
+import { IChannelInfo } from '@zbayapp/nectar'
+
+const useStyles = makeStyles(theme => ({
   root: {
     height: '75px',
     paddingLeft: 20,
@@ -89,55 +86,34 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-export const channelTypeToActions = {
-  [CHANNEL_TYPE.DIRECT_MESSAGE]: DirectMessagesMenuActions,
-  [CHANNEL_TYPE.NORMAL]: ChannelMenuAction
-}
-
-const prefix = {
-  [CHANNEL_TYPE.DIRECT_MESSAGE]: '@',
-  [CHANNEL_TYPE.NORMAL]: '#'
-}
-
-// TODO: [reafactoring] we should have channel stats for unread and members count
-
 export interface ChannelHeaderProps {
-  updateShowInfoMsg?: (arg: boolean) => void
-  directMessage?: boolean
-  channelType: CHANNEL_TYPE
-  tab?: number
-  setTab?: (arg: number) => void
-  channel?: Channel
-  mutedFlag?: boolean
-  unmute?: () => void
-  name?: string
-  contactId?: string
+  channel: IChannelInfo
 }
 
-export const ChannelHeader: React.FC<ChannelHeaderProps> = ({
-  channel = { displayableMessageLimit: 50 },
-  directMessage = false,
-  channelType = 3,
-  updateShowInfoMsg,
-  mutedFlag,
-  unmute
+export const ChannelHeaderComponent: React.FC<ChannelHeaderProps & ChannelMenuActionProps> = ({
+  channel,
+  ...channelMenuActionProps
 }) => {
   const classes = useStyles({})
+
+  const [descriptionVisible, setDescriptionVisible] = useState(true)
+
   const debounce = (fn, ms: number) => {
     let timer: ReturnType<typeof setTimeout> | null
-    return _ => {
+    return (_: any) => {
       if (timer) {
         clearTimeout(timer)
       }
       timer = setTimeout(_ => {
         timer = null
-        fn.apply(this) // eslint-disable-line
+        fn.apply(this)
       }, ms)
     }
   }
-  const ActionsMenu = channelTypeToActions[channelType]
+
   const [silenceHover, setSilenceHover] = React.useState(false)
   const [wrapperWidth, setWrapperWidth] = React.useState(0)
+
   React.useEffect(() => {
     setWrapperWidth(window.innerWidth - 300)
   })
@@ -149,17 +125,16 @@ export const ChannelHeader: React.FC<ChannelHeaderProps> = ({
 
     window.addEventListener('resize', handleResize)
 
-    return _ => {
-      window.removeEventListener('resize', handleResize)
-    }
+    return window.removeEventListener('resize', handleResize)
   })
+
   return (
     <div className={classes.wrapper}>
       <Grid
         container
-        alignItems='center'
-        justify='space-between'
         className={classes.root}
+        justify='space-between'
+        alignItems='center'
         direction='row'>
         <Grid item>
           <Grid item container alignItems='center'>
@@ -172,10 +147,10 @@ export const ChannelHeader: React.FC<ChannelHeaderProps> = ({
                   [classes.title]: true,
                   [classes.bold]: true
                 })}>
-                {`${prefix[channelType]}${channel?.name?.substring(0, 20)}`}
+                {`#${channel?.name?.substring(0, 20)}`}
               </Typography>
             </Grid>
-            {mutedFlag && (
+            {channelMenuActionProps.mutedFlag && (
               <Tooltip placement='bottom' title='Unmute'>
                 <Grid
                   item
@@ -183,16 +158,14 @@ export const ChannelHeader: React.FC<ChannelHeaderProps> = ({
                   onMouseEnter={() => setSilenceHover(true)}
                   onMouseLeave={() => setSilenceHover(false)}
                   onClick={() => {
-                    unmute()
+                    channelMenuActionProps.onUnmute()
                   }}>
                   <Icon src={silenceHover ? silencedBlack : silenced} />
                 </Grid>
               </Tooltip>
             )}
           </Grid>
-
         </Grid>
-
         <Grid
           item
           xs
@@ -202,12 +175,11 @@ export const ChannelHeader: React.FC<ChannelHeaderProps> = ({
           alignContent='center'
           alignItems='center'>
           <Grid item>
-            <ActionsMenu directMessage={directMessage} />
-            {directMessage ? <DirectMessagesInfoModal /> : <ChannelInfoModal channel={channel} />}
+            <ChannelMenuActionComponent {...channelMenuActionProps} />
           </Grid>
         </Grid>
       </Grid>
-      {channel.showInfoMsg && channel.description && (
+      {descriptionVisible && channel.description && (
         <Grid container className={classes.descriptionDiv}>
           <Grid item xs>
             <Typography variant='body2'>{channel.description}</Typography>
@@ -215,7 +187,7 @@ export const ChannelHeader: React.FC<ChannelHeaderProps> = ({
           <Grid item className={classes.iconDiv}>
             <IconButton
               onClick={() => {
-                updateShowInfoMsg(false)
+                setDescriptionVisible(false)
               }}>
               <Clear />
             </IconButton>
@@ -226,4 +198,4 @@ export const ChannelHeader: React.FC<ChannelHeaderProps> = ({
   )
 }
 
-export default ChannelHeader
+export default ChannelHeaderComponent

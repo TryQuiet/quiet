@@ -4,10 +4,11 @@ import { ModalName } from './modals.types'
 
 export interface OpenModalPayload {
   name: ModalName
-  args?: CreateUsernameModalProps | { message: string }
+  args?: CreateUsernameModalProps | { message?: string }
 }
 
 export class ModalsInitialState {
+  [ModalName.applicationUpdate] = { open: false };
   [ModalName.createChannel] = { open: false };
   [ModalName.accountSettingsModal] = { open: false };
   [ModalName.openexternallink] = { open: false };

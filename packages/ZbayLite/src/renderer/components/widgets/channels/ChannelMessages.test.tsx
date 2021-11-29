@@ -1,12 +1,7 @@
 import React from 'react'
-import { DateTime } from 'luxon'
-
-import { now } from '../../../testUtils'
-import { ChannelMessages } from './ChannelMessages'
 import { renderComponent } from '../../../testUtils/renderComponent'
-import { HashRouter } from 'react-router-dom'
-import { Provider } from 'react-redux'
-import store from '../../../store'
+import { DateTime } from 'luxon'
+import { ChannelMessagesComponent } from './ChannelMessages'
 
 describe('ChannelMessages', () => {
   it('renders component', async () => {
@@ -14,24 +9,23 @@ describe('ChannelMessages', () => {
       id: 'string',
       type: 1,
       message: 'string',
-      createdAt: 'string',
+      createdAt: '1636995488.44',
       nickname: 'string'
     }
 
-    jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => now)
-    const messages = [message]
-    const contentRect = {
-      bounds: {
-        height: 200
+    jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => DateTime.utc(2019, 3, 7, 13, 3, 48))
+
+    const messages = [
+      {
+        day: 'Today',
+        messages: [message]
       }
-    }
+    ]
+
     const result = renderComponent(
-      <HashRouter>
-        <Provider store={store}>
-          <ChannelMessages messages={messages} contentRect={contentRect} />
-        </Provider>
-      </HashRouter>
+      <ChannelMessagesComponent channel={'general'} messages={messages} />
     )
+
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
@@ -47,71 +41,86 @@ describe('ChannelMessages', () => {
                 class="MuiList-root makeStyles-list-1"
                 id="messages-scroll"
               >
-                <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
-                >
+                <div>
                   <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-align-items-xs-center MuiGrid-justify-xs-center"
                   >
                     <div
-                      class="makeStyles-divider-12"
-                    />
-                  </div>
-                  <div
-                    class="MuiGrid-root makeStyles-titleDiv-13 MuiGrid-item"
-                  >
-                    <p
-                      class="MuiTypography-root MuiTypography-body1"
-                    >
-                      Today
-                    </p>
-                  </div>
-                  <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true"
-                  >
-                    <div
-                      class="makeStyles-divider-12"
-                    />
-                  </div>
-                </div>
-                <li
-                  class="MuiListItem-root makeStyles-wrapper-157 makeStyles-wrapperPending-159 MuiListItem-gutters"
-                >
-                  <div
-                    class="MuiListItemText-root makeStyles-messageCard-156"
-                  >
-                    <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-wrap-xs-nowrap MuiGrid-align-items-xs-flex-start"
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true"
                     >
                       <div
-                        class="MuiGrid-root makeStyles-avatar-165 MuiGrid-item"
+                        class="makeStyles-divider-12"
+                      />
+                    </div>
+                    <div
+                      class="MuiGrid-root makeStyles-titleDiv-13 MuiGrid-item"
+                    >
+                      <p
+                        class="MuiTypography-root MuiTypography-body1"
                       >
-                        <div
-                          class="makeStyles-alignAvatar-166"
-                        >
-                          Jdenticon
-                        </div>
-                      </div>
+                        Today
+                      </p>
+                    </div>
+                    <div
+                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true"
+                    >
                       <div
-                        class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-justify-xs-space-between"
+                        class="makeStyles-divider-12"
+                      />
+                    </div>
+                  </div>
+                  <li
+                    class="MuiListItem-root makeStyles-wrapper-148 makeStyles-wrapperPending-150 MuiListItem-gutters"
+                  >
+                    <div
+                      class="MuiListItemText-root makeStyles-messageCard-147"
+                    >
+                      <div
+                        class="MuiGrid-root MuiGrid-container MuiGrid-wrap-xs-nowrap MuiGrid-align-items-xs-flex-start"
                       >
                         <div
-                          class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-wrap-xs-nowrap MuiGrid-align-items-xs-flex-start MuiGrid-grid-xs-true"
+                          class="MuiGrid-root makeStyles-avatar-156 MuiGrid-item"
                         >
                           <div
-                            class="MuiGrid-root MuiGrid-item"
+                            class="makeStyles-alignAvatar-157"
                           >
-                            <p
-                              class="MuiTypography-root makeStyles-username-160 MuiTypography-body1 MuiTypography-colorTextPrimary"
+                            Jdenticon
+                          </div>
+                        </div>
+                        <div
+                          class="MuiGrid-root MuiGrid-container MuiGrid-item"
+                        >
+                          <div
+                            class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-justify-xs-space-between"
+                          >
+                            <div
+                              class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-wrap-xs-nowrap MuiGrid-align-items-xs-flex-start MuiGrid-grid-xs-true"
                             >
-                              string
-                            </p>
+                              <div
+                                class="MuiGrid-root MuiGrid-item"
+                              >
+                                <p
+                                  class="MuiTypography-root makeStyles-username-151 MuiTypography-body1 MuiTypography-colorTextPrimary"
+                                >
+                                  string
+                                </p>
+                              </div>
+                              <div
+                                class="MuiGrid-root MuiGrid-item"
+                              >
+                                <p
+                                  class="MuiTypography-root makeStyles-time-159 MuiTypography-body1"
+                                >
+                                  1636995488.44
+                                </p>
+                              </div>
+                            </div>
                           </div>
                           <div
                             class="MuiGrid-root MuiGrid-item"
                           >
                             <p
-                              class="MuiTypography-root makeStyles-time-168 MuiTypography-body1"
+                              class="MuiTypography-root makeStyles-message-152 MuiTypography-body1"
                             >
                               string
                             </p>
@@ -119,8 +128,8 @@ describe('ChannelMessages', () => {
                         </div>
                       </div>
                     </div>
-                  </div>
-                </li>
+                  </li>
+                </div>
               </ul>
             </div>
             <div

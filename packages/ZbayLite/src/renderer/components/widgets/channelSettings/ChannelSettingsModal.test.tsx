@@ -177,7 +177,7 @@ describe('ChannelSettingsModal', () => {
                             class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column"
                           >
                             <div
-                              class="MuiGrid-root makeStyles-titleDiv-241 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-justify-xs-space-between"
+                              class="MuiGrid-root makeStyles-titleDiv-241 MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-align-items-xs-center MuiGrid-justify-xs-space-between"
                             >
                               <div
                                 class="MuiGrid-root makeStyles-title-239 MuiGrid-item"

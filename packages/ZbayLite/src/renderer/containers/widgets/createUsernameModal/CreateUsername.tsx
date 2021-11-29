@@ -68,7 +68,6 @@ const CreateUsernameModal = () => {
   return (
     <CreateUsernameModalComponent
       {...createUsernameModal}
-      initialValue={''}
       handleRegisterUsername={handleAction}
       certificateRegistrationError={error?.message}
       certificate={certificate}

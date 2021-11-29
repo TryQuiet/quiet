@@ -1,44 +1,60 @@
-import React, { useEffect } from 'react'
-import { useRouteMatch } from 'react-router'
-import { useDispatch } from 'react-redux'
+import React, { useCallback } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+
+import { identity, messages, publicChannels } from '@zbayapp/nectar'
 
 import ChannelComponent from '../../components/pages/Channel'
-import { CHANNEL_TYPE } from '../../components/pages/ChannelTypes'
 
-import channelHandlers from '../../store/handlers/channel'
-import electronStore from '../../../shared/electronStore'
-
-export const useChannelData = () => {
-  const data = {
-    generalChannelId: 'general'
-  }
-  return data
-}
-
-export const useChannelActions = () => {
-  const dispatch = useDispatch()
-  const loadChannel = (key: string) => {
-    dispatch(channelHandlers.epics.loadChannel(key))
-  }
-  return { loadChannel }
-}
+import { useModal } from '../hooks'
+import { ModalName } from '../../sagas/modals/modals.types'
 
 const Channel = () => {
-  const { generalChannelId } = useChannelData()
-  const { loadChannel } = useChannelActions()
-  const match = useRouteMatch<{ id: string }>()
+  const dispatch = useDispatch()
 
-  useEffect(() => {
-    if (match.params.id === 'general') {
-      if (generalChannelId && electronStore.get('generalChannelInitialized')) {
-        loadChannel(generalChannelId)
-      }
-    } else {
-      loadChannel(match.params.id)
-    }
-  }, [match.params.id, generalChannelId])
+  const user = useSelector(identity.selectors.currentIdentity)
+  const channels = useSelector(publicChannels.selectors.publicChannels)
+  const currentChannelAddress = useSelector(publicChannels.selectors.currentChannel)
+  const currentChannel = channels.find(channel => channel?.address === currentChannelAddress)
+  const displayableMessages = useSelector(
+    publicChannels.selectors.currentChannelMessagesGroupedByDay
+  )
 
-  return <ChannelComponent channelType={CHANNEL_TYPE.NORMAL} contactId={match.params.id} />
+  const channelSettingsModal = useModal(ModalName.channelSettingsModal)
+  const channelInfoModal = useModal(ModalName.channelInfo)
+
+  const onInputChange = useCallback(
+    (_value: string) => {
+      // TODO https://github.com/ZbayApp/ZbayLite/issues/442
+    },
+    [dispatch]
+  )
+
+  const onInputEnter = useCallback(
+    (message: string) => {
+      dispatch(messages.actions.sendMessage(message))
+    },
+    [dispatch]
+  )
+
+  return (
+    <>
+      {currentChannel && (
+        <ChannelComponent
+          user={user}
+          channel={currentChannel}
+          channelSettingsModal={channelSettingsModal}
+          channelInfoModal={channelInfoModal}
+          messages={displayableMessages}
+          onDelete={function (): void { }}
+          onInputChange={onInputChange}
+          onInputEnter={onInputEnter}
+          mutedFlag={false}
+          notificationFilter={''}
+          openNotificationsTab={function (): void { }}
+        />
+      )}
+    </>
+  )
 }
 
 export default Channel

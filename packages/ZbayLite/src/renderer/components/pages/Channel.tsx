@@ -5,47 +5,93 @@ import { Grid } from '@material-ui/core'
 
 import Page from '../ui/Page/Page'
 import PageHeader from '../ui/Page/PageHeader'
-import { channelTypeToHeader, channelTypeToInput } from './ChannelMapping'
-import ChannelContent from '../../containers/widgets/channels/ChannelContent'
-import { CHANNEL_TYPE } from './ChannelTypes'
-import { ChannelHeaderProps } from '../widgets/channels/ChannelHeader'
 
-const useStyles = makeStyles(() => ({
+import ChannelHeaderComponent from '../widgets/channels/ChannelHeader'
+import ChannelMessagesComponent from '../widgets/channels/ChannelMessages'
+import ChannelInputComponent from '../widgets/channels/ChannelInput'
+
+import { useModal } from '../../containers/hooks'
+
+import { IChannelInfo } from '@zbayapp/nectar'
+import { Identity } from '@zbayapp/nectar/lib/sagas/identity/identity.slice'
+import { MessagesGroupedByDay } from '@zbayapp/nectar/lib/sagas/publicChannels/publicChannels.types'
+
+const useStyles = makeStyles(theme => ({
   root: {},
   messages: {
-    height: 0 // It seems like flexGrow breaks if we dont set some default height
+    height: 0,
+    backgroundColor: theme.palette.colors.white
   }
 }))
 
-type IChannelComponentProps = ChannelHeaderProps & {
-  channelType: CHANNEL_TYPE
-  contactId?: string
+export interface ChannelComponentProps {
+  user: Identity
+  channel: IChannelInfo
+  channelSettingsModal: ReturnType<typeof useModal>
+  channelInfoModal: ReturnType<typeof useModal>
+  messages: MessagesGroupedByDay
+  onDelete: () => void
+  onInputChange: (value: string) => void
+  onInputEnter: (message: string) => void
+  mutedFlag: boolean
+  disableSettings?: boolean
+  notificationFilter: string
+  openNotificationsTab: () => void
 }
 
-type InputProps = Omit<IChannelComponentProps, 'channelType'> & {
-  setTab: (arg: number) => void // for now
-}
-
-export const Channel: React.FC<ChannelHeaderProps & IChannelComponentProps> = ({ channelType, contactId, ...props }) => {
+export const ChannelComponent: React.FC<ChannelComponentProps> = ({
+  user,
+  channel,
+  channelInfoModal,
+  channelSettingsModal,
+  messages,
+  onDelete,
+  onInputChange,
+  onInputEnter,
+  mutedFlag,
+  disableSettings = false,
+  notificationFilter,
+  openNotificationsTab
+}) => {
   const classes = useStyles({})
-  const [tab, setTab] = useState(0)
 
-  const Header = channelTypeToHeader[channelType]
-  const Input = channelTypeToInput[channelType] as React.FC<InputProps> // for now
+  const [infoClass, setInfoClass] = useState<string>(null)
 
   return (
     <Page>
       <PageHeader>
-        <Header {...props} tab={tab} setTab={setTab} contactId={contactId} channelType={channelType} />
+        <ChannelHeaderComponent
+          channel={channel}
+          onSettings={channelSettingsModal.handleOpen}
+          onInfo={channelInfoModal.handleOpen}
+          onDelete={onDelete}
+          mutedFlag={mutedFlag}
+          disableSettings={disableSettings}
+          notificationFilter={notificationFilter}
+          openNotificationsTab={openNotificationsTab}
+        />
       </PageHeader>
       <Grid item xs className={classes.messages}>
-        <ChannelContent tab={tab} {...props} channelType={channelType} />
+        <ChannelMessagesComponent channel={channel.address} messages={messages} />
       </Grid>
       <Grid item>
-        <Input {...props} setTab={setTab} />
+        <ChannelInputComponent
+          channelAddress={channel.address}
+          channelName={channel.name}
+          // TODO https://github.com/ZbayApp/ZbayLite/issues/443
+          inputPlaceholder={`#${channel.name} as @${user?.zbayNickname}`}
+          onChange={value => {
+            onInputChange(value)
+          }}
+          onKeyPress={message => {
+            onInputEnter(message)
+          }}
+          infoClass={infoClass}
+          setInfoClass={setInfoClass}
+        />
       </Grid>
     </Page>
   )
 }
 
-export default Channel
+export default ChannelComponent

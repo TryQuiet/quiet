@@ -201,6 +201,9 @@
       "^.+\\.tsx?$": "ts-jest",
       "^.+\\.jsx?$": "babel-jest"
     },
+    "transformIgnorePatterns": [
+      "node_modules/pkijs"
+    ],
     "moduleNameMapper": {
       "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/src/shared/testing/fileMock.ts",
       "\\.(scss|css|less)$": "identity-obj-proxy"
@@ -225,7 +228,7 @@
     "@types/ps-node": "^0.1.0",
     "@types/redux-debounced": "^0.2.19",
     "@zbayapp/identity": "^3.3.3",
-    "@zbayapp/nectar": "^1.16.0",
+    "@zbayapp/nectar": "^1.19.1",
     "asn1js": "^2.1.1",
     "async": "^3.1.0",
     "atob": "^2.1.2",
@@ -296,7 +299,7 @@
     "redux-persist-electron-storage": "^2.1.0",
     "redux-promise-middleware": "^5.1.1",
     "redux-saga": "^1.1.3",
-    "redux-saga-test-plan": "^4.0.1",
+    "redux-saga-test-plan": "^4.0.3",
     "redux-thunk": "^2.3.0",
     "request": "^2.88.0",
     "request-progress": "^3.0.0",
@@ -310,7 +313,7 @@
     "ts-loader": "^8.3.0",
     "typed-redux-saga": "^1.3.1",
     "typeface-roboto": "0.0.54",
-    "waggle": "^4.3.13",
+    "waggle": "^4.3.14",
     "websocket": "^1.0.32",
     "worker-loader": "^3.0.1",
     "ws": "^7.3.1",

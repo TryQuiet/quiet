@@ -1,5 +1,10 @@
+# [4.2.0] - WIP
 
-# [4.1.0] - WIP
+## Fix
+
+* Restored the functionality of sending and receiving messages
+
+# [4.1.0] 16 November 2021
 
 ## Changed
 

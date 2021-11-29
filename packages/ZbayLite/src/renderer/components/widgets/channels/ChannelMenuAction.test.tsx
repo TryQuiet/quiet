@@ -1,12 +1,12 @@
 import React from 'react'
 
-import { ChannelMenuAction } from './ChannelMenuAction'
 import { renderComponent } from '../../../testUtils/renderComponent'
+import { ChannelMenuActionComponent } from './ChannelMenuAction'
 
 describe('ChannelMenuAction', () => {
   it('renders component', () => {
     const result = renderComponent(
-      <ChannelMenuAction
+      <ChannelMenuActionComponent
         onInfo={jest.fn()}
         onMute={jest.fn()}
         onDelete={jest.fn()}

@@ -1,20 +1,20 @@
 import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 
-import { ChannelInput, IChannelInput } from './ChannelInput'
+import { ChannelInputComponent, ChannelInputProps } from './ChannelInput'
 import { withTheme } from '../../../../storybook/decorators'
 
-const Template: ComponentStory<typeof ChannelInput> = args => {
+const Template: ComponentStory<typeof ChannelInputComponent> = args => {
   return (
     <div style={{ height: '400px', position: 'relative' }}>
-      <ChannelInput {...args} />
+      <ChannelInputComponent {...args} />
     </div>
   )
 }
 
 export const Component = Template.bind({})
 
-const args: IChannelInput = {
+const args: ChannelInputProps = {
   channelAddress: 'channelAddress',
   channelParticipants: [{ nickname: 'bartek' }, { nickname: 'emilia' }],
   inputPlaceholder: '#general as @holmes',
@@ -28,10 +28,10 @@ const args: IChannelInput = {
 
 Component.args = args
 
-const component: ComponentMeta<typeof ChannelInput> = {
+const component: ComponentMeta<typeof ChannelInputComponent> = {
   title: 'Components/ChannelInput',
   decorators: [withTheme],
-  component: ChannelInput
+  component: ChannelInputComponent
 }
 
 export default component

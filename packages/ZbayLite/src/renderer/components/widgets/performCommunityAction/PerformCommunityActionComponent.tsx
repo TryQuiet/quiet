@@ -111,7 +111,6 @@ export interface PerformCommunityActionProps {
   communityAction: CommunityAction
   handleCommunityAction: (value: string) => void
   handleRedirection: () => void
-  initialValue: string
   handleClose: () => void
   isConnectionReady?: boolean
   community: boolean
@@ -126,7 +125,6 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   communityAction,
   handleCommunityAction,
   handleRedirection,
-  initialValue,
   handleClose,
   isConnectionReady = true,
   community
@@ -186,7 +184,6 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
                       })}
                       placeholder={dictionary.placeholder}
                       errors={errors}
-                      defaultValue={initialValue || ''}
                       onchange={field.onChange}
                       onblur={field.onBlur}
                       value={field.value}

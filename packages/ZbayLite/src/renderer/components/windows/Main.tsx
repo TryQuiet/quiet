@@ -8,7 +8,6 @@ import { makeStyles } from '@material-ui/core/styles'
 import WindowWrapper from '../ui/WindowWrapper/WindowWrapper'
 import Sidebar from '../widgets/sidebar/Sidebar'
 import Channel from '../../containers/pages/Channel'
-import DirectMessages from '../../containers/pages/DirectMessages'
 
 const useStyles = makeStyles(() => ({
   gridRoot: {
@@ -76,7 +75,7 @@ export const Main: React.FC<MainProps> = ({
           </Grid>
           <Grid item xs>
             <Route path={`${match.url}/channel/:id`} component={Channel} />
-            <Route path={`${match.url}/direct-messages/:username`} component={DirectMessages} />
+            {/* <Route path={`${match.url}/direct-messages/:username`} component={DirectMessages} /> */}
           </Grid>
           {isLogWindowOpened && (
             <Grid

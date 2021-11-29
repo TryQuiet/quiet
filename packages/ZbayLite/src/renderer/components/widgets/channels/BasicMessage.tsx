@@ -1,17 +1,19 @@
 import React from 'react'
+import { makeStyles, Theme } from '@material-ui/core/styles'
 import classNames from 'classnames'
-import Jdenticon from 'react-jdenticon'
 
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
-import { makeStyles, Theme } from '@material-ui/core/styles'
 
 import red from '@material-ui/core/colors/red'
 
-import { IBasicMessageProps } from './BasicMessage.d'
-import SendMessagePopover from '../../../containers/widgets/channels/SendMessagePopover'
+import Jdenticon from 'react-jdenticon'
+
+// import SendMessagePopover from '../../../containers/widgets/channels/SendMessagePopover'
+
+import { DisplayableMessage } from '@zbayapp/nectar'
 
 const useStyles = makeStyles((theme: Theme) => ({
   messageCard: {
@@ -33,9 +35,10 @@ const useStyles = makeStyles((theme: Theme) => ({
     marginRight: 5
   },
   message: {
+    marginTop: '-3px',
     fontSize: '0.855rem',
-    marginTop: theme.spacing(1),
-    whiteSpace: 'pre-line'
+    whiteSpace: 'pre-line',
+    lineHeight: '21px'
   },
   statusIcon: {
     color: theme.palette.colors.lightGray,
@@ -86,23 +89,26 @@ export const transformToLowercase = (string: string) => {
   return hasPM !== -1 ? string.replace('PM', 'pm') : string.replace('AM', 'am')
 }
 
-export const BasicMessage: React.FC<IBasicMessageProps> = ({
-  message,
-  children,
-  actionsOpen,
-  setActionsOpen
-}) => {
-  const classes = useStyles({})
-  const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null)
+export interface BasicMessageProps {
+  message: DisplayableMessage
+  // setActionsOpen: (open: boolean) => void
+  // actionsOpen: boolean
+  // allowModeration?: boolean
+}
 
-  const handleClick: React.ComponentProps<typeof Grid>['onClick'] = (event) => {
-    if (event) {
-      setAnchorEl(event.currentTarget)
-    }
-  }
-  const handleClose = () => setAnchorEl(null)
-  const username = message.nickname
-  const timeString = message.createdAt
+export const BasicMessageComponent: React.FC<BasicMessageProps> = ({ message }) => {
+  const classes = useStyles({})
+
+  // const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null)
+
+  // const handleClick: React.ComponentProps<typeof Grid>['onClick'] = event => {
+  //   if (event) {
+  //     setAnchorEl(event.currentTarget)
+  //   }
+  // }
+
+  // const handleClose = () => setAnchorEl(null)
+
   return (
     <ListItem
       className={classNames({
@@ -110,11 +116,9 @@ export const BasicMessage: React.FC<IBasicMessageProps> = ({
         [classes.clickable]: ['failed', 'cancelled'].includes(status),
         [classes.wrapperPending]: status !== 'broadcasted'
       })}
-      onClick={() => setActionsOpen(!actionsOpen)}
-      onMouseOver={() => {
-      }}
-      onMouseLeave={() => {
-      }}>
+      // onClick={() => setActionsOpen(!actionsOpen)}
+      onMouseOver={() => {}}
+      onMouseLeave={() => {}}>
       <ListItemText
         disableTypography
         className={classes.messageCard}
@@ -125,36 +129,38 @@ export const BasicMessage: React.FC<IBasicMessageProps> = ({
             justify='flex-start'
             alignItems='flex-start'
             wrap={'nowrap'}>
-            <SendMessagePopover
-              username={username}
+            {/* <SendMessagePopover
+              username={message.nickname}
               anchorEl={anchorEl}
               handleClose={handleClose}
-            />
+            /> */}
             <Grid item className={classes.avatar}>
               <div className={classes.alignAvatar}>
-                <Jdenticon size='32' value={username} />
+                <Jdenticon size='32' value={message.nickname} />
               </div>
             </Grid>
-            <Grid container item direction='row' justify='space-between'>
-              <Grid
-                container
-                item
-                xs
-                alignItems='flex-start'
-                wrap='nowrap'
-                onClick={e => handleClick(e)}>
-                <Grid item>
-                  <Typography color='textPrimary' className={classes.username}>
-                    {username}
-                  </Typography>
-                </Grid>
-                {status !== 'failed' && (
+            <Grid container item direction='row'>
+              <Grid container item direction='row' justify='space-between'>
+                <Grid
+                  container
+                  item
+                  xs
+                  alignItems='flex-start'
+                  wrap='nowrap'
+                  // onClick={e => handleClick(e)}
+                >
                   <Grid item>
-                    <Typography className={classes.time}>{timeString}</Typography>
+                    <Typography color='textPrimary' className={classes.username}>
+                      {message.nickname}
+                    </Typography>
                   </Grid>
-                )}
-              </Grid>
-              {/* {hovered && allowModeration && (
+                  {status !== 'failed' && (
+                    <Grid item>
+                      <Typography className={classes.time}>{message.createdAt}</Typography>
+                    </Grid>
+                  )}
+                </Grid>
+                {/* {hovered && allowModeration && (
                 <ClickAwayListener
                   onClickAway={() => {
                     setOpen(false)
@@ -179,13 +185,16 @@ export const BasicMessage: React.FC<IBasicMessageProps> = ({
                   </Grid>
                 </ClickAwayListener>
               )} */}
+              </Grid>
+              <Grid item>
+                <Typography className={classes.message}>{message.message}</Typography>
+              </Grid>
             </Grid>
           </Grid>
         }
-        secondary={children}
       />
     </ListItem>
   )
 }
 
-export default BasicMessage
+export default BasicMessageComponent

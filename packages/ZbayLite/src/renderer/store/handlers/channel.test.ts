@@ -2,7 +2,6 @@ import { DateTime } from 'luxon'
 import create from '../create'
 import { ChannelState, actions } from './channel'
 import channelSelectors from '../selectors/channel'
-import { now } from '../../testUtils'
 
 describe('channel reducer', () => {
   const identityId = 'test-identity-id'
@@ -27,7 +26,7 @@ describe('channel reducer', () => {
       },
       operations: {}
     })
-    jest.spyOn(DateTime, 'utc').mockImplementation(() => now)
+    jest.spyOn(DateTime, 'utc').mockImplementation(() => DateTime.utc(2019, 3, 7, 13, 3, 48))
     jest.clearAllMocks()
   })
 

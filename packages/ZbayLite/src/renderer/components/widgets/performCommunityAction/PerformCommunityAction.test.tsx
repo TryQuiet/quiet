@@ -15,7 +15,6 @@ describe('PerformCommunityAction component (create community mode)', () => {
     const component = <PerformCommunityActionComponent
       open={true}
       handleClose={() => { }}
-      initialValue={''}
       communityAction={action}
       handleCommunityAction={handleCommunityAction}
       handleRedirection={() => { }}
@@ -43,7 +42,6 @@ describe('PerformCommunityAction component (create community mode)', () => {
     const component = <PerformCommunityActionComponent
       open={true}
       handleClose={() => { }}
-      initialValue={''}
       communityAction={action}
       handleCommunityAction={handleCommunityAction}
       handleRedirection={() => { }}
@@ -68,7 +66,6 @@ describe('PerformCommunityAction component (create community mode)', () => {
     const component = <PerformCommunityActionComponent
       open={true}
       handleClose={() => { }}
-      initialValue={''}
       communityAction={action}
       handleCommunityAction={handleCommunityAction}
       handleRedirection={() => { }}
@@ -87,7 +84,6 @@ describe('PerformCommunityAction component (create community mode)', () => {
     const component = <PerformCommunityActionComponent
       open={true}
       handleClose={() => { }}
-      initialValue={''}
       communityAction={action}
       handleCommunityAction={handleCommunityAction}
       handleRedirection={handleRedirection}
@@ -111,7 +107,6 @@ describe('PerformCommunityAction component (join community mode)', () => {
     const component = <PerformCommunityActionComponent
       open={true}
       handleClose={() => { }}
-      initialValue={''}
       communityAction={action}
       handleCommunityAction={handleCommunityAction}
       handleRedirection={() => { }}
@@ -139,7 +134,6 @@ describe('PerformCommunityAction component (join community mode)', () => {
     const component = <PerformCommunityActionComponent
       open={true}
       handleClose={() => { }}
-      initialValue={''}
       communityAction={action}
       handleCommunityAction={handleCommunityAction}
       handleRedirection={() => { }}
@@ -164,7 +158,6 @@ describe('PerformCommunityAction component (join community mode)', () => {
     const component = <PerformCommunityActionComponent
       open={true}
       handleClose={() => { }}
-      initialValue={''}
       communityAction={action}
       handleCommunityAction={handleCommunityAction}
       handleRedirection={() => { }}
@@ -186,7 +179,6 @@ describe('PerformCommunityAction component (join community mode)', () => {
     const component = <PerformCommunityActionComponent
       open={true}
       handleClose={() => { }}
-      initialValue={''}
       communityAction={action}
       handleCommunityAction={() => { }}
       handleRedirection={handleRedirection}

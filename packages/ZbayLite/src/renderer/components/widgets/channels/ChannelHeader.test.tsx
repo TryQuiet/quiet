@@ -1,32 +1,26 @@
 import React from 'react'
 
-import { ChannelHeader } from './ChannelHeader'
 import { renderComponent } from '../../../testUtils/renderComponent'
-import { Channel } from '../../../store/handlers/channel'
-import { CHANNEL_TYPE } from '../../pages/ChannelTypes'
-import { HashRouter } from 'react-router-dom'
-import { Provider } from 'react-redux'
-import store from '../../../store'
+import { ChannelHeaderComponent } from './ChannelHeader'
 
 describe('ChannelHeader', () => {
   it('renders component', () => {
-    const channel = new Channel()
     const result = renderComponent(
-      <HashRouter>
-        <Provider store={store}>
-          <ChannelHeader
-            tab={0}
-            setTab={() => {}}
-            unmute={() => {}}
-            mutedFlag
-            channel={channel}
-            name={'channel'}
-            updateShowInfoMsg={jest.fn()}
-            directMessage={false}
-            channelType={CHANNEL_TYPE.NORMAL}
-          />
-        </Provider>
-      </HashRouter>
+      <ChannelHeaderComponent
+        channel={{
+          name: 'general',
+          description: 'description',
+          owner: 'holmes',
+          timestamp: 0,
+          address: 'address'
+        }}
+        onInfo={jest.fn()}
+        onDelete={jest.fn()}
+        onSettings={jest.fn()}
+        mutedFlag={false}
+        notificationFilter={''}
+        openNotificationsTab={jest.fn()}
+      />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
@@ -50,18 +44,9 @@ describe('ChannelHeader', () => {
                       class="MuiTypography-root makeStyles-title-2 makeStyles-bold-15 MuiTypography-subtitle1 MuiTypography-noWrap"
                       style="max-width: 724px;"
                     >
-                      #undefined
+                      #general
                     </h6>
                   </div>
-                  <span>
-                    <div
-                      class="MuiGrid-root makeStyles-silenceDiv-16 MuiGrid-item"
-                    >
-                      <img
-                        src="test-file-stub"
-                      />
-                    </div>
-                  </span>
                 </div>
               </div>
               <div
@@ -71,7 +56,7 @@ describe('ChannelHeader', () => {
                   class="MuiGrid-root MuiGrid-item"
                 >
                   <button
-                    class="MuiButtonBase-root MuiIconButton-root makeStyles-button-171"
+                    class="MuiButtonBase-root MuiIconButton-root makeStyles-button-155"
                     tabindex="0"
                     type="button"
                   >
@@ -79,7 +64,7 @@ describe('ChannelHeader', () => {
                       class="MuiIconButton-label"
                     >
                       <img
-                        class="makeStyles-icon-170"
+                        class="makeStyles-icon-154"
                         src="test-file-stub"
                       />
                     </span>
@@ -87,172 +72,45 @@ describe('ChannelHeader', () => {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </body>
-    `)
-  })
-
-  it('renders without members count', () => {
-    const channel = new Channel()
-    const result = renderComponent(
-      <HashRouter>
-        <Provider store={store}>
-          <ChannelHeader
-            tab={0}
-            setTab={() => {}}
-            channel={channel}
-            unmute={() => {}}
-            name={'channel'}
-            updateShowInfoMsg={jest.fn()}
-            mutedFlag
-            directMessage={false}
-            channelType={CHANNEL_TYPE.NORMAL}
-          />
-        </Provider>
-      </HashRouter>
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
-      <body>
-        <div>
-          <div
-            class="makeStyles-wrapper-221"
-          >
             <div
-              class="MuiGrid-root makeStyles-root-210 MuiGrid-container MuiGrid-align-items-xs-center MuiGrid-justify-xs-space-between"
+              class="MuiGrid-root makeStyles-descriptionDiv-11 MuiGrid-container"
             >
               <div
-                class="MuiGrid-root MuiGrid-item"
+                class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true"
               >
-                <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center"
+                <p
+                  class="MuiTypography-root MuiTypography-body2"
                 >
-                  <div
-                    class="MuiGrid-root MuiGrid-item"
+                  description
+                </p>
+              </div>
+              <div
+                class="MuiGrid-root makeStyles-iconDiv-13 MuiGrid-item"
+              >
+                <button
+                  class="MuiButtonBase-root MuiIconButton-root makeStyles-root-174"
+                  tabindex="0"
+                  type="button"
+                >
+                  <span
+                    class="MuiIconButton-label"
                   >
-                    <h6
-                      class="MuiTypography-root makeStyles-title-211 makeStyles-bold-224 MuiTypography-subtitle1 MuiTypography-noWrap"
-                      style="max-width: 724px;"
+                    <svg
+                      aria-hidden="true"
+                      class="MuiSvgIcon-root"
+                      focusable="false"
+                      role="presentation"
+                      viewBox="0 0 24 24"
                     >
-                      #undefined
-                    </h6>
-                  </div>
-                  <span>
-                    <div
-                      class="MuiGrid-root makeStyles-silenceDiv-225 MuiGrid-item"
-                    >
-                      <img
-                        src="test-file-stub"
+                      <path
+                        d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
                       />
-                    </div>
+                    </svg>
                   </span>
-                </div>
-              </div>
-              <div
-                class="MuiGrid-root makeStyles-actions-214 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-align-content-xs-center MuiGrid-justify-xs-flex-end MuiGrid-grid-xs-true"
-              >
-                <div
-                  class="MuiGrid-root MuiGrid-item"
-                >
-                  <button
-                    class="MuiButtonBase-root MuiIconButton-root makeStyles-button-380"
-                    tabindex="0"
-                    type="button"
-                  >
-                    <span
-                      class="MuiIconButton-label"
-                    >
-                      <img
-                        class="makeStyles-icon-379"
-                        src="test-file-stub"
-                      />
-                    </span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </body>
-    `)
-  })
-
-  it('renders members when 0', () => {
-    const channel = new Channel()
-    const result = renderComponent(
-      <HashRouter>
-        <Provider store={store}>
-          <ChannelHeader
-            tab={0}
-            setTab={() => {}}
-            channel={channel}
-            name={'channel'}
-            updateShowInfoMsg={jest.fn()}
-            unmute={() => {}}
-            mutedFlag
-            directMessage={false}
-            channelType={CHANNEL_TYPE.NORMAL}
-          />
-        </Provider>
-      </HashRouter>
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
-      <body>
-        <div>
-          <div
-            class="makeStyles-wrapper-430"
-          >
-            <div
-              class="MuiGrid-root makeStyles-root-419 MuiGrid-container MuiGrid-align-items-xs-center MuiGrid-justify-xs-space-between"
-            >
-              <div
-                class="MuiGrid-root MuiGrid-item"
-              >
-                <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center"
-                >
-                  <div
-                    class="MuiGrid-root MuiGrid-item"
-                  >
-                    <h6
-                      class="MuiTypography-root makeStyles-title-420 makeStyles-bold-433 MuiTypography-subtitle1 MuiTypography-noWrap"
-                      style="max-width: 724px;"
-                    >
-                      #undefined
-                    </h6>
-                  </div>
-                  <span>
-                    <div
-                      class="MuiGrid-root makeStyles-silenceDiv-434 MuiGrid-item"
-                    >
-                      <img
-                        src="test-file-stub"
-                      />
-                    </div>
-                  </span>
-                </div>
-              </div>
-              <div
-                class="MuiGrid-root makeStyles-actions-423 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-align-content-xs-center MuiGrid-justify-xs-flex-end MuiGrid-grid-xs-true"
-              >
-                <div
-                  class="MuiGrid-root MuiGrid-item"
-                >
-                  <button
-                    class="MuiButtonBase-root MuiIconButton-root makeStyles-button-589"
-                    tabindex="0"
-                    type="button"
-                  >
-                    <span
-                      class="MuiIconButton-label"
-                    >
-                      <img
-                        class="makeStyles-icon-588"
-                        src="test-file-stub"
-                      />
-                    </span>
-                  </button>
-                </div>
+                  <span
+                    class="MuiTouchRipple-root"
+                  />
+                </button>
               </div>
             </div>
           </div>

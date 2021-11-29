@@ -103,7 +103,6 @@ const useStyles = makeStyles(theme => ({
 
 interface CreateUsernameModalProps {
   open: boolean
-  initialValue: string
   handleRegisterUsername?: (payload: { nickname: string }) => void
   certificateRegistrationError?: string
   certificate?: string
@@ -120,7 +119,6 @@ const userFields = {
 
 export const CreateUsernameModal: React.FC<CreateUsernameModalProps> = ({
   open,
-  initialValue,
   handleRegisterUsername,
   certificateRegistrationError,
   certificate,
@@ -192,7 +190,6 @@ export const CreateUsernameModal: React.FC<CreateUsernameModalProps> = ({
                         })}
                         placeholder={'Enter a username'}
                         errors={errors}
-                        defaultValue={initialValue || ''}
                         onPaste={e => e.preventDefault()}
                         variant='outlined'
                         onchange={field.onChange}

@@ -7,7 +7,7 @@ import { CreateUsernameModal } from './CreateUsernameModal'
 describe('CreateUsernameModal', () => {
   it('renders component', () => {
     const result = renderComponent(
-      <CreateUsernameModal handleClose={jest.fn()} initialValue={'test'} open={false} />
+      <CreateUsernameModal handleClose={jest.fn()} open={false} />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>

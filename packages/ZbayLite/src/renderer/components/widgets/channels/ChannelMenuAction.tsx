@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-interface ChannelMenuActionProps {
+export interface ChannelMenuActionProps {
   onInfo: () => void
   onMute?: () => void
   onUnmute?: () => void
@@ -36,7 +36,7 @@ interface ChannelMenuActionProps {
   openNotificationsTab: () => void
 }
 
-export const ChannelMenuAction: React.FC<ChannelMenuActionProps> = ({
+export const ChannelMenuActionComponent: React.FC<ChannelMenuActionProps> = ({
   onInfo,
   onMute,
   onUnmute,
@@ -47,8 +47,8 @@ export const ChannelMenuAction: React.FC<ChannelMenuActionProps> = ({
   notificationFilter,
   openNotificationsTab
 }) => {
-  const [openDialog, setOpenDialog] = React.useState(false)
   const classes = useStyles({})
+  const [openDialog, setOpenDialog] = React.useState(false)
   return (
     <MenuAction
       icon={dotsIcon}
@@ -105,4 +105,4 @@ export const ChannelMenuAction: React.FC<ChannelMenuActionProps> = ({
   )
 }
 
-export default ChannelMenuAction
+export default ChannelMenuActionComponent

@@ -7,7 +7,7 @@ import { Identity } from '@zbayapp/nectar/lib/sagas/identity/identity.slice'
 
 describe('AccountSettingsForm', () => {
   it('renders component', () => {
-    const user = new Identity({
+    const user: Identity = {
       id: '',
       hiddenService: { onionAddress: '', privateKey: '' },
       peerId: {
@@ -18,8 +18,11 @@ describe('AccountSettingsForm', () => {
       dmKeys: {
         publicKey: '',
         privateKey: ''
-      }
-    })
+      },
+      zbayNickname: '',
+      userCsr: undefined,
+      userCertificate: ''
+    }
 
     const result = renderComponent(<AccountSettingsForm user={user} />)
     expect(result.baseElement).toMatchInlineSnapshot(`

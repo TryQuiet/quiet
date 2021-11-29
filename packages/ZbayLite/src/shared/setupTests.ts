@@ -18,6 +18,7 @@ setEngine(
     subtle: webcrypto.subtle
   })
 )
+global.crypto = webcrypto
 
 jest.mock('socket.io-client', () => ({
   io: jest.fn()

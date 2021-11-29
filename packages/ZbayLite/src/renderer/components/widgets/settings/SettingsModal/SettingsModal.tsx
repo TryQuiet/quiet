@@ -21,7 +21,7 @@ const tabs = {
   invite: InviteToCommunity
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   root: {
     zIndex: 1000,
     paddingLeft: 20,
@@ -58,7 +58,11 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-const handleChange = (clearCurrentOpenTab, setCurrentTab, value) => {
+const handleChange = (
+  clearCurrentOpenTab: () => void,
+  setCurrentTab: (tab: string) => void,
+  value: string
+) => {
   clearCurrentOpenTab()
   setCurrentTab(value)
 }
@@ -103,14 +107,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     }
   }, [contentRef])
   return (
-    <Modal
-      open={open}
-      handleClose={handleClose}
-      title={user}
-      isBold
-      addBorder
-      contentWidth='100%'
-    >
+    <Modal open={open} handleClose={handleClose} title={user} isBold addBorder contentWidth='100%'>
       <Grid
         ref={ref => {
           if (ref) {
@@ -119,35 +116,26 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         }}
         container
         direction='row'
-        className={classes.root}
-      >
+        className={classes.root}>
         <Grid item className={classes.tabsDiv} style={{ marginLeft: offset }}>
           <AppBar position='static' className={classes.appbar}>
             <Tabs
               value={modalTabToOpen || currentTab}
-              onChange={(_e, value) =>
+              onChange={(event, value) => {
+                event.persist()
                 handleChange(clearCurrentOpenTab, setCurrentTab, value)
-              }
+              }}
               orientation='vertical'
               className={classes.tabs}
               textColor='inherit'
-              classes={{ indicator: classes.indicator }}
-            >
-              <Tab
-                value='account'
-                label='Account'
-                classes={{ selected: classes.selected }}
-              />
+              classes={{ indicator: classes.indicator }}>
+              <Tab value='account' label='Account' classes={{ selected: classes.selected }} />
               <Tab
                 value='notifications'
                 label='Notifications'
                 classes={{ selected: classes.selected }}
               />
-              <Tab
-                value='security'
-                label='Security'
-                classes={{ selected: classes.selected }}
-              />
+              <Tab value='security' label='Security' classes={{ selected: classes.selected }} />
               {blockedUsers?.length && (
                 <Tab
                   value='blockedusers'
@@ -173,17 +161,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <Scrollbars
                   ref={scrollbarRef}
                   autoHideTimeout={500}
-                  style={{ width: maxWidth + offset, height: height }}
-                >
-                  <Grid
-                    item
-                    className={classes.content}
-                    style={{ paddingRight: offset }}
-                  >
-                    <TabComponent
-                      setCurrentTab={setCurrentTab}
-                      scrollbarRef={scrollbarRef}
-                    />
+                  style={{ width: maxWidth + offset, height: height }}>
+                  <Grid item className={classes.content} style={{ paddingRight: offset }}>
+                    <TabComponent setCurrentTab={setCurrentTab} scrollbarRef={scrollbarRef} />
                   </Grid>
                 </Scrollbars>
               )

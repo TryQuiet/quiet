@@ -16,7 +16,6 @@ export const useIdentityPanelData = () => {
 const IdentityPanel = () => {
   const { identity } = useIdentityPanelData()
   const modal = useModal(ModalName.accountSettingsModal)
-
   return <IdentityPanelComponent identity={identity} handleSettings={modal.handleOpen} />
 }
 
