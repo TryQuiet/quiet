@@ -25,5 +25,4 @@ export class CustomReduxAdapter {
     });
     return payload;
   }
-
 }
