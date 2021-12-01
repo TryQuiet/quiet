@@ -187,7 +187,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({ message }) 
               )} */}
               </Grid>
               <Grid item>
-                <Typography className={classes.message}>{message.message}</Typography>
+                <Typography className={classes.message} data-testid={`messagesGroupContent-${message.id}`}>{message.message}</Typography>
               </Grid>
             </Grid>
           </Grid>

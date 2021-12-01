@@ -84,6 +84,7 @@ describe('BasicMessage', () => {
                   >
                     <p
                       class="MuiTypography-root makeStyles-message-6 MuiTypography-body1"
+                      data-testid="messagesGroupContent-string"
                     >
                       string
                     </p>

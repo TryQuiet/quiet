@@ -41,4 +41,7 @@ worker/index.node
 dist
 node_modules
 
+# E2E test
+screenshots/
+
 src/renderer/zcash/index.node

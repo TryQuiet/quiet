@@ -7,7 +7,7 @@ on:
     branches: [ master, develop ]
 
 jobs:
-  build:
+  e2e:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -27,8 +27,17 @@ jobs:
         env:
           E2E_TEST: true
           NODE_ENV: development
-          DEBUG: 'waggle*,zbay*,testcafe:*electron*'
+          DEBUG: 'waggle*,zbay*,testcafe*electron*'
         uses: DevExpress/testcafe-action@latest
         with:
           skip-install: true
-          args: "--color --hostname localhost \"electron:.\" \"./**/*.e2e.js\""
+          args: "--color --hostname localhost -p '${DATE}_${TIME}_${TEST_ID}.png' -S --screenshots-full-page --selector-timeout 10000 \"electron:.\" \"./**/*.e2e.ts\""
+      - name: Print current working directory and files
+        if: failure() && matrix.os == 'ubuntu-20.04'
+        run: pwd && ls -alh && ls screenshots
+      - name: Archive test screenshots  # Taking screenshots doesn't work right now on CI
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: test-screenshots
+          path: ${{ github.workspace }}/screenshots/*.png

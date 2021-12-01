@@ -121,6 +121,7 @@ describe('ChannelMessages', () => {
                           >
                             <p
                               class="MuiTypography-root makeStyles-message-152 MuiTypography-body1"
+                              data-testid="messagesGroupContent-string"
                             >
                               string
                             </p>

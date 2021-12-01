@@ -96,7 +96,7 @@
     "neon-rebuild": "rm native/index.node && rm -rf native/target && rm native/Cargo.lock && npm run neon",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
-    "start:e2e": "cross-env E2E_TEST=true NODE_ENV='development' DEBUG='waggle*,zbay*,testcafe:*electron*' testcafe --hostname localhost \"electron:.\" \"./**/*.e2e.js\""
+    "start:e2e": "npm run build:prod && cross-env E2E_TEST=true NODE_ENV=development DEBUG='waggle*,zbay*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page -p '${DATE}_${TIME}_${TEST_ID}.png' \"electron:.\" \"./**/*.e2e.ts\""
   },
   "author": {
     "name": "Zbay LLC",
