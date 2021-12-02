@@ -8,7 +8,11 @@ import {
   PublicChannelsState,
 } from './publicChannels.slice';
 
-import { channelsByCommunityAdapter } from './publicChannels.adapter';
+import {
+  channelMessagesAdapter,
+  communityChannelsAdapter,
+  publicChannelsAdapter,
+} from './publicChannels.adapter';
 import {
   communitiesReducer,
   CommunitiesState,
@@ -40,7 +44,7 @@ describe('publicChannelsReducer', () => {
   let store: Store;
 
   const communityId: Community = {
-    name: 'communityId',
+    name: '',
     id: 'communityId',
     CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
     rootCa: '',
@@ -52,52 +56,53 @@ describe('publicChannelsReducer', () => {
     port: 0,
   };
 
-  let communityChannels = new CommunityChannels('communityId');
-
-  communityChannels.currentChannel = 'currentChannel';
-
-  communityChannels.channelMessages = {
-    currentChannel: {
-      ids: ['1', '0', '2', '4'],
-      messages: {
-        '0': {
-          id: '0',
-          message: 'message0',
-          createdAt: 0,
-          channelId: '',
-          signature: '',
-          pubKey: '12',
-          type: 1,
-        },
-        '2': {
-          id: '2',
-          message: 'message2',
-          createdAt: 0,
-          channelId: '',
-          signature: '',
-          pubKey: '12',
-          type: 1,
-        },
-        '4': {
-          id: '4',
-          message: 'message4',
-          createdAt: 0,
-          channelId: '',
-          signature: '',
-          pubKey: '12',
-          type: 1,
-        },
-        '1': {
-          id: '1',
-          message: 'message1',
-          createdAt: 0,
-          channelId: '',
-          signature: '',
-          pubKey: '12',
-          type: 1,
-        },
-      },
+  const messages = [
+    {
+      id: '0',
+      message: 'message0',
+      createdAt: 0,
+      channelId: '',
+      signature: '',
+      pubKey: '12',
+      type: 1,
     },
+    {
+      id: '2',
+      message: 'message2',
+      createdAt: 0,
+      channelId: '',
+      signature: '',
+      pubKey: '12',
+      type: 1,
+    },
+    {
+      id: '4',
+      message: 'message4',
+      createdAt: 0,
+      channelId: '',
+      signature: '',
+      pubKey: '12',
+      type: 1,
+    },
+    {
+      id: '1',
+      message: 'message1',
+      createdAt: 0,
+      channelId: '',
+      signature: '',
+      pubKey: '12',
+      type: 1,
+    },
+  ];
+
+  let communityChannels: CommunityChannels = {
+    id: 'communityId',
+    currentChannel: 'currentChannel',
+    channels: publicChannelsAdapter.getInitialState(),
+    channelMessages: channelMessagesAdapter.setAll(
+      channelMessagesAdapter.getInitialState(),
+      messages
+    ),
   };
 
   beforeEach(() => {
@@ -109,8 +114,8 @@ describe('publicChannelsReducer', () => {
       {
         [StoreKeys.PublicChannels]: {
           ...new PublicChannelsState(),
-          channels: channelsByCommunityAdapter.setAll(
-            channelsByCommunityAdapter.getInitialState(),
+          channels: communityChannelsAdapter.setAll(
+            communityChannelsAdapter.getInitialState(),
             [communityChannels]
           ),
         },

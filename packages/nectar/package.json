@@ -80,6 +80,9 @@
       "json",
       "node"
     ],
-    "rootDir": "src"
+    "rootDir": "src",
+    "setupFiles": [
+      "./setupTests.ts"
+    ]
   }
 }

@@ -7,7 +7,6 @@ import {
   createUserCert,
   UserCert,
 } from '@zbayapp/identity/lib/generateUserCertificate';
-import { Time } from 'pkijs';
 import { config } from '../../sagas/users/const/certFieldTypes';
 import { PeerId } from '../../sagas/identity/identity.slice';
 import {
@@ -16,6 +15,7 @@ import {
 } from '@zbayapp/identity/lib/extractPubKey';
 import { loadPrivateKey, sign } from '@zbayapp/identity/lib';
 import { arrayBufferToString } from 'pvutils';
+import { Time } from 'pkijs';
 
 const notBeforeDate = new Date(Date.UTC(2010, 11, 28, 10, 10, 10));
 const notAfterDate = new Date(Date.UTC(2030, 11, 28, 10, 10, 10));

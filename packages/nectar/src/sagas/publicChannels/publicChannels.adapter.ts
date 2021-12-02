@@ -1,12 +1,13 @@
 import { createEntityAdapter } from '@reduxjs/toolkit';
-import { IChannelInfo } from './publicChannels.types';
+import { PublicChannel } from './publicChannels.types';
 import { CommunityChannels } from './publicChannels.slice';
+import { ChannelMessage } from 'src';
 
-export const publicChannelsAdapter = createEntityAdapter<IChannelInfo>({
+export const communityChannelsAdapter =
+  createEntityAdapter<CommunityChannels>();
+
+export const publicChannelsAdapter = createEntityAdapter<PublicChannel>({
   selectId: (channel) => channel.name,
 });
 
-export const channelsByCommunityAdapter =
-  createEntityAdapter<CommunityChannels>({
-    selectId: (community) => community.id,
-  });
+export const channelMessagesAdapter = createEntityAdapter<ChannelMessage>();

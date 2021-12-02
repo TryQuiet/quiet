@@ -128,7 +128,6 @@ export async function assertReceivedMessagesAreValid(
   const validMessages = [];
 
   for (let receivedMessage of receivedMessages) {
-    console.log('inside loop');
     const msg = messages.filter(
       // @ts-ignorets-ignore
       (message) => message.publicKey === receivedMessage.pubKey

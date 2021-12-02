@@ -8,7 +8,11 @@ import {
   PublicChannelsState,
 } from '../publicChannels.slice';
 import { subscribeForAllTopicsSaga } from './subscribeForAllTopics.saga';
-import { channelsByCommunityAdapter } from '../publicChannels.adapter';
+import {
+  channelMessagesAdapter,
+  communityChannelsAdapter,
+  publicChannelsAdapter,
+} from '../publicChannels.adapter';
 import {
   communitiesReducer,
   CommunitiesState,
@@ -18,10 +22,9 @@ import { Identity } from '../../identity/identity.slice';
 import { communitiesAdapter } from '../../communities/communities.adapter';
 import { identityAdapter } from '../../identity/identity.adapter';
 import { identityReducer, IdentityState } from '../../identity/identity.slice';
-import { IChannelInfo } from '../publicChannels.types';
+import { PublicChannel } from '../publicChannels.types';
 
 describe('subscribeForAllTopicsSaga', () => {
-  let communityChannels = new CommunityChannels('id');
   const community: Community = {
     name: '',
     id: 'id',
@@ -34,6 +37,7 @@ describe('subscribeForAllTopicsSaga', () => {
     privateKey: '',
     port: 0,
   };
+
   const identity: Identity = {
     id: 'id',
     hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
@@ -44,14 +48,15 @@ describe('subscribeForAllTopicsSaga', () => {
     userCertificate: '',
   };
 
-  const channelOne: IChannelInfo = {
+  const channelOne: PublicChannel = {
     name: 'channelOne',
     description: 'channelOne description',
     owner: 'master',
     timestamp: 12341234,
     address: 'channelOneAddress',
   };
-  const channelTwo: IChannelInfo = {
+
+  const channelTwo: PublicChannel = {
     name: 'channelTwo',
     description: 'channelTwo description',
     owner: 'master',
@@ -59,15 +64,15 @@ describe('subscribeForAllTopicsSaga', () => {
     address: 'channelTwoAddress',
   };
 
-  communityChannels.currentChannel = 'channelOne';
-  communityChannels.channels = {
-    ids: [channelOne.name, channelTwo.name],
-    entities: {
-      channelOne,
-      channelTwo,
-    },
+  let communityChannels: CommunityChannels = {
+    id: 'id',
+    currentChannel: 'channelOne',
+    channels: publicChannelsAdapter.setAll(
+      publicChannelsAdapter.getInitialState(),
+      [channelOne, channelTwo]
+    ),
+    channelMessages: channelMessagesAdapter.getInitialState(),
   };
-  communityChannels.id = 'id';
 
   test('ask for missing messages', () => {
     expectSaga(
@@ -83,8 +88,8 @@ describe('subscribeForAllTopicsSaga', () => {
         {
           [StoreKeys.PublicChannels]: {
             ...new PublicChannelsState(),
-            channels: channelsByCommunityAdapter.setAll(
-              channelsByCommunityAdapter.getInitialState(),
+            channels: communityChannelsAdapter.setAll(
+              communityChannelsAdapter.getInitialState(),
               [communityChannels]
             ),
           },

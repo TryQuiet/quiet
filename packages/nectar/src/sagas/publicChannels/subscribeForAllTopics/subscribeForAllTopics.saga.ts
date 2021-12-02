@@ -5,9 +5,8 @@ import { identitySelectors } from '../../identity/identity.selectors';
 
 export function* subscribeForAllTopicsSaga(action): Generator {
   const identity = yield* select(identitySelectors.currentIdentity);
-
   const channels = yield* select(
-    publicChannelsSelectors.publicChannelsByCommunityId(action.payload)
+    publicChannelsSelectors.publicChannelsByCommunity(action.payload)
   );
   for (const channel of channels) {
     yield* put(

@@ -8,7 +8,11 @@ import {
   PublicChannelsState,
 } from '../publicChannels.slice';
 import { checkForMessagesSaga } from './checkForMessages.saga';
-import { channelsByCommunityAdapter } from '../publicChannels.adapter';
+import {
+  channelMessagesAdapter,
+  communityChannelsAdapter,
+  publicChannelsAdapter,
+} from '../publicChannels.adapter';
 import {
   communitiesReducer,
   CommunitiesState,
@@ -23,19 +27,6 @@ import { identityAdapter } from '../../identity/identity.adapter';
 import { communitiesAdapter } from '../../communities/communities.adapter';
 
 describe('checkForMessagesSaga', () => {
-  let communityChannels = new CommunityChannels('id');
-  const identity: Identity = {
-    id: 'id',
-    hiddenService: {
-      onionAddress: 'onionAddress.onion',
-      privateKey: 'privateKey',
-    },
-    dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
-    peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-    zbayNickname: '',
-    userCsr: undefined,
-    userCertificate: '',
-  };
   const community: Community = {
     name: '',
     id: 'id',
@@ -49,26 +40,41 @@ describe('checkForMessagesSaga', () => {
     port: 0,
   };
 
-  communityChannels.currentChannel =
-    'zs10zkaj29rcev9qd5xeuzck4ly5q64kzf6m6h9nfajwcvm8m2vnjmvtqgr0mzfjywswwkwke68t00';
-  communityChannels.channelMessages = {
-    zs10zkaj29rcev9qd5xeuzck4ly5q64kzf6m6h9nfajwcvm8m2vnjmvtqgr0mzfjywswwkwke68t00:
-      {
-        ids: ['1', '2', '3'],
-        messages: {
-          1: {
-            id: '1',
-            type: 0,
-            message: 'message',
-            createdAt: 0,
-            channelId: '',
-            signature: '',
-            pubKey: '',
-          },
-        },
-      },
+  const messages = [
+    {
+      id: '1',
+      type: 0,
+      message: 'message',
+      createdAt: 0,
+      channelId: '',
+      signature: '',
+      pubKey: '',
+    },
+  ];
+
+  const communityChannels: CommunityChannels = {
+    id: 'id',
+    currentChannel:
+      'zs10zkaj29rcev9qd5xeuzck4ly5q64kzf6m6h9nfajwcvm8m2vnjmvtqgr0mzfjywswwkwke68t00',
+    channels: publicChannelsAdapter.getInitialState(),
+    channelMessages: channelMessagesAdapter.setAll(
+      channelMessagesAdapter.getInitialState(),
+      messages
+    ),
   };
-  communityChannels.id = 'id';
+
+  const identity: Identity = {
+    id: 'id',
+    hiddenService: {
+      onionAddress: 'onionAddress.onion',
+      privateKey: 'privateKey',
+    },
+    dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
+    peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
+    zbayNickname: '',
+    userCsr: undefined,
+    userCertificate: '',
+  };
 
   test('ask for missing messages', () => {
     expectSaga(checkForMessagesSaga)
@@ -81,8 +87,8 @@ describe('checkForMessagesSaga', () => {
         {
           [StoreKeys.PublicChannels]: {
             ...new PublicChannelsState(),
-            channels: channelsByCommunityAdapter.setAll(
-              channelsByCommunityAdapter.getInitialState(),
+            channels: communityChannelsAdapter.setAll(
+              communityChannelsAdapter.getInitialState(),
               [communityChannels]
             ),
           },

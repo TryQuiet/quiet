@@ -9,6 +9,7 @@ import {
   createRootCertificateTestHelper,
   createUserCertificateTestHelper,
 } from './helpers';
+import { MessageType } from '../../sagas/messages/messages.types';
 import { DateTime } from 'luxon';
 
 export const getFactory = async (store: Store) => {
@@ -145,17 +146,16 @@ export const getFactory = async (store: Store) => {
       identity: factory.assoc('Identity'),
       message: {
         id: factory.sequence('SignedMessage.id', (n) => n),
-        type: 1,
+        type: MessageType.Basic,
         message: factory.sequence(
           'SignedMessage.message',
           (n) => `message_${n}`
         ),
         createdAt: DateTime.utc().toSeconds(),
-        channelId: '',
+        channelId: 'general',
         signature: '',
         pubKey: '',
       },
-      channelAddress: 'general',
     },
     {
       afterBuild: async (
@@ -168,8 +168,6 @@ export const getFactory = async (store: Store) => {
         );
         action.payload.message.signature = signature;
         action.payload.message.pubKey = pubKey;
-        // Keep channel address the same
-        action.payload.message.channelId = action.payload.channelAddress;
         return action;
       },
     }

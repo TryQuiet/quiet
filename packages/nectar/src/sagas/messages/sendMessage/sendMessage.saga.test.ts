@@ -31,10 +31,11 @@ import {
   PublicChannelsState,
 } from '../../publicChannels/publicChannels.slice';
 import {
-  channelsByCommunityAdapter,
+  channelMessagesAdapter,
+  communityChannelsAdapter,
   publicChannelsAdapter,
 } from '../../publicChannels/publicChannels.adapter';
-import { IChannelInfo } from 'src';
+import { PublicChannel } from 'src';
 
 describe('sendMessageSaga', () => {
   const communityId = 'id';
@@ -77,7 +78,7 @@ describe('sendMessageSaga', () => {
   identity.userCertificate = 'userCertificate';
   identity.userCsr = csr;
 
-  const publicChannel: IChannelInfo = {
+  const publicChannel: PublicChannel = {
     name: 'general',
     description: 'description',
     owner: 'user',
@@ -85,12 +86,15 @@ describe('sendMessageSaga', () => {
     address: 'address',
   };
 
-  const communityChannels = new CommunityChannels(communityId);
-  communityChannels.currentChannel = publicChannel.address;
-  communityChannels.channels = publicChannelsAdapter.setAll(
-    publicChannelsAdapter.getInitialState(),
-    [publicChannel]
-  );
+  const communityChannels: CommunityChannels = {
+    id: communityId,
+    currentChannel: publicChannel.address,
+    channels: publicChannelsAdapter.setAll(
+      publicChannelsAdapter.getInitialState(),
+      [publicChannel]
+    ),
+    channelMessages: channelMessagesAdapter.getInitialState(),
+  };
 
   test('sign and send message', async () => {
     const socket = { emit: jest.fn() } as unknown as Socket;
@@ -124,8 +128,8 @@ describe('sendMessageSaga', () => {
           },
           [StoreKeys.PublicChannels]: {
             ...new PublicChannelsState(),
-            channels: channelsByCommunityAdapter.setAll(
-              channelsByCommunityAdapter.getInitialState(),
+            channels: communityChannelsAdapter.setAll(
+              communityChannelsAdapter.getInitialState(),
               [communityChannels]
             ),
           },

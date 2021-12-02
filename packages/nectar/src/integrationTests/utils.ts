@@ -1,14 +1,7 @@
 import { io, Socket } from 'socket.io-client';
 import Websockets from 'libp2p-websockets';
-import {
-  applyMiddleware,
-  combineReducers,
-  createAction,
-  createStore,
-} from '@reduxjs/toolkit';
+import { createAction } from '@reduxjs/toolkit';
 import { all, call, fork, put, take, takeEvery } from 'typed-redux-saga';
-import createSagaMiddleware from 'redux-saga';
-import thunk from 'redux-thunk';
 import waggle from 'waggle';
 import path from 'path';
 import assert from 'assert';
@@ -21,16 +14,8 @@ import { useIO } from '../sagas/socket/startConnection/startConnection.saga';
 import { appActions } from '../sagas/app/app.slice';
 import { errorsActions } from '../sagas/errors/errors.slice';
 
-import {
-  communities,
-  identity,
-  publicChannels,
-  messages,
-  users,
-  errors,
-} from '../index';
-
 import { StoreKeys } from '../sagas/store.keys';
+import { prepareStore } from '../utils/tests/prepareStore';
 
 const log = logger('tests');
 
@@ -40,33 +25,6 @@ export const createTmpDir = (prefix: string) => {
 
 export const createPath = (dirName: string) => {
   return path.join(dirName, '.nectar');
-};
-
-const reducers = {
-  [StoreKeys.Communities]: communities.reducer,
-  [StoreKeys.Identity]: identity.reducer,
-  [StoreKeys.Users]: users.reducer,
-  [StoreKeys.Errors]: errors.reducer,
-  [StoreKeys.Messages]: messages.reducer,
-  [StoreKeys.PublicChannels]: publicChannels.reducer,
-};
-
-export const prepareStore = (
-  reducersList,
-  mockedState?: { [key in StoreKeys]?: any }
-) => {
-  const combinedReducers = combineReducers(reducersList);
-  const sagaMiddleware = createSagaMiddleware();
-  const store = createStore(
-    combinedReducers,
-    mockedState,
-    applyMiddleware(...[sagaMiddleware, thunk])
-  );
-
-  return {
-    store,
-    runSaga: sagaMiddleware.run,
-  };
 };
 
 const connectToDataport = (url: string, name: string): Socket => {
@@ -92,7 +50,7 @@ export const createApp = async (mockedState?: { [key in StoreKeys]?: any }) => {
   const server1 = new waggle.DataServer(dataServerPort1);
   await server1.listen();
 
-  const { store, runSaga } = prepareStore(reducers, mockedState);
+  const { store, runSaga } = prepareStore(mockedState);
 
   const proxyPort = await getPort({ port: 1234 });
   const controlPort = await getPort({ port: 5555 });
@@ -144,7 +102,7 @@ export const createAppWithoutTor = async (
   const server1 = new waggle.DataServer(dataServerPort1);
   await server1.listen();
 
-  const { store, runSaga } = prepareStore(reducers, mockedState);
+  const { store, runSaga } = prepareStore(mockedState);
 
   const proxyPort = await getPort({ port: 1234 });
   const controlPort = await getPort({ port: 5555 });
