@@ -6,14 +6,37 @@ on:
   push:
     branches: [ master, develop ]
 
+# "macos-latest" UnableToAccessScreenRecordingAPIError: The find-window process cannot access the Screen Recording API. https://github.com/DevExpress/testcafe/issues/5352
 jobs:
-  e2e:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        # "macos-latest" UnableToAccessScreenRecordingAPIError: The find-window process cannot access the Screen Recording API. https://github.com/DevExpress/testcafe/issues/5352
-        os: [ubuntu-20.04, windows-latest]
+  e2e-linux:
+    runs-on: ubuntu-20.04
+    env:
+      DISPLAY: ":99.0"
+    steps:
+      - uses: actions/checkout@v1.0.0
+      - uses: actions/setup-node@master
+        with:
+          node-version: "12"
+      - name: Install WM
+        run: sudo apt install fluxbox
+      - name: Run X11
+        run: |
+          Xvfb :99 -screen 0 1920x1080x24 &
+          sleep 3
+          fluxbox &
+      - name: Install project dependencies
+        run: npm ci
+      - name: Build project and run tests
+        run: npm run start:e2e
+      - name: Archive test screenshots
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: test-screenshots-linux
+          path: screenshots
 
+  e2e-windows:
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v1.0.0
       - uses: actions/setup-node@master
@@ -21,23 +44,11 @@ jobs:
           node-version: "12"
       - name: Install project dependencies
         run: npm ci
-      - name: Build project
-        run: npm run build:prod
-      - name: Run tests
-        env:
-          E2E_TEST: true
-          NODE_ENV: development
-          DEBUG: 'waggle*,zbay*,testcafe*electron*'
-        uses: DevExpress/testcafe-action@latest
-        with:
-          skip-install: true
-          args: "--color --hostname localhost -p '${DATE}_${TIME}_${TEST_ID}.png' -S --screenshots-full-page --selector-timeout 10000 \"electron:.\" \"./**/*.e2e.ts\""
-      - name: Print current working directory and files
-        if: failure() && matrix.os == 'ubuntu-20.04'
-        run: pwd && ls -alh && ls screenshots
-      - name: Archive test screenshots  # Taking screenshots doesn't work right now on CI
+      - name: Build project and run tests
+        run: npm run start:e2eWin
+      - name: Archive test screenshots
         uses: actions/upload-artifact@v2
         if: always()
         with:
-          name: test-screenshots
-          path: ${{ github.workspace }}/screenshots/*.png
+          name: test-screenshots-windows
+          path: screenshots
