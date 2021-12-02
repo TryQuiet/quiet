@@ -18,6 +18,7 @@ import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../../../../shared/setupTests'
 import { communitiesActions } from '@zbayapp/nectar/lib/sagas/communities/communities.slice'
 import { identityActions } from '@zbayapp/nectar/lib/sagas/identity/identity.slice'
+import { LoadingMessages } from './loadingMessages'
 
 describe('Restart app works correctly', () => {
   let socket: MockedSocket
@@ -32,7 +33,7 @@ describe('Restart app works correctly', () => {
       {
         [StoreKeys.Socket]: {
           ...new SocketState(),
-          isConnected: true
+          isConnected: false
         }
       },
       socket // Fork Nectar's sagas
@@ -67,8 +68,16 @@ describe('Restart app works correctly', () => {
     const createDictionary = CreateCommunityDictionary()
     const createCommunityTitle = screen.queryByText(createDictionary.header)
 
+    const createCommunityLoadingText = screen.queryByText(LoadingMessages.CreateCommunity)
+    const joinCommunityLoadingText = screen.queryByText(LoadingMessages.JoinCommunity)
+    const startAppLoadingText = screen.queryByText(LoadingMessages.StartApp)
+
     expect(channelName).toBeVisible()
+
     expect(joinCommunityTitle).toBeNull()
     expect(createCommunityTitle).toBeNull()
+    expect(createCommunityLoadingText).toBeNull()
+    expect(joinCommunityLoadingText).toBeNull()
+    expect(startAppLoadingText).toBeNull()
   })
 })

@@ -21,7 +21,7 @@ const JoinCommunity = () => {
   const loadingStartApp = useModal(ModalName.loadingPanel)
 
   useEffect(() => {
-    if (!community && !loadingStartApp.open && !isConnected) {
+    if (!loadingStartApp.open && !isConnected) {
       loadingStartApp.handleOpen({
         message: LoadingMessages.StartApp
       })
