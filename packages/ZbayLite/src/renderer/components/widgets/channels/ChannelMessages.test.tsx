@@ -9,18 +9,16 @@ describe('ChannelMessages', () => {
       id: 'string',
       type: 1,
       message: 'string',
-      createdAt: '1636995488.44',
+      createdAt: 1636995488.44,
+      date: 'string',
       nickname: 'string'
     }
 
     jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => DateTime.utc(2019, 3, 7, 13, 3, 48))
 
-    const messages = [
-      {
-        day: 'Today',
-        messages: [message]
-      }
-    ]
+    const messages = {
+      Today: [[message]]
+    }
 
     const result = renderComponent(
       <ChannelMessagesComponent channel={'general'} messages={messages} />
@@ -79,10 +77,10 @@ describe('ChannelMessages', () => {
                         class="MuiGrid-root MuiGrid-container MuiGrid-wrap-xs-nowrap MuiGrid-align-items-xs-flex-start"
                       >
                         <div
-                          class="MuiGrid-root makeStyles-avatar-156 MuiGrid-item"
+                          class="MuiGrid-root makeStyles-avatar-155 MuiGrid-item"
                         >
                           <div
-                            class="makeStyles-alignAvatar-157"
+                            class="makeStyles-alignAvatar-156"
                           >
                             Jdenticon
                           </div>
@@ -109,22 +107,26 @@ describe('ChannelMessages', () => {
                                 class="MuiGrid-root MuiGrid-item"
                               >
                                 <p
-                                  class="MuiTypography-root makeStyles-time-159 MuiTypography-body1"
+                                  class="MuiTypography-root makeStyles-time-158 MuiTypography-body1"
                                 >
-                                  1636995488.44
+                                  string
                                 </p>
                               </div>
                             </div>
                           </div>
                           <div
-                            class="MuiGrid-root MuiGrid-item"
+                            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column"
                           >
-                            <p
-                              class="MuiTypography-root makeStyles-message-152 MuiTypography-body1"
-                              data-testid="messagesGroupContent-string"
+                            <div
+                              class="MuiGrid-root makeStyles-firstMessage-178 MuiGrid-item"
                             >
-                              string
-                            </p>
+                              <p
+                                class="MuiTypography-root makeStyles-message-177 MuiTypography-body1"
+                                data-testid="messagesGroupContent-string"
+                              >
+                                string
+                              </p>
+                            </div>
                           </div>
                         </div>
                       </div>

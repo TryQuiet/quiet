@@ -1,7 +1,7 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
 import Grid from '@material-ui/core/Grid'
-import { publicChannels, IChannelInfo } from '@zbayapp/nectar'
+import { publicChannels, PublicChannel } from '@zbayapp/nectar'
 
 import BaseChannelsList from '../../../components/widgets/channels/BaseChannelsList'
 import SidebarHeader from '../../../components/ui/Sidebar/SidebarHeader'
@@ -12,7 +12,7 @@ import { useModal } from '../../hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
 
 interface useChannelPanelDataReturnTypes {
-  channels: IChannelInfo[]
+  channels: PublicChannel[]
   selected: string
 }
 

@@ -12,9 +12,8 @@ import ChannelInputComponent from '../widgets/channels/ChannelInput'
 
 import { useModal } from '../../containers/hooks'
 
-import { IChannelInfo } from '@zbayapp/nectar'
+import { DisplayableMessage, PublicChannel } from '@zbayapp/nectar'
 import { Identity } from '@zbayapp/nectar/lib/sagas/identity/identity.slice'
-import { MessagesGroupedByDay } from '@zbayapp/nectar/lib/sagas/publicChannels/publicChannels.types'
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -26,10 +25,10 @@ const useStyles = makeStyles(theme => ({
 
 export interface ChannelComponentProps {
   user: Identity
-  channel: IChannelInfo
+  channel: PublicChannel
   channelSettingsModal: ReturnType<typeof useModal>
   channelInfoModal: ReturnType<typeof useModal>
-  messages: MessagesGroupedByDay
+  messages: { [date: string]: DisplayableMessage[][] }
   onDelete: () => void
   onInputChange: (value: string) => void
   onInputEnter: (message: string) => void

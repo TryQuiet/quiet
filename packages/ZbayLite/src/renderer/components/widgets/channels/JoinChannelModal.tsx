@@ -11,7 +11,7 @@ import { AutocompleteField } from '../../ui/Autocomplete/Autocomplete'
 import LoadindButton from '../../ui/LoadingButton/LoadingButton'
 
 import { User } from '@zbayapp/nectar/lib/sagas/users/users.slice'
-import { IChannelInfo } from '@zbayapp/nectar/lib/sagas/publicChannels/publicChannels.types'
+import { PublicChannel } from '@zbayapp/nectar/lib/sagas/publicChannels/publicChannels.types'
 import { Dictionary } from '@reduxjs/toolkit'
 
 const useStyles = makeStyles(theme => ({
@@ -90,8 +90,8 @@ const useStyles = makeStyles(theme => ({
 interface JoinChannelModalProps {
   open: boolean
   handleClose: () => void
-  joinChannel: (channel: IChannelInfo) => void
-  publicChannels: IChannelInfo[]
+  joinChannel: (channel: PublicChannel) => void
+  publicChannels: PublicChannel[]
   users: Dictionary<User>
 }
 

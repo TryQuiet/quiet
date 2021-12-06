@@ -53,7 +53,7 @@ export const ChannelRegisteredMessage: React.FC<ChannelRegisteredMessageProps> =
             </span>
           </Fragment>
         }
-        timestamp={message.createdAt}
+        timestamp={String(message.createdAt)}
       />
       <SendMessagePopover
         username={username}

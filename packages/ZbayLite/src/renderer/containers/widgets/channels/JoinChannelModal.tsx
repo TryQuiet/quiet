@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { publicChannels } from '@zbayapp/nectar'
 import JoinChannelModalComponent from '../../../components/widgets/channels/JoinChannelModal'
 import channelHandlers from '../../../store/handlers/channel'
-import { IChannelInfo } from '@zbayapp/nectar/lib/sagas/publicChannels/publicChannels.types'
+import { PublicChannel } from '@zbayapp/nectar/lib/sagas/publicChannels/publicChannels.types'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { useModal } from '../../hooks'
 
@@ -20,7 +20,7 @@ const useJoinChannelData = () => {
 export const useJoinChannelActions = () => {
   const dispatch = useDispatch()
   const actions = {
-    joinChannel: (channel: IChannelInfo) => {
+    joinChannel: (channel: PublicChannel) => {
       dispatch(channelHandlers.epics.linkChannelRedirect(channel))
     }
   }

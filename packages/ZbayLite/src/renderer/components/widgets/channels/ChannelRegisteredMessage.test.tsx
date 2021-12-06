@@ -13,7 +13,8 @@ describe('ChannelRegisteredMessage', async () => {
       id: 'string',
       type: 1,
       message: 'string',
-      createdAt: 'string',
+      createdAt: 0,
+      date: 'string',
       nickname: 'string'
     }
     const result = renderComponent(
@@ -21,7 +22,7 @@ describe('ChannelRegisteredMessage', async () => {
         <Provider store={store}>
           <ChannelRegisteredMessage
             username='testUsername'
-            onChannelClick={() => { }}
+            onChannelClick={() => {}}
             message={message}
           />
         </Provider>
@@ -68,7 +69,7 @@ describe('ChannelRegisteredMessage', async () => {
                       <p
                         class="MuiTypography-root makeStyles-time-10 MuiTypography-body1"
                       >
-                        string
+                        0
                       </p>
                     </div>
                   </div>

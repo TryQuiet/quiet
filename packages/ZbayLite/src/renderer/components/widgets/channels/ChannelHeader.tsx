@@ -13,7 +13,7 @@ import silencedBlack from '../../../static/images/silencedBlack.svg'
 import Tooltip from '../../ui/Tooltip/Tooltip'
 import ChannelMenuActionComponent, { ChannelMenuActionProps } from './ChannelMenuAction'
 
-import { IChannelInfo } from '@zbayapp/nectar'
+import { PublicChannel } from '@zbayapp/nectar'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -87,7 +87,7 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export interface ChannelHeaderProps {
-  channel: IChannelInfo
+  channel: PublicChannel
 }
 
 export const ChannelHeaderComponent: React.FC<ChannelHeaderProps & ChannelMenuActionProps> = ({

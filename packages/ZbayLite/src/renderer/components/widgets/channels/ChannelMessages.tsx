@@ -4,12 +4,10 @@ import List from '@material-ui/core/List'
 
 import { Scrollbars } from 'rc-scrollbars'
 
-import { loadNextMessagesLimit } from '../../../../shared/static'
-
 import MessagesDivider from '../MessagesDivider'
 import BasicMessageComponent from './BasicMessage'
 
-import { MessagesGroupedByDay } from '@zbayapp/nectar/lib/sagas/publicChannels/publicChannels.types'
+import { DisplayableMessage } from '@zbayapp/nectar'
 
 const useStyles = makeStyles(theme => ({
   list: {
@@ -40,17 +38,13 @@ const useStyles = makeStyles(theme => ({
 
 export interface IChannelMessagesProps {
   channel: string
-  messages?: MessagesGroupedByDay
-  newMessagesLoading?: boolean
-  setNewMessagesLoading?: (arg: boolean) => void
+  messages?: { [date: string]: DisplayableMessage[][] }
 }
 
 // TODO: scrollbar smart pagination
 export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
   channel,
-  messages = [],
-  newMessagesLoading,
-  setNewMessagesLoading
+  messages = {}
 }) => {
   const classes = useStyles({})
 
@@ -80,29 +74,16 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps> = ({
     return () => window.removeEventListener('resize', eventListener)
   }, [channel, messages, scrollbarRef])
 
-  /* Set new position of a scrollbar handle */
-  useEffect(() => {
-    if (scrollbarRef.current && newMessagesLoading) {
-      const oneMessageHeight = scrollbarRef.current.getScrollHeight() / messages.length
-      const newMessagesBlockHeight = oneMessageHeight * loadNextMessagesLimit
-      setTimeout(() => {
-        scrollbarRef.current.scrollTop(newMessagesBlockHeight)
-      })
-      setNewMessagesLoading(false)
-    }
-  }, [newMessagesLoading])
-
   return (
     <Scrollbars ref={scrollbarRef} autoHideTimeout={500} onScrollFrame={onScrollFrame}>
       <List disablePadding ref={messagesRef} id='messages-scroll' className={classes.list}>
-        {messages.map((dayItem) => {
-          const messagesArray = dayItem.messages
-          const displayTitle = dayItem.day
+        {Object.keys(messages).map(day => {
           return (
-            <div key={displayTitle}>
-              <MessagesDivider title={displayTitle} />
-              {messagesArray.map(message => {
-                return <BasicMessageComponent key={message.id} message={message} />
+            <div key={day}>
+              <MessagesDivider title={day} />
+              {messages[day].map(items => { // Messages merged by sender (DisplayableMessage[])
+                const data = items[0]
+                return <BasicMessageComponent key={data.id} messages={items} />
               })}
             </div>
           )

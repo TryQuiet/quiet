@@ -54,10 +54,4 @@ test('User can create new community, register and send few messages to general c
   const messageGroupContent = messagesGroup.find('p').withAttribute('data-testid', /messagesGroupContent-/)
   await t.expect(messageGroupContent.exists).ok()
   await t.expect(messageGroupContent.textContent).eql('Hello\xa0everyone')
-
-  // Send second message, should appear in the same messages group
-  await t.typeText(messageInput, 'Welcome')
-  await t.pressKey('enter')
-  await t.expect(messagesGroup.count).eql(1)
-  await t.expect(messageGroupContent.textContent).eql('Hello\xa0everyone\nWelcome')
 })

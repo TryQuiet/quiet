@@ -14,6 +14,7 @@ import Jdenticon from 'react-jdenticon'
 // import SendMessagePopover from '../../../containers/widgets/channels/SendMessagePopover'
 
 import { DisplayableMessage } from '@zbayapp/nectar'
+import { NestedMessageContent } from './NestedMessageContent'
 
 const useStyles = makeStyles((theme: Theme) => ({
   messageCard: {
@@ -33,12 +34,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     fontWeight: 500,
     marginTop: -4,
     marginRight: 5
-  },
-  message: {
-    marginTop: '-3px',
-    fontSize: '0.855rem',
-    whiteSpace: 'pre-line',
-    lineHeight: '21px'
   },
   statusIcon: {
     color: theme.palette.colors.lightGray,
@@ -90,13 +85,13 @@ export const transformToLowercase = (string: string) => {
 }
 
 export interface BasicMessageProps {
-  message: DisplayableMessage
+  messages: DisplayableMessage[]
   // setActionsOpen: (open: boolean) => void
   // actionsOpen: boolean
   // allowModeration?: boolean
 }
 
-export const BasicMessageComponent: React.FC<BasicMessageProps> = ({ message }) => {
+export const BasicMessageComponent: React.FC<BasicMessageProps> = ({ messages }) => {
   const classes = useStyles({})
 
   // const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null)
@@ -108,6 +103,8 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({ message }) 
   // }
 
   // const handleClose = () => setAnchorEl(null)
+
+  const messageDisplayData = messages[0]
 
   return (
     <ListItem
@@ -136,7 +133,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({ message }) 
             /> */}
             <Grid item className={classes.avatar}>
               <div className={classes.alignAvatar}>
-                <Jdenticon size='32' value={message.nickname} />
+                <Jdenticon size='32' value={messageDisplayData.nickname} />
               </div>
             </Grid>
             <Grid container item direction='row'>
@@ -151,12 +148,12 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({ message }) 
                 >
                   <Grid item>
                     <Typography color='textPrimary' className={classes.username}>
-                      {message.nickname}
+                      {messageDisplayData.nickname}
                     </Typography>
                   </Grid>
                   {status !== 'failed' && (
                     <Grid item>
-                      <Typography className={classes.time}>{message.createdAt}</Typography>
+                      <Typography className={classes.time}>{messageDisplayData.date}</Typography>
                     </Grid>
                   )}
                 </Grid>
@@ -186,8 +183,10 @@ export const BasicMessageComponent: React.FC<BasicMessageProps> = ({ message }) 
                 </ClickAwayListener>
               )} */}
               </Grid>
-              <Grid item>
-                <Typography className={classes.message} data-testid={`messagesGroupContent-${message.id}`}>{message.message}</Typography>
+              <Grid container direction='column'>
+                {messages.map((message, index) => {
+                  return <NestedMessageContent message={message} index={index} />
+                })}
               </Grid>
             </Grid>
           </Grid>

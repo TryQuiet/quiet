@@ -1,12 +1,12 @@
 import React from 'react'
-import { IChannelInfo } from '@zbayapp/nectar'
+import { PublicChannel } from '@zbayapp/nectar'
 
 import List from '@material-ui/core/List'
 
 import ChannelsListItem from '../../../containers/widgets/channels/ChannelsListItem'
 
 interface BaseChannelsListProps {
-  channels: IChannelInfo[]
+  channels: PublicChannel[]
   directMessages?: boolean
   selected: string
 }

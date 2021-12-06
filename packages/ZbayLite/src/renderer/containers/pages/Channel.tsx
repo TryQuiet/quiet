@@ -16,7 +16,7 @@ const Channel = () => {
   const currentChannelAddress = useSelector(publicChannels.selectors.currentChannel)
   const currentChannel = channels.find(channel => channel?.address === currentChannelAddress)
   const displayableMessages = useSelector(
-    publicChannels.selectors.currentChannelMessagesGroupedByDay
+    publicChannels.selectors.currentChannelMessagesMergedBySender
   )
 
   const channelSettingsModal = useModal(ModalName.channelSettingsModal)
@@ -45,12 +45,12 @@ const Channel = () => {
           channelSettingsModal={channelSettingsModal}
           channelInfoModal={channelInfoModal}
           messages={displayableMessages}
-          onDelete={function (): void { }}
+          onDelete={function (): void {}}
           onInputChange={onInputChange}
           onInputEnter={onInputEnter}
           mutedFlag={false}
           notificationFilter={''}
-          openNotificationsTab={function (): void { }}
+          openNotificationsTab={function (): void {}}
         />
       )}
     </>

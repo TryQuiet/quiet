@@ -22,7 +22,7 @@
 //   message: BasicMessage
 // }
 
-// interface IChannelInfo {
+// interface PublicChannel {
 //   address: string
 //   name: string
 //   description: string
@@ -32,7 +32,7 @@
 // }
 
 // export interface IChannelInfoResponse {
-//   [name: string]: IChannelInfo
+//   [name: string]: PublicChannel
 // }
 
 // export const publicChannelsActions = {
@@ -46,7 +46,7 @@
 //   },
 //   Socket.RESPONSE_FETCH_ALL_MESSAGES
 //   >(Socket.RESPONSE_FETCH_ALL_MESSAGES),
-//   subscribeForTopic: createAction<IChannelInfo, Socket.SUBSCRIBE_FOR_TOPIC>(
+//   subscribeForTopic: createAction<PublicChannel, Socket.SUBSCRIBE_FOR_TOPIC>(
 //     Socket.SUBSCRIBE_FOR_TOPIC
 //   ),
 //   getPublicChannels: createAction(Socket.GET_PUBLIC_CHANNELS),
