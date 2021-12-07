@@ -12,7 +12,7 @@ import debug from 'debug'
 import * as Sentry from '@sentry/react'
 import { Integrations } from '@sentry/tracing'
 
-import { socketActions } from './sagas/socket/socket.slice'
+import { socketActions, WebsocketConnectionPayload } from './sagas/socket/socket.slice'
 
 if (process.env.REACT_APP_ENABLE_SENTRY === '1') {
   Sentry.init({
@@ -38,8 +38,8 @@ ipcRenderer.on('newUpdateAvailable', (_event) => {
   store.dispatch(updateHandlers.epics.checkForUpdate() as any)
 })
 
-ipcRenderer.on('connectToWebsocket', (_event) => {
-  store.dispatch(socketActions.startConnection)
+ipcRenderer.on('connectToWebsocket', (_event, payload: WebsocketConnectionPayload) => {
+  store.dispatch(socketActions.startConnection(payload))
 })
 
 ipcRenderer.on('waggleInitialized', (_event) => {

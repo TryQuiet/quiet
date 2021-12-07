@@ -1,7 +1,7 @@
 import TlgManager from 'waggle'
-import fp from 'find-free-port'
 import { BrowserWindow } from 'electron'
 import electronStore from '../shared/electronStore'
+import getPort from 'get-port'
 import { ConnectionsManager } from 'waggle/lib/libp2p/connectionsManager'
 import { DataServer } from 'waggle/lib/socket/DataServer'
 
@@ -12,11 +12,11 @@ export const getPorts = async (): Promise<{
   httpTunnelPort: number
   dataServer: number
 }> => {
-  const [controlPort] = await fp(9151)
-  const [httpTunnelPort] = await fp(9251)
-  const [socksPort] = await fp(9052)
-  const [libp2pHiddenService] = await fp(7950)
-  const [dataServer] = await fp(4677)
+  const controlPort = await getPort()
+  const httpTunnelPort = await getPort()
+  const socksPort = await getPort()
+  const libp2pHiddenService = await getPort()
+  const dataServer = await getPort()
   return {
     socksPort,
     libp2pHiddenService,
@@ -28,6 +28,7 @@ export const getPorts = async (): Promise<{
 
 export const runWaggle = async (webContents: BrowserWindow['webContents']): Promise<{ connectionsManager: ConnectionsManager; dataServer: DataServer }> => {
   const ports = await getPorts()
+
   const appDataPath = electronStore.get('appDataPath')
 
   const dataServer = new TlgManager.DataServer(ports.dataServer)
@@ -54,7 +55,7 @@ export const runWaggle = async (webContents: BrowserWindow['webContents']): Prom
 
   await connectionsManager.init()
 
-  webContents.send('connectToWebsocket')
+  webContents.send('connectToWebsocket', { dataPort: ports.dataServer })
 
   return { connectionsManager, dataServer }
 }
