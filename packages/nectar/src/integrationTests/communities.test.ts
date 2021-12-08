@@ -309,6 +309,7 @@ describe('registrar', () => {
       currentChannel: 'general',
       channels: publicChannelsAdapter.getInitialState(),
       channelMessages: channelMessagesAdapter.getInitialState(),
+      channelLoadingSlice: 0,
     };
 
     const userCsr: UserCsr = await createUserCsr({

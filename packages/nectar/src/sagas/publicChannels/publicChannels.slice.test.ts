@@ -103,6 +103,7 @@ describe('publicChannelsReducer', () => {
       channelMessagesAdapter.getInitialState(),
       messages
     ),
+    channelLoadingSlice: 0,
   };
 
   beforeEach(() => {

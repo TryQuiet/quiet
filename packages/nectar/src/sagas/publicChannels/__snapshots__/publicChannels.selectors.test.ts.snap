@@ -99,7 +99,7 @@ Object {
 exports[`publicChannelsSelectors get messages sorted by date 9`] = `
 Object {
   "channelId": "general",
-  "createdAt": 1638391800,
+  "createdAt": 1638996600,
   "id": "9",
   "message": "message_9",
   "pubKey": Any<String>,

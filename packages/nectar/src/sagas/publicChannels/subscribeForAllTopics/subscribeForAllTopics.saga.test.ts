@@ -72,6 +72,7 @@ describe('subscribeForAllTopicsSaga', () => {
       [channelOne, channelTwo]
     ),
     channelMessages: channelMessagesAdapter.getInitialState(),
+    channelLoadingSlice: 0,
   };
 
   test('ask for missing messages', () => {

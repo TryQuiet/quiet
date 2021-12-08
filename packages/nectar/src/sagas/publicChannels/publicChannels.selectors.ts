@@ -41,6 +41,7 @@ const currentCommunityChannelsState = createSelector(
       currentChannel: '',
       channels: publicChannelsAdapter.getInitialState(),
       channelMessages: channelMessagesAdapter.getInitialState(),
+      channelLoadingSlice: 0,
     };
     return publicChannels[currentCommunity] || empty;
   }
@@ -78,11 +79,22 @@ export const currentChannel = createSelector(
   }
 );
 
+export const channelLoadingSlice = createSelector(
+  currentCommunityChannelsState,
+  (state) => {
+    return state.channelLoadingSlice;
+  }
+);
+
 const currentChannelMessages = createSelector(
   publicChannelsMessages,
   currentChannel,
-  (messages, channel) => {
-    return messages.filter((message) => message.channelId === channel);
+  channelLoadingSlice,
+  (messages, channel, slice) => {
+    const allCurrentChannelMessages = messages.filter(
+      (message) => message.channelId === channel
+    );
+    return allCurrentChannelMessages.slice(slice, messages.length);
   }
 );
 
@@ -91,6 +103,13 @@ const validCurrentChannelMessages = createSelector(
   certificatesMapping,
   (messages, certificates) => {
     return messages.filter((message) => message.pubKey in certificates);
+  }
+);
+
+const currentChannelMessagesCount = createSelector(
+  validCurrentChannelMessages,
+  (messages) => {
+    return messages.length;
   }
 );
 
@@ -177,6 +196,7 @@ export const publicChannelsSelectors = {
   publicChannelsByCommunity,
   publicChannels,
   currentChannel,
+  currentChannelMessagesCount,
   dailyGroupedCurrentChannelMessages,
   currentChannelMessagesMergedBySender,
 };

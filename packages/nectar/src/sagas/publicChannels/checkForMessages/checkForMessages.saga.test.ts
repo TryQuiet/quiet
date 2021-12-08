@@ -61,6 +61,7 @@ describe('checkForMessagesSaga', () => {
       channelMessagesAdapter.getInitialState(),
       messages
     ),
+    channelLoadingSlice: 0,
   };
 
   const identity: Identity = {

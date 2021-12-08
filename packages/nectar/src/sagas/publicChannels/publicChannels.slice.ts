@@ -22,6 +22,7 @@ export interface CommunityChannels {
   currentChannel: string;
   channels: EntityState<PublicChannel>;
   channelMessages: EntityState<ChannelMessage>;
+  channelLoadingSlice: number;
 }
 
 export interface GetPublicChannelsResponse {
@@ -54,6 +55,11 @@ export interface AddPublicChannelsListPayload {
 
 export interface SetCurrentChannelPayload {
   channel: string;
+  communityId: string;
+}
+
+export interface SetChannelLoadingSlicePayload {
+  slice: number;
   communityId: string;
 }
 
@@ -101,6 +107,7 @@ export const publicChannelsSlice = createSlice({
         currentChannel: 'general',
         channels: publicChannelsAdapter.getInitialState(),
         channelMessages: channelMessagesAdapter.getInitialState(),
+        channelLoadingSlice: 0,
       };
       communityChannelsAdapter.addOne(state.channels, communityChannels);
     },
@@ -128,6 +135,16 @@ export const publicChannelsSlice = createSlice({
       communityChannelsAdapter.updateOne(state.channels, {
         id: communityId,
         changes: { currentChannel: channel },
+      });
+    },
+    setChannelLoadingSlice: (
+      state,
+      action: PayloadAction<SetChannelLoadingSlicePayload>
+    ) => {
+      const { communityId, slice } = action.payload;
+      communityChannelsAdapter.updateOne(state.channels, {
+        id: communityId,
+        changes: { channelLoadingSlice: slice },
       });
     },
     subscribeForTopic: (
@@ -193,7 +210,7 @@ export const publicChannelsSlice = createSlice({
     ) => {
       const { identity, message } = action.payload;
       channelMessagesAdapter.addOne(
-        // Identity it should be the same as community id
+        // Identity should be the same as community id
         state.channels.entities[identity.id].channelMessages,
         message
       );
