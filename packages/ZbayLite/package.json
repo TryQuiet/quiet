@@ -61,8 +61,8 @@
   },
   "homepage": "https://gitlab.rumblefishdev.com/holmes/zbay",
   "@comment version": "To build new version for specific platform, just replace platform in version tag to one of following linux, mac, windows",
-  "version": "4.0.2",
-  "description": "Distributed goods and bulletin board",
+  "version": "4.0.3",
+  "description": "Decentralized team chat",
   "main": "dist/src/main/main.js",
   "scripts": {
     "pullBinaries": "wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/tor -P ./tor/ && chmod 775 ./tor/tor",
