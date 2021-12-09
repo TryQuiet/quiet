@@ -86,15 +86,11 @@ export const channelLoadingSlice = createSelector(
   }
 );
 
-const currentChannelMessages = createSelector(
+export const currentChannelMessages = createSelector(
   publicChannelsMessages,
   currentChannel,
-  channelLoadingSlice,
-  (messages, channel, slice) => {
-    const allCurrentChannelMessages = messages.filter(
-      (message) => message.channelId === channel
-    );
-    return allCurrentChannelMessages.slice(slice, messages.length);
+  (messages, channel) => {
+    return messages.filter((message) => message.channelId === channel);
   }
 );
 
@@ -106,13 +102,6 @@ const validCurrentChannelMessages = createSelector(
   }
 );
 
-const currentChannelMessagesCount = createSelector(
-  validCurrentChannelMessages,
-  (messages) => {
-    return messages.length;
-  }
-);
-
 export const sortedCurrentChannelMessages = createSelector(
   validCurrentChannelMessages,
   (messages) => {
@@ -120,8 +109,23 @@ export const sortedCurrentChannelMessages = createSelector(
   }
 );
 
-const displayableCurrentChannelMessages = createSelector(
+export const slicedCurrentChannelMessages = createSelector(
   sortedCurrentChannelMessages,
+  channelLoadingSlice,
+  (messages, slice) => {
+    return messages.slice(slice, messages.length);
+  }
+);
+
+export const currentChannelMessagesCount = createSelector(
+  slicedCurrentChannelMessages,
+  (messages) => {
+    return messages.length;
+  }
+);
+
+const displayableCurrentChannelMessages = createSelector(
+  slicedCurrentChannelMessages,
   certificatesMapping,
   (messages, certificates) =>
     messages.map((message) => {

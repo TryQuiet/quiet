@@ -1,8 +1,10 @@
 import { Store } from '../store.types';
-import { getFactory } from '../..';
+import { getFactory, publicChannels } from '../..';
 import { prepareStore } from '../../utils/tests/prepareStore';
 import {
+  currentChannelMessagesCount,
   currentChannelMessagesMergedBySender,
+  slicedCurrentChannelMessages,
   sortedCurrentChannelMessages,
 } from './publicChannels.selectors';
 import { publicChannelsActions } from './publicChannels.slice';
@@ -10,6 +12,7 @@ import { communitiesActions } from '../communities/communities.slice';
 import { identityActions } from '../identity/identity.slice';
 import { DateTime } from 'luxon';
 import { MessageType } from '../messages/messages.types';
+import { currentCommunityId } from '../communities/communities.selectors';
 
 process.env.TZ = 'UTC';
 
@@ -167,8 +170,49 @@ describe('publicChannelsSelectors', () => {
     }
   });
 
+  beforeEach(async () => {
+    const community = currentCommunityId(store.getState());
+    store.dispatch(
+      publicChannels.actions.setChannelLoadingSlice({
+        communityId: community,
+        slice: 0,
+      })
+    );
+  });
+
   it('get messages sorted by date', async () => {
     const messages = sortedCurrentChannelMessages(store.getState());
+    messages.forEach((message) => {
+      expect(message).toMatchSnapshot({
+        createdAt: expect.any(Number),
+        pubKey: expect.any(String),
+        signature: expect.any(String),
+      });
+    });
+  });
+
+  it('get sliced messages count', async () => {
+    const messagesCountBefore = currentChannelMessagesCount(store.getState());
+    const community = currentCommunityId(store.getState());
+    store.dispatch(
+      publicChannels.actions.setChannelLoadingSlice({
+        communityId: community,
+        slice: 2,
+      })
+    );
+    const messagesCountAfter = currentChannelMessagesCount(store.getState());
+    expect(messagesCountAfter).toBe(messagesCountBefore - 2);
+  });
+
+  it('get sliced messages', async () => {
+    const community = currentCommunityId(store.getState());
+    store.dispatch(
+      publicChannels.actions.setChannelLoadingSlice({
+        communityId: community,
+        slice: 2,
+      })
+    );
+    const messages = slicedCurrentChannelMessages(store.getState());
     messages.forEach((message) => {
       expect(message).toMatchSnapshot({
         pubKey: expect.any(String),
@@ -180,97 +224,97 @@ describe('publicChannelsSelectors', () => {
   it('get grouped messages', async () => {
     const messages = currentChannelMessagesMergedBySender(store.getState());
     expect(messages).toMatchInlineSnapshot(`
-Object {
-  "Feb 05": Array [
-    Array [
       Object {
-        "createdAt": 1612548120,
-        "date": "Feb 05, 18:02",
-        "id": "7",
-        "message": "message_7",
-        "nickname": "holmes",
-        "type": 1,
-      },
-      Object {
-        "createdAt": 1612558200,
-        "date": "Feb 05, 20:50",
-        "id": "8",
-        "message": "message_8",
-        "nickname": "holmes",
-        "type": 1,
-      },
-    ],
-  ],
-  "Oct 20": Array [
-    Array [
-      Object {
-        "createdAt": 1603173000,
-        "date": "Oct 20, 5:50",
-        "id": "1",
-        "message": "message_1",
-        "nickname": "holmes",
-        "type": 1,
-      },
-      Object {
-        "createdAt": 1603174200,
-        "date": "Oct 20, 6:10",
-        "id": "2",
-        "message": "message_2",
-        "nickname": "holmes",
-        "type": 1,
-      },
-      Object {
-        "createdAt": 1603174290.001,
-        "date": "Oct 20, 6:11",
-        "id": "3",
-        "message": "message_3",
-        "nickname": "holmes",
-        "type": 1,
-      },
-      Object {
-        "createdAt": 1603174290.002,
-        "date": "Oct 20, 6:11",
-        "id": "4",
-        "message": "message_4",
-        "nickname": "holmes",
-        "type": 1,
-      },
-    ],
-    Array [
-      Object {
-        "createdAt": 1603174321,
-        "date": "Oct 20, 6:12",
-        "id": "5",
-        "message": "message_5",
-        "nickname": "bartek",
-        "type": 1,
-      },
-    ],
-    Array [
-      Object {
-        "createdAt": 1603174322,
-        "date": "Oct 20, 6:12",
-        "id": "6",
-        "message": "message_6",
-        "nickname": "holmes",
-        "type": 1,
-      },
-    ],
-  ],
-  "Today": Array [
-    Array [
-      Object {
-        "createdAt": 1638996600,
-        "date": "20:50",
-        "id": "9",
-        "message": "message_9",
-        "nickname": "holmes",
-        "type": 1,
-      },
-    ],
-  ],
-}
-`);
+        "Feb 05": Array [
+          Array [
+            Object {
+              "createdAt": 1612548120,
+              "date": "Feb 05, 18:02",
+              "id": "7",
+              "message": "message_7",
+              "nickname": "holmes",
+              "type": 1,
+            },
+            Object {
+              "createdAt": 1612558200,
+              "date": "Feb 05, 20:50",
+              "id": "8",
+              "message": "message_8",
+              "nickname": "holmes",
+              "type": 1,
+            },
+          ],
+        ],
+        "Oct 20": Array [
+          Array [
+            Object {
+              "createdAt": 1603173000,
+              "date": "Oct 20, 5:50",
+              "id": "1",
+              "message": "message_1",
+              "nickname": "holmes",
+              "type": 1,
+            },
+            Object {
+              "createdAt": 1603174200,
+              "date": "Oct 20, 6:10",
+              "id": "2",
+              "message": "message_2",
+              "nickname": "holmes",
+              "type": 1,
+            },
+            Object {
+              "createdAt": 1603174290.001,
+              "date": "Oct 20, 6:11",
+              "id": "3",
+              "message": "message_3",
+              "nickname": "holmes",
+              "type": 1,
+            },
+            Object {
+              "createdAt": 1603174290.002,
+              "date": "Oct 20, 6:11",
+              "id": "4",
+              "message": "message_4",
+              "nickname": "holmes",
+              "type": 1,
+            },
+          ],
+          Array [
+            Object {
+              "createdAt": 1603174321,
+              "date": "Oct 20, 6:12",
+              "id": "5",
+              "message": "message_5",
+              "nickname": "bartek",
+              "type": 1,
+            },
+          ],
+          Array [
+            Object {
+              "createdAt": 1603174322,
+              "date": "Oct 20, 6:12",
+              "id": "6",
+              "message": "message_6",
+              "nickname": "holmes",
+              "type": 1,
+            },
+          ],
+        ],
+        "Today": Array [
+          Array [
+            Object {
+              "createdAt": 1639083000,
+              "date": "20:50",
+              "id": "9",
+              "message": "message_9",
+              "nickname": "holmes",
+              "type": 1,
+            },
+          ],
+        ],
+      }
+    `);
   });
 });
 
