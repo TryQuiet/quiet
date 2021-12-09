@@ -31,9 +31,12 @@ export default class NodeInspect {
     }
 
     async _setupRemoteInterface () {
-        this.client.Debugger.enable().then(async () => {
-            return this.client.Debugger.setBreakpointByUrl({ lineNumber: 16, url: 'internal/main/run_main_module\.js' });
-        });
+        await this.client.Debugger.enable();
+
+        // NOTE: <= Electron v14.2.2
+        await this.client.Debugger.setBreakpointByUrl({ lineNumber: 16, url: 'internal/main/run_main_module\.js' });
+        // NOTE: >= Electron v15.0.0
+        await this.client.Debugger.setBreakpointByUrl({ lineNumber: 16, url: 'node:internal/main/run_main_module' });
 
         var pausedEvent = promisifyEvent(this.client, 'Debugger.paused');
 

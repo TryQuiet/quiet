@@ -1,6 +1,7 @@
-var electron = require('electron');
-var path     = require('path');
-var dialog   = electron.dialog;
+var electron   = require('electron');
+var path       = require('path');
+var dialog     = electron.dialog;
+var remoteMain = require('@electron/remote/main');
 
 var BrowserWindow = electron.BrowserWindow;
 var app           = electron.app;
@@ -11,18 +12,24 @@ var win = null;
 
 
 function createWindow () {
+    // Initialize main remote.
+    remoteMain.initialize();
+
     // Create the browser window.
     win = new BrowserWindow({
         width:          1024,
         height:         768,
         webPreferences: {
-            nodeIntegration:    true,
-            // NOTE: Electron 10 breaking changes:
-            // "Changed the default value of `enableRemoteModule` to `false`"
-            // (https://www.electronjs.org/blog/electron-10-0#breaking-changes) (GH-73)
-            enableRemoteModule: true
-        }
+            nodeIntegration:  true,
+            // NOTE: Electron 12 breaking changes:
+            // "Changed the default value of `contextIsolation` to `true`"
+            // (https://www.electronjs.org/blog/electron-12-0#breaking-changes)
+            contextIsolation: false,
+        },
     });
+
+    // and enable remote module for this windows
+    remoteMain.enable(win.webContents);
 
     // and load the index.html of the app.
     win.webContents.loadURL('file://' + path.join(__dirname, 'index.html'));

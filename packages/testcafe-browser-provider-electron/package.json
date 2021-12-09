@@ -46,6 +46,7 @@
     "testcafe": "*"
   },
   "devDependencies": {
+    "@electron/remote": "^2.0.1",
     "asar": "^2.0.1",
     "babel-core": "^6.26.3",
     "babel-eslint": "^7.2.3",
@@ -53,7 +54,7 @@
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.6.0",
     "del": "^2.0.0",
-    "electron": "^11.0.3",
+    "electron": "^16.0.4",
     "gulp": "^4.0.0",
     "gulp-babel": "^7.0.0",
     "gulp-eslint": "^3.0.1",
