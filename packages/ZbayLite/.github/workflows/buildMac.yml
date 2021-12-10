@@ -22,8 +22,6 @@ jobs:
           toolchain: nightly-2020-08-28
           components: clippy
           override: true
-      - name: install rustfmt
-        run: rustup component add rustfmt
       - name: install dependencies
         run: npm install
       - name: pull tor binary

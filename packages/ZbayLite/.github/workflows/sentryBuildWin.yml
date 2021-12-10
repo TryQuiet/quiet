@@ -28,12 +28,6 @@ jobs:
     - name: pull tor binary
       shell: bash
       run: curl https://zbay-binaries.s3.us-east-2.amazonaws.com/win32/tor.exe --output ./tor/tor.exe
-    - name: download rust
-      shell: bash
-      run: curl https://static.rust-lang.org/rustup/dist/i686-pc-windows-gnu/rustup-init.exe --output ./rustup-init.exe
-    - name: install rust
-      shell: bash
-      run: ./rustup-init.exe -y
     - name: build on Windows
       shell: bash
       run: npm run build:prod
