@@ -28,7 +28,11 @@ export interface ChannelComponentProps {
   channel: PublicChannel
   channelSettingsModal: ReturnType<typeof useModal>
   channelInfoModal: ReturnType<typeof useModal>
-  messages: { [date: string]: DisplayableMessage[][] }
+  messages: {
+    count: number
+    groups: { [date: string]: DisplayableMessage[][] }
+  }
+  setChannelLoadingSlice: (value: number) => void
   onDelete: () => void
   onInputChange: (value: string) => void
   onInputEnter: (message: string) => void
@@ -44,6 +48,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
   channelInfoModal,
   channelSettingsModal,
   messages,
+  setChannelLoadingSlice,
   onDelete,
   onInputChange,
   onInputEnter,
@@ -71,7 +76,11 @@ export const ChannelComponent: React.FC<ChannelComponentProps> = ({
         />
       </PageHeader>
       <Grid item xs className={classes.messages}>
-        <ChannelMessagesComponent channel={channel.address} messages={messages} />
+        <ChannelMessagesComponent
+          channel={channel.address}
+          messages={messages}
+          setChannelLoadingSlice={setChannelLoadingSlice}
+        />
       </Grid>
       <Grid item>
         <ChannelInputComponent
