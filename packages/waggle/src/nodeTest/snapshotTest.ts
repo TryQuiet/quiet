@@ -1,5 +1,5 @@
 import { createRootCA } from '@zbayapp/identity/lib'
-import fp from 'find-free-port'
+import getPort from 'get-port'
 import path from 'path'
 import { Time } from 'pkijs'
 import { createTmpDir } from '../common/testUtils'
@@ -17,9 +17,9 @@ const runTest = async () => {
     new Time({ type: 0, value: new Date(Date.UTC(2030, 11, 28, 10, 10, 10)) })
   )
   const messagesCount = 1000
-  const [port1] = await fp(7788)
-  const [torControl1] = await fp(9051)
-  const [httpTunnelPort1] = await fp(9011)
+  const port1 = await getPort()
+  const torControl1 = await getPort()
+  const httpTunnelPort1 = await getPort()
 
   const node1 = new NodeWithoutTor(
     undefined,
@@ -43,9 +43,9 @@ const runTest = async () => {
   )
   await node1.init()
 
-  const [port2] = await fp(7789)
-  const [torControl2] = await fp(9052)
-  const [httpTunnelPort2] = await fp(9030)
+  const port2 = await getPort({ port: 7789 })
+  const torControl2 = await getPort()
+  const httpTunnelPort2 = await getPort()
   const node2 = new NodeWithoutTor(
     undefined,
     undefined,

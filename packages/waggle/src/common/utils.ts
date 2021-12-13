@@ -1,5 +1,5 @@
-import fp from 'find-free-port'
 import fs from 'fs'
+import getPort from 'get-port'
 import fetch, { Response } from 'node-fetch'
 import path from 'path'
 import SocketIO from 'socket.io'
@@ -34,11 +34,11 @@ export function fetchAbsolute(fetch: Function): Function {
 }
 
 export const getPorts = async (): Promise<Ports> => {
-  const [controlPort] = await fp(9151)
-  const [socksPort] = await fp(9052)
-  const [libp2pHiddenService] = await fp(7788)
-  const [dataServer] = await fp(4677)
-  const [httpTunnelPort] = await fp(9000)
+  const controlPort = await getPort({ port: 9151 })
+  const socksPort = await getPort({ port: 9052 })
+  const libp2pHiddenService = await getPort({ port: 7788 })
+  const dataServer = await getPort({ port: 4677 })
+  const httpTunnelPort = await getPort({ port: 9000 })
   return {
     socksPort,
     libp2pHiddenService,

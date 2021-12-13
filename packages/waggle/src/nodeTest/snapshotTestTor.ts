@@ -1,5 +1,5 @@
 import { createRootCA } from '@zbayapp/identity/lib'
-import fp from 'find-free-port'
+import getPort from 'get-port'
 import path from 'path'
 import { Time } from 'pkijs'
 import { createTmpDir } from '../common/testUtils'
@@ -17,11 +17,11 @@ const runTest = async () => {
     new Time({ type: 0, value: new Date(Date.UTC(2030, 11, 28, 10, 10, 10)) })
   )
   const messagesCount = 1000
-  const [port1] = await fp(7788)
+  const port1 = await getPort()
 
-  const [controlPort1] = await fp(9051)
-  const httpTunnelPort1 = (await fp(controlPort1 as number + 1)).shift()
-  const socksPort1 = (await fp(httpTunnelPort1 as number + 1)).shift()
+  const controlPort1 = await getPort()
+  const httpTunnelPort1 = await getPort()
+  const socksPort1 = await getPort()
   // Node that generates snapshot
   const node1 = new NodeWithTor(
     undefined,
@@ -46,10 +46,10 @@ const runTest = async () => {
   await node1.init()
 
   // Node that retrieves snapshot
-  const port2 = await fp(7789)
-  const [controlPort2] = await fp(9060)
-  const httpTunnelPort2 = (await fp(controlPort2 as number + 1)).shift()
-  const socksPort2 = (await fp(httpTunnelPort2 as number + 1)).shift()
+  const port2 = await getPort({ port: 7789 })
+  const controlPort2 = await getPort()
+  const httpTunnelPort2 = await getPort()
+  const socksPort2 = await getPort()
   const node2 = new NodeWithTor(
     undefined,
     undefined,

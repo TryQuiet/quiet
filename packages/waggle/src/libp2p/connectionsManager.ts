@@ -1,22 +1,17 @@
-import * as os from 'os'
+import { NOISE } from '@chainsafe/libp2p-noise'
 import { Crypto } from '@peculiar/webcrypto'
-import { CryptoEngine, setEngine } from 'pkijs'
+import { Agent } from 'https'
 import { HttpsProxyAgent } from 'https-proxy-agent'
+import Libp2p, { Connection } from 'libp2p'
 import Bootstrap from 'libp2p-bootstrap'
 import Gossipsub from 'libp2p-gossipsub'
-import { Connection } from 'libp2p-gossipsub/src/interfaces'
 import KademliaDHT from 'libp2p-kad-dht'
 import Mplex from 'libp2p-mplex'
-import { NOISE } from 'libp2p-noise'
 import { Response } from 'node-fetch'
+import * as os from 'os'
 import PeerId from 'peer-id'
+import { CryptoEngine, setEngine } from 'pkijs'
 import { CertsData, ConnectionsManagerOptions } from '../common/types'
-import { ZBAY_DIR_PATH } from '../constants'
-import logger from '../logger'
-import IOProxy from '../socket/IOProxy'
-import initListeners from '../socket/listeners'
-import { Storage } from '../storage'
-import { Tor } from '../torManager'
 import {
   createLibp2pAddress,
   createLibp2pListenAddress,
@@ -25,7 +20,12 @@ import {
   torBinForPlatform,
   torDirForPlatform
 } from '../common/utils'
-import CustomLibp2p, { Libp2pType } from './customLibp2p'
+import { ZBAY_DIR_PATH } from '../constants'
+import logger from '../logger'
+import IOProxy from '../socket/IOProxy'
+import initListeners from '../socket/listeners'
+import { Storage } from '../storage'
+import { Tor } from '../torManager'
 import WebsocketsOverTor from './websocketOverTor'
 const log = logger('conn')
 
@@ -89,7 +89,7 @@ export class ConnectionsManager {
     )
   }
 
-  public readonly createAgent = () => {
+  public readonly createAgent = (): Agent => {
     if (this.socksProxyAgent || !this.agentPort || !this.agentHost) return
 
     log(`Creating https proxy agent: ${this.httpTunnelPort}`)
@@ -141,6 +141,7 @@ export class ConnectionsManager {
   }
 
   public closeAllServices = async () => {
+    this.io.close()
     await this.ioProxy.closeAll()
   }
 
@@ -180,7 +181,7 @@ export class ConnectionsManager {
     bootstrapMultiaddrs: string[],
     certs: CertsData,
     targetPort: number
-  ): Promise<{ libp2p: Libp2pType, localAddress: string }> => {
+  ): Promise<{ libp2p: Libp2p, localAddress: string }> => {
     const localAddress = this.createLibp2pAddress(address, addressPort, peerId.toB58String())
     log(`Initializing libp2p for ${peerId.toB58String()}`)
     const libp2p = ConnectionsManager.createBootstrapNode({
@@ -258,7 +259,7 @@ export class ConnectionsManager {
     bootstrapMultiaddrsList,
     transportClass,
     targetPort
-  }): Libp2pType => {
+  }): Libp2p => {
     return ConnectionsManager.defaultLibp2pNode({
       peerId,
       listenAddrs,
@@ -284,8 +285,8 @@ export class ConnectionsManager {
     bootstrapMultiaddrsList,
     transportClass,
     targetPort
-  }): Libp2pType => {
-    return new CustomLibp2p({
+  }): Libp2p => {
+    return new Libp2p({
       peerId,
       addresses: {
         listen: listenAddrs

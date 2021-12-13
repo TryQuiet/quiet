@@ -1,13 +1,13 @@
 import WebsocketsOverTor from './websocketOverTor'
-import Multiaddr from 'multiaddr'
+import { Multiaddr } from 'multiaddr'
 import { Tor } from '../torManager/index'
 import os from 'os'
-import fp from 'find-free-port'
 import * as utils from '../common/utils'
 import HttpsProxyAgent from 'https-proxy-agent'
 import { createTmpDir, TmpDir, tmpZbayDirPath } from '../common/testUtils'
 import { createCertificatesTestHelper } from './tests/client-server'
 import { createLibp2pAddress } from '../common/utils'
+import getPort from 'get-port'
 
 jest.setTimeout(120000)
 
@@ -42,14 +42,14 @@ describe('websocketOverTor', () => {
     port2 = 443
     tmpDir = createTmpDir()
     tmpAppDataPath = tmpZbayDirPath(tmpDir.name)
-    const [port1Arr] = await fp(8090)
-    const [port2Arr] = await fp(port1Arr as number + 1)
+    const port1Arr = await getPort()
+    const port2Arr = await getPort()
     port1Target = port1Arr
     port2Target = port2Arr
     const torPath = utils.torBinForPlatform()
-    const [controlPort] = await fp(9051)
-    httpTunnelPort = (await fp(controlPort as number + 1)).shift()
-    const socksPort = (await fp(httpTunnelPort + 1)).shift()
+    const controlPort = await getPort()
+    httpTunnelPort = await getPort()
+    const socksPort = await getPort()
     tor = new Tor({
       socksPort,
       torPath,

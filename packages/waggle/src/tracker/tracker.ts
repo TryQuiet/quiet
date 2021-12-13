@@ -4,7 +4,7 @@ import { ZBAY_DIR_PATH } from '../constants'
 import * as path from 'path'
 import * as os from 'os'
 import fs from 'fs'
-import multiaddr from 'multiaddr'
+import { Multiaddr } from 'multiaddr'
 import debug from 'debug'
 const log = Object.assign(debug('waggle:tracker'), {
   error: debug('waggle:tracker:err')
@@ -62,9 +62,9 @@ export class Tracker {
   }
 
   private addPeer(address: string): boolean {
-    let maddr: multiaddr = null
+    let maddr: Multiaddr = null
     try {
-      maddr = multiaddr(address)
+      maddr = new Multiaddr(address)
     } catch (e) {
       log.error('Wrong address format:', e)
       return false

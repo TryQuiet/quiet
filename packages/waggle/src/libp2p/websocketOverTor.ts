@@ -1,4 +1,3 @@
-
 import withIs from 'class-is'
 import WebSockets from 'libp2p-websockets'
 import { AbortError } from 'abortable-iterator'
@@ -9,11 +8,12 @@ import createServer from 'it-ws/server'
 import toConnection from 'libp2p-websockets/src/socket-to-conn'
 import url from 'url'
 import os from 'os'
-import multiaddr from 'multiaddr'
+import { Multiaddr } from 'multiaddr'
 import debug from 'debug'
 import PeerId from 'peer-id'
 import https from 'https'
 import { dumpPEM } from './utils'
+import pDefer from 'p-defer'
 
 const log: any = debug('libp2p:websockets:listener:waggle')
 log.error = debug('libp2p:websockets:listener:waggle:error')
@@ -95,17 +95,33 @@ class WebsocketsOverTor extends WebSockets {
     }
   }
 
-  async _connect(ma: multiaddr, options: any = {}) {
+  async _connect(ma: Multiaddr, options: any = {}) {
     if (options.signal?.aborted) {
       throw new AbortError()
     }
     const cOpts = ma.toOptions()
     log('connect %s:%s', cOpts.host, cOpts.port)
+
+    const errorPromise = pDefer()
+    const errfn = (err) => {
+      const msg = `connection error: ${err.message as string}`
+      log.error(msg)
+
+      errorPromise.reject(err)
+    }
+
     const myUri = `${toUri(ma) as string}/?remoteAddress=${encodeURIComponent(this.localAddress)}`
 
     const rawSocket = connect(myUri, Object.assign({ binary: true }, options))
+
+    if (rawSocket.socket.on) {
+      rawSocket.socket.on('error', errfn)
+    } else {
+      rawSocket.socket.onerror = errfn
+    }
+
     if (!options.signal) {
-      await rawSocket.connected()
+      await Promise.race([rawSocket.connected(), errorPromise.promise])
 
       log(`${this.localAddress} connected %s`, ma)
       return rawSocket
@@ -117,7 +133,10 @@ class WebsocketsOverTor extends WebSockets {
     const abort = new Promise((resolve, reject) => {
       onAbort = () => {
         reject(new AbortError())
-        rawSocket.close()
+        // FIXME: https://github.com/libp2p/js-libp2p-websockets/issues/121
+        setTimeout(() => {
+          rawSocket.close()
+        })
       }
 
       // Already aborted?
@@ -126,7 +145,7 @@ class WebsocketsOverTor extends WebSockets {
     })
 
     try {
-      await Promise.race([abort, rawSocket.connected()])
+      await Promise.race([abort, errorPromise.promise, rawSocket.connected()])
     } finally {
       options.signal.removeEventListener('abort', onAbort)
     }
@@ -136,6 +155,7 @@ class WebsocketsOverTor extends WebSockets {
   }
 
   prepareListener = ({ handler, upgrader }) => {
+    log('prepareListener')
     const listener: any = new EventEmitter()
     const trackConn = (server, maConn) => {
       server.__connections.push(maConn)
@@ -161,7 +181,7 @@ class WebsocketsOverTor extends WebSockets {
       const query = url.parse(request.url, true).query
       log('server', query.remoteAddress)
       try {
-        maConn = toConnection(stream, { remoteAddr: multiaddr(query.remoteAddress.toString()) })
+        maConn = toConnection(stream, { remoteAddr: new Multiaddr(query.remoteAddress.toString()) })
         const peer = {
           id: PeerId.createFromB58String(query.remoteAddress.toString().split('/p2p/')[1]),
           multiaddrs: [maConn.remoteAddr]
@@ -197,7 +217,7 @@ class WebsocketsOverTor extends WebSockets {
       return server.close()
     }
 
-    listener.listen = (ma: multiaddr) => {
+    listener.listen = (ma: Multiaddr) => {
       listeningMultiaddr = ma
 
       const listenOptions = {
@@ -231,7 +251,7 @@ class WebsocketsOverTor extends WebSockets {
           Object.keys(netInterfaces).forEach(niKey => {
             netInterfaces[niKey].forEach(ni => {
               if (ni.family === 'IPv4') {
-                multiaddrs.push(multiaddr(m.toString().replace('0.0.0.0', ni.address)))
+                multiaddrs.push(new Multiaddr(m.toString().replace('0.0.0.0', ni.address)))
               }
             })
           })

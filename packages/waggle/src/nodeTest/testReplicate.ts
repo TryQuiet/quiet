@@ -1,7 +1,6 @@
 import { Crypto } from '@peculiar/webcrypto'
 import { createRootCA } from '@zbayapp/identity'
 import Table from 'cli-table'
-import fp from 'find-free-port'
 import path from 'path'
 import { CryptoEngine, setEngine, Time } from 'pkijs'
 import yargs, { Argv } from 'yargs'
@@ -9,6 +8,7 @@ import logger from '../logger'
 import { createTmpDir } from '../common/testUtils'
 import { LocalNode, NodeWithoutTor, NodeWithTor } from './nodes'
 import { RootCA } from '@zbayapp/identity/lib/generateRootCA'
+import getPort from 'get-port'
 const log = logger('testReplicate')
 
 const argv = yargs.command('test', 'Test replication', (yargs: Argv) => {
@@ -70,10 +70,10 @@ setEngine('newEngine', webcrypto, new CryptoEngine({
 const launchNode = async (i: number, rootCa: RootCA, createMessages: boolean = false, useSnapshot: boolean = false) => {
   const torDir = path.join(tmpDir.name, `tor${i}`)
   const tmpAppDataPath = path.join(tmpDir.name, `.zbayTmp${i}`)
-  const [port] = await fp(7788 + i)
-  const [socksProxyPort] = await fp(1234 + i)
-  const [torControlPort] = await fp(9051 + i)
-  const [httpTunnelPort] = await fp(8052 + i)
+  const port = await getPort()
+  const socksProxyPort = await getPort()
+  const torControlPort = await getPort()
+  const httpTunnelPort = await getPort()
 
   const node = new NodeType(
     undefined,

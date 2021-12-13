@@ -11,7 +11,7 @@
     "version": "git add -A src",
     "postversion": "git push && git push --tags",
     "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
-    "test": "DEBUG=ipfs:*,waggle:* jest ./src/**/* --runInBand --verbose",
+    "test": "DEBUG=ipfs:*,waggle:* jest --runInBand --verbose",
     "test-ci": "jest ./src/**/* --runInBand --colors --ci --silent --verbose"
   },
   "repository": {
@@ -34,7 +34,10 @@
     ],
     "testRegex": "src/.*\\.test\\.(t|j)s$",
     "testEnvironment": "node",
-    "testTimeout": 40000
+    "testTimeout": 40000,
+    "setupFiles": [
+      "./jestSetup.js"
+    ]
   },
   "devDependencies": {
     "@types/crypto-js": "^4.0.2",
@@ -65,6 +68,7 @@
     "pkijs": "^2.1.96"
   },
   "dependencies": {
+    "@chainsafe/libp2p-noise": "^4.0.0",
     "@zbayapp/identity": "^3.3.3",
     "abortable-iterator": "^3.0.0",
     "class-validator": "^0.13.1",
@@ -76,33 +80,29 @@
     "dotenv": "8.2.0",
     "events": "^3.2.0",
     "express": "^4.17.1",
-    "find-free-port": "^2.0.0",
+    "get-port": "^5.1.1",
     "http-server": "^0.12.3",
     "https-proxy-agent": "^5.0.0",
-    "ipfs": "0.52",
+    "ipfs": "^0.60.2",
+    "ipfs-log": "5.4.1",
     "it-pipe": "^1.1.0",
     "joi": "^17.4.0",
-    "libp2p": "^0.29.3",
-    "libp2p-bootstrap": "^0.12.1",
-    "libp2p-gossipsub": "^0.6.1",
-    "libp2p-interfaces": "^0.7.1",
-    "libp2p-kad-dht": "^0.20.1",
-    "libp2p-mdns": "^0.15.0",
-    "libp2p-mplex": "^0.10.0",
-    "libp2p-noise": "^2.0.0",
-    "libp2p-pubsub-peer-discovery": "^3.0.0",
-    "libp2p-tcp": "^0.15.1",
-    "libp2p-websockets": "^0.14.0",
-    "multiaddr": "^8.0.0",
-    "orbit-db": "git://github.com/orbitdb/orbit-db.git#4f3fabb7bcf20f1314fd8e52fca556ce2852e46a",
-    "orbit-db-store": "~4.0.1",
-    "peer-id": "^0.14.0",
+    "libp2p": "^0.33.0",
+    "libp2p-bootstrap": "^0.13.0",
+    "libp2p-gossipsub": "^0.11.0",
+    "libp2p-kad-dht": "^0.24.2",
+    "libp2p-mplex": "^0.10.1",
+    "libp2p-websockets": "^0.16.2",
+    "multiaddr": "^10.0.1",
+    "orbit-db": "^0.28.0",
+    "orbit-db-io": "^1.0.2",
+    "orbit-db-store": "^4.3.2",
+    "peer-id": "^0.15.0",
     "socket.io": "3.0.5",
     "socks-proxy-agent": "^5.0.0",
     "streaming-iterables": "^5.0.2",
     "uint8arrays": "^1.1.0",
     "url": "^0.11.0",
-    "validator": "^13.6.0",
-    "wrtc": "^0.4.6"
+    "validator": "^13.6.0"
   }
 }

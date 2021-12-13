@@ -2,7 +2,7 @@
 import { Tor } from './torManager'
 import { torBinForPlatform, torDirForPlatform } from '../common/utils'
 import { createTmpDir, spawnTorProcess, TmpDir, tmpZbayDirPath } from '../common/testUtils'
-import fp from 'find-free-port'
+import getPort from 'get-port'
 
 jest.setTimeout(100_000)
 
@@ -28,9 +28,9 @@ describe('Tor manager', () => {
 
   it('should detect and kill old tor process before new tor is spawned', async () => {
     const torPath = torBinForPlatform()
-    const [controlPort] = await fp(9051)
-    const httpTunnelPort = (await fp(controlPort as number + 1)).shift()
-    const socksPort = (await fp(httpTunnelPort as number + 1)).shift()
+    const controlPort = await getPort({ port: 9051 })
+    const httpTunnelPort = await getPort()
+    const socksPort = await getPort()
     const libPath = torDirForPlatform()
     const tor = new Tor({
       appDataPath: tmpAppDataPath,
@@ -99,9 +99,9 @@ describe('Tor manager', () => {
 
   it('tor spawn repeating 3 times with 1 second timeout and repeating will stop after that', async () => {
     const torPath = torBinForPlatform()
-    const [controlPort] = await fp(9051)
-    const httpTunnelPort = (await fp(controlPort as number + 1)).shift()
-    const socksPort = (await fp(httpTunnelPort as number + 1)).shift()
+    const controlPort = await getPort({ port: 9051 })
+    const httpTunnelPort = await getPort()
+    const socksPort = await getPort()
     const libPath = torDirForPlatform()
     const tor = new Tor({
       appDataPath: tmpAppDataPath,
@@ -127,9 +127,9 @@ describe('Tor manager', () => {
 
   it('tor is initializing correctly with 40 seconds timeout', async () => {
     const torPath = torBinForPlatform()
-    const [controlPort] = await fp(9051)
-    const httpTunnelPort = (await fp(controlPort as number + 1)).shift()
-    const socksPort = (await fp(httpTunnelPort as number + 1)).shift()
+    const controlPort = await getPort({ port: 9051 })
+    const httpTunnelPort = await getPort()
+    const socksPort = await getPort()
     const libPath = torDirForPlatform()
     const tor = new Tor({
       appDataPath: tmpAppDataPath,

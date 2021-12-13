@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+* Upgrade: orbit-db@0.28.0, ipfs@0.60.2, libp2p@0.33.0 and their dependencies
+* Remove custom libp2p
+
+## [4.3.13]
+
 ### Added
 
 * Logs and retry logic in websocketOverTorTest

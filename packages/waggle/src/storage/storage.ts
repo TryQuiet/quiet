@@ -1,17 +1,18 @@
-import { getCertFieldValue, parseCertificate, verifyUserCert, CertFieldsTypes } from '@zbayapp/identity'
-import IPFS from 'ipfs'
-import { Libp2p } from 'libp2p-gossipsub/src/interfaces'
+import { Crypto } from '@peculiar/webcrypto'
+import { CertFieldsTypes, getCertFieldValue, parseCertificate, verifyUserCert } from '@zbayapp/identity'
+import * as IPFS from 'ipfs-core'
 import OrbitDB from 'orbit-db'
 import EventStore from 'orbit-db-eventstore'
 import KeyValueStore from 'orbit-db-kvstore'
 import path from 'path'
 import PeerId from 'peer-id'
-import { Crypto } from '@peculiar/webcrypto'
 import { CryptoEngine, setEngine } from 'pkijs'
 import {
   ChannelInfoResponse, DataFromPems, IChannelInfo,
   IMessage, IMessageThread, IPublicKey, IRepo, StorageOptions
 } from '../common/types'
+import Libp2p from 'libp2p'
+import { createPaths } from '../common/utils'
 import { Config } from '../constants'
 import logger from '../logger'
 import { EventTypesResponse } from '../socket/constantsReponse'
@@ -20,7 +21,6 @@ import { loadAllPublicChannels } from '../socket/events/channels'
 import {
   loadAllDirectMessages, loadAllMessages, message as socketMessage, sendIdsToZbay
 } from '../socket/events/messages'
-import { createPaths } from '../common/utils'
 import validate from '../validation/validators'
 const log = logger('db')
 
@@ -70,7 +70,7 @@ export class Storage {
     this.ipfsRepoPath = path.join(this.zbayDir, this.options.ipfsDir || Config.IPFS_REPO_PATH)
   }
 
-  public async init(libp2p: any, peerID: PeerId): Promise<void> {
+  public async init(libp2p: Libp2p, peerID: PeerId): Promise<void> {
     log('STORAGE: Entered init')
     if (this.options?.createPaths) {
       createPaths([this.ipfsRepoPath, this.orbitDbDir])
@@ -119,16 +119,18 @@ export class Storage {
     await this.__stopIPFS()
   }
 
-  protected async initIPFS(libp2p: Libp2p, peerID: PeerId): Promise<IPFS.IPFS> {
+  protected async initIPFS(libp2p: Libp2p, peerID: PeerId): Promise<IPFS.IPFS> { // TODO: import Libp2p type
+    log('Initializing IPFS')
     return await IPFS.create({ // error here 'permission denied 0.0.0.0:443'
-      libp2p: () => libp2p,
+      libp2p: async () => libp2p,
       preload: { enabled: false },
       repo: this.ipfsRepoPath,
       EXPERIMENTAL: {
         ipnsPubsub: true
       },
-      // @ts-expect-error - IPFS does not have privateKey in its Options type
-      privateKey: peerID.toJSON().privKey
+      init: {
+        privateKey: peerID.toJSON().privKey
+      }
     })
   }
 
@@ -344,11 +346,9 @@ export class Storage {
         log(`Writing to public channel db ${channelAddress}`)
         socketMessage(this.io, { message: entry.payload.value, channelAddress: channelAddress, communityId: this.communityId })
       })
-
-      db.events.on('replicated', () => {
-        const ids = this.getAllEventLogEntries(db).map(msg => msg.id)
+      db.events.on('replicate.progress', (_address, _hash, entry, _progress, _total) => {
         log('Message replicated')
-        sendIdsToZbay(this.io, { ids, channelAddress, communityId: this.communityId })
+        socketMessage(this.io, { message: entry.payload.value, channelAddress: channelAddress, communityId: this.communityId })
       })
       db.events.on('ready', () => {
         const ids = this.getAllEventLogEntries(db).map(msg => msg.id)

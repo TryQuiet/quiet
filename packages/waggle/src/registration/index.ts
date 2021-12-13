@@ -2,7 +2,7 @@ import { createUserCert, loadCSR, CertFieldsTypes } from '@zbayapp/identity'
 import { getReqFieldValue } from '@zbayapp/identity/lib/common'
 import { IsBase64, IsNotEmpty, validate } from 'class-validator'
 import express, { Request, Response } from 'express'
-import fp from 'find-free-port'
+import getPort from 'get-port'
 import { Server } from 'http'
 import { Certificate } from 'pkijs'
 import { DataFromPems } from '../common/types'
@@ -143,7 +143,7 @@ export class CertificateRegistration {
 
   public async init() {
     if (!this._port) {
-      const [port] = await fp(7789)
+      const port = await getPort({ port: 7789 })
       this._port = port
     }
     if (this._privKey) {

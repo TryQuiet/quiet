@@ -10,9 +10,10 @@ import { RootCA } from '@zbayapp/identity/lib/generateRootCA'
 import { Storage } from '../storage'
 import PeerId from 'peer-id'
 import { DataFromPems } from '../common/types'
+import getPort from 'get-port'
 jest.setTimeout(140_000)
 
-async function registerUserTest(csr: string, httpTunnelPort: number, localhost: boolean = true): Promise<Response> {
+async function registerUserTest(csr: string, httpTunnelPort: number, localhost: boolean = true, registrarPort: number = 7789): Promise<Response> {
   let address = '127.0.0.1'
   let options = {
     method: 'POST',
@@ -24,7 +25,7 @@ async function registerUserTest(csr: string, httpTunnelPort: number, localhost: 
     address = '4avghtoehep5ebjngfqk5b43jolkiyyedfcvvq4ouzdnughodzoglzad.onion'
     return await fetch(`http://${address}:80/register`, options)
   }
-  return await fetch(`http://${address}:7789/register`, options)
+  return await fetch(`http://${address}:${registrarPort}/register`, options)
 }
 
 async function setupRegistrar(tor: Tor, storage: Storage, dataFromPems: DataFromPems, hiddenServiceKey?: string, port?: number) {
@@ -106,6 +107,7 @@ describe('Registration service', () => {
       hashAlg: configCrypto.hashAlg
     })
     storage = await getStorage(tmpAppDataPath)
+    const registrarPort = await getPort()
     const saveCertificate = jest.spyOn(storage, 'saveCertificate')
     tor = await spawnTorProcess(tmpAppDataPath, ports)
     await tor.init()
@@ -113,9 +115,10 @@ describe('Registration service', () => {
       tor,
       storage,
       { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString },
-      testHiddenService
+      testHiddenService,
+      registrarPort
     )
-    const response = await registerUserTest(user.userCsr, ports.httpTunnelPort, false)
+    const response = await registerUserTest(user.userCsr, ports.httpTunnelPort, false, registrarPort)
     const responseData = await response.json()
     expect(saveCertificate).toBeCalledTimes(1)
     const isProperUserCert = await verifyUserCert(certRoot.rootCertString, responseData.certificate)
