@@ -133,7 +133,9 @@ describe('communitiesSelectors', () => {
         },
       }
     );
-    const registrarUrl = communitiesSelectors.registrarUrl(store.getState());
+    const registrarUrl = communitiesSelectors.registrarUrl(community.id)(
+      store.getState()
+    );
     expect(registrarUrl).toBe(onionAddress);
   });
 
@@ -169,7 +171,9 @@ describe('communitiesSelectors', () => {
         },
       }
     );
-    const registrarUrl = communitiesSelectors.registrarUrl(store.getState());
+    const registrarUrl = communitiesSelectors.registrarUrl(community.id)(
+      store.getState()
+    );
     expect(registrarUrl).toBe(`${onionAddress}:${port}`);
   });
 
@@ -203,7 +207,9 @@ describe('communitiesSelectors', () => {
         },
       }
     );
-    const registrarUrl = communitiesSelectors.registrarUrl(store.getState());
+    const registrarUrl = communitiesSelectors.registrarUrl(community.id)(
+      store.getState()
+    );
     expect(registrarUrl).toBe(url);
   });
 });

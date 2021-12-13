@@ -21,12 +21,15 @@ export const allCommunities = createSelector(
   (reducerState) => {
     return communitiesAdapter
       .getSelectors()
-      .selectAll(reducerState.communities);
+      .selectEntities(reducerState.communities);
   }
 );
 
 export const ownCommunities = createSelector(allCommunities, (communities) => {
-  return communities?.filter((community) => community.CA !== null) || [];
+  return (
+    Object.values(communities).filter((community) => community.CA !== null) ||
+    []
+  );
 });
 
 export const currentCommunity = createSelector(
@@ -39,6 +42,13 @@ export const currentCommunity = createSelector(
   }
 );
 
+export const communityById = (communityId: string) =>
+  createSelector(communitiesSlice, (reducerState) => {
+    return communitiesAdapter
+      .getSelectors()
+      .selectById(reducerState.communities, communityId);
+  });
+
 export const currentCommunityId = createSelector(
   communitiesSlice,
   (reducerState) => {
@@ -46,20 +56,22 @@ export const currentCommunityId = createSelector(
   }
 );
 
-export const registrarUrl = createSelector(currentCommunity, (community) => {
-  let registrarAddress: string = '';
-  if (!community) {
-    return;
-  }
-  if (community.onionAddress) {
-    registrarAddress = community.port
-      ? `${community.onionAddress}:${community.port}`
-      : `${community.onionAddress}`;
-  } else if (community.registrarUrl) {
-    registrarAddress = community.registrarUrl;
-  }
-  return registrarAddress;
-});
+export const registrarUrl = (communityId: string) =>
+  createSelector(allCommunities, (communities) => {
+    const community = communities[communityId];
+    let registrarAddress: string = '';
+    if (!community) {
+      return;
+    }
+    if (community.onionAddress) {
+      registrarAddress = community.port
+        ? `${community.onionAddress}:${community.port}`
+        : `${community.onionAddress}`;
+    } else if (community.registrarUrl) {
+      registrarAddress = community.registrarUrl;
+    }
+    return registrarAddress;
+  });
 
 export const isOwner = createSelector(currentCommunity, (community) => {
   return community && community.CA !== null;

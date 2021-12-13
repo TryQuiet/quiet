@@ -10,4 +10,5 @@ export enum StoreKeys {
   Errors = 'Errors',
   Communities = 'Communities',
   App = 'App',
+  Connection = 'Connection',
 }

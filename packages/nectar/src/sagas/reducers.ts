@@ -1,3 +1,4 @@
+import { connectionReducer } from './appConnection/connection.slice';
 import { communitiesReducer } from './communities/communities.slice';
 import { errorsReducer } from './errors/errors.slice';
 import { identityReducer } from './identity/identity.slice';
@@ -13,4 +14,5 @@ export const reducers = {
   [StoreKeys.Identity]: identityReducer,
   [StoreKeys.Errors]: errorsReducer,
   [StoreKeys.Messages]: messagesReducer,
+  [StoreKeys.Connection]: connectionReducer,
 };

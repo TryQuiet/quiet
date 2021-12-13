@@ -9,6 +9,7 @@ import {
   errors,
   messages,
   publicChannels,
+  connection,
 } from '../..';
 
 const reducers = {
@@ -18,6 +19,7 @@ const reducers = {
   [StoreKeys.Errors]: errors.reducer,
   [StoreKeys.Messages]: messages.reducer,
   [StoreKeys.PublicChannels]: publicChannels.reducer,
+  [StoreKeys.Connection]: connection.reducer,
 };
 
 export const prepareStore = (mockedState?: { [key in StoreKeys]?: any }) => {

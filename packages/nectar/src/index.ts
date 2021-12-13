@@ -36,6 +36,11 @@ import { SocketActionTypes } from './sagas/socket/const/actionTypes';
 import { communitiesSelectors } from './sagas/communities/communities.selectors';
 
 import { StoreKeys } from './sagas/store.keys';
+import {
+  connectionActions,
+  connectionReducer,
+} from './sagas/appConnection/connection.slice';
+import { connectionSelectors } from './sagas/appConnection/connection.selectors';
 
 export { getFactory } from './utils/tests/factories';
 export * from './utils/tests/helpers';
@@ -88,6 +93,12 @@ export const communities = {
   selectors: communitiesSelectors,
 };
 
+export const connection = {
+  reducer: connectionReducer,
+  actions: connectionActions,
+  selectors: connectionSelectors,
+};
+
 export const socket = {
   useIO,
 };
@@ -103,6 +114,7 @@ export default {
   messages,
   errors,
   communities,
+  connection,
   reducers,
   storeKeys,
   socketActionTypes,

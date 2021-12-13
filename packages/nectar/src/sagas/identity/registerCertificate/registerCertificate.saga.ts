@@ -35,6 +35,7 @@ export function* registerCertificateSaga(
       timestamp: Date.now(),
       address: 'general',
     };
+
     yield* put(
       publicChannelsActions.addChannel({
         communityId: action.payload.communityId,
