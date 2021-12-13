@@ -16,7 +16,7 @@ export const selectEntities = createSelector(communitiesSlice, (reducerState) =>
   communitiesAdapter.getSelectors().selectEntities(reducerState.communities)
 );
 
-export const allCommunities = createSelector(
+export const _allCommunities = createSelector(
   communitiesSlice,
   (reducerState) => {
     return communitiesAdapter
@@ -25,7 +25,14 @@ export const allCommunities = createSelector(
   }
 );
 
-export const ownCommunities = createSelector(allCommunities, (communities) => {
+export const allCommunities = createSelector(
+  _allCommunities,
+  (communities) => {
+    return Object.values(communities)
+  }
+);
+
+export const ownCommunities = createSelector(_allCommunities, (communities) => {
   return (
     Object.values(communities).filter((community) => community.CA !== null) ||
     []
@@ -57,7 +64,7 @@ export const currentCommunityId = createSelector(
 );
 
 export const registrarUrl = (communityId: string) =>
-  createSelector(allCommunities, (communities) => {
+  createSelector(_allCommunities, (communities) => {
     const community = communities[communityId];
     let registrarAddress: string = '';
     if (!community) {
