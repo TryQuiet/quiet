@@ -11,8 +11,10 @@
     "version": "git add -A src",
     "postversion": "git push && git push --tags",
     "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
-    "test": "DEBUG=ipfs:*,waggle:* jest --runInBand --verbose",
-    "test-ci": "jest ./src/**/* --runInBand --colors --ci --silent --verbose"
+    "test": "DEBUG=ipfs:*,waggle:* jest ./src/**/* --runInBand --verbose --testPathIgnorePatterns='.src/(!?nodeTest*)|(.node_modules*)'",
+    "test-ci": "jest ./src/**/* --runInBand --colors --ci --silent --verbose",
+    "test-connect": "DEBUG='libp2p:websockets*' jest ./src/nodeTest/* --verbose",
+    "test-connect-ci": "jest ./src/nodeTest/* --colors --ci --silent --verbose"
   },
   "repository": {
     "type": "git",
@@ -65,7 +67,8 @@
     "typescript": "^4.0.5",
     "ts-jest": "^26.5.6",
     "yargs": "^17.1.0",
-    "pkijs": "^2.1.96"
+    "pkijs": "^2.1.96",
+    "wait-for-expect": "^3.0.2"
   },
   "dependencies": {
     "@chainsafe/libp2p-noise": "^4.0.0",

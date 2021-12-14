@@ -52,6 +52,7 @@ export class ConnectionsManager {
   libp2pTransportClass: any
   StorageCls: any
   tor: Tor
+  libp2pInstance: any
 
   constructor({ agentHost, agentPort, httpTunnelPort, options, storageClass, io }: IConstructor) {
     this.io = io
@@ -194,6 +195,9 @@ export class ConnectionsManager {
       transportClass: this.libp2pTransportClass,
       targetPort
     })
+
+    this.libp2pInstance = libp2p
+
     libp2p.connectionManager.on('peer:connect', (connection: Connection) => {
       log(`${peerId.toB58String()} connected to ${connection.remotePeer.toB58String()}`)
     })
@@ -298,6 +302,9 @@ export class ConnectionsManager {
         connEncryption: [NOISE],
         dht: KademliaDHT,
         pubsub: Gossipsub
+      },
+      dialer: {
+        dialTimeout: 120_000
       },
       config: {
         peerDiscovery: {

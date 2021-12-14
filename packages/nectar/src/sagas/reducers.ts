@@ -14,5 +14,5 @@ export const reducers = {
   [StoreKeys.Identity]: identityReducer,
   [StoreKeys.Errors]: errorsReducer,
   [StoreKeys.Messages]: messagesReducer,
-  [StoreKeys.Connection]: connectionReducer,
+  [StoreKeys.Connection]: connectionReducer
 };
