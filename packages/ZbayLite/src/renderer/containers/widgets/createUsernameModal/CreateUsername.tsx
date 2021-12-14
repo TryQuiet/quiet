@@ -41,7 +41,7 @@ const CreateUsernameModal = () => {
   }, [channels.length, invitationUrl, certificate])
 
   useEffect(() => {
-    if (id?.hiddenService) {
+    if (id?.hiddenService && !certificate) {
       dispatch(identity.actions.registerUsername(username))
     }
   }, [id?.hiddenService])

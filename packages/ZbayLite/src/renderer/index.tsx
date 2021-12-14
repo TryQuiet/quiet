@@ -34,6 +34,8 @@ if (window) {
   window.localStorage.setItem('debug', process.env.DEBUG)
 }
 
+ipcRenderer.send('start-waggle')
+
 ipcRenderer.on('newUpdateAvailable', (_event) => {
   store.dispatch(updateHandlers.epics.checkForUpdate() as any)
 })
@@ -43,7 +45,7 @@ ipcRenderer.on('connectToWebsocket', (_event, payload: WebsocketConnectionPayloa
 })
 
 ipcRenderer.on('waggleInitialized', (_event) => {
-  log('waggle Initialized')
+  log('waggle initialized')
   store.dispatch(waggleHandlers.actions.setIsWaggleConnected(true))
 })
 

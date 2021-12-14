@@ -12,12 +12,12 @@ import { DataServer } from 'waggle/lib/socket/DataServer'
 
 import { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
+
 const log = Object.assign(debug('zbay:main'), {
   error: debug('zbay:main:err')
 })
 
 electronStore.set('appDataPath', app.getPath('appData'))
-electronStore.set('waggleInitialized', false)
 electronStore.set('waggleVersion', waggleVersion)
 
 export const isDev = process.env.NODE_ENV === 'development'
@@ -107,6 +107,7 @@ if (!gotTheLock) {
     // }
   })
 }
+
 app.on('open-url', (event, url) => {
   event.preventDefault()
   const data = new URL(url)
@@ -141,8 +142,10 @@ const checkForPayloadOnStartup = (payload: string) => {
     }
   }
 }
+
 let browserWidth: number
 let browserHeight: number
+
 const createWindow = async () => {
   const windowUserSize = electronStore.get('windowSize')
   mainWindow = new BrowserWindow({
@@ -248,7 +251,7 @@ export const checkForUpdate = async (win: BrowserWindow) => {
 }
 
 let waggleProcess: { connectionsManager: ConnectionsManager; dataServer: DataServer } | null = null
-let waggleProcessStarted: boolean = false
+
 app.on('ready', async () => {
   // const template = [
   //   {
@@ -296,10 +299,6 @@ app.on('ready', async () => {
     if (!isBrowserWindow(mainWindow)) {
       throw new Error('mainWindow is on unexpected type {mainWindow}')
     }
-    if (!waggleProcessStarted) {
-      waggleProcessStarted = true
-      waggleProcess = await runWaggle(mainWindow.webContents)
-    }
     if (process.platform === 'win32' && process.argv) {
       const payload = process.argv[1]
       if (payload) {
@@ -319,6 +318,12 @@ app.on('ready', async () => {
 
   ipcMain.on('proceed-update', () => {
     autoUpdater.quitAndInstall()
+  })
+
+  ipcMain.on('start-waggle', async () => {
+    await waggleProcess?.connectionsManager.closeAllServices()
+    await waggleProcess?.dataServer.close()
+    waggleProcess = await runWaggle(mainWindow.webContents)
   })
 })
 
@@ -353,10 +358,4 @@ app.on('activate', async () => {
   if (mainWindow === null) {
     await createWindow()
   }
-})
-
-ipcMain.on('hello', async () => {
-  await waggleProcess.connectionsManager.closeAllServices()
-  await waggleProcess.dataServer.close()
-  waggleProcess = await runWaggle(mainWindow.webContents)
 })

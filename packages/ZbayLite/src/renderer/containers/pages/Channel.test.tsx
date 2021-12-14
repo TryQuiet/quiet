@@ -4,9 +4,7 @@ import { screen } from '@testing-library/dom'
 import { apply, fork, take } from 'typed-redux-saga'
 import { renderComponent } from '../../testUtils/renderComponent'
 import { prepareStore } from '../../testUtils/prepareStore'
-import { StoreKeys } from '../../store/store.keys'
-import { publicChannels, getFactory } from '@zbayapp/nectar'
-import { SocketState } from '../../sagas/socket/socket.slice'
+import { getFactory, publicChannels } from '@zbayapp/nectar'
 import MockedSocket from 'socket.io-mock'
 import { act } from 'react-dom/test-utils'
 import { ioMock } from '../../../shared/setupTests'
@@ -27,12 +25,7 @@ describe('Channel', () => {
 
   it("causes no error if there's no data yet", async () => {
     const { store } = await prepareStore(
-      {
-        [StoreKeys.Socket]: {
-          ...new SocketState(),
-          isConnected: true
-        }
-      },
+      {},
       socket // Fork Nectar's sagas
     )
 
@@ -49,12 +42,7 @@ describe('Channel', () => {
 
   it('displays properly on app (re)start', async () => {
     const { store } = await prepareStore(
-      {
-        [StoreKeys.Socket]: {
-          ...new SocketState(),
-          isConnected: true
-        }
-      },
+      {},
       socket // Fork Nectar's sagas
     )
 
@@ -84,12 +72,7 @@ describe('Channel', () => {
 
   it('asks for missing messages and displays them', async () => {
     const { store, runSaga } = await prepareStore(
-      {
-        [StoreKeys.Socket]: {
-          ...new SocketState(),
-          isConnected: true
-        }
-      },
+      {},
       socket // Fork Nectar's sagas
     )
 
