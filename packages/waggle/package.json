@@ -9,6 +9,7 @@
   "scripts": {
     "build": "tsc",
     "version": "git add -A src",
+    "postinstall": "rm -rf node_modules/ipfs-core-types/src",
     "postversion": "git push && git push --tags",
     "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
     "test": "DEBUG=ipfs:*,waggle:* jest ./src/**/* --runInBand --verbose --testPathIgnorePatterns='.src/(!?nodeTest*)|(.node_modules*)'",

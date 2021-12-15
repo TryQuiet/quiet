@@ -81,7 +81,6 @@
     "build:main": "tsc -p tsconfig.build.main.json",
     "build:main:prod": "tsc -p tsconfig.build.main.json",
     "build:renderer:prod": "webpack --config webpack/webpack.config.renderer.prod.js",
-    "postinstall": "rm -rf node_modules/ipfs-core-types/src",
     "prestart": "npm run build:main",
     "start": "ZBAY_IS_TESTNET=0 DEBUG='waggle:*,zbay:*' npm run start:renderer",
     "start-testnet": "ZBAY_IS_TESTNET=1 npm run start:renderer",
@@ -311,10 +310,10 @@
     "websocket": "^1.0.32",
     "worker-loader": "^3.0.1",
     "ws": "^7.3.1",
-    "yup": "^0.27.0"
+    "yup": "^0.27.0",
+    "pkijs": "*"
   },
   "peerDependencies": {
-    "@peculiar/webcrypto": "*",
-    "pkijs": "*"
+    "@peculiar/webcrypto": "*"
   }
 }
