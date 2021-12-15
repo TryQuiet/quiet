@@ -1,4 +1,4 @@
-import { communities, identity, users, errors, messages, publicChannels } from '@zbayapp/nectar'
+import { communities, identity, users, errors, messages, publicChannels, connection } from '@zbayapp/nectar'
 import { StoreKeys as NectarStoreKeys } from '@zbayapp/nectar/lib/sagas/store.keys'
 import { StoreKeys } from '../store/store.keys'
 import { combineReducers, createStore, applyMiddleware } from 'redux'
@@ -17,6 +17,7 @@ export const reducers = {
   [NectarStoreKeys.Errors]: errors.reducer,
   [NectarStoreKeys.Messages]: messages.reducer,
   [NectarStoreKeys.PublicChannels]: publicChannels.reducer,
+  [NectarStoreKeys.Connection]: connection.reducer,
   [StoreKeys.Socket]: socketReducer,
   [StoreKeys.Modals]: modalsReducer
 }
