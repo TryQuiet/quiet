@@ -1,12 +1,10 @@
 import { createRootCA, RootCA } from '@zbayapp/identity/lib/generateRootCA';
 import {
   createUserCsr,
-  UserCsr,
-} from '@zbayapp/identity/lib/requestCertificate';
-import {
   createUserCert,
-  UserCert,
-} from '@zbayapp/identity/lib/generateUserCertificate';
+  UserCsr,
+  UserCert
+} from '@zbayapp/identity';
 import { config } from '../../sagas/users/const/certFieldTypes';
 import { PeerId } from '../../sagas/identity/identity.slice';
 import {

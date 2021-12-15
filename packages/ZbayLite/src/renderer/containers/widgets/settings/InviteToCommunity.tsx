@@ -4,14 +4,10 @@ import { useSelector } from 'react-redux'
 import { InviteToCommunity } from '../../../components/widgets/settings/InviteToCommunity'
 
 const InviteToCommunityTab: FC = () => {
-  const communityName = useSelector(communities.selectors.currentCommunity).name
-  const invitationUrl = useSelector(communities.selectors.registrarUrl)
-  return (
-    <InviteToCommunity
-      communityName={communityName}
-      invitationUrl={invitationUrl}
-    />
-  )
+  const community = useSelector(communities.selectors.currentCommunity)
+  const invitationUrl = useSelector(communities.selectors.registrarUrl(community.id))
+
+  return <InviteToCommunity communityName={community.name} invitationUrl={invitationUrl} />
 }
 
 export default InviteToCommunityTab

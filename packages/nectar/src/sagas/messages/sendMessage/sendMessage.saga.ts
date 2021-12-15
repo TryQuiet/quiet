@@ -5,7 +5,7 @@ import {
   parseCertificate,
   sign,
   loadPrivateKey,
-} from '@zbayapp/identity/lib';
+} from '@zbayapp/identity';
 import { call, select, apply } from 'typed-redux-saga';
 import { arrayBufferToString } from 'pvutils';
 import { config } from '../../users/const/certFieldTypes';
