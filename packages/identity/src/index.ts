@@ -9,8 +9,8 @@ import {
 import { verifyUserCert } from './verifyUserCertificate'
 import { verifySignature } from './verification'
 import { sign } from './sign'
-import { createUserCsr } from './requestCertificate'
-import { createUserCert } from './generateUserCertificate'
+import { createUserCsr, UserCsr } from './requestCertificate'
+import { createUserCert, UserCert } from './generateUserCertificate'
 import {
   loadPrivateKey,
   loadCSR,
@@ -30,8 +30,8 @@ export { extractPubKey, parseCertificate, keyFromCertificate, keyObjectFromStrin
 export { verifyUserCert }
 export { verifySignature }
 export { sign }
-export { createUserCsr }
-export { createUserCert }
+export { createUserCsr, UserCsr }
+export { createUserCert, UserCert }
 export {
   loadPrivateKey,
   loadCSR,
