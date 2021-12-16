@@ -2,24 +2,23 @@ import { combineReducers, createStore, applyMiddleware } from 'redux';
 import createSagaMiddleware from 'redux-saga';
 import thunk from 'redux-thunk';
 import { StoreKeys } from '../../sagas/store.keys';
-import {
-  communities,
-  identity,
-  users,
-  errors,
-  messages,
-  publicChannels,
-  connection,
-} from '../..';
+import { connectionReducer } from '../../sagas/appConnection/connection.slice';
+import { communitiesReducer } from '../../sagas/communities/communities.slice';
+import { errorsReducer } from '../../sagas/errors/errors.slice';
+import { identityReducer } from '../../sagas/identity/identity.slice';
+import { messagesReducer } from '../../sagas/messages/messages.slice';
+import { publicChannelsReducer } from '../../sagas/publicChannels/publicChannels.slice';
+import { usersReducer } from '../../sagas/users/users.slice';
+
 
 const reducers = {
-  [StoreKeys.Communities]: communities.reducer,
-  [StoreKeys.Identity]: identity.reducer,
-  [StoreKeys.Users]: users.reducer,
-  [StoreKeys.Errors]: errors.reducer,
-  [StoreKeys.Messages]: messages.reducer,
-  [StoreKeys.PublicChannels]: publicChannels.reducer,
-  [StoreKeys.Connection]: connection.reducer,
+  [StoreKeys.Communities]: communitiesReducer,
+  [StoreKeys.Identity]: identityReducer,
+  [StoreKeys.Users]: usersReducer,
+  [StoreKeys.Errors]: errorsReducer,
+  [StoreKeys.Messages]: messagesReducer,
+  [StoreKeys.PublicChannels]: publicChannelsReducer,
+  [StoreKeys.Connection]: connectionReducer,
 };
 
 export const prepareStore = (mockedState?: { [key in StoreKeys]?: any }) => {

@@ -6,11 +6,11 @@
   "types": "lib/index.d.js",
   "scripts": {
     "build": "tsc",
+    "prepublish": "tsc",
     "test": "jest",
     "test-ci": "jest --colors --collectCoverage --ci",
     "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
-    "check-style": "prettier --check src/**",
-    "prepublish": "tsc"
+    "check-style": "prettier --check src/**"
   },
   "repository": {
     "type": "git",
@@ -42,8 +42,8 @@
     "testEnvironment": "node"
   },
   "dependencies": {
-    "@peculiar/webcrypto": "^1.2.2",
-    "pkijs": "^2.1.97"
+    "@peculiar/webcrypto": "1.2.2",
+    "pkijs": "~2.1.97"
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",

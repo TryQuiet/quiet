@@ -7,7 +7,7 @@ export const appSlice = createSlice({
   initialState: { ...new AppState() },
   name: StoreKeys.App,
   reducers: {
-    closeServices: (state, _action: PayloadAction<string>) => state,
+    closeServices: state => state,
   },
 });
 

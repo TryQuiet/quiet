@@ -5,8 +5,8 @@
   "main": "lib/index.js",
   "scripts": {
     "build": "tsc",
+    "prepublish": "tsc",
     "test": "TZ=UTC jest sagas/*",
-    "test-integration": "DEBUG='waggle*, nectar*' jest integrationTests/*",
     "lint": "eslint --ext .ts ./src/",
     "prettier": "prettier"
   },
