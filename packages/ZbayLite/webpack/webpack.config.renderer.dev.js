@@ -1,8 +1,9 @@
 const webpack = require('webpack')
+const spawn = require('child_process').spawn
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const spawn = require('child_process').spawn
 const WebpackOnBuildPlugin = require('on-build-webpack')
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 
 var mainRunning = false
 
@@ -58,16 +59,15 @@ module.exports = {
           shell: true,
           env: process.env,
           stdio: 'inherit'
-        }).on(
-          'close', code => {
+        })
+          .on('close', code => {
             mainRunning = false
             process.exit(code)
-          }
-        ).on(
-          'error', spawnError => console.error(spawnError)
-        )
+          })
+          .on('error', spawnError => console.error(spawnError))
       }
-    })
+    }),
+    new TsconfigPathsPlugin()
   ],
   devServer: {
     hot: true,
