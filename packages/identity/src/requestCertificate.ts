@@ -2,7 +2,14 @@ import { PrintableString, OctetString } from 'asn1js'
 
 import config from './config'
 import { generateKeyPair, CertFieldsTypes, hexStringToArrayBuffer } from './common'
-import { getCrypto, CertificationRequest, AttributeTypeAndValue, Attribute, Extensions, Extension } from 'pkijs'
+import {
+  getCrypto,
+  CertificationRequest,
+  AttributeTypeAndValue,
+  Attribute,
+  Extensions,
+  Extension
+} from 'pkijs'
 
 interface CertData {
   publicKey: CryptoKey
@@ -16,15 +23,19 @@ export interface UserCsr {
   pkcs10: CertData
 }
 
-export const createUserCsr = async ({ zbayNickname, commonName, peerId, dmPublicKey }:
-  {
-    zbayNickname: string
-    commonName: string
-    peerId: string
-    dmPublicKey: string
-    signAlg: string
-    hashAlg: string
-  }): Promise<UserCsr> => {
+export const createUserCsr = async ({
+  zbayNickname,
+  commonName,
+  peerId,
+  dmPublicKey
+}: {
+  zbayNickname: string
+  commonName: string
+  peerId: string
+  dmPublicKey: string
+  signAlg: string
+  hashAlg: string
+}): Promise<UserCsr> => {
   const pkcs10 = await requestCertificate({
     zbayNickname: zbayNickname,
     commonName: commonName,
@@ -45,7 +56,7 @@ export const createUserCsr = async ({ zbayNickname, commonName, peerId, dmPublic
   }
 }
 
-async function requestCertificate ({
+async function requestCertificate({
   zbayNickname,
   commonName,
   peerId,
@@ -109,5 +120,5 @@ async function requestCertificate ({
     })
   )
   await pkcs10.sign(keyPair.privateKey, hashAlg)
-  return { pkcs10, ...keyPair }
+  return { pkcs10, publicKey: keyPair.publicKey, privateKey: keyPair.privateKey }
 }

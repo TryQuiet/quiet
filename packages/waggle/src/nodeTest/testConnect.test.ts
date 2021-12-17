@@ -9,12 +9,14 @@ import logger from '../logger'
 import { createTmpDir } from '../common/testUtils'
 import { LocalNode, NodeWithoutTor, NodeWithTor } from './nodes'
 import { sleep } from '../sleep'
+
 const log = logger('testConnect')
 
 const webcrypto = new Crypto()
 setEngine(
   'newEngine',
   webcrypto,
+  // @ts-expect-error
   new CryptoEngine({
     name: '',
     crypto: webcrypto,
@@ -94,7 +96,9 @@ describe('Nodes connections', () => {
       log(`node ${i} waiting for ${expectedConnectionsAmount} connections`)
       const node = map.get(i)
       await waitForExpect(() => {
-        expect(node.connectionsManager.libp2pInstance.connections.size).toEqual(expectedConnectionsAmount)
+        expect(node.connectionsManager.libp2pInstance.connections.size).toEqual(
+          expectedConnectionsAmount
+        )
       }, timeout)
       log(`node ${i} received ${expectedConnectionsAmount} connections`)
     }
@@ -136,7 +140,9 @@ describe('Nodes connections', () => {
       log(`node ${i} waiting for ${expectedConnectionsAmount} connections`)
       const node = map.get(i)
       await waitForExpect(() => {
-        expect(node.connectionsManager.libp2pInstance.connections.size).toEqual(expectedConnectionsAmount)
+        expect(node.connectionsManager.libp2pInstance.connections.size).toEqual(
+          expectedConnectionsAmount
+        )
       }, timeout)
       log(`node ${i} received ${expectedConnectionsAmount} connections`)
     }
@@ -177,7 +183,9 @@ describe('Nodes connections', () => {
       const node = map.get(i)
       console.log(node.connectionsManager.libp2pInstance.connections.size, 'size')
       await waitForExpect(() => {
-        expect(node.connectionsManager.libp2pInstance.connections.size).toEqual(expectedConnectionsAmount)
+        expect(node.connectionsManager.libp2pInstance.connections.size).toEqual(
+          expectedConnectionsAmount
+        )
       }, timeout)
       log(`node ${i} received ${expectedConnectionsAmount} connections`)
     }
@@ -220,7 +228,9 @@ describe('Nodes connections', () => {
       const node = map.get(i)
       console.log(node.connectionsManager.libp2pInstance.connections.size, 'size')
       await waitForExpect(() => {
-        expect(node.connectionsManager.libp2pInstance.connections.size).toEqual(expectedConnectionsAmount)
+        expect(node.connectionsManager.libp2pInstance.connections.size).toEqual(
+          expectedConnectionsAmount
+        )
       }, timeout)
       log(`node ${i} received ${expectedConnectionsAmount} connections`)
     }

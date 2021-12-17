@@ -12,23 +12,27 @@ import getPort from 'get-port'
 const log = logger('testReplicate')
 
 const argv = yargs.command('test', 'Test replication', (yargs: Argv) => {
-  return yargs.option('useTor', {
-    describe: 'Whether to use Tor or run waggle nodes on localhost',
-    default: true,
-    type: 'boolean'
-  }).option('nodesCount', {
-    describe: 'How many nodes should be run in test (does not include entry node)',
-    alias: 'n',
-    type: 'number'
-  }).option('timeThreshold', {
-    describe: 'Max time for each node complete replication (in seconds)',
-    alias: 't',
-    type: 'number'
-  }).option('entriesCount', {
-    describe: 'Number of db entries',
-    alias: 'e',
-    type: 'number'
-  })
+  return yargs
+    .option('useTor', {
+      describe: 'Whether to use Tor or run waggle nodes on localhost',
+      default: true,
+      type: 'boolean'
+    })
+    .option('nodesCount', {
+      describe: 'How many nodes should be run in test (does not include entry node)',
+      alias: 'n',
+      type: 'number'
+    })
+    .option('timeThreshold', {
+      describe: 'Max time for each node complete replication (in seconds)',
+      alias: 't',
+      type: 'number'
+    })
+    .option('entriesCount', {
+      describe: 'Number of db entries',
+      alias: 'e',
+      type: 'number'
+    })
     .demandOption(['nodesCount', 'timeThreshold', 'entriesCount'])
     .help()
 }).argv
@@ -61,13 +65,23 @@ class NodeData {
 }
 
 const webcrypto = new Crypto()
-setEngine('newEngine', webcrypto, new CryptoEngine({
-  name: '',
-  crypto: webcrypto,
-  subtle: webcrypto.subtle
-}))
+setEngine(
+  'newEngine',
+  webcrypto,
+  // @ts-expect-error
+  new CryptoEngine({
+    name: '',
+    crypto: webcrypto,
+    subtle: webcrypto.subtle
+  })
+)
 
-const launchNode = async (i: number, rootCa: RootCA, createMessages: boolean = false, useSnapshot: boolean = false) => {
+const launchNode = async (
+  i: number,
+  rootCa: RootCA,
+  createMessages: boolean = false,
+  useSnapshot: boolean = false
+) => {
   const torDir = path.join(tmpDir.name, `tor${i}`)
   const tmpAppDataPath = path.join(tmpDir.name, `.zbayTmp${i}`)
   const port = await getPort()
@@ -104,7 +118,11 @@ const launchNode = async (i: number, rootCa: RootCA, createMessages: boolean = f
 const displayResults = (nodes: NodeKeyValue) => {
   const table = new Table({ head: ['Node name', 'Time of replication', 'Test passed'] })
   for (const nodeData of Object.values(nodes)) {
-    table.push([nodeData.node.storage.name, nodeData.actualReplicationTime || '-', nodeData.testPassed])
+    table.push([
+      nodeData.node.storage.name,
+      nodeData.actualReplicationTime || '-',
+      nodeData.testPassed
+    ])
   }
   displayTestSetup()
   console.log(table.toString())
@@ -118,7 +136,9 @@ const displayResults = (nodes: NodeKeyValue) => {
 }
 
 const displayTestSetup = () => {
-  const table = new Table({ head: ['Time threshold', 'Messages (db entries) count', 'Test used Tor'] })
+  const table = new Table({
+    head: ['Time threshold', 'Messages (db entries) count', 'Test used Tor']
+  })
   table.push([argv.timeThreshold, argv.entriesCount, argv.useTor])
   console.log(table.toString())
 }
@@ -141,7 +161,10 @@ const runTest = async () => {
 
   const notBeforeDate = new Date(Date.UTC(2010, 11, 28, 10, 10, 10))
   const notAfterDate = new Date(Date.UTC(2030, 11, 28, 10, 10, 10))
-  const rootCa = await createRootCA(new Time({ type: 0, value: notBeforeDate }), new Time({ type: 0, value: notAfterDate }))
+  const rootCa = await createRootCA(
+    new Time({ type: 0, value: notBeforeDate }),
+    new Time({ type: 0, value: notAfterDate })
+  )
 
   const initNode = async (noNumber: number) => {
     const nodeData = new NodeData()
@@ -171,7 +194,9 @@ const runTest = async () => {
       displayResults(nodes)
       process.exit(1)
     }
-    const nodesReplicationFinished = Object.values(nodes).filter(nodeData => nodeData.node.storage.replicationTime !== undefined)
+    const nodesReplicationFinished = Object.values(nodes).filter(
+      nodeData => nodeData.node.storage.replicationTime !== undefined
+    )
     if (nodesReplicationFinished.length === 0) return
 
     // Get nodes that finished replicating
@@ -182,7 +207,11 @@ const runTest = async () => {
         nodeData.actualReplicationTime = nodeData.node.storage.replicationTime
         nodeData.testPassed = nodeData.actualReplicationTime <= maxReplicationTimePerNode
         nodeData.checked = true
-        log(`Test ${nodeData.testPassed ? 'passed' : 'failed'} for ${nodeData.node.storage.name as string}. Replication time: ${nodeData.actualReplicationTime as string}`)
+        log(
+          `Test ${nodeData.testPassed ? 'passed' : 'failed'} for ${
+            nodeData.node.storage.name as string
+          }. Replication time: ${nodeData.actualReplicationTime as string}`
+        )
       }
     }
     if (nodesReplicationFinished.length === nodesCount) {
@@ -195,6 +224,6 @@ const runTest = async () => {
   }, 5_000)
 }
 
-runTest().catch((error) => {
+runTest().catch(error => {
   console.error('Something went wrong', error)
 })

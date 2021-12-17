@@ -1,4 +1,5 @@
 import { EventTypesResponse } from '../constantsReponse'
+import SocketIO from 'socket.io'
 import logger from '../../logger'
 const log = logger('socket')
 

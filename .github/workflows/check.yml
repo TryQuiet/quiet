@@ -2,7 +2,7 @@ name: Check
 
 on:
   pull_request:
-  
+
 jobs:
   check:
     runs-on: ${{ matrix.os }}
@@ -12,7 +12,7 @@ jobs:
         os: [ubuntu-20.04, macos-latest, windows-latest]
 
     steps:
-      - name: 'Print OS'
+      - name: "Print OS"
         run: echo ${{ matrix.os }}
 
       - uses: actions/checkout@v1.0.0
@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: "12"
 
-      - name: 'Patch node gyp on windows to support Visual Studio 2019'
+      - name: "Patch node gyp on windows to support Visual Studio 2019"
         if: ${{ matrix.os == 'windows-latest' }}
         shell: powershell
         run: |
@@ -28,14 +28,14 @@ jobs:
           npm prefix -g | % {npm config set node_gyp "$_\node_modules\node-gyp\bin\node-gyp.js"}
           npm config set msvs_version 2019
 
-      - name: 'Get extra dependencies'
+      - name: "Get extra dependencies"
         if: ${{ matrix.os == 'windows-latest' }}
         run: npm install -g windows-build-tools@4.0.0
 
-      - name: 'Install lerna globally'
+      - name: "Install lerna globally"
         run: npm i -g lerna
 
-      - name: 'Cache NPM dependencies'
+      - name: "Cache NPM dependencies"
         uses: actions/cache@v1
         with:
           path: |
@@ -45,14 +45,14 @@ jobs:
           restore-keys: |
             ${{ runner.OS }}-npm-cache-
 
-      - name: 'Bootstrap project'
-        run: lerna bootstrap
+      - name: "Bootstrap project"
+        run: lerna --loglevel debug bootstrap
 
-      - name: 'Typecheck'
-        run: lerna run type-check 
+      - name: "Typecheck"
+        run: lerna run type-check
 
-      - name: 'Lint'
-        run: lerna run lint 
-        
-      - name: 'Test'
-        run: lerna run test 
+      - name: "Lint"
+        run: lerna run lint
+
+      - name: "Test"
+        run: lerna run test

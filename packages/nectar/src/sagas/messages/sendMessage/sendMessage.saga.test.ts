@@ -35,7 +35,7 @@ import {
   communityChannelsAdapter,
   publicChannelsAdapter,
 } from '../../publicChannels/publicChannels.adapter';
-import { PublicChannel } from 'src';
+import { PublicChannel } from '../../publicChannels/publicChannels.types';
 
 describe('sendMessageSaga', () => {
   const communityId = 'id';

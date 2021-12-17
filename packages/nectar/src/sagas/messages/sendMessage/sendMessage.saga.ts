@@ -16,7 +16,7 @@ import { messagesActions } from '../messages.slice';
 import { MessageTypes } from '../const/messageTypes';
 import { generateMessageId, getCurrentTime } from '../utils/message.utils';
 import logger from '../../../utils/logger';
-import { Identity } from 'src/sagas/identity/identity.slice';
+import { Identity } from '../../identity/identity.slice';
 
 const log = logger('message');
 

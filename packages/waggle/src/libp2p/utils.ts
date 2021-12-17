@@ -6,6 +6,7 @@ export function dumpPEM(tag: string, body: string | Certificate | CryptoKey) {
   if (typeof body === 'string') {
     bodyCert = formatPEM(body)
   } else {
+    // @ts-ignore
     bodyCert = formatPEM(Buffer.from(body).toString('base64'))
   }
   const result = (

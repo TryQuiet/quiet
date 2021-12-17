@@ -35,11 +35,16 @@ export class StorageTestSnapshot extends Storage {
   public useSnapshot: boolean
   public name: string
   public replicationTime: number
-  public options: StorageTestSnapshotOptions
+  public declare options: StorageTestSnapshotOptions
   protected snapshotSaved: boolean
   protected msgReplCount: number
 
-  constructor(zbayDir: string, io: any, communityId: string, options?: Partial<StorageTestSnapshotOptions>) {
+  constructor(
+    zbayDir: string,
+    io: any,
+    communityId: string,
+    options?: Partial<StorageTestSnapshotOptions>
+  ) {
     super(zbayDir, io, communityId, options)
     this.options = {
       ...new StorageTestSnapshotOptions(),
@@ -129,33 +134,37 @@ export class StorageTestSnapshot extends Storage {
     })
 
     // eslint-disable-next-line
-    this.messages.events.on('replicate.progress', async (_address, _hash, _entry, progress, _total) => {
-      if (!this.replicationStartTime) {
-        console.time(`${this.name}; Replication time`)
-        this.replicationStartTime = new Date()
-        log('progress start', progress)
+    this.messages.events.on(
+      'replicate.progress',
+      async (_address, _hash, _entry, progress, _total) => {
+        if (!this.replicationStartTime) {
+          console.time(`${this.name}; Replication time`)
+          this.replicationStartTime = new Date()
+          log('progress start', progress)
+        }
+        // log('---')
+        // log(`replicate.progress: ${address}`)
+        // log(`replicate.progress: ${hash}`)
+        // log(`${this.name}; replicate.progress: ${entry.payload.value}`)
+        // log(`replicate.progress: ${progress}`)
+        // log(`replicate.progress: ${total}`)
+        // await this.messages.load()
+        // log('Loaded entries replicate.progress:', this.getAllEventLogEntries(this.messages).length)
+        // fs.writeFileSync('allReplicatedMessages.json', JSON.stringify(this.getAllEventLogEntries(this.messages)))
+        if (progress === this.messagesCount) {
+          console.timeEnd(`${this.name}; Replication time`)
+          const diff = new Date().getTime() - this.replicationStartTime.getTime()
+          this.replicationTime = Number(diff / 1000)
+        }
       }
-      // log('---')
-      // log(`replicate.progress: ${address}`)
-      // log(`replicate.progress: ${hash}`)
-      // log(`${this.name}; replicate.progress: ${entry.payload.value}`)
-      // log(`replicate.progress: ${progress}`)
-      // log(`replicate.progress: ${total}`)
-      // await this.messages.load()
-      // log('Loaded entries replicate.progress:', this.getAllEventLogEntries(this.messages).length)
-      // fs.writeFileSync('allReplicatedMessages.json', JSON.stringify(this.getAllEventLogEntries(this.messages)))
-      if (progress === this.messagesCount) {
-        console.timeEnd(`${this.name}; Replication time`)
-        const diff = (new Date().getTime() - this.replicationStartTime.getTime())
-        this.replicationTime = Number(diff / 1000)
-      }
-    })
+    )
 
     await this.messages.load()
     log(`${this.name}; Loaded entries:`, this.getAllEventLogEntries(this.messages).length)
   }
 
-  private async addMessages() { // Generate and add "messages" to db
+  private async addMessages() {
+    // Generate and add "messages" to db
     log(`Adding ${this.messagesCount} messages`)
     const range = n => Array.from(Array(n).keys())
     const messages = range(this.messagesCount).map(nr => `message_${nr.toString()}`)
@@ -177,7 +186,8 @@ export class StorageTestSnapshot extends Storage {
     return this.getAllEventLogEntries(this.messages).length
   }
 
-  public async saveRemoteSnapshot(db) { // Save retrieved snapshot info to local cache
+  public async saveRemoteSnapshot(db) {
+    // Save retrieved snapshot info to local cache
     if (this.snapshotSaved) {
       return
     }
@@ -223,17 +233,20 @@ export class StorageTestSnapshot extends Storage {
     }
   }
 
-  async saveSnapshot(db) { // Copied from orbit-db-store
+  async saveSnapshot(db) {
+    // Copied from orbit-db-store
     const unfinished = db._replicator.getQueue()
 
     const snapshotData = db._oplog.toSnapshot()
-    const buf = Buffer.from(JSON.stringify({
-      id: snapshotData.id,
-      heads: snapshotData.heads,
-      size: snapshotData.values.length,
-      values: snapshotData.values,
-      type: db.type
-    }))
+    const buf = Buffer.from(
+      JSON.stringify({
+        id: snapshotData.id,
+        heads: snapshotData.heads,
+        size: snapshotData.values.length,
+        values: snapshotData.values,
+        type: db.type
+      })
+    )
 
     const snapshot = await db._ipfs.add(buf)
 
@@ -241,8 +254,11 @@ export class StorageTestSnapshot extends Storage {
     await db._cache.set(db.snapshotPath, snapshot)
     await db._cache.set(db.queuePath, unfinished)
 
-    console.debug(`Saved snapshot: ${snapshot.hash as string}, queue length: ${unfinished.length as string}`)
-    await this.saveSnapshotInfoToDb( // Saving it to share with others
+    console.debug(
+      `Saved snapshot: ${snapshot.hash as string}, queue length: ${unfinished.length as string}`
+    )
+    await this.saveSnapshotInfoToDb(
+      // Saving it to share with others
       db.queuePath,
       db.snapshotPath,
       snapshot,
@@ -257,7 +273,8 @@ export class StorageTestSnapshot extends Storage {
     fs.writeFileSync(`snapshot_${this.name}_${new Date().toISOString()}.json`, snapshot)
   }
 
-  async loadFromSnapshot(db) { // Copied from orbit-db-store
+  async loadFromSnapshot(db) {
+    // Copied from orbit-db-store
     if (db.options.onLoad) {
       await db.options.onLoad(db)
     }
@@ -289,7 +306,13 @@ export class StorageTestSnapshot extends Storage {
       // Timeout 1 sec to only load entries that are already fetched (in order to not get stuck at loading)
       db._recalculateReplicationMax(snapshotData.values.reduce(maxClock, 0))
       if (snapshotData) {
-        const log = await Log.fromJSON(db._ipfs, db.identity, snapshotData, { access: db.access, sortFn: db.options.sortFn, length: -1, timeout: 1000, onProgressCallback: onProgress })
+        const log = await Log.fromJSON(db._ipfs, db.identity, snapshotData, {
+          access: db.access,
+          sortFn: db.options.sortFn,
+          length: -1,
+          timeout: 1000,
+          onProgressCallback: onProgress
+        })
         await db._oplog.join(log)
         await db._updateIndex()
         db.events.emit('replicated', db.address.toString()) // TODO: inconsistent params, count param not emited

@@ -1,10 +1,9 @@
-import { createUserCert, loadCSR, CertFieldsTypes } from '@zbayapp/identity'
+import { UserCert, createUserCert, loadCSR, CertFieldsTypes } from '@zbayapp/identity'
 import { getReqFieldValue } from '@zbayapp/identity/lib/common'
 import { IsBase64, IsNotEmpty, validate } from 'class-validator'
 import express, { Request, Response } from 'express'
 import getPort from 'get-port'
 import { Server } from 'http'
-import { Certificate } from 'pkijs'
 import { DataFromPems } from '../common/types'
 import logger from '../logger'
 import { Storage } from '../storage'
@@ -30,7 +29,13 @@ export class CertificateRegistration {
   private _onionAddress: string
   private readonly _dataFromPems: DataFromPems
 
-  constructor(tor: Tor, storage: Storage, dataFromPems: DataFromPems, hiddenServicePrivKey?: string, port?: number) {
+  constructor(
+    tor: Tor,
+    storage: Storage,
+    dataFromPems: DataFromPems,
+    hiddenServicePrivKey?: string,
+    port?: number
+  ) {
     this._app = express()
     this._privKey = hiddenServicePrivKey
     this._port = port
@@ -42,9 +47,13 @@ export class CertificateRegistration {
   }
 
   private setRouting() {
+    // @ts-ignore
     this._app.use(express.json())
     // eslint-disable-next-line
-    this._app.post('/register', async (req, res): Promise<void> => await this.registerUser(req, res))
+    this._app.post(
+      '/register',
+      async (req, res): Promise<void> => await this.registerUser(req, res)
+    )
   }
 
   public getHiddenServiceData() {
@@ -75,13 +84,19 @@ export class CertificateRegistration {
     userData.csr = userCsr
     const validationErrors = await validate(userData)
     if (validationErrors.length > 0) return
-    const userCert = await createUserCert(dataFromPems.certificate, dataFromPems.privKey, userCsr, new Date(), new Date(2030, 1, 1))
+    const userCert = await createUserCert(
+      dataFromPems.certificate,
+      dataFromPems.privKey,
+      userCsr,
+      new Date(),
+      new Date(2030, 1, 1)
+    )
     return userCert.userCertString
   }
 
   public async getPeers(): Promise<string[]> {
     const users = this._storage.getAllUsers()
-    const peers = users.map(async (userData: { onionAddress: string, peerId: string }) => {
+    const peers = users.map(async (userData: { onionAddress: string; peerId: string }) => {
       let port: number
       let ws: string
       if (this.tor) {
@@ -116,7 +131,7 @@ export class CertificateRegistration {
       return
     }
 
-    let cert: Certificate
+    let cert: UserCert
     try {
       cert = await this.registerCertificate(userData.csr)
     } catch (e) {
@@ -131,9 +146,18 @@ export class CertificateRegistration {
     })
   }
 
-  private async registerCertificate(userCsr: string): Promise<Certificate> {
-    const userCert = await createUserCert(this._dataFromPems.certificate, this._dataFromPems.privKey, userCsr, new Date(), new Date(2030, 1, 1))
-    const certSaved = await this._storage.saveCertificate(userCert.userCertString, this._dataFromPems)
+  private async registerCertificate(userCsr: string): Promise<UserCert> {
+    const userCert = await createUserCert(
+      this._dataFromPems.certificate,
+      this._dataFromPems.privKey,
+      userCsr,
+      new Date(),
+      new Date(2030, 1, 1)
+    )
+    const certSaved = await this._storage.saveCertificate(
+      userCert.userCertString,
+      this._dataFromPems
+    )
     if (!certSaved) {
       throw new Error('Could not save certificate')
     }

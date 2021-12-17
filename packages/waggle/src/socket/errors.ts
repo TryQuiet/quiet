@@ -1,4 +1,5 @@
 import { EventTypesResponse } from './constantsReponse'
+import SocketIO from 'socket.io'
 
 class ErrorPayload {
   type: string

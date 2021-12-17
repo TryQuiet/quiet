@@ -1,7 +1,7 @@
 import { createEntityAdapter } from '@reduxjs/toolkit';
 import { PublicChannel } from './publicChannels.types';
 import { CommunityChannels } from './publicChannels.slice';
-import { ChannelMessage } from 'src';
+import { ChannelMessage } from '../..';
 
 export const communityChannelsAdapter =
   createEntityAdapter<CommunityChannels>();

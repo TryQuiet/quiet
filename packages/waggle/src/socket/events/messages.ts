@@ -1,6 +1,7 @@
 import { EventTypesServer } from '../constants'
 import { IMessage } from '../../common/types'
 import { EventTypesResponse } from '../constantsReponse'
+import SocketIO from 'socket.io'
 
 export const message = (socket: SocketIO.Server, message) => {
   console.log('emitting message to zbay')
@@ -27,14 +28,21 @@ export const loadAllMessages = (
   })
 }
 
-export const sendIdsToZbay = (socket: SocketIO.Server, payload: { ids: string[], channelAddress: string, communityId: string }) => {
+export const sendIdsToZbay = (
+  socket: SocketIO.Server,
+  payload: { ids: string[]; channelAddress: string; communityId: string }
+) => {
   if (payload.ids.length === 0) {
     return
   }
   socket.emit(EventTypesResponse.SEND_IDS, payload)
 }
 
-export const loadAllDirectMessages = (socket: SocketIO.Server, messages: string[], channelAddress: string) => {
+export const loadAllDirectMessages = (
+  socket: SocketIO.Server,
+  messages: string[],
+  channelAddress: string
+) => {
   if (messages.length === 0) {
     return
   }

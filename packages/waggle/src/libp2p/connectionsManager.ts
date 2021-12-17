@@ -3,6 +3,7 @@ import { Crypto } from '@peculiar/webcrypto'
 import { Agent } from 'https'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 import Libp2p, { Connection } from 'libp2p'
+import SocketIO from 'socket.io'
 import Bootstrap from 'libp2p-bootstrap'
 import Gossipsub from 'libp2p-gossipsub'
 import KademliaDHT from 'libp2p-kad-dht'
@@ -82,6 +83,7 @@ export class ConnectionsManager {
     setEngine(
       'newEngine',
       webcrypto,
+      // @ts-expect-error
       new CryptoEngine({
         name: '',
         crypto: webcrypto,
@@ -182,7 +184,7 @@ export class ConnectionsManager {
     bootstrapMultiaddrs: string[],
     certs: CertsData,
     targetPort: number
-  ): Promise<{ libp2p: Libp2p, localAddress: string }> => {
+  ): Promise<{ libp2p: Libp2p; localAddress: string }> => {
     const localAddress = this.createLibp2pAddress(address, addressPort, peerId.toB58String())
     log(`Initializing libp2p for ${peerId.toB58String()}`)
     const libp2p = ConnectionsManager.createBootstrapNode({

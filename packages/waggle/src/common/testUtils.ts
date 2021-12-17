@@ -12,12 +12,23 @@ import { createCertificatesTestHelper } from '../libp2p/tests/client-server'
 import WebsocketsOverTor from '../libp2p/websocketOverTor'
 import logger from '../logger'
 import { Tor } from '../torManager'
-import { createLibp2pAddress, createLibp2pListenAddress, DummyIOServer, getPorts, Ports, torBinForPlatform, torDirForPlatform } from './utils'
+import {
+  createLibp2pAddress,
+  createLibp2pListenAddress,
+  DummyIOServer,
+  getPorts,
+  Ports,
+  torBinForPlatform,
+  torDirForPlatform
+} from './utils'
 const log = logger('test')
 
-export const dataFromRootPems: DataFromPems = { // Tmp cert
-  certificate: 'MIIBNjCB3AIBATAKBggqhkjOPQQDAjASMRAwDgYDVQQDEwdaYmF5IENBMCYYEzIwMjEwNjIyMDkzMDEwLjAyNVoYDzIwMzAwMTMxMjMwMDAwWjASMRAwDgYDVQQDEwdaYmF5IENBMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEV5a3Czy+L7IfVX0FpJtSF5mi0GWGrtPqv5+CFSDPrHXijsxWdPTobR1wk8uCLP4sAgUbs/bIleCxQy41kSSyOaMgMB4wDwYDVR0TBAgwBgEB/wIBAzALBgNVHQ8EBAMCAAYwCgYIKoZIzj0EAwIDSQAwRgIhAPOzksuipKyBALt/o8O/XwsrVSzfSHXdAR4dOWThQ1lbAiEAmKqjhsmf50kxWX0ekhbAeCTjcRApXhjnslmJkIFGF2o=+lmBImw3BMNjA0FTlK5iRmVC+w/T6M04Es+yiYL608vOhx2slnoyAwHjAPBgNVHRMECDAGAQH/AgEDMAsGA1UdDwQEAwIABjAKBggqhkjOPQQDAgNIADBFAiEA+0kIz0ny/PLVERTcL0+KCpsztyA6Zuwzj05VW5NMdx0CICgdzf0lg0/2Ksl1AjSPYsy2w+Hn09PGlBnD7TiExBpx',
-  privKey: 'MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgTvNuJL0blaYq6zmFS53WmmOfHshlqn+8wNHDzo4df5WgCgYIKoZIzj0DAQehRANCAARXlrcLPL4vsh9VfQWkm1IXmaLQZYau0+q/n4IVIM+sdeKOzFZ09OhtHXCTy4Is/iwCBRuz9siV4LFDLjWRJLI5+lmBImw3BMNjA0FTlK5iRmVC+w/T6M04Es+yiYL608vOhx2sln'
+export const dataFromRootPems: DataFromPems = {
+  // Tmp cert
+  certificate:
+    'MIIBNjCB3AIBATAKBggqhkjOPQQDAjASMRAwDgYDVQQDEwdaYmF5IENBMCYYEzIwMjEwNjIyMDkzMDEwLjAyNVoYDzIwMzAwMTMxMjMwMDAwWjASMRAwDgYDVQQDEwdaYmF5IENBMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEV5a3Czy+L7IfVX0FpJtSF5mi0GWGrtPqv5+CFSDPrHXijsxWdPTobR1wk8uCLP4sAgUbs/bIleCxQy41kSSyOaMgMB4wDwYDVR0TBAgwBgEB/wIBAzALBgNVHQ8EBAMCAAYwCgYIKoZIzj0EAwIDSQAwRgIhAPOzksuipKyBALt/o8O/XwsrVSzfSHXdAR4dOWThQ1lbAiEAmKqjhsmf50kxWX0ekhbAeCTjcRApXhjnslmJkIFGF2o=+lmBImw3BMNjA0FTlK5iRmVC+w/T6M04Es+yiYL608vOhx2slnoyAwHjAPBgNVHRMECDAGAQH/AgEDMAsGA1UdDwQEAwIABjAKBggqhkjOPQQDAgNIADBFAiEA+0kIz0ny/PLVERTcL0+KCpsztyA6Zuwzj05VW5NMdx0CICgdzf0lg0/2Ksl1AjSPYsy2w+Hn09PGlBnD7TiExBpx',
+  privKey:
+    'MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgTvNuJL0blaYq6zmFS53WmmOfHshlqn+8wNHDzo4df5WgCgYIKoZIzj0DAQehRANCAARXlrcLPL4vsh9VfQWkm1IXmaLQZYau0+q/n4IVIM+sdeKOzFZ09OhtHXCTy4Is/iwCBRuz9siV4LFDLjWRJLI5+lmBImw3BMNjA0FTlK5iRmVC+w/T6M04Es+yiYL608vOhx2sln'
 }
 
 tmp.setGracefulCleanup()
@@ -27,10 +38,12 @@ export interface TmpDir {
   removeCallback: () => {}
 }
 
-export const testBootstrapMultiaddrs = [createLibp2pAddress('abcd.onion', 1111, 'QmfLUJcDSLVYnNqSPSRK4mKG8MGw51m9K2v59k3yq1C8s4', 'wss')]
+export const testBootstrapMultiaddrs = [
+  createLibp2pAddress('abcd.onion', 1111, 'QmfLUJcDSLVYnNqSPSRK4mKG8MGw51m9K2v59k3yq1C8s4', 'wss')
+]
 
 export const spawnTorProcess = async (zbayDirPath: string, ports?: Ports): Promise<Tor> => {
-  const _ports = ports || await getPorts()
+  const _ports = ports || (await getPorts())
   const torPath = torBinForPlatform()
   const libPath = torDirForPlatform()
   const tor = new Tor({
@@ -50,13 +63,14 @@ export const spawnTorProcess = async (zbayDirPath: string, ports?: Ports): Promi
   return tor
 }
 
-export const createMinConnectionManager = (options: ConnectionsManagerOptions): ConnectionsManager => {
+export const createMinConnectionManager = (
+  options: ConnectionsManagerOptions
+): ConnectionsManager => {
   if (!options.env?.appDataPath) throw new Error('Test connection manager is lacking appDataPath!')
   return new ConnectionsManager({
     agentHost: 'localhost',
     agentPort: 2222,
     httpTunnelPort: 3333,
-    // @ts-expect-error
     io: new DummyIOServer(),
     options: {
       bootstrapMultiaddrs: testBootstrapMultiaddrs,
@@ -92,7 +106,8 @@ export const tmpZbayDirPath = (name: string): string => {
   return path.join(name, Config.ZBAY_DIR)
 }
 
-export class TorMock { // TODO: extend Tor to be sure that mocked api is correct
+export class TorMock {
+  // TODO: extend Tor to be sure that mocked api is correct
   public async spawnHiddenService({
     virtPort,
     targetPort,
@@ -109,7 +124,7 @@ export class TorMock { // TODO: extend Tor to be sure that mocked api is correct
   public async createNewHiddenService(
     virtPort: number,
     targetPort: number
-  ): Promise<{ onionAddress: string, privateKey: string }> {
+  ): Promise<{ onionAddress: string; privateKey: string }> {
     log('TorMock.createNewHiddenService', virtPort, targetPort)
     return {
       onionAddress: 'mockedOnionAddress',

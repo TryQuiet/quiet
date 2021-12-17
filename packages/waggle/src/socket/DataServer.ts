@@ -1,7 +1,9 @@
 import express from 'express'
 import { createServer, Server } from 'http'
+import SocketIO from 'socket.io'
 import logger from '../logger'
 import cors from 'cors'
+
 // eslint-disable-next-line
 const socketio = require('socket.io')
 const log = logger('socket')
@@ -37,7 +39,7 @@ export class DataServer {
   }
 
   public listen = async (): Promise<void> => {
-    return await new Promise((resolve) => {
+    return await new Promise(resolve => {
       this.server.listen(this.PORT, () => {
         log(`Data server running on port ${this.PORT}`)
         resolve()
@@ -47,7 +49,7 @@ export class DataServer {
 
   public close = async (): Promise<void> => {
     log(`Closing data server on port ${this.PORT}`)
-    return await new Promise((resolve) => {
+    return await new Promise(resolve => {
       this.server.close()
       resolve()
     })

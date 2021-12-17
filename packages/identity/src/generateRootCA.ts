@@ -2,14 +2,22 @@ import { Integer, PrintableString, BitString } from 'asn1js'
 
 import config from './config'
 import { generateKeyPair, CertFieldsTypes, ExtensionsTypes } from './common'
-import { Time, Certificate, BasicConstraints, ExtKeyUsage, Extension, AttributeTypeAndValue, getCrypto } from 'pkijs'
+import {
+  Time,
+  Certificate,
+  BasicConstraints,
+  ExtKeyUsage,
+  Extension,
+  AttributeTypeAndValue,
+  getCrypto
+} from 'pkijs'
 
 export interface RootCA {
   // Todo: move types to separate file
   rootObject: {
     certificate: Certificate
-    privateKey: CryptoKey;
-    publicKey: CryptoKey;
+    privateKey: CryptoKey
+    publicKey: CryptoKey
   }
   rootCertString: string
   rootKeyString: string
@@ -40,7 +48,7 @@ export const createRootCA = async (
   }
 }
 
-async function generateRootCA ({
+async function generateRootCA({
   commonName,
   signAlg = config.signAlg,
   hashAlg = config.hashAlg,
@@ -52,7 +60,7 @@ async function generateRootCA ({
   hashAlg: string
   notBeforeDate: Time
   notAfterDate: Time
-}): Promise<{ certificate: Certificate, privateKey: CryptoKey, publicKey: CryptoKey }> {
+}): Promise<{ certificate: Certificate; privateKey: CryptoKey; publicKey: CryptoKey }> {
   const basicConstr = new BasicConstraints({ cA: true, pathLenConstraint: 3 })
   const keyUsage = getCAKeyUsage()
   const extKeyUsage = new ExtKeyUsage({
@@ -103,10 +111,10 @@ async function generateRootCA ({
   await certificate.subjectPublicKeyInfo.importKey(keyPair.publicKey)
   await certificate.sign(keyPair.privateKey, hashAlg)
 
-  return { certificate, ...keyPair }
+  return { certificate, publicKey: keyPair.publicKey, privateKey: keyPair.privateKey }
 }
 
-function getCAKeyUsage (): BitString {
+function getCAKeyUsage(): BitString {
   const bitArray = new ArrayBuffer(1)
   const bitView = new Uint8Array(bitArray)
 

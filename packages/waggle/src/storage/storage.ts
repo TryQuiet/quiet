@@ -1,5 +1,10 @@
 import { Crypto } from '@peculiar/webcrypto'
-import { CertFieldsTypes, getCertFieldValue, parseCertificate, verifyUserCert } from '@zbayapp/identity'
+import {
+  CertFieldsTypes,
+  getCertFieldValue,
+  parseCertificate,
+  verifyUserCert
+} from '@zbayapp/identity'
 import * as IPFS from 'ipfs-core'
 import OrbitDB from 'orbit-db'
 import EventStore from 'orbit-db-eventstore'
@@ -8,8 +13,14 @@ import path from 'path'
 import PeerId from 'peer-id'
 import { CryptoEngine, setEngine } from 'pkijs'
 import {
-  ChannelInfoResponse, DataFromPems, IChannelInfo,
-  IMessage, IMessageThread, IPublicKey, IRepo, StorageOptions
+  ChannelInfoResponse,
+  DataFromPems,
+  IChannelInfo,
+  IMessage,
+  IMessageThread,
+  IPublicKey,
+  IRepo,
+  StorageOptions
 } from '../common/types'
 import Libp2p from 'libp2p'
 import { createPaths } from '../common/utils'
@@ -19,20 +30,26 @@ import { EventTypesResponse } from '../socket/constantsReponse'
 import { loadCertificates } from '../socket/events/certificates'
 import { loadAllPublicChannels } from '../socket/events/channels'
 import {
-  loadAllDirectMessages, loadAllMessages, message as socketMessage, sendIdsToZbay
+  loadAllDirectMessages,
+  loadAllMessages,
+  message as socketMessage,
+  sendIdsToZbay
 } from '../socket/events/messages'
 import validate from '../validation/validators'
 const log = logger('db')
 
 const dataFromRootPems: DataFromPems = {
-  certificate: 'MIIBNjCB3AIBATAKBggqhkjOPQQDAjASMRAwDgYDVQQDEwdaYmF5IENBMCYYEzIwMjEwNjIyMDkzMDEwLjAyNVoYDzIwMzAwMTMxMjMwMDAwWjASMRAwDgYDVQQDEwdaYmF5IENBMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEV5a3Czy+L7IfVX0FpJtSF5mi0GWGrtPqv5+CFSDPrHXijsxWdPTobR1wk8uCLP4sAgUbs/bIleCxQy41kSSyOaMgMB4wDwYDVR0TBAgwBgEB/wIBAzALBgNVHQ8EBAMCAAYwCgYIKoZIzj0EAwIDSQAwRgIhAPOzksuipKyBALt/o8O/XwsrVSzfSHXdAR4dOWThQ1lbAiEAmKqjhsmf50kxWX0ekhbAeCTjcRApXhjnslmJkIFGF2o=+lmBImw3BMNjA0FTlK5iRmVC+w/T6M04Es+yiYL608vOhx2slnoyAwHjAPBgNVHRMECDAGAQH/AgEDMAsGA1UdDwQEAwIABjAKBggqhkjOPQQDAgNIADBFAiEA+0kIz0ny/PLVERTcL0+KCpsztyA6Zuwzj05VW5NMdx0CICgdzf0lg0/2Ksl1AjSPYsy2w+Hn09PGlBnD7TiExBpx',
-  privKey: 'MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgTvNuJL0blaYq6zmFS53WmmOfHshlqn+8wNHDzo4df5WgCgYIKoZIzj0DAQehRANCAARXlrcLPL4vsh9VfQWkm1IXmaLQZYau0+q/n4IVIM+sdeKOzFZ09OhtHXCTy4Is/iwCBRuz9siV4LFDLjWRJLI5+lmBImw3BMNjA0FTlK5iRmVC+w/T6M04Es+yiYL608vOhx2sln'
+  certificate:
+    'MIIBNjCB3AIBATAKBggqhkjOPQQDAjASMRAwDgYDVQQDEwdaYmF5IENBMCYYEzIwMjEwNjIyMDkzMDEwLjAyNVoYDzIwMzAwMTMxMjMwMDAwWjASMRAwDgYDVQQDEwdaYmF5IENBMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEV5a3Czy+L7IfVX0FpJtSF5mi0GWGrtPqv5+CFSDPrHXijsxWdPTobR1wk8uCLP4sAgUbs/bIleCxQy41kSSyOaMgMB4wDwYDVR0TBAgwBgEB/wIBAzALBgNVHQ8EBAMCAAYwCgYIKoZIzj0EAwIDSQAwRgIhAPOzksuipKyBALt/o8O/XwsrVSzfSHXdAR4dOWThQ1lbAiEAmKqjhsmf50kxWX0ekhbAeCTjcRApXhjnslmJkIFGF2o=+lmBImw3BMNjA0FTlK5iRmVC+w/T6M04Es+yiYL608vOhx2slnoyAwHjAPBgNVHRMECDAGAQH/AgEDMAsGA1UdDwQEAwIABjAKBggqhkjOPQQDAgNIADBFAiEA+0kIz0ny/PLVERTcL0+KCpsztyA6Zuwzj05VW5NMdx0CICgdzf0lg0/2Ksl1AjSPYsy2w+Hn09PGlBnD7TiExBpx',
+  privKey:
+    'MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgTvNuJL0blaYq6zmFS53WmmOfHshlqn+8wNHDzo4df5WgCgYIKoZIzj0DAQehRANCAARXlrcLPL4vsh9VfQWkm1IXmaLQZYau0+q/n4IVIM+sdeKOzFZ09OhtHXCTy4Is/iwCBRuz9siV4LFDLjWRJLI5+lmBImw3BMNjA0FTlK5iRmVC+w/T6M04Es+yiYL608vOhx2sln'
 }
 
 const webcrypto = new Crypto()
 setEngine(
   'newEngine',
   webcrypto,
+  // @ts-expect-error
   new CryptoEngine({
     name: '',
     crypto: webcrypto,
@@ -119,9 +136,11 @@ export class Storage {
     await this.__stopIPFS()
   }
 
-  protected async initIPFS(libp2p: Libp2p, peerID: PeerId): Promise<IPFS.IPFS> { // TODO: import Libp2p type
+  protected async initIPFS(libp2p: Libp2p, peerID: PeerId): Promise<IPFS.IPFS> {
+    // TODO: import Libp2p type
     log('Initializing IPFS')
-    return await IPFS.create({ // error here 'permission denied 0.0.0.0:443'
+    return await IPFS.create({
+      // error here 'permission denied 0.0.0.0:443'
       libp2p: async () => libp2p,
       preload: { enabled: false },
       repo: this.ipfsRepoPath,
@@ -181,7 +200,10 @@ export class Storage {
         await this.channels.load({ fetchEntryTimeout: 2000 })
         const payload = this.channels.all
 
-        this.io.emit(EventTypesResponse.RESPONSE_GET_PUBLIC_CHANNELS, { communityId: this.communityId, channels: payload })
+        this.io.emit(EventTypesResponse.RESPONSE_GET_PUBLIC_CHANNELS, {
+          communityId: this.communityId,
+          channels: payload
+        })
         await Promise.all(
           Object.values(this.channels.all).map(async channel => {
             if (!this.publicChannelsRepos.has(channel.address)) {
@@ -344,11 +366,19 @@ export class Storage {
       log('Subscribing to channel ', channelAddress)
       db.events.on('write', (_address, entry) => {
         log(`Writing to public channel db ${channelAddress}`)
-        socketMessage(this.io, { message: entry.payload.value, channelAddress: channelAddress, communityId: this.communityId })
+        socketMessage(this.io, {
+          message: entry.payload.value,
+          channelAddress: channelAddress,
+          communityId: this.communityId
+        })
       })
       db.events.on('replicate.progress', (_address, _hash, entry, _progress, _total) => {
         log('Message replicated')
-        socketMessage(this.io, { message: entry.payload.value, channelAddress: channelAddress, communityId: this.communityId })
+        socketMessage(this.io, {
+          message: entry.payload.value,
+          channelAddress: channelAddress,
+          communityId: this.communityId
+        })
       })
       db.events.on('ready', () => {
         const ids = this.getAllEventLogEntries(db).map(msg => msg.id)
@@ -363,7 +393,7 @@ export class Storage {
   public async askForMessages(
     channelAddress: string,
     ids: string[]
-  ): Promise<{ filteredMessages: IMessage[], channelAddress: string }> {
+  ): Promise<{ filteredMessages: IMessage[]; channelAddress: string }> {
     const repo = this.publicChannelsRepos.get(channelAddress)
     if (!repo) return
     const messages = this.getAllEventLogEntries(repo.db)

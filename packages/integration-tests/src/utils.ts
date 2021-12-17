@@ -32,7 +32,7 @@ const connectToDataport = (url: string, name: string): Socket => {
   return socket;
 };
 
-export const createApp = async (mockedState?: { [key in StoreKeys]?: any }) => {
+export const createApp: any = async (mockedState?: { [key in StoreKeys]?: any }) => {
   /**
    * Configure and initialize ConnectionsManager from waggle,
    * configure redux store
@@ -81,7 +81,7 @@ export const createApp = async (mockedState?: { [key in StoreKeys]?: any }) => {
   return { store, runSaga, rootTask, manager };
 };
 
-export const createAppWithoutTor = async (mockedState?: {
+export const createAppWithoutTor: any = async (mockedState?: {
   [key in StoreKeys]?: any;
 }) => {
   /**

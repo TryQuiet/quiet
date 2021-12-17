@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     /* Basic Options */
-    "target": "es5" /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017','ES2018' or 'ESNEXT'. */,
+    "target": "es6" /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017','ES2018' or 'ESNEXT'. */,
     "module": "commonjs" /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', or 'ESNext'. */,
     "lib": [
       "dom"
@@ -40,7 +40,7 @@
     "skipLibCheck": true /* Skip type checking of declaration files. */,
     "downlevelIteration": true,
     "typeRoots": [
-      "@types",
+      "../@types",
       "src/renderer/expanded-theme.ts",
       "node_modules/@types",
       "node_modules/@zbayapp/nectar/@types"

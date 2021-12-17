@@ -1,13 +1,14 @@
-import { setEngine } from 'pkijs';
-import { CryptoEngine } from 'pkijs';
-import { Crypto } from '@peculiar/webcrypto';
+import {setEngine} from "pkijs";
+import {CryptoEngine} from "pkijs";
+import {Crypto} from "@peculiar/webcrypto";
 
 const webcrypto = new Crypto();
 setEngine(
-  'newEngine',
+  "newEngine",
   webcrypto,
+  // @ts-expect-error
   new CryptoEngine({
-    name: '',
+    name: "",
     crypto: webcrypto,
     subtle: webcrypto.subtle,
   })
