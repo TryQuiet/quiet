@@ -1,9 +1,7 @@
-import waggle from 'waggle'
+import waggle, { DataServer, ConnectionsManager } from 'waggle'
 import { BrowserWindow } from 'electron'
 import electronStore from '../shared/electronStore'
 import getPort from 'get-port'
-import { ConnectionsManager } from 'waggle'
-import { DataServer } from 'waggle'
 
 export const getPorts = async (): Promise<{
   socksPort: number

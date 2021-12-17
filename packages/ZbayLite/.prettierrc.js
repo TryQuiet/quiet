@@ -1,12 +1,6 @@
-const prettierConfigStandard = require('prettier-config-standard')
+const defaultConfig = require('../../.prettierrc.js')
 const modifiedConfig = {
-  ...prettierConfigStandard,
-  singleQuote: true,
-  jsxSingleQuote: true,
-  spaceBeforeFunctionParen: true,
-  printWidth: 100,
-  parser: 'typescript'
-  // ... other modified settings here
+  ...defaultConfig
 }
 
 module.exports = modifiedConfig
