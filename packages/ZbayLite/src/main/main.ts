@@ -1,14 +1,14 @@
 import { app, BrowserWindow, Menu, ipcMain, session } from 'electron'
+import { autoUpdater } from 'electron-updater'
+import electronStore from '../shared/electronStore'
 import electronLocalshortcut from 'electron-localshortcut'
+import debug from 'debug'
 import path from 'path'
 import url from 'url'
-import { autoUpdater } from 'electron-updater'
 import config from './config'
-import electronStore from '../shared/electronStore'
+import { ConnectionsManager } from 'waggle'
+import { DataServer } from 'waggle'
 import { waggleVersion, runWaggle } from './waggleManager'
-import debug from 'debug'
-import { ConnectionsManager } from 'waggle/lib/libp2p/connectionsManager'
-import { DataServer } from 'waggle/lib/socket/DataServer'
 
 import { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
@@ -37,6 +37,7 @@ const windowSize: IWindowSize = {
 setEngine(
   'newEngine',
   webcrypto,
+  // @ts-expect-error
   new CryptoEngine({
     name: '',
     crypto: webcrypto,

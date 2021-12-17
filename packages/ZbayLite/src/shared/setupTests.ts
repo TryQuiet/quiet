@@ -12,6 +12,7 @@ const webcrypto = new Crypto()
 setEngine(
   'newEngine',
   webcrypto,
+  // @ts-expect-error
   new CryptoEngine({
     name: '',
     crypto: webcrypto,
