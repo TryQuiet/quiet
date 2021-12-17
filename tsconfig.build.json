@@ -5,6 +5,7 @@
         "declaration": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
+        "experimentalDecorators": true,
         "moduleResolution": "node",
         "typeRoots": [
           "./packages/@types",
