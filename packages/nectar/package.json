@@ -4,7 +4,7 @@
   "description": "",
   "main": "lib/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "prepublish": "npm run build",
     "test": "TZ=UTC jest sagas/*",
     "lint": "eslint --ext .ts ./src/",

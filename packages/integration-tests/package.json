@@ -7,7 +7,7 @@
   "author": "",
   "license": "ISC",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "prepublish": "npm run build",
     "test-integration": "DEBUG='waggle*, nectar*' jest integrationTests/*",
     "lint": "eslint --ext .ts ./src/",

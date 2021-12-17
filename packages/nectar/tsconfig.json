@@ -1,26 +1,17 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
-    "declaration": true,
     "outDir": "./lib",
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "moduleResolution": "node",
     "typeRoots": [
       "../@types",
       "./node_modules/@types"
     ],
-    "lib": [
-      "es6",
-      "dom"
-    ]
   },
   "include": [
     "src"
   ],
   "exclude": [
+    "node_modules",
     "**/__tests__/*"
   ]
 }

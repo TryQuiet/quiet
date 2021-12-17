@@ -1,11 +1,20 @@
 {
-    "extends": "./tsconfig.build.json",
     "compilerOptions": {
       "baseUrl": ".",
       "paths": {
-        // "@zbayapp/identity": ["packages/identity/src/index.ts"],
-        // "@zbayapp/nectar": ["packages/nectar/src/index.ts"],
-        // "waggle": ["packages/waggle/src/index.ts"]
+        "@zbayapp/identity": ["packages/identity/src/index.ts"],
+        "@zbayapp/nectar": ["packages/nectar/src/index.ts"],
+        "waggle": ["packages/waggle/src/index.ts"]
       },
+      "target": "es6",
+      "module": "commonjs",
+      "declaration": true,
+      "esModuleInterop": true,
+      "skipLibCheck": true,
+      "moduleResolution": "node",
+      "lib": [
+        "es6",
+        "dom"
+      ]
     }
   }

@@ -1,3 +1,18 @@
 {
-    "compilerOptions": {},
+    "compilerOptions": {
+        "target": "es6",
+        "module": "commonjs",
+        "declaration": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "moduleResolution": "node",
+        "typeRoots": [
+          "./packages/@types",
+          "./node_modules/@types"
+        ],
+        "lib": [
+          "es6",
+          "dom"
+        ]
+    }
 }
