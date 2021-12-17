@@ -1,30 +1,30 @@
-import { combineReducers } from '@reduxjs/toolkit';
-import { expectSaga } from 'redux-saga-test-plan';
-import { StoreKeys } from '../../store.keys';
+import { combineReducers } from '@reduxjs/toolkit'
+import { expectSaga } from 'redux-saga-test-plan'
+import { StoreKeys } from '../../store.keys'
 import {
   publicChannelsActions,
   publicChannelsReducer,
   CommunityChannels,
-  PublicChannelsState,
-} from '../publicChannels.slice';
-import { checkForMessagesSaga } from './checkForMessages.saga';
+  PublicChannelsState
+} from '../publicChannels.slice'
+import { checkForMessagesSaga } from './checkForMessages.saga'
 import {
   channelMessagesAdapter,
   communityChannelsAdapter,
-  publicChannelsAdapter,
-} from '../publicChannels.adapter';
+  publicChannelsAdapter
+} from '../publicChannels.adapter'
 import {
   communitiesReducer,
   CommunitiesState,
-  Community,
-} from '../../communities/communities.slice';
+  Community
+} from '../../communities/communities.slice'
 import {
   identityReducer,
   IdentityState,
-  Identity,
-} from '../../identity/identity.slice';
-import { identityAdapter } from '../../identity/identity.adapter';
-import { communitiesAdapter } from '../../communities/communities.adapter';
+  Identity
+} from '../../identity/identity.slice'
+import { identityAdapter } from '../../identity/identity.adapter'
+import { communitiesAdapter } from '../../communities/communities.adapter'
 
 describe('checkForMessagesSaga', () => {
   const community: Community = {
@@ -37,8 +37,8 @@ describe('checkForMessagesSaga', () => {
     registrar: null,
     onionAddress: '',
     privateKey: '',
-    port: 0,
-  };
+    port: 0
+  }
 
   const messages = [
     {
@@ -48,9 +48,9 @@ describe('checkForMessagesSaga', () => {
       createdAt: 0,
       channelId: '',
       signature: '',
-      pubKey: '',
-    },
-  ];
+      pubKey: ''
+    }
+  ]
 
   const communityChannels: CommunityChannels = {
     id: 'id',
@@ -61,29 +61,29 @@ describe('checkForMessagesSaga', () => {
       channelMessagesAdapter.getInitialState(),
       messages
     ),
-    channelLoadingSlice: 0,
-  };
+    channelLoadingSlice: 0
+  }
 
   const identity: Identity = {
     id: 'id',
     hiddenService: {
       onionAddress: 'onionAddress.onion',
-      privateKey: 'privateKey',
+      privateKey: 'privateKey'
     },
     dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
     peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
     zbayNickname: '',
     userCsr: undefined,
-    userCertificate: '',
-  };
+    userCertificate: ''
+  }
 
-  test('ask for missing messages', () => {
-    expectSaga(checkForMessagesSaga)
+  test('ask for missing messages', async () => {
+    await expectSaga(checkForMessagesSaga)
       .withReducer(
         combineReducers({
           [StoreKeys.PublicChannels]: publicChannelsReducer,
           [StoreKeys.Communities]: communitiesReducer,
-          [StoreKeys.Identity]: identityReducer,
+          [StoreKeys.Identity]: identityReducer
         }),
         {
           [StoreKeys.PublicChannels]: {
@@ -91,7 +91,7 @@ describe('checkForMessagesSaga', () => {
             channels: communityChannelsAdapter.setAll(
               communityChannelsAdapter.getInitialState(),
               [communityChannels]
-            ),
+            )
           },
           [StoreKeys.Communities]: {
             ...new CommunitiesState(),
@@ -99,15 +99,15 @@ describe('checkForMessagesSaga', () => {
             communities: communitiesAdapter.setAll(
               communitiesAdapter.getInitialState(),
               [community]
-            ),
+            )
           },
           [StoreKeys.Identity]: {
             ...new IdentityState(),
             identities: identityAdapter.setAll(
               identityAdapter.getInitialState(),
               [identity]
-            ),
-          },
+            )
+          }
         }
       )
       .put(
@@ -116,9 +116,9 @@ describe('checkForMessagesSaga', () => {
           channelAddress:
             'zs10zkaj29rcev9qd5xeuzck4ly5q64kzf6m6h9nfajwcvm8m2vnjmvtqgr0mzfjywswwkwke68t00',
           ids: ['2', '3'],
-          communityId: 'id',
+          communityId: 'id'
         })
       )
-      .run();
-  });
-});
+      .run()
+  })
+})

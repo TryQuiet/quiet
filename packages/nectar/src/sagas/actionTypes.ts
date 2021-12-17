@@ -1,15 +1,15 @@
-import { ActionCreator, AnyAction } from 'redux';
+import { ActionCreator, AnyAction } from 'redux'
 
 interface ActionsBasicType {
-  [k: string]: ActionCreator<AnyAction>;
+  [k: string]: ActionCreator<AnyAction>
 }
 
 export type ActionsType<Actions extends ActionsBasicType> = {
   [k in keyof Actions]: ReturnType<Actions[k]>;
-};
+}
 
-export type Keys<Actions> = keyof Actions;
-export type ActionFromMapping<Actions> = Actions[Keys<Actions>];
+export type Keys<Actions> = keyof Actions
+export type ActionFromMapping<Actions> = Actions[Keys<Actions>]
 
 export enum SocketActionTypes {
   CONNECT_TO_WEBSOCKET_SERVER = 'connectToWebsocketServer',

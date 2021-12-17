@@ -1,30 +1,29 @@
-import { Socket } from 'socket.io-client';
-import { expectSaga } from 'redux-saga-test-plan';
-import { combineReducers } from '@reduxjs/toolkit';
-import { SocketActionTypes } from '../../socket/const/actionTypes';
-import { StoreKeys } from '../../store.keys';
-import { publicChannelsActions } from '../publicChannels.slice';
-import { subscribeForTopicSaga } from './subscribeForTopic.saga';
-import { Identity } from '../../identity/identity.slice';
-import { identityAdapter } from '../../identity/identity.adapter';
-import { identityReducer, IdentityState } from '../../identity/identity.slice';
+import { Socket } from 'socket.io-client'
+import { expectSaga } from 'redux-saga-test-plan'
+import { combineReducers } from '@reduxjs/toolkit'
+import { SocketActionTypes } from '../../socket/const/actionTypes'
+import { StoreKeys } from '../../store.keys'
+import { publicChannelsActions } from '../publicChannels.slice'
+import { subscribeForTopicSaga } from './subscribeForTopic.saga'
+import { Identity, identityReducer, IdentityState } from '../../identity/identity.slice'
+import { identityAdapter } from '../../identity/identity.adapter'
 import {
   communitiesReducer,
   CommunitiesState,
-  Community,
-} from '../../communities/communities.slice';
-import { communitiesAdapter } from '../../communities/communities.adapter';
+  Community
+} from '../../communities/communities.slice'
+import { communitiesAdapter } from '../../communities/communities.adapter'
 
 describe('subscribeForTopicSaga', () => {
-  const socket = { emit: jest.fn() } as unknown as Socket;
+  const socket = { emit: jest.fn() } as unknown as Socket
 
   const channel = {
     name: 'general',
     description: 'stuff',
     owner: 'nobody',
     timestamp: 666999666,
-    address: 'hell on the shore of the baltic sea',
-  };
+    address: 'hell on the shore of the baltic sea'
+  }
   const community: Community = {
     name: '',
     id: 'id',
@@ -35,8 +34,8 @@ describe('subscribeForTopicSaga', () => {
     registrar: null,
     onionAddress: '',
     privateKey: '',
-    port: 0,
-  };
+    port: 0
+  }
   const identity: Identity = {
     id: 'id',
     hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
@@ -44,22 +43,22 @@ describe('subscribeForTopicSaga', () => {
     peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
     zbayNickname: '',
     userCsr: undefined,
-    userCertificate: '',
-  };
+    userCertificate: ''
+  }
 
-  test('subscribe for topic', () => {
-    expectSaga(
+  test('subscribe for topic', async () => {
+    await expectSaga(
       subscribeForTopicSaga,
       socket,
       publicChannelsActions.subscribeForTopic({
         peerId: 'peerId',
-        channelData: channel,
+        channelData: channel
       })
     )
       .withReducer(
         combineReducers({
           [StoreKeys.Identity]: identityReducer,
-          [StoreKeys.Communities]: communitiesReducer,
+          [StoreKeys.Communities]: communitiesReducer
         }),
         {
           [StoreKeys.Identity]: {
@@ -67,7 +66,7 @@ describe('subscribeForTopicSaga', () => {
             identities: identityAdapter.setAll(
               identityAdapter.getInitialState(),
               [identity]
-            ),
+            )
           },
           [StoreKeys.Communities]: {
             ...new CommunitiesState(),
@@ -75,21 +74,21 @@ describe('subscribeForTopicSaga', () => {
             communities: communitiesAdapter.setAll(
               communitiesAdapter.getInitialState(),
               [community]
-            ),
-          },
+            )
+          }
         }
       )
       .put(
         publicChannelsActions.addChannel({
           communityId: 'id',
-          channel: channel,
+          channel: channel
         })
       )
       .apply(socket, socket.emit, [
         SocketActionTypes.SUBSCRIBE_FOR_TOPIC,
         'peerId',
-        channel,
+        channel
       ])
-      .run();
-  });
-});
+      .run()
+  })
+})

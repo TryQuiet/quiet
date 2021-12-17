@@ -1,34 +1,34 @@
-import { combineReducers } from '@reduxjs/toolkit';
-import { expectSaga } from 'redux-saga-test-plan';
-import { StoreKeys } from '../../store.keys';
-import { Socket } from 'socket.io-client';
-import { SocketActionTypes } from '../../socket/const/actionTypes';
+import { combineReducers } from '@reduxjs/toolkit'
+import { expectSaga } from 'redux-saga-test-plan'
+import { StoreKeys } from '../../store.keys'
+import { Socket } from 'socket.io-client'
+import { SocketActionTypes } from '../../socket/const/actionTypes'
 
-import { publicChannelsActions } from '../publicChannels.slice';
+import { publicChannelsActions } from '../publicChannels.slice'
 import {
   identityReducer,
   Identity,
-  IdentityState,
-} from '../../identity/identity.slice';
+  IdentityState
+} from '../../identity/identity.slice'
 import {
   Community,
   CommunitiesState,
-  communitiesReducer,
-} from '../../communities/communities.slice';
-import { communitiesAdapter } from '../../communities/communities.adapter';
-import { identityAdapter } from '../../identity/identity.adapter';
-import { createChannelSaga } from './createChannel.saga';
+  communitiesReducer
+} from '../../communities/communities.slice'
+import { communitiesAdapter } from '../../communities/communities.adapter'
+import { identityAdapter } from '../../identity/identity.adapter'
+import { createChannelSaga } from './createChannel.saga'
 
 describe('createChannelSaga', () => {
-  const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket;
+  const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
   const channel = {
     name: 'general',
     description: 'desc',
     owner: 'Howdy',
     timestamp: Date.now(),
-    address: 'address',
-  };
+    address: 'address'
+  }
   const community: Community = {
     name: '',
     id: 'id',
@@ -39,8 +39,8 @@ describe('createChannelSaga', () => {
     registrar: null,
     onionAddress: '',
     privateKey: '',
-    port: 0,
-  };
+    port: 0
+  }
   const identity: Identity = {
     id: 'id',
     hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
@@ -48,22 +48,22 @@ describe('createChannelSaga', () => {
     peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
     zbayNickname: '',
     userCsr: undefined,
-    userCertificate: '',
-  };
+    userCertificate: ''
+  }
 
-  test('ask for missing messages', () => {
-    expectSaga(
+  test('ask for missing messages', async () => {
+    await expectSaga(
       createChannelSaga,
       socket,
       publicChannelsActions.createChannel({
         channel,
-        communityId: 'communityId',
+        communityId: 'communityId'
       })
     )
       .withReducer(
         combineReducers({
           [StoreKeys.Identity]: identityReducer,
-          [StoreKeys.Communities]: communitiesReducer,
+          [StoreKeys.Communities]: communitiesReducer
         }),
         {
           [StoreKeys.Identity]: {
@@ -71,7 +71,7 @@ describe('createChannelSaga', () => {
             identities: identityAdapter.setAll(
               identityAdapter.getInitialState(),
               [identity]
-            ),
+            )
           },
           [StoreKeys.Communities]: {
             ...new CommunitiesState(),
@@ -79,15 +79,15 @@ describe('createChannelSaga', () => {
             communities: communitiesAdapter.setAll(
               communitiesAdapter.getInitialState(),
               [community]
-            ),
-          },
+            )
+          }
         }
       )
       .apply(socket, socket.emit, [
         SocketActionTypes.SUBSCRIBE_FOR_TOPIC,
         identity.peerId.id,
-        channel,
+        channel
       ])
-      .run();
-  });
-});
+      .run()
+  })
+})

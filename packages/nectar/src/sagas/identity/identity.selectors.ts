@@ -1,21 +1,21 @@
-import { StoreKeys } from '../store.keys';
-import { createSelector } from '@reduxjs/toolkit';
-import { identityAdapter } from './identity.adapter';
-import { CreatedSelectors, StoreState } from '../store.types';
-import { communitiesSelectors } from '../communities/communities.selectors';
+import { StoreKeys } from '../store.keys'
+import { createSelector } from '@reduxjs/toolkit'
+import { identityAdapter } from './identity.adapter'
+import { CreatedSelectors, StoreState } from '../store.types'
+import { communitiesSelectors } from '../communities/communities.selectors'
 
 const identitySlice: CreatedSelectors[StoreKeys.Identity] = (
   state: StoreState
-) => state[StoreKeys.Identity];
+) => state[StoreKeys.Identity]
 
 export const selectById = (id: string) =>
   createSelector(identitySlice, (reducerState) =>
     identityAdapter.getSelectors().selectById(reducerState.identities, id)
-  );
+  )
 
 export const selectEntities = createSelector(identitySlice, (reducerState) =>
   identityAdapter.getSelectors().selectEntities(reducerState.identities)
-);
+)
 
 export const currentIdentity = createSelector(
   communitiesSelectors.currentCommunityId,
@@ -23,12 +23,12 @@ export const currentIdentity = createSelector(
   (currentCommunityId, reducerState) => {
     return identityAdapter
       .getSelectors()
-      .selectById(reducerState.identities, currentCommunityId);
+      .selectById(reducerState.identities, currentCommunityId)
   }
-);
+)
 
 export const identitySelectors = {
   selectById,
   selectEntities,
-  currentIdentity,
-};
+  currentIdentity
+}

@@ -1,22 +1,22 @@
-import { expectSaga } from 'redux-saga-test-plan';
-import { Socket } from 'socket.io-client';
-import { SocketActionTypes } from '../../socket/const/actionTypes';
-import { identityAdapter } from '../../identity/identity.adapter';
-import { initCommunities, launchCommunitySaga } from './launchCommunity.saga';
-import { combineReducers } from '@reduxjs/toolkit';
-import { StoreKeys } from '../../store.keys';
+import { expectSaga } from 'redux-saga-test-plan'
+import { Socket } from 'socket.io-client'
+import { SocketActionTypes } from '../../socket/const/actionTypes'
+import { identityAdapter } from '../../identity/identity.adapter'
+import { initCommunities, launchCommunitySaga } from './launchCommunity.saga'
+import { combineReducers } from '@reduxjs/toolkit'
+import { StoreKeys } from '../../store.keys'
 import {
   communitiesActions,
   communitiesReducer,
   Community,
-  CommunitiesState,
-} from '../communities.slice';
-import { communitiesAdapter } from '../communities.adapter';
+  CommunitiesState
+} from '../communities.slice'
+import { communitiesAdapter } from '../communities.adapter'
 import {
   Identity,
   identityReducer,
-  IdentityState,
-} from '../../identity/identity.slice';
+  IdentityState
+} from '../../identity/identity.slice'
 
 describe('launchCommunity', () => {
   test('launch all remembered communities', async () => {
@@ -30,8 +30,8 @@ describe('launchCommunity', () => {
       registrar: null,
       onionAddress: '',
       privateKey: '',
-      port: 0,
-    };
+      port: 0
+    }
 
     const community2: Community = {
       name: '',
@@ -43,8 +43,8 @@ describe('launchCommunity', () => {
       registrar: null,
       onionAddress: '',
       privateKey: '',
-      port: 0,
-    };
+      port: 0
+    }
 
     const community3: Community = {
       name: '',
@@ -56,13 +56,13 @@ describe('launchCommunity', () => {
       registrar: null,
       onionAddress: '',
       privateKey: '',
-      port: 0,
-    };
+      port: 0
+    }
 
     await expectSaga(initCommunities)
       .withReducer(
         combineReducers({
-          [StoreKeys.Communities]: communitiesReducer,
+          [StoreKeys.Communities]: communitiesReducer
         }),
         {
           [StoreKeys.Communities]: {
@@ -71,25 +71,25 @@ describe('launchCommunity', () => {
             communities: communitiesAdapter.setAll(
               communitiesAdapter.getInitialState(),
               [community1, community2, community3]
-            ),
-          },
+            )
+          }
         }
       )
       .put(communitiesActions.launchCommunity(community1.id))
       .put(communitiesActions.launchCommunity(community2.id))
       .put(communitiesActions.launchCommunity(community3.id))
-      .run();
-  });
+      .run()
+  })
   test('launch certain community instead of current community', async () => {
-    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket;
+    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
     const launchCommunityPayload = {
       id: 'id',
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
       hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
       peerList: [],
-      certs: { cert: 'userCert', key: 'userKey', ca: 'rootCert' },
-    };
+      certs: { cert: 'userCert', key: 'userKey', ca: 'rootCert' }
+    }
 
     const community: Community = {
       name: '',
@@ -101,8 +101,8 @@ describe('launchCommunity', () => {
       registrar: null,
       onionAddress: '',
       privateKey: '',
-      port: 0,
-    };
+      port: 0
+    }
 
     const identity: Identity = {
       id: 'id',
@@ -111,8 +111,8 @@ describe('launchCommunity', () => {
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
       zbayNickname: '',
       userCsr: undefined,
-      userCertificate: '',
-    };
+      userCertificate: ''
+    }
 
     const userCsr = {
       userCsr: 'userCsr',
@@ -120,12 +120,12 @@ describe('launchCommunity', () => {
       pkcs10: {
         publicKey: jest.fn() as unknown,
         privateKey: jest.fn() as unknown,
-        pkcs10: 'pkcs10',
-      },
-    };
+        pkcs10: 'pkcs10'
+      }
+    }
 
-    identity.userCsr = userCsr;
-    identity.userCertificate = 'userCert';
+    identity.userCsr = userCsr
+    identity.userCertificate = 'userCert'
 
     await expectSaga(
       launchCommunitySaga,
@@ -135,7 +135,7 @@ describe('launchCommunity', () => {
       .withReducer(
         combineReducers({
           [StoreKeys.Communities]: communitiesReducer,
-          [StoreKeys.Identity]: identityReducer,
+          [StoreKeys.Identity]: identityReducer
         }),
         {
           [StoreKeys.Communities]: {
@@ -144,15 +144,15 @@ describe('launchCommunity', () => {
             communities: communitiesAdapter.setAll(
               communitiesAdapter.getInitialState(),
               [community]
-            ),
+            )
           },
           [StoreKeys.Identity]: {
             ...new IdentityState(),
             identities: identityAdapter.setAll(
               identityAdapter.getInitialState(),
               [identity]
-            ),
-          },
+            )
+          }
         }
       )
       .apply(socket, socket.emit, [
@@ -161,20 +161,20 @@ describe('launchCommunity', () => {
         launchCommunityPayload.peerId,
         launchCommunityPayload.hiddenService,
         launchCommunityPayload.peerList,
-        launchCommunityPayload.certs,
+        launchCommunityPayload.certs
       ])
-      .run();
-  });
+      .run()
+  })
   test('launch current community', async () => {
-    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket;
+    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
     const launchCommunityPayload = {
       id: 'id',
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
       hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
       peerList: [],
-      certs: { cert: 'userCert', key: 'userKey', ca: 'rootCert' },
-    };
+      certs: { cert: 'userCert', key: 'userKey', ca: 'rootCert' }
+    }
 
     const community: Community = {
       name: '',
@@ -186,10 +186,10 @@ describe('launchCommunity', () => {
       registrar: null,
       onionAddress: '',
       privateKey: '',
-      port: 0,
-    };
+      port: 0
+    }
 
-    community.rootCa = 'rootCert';
+    community.rootCa = 'rootCert'
 
     const identity: Identity = {
       id: 'id',
@@ -198,8 +198,8 @@ describe('launchCommunity', () => {
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
       zbayNickname: '',
       userCsr: undefined,
-      userCertificate: '',
-    };
+      userCertificate: ''
+    }
 
     const userCsr = {
       userCsr: 'userCsr',
@@ -207,12 +207,12 @@ describe('launchCommunity', () => {
       pkcs10: {
         publicKey: jest.fn() as unknown,
         privateKey: jest.fn() as unknown,
-        pkcs10: 'pkcs10',
-      },
-    };
+        pkcs10: 'pkcs10'
+      }
+    }
 
-    identity.userCsr = userCsr;
-    identity.userCertificate = 'userCert';
+    identity.userCsr = userCsr
+    identity.userCertificate = 'userCert'
 
     await expectSaga(
       launchCommunitySaga,
@@ -222,7 +222,7 @@ describe('launchCommunity', () => {
       .withReducer(
         combineReducers({
           [StoreKeys.Communities]: communitiesReducer,
-          [StoreKeys.Identity]: identityReducer,
+          [StoreKeys.Identity]: identityReducer
         }),
         {
           [StoreKeys.Communities]: {
@@ -231,15 +231,15 @@ describe('launchCommunity', () => {
             communities: communitiesAdapter.setAll(
               communitiesAdapter.getInitialState(),
               [community]
-            ),
+            )
           },
           [StoreKeys.Identity]: {
             ...new IdentityState(),
             identities: identityAdapter.setAll(
               identityAdapter.getInitialState(),
               [identity]
-            ),
-          },
+            )
+          }
         }
       )
       .apply(socket, socket.emit, [
@@ -248,8 +248,8 @@ describe('launchCommunity', () => {
         launchCommunityPayload.peerId,
         launchCommunityPayload.hiddenService,
         launchCommunityPayload.peerList,
-        launchCommunityPayload.certs,
+        launchCommunityPayload.certs
       ])
-      .run();
-  });
-});
+      .run()
+  })
+})

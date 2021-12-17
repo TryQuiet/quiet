@@ -1,25 +1,25 @@
-import { combineReducers, createStore, Store } from 'redux';
-import { StoreKeys } from '../store.keys';
-import { publicChannelsSelectors } from './publicChannels.selectors';
+import { combineReducers, createStore, Store } from 'redux'
+import { StoreKeys } from '../store.keys'
+import { publicChannelsSelectors } from './publicChannels.selectors'
 import {
   publicChannelsActions,
   publicChannelsReducer,
   CommunityChannels,
-  PublicChannelsState,
-} from './publicChannels.slice';
+  PublicChannelsState
+} from './publicChannels.slice'
 
 import {
   channelMessagesAdapter,
   communityChannelsAdapter,
-  publicChannelsAdapter,
-} from './publicChannels.adapter';
+  publicChannelsAdapter
+} from './publicChannels.adapter'
 import {
   communitiesReducer,
   CommunitiesState,
-  Community,
-} from '../communities/communities.slice';
+  Community
+} from '../communities/communities.slice'
 
-import { communitiesAdapter } from '../communities/communities.adapter';
+import { communitiesAdapter } from '../communities/communities.adapter'
 
 const mockGetPublicChannels = {
   public: {
@@ -28,7 +28,7 @@ const mockGetPublicChannels = {
     description: 'public chat',
     name: 'public',
     owner: '030fdc016427a6e41ca8dccaf0c09cfbf002e5916a13ee16f5fe7240d0dfe50ede',
-    timestamp: 1587010998,
+    timestamp: 1587010998
   },
   zbay: {
     address:
@@ -36,12 +36,12 @@ const mockGetPublicChannels = {
     description: 'zbay marketplace channel',
     name: 'zbay',
     owner: '030fdc016427a6e41ca8dccaf0c09cfbf002e5916a13ee16f5fe7240d0dfe50ede',
-    timestamp: 1587009699,
-  },
-};
+    timestamp: 1587009699
+  }
+}
 
 describe('publicChannelsReducer', () => {
-  let store: Store;
+  let store: Store
 
   const communityId: Community = {
     name: '',
@@ -53,8 +53,8 @@ describe('publicChannelsReducer', () => {
     registrar: null,
     onionAddress: '',
     privateKey: '',
-    port: 0,
-  };
+    port: 0
+  }
 
   const messages = [
     {
@@ -64,7 +64,7 @@ describe('publicChannelsReducer', () => {
       channelId: '',
       signature: '',
       pubKey: '12',
-      type: 1,
+      type: 1
     },
     {
       id: '2',
@@ -73,7 +73,7 @@ describe('publicChannelsReducer', () => {
       channelId: '',
       signature: '',
       pubKey: '12',
-      type: 1,
+      type: 1
     },
     {
       id: '4',
@@ -82,7 +82,7 @@ describe('publicChannelsReducer', () => {
       channelId: '',
       signature: '',
       pubKey: '12',
-      type: 1,
+      type: 1
     },
     {
       id: '1',
@@ -91,11 +91,11 @@ describe('publicChannelsReducer', () => {
       channelId: '',
       signature: '',
       pubKey: '12',
-      type: 1,
-    },
-  ];
+      type: 1
+    }
+  ]
 
-  let communityChannels: CommunityChannels = {
+  const communityChannels: CommunityChannels = {
     id: 'communityId',
     currentChannel: 'currentChannel',
     channels: publicChannelsAdapter.getInitialState(),
@@ -103,14 +103,14 @@ describe('publicChannelsReducer', () => {
       channelMessagesAdapter.getInitialState(),
       messages
     ),
-    channelLoadingSlice: 0,
-  };
+    channelLoadingSlice: 0
+  }
 
   beforeEach(() => {
     store = createStore(
       combineReducers({
         [StoreKeys.PublicChannels]: publicChannelsReducer,
-        [StoreKeys.Communities]: communitiesReducer,
+        [StoreKeys.Communities]: communitiesReducer
       }),
       {
         [StoreKeys.PublicChannels]: {
@@ -118,7 +118,7 @@ describe('publicChannelsReducer', () => {
           channels: communityChannelsAdapter.setAll(
             communityChannelsAdapter.getInitialState(),
             [communityChannels]
-          ),
+          )
         },
         [StoreKeys.Communities]: {
           ...new CommunitiesState(),
@@ -126,20 +126,20 @@ describe('publicChannelsReducer', () => {
           communities: communitiesAdapter.setAll(
             communitiesAdapter.getInitialState(),
             [communityId]
-          ),
-        },
+          )
+        }
       }
-    );
-  });
+    )
+  })
 
   it('responseGetPublicChannels should set channels info', () => {
     store.dispatch(
       publicChannelsActions.responseGetPublicChannels({
         communityId: 'communityId',
-        channels: mockGetPublicChannels,
+        channels: mockGetPublicChannels
       })
-    );
-    const channels = publicChannelsSelectors.publicChannels(store.getState());
+    )
+    const channels = publicChannelsSelectors.publicChannels(store.getState())
     expect(channels).toMatchInlineSnapshot(`
 Array [
   Object {
@@ -157,6 +157,6 @@ Array [
     "timestamp": 1587009699,
   },
 ]
-`);
-  });
-});
+`)
+  })
+})

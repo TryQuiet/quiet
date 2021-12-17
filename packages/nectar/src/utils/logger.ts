@@ -1,10 +1,10 @@
-import debug from 'debug';
+import debug from 'debug'
 
 const logger = (module: string) => {
   return Object.assign(debug(`nectar:${module}`), {
     error: debug(`nectar:${module}:err`),
-    success: debug(`nectar:${module}:success`),
-  });
-};
+    success: debug(`nectar:${module}:success`)
+  })
+}
 
-export default logger;
+export default logger

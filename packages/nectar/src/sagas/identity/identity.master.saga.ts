@@ -1,10 +1,10 @@
-import { Socket } from 'socket.io-client';
-import { all, takeEvery } from 'typed-redux-saga';
-import { createUserCsrSaga } from './createUserCsr/createUserCsr.saga';
-import { identityActions } from './identity.slice';
-import { registerCertificateSaga } from './registerCertificate/registerCertificate.saga';
-import { saveOwnerCertToDbSaga } from './saveOwnerCertToDb/saveOwnerCertToDb.saga';
-import { registerUsernameSaga } from './registerUsername/registerUsername.saga';
+import { Socket } from 'socket.io-client'
+import { all, takeEvery } from 'typed-redux-saga'
+import { createUserCsrSaga } from './createUserCsr/createUserCsr.saga'
+import { identityActions } from './identity.slice'
+import { registerCertificateSaga } from './registerCertificate/registerCertificate.saga'
+import { saveOwnerCertToDbSaga } from './saveOwnerCertToDb/saveOwnerCertToDb.saga'
+import { registerUsernameSaga } from './registerUsername/registerUsername.saga'
 
 export function* identityMasterSaga(socket: Socket): Generator {
   yield all([
@@ -19,6 +19,6 @@ export function* identityMasterSaga(socket: Socket): Generator {
       identityActions.storeUserCsr.type,
       registerCertificateSaga,
       socket
-    ),
-  ]);
+    )
+  ])
 }
