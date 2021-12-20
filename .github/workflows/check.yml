@@ -52,13 +52,7 @@ jobs:
         run: npm ci
 
       - name: "Bootstrap project"
-        run: lerna --loglevel debug bootstrap
-
-      - name: "Typecheck"
-        run: lerna run type-check --stream
+        run: lerna bootstrap
 
       - name: "Lint"
         run: lerna run lint --stream
-
-      - name: "Test"
-        run: lerna run test --stream
