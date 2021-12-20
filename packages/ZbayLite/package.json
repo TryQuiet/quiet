@@ -87,10 +87,7 @@
     "start:main": "cross-env NODE_ENV=development electron .",
     "start:renderer": "cross-env NODE_ENV=development webpack-dev-server --config webpack/webpack.config.renderer.dev.js",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook",
-
-    "start:e2e": "npm run build:prod && cross-env E2E_TEST=true NODE_ENV=development DEBUG='waggle*,zbay*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page -p '${DATE}_${TIME}_${TEST_ID}.png' \"electron:.\" \"./**/*.e2e.ts\"",
-    "start:e2eWin": "npm run build:prod && cross-env E2E_TEST=true NODE_ENV=development DEBUG='waggle*,zbay*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page \"electron:.\" \"./**/*.e2e.ts\""
+    "build-storybook": "build-storybook"
   },
   "author": {
     "name": "Zbay LLC",
@@ -303,8 +300,6 @@
     "sanitize-html": "^2.3.2",
     "secp256k1": "^3.7.1",
     "socket.io-client": "4.1.3",
-    "testcafe": "^1.17.0",
-    "testcafe-browser-provider-electron": "0.0.16",
     "touch": "^3.1.0",
     "ts-loader": "^8.3.0",
     "typed-redux-saga": "^1.3.1",
