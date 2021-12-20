@@ -1,2 +1,2 @@
-export type CommunityId = string;
-export type RegistrarId = string;
+export type CommunityId = string
+export type RegistrarId = string

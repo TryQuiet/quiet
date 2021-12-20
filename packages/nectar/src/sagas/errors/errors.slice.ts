@@ -2,23 +2,23 @@ import {
   createSlice,
   EntityState,
   PayloadAction,
-  Dictionary,
-} from '@reduxjs/toolkit';
+  Dictionary
+} from '@reduxjs/toolkit'
 
-import { StoreKeys } from '../store.keys';
-import { errorsAdapter } from './errors.adapter';
+import { StoreKeys } from '../store.keys'
+import { errorsAdapter } from './errors.adapter'
 
-export const GENERAL_ERRORS = 'general';
+export const GENERAL_ERRORS = 'general'
 
 export interface ErrorPayload {
-  communityId: string;
-  type: string;
-  code: number;
-  message: string;
+  communityId: string
+  type: string
+  code: number
+  message: string
 }
 
-type ErrorsState = Dictionary<EntityState<ErrorPayload>>;
-const initialState: ErrorsState = {};
+type ErrorsState = Dictionary<EntityState<ErrorPayload>>
+const initialState: ErrorsState = {}
 
 export const errorsSlice = createSlice({
   initialState,
@@ -28,10 +28,10 @@ export const errorsSlice = createSlice({
       state[action.payload.communityId] = errorsAdapter.upsertOne(
         state[action.payload.communityId] ?? errorsAdapter.getInitialState(),
         action.payload
-      );
-    },
-  },
-});
+      )
+    }
+  }
+})
 
-export const errorsActions = errorsSlice.actions;
-export const errorsReducer = errorsSlice.reducer;
+export const errorsActions = errorsSlice.actions
+export const errorsReducer = errorsSlice.reducer

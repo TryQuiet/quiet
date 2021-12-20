@@ -1,26 +1,26 @@
-import { expectSaga } from 'redux-saga-test-plan';
-import { Socket } from 'socket.io-client';
-import { SocketActionTypes } from '../../socket/const/actionTypes';
-import { identityAdapter } from '../../identity/identity.adapter';
-import { launchRegistrarSaga } from './launchRegistrar.saga';
-import { combineReducers } from '@reduxjs/toolkit';
-import { StoreKeys } from '../../store.keys';
+import { expectSaga } from 'redux-saga-test-plan'
+import { Socket } from 'socket.io-client'
+import { SocketActionTypes } from '../../socket/const/actionTypes'
+import { identityAdapter } from '../../identity/identity.adapter'
+import { launchRegistrarSaga } from './launchRegistrar.saga'
+import { combineReducers } from '@reduxjs/toolkit'
+import { StoreKeys } from '../../store.keys'
 import {
   communitiesActions,
   communitiesReducer,
   Community,
-  CommunitiesState,
-} from '../communities.slice';
-import { communitiesAdapter } from '../communities.adapter';
+  CommunitiesState
+} from '../communities.slice'
+import { communitiesAdapter } from '../communities.adapter'
 import {
   Identity,
   identityReducer,
-  IdentityState,
-} from '../../identity/identity.slice';
+  IdentityState
+} from '../../identity/identity.slice'
 
 describe('launchRegistrar', () => {
   test("launch certain registrar instead of current community's registrar", async () => {
-    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket;
+    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
     const community: Community = {
       name: '',
       id: 'id',
@@ -31,8 +31,8 @@ describe('launchRegistrar', () => {
       registrar: null,
       onionAddress: '',
       privateKey: '',
-      port: 0,
-    };
+      port: 0
+    }
     const identity: Identity = {
       id: 'id',
       hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
@@ -40,15 +40,15 @@ describe('launchRegistrar', () => {
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
       zbayNickname: '',
       userCsr: undefined,
-      userCertificate: '',
-    };
+      userCertificate: ''
+    }
     const launchRegistrarPayload = {
       id: 'id',
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
       hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
       CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
-      privateKey: '',
-    };
+      privateKey: ''
+    }
     await expectSaga(
       launchRegistrarSaga,
       socket,
@@ -57,7 +57,7 @@ describe('launchRegistrar', () => {
       .withReducer(
         combineReducers({
           [StoreKeys.Communities]: communitiesReducer,
-          [StoreKeys.Identity]: identityReducer,
+          [StoreKeys.Identity]: identityReducer
         }),
         {
           [StoreKeys.Communities]: {
@@ -66,15 +66,15 @@ describe('launchRegistrar', () => {
             communities: communitiesAdapter.setAll(
               communitiesAdapter.getInitialState(),
               [community]
-            ),
+            )
           },
           [StoreKeys.Identity]: {
             ...new IdentityState(),
             identities: identityAdapter.setAll(
               identityAdapter.getInitialState(),
               [identity]
-            ),
-          },
+            )
+          }
         }
       )
       .apply(socket, socket.emit, [
@@ -83,12 +83,12 @@ describe('launchRegistrar', () => {
         launchRegistrarPayload.peerId.id,
         launchRegistrarPayload.CA.rootCertString,
         launchRegistrarPayload.CA.rootKeyString,
-        launchRegistrarPayload.privateKey,
+        launchRegistrarPayload.privateKey
       ])
-      .run();
-  });
+      .run()
+  })
   test('do not attempt to launch certain registrar if user is not community owner', async () => {
-    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket;
+    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
     const community: Community = {
       name: '',
       id: 'id',
@@ -99,8 +99,8 @@ describe('launchRegistrar', () => {
       registrar: null,
       onionAddress: '',
       privateKey: '',
-      port: 0,
-    };
+      port: 0
+    }
     const identity: Identity = {
       id: 'id',
       hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
@@ -108,15 +108,15 @@ describe('launchRegistrar', () => {
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
       zbayNickname: '',
       userCsr: undefined,
-      userCertificate: '',
-    };
+      userCertificate: ''
+    }
     const launchRegistrarPayload = {
       id: 'id',
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
       hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
       CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
-      privateKey: '',
-    };
+      privateKey: ''
+    }
     await expectSaga(
       launchRegistrarSaga,
       socket,
@@ -125,7 +125,7 @@ describe('launchRegistrar', () => {
       .withReducer(
         combineReducers({
           [StoreKeys.Communities]: communitiesReducer,
-          [StoreKeys.Identity]: identityReducer,
+          [StoreKeys.Identity]: identityReducer
         }),
         {
           [StoreKeys.Communities]: {
@@ -134,15 +134,15 @@ describe('launchRegistrar', () => {
             communities: communitiesAdapter.setAll(
               communitiesAdapter.getInitialState(),
               [community]
-            ),
+            )
           },
           [StoreKeys.Identity]: {
             ...new IdentityState(),
             identities: identityAdapter.setAll(
               identityAdapter.getInitialState(),
               [identity]
-            ),
-          },
+            )
+          }
         }
       )
       .not.apply(socket, socket.emit, [
@@ -151,12 +151,12 @@ describe('launchRegistrar', () => {
         launchRegistrarPayload.peerId.id,
         launchRegistrarPayload.CA.rootCertString,
         launchRegistrarPayload.CA.rootKeyString,
-        launchRegistrarPayload.privateKey,
+        launchRegistrarPayload.privateKey
       ])
-      .run();
-  });
+      .run()
+  })
   test("launch registrar if user is current community's owner", async () => {
-    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket;
+    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
     const community: Community = {
       name: '',
       id: 'id',
@@ -167,8 +167,8 @@ describe('launchRegistrar', () => {
       registrar: null,
       onionAddress: '',
       privateKey: '',
-      port: 0,
-    };
+      port: 0
+    }
     const identity: Identity = {
       id: 'id',
       hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
@@ -176,15 +176,15 @@ describe('launchRegistrar', () => {
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
       zbayNickname: '',
       userCsr: undefined,
-      userCertificate: '',
-    };
+      userCertificate: ''
+    }
     const launchRegistrarPayload = {
       id: 'id',
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
       hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
       CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
-      privateKey: '',
-    };
+      privateKey: ''
+    }
     await expectSaga(
       launchRegistrarSaga,
       socket,
@@ -193,7 +193,7 @@ describe('launchRegistrar', () => {
       .withReducer(
         combineReducers({
           [StoreKeys.Communities]: communitiesReducer,
-          [StoreKeys.Identity]: identityReducer,
+          [StoreKeys.Identity]: identityReducer
         }),
         {
           [StoreKeys.Communities]: {
@@ -202,15 +202,15 @@ describe('launchRegistrar', () => {
             communities: communitiesAdapter.setAll(
               communitiesAdapter.getInitialState(),
               [community]
-            ),
+            )
           },
           [StoreKeys.Identity]: {
             ...new IdentityState(),
             identities: identityAdapter.setAll(
               identityAdapter.getInitialState(),
               [identity]
-            ),
-          },
+            )
+          }
         }
       )
       .apply(socket, socket.emit, [
@@ -219,12 +219,12 @@ describe('launchRegistrar', () => {
         launchRegistrarPayload.peerId.id,
         launchRegistrarPayload.CA.rootCertString,
         launchRegistrarPayload.CA.rootKeyString,
-        launchRegistrarPayload.privateKey,
+        launchRegistrarPayload.privateKey
       ])
-      .run();
-  });
+      .run()
+  })
   test("do not attempt to launch registrar if user is not current community's owner", async () => {
-    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket;
+    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
     const community: Community = {
       name: '',
       id: 'id',
@@ -235,8 +235,8 @@ describe('launchRegistrar', () => {
       registrar: null,
       onionAddress: '',
       privateKey: '',
-      port: 0,
-    };
+      port: 0
+    }
     const identity: Identity = {
       id: 'id',
       hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
@@ -244,15 +244,15 @@ describe('launchRegistrar', () => {
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
       zbayNickname: '',
       userCsr: undefined,
-      userCertificate: '',
-    };
+      userCertificate: ''
+    }
     const launchRegistrarPayload = {
       id: 'id',
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
       hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
       CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
-      privateKey: '',
-    };
+      privateKey: ''
+    }
     await expectSaga(
       launchRegistrarSaga,
       socket,
@@ -261,7 +261,7 @@ describe('launchRegistrar', () => {
       .withReducer(
         combineReducers({
           [StoreKeys.Communities]: communitiesReducer,
-          [StoreKeys.Identity]: identityReducer,
+          [StoreKeys.Identity]: identityReducer
         }),
         {
           [StoreKeys.Communities]: {
@@ -270,15 +270,15 @@ describe('launchRegistrar', () => {
             communities: communitiesAdapter.setAll(
               communitiesAdapter.getInitialState(),
               [community]
-            ),
+            )
           },
           [StoreKeys.Identity]: {
             ...new IdentityState(),
             identities: identityAdapter.setAll(
               identityAdapter.getInitialState(),
               [identity]
-            ),
-          },
+            )
+          }
         }
       )
       .not.apply(socket, socket.emit, [
@@ -287,8 +287,8 @@ describe('launchRegistrar', () => {
         launchRegistrarPayload.peerId.id,
         launchRegistrarPayload.CA.rootCertString,
         launchRegistrarPayload.CA.rootKeyString,
-        launchRegistrarPayload.privateKey,
+        launchRegistrarPayload.privateKey
       ])
-      .run();
-  });
-});
+      .run()
+  })
+})

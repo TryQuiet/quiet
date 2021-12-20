@@ -1,15 +1,14 @@
-import { combineReducers, createStore, applyMiddleware } from 'redux';
-import createSagaMiddleware from 'redux-saga';
-import thunk from 'redux-thunk';
-import { StoreKeys } from '../../sagas/store.keys';
-import { connectionReducer } from '../../sagas/appConnection/connection.slice';
-import { communitiesReducer } from '../../sagas/communities/communities.slice';
-import { errorsReducer } from '../../sagas/errors/errors.slice';
-import { identityReducer } from '../../sagas/identity/identity.slice';
-import { messagesReducer } from '../../sagas/messages/messages.slice';
-import { publicChannelsReducer } from '../../sagas/publicChannels/publicChannels.slice';
-import { usersReducer } from '../../sagas/users/users.slice';
-
+import { combineReducers, createStore, applyMiddleware } from 'redux'
+import createSagaMiddleware from 'redux-saga'
+import thunk from 'redux-thunk'
+import { StoreKeys } from '../../sagas/store.keys'
+import { connectionReducer } from '../../sagas/appConnection/connection.slice'
+import { communitiesReducer } from '../../sagas/communities/communities.slice'
+import { errorsReducer } from '../../sagas/errors/errors.slice'
+import { identityReducer } from '../../sagas/identity/identity.slice'
+import { messagesReducer } from '../../sagas/messages/messages.slice'
+import { publicChannelsReducer } from '../../sagas/publicChannels/publicChannels.slice'
+import { usersReducer } from '../../sagas/users/users.slice'
 
 const reducers = {
   [StoreKeys.Communities]: communitiesReducer,
@@ -18,20 +17,20 @@ const reducers = {
   [StoreKeys.Errors]: errorsReducer,
   [StoreKeys.Messages]: messagesReducer,
   [StoreKeys.PublicChannels]: publicChannelsReducer,
-  [StoreKeys.Connection]: connectionReducer,
-};
+  [StoreKeys.Connection]: connectionReducer
+}
 
 export const prepareStore = (mockedState?: { [key in StoreKeys]?: any }) => {
-  const combinedReducers = combineReducers(reducers);
-  const sagaMiddleware = createSagaMiddleware();
+  const combinedReducers = combineReducers(reducers)
+  const sagaMiddleware = createSagaMiddleware()
   const store = createStore(
     combinedReducers,
     mockedState,
     applyMiddleware(...[sagaMiddleware, thunk])
-  );
+  )
 
   return {
     store,
-    runSaga: sagaMiddleware.run,
-  };
-};
+    runSaga: sagaMiddleware.run
+  }
+}

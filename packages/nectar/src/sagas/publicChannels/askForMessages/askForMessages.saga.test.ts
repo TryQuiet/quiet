@@ -1,30 +1,36 @@
-import { TestApi, testSaga } from 'redux-saga-test-plan';
-import { Socket } from 'socket.io-client';
-import { SocketActionTypes } from '../../actionTypes';
+import { TestApi, testSaga } from 'redux-saga-test-plan'
+import { Socket } from 'socket.io-client'
+import { SocketActionTypes } from '../../actionTypes'
 import {
   AskForMessagesPayload,
-  publicChannelsActions,
-} from '../publicChannels.slice';
+  publicChannelsActions
+} from '../publicChannels.slice'
 
-import { askForMessagesSaga } from './askForMessages.saga';
+import { askForMessagesSaga } from './askForMessages.saga'
 
 describe('askForMessagesSaga', () => {
-  const socket = { emit: jest.fn() } as unknown as Socket;
+  const socket = { emit: jest.fn() } as unknown as Socket
+  const askForMessagesPayload: AskForMessagesPayload = {
+    peerId: '',
+    communityId: '',
+    channelAddress: '',
+    ids: []
+  }
   const saga: TestApi = testSaga(
     askForMessagesSaga,
     socket,
-    publicChannelsActions.askForMessages(<AskForMessagesPayload>{})
-  );
+    publicChannelsActions.askForMessages(askForMessagesPayload)
+  )
 
   beforeEach(() => {
-    saga.restart();
-  });
+    saga.restart()
+  })
 
   test('should be defined', () => {
     saga
       .next()
       .apply(socket, socket.emit, [SocketActionTypes.ASK_FOR_MESSAGES, {}])
       .next()
-      .isDone();
-  });
-});
+      .isDone()
+  })
+})

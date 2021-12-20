@@ -1,16 +1,16 @@
-import { expectSaga } from 'redux-saga-test-plan';
-import { Socket } from 'socket.io-client';
-import { combineReducers } from '@reduxjs/toolkit';
-import { StoreKeys } from '../../store.keys';
-import { SocketActionTypes } from '../../socket/const/actionTypes';
+import { expectSaga } from 'redux-saga-test-plan'
+import { Socket } from 'socket.io-client'
+import { combineReducers } from '@reduxjs/toolkit'
+import { StoreKeys } from '../../store.keys'
+import { SocketActionTypes } from '../../socket/const/actionTypes'
 import {
   communitiesReducer,
   CommunitiesState,
-  Community,
-} from '../../communities/communities.slice';
-import { identityAdapter } from '../identity.adapter';
-import { identityReducer, Identity, IdentityState } from '../identity.slice';
-import { saveOwnerCertToDbSaga } from './saveOwnerCertToDb.saga';
+  Community
+} from '../../communities/communities.slice'
+import { identityAdapter } from '../identity.adapter'
+import { identityReducer, Identity, IdentityState } from '../identity.slice'
+import { saveOwnerCertToDbSaga } from './saveOwnerCertToDb.saga'
 
 describe('saveOwnerCertificateToDb', () => {
   test('save owner certificate to database', async () => {
@@ -24,9 +24,9 @@ describe('saveOwnerCertificateToDb', () => {
       registrar: null,
       onionAddress: '',
       privateKey: '',
-      port: 0,
-    };
-    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket;
+      port: 0
+    }
+    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
     const identity: Identity = {
       id: 'id',
       hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
@@ -34,14 +34,14 @@ describe('saveOwnerCertificateToDb', () => {
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
       zbayNickname: '',
       userCsr: undefined,
-      userCertificate: '',
-    };
-    const communityId = 'id';
+      userCertificate: ''
+    }
+    const communityId = 'id'
     await expectSaga(saveOwnerCertToDbSaga, socket)
       .withReducer(
         combineReducers({
           [StoreKeys.Communities]: communitiesReducer,
-          [StoreKeys.Identity]: identityReducer,
+          [StoreKeys.Identity]: identityReducer
         }),
         {
           [StoreKeys.Communities]: {
@@ -50,17 +50,17 @@ describe('saveOwnerCertificateToDb', () => {
             communities: {
               ids: ['id'],
               entities: {
-                id: community,
-              },
-            },
+                id: community
+              }
+            }
           },
           [StoreKeys.Identity]: {
             ...new IdentityState(),
             identities: identityAdapter.setAll(
               identityAdapter.getInitialState(),
               [identity]
-            ),
-          },
+            )
+          }
         }
       )
       .apply(socket, socket.emit, [
@@ -70,9 +70,9 @@ describe('saveOwnerCertificateToDb', () => {
         identity.userCertificate,
         {
           certificate: community.CA.rootCertString,
-          privKey: community.CA.rootKeyString,
-        },
+          privKey: community.CA.rootKeyString
+        }
       ])
-      .run();
-  });
-});
+      .run()
+  })
+})

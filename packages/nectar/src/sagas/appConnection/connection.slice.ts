@@ -1,11 +1,11 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { StoreKeys } from '../store.keys';
-import { CommunityId, RegistrarId } from './connection.types';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { StoreKeys } from '../store.keys'
+import { CommunityId, RegistrarId } from './connection.types'
 
 export class ConnectionState {
-  public initializedCommunities: CommunityId[] = [];
+  public initializedCommunities: CommunityId[] = []
 
-  public initializedRegistrars: RegistrarId[] = [];
+  public initializedRegistrars: RegistrarId[] = []
 }
 
 export const connectionSlice = createSlice({
@@ -15,17 +15,17 @@ export const connectionSlice = createSlice({
     addInitializedCommunity: (state, action: PayloadAction<CommunityId>) => {
       state.initializedCommunities = [
         ...state.initializedCommunities,
-        action.payload,
-      ];
+        action.payload
+      ]
     },
     addInitializedRegistrar: (state, action: PayloadAction<RegistrarId>) => {
       state.initializedRegistrars = [
         ...state.initializedRegistrars,
-        action.payload,
-      ];
-    },
-  },
-});
+        action.payload
+      ]
+    }
+  }
+})
 
-export const connectionActions = connectionSlice.actions;
-export const connectionReducer = connectionSlice.reducer;
+export const connectionActions = connectionSlice.actions
+export const connectionReducer = connectionSlice.reducer

@@ -6,6 +6,7 @@ export function dumpPEM(tag: string, body: string | Certificate | CryptoKey) {
   if (typeof body === 'string') {
     bodyCert = formatPEM(body)
   } else {
+    // eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
     // @ts-ignore
     bodyCert = formatPEM(Buffer.from(body).toString('base64'))
   }

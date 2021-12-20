@@ -1,14 +1,14 @@
-import { Socket } from 'socket.io-client';
-import { all, fork, takeEvery } from 'typed-redux-saga';
-import { communitiesActions } from './communities.slice';
-import { createCommunitySaga } from './createCommunity/createCommunity.saga';
-import { joinCommunitySaga } from './joinCommunity/joinCommunity.saga';
+import { Socket } from 'socket.io-client'
+import { all, fork, takeEvery } from 'typed-redux-saga'
+import { communitiesActions } from './communities.slice'
+import { createCommunitySaga } from './createCommunity/createCommunity.saga'
+import { joinCommunitySaga } from './joinCommunity/joinCommunity.saga'
 import {
   initCommunities,
-  launchCommunitySaga,
-} from './launchCommunity/launchCommunity.saga';
-import { launchRegistrarSaga } from './launchRegistrar/launchRegistrar.saga';
-import { responseCreateCommunitySaga } from './responseCreateCommunity/responseCreateCommunity.saga';
+  launchCommunitySaga
+} from './launchCommunity/launchCommunity.saga'
+import { launchRegistrarSaga } from './launchRegistrar/launchRegistrar.saga'
+import { responseCreateCommunitySaga } from './responseCreateCommunity/responseCreateCommunity.saga'
 
 export function* communitiesMasterSaga(socket: Socket): Generator {
   yield all([
@@ -32,7 +32,7 @@ export function* communitiesMasterSaga(socket: Socket): Generator {
       communitiesActions.launchRegistrar.type,
       launchRegistrarSaga,
       socket
-    ),
+    )
     // takeEvery(communitiesActions.community.type, launchRegistrarSaga, socket),
-  ]);
+  ])
 }

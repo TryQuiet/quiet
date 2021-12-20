@@ -1,19 +1,17 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
+import { act } from 'react-dom/test-utils'
 import { screen } from '@testing-library/dom'
 import { apply, fork, take } from 'typed-redux-saga'
-import { renderComponent } from '../../testUtils/renderComponent'
-import { prepareStore } from '../../testUtils/prepareStore'
-import { getFactory, publicChannels } from '@zbayapp/nectar'
 import MockedSocket from 'socket.io-mock'
-import { act } from 'react-dom/test-utils'
-import { ioMock } from '../../../shared/setupTests'
-import { identityActions } from '@zbayapp/nectar/lib/sagas/identity/identity.slice'
-import Channel from './Channel'
-import { communitiesActions } from '@zbayapp/nectar/lib/sagas/communities/communities.slice'
-import { publicChannelsActions } from '@zbayapp/nectar/lib/sagas/publicChannels/publicChannels.slice'
-import { SocketActionTypes } from '@zbayapp/nectar/lib/sagas/socket/const/actionTypes'
-import { socketEventData } from '../../testUtils/socket'
+import { ioMock } from '../shared/setupTests'
+import { socketEventData } from '../renderer/testUtils/socket'
+import { renderComponent } from '../renderer/testUtils/renderComponent'
+import { prepareStore } from '../renderer/testUtils/prepareStore'
+
+import Channel from '../renderer/containers/pages/Channel'
+
+import { identity, communities, publicChannels, getFactory, SocketActionTypes } from '@zbayapp/nectar'
 
 describe('Channel', () => {
   let socket: MockedSocket
@@ -53,7 +51,7 @@ describe('Channel', () => {
     // >('Community')
 
     const holmes = await factory.create<
-    ReturnType<typeof identityActions.addNewIdentity>['payload']
+    ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { zbayNickname: 'holmes' })
 
     renderComponent(
@@ -79,29 +77,29 @@ describe('Channel', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const holmes = await factory.create<
-    ReturnType<typeof identityActions.addNewIdentity>['payload']
+    ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, zbayNickname: 'holmes' })
 
     const holmesMessage = await factory.create<
-    ReturnType<typeof publicChannelsActions.signMessage>['payload']
+    ReturnType<typeof publicChannels.actions.signMessage>['payload']
     >('SignedMessage', {
       identity: holmes
     })
 
     // Data from below will build but it won't be stored
     const bartek = (
-      await factory.build<typeof identityActions.addNewIdentity>('Identity', {
+      await factory.build<typeof identity.actions.addNewIdentity>('Identity', {
         id: community.id,
         zbayNickname: 'bartek'
       })
     ).payload
 
     const bartekMessage = (
-      await factory.build<typeof publicChannelsActions.signMessage>('SignedMessage', {
+      await factory.build<typeof publicChannels.actions.signMessage>('SignedMessage', {
         identity: bartek
       })
     ).payload

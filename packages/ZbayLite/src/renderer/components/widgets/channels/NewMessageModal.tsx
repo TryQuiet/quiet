@@ -9,7 +9,9 @@ import TextField from '@material-ui/core/TextField'
 import { TextField as FormikTextField } from '../../ui/TextField/TextField'
 import Modal from '../../ui/Modal/Modal'
 import { AutocompleteField } from '../../ui/Autocomplete/Autocomplete'
-import { User } from '@zbayapp/nectar/lib/sagas/users/users.slice'
+
+import { User } from '@zbayapp/nectar'
+
 import { Dictionary } from '@reduxjs/toolkit'
 
 const useStyles = makeStyles(theme => ({

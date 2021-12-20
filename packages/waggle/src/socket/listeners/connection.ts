@@ -16,7 +16,7 @@ export const connections = (io, ioProxy: IOProxy) => {
     })
     socket.on(
       EventTypesServer.SEND_MESSAGE,
-      async (peerId: string, { channelAddress, message }: { channelAddress: string, message: IMessage }) => {
+      async (peerId: string, { channelAddress, message }: { channelAddress: string; message: IMessage }) => {
         await ioProxy.sendMessage(peerId, channelAddress, message)
       }
     )
@@ -28,7 +28,7 @@ export const connections = (io, ioProxy: IOProxy) => {
     })
     socket.on(
       EventTypesServer.ADD_USER,
-      async (peerId: string, { publicKey, halfKey }: { publicKey: string, halfKey: string }) => {
+      async (peerId: string, { publicKey, halfKey }: { publicKey: string; halfKey: string }) => {
         await ioProxy.addUser(peerId, publicKey, halfKey)
       }
     )
@@ -37,7 +37,7 @@ export const connections = (io, ioProxy: IOProxy) => {
     })
     socket.on(
       EventTypesServer.INITIALIZE_CONVERSATION,
-      async (peerId: string, { address, encryptedPhrase }: { address: string, encryptedPhrase: string }) => {
+      async (peerId: string, { address, encryptedPhrase }: { address: string; encryptedPhrase: string }) => {
         await ioProxy.initializeConversation(peerId, address, encryptedPhrase)
       }
     )
@@ -46,7 +46,7 @@ export const connections = (io, ioProxy: IOProxy) => {
     })
     socket.on(
       EventTypesServer.SEND_DIRECT_MESSAGE,
-      async (peerId: string, { channelAddress, message }: { channelAddress: string, message: string }) => {
+      async (peerId: string, { channelAddress, message }: { channelAddress: string; message: string }) => {
         await ioProxy.sendDirectMessage(peerId, channelAddress, message)
       }
     )
@@ -61,7 +61,7 @@ export const connections = (io, ioProxy: IOProxy) => {
     })
     socket.on(
       EventTypesServer.ASK_FOR_MESSAGES,
-      async ({ peerId, channelAddress, ids, communityId }: { peerId: string, channelAddress: string, ids: string[], communityId: string }) => {
+      async ({ peerId, channelAddress, ids, communityId }: { peerId: string; channelAddress: string; ids: string[]; communityId: string }) => {
         await ioProxy.askForMessages(peerId, channelAddress, ids, communityId)
       }
     )
@@ -87,12 +87,12 @@ export const connections = (io, ioProxy: IOProxy) => {
       log(`Saving owner certificate (${peerId}), community: ${communityId}`)
       await ioProxy.saveOwnerCertificate(communityId, peerId, certificate, dataFromPerms)
     })
-    socket.on(EventTypesServer.CREATE_COMMUNITY, async (payload: {id: string, rootCertString: string, rootCertKey: string}, certs: CertsData) => {
+    socket.on(EventTypesServer.CREATE_COMMUNITY, async (payload: {id: string; rootCertString: string; rootCertKey: string}, certs: CertsData) => {
       log(`Creating community ${payload.id}`)
       await ioProxy.createCommunity(payload.id, certs, payload.rootCertString, payload.rootCertKey)
     })
 
-    socket.on(EventTypesServer.LAUNCH_COMMUNITY, async (id: string, peerId: PeerId.JSONPeerId, hiddenServiceKey: {address: string, privateKey: string}, peers: string[], certs: CertsData) => {
+    socket.on(EventTypesServer.LAUNCH_COMMUNITY, async (id: string, peerId: PeerId.JSONPeerId, hiddenServiceKey: {address: string; privateKey: string}, peers: string[], certs: CertsData) => {
       log(`Launching community ${id} for ${peerId.id}`)
       await ioProxy.launchCommunity(id, peerId, hiddenServiceKey, peers, certs)
     })

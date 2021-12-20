@@ -38,7 +38,7 @@ export const createRootCA = async (
 
   const rootData = {
     rootCert: rootCA.certificate.toSchema(true).toBER(false),
-    rootKey: await getCrypto()!.exportKey('pkcs8', rootCA.privateKey)
+    rootKey: await getCrypto()?.exportKey('pkcs8', rootCA.privateKey)
   }
 
   return {

@@ -9,7 +9,7 @@ import {
 export interface UserCert {
   // Todo: move types to separate file
   userCertObject: {
-    certificate: Certificate;
+    certificate: Certificate
   }
   userCertString: string
 }
@@ -52,7 +52,7 @@ async function generateuserCertificate ({
   hashAlg: string
   notBeforeDate: Date
   notAfterDate: Date
-}): Promise<{ certificate: Certificate; }> {
+}): Promise<{ certificate: Certificate }> {
   const basicConstr = new BasicConstraints({ cA: false })
   const keyUsage = getKeyUsage()
   const extKeyUsage = new ExtKeyUsage({

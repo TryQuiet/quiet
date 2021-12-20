@@ -1,49 +1,49 @@
-import { combineReducers } from '@reduxjs/toolkit';
-import { expectSaga } from 'redux-saga-test-plan';
-import { StoreKeys } from '../../store.keys';
+import { combineReducers } from '@reduxjs/toolkit'
+import { expectSaga } from 'redux-saga-test-plan'
+import { StoreKeys } from '../../store.keys'
 import {
   identityActions,
   identityReducer,
   Identity,
-  IdentityState,
-} from '../identity.slice';
-import { identityAdapter } from '../identity.adapter';
-import { registerUsernameSaga } from './registerUsername.saga';
-import { config } from '../../users/const/certFieldTypes';
-import { errorsReducer } from '../../errors/errors.slice';
+  IdentityState
+} from '../identity.slice'
+import { identityAdapter } from '../identity.adapter'
+import { registerUsernameSaga } from './registerUsername.saga'
+import { config } from '../../users/const/certFieldTypes'
+import { errorsReducer } from '../../errors/errors.slice'
 import {
   communitiesReducer,
   CommunitiesState,
-  Community,
-} from '../../communities/communities.slice';
-import { communitiesAdapter } from '../../communities/communities.adapter';
-import { errorsAdapter } from '../../errors/errors.adapter';
+  Community
+} from '../../communities/communities.slice'
+import { communitiesAdapter } from '../../communities/communities.adapter'
+import { errorsAdapter } from '../../errors/errors.adapter'
 
 describe('registerUsernameSaga', () => {
   const identity: Identity = {
     id: 'id',
     hiddenService: {
       onionAddress: 'onionAddress.onion',
-      privateKey: 'privateKey',
+      privateKey: 'privateKey'
     },
     dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
     peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
     zbayNickname: '',
     userCsr: undefined,
-    userCertificate: '',
-  };
+    userCertificate: ''
+  }
   const identityWithoutPeerId: Identity = {
     id: 'id',
     hiddenService: {
       onionAddress: 'onionAddress.onion',
-      privateKey: 'privateKey',
+      privateKey: 'privateKey'
     },
     dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
     peerId: { id: '', pubKey: 'pubKey', privKey: 'privKey' },
     zbayNickname: '',
     userCsr: undefined,
-    userCertificate: '',
-  };
+    userCertificate: ''
+  }
   const community: Community = {
     name: '',
     id: 'id',
@@ -54,24 +54,24 @@ describe('registerUsernameSaga', () => {
     registrar: null,
     onionAddress: '',
     privateKey: '',
-    port: 0,
-  };
+    port: 0
+  }
 
   const connectionError = {
     communityId: 'id',
     type: 'registrar',
     code: 403,
-    message: "You're not connected with other peers.",
-  };
+    message: "You're not connected with other peers."
+  }
 
-  const username = 'username';
+  const username = 'username'
 
-  test('create user csr', () =>
-    expectSaga(registerUsernameSaga, identityActions.registerUsername(username))
+  test('create user csr', async () =>
+    await expectSaga(registerUsernameSaga, identityActions.registerUsername(username))
       .withReducer(
         combineReducers({
           [StoreKeys.Identity]: identityReducer,
-          [StoreKeys.Communities]: communitiesReducer,
+          [StoreKeys.Communities]: communitiesReducer
         }),
         {
           [StoreKeys.Identity]: {
@@ -79,7 +79,7 @@ describe('registerUsernameSaga', () => {
             identities: identityAdapter.setAll(
               identityAdapter.getInitialState(),
               [identity]
-            ),
+            )
           },
           [StoreKeys.Communities]: {
             ...new CommunitiesState(),
@@ -87,14 +87,14 @@ describe('registerUsernameSaga', () => {
             communities: communitiesAdapter.setAll(
               communitiesAdapter.getInitialState(),
               [community]
-            ),
-          },
+            )
+          }
         }
       )
       .put(
         identityActions.updateUsername({
           communityId: identity.id,
-          nickname: username,
+          nickname: username
         })
       )
       .put(
@@ -104,12 +104,12 @@ describe('registerUsernameSaga', () => {
           peerId: 'peerId',
           dmPublicKey: 'publicKey',
           signAlg: config.signAlg,
-          hashAlg: config.hashAlg,
+          hashAlg: config.hashAlg
         })
       )
-      .run());
-  test('throw error if missing data', () =>
-    expectSaga(
+      .run())
+  test('throw error if missing data', async () =>
+    await expectSaga(
       registerUsernameSaga,
       identityActions.registerUsername('username')
     )
@@ -117,7 +117,7 @@ describe('registerUsernameSaga', () => {
         combineReducers({
           [StoreKeys.Identity]: identityReducer,
           [StoreKeys.Communities]: communitiesReducer,
-          [StoreKeys.Errors]: errorsReducer,
+          [StoreKeys.Errors]: errorsReducer
         }),
         {
           [StoreKeys.Identity]: {
@@ -125,7 +125,7 @@ describe('registerUsernameSaga', () => {
             identities: identityAdapter.setAll(
               identityAdapter.getInitialState(),
               [identityWithoutPeerId]
-            ),
+            )
           },
           [StoreKeys.Communities]: {
             ...new CommunitiesState(),
@@ -133,9 +133,9 @@ describe('registerUsernameSaga', () => {
             communities: communitiesAdapter.setAll(
               communitiesAdapter.getInitialState(),
               [community]
-            ),
+            )
           },
-          [StoreKeys.Errors]: {},
+          [StoreKeys.Errors]: {}
         }
       )
       // .put(
@@ -147,7 +147,7 @@ describe('registerUsernameSaga', () => {
           identities: identityAdapter.setAll(
             identityAdapter.getInitialState(),
             [identityWithoutPeerId]
-          ),
+          )
         },
         [StoreKeys.Communities]: {
           ...new CommunitiesState(),
@@ -155,15 +155,15 @@ describe('registerUsernameSaga', () => {
           communities: communitiesAdapter.setAll(
             communitiesAdapter.getInitialState(),
             [community]
-          ),
+          )
         },
         [StoreKeys.Errors]: {
-          ['id']: {
+          id: {
             ...errorsAdapter.setAll(errorsAdapter.getInitialState(), [
-              connectionError,
-            ]),
-          },
-        },
+              connectionError
+            ])
+          }
+        }
       })
-      .run());
-});
+      .run())
+})

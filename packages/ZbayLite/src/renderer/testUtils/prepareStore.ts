@@ -1,5 +1,13 @@
-import { communities, identity, users, errors, messages, publicChannels, connection } from '@zbayapp/nectar'
-import { StoreKeys as NectarStoreKeys } from '@zbayapp/nectar/lib/sagas/store.keys'
+import {
+  communities,
+  identity,
+  users,
+  errors,
+  messages,
+  publicChannels,
+  connection,
+  StoreKeys as NectarStoreKeys
+} from '@zbayapp/nectar'
 import { StoreKeys } from '../store/store.keys'
 import { combineReducers, createStore, applyMiddleware } from 'redux'
 import createSagaMiddleware from 'redux-saga'

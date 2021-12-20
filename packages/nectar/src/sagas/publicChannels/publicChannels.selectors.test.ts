@@ -1,40 +1,40 @@
-import { Store } from '../store.types';
-import { getFactory, publicChannels } from '../..';
-import { prepareStore } from '../../utils/tests/prepareStore';
+import { Store } from '../store.types'
+import { getFactory, publicChannels } from '../..'
+import { prepareStore } from '../../utils/tests/prepareStore'
 import {
   currentChannelMessagesCount,
   currentChannelMessagesMergedBySender,
   slicedCurrentChannelMessages,
-  sortedCurrentChannelMessages,
-} from './publicChannels.selectors';
-import { publicChannelsActions } from './publicChannels.slice';
-import { communitiesActions } from '../communities/communities.slice';
-import { identityActions } from '../identity/identity.slice';
-import { DateTime } from 'luxon';
-import { MessageType } from '../messages/messages.types';
-import { currentCommunityId } from '../communities/communities.selectors';
+  sortedCurrentChannelMessages
+} from './publicChannels.selectors'
+import { publicChannelsActions } from './publicChannels.slice'
+import { communitiesActions } from '../communities/communities.slice'
+import { identityActions } from '../identity/identity.slice'
+import { DateTime } from 'luxon'
+import { MessageType } from '../messages/messages.types'
+import { currentCommunityId } from '../communities/communities.selectors'
 
-process.env.TZ = 'UTC';
+process.env.TZ = 'UTC'
 
 describe('publicChannelsSelectors', () => {
-  let store: Store;
+  let store: Store
 
   beforeAll(async () => {
-    store = prepareStore().store;
+    store = prepareStore().store
 
-    const factory = await getFactory(store);
+    const factory = await getFactory(store)
 
     const community = await factory.create<
-      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
-    >('Community');
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    >('Community')
 
     const holmes = await factory.create<
-      ReturnType<typeof identityActions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, zbayNickname: 'holmes' });
+    ReturnType<typeof identityActions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, zbayNickname: 'holmes' })
 
     const bartek = await factory.create<
-      ReturnType<typeof identityActions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, zbayNickname: 'bartek' });
+    ReturnType<typeof identityActions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, zbayNickname: 'bartek' })
 
     /* Messages ids are being used only for veryfing proper order...
     ...they have no impact on selectors work */
@@ -46,9 +46,9 @@ describe('publicChannelsSelectors', () => {
           month: 10,
           day: 20,
           hour: 5,
-          minute: 50,
+          minute: 50
         }).toSeconds(),
-        identity: holmes,
+        identity: holmes
       },
       {
         id: '2',
@@ -57,9 +57,9 @@ describe('publicChannelsSelectors', () => {
           month: 10,
           day: 20,
           hour: 6,
-          minute: 10,
+          minute: 10
         }).toSeconds(),
-        identity: holmes,
+        identity: holmes
       },
       {
         id: '3',
@@ -70,9 +70,9 @@ describe('publicChannelsSelectors', () => {
           hour: 6,
           minute: 11,
           second: 30,
-          millisecond: 1,
+          millisecond: 1
         }).toSeconds(),
-        identity: holmes,
+        identity: holmes
       },
       {
         id: '4',
@@ -83,9 +83,9 @@ describe('publicChannelsSelectors', () => {
           hour: 6,
           minute: 11,
           second: 30,
-          millisecond: 2,
+          millisecond: 2
         }).toSeconds(),
-        identity: holmes,
+        identity: holmes
       },
       {
         id: '5',
@@ -95,9 +95,9 @@ describe('publicChannelsSelectors', () => {
           day: 20,
           hour: 6,
           minute: 12,
-          second: 1,
+          second: 1
         }).toSeconds(),
-        identity: bartek,
+        identity: bartek
       },
       {
         id: '6',
@@ -107,9 +107,9 @@ describe('publicChannelsSelectors', () => {
           day: 20,
           hour: 6,
           minute: 12,
-          second: 2,
+          second: 2
         }).toSeconds(),
-        identity: holmes,
+        identity: holmes
       },
       {
         id: '7',
@@ -118,9 +118,9 @@ describe('publicChannelsSelectors', () => {
           month: 2,
           day: 5,
           hour: 18,
-          minute: 2,
+          minute: 2
         }).toSeconds(),
-        identity: holmes,
+        identity: holmes
       },
       {
         id: '8',
@@ -129,9 +129,9 @@ describe('publicChannelsSelectors', () => {
           month: 2,
           day: 5,
           hour: 20,
-          minute: 50,
+          minute: 50
         }).toSeconds(),
-        identity: holmes,
+        identity: holmes
       },
       {
         id: '9',
@@ -140,21 +140,21 @@ describe('publicChannelsSelectors', () => {
           month: DateTime.now().month,
           day: DateTime.now().day,
           hour: 20,
-          minute: 50,
+          minute: 50
         }).toSeconds(),
-        identity: holmes,
-      },
-    ];
+        identity: holmes
+      }
+    ]
 
     // Shuffle messages array
     const shuffled = messages
       .map((value) => ({ value, sort: Math.random() }))
       .sort((a, b) => a.sort - b.sort)
-      .map(({ value }) => value);
+      .map(({ value }) => value)
 
     for (const item of shuffled) {
       await factory.create<
-        ReturnType<typeof publicChannelsActions.signMessage>['payload']
+      ReturnType<typeof publicChannelsActions.signMessage>['payload']
       >('SignedMessage', {
         identity: item.identity,
         message: {
@@ -164,65 +164,65 @@ describe('publicChannelsSelectors', () => {
           createdAt: item.createdAt,
           channelId: 'general',
           signature: '',
-          pubKey: '',
-        },
-      });
+          pubKey: ''
+        }
+      })
     }
-  });
+  })
 
   beforeEach(async () => {
-    const community = currentCommunityId(store.getState());
+    const community = currentCommunityId(store.getState())
     store.dispatch(
       publicChannels.actions.setChannelLoadingSlice({
         communityId: community,
-        slice: 0,
+        slice: 0
       })
-    );
-  });
+    )
+  })
 
   it('get messages sorted by date', async () => {
-    const messages = sortedCurrentChannelMessages(store.getState());
+    const messages = sortedCurrentChannelMessages(store.getState())
     messages.forEach((message) => {
       expect(message).toMatchSnapshot({
         createdAt: expect.any(Number),
         pubKey: expect.any(String),
-        signature: expect.any(String),
-      });
-    });
-  });
+        signature: expect.any(String)
+      })
+    })
+  })
 
   it('get sliced messages count', async () => {
-    const messagesCountBefore = currentChannelMessagesCount(store.getState());
-    const community = currentCommunityId(store.getState());
+    const messagesCountBefore = currentChannelMessagesCount(store.getState())
+    const community = currentCommunityId(store.getState())
     store.dispatch(
       publicChannels.actions.setChannelLoadingSlice({
         communityId: community,
-        slice: 2,
+        slice: 2
       })
-    );
-    const messagesCountAfter = currentChannelMessagesCount(store.getState());
-    expect(messagesCountAfter).toBe(messagesCountBefore - 2);
-  });
+    )
+    const messagesCountAfter = currentChannelMessagesCount(store.getState())
+    expect(messagesCountAfter).toBe(messagesCountBefore - 2)
+  })
 
   it('get sliced messages', async () => {
-    const community = currentCommunityId(store.getState());
+    const community = currentCommunityId(store.getState())
     store.dispatch(
       publicChannels.actions.setChannelLoadingSlice({
         communityId: community,
-        slice: 2,
+        slice: 2
       })
-    );
-    const messages = slicedCurrentChannelMessages(store.getState());
+    )
+    const messages = slicedCurrentChannelMessages(store.getState())
     messages.forEach((message) => {
       expect(message).toMatchSnapshot({
         pubKey: expect.any(String),
-        signature: expect.any(String),
-      });
-    });
-  });
+        signature: expect.any(String)
+      })
+    })
+  })
 
   it('get grouped messages', async () => {
-    const messages = currentChannelMessagesMergedBySender(store.getState());
+    const messages = currentChannelMessagesMergedBySender(store.getState())
     expect(messages).toMatchInlineSnapshot(`
       Object {
         "Feb 05": Array [
@@ -314,8 +314,8 @@ describe('publicChannelsSelectors', () => {
           ],
         ],
       }
-    `);
-  });
-});
+    `)
+  })
+})
 
-export {};
+export {}

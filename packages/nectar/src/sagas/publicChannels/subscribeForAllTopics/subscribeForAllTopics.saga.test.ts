@@ -1,28 +1,27 @@
-import { combineReducers } from '@reduxjs/toolkit';
-import { expectSaga } from 'redux-saga-test-plan';
-import { StoreKeys } from '../../store.keys';
+import { combineReducers } from '@reduxjs/toolkit'
+import { expectSaga } from 'redux-saga-test-plan'
+import { StoreKeys } from '../../store.keys'
 import {
   publicChannelsActions,
   publicChannelsReducer,
   CommunityChannels,
-  PublicChannelsState,
-} from '../publicChannels.slice';
-import { subscribeForAllTopicsSaga } from './subscribeForAllTopics.saga';
+  PublicChannelsState
+} from '../publicChannels.slice'
+import { subscribeForAllTopicsSaga } from './subscribeForAllTopics.saga'
 import {
   channelMessagesAdapter,
   communityChannelsAdapter,
-  publicChannelsAdapter,
-} from '../publicChannels.adapter';
+  publicChannelsAdapter
+} from '../publicChannels.adapter'
 import {
   communitiesReducer,
   CommunitiesState,
-  Community,
-} from '../../communities/communities.slice';
-import { Identity } from '../../identity/identity.slice';
-import { communitiesAdapter } from '../../communities/communities.adapter';
-import { identityAdapter } from '../../identity/identity.adapter';
-import { identityReducer, IdentityState } from '../../identity/identity.slice';
-import { PublicChannel } from '../publicChannels.types';
+  Community
+} from '../../communities/communities.slice'
+import { Identity, identityReducer, IdentityState } from '../../identity/identity.slice'
+import { communitiesAdapter } from '../../communities/communities.adapter'
+import { identityAdapter } from '../../identity/identity.adapter'
+import { PublicChannel } from '../publicChannels.types'
 
 describe('subscribeForAllTopicsSaga', () => {
   const community: Community = {
@@ -35,8 +34,8 @@ describe('subscribeForAllTopicsSaga', () => {
     registrar: null,
     onionAddress: '',
     privateKey: '',
-    port: 0,
-  };
+    port: 0
+  }
 
   const identity: Identity = {
     id: 'id',
@@ -45,26 +44,26 @@ describe('subscribeForAllTopicsSaga', () => {
     peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
     zbayNickname: '',
     userCsr: undefined,
-    userCertificate: '',
-  };
+    userCertificate: ''
+  }
 
   const channelOne: PublicChannel = {
     name: 'channelOne',
     description: 'channelOne description',
     owner: 'master',
     timestamp: 12341234,
-    address: 'channelOneAddress',
-  };
+    address: 'channelOneAddress'
+  }
 
   const channelTwo: PublicChannel = {
     name: 'channelTwo',
     description: 'channelTwo description',
     owner: 'master',
     timestamp: 12341234,
-    address: 'channelTwoAddress',
-  };
+    address: 'channelTwoAddress'
+  }
 
-  let communityChannels: CommunityChannels = {
+  const communityChannels: CommunityChannels = {
     id: 'id',
     currentChannel: 'channelOne',
     channels: publicChannelsAdapter.setAll(
@@ -72,11 +71,11 @@ describe('subscribeForAllTopicsSaga', () => {
       [channelOne, channelTwo]
     ),
     channelMessages: channelMessagesAdapter.getInitialState(),
-    channelLoadingSlice: 0,
-  };
+    channelLoadingSlice: 0
+  }
 
-  test('ask for missing messages', () => {
-    expectSaga(
+  test('ask for missing messages', async () => {
+    await expectSaga(
       subscribeForAllTopicsSaga,
       publicChannelsActions.subscribeForAllTopics('id')
     )
@@ -84,7 +83,7 @@ describe('subscribeForAllTopicsSaga', () => {
         combineReducers({
           [StoreKeys.PublicChannels]: publicChannelsReducer,
           [StoreKeys.Communities]: communitiesReducer,
-          [StoreKeys.Identity]: identityReducer,
+          [StoreKeys.Identity]: identityReducer
         }),
         {
           [StoreKeys.PublicChannels]: {
@@ -92,7 +91,7 @@ describe('subscribeForAllTopicsSaga', () => {
             channels: communityChannelsAdapter.setAll(
               communityChannelsAdapter.getInitialState(),
               [communityChannels]
-            ),
+            )
           },
           [StoreKeys.Communities]: {
             ...new CommunitiesState(),
@@ -100,29 +99,29 @@ describe('subscribeForAllTopicsSaga', () => {
             communities: communitiesAdapter.setAll(
               communitiesAdapter.getInitialState(),
               [community]
-            ),
+            )
           },
           [StoreKeys.Identity]: {
             ...new IdentityState(),
             identities: identityAdapter.setAll(
               identityAdapter.getInitialState(),
               [identity]
-            ),
-          },
+            )
+          }
         }
       )
       .put(
         publicChannelsActions.subscribeForTopic({
           channelData: channelOne,
-          peerId: 'peerId',
+          peerId: 'peerId'
         })
       )
       .put(
         publicChannelsActions.subscribeForTopic({
           channelData: channelTwo,
-          peerId: 'peerId',
+          peerId: 'peerId'
         })
       )
-      .run();
-  });
-});
+      .run()
+  })
+})

@@ -78,7 +78,7 @@ export class TorControl {
     this.connection.write(command + '\r\n')
   }
 
-  public async sendCommand(command: string): Promise<{ code: number, messages: string[] }> {
+  public async sendCommand(command: string): Promise<{ code: number; messages: string[] }> {
     return await new Promise((resolve, reject) => {
       // eslint-disable-next-line
       this._sendCommand(command, resolve, reject)

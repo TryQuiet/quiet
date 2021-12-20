@@ -1,44 +1,43 @@
-import { expectSaga } from 'redux-saga-test-plan';
-import { combineReducers } from '@reduxjs/toolkit';
-import { call } from 'redux-saga-test-plan/matchers';
-import { KeyObject } from 'crypto';
+import { expectSaga } from 'redux-saga-test-plan'
+import { combineReducers } from '@reduxjs/toolkit'
+import { call } from 'redux-saga-test-plan/matchers'
+import { KeyObject } from 'crypto'
 import {
   keyFromCertificate,
   loadPrivateKey,
   parseCertificate,
-  sign,
-} from '@zbayapp/identity/lib';
-import { Socket } from 'socket.io-client';
-import { arrayBufferToString } from 'pvutils';
-import { identityReducer, IdentityState } from '../../identity/identity.slice';
-import { StoreKeys } from '../../store.keys';
-import { messagesActions } from '../messages.slice';
-import { sendMessageSaga } from './sendMessage.saga';
-import { SocketActionTypes } from '../../socket/const/actionTypes';
-import { MessageTypes } from '../const/messageTypes';
-import { generateMessageId, getCurrentTime } from '../utils/message.utils';
-import { Identity } from '../../identity/identity.slice';
-import { identityAdapter } from '../../identity/identity.adapter';
+  sign
+} from '@zbayapp/identity/lib'
+import { Socket } from 'socket.io-client'
+import { arrayBufferToString } from 'pvutils'
+import { identityReducer, IdentityState, Identity } from '../../identity/identity.slice'
+import { StoreKeys } from '../../store.keys'
+import { messagesActions } from '../messages.slice'
+import { sendMessageSaga } from './sendMessage.saga'
+import { SocketActionTypes } from '../../socket/const/actionTypes'
+import { MessageTypes } from '../const/messageTypes'
+import { generateMessageId, getCurrentTime } from '../utils/message.utils'
+import { identityAdapter } from '../../identity/identity.adapter'
 import {
   communitiesReducer,
   CommunitiesState,
-  Community,
-} from '../../communities/communities.slice';
-import { communitiesAdapter } from '../../communities/communities.adapter';
+  Community
+} from '../../communities/communities.slice'
+import { communitiesAdapter } from '../../communities/communities.adapter'
 import {
   CommunityChannels,
   publicChannelsReducer,
-  PublicChannelsState,
-} from '../../publicChannels/publicChannels.slice';
+  PublicChannelsState
+} from '../../publicChannels/publicChannels.slice'
 import {
   channelMessagesAdapter,
   communityChannelsAdapter,
-  publicChannelsAdapter,
-} from '../../publicChannels/publicChannels.adapter';
-import { PublicChannel } from '../../publicChannels/publicChannels.types';
+  publicChannelsAdapter
+} from '../../publicChannels/publicChannels.adapter'
+import { PublicChannel } from '../../publicChannels/publicChannels.types'
 
 describe('sendMessageSaga', () => {
-  const communityId = 'id';
+  const communityId = 'id'
 
   const community: Community = {
     id: communityId,
@@ -50,8 +49,8 @@ describe('sendMessageSaga', () => {
     registrar: null,
     onionAddress: '',
     privateKey: '',
-    port: 0,
-  };
+    port: 0
+  }
 
   const identity: Identity = {
     id: communityId,
@@ -60,8 +59,8 @@ describe('sendMessageSaga', () => {
     peerId: { id: 'id', pubKey: 'pubKey', privKey: 'privKey' },
     zbayNickname: '',
     userCsr: undefined,
-    userCertificate: '',
-  };
+    userCertificate: ''
+  }
 
   const csr = {
     userCsr: 'userCsr',
@@ -70,21 +69,21 @@ describe('sendMessageSaga', () => {
       publicKey: jest.fn() as unknown as KeyObject,
       privateKey: jest.fn() as unknown as KeyObject,
       pkcs10: {
-        userKey: jest.fn() as unknown,
-      },
-    },
-  };
+        userKey: jest.fn() as unknown
+      }
+    }
+  }
 
-  identity.userCertificate = 'userCertificate';
-  identity.userCsr = csr;
+  identity.userCertificate = 'userCertificate'
+  identity.userCsr = csr
 
   const publicChannel: PublicChannel = {
     name: 'general',
     description: 'description',
     owner: 'user',
     timestamp: 0,
-    address: 'address',
-  };
+    address: 'address'
+  }
 
   const communityChannels: CommunityChannels = {
     id: communityId,
@@ -94,11 +93,11 @@ describe('sendMessageSaga', () => {
       [publicChannel]
     ),
     channelMessages: channelMessagesAdapter.getInitialState(),
-    channelLoadingSlice: 0,
-  };
+    channelLoadingSlice: 0
+  }
 
   test('sign and send message', async () => {
-    const socket = { emit: jest.fn() } as unknown as Socket;
+    const socket = { emit: jest.fn() } as unknown as Socket
 
     await expectSaga(
       sendMessageSaga,
@@ -109,7 +108,7 @@ describe('sendMessageSaga', () => {
         combineReducers({
           [StoreKeys.Communities]: communitiesReducer,
           [StoreKeys.Identity]: identityReducer,
-          [StoreKeys.PublicChannels]: publicChannelsReducer,
+          [StoreKeys.PublicChannels]: publicChannelsReducer
         }),
         {
           [StoreKeys.Communities]: {
@@ -118,22 +117,22 @@ describe('sendMessageSaga', () => {
             communities: communitiesAdapter.setAll(
               communitiesAdapter.getInitialState(),
               [community]
-            ),
+            )
           },
           [StoreKeys.Identity]: {
             ...new IdentityState(),
             identities: identityAdapter.setAll(
               identityAdapter.getInitialState(),
               [identity]
-            ),
+            )
           },
           [StoreKeys.PublicChannels]: {
             ...new PublicChannelsState(),
             channels: communityChannelsAdapter.setAll(
               communityChannelsAdapter.getInitialState(),
               [communityChannels]
-            ),
-          },
+            )
+          }
         }
       )
       .provide([
@@ -143,7 +142,7 @@ describe('sendMessageSaga', () => {
         [call.fn(sign), jest.fn() as unknown as ArrayBuffer],
         [call.fn(arrayBufferToString), 'signature'],
         [call.fn(generateMessageId), 4],
-        [call.fn(getCurrentTime), 8],
+        [call.fn(getCurrentTime), 8]
       ])
       .apply(socket, socket.emit, [
         SocketActionTypes.SEND_MESSAGE,
@@ -157,10 +156,10 @@ describe('sendMessageSaga', () => {
             createdAt: 8,
             signature: 'signature',
             pubKey: 'key',
-            channelId: publicChannel.address,
-          },
-        },
+            channelId: publicChannel.address
+          }
+        }
       ])
-      .run();
-  });
-});
+      .run()
+  })
+})

@@ -1,19 +1,19 @@
-import { combineReducers, createStore, Store } from 'redux';
-import { StoreKeys } from '../store.keys';
+import { combineReducers, createStore, Store } from 'redux'
+import { StoreKeys } from '../store.keys'
 import {
   communitiesReducer,
   CommunitiesState,
-  Community,
-} from '../communities/communities.slice';
+  Community
+} from '../communities/communities.slice'
 
-import { communitiesAdapter } from '../communities/communities.adapter';
-import { usersActions, usersReducer, UsersState } from './users.slice';
-import { certificatesAdapter } from './users.adapter';
-import { keyFromCertificate, parseCertificate } from '@zbayapp/identity/lib';
-import { usersSelectors } from './users.selectors';
+import { communitiesAdapter } from '../communities/communities.adapter'
+import { usersActions, usersReducer, UsersState } from './users.slice'
+import { certificatesAdapter } from './users.adapter'
+import { keyFromCertificate, parseCertificate } from '@zbayapp/identity/lib'
+import { usersSelectors } from './users.selectors'
 
 describe('users reducer', () => {
-  let store: Store;
+  let store: Store
 
   const communityId: Community = {
     name: 'communityId',
@@ -25,14 +25,14 @@ describe('users reducer', () => {
     registrar: null,
     onionAddress: '',
     privateKey: '',
-    port: 0,
-  };
+    port: 0
+  }
 
   beforeEach(() => {
     store = createStore(
       combineReducers({
         [StoreKeys.Communities]: communitiesReducer,
-        [StoreKeys.Users]: usersReducer,
+        [StoreKeys.Users]: usersReducer
       }),
       {
         [StoreKeys.Communities]: {
@@ -41,34 +41,34 @@ describe('users reducer', () => {
           communities: communitiesAdapter.setAll(
             communitiesAdapter.getInitialState(),
             [communityId]
-          ),
+          )
         },
         [StoreKeys.Users]: {
           ...new UsersState(),
           certificates: certificatesAdapter.setAll(
             certificatesAdapter.getInitialState(),
             []
-          ),
-        },
+          )
+        }
       }
-    );
-  });
+    )
+  })
 
   it('responseSendCertificates should set certificates in store', () => {
     const userCertString =
-      'MIICDzCCAbUCBgF9Ms+EwTAKBggqhkjOPQQDAjASMRAwDgYDVQQDEwdaYmF5IENBMB4XDTIxMTExODExMzAwMFoXDTMwMDEzMTIzMDAwMFowSTFHMEUGA1UEAxM+bnFudzRrYzRjNzdmYjQ3bGs1Mm01bDU3aDR0Y3hjZW83eW14ZWtmbjd5aDVtNjZ0NGp2Mm9sYWQub25pb24wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAT3mQI3akfoTD3i94ZJZMmZ2RZswEeQ0aW0og+/VuzUJQblVQ+UdH6kuKFjq7BTtdjYTMSCO9wfPotBX88+p2Kuo4HEMIHBMAkGA1UdEwQCMAAwCwYDVR0PBAQDAgCOMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDATAvBgkqhkiG9w0BCQwEIgQgC/tHWBDA4myfq1kNR8PWDsUzuzxFFZasw81PIWAumtkwGAYKKwYBBAGDjBsCAQQKEwh1c2VyTmFtZTA9BgkrBgECAQ8DAQEEMBMuUW1mM3lTa1lxTEVUOXh0QXREenZBcjVQcDNlZ0sxSDNDNWlKQVptMVNwTEVwNjAKBggqhkjOPQQDAgNIADBFAiBYmTIJtW2pARg4WTIVMXs2fvGroBxko71CnUi3Fum1WQIhAM0npNOL0/2+8dRTWRNE61D4jcbtltmXAXFjYbd711hk';
-    const parsedCert = parseCertificate(userCertString);
-    const userPubKey = keyFromCertificate(parsedCert);
+      'MIICDzCCAbUCBgF9Ms+EwTAKBggqhkjOPQQDAjASMRAwDgYDVQQDEwdaYmF5IENBMB4XDTIxMTExODExMzAwMFoXDTMwMDEzMTIzMDAwMFowSTFHMEUGA1UEAxM+bnFudzRrYzRjNzdmYjQ3bGs1Mm01bDU3aDR0Y3hjZW83eW14ZWtmbjd5aDVtNjZ0NGp2Mm9sYWQub25pb24wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAT3mQI3akfoTD3i94ZJZMmZ2RZswEeQ0aW0og+/VuzUJQblVQ+UdH6kuKFjq7BTtdjYTMSCO9wfPotBX88+p2Kuo4HEMIHBMAkGA1UdEwQCMAAwCwYDVR0PBAQDAgCOMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDATAvBgkqhkiG9w0BCQwEIgQgC/tHWBDA4myfq1kNR8PWDsUzuzxFFZasw81PIWAumtkwGAYKKwYBBAGDjBsCAQQKEwh1c2VyTmFtZTA9BgkrBgECAQ8DAQEEMBMuUW1mM3lTa1lxTEVUOXh0QXREenZBcjVQcDNlZ0sxSDNDNWlKQVptMVNwTEVwNjAKBggqhkjOPQQDAgNIADBFAiBYmTIJtW2pARg4WTIVMXs2fvGroBxko71CnUi3Fum1WQIhAM0npNOL0/2+8dRTWRNE61D4jcbtltmXAXFjYbd711hk'
+    const parsedCert = parseCertificate(userCertString)
+    const userPubKey = keyFromCertificate(parsedCert)
 
     store.dispatch(
       usersActions.responseSendCertificates({
-        certificates: [userCertString],
+        certificates: [userCertString]
       })
-    );
+    )
 
-    const certificates = usersSelectors.certificates(store.getState());
+    const certificates = usersSelectors.certificates(store.getState())
 
-    expect(certificates[userPubKey]).toEqual(parsedCert);
+    expect(certificates[userPubKey]).toEqual(parsedCert)
 
     expect(certificates[userPubKey].subject).toMatchInlineSnapshot(`
 Object {
@@ -117,6 +117,6 @@ Object {
     },
   ],
 }
-`);
-  });
-});
+`)
+  })
+})

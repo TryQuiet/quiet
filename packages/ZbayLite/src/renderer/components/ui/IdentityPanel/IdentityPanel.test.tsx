@@ -3,7 +3,7 @@ import React from 'react'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import { IdentityPanel } from './IdentityPanel'
 
-import { Identity } from '@zbayapp/nectar/lib/sagas/identity/identity.slice'
+import { Identity } from '@zbayapp/nectar'
 
 import { Provider } from 'react-redux'
 import store from '../../../store'

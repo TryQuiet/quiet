@@ -4,17 +4,15 @@ import { screen } from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import { prepareStore } from '../../../testUtils/prepareStore'
-import { StoreKeys as NectarStoreKeys } from '@zbayapp/nectar/lib/sagas/store.keys'
 import { StoreKeys } from '../../../store/store.keys'
 import { SocketState } from '../../../sagas/socket/socket.slice'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { ModalsInitialState } from '../../../sagas/modals/modals.slice'
-import CreateCommunity from './createCommunity'
-import JoinCommunity from '../joinCommunity/joinCommunity'
-import { CreateCommunityDictionary, JoinCommunityDictionary } from '../../../components/widgets/performCommunityAction/PerformCommunityAction.dictionary'
 import CreateUsernameModal from '../createUsernameModal/CreateUsername'
-import { CommunitiesState } from '@zbayapp/nectar/lib/sagas/communities/communities.slice'
-import { IdentityState } from '@zbayapp/nectar/lib/sagas/identity/identity.slice'
+import JoinCommunity from '../joinCommunity/joinCommunity'
+import CreateCommunity from './createCommunity'
+import { CreateCommunityDictionary, JoinCommunityDictionary } from '../../../components/widgets/performCommunityAction/PerformCommunityAction.dictionary'
+import { identity, communities, StoreKeys as NectarStoreKeys } from '@zbayapp/nectar'
 
 describe('Create community', () => {
   it('users switches from create to join', async () => {
@@ -63,10 +61,10 @@ describe('Create community', () => {
         [ModalName.createCommunityModal]: { open: true }
       },
       [NectarStoreKeys.Communities]: {
-        ...new CommunitiesState()
+        ...new communities.State()
       },
       [NectarStoreKeys.Identity]: {
-        ...new IdentityState()
+        ...new identity.State()
       }
     })
 

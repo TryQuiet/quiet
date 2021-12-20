@@ -10,8 +10,8 @@ import Modal from '../../ui/Modal/Modal'
 import { AutocompleteField } from '../../ui/Autocomplete/Autocomplete'
 import LoadindButton from '../../ui/LoadingButton/LoadingButton'
 
-import { User } from '@zbayapp/nectar/lib/sagas/users/users.slice'
-import { PublicChannel } from '@zbayapp/nectar/lib/sagas/publicChannels/publicChannels.types'
+import { User, PublicChannel } from '@zbayapp/nectar'
+
 import { Dictionary } from '@reduxjs/toolkit'
 
 const useStyles = makeStyles(theme => ({

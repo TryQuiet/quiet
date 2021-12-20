@@ -1,15 +1,15 @@
-import { combineReducers, createStore, Store } from '@reduxjs/toolkit';
-import { StoreKeys } from '../store.keys';
-import { communitiesAdapter } from './communities.adapter';
-import { communitiesSelectors } from './communities.selectors';
+import { combineReducers, createStore, Store } from '@reduxjs/toolkit'
+import { StoreKeys } from '../store.keys'
+import { communitiesAdapter } from './communities.adapter'
+import { communitiesSelectors } from './communities.selectors'
 import {
   communitiesReducer,
   CommunitiesState,
-  Community,
-} from './communities.slice';
+  Community
+} from './communities.slice'
 
 describe('communitiesSelectors', () => {
-  let store: Store;
+  let store: Store
   const communityAlpha: Community = {
     name: 'alpha',
     id: 'communityAlpha',
@@ -20,8 +20,8 @@ describe('communitiesSelectors', () => {
     registrar: null,
     onionAddress: '',
     privateKey: '',
-    port: 0,
-  };
+    port: 0
+  }
   const communityBeta: Community = {
     name: 'beta',
     id: 'communityBeta',
@@ -32,12 +32,12 @@ describe('communitiesSelectors', () => {
     registrar: null,
     onionAddress: '',
     privateKey: '',
-    port: 0,
-  };
+    port: 0
+  }
   beforeEach(() => {
     store = createStore(
       combineReducers({
-        [StoreKeys.Communities]: communitiesReducer,
+        [StoreKeys.Communities]: communitiesReducer
       }),
       {
         [StoreKeys.Communities]: {
@@ -46,16 +46,16 @@ describe('communitiesSelectors', () => {
           communities: communitiesAdapter.setAll(
             communitiesAdapter.getInitialState(),
             [communityAlpha, communityBeta]
-          ),
-        },
+          )
+        }
       }
-    );
-  });
+    )
+  })
 
   it('select community by id', () => {
     const community = communitiesSelectors.selectById('communityBeta')(
       store.getState()
-    );
+    )
     expect(community).toMatchInlineSnapshot(`
       Object {
         "CA": Object {
@@ -72,18 +72,18 @@ describe('communitiesSelectors', () => {
         "registrarUrl": "",
         "rootCa": "",
       }
-    `);
-  });
+    `)
+  })
 
   it('select current community id', () => {
     const communityId = communitiesSelectors.currentCommunityId(
       store.getState()
-    );
-    expect(communityId).toMatchInlineSnapshot(`"communityAlpha"`);
-  });
+    )
+    expect(communityId).toMatchInlineSnapshot('"communityAlpha"')
+  })
 
   it('select current community', () => {
-    const community = communitiesSelectors.currentCommunity(store.getState());
+    const community = communitiesSelectors.currentCommunity(store.getState())
     expect(community).toMatchInlineSnapshot(`
       Object {
         "CA": Object {
@@ -100,12 +100,12 @@ describe('communitiesSelectors', () => {
         "registrarUrl": "",
         "rootCa": "",
       }
-    `);
-  });
+    `)
+  })
 
   it('returns registrar url without port if no port in the store', () => {
     const onionAddress =
-      'aznu6kiyutsgjhdue4i4xushjzey6boxf4i4isd53admsibvbt6qyiyd';
+      'aznu6kiyutsgjhdue4i4xushjzey6boxf4i4isd53admsibvbt6qyiyd'
     const community: Community = {
       name: 'new',
       id: 'communityNew',
@@ -116,11 +116,11 @@ describe('communitiesSelectors', () => {
       registrar: null,
       onionAddress: onionAddress,
       privateKey: '',
-      port: 0,
-    };
+      port: 0
+    }
     store = createStore(
       combineReducers({
-        [StoreKeys.Communities]: communitiesReducer,
+        [StoreKeys.Communities]: communitiesReducer
       }),
       {
         [StoreKeys.Communities]: {
@@ -129,20 +129,20 @@ describe('communitiesSelectors', () => {
           communities: communitiesAdapter.setAll(
             communitiesAdapter.getInitialState(),
             [community]
-          ),
-        },
+          )
+        }
       }
-    );
+    )
     const registrarUrl = communitiesSelectors.registrarUrl(community.id)(
       store.getState()
-    );
-    expect(registrarUrl).toBe(onionAddress);
-  });
+    )
+    expect(registrarUrl).toBe(onionAddress)
+  })
 
   it('returns registrar url with port if port exists in the store', () => {
     const onionAddress =
-      'aznu6kiyutsgjhdue4i4xushjzey6boxf4i4isd53admsibvbt6qyiyd';
-    const port = 7777;
+      'aznu6kiyutsgjhdue4i4xushjzey6boxf4i4isd53admsibvbt6qyiyd'
+    const port = 7777
     const community: Community = {
       name: 'new',
       id: 'communityNew',
@@ -153,12 +153,12 @@ describe('communitiesSelectors', () => {
       registrar: null,
       onionAddress: onionAddress,
       privateKey: '',
-      port: 0,
-    };
-    community.port = port;
+      port: 0
+    }
+    community.port = port
     store = createStore(
       combineReducers({
-        [StoreKeys.Communities]: communitiesReducer,
+        [StoreKeys.Communities]: communitiesReducer
       }),
       {
         [StoreKeys.Communities]: {
@@ -167,19 +167,19 @@ describe('communitiesSelectors', () => {
           communities: communitiesAdapter.setAll(
             communitiesAdapter.getInitialState(),
             [community]
-          ),
-        },
+          )
+        }
       }
-    );
+    )
     const registrarUrl = communitiesSelectors.registrarUrl(community.id)(
       store.getState()
-    );
-    expect(registrarUrl).toBe(`${onionAddress}:${port}`);
-  });
+    )
+    expect(registrarUrl).toBe(`${onionAddress}:${port}`)
+  })
 
   it('returns registrar url if no onion address, no port', () => {
     const url =
-      'http://aznu6kiyutsgjhdue4i4xushjzey6boxf4i4isd53admsibvbt6qyiyd';
+      'http://aznu6kiyutsgjhdue4i4xushjzey6boxf4i4isd53admsibvbt6qyiyd'
     const community: Community = {
       name: 'new',
       id: 'communityNew',
@@ -190,11 +190,11 @@ describe('communitiesSelectors', () => {
       registrar: null,
       onionAddress: '',
       privateKey: '',
-      port: 0,
-    };
+      port: 0
+    }
     store = createStore(
       combineReducers({
-        [StoreKeys.Communities]: communitiesReducer,
+        [StoreKeys.Communities]: communitiesReducer
       }),
       {
         [StoreKeys.Communities]: {
@@ -203,13 +203,13 @@ describe('communitiesSelectors', () => {
           communities: communitiesAdapter.setAll(
             communitiesAdapter.getInitialState(),
             [community]
-          ),
-        },
+          )
+        }
       }
-    );
+    )
     const registrarUrl = communitiesSelectors.registrarUrl(community.id)(
       store.getState()
-    );
-    expect(registrarUrl).toBe(url);
-  });
-});
+    )
+    expect(registrarUrl).toBe(url)
+  })
+})
