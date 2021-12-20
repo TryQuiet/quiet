@@ -88,6 +88,7 @@
     "start:renderer": "cross-env NODE_ENV=development webpack-dev-server --config webpack/webpack.config.renderer.dev.js",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
+
     "start:e2e": "npm run build:prod && cross-env E2E_TEST=true NODE_ENV=development DEBUG='waggle*,zbay*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page -p '${DATE}_${TIME}_${TEST_ID}.png' \"electron:.\" \"./**/*.e2e.ts\"",
     "start:e2eWin": "npm run build:prod && cross-env E2E_TEST=true NODE_ENV=development DEBUG='waggle*,zbay*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page \"electron:.\" \"./**/*.e2e.ts\""
   },

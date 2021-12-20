@@ -1,0 +1,18 @@
+{
+  "name": "e2e-tests",
+  "version": "1.0.0",
+  "description": "For running end to end tests we use testcafe (https://testcafe.io/) along with its official electron plugin (https://github.com/DevExpress/testcafe-browser-provider-electron)",
+  "main": "index.js",
+  "scripts": {
+    "build": "lerna run build:prod --scope zbay",
+    "start:e2e": "cross-env E2E_TEST=true NODE_ENV=development DEBUG='waggle*,zbay*,testcafe*' testcafe --color --hostname localhost -S --screenshots-full-page -p '${DATE}_${TIME}_${TEST_ID}.png' \"electron:../ZbayLite\" \"./**/*.e2e.ts\"",
+    "start:e2eWin": "cross-env E2E_TEST=true NODE_ENV=development DEBUG='waggle*,zbay*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page \"electron:.\" \"./**/*.e2e.ts\""
+  },
+  "dependencies": {
+    "electron": "12.1.0",
+    "testcafe": "^1.17.0",
+    "testcafe-browser-provider-electron": "0.0.16"
+  },
+  "author": "",
+  "license": "ISC"
+}
