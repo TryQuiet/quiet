@@ -1,3 +1,4 @@
+import { setupCrypto } from '@zbayapp/identity'
 import { Store } from '../store.types'
 import { getFactory, publicChannels } from '../..'
 import { prepareStore } from '../../utils/tests/prepareStore'
@@ -14,26 +15,26 @@ import { DateTime } from 'luxon'
 import { MessageType } from '../messages/messages.types'
 import { currentCommunityId } from '../communities/communities.selectors'
 
-process.env.TZ = 'UTC'
-
 describe('publicChannelsSelectors', () => {
   let store: Store
 
   beforeAll(async () => {
+    setupCrypto()
+
     store = prepareStore().store
 
     const factory = await getFactory(store)
 
     const community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
     const holmes = await factory.create<
-    ReturnType<typeof identityActions.addNewIdentity>['payload']
+      ReturnType<typeof identityActions.addNewIdentity>['payload']
     >('Identity', { id: community.id, zbayNickname: 'holmes' })
 
     const bartek = await factory.create<
-    ReturnType<typeof identityActions.addNewIdentity>['payload']
+      ReturnType<typeof identityActions.addNewIdentity>['payload']
     >('Identity', { id: community.id, zbayNickname: 'bartek' })
 
     /* Messages ids are being used only for veryfing proper order...
@@ -148,25 +149,26 @@ describe('publicChannelsSelectors', () => {
 
     // Shuffle messages array
     const shuffled = messages
-      .map((value) => ({ value, sort: Math.random() }))
+      .map(value => ({ value, sort: Math.random() }))
       .sort((a, b) => a.sort - b.sort)
       .map(({ value }) => value)
 
     for (const item of shuffled) {
-      await factory.create<
-      ReturnType<typeof publicChannelsActions.signMessage>['payload']
-      >('SignedMessage', {
-        identity: item.identity,
-        message: {
-          id: item.id,
-          type: MessageType.Basic,
-          message: `message_${item.id}`,
-          createdAt: item.createdAt,
-          channelId: 'general',
-          signature: '',
-          pubKey: ''
+      await factory.create<ReturnType<typeof publicChannelsActions.signMessage>['payload']>(
+        'SignedMessage',
+        {
+          identity: item.identity,
+          message: {
+            id: item.id,
+            type: MessageType.Basic,
+            message: `message_${item.id}`,
+            createdAt: item.createdAt,
+            channelId: 'general',
+            signature: '',
+            pubKey: ''
+          }
         }
-      })
+      )
     }
   })
 
@@ -182,7 +184,7 @@ describe('publicChannelsSelectors', () => {
 
   it('get messages sorted by date', async () => {
     const messages = sortedCurrentChannelMessages(store.getState())
-    messages.forEach((message) => {
+    messages.forEach(message => {
       expect(message).toMatchSnapshot({
         createdAt: expect.any(Number),
         pubKey: expect.any(String),
@@ -213,7 +215,7 @@ describe('publicChannelsSelectors', () => {
       })
     )
     const messages = slicedCurrentChannelMessages(store.getState())
-    messages.forEach((message) => {
+    messages.forEach(message => {
       expect(message).toMatchSnapshot({
         pubKey: expect.any(String),
         signature: expect.any(String)
@@ -228,16 +230,16 @@ describe('publicChannelsSelectors', () => {
         "Feb 05": Array [
           Array [
             Object {
-              "createdAt": 1612548120,
-              "date": "Feb 05, 6:02 PM",
+              "createdAt": 1612544520,
+              "date": "Feb 05, 18:02",
               "id": "7",
               "message": "message_7",
               "nickname": "holmes",
               "type": 1,
             },
             Object {
-              "createdAt": 1612558200,
-              "date": "Feb 05, 8:50 PM",
+              "createdAt": 1612554600,
+              "date": "Feb 05, 20:50",
               "id": "8",
               "message": "message_8",
               "nickname": "holmes",
@@ -248,32 +250,32 @@ describe('publicChannelsSelectors', () => {
         "Oct 20": Array [
           Array [
             Object {
-              "createdAt": 1603173000,
-              "date": "Oct 20, 5:50 AM",
+              "createdAt": 1603165800,
+              "date": "Oct 20, 5:50",
               "id": "1",
               "message": "message_1",
               "nickname": "holmes",
               "type": 1,
             },
             Object {
-              "createdAt": 1603174200,
-              "date": "Oct 20, 6:10 AM",
+              "createdAt": 1603167000,
+              "date": "Oct 20, 6:10",
               "id": "2",
               "message": "message_2",
               "nickname": "holmes",
               "type": 1,
             },
             Object {
-              "createdAt": 1603174290.001,
-              "date": "Oct 20, 6:11 AM",
+              "createdAt": 1603167090.001,
+              "date": "Oct 20, 6:11",
               "id": "3",
               "message": "message_3",
               "nickname": "holmes",
               "type": 1,
             },
             Object {
-              "createdAt": 1603174290.002,
-              "date": "Oct 20, 6:11 AM",
+              "createdAt": 1603167090.002,
+              "date": "Oct 20, 6:11",
               "id": "4",
               "message": "message_4",
               "nickname": "holmes",
@@ -282,8 +284,8 @@ describe('publicChannelsSelectors', () => {
           ],
           Array [
             Object {
-              "createdAt": 1603174321,
-              "date": "Oct 20, 6:12 AM",
+              "createdAt": 1603167121,
+              "date": "Oct 20, 6:12",
               "id": "5",
               "message": "message_5",
               "nickname": "bartek",
@@ -292,8 +294,8 @@ describe('publicChannelsSelectors', () => {
           ],
           Array [
             Object {
-              "createdAt": 1603174322,
-              "date": "Oct 20, 6:12 AM",
+              "createdAt": 1603167122,
+              "date": "Oct 20, 6:12",
               "id": "6",
               "message": "message_6",
               "nickname": "holmes",
@@ -304,8 +306,8 @@ describe('publicChannelsSelectors', () => {
         "Today": Array [
           Array [
             Object {
-              "createdAt": 1639169400,
-              "date": "8:50 PM",
+              "createdAt": 1640029800,
+              "date": "20:50",
               "id": "9",
               "message": "message_9",
               "nickname": "holmes",
