@@ -1,21 +1,21 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import { screen } from '@testing-library/dom'
-import { renderComponent } from '../../../testUtils/renderComponent'
-import { prepareStore } from '../../../testUtils/prepareStore'
-import { StoreKeys } from '../../../store/store.keys'
-import { SocketState } from '../../../sagas/socket/socket.slice'
-import LoadingPanel from './loadingPanel'
-import JoinCommunity from '../joinCommunity/joinCommunity'
-import CreateCommunity from '../createCommunity/createCommunity'
-import Channel from '../../pages/Channel'
+import { renderComponent } from '../renderer/testUtils/renderComponent'
+import { prepareStore } from '../renderer/testUtils/prepareStore'
+import { StoreKeys } from '../renderer/store/store.keys'
+import { SocketState } from '../renderer/sagas/socket/socket.slice'
+import LoadingPanel from '../renderer/containers/widgets/loadingPanel/loadingPanel'
+import JoinCommunity from '../renderer/containers/widgets/joinCommunity/joinCommunity'
+import CreateCommunity from '../renderer/containers/widgets/createCommunity/createCommunity'
+import Channel from '../renderer/containers/pages/Channel'
 import {
   CreateCommunityDictionary,
   JoinCommunityDictionary
-} from '../../../components/widgets/performCommunityAction/PerformCommunityAction.dictionary'
+} from '../renderer/components/widgets/performCommunityAction/PerformCommunityAction.dictionary'
 import MockedSocket from 'socket.io-mock'
-import { ioMock } from '../../../../shared/setupTests'
-import { LoadingMessages } from './loadingMessages'
+import { ioMock } from '../shared/setupTests'
+import { LoadingMessages } from '../renderer/containers/widgets/loadingPanel/loadingMessages'
 import { identity, communities, getFactory } from '@zbayapp/nectar'
 
 describe('Restart app works correctly', () => {

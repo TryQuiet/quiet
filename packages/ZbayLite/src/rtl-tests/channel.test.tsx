@@ -4,12 +4,12 @@ import { act } from 'react-dom/test-utils'
 import { screen } from '@testing-library/dom'
 import { apply, fork, take } from 'typed-redux-saga'
 import MockedSocket from 'socket.io-mock'
-import { ioMock } from '../../../shared/setupTests'
-import { socketEventData } from '../../testUtils/socket'
-import { renderComponent } from '../../testUtils/renderComponent'
-import { prepareStore } from '../../testUtils/prepareStore'
+import { ioMock } from '../shared/setupTests'
+import { socketEventData } from '../renderer/testUtils/socket'
+import { renderComponent } from '../renderer/testUtils/renderComponent'
+import { prepareStore } from '../renderer/testUtils/prepareStore'
 
-import Channel from './Channel'
+import Channel from '../renderer/containers/pages/Channel'
 
 import { identity, communities, publicChannels, getFactory, SocketActionTypes } from '@zbayapp/nectar'
 
