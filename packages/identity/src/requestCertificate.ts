@@ -46,7 +46,7 @@ export const createUserCsr = async ({
 
   const userData = {
     userCsr: pkcs10.pkcs10.toSchema().toBER(false),
-    userKey: await getCrypto()!.exportKey('pkcs8', pkcs10.privateKey)
+    userKey: await getCrypto()?.exportKey('pkcs8', pkcs10.privateKey)
   }
 
   return {
@@ -87,11 +87,11 @@ async function requestCertificate({
   )
 
   await pkcs10.subjectPublicKeyInfo.importKey(keyPair.publicKey)
-  const hashedPublicKey = await getCrypto()!.digest(
+  const hashedPublicKey = await getCrypto()?.digest(
     { name: 'SHA-1' },
     pkcs10.subjectPublicKeyInfo.subjectPublicKey.valueBlock.valueHex
   )
-  pkcs10.attributes!.push(
+  pkcs10.attributes.push(
     new Attribute({
       type: '1.2.840.113549.1.9.14', // pkcs-9-at-extensionRequest
       values: [
