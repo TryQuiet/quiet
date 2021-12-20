@@ -3,9 +3,8 @@ name: End to end tests
 on:
   pull_request:
     paths:
-      - packages/nectar
-      - packages/waggle
-      - packages/integration-tests
+      - packages/ZbayLite
+      - packages/e2e-tests
 
 # "macos-latest" UnableToAccessScreenRecordingAPIError: The find-window process cannot access the Screen Recording API. https://github.com/DevExpress/testcafe/issues/5352
 jobs:
