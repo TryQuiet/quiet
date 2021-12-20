@@ -4,7 +4,6 @@ import { screen } from '@testing-library/dom'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import { prepareStore } from '../../../testUtils/prepareStore'
 import { StoreKeys } from '../../../store/store.keys'
-import { getFactory } from '@zbayapp/nectar'
 import { SocketState } from '../../../sagas/socket/socket.slice'
 import LoadingPanel from './loadingPanel'
 import JoinCommunity from '../joinCommunity/joinCommunity'
@@ -16,9 +15,8 @@ import {
 } from '../../../components/widgets/performCommunityAction/PerformCommunityAction.dictionary'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../../../../shared/setupTests'
-import { communitiesActions } from '@zbayapp/nectar/lib/sagas/communities/communities.slice'
-import { identityActions } from '@zbayapp/nectar/lib/sagas/identity/identity.slice'
 import { LoadingMessages } from './loadingMessages'
+import { identity, communities, getFactory } from '@zbayapp/nectar'
 
 describe('Restart app works correctly', () => {
   let socket: MockedSocket
@@ -42,10 +40,10 @@ describe('Restart app works correctly', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
-    await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
       zbayNickname: 'holmes'
     })

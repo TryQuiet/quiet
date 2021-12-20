@@ -1,4 +1,5 @@
 import React from 'react'
+import { act } from 'react-dom/test-utils'
 import '@testing-library/jest-dom/extend-expect'
 import { screen } from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
@@ -6,7 +7,6 @@ import { apply, take } from 'typed-redux-saga'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import { prepareStore } from '../../../testUtils/prepareStore'
 import { StoreKeys } from '../../../store/store.keys'
-import { communities, getFactory, identity } from '@zbayapp/nectar'
 import { SocketState } from '../../../sagas/socket/socket.slice'
 import { ModalsInitialState } from '../../../sagas/modals/modals.slice'
 import JoinCommunity from './joinCommunity'
@@ -14,11 +14,9 @@ import CreateUsernameModal from '../createUsernameModal/CreateUsername'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { JoinCommunityDictionary } from '../../../components/widgets/performCommunityAction/PerformCommunityAction.dictionary'
 import MockedSocket from 'socket.io-mock'
-import { act } from 'react-dom/test-utils'
 import { ioMock } from '../../../../shared/setupTests'
-import { SocketActionTypes } from '@zbayapp/nectar/lib/sagas/socket/const/actionTypes'
 import { socketEventData } from '../../../testUtils/socket'
-import { identityActions } from '@zbayapp/nectar/lib/sagas/identity/identity.slice'
+import { communities, identity, getFactory, SocketActionTypes } from '@zbayapp/nectar'
 
 describe('User', () => {
   let socket: MockedSocket
@@ -61,7 +59,7 @@ describe('User', () => {
           const data = input as socketEventData<[string]>
           communityId = data[0]
           const holmes = (
-            await factory.build<typeof identityActions.addNewIdentity>('Identity', {
+            await factory.build<typeof identity.actions.addNewIdentity>('Identity', {
               id: communityId,
               zbayNickname: 'holmes'
             })

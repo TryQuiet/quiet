@@ -1,11 +1,11 @@
 import React from 'react'
 
 import Typography from '@material-ui/core/Typography'
-import { Button } from '@material-ui/core'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-
+import { Button } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
-import { Identity } from '@zbayapp/nectar/lib/sagas/identity/identity.slice'
+
+import { Identity } from '@zbayapp/nectar'
 
 const useStyles = makeStyles(theme => ({
   root: {

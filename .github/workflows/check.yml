@@ -48,14 +48,17 @@ jobs:
           restore-keys: |
             ${{ runner.OS }}-npm-cache-
 
+      - name: "Install monorepo dependencies"
+        run: npm ci
+
       - name: "Bootstrap project"
         run: lerna --loglevel debug bootstrap
 
       - name: "Typecheck"
-        run: lerna run type-check
+        run: lerna run type-check --stream
 
       - name: "Lint"
-        run: lerna run lint
+        run: lerna run lint --stream
 
       - name: "Test"
-        run: lerna run test
+        run: lerna run test --stream

@@ -3,7 +3,8 @@ import * as Yup from 'yup'
 import Grid from '@material-ui/core/Grid'
 import Typography from '@material-ui/core/Typography'
 import { makeStyles } from '@material-ui/core/styles'
-import { Identity } from '@zbayapp/nectar/lib/sagas/identity/identity.slice'
+
+import { Identity } from '@zbayapp/nectar'
 
 const useStyles = makeStyles((theme) => ({
   createUsernameContainer: {

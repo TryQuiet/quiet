@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.build.json",
   "compilerOptions": {
     "outDir": "./lib",
+    "jsx": "react",
     "typeRoots": [
       "../@types",
       "./node_modules/@types"

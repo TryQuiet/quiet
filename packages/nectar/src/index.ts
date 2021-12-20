@@ -79,6 +79,10 @@ export {
   Identity
 } from './sagas/identity/identity.slice'
 
+export {
+  User
+} from './sagas/users/users.slice'
+
 export { communityChannelsAdapter } from './sagas/publicChannels/publicChannels.adapter'
 export { communitiesAdapter } from './sagas/communities/communities.adapter'
 

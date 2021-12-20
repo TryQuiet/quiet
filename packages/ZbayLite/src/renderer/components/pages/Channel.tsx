@@ -12,8 +12,7 @@ import ChannelInputComponent from '../widgets/channels/ChannelInput'
 
 import { useModal } from '../../containers/hooks'
 
-import { DisplayableMessage, PublicChannel } from '@zbayapp/nectar'
-import { Identity } from '@zbayapp/nectar/lib/sagas/identity/identity.slice'
+import { DisplayableMessage, PublicChannel, Identity } from '@zbayapp/nectar'
 
 const useStyles = makeStyles(theme => ({
   root: {},

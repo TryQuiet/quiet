@@ -72,7 +72,7 @@
     "distUbuntu": "export SOURCE_PATH=linux && npm run pullBinaries && npm run pullLibs && npm run build:prod && electron-builder --linux",
     "distwin": "export SOURCE_PATH=win32 && npm run pullBinariesWin && npm run build:prod && electron-builder --win",
     "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
-    "type-check": "tsc --noEmit",
+    "type-check": "tsc -p tsconfig.build.json --noEmit",
     "test": "jest",
     "test:watch": "jest --watchAll",
     "build:prod": "concurrently \"npm run build:main:prod\" \"npm run build:renderer:prod\"",

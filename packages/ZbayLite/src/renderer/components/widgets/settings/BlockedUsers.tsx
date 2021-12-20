@@ -5,8 +5,10 @@ import Typography from '@material-ui/core/Typography'
 import { makeStyles } from '@material-ui/core/styles'
 
 import UserListItem from '../channelSettings/UserListItem'
-import { User } from '@zbayapp/nectar/lib/sagas/users/users.slice'
+
 import { Contact } from '../../../store/handlers/contacts'
+
+import { User } from '@zbayapp/nectar'
 
 const useStyles = makeStyles(() => ({
   title: {},
