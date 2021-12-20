@@ -149,9 +149,6 @@ export class ConnectionsManager {
 
   public spawnTor = async () => {
     const basePath = this.options.env.resourcesPath || ''
-    console.log(':::', this.options.env)
-    console.log('BASE PATH', basePath)
-    console.log('-------->', torDirForPlatform(basePath))
     this.tor = new Tor({
       torPath: torBinForPlatform(basePath),
       appDataPath: this.zbayDir,
