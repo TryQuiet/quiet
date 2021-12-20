@@ -95,7 +95,7 @@ export const app = {
 
 export const publicChannels = {
   reducer: publicChannelsReducer,
-  state: PublicChannelsState,
+  State: PublicChannelsState,
   selectors: publicChannelsSelectors,
   actions: publicChannelsActions,
   sagas: publicChannelsMasterSaga
@@ -109,7 +109,7 @@ export const users = {
 
 export const identity = {
   reducer: identityReducer,
-  state: IdentityState,
+  State: IdentityState,
   actions: identityActions,
   selectors: identitySelectors
 }
@@ -128,7 +128,7 @@ export const errors = {
 
 export const communities = {
   reducer: communitiesReducer,
-  state: CommunitiesState,
+  State: CommunitiesState,
   actions: communitiesActions,
   selectors: communitiesSelectors
 }
