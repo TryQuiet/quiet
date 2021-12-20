@@ -208,7 +208,7 @@ export class Tor {
   public async createNewHiddenService(
     virtPort: number,
     targetPort: number
-  ): Promise<{ onionAddress: string, privateKey: string }> {
+  ): Promise<{ onionAddress: string; privateKey: string }> {
     const status = await this.torControl.sendCommand(
       `ADD_ONION NEW:BEST Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
     )

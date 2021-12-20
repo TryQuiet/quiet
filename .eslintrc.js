@@ -10,8 +10,8 @@ module.exports = {
   parser: '@typescript-eslint/parser',
   plugins: ['react-hooks', 'jest'],
   rules: {
-    'no-unused-vars': 'off',
     'no-void': 'off',
+    'no-unused-vars': 'off',
     '@typescript-eslint/no-unused-vars': 'off',
     '@typescript-eslint/no-misused-promises': 'off',
     '@typescript-eslint/no-unused-vars-experimental': 'error',

@@ -47,6 +47,7 @@ export class CertificateRegistration {
   }
 
   private setRouting() {
+    // eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
     // @ts-ignore
     this._app.use(express.json())
     // eslint-disable-next-line

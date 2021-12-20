@@ -17,7 +17,7 @@ const log = logger('torMesh')
 const amount = 10
 const timeout = 130_000
 
-const torServices = new Map<string, { tor: Tor, httpTunnelPort: number }>()
+const torServices = new Map<string, { tor: Tor; httpTunnelPort: number }>()
 const hiddenServices = new Map<string, string>()
 
 const spawnMesh = async () => {
