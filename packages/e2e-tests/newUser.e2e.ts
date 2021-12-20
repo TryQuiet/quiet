@@ -1,7 +1,7 @@
 import { fixture, test, Selector } from 'testcafe'
 
 fixture`Electron test`
-  .page('../ZbayLite/dist/src/main/index.html#/');
+  .page('../ZbayLite/dist/src/main/index.html#/')
 
 const longTimeout = 100000
 
@@ -18,7 +18,7 @@ test('User can create new community, register and send few messages to general c
   // User is on "Create community" page, enters valid community name and presses the button
   const createCommunityTitle = await Selector('h3').withText('Create your community')()
   await t.expect(createCommunityTitle).ok()
-  const continueButton2 = Selector('button').withText("Continue")
+  const continueButton2 = Selector('button').withText('Continue')
   const communityNameInput = Selector('input').withAttribute('placeholder', 'Community name')
   await t.typeText(communityNameInput, 'testcommunity')
   await t.click(continueButton2)
@@ -27,7 +27,7 @@ test('User can create new community, register and send few messages to general c
   const registerUsernameTitle = await Selector('h3').withText('Register a username')()
   await t.expect(registerUsernameTitle).ok()
   const usernameInput = Selector('input').withAttribute('name', 'userName').filterVisible()
-  const submitButton = Selector('button').withText("Register")
+  const submitButton = Selector('button').withText('Register')
   await t.expect(usernameInput.exists).ok()
   const username = 'testuser'
   await t.typeText(usernameInput, username)

@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./lib",
+    "typeRoots": [
+      "../@types",
+      "./node_modules/@types"
+    ],
+  },
+  "exclude": [
+    "node_modules",
+    "**/__tests__/*"
+  ]
+}

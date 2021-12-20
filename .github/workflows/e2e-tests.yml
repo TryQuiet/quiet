@@ -23,14 +23,17 @@ jobs:
       - name: "Install lerna globally"
         run: npm i -g lerna
       
+      - name: "Install monorepo dependencies"
+        run: npm ci
+
+      - name: "Bootstrap project"
+        run: lerna bootstrap
+
       - name: Run X11
         run: |
           Xvfb :99 -screen 0 1920x1080x24 &
           sleep 3
           fluxbox &
-      
-      - name: Build
-        run: lerna bootstrap && lerna run build --scope e2e-tests --stream
 
       - name: Run tests
         run: lerna run start:e2e --scope e2e-tests --stream
@@ -52,6 +55,12 @@ jobs:
       
       - name: "Install lerna globally"
         run: npm i -g lerna
+
+      - name: "Install monorepo dependencies"
+        run: npm ci
+
+      - name: "Bootstrap project"
+        run: lerna bootstrap
 
       - name: Build project and run tests
         run: lerna run start:e2eWin --scope e2e-tests --stream
