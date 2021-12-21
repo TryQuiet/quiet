@@ -3,7 +3,7 @@ name: Nectar tests
 on:
   pull_request:
     paths:
-      - ../../packages/nectar
+      - packages/nectar/**
 
 jobs:
   check:
