@@ -16,18 +16,11 @@ import { publicChannelsMasterSaga } from './sagas/publicChannels/publicChannels.
 import { usersReducer, usersActions } from './sagas/users/users.slice'
 import { usersSelectors } from './sagas/users/users.selectors'
 
-import {
-  identityReducer,
-  identityActions,
-  IdentityState
-} from './sagas/identity/identity.slice'
+import { identityReducer, identityActions, IdentityState } from './sagas/identity/identity.slice'
 
 import { identitySelectors } from './sagas/identity/identity.selectors'
 
-import {
-  messagesActions,
-  messagesReducer
-} from './sagas/messages/messages.slice'
+import { messagesActions, messagesReducer } from './sagas/messages/messages.slice'
 
 import { messagesSelectors } from './sagas/messages/messages.selectors'
 
@@ -46,10 +39,7 @@ import { communitiesSelectors } from './sagas/communities/communities.selectors'
 
 import { StoreKeys } from './sagas/store.keys'
 
-import {
-  connectionActions,
-  connectionReducer
-} from './sagas/appConnection/connection.slice'
+import { connectionActions, connectionReducer } from './sagas/appConnection/connection.slice'
 import { connectionSelectors } from './sagas/appConnection/connection.selectors'
 
 export { SocketActionTypes } from './sagas/socket/const/actionTypes'
@@ -67,21 +57,13 @@ export {
   ChannelMessage
 } from './sagas/publicChannels/publicChannels.types'
 
-export {
-  Community
-} from './sagas/communities/communities.slice'
+export { Community } from './sagas/communities/communities.slice'
 
-export {
-  CommunityChannels
-} from './sagas/publicChannels/publicChannels.slice'
+export { CommunityChannels } from './sagas/publicChannels/publicChannels.slice'
 
-export {
-  Identity
-} from './sagas/identity/identity.slice'
+export { Identity } from './sagas/identity/identity.slice'
 
-export {
-  User
-} from './sagas/users/users.slice'
+export { User } from './sagas/users/users.slice'
 
 export { communityChannelsAdapter } from './sagas/publicChannels/publicChannels.adapter'
 export { communitiesAdapter } from './sagas/communities/communities.adapter'
