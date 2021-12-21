@@ -39,7 +39,11 @@
       "node_modules/"
     ],
     "testRegex": ".*\\.test\\.(t|j)s$",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "rootDir": "src",
+    "setupFiles": [
+      "./test/setupTests.ts"
+    ]
   },
   "dependencies": {
     "@peculiar/webcrypto": "1.2.2",

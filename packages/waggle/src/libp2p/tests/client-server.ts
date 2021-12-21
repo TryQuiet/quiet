@@ -1,5 +1,4 @@
-import { configCrypto, createRootCA, createUserCert, createUserCsr } from '@zbayapp/identity'
-import { RootCA } from '@zbayapp/identity/lib/generateRootCA'
+import { configCrypto, createRootCA, RootCA, createUserCert, createUserCsr } from '@zbayapp/identity'
 import { Time } from 'pkijs'
 
 export const createUsersCerts = async (onion: string, rootCert: RootCA): Promise<{ userCert: string; userKey: string }> => {

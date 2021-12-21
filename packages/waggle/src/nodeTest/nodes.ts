@@ -8,7 +8,7 @@ import { ConnectionsManager } from '../libp2p/connectionsManager'
 import CommunitiesManager from '../communities/manager'
 import { createUsersCerts } from '../libp2p/tests/client-server'
 import { CertsData, ConnectionsManagerOptions } from '../common/types'
-import { RootCA } from '@zbayapp/identity/lib/generateRootCA'
+import { RootCA } from '@zbayapp/identity'
 
 /**
  * More customizable version of Node (entry node), mainly for testing purposes

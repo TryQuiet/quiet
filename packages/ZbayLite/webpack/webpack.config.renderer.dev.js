@@ -10,11 +10,14 @@ var mainRunning = false
 module.exports = {
   mode: 'development',
   output: {
-    path: path.resolve(__dirname, '../dist/src/main'),
+    path: path.resolve(__dirname, '../dist/main'),
     filename: '[name].js'
   },
   resolve: {
-    extensions: ['.ts', '.tsx', '.js', '.jsx']
+    extensions: ['.ts', '.tsx', '.js', '.jsx'],
+    plugins: [
+      new TsconfigPathsPlugin({ configFile: 'tsconfig.build.json' })
+    ]
   },
   module: {
     rules: [
@@ -66,8 +69,7 @@ module.exports = {
           })
           .on('error', spawnError => console.error(spawnError))
       }
-    }),
-    new TsconfigPathsPlugin()
+    })
   ],
   devServer: {
     hot: true,

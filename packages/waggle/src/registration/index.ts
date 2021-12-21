@@ -1,5 +1,4 @@
-import { UserCert, createUserCert, loadCSR, CertFieldsTypes } from '@zbayapp/identity'
-import { getReqFieldValue } from '@zbayapp/identity/lib/common'
+import { createUserCert, UserCert, loadCSR, CertFieldsTypes, getReqFieldValue } from '@zbayapp/identity'
 import { IsBase64, IsNotEmpty, validate } from 'class-validator'
 import express, { Request, Response } from 'express'
 import getPort from 'get-port'

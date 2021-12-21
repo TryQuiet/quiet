@@ -9,7 +9,7 @@ import {
 import { communitiesAdapter } from '../communities/communities.adapter'
 import { usersActions, usersReducer, UsersState } from './users.slice'
 import { certificatesAdapter } from './users.adapter'
-import { keyFromCertificate, parseCertificate } from '@zbayapp/identity/lib'
+import { keyFromCertificate, parseCertificate } from '@zbayapp/identity'
 import { usersSelectors } from './users.selectors'
 
 describe('users reducer', () => {

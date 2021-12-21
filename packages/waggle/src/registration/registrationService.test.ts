@@ -1,4 +1,4 @@
-import { createRootCA, createUserCert, createUserCsr, verifyUserCert, configCrypto } from '@zbayapp/identity'
+import { createRootCA, RootCA, createUserCert, createUserCsr, verifyUserCert, configCrypto } from '@zbayapp/identity'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 import { CertificateRegistration } from '.'
 import { Time } from 'pkijs'
@@ -6,7 +6,6 @@ import { createLibp2p, createTmpDir, spawnTorProcess, TmpDir, tmpZbayDirPath, To
 import { DummyIOServer, getPorts, Ports } from '../common/utils'
 import fetch, { Response } from 'node-fetch'
 import { Tor } from '../torManager'
-import { RootCA } from '@zbayapp/identity/lib/generateRootCA'
 import { Storage } from '../storage'
 import PeerId from 'peer-id'
 import { DataFromPems } from '../common/types'

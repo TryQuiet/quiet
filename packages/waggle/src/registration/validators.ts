@@ -1,5 +1,4 @@
-import { loadCSR, CertFieldsTypes } from '@zbayapp/identity'
-import { getReqFieldValue } from '@zbayapp/identity/lib/common'
+import { loadCSR, CertFieldsTypes, getReqFieldValue } from '@zbayapp/identity'
 import { registerDecorator, ValidationArguments, ValidationOptions } from 'class-validator'
 import logger from '../logger'
 const log = logger('validators')

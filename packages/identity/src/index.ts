@@ -1,4 +1,4 @@
-import { createRootCA } from './generateRootCA'
+import { createRootCA, RootCA } from './generateRootCA'
 import {
   extractPubKey,
   parseCertificate,
@@ -20,12 +20,14 @@ import {
   getCertFieldValue,
   CertFieldsTypes,
   hexStringToArrayBuffer,
-  arrayBufferToHexString
+  arrayBufferToHexString,
+  getReqFieldValue
 } from './common'
 import configCrypto from './config'
-import { createTestRootCA, createTestUserCert, createTestUserCsr, userData } from './test/helpers'
+import { setupCrypto, createTestRootCA, createTestUserCert, createTestUserCsr, userData } from './test/helpers'
 
 export { createRootCA }
+export { RootCA }
 export { extractPubKey, parseCertificate, keyFromCertificate, keyObjectFromString, extractPubKeyString }
 export { verifyUserCert }
 export { verifySignature }
@@ -44,4 +46,6 @@ export {
   arrayBufferToHexString
 }
 export { configCrypto }
+export { setupCrypto }
 export { createTestRootCA, createTestUserCert, createTestUserCsr, userData }
+export { getReqFieldValue }

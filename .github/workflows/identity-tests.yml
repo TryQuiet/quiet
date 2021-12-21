@@ -3,7 +3,7 @@ name: Identity tests
 on:
   pull_request:
     paths:
-      - packages/identity
+      - packages/identity/**
 
 jobs:
   check:

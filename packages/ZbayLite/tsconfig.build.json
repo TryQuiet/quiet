@@ -1,12 +1,13 @@
 {
   "extends": "../../tsconfig.build.json",
   "compilerOptions": {
-    "outDir": "./lib",
+    "outDir": "./dist",
     "jsx": "react",
     "typeRoots": [
       "../@types",
       "./node_modules/@types"
     ],
+    "declaration": false,
   },
   "include": [
     "src"
@@ -16,4 +17,3 @@
     "**/__tests__/*"
   ]
 }
-  
