@@ -1,8 +1,9 @@
+import { Time, setEngine, CryptoEngine } from 'pkijs'
+import { Crypto } from '@peculiar/webcrypto'
 import { createRootCA, RootCA } from '../generateRootCA'
 import { createUserCert, UserCert } from '../generateUserCertificate'
 import { createUserCsr, UserCsr } from '../requestCertificate'
 import config from '../config'
-import { Time } from 'pkijs'
 
 export const userData = {
   zbayNickname: 'userName',
@@ -28,4 +29,18 @@ export async function createTestUserCert (rootCert?: RootCA, userCsr?: UserCsr):
   const rootC = rootCert || await createTestRootCA()
   const user = userCsr || await createTestUserCsr()
   return await createUserCert(rootC.rootCertString, rootC.rootKeyString, user.userCsr, notBeforeDate, notAfterDate)
+}
+
+export function setupCrypto () {
+  const webcrypto = new Crypto()
+  setEngine(
+    'newEngine',
+    webcrypto,
+    new CryptoEngine({
+      name: '',
+      crypto: webcrypto,
+      subtle: webcrypto.subtle
+    })
+  )
+  global.crypto = webcrypto
 }

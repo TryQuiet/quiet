@@ -3,9 +3,9 @@ name: Integration tests
 on:
   pull_request:
     paths:
-      - packages/nectar
-      - packages/waggle
-      - packages/integration-tests
+      - packages/nectar/**
+      - packages/waggle/**
+      - packages/integration-tests/**
 
 jobs:
   integration-tests:

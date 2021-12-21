@@ -1,4 +1,4 @@
-import { createRootCA } from '@zbayapp/identity/lib'
+import { createRootCA } from '@zbayapp/identity'
 import getPort from 'get-port'
 import path from 'path'
 import { Time } from 'pkijs'

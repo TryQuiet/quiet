@@ -1,7 +1,7 @@
 import { fixture, test, Selector } from 'testcafe'
 
 fixture`Electron test`
-  .page('../dist/src/main/index.html#/');
+  .page('../dist/main/index.html#/');
 
 const longTimeout = 100000
 

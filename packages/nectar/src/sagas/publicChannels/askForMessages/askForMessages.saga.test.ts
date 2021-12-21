@@ -29,7 +29,7 @@ describe('askForMessagesSaga', () => {
   test('should be defined', () => {
     saga
       .next()
-      .apply(socket, socket.emit, [SocketActionTypes.ASK_FOR_MESSAGES, {}])
+      .apply(socket, socket.emit, [SocketActionTypes.ASK_FOR_MESSAGES, askForMessagesPayload])
       .next()
       .isDone()
   })

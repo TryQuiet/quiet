@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prepublish": "npm run build",
-    "test": "TZ=UTC jest sagas/*",
+    "test": "jest sagas/*",
     "lint": "eslint --ext .ts ./src/",
     "prettier": "prettier"
   },
@@ -20,13 +20,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@peculiar/webcrypto": "*",
     "@reduxjs/toolkit": "^1.6.1",
-    "@zbayapp/identity": "*",
     "debug": "^4.3.2",
     "factory-girl": "^5.0.4",
     "get-port": "^5.1.1",
-    "libp2p-websockets": "*",
     "luxon": "^2.0.2",
     "redux": "^4.1.1",
     "redux-saga": "^1.1.3",
@@ -61,10 +58,13 @@
     "prettier": "^2.3.2",
     "redux-saga-test-plan": "^4.0.3",
     "tmp": "^0.2.1",
-    "typescript": "^4.1.5",
+    "typescript": "^4.3.5",
     "waggle": "^4.3.14",
+    "@zbayapp/identity": "*",
     "pkijs": "*",
-    "pvutils": "*"
+    "@peculiar/webcrypto": "*",
+    "pvutils": "*",
+    "libp2p-websockets": "*"
   },
   "jest": {
     "extensionsToTreatAsEsm": [

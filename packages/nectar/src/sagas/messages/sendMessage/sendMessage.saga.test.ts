@@ -7,7 +7,7 @@ import {
   loadPrivateKey,
   parseCertificate,
   sign
-} from '@zbayapp/identity/lib'
+} from '@zbayapp/identity'
 import { Socket } from 'socket.io-client'
 import { arrayBufferToString } from 'pvutils'
 import { identityReducer, IdentityState, Identity } from '../../identity/identity.slice'
