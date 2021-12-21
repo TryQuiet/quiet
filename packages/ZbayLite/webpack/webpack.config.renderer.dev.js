@@ -10,7 +10,7 @@ var mainRunning = false
 module.exports = {
   mode: 'development',
   output: {
-    path: path.resolve(__dirname, '../dist/src/main'),
+    path: path.resolve(__dirname, '../dist/main'),
     filename: '[name].js'
   },
   resolve: {

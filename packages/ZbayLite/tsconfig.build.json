@@ -7,6 +7,7 @@
       "../@types",
       "./node_modules/@types"
     ],
+    "declaration": false,
   },
   "include": [
     "src"
@@ -16,4 +17,3 @@
     "**/__tests__/*"
   ]
 }
-  

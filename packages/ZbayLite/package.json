@@ -68,7 +68,7 @@
   "@comment version": "To build new version for specific platform, just replace platform in version tag to one of following linux, mac, windows",
   "version": "4.0.3",
   "description": "Decentralized team chat",
-  "main": "dist/src/main/main.js",
+  "main": "dist/main/main.js",
   "scripts": {
     "pullBinaries": "wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/tor -P ./tor/ && chmod 775 ./tor/tor",
     "pullLibs": "wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/libssl.so -P ./ && chmod 775 ./libssl.so",
@@ -188,7 +188,7 @@
     "redux-thunk": "^2.3.0",
     "request": "^2.88.0",
     "request-progress": "^3.0.0",
-    "reselect": "^4.0.0",
+    "reselect": "^4.1.5",
     "sanitize-html": "^2.3.2",
     "secp256k1": "^3.7.1",
     "socket.io-client": "4.1.3",

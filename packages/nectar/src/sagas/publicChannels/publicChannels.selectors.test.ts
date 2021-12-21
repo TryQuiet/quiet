@@ -26,15 +26,15 @@ describe('publicChannelsSelectors', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
     const holmes = await factory.create<
-      ReturnType<typeof identityActions.addNewIdentity>['payload']
+    ReturnType<typeof identityActions.addNewIdentity>['payload']
     >('Identity', { id: community.id, zbayNickname: 'holmes' })
 
     const bartek = await factory.create<
-      ReturnType<typeof identityActions.addNewIdentity>['payload']
+    ReturnType<typeof identityActions.addNewIdentity>['payload']
     >('Identity', { id: community.id, zbayNickname: 'bartek' })
 
     /* Messages ids are being used only for veryfing proper order...
