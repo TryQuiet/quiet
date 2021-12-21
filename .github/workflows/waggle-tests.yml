@@ -3,7 +3,7 @@ name: Waggle tests
 on:
   pull_request:
     paths:
-      - packages/waggle
+      - packages/waggle/**
 
 jobs:
   check:
