@@ -133,8 +133,6 @@ export const storeKeys = StoreKeys
 
 export const socketActionTypes = SocketActionTypes
 
-console.log('test')
-
 export default {
   app,
   publicChannels,
