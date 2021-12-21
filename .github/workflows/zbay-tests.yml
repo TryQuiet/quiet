@@ -3,7 +3,7 @@ name: Zbay tests
 on:
   pull_request:
     paths:
-      - packages/ZbayLite
+      - packages/ZbayLite/**
 
 jobs:
   check:
