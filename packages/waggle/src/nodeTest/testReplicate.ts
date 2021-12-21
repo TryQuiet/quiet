@@ -1,5 +1,5 @@
 import { Crypto } from '@peculiar/webcrypto'
-import { createRootCA } from '@zbayapp/identity'
+import { createRootCA, RootCA } from '@zbayapp/identity'
 import Table from 'cli-table'
 import path from 'path'
 import { CryptoEngine, setEngine, Time } from 'pkijs'
@@ -7,7 +7,6 @@ import yargs, { Argv } from 'yargs'
 import logger from '../logger'
 import { createTmpDir } from '../common/testUtils'
 import { LocalNode, NodeWithoutTor, NodeWithTor } from './nodes'
-import { RootCA } from '@zbayapp/identity/lib/generateRootCA'
 import getPort from 'get-port'
 const log = logger('testReplicate')
 

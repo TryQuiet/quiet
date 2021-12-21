@@ -1,17 +1,17 @@
-import { createRootCA, RootCA } from '@zbayapp/identity/lib/generateRootCA'
 import {
+  createRootCA,
+  RootCA,
   createUserCsr,
   createUserCert,
   UserCsr,
-  UserCert
-  , loadPrivateKey, sign
+  UserCert,
+  loadPrivateKey, 
+  keyFromCertificate,
+  parseCertificate,
+  sign
 } from '@zbayapp/identity'
 import { config } from '../../sagas/users/const/certFieldTypes'
 import { PeerId } from '../../sagas/identity/identity.slice'
-import {
-  keyFromCertificate,
-  parseCertificate
-} from '@zbayapp/identity/lib/extractPubKey'
 import { arrayBufferToString } from 'pvutils'
 import { Time } from 'pkijs'
 
