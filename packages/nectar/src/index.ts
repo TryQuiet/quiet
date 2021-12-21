@@ -96,7 +96,7 @@ export { identityAdapter } from './sagas/identity/identity.adapter'
 export const app = {
   actions: appActions
 }
-
+// test
 export const publicChannels = {
   reducer: publicChannelsReducer,
   State: PublicChannelsState,
