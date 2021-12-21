@@ -1,9 +1,9 @@
-name: Nectar tests
+name: Waggle tests
 
 on:
   pull_request:
     paths:
-      - packages/nectar
+      - packages/waggle
 
 jobs:
   check:
@@ -57,7 +57,4 @@ jobs:
         run: lerna bootstrap
 
       - name: "Unit tests"
-        run: lerna run test --scope @zbayapp/nectar --stream
-
-      - name: "Zbay-nectar bracket tests"
-        run: lerna run rtl-test --scope zbay --stream 
+        run: lerna run test --scope waggle --stream
