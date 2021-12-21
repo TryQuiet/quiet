@@ -188,7 +188,7 @@
     "redux-thunk": "^2.3.0",
     "request": "^2.88.0",
     "request-progress": "^3.0.0",
-    "reselect": "^4.0.0",
+    "reselect": "^4.1.5",
     "sanitize-html": "^2.3.2",
     "secp256k1": "^3.7.1",
     "socket.io-client": "4.1.3",
