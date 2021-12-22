@@ -143,7 +143,6 @@ export class ConnectionsManager {
   }
 
   public closeAllServices = async () => {
-    this.io.close()
     await this.ioProxy.closeAll()
   }
 

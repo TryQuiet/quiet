@@ -1,14 +1,15 @@
 import { io, Socket } from 'socket.io-client'
 import Websockets from 'libp2p-websockets'
-import { createAction, PayloadAction } from '@reduxjs/toolkit'
-import { all, call, fork, put, take, takeEvery } from 'typed-redux-saga'
-import waggle from 'waggle'
-import { StoreKeys, app, errors, prepareStore, useIO } from '@zbayapp/nectar'
+import { PayloadAction } from '@reduxjs/toolkit'
+import { all, call, fork, takeEvery } from 'typed-redux-saga'
+import waggle, { ConnectionsManager } from 'waggle'
+import { Store, StoreKeys, errors, prepareStore, useIO } from '@zbayapp/nectar'
 import path from 'path'
 import assert from 'assert'
 import getPort from 'get-port'
 import tmp from 'tmp'
 import logger from './logger'
+import { Saga, Task } from '@redux-saga/types'
 
 const log = logger()
 
@@ -32,7 +33,12 @@ const connectToDataport = (url: string, name: string): Socket => {
   return socket
 }
 
-export const createApp: any = async (mockedState?: { [key in StoreKeys]?: any }) => {
+export const createApp = async (mockedState?: { [key in StoreKeys]?: any }): Promise<{
+  store: Store
+  runSaga: <S extends Saga<any[]>>(saga: S, ...args: Parameters<S>) => Task
+  rootTask: Task
+  manager: ConnectionsManager
+}> => {
   /**
    * Configure and initialize ConnectionsManager from waggle,
    * configure redux store
@@ -54,9 +60,7 @@ export const createApp: any = async (mockedState?: { [key in StoreKeys]?: any })
     httpTunnelPort,
     options: {
       env: {
-        appDataPath: createPath(
-          createTmpDir(`zbayIntegrationTest-${appName}`).name
-        )
+        appDataPath: createPath(createTmpDir(`zbayIntegrationTest-${appName}`).name)
       },
       torControlPort: controlPort
     },
@@ -65,15 +69,9 @@ export const createApp: any = async (mockedState?: { [key in StoreKeys]?: any })
   await manager.init()
 
   function* root(): Generator {
-    const socket = yield* call(
-      connectToDataport,
-      `http://localhost:${dataServerPort1}`,
-      appName
-    )
+    const socket = yield* call(connectToDataport, `http://localhost:${dataServerPort1}`, appName)
     // @ts-expect-error
-    const task = yield* fork(useIO, socket)
-    yield* take(createAction('testFinished'))
-    yield* put(app.actions.closeServices())
+    yield* fork(useIO, socket)
   }
 
   const rootTask = runSaga(root)
@@ -81,9 +79,14 @@ export const createApp: any = async (mockedState?: { [key in StoreKeys]?: any })
   return { store, runSaga, rootTask, manager }
 }
 
-export const createAppWithoutTor: any = async (mockedState?: {
-  [key in StoreKeys]?: any;
-}) => {
+export const createAppWithoutTor = async (mockedState?: {
+  [key in StoreKeys]?: any
+}): Promise<{
+  store: Store
+  runSaga: <S extends Saga<any[]>>(saga: S, ...args: Parameters<S>) => Task
+  rootTask: Task
+  manager: ConnectionsManager
+}> => {
   /**
    * Configure and initialize ConnectionsManager from waggle,
    * configure redux store
@@ -105,9 +108,7 @@ export const createAppWithoutTor: any = async (mockedState?: {
     httpTunnelPort,
     options: {
       env: {
-        appDataPath: createPath(
-          createTmpDir(`zbayIntegrationTest-${appName}`).name
-        )
+        appDataPath: createPath(createTmpDir(`zbayIntegrationTest-${appName}`).name)
       },
       libp2pTransportClass: Websockets,
       torControlPort: controlPort
@@ -117,15 +118,9 @@ export const createAppWithoutTor: any = async (mockedState?: {
   manager.initListeners()
 
   function* root(): Generator {
-    const socket = yield* call(
-      connectToDataport,
-      `http://localhost:${dataServerPort1}`,
-      appName
-    )
+    const socket = yield* call(connectToDataport, `http://localhost:${dataServerPort1}`, appName)
     // @ts-expect-error
     const task = yield* fork(useIO, socket)
-    yield* take(createAction('testFinished'))
-    yield* put(app.actions.closeServices())
   }
 
   const rootTask = runSaga(root)
@@ -145,3 +140,10 @@ export function* assertNoErrors(): Generator {
   // Use at the beginning of test saga
   yield* all([takeEvery(errors.actions.addError, throwAssertionError)])
 }
+
+export const sleep = async (time = 1000) =>
+  await new Promise<void>(resolve => {
+    setTimeout(() => {
+      resolve()
+    }, time)
+  })

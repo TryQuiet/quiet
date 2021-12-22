@@ -43,6 +43,7 @@ import { connectionActions, connectionReducer } from './sagas/appConnection/conn
 import { connectionSelectors } from './sagas/appConnection/connection.selectors'
 
 export { SocketActionTypes } from './sagas/socket/const/actionTypes'
+export { Store } from './sagas/store.types'
 export { StoreKeys } from './sagas/store.keys'
 
 export { prepareStore } from './utils/tests/prepareStore'
