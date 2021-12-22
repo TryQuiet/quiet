@@ -231,7 +231,7 @@ describe('publicChannelsSelectors', () => {
           Array [
             Object {
               "createdAt": 1612544520,
-              "date": "Feb 05, 18:02",
+              "date": "Feb 05, 6:02 PM",
               "id": "7",
               "message": "message_7",
               "nickname": "holmes",
@@ -239,7 +239,7 @@ describe('publicChannelsSelectors', () => {
             },
             Object {
               "createdAt": 1612554600,
-              "date": "Feb 05, 20:50",
+              "date": "Feb 05, 8:50 PM",
               "id": "8",
               "message": "message_8",
               "nickname": "holmes",
@@ -251,7 +251,7 @@ describe('publicChannelsSelectors', () => {
           Array [
             Object {
               "createdAt": 1603165800,
-              "date": "Oct 20, 5:50",
+              "date": "Oct 20, 5:50 AM",
               "id": "1",
               "message": "message_1",
               "nickname": "holmes",
@@ -259,7 +259,7 @@ describe('publicChannelsSelectors', () => {
             },
             Object {
               "createdAt": 1603167000,
-              "date": "Oct 20, 6:10",
+              "date": "Oct 20, 6:10 AM",
               "id": "2",
               "message": "message_2",
               "nickname": "holmes",
@@ -267,7 +267,7 @@ describe('publicChannelsSelectors', () => {
             },
             Object {
               "createdAt": 1603167090.001,
-              "date": "Oct 20, 6:11",
+              "date": "Oct 20, 6:11 AM",
               "id": "3",
               "message": "message_3",
               "nickname": "holmes",
@@ -275,7 +275,7 @@ describe('publicChannelsSelectors', () => {
             },
             Object {
               "createdAt": 1603167090.002,
-              "date": "Oct 20, 6:11",
+              "date": "Oct 20, 6:11 AM",
               "id": "4",
               "message": "message_4",
               "nickname": "holmes",
@@ -285,7 +285,7 @@ describe('publicChannelsSelectors', () => {
           Array [
             Object {
               "createdAt": 1603167121,
-              "date": "Oct 20, 6:12",
+              "date": "Oct 20, 6:12 AM",
               "id": "5",
               "message": "message_5",
               "nickname": "bartek",
@@ -295,7 +295,7 @@ describe('publicChannelsSelectors', () => {
           Array [
             Object {
               "createdAt": 1603167122,
-              "date": "Oct 20, 6:12",
+              "date": "Oct 20, 6:12 AM",
               "id": "6",
               "message": "message_6",
               "nickname": "holmes",
@@ -306,8 +306,8 @@ describe('publicChannelsSelectors', () => {
         "Today": Array [
           Array [
             Object {
-              "createdAt": 1640029800,
-              "date": "20:50",
+              "createdAt": 1640202600,
+              "date": "8:50 PM",
               "id": "9",
               "message": "message_9",
               "nickname": "holmes",
