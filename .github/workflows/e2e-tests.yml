@@ -3,7 +3,6 @@ name: End to end tests
 on:
   pull_request:
     paths:
-      - packages/ZbayLite/**
       - packages/e2e-tests/**
 
 # "macos-latest" UnableToAccessScreenRecordingAPIError: The find-window process cannot access the Screen Recording API. https://github.com/DevExpress/testcafe/issues/5352
@@ -22,6 +21,16 @@ jobs:
 
       - name: "Install lerna globally"
         run: npm i -g lerna
+      
+      - name: "Cache NPM dependencies"
+        uses: actions/cache@v1
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-npm-cache-
       
       - name: "Install monorepo dependencies"
         run: npm ci
@@ -55,7 +64,17 @@ jobs:
       
       - name: "Install lerna globally"
         run: npm i -g lerna
-
+      
+      - name: "Cache NPM dependencies"
+        uses: actions/cache@v1
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-npm-cache-
+      
       - name: "Install monorepo dependencies"
         run: npm ci
 
