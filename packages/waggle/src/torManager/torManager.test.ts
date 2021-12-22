@@ -163,6 +163,7 @@ describe('Tor manager', () => {
   it('attempt destroy nonexistent hidden service', async () => {
     const tor = await spawnTorProcess(tmpAppDataPath)
     await tor.init()
+
     const status = await tor.destroyHiddenService('u2rg2direy34dj77375h2fbhsc2tvxj752h4tlso64mjnlevcv54oaad')
     expect(status).toBe(false)
     await tor.kill()
