@@ -7,7 +7,7 @@ import { AutoSizer } from 'react-virtualized'
 
 import IdentityPanel from '../../../containers/ui/IdentityPanel'
 import ChannelsPanel from '../../../containers/widgets/channels/ChannelsPanel'
-import DirectMessagesPanel from '../../../containers/widgets/channels/DirectMessagesPanel'
+// import DirectMessagesPanel from '../../../containers/widgets/channels/DirectMessagesPanel'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -45,7 +45,7 @@ const Sidebar: React.FC = () => {
             {({ width, height }) => (
               <Scrollbars autoHideTimeout={500} style={{ width: width, height: height }}>
                 <ChannelsPanel title='Channels' />
-                <DirectMessagesPanel title='Direct Messages' />
+                {/* <DirectMessagesPanel title='Direct Messages' /> */}
               </Scrollbars>
             )}
           </AutoSizer>
