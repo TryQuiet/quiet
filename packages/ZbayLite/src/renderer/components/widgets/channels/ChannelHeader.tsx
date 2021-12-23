@@ -1,12 +1,10 @@
-import React, { useState } from 'react'
+import React from 'react'
 import classNames from 'classnames'
 
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
-import Clear from '@material-ui/icons/Clear'
 import { makeStyles } from '@material-ui/core/styles'
 
-import IconButton from '../../ui/Icon/IconButton'
 import Icon from '../../ui/Icon/Icon'
 import silenced from '../../../static/images/silenced.svg'
 import silencedBlack from '../../../static/images/silencedBlack.svg'
@@ -95,8 +93,6 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps & ChannelMenuAc
   ...channelMenuActionProps
 }) => {
   const classes = useStyles({})
-
-  const [descriptionVisible, setDescriptionVisible] = useState(true)
 
   const debounce = (fn, ms: number) => {
     let timer: ReturnType<typeof setTimeout> | null
