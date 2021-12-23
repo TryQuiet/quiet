@@ -11,6 +11,7 @@ import DirectMessagesPanel from '../../../containers/widgets/channels/DirectMess
 
 const useStyles = makeStyles((theme) => ({
   root: {
+    paddingTop: '30px',
     minHeight: '100%',
     width: '220px',
     position: 'relative',
