@@ -179,21 +179,6 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps & ChannelMenuAc
           </Grid>
         </Grid>
       </Grid>
-      {descriptionVisible && channel.description && (
-        <Grid container className={classes.descriptionDiv}>
-          <Grid item xs>
-            <Typography variant='body2'>{channel.description}</Typography>
-          </Grid>
-          <Grid item className={classes.iconDiv}>
-            <IconButton
-              onClick={() => {
-                setDescriptionVisible(false)
-              }}>
-              <Clear />
-            </IconButton>
-          </Grid>
-        </Grid>
-      )}
     </div>
   )
 }
