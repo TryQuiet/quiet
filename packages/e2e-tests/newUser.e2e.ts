@@ -48,6 +48,7 @@ test('User can create new community, register and send few messages to general c
   await t.expect(messagesList.exists).ok('Could not find placeholder for messages', { timeout: 30000 })
 
   const messagesGroup = messagesList.find('li')
+  // Can throw assertion error because of sending message too early - https://github.com/ZbayApp/monorepo/issues/14
   await t.expect(messagesGroup.exists).ok({ timeout: 30000 })
   await t.expect(messagesGroup.count).eql(1)
 
