@@ -10,7 +10,7 @@ import { useModal } from '../../hooks'
 const useSettingsModalData = () => {
   const data = {
     modalTabToOpen: useSelector(appSelectors.currentModalTab),
-    user: useSelector(identity.selectors.currentIdentity).zbayNickname,
+    user: useSelector(identity.selectors.currentIdentity)?.zbayNickname || 'Settings',
     isOwner: useSelector(communities.selectors.isOwner),
     blockedUsers: []
   }

@@ -39,7 +39,7 @@ jobs:
         run: npm i -g lerna
 
       - name: "Cache NPM dependencies"
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: |
             node_modules
