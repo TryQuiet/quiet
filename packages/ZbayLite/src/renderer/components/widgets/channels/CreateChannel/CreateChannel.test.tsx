@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { CreateChannelForm } from './CreateChannelForm'
+import { CreateChannelForm } from './CreateChannel'
 
 import { renderComponent } from '../../../testUtils/renderComponent'
 
