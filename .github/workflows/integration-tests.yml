@@ -37,7 +37,11 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
         run: npm install -g windows-build-tools@4.0.0
 
-      - name: "Set unsafe-perm"
+      - name: 'Increase PostBuffer'
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: git config --global http.postBuffer 524288000
+
+      - name: 'Set unsafe-perm'
         run: npm set unsafe-perm true
 
       - name: 'Install lerna globally'
