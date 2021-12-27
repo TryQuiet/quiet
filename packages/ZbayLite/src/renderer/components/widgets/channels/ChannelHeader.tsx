@@ -171,7 +171,7 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps & ChannelMenuAc
           alignContent='center'
           alignItems='center'>
           <Grid item>
-            <ChannelMenuActionComponent {...channelMenuActionProps} />
+            {/* <ChannelMenuActionComponent {...channelMenuActionProps} /> */}
           </Grid>
         </Grid>
       </Grid>
