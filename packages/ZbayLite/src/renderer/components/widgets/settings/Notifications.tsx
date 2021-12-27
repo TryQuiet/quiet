@@ -121,7 +121,7 @@ export const Notifications: React.FC<NotificationsProps> = ({
               setUserNotification(notificationFilterType.ALL_MESSAGES)
             }
             label={
-              <Grid direction='column' className={classes.offset}>
+              <Grid container direction='column' className={classes.offset}>
                 <Grid item>
                   <span className={classes.bold}>Every new message</span>
                 </Grid>
@@ -146,7 +146,7 @@ export const Notifications: React.FC<NotificationsProps> = ({
               setUserNotification(notificationFilterType.MENTIONS)
             }
             label={
-              <Grid direction='column' className={classes.offset}>
+              <Grid container direction='column' className={classes.offset}>
                 <Grid item>
                   <span className={classes.bold}>
                     Direct messages, mentions & keywords
@@ -174,7 +174,7 @@ export const Notifications: React.FC<NotificationsProps> = ({
             }
             onChange={() => setUserNotification(notificationFilterType.NONE)}
             label={
-              <Grid direction='column' className={classes.offset}>
+              <Grid container direction='column' className={classes.offset}>
                 <Grid item>
                   <span className={classes.bold}>Nothing</span>
                 </Grid>
