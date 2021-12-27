@@ -9,6 +9,7 @@ on:
 jobs:
   e2e-linux:
     runs-on: ubuntu-20.04
+    timeout-minutes: 20
     env:
       DISPLAY: ":99.0"
     steps:
@@ -52,10 +53,11 @@ jobs:
         if: always()
         with:
           name: test-screenshots-linux
-          path: screenshots
+          path: packages/e2e-tests/screenshots
 
   e2e-windows:
     runs-on: windows-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v1.0.0
 
@@ -94,4 +96,4 @@ jobs:
         if: always()
         with:
           name: test-screenshots-windows
-          path: screenshots
+          path: packages\e2e-tests\screenshots
