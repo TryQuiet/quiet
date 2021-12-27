@@ -9,7 +9,7 @@ import Icon from '../../ui/Icon/Icon'
 import silenced from '../../../static/images/silenced.svg'
 import silencedBlack from '../../../static/images/silencedBlack.svg'
 import Tooltip from '../../ui/Tooltip/Tooltip'
-import ChannelMenuActionComponent, { ChannelMenuActionProps } from './ChannelMenuAction'
+import { ChannelMenuActionProps } from './ChannelMenuAction'
 
 import { PublicChannel } from '@zbayapp/nectar'
 
