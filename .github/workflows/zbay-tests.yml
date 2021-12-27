@@ -23,6 +23,10 @@ jobs:
         with:
           node-version: "12"
 
+      - name: "Increase git postBuffer size"
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: git config --global http.postBuffer 524288000
+
       - name: "Patch node gyp on windows to support Visual Studio 2019"
         if: ${{ matrix.os == 'windows-latest' }}
         shell: powershell
@@ -34,10 +38,6 @@ jobs:
       - name: "Get extra dependencies"
         if: ${{ matrix.os == 'windows-latest' }}
         run: npm install -g windows-build-tools@4.0.0
-
-      - name: "Increase PostBuffer"
-        if: ${{ matrix.os == 'windows-latest' }}
-        run: git config --global http.postBuffer 524288000
 
       - name: "Set unsafe-perm"
         run: npm set unsafe-perm true
