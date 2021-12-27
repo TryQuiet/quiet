@@ -58,6 +58,11 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v1.0.0
+
+      # https://stackoverflow.com/questions/46232906/git-clone-error-rpc-failed-curl-56-openssl-ssl-read-ssl-error-syscall-errno
+      - name: Increase git postBuffer size
+        run: git config http.postBuffer 524288000
+
       - uses: actions/setup-node@master
         with:
           node-version: "12"
