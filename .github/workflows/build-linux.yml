@@ -3,13 +3,16 @@ name: Build-Linux
 on:
   release:
     types:
-      - created
+      [released , prereleased]
 
 jobs:
   build-linux:
     runs-on: ubuntu-18.04
     if: |
       startsWith(github.ref, 'refs/tags/zbay')
+
+    env:
+      REACT_APP_ENABLE_SENTRY: ${{ github.event.action == 'prereleased' }}
 
     steps:
       - uses: actions/checkout@v1.0.0
@@ -40,7 +43,7 @@ jobs:
         run: lerna bootstrap
 
       - name: "Pull tor binary"
-        run: export SOURCE_PATH=linux && lerna run pullBinaries --scope zbay && lerna run pullLibs --scope zbay
+        run: cd packages/ZbayLite && export SOURCE_PATH=linux && npm run pullBinaries --scope zbay && npm run pullLibs
 
       - name: "Build on Linux"
         run: lerna run build:prod --scope zbay
@@ -50,4 +53,4 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: electron-builder -p always --linux
+        run: cd packages/ZbayLite && electron-builder -p always --linux
