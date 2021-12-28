@@ -1,0 +1,52 @@
+name: Build-Linux
+
+on:
+  release:
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-18.04
+
+    steps:
+      - uses: actions/checkout@v1.0.0
+      - uses: actions/setup-node@master
+        with:
+          node-version: "12"
+
+      - name: "Set unsafe-perm"
+        run: npm set unsafe-perm true
+
+      - name: "Install lerna globally"
+        run: npm i -g lerna
+
+      - name: "Cache NPM dependencies"
+        uses: actions/cache@v2
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-npm-cache-
+
+      - name: "Install monorepo dependencies"
+        run: npm ci
+
+      - name: "Bootstrap project"
+        run: lerna bootstrap
+
+      - name: "Pull tor binary"
+        run: export SOURCE_PATH=linux && lerna run pullBinaries --scope zbay && lerna run pullLibs --scope zbay
+
+      - name: "Build on Linux"
+        run: lerna run build:prod --scope zbay
+
+      - name: "Install electron builder"
+        run: npm i -g electron-builder@22.10.5
+
+      - name: "Release"
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: electron-builder -p always --linux
