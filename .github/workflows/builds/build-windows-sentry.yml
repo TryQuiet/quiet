@@ -2,10 +2,15 @@ name: Build-Windows-Sentry
 
 on:
   release:
+    types:
+      - created
 
 jobs:
   build-windows-sentry:
     runs-on: windows-latest
+    if: |
+      startsWith(github.ref, 'refs/tags/zbay')
+
     steps:
       - uses: actions/checkout@v1.0.0
       - uses: actions/setup-node@master
@@ -27,9 +32,19 @@ jobs:
         shell: bash
         run: npm set unsafe-perm true
 
-      - name: "Install lerna globally"
+      - name: "Install lerna and electron-builder globally"
         shell: bash
-        run: npm i -g lerna
+        run: npm i -g lerna && npm i -g electron-builder@22.10.5
+
+      - name: "Cache NPM dependencies"
+        uses: actions/cache@v2
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-npm-cache-
 
       - name: "Install monorepo dependencies"
         shell: bash
@@ -48,10 +63,6 @@ jobs:
         env:
           REACT_APP_ENABLE_SENTRY: "1"
         run: lerna run build:prod --scope zbay
-
-      - name: "Install electron builder"
-        shell: bash
-        run: npm i -g electron-builder@22.10.5
 
       - name: "Release"
         shell: bash

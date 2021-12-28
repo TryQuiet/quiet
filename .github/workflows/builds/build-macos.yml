@@ -2,10 +2,14 @@ name: Build-MacOS
 
 on:
   release:
+    types:
+      - created
 
 jobs:
   build-macos:
     runs-on: macos-latest
+    if: |
+      startsWith(github.ref, 'refs/tags/zbay')
 
     steps:
       - uses: actions/checkout@v1.0.0
@@ -26,8 +30,18 @@ jobs:
       - name: "Set unsafe-perm"
         run: npm set unsafe-perm true
 
-      - name: "Install lerna globally"
-        run: npm i -g lerna
+      - name: "Install lerna and electron-builder globally"
+        run: npm i -g lerna && npm i -g electron-builder@22.10.5
+
+      - name: "Cache NPM dependencies"
+        uses: actions/cache@v2
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-npm-cache-
 
       - name: "Install monorepo dependencies"
         run: npm ci
@@ -40,9 +54,6 @@ jobs:
 
       - name: "Build on MacOS"
         run: lerna run build:prod --scope zbay
-
-      - name: "Install electron builder"
-        run: npm i -g electron-builder@22.10.5
 
       - name: "Remove crud files"
         run: xattr -cr .

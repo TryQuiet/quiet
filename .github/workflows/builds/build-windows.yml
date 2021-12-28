@@ -2,10 +2,15 @@ name: Build-Windows
 
 on:
   release:
+    types:
+      - created
 
 jobs:
   build-windows:
     runs-on: windows-latest
+    if: |
+      startsWith(github.ref, 'refs/tags/zbay')
+
     steps:
       - uses: actions/checkout@v1.0.0
       - uses: actions/setup-node@master
@@ -27,13 +32,23 @@ jobs:
         shell: bash
         run: npm set unsafe-perm true
 
-      - name: "Install lerna globally"
+      - name: "Install lerna and electron-builder globally"
         shell: bash
-        run: npm i -g lerna
+        run: npm i -g lerna && npm i -g electron-builder@22.10.5
 
       - name: "Install monorepo dependencies"
         shell: bash
         run: npm ci
+
+      - name: "Cache NPM dependencies"
+        uses: actions/cache@v2
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-npm-cache-
 
       - name: "Bootstrap project"
         shell: bash
@@ -46,10 +61,6 @@ jobs:
       - name: "Build on Windows"
         shell: bash
         run: lerna run build:prod --scope zbay
-
-      - name: "Install electron builder"
-        shell: bash
-        run: npm i -g electron-builder@22.10.5
 
       - name: "Release"
         shell: bash
