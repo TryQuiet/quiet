@@ -32,7 +32,6 @@ jobs:
           npm install --global node-gyp@latest
           npm prefix -g | % {npm config set node_gyp "$_\node_modules\node-gyp\bin\node-gyp.js"}
           npm config set msvs_version 2019
-
       - name: "Get extra dependencies"
         if: ${{ matrix.os == 'windows-latest' }}
         run: npm install -g windows-build-tools@4.0.0
@@ -52,7 +51,6 @@ jobs:
           key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.OS }}-npm-cache-
-
       - name: "Install monorepo dependencies"
         run: npm ci
 
@@ -61,3 +59,4 @@ jobs:
 
       - name: "Lint"
         run: lerna run lint --stream
+        

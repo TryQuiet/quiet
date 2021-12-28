@@ -74,7 +74,7 @@ describe('Notifications', () => {
                     class="MuiTypography-root MuiFormControlLabel-label MuiTypography-body1"
                   >
                     <div
-                      class="MuiGrid-root makeStyles-offset-8 MuiGrid-direction-xs-column"
+                      class="MuiGrid-root makeStyles-offset-8 MuiGrid-container MuiGrid-direction-xs-column"
                     >
                       <div
                         class="MuiGrid-root MuiGrid-item"
@@ -128,7 +128,7 @@ describe('Notifications', () => {
                     class="MuiTypography-root MuiFormControlLabel-label MuiTypography-body1"
                   >
                     <div
-                      class="MuiGrid-root makeStyles-offset-8 MuiGrid-direction-xs-column"
+                      class="MuiGrid-root makeStyles-offset-8 MuiGrid-container MuiGrid-direction-xs-column"
                     >
                       <div
                         class="MuiGrid-root MuiGrid-item"
@@ -181,7 +181,7 @@ describe('Notifications', () => {
                     class="MuiTypography-root MuiFormControlLabel-label MuiTypography-body1"
                   >
                     <div
-                      class="MuiGrid-root makeStyles-offset-8 MuiGrid-direction-xs-column"
+                      class="MuiGrid-root makeStyles-offset-8 MuiGrid-container MuiGrid-direction-xs-column"
                     >
                       <div
                         class="MuiGrid-root MuiGrid-item"
