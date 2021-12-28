@@ -1,17 +1,27 @@
-name: Build-Linux
+name: Build-MacOS
 
 on:
   release:
 
 jobs:
-  build-linux:
-    runs-on: ubuntu-18.04
+  build-macos:
+    runs-on: macos-latest
 
     steps:
       - uses: actions/checkout@v1.0.0
       - uses: actions/setup-node@master
         with:
           node-version: "12"
+
+      - uses: actions-rs/components-nightly@v1
+        with:
+          component: clippy
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly-2020-08-28
+          components: clippy
+          override: true
 
       - name: "Set unsafe-perm"
         run: npm set unsafe-perm true
@@ -26,17 +36,25 @@ jobs:
         run: lerna bootstrap
 
       - name: "Pull tor binary"
-        run: export SOURCE_PATH=linux && lerna run pullBinaries --scope zbay && lerna run pullLibs --scope zbay
+        run: export SOURCE_PATH=darwin && lerna run pullBinaries --scope zbay
 
-      - name: "Build on Linux"
+      - name: "Build on MacOS"
         run: lerna run build:prod --scope zbay
 
       - name: "Install electron builder"
         run: npm i -g electron-builder@22.10.5
 
+      - name: "Remove crud files"
+        run: xattr -cr .
+
       - name: "Release"
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          APPLEID: ${{ secrets.APPLEID }}
+          APPLEIDPASS: ${{ secrets.APPLEIDPASS }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: electron-builder -p always --linux
+          USE_HARD_LINKS: false
+        run: electron-builder -p always --mac -c.publish.path=/sentry-build
