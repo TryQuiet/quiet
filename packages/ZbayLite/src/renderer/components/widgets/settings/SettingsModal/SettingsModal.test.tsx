@@ -128,22 +128,6 @@ describe('SettingsModal', () => {
                             role="tablist"
                           >
                             <button
-                              aria-selected="true"
-                              class="MuiButtonBase-root MuiTab-root MuiTab-textColorInherit Mui-selected makeStyles-selected-6"
-                              role="tab"
-                              tabindex="0"
-                              type="button"
-                            >
-                              <span
-                                class="MuiTab-wrapper"
-                              >
-                                Account
-                              </span>
-                              <span
-                                class="MuiTouchRipple-root"
-                              />
-                            </button>
-                            <button
                               aria-selected="false"
                               class="MuiButtonBase-root MuiTab-root MuiTab-textColorInherit"
                               role="tab"
@@ -193,7 +177,7 @@ describe('SettingsModal', () => {
                             </button>
                           </div>
                           <span
-                            class="PrivateTabIndicator-root-234 PrivateTabIndicator-colorSecondary-236 MuiTabs-indicator makeStyles-indicator-3 PrivateTabIndicator-vertical-237"
+                            class="PrivateTabIndicator-root-257 PrivateTabIndicator-colorSecondary-259 MuiTabs-indicator makeStyles-indicator-3 PrivateTabIndicator-vertical-260"
                             style="top: 0px; height: 0px;"
                           />
                         </div>
@@ -222,7 +206,7 @@ describe('SettingsModal', () => {
                               class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column"
                             >
                               <div
-                                class="MuiGrid-root makeStyles-title-245 MuiGrid-item"
+                                class="MuiGrid-root makeStyles-title-241 MuiGrid-item"
                               >
                                 <h3
                                   class="MuiTypography-root MuiTypography-h3"
@@ -234,7 +218,7 @@ describe('SettingsModal', () => {
                                 class="MuiGrid-root MuiGrid-container MuiGrid-justify-xs-center"
                               >
                                 <div
-                                  class="MuiGrid-root makeStyles-createUsernameContainer-238 MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true"
+                                  class="MuiGrid-root makeStyles-createUsernameContainer-234 MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true"
                                 >
                                   <div
                                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12"
@@ -299,7 +283,7 @@ describe('SettingsModal', () => {
     `)
   })
 
-  it('displays "Invite a friend" tab for community owner', async () => {
+  it('displays "Add members" tab for community owner', async () => {
     renderComponent(
       <SettingsModal
         open
@@ -313,13 +297,12 @@ describe('SettingsModal', () => {
         user='string'
       />
     )
-    expect(screen.queryByRole('tab', { name: /Account/i })).not.toBeNull()
     expect(screen.queryByRole('tab', { name: /Notifications/i })).not.toBeNull()
     expect(screen.queryByRole('tab', { name: /Security/i })).not.toBeNull()
-    expect(screen.queryByRole('tab', { name: /Invite a friend/i })).not.toBeNull()
+    expect(screen.queryByRole('tab', { name: /Add members/i })).not.toBeNull()
   })
 
-  it('does not display "Invite a friend" tab if user is not a community owner', async () => {
+  it('does not display "Add members" tab if user is not a community owner', async () => {
     renderComponent(
       <SettingsModal
         open
@@ -333,9 +316,8 @@ describe('SettingsModal', () => {
         user='string'
       />
     )
-    expect(screen.queryByRole('tab', { name: /Account/i })).not.toBeNull()
     expect(screen.queryByRole('tab', { name: /Notifications/i })).not.toBeNull()
     expect(screen.queryByRole('tab', { name: /Security/i })).not.toBeNull()
-    expect(screen.queryByRole('tab', { name: /Invite a friend/i })).toBeNull()
+    expect(screen.queryByRole('tab', { name: /Add members/i })).toBeNull()
   })
 })

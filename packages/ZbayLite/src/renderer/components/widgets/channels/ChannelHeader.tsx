@@ -1,17 +1,15 @@
-import React, { useState } from 'react'
+import React from 'react'
 import classNames from 'classnames'
 
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
-import Clear from '@material-ui/icons/Clear'
 import { makeStyles } from '@material-ui/core/styles'
 
-import IconButton from '../../ui/Icon/IconButton'
 import Icon from '../../ui/Icon/Icon'
 import silenced from '../../../static/images/silenced.svg'
 import silencedBlack from '../../../static/images/silencedBlack.svg'
 import Tooltip from '../../ui/Tooltip/Tooltip'
-import ChannelMenuActionComponent, { ChannelMenuActionProps } from './ChannelMenuAction'
+import { ChannelMenuActionProps } from './ChannelMenuAction'
 
 import { PublicChannel } from '@zbayapp/nectar'
 
@@ -96,8 +94,6 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps & ChannelMenuAc
 }) => {
   const classes = useStyles({})
 
-  const [descriptionVisible, setDescriptionVisible] = useState(true)
-
   const debounce = (fn, ms: number) => {
     let timer: ReturnType<typeof setTimeout> | null
     return (_: any) => {
@@ -175,25 +171,10 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps & ChannelMenuAc
           alignContent='center'
           alignItems='center'>
           <Grid item>
-            <ChannelMenuActionComponent {...channelMenuActionProps} />
+            {/* <ChannelMenuActionComponent {...channelMenuActionProps} /> */}
           </Grid>
         </Grid>
       </Grid>
-      {descriptionVisible && channel.description && (
-        <Grid container className={classes.descriptionDiv}>
-          <Grid item xs>
-            <Typography variant='body2'>{channel.description}</Typography>
-          </Grid>
-          <Grid item className={classes.iconDiv}>
-            <IconButton
-              onClick={() => {
-                setDescriptionVisible(false)
-              }}>
-              <Clear />
-            </IconButton>
-          </Grid>
-        </Grid>
-      )}
     </div>
   )
 }

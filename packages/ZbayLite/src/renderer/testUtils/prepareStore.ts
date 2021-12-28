@@ -13,6 +13,8 @@ import { combineReducers, createStore, applyMiddleware } from 'redux'
 import createSagaMiddleware from 'redux-saga'
 import thunk from 'redux-thunk'
 import rootSaga from '../sagas/index.saga'
+import { reducer as appReducer } from '../store/handlers/app'
+import { reducer as notificationCenterReducer } from '../store/handlers/notificationCenter'
 import { socketActions, socketReducer } from '../sagas/socket/socket.slice'
 import { modalsReducer } from '../sagas/modals/modals.slice'
 import MockedSocket from 'socket.io-mock'
@@ -26,8 +28,10 @@ export const reducers = {
   [NectarStoreKeys.Messages]: messages.reducer,
   [NectarStoreKeys.PublicChannels]: publicChannels.reducer,
   [NectarStoreKeys.Connection]: connection.reducer,
+  [StoreKeys.App]: appReducer,
   [StoreKeys.Socket]: socketReducer,
-  [StoreKeys.Modals]: modalsReducer
+  [StoreKeys.Modals]: modalsReducer,
+  [StoreKeys.NotificationCenter]: notificationCenterReducer
 }
 
 export const prepareStore = async (
