@@ -5,6 +5,7 @@ on:
 
 jobs:
   check:
+    timeout-minutes: 25
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -19,6 +20,10 @@ jobs:
       - uses: actions/setup-node@master
         with:
           node-version: "12"
+
+      - name: "Increase git postBuffer size"
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: git config --global http.postBuffer 524288000
 
       - name: "Patch node gyp on windows to support Visual Studio 2019"
         if: ${{ matrix.os == 'windows-latest' }}
@@ -39,7 +44,7 @@ jobs:
         run: npm i -g lerna
 
       - name: "Cache NPM dependencies"
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: |
             node_modules
