@@ -1,0 +1,66 @@
+name: Build-Windows-Sentry
+
+on:
+  release:
+
+jobs:
+  build-windows-sentry:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v1.0.0
+      - uses: actions/setup-node@master
+        with:
+          node-version: "12"
+
+      - name: "Fetch jsign"
+        shell: bash
+        run: curl https://zbay-binaries.s3.us-east-2.amazonaws.com/jsign/jsign-2.1.jar --output ./jsign-2.1.jar
+
+      - name: "Add Windows certificate"
+        id: write_file
+        uses: timheuer/base64-to-file@v1.0.3
+        with:
+          fileName: 'win-certificate.pfx'
+          encodedString: ${{ secrets.WIN_CSC_LINK }}
+
+      - name: "Set unsafe-perm"
+        shell: bash
+        run: npm set unsafe-perm true
+
+      - name: "Install lerna globally"
+        shell: bash
+        run: npm i -g lerna
+
+      - name: "Install monorepo dependencies"
+        shell: bash
+        run: npm ci
+
+      - name: "Bootstrap project"
+        shell: bash
+        run: lerna bootstrap
+
+      - name: "Pull tor binary"
+        shell: bash
+        run: curl https://zbay-binaries.s3.us-east-2.amazonaws.com/win32/tor.exe --output ./tor/tor.exe
+
+      - name: "Build on Windows"
+        shell: bash
+        env:
+          REACT_APP_ENABLE_SENTRY: "1"
+        run: lerna run build:prod --scope zbay
+
+      - name: "Install electron builder"
+        shell: bash
+        run: npm i -g electron-builder@22.10.5
+
+      - name: "Release"
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}export 
+          CERTIFICATE_PATH: ${{ steps.write_file.outputs.filePath }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+          WINDOWS_ALIAS: ${{ secrets.WINDOWS_ALIAS }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          USE_HARD_LINKS: false
+        run: electron-builder -p always --win
