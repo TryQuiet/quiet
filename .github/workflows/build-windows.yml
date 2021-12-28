@@ -26,7 +26,7 @@ jobs:
         uses: timheuer/base64-to-file@v1.0.3
         with:
           fileName: 'win-certificate.pfx'
-          encodedString: ${{ secrets.WIN_CSC_LINK }}
+          encodedString: ${{ secrets.CSC_LINK }}
 
       - name: "Set unsafe-perm"
         shell: bash
