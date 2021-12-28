@@ -59,7 +59,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}export 
           CERTIFICATE_PATH: ${{ steps.write_file.outputs.filePath }}
           WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
-          WINDOWS_ALIAS: ${{ secrets.WINDOWS_ALIAS }}
+          WINDOWS_ALIAS: ${{ secrets.WIN_ALIAS }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           USE_HARD_LINKS: false
