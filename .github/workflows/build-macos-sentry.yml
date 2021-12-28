@@ -1,10 +1,10 @@
-name: Build-MacOS
+name: Build-MacOS-Sentry
 
 on:
   release:
 
 jobs:
-  build-macos:
+  build-macos-sentry:
     runs-on: macos-latest
 
     steps:
