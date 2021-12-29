@@ -1,10 +1,10 @@
 import express from 'express'
 import { HttpsProxyAgent } from 'https-proxy-agent'
-import { Response } from 'node-fetch'
+import fetch, { Response } from 'node-fetch'
 
 import { Tor } from './torManager'
 
-import { fetchRetry, getPorts } from '../common/utils'
+import { getPorts } from '../common/utils'
 import {
   createTmpDir,
   spawnTorProcess,
@@ -67,8 +67,7 @@ const createAgent = async (httpTunnelPort) => {
 const sendRequest = async (
   serviceAddress: string,
   httpTunnelPort: number,
-  ownHs: string,
-  retryCount: number = 1
+  ownHs: string
 ): Promise<Response> => {
   const agent = await createAgent(httpTunnelPort)
   const options = {
@@ -78,7 +77,7 @@ const sendRequest = async (
     agent
   }
   try {
-    return await fetchRetry('http://' + serviceAddress + '.onion/test', options, retryCount)
+    return await fetch('http://' + serviceAddress + '.onion/test', options)
   } catch (e) {
     console.log('ERROR', e)
     throw e
