@@ -131,8 +131,6 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
 }) => {
   const classes = useStyles({})
 
-  console.log('alpha-8')
-
   const dictionary =
     communityAction === CommunityAction.Create
       ? CreateCommunityDictionary(handleRedirection)
