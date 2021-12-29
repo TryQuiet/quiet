@@ -22,7 +22,7 @@ jobs:
 
       - name: "Fetch jsign"
         shell: bash
-        run: curl https://zbay-binaries.s3.us-east-2.amazonaws.com/jsign/jsign-2.1.jar --output ./jsign-2.1.jar
+        run: cd packages/ZbayLite && curl https://zbay-binaries.s3.us-east-2.amazonaws.com/jsign/jsign-2.1.jar --output ./jsign-2.1.jar
 
       - name: "Add Windows certificate"
         id: write_file
