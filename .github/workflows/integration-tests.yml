@@ -61,4 +61,4 @@ jobs:
         run: lerna bootstrap
 
       - name: 'Run tests'
-        run: lerna run test-integration --scope integration-tests --stream
+        run: lerna run test-integration-ci --scope integration-tests --stream
