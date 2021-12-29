@@ -69,6 +69,12 @@ jobs:
         shell: bash
         run: lerna run build:prod --scope zbay
 
+      - name: "Set electron-builder props"
+        run: |
+          echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=release.zbay.lite.test" >> $GITHUB_ENV
+        if: |
+          ${{ github.event.action == 'prereleased' }}
+
       - name: "Release"
         shell: bash
         env:
@@ -79,4 +85,4 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           USE_HARD_LINKS: false
-        run: cd packages/ZbayLite && electron-builder -p always --win
+        run: cd packages/ZbayLite && electron-builder -p always --win ${{ env.ELECTRON_BUILDER_PROPS }}
