@@ -3,13 +3,16 @@ name: Build-Windows
 on:
   release:
     types:
-      - created
+      [released , prereleased]
 
 jobs:
   build-windows:
     runs-on: windows-latest
     if: |
       startsWith(github.ref, 'refs/tags/zbay')
+
+    env:
+      REACT_APP_ENABLE_SENTRY: ${{ github.event.action == 'prereleased' }}
 
     steps:
       - uses: actions/checkout@v1.0.0
@@ -56,7 +59,11 @@ jobs:
 
       - name: "Pull tor binary"
         shell: bash
-        run: curl https://zbay-binaries.s3.us-east-2.amazonaws.com/win32/tor.exe --output ./tor/tor.exe
+        run: cd packages/ZbayLite && curl https://zbay-binaries.s3.us-east-2.amazonaws.com/win32/tor.exe --output ./tor/tor.exe
+
+      - name: "Verify Sentry setup"
+        shell: bash
+        run: echo $REACT_APP_ENABLE_SENTRY
 
       - name: "Build on Windows"
         shell: bash
@@ -72,4 +79,4 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           USE_HARD_LINKS: false
-        run: electron-builder -p always --win
+        run: cd packages/ZbayLite && electron-builder -p always --win
