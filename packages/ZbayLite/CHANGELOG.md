@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [5.0.0-alpha.6](https://github.com/ZbayApp/monorepo/compare/zbay@5.0.0-alpha.5...zbay@5.0.0-alpha.6) (2021-12-29)
+
+**Note:** Version bump only for package zbay
+
+
+
+
+
 # [5.0.0-alpha.5](https://github.com/ZbayApp/monorepo/compare/zbay@5.0.0-alpha.4...zbay@5.0.0-alpha.5) (2021-12-29)
 
 **Note:** Version bump only for package zbay
