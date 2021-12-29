@@ -1,6 +1,6 @@
 {
   "name": "@zbayapp/nectar",
-  "version": "2.0.0-alpha.0",
+  "version": "2.0.0-alpha.1",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -64,7 +64,7 @@
     "redux-saga-test-plan": "^4.0.3",
     "tmp": "^0.2.1",
     "typescript": "^4.3.5",
-    "waggle": "^5.0.0-alpha.0"
+    "waggle": "^5.0.0-alpha.1"
   },
   "jest": {
     "extensionsToTreatAsEsm": [
