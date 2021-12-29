@@ -45,6 +45,9 @@ jobs:
       - name: "Pull tor binary"
         run: cd packages/ZbayLite && export SOURCE_PATH=linux && npm run pullBinaries --scope zbay && npm run pullLibs
 
+      - name: "Verify Sentry setup"
+        run: echo $REACT_APP_ENABLE_SENTRY
+
       - name: "Build on Linux"
         run: lerna run build:prod --scope zbay
 
