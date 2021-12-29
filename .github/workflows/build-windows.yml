@@ -29,7 +29,7 @@ jobs:
         uses: timheuer/base64-to-file@v1.0.3
         with:
           fileName: 'win-certificate.pfx'
-          encodedString: ${{ secrets.CSC_LINK }}
+          encodedString: ${{ secrets.WIN_CSC_LINK }}
 
       - name: "Set unsafe-perm"
         shell: bash
@@ -78,9 +78,9 @@ jobs:
       - name: "Release"
         shell: bash
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}export 
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
           CERTIFICATE_PATH: ${{ steps.write_file.outputs.filePath }}
-          WIN_CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
           WINDOWS_ALIAS: ${{ secrets.WIN_ALIAS }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
