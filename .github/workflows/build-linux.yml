@@ -52,10 +52,10 @@ jobs:
         run: lerna run build:prod --scope zbay
 
       - name: "Set electron-builder props"
-        run: |
-          echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=release.zbay.lite.test" >> $GITHUB_ENV
         if: |
           ${{ github.event.action == 'prereleased' }}
+        run: |
+          echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=release.zbay.lite.test" >> $GITHUB_ENV
 
       - name: "Release"
         env:

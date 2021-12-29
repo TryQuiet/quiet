@@ -71,10 +71,10 @@ jobs:
 
       - name: "Set electron-builder props"
         shell: bash
-        run: |
-          echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=release.zbay.lite.test" >> $GITHUB_ENV
         if: |
           ${{ github.event.action == 'prereleased' }}
+        run: |
+          echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=release.zbay.lite.test" >> $GITHUB_ENV
 
       - name: "Release"
         shell: bash
