@@ -22,7 +22,7 @@ async function registerUserTest(csr: string, httpTunnelPort: number, localhost: 
   if (!localhost) {
     options = Object.assign(options, { agent: new HttpsProxyAgent({ port: httpTunnelPort, host: 'localhost', timeout: 100000 }) })
     address = '4avghtoehep5ebjngfqk5b43jolkiyyedfcvvq4ouzdnughodzoglzad.onion'
-    return await fetch(`http://${address}:80/register`, options)
+    return await fetch(`http://${address}/register`, options)
   }
   return await fetch(`http://${address}:${registrarPort}/register`, options)
 }
@@ -173,12 +173,16 @@ describe('Registration service', () => {
     await storage.saveCertificate(userCert.userCertString, { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString })
     const saveCertificate = jest.spyOn(storage, 'saveCertificate')
     registrationService = await setupRegistrar(
-      // @ts-expect-error
-      new TorMock(),
+      null,
       storage,
       { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString }
     )
-    const response = await registerUserTest(userNew.userCsr, ports.socksPort)
+    const response = await registerUserTest(
+      userNew.userCsr,
+      ports.socksPort,
+      true,
+      registrationService.getHiddenServiceData().port
+    )
     expect(response.status).toEqual(403)
     expect(saveCertificate).not.toHaveBeenCalled()
   })
@@ -187,13 +191,17 @@ describe('Registration service', () => {
     storage = await getStorage(tmpAppDataPath)
     const saveCertificate = jest.spyOn(storage, 'saveCertificate')
     registrationService = await setupRegistrar(
-      // @ts-expect-error
-      new TorMock(),
+      null,
       storage,
       { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString }
     )
     for (const invalidCsr of ['', 'abcd']) {
-      const response = await registerUserTest(invalidCsr, ports.socksPort)
+      const response = await registerUserTest(
+        invalidCsr,
+        ports.socksPort,
+        true,
+        registrationService.getHiddenServiceData().port
+      )
       expect(response.status).toEqual(400)
     }
     expect(saveCertificate).not.toHaveBeenCalled()
@@ -202,16 +210,21 @@ describe('Registration service', () => {
   it('returns 400 if csr is lacking a field', async () => {
     storage = await getStorage(tmpAppDataPath)
     registrationService = await setupRegistrar(
-      // @ts-expect-error
-      new TorMock(),
+      null,
       storage,
       { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString }
     )
     // Csr with only commonName and nickName
     const csr = 'MIIBFTCBvAIBADAqMSgwFgYKKwYBBAGDjBsCARMIdGVzdE5hbWUwDgYDVQQDEwdaYmF5IENBMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEGPGHpJzE/CvL7l/OmTSfYQrhhnWQrYw3GgWB1raCTSeFI/MDVztkBOlxwdUWSm10+1OtKVUWeMKaMtyIYFcPPqAwMC4GCSqGSIb3DQEJDjEhMB8wHQYDVR0OBBYEFLjaEh+cnNhsi5qDsiMB/ZTzZFfqMAoGCCqGSM49BAMCA0gAMEUCIFwlob/Igab05EozU0e/lsG7c9BxEy4M4c4Jzru2vasGAiEAqFTQuQr/mVqTHO5vybWm/iNDk8vh88K6aBCCGYqIfdw='
-    const response = await registerUserTest(csr, ports.socksPort)
+    const response = await registerUserTest(
+      csr,
+      ports.socksPort,
+      true,
+      registrationService.getHiddenServiceData().port
+    )
     expect(response.status).toEqual(400)
   })
+
   it('registers owner certificate', async () => {
     const csr = await createUserCsr({
       zbayNickname: 'userName',
