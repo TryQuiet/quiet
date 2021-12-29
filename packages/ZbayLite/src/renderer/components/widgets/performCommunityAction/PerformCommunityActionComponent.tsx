@@ -131,7 +131,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
 }) => {
   const classes = useStyles({})
 
-  console.log('alpha-5')
+  console.log('alpha-6')
 
   const dictionary =
     communityAction === CommunityAction.Create
