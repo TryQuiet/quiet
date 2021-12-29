@@ -3,7 +3,7 @@ name: Build-MacOS
 on:
   release:
     types:
-      - created
+      [released , prereleased]
 
 jobs:
   build-macos:
