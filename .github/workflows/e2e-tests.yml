@@ -91,6 +91,13 @@ jobs:
       - name: Build project and run tests
         run: lerna run start:e2eWin --scope e2e-tests --stream
       
+      - name: debug
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: debug-windows-problem
+          path: packages\ZbayLite\dist
+
       - name: Archive test screenshots
         uses: actions/upload-artifact@v2
         if: always()
