@@ -1,6 +1,6 @@
 {
   "name": "@zbayapp/nectar",
-  "version": "2.0.0-alpha.1",
+  "version": "2.0.0",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -45,7 +45,7 @@
     "@types/redux-saga": "^0.10.5",
     "@typescript-eslint/eslint-plugin": "^4.29.2",
     "@typescript-eslint/parser": "^4.29.2",
-    "@zbayapp/identity": "^4.0.0-alpha.0",
+    "@zbayapp/identity": "^4.0.0",
     "babel-jest": "^27.0.6",
     "eslint": "^7.32.0",
     "eslint-config-airbnb-base": "^14.2.1",
@@ -64,7 +64,7 @@
     "redux-saga-test-plan": "^4.0.3",
     "tmp": "^0.2.1",
     "typescript": "^4.3.5",
-    "waggle": "^5.0.0-alpha.1"
+    "waggle": "^5.0.0"
   },
   "jest": {
     "extensionsToTreatAsEsm": [
