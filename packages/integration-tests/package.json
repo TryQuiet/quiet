@@ -10,6 +10,7 @@
     "build": "tsc -p tsconfig.build.json",
     "prepublish": "npm run build",
     "test-integration": "DEBUG='waggle*, nectar*' jest integrationTests/*",
+    "test-integration-ci": "jest integrationTests/*",
     "lint": "eslint --ext .ts ./src/",
     "prettier": "prettier"
   },
