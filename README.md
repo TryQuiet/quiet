@@ -18,6 +18,7 @@ After that you're free to go
 ----
 
 ## Versioning packages
+Before trying to release a new version, make sure you have GH_TOKEN env set.
 Project uses independent versioning. To create a release run:
 
 ```
