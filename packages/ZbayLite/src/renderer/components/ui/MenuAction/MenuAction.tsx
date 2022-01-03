@@ -1,4 +1,4 @@
-import React, { useState, createRef } from 'react'
+import React, { useState, useRef } from 'react'
 
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import MenuList from '@material-ui/core/MenuList'
@@ -20,9 +20,9 @@ const useStyles = makeStyles(() => ({
   button: {}
 }))
 
-const RefIconButton = React.forwardRef<HTMLButtonElement, React.PropsWithChildren<IconButtonProps>>((props, ref) => (
-  <IconButton {...props} ref={ref} />
-))
+const RefIconButton = React.forwardRef<HTMLButtonElement, React.PropsWithChildren<IconButtonProps>>(
+  (props, ref) => <IconButton {...props} ref={ref} />
+)
 
 interface MenuActionProps {
   icon: string | ExtendButtonBase<IconButtonTypeMap<{}, 'button'>>
@@ -49,16 +49,25 @@ export const MenuAction: React.FC<MenuActionProps> = ({
   const [hover, setHover] = useState(false)
   const toggleHover = () => setHover(!hover)
 
-  const anchor = createRef<HTMLButtonElement>()
+  const buttonRef = useRef(null)
 
-  const closeMenu = () => setOpen(false)
-  const toggleMenu = () => setOpen(!open)
+  const [anchorEl, setAnchorEl] = React.useState(null)
+
+  const closeMenu = () => {
+    setAnchorEl(null)
+    setOpen(false)
+  }
+
+  const toggleMenu = () => {
+    setAnchorEl(buttonRef.current)
+    setOpen(!open)
+  }
 
   return (
     <React.Fragment>
       <RefIconButton
         className={classes.button}
-        ref={anchor}
+        ref={buttonRef}
         onClick={onClick || toggleMenu}
         disabled={disabled}
         disableRipple
@@ -66,7 +75,7 @@ export const MenuAction: React.FC<MenuActionProps> = ({
         onMouseLeave={toggleHover}>
         <Icon className={classes.icon} src={hover ? iconHover : icon} />
       </RefIconButton>
-      <PopupMenu open={open} anchorEl={anchor.current} offset={offset} placement={placement}>
+      <PopupMenu open={open} anchorEl={anchorEl} offset={offset} placement={placement}>
         <ClickAwayListener onClickAway={closeMenu}>
           <MenuList className={classes.menuList}>
             {React.Children.map(children, child => React.cloneElement(child, { close: closeMenu }))}

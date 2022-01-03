@@ -1,6 +1,5 @@
 import fs from 'fs'
 import getPort from 'get-port'
-import fetch, { Response } from 'node-fetch'
 import path from 'path'
 import SocketIO from 'socket.io'
 import logger from '../logger'
@@ -73,17 +72,6 @@ export const torDirForPlatform = (basePath?: string): string => {
     torPath = path.join(basePath, 'tor')
   }
   return torPath
-}
-
-export const fetchRetry = async (address: string, options: any, retryCount: number): Promise<Response> => {
-  return await fetch(address, options).catch(async (error) => {
-    if (retryCount === 1) {
-      throw error
-    }
-    const retriesLeft = retryCount - 1
-    log(`Connecting to ${address} failed, trying again... Attempts left: ${retriesLeft}`)
-    return await fetchRetry(address, options, retriesLeft)
-  })
 }
 
 export const createLibp2pAddress = (address: string, port: number, peerId: string, wsType: 'ws' | 'wss') => {

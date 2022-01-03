@@ -129,7 +129,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               className={classes.tabs}
               textColor='inherit'
               classes={{ indicator: classes.indicator }}>
-              <Tab value='account' label='Account' classes={{ selected: classes.selected }} />
               <Tab
                 value='notifications'
                 label='Notifications'
@@ -146,7 +145,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               {isOwner && (
                 <Tab
                   value='invite'
-                  label='Invite a friend'
+                  label='Add members'
                   classes={{ selected: classes.selected }}
                 />
               )}

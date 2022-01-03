@@ -1,0 +1,66 @@
+name: Build-Linux
+
+on:
+  release:
+    types:
+      [released , prereleased]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-18.04
+    if: |
+      startsWith(github.ref, 'refs/tags/zbay')
+
+    env:
+      REACT_APP_ENABLE_SENTRY: ${{ github.event.action == 'prereleased' }}
+
+    steps:
+      - uses: actions/checkout@v1.0.0
+      - uses: actions/setup-node@master
+        with:
+          node-version: "12"
+
+      - name: "Set unsafe-perm"
+        run: npm set unsafe-perm true
+
+      - name: "Install lerna and electron-builder globally"
+        run: npm i -g lerna && npm i -g electron-builder@22.10.5
+
+      - name: "Install monorepo dependencies"
+        run: npm ci
+
+      - name: "Cache NPM dependencies"
+        uses: actions/cache@v2
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-npm-cache-
+
+      - name: "Bootstrap project"
+        run: lerna bootstrap
+
+      - name: "Pull tor binary"
+        run: cd packages/ZbayLite && export SOURCE_PATH=linux && npm run pullBinaries --scope zbay && npm run pullLibs
+
+      - name: "Verify Sentry setup"
+        run: echo $REACT_APP_ENABLE_SENTRY
+
+      - name: "Build on Linux"
+        run: lerna run build:prod --scope zbay
+
+      - name: "Set electron-builder props"
+        if: |
+          ${{ github.event.action == 'prereleased' }}
+        run: |
+          echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=release.zbay.lite.test" >> $GITHUB_ENV
+
+      - name: "Release"
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          ARCH: x86_64
+        run: cd packages/ZbayLite && electron-builder -p always --linux ${{ env.ELECTRON_BUILDER_PROPS }}

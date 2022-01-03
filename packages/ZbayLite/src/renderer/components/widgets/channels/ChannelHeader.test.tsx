@@ -54,22 +54,7 @@ describe('ChannelHeader', () => {
               >
                 <div
                   class="MuiGrid-root MuiGrid-item"
-                >
-                  <button
-                    class="MuiButtonBase-root MuiIconButton-root makeStyles-button-155"
-                    tabindex="0"
-                    type="button"
-                  >
-                    <span
-                      class="MuiIconButton-label"
-                    >
-                      <img
-                        class="makeStyles-icon-154"
-                        src="test-file-stub"
-                      />
-                    </span>
-                  </button>
-                </div>
+                />
               </div>
             </div>
           </div>

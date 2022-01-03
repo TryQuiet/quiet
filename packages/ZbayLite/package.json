@@ -56,7 +56,7 @@
     },
     "publish": {
       "provider": "s3",
-      "bucket": "release.zbay.lite.test"
+      "bucket": "release.zbay.lite.waggle"
     },
     "extraResources": [
       "worker/**/*",
@@ -66,7 +66,7 @@
   },
   "homepage": "https://gitlab.rumblefishdev.com/holmes/zbay",
   "@comment version": "To build new version for specific platform, just replace platform in version tag to one of following linux, mac, windows",
-  "version": "4.0.3",
+  "version": "5.0.0",
   "description": "Decentralized team chat",
   "main": "dist/main/main.js",
   "scripts": {
@@ -101,10 +101,10 @@
     "@babel/polyfill": "^7.2.5",
     "@babel/runtime": "^7.16.0",
     "@electron/remote": "^1.1.0",
-    "@peculiar/webcrypto": "1.2.2",
     "@material-ui/core": "^4.7.1",
     "@material-ui/icons": "^4.2.1",
     "@material-ui/lab": "^4.0.0-alpha.34",
+    "@peculiar/webcrypto": "1.2.2",
     "@redux-saga/types": "^1.1.0",
     "@reduxjs/toolkit": "^1.6.2",
     "@sentry/react": "^6.14.0",
@@ -112,8 +112,8 @@
     "@types/lodash": "^4.14.169",
     "@types/ps-node": "^0.1.0",
     "@types/redux-debounced": "^0.2.19",
-    "@zbayapp/identity": "*",
-    "@zbayapp/nectar": "*",
+    "@zbayapp/identity": "^4.0.0",
+    "@zbayapp/nectar": "^2.0.0",
     "asn1js": "^2.1.1",
     "async": "^3.1.0",
     "atob": "^2.1.2",
@@ -156,6 +156,7 @@
     "luxon": "^1.11.4",
     "material-ui-formik-components": "^0.5.2",
     "notistack": "^0.8.2",
+    "pkijs": "*",
     "prop-types": "^15.7.1",
     "protons": "^2.0.0",
     "ps-node": "^0.1.6",
@@ -198,12 +199,11 @@
     "ts-loader": "^8.3.0",
     "typed-redux-saga": "^1.3.1",
     "typeface-roboto": "0.0.54",
-    "waggle": "*",
+    "waggle": "^5.0.0",
     "websocket": "^1.0.32",
     "worker-loader": "^3.0.1",
     "ws": "^7.3.1",
-    "yup": "^0.27.0",
-    "pkijs": "*"
+    "yup": "^0.27.0"
   },
   "devDependencies": {
     "@babel/core": "^7.2.2",
