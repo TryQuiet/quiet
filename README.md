@@ -12,7 +12,7 @@ npm install
 ```
 npm install --g lerna
 lerna bootstrap
-lerna start
+lerna run start
 ```
 
 ----
