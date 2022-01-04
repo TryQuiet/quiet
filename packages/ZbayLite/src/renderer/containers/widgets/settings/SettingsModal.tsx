@@ -1,4 +1,4 @@
-import { communities } from '@zbayapp/nectar'
+import { communities, identity } from '@zbayapp/nectar'
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import SettingsModal from '../../../components/widgets/settings/SettingsModal'
@@ -10,7 +10,7 @@ import { useModal } from '../../hooks'
 const useSettingsModalData = () => {
   const data = {
     modalTabToOpen: useSelector(appSelectors.currentModalTab),
-    user: 'settingsModalUser',
+    user: useSelector(identity.selectors.currentIdentity)?.zbayNickname || 'Settings',
     isOwner: useSelector(communities.selectors.isOwner),
     blockedUsers: []
   }
@@ -23,7 +23,7 @@ const useSettingsModalActions = () => {
 }
 
 const SettingsModalContainer = () => {
-  const [currentTab, setCurrentTab] = useState('account')
+  const [currentTab, setCurrentTab] = useState('invite')
   const { modalTabToOpen, user, isOwner, blockedUsers } = useSettingsModalData()
   const { clearCurrentOpenTab } = useSettingsModalActions()
   const modal = useModal(ModalName.accountSettingsModal)

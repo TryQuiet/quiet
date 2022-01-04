@@ -1,6 +1,6 @@
 {
 	"name": "waggle",
-	"version": "4.3.15",
+	"version": "5.0.0",
 	"description": "tlg-manager",
 	"types": "lib/index.d.ts",
 	"main": "lib/index.js",
@@ -17,7 +17,7 @@
 		"test-ci": "jest ./src/**/* --runInBand --colors --ci --silent --verbose",
 		"test-connect": "DEBUG='libp2p:websockets*' jest ./src/nodeTest/* --verbose",
 		"test-connect-ci": "jest ./src/nodeTest/* --colors --ci --silent --verbose"
-	  },
+	},
 	"repository": {
 		"type": "git",
 		"url": "git+ssh://git@github.com:ZbayApp/waggle.git"
@@ -75,7 +75,7 @@
 	"dependencies": {
 		"@chainsafe/libp2p-noise": "^4.0.0",
 		"@peculiar/webcrypto": "1.2.2",
-		"@zbayapp/identity": "*",
+		"@zbayapp/identity": "^4.0.0",
 		"abortable-iterator": "^3.0.0",
 		"class-validator": "^0.13.1",
 		"cli-table": "^0.3.6",

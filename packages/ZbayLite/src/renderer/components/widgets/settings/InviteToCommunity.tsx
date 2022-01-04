@@ -97,13 +97,13 @@ export const InviteToCommunity: FC<InviteFriendProps> = ({
     <Grid container direction='column'>
       <Grid container item justify='space-between' alignItems='center' className={classes.titleDiv}>
         <Grid item className={classes.title}>
-          <Typography variant='h3'>Invite a friend</Typography>
+          <Typography variant='h3'>Add members</Typography>
         </Grid>
       </Grid>
       <Grid item>
         <Grid item>
           <Typography variant='body2'>
-          Get a link to invite friends to <span className={classes.bold}>{communityName}</span>
+          Get a link to add members to <span className={classes.bold}>{communityName}</span>
           </Typography>
         </Grid>
       </Grid>

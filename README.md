@@ -10,18 +10,28 @@ npm install
 2. Bootstrap project with lerna. It will take care of the package's dependencies and trigger prepublish script which builds them
 
 ```
+npm install --g lerna
 lerna bootstrap
+lerna run start --stream
 ```
-
-After that you're free to go
 
 ----
 
 ## Versioning packages
-Project uses independent versioning. To create a release run:
+Before trying to release a new version, make sure you have GH_TOKEN env set.
+
+Project uses independent versioning which means each package has its own version number. Only those packages in which something has changed since last release will be bumped.
+
+To create a release run:
 
 ```
-lerna version <patch|minor|major>
+lerna version <release-type>
+```
+
+To build a test version with Sentry, run:
+
+```
+lerna version prerelease
 ```
 
 ----
