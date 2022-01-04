@@ -12,35 +12,12 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-20.04]
-
+    
     steps:
       - uses: actions/checkout@v2
 
-      - uses: actions/setup-node@master
-        with:
-          node-version: "12"
-
-      - name: "Set unsafe-perm"
-        run: npm set unsafe-perm true
-
-      - name: "Install lerna globally"
-        run: npm i -g lerna
-
-      - name: "Cache NPM dependencies"
-        uses: actions/cache@v2
-        with:
-          path: |
-            node_modules
-            */*/node_modules
-          key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.OS }}-npm-cache-
-
-      - name: "Install monorepo dependencies"
-        run: npm ci
-
-      - name: "Bootstrap project"
-        run: lerna bootstrap
+      - name: "Setup environment"
+        uses: ./.github/actions/setup-env
 
       - name: run tests
         run: lerna run test-connect-ci --scope waggle --stream
@@ -54,34 +31,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@master
-        with:
-          node-version: "12"
 
-      - name: "Set unsafe-perm"
-        run: npm set unsafe-perm true
-
-      - name: "Install lerna globally"
-        run: npm i -g lerna
-
-      - name: Install ts-node globally
-        run: npm install --global ts-node
-
-      - name: "Cache NPM dependencies"
-        uses: actions/cache@v2
-        with:
-          path: |
-            node_modules
-            */*/node_modules
-          key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.OS }}-npm-cache-
-
-      - name: "Install monorepo dependencies"
-        run: npm ci
-
-      - name: "Bootstrap project"
-        run: lerna bootstrap
+      - name: "Setup environment"
+        uses: ./.github/actions/setup-env
 
       - name: run test without tor
         run: lerna run test-replication-no-tor --scope waggle --stream
