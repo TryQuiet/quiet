@@ -10,10 +10,10 @@ npm install
 2. Bootstrap project with lerna. It will take care of the package's dependencies and trigger prepublish script which builds them
 
 ```
+npm install --g lerna
 lerna bootstrap
+lerna run start
 ```
-
-After that you're free to go
 
 ----
 
