@@ -19,10 +19,10 @@ export const CreateChannel = () => {
       publicChannels.actions.addChannel({
         channel: {
           name: name,
-          description: '',
+          description: `Welcome to #${name}`,
           owner: user.zbayNickname,
           address: name,
-          timestamp: DateTime.utc().toSeconds()
+          timestamp: DateTime.utc().valueOf()
         },
         communityId: community
       })
