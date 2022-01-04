@@ -141,7 +141,7 @@ describe('Channel', () => {
     })
 
     // New message is not yet fetched from db
-    expect(screen.queryByText(bartekMessage.message.id)).toBeNull()
+    expect(screen.queryByText(bartekMessage.message.message)).toBeNull()
 
     await act(async () => {
       await runSaga(testReceiveMessage).toPromise()
