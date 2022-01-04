@@ -424,6 +424,11 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                   html={sanitizedHtml}
                   onChange={onChangeCb}
                   onKeyDown={onKeyDownCb}
+                  onPaste={(e) => {
+                    e.preventDefault()
+                    var text = e.clipboardData.getData('text/plain')
+                    setHtmlMessage(text)
+                  }}
                 />
               </Grid>
               <Grid item className={classes.actions}>
@@ -455,7 +460,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                           setMessage(message + emoji.emoji)
                           setOpenEmoji(false)
                         }}
-                        /* eslint-enable */
+                      /* eslint-enable */
                       />
                     </div>
                   </ClickAwayListener>
