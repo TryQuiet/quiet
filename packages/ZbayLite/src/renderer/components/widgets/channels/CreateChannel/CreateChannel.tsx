@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
-import { Grid, Typography, LinearProgress } from '@material-ui/core'
+import { Grid, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 
 import WarningIcon from '@material-ui/icons/Warning'
@@ -68,8 +68,12 @@ export const parseChannelName = (name = '') => {
   return name.toLowerCase().replace(/ +/g, '-')
 }
 
+const createChannelFields = {
+  channelName: channelNameField()
+}
+
 interface CreateChannelFormValues {
-  name: string
+  channelName: string
 }
 
 export interface CreateChannelProps {
@@ -85,7 +89,6 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
 }) => {
   const classes = useStyles({})
 
-  const [formSent, setFormSent] = useState(false)
   const [channelName, setChannelName] = useState('')
 
   const {
@@ -96,101 +99,74 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
     mode: 'onTouched'
   })
 
-  const onSubmit = (values: CreateChannelFormValues) =>
-    submitForm(createChannel, values, setFormSent)
+  const onSubmit = (values: CreateChannelFormValues) => submitForm(createChannel, values)
 
-  const submitForm = (
-    handleSubmit: (value: string) => void,
-    values: CreateChannelFormValues,
-    setFormSent
-  ) => {
-    setFormSent(true)
-    handleSubmit(parseChannelName(values.name))
+  const submitForm = (handleSubmit: (value: string) => void, values: CreateChannelFormValues) => {
+    handleSubmit(parseChannelName(values.channelName))
+  }
+
+  const onChange = (name: string) => {
+    const parsedName = parseChannelName(name)
+    setChannelName(parsedName)
   }
 
   return (
-    <Modal open={open} handleClose={handleClose}>
+    <Modal open={open} handleClose={handleClose} data-testid={'createChannelModal'}>
       <Grid container className={classes.main} direction='column'>
-        <>
-          {!formSent && (
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <Grid
-                container
-                justify='flex-start'
-                direction='column'
-                className={classes.fullContainer}>
-                <Typography variant='h3' className={classes.title}>
-                  Create a new public channel
-                </Typography>
-                <Typography variant='body2'>Channel name</Typography>
-                <Controller
-                  control={control}
-                  rules={channelNameField().validation}
-                  name={'channelName'}
-                  render={({ field }) => (
-                    <TextInput
-                      {...channelNameField().fieldProps}
-                      fullWidth
-                      classes={''}
-                      variant='outlined'
-                      name='name'
-                      placeholder={'Enter a channel name'}
-                      errors={errors}
-                      onchange={e => {
-                        setChannelName(parseChannelName(e.target.value))
-                        field.onChange()
-                      }}
-                      onblur={field.onBlur}
-                      value={field.value}
-                    />
-                  )}
-                />
-                <div className={classes.gutter}>
-                  {channelName.length > 0 && (
-                    <Grid container alignItems='center' direction='row'>
-                      <Grid item className={classes.iconDiv}>
-                        <WarningIcon className={classes.warrningIcon} />
-                      </Grid>
-                      <Grid item xs>
-                        <Typography variant='body2' className={classes.warrningMessage}>
-                          Your channel will be created as <b>{`#${channelName}`}</b>
-                        </Typography>
-                      </Grid>
-                    </Grid>
-                  )}
-                </div>
-                <LoadingButton
-                  variant='contained'
-                  color='primary'
-                  inProgress={false}
-                  type='submit'
-                  text='Create Channel'
-                  classes={{ button: classes.button }}
-                />
-              </Grid>
-            </form>
-          )}
-          {formSent && (
-            <Grid container alignItems='center' justify='center'>
-              <Grid item>
-                <Typography variant='h3'>Creating Channel</Typography>
-              </Grid>
-              <Grid item container justify='center' alignItems='center'>
-                <LinearProgress
-                  classes={{
-                    root: classes.rootBar,
-                    barColorPrimary: classes.progressBar
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Grid container justify='flex-start' direction='column' className={classes.fullContainer}>
+            <Typography variant='h3' className={classes.title}>
+              Create a new public channel
+            </Typography>
+            <Typography variant='body2'>Channel name</Typography>
+            <Controller
+              control={control}
+              defaultValue={''}
+              rules={createChannelFields.channelName.validation}
+              name={'channelName'}
+              render={({ field }) => (
+                <TextInput
+                  {...createChannelFields.channelName.fieldProps}
+                  fullWidth
+                  classes={''}
+                  variant='outlined'
+                  placeholder={'Enter a channel name'}
+                  errors={errors}
+                  onchange={event => {
+                    event.persist()
+                    onChange(event.target.value)
+                    field.onChange(event.target.value)
                   }}
+                  onblur={field.onBlur}
+                  value={field.value}
+                  data-testid={'createChannelInput'}
                 />
-              </Grid>
-              <Grid item>
-                <Typography variant='body1' className={classes.info}>
-                  Generating keys
-                </Typography>
-              </Grid>
-            </Grid>
-          )}
-        </>
+              )}
+            />
+            <div className={classes.gutter}>
+              {!errors.channelName && channelName.length > 0 && (
+                <Grid container alignItems='center' direction='row'>
+                  <Grid item className={classes.iconDiv}>
+                    <WarningIcon className={classes.warrningIcon} />
+                  </Grid>
+                  <Grid item xs>
+                    <Typography variant='body2' className={classes.warrningMessage}>
+                      Your channel will be created as <b>{`#${channelName}`}</b>
+                    </Typography>
+                  </Grid>
+                </Grid>
+              )}
+            </div>
+            <LoadingButton
+              variant='contained'
+              color='primary'
+              inProgress={false}
+              type='submit'
+              text='Create Channel'
+              classes={{ button: classes.button }}
+            />
+          </Grid>
+        </form>
       </Grid>
     </Modal>
   )

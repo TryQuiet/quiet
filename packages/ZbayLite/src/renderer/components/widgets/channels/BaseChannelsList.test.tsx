@@ -8,21 +8,14 @@ describe('BaseChannelsList', () => {
     const channels = [
       {
         name: 'name',
-        description: 'super channel',
+        description: '',
         owner: 'holmes',
         timestamp: 1243545,
-        address: 'us'
+        address: 'name'
       }
     ]
 
-    const directMessages = false
-    const result = renderComponent(
-      <BaseChannelsList
-        channels={channels}
-        directMessages={directMessages}
-        selected={'selectedChannel'}
-      />
-    )
+    const result = renderComponent(<BaseChannelsList channels={channels} />)
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>

@@ -22,14 +22,27 @@ export const CreateChannel = () => {
           description: '',
           owner: user.zbayNickname,
           address: name,
-          timestamp: new DateTime().valueOf()
+          timestamp: DateTime.utc().toSeconds()
         },
         communityId: community
       })
     )
+    dispatch(
+      publicChannels.actions.setCurrentChannel({
+        channel: name,
+        communityId: community
+      })
+    )
+    createChannelModal.handleClose()
   }
 
-  return <CreateChannelComponent {...createChannelModal} createChannel={createChannel} />
+  return (
+    <>
+      {community && (
+        <CreateChannelComponent {...createChannelModal} createChannel={createChannel} />
+      )}
+    </>
+  )
 }
 
 export default CreateChannel
