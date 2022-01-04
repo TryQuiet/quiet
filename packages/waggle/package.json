@@ -13,10 +13,12 @@
 		"postinstall": "rm -rf node_modules/ipfs-core-types/src",
 		"postversion": "git push && git push --tags",
 		"lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
-		"test": "DEBUG=ipfs:*,waggle:* jest ./src/**/* --runInBand --verbose --testPathIgnorePatterns='.src/(!?nodeTest*)|(.node_modules*)'",
-		"test-ci": "jest ./src/**/* --runInBand --colors --ci --silent --verbose",
+		"test": "cross-env DEBUG=ipfs:*,waggle:* jest ./src/**/* --runInBand --verbose --testPathIgnorePatterns=\".src/(!?nodeTest*)|(.node_modules*)\"",
+		"test-ci": "jest ./src/**/* --runInBand --colors --ci --silent --verbose --testPathIgnorePatterns=\".src/(!?nodeTest*)|(.node_modules*)\"",
 		"test-connect": "DEBUG='libp2p:websockets*' jest ./src/nodeTest/* --verbose",
-		"test-connect-ci": "jest ./src/nodeTest/* --colors --ci --silent --verbose"
+		"test-connect-ci": "jest ./src/nodeTest/* --colors --ci --silent --verbose",
+		"test-replication-no-tor": "cross-env DEBUG='waggle:dbSnap*,waggle:localTest*' ts-node src/nodeTest/testReplicate.ts --nodesCount 1 --timeThreshold 200 --entriesCount 1000 --no-useTor",
+		"test-replication-tor": "cross-env DEBUG='waggle:dbSnap*,waggle:localTest*' ts-node src/nodeTest/testReplicate.ts --nodesCount 1 --timeThreshold 500 --entriesCount 1000 --useTor"
 	},
 	"repository": {
 		"type": "git",
@@ -55,6 +57,7 @@
 		"@types/validator": "^13.1.4",
 		"@typescript-eslint/eslint-plugin": "^4.22.0",
 		"babel-jest": "^26.6.3",
+		"cross-env": "^5.2.0",
 		"eslint": "7.26.0",
 		"eslint-config-standard": "^16.0.2",
 		"eslint-config-standard-with-typescript": "^20.0.0",

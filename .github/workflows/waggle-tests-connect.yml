@@ -1,4 +1,4 @@
-name: Waggle tests
+name: Node connections test
 
 on:
   pull_request:
@@ -6,33 +6,18 @@ on:
       - packages/waggle/**
 
 jobs:
-  unit-tests:
+  test-connect:
     runs-on: ${{ matrix.os }}
-
     strategy:
       matrix:
-        os: [ubuntu-20.04, macos-latest, windows-latest]
+        os: [ubuntu-20.04]
 
     steps:
-      - name: "Print OS"
-        run: echo ${{ matrix.os }}
+      - uses: actions/checkout@v2
 
-      - uses: actions/checkout@v1.0.0
       - uses: actions/setup-node@master
         with:
           node-version: "12"
-
-      - name: "Patch node gyp on windows to support Visual Studio 2019"
-        if: ${{ matrix.os == 'windows-latest' }}
-        shell: powershell
-        run: |
-          npm install --global node-gyp@latest
-          npm prefix -g | % {npm config set node_gyp "$_\node_modules\node-gyp\bin\node-gyp.js"}
-          npm config set msvs_version 2019
-
-      - name: "Get extra dependencies"
-        if: ${{ matrix.os == 'windows-latest' }}
-        run: npm install -g windows-build-tools@4.0.0
 
       - name: "Set unsafe-perm"
         run: npm set unsafe-perm true
@@ -56,5 +41,5 @@ jobs:
       - name: "Bootstrap project"
         run: lerna bootstrap
 
-      - name: "Unit tests"
-        run: lerna run test --scope waggle --stream
+      - name: run tests
+        run: lerna run test-connect-ci --scope waggle --stream
