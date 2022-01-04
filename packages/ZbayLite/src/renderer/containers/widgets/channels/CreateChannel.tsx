@@ -16,7 +16,7 @@ export const CreateChannel = () => {
 
   const createChannel = (name: string) => {
     dispatch(
-      publicChannels.actions.addChannel({
+      publicChannels.actions.createChannel({
         channel: {
           name: name,
           description: `Welcome to #${name}`,

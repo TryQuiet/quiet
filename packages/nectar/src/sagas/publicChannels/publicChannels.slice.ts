@@ -81,13 +81,7 @@ export const publicChannelsSlice = createSlice({
   },
   name: StoreKeys.PublicChannels,
   reducers: {
-    createChannel: (state, action: PayloadAction<CreateChannelPayload>) => {
-      const { channel, communityId } = action.payload
-      publicChannelsAdapter.addOne(
-        state.channels.entities[communityId].channels,
-        channel
-      )
-    },
+    createChannel: (state, _action: PayloadAction<CreateChannelPayload>) => state,
     addChannel: (state, action: PayloadAction<CreateChannelPayload>) => {
       const { channel, communityId } = action.payload
       publicChannelsAdapter.addOne(
