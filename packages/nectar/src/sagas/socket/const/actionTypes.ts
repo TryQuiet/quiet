@@ -14,6 +14,7 @@ export type ActionFromMapping<Actions> = Actions[Keys<Actions>]
 export enum SocketActionTypes {
   CONNECT_TO_WEBSOCKET_SERVER = 'connectToWebsocketServer',
   GET_PUBLIC_CHANNELS = 'getPublicChannels',
+  CREATED_CHANNEL = 'createdChannel',
   RESPONSE_GET_PUBLIC_CHANNELS = 'responseGetPublicChannels',
   REQUEST_PEER_ID = 'requestPeerId',
   SEND_PEER_ID = 'sendPeerId',

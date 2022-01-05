@@ -4,7 +4,7 @@ import { EventTypesResponse } from '../constantsReponse'
 import SocketIO from 'socket.io'
 
 export const message = (socket: SocketIO.Server, message) => {
-  console.log('emitting message to zbay')
+  console.log('Emitting message to zbay')
   socket.emit(EventTypesServer.MESSAGE, message)
 }
 

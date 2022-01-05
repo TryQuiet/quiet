@@ -20,9 +20,6 @@ export const connections = (io, ioProxy: IOProxy) => {
         await ioProxy.sendMessage(peerId, channelAddress, message)
       }
     )
-    socket.on(EventTypesServer.GET_PUBLIC_CHANNELS, async (peerId: string) => {
-      await ioProxy.updateChannels(peerId)
-    })
     socket.on(EventTypesServer.FETCH_ALL_MESSAGES, async (peerId: string, channelAddress: string) => {
       await ioProxy.loadAllMessages(peerId, channelAddress)
     })

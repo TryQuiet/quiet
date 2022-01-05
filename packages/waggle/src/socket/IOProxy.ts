@@ -44,12 +44,7 @@ export default class IOProxy {
 
   public subscribeForTopic = async (peerId: string, channelData: IChannelInfo) => {
     log(`${peerId} is subscribing for channel ${channelData.address}`)
-    await this.getStorage(peerId).subscribeForChannel(channelData.address, channelData)
-  }
-
-  public updateChannels = async (peerId: string) => {
-    const channels = await this.getStorage(peerId).updateChannels()
-    this.io.emit(EventTypesResponse.RESPONSE_GET_PUBLIC_CHANNELS, channels)
+    await this.getStorage(peerId).subscribeForChannel(channelData)
   }
 
   public askForMessages = async (

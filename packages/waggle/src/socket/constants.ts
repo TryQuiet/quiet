@@ -9,6 +9,7 @@ export enum EventTypesServer {
   SUBSCRIBE_FOR_TOPIC = 'subscribeForTopic',
   ADD_TOR_SERVICE = 'addTorService',
   REMOVE_TOR_SERVICE = 'removeTorService',
+  CREATED_CHANNEL = 'createdChannel',
   GET_PUBLIC_CHANNELS = 'getPublicChannels',
   INITIALIZE_CONVERSATION = 'initializeConversation',
   GET_AVAILABLE_USERS = 'getAvailableUsers',

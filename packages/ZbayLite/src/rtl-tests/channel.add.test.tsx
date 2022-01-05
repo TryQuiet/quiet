@@ -63,8 +63,6 @@ describe('Add new channel', () => {
   })
 
   it('Adds new channel and opens it', async () => {
-    let addChannelAction: ReturnType<typeof publicChannels.actions.addChannel>
-
     const { store, runSaga } = await prepareStore(
       {
         [StoreKeys.Modals]: {
@@ -87,7 +85,11 @@ describe('Add new channel', () => {
         if (action === SocketActionTypes.SUBSCRIBE_FOR_TOPIC) {
           const data = input as socketEventData<[string, PublicChannel]>
           expect(data[0]).toEqual(holmes.peerId.id)
-          expect(data[1]).toEqual(addChannelAction.payload.channel)
+          expect(data[1].name).toEqual('my-super-channel')
+          return socket.socketClient.emit(SocketActionTypes.CREATED_CHANNEL, {
+            channel: data[1],
+            communityId: holmes.id // Identity id is the same as community id
+          })
         }
       })
 
@@ -114,14 +116,17 @@ describe('Add new channel', () => {
     })
 
     function* testCreateChannelSaga(): Generator {
-      addChannelAction = yield* take(publicChannels.actions.addChannel)
-      expect(addChannelAction.payload.channel.name).toEqual('my-super-channel')
-      expect(addChannelAction.payload.channel.owner).toEqual(holmes.zbayNickname)
+      const createChannelAction = yield* take(publicChannels.actions.createChannel)
+      expect(createChannelAction.payload.channel.name).toEqual('my-super-channel')
+      expect(createChannelAction.payload.channel.owner).toEqual(holmes.zbayNickname)
+      const addChannelAction = yield* take(publicChannels.actions.addChannel)
+      expect(addChannelAction.payload.channel).toEqual(createChannelAction.payload.channel)
     }
 
     const createChannelModal = screen.queryByTestId('createChannelModal')
     expect(createChannelModal).toBeNull()
 
+    // Check if newly created channel is present and selected
     const channelTitle = screen.getByTestId('channelTitle')
     expect(channelTitle).toHaveTextContent('#my-super-channel')
   })

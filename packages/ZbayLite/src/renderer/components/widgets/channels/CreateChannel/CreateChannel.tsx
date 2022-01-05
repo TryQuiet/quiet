@@ -94,12 +94,16 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   const {
     handleSubmit,
     formState: { errors },
-    control
+    control,
+    reset
   } = useForm<{ channelName: string }>({
     mode: 'onTouched'
   })
 
-  const onSubmit = (values: CreateChannelFormValues) => submitForm(createChannel, values)
+  const onSubmit = (values: CreateChannelFormValues) => {
+    submitForm(createChannel, values)
+    reset()
+  }
 
   const submitForm = (handleSubmit: (value: string) => void, values: CreateChannelFormValues) => {
     handleSubmit(parseChannelName(values.channelName))

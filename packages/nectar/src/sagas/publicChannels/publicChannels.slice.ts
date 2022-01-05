@@ -29,6 +29,11 @@ export interface GetPublicChannelsResponse {
   }
 }
 
+export interface CreatedChannelResponse {
+  channel: PublicChannel
+  communityId: string
+}
+
 export interface ChannelMessagesIdsResponse {
   ids: string[]
   communityId: string
@@ -102,7 +107,6 @@ export const publicChannelsSlice = createSlice({
       }
       communityChannelsAdapter.addOne(state.channels, communityChannels)
     },
-    getPublicChannels: (state) => state,
     responseGetPublicChannels: (
       state,
       action: PayloadAction<GetPublicChannelsResponse>
@@ -113,7 +117,7 @@ export const publicChannelsSlice = createSlice({
           channels
         )}] for community ${communityId}`
       )
-      publicChannelsAdapter.setAll(
+      publicChannelsAdapter.upsertMany(
         state.channels.entities[communityId].channels,
         channels
       )

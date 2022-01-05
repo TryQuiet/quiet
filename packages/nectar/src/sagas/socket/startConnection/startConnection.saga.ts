@@ -9,7 +9,8 @@ import {
   OnMessagePostedResponse,
   publicChannelsActions,
   ChannelMessagesIdsResponse,
-  AskForMessagesResponse
+  AskForMessagesResponse,
+  CreatedChannelResponse
 } from '../../publicChannels/publicChannels.slice'
 import { publicChannelsMasterSaga } from '../../publicChannels/publicChannels.master.saga'
 import { ErrorPayload, errorsActions } from '../../errors/errors.slice'
@@ -30,11 +31,13 @@ import {
 } from '../../communities/communities.slice'
 import { appMasterSaga } from '../../app/app.master.saga'
 import { connectionActions } from '../../appConnection/connection.slice'
+
 const log = logger('socket')
 
 export function subscribe(socket: Socket) {
   return eventChannel<
   | ReturnType<typeof publicChannelsActions.responseGetPublicChannels>
+  | ReturnType<typeof publicChannelsActions.addChannel>
   | ReturnType<typeof publicChannelsActions.responseSendMessagesIds>
   | ReturnType<typeof publicChannelsActions.responseAskForMessages>
   | ReturnType<typeof publicChannelsActions.onMessagePosted>
@@ -51,6 +54,12 @@ export function subscribe(socket: Socket) {
       (payload: GetPublicChannelsResponse) => {
         emit(publicChannelsActions.responseGetPublicChannels(payload))
         emit(publicChannelsActions.subscribeForAllTopics(payload.communityId))
+      }
+    )
+    socket.on(
+      SocketActionTypes.CREATED_CHANNEL,
+      (payload: CreatedChannelResponse) => {
+        emit(publicChannelsActions.addChannel(payload))
       }
     )
     socket.on(
