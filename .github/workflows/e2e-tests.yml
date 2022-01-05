@@ -13,31 +13,13 @@ jobs:
     env:
       DISPLAY: ":99.0"
     steps:
-      - uses: actions/checkout@v1.0.0
-      - uses: actions/setup-node@master
-        with:
-          node-version: "12"
+      - uses: actions/checkout@v2
+
       - name: Install WM
         run: sudo apt install fluxbox
 
-      - name: "Install lerna globally"
-        run: npm i -g lerna
-      
-      - name: "Cache NPM dependencies"
-        uses: actions/cache@v2
-        with:
-          path: |
-            node_modules
-            */*/node_modules
-          key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.OS }}-npm-cache-
-      
-      - name: "Install monorepo dependencies"
-        run: npm ci
-
-      - name: "Bootstrap project"
-        run: lerna bootstrap
+      - name: "Setup environment"
+        uses: ./.github/actions/setup-env
 
       - name: Run X11
         run: |
@@ -59,34 +41,10 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v1.0.0
+      - uses: actions/checkout@v2
 
-      # https://stackoverflow.com/questions/46232906/git-clone-error-rpc-failed-curl-56-openssl-ssl-read-ssl-error-syscall-errno
-      - name: Increase git postBuffer size
-        run: git config http.postBuffer 524288000
-
-      - uses: actions/setup-node@master
-        with:
-          node-version: "12"
-      
-      - name: "Install lerna globally"
-        run: npm i -g lerna
-      
-      - name: "Cache NPM dependencies"
-        uses: actions/cache@v2
-        with:
-          path: |
-            node_modules
-            */*/node_modules
-          key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.OS }}-npm-cache-
-      
-      - name: "Install monorepo dependencies"
-        run: npm ci
-
-      - name: "Bootstrap project"
-        run: lerna bootstrap
+      - name: "Setup environment"
+        uses: ./.github/actions/setup-env
 
       - name: Build project and run tests
         run: lerna run start:e2eWin --scope e2e-tests --stream

@@ -6,6 +6,12 @@ runs:
     - uses: actions/setup-node@master
       with:
         node-version: "12"
+    
+    # https://stackoverflow.com/questions/46232906/git-clone-error-rpc-failed-curl-56-openssl-ssl-read-ssl-error-syscall-errno
+    - name: 'Increase git postBuffer size'
+      if: ${{ matrix.os == 'windows-latest' }}
+      run: git config --global http.postBuffer 524288000
+      shell: bash
 
     - name: "Patch node gyp on windows to support Visual Studio 2019"
       if: ${{ matrix.os == 'windows-latest' }}
@@ -29,6 +35,7 @@ runs:
       shell: bash
 
     - name: "Cache NPM dependencies"
+      id: cache-nodemodules
       uses: actions/cache@v2
       with:
         path: |
@@ -39,6 +46,7 @@ runs:
           ${{ runner.OS }}-npm-cache-
 
     - name: "Install monorepo dependencies"
+      if: steps.cache-nodemodules.outputs.cache-hit != 'true'
       run: npm ci
       shell: bash
 
