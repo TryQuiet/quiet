@@ -23,7 +23,7 @@ describe('Switch channels', () => {
   })
 
   it('Opens another channel', async () => {
-    const { store, runSaga } = await prepareStore(
+    const { store } = await prepareStore(
       {},
       socket // Fork Nectar's sagas
     )
@@ -31,15 +31,15 @@ describe('Switch channels', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-      ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     const holmes = await factory.create<
-      ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, zbayNickname: 'holmes' })
 
     const generalChannelMessage = await factory.create<
-      ReturnType<typeof publicChannels.actions.signMessage>['payload']
+    ReturnType<typeof publicChannels.actions.signMessage>['payload']
     >('SignedMessage', { identity: holmes })
 
     await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
