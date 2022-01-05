@@ -35,6 +35,9 @@ jobs:
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
 
+      - name: Install ts-node globally
+        run: npm install --global ts-node
+
       - name: run test without tor
         run: lerna run test-replication-no-tor --scope waggle --stream
 
