@@ -1,0 +1,99 @@
+name: End to end tests
+
+on:
+  pull_request:
+    paths:
+      - packages/e2e-tests/**
+
+# "macos-latest" UnableToAccessScreenRecordingAPIError: The find-window process cannot access the Screen Recording API. https://github.com/DevExpress/testcafe/issues/5352
+jobs:
+  e2e-linux:
+    runs-on: ubuntu-20.04
+    timeout-minutes: 20
+    env:
+      DISPLAY: ":99.0"
+    steps:
+      - uses: actions/checkout@v1.0.0
+      - uses: actions/setup-node@master
+        with:
+          node-version: "12"
+      - name: Install WM
+        run: sudo apt install fluxbox
+
+      - name: "Install lerna globally"
+        run: npm i -g lerna
+      
+      - name: "Cache NPM dependencies"
+        uses: actions/cache@v2
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-npm-cache-
+      
+      - name: "Install monorepo dependencies"
+        run: npm ci
+
+      - name: "Bootstrap project"
+        run: lerna bootstrap
+
+      - name: Run X11
+        run: |
+          Xvfb :99 -screen 0 1920x1080x24 &
+          sleep 3
+          fluxbox &
+
+      - name: Run tests
+        run: lerna run start:e2e --scope e2e-tests --stream
+      
+      - name: Archive test screenshots
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: test-screenshots-linux
+          path: packages/e2e-tests/screenshots
+
+  e2e-windows:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v1.0.0
+
+      # https://stackoverflow.com/questions/46232906/git-clone-error-rpc-failed-curl-56-openssl-ssl-read-ssl-error-syscall-errno
+      - name: Increase git postBuffer size
+        run: git config http.postBuffer 524288000
+
+      - uses: actions/setup-node@master
+        with:
+          node-version: "12"
+      
+      - name: "Install lerna globally"
+        run: npm i -g lerna
+      
+      - name: "Cache NPM dependencies"
+        uses: actions/cache@v2
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-npm-cache-
+      
+      - name: "Install monorepo dependencies"
+        run: npm ci
+
+      - name: "Bootstrap project"
+        run: lerna bootstrap
+
+      - name: Build project and run tests
+        run: lerna run start:e2eWin --scope e2e-tests --stream
+
+      - name: Archive test screenshots
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: test-screenshots-windows
+          path: packages\e2e-tests\screenshots
