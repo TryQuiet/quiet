@@ -45,6 +45,7 @@ describe('BaseChannelsList', () => {
                     >
                       <p
                         class="MuiTypography-root makeStyles-title-8 MuiTypography-body2"
+                        data-testid="name-link"
                       >
                         # name
                       </p>
