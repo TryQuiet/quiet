@@ -1,69 +1,13 @@
-import { createRootCA, RootCA, createUserCert, createUserCsr, verifyUserCert, configCrypto } from '@zbayapp/identity'
-import { HttpsProxyAgent } from 'https-proxy-agent'
-import { CertificateRegistration } from '.'
-import { Time } from 'pkijs'
-import { createLibp2p, createTmpDir, spawnTorProcess, TmpDir, tmpZbayDirPath, TorMock, dataFromRootPems } from '../common/testUtils'
-import { DummyIOServer, getPorts, Ports } from '../common/utils'
-import fetch, { Response } from 'node-fetch'
-import { Tor } from '../torManager'
-import { Storage } from '../storage'
-import PeerId from 'peer-id'
-import { DataFromPems } from '../common/types'
+import { configCrypto, createRootCA, createUserCert, createUserCsr, RootCA, verifyUserCert } from '@zbayapp/identity'
 import getPort from 'get-port'
-jest.setTimeout(140_000)
+import { Time } from 'pkijs'
+import { CertificateRegistration } from '.'
+import { createTmpDir, dataFromRootPems, spawnTorProcess, TmpDir, tmpZbayDirPath, TorMock } from '../common/testUtils'
+import { getPorts, Ports } from '../common/utils'
+import { Storage } from '../storage'
+import { Tor } from '../torManager'
+import { getStorage, registerUserTest, setupRegistrar } from './testUtils'
 
-async function registerUserTest(csr: string, httpTunnelPort: number, localhost: boolean = true, registrarPort: number = 7789): Promise<Response> {
-  let address = '127.0.0.1'
-  let options = {
-    method: 'POST',
-    body: JSON.stringify({ data: csr }),
-    headers: { 'Content-Type': 'application/json' }
-  }
-  if (!localhost) {
-    options = Object.assign(options, { agent: new HttpsProxyAgent({ port: httpTunnelPort, host: 'localhost', timeout: 100000 }) })
-    address = '4avghtoehep5ebjngfqk5b43jolkiyyedfcvvq4ouzdnughodzoglzad.onion'
-    return await fetch(`http://${address}/register`, options)
-  }
-  return await fetch(`http://${address}:${registrarPort}/register`, options)
-}
-
-async function setupRegistrar(tor: Tor, storage: Storage, dataFromPems: DataFromPems, hiddenServiceKey?: string, port?: number) {
-  const certRegister = new CertificateRegistration(
-    tor,
-    storage,
-    dataFromPems,
-    hiddenServiceKey,
-    port
-  )
-  try {
-    await certRegister.init()
-  } catch (err) {
-    console.error(`Couldn't initialize certificate registration service: ${err as string}`)
-    return
-  }
-  try {
-    await certRegister.listen()
-  } catch (err) {
-    console.error(`Certificate registration service couldn't start listening: ${err as string}`)
-  }
-  return certRegister
-}
-
-const getStorage = async (zbayDir: string) => {
-  const peerId = await PeerId.create()
-  const storage = new Storage(
-    zbayDir,
-    new DummyIOServer(),
-    'communityid',
-    {
-      ...{},
-      orbitDbDir: `OrbitDB${peerId.toB58String()}`,
-      ipfsDir: `Ipfs${peerId.toB58String()}`
-    }
-  )
-  await storage.init(await createLibp2p(peerId), peerId)
-  return storage
-}
 
 describe('Registration service', () => {
   let tmpDir: TmpDir
@@ -94,34 +38,6 @@ describe('Registration service', () => {
     storage && await storage.stopOrbitDb()
     registrationService && await registrationService.stop()
     tmpDir.removeCallback()
-  })
-
-  it('generates and saves certificate for a new user using tor', async () => {
-    const user = await createUserCsr({
-      zbayNickname: 'userName',
-      commonName: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
-      peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
-      dmPublicKey: 'testdmPublicKey',
-      signAlg: configCrypto.signAlg,
-      hashAlg: configCrypto.hashAlg
-    })
-    storage = await getStorage(tmpAppDataPath)
-    const registrarPort = await getPort()
-    const saveCertificate = jest.spyOn(storage, 'saveCertificate')
-    tor = await spawnTorProcess(tmpAppDataPath, ports)
-    await tor.init()
-    registrationService = await setupRegistrar(
-      tor,
-      storage,
-      { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString },
-      testHiddenService,
-      registrarPort
-    )
-    const response = await registerUserTest(user.userCsr, ports.httpTunnelPort, false, registrarPort)
-    const responseData = await response.json()
-    expect(saveCertificate).toBeCalledTimes(1)
-    const isProperUserCert = await verifyUserCert(certRoot.rootCertString, responseData.certificate)
-    expect(isProperUserCert.result).toBe(true)
   })
 
   it('generates and saves certificate for a new user', async () => {
