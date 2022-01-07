@@ -59,5 +59,4 @@ describe('Connections manager (using tor)', () => {
     expect(await spyOnDestroyHiddenService.mock.results[0].value).toBeTruthy()
     await connectionsManager.tor.kill()
   })
-
 })

@@ -4,36 +4,26 @@ import { CertificateRegistration } from '.'
 import { createTmpDir, dataFromRootPems, TmpDir, tmpZbayDirPath, TorMock } from '../common/testUtils'
 import { getPorts, Ports } from '../common/utils'
 import { Storage } from '../storage'
-import { Tor } from '../torManager'
 import { getStorage, registerUser, setupRegistrar } from './testUtils'
-
 
 describe('Registration service', () => {
   let tmpDir: TmpDir
   let tmpAppDataPath: string
-  let tor: Tor
   let registrationService: CertificateRegistration
   let storage: Storage
   let certRoot: RootCA
-  let testHiddenService: string
   let ports: Ports
-
-  beforeAll(() => {
-    testHiddenService = 'ED25519-V3:iEp140DpauUp45TBx/IdjDm3/kinRPjwmsrXaGC9j39zhFsjI3MHdaiuIHJf3GiivF+hAi/5SUzYq4SzvbKzWQ=='
-  })
 
   beforeEach(async () => {
     jest.clearAllMocks()
     tmpDir = createTmpDir()
     tmpAppDataPath = tmpZbayDirPath(tmpDir.name)
-    tor = null
     registrationService = null
     certRoot = await createRootCA(new Time({ type: 1, value: new Date() }), new Time({ type: 1, value: new Date(2030, 1, 1) }), 'testRootCA')
     ports = await getPorts()
   })
 
   afterEach(async () => {
-    tor && await tor.kill()
     storage && await storage.stopOrbitDb()
     registrationService && await registrationService.stop()
     tmpDir.removeCallback()

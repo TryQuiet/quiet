@@ -9,7 +9,6 @@ import { Tor } from '../torManager'
 import { getStorage, registerUser, setupRegistrar } from './testUtils'
 jest.setTimeout(140_000)
 
-
 describe('Registration service (using tor)', () => {
   let tmpDir: TmpDir
   let tmpAppDataPath: string
