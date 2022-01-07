@@ -8,7 +8,7 @@ import { DummyIOServer } from '../common/utils'
 import { Storage } from '../storage'
 import { Tor } from '../torManager'
 
-export async function registerUserTest(csr: string, httpTunnelPort: number, localhost: boolean = true, registrarPort: number = 7789): Promise<Response> {
+export async function registerUser(csr: string, httpTunnelPort: number, localhost: boolean = true, registrarPort: number = 7789): Promise<Response> {
   let address = '127.0.0.1'
   let options = {
     method: 'POST',

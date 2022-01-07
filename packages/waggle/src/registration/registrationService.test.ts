@@ -1,12 +1,11 @@
 import { configCrypto, createRootCA, createUserCert, createUserCsr, RootCA, verifyUserCert } from '@zbayapp/identity'
-import getPort from 'get-port'
 import { Time } from 'pkijs'
 import { CertificateRegistration } from '.'
-import { createTmpDir, dataFromRootPems, spawnTorProcess, TmpDir, tmpZbayDirPath, TorMock } from '../common/testUtils'
+import { createTmpDir, dataFromRootPems, TmpDir, tmpZbayDirPath, TorMock } from '../common/testUtils'
 import { getPorts, Ports } from '../common/utils'
 import { Storage } from '../storage'
 import { Tor } from '../torManager'
-import { getStorage, registerUserTest, setupRegistrar } from './testUtils'
+import { getStorage, registerUser, setupRegistrar } from './testUtils'
 
 
 describe('Registration service', () => {
@@ -57,7 +56,7 @@ describe('Registration service', () => {
       { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString }
     )
     const saveCertificate = jest.spyOn(storage, 'saveCertificate')
-    const response = await registerUserTest(user.userCsr, ports.socksPort)
+    const response = await registerUser(user.userCsr, ports.socksPort)
     const responseData = await response.json()
     console.log(responseData)
     expect(saveCertificate).toBeCalledTimes(1)
@@ -93,7 +92,7 @@ describe('Registration service', () => {
       storage,
       { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString }
     )
-    const response = await registerUserTest(
+    const response = await registerUser(
       userNew.userCsr,
       ports.socksPort,
       true,
@@ -112,7 +111,7 @@ describe('Registration service', () => {
       { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString }
     )
     for (const invalidCsr of ['', 'abcd']) {
-      const response = await registerUserTest(
+      const response = await registerUser(
         invalidCsr,
         ports.socksPort,
         true,
@@ -132,7 +131,7 @@ describe('Registration service', () => {
     )
     // Csr with only commonName and nickName
     const csr = 'MIIBFTCBvAIBADAqMSgwFgYKKwYBBAGDjBsCARMIdGVzdE5hbWUwDgYDVQQDEwdaYmF5IENBMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEGPGHpJzE/CvL7l/OmTSfYQrhhnWQrYw3GgWB1raCTSeFI/MDVztkBOlxwdUWSm10+1OtKVUWeMKaMtyIYFcPPqAwMC4GCSqGSIb3DQEJDjEhMB8wHQYDVR0OBBYEFLjaEh+cnNhsi5qDsiMB/ZTzZFfqMAoGCCqGSM49BAMCA0gAMEUCIFwlob/Igab05EozU0e/lsG7c9BxEy4M4c4Jzru2vasGAiEAqFTQuQr/mVqTHO5vybWm/iNDk8vh88K6aBCCGYqIfdw='
-    const response = await registerUserTest(
+    const response = await registerUser(
       csr,
       ports.socksPort,
       true,

@@ -6,7 +6,7 @@ import { createTmpDir, spawnTorProcess, TmpDir, tmpZbayDirPath } from '../common
 import { getPorts, Ports } from '../common/utils'
 import { Storage } from '../storage'
 import { Tor } from '../torManager'
-import { getStorage, registerUserTest, setupRegistrar } from './testUtils'
+import { getStorage, registerUser, setupRegistrar } from './testUtils'
 jest.setTimeout(140_000)
 
 
@@ -62,7 +62,7 @@ describe('Registration service (using tor)', () => {
       testHiddenService,
       registrarPort
     )
-    const response = await registerUserTest(user.userCsr, ports.httpTunnelPort, false, registrarPort)
+    const response = await registerUser(user.userCsr, ports.httpTunnelPort, false, registrarPort)
     const responseData = await response.json()
     expect(saveCertificate).toBeCalledTimes(1)
     const isProperUserCert = await verifyUserCert(certRoot.rootCertString, responseData.certificate)

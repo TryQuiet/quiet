@@ -6,7 +6,7 @@ import { Storage } from '../storage'
 import IOProxy from './IOProxy'
 jest.setTimeout(100_000)
 
-test('IO proxy closes all services', async () => { // tor
+test('IO proxy closes all services (using tor)', async () => {
   const pems = await createCertificatesTestHelper('adres1.onion', 'adres2.onion')
   const certs1 = {
     cert: pems.servCert,
