@@ -19,7 +19,7 @@ afterEach(async () => {
   tmpDir.removeCallback()
 })
 
-describe('Tor manager', () => {
+describe('Tor manager (using tor)', () => {
   it('starts and closes tor', async () => {
     const tor = await spawnTorProcess(tmpAppDataPath)
     await tor.init()
