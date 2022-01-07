@@ -68,32 +68,4 @@ describe('Registration service (using tor)', () => {
     const isProperUserCert = await verifyUserCert(certRoot.rootCertString, responseData.certificate)
     expect(isProperUserCert.result).toBe(true)
   })
-
-  it('generates and saves certificate for a new user (using tor)', async () => {
-    const user = await createUserCsr({
-      zbayNickname: 'userName',
-      commonName: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
-      peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
-      dmPublicKey: 'testdmPublicKey',
-      signAlg: configCrypto.signAlg,
-      hashAlg: configCrypto.hashAlg
-    })
-    storage = await getStorage(tmpAppDataPath)
-    const registrarPort = await getPort()
-    const saveCertificate = jest.spyOn(storage, 'saveCertificate')
-    tor = await spawnTorProcess(tmpAppDataPath, ports)
-    await tor.init()
-    registrationService = await setupRegistrar(
-      tor,
-      storage,
-      { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString },
-      testHiddenService,
-      registrarPort
-    )
-    const response = await registerUserTest(user.userCsr, ports.httpTunnelPort, false, registrarPort)
-    const responseData = await response.json()
-    expect(saveCertificate).toBeCalledTimes(1)
-    const isProperUserCert = await verifyUserCert(certRoot.rootCertString, responseData.certificate)
-    expect(isProperUserCert.result).toBe(true)
-  })
 })

@@ -24,3 +24,22 @@ jobs:
 
       - name: "Unit tests"
         run: lerna run test-ci --scope waggle --stream
+
+  unit-tests-with-tor:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-20.04]
+
+    steps:
+      - name: "Print OS"
+        run: echo ${{ matrix.os }}
+      
+      - uses: actions/checkout@v2
+
+      - name: "Setup environment"
+        uses: ./.github/actions/setup-env
+
+      - name: "Unit tests"
+        run: lerna run test-ci-tor --scope waggle --stream
