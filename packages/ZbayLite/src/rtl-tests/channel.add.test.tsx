@@ -82,7 +82,7 @@ describe('Add new channel', () => {
     jest
       .spyOn(socket, 'emit')
       .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
-        if (action === SocketActionTypes.SUBSCRIBE_FOR_TOPIC) {
+        if (action === SocketActionTypes.SUBSCRIBE_TO_TOPIC) {
           const data = input as socketEventData<[string, PublicChannel]>
           expect(data[0]).toEqual(holmes.peerId.id)
           expect(data[1].name).toEqual('my-super-channel')

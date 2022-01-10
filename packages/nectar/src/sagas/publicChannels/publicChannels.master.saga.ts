@@ -4,8 +4,8 @@ import { askForMessagesSaga } from './askForMessages/askForMessages.saga'
 import { checkForMessagesSaga } from './checkForMessages/checkForMessages.saga'
 import { publicChannelsActions } from './publicChannels.slice'
 import { communitiesActions } from '../communities/communities.slice'
-import { subscribeForTopicSaga } from './subscribeForTopic/subscribeForTopic.saga'
-import { subscribeForAllTopicsSaga } from './subscribeForAllTopics/subscribeForAllTopics.saga'
+import { subscribeToTopicSaga } from './subscribeToTopic/subscribeToTopic.saga'
+import { subscribeToAllTopicsSaga } from './subscribeToAllTopics/subscribeToAllTopics.saga'
 import { createChannelSaga } from './createChannel/createChannel.saga'
 
 export function* publicChannelsMasterSaga(socket: Socket): Generator {
@@ -16,13 +16,13 @@ export function* publicChannelsMasterSaga(socket: Socket): Generator {
       socket
     ),
     takeEvery(
-      publicChannelsActions.subscribeForTopic.type,
-      subscribeForTopicSaga,
+      publicChannelsActions.subscribeToTopic.type,
+      subscribeToTopicSaga,
       socket
     ),
     takeEvery(
-      publicChannelsActions.subscribeForAllTopics.type,
-      subscribeForAllTopicsSaga
+      publicChannelsActions.subscribeToAllTopics.type,
+      subscribeToAllTopicsSaga
     ),
     takeEvery(
       publicChannelsActions.responseSendMessagesIds.type,
@@ -33,6 +33,6 @@ export function* publicChannelsMasterSaga(socket: Socket): Generator {
       askForMessagesSaga,
       socket
     ),
-    takeEvery(communitiesActions.community.type, subscribeForAllTopicsSaga)
+    takeEvery(communitiesActions.community.type, subscribeToAllTopicsSaga)
   ])
 }

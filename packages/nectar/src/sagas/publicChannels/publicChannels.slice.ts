@@ -46,7 +46,7 @@ export interface AskForMessagesPayload {
   ids: string[]
 }
 
-export interface SubscribeForTopicPayload {
+export interface subscribeToTopicPayload {
   peerId: string
   channelData: PublicChannel
 }
@@ -142,11 +142,11 @@ export const publicChannelsSlice = createSlice({
         changes: { channelLoadingSlice: slice }
       })
     },
-    subscribeForTopic: (
+    subscribeToTopic: (
       state,
-      _action: PayloadAction<SubscribeForTopicPayload>
+      _action: PayloadAction<subscribeToTopicPayload>
     ) => state,
-    subscribeForAllTopics: (state, _action: PayloadAction<string>) => state,
+    subscribeToAllTopics: (state, _action: PayloadAction<string>) => state,
     responseSendMessagesIds: (
       state,
       action: PayloadAction<ChannelMessagesIdsResponse>

@@ -52,7 +52,7 @@ export async function assertReceivedChannelsAndSubscribe(
     )
   )
   await store.dispatch(
-    publicChannels.actions.subscribeForAllTopics(communityId)
+    publicChannels.actions.subscribeToAllTopics(communityId)
   )
 
   log(

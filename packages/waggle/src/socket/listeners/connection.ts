@@ -11,8 +11,8 @@ export const connections = (io, ioProxy: IOProxy) => {
     socket.on(EventTypesServer.CLOSE, async () => {
       await ioProxy.closeAll()
     })
-    socket.on(EventTypesServer.SUBSCRIBE_FOR_TOPIC, async (peerId: string, channelData: IChannelInfo) => {
-      await ioProxy.subscribeForTopic(peerId, channelData)
+    socket.on(EventTypesServer.SUBSCRIBE_TO_TOPIC, async (peerId: string, channelData: IChannelInfo) => {
+      await ioProxy.subscribeToTopic(peerId, channelData)
     })
     socket.on(
       EventTypesServer.SEND_MESSAGE,
@@ -50,11 +50,11 @@ export const connections = (io, ioProxy: IOProxy) => {
     socket.on(
       EventTypesServer.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD,
       async (peerId: string, channelAddress: string) => {
-        await ioProxy.subscribeForDirectMessageThread(peerId, channelAddress)
+        await ioProxy.subscribeToDirectMessageThread(peerId, channelAddress)
       }
     )
     socket.on(EventTypesServer.SUBSCRIBE_FOR_ALL_CONVERSATIONS, async (peerId: string, conversations: string[]) => {
-      await ioProxy.subscribeForAllConversations(peerId, conversations)
+      await ioProxy.subscribeToAllConversations(peerId, conversations)
     })
     socket.on(
       EventTypesServer.ASK_FOR_MESSAGES,

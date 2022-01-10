@@ -18,7 +18,7 @@ export function* createChannelSaga(
   const peerId = currentIdentity.peerId.id
 
   yield* apply(socket, socket.emit, [
-    SocketActionTypes.SUBSCRIBE_FOR_TOPIC,
+    SocketActionTypes.SUBSCRIBE_TO_TOPIC,
     peerId,
     action.payload.channel
   ])

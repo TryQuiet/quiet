@@ -79,8 +79,8 @@ export const getPrivateConversations = () => _dispatch => {
   // dispatch(directMessagesActions.getPrivateConversations())
 }
 
-const subscribeForAllConversations = () => async _dispatch => {
-  // await dispatch(directMessagesActions.subscribeForAllConversations())
+const subscribeToAllConversations = () => async _dispatch => {
+  // await dispatch(directMessagesActions.subscribeToAllConversations())
 }
 
 const getAvailableUsers = () => async _dispatch => {
@@ -91,7 +91,7 @@ export const epics = {
   generateDiffieHellman,
   getAvailableUsers,
   getPrivateConversations,
-  subscribeForAllConversations
+  subscribeToAllConversations
 }
 
 export const reducer = handleActions<DirectMessagesStore, PayloadType<DirectMessagesActions>>(

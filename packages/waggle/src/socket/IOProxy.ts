@@ -42,9 +42,9 @@ export default class IOProxy {
     this.io.close()
   }
 
-  public subscribeForTopic = async (peerId: string, channelData: IChannelInfo) => {
-    log(`${peerId} is subscribing for channel ${channelData.address}`)
-    await this.getStorage(peerId).subscribeForChannel(channelData)
+  public subscribeToTopic = async (peerId: string, channelData: IChannelInfo) => {
+    log(`${peerId} is subscribing to channel ${channelData.address}`)
+    await this.getStorage(peerId).subscribeToChannel(channelData)
   }
 
   public askForMessages = async (
@@ -115,18 +115,18 @@ export default class IOProxy {
     await this.getStorage(peerId).sendDirectMessage(channelAddress, messagePayload)
   }
 
-  public subscribeForDirectMessageThread = async (
+  public subscribeToDirectMessageThread = async (
     peerId: string,
     address: string
   ): Promise<void> => {
-    await this.getStorage(peerId).subscribeForDirectMessageThread(address)
+    await this.getStorage(peerId).subscribeToDirectMessageThread(address)
   }
 
-  public subscribeForAllConversations = async (
+  public subscribeToAllConversations = async (
     peerId: string,
     conversations: string[]
   ): Promise<void> => {
-    await this.getStorage(peerId).subscribeForAllConversations(conversations)
+    await this.getStorage(peerId).subscribeToAllConversations(conversations)
   }
 
   public registerOwnerCertificate = async (

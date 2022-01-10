@@ -20,7 +20,7 @@ export enum SocketActionTypes {
   SEND_MESSAGES_IDS = 'sendIds',
   ASK_FOR_MESSAGES = 'askForMessages',
   RESPONSE_ASK_FOR_MESSAGES = 'responseFetchAllMessages',
-  SUBSCRIBE_FOR_TOPIC = 'subscribeForTopic',
+  SUBSCRIBE_TO_TOPIC = 'subscribeToTopic',
   REGISTER_USER_CERTIFICATE = 'registerUserCertificate',
   SEND_USER_CERTIFICATE = 'sendUserCertificate',
   SAVE_CERTIFICATE = 'saveCertificate',

@@ -203,7 +203,7 @@ export class Storage {
         await Promise.all(
           Object.values(this.channels.all).map(async channel => {
             if (!this.publicChannelsRepos.has(channel.address)) {
-              await this.subscribeForChannel(channel)
+              await this.subscribeToChannel(channel)
             }
           })
         )
@@ -309,7 +309,7 @@ export class Storage {
     loadAllMessages(this.io, this.getAllEventLogEntries(db), channelAddress, this.communityId)
   }
 
-  public async subscribeForChannel(
+  public async subscribeToChannel(
     channel: IChannelInfo
   ): Promise<void> {
     let db: EventStore<IMessage>
@@ -440,20 +440,20 @@ export class Storage {
 
     this.directMessagesRepos.set(address, { db, eventsAttached: false })
     await this.messageThreads.put(address, encryptedPhrase)
-    await this.subscribeForDirectMessageThread(address)
+    await this.subscribeToDirectMessageThread(address)
   }
 
-  public async subscribeForAllConversations(conversations) {
-    console.time('subscribeForAllConversations')
+  public async subscribeToAllConversations(conversations) {
+    console.time('subscribeToAllConversations')
     await Promise.all(
       conversations.map(async channel => {
-        await this.subscribeForDirectMessageThread(channel)
+        await this.subscribeToDirectMessageThread(channel)
       })
     )
-    console.timeEnd('subscribeForAllConversations')
+    console.timeEnd('subscribeToAllConversations')
   }
 
-  public async subscribeForDirectMessageThread(channelAddress: string) {
+  public async subscribeToDirectMessageThread(channelAddress: string) {
     let db: EventStore<IMessage>
     let repo = this.directMessagesRepos.get(channelAddress)
 
@@ -516,7 +516,7 @@ export class Storage {
       log.error('STORAGE: Invalid direct message format')
       return
     }
-    await this.subscribeForDirectMessageThread(channelAddress) // Is it necessary? Yes it is atm
+    await this.subscribeToDirectMessageThread(channelAddress) // Is it necessary? Yes it is atm
     log('STORAGE: sendDirectMessage entered')
     log(`STORAGE: sendDirectMessage channelAddress is ${channelAddress}`)
     log(`STORAGE: sendDirectMessage message is ${JSON.stringify(message)}`)

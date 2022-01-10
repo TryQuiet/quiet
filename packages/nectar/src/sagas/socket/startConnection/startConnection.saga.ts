@@ -53,7 +53,7 @@ export function subscribe(socket: Socket) {
       SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS,
       (payload: GetPublicChannelsResponse) => {
         emit(publicChannelsActions.responseGetPublicChannels(payload))
-        emit(publicChannelsActions.subscribeForAllTopics(payload.communityId))
+        emit(publicChannelsActions.subscribeToAllTopics(payload.communityId))
       }
     )
     socket.on(
@@ -111,7 +111,7 @@ export function subscribe(socket: Socket) {
       (payload: ResponseLaunchCommunityPayload) => {
         log('launched COMMUNITY')
         log(payload.id)
-        emit(publicChannelsActions.subscribeForAllTopics(payload.id))
+        emit(publicChannelsActions.subscribeToAllTopics(payload.id))
         emit(communitiesActions.launchRegistrar(payload.id))
         emit(communitiesActions.community(payload.id))
         emit(connectionActions.addInitializedCommunity(payload.id))
