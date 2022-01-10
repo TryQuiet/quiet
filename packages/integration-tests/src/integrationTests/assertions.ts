@@ -106,7 +106,6 @@ export const assertReceivedMessagesAreValid = async (
 
   for (const receivedMessage of receivedMessages) {
     const msg = messages.filter(
-      // @ts-ignore
       (message) => message.publicKey === receivedMessage.pubKey
     )
     if (msg[0]) {

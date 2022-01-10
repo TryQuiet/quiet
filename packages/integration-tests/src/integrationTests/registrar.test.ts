@@ -1,13 +1,8 @@
 import { Crypto } from '@peculiar/webcrypto'
 import { createCommunity, sendRegistrationRequest } from './appActions'
 import { assertReceivedCertificate, assertReceivedRegistrationError } from './assertions'
-import { createApp } from '../utils'
+import { createApp, sleep } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
-import { sleep } from '../utils'
-
-import logger from '../logger'
-
-const log = logger()
 
 jest.setTimeout(120_000)
 const crypto = new Crypto()

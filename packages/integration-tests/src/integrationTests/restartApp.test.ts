@@ -52,21 +52,21 @@ describe('create community and restart app', () => {
   let owner: AsyncReturnType<typeof createApp>
   let store: typeof owner.store
   let oldState: ReturnType<typeof owner.store.getState>
-  
+
   beforeAll(async () => {
     owner = await createApp()
   })
-  
+
   afterAll(async () => {
     await owner.manager.closeAllServices()
   })
-  
+
   test('Owner creates community', async () => {
     await createCommunity({ userName: 'Owner', store: owner.store })
     store = owner.store
     await sleep(5_000)
   })
-  
+
   test('Owner successfully closes app', async () => {
     await owner.manager.closeAllServices()
   })

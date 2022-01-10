@@ -289,7 +289,7 @@ describe('send message - users are online', () => {
   })
 })
 
-describe.only('send message - without tor', () => {
+describe.skip('send message - without tor', () => {
   let owner: AsyncReturnType<typeof createAppWithoutTor>
   let userOne: AsyncReturnType<typeof createAppWithoutTor>
   let userTwo: AsyncReturnType<typeof createAppWithoutTor>

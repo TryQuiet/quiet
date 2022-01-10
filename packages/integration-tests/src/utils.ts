@@ -62,7 +62,7 @@ export const createApp = async (mockedState?: { [key in StoreKeys]?: any }, appD
     httpTunnelPort,
     options: {
       env: {
-        appDataPath: appDataPath ? appDataPath : appPath
+        appDataPath: appDataPath || appPath
       },
       torControlPort: controlPort
     },
@@ -84,12 +84,12 @@ export const createApp = async (mockedState?: { [key in StoreKeys]?: any }, appD
 export const createAppWithoutTor = async (mockedState?: {
   [key in StoreKeys]?: any
 }, appDataPath?: string): Promise<{
-  store: Store
-  runSaga: <S extends Saga<any[]>>(saga: S, ...args: Parameters<S>) => Task
-  rootTask: Task
-  manager: ConnectionsManager,
-  appPath: string
-}> => {
+    store: Store
+    runSaga: <S extends Saga<any[]>>(saga: S, ...args: Parameters<S>) => Task
+    rootTask: Task
+    manager: ConnectionsManager
+    appPath: string
+  }> => {
   /**
    * Configure and initialize ConnectionsManager from waggle,
    * configure redux store
@@ -112,7 +112,7 @@ export const createAppWithoutTor = async (mockedState?: {
     httpTunnelPort,
     options: {
       env: {
-        appDataPath: appDataPath ? appDataPath : appPath
+        appDataPath: appDataPath || appPath
       },
       libp2pTransportClass: Websockets,
       torControlPort: controlPort

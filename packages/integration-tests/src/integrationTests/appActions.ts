@@ -77,7 +77,7 @@ export async function createCommunity({ userName, store }: CreateCommunity) {
     ).toBeTruthy()
   }, timeout)
   log(store.getState().Communities.communities.entities[communityId]
-  .onionAddress)
+    .onionAddress)
   await waitForExpect(() => {
     expect(store.getState().Users.certificates.ids).toHaveLength(1)
   }, timeout)
