@@ -1,8 +1,9 @@
 import { configCrypto, createRootCA, createUserCsr, RootCA, verifyUserCert } from '@zbayapp/identity'
 import getPort from 'get-port'
 import { Time } from 'pkijs'
+import { DirResult } from 'tmp'
 import { CertificateRegistration } from '.'
-import { createTmpDir, spawnTorProcess, TmpDir, tmpZbayDirPath } from '../common/testUtils'
+import { createTmpDir, spawnTorProcess, tmpZbayDirPath } from '../common/testUtils'
 import { getPorts, Ports } from '../common/utils'
 import { Storage } from '../storage'
 import { Tor } from '../torManager'
@@ -10,7 +11,7 @@ import { getStorage, registerUser, setupRegistrar } from './testUtils'
 jest.setTimeout(140_000)
 
 describe('Registration service (using tor)', () => {
-  let tmpDir: TmpDir
+  let tmpDir: DirResult
   let tmpAppDataPath: string
   let tor: Tor
   let registrationService: CertificateRegistration

@@ -1,13 +1,14 @@
 import { configCrypto, createRootCA, createUserCert, createUserCsr, RootCA, verifyUserCert } from '@zbayapp/identity'
 import { Time } from 'pkijs'
+import { DirResult } from 'tmp'
 import { CertificateRegistration } from '.'
-import { createTmpDir, dataFromRootPems, TmpDir, tmpZbayDirPath, TorMock } from '../common/testUtils'
+import { createTmpDir, dataFromRootPems, tmpZbayDirPath, TorMock } from '../common/testUtils'
 import { getPorts, Ports } from '../common/utils'
 import { Storage } from '../storage'
 import { getStorage, registerUser, setupRegistrar } from './testUtils'
 
 describe('Registration service', () => {
-  let tmpDir: TmpDir
+  let tmpDir: DirResult
   let tmpAppDataPath: string
   let registrationService: CertificateRegistration
   let storage: Storage

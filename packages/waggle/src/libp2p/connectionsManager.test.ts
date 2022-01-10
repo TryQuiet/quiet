@@ -1,9 +1,10 @@
 import PeerId from 'peer-id'
-import { createTmpDir, TmpDir, tmpZbayDirPath } from '../common/testUtils'
+import { DirResult } from 'tmp'
+import { createTmpDir, tmpZbayDirPath } from '../common/testUtils'
 import * as utils from '../common/utils'
 import { ConnectionsManager } from './connectionsManager'
 
-let tmpDir: TmpDir
+let tmpDir: DirResult
 let tmpAppDataPath: string
 let connectionsManager: ConnectionsManager
 
