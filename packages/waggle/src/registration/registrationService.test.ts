@@ -1,127 +1,33 @@
-import { createRootCA, RootCA, createUserCert, createUserCsr, verifyUserCert, configCrypto } from '@zbayapp/identity'
-import { HttpsProxyAgent } from 'https-proxy-agent'
-import { CertificateRegistration } from '.'
+import { configCrypto, createRootCA, createUserCert, createUserCsr, RootCA, verifyUserCert } from '@zbayapp/identity'
 import { Time } from 'pkijs'
-import { createLibp2p, createTmpDir, spawnTorProcess, TmpDir, tmpZbayDirPath, TorMock, dataFromRootPems } from '../common/testUtils'
-import { DummyIOServer, getPorts, Ports } from '../common/utils'
-import fetch, { Response } from 'node-fetch'
-import { Tor } from '../torManager'
+import { DirResult } from 'tmp'
+import { CertificateRegistration } from '.'
+import { createTmpDir, dataFromRootPems, tmpZbayDirPath, TorMock } from '../common/testUtils'
+import { getPorts, Ports } from '../common/utils'
 import { Storage } from '../storage'
-import PeerId from 'peer-id'
-import { DataFromPems } from '../common/types'
-import getPort from 'get-port'
-jest.setTimeout(140_000)
-
-async function registerUserTest(csr: string, httpTunnelPort: number, localhost: boolean = true, registrarPort: number = 7789): Promise<Response> {
-  let address = '127.0.0.1'
-  let options = {
-    method: 'POST',
-    body: JSON.stringify({ data: csr }),
-    headers: { 'Content-Type': 'application/json' }
-  }
-  if (!localhost) {
-    options = Object.assign(options, { agent: new HttpsProxyAgent({ port: httpTunnelPort, host: 'localhost', timeout: 100000 }) })
-    address = '4avghtoehep5ebjngfqk5b43jolkiyyedfcvvq4ouzdnughodzoglzad.onion'
-    return await fetch(`http://${address}/register`, options)
-  }
-  return await fetch(`http://${address}:${registrarPort}/register`, options)
-}
-
-async function setupRegistrar(tor: Tor, storage: Storage, dataFromPems: DataFromPems, hiddenServiceKey?: string, port?: number) {
-  const certRegister = new CertificateRegistration(
-    tor,
-    storage,
-    dataFromPems,
-    hiddenServiceKey,
-    port
-  )
-  try {
-    await certRegister.init()
-  } catch (err) {
-    console.error(`Couldn't initialize certificate registration service: ${err as string}`)
-    return
-  }
-  try {
-    await certRegister.listen()
-  } catch (err) {
-    console.error(`Certificate registration service couldn't start listening: ${err as string}`)
-  }
-  return certRegister
-}
-
-const getStorage = async (zbayDir: string) => {
-  const peerId = await PeerId.create()
-  const storage = new Storage(
-    zbayDir,
-    new DummyIOServer(),
-    'communityid',
-    {
-      ...{},
-      orbitDbDir: `OrbitDB${peerId.toB58String()}`,
-      ipfsDir: `Ipfs${peerId.toB58String()}`
-    }
-  )
-  await storage.init(await createLibp2p(peerId), peerId)
-  return storage
-}
+import { getStorage, registerUser, setupRegistrar } from './testUtils'
 
 describe('Registration service', () => {
-  let tmpDir: TmpDir
+  let tmpDir: DirResult
   let tmpAppDataPath: string
-  let tor: Tor
   let registrationService: CertificateRegistration
   let storage: Storage
   let certRoot: RootCA
-  let testHiddenService: string
   let ports: Ports
-
-  beforeAll(() => {
-    testHiddenService = 'ED25519-V3:iEp140DpauUp45TBx/IdjDm3/kinRPjwmsrXaGC9j39zhFsjI3MHdaiuIHJf3GiivF+hAi/5SUzYq4SzvbKzWQ=='
-  })
 
   beforeEach(async () => {
     jest.clearAllMocks()
     tmpDir = createTmpDir()
     tmpAppDataPath = tmpZbayDirPath(tmpDir.name)
-    tor = null
     registrationService = null
     certRoot = await createRootCA(new Time({ type: 1, value: new Date() }), new Time({ type: 1, value: new Date(2030, 1, 1) }), 'testRootCA')
     ports = await getPorts()
   })
 
   afterEach(async () => {
-    tor && await tor.kill()
     storage && await storage.stopOrbitDb()
     registrationService && await registrationService.stop()
     tmpDir.removeCallback()
-  })
-
-  it('generates and saves certificate for a new user using tor', async () => {
-    const user = await createUserCsr({
-      zbayNickname: 'userName',
-      commonName: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
-      peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
-      dmPublicKey: 'testdmPublicKey',
-      signAlg: configCrypto.signAlg,
-      hashAlg: configCrypto.hashAlg
-    })
-    storage = await getStorage(tmpAppDataPath)
-    const registrarPort = await getPort()
-    const saveCertificate = jest.spyOn(storage, 'saveCertificate')
-    tor = await spawnTorProcess(tmpAppDataPath, ports)
-    await tor.init()
-    registrationService = await setupRegistrar(
-      tor,
-      storage,
-      { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString },
-      testHiddenService,
-      registrarPort
-    )
-    const response = await registerUserTest(user.userCsr, ports.httpTunnelPort, false, registrarPort)
-    const responseData = await response.json()
-    expect(saveCertificate).toBeCalledTimes(1)
-    const isProperUserCert = await verifyUserCert(certRoot.rootCertString, responseData.certificate)
-    expect(isProperUserCert.result).toBe(true)
   })
 
   it('generates and saves certificate for a new user', async () => {
@@ -141,7 +47,7 @@ describe('Registration service', () => {
       { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString }
     )
     const saveCertificate = jest.spyOn(storage, 'saveCertificate')
-    const response = await registerUserTest(user.userCsr, ports.socksPort)
+    const response = await registerUser(user.userCsr, ports.socksPort)
     const responseData = await response.json()
     console.log(responseData)
     expect(saveCertificate).toBeCalledTimes(1)
@@ -177,7 +83,7 @@ describe('Registration service', () => {
       storage,
       { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString }
     )
-    const response = await registerUserTest(
+    const response = await registerUser(
       userNew.userCsr,
       ports.socksPort,
       true,
@@ -196,7 +102,7 @@ describe('Registration service', () => {
       { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString }
     )
     for (const invalidCsr of ['', 'abcd']) {
-      const response = await registerUserTest(
+      const response = await registerUser(
         invalidCsr,
         ports.socksPort,
         true,
@@ -216,7 +122,7 @@ describe('Registration service', () => {
     )
     // Csr with only commonName and nickName
     const csr = 'MIIBFTCBvAIBADAqMSgwFgYKKwYBBAGDjBsCARMIdGVzdE5hbWUwDgYDVQQDEwdaYmF5IENBMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEGPGHpJzE/CvL7l/OmTSfYQrhhnWQrYw3GgWB1raCTSeFI/MDVztkBOlxwdUWSm10+1OtKVUWeMKaMtyIYFcPPqAwMC4GCSqGSIb3DQEJDjEhMB8wHQYDVR0OBBYEFLjaEh+cnNhsi5qDsiMB/ZTzZFfqMAoGCCqGSM49BAMCA0gAMEUCIFwlob/Igab05EozU0e/lsG7c9BxEy4M4c4Jzru2vasGAiEAqFTQuQr/mVqTHO5vybWm/iNDk8vh88K6aBCCGYqIfdw='
-    const response = await registerUserTest(
+    const response = await registerUser(
       csr,
       ports.socksPort,
       true,
