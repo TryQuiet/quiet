@@ -4,10 +4,11 @@ import { Tor } from '../torManager/index'
 import os from 'os'
 import * as utils from '../common/utils'
 import HttpsProxyAgent from 'https-proxy-agent'
-import { createTmpDir, TmpDir, tmpZbayDirPath } from '../common/testUtils'
+import { createTmpDir, tmpZbayDirPath } from '../common/testUtils'
 import { createCertificatesTestHelper } from './tests/client-server'
 import { createLibp2pAddress } from '../common/utils'
 import getPort from 'get-port'
+import { DirResult } from 'tmp'
 
 jest.setTimeout(120000)
 
@@ -19,7 +20,7 @@ describe('websocketOverTor', () => {
   const addEventListener = jest.fn()
 
   let tmpAppDataPath: string
-  let tmpDir: TmpDir
+  let tmpDir: DirResult
   let service1: {
     onionAddress: string
     privateKey: string
