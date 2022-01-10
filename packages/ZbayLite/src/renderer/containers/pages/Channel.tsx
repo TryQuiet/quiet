@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { communities, identity, messages, publicChannels } from '@zbayapp/nectar'
+import { communities, connection, identity, messages, publicChannels } from '@zbayapp/nectar'
 
 import ChannelComponent from '../../components/pages/Channel'
 
@@ -69,12 +69,12 @@ const Channel = () => {
             groups: currentChannelDisplayableMessages
           }}
           setChannelLoadingSlice={setChannelLoadingSlice}
-          onDelete={function (): void {}}
+          onDelete={function (): void { }}
           onInputChange={onInputChange}
           onInputEnter={onInputEnter}
           mutedFlag={false}
           notificationFilter={''}
-          openNotificationsTab={function (): void {}}
+          openNotificationsTab={function (): void { }}
         />
       )}
     </>

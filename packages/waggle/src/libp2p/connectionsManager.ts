@@ -28,6 +28,8 @@ import initListeners from '../socket/listeners'
 import { Storage } from '../storage'
 import { Tor } from '../torManager'
 import WebsocketsOverTor from './websocketOverTor'
+import { EventEmitter } from 'events'
+
 const log = logger('conn')
 
 export interface IConstructor {
@@ -41,7 +43,7 @@ export interface IConstructor {
   httpTunnelPort?: number
 }
 
-export class ConnectionsManager {
+export class ConnectionsManager extends EventEmitter {
   agentHost: string
   agentPort: number
   httpTunnelPort: number
@@ -53,9 +55,11 @@ export class ConnectionsManager {
   libp2pTransportClass: any
   StorageCls: any
   tor: Tor
-  libp2pInstance: any
+  libp2pInstance: Libp2p
+  connectedPeers: Set<string>
 
   constructor({ agentHost, agentPort, httpTunnelPort, options, storageClass, io }: IConstructor) {
+    super()
     this.io = io
     this.agentPort = agentPort
     this.httpTunnelPort = httpTunnelPort
@@ -69,6 +73,7 @@ export class ConnectionsManager {
     this.StorageCls = storageClass || Storage
     this.libp2pTransportClass = options.libp2pTransportClass || WebsocketsOverTor
     this.ioProxy = new IOProxy(this)
+    this.connectedPeers = new Set()
 
     process.on('unhandledRejection', error => {
       console.error(error)
@@ -107,8 +112,9 @@ export class ConnectionsManager {
     return createLibp2pListenAddress(address, port, this.options.wsType)
   }
 
-  public initListeners = () => {
-    initListeners(this.io, this.ioProxy)
+  public initListeners = async () => {
+    log('aaaaaaaaaaaaaaaaaaaaaaaa', this.libp2pInstance)
+    await initListeners(this.io, this.ioProxy, this.libp2pInstance)
     log('Initialized socket listeners')
   }
 
@@ -127,8 +133,7 @@ export class ConnectionsManager {
 
     const peerId = await PeerId.create()
     log(
-      `Created network for peer ${peerId.toB58String()}. Address: ${
-        hiddenService.onionAddress as string
+      `Created network for peer ${peerId.toB58String()}. Address: ${hiddenService.onionAddress as string
       }`
     )
     return {
@@ -201,12 +206,18 @@ export class ConnectionsManager {
 
     libp2p.connectionManager.on('peer:connect', (connection: Connection) => {
       log(`${peerId.toB58String()} connected to ${connection.remotePeer.toB58String()}`)
+      this.connectedPeers.add(connection.remotePeer.toB58String())
+      this.emit('peer:connect', {
+        connectedPeers: this.connectedPeers,
+        newPeer: connection.remotePeer.toB58String()
+      })
     })
     libp2p.on('peer:discovery', (peer: PeerId) => {
       log(`${peerId.toB58String()} discovered ${peer.toB58String()}`)
     })
     libp2p.connectionManager.on('peer:disconnect', (connection: Connection) => {
       log(`${peerId.toB58String()} disconnected from ${connection.remotePeer.toB58String()}`)
+      this.connectedPeers.delete(connection.remotePeer.toB58String())
     })
     log(`Initialized libp2p for peer ${peerId.toB58String()}`)
     return {

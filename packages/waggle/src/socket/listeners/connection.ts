@@ -3,11 +3,17 @@ import { CertsData, IChannelInfo, IMessage } from '../../common/types'
 import IOProxy from '../IOProxy'
 import PeerId from 'peer-id'
 import logger from '../../logger'
+import { EventEmitter } from 'events'
 const log = logger('socket')
 
-export const connections = (io, ioProxy: IOProxy) => {
+export const connections = (io, ioProxy: IOProxy, connectionManager: EventEmitter) => {
   io.on(EventTypesServer.CONNECTION, socket => {
     log('websocket connected')
+    log('bbbbbbbbbbb', connectionManager)
+    connectionManager?.on('peer:connect', event => {
+      log('bbbbbbbbbbb', event)
+      socket.emit('peer:connect', event)
+    })
     socket.on(EventTypesServer.CLOSE, async () => {
       await ioProxy.closeAll()
     })
@@ -87,12 +93,12 @@ export const connections = (io, ioProxy: IOProxy) => {
       log(`Saving owner certificate (${peerId}), community: ${communityId}`)
       await ioProxy.saveOwnerCertificate(communityId, peerId, certificate, dataFromPerms)
     })
-    socket.on(EventTypesServer.CREATE_COMMUNITY, async (payload: {id: string; rootCertString: string; rootCertKey: string}, certs: CertsData) => {
+    socket.on(EventTypesServer.CREATE_COMMUNITY, async (payload: { id: string; rootCertString: string; rootCertKey: string }, certs: CertsData) => {
       log(`Creating community ${payload.id}`)
       await ioProxy.createCommunity(payload.id, certs, payload.rootCertString, payload.rootCertKey)
     })
 
-    socket.on(EventTypesServer.LAUNCH_COMMUNITY, async (id: string, peerId: PeerId.JSONPeerId, hiddenServiceKey: {address: string; privateKey: string}, peers: string[], certs: CertsData) => {
+    socket.on(EventTypesServer.LAUNCH_COMMUNITY, async (id: string, peerId: PeerId.JSONPeerId, hiddenServiceKey: { address: string; privateKey: string }, peers: string[], certs: CertsData) => {
       log(`Launching community ${id} for ${peerId.id}`)
       await ioProxy.launchCommunity(id, peerId, hiddenServiceKey, peers, certs)
     })
