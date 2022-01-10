@@ -12,7 +12,7 @@ type Store = typeof App.store
 export async function assertReceivedCertificates(
   userName: string,
   expectedCount: number,
-  maxTime: number = 600000,
+  maxTime: number = 60000,
   store: Store
 ) {
   log(`User ${userName} starts waiting ${maxTime}ms for certificates`)
@@ -31,7 +31,7 @@ export async function assertReceivedCertificates(
 export async function assertReceivedChannelsAndSubscribe(
   userName: string,
   expectedCount: number,
-  maxTime: number = 600000,
+  maxTime: number = 60000,
   store: Store
 ) {
   log(`User ${userName} starts waiting ${maxTime}ms for channels`)
@@ -66,7 +66,7 @@ export async function assertReceivedChannelsAndSubscribe(
 export async function assertReceivedMessages(
   userName: string,
   expectedCount: number,
-  maxTime: number = 600000,
+  maxTime: number = 60000,
   store: Store
 ) {
   log(`User ${userName} starts waiting ${maxTime}ms for messages`)
@@ -90,7 +90,7 @@ export async function assertReceivedMessages(
 export const assertReceivedMessagesAreValid = async (
   userName: string,
   messages: any[],
-  maxTime: number = 600000,
+  maxTime: number = 60000,
   store: Store
 ) => {
   log(`User ${userName} checks is messages are valid`)
@@ -140,7 +140,7 @@ export const assertReceivedRegistrationError = async (store: Store) => {
   const communityId = store.getState().Communities.communities.ids[0]
   await waitForExpect(() => {
     expect(store.getState().Errors[communityId]?.ids[0]).toEqual('registrar')
-  })
+  }, 20_000)
 }
 
 export const assertReceivedCertificate = async (store: Store) => {

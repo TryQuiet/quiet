@@ -33,11 +33,12 @@ const connectToDataport = (url: string, name: string): Socket => {
   return socket
 }
 
-export const createApp = async (mockedState?: { [key in StoreKeys]?: any }): Promise<{
+export const createApp = async (mockedState?: { [key in StoreKeys]?: any }, appDataPath?: string): Promise<{
   store: Store
   runSaga: <S extends Saga<any[]>>(saga: S, ...args: Parameters<S>) => Task
   rootTask: Task
   manager: ConnectionsManager
+  appPath: string
 }> => {
   /**
    * Configure and initialize ConnectionsManager from waggle,
@@ -54,13 +55,14 @@ export const createApp = async (mockedState?: { [key in StoreKeys]?: any }): Pro
   const proxyPort = await getPort({ port: 1234 })
   const controlPort = await getPort({ port: 5555 })
   const httpTunnelPort = await getPort({ port: 9000 })
+  const appPath = createPath(createTmpDir(`zbayIntegrationTest-${appName}`).name)
   const manager = new waggle.ConnectionsManager({
     agentHost: 'localhost',
     agentPort: proxyPort,
     httpTunnelPort,
     options: {
       env: {
-        appDataPath: createPath(createTmpDir(`zbayIntegrationTest-${appName}`).name)
+        appDataPath: appDataPath ? appDataPath : appPath
       },
       torControlPort: controlPort
     },
@@ -76,16 +78,17 @@ export const createApp = async (mockedState?: { [key in StoreKeys]?: any }): Pro
 
   const rootTask = runSaga(root)
 
-  return { store, runSaga, rootTask, manager }
+  return { store, runSaga, rootTask, manager, appPath }
 }
 
 export const createAppWithoutTor = async (mockedState?: {
   [key in StoreKeys]?: any
-}): Promise<{
+}, appDataPath?: string): Promise<{
   store: Store
   runSaga: <S extends Saga<any[]>>(saga: S, ...args: Parameters<S>) => Task
   rootTask: Task
-  manager: ConnectionsManager
+  manager: ConnectionsManager,
+  appPath: string
 }> => {
   /**
    * Configure and initialize ConnectionsManager from waggle,
@@ -102,13 +105,14 @@ export const createAppWithoutTor = async (mockedState?: {
   const proxyPort = await getPort({ port: 1234 })
   const controlPort = await getPort({ port: 5555 })
   const httpTunnelPort = await getPort({ port: 9000 })
+  const appPath = createPath(createTmpDir(`zbayIntegrationTest-${appName}`).name)
   const manager = new waggle.ConnectionsManager({
     agentHost: 'localhost',
     agentPort: proxyPort,
     httpTunnelPort,
     options: {
       env: {
-        appDataPath: createPath(createTmpDir(`zbayIntegrationTest-${appName}`).name)
+        appDataPath: appDataPath ? appDataPath : appPath
       },
       libp2pTransportClass: Websockets,
       torControlPort: controlPort
@@ -125,7 +129,7 @@ export const createAppWithoutTor = async (mockedState?: {
 
   const rootTask = runSaga(root)
 
-  return { store, runSaga, rootTask, manager }
+  return { store, runSaga, rootTask, manager, appPath }
 }
 
 const throwAssertionError = (

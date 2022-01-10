@@ -32,7 +32,7 @@ interface SendRegistrationRequest {
 }
 
 export async function createCommunity({ userName, store }: CreateCommunity) {
-  const timeout = 120_000
+  const timeout = 20_000
   const communityName = 'CommunityName'
 
   store.dispatch(communities.actions.createNewCommunity(communityName))
@@ -76,6 +76,8 @@ export async function createCommunity({ userName, store }: CreateCommunity) {
         .onionAddress
     ).toBeTruthy()
   }, timeout)
+  log(store.getState().Communities.communities.entities[communityId]
+  .onionAddress)
   await waitForExpect(() => {
     expect(store.getState().Users.certificates.ids).toHaveLength(1)
   }, timeout)
@@ -83,12 +85,13 @@ export async function createCommunity({ userName, store }: CreateCommunity) {
     expect(
       store.getState().Connection.initializedCommunities[communityId]
     ).toBeTruthy()
-  })
+  }, timeout)
+  log('initializedCOmmunity', store.getState().Connection.initializedCommunities[communityId])
   await waitForExpect(() => {
     expect(
       store.getState().Connection.initializedRegistrars[communityId]
     ).toBeTruthy()
-  })
+  }, timeout)
 }
 
 export async function joinCommunity(payload: JoinCommunity) {

@@ -9,7 +9,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prepublish": "npm run build",
-    "test-integration": "DEBUG='waggle*, nectar:tests*' jest integrationTests/* --bail --colors",
+    "test-integration": "DEBUG='waggle*, nectar*' jest integrationTests/* --bail --colors",
     "lint": "eslint --ext .ts ./src/",
     "prettier": "prettier"
   },

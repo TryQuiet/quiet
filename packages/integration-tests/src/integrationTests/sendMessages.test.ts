@@ -25,6 +25,8 @@ describe('send message - users go offline and online', () => {
   let userTwo: AsyncReturnType<typeof createApp>
   let userOneOldState: ReturnType<typeof owner.store.getState>
   let userTwoOldState: ReturnType<typeof owner.store.getState>
+  let userOneDataPath: string
+  let userTwoDataPath: string
   let allMessages = []
   const ownerMessagesData = []
   const userOneMessagesData = []
@@ -103,7 +105,9 @@ describe('send message - users go offline and online', () => {
 
   test('User one and two go offline', async () => {
     userOneOldState = userOne.store.getState()
-    userTwoOldState = userOne.store.getState()
+    userTwoOldState = userTwo.store.getState()
+    userOneDataPath = userOne.appPath
+    userTwoDataPath = userTwo.appPath
     await userOne.manager.closeAllServices()
     await userTwo.manager.closeAllServices()
   })
@@ -117,13 +121,13 @@ describe('send message - users go offline and online', () => {
   })
 
   test('users come back online', async () => {
-    userOne = await createApp(userOneOldState)
-    userTwo = await createApp(userTwoOldState)
+    userOne = await createApp(userOneOldState, userOneDataPath)
+    userTwo = await createApp(userTwoOldState, userTwoDataPath)
     // Give apps time to launch services
     await sleep(20000)
   })
 
-  test('Every user replicated all messages', async () => {
+  test('Owner replicated all messages', async () => {
     allMessages = [
       ...ownerMessagesData,
       ...userOneMessagesData,
@@ -136,12 +140,18 @@ describe('send message - users go offline and online', () => {
       360_000,
       owner.store
     )
+  })
+
+  test('userOne replicated all messages', async () => {
     await assertReceivedMessages(
       'userOne',
       allMessages.length,
       360_000,
       userOne.store
     )
+  })
+
+  test('userTwo replicated all messages', async () => {
     await assertReceivedMessages(
       'userTwo',
       allMessages.length,
@@ -245,9 +255,15 @@ describe('send message - users are online', () => {
     userTwoMessageData = await sendMessage('userTwo says hi', userTwo.store)
   })
 
-  test('Every user replicated all messages', async () => {
+  test('Owner replicated all messages', async () => {
     await assertReceivedMessages('owner', 3, 120_000, owner.store)
+  })
+
+  test('userOne replicated all messages', async () => {
     await assertReceivedMessages('userOne', 3, 120_000, userOne.store)
+  })
+
+  test('userTwo replicated all messages', async () => {
     await assertReceivedMessages('userTwo', 3, 120_000, userTwo.store)
   })
 
@@ -273,10 +289,10 @@ describe('send message - users are online', () => {
   })
 })
 
-describe.skip('send message - without tor', () => {
-  let owner: AsyncReturnType<typeof createApp>
-  let userOne: AsyncReturnType<typeof createApp>
-  let userTwo: AsyncReturnType<typeof createApp>
+describe.only('send message - without tor', () => {
+  let owner: AsyncReturnType<typeof createAppWithoutTor>
+  let userOne: AsyncReturnType<typeof createAppWithoutTor>
+  let userTwo: AsyncReturnType<typeof createAppWithoutTor>
 
   beforeAll(async () => {
     owner = await createAppWithoutTor()

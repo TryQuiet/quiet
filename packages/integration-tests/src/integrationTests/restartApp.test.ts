@@ -27,6 +27,7 @@ describe('restart app without doing anything', () => {
 
   test('Owner creates community', async () => {
     store = owner.store
+    await sleep(5_000)
   })
 
   test('Owner successfully closes app', async () => {
@@ -51,20 +52,21 @@ describe('create community and restart app', () => {
   let owner: AsyncReturnType<typeof createApp>
   let store: typeof owner.store
   let oldState: ReturnType<typeof owner.store.getState>
-
+  
   beforeAll(async () => {
     owner = await createApp()
   })
-
+  
   afterAll(async () => {
     await owner.manager.closeAllServices()
   })
-
+  
   test('Owner creates community', async () => {
     await createCommunity({ userName: 'Owner', store: owner.store })
     store = owner.store
+    await sleep(5_000)
   })
-
+  
   test('Owner successfully closes app', async () => {
     await owner.manager.closeAllServices()
   })
@@ -75,7 +77,7 @@ describe('create community and restart app', () => {
     clearInitializedCommunitiesAndRegistrars(store)
     owner = await createApp(oldState)
     // Wait before checking state in case some unwanted actions are executing and manipulating store
-    await sleep(20_000)
+    await sleep(10_000)
     store = owner.store
     const currentState = store.getState()
     expect(currentState).toMatchObject(oldState)

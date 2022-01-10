@@ -1,13 +1,15 @@
 import { Crypto } from '@peculiar/webcrypto'
 import { createCommunity, sendRegistrationRequest } from './appActions'
-import {
-  assertReceivedCertificate,
-  assertReceivedRegistrationError
-} from './assertions'
+import { assertReceivedCertificate, assertReceivedRegistrationError } from './assertions'
 import { createApp } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
+import { sleep } from '../utils'
 
-jest.setTimeout(600_000)
+import logger from '../logger'
+
+const log = logger()
+
+jest.setTimeout(120_000)
 const crypto = new Crypto()
 
 global.crypto = crypto
@@ -25,8 +27,7 @@ describe('offline registrar, user tries to join', () => {
 
   test('user tries to join community', async () => {
     await sendRegistrationRequest({
-      registrarAddress:
-        '76gan734wqm4hy7ahj33pnfub7qobdhhkdnd3rbma7o4dq4hce3ncxad',
+      registrarAddress: '76gan734wqm4hy7ahj33pnfub7qobdhhkdnd3rbma7o4dq4hce3ncxad',
       userName: 'waclaw',
       store: user.store
     })
@@ -40,7 +41,8 @@ describe('offline registrar, user tries to join', () => {
 describe('registrar is offline, user tries to join, then registrar goes online', () => {
   let owner: AsyncReturnType<typeof createApp>
   let user: AsyncReturnType<typeof createApp>
-  let oldState: ReturnType<typeof owner.store.getState>
+  let ownerOldState: ReturnType<typeof owner.store.getState>
+  let ownerDataPath: string
   let registrarAddress: string
 
   beforeAll(async () => {
@@ -57,22 +59,24 @@ describe('registrar is offline, user tries to join, then registrar goes online',
     await createCommunity({ userName: 'placek', store: owner.store })
     const communityId = owner.store.getState().Communities.currentCommunity
     registrarAddress =
-      owner.store.getState().Communities.communities.entities[communityId]
-        .onionAddress
-    oldState = owner.store.getState()
+      owner.store.getState().Communities.communities.entities[communityId].onionAddress
+    ownerOldState = owner.store.getState()
+    ownerDataPath = owner.appPath
+    await sleep(10_000)
   })
 
   test('owner goes offline', async () => {
     await owner.manager.closeAllServices()
   })
 
-  // User should keep sending requests
+  // User should keep sending requests for 10 seconds.
   test('user tries to join community, while registrar is offline', async () => {
     await sendRegistrationRequest({
       userName: 'wacek',
       store: user.store,
       registrarAddress
     })
+    await sleep(10_000)
   })
 
   test('user get error message', async () => {
@@ -80,11 +84,13 @@ describe('registrar is offline, user tries to join, then registrar goes online',
   })
 
   test('registrar goes online', async () => {
-    owner = await createApp(oldState)
+    owner = await createApp(ownerOldState, ownerDataPath)
   })
 
   test('user finishes registration', async () => {
     console.log('user registered certificate')
     await assertReceivedCertificate(user.store)
+    // Let the joining user finish launching community
+    await sleep(10000)
   })
 })

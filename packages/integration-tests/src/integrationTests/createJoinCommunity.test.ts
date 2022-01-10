@@ -5,7 +5,7 @@ import {
   joinCommunity,
   getCommunityOwnerData
 } from './appActions'
-import { createApp } from '../utils'
+import { createApp, sleep } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 
 jest.setTimeout(600_000)
@@ -26,6 +26,7 @@ describe('owner creates community', () => {
 
   test('Owner creates community', async () => {
     await createCommunity({ userName: 'Owner', store: owner.store })
+    await sleep(20_000)
   })
 })
 
