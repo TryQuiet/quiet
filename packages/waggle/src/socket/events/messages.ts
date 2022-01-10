@@ -5,7 +5,6 @@ import SocketIO from 'socket.io'
 import logger from '../../logger'
 const log = logger('messages-events')
 
-
 export const message = (socket: SocketIO.Server, message) => {
   log('emitting message to zbay')
   socket.emit(EventTypesServer.MESSAGE, message)
