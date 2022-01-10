@@ -3,7 +3,6 @@ import { all, takeEvery } from 'typed-redux-saga'
 import { askForMessagesSaga } from './askForMessages/askForMessages.saga'
 import { checkForMessagesSaga } from './checkForMessages/checkForMessages.saga'
 import { publicChannelsActions } from './publicChannels.slice'
-import { communitiesActions } from '../communities/communities.slice'
 import { subscribeToTopicSaga } from './subscribeToTopic/subscribeToTopic.saga'
 import { subscribeToAllTopicsSaga } from './subscribeToAllTopics/subscribeToAllTopics.saga'
 import { createChannelSaga } from './createChannel/createChannel.saga'
@@ -32,7 +31,6 @@ export function* publicChannelsMasterSaga(socket: Socket): Generator {
       publicChannelsActions.askForMessages.type,
       askForMessagesSaga,
       socket
-    ),
-    takeEvery(communitiesActions.community.type, subscribeToAllTopicsSaga)
+    )
   ])
 }

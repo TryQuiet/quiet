@@ -102,6 +102,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
 
   const onSubmit = (values: CreateChannelFormValues) => {
     submitForm(createChannel, values)
+    setChannelName('')
     reset()
   }
 

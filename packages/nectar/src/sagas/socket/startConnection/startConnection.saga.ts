@@ -109,11 +109,8 @@ export function subscribe(socket: Socket) {
     socket.on(
       SocketActionTypes.COMMUNITY,
       (payload: ResponseLaunchCommunityPayload) => {
-        log('launched COMMUNITY')
-        log(payload.id)
-        emit(publicChannelsActions.subscribeToAllTopics(payload.id))
+        log('launched COMMUNITY', payload.id)
         emit(communitiesActions.launchRegistrar(payload.id))
-        emit(communitiesActions.community(payload.id))
         emit(connectionActions.addInitializedCommunity(payload.id))
       }
     )
