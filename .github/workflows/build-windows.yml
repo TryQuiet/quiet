@@ -1,0 +1,89 @@
+name: Build-Windows
+
+on:
+  release:
+    types:
+      [released , prereleased]
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    if: |
+      startsWith(github.ref, 'refs/tags/zbay')
+
+    env:
+      REACT_APP_ENABLE_SENTRY: ${{ github.event.action == 'prereleased' }}
+
+    steps:
+      - uses: actions/checkout@v1.0.0
+      - uses: actions/setup-node@master
+        with:
+          node-version: "12"
+
+      - name: "Fetch jsign"
+        shell: bash
+        run: cd packages/ZbayLite && curl https://zbay-binaries.s3.us-east-2.amazonaws.com/jsign/jsign-2.1.jar --output ./jsign-2.1.jar
+
+      - name: "Add Windows certificate"
+        id: write_file
+        uses: timheuer/base64-to-file@v1.0.3
+        with:
+          fileName: 'win-certificate.pfx'
+          encodedString: ${{ secrets.WIN_CSC_LINK }}
+
+      - name: "Set unsafe-perm"
+        shell: bash
+        run: npm set unsafe-perm true
+
+      - name: "Install lerna and electron-builder globally"
+        shell: bash
+        run: npm i -g lerna && npm i -g electron-builder@22.10.5
+
+      - name: "Install monorepo dependencies"
+        shell: bash
+        run: npm ci
+
+      - name: "Cache NPM dependencies"
+        uses: actions/cache@v2
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-npm-cache-
+
+      - name: "Bootstrap project"
+        shell: bash
+        run: lerna bootstrap
+
+      - name: "Pull tor binary"
+        shell: bash
+        run: cd packages/ZbayLite && curl https://zbay-binaries.s3.us-east-2.amazonaws.com/win32/tor.exe --output ./tor/tor.exe
+
+      - name: "Verify Sentry setup"
+        shell: bash
+        run: echo $REACT_APP_ENABLE_SENTRY
+
+      - name: "Build on Windows"
+        shell: bash
+        run: lerna run build:prod --scope zbay
+
+      - name: "Set electron-builder props"
+        shell: bash
+        if: |
+          ${{ github.event.action == 'prereleased' }}
+        run: |
+          echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=release.zbay.lite.test" >> $GITHUB_ENV
+
+      - name: "Release"
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          CERTIFICATE_PATH: ${{ steps.write_file.outputs.filePath }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+          WINDOWS_ALIAS: ${{ secrets.WIN_ALIAS }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          USE_HARD_LINKS: false
+        run: cd packages/ZbayLite && electron-builder -p always --win ${{ env.ELECTRON_BUILDER_PROPS }}

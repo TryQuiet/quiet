@@ -8,7 +8,8 @@ import Bootstrap from 'libp2p-bootstrap'
 import Gossipsub from 'libp2p-gossipsub'
 import KademliaDHT from 'libp2p-kad-dht'
 import Mplex from 'libp2p-mplex'
-import { Response } from 'node-fetch'
+import fetch, { Response } from 'node-fetch'
+import AbortController from 'abort-controller'
 import * as os from 'os'
 import PeerId from 'peer-id'
 import { CryptoEngine, setEngine } from 'pkijs'
@@ -16,7 +17,6 @@ import { CertsData, ConnectionsManagerOptions } from '../common/types'
 import {
   createLibp2pAddress,
   createLibp2pListenAddress,
-  fetchRetry,
   getPorts,
   torBinForPlatform,
   torDirForPlatform
@@ -226,29 +226,37 @@ export class ConnectionsManager {
   public sendCertificateRegistrationRequest = async (
     serviceAddress: string,
     userCsr: string,
-    retryCount: number = 3
+    requestTimeout: number = 15000
   ): Promise<Response> => {
-    let options
+    const controller = new AbortController()
+    const timeout = setTimeout(() => {
+      controller.abort()
+    }, requestTimeout)
+
+    let options = {
+      method: 'POST',
+      body: JSON.stringify({ data: userCsr }),
+      headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal
+    }
     if (this.tor) {
-      options = {
-        method: 'POST',
-        body: JSON.stringify({ data: userCsr }),
-        headers: { 'Content-Type': 'application/json' },
+      options = Object.assign({
         agent: this.socksProxyAgent
-      }
-    } else {
-      options = {
-        method: 'POST',
-        body: JSON.stringify({ data: userCsr }),
-        headers: { 'Content-Type': 'application/json' }
-      }
+      }, options)
     }
 
     try {
-      return await fetchRetry(serviceAddress + '/register', options, retryCount)
+      const start = new Date()
+      const response = await fetch(`${serviceAddress}/register`, options)
+      const end = new Date()
+      const fetchTime = (end.getTime() - start.getTime()) / 1000
+      log(`Successfully fetched ${serviceAddress}, time: ${fetchTime}`)
+      return response
     } catch (e) {
       log.error(e)
       throw e
+    } finally {
+      clearTimeout(timeout)
     }
   }
 

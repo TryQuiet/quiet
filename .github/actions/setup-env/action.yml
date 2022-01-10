@@ -1,0 +1,55 @@
+name: 'Setup environment'
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@master
+      with:
+        node-version: "12"
+    
+    # https://stackoverflow.com/questions/46232906/git-clone-error-rpc-failed-curl-56-openssl-ssl-read-ssl-error-syscall-errno
+    - name: 'Increase git postBuffer size'
+      if: ${{ matrix.os == 'windows-latest' }}
+      run: git config --global http.postBuffer 524288000
+      shell: bash
+
+    - name: "Patch node gyp on windows to support Visual Studio 2019"
+      if: ${{ matrix.os == 'windows-latest' }}
+      shell: powershell
+      run: |
+        npm install --global node-gyp@latest
+        npm prefix -g | % {npm config set node_gyp "$_\node_modules\node-gyp\bin\node-gyp.js"}
+        npm config set msvs_version 2019
+
+    - name: "Get extra dependencies"
+      if: ${{ matrix.os == 'windows-latest' }}
+      run: npm install -g windows-build-tools@4.0.0
+      shell: powershell
+
+    - name: "Set unsafe-perm"
+      run: npm set unsafe-perm true
+      shell: bash
+
+    - name: "Install lerna globally"
+      run: npm i -g lerna
+      shell: bash
+
+    - name: "Cache NPM dependencies"
+      id: cache-nodemodules
+      uses: actions/cache@v2
+      with:
+        path: |
+          node_modules
+          */*/node_modules
+        key: ${{ runner.OS }}-npm-cache-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.OS }}-npm-cache-
+
+    - name: "Install monorepo dependencies"
+      if: steps.cache-nodemodules.outputs.cache-hit != 'true'
+      run: npm ci
+      shell: bash
+
+    - name: "Bootstrap project"
+      run: lerna bootstrap
+      shell: bash

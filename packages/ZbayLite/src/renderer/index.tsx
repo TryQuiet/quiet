@@ -14,7 +14,7 @@ import { Integrations } from '@sentry/tracing'
 
 import { socketActions, WebsocketConnectionPayload } from './sagas/socket/socket.slice'
 
-if (process.env.REACT_APP_ENABLE_SENTRY === '1') {
+if (process.env.REACT_APP_ENABLE_SENTRY === 'true') {
   Sentry.init({
     dsn: 'https://1ca88607c3d14e15b36cb2cfd5f16d68@o1060867.ingest.sentry.io/6050774',
     integrations: [new Integrations.BrowserTracing()],
