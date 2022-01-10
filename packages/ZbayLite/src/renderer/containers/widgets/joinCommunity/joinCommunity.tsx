@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { communities } from '@zbayapp/nectar'
-import { identity } from '@zbayapp/nectar'
+import { communities, identity } from '@zbayapp/nectar'
 import { CommunityAction } from '../../../components/widgets/performCommunityAction/community.keys'
 import PerformCommunityActionComponent from '../../../components/widgets/performCommunityAction/PerformCommunityActionComponent'
 import { ModalName } from '../../../sagas/modals/modals.types'
@@ -45,7 +44,7 @@ const JoinCommunity = () => {
 
       createUsernameModal.handleOpen({
         communityAction: communityAction,
-        communityData: unregisteredCommunitiesWithoutUserIdentity[0].name
+        communityData: unregisteredCommunitiesWithoutUserIdentity[0].registrarUrl
       })
     }
   }, [unregisteredCommunitiesWithoutUserIdentity, isConnected])
@@ -53,10 +52,16 @@ const JoinCommunity = () => {
   useEffect(() => {
     if (isConnected) {
       loadingStartApp.handleClose()
+      let communityMessage: LoadingMessages
 
       if (unregisteredCommunities.length) {
+        if (isOwner) {
+          communityMessage = LoadingMessages.CreateCommunity
+        } else {
+          communityMessage = LoadingMessages.JoinCommunity
+        }
         loadingCommunityModal.handleOpen({
-          message: LoadingMessages.RetryRegistration
+          message: communityMessage
         })
       }
     }

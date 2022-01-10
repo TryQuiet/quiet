@@ -59,10 +59,31 @@ describe('launchCommunity', () => {
       port: 0
     }
 
+    const identityAlpha: Identity = {
+      id: 'communityAlpha',
+      zbayNickname: 'nickname',
+      hiddenService: {
+        onionAddress: '',
+        privateKey: '',
+      },
+      dmKeys: {
+        publicKey: '',
+        privateKey: '',
+      },
+      peerId: {
+        id: '',
+        pubKey: '',
+        privKey: '',
+      },
+      userCsr: null,
+      userCertificate: 'userCert',
+    };
+
     await expectSaga(initCommunities)
       .withReducer(
         combineReducers({
-          [StoreKeys.Communities]: communitiesReducer
+          [StoreKeys.Communities]: communitiesReducer,
+          [StoreKeys.Identity]: identityReducer
         }),
         {
           [StoreKeys.Communities]: {
@@ -72,6 +93,13 @@ describe('launchCommunity', () => {
               communitiesAdapter.getInitialState(),
               [community1, community2, community3]
             )
+          },
+          [StoreKeys.Identity]: {
+            ...new IdentityState(),
+            identities: identityAdapter.setAll(
+              identityAdapter.getInitialState(),
+              [identityAlpha]
+            ),
           }
         }
       )
