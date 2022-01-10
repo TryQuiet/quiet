@@ -1,12 +1,13 @@
 /* eslint import/first: 0 */
 import { Tor } from './torManager'
 import { torBinForPlatform, torDirForPlatform } from '../common/utils'
-import { createTmpDir, spawnTorProcess, TmpDir, tmpZbayDirPath } from '../common/testUtils'
+import { createTmpDir, spawnTorProcess, tmpZbayDirPath } from '../common/testUtils'
 import getPort from 'get-port'
+import { DirResult } from 'tmp'
 
 jest.setTimeout(100_000)
 
-let tmpDir: TmpDir
+let tmpDir: DirResult
 let tmpAppDataPath: string
 
 beforeEach(() => {

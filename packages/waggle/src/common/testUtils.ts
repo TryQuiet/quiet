@@ -33,11 +33,6 @@ export const dataFromRootPems: DataFromPems = {
 
 tmp.setGracefulCleanup()
 
-export interface TmpDir {
-  name: string
-  removeCallback: () => {}
-}
-
 export const testBootstrapMultiaddrs = [
   createLibp2pAddress('abcd.onion', 1111, 'QmfLUJcDSLVYnNqSPSRK4mKG8MGw51m9K2v59k3yq1C8s4', 'wss')
 ]
@@ -98,7 +93,7 @@ export const createLibp2p = async (peerId: PeerId): Promise<Libp2p> => {
   })
 }
 
-export const createTmpDir = (): TmpDir => {
+export const createTmpDir = (): tmp.DirResult => {
   return tmp.dirSync({ mode: 0o750, prefix: 'zbayTestTmp_', unsafeCleanup: true })
 }
 
