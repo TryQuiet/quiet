@@ -26,11 +26,10 @@ describe('restart app without doing anything', () => {
   })
 
   test('Owner creates community', async () => {
-    store = owner.store
-    await sleep(5_000)
   })
 
   test('Owner successfully closes app', async () => {
+    store = owner.store
     await owner.manager.closeAllServices()
   })
 
@@ -64,6 +63,7 @@ describe('create community and restart app', () => {
   test('Owner creates community', async () => {
     await createCommunity({ userName: 'Owner', store: owner.store })
     store = owner.store
+    // Give orbitDB enough time to subscribe to topics.
     await sleep(5_000)
   })
 

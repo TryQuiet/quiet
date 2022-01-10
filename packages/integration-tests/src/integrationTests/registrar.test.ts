@@ -57,20 +57,21 @@ describe('registrar is offline, user tries to join, then registrar goes online',
       owner.store.getState().Communities.communities.entities[communityId].onionAddress
     ownerOldState = owner.store.getState()
     ownerDataPath = owner.appPath
-    await sleep(10_000)
+    // Give orbitDB enough time to subscribe to topics.
+    await sleep(3_000)
   })
 
   test('owner goes offline', async () => {
     await owner.manager.closeAllServices()
   })
 
-  // User should keep sending requests for 10 seconds.
   test('user tries to join community, while registrar is offline', async () => {
     await sendRegistrationRequest({
       userName: 'wacek',
       store: user.store,
       registrarAddress
     })
+    // User should keep sending requests for 10 seconds.
     await sleep(10_000)
   })
 
@@ -85,7 +86,7 @@ describe('registrar is offline, user tries to join, then registrar goes online',
   test('user finishes registration', async () => {
     console.log('user registered certificate')
     await assertReceivedCertificate(user.store)
-    // Let the joining user finish launching community
-    await sleep(10000)
+    // Let the joining user finish launching community, suubscribing etc.
+    await sleep(10_000)
   })
 })

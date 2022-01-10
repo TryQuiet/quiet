@@ -90,16 +90,14 @@ describe('send message - users go offline and online', () => {
 
   test('Every user sends one message to general channel', async () => {
     const ownerMessage = await sendMessage('owner says hi', owner.store)
-    await sleep(5000)
     const userOneMessage = await sendMessage('userOne says hi', userOne.store)
-    await sleep(5000)
     const userTwoMessage = await sendMessage('userTwo says hi', userTwo.store)
 
     ownerMessagesData.push(ownerMessage)
     userOneMessagesData.push(userOneMessage)
     userTwoMessagesData.push(userTwoMessage)
 
-    // Wait 10 seconds before closing the app
+    // Wait 10 seconds before closing the app, so writing to databases can be finished
     await sleep(10_000)
   })
 
@@ -123,8 +121,6 @@ describe('send message - users go offline and online', () => {
   test('users come back online', async () => {
     userOne = await createApp(userOneOldState, userOneDataPath)
     userTwo = await createApp(userTwoOldState, userTwoDataPath)
-    // Give apps time to launch services
-    await sleep(20000)
   })
 
   test('Owner replicated all messages', async () => {
@@ -249,9 +245,7 @@ describe('send message - users are online', () => {
 
   test('Every user sends one message to general channel', async () => {
     ownerMessageData = await sendMessage('owner says hi', owner.store)
-    await sleep(5000)
     userOneMessageData = await sendMessage('userOne says hi', userOne.store)
-    await sleep(5000)
     userTwoMessageData = await sendMessage('userTwo says hi', userTwo.store)
   })
 

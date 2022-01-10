@@ -86,7 +86,7 @@ export async function createCommunity({ userName, store }: CreateCommunity) {
       store.getState().Connection.initializedCommunities[communityId]
     ).toBeTruthy()
   }, timeout)
-  log('initializedCOmmunity', store.getState().Connection.initializedCommunities[communityId])
+  log('initializedCommunity', store.getState().Connection.initializedCommunities[communityId])
   await waitForExpect(() => {
     expect(
       store.getState().Connection.initializedRegistrars[communityId]
