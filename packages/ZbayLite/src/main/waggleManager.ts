@@ -55,10 +55,8 @@ export const runWaggle = async (
       torControlPort: ports.controlPort
     }
   })
-  console.log('22222222222222')
 
   await connectionsManager.init()
-  console.log('3333333333333')
 
   webContents.send('connectToWebsocket', { dataPort: ports.dataServer })
 

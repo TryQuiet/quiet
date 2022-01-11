@@ -93,10 +93,8 @@ export default class CommunitiesManager {
     if (bootstrapMultiaddrs.length === 0) {
       bootstrapMultiaddrs = [this.connectionsManager.createLibp2pAddress(onionAddress, port, peerIdB58string)]
     }
-    console.log('000000000000000')
 
     const libp2pObj = await this.connectionsManager.initLibp2p(peerId, onionAddress, port, bootstrapMultiaddrs, certs, targetPort)
-    console.log('111111111111111111')
     const storage = this.connectionsManager.createStorage(peerIdB58string, communityId)
     await storage.init(libp2pObj.libp2p, peerId)
     this.communities.set(peerIdB58string, { storage })
