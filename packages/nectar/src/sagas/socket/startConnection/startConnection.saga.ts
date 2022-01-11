@@ -1,7 +1,7 @@
 import { Socket } from 'socket.io-client'
 import { all, call, put, takeEvery, fork } from 'typed-redux-saga'
 import { eventChannel } from 'redux-saga'
-import { SocketActionTypes } from '../const/actionTypes'
+import { ConnectedPeersSet, SocketActionTypes } from '../const/actionTypes'
 import logger from '../../../utils/logger'
 
 import {
@@ -34,18 +34,24 @@ const log = logger('socket')
 
 export function subscribe(socket: Socket) {
   return eventChannel<
-  | ReturnType<typeof publicChannelsActions.responseGetPublicChannels>
-  | ReturnType<typeof publicChannelsActions.responseSendMessagesIds>
-  | ReturnType<typeof publicChannelsActions.responseAskForMessages>
-  | ReturnType<typeof publicChannelsActions.onMessagePosted>
-  | ReturnType<typeof usersActions.responseSendCertificates>
-  | ReturnType<typeof communitiesActions.responseCreateCommunity>
-  | ReturnType<typeof errorsActions.addError>
-  | ReturnType<typeof identityActions.storeUserCertificate>
-  | ReturnType<typeof identityActions.throwIdentityError>
-  | ReturnType<typeof communitiesActions.storePeerList>
-  | ReturnType<typeof communitiesActions.updateCommunity>
+    | ReturnType<typeof publicChannelsActions.responseGetPublicChannels>
+    | ReturnType<typeof publicChannelsActions.responseSendMessagesIds>
+    | ReturnType<typeof publicChannelsActions.responseAskForMessages>
+    | ReturnType<typeof publicChannelsActions.onMessagePosted>
+    | ReturnType<typeof usersActions.responseSendCertificates>
+    | ReturnType<typeof communitiesActions.responseCreateCommunity>
+    | ReturnType<typeof errorsActions.addError>
+    | ReturnType<typeof identityActions.storeUserCertificate>
+    | ReturnType<typeof identityActions.throwIdentityError>
+    | ReturnType<typeof communitiesActions.storePeerList>
+    | ReturnType<typeof communitiesActions.updateCommunity>
   >((emit) => {
+    socket.on(SocketActionTypes.PEER_CONNECT, (payload: ConnectedPeersSet) => {
+      emit(connectionActions.addConnectedPeers(payload))
+    })
+    socket.on(SocketActionTypes.PEER_DISCONNECT, (payload: ConnectedPeersSet) => {
+      emit(connectionActions.removeConnectedPeers(payload))
+    })
     socket.on(
       SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS,
       (payload: GetPublicChannelsResponse) => {
@@ -144,7 +150,7 @@ export function subscribe(socket: Socket) {
     socket.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, () => {
       emit(identityActions.savedOwnerCertificate())
     })
-    return () => {}
+    return () => { }
   })
 }
 

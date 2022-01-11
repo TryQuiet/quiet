@@ -3,16 +3,18 @@ import { CertsData, IChannelInfo, IMessage } from '../../common/types'
 import IOProxy from '../IOProxy'
 import PeerId from 'peer-id'
 import logger from '../../logger'
-import { EventEmitter } from 'events'
+import { ConnectionsManager } from '../../libp2p/connectionsManager'
 const log = logger('socket')
 
-export const connections = (io, ioProxy: IOProxy, connectionManager: EventEmitter) => {
+export const connections = (io, ioProxy: IOProxy, connectionManager: ConnectionsManager) => {
   io.on(EventTypesServer.CONNECTION, socket => {
     log('websocket connected')
-    log('bbbbbbbbbbb', connectionManager)
-    connectionManager?.on('peer:connect', event => {
-      log('bbbbbbbbbbb', event)
-      socket.emit('peer:connect', event)
+
+    connectionManager.on(EventTypesServer.PEER_CONNECT, event => {
+      socket.emit(EventTypesServer.PEER_CONNECT, event)
+    })
+    connectionManager.on(EventTypesServer.PEER_DISCONNECT, event => {
+      socket.emit(EventTypesServer.PEER_DISCONNECT, event)
     })
     socket.on(EventTypesServer.CLOSE, async () => {
       await ioProxy.closeAll()

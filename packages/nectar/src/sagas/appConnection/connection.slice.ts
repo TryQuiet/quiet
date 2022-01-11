@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { PeerId } from '../identity/identity.slice'
+import { ConnectedPeersSet } from '../socket/const/actionTypes'
 import { StoreKeys } from '../store.keys'
 import { CommunityId, RegistrarId } from './connection.types'
 
@@ -7,7 +8,7 @@ export class ConnectionState {
   public initializedCommunities: CommunityId[] = []
   public initializedRegistrars: RegistrarId[] = []
 
-  public connectedPeers: PeerId[] = []
+  public connectedPeers: string[] = []
 }
 
 export const connectionSlice = createSlice({
@@ -26,20 +27,24 @@ export const connectionSlice = createSlice({
         action.payload
       ]
     },
-    addConnectedPeers: (state, action: PayloadAction<PeerId>) => {
-      const isPeerSaved = state.connectedPeers.filter((peerId) => peerId === action.payload)
-      if (!isPeerSaved.length) {
-        state.connectedPeers = [
-          ...state.connectedPeers,
-          action.payload
-        ]
+    addConnectedPeers: (state, action: PayloadAction<ConnectedPeersSet>) => {
+      let connectedPeers = Array.from(action.payload.connectedPeers)
+      const isConnectedPeerSaved = connectedPeers.filter((item) => item === action.payload.newPeer)
+      if (!isConnectedPeerSaved.length) {
+        connectedPeers.push(action.payload.newPeer)
       }
+
+      state.connectedPeers = connectedPeers
     },
-    removeConnectedPeers: (state, action: PayloadAction<PeerId>) => {
-      state.connectedPeers = [
-        ...state.connectedPeers,
-        action.payload
-      ]
+    removeConnectedPeers: (state, action: PayloadAction<ConnectedPeersSet>) => {
+      const connectedPeers = Array.from(action.payload.connectedPeers)
+      const connectedPeersSaved = connectedPeers.map((item) => {
+        if (!(item === action.payload.newPeer)) {
+          return item
+        }
+      })
+
+      state.connectedPeers = connectedPeersSaved
     },
   }
 })

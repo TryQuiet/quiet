@@ -29,5 +29,7 @@ export enum EventTypesServer {
   CREATE_NETWORK = 'createNetwork',
   LAUNCH_COMMUNITY = 'launchCommunity',
   LAUNCH_REGISTRAR = 'launchRegistrar',
-  SAVE_OWNER_CERTIFICATE = 'saveOwnerCertificate'
+  SAVE_OWNER_CERTIFICATE = 'saveOwnerCertificate',
+  PEER_CONNECT = 'peer:connect',
+  PEER_DISCONNECT = 'peer:disconnect'
 }

@@ -11,6 +11,11 @@ export type ActionsType<Actions extends ActionsBasicType> = {
 export type Keys<Actions> = keyof Actions
 export type ActionFromMapping<Actions> = Actions[Keys<Actions>]
 
+export interface ConnectedPeersSet {
+  connectedPeers: Set<string>,
+  newPeer: string
+}
+
 export enum SocketActionTypes {
   CONNECT_TO_WEBSOCKET_SERVER = 'connectToWebsocketServer',
   GET_PUBLIC_CHANNELS = 'getPublicChannels',
@@ -40,4 +45,7 @@ export enum SocketActionTypes {
   SAVE_OWNER_CERTIFICATE = 'saveOwnerCertificate',
   SAVED_OWNER_CERTIFICATE = 'savedOwnerCertificate',
   CLOSE = 'close',
+  PEER_CONNECT = 'peer:connect',
+  PEER_DISCONNECT = 'peer:disconnect'
+
 }

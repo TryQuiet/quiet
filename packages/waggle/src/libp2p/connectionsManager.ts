@@ -113,8 +113,7 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public initListeners = async () => {
-    log('aaaaaaaaaaaaaaaaaaaaaaaa', this.libp2pInstance)
-    await initListeners(this.io, this.ioProxy, this.libp2pInstance)
+    await initListeners(this.io, this.ioProxy, this)
     log('Initialized socket listeners')
   }
 
@@ -218,6 +217,10 @@ export class ConnectionsManager extends EventEmitter {
     libp2p.connectionManager.on('peer:disconnect', (connection: Connection) => {
       log(`${peerId.toB58String()} disconnected from ${connection.remotePeer.toB58String()}`)
       this.connectedPeers.delete(connection.remotePeer.toB58String())
+      this.emit('peer:disconnect', {
+        connectedPeers: this.connectedPeers,
+        newPeer: connection.remotePeer.toB58String()
+      })
     })
     log(`Initialized libp2p for peer ${peerId.toB58String()}`)
     return {
