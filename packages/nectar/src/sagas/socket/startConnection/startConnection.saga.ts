@@ -34,19 +34,19 @@ const log = logger('socket')
 
 export function subscribe(socket: Socket) {
   return eventChannel<
-    | ReturnType<typeof publicChannelsActions.responseGetPublicChannels>
-    | ReturnType<typeof publicChannelsActions.responseSendMessagesIds>
-    | ReturnType<typeof publicChannelsActions.responseAskForMessages>
-    | ReturnType<typeof publicChannelsActions.onMessagePosted>
-    | ReturnType<typeof usersActions.responseSendCertificates>
-    | ReturnType<typeof communitiesActions.responseCreateCommunity>
-    | ReturnType<typeof errorsActions.addError>
-    | ReturnType<typeof identityActions.storeUserCertificate>
-    | ReturnType<typeof identityActions.throwIdentityError>
-    | ReturnType<typeof communitiesActions.storePeerList>
-    | ReturnType<typeof communitiesActions.updateCommunity>
-    | ReturnType<typeof connectionActions.addInitializedCommunity>
-    | ReturnType<typeof connectionActions.addInitializedRegistrar>
+  | ReturnType<typeof publicChannelsActions.responseGetPublicChannels>
+  | ReturnType<typeof publicChannelsActions.responseSendMessagesIds>
+  | ReturnType<typeof publicChannelsActions.responseAskForMessages>
+  | ReturnType<typeof publicChannelsActions.onMessagePosted>
+  | ReturnType<typeof usersActions.responseSendCertificates>
+  | ReturnType<typeof communitiesActions.responseCreateCommunity>
+  | ReturnType<typeof errorsActions.addError>
+  | ReturnType<typeof identityActions.storeUserCertificate>
+  | ReturnType<typeof identityActions.throwIdentityError>
+  | ReturnType<typeof communitiesActions.storePeerList>
+  | ReturnType<typeof communitiesActions.updateCommunity>
+  | ReturnType<typeof connectionActions.addInitializedCommunity>
+  | ReturnType<typeof connectionActions.addInitializedRegistrar>
   >((emit) => {
     socket.on(SocketActionTypes.PEER_CONNECT, (payload: ConnectedPeersSet) => {
       emit(connectionActions.addConnectedPeers(payload))

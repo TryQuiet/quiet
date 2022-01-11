@@ -33,7 +33,7 @@ export const connectionSlice = createSlice({
       state.initializedRegistrars = {}
     },
     addConnectedPeers: (state, action: PayloadAction<ConnectedPeersSet>) => {
-      let connectedPeers = Array.from(action.payload.connectedPeers)
+      const connectedPeers = Array.from(action.payload.connectedPeers)
       const isConnectedPeerSaved = connectedPeers.filter((item) => item === action.payload.newPeer)
       if (!isConnectedPeerSaved.length) {
         connectedPeers.push(action.payload.newPeer)
@@ -50,7 +50,7 @@ export const connectionSlice = createSlice({
       })
 
       state.connectedPeers = connectedPeersSaved
-    },
+    }
   }
 })
 

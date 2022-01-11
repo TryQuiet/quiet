@@ -183,7 +183,7 @@ Object {
 exports[`publicChannelsSelectors get sliced messages 7`] = `
 Object {
   "channelId": "general",
-  "createdAt": 1641844200,
+  "createdAt": 1641930600,
   "id": "9",
   "message": "message_9",
   "pubKey": Any<String>,

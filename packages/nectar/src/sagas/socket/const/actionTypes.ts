@@ -12,7 +12,7 @@ export type Keys<Actions> = keyof Actions
 export type ActionFromMapping<Actions> = Actions[Keys<Actions>]
 
 export interface ConnectedPeersSet {
-  connectedPeers: Set<string>,
+  connectedPeers: Set<string>
   newPeer: string
 }
 

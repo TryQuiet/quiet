@@ -113,7 +113,7 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public initListeners = async () => {
-    await initListeners(this.io, this.ioProxy, this)
+    initListeners(this.io, this.ioProxy, this)
     log('Initialized socket listeners')
   }
 
@@ -142,7 +142,7 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public init = async () => {
-    this.initListeners()
+    void this.initListeners()
     await this.spawnTor()
   }
 
