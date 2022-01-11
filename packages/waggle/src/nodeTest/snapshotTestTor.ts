@@ -4,6 +4,7 @@ import path from 'path'
 import { Time } from 'pkijs'
 import { createTmpDir } from '../common/testUtils'
 import { NodeWithTor } from './nodes'
+import { StorageTestSnapshot } from '../storage/storageSnapshot'
 
 const tmpDir = createTmpDir()
 const torDir1 = path.join(tmpDir.name, 'tor1')
@@ -41,7 +42,8 @@ const runTest = async () => {
     },
     tmpAppDataPath1,
     ['mockBootstrapMultiaddress'],
-    rootCa
+    rootCa,
+    StorageTestSnapshot
   )
   await node1.init()
 
@@ -68,7 +70,8 @@ const runTest = async () => {
     },
     tmpAppDataPath2,
     [node1.localAddress],
-    rootCa
+    rootCa,
+    StorageTestSnapshot
   )
   await node2.init()
 }

@@ -8,6 +8,7 @@ import logger from '../logger'
 import { createTmpDir } from '../common/testUtils'
 import { LocalNode, NodeWithoutTor, NodeWithTor } from './nodes'
 import { sleep } from '../sleep'
+import { StorageBasic } from '../storage/storageBasic'
 
 const log = logger('testConnect')
 
@@ -22,7 +23,7 @@ setEngine(
   })
 )
 
-jest.setTimeout(900_000)
+jest.setTimeout(1_800_000)
 
 const tmpDir = createTmpDir()
 
@@ -59,7 +60,8 @@ const launchNode = async (
     undefined,
     tmpAppDataPath,
     bootstrapMultiaddrs,
-    rootCa
+    rootCa,
+    StorageBasic
   )
   await node.init()
   node.storage.setName(`Node${i}`)
@@ -70,7 +72,7 @@ const launchNode = async (
 describe('Nodes connections', () => {
   test('5 nodes connect each other - using tor, providing bootstrap multiaddress of all nodes', async () => {
     const timeout = 360_000
-    const noOfNodes = 2
+    const noOfNodes = 5
     const expectedConnectionsAmount = noOfNodes - 1
 
     const notBeforeDate = new Date(Date.UTC(2010, 11, 28, 10, 10, 10))
@@ -110,9 +112,9 @@ describe('Nodes connections', () => {
     await sleep(40_000)
   })
 
-  test('5 nodes connect each other - using tor, providing only one bootstrap multiaddress', async () => {
-    const timeout = 360_000
-    const noOfNodes = 2
+  test.skip('5 nodes connect each other - using tor, providing only one bootstrap multiaddress', async () => {
+    const timeout = 900_000
+    const noOfNodes = 5
     const expectedConnectionsAmount = noOfNodes - 1
 
     const notBeforeDate = new Date(Date.UTC(2010, 11, 28, 10, 10, 10))
@@ -154,7 +156,7 @@ describe('Nodes connections', () => {
     await sleep(40_000)
   })
 
-  test.only('5 nodes connect each other - no tor, providing bootstrap multiaddress of all nodes', async () => {
+  test('5 nodes connect each other - no tor, providing bootstrap multiaddress of all nodes', async () => {
     const timeout = 360_000
     const noOfNodes = 5
     const expectedConnectionsAmount = noOfNodes - 1
@@ -197,9 +199,9 @@ describe('Nodes connections', () => {
     await sleep(40_000)
   })
 
-  test('5 nodes connect each other - no tor, providing only one bootstrap multiaddress', async () => {
-    const timeout = 360_000
-    const noOfNodes = 2
+  test.skip('5 nodes connect each other - no tor, providing only one bootstrap multiaddress', async () => {
+    const timeout = 900_000
+    const noOfNodes = 5
     const expectedConnectionsAmount = noOfNodes - 1
 
     const notBeforeDate = new Date(Date.UTC(2010, 11, 28, 10, 10, 10))
