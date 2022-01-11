@@ -17,6 +17,7 @@ export const connections = (io, ioProxy: IOProxy) => {
     socket.on(
       EventTypesServer.SEND_MESSAGE,
       async (peerId: string, { channelAddress, message }: { channelAddress: string; message: IMessage }) => {
+        log(`Sending message ${message.message}`)
         await ioProxy.sendMessage(peerId, channelAddress, message)
       }
     )

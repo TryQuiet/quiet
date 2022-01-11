@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { communities, errors, identity, publicChannels, socketActionTypes } from '@zbayapp/nectar'
+import { communities, errors, identity, publicChannels, socketActionTypes, connection } from '@zbayapp/nectar'
 import CreateUsernameModalComponent from '../../../components/widgets/createUsername/CreateUsernameModal'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { useModal } from '../../hooks'
@@ -24,13 +24,16 @@ const CreateUsernameModal = () => {
 
   const invitationUrl = useSelector(communities.selectors.registrarUrl)
   const channels = useSelector(publicChannels.selectors.publicChannels)
+  const initializedCommunitiesCount = useSelector(connection.selectors.initializedCommunities).length
+  const allCommunitiesCount = useSelector(communities.selectors.allCommunities).length
+  
   const createUsernameModal = useModal<CreateUsernameModalProps>(ModalName.createUsernameModal)
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
   const createCommunityModal = useModal(ModalName.createCommunityModal)
   const loadingCommunityModal = useModal(ModalName.loadingPanel)
 
   useEffect(() => {
-    if (certificate &&
+    if (certificate && (initializedCommunitiesCount === allCommunitiesCount) &&
       ((createUsernameModal.communityAction === CommunityAction.Join && channels.length) ||
         (createUsernameModal.communityAction === CommunityAction.Create && invitationUrl))) {
       loadingCommunityModal.handleClose()
