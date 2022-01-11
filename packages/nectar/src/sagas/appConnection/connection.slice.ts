@@ -3,9 +3,8 @@ import { StoreKeys } from '../store.keys'
 import { CommunityId, RegistrarId } from './connection.types'
 
 export class ConnectionState {
-  public initializedCommunities: CommunityId[] = []
-
-  public initializedRegistrars: RegistrarId[] = []
+  public initializedCommunities: { [key: string]: boolean } = {}
+  public initializedRegistrars: { [key: string]: boolean } = {}
 }
 
 export const connectionSlice = createSlice({
@@ -13,16 +12,22 @@ export const connectionSlice = createSlice({
   name: StoreKeys.Connection,
   reducers: {
     addInitializedCommunity: (state, action: PayloadAction<CommunityId>) => {
-      state.initializedCommunities = [
+      state.initializedCommunities = {
         ...state.initializedCommunities,
-        action.payload
-      ]
+        [action.payload]: true
+      }
     },
     addInitializedRegistrar: (state, action: PayloadAction<RegistrarId>) => {
-      state.initializedRegistrars = [
+      state.initializedRegistrars = {
         ...state.initializedRegistrars,
-        action.payload
-      ]
+        [action.payload]: true
+      }
+    },
+    removeInitializedCommunities: (state, _action: PayloadAction<CommunityId>) => {
+      state.initializedCommunities = {}
+    },
+    removeInitializedRegistrars: (state, _action: PayloadAction<RegistrarId>) => {
+      state.initializedRegistrars = {}
     }
   }
 })
