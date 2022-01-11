@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prepublish": "npm run build",
-    "test": "jest sagas/*",
+    "test": "TZ=UTC jest sagas/*",
     "lint": "eslint --ext .ts ./src/",
     "prettier": "prettier"
   },
