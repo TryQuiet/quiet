@@ -24,16 +24,17 @@ const CreateUsernameModal = () => {
 
   const invitationUrl = useSelector(communities.selectors.registrarUrl)
   const channels = useSelector(publicChannels.selectors.publicChannels)
-  const initializedCommunitiesCount = useSelector(connection.selectors.initializedCommunities).length
+  const initializedCommunitiesCount = Object.keys(useSelector(connection.selectors.initializedCommunities)).length
   const allCommunitiesCount = useSelector(communities.selectors.allCommunities).length
-  
+  const allCommunitiesInitialized = initializedCommunitiesCount === allCommunitiesCount
+
   const createUsernameModal = useModal<CreateUsernameModalProps>(ModalName.createUsernameModal)
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
   const createCommunityModal = useModal(ModalName.createCommunityModal)
   const loadingCommunityModal = useModal(ModalName.loadingPanel)
 
   useEffect(() => {
-    if (certificate && (initializedCommunitiesCount === allCommunitiesCount) &&
+    if (certificate && allCommunitiesInitialized &&
       ((createUsernameModal.communityAction === CommunityAction.Join && channels.length) ||
         (createUsernameModal.communityAction === CommunityAction.Create && invitationUrl))) {
       loadingCommunityModal.handleClose()
