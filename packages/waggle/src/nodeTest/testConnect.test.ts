@@ -8,7 +8,7 @@ import logger from '../logger'
 import { createTmpDir } from '../common/testUtils'
 import { LocalNode, NodeWithoutTor, NodeWithTor } from './nodes'
 import { sleep } from '../sleep'
-import { StorageBasic } from '../storage/storageBasic'
+import { StorageBasic } from '../storage/testUtils/storageBasic'
 
 const log = logger('testConnect')
 
@@ -112,50 +112,6 @@ describe('Nodes connections', () => {
     await sleep(40_000)
   })
 
-  test.skip('5 nodes connect each other - using tor, providing only one bootstrap multiaddress', async () => {
-    const timeout = 900_000
-    const noOfNodes = 5
-    const expectedConnectionsAmount = noOfNodes - 1
-
-    const notBeforeDate = new Date(Date.UTC(2010, 11, 28, 10, 10, 10))
-    const notAfterDate = new Date(Date.UTC(2030, 11, 28, 10, 10, 10))
-    const rootCa = await createRootCA(
-      new Time({ type: 0, value: notBeforeDate }),
-      new Time({ type: 0, value: notAfterDate })
-    )
-
-    const multiaddressList = []
-    const map = new Map<number, LocalNode>()
-
-    for (let i = 0; i < noOfNodes; i++) {
-      log(`initializing node ${i}`)
-      const node = await launchNode(i, rootCa, true, multiaddressList)
-      if (i === 0) {
-        multiaddressList.push(node.localAddress)
-      }
-      map.set(i, node)
-    }
-
-    for (let i = 0; i < noOfNodes; i++) {
-      log(`node ${i} waiting for ${expectedConnectionsAmount} connections`)
-      const node = map.get(i)
-      await waitForExpect(() => {
-        expect(node.connectionsManager.libp2pInstance.connections.size).toEqual(
-          expectedConnectionsAmount
-        )
-      }, timeout)
-      log(`node ${i} received ${expectedConnectionsAmount} connections`)
-    }
-
-    for (let i = 0; i < noOfNodes; i++) {
-      log(`closing node ${i}`)
-      const node = map.get(i)
-      await node.closeServices()
-    }
-
-    await sleep(40_000)
-  })
-
   test('5 nodes connect each other - no tor, providing bootstrap multiaddress of all nodes', async () => {
     const timeout = 360_000
     const noOfNodes = 5
@@ -195,52 +151,6 @@ describe('Nodes connections', () => {
       const node = map.get(i)
       await node.closeServices()
     }
-
     await sleep(40_000)
-  })
-
-  test.skip('5 nodes connect each other - no tor, providing only one bootstrap multiaddress', async () => {
-    const timeout = 900_000
-    const noOfNodes = 5
-    const expectedConnectionsAmount = noOfNodes - 1
-
-    const notBeforeDate = new Date(Date.UTC(2010, 11, 28, 10, 10, 10))
-    const notAfterDate = new Date(Date.UTC(2030, 11, 28, 10, 10, 10))
-    const rootCa = await createRootCA(
-      new Time({ type: 0, value: notBeforeDate }),
-      new Time({ type: 0, value: notAfterDate })
-    )
-
-    const multiaddressList = []
-    const map = new Map<number, LocalNode>()
-
-    for (let i = 0; i < noOfNodes; i++) {
-      log(`initializing node ${i}`)
-      const node = await launchNode(i, rootCa, false, multiaddressList)
-      if (i === 0) {
-        multiaddressList.push(node.localAddress)
-      }
-      map.set(i, node)
-    }
-
-    for (let i = 0; i < noOfNodes; i++) {
-      log(`node ${i} waiting for ${expectedConnectionsAmount} connections`)
-      const node = map.get(i)
-      console.log(node.connectionsManager.libp2pInstance.connections.size, 'size')
-      await waitForExpect(() => {
-        expect(node.connectionsManager.libp2pInstance.connections.size).toEqual(
-          expectedConnectionsAmount
-        )
-      }, timeout)
-      log(`node ${i} received ${expectedConnectionsAmount} connections`)
-    }
-
-    for (let i = 0; i < noOfNodes; i++) {
-      log(`closing node ${i}`)
-      const node = map.get(i)
-      await node.closeServices()
-    }
-
-    await sleep(20_000)
   })
 })

@@ -4,7 +4,7 @@ import path from 'path'
 import { Time } from 'pkijs'
 import { createTmpDir } from '../common/testUtils'
 import { NodeWithoutTor } from './nodes'
-import { StorageTestSnapshot } from '../storage/storageSnapshot'
+import { StorageTestSnapshot } from '../storage/testUtils/storageSnapshot'
 
 const tmpDir = createTmpDir()
 const torDir1 = path.join(tmpDir.name, 'tor1')

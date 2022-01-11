@@ -8,7 +8,7 @@ import logger from '../logger'
 import { createTmpDir } from '../common/testUtils'
 import { LocalNode, NodeWithoutTor, NodeWithTor } from './nodes'
 import getPort from 'get-port'
-import { StorageTestSnapshot } from '../storage/storageSnapshot'
+import { StorageTestSnapshot } from '../storage/testUtils/storageSnapshot'
 const log = logger('testReplicate')
 
 const argv = yargs.command('test', 'Test replication', (yargs: Argv) => {
