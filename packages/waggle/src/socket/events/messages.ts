@@ -2,6 +2,8 @@ import { EventTypesServer } from '../constants'
 import { IMessage } from '../../common/types'
 import { EventTypesResponse } from '../constantsReponse'
 import SocketIO from 'socket.io'
+import logger from '../../logger'
+const log = logger('messages-events')
 
 export const message = (socket: SocketIO.Server, message) => {
   console.log('Emitting message to zbay')

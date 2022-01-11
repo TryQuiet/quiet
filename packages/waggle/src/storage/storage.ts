@@ -200,13 +200,6 @@ export class Storage {
           communityId: this.communityId,
           channels: payload
         })
-        await Promise.all(
-          Object.values(this.channels.all).map(async channel => {
-            if (!this.publicChannelsRepos.has(channel.address)) {
-              await this.subscribeToChannel(channel)
-            }
-          })
-        )
       }
     )
 
@@ -336,9 +329,8 @@ export class Storage {
           communityId: this.communityId
         })
       })
-
-      db.events.on('replicate.progress', (_address, _hash, entry, _progress, _total) => {
-        log('Message replicated')
+      db.events.on('replicate.progress', (address, _hash, entry, progress, total) => {
+        log(`progress ${progress as string}/${total as string}. Address: ${address as string}`)
         socketMessage(this.io, {
           message: entry.payload.value,
           channelAddress: channel.address,

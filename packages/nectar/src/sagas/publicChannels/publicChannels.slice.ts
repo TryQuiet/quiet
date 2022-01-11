@@ -8,6 +8,8 @@ import {
 import { PublicChannel, ChannelMessage } from './publicChannels.types'
 import { MessageType } from '../messages/messages.types'
 import { Identity } from '../identity/identity.slice'
+import logger from '../../utils/logger'
+const log = logger('publicChannels')
 
 export class PublicChannelsState {
   public channels: EntityState<CommunityChannels> =
@@ -117,7 +119,7 @@ export const publicChannelsSlice = createSlice({
       action: PayloadAction<GetPublicChannelsResponse>
     ) => {
       const { communityId, channels } = action.payload
-      console.log(
+      log(
         `replicated channels [${Object.keys(
           channels
         )}] for community ${communityId}`
