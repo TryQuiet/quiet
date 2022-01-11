@@ -147,7 +147,6 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public closeAllServices = async () => {
-    this.io.close()
     await this.ioProxy.closeAll()
   }
 

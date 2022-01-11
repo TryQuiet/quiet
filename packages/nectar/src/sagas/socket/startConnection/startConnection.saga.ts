@@ -45,6 +45,8 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof identityActions.throwIdentityError>
     | ReturnType<typeof communitiesActions.storePeerList>
     | ReturnType<typeof communitiesActions.updateCommunity>
+    | ReturnType<typeof connectionActions.addInitializedCommunity>
+    | ReturnType<typeof connectionActions.addInitializedRegistrar>
   >((emit) => {
     socket.on(SocketActionTypes.PEER_CONNECT, (payload: ConnectedPeersSet) => {
       emit(connectionActions.addConnectedPeers(payload))
@@ -106,8 +108,8 @@ export function subscribe(socket: Socket) {
     socket.on(
       SocketActionTypes.COMMUNITY,
       (payload: ResponseLaunchCommunityPayload) => {
-        log('launched COMMUNITY')
-        log(payload.id)
+        log('launched COMMUNITY', payload.id)
+
         emit(publicChannelsActions.subscribeForAllTopics(payload.id))
         emit(communitiesActions.launchRegistrar(payload.id))
         emit(communitiesActions.community(payload.id))
