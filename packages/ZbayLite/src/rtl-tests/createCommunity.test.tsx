@@ -75,9 +75,12 @@ describe('User', () => {
         const id = data[0]
         payloadData = payload(id)
 
-        return socket.socketClient.emit(SocketActionTypes.NEW_COMMUNITY, {
+        return socket.socketClient.emit(SocketActionTypes.NETWORK, {
           id: id,
-          payload: payload(id)
+          payload: {
+            hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
+            peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' }
+          }
         })
       }
       if (action === SocketActionTypes.REGISTER_OWNER_CERTIFICATE) {

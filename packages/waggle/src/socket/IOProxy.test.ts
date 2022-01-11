@@ -1,7 +1,6 @@
 import { createMinConnectionManager, createTmpDir, ResponseMock, tmpZbayDirPath, TorMock } from '../common/testUtils'
 import { getPorts } from '../common/utils'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
-import { createCertificatesTestHelper } from '../libp2p/tests/client-server'
 import { EventTypesResponse } from './constantsReponse'
 import IOProxy from './IOProxy'
 
@@ -32,38 +31,38 @@ describe('IO proxy', () => {
     await manager.tor.kill()
   })
 
-  it('creates community without running registrar for regular user', async () => {
-    const observedLaunchRegistrar = jest.spyOn(ioProxy, 'launchRegistrar')
-    const observedIO = jest.spyOn(ioProxy.io, 'emit')
-    const observedCommunityCreate = jest.spyOn(ioProxy.communities, 'create')
-    const pems = await createCertificatesTestHelper('adres1.onion', 'adres2.onion')
-    const certs = {
-      cert: pems.userCert,
-      key: pems.userKey,
-      ca: [pems.ca]
-    }
-    await ioProxy.createCommunity('MyCommunity', certs)
-    expect(observedLaunchRegistrar).not.toBeCalled()
-    const communityData = await observedCommunityCreate.mock.results[0].value
-    expect(observedIO).lastCalledWith(EventTypesResponse.NEW_COMMUNITY, { id: 'MyCommunity', payload: communityData })
-  })
+  // it('creates community without running registrar for regular user', async () => {
+  //   const observedLaunchRegistrar = jest.spyOn(ioProxy, 'launchRegistrar')
+  //   const observedIO = jest.spyOn(ioProxy.io, 'emit')
+  //   const observedCommunityCreate = jest.spyOn(ioProxy.communities, 'create')
+  //   const pems = await createCertificatesTestHelper('adres1.onion', 'adres2.onion')
+  //   const certs = {
+  //     cert: pems.userCert,
+  //     key: pems.userKey,
+  //     ca: [pems.ca]
+  //   }
+  //   await ioProxy.createCommunity('MyCommunity', certs)
+  //   expect(observedLaunchRegistrar).not.toBeCalled()
+  //   const communityData = await observedCommunityCreate.mock.results[0].value
+  //   expect(observedIO).lastCalledWith(EventTypesResponse.NEW_COMMUNITY, { id: 'MyCommunity', payload: communityData })
+  // })
 
-  it('creates community and starts registrar if user is the owner', async () => {
-    const communityId = 'MyCommunity'
-    const observedLaunchRegistrar = jest.spyOn(ioProxy, 'launchRegistrar')
-    const observedIO = jest.spyOn(ioProxy.io, 'emit')
-    const observedCommunityCreate = jest.spyOn(ioProxy.communities, 'create')
-    const pems = await createCertificatesTestHelper('adres1.onion', 'adres2.onion')
-    const certs = {
-      cert: pems.userCert,
-      key: pems.userKey,
-      ca: [pems.ca]
-    }
-    await ioProxy.createCommunity(communityId, certs, 'ownerRootCert', 'ownerRootKey')
-    expect(observedLaunchRegistrar).toBeCalled()
-    const communityData = await observedCommunityCreate.mock.results[0].value
-    expect(observedIO).lastCalledWith(EventTypesResponse.NEW_COMMUNITY, { id: communityId, payload: communityData })
-  })
+  // it('creates community and starts registrar if user is the owner', async () => {
+  //   const communityId = 'MyCommunity'
+  //   const observedLaunchRegistrar = jest.spyOn(ioProxy, 'launchRegistrar')
+  //   const observedIO = jest.spyOn(ioProxy.io, 'emit')
+  //   const observedCommunityCreate = jest.spyOn(ioProxy.communities, 'create')
+  //   const pems = await createCertificatesTestHelper('adres1.onion', 'adres2.onion')
+  //   const certs = {
+  //     cert: pems.userCert,
+  //     key: pems.userKey,
+  //     ca: [pems.ca]
+  //   }
+  //   await ioProxy.createCommunity(communityId, certs, 'ownerRootCert', 'ownerRootKey')
+  //   expect(observedLaunchRegistrar).toBeCalled()
+  //   const communityData = await observedCommunityCreate.mock.results[0].value
+  //   expect(observedIO).lastCalledWith(EventTypesResponse.NEW_COMMUNITY, { id: communityId, payload: communityData })
+  // })
 
   it('emits error if connecting to registrar fails', async () => {
     const observedIO = jest.spyOn(ioProxy.io, 'emit')

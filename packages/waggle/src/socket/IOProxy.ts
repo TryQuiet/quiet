@@ -139,16 +139,18 @@ export default class IOProxy {
       id: communityId,
       payload: { certificate: cert, peers: [], rootCa: dataFromPerms.certificate }
     })
+    this.io.emit(EventTypesResponse.SAVED_OWNER_CERTIFICATE, {
+      id: communityId,
+      payload: { certificate: cert }
+    })
   }
 
   public saveOwnerCertificate = async (
-    communityId: string,
     peerId: string,
     certificate: string,
     dataFromPerms
   ) => {
     await this.getStorage(peerId).saveCertificate(certificate, dataFromPerms)
-    this.io.emit(EventTypesResponse.SAVED_OWNER_CERTIFICATE, { id: communityId })
   }
 
   public registerUserCertificate = async (
@@ -225,15 +227,12 @@ export default class IOProxy {
 
   public async createCommunity(
     communityId: string,
-    certs: CertsData,
-    rootCert?: string,
-    rootKey?: string
+    peerId: PeerId.JSONPeerId,
+    hiddenService: { address: string; privateKey: string },
+    certs: CertsData
   ) {
-    const communityData = await this.communities.create(certs, communityId)
-    if (rootCert && rootKey) {
-      await this.launchRegistrar(communityId, communityData.peerId.id, rootCert, rootKey)
-    }
-    this.io.emit(EventTypesResponse.NEW_COMMUNITY, { id: communityId, payload: communityData })
+    await this.launchCommunity(communityId, peerId, hiddenService, [], certs)
+    this.io.emit(EventTypesResponse.NEW_COMMUNITY, { id: communityId })
   }
 
   public async launchCommunity(

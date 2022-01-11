@@ -1,11 +1,9 @@
 import { Socket } from 'socket.io-client'
 import { PayloadAction } from '@reduxjs/toolkit'
-import { apply, select, put } from 'typed-redux-saga'
+import { apply, select } from 'typed-redux-saga'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { communitiesSelectors } from '../../communities/communities.selectors'
-import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { identityActions } from '../identity.slice'
-import { DateTime } from 'luxon'
 
 export function* registerCertificateSaga(
   socket: Socket,
@@ -22,29 +20,6 @@ export function* registerCertificateSaga(
         privKey: currentCommunity.CA?.rootKeyString
       }
     ])
-
-    const channel = {
-      name: 'general',
-      description: 'Welcome to #general',
-      owner: '',
-      address: 'general',
-      timestamp: DateTime.utc().valueOf()
-    }
-
-    // PeerId is required for creating PublicChannel so it cannot be done before registering owner's certificate
-    yield* put(
-      publicChannelsActions.createChannel({
-        communityId: action.payload.communityId,
-        channel: channel
-      })
-    )
-
-    yield* put(
-      publicChannelsActions.setCurrentChannel({
-        communityId: action.payload.communityId,
-        channel: channel.address
-      })
-    )
   } else {
     const registrarUrl = action.payload.registrarAddress.includes(':')
       ? `http://${action.payload.registrarAddress}`

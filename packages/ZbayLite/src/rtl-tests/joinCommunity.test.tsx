@@ -64,9 +64,12 @@ describe('User', () => {
               zbayNickname: 'holmes'
             })
           ).payload
-          return socket.socketClient.emit(SocketActionTypes.NEW_COMMUNITY, {
+          return socket.socketClient.emit(SocketActionTypes.NETWORK, {
             id: communityId,
-            payload: holmes
+            payload: {
+              hiddenService: holmes.hiddenService,
+              peerId: holmes.peerId
+            }
           })
         }
         if (action === SocketActionTypes.REGISTER_USER_CERTIFICATE) {

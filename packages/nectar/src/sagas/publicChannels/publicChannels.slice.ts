@@ -70,6 +70,10 @@ export interface CreateChannelPayload {
   communityId: string
 }
 
+export interface CreateGeneralChannelPayload {
+  communityId: string
+}
+
 export interface AskForMessagesResponse {
   messages: ChannelMessage[]
   communityId: string
@@ -87,6 +91,7 @@ export const publicChannelsSlice = createSlice({
   name: StoreKeys.PublicChannels,
   reducers: {
     createChannel: (state, _action: PayloadAction<CreateChannelPayload>) => state,
+    createGeneralChannel: (state, _action: PayloadAction<CreateGeneralChannelPayload>) => state,
     addChannel: (state, action: PayloadAction<CreateChannelPayload>) => {
       const { channel, communityId } = action.payload
       publicChannelsAdapter.addOne(
