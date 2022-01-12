@@ -90,13 +90,17 @@ describe('User', () => {
 
         communityId = data[0]
         const CA = data[2]
-        return socket.socketClient.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
+        socket.socketClient.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
           id: communityId,
           payload: {
             peers: [''],
             certificate: CA.certificate,
             rootCa: 'rootCa'
           }
+        })
+        socket.socketClient.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
+          id: communityId,
+          cert: CA.certificate
         })
       }
     })
@@ -136,6 +140,7 @@ describe('User', () => {
     yield* take(communities.actions.responseCreateCommunity)
     yield* take(identity.actions.registerUsername)
     yield* take(identity.actions.storeUserCertificate)
+    yield* take(identity.actions.savedOwnerCertificate)
   }
 
   function* mockAddressResponse(): Generator {
