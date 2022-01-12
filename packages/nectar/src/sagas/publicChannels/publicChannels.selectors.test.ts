@@ -21,6 +21,9 @@ describe('publicChannelsSelectors', () => {
   beforeAll(async () => {
     setupCrypto()
 
+    // Set date display format
+    process.env.LC_ALL = 'C.UTF-8'
+
     store = prepareStore().store
 
     const factory = await getFactory(store)
@@ -230,7 +233,7 @@ describe('publicChannelsSelectors', () => {
         "Feb 05": Array [
           Array [
             Object {
-              "createdAt": 1612544520,
+              "createdAt": 1612548120,
               "date": "Feb 05, 18:02",
               "id": "7",
               "message": "message_7",
@@ -238,7 +241,7 @@ describe('publicChannelsSelectors', () => {
               "type": 1,
             },
             Object {
-              "createdAt": 1612554600,
+              "createdAt": 1612558200,
               "date": "Feb 05, 20:50",
               "id": "8",
               "message": "message_8",
@@ -250,7 +253,7 @@ describe('publicChannelsSelectors', () => {
         "Oct 20": Array [
           Array [
             Object {
-              "createdAt": 1603165800,
+              "createdAt": 1603173000,
               "date": "Oct 20, 5:50",
               "id": "1",
               "message": "message_1",
@@ -258,7 +261,7 @@ describe('publicChannelsSelectors', () => {
               "type": 1,
             },
             Object {
-              "createdAt": 1603167000,
+              "createdAt": 1603174200,
               "date": "Oct 20, 6:10",
               "id": "2",
               "message": "message_2",
@@ -266,7 +269,7 @@ describe('publicChannelsSelectors', () => {
               "type": 1,
             },
             Object {
-              "createdAt": 1603167090.001,
+              "createdAt": 1603174290.001,
               "date": "Oct 20, 6:11",
               "id": "3",
               "message": "message_3",
@@ -274,7 +277,7 @@ describe('publicChannelsSelectors', () => {
               "type": 1,
             },
             Object {
-              "createdAt": 1603167090.002,
+              "createdAt": 1603174290.002,
               "date": "Oct 20, 6:11",
               "id": "4",
               "message": "message_4",
@@ -284,7 +287,7 @@ describe('publicChannelsSelectors', () => {
           ],
           Array [
             Object {
-              "createdAt": 1603167121,
+              "createdAt": 1603174321,
               "date": "Oct 20, 6:12",
               "id": "5",
               "message": "message_5",
@@ -294,7 +297,7 @@ describe('publicChannelsSelectors', () => {
           ],
           Array [
             Object {
-              "createdAt": 1603167122,
+              "createdAt": 1603174322,
               "date": "Oct 20, 6:12",
               "id": "6",
               "message": "message_6",
@@ -306,7 +309,7 @@ describe('publicChannelsSelectors', () => {
         "Today": Array [
           Array [
             Object {
-              "createdAt": 1640202600,
+              "createdAt": 1642020600,
               "date": "20:50",
               "id": "9",
               "message": "message_9",
