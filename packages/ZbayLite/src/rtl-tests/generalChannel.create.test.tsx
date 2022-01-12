@@ -40,8 +40,8 @@ describe('General channel', () => {
 
     const factory = await getFactory(store)
 
-    const holmes = await factory.create<
-      ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    await factory.create<
+    ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { zbayNickname: 'holmes' })
 
     jest
