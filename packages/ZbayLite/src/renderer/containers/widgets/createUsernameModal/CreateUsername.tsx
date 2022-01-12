@@ -22,11 +22,12 @@ const CreateUsernameModal = () => {
   const communityErrors = useSelector(errors.selectors.currentCommunityErrorsByType)
   const error = communityErrors?.[socketActionTypes.REGISTRAR]
 
-  const invitationUrl = useSelector(communities.selectors.registrarUrl)
+  const currentCommunityId = useSelector(communities.selectors.currentCommunityId)
+  const invitationUrl = useSelector(communities.selectors.registrarUrl(currentCommunityId))
   const channels = useSelector(publicChannels.selectors.publicChannels)
   const initializedCommunitiesCount = Object.keys(useSelector(connection.selectors.initializedCommunities)).length
   const allCommunitiesCount = useSelector(communities.selectors.allCommunities).length
-  const allCommunitiesInitialized = initializedCommunitiesCount === allCommunitiesCount
+  const allCommunitiesInitialized = allCommunitiesCount > 0 && initializedCommunitiesCount === allCommunitiesCount
 
   const createUsernameModal = useModal<CreateUsernameModalProps>(ModalName.createUsernameModal)
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
