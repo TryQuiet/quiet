@@ -220,21 +220,15 @@ describe('publicChannelsSelectors', () => {
     const messages = slicedCurrentChannelMessages(store.getState())
     messages.forEach(message => {
       expect(message).toMatchSnapshot({
-        createdAt: expect.any(Number),
         pubKey: expect.any(String),
         signature: expect.any(String)
       })
     })
   })
 
-  // Snpashot's causing problems because of possibly date format differences (e.g. 20:50 / 8:50PM)
-  // test should only be run if changes to grouping messages are made
-  it.skip('get grouped messages', async () => {
+  it('get grouped messages', async () => {
     const messages = currentChannelMessagesMergedBySender(store.getState())
     expect(messages).toMatchInlineSnapshot(`
-Object {
-  "Feb 05": Array [
-    Array [
       Object {
         "Feb 05": Array [
           Array [
