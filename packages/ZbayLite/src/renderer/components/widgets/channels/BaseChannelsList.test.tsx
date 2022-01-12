@@ -25,6 +25,7 @@ describe('BaseChannelsList', () => {
             <div
               aria-disabled="false"
               class="MuiButtonBase-root MuiListItem-root makeStyles-root-5 MuiListItem-button"
+              data-testid="name-link"
               role="button"
               tabindex="0"
             >
@@ -45,7 +46,6 @@ describe('BaseChannelsList', () => {
                     >
                       <p
                         class="MuiTypography-root makeStyles-title-8 MuiTypography-body2"
-                        data-testid="name-link"
                       >
                         # name
                       </p>

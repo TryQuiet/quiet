@@ -95,6 +95,7 @@ describe('Add new channel', () => {
 
     renderComponent(
       <>
+        <Sidebar />
         <CreateChannel />
         <Channel />
       </>,
@@ -129,5 +130,9 @@ describe('Add new channel', () => {
     // Check if newly created channel is present and selected
     const channelTitle = screen.getByTestId('channelTitle')
     expect(channelTitle).toHaveTextContent('#my-super-channel')
+
+    // Check if sidebar item displays as selected
+    const link = screen.getByTestId('my-super-channel-link')
+    expect(link).toHaveClass('makeStyles-selected-539')
   })
 })
