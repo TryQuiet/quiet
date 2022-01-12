@@ -96,6 +96,9 @@ describe('User', () => {
           }
         })
       }
+      if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
+        return socket.socketClient.emit(SocketActionTypes.COMMUNITY, { id: communityId })
+      }
     })
 
     // Confirm proper modal title is displayed
