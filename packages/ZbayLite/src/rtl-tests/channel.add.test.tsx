@@ -44,7 +44,7 @@ describe('Add new channel', () => {
 
     await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
       'Identity',
-      { zbayNickname: 'holmes' }
+      { zbayNickname: 'alice' }
     )
 
     renderComponent(
@@ -75,20 +75,20 @@ describe('Add new channel', () => {
 
     const factory = await getFactory(store)
 
-    const holmes = await factory.create<
+    const alice = await factory.create<
     ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { zbayNickname: 'holmes' })
+    >('Identity', { zbayNickname: 'alice' })
 
     jest
       .spyOn(socket, 'emit')
       .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
         if (action === SocketActionTypes.SUBSCRIBE_TO_TOPIC) {
           const data = input as socketEventData<[string, PublicChannel]>
-          expect(data[0]).toEqual(holmes.peerId.id)
+          expect(data[0]).toEqual(alice.peerId.id)
           expect(data[1].name).toEqual('my-super-channel')
           return socket.socketClient.emit(SocketActionTypes.CREATED_CHANNEL, {
             channel: data[1],
-            communityId: holmes.id // Identity id is the same as community id
+            communityId: alice.id // Identity id is the same as community id
           })
         }
       })
@@ -118,7 +118,7 @@ describe('Add new channel', () => {
     function* testCreateChannelSaga(): Generator {
       const createChannelAction = yield* take(publicChannels.actions.createChannel)
       expect(createChannelAction.payload.channel.name).toEqual('my-super-channel')
-      expect(createChannelAction.payload.channel.owner).toEqual(holmes.zbayNickname)
+      expect(createChannelAction.payload.channel.owner).toEqual(alice.zbayNickname)
       const addChannelAction = yield* take(publicChannels.actions.addChannel)
       expect(addChannelAction.payload.channel).toEqual(createChannelAction.payload.channel)
     }

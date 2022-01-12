@@ -58,17 +58,17 @@ describe('User', () => {
         if (action === SocketActionTypes.CREATE_NETWORK) {
           const data = input as socketEventData<[string]>
           communityId = data[0]
-          const holmes = (
+          const alice = (
             await factory.build<typeof identity.actions.addNewIdentity>('Identity', {
               id: communityId,
-              zbayNickname: 'holmes'
+              zbayNickname: 'alice'
             })
           ).payload
           return socket.socketClient.emit(SocketActionTypes.NETWORK, {
             id: communityId,
             payload: {
-              hiddenService: holmes.hiddenService,
-              peerId: holmes.peerId
+              hiddenService: alice.hiddenService,
+              peerId: alice.peerId
             }
           })
         }
@@ -103,7 +103,7 @@ describe('User', () => {
     // Enter username and hit button
     const createUsernameInput = await screen.findByPlaceholderText('Enter a username')
     const createUsernameButton = await screen.findByText('Register')
-    userEvent.type(createUsernameInput, 'holmes')
+    userEvent.type(createUsernameInput, 'alice')
     userEvent.click(createUsernameButton)
 
     await act(async () => {

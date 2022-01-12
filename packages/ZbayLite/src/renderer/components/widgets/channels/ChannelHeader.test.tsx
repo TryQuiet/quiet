@@ -10,7 +10,7 @@ describe('ChannelHeader', () => {
         channel={{
           name: 'general',
           description: 'description',
-          owner: 'holmes',
+          owner: 'alice',
           timestamp: 0,
           address: 'address'
         }}

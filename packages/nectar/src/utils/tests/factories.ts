@@ -44,7 +44,7 @@ export const getFactory = async (store: Store) => {
         await factory.create('CommunityChannels', { id: payload.id })
         await factory.create('PublicChannel', {
           communityId: payload.id,
-          channel: { name: 'general', owner: 'holmes' }
+          channel: { name: 'general', owner: 'alice' }
         })
         return payload
       }

@@ -16,8 +16,8 @@ export const Component = Template.bind({})
 
 const args: ChannelInputProps = {
   channelAddress: 'channelAddress',
-  channelParticipants: [{ nickname: 'bartek' }, { nickname: 'emilia' }],
-  inputPlaceholder: '#general as @holmes',
+  channelParticipants: [{ nickname: 'john' }, { nickname: 'emily' }],
+  inputPlaceholder: '#general as @alice',
   onChange: function (_arg: string): void {},
   onKeyPress: function (input: string): void {
     console.log('send message', input)

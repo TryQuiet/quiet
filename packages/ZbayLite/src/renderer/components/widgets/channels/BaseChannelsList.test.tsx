@@ -9,7 +9,7 @@ describe('BaseChannelsList', () => {
       {
         name: 'name',
         description: '',
-        owner: 'holmes',
+        owner: 'alice',
         timestamp: 1243545,
         address: 'name'
       }

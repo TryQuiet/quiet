@@ -34,13 +34,13 @@ describe('Switch channels', () => {
     ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
-    const holmes = await factory.create<
+    const alice = await factory.create<
     ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, zbayNickname: 'holmes' })
+    >('Identity', { id: community.id, zbayNickname: 'alice' })
 
     const generalChannelMessage = await factory.create<
     ReturnType<typeof publicChannels.actions.signMessage>['payload']
-    >('SignedMessage', { identity: holmes })
+    >('SignedMessage', { identity: alice })
 
     await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
       'PublicChannel',
@@ -50,7 +50,7 @@ describe('Switch channels', () => {
           name: 'memes',
           description: 'Welcome to #memes',
           timestamp: DateTime.utc().valueOf(),
-          owner: holmes.zbayNickname,
+          owner: alice.zbayNickname,
           address: 'memes'
         }
       }

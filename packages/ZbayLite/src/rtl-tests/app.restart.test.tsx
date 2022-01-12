@@ -45,7 +45,7 @@ describe('Restart app works correctly', () => {
 
     await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
-      zbayNickname: 'holmes'
+      zbayNickname: 'alice'
     })
 
     renderComponent(
