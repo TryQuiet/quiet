@@ -135,21 +135,13 @@ export default class IOProxy {
     dataFromPerms: DataFromPems
   ) => {
     const cert = await CertificateRegistration.registerOwnerCertificate(userCsr, dataFromPerms)
-    this.io.emit(EventTypesResponse.SEND_USER_CERTIFICATE, {
+    this.io.emit(EventTypesResponse.SAVED_OWNER_CERTIFICATE, {
       id: communityId,
       payload: { certificate: cert, peers: [], rootCa: dataFromPerms.certificate }
     })
-    this.io.emit(EventTypesResponse.SAVED_OWNER_CERTIFICATE, {
-      id: communityId,
-      payload: { certificate: cert }
-    })
   }
 
-  public saveOwnerCertificate = async (
-    peerId: string,
-    certificate: string,
-    dataFromPerms
-  ) => {
+  public saveOwnerCertificate = async (peerId: string, certificate: string, dataFromPerms) => {
     await this.getStorage(peerId).saveCertificate(certificate, dataFromPerms)
   }
 
