@@ -12,6 +12,7 @@ import KeyValueStore from 'orbit-db-kvstore'
 import path from 'path'
 import PeerId from 'peer-id'
 import { CryptoEngine, setEngine } from 'pkijs'
+import { SocketActionTypes } from '@zbayapp/nectar'
 import {
   DataFromPems,
   IChannelInfo,
@@ -24,8 +25,6 @@ import {
 import Libp2p from 'libp2p'
 import { createPaths } from '../common/utils'
 import { Config } from '../constants'
-import logger from '../logger'
-import { EventTypesResponse } from '../socket/constantsReponse'
 import { loadCertificates } from '../socket/events/certificates'
 import { createdChannel } from '../socket/events/channels'
 import {
@@ -35,6 +34,8 @@ import {
   sendIdsToZbay
 } from '../socket/events/messages'
 import validate from '../validation/validators'
+import logger from '../logger'
+
 const log = logger('db')
 
 const dataFromRootPems: DataFromPems = {
@@ -194,7 +195,7 @@ export class Storage {
       await this.channels.load({ fetchEntryTimeout: 2000 })
       const payload = this.channels.all
 
-      this.io.emit(EventTypesResponse.RESPONSE_GET_PUBLIC_CHANNELS, {
+      this.io.emit(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, {
         communityId: this.communityId,
         channels: payload
       })
@@ -220,7 +221,7 @@ export class Storage {
         // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
         await this.messageThreads.load({ fetchEntryTimeout: 2000 })
         const payload = this.messageThreads.all
-        this.io.emit(EventTypesResponse.RESPONSE_GET_PRIVATE_CONVERSATIONS, payload)
+        this.io.emit(SocketActionTypes.RESPONSE_GET_PRIVATE_CONVERSATIONS, payload)
         await this.initAllConversations()
       }
     )
@@ -244,7 +245,7 @@ export class Storage {
         await this.directMessagesUsers.load({ fetchEntryTimeout: 2000 })
         // await this.directMessagesUsers.close()
         const payload = this.directMessagesUsers.all
-        this.io.emit(EventTypesResponse.RESPONSE_GET_AVAILABLE_USERS, payload)
+        this.io.emit(SocketActionTypes.RESPONSE_GET_AVAILABLE_USERS, payload)
         log('REPLICATED USERS')
       }
     )
@@ -414,7 +415,7 @@ export class Storage {
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.directMessagesUsers.load({ fetchEntryTimeout: 2000 })
     const payload = this.directMessagesUsers.all
-    this.io.emit(EventTypesResponse.RESPONSE_GET_AVAILABLE_USERS, payload)
+    this.io.emit(SocketActionTypes.RESPONSE_GET_AVAILABLE_USERS, payload)
   }
 
   public async initializeConversation(address: string, encryptedPhrase: string): Promise<void> {
@@ -521,7 +522,7 @@ export class Storage {
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.directMessagesUsers.load({ fetchEntryTimeout: 2000 })
     const payload = this.directMessagesUsers.all
-    this.io.emit(EventTypesResponse.RESPONSE_GET_AVAILABLE_USERS, payload)
+    this.io.emit(SocketActionTypes.RESPONSE_GET_AVAILABLE_USERS, payload)
     log('emitted')
   }
 
@@ -531,7 +532,7 @@ export class Storage {
     await this.messageThreads.load({ fetchEntryTimeout: 2000 })
     const payload = this.messageThreads.all
     log('STORAGE: getPrivateConversations payload payload')
-    this.io.emit(EventTypesResponse.RESPONSE_GET_PRIVATE_CONVERSATIONS, payload)
+    this.io.emit(SocketActionTypes.RESPONSE_GET_PRIVATE_CONVERSATIONS, payload)
   }
 
   public async saveCertificate(certificate: string, fromRootPems?: DataFromPems): Promise<boolean> {

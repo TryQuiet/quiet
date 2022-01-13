@@ -79,7 +79,8 @@
 	"dependencies": {
 		"@chainsafe/libp2p-noise": "^4.0.0",
 		"@peculiar/webcrypto": "1.2.2",
-		"@zbayapp/identity": "^4.0.0",
+		"@zbayapp/identity": "*",
+		"@zbayapp/nectar": "*",
 		"abortable-iterator": "^3.0.0",
 		"class-validator": "^0.13.1",
 		"cli-table": "^0.3.6",

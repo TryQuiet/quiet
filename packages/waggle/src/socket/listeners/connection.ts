@@ -1,24 +1,25 @@
-import { EventTypesServer } from '../constants'
+import { SocketActionTypes } from '@zbayapp/nectar'
 import { CertsData, IChannelInfo, IMessage } from '../../common/types'
 import IOProxy from '../IOProxy'
 import PeerId from 'peer-id'
 import logger from '../../logger'
+
 const log = logger('socket')
 
 export const connections = (io, ioProxy: IOProxy) => {
-  io.on(EventTypesServer.CONNECTION, socket => {
+  io.on(SocketActionTypes.CONNECTION, socket => {
     log('websocket connected')
-    socket.on(EventTypesServer.CLOSE, async () => {
+    socket.on(SocketActionTypes.CLOSE, async () => {
       await ioProxy.closeAll()
     })
     socket.on(
-      EventTypesServer.SUBSCRIBE_TO_TOPIC,
+      SocketActionTypes.SUBSCRIBE_TO_TOPIC,
       async (peerId: string, channelData: IChannelInfo) => {
         await ioProxy.subscribeToTopic(peerId, channelData)
       }
     )
     socket.on(
-      EventTypesServer.SEND_MESSAGE,
+      SocketActionTypes.SEND_MESSAGE,
       async (
         peerId: string,
         { channelAddress, message }: { channelAddress: string; message: IMessage }
@@ -27,22 +28,22 @@ export const connections = (io, ioProxy: IOProxy) => {
       }
     )
     socket.on(
-      EventTypesServer.FETCH_ALL_MESSAGES,
+      SocketActionTypes.FETCH_ALL_MESSAGES,
       async (peerId: string, channelAddress: string) => {
         await ioProxy.loadAllMessages(peerId, channelAddress)
       }
     )
     socket.on(
-      EventTypesServer.ADD_USER,
+      SocketActionTypes.ADD_USER,
       async (peerId: string, { publicKey, halfKey }: { publicKey: string; halfKey: string }) => {
         await ioProxy.addUser(peerId, publicKey, halfKey)
       }
     )
-    socket.on(EventTypesServer.GET_AVAILABLE_USERS, async (peerId: string) => {
+    socket.on(SocketActionTypes.GET_AVAILABLE_USERS, async (peerId: string) => {
       await ioProxy.getAvailableUsers(peerId)
     })
     socket.on(
-      EventTypesServer.INITIALIZE_CONVERSATION,
+      SocketActionTypes.INITIALIZE_CONVERSATION,
       async (
         peerId: string,
         { address, encryptedPhrase }: { address: string; encryptedPhrase: string }
@@ -50,11 +51,11 @@ export const connections = (io, ioProxy: IOProxy) => {
         await ioProxy.initializeConversation(peerId, address, encryptedPhrase)
       }
     )
-    socket.on(EventTypesServer.GET_PRIVATE_CONVERSATIONS, async (peerId: string) => {
+    socket.on(SocketActionTypes.GET_PRIVATE_CONVERSATIONS, async (peerId: string) => {
       await ioProxy.getPrivateConversations(peerId)
     })
     socket.on(
-      EventTypesServer.SEND_DIRECT_MESSAGE,
+      SocketActionTypes.SEND_DIRECT_MESSAGE,
       async (
         peerId: string,
         { channelAddress, message }: { channelAddress: string; message: string }
@@ -63,19 +64,19 @@ export const connections = (io, ioProxy: IOProxy) => {
       }
     )
     socket.on(
-      EventTypesServer.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD,
+      SocketActionTypes.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD,
       async (peerId: string, channelAddress: string) => {
         await ioProxy.subscribeToDirectMessageThread(peerId, channelAddress)
       }
     )
     socket.on(
-      EventTypesServer.SUBSCRIBE_FOR_ALL_CONVERSATIONS,
+      SocketActionTypes.SUBSCRIBE_FOR_ALL_CONVERSATIONS,
       async (peerId: string, conversations: string[]) => {
         await ioProxy.subscribeToAllConversations(peerId, conversations)
       }
     )
     socket.on(
-      EventTypesServer.ASK_FOR_MESSAGES,
+      SocketActionTypes.ASK_FOR_MESSAGES,
       async ({
         peerId,
         channelAddress,
@@ -91,14 +92,14 @@ export const connections = (io, ioProxy: IOProxy) => {
       }
     )
     socket.on(
-      EventTypesServer.REGISTER_USER_CERTIFICATE,
+      SocketActionTypes.REGISTER_USER_CERTIFICATE,
       async (serviceAddress: string, userCsr: string, id: string) => {
         log(`Registering user certificate (${id}) on ${serviceAddress}`)
         await ioProxy.registerUserCertificate(serviceAddress, userCsr, id)
       }
     )
     socket.on(
-      EventTypesServer.REGISTER_OWNER_CERTIFICATE,
+      SocketActionTypes.REGISTER_OWNER_CERTIFICATE,
       async (
         communityId: string,
         userCsr: string,
@@ -111,12 +112,12 @@ export const connections = (io, ioProxy: IOProxy) => {
         await ioProxy.registerOwnerCertificate(communityId, userCsr, dataFromPerms)
       }
     )
-    socket.on(EventTypesServer.SAVE_CERTIFICATE, async (peerId: string, certificate: string) => {
+    socket.on(SocketActionTypes.SAVE_CERTIFICATE, async (peerId: string, certificate: string) => {
       log(`Saving user certificate (${peerId})`)
       await ioProxy.saveCertificate(peerId, certificate)
     })
     socket.on(
-      EventTypesServer.SAVE_OWNER_CERTIFICATE,
+      SocketActionTypes.SAVE_OWNER_CERTIFICATE,
       async (
         communityId: string,
         peerId: string,
@@ -131,7 +132,7 @@ export const connections = (io, ioProxy: IOProxy) => {
       }
     )
     socket.on(
-      EventTypesServer.CREATE_COMMUNITY,
+      SocketActionTypes.CREATE_COMMUNITY,
       async (
         communityId: string,
         peerId: PeerId.JSONPeerId,
@@ -144,7 +145,7 @@ export const connections = (io, ioProxy: IOProxy) => {
     )
 
     socket.on(
-      EventTypesServer.LAUNCH_COMMUNITY,
+      SocketActionTypes.LAUNCH_COMMUNITY,
       async (
         id: string,
         peerId: PeerId.JSONPeerId,
@@ -157,7 +158,7 @@ export const connections = (io, ioProxy: IOProxy) => {
       }
     )
     socket.on(
-      EventTypesServer.LAUNCH_REGISTRAR,
+      SocketActionTypes.LAUNCH_REGISTRAR,
       async (
         id: string,
         peerId: string,
@@ -177,7 +178,7 @@ export const connections = (io, ioProxy: IOProxy) => {
         )
       }
     )
-    socket.on(EventTypesServer.CREATE_NETWORK, async (communityId: string) => {
+    socket.on(SocketActionTypes.CREATE_NETWORK, async (communityId: string) => {
       log(`Creating network for community ${communityId}`)
       await ioProxy.createNetwork(communityId)
     })

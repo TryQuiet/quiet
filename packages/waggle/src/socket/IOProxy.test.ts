@@ -8,7 +8,7 @@ import {
 import { getPorts } from '../common/utils'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 import { createCertificatesTestHelper } from '../libp2p/tests/client-server'
-import { EventTypesResponse } from './constantsReponse'
+import { SocketActionTypes } from '@zbayapp/nectar'
 import IOProxy from './IOProxy'
 
 describe('IO proxy', () => {
@@ -67,7 +67,7 @@ describe('IO proxy', () => {
     expect(observedLaunchRegistrar).not.toBeCalled()
     const communityData = await observedCommunityCreate.mock.results[0].value
     console.log(communityData)
-    expect(observedIO).lastCalledWith(EventTypesResponse.NEW_COMMUNITY, { id: 'MyCommunity' })
+    expect(observedIO).lastCalledWith(SocketActionTypes.NEW_COMMUNITY, { id: 'MyCommunity' })
   })
 
   it('starts registrar', async () => {
@@ -105,7 +105,7 @@ describe('IO proxy', () => {
       1234
     )
     expect(observedLaunchRegistrar).toBeCalled()
-    expect(observedIO).lastCalledWith(EventTypesResponse.REGISTRAR, {
+    expect(observedIO).lastCalledWith(SocketActionTypes.REGISTRAR, {
       id: communityId,
       payload: {
         onionAddress: 'mockedOnionAddress',
@@ -124,8 +124,8 @@ describe('IO proxy', () => {
       'someCommunityId'
     )
     expect(observedIO).toBeCalledTimes(1)
-    expect(observedIO).toBeCalledWith(EventTypesResponse.ERROR, {
-      type: EventTypesResponse.REGISTRAR,
+    expect(observedIO).toBeCalledWith(SocketActionTypes.ERROR, {
+      type: SocketActionTypes.REGISTRAR,
       message: 'Connecting to registrar failed',
       communityId: 'someCommunityId',
       code: 500
@@ -151,8 +151,8 @@ describe('IO proxy', () => {
         'someCommunityId'
       )
       expect(observedIO).toBeCalledTimes(1)
-      expect(observedIO).toBeCalledWith(EventTypesResponse.ERROR, {
-        type: EventTypesResponse.REGISTRAR,
+      expect(observedIO).toBeCalledWith(SocketActionTypes.ERROR, {
+        type: SocketActionTypes.REGISTRAR,
         message: socketMessage,
         communityId: 'someCommunityId',
         code: socketStatusCode
@@ -177,7 +177,7 @@ describe('IO proxy', () => {
       'someCommunityId'
     )
     expect(observedIO).toBeCalledTimes(1)
-    expect(observedIO).toBeCalledWith(EventTypesResponse.SEND_USER_CERTIFICATE, {
+    expect(observedIO).toBeCalledWith(SocketActionTypes.SEND_USER_CERTIFICATE, {
       id: 'someCommunityId',
       payload: registrarResponse
     })

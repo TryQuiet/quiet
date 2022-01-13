@@ -1,15 +1,14 @@
-import { EventTypesServer } from '../constants'
-import { IMessage } from '../../common/types'
-import { EventTypesResponse } from '../constantsReponse'
 import SocketIO from 'socket.io'
+import { SocketActionTypes } from '@zbayapp/nectar'
+import { IMessage } from '../../common/types'
 
 export const message = (socket: SocketIO.Server, message) => {
   console.log('Emitting message to zbay')
-  socket.emit(EventTypesServer.MESSAGE, message)
+  socket.emit(SocketActionTypes.MESSAGE, message)
 }
 
 export const directMessage = (socket: SocketIO.Server, message) => {
-  socket.emit(EventTypesServer.DIRECT_MESSAGE, message)
+  socket.emit(SocketActionTypes.DIRECT_MESSAGE, message)
 }
 
 export const loadAllMessages = (
@@ -21,7 +20,7 @@ export const loadAllMessages = (
   if (messages.length === 0) {
     return
   }
-  socket.emit(EventTypesResponse.RESPONSE_FETCH_ALL_MESSAGES, {
+  socket.emit(SocketActionTypes.RESPONSE_FETCH_ALL_MESSAGES, {
     communityId,
     channelAddress,
     messages
@@ -35,7 +34,7 @@ export const sendIdsToZbay = (
   if (payload.ids.length === 0) {
     return
   }
-  socket.emit(EventTypesResponse.SEND_IDS, payload)
+  socket.emit(SocketActionTypes.SEND_IDS, payload)
 }
 
 export const loadAllDirectMessages = (
@@ -46,7 +45,7 @@ export const loadAllDirectMessages = (
   if (messages.length === 0) {
     return
   }
-  socket.emit(EventTypesResponse.RESPONSE_FETCH_ALL_DIRECT_MESSAGES, {
+  socket.emit(SocketActionTypes.RESPONSE_FETCH_ALL_DIRECT_MESSAGES, {
     channelAddress,
     messages
   })

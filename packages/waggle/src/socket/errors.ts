@@ -1,5 +1,5 @@
-import { EventTypesResponse } from './constantsReponse'
 import SocketIO from 'socket.io'
+import { SocketActionTypes } from '@zbayapp/nectar'
 
 class ErrorPayload {
   type: string
@@ -12,7 +12,7 @@ export class Error extends ErrorPayload {
 }
 
 export const emitError = (io: SocketIO.Server, payload: Error) => {
-  io.emit(EventTypesResponse.ERROR, payload)
+  io.emit(SocketActionTypes.ERROR, payload)
 }
 
 export const emitValidationError = (io: SocketIO.Server, payload: ErrorPayload) => {

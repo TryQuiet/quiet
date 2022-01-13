@@ -6,7 +6,7 @@ import CommunitiesManager from '../communities/manager'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 import { CertificateRegistration } from '../registration'
 import { Storage } from '../storage'
-import { EventTypesResponse } from './constantsReponse'
+import { SocketActionTypes } from '@zbayapp/nectar'
 import { emitServerError, emitValidationError } from './errors'
 import { loadAllMessages } from './events/messages'
 import logger from '../logger'
@@ -135,7 +135,7 @@ export default class IOProxy {
     dataFromPerms: DataFromPems
   ) => {
     const cert = await CertificateRegistration.registerOwnerCertificate(userCsr, dataFromPerms)
-    this.io.emit(EventTypesResponse.SAVED_OWNER_CERTIFICATE, {
+    this.io.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
       id: communityId,
       payload: { certificate: cert, peers: [], rootCa: dataFromPerms.certificate }
     })
@@ -158,7 +158,7 @@ export default class IOProxy {
       )
     } catch (e) {
       emitServerError(this.io, {
-        type: EventTypesResponse.REGISTRAR,
+        type: SocketActionTypes.REGISTRAR,
         message: 'Connecting to registrar failed',
         communityId
       })
@@ -170,14 +170,14 @@ export default class IOProxy {
         break
       case 403:
         emitValidationError(this.io, {
-          type: EventTypesResponse.REGISTRAR,
+          type: SocketActionTypes.REGISTRAR,
           message: 'Username already taken.',
           communityId
         })
         return
       case 400:
         emitValidationError(this.io, {
-          type: EventTypesResponse.REGISTRAR,
+          type: SocketActionTypes.REGISTRAR,
           message: 'Username is not valid',
           communityId
         })
@@ -187,7 +187,7 @@ export default class IOProxy {
           `Registrar responded with ${response.status} "${response.statusText}" (${communityId})`
         )
         emitServerError(this.io, {
-          type: EventTypesResponse.REGISTRAR,
+          type: SocketActionTypes.REGISTRAR,
           message: 'Registering username failed.',
           communityId
         })
@@ -195,7 +195,7 @@ export default class IOProxy {
     }
     const registrarResponse: { certificate: string; peers: string[]; rootCa: string } =
       await response.json()
-    this.io.emit(EventTypesResponse.SEND_USER_CERTIFICATE, {
+    this.io.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
       id: communityId,
       payload: registrarResponse
     })
@@ -208,13 +208,13 @@ export default class IOProxy {
     } catch (e) {
       log.error(`Creating network for community ${communityId} failed`, e)
       emitServerError(this.io, {
-        type: EventTypesResponse.NETWORK,
+        type: SocketActionTypes.NETWORK,
         message: 'Creating network failed',
         communityId
       })
       return
     }
-    this.io.emit(EventTypesResponse.NETWORK, { id: communityId, payload: network })
+    this.io.emit(SocketActionTypes.NETWORK, { id: communityId, payload: network })
   }
 
   public async createCommunity(
@@ -224,7 +224,7 @@ export default class IOProxy {
     certs: CertsData
   ) {
     await this.launchCommunity(communityId, peerId, hiddenService, [], certs)
-    this.io.emit(EventTypesResponse.NEW_COMMUNITY, { id: communityId })
+    this.io.emit(SocketActionTypes.NEW_COMMUNITY, { id: communityId })
   }
 
   public async launchCommunity(
@@ -245,13 +245,13 @@ export default class IOProxy {
     } catch (e) {
       log(`Couldn't launch community for peer ${peerId.id}. Error:`, e)
       emitServerError(this.io, {
-        type: EventTypesResponse.COMMUNITY,
+        type: SocketActionTypes.COMMUNITY,
         message: 'Could not launch community',
         communityId
       })
       return
     }
-    this.io.emit(EventTypesResponse.COMMUNITY, { id: communityId })
+    this.io.emit(SocketActionTypes.COMMUNITY, { id: communityId })
   }
 
   public async launchRegistrar(
@@ -279,7 +279,7 @@ export default class IOProxy {
         communityId
       })
     } else {
-      this.io.emit(EventTypesResponse.REGISTRAR, {
+      this.io.emit(SocketActionTypes.REGISTRAR, {
         id: communityId,
         peerId,
         payload: registrar.getHiddenServiceData()
