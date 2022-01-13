@@ -14,6 +14,7 @@ export const certificates = createSelector(usersSlice, (reducerState) =>
 )
 
 export const certificatesMapping = createSelector(certificates, (certs) => {
+  console.log(certs)
   const mapping: { [pubKey: string]: User } = {}
   Object.keys(certs).map((pubKey) => {
     const certificate = certs[pubKey]
@@ -29,6 +30,7 @@ export const certificatesMapping = createSelector(certificates, (certs) => {
       dmPublicKey: getCertFieldValue(certificate, CertFieldsTypes.dmPublicKey)
     })
   })
+  console.log(mapping)
   return mapping
 })
 

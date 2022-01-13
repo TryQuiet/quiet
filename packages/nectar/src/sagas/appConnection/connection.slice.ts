@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import logger from '../../utils/logger'
 import { ConnectedPeersSet } from '../socket/const/actionTypes'
 import { StoreKeys } from '../store.keys'
 import { CommunityId, RegistrarId } from './connection.types'
@@ -9,6 +10,8 @@ export class ConnectionState {
 
   public connectedPeers: string[] = []
 }
+
+const log = logger('connectionSlice')
 
 export const connectionSlice = createSlice({
   initialState: { ...new ConnectionState() },
@@ -38,7 +41,7 @@ export const connectionSlice = createSlice({
       if (!isConnectedPeerSaved.length) {
         connectedPeers.push(action.payload.newPeer)
       }
-
+      log('ADD PEER', action.payload)
       state.connectedPeers = connectedPeers
     },
     removeConnectedPeers: (state, action: PayloadAction<ConnectedPeersSet>) => {
@@ -48,6 +51,7 @@ export const connectionSlice = createSlice({
           return item
         }
       })
+      log('REMOVE PEER', action.payload)
 
       state.connectedPeers = connectedPeersSaved
     }

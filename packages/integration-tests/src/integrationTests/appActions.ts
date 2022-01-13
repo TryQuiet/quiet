@@ -1,5 +1,5 @@
 import waitForExpect from 'wait-for-expect'
-import { identity, communities, messages, connection } from '@zbayapp/nectar'
+import { identity, communities, messages, connection, storeKeys } from '@zbayapp/nectar'
 import { keyFromCertificate, parseCertificate } from '@zbayapp/identity'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { createApp } from '../utils'
@@ -251,7 +251,7 @@ export const getCommunityOwnerData = (ownerStore: Store) => {
   const ownerStoreState = ownerStore.getState()
   const community =
     ownerStoreState.Communities.communities.entities[
-      ownerStoreState.Communities.currentCommunity
+    ownerStoreState.Communities.currentCommunity
     ]
   const registrarAddress = community.onionAddress
   const ownerIdentityState = ownerStore.getState().Identity

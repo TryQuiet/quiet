@@ -1,9 +1,9 @@
 import { Crypto } from '@peculiar/webcrypto'
-import { assertReceivedCertificates } from './assertions'
+import { assertConnectedToPeers, assertReceivedCertificates } from './assertions'
 import {
   createCommunity,
   joinCommunity,
-  getCommunityOwnerData
+  getCommunityOwnerData,
 } from './appActions'
 import { createApp, sleep } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
@@ -68,6 +68,7 @@ describe('owner creates community and two users join', () => {
       userName: 'username2',
       expectedPeersCount: 3
     })
+
   })
 
   test('Owner and users received certificates', async () => {
@@ -75,4 +76,11 @@ describe('owner creates community and two users join', () => {
     await assertReceivedCertificates('userOne', 3, 120_000, userOne.store)
     await assertReceivedCertificates('userTwo', 3, 120_000, userTwo.store)
   })
+
+  test('all peers are connected', async () => {
+    await assertConnectedToPeers(owner.store, 2)
+
+
+  })
+
 })

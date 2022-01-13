@@ -229,9 +229,6 @@ describe('publicChannelsSelectors', () => {
   it('get grouped messages', async () => {
     const messages = currentChannelMessagesMergedBySender(store.getState())
     expect(messages).toMatchInlineSnapshot(`
-Object {
-  "Feb 05": Array [
-    Array [
       Object {
         "Feb 05": Array [
           Array [
@@ -312,7 +309,7 @@ Object {
         "Today": Array [
           Array [
             Object {
-              "createdAt": 1642020600,
+              "createdAt": 1642107000,
               "date": "8:50 PM",
               "id": "9",
               "message": "message_9",
@@ -326,4 +323,4 @@ Object {
   })
 })
 
-export { }
+export {}
