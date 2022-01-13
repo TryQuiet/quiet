@@ -14,13 +14,14 @@ export type ActionFromMapping<Actions> = Actions[Keys<Actions>]
 export enum SocketActionTypes {
   CONNECT_TO_WEBSOCKET_SERVER = 'connectToWebsocketServer',
   GET_PUBLIC_CHANNELS = 'getPublicChannels',
+  CREATED_CHANNEL = 'createdChannel',
   RESPONSE_GET_PUBLIC_CHANNELS = 'responseGetPublicChannels',
   REQUEST_PEER_ID = 'requestPeerId',
   SEND_PEER_ID = 'sendPeerId',
   SEND_MESSAGES_IDS = 'sendIds',
   ASK_FOR_MESSAGES = 'askForMessages',
   RESPONSE_ASK_FOR_MESSAGES = 'responseFetchAllMessages',
-  SUBSCRIBE_FOR_TOPIC = 'subscribeForTopic',
+  SUBSCRIBE_TO_TOPIC = 'subscribeToTopic',
   REGISTER_USER_CERTIFICATE = 'registerUserCertificate',
   REGISTER_OWNER_CERTIFICATE = 'registerOwnerCertificate',
   SEND_USER_CERTIFICATE = 'sendUserCertificate',
@@ -39,5 +40,5 @@ export enum SocketActionTypes {
   LAUNCH_REGISTRAR = 'launchRegistrar',
   SAVE_OWNER_CERTIFICATE = 'saveOwnerCertificate',
   SAVED_OWNER_CERTIFICATE = 'savedOwnerCertificate',
-  CLOSE = 'close',
+  CLOSE = 'close'
 }

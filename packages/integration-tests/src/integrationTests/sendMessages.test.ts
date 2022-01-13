@@ -5,12 +5,7 @@ import {
   assertReceivedMessages,
   assertReceivedMessagesAreValid
 } from './assertions'
-import {
-  createCommunity,
-  joinCommunity,
-  getCommunityOwnerData,
-  sendMessage
-} from './appActions'
+import { createCommunity, joinCommunity, getCommunityOwnerData, sendMessage } from './appActions'
 import { createApp, createAppWithoutTor, sleep } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 
@@ -74,23 +69,15 @@ describe('send message - users go offline and online', () => {
 
   test('Users replicated channel and subscribed to it', async () => {
     await assertReceivedChannelsAndSubscribe('owner', 1, 120_000, owner.store)
-    await assertReceivedChannelsAndSubscribe(
-      'userTwo',
-      1,
-      120_000,
-      userOne.store
-    )
-    await assertReceivedChannelsAndSubscribe(
-      'userTwo',
-      1,
-      120_000,
-      userTwo.store
-    )
+    await assertReceivedChannelsAndSubscribe('userTwo', 1, 120_000, userOne.store)
+    await assertReceivedChannelsAndSubscribe('userTwo', 1, 120_000, userTwo.store)
   })
 
   test('Every user sends one message to general channel', async () => {
     const ownerMessage = await sendMessage('owner says hi', owner.store)
+    await sleep(40_000)
     const userOneMessage = await sendMessage('userOne says hi', userOne.store)
+    await sleep(40_000)
     const userTwoMessage = await sendMessage('userTwo says hi', userTwo.store)
 
     ownerMessagesData.push(ownerMessage)
@@ -124,61 +111,27 @@ describe('send message - users go offline and online', () => {
   })
 
   test('Owner replicated all messages', async () => {
-    allMessages = [
-      ...ownerMessagesData,
-      ...userOneMessagesData,
-      ...userTwoMessagesData
-    ]
+    allMessages = [...ownerMessagesData, ...userOneMessagesData, ...userTwoMessagesData]
 
-    await assertReceivedMessages(
-      'owner',
-      allMessages.length,
-      360_000,
-      owner.store
-    )
+    await assertReceivedMessages('owner', allMessages.length, 360_000, owner.store)
   })
 
   test('userOne replicated all messages', async () => {
-    await assertReceivedMessages(
-      'userOne',
-      allMessages.length,
-      360_000,
-      userOne.store
-    )
+    await assertReceivedMessages('userOne', allMessages.length, 360_000, userOne.store)
   })
 
   test('userTwo replicated all messages', async () => {
-    await assertReceivedMessages(
-      'userTwo',
-      allMessages.length,
-      360_000,
-      userTwo.store
-    )
+    await assertReceivedMessages('userTwo', allMessages.length, 360_000, userTwo.store)
   })
 
   test('Replicated messages are valid', async () => {
-    await assertReceivedMessagesAreValid(
-      'owner',
-      allMessages,
-      20000,
-      owner.store
-    )
-    await assertReceivedMessagesAreValid(
-      'userOne',
-      allMessages,
-      20000,
-      owner.store
-    )
-    await assertReceivedMessagesAreValid(
-      'userTwo',
-      allMessages,
-      20000,
-      owner.store
-    )
+    await assertReceivedMessagesAreValid('owner', allMessages, 20000, owner.store)
+    await assertReceivedMessagesAreValid('userOne', allMessages, 20000, owner.store)
+    await assertReceivedMessagesAreValid('userTwo', allMessages, 20000, owner.store)
   })
 })
 
-describe('send message - users are online', () => {
+describe.only('send message - users are online', () => {
   let owner: AsyncReturnType<typeof createApp>
   let userOne: AsyncReturnType<typeof createApp>
   let userTwo: AsyncReturnType<typeof createApp>
@@ -225,39 +178,57 @@ describe('send message - users are online', () => {
 
   test('Users replicated channel and subscribed to it', async () => {
     await assertReceivedChannelsAndSubscribe('owner', 1, 120_000, owner.store)
-    await assertReceivedChannelsAndSubscribe(
-      'userTwo',
-      1,
-      120_000,
-      userOne.store
-    )
-    await assertReceivedChannelsAndSubscribe(
-      'userTwo',
-      1,
-      120_000,
-      userTwo.store
-    )
+    await assertReceivedChannelsAndSubscribe('userTwo', 1, 120_000, userOne.store)
+    await assertReceivedChannelsAndSubscribe('userTwo', 1, 120_000, userTwo.store)
   })
 
   let ownerMessageData
   let userOneMessageData
   let userTwoMessageData
 
-  test('Every user sends one message to general channel', async () => {
+  test('owner user sends one message to general channel', async () => {
     ownerMessageData = await sendMessage('owner says hi', owner.store)
+  })
+
+  test('Owner replicated all messages 1/3', async () => {
+    await assertReceivedMessages('owner', 1, 120_000, owner.store)
+  })
+
+  test('userOne replicated all messages 1/3', async () => {
+    await assertReceivedMessages('userOne', 1, 120_000, userOne.store)
+  })
+
+  test('userTwo replicated all messages 1/3', async () => {
+    await assertReceivedMessages('userTwo', 1, 120_000, userTwo.store)
+  })
+  test('user One sends one message to general channel', async () => {
     userOneMessageData = await sendMessage('userOne says hi', userOne.store)
+  })
+
+  test('Owner replicated all messages 2/3', async () => {
+    await assertReceivedMessages('owner', 2, 120_000, owner.store)
+  })
+
+  test('userOne replicated all messages 2/3', async () => {
+    await assertReceivedMessages('userOne', 2, 120_000, userOne.store)
+  })
+
+  test('userTwo replicated all messages 2/3', async () => {
+    await assertReceivedMessages('userTwo', 2, 120_000, userTwo.store)
+  })
+  test('user Two sends one message to general channel', async () => {
     userTwoMessageData = await sendMessage('userTwo says hi', userTwo.store)
   })
 
-  test('Owner replicated all messages', async () => {
+  test('Owner replicated all messages 3/3', async () => {
     await assertReceivedMessages('owner', 3, 120_000, owner.store)
   })
 
-  test('userOne replicated all messages', async () => {
+  test('userOne replicated all messages 3/3', async () => {
     await assertReceivedMessages('userOne', 3, 120_000, userOne.store)
   })
 
-  test('userTwo replicated all messages', async () => {
+  test('userTwo replicated all messages 3/3', async () => {
     await assertReceivedMessages('userTwo', 3, 120_000, userTwo.store)
   })
 
@@ -330,18 +301,8 @@ describe.skip('send message - without tor', () => {
 
   test('Users replicated channel and subscribed to it', async () => {
     await assertReceivedChannelsAndSubscribe('owner', 1, 120_000, owner.store)
-    await assertReceivedChannelsAndSubscribe(
-      'userTwo',
-      1,
-      120_000,
-      userOne.store
-    )
-    await assertReceivedChannelsAndSubscribe(
-      'userTwo',
-      1,
-      120_000,
-      userTwo.store
-    )
+    await assertReceivedChannelsAndSubscribe('userTwo', 1, 120_000, userOne.store)
+    await assertReceivedChannelsAndSubscribe('userTwo', 1, 120_000, userTwo.store)
   })
 
   let ownerMessageData

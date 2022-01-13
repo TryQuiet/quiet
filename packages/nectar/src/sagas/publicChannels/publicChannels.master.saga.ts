@@ -2,27 +2,31 @@ import { Socket } from 'socket.io-client'
 import { all, takeEvery } from 'typed-redux-saga'
 import { askForMessagesSaga } from './askForMessages/askForMessages.saga'
 import { checkForMessagesSaga } from './checkForMessages/checkForMessages.saga'
-import { getPublicChannelsSaga } from './getPublicChannels/getPublicChannels.saga'
 import { publicChannelsActions } from './publicChannels.slice'
-import { communitiesActions } from '../communities/communities.slice'
-import { subscribeForTopicSaga } from './subscribeForTopic/subscribeForTopic.saga'
-import { subscribeForAllTopicsSaga } from './subscribeForAllTopics/subscribeForAllTopics.saga'
+import { subscribeToTopicSaga } from './subscribeToTopic/subscribeToTopic.saga'
+import { subscribeToAllTopicsSaga } from './subscribeToAllTopics/subscribeToAllTopics.saga'
+import { createChannelSaga } from './createChannel/createChannel.saga'
+import { createGeneralChannelSaga } from './createGeneralChannel/createGeneralChannel.saga'
 
 export function* publicChannelsMasterSaga(socket: Socket): Generator {
   yield all([
     takeEvery(
-      publicChannelsActions.getPublicChannels.type,
-      getPublicChannelsSaga,
+      publicChannelsActions.createChannel.type,
+      createChannelSaga,
       socket
     ),
     takeEvery(
-      publicChannelsActions.subscribeForTopic.type,
-      subscribeForTopicSaga,
+      publicChannelsActions.createGeneralChannel.type,
+      createGeneralChannelSaga
+    ),
+    takeEvery(
+      publicChannelsActions.subscribeToTopic.type,
+      subscribeToTopicSaga,
       socket
     ),
     takeEvery(
-      publicChannelsActions.subscribeForAllTopics.type,
-      subscribeForAllTopicsSaga
+      publicChannelsActions.subscribeToAllTopics.type,
+      subscribeToAllTopicsSaga
     ),
     takeEvery(
       publicChannelsActions.responseSendMessagesIds.type,
@@ -32,7 +36,6 @@ export function* publicChannelsMasterSaga(socket: Socket): Generator {
       publicChannelsActions.askForMessages.type,
       askForMessagesSaga,
       socket
-    ),
-    takeEvery(communitiesActions.community.type, subscribeForAllTopicsSaga)
+    )
   ])
 }

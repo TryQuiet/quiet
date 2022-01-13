@@ -7,7 +7,7 @@ import {
   CommunityChannels,
   PublicChannelsState
 } from '../publicChannels.slice'
-import { subscribeForAllTopicsSaga } from './subscribeForAllTopics.saga'
+import { subscribeToAllTopicsSaga } from './subscribeToAllTopics.saga'
 import {
   channelMessagesAdapter,
   communityChannelsAdapter,
@@ -23,7 +23,7 @@ import { communitiesAdapter } from '../../communities/communities.adapter'
 import { identityAdapter } from '../../identity/identity.adapter'
 import { PublicChannel } from '../publicChannels.types'
 
-describe('subscribeForAllTopicsSaga', () => {
+describe('subscribeToAllTopicsSaga', () => {
   const community: Community = {
     name: '',
     id: 'id',
@@ -76,8 +76,8 @@ describe('subscribeForAllTopicsSaga', () => {
 
   test('ask for missing messages', async () => {
     await expectSaga(
-      subscribeForAllTopicsSaga,
-      publicChannelsActions.subscribeForAllTopics('id')
+      subscribeToAllTopicsSaga,
+      publicChannelsActions.subscribeToAllTopics('id')
     )
       .withReducer(
         combineReducers({
@@ -111,13 +111,13 @@ describe('subscribeForAllTopicsSaga', () => {
         }
       )
       .put(
-        publicChannelsActions.subscribeForTopic({
+        publicChannelsActions.subscribeToTopic({
           channelData: channelOne,
           peerId: 'peerId'
         })
       )
       .put(
-        publicChannelsActions.subscribeForTopic({
+        publicChannelsActions.subscribeToTopic({
           channelData: channelTwo,
           peerId: 'peerId'
         })

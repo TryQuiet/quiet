@@ -21,5 +21,5 @@ export enum InviteLinkErrors {
 export enum ChannelNameErrors {
   NameToShort = 'Channel name must have at least 3 characters',
   NameTooLong = 'Channel name must have less than 20 characters',
-  WrongCharacter = 'Channel name must be lowercase and cannot contain any special characters'
+  WrongCharacter = 'Channel name cannot contain any special characters'
 }

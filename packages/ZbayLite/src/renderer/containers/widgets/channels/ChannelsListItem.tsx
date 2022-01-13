@@ -1,19 +1,34 @@
 import React from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { communities, PublicChannel, publicChannels } from '@zbayapp/nectar'
+import ChannelsListItemComponent from '../../../components/widgets/channels/ChannelsListItem'
 
-import ChannelsListItemComponent, { IChannelsListItemComponentProps } from '../../../components/widgets/channels/ChannelsListItem'
-
-type ChannelsListItemContainerProps = IChannelsListItemComponentProps
+interface ChannelsListItemContainerProps {
+  channel: PublicChannel
+}
 
 export const ChannelsListItem: React.FC<ChannelsListItemContainerProps> = ({
-  channel,
-  selected,
-  directMessages
+  channel
 }) => {
+  const dispatch = useDispatch()
+
+  const currentCommunity = useSelector(communities.selectors.currentCommunityId)
+  const currentChannel = useSelector(publicChannels.selectors.currentChannel)
+
+  const selected = currentChannel === channel.name
+
+  const setCurrentChannel = (name: string) => {
+    dispatch(publicChannels.actions.setCurrentChannel({
+      channel: name,
+      communityId: currentCommunity
+    }))
+  }
+
   return (
     <ChannelsListItemComponent
-      selected={selected}
-      directMessages={directMessages}
       channel={channel}
+      selected={selected}
+      setCurrentChannel={setCurrentChannel}
     />
   )
 }

@@ -13,13 +13,11 @@ import { ModalName } from '../../../sagas/modals/modals.types'
 
 interface useChannelPanelDataReturnTypes {
   channels: PublicChannel[]
-  selected: string
 }
 
 const useChannelsPanelData = (): useChannelPanelDataReturnTypes => {
   const data = {
-    channels: useSelector(publicChannels.selectors.publicChannels),
-    selected: useSelector(publicChannels.selectors.currentChannel)
+    channels: useSelector(publicChannels.selectors.publicChannels)
   }
   return data
 }
@@ -38,14 +36,13 @@ export const ChannelsPanel = ({
         <SidebarHeader
           title={title}
           action={createChannelModal.handleOpen}
-          tooltipText='Create new channel'
           actionTitle={joinChannelModal.handleOpen}
+          tooltipText='Create new channel'
         />
       </Grid>
       <Grid item>
         <BaseChannelsList
           channels={data.channels}
-          selected={data.selected}
         />
       </Grid>
       <Grid item>

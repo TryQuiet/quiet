@@ -13,7 +13,6 @@ import path from 'path'
 import PeerId from 'peer-id'
 import { CryptoEngine, setEngine } from 'pkijs'
 import {
-  ChannelInfoResponse,
   DataFromPems,
   IChannelInfo,
   IMessage,
@@ -28,7 +27,7 @@ import { Config } from '../constants'
 import logger from '../logger'
 import { EventTypesResponse } from '../socket/constantsReponse'
 import { loadCertificates } from '../socket/events/certificates'
-import { loadAllPublicChannels } from '../socket/events/channels'
+import { createdChannel } from '../socket/events/channels'
 import {
   loadAllDirectMessages,
   loadAllMessages,
@@ -68,7 +67,6 @@ export class Storage {
   private certificates: EventStore<string>
   public publicChannelsRepos: Map<String, IRepo> = new Map()
   public directMessagesRepos: Map<String, IRepo> = new Map()
-  private publicChannelsEventsAttached: boolean = false
   public options: StorageOptions
   public orbitDbDir: string
   public ipfsRepoPath: string
@@ -190,21 +188,17 @@ export class Storage {
       }
     })
 
-    this.channels.events.on(
-      'replicated',
-      // eslint-disable-next-line
-      async () => {
-        log('REPLICATED: Channels')
-        // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-        await this.channels.load({ fetchEntryTimeout: 2000 })
-        const payload = this.channels.all
+    this.channels.events.on('replicated', async () => {
+      log('REPLICATED: Channels')
+      // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
+      await this.channels.load({ fetchEntryTimeout: 2000 })
+      const payload = this.channels.all
 
-        this.io.emit(EventTypesResponse.RESPONSE_GET_PUBLIC_CHANNELS, {
-          communityId: this.communityId,
-          channels: payload
-        })
-      }
-    )
+      this.io.emit(EventTypesResponse.RESPONSE_GET_PUBLIC_CHANNELS, {
+        communityId: this.communityId,
+        channels: payload
+      })
+    })
 
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.channels.load({ fetchEntryTimeout: 15000 })
@@ -268,7 +262,7 @@ export class Storage {
     await Promise.all(
       Object.values(this.channels.all).map(async channel => {
         if (!this.publicChannelsRepos.has(channel.address)) {
-          await this.createChannel(channel.address, channel)
+          await this.subscribeToChannel(channel)
         }
       })
     )
@@ -285,37 +279,6 @@ export class Storage {
       })
     )
     console.timeEnd('initAllConversations')
-  }
-
-  private getChannelsResponse(): ChannelInfoResponse {
-    const channels: ChannelInfoResponse = {}
-    for (const channel of Object.values(this.channels.all)) {
-      if (channel.keys) {
-        // TODO: create proper validators
-        channels[channel.name] = {
-          address: channel.address,
-          description: channel.description,
-          owner: channel.owner,
-          timestamp: channel.timestamp,
-          name: channel.name
-        }
-      }
-    }
-    return channels
-  }
-
-  public async updateChannels(): Promise<ChannelInfoResponse> {
-    /** Update list of available public channels */
-    if (!this.publicChannelsEventsAttached) {
-      this.channels.events.on('replicated', () => {
-        loadAllPublicChannels(this.io, this.getChannelsResponse())
-      })
-      this.channels.events.on('ready', () => {
-        loadAllPublicChannels(this.io, this.getChannelsResponse())
-      })
-      this.publicChannelsEventsAttached = true
-    }
-    return this.getChannelsResponse()
   }
 
   protected getAllEventLogEntries(db: EventStore<any>): any[] {
@@ -336,31 +299,28 @@ export class Storage {
     loadAllMessages(this.io, this.getAllEventLogEntries(db), channelAddress, this.communityId)
   }
 
-  public async subscribeForChannel(
-    channelAddress: string,
-    channelInfo?: IChannelInfo
-  ): Promise<void> {
+  public async subscribeToChannel(channel: IChannelInfo): Promise<void> {
     let db: EventStore<IMessage>
-    let repo = this.publicChannelsRepos.get(channelAddress)
-
+    let repo = this.publicChannelsRepos.get(channel.address)
     if (repo) {
       db = repo.db
     } else {
-      db = await this.createChannel(channelAddress, channelInfo)
+      db = await this.createChannel(channel)
       if (!db) {
-        log(`Can't subscribe to channel ${channelAddress}`)
+        log(`Can't subscribe to channel ${channel.address}`)
         return
       }
-      repo = this.publicChannelsRepos.get(channelAddress)
+      repo = this.publicChannelsRepos.get(channel.address)
     }
 
     if (repo && !repo.eventsAttached) {
-      log('Subscribing to channel ', channelAddress)
+      log('Subscribing to channel ', channel.address)
+
       db.events.on('write', (_address, entry) => {
-        log(`Writing to public channel db ${channelAddress}`)
+        log(`Writing to public channel db ${channel.address}`)
         socketMessage(this.io, {
           message: entry.payload.value,
-          channelAddress: channelAddress,
+          channelAddress: channel.address,
           communityId: this.communityId
         })
       })
@@ -368,18 +328,57 @@ export class Storage {
         log(`progress ${progress as string}/${total as string}. Address: ${address as string}`)
         socketMessage(this.io, {
           message: entry.payload.value,
-          channelAddress: channelAddress,
+          channelAddress: channel.address,
           communityId: this.communityId
         })
       })
+
       db.events.on('ready', () => {
         const ids = this.getAllEventLogEntries(db).map(msg => msg.id)
-        sendIdsToZbay(this.io, { ids, channelAddress, communityId: this.communityId })
+        sendIdsToZbay(this.io, {
+          ids,
+          channelAddress: channel.address,
+          communityId: this.communityId
+        })
       })
+
       repo.eventsAttached = true
       const ids = this.getAllEventLogEntries(db).map(msg => msg.id)
-      sendIdsToZbay(this.io, { ids, channelAddress, communityId: this.communityId })
+      sendIdsToZbay(this.io, {
+        ids,
+        channelAddress: channel.address,
+        communityId: this.communityId
+      })
     }
+  }
+
+  private async createChannel(data: IChannelInfo): Promise<EventStore<IMessage>> {
+    if (!validate.isChannel(data)) {
+      log.error('STORAGE: Invalid channel format')
+      return
+    }
+
+    const db: EventStore<IMessage> = await this.orbitdb.log<IMessage>(`channels.${data.address}`, {
+      accessController: {
+        write: ['*']
+      }
+    })
+
+    const channel = this.channels.get(data.address)
+    if (channel === undefined) {
+      await this.channels.put(data.address, {
+        ...data
+      })
+      createdChannel(this.io, data, this.communityId)
+    }
+
+    this.publicChannelsRepos.set(data.address, { db, eventsAttached: false })
+    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
+    await db.load({ fetchEntryTimeout: 2000 })
+    db.events.on('replicate.progress', (address, _hash, _entry, progress, total) => {
+      log(`progress ${progress as string}/${total as string}. Address: ${address as string}`)
+    })
+    return db
   }
 
   public async askForMessages(
@@ -402,44 +401,8 @@ export class Storage {
       log.error('STORAGE: public channel message is invalid')
       return
     }
-    await this.subscribeForChannel(channelAddress) // Is it necessary?
     const db = this.publicChannelsRepos.get(channelAddress).db
     await db.add(message)
-  }
-
-  private async createChannel(
-    channelAddress: string,
-    channelData?: IChannelInfo
-  ): Promise<EventStore<IMessage>> {
-    if (!channelAddress) {
-      log("No channel address, can't create channel")
-      return
-    }
-    if (!validate.isChannel(channelData)) {
-      log.error('STORAGE: Invalid channel format')
-      return
-    }
-    const db: EventStore<IMessage> = await this.orbitdb.log<IMessage>(
-      `channels.${channelAddress}`,
-      {
-        accessController: {
-          write: ['*']
-        }
-      }
-    )
-
-    const channel = this.channels.get(channelAddress)
-    if (!channel) {
-      await this.channels.put(channelAddress, {
-        address: channelAddress,
-        ...channelData
-      })
-      log(`Created channel ${channelAddress}`)
-    }
-    this.publicChannelsRepos.set(channelAddress, { db, eventsAttached: false })
-    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await db.load({ fetchEntryTimeout: 2000 })
-    return db
   }
 
   public async addUser(address: string, halfKey: string): Promise<void> {
@@ -467,20 +430,20 @@ export class Storage {
 
     this.directMessagesRepos.set(address, { db, eventsAttached: false })
     await this.messageThreads.put(address, encryptedPhrase)
-    await this.subscribeForDirectMessageThread(address)
+    await this.subscribeToDirectMessageThread(address)
   }
 
-  public async subscribeForAllConversations(conversations) {
-    console.time('subscribeForAllConversations')
+  public async subscribeToAllConversations(conversations) {
+    console.time('subscribeToAllConversations')
     await Promise.all(
       conversations.map(async channel => {
-        await this.subscribeForDirectMessageThread(channel)
+        await this.subscribeToDirectMessageThread(channel)
       })
     )
-    console.timeEnd('subscribeForAllConversations')
+    console.timeEnd('subscribeToAllConversations')
   }
 
-  public async subscribeForDirectMessageThread(channelAddress: string) {
+  public async subscribeToDirectMessageThread(channelAddress: string) {
     let db: EventStore<IMessage>
     let repo = this.directMessagesRepos.get(channelAddress)
 
@@ -543,7 +506,7 @@ export class Storage {
       log.error('STORAGE: Invalid direct message format')
       return
     }
-    await this.subscribeForDirectMessageThread(channelAddress) // Is it necessary? Yes it is atm
+    await this.subscribeToDirectMessageThread(channelAddress) // Is it necessary? Yes it is atm
     log('STORAGE: sendDirectMessage entered')
     log(`STORAGE: sendDirectMessage channelAddress is ${channelAddress}`)
     log(`STORAGE: sendDirectMessage message is ${JSON.stringify(message)}`)

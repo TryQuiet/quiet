@@ -76,7 +76,6 @@ export const communitiesSlice = createSlice({
       })
     },
     joinCommunity: (state, _action: PayloadAction<string>) => state,
-    community: (state, _action: PayloadAction<string>) => state,
     createNetwork: (state, _action: PayloadAction<string>) => state,
     createNewCommunity: (state, _action: PayloadAction<string>) => state,
     responseCreateCommunity: (

@@ -7,14 +7,10 @@ import ChannelsListItem from '../../../containers/widgets/channels/ChannelsListI
 
 interface BaseChannelsListProps {
   channels: PublicChannel[]
-  directMessages?: boolean
-  selected: string
 }
 
 export const BaseChannelsList: React.FC<BaseChannelsListProps> = ({
-  channels = [],
-  directMessages = false,
-  selected
+  channels = []
 }) => {
   return (
     <List disablePadding>
@@ -23,8 +19,6 @@ export const BaseChannelsList: React.FC<BaseChannelsListProps> = ({
           <ChannelsListItem
             key={channel.name}
             channel={channel}
-            directMessages={directMessages}
-            selected={selected}
           />
         ))}
     </List>

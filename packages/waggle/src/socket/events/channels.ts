@@ -1,6 +1,12 @@
-import { ChannelInfoResponse } from '../../common/types'
-import { EventTypesResponse } from '../constantsReponse'
+import { IChannelInfo } from '../../common/types'
+import { EventTypesServer } from '../constants'
+import SocketIO from 'socket.io'
 
-export const loadAllPublicChannels = (socket: any, channels: ChannelInfoResponse) => {
-  socket.emit(EventTypesResponse.RESPONSE_GET_PUBLIC_CHANNELS, channels)
+export const createdChannel = (
+  socket: SocketIO.Server,
+  channel: IChannelInfo,
+  communityId: string
+) => {
+  console.log(`Created channel ${channel.address}`)
+  socket.emit(EventTypesServer.CREATED_CHANNEL, { channel, communityId })
 }
