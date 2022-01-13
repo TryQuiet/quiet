@@ -34,6 +34,14 @@ const CreateUsernameModal = () => {
   const createCommunityModal = useModal(ModalName.createCommunityModal)
   const loadingCommunityModal = useModal(ModalName.loadingPanel)
 
+  console.log(
+    certificate,
+    allCommunitiesCount,
+    allCommunitiesInitialized,
+    invitationUrl,
+    createUsernameModal
+  )
+
   useEffect(() => {
     if (certificate && allCommunitiesInitialized &&
       ((createUsernameModal.communityAction === CommunityAction.Join && channels.length) ||
@@ -43,7 +51,7 @@ const CreateUsernameModal = () => {
       joinCommunityModal.handleClose()
       createCommunityModal.handleClose()
     }
-  }, [channels.length, invitationUrl, certificate])
+  }, [channels.length, invitationUrl, certificate, allCommunitiesInitialized])
 
   useEffect(() => {
     if (id?.hiddenService && !certificate) {
@@ -52,6 +60,7 @@ const CreateUsernameModal = () => {
   }, [id?.hiddenService])
 
   const handleAction = (payload: { nickname: string }) => {
+    console.log('HANDLING ACTION IN CREATE USERNAME')
     setUsername(payload.nickname)
     const value = createUsernameModal.communityData
     const action =

@@ -10,12 +10,15 @@ import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 import { StoreKeys } from '../renderer/store/store.keys'
 import { SocketState } from '../renderer/sagas/socket/socket.slice'
-import { ModalsInitialState } from '../renderer/sagas/modals/modals.slice'
+import { modalsActions, ModalsInitialState } from '../renderer/sagas/modals/modals.slice'
 import CreateCommunity from '../renderer/containers/widgets/createCommunity/createCommunity'
 import CreateUsernameModal from '../renderer/containers/widgets/createUsernameModal/CreateUsername'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
 import { CreateCommunityDictionary } from '../renderer/components/widgets/performCommunityAction/PerformCommunityAction.dictionary'
-import { communities, identity, Identity, SocketActionTypes } from '@zbayapp/nectar'
+import { communities, getFactory, identity, Identity, SocketActionTypes } from '@zbayapp/nectar'
+import LoadingPanel from '../renderer/containers/widgets/loadingPanel/loadingPanel'
+import { CommunityAction } from '../renderer/components/widgets/performCommunityAction/community.keys'
+import { LoadingMessages } from '../renderer/containers/widgets/loadingPanel/loadingMessages'
 
 const payload = (id: string): Partial<Identity> => ({
   id: id,
@@ -41,6 +44,10 @@ describe('User', () => {
   beforeEach(() => {
     socket = new MockedSocket()
     ioMock.mockImplementation(() => socket)
+  })
+
+  afterEach(() => {
+    jest.clearAllMocks()
   })
 
   it('creates community and registers username', async () => {
@@ -129,6 +136,118 @@ describe('User', () => {
 
     expect(createUsernameTitle).not.toBeVisible()
     expect(createCommunityTitle).not.toBeVisible()
+  })
+
+  it('aaa creates community and registers username', async () => {
+    const { store, runSaga } = await prepareStore(
+      {
+        [StoreKeys.Socket]: {
+          ...new SocketState(),
+          isConnected: true
+        },
+        [StoreKeys.Modals]: {
+          ...new ModalsInitialState(),
+          [ModalName.createUsernameModal]: { open: true }
+        }
+      },
+      socket // Fork Nectar's sagas
+    )
+
+    act(() => {
+      store.dispatch(modalsActions.openModal({ name: ModalName.createUsernameModal, args: { communityAction: CommunityAction.Create, communityData: 'community_0' } }))
+    })
+
+    const factory = await getFactory(store)
+    
+    const community = await factory.create<
+    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
+
+    // await factory.create<
+    // ReturnType<typeof identity.actions.addNewIdentity>['payload']
+    // >('Identity', { id: community.id, zbayNickname: 'bob' })
+
+    renderComponent(
+      <>
+        {/* <CreateCommunity /> */}
+        <CreateUsernameModal />
+        <LoadingPanel />
+      </>,
+      store
+    )
+
+    type socketEventData<T extends unknown[]> = [...T]
+    
+    
+
+    // payloadData = payload(community.id)
+
+    jest.spyOn(socket, 'emit').mockImplementation((action: SocketActionTypes, ...input: any[]) => {
+      console.log('ACTION', action)
+      // if (action === SocketActionTypes.CREATE_NETWORK) {
+      //   const data = input as socketEventData<[string]>
+
+      //   const id = data[0]
+      //   payloadData = payload(id)
+
+      //   return socket.socketClient.emit(SocketActionTypes.NEW_COMMUNITY, {
+      //     id: id,
+      //     payload: payload(id)
+      //   })
+      // }
+      if (action === SocketActionTypes.REGISTER_OWNER_CERTIFICATE) {
+        const data = input as socketEventData<
+        [string, string, { certificate: string; privKey: string }]
+        >
+
+        communityId = data[0]
+        const CA = data[2]
+        return socket.socketClient.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
+          id: communityId,
+          payload: {
+            peers: [''],
+            certificate: CA.certificate,
+            rootCa: 'rootCa'
+          }
+        })
+      }
+      if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
+        return socket.socketClient.emit(SocketActionTypes.COMMUNITY, { id: communityId })
+      }
+    })
+
+    // Confirm proper modal title is displayed
+    // const dictionary = CreateCommunityDictionary()
+    // const createCommunityTitle = screen.getByText(dictionary.header)
+    // expect(createCommunityTitle).toBeVisible()
+
+    // // Enter community name and hit button
+    // const createCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
+    // const createCommunityButton = screen.getByText(dictionary.button)
+    // userEvent.type(createCommunityInput, 'rockets')
+    // userEvent.click(createCommunityButton)
+
+    // Confirm user is being redirected to username registration
+    const createUsernameTitle = await screen.findByText('Register a username')
+    expect(createUsernameTitle).toBeVisible()
+
+    // Enter username and hit button
+    const createUsernameInput = await screen.findByPlaceholderText('Enter a username')
+    const createUsernameButton = await screen.findByText('Register')
+    userEvent.type(createUsernameInput, 'bob')
+    userEvent.click(createUsernameButton)
+
+    await act(async () => {})
+    // await act(async () => {
+    //   // await runSaga(testCreateCommunitySaga).toPromise()
+    //   await runSaga(mockAddressResponse).toPromise()
+    // })
+    
+    // expect(createUsernameTitle).not.toBeVisible()
+    const createCommunityoadingPanelTitle = await screen.findByText(LoadingMessages.CreateCommunity)
+    expect(createCommunityoadingPanelTitle).toBeVisible()
+    // expect(createCommunityoadingPanelTitle).toBeVisible()
+    // expect(createCommunityTitle).not.toBeVisible()
   })
 
   function* testCreateCommunitySaga(): Generator {
