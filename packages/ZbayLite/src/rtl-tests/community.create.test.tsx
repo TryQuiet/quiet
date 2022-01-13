@@ -79,17 +79,13 @@ describe('User', () => {
         >
         communityId = data[0]
         const CA = data[2]
-        socket.socketClient.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
-          id: communityId,
-          payload: {
-            peers: [''],
-            certificate: CA.certificate,
-            rootCa: 'rootCa'
-          }
-        })
         socket.socketClient.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
           id: communityId,
-          cert: CA.certificate
+          payload: {
+            certificate: CA.certificate,
+            peers: [],
+            rootCa: 'rootCa'
+          }
         })
       }
       if (action === SocketActionTypes.CREATE_COMMUNITY) {

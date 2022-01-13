@@ -101,7 +101,6 @@ export function subscribe(socket: Socket) {
         payload: { peers: string[]; certificate: string; rootCa: string }
       }) => {
         log('got response with cert', payload.payload.rootCa)
-
         emit(
           communitiesActions.storePeerList({
             communityId: payload.id,
