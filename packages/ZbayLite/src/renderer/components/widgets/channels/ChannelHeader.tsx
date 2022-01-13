@@ -142,7 +142,8 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps & ChannelMenuAc
                 className={classNames({
                   [classes.title]: true,
                   [classes.bold]: true
-                })}>
+                })}
+                data-testid={'channelTitle'}>
                 {`#${channel?.name?.substring(0, 20)}`}
               </Typography>
             </Grid>

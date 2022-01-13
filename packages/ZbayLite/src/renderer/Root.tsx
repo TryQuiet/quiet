@@ -11,7 +11,6 @@ import store from './store'
 import Index from './containers/windows/Index'
 import Main from './containers/windows/Main'
 import ChannelSettingsModal from './containers/widgets/channelSettings/ChannelSettingsModal'
-import CreateChannelModal from './containers/widgets/channels/CreateChannelModal'
 import CreateUsernameModal from './containers/widgets/createUsernameModal/CreateUsername'
 import ErrorModal from './containers/ui/ErrorModal'
 import JoinChannelModal from './containers/widgets/channels/JoinChannelModal'
@@ -25,6 +24,7 @@ import theme from './theme'
 import CreateCommunity from './containers/widgets/createCommunity/createCommunity'
 import JoinCommunity from './containers/widgets/joinCommunity/joinCommunity'
 import LoadingPanel from './containers/widgets/loadingPanel/loadingPanel'
+import CreateChannel from './containers/widgets/channels/CreateChannel'
 
 export default () => {
   const persistor = persistStore(store)
@@ -35,7 +35,7 @@ export default () => {
           <PersistGate loading={null} persistor={persistor}>
             <SnackbarProvider maxSnack={3}>
               <ChannelSettingsModal />
-              <CreateChannelModal />
+              <CreateChannel />
               <JoinCommunity />
               <CreateCommunity />
               <CreateUsernameModal />

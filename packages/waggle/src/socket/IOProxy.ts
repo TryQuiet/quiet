@@ -42,14 +42,9 @@ export default class IOProxy {
     this.io.close()
   }
 
-  public subscribeForTopic = async (peerId: string, channelData: IChannelInfo) => {
-    log(`${peerId} is subscribing for channel ${channelData.address}`)
-    await this.getStorage(peerId).subscribeForChannel(channelData.address, channelData)
-  }
-
-  public updateChannels = async (peerId: string) => {
-    const channels = await this.getStorage(peerId).updateChannels()
-    this.io.emit(EventTypesResponse.RESPONSE_GET_PUBLIC_CHANNELS, channels)
+  public subscribeToTopic = async (peerId: string, channelData: IChannelInfo) => {
+    log(`${peerId} is subscribing to channel ${channelData.address}`)
+    await this.getStorage(peerId).subscribeToChannel(channelData)
   }
 
   public askForMessages = async (
@@ -120,18 +115,18 @@ export default class IOProxy {
     await this.getStorage(peerId).sendDirectMessage(channelAddress, messagePayload)
   }
 
-  public subscribeForDirectMessageThread = async (
+  public subscribeToDirectMessageThread = async (
     peerId: string,
     address: string
   ): Promise<void> => {
-    await this.getStorage(peerId).subscribeForDirectMessageThread(address)
+    await this.getStorage(peerId).subscribeToDirectMessageThread(address)
   }
 
-  public subscribeForAllConversations = async (
+  public subscribeToAllConversations = async (
     peerId: string,
     conversations: string[]
   ): Promise<void> => {
-    await this.getStorage(peerId).subscribeForAllConversations(conversations)
+    await this.getStorage(peerId).subscribeToAllConversations(conversations)
   }
 
   public registerOwnerCertificate = async (
@@ -140,20 +135,14 @@ export default class IOProxy {
     dataFromPerms: DataFromPems
   ) => {
     const cert = await CertificateRegistration.registerOwnerCertificate(userCsr, dataFromPerms)
-    this.io.emit(EventTypesResponse.SEND_USER_CERTIFICATE, {
+    this.io.emit(EventTypesResponse.SAVED_OWNER_CERTIFICATE, {
       id: communityId,
       payload: { certificate: cert, peers: [], rootCa: dataFromPerms.certificate }
     })
   }
 
-  public saveOwnerCertificate = async (
-    communityId: string,
-    peerId: string,
-    certificate: string,
-    dataFromPerms
-  ) => {
+  public saveOwnerCertificate = async (peerId: string, certificate: string, dataFromPerms) => {
     await this.getStorage(peerId).saveCertificate(certificate, dataFromPerms)
-    this.io.emit(EventTypesResponse.SAVED_OWNER_CERTIFICATE, { id: communityId })
   }
 
   public registerUserCertificate = async (
@@ -230,15 +219,12 @@ export default class IOProxy {
 
   public async createCommunity(
     communityId: string,
-    certs: CertsData,
-    rootCert?: string,
-    rootKey?: string
+    peerId: PeerId.JSONPeerId,
+    hiddenService: { address: string; privateKey: string },
+    certs: CertsData
   ) {
-    const communityData = await this.communities.create(certs, communityId)
-    if (rootCert && rootKey) {
-      await this.launchRegistrar(communityId, communityData.peerId.id, rootCert, rootKey)
-    }
-    this.io.emit(EventTypesResponse.NEW_COMMUNITY, { id: communityId, payload: communityData })
+    await this.launchCommunity(communityId, peerId, hiddenService, [], certs)
+    this.io.emit(EventTypesResponse.NEW_COMMUNITY, { id: communityId })
   }
 
   public async launchCommunity(

@@ -11,7 +11,7 @@ const Template: ComponentStory<typeof MentionElement> = args => {
 export const Component = Template.bind({})
 
 const args: MentionElementProps = {
-  name: 'Bartek',
+  name: '',
   channelName: 'general',
   onMouseEnter: function (): void {},
   onClick: function (): void {},

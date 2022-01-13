@@ -1,4 +1,10 @@
-import { createMinConnectionManager, createTmpDir, ResponseMock, tmpZbayDirPath, TorMock } from '../common/testUtils'
+import {
+  createMinConnectionManager,
+  createTmpDir,
+  ResponseMock,
+  tmpZbayDirPath,
+  TorMock
+} from '../common/testUtils'
 import { getPorts } from '../common/utils'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 import { createCertificatesTestHelper } from '../libp2p/tests/client-server'
@@ -35,56 +41,124 @@ describe('IO proxy', () => {
   it('creates community without running registrar for regular user', async () => {
     const observedLaunchRegistrar = jest.spyOn(ioProxy, 'launchRegistrar')
     const observedIO = jest.spyOn(ioProxy.io, 'emit')
-    const observedCommunityCreate = jest.spyOn(ioProxy.communities, 'create')
-    const pems = await createCertificatesTestHelper('adres1.onion', 'adres2.onion')
+    const observedCommunityCreate = jest.spyOn(ioProxy.communities, 'launch')
+
+    const peerId1 = {
+      id: 'QmWVMaUqEB73gzgGkc9wS7rnhNcpSyH64dmbGUdU2TM3eV',
+      privKey:
+        'CAASqAkwggSkAgEAAoIBAQCY2r7s5YlgWXlHuHH4PY/cUik/m7GuWPdTPmmm4QZTr1VSyKgC2AMR45xrcGMjd5SDh1HjzbptJpYfGWO+Sbm6yK7EfxYN8gOXrbo0koKtPH0hrgzus+CqUCAQDE6XWzY5yP7caFt/RolZaBYNcKCWDCHv+bg/87u3MGwwSeaMjYWNAQ5IVWrUFnns8eiyNRhBGrEQZDTyO4X0oMeEkTTABMEJIpge91SWfuYuqltiNdkS9aiYS58F43IBHKKWLc39b3KbiykiG2IjrqVl2aAyb6vSgtiGkwi301jtWEctaDl2JbwZpgldOA83wH2aBPK9N9MaakEYdI2dHVSg8bf9AgMBAAECggEAOH8JeIfyecE4WXDr9wPSC232vwLt7nIFoCf+ZubfLskscTenGb37jH4jT3avvekx5Fd8xgVBNZzAeegpfKjFVCtepVQPs8HS4BofK9VHJX6pBWzObN/hVzHcV/Ikjj7xUPRgdti/kNBibcBR/k+1myAK3ybemgydQj1Mj6CQ7Tu/4npaRXhVygasbTgFCYxrV+CGjzITdCAdRTWg1+H6puxjfObZqj0wa4I6sCom0+Eau7nULtVmi0hodOwKwtmc2oaUyCQY2yiEjdZnkXEEhP1EtJka+kD96iAG3YvFqlcdUPYVlIxCP9h55AaOShnACNymiTpYzpCP/kUK9wFkZQKBgQD2wjjWEmg8DzkD3y19MVZ71w0kt0PgZMU+alR8EZCJGqvoyi2wcinfdmqyOZBf2rct+3IyVpwuWPjsHOHq7ZaJGmJkTGrNbndTQ+WgwJDvghqBfHFrgBQNXvqHl5EuqnRMCjrJeP8Uud1su5zJbHQGsycZwPzB3fSj0yAyRO812wKBgQCelDmknQFCkgwIFwqqdClUyeOhC03PY0RGngp+sLlu8Q8iyEI1E9i/jTkjPpioAZ/ub5iD6iP5gj27N239B/elZY5xQQeDA4Ns+4yNOTx+nYXmWcTfVINFVe5AK824TjqlCY2ES+/hVBKB+JQV6ILlcCj5dXz9cCbg6cys4TttBwKBgH+rdaSs2WlZpvIt4mdHw6tHVPGOMHxFJxhoA1Y98D4/onpLQOBt8ORBbGrSBbTSgLw1wJvy29PPDNt9BhZ63swI7qdeMlQft3VJR+GoQFTrR7N/I1+vYLCaV50X+nHel1VQZaIgDDo5ACtl1nUQu+dLggt9IklcAVtRvPLFX87JAoGBAIBl8+ZdWc/VAPjr7y7krzJ/5VdYF8B716R2AnliDkLN3DuFelYPo8g1SLZI0MH3zs74fL0Sr94unl0gHGZsNRAuko8Q4EwsZBWx97PBTEIYuXox5T4O59sUILzEuuUoMkO+4F7mPWxs7i9eXkj+4j1z+zlA79slG9WweJDiLYOxAoGBAMmH/nv1+0sUIL2qgE7OBs8kokUwx4P8ZRAlL6ZVC4tVuDBL0zbjJKcQWOcpWQs9pC6O/hgPur3VgHDF7gko3ZDB0KuxVJPZyIhoo+PqXaCeq4KuIPESjYKT803p2S76n/c2kUaQ5i2lYToClvhk72kw9o9niSyVdotXxC90abI9',
+      pubKey:
+        'CAASpgIwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCY2r7s5YlgWXlHuHH4PY/cUik/m7GuWPdTPmmm4QZTr1VSyKgC2AMR45xrcGMjd5SDh1HjzbptJpYfGWO+Sbm6yK7EfxYN8gOXrbo0koKtPH0hrgzus+CqUCAQDE6XWzY5yP7caFt/RolZaBYNcKCWDCHv+bg/87u3MGwwSeaMjYWNAQ5IVWrUFnns8eiyNRhBGrEQZDTyO4X0oMeEkTTABMEJIpge91SWfuYuqltiNdkS9aiYS58F43IBHKKWLc39b3KbiykiG2IjrqVl2aAyb6vSgtiGkwi301jtWEctaDl2JbwZpgldOA83wH2aBPK9N9MaakEYdI2dHVSg8bf9AgMBAAE='
+    }
+
+    const hiddenService1 = {
+      address: 'u2rg2direy34dj77375h2fbhsc2tvxj752h4tlso64mjnlevcv54oaad.onion',
+      privateKey:
+        'ED25519-V3:uCr5t3EcOCwig4cu7pWY6996whV+evrRlI0iIIsjV3uCz4rx46sB3CPq8lXEWhjGl2jlyreomORirKcz9mmcdQ=='
+    }
+    const pems = await createCertificatesTestHelper('adres1.onion', hiddenService1.address)
     const certs = {
       cert: pems.userCert,
       key: pems.userKey,
       ca: [pems.ca]
     }
-    await ioProxy.createCommunity('MyCommunity', certs)
+
+    await ioProxy.createCommunity('MyCommunity', peerId1, hiddenService1, certs)
     expect(observedLaunchRegistrar).not.toBeCalled()
     const communityData = await observedCommunityCreate.mock.results[0].value
-    expect(observedIO).lastCalledWith(EventTypesResponse.NEW_COMMUNITY, { id: 'MyCommunity', payload: communityData })
+    console.log(communityData)
+    expect(observedIO).lastCalledWith(EventTypesResponse.NEW_COMMUNITY, { id: 'MyCommunity' })
   })
 
-  it('creates community and starts registrar if user is the owner', async () => {
+  it('starts registrar', async () => {
     const communityId = 'MyCommunity'
     const observedLaunchRegistrar = jest.spyOn(ioProxy, 'launchRegistrar')
     const observedIO = jest.spyOn(ioProxy.io, 'emit')
-    const observedCommunityCreate = jest.spyOn(ioProxy.communities, 'create')
-    const pems = await createCertificatesTestHelper('adres1.onion', 'adres2.onion')
+    const peerId = {
+      id: 'QmWVMaUqEB73gzgGkc9wS7rnhNcpSyH64dmbGUdU2TM3eV',
+      privKey:
+        'CAASqAkwggSkAgEAAoIBAQCY2r7s5YlgWXlHuHH4PY/cUik/m7GuWPdTPmmm4QZTr1VSyKgC2AMR45xrcGMjd5SDh1HjzbptJpYfGWO+Sbm6yK7EfxYN8gOXrbo0koKtPH0hrgzus+CqUCAQDE6XWzY5yP7caFt/RolZaBYNcKCWDCHv+bg/87u3MGwwSeaMjYWNAQ5IVWrUFnns8eiyNRhBGrEQZDTyO4X0oMeEkTTABMEJIpge91SWfuYuqltiNdkS9aiYS58F43IBHKKWLc39b3KbiykiG2IjrqVl2aAyb6vSgtiGkwi301jtWEctaDl2JbwZpgldOA83wH2aBPK9N9MaakEYdI2dHVSg8bf9AgMBAAECggEAOH8JeIfyecE4WXDr9wPSC232vwLt7nIFoCf+ZubfLskscTenGb37jH4jT3avvekx5Fd8xgVBNZzAeegpfKjFVCtepVQPs8HS4BofK9VHJX6pBWzObN/hVzHcV/Ikjj7xUPRgdti/kNBibcBR/k+1myAK3ybemgydQj1Mj6CQ7Tu/4npaRXhVygasbTgFCYxrV+CGjzITdCAdRTWg1+H6puxjfObZqj0wa4I6sCom0+Eau7nULtVmi0hodOwKwtmc2oaUyCQY2yiEjdZnkXEEhP1EtJka+kD96iAG3YvFqlcdUPYVlIxCP9h55AaOShnACNymiTpYzpCP/kUK9wFkZQKBgQD2wjjWEmg8DzkD3y19MVZ71w0kt0PgZMU+alR8EZCJGqvoyi2wcinfdmqyOZBf2rct+3IyVpwuWPjsHOHq7ZaJGmJkTGrNbndTQ+WgwJDvghqBfHFrgBQNXvqHl5EuqnRMCjrJeP8Uud1su5zJbHQGsycZwPzB3fSj0yAyRO812wKBgQCelDmknQFCkgwIFwqqdClUyeOhC03PY0RGngp+sLlu8Q8iyEI1E9i/jTkjPpioAZ/ub5iD6iP5gj27N239B/elZY5xQQeDA4Ns+4yNOTx+nYXmWcTfVINFVe5AK824TjqlCY2ES+/hVBKB+JQV6ILlcCj5dXz9cCbg6cys4TttBwKBgH+rdaSs2WlZpvIt4mdHw6tHVPGOMHxFJxhoA1Y98D4/onpLQOBt8ORBbGrSBbTSgLw1wJvy29PPDNt9BhZ63swI7qdeMlQft3VJR+GoQFTrR7N/I1+vYLCaV50X+nHel1VQZaIgDDo5ACtl1nUQu+dLggt9IklcAVtRvPLFX87JAoGBAIBl8+ZdWc/VAPjr7y7krzJ/5VdYF8B716R2AnliDkLN3DuFelYPo8g1SLZI0MH3zs74fL0Sr94unl0gHGZsNRAuko8Q4EwsZBWx97PBTEIYuXox5T4O59sUILzEuuUoMkO+4F7mPWxs7i9eXkj+4j1z+zlA79slG9WweJDiLYOxAoGBAMmH/nv1+0sUIL2qgE7OBs8kokUwx4P8ZRAlL6ZVC4tVuDBL0zbjJKcQWOcpWQs9pC6O/hgPur3VgHDF7gko3ZDB0KuxVJPZyIhoo+PqXaCeq4KuIPESjYKT803p2S76n/c2kUaQ5i2lYToClvhk72kw9o9niSyVdotXxC90abI9',
+      pubKey:
+        'CAASpgIwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCY2r7s5YlgWXlHuHH4PY/cUik/m7GuWPdTPmmm4QZTr1VSyKgC2AMR45xrcGMjd5SDh1HjzbptJpYfGWO+Sbm6yK7EfxYN8gOXrbo0koKtPH0hrgzus+CqUCAQDE6XWzY5yP7caFt/RolZaBYNcKCWDCHv+bg/87u3MGwwSeaMjYWNAQ5IVWrUFnns8eiyNRhBGrEQZDTyO4X0oMeEkTTABMEJIpge91SWfuYuqltiNdkS9aiYS58F43IBHKKWLc39b3KbiykiG2IjrqVl2aAyb6vSgtiGkwi301jtWEctaDl2JbwZpgldOA83wH2aBPK9N9MaakEYdI2dHVSg8bf9AgMBAAE='
+    }
+
+    const hiddenService = {
+      address: 'u2rg2direy34dj77375h2fbhsc2tvxj752h4tlso64mjnlevcv54oaad.onion',
+      privateKey:
+        'ED25519-V3:uCr5t3EcOCwig4cu7pWY6996whV+evrRlI0iIIsjV3uCz4rx46sB3CPq8lXEWhjGl2jlyreomORirKcz9mmcdQ=='
+    }
+    const pems = await createCertificatesTestHelper(hiddenService.address, 'adres2.onion')
+
     const certs = {
       cert: pems.userCert,
       key: pems.userKey,
       ca: [pems.ca]
     }
-    await ioProxy.createCommunity(communityId, certs, 'ownerRootCert', 'ownerRootKey')
+
+    await ioProxy.launchCommunity('MyCommunity', peerId, hiddenService, [], certs)
+    await ioProxy.launchRegistrar(
+      'MyCommunity',
+      peerId.id,
+      pems.ca,
+      pems.ca_key,
+      hiddenService.privateKey,
+      1234
+    )
     expect(observedLaunchRegistrar).toBeCalled()
-    const communityData = await observedCommunityCreate.mock.results[0].value
-    expect(observedIO).lastCalledWith(EventTypesResponse.NEW_COMMUNITY, { id: communityId, payload: communityData })
+    expect(observedIO).lastCalledWith(EventTypesResponse.REGISTRAR, {
+      id: communityId,
+      payload: {
+        onionAddress: 'mockedOnionAddress',
+        privateKey:
+          'ED25519-V3:uCr5t3EcOCwig4cu7pWY6996whV+evrRlI0iIIsjV3uCz4rx46sB3CPq8lXEWhjGl2jlyreomORirKcz9mmcdQ=='
+      },
+      peerId: peerId.id
+    })
   })
 
   it('emits error if connecting to registrar fails', async () => {
     const observedIO = jest.spyOn(ioProxy.io, 'emit')
-    await ioProxy.registerUserCertificate('improperServiceAddress.onion', 'userCsr', 'someCommunityId')
+    await ioProxy.registerUserCertificate(
+      'improperServiceAddress.onion',
+      'userCsr',
+      'someCommunityId'
+    )
     expect(observedIO).toBeCalledTimes(1)
-    expect(observedIO).toBeCalledWith(EventTypesResponse.ERROR, { type: EventTypesResponse.REGISTRAR, message: 'Connecting to registrar failed', communityId: 'someCommunityId', code: 500 })
+    expect(observedIO).toBeCalledWith(EventTypesResponse.ERROR, {
+      type: EventTypesResponse.REGISTRAR,
+      message: 'Connecting to registrar failed',
+      communityId: 'someCommunityId',
+      code: 500
+    })
   })
 
   it.each([
     ['Username already taken.', 403, 403],
     ['Username is not valid', 403, 400],
     ['Registering username failed.', 500, 500]
-  ])('emits error "%s" with code %s if registrar returns %s', async (socketMessage: string, socketStatusCode: number, registrarStatusCode: number) => {
-    const observedIO = jest.spyOn(ioProxy.io, 'emit')
-    const mockRegisterCertificate = jest.fn()
-    ioProxy.connectionsManager.sendCertificateRegistrationRequest = mockRegisterCertificate
-    mockRegisterCertificate.mockReturnValue(Promise.resolve(new ResponseMock().init(registrarStatusCode)))
-    await ioProxy.registerUserCertificate('http://properAddress.onion', 'userCsr', 'someCommunityId')
-    expect(observedIO).toBeCalledTimes(1)
-    expect(observedIO).toBeCalledWith(EventTypesResponse.ERROR, { type: EventTypesResponse.REGISTRAR, message: socketMessage, communityId: 'someCommunityId', code: socketStatusCode })
-  })
+  ])(
+    'emits error "%s" with code %s if registrar returns %s',
+    async (socketMessage: string, socketStatusCode: number, registrarStatusCode: number) => {
+      const observedIO = jest.spyOn(ioProxy.io, 'emit')
+      const mockRegisterCertificate = jest.fn()
+      ioProxy.connectionsManager.sendCertificateRegistrationRequest = mockRegisterCertificate
+      mockRegisterCertificate.mockReturnValue(
+        Promise.resolve(new ResponseMock().init(registrarStatusCode))
+      )
+      await ioProxy.registerUserCertificate(
+        'http://properAddress.onion',
+        'userCsr',
+        'someCommunityId'
+      )
+      expect(observedIO).toBeCalledTimes(1)
+      expect(observedIO).toBeCalledWith(EventTypesResponse.ERROR, {
+        type: EventTypesResponse.REGISTRAR,
+        message: socketMessage,
+        communityId: 'someCommunityId',
+        code: socketStatusCode
+      })
+    }
+  )
 
   it('sends user certificate after successful registration', async () => {
     const registrarResponse = {
@@ -94,9 +168,18 @@ describe('IO proxy', () => {
     const observedIO = jest.spyOn(ioProxy.io, 'emit')
     const mockRegisterCertificate = jest.fn()
     ioProxy.connectionsManager.sendCertificateRegistrationRequest = mockRegisterCertificate
-    mockRegisterCertificate.mockReturnValue(Promise.resolve(new ResponseMock().init(200, registrarResponse)))
-    await ioProxy.registerUserCertificate('http://properAddress.onion', 'userCsr', 'someCommunityId')
+    mockRegisterCertificate.mockReturnValue(
+      Promise.resolve(new ResponseMock().init(200, registrarResponse))
+    )
+    await ioProxy.registerUserCertificate(
+      'http://properAddress.onion',
+      'userCsr',
+      'someCommunityId'
+    )
     expect(observedIO).toBeCalledTimes(1)
-    expect(observedIO).toBeCalledWith(EventTypesResponse.SEND_USER_CERTIFICATE, { id: 'someCommunityId', payload: registrarResponse })
+    expect(observedIO).toBeCalledWith(EventTypesResponse.SEND_USER_CERTIFICATE, {
+      id: 'someCommunityId',
+      payload: registrarResponse
+    })
   })
 })

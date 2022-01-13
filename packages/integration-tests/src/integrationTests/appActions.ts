@@ -14,6 +14,7 @@ interface CreateCommunity {
   userName: string
   store: Store
 }
+
 interface JoinCommunity {
   registrarAddress: string
   userName: string

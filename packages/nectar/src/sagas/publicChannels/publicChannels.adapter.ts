@@ -7,7 +7,7 @@ export const communityChannelsAdapter =
   createEntityAdapter<CommunityChannels>()
 
 export const publicChannelsAdapter = createEntityAdapter<PublicChannel>({
-  selectId: (channel) => channel.name
+  selectId: (channel) => channel.address
 })
 
 export const channelMessagesAdapter = createEntityAdapter<ChannelMessage>()

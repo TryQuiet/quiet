@@ -13,20 +13,15 @@ import { CommunityChannels } from './publicChannels.slice'
 import { DisplayableMessage } from '../..'
 import { formatMessageDisplayDate } from '../../utils/functions/dates/formatMessageDisplayDate'
 
-const publicChannelSlice: CreatedSelectors[StoreKeys.PublicChannels] = (
-  state: StoreState
-) => state[StoreKeys.PublicChannels]
+const publicChannelSlice: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) =>
+  state[StoreKeys.PublicChannels]
 
-export const selectEntities = createSelector(
-  publicChannelSlice,
-  (reducerState) =>
-    communityChannelsAdapter
-      .getSelectors()
-      .selectEntities(reducerState.channels)
+export const selectEntities = createSelector(publicChannelSlice, reducerState =>
+  communityChannelsAdapter.getSelectors().selectEntities(reducerState.channels)
 )
 
 export const publicChannelsByCommunity = (id: string) =>
-  createSelector(selectEntities, (publicChannels) => {
+  createSelector(selectEntities, publicChannels => {
     const community = publicChannels[id]
     return publicChannelsAdapter.getSelectors().selectAll(community.channels)
   })
@@ -46,50 +41,31 @@ const currentCommunityChannelsState = createSelector(
   }
 )
 
-export const publicChannels = createSelector(
-  currentCommunityChannelsState,
-  (state) => {
-    return publicChannelsAdapter.getSelectors().selectAll(state.channels)
-  }
-)
+export const publicChannels = createSelector(currentCommunityChannelsState, state => {
+  return publicChannelsAdapter.getSelectors().selectAll(state.channels)
+})
 
-export const publicChannelsMessages = createSelector(
-  currentCommunityChannelsState,
-  (state) => {
-    return channelMessagesAdapter
-      .getSelectors()
-      .selectAll(state.channelMessages)
-  }
-)
+export const publicChannelsMessages = createSelector(currentCommunityChannelsState, state => {
+  return channelMessagesAdapter.getSelectors().selectAll(state.channelMessages)
+})
 
-export const missingChannelsMessages = createSelector(
-  publicChannelsMessages,
-  (messages) => {
-    return messages
-      .filter((message) => message.type === MessageType.Empty)
-      .map((message) => message.id)
-  }
-)
+export const missingChannelsMessages = createSelector(publicChannelsMessages, messages => {
+  return messages.filter(message => message.type === MessageType.Empty).map(message => message.id)
+})
 
-export const currentChannel = createSelector(
-  currentCommunityChannelsState,
-  (state) => {
-    return state.currentChannel
-  }
-)
+export const currentChannel = createSelector(currentCommunityChannelsState, state => {
+  return state.currentChannel
+})
 
-export const channelLoadingSlice = createSelector(
-  currentCommunityChannelsState,
-  (state) => {
-    return state.channelLoadingSlice
-  }
-)
+export const channelLoadingSlice = createSelector(currentCommunityChannelsState, state => {
+  return state.channelLoadingSlice
+})
 
 export const currentChannelMessages = createSelector(
   publicChannelsMessages,
   currentChannel,
   (messages, channel) => {
-    return messages.filter((message) => message.channelId === channel)
+    return messages.filter(message => message.channelId === channel)
   }
 )
 
@@ -97,13 +73,13 @@ const validCurrentChannelMessages = createSelector(
   currentChannelMessages,
   certificatesMapping,
   (messages, certificates) => {
-    return messages.filter((message) => message.pubKey in certificates)
+    return messages.filter(message => message.pubKey in certificates)
   }
 )
 
 export const sortedCurrentChannelMessages = createSelector(
   validCurrentChannelMessages,
-  (messages) => {
+  messages => {
     return messages.sort((a, b) => b.createdAt - a.createdAt).reverse()
   }
 )
@@ -118,7 +94,7 @@ export const slicedCurrentChannelMessages = createSelector(
 
 export const currentChannelMessagesCount = createSelector(
   slicedCurrentChannelMessages,
-  (messages) => {
+  messages => {
     return messages.length
   }
 )
@@ -127,7 +103,7 @@ const displayableCurrentChannelMessages = createSelector(
   slicedCurrentChannelMessages,
   certificatesMapping,
   (messages, certificates) =>
-    messages.map((message) => {
+    messages.map(message => {
       const user = certificates[message.pubKey]
       const date = formatMessageDisplayDate(message.createdAt)
       const displayableMessage: DisplayableMessage = {
@@ -144,26 +120,23 @@ const displayableCurrentChannelMessages = createSelector(
 
 export const dailyGroupedCurrentChannelMessages = createSelector(
   displayableCurrentChannelMessages,
-  (messages) => {
-    const result: { [date: string]: DisplayableMessage[] } = messages.reduce(
-      (groups, message) => {
-        let date: string
+  messages => {
+    const result: { [date: string]: DisplayableMessage[] } = messages.reduce((groups, message) => {
+      let date: string
 
-        if (message.date.includes(',')) {
-          date = message.date.split(',')[0]
-        } else {
-          date = 'Today'
-        }
+      if (message.date.includes(',')) {
+        date = message.date.split(',')[0]
+      } else {
+        date = 'Today'
+      }
 
-        if (!groups[date]) {
-          groups[date] = []
-        }
+      if (!groups[date]) {
+        groups[date] = []
+      }
 
-        groups[date].push(message)
-        return groups
-      },
-      {}
-    )
+      groups[date].push(message)
+      return groups
+    }, {})
 
     return result
   }
@@ -171,17 +144,14 @@ export const dailyGroupedCurrentChannelMessages = createSelector(
 
 export const currentChannelMessagesMergedBySender = createSelector(
   dailyGroupedCurrentChannelMessages,
-  (groups) => {
+  groups => {
     const result: { [day: string]: DisplayableMessage[][] } = {}
     for (const day in groups) {
       result[day] = groups[day].reduce((merged, message) => {
         // Get last item from collected array for comparison
         const last = merged.length && merged[merged.length - 1][0]
 
-        if (
-          last.nickname === message.nickname &&
-          last.createdAt - message.createdAt < 300
-        ) {
+        if (last.nickname === message.nickname && last.createdAt - message.createdAt < 300) {
           merged[merged.length - 1].push(message)
         } else {
           merged.push([message])

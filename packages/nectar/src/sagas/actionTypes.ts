@@ -12,6 +12,7 @@ export type Keys<Actions> = keyof Actions
 export type ActionFromMapping<Actions> = Actions[Keys<Actions>]
 
 export enum SocketActionTypes {
+  CREATE_COMMUNITY = 'createCommunity',
   CONNECT_TO_WEBSOCKET_SERVER = 'connectToWebsocketServer',
   GET_PUBLIC_CHANNELS = 'getPublicChannels',
   RESPONSE_GET_PUBLIC_CHANNELS = 'responseGetPublicChannels',
@@ -20,7 +21,7 @@ export enum SocketActionTypes {
   SEND_MESSAGES_IDS = 'sendIds',
   ASK_FOR_MESSAGES = 'askForMessages',
   RESPONSE_ASK_FOR_MESSAGES = 'responseFetchAllMessages',
-  SUBSCRIBE_FOR_TOPIC = 'subscribeForTopic',
+  SUBSCRIBE_TO_TOPIC = 'subscribeToTopic',
   REGISTER_USER_CERTIFICATE = 'registerUserCertificate',
   SEND_USER_CERTIFICATE = 'sendUserCertificate',
   SAVE_CERTIFICATE = 'saveCertificate',

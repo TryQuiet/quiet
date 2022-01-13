@@ -52,7 +52,7 @@ export async function assertReceivedChannelsAndSubscribe(
     })
   )
 
-  store.dispatch(publicChannels.actions.subscribeForAllTopics(communityId))
+  store.dispatch(publicChannels.actions.subscribeToAllTopics(communityId))
 
   log(
     `User ${userName} received ${store.getState().PublicChannels.channels.entities[communityId].channels

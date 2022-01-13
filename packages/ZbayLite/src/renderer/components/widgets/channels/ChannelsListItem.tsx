@@ -1,12 +1,12 @@
 import React from 'react'
 import classNames from 'classnames'
 
+import { Typography, Grid } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
-import { Typography, Grid } from '@material-ui/core'
 
-import history from '../../../../shared/history'
+import { PublicChannel } from '@zbayapp/nectar'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -52,34 +52,30 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-export interface IChannelsListItemComponentProps {
-  channel: any
-  directMessages: boolean
-  selected: any
+export interface ChannelsListItemComponentProps {
+  channel: PublicChannel
+  selected: boolean
+  setCurrentChannel: (name: string) => void
 }
 
-export const ChannelsListItem: React.FC<IChannelsListItemComponentProps> = ({
+export const ChannelsListItem: React.FC<ChannelsListItemComponentProps> = ({
   channel,
-  directMessages,
-  selected
+  selected,
+  setCurrentChannel
 }) => {
   const classes = useStyles({})
-  const highlight = selected === channel.address
   return (
     <ListItem
       button
       disableGutters
       onClick={() => {
-        history.push(
-          `/main/${directMessages
-            ? `direct-messages/${channel.username}`
-            : `channel/${channel.address}`
-          }`
-        )
+        setCurrentChannel(channel.name)
       }}
       className={classNames(classes.root, {
-        [classes.selected]: highlight
-      })}>
+        [classes.selected]: selected
+      })}
+      data-testid={`${channel.name}-link`}
+    >
       <ListItemText
         primary={
           <Grid container alignItems='center'>

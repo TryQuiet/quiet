@@ -4,7 +4,7 @@ import { combineReducers } from '@reduxjs/toolkit'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { StoreKeys } from '../../store.keys'
 import { publicChannelsActions } from '../publicChannels.slice'
-import { subscribeForTopicSaga } from './subscribeForTopic.saga'
+import { subscribeToTopicSaga } from './subscribeToTopic.saga'
 import { Identity, identityReducer, IdentityState } from '../../identity/identity.slice'
 import { identityAdapter } from '../../identity/identity.adapter'
 import {
@@ -14,7 +14,7 @@ import {
 } from '../../communities/communities.slice'
 import { communitiesAdapter } from '../../communities/communities.adapter'
 
-describe('subscribeForTopicSaga', () => {
+describe('subscribeToTopicSaga', () => {
   const socket = { emit: jest.fn() } as unknown as Socket
 
   const channel = {
@@ -48,9 +48,9 @@ describe('subscribeForTopicSaga', () => {
 
   test('subscribe for topic', async () => {
     await expectSaga(
-      subscribeForTopicSaga,
+      subscribeToTopicSaga,
       socket,
-      publicChannelsActions.subscribeForTopic({
+      publicChannelsActions.subscribeToTopic({
         peerId: 'peerId',
         channelData: channel
       })
@@ -85,7 +85,7 @@ describe('subscribeForTopicSaga', () => {
         })
       )
       .apply(socket, socket.emit, [
-        SocketActionTypes.SUBSCRIBE_FOR_TOPIC,
+        SocketActionTypes.SUBSCRIBE_TO_TOPIC,
         'peerId',
         channel
       ])
