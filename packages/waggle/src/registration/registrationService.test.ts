@@ -2,7 +2,7 @@ import { configCrypto, createRootCA, createUserCert, createUserCsr, RootCA, veri
 import { Time } from 'pkijs'
 import { DirResult } from 'tmp'
 import { CertificateRegistration } from '.'
-import { createTmpDir, dataFromRootPems, tmpZbayDirPath, TorMock } from '../common/testUtils'
+import { createTmpDir, rootPermsData, tmpZbayDirPath, TorMock } from '../common/testUtils'
 import { getPorts, Ports } from '../common/utils'
 import { Storage } from '../storage'
 import { getStorage, registerUser, setupRegistrar } from './testUtils'
@@ -76,7 +76,13 @@ describe('Registration service', () => {
     })
     const userCert = await createUserCert(certRoot.rootCertString, certRoot.rootKeyString, user.userCsr, new Date(), new Date(2030, 1, 1))
     storage = await getStorage(tmpAppDataPath)
-    await storage.saveCertificate(userCert.userCertString, { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString })
+    await storage.saveCertificate({
+      certificate: userCert.userCertString,
+      rootPermsData: {
+        certificate: certRoot.rootCertString,
+        privKey: certRoot.rootKeyString
+      }
+    })
     const saveCertificate = jest.spyOn(storage, 'saveCertificate')
     registrationService = await setupRegistrar(
       null,
@@ -140,8 +146,8 @@ describe('Registration service', () => {
       signAlg: configCrypto.signAlg,
       hashAlg: configCrypto.hashAlg
     })
-    const certificate = await CertificateRegistration.registerOwnerCertificate(csr.userCsr, dataFromRootPems)
-    const isProperUserCert = await verifyUserCert(dataFromRootPems.certificate, certificate)
+    const certificate = await CertificateRegistration.registerOwnerCertificate(csr.userCsr, rootPermsData)
+    const isProperUserCert = await verifyUserCert(rootPermsData.certificate, certificate)
     expect(isProperUserCert.result).toBe(true)
   })
 })

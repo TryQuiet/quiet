@@ -2,9 +2,10 @@ import PeerId, { JSONPeerId } from 'peer-id'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 import { Storage } from '../storage'
 import { getPorts } from '../common/utils'
-import { CertsData, DataFromPems } from '../common/types'
+import { CertsData } from '../common/types'
 import { CertificateRegistration } from '../registration'
 import logger from '../logger'
+import { PermsData } from '@zbayapp/nectar'
 const log = logger('communities')
 
 interface HiddenServiceData {
@@ -117,11 +118,11 @@ export default class CommunitiesManager {
     }
   }
 
-  public setupRegistrationService = async (peerId: string, storage: Storage, dataFromPems: DataFromPems, hiddenServicePrivKey?: string, port?: number): Promise<CertificateRegistration> => {
+  public setupRegistrationService = async (peerId: string, storage: Storage, permsData: PermsData, hiddenServicePrivKey?: string, port?: number): Promise<CertificateRegistration> => {
     const certRegister = new CertificateRegistration(
       this.connectionsManager.tor,
       storage,
-      dataFromPems,
+      permsData,
       hiddenServicePrivKey,
       port
     )

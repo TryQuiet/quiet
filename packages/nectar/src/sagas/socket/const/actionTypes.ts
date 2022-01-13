@@ -51,7 +51,6 @@ export enum SocketActionTypes {
   RESPONSE_GET_PUBLIC_CHANNELS = 'responseGetPublicChannels',
   REQUEST_PEER_ID = 'requestPeerId',
   // S
-  SAVE_CERTIFICATE = 'saveCertificate',
   SAVE_OWNER_CERTIFICATE = 'saveOwnerCertificate',
   SAVED_OWNER_CERTIFICATE = 'savedOwnerCertificate',
   SEND_DIRECT_MESSAGE = 'sendDirectMessage',

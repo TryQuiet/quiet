@@ -12,7 +12,7 @@
 		"version": "git add -A src",
 		"postinstall": "rm -rf node_modules/ipfs-core-types/src",
 		"postversion": "git push && git push --tags",
-		"lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
+		"lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
 		"test": "cross-env DEBUG=ipfs:*,waggle:* jest ./src/**/* --runInBand --verbose --testPathIgnorePatterns=\".src/(!?nodeTest*)|(.node_modules*)\"",
 		"test-ci": "jest ./src/**/* --runInBand --colors --ci --silent --verbose --testPathIgnorePatterns=\".src/(!?nodeTest*)|(.node_modules*)|src/.*\\.tor.test\\.(t|j)s$\"",
 		"test-ci-tor": "jest --runInBand --colors --ci --silent --verbose --testPathPattern=\"src/.*\\.tor.test\\.(t|j)s$\"",

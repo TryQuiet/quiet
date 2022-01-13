@@ -6,7 +6,7 @@ import CommunitiesManager from '../communities/manager'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 import { CertificateRegistration } from '../registration'
 import { Storage } from '../storage'
-import { AskForMessagesPayload, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, SaveOwnerCertificatePayload, SocketActionTypes, SubscribeToTopicPayload } from '@zbayapp/nectar'
+import { AskForMessagesPayload, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, SaveCertificatePayload, SaveOwnerCertificatePayload, SocketActionTypes, SubscribeToTopicPayload } from '@zbayapp/nectar'
 import { emitServerError, emitValidationError } from './errors'
 import { loadAllMessages } from './events/messages'
 import logger from '../logger'
@@ -53,7 +53,7 @@ export default class IOProxy {
   }
 
   public saveCertificate = async (peerId: string, certificate: string) => {
-    await this.getStorage(peerId).saveCertificate(certificate)
+    await this.getStorage(peerId).saveCertificate({ certificate })
   }
 
   public sendMessage = async (
@@ -120,7 +120,11 @@ export default class IOProxy {
   }
 
   public saveOwnerCertificate = async (payload: SaveOwnerCertificatePayload) => {
-    await this.getStorage(payload.peerId).saveCertificate(payload.certificate, payload.permsData)
+    const saveCertificatePayload: SaveCertificatePayload = {
+      certificate: payload.certificate,
+      rootPermsData: payload.permsData
+    }
+    await this.getStorage(payload.peerId).saveCertificate(saveCertificatePayload)
   }
 
   public registerUserCertificate = async (payload: RegisterUserCertificatePayload) => {

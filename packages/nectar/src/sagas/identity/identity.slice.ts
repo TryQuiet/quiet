@@ -64,26 +64,31 @@ export interface UpdateUsernamePayload {
 }
 
 export interface RegisterUserCertificatePayload {
-  id: string,
-  userCsr: string,
+  id: string
+  userCsr: string
   serviceAddress: string
 }
 
 export interface PermsData {
-  certificate: string,
+  certificate: string
   privKey: string
 }
 
 export interface RegisterOwnerCertificatePayload {
-  id: string,
-  userCsr: string,
+  id: string
+  userCsr: string
   permsData: PermsData
 }
 
+export interface SaveCertificatePayload {
+  certificate: string
+  rootPermsData?: PermsData
+}
+
 export interface SaveOwnerCertificatePayload {
-  id: string,
-  peerId: string,
-  certificate: string,
+  id: string
+  peerId: string
+  certificate: string
   permsData: PermsData
 }
 

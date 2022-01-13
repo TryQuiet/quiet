@@ -5,12 +5,12 @@ import { Response } from 'node-fetch'
 import path from 'path'
 import PeerId from 'peer-id'
 import tmp from 'tmp'
-import { ConnectionsManagerOptions, DataFromPems } from '../common/types'
+import { ConnectionsManagerOptions } from '../common/types'
 import { Config } from '../constants'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 import { createCertificatesTestHelper } from '../libp2p/tests/client-server'
+import { PermsData } from '@zbayapp/nectar'
 import WebsocketsOverTor from '../libp2p/websocketOverTor'
-import logger from '../logger'
 import { Tor } from '../torManager'
 import {
   createLibp2pAddress,
@@ -21,10 +21,10 @@ import {
   torBinForPlatform,
   torDirForPlatform
 } from './utils'
+import logger from '../logger'
 const log = logger('test')
 
-export const dataFromRootPems: DataFromPems = {
-  // Tmp cert
+export const rootPermsData: PermsData = {
   certificate:
     'MIIBNjCB3AIBATAKBggqhkjOPQQDAjASMRAwDgYDVQQDEwdaYmF5IENBMCYYEzIwMjEwNjIyMDkzMDEwLjAyNVoYDzIwMzAwMTMxMjMwMDAwWjASMRAwDgYDVQQDEwdaYmF5IENBMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEV5a3Czy+L7IfVX0FpJtSF5mi0GWGrtPqv5+CFSDPrHXijsxWdPTobR1wk8uCLP4sAgUbs/bIleCxQy41kSSyOaMgMB4wDwYDVR0TBAgwBgEB/wIBAzALBgNVHQ8EBAMCAAYwCgYIKoZIzj0EAwIDSQAwRgIhAPOzksuipKyBALt/o8O/XwsrVSzfSHXdAR4dOWThQ1lbAiEAmKqjhsmf50kxWX0ekhbAeCTjcRApXhjnslmJkIFGF2o=+lmBImw3BMNjA0FTlK5iRmVC+w/T6M04Es+yiYL608vOhx2slnoyAwHjAPBgNVHRMECDAGAQH/AgEDMAsGA1UdDwQEAwIABjAKBggqhkjOPQQDAgNIADBFAiEA+0kIz0ny/PLVERTcL0+KCpsztyA6Zuwzj05VW5NMdx0CICgdzf0lg0/2Ksl1AjSPYsy2w+Hn09PGlBnD7TiExBpx',
   privKey:

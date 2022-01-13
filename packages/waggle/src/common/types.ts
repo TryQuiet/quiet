@@ -75,11 +75,6 @@ export interface ILibp2pStatus {
   peerId: string
 }
 
-export interface DataFromPems {
-  certificate: string
-  privKey: string
-}
-
 export interface CertsData {
   cert: string
   key: string

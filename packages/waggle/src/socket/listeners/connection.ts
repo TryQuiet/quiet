@@ -1,8 +1,8 @@
-import { AskForMessagesPayload, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, SaveOwnerCertificatePayload, SocketActionTypes } from '@zbayapp/nectar'
+import { AskForMessagesPayload, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, SaveOwnerCertificatePayload, SocketActionTypes, SubscribeToTopicPayload } from '@zbayapp/nectar'
 import { CertsData, IMessage } from '../../common/types'
 import IOProxy from '../IOProxy'
 import PeerId from 'peer-id'
-import { SubscribeToTopicPayload } from '@zbayapp/nectar'
+
 import logger from '../../logger'
 
 const log = logger('socket')
@@ -81,10 +81,6 @@ export const connections = (io, ioProxy: IOProxy) => {
         await ioProxy.registerOwnerCertificate(payload)
       }
     )
-    socket.on(SocketActionTypes.SAVE_CERTIFICATE, async (peerId: string, certificate: string) => {
-      log(`Saving user certificate (${peerId})`)
-      await ioProxy.saveCertificate(peerId, certificate)
-    })
     socket.on(
       SocketActionTypes.SAVE_OWNER_CERTIFICATE,
       async (payload: SaveOwnerCertificatePayload) => {

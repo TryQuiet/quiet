@@ -6,7 +6,7 @@ import * as os from 'os'
 import fs from 'fs'
 import PeerId from 'peer-id'
 import { getPorts, torBinForPlatform, torDirForPlatform } from './common/utils'
-import { dataFromRootPems } from './common/testUtils'
+import { rootPermsData } from './common/testUtils'
 import CommunitiesManager from './communities/manager'
 import { CertsData, ConnectionsManagerOptions } from './common/types'
 
@@ -80,7 +80,7 @@ export default class Node {
     await communities.setupRegistrationService(
       peerId.toB58String(),
       communities.getStorage(peerId.toB58String()),
-      dataFromRootPems,
+      rootPermsData,
       process.env.HIDDEN_SERVICE_SECRET_REGISTRATION
     )
   }
