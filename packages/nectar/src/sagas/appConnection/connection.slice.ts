@@ -45,14 +45,14 @@ export const connectionSlice = createSlice({
       state.connectedPeers = connectedPeers
     },
     removeConnectedPeers: (state, action: PayloadAction<ConnectedPeersSet>) => {
-      const connectedPeers = action.payload.connectedPeers
-      const connectedPeersSaved = connectedPeers.map((item) => {
-        if (!(item === action.payload.newPeer)) {
-          return item
+      let connectedPeers = []
+      for (let item of action.payload.connectedPeers) {
+        if (item !== action.payload.newPeer) {
+          connectedPeers.push(item)
         }
-      })
+      }
 
-      state.connectedPeers = connectedPeersSaved
+      state.connectedPeers = connectedPeers
     }
   }
 })

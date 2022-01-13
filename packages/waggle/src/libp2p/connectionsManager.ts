@@ -142,7 +142,7 @@ export class ConnectionsManager extends EventEmitter {
   }
 
   public init = async () => {
-    void this.initListeners()
+    this.initListeners()
     await this.spawnTor()
   }
 
