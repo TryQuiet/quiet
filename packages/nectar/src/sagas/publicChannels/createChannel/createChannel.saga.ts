@@ -13,13 +13,10 @@ export function* createChannelSaga(
   ReturnType<typeof publicChannelsActions.createChannel>['payload']
   >
 ): Generator {
-  const currentIdentity = yield* select(identitySelectors.currentIdentity)
-
-  const peerId = currentIdentity.peerId.id
-
+  const identity = yield* select(identitySelectors.currentIdentity)
   yield* apply(socket, socket.emit, [
-    SocketActionTypes.SUBSCRIBE_FOR_TOPIC,
-    peerId,
+    SocketActionTypes.SUBSCRIBE_TO_TOPIC,
+    identity.peerId.id,
     action.payload.channel
   ])
 }

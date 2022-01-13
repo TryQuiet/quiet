@@ -1,6 +1,5 @@
 import Node from '../node'
 import { ZBAY_DIR_PATH } from '../constants'
-import { StorageTestSnapshot } from '../storage/storageSnapshot'
 import WebsocketsOverTor from '../libp2p/websocketOverTor'
 import Websockets from 'libp2p-websockets'
 import { DataServer } from '../socket/DataServer'
@@ -22,6 +21,7 @@ class TestStorageOptions {
 
 export class LocalNode extends Node {
   storageOptions: any
+  storageClass: any
   appDataPath: string
   storage: any // Storage | StorageTestSnapshot
   localAddress: string
@@ -45,7 +45,8 @@ export class LocalNode extends Node {
     storageOptions?: TestStorageOptions,
     appDataPath?: string,
     bootstrapMultiaddrs?: string[],
-    rootCa?: RootCA
+    rootCa?: RootCA,
+    storageClass?: any
   ) {
     let _port: number = port
     if (process.env.TOR_PORT) {
@@ -67,6 +68,7 @@ export class LocalNode extends Node {
     this.appDataPath = appDataPath
     this.bootstrapMultiaddrs = bootstrapMultiaddrs
     this.rootCa = rootCa
+    this.storageClass = storageClass
   }
 
   async closeDataServer(): Promise<any> {
@@ -92,7 +94,7 @@ export class NodeWithoutTor extends LocalNode {
   public async init(): Promise<void> {
     console.log('Using NodeWithoutTor')
     const dataServer = await this.initDataServer()
-    const connectionsManager = await this.initConnectionsManager(dataServer, StorageTestSnapshot, {
+    const connectionsManager = await this.initConnectionsManager(dataServer, this.storageClass, {
       ...this.storageOptions,
       wsType: 'ws',
       env: {
@@ -142,7 +144,7 @@ export class NodeWithTor extends LocalNode {
     console.log('onion', onionAddress)
     const dataServer = await this.initDataServer()
     console.log(this.storageOptions)
-    const connectionsManager = await this.initConnectionsManager(dataServer, StorageTestSnapshot, {
+    const connectionsManager = await this.initConnectionsManager(dataServer, this.storageClass, {
       ...this.storageOptions,
       env: {
         appDataPath: this.appDataPath

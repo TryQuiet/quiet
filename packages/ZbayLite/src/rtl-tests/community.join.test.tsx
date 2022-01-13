@@ -1,14 +1,12 @@
 import React from 'react'
-import { act } from 'react-dom/test-utils'
 import '@testing-library/jest-dom/extend-expect'
+import { act } from 'react-dom/test-utils'
 import { screen } from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
-import { apply, take } from 'typed-redux-saga'
+import { take } from 'typed-redux-saga'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
-import { StoreKeys } from '../renderer/store/store.keys'
-import { SocketState } from '../renderer/sagas/socket/socket.slice'
-import { ModalsInitialState } from '../renderer/sagas/modals/modals.slice'
+import { modalsActions } from '../renderer/sagas/modals/modals.slice'
 import JoinCommunity from '../renderer/containers/widgets/joinCommunity/joinCommunity'
 import CreateUsernameModal from '../renderer/containers/widgets/createUsernameModal/CreateUsername'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
@@ -16,7 +14,8 @@ import { JoinCommunityDictionary } from '../renderer/components/widgets/performC
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
 import { socketEventData } from '../renderer/testUtils/socket'
-import { communities, identity, getFactory, SocketActionTypes } from '@zbayapp/nectar'
+import { identity, getFactory, SocketActionTypes } from '@zbayapp/nectar'
+import Channel from '../renderer/containers/pages/Channel'
 
 describe('User', () => {
   let socket: MockedSocket
@@ -29,23 +28,17 @@ describe('User', () => {
 
   it('joins community and registers username', async () => {
     const { store, runSaga } = await prepareStore(
-      {
-        [StoreKeys.Socket]: {
-          ...new SocketState(),
-          isConnected: false
-        },
-        [StoreKeys.Modals]: {
-          ...new ModalsInitialState(),
-          [ModalName.joinCommunityModal]: { open: true }
-        }
-      },
+      {},
       socket // Fork Nectar's sagas
     )
+
+    store.dispatch(modalsActions.openModal({ name: ModalName.joinCommunityModal }))
 
     renderComponent(
       <>
         <JoinCommunity />
         <CreateUsernameModal />
+        <Channel />
       </>,
       store
     )
@@ -58,22 +51,26 @@ describe('User', () => {
         if (action === SocketActionTypes.CREATE_NETWORK) {
           const data = input as socketEventData<[string]>
           communityId = data[0]
-          const holmes = (
+          const alice = (
             await factory.build<typeof identity.actions.addNewIdentity>('Identity', {
               id: communityId,
-              zbayNickname: 'holmes'
+              zbayNickname: 'alice'
             })
           ).payload
-          return socket.socketClient.emit(SocketActionTypes.NEW_COMMUNITY, {
+          return socket.socketClient.emit(SocketActionTypes.NETWORK, {
             id: communityId,
-            payload: holmes
+            payload: {
+              hiddenService: alice.hiddenService,
+              peerId: alice.peerId
+            }
           })
         }
         if (action === SocketActionTypes.REGISTER_USER_CERTIFICATE) {
           const data = input as socketEventData<[string, string, string]>
-          const communityId = data[2]
+          const id = data[2]
+          expect(id).toEqual(communityId)
           return socket.socketClient.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
-            id: communityId,
+            id: id,
             payload: {
               certificate:
                 'MIIBTDCB8wIBATAKBggqhkjOPQQDAjASMRAwDgYDVQQDEwdaYmF5IENBMB4XDTEwMTIyODEwMTAxMFoXDTMwMTIyODEwMTAxMFowEjEQMA4GA1UEAxMHWmJheSBDQTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABEaV1l/7BOvPh0fFteSubIJ2r66YM4XoMMEfUhHiJE6O0ojfHdNrsItg+pHmpIQyEe+3YGWxIhgjL65+liE8ypqjPzA9MA8GA1UdEwQIMAYBAf8CAQMwCwYDVR0PBAQDAgCGMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDATAKBggqhkjOPQQDAgNIADBFAiARHtkv7GlhfkFbtRGU1r19UJFkhA7Vu+EubBnJPjD9/QIhALje1S3bp8w8jjVf70jGc2/uRmDCo/bNyQRpApBaD5vY'
@@ -81,9 +78,35 @@ describe('User', () => {
           })
         }
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
-          return socket.socketClient.emit(SocketActionTypes.COMMUNITY, { id: communityId })
+          const data = input as socketEventData<[string, {}, {}, string[], {}]>
+          const id = data[0]
+          expect(id).toEqual(communityId)
+          socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
+            id
+          })
+          socket.socketClient.emit(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, {
+            communityId: communityId,
+            channels: {
+              general: {
+                name: 'general',
+                description: 'string',
+                owner: 'owner',
+                timestamp: 0,
+                address: 'general'
+              }
+            }
+          })
         }
       })
+
+    // Log all the dispatched actions in order
+    const actions = []
+    runSaga(function* (): Generator {
+      while (true) {
+        const action = yield* take()
+        actions.push(action.type)
+      }
+    })
 
     // Confirm proper modal title is displayed
     const dictionary = JoinCommunityDictionary()
@@ -101,42 +124,51 @@ describe('User', () => {
     expect(createUsernameTitle).toBeVisible()
 
     // Enter username and hit button
-    const createUsernameInput = await screen.findByPlaceholderText('Enter a username')
-    const createUsernameButton = await screen.findByText('Register')
-    userEvent.type(createUsernameInput, 'holmes')
+    const createUsernameInput = screen.getByPlaceholderText('Enter a username')
+    const createUsernameButton = screen.getByText('Register')
+    userEvent.type(createUsernameInput, 'alice')
     userEvent.click(createUsernameButton)
 
-    await act(async () => {
-      await runSaga(testJoinCommunitySaga).toPromise()
-      await runSaga(mockChannelsResponse).toPromise()
-    })
+    // Wait for the actions that updates the store
+    await act(async () => {})
 
-    expect(createUsernameTitle).not.toBeVisible()
+    // Check if join/username modals are gone
     expect(joinCommunityTitle).not.toBeVisible()
+    expect(createUsernameTitle).not.toBeVisible()
 
-    function* testJoinCommunitySaga(): Generator {
-      yield* take(communities.actions.joinCommunity)
-      yield* take(communities.actions.responseCreateCommunity)
-      yield* take(identity.actions.registerUsername)
-      yield* take(identity.actions.storeUserCertificate)
-    }
+    // Check if channel page is visible
+    const channelPage = await screen.findByText('#general')
+    expect(channelPage).toBeVisible()
 
-    function* mockChannelsResponse(): Generator {
-      yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS,
-        {
-          communityId: communityId,
-          channels: {
-            general: {
-              name: 'general',
-              description: 'string',
-              owner: 'owner',
-              timestamp: 0,
-              address: 'string'
-            }
-          }
-        }
-      ])
-    }
+    expect(actions).toMatchInlineSnapshot(`
+      Array [
+        "Modals/openModal",
+        "Modals/openModal",
+        "Communities/joinCommunity",
+        "Communities/addNewCommunity",
+        "PublicChannels/addPublicChannelsList",
+        "Communities/setCurrentCommunity",
+        "Communities/responseCreateCommunity",
+        "Identity/addNewIdentity",
+        "Identity/registerUsername",
+        "Identity/updateUsername",
+        "Identity/createUserCsr",
+        "Identity/storeUserCsr",
+        "Communities/storePeerList",
+        "Identity/storeUserCertificate",
+        "Communities/updateCommunity",
+        "Communities/launchCommunity",
+        "Communities/launchRegistrar",
+        "Connection/addInitializedCommunity",
+        "PublicChannels/responseGetPublicChannels",
+        "PublicChannels/subscribeToAllTopics",
+        "Modals/closeModal",
+        "Modals/closeModal",
+        "Modals/closeModal",
+        "Modals/closeModal",
+        "PublicChannels/subscribeToTopic",
+        "PublicChannels/addChannel",
+      ]
+    `)
   })
 })

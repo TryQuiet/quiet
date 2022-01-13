@@ -50,9 +50,9 @@ describe('Channel', () => {
     // ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     // >('Community')
 
-    const holmes = await factory.create<
+    const alice = await factory.create<
     ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { zbayNickname: 'holmes' })
+    >('Identity', { zbayNickname: 'alice' })
 
     renderComponent(
       <>
@@ -64,7 +64,7 @@ describe('Channel', () => {
     const channelName = screen.getByText('#general')
     expect(channelName).toBeVisible()
 
-    const messageInput = screen.getByPlaceholderText(`Message #general as @${holmes.zbayNickname}`)
+    const messageInput = screen.getByPlaceholderText(`Message #general as @${alice.zbayNickname}`)
     expect(messageInput).toBeVisible()
   })
 
@@ -80,27 +80,27 @@ describe('Channel', () => {
     ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
-    const holmes = await factory.create<
+    const alice = await factory.create<
     ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, zbayNickname: 'holmes' })
+    >('Identity', { id: community.id, zbayNickname: 'alice' })
 
-    const holmesMessage = await factory.create<
+    const aliceMessage = await factory.create<
     ReturnType<typeof publicChannels.actions.signMessage>['payload']
     >('SignedMessage', {
-      identity: holmes
+      identity: alice
     })
 
     // Data from below will build but it won't be stored
-    const bartek = (
+    const john = (
       await factory.build<typeof identity.actions.addNewIdentity>('Identity', {
         id: community.id,
-        zbayNickname: 'bartek'
+        zbayNickname: 'john'
       })
     ).payload
 
-    const bartekMessage = (
+    const johnMessage = (
       await factory.build<typeof publicChannels.actions.signMessage>('SignedMessage', {
-        identity: bartek
+        identity: john
       })
     ).payload
 
@@ -111,7 +111,7 @@ describe('Channel', () => {
       store
     )
 
-    const persistedMessage = await screen.findByText(holmesMessage.message.message)
+    const persistedMessage = await screen.findByText(aliceMessage.message.message)
     expect(persistedMessage).toBeVisible()
 
     jest.spyOn(socket, 'emit').mockImplementation((action: SocketActionTypes, ...input: any[]) => {
@@ -129,34 +129,34 @@ describe('Channel', () => {
         if (data.ids.length > 1) {
           fail('Requested too many massages')
         }
-        if (data.ids[0] !== bartekMessage.message.id) {
+        if (data.ids[0] !== johnMessage.message.id) {
           fail('Missing message has not been requested')
         }
         return socket.socketClient.emit(SocketActionTypes.RESPONSE_ASK_FOR_MESSAGES, {
           channelAddress: data.channelAddress,
-          messages: [bartekMessage.message],
+          messages: [johnMessage.message],
           communityId: data.communityId
         })
       }
     })
 
     // New message is not yet fetched from db
-    expect(screen.queryByText(bartekMessage.message.message)).toBeNull()
+    expect(screen.queryByText(johnMessage.message.message)).toBeNull()
 
     await act(async () => {
       await runSaga(testReceiveMessage).toPromise()
     })
 
-    const newMessage = await screen.findByText(bartekMessage.message.message)
+    const newMessage = await screen.findByText(johnMessage.message.message)
     expect(newMessage).toBeVisible()
 
     function* mockSendMessagesIds(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
         SocketActionTypes.SEND_MESSAGES_IDS,
         {
-          peerId: holmes.peerId.id,
+          peerId: alice.peerId.id,
           channelAddress: 'general',
-          ids: [holmesMessage.message.id, bartekMessage.message.id],
+          ids: [aliceMessage.message.id, johnMessage.message.id],
           communityId: community.id
         }
       ])

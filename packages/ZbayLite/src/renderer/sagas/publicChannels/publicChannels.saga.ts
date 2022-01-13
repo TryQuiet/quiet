@@ -69,7 +69,7 @@
 //           username: mainChannel.name
 //         })
 //       )
-//       yield put(publicChannelsActions.subscribeForTopic(mainChannel))
+//       yield put(publicChannelsActions.subscribeToTopic(mainChannel))
 //       electronStore.set('generalChannelInitialized', true)
 //     }
 //   }

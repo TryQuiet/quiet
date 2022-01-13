@@ -8,21 +8,14 @@ describe('BaseChannelsList', () => {
     const channels = [
       {
         name: 'name',
-        description: 'super channel',
-        owner: 'holmes',
+        description: '',
+        owner: 'alice',
         timestamp: 1243545,
-        address: 'us'
+        address: 'name'
       }
     ]
 
-    const directMessages = false
-    const result = renderComponent(
-      <BaseChannelsList
-        channels={channels}
-        directMessages={directMessages}
-        selected={'selectedChannel'}
-      />
-    )
+    const result = renderComponent(<BaseChannelsList channels={channels} />)
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
@@ -32,6 +25,7 @@ describe('BaseChannelsList', () => {
             <div
               aria-disabled="false"
               class="MuiButtonBase-root MuiListItem-root makeStyles-root-5 MuiListItem-button"
+              data-testid="name-link"
               role="button"
               tabindex="0"
             >

@@ -10,7 +10,7 @@ describe('ChannelHeader', () => {
         channel={{
           name: 'general',
           description: 'description',
-          owner: 'holmes',
+          owner: 'alice',
           timestamp: 0,
           address: 'address'
         }}
@@ -42,6 +42,7 @@ describe('ChannelHeader', () => {
                   >
                     <h6
                       class="MuiTypography-root makeStyles-title-2 makeStyles-bold-15 MuiTypography-subtitle1 MuiTypography-noWrap"
+                      data-testid="channelTitle"
                       style="max-width: 724px;"
                     >
                       #general

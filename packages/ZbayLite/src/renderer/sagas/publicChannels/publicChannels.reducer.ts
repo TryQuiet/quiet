@@ -46,8 +46,8 @@
 //   },
 //   Socket.RESPONSE_FETCH_ALL_MESSAGES
 //   >(Socket.RESPONSE_FETCH_ALL_MESSAGES),
-//   subscribeForTopic: createAction<PublicChannel, Socket.SUBSCRIBE_FOR_TOPIC>(
-//     Socket.SUBSCRIBE_FOR_TOPIC
+//   subscribeToTopic: createAction<PublicChannel, Socket.SUBSCRIBE_TO_TOPIC>(
+//     Socket.SUBSCRIBE_TO_TOPIC
 //   ),
 //   getPublicChannels: createAction(Socket.GET_PUBLIC_CHANNELS),
 //   responseGetPublicChannels: createAction<

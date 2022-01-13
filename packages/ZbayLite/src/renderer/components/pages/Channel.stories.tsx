@@ -21,7 +21,7 @@ const Template: ComponentStory<typeof ChannelComponent> = args => {
             message: 'Hello',
             createdAt: 0,
             date: '28 Oct, 10:00',
-            nickname: 'holmes'
+            nickname: 'alice'
           },
           {
             id: '2',
@@ -30,7 +30,7 @@ const Template: ComponentStory<typeof ChannelComponent> = args => {
               "How are you? My day was awesome. I removed a lot of unused props from container and I simplified code a lot. I like coding, coding is like building things with LEGO. I could admit it's a little bit harder and there's a lot that can go wrong but I like it anyway.",
             createdAt: 0,
             date: '28 Oct, 10:01',
-            nickname: 'holmes'
+            nickname: 'alice'
           }
         ],
         [
@@ -40,7 +40,7 @@ const Template: ComponentStory<typeof ChannelComponent> = args => {
             message: 'Great, thanks!',
             createdAt: 0,
             date: '28 Oct, 10:02',
-            nickname: 'bartek'
+            nickname: 'john'
           }
         ]
       ],
@@ -52,7 +52,7 @@ const Template: ComponentStory<typeof ChannelComponent> = args => {
             message: 'Luck, I am your father!',
             createdAt: 0,
             date: '12:40',
-            nickname: 'wiktor'
+            nickname: 'chad'
           },
           {
             id: '5',
@@ -60,7 +60,7 @@ const Template: ComponentStory<typeof ChannelComponent> = args => {
             message: 'That\'s impossible!',
             createdAt: 0,
             date: '12:41',
-            nickname: 'wiktor'
+            nickname: 'chad'
           },
           {
             id: '6',
@@ -68,7 +68,7 @@ const Template: ComponentStory<typeof ChannelComponent> = args => {
             message: 'Nooo!',
             createdAt: 0,
             date: '12:45',
-            nickname: 'wiktor'
+            nickname: 'chad'
           }
         ],
         [
@@ -177,7 +177,7 @@ export const Component = Template.bind({})
 const args: ChannelComponentProps = {
   user: {
     id: 'id',
-    zbayNickname: 'wiktor',
+    zbayNickname: 'chad',
     hiddenService: {
       onionAddress: 'onionAddress',
       privateKey: 'privateKey'
@@ -205,7 +205,7 @@ const args: ChannelComponentProps = {
   channel: {
     name: 'general',
     description: 'This is awesome channel in which you can chat with your friends',
-    owner: 'holmes',
+    owner: 'alice',
     timestamp: 1636971603355,
     address: 'channelAddress'
   },
