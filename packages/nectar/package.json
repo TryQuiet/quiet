@@ -48,6 +48,7 @@
     "@typescript-eslint/parser": "^4.29.2",
     "@zbayapp/identity": "^4.0.0",
     "babel-jest": "^27.0.6",
+    "cross-env": "^7.0.3",
     "eslint": "^7.32.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-config-airbnb-typescript": "^13.0.0",
