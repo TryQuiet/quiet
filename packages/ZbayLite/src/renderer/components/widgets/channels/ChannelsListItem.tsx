@@ -73,7 +73,9 @@ export const ChannelsListItem: React.FC<ChannelsListItemComponentProps> = ({
       }}
       className={classNames(classes.root, {
         [classes.selected]: selected
-      })}>
+      })}
+      data-testid={`${channel.name}-link`}
+    >
       <ListItemText
         primary={
           <Grid container alignItems='center'>
@@ -95,8 +97,7 @@ export const ChannelsListItem: React.FC<ChannelsListItemComponentProps> = ({
                 className={classNames(classes.title, {
                   // TODO
                   [classes.newMessages]: false
-                })}
-                data-testid={`${channel.name}-link`}>
+                })}>
                 {`# ${channel.name}`}
               </Typography>
             </Grid>

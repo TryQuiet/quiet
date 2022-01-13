@@ -123,7 +123,7 @@ describe('User', () => {
     // Enter username and hit button
     const createUsernameInput = await screen.findByPlaceholderText('Enter a username')
     const createUsernameButton = await screen.findByText('Register')
-    userEvent.type(createUsernameInput, 'holmes')
+    userEvent.type(createUsernameInput, 'alice')
     userEvent.click(createUsernameButton)
 
     await act(async () => {
