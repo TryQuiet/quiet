@@ -60,7 +60,6 @@ const CreateUsernameModal = () => {
   }, [id?.hiddenService])
 
   const handleAction = (payload: { nickname: string }) => {
-    console.log('HANDLING ACTION IN CREATE USERNAME')
     setUsername(payload.nickname)
     const value = createUsernameModal.communityData
     const action =

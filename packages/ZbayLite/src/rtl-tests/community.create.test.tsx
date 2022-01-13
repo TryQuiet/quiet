@@ -139,7 +139,6 @@ describe('User', () => {
       while (true) {
         const action = yield* take()
         actions.push(action.type)
-        console.log(action.type)
       }
     })
 
@@ -174,7 +173,6 @@ describe('User', () => {
     // Check if channel page is visible
     const channelPage = await screen.findByText('#general')
     expect(channelPage).toBeVisible()
-
     expect(actions).toMatchInlineSnapshot(`
       Array [
         "Modals/openModal",
@@ -193,10 +191,6 @@ describe('User', () => {
         "Identity/storeUserCertificate",
         "Communities/updateCommunity",
         "Identity/savedOwnerCertificate",
-        "Modals/closeModal",
-        "Modals/closeModal",
-        "Modals/closeModal",
-        "Modals/closeModal",
         "Communities/launchRegistrar",
         "Connection/addInitializedCommunity",
         "PublicChannels/createGeneralChannel",
@@ -209,6 +203,10 @@ describe('User', () => {
         "PublicChannels/subscribeToTopic",
         "PublicChannels/setCurrentChannel",
         "PublicChannels/addChannel",
+        "Modals/closeModal",
+        "Modals/closeModal",
+        "Modals/closeModal",
+        "Modals/closeModal",
       ]
     `)
   })
