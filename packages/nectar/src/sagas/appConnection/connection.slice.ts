@@ -36,22 +36,21 @@ export const connectionSlice = createSlice({
       state.initializedRegistrars = {}
     },
     addConnectedPeers: (state, action: PayloadAction<ConnectedPeersSet>) => {
-      const connectedPeers = Array.from(action.payload.connectedPeers)
+      const connectedPeers = action.payload.connectedPeers
       const isConnectedPeerSaved = connectedPeers.filter((item) => item === action.payload.newPeer)
       if (!isConnectedPeerSaved.length) {
         connectedPeers.push(action.payload.newPeer)
       }
-      log('ADD PEER', action.payload)
+
       state.connectedPeers = connectedPeers
     },
     removeConnectedPeers: (state, action: PayloadAction<ConnectedPeersSet>) => {
-      const connectedPeers = Array.from(action.payload.connectedPeers)
+      const connectedPeers = action.payload.connectedPeers
       const connectedPeersSaved = connectedPeers.map((item) => {
         if (!(item === action.payload.newPeer)) {
           return item
         }
       })
-      log('REMOVE PEER', action.payload)
 
       state.connectedPeers = connectedPeersSaved
     }

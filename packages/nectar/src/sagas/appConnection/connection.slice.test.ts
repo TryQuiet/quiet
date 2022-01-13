@@ -45,25 +45,22 @@ describe('connectionReducer', () => {
   })
 
   it('add/remove connected peerId from store and get it correctly', () => {
-    const connectedPeers = new Set<string>()
-    connectedPeers.add('peerId1')
-    connectedPeers.add('peerId2')
-    let connectedPeersArray
+    let connectedPeersFromStore
     const peersIds = {
-      connectedPeers: connectedPeers,
+      connectedPeers: ['peerId1', 'peerId2'],
       newPeer: 'peerId3'
     }
 
     store.dispatch(connectionActions.addConnectedPeers(peersIds))
-    connectedPeersArray = connectionSelectors.connectedPeers(
+    connectedPeersFromStore = connectionSelectors.connectedPeers(
       store.getState()
     )
-    expect(connectedPeersArray).toEqual(['peerId1', 'peerId2', 'peerId3'])
+    expect(connectedPeersFromStore).toEqual(['peerId1', 'peerId2', 'peerId3'])
 
     store.dispatch(connectionActions.removeConnectedPeers(peersIds))
-    connectedPeersArray = connectionSelectors.connectedPeers(
+    connectedPeersFromStore = connectionSelectors.connectedPeers(
       store.getState()
     )
-    expect(connectedPeersArray).toEqual(['peerId1', 'peerId2'])
+    expect(connectedPeersFromStore).toEqual(['peerId1', 'peerId2'])
   })
 })

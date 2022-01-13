@@ -1,10 +1,6 @@
 import { StoreKeys } from '../store.keys'
 import { createSelector } from 'reselect'
 import { CreatedSelectors, StoreState } from '../store.types'
-import { usersSlice } from '../users/users.slice'
-import { certificates, certificatesMapping } from '../users/users.selectors'
-import { identityAdapter } from '../identity/identity.adapter'
-import { userData } from 'packages/identity/src/test/helpers'
 
 const connectionSlice: CreatedSelectors[StoreKeys.Connection] = (
   state: StoreState

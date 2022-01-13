@@ -12,10 +12,16 @@ export const connections = (io, ioProxy: IOProxy, connectionManager: Connections
 
     connectionManager.on(EventTypesServer.PEER_CONNECT, event => {
       log('emmiting peer connect event', event)
-      // socket.emit(EventTypesServer.PEER_CONNECT, event)
+      socket.emit(EventTypesServer.PEER_CONNECT, {
+        connectedPeers: Array.from(event.connectedPeers),
+        newPeer: event.newPeer
+      })
     })
     connectionManager.on(EventTypesServer.PEER_DISCONNECT, event => {
-      socket.emit(EventTypesServer.PEER_DISCONNECT, event)
+      socket.emit(EventTypesServer.PEER_DISCONNECT, {
+        connectedPeers: Array.from(event.connectedPeers),
+        newPeer: event.newPeer
+      })
     })
     socket.on(EventTypesServer.CLOSE, async () => {
       await ioProxy.closeAll()

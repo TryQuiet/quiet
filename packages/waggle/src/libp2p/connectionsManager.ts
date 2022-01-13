@@ -205,7 +205,6 @@ export class ConnectionsManager extends EventEmitter {
     libp2p.connectionManager.on('peer:connect', (connection: Connection) => {
       log(`${peerId.toB58String()} connected to ${connection.remotePeer.toB58String()}`)
       this.connectedPeers.add(connection.remotePeer.toB58String())
-      log('aaaaaaaaaaaa', this.connectedPeers, connection.remotePeer.toB58String())
       this.emit('peer:connect', {
         connectedPeers: this.connectedPeers,
         newPeer: connection.remotePeer.toB58String()
