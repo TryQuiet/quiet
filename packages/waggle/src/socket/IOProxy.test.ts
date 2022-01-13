@@ -8,7 +8,7 @@ import {
 import { getPorts } from '../common/utils'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 import { createCertificatesTestHelper } from '../libp2p/tests/client-server'
-import { SocketActionTypes } from '@zbayapp/nectar'
+import { RegisterUserCertificatePayload, SocketActionTypes } from '@zbayapp/nectar'
 import IOProxy from './IOProxy'
 
 describe('IO proxy', () => {
@@ -118,11 +118,12 @@ describe('IO proxy', () => {
 
   it('emits error if connecting to registrar fails', async () => {
     const observedIO = jest.spyOn(ioProxy.io, 'emit')
-    await ioProxy.registerUserCertificate(
-      'improperServiceAddress.onion',
-      'userCsr',
-      'someCommunityId'
-    )
+    const payload: RegisterUserCertificatePayload = {
+      id: 'someCommunityId',
+      userCsr: 'userCsr',
+      serviceAddress: 'improperServiceAddress.onion'
+    }
+    await ioProxy.registerUserCertificate(payload)
     expect(observedIO).toBeCalledTimes(1)
     expect(observedIO).toBeCalledWith(SocketActionTypes.ERROR, {
       type: SocketActionTypes.REGISTRAR,
@@ -145,11 +146,12 @@ describe('IO proxy', () => {
       mockRegisterCertificate.mockReturnValue(
         Promise.resolve(new ResponseMock().init(registrarStatusCode))
       )
-      await ioProxy.registerUserCertificate(
-        'http://properAddress.onion',
-        'userCsr',
-        'someCommunityId'
-      )
+      const payload: RegisterUserCertificatePayload = {
+        id: 'someCommunityId',
+        userCsr: 'userCsr',
+        serviceAddress: 'http://properAddress.onion'
+      }
+      await ioProxy.registerUserCertificate(payload)
       expect(observedIO).toBeCalledTimes(1)
       expect(observedIO).toBeCalledWith(SocketActionTypes.ERROR, {
         type: SocketActionTypes.REGISTRAR,
@@ -171,11 +173,12 @@ describe('IO proxy', () => {
     mockRegisterCertificate.mockReturnValue(
       Promise.resolve(new ResponseMock().init(200, registrarResponse))
     )
-    await ioProxy.registerUserCertificate(
-      'http://properAddress.onion',
-      'userCsr',
-      'someCommunityId'
-    )
+    const payload: RegisterUserCertificatePayload = {
+      id: 'someCommunityId',
+      userCsr: 'userCsr',
+      serviceAddress: 'http://properAddress.onion'
+    }
+    await ioProxy.registerUserCertificate(payload)
     expect(observedIO).toBeCalledTimes(1)
     expect(observedIO).toBeCalledWith(SocketActionTypes.SEND_USER_CERTIFICATE, {
       id: 'someCommunityId',

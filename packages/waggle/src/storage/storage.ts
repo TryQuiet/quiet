@@ -97,7 +97,6 @@ export class Storage {
     await this.createDbForChannels()
     log('2/6')
     await this.createDbForCertificates()
-    await this.createDbForUsers()
     log('3/6')
     await this.createDbForMessageThreads()
     log('4/6')
@@ -228,34 +227,6 @@ export class Storage {
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.messageThreads.load({ fetchEntryTimeout: 2000 })
     log('ALL MESSAGE THREADS COUNT:', Object.keys(this.messageThreads.all).length)
-  }
-
-  private async createDbForUsers() {
-    this.directMessagesUsers = await this.orbitdb.keyvalue<IPublicKey>('dms', {
-      accessController: {
-        write: ['*']
-      }
-    })
-
-    this.directMessagesUsers.events.on(
-      'replicated',
-      // eslint-disable-next-line
-      async () => {
-        // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-        await this.directMessagesUsers.load({ fetchEntryTimeout: 2000 })
-        // await this.directMessagesUsers.close()
-        const payload = this.directMessagesUsers.all
-        this.io.emit(SocketActionTypes.RESPONSE_GET_AVAILABLE_USERS, payload)
-        log('REPLICATED USERS')
-      }
-    )
-    try {
-      // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-      await this.directMessagesUsers.load({ fetchEntryTimeout: 2000 })
-    } catch (err) {
-      log.error(err)
-    }
-    log('ALL USERS COUNT:', Object.keys(this.directMessagesUsers.all).length)
   }
 
   async initAllChannels() {
@@ -406,18 +377,6 @@ export class Storage {
     await db.add(message)
   }
 
-  public async addUser(address: string, halfKey: string): Promise<void> {
-    if (!validate.isUser(address, halfKey)) {
-      log.error('STORAGE: invalid user format')
-      return
-    }
-    await this.directMessagesUsers.put(address, { halfKey })
-    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await this.directMessagesUsers.load({ fetchEntryTimeout: 2000 })
-    const payload = this.directMessagesUsers.all
-    this.io.emit(SocketActionTypes.RESPONSE_GET_AVAILABLE_USERS, payload)
-  }
-
   public async initializeConversation(address: string, encryptedPhrase: string): Promise<void> {
     if (!validate.isConversation(address, encryptedPhrase)) {
       log.error('STORAGE: Invalid conversation format')
@@ -515,15 +474,6 @@ export class Storage {
     log(`STORAGE: sendDirectMessage db is ${db.address.root}`)
     log(`STORAGE: sendDirectMessage db is ${db.address.path}`)
     await db.add(message)
-  }
-
-  public async getAvailableUsers(): Promise<any> {
-    log('STORAGE: getAvailableUsers entered')
-    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await this.directMessagesUsers.load({ fetchEntryTimeout: 2000 })
-    const payload = this.directMessagesUsers.all
-    this.io.emit(SocketActionTypes.RESPONSE_GET_AVAILABLE_USERS, payload)
-    log('emitted')
   }
 
   public async getPrivateConversations(): Promise<void> {

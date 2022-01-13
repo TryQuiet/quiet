@@ -13,7 +13,6 @@ export type ActionFromMapping<Actions> = Actions[Keys<Actions>]
 
 export enum SocketActionTypes {
   // A
-  ADD_USER = 'addUser',
   ASK_FOR_MESSAGES = 'askForMessages',
   // C
   CLOSE = 'close',
@@ -27,10 +26,7 @@ export enum SocketActionTypes {
   DIRECT_MESSAGE = 'directMessage',
   // E
   ERROR = 'error',
-  // F
-  FETCH_ALL_MESSAGES = 'fetchAllMessages',
   // G
-  GET_AVAILABLE_USERS = 'getAvailableUsers',
   GET_PRIVATE_CONVERSATIONS = 'getPrivateConversations',
   GET_PUBLIC_CHANNELS = 'getPublicChannels',
   // I
@@ -50,7 +46,6 @@ export enum SocketActionTypes {
   RESPONSE_ASK_FOR_MESSAGES = 'responseFetchAllMessages',
   RESPONSE_FETCH_ALL_DIRECT_MESSAGES = 'responseFetchAllDirectMessages',
   RESPONSE_FETCH_ALL_MESSAGES = 'responseFetchAllMessages',
-  RESPONSE_GET_AVAILABLE_USERS = 'responseGetAvailableUsers',
   RESPONSE_GET_CERTIFICATES = 'responseGetCertificates',
   RESPONSE_GET_PRIVATE_CONVERSATIONS = 'responseGetPrivateConversations',
   RESPONSE_GET_PUBLIC_CHANNELS = 'responseGetPublicChannels',

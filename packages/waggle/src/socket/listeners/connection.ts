@@ -1,7 +1,8 @@
-import { SocketActionTypes } from '@zbayapp/nectar'
-import { CertsData, IChannelInfo, IMessage } from '../../common/types'
+import { AskForMessagesPayload, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, SaveOwnerCertificatePayload, SocketActionTypes } from '@zbayapp/nectar'
+import { CertsData, IMessage } from '../../common/types'
 import IOProxy from '../IOProxy'
 import PeerId from 'peer-id'
+import { SubscribeToTopicPayload } from '@zbayapp/nectar'
 import logger from '../../logger'
 
 const log = logger('socket')
@@ -14,8 +15,8 @@ export const connections = (io, ioProxy: IOProxy) => {
     })
     socket.on(
       SocketActionTypes.SUBSCRIBE_TO_TOPIC,
-      async (peerId: string, channelData: IChannelInfo) => {
-        await ioProxy.subscribeToTopic(peerId, channelData)
+      async (payload: SubscribeToTopicPayload) => {
+        await ioProxy.subscribeToTopic(payload)
       }
     )
     socket.on(
@@ -27,21 +28,6 @@ export const connections = (io, ioProxy: IOProxy) => {
         await ioProxy.sendMessage(peerId, channelAddress, message)
       }
     )
-    socket.on(
-      SocketActionTypes.FETCH_ALL_MESSAGES,
-      async (peerId: string, channelAddress: string) => {
-        await ioProxy.loadAllMessages(peerId, channelAddress)
-      }
-    )
-    socket.on(
-      SocketActionTypes.ADD_USER,
-      async (peerId: string, { publicKey, halfKey }: { publicKey: string; halfKey: string }) => {
-        await ioProxy.addUser(peerId, publicKey, halfKey)
-      }
-    )
-    socket.on(SocketActionTypes.GET_AVAILABLE_USERS, async (peerId: string) => {
-      await ioProxy.getAvailableUsers(peerId)
-    })
     socket.on(
       SocketActionTypes.INITIALIZE_CONVERSATION,
       async (
@@ -77,39 +63,22 @@ export const connections = (io, ioProxy: IOProxy) => {
     )
     socket.on(
       SocketActionTypes.ASK_FOR_MESSAGES,
-      async ({
-        peerId,
-        channelAddress,
-        ids,
-        communityId
-      }: {
-        peerId: string
-        channelAddress: string
-        ids: string[]
-        communityId: string
-      }) => {
-        await ioProxy.askForMessages(peerId, channelAddress, ids, communityId)
+      async (payload: AskForMessagesPayload) => {
+        await ioProxy.askForMessages(payload)
       }
     )
     socket.on(
       SocketActionTypes.REGISTER_USER_CERTIFICATE,
-      async (serviceAddress: string, userCsr: string, id: string) => {
-        log(`Registering user certificate (${id}) on ${serviceAddress}`)
-        await ioProxy.registerUserCertificate(serviceAddress, userCsr, id)
+      async (payload: RegisterUserCertificatePayload) => {
+        log(`Registering user certificate (${payload.id}) on ${payload.serviceAddress}`)
+        await ioProxy.registerUserCertificate(payload)
       }
     )
     socket.on(
       SocketActionTypes.REGISTER_OWNER_CERTIFICATE,
-      async (
-        communityId: string,
-        userCsr: string,
-        dataFromPerms: {
-          certificate: string
-          privKey: string
-        }
-      ) => {
-        log(`Registering owner certificate (${communityId})`)
-        await ioProxy.registerOwnerCertificate(communityId, userCsr, dataFromPerms)
+      async (payload: RegisterOwnerCertificatePayload) => {
+        log(`Registering owner certificate (${payload.id})`)
+        await ioProxy.registerOwnerCertificate(payload)
       }
     )
     socket.on(SocketActionTypes.SAVE_CERTIFICATE, async (peerId: string, certificate: string) => {
@@ -118,17 +87,9 @@ export const connections = (io, ioProxy: IOProxy) => {
     })
     socket.on(
       SocketActionTypes.SAVE_OWNER_CERTIFICATE,
-      async (
-        communityId: string,
-        peerId: string,
-        certificate: string,
-        dataFromPerms: {
-          certificate: string
-          privKey: string
-        }
-      ) => {
-        log(`Saving owner certificate (${peerId}), community: ${communityId}`)
-        await ioProxy.saveOwnerCertificate(peerId, certificate, dataFromPerms)
+      async (payload: SaveOwnerCertificatePayload) => {
+        log(`Saving owner certificate (${payload.peerId}), community: ${payload.id}`)
+        await ioProxy.saveOwnerCertificate(payload)
       }
     )
     socket.on(

@@ -76,6 +76,9 @@ export {
 
 export { identityAdapter } from './sagas/identity/identity.adapter'
 
+export { SubscribeToTopicPayload, AskForMessagesPayload } from './sagas/publicChannels/publicChannels.slice'
+export { RegisterUserCertificatePayload, RegisterOwnerCertificatePayload, SaveOwnerCertificatePayload } from './sagas/identity/identity.slice'
+
 export const app = {
   actions: appActions
 }

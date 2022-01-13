@@ -1,6 +1,6 @@
 import { Socket } from 'socket.io-client'
 import { select, apply } from 'typed-redux-saga'
-import { SocketActionTypes } from '../../actionTypes'
+import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { identityActions } from '../identity.slice'
 import { communitiesSelectors } from '../../communities/communities.selectors'
