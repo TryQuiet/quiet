@@ -1,21 +1,21 @@
 import React from 'react'
-import { act } from 'react-dom/test-utils'
 import '@testing-library/jest-dom/extend-expect'
+import { act } from 'react-dom/test-utils'
 import { screen } from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
-import { apply, take } from 'typed-redux-saga'
-import { ioMock } from '../shared/setupTests'
-import MockedSocket from 'socket.io-mock'
+import { take } from 'typed-redux-saga'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
-import { StoreKeys } from '../renderer/store/store.keys'
-import { SocketState } from '../renderer/sagas/socket/socket.slice'
-import { ModalsInitialState } from '../renderer/sagas/modals/modals.slice'
+import { modalsActions } from '../renderer/sagas/modals/modals.slice'
 import CreateCommunity from '../renderer/containers/widgets/createCommunity/createCommunity'
 import CreateUsernameModal from '../renderer/containers/widgets/createUsernameModal/CreateUsername'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
 import { CreateCommunityDictionary } from '../renderer/components/widgets/performCommunityAction/PerformCommunityAction.dictionary'
-import { communities, identity, Identity, SocketActionTypes } from '@zbayapp/nectar'
+import MockedSocket from 'socket.io-mock'
+import { ioMock } from '../shared/setupTests'
+import { socketEventData } from '../renderer/testUtils/socket'
+import { Identity, SocketActionTypes } from '@zbayapp/nectar'
+import Channel from '../renderer/containers/pages/Channel'
 
 const payload = (id: string): Partial<Identity> => ({
   id: id,
@@ -45,41 +45,31 @@ describe('User', () => {
 
   it('creates community and registers username', async () => {
     const { store, runSaga } = await prepareStore(
-      {
-        [StoreKeys.Socket]: {
-          ...new SocketState(),
-          isConnected: false
-        },
-        [StoreKeys.Modals]: {
-          ...new ModalsInitialState(),
-          [ModalName.createCommunityModal]: { open: true }
-        }
-      },
+      {},
       socket // Fork Nectar's sagas
     )
+
+    store.dispatch(modalsActions.openModal({ name: ModalName.createCommunityModal }))
 
     renderComponent(
       <>
         <CreateCommunity />
         <CreateUsernameModal />
+        <Channel />
       </>,
       store
     )
 
-    type socketEventData<T extends unknown[]> = [...T]
-
     jest.spyOn(socket, 'emit').mockImplementation((action: SocketActionTypes, ...input: any[]) => {
       if (action === SocketActionTypes.CREATE_NETWORK) {
         const data = input as socketEventData<[string]>
-
         const id = data[0]
         payloadData = payload(id)
-
-        return socket.socketClient.emit(SocketActionTypes.NETWORK, {
+        socket.socketClient.emit(SocketActionTypes.NETWORK, {
           id: id,
           payload: {
-            hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
-            peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' }
+            hiddenService: payloadData.hiddenService,
+            peerId: payloadData.peerId
           }
         })
       }
@@ -87,7 +77,6 @@ describe('User', () => {
         const data = input as socketEventData<
         [string, string, { certificate: string; privKey: string }]
         >
-
         communityId = data[0]
         const CA = data[2]
         socket.socketClient.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
@@ -102,6 +91,55 @@ describe('User', () => {
           id: communityId,
           cert: CA.certificate
         })
+      }
+      if (action === SocketActionTypes.CREATE_COMMUNITY) {
+        const data = input as socketEventData<[string, {}, {}, {}]>
+        const id = data[0]
+        expect(id).toEqual(communityId)
+        socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
+          id
+        })
+        socket.socketClient.emit(SocketActionTypes.NEW_COMMUNITY, {
+          id
+        })
+        socket.socketClient.emit(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, {
+          communityId: communityId,
+          channels: {
+            general: {
+              name: 'general',
+              description: 'string',
+              owner: 'owner',
+              timestamp: 0,
+              address: 'general'
+            }
+          }
+        })
+      }
+      if (action === SocketActionTypes.LAUNCH_REGISTRAR) {
+        const data = input as socketEventData<[string, string, string, string]>
+        const id = data[0]
+        const peerId = data[1]
+        expect(id).toEqual(communityId)
+        expect(peerId).toEqual(payloadData.peerId.id)
+        socket.socketClient.emit(SocketActionTypes.REGISTRAR, {
+          id: id,
+          peerId: peerId,
+          payload: {
+            privateKey: payloadData.hiddenService.privateKey,
+            onionAddress: payloadData.hiddenService.onionAddress,
+            port: 7909
+          }
+        })
+      }
+    })
+
+    // Log all the dispatched actions in order
+    const actions = []
+    runSaga(function* (): Generator {
+      while (true) {
+        const action = yield* take()
+        actions.push(action.type)
+        console.log(action.type)
       }
     })
 
@@ -126,35 +164,52 @@ describe('User', () => {
     userEvent.type(createUsernameInput, 'alice')
     userEvent.click(createUsernameButton)
 
-    await act(async () => {
-      await runSaga(testCreateCommunitySaga).toPromise()
-      await runSaga(mockAddressResponse).toPromise()
-    })
+    // Wait for the actions that updates the store
+    await act(async () => {})
 
-    expect(createUsernameTitle).not.toBeVisible()
+    // Check if create/username modals are gone
     expect(createCommunityTitle).not.toBeVisible()
+    expect(createUsernameTitle).not.toBeVisible()
+
+    // Check if channel page is visible
+    const channelPage = await screen.findByText('#general')
+    expect(channelPage).toBeVisible()
+
+    expect(actions).toMatchInlineSnapshot(`
+      Array [
+        "Modals/openModal",
+        "Modals/openModal",
+        "Communities/createNewCommunity",
+        "Communities/addNewCommunity",
+        "Communities/setCurrentCommunity",
+        "PublicChannels/addPublicChannelsList",
+        "Communities/responseCreateCommunity",
+        "Identity/addNewIdentity",
+        "Identity/registerUsername",
+        "Identity/updateUsername",
+        "Identity/createUserCsr",
+        "Identity/storeUserCsr",
+        "Communities/storePeerList",
+        "Identity/storeUserCertificate",
+        "Communities/updateCommunity",
+        "Identity/savedOwnerCertificate",
+        "Modals/closeModal",
+        "Modals/closeModal",
+        "Modals/closeModal",
+        "Modals/closeModal",
+        "Communities/launchRegistrar",
+        "Connection/addInitializedCommunity",
+        "PublicChannels/createGeneralChannel",
+        "PublicChannels/responseGetPublicChannels",
+        "PublicChannels/subscribeToAllTopics",
+        "Communities/responseRegistrar",
+        "Connection/addInitializedRegistrar",
+        "Identity/saveOwnerCertToDb",
+        "PublicChannels/createChannel",
+        "PublicChannels/subscribeToTopic",
+        "PublicChannels/setCurrentChannel",
+        "PublicChannels/addChannel",
+      ]
+    `)
   })
-
-  function* testCreateCommunitySaga(): Generator {
-    yield* take(communities.actions.createNewCommunity)
-    yield* take(communities.actions.responseCreateCommunity)
-    yield* take(identity.actions.registerUsername)
-    yield* take(identity.actions.storeUserCertificate)
-    yield* take(identity.actions.savedOwnerCertificate)
-  }
-
-  function* mockAddressResponse(): Generator {
-    yield* apply(socket.socketClient, socket.socketClient.emit, [SocketActionTypes.REGISTRAR,
-      {
-        id: communityId,
-        peerId: payloadData.peerId.id,
-        payload: {
-          privateKey: payloadData.hiddenService.privateKey,
-          onionAddress: payloadData.hiddenService.onionAddress,
-          port: 7909
-        }
-      }
-    ]
-    )
-  }
 })

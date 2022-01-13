@@ -32,7 +32,7 @@ describe('User', () => {
       socket // Fork Nectar's sagas
     )
 
-    store.dispatch(modalsActions.openModal({ name: ModalName.accountSettingsModal }))
+    store.dispatch(modalsActions.openModal({ name: ModalName.joinCommunityModal }))
 
     renderComponent(
       <>
@@ -100,10 +100,11 @@ describe('User', () => {
       })
 
     // Log all the dispatched actions in order
+    const actions = []
     runSaga(function* (): Generator {
       while (true) {
         const action = yield* take()
-        console.log('dispatch', action.type)
+        actions.push(action.type)
       }
     })
 
@@ -131,12 +132,43 @@ describe('User', () => {
     // Wait for the actions that updates the store
     await act(async () => {})
 
-    // Check if join/create modals are gone
+    // Check if join/username modals are gone
     expect(joinCommunityTitle).not.toBeVisible()
     expect(createUsernameTitle).not.toBeVisible()
 
     // Check if channel page is visible
     const channelPage = await screen.findByText('#general')
     expect(channelPage).toBeVisible()
+
+    expect(actions).toMatchInlineSnapshot(`
+      Array [
+        "Modals/openModal",
+        "Modals/openModal",
+        "Communities/joinCommunity",
+        "Communities/addNewCommunity",
+        "PublicChannels/addPublicChannelsList",
+        "Communities/setCurrentCommunity",
+        "Communities/responseCreateCommunity",
+        "Identity/addNewIdentity",
+        "Identity/registerUsername",
+        "Identity/updateUsername",
+        "Identity/createUserCsr",
+        "Identity/storeUserCsr",
+        "Communities/storePeerList",
+        "Identity/storeUserCertificate",
+        "Communities/updateCommunity",
+        "Communities/launchCommunity",
+        "Communities/launchRegistrar",
+        "Connection/addInitializedCommunity",
+        "PublicChannels/responseGetPublicChannels",
+        "PublicChannels/subscribeToAllTopics",
+        "Modals/closeModal",
+        "Modals/closeModal",
+        "Modals/closeModal",
+        "Modals/closeModal",
+        "PublicChannels/subscribeToTopic",
+        "PublicChannels/addChannel",
+      ]
+    `)
   })
 })
