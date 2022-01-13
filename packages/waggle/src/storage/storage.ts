@@ -188,20 +188,17 @@ export class Storage {
       }
     })
 
-    this.channels.events.on(
-      'replicated',
-      async () => {
-        log('REPLICATED: Channels')
-        // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-        await this.channels.load({ fetchEntryTimeout: 2000 })
-        const payload = this.channels.all
+    this.channels.events.on('replicated', async () => {
+      log('REPLICATED: Channels')
+      // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
+      await this.channels.load({ fetchEntryTimeout: 2000 })
+      const payload = this.channels.all
 
-        this.io.emit(EventTypesResponse.RESPONSE_GET_PUBLIC_CHANNELS, {
-          communityId: this.communityId,
-          channels: payload
-        })
-      }
-    )
+      this.io.emit(EventTypesResponse.RESPONSE_GET_PUBLIC_CHANNELS, {
+        communityId: this.communityId,
+        channels: payload
+      })
+    })
 
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.channels.load({ fetchEntryTimeout: 15000 })
@@ -265,7 +262,7 @@ export class Storage {
     await Promise.all(
       Object.values(this.channels.all).map(async channel => {
         if (!this.publicChannelsRepos.has(channel.address)) {
-          await this.createChannel(channel)
+          await this.subscribeToChannel(channel)
         }
       })
     )
@@ -302,9 +299,7 @@ export class Storage {
     loadAllMessages(this.io, this.getAllEventLogEntries(db), channelAddress, this.communityId)
   }
 
-  public async subscribeToChannel(
-    channel: IChannelInfo
-  ): Promise<void> {
+  public async subscribeToChannel(channel: IChannelInfo): Promise<void> {
     let db: EventStore<IMessage>
     let repo = this.publicChannelsRepos.get(channel.address)
     if (repo) {
@@ -340,31 +335,34 @@ export class Storage {
 
       db.events.on('ready', () => {
         const ids = this.getAllEventLogEntries(db).map(msg => msg.id)
-        sendIdsToZbay(this.io, { ids, channelAddress: channel.address, communityId: this.communityId })
+        sendIdsToZbay(this.io, {
+          ids,
+          channelAddress: channel.address,
+          communityId: this.communityId
+        })
       })
 
       repo.eventsAttached = true
       const ids = this.getAllEventLogEntries(db).map(msg => msg.id)
-      sendIdsToZbay(this.io, { ids, channelAddress: channel.address, communityId: this.communityId })
+      sendIdsToZbay(this.io, {
+        ids,
+        channelAddress: channel.address,
+        communityId: this.communityId
+      })
     }
   }
 
-  private async createChannel(
-    data: IChannelInfo
-  ): Promise<EventStore<IMessage>> {
+  private async createChannel(data: IChannelInfo): Promise<EventStore<IMessage>> {
     if (!validate.isChannel(data)) {
       log.error('STORAGE: Invalid channel format')
       return
     }
 
-    const db: EventStore<IMessage> = await this.orbitdb.log<IMessage>(
-      `channels.${data.address}`,
-      {
-        accessController: {
-          write: ['*']
-        }
+    const db: EventStore<IMessage> = await this.orbitdb.log<IMessage>(`channels.${data.address}`, {
+      accessController: {
+        write: ['*']
       }
-    )
+    })
 
     const channel = this.channels.get(data.address)
     if (channel === undefined) {

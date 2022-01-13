@@ -101,6 +101,7 @@ export function subscribe(socket: Socket) {
         payload: { peers: string[]; certificate: string; rootCa: string }
       }) => {
         log('got response with cert', payload.payload.rootCa)
+
         emit(
           communitiesActions.storePeerList({
             communityId: payload.id,
@@ -119,11 +120,36 @@ export function subscribe(socket: Socket) {
             rootCa: payload.payload.rootCa
           })
         )
+        emit(communitiesActions.launchCommunity())
       }
     )
-    socket.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, (payload: { communityId: string }) => {
-      emit(identityActions.savedOwnerCertificate(payload.communityId))
-    })
+    socket.on(
+      SocketActionTypes.SAVED_OWNER_CERTIFICATE,
+      (payload: {
+        id: string
+        payload: { certificate: string; peers: string[]; rootCa: string }
+      }) => {
+        emit(
+          communitiesActions.storePeerList({
+            communityId: payload.id,
+            peerList: payload.payload.peers
+          })
+        )
+        emit(
+          identityActions.storeUserCertificate({
+            userCertificate: payload.payload.certificate,
+            communityId: payload.id
+          })
+        )
+        emit(
+          communitiesActions.updateCommunity({
+            id: payload.id,
+            rootCa: payload.payload.rootCa
+          })
+        )
+        emit(identityActions.savedOwnerCertificate(payload.id))
+      }
+    )
     return () => {}
   })
 }
