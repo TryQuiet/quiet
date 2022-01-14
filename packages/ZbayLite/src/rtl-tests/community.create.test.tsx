@@ -14,7 +14,13 @@ import { CreateCommunityDictionary } from '../renderer/components/widgets/perfor
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
 import { socketEventData } from '../renderer/testUtils/socket'
-import { Identity, SocketActionTypes } from '@zbayapp/nectar'
+import {
+  Identity,
+  InitCommunityPayload,
+  LaunchRegistrarPayload,
+  RegisterOwnerCertificatePayload,
+  SocketActionTypes
+} from '@zbayapp/nectar'
 import Channel from '../renderer/containers/pages/Channel'
 
 const payload = (id: string): Partial<Identity> => ({
@@ -64,6 +70,7 @@ describe('User', () => {
       if (action === SocketActionTypes.CREATE_NETWORK) {
         const data = input as socketEventData<[string]>
         const id = data[0]
+        communityId = id
         payloadData = payload(id)
         socket.socketClient.emit(SocketActionTypes.NETWORK, {
           id: id,
@@ -74,29 +81,26 @@ describe('User', () => {
         })
       }
       if (action === SocketActionTypes.REGISTER_OWNER_CERTIFICATE) {
-        const data = input as socketEventData<
-        [string, string, { certificate: string; privKey: string }]
-        >
-        communityId = data[0]
-        const CA = data[2]
+        const data = input as socketEventData<[RegisterOwnerCertificatePayload]>
+        const payload = data[0]
         socket.socketClient.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
           id: communityId,
           payload: {
-            certificate: CA.certificate,
-            peers: [],
-            rootCa: 'rootCa'
+            certificate: payload.userCsr,
+            rootCa: payload.permsData.certificate,
+            peers: []
           }
         })
       }
       if (action === SocketActionTypes.CREATE_COMMUNITY) {
-        const data = input as socketEventData<[string, {}, {}, {}]>
-        const id = data[0]
-        expect(id).toEqual(communityId)
+        const data = input as socketEventData<[InitCommunityPayload]>
+        const payload = data[0]
+        expect(payload.id).toEqual(communityId)
         socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
-          id
+          id: payload.id
         })
         socket.socketClient.emit(SocketActionTypes.NEW_COMMUNITY, {
-          id
+          id: payload.id
         })
         socket.socketClient.emit(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, {
           communityId: communityId,
@@ -112,14 +116,13 @@ describe('User', () => {
         })
       }
       if (action === SocketActionTypes.LAUNCH_REGISTRAR) {
-        const data = input as socketEventData<[string, string, string, string]>
-        const id = data[0]
-        const peerId = data[1]
-        expect(id).toEqual(communityId)
-        expect(peerId).toEqual(payloadData.peerId.id)
+        const data = input as socketEventData<[LaunchRegistrarPayload]>
+        const payload = data[0]
+        expect(payload.id).toEqual(communityId)
+        expect(payload.peerId).toEqual(payloadData.peerId.id)
         socket.socketClient.emit(SocketActionTypes.REGISTRAR, {
-          id: id,
-          peerId: peerId,
+          id: payload.id,
+          peerId: payload.peerId,
           payload: {
             privateKey: payloadData.hiddenService.privateKey,
             onionAddress: payloadData.hiddenService.onionAddress,

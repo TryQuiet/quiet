@@ -94,20 +94,14 @@ export const connections = (io, ioProxy: IOProxy) => {
       log(`Creating community ${payload.id}`)
       await ioProxy.createCommunity(payload)
     })
-    socket.on(
-      SocketActionTypes.LAUNCH_COMMUNITY,
-      async (payload: InitCommunityPayload) => {
-        log(`Launching community ${payload.id} for ${payload.peerId.id}`)
-        await ioProxy.launchCommunity(payload)
-      }
-    )
-    socket.on(
-      SocketActionTypes.LAUNCH_REGISTRAR,
-      async (payload: LaunchRegistrarPayload) => {
-        log(`Launching registrar for community ${payload.id}, user ${payload.peerId}`)
-        await ioProxy.launchRegistrar(payload)
-      }
-    )
+    socket.on(SocketActionTypes.LAUNCH_COMMUNITY, async (payload: InitCommunityPayload) => {
+      log(`Launching community ${payload.id} for ${payload.peerId.id}`)
+      await ioProxy.launchCommunity(payload)
+    })
+    socket.on(SocketActionTypes.LAUNCH_REGISTRAR, async (payload: LaunchRegistrarPayload) => {
+      log(`Launching registrar for community ${payload.id}, user ${payload.peerId}`)
+      await ioProxy.launchRegistrar(payload)
+    })
     socket.on(SocketActionTypes.CREATE_NETWORK, async (communityId: string) => {
       log(`Creating network for community ${communityId}`)
       await ioProxy.createNetwork(communityId)
