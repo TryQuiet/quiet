@@ -30,6 +30,7 @@ export const connections = (io, ioProxy: IOProxy) => {
         peerId: string,
         { channelAddress, message }: { channelAddress: string; message: IMessage }
       ) => {
+        log(`Sending message ${message.message}`)
         await ioProxy.sendMessage(peerId, channelAddress, message)
       }
     )
