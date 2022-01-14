@@ -162,12 +162,12 @@ describe('User', () => {
         "Connection/addInitializedCommunity",
         "PublicChannels/responseGetPublicChannels",
         "PublicChannels/subscribeToAllTopics",
-        "Modals/closeModal",
-        "Modals/closeModal",
-        "Modals/closeModal",
-        "Modals/closeModal",
         "PublicChannels/subscribeToTopic",
         "PublicChannels/addChannel",
+        "Modals/closeModal",
+        "Modals/closeModal",
+        "Modals/closeModal",
+        "Modals/closeModal",
       ]
     `)
   })
