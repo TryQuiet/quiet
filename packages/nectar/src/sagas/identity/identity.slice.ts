@@ -40,8 +40,8 @@ export interface HiddenService {
 
 export interface PeerId {
   id: string
-  pubKey: string
-  privKey: string
+  pubKey?: string
+  privKey?: string
 }
 
 export interface DmKeys {

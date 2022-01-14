@@ -48,13 +48,22 @@ export interface Libp2pNodeParams {
   peerId: PeerId
   listenAddresses: string[]
   agent: Agent
-  cert: string
-  key: string
-  ca: string[]
+  cert?: string
+  key?: string
+  ca?: string[]
   localAddress: string
   bootstrapMultiaddrsList: string[]
   transportClass: Websockets
   targetPort: number
+}
+
+export interface InitLibp2pParams {
+  peerId: PeerId
+  address: string
+  addressPort: number
+  targetPort: number
+  bootstrapMultiaddrs: string[]
+  certs?: Certificates
 }
 
 export class ConnectionsManager {
@@ -191,45 +200,40 @@ export class ConnectionsManager {
     }
   }
 
-  public initLibp2p = async (
-    peerId: PeerId,
-    address: string,
-    addressPort: number,
-    bootstrapMultiaddrs: string[],
-    certs: Certificates,
-    targetPort: number
-  ): Promise<{ libp2p: Libp2p; localAddress: string }> => {
-    const localAddress = this.createLibp2pAddress(address, addressPort, peerId.toB58String())
+  public initLibp2p = async (params: InitLibp2pParams): Promise<{ libp2p: Libp2p; localAddress: string }> => {
+    const localAddress = this.createLibp2pAddress(params.address, params.addressPort, params.peerId.toB58String())
 
-    log(`Initializing libp2p for ${peerId.toB58String()}`)
+    log(`Initializing libp2p for ${params.peerId.toB58String()}`)
 
-    const params: Libp2pNodeParams = {
-      peerId: peerId,
-      listenAddresses: [this.createLibp2pListenAddress(address, addressPort)],
+    const nodeParams: Libp2pNodeParams = {
+      peerId: params.peerId,
+      listenAddresses: [this.createLibp2pListenAddress(params.address, params.addressPort)],
       agent: this.socksProxyAgent,
       localAddress: localAddress,
-      cert: certs.certificate,
-      key: certs.key,
-      ca: certs.CA,
-      bootstrapMultiaddrsList: bootstrapMultiaddrs,
+      cert: params.certs?.certificate,
+      key: params.certs?.key,
+      ca: params.certs?.CA,
+      bootstrapMultiaddrsList: params.bootstrapMultiaddrs,
       transportClass: this.libp2pTransportClass,
-      targetPort: targetPort
+      targetPort: params.targetPort
     }
 
-    const libp2p = ConnectionsManager.createBootstrapNode(params)
+    const libp2p = ConnectionsManager.createBootstrapNode(nodeParams)
 
     this.libp2pInstance = libp2p
 
     libp2p.connectionManager.on('peer:connect', (connection: Connection) => {
-      log(`${peerId.toB58String()} connected to ${connection.remotePeer.toB58String()}`)
+      log(`${params.peerId.toB58String()} connected to ${connection.remotePeer.toB58String()}`)
     })
     libp2p.on('peer:discovery', (peer: PeerId) => {
-      log(`${peerId.toB58String()} discovered ${peer.toB58String()}`)
+      log(`${params.peerId.toB58String()} discovered ${peer.toB58String()}`)
     })
     libp2p.connectionManager.on('peer:disconnect', (connection: Connection) => {
-      log(`${peerId.toB58String()} disconnected from ${connection.remotePeer.toB58String()}`)
+      log(`${params.peerId.toB58String()} disconnected from ${connection.remotePeer.toB58String()}`)
     })
-    log(`Initialized libp2p for peer ${peerId.toB58String()}`)
+
+    log(`Initialized libp2p for peer ${params.peerId.toB58String()}`)
+
     return {
       libp2p,
       localAddress

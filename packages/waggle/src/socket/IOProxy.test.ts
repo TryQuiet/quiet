@@ -76,7 +76,8 @@ describe('IO proxy', () => {
       id: 'MyCommunity',
       peerId: peerId1,
       hiddenService: hiddenService1,
-      certs: certs
+      certs: certs,
+      peers: []
     }
 
     await ioProxy.createCommunity(createCommunityPayload)
@@ -103,6 +104,7 @@ describe('IO proxy', () => {
       privateKey:
         'ED25519-V3:uCr5t3EcOCwig4cu7pWY6996whV+evrRlI0iIIsjV3uCz4rx46sB3CPq8lXEWhjGl2jlyreomORirKcz9mmcdQ=='
     }
+
     const pems = await createCertificatesTestHelper(hiddenService.onionAddress, 'adres2.onion')
 
     const certs: Certificates = {

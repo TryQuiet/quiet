@@ -110,15 +110,15 @@ export class NodeWithoutTor extends LocalNode {
     )
     // eslint-disable-next-line
     const certs = {} as Certificates
-    this.localAddress = await communitiesManager.initStorage(
-      peerId,
-      '0.0.0.0',
-      this.port,
-      this.port,
-      bootstrapAddressArrayWs,
-      certs,
-      'communityId'
-    )
+    this.localAddress = await communitiesManager.initStorage({
+      communityId: 'communityId',
+      peerId: peerId,
+      onionAddress: '0.0.0.0',
+      virtPort: this.port,
+      targetPort: this.port,
+      peers: bootstrapAddressArrayWs,
+      certs: certs
+    })
     this.connectionsManager = connectionsManager
     this.communitiesManager = communitiesManager
     this.storage = communitiesManager.getStorage(peerId.toB58String())
@@ -163,15 +163,15 @@ export class NodeWithTor extends LocalNode {
 
     const communitiesManager = new CommunitiesManager(connectionsManager)
     const peerId = await this.getPeer()
-    this.localAddress = await communitiesManager.initStorage(
-      peerId,
-      onionAddress,
-      virtPort,
-      this.port,
-      this.bootstrapMultiaddrs,
-      certs,
-      'communityId'
-    )
+    this.localAddress = await communitiesManager.initStorage({
+      communityId: 'communityId',
+      peerId: peerId,
+      onionAddress: onionAddress,
+      virtPort: virtPort,
+      targetPort: this.port,
+      peers: this.bootstrapMultiaddrs,
+      certs: certs
+    })
     this.connectionsManager = connectionsManager
     this.communitiesManager = communitiesManager
     this.storage = communitiesManager.getStorage(peerId.toB58String())

@@ -48,7 +48,7 @@ describe('Community manager', () => {
   it('launches community', async () => {
     manager = new CommunitiesManager(connectionsManager)
     expect(manager.communities.size).toBe(0)
-    const peerId = await PeerId.create()
+    const peerId = (await PeerId.create()).toJSON()
     const pems = await createCertificatesTestHelper('address1.onion', 'address2.onion')
     const certs: Certificates = {
       certificate: pems.userCert,
@@ -58,7 +58,6 @@ describe('Community manager', () => {
     const spyOnCreateStorage = jest.spyOn(connectionsManager, 'createStorage')
     const localAddress = await manager.launch({
       id: 'communityId',
-      // @ts-expect-error incompatibility of imports
       peerId: peerId,
       hiddenService: {
         onionAddress: 'ED25519-V3:YKbZb2pGbMt44qunoxvrxCKenRomAI9b/HkPB5mWgU9wIm7wqS+43t0yLiCmjSu+FW4f9qFW91c4r6BAsXS9Lg==',
@@ -67,9 +66,9 @@ describe('Community manager', () => {
       certs: certs,
       peers: ['peeraddress']
     })
-    expect(localAddress).toContain(peerId.toB58String())
+    expect(localAddress).toContain(peerId.id)
     expect(manager.communities.size).toBe(1)
-    expect(manager.getStorage(peerId.toB58String())).toEqual(spyOnCreateStorage.mock.results[0].value)
+    expect(manager.getStorage(peerId.id)).toEqual(spyOnCreateStorage.mock.results[0].value)
   })
 
   it('throws error if storage does not exist for given peer id', () => {
