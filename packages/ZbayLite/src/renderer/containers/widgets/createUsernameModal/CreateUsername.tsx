@@ -34,14 +34,6 @@ const CreateUsernameModal = () => {
   const createCommunityModal = useModal(ModalName.createCommunityModal)
   const loadingCommunityModal = useModal(ModalName.loadingPanel)
 
-  console.log(
-    certificate,
-    allCommunitiesCount,
-    allCommunitiesInitialized,
-    invitationUrl,
-    createUsernameModal
-  )
-
   useEffect(() => {
     if (certificate && allCommunitiesInitialized &&
       ((createUsernameModal.communityAction === CommunityAction.Join && channels.length) ||
