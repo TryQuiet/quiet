@@ -2,13 +2,14 @@ import fs from 'fs'
 import path from 'path'
 import PeerId from 'peer-id'
 import { Config } from '../constants'
-import { createLibp2p, createTmpDir, TmpDir, tmpZbayDirPath, dataFromRootPems } from '../common/testUtils'
+import { createLibp2p, createTmpDir, tmpZbayDirPath, dataFromRootPems } from '../common/testUtils'
 import { Storage } from './storage'
 import * as utils from '../common/utils'
 import { createUserCsr, createUserCert, configCrypto } from '@zbayapp/identity'
+import { DirResult } from 'tmp'
 jest.setTimeout(30_000)
 
-let tmpDir: TmpDir
+let tmpDir: DirResult
 let tmpAppDataPath: string
 let tmpOrbitDbDir: string
 let tmpIpfsPath: string

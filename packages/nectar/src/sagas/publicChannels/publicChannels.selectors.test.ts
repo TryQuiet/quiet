@@ -21,6 +21,9 @@ describe('publicChannelsSelectors', () => {
   beforeAll(async () => {
     setupCrypto()
 
+    // Set date display format
+    process.env.LC_ALL = 'en_US.UTF-8'
+
     store = prepareStore().store
 
     const factory = await getFactory(store)
@@ -29,13 +32,14 @@ describe('publicChannelsSelectors', () => {
       ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
-    const holmes = await factory.create<
+    const alice = await factory.create<
       ReturnType<typeof identityActions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, zbayNickname: 'holmes' })
+    >('Identity', { id: community.id, zbayNickname: 'alice' })
 
-    const bartek = await factory.create<
-      ReturnType<typeof identityActions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, zbayNickname: 'bartek' })
+    const john = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
+      'Identity',
+      { id: community.id, zbayNickname: 'john' }
+    )
 
     /* Messages ids are being used only for veryfing proper order...
     ...they have no impact on selectors work */
@@ -49,7 +53,7 @@ describe('publicChannelsSelectors', () => {
           hour: 5,
           minute: 50
         }).toSeconds(),
-        identity: holmes
+        identity: alice
       },
       {
         id: '2',
@@ -60,7 +64,7 @@ describe('publicChannelsSelectors', () => {
           hour: 6,
           minute: 10
         }).toSeconds(),
-        identity: holmes
+        identity: alice
       },
       {
         id: '3',
@@ -73,7 +77,7 @@ describe('publicChannelsSelectors', () => {
           second: 30,
           millisecond: 1
         }).toSeconds(),
-        identity: holmes
+        identity: alice
       },
       {
         id: '4',
@@ -86,7 +90,7 @@ describe('publicChannelsSelectors', () => {
           second: 30,
           millisecond: 2
         }).toSeconds(),
-        identity: holmes
+        identity: alice
       },
       {
         id: '5',
@@ -98,7 +102,7 @@ describe('publicChannelsSelectors', () => {
           minute: 12,
           second: 1
         }).toSeconds(),
-        identity: bartek
+        identity: john
       },
       {
         id: '6',
@@ -110,7 +114,7 @@ describe('publicChannelsSelectors', () => {
           minute: 12,
           second: 2
         }).toSeconds(),
-        identity: holmes
+        identity: alice
       },
       {
         id: '7',
@@ -121,7 +125,7 @@ describe('publicChannelsSelectors', () => {
           hour: 18,
           minute: 2
         }).toSeconds(),
-        identity: holmes
+        identity: alice
       },
       {
         id: '8',
@@ -132,7 +136,7 @@ describe('publicChannelsSelectors', () => {
           hour: 20,
           minute: 50
         }).toSeconds(),
-        identity: holmes
+        identity: alice
       },
       {
         id: '9',
@@ -143,7 +147,7 @@ describe('publicChannelsSelectors', () => {
           hour: 20,
           minute: 50
         }).toSeconds(),
-        identity: holmes
+        identity: alice
       }
     ]
 
@@ -230,19 +234,19 @@ describe('publicChannelsSelectors', () => {
         "Feb 05": Array [
           Array [
             Object {
-              "createdAt": 1612544520,
+              "createdAt": 1612548120,
               "date": "Feb 05, 6:02 PM",
               "id": "7",
               "message": "message_7",
-              "nickname": "holmes",
+              "nickname": "alice",
               "type": 1,
             },
             Object {
-              "createdAt": 1612554600,
+              "createdAt": 1612558200,
               "date": "Feb 05, 8:50 PM",
               "id": "8",
               "message": "message_8",
-              "nickname": "holmes",
+              "nickname": "alice",
               "type": 1,
             },
           ],
@@ -250,55 +254,55 @@ describe('publicChannelsSelectors', () => {
         "Oct 20": Array [
           Array [
             Object {
-              "createdAt": 1603165800,
+              "createdAt": 1603173000,
               "date": "Oct 20, 5:50 AM",
               "id": "1",
               "message": "message_1",
-              "nickname": "holmes",
+              "nickname": "alice",
               "type": 1,
             },
             Object {
-              "createdAt": 1603167000,
+              "createdAt": 1603174200,
               "date": "Oct 20, 6:10 AM",
               "id": "2",
               "message": "message_2",
-              "nickname": "holmes",
+              "nickname": "alice",
               "type": 1,
             },
             Object {
-              "createdAt": 1603167090.001,
+              "createdAt": 1603174290.001,
               "date": "Oct 20, 6:11 AM",
               "id": "3",
               "message": "message_3",
-              "nickname": "holmes",
+              "nickname": "alice",
               "type": 1,
             },
             Object {
-              "createdAt": 1603167090.002,
+              "createdAt": 1603174290.002,
               "date": "Oct 20, 6:11 AM",
               "id": "4",
               "message": "message_4",
-              "nickname": "holmes",
+              "nickname": "alice",
               "type": 1,
             },
           ],
           Array [
             Object {
-              "createdAt": 1603167121,
+              "createdAt": 1603174321,
               "date": "Oct 20, 6:12 AM",
               "id": "5",
               "message": "message_5",
-              "nickname": "bartek",
+              "nickname": "john",
               "type": 1,
             },
           ],
           Array [
             Object {
-              "createdAt": 1603167122,
+              "createdAt": 1603174322,
               "date": "Oct 20, 6:12 AM",
               "id": "6",
               "message": "message_6",
-              "nickname": "holmes",
+              "nickname": "alice",
               "type": 1,
             },
           ],
@@ -306,11 +310,11 @@ describe('publicChannelsSelectors', () => {
         "Today": Array [
           Array [
             Object {
-              "createdAt": 1641844200,
+              "createdAt": 1642107000,
               "date": "8:50 PM",
               "id": "9",
               "message": "message_9",
-              "nickname": "holmes",
+              "nickname": "alice",
               "type": 1,
             },
           ],
@@ -320,4 +324,4 @@ describe('publicChannelsSelectors', () => {
   })
 })
 
-export {}
+export { }

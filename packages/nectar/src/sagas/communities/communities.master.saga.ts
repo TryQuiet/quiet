@@ -33,6 +33,5 @@ export function* communitiesMasterSaga(socket: Socket): Generator {
       launchRegistrarSaga,
       socket
     )
-    // takeEvery(communitiesActions.community.type, launchRegistrarSaga, socket),
   ])
 }

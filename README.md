@@ -1,3 +1,7 @@
+# Quiet (formerly Zbay)
+
+An early prototype for a peer-to-peer alternative to Slack and Discord.
+
 ## Getting started
 To get started working in monorepo, you need to remember about two things:
 

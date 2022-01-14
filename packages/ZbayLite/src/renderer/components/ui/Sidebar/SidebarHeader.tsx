@@ -67,7 +67,10 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
             <Typography
               variant='body2'
               className={classNames(classes.title, classes.clickable)}
-              onClick={actionTitle}>
+              onClick={event => {
+                event.persist()
+                actionTitle()
+              }}>
               {title}
             </Typography>
           </Tooltip>
@@ -79,7 +82,14 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
       </Grid>
       <Grid item>
         <Tooltip title={tooltipText} className={classes.tooltip} placement='bottom'>
-          <IconButton className={classes.iconButton} onClick={action} edge='end'>
+          <IconButton
+            className={classes.iconButton}
+            onClick={event => {
+              event.persist()
+              action()
+            }}
+            edge='end'
+            data-testid={'addChannelButton'}>
             <PlusIconWithBorder color='white' />
           </IconButton>
         </Tooltip>

@@ -8,6 +8,8 @@ import {
 import { PublicChannel, ChannelMessage } from './publicChannels.types'
 import { MessageType } from '../messages/messages.types'
 import { Identity } from '../identity/identity.slice'
+import logger from '../../utils/logger'
+const log = logger('publicChannels')
 
 export class PublicChannelsState {
   public channels: EntityState<CommunityChannels> =
@@ -29,6 +31,11 @@ export interface GetPublicChannelsResponse {
   }
 }
 
+export interface CreatedChannelResponse {
+  channel: PublicChannel
+  communityId: string
+}
+
 export interface ChannelMessagesIdsResponse {
   ids: string[]
   communityId: string
@@ -41,7 +48,7 @@ export interface AskForMessagesPayload {
   ids: string[]
 }
 
-export interface SubscribeForTopicPayload {
+export interface subscribeToTopicPayload {
   peerId: string
   channelData: PublicChannel
 }
@@ -65,6 +72,10 @@ export interface CreateChannelPayload {
   communityId: string
 }
 
+export interface CreateGeneralChannelPayload {
+  communityId: string
+}
+
 export interface AskForMessagesResponse {
   messages: ChannelMessage[]
   communityId: string
@@ -81,13 +92,8 @@ export const publicChannelsSlice = createSlice({
   },
   name: StoreKeys.PublicChannels,
   reducers: {
-    createChannel: (state, action: PayloadAction<CreateChannelPayload>) => {
-      const { channel, communityId } = action.payload
-      publicChannelsAdapter.addOne(
-        state.channels.entities[communityId].channels,
-        channel
-      )
-    },
+    createChannel: (state, _action: PayloadAction<CreateChannelPayload>) => state,
+    createGeneralChannel: (state, _action: PayloadAction<CreateGeneralChannelPayload>) => state,
     addChannel: (state, action: PayloadAction<CreateChannelPayload>) => {
       const { channel, communityId } = action.payload
       publicChannelsAdapter.addOne(
@@ -108,18 +114,17 @@ export const publicChannelsSlice = createSlice({
       }
       communityChannelsAdapter.addOne(state.channels, communityChannels)
     },
-    getPublicChannels: (state) => state,
     responseGetPublicChannels: (
       state,
       action: PayloadAction<GetPublicChannelsResponse>
     ) => {
       const { communityId, channels } = action.payload
-      console.log(
+      log(
         `replicated channels [${Object.keys(
           channels
         )}] for community ${communityId}`
       )
-      publicChannelsAdapter.setAll(
+      publicChannelsAdapter.upsertMany(
         state.channels.entities[communityId].channels,
         channels
       )
@@ -144,11 +149,11 @@ export const publicChannelsSlice = createSlice({
         changes: { channelLoadingSlice: slice }
       })
     },
-    subscribeForTopic: (
+    subscribeToTopic: (
       state,
-      _action: PayloadAction<SubscribeForTopicPayload>
+      _action: PayloadAction<subscribeToTopicPayload>
     ) => state,
-    subscribeForAllTopics: (state, _action: PayloadAction<string>) => state,
+    subscribeToAllTopics: (state, _action: PayloadAction<string>) => state,
     responseSendMessagesIds: (
       state,
       action: PayloadAction<ChannelMessagesIdsResponse>
