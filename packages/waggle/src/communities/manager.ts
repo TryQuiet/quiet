@@ -140,7 +140,7 @@ export default class CommunitiesManager {
       address: params.onionAddress,
       addressPort: port,
       targetPort: params.targetPort,
-      bootstrapMultiaddrs: params.peers,
+      bootstrapMultiaddrs: peers,
       certs: params.certs
     }
 
