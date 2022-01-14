@@ -1,4 +1,10 @@
-import { Certificates, HiddenService, PeerId } from '@zbayapp/nectar'
+import {
+  Certificates,
+  HiddenService,
+  InitCommunityPayload,
+  LaunchRegistrarPayload,
+  PeerId
+} from '@zbayapp/nectar'
 import { createMinConnectionManager, createTmpDir, tmpZbayDirPath } from '../common/testUtils'
 import { getPorts } from '../common/utils'
 import { createCertificatesTestHelper } from '../libp2p/tests/client-server'
@@ -63,14 +69,24 @@ test('IO proxy closes all services (using tor)', async () => {
     certs: certs1
   })
 
-  await ioProxy.launchRegistrar('myCommunity1', peerId1.id, pems.ca, pems.ca_key)
+  const launchRegistrarPayload: LaunchRegistrarPayload = {
+    id: 'myCommunity1',
+    peerId: peerId1.id,
+    rootCertString: pems.ca,
+    rootKeyString: pems.ca_key,
+    privateKey: hiddenService1.privateKey
+  }
 
-  await ioProxy.createCommunity({
+  const createCommunityPayload: InitCommunityPayload = {
     id: 'myCommunity2',
     peerId: peerId2,
     hiddenService: hiddenService2,
     certs: certs2
-  })
+  }
+
+  await ioProxy.launchRegistrar(launchRegistrarPayload)
+
+  await ioProxy.createCommunity(createCommunityPayload)
 
   const spyTorKill = jest.spyOn(manager.tor, 'kill')
   const spyOnIo = jest.spyOn(manager.io, 'close')

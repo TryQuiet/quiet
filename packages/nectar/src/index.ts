@@ -89,7 +89,7 @@ export {
   SaveCertificatePayload,
   SaveOwnerCertificatePayload
 } from './sagas/identity/identity.slice'
-export { Certificates, InitCommunityPayload } from './sagas/communities/communities.slice'
+export { Certificates, InitCommunityPayload, LaunchRegistrarPayload } from './sagas/communities/communities.slice'
 
 export const app = {
   actions: appActions

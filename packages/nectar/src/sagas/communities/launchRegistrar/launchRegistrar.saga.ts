@@ -5,7 +5,7 @@ import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { identitySelectors } from '../../identity/identity.selectors'
 
 import { communitiesSelectors } from '../communities.selectors'
-import { communitiesActions } from '../communities.slice'
+import { communitiesActions, LaunchRegistrarPayload } from '../communities.slice'
 
 export function* launchRegistrarSaga(
   socket: Socket,
@@ -23,13 +23,16 @@ export function* launchRegistrarSaga(
 
   if (community.CA?.rootCertString) {
     const identity = yield* select(identitySelectors.selectById(communityId))
+    const payload: LaunchRegistrarPayload = {
+      id: identity.id,
+      peerId: identity.peerId.id,
+      rootCertString: community.CA.rootCertString,
+      rootKeyString: community.CA.rootKeyString,
+      privateKey: community.privateKey
+    }
     yield* apply(socket, socket.emit, [
       SocketActionTypes.LAUNCH_REGISTRAR,
-      identity.id,
-      identity.peerId.id,
-      community.CA.rootCertString,
-      community.CA.rootKeyString,
-      community.privateKey
+      payload
     ])
   }
 }

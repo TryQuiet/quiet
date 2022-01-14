@@ -8,6 +8,7 @@ import { Storage } from '../storage'
 import {
   AskForMessagesPayload,
   InitCommunityPayload,
+  LaunchRegistrarPayload,
   RegisterOwnerCertificatePayload,
   RegisterUserCertificatePayload,
   SaveCertificatePayload,
@@ -234,34 +235,27 @@ export default class IOProxy {
     this.io.emit(SocketActionTypes.COMMUNITY, { id: payload.id })
   }
 
-  public async launchRegistrar(
-    communityId: string,
-    peerId: string,
-    rootCertString: string,
-    rootKeyString: string,
-    hiddenServicePrivKey?: string,
-    port?: number
-  ) {
+  public async launchRegistrar(payload: LaunchRegistrarPayload) {
     const registrar = await this.communities.setupRegistrationService(
-      peerId,
-      this.getStorage(peerId),
+      payload.peerId,
+      this.getStorage(payload.peerId),
       {
-        certificate: rootCertString,
-        privKey: rootKeyString
+        certificate: payload.rootCertString,
+        privKey: payload.rootKeyString
       },
-      hiddenServicePrivKey,
-      port
+      payload.privateKey,
+      payload.port
     )
     if (!registrar) {
       emitServerError(this.io, {
         type: 'registrar',
         message: 'Could not launch registrar',
-        communityId
+        communityId: payload.id
       })
     } else {
       this.io.emit(SocketActionTypes.REGISTRAR, {
-        id: communityId,
-        peerId,
+        id: payload.id,
+        peerId: payload.peerId,
         payload: registrar.getHiddenServiceData()
       })
     }

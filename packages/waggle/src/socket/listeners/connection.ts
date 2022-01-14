@@ -1,6 +1,7 @@
 import {
   AskForMessagesPayload,
   InitCommunityPayload,
+  LaunchRegistrarPayload,
   RegisterOwnerCertificatePayload,
   RegisterUserCertificatePayload,
   SaveOwnerCertificatePayload,
@@ -102,23 +103,9 @@ export const connections = (io, ioProxy: IOProxy) => {
     )
     socket.on(
       SocketActionTypes.LAUNCH_REGISTRAR,
-      async (
-        id: string,
-        peerId: string,
-        rootCertString: string,
-        rootKeyString: string,
-        hiddenServicePrivKey?: string,
-        port?: number
-      ) => {
-        log(`Launching registrar for community ${id}, user ${peerId}`)
-        await ioProxy.launchRegistrar(
-          id,
-          peerId,
-          rootCertString,
-          rootKeyString,
-          hiddenServicePrivKey,
-          port
-        )
+      async (payload: LaunchRegistrarPayload) => {
+        log(`Launching registrar for community ${payload.id}, user ${payload.peerId}`)
+        await ioProxy.launchRegistrar(payload)
       }
     )
     socket.on(SocketActionTypes.CREATE_NETWORK, async (communityId: string) => {

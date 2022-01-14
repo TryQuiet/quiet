@@ -12,6 +12,7 @@ import {
   Certificates,
   HiddenService,
   InitCommunityPayload,
+  LaunchRegistrarPayload,
   RegisterUserCertificatePayload,
   SocketActionTypes
 } from '@zbayapp/nectar'
@@ -118,16 +119,20 @@ describe('IO proxy', () => {
       peers: []
     }
 
+    const launchRegistrarPayload: LaunchRegistrarPayload = {
+      id: 'MyCommunity',
+      peerId: peerId.id,
+      rootCertString: pems.ca,
+      rootKeyString: pems.ca_key,
+      privateKey: hiddenService.privateKey,
+      port: 1234
+    }
+
     await ioProxy.launchCommunity(launchCommunityPayload)
-    await ioProxy.launchRegistrar(
-      'MyCommunity',
-      peerId.id,
-      pems.ca,
-      pems.ca_key,
-      hiddenService.privateKey,
-      1234
-    )
+    await ioProxy.launchRegistrar(launchRegistrarPayload)
+
     expect(observedLaunchRegistrar).toBeCalled()
+
     expect(observedIO).lastCalledWith(SocketActionTypes.REGISTRAR, {
       id: communityId,
       payload: {

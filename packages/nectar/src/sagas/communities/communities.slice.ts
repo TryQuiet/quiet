@@ -52,6 +52,15 @@ export interface AddNewCommunityPayload {
   registrarUrl: string
 }
 
+export interface LaunchRegistrarPayload {
+  id: string
+  peerId: string
+  rootCertString: string
+  rootKeyString: string
+  privateKey: string
+  port?: number
+}
+
 export interface ResponseRegistrarPayload {
   id: string
   payload: Partial<Community>
