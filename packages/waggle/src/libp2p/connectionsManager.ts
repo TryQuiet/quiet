@@ -112,8 +112,8 @@ export class ConnectionsManager extends EventEmitter {
     return createLibp2pListenAddress(address, port, this.options.wsType)
   }
 
-  public initListeners = async () => {
-    initListeners(this.io, this.ioProxy, this)
+  public initListeners = () => {
+    initListeners(this.io, this.ioProxy)
     log('Initialized socket listeners')
   }
 

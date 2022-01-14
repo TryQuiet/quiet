@@ -1,6 +1,7 @@
 import { StoreKeys } from '../store.keys'
 import { createSelector } from 'reselect'
 import { CreatedSelectors, StoreState } from '../store.types'
+import { certificatesMapping } from '../users/users.selectors'
 
 const connectionSlice: CreatedSelectors[StoreKeys.Connection] = (
   state: StoreState
@@ -21,19 +22,30 @@ export const connectedPeers = createSelector(
   (reducerState) => reducerState.connectedPeers
 )
 
-// export const joinedCommunities = createSelector(
-//   certificatesMapping,
-//   connectedPeers,
-//   (users, usersPeerId) => {
-//     const usersData = Object.values(certificatesMapping)
-//     const data =  usersPeerId.map((item) => {
-//       const data2 = 
-//     })
-//   }
-// );
+export const connectedPeersMapping = createSelector(
+  certificatesMapping,
+  connectedPeers,
+  (users, usersPeerId) => {
+    const usersData = Object.values(users)
+
+    const usersDataPerPeerId = usersPeerId.reduce((accumulator, currentValue) => {
+      for (let user of usersData) {
+        if (currentValue === user.peerId) {
+          return {
+            ...accumulator,
+            [currentValue]: user
+          }
+        }
+      }
+    }, {})
+
+    return usersDataPerPeerId
+  }
+);
 
 export const connectionSelectors = {
   initializedCommunities,
   initializedRegistrars,
-  connectedPeers
+  connectedPeers,
+  connectedPeersMapping
 }

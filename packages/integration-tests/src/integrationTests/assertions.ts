@@ -152,10 +152,7 @@ export const assertConnectedToPeers = async (
   store: Store,
   count: number
 ) => {
-  // const communityId = store.getState().Communities.communities.ids[0]
   await sleep(10_000)
-  log('peeeeers', store.getState().Connection.connectedPeers)
-
   await waitForExpect(() => {
     expect(
       store.getState().Connection.connectedPeers.length
