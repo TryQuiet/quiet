@@ -248,26 +248,24 @@ describe('User', () => {
         })
       }
       if (action === SocketActionTypes.REGISTER_OWNER_CERTIFICATE) {
-        const data = input as socketEventData<
-        [string, string, { certificate: string; privKey: string }]
-        >
-        communityId = data[0]
-        const CA = data[2]
+        const data = input as socketEventData<[RegisterOwnerCertificatePayload]>
+        const payload = data[0]
+        communityId = payload.id
         socket.socketClient.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
           id: communityId,
           payload: {
-            certificate: CA.certificate,
+            certificate: payload.permsData.certificate,
             peers: [],
             rootCa: 'rootCa'
           }
         })
       }
       if (action === SocketActionTypes.CREATE_COMMUNITY) {
-        const data = input as socketEventData<[string, {}, {}, {}]>
-        const id = data[0]
-        expect(id).toEqual(communityId)
+        const data = input as socketEventData<[InitCommunityPayload]>
+        const payload = data[0]
+        expect(payload.id).toEqual(communityId)
         socket.socketClient.emit(SocketActionTypes.NEW_COMMUNITY, {
-          id
+          id: payload.id
         })
         socket.socketClient.emit(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, {
           communityId: communityId,
@@ -283,14 +281,13 @@ describe('User', () => {
         })
       }
       if (action === SocketActionTypes.LAUNCH_REGISTRAR) {
-        const data = input as socketEventData<[string, string, string, string]>
-        const id = data[0]
-        const peerId = data[1]
-        expect(id).toEqual(communityId)
-        expect(peerId).toEqual(payloadData.peerId.id)
+        const data = input as socketEventData<[LaunchRegistrarPayload]>
+        const payload = data[0]
+        expect(payload.id).toEqual(communityId)
+        expect(payload.peerId).toEqual(payloadData.peerId.id)
         socket.socketClient.emit(SocketActionTypes.REGISTRAR, {
-          id: id,
-          peerId: peerId,
+          id: payload.id,
+          peerId: payload.peerId,
           payload: {
             privateKey: payloadData.hiddenService.privateKey,
             onionAddress: payloadData.hiddenService.onionAddress,
