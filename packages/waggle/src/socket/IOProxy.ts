@@ -1,12 +1,20 @@
 import { Response } from 'node-fetch'
 import SocketIO from 'socket.io'
-import PeerId from 'peer-id'
-import { CertsData, IMessage } from '../common/types'
+import { IMessage } from '../common/types'
 import CommunitiesManager from '../communities/manager'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 import { CertificateRegistration } from '../registration'
 import { Storage } from '../storage'
-import { AskForMessagesPayload, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, SaveCertificatePayload, SaveOwnerCertificatePayload, SocketActionTypes, SubscribeToTopicPayload } from '@zbayapp/nectar'
+import {
+  AskForMessagesPayload,
+  InitCommunityPayload,
+  RegisterOwnerCertificatePayload,
+  RegisterUserCertificatePayload,
+  SaveCertificatePayload,
+  SaveOwnerCertificatePayload,
+  SocketActionTypes,
+  SubscribeToTopicPayload
+} from '@zbayapp/nectar'
 import { emitServerError, emitValidationError } from './errors'
 import { loadAllMessages } from './events/messages'
 import logger from '../logger'
@@ -48,8 +56,16 @@ export default class IOProxy {
   }
 
   public askForMessages = async (payload: AskForMessagesPayload) => {
-    const messages = await this.getStorage(payload.peerId).askForMessages(payload.channelAddress, payload.ids)
-    loadAllMessages(this.io, messages.filteredMessages, messages.channelAddress, payload.communityId)
+    const messages = await this.getStorage(payload.peerId).askForMessages(
+      payload.channelAddress,
+      payload.ids
+    )
+    loadAllMessages(
+      this.io,
+      messages.filteredMessages,
+      messages.channelAddress,
+      payload.communityId
+    )
   }
 
   public saveCertificate = async (peerId: string, certificate: string) => {
@@ -112,7 +128,10 @@ export default class IOProxy {
   }
 
   public registerOwnerCertificate = async (payload: RegisterOwnerCertificatePayload) => {
-    const cert = await CertificateRegistration.registerOwnerCertificate(payload.userCsr, payload.permsData)
+    const cert = await CertificateRegistration.registerOwnerCertificate(
+      payload.userCsr,
+      payload.permsData
+    )
     this.io.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
       id: payload.id,
       payload: { certificate: cert, peers: [], rootCa: payload.permsData.certificate }
@@ -195,41 +214,24 @@ export default class IOProxy {
     this.io.emit(SocketActionTypes.NETWORK, { id: communityId, payload: network })
   }
 
-  public async createCommunity(
-    communityId: string,
-    peerId: PeerId.JSONPeerId,
-    hiddenService: { address: string; privateKey: string },
-    certs: CertsData
-  ) {
-    await this.launchCommunity(communityId, peerId, hiddenService, [], certs)
-    this.io.emit(SocketActionTypes.NEW_COMMUNITY, { id: communityId })
+  public async createCommunity(payload: InitCommunityPayload) {
+    await this.launchCommunity(payload)
+    this.io.emit(SocketActionTypes.NEW_COMMUNITY, { id: payload.id })
   }
 
-  public async launchCommunity(
-    communityId: string,
-    peerId: PeerId.JSONPeerId,
-    hiddenService: { address: string; privateKey: string },
-    bootstrapMultiaddress: string[],
-    certs: CertsData
-  ) {
+  public async launchCommunity(payload: InitCommunityPayload) {
     try {
-      await this.communities.launch(
-        peerId,
-        hiddenService.privateKey,
-        bootstrapMultiaddress,
-        certs,
-        communityId
-      )
+      await this.communities.launch(payload)
     } catch (e) {
-      log(`Couldn't launch community for peer ${peerId.id}. Error:`, e)
+      log(`Couldn't launch community for peer ${payload.peerId.id}. Error:`, e)
       emitServerError(this.io, {
         type: SocketActionTypes.COMMUNITY,
         message: 'Could not launch community',
-        communityId
+        communityId: payload.id
       })
       return
     }
-    this.io.emit(SocketActionTypes.COMMUNITY, { id: communityId })
+    this.io.emit(SocketActionTypes.COMMUNITY, { id: payload.id })
   }
 
   public async launchRegistrar(

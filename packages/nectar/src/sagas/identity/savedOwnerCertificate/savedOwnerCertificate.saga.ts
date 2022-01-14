@@ -5,6 +5,7 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { identityActions } from '../identity.slice'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { identitySelectors } from '../identity.selectors'
+import { InitCommunityPayload } from '../../communities/communities.slice'
 
 export function* savedOwnerCertificateSaga(
   socket: Socket,
@@ -19,20 +20,19 @@ export function* savedOwnerCertificateSaga(
   const community = yield* select(communitiesSelectors.selectById(communityId))
   const identity = yield* select(identitySelectors.selectById(communityId))
 
-  const cert = identity.userCertificate
-  const key = identity.userCsr.userKey
-  const ca = community.rootCa
-
-  const certs = {
-    cert,
-    key,
-    ca
+  const payload: InitCommunityPayload = {
+    id: communityId,
+    peerId: identity.peerId,
+    hiddenService: identity.hiddenService,
+    certs: {
+      certificate: identity.userCertificate,
+      key: identity.userCsr.userKey,
+      CA: [community.rootCa]
+    }
   }
+
   yield* apply(socket, socket.emit, [
     SocketActionTypes.CREATE_COMMUNITY,
-    communityId,
-    identity.peerId,
-    identity.hiddenService,
-    certs
+    payload
   ])
 }

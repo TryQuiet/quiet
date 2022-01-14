@@ -6,8 +6,9 @@ import { DataServer } from '../socket/DataServer'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 import CommunitiesManager from '../communities/manager'
 import { createUsersCerts } from '../libp2p/tests/client-server'
-import { CertsData, ConnectionsManagerOptions } from '../common/types'
+import { ConnectionsManagerOptions } from '../common/types'
 import { RootCA } from '@zbayapp/identity'
+import { Certificates } from '@zbayapp/nectar'
 
 /**
  * More customizable version of Node (entry node), mainly for testing purposes
@@ -108,7 +109,7 @@ export class NodeWithoutTor extends LocalNode {
       address.replace('wss', 'ws')
     )
     // eslint-disable-next-line
-    const certs = {} as CertsData
+    const certs = {} as Certificates
     this.localAddress = await communitiesManager.initStorage(
       peerId,
       '0.0.0.0',
@@ -153,10 +154,10 @@ export class NodeWithTor extends LocalNode {
     })
     const userCert = await createUsersCerts(onionAddress, this.rootCa)
 
-    const certs = {
-      cert: userCert.userCert,
+    const certs: Certificates = {
+      certificate: userCert.userCert,
       key: userCert.userKey,
-      ca: [this.rootCa.rootCertString]
+      CA: [this.rootCa.rootCertString]
     }
     const virtPort = 443
 

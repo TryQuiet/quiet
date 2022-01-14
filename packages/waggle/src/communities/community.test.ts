@@ -4,6 +4,7 @@ import { createMinConnectionManager, createTmpDir, tmpZbayDirPath, TorMock } fro
 import PeerId from 'peer-id'
 import { getPorts } from '../common/utils'
 import { createCertificatesTestHelper } from '../libp2p/tests/client-server'
+import { Certificates } from '@zbayapp/nectar'
 jest.setTimeout(100_000)
 
 describe('Community manager', () => {
@@ -35,9 +36,9 @@ describe('Community manager', () => {
     expect(manager.communities.size).toBe(0)
     const pems = await createCertificatesTestHelper('address1.onion', 'address2.onion')
     const certs = {
-      cert: pems.userCert,
+      certificate: pems.userCert,
       key: pems.userKey,
-      ca: [pems.ca]
+      CA: [pems.ca]
     }
     const communityData = await manager.create(certs, 'communityId')
     expect(manager.communities.size).toBe(1)
@@ -49,19 +50,23 @@ describe('Community manager', () => {
     expect(manager.communities.size).toBe(0)
     const peerId = await PeerId.create()
     const pems = await createCertificatesTestHelper('address1.onion', 'address2.onion')
-    const certs = {
-      cert: pems.userCert,
+    const certs: Certificates = {
+      certificate: pems.userCert,
       key: pems.userKey,
-      ca: [pems.ca]
+      CA: [pems.ca]
     }
     const spyOnCreateStorage = jest.spyOn(connectionsManager, 'createStorage')
-    const localAddress = await manager.launch(
-      peerId.toJSON(),
-      'ED25519-V3:YKbZb2pGbMt44qunoxvrxCKenRomAI9b/HkPB5mWgU9wIm7wqS+43t0yLiCmjSu+FW4f9qFW91c4r6BAsXS9Lg==',
-      ['peeraddress'],
-      certs,
-      'communityId'
-    )
+    const localAddress = await manager.launch({
+      id: 'communityId',
+      // @ts-expect-error incompatibility of imports
+      peerId: peerId,
+      hiddenService: {
+        onionAddress: 'ED25519-V3:YKbZb2pGbMt44qunoxvrxCKenRomAI9b/HkPB5mWgU9wIm7wqS+43t0yLiCmjSu+FW4f9qFW91c4r6BAsXS9Lg==',
+        privateKey: 'privateKey'
+      },
+      certs: certs,
+      peers: ['peeraddress']
+    })
     expect(localAddress).toContain(peerId.toB58String())
     expect(manager.communities.size).toBe(1)
     expect(manager.getStorage(peerId.toB58String())).toEqual(spyOnCreateStorage.mock.results[0].value)

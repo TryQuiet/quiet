@@ -74,9 +74,3 @@ export interface ILibp2pStatus {
   address: string
   peerId: string
 }
-
-export interface CertsData {
-  cert: string
-  key: string
-  ca: string[]
-}

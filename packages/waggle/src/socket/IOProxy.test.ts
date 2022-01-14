@@ -8,7 +8,13 @@ import {
 import { getPorts } from '../common/utils'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 import { createCertificatesTestHelper } from '../libp2p/tests/client-server'
-import { RegisterUserCertificatePayload, SocketActionTypes } from '@zbayapp/nectar'
+import {
+  Certificates,
+  HiddenService,
+  InitCommunityPayload,
+  RegisterUserCertificatePayload,
+  SocketActionTypes
+} from '@zbayapp/nectar'
 import IOProxy from './IOProxy'
 
 describe('IO proxy', () => {
@@ -51,19 +57,28 @@ describe('IO proxy', () => {
         'CAASpgIwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCY2r7s5YlgWXlHuHH4PY/cUik/m7GuWPdTPmmm4QZTr1VSyKgC2AMR45xrcGMjd5SDh1HjzbptJpYfGWO+Sbm6yK7EfxYN8gOXrbo0koKtPH0hrgzus+CqUCAQDE6XWzY5yP7caFt/RolZaBYNcKCWDCHv+bg/87u3MGwwSeaMjYWNAQ5IVWrUFnns8eiyNRhBGrEQZDTyO4X0oMeEkTTABMEJIpge91SWfuYuqltiNdkS9aiYS58F43IBHKKWLc39b3KbiykiG2IjrqVl2aAyb6vSgtiGkwi301jtWEctaDl2JbwZpgldOA83wH2aBPK9N9MaakEYdI2dHVSg8bf9AgMBAAE='
     }
 
-    const hiddenService1 = {
-      address: 'u2rg2direy34dj77375h2fbhsc2tvxj752h4tlso64mjnlevcv54oaad.onion',
+    const hiddenService1: HiddenService = {
+      onionAddress: 'u2rg2direy34dj77375h2fbhsc2tvxj752h4tlso64mjnlevcv54oaad.onion',
       privateKey:
         'ED25519-V3:uCr5t3EcOCwig4cu7pWY6996whV+evrRlI0iIIsjV3uCz4rx46sB3CPq8lXEWhjGl2jlyreomORirKcz9mmcdQ=='
     }
-    const pems = await createCertificatesTestHelper('adres1.onion', hiddenService1.address)
-    const certs = {
-      cert: pems.userCert,
+
+    const pems = await createCertificatesTestHelper('adres1.onion', hiddenService1.onionAddress)
+
+    const certs: Certificates = {
+      certificate: pems.userCert,
       key: pems.userKey,
-      ca: [pems.ca]
+      CA: [pems.ca]
     }
 
-    await ioProxy.createCommunity('MyCommunity', peerId1, hiddenService1, certs)
+    const createCommunityPayload: InitCommunityPayload = {
+      id: 'MyCommunity',
+      peerId: peerId1,
+      hiddenService: hiddenService1,
+      certs: certs
+    }
+
+    await ioProxy.createCommunity(createCommunityPayload)
     expect(observedLaunchRegistrar).not.toBeCalled()
     const communityData = await observedCommunityCreate.mock.results[0].value
     console.log(communityData)
@@ -82,20 +97,28 @@ describe('IO proxy', () => {
         'CAASpgIwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCY2r7s5YlgWXlHuHH4PY/cUik/m7GuWPdTPmmm4QZTr1VSyKgC2AMR45xrcGMjd5SDh1HjzbptJpYfGWO+Sbm6yK7EfxYN8gOXrbo0koKtPH0hrgzus+CqUCAQDE6XWzY5yP7caFt/RolZaBYNcKCWDCHv+bg/87u3MGwwSeaMjYWNAQ5IVWrUFnns8eiyNRhBGrEQZDTyO4X0oMeEkTTABMEJIpge91SWfuYuqltiNdkS9aiYS58F43IBHKKWLc39b3KbiykiG2IjrqVl2aAyb6vSgtiGkwi301jtWEctaDl2JbwZpgldOA83wH2aBPK9N9MaakEYdI2dHVSg8bf9AgMBAAE='
     }
 
-    const hiddenService = {
-      address: 'u2rg2direy34dj77375h2fbhsc2tvxj752h4tlso64mjnlevcv54oaad.onion',
+    const hiddenService: HiddenService = {
+      onionAddress: 'u2rg2direy34dj77375h2fbhsc2tvxj752h4tlso64mjnlevcv54oaad.onion',
       privateKey:
         'ED25519-V3:uCr5t3EcOCwig4cu7pWY6996whV+evrRlI0iIIsjV3uCz4rx46sB3CPq8lXEWhjGl2jlyreomORirKcz9mmcdQ=='
     }
-    const pems = await createCertificatesTestHelper(hiddenService.address, 'adres2.onion')
+    const pems = await createCertificatesTestHelper(hiddenService.onionAddress, 'adres2.onion')
 
-    const certs = {
-      cert: pems.userCert,
+    const certs: Certificates = {
+      certificate: pems.userCert,
       key: pems.userKey,
-      ca: [pems.ca]
+      CA: [pems.ca]
     }
 
-    await ioProxy.launchCommunity('MyCommunity', peerId, hiddenService, [], certs)
+    const launchCommunityPayload: InitCommunityPayload = {
+      id: 'MyCommunity',
+      peerId: peerId,
+      hiddenService: hiddenService,
+      certs: certs,
+      peers: []
+    }
+
+    await ioProxy.launchCommunity(launchCommunityPayload)
     await ioProxy.launchRegistrar(
       'MyCommunity',
       peerId.id,

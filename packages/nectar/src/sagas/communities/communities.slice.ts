@@ -3,7 +3,7 @@ import { StoreKeys } from '../store.keys'
 import { communitiesAdapter } from './communities.adapter'
 import { createRootCA } from '@zbayapp/identity'
 import { AsyncReturnType } from '../../utils/types/AsyncReturnType.interface'
-import { Identity } from '../identity/identity.slice'
+import { HiddenService, Identity, PeerId } from '../identity/identity.slice'
 
 export class CommunitiesState {
   public currentCommunity: string = ''
@@ -29,6 +29,20 @@ export interface Community {
   onionAddress: string
   privateKey: string
   port: number
+}
+
+export interface Certificates {
+  certificate: string
+  key: string
+  CA: string[]
+}
+
+export interface InitCommunityPayload {
+  id: string
+  peerId: PeerId
+  hiddenService: HiddenService
+  certs: Certificates
+  peers?: string[]
 }
 
 export interface AddNewCommunityPayload {

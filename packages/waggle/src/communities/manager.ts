@@ -2,10 +2,10 @@ import PeerId, { JSONPeerId } from 'peer-id'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 import { Storage } from '../storage'
 import { getPorts } from '../common/utils'
-import { CertsData } from '../common/types'
 import { CertificateRegistration } from '../registration'
+import { Certificates, InitCommunityPayload, PermsData } from '@zbayapp/nectar'
 import logger from '../logger'
-import { PermsData } from '@zbayapp/nectar'
+
 const log = logger('communities')
 
 interface HiddenServiceData {
@@ -47,7 +47,7 @@ export default class CommunitiesManager {
     return this.communities.get(peerId)
   }
 
-  public create = async (certs: CertsData, communityId: string): Promise<CommunityData> => {
+  public create = async (certs: Certificates, communityId: string): Promise<CommunityData> => {
     const ports = await getPorts()
     const virtPort = 443
     const hiddenService = await this.connectionsManager.tor.createNewHiddenService(virtPort, ports.libp2pHiddenService)
@@ -62,27 +62,26 @@ export default class CommunitiesManager {
     }
   }
 
-  public launch = async (peerId: JSONPeerId, hiddenServiceKey: string, bootstrapMultiaddrs: string[], certs: CertsData, communityId: string): Promise<string> => {
+  public launch = async (payload: InitCommunityPayload): Promise<string> => {
     // Start existing community (community that user is already a part of)
     const ports = await getPorts()
     const virtPort = 443
-
-    let onionAddress
+    let onionAddress: string
     if (this.connectionsManager.tor) {
-      log(`Spawning hidden service for community ${communityId}, peer: ${peerId.id}`)
+      log(`Spawning hidden service for community ${payload.id}, peer: ${payload.peerId.id}`)
       onionAddress = await this.connectionsManager.tor.spawnHiddenService({
         virtPort,
         targetPort: ports.libp2pHiddenService,
-        privKey: hiddenServiceKey
+        privKey: payload.hiddenService.privateKey
       })
     } else {
       onionAddress = '0.0.0.0'
     }
-    log(`Launching community ${communityId}, peer: ${peerId.id}`)
-    return await this.initStorage(await PeerId.createFromJSON(peerId), onionAddress, virtPort, ports.libp2pHiddenService, bootstrapMultiaddrs, certs, communityId)
+    log(`Launching community ${payload.id}, peer: ${payload.peerId.id}`)
+    return await this.initStorage(await PeerId.createFromJSON(payload.peerId), onionAddress, virtPort, ports.libp2pHiddenService, payload.peers, payload.certs, payload.id)
   }
 
-  public initStorage = async (peerId: PeerId, onionAddress: string, virtPort: number, targetPort: number, bootstrapMultiaddrs: string[], certs: CertsData, communityId: string): Promise<string> => {
+  public initStorage = async (peerId: PeerId, onionAddress: string, virtPort: number, targetPort: number, bootstrapMultiaddrs: string[], certs: Certificates, communityId: string): Promise<string> => {
     const peerIdB58string = peerId.toB58String()
     log(`Initializing storage for peer ${peerIdB58string}...`)
     let port: number

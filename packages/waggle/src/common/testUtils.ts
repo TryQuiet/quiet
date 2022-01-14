@@ -81,10 +81,10 @@ export const createLibp2p = async (peerId: PeerId): Promise<Libp2p> => {
 
   return ConnectionsManager.createBootstrapNode({
     peerId,
-    listenAddrs: [createLibp2pListenAddress('localhost', virtPort, 'wss')],
+    listenAddresses: [createLibp2pListenAddress('localhost', virtPort, 'wss')],
     bootstrapMultiaddrsList: testBootstrapMultiaddrs,
     agent: new HttpsProxyAgent({ port: 1234, host: 'localhost' }),
-    localAddr: createLibp2pAddress('localhost', virtPort, peerId.toB58String(), 'wss'),
+    localAddress: createLibp2pAddress('localhost', virtPort, peerId.toB58String(), 'wss'),
     transportClass: WebsocketsOverTor,
     cert: pems.userCert,
     key: pems.userKey,

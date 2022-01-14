@@ -1,7 +1,14 @@
-import { AskForMessagesPayload, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, SaveOwnerCertificatePayload, SocketActionTypes, SubscribeToTopicPayload } from '@zbayapp/nectar'
-import { CertsData, IMessage } from '../../common/types'
+import {
+  AskForMessagesPayload,
+  InitCommunityPayload,
+  RegisterOwnerCertificatePayload,
+  RegisterUserCertificatePayload,
+  SaveOwnerCertificatePayload,
+  SocketActionTypes,
+  SubscribeToTopicPayload
+} from '@zbayapp/nectar'
+import { IMessage } from '../../common/types'
 import IOProxy from '../IOProxy'
-import PeerId from 'peer-id'
 
 import logger from '../../logger'
 
@@ -13,12 +20,9 @@ export const connections = (io, ioProxy: IOProxy) => {
     socket.on(SocketActionTypes.CLOSE, async () => {
       await ioProxy.closeAll()
     })
-    socket.on(
-      SocketActionTypes.SUBSCRIBE_TO_TOPIC,
-      async (payload: SubscribeToTopicPayload) => {
-        await ioProxy.subscribeToTopic(payload)
-      }
-    )
+    socket.on(SocketActionTypes.SUBSCRIBE_TO_TOPIC, async (payload: SubscribeToTopicPayload) => {
+      await ioProxy.subscribeToTopic(payload)
+    })
     socket.on(
       SocketActionTypes.SEND_MESSAGE,
       async (
@@ -61,12 +65,9 @@ export const connections = (io, ioProxy: IOProxy) => {
         await ioProxy.subscribeToAllConversations(peerId, conversations)
       }
     )
-    socket.on(
-      SocketActionTypes.ASK_FOR_MESSAGES,
-      async (payload: AskForMessagesPayload) => {
-        await ioProxy.askForMessages(payload)
-      }
-    )
+    socket.on(SocketActionTypes.ASK_FOR_MESSAGES, async (payload: AskForMessagesPayload) => {
+      await ioProxy.askForMessages(payload)
+    })
     socket.on(
       SocketActionTypes.REGISTER_USER_CERTIFICATE,
       async (payload: RegisterUserCertificatePayload) => {
@@ -88,30 +89,15 @@ export const connections = (io, ioProxy: IOProxy) => {
         await ioProxy.saveOwnerCertificate(payload)
       }
     )
-    socket.on(
-      SocketActionTypes.CREATE_COMMUNITY,
-      async (
-        communityId: string,
-        peerId: PeerId.JSONPeerId,
-        hiddenService: { address: string; privateKey: string },
-        certs: CertsData
-      ) => {
-        log(`Creating community ${communityId}`)
-        await ioProxy.createCommunity(communityId, peerId, hiddenService, certs)
-      }
-    )
-
+    socket.on(SocketActionTypes.CREATE_COMMUNITY, async (payload: InitCommunityPayload) => {
+      log(`Creating community ${payload.id}`)
+      await ioProxy.createCommunity(payload)
+    })
     socket.on(
       SocketActionTypes.LAUNCH_COMMUNITY,
-      async (
-        id: string,
-        peerId: PeerId.JSONPeerId,
-        hiddenServiceKey: { address: string; privateKey: string },
-        peers: string[],
-        certs: CertsData
-      ) => {
-        log(`Launching community ${id} for ${peerId.id}`)
-        await ioProxy.launchCommunity(id, peerId, hiddenServiceKey, peers, certs)
+      async (payload: InitCommunityPayload) => {
+        log(`Launching community ${payload.id} for ${payload.peerId.id}`)
+        await ioProxy.launchCommunity(payload)
       }
     )
     socket.on(

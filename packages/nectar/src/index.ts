@@ -76,8 +76,20 @@ export {
 
 export { identityAdapter } from './sagas/identity/identity.adapter'
 
-export { SubscribeToTopicPayload, AskForMessagesPayload } from './sagas/publicChannels/publicChannels.slice'
-export { PermsData, RegisterUserCertificatePayload, RegisterOwnerCertificatePayload, SaveCertificatePayload, SaveOwnerCertificatePayload } from './sagas/identity/identity.slice'
+export {
+  SubscribeToTopicPayload,
+  AskForMessagesPayload
+} from './sagas/publicChannels/publicChannels.slice'
+export {
+  PermsData,
+  PeerId,
+  HiddenService,
+  RegisterUserCertificatePayload,
+  RegisterOwnerCertificatePayload,
+  SaveCertificatePayload,
+  SaveOwnerCertificatePayload
+} from './sagas/identity/identity.slice'
+export { Certificates, InitCommunityPayload } from './sagas/communities/communities.slice'
 
 export const app = {
   actions: appActions
