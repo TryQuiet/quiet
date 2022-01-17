@@ -12,10 +12,8 @@ import KeyValueStore from 'orbit-db-kvstore'
 import path from 'path'
 import PeerId from 'peer-id'
 import { CryptoEngine, setEngine } from 'pkijs'
-import { PermsData, SaveCertificatePayload, SocketActionTypes } from '@zbayapp/nectar'
+import { ChannelMessage, PermsData, PublicChannel, SaveCertificatePayload, SocketActionTypes } from '@zbayapp/nectar'
 import {
-  IChannelInfo,
-  IMessage,
   IMessageThread,
   IPublicKey,
   IRepo,
@@ -61,7 +59,7 @@ export class Storage {
   public peerId: PeerId
   protected ipfs: IPFS.IPFS
   protected orbitdb: OrbitDB
-  private channels: KeyValueStore<IChannelInfo>
+  private channels: KeyValueStore<PublicChannel>
   private readonly _directMessagesUsers: KeyValueStore<IPublicKey>
   private messageThreads: KeyValueStore<IMessageThread>
   private certificates: EventStore<string>
@@ -181,7 +179,7 @@ export class Storage {
 
   private async createDbForChannels() {
     log('createDbForChannels init')
-    this.channels = await this.orbitdb.keyvalue<IChannelInfo>('public-channels', {
+    this.channels = await this.orbitdb.keyvalue<PublicChannel>('public-channels', {
       accessController: {
         write: ['*']
       }
@@ -266,12 +264,12 @@ export class Storage {
     if (!this.publicChannelsRepos.has(channelAddress)) {
       return
     }
-    const db: EventStore<IMessage> = this.publicChannelsRepos.get(channelAddress).db
+    const db: EventStore<ChannelMessage> = this.publicChannelsRepos.get(channelAddress).db
     loadAllMessages(this.io, this.getAllEventLogEntries(db), channelAddress, this.communityId)
   }
 
-  public async subscribeToChannel(channel: IChannelInfo): Promise<void> {
-    let db: EventStore<IMessage>
+  public async subscribeToChannel(channel: PublicChannel): Promise<void> {
+    let db: EventStore<ChannelMessage>
     let repo = this.publicChannelsRepos.get(channel.address)
     if (repo) {
       db = repo.db
@@ -323,13 +321,13 @@ export class Storage {
     }
   }
 
-  private async createChannel(data: IChannelInfo): Promise<EventStore<IMessage>> {
+  private async createChannel(data: PublicChannel): Promise<EventStore<ChannelMessage>> {
     if (!validate.isChannel(data)) {
       log.error('STORAGE: Invalid channel format')
       return
     }
 
-    const db: EventStore<IMessage> = await this.orbitdb.log<IMessage>(`channels.${data.address}`, {
+    const db: EventStore<ChannelMessage> = await this.orbitdb.log<ChannelMessage>(`channels.${data.address}`, {
       accessController: {
         write: ['*']
       }
@@ -355,7 +353,7 @@ export class Storage {
   public async askForMessages(
     channelAddress: string,
     ids: string[]
-  ): Promise<{ filteredMessages: IMessage[]; channelAddress: string }> {
+  ): Promise<{ filteredMessages: ChannelMessage[]; channelAddress: string }> {
     const repo = this.publicChannelsRepos.get(channelAddress)
     if (!repo) return
     const messages = this.getAllEventLogEntries(repo.db)
@@ -367,12 +365,12 @@ export class Storage {
     return { filteredMessages, channelAddress }
   }
 
-  public async sendMessage(channelAddress: string, message: IMessage) {
+  public async sendMessage(message: ChannelMessage) {
     if (!validate.isMessage(message)) {
       log.error('STORAGE: public channel message is invalid')
       return
     }
-    const db = this.publicChannelsRepos.get(channelAddress).db
+    const db = this.publicChannelsRepos.get(message.channelId).db
     await db.add(message)
   }
 
@@ -381,7 +379,7 @@ export class Storage {
       log.error('STORAGE: Invalid conversation format')
       return
     }
-    const db: EventStore<IMessage> = await this.orbitdb.log<IMessage>(`dms.${address}`, {
+    const db: EventStore<ChannelMessage> = await this.orbitdb.log<ChannelMessage>(`dms.${address}`, {
       accessController: {
         write: ['*']
       }
@@ -403,7 +401,7 @@ export class Storage {
   }
 
   public async subscribeToDirectMessageThread(channelAddress: string) {
-    let db: EventStore<IMessage>
+    let db: EventStore<ChannelMessage>
     let repo = this.directMessagesRepos.get(channelAddress)
 
     if (repo) {
@@ -437,7 +435,7 @@ export class Storage {
     }
   }
 
-  private async createDirectMessageThread(channelAddress: string): Promise<EventStore<IMessage>> {
+  private async createDirectMessageThread(channelAddress: string): Promise<EventStore<ChannelMessage>> {
     if (!channelAddress) {
       log("No channel address, can't create channel")
       return
@@ -445,7 +443,7 @@ export class Storage {
 
     log(`creatin direct message thread for ${channelAddress}`)
 
-    const db: EventStore<IMessage> = await this.orbitdb.log<IMessage>(`dms.${channelAddress}`, {
+    const db: EventStore<ChannelMessage> = await this.orbitdb.log<ChannelMessage>(`dms.${channelAddress}`, {
       accessController: {
         write: ['*']
       }

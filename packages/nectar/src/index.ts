@@ -80,6 +80,7 @@ export {
   SubscribeToTopicPayload,
   AskForMessagesPayload
 } from './sagas/publicChannels/publicChannels.slice'
+
 export {
   PermsData,
   PeerId,
@@ -89,7 +90,10 @@ export {
   SaveCertificatePayload,
   SaveOwnerCertificatePayload
 } from './sagas/identity/identity.slice'
+
 export { Certificates, InitCommunityPayload, LaunchRegistrarPayload } from './sagas/communities/communities.slice'
+
+export { SendMessagePayload } from './sagas/messages/messages.slice'
 
 export const app = {
   actions: appActions

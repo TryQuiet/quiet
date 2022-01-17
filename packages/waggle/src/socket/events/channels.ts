@@ -1,10 +1,9 @@
 import SocketIO from 'socket.io'
-import { SocketActionTypes } from '@zbayapp/nectar'
-import { IChannelInfo } from '../../common/types'
+import { PublicChannel, SocketActionTypes } from '@zbayapp/nectar'
 
 export const createdChannel = (
   socket: SocketIO.Server,
-  channel: IChannelInfo,
+  channel: PublicChannel,
   communityId: string
 ) => {
   console.log(`Created channel ${channel.address}`)
