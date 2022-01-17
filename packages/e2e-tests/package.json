@@ -7,7 +7,7 @@
     "build": "tsc -p tsconfig.build.json",
     "prepublish": "npm run build",
     "build:e2e": "lerna run build:prod --scope zbay",
-    "lint": "eslint --ext .ts .",
+    "lint": "eslint --ext .ts . --fix",
     "prettier": "prettier",
     "start:e2e": "npm run build:e2e && cross-env E2E_TEST=true NODE_ENV=development DEBUG='waggle*,zbay*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page -p '${DATE}_${TIME}_${TEST_ID}.png' \"electron:../ZbayLite\" \"./**/*.e2e.ts\"",
     "start:e2eWin": "npm run build:e2e && cross-env E2E_TEST=true NODE_ENV=development DEBUG='waggle*,zbay*,testcafe:*electron*' testcafe --color --hostname localhost -S --screenshots-full-page \"electron:../ZbayLite\" \"./**/*.e2e.ts\""

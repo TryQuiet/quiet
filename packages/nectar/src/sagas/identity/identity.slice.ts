@@ -40,8 +40,8 @@ export interface HiddenService {
 
 export interface PeerId {
   id: string
-  pubKey: string
-  privKey: string
+  pubKey?: string
+  privKey?: string
 }
 
 export interface DmKeys {
@@ -61,6 +61,35 @@ export interface CreateUserCsrPayload {
 export interface UpdateUsernamePayload {
   communityId: string
   nickname: string
+}
+
+export interface RegisterUserCertificatePayload {
+  id: string
+  userCsr: string
+  serviceAddress: string
+}
+
+export interface PermsData {
+  certificate: string
+  privKey: string
+}
+
+export interface RegisterOwnerCertificatePayload {
+  id: string
+  userCsr: string
+  permsData: PermsData
+}
+
+export interface SaveCertificatePayload {
+  certificate: string
+  rootPermsData?: PermsData
+}
+
+export interface SaveOwnerCertificatePayload {
+  id: string
+  peerId: string
+  certificate: string
+  permsData: PermsData
 }
 
 export interface StoreUserCertificatePayload {

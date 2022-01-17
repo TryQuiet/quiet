@@ -1,7 +1,7 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import { act } from 'react-dom/test-utils'
-import { screen } from '@testing-library/dom'
+import { screen, waitFor } from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
 import { take } from 'typed-redux-saga'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
@@ -14,8 +14,16 @@ import { CreateCommunityDictionary } from '../renderer/components/widgets/perfor
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
 import { socketEventData } from '../renderer/testUtils/socket'
-import { Identity, SocketActionTypes } from '@zbayapp/nectar'
+import {
+  Identity,
+  InitCommunityPayload,
+  LaunchRegistrarPayload,
+  RegisterOwnerCertificatePayload,
+  SocketActionTypes
+} from '@zbayapp/nectar'
 import Channel from '../renderer/containers/pages/Channel'
+import LoadingPanel from '../renderer/containers/widgets/loadingPanel/loadingPanel'
+import { LoadingMessages } from '../renderer/containers/widgets/loadingPanel/loadingMessages'
 
 const payload = (id: string): Partial<Identity> => ({
   id: id,
@@ -43,6 +51,10 @@ describe('User', () => {
     ioMock.mockImplementation(() => socket)
   })
 
+  afterEach(() => {
+    jest.clearAllMocks()
+  })
+
   it('creates community and registers username', async () => {
     const { store, runSaga } = await prepareStore(
       {},
@@ -64,6 +76,7 @@ describe('User', () => {
       if (action === SocketActionTypes.CREATE_NETWORK) {
         const data = input as socketEventData<[string]>
         const id = data[0]
+        communityId = id
         payloadData = payload(id)
         socket.socketClient.emit(SocketActionTypes.NETWORK, {
           id: id,
@@ -74,29 +87,26 @@ describe('User', () => {
         })
       }
       if (action === SocketActionTypes.REGISTER_OWNER_CERTIFICATE) {
-        const data = input as socketEventData<
-        [string, string, { certificate: string; privKey: string }]
-        >
-        communityId = data[0]
-        const CA = data[2]
+        const data = input as socketEventData<[RegisterOwnerCertificatePayload]>
+        const payload = data[0]
         socket.socketClient.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
           id: communityId,
           payload: {
-            certificate: CA.certificate,
-            peers: [],
-            rootCa: 'rootCa'
+            certificate: payload.userCsr,
+            rootCa: payload.permsData.certificate,
+            peers: []
           }
         })
       }
       if (action === SocketActionTypes.CREATE_COMMUNITY) {
-        const data = input as socketEventData<[string, {}, {}, {}]>
-        const id = data[0]
-        expect(id).toEqual(communityId)
+        const data = input as socketEventData<[InitCommunityPayload]>
+        const payload = data[0]
+        expect(payload.id).toEqual(communityId)
         socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
-          id
+          id: payload.id
         })
         socket.socketClient.emit(SocketActionTypes.NEW_COMMUNITY, {
-          id
+          id: payload.id
         })
         socket.socketClient.emit(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, {
           communityId: communityId,
@@ -112,14 +122,13 @@ describe('User', () => {
         })
       }
       if (action === SocketActionTypes.LAUNCH_REGISTRAR) {
-        const data = input as socketEventData<[string, string, string, string]>
-        const id = data[0]
-        const peerId = data[1]
-        expect(id).toEqual(communityId)
-        expect(peerId).toEqual(payloadData.peerId.id)
+        const data = input as socketEventData<[LaunchRegistrarPayload]>
+        const payload = data[0]
+        expect(payload.id).toEqual(communityId)
+        expect(payload.peerId).toEqual(payloadData.peerId.id)
         socket.socketClient.emit(SocketActionTypes.REGISTRAR, {
-          id: id,
-          peerId: peerId,
+          id: payload.id,
+          peerId: payload.peerId,
           payload: {
             privateKey: payloadData.hiddenService.privateKey,
             onionAddress: payloadData.hiddenService.onionAddress,
@@ -135,7 +144,6 @@ describe('User', () => {
       while (true) {
         const action = yield* take()
         actions.push(action.type)
-        console.log(action.type)
       }
     })
 
@@ -170,6 +178,173 @@ describe('User', () => {
     // Check if channel page is visible
     const channelPage = await screen.findByText('#general')
     expect(channelPage).toBeVisible()
+    expect(actions).toMatchInlineSnapshot(`
+      Array [
+        "Modals/openModal",
+        "Modals/openModal",
+        "Communities/createNewCommunity",
+        "Communities/addNewCommunity",
+        "Communities/setCurrentCommunity",
+        "PublicChannels/addPublicChannelsList",
+        "Communities/responseCreateCommunity",
+        "Identity/addNewIdentity",
+        "Identity/registerUsername",
+        "Identity/updateUsername",
+        "Identity/createUserCsr",
+        "Identity/storeUserCsr",
+        "Communities/storePeerList",
+        "Identity/storeUserCertificate",
+        "Communities/updateCommunity",
+        "Identity/savedOwnerCertificate",
+        "Communities/launchRegistrar",
+        "Connection/addInitializedCommunity",
+        "PublicChannels/createGeneralChannel",
+        "PublicChannels/responseGetPublicChannels",
+        "PublicChannels/subscribeToAllTopics",
+        "Communities/responseRegistrar",
+        "Connection/addInitializedRegistrar",
+        "Identity/saveOwnerCertToDb",
+        "PublicChannels/createChannel",
+        "PublicChannels/subscribeToTopic",
+        "PublicChannels/setCurrentChannel",
+        "PublicChannels/addChannel",
+        "Modals/closeModal",
+        "Modals/closeModal",
+        "Modals/closeModal",
+        "Modals/closeModal",
+      ]
+    `)
+  })
+
+  it('cannot see general channel until communities are initialized', async () => {
+    const { store, runSaga } = await prepareStore(
+      {},
+      socket // Fork Nectar's sagas
+    )
+
+    store.dispatch(modalsActions.openModal({ name: ModalName.createCommunityModal }))
+
+    renderComponent(
+      <>
+        <CreateCommunity />
+        <CreateUsernameModal />
+        <LoadingPanel />
+        <Channel />
+      </>,
+      store
+    )
+
+    jest.spyOn(socket, 'emit').mockImplementation((action: SocketActionTypes, ...input: any[]) => {
+      if (action === SocketActionTypes.CREATE_NETWORK) {
+        const data = input as socketEventData<[string]>
+        const id = data[0]
+        payloadData = payload(id)
+        socket.socketClient.emit(SocketActionTypes.NETWORK, {
+          id: id,
+          payload: {
+            hiddenService: payloadData.hiddenService,
+            peerId: payloadData.peerId
+          }
+        })
+      }
+      if (action === SocketActionTypes.REGISTER_OWNER_CERTIFICATE) {
+        const data = input as socketEventData<[RegisterOwnerCertificatePayload]>
+        const payload = data[0]
+        communityId = payload.id
+        socket.socketClient.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
+          id: communityId,
+          payload: {
+            certificate: payload.permsData.certificate,
+            peers: [],
+            rootCa: 'rootCa'
+          }
+        })
+      }
+      if (action === SocketActionTypes.CREATE_COMMUNITY) {
+        const data = input as socketEventData<[InitCommunityPayload]>
+        const payload = data[0]
+        expect(payload.id).toEqual(communityId)
+        socket.socketClient.emit(SocketActionTypes.NEW_COMMUNITY, {
+          id: payload.id
+        })
+        socket.socketClient.emit(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, {
+          communityId: communityId,
+          channels: {
+            general: {
+              name: 'general',
+              description: 'string',
+              owner: 'owner',
+              timestamp: 0,
+              address: 'general'
+            }
+          }
+        })
+      }
+      if (action === SocketActionTypes.LAUNCH_REGISTRAR) {
+        const data = input as socketEventData<[LaunchRegistrarPayload]>
+        const payload = data[0]
+        expect(payload.id).toEqual(communityId)
+        expect(payload.peerId).toEqual(payloadData.peerId.id)
+        socket.socketClient.emit(SocketActionTypes.REGISTRAR, {
+          id: payload.id,
+          peerId: payload.peerId,
+          payload: {
+            privateKey: payloadData.hiddenService.privateKey,
+            onionAddress: payloadData.hiddenService.onionAddress,
+            port: 7909
+          }
+        })
+      }
+    })
+
+    // Log all the dispatched actions in order
+    const actions = []
+    runSaga(function* (): Generator {
+      while (true) {
+        const action = yield* take()
+        actions.push(action.type)
+        console.log('Action:', action)
+      }
+    })
+
+    // Confirm proper modal title is displayed
+    const dictionary = CreateCommunityDictionary()
+    const createCommunityTitle = screen.getByText(dictionary.header)
+    expect(createCommunityTitle).toBeVisible()
+
+    // Enter community name and hit button
+    const createCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
+    const createCommunityButton = screen.getByText(dictionary.button)
+    userEvent.type(createCommunityInput, 'rockets')
+    userEvent.click(createCommunityButton)
+
+    // Confirm user is being redirected to username registration
+    const createUsernameTitle = await screen.findByText('Register a username')
+    expect(createUsernameTitle).toBeVisible()
+
+    // Enter username and hit button
+    const createUsernameInput = await screen.findByPlaceholderText('Enter a username')
+    const createUsernameButton = await screen.findByText('Register')
+    userEvent.type(createUsernameInput, 'alice')
+    userEvent.click(createUsernameButton)
+
+    // Wait for the actions that updates the store
+    await act(async () => {})
+
+    // Check if 'creating community' loading panel is displayed
+    await waitFor(() => {
+      expect(screen.getByText(LoadingMessages.CreateCommunity)).toBeInTheDocument()
+    })
+
+    // General channel should be hidden
+    // Note: channel view is present in the DOM but hidden by aria-hidden so getByRole is currently
+    // the only way to check this kind of visibility.
+    await waitFor(() => {
+      expect(screen.getByRole('heading', {
+        name: /#general/i,
+        hidden: true
+      })).toBeInTheDocument()
+    })
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
@@ -189,18 +364,9 @@ describe('User', () => {
         "Identity/storeUserCertificate",
         "Communities/updateCommunity",
         "Identity/savedOwnerCertificate",
-        "Modals/closeModal",
-        "Modals/closeModal",
-        "Modals/closeModal",
-        "Modals/closeModal",
-        "Communities/launchRegistrar",
-        "Connection/addInitializedCommunity",
         "PublicChannels/createGeneralChannel",
         "PublicChannels/responseGetPublicChannels",
         "PublicChannels/subscribeToAllTopics",
-        "Communities/responseRegistrar",
-        "Connection/addInitializedRegistrar",
-        "Identity/saveOwnerCertToDb",
         "PublicChannels/createChannel",
         "PublicChannels/subscribeToTopic",
         "PublicChannels/setCurrentChannel",

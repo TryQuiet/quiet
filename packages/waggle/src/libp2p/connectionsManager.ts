@@ -3,6 +3,7 @@ import { Crypto } from '@peculiar/webcrypto'
 import { Agent } from 'https'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 import Libp2p, { Connection } from 'libp2p'
+import Websockets from 'libp2p-websockets'
 import SocketIO from 'socket.io'
 import Bootstrap from 'libp2p-bootstrap'
 import Gossipsub from 'libp2p-gossipsub'
@@ -13,7 +14,8 @@ import AbortController from 'abort-controller'
 import * as os from 'os'
 import PeerId from 'peer-id'
 import { CryptoEngine, setEngine } from 'pkijs'
-import { CertsData, ConnectionsManagerOptions } from '../common/types'
+import { ConnectionsManagerOptions } from '../common/types'
+import { Certificates } from '@zbayapp/nectar'
 import {
   createLibp2pAddress,
   createLibp2pListenAddress,
@@ -22,13 +24,13 @@ import {
   torDirForPlatform
 } from '../common/utils'
 import { ZBAY_DIR_PATH } from '../constants'
-import logger from '../logger'
 import IOProxy from '../socket/IOProxy'
 import initListeners from '../socket/listeners'
 import { Storage } from '../storage'
 import { Tor } from '../torManager'
 import WebsocketsOverTor from './websocketOverTor'
 import { EventEmitter } from 'events'
+import logger from '../logger'
 
 const log = logger('conn')
 
@@ -41,6 +43,28 @@ export interface IConstructor {
   io: SocketIO.Server
   storageClass?: any // TODO: what type?
   httpTunnelPort?: number
+}
+
+export interface Libp2pNodeParams {
+  peerId: PeerId
+  listenAddresses: string[]
+  agent: Agent
+  cert?: string
+  key?: string
+  ca?: string[]
+  localAddress: string
+  bootstrapMultiaddrsList: string[]
+  transportClass: Websockets
+  targetPort: number
+}
+
+export interface InitLibp2pParams {
+  peerId: PeerId
+  address: string
+  addressPort: number
+  targetPort: number
+  bootstrapMultiaddrs: string[]
+  certs?: Certificates
 }
 
 export class ConnectionsManager extends EventEmitter {
@@ -179,31 +203,30 @@ export class ConnectionsManager extends EventEmitter {
     }
   }
 
-  public initLibp2p = async (
-    peerId: PeerId,
-    address: string,
-    addressPort: number,
-    bootstrapMultiaddrs: string[],
-    certs: CertsData,
-    targetPort: number
-  ): Promise<{ libp2p: Libp2p; localAddress: string }> => {
-    const localAddress = this.createLibp2pAddress(address, addressPort, peerId.toB58String())
-    log(`Initializing libp2p for ${peerId.toB58String()}`)
-    const libp2p = ConnectionsManager.createBootstrapNode({
-      peerId: peerId,
-      listenAddrs: [this.createLibp2pListenAddress(address, addressPort)],
+  public initLibp2p = async (params: InitLibp2pParams): Promise<{ libp2p: Libp2p; localAddress: string }> => {
+    const localAddress = this.createLibp2pAddress(params.address, params.addressPort, params.peerId.toB58String())
+
+    log(`Initializing libp2p for ${params.peerId.toB58String()}`)
+
+    const nodeParams: Libp2pNodeParams = {
+      peerId: params.peerId,
+      listenAddresses: [this.createLibp2pListenAddress(params.address, params.addressPort)],
       agent: this.socksProxyAgent,
-      localAddr: localAddress,
-      ...certs,
-      bootstrapMultiaddrsList: bootstrapMultiaddrs,
+      localAddress: localAddress,
+      cert: params.certs?.certificate,
+      key: params.certs?.key,
+      ca: params.certs?.CA,
+      bootstrapMultiaddrsList: params.bootstrapMultiaddrs,
       transportClass: this.libp2pTransportClass,
-      targetPort
-    })
+      targetPort: params.targetPort
+    }
+
+    const libp2p = ConnectionsManager.createBootstrapNode(nodeParams)
 
     this.libp2pInstance = libp2p
 
     libp2p.connectionManager.on('peer:connect', (connection: Connection) => {
-      log(`${peerId.toB58String()} connected to ${connection.remotePeer.toB58String()}`)
+      log(`${params.peerId.toB58String()} connected to ${connection.remotePeer.toB58String()}`)
       this.connectedPeers.add(connection.remotePeer.toB58String())
       this.emit('peer:connect', {
         connectedPeers: this.connectedPeers,
@@ -211,17 +234,19 @@ export class ConnectionsManager extends EventEmitter {
       })
     })
     libp2p.on('peer:discovery', (peer: PeerId) => {
-      log(`${peerId.toB58String()} discovered ${peer.toB58String()}`)
+      log(`${params.peerId.toB58String()} discovered ${peer.toB58String()}`)
     })
     libp2p.connectionManager.on('peer:disconnect', (connection: Connection) => {
-      log(`${peerId.toB58String()} disconnected from ${connection.remotePeer.toB58String()}`)
+      log(`${params.peerId.toB58String()} disconnected from ${connection.remotePeer.toB58String()}`)
       this.connectedPeers.delete(connection.remotePeer.toB58String())
       this.emit('peer:disconnect', {
         connectedPeers: this.connectedPeers,
         newPeer: connection.remotePeer.toB58String()
       })
     })
-    log(`Initialized libp2p for peer ${peerId.toB58String()}`)
+
+    log(`Initialized libp2p for peer ${params.peerId.toB58String()}`)
+
     return {
       libp2p,
       localAddress
@@ -274,51 +299,18 @@ export class ConnectionsManager extends EventEmitter {
     }
   }
 
-  public static readonly createBootstrapNode = ({
-    peerId,
-    listenAddrs,
-    agent,
-    cert,
-    key,
-    ca,
-    localAddr,
-    bootstrapMultiaddrsList,
-    transportClass,
-    targetPort
-  }): Libp2p => {
-    return ConnectionsManager.defaultLibp2pNode({
-      peerId,
-      listenAddrs,
-      agent,
-      cert,
-      key,
-      ca,
-      localAddr,
-      bootstrapMultiaddrsList,
-      transportClass,
-      targetPort
-    })
+  public static readonly createBootstrapNode = (params: Libp2pNodeParams): Libp2p => {
+    return ConnectionsManager.defaultLibp2pNode(params)
   }
 
-  private static readonly defaultLibp2pNode = ({
-    peerId,
-    listenAddrs,
-    agent,
-    cert,
-    key,
-    ca,
-    localAddr,
-    bootstrapMultiaddrsList,
-    transportClass,
-    targetPort
-  }): Libp2p => {
+  private static readonly defaultLibp2pNode = (params: Libp2pNodeParams): Libp2p => {
     return new Libp2p({
-      peerId,
+      peerId: params.peerId,
       addresses: {
-        listen: listenAddrs
+        listen: params.listenAddresses
       },
       modules: {
-        transport: [transportClass],
+        transport: [params.transportClass],
         peerDiscovery: [Bootstrap],
         streamMuxer: [Mplex],
         connEncryption: [NOISE],
@@ -332,7 +324,7 @@ export class ConnectionsManager extends EventEmitter {
         peerDiscovery: {
           [Bootstrap.tag]: {
             enabled: true,
-            list: bootstrapMultiaddrsList // provide array of multiaddrs
+            list: params.bootstrapMultiaddrsList
           },
           autoDial: true
         },
@@ -350,15 +342,15 @@ export class ConnectionsManager extends EventEmitter {
           }
         },
         transport: {
-          [transportClass.name]: {
+          [params.transportClass.name]: {
             websocket: {
-              agent,
-              cert,
-              key,
-              ca
+              agent: params.agent,
+              cert: params.cert,
+              key: params.key,
+              ca: params.ca
             },
-            localAddr,
-            targetPort
+            localAddress: params.localAddress,
+            targetPort: params.targetPort
           }
         }
       }

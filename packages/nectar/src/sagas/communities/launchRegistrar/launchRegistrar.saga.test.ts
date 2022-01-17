@@ -12,11 +12,7 @@ import {
   CommunitiesState
 } from '../communities.slice'
 import { communitiesAdapter } from '../communities.adapter'
-import {
-  Identity,
-  identityReducer,
-  IdentityState
-} from '../../identity/identity.slice'
+import { Identity, identityReducer, IdentityState } from '../../identity/identity.slice'
 
 describe('launchRegistrar', () => {
   test("launch certain registrar instead of current community's registrar", async () => {
@@ -49,11 +45,7 @@ describe('launchRegistrar', () => {
       CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
       privateKey: ''
     }
-    await expectSaga(
-      launchRegistrarSaga,
-      socket,
-      communitiesActions.launchCommunity(community.id)
-    )
+    await expectSaga(launchRegistrarSaga, socket, communitiesActions.launchCommunity(community.id))
       .withReducer(
         combineReducers({
           [StoreKeys.Communities]: communitiesReducer,
@@ -63,27 +55,25 @@ describe('launchRegistrar', () => {
           [StoreKeys.Communities]: {
             ...new CommunitiesState(),
             currentCommunity: 'id-0',
-            communities: communitiesAdapter.setAll(
-              communitiesAdapter.getInitialState(),
-              [community]
-            )
+            communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [
+              community
+            ])
           },
           [StoreKeys.Identity]: {
             ...new IdentityState(),
-            identities: identityAdapter.setAll(
-              identityAdapter.getInitialState(),
-              [identity]
-            )
+            identities: identityAdapter.setAll(identityAdapter.getInitialState(), [identity])
           }
         }
       )
       .apply(socket, socket.emit, [
         SocketActionTypes.LAUNCH_REGISTRAR,
-        launchRegistrarPayload.id,
-        launchRegistrarPayload.peerId.id,
-        launchRegistrarPayload.CA.rootCertString,
-        launchRegistrarPayload.CA.rootKeyString,
-        launchRegistrarPayload.privateKey
+        {
+          id: launchRegistrarPayload.id,
+          peerId: launchRegistrarPayload.peerId.id,
+          rootCertString: launchRegistrarPayload.CA.rootCertString,
+          rootKeyString: launchRegistrarPayload.CA.rootKeyString,
+          privateKey: launchRegistrarPayload.privateKey
+        }
       ])
       .run()
   })
@@ -117,11 +107,7 @@ describe('launchRegistrar', () => {
       CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
       privateKey: ''
     }
-    await expectSaga(
-      launchRegistrarSaga,
-      socket,
-      communitiesActions.launchCommunity(community.id)
-    )
+    await expectSaga(launchRegistrarSaga, socket, communitiesActions.launchCommunity(community.id))
       .withReducer(
         combineReducers({
           [StoreKeys.Communities]: communitiesReducer,
@@ -131,27 +117,25 @@ describe('launchRegistrar', () => {
           [StoreKeys.Communities]: {
             ...new CommunitiesState(),
             currentCommunity: 'id-0',
-            communities: communitiesAdapter.setAll(
-              communitiesAdapter.getInitialState(),
-              [community]
-            )
+            communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [
+              community
+            ])
           },
           [StoreKeys.Identity]: {
             ...new IdentityState(),
-            identities: identityAdapter.setAll(
-              identityAdapter.getInitialState(),
-              [identity]
-            )
+            identities: identityAdapter.setAll(identityAdapter.getInitialState(), [identity])
           }
         }
       )
       .not.apply(socket, socket.emit, [
         SocketActionTypes.LAUNCH_REGISTRAR,
-        launchRegistrarPayload.id,
-        launchRegistrarPayload.peerId.id,
-        launchRegistrarPayload.CA.rootCertString,
-        launchRegistrarPayload.CA.rootKeyString,
-        launchRegistrarPayload.privateKey
+        {
+          id: launchRegistrarPayload.id,
+          peerId: launchRegistrarPayload.peerId.id,
+          rootCertString: launchRegistrarPayload.CA.rootCertString,
+          rootKeyString: launchRegistrarPayload.CA.rootKeyString,
+          privateKey: launchRegistrarPayload.privateKey
+        }
       ])
       .run()
   })
@@ -185,11 +169,7 @@ describe('launchRegistrar', () => {
       CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
       privateKey: ''
     }
-    await expectSaga(
-      launchRegistrarSaga,
-      socket,
-      communitiesActions.launchCommunity()
-    )
+    await expectSaga(launchRegistrarSaga, socket, communitiesActions.launchCommunity())
       .withReducer(
         combineReducers({
           [StoreKeys.Communities]: communitiesReducer,
@@ -199,27 +179,25 @@ describe('launchRegistrar', () => {
           [StoreKeys.Communities]: {
             ...new CommunitiesState(),
             currentCommunity: 'id',
-            communities: communitiesAdapter.setAll(
-              communitiesAdapter.getInitialState(),
-              [community]
-            )
+            communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [
+              community
+            ])
           },
           [StoreKeys.Identity]: {
             ...new IdentityState(),
-            identities: identityAdapter.setAll(
-              identityAdapter.getInitialState(),
-              [identity]
-            )
+            identities: identityAdapter.setAll(identityAdapter.getInitialState(), [identity])
           }
         }
       )
       .apply(socket, socket.emit, [
         SocketActionTypes.LAUNCH_REGISTRAR,
-        launchRegistrarPayload.id,
-        launchRegistrarPayload.peerId.id,
-        launchRegistrarPayload.CA.rootCertString,
-        launchRegistrarPayload.CA.rootKeyString,
-        launchRegistrarPayload.privateKey
+        {
+          id: launchRegistrarPayload.id,
+          peerId: launchRegistrarPayload.peerId.id,
+          rootCertString: launchRegistrarPayload.CA.rootCertString,
+          rootKeyString: launchRegistrarPayload.CA.rootKeyString,
+          privateKey: launchRegistrarPayload.privateKey
+        }
       ])
       .run()
   })
@@ -253,11 +231,7 @@ describe('launchRegistrar', () => {
       CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
       privateKey: ''
     }
-    await expectSaga(
-      launchRegistrarSaga,
-      socket,
-      communitiesActions.launchCommunity()
-    )
+    await expectSaga(launchRegistrarSaga, socket, communitiesActions.launchCommunity())
       .withReducer(
         combineReducers({
           [StoreKeys.Communities]: communitiesReducer,
@@ -267,27 +241,25 @@ describe('launchRegistrar', () => {
           [StoreKeys.Communities]: {
             ...new CommunitiesState(),
             currentCommunity: 'id',
-            communities: communitiesAdapter.setAll(
-              communitiesAdapter.getInitialState(),
-              [community]
-            )
+            communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [
+              community
+            ])
           },
           [StoreKeys.Identity]: {
             ...new IdentityState(),
-            identities: identityAdapter.setAll(
-              identityAdapter.getInitialState(),
-              [identity]
-            )
+            identities: identityAdapter.setAll(identityAdapter.getInitialState(), [identity])
           }
         }
       )
       .not.apply(socket, socket.emit, [
         SocketActionTypes.LAUNCH_REGISTRAR,
-        launchRegistrarPayload.id,
-        launchRegistrarPayload.peerId.id,
-        launchRegistrarPayload.CA.rootCertString,
-        launchRegistrarPayload.CA.rootKeyString,
-        launchRegistrarPayload.privateKey
+        {
+          id: launchRegistrarPayload.id,
+          peerId: launchRegistrarPayload.peerId.id,
+          rootCertString: launchRegistrarPayload.CA.rootCertString,
+          rootKeyString: launchRegistrarPayload.CA.rootKeyString,
+          privateKey: launchRegistrarPayload.privateKey
+        }
       ])
       .run()
   })

@@ -7,7 +7,7 @@
     "build": "tsc -p tsconfig.build.json",
     "prepublish": "npm run build",
     "test": "cross-env TZ=UTC jest sagas/*",
-    "lint": "eslint --ext .ts ./src/",
+    "lint": "eslint --ext .ts ./src/ --fix",
     "prettier": "prettier"
   },
   "files": [

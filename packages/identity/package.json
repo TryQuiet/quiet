@@ -9,7 +9,7 @@
     "prepublish": "npm run build",
     "test": "jest",
     "test-ci": "jest --colors --collectCoverage --ci",
-    "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
+    "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
     "check-style": "prettier --check src/**"
   },
   "repository": {

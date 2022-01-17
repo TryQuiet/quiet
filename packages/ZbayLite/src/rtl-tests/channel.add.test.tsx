@@ -19,8 +19,8 @@ import {
   getFactory,
   identity,
   publicChannels,
-  PublicChannel,
-  SocketActionTypes
+  SocketActionTypes,
+  SubscribeToTopicPayload
 } from '@zbayapp/nectar'
 
 import { ModalsInitialState } from '../renderer/sagas/modals/modals.slice'
@@ -83,11 +83,12 @@ describe('Add new channel', () => {
       .spyOn(socket, 'emit')
       .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
         if (action === SocketActionTypes.SUBSCRIBE_TO_TOPIC) {
-          const data = input as socketEventData<[string, PublicChannel]>
-          expect(data[0]).toEqual(alice.peerId.id)
-          expect(data[1].name).toEqual('my-super-channel')
+          const data = input as socketEventData<[SubscribeToTopicPayload]>
+          const payload = data[0]
+          expect(payload.peerId).toEqual(alice.peerId.id)
+          expect(payload.channelData.name).toEqual('my-super-channel')
           return socket.socketClient.emit(SocketActionTypes.CREATED_CHANNEL, {
-            channel: data[1],
+            channel: payload.channelData,
             communityId: alice.id // Identity id is the same as community id
           })
         }

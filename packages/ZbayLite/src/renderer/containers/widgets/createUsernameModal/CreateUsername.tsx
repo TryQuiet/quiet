@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { communities, errors, identity, publicChannels, socketActionTypes } from '@zbayapp/nectar'
+import { communities, errors, identity, publicChannels, socketActionTypes, connection } from '@zbayapp/nectar'
 import CreateUsernameModalComponent from '../../../components/widgets/createUsername/CreateUsernameModal'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { useModal } from '../../hooks'
@@ -22,15 +22,20 @@ const CreateUsernameModal = () => {
   const communityErrors = useSelector(errors.selectors.currentCommunityErrorsByType)
   const error = communityErrors?.[socketActionTypes.REGISTRAR]
 
-  const invitationUrl = useSelector(communities.selectors.registrarUrl)
+  const currentCommunityId = useSelector(communities.selectors.currentCommunityId)
+  const invitationUrl = useSelector(communities.selectors.registrarUrl(currentCommunityId))
   const channels = useSelector(publicChannels.selectors.publicChannels)
+  const initializedCommunitiesCount = Object.keys(useSelector(connection.selectors.initializedCommunities)).length
+  const allCommunitiesCount = useSelector(communities.selectors.allCommunities).length
+  const allCommunitiesInitialized = allCommunitiesCount > 0 && initializedCommunitiesCount === allCommunitiesCount
+
   const createUsernameModal = useModal<CreateUsernameModalProps>(ModalName.createUsernameModal)
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
   const createCommunityModal = useModal(ModalName.createCommunityModal)
   const loadingCommunityModal = useModal(ModalName.loadingPanel)
 
   useEffect(() => {
-    if (certificate &&
+    if (certificate && allCommunitiesInitialized &&
       ((createUsernameModal.communityAction === CommunityAction.Join && channels.length) ||
         (createUsernameModal.communityAction === CommunityAction.Create && invitationUrl))) {
       loadingCommunityModal.handleClose()
@@ -38,7 +43,7 @@ const CreateUsernameModal = () => {
       joinCommunityModal.handleClose()
       createCommunityModal.handleClose()
     }
-  }, [channels.length, invitationUrl, certificate])
+  }, [channels.length, invitationUrl, certificate, allCommunitiesInitialized])
 
   useEffect(() => {
     if (id?.hiddenService && !certificate) {

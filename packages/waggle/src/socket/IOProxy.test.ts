@@ -8,7 +8,14 @@ import {
 import { getPorts } from '../common/utils'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 import { createCertificatesTestHelper } from '../libp2p/tests/client-server'
-import { EventTypesResponse } from './constantsReponse'
+import {
+  Certificates,
+  HiddenService,
+  InitCommunityPayload,
+  LaunchRegistrarPayload,
+  RegisterUserCertificatePayload,
+  SocketActionTypes
+} from '@zbayapp/nectar'
 import IOProxy from './IOProxy'
 
 describe('IO proxy', () => {
@@ -51,23 +58,33 @@ describe('IO proxy', () => {
         'CAASpgIwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCY2r7s5YlgWXlHuHH4PY/cUik/m7GuWPdTPmmm4QZTr1VSyKgC2AMR45xrcGMjd5SDh1HjzbptJpYfGWO+Sbm6yK7EfxYN8gOXrbo0koKtPH0hrgzus+CqUCAQDE6XWzY5yP7caFt/RolZaBYNcKCWDCHv+bg/87u3MGwwSeaMjYWNAQ5IVWrUFnns8eiyNRhBGrEQZDTyO4X0oMeEkTTABMEJIpge91SWfuYuqltiNdkS9aiYS58F43IBHKKWLc39b3KbiykiG2IjrqVl2aAyb6vSgtiGkwi301jtWEctaDl2JbwZpgldOA83wH2aBPK9N9MaakEYdI2dHVSg8bf9AgMBAAE='
     }
 
-    const hiddenService1 = {
-      address: 'u2rg2direy34dj77375h2fbhsc2tvxj752h4tlso64mjnlevcv54oaad.onion',
+    const hiddenService1: HiddenService = {
+      onionAddress: 'u2rg2direy34dj77375h2fbhsc2tvxj752h4tlso64mjnlevcv54oaad.onion',
       privateKey:
         'ED25519-V3:uCr5t3EcOCwig4cu7pWY6996whV+evrRlI0iIIsjV3uCz4rx46sB3CPq8lXEWhjGl2jlyreomORirKcz9mmcdQ=='
     }
-    const pems = await createCertificatesTestHelper('adres1.onion', hiddenService1.address)
-    const certs = {
-      cert: pems.userCert,
+
+    const pems = await createCertificatesTestHelper('adres1.onion', hiddenService1.onionAddress)
+
+    const certs: Certificates = {
+      certificate: pems.userCert,
       key: pems.userKey,
-      ca: [pems.ca]
+      CA: [pems.ca]
     }
 
-    await ioProxy.createCommunity('MyCommunity', peerId1, hiddenService1, certs)
+    const createCommunityPayload: InitCommunityPayload = {
+      id: 'MyCommunity',
+      peerId: peerId1,
+      hiddenService: hiddenService1,
+      certs: certs,
+      peers: []
+    }
+
+    await ioProxy.createCommunity(createCommunityPayload)
     expect(observedLaunchRegistrar).not.toBeCalled()
     const communityData = await observedCommunityCreate.mock.results[0].value
     console.log(communityData)
-    expect(observedIO).lastCalledWith(EventTypesResponse.NEW_COMMUNITY, { id: 'MyCommunity' })
+    expect(observedIO).lastCalledWith(SocketActionTypes.NEW_COMMUNITY, { id: 'MyCommunity' })
   })
 
   it('starts registrar', async () => {
@@ -82,30 +99,43 @@ describe('IO proxy', () => {
         'CAASpgIwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCY2r7s5YlgWXlHuHH4PY/cUik/m7GuWPdTPmmm4QZTr1VSyKgC2AMR45xrcGMjd5SDh1HjzbptJpYfGWO+Sbm6yK7EfxYN8gOXrbo0koKtPH0hrgzus+CqUCAQDE6XWzY5yP7caFt/RolZaBYNcKCWDCHv+bg/87u3MGwwSeaMjYWNAQ5IVWrUFnns8eiyNRhBGrEQZDTyO4X0oMeEkTTABMEJIpge91SWfuYuqltiNdkS9aiYS58F43IBHKKWLc39b3KbiykiG2IjrqVl2aAyb6vSgtiGkwi301jtWEctaDl2JbwZpgldOA83wH2aBPK9N9MaakEYdI2dHVSg8bf9AgMBAAE='
     }
 
-    const hiddenService = {
-      address: 'u2rg2direy34dj77375h2fbhsc2tvxj752h4tlso64mjnlevcv54oaad.onion',
+    const hiddenService: HiddenService = {
+      onionAddress: 'u2rg2direy34dj77375h2fbhsc2tvxj752h4tlso64mjnlevcv54oaad.onion',
       privateKey:
         'ED25519-V3:uCr5t3EcOCwig4cu7pWY6996whV+evrRlI0iIIsjV3uCz4rx46sB3CPq8lXEWhjGl2jlyreomORirKcz9mmcdQ=='
     }
-    const pems = await createCertificatesTestHelper(hiddenService.address, 'adres2.onion')
 
-    const certs = {
-      cert: pems.userCert,
+    const pems = await createCertificatesTestHelper(hiddenService.onionAddress, 'adres2.onion')
+
+    const certs: Certificates = {
+      certificate: pems.userCert,
       key: pems.userKey,
-      ca: [pems.ca]
+      CA: [pems.ca]
     }
 
-    await ioProxy.launchCommunity('MyCommunity', peerId, hiddenService, [], certs)
-    await ioProxy.launchRegistrar(
-      'MyCommunity',
-      peerId.id,
-      pems.ca,
-      pems.ca_key,
-      hiddenService.privateKey,
-      1234
-    )
+    const launchCommunityPayload: InitCommunityPayload = {
+      id: 'MyCommunity',
+      peerId: peerId,
+      hiddenService: hiddenService,
+      certs: certs,
+      peers: []
+    }
+
+    const launchRegistrarPayload: LaunchRegistrarPayload = {
+      id: 'MyCommunity',
+      peerId: peerId.id,
+      rootCertString: pems.ca,
+      rootKeyString: pems.ca_key,
+      privateKey: hiddenService.privateKey,
+      port: 1234
+    }
+
+    await ioProxy.launchCommunity(launchCommunityPayload)
+    await ioProxy.launchRegistrar(launchRegistrarPayload)
+
     expect(observedLaunchRegistrar).toBeCalled()
-    expect(observedIO).lastCalledWith(EventTypesResponse.REGISTRAR, {
+
+    expect(observedIO).lastCalledWith(SocketActionTypes.REGISTRAR, {
       id: communityId,
       payload: {
         onionAddress: 'mockedOnionAddress',
@@ -118,14 +148,15 @@ describe('IO proxy', () => {
 
   it('emits error if connecting to registrar fails', async () => {
     const observedIO = jest.spyOn(ioProxy.io, 'emit')
-    await ioProxy.registerUserCertificate(
-      'improperServiceAddress.onion',
-      'userCsr',
-      'someCommunityId'
-    )
+    const payload: RegisterUserCertificatePayload = {
+      id: 'someCommunityId',
+      userCsr: 'userCsr',
+      serviceAddress: 'improperServiceAddress.onion'
+    }
+    await ioProxy.registerUserCertificate(payload)
     expect(observedIO).toBeCalledTimes(1)
-    expect(observedIO).toBeCalledWith(EventTypesResponse.ERROR, {
-      type: EventTypesResponse.REGISTRAR,
+    expect(observedIO).toBeCalledWith(SocketActionTypes.ERROR, {
+      type: SocketActionTypes.REGISTRAR,
       message: 'Connecting to registrar failed',
       communityId: 'someCommunityId',
       code: 500
@@ -145,14 +176,15 @@ describe('IO proxy', () => {
       mockRegisterCertificate.mockReturnValue(
         Promise.resolve(new ResponseMock().init(registrarStatusCode))
       )
-      await ioProxy.registerUserCertificate(
-        'http://properAddress.onion',
-        'userCsr',
-        'someCommunityId'
-      )
+      const payload: RegisterUserCertificatePayload = {
+        id: 'someCommunityId',
+        userCsr: 'userCsr',
+        serviceAddress: 'http://properAddress.onion'
+      }
+      await ioProxy.registerUserCertificate(payload)
       expect(observedIO).toBeCalledTimes(1)
-      expect(observedIO).toBeCalledWith(EventTypesResponse.ERROR, {
-        type: EventTypesResponse.REGISTRAR,
+      expect(observedIO).toBeCalledWith(SocketActionTypes.ERROR, {
+        type: SocketActionTypes.REGISTRAR,
         message: socketMessage,
         communityId: 'someCommunityId',
         code: socketStatusCode
@@ -171,13 +203,14 @@ describe('IO proxy', () => {
     mockRegisterCertificate.mockReturnValue(
       Promise.resolve(new ResponseMock().init(200, registrarResponse))
     )
-    await ioProxy.registerUserCertificate(
-      'http://properAddress.onion',
-      'userCsr',
-      'someCommunityId'
-    )
+    const payload: RegisterUserCertificatePayload = {
+      id: 'someCommunityId',
+      userCsr: 'userCsr',
+      serviceAddress: 'http://properAddress.onion'
+    }
+    await ioProxy.registerUserCertificate(payload)
     expect(observedIO).toBeCalledTimes(1)
-    expect(observedIO).toBeCalledWith(EventTypesResponse.SEND_USER_CERTIFICATE, {
+    expect(observedIO).toBeCalledWith(SocketActionTypes.SEND_USER_CERTIFICATE, {
       id: 'someCommunityId',
       payload: registrarResponse
     })
