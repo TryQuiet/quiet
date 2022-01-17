@@ -2,6 +2,7 @@ name: E2E tests
 
 on: [workflow_call]
 
+# "macos-latest" UnableToAccessScreenRecordingAPIError: The find-window process cannot access the Screen Recording API. https://github.com/DevExpress/testcafe/issues/5352
 jobs:
   e2e-linux:
     runs-on: ubuntu-20.04
