@@ -129,7 +129,7 @@ export default class CommunitiesManager {
     }
 
     let peers = params.peers
-    if (peers.length === 0) {
+    if (!peers || peers.length === 0) {
       peers = [
         this.connectionsManager.createLibp2pAddress(params.onionAddress, port, peerIdB58string)
       ]

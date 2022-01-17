@@ -7,9 +7,7 @@ import { publicChannelsActions } from '../publicChannels.slice'
 
 export function* subscribeToTopicSaga(
   socket: Socket,
-  action: PayloadAction<
-  ReturnType<typeof publicChannelsActions.subscribeToTopic>['payload']
-  >
+  action: PayloadAction<ReturnType<typeof publicChannelsActions.subscribeToTopic>['payload']>
 ): Generator {
   const id = yield* select(communitiesSelectors.currentCommunityId)
   yield* put(
@@ -18,10 +16,11 @@ export function* subscribeToTopicSaga(
       channel: action.payload.channelData
     })
   )
-
   yield* apply(socket, socket.emit, [
     SocketActionTypes.SUBSCRIBE_TO_TOPIC,
-    action.payload.peerId,
-    action.payload.channelData
+    {
+      peerId: action.payload.peerId,
+      channelData: action.payload.channelData
+    }
   ])
 }
