@@ -14,7 +14,13 @@ import { JoinCommunityDictionary } from '../renderer/components/widgets/performC
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
 import { socketEventData } from '../renderer/testUtils/socket'
-import { identity, getFactory, SocketActionTypes } from '@zbayapp/nectar'
+import {
+  identity,
+  getFactory,
+  SocketActionTypes,
+  RegisterUserCertificatePayload,
+  InitCommunityPayload
+} from '@zbayapp/nectar'
 import Channel from '../renderer/containers/pages/Channel'
 
 describe('User', () => {
@@ -66,11 +72,11 @@ describe('User', () => {
           })
         }
         if (action === SocketActionTypes.REGISTER_USER_CERTIFICATE) {
-          const data = input as socketEventData<[string, string, string]>
-          const id = data[2]
-          expect(id).toEqual(communityId)
+          const data = input as socketEventData<[RegisterUserCertificatePayload]>
+          const payload = data[0]
+          expect(payload.id).toEqual(communityId)
           return socket.socketClient.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
-            id: id,
+            id: payload.id,
             payload: {
               certificate:
                 'MIIBTDCB8wIBATAKBggqhkjOPQQDAjASMRAwDgYDVQQDEwdaYmF5IENBMB4XDTEwMTIyODEwMTAxMFoXDTMwMTIyODEwMTAxMFowEjEQMA4GA1UEAxMHWmJheSBDQTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABEaV1l/7BOvPh0fFteSubIJ2r66YM4XoMMEfUhHiJE6O0ojfHdNrsItg+pHmpIQyEe+3YGWxIhgjL65+liE8ypqjPzA9MA8GA1UdEwQIMAYBAf8CAQMwCwYDVR0PBAQDAgCGMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDATAKBggqhkjOPQQDAgNIADBFAiARHtkv7GlhfkFbtRGU1r19UJFkhA7Vu+EubBnJPjD9/QIhALje1S3bp8w8jjVf70jGc2/uRmDCo/bNyQRpApBaD5vY'
@@ -78,11 +84,11 @@ describe('User', () => {
           })
         }
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
-          const data = input as socketEventData<[string, {}, {}, string[], {}]>
-          const id = data[0]
-          expect(id).toEqual(communityId)
+          const data = input as socketEventData<[InitCommunityPayload]>
+          const payload = data[0]
+          expect(payload.id).toEqual(communityId)
           socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
-            id
+            id: payload.id
           })
           socket.socketClient.emit(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, {
             communityId: communityId,

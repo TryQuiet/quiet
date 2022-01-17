@@ -37,11 +37,11 @@ class WebsocketsOverTor extends WebSockets {
   discovery: Discovery
   peerId: string
   targetPort: number
-  constructor({ upgrader, websocket, localAddr, targetPort }) {
+  constructor({ upgrader, websocket, localAddress, targetPort }) {
     super({ upgrader })
     this._websocketOpts = websocket
-    this.localAddress = localAddr
-    this.peerId = localAddr.split('/').pop()
+    this.localAddress = localAddress
+    this.peerId = localAddress.split('/').pop()
     this._upgrader = upgrader
     this.discovery = new Discovery()
     this.targetPort = targetPort

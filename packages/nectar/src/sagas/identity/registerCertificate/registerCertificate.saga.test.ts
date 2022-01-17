@@ -88,18 +88,22 @@ describe('registerCertificateSaga', () => {
       )
       .apply(socket, socket.emit, [
         SocketActionTypes.REGISTER_OWNER_CERTIFICATE,
-        communityId,
-        userCsr.userCsr,
         {
-          certificate: community.CA.rootCertString,
-          privKey: community.CA.rootKeyString
+          id: communityId,
+          userCsr: userCsr.userCsr,
+          permsData: {
+            certificate: community.CA.rootCertString,
+            privKey: community.CA.rootKeyString
+          }
         }
       ])
       .not.apply(socket, socket.emit, [
         SocketActionTypes.REGISTER_USER_CERTIFICATE,
-        registrarAddress,
-        userCsr.userCsr,
-        communityId
+        {
+          id: communityId,
+          userCsr: userCsr.userCsr,
+          serviceAddress: registrarAddress
+        }
       ])
       .run()
   })
@@ -148,17 +152,21 @@ describe('registerCertificateSaga', () => {
       })
       .apply(socket, socket.emit, [
         SocketActionTypes.REGISTER_USER_CERTIFICATE,
-        `http://${registrarAddress}.onion`,
-        userCsr.userCsr,
-        communityId
+        {
+          id: communityId,
+          userCsr: userCsr.userCsr,
+          serviceAddress: `http://${registrarAddress}.onion`
+        }
       ])
       .not.apply(socket, socket.emit, [
         SocketActionTypes.REGISTER_OWNER_CERTIFICATE,
-        communityId,
-        userCsr.userCsr,
         {
-          certificate: community.CA?.rootCertString,
-          privKey: community.CA?.rootKeyString
+          id: communityId,
+          userCsr: userCsr.userCsr,
+          permsData: {
+            certificate: community.CA?.rootCertString,
+            privKey: community.CA?.rootKeyString
+          }
         }
       ])
       .run()

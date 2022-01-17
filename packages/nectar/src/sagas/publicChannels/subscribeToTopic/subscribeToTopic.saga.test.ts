@@ -86,8 +86,10 @@ describe('subscribeToTopicSaga', () => {
       )
       .apply(socket, socket.emit, [
         SocketActionTypes.SUBSCRIBE_TO_TOPIC,
-        'peerId',
-        channel
+        {
+          peerId: 'peerId',
+          channelData: channel
+        }
       ])
       .run()
   })

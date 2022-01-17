@@ -85,8 +85,10 @@ describe('createChannelSaga', () => {
       )
       .apply(socket, socket.emit, [
         SocketActionTypes.SUBSCRIBE_TO_TOPIC,
-        identity.peerId.id,
-        channel
+        {
+          peerId: identity.peerId.id,
+          channelData: channel
+        }
       ])
       .run()
   })

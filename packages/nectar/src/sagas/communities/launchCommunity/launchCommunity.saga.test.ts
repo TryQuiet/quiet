@@ -9,14 +9,11 @@ import {
   communitiesActions,
   communitiesReducer,
   Community,
-  CommunitiesState
+  CommunitiesState,
+  InitCommunityPayload
 } from '../communities.slice'
 import { communitiesAdapter } from '../communities.adapter'
-import {
-  Identity,
-  identityReducer,
-  IdentityState
-} from '../../identity/identity.slice'
+import { Identity, identityReducer, IdentityState } from '../../identity/identity.slice'
 
 describe('launchCommunity', () => {
   test('launch all remembered communities', async () => {
@@ -68,10 +65,11 @@ describe('launchCommunity', () => {
           [StoreKeys.Communities]: {
             ...new CommunitiesState(),
             currentCommunity: 'id',
-            communities: communitiesAdapter.setAll(
-              communitiesAdapter.getInitialState(),
-              [community1, community2, community3]
-            )
+            communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [
+              community1,
+              community2,
+              community3
+            ])
           }
         }
       )
@@ -83,12 +81,12 @@ describe('launchCommunity', () => {
   test('launch certain community instead of current community', async () => {
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
-    const launchCommunityPayload = {
+    const launchCommunityPayload: InitCommunityPayload = {
       id: 'id',
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
       hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
-      peerList: [],
-      certs: { cert: 'userCert', key: 'userKey', ca: 'rootCert' }
+      certs: { certificate: 'userCert', key: 'userKey', CA: ['rootCert'] },
+      peers: []
     }
 
     const community: Community = {
@@ -104,16 +102,6 @@ describe('launchCommunity', () => {
       port: 0
     }
 
-    const identity: Identity = {
-      id: 'id',
-      hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
-      dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
-      peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-      zbayNickname: '',
-      userCsr: undefined,
-      userCertificate: ''
-    }
-
     const userCsr = {
       userCsr: 'userCsr',
       userKey: 'userKey',
@@ -124,14 +112,17 @@ describe('launchCommunity', () => {
       }
     }
 
-    identity.userCsr = userCsr
-    identity.userCertificate = 'userCert'
+    const identity: Identity = {
+      id: 'id',
+      hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
+      dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
+      peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
+      zbayNickname: '',
+      userCsr: userCsr,
+      userCertificate: 'userCert'
+    }
 
-    await expectSaga(
-      launchCommunitySaga,
-      socket,
-      communitiesActions.launchCommunity(community.id)
-    )
+    await expectSaga(launchCommunitySaga, socket, communitiesActions.launchCommunity(community.id))
       .withReducer(
         combineReducers({
           [StoreKeys.Communities]: communitiesReducer,
@@ -141,39 +132,37 @@ describe('launchCommunity', () => {
           [StoreKeys.Communities]: {
             ...new CommunitiesState(),
             currentCommunity: 'id-0',
-            communities: communitiesAdapter.setAll(
-              communitiesAdapter.getInitialState(),
-              [community]
-            )
+            communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [
+              community
+            ])
           },
           [StoreKeys.Identity]: {
             ...new IdentityState(),
-            identities: identityAdapter.setAll(
-              identityAdapter.getInitialState(),
-              [identity]
-            )
+            identities: identityAdapter.setAll(identityAdapter.getInitialState(), [identity])
           }
         }
       )
       .apply(socket, socket.emit, [
         SocketActionTypes.LAUNCH_COMMUNITY,
-        launchCommunityPayload.id,
-        launchCommunityPayload.peerId,
-        launchCommunityPayload.hiddenService,
-        launchCommunityPayload.peerList,
-        launchCommunityPayload.certs
+        {
+          id: launchCommunityPayload.id,
+          peerId: launchCommunityPayload.peerId,
+          hiddenService: launchCommunityPayload.hiddenService,
+          certs: launchCommunityPayload.certs,
+          peers: launchCommunityPayload.peers
+        }
       ])
       .run()
   })
   test('launch current community', async () => {
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
-    const launchCommunityPayload = {
+    const launchCommunityPayload: InitCommunityPayload = {
       id: 'id',
       peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
       hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
-      peerList: [],
-      certs: { cert: 'userCert', key: 'userKey', ca: 'rootCert' }
+      certs: { certificate: 'userCert', key: 'userKey', CA: ['rootCert'] },
+      peers: []
     }
 
     const community: Community = {
@@ -189,18 +178,6 @@ describe('launchCommunity', () => {
       port: 0
     }
 
-    community.rootCa = 'rootCert'
-
-    const identity: Identity = {
-      id: 'id',
-      hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
-      dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
-      peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
-      zbayNickname: '',
-      userCsr: undefined,
-      userCertificate: ''
-    }
-
     const userCsr = {
       userCsr: 'userCsr',
       userKey: 'userKey',
@@ -211,14 +188,17 @@ describe('launchCommunity', () => {
       }
     }
 
-    identity.userCsr = userCsr
-    identity.userCertificate = 'userCert'
+    const identity: Identity = {
+      id: 'id',
+      hiddenService: { onionAddress: 'onionAddress', privateKey: 'privateKey' },
+      dmKeys: { publicKey: 'publicKey', privateKey: 'privateKey' },
+      peerId: { id: 'peerId', pubKey: 'pubKey', privKey: 'privKey' },
+      zbayNickname: '',
+      userCsr: userCsr,
+      userCertificate: 'userCert'
+    }
 
-    await expectSaga(
-      launchCommunitySaga,
-      socket,
-      communitiesActions.launchCommunity()
-    )
+    await expectSaga(launchCommunitySaga, socket, communitiesActions.launchCommunity())
       .withReducer(
         combineReducers({
           [StoreKeys.Communities]: communitiesReducer,
@@ -228,27 +208,25 @@ describe('launchCommunity', () => {
           [StoreKeys.Communities]: {
             ...new CommunitiesState(),
             currentCommunity: 'id',
-            communities: communitiesAdapter.setAll(
-              communitiesAdapter.getInitialState(),
-              [community]
-            )
+            communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [
+              community
+            ])
           },
           [StoreKeys.Identity]: {
             ...new IdentityState(),
-            identities: identityAdapter.setAll(
-              identityAdapter.getInitialState(),
-              [identity]
-            )
+            identities: identityAdapter.setAll(identityAdapter.getInitialState(), [identity])
           }
         }
       )
       .apply(socket, socket.emit, [
         SocketActionTypes.LAUNCH_COMMUNITY,
-        launchCommunityPayload.id,
-        launchCommunityPayload.peerId,
-        launchCommunityPayload.hiddenService,
-        launchCommunityPayload.peerList,
-        launchCommunityPayload.certs
+        {
+          id: launchCommunityPayload.id,
+          peerId: launchCommunityPayload.peerId,
+          hiddenService: launchCommunityPayload.hiddenService,
+          certs: launchCommunityPayload.certs,
+          peers: launchCommunityPayload.peers
+        }
       ])
       .run()
   })

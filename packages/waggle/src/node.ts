@@ -6,9 +6,10 @@ import * as os from 'os'
 import fs from 'fs'
 import PeerId from 'peer-id'
 import { getPorts, torBinForPlatform, torDirForPlatform } from './common/utils'
-import { dataFromRootPems } from './common/testUtils'
+import { rootPermsData } from './common/testUtils'
 import CommunitiesManager from './communities/manager'
-import { CertsData, ConnectionsManagerOptions } from './common/types'
+import { ConnectionsManagerOptions } from './common/types'
+import { Certificates } from '@zbayapp/nectar'
 
 export default class Node {
   tor: Tor
@@ -23,9 +24,9 @@ export default class Node {
   httpTunnelPort: number
   torControlPort: number
   hiddenServicePort: number
-  certificates: CertsData
+  certificates: Certificates
 
-  constructor(torPath?: string, pathDevLib?: string, peerIdFileName?: string, port = 7788, socksProxyPort = 9050, httpTunnelPort = 9052, torControlPort = 9051, hiddenServicePort = 7788, torAppDataPath = ZBAY_DIR_PATH, hiddenServiceSecret?: string, certificates?: CertsData) {
+  constructor(torPath?: string, pathDevLib?: string, peerIdFileName?: string, port = 7788, socksProxyPort = 9050, httpTunnelPort = 9052, torControlPort = 9051, hiddenServicePort = 7788, torAppDataPath = ZBAY_DIR_PATH, hiddenServiceSecret?: string, certificates?: Certificates) {
     this.torPath = torPath || torBinForPlatform()
     this.torAppDataPath = torAppDataPath
     this.pathDevLib = pathDevLib || torDirForPlatform()
@@ -68,19 +69,19 @@ export default class Node {
     const communities = new CommunitiesManager(connectonsManager)
     const peerId = await this.getPeer()
     const virtPort = 443
-    await communities.initStorage(
-      peerId,
-      onionAddress,
-      virtPort,
-      this.port,
-      ['/dns4/2lmfmbj4ql56d55lmv7cdrhdlhls62xa4p6lzy6kymxuzjlny3vnwyqd.onion/tcp/443/wss/p2p/Qmak8HeMad8X1HGBmz2QmHfiidvGnhu6w6ugMKtx8TFc85'],
-      this.certificates,
-      'communityId'
-    )
+    await communities.initStorage({
+      communityId: 'communityId',
+      peerId: peerId,
+      onionAddress: onionAddress,
+      virtPort: virtPort,
+      targetPort: this.port,
+      peers: ['/dns4/2lmfmbj4ql56d55lmv7cdrhdlhls62xa4p6lzy6kymxuzjlny3vnwyqd.onion/tcp/443/wss/p2p/Qmak8HeMad8X1HGBmz2QmHfiidvGnhu6w6ugMKtx8TFc85'],
+      certs: this.certificates
+    })
     await communities.setupRegistrationService(
       peerId.toB58String(),
       communities.getStorage(peerId.toB58String()),
-      dataFromRootPems,
+      rootPermsData,
       process.env.HIDDEN_SERVICE_SECRET_REGISTRATION
     )
   }

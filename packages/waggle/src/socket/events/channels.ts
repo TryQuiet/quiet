@@ -1,6 +1,6 @@
-import { IChannelInfo } from '../../common/types'
-import { EventTypesServer } from '../constants'
 import SocketIO from 'socket.io'
+import { SocketActionTypes } from '@zbayapp/nectar'
+import { IChannelInfo } from '../../common/types'
 
 export const createdChannel = (
   socket: SocketIO.Server,
@@ -8,5 +8,5 @@ export const createdChannel = (
   communityId: string
 ) => {
   console.log(`Created channel ${channel.address}`)
-  socket.emit(EventTypesServer.CREATED_CHANNEL, { channel, communityId })
+  socket.emit(SocketActionTypes.CREATED_CHANNEL, { channel, communityId })
 }

@@ -81,14 +81,14 @@ describe('Connections manager', () => {
     })
     const localAddress = connectionsManager.createLibp2pAddress(address, port, peerId.toB58String())
     const listenAddress = connectionsManager.createLibp2pListenAddress(address, port)
-    const result = await connectionsManager.initLibp2p(
-      peerId,
-      address,
-      port,
-      ['some/address'],
-      null,
-      port
-    )
+    const result = await connectionsManager.initLibp2p({
+      peerId: peerId,
+      address: address,
+      addressPort: port,
+      targetPort: port,
+      bootstrapMultiaddrs: ['some/address'],
+      certs: null
+    })
     expect(result.localAddress).toBe(localAddress)
     expect(result.libp2p.peerId).toBe(peerId)
     console.log(result.libp2p.addresses.listen)

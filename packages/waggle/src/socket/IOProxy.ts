@@ -1,12 +1,21 @@
 import { Response } from 'node-fetch'
 import SocketIO from 'socket.io'
-import PeerId from 'peer-id'
-import { CertsData, DataFromPems, IChannelInfo, IMessage } from '../common/types'
+import { IMessage } from '../common/types'
 import CommunitiesManager from '../communities/manager'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 import { CertificateRegistration } from '../registration'
 import { Storage } from '../storage'
-import { EventTypesResponse } from './constantsReponse'
+import {
+  AskForMessagesPayload,
+  InitCommunityPayload,
+  LaunchRegistrarPayload,
+  RegisterOwnerCertificatePayload,
+  RegisterUserCertificatePayload,
+  SaveCertificatePayload,
+  SaveOwnerCertificatePayload,
+  SocketActionTypes,
+  SubscribeToTopicPayload
+} from '@zbayapp/nectar'
 import { emitServerError, emitValidationError } from './errors'
 import { loadAllMessages } from './events/messages'
 import logger from '../logger'
@@ -42,27 +51,26 @@ export default class IOProxy {
     this.io.close()
   }
 
-  public subscribeToTopic = async (peerId: string, channelData: IChannelInfo) => {
-    log(`${peerId} is subscribing to channel ${channelData.address}`)
-    await this.getStorage(peerId).subscribeToChannel(channelData)
+  public subscribeToTopic = async (payload: SubscribeToTopicPayload) => {
+    log(`${payload.peerId} is subscribing to channel ${payload.channelData.address}`)
+    await this.getStorage(payload.peerId).subscribeToChannel(payload.channelData)
   }
 
-  public askForMessages = async (
-    peerId: string,
-    channelAddress: string,
-    ids: string[],
-    communityId
-  ) => {
-    const messages = await this.getStorage(peerId).askForMessages(channelAddress, ids)
-    loadAllMessages(this.io, messages.filteredMessages, messages.channelAddress, communityId)
-  }
-
-  public loadAllMessages = async (peerId: string, channelAddress: string) => {
-    this.getStorage(peerId).loadAllChannelMessages(channelAddress)
+  public askForMessages = async (payload: AskForMessagesPayload) => {
+    const messages = await this.getStorage(payload.peerId).askForMessages(
+      payload.channelAddress,
+      payload.ids
+    )
+    loadAllMessages(
+      this.io,
+      messages.filteredMessages,
+      messages.channelAddress,
+      payload.communityId
+    )
   }
 
   public saveCertificate = async (peerId: string, certificate: string) => {
-    await this.getStorage(peerId).saveCertificate(certificate)
+    await this.getStorage(peerId).saveCertificate({ certificate })
   }
 
   public sendMessage = async (
@@ -85,11 +93,6 @@ export default class IOProxy {
 
   // DMs
 
-  public addUser = async (peerId: string, publicKey: string, halfKey: string): Promise<void> => {
-    log(`CONNECTIONS MANAGER: addUser - publicKey ${publicKey} and halfKey ${halfKey}`)
-    await this.getStorage(peerId).addUser(publicKey, halfKey)
-  }
-
   public initializeConversation = async (
     peerId: string,
     address: string,
@@ -97,10 +100,6 @@ export default class IOProxy {
   ): Promise<void> => {
     log(`INSIDE WAGGLE: ${encryptedPhrase}`)
     await this.getStorage(peerId).initializeConversation(address, encryptedPhrase)
-  }
-
-  public getAvailableUsers = async (peerId: string): Promise<void> => {
-    await this.getStorage(peerId).getAvailableUsers()
   }
 
   public getPrivateConversations = async (peerId: string): Promise<void> => {
@@ -129,38 +128,37 @@ export default class IOProxy {
     await this.getStorage(peerId).subscribeToAllConversations(conversations)
   }
 
-  public registerOwnerCertificate = async (
-    communityId: string,
-    userCsr: string,
-    dataFromPerms: DataFromPems
-  ) => {
-    const cert = await CertificateRegistration.registerOwnerCertificate(userCsr, dataFromPerms)
-    this.io.emit(EventTypesResponse.SAVED_OWNER_CERTIFICATE, {
-      id: communityId,
-      payload: { certificate: cert, peers: [], rootCa: dataFromPerms.certificate }
+  public registerOwnerCertificate = async (payload: RegisterOwnerCertificatePayload) => {
+    const cert = await CertificateRegistration.registerOwnerCertificate(
+      payload.userCsr,
+      payload.permsData
+    )
+    this.io.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
+      id: payload.id,
+      payload: { certificate: cert, peers: [], rootCa: payload.permsData.certificate }
     })
   }
 
-  public saveOwnerCertificate = async (peerId: string, certificate: string, dataFromPerms) => {
-    await this.getStorage(peerId).saveCertificate(certificate, dataFromPerms)
+  public saveOwnerCertificate = async (payload: SaveOwnerCertificatePayload) => {
+    const saveCertificatePayload: SaveCertificatePayload = {
+      certificate: payload.certificate,
+      rootPermsData: payload.permsData
+    }
+    await this.getStorage(payload.peerId).saveCertificate(saveCertificatePayload)
   }
 
-  public registerUserCertificate = async (
-    serviceAddress: string,
-    userCsr: string,
-    communityId: string
-  ) => {
+  public registerUserCertificate = async (payload: RegisterUserCertificatePayload) => {
     let response: Response
     try {
       response = await this.connectionsManager.sendCertificateRegistrationRequest(
-        serviceAddress,
-        userCsr
+        payload.serviceAddress,
+        payload.userCsr
       )
     } catch (e) {
       emitServerError(this.io, {
-        type: EventTypesResponse.REGISTRAR,
+        type: SocketActionTypes.REGISTRAR,
         message: 'Connecting to registrar failed',
-        communityId
+        communityId: payload.id
       })
       return
     }
@@ -170,33 +168,33 @@ export default class IOProxy {
         break
       case 403:
         emitValidationError(this.io, {
-          type: EventTypesResponse.REGISTRAR,
+          type: SocketActionTypes.REGISTRAR,
           message: 'Username already taken.',
-          communityId
+          communityId: payload.id
         })
         return
       case 400:
         emitValidationError(this.io, {
-          type: EventTypesResponse.REGISTRAR,
+          type: SocketActionTypes.REGISTRAR,
           message: 'Username is not valid',
-          communityId
+          communityId: payload.id
         })
         return
       default:
         log.error(
-          `Registrar responded with ${response.status} "${response.statusText}" (${communityId})`
+          `Registrar responded with ${response.status} "${response.statusText}" (${payload.id})`
         )
         emitServerError(this.io, {
-          type: EventTypesResponse.REGISTRAR,
+          type: SocketActionTypes.REGISTRAR,
           message: 'Registering username failed.',
-          communityId
+          communityId: payload.id
         })
         return
     }
     const registrarResponse: { certificate: string; peers: string[]; rootCa: string } =
       await response.json()
-    this.io.emit(EventTypesResponse.SEND_USER_CERTIFICATE, {
-      id: communityId,
+    this.io.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
+      id: payload.id,
       payload: registrarResponse
     })
   }
@@ -208,80 +206,56 @@ export default class IOProxy {
     } catch (e) {
       log.error(`Creating network for community ${communityId} failed`, e)
       emitServerError(this.io, {
-        type: EventTypesResponse.NETWORK,
+        type: SocketActionTypes.NETWORK,
         message: 'Creating network failed',
         communityId
       })
       return
     }
-    this.io.emit(EventTypesResponse.NETWORK, { id: communityId, payload: network })
+    this.io.emit(SocketActionTypes.NETWORK, { id: communityId, payload: network })
   }
 
-  public async createCommunity(
-    communityId: string,
-    peerId: PeerId.JSONPeerId,
-    hiddenService: { address: string; privateKey: string },
-    certs: CertsData
-  ) {
-    await this.launchCommunity(communityId, peerId, hiddenService, [], certs)
-    this.io.emit(EventTypesResponse.NEW_COMMUNITY, { id: communityId })
+  public async createCommunity(payload: InitCommunityPayload) {
+    await this.launchCommunity(payload)
+    this.io.emit(SocketActionTypes.NEW_COMMUNITY, { id: payload.id })
   }
 
-  public async launchCommunity(
-    communityId: string,
-    peerId: PeerId.JSONPeerId,
-    hiddenService: { address: string; privateKey: string },
-    bootstrapMultiaddress: string[],
-    certs: CertsData
-  ) {
+  public async launchCommunity(payload: InitCommunityPayload) {
     try {
-      await this.communities.launch(
-        peerId,
-        hiddenService.privateKey,
-        bootstrapMultiaddress,
-        certs,
-        communityId
-      )
+      await this.communities.launch(payload)
     } catch (e) {
-      log(`Couldn't launch community for peer ${peerId.id}. Error:`, e)
+      log(`Couldn't launch community for peer ${payload.peerId.id}. Error:`, e)
       emitServerError(this.io, {
-        type: EventTypesResponse.COMMUNITY,
+        type: SocketActionTypes.COMMUNITY,
         message: 'Could not launch community',
-        communityId
+        communityId: payload.id
       })
       return
     }
-    this.io.emit(EventTypesResponse.COMMUNITY, { id: communityId })
+    this.io.emit(SocketActionTypes.COMMUNITY, { id: payload.id })
   }
 
-  public async launchRegistrar(
-    communityId: string,
-    peerId: string,
-    rootCertString: string,
-    rootKeyString: string,
-    hiddenServicePrivKey?: string,
-    port?: number
-  ) {
+  public async launchRegistrar(payload: LaunchRegistrarPayload) {
     const registrar = await this.communities.setupRegistrationService(
-      peerId,
-      this.getStorage(peerId),
+      payload.peerId,
+      this.getStorage(payload.peerId),
       {
-        certificate: rootCertString,
-        privKey: rootKeyString
+        certificate: payload.rootCertString,
+        privKey: payload.rootKeyString
       },
-      hiddenServicePrivKey,
-      port
+      payload.privateKey,
+      payload.port
     )
     if (!registrar) {
       emitServerError(this.io, {
         type: 'registrar',
         message: 'Could not launch registrar',
-        communityId
+        communityId: payload.id
       })
     } else {
-      this.io.emit(EventTypesResponse.REGISTRAR, {
-        id: communityId,
-        peerId,
+      this.io.emit(SocketActionTypes.REGISTRAR, {
+        id: payload.id,
+        peerId: payload.peerId,
         payload: registrar.getHiddenServiceData()
       })
     }
