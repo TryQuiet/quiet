@@ -16,3 +16,10 @@ jobs:
     steps:
       - name: "Should run after e2e tests"
         run: echo "Hello, this is test!"
+
+  just-another-test:
+    needs: run-e2e-tests
+    runs-on: ubuntu-18.04
+    steps:
+      - name: "Should also run after e2e tests"
+        run: echo "Hello, this is test 2!"
