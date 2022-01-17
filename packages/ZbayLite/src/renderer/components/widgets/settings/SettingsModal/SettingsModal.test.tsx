@@ -11,17 +11,7 @@ describe('SettingsModal', () => {
   it('renders component', () => {
     const result = renderComponent(
       <Provider store={store}>
-        <SettingsModal
-          open
-          isOwner={false}
-          handleClose={jest.fn()}
-          modalTabToOpen={'account'}
-          clearCurrentOpenTab={jest.fn()}
-          currentTab={'addFunds'}
-          setCurrentTab={jest.fn()}
-          blockedUsers={['string']}
-          user='string'
-        />
+        <SettingsModal user='string' owner={false} open handleClose={jest.fn()} />
       </Provider>
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
@@ -159,25 +149,9 @@ describe('SettingsModal', () => {
                                 class="MuiTouchRipple-root"
                               />
                             </button>
-                            <button
-                              aria-selected="false"
-                              class="MuiButtonBase-root MuiTab-root MuiTab-textColorInherit"
-                              role="tab"
-                              tabindex="0"
-                              type="button"
-                            >
-                              <span
-                                class="MuiTab-wrapper"
-                              >
-                                Blocked Users
-                              </span>
-                              <span
-                                class="MuiTouchRipple-root"
-                              />
-                            </button>
                           </div>
                           <span
-                            class="PrivateTabIndicator-root-257 PrivateTabIndicator-colorSecondary-259 MuiTabs-indicator makeStyles-indicator-3 PrivateTabIndicator-vertical-260"
+                            class="PrivateTabIndicator-root-277 PrivateTabIndicator-colorSecondary-279 MuiTabs-indicator makeStyles-indicator-3 PrivateTabIndicator-vertical-280"
                             style="top: 0px; height: 0px;"
                           />
                         </div>
@@ -206,31 +180,67 @@ describe('SettingsModal', () => {
                               class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column"
                             >
                               <div
-                                class="MuiGrid-root makeStyles-title-241 MuiGrid-item"
-                              >
-                                <h3
-                                  class="MuiTypography-root MuiTypography-h3"
-                                >
-                                  Account
-                                </h3>
-                              </div>
-                              <div
-                                class="MuiGrid-root MuiGrid-container MuiGrid-justify-xs-center"
+                                class="MuiGrid-root makeStyles-titleDiv-235 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-justify-xs-space-between"
                               >
                                 <div
-                                  class="MuiGrid-root makeStyles-createUsernameContainer-234 MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true"
+                                  class="MuiGrid-root makeStyles-title-234 MuiGrid-item"
                                 >
-                                  <div
-                                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12"
+                                  <h3
+                                    class="MuiTypography-root MuiTypography-h3"
                                   >
-                                    <h4
-                                      class="MuiTypography-root MuiTypography-h4"
-                                    >
-                                      @
-                                      
-                                    </h4>
-                                  </div>
+                                    Add members
+                                  </h3>
                                 </div>
+                              </div>
+                              <div
+                                class="MuiGrid-root MuiGrid-item"
+                              >
+                                <div
+                                  class="MuiGrid-root MuiGrid-item"
+                                >
+                                  <h5
+                                    class="MuiTypography-root MuiTypography-h5"
+                                  >
+                                    Your invitation url
+                                  </h5>
+                                </div>
+                                <div
+                                  class="MuiGrid-root MuiGrid-item"
+                                >
+                                  <p
+                                    class="MuiTypography-root MuiTypography-body2"
+                                  >
+                                    Use this link to add members to 
+                                    <span
+                                      class="makeStyles-bold-238"
+                                    />
+                                  </p>
+                                </div>
+                              </div>
+                              <div
+                                class="MuiGrid-root MuiGrid-item"
+                              >
+                                <p
+                                  class="MuiTypography-root MuiTypography-body2"
+                                />
+                              </div>
+                              <div
+                                class="MuiGrid-root"
+                              >
+                                <button
+                                  class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-button-237"
+                                  tabindex="0"
+                                  type="button"
+                                >
+                                  <span
+                                    class="MuiButton-label"
+                                  >
+                                    Copy to clipboard
+                                  </span>
+                                  <span
+                                    class="MuiTouchRipple-root"
+                                  />
+                                </button>
                               </div>
                             </div>
                           </div>
@@ -284,38 +294,14 @@ describe('SettingsModal', () => {
   })
 
   it('displays "Add members" tab for community owner', async () => {
-    renderComponent(
-      <SettingsModal
-        open
-        isOwner={true}
-        handleClose={jest.fn()}
-        modalTabToOpen={'account'}
-        clearCurrentOpenTab={jest.fn()}
-        currentTab={'account'}
-        setCurrentTab={jest.fn()}
-        blockedUsers={['string']}
-        user='string'
-      />
-    )
+    renderComponent(<SettingsModal user='string' owner={true} open handleClose={jest.fn()} />)
     expect(screen.queryByRole('tab', { name: /Notifications/i })).not.toBeNull()
     expect(screen.queryByRole('tab', { name: /Security/i })).not.toBeNull()
     expect(screen.queryByRole('tab', { name: /Add members/i })).not.toBeNull()
   })
 
   it('does not display "Add members" tab if user is not a community owner', async () => {
-    renderComponent(
-      <SettingsModal
-        open
-        isOwner={false}
-        handleClose={jest.fn()}
-        modalTabToOpen={'account'}
-        clearCurrentOpenTab={jest.fn()}
-        currentTab={'account'}
-        setCurrentTab={jest.fn()}
-        blockedUsers={['string']}
-        user='string'
-      />
-    )
+    renderComponent(<SettingsModal user='string' owner={false} open handleClose={jest.fn()} />)
     expect(screen.queryByRole('tab', { name: /Notifications/i })).not.toBeNull()
     expect(screen.queryByRole('tab', { name: /Security/i })).not.toBeNull()
     expect(screen.queryByRole('tab', { name: /Add members/i })).toBeNull()
