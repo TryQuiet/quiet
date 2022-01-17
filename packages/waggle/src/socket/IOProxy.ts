@@ -17,8 +17,9 @@ import {
   SubscribeToTopicPayload
 } from '@zbayapp/nectar'
 import { emitServerError, emitValidationError } from './errors'
-import { loadAllMessages } from './events/messages'
 import logger from '../logger'
+import { ChannelMessagesIdsResponse, CreatedChannelResponse, FetchAllMessagesResponse, GetPublicChannelsResponse, OnMessagePostedResponse } from 'packages/nectar/src/sagas/publicChannels/publicChannels.slice'
+import { SendCertificatesResponse } from 'packages/nectar/src/sagas/users/users.slice'
 
 const log = logger('io')
 
@@ -61,12 +62,11 @@ export default class IOProxy {
       payload.channelAddress,
       payload.ids
     )
-    loadAllMessages(
-      this.io,
-      messages.filteredMessages,
-      messages.channelAddress,
-      payload.communityId
-    )
+    this.loadAllMessages({
+      messages: messages.filteredMessages,
+      channelAddress: messages.channelAddress,
+      communityId: payload.communityId
+    })
   }
 
   public saveCertificate = async (peerId: string, certificate: string) => {
@@ -115,6 +115,56 @@ export default class IOProxy {
     conversations: string[]
   ): Promise<void> => {
     await this.getStorage(peerId).subscribeToAllConversations(conversations)
+  }
+
+  public loadCertificates = (payload: SendCertificatesResponse) => {
+    log(`Sending back ${payload.certificates.length} certificates`)
+    this.io.emit(SocketActionTypes.RESPONSE_GET_CERTIFICATES, {payload})
+  }
+
+  public loadPublicChannels = (payload: GetPublicChannelsResponse) => {
+    this.io.emit(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, payload)
+  }
+
+  public loadAllMessages = (payload: FetchAllMessagesResponse) => {
+    if (payload.messages.length === 0) {
+      return
+    }
+    this.io.emit(SocketActionTypes.RESPONSE_FETCH_ALL_MESSAGES, payload)
+  }
+
+  public loadMessage = (payload: OnMessagePostedResponse) => {
+    log('Emitting message')
+    this.io.emit(SocketActionTypes.MESSAGE, payload)
+  }
+
+  public sendMessagesIds = (payload: ChannelMessagesIdsResponse) => {
+    if (payload.ids.length === 0) {
+      return
+    }
+    this.io.emit(SocketActionTypes.SEND_IDS, payload)
+  }
+
+  public createdChannel = (payload: CreatedChannelResponse) => {
+    log(`Created channel ${payload.channel.address}`)
+    this.io.emit(SocketActionTypes.CREATED_CHANNEL, payload)
+  }
+
+  public loadAllDirectMessages = (
+    messages: string[],
+    channelAddress: string
+  ) => {
+    if (messages.length === 0) {
+      return
+    }
+    this.io.emit(SocketActionTypes.RESPONSE_FETCH_ALL_DIRECT_MESSAGES, {
+      channelAddress,
+      messages
+    })
+  }
+
+  public loadAllPrivateConversations = (payload) => {
+    this.io.emit(SocketActionTypes.RESPONSE_GET_PRIVATE_CONVERSATIONS, payload)
   }
 
   public registerOwnerCertificate = async (payload: RegisterOwnerCertificatePayload) => {
