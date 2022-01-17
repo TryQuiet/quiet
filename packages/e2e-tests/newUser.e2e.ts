@@ -55,4 +55,5 @@ test('User can create new community, register and send few messages to general c
   const messageGroupContent = messagesGroup.find('p').withAttribute('data-testid', /messagesGroupContent-/)
   await t.expect(messageGroupContent.exists).ok()
   await t.expect(messageGroupContent.textContent).eql('Hello\xa0everyone')
+  // to be removed
 })

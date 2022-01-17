@@ -1,4 +1,4 @@
-name: End to end tests
+name: Test workflow
 
 on:
   pull_request:
