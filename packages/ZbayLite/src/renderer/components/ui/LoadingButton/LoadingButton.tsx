@@ -16,7 +16,6 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: theme.palette.colors.zbayBlue
     },
     '&:disabled': {
-      backgroundColor: theme.palette.colors.darkGray,
       opacity: 0.7
     }
   },
