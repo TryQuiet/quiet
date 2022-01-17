@@ -74,7 +74,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ user, owner, open,
 
   const [offset, setOffset] = React.useState(0)
 
-  const [currentTab, setCurrentTab] = useState('invite')
+  const [currentTab, setCurrentTab] = useState('notifications')
 
   const adjustOffset = () => {
     if (contentRef.clientWidth > 800) {
