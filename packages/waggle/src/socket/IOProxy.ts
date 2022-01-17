@@ -1,12 +1,12 @@
 import { Response } from 'node-fetch'
 import SocketIO from 'socket.io'
-import { IMessage } from '../common/types'
 import CommunitiesManager from '../communities/manager'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 import { CertificateRegistration } from '../registration'
 import { Storage } from '../storage'
 import {
   AskForMessagesPayload,
+  ChannelMessage,
   InitCommunityPayload,
   LaunchRegistrarPayload,
   RegisterOwnerCertificatePayload,
@@ -75,20 +75,9 @@ export default class IOProxy {
 
   public sendMessage = async (
     peerId: string,
-    channelAddress: string,
-    messagePayload: IMessage
+    message: ChannelMessage
   ): Promise<void> => {
-    const { id, type, signature, createdAt, message, pubKey } = messagePayload
-    const messageToSend = {
-      id,
-      type,
-      signature,
-      createdAt,
-      message,
-      channelId: channelAddress,
-      pubKey
-    }
-    await this.getStorage(peerId).sendMessage(channelAddress, messageToSend)
+    await this.getStorage(peerId).sendMessage(message)
   }
 
   // DMs

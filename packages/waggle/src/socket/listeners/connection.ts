@@ -5,10 +5,10 @@ import {
   RegisterOwnerCertificatePayload,
   RegisterUserCertificatePayload,
   SaveOwnerCertificatePayload,
+  SendMessagePayload,
   SocketActionTypes,
   SubscribeToTopicPayload
 } from '@zbayapp/nectar'
-import { IMessage } from '../../common/types'
 import IOProxy from '../IOProxy'
 
 import logger from '../../logger'
@@ -26,12 +26,8 @@ export const connections = (io, ioProxy: IOProxy) => {
     })
     socket.on(
       SocketActionTypes.SEND_MESSAGE,
-      async (
-        peerId: string,
-        { channelAddress, message }: { channelAddress: string; message: IMessage }
-      ) => {
-        log(`Sending message ${message.message}`)
-        await ioProxy.sendMessage(peerId, channelAddress, message)
+      async (payload: SendMessagePayload) => {
+        await ioProxy.sendMessage(payload.peerId, payload.message)
       }
     )
     socket.on(

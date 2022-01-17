@@ -1,7 +1,6 @@
 import _ from 'validator'
 import joi from 'joi'
-
-import { IMessage, IChannelInfo } from '../common/types'
+import { ChannelMessage, PublicChannel } from '@zbayapp/nectar'
 
 const messageSchema = joi.object({
   id: joi.string().required(),
@@ -42,12 +41,12 @@ export const isDirectMessage = (msg: string): boolean => {
   return msg.length >= 364 && _.isBase64(msg)
 }
 
-export const isMessage = (msg: IMessage): boolean => {
+export const isMessage = (msg: ChannelMessage): boolean => {
   const value = messageSchema.validate(msg)
   return !value.error
 }
 
-export const isChannel = (channel: IChannelInfo): boolean => {
+export const isChannel = (channel: PublicChannel): boolean => {
   const value = channelSchema.validate(channel)
   return !value.error
 }

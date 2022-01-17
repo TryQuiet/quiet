@@ -130,7 +130,7 @@ class WebsocketsOverTor extends WebSockets {
     // Allow abort via signal during connect
     let onAbort
     // eslint-disable-next-line
-    const abort = new Promise((resolve, reject) => {
+    const abort = new Promise((_resolve, reject) => {
       onAbort = () => {
         reject(new AbortError())
         // FIXME: https://github.com/libp2p/js-libp2p-websockets/issues/121
@@ -170,7 +170,7 @@ class WebsocketsOverTor extends WebSockets {
     const optionsServ = {
       server: serverHttps,
       // eslint-disable-next-line
-      verifyClient: function (info, done) {
+      verifyClient: function (_info, done) {
         done(true)
       }
     }

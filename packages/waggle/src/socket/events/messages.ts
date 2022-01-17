@@ -1,6 +1,5 @@
 import SocketIO from 'socket.io'
-import { SocketActionTypes } from '@zbayapp/nectar'
-import { IMessage } from '../../common/types'
+import { ChannelMessage, SocketActionTypes } from '@zbayapp/nectar'
 
 export const message = (socket: SocketIO.Server, message) => {
   console.log('Emitting message to zbay')
@@ -13,7 +12,7 @@ export const directMessage = (socket: SocketIO.Server, message) => {
 
 export const loadAllMessages = (
   socket: SocketIO.Server,
-  messages: IMessage[],
+  messages: ChannelMessage[],
   channelAddress: string,
   communityId: string
 ) => {
