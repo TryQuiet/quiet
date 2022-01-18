@@ -5,19 +5,19 @@ import {
   communityChannelsAdapter,
   channelMessagesAdapter
 } from './publicChannels.adapter'
-import { 
-  PublicChannel, 
-  ChannelMessage, 
-  CreateChannelPayload, 
-  CreateGeneralChannelPayload, 
-  AddPublicChannelsListPayload, 
-  GetPublicChannelsResponse, 
-  SetCurrentChannelPayload, 
-  SetChannelLoadingSlicePayload, 
-  ChannelMessagesIdsResponse, 
-  SubscribeToTopicPayload, 
-  OnMessagePostedResponse, 
-  AskForMessagesResponse, 
+import {
+  PublicChannel,
+  ChannelMessage,
+  CreateChannelPayload,
+  CreateGeneralChannelPayload,
+  AddPublicChannelsListPayload,
+  GetPublicChannelsResponse,
+  SetCurrentChannelPayload,
+  SetChannelLoadingSlicePayload,
+  ChannelMessagesIdsResponse,
+  SubscribeToTopicPayload,
+  OnMessagePostedResponse,
+  AskForMessagesResponse,
   AskForMessagesPayload
 } from './publicChannels.types'
 import { MessageType } from '../messages/messages.types'

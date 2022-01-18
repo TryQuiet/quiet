@@ -23,14 +23,13 @@ import {
 import {
   AskForMessagesResponse,
   ChannelMessagesIdsResponse,
-  CreatedChannelResponse, 
-  GetPublicChannelsResponse, 
+  CreatedChannelResponse,
+  GetPublicChannelsResponse,
   OnMessagePostedResponse
 } from '../../publicChannels/publicChannels.types'
 import { usersActions } from '../../users/users.slice'
 import { SendCertificatesResponse } from '../../users/users.types'
 import { SocketActionTypes } from '../const/actionTypes'
-
 
 const log = logger('socket')
 

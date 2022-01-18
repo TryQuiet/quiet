@@ -18,7 +18,6 @@ import {
 import { CreateUserCsrPayload, Identity } from '../identity.types'
 import { createUserCsrSaga } from './createUserCsr.saga'
 
-
 describe('createUserCsrSaga', () => {
   const userCsr = {
     userCsr: 'userCsr',
