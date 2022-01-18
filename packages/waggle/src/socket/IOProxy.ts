@@ -14,12 +14,16 @@ import {
   SaveCertificatePayload,
   SaveOwnerCertificatePayload,
   SocketActionTypes,
-  SubscribeToTopicPayload
+  SubscribeToTopicPayload,
+  ChannelMessagesIdsResponse,
+  CreatedChannelResponse,
+  FetchAllMessagesResponse,
+  GetPublicChannelsResponse,
+  OnMessagePostedResponse,
+  SendCertificatesResponse
 } from '@zbayapp/nectar'
 import { emitServerError, emitValidationError } from './errors'
 import logger from '../logger'
-import { ChannelMessagesIdsResponse, CreatedChannelResponse, FetchAllMessagesResponse, GetPublicChannelsResponse, OnMessagePostedResponse } from 'packages/nectar/src/sagas/publicChannels/publicChannels.slice'
-import { SendCertificatesResponse } from 'packages/nectar/src/sagas/users/users.slice'
 
 const log = logger('io')
 
@@ -67,10 +71,6 @@ export default class IOProxy {
       channelAddress: messages.channelAddress,
       communityId: payload.communityId
     })
-  }
-
-  public saveCertificate = async (peerId: string, certificate: string) => {
-    await this.getStorage(peerId).saveCertificate({ certificate })
   }
 
   public sendMessage = async (

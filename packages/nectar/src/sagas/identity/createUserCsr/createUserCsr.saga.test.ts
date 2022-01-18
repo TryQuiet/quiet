@@ -1,24 +1,23 @@
-import { expectSaga } from 'redux-saga-test-plan'
 import { combineReducers } from '@reduxjs/toolkit'
-import { call } from 'redux-saga-test-plan/matchers'
 import { createUserCsr } from '@zbayapp/identity'
 import { KeyObject } from 'crypto'
-import { StoreKeys } from '../../store.keys'
-import { createUserCsrSaga } from './createUserCsr.saga'
-import {
-  CreateUserCsrPayload,
-  identityActions,
-  identityReducer,
-  Identity,
-  IdentityState
-} from '../identity.slice'
-
-import { identityAdapter } from '../identity.adapter'
+import { expectSaga } from 'redux-saga-test-plan'
+import { call } from 'redux-saga-test-plan/matchers'
 import {
   communitiesReducer,
   CommunitiesState,
   Community
 } from '../../communities/communities.slice'
+import { StoreKeys } from '../../store.keys'
+import { identityAdapter } from '../identity.adapter'
+import {
+  identityActions,
+  identityReducer,
+  IdentityState
+} from '../identity.slice'
+import { CreateUserCsrPayload, Identity } from '../identity.types'
+import { createUserCsrSaga } from './createUserCsr.saga'
+
 
 describe('createUserCsrSaga', () => {
   const userCsr = {

@@ -5,9 +5,23 @@ import {
   communityChannelsAdapter,
   channelMessagesAdapter
 } from './publicChannels.adapter'
-import { PublicChannel, ChannelMessage } from './publicChannels.types'
+import { 
+  PublicChannel, 
+  ChannelMessage, 
+  CreateChannelPayload, 
+  CreateGeneralChannelPayload, 
+  AddPublicChannelsListPayload, 
+  GetPublicChannelsResponse, 
+  SetCurrentChannelPayload, 
+  SetChannelLoadingSlicePayload, 
+  ChannelMessagesIdsResponse, 
+  SubscribeToTopicPayload, 
+  OnMessagePostedResponse, 
+  AskForMessagesResponse, 
+  AskForMessagesPayload
+} from './publicChannels.types'
 import { MessageType } from '../messages/messages.types'
-import { Identity } from '../identity/identity.slice'
+import { Identity } from '../identity/identity.types'
 import logger from '../../utils/logger'
 const log = logger('publicChannels')
 
@@ -22,76 +36,6 @@ export interface CommunityChannels {
   channels: EntityState<PublicChannel>
   channelMessages: EntityState<ChannelMessage>
   channelLoadingSlice: number
-}
-
-export interface GetPublicChannelsResponse {
-  communityId: string
-  channels: {
-    [name: string]: PublicChannel
-  }
-}
-
-export interface CreatedChannelResponse {
-  channel: PublicChannel
-  communityId: string
-}
-
-export interface ChannelMessagesIdsResponse {
-  ids: string[]
-  channelAddress: string
-  communityId: string
-}
-
-export interface AskForMessagesPayload {
-  peerId: string
-  communityId: string
-  channelAddress: string
-  ids: string[]
-}
-
-export interface SubscribeToTopicPayload {
-  peerId: string
-  channelData: PublicChannel
-}
-
-export interface AddPublicChannelsListPayload {
-  id: string
-}
-
-export interface SetCurrentChannelPayload {
-  channel: string
-  communityId: string
-}
-
-export interface SetChannelLoadingSlicePayload {
-  slice: number
-  communityId: string
-}
-
-export interface CreateChannelPayload {
-  channel: PublicChannel
-  communityId: string
-}
-
-export interface CreateGeneralChannelPayload {
-  communityId: string
-}
-
-export interface AskForMessagesResponse {
-  messages: ChannelMessage[]
-  communityId: string
-}
-
-export interface FetchAllMessagesResponse {
-  messages: ChannelMessage[]
-  channelAddress: string
-  communityId: string
-}
-
-export interface OnMessagePostedResponse {
-  message: ChannelMessage
-  channelAddress: string
-  communityId: string
 }
 
 export const publicChannelsSlice = createSlice({

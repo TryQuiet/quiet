@@ -11,7 +11,7 @@ import {
   sign
 } from '@zbayapp/identity'
 import { config } from '../../sagas/users/const/certFieldTypes'
-import { PeerId } from '../../sagas/identity/identity.slice'
+import { PeerId } from '../../sagas/identity/identity.types'
 import { arrayBufferToString } from 'pvutils'
 import { Time } from 'pkijs'
 

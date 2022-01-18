@@ -3,7 +3,7 @@ import { StoreKeys } from '../store.keys'
 import { communitiesAdapter } from './communities.adapter'
 import { createRootCA } from '@zbayapp/identity'
 import { AsyncReturnType } from '../../utils/types/AsyncReturnType.interface'
-import { HiddenService, Identity, PeerId } from '../identity/identity.slice'
+import { HiddenService, Identity, PeerId } from '../identity/identity.types'
 
 export class CommunitiesState {
   public currentCommunity: string = ''

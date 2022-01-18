@@ -1,21 +1,19 @@
 import { combineReducers } from 'redux'
 import { expectSaga } from 'redux-saga-test-plan'
-import { errorsActions } from '../errors.slice'
-import { handleErrorsSaga } from './handleErrors.saga'
-import { StoreKeys } from '../../store.keys'
-import {
-  communitiesReducer,
-  Community,
-  CommunitiesState
-} from '../../communities/communities.slice'
 import { communitiesAdapter } from '../../communities/communities.adapter'
 import {
-  Identity,
+  communitiesReducer, CommunitiesState, Community
+} from '../../communities/communities.slice'
+import { identityAdapter } from '../../identity/identity.adapter'
+import {
   identityActions,
   identityReducer,
   IdentityState
 } from '../../identity/identity.slice'
-import { identityAdapter } from '../../identity/identity.adapter'
+import { Identity } from '../../identity/identity.types'
+import { StoreKeys } from '../../store.keys'
+import { errorsActions } from '../errors.slice'
+import { handleErrorsSaga } from './handleErrors.saga'
 
 describe('handle errors', () => {
   test('registrar error', async () => {

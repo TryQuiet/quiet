@@ -1,33 +1,36 @@
-import { Socket } from 'socket.io-client'
-import { all, call, put, takeEvery, fork } from 'typed-redux-saga'
 import { eventChannel } from 'redux-saga'
-import { SocketActionTypes } from '../const/actionTypes'
+import { Socket } from 'socket.io-client'
+import { all, call, fork, put, takeEvery } from 'typed-redux-saga'
 import logger from '../../../utils/logger'
-
-import {
-  GetPublicChannelsResponse,
-  OnMessagePostedResponse,
-  publicChannelsActions,
-  ChannelMessagesIdsResponse,
-  AskForMessagesResponse,
-  CreatedChannelResponse
-} from '../../publicChannels/publicChannels.slice'
-import { publicChannelsMasterSaga } from '../../publicChannels/publicChannels.master.saga'
-import { ErrorPayload, errorsActions } from '../../errors/errors.slice'
-import { identityActions } from '../../identity/identity.slice'
-import { identityMasterSaga } from '../../identity/identity.master.saga'
-import { messagesMasterSaga } from '../../messages/messages.master.saga'
-import { SendCertificatesResponse, usersActions } from '../../users/users.slice'
+import { appMasterSaga } from '../../app/app.master.saga'
+import { connectionActions } from '../../appConnection/connection.slice'
 import { communitiesMasterSaga } from '../../communities/communities.master.saga'
-import { errorsMasterSaga } from '../../errors/errors.master.saga'
 import {
   communitiesActions,
   ResponseCreateCommunityPayload,
   ResponseLaunchCommunityPayload,
   ResponseRegistrarPayload
 } from '../../communities/communities.slice'
-import { appMasterSaga } from '../../app/app.master.saga'
-import { connectionActions } from '../../appConnection/connection.slice'
+import { errorsMasterSaga } from '../../errors/errors.master.saga'
+import { ErrorPayload, errorsActions } from '../../errors/errors.slice'
+import { identityMasterSaga } from '../../identity/identity.master.saga'
+import { identityActions } from '../../identity/identity.slice'
+import { messagesMasterSaga } from '../../messages/messages.master.saga'
+import { publicChannelsMasterSaga } from '../../publicChannels/publicChannels.master.saga'
+import {
+  publicChannelsActions
+} from '../../publicChannels/publicChannels.slice'
+import {
+  AskForMessagesResponse,
+  ChannelMessagesIdsResponse,
+  CreatedChannelResponse, 
+  GetPublicChannelsResponse, 
+  OnMessagePostedResponse
+} from '../../publicChannels/publicChannels.types'
+import { usersActions } from '../../users/users.slice'
+import { SendCertificatesResponse } from '../../users/users.types'
+import { SocketActionTypes } from '../const/actionTypes'
+
 
 const log = logger('socket')
 

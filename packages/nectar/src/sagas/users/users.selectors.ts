@@ -3,7 +3,7 @@ import { getCertFieldValue } from '@zbayapp/identity'
 import { CertFieldsTypes } from './const/certFieldTypes'
 import { StoreKeys } from '../store.keys'
 import { certificatesAdapter } from './users.adapter'
-import { User } from './users.slice'
+import { User } from './users.types'
 import { CreatedSelectors, StoreState } from '../store.types'
 
 const usersSlice: CreatedSelectors[StoreKeys.Users] = (state: StoreState) =>
