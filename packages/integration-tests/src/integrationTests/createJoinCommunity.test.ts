@@ -78,5 +78,7 @@ describe('owner creates community and two users join', () => {
 
   test('all peers are connected', async () => {
     await assertConnectedToPeers(owner.store, 2)
+    await assertConnectedToPeers(userOne.store, 2)
+    await assertConnectedToPeers(userTwo.store, 2)
   })
 })

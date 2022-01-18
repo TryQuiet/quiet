@@ -239,7 +239,7 @@ export class ConnectionsManager extends EventEmitter {
       log(`${params.peerId.toB58String()} disconnected from ${connection.remotePeer.toB58String()}`)
       this.connectedPeers.delete(connection.remotePeer.toB58String())
       this.emit('peer:disconnect', {
-        connectedPeers: Array.from(this.connectedPeers).includes(connection.remotePeer.toB58String()) ? Array.from(this.connectedPeers) : [...Array.from(this.connectedPeers), connection.remotePeer.toB58String()]
+        connectedPeers: Array.from(this.connectedPeers).filter((peerId) => peerId !== connection.remotePeer.toB58String())
       })
     })
 
