@@ -119,7 +119,7 @@ export default class IOProxy {
 
   public loadCertificates = (payload: SendCertificatesResponse) => {
     log(`Sending back ${payload.certificates.length} certificates`)
-    this.io.emit(SocketActionTypes.RESPONSE_GET_CERTIFICATES, {payload})
+    this.io.emit(SocketActionTypes.RESPONSE_GET_CERTIFICATES, { payload })
   }
 
   public loadPublicChannels = (payload: GetPublicChannelsResponse) => {

@@ -139,16 +139,16 @@ export class Storage {
 
     this.certificates.events.on('replicated', () => {
       log('REPLICATED: Certificates')
-      this.io.loadCertificates({certificates: this.getAllEventLogEntries(this.certificates)})
+      this.io.loadCertificates({ certificates: this.getAllEventLogEntries(this.certificates) })
     })
     this.certificates.events.on('write', (_address, entry) => {
       log('Saved certificate locally')
       log(entry.payload.value)
-      this.io.loadCertificates({certificates: this.getAllEventLogEntries(this.certificates)})
+      this.io.loadCertificates({ certificates: this.getAllEventLogEntries(this.certificates) })
     })
     this.certificates.events.on('ready', () => {
       log('Loaded certificates to memory')
-      this.io.loadCertificates({certificates: this.getAllEventLogEntries(this.certificates)})
+      this.io.loadCertificates({ certificates: this.getAllEventLogEntries(this.certificates) })
     })
 
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
@@ -173,6 +173,7 @@ export class Storage {
       await this.channels.load({ fetchEntryTimeout: 2000 })
       this.io.loadPublicChannels({
         communityId: this.communityId,
+        // @ts-expect-error KeyValueStore doesn't have 'all' declared properly
         channels: this.channels.all
       })
     })
@@ -246,8 +247,8 @@ export class Storage {
     }
     const db: EventStore<ChannelMessage> = this.publicChannelsRepos.get(channelAddress).db
     this.io.loadAllMessages({
-      messages: this.getAllEventLogEntries(db), 
-      channelAddress, 
+      messages: this.getAllEventLogEntries(db),
+      channelAddress,
       communityId: this.communityId
     })
   }

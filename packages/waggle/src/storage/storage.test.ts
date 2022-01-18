@@ -22,7 +22,7 @@ beforeEach(() => {
   tmpAppDataPath = tmpZbayDirPath(tmpDir.name)
   tmpOrbitDbDir = path.join(tmpAppDataPath, Config.ORBIT_DB_DIR)
   tmpIpfsPath = path.join(tmpAppDataPath, Config.IPFS_REPO_PATH)
-  connectionsManager = createMinConnectionManager({env: { appDataPath: tmpAppDataPath }, torControlPort: 12345})
+  connectionsManager = createMinConnectionManager({ env: { appDataPath: tmpAppDataPath }, torControlPort: 12345 })
   storage = null
 })
 
@@ -39,7 +39,7 @@ describe('Storage', () => {
   it('creates paths by default', async () => {
     expect(fs.existsSync(tmpOrbitDbDir)).toBe(false)
     expect(fs.existsSync(tmpIpfsPath)).toBe(false)
-    
+
     storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, 'communityId')
     const peerId = await PeerId.create()
     const libp2p = await createLibp2p(peerId)
