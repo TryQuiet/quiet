@@ -72,9 +72,9 @@ export { identityAdapter } from './sagas/identity/identity.adapter'
 
 export * from './sagas/identity/identity.types'
 
-export { Certificates, InitCommunityPayload, LaunchRegistrarPayload } from './sagas/communities/communities.slice'
+export * from './sagas/communities/communities.types'
 
-export { SendMessagePayload } from './sagas/messages/messages.slice'
+export * from './sagas/messages/messages.types'
 
 export const app = {
   actions: appActions

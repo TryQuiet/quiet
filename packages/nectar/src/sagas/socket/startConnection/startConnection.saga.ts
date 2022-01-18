@@ -5,12 +5,12 @@ import logger from '../../../utils/logger'
 import { appMasterSaga } from '../../app/app.master.saga'
 import { connectionActions } from '../../appConnection/connection.slice'
 import { communitiesMasterSaga } from '../../communities/communities.master.saga'
+import { communitiesActions } from '../../communities/communities.slice'
 import {
-  communitiesActions,
   ResponseCreateCommunityPayload,
   ResponseLaunchCommunityPayload,
   ResponseRegistrarPayload
-} from '../../communities/communities.slice'
+} from '../../communities/communities.types'
 import { errorsMasterSaga } from '../../errors/errors.master.saga'
 import { ErrorPayload, errorsActions } from '../../errors/errors.slice'
 import { identityMasterSaga } from '../../identity/identity.master.saga'

@@ -5,7 +5,8 @@ import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { identitySelectors } from '../../identity/identity.selectors'
 
 import { communitiesSelectors } from '../communities.selectors'
-import { communitiesActions, LaunchRegistrarPayload } from '../communities.slice'
+import { communitiesActions } from '../communities.slice'
+import { LaunchRegistrarPayload } from '../communities.types'
 
 export function* launchRegistrarSaga(
   socket: Socket,

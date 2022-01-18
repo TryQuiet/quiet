@@ -9,8 +9,9 @@ import { StoreKeys } from '../../store.keys'
 import { communitiesAdapter } from '../communities.adapter'
 import {
   communitiesActions,
-  communitiesReducer, CommunitiesState, Community, InitCommunityPayload
+  communitiesReducer, CommunitiesState, Community
 } from '../communities.slice'
+import { InitCommunityPayload } from '../communities.types'
 import { initCommunities, launchCommunitySaga } from './launchCommunity.saga'
 
 describe('launchCommunity', () => {
