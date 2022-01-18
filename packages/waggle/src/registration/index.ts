@@ -1,9 +1,10 @@
 import { createUserCert, UserCert, loadCSR, CertFieldsTypes, getReqFieldValue } from '@zbayapp/identity'
+import { SaveCertificatePayload, PermsData } from '@zbayapp/nectar'
 import { IsBase64, IsNotEmpty, validate } from 'class-validator'
 import express, { Request, Response } from 'express'
 import getPort from 'get-port'
 import { Server } from 'http'
-import { DataFromPems } from '../common/types'
+
 import logger from '../logger'
 import { Storage } from '../storage'
 import { Tor } from '../torManager'
@@ -26,12 +27,12 @@ export class CertificateRegistration {
   private readonly tor: Tor
   private readonly _storage: Storage
   private _onionAddress: string
-  private readonly _dataFromPems: DataFromPems
+  private readonly _permsData: PermsData
 
   constructor(
     tor: Tor,
     storage: Storage,
-    dataFromPems: DataFromPems,
+    permsData: PermsData,
     hiddenServicePrivKey?: string,
     port?: number
   ) {
@@ -41,7 +42,7 @@ export class CertificateRegistration {
     this._storage = storage
     this.tor = tor
     this._onionAddress = null
-    this._dataFromPems = dataFromPems
+    this._permsData = permsData
     this.setRouting()
   }
 
@@ -71,7 +72,11 @@ export class CertificateRegistration {
   }
 
   public async saveOwnerCertToDb(userCert: string) {
-    const certSaved = await this._storage.saveCertificate(userCert, this._dataFromPems)
+    const payload: SaveCertificatePayload = {
+      certificate: userCert,
+      rootPermsData: this._permsData
+    }
+    const certSaved = await this._storage.saveCertificate(payload)
     if (!certSaved) {
       throw new Error('Could not save certificate')
     }
@@ -79,14 +84,14 @@ export class CertificateRegistration {
     return userCert
   }
 
-  static async registerOwnerCertificate(userCsr: string, dataFromPems: DataFromPems) {
+  static async registerOwnerCertificate(userCsr: string, permsData: PermsData) {
     const userData = new UserCsrData()
     userData.csr = userCsr
     const validationErrors = await validate(userData)
     if (validationErrors.length > 0) return
     const userCert = await createUserCert(
-      dataFromPems.certificate,
-      dataFromPems.privKey,
+      permsData.certificate,
+      permsData.privKey,
       userCsr,
       new Date(),
       new Date(2030, 1, 1)
@@ -142,22 +147,22 @@ export class CertificateRegistration {
     res.send({
       certificate: cert.userCertString,
       peers: await this.getPeers(),
-      rootCa: this._dataFromPems.certificate
+      rootCa: this._permsData.certificate
     })
   }
 
   private async registerCertificate(userCsr: string): Promise<UserCert> {
     const userCert = await createUserCert(
-      this._dataFromPems.certificate,
-      this._dataFromPems.privKey,
+      this._permsData.certificate,
+      this._permsData.privKey,
       userCsr,
       new Date(),
       new Date(2030, 1, 1)
     )
-    const certSaved = await this._storage.saveCertificate(
-      userCert.userCertString,
-      this._dataFromPems
-    )
+    const certSaved = await this._storage.saveCertificate({
+      certificate: userCert.userCertString,
+      rootPermsData: this._permsData
+    })
     if (!certSaved) {
       throw new Error('Could not save certificate')
     }

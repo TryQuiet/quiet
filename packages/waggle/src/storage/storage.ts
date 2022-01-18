@@ -12,10 +12,8 @@ import KeyValueStore from 'orbit-db-kvstore'
 import path from 'path'
 import PeerId from 'peer-id'
 import { CryptoEngine, setEngine } from 'pkijs'
+import { ChannelMessage, PermsData, PublicChannel, SaveCertificatePayload, SocketActionTypes } from '@zbayapp/nectar'
 import {
-  DataFromPems,
-  IChannelInfo,
-  IMessage,
   IMessageThread,
   IPublicKey,
   IRepo,
@@ -24,8 +22,6 @@ import {
 import Libp2p from 'libp2p'
 import { createPaths } from '../common/utils'
 import { Config } from '../constants'
-import logger from '../logger'
-import { EventTypesResponse } from '../socket/constantsReponse'
 import { loadCertificates } from '../socket/events/certificates'
 import { createdChannel } from '../socket/events/channels'
 import {
@@ -35,9 +31,11 @@ import {
   sendIdsToZbay
 } from '../socket/events/messages'
 import validate from '../validation/validators'
+import logger from '../logger'
+
 const log = logger('db')
 
-const dataFromRootPems: DataFromPems = {
+const rootPermsData: PermsData = {
   certificate:
     'MIIBNjCB3AIBATAKBggqhkjOPQQDAjASMRAwDgYDVQQDEwdaYmF5IENBMCYYEzIwMjEwNjIyMDkzMDEwLjAyNVoYDzIwMzAwMTMxMjMwMDAwWjASMRAwDgYDVQQDEwdaYmF5IENBMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEV5a3Czy+L7IfVX0FpJtSF5mi0GWGrtPqv5+CFSDPrHXijsxWdPTobR1wk8uCLP4sAgUbs/bIleCxQy41kSSyOaMgMB4wDwYDVR0TBAgwBgEB/wIBAzALBgNVHQ8EBAMCAAYwCgYIKoZIzj0EAwIDSQAwRgIhAPOzksuipKyBALt/o8O/XwsrVSzfSHXdAR4dOWThQ1lbAiEAmKqjhsmf50kxWX0ekhbAeCTjcRApXhjnslmJkIFGF2o=+lmBImw3BMNjA0FTlK5iRmVC+w/T6M04Es+yiYL608vOhx2slnoyAwHjAPBgNVHRMECDAGAQH/AgEDMAsGA1UdDwQEAwIABjAKBggqhkjOPQQDAgNIADBFAiEA+0kIz0ny/PLVERTcL0+KCpsztyA6Zuwzj05VW5NMdx0CICgdzf0lg0/2Ksl1AjSPYsy2w+Hn09PGlBnD7TiExBpx',
   privKey:
@@ -61,8 +59,8 @@ export class Storage {
   public peerId: PeerId
   protected ipfs: IPFS.IPFS
   protected orbitdb: OrbitDB
-  private channels: KeyValueStore<IChannelInfo>
-  private directMessagesUsers: KeyValueStore<IPublicKey>
+  private channels: KeyValueStore<PublicChannel>
+  private readonly _directMessagesUsers: KeyValueStore<IPublicKey>
   private messageThreads: KeyValueStore<IMessageThread>
   private certificates: EventStore<string>
   public publicChannelsRepos: Map<String, IRepo> = new Map()
@@ -96,7 +94,6 @@ export class Storage {
     await this.createDbForChannels()
     log('2/6')
     await this.createDbForCertificates()
-    await this.createDbForUsers()
     log('3/6')
     await this.createDbForMessageThreads()
     log('4/6')
@@ -182,7 +179,7 @@ export class Storage {
 
   private async createDbForChannels() {
     log('createDbForChannels init')
-    this.channels = await this.orbitdb.keyvalue<IChannelInfo>('public-channels', {
+    this.channels = await this.orbitdb.keyvalue<PublicChannel>('public-channels', {
       accessController: {
         write: ['*']
       }
@@ -194,7 +191,7 @@ export class Storage {
       await this.channels.load({ fetchEntryTimeout: 2000 })
       const payload = this.channels.all
 
-      this.io.emit(EventTypesResponse.RESPONSE_GET_PUBLIC_CHANNELS, {
+      this.io.emit(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, {
         communityId: this.communityId,
         channels: payload
       })
@@ -220,41 +217,13 @@ export class Storage {
         // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
         await this.messageThreads.load({ fetchEntryTimeout: 2000 })
         const payload = this.messageThreads.all
-        this.io.emit(EventTypesResponse.RESPONSE_GET_PRIVATE_CONVERSATIONS, payload)
+        this.io.emit(SocketActionTypes.RESPONSE_GET_PRIVATE_CONVERSATIONS, payload)
         await this.initAllConversations()
       }
     )
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.messageThreads.load({ fetchEntryTimeout: 2000 })
     log('ALL MESSAGE THREADS COUNT:', Object.keys(this.messageThreads.all).length)
-  }
-
-  private async createDbForUsers() {
-    this.directMessagesUsers = await this.orbitdb.keyvalue<IPublicKey>('dms', {
-      accessController: {
-        write: ['*']
-      }
-    })
-
-    this.directMessagesUsers.events.on(
-      'replicated',
-      // eslint-disable-next-line
-      async () => {
-        // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-        await this.directMessagesUsers.load({ fetchEntryTimeout: 2000 })
-        // await this.directMessagesUsers.close()
-        const payload = this.directMessagesUsers.all
-        this.io.emit(EventTypesResponse.RESPONSE_GET_AVAILABLE_USERS, payload)
-        log('REPLICATED USERS')
-      }
-    )
-    try {
-      // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-      await this.directMessagesUsers.load({ fetchEntryTimeout: 2000 })
-    } catch (err) {
-      log.error(err)
-    }
-    log('ALL USERS COUNT:', Object.keys(this.directMessagesUsers.all).length)
   }
 
   async initAllChannels() {
@@ -295,12 +264,12 @@ export class Storage {
     if (!this.publicChannelsRepos.has(channelAddress)) {
       return
     }
-    const db: EventStore<IMessage> = this.publicChannelsRepos.get(channelAddress).db
+    const db: EventStore<ChannelMessage> = this.publicChannelsRepos.get(channelAddress).db
     loadAllMessages(this.io, this.getAllEventLogEntries(db), channelAddress, this.communityId)
   }
 
-  public async subscribeToChannel(channel: IChannelInfo): Promise<void> {
-    let db: EventStore<IMessage>
+  public async subscribeToChannel(channel: PublicChannel): Promise<void> {
+    let db: EventStore<ChannelMessage>
     let repo = this.publicChannelsRepos.get(channel.address)
     if (repo) {
       db = repo.db
@@ -352,13 +321,13 @@ export class Storage {
     }
   }
 
-  private async createChannel(data: IChannelInfo): Promise<EventStore<IMessage>> {
+  private async createChannel(data: PublicChannel): Promise<EventStore<ChannelMessage>> {
     if (!validate.isChannel(data)) {
       log.error('STORAGE: Invalid channel format')
       return
     }
 
-    const db: EventStore<IMessage> = await this.orbitdb.log<IMessage>(`channels.${data.address}`, {
+    const db: EventStore<ChannelMessage> = await this.orbitdb.log<ChannelMessage>(`channels.${data.address}`, {
       accessController: {
         write: ['*']
       }
@@ -384,7 +353,7 @@ export class Storage {
   public async askForMessages(
     channelAddress: string,
     ids: string[]
-  ): Promise<{ filteredMessages: IMessage[]; channelAddress: string }> {
+  ): Promise<{ filteredMessages: ChannelMessage[]; channelAddress: string }> {
     const repo = this.publicChannelsRepos.get(channelAddress)
     if (!repo) return
     const messages = this.getAllEventLogEntries(repo.db)
@@ -396,25 +365,13 @@ export class Storage {
     return { filteredMessages, channelAddress }
   }
 
-  public async sendMessage(channelAddress: string, message: IMessage) {
+  public async sendMessage(message: ChannelMessage) {
     if (!validate.isMessage(message)) {
       log.error('STORAGE: public channel message is invalid')
       return
     }
-    const db = this.publicChannelsRepos.get(channelAddress).db
+    const db = this.publicChannelsRepos.get(message.channelId).db
     await db.add(message)
-  }
-
-  public async addUser(address: string, halfKey: string): Promise<void> {
-    if (!validate.isUser(address, halfKey)) {
-      log.error('STORAGE: invalid user format')
-      return
-    }
-    await this.directMessagesUsers.put(address, { halfKey })
-    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await this.directMessagesUsers.load({ fetchEntryTimeout: 2000 })
-    const payload = this.directMessagesUsers.all
-    this.io.emit(EventTypesResponse.RESPONSE_GET_AVAILABLE_USERS, payload)
   }
 
   public async initializeConversation(address: string, encryptedPhrase: string): Promise<void> {
@@ -422,7 +379,7 @@ export class Storage {
       log.error('STORAGE: Invalid conversation format')
       return
     }
-    const db: EventStore<IMessage> = await this.orbitdb.log<IMessage>(`dms.${address}`, {
+    const db: EventStore<ChannelMessage> = await this.orbitdb.log<ChannelMessage>(`dms.${address}`, {
       accessController: {
         write: ['*']
       }
@@ -444,7 +401,7 @@ export class Storage {
   }
 
   public async subscribeToDirectMessageThread(channelAddress: string) {
-    let db: EventStore<IMessage>
+    let db: EventStore<ChannelMessage>
     let repo = this.directMessagesRepos.get(channelAddress)
 
     if (repo) {
@@ -478,7 +435,7 @@ export class Storage {
     }
   }
 
-  private async createDirectMessageThread(channelAddress: string): Promise<EventStore<IMessage>> {
+  private async createDirectMessageThread(channelAddress: string): Promise<EventStore<ChannelMessage>> {
     if (!channelAddress) {
       log("No channel address, can't create channel")
       return
@@ -486,7 +443,7 @@ export class Storage {
 
     log(`creatin direct message thread for ${channelAddress}`)
 
-    const db: EventStore<IMessage> = await this.orbitdb.log<IMessage>(`dms.${channelAddress}`, {
+    const db: EventStore<ChannelMessage> = await this.orbitdb.log<ChannelMessage>(`dms.${channelAddress}`, {
       accessController: {
         write: ['*']
       }
@@ -516,39 +473,30 @@ export class Storage {
     await db.add(message)
   }
 
-  public async getAvailableUsers(): Promise<any> {
-    log('STORAGE: getAvailableUsers entered')
-    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await this.directMessagesUsers.load({ fetchEntryTimeout: 2000 })
-    const payload = this.directMessagesUsers.all
-    this.io.emit(EventTypesResponse.RESPONSE_GET_AVAILABLE_USERS, payload)
-    log('emitted')
-  }
-
   public async getPrivateConversations(): Promise<void> {
     log('STORAGE: getPrivateConversations enetered')
     // @ts-expect-error - OrbitDB's type declaration of `load` arguments lacks 'options'
     await this.messageThreads.load({ fetchEntryTimeout: 2000 })
     const payload = this.messageThreads.all
     log('STORAGE: getPrivateConversations payload payload')
-    this.io.emit(EventTypesResponse.RESPONSE_GET_PRIVATE_CONVERSATIONS, payload)
+    this.io.emit(SocketActionTypes.RESPONSE_GET_PRIVATE_CONVERSATIONS, payload)
   }
 
-  public async saveCertificate(certificate: string, fromRootPems?: DataFromPems): Promise<boolean> {
-    const rootPems = fromRootPems || dataFromRootPems // TODO: tmp for backward compatibilty
+  public async saveCertificate(payload: SaveCertificatePayload): Promise<boolean> {
+    const rootPems = payload.rootPermsData || rootPermsData // TODO: tmp for backward compatibilty
     log('About to save certificate...')
-    if (!certificate) {
+    if (!payload.certificate) {
       log('Certificate is either null or undefined, not saving to db')
       return false
     }
-    const verification = await verifyUserCert(rootPems.certificate, certificate)
+    const verification = await verifyUserCert(rootPems.certificate, payload.certificate)
     if (verification.resultCode !== 0) {
       log.error('Certificate is not valid')
       log.error(verification.resultMessage)
       return false
     }
     log('Saving certificate...')
-    await this.certificates.add(certificate)
+    await this.certificates.add(payload.certificate)
     return true
   }
 

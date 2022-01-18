@@ -29,19 +29,16 @@ const useStyles = makeStyles((theme) => ({
     marginTop: 32
   },
   button: {
-    height: 60,
     marginTop: 24,
-    width: 168,
-    fontSize: 16,
-    backgroundColor: theme.palette.colors.zbayBlue,
-    marginBottom: 24
-  },
-  rescanButton: {
+    textTransform: 'none',
+    width: 480,
     height: 60,
-    marginTop: 24,
-    width: 240,
-    fontSize: 16,
+    color: theme.palette.colors.white,
     backgroundColor: theme.palette.colors.zbayBlue,
+    '&:hover': {
+      opacity: 0.7,
+      backgroundColor: theme.palette.colors.zbayBlue
+    },
     marginBottom: 24
   },
   link: {
@@ -96,6 +93,7 @@ export const Security: React.FC<SecurityProps> = ({
             }}
             text='View key'
             classes={{ button: classes.button }}
+            disabled
           />
         </Grid>
       </Grid>

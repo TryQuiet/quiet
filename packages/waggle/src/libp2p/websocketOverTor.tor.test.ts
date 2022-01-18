@@ -123,7 +123,7 @@ describe('websocketOverTor', () => {
         key: pems.servKey,
         ca: caType(pems.ca)
       },
-      localAddr: createLibp2pAddress(service1.onionAddress, port1, peerId1, wsType),
+      localAddress: createLibp2pAddress(service1.onionAddress, port1, peerId1, wsType),
       targetPort: port1Target
     }
 
@@ -138,7 +138,7 @@ describe('websocketOverTor', () => {
         key: pems.userKey,
         ca: caType(pems.ca)
       },
-      localAddr: createLibp2pAddress(service2.onionAddress, port2, peerId2, wsType),
+      localAddress: createLibp2pAddress(service2.onionAddress, port2, peerId2, wsType),
       serverOpts: {},
       targetPort: port2Target
     }
@@ -211,7 +211,7 @@ describe('websocketOverTor', () => {
         key: pems.servKey,
         ca: [pems.ca]
       },
-      localAddr: createLibp2pAddress(service1.onionAddress, port1, peerId1, wsType),
+      localAddress: createLibp2pAddress(service1.onionAddress, port1, peerId1, wsType),
       targetPort: port1Target
     }
 
@@ -226,7 +226,7 @@ describe('websocketOverTor', () => {
         key: anotherPems.userKey,
         ca: [pems.ca]
       },
-      localAddr: createLibp2pAddress(service2.onionAddress, port2, peerId2, wsType),
+      localAddress: createLibp2pAddress(service2.onionAddress, port2, peerId2, wsType),
       serverOpts: {},
       targetPort: port2Target
     }
@@ -280,7 +280,7 @@ describe('websocketOverTor', () => {
         key: anotherPems.servKey,
         ca: [pems.ca]
       },
-      localAddr: createLibp2pAddress(service1.onionAddress, port1, peerId1, wsType),
+      localAddress: createLibp2pAddress(service1.onionAddress, port1, peerId1, wsType),
       targetPort: port1Target
     }
 
@@ -295,7 +295,7 @@ describe('websocketOverTor', () => {
         key: pems.userKey,
         ca: [pems.ca]
       },
-      localAddr: createLibp2pAddress(service2.onionAddress, port2, peerId2, wsType),
+      localAddress: createLibp2pAddress(service2.onionAddress, port2, peerId2, wsType),
       serverOpts: {},
       targetPort: port2Target
     }

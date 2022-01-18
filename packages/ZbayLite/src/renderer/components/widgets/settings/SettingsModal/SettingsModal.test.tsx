@@ -11,17 +11,7 @@ describe('SettingsModal', () => {
   it('renders component', () => {
     const result = renderComponent(
       <Provider store={store}>
-        <SettingsModal
-          open
-          isOwner={false}
-          handleClose={jest.fn()}
-          modalTabToOpen={'account'}
-          clearCurrentOpenTab={jest.fn()}
-          currentTab={'addFunds'}
-          setCurrentTab={jest.fn()}
-          blockedUsers={['string']}
-          user='string'
-        />
+        <SettingsModal user='string' owner={false} open handleClose={jest.fn()} />
       </Provider>
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
@@ -128,8 +118,8 @@ describe('SettingsModal', () => {
                             role="tablist"
                           >
                             <button
-                              aria-selected="false"
-                              class="MuiButtonBase-root MuiTab-root MuiTab-textColorInherit"
+                              aria-selected="true"
+                              class="MuiButtonBase-root MuiTab-root MuiTab-textColorInherit Mui-selected makeStyles-selected-6"
                               role="tab"
                               tabindex="0"
                               type="button"
@@ -159,25 +149,9 @@ describe('SettingsModal', () => {
                                 class="MuiTouchRipple-root"
                               />
                             </button>
-                            <button
-                              aria-selected="false"
-                              class="MuiButtonBase-root MuiTab-root MuiTab-textColorInherit"
-                              role="tab"
-                              tabindex="0"
-                              type="button"
-                            >
-                              <span
-                                class="MuiTab-wrapper"
-                              >
-                                Blocked Users
-                              </span>
-                              <span
-                                class="MuiTouchRipple-root"
-                              />
-                            </button>
                           </div>
                           <span
-                            class="PrivateTabIndicator-root-257 PrivateTabIndicator-colorSecondary-259 MuiTabs-indicator makeStyles-indicator-3 PrivateTabIndicator-vertical-260"
+                            class="PrivateTabIndicator-root-234 PrivateTabIndicator-colorSecondary-236 MuiTabs-indicator makeStyles-indicator-3 PrivateTabIndicator-vertical-237"
                             style="top: 0px; height: 0px;"
                           />
                         </div>
@@ -206,29 +180,350 @@ describe('SettingsModal', () => {
                               class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column"
                             >
                               <div
-                                class="MuiGrid-root makeStyles-title-241 MuiGrid-item"
-                              >
-                                <h3
-                                  class="MuiTypography-root MuiTypography-h3"
-                                >
-                                  Account
-                                </h3>
-                              </div>
-                              <div
-                                class="MuiGrid-root MuiGrid-container MuiGrid-justify-xs-center"
+                                class="MuiGrid-root makeStyles-titleDiv-239 MuiGrid-container MuiGrid-item MuiGrid-align-items-xs-center MuiGrid-justify-xs-space-between"
                               >
                                 <div
-                                  class="MuiGrid-root makeStyles-createUsernameContainer-234 MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true"
+                                  class="MuiGrid-root makeStyles-title-238 MuiGrid-item"
+                                >
+                                  <h3
+                                    class="MuiTypography-root MuiTypography-h3"
+                                  >
+                                    Notifications
+                                  </h3>
+                                </div>
+                              </div>
+                              <div
+                                class="MuiGrid-root MuiGrid-item"
+                              >
+                                <h5
+                                  class="MuiTypography-root makeStyles-subtitle-240 MuiTypography-h5"
+                                >
+                                  Notify me about...
+                                </h5>
+                              </div>
+                              <div
+                                class="MuiGrid-root makeStyles-radioDiv-241 MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column"
+                              >
+                                <div
+                                  class="MuiGrid-root makeStyles-spacing-246 MuiGrid-item"
+                                >
+                                  <label
+                                    class="MuiFormControlLabel-root makeStyles-radioIcon-243"
+                                  >
+                                    <span
+                                      aria-disabled="false"
+                                      class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-263 MuiCheckbox-root MuiCheckbox-colorSecondary PrivateSwitchBase-checked-264 Mui-checked MuiIconButton-colorSecondary"
+                                    >
+                                      <span
+                                        class="MuiIconButton-label"
+                                      >
+                                        <input
+                                          checked=""
+                                          class="PrivateSwitchBase-input-266"
+                                          data-indeterminate="false"
+                                          type="checkbox"
+                                          value=""
+                                        />
+                                        <img
+                                          src="test-file-stub"
+                                        />
+                                      </span>
+                                      <span
+                                        class="MuiTouchRipple-root"
+                                      />
+                                    </span>
+                                    <span
+                                      class="MuiTypography-root MuiFormControlLabel-label MuiTypography-body1"
+                                    >
+                                      <div
+                                        class="MuiGrid-root makeStyles-offset-245 MuiGrid-container MuiGrid-direction-xs-column"
+                                      >
+                                        <div
+                                          class="MuiGrid-root MuiGrid-item"
+                                        >
+                                          <span
+                                            class="makeStyles-bold-244"
+                                          >
+                                            Every new message
+                                          </span>
+                                        </div>
+                                        <div
+                                          class="MuiGrid-root MuiGrid-item"
+                                        >
+                                          <span>
+                                            You’ll be notified for every new message
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </span>
+                                  </label>
+                                   
+                                </div>
+                                <div
+                                  class="MuiGrid-root makeStyles-spacing-246 MuiGrid-item"
+                                >
+                                  <label
+                                    class="MuiFormControlLabel-root makeStyles-radioIcon-243"
+                                  >
+                                    <span
+                                      aria-disabled="false"
+                                      class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-263 MuiCheckbox-root MuiCheckbox-colorSecondary MuiIconButton-colorSecondary"
+                                    >
+                                      <span
+                                        class="MuiIconButton-label"
+                                      >
+                                        <input
+                                          class="PrivateSwitchBase-input-266"
+                                          data-indeterminate="false"
+                                          type="checkbox"
+                                          value=""
+                                        />
+                                        <img
+                                          src="test-file-stub"
+                                        />
+                                      </span>
+                                      <span
+                                        class="MuiTouchRipple-root"
+                                      />
+                                    </span>
+                                    <span
+                                      class="MuiTypography-root MuiFormControlLabel-label MuiTypography-body1"
+                                    >
+                                      <div
+                                        class="MuiGrid-root makeStyles-offset-245 MuiGrid-container MuiGrid-direction-xs-column"
+                                      >
+                                        <div
+                                          class="MuiGrid-root MuiGrid-item"
+                                        >
+                                          <span
+                                            class="makeStyles-bold-244"
+                                          >
+                                            Direct messages, mentions & keywords
+                                          </span>
+                                        </div>
+                                        <div
+                                          class="MuiGrid-root MuiGrid-item"
+                                        >
+                                          <span>
+                                            You’ll be notified when someone mentions you or sends you a direct message.
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </span>
+                                  </label>
+                                </div>
+                                <div
+                                  class="MuiGrid-root makeStyles-spacing-246 MuiGrid-item"
+                                >
+                                  <label
+                                    class="MuiFormControlLabel-root makeStyles-radioIcon-243"
+                                  >
+                                    <span
+                                      aria-disabled="false"
+                                      class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-263 MuiCheckbox-root MuiCheckbox-colorSecondary MuiIconButton-colorSecondary"
+                                    >
+                                      <span
+                                        class="MuiIconButton-label"
+                                      >
+                                        <input
+                                          class="PrivateSwitchBase-input-266"
+                                          data-indeterminate="false"
+                                          type="checkbox"
+                                          value=""
+                                        />
+                                        <img
+                                          src="test-file-stub"
+                                        />
+                                      </span>
+                                      <span
+                                        class="MuiTouchRipple-root"
+                                      />
+                                    </span>
+                                    <span
+                                      class="MuiTypography-root MuiFormControlLabel-label MuiTypography-body1"
+                                    >
+                                      <div
+                                        class="MuiGrid-root makeStyles-offset-245 MuiGrid-container MuiGrid-direction-xs-column"
+                                      >
+                                        <div
+                                          class="MuiGrid-root MuiGrid-item"
+                                        >
+                                          <span
+                                            class="makeStyles-bold-244"
+                                          >
+                                            Nothing
+                                          </span>
+                                        </div>
+                                        <div
+                                          class="MuiGrid-root MuiGrid-item"
+                                        >
+                                          <span>
+                                            You won’t receive notificaitons from Zbay.
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </span>
+                                  </label>
+                                </div>
+                                <div
+                                  class="MuiGrid-root makeStyles-subtitleSoundDiv-248 MuiGrid-item"
+                                >
+                                  <h5
+                                    class="MuiTypography-root makeStyles-subtitle-240 MuiTypography-h5"
+                                  >
+                                    Sounds
+                                  </h5>
+                                </div>
+                                <div
+                                  class="MuiGrid-root makeStyles-radioSoundDiv-242 MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column"
                                 >
                                   <div
-                                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12"
+                                    class="MuiGrid-root MuiGrid-item"
                                   >
-                                    <h4
-                                      class="MuiTypography-root MuiTypography-h4"
+                                    <label
+                                      class="MuiFormControlLabel-root"
                                     >
-                                      @
-                                      
-                                    </h4>
+                                      <span
+                                        aria-disabled="false"
+                                        class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-263 MuiCheckbox-root"
+                                      >
+                                        <span
+                                          class="MuiIconButton-label"
+                                        >
+                                          <input
+                                            class="PrivateSwitchBase-input-266"
+                                            data-indeterminate="false"
+                                            type="checkbox"
+                                            value=""
+                                          />
+                                          <svg
+                                            aria-hidden="true"
+                                            class="MuiSvgIcon-root"
+                                            focusable="false"
+                                            role="presentation"
+                                            viewBox="0 0 24 24"
+                                          >
+                                            <path
+                                              d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
+                                            />
+                                          </svg>
+                                        </span>
+                                        <span
+                                          class="MuiTouchRipple-root"
+                                        />
+                                      </span>
+                                      <span
+                                        class="MuiTypography-root MuiFormControlLabel-label MuiTypography-body1"
+                                      >
+                                        <p
+                                          class="MuiTypography-root makeStyles-label-249 MuiTypography-body2"
+                                        >
+                                          Play a sound when receiving a notification
+                                        </p>
+                                      </span>
+                                    </label>
+                                  </div>
+                                  <div
+                                    class="MuiGrid-root makeStyles-spacingSound-250 MuiGrid-item"
+                                  >
+                                    <label
+                                      class="MuiFormControlLabel-root makeStyles-radioSound-247"
+                                    >
+                                      <span
+                                        aria-disabled="false"
+                                        class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-263 MuiCheckbox-root MuiCheckbox-colorSecondary MuiIconButton-colorSecondary"
+                                      >
+                                        <span
+                                          class="MuiIconButton-label"
+                                        >
+                                          <input
+                                            class="PrivateSwitchBase-input-266"
+                                            data-indeterminate="false"
+                                            type="checkbox"
+                                            value=""
+                                          />
+                                          <img
+                                            src="test-file-stub"
+                                          />
+                                        </span>
+                                        <span
+                                          class="MuiTouchRipple-root"
+                                        />
+                                      </span>
+                                      <span
+                                        class="MuiTypography-root MuiFormControlLabel-label MuiTypography-body1"
+                                      >
+                                        Pow
+                                      </span>
+                                    </label>
+                                  </div>
+                                  <div
+                                    class="MuiGrid-root makeStyles-spacingSound-250 MuiGrid-item"
+                                  >
+                                    <label
+                                      class="MuiFormControlLabel-root makeStyles-radioSound-247"
+                                    >
+                                      <span
+                                        aria-disabled="false"
+                                        class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-263 MuiCheckbox-root MuiCheckbox-colorSecondary MuiIconButton-colorSecondary"
+                                      >
+                                        <span
+                                          class="MuiIconButton-label"
+                                        >
+                                          <input
+                                            class="PrivateSwitchBase-input-266"
+                                            data-indeterminate="false"
+                                            type="checkbox"
+                                            value=""
+                                          />
+                                          <img
+                                            src="test-file-stub"
+                                          />
+                                        </span>
+                                        <span
+                                          class="MuiTouchRipple-root"
+                                        />
+                                      </span>
+                                      <span
+                                        class="MuiTypography-root MuiFormControlLabel-label MuiTypography-body1"
+                                      >
+                                        Bang
+                                      </span>
+                                    </label>
+                                  </div>
+                                  <div
+                                    class="MuiGrid-root makeStyles-spacingSound-250 MuiGrid-item"
+                                  >
+                                    <label
+                                      class="MuiFormControlLabel-root makeStyles-radioSound-247"
+                                    >
+                                      <span
+                                        aria-disabled="false"
+                                        class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-263 MuiCheckbox-root MuiCheckbox-colorSecondary MuiIconButton-colorSecondary"
+                                      >
+                                        <span
+                                          class="MuiIconButton-label"
+                                        >
+                                          <input
+                                            class="PrivateSwitchBase-input-266"
+                                            data-indeterminate="false"
+                                            type="checkbox"
+                                            value=""
+                                          />
+                                          <img
+                                            src="test-file-stub"
+                                          />
+                                        </span>
+                                        <span
+                                          class="MuiTouchRipple-root"
+                                        />
+                                      </span>
+                                      <span
+                                        class="MuiTypography-root MuiFormControlLabel-label MuiTypography-body1"
+                                      >
+                                        Splat
+                                      </span>
+                                    </label>
                                   </div>
                                 </div>
                               </div>
@@ -284,38 +579,14 @@ describe('SettingsModal', () => {
   })
 
   it('displays "Add members" tab for community owner', async () => {
-    renderComponent(
-      <SettingsModal
-        open
-        isOwner={true}
-        handleClose={jest.fn()}
-        modalTabToOpen={'account'}
-        clearCurrentOpenTab={jest.fn()}
-        currentTab={'account'}
-        setCurrentTab={jest.fn()}
-        blockedUsers={['string']}
-        user='string'
-      />
-    )
+    renderComponent(<SettingsModal user='string' owner={true} open handleClose={jest.fn()} />)
     expect(screen.queryByRole('tab', { name: /Notifications/i })).not.toBeNull()
     expect(screen.queryByRole('tab', { name: /Security/i })).not.toBeNull()
     expect(screen.queryByRole('tab', { name: /Add members/i })).not.toBeNull()
   })
 
   it('does not display "Add members" tab if user is not a community owner', async () => {
-    renderComponent(
-      <SettingsModal
-        open
-        isOwner={false}
-        handleClose={jest.fn()}
-        modalTabToOpen={'account'}
-        clearCurrentOpenTab={jest.fn()}
-        currentTab={'account'}
-        setCurrentTab={jest.fn()}
-        blockedUsers={['string']}
-        user='string'
-      />
-    )
+    renderComponent(<SettingsModal user='string' owner={false} open handleClose={jest.fn()} />)
     expect(screen.queryByRole('tab', { name: /Notifications/i })).not.toBeNull()
     expect(screen.queryByRole('tab', { name: /Security/i })).not.toBeNull()
     expect(screen.queryByRole('tab', { name: /Add members/i })).toBeNull()

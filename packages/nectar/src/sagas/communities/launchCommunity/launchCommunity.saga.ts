@@ -3,9 +3,8 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { Socket } from 'socket.io-client'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { identitySelectors } from '../../identity/identity.selectors'
-
 import { communitiesSelectors } from '../communities.selectors'
-import { communitiesActions } from '../communities.slice'
+import { communitiesActions, InitCommunityPayload } from '../communities.slice'
 import { identityActions } from '../../identity/identity.slice';
 
 export function* initCommunities(): Generator {
@@ -37,21 +36,20 @@ export function* launchCommunitySaga(
   const community = yield* select(communitiesSelectors.selectById(communityId))
   const identity = yield* select(identitySelectors.selectById(communityId))
 
-  const cert = identity.userCertificate
-  const key = identity.userCsr.userKey
-  const ca = community.rootCa
-
-  const certs = {
-    cert,
-    key,
-    ca
+  const payload: InitCommunityPayload = {
+    id: identity.id,
+    peerId: identity.peerId,
+    hiddenService: identity.hiddenService,
+    certs: {
+      certificate: identity.userCertificate,
+      key: identity.userCsr.userKey,
+      CA: [community.rootCa]
+    },
+    peers: community.peerList
   }
+
   yield* apply(socket, socket.emit, [
     SocketActionTypes.LAUNCH_COMMUNITY,
-    identity.id,
-    identity.peerId,
-    identity.hiddenService,
-    community.peerList,
-    certs
+    payload
   ])
 }

@@ -146,9 +146,8 @@ describe('sendMessageSaga', () => {
       ])
       .apply(socket, socket.emit, [
         SocketActionTypes.SEND_MESSAGE,
-        identity.peerId.id,
         {
-          channelAddress: publicChannel.address,
+          peerId: identity.peerId.id,
           message: {
             id: 4,
             type: MessageTypes.BASIC,

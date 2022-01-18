@@ -3,7 +3,7 @@ import fetch, { Response } from 'node-fetch'
 import PeerId from 'peer-id'
 import { CertificateRegistration } from '.'
 import { createLibp2p } from '../common/testUtils'
-import { DataFromPems } from '../common/types'
+import { PermsData } from '@zbayapp/nectar'
 import { DummyIOServer } from '../common/utils'
 import { Storage } from '../storage'
 import { Tor } from '../torManager'
@@ -23,11 +23,11 @@ export async function registerUser(csr: string, httpTunnelPort: number, localhos
   return await fetch(`http://${address}:${registrarPort}/register`, options)
 }
 
-export async function setupRegistrar(tor: Tor, storage: Storage, dataFromPems: DataFromPems, hiddenServiceKey?: string, port?: number) {
+export async function setupRegistrar(tor: Tor, storage: Storage, permsData: PermsData, hiddenServiceKey?: string, port?: number) {
   const certRegister = new CertificateRegistration(
     tor,
     storage,
-    dataFromPems,
+    permsData,
     hiddenServiceKey,
     port
   )

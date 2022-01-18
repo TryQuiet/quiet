@@ -47,7 +47,10 @@ export const IdentityPanel: React.FC<IdentityPanelProps> = ({ handleSettings, id
   return (
     <div className={classes.root}>
       <Button
-        onClick={handleSettings}
+        onClick={event => {
+          event.persist()
+          handleSettings()
+        }}
         component='span'
         classes={{ root: classes.button, label: classes.buttonLabel }}>
         <Typography variant='h4' className={classes.nickname}>

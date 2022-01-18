@@ -5,9 +5,9 @@ import { InviteToCommunity } from '../../../components/widgets/settings/InviteTo
 
 const InviteToCommunityTab: FC = () => {
   const community = useSelector(communities.selectors.currentCommunity)
-  const invitationUrl = useSelector(communities.selectors.registrarUrl(community.id))
+  const invitationUrl = useSelector(communities.selectors.registrarUrl(community?.id))
 
-  return <InviteToCommunity communityName={community.name} invitationUrl={invitationUrl} />
+  return <InviteToCommunity communityName={community?.name} invitationUrl={invitationUrl} />
 }
 
 export default InviteToCommunityTab

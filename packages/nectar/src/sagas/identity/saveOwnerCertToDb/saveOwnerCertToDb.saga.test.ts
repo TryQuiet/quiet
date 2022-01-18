@@ -56,21 +56,20 @@ describe('saveOwnerCertificateToDb', () => {
           },
           [StoreKeys.Identity]: {
             ...new IdentityState(),
-            identities: identityAdapter.setAll(
-              identityAdapter.getInitialState(),
-              [identity]
-            )
+            identities: identityAdapter.setAll(identityAdapter.getInitialState(), [identity])
           }
         }
       )
       .apply(socket, socket.emit, [
         SocketActionTypes.SAVE_OWNER_CERTIFICATE,
-        communityId,
-        identity.peerId.id,
-        identity.userCertificate,
         {
-          certificate: community.CA.rootCertString,
-          privKey: community.CA.rootKeyString
+          id: communityId,
+          peerId: identity.peerId.id,
+          certificate: identity.userCertificate,
+          permsData: {
+            certificate: community.CA.rootCertString,
+            privKey: community.CA.rootKeyString
+          }
         }
       ])
       .run()

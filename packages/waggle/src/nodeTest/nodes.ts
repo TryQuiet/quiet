@@ -6,8 +6,9 @@ import { DataServer } from '../socket/DataServer'
 import { ConnectionsManager } from '../libp2p/connectionsManager'
 import CommunitiesManager from '../communities/manager'
 import { createUsersCerts } from '../libp2p/tests/client-server'
-import { CertsData, ConnectionsManagerOptions } from '../common/types'
+import { ConnectionsManagerOptions } from '../common/types'
 import { RootCA } from '@zbayapp/identity'
+import { Certificates } from '@zbayapp/nectar'
 
 /**
  * More customizable version of Node (entry node), mainly for testing purposes
@@ -108,16 +109,16 @@ export class NodeWithoutTor extends LocalNode {
       address.replace('wss', 'ws')
     )
     // eslint-disable-next-line
-    const certs = {} as CertsData
-    this.localAddress = await communitiesManager.initStorage(
-      peerId,
-      '0.0.0.0',
-      this.port,
-      this.port,
-      bootstrapAddressArrayWs,
-      certs,
-      'communityId'
-    )
+    const certs = {} as Certificates
+    this.localAddress = await communitiesManager.initStorage({
+      communityId: 'communityId',
+      peerId: peerId,
+      onionAddress: '0.0.0.0',
+      virtPort: this.port,
+      targetPort: this.port,
+      peers: bootstrapAddressArrayWs,
+      certs: certs
+    })
     this.connectionsManager = connectionsManager
     this.communitiesManager = communitiesManager
     this.storage = communitiesManager.getStorage(peerId.toB58String())
@@ -153,24 +154,24 @@ export class NodeWithTor extends LocalNode {
     })
     const userCert = await createUsersCerts(onionAddress, this.rootCa)
 
-    const certs = {
-      cert: userCert.userCert,
+    const certs: Certificates = {
+      certificate: userCert.userCert,
       key: userCert.userKey,
-      ca: [this.rootCa.rootCertString]
+      CA: [this.rootCa.rootCertString]
     }
     const virtPort = 443
 
     const communitiesManager = new CommunitiesManager(connectionsManager)
     const peerId = await this.getPeer()
-    this.localAddress = await communitiesManager.initStorage(
-      peerId,
-      onionAddress,
-      virtPort,
-      this.port,
-      this.bootstrapMultiaddrs,
-      certs,
-      'communityId'
-    )
+    this.localAddress = await communitiesManager.initStorage({
+      communityId: 'communityId',
+      peerId: peerId,
+      onionAddress: onionAddress,
+      virtPort: virtPort,
+      targetPort: this.port,
+      peers: this.bootstrapMultiaddrs,
+      certs: certs
+    })
     this.connectionsManager = connectionsManager
     this.communitiesManager = communitiesManager
     this.storage = communitiesManager.getStorage(peerId.toB58String())

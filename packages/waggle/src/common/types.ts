@@ -1,30 +1,13 @@
 import EventStore from 'orbit-db-eventstore'
-
-export interface IMessage {
-  id: string
-  type: number
-  message: string
-  createdAt: number
-  channelId: string
-  signature: string
-  pubKey: string
-}
+import { ChannelMessage, PublicChannel } from '@zbayapp/nectar'
 
 export interface IRepo {
-  db: EventStore<IMessage>
+  db: EventStore<ChannelMessage>
   eventsAttached: boolean
 }
 
-export interface IChannelInfo {
-  name: string
-  description: string
-  owner: string
-  timestamp: number
-  address: string
-}
-
 export interface ChannelInfoResponse {
-  [name: string]: IChannelInfo
+  [name: string]: PublicChannel
 }
 
 export class StorageOptions {
@@ -37,6 +20,7 @@ export class StorageOptions {
 export interface IPublicKey {
   halfKey: string
 }
+
 export type IMessageThread = string
 
 export class ConnectionsManagerOptions {
@@ -73,15 +57,4 @@ export interface IConstructor {
 export interface ILibp2pStatus {
   address: string
   peerId: string
-}
-
-export interface DataFromPems {
-  certificate: string
-  privKey: string
-}
-
-export interface CertsData {
-  cert: string
-  key: string
-  ca: string[]
 }

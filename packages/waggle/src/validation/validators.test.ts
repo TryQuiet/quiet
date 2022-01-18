@@ -1,5 +1,5 @@
+import { ChannelMessage, PublicChannel } from '@zbayapp/nectar'
 import { isUser, isMessage, isConversation, isDirectMessage, isChannel } from './validators'
-import { IMessage, IChannelInfo } from '../common/types'
 
 describe('Validators - Users', () => {
   test('publicKey and halfKey are valid', () => {
@@ -84,7 +84,7 @@ describe('Validators - Messages', () => {
       signature: 'asdfasdf',
       pubKey: 'afsdf'
     }
-    expect(isMessage(msg as IMessage)).toBeFalsy()
+    expect(isMessage(msg as ChannelMessage)).toBeFalsy()
   })
   test('message proprty has wrong format', () => {
     const msg = {
@@ -96,7 +96,7 @@ describe('Validators - Messages', () => {
       signature: 'asdfasdf',
       pubKey: 'afsdf'
     }
-    expect(isMessage((msg as unknown) as IMessage)).toBeFalsy()
+    expect(isMessage((msg as unknown) as ChannelMessage)).toBeFalsy()
   })
 })
 
@@ -118,7 +118,7 @@ describe('Validators - Channels', () => {
       owner: 'szakalakakaaakaka',
       address: 'sadfdasfsadfsdfsnfsdjfdsfsdfjsdf'
     }
-    expect(isChannel(channel as IChannelInfo)).toBeFalsy()
+    expect(isChannel(channel as unknown as PublicChannel)).toBeFalsy()
   })
   test('message proprty has wrong format', () => {
     const channel = {
@@ -128,7 +128,7 @@ describe('Validators - Channels', () => {
       timestamp: 'asfasdf',
       address: 'sadfdasfsadfsdfsnfsdjfdsfsdfjsdf'
     }
-    expect(isChannel((channel as unknown) as IChannelInfo)).toBeFalsy()
+    expect(isChannel((channel as unknown) as PublicChannel)).toBeFalsy()
   })
 })
 
