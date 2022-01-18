@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 import Tabs from '@material-ui/core/Tabs'
 import AppBar from '@material-ui/core/AppBar'
@@ -58,54 +58,43 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-const handleChange = (
-  clearCurrentOpenTab: () => void,
-  setCurrentTab: (tab: string) => void,
-  value: string
-) => {
-  clearCurrentOpenTab()
-  setCurrentTab(value)
-}
-
 interface SettingsModalProps {
+  user: string
+  owner: boolean
   open: boolean
   handleClose: () => void
-  modalTabToOpen: string
-  clearCurrentOpenTab: () => void
-  currentTab: string
-  setCurrentTab: (value: string) => void
-  user: string
-  isOwner: boolean
-  blockedUsers: string[]
 }
 
-export const SettingsModal: React.FC<SettingsModalProps> = ({
-  open,
-  handleClose,
-  modalTabToOpen,
-  clearCurrentOpenTab,
-  currentTab,
-  setCurrentTab,
-  user,
-  isOwner,
-  blockedUsers
-}) => {
+export const SettingsModal: React.FC<SettingsModalProps> = ({ user, owner, open, handleClose }) => {
   const classes = useStyles({})
+
   const [contentRef, setContentRef] = React.useState(null)
+
   const scrollbarRef = React.useRef()
+
   const [offset, setOffset] = React.useState(0)
-  const TabComponent = tabs[modalTabToOpen || currentTab]
+
+  const [currentTab, setCurrentTab] = useState('notifications')
+
   const adjustOffset = () => {
     if (contentRef.clientWidth > 800) {
       setOffset((contentRef.clientWidth - 800) / 2)
     }
   }
+
+  const handleChange = (tab) => {
+    setCurrentTab(tab)
+  }
+
   React.useEffect(() => {
     if (contentRef) {
       window.addEventListener('resize', adjustOffset)
       adjustOffset()
     }
   }, [contentRef])
+
+  const TabComponent = tabs[currentTab]
+
   return (
     <Modal open={open} handleClose={handleClose} title={user} isBold addBorder contentWidth='100%'>
       <Grid
@@ -120,10 +109,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         <Grid item className={classes.tabsDiv} style={{ marginLeft: offset }}>
           <AppBar position='static' className={classes.appbar}>
             <Tabs
-              value={modalTabToOpen || currentTab}
+              value={currentTab}
               onChange={(event, value) => {
                 event.persist()
-                handleChange(clearCurrentOpenTab, setCurrentTab, value)
+                handleChange(value)
               }}
               orientation='vertical'
               className={classes.tabs}
@@ -135,19 +124,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 classes={{ selected: classes.selected }}
               />
               <Tab value='security' label='Security' classes={{ selected: classes.selected }} />
-              {blockedUsers?.length && (
-                <Tab
-                  value='blockedusers'
-                  label='Blocked Users'
-                  classes={{ selected: classes.selected }}
-                />
-              )}
-              {isOwner && (
-                <Tab
-                  value='invite'
-                  label='Add members'
-                  classes={{ selected: classes.selected }}
-                />
+              {owner && (
+                <Tab value='invite' label='Add members' classes={{ selected: classes.selected }} />
               )}
             </Tabs>
           </AppBar>

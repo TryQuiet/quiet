@@ -1,6 +1,4 @@
 import '@testing-library/jest-dom'
-import { waitFor, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import React from 'react'
 import { InviteToCommunity } from '../../../components/widgets/settings/InviteToCommunity'
 import { renderComponent } from '../../../testUtils/renderComponent'
@@ -38,12 +36,21 @@ describe('InviteToCommunity', () => {
               <div
                 class="MuiGrid-root MuiGrid-item"
               >
+                <h5
+                  class="MuiTypography-root MuiTypography-h5"
+                >
+                  Your invitation url
+                </h5>
+              </div>
+              <div
+                class="MuiGrid-root MuiGrid-item"
+              >
                 <p
                   class="MuiTypography-root MuiTypography-body2"
                 >
-                  Get a link to add members to 
+                  Use this link to add members to 
                   <span
-                    class="makeStyles-bold-11"
+                    class="makeStyles-bold-5"
                   >
                     My new community
                   </span>
@@ -51,17 +58,26 @@ describe('InviteToCommunity', () => {
               </div>
             </div>
             <div
+              class="MuiGrid-root MuiGrid-item"
+            >
+              <p
+                class="MuiTypography-root MuiTypography-body2"
+              >
+                http://registrarurl.onion
+              </p>
+            </div>
+            <div
               class="MuiGrid-root"
             >
               <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-contained makeStyles-button-7 MuiButton-containedPrimary MuiButton-containedSizeLarge MuiButton-sizeLarge MuiButton-fullWidth"
+                class="MuiButtonBase-root MuiButton-root MuiButton-text makeStyles-button-4"
                 tabindex="0"
-                type="submit"
+                type="button"
               >
                 <span
                   class="MuiButton-label"
                 >
-                  Create link
+                  Copy to clipboard
                 </span>
                 <span
                   class="MuiTouchRipple-root"
@@ -72,23 +88,5 @@ describe('InviteToCommunity', () => {
         </div>
       </body>
     `)
-  })
-
-  it('reveals registrar url when user clicks on the button', async () => {
-    const registrarUrl = 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad'
-    renderComponent(
-      <InviteToCommunity
-        communityName={'My new community'}
-        invitationUrl={registrarUrl}
-      />
-    )
-    expect(screen.queryByText(registrarUrl)).toBeNull()
-    const revealUrlButton = screen.getByRole('button')
-    expect(revealUrlButton).toBeEnabled()
-    userEvent.click(revealUrlButton)
-    await waitFor(() => expect(screen.queryByText(registrarUrl)).not.toBeNull())
-    const copyToClipboardButton = screen.queryByRole('button')
-    expect(copyToClipboardButton).not.toBeNull()
-    expect(copyToClipboardButton).toHaveTextContent('Copy to clipboard')
   })
 })

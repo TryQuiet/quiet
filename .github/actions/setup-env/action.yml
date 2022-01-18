@@ -13,19 +13,6 @@ runs:
       run: git config --global http.postBuffer 524288000
       shell: bash
 
-    - name: "Patch node gyp on windows to support Visual Studio 2019"
-      if: ${{ matrix.os == 'windows-latest' }}
-      shell: powershell
-      run: |
-        npm install --global node-gyp@latest
-        npm prefix -g | % {npm config set node_gyp "$_\node_modules\node-gyp\bin\node-gyp.js"}
-        npm config set msvs_version 2019
-
-    - name: "Get extra dependencies"
-      if: ${{ matrix.os == 'windows-latest' }}
-      run: npm install -g windows-build-tools@4.0.0
-      shell: powershell
-
     - name: "Set unsafe-perm"
       run: npm set unsafe-perm true
       shell: bash

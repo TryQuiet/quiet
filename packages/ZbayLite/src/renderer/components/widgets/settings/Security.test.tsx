@@ -58,8 +58,9 @@ describe('Security', () => {
                 class="MuiGrid-root MuiGrid-item"
               >
                 <button
-                  class="MuiButtonBase-root MuiButton-root MuiButton-contained makeStyles-button-7 MuiButton-containedPrimary MuiButton-containedSizeLarge MuiButton-sizeLarge MuiButton-fullWidth"
-                  tabindex="0"
+                  class="MuiButtonBase-root MuiButton-root MuiButton-contained makeStyles-button-7 MuiButton-containedPrimary MuiButton-containedSizeLarge MuiButton-sizeLarge Mui-disabled MuiButton-fullWidth Mui-disabled"
+                  disabled=""
+                  tabindex="-1"
                   type="submit"
                 >
                   <span
@@ -67,9 +68,6 @@ describe('Security', () => {
                   >
                     View key
                   </span>
-                  <span
-                    class="MuiTouchRipple-root"
-                  />
                 </button>
               </div>
             </div>
@@ -91,7 +89,7 @@ describe('Security', () => {
                 For faster message delivery, Zbay can send and receive messages directly with Tor (instead of the Zcash blockchain) when other users are online.
                  
                 <a
-                  class="makeStyles-link-9"
+                  class="makeStyles-link-8"
                   href="https://www.zbay.app/faq.html"
                 >
                   Learn more.
@@ -124,14 +122,14 @@ describe('Security', () => {
               >
                 <span
                   aria-disabled="false"
-                  class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-189 MuiCheckbox-root PrivateSwitchBase-checked-190 Mui-checked"
+                  class="MuiButtonBase-root MuiIconButton-root PrivateSwitchBase-root-188 MuiCheckbox-root PrivateSwitchBase-checked-189 Mui-checked"
                 >
                   <span
                     class="MuiIconButton-label"
                   >
                     <input
                       checked=""
-                      class="PrivateSwitchBase-input-192"
+                      class="PrivateSwitchBase-input-191"
                       data-indeterminate="false"
                       type="checkbox"
                       value=""
