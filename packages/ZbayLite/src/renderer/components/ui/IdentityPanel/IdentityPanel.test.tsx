@@ -3,43 +3,31 @@ import React from 'react'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import { IdentityPanel } from './IdentityPanel'
 
-import { Identity } from '@zbayapp/nectar'
+import { Community } from '@zbayapp/nectar'
 
 import { Provider } from 'react-redux'
 import store from '../../../store'
 
 describe('IdentityPanel', () => {
   it('renders component with username', () => {
-    const identity: Identity = {
-      id: '',
-      zbayNickname: '',
-      hiddenService: {
-        onionAddress: 'string',
-        privateKey: 'string'
+    const community: Community = {
+      name: 'QuietCommunity',
+      id: 'id',
+      CA: null,
+      rootCa: 'string',
+      peerList: [],
+      onionAddress: 'string',
+      privateKey: 'string',
+      registrarUrl: 'string',
+      registrar: {
+        privateKey: 'string',
+        address: 'string'
       },
-      dmKeys: {
-        publicKey: 'string',
-        privateKey: 'string'
-      },
-      peerId: {
-        id: 'string',
-        pubKey: 'string',
-        privKey: 'string'
-      },
-      userCsr: {
-        userCsr: 'string',
-        userKey: 'string',
-        pkcs10: {
-          publicKey: 'any',
-          privateKey: 'any',
-          pkcs10: 'any'
-        }
-      },
-      userCertificate: ''
+      port: null
     }
     const result = renderComponent(
       <Provider store={store}>
-        <IdentityPanel identity={identity} handleSettings={jest.fn()} />
+        <IdentityPanel community={community} handleSettings={jest.fn()} />
       </Provider>
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
@@ -59,7 +47,9 @@ describe('IdentityPanel', () => {
               >
                 <h4
                   class="MuiTypography-root makeStyles-nickname-4 MuiTypography-h4"
-                />
+                >
+                  QuietCommunity
+                </h4>
                 <svg
                   aria-hidden="true"
                   class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall"

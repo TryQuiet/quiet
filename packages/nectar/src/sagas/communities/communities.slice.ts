@@ -90,7 +90,8 @@ export const communitiesSlice = createSlice({
     addNewCommunity: (state, action: PayloadAction<Community>) => {
       communitiesAdapter.addOne(state.communities, action.payload)
     },
-    updateCommunity: (state, action: PayloadAction<Partial<Community>>) => {
+    updateCommunity: (state, _action: PayloadAction<Partial<Community>>) => state,
+    updateCommunityData: (state, action: PayloadAction<Partial<Community>>) => {
       communitiesAdapter.updateOne(state.communities, {
         id: action.payload.id,
         changes: {
