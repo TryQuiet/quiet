@@ -78,7 +78,7 @@ describe('Certificate', () => {
     const peerId = await PeerId.create()
     const libp2p = await createLibp2p(peerId)
     await storage.init(libp2p, peerId)
-    const result = await storage.saveCertificate({ certificate: userCert.userCertString })
+    const result = await storage.saveCertificate({ certificate: userCert.userCertString, rootPermsData })
     expect(result).toBe(true)
   })
 
@@ -96,7 +96,7 @@ describe('Certificate', () => {
     const peerId = await PeerId.create()
     const libp2p = await createLibp2p(peerId)
     await storage.init(libp2p, peerId)
-    const result = await storage.saveCertificate({ certificate: userCertOld.userCertString })
+    const result = await storage.saveCertificate({ certificate: userCertOld.userCertString, rootPermsData })
     expect(result).toBe(false)
   })
 
@@ -106,7 +106,7 @@ describe('Certificate', () => {
     const libp2p = await createLibp2p(peerId)
     await storage.init(libp2p, peerId)
     for (const empty of [null, '', undefined]) {
-      const result = await storage.saveCertificate({ certificate: empty })
+      const result = await storage.saveCertificate({ certificate: empty, rootPermsData })
       expect(result).toBe(false)
     }
   })
@@ -125,7 +125,7 @@ describe('Certificate', () => {
     const peerId = await PeerId.create()
     const libp2p = await createLibp2p(peerId)
     await storage.init(libp2p, peerId)
-    await storage.saveCertificate({ certificate: userCert.userCertString })
+    await storage.saveCertificate({ certificate: userCert.userCertString, rootPermsData })
     for (const username of ['userName', 'username', 'userNąme']) {
       const usernameExists = storage.usernameExists(username)
       expect(usernameExists).toBe(true)

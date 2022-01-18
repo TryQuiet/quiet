@@ -5,7 +5,7 @@ import {
   parseCertificate,
   verifyUserCert
 } from '@zbayapp/identity'
-import { ChannelMessage, PermsData, PublicChannel, SaveCertificatePayload } from '@zbayapp/nectar'
+import { ChannelMessage, PublicChannel, SaveCertificatePayload } from '@zbayapp/nectar'
 import * as IPFS from 'ipfs-core'
 import Libp2p from 'libp2p'
 import OrbitDB from 'orbit-db'
@@ -15,9 +15,7 @@ import path from 'path'
 import PeerId from 'peer-id'
 import { CryptoEngine, setEngine } from 'pkijs'
 import {
-  IMessageThread,
-  IPublicKey,
-  IRepo,
+  IMessageThread, IRepo,
   StorageOptions
 } from '../common/types'
 import { createPaths } from '../common/utils'
@@ -27,13 +25,6 @@ import IOProxy from '../socket/IOProxy'
 import validate from '../validation/validators'
 
 const log = logger('db')
-
-const rootPermsData: PermsData = {
-  certificate:
-    'MIIBNjCB3AIBATAKBggqhkjOPQQDAjASMRAwDgYDVQQDEwdaYmF5IENBMCYYEzIwMjEwNjIyMDkzMDEwLjAyNVoYDzIwMzAwMTMxMjMwMDAwWjASMRAwDgYDVQQDEwdaYmF5IENBMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEV5a3Czy+L7IfVX0FpJtSF5mi0GWGrtPqv5+CFSDPrHXijsxWdPTobR1wk8uCLP4sAgUbs/bIleCxQy41kSSyOaMgMB4wDwYDVR0TBAgwBgEB/wIBAzALBgNVHQ8EBAMCAAYwCgYIKoZIzj0EAwIDSQAwRgIhAPOzksuipKyBALt/o8O/XwsrVSzfSHXdAR4dOWThQ1lbAiEAmKqjhsmf50kxWX0ekhbAeCTjcRApXhjnslmJkIFGF2o=+lmBImw3BMNjA0FTlK5iRmVC+w/T6M04Es+yiYL608vOhx2slnoyAwHjAPBgNVHRMECDAGAQH/AgEDMAsGA1UdDwQEAwIABjAKBggqhkjOPQQDAgNIADBFAiEA+0kIz0ny/PLVERTcL0+KCpsztyA6Zuwzj05VW5NMdx0CICgdzf0lg0/2Ksl1AjSPYsy2w+Hn09PGlBnD7TiExBpx',
-  privKey:
-    'MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgTvNuJL0blaYq6zmFS53WmmOfHshlqn+8wNHDzo4df5WgCgYIKoZIzj0DAQehRANCAARXlrcLPL4vsh9VfQWkm1IXmaLQZYau0+q/n4IVIM+sdeKOzFZ09OhtHXCTy4Is/iwCBRuz9siV4LFDLjWRJLI5+lmBImw3BMNjA0FTlK5iRmVC+w/T6M04Es+yiYL608vOhx2sln'
-}
 
 const webcrypto = new Crypto()
 setEngine(
@@ -53,7 +44,6 @@ export class Storage {
   protected ipfs: IPFS.IPFS
   protected orbitdb: OrbitDB
   private channels: KeyValueStore<PublicChannel>
-  private readonly _directMessagesUsers: KeyValueStore<IPublicKey>
   private messageThreads: KeyValueStore<IMessageThread>
   private certificates: EventStore<string>
   public publicChannelsRepos: Map<String, IRepo> = new Map()
@@ -484,13 +474,12 @@ export class Storage {
   }
 
   public async saveCertificate(payload: SaveCertificatePayload): Promise<boolean> {
-    const rootPems = payload.rootPermsData || rootPermsData // TODO: tmp for backward compatibilty
     log('About to save certificate...')
     if (!payload.certificate) {
       log('Certificate is either null or undefined, not saving to db')
       return false
     }
-    const verification = await verifyUserCert(rootPems.certificate, payload.certificate)
+    const verification = await verifyUserCert(payload.rootPermsData.certificate, payload.certificate)
     if (verification.resultCode !== 0) {
       log.error('Certificate is not valid')
       log.error(verification.resultMessage)

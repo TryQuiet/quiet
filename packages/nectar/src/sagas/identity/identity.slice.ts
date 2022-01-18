@@ -82,7 +82,7 @@ export interface RegisterOwnerCertificatePayload {
 
 export interface SaveCertificatePayload {
   certificate: string
-  rootPermsData?: PermsData
+  rootPermsData: PermsData
 }
 
 export interface SaveOwnerCertificatePayload {
