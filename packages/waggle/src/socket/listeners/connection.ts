@@ -20,17 +20,10 @@ export const connections = (io, ioProxy: IOProxy) => {
     log('websocket connected')
 
     ioProxy.connectionsManager.on(SocketActionTypes.PEER_CONNECT, event => {
-      log('emmiting peer connect event', event)
-      socket.emit(SocketActionTypes.PEER_CONNECT, {
-        connectedPeers: Array.from(event.connectedPeers),
-        newPeer: event.newPeer
-      })
+      socket.emit(SocketActionTypes.PEER_CONNECT, event)
     })
     ioProxy.connectionsManager.on(SocketActionTypes.PEER_DISCONNECT, event => {
-      socket.emit(SocketActionTypes.PEER_DISCONNECT, {
-        connectedPeers: Array.from(event.connectedPeers),
-        newPeer: event.newPeer
-      })
+      socket.emit(SocketActionTypes.PEER_DISCONNECT, event)
     })
     socket.on(SocketActionTypes.CLOSE, async () => {
       await ioProxy.closeAll()

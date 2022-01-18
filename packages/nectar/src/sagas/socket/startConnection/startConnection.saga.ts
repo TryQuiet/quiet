@@ -1,7 +1,7 @@
 import { Socket } from 'socket.io-client'
 import { all, call, put, takeEvery, fork } from 'typed-redux-saga'
 import { eventChannel } from 'redux-saga'
-import { ConnectedPeersSet, SocketActionTypes } from '../const/actionTypes'
+import { SocketActionTypes } from '../const/actionTypes'
 import logger from '../../../utils/logger'
 
 import {
@@ -27,35 +27,32 @@ import {
   ResponseRegistrarPayload
 } from '../../communities/communities.slice'
 import { appMasterSaga } from '../../app/app.master.saga'
-import { connectionActions } from '../../appConnection/connection.slice'
+import { ConnectedPeers, connectionActions } from '../../appConnection/connection.slice'
 
 const log = logger('socket')
 
 export function subscribe(socket: Socket) {
   return eventChannel<
-    | ReturnType<typeof publicChannelsActions.responseGetPublicChannels>
-    | ReturnType<typeof publicChannelsActions.responseSendMessagesIds>
-    | ReturnType<typeof publicChannelsActions.responseAskForMessages>
-    | ReturnType<typeof publicChannelsActions.onMessagePosted>
-    | ReturnType<typeof usersActions.responseSendCertificates>
-    | ReturnType<typeof communitiesActions.responseCreateCommunity>
-    | ReturnType<typeof errorsActions.addError>
-    | ReturnType<typeof identityActions.storeUserCertificate>
-    | ReturnType<typeof identityActions.throwIdentityError>
-    | ReturnType<typeof communitiesActions.storePeerList>
-    | ReturnType<typeof communitiesActions.updateCommunity>
-    | ReturnType<typeof connectionActions.addInitializedCommunity>
-    | ReturnType<typeof connectionActions.addInitializedRegistrar>
-    | ReturnType<typeof connectionActions.addConnectedPeers>
-    | ReturnType<typeof connectionActions.removeConnectedPeers>
+  | ReturnType<typeof publicChannelsActions.responseGetPublicChannels>
+  | ReturnType<typeof publicChannelsActions.responseSendMessagesIds>
+  | ReturnType<typeof publicChannelsActions.responseAskForMessages>
+  | ReturnType<typeof publicChannelsActions.onMessagePosted>
+  | ReturnType<typeof usersActions.responseSendCertificates>
+  | ReturnType<typeof communitiesActions.responseCreateCommunity>
+  | ReturnType<typeof errorsActions.addError>
+  | ReturnType<typeof identityActions.storeUserCertificate>
+  | ReturnType<typeof identityActions.throwIdentityError>
+  | ReturnType<typeof communitiesActions.storePeerList>
+  | ReturnType<typeof communitiesActions.updateCommunity>
+  | ReturnType<typeof connectionActions.addInitializedCommunity>
+  | ReturnType<typeof connectionActions.addInitializedRegistrar>
+  | ReturnType<typeof connectionActions.addConnectedPeers>
   >((emit) => {
-    socket.on(SocketActionTypes.PEER_CONNECT, (payload: ConnectedPeersSet) => {
-      log('socket nectar peers', payload)
-      emit(connectionActions.addConnectedPeers(payload))
+    socket.on(SocketActionTypes.PEER_CONNECT, (payload: { connectedPeers: ConnectedPeers }) => {
+      emit(connectionActions.addConnectedPeers(payload.connectedPeers))
     })
-    socket.on(SocketActionTypes.PEER_DISCONNECT, (payload: ConnectedPeersSet) => {
-      log('socket nectar peers remove', payload)
-      emit(connectionActions.removeConnectedPeers(payload))
+    socket.on(SocketActionTypes.PEER_DISCONNECT, (payload: { connectedPeers: ConnectedPeers }) => {
+      emit(connectionActions.addConnectedPeers(payload.connectedPeers))
     })
     socket.on(
       SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS,
@@ -96,7 +93,7 @@ export function subscribe(socket: Socket) {
       emit(communitiesActions.responseCreateCommunity(payload))
     })
     socket.on(SocketActionTypes.COMMUNITY, (payload: ResponseLaunchCommunityPayload) => {
-      log('launched COMMUNITY yyy', payload.id)
+      log('launched COMMUNITY', payload.id)
       emit(communitiesActions.launchRegistrar(payload.id))
       emit(connectionActions.addInitializedCommunity(payload.id))
     })

@@ -229,8 +229,7 @@ export class ConnectionsManager extends EventEmitter {
       log(`${params.peerId.toB58String()} connected to ${connection.remotePeer.toB58String()}`)
       this.connectedPeers.add(connection.remotePeer.toB58String())
       this.emit('peer:connect', {
-        connectedPeers: this.connectedPeers,
-        newPeer: connection.remotePeer.toB58String()
+        connectedPeers: Array.from(this.connectedPeers).includes(connection.remotePeer.toB58String()) ? Array.from(this.connectedPeers) : [...Array.from(this.connectedPeers), connection.remotePeer.toB58String()]
       })
     })
     libp2p.on('peer:discovery', (peer: PeerId) => {
@@ -240,8 +239,7 @@ export class ConnectionsManager extends EventEmitter {
       log(`${params.peerId.toB58String()} disconnected from ${connection.remotePeer.toB58String()}`)
       this.connectedPeers.delete(connection.remotePeer.toB58String())
       this.emit('peer:disconnect', {
-        connectedPeers: this.connectedPeers,
-        newPeer: connection.remotePeer.toB58String()
+        connectedPeers: Array.from(this.connectedPeers).includes(connection.remotePeer.toB58String()) ? Array.from(this.connectedPeers) : [...Array.from(this.connectedPeers), connection.remotePeer.toB58String()]
       })
     })
 

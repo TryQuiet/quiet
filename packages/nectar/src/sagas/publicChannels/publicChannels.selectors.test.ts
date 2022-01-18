@@ -29,11 +29,11 @@ describe('publicChannelsSelectors', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<
-      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
     const alice = await factory.create<
-      ReturnType<typeof identityActions.addNewIdentity>['payload']
+    ReturnType<typeof identityActions.addNewIdentity>['payload']
     >('Identity', { id: community.id, zbayNickname: 'alice' })
 
     const john = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
@@ -310,7 +310,7 @@ describe('publicChannelsSelectors', () => {
         "Today": Array [
           Array [
             Object {
-              "createdAt": 1642452600,
+              "createdAt": 1642539000,
               "date": "8:50 PM",
               "id": "9",
               "message": "message_9",
@@ -324,4 +324,4 @@ describe('publicChannelsSelectors', () => {
   })
 })
 
-export { }
+export {}

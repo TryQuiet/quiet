@@ -11,11 +11,6 @@ export type ActionsType<Actions extends ActionsBasicType> = {
 export type Keys<Actions> = keyof Actions
 export type ActionFromMapping<Actions> = Actions[Keys<Actions>]
 
-export interface ConnectedPeersSet {
-  connectedPeers: Array<string>
-  newPeer: string
-}
-
 export enum SocketActionTypes {
   // A
   ASK_FOR_MESSAGES = 'askForMessages',

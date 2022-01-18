@@ -4,21 +4,14 @@ import { connectionSelectors } from './connection.selectors'
 import { parseCertificate } from '@zbayapp/identity'
 import { certificatesAdapter } from '../users/users.adapter'
 
-import {
-  connectionActions,
-  connectionReducer,
-  ConnectionState
-} from './connection.slice'
+import { connectionActions, connectionReducer, ConnectionState } from './connection.slice'
 import { usersReducer, UsersState } from '../users/users.slice'
-
 
 const userCertData = {
   username: 'userName',
-  onionAddress:
-    'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
+  onionAddress: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
   peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
-  dmPublicKey:
-    '0bfb475810c0e26c9fab590d47c3d60ec533bb3c451596acc3cd4f21602e9ad9'
+  dmPublicKey: '0bfb475810c0e26c9fab590d47c3d60ec533bb3c451596acc3cd4f21602e9ad9'
 }
 
 const userCertString =
@@ -41,10 +34,9 @@ describe('connectionReducer', () => {
         },
         [StoreKeys.Users]: {
           ...new UsersState(),
-          certificates: certificatesAdapter.setAll(
-            certificatesAdapter.getInitialState(),
-            [parsedCert]
-          )
+          certificates: certificatesAdapter.setAll(certificatesAdapter.getInitialState(), [
+            parsedCert
+          ])
         }
       }
     )
@@ -54,9 +46,7 @@ describe('connectionReducer', () => {
     const communityId = 'communityId'
     store.dispatch(connectionActions.addInitializedCommunity(communityId))
 
-    const communities = connectionSelectors.initializedCommunities(
-      store.getState()
-    )
+    const communities = connectionSelectors.initializedCommunities(store.getState())
     expect(communities).toEqual({ [communityId]: true })
   })
 
@@ -64,43 +54,24 @@ describe('connectionReducer', () => {
     const registrarId = 'registrarId'
     store.dispatch(connectionActions.addInitializedRegistrar(registrarId))
 
-    const registrars = connectionSelectors.initializedRegistrars(
-      store.getState()
-    )
+    const registrars = connectionSelectors.initializedRegistrars(store.getState())
     expect(registrars).toEqual({ [registrarId]: true })
   })
 
-  it('add/remove connected peerId from store and get it correctly', () => {
-    let connectedPeersFromStore
-    const peersIds = {
-      connectedPeers: ['peerId1', 'peerId2'],
-      newPeer: 'peerId3'
-    }
+  it('add connected peerId from store and get it correctly', () => {
+    const peersIds = ['peerId1', 'peerId2']
 
     store.dispatch(connectionActions.addConnectedPeers(peersIds))
-    connectedPeersFromStore = connectionSelectors.connectedPeers(
-      store.getState()
-    )
-    expect(connectedPeersFromStore).toEqual(['peerId1', 'peerId2', 'peerId3'])
-
-    store.dispatch(connectionActions.removeConnectedPeers(peersIds))
-    connectedPeersFromStore = connectionSelectors.connectedPeers(
-      store.getState()
-    )
+    const connectedPeersFromStore = connectionSelectors.connectedPeers(store.getState())
     expect(connectedPeersFromStore).toEqual(['peerId1', 'peerId2'])
   })
 
   it('user data mapping by peerId', () => {
-    const peersIds = {
-      connectedPeers: [],
-      newPeer: userCertData.peerId
-    }
+    const peersIds = [userCertData.peerId]
 
     store.dispatch(connectionActions.addConnectedPeers(peersIds))
-    const userDataPerPeerId = connectionSelectors.connectedPeersMapping(
-      store.getState()
-    )
+    const userDataPerPeerId = connectionSelectors.connectedPeersMapping(store.getState())
 
-    expect(userDataPerPeerId[peersIds.newPeer]).toEqual(userCertData)
+    expect(userDataPerPeerId[userCertData.peerId]).toEqual(userCertData)
   })
 })

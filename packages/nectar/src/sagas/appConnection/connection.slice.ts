@@ -1,17 +1,16 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import logger from '../../utils/logger'
-import { ConnectedPeersSet } from '../socket/const/actionTypes'
+import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
 import { CommunityId, RegistrarId } from './connection.types'
+import { selectedPeersAdapter } from './connection.adapter'
+
+export type ConnectedPeers = string[]
 
 export class ConnectionState {
   public initializedCommunities: { [key: string]: boolean } = {}
   public initializedRegistrars: { [key: string]: boolean } = {}
 
-  public connectedPeers: string[] = []
+  public connectedPeers: EntityState<string> = selectedPeersAdapter.getInitialState()
 }
-
-const log = logger('connectionSlice')
 
 export const connectionSlice = createSlice({
   initialState: { ...new ConnectionState() },
@@ -35,24 +34,11 @@ export const connectionSlice = createSlice({
     removeInitializedRegistrars: (state, _action: PayloadAction<RegistrarId>) => {
       state.initializedRegistrars = {}
     },
-    addConnectedPeers: (state, action: PayloadAction<ConnectedPeersSet>) => {
-      const connectedPeers = action.payload.connectedPeers
-      const isConnectedPeerSaved = connectedPeers.filter((item) => item === action.payload.newPeer)
-      if (!isConnectedPeerSaved.length) {
-        connectedPeers.push(action.payload.newPeer)
-      }
-
-      state.connectedPeers = connectedPeers
-    },
-    removeConnectedPeers: (state, action: PayloadAction<ConnectedPeersSet>) => {
-      let connectedPeers = []
-      for (let item of action.payload.connectedPeers) {
-        if (item !== action.payload.newPeer) {
-          connectedPeers.push(item)
-        }
-      }
-
-      state.connectedPeers = connectedPeers
+    addConnectedPeers: (state, action: PayloadAction<ConnectedPeers>) => {
+      selectedPeersAdapter.setAll(
+        state.connectedPeers,
+        action.payload
+      )
     }
   }
 })
