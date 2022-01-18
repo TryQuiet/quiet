@@ -242,7 +242,7 @@ export class ConnectionsManager {
 
   public createStorage = (peerId: string, communityId: string) => {
     log(`Creating storage for community: ${communityId}`)
-    return new this.StorageCls(this.zbayDir, this.io, communityId, {
+    return new this.StorageCls(this.zbayDir, this.ioProxy, communityId, {
       ...this.options,
       orbitDbDir: `OrbitDB${peerId}`,
       ipfsDir: `Ipfs${peerId}`
