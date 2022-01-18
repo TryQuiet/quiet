@@ -276,7 +276,7 @@ export class ConnectionsManager {
       const response = await fetch(`${serviceAddress}/register`, options)
       const end = new Date()
       const fetchTime = (end.getTime() - start.getTime()) / 1000
-      log(`Successfully fetched ${serviceAddress}, time: ${fetchTime}`)
+      log(`Fetched ${serviceAddress}, time: ${fetchTime}`)
       return response
     } catch (e) {
       log.error(e)
