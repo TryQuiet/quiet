@@ -50,7 +50,7 @@ module.exports = {
         'no-redeclare': 'off'
       }
     },
-    { 
+    {
       files: ['*.test.tsx'],
       rules: {
         'no-irregular-whitespace': 'off'

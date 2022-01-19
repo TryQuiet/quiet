@@ -17,6 +17,7 @@ export enum SocketActionTypes {
   // C
   CLOSE = 'close',
   COMMUNITY = 'community',
+  CONNECTED_PEERS = 'connectedPeers',
   CONNECT_TO_WEBSOCKET_SERVER = 'connectToWebsocketServer',
   CONNECTION = 'connection',
   CREATED_CHANNEL = 'createdChannel',
@@ -39,6 +40,9 @@ export enum SocketActionTypes {
   // N
   NETWORK = 'network',
   NEW_COMMUNITY = 'newCommunity',
+  // P
+  PEER_CONNECT = 'peer:connect',
+  PEER_DISCONNECT = 'peer:disconnect',
   // R
   REGISTER_USER_CERTIFICATE = 'registerUserCertificate',
   REGISTER_OWNER_CERTIFICATE = 'registerOwnerCertificate',

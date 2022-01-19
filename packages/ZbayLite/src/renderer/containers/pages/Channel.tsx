@@ -69,12 +69,12 @@ const Channel = () => {
             groups: currentChannelDisplayableMessages
           }}
           setChannelLoadingSlice={setChannelLoadingSlice}
-          onDelete={function (): void {}}
+          onDelete={function (): void { }}
           onInputChange={onInputChange}
           onInputEnter={onInputEnter}
           mutedFlag={false}
           notificationFilter={''}
-          openNotificationsTab={function (): void {}}
+          openNotificationsTab={function (): void { }}
         />
       )}
     </>
