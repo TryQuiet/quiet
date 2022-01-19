@@ -52,7 +52,7 @@ describe('User', () => {
 
     const factory = await getFactory(store)
 
-    const quietCommunity = ( await factory.build<typeof communities.actions.addNewCommunity>('Community')).payload
+    const quietCommunity = (await factory.build<typeof communities.actions.addNewCommunity>('Community')).payload
 
     let alice = null
 
