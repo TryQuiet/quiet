@@ -165,6 +165,7 @@ describe('User', () => {
         "Identity/storeUserCertificate",
         "Communities/updateCommunity",
         "Communities/launchCommunity",
+        "Communities/updateCommunityData",
         "Communities/launchRegistrar",
         "Connection/addInitializedCommunity",
         "PublicChannels/responseGetPublicChannels",
