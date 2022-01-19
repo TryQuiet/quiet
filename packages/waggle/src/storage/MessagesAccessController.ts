@@ -37,11 +37,18 @@ export class MessagesAccessController extends AccessController {
     if (this._db) { await this._db.close() }
 
     // Force '<address>/_access' naming for the database
-    this._db = await this._orbitdb.log(address)
+    this._db = await this._orbitdb.log(address, {
+      // use ipfs controller as a immutable "root controller"
+      accessController: {
+        type: 'ipfs',
+        write: this._options.admin || [this._orbitdb.identity.id]
+      },
+      sync: true
+    })
 
-    // this._db.events.on('ready', this._onUpdate.bind(this))
-    // this._db.events.on('write', this._onUpdate.bind(this))
-    // this._db.events.on('replicated', this._onUpdate.bind(this))
+    this._db.events.on('ready', this._onUpdate.bind(this))
+    this._db.events.on('write', this._onUpdate.bind(this))
+    this._db.events.on('replicated', this._onUpdate.bind(this))
 
     await this._db.load()
   }
@@ -55,6 +62,11 @@ export class MessagesAccessController extends AccessController {
     return {
       address: this._db.address.toString()
     }
+  }
+
+  _onUpdate () {
+    // @ts-expect-error
+    this.emit('updated')
   }
 
   static async create(orbitdb, options) {
