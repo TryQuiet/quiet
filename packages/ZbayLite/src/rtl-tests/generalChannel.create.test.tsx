@@ -12,7 +12,7 @@ import {
   publicChannels,
   getFactory,
   SocketActionTypes,
-  PublicChannel, SubscribeToTopicPayload
+  SubscribeToTopicPayload
 } from '@zbayapp/nectar'
 import Channel from '../renderer/containers/pages/Channel'
 
