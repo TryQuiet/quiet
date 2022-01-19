@@ -4,7 +4,8 @@ import { Socket } from 'socket.io-client'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { communitiesSelectors } from '../communities.selectors'
-import { communitiesActions, InitCommunityPayload } from '../communities.slice'
+import { communitiesActions } from '../communities.slice'
+import { InitCommunityPayload } from '../communities.types'
 
 export function* initCommunities(): Generator {
   const communities = yield* select(communitiesSelectors.allCommunities)

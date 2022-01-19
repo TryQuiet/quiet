@@ -10,7 +10,7 @@ import { publicChannelsSelectors } from '../../publicChannels/publicChannels.sel
 import { messagesActions } from '../messages.slice'
 import { MessageTypes } from '../const/messageTypes'
 import { generateMessageId, getCurrentTime } from '../utils/message.utils'
-import { Identity } from '../../identity/identity.slice'
+import { Identity } from '../../identity/identity.types'
 import { ChannelMessage } from '../../publicChannels/publicChannels.types'
 
 export function* sendMessageSaga(

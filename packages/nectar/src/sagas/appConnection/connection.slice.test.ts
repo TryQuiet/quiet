@@ -3,10 +3,11 @@ import { connectionSelectors } from './connection.selectors'
 
 import { connectionActions } from './connection.slice'
 
-import { Identity, identityActions } from '../identity/identity.slice'
+import { identityActions } from '../identity/identity.slice'
 import { prepareStore } from '../../utils/tests/prepareStore'
 import { getFactory } from '../../utils/tests/factories'
 import { setupCrypto } from '@zbayapp/identity'
+import { Identity } from '../identity/identity.types'
 
 describe('connectionReducer', () => {
   let store: Store

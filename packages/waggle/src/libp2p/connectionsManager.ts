@@ -253,7 +253,7 @@ export class ConnectionsManager extends EventEmitter {
 
   public createStorage = (peerId: string, communityId: string) => {
     log(`Creating storage for community: ${communityId}`)
-    return new this.StorageCls(this.zbayDir, this.io, communityId, {
+    return new this.StorageCls(this.zbayDir, this.ioProxy, communityId, {
       ...this.options,
       orbitDbDir: `OrbitDB${peerId}`,
       ipfsDir: `Ipfs${peerId}`
@@ -287,7 +287,7 @@ export class ConnectionsManager extends EventEmitter {
       const response = await fetch(`${serviceAddress}/register`, options)
       const end = new Date()
       const fetchTime = (end.getTime() - start.getTime()) / 1000
-      log(`Successfully fetched ${serviceAddress}, time: ${fetchTime}`)
+      log(`Fetched ${serviceAddress}, time: ${fetchTime}`)
       return response
     } catch (e) {
       log.error(e)

@@ -18,10 +18,11 @@ import {
   CommunitiesState,
   Community
 } from '../../communities/communities.slice'
-import { Identity, identityReducer, IdentityState } from '../../identity/identity.slice'
+import { identityReducer, IdentityState } from '../../identity/identity.slice'
 import { communitiesAdapter } from '../../communities/communities.adapter'
 import { identityAdapter } from '../../identity/identity.adapter'
 import { PublicChannel } from '../publicChannels.types'
+import { Identity } from '../../identity/identity.types'
 
 describe('subscribeToAllTopicsSaga', () => {
   const community: Community = {

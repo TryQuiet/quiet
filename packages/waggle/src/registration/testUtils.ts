@@ -1,10 +1,9 @@
+import { PermsData } from '@zbayapp/nectar'
 import { HttpsProxyAgent } from 'https-proxy-agent'
 import fetch, { Response } from 'node-fetch'
 import PeerId from 'peer-id'
 import { CertificateRegistration } from '.'
-import { createLibp2p } from '../common/testUtils'
-import { PermsData } from '@zbayapp/nectar'
-import { DummyIOServer } from '../common/utils'
+import { createLibp2p, createMinConnectionManager } from '../common/testUtils'
 import { Storage } from '../storage'
 import { Tor } from '../torManager'
 
@@ -47,9 +46,10 @@ export async function setupRegistrar(tor: Tor, storage: Storage, permsData: Perm
 
 export const getStorage = async (zbayDir: string) => {
   const peerId = await PeerId.create()
+  const connectionsManager = createMinConnectionManager({ env: { appDataPath: zbayDir }, torControlPort: 12345 })
   const storage = new Storage(
     zbayDir,
-    new DummyIOServer(),
+    connectionsManager.ioProxy,
     'communityid',
     {
       ...{},

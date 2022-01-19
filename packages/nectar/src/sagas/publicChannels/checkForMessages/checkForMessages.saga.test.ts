@@ -20,11 +20,11 @@ import {
 } from '../../communities/communities.slice'
 import {
   identityReducer,
-  IdentityState,
-  Identity
+  IdentityState
 } from '../../identity/identity.slice'
 import { identityAdapter } from '../../identity/identity.adapter'
 import { communitiesAdapter } from '../../communities/communities.adapter'
+import { Identity } from '../../identity/identity.types'
 
 describe('checkForMessagesSaga', () => {
   const community: Community = {

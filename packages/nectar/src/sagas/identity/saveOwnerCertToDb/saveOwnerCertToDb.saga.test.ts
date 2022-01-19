@@ -1,15 +1,16 @@
+import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
 import { Socket } from 'socket.io-client'
-import { combineReducers } from '@reduxjs/toolkit'
-import { StoreKeys } from '../../store.keys'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
 import {
   communitiesReducer,
   CommunitiesState,
   Community
 } from '../../communities/communities.slice'
+import { SocketActionTypes } from '../../socket/const/actionTypes'
+import { StoreKeys } from '../../store.keys'
 import { identityAdapter } from '../identity.adapter'
-import { identityReducer, Identity, IdentityState } from '../identity.slice'
+import { identityReducer, IdentityState } from '../identity.slice'
+import { Identity } from '../identity.types'
 import { saveOwnerCertToDbSaga } from './saveOwnerCertToDb.saga'
 
 describe('saveOwnerCertificateToDb', () => {
