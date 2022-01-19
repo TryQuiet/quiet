@@ -20,13 +20,15 @@ import {
   getFactory,
   SocketActionTypes,
   RegisterUserCertificatePayload,
-  InitCommunityPayload
+  InitCommunityPayload,
+  Identity,
+  Community,
+  createUserCertificateTestHelper
 } from '@zbayapp/nectar'
 import Channel from '../renderer/containers/pages/Channel'
 
 describe('User', () => {
   let socket: MockedSocket
-  let communityId: string
 
   beforeEach(() => {
     socket = new MockedSocket()
@@ -34,6 +36,9 @@ describe('User', () => {
   })
 
   it('joins community and registers username', async () => {
+    let community: Community
+    let alice: Identity
+
     const { store, runSaga } = await prepareStore(
       {},
       socket // Fork Nectar's sagas
@@ -52,25 +57,25 @@ describe('User', () => {
 
     const factory = await getFactory(store)
 
-    const quietCommunity = ( await factory.build<typeof communities.actions.addNewCommunity>('Community')).payload
-
-    let alice = null
-
     jest
       .spyOn(socket, 'emit')
       .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
         if (action === SocketActionTypes.CREATE_NETWORK) {
           const data = input as socketEventData<[string]>
-          communityId = data[0]
+          community = (
+            await factory.build<typeof communities.actions.addNewCommunity>('Community', {
+              id: data[0]
+            })
+          ).payload
           alice = (
             await factory.build<typeof identity.actions.addNewIdentity>('Identity', {
-              id: communityId,
+              id: community.id,
               zbayNickname: 'alice'
             })
           ).payload
 
           return socket.socketClient.emit(SocketActionTypes.NETWORK, {
-            id: communityId,
+            id: community.id,
             payload: {
               hiddenService: alice.hiddenService,
               peerId: alice.peerId
@@ -80,24 +85,32 @@ describe('User', () => {
         if (action === SocketActionTypes.REGISTER_USER_CERTIFICATE) {
           const data = input as socketEventData<[RegisterUserCertificatePayload]>
           const payload = data[0]
-          expect(payload.id).toEqual(communityId)
+          expect(payload.id).toEqual(community.id)
+          const certificate = await createUserCertificateTestHelper(
+            {
+              zbayNickname: alice.zbayNickname,
+              commonName: alice.hiddenService.onionAddress,
+              peerId: alice.peerId.id
+            },
+            community.CA
+          )
           return socket.socketClient.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
             id: payload.id,
             payload: {
-              certificate: alice?.userCertificate,
-              rootCa: quietCommunity.CA.rootCertString
+              certificate: certificate,
+              rootCa: community.CA.rootCertString
             }
           })
         }
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
           const data = input as socketEventData<[InitCommunityPayload]>
           const payload = data[0]
-          expect(payload.id).toEqual(communityId)
+          expect(payload.id).toEqual(community.id)
           socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
             id: payload.id
           })
           socket.socketClient.emit(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, {
-            communityId: communityId,
+            communityId: community.id,
             channels: {
               general: {
                 name: 'general',
@@ -169,8 +182,8 @@ describe('User', () => {
         "Communities/storePeerList",
         "Identity/storeUserCertificate",
         "Communities/updateCommunity",
-        "Communities/launchCommunity",
         "Communities/updateCommunityData",
+        "Communities/launchCommunity",
         "Communities/launchRegistrar",
         "Connection/addInitializedCommunity",
         "PublicChannels/responseGetPublicChannels",
