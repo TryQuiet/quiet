@@ -93,7 +93,7 @@ export class Storage {
 
     AccessControllers.addAccessController({ AccessController: MessagesAccessController })
 
-    // @ts-ignore
+    // @ts-expect-error
     this.orbitdb = await OrbitDB.createInstance(this.ipfs, { directory: this.orbitDbDir, AccessControllers: AccessControllers })
 
     log('1/6')

@@ -37,7 +37,7 @@ describe('Message signature verification', () => {
     }
 
     const result = await verifySignature(
-      data.signature, 
+      data.signature,
       data.message,
       data.userPubKey
     )
