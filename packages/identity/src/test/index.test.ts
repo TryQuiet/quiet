@@ -36,7 +36,11 @@ describe('Message signature verification', () => {
       dmPublicKey: dmPublicKeyArrayBuffer
     }
 
-    const result = await verifySignature(data.userPubKey, data.signature, data.message)
+    const result = await verifySignature(
+      data.signature, 
+      data.message,
+      data.userPubKey
+    )
     expect(result).toBe(true)
   })
 })

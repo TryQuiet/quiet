@@ -77,7 +77,7 @@ export default class IOProxy {
     peerId: string,
     message: ChannelMessage
   ): Promise<void> => {
-    await this.getStorage(peerId).sendMessage(message)
+    await this.getStorage(peerId).sendxMessage(message)
   }
 
   // DMs
@@ -213,7 +213,7 @@ export default class IOProxy {
     try {
       await this.communities.launch(payload)
     } catch (e) {
-      log(`Couldn't launch community for peer ${payload.peerId.id}. Error:`, e)
+      log(`Couldn't launch community for peer ${payload.peerId.id}.`, e)
       emitServerError(this.io, {
         type: SocketActionTypes.COMMUNITY,
         message: 'Could not launch community',

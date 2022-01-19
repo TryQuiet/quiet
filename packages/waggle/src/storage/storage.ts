@@ -31,6 +31,8 @@ import {
   sendIdsToZbay
 } from '../socket/events/messages'
 import validate from '../validation/validators'
+import AccessControllers from 'orbit-db-access-controllers'
+import { MessagesAccessController } from './MessagesAccessController'
 import logger from '../logger'
 
 const log = logger('db')
@@ -89,7 +91,11 @@ export class Storage {
     }
     this.ipfs = await this.initIPFS(libp2p, peerID)
 
-    this.orbitdb = await OrbitDB.createInstance(this.ipfs, { directory: this.orbitDbDir })
+    AccessControllers.addAccessController({ AccessController: MessagesAccessController })
+
+    // @ts-ignore
+    this.orbitdb = await OrbitDB.createInstance(this.ipfs, { directory: this.orbitDbDir, AccessControllers: AccessControllers })
+
     log('1/6')
     await this.createDbForChannels()
     log('2/6')
@@ -329,6 +335,7 @@ export class Storage {
 
     const db: EventStore<ChannelMessage> = await this.orbitdb.log<ChannelMessage>(`channels.${data.address}`, {
       accessController: {
+        type: 'messagesaccess',
         write: ['*']
       }
     })
