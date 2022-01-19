@@ -3,7 +3,7 @@ import { Socket } from 'socket.io-client'
 import { all, call, fork, put, takeEvery } from 'typed-redux-saga'
 import logger from '../../../utils/logger'
 import { appMasterSaga } from '../../app/app.master.saga'
-import { connectionActions } from '../../appConnection/connection.slice'
+import { ConnectedPeers, connectionActions } from '../../appConnection/connection.slice'
 import { communitiesMasterSaga } from '../../communities/communities.master.saga'
 import { communitiesActions } from '../../communities/communities.slice'
 import {
@@ -36,7 +36,6 @@ const log = logger('socket')
 export function subscribe(socket: Socket) {
   return eventChannel<
   | ReturnType<typeof publicChannelsActions.responseGetPublicChannels>
-  | ReturnType<typeof publicChannelsActions.addChannel>
   | ReturnType<typeof publicChannelsActions.responseSendMessagesIds>
   | ReturnType<typeof publicChannelsActions.responseAskForMessages>
   | ReturnType<typeof publicChannelsActions.onMessagePosted>
@@ -47,7 +46,13 @@ export function subscribe(socket: Socket) {
   | ReturnType<typeof identityActions.throwIdentityError>
   | ReturnType<typeof communitiesActions.storePeerList>
   | ReturnType<typeof communitiesActions.updateCommunity>
-  >(emit => {
+  | ReturnType<typeof connectionActions.addInitializedCommunity>
+  | ReturnType<typeof connectionActions.addInitializedRegistrar>
+  | ReturnType<typeof connectionActions.addConnectedPeers>
+  >((emit) => {
+    socket.on(SocketActionTypes.CONNECTED_PEERS, (payload: { connectedPeers: ConnectedPeers }) => {
+      emit(connectionActions.addConnectedPeers(payload.connectedPeers))
+    })
     socket.on(
       SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS,
       (payload: GetPublicChannelsResponse) => {
@@ -151,7 +156,7 @@ export function subscribe(socket: Socket) {
         emit(identityActions.savedOwnerCertificate(payload.id))
       }
     )
-    return () => {}
+    return () => { }
   })
 }
 
