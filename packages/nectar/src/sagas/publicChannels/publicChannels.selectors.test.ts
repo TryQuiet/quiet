@@ -141,9 +141,9 @@ describe('publicChannelsSelectors', () => {
       {
         id: '9',
         createdAt: DateTime.fromObject({
-          year: DateTime.now().year,
-          month: DateTime.now().month,
-          day: DateTime.now().day,
+          year: DateTime.now().toUTC().year,
+          month: DateTime.now().toUTC().month,
+          day: DateTime.now().toUTC().day,
           hour: 20,
           minute: 50
         }).toSeconds(),
@@ -310,7 +310,7 @@ describe('publicChannelsSelectors', () => {
         "Today": Array [
           Array [
             Object {
-              "createdAt": 1642452600,
+              "createdAt": 1642625400,
               "date": "8:50 PM",
               "id": "9",
               "message": "message_9",
