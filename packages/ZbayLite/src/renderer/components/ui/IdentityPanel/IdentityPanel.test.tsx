@@ -1,34 +1,22 @@
 import React from 'react'
+import { getFactory, Community, communities } from '@zbayapp/nectar'
 
-import { renderComponent } from '../../../testUtils/renderComponent'
 import { IdentityPanel } from './IdentityPanel'
-
-import { Community } from '@zbayapp/nectar'
-
-import { Provider } from 'react-redux'
-import store from '../../../store'
+import { prepareStore } from '../../../testUtils/prepareStore'
+import { renderComponent } from '../../../testUtils/renderComponent'
 
 describe('IdentityPanel', () => {
-  it('renders component with username', () => {
-    const community: Community = {
-      name: 'QuietCommunity',
-      id: 'id',
-      CA: null,
-      rootCa: 'string',
-      peerList: [],
-      onionAddress: 'string',
-      privateKey: 'string',
-      registrarUrl: 'string',
-      registrar: {
-        privateKey: 'string',
-        address: 'string'
-      },
-      port: null
-    }
+  it('renders component with username', async () => {
+    const { store } = await prepareStore()
+
+    const factory = await getFactory(store)
+
+    const community: Community = await factory.create<
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
+
     const result = renderComponent(
-      <Provider store={store}>
-        <IdentityPanel community={community} handleSettings={jest.fn()} />
-      </Provider>
+      <IdentityPanel community={community} handleSettings={jest.fn()} />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
@@ -48,7 +36,7 @@ describe('IdentityPanel', () => {
                 <h4
                   class="MuiTypography-root makeStyles-nickname-4 MuiTypography-h4"
                 >
-                  QuietCommunity
+                  community_1
                 </h4>
                 <svg
                   aria-hidden="true"
