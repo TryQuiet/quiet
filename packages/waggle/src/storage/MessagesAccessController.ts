@@ -60,7 +60,7 @@ export class MessagesAccessController extends AccessController {
   static async create(orbitdb, options) {
     console.log('options', options)
     const ac = new MessagesAccessController(orbitdb, options)
-    await ac.load(options.name)
+    await ac.load(options.address || options.name || 'default-access-controller')
     return ac
   }
 }
