@@ -29,7 +29,7 @@ export interface LaunchRegistrarPayload {
   peerId: string
   rootCertString: string
   rootKeyString: string
-  privateKey: string
+  privateKey?: string
   port?: number
 }
 

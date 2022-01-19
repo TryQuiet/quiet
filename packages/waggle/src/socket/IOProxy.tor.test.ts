@@ -73,8 +73,7 @@ test('IO proxy closes all services (using tor)', async () => {
     id: 'myCommunity1',
     peerId: peerId1.id,
     rootCertString: pems.ca,
-    rootKeyString: pems.ca_key,
-    privateKey: hiddenService1.privateKey
+    rootKeyString: pems.ca_key
   }
 
   const createCommunityPayload: InitCommunityPayload = {
