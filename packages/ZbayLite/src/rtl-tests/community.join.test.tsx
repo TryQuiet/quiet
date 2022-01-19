@@ -52,13 +52,9 @@ describe('User', () => {
 
     const factory = await getFactory(store)
 
-    const quietCommunity = await factory.create<
-      ReturnType<typeof communities.actions.addNewCommunity>['payload']
-    >('Community')
+    const quietCommunity = ( await factory.build<typeof communities.actions.addNewCommunity>('Community')).payload
 
-    const quietUser = await factory.create<
-      ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { zbayNickname: 'alice' })
+    let alice = null
 
     jest
       .spyOn(socket, 'emit')
@@ -66,12 +62,13 @@ describe('User', () => {
         if (action === SocketActionTypes.CREATE_NETWORK) {
           const data = input as socketEventData<[string]>
           communityId = data[0]
-          const alice = (
+          alice = (
             await factory.build<typeof identity.actions.addNewIdentity>('Identity', {
               id: communityId,
               zbayNickname: 'alice'
             })
           ).payload
+
           return socket.socketClient.emit(SocketActionTypes.NETWORK, {
             id: communityId,
             payload: {
@@ -87,7 +84,7 @@ describe('User', () => {
           return socket.socketClient.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
             id: payload.id,
             payload: {
-              certificate: quietUser.userCertificate,
+              certificate: alice?.userCertificate,
               rootCa: quietCommunity.CA.rootCertString
             }
           })
