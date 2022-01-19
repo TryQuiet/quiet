@@ -77,7 +77,7 @@ export default class IOProxy {
     peerId: string,
     message: ChannelMessage
   ): Promise<void> => {
-    await this.getStorage(peerId).sendxMessage(message)
+    await this.getStorage(peerId).sendMessage(message)
   }
 
   // DMs
