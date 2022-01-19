@@ -16,13 +16,14 @@ let tmpOrbitDbDir: string
 let tmpIpfsPath: string
 let connectionsManager: ConnectionsManager
 let storage: Storage
-beforeEach(() => {
+beforeEach(async () => {
   jest.clearAllMocks()
   tmpDir = createTmpDir()
   tmpAppDataPath = tmpZbayDirPath(tmpDir.name)
   tmpOrbitDbDir = path.join(tmpAppDataPath, Config.ORBIT_DB_DIR)
   tmpIpfsPath = path.join(tmpAppDataPath, Config.IPFS_REPO_PATH)
-  connectionsManager = createMinConnectionManager({ env: { appDataPath: tmpAppDataPath }, torControlPort: 12345 })
+  const { controlPort } = await utils.getPorts()
+  connectionsManager = createMinConnectionManager({ env: { appDataPath: tmpAppDataPath }, torControlPort: controlPort })
   storage = null
 })
 
