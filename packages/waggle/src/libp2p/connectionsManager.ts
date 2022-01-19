@@ -15,7 +15,7 @@ import * as os from 'os'
 import PeerId from 'peer-id'
 import { CryptoEngine, setEngine } from 'pkijs'
 import { ConnectionsManagerOptions } from '../common/types'
-import { Certificates } from '@zbayapp/nectar'
+import { Certificates, SocketActionTypes } from '@zbayapp/nectar'
 import {
   createLibp2pAddress,
   createLibp2pListenAddress,
@@ -225,20 +225,20 @@ export class ConnectionsManager extends EventEmitter {
 
     this.libp2pInstance = libp2p
 
-    libp2p.connectionManager.on('peer:connect', (connection: Connection) => {
+    libp2p.connectionManager.on(SocketActionTypes.PEER_CONNECT, (connection: Connection) => {
       log(`${params.peerId.toB58String()} connected to ${connection.remotePeer.toB58String()}`)
       this.connectedPeers.add(connection.remotePeer.toB58String())
-      this.emit('peer:connect', {
+      this.emit(SocketActionTypes.PEER_CONNECT, {
         connectedPeers: Array.from(this.connectedPeers).includes(connection.remotePeer.toB58String()) ? Array.from(this.connectedPeers) : [...Array.from(this.connectedPeers), connection.remotePeer.toB58String()]
       })
     })
     libp2p.on('peer:discovery', (peer: PeerId) => {
       log(`${params.peerId.toB58String()} discovered ${peer.toB58String()}`)
     })
-    libp2p.connectionManager.on('peer:disconnect', (connection: Connection) => {
+    libp2p.connectionManager.on(SocketActionTypes.PEER_DISCONNECT, (connection: Connection) => {
       log(`${params.peerId.toB58String()} disconnected from ${connection.remotePeer.toB58String()}`)
       this.connectedPeers.delete(connection.remotePeer.toB58String())
-      this.emit('peer:disconnect', {
+      this.emit(SocketActionTypes.PEER_DISCONNECT, {
         connectedPeers: Array.from(this.connectedPeers).filter((peerId) => peerId !== connection.remotePeer.toB58String())
       })
     })

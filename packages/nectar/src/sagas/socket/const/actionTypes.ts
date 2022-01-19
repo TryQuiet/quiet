@@ -17,6 +17,7 @@ export enum SocketActionTypes {
   // C
   CLOSE = 'close',
   COMMUNITY = 'community',
+  CONNECTED_PEERS = 'connectedPeers',
   CONNECT_TO_WEBSOCKET_SERVER = 'connectToWebsocketServer',
   CONNECTION = 'connection',
   CREATED_CHANNEL = 'createdChannel',

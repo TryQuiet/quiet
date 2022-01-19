@@ -252,7 +252,7 @@ export const getCommunityOwnerData = (ownerStore: Store) => {
   const ownerStoreState = ownerStore.getState()
   const community =
     ownerStoreState.Communities.communities.entities[
-    ownerStoreState.Communities.currentCommunity
+      ownerStoreState.Communities.currentCommunity
     ]
   const registrarAddress = community.onionAddress
   const ownerIdentityState = ownerStore.getState().Identity

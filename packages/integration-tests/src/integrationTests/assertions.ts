@@ -157,5 +157,5 @@ export const assertConnectedToPeers = async (
     expect(
       store.getState().Connection.connectedPeers.ids.length
     ).toEqual(count)
-  }, 60_000)
+  }, 20_000)
 }

@@ -1,45 +1,27 @@
-import { combineReducers, createStore, Store } from 'redux'
-import { StoreKeys } from '../store.keys'
+import { Store } from 'redux'
 import { connectionSelectors } from './connection.selectors'
-import { parseCertificate } from '@zbayapp/identity'
-import { certificatesAdapter } from '../users/users.adapter'
 
-import { connectionActions, connectionReducer, ConnectionState } from './connection.slice'
-import { usersReducer, UsersState } from '../users/users.slice'
+import { connectionActions } from './connection.slice'
 
-const userCertData = {
-  username: 'userName',
-  onionAddress: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
-  peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
-  dmPublicKey: '0bfb475810c0e26c9fab590d47c3d60ec533bb3c451596acc3cd4f21602e9ad9'
-}
-
-const userCertString =
-  'MIICDzCCAbUCBgF9Ms+EwTAKBggqhkjOPQQDAjASMRAwDgYDVQQDEwdaYmF5IENBMB4XDTIxMTExODExMzAwMFoXDTMwMDEzMTIzMDAwMFowSTFHMEUGA1UEAxM+bnFudzRrYzRjNzdmYjQ3bGs1Mm01bDU3aDR0Y3hjZW83eW14ZWtmbjd5aDVtNjZ0NGp2Mm9sYWQub25pb24wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAT3mQI3akfoTD3i94ZJZMmZ2RZswEeQ0aW0og+/VuzUJQblVQ+UdH6kuKFjq7BTtdjYTMSCO9wfPotBX88+p2Kuo4HEMIHBMAkGA1UdEwQCMAAwCwYDVR0PBAQDAgCOMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDATAvBgkqhkiG9w0BCQwEIgQgC/tHWBDA4myfq1kNR8PWDsUzuzxFFZasw81PIWAumtkwGAYKKwYBBAGDjBsCAQQKEwh1c2VyTmFtZTA9BgkrBgECAQ8DAQEEMBMuUW1mM3lTa1lxTEVUOXh0QXREenZBcjVQcDNlZ0sxSDNDNWlKQVptMVNwTEVwNjAKBggqhkjOPQQDAgNIADBFAiBYmTIJtW2pARg4WTIVMXs2fvGroBxko71CnUi3Fum1WQIhAM0npNOL0/2+8dRTWRNE61D4jcbtltmXAXFjYbd711hk'
-
-const parsedCert = parseCertificate(userCertString)
+import { Identity, identityActions } from '../identity/identity.slice'
+import { prepareStore } from '../../utils/tests/prepareStore'
+import { getFactory } from '../../utils/tests/factories'
+import { setupCrypto } from '@zbayapp/identity'
 
 describe('connectionReducer', () => {
   let store: Store
+  let alice: Identity
 
-  beforeEach(() => {
-    store = createStore(
-      combineReducers({
-        [StoreKeys.Connection]: connectionReducer,
-        [StoreKeys.Users]: usersReducer
-      }),
-      {
-        [StoreKeys.Connection]: {
-          ...new ConnectionState()
-        },
-        [StoreKeys.Users]: {
-          ...new UsersState(),
-          certificates: certificatesAdapter.setAll(certificatesAdapter.getInitialState(), [
-            parsedCert
-          ])
-        }
-      }
-    )
+  beforeEach(async () => {
+    setupCrypto()
+
+    store = prepareStore().store
+
+    const factory = await getFactory(store)
+
+    alice = await factory.create<
+    ReturnType<typeof identityActions.addNewIdentity>['payload']
+    >('Identity', { zbayNickname: 'alice' })
   })
 
   it('add initialized communities should add correctly data into the store', () => {
@@ -58,20 +40,26 @@ describe('connectionReducer', () => {
     expect(registrars).toEqual({ [registrarId]: true })
   })
 
-  it('add connected peerId from store and get it correctly', () => {
+  it('add connected users peerId from store and get it correctly', () => {
     const peersIds = ['peerId1', 'peerId2']
 
     store.dispatch(connectionActions.addConnectedPeers(peersIds))
     const connectedPeersFromStore = connectionSelectors.connectedPeers(store.getState())
+
     expect(connectedPeersFromStore).toEqual(['peerId1', 'peerId2'])
   })
 
   it('user data mapping by peerId', () => {
-    const peersIds = [userCertData.peerId]
+    const aliceCertData = {
+      username: alice.zbayNickname,
+      onionAddress: alice.hiddenService.onionAddress,
+      peerId: alice.peerId.id,
+      dmPublicKey: ''
+    }
 
-    store.dispatch(connectionActions.addConnectedPeers(peersIds))
+    store.dispatch(connectionActions.addConnectedPeers([alice.peerId.id]))
     const userDataPerPeerId = connectionSelectors.connectedPeersMapping(store.getState())
 
-    expect(userDataPerPeerId[userCertData.peerId]).toEqual(userCertData)
+    expect(userDataPerPeerId[alice.peerId.id]).toEqual(aliceCertData)
   })
 })

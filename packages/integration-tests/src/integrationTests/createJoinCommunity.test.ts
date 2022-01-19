@@ -44,8 +44,6 @@ describe('owner creates community and two users join', () => {
 
   afterAll(async () => {
     await owner.manager.closeAllServices()
-    await userOne.manager.closeAllServices()
-    await userTwo.manager.closeAllServices()
   })
 
   test('Owner creates community', async () => {
@@ -80,5 +78,14 @@ describe('owner creates community and two users join', () => {
     await assertConnectedToPeers(owner.store, 2)
     await assertConnectedToPeers(userOne.store, 2)
     await assertConnectedToPeers(userTwo.store, 2)
+  })
+
+  test('disconnecting peers', async () => {
+    await userOne.manager.closeAllServices()
+    await assertConnectedToPeers(owner.store, 1)
+    await assertConnectedToPeers(userTwo.store, 1)
+
+    await userTwo.manager.closeAllServices()
+    await assertConnectedToPeers(owner.store, 0)
   })
 })

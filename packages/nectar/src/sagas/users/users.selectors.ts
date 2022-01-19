@@ -17,7 +17,6 @@ export const certificatesMapping = createSelector(certificates, (certs) => {
   const mapping: { [pubKey: string]: User } = {}
   Object.keys(certs).map((pubKey) => {
     const certificate = certs[pubKey]
-
     if (!certificate || certificate.subject.typesAndValues.length < 1) {
       return
     }

@@ -1,5 +1,5 @@
 import { createEntityAdapter } from '@reduxjs/toolkit'
 
-export const selectedPeersAdapter = createEntityAdapter<string>({
+export const connectedPeersAdapter = createEntityAdapter<string>({
   selectId: (connectedPeer) => connectedPeer
 })

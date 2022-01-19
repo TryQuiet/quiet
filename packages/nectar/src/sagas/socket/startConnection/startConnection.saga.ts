@@ -48,10 +48,7 @@ export function subscribe(socket: Socket) {
   | ReturnType<typeof connectionActions.addInitializedRegistrar>
   | ReturnType<typeof connectionActions.addConnectedPeers>
   >((emit) => {
-    socket.on(SocketActionTypes.PEER_CONNECT, (payload: { connectedPeers: ConnectedPeers }) => {
-      emit(connectionActions.addConnectedPeers(payload.connectedPeers))
-    })
-    socket.on(SocketActionTypes.PEER_DISCONNECT, (payload: { connectedPeers: ConnectedPeers }) => {
+    socket.on(SocketActionTypes.CONNECTED_PEERS, (payload: { connectedPeers: ConnectedPeers }) => {
       emit(connectionActions.addConnectedPeers(payload.connectedPeers))
     })
     socket.on(

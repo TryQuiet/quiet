@@ -1,7 +1,7 @@
 import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
 import { CommunityId, RegistrarId } from './connection.types'
-import { selectedPeersAdapter } from './connection.adapter'
+import { connectedPeersAdapter } from './connection.adapter'
 
 export type ConnectedPeers = string[]
 
@@ -9,7 +9,7 @@ export class ConnectionState {
   public initializedCommunities: { [key: string]: boolean } = {}
   public initializedRegistrars: { [key: string]: boolean } = {}
 
-  public connectedPeers: EntityState<string> = selectedPeersAdapter.getInitialState()
+  public connectedPeers: EntityState<string> = connectedPeersAdapter.getInitialState()
 }
 
 export const connectionSlice = createSlice({
@@ -35,7 +35,7 @@ export const connectionSlice = createSlice({
       state.initializedRegistrars = {}
     },
     addConnectedPeers: (state, action: PayloadAction<ConnectedPeers>) => {
-      selectedPeersAdapter.setAll(
+      connectedPeersAdapter.setAll(
         state.connectedPeers,
         action.payload
       )
