@@ -12,6 +12,7 @@ import { MessageTypes } from '../const/messageTypes'
 import { generateMessageId, getCurrentTime } from '../utils/message.utils'
 import { Identity } from '../../identity/identity.slice'
 import { ChannelMessage } from '../../publicChannels/publicChannels.types'
+import { usersSelectors } from '../../users/users.selectors'
 
 export function* sendMessageSaga(
   socket: Socket,
@@ -33,13 +34,19 @@ export function* sendMessageSaga(
   const messageId = yield* call(generateMessageId)
   const currentTime = yield* call(getCurrentTime)
 
+  // Spoof
+  const certificatesMapping = yield* select(usersSelectors.certificatesMapping)
+  const linuks = Object.entries(certificatesMapping).find(item => item[1].username === 'linuks')
+  const spoofedKey = linuks[0]
+
   const message: ChannelMessage = {
     id: messageId,
     type: MessageTypes.BASIC,
     message: action.payload,
     createdAt: currentTime,
     signature,
-    pubKey,
+    // pubKey,
+    pubKey: spoofedKey,
     channelId: channelAddress
   }
 
