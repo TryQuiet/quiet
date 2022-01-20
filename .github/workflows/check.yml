@@ -22,5 +22,5 @@ jobs:
         uses: ./.github/actions/setup-env
 
       - name: "Lint"
-        run: lerna run lint --stream
+        run: lerna run lint-ci --stream
         

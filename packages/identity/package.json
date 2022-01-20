@@ -10,6 +10,7 @@
     "test": "jest",
     "test-ci": "jest --colors --collectCoverage --ci",
     "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
+    "lint-ci": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
     "check-style": "prettier --check src/**"
   },
   "repository": {
