@@ -3,6 +3,7 @@ import { all, fork, takeEvery } from 'typed-redux-saga'
 import { communitiesActions } from './communities.slice'
 import { createCommunitySaga } from './createCommunity/createCommunity.saga'
 import { joinCommunitySaga } from './joinCommunity/joinCommunity.saga'
+import { updateCommunitySaga } from './updateCommunity/updateCommunity.saga'
 import {
   initCommunities,
   launchCommunitySaga
@@ -20,6 +21,10 @@ export function* communitiesMasterSaga(socket: Socket): Generator {
       communitiesActions.createNewCommunity.type,
       createCommunitySaga,
       socket
+    ),
+    takeEvery(
+      communitiesActions.updateCommunity.type,
+      updateCommunitySaga
     ),
     takeEvery(communitiesActions.joinCommunity.type, joinCommunitySaga, socket),
     fork(initCommunities),

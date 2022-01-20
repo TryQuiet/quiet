@@ -12,7 +12,7 @@ import {
   publicChannels,
   getFactory,
   SocketActionTypes,
-  PublicChannel
+  SubscribeToTopicPayload
 } from '@zbayapp/nectar'
 import Channel from '../renderer/containers/pages/Channel'
 
@@ -48,9 +48,9 @@ describe('General channel', () => {
       .spyOn(socket, 'emit')
       .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
         if (action === SocketActionTypes.SUBSCRIBE_TO_TOPIC) {
-          const data = input as socketEventData<[string, PublicChannel]>
-          const channel = data[1]
-          expect(channel.name).toEqual('general')
+          const data = input as socketEventData<[SubscribeToTopicPayload]>
+          const payload = data[0]
+          expect(payload.channelData.name).toEqual('general')
         }
       })
 

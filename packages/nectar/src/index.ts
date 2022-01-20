@@ -52,19 +52,13 @@ export { useIO } from './sagas/socket/startConnection/startConnection.saga'
 export { getFactory } from './utils/tests/factories'
 export * from './utils/tests/helpers'
 
-export {
-  DisplayableMessage,
-  PublicChannel,
-  ChannelMessage
-} from './sagas/publicChannels/publicChannels.types'
+export * from './sagas/publicChannels/publicChannels.types'
 
 export { Community } from './sagas/communities/communities.slice'
 
 export { CommunityChannels } from './sagas/publicChannels/publicChannels.slice'
 
-export { Identity } from './sagas/identity/identity.slice'
-
-export { User } from './sagas/users/users.slice'
+export * from './sagas/users/users.types'
 
 export { communityChannelsAdapter } from './sagas/publicChannels/publicChannels.adapter'
 export { communitiesAdapter } from './sagas/communities/communities.adapter'
@@ -76,24 +70,11 @@ export {
 
 export { identityAdapter } from './sagas/identity/identity.adapter'
 
-export {
-  SubscribeToTopicPayload,
-  AskForMessagesPayload
-} from './sagas/publicChannels/publicChannels.slice'
+export * from './sagas/identity/identity.types'
 
-export {
-  PermsData,
-  PeerId,
-  HiddenService,
-  RegisterUserCertificatePayload,
-  RegisterOwnerCertificatePayload,
-  SaveCertificatePayload,
-  SaveOwnerCertificatePayload
-} from './sagas/identity/identity.slice'
+export * from './sagas/communities/communities.types'
 
-export { Certificates, InitCommunityPayload, LaunchRegistrarPayload } from './sagas/communities/communities.slice'
-
-export { SendMessagePayload } from './sagas/messages/messages.slice'
+export * from './sagas/messages/messages.types'
 
 export const app = {
   actions: appActions

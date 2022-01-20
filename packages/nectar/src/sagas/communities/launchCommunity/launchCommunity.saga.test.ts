@@ -1,19 +1,18 @@
+import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
 import { Socket } from 'socket.io-client'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { identityAdapter } from '../../identity/identity.adapter'
-import { initCommunities, launchCommunitySaga } from './launchCommunity.saga'
-import { combineReducers } from '@reduxjs/toolkit'
+import { identityReducer, IdentityState } from '../../identity/identity.slice'
+import { Identity } from '../../identity/identity.types'
+import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { StoreKeys } from '../../store.keys'
+import { communitiesAdapter } from '../communities.adapter'
 import {
   communitiesActions,
-  communitiesReducer,
-  Community,
-  CommunitiesState,
-  InitCommunityPayload
+  communitiesReducer, CommunitiesState, Community
 } from '../communities.slice'
-import { communitiesAdapter } from '../communities.adapter'
-import { Identity, identityReducer, IdentityState } from '../../identity/identity.slice'
+import { InitCommunityPayload } from '../communities.types'
+import { initCommunities, launchCommunitySaga } from './launchCommunity.saga'
 
 describe('launchCommunity', () => {
   test('launch all remembered communities', async () => {

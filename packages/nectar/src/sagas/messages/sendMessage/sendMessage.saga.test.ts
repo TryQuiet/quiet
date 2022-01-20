@@ -1,40 +1,41 @@
-import { expectSaga } from 'redux-saga-test-plan'
 import { combineReducers } from '@reduxjs/toolkit'
-import { call } from 'redux-saga-test-plan/matchers'
-import { KeyObject } from 'crypto'
 import {
   keyFromCertificate,
   loadPrivateKey,
   parseCertificate,
   sign
 } from '@zbayapp/identity'
-import { Socket } from 'socket.io-client'
+import { KeyObject } from 'crypto'
 import { arrayBufferToString } from 'pvutils'
-import { identityReducer, IdentityState, Identity } from '../../identity/identity.slice'
-import { StoreKeys } from '../../store.keys'
-import { messagesActions } from '../messages.slice'
-import { sendMessageSaga } from './sendMessage.saga'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
-import { MessageTypes } from '../const/messageTypes'
-import { generateMessageId, getCurrentTime } from '../utils/message.utils'
-import { identityAdapter } from '../../identity/identity.adapter'
+import { expectSaga } from 'redux-saga-test-plan'
+import { call } from 'redux-saga-test-plan/matchers'
+import { Socket } from 'socket.io-client'
+import { communitiesAdapter } from '../../communities/communities.adapter'
 import {
   communitiesReducer,
   CommunitiesState,
   Community
 } from '../../communities/communities.slice'
-import { communitiesAdapter } from '../../communities/communities.adapter'
-import {
-  CommunityChannels,
-  publicChannelsReducer,
-  PublicChannelsState
-} from '../../publicChannels/publicChannels.slice'
+import { identityAdapter } from '../../identity/identity.adapter'
+import { identityReducer, IdentityState } from '../../identity/identity.slice'
+import { Identity } from '../../identity/identity.types'
 import {
   channelMessagesAdapter,
   communityChannelsAdapter,
   publicChannelsAdapter
 } from '../../publicChannels/publicChannels.adapter'
+import {
+  CommunityChannels,
+  publicChannelsReducer,
+  PublicChannelsState
+} from '../../publicChannels/publicChannels.slice'
 import { PublicChannel } from '../../publicChannels/publicChannels.types'
+import { SocketActionTypes } from '../../socket/const/actionTypes'
+import { StoreKeys } from '../../store.keys'
+import { MessageTypes } from '../const/messageTypes'
+import { messagesActions } from '../messages.slice'
+import { generateMessageId, getCurrentTime } from '../utils/message.utils'
+import { sendMessageSaga } from './sendMessage.saga'
 
 describe('sendMessageSaga', () => {
   const communityId = 'id'

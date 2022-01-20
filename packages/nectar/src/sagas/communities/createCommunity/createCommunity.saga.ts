@@ -13,7 +13,8 @@ export function* createCommunitySaga(socket, action: PayloadAction<string>): Gen
   const rootCa = yield* call(
     createRootCA,
     new Time({ type: 0, value: notBeforeDate }),
-    new Time({ type: 0, value: notAfterDate })
+    new Time({ type: 0, value: notAfterDate }),
+    action.payload
   )
   const id = yield* call(generateId)
   const payload: Community = {

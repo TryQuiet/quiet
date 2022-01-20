@@ -3,7 +3,8 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { apply, select } from 'typed-redux-saga'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { communitiesSelectors } from '../../communities/communities.selectors'
-import { identityActions, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload } from '../identity.slice'
+import { identityActions } from '../identity.slice'
+import { RegisterOwnerCertificatePayload, RegisterUserCertificatePayload } from '../identity.types'
 
 export function* registerCertificateSaga(
   socket: Socket,

@@ -1,7 +1,8 @@
 import { call, select, put } from 'typed-redux-saga'
 import { createUserCsr } from '@zbayapp/identity'
 import { PayloadAction } from '@reduxjs/toolkit'
-import { identityActions, UserCsr } from '../identity.slice'
+import { identityActions } from '../identity.slice'
+import { UserCsr } from '../identity.types'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import logger from '../../../utils/logger'
 const log = logger('identity')

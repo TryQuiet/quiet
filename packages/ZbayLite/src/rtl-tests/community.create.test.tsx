@@ -169,7 +169,7 @@ describe('User', () => {
     userEvent.click(createUsernameButton)
 
     // Wait for the actions that updates the store
-    await act(async () => {})
+    await act(async () => { })
 
     // Check if create/username modals are gone
     expect(createCommunityTitle).not.toBeVisible()
@@ -268,7 +268,8 @@ describe('User', () => {
           payload: {
             certificate: payload.permsData.certificate,
             peers: [],
-            rootCa: 'rootCa'
+            rootCa:
+              'MIIBTTCB8wIBATAKBggqhkjOPQQDAjASMRAwDgYDVQQDEwdaYmF5IENBMB4XDTEwMTIyODEwMTAxMFoXDTMwMTIyODEwMTAxMFowEjEQMA4GA1UEAxMHWmJheSBDQTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABBXmkE9W4NHQWUgmaH6j7TLSzOgyNIr8VshAeAMAg36IGvhtxhXNMUMYUApE7K9cifbxn6RVkSird97B7IFMefKjPzA9MA8GA1UdEwQIMAYBAf8CAQMwCwYDVR0PBAQDAgCGMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDATAKBggqhkjOPQQDAgNJADBGAiEAgY783/mGO15DK319VK/2wiAvq10oce4YdWdx2XUrKFoCIQDOh7r8ZlyLoNAT6FiNM/oBCaR3FrKmg7Nz4+ZbtvZMiw=='
           }
         })
       }
@@ -341,7 +342,7 @@ describe('User', () => {
     userEvent.click(createUsernameButton)
 
     // Wait for the actions that updates the store
-    await act(async () => {})
+    await act(async () => { })
 
     // Check if 'creating community' loading panel is displayed
     await waitFor(() => {
@@ -378,6 +379,7 @@ describe('User', () => {
         "Identity/storeUserCertificate",
         "Communities/updateCommunity",
         "Identity/savedOwnerCertificate",
+        "Communities/updateCommunityData",
         "PublicChannels/createGeneralChannel",
         "PublicChannels/responseGetPublicChannels",
         "PublicChannels/subscribeToAllTopics",
