@@ -230,97 +230,97 @@ describe('publicChannelsSelectors', () => {
   it('get grouped messages', async () => {
     const messages = currentChannelMessagesMergedBySender(store.getState())
     expect(messages).toMatchInlineSnapshot(`
+Object {
+  "Feb 05": Array [
+    Array [
       Object {
-        "Feb 05": Array [
-          Array [
-            Object {
-              "createdAt": 1612548120,
-              "date": "Feb 05, 6:02 PM",
-              "id": "7",
-              "message": "message_7",
-              "nickname": "alice",
-              "type": 1,
-            },
-            Object {
-              "createdAt": 1612558200,
-              "date": "Feb 05, 8:50 PM",
-              "id": "8",
-              "message": "message_8",
-              "nickname": "alice",
-              "type": 1,
-            },
-          ],
-        ],
-        "Oct 20": Array [
-          Array [
-            Object {
-              "createdAt": 1603173000,
-              "date": "Oct 20, 5:50 AM",
-              "id": "1",
-              "message": "message_1",
-              "nickname": "alice",
-              "type": 1,
-            },
-            Object {
-              "createdAt": 1603174200,
-              "date": "Oct 20, 6:10 AM",
-              "id": "2",
-              "message": "message_2",
-              "nickname": "alice",
-              "type": 1,
-            },
-            Object {
-              "createdAt": 1603174290.001,
-              "date": "Oct 20, 6:11 AM",
-              "id": "3",
-              "message": "message_3",
-              "nickname": "alice",
-              "type": 1,
-            },
-            Object {
-              "createdAt": 1603174290.002,
-              "date": "Oct 20, 6:11 AM",
-              "id": "4",
-              "message": "message_4",
-              "nickname": "alice",
-              "type": 1,
-            },
-          ],
-          Array [
-            Object {
-              "createdAt": 1603174321,
-              "date": "Oct 20, 6:12 AM",
-              "id": "5",
-              "message": "message_5",
-              "nickname": "john",
-              "type": 1,
-            },
-          ],
-          Array [
-            Object {
-              "createdAt": 1603174322,
-              "date": "Oct 20, 6:12 AM",
-              "id": "6",
-              "message": "message_6",
-              "nickname": "alice",
-              "type": 1,
-            },
-          ],
-        ],
-        "Today": Array [
-          Array [
-            Object {
-              "createdAt": 1642625400,
-              "date": "8:50 PM",
-              "id": "9",
-              "message": "message_9",
-              "nickname": "alice",
-              "type": 1,
-            },
-          ],
-        ],
-      }
-    `)
+        "createdAt": 1612548120,
+        "date": "Feb 05, 6:02 PM",
+        "id": "7",
+        "message": "message_7",
+        "nickname": "alice",
+        "type": 1,
+      },
+      Object {
+        "createdAt": 1612558200,
+        "date": "Feb 05, 8:50 PM",
+        "id": "8",
+        "message": "message_8",
+        "nickname": "alice",
+        "type": 1,
+      },
+    ],
+  ],
+  "Oct 20": Array [
+    Array [
+      Object {
+        "createdAt": 1603173000,
+        "date": "Oct 20, 5:50 AM",
+        "id": "1",
+        "message": "message_1",
+        "nickname": "alice",
+        "type": 1,
+      },
+      Object {
+        "createdAt": 1603174200,
+        "date": "Oct 20, 6:10 AM",
+        "id": "2",
+        "message": "message_2",
+        "nickname": "alice",
+        "type": 1,
+      },
+      Object {
+        "createdAt": 1603174290.001,
+        "date": "Oct 20, 6:11 AM",
+        "id": "3",
+        "message": "message_3",
+        "nickname": "alice",
+        "type": 1,
+      },
+      Object {
+        "createdAt": 1603174290.002,
+        "date": "Oct 20, 6:11 AM",
+        "id": "4",
+        "message": "message_4",
+        "nickname": "alice",
+        "type": 1,
+      },
+    ],
+    Array [
+      Object {
+        "createdAt": 1603174321,
+        "date": "Oct 20, 6:12 AM",
+        "id": "5",
+        "message": "message_5",
+        "nickname": "john",
+        "type": 1,
+      },
+    ],
+    Array [
+      Object {
+        "createdAt": 1603174322,
+        "date": "Oct 20, 6:12 AM",
+        "id": "6",
+        "message": "message_6",
+        "nickname": "alice",
+        "type": 1,
+      },
+    ],
+  ],
+  "Today": Array [
+    Array [
+      Object {
+        "createdAt": 1642711800,
+        "date": "8:50 PM",
+        "id": "9",
+        "message": "message_9",
+        "nickname": "alice",
+        "type": 1,
+      },
+    ],
+  ],
+}
+`)
   })
 })
 
