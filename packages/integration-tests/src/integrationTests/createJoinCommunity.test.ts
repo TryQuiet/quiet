@@ -1,5 +1,5 @@
 import { Crypto } from '@peculiar/webcrypto'
-import { assertConnectedToPeers, assertReceivedCertificates } from './assertions'
+import { assertConnectedToPeers, assertReceivedCertificates, assertReceivedRegistrationError } from './assertions'
 import {
   createCommunity,
   joinCommunity,
@@ -87,5 +87,38 @@ describe('owner creates community and two users join', () => {
 
     await userTwo.manager.closeAllServices()
     await assertConnectedToPeers(owner.store, 0)
+  })
+})
+
+describe('User tries to register existing username', () => {
+  let owner: AsyncReturnType<typeof createApp>
+  let user: AsyncReturnType<typeof createApp>
+
+  beforeAll(async () => {
+    owner = await createApp()
+    user = await createApp()
+  })
+
+  afterAll(async () => {
+    await owner.manager.closeAllServices()
+  })
+
+  test('Owner creates community', async () => {
+    await createCommunity({ userName: 'Bob', store: owner.store })
+  })
+
+  test('User tries to join the community using the same username as owner', async () => {
+    const ownerData = getCommunityOwnerData(owner.store)
+
+    await joinCommunity({
+      ...ownerData,
+      store: user.store,
+      userName: 'Bob',
+      expectedPeersCount: 2
+    })
+  })
+
+  test('User receives registration error with a proper message', async () => {
+    assertReceivedRegistrationError(user.store)
   })
 })
