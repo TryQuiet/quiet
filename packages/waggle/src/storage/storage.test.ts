@@ -94,7 +94,7 @@ describe('Storage', () => {
     expect(fs.existsSync(tmpIpfsPath)).toBe(false)
 
     storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, 'communityId')
-    
+
     const peerId = await PeerId.create()
     const libp2p = await createLibp2p(peerId)
 
@@ -111,7 +111,7 @@ describe('Storage', () => {
   it('should not create paths if createPaths is set to false', async () => {
     expect(fs.existsSync(tmpOrbitDbDir)).toBe(false)
     expect(fs.existsSync(tmpIpfsPath)).toBe(false)
-    
+
     storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, 'communityId', { createPaths: false })
 
     const peerId = await PeerId.create()
@@ -170,7 +170,7 @@ describe('Certificate', () => {
 
   it('is not saved to db if empty', async () => {
     storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
-    
+
     const peerId = await PeerId.create()
     const libp2p = await createLibp2p(peerId)
 
