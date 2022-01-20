@@ -378,7 +378,11 @@ export class Storage {
       return
     }
     const db = this.publicChannelsRepos.get(message.channelId).db
-    await db.add(message)
+    try {
+      await db.add(message)
+    } catch (e) {
+      log.error('STORAGE: Could not append message (entry not allowed to write to the log)')
+    }
   }
 
   public async initializeConversation(address: string, encryptedPhrase: string): Promise<void> {

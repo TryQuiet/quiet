@@ -1,4 +1,3 @@
-import { stringToArrayBuffer } from 'pvutils'
 import { sign } from '../sign'
 import { extractPubKey, parseCertificate, parseCertificationRequest } from '../extractPubKey'
 import { verifySignature } from '../verification'
@@ -22,9 +21,7 @@ describe('Message signature verification', () => {
 
   it('returns true if public key and message signature are correct', async () => {
     const message = 'hello'
-    const dmPublicKey = Buffer.from('0bfb475810c0e26c9fab590d47c3d60ec533bb3c451596acc3cd4f21602e9ad9', 'hex')
-    const dmPublicKeyString = dmPublicKey.toString()
-    const dmPublicKeyArrayBuffer = stringToArrayBuffer(dmPublicKeyString)
+
     const rootCert = await createTestRootCA()
     const userCsr = await createTestUserCsr()
     const userCert = await createTestUserCert(rootCert, userCsr)
@@ -32,8 +29,7 @@ describe('Message signature verification', () => {
     const data = {
       message: message,
       userPubKey: await extractPubKey(userCert.userCertString, crypto),
-      signature: await sign(message, userCsr.pkcs10.privateKey),
-      dmPublicKey: dmPublicKeyArrayBuffer
+      signature: await sign(message, userCsr.pkcs10.privateKey)
     }
 
     const result = await verifySignature(
@@ -41,7 +37,32 @@ describe('Message signature verification', () => {
       data.message,
       data.userPubKey
     )
+
     expect(result).toBe(true)
+  })
+
+  it("returns false if public key and message signature doesn't match", async () => {
+    const message = 'spoofed'
+
+    const rootCert = await createTestRootCA()
+    const userCsr = await createTestUserCsr()
+
+    const spoofedUserCsr = await createTestUserCsr()
+    const spoofedUserCert = await createTestUserCert(rootCert, spoofedUserCsr)
+
+    const data = {
+      message: message,
+      userPubKey: await extractPubKey(spoofedUserCert.userCertString, crypto),
+      signature: await sign(message, userCsr.pkcs10.privateKey)
+    }
+
+    const result = await verifySignature(
+      data.signature,
+      data.message,
+      data.userPubKey
+    )
+
+    expect(result).not.toBe(true)
   })
 })
 
