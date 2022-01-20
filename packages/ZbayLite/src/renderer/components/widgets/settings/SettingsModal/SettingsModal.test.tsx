@@ -133,22 +133,6 @@ describe('SettingsModal', () => {
                                 class="MuiTouchRipple-root"
                               />
                             </button>
-                            <button
-                              aria-selected="false"
-                              class="MuiButtonBase-root MuiTab-root MuiTab-textColorInherit"
-                              role="tab"
-                              tabindex="0"
-                              type="button"
-                            >
-                              <span
-                                class="MuiTab-wrapper"
-                              >
-                                Security
-                              </span>
-                              <span
-                                class="MuiTouchRipple-root"
-                              />
-                            </button>
                           </div>
                           <span
                             class="PrivateTabIndicator-root-234 PrivateTabIndicator-colorSecondary-236 MuiTabs-indicator makeStyles-indicator-3 PrivateTabIndicator-vertical-237"
@@ -581,14 +565,12 @@ describe('SettingsModal', () => {
   it('displays "Add members" tab for community owner', async () => {
     renderComponent(<SettingsModal user='string' owner={true} open handleClose={jest.fn()} />)
     expect(screen.queryByRole('tab', { name: /Notifications/i })).not.toBeNull()
-    expect(screen.queryByRole('tab', { name: /Security/i })).not.toBeNull()
     expect(screen.queryByRole('tab', { name: /Add members/i })).not.toBeNull()
   })
 
   it('does not display "Add members" tab if user is not a community owner', async () => {
     renderComponent(<SettingsModal user='string' owner={false} open handleClose={jest.fn()} />)
     expect(screen.queryByRole('tab', { name: /Notifications/i })).not.toBeNull()
-    expect(screen.queryByRole('tab', { name: /Security/i })).not.toBeNull()
     expect(screen.queryByRole('tab', { name: /Add members/i })).toBeNull()
   })
 })

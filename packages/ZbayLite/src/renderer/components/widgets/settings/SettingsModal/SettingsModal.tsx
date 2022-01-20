@@ -10,13 +10,11 @@ import { Scrollbars } from 'rc-scrollbars'
 import Modal from '../../../ui/Modal/Modal'
 import Tab from '../../../ui/Tab/Tab'
 import AccountSettingsForm from '../../../../containers/widgets/settings/AccountSettingsForm'
-import Security from '../../../../containers/widgets/settings/Security'
 import Notifications from '../../../../containers/widgets/settings/Notifications'
 import InviteToCommunity from '../../../../containers/widgets/settings/InviteToCommunity'
 
 const tabs = {
   account: AccountSettingsForm,
-  security: Security,
   notifications: Notifications,
   invite: InviteToCommunity
 }
@@ -123,7 +121,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ user, owner, open,
                 label='Notifications'
                 classes={{ selected: classes.selected }}
               />
-              <Tab value='security' label='Security' classes={{ selected: classes.selected }} />
               {owner && (
                 <Tab value='invite' label='Add members' classes={{ selected: classes.selected }} />
               )}
