@@ -14,10 +14,15 @@ import {
   SaveCertificatePayload,
   SaveOwnerCertificatePayload,
   SocketActionTypes,
-  SubscribeToTopicPayload
+  SubscribeToTopicPayload,
+  ChannelMessagesIdsResponse,
+  CreatedChannelResponse,
+  FetchAllMessagesResponse,
+  GetPublicChannelsResponse,
+  OnMessagePostedResponse,
+  SendCertificatesResponse
 } from '@zbayapp/nectar'
 import { emitServerError, emitValidationError } from './errors'
-import { loadAllMessages } from './events/messages'
 import logger from '../logger'
 
 const log = logger('io')
@@ -61,16 +66,11 @@ export default class IOProxy {
       payload.channelAddress,
       payload.ids
     )
-    loadAllMessages(
-      this.io,
-      messages.filteredMessages,
-      messages.channelAddress,
-      payload.communityId
-    )
-  }
-
-  public saveCertificate = async (peerId: string, certificate: string) => {
-    await this.getStorage(peerId).saveCertificate({ certificate })
+    this.loadAllMessages({
+      messages: messages.filteredMessages,
+      channelAddress: messages.channelAddress,
+      communityId: payload.communityId
+    })
   }
 
   public sendMessage = async (
@@ -117,11 +117,66 @@ export default class IOProxy {
     await this.getStorage(peerId).subscribeToAllConversations(conversations)
   }
 
+  public loadCertificates = (payload: SendCertificatesResponse) => {
+    log(`Sending ${payload.certificates.length} certificates`)
+    this.io.emit(SocketActionTypes.RESPONSE_GET_CERTIFICATES, payload)
+  }
+
+  public loadPublicChannels = (payload: GetPublicChannelsResponse) => {
+    log(`Sending ${Object.keys(payload.channels).length} public channels`)
+    this.io.emit(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, payload)
+  }
+
+  public loadAllMessages = (payload: FetchAllMessagesResponse) => {
+    if (payload.messages.length === 0) {
+      return
+    }
+    log(`Sending ${payload.messages.length} messages`)
+    this.io.emit(SocketActionTypes.RESPONSE_FETCH_ALL_MESSAGES, payload)
+  }
+
+  public loadMessage = (payload: OnMessagePostedResponse) => {
+    log('Emitting message')
+    this.io.emit(SocketActionTypes.MESSAGE, payload)
+  }
+
+  public sendMessagesIds = (payload: ChannelMessagesIdsResponse) => {
+    if (payload.ids.length === 0) {
+      return
+    }
+    log(`Sending ${payload.ids.length} messages ids`)
+    this.io.emit(SocketActionTypes.SEND_IDS, payload)
+  }
+
+  public createdChannel = (payload: CreatedChannelResponse) => {
+    log(`Created channel ${payload.channel.address}`)
+    this.io.emit(SocketActionTypes.CREATED_CHANNEL, payload)
+  }
+
+  public loadAllDirectMessages = (
+    messages: string[],
+    channelAddress: string
+  ) => {
+    if (messages.length === 0) {
+      return
+    }
+    log(`Sending ${messages.length} direct messages`)
+    this.io.emit(SocketActionTypes.RESPONSE_FETCH_ALL_DIRECT_MESSAGES, {
+      channelAddress,
+      messages
+    })
+  }
+
+  public loadAllPrivateConversations = (payload) => {
+    this.io.emit(SocketActionTypes.RESPONSE_GET_PRIVATE_CONVERSATIONS, payload)
+  }
+
   public registerOwnerCertificate = async (payload: RegisterOwnerCertificatePayload) => {
     const cert = await CertificateRegistration.registerOwnerCertificate(
       payload.userCsr,
       payload.permsData
     )
+    log(`Saved owner certificate ${payload.id}`)
     this.io.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
       id: payload.id,
       payload: { certificate: cert, peers: [], rootCa: payload.permsData.certificate }
@@ -182,6 +237,8 @@ export default class IOProxy {
     }
     const registrarResponse: { certificate: string; peers: string[]; rootCa: string } =
       await response.json()
+
+    log(`Sending user certificate (${payload.id})`)
     this.io.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
       id: payload.id,
       payload: registrarResponse
@@ -201,11 +258,13 @@ export default class IOProxy {
       })
       return
     }
+    log(`Sending network data for ${communityId}`)
     this.io.emit(SocketActionTypes.NETWORK, { id: communityId, payload: network })
   }
 
   public async createCommunity(payload: InitCommunityPayload) {
     await this.launchCommunity(payload)
+    log(`Created and launched community ${payload.id}`)
     this.io.emit(SocketActionTypes.NEW_COMMUNITY, { id: payload.id })
   }
 
@@ -221,6 +280,7 @@ export default class IOProxy {
       })
       return
     }
+    log(`Launched community ${payload.id}`)
     this.io.emit(SocketActionTypes.COMMUNITY, { id: payload.id })
   }
 
@@ -242,6 +302,7 @@ export default class IOProxy {
         communityId: payload.id
       })
     } else {
+      log(`Launched registrar for ${payload.id}`)
       this.io.emit(SocketActionTypes.REGISTRAR, {
         id: payload.id,
         peerId: payload.peerId,

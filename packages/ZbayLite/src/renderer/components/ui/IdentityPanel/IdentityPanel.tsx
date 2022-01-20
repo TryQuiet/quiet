@@ -5,7 +5,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { Button } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 
-import { Identity } from '@zbayapp/nectar'
+import { Community } from '@zbayapp/nectar'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -37,11 +37,11 @@ const useStyles = makeStyles(theme => ({
 }))
 
 interface IdentityPanelProps {
-  identity: Identity
+  community: Community
   handleSettings: () => void
 }
 
-export const IdentityPanel: React.FC<IdentityPanelProps> = ({ handleSettings, identity }) => {
+export const IdentityPanel: React.FC<IdentityPanelProps> = ({ handleSettings, community }) => {
   const classes = useStyles({})
 
   return (
@@ -54,7 +54,7 @@ export const IdentityPanel: React.FC<IdentityPanelProps> = ({ handleSettings, id
         component='span'
         classes={{ root: classes.button, label: classes.buttonLabel }}>
         <Typography variant='h4' className={classes.nickname}>
-          {identity?.zbayNickname ? identity.zbayNickname : ''}
+        { community?.name || '' }
         </Typography>
         <ExpandMoreIcon fontSize='small' />
       </Button>

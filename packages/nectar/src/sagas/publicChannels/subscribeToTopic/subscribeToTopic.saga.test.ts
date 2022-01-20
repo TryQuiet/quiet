@@ -5,7 +5,7 @@ import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { StoreKeys } from '../../store.keys'
 import { publicChannelsActions } from '../publicChannels.slice'
 import { subscribeToTopicSaga } from './subscribeToTopic.saga'
-import { Identity, identityReducer, IdentityState } from '../../identity/identity.slice'
+import { identityReducer, IdentityState } from '../../identity/identity.slice'
 import { identityAdapter } from '../../identity/identity.adapter'
 import {
   communitiesReducer,
@@ -13,6 +13,7 @@ import {
   Community
 } from '../../communities/communities.slice'
 import { communitiesAdapter } from '../../communities/communities.adapter'
+import { Identity } from '../../identity/identity.types'
 
 describe('subscribeToTopicSaga', () => {
   const socket = { emit: jest.fn() } as unknown as Socket

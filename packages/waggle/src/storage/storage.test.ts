@@ -3,7 +3,7 @@ import path from 'path'
 import PeerId from 'peer-id'
 import { DirResult } from 'tmp'
 import { Config } from '../constants'
-import { createLibp2p, createTmpDir, tmpZbayDirPath, rootPermsData } from '../common/testUtils'
+import { createLibp2p, createTmpDir, tmpZbayDirPath, rootPermsData, createMinConnectionManager } from '../common/testUtils'
 import { Storage } from './storage'
 import * as utils from '../common/utils'
 import { FactoryGirl } from 'factory-girl'
@@ -24,6 +24,7 @@ import {
   ChannelMessage,
   PublicChannel
 } from '@zbayapp/nectar'
+import { ConnectionsManager } from '../libp2p/connectionsManager'
 
 jest.setTimeout(30_000)
 
@@ -31,6 +32,7 @@ let tmpDir: DirResult
 let tmpAppDataPath: string
 let tmpOrbitDbDir: string
 let tmpIpfsPath: string
+let connectionsManager: ConnectionsManager
 let storage: Storage
 
 let store: Store
@@ -66,12 +68,14 @@ beforeAll(async () => {
   ).message
 })
 
-beforeEach(() => {
+beforeEach(async () => {
   jest.clearAllMocks()
   tmpDir = createTmpDir()
   tmpAppDataPath = tmpZbayDirPath(tmpDir.name)
   tmpOrbitDbDir = path.join(tmpAppDataPath, Config.ORBIT_DB_DIR)
   tmpIpfsPath = path.join(tmpAppDataPath, Config.IPFS_REPO_PATH)
+  const { controlPort } = await utils.getPorts()
+  connectionsManager = createMinConnectionManager({ env: { appDataPath: tmpAppDataPath }, torControlPort: controlPort })
   storage = null
 })
 
@@ -89,8 +93,8 @@ describe('Storage', () => {
     expect(fs.existsSync(tmpOrbitDbDir)).toBe(false)
     expect(fs.existsSync(tmpIpfsPath)).toBe(false)
 
-    storage = new Storage(tmpAppDataPath, new utils.DummyIOServer(), 'communityId')
-
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, 'communityId')
+    
     const peerId = await PeerId.create()
     const libp2p = await createLibp2p(peerId)
 
@@ -107,10 +111,8 @@ describe('Storage', () => {
   it('should not create paths if createPaths is set to false', async () => {
     expect(fs.existsSync(tmpOrbitDbDir)).toBe(false)
     expect(fs.existsSync(tmpIpfsPath)).toBe(false)
-
-    storage = new Storage(tmpAppDataPath, new utils.DummyIOServer(), 'communityId', {
-      createPaths: false
-    })
+    
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, 'communityId', { createPaths: false })
 
     const peerId = await PeerId.create()
     const libp2p = await createLibp2p(peerId)
@@ -133,16 +135,14 @@ describe('Certificate', () => {
       new Date(2030, 1, 1)
     )
 
-    storage = new Storage(tmpAppDataPath, new utils.DummyIOServer(), 'communityId', {
-      createPaths: false
-    })
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, 'communityId', { createPaths: false })
 
     const peerId = await PeerId.create()
     const libp2p = await createLibp2p(peerId)
 
     await storage.init(libp2p, peerId)
 
-    const result = await storage.saveCertificate({ certificate: userCertificate.userCertString })
+    const result = await storage.saveCertificate({ certificate: userCertificate.userCertString, rootPermsData })
 
     expect(result).toBe(true)
   })
@@ -156,32 +156,28 @@ describe('Certificate', () => {
       new Date(2021, 1, 2)
     )
 
-    storage = new Storage(tmpAppDataPath, new utils.DummyIOServer(), 'communityId', {
-      createPaths: false
-    })
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
 
     const peerId = await PeerId.create()
     const libp2p = await createLibp2p(peerId)
 
     await storage.init(libp2p, peerId)
 
-    const result = await storage.saveCertificate({ certificate: oldUserCertificate.userCertString })
+    const result = await storage.saveCertificate({ certificate: oldUserCertificate.userCertString, rootPermsData })
 
     expect(result).toBe(false)
   })
 
   it('is not saved to db if empty', async () => {
-    storage = new Storage(tmpAppDataPath, new utils.DummyIOServer(), 'communityId', {
-      createPaths: false
-    })
-
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
+    
     const peerId = await PeerId.create()
     const libp2p = await createLibp2p(peerId)
 
     await storage.init(libp2p, peerId)
 
     for (const empty of [null, '', undefined]) {
-      const result = await storage.saveCertificate({ certificate: empty })
+      const result = await storage.saveCertificate({ certificate: empty, rootPermsData })
       expect(result).toBe(false)
     }
   })
@@ -189,16 +185,14 @@ describe('Certificate', () => {
   it('username check fails if username is already in use', async () => {
     const userCertificate = await createUserCert(rootPermsData.certificate, rootPermsData.privKey, alice.userCsr.userCsr, new Date(), new Date(2030, 1, 1))
 
-    storage = new Storage(tmpAppDataPath, new utils.DummyIOServer(), community.id, {
-      createPaths: false
-    })
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, 'communityId', { createPaths: false })
 
     const peerId = await PeerId.create()
     const libp2p = await createLibp2p(peerId)
 
     await storage.init(libp2p, peerId)
 
-    await storage.saveCertificate({ certificate: userCertificate.userCertString })
+    await storage.saveCertificate({ certificate: userCertificate.userCertString, rootPermsData })
 
     for (const username of ['alice', 'Alice', 'Ąlice']) {
       const usernameExists = storage.usernameExists(username)
@@ -207,9 +201,7 @@ describe('Certificate', () => {
   })
 
   it('username check passes if username is not found in certificates', async () => {
-    storage = new Storage(tmpAppDataPath, new utils.DummyIOServer(), 'communityId', {
-      createPaths: false
-    })
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
 
     const peerId = await PeerId.create()
     const libp2p = await createLibp2p(peerId)
@@ -224,9 +216,7 @@ describe('Certificate', () => {
 
 describe('Message', () => {
   it('is saved to db if passed signature verification', async () => {
-    storage = new Storage(tmpAppDataPath, new utils.DummyIOServer(), 'communityId', {
-      createPaths: false
-    })
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
 
     const peerId = await PeerId.create()
     const libp2p = await createLibp2p(peerId)
@@ -266,9 +256,7 @@ describe('Message', () => {
       pubKey: johnPublicKey
     }
 
-    storage = new Storage(tmpAppDataPath, new utils.DummyIOServer(), 'communityId', {
-      createPaths: false
-    })
+    storage = new Storage(tmpAppDataPath, connectionsManager.ioProxy, community.id, { createPaths: false })
 
     const peerId = await PeerId.create()
     const libp2p = await createLibp2p(peerId)

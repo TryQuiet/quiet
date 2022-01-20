@@ -1,7 +1,7 @@
 import waitForExpect from 'wait-for-expect'
 import { publicChannels } from '@zbayapp/nectar'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
-import { createApp } from '../utils'
+import { createApp, sleep } from '../utils'
 import logger from '../logger'
 
 const log = logger()
@@ -22,8 +22,7 @@ export async function assertReceivedCertificates(
   }, maxTime)
 
   log(
-    `User ${userName} received ${
-      store.getState().Users.certificates.ids.length
+    `User ${userName} received ${store.getState().Users.certificates.ids.length
     } certificates`
   )
 }
@@ -56,9 +55,8 @@ export async function assertReceivedChannelsAndSubscribe(
   store.dispatch(publicChannels.actions.subscribeToAllTopics(communityId))
 
   log(
-    `User ${userName} received ${
-      store.getState().PublicChannels.channels.entities[communityId].channels
-        .ids.length
+    `User ${userName} received ${store.getState().PublicChannels.channels.entities[communityId].channels
+      .ids.length
     } channels`
   )
 }
@@ -80,9 +78,8 @@ export async function assertReceivedMessages(
     ).toHaveLength(expectedCount)
   }, maxTime)
   log(
-    `User ${userName} received ${
-      store.getState().PublicChannels.channels.entities[communityId]
-        .channelMessages.ids.length
+    `User ${userName} received ${store.getState().PublicChannels.channels.entities[communityId]
+      .channelMessages.ids.length
     } messages`
   )
 }
@@ -149,4 +146,16 @@ export const assertReceivedCertificate = async (store: Store) => {
       store.getState().Identity.identities.entities[communityId].userCertificate
     ).toBeTruthy()
   }, 150_000)
+}
+
+export const assertConnectedToPeers = async (
+  store: Store,
+  count: number
+) => {
+  await sleep(10_000)
+  await waitForExpect(() => {
+    expect(
+      store.getState().Connection.connectedPeers.ids.length
+    ).toEqual(count)
+  }, 20_000)
 }

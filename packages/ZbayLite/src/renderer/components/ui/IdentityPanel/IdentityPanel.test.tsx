@@ -1,46 +1,22 @@
 import React from 'react'
+import { getFactory, Community, communities } from '@zbayapp/nectar'
 
-import { renderComponent } from '../../../testUtils/renderComponent'
 import { IdentityPanel } from './IdentityPanel'
-
-import { Identity } from '@zbayapp/nectar'
-
-import { Provider } from 'react-redux'
-import store from '../../../store'
+import { prepareStore } from '../../../testUtils/prepareStore'
+import { renderComponent } from '../../../testUtils/renderComponent'
 
 describe('IdentityPanel', () => {
-  it('renders component with username', () => {
-    const identity: Identity = {
-      id: '',
-      zbayNickname: '',
-      hiddenService: {
-        onionAddress: 'string',
-        privateKey: 'string'
-      },
-      dmKeys: {
-        publicKey: 'string',
-        privateKey: 'string'
-      },
-      peerId: {
-        id: 'string',
-        pubKey: 'string',
-        privKey: 'string'
-      },
-      userCsr: {
-        userCsr: 'string',
-        userKey: 'string',
-        pkcs10: {
-          publicKey: 'any',
-          privateKey: 'any',
-          pkcs10: 'any'
-        }
-      },
-      userCertificate: ''
-    }
+  it('renders component with username', async () => {
+    const { store } = await prepareStore()
+
+    const factory = await getFactory(store)
+
+    const community: Community = await factory.create<
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
+    >('Community')
+
     const result = renderComponent(
-      <Provider store={store}>
-        <IdentityPanel identity={identity} handleSettings={jest.fn()} />
-      </Provider>
+      <IdentityPanel community={community} handleSettings={jest.fn()} />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
@@ -59,7 +35,9 @@ describe('IdentityPanel', () => {
               >
                 <h4
                   class="MuiTypography-root makeStyles-nickname-4 MuiTypography-h4"
-                />
+                >
+                  community_1
+                </h4>
                 <svg
                   aria-hidden="true"
                   class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall"

@@ -5,44 +5,28 @@ import {
   parseCertificate,
   verifyUserCert
 } from '@zbayapp/identity'
+import { ChannelMessage, PublicChannel, SaveCertificatePayload } from '@zbayapp/nectar'
 import * as IPFS from 'ipfs-core'
+import Libp2p from 'libp2p'
 import OrbitDB from 'orbit-db'
 import EventStore from 'orbit-db-eventstore'
 import KeyValueStore from 'orbit-db-kvstore'
 import path from 'path'
 import PeerId from 'peer-id'
 import { CryptoEngine, setEngine } from 'pkijs'
-import { ChannelMessage, PermsData, PublicChannel, SaveCertificatePayload, SocketActionTypes } from '@zbayapp/nectar'
 import {
-  IMessageThread,
-  IPublicKey,
-  IRepo,
+  IMessageThread, IRepo,
   StorageOptions
 } from '../common/types'
-import Libp2p from 'libp2p'
 import { createPaths } from '../common/utils'
 import { Config } from '../constants'
-import { loadCertificates } from '../socket/events/certificates'
-import { createdChannel } from '../socket/events/channels'
-import {
-  loadAllDirectMessages,
-  loadAllMessages,
-  message as socketMessage,
-  sendIdsToZbay
-} from '../socket/events/messages'
-import validate from '../validation/validators'
 import AccessControllers from 'orbit-db-access-controllers'
 import { MessagesAccessController } from './MessagesAccessController'
 import logger from '../logger'
+import IOProxy from '../socket/IOProxy'
+import validate from '../validation/validators'
 
 const log = logger('db')
-
-const rootPermsData: PermsData = {
-  certificate:
-    'MIIBNjCB3AIBATAKBggqhkjOPQQDAjASMRAwDgYDVQQDEwdaYmF5IENBMCYYEzIwMjEwNjIyMDkzMDEwLjAyNVoYDzIwMzAwMTMxMjMwMDAwWjASMRAwDgYDVQQDEwdaYmF5IENBMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEV5a3Czy+L7IfVX0FpJtSF5mi0GWGrtPqv5+CFSDPrHXijsxWdPTobR1wk8uCLP4sAgUbs/bIleCxQy41kSSyOaMgMB4wDwYDVR0TBAgwBgEB/wIBAzALBgNVHQ8EBAMCAAYwCgYIKoZIzj0EAwIDSQAwRgIhAPOzksuipKyBALt/o8O/XwsrVSzfSHXdAR4dOWThQ1lbAiEAmKqjhsmf50kxWX0ekhbAeCTjcRApXhjnslmJkIFGF2o=+lmBImw3BMNjA0FTlK5iRmVC+w/T6M04Es+yiYL608vOhx2slnoyAwHjAPBgNVHRMECDAGAQH/AgEDMAsGA1UdDwQEAwIABjAKBggqhkjOPQQDAgNIADBFAiEA+0kIz0ny/PLVERTcL0+KCpsztyA6Zuwzj05VW5NMdx0CICgdzf0lg0/2Ksl1AjSPYsy2w+Hn09PGlBnD7TiExBpx',
-  privKey:
-    'MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgTvNuJL0blaYq6zmFS53WmmOfHshlqn+8wNHDzo4df5WgCgYIKoZIzj0DAQehRANCAARXlrcLPL4vsh9VfQWkm1IXmaLQZYau0+q/n4IVIM+sdeKOzFZ09OhtHXCTy4Is/iwCBRuz9siV4LFDLjWRJLI5+lmBImw3BMNjA0FTlK5iRmVC+w/T6M04Es+yiYL608vOhx2sln'
-}
 
 const webcrypto = new Crypto()
 setEngine(
@@ -57,12 +41,11 @@ setEngine(
 
 export class Storage {
   public zbayDir: string
-  public io: any
+  public io: IOProxy
   public peerId: PeerId
   protected ipfs: IPFS.IPFS
   protected orbitdb: OrbitDB
   private channels: KeyValueStore<PublicChannel>
-  private readonly _directMessagesUsers: KeyValueStore<IPublicKey>
   private messageThreads: KeyValueStore<IMessageThread>
   private certificates: EventStore<string>
   public publicChannelsRepos: Map<String, IRepo> = new Map()
@@ -72,9 +55,9 @@ export class Storage {
   public ipfsRepoPath: string
   private readonly communityId: string
 
-  constructor(zbayDir: string, io: any, communityId: string, options?: Partial<StorageOptions>) {
+  constructor(zbayDir: string, ioProxy: IOProxy, communityId: string, options?: Partial<StorageOptions>) {
     this.zbayDir = zbayDir
-    this.io = io
+    this.io = ioProxy
     this.communityId = communityId
     this.options = {
       ...new StorageOptions(),
@@ -137,7 +120,6 @@ export class Storage {
   }
 
   protected async initIPFS(libp2p: Libp2p, peerID: PeerId): Promise<IPFS.IPFS> {
-    // TODO: import Libp2p type
     log('Initializing IPFS')
     return await IPFS.create({
       // error here 'permission denied 0.0.0.0:443'
@@ -163,16 +145,16 @@ export class Storage {
 
     this.certificates.events.on('replicated', () => {
       log('REPLICATED: Certificates')
-      loadCertificates(this.io, this.getAllEventLogEntries(this.certificates))
+      this.io.loadCertificates({ certificates: this.getAllEventLogEntries(this.certificates) })
     })
     this.certificates.events.on('write', (_address, entry) => {
       log('Saved certificate locally')
       log(entry.payload.value)
-      loadCertificates(this.io, this.getAllEventLogEntries(this.certificates))
+      this.io.loadCertificates({ certificates: this.getAllEventLogEntries(this.certificates) })
     })
     this.certificates.events.on('ready', () => {
       log('Loaded certificates to memory')
-      loadCertificates(this.io, this.getAllEventLogEntries(this.certificates))
+      this.io.loadCertificates({ certificates: this.getAllEventLogEntries(this.certificates) })
     })
 
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
@@ -195,11 +177,10 @@ export class Storage {
       log('REPLICATED: Channels')
       // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
       await this.channels.load({ fetchEntryTimeout: 2000 })
-      const payload = this.channels.all
-
-      this.io.emit(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, {
+      this.io.loadPublicChannels({
         communityId: this.communityId,
-        channels: payload
+        // @ts-expect-error KeyValueStore doesn't have 'all' declared properly
+        channels: this.channels.all
       })
     })
 
@@ -223,7 +204,7 @@ export class Storage {
         // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
         await this.messageThreads.load({ fetchEntryTimeout: 2000 })
         const payload = this.messageThreads.all
-        this.io.emit(SocketActionTypes.RESPONSE_GET_PRIVATE_CONVERSATIONS, payload)
+        this.io.loadAllPrivateConversations(payload)
         await this.initAllConversations()
       }
     )
@@ -235,7 +216,7 @@ export class Storage {
   async initAllChannels() {
     console.time('initAllChannels')
     await Promise.all(
-      Object.values(this.channels.all).map(async channel => {
+      Object.values(this.channels.all).map(async (channel: PublicChannel) => {
         if (!this.publicChannelsRepos.has(channel.address)) {
           await this.subscribeToChannel(channel)
         }
@@ -271,7 +252,11 @@ export class Storage {
       return
     }
     const db: EventStore<ChannelMessage> = this.publicChannelsRepos.get(channelAddress).db
-    loadAllMessages(this.io, this.getAllEventLogEntries(db), channelAddress, this.communityId)
+    this.io.loadAllMessages({
+      messages: this.getAllEventLogEntries(db),
+      channelAddress,
+      communityId: this.communityId
+    })
   }
 
   public async subscribeToChannel(channel: PublicChannel): Promise<void> {
@@ -293,7 +278,7 @@ export class Storage {
 
       db.events.on('write', (_address, entry) => {
         log(`Writing to public channel db ${channel.address}`)
-        socketMessage(this.io, {
+        this.io.loadMessage({
           message: entry.payload.value,
           channelAddress: channel.address,
           communityId: this.communityId
@@ -301,7 +286,7 @@ export class Storage {
       })
       db.events.on('replicate.progress', (address, _hash, entry, progress, total) => {
         log(`progress ${progress as string}/${total as string}. Address: ${address as string}`)
-        socketMessage(this.io, {
+        this.io.loadMessage({
           message: entry.payload.value,
           channelAddress: channel.address,
           communityId: this.communityId
@@ -310,7 +295,7 @@ export class Storage {
 
       db.events.on('ready', () => {
         const ids = this.getAllEventLogEntries(db).map(msg => msg.id)
-        sendIdsToZbay(this.io, {
+        this.io.sendMessagesIds({
           ids,
           channelAddress: channel.address,
           communityId: this.communityId
@@ -319,7 +304,7 @@ export class Storage {
 
       repo.eventsAttached = true
       const ids = this.getAllEventLogEntries(db).map(msg => msg.id)
-      sendIdsToZbay(this.io, {
+      this.io.sendMessagesIds({
         ids,
         channelAddress: channel.address,
         communityId: this.communityId
@@ -345,7 +330,10 @@ export class Storage {
       await this.channels.put(data.address, {
         ...data
       })
-      createdChannel(this.io, data, this.communityId)
+      this.io.createdChannel({
+        channel: data,
+        communityId: this.communityId
+      })
     }
 
     this.publicChannelsRepos.set(data.address, { db, eventsAttached: false })
@@ -428,20 +416,24 @@ export class Storage {
 
     if (repo && !repo.eventsAttached) {
       log('Subscribing to direct messages thread ', channelAddress)
-      loadAllDirectMessages(this.io, this.getAllEventLogEntries(db), channelAddress)
+      this.io.loadAllDirectMessages(this.getAllEventLogEntries(db), channelAddress)
       db.events.on('write', (_address, _entry) => {
         log('Writing')
-        loadAllDirectMessages(this.io, this.getAllEventLogEntries(db), channelAddress)
+        this.io.loadAllDirectMessages(this.getAllEventLogEntries(db), channelAddress)
       })
       db.events.on('replicated', () => {
         log('Message replicated')
-        loadAllDirectMessages(this.io, this.getAllEventLogEntries(db), channelAddress)
+        this.io.loadAllDirectMessages(this.getAllEventLogEntries(db), channelAddress)
       })
       db.events.on('ready', () => {
         log('DIRECT Messages thread ready')
       })
       repo.eventsAttached = true
-      loadAllMessages(this.io, this.getAllEventLogEntries(db), channelAddress, this.communityId)
+      this.io.loadAllMessages({
+        messages: this.getAllEventLogEntries(db),
+        channelAddress,
+        communityId: this.communityId
+      })
       log('Subscription to channel ready', channelAddress)
     }
   }
@@ -490,17 +482,16 @@ export class Storage {
     await this.messageThreads.load({ fetchEntryTimeout: 2000 })
     const payload = this.messageThreads.all
     log('STORAGE: getPrivateConversations payload payload')
-    this.io.emit(SocketActionTypes.RESPONSE_GET_PRIVATE_CONVERSATIONS, payload)
+    this.io.loadAllPrivateConversations(payload)
   }
 
   public async saveCertificate(payload: SaveCertificatePayload): Promise<boolean> {
-    const rootPems = payload.rootPermsData || rootPermsData // TODO: tmp for backward compatibilty
     log('About to save certificate...')
     if (!payload.certificate) {
       log('Certificate is either null or undefined, not saving to db')
       return false
     }
-    const verification = await verifyUserCert(rootPems.certificate, payload.certificate)
+    const verification = await verifyUserCert(payload.rootPermsData.certificate, payload.certificate)
     if (verification.resultCode !== 0) {
       log.error('Certificate is not valid')
       log.error(verification.resultMessage)
