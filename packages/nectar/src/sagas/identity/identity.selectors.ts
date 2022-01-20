@@ -43,6 +43,7 @@ export const joinedCommunities = createSelector(
 export const unregisteredCommunities = createSelector(
   allCommunities,
   identitySlice,
+
   (allCommunities, reducerState) => {
     return allCommunities.filter((community) => {
       const identityFromCommunity = identityAdapter
@@ -58,8 +59,6 @@ export const unregisteredCommunitiesWithoutUserIdentity = createSelector(
   identitySlice,
   (allCommunities, reducerState) => {
     return allCommunities.filter((community) => {
-      console.log('aa', reducerState.identities)
-
       const identityFromCommunity = identityAdapter
         .getSelectors()
         .selectById(reducerState.identities, community.id)

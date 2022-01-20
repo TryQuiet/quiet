@@ -6,6 +6,7 @@ import { ModalName } from '../../../sagas/modals/modals.types'
 import { useModal } from '../../hooks'
 import { CommunityAction } from '../../../components/widgets/performCommunityAction/community.keys'
 import { LoadingMessages } from '../loadingPanel/loadingMessages'
+import { socketSelectors } from '../../../sagas/socket/socket.selectors'
 
 export interface CreateUsernameModalProps {
   communityAction: CommunityAction
@@ -35,6 +36,50 @@ const CreateUsernameModal = () => {
   const loadingCommunityModal = useModal(ModalName.loadingPanel)
   const unregisteredCommunitiesWithoutUserIdentity = useSelector(identity.selectors.unregisteredCommunitiesWithoutUserIdentity)
 
+  const [isCreateUserNameStarted, setisCreateUserNameStarted] = useState('undecided')
+
+  const isConnected = useSelector(socketSelectors.isConnected)
+
+  const loadingStartApp = useModal(ModalName.loadingPanel)
+
+  const unregisteredCommunities = useSelector(identity.selectors.unregisteredCommunities)
+  const isOwner = useSelector(communities.selectors.isOwner)
+
+  useEffect(() => {
+    if (isConnected && unregisteredCommunitiesWithoutUserIdentity.length && isCreateUserNameStarted === 'undecided') {
+      let communityAction: CommunityAction
+      if (isOwner) {
+        communityAction = CommunityAction.Create
+      } else {
+        communityAction = CommunityAction.Join
+      }
+      createUsernameModal.handleOpen({
+        communityAction: communityAction,
+        communityData: unregisteredCommunitiesWithoutUserIdentity[0].registrarUrl
+      })
+    }
+  }, [unregisteredCommunitiesWithoutUserIdentity, isConnected, isCreateUserNameStarted])
+
+  useEffect(() => {
+    if (isConnected) {
+      loadingStartApp.handleClose()
+      let communityMessage: LoadingMessages
+
+      if (unregisteredCommunities.length) {
+
+        if (isOwner) {
+          communityMessage = LoadingMessages.CreateCommunity
+        } else {
+          communityMessage = LoadingMessages.JoinCommunity
+        }
+        loadingCommunityModal.handleOpen({
+          message: communityMessage
+        })
+      }
+    }
+  }, [isConnected, unregisteredCommunities])
+
+
   useEffect(() => {
     if (certificate && allCommunitiesInitialized && !unregisteredCommunitiesWithoutUserIdentity.length &&
       ((createUsernameModal.communityAction === CommunityAction.Join && channels.length) ||
@@ -53,6 +98,13 @@ const CreateUsernameModal = () => {
   }, [id?.hiddenService])
 
   const handleAction = (payload: { nickname: string }) => {
+    const message = createUsernameModal.communityAction === CommunityAction.Create
+      ? LoadingMessages.CreateCommunity
+      : LoadingMessages.JoinCommunity
+    loadingCommunityModal.handleOpen({
+      message
+    })
+    setisCreateUserNameStarted('actionStarted')
     setUsername(payload.nickname)
     const value = createUsernameModal.communityData
     const action =
@@ -61,13 +113,6 @@ const CreateUsernameModal = () => {
         : communities.actions.joinCommunity(value)
     /* Launch/create community */
 
-    const message = createUsernameModal.communityAction === CommunityAction.Create
-      ? LoadingMessages.CreateCommunity
-      : LoadingMessages.JoinCommunity
-
-    loadingCommunityModal.handleOpen({
-      message
-    })
     dispatch(action)
   }
 

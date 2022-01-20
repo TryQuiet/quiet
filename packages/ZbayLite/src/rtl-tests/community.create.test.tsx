@@ -185,17 +185,27 @@ describe('User', () => {
         "Communities/createNewCommunity",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
+        "Modals/closeModal",
         "PublicChannels/addPublicChannelsList",
         "Communities/responseCreateCommunity",
         "Identity/addNewIdentity",
+        "Modals/closeModal",
+        "Modals/openModal",
         "Identity/registerUsername",
         "Identity/updateUsername",
         "Identity/createUserCsr",
+        "Modals/closeModal",
+        "Modals/openModal",
         "Identity/storeUserCsr",
         "Communities/storePeerList",
         "Identity/storeUserCertificate",
         "Communities/updateCommunity",
         "Identity/savedOwnerCertificate",
+        "Modals/closeModal",
+        "Modals/openModal",
+        "Modals/closeModal",
+        "Modals/openModal",
+        "Modals/closeModal",
         "Communities/launchRegistrar",
         "Connection/addInitializedCommunity",
         "PublicChannels/createGeneralChannel",
@@ -204,10 +214,12 @@ describe('User', () => {
         "Communities/responseRegistrar",
         "Connection/addInitializedRegistrar",
         "Identity/saveOwnerCertToDb",
+        "Modals/closeModal",
         "PublicChannels/createChannel",
         "PublicChannels/subscribeToTopic",
         "PublicChannels/setCurrentChannel",
         "PublicChannels/addChannel",
+        "Modals/closeModal",
         "Modals/closeModal",
         "Modals/closeModal",
         "Modals/closeModal",
@@ -340,10 +352,12 @@ describe('User', () => {
     // Note: channel view is present in the DOM but hidden by aria-hidden so getByRole is currently
     // the only way to check this kind of visibility.
     await waitFor(() => {
-      expect(screen.getByRole('heading', {
-        name: /#general/i,
-        hidden: true
-      })).toBeInTheDocument()
+      expect(
+        screen.getByRole('heading', {
+          name: /#general/i,
+          hidden: true
+        })
+      ).toBeInTheDocument()
     })
 
     expect(actions).toMatchInlineSnapshot(`
