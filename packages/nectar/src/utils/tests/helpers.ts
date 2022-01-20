@@ -18,10 +18,11 @@ import { Time } from 'pkijs'
 const notBeforeDate = new Date(Date.UTC(2010, 11, 28, 10, 10, 10))
 const notAfterDate = new Date(Date.UTC(2030, 11, 28, 10, 10, 10))
 
-export const createRootCertificateTestHelper = async (): Promise<RootCA> => {
+export const createRootCertificateTestHelper = async (commonName): Promise<RootCA> => {
   return await createRootCA(
     new Time({ type: 0, value: notBeforeDate }),
-    new Time({ type: 0, value: notAfterDate })
+    new Time({ type: 0, value: notAfterDate }),
+    commonName
   )
 }
 

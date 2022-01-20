@@ -16,16 +16,19 @@ import { ioMock } from '../shared/setupTests'
 import { socketEventData } from '../renderer/testUtils/socket'
 import {
   identity,
+  communities,
   getFactory,
   SocketActionTypes,
   RegisterUserCertificatePayload,
-  InitCommunityPayload
+  InitCommunityPayload,
+  Identity,
+  Community,
+  createUserCertificateTestHelper
 } from '@zbayapp/nectar'
 import Channel from '../renderer/containers/pages/Channel'
 
 describe('User', () => {
   let socket: MockedSocket
-  let communityId: string
 
   beforeEach(() => {
     socket = new MockedSocket()
@@ -33,6 +36,9 @@ describe('User', () => {
   })
 
   it('joins community and registers username', async () => {
+    let community: Community
+    let alice: Identity
+
     const { store, runSaga } = await prepareStore(
       {},
       socket // Fork Nectar's sagas
@@ -56,15 +62,20 @@ describe('User', () => {
       .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
         if (action === SocketActionTypes.CREATE_NETWORK) {
           const data = input as socketEventData<[string]>
-          communityId = data[0]
-          const alice = (
+          community = (
+            await factory.build<typeof communities.actions.addNewCommunity>('Community', {
+              id: data[0]
+            })
+          ).payload
+          alice = (
             await factory.build<typeof identity.actions.addNewIdentity>('Identity', {
-              id: communityId,
+              id: community.id,
               zbayNickname: 'alice'
             })
           ).payload
+
           return socket.socketClient.emit(SocketActionTypes.NETWORK, {
-            id: communityId,
+            id: community.id,
             payload: {
               hiddenService: alice.hiddenService,
               peerId: alice.peerId
@@ -74,24 +85,32 @@ describe('User', () => {
         if (action === SocketActionTypes.REGISTER_USER_CERTIFICATE) {
           const data = input as socketEventData<[RegisterUserCertificatePayload]>
           const payload = data[0]
-          expect(payload.id).toEqual(communityId)
+          expect(payload.id).toEqual(community.id)
+          const certificate = await createUserCertificateTestHelper(
+            {
+              zbayNickname: alice.zbayNickname,
+              commonName: alice.hiddenService.onionAddress,
+              peerId: alice.peerId.id
+            },
+            community.CA
+          )
           return socket.socketClient.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
             id: payload.id,
             payload: {
-              certificate:
-                'MIIBTDCB8wIBATAKBggqhkjOPQQDAjASMRAwDgYDVQQDEwdaYmF5IENBMB4XDTEwMTIyODEwMTAxMFoXDTMwMTIyODEwMTAxMFowEjEQMA4GA1UEAxMHWmJheSBDQTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABEaV1l/7BOvPh0fFteSubIJ2r66YM4XoMMEfUhHiJE6O0ojfHdNrsItg+pHmpIQyEe+3YGWxIhgjL65+liE8ypqjPzA9MA8GA1UdEwQIMAYBAf8CAQMwCwYDVR0PBAQDAgCGMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDATAKBggqhkjOPQQDAgNIADBFAiARHtkv7GlhfkFbtRGU1r19UJFkhA7Vu+EubBnJPjD9/QIhALje1S3bp8w8jjVf70jGc2/uRmDCo/bNyQRpApBaD5vY'
+              certificate: certificate,
+              rootCa: community.CA.rootCertString
             }
           })
         }
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
           const data = input as socketEventData<[InitCommunityPayload]>
           const payload = data[0]
-          expect(payload.id).toEqual(communityId)
+          expect(payload.id).toEqual(community.id)
           socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
             id: payload.id
           })
           socket.socketClient.emit(SocketActionTypes.RESPONSE_GET_PUBLIC_CHANNELS, {
-            communityId: communityId,
+            communityId: community.id,
             channels: {
               general: {
                 name: 'general',
@@ -163,6 +182,7 @@ describe('User', () => {
         "Communities/storePeerList",
         "Identity/storeUserCertificate",
         "Communities/updateCommunity",
+        "Communities/updateCommunityData",
         "Communities/launchCommunity",
         "Communities/launchRegistrar",
         "Connection/addInitializedCommunity",
