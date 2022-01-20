@@ -62,7 +62,7 @@ describe('Message signature verification', () => {
       data.userPubKey
     )
 
-    expect(result).not.toBe(true)
+    expect(result).toBe(false)
   })
 })
 
