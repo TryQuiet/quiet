@@ -1,5 +1,5 @@
 import { Crypto } from '@peculiar/webcrypto'
-import { assertReceivedCertificates } from './assertions'
+import { assertConnectedToPeers, assertReceivedCertificates } from './assertions'
 import {
   createCommunity,
   joinCommunity,
@@ -44,8 +44,6 @@ describe('owner creates community and two users join', () => {
 
   afterAll(async () => {
     await owner.manager.closeAllServices()
-    await userOne.manager.closeAllServices()
-    await userTwo.manager.closeAllServices()
   })
 
   test('Owner creates community', async () => {
@@ -74,5 +72,20 @@ describe('owner creates community and two users join', () => {
     await assertReceivedCertificates('owner', 3, 120_000, owner.store)
     await assertReceivedCertificates('userOne', 3, 120_000, userOne.store)
     await assertReceivedCertificates('userTwo', 3, 120_000, userTwo.store)
+  })
+
+  test('all peers are connected', async () => {
+    await assertConnectedToPeers(owner.store, 2)
+    await assertConnectedToPeers(userOne.store, 2)
+    await assertConnectedToPeers(userTwo.store, 2)
+  })
+
+  test('disconnecting peers', async () => {
+    await userOne.manager.closeAllServices()
+    await assertConnectedToPeers(owner.store, 1)
+    await assertConnectedToPeers(userTwo.store, 1)
+
+    await userTwo.manager.closeAllServices()
+    await assertConnectedToPeers(owner.store, 0)
   })
 })

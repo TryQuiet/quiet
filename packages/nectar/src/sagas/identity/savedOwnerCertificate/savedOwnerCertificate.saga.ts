@@ -5,7 +5,7 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { identityActions } from '../identity.slice'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { identitySelectors } from '../identity.selectors'
-import { InitCommunityPayload } from '../../communities/communities.slice'
+import { InitCommunityPayload } from '../../communities/communities.types'
 
 export function* savedOwnerCertificateSaga(
   socket: Socket,

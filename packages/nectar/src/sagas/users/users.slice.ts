@@ -3,21 +3,11 @@ import { parseCertificate } from '@zbayapp/identity'
 import Certificate from 'pkijs/src/Certificate'
 import { StoreKeys } from '../store.keys'
 import { certificatesAdapter } from './users.adapter'
+import { SendCertificatesResponse } from './users.types'
 
 export class UsersState {
   public certificates: EntityState<Certificate> =
   certificatesAdapter.getInitialState()
-}
-
-export interface User {
-  username: string
-  onionAddress: string
-  peerId: string
-  dmPublicKey: string
-}
-
-export interface SendCertificatesResponse {
-  certificates: string[]
 }
 
 export const usersSlice = createSlice({

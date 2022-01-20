@@ -15,7 +15,7 @@ import * as os from 'os'
 import PeerId from 'peer-id'
 import { CryptoEngine, setEngine } from 'pkijs'
 import { ConnectionsManagerOptions } from '../common/types'
-import { Certificates } from '@zbayapp/nectar'
+import { Certificates, SocketActionTypes } from '@zbayapp/nectar'
 import {
   createLibp2pAddress,
   createLibp2pListenAddress,
@@ -29,6 +29,7 @@ import initListeners from '../socket/listeners'
 import { Storage } from '../storage'
 import { Tor } from '../torManager'
 import WebsocketsOverTor from './websocketOverTor'
+import { EventEmitter } from 'events'
 import logger from '../logger'
 
 const log = logger('conn')
@@ -66,7 +67,7 @@ export interface InitLibp2pParams {
   certs?: Certificates
 }
 
-export class ConnectionsManager {
+export class ConnectionsManager extends EventEmitter {
   agentHost: string
   agentPort: number
   httpTunnelPort: number
@@ -78,9 +79,11 @@ export class ConnectionsManager {
   libp2pTransportClass: any
   StorageCls: any
   tor: Tor
-  libp2pInstance: any
+  libp2pInstance: Libp2p
+  connectedPeers: Set<string>
 
   constructor({ agentHost, agentPort, httpTunnelPort, options, storageClass, io }: IConstructor) {
+    super()
     this.io = io
     this.agentPort = agentPort
     this.httpTunnelPort = httpTunnelPort
@@ -94,6 +97,7 @@ export class ConnectionsManager {
     this.StorageCls = storageClass || Storage
     this.libp2pTransportClass = options.libp2pTransportClass || WebsocketsOverTor
     this.ioProxy = new IOProxy(this)
+    this.connectedPeers = new Set()
 
     process.on('unhandledRejection', error => {
       console.error(error)
@@ -152,8 +156,7 @@ export class ConnectionsManager {
 
     const peerId = await PeerId.create()
     log(
-      `Created network for peer ${peerId.toB58String()}. Address: ${
-        hiddenService.onionAddress as string
+      `Created network for peer ${peerId.toB58String()}. Address: ${hiddenService.onionAddress as string
       }`
     )
     return {
@@ -222,14 +225,22 @@ export class ConnectionsManager {
 
     this.libp2pInstance = libp2p
 
-    libp2p.connectionManager.on('peer:connect', (connection: Connection) => {
+    libp2p.connectionManager.on(SocketActionTypes.PEER_CONNECT, (connection: Connection) => {
       log(`${params.peerId.toB58String()} connected to ${connection.remotePeer.toB58String()}`)
+      this.connectedPeers.add(connection.remotePeer.toB58String())
+      this.emit(SocketActionTypes.PEER_CONNECT, {
+        connectedPeers: Array.from(this.connectedPeers).includes(connection.remotePeer.toB58String()) ? Array.from(this.connectedPeers) : [...Array.from(this.connectedPeers), connection.remotePeer.toB58String()]
+      })
     })
     libp2p.on('peer:discovery', (peer: PeerId) => {
       log(`${params.peerId.toB58String()} discovered ${peer.toB58String()}`)
     })
-    libp2p.connectionManager.on('peer:disconnect', (connection: Connection) => {
+    libp2p.connectionManager.on(SocketActionTypes.PEER_DISCONNECT, (connection: Connection) => {
       log(`${params.peerId.toB58String()} disconnected from ${connection.remotePeer.toB58String()}`)
+      this.connectedPeers.delete(connection.remotePeer.toB58String())
+      this.emit(SocketActionTypes.PEER_DISCONNECT, {
+        connectedPeers: Array.from(this.connectedPeers).filter((peerId) => peerId !== connection.remotePeer.toB58String())
+      })
     })
 
     log(`Initialized libp2p for peer ${params.peerId.toB58String()}`)
@@ -242,7 +253,7 @@ export class ConnectionsManager {
 
   public createStorage = (peerId: string, communityId: string) => {
     log(`Creating storage for community: ${communityId}`)
-    return new this.StorageCls(this.zbayDir, this.io, communityId, {
+    return new this.StorageCls(this.zbayDir, this.ioProxy, communityId, {
       ...this.options,
       orbitDbDir: `OrbitDB${peerId}`,
       ipfsDir: `Ipfs${peerId}`
@@ -276,7 +287,7 @@ export class ConnectionsManager {
       const response = await fetch(`${serviceAddress}/register`, options)
       const end = new Date()
       const fetchTime = (end.getTime() - start.getTime()) / 1000
-      log(`Successfully fetched ${serviceAddress}, time: ${fetchTime}`)
+      log(`Fetched ${serviceAddress}, time: ${fetchTime}`)
       return response
     } catch (e) {
       log.error(e)

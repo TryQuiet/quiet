@@ -2,10 +2,9 @@ import { TestApi, testSaga } from 'redux-saga-test-plan'
 import { Socket } from 'socket.io-client'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
 import {
-  AskForMessagesPayload,
   publicChannelsActions
 } from '../publicChannels.slice'
-
+import { AskForMessagesPayload } from '../publicChannels.types'
 import { askForMessagesSaga } from './askForMessages.saga'
 
 describe('askForMessagesSaga', () => {

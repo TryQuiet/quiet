@@ -7,7 +7,6 @@ import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { publicChannelsActions } from '../publicChannels.slice'
 import {
   identityReducer,
-  Identity,
   IdentityState
 } from '../../identity/identity.slice'
 import {
@@ -18,6 +17,7 @@ import {
 import { communitiesAdapter } from '../../communities/communities.adapter'
 import { identityAdapter } from '../../identity/identity.adapter'
 import { createChannelSaga } from './createChannel.saga'
+import { Identity } from '../../identity/identity.types'
 
 describe('createChannelSaga', () => {
   const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket

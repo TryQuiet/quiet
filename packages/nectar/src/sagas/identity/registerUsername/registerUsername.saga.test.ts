@@ -1,23 +1,23 @@
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
-import { StoreKeys } from '../../store.keys'
-import {
-  identityActions,
-  identityReducer,
-  Identity,
-  IdentityState
-} from '../identity.slice'
-import { identityAdapter } from '../identity.adapter'
-import { registerUsernameSaga } from './registerUsername.saga'
-import { config } from '../../users/const/certFieldTypes'
-import { errorsReducer } from '../../errors/errors.slice'
+import { communitiesAdapter } from '../../communities/communities.adapter'
 import {
   communitiesReducer,
   CommunitiesState,
   Community
 } from '../../communities/communities.slice'
-import { communitiesAdapter } from '../../communities/communities.adapter'
 import { errorsAdapter } from '../../errors/errors.adapter'
+import { errorsReducer } from '../../errors/errors.slice'
+import { StoreKeys } from '../../store.keys'
+import { config } from '../../users/const/certFieldTypes'
+import { identityAdapter } from '../identity.adapter'
+import {
+  identityActions,
+  identityReducer,
+  IdentityState
+} from '../identity.slice'
+import { Identity } from '../identity.types'
+import { registerUsernameSaga } from './registerUsername.saga'
 
 describe('registerUsernameSaga', () => {
   const identity: Identity = {

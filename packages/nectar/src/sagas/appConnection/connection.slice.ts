@@ -1,10 +1,15 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
 import { CommunityId, RegistrarId } from './connection.types'
+import { connectedPeersAdapter } from './connection.adapter'
+
+export type ConnectedPeers = string[]
 
 export class ConnectionState {
   public initializedCommunities: { [key: string]: boolean } = {}
   public initializedRegistrars: { [key: string]: boolean } = {}
+
+  public connectedPeers: EntityState<string> = connectedPeersAdapter.getInitialState()
 }
 
 export const connectionSlice = createSlice({
@@ -28,6 +33,12 @@ export const connectionSlice = createSlice({
     },
     removeInitializedRegistrars: (state, _action: PayloadAction<RegistrarId>) => {
       state.initializedRegistrars = {}
+    },
+    addConnectedPeers: (state, action: PayloadAction<ConnectedPeers>) => {
+      connectedPeersAdapter.setAll(
+        state.connectedPeers,
+        action.payload
+      )
     }
   }
 })
