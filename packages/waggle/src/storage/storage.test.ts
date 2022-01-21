@@ -232,7 +232,7 @@ describe('Message', () => {
     // Confirm message has passed orbitdb validator (check signature verification only)
     expect(spy).toHaveBeenCalled()
 
-    // Confirm message hasn't been added to db
+    // Confirm message has been added to db
     const result = await storage.askForMessages(message.channelId, [message.id])
     expect(result.filteredMessages.length).toBe(1)
   })
