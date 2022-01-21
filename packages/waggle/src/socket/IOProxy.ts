@@ -297,7 +297,7 @@ export default class IOProxy {
     )
     if (!registrar) {
       emitServerError(this.io, {
-        type: 'registrar',
+        type: SocketActionTypes.REGISTRAR,
         message: 'Could not launch registrar',
         communityId: payload.id
       })

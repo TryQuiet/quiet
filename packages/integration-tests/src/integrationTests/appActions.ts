@@ -1,5 +1,5 @@
 import waitForExpect from 'wait-for-expect'
-import { identity, communities, messages, connection } from '@zbayapp/nectar'
+import { identity, communities, messages, connection, SocketActionTypes } from '@zbayapp/nectar'
 import { keyFromCertificate, parseCertificate } from '@zbayapp/identity'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { createApp } from '../utils'
@@ -95,13 +95,10 @@ export async function createCommunity({ userName, store }: CreateCommunity) {
   }, timeout)
 }
 
-export async function joinCommunity(payload: JoinCommunity) {
+export async function registerUsername(payload: JoinCommunity) {
   const {
     registrarAddress,
     userName,
-    ownerPeerId,
-    ownerRootCA,
-    expectedPeersCount,
     registrarPort,
     store
   } = payload
@@ -138,16 +135,31 @@ export async function joinCommunity(payload: JoinCommunity) {
     ).toHaveLength(46)
   }, timeout)
 
+  store.dispatch(identity.actions.registerUsername(userName))
+}
+
+export async function joinCommunity(payload: JoinCommunity) {
+  const {
+    ownerPeerId,
+    ownerRootCA,
+    expectedPeersCount,
+    store
+  } = payload
+
+  const timeout = 120_000
+
+  await registerUsername(payload)
+
+  const communityId = store.getState().Communities.communities.ids[0]
   const userPeerId =
     store.getState().Identity.identities.entities[communityId].peerId.id
-
-  store.dispatch(identity.actions.registerUsername(userName))
-
+  
   await waitForExpect(() => {
     expect(
       store.getState().Identity.identities.entities[communityId].userCertificate
     ).toBeTruthy()
   }, timeout)
+
   await waitForExpect(() => {
     expect(
       store.getState().Communities.communities.entities[communityId].rootCa
@@ -229,7 +241,7 @@ export async function tryToJoinOfflineRegistrar(store) {
   await waitForExpect(() => {
     expect(
       store.getState().Errors[communityId].entities.registrar.type
-    ).toEqual('registrar')
+    ).toEqual(SocketActionTypes.REGISTRAR)
   }, timeout)
   await waitForExpect(() => {
     expect(

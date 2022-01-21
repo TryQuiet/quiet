@@ -3,10 +3,12 @@ import { assertConnectedToPeers, assertReceivedCertificates, assertReceivedRegis
 import {
   createCommunity,
   joinCommunity,
-  getCommunityOwnerData
+  getCommunityOwnerData,
+  registerUsername
 } from './appActions'
 import { createApp, sleep } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
+import { ErrorPayload, SocketActionTypes } from '@zbayapp/nectar'
 
 jest.setTimeout(600_000)
 const crypto = new Crypto()
@@ -93,10 +95,12 @@ describe('owner creates community and two users join', () => {
 describe('User tries to register existing username', () => {
   let owner: AsyncReturnType<typeof createApp>
   let user: AsyncReturnType<typeof createApp>
+  let userName: string
 
   beforeAll(async () => {
     owner = await createApp()
     user = await createApp()
+    userName = 'Bob'
   })
 
   afterAll(async () => {
@@ -104,21 +108,31 @@ describe('User tries to register existing username', () => {
   })
 
   test('Owner creates community', async () => {
-    await createCommunity({ userName: 'Bob', store: owner.store })
+    await createCommunity({ userName, store: owner.store })
   })
 
   test('User tries to join the community using the same username as owner', async () => {
     const ownerData = getCommunityOwnerData(owner.store)
 
-    await joinCommunity({
+    await registerUsername({
       ...ownerData,
       store: user.store,
-      userName: 'Bob',
+      userName,
       expectedPeersCount: 2
     })
   })
 
   test('User receives registration error with a proper message', async () => {
-    assertReceivedRegistrationError(user.store)
+    const userCommunityId = user.store.getState().Communities.currentCommunity
+    const expectedError: ErrorPayload = {
+      communityId: userCommunityId,
+      code: 403,
+      message: 'Username already taken.',
+      type: SocketActionTypes.REGISTRAR
+    }
+    await assertReceivedRegistrationError(user.store, expectedError)
+
   })
 })
+
+it.todo('User tries to join community with offline registrar')
