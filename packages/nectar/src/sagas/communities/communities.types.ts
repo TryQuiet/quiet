@@ -1,7 +1,7 @@
-import { createRootCA } from "@zbayapp/identity";
-import { AsyncReturnType } from "../../utils/types/AsyncReturnType.interface";
-import { HiddenService, Identity, PeerId } from "../identity/identity.types";
-import { Community } from "./communities.slice";
+import { createRootCA } from '@zbayapp/identity'
+import { AsyncReturnType } from '../../utils/types/AsyncReturnType.interface'
+import { HiddenService, Identity, PeerId } from '../identity/identity.types'
+import { Community } from './communities.slice'
 
 export interface Certificates {
   certificate: string

@@ -1,5 +1,5 @@
 import waitForExpect from 'wait-for-expect'
-import { identity, communities, messages, connection, SocketActionTypes } from '@zbayapp/nectar'
+import { identity, communities, messages, connection } from '@zbayapp/nectar'
 import { keyFromCertificate, parseCertificate } from '@zbayapp/identity'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { createApp } from '../utils'
@@ -26,9 +26,9 @@ interface JoinCommunity {
 }
 
 interface Register {
-  registrarAddress: string,
-  userName: string,
-  registrarPort: number,
+  registrarAddress: string
+  userName: string
+  registrarPort: number
   store: Store
 }
 
@@ -160,7 +160,7 @@ export async function joinCommunity(payload: JoinCommunity) {
   const communityId = store.getState().Communities.communities.ids[0]
   const userPeerId =
     store.getState().Identity.identities.entities[communityId].peerId.id
-  
+
   await waitForExpect(() => {
     expect(
       store.getState().Identity.identities.entities[communityId].userCertificate
