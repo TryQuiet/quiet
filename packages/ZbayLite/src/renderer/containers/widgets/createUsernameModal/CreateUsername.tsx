@@ -51,6 +51,12 @@ const CreateUsernameModal = () => {
     }
   }, [id?.hiddenService])
 
+  useEffect(() => {
+    if (error?.code < 500) {
+      loadingCommunityModal.handleClose()
+    }
+  }, [error])
+
   const handleAction = (payload: { nickname: string }) => {
     setUsername(payload.nickname)
     const value = createUsernameModal.communityData
