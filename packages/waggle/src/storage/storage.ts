@@ -15,7 +15,9 @@ import path from 'path'
 import PeerId from 'peer-id'
 import { CryptoEngine, setEngine } from 'pkijs'
 import {
-  IMessageThread, IRepo,
+  IMessageThread,
+  DirectMessagesRepo,
+  PublicChannelsRepo,
   StorageOptions
 } from '../common/types'
 import { createPaths } from '../common/utils'
@@ -48,8 +50,8 @@ export class Storage {
   private channels: KeyValueStore<PublicChannel>
   private messageThreads: KeyValueStore<IMessageThread>
   private certificates: EventStore<string>
-  public publicChannelsRepos: Map<String, IRepo> = new Map()
-  public directMessagesRepos: Map<String, IRepo> = new Map()
+  public publicChannelsRepos: Map<String, PublicChannelsRepo> = new Map()
+  public directMessagesRepos: Map<String, DirectMessagesRepo> = new Map()
   public options: StorageOptions
   public orbitDbDir: string
   public ipfsRepoPath: string
@@ -151,6 +153,7 @@ export class Storage {
       log('Saved certificate locally')
       log(entry.payload.value)
       this.io.loadCertificates({ certificates: this.getAllEventLogEntries(this.certificates) })
+
     })
     this.certificates.events.on('ready', () => {
       log('Loaded certificates to memory')
@@ -237,9 +240,7 @@ export class Storage {
     console.timeEnd('initAllConversations')
   }
 
-  protected getAllEventLogEntries(db: EventStore<any>): any[] {
-    // TODO: fix typing
-    // TODO: move to e.g custom Store
+  protected getAllEventLogEntries<T>(db: EventStore<T>): T[] {
     return db
       .iterator({ limit: -1 })
       .collect()
@@ -253,7 +254,7 @@ export class Storage {
     }
     const db: EventStore<ChannelMessage> = this.publicChannelsRepos.get(channelAddress).db
     this.io.loadAllMessages({
-      messages: this.getAllEventLogEntries(db),
+      messages: this.getAllEventLogEntries<ChannelMessage>(db),
       channelAddress,
       communityId: this.communityId
     })
@@ -294,7 +295,7 @@ export class Storage {
       })
 
       db.events.on('ready', () => {
-        const ids = this.getAllEventLogEntries(db).map(msg => msg.id)
+        const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
         this.io.sendMessagesIds({
           ids,
           channelAddress: channel.address,
@@ -303,7 +304,8 @@ export class Storage {
       })
 
       repo.eventsAttached = true
-      const ids = this.getAllEventLogEntries(db).map(msg => msg.id)
+
+      const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
       this.io.sendMessagesIds({
         ids,
         channelAddress: channel.address,
@@ -351,9 +353,8 @@ export class Storage {
   ): Promise<{ filteredMessages: ChannelMessage[]; channelAddress: string }> {
     const repo = this.publicChannelsRepos.get(channelAddress)
     if (!repo) return
-    const messages = this.getAllEventLogEntries(repo.db)
+    const messages = this.getAllEventLogEntries<ChannelMessage>(repo.db)
     const filteredMessages = []
-    // eslint-disable-next-line
     for (let id of ids) {
       filteredMessages.push(...messages.filter(i => i.id === id))
     }
@@ -378,7 +379,7 @@ export class Storage {
       log.error('STORAGE: Invalid conversation format')
       return
     }
-    const db: EventStore<ChannelMessage> = await this.orbitdb.log<ChannelMessage>(`dms.${address}`, {
+    const db: EventStore<string> = await this.orbitdb.log<string>(`dms.${address}`, {
       accessController: {
         write: ['*']
       }
@@ -400,7 +401,7 @@ export class Storage {
   }
 
   public async subscribeToDirectMessageThread(channelAddress: string) {
-    let db: EventStore<ChannelMessage>
+    let db: EventStore<string>
     let repo = this.directMessagesRepos.get(channelAddress)
 
     if (repo) {
@@ -429,16 +430,16 @@ export class Storage {
         log('DIRECT Messages thread ready')
       })
       repo.eventsAttached = true
-      this.io.loadAllMessages({
-        messages: this.getAllEventLogEntries(db),
-        channelAddress,
-        communityId: this.communityId
-      })
+      // this.io.loadAllMessages({
+      //   messages: this.getAllEventLogEntries(db),
+      //   channelAddress,
+      //   communityId: this.communityId
+      // })
       log('Subscription to channel ready', channelAddress)
     }
   }
 
-  private async createDirectMessageThread(channelAddress: string): Promise<EventStore<ChannelMessage>> {
+  private async createDirectMessageThread(channelAddress: string): Promise<EventStore<string>> {
     if (!channelAddress) {
       log("No channel address, can't create channel")
       return
@@ -446,7 +447,7 @@ export class Storage {
 
     log(`creatin direct message thread for ${channelAddress}`)
 
-    const db: EventStore<ChannelMessage> = await this.orbitdb.log<ChannelMessage>(`dms.${channelAddress}`, {
+    const db: EventStore<string> = await this.orbitdb.log<string>(`dms.${channelAddress}`, {
       accessController: {
         write: ['*']
       }
