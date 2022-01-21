@@ -29,7 +29,7 @@ export function* handleErrorsSaga(
 ): Generator {
   const error: ErrorPayload = action.payload
   if (error.type === SocketActionTypes.REGISTRAR) {
-    if (error.code >= 500) {
+    if (error.code === 500) {
       yield* call(retryRegistration, error.communityId)
     }
   }

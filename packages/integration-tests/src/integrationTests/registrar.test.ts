@@ -4,6 +4,7 @@ import { assertReceivedCertificate, assertReceivedRegistrationError } from './as
 import { createApp, sleep } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { ErrorPayload, SocketActionTypes } from '@zbayapp/nectar'
+import { ErrorCodes, ErrorMessages } from 'waggle'
 
 jest.setTimeout(120_000)
 const crypto = new Crypto()
@@ -80,8 +81,8 @@ describe('registrar is offline, user tries to join, then registrar goes online',
     const communityId = user.store.getState().Communities.currentCommunity
     const expectedError: ErrorPayload = {
       communityId,
-      code: 500,
-      message: 'Registering username failed.',
+      code: ErrorCodes.SERVER_ERROR,
+      message: ErrorMessages.REGISTRATION_FAILED,
       type: SocketActionTypes.REGISTRAR
     }
     await assertReceivedRegistrationError(user.store, expectedError)
@@ -133,8 +134,8 @@ describe('User tries to register existing username', () => {
     const userCommunityId = user.store.getState().Communities.currentCommunity
     const expectedError: ErrorPayload = {
       communityId: userCommunityId,
-      code: 403,
-      message: 'Username already taken.',
+      code: ErrorCodes.VALIDATION,
+      message: ErrorMessages.USERNAME_TAKEN,
       type: SocketActionTypes.REGISTRAR
     }
     await assertReceivedRegistrationError(user.store, expectedError)

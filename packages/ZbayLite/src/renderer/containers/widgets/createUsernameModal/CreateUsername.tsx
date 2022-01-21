@@ -6,6 +6,7 @@ import { ModalName } from '../../../sagas/modals/modals.types'
 import { useModal } from '../../hooks'
 import { CommunityAction } from '../../../components/widgets/performCommunityAction/community.keys'
 import { LoadingMessages } from '../loadingPanel/loadingMessages'
+import { ErrorCodes } from 'waggle'
 
 export interface CreateUsernameModalProps {
   communityAction: CommunityAction
@@ -52,7 +53,7 @@ const CreateUsernameModal = () => {
   }, [id?.hiddenService])
 
   useEffect(() => {
-    if (error?.code < 500) {
+    if (error?.code === ErrorCodes.VALIDATION) {
       loadingCommunityModal.handleClose()
     }
   }, [error])
