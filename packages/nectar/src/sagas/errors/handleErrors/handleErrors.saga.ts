@@ -3,10 +3,9 @@ import { identitySelectors } from '../../identity/identity.selectors'
 import { identityActions } from '../../identity/identity.slice'
 import { call, put, select } from 'typed-redux-saga'
 import logger from '../../../utils/logger'
-import { errorsActions, GENERAL_ERRORS } from '../errors.slice'
+import { errorsActions } from '../errors.slice'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { SocketActionTypes } from '../../socket/const/actionTypes'
-import { errorsSelectors } from '../errors.selectors'
 import { ErrorPayload } from '../errors.types'
 const log = logger('errors')
 
@@ -34,8 +33,4 @@ export function* handleErrorsSaga(
       yield* call(retryRegistration, error.communityId)
     }
   }
-  const communityId = action.payload.communityId
-    ? action.payload.communityId
-    : GENERAL_ERRORS
-  yield* put({ type: `${communityId}.${action.payload.type}.error` })
 }

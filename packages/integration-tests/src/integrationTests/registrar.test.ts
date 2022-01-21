@@ -1,8 +1,9 @@
 import { Crypto } from '@peculiar/webcrypto'
-import { createCommunity, sendRegistrationRequest } from './appActions'
+import { createCommunity, getCommunityOwnerData, registerUsername, sendRegistrationRequest } from './appActions'
 import { assertReceivedCertificate, assertReceivedRegistrationError } from './assertions'
 import { createApp, sleep } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
+import { ErrorPayload, SocketActionTypes } from '@zbayapp/nectar'
 
 jest.setTimeout(120_000)
 const crypto = new Crypto()
@@ -76,7 +77,14 @@ describe('registrar is offline, user tries to join, then registrar goes online',
   })
 
   test('user get error message', async () => {
-    await assertReceivedRegistrationError(user.store)
+    const communityId = user.store.getState().Communities.currentCommunity
+    const expectedError: ErrorPayload = {
+      communityId,
+      code: 500,
+      message: 'Registering username failed.',
+      type: SocketActionTypes.REGISTRAR
+    }
+    await assertReceivedRegistrationError(user.store, expectedError)
   })
 
   test('registrar goes online', async () => {
@@ -88,5 +96,47 @@ describe('registrar is offline, user tries to join, then registrar goes online',
     await assertReceivedCertificate(user.store)
     // Let the joining user finish launching community, suubscribing etc.
     await sleep(10_000)
+  })
+})
+
+describe('User tries to register existing username', () => {
+  let owner: AsyncReturnType<typeof createApp>
+  let user: AsyncReturnType<typeof createApp>
+  let userName: string
+
+  beforeAll(async () => {
+    owner = await createApp()
+    user = await createApp()
+    userName = 'Bob'
+  })
+
+  afterAll(async () => {
+    await owner.manager.closeAllServices()
+    await user.manager.closeAllServices()
+  })
+
+  test('Owner creates community', async () => {
+    await createCommunity({ userName, store: owner.store })
+  })
+
+  test('User tries to join the community using the same username as owner', async () => {
+    const ownerData = getCommunityOwnerData(owner.store)
+
+    await registerUsername({
+      ...ownerData,
+      store: user.store,
+      userName
+    })
+  })
+
+  test('User receives registration error with a proper message', async () => {
+    const userCommunityId = user.store.getState().Communities.currentCommunity
+    const expectedError: ErrorPayload = {
+      communityId: userCommunityId,
+      code: 403,
+      message: 'Username already taken.',
+      type: SocketActionTypes.REGISTRAR
+    }
+    await assertReceivedRegistrationError(user.store, expectedError)
   })
 })
