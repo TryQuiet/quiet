@@ -272,7 +272,7 @@ export default class IOProxy {
     try {
       await this.communities.launch(payload)
     } catch (e) {
-      log(`Couldn't launch community for peer ${payload.peerId.id}. Error:`, e)
+      log(`Couldn't launch community for peer ${payload.peerId.id}.`, e)
       emitServerError(this.io, {
         type: SocketActionTypes.COMMUNITY,
         message: 'Could not launch community',

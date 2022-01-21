@@ -1,4 +1,4 @@
-import { ChannelMessage } from "../publicChannels/publicChannels.types";
+import { ChannelMessage } from '../publicChannels/publicChannels.types'
 
 export enum MessageType {
   Empty = -1,
