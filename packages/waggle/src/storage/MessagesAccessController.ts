@@ -3,16 +3,13 @@ import { getCrypto } from 'pkijs'
 import { stringToArrayBuffer } from 'pvutils'
 import { ChannelMessage } from '@zbayapp/nectar'
 import { keyObjectFromString, verifySignature } from '@zbayapp/identity'
-import logger from '../logger'
-
-const log = logger('accessController')
 
 const type = 'messagesaccess'
 
 export class MessagesAccessController extends AccessController {
-  private crypto = getCrypto()
-  
-  private keyMapping: Map<string, CryptoKey> = new Map()
+  private readonly crypto = getCrypto()
+
+  private readonly keyMapping: Map<string, CryptoKey> = new Map()
 
   static get type() {
     return type

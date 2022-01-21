@@ -1,8 +1,5 @@
 import { getAlgorithmParameters, getCrypto } from 'pkijs'
 import config from './config'
-import logger from './logger'
-
-const log = logger()
 
 export const verifySignature = async (
   signature: ArrayBuffer,
