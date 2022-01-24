@@ -279,16 +279,14 @@ export class Storage {
       db.events.on('write', (_address, entry) => {
         log(`Writing to public channel db ${channel.address}`)
         this.io.loadMessage({
-          message: entry.payload.value,
-          channelAddress: channel.address,
+          messages: [entry.payload.value],
           communityId: this.communityId
         })
       })
       db.events.on('replicate.progress', (address, _hash, entry, progress, total) => {
         log(`progress ${progress as string}/${total as string}. Address: ${address as string}`)
         this.io.loadMessage({
-          message: entry.payload.value,
-          channelAddress: channel.address,
+          messages: [entry.payload.value],
           communityId: this.communityId
         })
       })

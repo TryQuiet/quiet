@@ -2,7 +2,7 @@ import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import { act } from 'react-dom/test-utils'
 import { screen } from '@testing-library/dom'
-import { apply, fork, take } from 'typed-redux-saga'
+import { apply, take } from 'typed-redux-saga'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
 import { socketEventData } from '../renderer/testUtils/socket'
@@ -11,7 +11,13 @@ import { prepareStore } from '../renderer/testUtils/prepareStore'
 
 import Channel from '../renderer/containers/pages/Channel'
 
-import { identity, communities, publicChannels, getFactory, SocketActionTypes } from '@zbayapp/nectar'
+import {
+  identity,
+  communities,
+  publicChannels,
+  getFactory,
+  SocketActionTypes
+} from '@zbayapp/nectar'
 
 describe('Channel', () => {
   let socket: MockedSocket
@@ -87,7 +93,8 @@ describe('Channel', () => {
     const aliceMessage = await factory.create<
     ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
-      identity: alice
+      identity: alice,
+      verifyAutomatically: true
     })
 
     // Data from below will build but it won't be stored
@@ -111,9 +118,6 @@ describe('Channel', () => {
       store
     )
 
-    const persistedMessage = await screen.findByText(aliceMessage.message.message)
-    expect(persistedMessage).toBeVisible()
-
     jest.spyOn(socket, 'emit').mockImplementation((action: SocketActionTypes, ...input: any[]) => {
       if (action === SocketActionTypes.ASK_FOR_MESSAGES) {
         const data = (input as socketEventData<
@@ -132,23 +136,46 @@ describe('Channel', () => {
         if (data.ids[0] !== johnMessage.message.id) {
           fail('Missing message has not been requested')
         }
-        return socket.socketClient.emit(SocketActionTypes.RESPONSE_ASK_FOR_MESSAGES, {
-          channelAddress: data.channelAddress,
+        return socket.socketClient.emit(SocketActionTypes.INCOMING_MESSAGES, {
           messages: [johnMessage.message],
           communityId: data.communityId
         })
       }
     })
 
+    // Log all the dispatched actions in order
+    const actions = []
+    runSaga(function* (): Generator {
+      while (true) {
+        const action = yield* take()
+        actions.push(action.type)
+      }
+    })
+
+    // Old message is already loaded
+    const persistedMessage = await screen.findByText(aliceMessage.message.message)
+    expect(persistedMessage).toBeVisible()
+
     // New message is not yet fetched from db
     expect(screen.queryByText(johnMessage.message.message)).toBeNull()
 
     await act(async () => {
-      await runSaga(testReceiveMessage).toPromise()
+      await runSaga(mockSendMessagesIds).toPromise()
     })
 
+    // New message is displayed
     const newMessage = await screen.findByText(johnMessage.message.message)
     expect(newMessage).toBeVisible()
+
+    expect(actions).toMatchInlineSnapshot(`
+      Array [
+        "PublicChannels/responseSendMessagesIds",
+        "PublicChannels/askForMessages",
+        "PublicChannels/incomingMessages",
+        "Messages/addPublicKeyMapping",
+        "Messages/addMessageVerificationStatus",
+      ]
+    `)
 
     function* mockSendMessagesIds(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
@@ -160,13 +187,6 @@ describe('Channel', () => {
           communityId: community.id
         }
       ])
-    }
-
-    function* testReceiveMessage(): Generator {
-      yield* fork(mockSendMessagesIds)
-      yield* take(publicChannels.actions.responseSendMessagesIds)
-      yield* take(publicChannels.actions.askForMessages)
-      yield* take(publicChannels.actions.responseAskForMessages)
     }
   })
 })

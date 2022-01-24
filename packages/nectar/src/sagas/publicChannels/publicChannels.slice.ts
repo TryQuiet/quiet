@@ -16,9 +16,8 @@ import {
   SetChannelLoadingSlicePayload,
   ChannelMessagesIdsResponse,
   SubscribeToTopicPayload,
-  OnMessagePostedResponse,
-  AskForMessagesResponse,
-  AskForMessagesPayload
+  AskForMessagesPayload,
+  IncomingMessages
 } from './publicChannels.types'
 import { MessageType } from '../messages/messages.types'
 import { Identity } from '../identity/identity.types'
@@ -135,24 +134,14 @@ export const publicChannelsSlice = createSlice({
     },
     askForMessages: (state, _action: PayloadAction<AskForMessagesPayload>) =>
       state,
-    responseAskForMessages: (
+    incomingMessages: (
       state,
-      action: PayloadAction<AskForMessagesResponse>
+      action: PayloadAction<IncomingMessages>
     ) => {
-      const { communityId, messages } = action.payload
+      const { messages, communityId } = action.payload
       channelMessagesAdapter.upsertMany(
         state.channels.entities[communityId].channelMessages,
         messages
-      )
-    },
-    onMessagePosted: (
-      state,
-      action: PayloadAction<OnMessagePostedResponse>
-    ) => {
-      const { message, communityId } = action.payload
-      channelMessagesAdapter.addOne(
-        state.channels.entities[communityId].channelMessages,
-        message
       )
     },
     // Utility action for testing purposes
@@ -161,6 +150,7 @@ export const publicChannelsSlice = createSlice({
       action: PayloadAction<{
         identity: Identity
         message: ChannelMessage
+        verifyAutomatically: boolean
       }>
     ) => {
       const { identity, message } = action.payload

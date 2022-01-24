@@ -83,19 +83,13 @@ export interface CreateGeneralChannelPayload {
   communityId: string
 }
 
-export interface AskForMessagesResponse {
+export interface IncomingMessages {
   messages: ChannelMessage[]
   communityId: string
 }
 
 export interface FetchAllMessagesResponse {
   messages: ChannelMessage[]
-  channelAddress: string
-  communityId: string
-}
-
-export interface OnMessagePostedResponse {
-  message: ChannelMessage
   channelAddress: string
   communityId: string
 }

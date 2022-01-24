@@ -184,7 +184,8 @@ describe('publicChannelsSelectors', () => {
             channelId: 'general',
             signature: '',
             pubKey: ''
-          }
+          },
+          verifyAutomatically: true
         }
       )
     }
@@ -381,12 +382,12 @@ Object {
     // Store messages
     await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
       'Message',
-      { identity: alice, message: authenticMessage }
+      { identity: alice, message: authenticMessage, verifyAutomatically: true }
     )
 
     await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
       'Message',
-      { identity: alice, message: spoofedMessage }
+      { identity: alice, message: spoofedMessage, verifyAutomatically: true }
     )
 
     store.dispatch(
