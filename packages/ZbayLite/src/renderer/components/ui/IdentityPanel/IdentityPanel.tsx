@@ -54,7 +54,7 @@ export const IdentityPanel: React.FC<IdentityPanelProps> = ({ handleSettings, co
         component='span'
         classes={{ root: classes.button, label: classes.buttonLabel }}>
         <Typography variant='h4' className={classes.nickname}>
-        { community?.name || '' }
+          { community?.name || '' }
         </Typography>
         <ExpandMoreIcon fontSize='small' />
       </Button>

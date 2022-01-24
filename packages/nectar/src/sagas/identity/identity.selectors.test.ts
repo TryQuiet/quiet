@@ -8,7 +8,8 @@ import {
 } from './../communities/communities.slice';
 import { identityAdapter } from './identity.adapter';
 import { identitySelectors } from './identity.selectors';
-import { Identity, identityReducer, IdentityState } from './identity.slice';
+import { identityReducer, IdentityState } from './identity.slice';
+import { Identity } from './identity.types';
 
 describe('communitiesSelectors will recive correct data', () => {
   let store: Store;

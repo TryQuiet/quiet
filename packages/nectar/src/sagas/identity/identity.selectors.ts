@@ -43,7 +43,6 @@ export const joinedCommunities = createSelector(
 export const unregisteredCommunities = createSelector(
   allCommunities,
   identitySlice,
-
   (allCommunities, reducerState) => {
     return allCommunities.filter((community) => {
       const identityFromCommunity = identityAdapter

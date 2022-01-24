@@ -12,7 +12,7 @@ import CreateUsernameModal from '../createUsernameModal/CreateUsername'
 import JoinCommunity from '../joinCommunity/joinCommunity'
 import CreateCommunity from './createCommunity'
 import { CreateCommunityDictionary, JoinCommunityDictionary } from '../../../components/widgets/performCommunityAction/PerformCommunityAction.dictionary'
-import { identity, communities, StoreKeys as NectarStoreKeys } from '@zbayapp/nectar'
+import { identity, communities, StoreKeys as NectarStoreKeys, Community, communitiesAdapter } from '@zbayapp/nectar'
 
 describe('Create community', () => {
   it('users switches from create to join', async () => {
@@ -95,5 +95,49 @@ describe('Create community', () => {
     const closeButton = await screen.findByTestId('createUsernameModalActions')
     userEvent.click(closeButton)
     expect(createCommunityTitle).toBeVisible()
+  })
+
+  it('user tries to create again a remembered community', async () => {
+    const community1: Community = {
+      name: '',
+      id: 'communityAlpha',
+      registrarUrl: 'registrarUrl',
+      CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
+      rootCa: '',
+      peerList: [],
+      registrar: null,
+      onionAddress: '',
+      privateKey: '',
+      port: 0
+    }
+
+    const { store } = await prepareStore({
+      [StoreKeys.Socket]: {
+        ...new SocketState(),
+        isConnected: true
+      },
+      [StoreKeys.Modals]: {
+        ...new ModalsInitialState(),
+        [ModalName.joinCommunityModal]: { open: true }
+      },
+      [NectarStoreKeys.Communities]: {
+        ...new communities.State(),
+        currentCommunity: 'communityAlpha',
+        communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [
+          community1
+        ])
+      }
+    })
+
+    renderComponent(
+      <>
+        <CreateCommunity />
+        <CreateUsernameModal />
+      </>,
+      store
+    )
+
+    const createUsernameTitle = screen.getByText('Register a username')
+    expect(createUsernameTitle).toBeVisible()
   })
 })
