@@ -23,6 +23,7 @@ import {
 import { MessageType } from '../messages/messages.types'
 import { Identity } from '../identity/identity.types'
 import logger from '../../utils/logger'
+
 const log = logger('publicChannels')
 
 export class PublicChannelsState {
@@ -155,7 +156,7 @@ export const publicChannelsSlice = createSlice({
       )
     },
     // Utility action for testing purposes
-    signMessage: (
+    test_message: (
       state,
       action: PayloadAction<{
         identity: Identity
@@ -164,7 +165,6 @@ export const publicChannelsSlice = createSlice({
     ) => {
       const { identity, message } = action.payload
       channelMessagesAdapter.addOne(
-        // Identity should be the same as community id
         state.channels.entities[identity.id].channelMessages,
         message
       )

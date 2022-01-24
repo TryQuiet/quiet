@@ -1,22 +1,35 @@
-import { setupCrypto } from '@zbayapp/identity'
+import { keyFromCertificate, parseCertificate, setupCrypto } from '@zbayapp/identity'
 import { Store } from '../store.types'
-import { getFactory, publicChannels } from '../..'
+import { getFactory, Identity, publicChannels } from '../..'
 import { prepareStore } from '../../utils/tests/prepareStore'
 import {
+  currentChannel,
+  currentChannelMessages,
   currentChannelMessagesCount,
   currentChannelMessagesMergedBySender,
+  currentCommunityChannelsState,
+  publicChannelsByCommunity,
+  publicChannelsMessages,
   slicedCurrentChannelMessages,
-  sortedCurrentChannelMessages
+  sortedCurrentChannelMessages,
+  validCurrentChannelMessages
 } from './publicChannels.selectors'
 import { publicChannelsActions } from './publicChannels.slice'
-import { communitiesActions } from '../communities/communities.slice'
+import { communitiesActions, Community } from '../communities/communities.slice'
 import { identityActions } from '../identity/identity.slice'
 import { DateTime } from 'luxon'
 import { MessageType } from '../messages/messages.types'
 import { currentCommunityId } from '../communities/communities.selectors'
+import { FactoryGirl } from 'factory-girl'
+import { ChannelMessage } from './publicChannels.types'
 
 describe('publicChannelsSelectors', () => {
   let store: Store
+  let factory: FactoryGirl
+
+  let community: Community
+  let alice: Identity
+  let john: Identity
 
   beforeAll(async () => {
     setupCrypto()
@@ -26,17 +39,18 @@ describe('publicChannelsSelectors', () => {
 
     store = prepareStore().store
 
-    const factory = await getFactory(store)
+    factory = await getFactory(store)
 
-    const community = await factory.create<
+    community = await factory.create<
     ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
-    const alice = await factory.create<
-    ReturnType<typeof identityActions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, zbayNickname: 'alice' })
+    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
+      'Identity',
+      { id: community.id, zbayNickname: 'alice' }
+    )
 
-    const john = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
+    john = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
       'Identity',
       { id: community.id, zbayNickname: 'john' }
     )
@@ -158,8 +172,8 @@ describe('publicChannelsSelectors', () => {
       .map(({ value }) => value)
 
     for (const item of shuffled) {
-      await factory.create<ReturnType<typeof publicChannelsActions.signMessage>['payload']>(
-        'SignedMessage',
+      await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>(
+        'Message',
         {
           identity: item.identity,
           message: {
@@ -230,97 +244,163 @@ describe('publicChannelsSelectors', () => {
   it('get grouped messages', async () => {
     const messages = currentChannelMessagesMergedBySender(store.getState())
     expect(messages).toMatchInlineSnapshot(`
+Object {
+  "Feb 05": Array [
+    Array [
       Object {
-        "Feb 05": Array [
-          Array [
-            Object {
-              "createdAt": 1612548120,
-              "date": "Feb 05, 6:02 PM",
-              "id": "7",
-              "message": "message_7",
-              "nickname": "alice",
-              "type": 1,
-            },
-            Object {
-              "createdAt": 1612558200,
-              "date": "Feb 05, 8:50 PM",
-              "id": "8",
-              "message": "message_8",
-              "nickname": "alice",
-              "type": 1,
-            },
-          ],
-        ],
-        "Oct 20": Array [
-          Array [
-            Object {
-              "createdAt": 1603173000,
-              "date": "Oct 20, 5:50 AM",
-              "id": "1",
-              "message": "message_1",
-              "nickname": "alice",
-              "type": 1,
-            },
-            Object {
-              "createdAt": 1603174200,
-              "date": "Oct 20, 6:10 AM",
-              "id": "2",
-              "message": "message_2",
-              "nickname": "alice",
-              "type": 1,
-            },
-            Object {
-              "createdAt": 1603174290.001,
-              "date": "Oct 20, 6:11 AM",
-              "id": "3",
-              "message": "message_3",
-              "nickname": "alice",
-              "type": 1,
-            },
-            Object {
-              "createdAt": 1603174290.002,
-              "date": "Oct 20, 6:11 AM",
-              "id": "4",
-              "message": "message_4",
-              "nickname": "alice",
-              "type": 1,
-            },
-          ],
-          Array [
-            Object {
-              "createdAt": 1603174321,
-              "date": "Oct 20, 6:12 AM",
-              "id": "5",
-              "message": "message_5",
-              "nickname": "john",
-              "type": 1,
-            },
-          ],
-          Array [
-            Object {
-              "createdAt": 1603174322,
-              "date": "Oct 20, 6:12 AM",
-              "id": "6",
-              "message": "message_6",
-              "nickname": "alice",
-              "type": 1,
-            },
-          ],
-        ],
-        "Today": Array [
-          Array [
-            Object {
-              "createdAt": 1642798200,
-              "date": "8:50 PM",
-              "id": "9",
-              "message": "message_9",
-              "nickname": "alice",
-              "type": 1,
-            },
-          ],
-        ],
-      }
-    `)
+        "createdAt": 1612548120,
+        "date": "Feb 05, 6:02 PM",
+        "id": "7",
+        "message": "message_7",
+        "nickname": "alice",
+        "type": 1,
+      },
+      Object {
+        "createdAt": 1612558200,
+        "date": "Feb 05, 8:50 PM",
+        "id": "8",
+        "message": "message_8",
+        "nickname": "alice",
+        "type": 1,
+      },
+    ],
+  ],
+  "Oct 20": Array [
+    Array [
+      Object {
+        "createdAt": 1603173000,
+        "date": "Oct 20, 5:50 AM",
+        "id": "1",
+        "message": "message_1",
+        "nickname": "alice",
+        "type": 1,
+      },
+      Object {
+        "createdAt": 1603174200,
+        "date": "Oct 20, 6:10 AM",
+        "id": "2",
+        "message": "message_2",
+        "nickname": "alice",
+        "type": 1,
+      },
+      Object {
+        "createdAt": 1603174290.001,
+        "date": "Oct 20, 6:11 AM",
+        "id": "3",
+        "message": "message_3",
+        "nickname": "alice",
+        "type": 1,
+      },
+      Object {
+        "createdAt": 1603174290.002,
+        "date": "Oct 20, 6:11 AM",
+        "id": "4",
+        "message": "message_4",
+        "nickname": "alice",
+        "type": 1,
+      },
+    ],
+    Array [
+      Object {
+        "createdAt": 1603174321,
+        "date": "Oct 20, 6:12 AM",
+        "id": "5",
+        "message": "message_5",
+        "nickname": "john",
+        "type": 1,
+      },
+    ],
+    Array [
+      Object {
+        "createdAt": 1603174322,
+        "date": "Oct 20, 6:12 AM",
+        "id": "6",
+        "message": "message_6",
+        "nickname": "alice",
+        "type": 1,
+      },
+    ],
+  ],
+  "Today": Array [
+    Array [
+      Object {
+        "createdAt": 1643057400,
+        "date": "8:50 PM",
+        "id": "9",
+        "message": "message_9",
+        "nickname": "alice",
+        "type": 1,
+      },
+    ],
+  ],
+}
+`)
+  })
+
+  it('filter out unverified messages', async () => {
+    const channel = (
+      await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
+        'PublicChannel',
+        {
+          communityId: community.id,
+          channel: {
+            name: 'spoofing',
+            description: 'Welcome to channel #spoofing',
+            timestamp: DateTime.utc().toSeconds(),
+            owner: 'alice',
+            address: 'spoofing'
+          }
+        }
+      )
+    ).channel
+
+    const johnPublicKey = keyFromCertificate(parseCertificate(john.userCertificate))
+
+    // Build messages
+    const authenticMessage: ChannelMessage = {
+      ...(
+        await factory.build<typeof publicChannels.actions.test_message>('Message', {
+          identity: alice
+        })
+      ).payload.message,
+      id: Math.random().toString(36).substr(2.9),
+      channelId: channel.address
+    }
+
+    const spoofedMessage: ChannelMessage = {
+      ...(
+        await factory.build<typeof publicChannels.actions.test_message>('Message', {
+          identity: alice
+        })
+      ).payload.message,
+      id: Math.random().toString(36).substr(2.9),
+      channelId: channel.address,
+      pubKey: johnPublicKey
+    }
+
+    // Store messages
+    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
+      'Message',
+      { identity: alice, message: authenticMessage }
+    )
+
+    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
+      'Message',
+      { identity: alice, message: spoofedMessage }
+    )
+
+    store.dispatch(
+      publicChannels.actions.setCurrentChannel({
+        channel: channel.address,
+        communityId: community.id
+      })
+    )
+
+    const messages = validCurrentChannelMessages(store.getState())
+
+    expect(messages.length).toBe(1)
+
+    expect(messages[0].id).toBe(authenticMessage.id)
   })
 })
 

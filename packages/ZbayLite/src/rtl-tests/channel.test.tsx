@@ -85,8 +85,8 @@ describe('Channel', () => {
     >('Identity', { id: community.id, zbayNickname: 'alice' })
 
     const aliceMessage = await factory.create<
-    ReturnType<typeof publicChannels.actions.signMessage>['payload']
-    >('SignedMessage', {
+    ReturnType<typeof publicChannels.actions.test_message>['payload']
+    >('Message', {
       identity: alice
     })
 
@@ -99,7 +99,7 @@ describe('Channel', () => {
     ).payload
 
     const johnMessage = (
-      await factory.build<typeof publicChannels.actions.signMessage>('SignedMessage', {
+      await factory.build<typeof publicChannels.actions.test_message>('Message', {
         identity: john
       })
     ).payload

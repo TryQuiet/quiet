@@ -27,9 +27,9 @@ export function* verifyMessageSaga(
   const verified = yield* call(verifySignature, signature, message.message, cryptoKey)
 
   const verificationStatus: MessageVerificationStatus = {
-      publicKey: message.pubKey,
-      signature: message.signature,
-      verified: verified
+    publicKey: message.pubKey,
+    signature: message.signature,
+    verified: verified
   }
 
   yield* put(messagesActions.addMessageVerificationStatus(verificationStatus))

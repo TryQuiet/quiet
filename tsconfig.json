@@ -13,6 +13,8 @@
       "skipLibCheck": true,
       "experimentalDecorators": true,
       "moduleResolution": "node",
+      "noUnusedLocals": true,
+      "noUnusedParameters": true,
       "lib": [
         "es6",
         "dom"

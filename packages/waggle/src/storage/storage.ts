@@ -153,7 +153,6 @@ export class Storage {
       log('Saved certificate locally')
       log(entry.payload.value)
       this.io.loadCertificates({ certificates: this.getAllEventLogEntries(this.certificates) })
-
     })
     this.certificates.events.on('ready', () => {
       log('Loaded certificates to memory')
@@ -355,7 +354,7 @@ export class Storage {
     if (!repo) return
     const messages = this.getAllEventLogEntries<ChannelMessage>(repo.db)
     const filteredMessages = []
-    for (let id of ids) {
+    for (const id of ids) {
       filteredMessages.push(...messages.filter(i => i.id === id))
     }
     return { filteredMessages, channelAddress }

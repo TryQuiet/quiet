@@ -1,4 +1,5 @@
 import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
+import { ChannelMessage } from '../publicChannels/publicChannels.types'
 import { StoreKeys } from '../store.keys'
 import { MessageVerificationStatus, PublicKeyMappingPayload } from './messages.types'
 import { messageVerificationStatusAdapter } from './verifyMessage/verifyMessageAdapter'
@@ -6,7 +7,7 @@ import { messageVerificationStatusAdapter } from './verifyMessage/verifyMessageA
 export class MessagesState {
   public publicKeyMapping: Map<string, CryptoKey> = new Map()
   public messageVerificationStatus: EntityState<MessageVerificationStatus> =
-    messageVerificationStatusAdapter.getInitialState()
+  messageVerificationStatusAdapter.getInitialState()
 }
 
 export const messagesSlice = createSlice({
@@ -22,6 +23,24 @@ export const messagesSlice = createSlice({
       messageVerificationStatusAdapter.upsertOne(
         state.messageVerificationStatus,
         status
+      )
+    },
+    // Utility action for testing purposes
+    test_message_verification_status: (
+      state,
+      action: PayloadAction<{
+        message: ChannelMessage
+        verified: boolean
+      }>
+    ) => {
+      const { message, verified } = action.payload
+      messageVerificationStatusAdapter.upsertOne(
+        state.messageVerificationStatus,
+        {
+          publicKey: message.pubKey,
+          signature: message.signature,
+          verified: verified
+        }
       )
     }
   }

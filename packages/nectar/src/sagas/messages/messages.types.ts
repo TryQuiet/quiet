@@ -11,12 +11,12 @@ export interface SendMessagePayload {
 }
 
 export interface PublicKeyMappingPayload {
-  publicKey: string,
+  publicKey: string
   cryptoKey: CryptoKey
 }
 
 export interface MessageVerificationStatus {
-  publicKey: string,
-  signature: string,
+  publicKey: string
+  signature: string
   verified: boolean
 }
