@@ -6,7 +6,7 @@ import { ConnectionsManager } from './libp2p/connectionsManager'
 export { DataServer } from './socket/DataServer'
 export { ConnectionsManager } from './libp2p/connectionsManager'
 
-export * from './socket/errors'
+export { ErrorCodes, ErrorMessages } from './socket/errors'
 
 // eslint-disable-next-line
 const version =  require('./../package.json').version
