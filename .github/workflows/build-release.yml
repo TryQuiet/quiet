@@ -28,7 +28,7 @@ jobs:
         run:  npm i -g electron-builder@22.10.5
 
       - name: "Pull tor binary"
-        run: cd packages/ZbayLite && export SOURCE_PATH=linux && npm run pullBinaries --scope zbay && npm run pullLibs
+        run: cd packages/ZbayLite && export SOURCE_PATH=linux && npm run pullBinaries --scope quiet && npm run pullLibs
 
       - name: "Verify Sentry setup"
         run: echo $REACT_APP_ENABLE_SENTRY

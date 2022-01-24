@@ -27,4 +27,4 @@ jobs:
         run: lerna run test --scope @zbayapp/nectar --stream
 
       - name: "Zbay-nectar bracket tests"
-        run: lerna run rtl-test --scope zbay --stream 
+        run: lerna run rtl-test --scope quiet --stream 

@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prepublish": "npm run build",
-    "build:e2e": "lerna run build:prod --scope zbay",
+    "build:e2e": "lerna run build:prod --scope quiet",
     "lint": "eslint --ext .ts . --fix",
     "lint-ci": "eslint --ext .ts .",
     "prettier": "prettier",
